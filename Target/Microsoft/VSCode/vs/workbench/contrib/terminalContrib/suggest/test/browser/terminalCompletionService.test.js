@@ -1,1 +1,643 @@
-import{URI as e}from"../../../../../../base/common/uri.js";import{$5j as U}from"../../../../../../platform/files/common/files.js";import{$JZb as k}from"../../browser/terminalCompletionService.js";import{$x$ as _}from"../../../../../../base/test/common/utils.js";import u,{fail as P}from"assert";import{$m as p}from"../../../../../../base/common/platform.js";import{$RFc as A}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$FNc as D}from"../../../../../test/common/workbenchTestServices.js";import{$MFc as S}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$El as H}from"../../../../../../platform/configuration/common/configuration.js";import{$_Xb as T}from"../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{$gYb as $}from"../../../../../../platform/terminal/common/capabilities/shellEnvDetectionCapability.js";import{TerminalCompletionItemKind as h}from"../../browser/terminalCompletionItem.js";import{$Ef as E}from"../../../../../../base/common/strings.js";import{$FZb as g,$GZb as w}from"../../browser/terminalGitBashHelpers.js";const d=p?"\\":"/";function n(m,v,f,l){const o=l??d;u.deepStrictEqual(m?.map(r=>({label:r.label,detail:r.detail??"",kind:r.kind??h.Folder,replacementIndex:r.replacementIndex,replacementLength:r.replacementLength})),v.map(r=>({label:r.label.replaceAll("/",o),detail:r.detail?r.detail.replaceAll("/",o):"",kind:r.kind??h.Folder,replacementIndex:f.replacementIndex,replacementLength:f.replacementLength})))}function q(m,v,f){m||P();const l=v.map(o=>({label:o.label.replaceAll("/",d),detail:o.detail?o.detail.replaceAll("/",d):"",kind:o.kind??h.Folder,replacementIndex:f.replacementIndex,replacementLength:f.replacementLength}));for(const o of l)u.deepStrictEqual(m.map(r=>({label:r.label,detail:r.detail??"",kind:r.kind??h.Folder,replacementIndex:r.replacementIndex,replacementLength:r.replacementLength})).find(r=>r.detail===o.detail),o)}const F={HOME:"/home/user",USERPROFILE:"/home/user"};let x=p?F.USERPROFILE:F.HOME;x.endsWith("/")||(x+="/");const I=Object.freeze({label:"~",detail:x});suite("TerminalCompletionService",()=>{const m=_();let v,f,l,o,r,a;const i="testProvider";setup(()=>{v=m.add(new A),f=new S,v.stub(H,f),v.stub(U,{async stat(t){if(!o.map(s=>s.path).includes(t.path))throw new Error("Doesn't exist");return D(t)},async resolve(t,s){const b=r.filter(R=>{const c=R.resource.path.replace(/\/$/,""),C=t.path.replace(/\/$/,"");return c.startsWith(C)&&E(c,"/")===E(C,"/")+1});return D(t,void 0,void 0,void 0,void 0,b)},async realpath(t){if(t.path.includes("symlink-file"))return t.with({path:"/target/actual-file.txt"});if(t.path.includes("symlink-folder"))return t.with({path:"/target/actual-folder"})}}),a=m.add(v.createInstance(k)),a.processEnv=F,o=[],r=[],l=m.add(new T)}),suite("resolveResources should return undefined",()=>{test("if cwd is not provided",async()=>{const t={pathSeparator:d},s=await a.resolveResources(t,"cd ",3,i,l);u(!s)}),test("if neither filesRequested nor foldersRequested are true",async()=>{const t={cwd:e.parse("file:///test"),pathSeparator:d};o=[e.parse("file:///test")];const s=await a.resolveResources(t,"cd ",3,i,l);u(!s)})}),suite("resolveResources should return folder completions",()=>{setup(()=>{o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/folder1/"),isDirectory:!0,isFile:!1},{resource:e.parse("file:///test/file1.txt"),isDirectory:!1,isFile:!0}]}),test("| should return root-level completions",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"",1,i,l);n(s,[{label:".",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"../",detail:"/"},I],{replacementIndex:1,replacementLength:0})}),test("./| should return folder completions",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"./",3,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./../",detail:"/"}],{replacementIndex:1,replacementLength:2})}),test("cd ./| should return folder completions",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"cd ./",5,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./../",detail:"/"}],{replacementIndex:3,replacementLength:2})}),test("cd ./f| should return folder completions",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"cd ./f",6,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./../",detail:"/"}],{replacementIndex:3,replacementLength:3})})}),suite("resolveResources should handle file and folder completion requests correctly",()=>{setup(()=>{o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/.hiddenFile"),isFile:!0},{resource:e.parse("file:///test/.hiddenFolder/"),isDirectory:!0},{resource:e.parse("file:///test/folder1/"),isDirectory:!0},{resource:e.parse("file:///test/file1.txt"),isFile:!0}]}),test("./| should handle hidden files and folders",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,filesRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"./",2,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./.hiddenFile",detail:"/test/.hiddenFile",kind:h.File},{label:"./.hiddenFolder/",detail:"/test/.hiddenFolder/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./file1.txt",detail:"/test/file1.txt",kind:h.File},{label:"./../",detail:"/"}],{replacementIndex:0,replacementLength:2})}),test("./h| should handle hidden files and folders",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,filesRequested:!0,pathSeparator:d},s=await a.resolveResources(t,"./h",3,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./.hiddenFile",detail:"/test/.hiddenFile",kind:h.File},{label:"./.hiddenFolder/",detail:"/test/.hiddenFolder/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./file1.txt",detail:"/test/file1.txt",kind:h.File},{label:"./../",detail:"/"}],{replacementIndex:0,replacementLength:3})})}),suite("~ -> $HOME",()=>{let t,s;setup(()=>{s=m.add(new $),s.setEnvironment({HOME:"/home",USERPROFILE:"/home"},!0),l.add(5,s),t={cwd:e.parse("file:///test/folder1"),filesRequested:!0,foldersRequested:!0,pathSeparator:d},o=[e.parse("file:///test"),e.parse("file:///test/folder1"),e.parse("file:///home"),e.parse("file:///home/vscode"),e.parse("file:///home/vscode/foo"),e.parse("file:///home/vscode/bar.txt")],r=[{resource:e.parse("file:///home/vscode"),isDirectory:!0},{resource:e.parse("file:///home/vscode/foo"),isDirectory:!0},{resource:e.parse("file:///home/vscode/bar.txt"),isFile:!0}]}),test("~| should return completion for ~",async()=>{q(await a.resolveResources(t,"~",1,i,l),[{label:"~",detail:"/home/"}],{replacementIndex:0,replacementLength:1})}),test("~/| should return folder completions relative to $HOME",async()=>{n(await a.resolveResources(t,"~/",2,i,l),[{label:"~/",detail:"/home/"},{label:"~/vscode/",detail:"/home/vscode/"}],{replacementIndex:0,replacementLength:2})}),test("~/vscode/| should return folder completions relative to $HOME/vscode",async()=>{n(await a.resolveResources(t,"~/vscode/",9,i,l),[{label:"~/vscode/",detail:"/home/vscode/"},{label:"~/vscode/foo/",detail:"/home/vscode/foo/"},{label:"~/vscode/bar.txt",detail:"/home/vscode/bar.txt",kind:h.File}],{replacementIndex:0,replacementLength:9})})}),suite("resolveResources edge cases and advanced scenarios",()=>{setup(()=>{o=[],r=[]}),p?(test("C:/Foo/| absolute paths on Windows",async()=>{const t={cwd:e.parse("file:///C:"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///C:/Foo")],r=[{resource:e.parse("file:///C:/Foo/Bar"),isDirectory:!0,isFile:!1},{resource:e.parse("file:///C:/Foo/Baz.txt"),isDirectory:!1,isFile:!0}];const s=await a.resolveResources(t,"C:/Foo/",7,i,l);n(s,[{label:"C:/Foo/",detail:"C:/Foo/"},{label:"C:/Foo/Bar/",detail:"C:/Foo/Bar/"}],{replacementIndex:0,replacementLength:7})}),test("c:/foo/| case insensitivity on Windows",async()=>{const t={cwd:e.parse("file:///c:"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///c:/foo")],r=[{resource:e.parse("file:///c:/foo/Bar"),isDirectory:!0,isFile:!1}];const s=await a.resolveResources(t,"c:/foo/",7,i,l);n(s,[{label:"c:/foo/",detail:"C:/foo/"},{label:"c:/foo/Bar/",detail:"C:/foo/Bar/"}],{replacementIndex:0,replacementLength:7})})):test("/foo/| absolute paths NOT on Windows",async()=>{const t={cwd:e.parse("file:///"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///foo")],r=[{resource:e.parse("file:///foo/Bar"),isDirectory:!0,isFile:!1},{resource:e.parse("file:///foo/Baz.txt"),isDirectory:!1,isFile:!0}];const s=await a.resolveResources(t,"/foo/",5,i,l);n(s,[{label:"/foo/",detail:"/foo/"},{label:"/foo/Bar/",detail:"/foo/Bar/"}],{replacementIndex:0,replacementLength:5})}),p?test(".\\folder | Case insensitivity should resolve correctly on Windows",async()=>{const t={cwd:e.parse("file:///C:/test"),foldersRequested:!0,pathSeparator:"\\"};o=[e.parse("file:///C:/test")],r=[{resource:e.parse("file:///C:/test/FolderA/"),isDirectory:!0},{resource:e.parse("file:///C:/test/anotherFolder/"),isDirectory:!0}];const s=await a.resolveResources(t,".\\folder",8,i,l);n(s,[{label:".\\",detail:"C:\\test\\"},{label:".\\FolderA\\",detail:"C:\\test\\FolderA\\"},{label:".\\anotherFolder\\",detail:"C:\\test\\anotherFolder\\"},{label:".\\..\\",detail:"C:\\"}],{replacementIndex:0,replacementLength:8})}):test("./folder | Case sensitivity should resolve correctly on Mac/Unix",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:"/"};o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/FolderA/"),isDirectory:!0},{resource:e.parse("file:///test/foldera/"),isDirectory:!0}];const s=await a.resolveResources(t,"./folder",8,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./FolderA/",detail:"/test/FolderA/"},{label:"./foldera/",detail:"/test/foldera/"},{label:"./../",detail:"/"}],{replacementIndex:0,replacementLength:8})}),test("| Empty input should resolve to current directory",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/folder1/"),isDirectory:!0},{resource:e.parse("file:///test/folder2/"),isDirectory:!0}];const s=await a.resolveResources(t,"",0,i,l);n(s,[{label:".",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./folder2/",detail:"/test/folder2/"},{label:"../",detail:"/"},I],{replacementIndex:0,replacementLength:0})}),test("./| should handle large directories with many results gracefully",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///test")],r=Array.from({length:1e3},(b,R)=>({resource:e.parse(`file:///test/folder${R}/`),isDirectory:!0}));const s=await a.resolveResources(t,"./",2,i,l);u(s),u.strictEqual(s?.length,1002),u.strictEqual(s[0].label,`.${d}`),u.strictEqual(s.at(-1)?.label,`.${d}..${d}`)}),test("./folder| should include current folder with trailing / is missing",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/folder1/"),isDirectory:!0},{resource:e.parse("file:///test/folder2/"),isDirectory:!0}];const s=await a.resolveResources(t,"./folder1",10,i,l);n(s,[{label:"./",detail:"/test/"},{label:"./folder1/",detail:"/test/folder1/"},{label:"./folder2/",detail:"/test/folder2/"},{label:"./../",detail:"/"}],{replacementIndex:1,replacementLength:9})}),test("folder/| should normalize current and parent folders",async()=>{const t={cwd:e.parse("file:///test"),foldersRequested:!0,pathSeparator:d};o=[e.parse("file:///"),e.parse("file:///test"),e.parse("file:///test/folder1"),e.parse("file:///test/folder2")],r=[{resource:e.parse("file:///test/folder1/"),isDirectory:!0},{resource:e.parse("file:///test/folder2/"),isDirectory:!0}];const s=await a.resolveResources(t,"test/",5,i,l);n(s,[{label:"./test/",detail:"/test/"},{label:"./test/folder1/",detail:"/test/folder1/"},{label:"./test/folder2/",detail:"/test/folder2/"},{label:"./test/../",detail:"/"}],{replacementIndex:0,replacementLength:5})})}),suite("cdpath",()=>{let t;setup(()=>{o=[e.parse("file:///test")],r=[{resource:e.parse("file:///cdpath_value/folder1/"),isDirectory:!0},{resource:e.parse("file:///cdpath_value/file1.txt"),isFile:!0}],t=m.add(new $),t.setEnvironment({CDPATH:"/cdpath_value"},!0),l.add(5,t)}),test("cd | should show paths from $CDPATH (relative)",async()=>{f.setUserConfiguration("terminal.integrated.suggest.cdPath","relative");const s={cwd:e.parse("file:///test"),foldersRequested:!0,filesRequested:!0,pathSeparator:d},b=await a.resolveResources(s,"cd ",3,i,l);q(b,[{label:"folder1",detail:"CDPATH /cdpath_value/folder1/"}],{replacementIndex:3,replacementLength:0})}),test("cd | should show paths from $CDPATH (absolute)",async()=>{f.setUserConfiguration("terminal.integrated.suggest.cdPath","absolute");const s={cwd:e.parse("file:///test"),foldersRequested:!0,filesRequested:!0,pathSeparator:d},b=await a.resolveResources(s,"cd ",3,i,l);q(b,[{label:"/cdpath_value/folder1/",detail:"CDPATH"}],{replacementIndex:3,replacementLength:0})}),test("cd | should support pulling from multiple paths in $CDPATH",async()=>{f.setUserConfiguration("terminal.integrated.suggest.cdPath","relative");const s=p?"c:\\":"/",b=p?";":":",R=p?"\\":"/";t.setEnvironment({CDPATH:`${s}cdpath1_value${b}${s}cdpath2_value${R}inner_dir`},!0);const c=p?"file:///c:/":"file:///";o=[e.parse(`${c}test`),e.parse(`${c}cdpath1_value`),e.parse(`${c}cdpath2_value`),e.parse(`${c}cdpath2_value/inner_dir`)],r=[{resource:e.parse(`${c}cdpath1_value/folder1/`),isDirectory:!0},{resource:e.parse(`${c}cdpath1_value/folder2/`),isDirectory:!0},{resource:e.parse(`${c}cdpath1_value/file1.txt`),isFile:!0},{resource:e.parse(`${c}cdpath2_value/inner_dir/folder1/`),isDirectory:!0},{resource:e.parse(`${c}cdpath2_value/inner_dir/folder2/`),isDirectory:!0},{resource:e.parse(`${c}cdpath2_value/inner_dir/file1.txt`),isFile:!0}];const C={cwd:e.parse(`${c}test`),foldersRequested:!0,filesRequested:!0,pathSeparator:d},L=await a.resolveResources(C,"cd ",3,i,l),y=p?"C:\\":"/";q(L,[{label:"folder1",detail:`CDPATH ${y}cdpath1_value/folder1/`},{label:"folder2",detail:`CDPATH ${y}cdpath1_value/folder2/`},{label:"folder1",detail:`CDPATH ${y}cdpath2_value/inner_dir/folder1/`},{label:"folder2",detail:`CDPATH ${y}cdpath2_value/inner_dir/folder2/`}],{replacementIndex:3,replacementLength:0})})}),p&&suite("gitbash",()=>{test("should convert Git Bash absolute path to Windows absolute path",()=>{u.strictEqual(g("/"),"C:\\"),u.strictEqual(g("/c/"),"C:\\"),u.strictEqual(g("/c/Users/foo"),"C:\\Users\\foo"),u.strictEqual(g("/d/bar"),"D:\\bar")}),test("should convert Windows absolute path to Git Bash absolute path",()=>{u.strictEqual(w("C:\\"),"/c/"),u.strictEqual(w("C:\\Users\\foo"),"/c/Users/foo"),u.strictEqual(w("D:\\bar"),"/d/bar"),u.strictEqual(w("E:\\some\\path"),"/e/some/path")}),test("resolveResources with cwd as Windows path (relative)",async()=>{const t={cwd:e.file("C:\\Users\\foo"),foldersRequested:!0,filesRequested:!0,pathSeparator:"/"};o=[e.file("C:\\Users\\foo"),e.file("C:\\Users\\foo\\bar"),e.file("C:\\Users\\foo\\baz.txt")],r=[{resource:e.file("C:\\Users\\foo\\bar"),isDirectory:!0},{resource:e.file("C:\\Users\\foo\\baz.txt"),isFile:!0}];const s=await a.resolveResources(t,"./",2,i,l,"gitbash");n(s,[{label:"./",detail:"C:\\Users\\foo\\"},{label:"./bar/",detail:"C:\\Users\\foo\\bar\\"},{label:"./baz.txt",detail:"C:\\Users\\foo\\baz.txt",kind:h.File},{label:"./../",detail:"C:\\Users\\"}],{replacementIndex:0,replacementLength:2},"/")}),test("resolveResources with cwd as Windows path (absolute)",async()=>{const t={cwd:e.file("C:\\Users\\foo"),foldersRequested:!0,filesRequested:!0,pathSeparator:"/"};o=[e.file("C:\\Users\\foo"),e.file("C:\\Users\\foo\\bar"),e.file("C:\\Users\\foo\\baz.txt")],r=[{resource:e.file("C:\\Users\\foo\\bar"),isDirectory:!0},{resource:e.file("C:\\Users\\foo\\baz.txt"),isFile:!0}];const s=await a.resolveResources(t,"/c/Users/foo/",13,i,l,"gitbash");n(s,[{label:"/c/Users/foo/",detail:"C:\\Users\\foo\\"},{label:"/c/Users/foo/bar/",detail:"C:\\Users\\foo\\bar\\"},{label:"/c/Users/foo/baz.txt",detail:"C:\\Users\\foo\\baz.txt",kind:h.File}],{replacementIndex:0,replacementLength:13},"/")})}),p||suite("symlink support",()=>{test("should include symlink target information in completions",async()=>{const t={cwd:e.parse("file:///test"),pathSeparator:d,filesRequested:!0,foldersRequested:!0};o=[e.parse("file:///test")],r=[{resource:e.parse("file:///test/regular-file.txt"),isFile:!0},{resource:e.parse("file:///test/symlink-file"),isFile:!0,isSymbolicLink:!0},{resource:e.parse("file:///test/symlink-folder"),isDirectory:!0,isSymbolicLink:!0},{resource:e.parse("file:///test/regular-folder"),isDirectory:!0}];const s=await a.resolveResources(t,"ls ",3,i,l),b=s?.find(c=>c.label==="./symlink-file"),R=s?.find(c=>c.label==="./symlink-folder/");u.strictEqual(b?.detail,"/test/symlink-file -> /target/actual-file.txt","Symlink file detail should match target"),u.strictEqual(R?.detail,"/test/symlink-folder -> /target/actual-folder","Symlink folder detail should match target")})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../../../base/common/uri.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { TerminalCompletionService } from "../../browser/terminalCompletionService.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import assert, { fail } from "assert";
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { createFileStat } from "../../../../../test/common/workbenchTestServices.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TerminalCapabilityStore } from "../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { ShellEnvDetectionCapability } from "../../../../../../platform/terminal/common/capabilities/shellEnvDetectionCapability.js";
+import { TerminalCompletionItemKind } from "../../browser/terminalCompletionItem.js";
+import { count } from "../../../../../../base/common/strings.js";
+import { gitBashToWindowsPath, windowsToGitBashPath } from "../../browser/terminalGitBashHelpers.js";
+const pathSeparator = isWindows ? "\\" : "/";
+function assertCompletions(actual, expected, expectedConfig, pathSep) {
+  const sep = pathSep ?? pathSeparator;
+  assert.deepStrictEqual(actual?.map((e) => ({
+    label: e.label,
+    detail: e.detail ?? "",
+    kind: e.kind ?? TerminalCompletionItemKind.Folder,
+    replacementIndex: e.replacementIndex,
+    replacementLength: e.replacementLength
+  })), expected.map((e) => ({
+    label: e.label.replaceAll("/", sep),
+    detail: e.detail ? e.detail.replaceAll("/", sep) : "",
+    kind: e.kind ?? TerminalCompletionItemKind.Folder,
+    replacementIndex: expectedConfig.replacementIndex,
+    replacementLength: expectedConfig.replacementLength
+  })));
+}
+__name(assertCompletions, "assertCompletions");
+function assertPartialCompletionsExist(actual, expectedPartial, expectedConfig) {
+  if (!actual) {
+    fail();
+  }
+  const expectedMapped = expectedPartial.map((e) => ({
+    label: e.label.replaceAll("/", pathSeparator),
+    detail: e.detail ? e.detail.replaceAll("/", pathSeparator) : "",
+    kind: e.kind ?? TerminalCompletionItemKind.Folder,
+    replacementIndex: expectedConfig.replacementIndex,
+    replacementLength: expectedConfig.replacementLength
+  }));
+  for (const expectedItem of expectedMapped) {
+    assert.deepStrictEqual(actual.map((e) => ({
+      label: e.label,
+      detail: e.detail ?? "",
+      kind: e.kind ?? TerminalCompletionItemKind.Folder,
+      replacementIndex: e.replacementIndex,
+      replacementLength: e.replacementLength
+    })).find((e) => e.detail === expectedItem.detail), expectedItem);
+  }
+}
+__name(assertPartialCompletionsExist, "assertPartialCompletionsExist");
+const testEnv = {
+  HOME: "/home/user",
+  USERPROFILE: "/home/user"
+};
+let homeDir = isWindows ? testEnv["USERPROFILE"] : testEnv["HOME"];
+if (!homeDir.endsWith("/")) {
+  homeDir += "/";
+}
+const standardTidleItem = Object.freeze({ label: "~", detail: homeDir });
+suite("TerminalCompletionService", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let configurationService;
+  let capabilities;
+  let validResources;
+  let childResources;
+  let terminalCompletionService;
+  const provider = "testProvider";
+  setup(() => {
+    instantiationService = store.add(new TestInstantiationService());
+    configurationService = new TestConfigurationService();
+    instantiationService.stub(IConfigurationService, configurationService);
+    instantiationService.stub(IFileService, {
+      async stat(resource) {
+        if (!validResources.map((e) => e.path).includes(resource.path)) {
+          throw new Error("Doesn't exist");
+        }
+        return createFileStat(resource);
+      },
+      async resolve(resource, options) {
+        const children = childResources.filter((child) => {
+          const childFsPath = child.resource.path.replace(/\/$/, "");
+          const parentFsPath = resource.path.replace(/\/$/, "");
+          return childFsPath.startsWith(parentFsPath) && count(childFsPath, "/") === count(parentFsPath, "/") + 1;
+        });
+        return createFileStat(resource, void 0, void 0, void 0, void 0, children);
+      },
+      async realpath(resource) {
+        if (resource.path.includes("symlink-file")) {
+          return resource.with({ path: "/target/actual-file.txt" });
+        } else if (resource.path.includes("symlink-folder")) {
+          return resource.with({ path: "/target/actual-folder" });
+        }
+        return void 0;
+      }
+    });
+    terminalCompletionService = store.add(instantiationService.createInstance(TerminalCompletionService));
+    terminalCompletionService.processEnv = testEnv;
+    validResources = [];
+    childResources = [];
+    capabilities = store.add(new TerminalCapabilityStore());
+  });
+  suite("resolveResources should return undefined", () => {
+    test("if cwd is not provided", async () => {
+      const resourceRequestConfig = { pathSeparator };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ", 3, provider, capabilities);
+      assert(!result);
+    });
+    test("if neither filesRequested nor foldersRequested are true", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        pathSeparator
+      };
+      validResources = [URI.parse("file:///test")];
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ", 3, provider, capabilities);
+      assert(!result);
+    });
+  });
+  suite("resolveResources should return folder completions", () => {
+    setup(() => {
+      validResources = [URI.parse("file:///test")];
+      childResources = [
+        { resource: URI.parse("file:///test/folder1/"), isDirectory: true, isFile: false },
+        { resource: URI.parse("file:///test/file1.txt"), isDirectory: false, isFile: true }
+      ];
+    });
+    test("| should return root-level completions", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "", 1, provider, capabilities);
+      assertCompletions(result, [
+        { label: ".", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "../", detail: "/" },
+        standardTidleItem
+      ], { replacementIndex: 1, replacementLength: 0 });
+    });
+    test("./| should return folder completions", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./", 3, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 1, replacementLength: 2 });
+    });
+    test("cd ./| should return folder completions", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ./", 5, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 3, replacementLength: 2 });
+    });
+    test("cd ./f| should return folder completions", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ./f", 6, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 3, replacementLength: 3 });
+    });
+  });
+  suite("resolveResources should handle file and folder completion requests correctly", () => {
+    setup(() => {
+      validResources = [URI.parse("file:///test")];
+      childResources = [
+        { resource: URI.parse("file:///test/.hiddenFile"), isFile: true },
+        { resource: URI.parse("file:///test/.hiddenFolder/"), isDirectory: true },
+        { resource: URI.parse("file:///test/folder1/"), isDirectory: true },
+        { resource: URI.parse("file:///test/file1.txt"), isFile: true }
+      ];
+    });
+    test("./| should handle hidden files and folders", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        filesRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./", 2, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./.hiddenFile", detail: "/test/.hiddenFile", kind: TerminalCompletionItemKind.File },
+        { label: "./.hiddenFolder/", detail: "/test/.hiddenFolder/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./file1.txt", detail: "/test/file1.txt", kind: TerminalCompletionItemKind.File },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 0, replacementLength: 2 });
+    });
+    test("./h| should handle hidden files and folders", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        filesRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./h", 3, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./.hiddenFile", detail: "/test/.hiddenFile", kind: TerminalCompletionItemKind.File },
+        { label: "./.hiddenFolder/", detail: "/test/.hiddenFolder/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./file1.txt", detail: "/test/file1.txt", kind: TerminalCompletionItemKind.File },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 0, replacementLength: 3 });
+    });
+  });
+  suite("~ -> $HOME", () => {
+    let resourceRequestConfig;
+    let shellEnvDetection;
+    setup(() => {
+      shellEnvDetection = store.add(new ShellEnvDetectionCapability());
+      shellEnvDetection.setEnvironment({
+        HOME: "/home",
+        USERPROFILE: "/home"
+      }, true);
+      capabilities.add(5, shellEnvDetection);
+      resourceRequestConfig = {
+        cwd: URI.parse("file:///test/folder1"),
+        // Updated to reflect home directory
+        filesRequested: true,
+        foldersRequested: true,
+        pathSeparator
+      };
+      validResources = [
+        URI.parse("file:///test"),
+        URI.parse("file:///test/folder1"),
+        URI.parse("file:///home"),
+        URI.parse("file:///home/vscode"),
+        URI.parse("file:///home/vscode/foo"),
+        URI.parse("file:///home/vscode/bar.txt")
+      ];
+      childResources = [
+        { resource: URI.parse("file:///home/vscode"), isDirectory: true },
+        { resource: URI.parse("file:///home/vscode/foo"), isDirectory: true },
+        { resource: URI.parse("file:///home/vscode/bar.txt"), isFile: true }
+      ];
+    });
+    test("~| should return completion for ~", async () => {
+      assertPartialCompletionsExist(await terminalCompletionService.resolveResources(resourceRequestConfig, "~", 1, provider, capabilities), [
+        { label: "~", detail: "/home/" }
+      ], { replacementIndex: 0, replacementLength: 1 });
+    });
+    test("~/| should return folder completions relative to $HOME", async () => {
+      assertCompletions(await terminalCompletionService.resolveResources(resourceRequestConfig, "~/", 2, provider, capabilities), [
+        { label: "~/", detail: "/home/" },
+        { label: "~/vscode/", detail: "/home/vscode/" }
+      ], { replacementIndex: 0, replacementLength: 2 });
+    });
+    test("~/vscode/| should return folder completions relative to $HOME/vscode", async () => {
+      assertCompletions(await terminalCompletionService.resolveResources(resourceRequestConfig, "~/vscode/", 9, provider, capabilities), [
+        { label: "~/vscode/", detail: "/home/vscode/" },
+        { label: "~/vscode/foo/", detail: "/home/vscode/foo/" },
+        { label: "~/vscode/bar.txt", detail: "/home/vscode/bar.txt", kind: TerminalCompletionItemKind.File }
+      ], { replacementIndex: 0, replacementLength: 9 });
+    });
+  });
+  suite("resolveResources edge cases and advanced scenarios", () => {
+    setup(() => {
+      validResources = [];
+      childResources = [];
+    });
+    if (isWindows) {
+      test("C:/Foo/| absolute paths on Windows", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///C:"),
+          foldersRequested: true,
+          pathSeparator
+        };
+        validResources = [URI.parse("file:///C:/Foo")];
+        childResources = [
+          { resource: URI.parse("file:///C:/Foo/Bar"), isDirectory: true, isFile: false },
+          { resource: URI.parse("file:///C:/Foo/Baz.txt"), isDirectory: false, isFile: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "C:/Foo/", 7, provider, capabilities);
+        assertCompletions(result, [
+          { label: "C:/Foo/", detail: "C:/Foo/" },
+          { label: "C:/Foo/Bar/", detail: "C:/Foo/Bar/" }
+        ], { replacementIndex: 0, replacementLength: 7 });
+      });
+      test("c:/foo/| case insensitivity on Windows", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///c:"),
+          foldersRequested: true,
+          pathSeparator
+        };
+        validResources = [URI.parse("file:///c:/foo")];
+        childResources = [
+          { resource: URI.parse("file:///c:/foo/Bar"), isDirectory: true, isFile: false }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "c:/foo/", 7, provider, capabilities);
+        assertCompletions(result, [
+          // Note that the detail is normalizes drive letters to capital case intentionally
+          { label: "c:/foo/", detail: "C:/foo/" },
+          { label: "c:/foo/Bar/", detail: "C:/foo/Bar/" }
+        ], { replacementIndex: 0, replacementLength: 7 });
+      });
+    } else {
+      test("/foo/| absolute paths NOT on Windows", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///"),
+          foldersRequested: true,
+          pathSeparator
+        };
+        validResources = [URI.parse("file:///foo")];
+        childResources = [
+          { resource: URI.parse("file:///foo/Bar"), isDirectory: true, isFile: false },
+          { resource: URI.parse("file:///foo/Baz.txt"), isDirectory: false, isFile: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "/foo/", 5, provider, capabilities);
+        assertCompletions(result, [
+          { label: "/foo/", detail: "/foo/" },
+          { label: "/foo/Bar/", detail: "/foo/Bar/" }
+        ], { replacementIndex: 0, replacementLength: 5 });
+      });
+    }
+    if (isWindows) {
+      test(".\\folder | Case insensitivity should resolve correctly on Windows", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///C:/test"),
+          foldersRequested: true,
+          pathSeparator: "\\"
+        };
+        validResources = [URI.parse("file:///C:/test")];
+        childResources = [
+          { resource: URI.parse("file:///C:/test/FolderA/"), isDirectory: true },
+          { resource: URI.parse("file:///C:/test/anotherFolder/"), isDirectory: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, ".\\folder", 8, provider, capabilities);
+        assertCompletions(result, [
+          { label: ".\\", detail: "C:\\test\\" },
+          { label: ".\\FolderA\\", detail: "C:\\test\\FolderA\\" },
+          { label: ".\\anotherFolder\\", detail: "C:\\test\\anotherFolder\\" },
+          { label: ".\\..\\", detail: "C:\\" }
+        ], { replacementIndex: 0, replacementLength: 8 });
+      });
+    } else {
+      test("./folder | Case sensitivity should resolve correctly on Mac/Unix", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///test"),
+          foldersRequested: true,
+          pathSeparator: "/"
+        };
+        validResources = [URI.parse("file:///test")];
+        childResources = [
+          { resource: URI.parse("file:///test/FolderA/"), isDirectory: true },
+          { resource: URI.parse("file:///test/foldera/"), isDirectory: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./folder", 8, provider, capabilities);
+        assertCompletions(result, [
+          { label: "./", detail: "/test/" },
+          { label: "./FolderA/", detail: "/test/FolderA/" },
+          { label: "./foldera/", detail: "/test/foldera/" },
+          { label: "./../", detail: "/" }
+        ], { replacementIndex: 0, replacementLength: 8 });
+      });
+    }
+    test("| Empty input should resolve to current directory", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      validResources = [URI.parse("file:///test")];
+      childResources = [
+        { resource: URI.parse("file:///test/folder1/"), isDirectory: true },
+        { resource: URI.parse("file:///test/folder2/"), isDirectory: true }
+      ];
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "", 0, provider, capabilities);
+      assertCompletions(result, [
+        { label: ".", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./folder2/", detail: "/test/folder2/" },
+        { label: "../", detail: "/" },
+        standardTidleItem
+      ], { replacementIndex: 0, replacementLength: 0 });
+    });
+    test("./| should handle large directories with many results gracefully", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      validResources = [URI.parse("file:///test")];
+      childResources = Array.from({ length: 1e3 }, (_, i) => ({
+        resource: URI.parse(`file:///test/folder${i}/`),
+        isDirectory: true
+      }));
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./", 2, provider, capabilities);
+      assert(result);
+      assert.strictEqual(result?.length, 1002);
+      assert.strictEqual(result[0].label, `.${pathSeparator}`);
+      assert.strictEqual(result.at(-1)?.label, `.${pathSeparator}..${pathSeparator}`);
+    });
+    test("./folder| should include current folder with trailing / is missing", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      validResources = [URI.parse("file:///test")];
+      childResources = [
+        { resource: URI.parse("file:///test/folder1/"), isDirectory: true },
+        { resource: URI.parse("file:///test/folder2/"), isDirectory: true }
+      ];
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "./folder1", 10, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./", detail: "/test/" },
+        { label: "./folder1/", detail: "/test/folder1/" },
+        { label: "./folder2/", detail: "/test/folder2/" },
+        { label: "./../", detail: "/" }
+      ], { replacementIndex: 1, replacementLength: 9 });
+    });
+    test("folder/| should normalize current and parent folders", async () => {
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        pathSeparator
+      };
+      validResources = [
+        URI.parse("file:///"),
+        URI.parse("file:///test"),
+        URI.parse("file:///test/folder1"),
+        URI.parse("file:///test/folder2")
+      ];
+      childResources = [
+        { resource: URI.parse("file:///test/folder1/"), isDirectory: true },
+        { resource: URI.parse("file:///test/folder2/"), isDirectory: true }
+      ];
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "test/", 5, provider, capabilities);
+      assertCompletions(result, [
+        { label: "./test/", detail: "/test/" },
+        { label: "./test/folder1/", detail: "/test/folder1/" },
+        { label: "./test/folder2/", detail: "/test/folder2/" },
+        { label: "./test/../", detail: "/" }
+      ], { replacementIndex: 0, replacementLength: 5 });
+    });
+  });
+  suite("cdpath", () => {
+    let shellEnvDetection;
+    setup(() => {
+      validResources = [URI.parse("file:///test")];
+      childResources = [
+        { resource: URI.parse("file:///cdpath_value/folder1/"), isDirectory: true },
+        { resource: URI.parse("file:///cdpath_value/file1.txt"), isFile: true }
+      ];
+      shellEnvDetection = store.add(new ShellEnvDetectionCapability());
+      shellEnvDetection.setEnvironment({ CDPATH: "/cdpath_value" }, true);
+      capabilities.add(5, shellEnvDetection);
+    });
+    test("cd | should show paths from $CDPATH (relative)", async () => {
+      configurationService.setUserConfiguration("terminal.integrated.suggest.cdPath", "relative");
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        filesRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ", 3, provider, capabilities);
+      assertPartialCompletionsExist(result, [
+        { label: "folder1", detail: "CDPATH /cdpath_value/folder1/" }
+      ], { replacementIndex: 3, replacementLength: 0 });
+    });
+    test("cd | should show paths from $CDPATH (absolute)", async () => {
+      configurationService.setUserConfiguration("terminal.integrated.suggest.cdPath", "absolute");
+      const resourceRequestConfig = {
+        cwd: URI.parse("file:///test"),
+        foldersRequested: true,
+        filesRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ", 3, provider, capabilities);
+      assertPartialCompletionsExist(result, [
+        { label: "/cdpath_value/folder1/", detail: "CDPATH" }
+      ], { replacementIndex: 3, replacementLength: 0 });
+    });
+    test("cd | should support pulling from multiple paths in $CDPATH", async () => {
+      configurationService.setUserConfiguration("terminal.integrated.suggest.cdPath", "relative");
+      const pathPrefix = isWindows ? "c:\\" : "/";
+      const delimeter = isWindows ? ";" : ":";
+      const separator = isWindows ? "\\" : "/";
+      shellEnvDetection.setEnvironment({ CDPATH: `${pathPrefix}cdpath1_value${delimeter}${pathPrefix}cdpath2_value${separator}inner_dir` }, true);
+      const uriPathPrefix = isWindows ? "file:///c:/" : "file:///";
+      validResources = [
+        URI.parse(`${uriPathPrefix}test`),
+        URI.parse(`${uriPathPrefix}cdpath1_value`),
+        URI.parse(`${uriPathPrefix}cdpath2_value`),
+        URI.parse(`${uriPathPrefix}cdpath2_value/inner_dir`)
+      ];
+      childResources = [
+        { resource: URI.parse(`${uriPathPrefix}cdpath1_value/folder1/`), isDirectory: true },
+        { resource: URI.parse(`${uriPathPrefix}cdpath1_value/folder2/`), isDirectory: true },
+        { resource: URI.parse(`${uriPathPrefix}cdpath1_value/file1.txt`), isFile: true },
+        { resource: URI.parse(`${uriPathPrefix}cdpath2_value/inner_dir/folder1/`), isDirectory: true },
+        { resource: URI.parse(`${uriPathPrefix}cdpath2_value/inner_dir/folder2/`), isDirectory: true },
+        { resource: URI.parse(`${uriPathPrefix}cdpath2_value/inner_dir/file1.txt`), isFile: true }
+      ];
+      const resourceRequestConfig = {
+        cwd: URI.parse(`${uriPathPrefix}test`),
+        foldersRequested: true,
+        filesRequested: true,
+        pathSeparator
+      };
+      const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "cd ", 3, provider, capabilities);
+      const finalPrefix = isWindows ? "C:\\" : "/";
+      assertPartialCompletionsExist(result, [
+        { label: "folder1", detail: `CDPATH ${finalPrefix}cdpath1_value/folder1/` },
+        { label: "folder2", detail: `CDPATH ${finalPrefix}cdpath1_value/folder2/` },
+        { label: "folder1", detail: `CDPATH ${finalPrefix}cdpath2_value/inner_dir/folder1/` },
+        { label: "folder2", detail: `CDPATH ${finalPrefix}cdpath2_value/inner_dir/folder2/` }
+      ], { replacementIndex: 3, replacementLength: 0 });
+    });
+  });
+  if (isWindows) {
+    suite("gitbash", () => {
+      test("should convert Git Bash absolute path to Windows absolute path", () => {
+        assert.strictEqual(gitBashToWindowsPath("/"), "C:\\");
+        assert.strictEqual(gitBashToWindowsPath("/c/"), "C:\\");
+        assert.strictEqual(gitBashToWindowsPath("/c/Users/foo"), "C:\\Users\\foo");
+        assert.strictEqual(gitBashToWindowsPath("/d/bar"), "D:\\bar");
+      });
+      test("should convert Windows absolute path to Git Bash absolute path", () => {
+        assert.strictEqual(windowsToGitBashPath("C:\\"), "/c/");
+        assert.strictEqual(windowsToGitBashPath("C:\\Users\\foo"), "/c/Users/foo");
+        assert.strictEqual(windowsToGitBashPath("D:\\bar"), "/d/bar");
+        assert.strictEqual(windowsToGitBashPath("E:\\some\\path"), "/e/some/path");
+      });
+      test("resolveResources with cwd as Windows path (relative)", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.file("C:\\Users\\foo"),
+          foldersRequested: true,
+          filesRequested: true,
+          pathSeparator: "/"
+        };
+        validResources = [
+          URI.file("C:\\Users\\foo"),
+          URI.file("C:\\Users\\foo\\bar"),
+          URI.file("C:\\Users\\foo\\baz.txt")
+        ];
+        childResources = [
+          { resource: URI.file("C:\\Users\\foo\\bar"), isDirectory: true },
+          { resource: URI.file("C:\\Users\\foo\\baz.txt"), isFile: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(
+          resourceRequestConfig,
+          "./",
+          2,
+          provider,
+          capabilities,
+          "gitbash"
+          /* WindowsShellType.GitBash */
+        );
+        assertCompletions(result, [
+          { label: "./", detail: "C:\\Users\\foo\\" },
+          { label: "./bar/", detail: "C:\\Users\\foo\\bar\\" },
+          { label: "./baz.txt", detail: "C:\\Users\\foo\\baz.txt", kind: TerminalCompletionItemKind.File },
+          { label: "./../", detail: "C:\\Users\\" }
+        ], { replacementIndex: 0, replacementLength: 2 }, "/");
+      });
+      test("resolveResources with cwd as Windows path (absolute)", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.file("C:\\Users\\foo"),
+          foldersRequested: true,
+          filesRequested: true,
+          pathSeparator: "/"
+        };
+        validResources = [
+          URI.file("C:\\Users\\foo"),
+          URI.file("C:\\Users\\foo\\bar"),
+          URI.file("C:\\Users\\foo\\baz.txt")
+        ];
+        childResources = [
+          { resource: URI.file("C:\\Users\\foo\\bar"), isDirectory: true },
+          { resource: URI.file("C:\\Users\\foo\\baz.txt"), isFile: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(
+          resourceRequestConfig,
+          "/c/Users/foo/",
+          13,
+          provider,
+          capabilities,
+          "gitbash"
+          /* WindowsShellType.GitBash */
+        );
+        assertCompletions(result, [
+          { label: "/c/Users/foo/", detail: "C:\\Users\\foo\\" },
+          { label: "/c/Users/foo/bar/", detail: "C:\\Users\\foo\\bar\\" },
+          { label: "/c/Users/foo/baz.txt", detail: "C:\\Users\\foo\\baz.txt", kind: TerminalCompletionItemKind.File }
+        ], { replacementIndex: 0, replacementLength: 13 }, "/");
+      });
+    });
+  }
+  if (!isWindows) {
+    suite("symlink support", () => {
+      test("should include symlink target information in completions", async () => {
+        const resourceRequestConfig = {
+          cwd: URI.parse("file:///test"),
+          pathSeparator,
+          filesRequested: true,
+          foldersRequested: true
+        };
+        validResources = [URI.parse("file:///test")];
+        childResources = [
+          { resource: URI.parse("file:///test/regular-file.txt"), isFile: true },
+          { resource: URI.parse("file:///test/symlink-file"), isFile: true, isSymbolicLink: true },
+          { resource: URI.parse("file:///test/symlink-folder"), isDirectory: true, isSymbolicLink: true },
+          { resource: URI.parse("file:///test/regular-folder"), isDirectory: true }
+        ];
+        const result = await terminalCompletionService.resolveResources(resourceRequestConfig, "ls ", 3, provider, capabilities);
+        const symlinkFileCompletion = result?.find((c) => c.label === "./symlink-file");
+        const symlinkFolderCompletion = result?.find((c) => c.label === "./symlink-folder/");
+        assert.strictEqual(symlinkFileCompletion?.detail, "/test/symlink-file -> /target/actual-file.txt", "Symlink file detail should match target");
+        assert.strictEqual(symlinkFolderCompletion?.detail, "/test/symlink-folder -> /target/actual-folder", "Symlink folder detail should match target");
+      });
+    });
+  }
+});
+//# sourceMappingURL=terminalCompletionService.test.js.map

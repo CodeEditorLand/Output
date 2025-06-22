@@ -1,1 +1,58 @@
-import{$vd as i}from"../../../../../../../base/common/lifecycle.js";class r extends i{constructor(e){super(),this.c=e,this.a=[],this.B(e)}async*[Symbol.asyncIterator](){const e=s=>{s!==void 0?this.a.push(s):(this.c.removeListener("data",e),this.c.removeListener("end",e)),this.b&&(this.b(),delete this.b)};for(this.c.on("end",e),this.c.on("data",e),this.c.start();;){const s=this.a.shift();if(s!==void 0){yield s;continue}if(this.c.ended)return this.dispose(),null;await new Promise(t=>{this.b=t})}}}export{r as $QQ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+class AsyncDecoder extends Disposable {
+  static {
+    __name(this, "AsyncDecoder");
+  }
+  /**
+   * @param decoder The decoder instance to wrap.
+   *
+   * Note! Assumes ownership of the `decoder` object, hence will `dispose`
+   * 		 it when the decoder stream is ended.
+   */
+  constructor(decoder) {
+    super();
+    this.decoder = decoder;
+    this.messages = [];
+    this._register(decoder);
+  }
+  /**
+   * Async iterator implementation.
+   */
+  async *[Symbol.asyncIterator]() {
+    const callback = /* @__PURE__ */ __name((data) => {
+      if (data !== void 0) {
+        this.messages.push(data);
+      } else {
+        this.decoder.removeListener("data", callback);
+        this.decoder.removeListener("end", callback);
+      }
+      if (this.resolveOnNewEvent) {
+        this.resolveOnNewEvent();
+        delete this.resolveOnNewEvent;
+      }
+    }, "callback");
+    this.decoder.on("end", callback);
+    this.decoder.on("data", callback);
+    this.decoder.start();
+    while (true) {
+      const maybeMessage = this.messages.shift();
+      if (maybeMessage !== void 0) {
+        yield maybeMessage;
+        continue;
+      }
+      if (this.decoder.ended) {
+        this.dispose();
+        return null;
+      }
+      await new Promise((resolve) => {
+        this.resolveOnNewEvent = resolve;
+      });
+    }
+  }
+}
+export {
+  AsyncDecoder
+};
+//# sourceMappingURL=asyncDecoder.js.map

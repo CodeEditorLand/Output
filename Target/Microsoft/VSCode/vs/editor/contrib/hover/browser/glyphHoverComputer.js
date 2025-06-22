@@ -1,1 +1,42 @@
-import{$mc as c}from"../../../../base/common/arrays.js";import{$Vj as l}from"../../../../base/common/htmlContent.js";import{GlyphMarginLane as p}from"../../../common/model.js";class h{constructor(e){this.a=e}computeSync(e){const s=n=>({value:n}),i=this.a.getLineDecorations(e.lineNumber),o=[],t=e.laneOrLine==="lineNo";if(!i)return o;for(const n of i){const a=n.options.glyphMargin?.position??p.Center;if(!t&&a!==e.laneOrLine)continue;const r=t?n.options.lineNumberHoverMessage:n.options.glyphMarginHoverMessage;!r||l(r)||o.push(...c(r).map(s))}return o}}export{h as $4qb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray } from "../../../../base/common/arrays.js";
+import { isEmptyMarkdownString } from "../../../../base/common/htmlContent.js";
+import { GlyphMarginLane } from "../../../common/model.js";
+class GlyphHoverComputer {
+  static {
+    __name(this, "GlyphHoverComputer");
+  }
+  constructor(_editor) {
+    this._editor = _editor;
+  }
+  computeSync(opts) {
+    const toHoverMessage = /* @__PURE__ */ __name((contents) => {
+      return {
+        value: contents
+      };
+    }, "toHoverMessage");
+    const lineDecorations = this._editor.getLineDecorations(opts.lineNumber);
+    const result = [];
+    const isLineHover = opts.laneOrLine === "lineNo";
+    if (!lineDecorations) {
+      return result;
+    }
+    for (const d of lineDecorations) {
+      const lane = d.options.glyphMargin?.position ?? GlyphMarginLane.Center;
+      if (!isLineHover && lane !== opts.laneOrLine) {
+        continue;
+      }
+      const hoverMessage = isLineHover ? d.options.lineNumberHoverMessage : d.options.glyphMarginHoverMessage;
+      if (!hoverMessage || isEmptyMarkdownString(hoverMessage)) {
+        continue;
+      }
+      result.push(...asArray(hoverMessage).map(toHoverMessage));
+    }
+    return result;
+  }
+}
+export {
+  GlyphHoverComputer
+};
+//# sourceMappingURL=glyphHoverComputer.js.map

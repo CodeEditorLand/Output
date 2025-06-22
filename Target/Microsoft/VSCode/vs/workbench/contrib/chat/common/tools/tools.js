@@ -1,1 +1,41 @@
-import{$vd as m}from"../../../../../base/common/lifecycle.js";import{$mj as h}from"../../../../../platform/instantiation/common/instantiation.js";import{$eQ as u}from"../../common/languageModelToolsService.js";import{$Qec as _,$Pec as a}from"./editFileTool.js";var p=function(n,t,e,o){var c=arguments.length,r=c<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,o);else for(var f=n.length-1;f>=0;f--)(i=n[f])&&(r=(c<3?i(r):c>3?i(t,e,r):i(t,e))||r);return c>3&&r&&Object.defineProperty(t,e,r),r},s=function(n,t){return function(e,o){t(e,o,n)}};let l=class extends m{static{this.ID="chat.builtinTools"}constructor(t,e){super();const o=e.createInstance(_);this.B(t.registerToolData(a)),this.B(t.registerToolImplementation(a.id,o))}};l=p([s(0,u),s(1,h)],l);const j="vscode_fetchWebPage_internal";export{l as $Rec,j as $Sec};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
+import { EditTool, EditToolData } from "./editFileTool.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let BuiltinToolsContribution = class BuiltinToolsContribution2 extends Disposable {
+  static {
+    __name(this, "BuiltinToolsContribution");
+  }
+  static {
+    this.ID = "chat.builtinTools";
+  }
+  constructor(toolsService, instantiationService) {
+    super();
+    const editTool = instantiationService.createInstance(EditTool);
+    this._register(toolsService.registerToolData(EditToolData));
+    this._register(toolsService.registerToolImplementation(EditToolData.id, editTool));
+  }
+};
+BuiltinToolsContribution = __decorate([
+  __param(0, ILanguageModelToolsService),
+  __param(1, IInstantiationService)
+], BuiltinToolsContribution);
+const InternalFetchWebPageToolId = "vscode_fetchWebPage_internal";
+export {
+  BuiltinToolsContribution,
+  InternalFetchWebPageToolId
+};
+//# sourceMappingURL=tools.js.map

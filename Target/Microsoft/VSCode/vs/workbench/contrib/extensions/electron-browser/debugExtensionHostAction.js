@@ -1,1 +1,156 @@
-import{$Mj as d}from"../../../../base/common/codicons.js";import{$vd as h}from"../../../../base/common/lifecycle.js";import{$pi as b}from"../../../../base/common/ports.js";import*as a from"../../../../nls.js";import{$Xn as $}from"../../../../platform/action/common/actionCommonCategories.js";import{$iI as v,$dI as w}from"../../../../platform/actions/common/actions.js";import{$_o as I}from"../../../../platform/dialogs/common/dialogs.js";import{$mj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$fu as S}from"../../../../platform/native/common/native.js";import{$nn as x}from"../../../../platform/product/common/productService.js";import{$WI as _}from"../../../../platform/progress/common/progress.js";import{$Ho as D}from"../../../../platform/storage/common/storage.js";import{$CN as P}from"../../../common/contextkeys.js";import{$XO as E}from"../../../services/extensions/common/extensions.js";import{$8$ as H}from"../../../services/host/browser/host.js";import{$hW as z}from"../../debug/common/debug.js";import{$6Ic as O}from"./runtimeExtensionsEditor.js";var g=function(r,e,o,n){var i=arguments.length,t=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,o):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(r,e,o,n);else for(var u=r.length-1;u>=0;u--)(s=r[u])&&(t=(i<3?s(t):i>3?s(e,o,t):s(e,o))||t);return i>3&&t&&Object.defineProperty(e,o,t),t},l=function(r,e){return function(o,n){e(o,n,r)}};class U extends v{constructor(){super({id:"workbench.extensions.action.debugExtensionHost",title:{value:a.localize(7701,null),original:"Start Debugging Extension Host In New Window"},category:$.Developer,f1:!0,icon:d.debugStart,menu:{id:w.EditorTitle,when:P.isEqualTo(O.ID),group:"navigation"}})}run(e){const o=e.get(S),n=e.get(I),i=e.get(E),t=e.get(x),s=e.get(p),u=e.get(H);i.getInspectPorts(1,!1).then(async m=>{if(m.length===0){(await n.confirm({message:a.localize(7702,null),detail:a.localize(7703,null,t.nameLong),primaryButton:a.localize(7704,null)})).confirmed&&await o.relaunch({addArgs:[`--inspect-extensions=${b()}`]});return}m.length>1,s.createInstance(c).storeDebugOnNewWindow(m[0].port),u.openWindow()})}}let c=class{constructor(e){this.a=e}storeDebugOnNewWindow(e){this.a.store("debugExtensionHost.debugPort",e,-1,1)}getAndDeleteDebugPortIfSet(){const e=this.a.getNumber("debugExtensionHost.debugPort",-1);return e!==void 0&&this.a.remove("debugExtensionHost.debugPort",-1),e}};c=g([l(0,D)],c);let f=class extends h{constructor(e,o,n){super(),this.a=e,this.b=o;const t=this.b.createInstance(c).getAndDeleteDebugPortIfSet();t!==void 0&&n.withProgress({location:15,title:a.localize(7705,null)},async s=>{await this.a.startDebugging(void 0,{type:"node",name:a.localize(7706,null),request:"attach",port:t,trace:!0,resolveSourceMapLocations:null,eagerSources:!0,timeouts:{sourceMapMinPause:3e4,sourceMapCumulativePause:3e5}})})}};f=g([l(0,z),l(1,p),l(2,_)],f);export{U as $$Ic,f as $_Ic};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { randomPort } from "../../../../base/common/ports.js";
+import * as nls from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IDebugService } from "../../debug/common/debug.js";
+import { RuntimeExtensionsEditor } from "./runtimeExtensionsEditor.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+class DebugExtensionHostAction extends Action2 {
+  static {
+    __name(this, "DebugExtensionHostAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.extensions.action.debugExtensionHost",
+      title: { value: nls.localize("debugExtensionHost", "Start Debugging Extension Host In New Window"), original: "Start Debugging Extension Host In New Window" },
+      category: Categories.Developer,
+      f1: true,
+      icon: Codicon.debugStart,
+      menu: {
+        id: MenuId.EditorTitle,
+        when: ActiveEditorContext.isEqualTo(RuntimeExtensionsEditor.ID),
+        group: "navigation"
+      }
+    });
+  }
+  run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    const dialogService = accessor.get(IDialogService);
+    const extensionService = accessor.get(IExtensionService);
+    const productService = accessor.get(IProductService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const hostService = accessor.get(IHostService);
+    extensionService.getInspectPorts(1, false).then(async (inspectPorts) => {
+      if (inspectPorts.length === 0) {
+        const res = await dialogService.confirm({
+          message: nls.localize("restart1", "Debug Extensions"),
+          detail: nls.localize("restart2", "In order to debug extensions a restart is required. Do you want to restart '{0}' now?", productService.nameLong),
+          primaryButton: nls.localize({ key: "restart3", comment: ["&& denotes a mnemonic"] }, "&&Restart")
+        });
+        if (res.confirmed) {
+          await nativeHostService.relaunch({ addArgs: [`--inspect-extensions=${randomPort()}`] });
+        }
+        return;
+      }
+      if (inspectPorts.length > 1) {
+        console.warn(`There are multiple extension hosts available for debugging. Picking the first one...`);
+      }
+      const s = instantiationService.createInstance(Storage);
+      s.storeDebugOnNewWindow(inspectPorts[0].port);
+      hostService.openWindow();
+    });
+  }
+}
+let Storage = class Storage2 {
+  static {
+    __name(this, "Storage");
+  }
+  constructor(_storageService) {
+    this._storageService = _storageService;
+  }
+  storeDebugOnNewWindow(targetPort) {
+    this._storageService.store(
+      "debugExtensionHost.debugPort",
+      targetPort,
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  getAndDeleteDebugPortIfSet() {
+    const port = this._storageService.getNumber(
+      "debugExtensionHost.debugPort",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (port !== void 0) {
+      this._storageService.remove(
+        "debugExtensionHost.debugPort",
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    return port;
+  }
+};
+Storage = __decorate([
+  __param(0, IStorageService)
+], Storage);
+let DebugExtensionsContribution = class DebugExtensionsContribution2 extends Disposable {
+  static {
+    __name(this, "DebugExtensionsContribution");
+  }
+  constructor(_debugService, _instantiationService, _progressService) {
+    super();
+    this._debugService = _debugService;
+    this._instantiationService = _instantiationService;
+    const storage = this._instantiationService.createInstance(Storage);
+    const port = storage.getAndDeleteDebugPortIfSet();
+    if (port !== void 0) {
+      _progressService.withProgress({
+        location: 15,
+        title: nls.localize("debugExtensionHost.progress", "Attaching Debugger To Extension Host")
+      }, async (p) => {
+        await this._debugService.startDebugging(void 0, {
+          type: "node",
+          name: nls.localize("debugExtensionHost.launch.name", "Attach Extension Host"),
+          request: "attach",
+          port,
+          trace: true,
+          // resolve source maps everywhere:
+          resolveSourceMapLocations: null,
+          // announces sources eagerly for the loaded scripts view:
+          eagerSources: true,
+          // source maps of published VS Code are on the CDN and can take a while to load
+          timeouts: {
+            sourceMapMinPause: 3e4,
+            sourceMapCumulativePause: 3e5
+          }
+        });
+      });
+    }
+  }
+};
+DebugExtensionsContribution = __decorate([
+  __param(0, IDebugService),
+  __param(1, IInstantiationService),
+  __param(2, IProgressService)
+], DebugExtensionsContribution);
+export {
+  DebugExtensionHostAction,
+  DebugExtensionsContribution
+};
+//# sourceMappingURL=debugExtensionHostAction.js.map

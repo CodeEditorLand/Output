@@ -1,1 +1,384 @@
-import{$$B as E}from"../../../base/common/diff/diff.js";import{$bC as M}from"../core/position.js";import{$cC as d}from"../core/range.js";import{$xeb as P}from"../languages/linkComputer.js";import{$yeb as S}from"../languages/supports/inplaceReplaceSupport.js";import{$Aeb as D}from"./editorBaseApi.js";import{$0e as v}from"../../../base/common/stopwatch.js";import{$ueb as A}from"./unicodeTextModelHighlighter.js";import{$jM as I}from"../diff/legacyLinesDiffComputer.js";import{$Ueb as y}from"../diff/linesDiffComputers.js";import{$Bb as j}from"../../../base/common/errors.js";import{$Veb as V}from"../languages/defaultDocumentColorsComputer.js";import{$Web as k}from"./findSectionHeaders.js";import{$2eb as H}from"./textModelSync/textModelSync.impl.js";class R{constructor(n=null){this.f=n,this.d=new H}dispose(){}async $ping(){return"pong"}g(n){return this.d.getModel(n)}getModels(){return this.d.getModels()}$acceptNewModel(n){this.d.$acceptNewModel(n)}$acceptModelChanged(n,e){this.d.$acceptModelChanged(n,e)}$acceptRemovedModel(n){this.d.$acceptRemovedModel(n)}async $computeUnicodeHighlights(n,e,u){const r=this.g(n);return r?A.computeUnicodeHighlights(r,e,u):{ranges:[],hasMore:!1,ambiguousCharacterCount:0,invisibleCharacterCount:0,nonBasicAsciiCharacterCount:0}}async $findSectionHeaders(n,e){const u=this.g(n);return u?k(u,e):[]}async $computeDiff(n,e,u,r){const s=this.g(n),a=this.g(e);return!s||!a?null:R.h(s,a,u,r)}static h(n,e,u,r){const s=r==="advanced"?y.getDefault():y.getLegacy(),a=n.getLinesContent(),l=e.getLinesContent(),t=s.computeDiff(a,l,u),o=t.changes.length>0?!1:this.j(n,e);function i(c){return c.map(g=>[g.original.startLineNumber,g.original.endLineNumberExclusive,g.modified.startLineNumber,g.modified.endLineNumberExclusive,g.innerChanges?.map(f=>[f.originalRange.startLineNumber,f.originalRange.startColumn,f.originalRange.endLineNumber,f.originalRange.endColumn,f.modifiedRange.startLineNumber,f.modifiedRange.startColumn,f.modifiedRange.endLineNumber,f.modifiedRange.endColumn])])}return{identical:o,quitEarly:t.hitTimeout,changes:i(t.changes),moves:t.moves.map(c=>[c.lineRangeMapping.original.startLineNumber,c.lineRangeMapping.original.endLineNumberExclusive,c.lineRangeMapping.modified.startLineNumber,c.lineRangeMapping.modified.endLineNumberExclusive,i(c.changes)])}}static j(n,e){const u=n.getLineCount(),r=e.getLineCount();if(u!==r)return!1;for(let s=1;s<=u;s++){const a=n.getLineContent(s),l=e.getLineContent(s);if(a!==l)return!1}return!0}async $computeDirtyDiff(n,e,u){const r=this.g(n),s=this.g(e);if(!r||!s)return null;const a=r.getLinesContent(),l=s.getLinesContent();return new I(a,l,{shouldComputeCharChanges:!1,shouldPostProcessCharChanges:!1,shouldIgnoreTrimWhitespace:u,shouldMakePrettyDiff:!0,maxComputationTime:1e3}).computeDiff().changes}static{this.k=1e5}async $computeMoreMinimalEdits(n,e,u){const r=this.g(n);if(!r)return e;const s=[];let a;e=e.slice(0).sort((t,o)=>{if(t.range&&o.range)return d.compareRangesUsingStarts(t.range,o.range);const i=t.range?0:1,c=o.range?0:1;return i-c});let l=0;for(let t=1;t<e.length;t++)d.getEndPosition(e[l].range).equals(d.getStartPosition(e[t].range))?(e[l].range=d.fromPositions(d.getStartPosition(e[l].range),d.getEndPosition(e[t].range)),e[l].text+=e[t].text):(l++,e[l]=e[t]);e.length=l+1;for(let{range:t,text:o,eol:i}of e){if(typeof i=="number"&&(a=i),d.isEmpty(t)&&!o)continue;const c=r.getValueInRange(t);if(o=o.replace(/\r\n|\n|\r/g,r.eol),c===o)continue;if(Math.max(o.length,c.length)>R.k){s.push({range:t,text:o});continue}const g=E(c,o,u),f=r.offsetAt(d.lift(t).getStartPosition());for(const h of g){const $=r.positionAt(f+h.originalStart),L=r.positionAt(f+h.originalStart+h.originalLength),p={text:o.substr(h.modifiedStart,h.modifiedLength),range:{startLineNumber:$.lineNumber,startColumn:$.column,endLineNumber:L.lineNumber,endColumn:L.column}};r.getValueInRange(p.range)!==p.text&&s.push(p)}}return typeof a=="number"&&s.push({eol:a,text:"",range:{startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0}}),s}$computeHumanReadableDiff(n,e,u){const r=this.g(n);if(!r)return e;const s=[];let a;e=e.slice(0).sort((o,i)=>{if(o.range&&i.range)return d.compareRangesUsingStarts(o.range,i.range);const c=o.range?0:1,g=i.range?0:1;return c-g});for(let{range:o,text:i,eol:c}of e){let p=function(b,m){return new M(b.lineNumber+m.lineNumber-1,m.lineNumber===1?b.column+m.column-1:m.column)},x=function(b,m){const N=[];for(let C=m.startLineNumber;C<=m.endLineNumber;C++){const w=b[C-1];C===m.startLineNumber&&C===m.endLineNumber?N.push(w.substring(m.startColumn-1,m.endColumn-1)):C===m.startLineNumber?N.push(w.substring(m.startColumn-1)):C===m.endLineNumber?N.push(w.substring(0,m.endColumn-1)):N.push(w)}return N};var l=p,t=x;if(typeof c=="number"&&(a=c),d.isEmpty(o)&&!i)continue;const g=r.getValueInRange(o);if(i=i.replace(/\r\n|\n|\r/g,r.eol),g===i)continue;if(Math.max(i.length,g.length)>R.k){s.push({range:o,text:i});continue}const f=g.split(/\r\n|\n|\r/),h=i.split(/\r\n|\n|\r/),$=y.getDefault().computeDiff(f,h,u),L=d.lift(o).getStartPosition();for(const b of $.changes)if(b.innerChanges)for(const m of b.innerChanges)s.push({range:d.fromPositions(p(L,m.originalRange.getStartPosition()),p(L,m.originalRange.getEndPosition())),text:x(h,m.modifiedRange).join(r.eol)});else throw new j("The experimental diff algorithm always produces inner changes")}return typeof a=="number"&&s.push({eol:a,text:"",range:{startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0}}),s}async $computeLinks(n){const e=this.g(n);return e?P(e):null}async $computeDefaultDocumentColors(n){const e=this.g(n);return e?V(e):null}static{this.l=1e4}async $textualSuggest(n,e,u,r){const s=new v,a=new RegExp(u,r),l=new Set;e:for(const t of n){const o=this.g(t);if(o){for(const i of o.words(a))if(!(i===e||!isNaN(Number(i)))&&(l.add(i),l.size>R.l))break e}}return{words:Array.from(l),duration:s.elapsed()}}async $computeWordRanges(n,e,u,r){const s=this.g(n);if(!s)return Object.create(null);const a=new RegExp(u,r),l=Object.create(null);for(let t=e.startLineNumber;t<e.endLineNumber;t++){const o=s.getLineWords(t,a);for(const i of o){if(!isNaN(Number(i.word)))continue;let c=l[i.word];c||(c=[],l[i.word]=c),c.push({startLineNumber:t,startColumn:i.startColumn,endLineNumber:t,endColumn:i.endColumn})}}return l}async $navigateValueSet(n,e,u,r,s){const a=this.g(n);if(!a)return null;const l=new RegExp(r,s);e.startColumn===e.endColumn&&(e={startLineNumber:e.startLineNumber,startColumn:e.startColumn,endLineNumber:e.endLineNumber,endColumn:e.endColumn+1});const t=a.getValueInRange(e),o=a.getWordAtPosition({lineNumber:e.startLineNumber,column:e.startColumn},l);if(!o)return null;const i=a.getValueInRange(o);return S.INSTANCE.navigateValueSet(e,t,o,i,u)}$fmr(n,e){if(!this.f||typeof this.f[n]!="function")return Promise.reject(new Error("Missing requestHandler or method: "+n));try{return Promise.resolve(this.f[n].apply(this.f,e))}catch(u){return Promise.reject(u)}}}typeof importScripts=="function"&&(globalThis.monaco=D());export{R as $4eb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { stringDiff } from "../../../base/common/diff/diff.js";
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { computeLinks } from "../languages/linkComputer.js";
+import { BasicInplaceReplace } from "../languages/supports/inplaceReplaceSupport.js";
+import { createMonacoBaseAPI } from "./editorBaseApi.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
+import { UnicodeTextModelHighlighter } from "./unicodeTextModelHighlighter.js";
+import { DiffComputer } from "../diff/legacyLinesDiffComputer.js";
+import { linesDiffComputers } from "../diff/linesDiffComputers.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { computeDefaultDocumentColors } from "../languages/defaultDocumentColorsComputer.js";
+import { findSectionHeaders } from "./findSectionHeaders.js";
+import { WorkerTextModelSyncServer } from "./textModelSync/textModelSync.impl.js";
+class EditorWorker {
+  static {
+    __name(this, "EditorWorker");
+  }
+  constructor(_foreignModule = null) {
+    this._foreignModule = _foreignModule;
+    this._workerTextModelSyncServer = new WorkerTextModelSyncServer();
+  }
+  dispose() {
+  }
+  async $ping() {
+    return "pong";
+  }
+  _getModel(uri) {
+    return this._workerTextModelSyncServer.getModel(uri);
+  }
+  getModels() {
+    return this._workerTextModelSyncServer.getModels();
+  }
+  $acceptNewModel(data) {
+    this._workerTextModelSyncServer.$acceptNewModel(data);
+  }
+  $acceptModelChanged(uri, e) {
+    this._workerTextModelSyncServer.$acceptModelChanged(uri, e);
+  }
+  $acceptRemovedModel(uri) {
+    this._workerTextModelSyncServer.$acceptRemovedModel(uri);
+  }
+  async $computeUnicodeHighlights(url, options, range) {
+    const model = this._getModel(url);
+    if (!model) {
+      return { ranges: [], hasMore: false, ambiguousCharacterCount: 0, invisibleCharacterCount: 0, nonBasicAsciiCharacterCount: 0 };
+    }
+    return UnicodeTextModelHighlighter.computeUnicodeHighlights(model, options, range);
+  }
+  async $findSectionHeaders(url, options) {
+    const model = this._getModel(url);
+    if (!model) {
+      return [];
+    }
+    return findSectionHeaders(model, options);
+  }
+  // ---- BEGIN diff --------------------------------------------------------------------------
+  async $computeDiff(originalUrl, modifiedUrl, options, algorithm) {
+    const original = this._getModel(originalUrl);
+    const modified = this._getModel(modifiedUrl);
+    if (!original || !modified) {
+      return null;
+    }
+    const result = EditorWorker.computeDiff(original, modified, options, algorithm);
+    return result;
+  }
+  static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
+    const diffAlgorithm = algorithm === "advanced" ? linesDiffComputers.getDefault() : linesDiffComputers.getLegacy();
+    const originalLines = originalTextModel.getLinesContent();
+    const modifiedLines = modifiedTextModel.getLinesContent();
+    const result = diffAlgorithm.computeDiff(originalLines, modifiedLines, options);
+    const identical = result.changes.length > 0 ? false : this._modelsAreIdentical(originalTextModel, modifiedTextModel);
+    function getLineChanges(changes) {
+      return changes.map((m) => [m.original.startLineNumber, m.original.endLineNumberExclusive, m.modified.startLineNumber, m.modified.endLineNumberExclusive, m.innerChanges?.map((m2) => [
+        m2.originalRange.startLineNumber,
+        m2.originalRange.startColumn,
+        m2.originalRange.endLineNumber,
+        m2.originalRange.endColumn,
+        m2.modifiedRange.startLineNumber,
+        m2.modifiedRange.startColumn,
+        m2.modifiedRange.endLineNumber,
+        m2.modifiedRange.endColumn
+      ])]);
+    }
+    __name(getLineChanges, "getLineChanges");
+    return {
+      identical,
+      quitEarly: result.hitTimeout,
+      changes: getLineChanges(result.changes),
+      moves: result.moves.map((m) => [
+        m.lineRangeMapping.original.startLineNumber,
+        m.lineRangeMapping.original.endLineNumberExclusive,
+        m.lineRangeMapping.modified.startLineNumber,
+        m.lineRangeMapping.modified.endLineNumberExclusive,
+        getLineChanges(m.changes)
+      ])
+    };
+  }
+  static _modelsAreIdentical(original, modified) {
+    const originalLineCount = original.getLineCount();
+    const modifiedLineCount = modified.getLineCount();
+    if (originalLineCount !== modifiedLineCount) {
+      return false;
+    }
+    for (let line = 1; line <= originalLineCount; line++) {
+      const originalLine = original.getLineContent(line);
+      const modifiedLine = modified.getLineContent(line);
+      if (originalLine !== modifiedLine) {
+        return false;
+      }
+    }
+    return true;
+  }
+  async $computeDirtyDiff(originalUrl, modifiedUrl, ignoreTrimWhitespace) {
+    const original = this._getModel(originalUrl);
+    const modified = this._getModel(modifiedUrl);
+    if (!original || !modified) {
+      return null;
+    }
+    const originalLines = original.getLinesContent();
+    const modifiedLines = modified.getLinesContent();
+    const diffComputer = new DiffComputer(originalLines, modifiedLines, {
+      shouldComputeCharChanges: false,
+      shouldPostProcessCharChanges: false,
+      shouldIgnoreTrimWhitespace: ignoreTrimWhitespace,
+      shouldMakePrettyDiff: true,
+      maxComputationTime: 1e3
+    });
+    return diffComputer.computeDiff().changes;
+  }
+  static {
+    this._diffLimit = 1e5;
+  }
+  async $computeMoreMinimalEdits(modelUrl, edits, pretty) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return edits;
+    }
+    const result = [];
+    let lastEol = void 0;
+    edits = edits.slice(0).sort((a, b) => {
+      if (a.range && b.range) {
+        return Range.compareRangesUsingStarts(a.range, b.range);
+      }
+      const aRng = a.range ? 0 : 1;
+      const bRng = b.range ? 0 : 1;
+      return aRng - bRng;
+    });
+    let writeIndex = 0;
+    for (let readIndex = 1; readIndex < edits.length; readIndex++) {
+      if (Range.getEndPosition(edits[writeIndex].range).equals(Range.getStartPosition(edits[readIndex].range))) {
+        edits[writeIndex].range = Range.fromPositions(Range.getStartPosition(edits[writeIndex].range), Range.getEndPosition(edits[readIndex].range));
+        edits[writeIndex].text += edits[readIndex].text;
+      } else {
+        writeIndex++;
+        edits[writeIndex] = edits[readIndex];
+      }
+    }
+    edits.length = writeIndex + 1;
+    for (let { range, text, eol } of edits) {
+      if (typeof eol === "number") {
+        lastEol = eol;
+      }
+      if (Range.isEmpty(range) && !text) {
+        continue;
+      }
+      const original = model.getValueInRange(range);
+      text = text.replace(/\r\n|\n|\r/g, model.eol);
+      if (original === text) {
+        continue;
+      }
+      if (Math.max(text.length, original.length) > EditorWorker._diffLimit) {
+        result.push({ range, text });
+        continue;
+      }
+      const changes = stringDiff(original, text, pretty);
+      const editOffset = model.offsetAt(Range.lift(range).getStartPosition());
+      for (const change of changes) {
+        const start = model.positionAt(editOffset + change.originalStart);
+        const end = model.positionAt(editOffset + change.originalStart + change.originalLength);
+        const newEdit = {
+          text: text.substr(change.modifiedStart, change.modifiedLength),
+          range: { startLineNumber: start.lineNumber, startColumn: start.column, endLineNumber: end.lineNumber, endColumn: end.column }
+        };
+        if (model.getValueInRange(newEdit.range) !== newEdit.text) {
+          result.push(newEdit);
+        }
+      }
+    }
+    if (typeof lastEol === "number") {
+      result.push({ eol: lastEol, text: "", range: { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 } });
+    }
+    return result;
+  }
+  $computeHumanReadableDiff(modelUrl, edits, options) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return edits;
+    }
+    const result = [];
+    let lastEol = void 0;
+    edits = edits.slice(0).sort((a, b) => {
+      if (a.range && b.range) {
+        return Range.compareRangesUsingStarts(a.range, b.range);
+      }
+      const aRng = a.range ? 0 : 1;
+      const bRng = b.range ? 0 : 1;
+      return aRng - bRng;
+    });
+    for (let { range, text, eol } of edits) {
+      let addPositions2 = function(pos1, pos2) {
+        return new Position(pos1.lineNumber + pos2.lineNumber - 1, pos2.lineNumber === 1 ? pos1.column + pos2.column - 1 : pos2.column);
+      }, getText2 = function(lines, range2) {
+        const result2 = [];
+        for (let i = range2.startLineNumber; i <= range2.endLineNumber; i++) {
+          const line = lines[i - 1];
+          if (i === range2.startLineNumber && i === range2.endLineNumber) {
+            result2.push(line.substring(range2.startColumn - 1, range2.endColumn - 1));
+          } else if (i === range2.startLineNumber) {
+            result2.push(line.substring(range2.startColumn - 1));
+          } else if (i === range2.endLineNumber) {
+            result2.push(line.substring(0, range2.endColumn - 1));
+          } else {
+            result2.push(line);
+          }
+        }
+        return result2;
+      };
+      var addPositions = addPositions2, getText = getText2;
+      __name(addPositions2, "addPositions");
+      __name(getText2, "getText");
+      if (typeof eol === "number") {
+        lastEol = eol;
+      }
+      if (Range.isEmpty(range) && !text) {
+        continue;
+      }
+      const original = model.getValueInRange(range);
+      text = text.replace(/\r\n|\n|\r/g, model.eol);
+      if (original === text) {
+        continue;
+      }
+      if (Math.max(text.length, original.length) > EditorWorker._diffLimit) {
+        result.push({ range, text });
+        continue;
+      }
+      const originalLines = original.split(/\r\n|\n|\r/);
+      const modifiedLines = text.split(/\r\n|\n|\r/);
+      const diff = linesDiffComputers.getDefault().computeDiff(originalLines, modifiedLines, options);
+      const start = Range.lift(range).getStartPosition();
+      for (const c of diff.changes) {
+        if (c.innerChanges) {
+          for (const x of c.innerChanges) {
+            result.push({
+              range: Range.fromPositions(addPositions2(start, x.originalRange.getStartPosition()), addPositions2(start, x.originalRange.getEndPosition())),
+              text: getText2(modifiedLines, x.modifiedRange).join(model.eol)
+            });
+          }
+        } else {
+          throw new BugIndicatingError("The experimental diff algorithm always produces inner changes");
+        }
+      }
+    }
+    if (typeof lastEol === "number") {
+      result.push({ eol: lastEol, text: "", range: { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 } });
+    }
+    return result;
+  }
+  // ---- END minimal edits ---------------------------------------------------------------
+  async $computeLinks(modelUrl) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return null;
+    }
+    return computeLinks(model);
+  }
+  // --- BEGIN default document colors -----------------------------------------------------------
+  async $computeDefaultDocumentColors(modelUrl) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return null;
+    }
+    return computeDefaultDocumentColors(model);
+  }
+  static {
+    this._suggestionsLimit = 1e4;
+  }
+  async $textualSuggest(modelUrls, leadingWord, wordDef, wordDefFlags) {
+    const sw = new StopWatch();
+    const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+    const seen = /* @__PURE__ */ new Set();
+    outer: for (const url of modelUrls) {
+      const model = this._getModel(url);
+      if (!model) {
+        continue;
+      }
+      for (const word of model.words(wordDefRegExp)) {
+        if (word === leadingWord || !isNaN(Number(word))) {
+          continue;
+        }
+        seen.add(word);
+        if (seen.size > EditorWorker._suggestionsLimit) {
+          break outer;
+        }
+      }
+    }
+    return { words: Array.from(seen), duration: sw.elapsed() };
+  }
+  // ---- END suggest --------------------------------------------------------------------------
+  //#region -- word ranges --
+  async $computeWordRanges(modelUrl, range, wordDef, wordDefFlags) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return /* @__PURE__ */ Object.create(null);
+    }
+    const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+    const result = /* @__PURE__ */ Object.create(null);
+    for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
+      const words = model.getLineWords(line, wordDefRegExp);
+      for (const word of words) {
+        if (!isNaN(Number(word.word))) {
+          continue;
+        }
+        let array = result[word.word];
+        if (!array) {
+          array = [];
+          result[word.word] = array;
+        }
+        array.push({
+          startLineNumber: line,
+          startColumn: word.startColumn,
+          endLineNumber: line,
+          endColumn: word.endColumn
+        });
+      }
+    }
+    return result;
+  }
+  //#endregion
+  async $navigateValueSet(modelUrl, range, up, wordDef, wordDefFlags) {
+    const model = this._getModel(modelUrl);
+    if (!model) {
+      return null;
+    }
+    const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+    if (range.startColumn === range.endColumn) {
+      range = {
+        startLineNumber: range.startLineNumber,
+        startColumn: range.startColumn,
+        endLineNumber: range.endLineNumber,
+        endColumn: range.endColumn + 1
+      };
+    }
+    const selectionText = model.getValueInRange(range);
+    const wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
+    if (!wordRange) {
+      return null;
+    }
+    const word = model.getValueInRange(wordRange);
+    const result = BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
+    return result;
+  }
+  // ---- BEGIN foreign module support --------------------------------------------------------------------------
+  // foreign method request
+  $fmr(method, args) {
+    if (!this._foreignModule || typeof this._foreignModule[method] !== "function") {
+      return Promise.reject(new Error("Missing requestHandler or method: " + method));
+    }
+    try {
+      return Promise.resolve(this._foreignModule[method].apply(this._foreignModule, args));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+}
+if (typeof importScripts === "function") {
+  globalThis.monaco = createMonacoBaseAPI();
+}
+export {
+  EditorWorker
+};
+//# sourceMappingURL=editorWebWorker.js.map

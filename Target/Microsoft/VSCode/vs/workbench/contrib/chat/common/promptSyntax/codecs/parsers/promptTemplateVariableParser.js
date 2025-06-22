@@ -1,1 +1,107 @@
-import{$Uc as i}from"../../../../../../../base/common/assert.js";import{$4R as T}from"../tokens/promptTemplateVariable.js";import{$mQ as l}from"../base/baseToken.js";import{DollarSign as b,LeftCurlyBrace as f,RightCurlyBrace as u}from"../base/simpleCodec/tokens/tokens.js";import{$yR as p,$xR as m}from"../base/simpleCodec/parserBase.js";var h=function(o,e,t,s){var n=arguments.length,r=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,s);else for(var a=o.length-1;a>=0;a--)(c=o[a])&&(r=(n<3?c(r):n>3?c(e,t,r):c(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r};class g extends m{constructor(e){super([e])}accept(e){return e instanceof f?(this.c.push(e),this.a=!0,{result:"success",nextParser:new d(this.c),wasTokenConsumed:!0}):{result:"failure",wasTokenConsumed:!1}}}h([p],g.prototype,"accept",null);class d extends m{constructor(e){super(e)}accept(e){return e instanceof u?(this.c.push(e),this.a=!0,{result:"success",nextParser:this.asPromptTemplateVariable(),wasTokenConsumed:!0}):(this.c.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0})}get e(){const e=[];if(this.c.length<3)return"";for(let t=2;t<this.c.length;t++){const s=this.c[t],n=t===this.c.length-1;if(s instanceof u&&n===!0)break;e.push(s)}return l.render(e)}asPromptTemplateVariable(){const e=this.c[0],t=this.c[1],s=this.c[this.c.length-1];return i(this.c.length>=3,"Prompt template variable should have at least 3 tokens."),i(s instanceof u,'Last token is not a "}".'),i(e instanceof b,'First token must be a "$".'),i(t instanceof f,'Second token must be a "{".'),new T(l.fullRange(this.c),this.e)}}h([p],d.prototype,"accept",null);export{g as $iS,d as $jS};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assert } from "../../../../../../../base/common/assert.js";
+import { PromptTemplateVariable } from "../tokens/promptTemplateVariable.js";
+import { BaseToken } from "../base/baseToken.js";
+import { DollarSign, LeftCurlyBrace, RightCurlyBrace } from "../base/simpleCodec/tokens/tokens.js";
+import { assertNotConsumed, ParserBase } from "../base/simpleCodec/parserBase.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+class PartialPromptTemplateVariableStart extends ParserBase {
+  static {
+    __name(this, "PartialPromptTemplateVariableStart");
+  }
+  constructor(token) {
+    super([token]);
+  }
+  accept(token) {
+    if (token instanceof LeftCurlyBrace) {
+      this.currentTokens.push(token);
+      this.isConsumed = true;
+      return {
+        result: "success",
+        nextParser: new PartialPromptTemplateVariable(this.currentTokens),
+        wasTokenConsumed: true
+      };
+    }
+    return {
+      result: "failure",
+      wasTokenConsumed: false
+    };
+  }
+}
+__decorate([
+  assertNotConsumed
+], PartialPromptTemplateVariableStart.prototype, "accept", null);
+class PartialPromptTemplateVariable extends ParserBase {
+  static {
+    __name(this, "PartialPromptTemplateVariable");
+  }
+  constructor(tokens) {
+    super(tokens);
+  }
+  accept(token) {
+    if (token instanceof RightCurlyBrace) {
+      this.currentTokens.push(token);
+      this.isConsumed = true;
+      return {
+        result: "success",
+        nextParser: this.asPromptTemplateVariable(),
+        wasTokenConsumed: true
+      };
+    }
+    this.currentTokens.push(token);
+    return {
+      result: "success",
+      nextParser: this,
+      wasTokenConsumed: true
+    };
+  }
+  /**
+   * Returns a string representation of the prompt template variable
+   * contents, if any is present.
+   */
+  get contents() {
+    const contentTokens = [];
+    if (this.currentTokens.length < 3) {
+      return "";
+    }
+    for (let i = 2; i < this.currentTokens.length; i++) {
+      const token = this.currentTokens[i];
+      const isLastToken = i === this.currentTokens.length - 1;
+      if (token instanceof RightCurlyBrace && isLastToken === true) {
+        break;
+      }
+      contentTokens.push(token);
+    }
+    return BaseToken.render(contentTokens);
+  }
+  /**
+   * Try to convert current parser instance into a {@link PromptTemplateVariable} token.
+   *
+   * @throws if:
+   * 	- current tokens sequence cannot be converted to a valid template variable token
+   */
+  asPromptTemplateVariable() {
+    const firstToken = this.currentTokens[0];
+    const secondToken = this.currentTokens[1];
+    const lastToken = this.currentTokens[this.currentTokens.length - 1];
+    assert(this.currentTokens.length >= 3, "Prompt template variable should have at least 3 tokens.");
+    assert(lastToken instanceof RightCurlyBrace, 'Last token is not a "}".');
+    assert(firstToken instanceof DollarSign, 'First token must be a "$".');
+    assert(secondToken instanceof LeftCurlyBrace, 'Second token must be a "{".');
+    return new PromptTemplateVariable(BaseToken.fullRange(this.currentTokens), this.contents);
+  }
+}
+__decorate([
+  assertNotConsumed
+], PartialPromptTemplateVariable.prototype, "accept", null);
+export {
+  PartialPromptTemplateVariable,
+  PartialPromptTemplateVariableStart
+};
+//# sourceMappingURL=promptTemplateVariableParser.js.map

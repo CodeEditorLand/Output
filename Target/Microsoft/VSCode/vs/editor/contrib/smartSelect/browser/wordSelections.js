@@ -1,1 +1,74 @@
-import{$3f as f,$4f as h}from"../../../../base/common/strings.js";import{$cC as b}from"../../../common/core/range.js";class C{constructor(t=!0){this.a=t}provideSelectionRanges(t,n){const e=[];for(const r of n){const i=[];e.push(i),this.a&&this.b(i,t,r),this.c(i,t,r),this.d(i,t,r),i.push({range:t.getFullModelRange()})}return e}b(t,n,e){const r=n.getWordAtPosition(e);if(!r)return;const{word:i,startColumn:l}=r,a=e.column-l;let s=a,u=a,c=0;for(;s>=0;s--){const o=i.charCodeAt(s);if(s!==a&&(o===95||o===45))break;if(f(o)&&h(c))break;c=o}for(s+=1;u<i.length;u++){const o=i.charCodeAt(u);if(h(o)&&f(c))break;if(o===95||o===45)break;c=o}s<u&&t.push({range:new b(e.lineNumber,l+s,e.lineNumber,l+u)})}c(t,n,e){const r=n.getWordAtPosition(e);r&&t.push({range:new b(e.lineNumber,r.startColumn,e.lineNumber,r.endColumn)})}d(t,n,e){n.getLineLength(e.lineNumber)>0&&n.getLineFirstNonWhitespaceColumn(e.lineNumber)===0&&n.getLineLastNonWhitespaceColumn(e.lineNumber)===0&&t.push({range:new b(e.lineNumber,1,e.lineNumber,n.getLineMaxColumn(e.lineNumber))})}}export{C as $Psb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isLowerAsciiLetter, isUpperAsciiLetter } from "../../../../base/common/strings.js";
+import { Range } from "../../../common/core/range.js";
+class WordSelectionRangeProvider {
+  static {
+    __name(this, "WordSelectionRangeProvider");
+  }
+  constructor(selectSubwords = true) {
+    this.selectSubwords = selectSubwords;
+  }
+  provideSelectionRanges(model, positions) {
+    const result = [];
+    for (const position of positions) {
+      const bucket = [];
+      result.push(bucket);
+      if (this.selectSubwords) {
+        this._addInWordRanges(bucket, model, position);
+      }
+      this._addWordRanges(bucket, model, position);
+      this._addWhitespaceLine(bucket, model, position);
+      bucket.push({ range: model.getFullModelRange() });
+    }
+    return result;
+  }
+  _addInWordRanges(bucket, model, pos) {
+    const obj = model.getWordAtPosition(pos);
+    if (!obj) {
+      return;
+    }
+    const { word, startColumn } = obj;
+    const offset = pos.column - startColumn;
+    let start = offset;
+    let end = offset;
+    let lastCh = 0;
+    for (; start >= 0; start--) {
+      const ch = word.charCodeAt(start);
+      if (start !== offset && (ch === 95 || ch === 45)) {
+        break;
+      } else if (isLowerAsciiLetter(ch) && isUpperAsciiLetter(lastCh)) {
+        break;
+      }
+      lastCh = ch;
+    }
+    start += 1;
+    for (; end < word.length; end++) {
+      const ch = word.charCodeAt(end);
+      if (isUpperAsciiLetter(ch) && isLowerAsciiLetter(lastCh)) {
+        break;
+      } else if (ch === 95 || ch === 45) {
+        break;
+      }
+      lastCh = ch;
+    }
+    if (start < end) {
+      bucket.push({ range: new Range(pos.lineNumber, startColumn + start, pos.lineNumber, startColumn + end) });
+    }
+  }
+  _addWordRanges(bucket, model, pos) {
+    const word = model.getWordAtPosition(pos);
+    if (word) {
+      bucket.push({ range: new Range(pos.lineNumber, word.startColumn, pos.lineNumber, word.endColumn) });
+    }
+  }
+  _addWhitespaceLine(bucket, model, pos) {
+    if (model.getLineLength(pos.lineNumber) > 0 && model.getLineFirstNonWhitespaceColumn(pos.lineNumber) === 0 && model.getLineLastNonWhitespaceColumn(pos.lineNumber) === 0) {
+      bucket.push({ range: new Range(pos.lineNumber, 1, pos.lineNumber, model.getLineMaxColumn(pos.lineNumber)) });
+    }
+  }
+}
+export {
+  WordSelectionRangeProvider
+};
+//# sourceMappingURL=wordSelections.js.map

@@ -1,1 +1,329 @@
-import*as a from"../../dom.js";import{$T9 as m,$V9 as B,$U9 as x}from"./findInputToggles.js";import{$P9 as w}from"../inputbox/inputBox.js";import{$p7 as N}from"../widget.js";import{$df as o}from"../../../common/event.js";import"./findInput.css";import*as b from"../../../../nls.js";import{$ud as L,$wd as C}from"../../../common/lifecycle.js";import{$L7 as v}from"../hover/hoverDelegateFactory.js";const y=b.localize(9,null);class $ extends N{static{this.OPTION_CHANGE="optionChange"}constructor(i,h,t){super(),this.w=!0,this.y=!1,this.H=this.B(new C),this.N=[],this.O=this.B(new o),this.onDidOptionChange=this.O.event,this.P=this.B(new o),this.onKeyDown=this.P.event,this.Q=this.B(new o),this.onMouseDown=this.Q.event,this.R=this.B(new o),this.onInput=this.R.event,this.S=this.B(new o),this.onKeyUp=this.S.event,this.U=this.B(new o),this.onCaseSensitiveKeyDown=this.U.event,this.W=this.B(new o),this.onRegexKeyDown=this.W.event,this.Y=0,this.a=t.placeholder||"",this.c=t.validation,this.h=t.label||y,this.n=!!t.showCommonFindToggles;const u=t.appendCaseSensitiveLabel||"",f=t.appendWholeWordsLabel||"",p=t.appendRegexLabel||"",c=!!t.flexibleHeight,r=!!t.flexibleWidth,g=t.flexibleMaxHeight;this.domNode=document.createElement("div"),this.domNode.classList.add("monaco-findInput"),this.inputBox=this.B(new w(this.domNode,h,{placeholder:this.a||"",ariaLabel:this.h||"",validationOptions:{validation:this.c},showHistoryHint:t.showHistoryHint,flexibleHeight:c,flexibleWidth:r,flexibleMaxHeight:g,inputBoxStyles:t.inputBoxStyles,history:t.history}));const d=this.B(v());if(this.n){this.J=this.B(new B({appendTitle:p,isChecked:!1,hoverDelegate:d,...t.toggleStyles})),this.B(this.J.onChange(e=>{this.O.fire(e),!e&&this.w&&this.inputBox.focus(),this.validate()})),this.B(this.J.onKeyDown(e=>{this.W.fire(e)})),this.L=this.B(new x({appendTitle:f,isChecked:!1,hoverDelegate:d,...t.toggleStyles})),this.B(this.L.onChange(e=>{this.O.fire(e),!e&&this.w&&this.inputBox.focus(),this.validate()})),this.M=this.B(new m({appendTitle:u,isChecked:!1,hoverDelegate:d,...t.toggleStyles})),this.B(this.M.onChange(e=>{this.O.fire(e),!e&&this.w&&this.inputBox.focus(),this.validate()})),this.B(this.M.onKeyDown(e=>{this.U.fire(e)}));const s=[this.M.domNode,this.L.domNode,this.J.domNode];this.s(this.domNode,e=>{if(e.equals(15)||e.equals(17)||e.equals(9)){const n=s.indexOf(this.domNode.ownerDocument.activeElement);if(n>=0){let l=-1;e.equals(17)?l=(n+1)%s.length:e.equals(15)&&(n===0?l=s.length-1:l=n-1),e.equals(9)?(s[n].blur(),this.inputBox.focus()):l>=0&&s[l].focus(),a.$H6.stop(e,!0)}}})}this.I=document.createElement("div"),this.I.className="controls",this.I.style.display=this.n?"":"none",this.M&&this.I.append(this.M.domNode),this.L&&this.I.appendChild(this.L.domNode),this.J&&this.I.appendChild(this.J.domNode),this.setAdditionalToggles(t?.additionalToggles),this.I&&this.domNode.appendChild(this.I),i?.appendChild(this.domNode),this.B(a.$J5(this.inputBox.inputElement,"compositionstart",s=>{this.y=!0})),this.B(a.$J5(this.inputBox.inputElement,"compositionend",s=>{this.y=!1,this.R.fire()})),this.s(this.inputBox.inputElement,s=>this.P.fire(s)),this.u(this.inputBox.inputElement,s=>this.S.fire(s)),this.z(this.inputBox.inputElement,s=>this.R.fire()),this.f(this.inputBox.inputElement,s=>this.Q.fire(s))}get isImeSessionInProgress(){return this.y}get onDidChange(){return this.inputBox.onDidChange}layout(i){this.inputBox.layout(),this.X(i.collapsedFindWidget)}enable(){this.domNode.classList.remove("disabled"),this.inputBox.enable(),this.J?.enable(),this.L?.enable(),this.M?.enable();for(const i of this.N)i.enable()}disable(){this.domNode.classList.add("disabled"),this.inputBox.disable(),this.J?.disable(),this.L?.disable(),this.M?.disable();for(const i of this.N)i.disable()}setFocusInputOnOptionClick(i){this.w=i}setEnabled(i){i?this.enable():this.disable()}setAdditionalToggles(i){for(const h of this.N)h.domNode.remove();this.N=[],this.H.value=new L;for(const h of i??[])this.H.value.add(h),this.I.appendChild(h.domNode),this.H.value.add(h.onChange(t=>{this.O.fire(t),!t&&this.w&&this.inputBox.focus()})),this.N.push(h);this.N.length>0&&(this.I.style.display=""),this.X()}X(i=!1){i?this.inputBox.paddingRight=0:this.inputBox.paddingRight=(this.M?.width()??0)+(this.L?.width()??0)+(this.J?.width()??0)+this.N.reduce((h,t)=>h+t.width(),0)}clear(){this.Z(),this.setValue(""),this.focus()}getValue(){return this.inputBox.value}setValue(i){this.inputBox.value!==i&&(this.inputBox.value=i)}onSearchSubmit(){this.inputBox.addToHistory()}select(){this.inputBox.select()}focus(){this.inputBox.focus()}getCaseSensitive(){return this.M?.checked??!1}setCaseSensitive(i){this.M&&(this.M.checked=i)}getWholeWords(){return this.L?.checked??!1}setWholeWords(i){this.L&&(this.L.checked=i)}getRegex(){return this.J?.checked??!1}setRegex(i){this.J&&(this.J.checked=i,this.validate())}focusOnCaseSensitive(){this.M?.focus()}focusOnRegex(){this.J?.focus()}highlightFindOptions(){this.domNode.classList.remove("highlight-"+this.Y),this.Y=1-this.Y,this.domNode.classList.add("highlight-"+this.Y)}validate(){this.inputBox.validate()}showMessage(i){this.inputBox.showMessage(i)}clearMessage(){this.inputBox.hideMessage()}Z(){this.inputBox.hideMessage()}}export{$ as $W9};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../dom.js";
+import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from "./findInputToggles.js";
+import { HistoryInputBox } from "../inputbox/inputBox.js";
+import { Widget } from "../widget.js";
+import { Emitter } from "../../../common/event.js";
+import "./findInput.css";
+import * as nls from "../../../../nls.js";
+import { DisposableStore, MutableDisposable } from "../../../common/lifecycle.js";
+import { createInstantHoverDelegate } from "../hover/hoverDelegateFactory.js";
+const NLS_DEFAULT_LABEL = nls.localize("defaultLabel", "input");
+class FindInput extends Widget {
+  static {
+    __name(this, "FindInput");
+  }
+  static {
+    this.OPTION_CHANGE = "optionChange";
+  }
+  constructor(parent, contextViewProvider, options) {
+    super();
+    this.fixFocusOnOptionClickEnabled = true;
+    this.imeSessionInProgress = false;
+    this.additionalTogglesDisposables = this._register(new MutableDisposable());
+    this.additionalToggles = [];
+    this._onDidOptionChange = this._register(new Emitter());
+    this.onDidOptionChange = this._onDidOptionChange.event;
+    this._onKeyDown = this._register(new Emitter());
+    this.onKeyDown = this._onKeyDown.event;
+    this._onMouseDown = this._register(new Emitter());
+    this.onMouseDown = this._onMouseDown.event;
+    this._onInput = this._register(new Emitter());
+    this.onInput = this._onInput.event;
+    this._onKeyUp = this._register(new Emitter());
+    this.onKeyUp = this._onKeyUp.event;
+    this._onCaseSensitiveKeyDown = this._register(new Emitter());
+    this.onCaseSensitiveKeyDown = this._onCaseSensitiveKeyDown.event;
+    this._onRegexKeyDown = this._register(new Emitter());
+    this.onRegexKeyDown = this._onRegexKeyDown.event;
+    this._lastHighlightFindOptions = 0;
+    this.placeholder = options.placeholder || "";
+    this.validation = options.validation;
+    this.label = options.label || NLS_DEFAULT_LABEL;
+    this.showCommonFindToggles = !!options.showCommonFindToggles;
+    const appendCaseSensitiveLabel = options.appendCaseSensitiveLabel || "";
+    const appendWholeWordsLabel = options.appendWholeWordsLabel || "";
+    const appendRegexLabel = options.appendRegexLabel || "";
+    const flexibleHeight = !!options.flexibleHeight;
+    const flexibleWidth = !!options.flexibleWidth;
+    const flexibleMaxHeight = options.flexibleMaxHeight;
+    this.domNode = document.createElement("div");
+    this.domNode.classList.add("monaco-findInput");
+    this.inputBox = this._register(new HistoryInputBox(this.domNode, contextViewProvider, {
+      placeholder: this.placeholder || "",
+      ariaLabel: this.label || "",
+      validationOptions: {
+        validation: this.validation
+      },
+      showHistoryHint: options.showHistoryHint,
+      flexibleHeight,
+      flexibleWidth,
+      flexibleMaxHeight,
+      inputBoxStyles: options.inputBoxStyles,
+      history: options.history
+    }));
+    const hoverDelegate = this._register(createInstantHoverDelegate());
+    if (this.showCommonFindToggles) {
+      this.regex = this._register(new RegexToggle({
+        appendTitle: appendRegexLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.regex.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this._register(this.regex.onKeyDown((e) => {
+        this._onRegexKeyDown.fire(e);
+      }));
+      this.wholeWords = this._register(new WholeWordsToggle({
+        appendTitle: appendWholeWordsLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.wholeWords.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this.caseSensitive = this._register(new CaseSensitiveToggle({
+        appendTitle: appendCaseSensitiveLabel,
+        isChecked: false,
+        hoverDelegate,
+        ...options.toggleStyles
+      }));
+      this._register(this.caseSensitive.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+        this.validate();
+      }));
+      this._register(this.caseSensitive.onKeyDown((e) => {
+        this._onCaseSensitiveKeyDown.fire(e);
+      }));
+      const indexes = [this.caseSensitive.domNode, this.wholeWords.domNode, this.regex.domNode];
+      this.onkeydown(this.domNode, (event) => {
+        if (event.equals(
+          15
+          /* KeyCode.LeftArrow */
+        ) || event.equals(
+          17
+          /* KeyCode.RightArrow */
+        ) || event.equals(
+          9
+          /* KeyCode.Escape */
+        )) {
+          const index = indexes.indexOf(this.domNode.ownerDocument.activeElement);
+          if (index >= 0) {
+            let newIndex = -1;
+            if (event.equals(
+              17
+              /* KeyCode.RightArrow */
+            )) {
+              newIndex = (index + 1) % indexes.length;
+            } else if (event.equals(
+              15
+              /* KeyCode.LeftArrow */
+            )) {
+              if (index === 0) {
+                newIndex = indexes.length - 1;
+              } else {
+                newIndex = index - 1;
+              }
+            }
+            if (event.equals(
+              9
+              /* KeyCode.Escape */
+            )) {
+              indexes[index].blur();
+              this.inputBox.focus();
+            } else if (newIndex >= 0) {
+              indexes[newIndex].focus();
+            }
+            dom.EventHelper.stop(event, true);
+          }
+        }
+      });
+    }
+    this.controls = document.createElement("div");
+    this.controls.className = "controls";
+    this.controls.style.display = this.showCommonFindToggles ? "" : "none";
+    if (this.caseSensitive) {
+      this.controls.append(this.caseSensitive.domNode);
+    }
+    if (this.wholeWords) {
+      this.controls.appendChild(this.wholeWords.domNode);
+    }
+    if (this.regex) {
+      this.controls.appendChild(this.regex.domNode);
+    }
+    this.setAdditionalToggles(options?.additionalToggles);
+    if (this.controls) {
+      this.domNode.appendChild(this.controls);
+    }
+    parent?.appendChild(this.domNode);
+    this._register(dom.addDisposableListener(this.inputBox.inputElement, "compositionstart", (e) => {
+      this.imeSessionInProgress = true;
+    }));
+    this._register(dom.addDisposableListener(this.inputBox.inputElement, "compositionend", (e) => {
+      this.imeSessionInProgress = false;
+      this._onInput.fire();
+    }));
+    this.onkeydown(this.inputBox.inputElement, (e) => this._onKeyDown.fire(e));
+    this.onkeyup(this.inputBox.inputElement, (e) => this._onKeyUp.fire(e));
+    this.oninput(this.inputBox.inputElement, (e) => this._onInput.fire());
+    this.onmousedown(this.inputBox.inputElement, (e) => this._onMouseDown.fire(e));
+  }
+  get isImeSessionInProgress() {
+    return this.imeSessionInProgress;
+  }
+  get onDidChange() {
+    return this.inputBox.onDidChange;
+  }
+  layout(style) {
+    this.inputBox.layout();
+    this.updateInputBoxPadding(style.collapsedFindWidget);
+  }
+  enable() {
+    this.domNode.classList.remove("disabled");
+    this.inputBox.enable();
+    this.regex?.enable();
+    this.wholeWords?.enable();
+    this.caseSensitive?.enable();
+    for (const toggle of this.additionalToggles) {
+      toggle.enable();
+    }
+  }
+  disable() {
+    this.domNode.classList.add("disabled");
+    this.inputBox.disable();
+    this.regex?.disable();
+    this.wholeWords?.disable();
+    this.caseSensitive?.disable();
+    for (const toggle of this.additionalToggles) {
+      toggle.disable();
+    }
+  }
+  setFocusInputOnOptionClick(value) {
+    this.fixFocusOnOptionClickEnabled = value;
+  }
+  setEnabled(enabled) {
+    if (enabled) {
+      this.enable();
+    } else {
+      this.disable();
+    }
+  }
+  setAdditionalToggles(toggles) {
+    for (const currentToggle of this.additionalToggles) {
+      currentToggle.domNode.remove();
+    }
+    this.additionalToggles = [];
+    this.additionalTogglesDisposables.value = new DisposableStore();
+    for (const toggle of toggles ?? []) {
+      this.additionalTogglesDisposables.value.add(toggle);
+      this.controls.appendChild(toggle.domNode);
+      this.additionalTogglesDisposables.value.add(toggle.onChange((viaKeyboard) => {
+        this._onDidOptionChange.fire(viaKeyboard);
+        if (!viaKeyboard && this.fixFocusOnOptionClickEnabled) {
+          this.inputBox.focus();
+        }
+      }));
+      this.additionalToggles.push(toggle);
+    }
+    if (this.additionalToggles.length > 0) {
+      this.controls.style.display = "";
+    }
+    this.updateInputBoxPadding();
+  }
+  updateInputBoxPadding(controlsHidden = false) {
+    if (controlsHidden) {
+      this.inputBox.paddingRight = 0;
+    } else {
+      this.inputBox.paddingRight = (this.caseSensitive?.width() ?? 0) + (this.wholeWords?.width() ?? 0) + (this.regex?.width() ?? 0) + this.additionalToggles.reduce((r, t) => r + t.width(), 0);
+    }
+  }
+  clear() {
+    this.clearValidation();
+    this.setValue("");
+    this.focus();
+  }
+  getValue() {
+    return this.inputBox.value;
+  }
+  setValue(value) {
+    if (this.inputBox.value !== value) {
+      this.inputBox.value = value;
+    }
+  }
+  onSearchSubmit() {
+    this.inputBox.addToHistory();
+  }
+  select() {
+    this.inputBox.select();
+  }
+  focus() {
+    this.inputBox.focus();
+  }
+  getCaseSensitive() {
+    return this.caseSensitive?.checked ?? false;
+  }
+  setCaseSensitive(value) {
+    if (this.caseSensitive) {
+      this.caseSensitive.checked = value;
+    }
+  }
+  getWholeWords() {
+    return this.wholeWords?.checked ?? false;
+  }
+  setWholeWords(value) {
+    if (this.wholeWords) {
+      this.wholeWords.checked = value;
+    }
+  }
+  getRegex() {
+    return this.regex?.checked ?? false;
+  }
+  setRegex(value) {
+    if (this.regex) {
+      this.regex.checked = value;
+      this.validate();
+    }
+  }
+  focusOnCaseSensitive() {
+    this.caseSensitive?.focus();
+  }
+  focusOnRegex() {
+    this.regex?.focus();
+  }
+  highlightFindOptions() {
+    this.domNode.classList.remove("highlight-" + this._lastHighlightFindOptions);
+    this._lastHighlightFindOptions = 1 - this._lastHighlightFindOptions;
+    this.domNode.classList.add("highlight-" + this._lastHighlightFindOptions);
+  }
+  validate() {
+    this.inputBox.validate();
+  }
+  showMessage(message) {
+    this.inputBox.showMessage(message);
+  }
+  clearMessage() {
+    this.inputBox.hideMessage();
+  }
+  clearValidation() {
+    this.inputBox.hideMessage();
+  }
+}
+export {
+  FindInput
+};
+//# sourceMappingURL=findInput.js.map

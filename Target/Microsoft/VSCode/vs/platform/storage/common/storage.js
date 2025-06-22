@@ -1,1 +1,446 @@
-import{Promises as P,$Yh as x,$3h as v}from"../../../base/common/async.js";import{$df as A,Event as B,$gf as y}from"../../../base/common/event.js";import{$vd as R,$qd as _,$wd as F}from"../../../base/common/lifecycle.js";import{$T as O}from"../../../base/common/performance.js";import{$9c as H}from"../../../base/common/types.js";import{$xo as f,$wo as p,StorageHint as d}from"../../../base/parts/storage/common/storage.js";import{$nj as T}from"../../instantiation/common/instantiation.js";import{$zo as D}from"../../userDataProfile/common/userDataProfile.js";const j="__$__isNewStorageMarker",u="__$__targetStorageMarker",X=T("storageService");var c;(function(i){i[i.NONE=0]="NONE",i[i.SHUTDOWN=1]="SHUTDOWN"})(c||(c={}));var I;(function(i){i[i.APPLICATION=-1]="APPLICATION",i[i.PROFILE=0]="PROFILE",i[i.WORKSPACE=1]="WORKSPACE"})(I||(I={}));var E;(function(i){i[i.USER=0]="USER",i[i.MACHINE=1]="MACHINE"})(E||(E={}));function V(i){const t=i.get(u);if(t)try{return JSON.parse(t)}catch{}return Object.create(null)}class m extends R{static{this.a=60*1e3}constructor(t={flushInterval:m.a}){super(),this.b=this.B(new y),this.f=this.B(new y),this.onDidChangeTarget=this.f.event,this.g=this.B(new A),this.onWillSaveState=this.g.event,this.m=this.B(new F),this.C=void 0,this.F=void 0,this.H=void 0,this.j=this.B(new x(()=>this.n(),t.flushInterval))}onDidChangeValue(t,e,s){return B.filter(this.b.event,r=>r.scope===t&&(e===void 0||r.key===e),s)}n(){this.m.value=v(()=>{this.r()&&this.flush(),this.j.schedule()})}r(){return!0}t(){_([this.m,this.j])}initialize(){return this.h||(this.h=(async()=>{O("code/willInitStorage");try{await this.O()}finally{O("code/didInitStorage")}this.j.schedule()})()),this.h}u(t,e){const{key:s,external:r}=e;if(s===u){switch(t){case-1:this.H=void 0;break;case 0:this.F=void 0;break;case 1:this.C=void 0;break}this.f.fire({scope:t})}else this.b.fire({scope:t,key:s,target:this.J(t)[s],external:r})}w(t){this.g.fire({reason:t})}get(t,e,s){return this.P(e)?.get(t,s)}getBoolean(t,e,s){return this.P(e)?.getBoolean(t,s)}getNumber(t,e,s){return this.P(e)?.getNumber(t,s)}getObject(t,e,s){return this.P(e)?.getObject(t,s)}storeAll(t,e){this.y(()=>{for(const s of t)this.store(s.key,s.value,s.scope,s.target,e)})}store(t,e,s,r,n=!1){if(H(e)){this.remove(t,s,n);return}this.y(()=>{this.z(t,s,r),this.P(s)?.set(t,e,n)})}remove(t,e,s=!1){this.y(()=>{this.z(t,e,void 0),this.P(e)?.delete(t,s)})}y(t){this.b.pause(),this.f.pause();try{t()}finally{this.b.resume(),this.f.resume()}}keys(t,e){const s=[],r=this.J(t);for(const n of Object.keys(r))r[n]===e&&s.push(n);return s}z(t,e,s,r=!1){const n=this.J(e);typeof s=="number"?n[t]!==s&&(n[t]=s,this.P(e)?.set(u,JSON.stringify(n),r)):typeof n[t]=="number"&&(delete n[t],this.P(e)?.set(u,JSON.stringify(n),r))}get D(){return this.C||(this.C=this.L(1)),this.C}get G(){return this.F||(this.F=this.L(0)),this.F}get I(){return this.H||(this.H=this.L(-1)),this.H}J(t){switch(t){case-1:return this.I;case 0:return this.G;default:return this.D}}L(t){const e=this.P(t);return e?V(e):Object.create(null)}isNew(t){return this.getBoolean(j,t)===!0}async flush(t=c.NONE){this.g.fire({reason:t});const e=this.P(-1),s=this.P(0),r=this.P(1);switch(t){case c.NONE:await P.settled([e?.whenFlushed()??Promise.resolve(),s?.whenFlushed()??Promise.resolve(),r?.whenFlushed()??Promise.resolve()]);break;case c.SHUTDOWN:await P.settled([e?.flush(0)??Promise.resolve(),s?.flush(0)??Promise.resolve(),r?.flush(0)??Promise.resolve()]);break}}async log(){const t=this.P(-1)?.items??new Map,e=this.P(0)?.items??new Map,s=this.P(1)?.items??new Map;return L(t,e,s,this.Q(-1)??"",this.Q(0)??"",this.Q(1)??"")}async optimize(t){return await this.flush(),this.P(t)?.optimize()}async switch(t,e){return this.w(c.NONE),D(t)?this.R(t,e):this.S(t,e)}M(t,e){return!(t.id===e.id||N(e)&&N(t))}N(t,e,s){this.y(()=>{const r=new Set;for(const[n,a]of t)r.add(n),e.get(n)!==a&&this.u(s,{key:n,external:!0});for(const[n]of e.items)r.has(n)||this.u(s,{key:n,external:!0})})}}function N(i){return i.isDefault||!!i.useDefaultFlags?.globalState}class q extends m{constructor(){super(),this.U=this.B(new p(new f,{hint:d.STORAGE_IN_MEMORY})),this.W=this.B(new p(new f,{hint:d.STORAGE_IN_MEMORY})),this.X=this.B(new p(new f,{hint:d.STORAGE_IN_MEMORY})),this.B(this.X.onDidChangeStorage(t=>this.u(1,t))),this.B(this.W.onDidChangeStorage(t=>this.u(0,t))),this.B(this.U.onDidChangeStorage(t=>this.u(-1,t)))}P(t){switch(t){case-1:return this.U;case 0:return this.W;default:return this.X}}Q(t){switch(t){case-1:return"inMemory (application)";case 0:return"inMemory (profile)";default:return"inMemory (workspace)"}}async O(){}async R(){}async S(){}r(){return!1}hasScope(t){return!1}}async function L(i,t,e,s,r,n){const a=o=>{try{return JSON.parse(o)}catch{return o}},l=new Map,$=new Map;i.forEach((o,h)=>{l.set(h,o),$.set(h,a(o))});const g=new Map,M=new Map;t.forEach((o,h)=>{g.set(h,o),M.set(h,a(o))});const w=new Map,b=new Map;e.forEach((o,h)=>{w.set(h,o),b.set(h,a(o))});const k=[];if(l.forEach((o,h)=>{k.push({key:h,value:o})}),s!==r){const o=[];g.forEach((h,C)=>{o.push({key:C,value:h})})}const S=[];w.forEach((o,h)=>{S.push({key:h,value:o})})}export{j as $Fo,u as $Go,X as $Ho,V as $Io,m as $Jo,N as $Ko,q as $Lo,L as $Mo,I as StorageScope,E as StorageTarget,c as WillSaveStateReason};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Promises, RunOnceScheduler, runWhenGlobalIdle } from "../../../base/common/async.js";
+import { Emitter, Event, PauseableEmitter } from "../../../base/common/event.js";
+import { Disposable, dispose, MutableDisposable } from "../../../base/common/lifecycle.js";
+import { mark } from "../../../base/common/performance.js";
+import { isUndefinedOrNull } from "../../../base/common/types.js";
+import { InMemoryStorageDatabase, Storage, StorageHint } from "../../../base/parts/storage/common/storage.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { isUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+const IS_NEW_KEY = "__$__isNewStorageMarker";
+const TARGET_KEY = "__$__targetStorageMarker";
+const IStorageService = createDecorator("storageService");
+var WillSaveStateReason;
+(function(WillSaveStateReason2) {
+  WillSaveStateReason2[WillSaveStateReason2["NONE"] = 0] = "NONE";
+  WillSaveStateReason2[WillSaveStateReason2["SHUTDOWN"] = 1] = "SHUTDOWN";
+})(WillSaveStateReason || (WillSaveStateReason = {}));
+var StorageScope;
+(function(StorageScope2) {
+  StorageScope2[StorageScope2["APPLICATION"] = -1] = "APPLICATION";
+  StorageScope2[StorageScope2["PROFILE"] = 0] = "PROFILE";
+  StorageScope2[StorageScope2["WORKSPACE"] = 1] = "WORKSPACE";
+})(StorageScope || (StorageScope = {}));
+var StorageTarget;
+(function(StorageTarget2) {
+  StorageTarget2[StorageTarget2["USER"] = 0] = "USER";
+  StorageTarget2[StorageTarget2["MACHINE"] = 1] = "MACHINE";
+})(StorageTarget || (StorageTarget = {}));
+function loadKeyTargets(storage) {
+  const keysRaw = storage.get(TARGET_KEY);
+  if (keysRaw) {
+    try {
+      return JSON.parse(keysRaw);
+    } catch (error) {
+    }
+  }
+  return /* @__PURE__ */ Object.create(null);
+}
+__name(loadKeyTargets, "loadKeyTargets");
+class AbstractStorageService extends Disposable {
+  static {
+    __name(this, "AbstractStorageService");
+  }
+  static {
+    this.DEFAULT_FLUSH_INTERVAL = 60 * 1e3;
+  }
+  // every minute
+  constructor(options = { flushInterval: AbstractStorageService.DEFAULT_FLUSH_INTERVAL }) {
+    super();
+    this._onDidChangeValue = this._register(new PauseableEmitter());
+    this._onDidChangeTarget = this._register(new PauseableEmitter());
+    this.onDidChangeTarget = this._onDidChangeTarget.event;
+    this._onWillSaveState = this._register(new Emitter());
+    this.onWillSaveState = this._onWillSaveState.event;
+    this.runFlushWhenIdle = this._register(new MutableDisposable());
+    this._workspaceKeyTargets = void 0;
+    this._profileKeyTargets = void 0;
+    this._applicationKeyTargets = void 0;
+    this.flushWhenIdleScheduler = this._register(new RunOnceScheduler(() => this.doFlushWhenIdle(), options.flushInterval));
+  }
+  onDidChangeValue(scope, key, disposable) {
+    return Event.filter(this._onDidChangeValue.event, (e) => e.scope === scope && (key === void 0 || e.key === key), disposable);
+  }
+  doFlushWhenIdle() {
+    this.runFlushWhenIdle.value = runWhenGlobalIdle(() => {
+      if (this.shouldFlushWhenIdle()) {
+        this.flush();
+      }
+      this.flushWhenIdleScheduler.schedule();
+    });
+  }
+  shouldFlushWhenIdle() {
+    return true;
+  }
+  stopFlushWhenIdle() {
+    dispose([this.runFlushWhenIdle, this.flushWhenIdleScheduler]);
+  }
+  initialize() {
+    if (!this.initializationPromise) {
+      this.initializationPromise = (async () => {
+        mark("code/willInitStorage");
+        try {
+          await this.doInitialize();
+        } finally {
+          mark("code/didInitStorage");
+        }
+        this.flushWhenIdleScheduler.schedule();
+      })();
+    }
+    return this.initializationPromise;
+  }
+  emitDidChangeValue(scope, event) {
+    const { key, external } = event;
+    if (key === TARGET_KEY) {
+      switch (scope) {
+        case -1:
+          this._applicationKeyTargets = void 0;
+          break;
+        case 0:
+          this._profileKeyTargets = void 0;
+          break;
+        case 1:
+          this._workspaceKeyTargets = void 0;
+          break;
+      }
+      this._onDidChangeTarget.fire({ scope });
+    } else {
+      this._onDidChangeValue.fire({ scope, key, target: this.getKeyTargets(scope)[key], external });
+    }
+  }
+  emitWillSaveState(reason) {
+    this._onWillSaveState.fire({ reason });
+  }
+  get(key, scope, fallbackValue) {
+    return this.getStorage(scope)?.get(key, fallbackValue);
+  }
+  getBoolean(key, scope, fallbackValue) {
+    return this.getStorage(scope)?.getBoolean(key, fallbackValue);
+  }
+  getNumber(key, scope, fallbackValue) {
+    return this.getStorage(scope)?.getNumber(key, fallbackValue);
+  }
+  getObject(key, scope, fallbackValue) {
+    return this.getStorage(scope)?.getObject(key, fallbackValue);
+  }
+  storeAll(entries, external) {
+    this.withPausedEmitters(() => {
+      for (const entry of entries) {
+        this.store(entry.key, entry.value, entry.scope, entry.target, external);
+      }
+    });
+  }
+  store(key, value, scope, target, external = false) {
+    if (isUndefinedOrNull(value)) {
+      this.remove(key, scope, external);
+      return;
+    }
+    this.withPausedEmitters(() => {
+      this.updateKeyTarget(key, scope, target);
+      this.getStorage(scope)?.set(key, value, external);
+    });
+  }
+  remove(key, scope, external = false) {
+    this.withPausedEmitters(() => {
+      this.updateKeyTarget(key, scope, void 0);
+      this.getStorage(scope)?.delete(key, external);
+    });
+  }
+  withPausedEmitters(fn) {
+    this._onDidChangeValue.pause();
+    this._onDidChangeTarget.pause();
+    try {
+      fn();
+    } finally {
+      this._onDidChangeValue.resume();
+      this._onDidChangeTarget.resume();
+    }
+  }
+  keys(scope, target) {
+    const keys = [];
+    const keyTargets = this.getKeyTargets(scope);
+    for (const key of Object.keys(keyTargets)) {
+      const keyTarget = keyTargets[key];
+      if (keyTarget === target) {
+        keys.push(key);
+      }
+    }
+    return keys;
+  }
+  updateKeyTarget(key, scope, target, external = false) {
+    const keyTargets = this.getKeyTargets(scope);
+    if (typeof target === "number") {
+      if (keyTargets[key] !== target) {
+        keyTargets[key] = target;
+        this.getStorage(scope)?.set(TARGET_KEY, JSON.stringify(keyTargets), external);
+      }
+    } else {
+      if (typeof keyTargets[key] === "number") {
+        delete keyTargets[key];
+        this.getStorage(scope)?.set(TARGET_KEY, JSON.stringify(keyTargets), external);
+      }
+    }
+  }
+  get workspaceKeyTargets() {
+    if (!this._workspaceKeyTargets) {
+      this._workspaceKeyTargets = this.loadKeyTargets(
+        1
+        /* StorageScope.WORKSPACE */
+      );
+    }
+    return this._workspaceKeyTargets;
+  }
+  get profileKeyTargets() {
+    if (!this._profileKeyTargets) {
+      this._profileKeyTargets = this.loadKeyTargets(
+        0
+        /* StorageScope.PROFILE */
+      );
+    }
+    return this._profileKeyTargets;
+  }
+  get applicationKeyTargets() {
+    if (!this._applicationKeyTargets) {
+      this._applicationKeyTargets = this.loadKeyTargets(
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    return this._applicationKeyTargets;
+  }
+  getKeyTargets(scope) {
+    switch (scope) {
+      case -1:
+        return this.applicationKeyTargets;
+      case 0:
+        return this.profileKeyTargets;
+      default:
+        return this.workspaceKeyTargets;
+    }
+  }
+  loadKeyTargets(scope) {
+    const storage = this.getStorage(scope);
+    return storage ? loadKeyTargets(storage) : /* @__PURE__ */ Object.create(null);
+  }
+  isNew(scope) {
+    return this.getBoolean(IS_NEW_KEY, scope) === true;
+  }
+  async flush(reason = WillSaveStateReason.NONE) {
+    this._onWillSaveState.fire({ reason });
+    const applicationStorage = this.getStorage(
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    const profileStorage = this.getStorage(
+      0
+      /* StorageScope.PROFILE */
+    );
+    const workspaceStorage = this.getStorage(
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    switch (reason) {
+      // Unspecific reason: just wait when data is flushed
+      case WillSaveStateReason.NONE:
+        await Promises.settled([
+          applicationStorage?.whenFlushed() ?? Promise.resolve(),
+          profileStorage?.whenFlushed() ?? Promise.resolve(),
+          workspaceStorage?.whenFlushed() ?? Promise.resolve()
+        ]);
+        break;
+      // Shutdown: we want to flush as soon as possible
+      // and not hit any delays that might be there
+      case WillSaveStateReason.SHUTDOWN:
+        await Promises.settled([
+          applicationStorage?.flush(0) ?? Promise.resolve(),
+          profileStorage?.flush(0) ?? Promise.resolve(),
+          workspaceStorage?.flush(0) ?? Promise.resolve()
+        ]);
+        break;
+    }
+  }
+  async log() {
+    const applicationItems = this.getStorage(
+      -1
+      /* StorageScope.APPLICATION */
+    )?.items ?? /* @__PURE__ */ new Map();
+    const profileItems = this.getStorage(
+      0
+      /* StorageScope.PROFILE */
+    )?.items ?? /* @__PURE__ */ new Map();
+    const workspaceItems = this.getStorage(
+      1
+      /* StorageScope.WORKSPACE */
+    )?.items ?? /* @__PURE__ */ new Map();
+    return logStorage(applicationItems, profileItems, workspaceItems, this.getLogDetails(
+      -1
+      /* StorageScope.APPLICATION */
+    ) ?? "", this.getLogDetails(
+      0
+      /* StorageScope.PROFILE */
+    ) ?? "", this.getLogDetails(
+      1
+      /* StorageScope.WORKSPACE */
+    ) ?? "");
+  }
+  async optimize(scope) {
+    await this.flush();
+    return this.getStorage(scope)?.optimize();
+  }
+  async switch(to, preserveData) {
+    this.emitWillSaveState(WillSaveStateReason.NONE);
+    if (isUserDataProfile(to)) {
+      return this.switchToProfile(to, preserveData);
+    }
+    return this.switchToWorkspace(to, preserveData);
+  }
+  canSwitchProfile(from, to) {
+    if (from.id === to.id) {
+      return false;
+    }
+    if (isProfileUsingDefaultStorage(to) && isProfileUsingDefaultStorage(from)) {
+      return false;
+    }
+    return true;
+  }
+  switchData(oldStorage, newStorage, scope) {
+    this.withPausedEmitters(() => {
+      const handledkeys = /* @__PURE__ */ new Set();
+      for (const [key, oldValue] of oldStorage) {
+        handledkeys.add(key);
+        const newValue = newStorage.get(key);
+        if (newValue !== oldValue) {
+          this.emitDidChangeValue(scope, { key, external: true });
+        }
+      }
+      for (const [key] of newStorage.items) {
+        if (!handledkeys.has(key)) {
+          this.emitDidChangeValue(scope, { key, external: true });
+        }
+      }
+    });
+  }
+}
+function isProfileUsingDefaultStorage(profile) {
+  return profile.isDefault || !!profile.useDefaultFlags?.globalState;
+}
+__name(isProfileUsingDefaultStorage, "isProfileUsingDefaultStorage");
+class InMemoryStorageService extends AbstractStorageService {
+  static {
+    __name(this, "InMemoryStorageService");
+  }
+  constructor() {
+    super();
+    this.applicationStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+    this.profileStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+    this.workspaceStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+    this._register(this.workspaceStorage.onDidChangeStorage((e) => this.emitDidChangeValue(1, e)));
+    this._register(this.profileStorage.onDidChangeStorage((e) => this.emitDidChangeValue(0, e)));
+    this._register(this.applicationStorage.onDidChangeStorage((e) => this.emitDidChangeValue(-1, e)));
+  }
+  getStorage(scope) {
+    switch (scope) {
+      case -1:
+        return this.applicationStorage;
+      case 0:
+        return this.profileStorage;
+      default:
+        return this.workspaceStorage;
+    }
+  }
+  getLogDetails(scope) {
+    switch (scope) {
+      case -1:
+        return "inMemory (application)";
+      case 0:
+        return "inMemory (profile)";
+      default:
+        return "inMemory (workspace)";
+    }
+  }
+  async doInitialize() {
+  }
+  async switchToProfile() {
+  }
+  async switchToWorkspace() {
+  }
+  shouldFlushWhenIdle() {
+    return false;
+  }
+  hasScope(scope) {
+    return false;
+  }
+}
+async function logStorage(application, profile, workspace, applicationPath, profilePath, workspacePath) {
+  const safeParse = /* @__PURE__ */ __name((value) => {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return value;
+    }
+  }, "safeParse");
+  const applicationItems = /* @__PURE__ */ new Map();
+  const applicationItemsParsed = /* @__PURE__ */ new Map();
+  application.forEach((value, key) => {
+    applicationItems.set(key, value);
+    applicationItemsParsed.set(key, safeParse(value));
+  });
+  const profileItems = /* @__PURE__ */ new Map();
+  const profileItemsParsed = /* @__PURE__ */ new Map();
+  profile.forEach((value, key) => {
+    profileItems.set(key, value);
+    profileItemsParsed.set(key, safeParse(value));
+  });
+  const workspaceItems = /* @__PURE__ */ new Map();
+  const workspaceItemsParsed = /* @__PURE__ */ new Map();
+  workspace.forEach((value, key) => {
+    workspaceItems.set(key, value);
+    workspaceItemsParsed.set(key, safeParse(value));
+  });
+  if (applicationPath !== profilePath) {
+    console.group(`Storage: Application (path: ${applicationPath})`);
+  } else {
+    console.group(`Storage: Application & Profile (path: ${applicationPath}, default profile)`);
+  }
+  const applicationValues = [];
+  applicationItems.forEach((value, key) => {
+    applicationValues.push({ key, value });
+  });
+  console.table(applicationValues);
+  console.groupEnd();
+  console.log(applicationItemsParsed);
+  if (applicationPath !== profilePath) {
+    console.group(`Storage: Profile (path: ${profilePath}, profile specific)`);
+    const profileValues = [];
+    profileItems.forEach((value, key) => {
+      profileValues.push({ key, value });
+    });
+    console.table(profileValues);
+    console.groupEnd();
+    console.log(profileItemsParsed);
+  }
+  console.group(`Storage: Workspace (path: ${workspacePath})`);
+  const workspaceValues = [];
+  workspaceItems.forEach((value, key) => {
+    workspaceValues.push({ key, value });
+  });
+  console.table(workspaceValues);
+  console.groupEnd();
+  console.log(workspaceItemsParsed);
+}
+__name(logStorage, "logStorage");
+export {
+  AbstractStorageService,
+  IS_NEW_KEY,
+  IStorageService,
+  InMemoryStorageService,
+  StorageScope,
+  StorageTarget,
+  TARGET_KEY,
+  WillSaveStateReason,
+  isProfileUsingDefaultStorage,
+  loadKeyTargets,
+  logStorage
+};
+//# sourceMappingURL=storage.js.map

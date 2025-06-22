@@ -1,1 +1,1507 @@
-import"./minimap.css";import*as k from"../../../../base/browser/dom.js";import{$n7 as W}from"../../../../base/browser/fastDomNode.js";import{$o7 as Z}from"../../../../base/browser/globalPointerMoveMonitor.js";import{$vd as G}from"../../../../base/common/lifecycle.js";import*as K from"../../../../base/common/platform.js";import*as A from"../../../../base/common/strings.js";import{$wbb as Q}from"../../view/viewLayer.js";import{$vbb as j,$ubb as tt}from"../../view/viewPart.js";import{MINIMAP_GUTTER_WIDTH as R,EditorLayoutInfoComputer as et}from"../../../common/config/editorOptions.js";import{$cC as E}from"../../../common/core/range.js";import{$Scb as J}from"../../../common/core/misc/rgba.js";import{$Wcb as it}from"../../../common/viewModel/minimapTokensColorTracker.js";import{$Z_ as nt}from"../../../common/viewModel.js";import{$Dr as X,$Hr as st,$Ir as ot,$8p as rt}from"../../../../platform/theme/common/colorRegistry.js";import{$RC as ht}from"../../../common/core/selection.js";import{EventType as Y,$l7 as at}from"../../../../base/browser/touch.js";import{$Ycb as dt}from"./minimapCharRendererFactory.js";import{$Cb as lt}from"../../../../base/common/functional.js";import{$Lc as ct}from"../../../../base/common/map.js";import{$38 as mt}from"../../../../base/browser/fonts.js";const ut=140,pt=2;class O{constructor(t,i,e){const n=t.options,s=n.get(152),o=n.get(154),r=o.minimap,d=n.get(55),h=n.get(77);this.renderMinimap=r.renderMinimap,this.size=h.size,this.minimapHeightIsEditorHeight=r.minimapHeightIsEditorHeight,this.scrollBeyondLastLine=n.get(113),this.paddingTop=n.get(91).top,this.paddingBottom=n.get(91).bottom,this.showSlider=h.showSlider,this.autohide=h.autohide,this.pixelRatio=s,this.typicalHalfwidthCharacterWidth=d.typicalHalfwidthCharacterWidth,this.lineHeight=n.get(71),this.minimapLeft=r.minimapLeft,this.minimapWidth=r.minimapWidth,this.minimapHeight=o.height,this.canvasInnerWidth=r.minimapCanvasInnerWidth,this.canvasInnerHeight=r.minimapCanvasInnerHeight,this.canvasOuterWidth=r.minimapCanvasOuterWidth,this.canvasOuterHeight=r.minimapCanvasOuterHeight,this.isSampling=r.minimapIsSampling,this.editorHeight=o.height,this.fontScale=r.minimapScale,this.minimapLineHeight=r.minimapLineHeight,this.minimapCharWidth=1*this.fontScale,this.sectionHeaderFontFamily=mt,this.sectionHeaderFontSize=h.sectionHeaderFontSize*s,this.sectionHeaderLetterSpacing=h.sectionHeaderLetterSpacing,this.sectionHeaderFontColor=O.f(i,e.getColor(1)),this.charRenderer=lt(()=>dt.create(this.fontScale,d.fontFamily)),this.defaultBackgroundColor=e.getColor(2),this.backgroundColor=O.c(i,this.defaultBackgroundColor),this.foregroundAlpha=O.d(i)}static c(t,i){const e=t.getColor(st);return e?new J(e.rgba.r,e.rgba.g,e.rgba.b,Math.round(255*e.rgba.a)):i}static d(t){const i=t.getColor(ot);return i?J._clamp(Math.round(255*i.rgba.a)):255}static f(t,i){const e=t.getColor(rt);return e?new J(e.rgba.r,e.rgba.g,e.rgba.b,Math.round(255*e.rgba.a)):i}equals(t){return this.renderMinimap===t.renderMinimap&&this.size===t.size&&this.minimapHeightIsEditorHeight===t.minimapHeightIsEditorHeight&&this.scrollBeyondLastLine===t.scrollBeyondLastLine&&this.paddingTop===t.paddingTop&&this.paddingBottom===t.paddingBottom&&this.showSlider===t.showSlider&&this.autohide===t.autohide&&this.pixelRatio===t.pixelRatio&&this.typicalHalfwidthCharacterWidth===t.typicalHalfwidthCharacterWidth&&this.lineHeight===t.lineHeight&&this.minimapLeft===t.minimapLeft&&this.minimapWidth===t.minimapWidth&&this.minimapHeight===t.minimapHeight&&this.canvasInnerWidth===t.canvasInnerWidth&&this.canvasInnerHeight===t.canvasInnerHeight&&this.canvasOuterWidth===t.canvasOuterWidth&&this.canvasOuterHeight===t.canvasOuterHeight&&this.isSampling===t.isSampling&&this.editorHeight===t.editorHeight&&this.fontScale===t.fontScale&&this.minimapLineHeight===t.minimapLineHeight&&this.minimapCharWidth===t.minimapCharWidth&&this.sectionHeaderFontSize===t.sectionHeaderFontSize&&this.sectionHeaderLetterSpacing===t.sectionHeaderLetterSpacing&&this.defaultBackgroundColor&&this.defaultBackgroundColor.equals(t.defaultBackgroundColor)&&this.backgroundColor&&this.backgroundColor.equals(t.backgroundColor)&&this.foregroundAlpha===t.foregroundAlpha}}class ${constructor(t,i,e,n,s,o,r,d,h){this.scrollTop=t,this.scrollHeight=i,this.sliderNeeded=e,this.c=n,this.sliderTop=s,this.sliderHeight=o,this.topPaddingLineCount=r,this.startLineNumber=d,this.endLineNumber=h}getDesiredScrollTopFromDelta(t){return Math.round(this.scrollTop+t/this.c)}getDesiredScrollTopFromTouchLocation(t){return Math.round((t-this.sliderHeight/2)/this.c)}intersectWithViewport(t){const i=Math.max(this.startLineNumber,t.startLineNumber),e=Math.min(this.endLineNumber,t.endLineNumber);return i>e?null:[i,e]}getYForLineNumber(t,i){return+(t-this.startLineNumber+this.topPaddingLineCount)*i}static create(t,i,e,n,s,o,r,d,h,a,l){const p=t.pixelRatio,m=t.minimapLineHeight,f=Math.floor(t.canvasInnerHeight/m),c=t.lineHeight;if(t.minimapHeightIsEditorHeight){let w=d*t.lineHeight+t.paddingTop+t.paddingBottom;t.scrollBeyondLastLine&&(w+=Math.max(0,s-t.lineHeight-t.paddingBottom));const N=Math.max(1,Math.floor(s*s/w)),M=Math.max(0,t.minimapHeight-N),H=M/(a-s),x=h*H,S=M>0,I=Math.floor(t.canvasInnerHeight/t.minimapLineHeight),v=Math.floor(t.paddingTop/t.lineHeight);return new $(h,a,S,H,x,N,v,1,Math.min(r,I))}let u;if(o&&e!==r){const w=e-i+1;u=Math.floor(w*m/p)}else{const w=s/c;u=Math.floor(w*m/p)}const g=Math.floor(t.paddingTop/c);let L=Math.floor(t.paddingBottom/c);if(t.scrollBeyondLastLine){const w=s/c;L=Math.max(L,w-1)}let b;if(L>0){const w=s/c;b=(g+r+L-w-1)*m/p}else b=Math.max(0,(g+r)*m/p-u);b=Math.min(t.minimapHeight-u,b);const C=b/(a-s),T=h*C;if(f>=g+r+L){const w=b>0;return new $(h,a,w,C,T,u,g,1,r)}else{let w;i>1?w=i+g:w=Math.max(1,h/c);let N,M=Math.max(1,Math.floor(w-T*p/m));M<g?(N=g-M+1,M=1):(N=0,M=Math.max(1,M-g)),l&&l.scrollHeight===a&&(l.scrollTop>h&&(M=Math.min(M,l.startLineNumber),N=Math.max(N,l.topPaddingLineCount)),l.scrollTop<h&&(M=Math.max(M,l.startLineNumber),N=Math.min(N,l.topPaddingLineCount)));const H=Math.min(r,M-N+f-1),x=(h-n)/c;let S;return h>=t.paddingTop?S=(i-M+N+x)*m/p:S=h/t.paddingTop*(N+x)*m/p,new $(h,a,!0,C,S,u,N,M,H)}}}class B{static{this.INVALID=new B(-1)}constructor(t){this.dy=t}onContentChanged(){this.dy=-1}onTokensChanged(){this.dy=-1}}class q{constructor(t,i,e){this.renderedLayout=t,this.c=i,this.d=new Q({createLine:()=>B.INVALID}),this.d._set(t.startLineNumber,e)}linesEquals(t){if(!this.scrollEquals(t))return!1;const e=this.d._get().lines;for(let n=0,s=e.length;n<s;n++)if(e[n].dy===-1)return!1;return!0}scrollEquals(t){return this.renderedLayout.startLineNumber===t.startLineNumber&&this.renderedLayout.endLineNumber===t.endLineNumber}_get(){const t=this.d._get();return{imageData:this.c,rendLineNumberStart:t.rendLineNumberStart,lines:t.lines}}onLinesChanged(t,i){return this.d.onLinesChanged(t,i)}onLinesDeleted(t,i){this.d.onLinesDeleted(t,i)}onLinesInserted(t,i){this.d.onLinesInserted(t,i)}onTokensChanged(t){return this.d.onTokensChanged(t)}}class z{constructor(t,i,e,n){this.c=z.h(i,e,n),this.d=[t.createImageData(i,e),t.createImageData(i,e)],this.f=0}getBuffer(){this.f=1-this.f;const t=this.d[this.f];return t.data.set(this.c),t}static h(t,i,e){const n=e.r,s=e.g,o=e.b,r=e.a,d=new Uint8ClampedArray(t*i*4);let h=0;for(let a=0;a<i;a++)for(let l=0;l<t;l++)d[h]=n,d[h+1]=s,d[h+2]=o,d[h+3]=r,h+=4;return d}}class _{static compute(t,i,e){if(t.renderMinimap===0||!t.isSampling)return[null,[]];const{minimapLineCount:n}=et.computeContainedMinimapLineCount({viewLineCount:i,scrollBeyondLastLine:t.scrollBeyondLastLine,paddingTop:t.paddingTop,paddingBottom:t.paddingBottom,height:t.editorHeight,lineHeight:t.lineHeight,pixelRatio:t.pixelRatio}),s=i/n,o=s/2;if(!e||e.minimapLines.length===0){const u=[];if(u[0]=1,n>1){for(let g=0,L=n-1;g<L;g++)u[g]=Math.round(g*s+o);u[n-1]=i}return[new _(s,u),[]]}const r=e.minimapLines,d=r.length,h=[];let a=0,l=0,p=1;const m=10;let f=[],c=null;for(let u=0;u<n;u++){const g=Math.max(p,Math.round(u*s)),L=Math.max(g,Math.round((u+1)*s));for(;a<d&&r[a]<g;){if(f.length<m){const C=a+1+l;c&&c.type==="deleted"&&c._oldIndex===a-1?c.deleteToLineNumber++:(c={type:"deleted",_oldIndex:a,deleteFromLineNumber:C,deleteToLineNumber:C},f.push(c)),l--}a++}let b;if(a<d&&r[a]<=L)b=r[a],a++;else if(u===0?b=1:u+1===n?b=i:b=Math.round(u*s+o),f.length<m){const C=a+1+l;c&&c.type==="inserted"&&c._i===u-1?c.insertToLineNumber++:(c={type:"inserted",_i:u,insertFromLineNumber:C,insertToLineNumber:C},f.push(c)),l++}h[u]=b,p=b}if(f.length<m)for(;a<d;){const u=a+1+l;c&&c.type==="deleted"&&c._oldIndex===a-1?c.deleteToLineNumber++:(c={type:"deleted",_oldIndex:a,deleteFromLineNumber:u,deleteToLineNumber:u},f.push(c)),l--,a++}else f=[{type:"flush"}];return[new _(s,h),f]}constructor(t,i){this.samplingRatio=t,this.minimapLines=i}modelLineToMinimapLine(t){return Math.min(this.minimapLines.length,Math.max(1,Math.round(t/this.samplingRatio)))}modelLineRangeToMinimapLineRange(t,i){let e=this.modelLineToMinimapLine(t)-1;for(;e>0&&this.minimapLines[e-1]>=t;)e--;let n=this.modelLineToMinimapLine(i)-1;for(;n+1<this.minimapLines.length&&this.minimapLines[n+1]<=i;)n++;if(e===n){const s=this.minimapLines[e];if(s<t||s>i)return null}return[e+1,n+1]}decorationLineRangeToMinimapLineRange(t,i){let e=this.modelLineToMinimapLine(t),n=this.modelLineToMinimapLine(i);return t!==i&&n===e&&(n===this.minimapLines.length?e>1&&e--:n++),[e,n]}onLinesDeleted(t){const i=t.toLineNumber-t.fromLineNumber+1;let e=this.minimapLines.length,n=0;for(let s=this.minimapLines.length-1;s>=0&&!(this.minimapLines[s]<t.fromLineNumber);s--)this.minimapLines[s]<=t.toLineNumber?(this.minimapLines[s]=Math.max(1,t.fromLineNumber-1),e=Math.min(e,s),n=Math.max(n,s)):this.minimapLines[s]-=i;return[e,n]}onLinesInserted(t){const i=t.toLineNumber-t.fromLineNumber+1;for(let e=this.minimapLines.length-1;e>=0&&!(this.minimapLines[e]<t.fromLineNumber);e--)this.minimapLines[e]+=i}}class Wt extends tt{constructor(t){super(t),this.t=new ct(10,1.5),this.tokensColorTracker=it.getInstance(),this.c=[],this.f=null,this.options=new O(this._context.configuration,this._context.theme,this.tokensColorTracker);const[i]=_.compute(this.options,this._context.viewModel.getLineCount(),null);this.h=i,this.n=!1,this.w=new F(t.theme,this)}dispose(){this.w.dispose(),super.dispose()}getDomNode(){return this.w.getDomNode()}z(){const t=new O(this._context.configuration,this._context.theme,this.tokensColorTracker);return this.options.equals(t)?!1:(this.options=t,this.C(),this.w.onDidChangeOptions(),!0)}onConfigurationChanged(t){return this.z()}onCursorStateChanged(t){return this.c=t.selections,this.f=null,this.w.onSelectionChanged()}onDecorationsChanged(t){return t.affectsMinimap?this.w.onDecorationsChanged():!1}onFlushed(t){return this.h&&(this.n=!0),this.w.onFlushed()}onLinesChanged(t){if(this.h){const i=this.h.modelLineRangeToMinimapLineRange(t.fromLineNumber,t.fromLineNumber+t.count-1);return i?this.w.onLinesChanged(i[0],i[1]-i[0]+1):!1}else return this.w.onLinesChanged(t.fromLineNumber,t.count)}onLinesDeleted(t){if(this.h){const[i,e]=this.h.onLinesDeleted(t);return i<=e&&this.w.onLinesChanged(i+1,e-i+1),this.n=!0,!0}else return this.w.onLinesDeleted(t.fromLineNumber,t.toLineNumber)}onLinesInserted(t){return this.h?(this.h.onLinesInserted(t),this.n=!0,!0):this.w.onLinesInserted(t.fromLineNumber,t.toLineNumber)}onScrollChanged(t){return this.w.onScrollChanged()}onThemeChanged(t){return this.w.onThemeChanged(),this.z(),!0}onTokensChanged(t){if(this.h){const i=[];for(const e of t.ranges){const n=this.h.modelLineRangeToMinimapLineRange(e.fromLineNumber,e.toLineNumber);n&&i.push({fromLineNumber:n[0],toLineNumber:n[1]})}return i.length?this.w.onTokensChanged(i):!1}else return this.w.onTokensChanged(t.ranges)}onTokensColorsChanged(t){return this.z(),this.w.onTokensColorsChanged()}onZonesChanged(t){return this.w.onZonesChanged()}prepareRender(t){this.n&&(this.n=!1,this.C())}render(t){let i=t.visibleRange.startLineNumber,e=t.visibleRange.endLineNumber;this.h&&(i=this.h.modelLineToMinimapLine(i),e=this.h.modelLineToMinimapLine(e));const n={viewportContainsWhitespaceGaps:t.viewportData.whitespaceViewportData.length>0,scrollWidth:t.scrollWidth,scrollHeight:t.scrollHeight,viewportStartLineNumber:i,viewportEndLineNumber:e,viewportStartLineNumberVerticalOffset:t.getVerticalOffsetForLineNumber(i),scrollTop:t.scrollTop,scrollLeft:t.scrollLeft,viewportWidth:t.viewportWidth,viewportHeight:t.viewportHeight};this.w.render(n)}C(){this.f=null;const t=!!this.h,[i,e]=_.compute(this.options,this._context.viewModel.getLineCount(),this.h);if(this.h=i,t&&this.h)for(const n of e)switch(n.type){case"deleted":this.w.onLinesDeleted(n.deleteFromLineNumber,n.deleteToLineNumber);break;case"inserted":this.w.onLinesInserted(n.insertFromLineNumber,n.insertToLineNumber);break;case"flush":this.w.onFlushed();break}}getLineCount(){return this.h?this.h.minimapLines.length:this._context.viewModel.getLineCount()}getRealLineCount(){return this._context.viewModel.getLineCount()}getLineContent(t){return this.h?this._context.viewModel.getLineContent(this.h.minimapLines[t-1]):this._context.viewModel.getLineContent(t)}getLineMaxColumn(t){return this.h?this._context.viewModel.getLineMaxColumn(this.h.minimapLines[t-1]):this._context.viewModel.getLineMaxColumn(t)}getMinimapLinesRenderingData(t,i,e){if(this.h){const n=[];for(let s=0,o=i-t+1;s<o;s++)e[s]?n[s]=this._context.viewModel.getViewLineData(this.h.minimapLines[t+s-1]):n[s]=null;return n}return this._context.viewModel.getMinimapLinesRenderingData(t,i,e).data}getSelections(){if(this.f===null)if(this.h){this.f=[];for(const t of this.c){const[i,e]=this.h.decorationLineRangeToMinimapLineRange(t.startLineNumber,t.endLineNumber);this.f.push(new ht(i,t.startColumn,e,t.endColumn))}}else this.f=this.c;return this.f}getMinimapDecorationsInViewport(t,i){return this.D(t,i).filter(e=>!e.options.minimap?.sectionHeaderStyle)}getSectionHeaderDecorationsInViewport(t,i){const e=this.options.sectionHeaderFontSize/this.options.minimapLineHeight;return t=Math.floor(Math.max(1,t-e)),this.D(t,i).filter(n=>!!n.options.minimap?.sectionHeaderStyle)}D(t,i){let e;if(this.h){const s=this.h.minimapLines[t-1],o=this.h.minimapLines[i-1];e=new E(s,1,o,this._context.viewModel.getLineMaxColumn(o))}else e=new E(t,1,i,this._context.viewModel.getLineMaxColumn(i));const n=this._context.viewModel.getMinimapDecorationsInRange(e);if(this.h){const s=[];for(const o of n){if(!o.options.minimap)continue;const r=o.range,d=this.h.modelLineToMinimapLine(r.startLineNumber),h=this.h.modelLineToMinimapLine(r.endLineNumber);s.push(new nt(new E(d,r.startColumn,h,r.endColumn),o.options))}return s}return n}getSectionHeaderText(t,i){const e=t.options.minimap?.sectionHeaderText;if(!e)return null;const n=this.t.get(e);if(n)return n;const s=i(e);return this.t.set(e,s),s}getOptions(){return this._context.viewModel.model.getOptions()}revealLineNumber(t){this.h&&(t=this.h.minimapLines[t-1]),this._context.viewModel.revealRange("mouse",!1,new E(t,1,t,1),1,0)}setScrollTop(t){this._context.viewModel.viewLayout.setScrollPosition({scrollTop:t},1)}}class F extends G{constructor(t,i){super(),this.M=!1,this.N=!1,this.c=t,this.f=i,this.J=null,this.O=null,this.L=this.c.getColor(X),this.h=W(document.createElement("div")),j.write(this.h,9),this.h.setClassName(this.R()),this.h.setPosition("absolute"),this.h.setAttribute("role","presentation"),this.h.setAttribute("aria-hidden","true"),this.m=W(document.createElement("div")),this.m.setClassName("minimap-shadow-hidden"),this.h.appendChild(this.m),this.n=W(document.createElement("canvas")),this.n.setPosition("absolute"),this.n.setLeft(0),this.h.appendChild(this.n),this.t=W(document.createElement("canvas")),this.t.setPosition("absolute"),this.t.setClassName("minimap-decorations-layer"),this.t.setLeft(0),this.h.appendChild(this.t),this.u=W(document.createElement("div")),this.u.setPosition("absolute"),this.u.setClassName("minimap-slider"),this.u.setLayerHinting(!0),this.u.setContain("strict"),this.h.appendChild(this.u),this.w=W(document.createElement("div")),this.w.setPosition("absolute"),this.w.setClassName("minimap-slider-horizontal"),this.u.appendChild(this.w),this.S(),this.z=k.$K5(this.h.domNode,k.$F6.POINTER_DOWN,e=>{if(e.preventDefault(),this.f.options.renderMinimap===0||!this.J)return;if(this.f.options.size!=="proportional"){if(e.button===0&&this.J){const h=k.$65(this.u.domNode),a=h.top+h.height/2;this.P(e,a,this.J.renderedLayout)}return}const s=this.f.options.minimapLineHeight,o=this.f.options.canvasInnerHeight/this.f.options.canvasOuterHeight*e.offsetY;let d=Math.floor(o/s)+this.J.renderedLayout.startLineNumber-this.J.renderedLayout.topPaddingLineCount;d=Math.min(d,this.f.getLineCount()),this.f.revealLineNumber(d)}),this.C=new Z,this.D=k.$K5(this.u.domNode,k.$F6.POINTER_DOWN,e=>{e.preventDefault(),e.stopPropagation(),e.button===0&&this.J&&this.P(e,e.pageY,this.J.renderedLayout)}),this.F=at.addTarget(this.h.domNode),this.G=k.$J5(this.h.domNode,Y.Start,e=>{e.preventDefault(),e.stopPropagation(),this.J&&(this.u.toggleClassName("active",!0),this.N=!0,this.Q(e))},{passive:!1}),this.H=k.$J5(this.h.domNode,Y.Change,e=>{e.preventDefault(),e.stopPropagation(),this.J&&this.N&&this.Q(e)},{passive:!1}),this.I=k.$K5(this.h.domNode,Y.End,e=>{e.preventDefault(),e.stopPropagation(),this.N=!1,this.u.toggleClassName("active",!1)})}P(t,i,e){if(!t.target||!(t.target instanceof Element))return;const n=t.pageX;this.u.toggleClassName("active",!0);const s=(o,r)=>{const d=k.$65(this.h.domNode),h=Math.min(Math.abs(r-n),Math.abs(r-d.left),Math.abs(r-d.left-d.width));if(K.$m&&h>ut){this.f.setScrollTop(e.scrollTop);return}const a=o-i;this.f.setScrollTop(e.getDesiredScrollTopFromDelta(a))};t.pageY!==i&&s(t.pageY,n),this.C.startMonitoring(t.target,t.pointerId,t.buttons,o=>s(o.pageY,o.pageX),()=>{this.u.toggleClassName("active",!1)})}Q(t){const i=this.h.domNode.getBoundingClientRect().top,e=this.J.renderedLayout.getDesiredScrollTopFromTouchLocation(t.pageY-i);this.f.setScrollTop(e)}dispose(){this.z.dispose(),this.C.dispose(),this.D.dispose(),this.F.dispose(),this.G.dispose(),this.H.dispose(),this.I.dispose(),super.dispose()}R(){const t=["minimap"];return this.f.options.showSlider==="always"?t.push("slider-always"):t.push("slider-mouseover"),this.f.options.autohide&&t.push("autohide"),t.join(" ")}getDomNode(){return this.h}S(){this.h.setLeft(this.f.options.minimapLeft),this.h.setWidth(this.f.options.minimapWidth),this.h.setHeight(this.f.options.minimapHeight),this.m.setHeight(this.f.options.minimapHeight),this.n.setWidth(this.f.options.canvasOuterWidth),this.n.setHeight(this.f.options.canvasOuterHeight),this.n.domNode.width=this.f.options.canvasInnerWidth,this.n.domNode.height=this.f.options.canvasInnerHeight,this.t.setWidth(this.f.options.canvasOuterWidth),this.t.setHeight(this.f.options.canvasOuterHeight),this.t.domNode.width=this.f.options.canvasInnerWidth,this.t.domNode.height=this.f.options.canvasInnerHeight,this.u.setWidth(this.f.options.minimapWidth)}U(){return this.O||this.f.options.canvasInnerWidth>0&&this.f.options.canvasInnerHeight>0&&(this.O=new z(this.n.domNode.getContext("2d"),this.f.options.canvasInnerWidth,this.f.options.canvasInnerHeight,this.f.options.backgroundColor)),this.O?this.O.getBuffer():null}onDidChangeOptions(){this.J=null,this.O=null,this.S(),this.h.setClassName(this.R())}onSelectionChanged(){return this.M=!0,!0}onDecorationsChanged(){return this.M=!0,!0}onFlushed(){return this.J=null,!0}onLinesChanged(t,i){return this.J?this.J.onLinesChanged(t,i):!1}onLinesDeleted(t,i){return this.J?.onLinesDeleted(t,i),!0}onLinesInserted(t,i){return this.J?.onLinesInserted(t,i),!0}onScrollChanged(){return this.M=!0,!0}onThemeChanged(){return this.L=this.c.getColor(X),this.M=!0,!0}onTokensChanged(t){return this.J?this.J.onTokensChanged(t):!1}onTokensColorsChanged(){return this.J=null,this.O=null,!0}onZonesChanged(){return this.J=null,!0}render(t){if(this.f.options.renderMinimap===0){this.m.setClassName("minimap-shadow-hidden"),this.w.setWidth(0),this.w.setHeight(0);return}t.scrollLeft+t.viewportWidth>=t.scrollWidth?this.m.setClassName("minimap-shadow-hidden"):this.m.setClassName("minimap-shadow-visible");const e=$.create(this.f.options,t.viewportStartLineNumber,t.viewportEndLineNumber,t.viewportStartLineNumberVerticalOffset,t.viewportHeight,t.viewportContainsWhitespaceGaps,this.f.getLineCount(),this.f.getRealLineCount(),t.scrollTop,t.scrollHeight,this.J?this.J.renderedLayout:null);this.u.setDisplay(e.sliderNeeded?"block":"none"),this.u.setTop(e.sliderTop),this.u.setHeight(e.sliderHeight),this.w.setLeft(0),this.w.setWidth(this.f.options.minimapWidth),this.w.setTop(0),this.w.setHeight(e.sliderHeight),this.W(e),this.J=this.gb(e)}W(t){if(this.M){this.M=!1;const i=this.f.getSelections();i.sort(E.compareRangesUsingStarts);const e=this.f.getMinimapDecorationsInViewport(t.startLineNumber,t.endLineNumber);e.sort((p,m)=>(p.options.zIndex||0)-(m.options.zIndex||0));const{canvasInnerWidth:n,canvasInnerHeight:s}=this.f.options,o=this.f.options.minimapLineHeight,r=this.f.options.minimapCharWidth,d=this.f.getOptions().tabSize,h=this.t.domNode.getContext("2d");h.clearRect(0,0,n,s);const a=new U(t.startLineNumber,t.endLineNumber,!1);this.X(h,i,a,t,o),this.Y(h,e,a,t,o);const l=new U(t.startLineNumber,t.endLineNumber,null);this.Z(h,i,l,t,o,d,r,n),this.$(h,e,l,t,o,d,r,n),this.db(t)}}X(t,i,e,n,s){if(!this.L||this.L.isTransparent())return;t.fillStyle=this.L.transparent(.5).toString();let o=0,r=0;for(const d of i){const h=n.intersectWithViewport(d);if(!h)continue;const[a,l]=h;for(let f=a;f<=l;f++)e.set(f,!0);const p=n.getYForLineNumber(a,s),m=n.getYForLineNumber(l,s);r>=p||(r>o&&t.fillRect(R,o,t.canvas.width,r-o),o=p),r=m}r>o&&t.fillRect(R,o,t.canvas.width,r-o)}Y(t,i,e,n,s){const o=new Map;for(let r=i.length-1;r>=0;r--){const d=i[r],h=d.options.minimap;if(!h||h.position!==1)continue;const a=n.intersectWithViewport(d.range);if(!a)continue;const[l,p]=a,m=h.getColor(this.c.value);if(!m||m.isTransparent())continue;let f=o.get(m.toString());f||(f=m.transparent(.5).toString(),o.set(m.toString(),f)),t.fillStyle=f;for(let c=l;c<=p;c++){if(e.has(c))continue;e.set(c,!0);const u=n.getYForLineNumber(l,s);t.fillRect(R,u,t.canvas.width,s)}}}Z(t,i,e,n,s,o,r,d){if(!(!this.L||this.L.isTransparent()))for(const h of i){const a=n.intersectWithViewport(h);if(!a)continue;const[l,p]=a;for(let m=l;m<=p;m++)this.ab(t,e,h,this.L,n,m,s,s,o,r,d)}}$(t,i,e,n,s,o,r,d){for(const h of i){const a=h.options.minimap;if(!a)continue;const l=n.intersectWithViewport(h.range);if(!l)continue;const[p,m]=l,f=a.getColor(this.c.value);if(!(!f||f.isTransparent()))for(let c=p;c<=m;c++)switch(a.position){case 1:this.ab(t,e,h.range,f,n,c,s,s,o,r,d);continue;case 2:{const u=n.getYForLineNumber(c,s);this.cb(t,f,2,u,pt,s);continue}}}}ab(t,i,e,n,s,o,r,d,h,a,l){const p=s.getYForLineNumber(o,d);if(p+r<0||p>this.f.options.canvasInnerHeight)return;const{startLineNumber:m,endLineNumber:f}=e,c=m===o?e.startColumn:1,u=f===o?e.endColumn:this.f.getLineMaxColumn(o),g=this.bb(i,o,c,h,a,l),L=this.bb(i,o,u,h,a,l);this.cb(t,n,g,p,L-g,r)}bb(t,i,e,n,s,o){if(e===1)return R;if((e-1)*s>=o)return o;let d=t.get(i);if(!d){const h=this.f.getLineContent(i);d=[R];let a=R;for(let l=1;l<h.length+1;l++){const p=h.charCodeAt(l-1),m=p===9?n*s:A.$kg(p)?2*s:s,f=a+m;if(f>=o){d[l]=o;break}d[l]=f,a=f}t.set(i,d)}return e-1<d.length?d[e-1]:o}cb(t,i,e,n,s,o){t.fillStyle=i&&i.toString()||"",t.fillRect(e,n,s,o)}db(t){const i=this.f.options.minimapLineHeight,e=this.f.options.sectionHeaderFontSize,n=this.f.options.sectionHeaderLetterSpacing,s=e*1.5,{canvasInnerWidth:o}=this.f.options,r=this.f.options.backgroundColor,d=`rgb(${r.r} ${r.g} ${r.b} / .7)`,h=this.f.options.sectionHeaderFontColor,a=`rgb(${h.r} ${h.g} ${h.b})`,l=a,p=this.t.domNode.getContext("2d");p.letterSpacing=n+"px",p.font="500 "+e+"px "+this.f.options.sectionHeaderFontFamily,p.strokeStyle=l,p.lineWidth=.2;const m=this.f.getSectionHeaderDecorationsInViewport(t.startLineNumber,t.endLineNumber);m.sort((c,u)=>c.range.startLineNumber-u.range.startLineNumber);const f=F.eb.bind(null,p,o-R);for(const c of m){const u=t.getYForLineNumber(c.range.startLineNumber,i)+e,g=u-e,L=g+2,b=this.f.getSectionHeaderText(c,f);F.fb(p,b,c.options.minimap?.sectionHeaderStyle===2,d,a,o,g,s,u,L)}}static eb(t,i,e){if(!e)return e;const n="\u2026",s=t.measureText(e).width,o=t.measureText(n).width;if(s<=i||s<=o)return e;const r=e.length,d=s/e.length,h=Math.floor((i-o)/d)-1;let a=Math.ceil(h/2);for(;a>0&&/\s/.test(e[a-1]);)--a;return e.substring(0,a)+n+e.substring(r-(h-a))}static fb(t,i,e,n,s,o,r,d,h,a){i&&(t.fillStyle=n,t.fillRect(0,r,o,d),t.fillStyle=s,t.fillText(i,R,h)),e&&(t.beginPath(),t.moveTo(0,a),t.lineTo(o,a),t.closePath(),t.stroke())}gb(t){const i=t.startLineNumber,e=t.endLineNumber,n=this.f.options.minimapLineHeight;if(this.J&&this.J.linesEquals(t)){const D=this.J._get();return new q(t,D.imageData,D.lines)}const s=this.U();if(!s)return null;const[o,r,d]=F.hb(s,t.topPaddingLineCount,i,e,n,this.J),h=this.f.getMinimapLinesRenderingData(i,e,d),a=this.f.getOptions().tabSize,l=this.f.options.defaultBackgroundColor,p=this.f.options.backgroundColor,m=this.f.options.foregroundAlpha,f=this.f.tokensColorTracker,c=f.backgroundIsLight(),u=this.f.options.renderMinimap,g=this.f.options.charRenderer(),L=this.f.options.fontScale,b=this.f.options.minimapCharWidth,T=(u===1?2:3)*L,w=n>T?Math.floor((n-T)/2):0,N=p.a/255,M=new J(Math.round((p.r-l.r)*N+l.r),Math.round((p.g-l.g)*N+l.g),Math.round((p.b-l.b)*N+l.b),255);let H=t.topPaddingLineCount*n;const x=[];for(let D=0,P=e-i+1;D<P;D++)d[D]&&F.ib(s,M,p.a,c,u,b,f,m,g,H,w,a,h[D],L,n),x[D]=new B(H),H+=n;const S=o===-1?0:o,v=(r===-1?s.height:r)-S;return this.n.domNode.getContext("2d").putImageData(s,0,0,0,S,s.width,v),new q(t,s,x)}static hb(t,i,e,n,s,o){const r=[];if(!o){for(let H=0,x=n-e+1;H<x;H++)r[H]=!0;return[-1,-1,r]}const d=o._get(),h=d.imageData.data,a=d.rendLineNumberStart,l=d.lines,p=l.length,m=t.width,f=t.data,c=(n-e+1)*s*m*4;let u=-1,g=-1,L=-1,b=-1,C=-1,T=-1,w=i*s;for(let H=e;H<=n;H++){const x=H-e,S=H-a,I=S>=0&&S<p?l[S].dy:-1;if(I===-1){r[x]=!0,w+=s;continue}const v=I*m*4,y=(I+s)*m*4,D=w*m*4,P=(w+s)*m*4;b===v&&T===D?(b=y,T=P):(L!==-1&&(f.set(h.subarray(L,b),C),u===-1&&L===0&&L===C&&(u=b),g===-1&&b===c&&L===C&&(g=L)),L=v,b=y,C=D,T=P),r[x]=!1,w+=s}L!==-1&&(f.set(h.subarray(L,b),C),u===-1&&L===0&&L===C&&(u=b),g===-1&&b===c&&L===C&&(g=L));const N=u===-1?-1:u/(m*4),M=g===-1?-1:g/(m*4);return[N,M,r]}static ib(t,i,e,n,s,o,r,d,h,a,l,p,m,f,c){const u=m.content,g=m.tokens,L=t.width-o,b=c===1;let C=R,T=0,w=0;for(let N=0,M=g.getCount();N<M;N++){const H=g.getEndOffset(N),x=g.getForeground(N),S=r.getColor(x);for(;T<H;T++){if(C>L)return;const I=u.charCodeAt(T);if(I===9){const v=p-(T+w)%p;w+=v-1,C+=v*o}else if(I===32)C+=o;else{const v=A.$kg(I)?2:1;for(let y=0;y<v;y++)if(s===2?h.blockRenderChar(t,C,a+l,S,d,i,e,b):h.renderChar(t,C,a+l,I,S,d,i,e,f,n,b),C+=o,C>L)return}}}}}class U{constructor(t,i,e){this.c=t,this.d=i,this.f=e,this.h=[];for(let n=0,s=this.d-this.c+1;n<s;n++)this.h[n]=e}has(t){return this.get(t)!==this.f}set(t,i){t<this.c||t>this.d||(this.h[t-this.c]=i)}get(t){return t<this.c||t>this.d?this.f:this.h[t-this.c]}}export{Wt as $Zcb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./minimap.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { GlobalPointerMoveMonitor } from "../../../../base/browser/globalPointerMoveMonitor.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as platform from "../../../../base/common/platform.js";
+import * as strings from "../../../../base/common/strings.js";
+import { RenderedLinesCollection } from "../../view/viewLayer.js";
+import { PartFingerprints, ViewPart } from "../../view/viewPart.js";
+import { MINIMAP_GUTTER_WIDTH, EditorLayoutInfoComputer } from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import { RGBA8 } from "../../../common/core/misc/rgba.js";
+import { MinimapTokensColorTracker } from "../../../common/viewModel/minimapTokensColorTracker.js";
+import { ViewModelDecoration } from "../../../common/viewModel.js";
+import { minimapSelection, minimapBackground, minimapForegroundOpacity, editorForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { Selection } from "../../../common/core/selection.js";
+import { EventType, Gesture } from "../../../../base/browser/touch.js";
+import { MinimapCharRendererFactory } from "./minimapCharRendererFactory.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import { LRUCache } from "../../../../base/common/map.js";
+import { DEFAULT_FONT_FAMILY } from "../../../../base/browser/fonts.js";
+const POINTER_DRAG_RESET_DISTANCE = 140;
+const GUTTER_DECORATION_WIDTH = 2;
+class MinimapOptions {
+  static {
+    __name(this, "MinimapOptions");
+  }
+  constructor(configuration, theme, tokensColorTracker) {
+    const options = configuration.options;
+    const pixelRatio = options.get(
+      152
+      /* EditorOption.pixelRatio */
+    );
+    const layoutInfo = options.get(
+      154
+      /* EditorOption.layoutInfo */
+    );
+    const minimapLayout = layoutInfo.minimap;
+    const fontInfo = options.get(
+      55
+      /* EditorOption.fontInfo */
+    );
+    const minimapOpts = options.get(
+      77
+      /* EditorOption.minimap */
+    );
+    this.renderMinimap = minimapLayout.renderMinimap;
+    this.size = minimapOpts.size;
+    this.minimapHeightIsEditorHeight = minimapLayout.minimapHeightIsEditorHeight;
+    this.scrollBeyondLastLine = options.get(
+      113
+      /* EditorOption.scrollBeyondLastLine */
+    );
+    this.paddingTop = options.get(
+      91
+      /* EditorOption.padding */
+    ).top;
+    this.paddingBottom = options.get(
+      91
+      /* EditorOption.padding */
+    ).bottom;
+    this.showSlider = minimapOpts.showSlider;
+    this.autohide = minimapOpts.autohide;
+    this.pixelRatio = pixelRatio;
+    this.typicalHalfwidthCharacterWidth = fontInfo.typicalHalfwidthCharacterWidth;
+    this.lineHeight = options.get(
+      71
+      /* EditorOption.lineHeight */
+    );
+    this.minimapLeft = minimapLayout.minimapLeft;
+    this.minimapWidth = minimapLayout.minimapWidth;
+    this.minimapHeight = layoutInfo.height;
+    this.canvasInnerWidth = minimapLayout.minimapCanvasInnerWidth;
+    this.canvasInnerHeight = minimapLayout.minimapCanvasInnerHeight;
+    this.canvasOuterWidth = minimapLayout.minimapCanvasOuterWidth;
+    this.canvasOuterHeight = minimapLayout.minimapCanvasOuterHeight;
+    this.isSampling = minimapLayout.minimapIsSampling;
+    this.editorHeight = layoutInfo.height;
+    this.fontScale = minimapLayout.minimapScale;
+    this.minimapLineHeight = minimapLayout.minimapLineHeight;
+    this.minimapCharWidth = 1 * this.fontScale;
+    this.sectionHeaderFontFamily = DEFAULT_FONT_FAMILY;
+    this.sectionHeaderFontSize = minimapOpts.sectionHeaderFontSize * pixelRatio;
+    this.sectionHeaderLetterSpacing = minimapOpts.sectionHeaderLetterSpacing;
+    this.sectionHeaderFontColor = MinimapOptions._getSectionHeaderColor(theme, tokensColorTracker.getColor(
+      1
+      /* ColorId.DefaultForeground */
+    ));
+    this.charRenderer = createSingleCallFunction(() => MinimapCharRendererFactory.create(this.fontScale, fontInfo.fontFamily));
+    this.defaultBackgroundColor = tokensColorTracker.getColor(
+      2
+      /* ColorId.DefaultBackground */
+    );
+    this.backgroundColor = MinimapOptions._getMinimapBackground(theme, this.defaultBackgroundColor);
+    this.foregroundAlpha = MinimapOptions._getMinimapForegroundOpacity(theme);
+  }
+  static _getMinimapBackground(theme, defaultBackgroundColor) {
+    const themeColor = theme.getColor(minimapBackground);
+    if (themeColor) {
+      return new RGBA8(themeColor.rgba.r, themeColor.rgba.g, themeColor.rgba.b, Math.round(255 * themeColor.rgba.a));
+    }
+    return defaultBackgroundColor;
+  }
+  static _getMinimapForegroundOpacity(theme) {
+    const themeColor = theme.getColor(minimapForegroundOpacity);
+    if (themeColor) {
+      return RGBA8._clamp(Math.round(255 * themeColor.rgba.a));
+    }
+    return 255;
+  }
+  static _getSectionHeaderColor(theme, defaultForegroundColor) {
+    const themeColor = theme.getColor(editorForeground);
+    if (themeColor) {
+      return new RGBA8(themeColor.rgba.r, themeColor.rgba.g, themeColor.rgba.b, Math.round(255 * themeColor.rgba.a));
+    }
+    return defaultForegroundColor;
+  }
+  equals(other) {
+    return this.renderMinimap === other.renderMinimap && this.size === other.size && this.minimapHeightIsEditorHeight === other.minimapHeightIsEditorHeight && this.scrollBeyondLastLine === other.scrollBeyondLastLine && this.paddingTop === other.paddingTop && this.paddingBottom === other.paddingBottom && this.showSlider === other.showSlider && this.autohide === other.autohide && this.pixelRatio === other.pixelRatio && this.typicalHalfwidthCharacterWidth === other.typicalHalfwidthCharacterWidth && this.lineHeight === other.lineHeight && this.minimapLeft === other.minimapLeft && this.minimapWidth === other.minimapWidth && this.minimapHeight === other.minimapHeight && this.canvasInnerWidth === other.canvasInnerWidth && this.canvasInnerHeight === other.canvasInnerHeight && this.canvasOuterWidth === other.canvasOuterWidth && this.canvasOuterHeight === other.canvasOuterHeight && this.isSampling === other.isSampling && this.editorHeight === other.editorHeight && this.fontScale === other.fontScale && this.minimapLineHeight === other.minimapLineHeight && this.minimapCharWidth === other.minimapCharWidth && this.sectionHeaderFontSize === other.sectionHeaderFontSize && this.sectionHeaderLetterSpacing === other.sectionHeaderLetterSpacing && this.defaultBackgroundColor && this.defaultBackgroundColor.equals(other.defaultBackgroundColor) && this.backgroundColor && this.backgroundColor.equals(other.backgroundColor) && this.foregroundAlpha === other.foregroundAlpha;
+  }
+}
+class MinimapLayout {
+  static {
+    __name(this, "MinimapLayout");
+  }
+  constructor(scrollTop, scrollHeight, sliderNeeded, _computedSliderRatio, sliderTop, sliderHeight, topPaddingLineCount, startLineNumber, endLineNumber) {
+    this.scrollTop = scrollTop;
+    this.scrollHeight = scrollHeight;
+    this.sliderNeeded = sliderNeeded;
+    this._computedSliderRatio = _computedSliderRatio;
+    this.sliderTop = sliderTop;
+    this.sliderHeight = sliderHeight;
+    this.topPaddingLineCount = topPaddingLineCount;
+    this.startLineNumber = startLineNumber;
+    this.endLineNumber = endLineNumber;
+  }
+  /**
+   * Compute a desired `scrollPosition` such that the slider moves by `delta`.
+   */
+  getDesiredScrollTopFromDelta(delta) {
+    return Math.round(this.scrollTop + delta / this._computedSliderRatio);
+  }
+  getDesiredScrollTopFromTouchLocation(pageY) {
+    return Math.round((pageY - this.sliderHeight / 2) / this._computedSliderRatio);
+  }
+  /**
+   * Intersect a line range with `this.startLineNumber` and `this.endLineNumber`.
+   */
+  intersectWithViewport(range) {
+    const startLineNumber = Math.max(this.startLineNumber, range.startLineNumber);
+    const endLineNumber = Math.min(this.endLineNumber, range.endLineNumber);
+    if (startLineNumber > endLineNumber) {
+      return null;
+    }
+    return [startLineNumber, endLineNumber];
+  }
+  /**
+   * Get the inner minimap y coordinate for a line number.
+   */
+  getYForLineNumber(lineNumber, minimapLineHeight) {
+    return +(lineNumber - this.startLineNumber + this.topPaddingLineCount) * minimapLineHeight;
+  }
+  static create(options, viewportStartLineNumber, viewportEndLineNumber, viewportStartLineNumberVerticalOffset, viewportHeight, viewportContainsWhitespaceGaps, lineCount, realLineCount, scrollTop, scrollHeight, previousLayout) {
+    const pixelRatio = options.pixelRatio;
+    const minimapLineHeight = options.minimapLineHeight;
+    const minimapLinesFitting = Math.floor(options.canvasInnerHeight / minimapLineHeight);
+    const lineHeight = options.lineHeight;
+    if (options.minimapHeightIsEditorHeight) {
+      let logicalScrollHeight = realLineCount * options.lineHeight + options.paddingTop + options.paddingBottom;
+      if (options.scrollBeyondLastLine) {
+        logicalScrollHeight += Math.max(0, viewportHeight - options.lineHeight - options.paddingBottom);
+      }
+      const sliderHeight2 = Math.max(1, Math.floor(viewportHeight * viewportHeight / logicalScrollHeight));
+      const maxMinimapSliderTop2 = Math.max(0, options.minimapHeight - sliderHeight2);
+      const computedSliderRatio2 = maxMinimapSliderTop2 / (scrollHeight - viewportHeight);
+      const sliderTop2 = scrollTop * computedSliderRatio2;
+      const sliderNeeded = maxMinimapSliderTop2 > 0;
+      const maxLinesFitting = Math.floor(options.canvasInnerHeight / options.minimapLineHeight);
+      const topPaddingLineCount = Math.floor(options.paddingTop / options.lineHeight);
+      return new MinimapLayout(scrollTop, scrollHeight, sliderNeeded, computedSliderRatio2, sliderTop2, sliderHeight2, topPaddingLineCount, 1, Math.min(lineCount, maxLinesFitting));
+    }
+    let sliderHeight;
+    if (viewportContainsWhitespaceGaps && viewportEndLineNumber !== lineCount) {
+      const viewportLineCount = viewportEndLineNumber - viewportStartLineNumber + 1;
+      sliderHeight = Math.floor(viewportLineCount * minimapLineHeight / pixelRatio);
+    } else {
+      const expectedViewportLineCount = viewportHeight / lineHeight;
+      sliderHeight = Math.floor(expectedViewportLineCount * minimapLineHeight / pixelRatio);
+    }
+    const extraLinesAtTheTop = Math.floor(options.paddingTop / lineHeight);
+    let extraLinesAtTheBottom = Math.floor(options.paddingBottom / lineHeight);
+    if (options.scrollBeyondLastLine) {
+      const expectedViewportLineCount = viewportHeight / lineHeight;
+      extraLinesAtTheBottom = Math.max(extraLinesAtTheBottom, expectedViewportLineCount - 1);
+    }
+    let maxMinimapSliderTop;
+    if (extraLinesAtTheBottom > 0) {
+      const expectedViewportLineCount = viewportHeight / lineHeight;
+      maxMinimapSliderTop = (extraLinesAtTheTop + lineCount + extraLinesAtTheBottom - expectedViewportLineCount - 1) * minimapLineHeight / pixelRatio;
+    } else {
+      maxMinimapSliderTop = Math.max(0, (extraLinesAtTheTop + lineCount) * minimapLineHeight / pixelRatio - sliderHeight);
+    }
+    maxMinimapSliderTop = Math.min(options.minimapHeight - sliderHeight, maxMinimapSliderTop);
+    const computedSliderRatio = maxMinimapSliderTop / (scrollHeight - viewportHeight);
+    const sliderTop = scrollTop * computedSliderRatio;
+    if (minimapLinesFitting >= extraLinesAtTheTop + lineCount + extraLinesAtTheBottom) {
+      const sliderNeeded = maxMinimapSliderTop > 0;
+      return new MinimapLayout(scrollTop, scrollHeight, sliderNeeded, computedSliderRatio, sliderTop, sliderHeight, extraLinesAtTheTop, 1, lineCount);
+    } else {
+      let consideringStartLineNumber;
+      if (viewportStartLineNumber > 1) {
+        consideringStartLineNumber = viewportStartLineNumber + extraLinesAtTheTop;
+      } else {
+        consideringStartLineNumber = Math.max(1, scrollTop / lineHeight);
+      }
+      let topPaddingLineCount;
+      let startLineNumber = Math.max(1, Math.floor(consideringStartLineNumber - sliderTop * pixelRatio / minimapLineHeight));
+      if (startLineNumber < extraLinesAtTheTop) {
+        topPaddingLineCount = extraLinesAtTheTop - startLineNumber + 1;
+        startLineNumber = 1;
+      } else {
+        topPaddingLineCount = 0;
+        startLineNumber = Math.max(1, startLineNumber - extraLinesAtTheTop);
+      }
+      if (previousLayout && previousLayout.scrollHeight === scrollHeight) {
+        if (previousLayout.scrollTop > scrollTop) {
+          startLineNumber = Math.min(startLineNumber, previousLayout.startLineNumber);
+          topPaddingLineCount = Math.max(topPaddingLineCount, previousLayout.topPaddingLineCount);
+        }
+        if (previousLayout.scrollTop < scrollTop) {
+          startLineNumber = Math.max(startLineNumber, previousLayout.startLineNumber);
+          topPaddingLineCount = Math.min(topPaddingLineCount, previousLayout.topPaddingLineCount);
+        }
+      }
+      const endLineNumber = Math.min(lineCount, startLineNumber - topPaddingLineCount + minimapLinesFitting - 1);
+      const partialLine = (scrollTop - viewportStartLineNumberVerticalOffset) / lineHeight;
+      let sliderTopAligned;
+      if (scrollTop >= options.paddingTop) {
+        sliderTopAligned = (viewportStartLineNumber - startLineNumber + topPaddingLineCount + partialLine) * minimapLineHeight / pixelRatio;
+      } else {
+        sliderTopAligned = scrollTop / options.paddingTop * (topPaddingLineCount + partialLine) * minimapLineHeight / pixelRatio;
+      }
+      return new MinimapLayout(scrollTop, scrollHeight, true, computedSliderRatio, sliderTopAligned, sliderHeight, topPaddingLineCount, startLineNumber, endLineNumber);
+    }
+  }
+}
+class MinimapLine {
+  static {
+    __name(this, "MinimapLine");
+  }
+  static {
+    this.INVALID = new MinimapLine(-1);
+  }
+  constructor(dy) {
+    this.dy = dy;
+  }
+  onContentChanged() {
+    this.dy = -1;
+  }
+  onTokensChanged() {
+    this.dy = -1;
+  }
+}
+class RenderData {
+  static {
+    __name(this, "RenderData");
+  }
+  constructor(renderedLayout, imageData, lines) {
+    this.renderedLayout = renderedLayout;
+    this._imageData = imageData;
+    this._renderedLines = new RenderedLinesCollection({
+      createLine: /* @__PURE__ */ __name(() => MinimapLine.INVALID, "createLine")
+    });
+    this._renderedLines._set(renderedLayout.startLineNumber, lines);
+  }
+  /**
+   * Check if the current RenderData matches accurately the new desired layout and no painting is needed.
+   */
+  linesEquals(layout) {
+    if (!this.scrollEquals(layout)) {
+      return false;
+    }
+    const tmp = this._renderedLines._get();
+    const lines = tmp.lines;
+    for (let i = 0, len = lines.length; i < len; i++) {
+      if (lines[i].dy === -1) {
+        return false;
+      }
+    }
+    return true;
+  }
+  /**
+   * Check if the current RenderData matches the new layout's scroll position
+   */
+  scrollEquals(layout) {
+    return this.renderedLayout.startLineNumber === layout.startLineNumber && this.renderedLayout.endLineNumber === layout.endLineNumber;
+  }
+  _get() {
+    const tmp = this._renderedLines._get();
+    return {
+      imageData: this._imageData,
+      rendLineNumberStart: tmp.rendLineNumberStart,
+      lines: tmp.lines
+    };
+  }
+  onLinesChanged(changeFromLineNumber, changeCount) {
+    return this._renderedLines.onLinesChanged(changeFromLineNumber, changeCount);
+  }
+  onLinesDeleted(deleteFromLineNumber, deleteToLineNumber) {
+    this._renderedLines.onLinesDeleted(deleteFromLineNumber, deleteToLineNumber);
+  }
+  onLinesInserted(insertFromLineNumber, insertToLineNumber) {
+    this._renderedLines.onLinesInserted(insertFromLineNumber, insertToLineNumber);
+  }
+  onTokensChanged(ranges) {
+    return this._renderedLines.onTokensChanged(ranges);
+  }
+}
+class MinimapBuffers {
+  static {
+    __name(this, "MinimapBuffers");
+  }
+  constructor(ctx, WIDTH, HEIGHT, background) {
+    this._backgroundFillData = MinimapBuffers._createBackgroundFillData(WIDTH, HEIGHT, background);
+    this._buffers = [
+      ctx.createImageData(WIDTH, HEIGHT),
+      ctx.createImageData(WIDTH, HEIGHT)
+    ];
+    this._lastUsedBuffer = 0;
+  }
+  getBuffer() {
+    this._lastUsedBuffer = 1 - this._lastUsedBuffer;
+    const result = this._buffers[this._lastUsedBuffer];
+    result.data.set(this._backgroundFillData);
+    return result;
+  }
+  static _createBackgroundFillData(WIDTH, HEIGHT, background) {
+    const backgroundR = background.r;
+    const backgroundG = background.g;
+    const backgroundB = background.b;
+    const backgroundA = background.a;
+    const result = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
+    let offset = 0;
+    for (let i = 0; i < HEIGHT; i++) {
+      for (let j = 0; j < WIDTH; j++) {
+        result[offset] = backgroundR;
+        result[offset + 1] = backgroundG;
+        result[offset + 2] = backgroundB;
+        result[offset + 3] = backgroundA;
+        offset += 4;
+      }
+    }
+    return result;
+  }
+}
+class MinimapSamplingState {
+  static {
+    __name(this, "MinimapSamplingState");
+  }
+  static compute(options, viewLineCount, oldSamplingState) {
+    if (options.renderMinimap === 0 || !options.isSampling) {
+      return [null, []];
+    }
+    const { minimapLineCount } = EditorLayoutInfoComputer.computeContainedMinimapLineCount({
+      viewLineCount,
+      scrollBeyondLastLine: options.scrollBeyondLastLine,
+      paddingTop: options.paddingTop,
+      paddingBottom: options.paddingBottom,
+      height: options.editorHeight,
+      lineHeight: options.lineHeight,
+      pixelRatio: options.pixelRatio
+    });
+    const ratio = viewLineCount / minimapLineCount;
+    const halfRatio = ratio / 2;
+    if (!oldSamplingState || oldSamplingState.minimapLines.length === 0) {
+      const result2 = [];
+      result2[0] = 1;
+      if (minimapLineCount > 1) {
+        for (let i = 0, lastIndex = minimapLineCount - 1; i < lastIndex; i++) {
+          result2[i] = Math.round(i * ratio + halfRatio);
+        }
+        result2[minimapLineCount - 1] = viewLineCount;
+      }
+      return [new MinimapSamplingState(ratio, result2), []];
+    }
+    const oldMinimapLines = oldSamplingState.minimapLines;
+    const oldLength = oldMinimapLines.length;
+    const result = [];
+    let oldIndex = 0;
+    let oldDeltaLineCount = 0;
+    let minViewLineNumber = 1;
+    const MAX_EVENT_COUNT = 10;
+    let events = [];
+    let lastEvent = null;
+    for (let i = 0; i < minimapLineCount; i++) {
+      const fromViewLineNumber = Math.max(minViewLineNumber, Math.round(i * ratio));
+      const toViewLineNumber = Math.max(fromViewLineNumber, Math.round((i + 1) * ratio));
+      while (oldIndex < oldLength && oldMinimapLines[oldIndex] < fromViewLineNumber) {
+        if (events.length < MAX_EVENT_COUNT) {
+          const oldMinimapLineNumber = oldIndex + 1 + oldDeltaLineCount;
+          if (lastEvent && lastEvent.type === "deleted" && lastEvent._oldIndex === oldIndex - 1) {
+            lastEvent.deleteToLineNumber++;
+          } else {
+            lastEvent = { type: "deleted", _oldIndex: oldIndex, deleteFromLineNumber: oldMinimapLineNumber, deleteToLineNumber: oldMinimapLineNumber };
+            events.push(lastEvent);
+          }
+          oldDeltaLineCount--;
+        }
+        oldIndex++;
+      }
+      let selectedViewLineNumber;
+      if (oldIndex < oldLength && oldMinimapLines[oldIndex] <= toViewLineNumber) {
+        selectedViewLineNumber = oldMinimapLines[oldIndex];
+        oldIndex++;
+      } else {
+        if (i === 0) {
+          selectedViewLineNumber = 1;
+        } else if (i + 1 === minimapLineCount) {
+          selectedViewLineNumber = viewLineCount;
+        } else {
+          selectedViewLineNumber = Math.round(i * ratio + halfRatio);
+        }
+        if (events.length < MAX_EVENT_COUNT) {
+          const oldMinimapLineNumber = oldIndex + 1 + oldDeltaLineCount;
+          if (lastEvent && lastEvent.type === "inserted" && lastEvent._i === i - 1) {
+            lastEvent.insertToLineNumber++;
+          } else {
+            lastEvent = { type: "inserted", _i: i, insertFromLineNumber: oldMinimapLineNumber, insertToLineNumber: oldMinimapLineNumber };
+            events.push(lastEvent);
+          }
+          oldDeltaLineCount++;
+        }
+      }
+      result[i] = selectedViewLineNumber;
+      minViewLineNumber = selectedViewLineNumber;
+    }
+    if (events.length < MAX_EVENT_COUNT) {
+      while (oldIndex < oldLength) {
+        const oldMinimapLineNumber = oldIndex + 1 + oldDeltaLineCount;
+        if (lastEvent && lastEvent.type === "deleted" && lastEvent._oldIndex === oldIndex - 1) {
+          lastEvent.deleteToLineNumber++;
+        } else {
+          lastEvent = { type: "deleted", _oldIndex: oldIndex, deleteFromLineNumber: oldMinimapLineNumber, deleteToLineNumber: oldMinimapLineNumber };
+          events.push(lastEvent);
+        }
+        oldDeltaLineCount--;
+        oldIndex++;
+      }
+    } else {
+      events = [{ type: "flush" }];
+    }
+    return [new MinimapSamplingState(ratio, result), events];
+  }
+  constructor(samplingRatio, minimapLines) {
+    this.samplingRatio = samplingRatio;
+    this.minimapLines = minimapLines;
+  }
+  modelLineToMinimapLine(lineNumber) {
+    return Math.min(this.minimapLines.length, Math.max(1, Math.round(lineNumber / this.samplingRatio)));
+  }
+  /**
+   * Will return null if the model line ranges are not intersecting with a sampled model line.
+   */
+  modelLineRangeToMinimapLineRange(fromLineNumber, toLineNumber) {
+    let fromLineIndex = this.modelLineToMinimapLine(fromLineNumber) - 1;
+    while (fromLineIndex > 0 && this.minimapLines[fromLineIndex - 1] >= fromLineNumber) {
+      fromLineIndex--;
+    }
+    let toLineIndex = this.modelLineToMinimapLine(toLineNumber) - 1;
+    while (toLineIndex + 1 < this.minimapLines.length && this.minimapLines[toLineIndex + 1] <= toLineNumber) {
+      toLineIndex++;
+    }
+    if (fromLineIndex === toLineIndex) {
+      const sampledLineNumber = this.minimapLines[fromLineIndex];
+      if (sampledLineNumber < fromLineNumber || sampledLineNumber > toLineNumber) {
+        return null;
+      }
+    }
+    return [fromLineIndex + 1, toLineIndex + 1];
+  }
+  /**
+   * Will always return a range, even if it is not intersecting with a sampled model line.
+   */
+  decorationLineRangeToMinimapLineRange(startLineNumber, endLineNumber) {
+    let minimapLineStart = this.modelLineToMinimapLine(startLineNumber);
+    let minimapLineEnd = this.modelLineToMinimapLine(endLineNumber);
+    if (startLineNumber !== endLineNumber && minimapLineEnd === minimapLineStart) {
+      if (minimapLineEnd === this.minimapLines.length) {
+        if (minimapLineStart > 1) {
+          minimapLineStart--;
+        }
+      } else {
+        minimapLineEnd++;
+      }
+    }
+    return [minimapLineStart, minimapLineEnd];
+  }
+  onLinesDeleted(e) {
+    const deletedLineCount = e.toLineNumber - e.fromLineNumber + 1;
+    let changeStartIndex = this.minimapLines.length;
+    let changeEndIndex = 0;
+    for (let i = this.minimapLines.length - 1; i >= 0; i--) {
+      if (this.minimapLines[i] < e.fromLineNumber) {
+        break;
+      }
+      if (this.minimapLines[i] <= e.toLineNumber) {
+        this.minimapLines[i] = Math.max(1, e.fromLineNumber - 1);
+        changeStartIndex = Math.min(changeStartIndex, i);
+        changeEndIndex = Math.max(changeEndIndex, i);
+      } else {
+        this.minimapLines[i] -= deletedLineCount;
+      }
+    }
+    return [changeStartIndex, changeEndIndex];
+  }
+  onLinesInserted(e) {
+    const insertedLineCount = e.toLineNumber - e.fromLineNumber + 1;
+    for (let i = this.minimapLines.length - 1; i >= 0; i--) {
+      if (this.minimapLines[i] < e.fromLineNumber) {
+        break;
+      }
+      this.minimapLines[i] += insertedLineCount;
+    }
+  }
+}
+class Minimap extends ViewPart {
+  static {
+    __name(this, "Minimap");
+  }
+  constructor(context) {
+    super(context);
+    this._sectionHeaderCache = new LRUCache(10, 1.5);
+    this.tokensColorTracker = MinimapTokensColorTracker.getInstance();
+    this._selections = [];
+    this._minimapSelections = null;
+    this.options = new MinimapOptions(this._context.configuration, this._context.theme, this.tokensColorTracker);
+    const [samplingState] = MinimapSamplingState.compute(this.options, this._context.viewModel.getLineCount(), null);
+    this._samplingState = samplingState;
+    this._shouldCheckSampling = false;
+    this._actual = new InnerMinimap(context.theme, this);
+  }
+  dispose() {
+    this._actual.dispose();
+    super.dispose();
+  }
+  getDomNode() {
+    return this._actual.getDomNode();
+  }
+  _onOptionsMaybeChanged() {
+    const opts = new MinimapOptions(this._context.configuration, this._context.theme, this.tokensColorTracker);
+    if (this.options.equals(opts)) {
+      return false;
+    }
+    this.options = opts;
+    this._recreateLineSampling();
+    this._actual.onDidChangeOptions();
+    return true;
+  }
+  // ---- begin view event handlers
+  onConfigurationChanged(e) {
+    return this._onOptionsMaybeChanged();
+  }
+  onCursorStateChanged(e) {
+    this._selections = e.selections;
+    this._minimapSelections = null;
+    return this._actual.onSelectionChanged();
+  }
+  onDecorationsChanged(e) {
+    if (e.affectsMinimap) {
+      return this._actual.onDecorationsChanged();
+    }
+    return false;
+  }
+  onFlushed(e) {
+    if (this._samplingState) {
+      this._shouldCheckSampling = true;
+    }
+    return this._actual.onFlushed();
+  }
+  onLinesChanged(e) {
+    if (this._samplingState) {
+      const minimapLineRange = this._samplingState.modelLineRangeToMinimapLineRange(e.fromLineNumber, e.fromLineNumber + e.count - 1);
+      if (minimapLineRange) {
+        return this._actual.onLinesChanged(minimapLineRange[0], minimapLineRange[1] - minimapLineRange[0] + 1);
+      } else {
+        return false;
+      }
+    } else {
+      return this._actual.onLinesChanged(e.fromLineNumber, e.count);
+    }
+  }
+  onLinesDeleted(e) {
+    if (this._samplingState) {
+      const [changeStartIndex, changeEndIndex] = this._samplingState.onLinesDeleted(e);
+      if (changeStartIndex <= changeEndIndex) {
+        this._actual.onLinesChanged(changeStartIndex + 1, changeEndIndex - changeStartIndex + 1);
+      }
+      this._shouldCheckSampling = true;
+      return true;
+    } else {
+      return this._actual.onLinesDeleted(e.fromLineNumber, e.toLineNumber);
+    }
+  }
+  onLinesInserted(e) {
+    if (this._samplingState) {
+      this._samplingState.onLinesInserted(e);
+      this._shouldCheckSampling = true;
+      return true;
+    } else {
+      return this._actual.onLinesInserted(e.fromLineNumber, e.toLineNumber);
+    }
+  }
+  onScrollChanged(e) {
+    return this._actual.onScrollChanged();
+  }
+  onThemeChanged(e) {
+    this._actual.onThemeChanged();
+    this._onOptionsMaybeChanged();
+    return true;
+  }
+  onTokensChanged(e) {
+    if (this._samplingState) {
+      const ranges = [];
+      for (const range of e.ranges) {
+        const minimapLineRange = this._samplingState.modelLineRangeToMinimapLineRange(range.fromLineNumber, range.toLineNumber);
+        if (minimapLineRange) {
+          ranges.push({ fromLineNumber: minimapLineRange[0], toLineNumber: minimapLineRange[1] });
+        }
+      }
+      if (ranges.length) {
+        return this._actual.onTokensChanged(ranges);
+      } else {
+        return false;
+      }
+    } else {
+      return this._actual.onTokensChanged(e.ranges);
+    }
+  }
+  onTokensColorsChanged(e) {
+    this._onOptionsMaybeChanged();
+    return this._actual.onTokensColorsChanged();
+  }
+  onZonesChanged(e) {
+    return this._actual.onZonesChanged();
+  }
+  // --- end event handlers
+  prepareRender(ctx) {
+    if (this._shouldCheckSampling) {
+      this._shouldCheckSampling = false;
+      this._recreateLineSampling();
+    }
+  }
+  render(ctx) {
+    let viewportStartLineNumber = ctx.visibleRange.startLineNumber;
+    let viewportEndLineNumber = ctx.visibleRange.endLineNumber;
+    if (this._samplingState) {
+      viewportStartLineNumber = this._samplingState.modelLineToMinimapLine(viewportStartLineNumber);
+      viewportEndLineNumber = this._samplingState.modelLineToMinimapLine(viewportEndLineNumber);
+    }
+    const minimapCtx = {
+      viewportContainsWhitespaceGaps: ctx.viewportData.whitespaceViewportData.length > 0,
+      scrollWidth: ctx.scrollWidth,
+      scrollHeight: ctx.scrollHeight,
+      viewportStartLineNumber,
+      viewportEndLineNumber,
+      viewportStartLineNumberVerticalOffset: ctx.getVerticalOffsetForLineNumber(viewportStartLineNumber),
+      scrollTop: ctx.scrollTop,
+      scrollLeft: ctx.scrollLeft,
+      viewportWidth: ctx.viewportWidth,
+      viewportHeight: ctx.viewportHeight
+    };
+    this._actual.render(minimapCtx);
+  }
+  //#region IMinimapModel
+  _recreateLineSampling() {
+    this._minimapSelections = null;
+    const wasSampling = Boolean(this._samplingState);
+    const [samplingState, events] = MinimapSamplingState.compute(this.options, this._context.viewModel.getLineCount(), this._samplingState);
+    this._samplingState = samplingState;
+    if (wasSampling && this._samplingState) {
+      for (const event of events) {
+        switch (event.type) {
+          case "deleted":
+            this._actual.onLinesDeleted(event.deleteFromLineNumber, event.deleteToLineNumber);
+            break;
+          case "inserted":
+            this._actual.onLinesInserted(event.insertFromLineNumber, event.insertToLineNumber);
+            break;
+          case "flush":
+            this._actual.onFlushed();
+            break;
+        }
+      }
+    }
+  }
+  getLineCount() {
+    if (this._samplingState) {
+      return this._samplingState.minimapLines.length;
+    }
+    return this._context.viewModel.getLineCount();
+  }
+  getRealLineCount() {
+    return this._context.viewModel.getLineCount();
+  }
+  getLineContent(lineNumber) {
+    if (this._samplingState) {
+      return this._context.viewModel.getLineContent(this._samplingState.minimapLines[lineNumber - 1]);
+    }
+    return this._context.viewModel.getLineContent(lineNumber);
+  }
+  getLineMaxColumn(lineNumber) {
+    if (this._samplingState) {
+      return this._context.viewModel.getLineMaxColumn(this._samplingState.minimapLines[lineNumber - 1]);
+    }
+    return this._context.viewModel.getLineMaxColumn(lineNumber);
+  }
+  getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed) {
+    if (this._samplingState) {
+      const result = [];
+      for (let lineIndex = 0, lineCount = endLineNumber - startLineNumber + 1; lineIndex < lineCount; lineIndex++) {
+        if (needed[lineIndex]) {
+          result[lineIndex] = this._context.viewModel.getViewLineData(this._samplingState.minimapLines[startLineNumber + lineIndex - 1]);
+        } else {
+          result[lineIndex] = null;
+        }
+      }
+      return result;
+    }
+    return this._context.viewModel.getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed).data;
+  }
+  getSelections() {
+    if (this._minimapSelections === null) {
+      if (this._samplingState) {
+        this._minimapSelections = [];
+        for (const selection of this._selections) {
+          const [minimapLineStart, minimapLineEnd] = this._samplingState.decorationLineRangeToMinimapLineRange(selection.startLineNumber, selection.endLineNumber);
+          this._minimapSelections.push(new Selection(minimapLineStart, selection.startColumn, minimapLineEnd, selection.endColumn));
+        }
+      } else {
+        this._minimapSelections = this._selections;
+      }
+    }
+    return this._minimapSelections;
+  }
+  getMinimapDecorationsInViewport(startLineNumber, endLineNumber) {
+    return this._getMinimapDecorationsInViewport(startLineNumber, endLineNumber).filter((decoration) => !decoration.options.minimap?.sectionHeaderStyle);
+  }
+  getSectionHeaderDecorationsInViewport(startLineNumber, endLineNumber) {
+    const headerHeightInMinimapLines = this.options.sectionHeaderFontSize / this.options.minimapLineHeight;
+    startLineNumber = Math.floor(Math.max(1, startLineNumber - headerHeightInMinimapLines));
+    return this._getMinimapDecorationsInViewport(startLineNumber, endLineNumber).filter((decoration) => !!decoration.options.minimap?.sectionHeaderStyle);
+  }
+  _getMinimapDecorationsInViewport(startLineNumber, endLineNumber) {
+    let visibleRange;
+    if (this._samplingState) {
+      const modelStartLineNumber = this._samplingState.minimapLines[startLineNumber - 1];
+      const modelEndLineNumber = this._samplingState.minimapLines[endLineNumber - 1];
+      visibleRange = new Range(modelStartLineNumber, 1, modelEndLineNumber, this._context.viewModel.getLineMaxColumn(modelEndLineNumber));
+    } else {
+      visibleRange = new Range(startLineNumber, 1, endLineNumber, this._context.viewModel.getLineMaxColumn(endLineNumber));
+    }
+    const decorations = this._context.viewModel.getMinimapDecorationsInRange(visibleRange);
+    if (this._samplingState) {
+      const result = [];
+      for (const decoration of decorations) {
+        if (!decoration.options.minimap) {
+          continue;
+        }
+        const range = decoration.range;
+        const minimapStartLineNumber = this._samplingState.modelLineToMinimapLine(range.startLineNumber);
+        const minimapEndLineNumber = this._samplingState.modelLineToMinimapLine(range.endLineNumber);
+        result.push(new ViewModelDecoration(new Range(minimapStartLineNumber, range.startColumn, minimapEndLineNumber, range.endColumn), decoration.options));
+      }
+      return result;
+    }
+    return decorations;
+  }
+  getSectionHeaderText(decoration, fitWidth) {
+    const headerText = decoration.options.minimap?.sectionHeaderText;
+    if (!headerText) {
+      return null;
+    }
+    const cachedText = this._sectionHeaderCache.get(headerText);
+    if (cachedText) {
+      return cachedText;
+    }
+    const fittedText = fitWidth(headerText);
+    this._sectionHeaderCache.set(headerText, fittedText);
+    return fittedText;
+  }
+  getOptions() {
+    return this._context.viewModel.model.getOptions();
+  }
+  revealLineNumber(lineNumber) {
+    if (this._samplingState) {
+      lineNumber = this._samplingState.minimapLines[lineNumber - 1];
+    }
+    this._context.viewModel.revealRange(
+      "mouse",
+      false,
+      new Range(lineNumber, 1, lineNumber, 1),
+      1,
+      0
+      /* ScrollType.Smooth */
+    );
+  }
+  setScrollTop(scrollTop) {
+    this._context.viewModel.viewLayout.setScrollPosition(
+      {
+        scrollTop
+      },
+      1
+      /* ScrollType.Immediate */
+    );
+  }
+}
+class InnerMinimap extends Disposable {
+  static {
+    __name(this, "InnerMinimap");
+  }
+  constructor(theme, model) {
+    super();
+    this._renderDecorations = false;
+    this._gestureInProgress = false;
+    this._theme = theme;
+    this._model = model;
+    this._lastRenderData = null;
+    this._buffers = null;
+    this._selectionColor = this._theme.getColor(minimapSelection);
+    this._domNode = createFastDomNode(document.createElement("div"));
+    PartFingerprints.write(
+      this._domNode,
+      9
+      /* PartFingerprint.Minimap */
+    );
+    this._domNode.setClassName(this._getMinimapDomNodeClassName());
+    this._domNode.setPosition("absolute");
+    this._domNode.setAttribute("role", "presentation");
+    this._domNode.setAttribute("aria-hidden", "true");
+    this._shadow = createFastDomNode(document.createElement("div"));
+    this._shadow.setClassName("minimap-shadow-hidden");
+    this._domNode.appendChild(this._shadow);
+    this._canvas = createFastDomNode(document.createElement("canvas"));
+    this._canvas.setPosition("absolute");
+    this._canvas.setLeft(0);
+    this._domNode.appendChild(this._canvas);
+    this._decorationsCanvas = createFastDomNode(document.createElement("canvas"));
+    this._decorationsCanvas.setPosition("absolute");
+    this._decorationsCanvas.setClassName("minimap-decorations-layer");
+    this._decorationsCanvas.setLeft(0);
+    this._domNode.appendChild(this._decorationsCanvas);
+    this._slider = createFastDomNode(document.createElement("div"));
+    this._slider.setPosition("absolute");
+    this._slider.setClassName("minimap-slider");
+    this._slider.setLayerHinting(true);
+    this._slider.setContain("strict");
+    this._domNode.appendChild(this._slider);
+    this._sliderHorizontal = createFastDomNode(document.createElement("div"));
+    this._sliderHorizontal.setPosition("absolute");
+    this._sliderHorizontal.setClassName("minimap-slider-horizontal");
+    this._slider.appendChild(this._sliderHorizontal);
+    this._applyLayout();
+    this._pointerDownListener = dom.addStandardDisposableListener(this._domNode.domNode, dom.EventType.POINTER_DOWN, (e) => {
+      e.preventDefault();
+      const renderMinimap = this._model.options.renderMinimap;
+      if (renderMinimap === 0) {
+        return;
+      }
+      if (!this._lastRenderData) {
+        return;
+      }
+      if (this._model.options.size !== "proportional") {
+        if (e.button === 0 && this._lastRenderData) {
+          const position = dom.getDomNodePagePosition(this._slider.domNode);
+          const initialPosY = position.top + position.height / 2;
+          this._startSliderDragging(e, initialPosY, this._lastRenderData.renderedLayout);
+        }
+        return;
+      }
+      const minimapLineHeight = this._model.options.minimapLineHeight;
+      const internalOffsetY = this._model.options.canvasInnerHeight / this._model.options.canvasOuterHeight * e.offsetY;
+      const lineIndex = Math.floor(internalOffsetY / minimapLineHeight);
+      let lineNumber = lineIndex + this._lastRenderData.renderedLayout.startLineNumber - this._lastRenderData.renderedLayout.topPaddingLineCount;
+      lineNumber = Math.min(lineNumber, this._model.getLineCount());
+      this._model.revealLineNumber(lineNumber);
+    });
+    this._sliderPointerMoveMonitor = new GlobalPointerMoveMonitor();
+    this._sliderPointerDownListener = dom.addStandardDisposableListener(this._slider.domNode, dom.EventType.POINTER_DOWN, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.button === 0 && this._lastRenderData) {
+        this._startSliderDragging(e, e.pageY, this._lastRenderData.renderedLayout);
+      }
+    });
+    this._gestureDisposable = Gesture.addTarget(this._domNode.domNode);
+    this._sliderTouchStartListener = dom.addDisposableListener(this._domNode.domNode, EventType.Start, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (this._lastRenderData) {
+        this._slider.toggleClassName("active", true);
+        this._gestureInProgress = true;
+        this.scrollDueToTouchEvent(e);
+      }
+    }, { passive: false });
+    this._sliderTouchMoveListener = dom.addDisposableListener(this._domNode.domNode, EventType.Change, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (this._lastRenderData && this._gestureInProgress) {
+        this.scrollDueToTouchEvent(e);
+      }
+    }, { passive: false });
+    this._sliderTouchEndListener = dom.addStandardDisposableListener(this._domNode.domNode, EventType.End, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this._gestureInProgress = false;
+      this._slider.toggleClassName("active", false);
+    });
+  }
+  _startSliderDragging(e, initialPosY, initialSliderState) {
+    if (!e.target || !(e.target instanceof Element)) {
+      return;
+    }
+    const initialPosX = e.pageX;
+    this._slider.toggleClassName("active", true);
+    const handlePointerMove = /* @__PURE__ */ __name((posy, posx) => {
+      const minimapPosition = dom.getDomNodePagePosition(this._domNode.domNode);
+      const pointerOrthogonalDelta = Math.min(Math.abs(posx - initialPosX), Math.abs(posx - minimapPosition.left), Math.abs(posx - minimapPosition.left - minimapPosition.width));
+      if (platform.isWindows && pointerOrthogonalDelta > POINTER_DRAG_RESET_DISTANCE) {
+        this._model.setScrollTop(initialSliderState.scrollTop);
+        return;
+      }
+      const pointerDelta = posy - initialPosY;
+      this._model.setScrollTop(initialSliderState.getDesiredScrollTopFromDelta(pointerDelta));
+    }, "handlePointerMove");
+    if (e.pageY !== initialPosY) {
+      handlePointerMove(e.pageY, initialPosX);
+    }
+    this._sliderPointerMoveMonitor.startMonitoring(e.target, e.pointerId, e.buttons, (pointerMoveData) => handlePointerMove(pointerMoveData.pageY, pointerMoveData.pageX), () => {
+      this._slider.toggleClassName("active", false);
+    });
+  }
+  scrollDueToTouchEvent(touch) {
+    const startY = this._domNode.domNode.getBoundingClientRect().top;
+    const scrollTop = this._lastRenderData.renderedLayout.getDesiredScrollTopFromTouchLocation(touch.pageY - startY);
+    this._model.setScrollTop(scrollTop);
+  }
+  dispose() {
+    this._pointerDownListener.dispose();
+    this._sliderPointerMoveMonitor.dispose();
+    this._sliderPointerDownListener.dispose();
+    this._gestureDisposable.dispose();
+    this._sliderTouchStartListener.dispose();
+    this._sliderTouchMoveListener.dispose();
+    this._sliderTouchEndListener.dispose();
+    super.dispose();
+  }
+  _getMinimapDomNodeClassName() {
+    const class_ = ["minimap"];
+    if (this._model.options.showSlider === "always") {
+      class_.push("slider-always");
+    } else {
+      class_.push("slider-mouseover");
+    }
+    if (this._model.options.autohide) {
+      class_.push("autohide");
+    }
+    return class_.join(" ");
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  _applyLayout() {
+    this._domNode.setLeft(this._model.options.minimapLeft);
+    this._domNode.setWidth(this._model.options.minimapWidth);
+    this._domNode.setHeight(this._model.options.minimapHeight);
+    this._shadow.setHeight(this._model.options.minimapHeight);
+    this._canvas.setWidth(this._model.options.canvasOuterWidth);
+    this._canvas.setHeight(this._model.options.canvasOuterHeight);
+    this._canvas.domNode.width = this._model.options.canvasInnerWidth;
+    this._canvas.domNode.height = this._model.options.canvasInnerHeight;
+    this._decorationsCanvas.setWidth(this._model.options.canvasOuterWidth);
+    this._decorationsCanvas.setHeight(this._model.options.canvasOuterHeight);
+    this._decorationsCanvas.domNode.width = this._model.options.canvasInnerWidth;
+    this._decorationsCanvas.domNode.height = this._model.options.canvasInnerHeight;
+    this._slider.setWidth(this._model.options.minimapWidth);
+  }
+  _getBuffer() {
+    if (!this._buffers) {
+      if (this._model.options.canvasInnerWidth > 0 && this._model.options.canvasInnerHeight > 0) {
+        this._buffers = new MinimapBuffers(this._canvas.domNode.getContext("2d"), this._model.options.canvasInnerWidth, this._model.options.canvasInnerHeight, this._model.options.backgroundColor);
+      }
+    }
+    return this._buffers ? this._buffers.getBuffer() : null;
+  }
+  // ---- begin view event handlers
+  onDidChangeOptions() {
+    this._lastRenderData = null;
+    this._buffers = null;
+    this._applyLayout();
+    this._domNode.setClassName(this._getMinimapDomNodeClassName());
+  }
+  onSelectionChanged() {
+    this._renderDecorations = true;
+    return true;
+  }
+  onDecorationsChanged() {
+    this._renderDecorations = true;
+    return true;
+  }
+  onFlushed() {
+    this._lastRenderData = null;
+    return true;
+  }
+  onLinesChanged(changeFromLineNumber, changeCount) {
+    if (this._lastRenderData) {
+      return this._lastRenderData.onLinesChanged(changeFromLineNumber, changeCount);
+    }
+    return false;
+  }
+  onLinesDeleted(deleteFromLineNumber, deleteToLineNumber) {
+    this._lastRenderData?.onLinesDeleted(deleteFromLineNumber, deleteToLineNumber);
+    return true;
+  }
+  onLinesInserted(insertFromLineNumber, insertToLineNumber) {
+    this._lastRenderData?.onLinesInserted(insertFromLineNumber, insertToLineNumber);
+    return true;
+  }
+  onScrollChanged() {
+    this._renderDecorations = true;
+    return true;
+  }
+  onThemeChanged() {
+    this._selectionColor = this._theme.getColor(minimapSelection);
+    this._renderDecorations = true;
+    return true;
+  }
+  onTokensChanged(ranges) {
+    if (this._lastRenderData) {
+      return this._lastRenderData.onTokensChanged(ranges);
+    }
+    return false;
+  }
+  onTokensColorsChanged() {
+    this._lastRenderData = null;
+    this._buffers = null;
+    return true;
+  }
+  onZonesChanged() {
+    this._lastRenderData = null;
+    return true;
+  }
+  // --- end event handlers
+  render(renderingCtx) {
+    const renderMinimap = this._model.options.renderMinimap;
+    if (renderMinimap === 0) {
+      this._shadow.setClassName("minimap-shadow-hidden");
+      this._sliderHorizontal.setWidth(0);
+      this._sliderHorizontal.setHeight(0);
+      return;
+    }
+    if (renderingCtx.scrollLeft + renderingCtx.viewportWidth >= renderingCtx.scrollWidth) {
+      this._shadow.setClassName("minimap-shadow-hidden");
+    } else {
+      this._shadow.setClassName("minimap-shadow-visible");
+    }
+    const layout = MinimapLayout.create(this._model.options, renderingCtx.viewportStartLineNumber, renderingCtx.viewportEndLineNumber, renderingCtx.viewportStartLineNumberVerticalOffset, renderingCtx.viewportHeight, renderingCtx.viewportContainsWhitespaceGaps, this._model.getLineCount(), this._model.getRealLineCount(), renderingCtx.scrollTop, renderingCtx.scrollHeight, this._lastRenderData ? this._lastRenderData.renderedLayout : null);
+    this._slider.setDisplay(layout.sliderNeeded ? "block" : "none");
+    this._slider.setTop(layout.sliderTop);
+    this._slider.setHeight(layout.sliderHeight);
+    this._sliderHorizontal.setLeft(0);
+    this._sliderHorizontal.setWidth(this._model.options.minimapWidth);
+    this._sliderHorizontal.setTop(0);
+    this._sliderHorizontal.setHeight(layout.sliderHeight);
+    this.renderDecorations(layout);
+    this._lastRenderData = this.renderLines(layout);
+  }
+  renderDecorations(layout) {
+    if (this._renderDecorations) {
+      this._renderDecorations = false;
+      const selections = this._model.getSelections();
+      selections.sort(Range.compareRangesUsingStarts);
+      const decorations = this._model.getMinimapDecorationsInViewport(layout.startLineNumber, layout.endLineNumber);
+      decorations.sort((a, b) => (a.options.zIndex || 0) - (b.options.zIndex || 0));
+      const { canvasInnerWidth, canvasInnerHeight } = this._model.options;
+      const minimapLineHeight = this._model.options.minimapLineHeight;
+      const minimapCharWidth = this._model.options.minimapCharWidth;
+      const tabSize = this._model.getOptions().tabSize;
+      const canvasContext = this._decorationsCanvas.domNode.getContext("2d");
+      canvasContext.clearRect(0, 0, canvasInnerWidth, canvasInnerHeight);
+      const highlightedLines = new ContiguousLineMap(layout.startLineNumber, layout.endLineNumber, false);
+      this._renderSelectionLineHighlights(canvasContext, selections, highlightedLines, layout, minimapLineHeight);
+      this._renderDecorationsLineHighlights(canvasContext, decorations, highlightedLines, layout, minimapLineHeight);
+      const lineOffsetMap = new ContiguousLineMap(layout.startLineNumber, layout.endLineNumber, null);
+      this._renderSelectionsHighlights(canvasContext, selections, lineOffsetMap, layout, minimapLineHeight, tabSize, minimapCharWidth, canvasInnerWidth);
+      this._renderDecorationsHighlights(canvasContext, decorations, lineOffsetMap, layout, minimapLineHeight, tabSize, minimapCharWidth, canvasInnerWidth);
+      this._renderSectionHeaders(layout);
+    }
+  }
+  _renderSelectionLineHighlights(canvasContext, selections, highlightedLines, layout, minimapLineHeight) {
+    if (!this._selectionColor || this._selectionColor.isTransparent()) {
+      return;
+    }
+    canvasContext.fillStyle = this._selectionColor.transparent(0.5).toString();
+    let y1 = 0;
+    let y2 = 0;
+    for (const selection of selections) {
+      const intersection = layout.intersectWithViewport(selection);
+      if (!intersection) {
+        continue;
+      }
+      const [startLineNumber, endLineNumber] = intersection;
+      for (let line = startLineNumber; line <= endLineNumber; line++) {
+        highlightedLines.set(line, true);
+      }
+      const yy1 = layout.getYForLineNumber(startLineNumber, minimapLineHeight);
+      const yy2 = layout.getYForLineNumber(endLineNumber, minimapLineHeight);
+      if (y2 >= yy1) {
+        y2 = yy2;
+      } else {
+        if (y2 > y1) {
+          canvasContext.fillRect(MINIMAP_GUTTER_WIDTH, y1, canvasContext.canvas.width, y2 - y1);
+        }
+        y1 = yy1;
+        y2 = yy2;
+      }
+    }
+    if (y2 > y1) {
+      canvasContext.fillRect(MINIMAP_GUTTER_WIDTH, y1, canvasContext.canvas.width, y2 - y1);
+    }
+  }
+  _renderDecorationsLineHighlights(canvasContext, decorations, highlightedLines, layout, minimapLineHeight) {
+    const highlightColors = /* @__PURE__ */ new Map();
+    for (let i = decorations.length - 1; i >= 0; i--) {
+      const decoration = decorations[i];
+      const minimapOptions = decoration.options.minimap;
+      if (!minimapOptions || minimapOptions.position !== 1) {
+        continue;
+      }
+      const intersection = layout.intersectWithViewport(decoration.range);
+      if (!intersection) {
+        continue;
+      }
+      const [startLineNumber, endLineNumber] = intersection;
+      const decorationColor = minimapOptions.getColor(this._theme.value);
+      if (!decorationColor || decorationColor.isTransparent()) {
+        continue;
+      }
+      let highlightColor = highlightColors.get(decorationColor.toString());
+      if (!highlightColor) {
+        highlightColor = decorationColor.transparent(0.5).toString();
+        highlightColors.set(decorationColor.toString(), highlightColor);
+      }
+      canvasContext.fillStyle = highlightColor;
+      for (let line = startLineNumber; line <= endLineNumber; line++) {
+        if (highlightedLines.has(line)) {
+          continue;
+        }
+        highlightedLines.set(line, true);
+        const y = layout.getYForLineNumber(startLineNumber, minimapLineHeight);
+        canvasContext.fillRect(MINIMAP_GUTTER_WIDTH, y, canvasContext.canvas.width, minimapLineHeight);
+      }
+    }
+  }
+  _renderSelectionsHighlights(canvasContext, selections, lineOffsetMap, layout, lineHeight, tabSize, characterWidth, canvasInnerWidth) {
+    if (!this._selectionColor || this._selectionColor.isTransparent()) {
+      return;
+    }
+    for (const selection of selections) {
+      const intersection = layout.intersectWithViewport(selection);
+      if (!intersection) {
+        continue;
+      }
+      const [startLineNumber, endLineNumber] = intersection;
+      for (let line = startLineNumber; line <= endLineNumber; line++) {
+        this.renderDecorationOnLine(canvasContext, lineOffsetMap, selection, this._selectionColor, layout, line, lineHeight, lineHeight, tabSize, characterWidth, canvasInnerWidth);
+      }
+    }
+  }
+  _renderDecorationsHighlights(canvasContext, decorations, lineOffsetMap, layout, minimapLineHeight, tabSize, characterWidth, canvasInnerWidth) {
+    for (const decoration of decorations) {
+      const minimapOptions = decoration.options.minimap;
+      if (!minimapOptions) {
+        continue;
+      }
+      const intersection = layout.intersectWithViewport(decoration.range);
+      if (!intersection) {
+        continue;
+      }
+      const [startLineNumber, endLineNumber] = intersection;
+      const decorationColor = minimapOptions.getColor(this._theme.value);
+      if (!decorationColor || decorationColor.isTransparent()) {
+        continue;
+      }
+      for (let line = startLineNumber; line <= endLineNumber; line++) {
+        switch (minimapOptions.position) {
+          case 1:
+            this.renderDecorationOnLine(canvasContext, lineOffsetMap, decoration.range, decorationColor, layout, line, minimapLineHeight, minimapLineHeight, tabSize, characterWidth, canvasInnerWidth);
+            continue;
+          case 2: {
+            const y = layout.getYForLineNumber(line, minimapLineHeight);
+            const x = 2;
+            this.renderDecoration(canvasContext, decorationColor, x, y, GUTTER_DECORATION_WIDTH, minimapLineHeight);
+            continue;
+          }
+        }
+      }
+    }
+  }
+  renderDecorationOnLine(canvasContext, lineOffsetMap, decorationRange, decorationColor, layout, lineNumber, height, minimapLineHeight, tabSize, charWidth, canvasInnerWidth) {
+    const y = layout.getYForLineNumber(lineNumber, minimapLineHeight);
+    if (y + height < 0 || y > this._model.options.canvasInnerHeight) {
+      return;
+    }
+    const { startLineNumber, endLineNumber } = decorationRange;
+    const startColumn = startLineNumber === lineNumber ? decorationRange.startColumn : 1;
+    const endColumn = endLineNumber === lineNumber ? decorationRange.endColumn : this._model.getLineMaxColumn(lineNumber);
+    const x1 = this.getXOffsetForPosition(lineOffsetMap, lineNumber, startColumn, tabSize, charWidth, canvasInnerWidth);
+    const x2 = this.getXOffsetForPosition(lineOffsetMap, lineNumber, endColumn, tabSize, charWidth, canvasInnerWidth);
+    this.renderDecoration(canvasContext, decorationColor, x1, y, x2 - x1, height);
+  }
+  getXOffsetForPosition(lineOffsetMap, lineNumber, column, tabSize, charWidth, canvasInnerWidth) {
+    if (column === 1) {
+      return MINIMAP_GUTTER_WIDTH;
+    }
+    const minimumXOffset = (column - 1) * charWidth;
+    if (minimumXOffset >= canvasInnerWidth) {
+      return canvasInnerWidth;
+    }
+    let lineIndexToXOffset = lineOffsetMap.get(lineNumber);
+    if (!lineIndexToXOffset) {
+      const lineData = this._model.getLineContent(lineNumber);
+      lineIndexToXOffset = [MINIMAP_GUTTER_WIDTH];
+      let prevx = MINIMAP_GUTTER_WIDTH;
+      for (let i = 1; i < lineData.length + 1; i++) {
+        const charCode = lineData.charCodeAt(i - 1);
+        const dx = charCode === 9 ? tabSize * charWidth : strings.isFullWidthCharacter(charCode) ? 2 * charWidth : charWidth;
+        const x = prevx + dx;
+        if (x >= canvasInnerWidth) {
+          lineIndexToXOffset[i] = canvasInnerWidth;
+          break;
+        }
+        lineIndexToXOffset[i] = x;
+        prevx = x;
+      }
+      lineOffsetMap.set(lineNumber, lineIndexToXOffset);
+    }
+    if (column - 1 < lineIndexToXOffset.length) {
+      return lineIndexToXOffset[column - 1];
+    }
+    return canvasInnerWidth;
+  }
+  renderDecoration(canvasContext, decorationColor, x, y, width, height) {
+    canvasContext.fillStyle = decorationColor && decorationColor.toString() || "";
+    canvasContext.fillRect(x, y, width, height);
+  }
+  _renderSectionHeaders(layout) {
+    const minimapLineHeight = this._model.options.minimapLineHeight;
+    const sectionHeaderFontSize = this._model.options.sectionHeaderFontSize;
+    const sectionHeaderLetterSpacing = this._model.options.sectionHeaderLetterSpacing;
+    const backgroundFillHeight = sectionHeaderFontSize * 1.5;
+    const { canvasInnerWidth } = this._model.options;
+    const backgroundColor = this._model.options.backgroundColor;
+    const backgroundFill = `rgb(${backgroundColor.r} ${backgroundColor.g} ${backgroundColor.b} / .7)`;
+    const foregroundColor = this._model.options.sectionHeaderFontColor;
+    const foregroundFill = `rgb(${foregroundColor.r} ${foregroundColor.g} ${foregroundColor.b})`;
+    const separatorStroke = foregroundFill;
+    const canvasContext = this._decorationsCanvas.domNode.getContext("2d");
+    canvasContext.letterSpacing = sectionHeaderLetterSpacing + "px";
+    canvasContext.font = "500 " + sectionHeaderFontSize + "px " + this._model.options.sectionHeaderFontFamily;
+    canvasContext.strokeStyle = separatorStroke;
+    canvasContext.lineWidth = 0.2;
+    const decorations = this._model.getSectionHeaderDecorationsInViewport(layout.startLineNumber, layout.endLineNumber);
+    decorations.sort((a, b) => a.range.startLineNumber - b.range.startLineNumber);
+    const fitWidth = InnerMinimap._fitSectionHeader.bind(null, canvasContext, canvasInnerWidth - MINIMAP_GUTTER_WIDTH);
+    for (const decoration of decorations) {
+      const y = layout.getYForLineNumber(decoration.range.startLineNumber, minimapLineHeight) + sectionHeaderFontSize;
+      const backgroundFillY = y - sectionHeaderFontSize;
+      const separatorY = backgroundFillY + 2;
+      const headerText = this._model.getSectionHeaderText(decoration, fitWidth);
+      InnerMinimap._renderSectionLabel(canvasContext, headerText, decoration.options.minimap?.sectionHeaderStyle === 2, backgroundFill, foregroundFill, canvasInnerWidth, backgroundFillY, backgroundFillHeight, y, separatorY);
+    }
+  }
+  static _fitSectionHeader(target, maxWidth, headerText) {
+    if (!headerText) {
+      return headerText;
+    }
+    const ellipsis = "\u2026";
+    const width = target.measureText(headerText).width;
+    const ellipsisWidth = target.measureText(ellipsis).width;
+    if (width <= maxWidth || width <= ellipsisWidth) {
+      return headerText;
+    }
+    const len = headerText.length;
+    const averageCharWidth = width / headerText.length;
+    const maxCharCount = Math.floor((maxWidth - ellipsisWidth) / averageCharWidth) - 1;
+    let halfCharCount = Math.ceil(maxCharCount / 2);
+    while (halfCharCount > 0 && /\s/.test(headerText[halfCharCount - 1])) {
+      --halfCharCount;
+    }
+    return headerText.substring(0, halfCharCount) + ellipsis + headerText.substring(len - (maxCharCount - halfCharCount));
+  }
+  static _renderSectionLabel(target, headerText, hasSeparatorLine, backgroundFill, foregroundFill, minimapWidth, backgroundFillY, backgroundFillHeight, textY, separatorY) {
+    if (headerText) {
+      target.fillStyle = backgroundFill;
+      target.fillRect(0, backgroundFillY, minimapWidth, backgroundFillHeight);
+      target.fillStyle = foregroundFill;
+      target.fillText(headerText, MINIMAP_GUTTER_WIDTH, textY);
+    }
+    if (hasSeparatorLine) {
+      target.beginPath();
+      target.moveTo(0, separatorY);
+      target.lineTo(minimapWidth, separatorY);
+      target.closePath();
+      target.stroke();
+    }
+  }
+  renderLines(layout) {
+    const startLineNumber = layout.startLineNumber;
+    const endLineNumber = layout.endLineNumber;
+    const minimapLineHeight = this._model.options.minimapLineHeight;
+    if (this._lastRenderData && this._lastRenderData.linesEquals(layout)) {
+      const _lastData = this._lastRenderData._get();
+      return new RenderData(layout, _lastData.imageData, _lastData.lines);
+    }
+    const imageData = this._getBuffer();
+    if (!imageData) {
+      return null;
+    }
+    const [_dirtyY1, _dirtyY2, needed] = InnerMinimap._renderUntouchedLines(imageData, layout.topPaddingLineCount, startLineNumber, endLineNumber, minimapLineHeight, this._lastRenderData);
+    const lineInfo = this._model.getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed);
+    const tabSize = this._model.getOptions().tabSize;
+    const defaultBackground = this._model.options.defaultBackgroundColor;
+    const background = this._model.options.backgroundColor;
+    const foregroundAlpha = this._model.options.foregroundAlpha;
+    const tokensColorTracker = this._model.tokensColorTracker;
+    const useLighterFont = tokensColorTracker.backgroundIsLight();
+    const renderMinimap = this._model.options.renderMinimap;
+    const charRenderer = this._model.options.charRenderer();
+    const fontScale = this._model.options.fontScale;
+    const minimapCharWidth = this._model.options.minimapCharWidth;
+    const baseCharHeight = renderMinimap === 1 ? 2 : 2 + 1;
+    const renderMinimapLineHeight = baseCharHeight * fontScale;
+    const innerLinePadding = minimapLineHeight > renderMinimapLineHeight ? Math.floor((minimapLineHeight - renderMinimapLineHeight) / 2) : 0;
+    const backgroundA = background.a / 255;
+    const renderBackground = new RGBA8(Math.round((background.r - defaultBackground.r) * backgroundA + defaultBackground.r), Math.round((background.g - defaultBackground.g) * backgroundA + defaultBackground.g), Math.round((background.b - defaultBackground.b) * backgroundA + defaultBackground.b), 255);
+    let dy = layout.topPaddingLineCount * minimapLineHeight;
+    const renderedLines = [];
+    for (let lineIndex = 0, lineCount = endLineNumber - startLineNumber + 1; lineIndex < lineCount; lineIndex++) {
+      if (needed[lineIndex]) {
+        InnerMinimap._renderLine(imageData, renderBackground, background.a, useLighterFont, renderMinimap, minimapCharWidth, tokensColorTracker, foregroundAlpha, charRenderer, dy, innerLinePadding, tabSize, lineInfo[lineIndex], fontScale, minimapLineHeight);
+      }
+      renderedLines[lineIndex] = new MinimapLine(dy);
+      dy += minimapLineHeight;
+    }
+    const dirtyY1 = _dirtyY1 === -1 ? 0 : _dirtyY1;
+    const dirtyY2 = _dirtyY2 === -1 ? imageData.height : _dirtyY2;
+    const dirtyHeight = dirtyY2 - dirtyY1;
+    const ctx = this._canvas.domNode.getContext("2d");
+    ctx.putImageData(imageData, 0, 0, 0, dirtyY1, imageData.width, dirtyHeight);
+    return new RenderData(layout, imageData, renderedLines);
+  }
+  static _renderUntouchedLines(target, topPaddingLineCount, startLineNumber, endLineNumber, minimapLineHeight, lastRenderData) {
+    const needed = [];
+    if (!lastRenderData) {
+      for (let i = 0, len = endLineNumber - startLineNumber + 1; i < len; i++) {
+        needed[i] = true;
+      }
+      return [-1, -1, needed];
+    }
+    const _lastData = lastRenderData._get();
+    const lastTargetData = _lastData.imageData.data;
+    const lastStartLineNumber = _lastData.rendLineNumberStart;
+    const lastLines = _lastData.lines;
+    const lastLinesLength = lastLines.length;
+    const WIDTH = target.width;
+    const targetData = target.data;
+    const maxDestPixel = (endLineNumber - startLineNumber + 1) * minimapLineHeight * WIDTH * 4;
+    let dirtyPixel1 = -1;
+    let dirtyPixel2 = -1;
+    let copySourceStart = -1;
+    let copySourceEnd = -1;
+    let copyDestStart = -1;
+    let copyDestEnd = -1;
+    let dest_dy = topPaddingLineCount * minimapLineHeight;
+    for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+      const lineIndex = lineNumber - startLineNumber;
+      const lastLineIndex = lineNumber - lastStartLineNumber;
+      const source_dy = lastLineIndex >= 0 && lastLineIndex < lastLinesLength ? lastLines[lastLineIndex].dy : -1;
+      if (source_dy === -1) {
+        needed[lineIndex] = true;
+        dest_dy += minimapLineHeight;
+        continue;
+      }
+      const sourceStart = source_dy * WIDTH * 4;
+      const sourceEnd = (source_dy + minimapLineHeight) * WIDTH * 4;
+      const destStart = dest_dy * WIDTH * 4;
+      const destEnd = (dest_dy + minimapLineHeight) * WIDTH * 4;
+      if (copySourceEnd === sourceStart && copyDestEnd === destStart) {
+        copySourceEnd = sourceEnd;
+        copyDestEnd = destEnd;
+      } else {
+        if (copySourceStart !== -1) {
+          targetData.set(lastTargetData.subarray(copySourceStart, copySourceEnd), copyDestStart);
+          if (dirtyPixel1 === -1 && copySourceStart === 0 && copySourceStart === copyDestStart) {
+            dirtyPixel1 = copySourceEnd;
+          }
+          if (dirtyPixel2 === -1 && copySourceEnd === maxDestPixel && copySourceStart === copyDestStart) {
+            dirtyPixel2 = copySourceStart;
+          }
+        }
+        copySourceStart = sourceStart;
+        copySourceEnd = sourceEnd;
+        copyDestStart = destStart;
+        copyDestEnd = destEnd;
+      }
+      needed[lineIndex] = false;
+      dest_dy += minimapLineHeight;
+    }
+    if (copySourceStart !== -1) {
+      targetData.set(lastTargetData.subarray(copySourceStart, copySourceEnd), copyDestStart);
+      if (dirtyPixel1 === -1 && copySourceStart === 0 && copySourceStart === copyDestStart) {
+        dirtyPixel1 = copySourceEnd;
+      }
+      if (dirtyPixel2 === -1 && copySourceEnd === maxDestPixel && copySourceStart === copyDestStart) {
+        dirtyPixel2 = copySourceStart;
+      }
+    }
+    const dirtyY1 = dirtyPixel1 === -1 ? -1 : dirtyPixel1 / (WIDTH * 4);
+    const dirtyY2 = dirtyPixel2 === -1 ? -1 : dirtyPixel2 / (WIDTH * 4);
+    return [dirtyY1, dirtyY2, needed];
+  }
+  static _renderLine(target, backgroundColor, backgroundAlpha, useLighterFont, renderMinimap, charWidth, colorTracker, foregroundAlpha, minimapCharRenderer, dy, innerLinePadding, tabSize, lineData, fontScale, minimapLineHeight) {
+    const content = lineData.content;
+    const tokens = lineData.tokens;
+    const maxDx = target.width - charWidth;
+    const force1pxHeight = minimapLineHeight === 1;
+    let dx = MINIMAP_GUTTER_WIDTH;
+    let charIndex = 0;
+    let tabsCharDelta = 0;
+    for (let tokenIndex = 0, tokensLen = tokens.getCount(); tokenIndex < tokensLen; tokenIndex++) {
+      const tokenEndIndex = tokens.getEndOffset(tokenIndex);
+      const tokenColorId = tokens.getForeground(tokenIndex);
+      const tokenColor = colorTracker.getColor(tokenColorId);
+      for (; charIndex < tokenEndIndex; charIndex++) {
+        if (dx > maxDx) {
+          return;
+        }
+        const charCode = content.charCodeAt(charIndex);
+        if (charCode === 9) {
+          const insertSpacesCount = tabSize - (charIndex + tabsCharDelta) % tabSize;
+          tabsCharDelta += insertSpacesCount - 1;
+          dx += insertSpacesCount * charWidth;
+        } else if (charCode === 32) {
+          dx += charWidth;
+        } else {
+          const count = strings.isFullWidthCharacter(charCode) ? 2 : 1;
+          for (let i = 0; i < count; i++) {
+            if (renderMinimap === 2) {
+              minimapCharRenderer.blockRenderChar(target, dx, dy + innerLinePadding, tokenColor, foregroundAlpha, backgroundColor, backgroundAlpha, force1pxHeight);
+            } else {
+              minimapCharRenderer.renderChar(target, dx, dy + innerLinePadding, charCode, tokenColor, foregroundAlpha, backgroundColor, backgroundAlpha, fontScale, useLighterFont, force1pxHeight);
+            }
+            dx += charWidth;
+            if (dx > maxDx) {
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+class ContiguousLineMap {
+  static {
+    __name(this, "ContiguousLineMap");
+  }
+  constructor(startLineNumber, endLineNumber, defaultValue) {
+    this._startLineNumber = startLineNumber;
+    this._endLineNumber = endLineNumber;
+    this._defaultValue = defaultValue;
+    this._values = [];
+    for (let i = 0, count = this._endLineNumber - this._startLineNumber + 1; i < count; i++) {
+      this._values[i] = defaultValue;
+    }
+  }
+  has(lineNumber) {
+    return this.get(lineNumber) !== this._defaultValue;
+  }
+  set(lineNumber, value) {
+    if (lineNumber < this._startLineNumber || lineNumber > this._endLineNumber) {
+      return;
+    }
+    this._values[lineNumber - this._startLineNumber] = value;
+  }
+  get(lineNumber) {
+    if (lineNumber < this._startLineNumber || lineNumber > this._endLineNumber) {
+      return this._defaultValue;
+    }
+    return this._values[lineNumber - this._startLineNumber];
+  }
+}
+export {
+  Minimap
+};
+//# sourceMappingURL=minimap.js.map

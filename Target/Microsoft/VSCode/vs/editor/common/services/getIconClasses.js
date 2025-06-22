@@ -1,1 +1,95 @@
-import{Schemas as p}from"../../../base/common/network.js";import{DataUri as s}from"../../../base/common/resources.js";import{URI as g}from"../../../base/common/uri.js";import{$mE as h}from"../languages/modesRegistry.js";import{FileKind as r}from"../../../platform/files/common/files.js";import{ThemeIcon as u}from"../../../base/common/themables.js";const L=/(?:\/|^)(?:([^\/]+)\/)?([^\/]+)$/;function R(a,m,e,i,f){if(u.isThemeIcon(f))return[`codicon-${f.id}`,"predefined-file-icon"];if(g.isUri(f))return[];const t=i===r.ROOT_FOLDER?["rootfolder-icon"]:i===r.FOLDER?["folder-icon"]:["file-icon"];if(e){let n;if(e.scheme===p.data)n=s.parseMetaData(e).get(s.META_DATA_LABEL);else{const o=e.path.match(L);o?(n=l(o[2].toLowerCase()),o[1]&&t.push(`${l(o[1].toLowerCase())}-name-dir-icon`)):n=l(e.authority.toLowerCase())}if(i===r.ROOT_FOLDER)t.push(`${n}-root-name-folder-icon`);else if(i===r.FOLDER)t.push(`${n}-name-folder-icon`);else{if(n){if(t.push(`${n}-name-file-icon`),t.push("name-file-icon"),n.length<=255){const d=n.split(".");for(let c=1;c<d.length;c++)t.push(`${d.slice(c).join(".")}-ext-file-icon`)}t.push("ext-file-icon")}const o=$(a,m,e);o&&t.push(`${l(o)}-lang-file-icon`)}}return t}function A(a){return["file-icon",`${l(a)}-lang-file-icon`]}function $(a,m,e){if(!e)return null;let i=null;if(e.scheme===p.data){const t=s.parseMetaData(e).get(s.META_DATA_MIME);t&&(i=m.getLanguageIdByMimeType(t))}else{const f=a.getModel(e);f&&(i=f.getLanguageId())}return i&&i!==h?i:m.guessLanguageIdByFilepathOrFirstLine(e)}function l(a){return a.replace(/[\s]/g,"/")}export{l as $0kb,R as $8kb,A as $9kb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../base/common/network.js";
+import { DataUri } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+const fileIconDirectoryRegex = /(?:\/|^)(?:([^\/]+)\/)?([^\/]+)$/;
+function getIconClasses(modelService, languageService, resource, fileKind, icon) {
+  if (ThemeIcon.isThemeIcon(icon)) {
+    return [`codicon-${icon.id}`, "predefined-file-icon"];
+  }
+  if (URI.isUri(icon)) {
+    return [];
+  }
+  const classes = fileKind === FileKind.ROOT_FOLDER ? ["rootfolder-icon"] : fileKind === FileKind.FOLDER ? ["folder-icon"] : ["file-icon"];
+  if (resource) {
+    let name;
+    if (resource.scheme === Schemas.data) {
+      const metadata = DataUri.parseMetaData(resource);
+      name = metadata.get(DataUri.META_DATA_LABEL);
+    } else {
+      const match = resource.path.match(fileIconDirectoryRegex);
+      if (match) {
+        name = fileIconSelectorEscape(match[2].toLowerCase());
+        if (match[1]) {
+          classes.push(`${fileIconSelectorEscape(match[1].toLowerCase())}-name-dir-icon`);
+        }
+      } else {
+        name = fileIconSelectorEscape(resource.authority.toLowerCase());
+      }
+    }
+    if (fileKind === FileKind.ROOT_FOLDER) {
+      classes.push(`${name}-root-name-folder-icon`);
+    } else if (fileKind === FileKind.FOLDER) {
+      classes.push(`${name}-name-folder-icon`);
+    } else {
+      if (name) {
+        classes.push(`${name}-name-file-icon`);
+        classes.push(`name-file-icon`);
+        if (name.length <= 255) {
+          const dotSegments = name.split(".");
+          for (let i = 1; i < dotSegments.length; i++) {
+            classes.push(`${dotSegments.slice(i).join(".")}-ext-file-icon`);
+          }
+        }
+        classes.push(`ext-file-icon`);
+      }
+      const detectedLanguageId = detectLanguageId(modelService, languageService, resource);
+      if (detectedLanguageId) {
+        classes.push(`${fileIconSelectorEscape(detectedLanguageId)}-lang-file-icon`);
+      }
+    }
+  }
+  return classes;
+}
+__name(getIconClasses, "getIconClasses");
+function getIconClassesForLanguageId(languageId) {
+  return ["file-icon", `${fileIconSelectorEscape(languageId)}-lang-file-icon`];
+}
+__name(getIconClassesForLanguageId, "getIconClassesForLanguageId");
+function detectLanguageId(modelService, languageService, resource) {
+  if (!resource) {
+    return null;
+  }
+  let languageId = null;
+  if (resource.scheme === Schemas.data) {
+    const metadata = DataUri.parseMetaData(resource);
+    const mime = metadata.get(DataUri.META_DATA_MIME);
+    if (mime) {
+      languageId = languageService.getLanguageIdByMimeType(mime);
+    }
+  } else {
+    const model = modelService.getModel(resource);
+    if (model) {
+      languageId = model.getLanguageId();
+    }
+  }
+  if (languageId && languageId !== PLAINTEXT_LANGUAGE_ID) {
+    return languageId;
+  }
+  return languageService.guessLanguageIdByFilepathOrFirstLine(resource);
+}
+__name(detectLanguageId, "detectLanguageId");
+function fileIconSelectorEscape(str) {
+  return str.replace(/[\s]/g, "/");
+}
+__name(fileIconSelectorEscape, "fileIconSelectorEscape");
+export {
+  fileIconSelectorEscape,
+  getIconClasses,
+  getIconClassesForLanguageId
+};
+//# sourceMappingURL=getIconClasses.js.map

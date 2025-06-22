@@ -1,1 +1,327 @@
-import{$Xh as b}from"../../../../base/common/async.js";import{$vd as f,$ud as g,$qd as l,$td as C}from"../../../../base/common/lifecycle.js";import{URI as x}from"../../../../base/common/uri.js";import{$bC as u}from"../../core/position.js";import{$cC as N}from"../../core/range.js";import{$qC as p,$sC as w}from"../../core/wordHelper.js";import{$nM as L}from"../../model/mirrorTextModel.js";const c=60*1e3,h="workerTextModelSync";class m extends f{static create(e,n){return new m(e.getChannel(h),n)}constructor(e,n,t=!1){if(super(),this.c=Object.create(null),this.f=Object.create(null),this.a=e,this.b=n,!t){const s=new b;s.cancelAndSet(()=>this.g(),Math.round(c/2)),this.B(s)}}dispose(){for(const e in this.c)l(this.c[e]);this.c=Object.create(null),this.f=Object.create(null),super.dispose()}ensureSyncedResources(e,n=!1){for(const t of e){const s=t.toString();this.c[s]||this.h(t,n),this.c[s]&&(this.f[s]=new Date().getTime())}}g(){const e=new Date().getTime(),n=[];for(const t in this.f)e-this.f[t]>c&&n.push(t);for(const t of n)this.j(t)}h(e,n){const t=this.b.getModel(e);if(!t||!n&&t.isTooLargeForSyncing())return;const s=e.toString();this.a.$acceptNewModel({url:t.uri.toString(),lines:t.getLinesContent(),EOL:t.getEOL(),versionId:t.getVersionId()});const r=new g;r.add(t.onDidChangeContent(i=>{this.a.$acceptModelChanged(s.toString(),i)})),r.add(t.onWillDispose(()=>{this.j(s)})),r.add(C(()=>{this.a.$acceptRemovedModel(s)})),this.c[s]=r}j(e){const n=this.c[e];delete this.c[e],delete this.f[e],l(n)}}class A{constructor(){this.a=Object.create(null)}bindToServer(e){e.setChannel(h,this)}getModel(e){return this.a[e]}getModels(){const e=[];return Object.keys(this.a).forEach(n=>e.push(this.a[n])),e}$acceptNewModel(e){this.a[e.url]=new $(x.parse(e.url),e.lines,e.EOL,e.versionId)}$acceptModelChanged(e,n){if(!this.a[e])return;this.a[e].onEvents(n)}$acceptRemovedModel(e){this.a[e]&&delete this.a[e]}}class $ extends L{get uri(){return this.a}get eol(){return this.c}getValue(){return this.getText()}findMatches(e){const n=[];for(let t=0;t<this.b.length;t++){const s=this.b[t],r=this.offsetAt(new u(t+1,1)),i=s.matchAll(e);for(const o of i)(o.index||o.index===0)&&(o.index=o.index+r),n.push(o)}return n}getLinesContent(){return this.b.slice(0)}getLineCount(){return this.b.length}getLineContent(e){return this.b[e-1]}getWordAtPosition(e,n){const t=w(e.column,p(n),this.b[e.lineNumber-1],0);return t?new N(e.lineNumber,t.startColumn,e.lineNumber,t.endColumn):null}getWordUntilPosition(e,n){const t=this.getWordAtPosition(e,n);return t?{word:this.b[e.lineNumber-1].substring(t.startColumn-1,e.column-1),startColumn:t.startColumn,endColumn:e.column}:{word:"",startColumn:e.column,endColumn:e.column}}words(e){const n=this.b,t=this.m.bind(this);let s=0,r="",i=0,o=[];return{*[Symbol.iterator](){for(;;)if(i<o.length){const a=r.substring(o[i].start,o[i].end);i+=1,yield a}else if(s<n.length)r=n[s],o=t(r,e),i=0,s+=1;else break}}}getLineWords(e,n){const t=this.b[e-1],s=this.m(t,n),r=[];for(const i of s)r.push({word:t.substring(i.start,i.end),startColumn:i.start+1,endColumn:i.end+1});return r}m(e,n){const t=[];let s;for(n.lastIndex=0;(s=n.exec(e))&&s[0].length!==0;)t.push({start:s.index,end:s.index+s[0].length});return t}getValueInRange(e){if(e=this.n(e),e.startLineNumber===e.endLineNumber)return this.b[e.startLineNumber-1].substring(e.startColumn-1,e.endColumn-1);const n=this.c,t=e.startLineNumber-1,s=e.endLineNumber-1,r=[];r.push(this.b[t].substring(e.startColumn-1));for(let i=t+1;i<s;i++)r.push(this.b[i]);return r.push(this.b[s].substring(0,e.endColumn-1)),r.join(n)}offsetAt(e){return e=this.o(e),this.h(),this.f.getPrefixSum(e.lineNumber-2)+(e.column-1)}positionAt(e){e=Math.floor(e),e=Math.max(0,e),this.h();const n=this.f.getIndexOf(e),t=this.b[n.index].length;return{lineNumber:1+n.index,column:1+Math.min(n.remainder,t)}}n(e){const n=this.o({lineNumber:e.startLineNumber,column:e.startColumn}),t=this.o({lineNumber:e.endLineNumber,column:e.endColumn});return n.lineNumber!==e.startLineNumber||n.column!==e.startColumn||t.lineNumber!==e.endLineNumber||t.column!==e.endColumn?{startLineNumber:n.lineNumber,startColumn:n.column,endLineNumber:t.lineNumber,endColumn:t.column}:e}o(e){if(!u.isIPosition(e))throw new Error("bad position");let{lineNumber:n,column:t}=e,s=!1;if(n<1)n=1,t=1,s=!0;else if(n>this.b.length)n=this.b.length,t=this.b[n-1].length+1,s=!0;else{const r=this.b[n-1].length+1;t<1?(t=1,s=!0):t>r&&(t=r,s=!0)}return s?{lineNumber:n,column:t}:e}}export{m as $1eb,A as $2eb,$ as $3eb,c as $Yeb,h as $Zeb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IntervalTimer } from "../../../../base/common/async.js";
+import { Disposable, DisposableStore, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../core/position.js";
+import { Range } from "../../core/range.js";
+import { ensureValidWordDefinition, getWordAtText } from "../../core/wordHelper.js";
+import { MirrorTextModel as BaseMirrorModel } from "../../model/mirrorTextModel.js";
+const STOP_SYNC_MODEL_DELTA_TIME_MS = 60 * 1e3;
+const WORKER_TEXT_MODEL_SYNC_CHANNEL = "workerTextModelSync";
+class WorkerTextModelSyncClient extends Disposable {
+  static {
+    __name(this, "WorkerTextModelSyncClient");
+  }
+  static create(workerClient, modelService) {
+    return new WorkerTextModelSyncClient(workerClient.getChannel(WORKER_TEXT_MODEL_SYNC_CHANNEL), modelService);
+  }
+  constructor(proxy, modelService, keepIdleModels = false) {
+    super();
+    this._syncedModels = /* @__PURE__ */ Object.create(null);
+    this._syncedModelsLastUsedTime = /* @__PURE__ */ Object.create(null);
+    this._proxy = proxy;
+    this._modelService = modelService;
+    if (!keepIdleModels) {
+      const timer = new IntervalTimer();
+      timer.cancelAndSet(() => this._checkStopModelSync(), Math.round(STOP_SYNC_MODEL_DELTA_TIME_MS / 2));
+      this._register(timer);
+    }
+  }
+  dispose() {
+    for (const modelUrl in this._syncedModels) {
+      dispose(this._syncedModels[modelUrl]);
+    }
+    this._syncedModels = /* @__PURE__ */ Object.create(null);
+    this._syncedModelsLastUsedTime = /* @__PURE__ */ Object.create(null);
+    super.dispose();
+  }
+  ensureSyncedResources(resources, forceLargeModels = false) {
+    for (const resource of resources) {
+      const resourceStr = resource.toString();
+      if (!this._syncedModels[resourceStr]) {
+        this._beginModelSync(resource, forceLargeModels);
+      }
+      if (this._syncedModels[resourceStr]) {
+        this._syncedModelsLastUsedTime[resourceStr] = (/* @__PURE__ */ new Date()).getTime();
+      }
+    }
+  }
+  _checkStopModelSync() {
+    const currentTime = (/* @__PURE__ */ new Date()).getTime();
+    const toRemove = [];
+    for (const modelUrl in this._syncedModelsLastUsedTime) {
+      const elapsedTime = currentTime - this._syncedModelsLastUsedTime[modelUrl];
+      if (elapsedTime > STOP_SYNC_MODEL_DELTA_TIME_MS) {
+        toRemove.push(modelUrl);
+      }
+    }
+    for (const e of toRemove) {
+      this._stopModelSync(e);
+    }
+  }
+  _beginModelSync(resource, forceLargeModels) {
+    const model = this._modelService.getModel(resource);
+    if (!model) {
+      return;
+    }
+    if (!forceLargeModels && model.isTooLargeForSyncing()) {
+      return;
+    }
+    const modelUrl = resource.toString();
+    this._proxy.$acceptNewModel({
+      url: model.uri.toString(),
+      lines: model.getLinesContent(),
+      EOL: model.getEOL(),
+      versionId: model.getVersionId()
+    });
+    const toDispose = new DisposableStore();
+    toDispose.add(model.onDidChangeContent((e) => {
+      this._proxy.$acceptModelChanged(modelUrl.toString(), e);
+    }));
+    toDispose.add(model.onWillDispose(() => {
+      this._stopModelSync(modelUrl);
+    }));
+    toDispose.add(toDisposable(() => {
+      this._proxy.$acceptRemovedModel(modelUrl);
+    }));
+    this._syncedModels[modelUrl] = toDispose;
+  }
+  _stopModelSync(modelUrl) {
+    const toDispose = this._syncedModels[modelUrl];
+    delete this._syncedModels[modelUrl];
+    delete this._syncedModelsLastUsedTime[modelUrl];
+    dispose(toDispose);
+  }
+}
+class WorkerTextModelSyncServer {
+  static {
+    __name(this, "WorkerTextModelSyncServer");
+  }
+  constructor() {
+    this._models = /* @__PURE__ */ Object.create(null);
+  }
+  bindToServer(workerServer) {
+    workerServer.setChannel(WORKER_TEXT_MODEL_SYNC_CHANNEL, this);
+  }
+  getModel(uri) {
+    return this._models[uri];
+  }
+  getModels() {
+    const all = [];
+    Object.keys(this._models).forEach((key) => all.push(this._models[key]));
+    return all;
+  }
+  $acceptNewModel(data) {
+    this._models[data.url] = new MirrorModel(URI.parse(data.url), data.lines, data.EOL, data.versionId);
+  }
+  $acceptModelChanged(uri, e) {
+    if (!this._models[uri]) {
+      return;
+    }
+    const model = this._models[uri];
+    model.onEvents(e);
+  }
+  $acceptRemovedModel(uri) {
+    if (!this._models[uri]) {
+      return;
+    }
+    delete this._models[uri];
+  }
+}
+class MirrorModel extends BaseMirrorModel {
+  static {
+    __name(this, "MirrorModel");
+  }
+  get uri() {
+    return this._uri;
+  }
+  get eol() {
+    return this._eol;
+  }
+  getValue() {
+    return this.getText();
+  }
+  findMatches(regex) {
+    const matches = [];
+    for (let i = 0; i < this._lines.length; i++) {
+      const line = this._lines[i];
+      const offsetToAdd = this.offsetAt(new Position(i + 1, 1));
+      const iteratorOverMatches = line.matchAll(regex);
+      for (const match of iteratorOverMatches) {
+        if (match.index || match.index === 0) {
+          match.index = match.index + offsetToAdd;
+        }
+        matches.push(match);
+      }
+    }
+    return matches;
+  }
+  getLinesContent() {
+    return this._lines.slice(0);
+  }
+  getLineCount() {
+    return this._lines.length;
+  }
+  getLineContent(lineNumber) {
+    return this._lines[lineNumber - 1];
+  }
+  getWordAtPosition(position, wordDefinition) {
+    const wordAtText = getWordAtText(position.column, ensureValidWordDefinition(wordDefinition), this._lines[position.lineNumber - 1], 0);
+    if (wordAtText) {
+      return new Range(position.lineNumber, wordAtText.startColumn, position.lineNumber, wordAtText.endColumn);
+    }
+    return null;
+  }
+  getWordUntilPosition(position, wordDefinition) {
+    const wordAtPosition = this.getWordAtPosition(position, wordDefinition);
+    if (!wordAtPosition) {
+      return {
+        word: "",
+        startColumn: position.column,
+        endColumn: position.column
+      };
+    }
+    return {
+      word: this._lines[position.lineNumber - 1].substring(wordAtPosition.startColumn - 1, position.column - 1),
+      startColumn: wordAtPosition.startColumn,
+      endColumn: position.column
+    };
+  }
+  words(wordDefinition) {
+    const lines = this._lines;
+    const wordenize = this._wordenize.bind(this);
+    let lineNumber = 0;
+    let lineText = "";
+    let wordRangesIdx = 0;
+    let wordRanges = [];
+    return {
+      *[Symbol.iterator]() {
+        while (true) {
+          if (wordRangesIdx < wordRanges.length) {
+            const value = lineText.substring(wordRanges[wordRangesIdx].start, wordRanges[wordRangesIdx].end);
+            wordRangesIdx += 1;
+            yield value;
+          } else {
+            if (lineNumber < lines.length) {
+              lineText = lines[lineNumber];
+              wordRanges = wordenize(lineText, wordDefinition);
+              wordRangesIdx = 0;
+              lineNumber += 1;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    };
+  }
+  getLineWords(lineNumber, wordDefinition) {
+    const content = this._lines[lineNumber - 1];
+    const ranges = this._wordenize(content, wordDefinition);
+    const words = [];
+    for (const range of ranges) {
+      words.push({
+        word: content.substring(range.start, range.end),
+        startColumn: range.start + 1,
+        endColumn: range.end + 1
+      });
+    }
+    return words;
+  }
+  _wordenize(content, wordDefinition) {
+    const result = [];
+    let match;
+    wordDefinition.lastIndex = 0;
+    while (match = wordDefinition.exec(content)) {
+      if (match[0].length === 0) {
+        break;
+      }
+      result.push({ start: match.index, end: match.index + match[0].length });
+    }
+    return result;
+  }
+  getValueInRange(range) {
+    range = this._validateRange(range);
+    if (range.startLineNumber === range.endLineNumber) {
+      return this._lines[range.startLineNumber - 1].substring(range.startColumn - 1, range.endColumn - 1);
+    }
+    const lineEnding = this._eol;
+    const startLineIndex = range.startLineNumber - 1;
+    const endLineIndex = range.endLineNumber - 1;
+    const resultLines = [];
+    resultLines.push(this._lines[startLineIndex].substring(range.startColumn - 1));
+    for (let i = startLineIndex + 1; i < endLineIndex; i++) {
+      resultLines.push(this._lines[i]);
+    }
+    resultLines.push(this._lines[endLineIndex].substring(0, range.endColumn - 1));
+    return resultLines.join(lineEnding);
+  }
+  offsetAt(position) {
+    position = this._validatePosition(position);
+    this._ensureLineStarts();
+    return this._lineStarts.getPrefixSum(position.lineNumber - 2) + (position.column - 1);
+  }
+  positionAt(offset) {
+    offset = Math.floor(offset);
+    offset = Math.max(0, offset);
+    this._ensureLineStarts();
+    const out = this._lineStarts.getIndexOf(offset);
+    const lineLength = this._lines[out.index].length;
+    return {
+      lineNumber: 1 + out.index,
+      column: 1 + Math.min(out.remainder, lineLength)
+    };
+  }
+  _validateRange(range) {
+    const start = this._validatePosition({ lineNumber: range.startLineNumber, column: range.startColumn });
+    const end = this._validatePosition({ lineNumber: range.endLineNumber, column: range.endColumn });
+    if (start.lineNumber !== range.startLineNumber || start.column !== range.startColumn || end.lineNumber !== range.endLineNumber || end.column !== range.endColumn) {
+      return {
+        startLineNumber: start.lineNumber,
+        startColumn: start.column,
+        endLineNumber: end.lineNumber,
+        endColumn: end.column
+      };
+    }
+    return range;
+  }
+  _validatePosition(position) {
+    if (!Position.isIPosition(position)) {
+      throw new Error("bad position");
+    }
+    let { lineNumber, column } = position;
+    let hasChanged = false;
+    if (lineNumber < 1) {
+      lineNumber = 1;
+      column = 1;
+      hasChanged = true;
+    } else if (lineNumber > this._lines.length) {
+      lineNumber = this._lines.length;
+      column = this._lines[lineNumber - 1].length + 1;
+      hasChanged = true;
+    } else {
+      const maxCharacter = this._lines[lineNumber - 1].length + 1;
+      if (column < 1) {
+        column = 1;
+        hasChanged = true;
+      } else if (column > maxCharacter) {
+        column = maxCharacter;
+        hasChanged = true;
+      }
+    }
+    if (!hasChanged) {
+      return position;
+    } else {
+      return { lineNumber, column };
+    }
+  }
+}
+export {
+  MirrorModel,
+  STOP_SYNC_MODEL_DELTA_TIME_MS,
+  WORKER_TEXT_MODEL_SYNC_CHANNEL,
+  WorkerTextModelSyncClient,
+  WorkerTextModelSyncServer
+};
+//# sourceMappingURL=textModelSync.impl.js.map

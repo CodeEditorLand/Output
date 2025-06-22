@@ -1,1 +1,263 @@
-import"./media/editorquickaccess.css";import{localize as u}from"../../../../nls.js";import{$NM as E}from"../../../../platform/quickinput/common/quickInput.js";import{$9ob as P,TriggerAction as v}from"../../../../platform/quickinput/browser/pickerQuickAccess.js";import{$kI as g}from"../../../services/editor/common/editorGroupsService.js";import{$sK as C,SideBySideEditor as N}from"../../../common/editor.js";import{$oI as d}from"../../../services/editor/common/editorService.js";import{$gF as m}from"../../../../editor/common/services/model.js";import{$BD as b}from"../../../../editor/common/languages/language.js";import{$8kb as F}from"../../../../editor/common/services/getIconClasses.js";import{$JM as y,$HM as D,$IM as S}from"../../../../base/common/fuzzyScorer.js";import{$Mj as R}from"../../../../base/common/codicons.js";import{ThemeIcon as _}from"../../../../base/common/themables.js";var f=function(a,e,r,t){var s=arguments.length,o=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,e,r,t);else for(var c=a.length-1;c>=0;c--)(i=a[c])&&(o=(s<3?i(o):s>3?i(e,r,o):i(e,r))||o);return s>3&&o&&Object.defineProperty(e,r,o),o},n=function(a,e){return function(r,t){e(r,t,a)}},$,I,G;let p=class extends P{constructor(e,r,t,s,o){super(e,{canAcceptInBackground:!0,noResultsPick:{label:u(3689,null),groupId:-1}}),this.b=r,this.h=t,this.j=s,this.m=o,this.a=new class{constructor(){this.scorerCache=Object.create(null),this.isQuickNavigating=void 0}reset(i){i||(this.scorerCache=Object.create(null)),this.isQuickNavigating=i}}}provide(e,r){return this.a.reset(!!e.quickNavigate),super.provide(e,r)}g(e){const r=y(e),t=this.r().filter(o=>{if(!r.normalized)return!0;const i=D(o,r,!0,E,this.a.scorerCache);return i.score?(o.highlights={label:i.labelMatch,description:i.descriptionMatch},!0):!1});if(r.normalized){const o=this.b.getGroups(2).map(i=>i.id);t.sort((i,c)=>i.groupId!==c.groupId?o.indexOf(i.groupId)-o.indexOf(c.groupId):S(i,c,r,!0,E,this.a.scorerCache))}const s=[];if(this.b.count>1){let o;for(const i of t){if(typeof o!="number"||o!==i.groupId){const c=this.b.getGroup(i.groupId);c&&s.push({type:"separator",label:c.label}),o=i.groupId}s.push(i)}}else s.push(...t);return s}r(){const e=this.s(),r=new Map;for(const{groupId:t}of e)if(!r.has(t)){const s=this.b.getGroup(t);s&&r.set(t,s.ariaLabel)}return this.s().map(({editor:t,groupId:s})=>{const o=C.getOriginalUri(t,{supportSideBySide:N.PRIMARY}),i=t.isDirty()&&!t.isSaving(),c=t.getDescription(),l=c?`${t.getName()} ${c}`:t.getName();return{groupId:s,resource:o,label:t.getName(),ariaLabel:r.size>1?i?u(3690,null,l,r.get(s)):u(3691,null,l,r.get(s)):i?u(3692,null,l):l,description:c,iconClasses:F(this.j,this.m,o,void 0,t.getIcon()).concat(t.getLabelExtraClasses()),italic:!this.b.getGroup(s)?.isPinned(t),buttons:[{iconClass:i?"dirty-editor "+_.asClassName(R.closeDirty):_.asClassName(R.close),tooltip:u(3693,null),alwaysVisible:i}],trigger:async()=>{const h=this.b.getGroup(s);return h&&(await h.closeEditor(t,{preserveFocus:!0}),!h.contains(t))?v.REMOVE_ITEM:v.NO_ACTION},accept:(h,O)=>this.b.getGroup(s)?.openEditor(t,{preserveFocus:O.inBackground})}})}};p=f([n(1,g),n(2,d),n(3,m),n(4,b)],p);let M=class extends p{static{$=this}static{this.PREFIX="edt active "}constructor(e,r,t,s){super($.PREFIX,e,r,t,s)}s(){const e=this.b.activeGroup;return e.getEditors(0).map(r=>({editor:r,groupId:e.id}))}};M=$=f([n(0,g),n(1,d),n(2,m),n(3,b)],M);let j=class extends p{static{I=this}static{this.PREFIX="edt "}constructor(e,r,t,s){super(I.PREFIX,e,r,t,s)}s(){const e=[];for(const r of this.b.getGroups(2))for(const t of r.getEditors(1))e.push({editor:t,groupId:r.id});return e}};j=I=f([n(0,g),n(1,d),n(2,m),n(3,b)],j);let x=class extends p{static{G=this}static{this.PREFIX="edt mru "}constructor(e,r,t,s){super(G.PREFIX,e,r,t,s)}s(){const e=[];for(const r of this.h.getEditors(0))e.push(r);return e}};x=G=f([n(0,g),n(1,d),n(2,m),n(3,b)],x);export{p as $gGb,M as $hGb,j as $iGb,x as $jGb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/editorquickaccess.css";
+import { localize } from "../../../../nls.js";
+import { quickPickItemScorerAccessor } from "../../../../platform/quickinput/common/quickInput.js";
+import { PickerQuickAccessProvider, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { prepareQuery, scoreItemFuzzy, compareItemsByFuzzyScore } from "../../../../base/common/fuzzyScorer.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ActiveGroupEditorsByMostRecentlyUsedQuickAccess_1;
+var AllEditorsByAppearanceQuickAccess_1;
+var AllEditorsByMostRecentlyUsedQuickAccess_1;
+let BaseEditorQuickAccessProvider = class BaseEditorQuickAccessProvider2 extends PickerQuickAccessProvider {
+  static {
+    __name(this, "BaseEditorQuickAccessProvider");
+  }
+  constructor(prefix, editorGroupService, editorService, modelService, languageService) {
+    super(prefix, {
+      canAcceptInBackground: true,
+      noResultsPick: {
+        label: localize("noViewResults", "No matching editors"),
+        groupId: -1
+      }
+    });
+    this.editorGroupService = editorGroupService;
+    this.editorService = editorService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this.pickState = new class {
+      constructor() {
+        this.scorerCache = /* @__PURE__ */ Object.create(null);
+        this.isQuickNavigating = void 0;
+      }
+      reset(isQuickNavigating) {
+        if (!isQuickNavigating) {
+          this.scorerCache = /* @__PURE__ */ Object.create(null);
+        }
+        this.isQuickNavigating = isQuickNavigating;
+      }
+    }();
+  }
+  provide(picker, token) {
+    this.pickState.reset(!!picker.quickNavigate);
+    return super.provide(picker, token);
+  }
+  _getPicks(filter) {
+    const query = prepareQuery(filter);
+    const filteredEditorEntries = this.doGetEditorPickItems().filter((entry) => {
+      if (!query.normalized) {
+        return true;
+      }
+      const itemScore = scoreItemFuzzy(entry, query, true, quickPickItemScorerAccessor, this.pickState.scorerCache);
+      if (!itemScore.score) {
+        return false;
+      }
+      entry.highlights = { label: itemScore.labelMatch, description: itemScore.descriptionMatch };
+      return true;
+    });
+    if (query.normalized) {
+      const groups = this.editorGroupService.getGroups(
+        2
+        /* GroupsOrder.GRID_APPEARANCE */
+      ).map((group) => group.id);
+      filteredEditorEntries.sort((entryA, entryB) => {
+        if (entryA.groupId !== entryB.groupId) {
+          return groups.indexOf(entryA.groupId) - groups.indexOf(entryB.groupId);
+        }
+        return compareItemsByFuzzyScore(entryA, entryB, query, true, quickPickItemScorerAccessor, this.pickState.scorerCache);
+      });
+    }
+    const filteredEditorEntriesWithSeparators = [];
+    if (this.editorGroupService.count > 1) {
+      let lastGroupId = void 0;
+      for (const entry of filteredEditorEntries) {
+        if (typeof lastGroupId !== "number" || lastGroupId !== entry.groupId) {
+          const group = this.editorGroupService.getGroup(entry.groupId);
+          if (group) {
+            filteredEditorEntriesWithSeparators.push({ type: "separator", label: group.label });
+          }
+          lastGroupId = entry.groupId;
+        }
+        filteredEditorEntriesWithSeparators.push(entry);
+      }
+    } else {
+      filteredEditorEntriesWithSeparators.push(...filteredEditorEntries);
+    }
+    return filteredEditorEntriesWithSeparators;
+  }
+  doGetEditorPickItems() {
+    const editors = this.doGetEditors();
+    const mapGroupIdToGroupAriaLabel = /* @__PURE__ */ new Map();
+    for (const { groupId } of editors) {
+      if (!mapGroupIdToGroupAriaLabel.has(groupId)) {
+        const group = this.editorGroupService.getGroup(groupId);
+        if (group) {
+          mapGroupIdToGroupAriaLabel.set(groupId, group.ariaLabel);
+        }
+      }
+    }
+    return this.doGetEditors().map(({ editor, groupId }) => {
+      const resource = EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY });
+      const isDirty = editor.isDirty() && !editor.isSaving();
+      const description = editor.getDescription();
+      const nameAndDescription = description ? `${editor.getName()} ${description}` : editor.getName();
+      return {
+        groupId,
+        resource,
+        label: editor.getName(),
+        ariaLabel: (() => {
+          if (mapGroupIdToGroupAriaLabel.size > 1) {
+            return isDirty ? localize("entryAriaLabelWithGroupDirty", "{0}, unsaved changes, {1}", nameAndDescription, mapGroupIdToGroupAriaLabel.get(groupId)) : localize("entryAriaLabelWithGroup", "{0}, {1}", nameAndDescription, mapGroupIdToGroupAriaLabel.get(groupId));
+          }
+          return isDirty ? localize("entryAriaLabelDirty", "{0}, unsaved changes", nameAndDescription) : nameAndDescription;
+        })(),
+        description,
+        iconClasses: getIconClasses(this.modelService, this.languageService, resource, void 0, editor.getIcon()).concat(editor.getLabelExtraClasses()),
+        italic: !this.editorGroupService.getGroup(groupId)?.isPinned(editor),
+        buttons: (() => {
+          return [
+            {
+              iconClass: isDirty ? "dirty-editor " + ThemeIcon.asClassName(Codicon.closeDirty) : ThemeIcon.asClassName(Codicon.close),
+              tooltip: localize("closeEditor", "Close Editor"),
+              alwaysVisible: isDirty
+            }
+          ];
+        })(),
+        trigger: /* @__PURE__ */ __name(async () => {
+          const group = this.editorGroupService.getGroup(groupId);
+          if (group) {
+            await group.closeEditor(editor, { preserveFocus: true });
+            if (!group.contains(editor)) {
+              return TriggerAction.REMOVE_ITEM;
+            }
+          }
+          return TriggerAction.NO_ACTION;
+        }, "trigger"),
+        accept: /* @__PURE__ */ __name((keyMods, event) => this.editorGroupService.getGroup(groupId)?.openEditor(editor, { preserveFocus: event.inBackground }), "accept")
+      };
+    });
+  }
+};
+BaseEditorQuickAccessProvider = __decorate([
+  __param(1, IEditorGroupsService),
+  __param(2, IEditorService),
+  __param(3, IModelService),
+  __param(4, ILanguageService)
+], BaseEditorQuickAccessProvider);
+let ActiveGroupEditorsByMostRecentlyUsedQuickAccess = class ActiveGroupEditorsByMostRecentlyUsedQuickAccess2 extends BaseEditorQuickAccessProvider {
+  static {
+    __name(this, "ActiveGroupEditorsByMostRecentlyUsedQuickAccess");
+  }
+  static {
+    ActiveGroupEditorsByMostRecentlyUsedQuickAccess_1 = this;
+  }
+  static {
+    this.PREFIX = "edt active ";
+  }
+  constructor(editorGroupService, editorService, modelService, languageService) {
+    super(ActiveGroupEditorsByMostRecentlyUsedQuickAccess_1.PREFIX, editorGroupService, editorService, modelService, languageService);
+  }
+  doGetEditors() {
+    const group = this.editorGroupService.activeGroup;
+    return group.getEditors(
+      0
+      /* EditorsOrder.MOST_RECENTLY_ACTIVE */
+    ).map((editor) => ({ editor, groupId: group.id }));
+  }
+};
+ActiveGroupEditorsByMostRecentlyUsedQuickAccess = ActiveGroupEditorsByMostRecentlyUsedQuickAccess_1 = __decorate([
+  __param(0, IEditorGroupsService),
+  __param(1, IEditorService),
+  __param(2, IModelService),
+  __param(3, ILanguageService)
+], ActiveGroupEditorsByMostRecentlyUsedQuickAccess);
+let AllEditorsByAppearanceQuickAccess = class AllEditorsByAppearanceQuickAccess2 extends BaseEditorQuickAccessProvider {
+  static {
+    __name(this, "AllEditorsByAppearanceQuickAccess");
+  }
+  static {
+    AllEditorsByAppearanceQuickAccess_1 = this;
+  }
+  static {
+    this.PREFIX = "edt ";
+  }
+  constructor(editorGroupService, editorService, modelService, languageService) {
+    super(AllEditorsByAppearanceQuickAccess_1.PREFIX, editorGroupService, editorService, modelService, languageService);
+  }
+  doGetEditors() {
+    const entries = [];
+    for (const group of this.editorGroupService.getGroups(
+      2
+      /* GroupsOrder.GRID_APPEARANCE */
+    )) {
+      for (const editor of group.getEditors(
+        1
+        /* EditorsOrder.SEQUENTIAL */
+      )) {
+        entries.push({ editor, groupId: group.id });
+      }
+    }
+    return entries;
+  }
+};
+AllEditorsByAppearanceQuickAccess = AllEditorsByAppearanceQuickAccess_1 = __decorate([
+  __param(0, IEditorGroupsService),
+  __param(1, IEditorService),
+  __param(2, IModelService),
+  __param(3, ILanguageService)
+], AllEditorsByAppearanceQuickAccess);
+let AllEditorsByMostRecentlyUsedQuickAccess = class AllEditorsByMostRecentlyUsedQuickAccess2 extends BaseEditorQuickAccessProvider {
+  static {
+    __name(this, "AllEditorsByMostRecentlyUsedQuickAccess");
+  }
+  static {
+    AllEditorsByMostRecentlyUsedQuickAccess_1 = this;
+  }
+  static {
+    this.PREFIX = "edt mru ";
+  }
+  constructor(editorGroupService, editorService, modelService, languageService) {
+    super(AllEditorsByMostRecentlyUsedQuickAccess_1.PREFIX, editorGroupService, editorService, modelService, languageService);
+  }
+  doGetEditors() {
+    const entries = [];
+    for (const editor of this.editorService.getEditors(
+      0
+      /* EditorsOrder.MOST_RECENTLY_ACTIVE */
+    )) {
+      entries.push(editor);
+    }
+    return entries;
+  }
+};
+AllEditorsByMostRecentlyUsedQuickAccess = AllEditorsByMostRecentlyUsedQuickAccess_1 = __decorate([
+  __param(0, IEditorGroupsService),
+  __param(1, IEditorService),
+  __param(2, IModelService),
+  __param(3, ILanguageService)
+], AllEditorsByMostRecentlyUsedQuickAccess);
+export {
+  ActiveGroupEditorsByMostRecentlyUsedQuickAccess,
+  AllEditorsByAppearanceQuickAccess,
+  AllEditorsByMostRecentlyUsedQuickAccess,
+  BaseEditorQuickAccessProvider
+};
+//# sourceMappingURL=editorQuickAccess.js.map

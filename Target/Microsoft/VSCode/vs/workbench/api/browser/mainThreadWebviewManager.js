@@ -1,1 +1,45 @@
-import{$vd as b}from"../../../base/common/lifecycle.js";import{$mj as h}from"../../../platform/instantiation/common/instantiation.js";import{$n1b as l}from"./mainThreadCustomEditors.js";import{$f1b as $}from"./mainThreadWebviewPanels.js";import{$zWb as u}from"./mainThreadWebviews.js";import{$q1b as w}from"./mainThreadWebviewViews.js";import*as m from"../common/extHost.protocol.js";import{$Lyb as d}from"../../services/extensions/common/extHostCustomers.js";var c=function(i,e,r,o){var s=arguments.length,t=s<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,r,o);else for(var n=i.length-1;n>=0;n--)(f=i[n])&&(t=(s<3?f(t):s>3?f(e,r,t):f(e,r))||t);return s>3&&t&&Object.defineProperty(e,r,t),t},p=function(i,e){return function(r,o){e(r,o,i)}};let a=class extends b{constructor(e,r){super();const o=this.B(r.createInstance(u,e));e.set(m.$oY.MainThreadWebviews,o);const s=this.B(r.createInstance($,e,o));e.set(m.$oY.MainThreadWebviewPanels,s);const t=this.B(r.createInstance(l,e,o,s));e.set(m.$oY.MainThreadCustomEditors,t);const f=this.B(r.createInstance(w,e,o));e.set(m.$oY.MainThreadWebviewViews,f)}};a=c([d,p(1,h)],a);export{a as $r1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { MainThreadCustomEditors } from "./mainThreadCustomEditors.js";
+import { MainThreadWebviewPanels } from "./mainThreadWebviewPanels.js";
+import { MainThreadWebviews } from "./mainThreadWebviews.js";
+import { MainThreadWebviewsViews } from "./mainThreadWebviewViews.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
+import { extHostCustomer } from "../../services/extensions/common/extHostCustomers.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let MainThreadWebviewManager = class MainThreadWebviewManager2 extends Disposable {
+  static {
+    __name(this, "MainThreadWebviewManager");
+  }
+  constructor(context, instantiationService) {
+    super();
+    const webviews = this._register(instantiationService.createInstance(MainThreadWebviews, context));
+    context.set(extHostProtocol.MainContext.MainThreadWebviews, webviews);
+    const webviewPanels = this._register(instantiationService.createInstance(MainThreadWebviewPanels, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewPanels, webviewPanels);
+    const customEditors = this._register(instantiationService.createInstance(MainThreadCustomEditors, context, webviews, webviewPanels));
+    context.set(extHostProtocol.MainContext.MainThreadCustomEditors, customEditors);
+    const webviewViews = this._register(instantiationService.createInstance(MainThreadWebviewsViews, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewViews, webviewViews);
+  }
+};
+MainThreadWebviewManager = __decorate([
+  extHostCustomer,
+  __param(1, IInstantiationService)
+], MainThreadWebviewManager);
+export {
+  MainThreadWebviewManager
+};
+//# sourceMappingURL=mainThreadWebviewManager.js.map

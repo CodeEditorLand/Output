@@ -1,1 +1,363 @@
-import{$88 as wt}from"../../../../../../base/browser/pixelRatio.js";import*as n from"../../../../../../base/browser/dom.js";import{$m7 as f}from"../../../../../../base/browser/fastDomNode.js";import{$vd as Z,$ud as U}from"../../../../../../base/common/lifecycle.js";import{$Zdb as It}from"../../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{$kC as Mt}from"../../../../../../editor/common/config/fontInfo.js";import{EditorContextKeys as gt}from"../../../../../../editor/common/editorContextKeys.js";import{$mE as Ct}from"../../../../../../editor/common/languages/modesRegistry.js";import{localize as Tt}from"../../../../../../nls.js";import{$eI as q}from"../../../../../../platform/actions/common/actions.js";import{$El as j}from"../../../../../../platform/configuration/common/configuration.js";import{$Vn as R}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ofb as Q}from"../../../../../../platform/contextview/browser/contextView.js";import{$mj as X}from"../../../../../../platform/instantiation/common/instantiation.js";import{$lj as A}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$ux as Y}from"../../../../../../platform/keybinding/common/keybinding.js";import{$RI as tt}from"../../../../../../platform/notification/common/notification.js";import{$FSb as et}from"../cellPart.js";import{$0Sb as ot}from"../cellParts/chat/cellChatPart.js";import{$KTb as nt}from"../cellParts/cellComments.js";import{$GSb as it}from"../cellParts/cellContextKeys.js";import{$LTb as ct}from"../cellParts/cellDecorations.js";import{$ISb as st}from"../cellParts/cellDnd.js";import{$MTb as Et}from"../cellParts/cellDragRenderer.js";import{$NTb as xt}from"../cellParts/cellEditorOptions.js";import{$eUb as vt}from"../cellParts/cellExecution.js";import{$fUb as rt}from"../cellParts/cellFocus.js";import{$mUb as lt}from"../cellParts/cellFocusIndicator.js";import{$nUb as Ut}from"../cellParts/cellProgressBar.js";import{$oUb as at}from"../cellParts/cellStatusPart.js";import{$kUb as dt,$lUb as mt}from"../cellParts/cellToolbars.js";import{$sUb as Dt}from"../cellParts/codeCell.js";import{$tUb as Pt}from"../cellParts/codeCellRunToolbar.js";import{$vUb as ut}from"../cellParts/collapsedCellInput.js";import{$wUb as St}from"../cellParts/collapsedCellOutput.js";import{$BUb as _t}from"../cellParts/foldedCellHint.js";import{$CUb as Ot}from"../cellParts/markupCell.js";import{CellKind as yt}from"../../../common/notebookCommon.js";import{$DK as Lt}from"../../../common/notebookExecutionStateService.js";var F=function($,o,e,t){var c=arguments.length,s=c<3?o:t===null?t=Object.getOwnPropertyDescriptor(o,e):t,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate($,o,e,t);else for(var l=$.length-1;l>=0;l--)(r=$[l])&&(s=(c<3?r(s):c>3?r(o,e,s):r(o,e))||s);return c>3&&s&&Object.defineProperty(o,e,s),s},a=function($,o){return function(e,t){o(e,t,$)}},N,k;const i=n.$;let G=class extends Z{constructor(o,e){super(),this.b=e;const t=this.b.getValue("editor");this.a=Mt.createFromRawSettings(t,wt.getInstance(o).value).lineHeight}getHeight(o){return o.getHeight(this.a)}getDynamicHeight(o){return o.getDynamicHeight()}getTemplateId(o){return o.cellKind===yt.Markup?H.TEMPLATE_ID:K.TEMPLATE_ID}};G=F([a(1,j)],G);class ht extends Z{constructor(o,e,t,c,s,r,l,d,b,m){super(),this.b=o,this.c=e,this.f=t,this.g=c,this.h=r,this.j=l,this.m=d,this.n=m,this.a=this.B(new xt(this.c.getBaseCellEditorOptions(b),this.c.notebookOptions,s))}dispose(){super.dispose(),this.n=void 0}}let H=class extends ht{static{N=this}static{this.TEMPLATE_ID="markdown_cell"}constructor(o,e,t,c,s,r,l,d,b,m,I){super(r,o,l,d,s,b,m,c,"markdown",e),this.s=t,this.r=I}get templateId(){return N.TEMPLATE_ID}renderTemplate(o){o.classList.add("markdown-cell-row");const e=n.$M6(o,n.$(".cell-inner-container")),t=new U,c=t.add(this.m(e)),s=n.$M6(o,i(".cell-decoration")),r=n.$M6(e,i(".cell-title-toolbar")),l=new f(n.$M6(e,i(".cell-focus-indicator.cell-focus-indicator-top"))),d=new f(n.$M6(e,n.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left"))),b=n.$M6(d.domNode,n.$(".notebook-folding-indicator")),m=new f(n.$M6(e,n.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-right"))),I=n.$M6(e,i(".cell.code")),p=n.$M6(I,i(".cell-editor-part")),g=n.$M6(p,i(".cell-chat-part")),w=n.$M6(I,i(".input-collapse-container"));w.style.display="none";const D=n.$M6(p,i(".cell-editor-container"));p.style.display="none";const P=n.$M6(e,i(".cell-comment-container")),C=n.$M6(e,i(".cell.markdown")),S=n.$M6(e,i(".cell-bottom-toolbar-container")),u=t.add(this.b.createChild(new A([R,c]))),T={toggle:(O,y)=>e.classList.toggle(O,y)},M=t.add(u.createInstance(mt,r,T,this.c.creationOptions.menuIds.cellTitleToolbar,this.c.creationOptions.menuIds.cellDeleteToolbar,this.c)),_=new f(n.$M6(e,i(".cell-focus-indicator.cell-focus-indicator-bottom"))),E=new et(n.getWindow(o),[t.add(u.createInstance(ot,this.c,g)),t.add(u.createInstance(at,this.c,e,p,void 0)),t.add(new lt(this.c,M,l,d,m,_)),t.add(new _t(this.c,n.$M6(e,i(".notebook-folded-hint")),this.r)),t.add(new ct(this.c,o,s)),t.add(u.createInstance(nt,this.c,P)),t.add(new ut(this.c,w)),t.add(new rt(e,void 0,this.c)),t.add(new st(e)),t.add(u.createInstance(it,this.c))],[M,t.add(u.createInstance(dt,this.c,r,S))]);return t.add(E),{rootContainer:o,cellInputCollapsedContainer:w,instantiationService:u,container:e,cellContainer:C,editorPart:p,editorContainer:D,foldingIndicator:b,templateDisposables:t,elementDisposables:t.add(new U),cellParts:E,toJSON:()=>({})}}renderElement(o,e,t,c){if(!this.c.hasModel())throw new Error("The notebook editor is not attached with view model yet.");t.currentRenderedCell=o,t.currentEditor=void 0,t.editorPart.style.display="none",t.cellContainer.innerText="",c?.height!==void 0&&t.elementDisposables.add(t.instantiationService.createInstance(Ot,this.c,o,t,this.s))}disposeTemplate(o){o.templateDisposables.dispose()}disposeElement(o,e,t){t.elementDisposables.clear()}};H=N=F([a(4,j),a(5,X),a(6,Q),a(7,q),a(8,Y),a(9,tt),a(10,Lt)],H);let K=class extends ht{static{k=this}static{this.TEMPLATE_ID="code_cell"}constructor(o,e,t,c,s,r,l,d,b,m,I){super(b,o,l,d,r,m,I,s,Ct,c),this.r=e,this.s=t}get templateId(){return k.TEMPLATE_ID}renderTemplate(o){o.classList.add("code-cell-row");const e=n.$M6(o,n.$(".cell-inner-container")),t=new U,c=t.add(this.m(e)),s=n.$M6(o,i(".cell-decoration")),r=new f(n.$M6(e,i(".cell-focus-indicator.cell-focus-indicator-top"))),l=n.$M6(e,i(".cell-title-toolbar")),d=new f(n.$M6(e,n.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left"))),b=n.$M6(e,i(".cell-chat-part")),m=n.$M6(e,i(".cell.code")),I=n.$M6(m,i(".run-button-container")),p=n.$M6(m,i(".input-collapse-container"));p.style.display="none";const g=n.$M6(d.domNode,i("div.execution-count-label"));g.title=Tt(9623,null);const w=n.$M6(m,i(".cell-editor-part")),D=n.$M6(w,i(".cell-editor-container")),P=n.$M6(e,i(".cell-comment-container")),C=t.add(this.m(w)),S=t.add(this.b.createChild(new A([R,C])));gt.inCompositeEditor.bindTo(C).set(!0);const u=S.createInstance(It,D,{...this.a.getDefaultValue(),allowVariableLineHeights:!1,dimension:{width:0,height:0},scrollbar:{vertical:"hidden",horizontal:"auto",handleMouseWheel:!1,useShadows:!1}},{contributions:this.c.creationOptions.cellEditorContributions});t.add(u);const T=new f(n.$M6(e,i(".output"))),M=n.$M6(T.domNode,i(".output-collapse-container")),_=new f(n.$M6(e,i(".output-show-more-container"))),E=new f(n.$M6(e,n.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-right"))),x=n.$M6(e,i(".cell-editor-focus-sink"));x.setAttribute("tabindex","0");const O=n.$M6(e,i(".cell-bottom-toolbar-container")),y=new f(n.$M6(e,i(".cell-focus-indicator.cell-focus-indicator-bottom"))),h=t.add(this.b.createChild(new A([R,c]))),pt={toggle:($t,bt)=>e.classList.toggle($t,bt)},B=t.add(h.createInstance(mt,l,pt,this.c.creationOptions.menuIds.cellTitleToolbar,this.c.creationOptions.menuIds.cellDeleteToolbar,this.c)),L=t.add(new lt(this.c,B,r,d,E,y)),V=[L,t.add(h.createInstance(ot,this.c,b)),t.add(h.createInstance(at,this.c,e,w,u)),t.add(h.createInstance(Ut,w,p)),t.add(new ct(this.c,o,s)),t.add(h.createInstance(nt,this.c,P)),t.add(h.createInstance(vt,this.c,g)),t.add(h.createInstance(St,this.c,M)),t.add(new ut(this.c,p)),t.add(new rt(e,x,this.c)),t.add(new st(e)),t.add(h.createInstance(it,this.c))],{cellExecutePrimary:W,cellExecuteToolbar:z}=this.c.creationOptions.menuIds;W&&z&&V.push(t.add(h.createInstance(Pt,this.c,c,e,I,W,z)));const J=new et(n.getWindow(o),V,[B,t.add(h.createInstance(dt,this.c,l,O))]);t.add(J);const v={rootContainer:o,editorPart:w,cellInputCollapsedContainer:p,cellOutputCollapsedContainer:M,instantiationService:h,container:e,cellContainer:m,focusSinkElement:x,outputContainer:T,outputShowMoreContainer:_,editor:u,templateDisposables:t,elementDisposables:t.add(new U),cellParts:J,toJSON:()=>({})},ft=[d.domNode,L.codeFocusIndicator.domNode,L.outputFocusIndicator.domNode];return this.n?.registerDragHandle(v,o,ft,()=>new Et().getDragImage(v,v.editor,"code")),v}renderElement(o,e,t,c){if(!this.c.hasModel())throw new Error("The notebook editor is not attached with view model yet.");t.currentRenderedCell=o,c?.height!==void 0&&(t.outputContainer.domNode.innerText="",t.outputContainer.domNode.appendChild(t.cellOutputCollapsedContainer),t.elementDisposables.add(t.instantiationService.createInstance(Dt,this.c,o,t,this.s)),this.r.set(o,t.editor))}disposeTemplate(o){o.templateDisposables.dispose()}disposeElement(o,e,t){t.elementDisposables.clear(),this.r.delete(o)}};K=k=F([a(5,j),a(6,Q),a(7,q),a(8,X),a(9,Y),a(10,tt)],K);export{G as $DUb,H as $EUb,K as $FUb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PixelRatio } from "../../../../../../base/browser/pixelRatio.js";
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { FastDomNode } from "../../../../../../base/browser/fastDomNode.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { CodeEditorWidget } from "../../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { BareFontInfo } from "../../../../../../editor/common/config/fontInfo.js";
+import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../../../editor/common/languages/modesRegistry.js";
+import { localize } from "../../../../../../nls.js";
+import { IMenuService } from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../../../platform/notification/common/notification.js";
+import { CellPartsCollection } from "../cellPart.js";
+import { CellChatPart } from "../cellParts/chat/cellChatPart.js";
+import { CellComments } from "../cellParts/cellComments.js";
+import { CellContextKeyPart } from "../cellParts/cellContextKeys.js";
+import { CellDecorations } from "../cellParts/cellDecorations.js";
+import { CellDragAndDropPart } from "../cellParts/cellDnd.js";
+import { CodeCellDragImageRenderer } from "../cellParts/cellDragRenderer.js";
+import { CellEditorOptions } from "../cellParts/cellEditorOptions.js";
+import { CellExecutionPart } from "../cellParts/cellExecution.js";
+import { CellFocusPart } from "../cellParts/cellFocus.js";
+import { CellFocusIndicator } from "../cellParts/cellFocusIndicator.js";
+import { CellProgressBar } from "../cellParts/cellProgressBar.js";
+import { CellEditorStatusBar } from "../cellParts/cellStatusPart.js";
+import { BetweenCellToolbar, CellTitleToolbarPart } from "../cellParts/cellToolbars.js";
+import { CodeCell } from "../cellParts/codeCell.js";
+import { RunToolbar } from "../cellParts/codeCellRunToolbar.js";
+import { CollapsedCellInput } from "../cellParts/collapsedCellInput.js";
+import { CollapsedCellOutput } from "../cellParts/collapsedCellOutput.js";
+import { FoldedCellHint } from "../cellParts/foldedCellHint.js";
+import { MarkupCell } from "../cellParts/markupCell.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MarkupCellRenderer_1;
+var CodeCellRenderer_1;
+const $ = DOM.$;
+let NotebookCellListDelegate = class NotebookCellListDelegate2 extends Disposable {
+  static {
+    __name(this, "NotebookCellListDelegate");
+  }
+  constructor(targetWindow, configurationService) {
+    super();
+    this.configurationService = configurationService;
+    const editorOptions = this.configurationService.getValue("editor");
+    this.lineHeight = BareFontInfo.createFromRawSettings(editorOptions, PixelRatio.getInstance(targetWindow).value).lineHeight;
+  }
+  getHeight(element) {
+    return element.getHeight(this.lineHeight);
+  }
+  getDynamicHeight(element) {
+    return element.getDynamicHeight();
+  }
+  getTemplateId(element) {
+    if (element.cellKind === CellKind.Markup) {
+      return MarkupCellRenderer.TEMPLATE_ID;
+    } else {
+      return CodeCellRenderer.TEMPLATE_ID;
+    }
+  }
+};
+NotebookCellListDelegate = __decorate([
+  __param(1, IConfigurationService)
+], NotebookCellListDelegate);
+class AbstractCellRenderer extends Disposable {
+  static {
+    __name(this, "AbstractCellRenderer");
+  }
+  constructor(instantiationService, notebookEditor, contextMenuService, menuService, configurationService, keybindingService, notificationService, contextKeyServiceProvider, language, dndController) {
+    super();
+    this.instantiationService = instantiationService;
+    this.notebookEditor = notebookEditor;
+    this.contextMenuService = contextMenuService;
+    this.menuService = menuService;
+    this.keybindingService = keybindingService;
+    this.notificationService = notificationService;
+    this.contextKeyServiceProvider = contextKeyServiceProvider;
+    this.dndController = dndController;
+    this.editorOptions = this._register(new CellEditorOptions(this.notebookEditor.getBaseCellEditorOptions(language), this.notebookEditor.notebookOptions, configurationService));
+  }
+  dispose() {
+    super.dispose();
+    this.dndController = void 0;
+  }
+}
+let MarkupCellRenderer = class MarkupCellRenderer2 extends AbstractCellRenderer {
+  static {
+    __name(this, "MarkupCellRenderer");
+  }
+  static {
+    MarkupCellRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "markdown_cell";
+  }
+  constructor(notebookEditor, dndController, renderedEditors, contextKeyServiceProvider, configurationService, instantiationService, contextMenuService, menuService, keybindingService, notificationService, notebookExecutionStateService) {
+    super(instantiationService, notebookEditor, contextMenuService, menuService, configurationService, keybindingService, notificationService, contextKeyServiceProvider, "markdown", dndController);
+    this.renderedEditors = renderedEditors;
+    this._notebookExecutionStateService = notebookExecutionStateService;
+  }
+  get templateId() {
+    return MarkupCellRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(rootContainer) {
+    rootContainer.classList.add("markdown-cell-row");
+    const container = DOM.append(rootContainer, DOM.$(".cell-inner-container"));
+    const templateDisposables = new DisposableStore();
+    const contextKeyService = templateDisposables.add(this.contextKeyServiceProvider(container));
+    const decorationContainer = DOM.append(rootContainer, $(".cell-decoration"));
+    const titleToolbarContainer = DOM.append(container, $(".cell-title-toolbar"));
+    const focusIndicatorTop = new FastDomNode(DOM.append(container, $(".cell-focus-indicator.cell-focus-indicator-top")));
+    const focusIndicatorLeft = new FastDomNode(DOM.append(container, DOM.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left")));
+    const foldingIndicator = DOM.append(focusIndicatorLeft.domNode, DOM.$(".notebook-folding-indicator"));
+    const focusIndicatorRight = new FastDomNode(DOM.append(container, DOM.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-right")));
+    const codeInnerContent = DOM.append(container, $(".cell.code"));
+    const editorPart = DOM.append(codeInnerContent, $(".cell-editor-part"));
+    const cellChatPart = DOM.append(editorPart, $(".cell-chat-part"));
+    const cellInputCollapsedContainer = DOM.append(codeInnerContent, $(".input-collapse-container"));
+    cellInputCollapsedContainer.style.display = "none";
+    const editorContainer = DOM.append(editorPart, $(".cell-editor-container"));
+    editorPart.style.display = "none";
+    const cellCommentPartContainer = DOM.append(container, $(".cell-comment-container"));
+    const innerContent = DOM.append(container, $(".cell.markdown"));
+    const bottomCellContainer = DOM.append(container, $(".cell-bottom-toolbar-container"));
+    const scopedInstaService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+    const rootClassDelegate = {
+      toggle: /* @__PURE__ */ __name((className, force) => container.classList.toggle(className, force), "toggle")
+    };
+    const titleToolbar = templateDisposables.add(scopedInstaService.createInstance(CellTitleToolbarPart, titleToolbarContainer, rootClassDelegate, this.notebookEditor.creationOptions.menuIds.cellTitleToolbar, this.notebookEditor.creationOptions.menuIds.cellDeleteToolbar, this.notebookEditor));
+    const focusIndicatorBottom = new FastDomNode(DOM.append(container, $(".cell-focus-indicator.cell-focus-indicator-bottom")));
+    const cellParts = new CellPartsCollection(DOM.getWindow(rootContainer), [
+      templateDisposables.add(scopedInstaService.createInstance(CellChatPart, this.notebookEditor, cellChatPart)),
+      templateDisposables.add(scopedInstaService.createInstance(CellEditorStatusBar, this.notebookEditor, container, editorPart, void 0)),
+      templateDisposables.add(new CellFocusIndicator(this.notebookEditor, titleToolbar, focusIndicatorTop, focusIndicatorLeft, focusIndicatorRight, focusIndicatorBottom)),
+      templateDisposables.add(new FoldedCellHint(this.notebookEditor, DOM.append(container, $(".notebook-folded-hint")), this._notebookExecutionStateService)),
+      templateDisposables.add(new CellDecorations(this.notebookEditor, rootContainer, decorationContainer)),
+      templateDisposables.add(scopedInstaService.createInstance(CellComments, this.notebookEditor, cellCommentPartContainer)),
+      templateDisposables.add(new CollapsedCellInput(this.notebookEditor, cellInputCollapsedContainer)),
+      templateDisposables.add(new CellFocusPart(container, void 0, this.notebookEditor)),
+      templateDisposables.add(new CellDragAndDropPart(container)),
+      templateDisposables.add(scopedInstaService.createInstance(CellContextKeyPart, this.notebookEditor))
+    ], [
+      titleToolbar,
+      templateDisposables.add(scopedInstaService.createInstance(BetweenCellToolbar, this.notebookEditor, titleToolbarContainer, bottomCellContainer))
+    ]);
+    templateDisposables.add(cellParts);
+    const templateData = {
+      rootContainer,
+      cellInputCollapsedContainer,
+      instantiationService: scopedInstaService,
+      container,
+      cellContainer: innerContent,
+      editorPart,
+      editorContainer,
+      foldingIndicator,
+      templateDisposables,
+      elementDisposables: templateDisposables.add(new DisposableStore()),
+      cellParts,
+      toJSON: /* @__PURE__ */ __name(() => {
+        return {};
+      }, "toJSON")
+    };
+    return templateData;
+  }
+  renderElement(element, index, templateData, details) {
+    if (!this.notebookEditor.hasModel()) {
+      throw new Error("The notebook editor is not attached with view model yet.");
+    }
+    templateData.currentRenderedCell = element;
+    templateData.currentEditor = void 0;
+    templateData.editorPart.style.display = "none";
+    templateData.cellContainer.innerText = "";
+    if (details?.height === void 0) {
+      return;
+    }
+    templateData.elementDisposables.add(templateData.instantiationService.createInstance(MarkupCell, this.notebookEditor, element, templateData, this.renderedEditors));
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+  disposeElement(_element, _index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+};
+MarkupCellRenderer = MarkupCellRenderer_1 = __decorate([
+  __param(4, IConfigurationService),
+  __param(5, IInstantiationService),
+  __param(6, IContextMenuService),
+  __param(7, IMenuService),
+  __param(8, IKeybindingService),
+  __param(9, INotificationService),
+  __param(10, INotebookExecutionStateService)
+], MarkupCellRenderer);
+let CodeCellRenderer = class CodeCellRenderer2 extends AbstractCellRenderer {
+  static {
+    __name(this, "CodeCellRenderer");
+  }
+  static {
+    CodeCellRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "code_cell";
+  }
+  constructor(notebookEditor, renderedEditors, editorPool, dndController, contextKeyServiceProvider, configurationService, contextMenuService, menuService, instantiationService, keybindingService, notificationService) {
+    super(instantiationService, notebookEditor, contextMenuService, menuService, configurationService, keybindingService, notificationService, contextKeyServiceProvider, PLAINTEXT_LANGUAGE_ID, dndController);
+    this.renderedEditors = renderedEditors;
+    this.editorPool = editorPool;
+  }
+  get templateId() {
+    return CodeCellRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(rootContainer) {
+    rootContainer.classList.add("code-cell-row");
+    const container = DOM.append(rootContainer, DOM.$(".cell-inner-container"));
+    const templateDisposables = new DisposableStore();
+    const contextKeyService = templateDisposables.add(this.contextKeyServiceProvider(container));
+    const decorationContainer = DOM.append(rootContainer, $(".cell-decoration"));
+    const focusIndicatorTop = new FastDomNode(DOM.append(container, $(".cell-focus-indicator.cell-focus-indicator-top")));
+    const titleToolbarContainer = DOM.append(container, $(".cell-title-toolbar"));
+    const focusIndicatorLeft = new FastDomNode(DOM.append(container, DOM.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left")));
+    const cellChatPart = DOM.append(container, $(".cell-chat-part"));
+    const cellContainer = DOM.append(container, $(".cell.code"));
+    const runButtonContainer = DOM.append(cellContainer, $(".run-button-container"));
+    const cellInputCollapsedContainer = DOM.append(cellContainer, $(".input-collapse-container"));
+    cellInputCollapsedContainer.style.display = "none";
+    const executionOrderLabel = DOM.append(focusIndicatorLeft.domNode, $("div.execution-count-label"));
+    executionOrderLabel.title = localize("cellExecutionOrderCountLabel", "Execution Order");
+    const editorPart = DOM.append(cellContainer, $(".cell-editor-part"));
+    const editorContainer = DOM.append(editorPart, $(".cell-editor-container"));
+    const cellCommentPartContainer = DOM.append(container, $(".cell-comment-container"));
+    const editorContextKeyService = templateDisposables.add(this.contextKeyServiceProvider(editorPart));
+    const editorInstaService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, editorContextKeyService])));
+    EditorContextKeys.inCompositeEditor.bindTo(editorContextKeyService).set(true);
+    const editor = editorInstaService.createInstance(CodeEditorWidget, editorContainer, {
+      ...this.editorOptions.getDefaultValue(),
+      allowVariableLineHeights: false,
+      dimension: {
+        width: 0,
+        height: 0
+      },
+      scrollbar: {
+        vertical: "hidden",
+        horizontal: "auto",
+        handleMouseWheel: false,
+        useShadows: false
+      }
+    }, {
+      contributions: this.notebookEditor.creationOptions.cellEditorContributions
+    });
+    templateDisposables.add(editor);
+    const outputContainer = new FastDomNode(DOM.append(container, $(".output")));
+    const cellOutputCollapsedContainer = DOM.append(outputContainer.domNode, $(".output-collapse-container"));
+    const outputShowMoreContainer = new FastDomNode(DOM.append(container, $(".output-show-more-container")));
+    const focusIndicatorRight = new FastDomNode(DOM.append(container, DOM.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-right")));
+    const focusSinkElement = DOM.append(container, $(".cell-editor-focus-sink"));
+    focusSinkElement.setAttribute("tabindex", "0");
+    const bottomCellToolbarContainer = DOM.append(container, $(".cell-bottom-toolbar-container"));
+    const focusIndicatorBottom = new FastDomNode(DOM.append(container, $(".cell-focus-indicator.cell-focus-indicator-bottom")));
+    const scopedInstaService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+    const rootClassDelegate = {
+      toggle: /* @__PURE__ */ __name((className, force) => container.classList.toggle(className, force), "toggle")
+    };
+    const titleToolbar = templateDisposables.add(scopedInstaService.createInstance(CellTitleToolbarPart, titleToolbarContainer, rootClassDelegate, this.notebookEditor.creationOptions.menuIds.cellTitleToolbar, this.notebookEditor.creationOptions.menuIds.cellDeleteToolbar, this.notebookEditor));
+    const focusIndicatorPart = templateDisposables.add(new CellFocusIndicator(this.notebookEditor, titleToolbar, focusIndicatorTop, focusIndicatorLeft, focusIndicatorRight, focusIndicatorBottom));
+    const contentParts = [
+      focusIndicatorPart,
+      templateDisposables.add(scopedInstaService.createInstance(CellChatPart, this.notebookEditor, cellChatPart)),
+      templateDisposables.add(scopedInstaService.createInstance(CellEditorStatusBar, this.notebookEditor, container, editorPart, editor)),
+      templateDisposables.add(scopedInstaService.createInstance(CellProgressBar, editorPart, cellInputCollapsedContainer)),
+      templateDisposables.add(new CellDecorations(this.notebookEditor, rootContainer, decorationContainer)),
+      templateDisposables.add(scopedInstaService.createInstance(CellComments, this.notebookEditor, cellCommentPartContainer)),
+      templateDisposables.add(scopedInstaService.createInstance(CellExecutionPart, this.notebookEditor, executionOrderLabel)),
+      templateDisposables.add(scopedInstaService.createInstance(CollapsedCellOutput, this.notebookEditor, cellOutputCollapsedContainer)),
+      templateDisposables.add(new CollapsedCellInput(this.notebookEditor, cellInputCollapsedContainer)),
+      templateDisposables.add(new CellFocusPart(container, focusSinkElement, this.notebookEditor)),
+      templateDisposables.add(new CellDragAndDropPart(container)),
+      templateDisposables.add(scopedInstaService.createInstance(CellContextKeyPart, this.notebookEditor))
+    ];
+    const { cellExecutePrimary, cellExecuteToolbar } = this.notebookEditor.creationOptions.menuIds;
+    if (cellExecutePrimary && cellExecuteToolbar) {
+      contentParts.push(templateDisposables.add(scopedInstaService.createInstance(RunToolbar, this.notebookEditor, contextKeyService, container, runButtonContainer, cellExecutePrimary, cellExecuteToolbar)));
+    }
+    const cellParts = new CellPartsCollection(DOM.getWindow(rootContainer), contentParts, [
+      titleToolbar,
+      templateDisposables.add(scopedInstaService.createInstance(BetweenCellToolbar, this.notebookEditor, titleToolbarContainer, bottomCellToolbarContainer))
+    ]);
+    templateDisposables.add(cellParts);
+    const templateData = {
+      rootContainer,
+      editorPart,
+      cellInputCollapsedContainer,
+      cellOutputCollapsedContainer,
+      instantiationService: scopedInstaService,
+      container,
+      cellContainer,
+      focusSinkElement,
+      outputContainer,
+      outputShowMoreContainer,
+      editor,
+      templateDisposables,
+      elementDisposables: templateDisposables.add(new DisposableStore()),
+      cellParts,
+      toJSON: /* @__PURE__ */ __name(() => {
+        return {};
+      }, "toJSON")
+    };
+    const dragHandles = [focusIndicatorLeft.domNode, focusIndicatorPart.codeFocusIndicator.domNode, focusIndicatorPart.outputFocusIndicator.domNode];
+    this.dndController?.registerDragHandle(templateData, rootContainer, dragHandles, () => new CodeCellDragImageRenderer().getDragImage(templateData, templateData.editor, "code"));
+    return templateData;
+  }
+  renderElement(element, index, templateData, details) {
+    if (!this.notebookEditor.hasModel()) {
+      throw new Error("The notebook editor is not attached with view model yet.");
+    }
+    templateData.currentRenderedCell = element;
+    if (details?.height === void 0) {
+      return;
+    }
+    templateData.outputContainer.domNode.innerText = "";
+    templateData.outputContainer.domNode.appendChild(templateData.cellOutputCollapsedContainer);
+    templateData.elementDisposables.add(templateData.instantiationService.createInstance(CodeCell, this.notebookEditor, element, templateData, this.editorPool));
+    this.renderedEditors.set(element, templateData.editor);
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+    this.renderedEditors.delete(element);
+  }
+};
+CodeCellRenderer = CodeCellRenderer_1 = __decorate([
+  __param(5, IConfigurationService),
+  __param(6, IContextMenuService),
+  __param(7, IMenuService),
+  __param(8, IInstantiationService),
+  __param(9, IKeybindingService),
+  __param(10, INotificationService)
+], CodeCellRenderer);
+export {
+  CodeCellRenderer,
+  MarkupCellRenderer,
+  NotebookCellListDelegate
+};
+//# sourceMappingURL=cellRenderer.js.map

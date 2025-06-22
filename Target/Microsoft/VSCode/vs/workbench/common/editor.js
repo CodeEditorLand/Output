@@ -1,1 +1,552 @@
-import{localize as E}from"../../nls.js";import{$$c as p}from"../../base/common/types.js";import{URI as u}from"../../base/common/uri.js";import{$vd as P,$td as F}from"../../base/common/lifecycle.js";import{$mj as v}from"../../platform/instantiation/common/instantiation.js";import{$Ql as Y}from"../../platform/registry/common/platform.js";import{FileType as m}from"../../platform/files/common/files.js";import{Schemas as d}from"../../base/common/network.js";import{$hm as g,$gm as b}from"../../base/common/errorMessage.js";import{$em as S}from"../../base/common/actions.js";import H from"../../base/common/severity.js";const k={EditorPane:"workbench.contributions.editors",EditorFactory:"workbench.contributions.editor.inputFactories"},ur={id:"default",displayName:E(4310,null),providerDisplayName:E(4311,null)},ar="workbench.editor.sidebysideEditor",or="workbench.editors.textDiffEditor",Or="workbench.editors.binaryResourceDiffEditor";var R;(function(r){r[r.PROGRAMMATIC=1]="PROGRAMMATIC",r[r.USER=2]="USER",r[r.EDIT=3]="EDIT",r[r.NAVIGATION=4]="NAVIGATION",r[r.JUMP=5]="JUMP"})(R||(R={}));var A;(function(r){r[r.IDENTICAL=1]="IDENTICAL",r[r.SIMILAR=2]="SIMILAR",r[r.DIFFERENT=3]="DIFFERENT"})(A||(A={}));function yr(r){const e=r;return!!e&&typeof e.getSelection=="function"&&!!e.onDidChangeSelection}function Er(r){const e=r;return!!e&&typeof e.getScrollPosition=="function"&&typeof e.setScrollPosition=="function"&&!!e.onDidChangeScroll}function Ir(r,e,t){for(const n of t.visibleEditorPanes)if(n.group.id===e&&r.matches(n.input))return n.getViewState()}function mr(r){if(f(r))return!1;const e=r;return u.isUri(e?.resource)}function y(r){if(f(r))return!1;const e=r;return e?.original!==void 0&&e.modified!==void 0}function D(r){if(f(r))return!1;const e=r;return!e||e.resources&&!Array.isArray(e.resources)?!1:!!e.resources||!!e.multiDiffSource}function l(r){if(f(r)||y(r))return!1;const e=r;return e?.primary!==void 0&&e.secondary!==void 0}function lr(r){if(f(r))return!1;const e=r;return e?e.resource===void 0||e.resource.scheme===d.untitled||e.forceUntitled===!0:!1}function O(r){if(f(r))return!1;const e=r;return u.isUri(e?.base?.resource)&&u.isUri(e?.input1?.resource)&&u.isUri(e?.input2?.resource)&&u.isUri(e?.result?.resource)}var N;(function(r){r[r.SHORT=0]="SHORT",r[r.MEDIUM=1]="MEDIUM",r[r.LONG=2]="LONG"})(N||(N={}));var U;(function(r){r[r.EXPLICIT=1]="EXPLICIT",r[r.AUTO=2]="AUTO",r[r.FOCUS_CHANGE=3]="FOCUS_CHANGE",r[r.WINDOW_CHANGE=4]="WINDOW_CHANGE"})(U||(U={}));class V{constructor(){this.a=new Map}registerSource(e,t){let n=this.a.get(e);return n||(n={source:e,label:t},this.a.set(e,n)),n.source}getSourceLabel(e){return this.a.get(e)?.label??e}}const Tr=new V;var _;(function(r){r[r.None=0]="None",r[r.Readonly=2]="Readonly",r[r.Untitled=4]="Untitled",r[r.Singleton=8]="Singleton",r[r.RequiresTrust=16]="RequiresTrust",r[r.CanSplitInGroup=32]="CanSplitInGroup",r[r.ForceDescription=64]="ForceDescription",r[r.CanDropIntoEditor=128]="CanDropIntoEditor",r[r.MultipleEditors=256]="MultipleEditors",r[r.Scratchpad=512]="Scratchpad"})(_||(_={}));class W extends P{}function f(r){return r instanceof W}function J(r){const e=r;return u.isUri(e?.preferredResource)}function z(r){const e=r;return f(e?.primary)&&f(e?.secondary)}function K(r){const e=r;return f(e?.modified)&&f(e?.original)}function Sr(r,e,t,n,c){return M(n,[S({id:"workbench.action.openLargeFile",label:E(4312,null),run:()=>{const i={...t,limits:{size:Number.MAX_VALUE}};r.openEditor(e,i)}}),S({id:"workbench.action.configureEditorLargeFileConfirmation",label:E(4313,null),run:()=>c.openUserSettings({query:"workbench.editorLargeFileConfirmation"})})],{forceMessage:!0,forceSeverity:H.Warning})}function X(r){return f(r?.editor)}function Rr(r){const e=r;return X(r)&&e?.group!==void 0}function Ar(r){const e=r;return typeof e?.groupId=="number"&&f(e.editor)}function Dr(r){return typeof r?.groupId=="number"}var x;(function(r){r[r.UNKNOWN=0]="UNKNOWN",r[r.REPLACE=1]="REPLACE",r[r.MOVE=2]="MOVE",r[r.UNPIN=3]="UNPIN"})(x||(x={}));var L;(function(r){r[r.GROUP_ACTIVE=0]="GROUP_ACTIVE",r[r.GROUP_INDEX=1]="GROUP_INDEX",r[r.GROUP_LABEL=2]="GROUP_LABEL",r[r.GROUP_LOCKED=3]="GROUP_LOCKED",r[r.EDITORS_SELECTION=4]="EDITORS_SELECTION",r[r.EDITOR_OPEN=5]="EDITOR_OPEN",r[r.EDITOR_CLOSE=6]="EDITOR_CLOSE",r[r.EDITOR_MOVE=7]="EDITOR_MOVE",r[r.EDITOR_ACTIVE=8]="EDITOR_ACTIVE",r[r.EDITOR_LABEL=9]="EDITOR_LABEL",r[r.EDITOR_CAPABILITIES=10]="EDITOR_CAPABILITIES",r[r.EDITOR_PIN=11]="EDITOR_PIN",r[r.EDITOR_TRANSIENT=12]="EDITOR_TRANSIENT",r[r.EDITOR_STICKY=13]="EDITOR_STICKY",r[r.EDITOR_DIRTY=14]="EDITOR_DIRTY",r[r.EDITOR_WILL_DISPOSE=15]="EDITOR_WILL_DISPOSE"})(L||(L={}));var s;(function(r){r[r.PRIMARY=1]="PRIMARY",r[r.SECONDARY=2]="SECONDARY",r[r.BOTH=3]="BOTH",r[r.ANY=4]="ANY"})(s||(s={}));class q{getOriginalUri(e,t){if(!e)return;if(O(e))return $.getOriginalUri(e.result,t);if(t?.supportSideBySide){const{primary:c,secondary:i}=this.a(e);if(c&&i){if(t?.supportSideBySide===s.BOTH)return{primary:this.getOriginalUri(c,{filterByScheme:t.filterByScheme}),secondary:this.getOriginalUri(i,{filterByScheme:t.filterByScheme})};if(t?.supportSideBySide===s.ANY)return this.getOriginalUri(c,{filterByScheme:t.filterByScheme})??this.getOriginalUri(i,{filterByScheme:t.filterByScheme});e=t.supportSideBySide===s.PRIMARY?c:i}}if(y(e)||D(e)||l(e)||O(e))return;const n=J(e)?e.preferredResource:e.resource;return!n||!t||!t.filterByScheme?n:this.b(n,t.filterByScheme)}a(e){return z(e)||l(e)?{primary:e.primary,secondary:e.secondary}:K(e)||y(e)?{primary:e.modified,secondary:e.original}:{primary:void 0,secondary:void 0}}getCanonicalUri(e,t){if(!e)return;if(O(e))return $.getCanonicalUri(e.result,t);if(t?.supportSideBySide){const{primary:c,secondary:i}=this.a(e);if(c&&i){if(t?.supportSideBySide===s.BOTH)return{primary:this.getCanonicalUri(c,{filterByScheme:t.filterByScheme}),secondary:this.getCanonicalUri(i,{filterByScheme:t.filterByScheme})};if(t?.supportSideBySide===s.ANY)return this.getCanonicalUri(c,{filterByScheme:t.filterByScheme})??this.getCanonicalUri(i,{filterByScheme:t.filterByScheme});e=t.supportSideBySide===s.PRIMARY?c:i}}if(y(e)||D(e)||l(e)||O(e))return;const n=e.resource;return!n||!t||!t.filterByScheme?n:this.b(n,t.filterByScheme)}b(e,t){if(Array.isArray(t)){if(t.some(n=>e.scheme===n))return e}else if(t===e.scheme)return e}}var a;(function(r){r[r.UNKNOWN=0]="UNKNOWN",r[r.KEYBOARD=1]="KEYBOARD",r[r.MOUSE=2]="MOUSE"})(a||(a={}));function Nr(r,e,t,n){if(!r.isSticky(e))return!1;switch(n.preventPinnedEditorClose){case"keyboardAndMouse":return t===a.MOUSE||t===a.KEYBOARD;case"mouse":return t===a.MOUSE;case"keyboard":return t===a.KEYBOARD}return!1}const $=new q;var h;(function(r){r[r.LEFT=0]="LEFT",r[r.RIGHT=1]="RIGHT"})(h||(h={}));class Q{constructor(){this.c=new Map,this.d=new Map}start(e){const t=this.a=e.get(v);for(const[n,c]of this.c)this.e(n,c,t);this.c.clear()}e(e,t,n){const c=n.createInstance(t);this.d.set(e,c)}registerFileEditorFactory(e){if(this.b)throw new Error("Can only register one file editor factory.");this.b=e}getFileEditorFactory(){return p(this.b)}registerEditorSerializer(e,t){if(this.c.has(e)||this.d.has(e))throw new Error(`A editor serializer with type ID '${e}' was already registered.`);return this.a?this.e(e,t,this.a):this.c.set(e,t),F(()=>{this.c.delete(e),this.d.delete(e)})}getEditorSerializer(e){return this.d.get(typeof e=="string"?e:e.typeId)}}Y.add(k.EditorFactory,new Q);async function Ur(r,e,t){return!r||!r.length?[]:await Promise.all(r.map(async n=>{const c=u.revive(n.fileUri);if(!c){t.info("Cannot resolve the path because it is not valid.",n);return}if(!await e.canHandleResource(c)){t.info("Cannot resolve the path because it cannot be handled",n);return}let o=n.exists,I=n.type;if(typeof o!="boolean"||typeof I!="number")try{I=(await e.stat(c)).isDirectory?m.Directory:m.Unknown,o=!0}catch(w){t.error(w),o=!1}if(!o&&n.openOnlyIfExists){t.info("Cannot resolve the path because it does not exist",n);return}if(I===m.Directory){t.info("Cannot resolve the path because it is a directory",n);return}const T={...n.options,pinned:!0};return o?{resource:c,options:T}:{resource:c,options:T,forceUntitled:!0}}))}var B;(function(r){r[r.MOST_RECENTLY_ACTIVE=0]="MOST_RECENTLY_ACTIVE",r[r.SEQUENTIAL=1]="SEQUENTIAL"})(B||(B={}));function j(r){const e=r;if(!e)return!1;const t=e;if(t.modified)return j(t.modified);const n=e;return!!(n.contributionsState&&n.viewState&&Array.isArray(n.cursorState))}function _r(r){return b(r)}function M(r,e,t){const n=g(r,e);return n.forceMessage=t?.forceMessage,n.forceSeverity=t?.forceSeverity,n.allowDialog=t?.allowDialog,n}export{yr as $$J,Or as $0J,k as $6J,ur as $7J,ar as $8J,or as $9J,Er as $_J,Ir as $aK,mr as $bK,y as $cK,D as $dK,l as $eK,lr as $fK,O as $gK,Tr as $hK,W as $iK,f as $jK,z as $kK,K as $lK,Sr as $mK,X as $nK,Rr as $oK,Ar as $pK,Dr as $qK,Nr as $rK,$ as $sK,Ur as $tK,j as $uK,_r as $vK,M as $wK,h as CloseDirection,x as EditorCloseContext,a as EditorCloseMethod,_ as EditorInputCapabilities,R as EditorPaneSelectionChangeReason,A as EditorPaneSelectionCompareResult,B as EditorsOrder,L as GroupModelChangeKind,U as SaveReason,s as SideBySideEditor,N as Verbosity};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../nls.js";
+import { assertReturnsDefined } from "../../base/common/types.js";
+import { URI } from "../../base/common/uri.js";
+import { Disposable, toDisposable } from "../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../platform/registry/common/platform.js";
+import { FileType } from "../../platform/files/common/files.js";
+import { Schemas } from "../../base/common/network.js";
+import { createErrorWithActions, isErrorWithActions } from "../../base/common/errorMessage.js";
+import { toAction } from "../../base/common/actions.js";
+import Severity from "../../base/common/severity.js";
+const EditorExtensions = {
+  EditorPane: "workbench.contributions.editors",
+  EditorFactory: "workbench.contributions.editor.inputFactories"
+};
+const DEFAULT_EDITOR_ASSOCIATION = {
+  id: "default",
+  displayName: localize("promptOpenWith.defaultEditor.displayName", "Text Editor"),
+  providerDisplayName: localize("builtinProviderDisplayName", "Built-in")
+};
+const SIDE_BY_SIDE_EDITOR_ID = "workbench.editor.sidebysideEditor";
+const TEXT_DIFF_EDITOR_ID = "workbench.editors.textDiffEditor";
+const BINARY_DIFF_EDITOR_ID = "workbench.editors.binaryResourceDiffEditor";
+var EditorPaneSelectionChangeReason;
+(function(EditorPaneSelectionChangeReason2) {
+  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["PROGRAMMATIC"] = 1] = "PROGRAMMATIC";
+  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["USER"] = 2] = "USER";
+  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["EDIT"] = 3] = "EDIT";
+  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["NAVIGATION"] = 4] = "NAVIGATION";
+  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["JUMP"] = 5] = "JUMP";
+})(EditorPaneSelectionChangeReason || (EditorPaneSelectionChangeReason = {}));
+var EditorPaneSelectionCompareResult;
+(function(EditorPaneSelectionCompareResult2) {
+  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["IDENTICAL"] = 1] = "IDENTICAL";
+  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["SIMILAR"] = 2] = "SIMILAR";
+  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["DIFFERENT"] = 3] = "DIFFERENT";
+})(EditorPaneSelectionCompareResult || (EditorPaneSelectionCompareResult = {}));
+function isEditorPaneWithSelection(editorPane) {
+  const candidate = editorPane;
+  return !!candidate && typeof candidate.getSelection === "function" && !!candidate.onDidChangeSelection;
+}
+__name(isEditorPaneWithSelection, "isEditorPaneWithSelection");
+function isEditorPaneWithScrolling(editorPane) {
+  const candidate = editorPane;
+  return !!candidate && typeof candidate.getScrollPosition === "function" && typeof candidate.setScrollPosition === "function" && !!candidate.onDidChangeScroll;
+}
+__name(isEditorPaneWithScrolling, "isEditorPaneWithScrolling");
+function findViewStateForEditor(input, group, editorService) {
+  for (const editorPane of editorService.visibleEditorPanes) {
+    if (editorPane.group.id === group && input.matches(editorPane.input)) {
+      return editorPane.getViewState();
+    }
+  }
+  return void 0;
+}
+__name(findViewStateForEditor, "findViewStateForEditor");
+function isResourceEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  return URI.isUri(candidate?.resource);
+}
+__name(isResourceEditorInput, "isResourceEditorInput");
+function isResourceDiffEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  return candidate?.original !== void 0 && candidate.modified !== void 0;
+}
+__name(isResourceDiffEditorInput, "isResourceDiffEditorInput");
+function isResourceMultiDiffEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  if (!candidate) {
+    return false;
+  }
+  if (candidate.resources && !Array.isArray(candidate.resources)) {
+    return false;
+  }
+  return !!candidate.resources || !!candidate.multiDiffSource;
+}
+__name(isResourceMultiDiffEditorInput, "isResourceMultiDiffEditorInput");
+function isResourceSideBySideEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  if (isResourceDiffEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  return candidate?.primary !== void 0 && candidate.secondary !== void 0;
+}
+__name(isResourceSideBySideEditorInput, "isResourceSideBySideEditorInput");
+function isUntitledResourceEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  if (!candidate) {
+    return false;
+  }
+  return candidate.resource === void 0 || candidate.resource.scheme === Schemas.untitled || candidate.forceUntitled === true;
+}
+__name(isUntitledResourceEditorInput, "isUntitledResourceEditorInput");
+function isResourceMergeEditorInput(editor) {
+  if (isEditorInput(editor)) {
+    return false;
+  }
+  const candidate = editor;
+  return URI.isUri(candidate?.base?.resource) && URI.isUri(candidate?.input1?.resource) && URI.isUri(candidate?.input2?.resource) && URI.isUri(candidate?.result?.resource);
+}
+__name(isResourceMergeEditorInput, "isResourceMergeEditorInput");
+var Verbosity;
+(function(Verbosity2) {
+  Verbosity2[Verbosity2["SHORT"] = 0] = "SHORT";
+  Verbosity2[Verbosity2["MEDIUM"] = 1] = "MEDIUM";
+  Verbosity2[Verbosity2["LONG"] = 2] = "LONG";
+})(Verbosity || (Verbosity = {}));
+var SaveReason;
+(function(SaveReason2) {
+  SaveReason2[SaveReason2["EXPLICIT"] = 1] = "EXPLICIT";
+  SaveReason2[SaveReason2["AUTO"] = 2] = "AUTO";
+  SaveReason2[SaveReason2["FOCUS_CHANGE"] = 3] = "FOCUS_CHANGE";
+  SaveReason2[SaveReason2["WINDOW_CHANGE"] = 4] = "WINDOW_CHANGE";
+})(SaveReason || (SaveReason = {}));
+class SaveSourceFactory {
+  static {
+    __name(this, "SaveSourceFactory");
+  }
+  constructor() {
+    this.mapIdToSaveSource = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Registers a `SaveSource` with an identifier and label
+   * to the registry so that it can be used in save operations.
+   */
+  registerSource(id, label) {
+    let sourceDescriptor = this.mapIdToSaveSource.get(id);
+    if (!sourceDescriptor) {
+      sourceDescriptor = { source: id, label };
+      this.mapIdToSaveSource.set(id, sourceDescriptor);
+    }
+    return sourceDescriptor.source;
+  }
+  getSourceLabel(source) {
+    return this.mapIdToSaveSource.get(source)?.label ?? source;
+  }
+}
+const SaveSourceRegistry = new SaveSourceFactory();
+var EditorInputCapabilities;
+(function(EditorInputCapabilities2) {
+  EditorInputCapabilities2[EditorInputCapabilities2["None"] = 0] = "None";
+  EditorInputCapabilities2[EditorInputCapabilities2["Readonly"] = 2] = "Readonly";
+  EditorInputCapabilities2[EditorInputCapabilities2["Untitled"] = 4] = "Untitled";
+  EditorInputCapabilities2[EditorInputCapabilities2["Singleton"] = 8] = "Singleton";
+  EditorInputCapabilities2[EditorInputCapabilities2["RequiresTrust"] = 16] = "RequiresTrust";
+  EditorInputCapabilities2[EditorInputCapabilities2["CanSplitInGroup"] = 32] = "CanSplitInGroup";
+  EditorInputCapabilities2[EditorInputCapabilities2["ForceDescription"] = 64] = "ForceDescription";
+  EditorInputCapabilities2[EditorInputCapabilities2["CanDropIntoEditor"] = 128] = "CanDropIntoEditor";
+  EditorInputCapabilities2[EditorInputCapabilities2["MultipleEditors"] = 256] = "MultipleEditors";
+  EditorInputCapabilities2[EditorInputCapabilities2["Scratchpad"] = 512] = "Scratchpad";
+})(EditorInputCapabilities || (EditorInputCapabilities = {}));
+class AbstractEditorInput extends Disposable {
+  static {
+    __name(this, "AbstractEditorInput");
+  }
+}
+function isEditorInput(editor) {
+  return editor instanceof AbstractEditorInput;
+}
+__name(isEditorInput, "isEditorInput");
+function isEditorInputWithPreferredResource(editor) {
+  const candidate = editor;
+  return URI.isUri(candidate?.preferredResource);
+}
+__name(isEditorInputWithPreferredResource, "isEditorInputWithPreferredResource");
+function isSideBySideEditorInput(editor) {
+  const candidate = editor;
+  return isEditorInput(candidate?.primary) && isEditorInput(candidate?.secondary);
+}
+__name(isSideBySideEditorInput, "isSideBySideEditorInput");
+function isDiffEditorInput(editor) {
+  const candidate = editor;
+  return isEditorInput(candidate?.modified) && isEditorInput(candidate?.original);
+}
+__name(isDiffEditorInput, "isDiffEditorInput");
+function createTooLargeFileError(group, input, options, message, preferencesService) {
+  return createEditorOpenError(message, [
+    toAction({
+      id: "workbench.action.openLargeFile",
+      label: localize("openLargeFile", "Open Anyway"),
+      run: /* @__PURE__ */ __name(() => {
+        const fileEditorOptions = {
+          ...options,
+          limits: {
+            size: Number.MAX_VALUE
+          }
+        };
+        group.openEditor(input, fileEditorOptions);
+      }, "run")
+    }),
+    toAction({
+      id: "workbench.action.configureEditorLargeFileConfirmation",
+      label: localize("configureEditorLargeFileConfirmation", "Configure Limit"),
+      run: /* @__PURE__ */ __name(() => {
+        return preferencesService.openUserSettings({ query: "workbench.editorLargeFileConfirmation" });
+      }, "run")
+    })
+  ], {
+    forceMessage: true,
+    forceSeverity: Severity.Warning
+  });
+}
+__name(createTooLargeFileError, "createTooLargeFileError");
+function isEditorInputWithOptions(editor) {
+  const candidate = editor;
+  return isEditorInput(candidate?.editor);
+}
+__name(isEditorInputWithOptions, "isEditorInputWithOptions");
+function isEditorInputWithOptionsAndGroup(editor) {
+  const candidate = editor;
+  return isEditorInputWithOptions(editor) && candidate?.group !== void 0;
+}
+__name(isEditorInputWithOptionsAndGroup, "isEditorInputWithOptionsAndGroup");
+function isEditorIdentifier(identifier) {
+  const candidate = identifier;
+  return typeof candidate?.groupId === "number" && isEditorInput(candidate.editor);
+}
+__name(isEditorIdentifier, "isEditorIdentifier");
+function isEditorCommandsContext(context) {
+  const candidate = context;
+  return typeof candidate?.groupId === "number";
+}
+__name(isEditorCommandsContext, "isEditorCommandsContext");
+var EditorCloseContext;
+(function(EditorCloseContext2) {
+  EditorCloseContext2[EditorCloseContext2["UNKNOWN"] = 0] = "UNKNOWN";
+  EditorCloseContext2[EditorCloseContext2["REPLACE"] = 1] = "REPLACE";
+  EditorCloseContext2[EditorCloseContext2["MOVE"] = 2] = "MOVE";
+  EditorCloseContext2[EditorCloseContext2["UNPIN"] = 3] = "UNPIN";
+})(EditorCloseContext || (EditorCloseContext = {}));
+var GroupModelChangeKind;
+(function(GroupModelChangeKind2) {
+  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_ACTIVE"] = 0] = "GROUP_ACTIVE";
+  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_INDEX"] = 1] = "GROUP_INDEX";
+  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_LABEL"] = 2] = "GROUP_LABEL";
+  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_LOCKED"] = 3] = "GROUP_LOCKED";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITORS_SELECTION"] = 4] = "EDITORS_SELECTION";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_OPEN"] = 5] = "EDITOR_OPEN";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_CLOSE"] = 6] = "EDITOR_CLOSE";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_MOVE"] = 7] = "EDITOR_MOVE";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_ACTIVE"] = 8] = "EDITOR_ACTIVE";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_LABEL"] = 9] = "EDITOR_LABEL";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_CAPABILITIES"] = 10] = "EDITOR_CAPABILITIES";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_PIN"] = 11] = "EDITOR_PIN";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_TRANSIENT"] = 12] = "EDITOR_TRANSIENT";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_STICKY"] = 13] = "EDITOR_STICKY";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_DIRTY"] = 14] = "EDITOR_DIRTY";
+  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_WILL_DISPOSE"] = 15] = "EDITOR_WILL_DISPOSE";
+})(GroupModelChangeKind || (GroupModelChangeKind = {}));
+var SideBySideEditor;
+(function(SideBySideEditor2) {
+  SideBySideEditor2[SideBySideEditor2["PRIMARY"] = 1] = "PRIMARY";
+  SideBySideEditor2[SideBySideEditor2["SECONDARY"] = 2] = "SECONDARY";
+  SideBySideEditor2[SideBySideEditor2["BOTH"] = 3] = "BOTH";
+  SideBySideEditor2[SideBySideEditor2["ANY"] = 4] = "ANY";
+})(SideBySideEditor || (SideBySideEditor = {}));
+class EditorResourceAccessorImpl {
+  static {
+    __name(this, "EditorResourceAccessorImpl");
+  }
+  getOriginalUri(editor, options) {
+    if (!editor) {
+      return void 0;
+    }
+    if (isResourceMergeEditorInput(editor)) {
+      return EditorResourceAccessor.getOriginalUri(editor.result, options);
+    }
+    if (options?.supportSideBySide) {
+      const { primary, secondary } = this.getSideEditors(editor);
+      if (primary && secondary) {
+        if (options?.supportSideBySide === SideBySideEditor.BOTH) {
+          return {
+            primary: this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }),
+            secondary: this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme })
+          };
+        } else if (options?.supportSideBySide === SideBySideEditor.ANY) {
+          return this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme });
+        }
+        editor = options.supportSideBySide === SideBySideEditor.PRIMARY ? primary : secondary;
+      }
+    }
+    if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
+      return void 0;
+    }
+    const originalResource = isEditorInputWithPreferredResource(editor) ? editor.preferredResource : editor.resource;
+    if (!originalResource || !options || !options.filterByScheme) {
+      return originalResource;
+    }
+    return this.filterUri(originalResource, options.filterByScheme);
+  }
+  getSideEditors(editor) {
+    if (isSideBySideEditorInput(editor) || isResourceSideBySideEditorInput(editor)) {
+      return { primary: editor.primary, secondary: editor.secondary };
+    }
+    if (isDiffEditorInput(editor) || isResourceDiffEditorInput(editor)) {
+      return { primary: editor.modified, secondary: editor.original };
+    }
+    return { primary: void 0, secondary: void 0 };
+  }
+  getCanonicalUri(editor, options) {
+    if (!editor) {
+      return void 0;
+    }
+    if (isResourceMergeEditorInput(editor)) {
+      return EditorResourceAccessor.getCanonicalUri(editor.result, options);
+    }
+    if (options?.supportSideBySide) {
+      const { primary, secondary } = this.getSideEditors(editor);
+      if (primary && secondary) {
+        if (options?.supportSideBySide === SideBySideEditor.BOTH) {
+          return {
+            primary: this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }),
+            secondary: this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme })
+          };
+        } else if (options?.supportSideBySide === SideBySideEditor.ANY) {
+          return this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme });
+        }
+        editor = options.supportSideBySide === SideBySideEditor.PRIMARY ? primary : secondary;
+      }
+    }
+    if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
+      return void 0;
+    }
+    const canonicalResource = editor.resource;
+    if (!canonicalResource || !options || !options.filterByScheme) {
+      return canonicalResource;
+    }
+    return this.filterUri(canonicalResource, options.filterByScheme);
+  }
+  filterUri(resource, filter) {
+    if (Array.isArray(filter)) {
+      if (filter.some((scheme) => resource.scheme === scheme)) {
+        return resource;
+      }
+    } else {
+      if (filter === resource.scheme) {
+        return resource;
+      }
+    }
+    return void 0;
+  }
+}
+var EditorCloseMethod;
+(function(EditorCloseMethod2) {
+  EditorCloseMethod2[EditorCloseMethod2["UNKNOWN"] = 0] = "UNKNOWN";
+  EditorCloseMethod2[EditorCloseMethod2["KEYBOARD"] = 1] = "KEYBOARD";
+  EditorCloseMethod2[EditorCloseMethod2["MOUSE"] = 2] = "MOUSE";
+})(EditorCloseMethod || (EditorCloseMethod = {}));
+function preventEditorClose(group, editor, method, configuration) {
+  if (!group.isSticky(editor)) {
+    return false;
+  }
+  switch (configuration.preventPinnedEditorClose) {
+    case "keyboardAndMouse":
+      return method === EditorCloseMethod.MOUSE || method === EditorCloseMethod.KEYBOARD;
+    case "mouse":
+      return method === EditorCloseMethod.MOUSE;
+    case "keyboard":
+      return method === EditorCloseMethod.KEYBOARD;
+  }
+  return false;
+}
+__name(preventEditorClose, "preventEditorClose");
+const EditorResourceAccessor = new EditorResourceAccessorImpl();
+var CloseDirection;
+(function(CloseDirection2) {
+  CloseDirection2[CloseDirection2["LEFT"] = 0] = "LEFT";
+  CloseDirection2[CloseDirection2["RIGHT"] = 1] = "RIGHT";
+})(CloseDirection || (CloseDirection = {}));
+class EditorFactoryRegistry {
+  static {
+    __name(this, "EditorFactoryRegistry");
+  }
+  constructor() {
+    this.editorSerializerConstructors = /* @__PURE__ */ new Map();
+    this.editorSerializerInstances = /* @__PURE__ */ new Map();
+  }
+  start(accessor) {
+    const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
+    for (const [key, ctor] of this.editorSerializerConstructors) {
+      this.createEditorSerializer(key, ctor, instantiationService);
+    }
+    this.editorSerializerConstructors.clear();
+  }
+  createEditorSerializer(editorTypeId, ctor, instantiationService) {
+    const instance = instantiationService.createInstance(ctor);
+    this.editorSerializerInstances.set(editorTypeId, instance);
+  }
+  registerFileEditorFactory(factory) {
+    if (this.fileEditorFactory) {
+      throw new Error("Can only register one file editor factory.");
+    }
+    this.fileEditorFactory = factory;
+  }
+  getFileEditorFactory() {
+    return assertReturnsDefined(this.fileEditorFactory);
+  }
+  registerEditorSerializer(editorTypeId, ctor) {
+    if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
+      throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
+    }
+    if (!this.instantiationService) {
+      this.editorSerializerConstructors.set(editorTypeId, ctor);
+    } else {
+      this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
+    }
+    return toDisposable(() => {
+      this.editorSerializerConstructors.delete(editorTypeId);
+      this.editorSerializerInstances.delete(editorTypeId);
+    });
+  }
+  getEditorSerializer(arg1) {
+    return this.editorSerializerInstances.get(typeof arg1 === "string" ? arg1 : arg1.typeId);
+  }
+}
+Registry.add(EditorExtensions.EditorFactory, new EditorFactoryRegistry());
+async function pathsToEditors(paths, fileService, logService) {
+  if (!paths || !paths.length) {
+    return [];
+  }
+  return await Promise.all(paths.map(async (path) => {
+    const resource = URI.revive(path.fileUri);
+    if (!resource) {
+      logService.info("Cannot resolve the path because it is not valid.", path);
+      return void 0;
+    }
+    const canHandleResource = await fileService.canHandleResource(resource);
+    if (!canHandleResource) {
+      logService.info("Cannot resolve the path because it cannot be handled", path);
+      return void 0;
+    }
+    let exists = path.exists;
+    let type = path.type;
+    if (typeof exists !== "boolean" || typeof type !== "number") {
+      try {
+        type = (await fileService.stat(resource)).isDirectory ? FileType.Directory : FileType.Unknown;
+        exists = true;
+      } catch (error) {
+        logService.error(error);
+        exists = false;
+      }
+    }
+    if (!exists && path.openOnlyIfExists) {
+      logService.info("Cannot resolve the path because it does not exist", path);
+      return void 0;
+    }
+    if (type === FileType.Directory) {
+      logService.info("Cannot resolve the path because it is a directory", path);
+      return void 0;
+    }
+    const options = {
+      ...path.options,
+      pinned: true
+    };
+    if (!exists) {
+      return { resource, options, forceUntitled: true };
+    }
+    return { resource, options };
+  }));
+}
+__name(pathsToEditors, "pathsToEditors");
+var EditorsOrder;
+(function(EditorsOrder2) {
+  EditorsOrder2[EditorsOrder2["MOST_RECENTLY_ACTIVE"] = 0] = "MOST_RECENTLY_ACTIVE";
+  EditorsOrder2[EditorsOrder2["SEQUENTIAL"] = 1] = "SEQUENTIAL";
+})(EditorsOrder || (EditorsOrder = {}));
+function isTextEditorViewState(candidate) {
+  const viewState = candidate;
+  if (!viewState) {
+    return false;
+  }
+  const diffEditorViewState = viewState;
+  if (diffEditorViewState.modified) {
+    return isTextEditorViewState(diffEditorViewState.modified);
+  }
+  const codeEditorViewState = viewState;
+  return !!(codeEditorViewState.contributionsState && codeEditorViewState.viewState && Array.isArray(codeEditorViewState.cursorState));
+}
+__name(isTextEditorViewState, "isTextEditorViewState");
+function isEditorOpenError(obj) {
+  return isErrorWithActions(obj);
+}
+__name(isEditorOpenError, "isEditorOpenError");
+function createEditorOpenError(messageOrError, actions, options) {
+  const error = createErrorWithActions(messageOrError, actions);
+  error.forceMessage = options?.forceMessage;
+  error.forceSeverity = options?.forceSeverity;
+  error.allowDialog = options?.allowDialog;
+  return error;
+}
+__name(createEditorOpenError, "createEditorOpenError");
+export {
+  AbstractEditorInput,
+  BINARY_DIFF_EDITOR_ID,
+  CloseDirection,
+  DEFAULT_EDITOR_ASSOCIATION,
+  EditorCloseContext,
+  EditorCloseMethod,
+  EditorExtensions,
+  EditorInputCapabilities,
+  EditorPaneSelectionChangeReason,
+  EditorPaneSelectionCompareResult,
+  EditorResourceAccessor,
+  EditorsOrder,
+  GroupModelChangeKind,
+  SIDE_BY_SIDE_EDITOR_ID,
+  SaveReason,
+  SaveSourceRegistry,
+  SideBySideEditor,
+  TEXT_DIFF_EDITOR_ID,
+  Verbosity,
+  createEditorOpenError,
+  createTooLargeFileError,
+  findViewStateForEditor,
+  isDiffEditorInput,
+  isEditorCommandsContext,
+  isEditorIdentifier,
+  isEditorInput,
+  isEditorInputWithOptions,
+  isEditorInputWithOptionsAndGroup,
+  isEditorOpenError,
+  isEditorPaneWithScrolling,
+  isEditorPaneWithSelection,
+  isResourceDiffEditorInput,
+  isResourceEditorInput,
+  isResourceMergeEditorInput,
+  isResourceMultiDiffEditorInput,
+  isResourceSideBySideEditorInput,
+  isSideBySideEditorInput,
+  isTextEditorViewState,
+  isUntitledResourceEditorInput,
+  pathsToEditors,
+  preventEditorClose
+};
+//# sourceMappingURL=editor.js.map

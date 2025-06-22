@@ -1,1 +1,56 @@
-import{$XQ as h}from"../tokens/frontMatterSequence.js";import{$yR as f,$xR as p}from"../../simpleCodec/parserBase.js";var i=function(s,e,r,n){var c=arguments.length,t=c<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,r,n);else for(var o=s.length-1;o>=0;o--)(u=s[o])&&(t=(c<3?u(t):c>3?u(e,r,t):u(e,r))||t);return c>3&&t&&Object.defineProperty(e,r,t),t};class a extends p{constructor(e){super([]),this.e=e}accept(e){return this.e(e)?(this.a=!0,{result:"success",nextParser:this.asSequenceToken(),wasTokenConsumed:!1}):(this.c.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0})}addTokens(e){return this.c.push(...e),this}asSequenceToken(){return this.a=!0,new h(this.c)}}i([f],a.prototype,"accept",null);export{a as $AR};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FrontMatterSequence } from "../tokens/frontMatterSequence.js";
+import { assertNotConsumed, ParserBase } from "../../simpleCodec/parserBase.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+class PartialFrontMatterSequence extends ParserBase {
+  static {
+    __name(this, "PartialFrontMatterSequence");
+  }
+  constructor(shouldStop) {
+    super([]);
+    this.shouldStop = shouldStop;
+  }
+  accept(token) {
+    if (this.shouldStop(token)) {
+      this.isConsumed = true;
+      return {
+        result: "success",
+        nextParser: this.asSequenceToken(),
+        wasTokenConsumed: false
+      };
+    }
+    this.currentTokens.push(token);
+    return {
+      result: "success",
+      nextParser: this,
+      wasTokenConsumed: true
+    };
+  }
+  /**
+   * Add provided tokens to the list of the current parsed tokens.
+   */
+  addTokens(tokens) {
+    this.currentTokens.push(...tokens);
+    return this;
+  }
+  /**
+   * Convert the current parser into a {@link FrontMatterSequence} token.
+   */
+  asSequenceToken() {
+    this.isConsumed = true;
+    return new FrontMatterSequence(this.currentTokens);
+  }
+}
+__decorate([
+  assertNotConsumed
+], PartialFrontMatterSequence.prototype, "accept", null);
+export {
+  PartialFrontMatterSequence
+};
+//# sourceMappingURL=frontMatterSequence.js.map

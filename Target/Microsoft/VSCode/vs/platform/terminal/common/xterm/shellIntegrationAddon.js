@@ -1,2 +1,516 @@
-import{$vd as b,$qd as v,$td as E}from"../../../../base/common/lifecycle.js";import{$_Xb as w}from"../capabilities/terminalCapabilityStore.js";import{$bYb as S}from"../capabilities/commandDetectionCapability.js";import{$dYb as C}from"../capabilities/cwdDetectionCapability.js";import{$eYb as D}from"../capabilities/partialCommandDetectionCapability.js";import{$df as d}from"../../../../base/common/event.js";import{$fYb as y}from"../capabilities/bufferMarkCapability.js";import{URI as $}from"../../../../base/common/uri.js";import{$v4 as Q}from"../terminalEnvironment.js";import{$qg as k}from"../../../../base/common/strings.js";import{$gYb as B}from"../capabilities/shellEnvDetectionCapability.js";var c;(function(i){i[i.FinalTerm=133]="FinalTerm",i[i.VSCode=633]="VSCode",i[i.ITerm=1337]="ITerm",i[i.SetCwd=7]="SetCwd",i[i.SetWindowsFriendlyCwd=9]="SetWindowsFriendlyCwd"})(c||(c={}));var m;(function(i){i.PromptStart="A",i.CommandStart="B",i.CommandExecuted="C",i.CommandFinished="D"})(m||(m={}));var l;(function(i){i.PromptStart="A",i.CommandStart="B",i.CommandExecuted="C",i.CommandFinished="D",i.CommandLine="E",i.ContinuationStart="F",i.ContinuationEnd="G",i.RightPromptStart="H",i.RightPromptEnd="I",i.Property="P",i.SetMark="SetMark",i.EnvJson="EnvJson",i.EnvSingleDelete="EnvSingleDelete",i.EnvSingleStart="EnvSingleStart",i.EnvSingleEntry="EnvSingleEntry",i.EnvSingleEnd="EnvSingleEnd"})(l||(l={}));var f;(function(i){i.SetMark="SetMark",i.CurrentDir="CurrentDir"})(f||(f={}));class W extends b{get seenSequences(){return this.g}get status(){return this.h}constructor(t,e,n,s,r){super(),this.n=t,this.r=e,this.s=n,this.t=s,this.u=r,this.capabilities=this.B(new w),this.b=!1,this.f=[],this.g=new Set,this.h=0,this.j=new d,this.onDidChangeStatus=this.j.event,this.m=new d,this.onDidChangeSeenSequences=this.m.event,this.B(E(()=>{this.G(),this.w()}))}w(){v(this.f),this.f.length=0}activate(t){this.a=t,this.capabilities.add(3,this.B(new D(this.a,this.s))),this.B(t.parser.registerOscHandler(633,e=>this.D(e))),this.B(t.parser.registerOscHandler(1337,e=>this.M(e))),this.f.push(t.parser.registerOscHandler(133,e=>this.z(e))),this.B(t.parser.registerOscHandler(7,e=>this.O(e))),this.B(t.parser.registerOscHandler(9,e=>this.N(e))),this.F()}getMarkerId(t,e){this.R(t).getMark(e)}y(t){this.g.has(t)||(this.g.add(t),this.m.fire(this.g))}z(t){const e=this.C(t);return this.h===0&&(this.h=1,this.j.fire(this.h)),e}C(t){if(!this.a)return!1;const[e,...n]=t.split(";");switch(this.y(e),e){case"A":return this.Q(this.a).handlePromptStart(),!0;case"B":return this.Q(this.a).handleCommandStart({ignoreCommandLine:!0}),!0;case"C":return this.Q(this.a).handleCommandExecuted(),!0;case"D":{const s=n.length===1?parseInt(n[0]):void 0;return this.Q(this.a).handleCommandFinished(s),!0}}return!1}D(t){const e=this.H(t);return!this.b&&e&&(this.t?.publicLog2("terminal/shellIntegrationActivationSucceeded"),this.b=!0,this.G()),this.h!==2&&(this.h=2,this.j.fire(this.h)),e}async F(){!this.t||this.r||(this.c=setTimeout(()=>{!this.capabilities.get(2)&&!this.capabilities.get(0)&&(this.t?.publicLog2("terminal/shellIntegrationActivationTimeout"),this.u.warn("Shell integration failed to add capabilities within 10 seconds")),this.b=!0},1e4))}G(){this.c!==void 0&&(clearTimeout(this.c),this.c=void 0)}H(t){if(!this.a)return!1;const e=t.indexOf(";"),n=e===-1?t:t.substring(0,e);this.y(n);const s=e===-1?[]:t.substring(e+1).split(";");switch(n){case"A":return this.Q(this.a).handlePromptStart(),!0;case"B":return this.Q(this.a).handleCommandStart(),!0;case"C":return this.Q(this.a).handleCommandExecuted(),!0;case"D":{const r=s[0],a=r!==void 0?parseInt(r):void 0;return this.Q(this.a).handleCommandFinished(a),!0}case"E":{const r=s[0],a=s[1];let h;return r!==void 0?h=u(r):h="",this.Q(this.a).setCommandLine(h,a===this.n),!0}case"F":return this.Q(this.a).handleContinuationStart(),!0;case"G":return this.Q(this.a).handleContinuationEnd(),!0;case"EnvJson":{const r=s[0],a=s[1];if(r!==void 0)try{const h=JSON.parse(u(r));this.S().setEnvironment(h,a===this.n)}catch{this.u.warn("Failed to parse environment from shell integration sequence",r)}return!0}case"EnvSingleStart":return this.S().startEnvironmentSingleVar(s[0]==="1",s[1]===this.n),!0;case"EnvSingleDelete":{const r=s[0],a=s[1],h=s[2];if(r!==void 0&&a!==void 0){const o=u(a);this.S().deleteEnvironmentSingleVar(r,o,h===this.n)}return!0}case"EnvSingleEntry":{const r=s[0],a=s[1],h=s[2];if(r!==void 0&&a!==void 0){const o=u(a);this.S().setEnvironmentSingleVar(r,o,h===this.n)}return!0}case"EnvSingleEnd":return this.S().endEnvironmentSingleVar(s[0]===this.n),!0;case"H":return this.Q(this.a).handleRightPromptStart(),!0;case"I":return this.Q(this.a).handleRightPromptEnd(),!0;case"P":{const r=s[0],a=r!==void 0?u(r):"",{key:h,value:o}=p(a);if(o===void 0)return!0;switch(h){case"ContinuationPrompt":return this.I(k(o)),!0;case"Cwd":return this.L(o),!0;case"IsWindows":return this.Q(this.a).setIsWindowsPty(o==="True"),!0;case"HasRichCommandDetection":return this.Q(this.a).setHasRichCommandDetection(o==="True"),!0;case"Prompt":{const g=o.replace(/\x1b\[[0-9;]*m/g,"");return this.J(g),!0}case"PromptType":return this.Q(this.a).setPromptType(o),!0;case"Task":return this.R(this.a),this.capabilities.get(2)?.setIsCommandStorageDisabled(),!0}}case"SetMark":return this.R(this.a).addMark(x(s)),!0}return!1}I(t){this.a&&this.Q(this.a).setContinuationPrompt(t)}J(t){if(!this.a)return;const e=t.substring(t.lastIndexOf(`
-`)+1),n=e.substring(e.lastIndexOf(" "));n&&this.Q(this.a).setPromptTerminator(n,e)}L(t){t=Q(t),this.P().updateCwd(t),this.capabilities.get(2)?.setCwd(t)}M(t){if(!this.a)return!1;const[e]=t.split(";");switch(this.y(`1337;${e}`),e){case"SetMark":this.R(this.a).addMark();default:{const{key:n,value:s}=p(e);if(s===void 0)return!0;switch(n){case"CurrentDir":return this.L(s),!0}}}return!1}N(t){if(!this.a)return!1;const[e,...n]=t.split(";");switch(this.y(`9;${e}`),e){case"9":return n.length&&this.L(n[0]),!0}return!1}O(t){if(!this.a)return!1;const[e]=t.split(";");if(this.y(`7;${e}`),e.match(/^file:\/\/.*\//)){const n=$.parse(e);if(n.path&&n.path.length>0)return this.L(n.path),!0}return!1}serialize(){return!this.a||!this.capabilities.has(2)?{isWindowsPty:!1,hasRichCommandDetection:!1,commands:[],promptInputModel:void 0}:this.Q(this.a).serialize()}deserialize(t){if(!this.a)throw new Error("Cannot restore commands before addon is activated");const e=this.Q(this.a);e.deserialize(t),e.cwd&&this.L(e.cwd)}P(){let t=this.capabilities.get(0);return t||(t=this.B(new C),this.capabilities.add(0,t)),t}Q(t){let e=this.capabilities.get(2);return e||(e=this.B(new S(t,this.u)),this.capabilities.add(2,e)),e}R(t){let e=this.capabilities.get(4);return e||(e=this.B(new y(t)),this.capabilities.add(4,e)),e}S(){let t=this.capabilities.get(5);return t||(t=this.B(new B),this.capabilities.add(5,t)),t}}function u(i){return i.replaceAll(/\\(\\|x([0-9a-f]{2}))/gi,(t,e,n)=>n?String.fromCharCode(parseInt(n,16)):e)}function p(i){const t=i.indexOf("=");return t===-1?{key:i,value:void 0}:{key:i.substring(0,t),value:i.substring(1+t)}}function x(i){let t,e=!1;for(const n of i)n!==void 0&&(n==="Hidden"&&(e=!0),n.startsWith("Id=")&&(t=n.substring(3)));return{id:t,hidden:e}}export{W as $hYb,u as $iYb,p as $jYb,x as $kYb,c as ShellIntegrationOscPs};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { TerminalCapabilityStore } from "../capabilities/terminalCapabilityStore.js";
+import { CommandDetectionCapability } from "../capabilities/commandDetectionCapability.js";
+import { CwdDetectionCapability } from "../capabilities/cwdDetectionCapability.js";
+import { PartialCommandDetectionCapability } from "../capabilities/partialCommandDetectionCapability.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { BufferMarkCapability } from "../capabilities/bufferMarkCapability.js";
+import { URI } from "../../../../base/common/uri.js";
+import { sanitizeCwd } from "../terminalEnvironment.js";
+import { removeAnsiEscapeCodesFromPrompt } from "../../../../base/common/strings.js";
+import { ShellEnvDetectionCapability } from "../capabilities/shellEnvDetectionCapability.js";
+var ShellIntegrationOscPs;
+(function(ShellIntegrationOscPs2) {
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["FinalTerm"] = 133] = "FinalTerm";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["VSCode"] = 633] = "VSCode";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["ITerm"] = 1337] = "ITerm";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["SetCwd"] = 7] = "SetCwd";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["SetWindowsFriendlyCwd"] = 9] = "SetWindowsFriendlyCwd";
+})(ShellIntegrationOscPs || (ShellIntegrationOscPs = {}));
+var FinalTermOscPt;
+(function(FinalTermOscPt2) {
+  FinalTermOscPt2["PromptStart"] = "A";
+  FinalTermOscPt2["CommandStart"] = "B";
+  FinalTermOscPt2["CommandExecuted"] = "C";
+  FinalTermOscPt2["CommandFinished"] = "D";
+})(FinalTermOscPt || (FinalTermOscPt = {}));
+var VSCodeOscPt;
+(function(VSCodeOscPt2) {
+  VSCodeOscPt2["PromptStart"] = "A";
+  VSCodeOscPt2["CommandStart"] = "B";
+  VSCodeOscPt2["CommandExecuted"] = "C";
+  VSCodeOscPt2["CommandFinished"] = "D";
+  VSCodeOscPt2["CommandLine"] = "E";
+  VSCodeOscPt2["ContinuationStart"] = "F";
+  VSCodeOscPt2["ContinuationEnd"] = "G";
+  VSCodeOscPt2["RightPromptStart"] = "H";
+  VSCodeOscPt2["RightPromptEnd"] = "I";
+  VSCodeOscPt2["Property"] = "P";
+  VSCodeOscPt2["SetMark"] = "SetMark";
+  VSCodeOscPt2["EnvJson"] = "EnvJson";
+  VSCodeOscPt2["EnvSingleDelete"] = "EnvSingleDelete";
+  VSCodeOscPt2["EnvSingleStart"] = "EnvSingleStart";
+  VSCodeOscPt2["EnvSingleEntry"] = "EnvSingleEntry";
+  VSCodeOscPt2["EnvSingleEnd"] = "EnvSingleEnd";
+})(VSCodeOscPt || (VSCodeOscPt = {}));
+var ITermOscPt;
+(function(ITermOscPt2) {
+  ITermOscPt2["SetMark"] = "SetMark";
+  ITermOscPt2["CurrentDir"] = "CurrentDir";
+})(ITermOscPt || (ITermOscPt = {}));
+class ShellIntegrationAddon extends Disposable {
+  static {
+    __name(this, "ShellIntegrationAddon");
+  }
+  get seenSequences() {
+    return this._seenSequences;
+  }
+  get status() {
+    return this._status;
+  }
+  constructor(_nonce, _disableTelemetry, _onDidExecuteText, _telemetryService, _logService) {
+    super();
+    this._nonce = _nonce;
+    this._disableTelemetry = _disableTelemetry;
+    this._onDidExecuteText = _onDidExecuteText;
+    this._telemetryService = _telemetryService;
+    this._logService = _logService;
+    this.capabilities = this._register(new TerminalCapabilityStore());
+    this._hasUpdatedTelemetry = false;
+    this._commonProtocolDisposables = [];
+    this._seenSequences = /* @__PURE__ */ new Set();
+    this._status = 0;
+    this._onDidChangeStatus = new Emitter();
+    this.onDidChangeStatus = this._onDidChangeStatus.event;
+    this._onDidChangeSeenSequences = new Emitter();
+    this.onDidChangeSeenSequences = this._onDidChangeSeenSequences.event;
+    this._register(toDisposable(() => {
+      this._clearActivationTimeout();
+      this._disposeCommonProtocol();
+    }));
+  }
+  _disposeCommonProtocol() {
+    dispose(this._commonProtocolDisposables);
+    this._commonProtocolDisposables.length = 0;
+  }
+  activate(xterm) {
+    this._terminal = xterm;
+    this.capabilities.add(3, this._register(new PartialCommandDetectionCapability(this._terminal, this._onDidExecuteText)));
+    this._register(xterm.parser.registerOscHandler(633, (data) => this._handleVSCodeSequence(data)));
+    this._register(xterm.parser.registerOscHandler(1337, (data) => this._doHandleITermSequence(data)));
+    this._commonProtocolDisposables.push(xterm.parser.registerOscHandler(133, (data) => this._handleFinalTermSequence(data)));
+    this._register(xterm.parser.registerOscHandler(7, (data) => this._doHandleSetCwd(data)));
+    this._register(xterm.parser.registerOscHandler(9, (data) => this._doHandleSetWindowsFriendlyCwd(data)));
+    this._ensureCapabilitiesOrAddFailureTelemetry();
+  }
+  getMarkerId(terminal, vscodeMarkerId) {
+    this._createOrGetBufferMarkDetection(terminal).getMark(vscodeMarkerId);
+  }
+  _markSequenceSeen(sequence) {
+    if (!this._seenSequences.has(sequence)) {
+      this._seenSequences.add(sequence);
+      this._onDidChangeSeenSequences.fire(this._seenSequences);
+    }
+  }
+  _handleFinalTermSequence(data) {
+    const didHandle = this._doHandleFinalTermSequence(data);
+    if (this._status === 0) {
+      this._status = 1;
+      this._onDidChangeStatus.fire(this._status);
+    }
+    return didHandle;
+  }
+  _doHandleFinalTermSequence(data) {
+    if (!this._terminal) {
+      return false;
+    }
+    const [command, ...args] = data.split(";");
+    this._markSequenceSeen(command);
+    switch (command) {
+      case "A":
+        this._createOrGetCommandDetection(this._terminal).handlePromptStart();
+        return true;
+      case "B":
+        this._createOrGetCommandDetection(this._terminal).handleCommandStart({ ignoreCommandLine: true });
+        return true;
+      case "C":
+        this._createOrGetCommandDetection(this._terminal).handleCommandExecuted();
+        return true;
+      case "D": {
+        const exitCode = args.length === 1 ? parseInt(args[0]) : void 0;
+        this._createOrGetCommandDetection(this._terminal).handleCommandFinished(exitCode);
+        return true;
+      }
+    }
+    return false;
+  }
+  _handleVSCodeSequence(data) {
+    const didHandle = this._doHandleVSCodeSequence(data);
+    if (!this._hasUpdatedTelemetry && didHandle) {
+      this._telemetryService?.publicLog2("terminal/shellIntegrationActivationSucceeded");
+      this._hasUpdatedTelemetry = true;
+      this._clearActivationTimeout();
+    }
+    if (this._status !== 2) {
+      this._status = 2;
+      this._onDidChangeStatus.fire(this._status);
+    }
+    return didHandle;
+  }
+  async _ensureCapabilitiesOrAddFailureTelemetry() {
+    if (!this._telemetryService || this._disableTelemetry) {
+      return;
+    }
+    this._activationTimeout = setTimeout(() => {
+      if (!this.capabilities.get(
+        2
+        /* TerminalCapability.CommandDetection */
+      ) && !this.capabilities.get(
+        0
+        /* TerminalCapability.CwdDetection */
+      )) {
+        this._telemetryService?.publicLog2("terminal/shellIntegrationActivationTimeout");
+        this._logService.warn("Shell integration failed to add capabilities within 10 seconds");
+      }
+      this._hasUpdatedTelemetry = true;
+    }, 1e4);
+  }
+  _clearActivationTimeout() {
+    if (this._activationTimeout !== void 0) {
+      clearTimeout(this._activationTimeout);
+      this._activationTimeout = void 0;
+    }
+  }
+  _doHandleVSCodeSequence(data) {
+    if (!this._terminal) {
+      return false;
+    }
+    const argsIndex = data.indexOf(";");
+    const command = argsIndex === -1 ? data : data.substring(0, argsIndex);
+    this._markSequenceSeen(command);
+    const args = argsIndex === -1 ? [] : data.substring(argsIndex + 1).split(";");
+    switch (command) {
+      case "A":
+        this._createOrGetCommandDetection(this._terminal).handlePromptStart();
+        return true;
+      case "B":
+        this._createOrGetCommandDetection(this._terminal).handleCommandStart();
+        return true;
+      case "C":
+        this._createOrGetCommandDetection(this._terminal).handleCommandExecuted();
+        return true;
+      case "D": {
+        const arg0 = args[0];
+        const exitCode = arg0 !== void 0 ? parseInt(arg0) : void 0;
+        this._createOrGetCommandDetection(this._terminal).handleCommandFinished(exitCode);
+        return true;
+      }
+      case "E": {
+        const arg0 = args[0];
+        const arg1 = args[1];
+        let commandLine;
+        if (arg0 !== void 0) {
+          commandLine = deserializeMessage(arg0);
+        } else {
+          commandLine = "";
+        }
+        this._createOrGetCommandDetection(this._terminal).setCommandLine(commandLine, arg1 === this._nonce);
+        return true;
+      }
+      case "F": {
+        this._createOrGetCommandDetection(this._terminal).handleContinuationStart();
+        return true;
+      }
+      case "G": {
+        this._createOrGetCommandDetection(this._terminal).handleContinuationEnd();
+        return true;
+      }
+      case "EnvJson": {
+        const arg0 = args[0];
+        const arg1 = args[1];
+        if (arg0 !== void 0) {
+          try {
+            const env = JSON.parse(deserializeMessage(arg0));
+            this._createOrGetShellEnvDetection().setEnvironment(env, arg1 === this._nonce);
+          } catch (e) {
+            this._logService.warn("Failed to parse environment from shell integration sequence", arg0);
+          }
+        }
+        return true;
+      }
+      case "EnvSingleStart": {
+        this._createOrGetShellEnvDetection().startEnvironmentSingleVar(args[0] === "1", args[1] === this._nonce);
+        return true;
+      }
+      case "EnvSingleDelete": {
+        const arg0 = args[0];
+        const arg1 = args[1];
+        const arg2 = args[2];
+        if (arg0 !== void 0 && arg1 !== void 0) {
+          const env = deserializeMessage(arg1);
+          this._createOrGetShellEnvDetection().deleteEnvironmentSingleVar(arg0, env, arg2 === this._nonce);
+        }
+        return true;
+      }
+      case "EnvSingleEntry": {
+        const arg0 = args[0];
+        const arg1 = args[1];
+        const arg2 = args[2];
+        if (arg0 !== void 0 && arg1 !== void 0) {
+          const env = deserializeMessage(arg1);
+          this._createOrGetShellEnvDetection().setEnvironmentSingleVar(arg0, env, arg2 === this._nonce);
+        }
+        return true;
+      }
+      case "EnvSingleEnd": {
+        this._createOrGetShellEnvDetection().endEnvironmentSingleVar(args[0] === this._nonce);
+        return true;
+      }
+      case "H": {
+        this._createOrGetCommandDetection(this._terminal).handleRightPromptStart();
+        return true;
+      }
+      case "I": {
+        this._createOrGetCommandDetection(this._terminal).handleRightPromptEnd();
+        return true;
+      }
+      case "P": {
+        const arg0 = args[0];
+        const deserialized = arg0 !== void 0 ? deserializeMessage(arg0) : "";
+        const { key, value } = parseKeyValueAssignment(deserialized);
+        if (value === void 0) {
+          return true;
+        }
+        switch (key) {
+          case "ContinuationPrompt": {
+            this._updateContinuationPrompt(removeAnsiEscapeCodesFromPrompt(value));
+            return true;
+          }
+          case "Cwd": {
+            this._updateCwd(value);
+            return true;
+          }
+          case "IsWindows": {
+            this._createOrGetCommandDetection(this._terminal).setIsWindowsPty(value === "True" ? true : false);
+            return true;
+          }
+          case "HasRichCommandDetection": {
+            this._createOrGetCommandDetection(this._terminal).setHasRichCommandDetection(value === "True" ? true : false);
+            return true;
+          }
+          case "Prompt": {
+            const sanitizedValue = value.replace(/\x1b\[[0-9;]*m/g, "");
+            this._updatePromptTerminator(sanitizedValue);
+            return true;
+          }
+          case "PromptType": {
+            this._createOrGetCommandDetection(this._terminal).setPromptType(value);
+            return true;
+          }
+          case "Task": {
+            this._createOrGetBufferMarkDetection(this._terminal);
+            this.capabilities.get(
+              2
+              /* TerminalCapability.CommandDetection */
+            )?.setIsCommandStorageDisabled();
+            return true;
+          }
+        }
+      }
+      case "SetMark": {
+        this._createOrGetBufferMarkDetection(this._terminal).addMark(parseMarkSequence(args));
+        return true;
+      }
+    }
+    return false;
+  }
+  _updateContinuationPrompt(value) {
+    if (!this._terminal) {
+      return;
+    }
+    this._createOrGetCommandDetection(this._terminal).setContinuationPrompt(value);
+  }
+  _updatePromptTerminator(prompt) {
+    if (!this._terminal) {
+      return;
+    }
+    const lastPromptLine = prompt.substring(prompt.lastIndexOf("\n") + 1);
+    const promptTerminator = lastPromptLine.substring(lastPromptLine.lastIndexOf(" "));
+    if (promptTerminator) {
+      this._createOrGetCommandDetection(this._terminal).setPromptTerminator(promptTerminator, lastPromptLine);
+    }
+  }
+  _updateCwd(value) {
+    value = sanitizeCwd(value);
+    this._createOrGetCwdDetection().updateCwd(value);
+    const commandDetection = this.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    commandDetection?.setCwd(value);
+  }
+  _doHandleITermSequence(data) {
+    if (!this._terminal) {
+      return false;
+    }
+    const [command] = data.split(";");
+    this._markSequenceSeen(`${1337};${command}`);
+    switch (command) {
+      case "SetMark": {
+        this._createOrGetBufferMarkDetection(this._terminal).addMark();
+      }
+      default: {
+        const { key, value } = parseKeyValueAssignment(command);
+        if (value === void 0) {
+          return true;
+        }
+        switch (key) {
+          case "CurrentDir":
+            this._updateCwd(value);
+            return true;
+        }
+      }
+    }
+    return false;
+  }
+  _doHandleSetWindowsFriendlyCwd(data) {
+    if (!this._terminal) {
+      return false;
+    }
+    const [command, ...args] = data.split(";");
+    this._markSequenceSeen(`${9};${command}`);
+    switch (command) {
+      case "9":
+        if (args.length) {
+          this._updateCwd(args[0]);
+        }
+        return true;
+    }
+    return false;
+  }
+  /**
+   * Handles the sequence: `OSC 7 ; scheme://cwd ST`
+   */
+  _doHandleSetCwd(data) {
+    if (!this._terminal) {
+      return false;
+    }
+    const [command] = data.split(";");
+    this._markSequenceSeen(`${7};${command}`);
+    if (command.match(/^file:\/\/.*\//)) {
+      const uri = URI.parse(command);
+      if (uri.path && uri.path.length > 0) {
+        this._updateCwd(uri.path);
+        return true;
+      }
+    }
+    return false;
+  }
+  serialize() {
+    if (!this._terminal || !this.capabilities.has(
+      2
+      /* TerminalCapability.CommandDetection */
+    )) {
+      return {
+        isWindowsPty: false,
+        hasRichCommandDetection: false,
+        commands: [],
+        promptInputModel: void 0
+      };
+    }
+    const result = this._createOrGetCommandDetection(this._terminal).serialize();
+    return result;
+  }
+  deserialize(serialized) {
+    if (!this._terminal) {
+      throw new Error("Cannot restore commands before addon is activated");
+    }
+    const commandDetection = this._createOrGetCommandDetection(this._terminal);
+    commandDetection.deserialize(serialized);
+    if (commandDetection.cwd) {
+      this._updateCwd(commandDetection.cwd);
+    }
+  }
+  _createOrGetCwdDetection() {
+    let cwdDetection = this.capabilities.get(
+      0
+      /* TerminalCapability.CwdDetection */
+    );
+    if (!cwdDetection) {
+      cwdDetection = this._register(new CwdDetectionCapability());
+      this.capabilities.add(0, cwdDetection);
+    }
+    return cwdDetection;
+  }
+  _createOrGetCommandDetection(terminal) {
+    let commandDetection = this.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    if (!commandDetection) {
+      commandDetection = this._register(new CommandDetectionCapability(terminal, this._logService));
+      this.capabilities.add(2, commandDetection);
+    }
+    return commandDetection;
+  }
+  _createOrGetBufferMarkDetection(terminal) {
+    let bufferMarkDetection = this.capabilities.get(
+      4
+      /* TerminalCapability.BufferMarkDetection */
+    );
+    if (!bufferMarkDetection) {
+      bufferMarkDetection = this._register(new BufferMarkCapability(terminal));
+      this.capabilities.add(4, bufferMarkDetection);
+    }
+    return bufferMarkDetection;
+  }
+  _createOrGetShellEnvDetection() {
+    let shellEnvDetection = this.capabilities.get(
+      5
+      /* TerminalCapability.ShellEnvDetection */
+    );
+    if (!shellEnvDetection) {
+      shellEnvDetection = this._register(new ShellEnvDetectionCapability());
+      this.capabilities.add(5, shellEnvDetection);
+    }
+    return shellEnvDetection;
+  }
+}
+function deserializeMessage(message) {
+  return message.replaceAll(
+    // Backslash ('\') followed by an escape operator: either another '\', or 'x' and two hex chars.
+    /\\(\\|x([0-9a-f]{2}))/gi,
+    // If it's a hex value, parse it to a character.
+    // Otherwise the operator is '\', which we return literally, now unescaped.
+    (_match, op, hex) => hex ? String.fromCharCode(parseInt(hex, 16)) : op
+  );
+}
+__name(deserializeMessage, "deserializeMessage");
+function parseKeyValueAssignment(message) {
+  const separatorIndex = message.indexOf("=");
+  if (separatorIndex === -1) {
+    return { key: message, value: void 0 };
+  }
+  return {
+    key: message.substring(0, separatorIndex),
+    value: message.substring(1 + separatorIndex)
+  };
+}
+__name(parseKeyValueAssignment, "parseKeyValueAssignment");
+function parseMarkSequence(sequence) {
+  let id = void 0;
+  let hidden = false;
+  for (const property of sequence) {
+    if (property === void 0) {
+      continue;
+    }
+    if (property === "Hidden") {
+      hidden = true;
+    }
+    if (property.startsWith("Id=")) {
+      id = property.substring(3);
+    }
+  }
+  return { id, hidden };
+}
+__name(parseMarkSequence, "parseMarkSequence");
+export {
+  ShellIntegrationAddon,
+  ShellIntegrationOscPs,
+  deserializeMessage,
+  parseKeyValueAssignment,
+  parseMarkSequence
+};
+//# sourceMappingURL=shellIntegrationAddon.js.map

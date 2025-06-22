@@ -1,1 +1,82 @@
-var n;(function(s){s[s.Range=1]="Range",s[s.ForeignElement=2]="ForeignElement"})(n||(n={}));class p{constructor(t,i,e,r){this.priority=t,this.range=i,this.initialMousePosX=e,this.initialMousePosY=r,this.type=1}equals(t){return t.type===1&&this.range.equalsRange(t.range)}canAdoptVisibleHover(t,i){return t.type===1&&i.lineNumber===this.range.startLineNumber}}class u{constructor(t,i,e,r,o,a){this.priority=t,this.owner=i,this.range=e,this.initialMousePosX=r,this.initialMousePosY=o,this.supportsMarkerHover=a,this.type=2}equals(t){return t.type===2&&this.owner===t.owner}canAdoptVisibleHover(t,i){return t.type===2&&this.owner===t.owner}}class h{constructor(t,i){this.renderedHoverParts=t,this.a=i}dispose(){for(const t of this.renderedHoverParts)t.dispose();this.a?.dispose()}}const c=new class{constructor(){this._participants=[]}register(t){this._participants.push(t)}getAll(){return this._participants}};export{u as $1ib,h as $2ib,c as $3ib,p as $Zib,n as HoverAnchorType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var HoverAnchorType;
+(function(HoverAnchorType2) {
+  HoverAnchorType2[HoverAnchorType2["Range"] = 1] = "Range";
+  HoverAnchorType2[HoverAnchorType2["ForeignElement"] = 2] = "ForeignElement";
+})(HoverAnchorType || (HoverAnchorType = {}));
+class HoverRangeAnchor {
+  static {
+    __name(this, "HoverRangeAnchor");
+  }
+  constructor(priority, range, initialMousePosX, initialMousePosY) {
+    this.priority = priority;
+    this.range = range;
+    this.initialMousePosX = initialMousePosX;
+    this.initialMousePosY = initialMousePosY;
+    this.type = 1;
+  }
+  equals(other) {
+    return other.type === 1 && this.range.equalsRange(other.range);
+  }
+  canAdoptVisibleHover(lastAnchor, showAtPosition) {
+    return lastAnchor.type === 1 && showAtPosition.lineNumber === this.range.startLineNumber;
+  }
+}
+class HoverForeignElementAnchor {
+  static {
+    __name(this, "HoverForeignElementAnchor");
+  }
+  constructor(priority, owner, range, initialMousePosX, initialMousePosY, supportsMarkerHover) {
+    this.priority = priority;
+    this.owner = owner;
+    this.range = range;
+    this.initialMousePosX = initialMousePosX;
+    this.initialMousePosY = initialMousePosY;
+    this.supportsMarkerHover = supportsMarkerHover;
+    this.type = 2;
+  }
+  equals(other) {
+    return other.type === 2 && this.owner === other.owner;
+  }
+  canAdoptVisibleHover(lastAnchor, showAtPosition) {
+    return lastAnchor.type === 2 && this.owner === lastAnchor.owner;
+  }
+}
+class RenderedHoverParts {
+  static {
+    __name(this, "RenderedHoverParts");
+  }
+  constructor(renderedHoverParts, disposables) {
+    this.renderedHoverParts = renderedHoverParts;
+    this.disposables = disposables;
+  }
+  dispose() {
+    for (const part of this.renderedHoverParts) {
+      part.dispose();
+    }
+    this.disposables?.dispose();
+  }
+}
+const HoverParticipantRegistry = new class HoverParticipantRegistry2 {
+  static {
+    __name(this, "HoverParticipantRegistry");
+  }
+  constructor() {
+    this._participants = [];
+  }
+  register(ctor) {
+    this._participants.push(ctor);
+  }
+  getAll() {
+    return this._participants;
+  }
+}();
+export {
+  HoverAnchorType,
+  HoverForeignElementAnchor,
+  HoverParticipantRegistry,
+  HoverRangeAnchor,
+  RenderedHoverParts
+};
+//# sourceMappingURL=hoverTypes.js.map

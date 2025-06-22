@@ -1,1 +1,164 @@
-import{URI as h}from"../../../base/common/uri.js";import{$nj as M}from"../../../platform/instantiation/common/instantiation.js";import{$oY as b}from"./extHost.protocol.js";import{$td as I,$ud as y}from"../../../base/common/lifecycle.js";import{$sZ as P,$VY as p}from"./extHostTypes.js";import{MarkdownString as T}from"./extHostTypeConverters.js";import{$Yc as $}from"../../../base/common/types.js";import{$1O as k}from"../../services/extensions/common/extensions.js";const B=M("IExtHostTimeline");class K{constructor(e,i){this.b=new Map,this.c=new Map,this.a=e.getProxy(b.MainThreadTimeline),i.registerArgumentProcessor({processArgument:(s,r)=>{if(s&&s.$mid===12)if(this.b.get(s.source)&&r&&k(r,"timeline")){const l=s.uri===void 0?void 0:h.revive(s.uri);return this.c.get(s.source)?.get(w(l))?.get(s.handle)}else return;return s}})}async $getTimeline(e,i,s,r){return this.b.get(e)?.provider.provideTimeline(h.revive(i),s,r)}registerTimelineProvider(e,i,s,r){const l=new y,c=this.d(i.id,r,l).bind(this);let t;i.onDidChange&&(t=i.onDidChange(n=>this.a.$emitTimelineChangeEvent({uri:void 0,reset:!0,...n,id:i.id}),this));const o=this.c;return this.f({...i,scheme:e,onDidChange:void 0,async provideTimeline(n,a,m){a?.resetCache&&(l.clear(),o.get(i.id)?.clear());const d=await i.provideTimeline(n,a,m);if(d==null)return;const u=c(n,a);return{...d,source:i.id,items:d.items.map(u)}},dispose(){for(const n of o.values())n.get(i.id)?.clear();t?.dispose(),l.dispose()}},s)}d(e,i,s){return(r,l)=>{let c;if(l?.cacheResults){let t=this.c.get(e);t===void 0&&(t=new Map,this.c.set(e,t));const o=w(r);c=t.get(o),c===void 0&&(c=new Map,t.set(o,c))}return t=>{const{iconPath:o,...n}=t,a=`${e}|${t.id??t.timestamp}`;c?.set(a,t);let m,d,u;t.iconPath&&(o instanceof P?u={id:o.id,color:o.color}:h.isUri(o)?(m=o,d=o):{light:m,dark:d}=o);let f;return p.isMarkdownString(n.tooltip)?f=T.from(n.tooltip):$(n.tooltip)?f=n.tooltip:p.isMarkdownString(n.detail)?f=T.from(n.detail):$(n.detail)&&(f=n.detail),{...n,id:n.id??void 0,handle:a,source:e,command:t.command?i.toInternal(t.command,s):void 0,icon:m,iconDark:d,themeIcon:u,tooltip:f,accessibilityInformation:t.accessibilityInformation}}}}f(e,i){if(this.b.get(e.id))throw new Error(`Timeline Provider ${e.id} already exists.`);return this.a.$registerTimelineProvider({id:e.id,label:e.label,scheme:e.scheme}),this.b.set(e.id,{provider:e,extension:i}),I(()=>{for(const r of this.c.values())r.get(e.id)?.clear();this.b.delete(e.id),this.a.$unregisterTimelineProvider(e.id),e.dispose()})}}function w(g){return g?.toString()}export{B as $uMc,K as $vMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { MainContext } from "./extHost.protocol.js";
+import { toDisposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { ThemeIcon, MarkdownString as MarkdownStringType } from "./extHostTypes.js";
+import { MarkdownString } from "./extHostTypeConverters.js";
+import { isString } from "../../../base/common/types.js";
+import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+const IExtHostTimeline = createDecorator("IExtHostTimeline");
+class ExtHostTimeline {
+  static {
+    __name(this, "ExtHostTimeline");
+  }
+  constructor(mainContext, commands) {
+    this._providers = /* @__PURE__ */ new Map();
+    this._itemsBySourceAndUriMap = /* @__PURE__ */ new Map();
+    this._proxy = mainContext.getProxy(MainContext.MainThreadTimeline);
+    commands.registerArgumentProcessor({
+      processArgument: /* @__PURE__ */ __name((arg, extension) => {
+        if (arg && arg.$mid === 12) {
+          if (this._providers.get(arg.source) && extension && isProposedApiEnabled(extension, "timeline")) {
+            const uri = arg.uri === void 0 ? void 0 : URI.revive(arg.uri);
+            return this._itemsBySourceAndUriMap.get(arg.source)?.get(getUriKey(uri))?.get(arg.handle);
+          } else {
+            return void 0;
+          }
+        }
+        return arg;
+      }, "processArgument")
+    });
+  }
+  async $getTimeline(id, uri, options, token) {
+    const item = this._providers.get(id);
+    return item?.provider.provideTimeline(URI.revive(uri), options, token);
+  }
+  registerTimelineProvider(scheme, provider, extensionId, commandConverter) {
+    const timelineDisposables = new DisposableStore();
+    const convertTimelineItem = this.convertTimelineItem(provider.id, commandConverter, timelineDisposables).bind(this);
+    let disposable;
+    if (provider.onDidChange) {
+      disposable = provider.onDidChange((e) => this._proxy.$emitTimelineChangeEvent({ uri: void 0, reset: true, ...e, id: provider.id }), this);
+    }
+    const itemsBySourceAndUriMap = this._itemsBySourceAndUriMap;
+    return this.registerTimelineProviderCore({
+      ...provider,
+      scheme,
+      onDidChange: void 0,
+      async provideTimeline(uri, options, token) {
+        if (options?.resetCache) {
+          timelineDisposables.clear();
+          itemsBySourceAndUriMap.get(provider.id)?.clear();
+        }
+        const result = await provider.provideTimeline(uri, options, token);
+        if (result === void 0 || result === null) {
+          return void 0;
+        }
+        const convertItem = convertTimelineItem(uri, options);
+        return {
+          ...result,
+          source: provider.id,
+          items: result.items.map(convertItem)
+        };
+      },
+      dispose() {
+        for (const sourceMap of itemsBySourceAndUriMap.values()) {
+          sourceMap.get(provider.id)?.clear();
+        }
+        disposable?.dispose();
+        timelineDisposables.dispose();
+      }
+    }, extensionId);
+  }
+  convertTimelineItem(source, commandConverter, disposables) {
+    return (uri, options) => {
+      let items;
+      if (options?.cacheResults) {
+        let itemsByUri = this._itemsBySourceAndUriMap.get(source);
+        if (itemsByUri === void 0) {
+          itemsByUri = /* @__PURE__ */ new Map();
+          this._itemsBySourceAndUriMap.set(source, itemsByUri);
+        }
+        const uriKey = getUriKey(uri);
+        items = itemsByUri.get(uriKey);
+        if (items === void 0) {
+          items = /* @__PURE__ */ new Map();
+          itemsByUri.set(uriKey, items);
+        }
+      }
+      return (item) => {
+        const { iconPath, ...props } = item;
+        const handle = `${source}|${item.id ?? item.timestamp}`;
+        items?.set(handle, item);
+        let icon;
+        let iconDark;
+        let themeIcon;
+        if (item.iconPath) {
+          if (iconPath instanceof ThemeIcon) {
+            themeIcon = { id: iconPath.id, color: iconPath.color };
+          } else if (URI.isUri(iconPath)) {
+            icon = iconPath;
+            iconDark = iconPath;
+          } else {
+            ({ light: icon, dark: iconDark } = iconPath);
+          }
+        }
+        let tooltip;
+        if (MarkdownStringType.isMarkdownString(props.tooltip)) {
+          tooltip = MarkdownString.from(props.tooltip);
+        } else if (isString(props.tooltip)) {
+          tooltip = props.tooltip;
+        } else if (MarkdownStringType.isMarkdownString(props.detail)) {
+          console.warn("Using deprecated TimelineItem.detail, migrate to TimelineItem.tooltip");
+          tooltip = MarkdownString.from(props.detail);
+        } else if (isString(props.detail)) {
+          console.warn("Using deprecated TimelineItem.detail, migrate to TimelineItem.tooltip");
+          tooltip = props.detail;
+        }
+        return {
+          ...props,
+          id: props.id ?? void 0,
+          handle,
+          source,
+          command: item.command ? commandConverter.toInternal(item.command, disposables) : void 0,
+          icon,
+          iconDark,
+          themeIcon,
+          tooltip,
+          accessibilityInformation: item.accessibilityInformation
+        };
+      };
+    };
+  }
+  registerTimelineProviderCore(provider, extension) {
+    const existing = this._providers.get(provider.id);
+    if (existing) {
+      throw new Error(`Timeline Provider ${provider.id} already exists.`);
+    }
+    this._proxy.$registerTimelineProvider({
+      id: provider.id,
+      label: provider.label,
+      scheme: provider.scheme
+    });
+    this._providers.set(provider.id, { provider, extension });
+    return toDisposable(() => {
+      for (const sourceMap of this._itemsBySourceAndUriMap.values()) {
+        sourceMap.get(provider.id)?.clear();
+      }
+      this._providers.delete(provider.id);
+      this._proxy.$unregisterTimelineProvider(provider.id);
+      provider.dispose();
+    });
+  }
+}
+function getUriKey(uri) {
+  return uri?.toString();
+}
+__name(getUriKey, "getUriKey");
+export {
+  ExtHostTimeline,
+  IExtHostTimeline
+};
+//# sourceMappingURL=extHostTimeline.js.map

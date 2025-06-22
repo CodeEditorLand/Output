@@ -1,2 +1,1596 @@
-import*as T from"../../../../nls.js";import*as N from"../../../../base/common/objects.js";import*as y from"../../../../base/common/types.js";import*as Pe from"../../../../base/common/uuid.js";import{$eU as de,$$T as be,$fU as ge}from"./problemMatcher.js";import*as m from"./tasks.js";import{$gU as he}from"./taskDefinitionRegistry.js";import{$i2b as ce,$k2b as Oe}from"./taskService.js";var me;(function(e){e[e.escape=1]="escape",e[e.strong=2]="strong",e[e.weak=3]="weak"})(me||(me={}));var C;(function(e){function o(u){return u!==void 0&&y.$Yc(u.type)}e.is=o})(C||(C={}));var ke;(function(e){function o(u){return y.$Yc(u)?u:y.$Zc(u)?u.join(" "):y.$Yc(u.value)?u.value:u.value.join(" ")}e.value=o})(ke||(ke={}));var v;(function(e){e[e.Unknown=0]="Unknown",e[e.String=1]="String",e[e.ProblemMatcher=2]="ProblemMatcher",e[e.Array=3]="Array"})(v||(v={}));const ie=[];Object.freeze(ie);function M(e,o,u){const f=o[u];f!==void 0&&(e[u]=f)}function R(e,o,u){const f=o[u];e[u]===void 0&&f!==void 0&&(e[u]=f)}function j(e,o,u=!1){if(e==null||o===void 0)return!0;for(const f of o){const a=e[f.property];if(a!=null){if(f.type!==void 0&&!f.type.isEmpty(a))return!1;if(!Array.isArray(a)||a.length>0||u)return!1}}return!0}function se(e,o,u){if(!o||j(o,u))return e;if(!e||j(e,u))return o;for(const f of u){const a=f.property;let n;f.type!==void 0?n=f.type.assignProperties(e[a],o[a]):n=o[a],n!=null&&(e[a]=n)}return e}function G(e,o,u,f=!1){if(!o||j(o,u))return e;if(!e||j(e,u,f))return o;for(const a of u){const n=a.property;let t;a.type?t=a.type.fillProperties(e[n],o[n]):e[n]===void 0&&(t=o[n]),t!=null&&(e[n]=t)}return e}function ye(e,o,u,f){if(e&&Object.isFrozen(e))return e;if(e==null||o===void 0||o===null)return o!=null?N.$2o(o):void 0;for(const a of u){const n=a.property;if(e[n]!==void 0)continue;let t;a.type?t=a.type.fillDefaults(e[n],f):t=o[n],t!=null&&(e[n]=t)}return e}function H(e,o){if(e!=null){if(Object.isFrozen(e))return e;for(const u of o)if(u.type){const f=e[u.property];f&&u.type.freeze(f)}return Object.freeze(e),e}}var X;(function(e){function o(u){if(!u)return m.RunOnOptions.default;switch(u.toLowerCase()){case"folderopen":return m.RunOnOptions.folderOpen;case"default":default:return m.RunOnOptions.default}}e.fromString=o})(X||(X={}));var A;(function(e){const o=[{property:"reevaluateOnRerun"},{property:"runOn"},{property:"instanceLimit"},{property:"instancePolicy"}];function u(n){return{reevaluateOnRerun:n?n.reevaluateOnRerun:!0,runOn:n?X.fromString(n.runOn):m.RunOnOptions.default,instanceLimit:n?.instanceLimit?Math.max(n.instanceLimit,1):1,instancePolicy:n?Q.fromString(n.instancePolicy):"prompt"}}e.fromConfiguration=u;function f(n,t){return se(n,t,o)}e.assignProperties=f;function a(n,t){return G(n,t,o)}e.fillProperties=a})(A||(A={}));var Q;(function(e){function o(u){if(!u)return"prompt";switch(u.toLowerCase()){case"terminatenewest":return"terminateNewest";case"terminateoldest":return"terminateOldest";case"warn":return"warn";case"silent":return"silent";case"prompt":default:return"prompt"}}e.fromString=o})(Q||(Q={}));var Y;(function(e){const o=[{property:"executable"},{property:"args"},{property:"quoting"}];function u(i){const l=i;return l&&(y.$Yc(l.executable)||y.$Zc(l.args))}e.is=u;function f(i,l){if(!u(i))return;const c={};return i.executable!==void 0&&(c.executable=i.executable),i.args!==void 0&&(c.args=i.args.slice()),i.quoting!==void 0&&(c.quoting=N.$2o(i.quoting)),c}e.from=f;function a(i){return j(i,o,!0)}e.isEmpty=a;function n(i,l){return se(i,l,o)}e.assignProperties=n;function t(i,l){return G(i,l,o,!0)}e.fillProperties=t;function r(i,l){return i}e.fillDefaults=r;function p(i){if(i)return Object.freeze(i)}e.freeze=p})(Y||(Y={}));var z;(function(e){const o=[{property:"cwd"},{property:"env"},{property:"shell",type:Y}],u={cwd:"${workspaceFolder}"};function f(i,l){const c={};return i.cwd!==void 0&&(y.$Yc(i.cwd)?c.cwd=i.cwd:l.taskLoadIssues.push(T.localize(11480,null,i.cwd))),i.env!==void 0&&(c.env=N.$2o(i.env)),c.shell=Y.from(i.shell,l),a(c)?void 0:c}e.from=f;function a(i){return j(i,o)}e.isEmpty=a;function n(i,l){if(l===void 0||a(l))return i;if(i===void 0||a(i))return l;if(M(i,l,"cwd"),i.env===void 0)i.env=l.env;else if(l.env!==void 0){const c=Object.create(null);i.env!==void 0&&Object.keys(i.env).forEach(k=>c[k]=i.env[k]),l.env!==void 0&&Object.keys(l.env).forEach(k=>c[k]=l.env[k]),i.env=c}return i.shell=Y.assignProperties(i.shell,l.shell),i}e.assignProperties=n;function t(i,l){return G(i,l,o)}e.fillProperties=t;function r(i,l){return ye(i,u,o,l)}e.fillDefaults=r;function p(i){return H(i,o)}e.freeze=p})(z||(z={}));var S;(function(e){let o;(function(s){const d=[{property:"echo"},{property:"reveal"},{property:"revealProblems"},{property:"focus"},{property:"panel"},{property:"showReuseMessage"},{property:"clear"},{property:"group"},{property:"close"}];function P(h,E){let U,Z,oe,te,ue,fe,ae,pe,le,W=!1;y.$6c(h.echoCommand)&&(U=h.echoCommand,W=!0),y.$Yc(h.showOutput)&&(Z=m.RevealKind.fromString(h.showOutput),W=!0);const $=h.presentation||h.terminal;if($&&(y.$6c($.echo)&&(U=$.echo),y.$Yc($.reveal)&&(Z=m.RevealKind.fromString($.reveal)),y.$Yc($.revealProblems)&&(oe=m.RevealProblemKind.fromString($.revealProblems)),y.$6c($.focus)&&(te=$.focus),y.$Yc($.panel)&&(ue=m.PanelKind.fromString($.panel)),y.$6c($.showReuseMessage)&&(fe=$.showReuseMessage),y.$6c($.clear)&&(ae=$.clear),y.$Yc($.group)&&(pe=$.group),y.$6c($.close)&&(le=$.close),W=!0),!!W)return{echo:U,reveal:Z,revealProblems:oe,focus:te,panel:ue,showReuseMessage:fe,clear:ae,group:pe,close:le}}s.from=P;function b(h,E){return se(h,E,d)}s.assignProperties=b;function g(h,E){return G(h,E,d)}s.fillProperties=g;function O(h,E){const U=E.engine===m.ExecutionEngine.Terminal;return ye(h,{echo:U,reveal:m.RevealKind.Always,revealProblems:m.RevealProblemKind.Never,focus:!1,panel:m.PanelKind.Shared,showReuseMessage:!0,clear:!1},d,E)}s.fillDefaults=O;function w(h){return H(h,d)}s.freeze=w;function D(h){return j(h,d)}s.isEmpty=D})(o=e.PresentationOptions||(e.PresentationOptions={}));let u;(function(s){function d(P){if(P!=null){if(y.$Yc(P))return P;if(y.$Zc(P))return P.join(" ");{const b=m.ShellQuoting.from(P.quoting),g=y.$Yc(P.value)?P.value:y.$Zc(P.value)?P.value.join(" "):void 0;return g?{value:g,quoting:b}:void 0}}}s.from=d})(u||(u={}));const f=[{property:"runtime"},{property:"name"},{property:"options",type:z},{property:"args"},{property:"taskSelector"},{property:"suppressTaskName"},{property:"presentation",type:o}];function a(s,d){let P=n(s,d),b;return s.windows&&d.platform===3?b=n(s.windows,d):s.osx&&d.platform===1?b=n(s.osx,d):s.linux&&d.platform===2&&(b=n(s.linux,d)),b&&(P=p(P,b,d.schemaVersion===2)),r(P)?void 0:P}e.from=a;function n(s,d){const P=u.from(s.command);let b;y.$Yc(s.type)&&(s.type==="shell"||s.type==="process")&&(b=m.RuntimeType.fromString(s.type)),y.$6c(s.isShellCommand)||Y.is(s.isShellCommand)?b=m.RuntimeType.Shell:s.isShellCommand!==void 0&&(b=s.isShellCommand?m.RuntimeType.Shell:m.RuntimeType.Process);const g={name:P,runtime:b,presentation:o.from(s,d)};if(s.args!==void 0){g.args=[];for(const O of s.args){const w=u.from(O);w!==void 0?g.args.push(w):d.taskLoadIssues.push(T.localize(11481,null,O?JSON.stringify(O,void 0,4):"undefined"))}}return s.options!==void 0&&(g.options=z.from(s.options,d),g.options&&g.options.shell===void 0&&Y.is(s.isShellCommand)&&(g.options.shell=Y.from(s.isShellCommand,d),d.engine!==m.ExecutionEngine.Terminal&&d.taskLoadIssues.push(T.localize(11482,null)))),y.$Yc(s.taskSelector)&&(g.taskSelector=s.taskSelector),y.$6c(s.suppressTaskName)&&(g.suppressTaskName=s.suppressTaskName),r(g)?void 0:g}function t(s){return s&&!!s.name}e.hasCommand=t;function r(s){return j(s,f)}e.isEmpty=r;function p(s,d,P){return r(d)?s:r(s)?d:(M(s,d,"name"),M(s,d,"runtime"),M(s,d,"taskSelector"),M(s,d,"suppressTaskName"),d.args!==void 0&&(s.args===void 0||P?s.args=d.args:s.args=s.args.concat(d.args)),s.presentation=o.assignProperties(s.presentation,d.presentation),s.options=z.assignProperties(s.options,d.options),s)}e.assignProperties=p;function i(s,d){return G(s,d,f)}e.fillProperties=i;function l(s,d,P){if(d===void 0||r(d))return s;if(s=s||{name:void 0,runtime:void 0,presentation:void 0},s.name===void 0){R(s,d,"name"),R(s,d,"taskSelector"),R(s,d,"suppressTaskName");let b=d.args?d.args.slice():[];!s.suppressTaskName&&P&&(s.taskSelector!==void 0?b.push(s.taskSelector+P):b.push(P)),s.args&&(b=b.concat(s.args)),s.args=b}return R(s,d,"runtime"),s.presentation=o.fillProperties(s.presentation,d.presentation),s.options=z.fillProperties(s.options,d.options),s}e.fillGlobals=l;function c(s,d){!s||Object.isFrozen(s)||(s.name!==void 0&&s.runtime===void 0&&(s.runtime=m.RuntimeType.Process),s.presentation=o.fillDefaults(s.presentation,d),r(s)||(s.options=z.fillDefaults(s.options,d)),s.args===void 0&&(s.args=ie),s.suppressTaskName===void 0&&(s.suppressTaskName=d.schemaVersion===2))}e.fillDefaults=c;function k(s){return H(s,f)}e.freeze=k})(S||(S={}));var I;(function(e){function o(t,r){const p=Object.create(null);return Array.isArray(t)&&t.forEach(i=>{const l=new de(r.problemReporter).parse(i);be(l)?p[l.name]=l:r.problemReporter.error(T.localize(11483,null,JSON.stringify(i,void 0,4)))}),p}e.namedFrom=o;function u(t,r){let p={};return t.windows&&t.windows.problemMatcher&&r.platform===3?p=f(t.windows.problemMatcher,r):t.osx&&t.osx.problemMatcher&&r.platform===1?p=f(t.osx.problemMatcher,r):t.linux&&t.linux.problemMatcher&&r.platform===2?p=f(t.linux.problemMatcher,r):t.problemMatcher&&(p=f(t.problemMatcher,r)),p}e.fromWithOsConfig=u;function f(t,r){const p=[];if(t===void 0)return{value:p};const i=[];function l(k){k.value&&p.push(k.value),k.errors&&i.push(...k.errors)}const c=a(t);if(c===v.Unknown){const k=T.localize(11484,null,JSON.stringify(t,null,4));r.problemReporter.warn(k)}else c===v.String||c===v.ProblemMatcher?l(n(t,r)):c===v.Array&&t.forEach(s=>{l(n(s,r))});return{value:p,errors:i}}e.from=f;function a(t){return y.$Yc(t)?v.String:Array.isArray(t)?v.Array:y.$7c(t)?v.Unknown:v.ProblemMatcher}function n(t,r){if(y.$Yc(t)){let p=t;if(p.length>1&&p[0]==="$"){p=p.substring(1);const i=ge.get(p);if(i)return{value:N.$2o(i)};let l=r.namedProblemMatchers[p];if(l)return l=N.$2o(l),delete l.name,{value:l}}return{errors:[T.localize(11485,null,t)]}}else{const p=t;return{value:new de(r.problemReporter).parse(p)}}}})(I||(I={}));var J;(function(e){function o(f){if(f!==void 0){if(y.$Yc(f)&&m.TaskGroup.is(f))return{_id:f,isDefault:!1};if(y.$Yc(f.kind)&&m.TaskGroup.is(f.kind)){const a=f.kind,n=y.$7c(f.isDefault)?!1:f.isDefault;return{_id:a,isDefault:n}}}}e.from=o;function u(f){return y.$Yc(f)?f:f.isDefault?{kind:f._id,isDefault:f.isDefault}:f._id}e.to=u})(J||(J={}));var V;(function(e){function o(f,a){switch(a){case _.User:return m.$hU;case _.TasksJson:return f.workspaceFolder.uri;default:return f.workspace&&f.workspace.configuration?f.workspace.configuration:f.workspaceFolder.uri}}function u(f,a,n){return y.$Yc(f)?{uri:o(a,n),task:f}:C.is(f)?{uri:o(a,n),task:m.TaskDefinition.createTaskIdentifier(f,a.problemReporter)}:void 0}e.from=u})(V||(V={}));var x;(function(e){function o(u){switch(u){case"sequence":return"sequence";case"parallel":default:return"parallel"}}e.from=o})(x||(x={}));var q;(function(e){const o=[{property:"name"},{property:"identifier"},{property:"group"},{property:"isBackground"},{property:"promptOnClose"},{property:"dependsOn"},{property:"presentation",type:S.PresentationOptions},{property:"problemMatchers"},{property:"options"},{property:"icon"},{property:"hide"}];function u(a,n,t,r,p){if(!a)return{};const i={};if(p)for(const c of Object.keys(p))a[c]!==void 0&&(i[c]=N.$2o(a[c]));if(y.$Yc(a.taskName)&&(i.name=a.taskName),y.$Yc(a.label)&&n.schemaVersion===2&&(i.name=a.label),y.$Yc(a.identifier)&&(i.identifier=a.identifier),i.icon=a.icon,i.hide=a.hide,a.isBackground!==void 0&&(i.isBackground=!!a.isBackground),a.promptOnClose!==void 0&&(i.promptOnClose=!!a.promptOnClose),i.group=J.from(a.group),a.dependsOn!==void 0)if(Array.isArray(a.dependsOn))i.dependsOn=a.dependsOn.reduce((c,k)=>{const s=V.from(k,n,r);return s&&c.push(s),c},[]);else{const c=V.from(a.dependsOn,n,r);i.dependsOn=c?[c]:void 0}i.dependsOrder=x.from(a.dependsOrder),t&&(a.presentation!==void 0||a.terminal!==void 0)&&(i.presentation=S.PresentationOptions.from(a,n)),t&&a.options!==void 0&&(i.options=z.from(a.options,n));const l=I.fromWithOsConfig(a,n);return l.value!==void 0&&(i.problemMatchers=l.value),a.detail&&(i.detail=a.detail),f(i)?{}:{value:i,errors:l.errors}}e.from=u;function f(a){return j(a,o)}e.isEmpty=f})(q||(q={}));const L="Workspace";var ee;(function(e){const o="grunt.",u="jake.",f="gulp.",a="vscode.npm.",n="vscode.typescript.";function t(r,p,i,l,c){if(!r)return;const k=r.type,s=r.customize;if(!k&&!s){p.problemReporter.error(T.localize(11486,null,JSON.stringify(r,null,4)));return}const d=k?c?.get?.(k)||he.get(k):void 0;if(!d){const h=T.localize(11487,null,k);p.problemReporter.error(h);return}let P;if(y.$Yc(s)?s.indexOf(o)===0?P={type:"grunt",task:s.substring(o.length)}:s.indexOf(u)===0?P={type:"jake",task:s.substring(u.length)}:s.indexOf(f)===0?P={type:"gulp",task:s.substring(f.length)}:s.indexOf(a)===0?P={type:"npm",script:s.substring(a.length+4)}:s.indexOf(n)===0&&(P={type:"typescript",tsconfig:s.substring(n.length+6)}):y.$Yc(r.type)&&(P=r),P===void 0){p.problemReporter.error(T.localize(11488,null,JSON.stringify(r,void 0,0)));return}const b=m.TaskDefinition.createTaskIdentifier(P,p.problemReporter);if(b===void 0){p.problemReporter.error(T.localize(11489,null,JSON.stringify(r,void 0,0)));return}const g={workspaceFolder:p.workspaceFolder,file:".vscode/tasks.json",index:i,element:r};let O;switch(l){case _.User:{O={kind:m.TaskSourceKind.User,config:g,label:L};break}case _.WorkspaceFile:{O={kind:m.TaskSourceKind.WorkspaceFile,config:g,label:L};break}default:{O={kind:m.TaskSourceKind.Workspace,config:g,label:L};break}}const w=new m.$oU(`${d.extensionId}.${b._key}`,O,void 0,k,b,A.fromConfiguration(r.runOptions),{hide:r.hide}),D=q.from(r,p,!0,l,d.properties);if(w.addTaskLoadMessages(D.errors),D.value){if(w.configurationProperties=Object.assign(w.configurationProperties,D.value),w.configurationProperties.name)w._label=w.configurationProperties.name;else{let h=w.configures.type;if(d.required&&d.required.length>0)for(const E of d.required){const U=w.configures[E];if(U){h=h+": "+U;break}}w._label=h}w.configurationProperties.identifier||(w.configurationProperties.identifier=b._key)}return w}e.from=t})(ee||(ee={}));var B;(function(e){function o(n,t,r,p){if(!n)return;let i=n.type;if(i==null&&(i=m.$lU),i!==m.$lU&&i!=="shell"&&i!=="process"){t.problemReporter.error(T.localize(11490,null,JSON.stringify(n,null,4)));return}let l=n.taskName;if(y.$Yc(n.label)&&t.schemaVersion===2&&(l=n.label),!l){t.problemReporter.error(T.localize(11491,null,JSON.stringify(n,null,4)));return}let c;switch(p){case _.User:{c={kind:m.TaskSourceKind.User,config:{index:r,element:n,file:".vscode/tasks.json",workspaceFolder:t.workspaceFolder},label:L};break}case _.WorkspaceFile:{c={kind:m.TaskSourceKind.WorkspaceFile,config:{index:r,element:n,file:".vscode/tasks.json",workspaceFolder:t.workspaceFolder,workspace:t.workspace},label:L};break}default:{c={kind:m.TaskSourceKind.Workspace,config:{index:r,element:n,file:".vscode/tasks.json",workspaceFolder:t.workspaceFolder},label:L};break}}const k=new m.$nU(t.uuidMap.getUUID(l),c,l,m.$lU,void 0,!1,A.fromConfiguration(n.runOptions),{name:l,identifier:l}),s=q.from(n,t,!1,p);if(k.addTaskLoadMessages(s.errors),s.value&&(k.configurationProperties=Object.assign(k.configurationProperties,s.value)),!0){const b=n;k.configurationProperties.isBackground===void 0&&b.isWatching!==void 0&&(k.configurationProperties.isBackground=!!b.isWatching),k.configurationProperties.group===void 0&&(b.isBuildCommand===!0?k.configurationProperties.group=m.TaskGroup.Build:b.isTestCommand===!0&&(k.configurationProperties.group=m.TaskGroup.Test))}const P=S.from(n,t);return P&&(k.command=P),n.command!==void 0&&(P.suppressTaskName=!0),k}e.from=o;function u(n,t){(S.hasCommand(n.command)||n.configurationProperties.dependsOn===void 0)&&(n.command=S.fillGlobals(n.command,t.command,n.configurationProperties.name)),n.configurationProperties.problemMatchers===void 0&&t.problemMatcher!==void 0&&(n.configurationProperties.problemMatchers=N.$2o(t.problemMatcher),n.hasDefinedMatchers=!0),n.configurationProperties.promptOnClose===void 0&&n.configurationProperties.isBackground===void 0&&t.promptOnClose!==void 0&&(n.configurationProperties.promptOnClose=t.promptOnClose)}e.fillGlobals=u;function f(n,t){S.fillDefaults(n.command,t),n.configurationProperties.promptOnClose===void 0&&(n.configurationProperties.promptOnClose=n.configurationProperties.isBackground!==void 0?!n.configurationProperties.isBackground:!0),n.configurationProperties.isBackground===void 0&&(n.configurationProperties.isBackground=!1),n.configurationProperties.problemMatchers===void 0&&(n.configurationProperties.problemMatchers=ie)}e.fillDefaults=f;function a(n,t){const r=new m.$nU(t._id,Object.assign({},t._source,{customizes:n.defines}),t.configurationProperties.name||n._label,m.$lU,n.command,!1,n.runOptions,{name:t.configurationProperties.name||n.configurationProperties.name,identifier:t.configurationProperties.identifier||n.configurationProperties.identifier,icon:t.configurationProperties.icon,hide:t.configurationProperties.hide});r.addTaskLoadMessages(t.taskLoadMessages);const p=r.configurationProperties;M(p,t.configurationProperties,"group"),M(p,t.configurationProperties,"isBackground"),M(p,t.configurationProperties,"dependsOn"),M(p,t.configurationProperties,"problemMatchers"),M(p,t.configurationProperties,"promptOnClose"),M(p,t.configurationProperties,"detail"),r.command.presentation=S.PresentationOptions.assignProperties(r.command.presentation,t.configurationProperties.presentation),r.command.options=z.assignProperties(r.command.options,t.configurationProperties.options),r.runOptions=A.assignProperties(r.runOptions,t.runOptions);const i=n.configurationProperties;return R(p,i,"group"),R(p,i,"isBackground"),R(p,i,"dependsOn"),R(p,i,"problemMatchers"),R(p,i,"promptOnClose"),R(p,i,"detail"),r.command.presentation=S.PresentationOptions.fillProperties(r.command.presentation,i.presentation),r.command.options=z.fillProperties(r.command.options,i.options),r.runOptions=A.fillProperties(r.runOptions,n.runOptions),n.hasDefinedMatchers===!0&&(r.hasDefinedMatchers=!0),r}e.createCustomTask=a})(B||(B={}));var F;(function(e){function o(n){const t=n.type;return n.customize===void 0&&(t==null||t===m.$lU||t==="shell"||t==="process")}const u={shell:ce,process:Oe};function f(n,t,r,p,i){const l={custom:[],configured:[]};if(!n)return l;const c={task:void 0,rank:-1},k={task:void 0,rank:-1},s=r.schemaVersion===2,d=N.$2o(r.taskLoadIssues);for(let g=0;g<n.length;g++){const O=n[g],w=O.type?i?.get?.(O.type)||he.get(O.type):void 0;let D=!1;if(w&&w.when&&!r.contextKeyService.contextMatchesRules(w.when))D=!0;else if(!w&&O.type){for(const h of Object.keys(u))if(O.type===h){D=!ce.evaluate(r.contextKeyService.getContext(null));break}}if(D){r.problemReporter.info(T.localize(11492,null,O.type));continue}if(o(O)){const h=B.from(O,r,g,p);if(h){if(B.fillGlobals(h,t),B.fillDefaults(h,r),s){if((h.command===void 0||h.command.name===void 0)&&(h.configurationProperties.dependsOn===void 0||h.configurationProperties.dependsOn.length===0)){r.problemReporter.error(T.localize(11493,null,h.configurationProperties.name,JSON.stringify(O,void 0,4)));continue}}else if(h.command===void 0||h.command.name===void 0){r.problemReporter.warn(T.localize(11494,null,h.configurationProperties.name,JSON.stringify(O,void 0,4)));continue}h.configurationProperties.group===m.TaskGroup.Build&&c.rank<2?(c.task=h,c.rank=2):h.configurationProperties.group===m.TaskGroup.Test&&k.rank<2?(k.task=h,k.rank=2):h.configurationProperties.name==="build"&&c.rank<1?(c.task=h,c.rank=1):h.configurationProperties.name==="test"&&k.rank<1&&(k.task=h,k.rank=1),h.addTaskLoadMessages(r.taskLoadIssues),l.custom.push(h)}}else{const h=ee.from(O,r,g,p,i);h&&(h.addTaskLoadMessages(r.taskLoadIssues),l.configured.push(h))}r.taskLoadIssues=N.$2o(d)}const P=y.$Yc(c.task?.configurationProperties.group)?c.task?.configurationProperties.group:c.task?.configurationProperties.group?._id,b=y.$Yc(k.task?.configurationProperties.group)?k.task?.configurationProperties.group:k.task?.configurationProperties.group?._id;return P!==m.TaskGroup.Build._id&&c.rank>-1&&c.rank<2&&c.task?c.task.configurationProperties.group=m.TaskGroup.Build:b!==m.TaskGroup.Test._id&&k.rank>-1&&k.rank<2&&k.task&&(k.task.configurationProperties.group=m.TaskGroup.Test),l}e.from=f;function a(n,t){if(t===void 0||t.length===0)return n;if(n===void 0||n.length===0)return t;if(t){const r=Object.create(null);n.forEach(i=>{r[i.configurationProperties.name]=i}),t.forEach(i=>{r[i.configurationProperties.name]=i});const p=[];n.forEach(i=>{p.push(r[i.configurationProperties.name]),delete r[i.configurationProperties.name]}),Object.keys(r).forEach(i=>p.push(r[i])),n=p}return n}e.assignTasks=a})(F||(F={}));var ne;(function(e){function o(r,p){let i=u(r,p),l;r.windows&&p.platform===3?l=u(r.windows,p):r.osx&&p.platform===1?l=u(r.osx,p):r.linux&&p.platform===2&&(l=u(r.linux,p)),l&&(i=e.assignProperties(i,l));const c=S.from(r,p);return c&&(i.command=c),e.fillDefaults(i,p),e.freeze(i),i}e.from=o;function u(r,p){const i={};return r.suppressTaskName!==void 0&&(i.suppressTaskName=!!r.suppressTaskName),r.promptOnClose!==void 0&&(i.promptOnClose=!!r.promptOnClose),r.problemMatcher&&(i.problemMatcher=I.from(r.problemMatcher,p).value),i}e.fromBase=u;function f(r){return!r||r.command===void 0&&r.promptOnClose===void 0&&r.suppressTaskName===void 0}e.isEmpty=f;function a(r,p){return f(p)?r:f(r)?p:(M(r,p,"promptOnClose"),M(r,p,"suppressTaskName"),r)}e.assignProperties=a;function n(r,p){r&&(S.fillDefaults(r.command,p),r.suppressTaskName===void 0&&(r.suppressTaskName=p.schemaVersion===2),r.promptOnClose===void 0&&(r.promptOnClose=!0))}e.fillDefaults=n;function t(r){Object.freeze(r),r.command&&S.freeze(r.command)}e.freeze=t})(ne||(ne={}));var re;(function(e){function o(u){const f=u.runner||u._runner;let a;if(f)switch(f){case"terminal":a=m.ExecutionEngine.Terminal;break;case"process":a=m.ExecutionEngine.Process;break}const n=K.from(u);if(n===1)return a||m.ExecutionEngine.Process;if(n===2)return m.ExecutionEngine.Terminal;throw new Error("Shouldn't happen.")}e.from=o})(re||(re={}));var K;(function(e){function u(f){const a=f.version;if(!a)return 2;switch(a){case"0.1.0":return 1;case"2.0.0":return 2;default:return 2}}e.from=u})(K||(K={}));class we{constructor(o){if(this.b=Object.create(null),o)for(const u of Object.keys(o.b)){const f=o.b[u];Array.isArray(f)?this.b[u]=f.slice():this.b[u]=f}}start(){this.a=this.b,this.b=Object.create(null)}getUUID(o){const u=this.a?this.a[o]:void 0;let f;u!==void 0&&(Array.isArray(u)?(f=u.shift(),u.length===0&&delete this.a[o]):(f=u,delete this.a[o])),f===void 0&&(f=Pe.$Rm());const a=this.b[o];if(a===void 0)this.b[o]=f;else if(Array.isArray(a))a.push(f);else{const n=[a];n.push(f),this.b[o]=n}return f}finish(){this.a=void 0}}var _;(function(e){e[e.TasksJson=0]="TasksJson",e[e.WorkspaceFile=1]="WorkspaceFile",e[e.User=2]="User"})(_||(_={}));class $e{constructor(o,u,f,a,n){this.a=o,this.b=u,this.e=f,this.c=a,this.d=n}run(o,u,f){const a=re.from(o),n=K.from(o),t={workspaceFolder:this.a,workspace:this.b,problemReporter:this.c,uuidMap:this.d,namedProblemMatchers:{},engine:a,schemaVersion:n,platform:this.e,taskLoadIssues:[],contextKeyService:f},r=this.f(o,t,u);return{validationStatus:this.c.status,custom:r.custom,configured:r.configured,engine:a}}f(o,u,f){const a=ne.from(o,u);if(this.c.status.isFatal())return{custom:[],configured:[]};u.namedProblemMatchers=I.namedFrom(o.declares,u);let n,t;if(o.windows&&u.platform===3?(n=F.from(o.windows.tasks,a,u,f).custom,t=o.windows.tasks):o.osx&&u.platform===1?(n=F.from(o.osx.tasks,a,u,f).custom,t=o.osx.tasks):o.linux&&u.platform===2&&(n=F.from(o.linux.tasks,a,u,f).custom,t=o.linux.tasks),u.schemaVersion===2&&n&&n.length>0&&t&&t.length>0){const p=[];for(const i of t)p.push(JSON.stringify(i,null,4));u.problemReporter.error(T.localize(11495,null,p.join(`
-`)))}let r={custom:[],configured:[]};if(o.tasks&&(r=F.from(o.tasks,a,u,f)),n&&(r.custom=F.assignTasks(r.custom,n)),(!r.custom||r.custom.length===0)&&a.command&&a.command.name){const p=I.from(o.problemMatcher,u).value??[],i=o.isBackground?!!o.isBackground:o.isWatching?!!o.isWatching:void 0,l=m.CommandString.value(a.command.name),c=new m.$nU(u.uuidMap.getUUID(l),Object.assign({},f,"workspace",{config:{index:-1,element:o,workspaceFolder:u.workspaceFolder}}),l,m.$lU,{name:void 0,runtime:void 0,presentation:void 0,suppressTaskName:!0},!1,{reevaluateOnRerun:!0},{name:l,identifier:l,group:m.TaskGroup.Build,isBackground:i,problemMatchers:p}),k=J.from(o.group);k!==void 0?c.configurationProperties.group=k:o.group==="none"&&(c.configurationProperties.group=void 0),B.fillGlobals(c,a),B.fillDefaults(c,u),r.custom=[c]}return r.custom=r.custom||[],r.configured=r.configured||[],r}}const Te=new Map,Me=new Map;function ze(e,o,u,f,a,n,t,r=!1){const p=r?Me:Te;let i=p.get(n);i||(p.set(n,new Map),i=p.get(n));let l=i.get(e.uri.toString());l||(l=new we,i.set(e.uri.toString(),l));try{return l.start(),new $e(e,o,u,a,l).run(f,n,t)}finally{l.finish()}}function De(e,o){return B.createCustomTask(e,o)}export{we as $_tc,ze as $auc,De as $buc,ke as CommandString,re as ExecutionEngine,J as GroupKind,C as ITaskIdentifier,Q as InstancePolicy,K as JsonSchemaVersion,I as ProblemMatcherConverter,X as RunOnOptions,A as RunOptions,me as ShellQuoting,_ as TaskConfigSource,F as TaskParser};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import * as Objects from "../../../../base/common/objects.js";
+import * as Types from "../../../../base/common/types.js";
+import * as UUID from "../../../../base/common/uuid.js";
+import { ProblemMatcherParser, isNamedProblemMatcher, ProblemMatcherRegistry } from "./problemMatcher.js";
+import * as Tasks from "./tasks.js";
+import { TaskDefinitionRegistry } from "./taskDefinitionRegistry.js";
+import { ShellExecutionSupportedContext, ProcessExecutionSupportedContext } from "./taskService.js";
+var ShellQuoting;
+(function(ShellQuoting2) {
+  ShellQuoting2[ShellQuoting2["escape"] = 1] = "escape";
+  ShellQuoting2[ShellQuoting2["strong"] = 2] = "strong";
+  ShellQuoting2[ShellQuoting2["weak"] = 3] = "weak";
+})(ShellQuoting || (ShellQuoting = {}));
+var ITaskIdentifier;
+(function(ITaskIdentifier2) {
+  function is(value) {
+    const candidate = value;
+    return candidate !== void 0 && Types.isString(value.type);
+  }
+  __name(is, "is");
+  ITaskIdentifier2.is = is;
+})(ITaskIdentifier || (ITaskIdentifier = {}));
+var CommandString;
+(function(CommandString2) {
+  function value(value2) {
+    if (Types.isString(value2)) {
+      return value2;
+    } else if (Types.isStringArray(value2)) {
+      return value2.join(" ");
+    } else {
+      if (Types.isString(value2.value)) {
+        return value2.value;
+      } else {
+        return value2.value.join(" ");
+      }
+    }
+  }
+  __name(value, "value");
+  CommandString2.value = value;
+})(CommandString || (CommandString = {}));
+var ProblemMatcherKind;
+(function(ProblemMatcherKind2) {
+  ProblemMatcherKind2[ProblemMatcherKind2["Unknown"] = 0] = "Unknown";
+  ProblemMatcherKind2[ProblemMatcherKind2["String"] = 1] = "String";
+  ProblemMatcherKind2[ProblemMatcherKind2["ProblemMatcher"] = 2] = "ProblemMatcher";
+  ProblemMatcherKind2[ProblemMatcherKind2["Array"] = 3] = "Array";
+})(ProblemMatcherKind || (ProblemMatcherKind = {}));
+const EMPTY_ARRAY = [];
+Object.freeze(EMPTY_ARRAY);
+function assignProperty(target, source, key) {
+  const sourceAtKey = source[key];
+  if (sourceAtKey !== void 0) {
+    target[key] = sourceAtKey;
+  }
+}
+__name(assignProperty, "assignProperty");
+function fillProperty(target, source, key) {
+  const sourceAtKey = source[key];
+  if (target[key] === void 0 && sourceAtKey !== void 0) {
+    target[key] = sourceAtKey;
+  }
+}
+__name(fillProperty, "fillProperty");
+function _isEmpty(value, properties, allowEmptyArray = false) {
+  if (value === void 0 || value === null || properties === void 0) {
+    return true;
+  }
+  for (const meta of properties) {
+    const property = value[meta.property];
+    if (property !== void 0 && property !== null) {
+      if (meta.type !== void 0 && !meta.type.isEmpty(property)) {
+        return false;
+      } else if (!Array.isArray(property) || property.length > 0 || allowEmptyArray) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+__name(_isEmpty, "_isEmpty");
+function _assignProperties(target, source, properties) {
+  if (!source || _isEmpty(source, properties)) {
+    return target;
+  }
+  if (!target || _isEmpty(target, properties)) {
+    return source;
+  }
+  for (const meta of properties) {
+    const property = meta.property;
+    let value;
+    if (meta.type !== void 0) {
+      value = meta.type.assignProperties(target[property], source[property]);
+    } else {
+      value = source[property];
+    }
+    if (value !== void 0 && value !== null) {
+      target[property] = value;
+    }
+  }
+  return target;
+}
+__name(_assignProperties, "_assignProperties");
+function _fillProperties(target, source, properties, allowEmptyArray = false) {
+  if (!source || _isEmpty(source, properties)) {
+    return target;
+  }
+  if (!target || _isEmpty(target, properties, allowEmptyArray)) {
+    return source;
+  }
+  for (const meta of properties) {
+    const property = meta.property;
+    let value;
+    if (meta.type) {
+      value = meta.type.fillProperties(target[property], source[property]);
+    } else if (target[property] === void 0) {
+      value = source[property];
+    }
+    if (value !== void 0 && value !== null) {
+      target[property] = value;
+    }
+  }
+  return target;
+}
+__name(_fillProperties, "_fillProperties");
+function _fillDefaults(target, defaults, properties, context) {
+  if (target && Object.isFrozen(target)) {
+    return target;
+  }
+  if (target === void 0 || target === null || defaults === void 0 || defaults === null) {
+    if (defaults !== void 0 && defaults !== null) {
+      return Objects.deepClone(defaults);
+    } else {
+      return void 0;
+    }
+  }
+  for (const meta of properties) {
+    const property = meta.property;
+    if (target[property] !== void 0) {
+      continue;
+    }
+    let value;
+    if (meta.type) {
+      value = meta.type.fillDefaults(target[property], context);
+    } else {
+      value = defaults[property];
+    }
+    if (value !== void 0 && value !== null) {
+      target[property] = value;
+    }
+  }
+  return target;
+}
+__name(_fillDefaults, "_fillDefaults");
+function _freeze(target, properties) {
+  if (target === void 0 || target === null) {
+    return void 0;
+  }
+  if (Object.isFrozen(target)) {
+    return target;
+  }
+  for (const meta of properties) {
+    if (meta.type) {
+      const value = target[meta.property];
+      if (value) {
+        meta.type.freeze(value);
+      }
+    }
+  }
+  Object.freeze(target);
+  return target;
+}
+__name(_freeze, "_freeze");
+var RunOnOptions;
+(function(RunOnOptions2) {
+  function fromString(value) {
+    if (!value) {
+      return Tasks.RunOnOptions.default;
+    }
+    switch (value.toLowerCase()) {
+      case "folderopen":
+        return Tasks.RunOnOptions.folderOpen;
+      case "default":
+      default:
+        return Tasks.RunOnOptions.default;
+    }
+  }
+  __name(fromString, "fromString");
+  RunOnOptions2.fromString = fromString;
+})(RunOnOptions || (RunOnOptions = {}));
+var RunOptions;
+(function(RunOptions2) {
+  const properties = [{ property: "reevaluateOnRerun" }, { property: "runOn" }, { property: "instanceLimit" }, { property: "instancePolicy" }];
+  function fromConfiguration(value) {
+    return {
+      reevaluateOnRerun: value ? value.reevaluateOnRerun : true,
+      runOn: value ? RunOnOptions.fromString(value.runOn) : Tasks.RunOnOptions.default,
+      instanceLimit: value?.instanceLimit ? Math.max(value.instanceLimit, 1) : 1,
+      instancePolicy: value ? InstancePolicy.fromString(value.instancePolicy) : "prompt"
+      /* Tasks.InstancePolicy.prompt */
+    };
+  }
+  __name(fromConfiguration, "fromConfiguration");
+  RunOptions2.fromConfiguration = fromConfiguration;
+  function assignProperties(target, source) {
+    return _assignProperties(target, source, properties);
+  }
+  __name(assignProperties, "assignProperties");
+  RunOptions2.assignProperties = assignProperties;
+  function fillProperties(target, source) {
+    return _fillProperties(target, source, properties);
+  }
+  __name(fillProperties, "fillProperties");
+  RunOptions2.fillProperties = fillProperties;
+})(RunOptions || (RunOptions = {}));
+var InstancePolicy;
+(function(InstancePolicy2) {
+  function fromString(value) {
+    if (!value) {
+      return "prompt";
+    }
+    switch (value.toLowerCase()) {
+      case "terminatenewest":
+        return "terminateNewest";
+      case "terminateoldest":
+        return "terminateOldest";
+      case "warn":
+        return "warn";
+      case "silent":
+        return "silent";
+      case "prompt":
+      default:
+        return "prompt";
+    }
+  }
+  __name(fromString, "fromString");
+  InstancePolicy2.fromString = fromString;
+})(InstancePolicy || (InstancePolicy = {}));
+var ShellConfiguration;
+(function(ShellConfiguration2) {
+  const properties = [{ property: "executable" }, { property: "args" }, { property: "quoting" }];
+  function is(value) {
+    const candidate = value;
+    return candidate && (Types.isString(candidate.executable) || Types.isStringArray(candidate.args));
+  }
+  __name(is, "is");
+  ShellConfiguration2.is = is;
+  function from(config, context) {
+    if (!is(config)) {
+      return void 0;
+    }
+    const result = {};
+    if (config.executable !== void 0) {
+      result.executable = config.executable;
+    }
+    if (config.args !== void 0) {
+      result.args = config.args.slice();
+    }
+    if (config.quoting !== void 0) {
+      result.quoting = Objects.deepClone(config.quoting);
+    }
+    return result;
+  }
+  __name(from, "from");
+  ShellConfiguration2.from = from;
+  function isEmpty(value) {
+    return _isEmpty(value, properties, true);
+  }
+  __name(isEmpty, "isEmpty");
+  ShellConfiguration2.isEmpty = isEmpty;
+  function assignProperties(target, source) {
+    return _assignProperties(target, source, properties);
+  }
+  __name(assignProperties, "assignProperties");
+  ShellConfiguration2.assignProperties = assignProperties;
+  function fillProperties(target, source) {
+    return _fillProperties(target, source, properties, true);
+  }
+  __name(fillProperties, "fillProperties");
+  ShellConfiguration2.fillProperties = fillProperties;
+  function fillDefaults(value, context) {
+    return value;
+  }
+  __name(fillDefaults, "fillDefaults");
+  ShellConfiguration2.fillDefaults = fillDefaults;
+  function freeze(value) {
+    if (!value) {
+      return void 0;
+    }
+    return Object.freeze(value);
+  }
+  __name(freeze, "freeze");
+  ShellConfiguration2.freeze = freeze;
+})(ShellConfiguration || (ShellConfiguration = {}));
+var CommandOptions;
+(function(CommandOptions2) {
+  const properties = [{ property: "cwd" }, { property: "env" }, { property: "shell", type: ShellConfiguration }];
+  const defaults = { cwd: "${workspaceFolder}" };
+  function from(options, context) {
+    const result = {};
+    if (options.cwd !== void 0) {
+      if (Types.isString(options.cwd)) {
+        result.cwd = options.cwd;
+      } else {
+        context.taskLoadIssues.push(nls.localize("ConfigurationParser.invalidCWD", "Warning: options.cwd must be of type string. Ignoring value {0}\n", options.cwd));
+      }
+    }
+    if (options.env !== void 0) {
+      result.env = Objects.deepClone(options.env);
+    }
+    result.shell = ShellConfiguration.from(options.shell, context);
+    return isEmpty(result) ? void 0 : result;
+  }
+  __name(from, "from");
+  CommandOptions2.from = from;
+  function isEmpty(value) {
+    return _isEmpty(value, properties);
+  }
+  __name(isEmpty, "isEmpty");
+  CommandOptions2.isEmpty = isEmpty;
+  function assignProperties(target, source) {
+    if (source === void 0 || isEmpty(source)) {
+      return target;
+    }
+    if (target === void 0 || isEmpty(target)) {
+      return source;
+    }
+    assignProperty(target, source, "cwd");
+    if (target.env === void 0) {
+      target.env = source.env;
+    } else if (source.env !== void 0) {
+      const env = /* @__PURE__ */ Object.create(null);
+      if (target.env !== void 0) {
+        Object.keys(target.env).forEach((key) => env[key] = target.env[key]);
+      }
+      if (source.env !== void 0) {
+        Object.keys(source.env).forEach((key) => env[key] = source.env[key]);
+      }
+      target.env = env;
+    }
+    target.shell = ShellConfiguration.assignProperties(target.shell, source.shell);
+    return target;
+  }
+  __name(assignProperties, "assignProperties");
+  CommandOptions2.assignProperties = assignProperties;
+  function fillProperties(target, source) {
+    return _fillProperties(target, source, properties);
+  }
+  __name(fillProperties, "fillProperties");
+  CommandOptions2.fillProperties = fillProperties;
+  function fillDefaults(value, context) {
+    return _fillDefaults(value, defaults, properties, context);
+  }
+  __name(fillDefaults, "fillDefaults");
+  CommandOptions2.fillDefaults = fillDefaults;
+  function freeze(value) {
+    return _freeze(value, properties);
+  }
+  __name(freeze, "freeze");
+  CommandOptions2.freeze = freeze;
+})(CommandOptions || (CommandOptions = {}));
+var CommandConfiguration;
+(function(CommandConfiguration2) {
+  let PresentationOptions;
+  (function(PresentationOptions2) {
+    const properties2 = [{ property: "echo" }, { property: "reveal" }, { property: "revealProblems" }, { property: "focus" }, { property: "panel" }, { property: "showReuseMessage" }, { property: "clear" }, { property: "group" }, { property: "close" }];
+    function from2(config, context) {
+      let echo;
+      let reveal;
+      let revealProblems;
+      let focus;
+      let panel;
+      let showReuseMessage;
+      let clear;
+      let group;
+      let close;
+      let hasProps = false;
+      if (Types.isBoolean(config.echoCommand)) {
+        echo = config.echoCommand;
+        hasProps = true;
+      }
+      if (Types.isString(config.showOutput)) {
+        reveal = Tasks.RevealKind.fromString(config.showOutput);
+        hasProps = true;
+      }
+      const presentation = config.presentation || config.terminal;
+      if (presentation) {
+        if (Types.isBoolean(presentation.echo)) {
+          echo = presentation.echo;
+        }
+        if (Types.isString(presentation.reveal)) {
+          reveal = Tasks.RevealKind.fromString(presentation.reveal);
+        }
+        if (Types.isString(presentation.revealProblems)) {
+          revealProblems = Tasks.RevealProblemKind.fromString(presentation.revealProblems);
+        }
+        if (Types.isBoolean(presentation.focus)) {
+          focus = presentation.focus;
+        }
+        if (Types.isString(presentation.panel)) {
+          panel = Tasks.PanelKind.fromString(presentation.panel);
+        }
+        if (Types.isBoolean(presentation.showReuseMessage)) {
+          showReuseMessage = presentation.showReuseMessage;
+        }
+        if (Types.isBoolean(presentation.clear)) {
+          clear = presentation.clear;
+        }
+        if (Types.isString(presentation.group)) {
+          group = presentation.group;
+        }
+        if (Types.isBoolean(presentation.close)) {
+          close = presentation.close;
+        }
+        hasProps = true;
+      }
+      if (!hasProps) {
+        return void 0;
+      }
+      return { echo, reveal, revealProblems, focus, panel, showReuseMessage, clear, group, close };
+    }
+    __name(from2, "from");
+    PresentationOptions2.from = from2;
+    function assignProperties2(target, source) {
+      return _assignProperties(target, source, properties2);
+    }
+    __name(assignProperties2, "assignProperties");
+    PresentationOptions2.assignProperties = assignProperties2;
+    function fillProperties2(target, source) {
+      return _fillProperties(target, source, properties2);
+    }
+    __name(fillProperties2, "fillProperties");
+    PresentationOptions2.fillProperties = fillProperties2;
+    function fillDefaults2(value, context) {
+      const defaultEcho = context.engine === Tasks.ExecutionEngine.Terminal ? true : false;
+      return _fillDefaults(value, { echo: defaultEcho, reveal: Tasks.RevealKind.Always, revealProblems: Tasks.RevealProblemKind.Never, focus: false, panel: Tasks.PanelKind.Shared, showReuseMessage: true, clear: false }, properties2, context);
+    }
+    __name(fillDefaults2, "fillDefaults");
+    PresentationOptions2.fillDefaults = fillDefaults2;
+    function freeze2(value) {
+      return _freeze(value, properties2);
+    }
+    __name(freeze2, "freeze");
+    PresentationOptions2.freeze = freeze2;
+    function isEmpty2(value) {
+      return _isEmpty(value, properties2);
+    }
+    __name(isEmpty2, "isEmpty");
+    PresentationOptions2.isEmpty = isEmpty2;
+  })(PresentationOptions = CommandConfiguration2.PresentationOptions || (CommandConfiguration2.PresentationOptions = {}));
+  let ShellString;
+  (function(ShellString2) {
+    function from2(value) {
+      if (value === void 0 || value === null) {
+        return void 0;
+      }
+      if (Types.isString(value)) {
+        return value;
+      } else if (Types.isStringArray(value)) {
+        return value.join(" ");
+      } else {
+        const quoting = Tasks.ShellQuoting.from(value.quoting);
+        const result = Types.isString(value.value) ? value.value : Types.isStringArray(value.value) ? value.value.join(" ") : void 0;
+        if (result) {
+          return {
+            value: result,
+            quoting
+          };
+        } else {
+          return void 0;
+        }
+      }
+    }
+    __name(from2, "from");
+    ShellString2.from = from2;
+  })(ShellString || (ShellString = {}));
+  const properties = [
+    { property: "runtime" },
+    { property: "name" },
+    { property: "options", type: CommandOptions },
+    { property: "args" },
+    { property: "taskSelector" },
+    { property: "suppressTaskName" },
+    { property: "presentation", type: PresentationOptions }
+  ];
+  function from(config, context) {
+    let result = fromBase(config, context);
+    let osConfig = void 0;
+    if (config.windows && context.platform === 3) {
+      osConfig = fromBase(config.windows, context);
+    } else if (config.osx && context.platform === 1) {
+      osConfig = fromBase(config.osx, context);
+    } else if (config.linux && context.platform === 2) {
+      osConfig = fromBase(config.linux, context);
+    }
+    if (osConfig) {
+      result = assignProperties(
+        result,
+        osConfig,
+        context.schemaVersion === 2
+        /* Tasks.JsonSchemaVersion.V2_0_0 */
+      );
+    }
+    return isEmpty(result) ? void 0 : result;
+  }
+  __name(from, "from");
+  CommandConfiguration2.from = from;
+  function fromBase(config, context) {
+    const name = ShellString.from(config.command);
+    let runtime;
+    if (Types.isString(config.type)) {
+      if (config.type === "shell" || config.type === "process") {
+        runtime = Tasks.RuntimeType.fromString(config.type);
+      }
+    }
+    if (Types.isBoolean(config.isShellCommand) || ShellConfiguration.is(config.isShellCommand)) {
+      runtime = Tasks.RuntimeType.Shell;
+    } else if (config.isShellCommand !== void 0) {
+      runtime = !!config.isShellCommand ? Tasks.RuntimeType.Shell : Tasks.RuntimeType.Process;
+    }
+    const result = {
+      name,
+      runtime,
+      presentation: PresentationOptions.from(config, context)
+    };
+    if (config.args !== void 0) {
+      result.args = [];
+      for (const arg of config.args) {
+        const converted = ShellString.from(arg);
+        if (converted !== void 0) {
+          result.args.push(converted);
+        } else {
+          context.taskLoadIssues.push(nls.localize("ConfigurationParser.inValidArg", "Error: command argument must either be a string or a quoted string. Provided value is:\n{0}", arg ? JSON.stringify(arg, void 0, 4) : "undefined"));
+        }
+      }
+    }
+    if (config.options !== void 0) {
+      result.options = CommandOptions.from(config.options, context);
+      if (result.options && result.options.shell === void 0 && ShellConfiguration.is(config.isShellCommand)) {
+        result.options.shell = ShellConfiguration.from(config.isShellCommand, context);
+        if (context.engine !== Tasks.ExecutionEngine.Terminal) {
+          context.taskLoadIssues.push(nls.localize("ConfigurationParser.noShell", "Warning: shell configuration is only supported when executing tasks in the terminal."));
+        }
+      }
+    }
+    if (Types.isString(config.taskSelector)) {
+      result.taskSelector = config.taskSelector;
+    }
+    if (Types.isBoolean(config.suppressTaskName)) {
+      result.suppressTaskName = config.suppressTaskName;
+    }
+    return isEmpty(result) ? void 0 : result;
+  }
+  __name(fromBase, "fromBase");
+  function hasCommand(value) {
+    return value && !!value.name;
+  }
+  __name(hasCommand, "hasCommand");
+  CommandConfiguration2.hasCommand = hasCommand;
+  function isEmpty(value) {
+    return _isEmpty(value, properties);
+  }
+  __name(isEmpty, "isEmpty");
+  CommandConfiguration2.isEmpty = isEmpty;
+  function assignProperties(target, source, overwriteArgs) {
+    if (isEmpty(source)) {
+      return target;
+    }
+    if (isEmpty(target)) {
+      return source;
+    }
+    assignProperty(target, source, "name");
+    assignProperty(target, source, "runtime");
+    assignProperty(target, source, "taskSelector");
+    assignProperty(target, source, "suppressTaskName");
+    if (source.args !== void 0) {
+      if (target.args === void 0 || overwriteArgs) {
+        target.args = source.args;
+      } else {
+        target.args = target.args.concat(source.args);
+      }
+    }
+    target.presentation = PresentationOptions.assignProperties(target.presentation, source.presentation);
+    target.options = CommandOptions.assignProperties(target.options, source.options);
+    return target;
+  }
+  __name(assignProperties, "assignProperties");
+  CommandConfiguration2.assignProperties = assignProperties;
+  function fillProperties(target, source) {
+    return _fillProperties(target, source, properties);
+  }
+  __name(fillProperties, "fillProperties");
+  CommandConfiguration2.fillProperties = fillProperties;
+  function fillGlobals(target, source, taskName) {
+    if (source === void 0 || isEmpty(source)) {
+      return target;
+    }
+    target = target || {
+      name: void 0,
+      runtime: void 0,
+      presentation: void 0
+    };
+    if (target.name === void 0) {
+      fillProperty(target, source, "name");
+      fillProperty(target, source, "taskSelector");
+      fillProperty(target, source, "suppressTaskName");
+      let args = source.args ? source.args.slice() : [];
+      if (!target.suppressTaskName && taskName) {
+        if (target.taskSelector !== void 0) {
+          args.push(target.taskSelector + taskName);
+        } else {
+          args.push(taskName);
+        }
+      }
+      if (target.args) {
+        args = args.concat(target.args);
+      }
+      target.args = args;
+    }
+    fillProperty(target, source, "runtime");
+    target.presentation = PresentationOptions.fillProperties(target.presentation, source.presentation);
+    target.options = CommandOptions.fillProperties(target.options, source.options);
+    return target;
+  }
+  __name(fillGlobals, "fillGlobals");
+  CommandConfiguration2.fillGlobals = fillGlobals;
+  function fillDefaults(value, context) {
+    if (!value || Object.isFrozen(value)) {
+      return;
+    }
+    if (value.name !== void 0 && value.runtime === void 0) {
+      value.runtime = Tasks.RuntimeType.Process;
+    }
+    value.presentation = PresentationOptions.fillDefaults(value.presentation, context);
+    if (!isEmpty(value)) {
+      value.options = CommandOptions.fillDefaults(value.options, context);
+    }
+    if (value.args === void 0) {
+      value.args = EMPTY_ARRAY;
+    }
+    if (value.suppressTaskName === void 0) {
+      value.suppressTaskName = context.schemaVersion === 2;
+    }
+  }
+  __name(fillDefaults, "fillDefaults");
+  CommandConfiguration2.fillDefaults = fillDefaults;
+  function freeze(value) {
+    return _freeze(value, properties);
+  }
+  __name(freeze, "freeze");
+  CommandConfiguration2.freeze = freeze;
+})(CommandConfiguration || (CommandConfiguration = {}));
+var ProblemMatcherConverter;
+(function(ProblemMatcherConverter2) {
+  function namedFrom(declares, context) {
+    const result = /* @__PURE__ */ Object.create(null);
+    if (!Array.isArray(declares)) {
+      return result;
+    }
+    declares.forEach((value) => {
+      const namedProblemMatcher = new ProblemMatcherParser(context.problemReporter).parse(value);
+      if (isNamedProblemMatcher(namedProblemMatcher)) {
+        result[namedProblemMatcher.name] = namedProblemMatcher;
+      } else {
+        context.problemReporter.error(nls.localize("ConfigurationParser.noName", "Error: Problem Matcher in declare scope must have a name:\n{0}\n", JSON.stringify(value, void 0, 4)));
+      }
+    });
+    return result;
+  }
+  __name(namedFrom, "namedFrom");
+  ProblemMatcherConverter2.namedFrom = namedFrom;
+  function fromWithOsConfig(external, context) {
+    let result = {};
+    if (external.windows && external.windows.problemMatcher && context.platform === 3) {
+      result = from(external.windows.problemMatcher, context);
+    } else if (external.osx && external.osx.problemMatcher && context.platform === 1) {
+      result = from(external.osx.problemMatcher, context);
+    } else if (external.linux && external.linux.problemMatcher && context.platform === 2) {
+      result = from(external.linux.problemMatcher, context);
+    } else if (external.problemMatcher) {
+      result = from(external.problemMatcher, context);
+    }
+    return result;
+  }
+  __name(fromWithOsConfig, "fromWithOsConfig");
+  ProblemMatcherConverter2.fromWithOsConfig = fromWithOsConfig;
+  function from(config, context) {
+    const result = [];
+    if (config === void 0) {
+      return { value: result };
+    }
+    const errors = [];
+    function addResult(matcher) {
+      if (matcher.value) {
+        result.push(matcher.value);
+      }
+      if (matcher.errors) {
+        errors.push(...matcher.errors);
+      }
+    }
+    __name(addResult, "addResult");
+    const kind = getProblemMatcherKind(config);
+    if (kind === ProblemMatcherKind.Unknown) {
+      const error = nls.localize("ConfigurationParser.unknownMatcherKind", "Warning: the defined problem matcher is unknown. Supported types are string | ProblemMatcher | Array<string | ProblemMatcher>.\n{0}\n", JSON.stringify(config, null, 4));
+      context.problemReporter.warn(error);
+    } else if (kind === ProblemMatcherKind.String || kind === ProblemMatcherKind.ProblemMatcher) {
+      addResult(resolveProblemMatcher(config, context));
+    } else if (kind === ProblemMatcherKind.Array) {
+      const problemMatchers = config;
+      problemMatchers.forEach((problemMatcher) => {
+        addResult(resolveProblemMatcher(problemMatcher, context));
+      });
+    }
+    return { value: result, errors };
+  }
+  __name(from, "from");
+  ProblemMatcherConverter2.from = from;
+  function getProblemMatcherKind(value) {
+    if (Types.isString(value)) {
+      return ProblemMatcherKind.String;
+    } else if (Array.isArray(value)) {
+      return ProblemMatcherKind.Array;
+    } else if (!Types.isUndefined(value)) {
+      return ProblemMatcherKind.ProblemMatcher;
+    } else {
+      return ProblemMatcherKind.Unknown;
+    }
+  }
+  __name(getProblemMatcherKind, "getProblemMatcherKind");
+  function resolveProblemMatcher(value, context) {
+    if (Types.isString(value)) {
+      let variableName = value;
+      if (variableName.length > 1 && variableName[0] === "$") {
+        variableName = variableName.substring(1);
+        const global = ProblemMatcherRegistry.get(variableName);
+        if (global) {
+          return { value: Objects.deepClone(global) };
+        }
+        let localProblemMatcher = context.namedProblemMatchers[variableName];
+        if (localProblemMatcher) {
+          localProblemMatcher = Objects.deepClone(localProblemMatcher);
+          delete localProblemMatcher.name;
+          return { value: localProblemMatcher };
+        }
+      }
+      return { errors: [nls.localize("ConfigurationParser.invalidVariableReference", "Error: Invalid problemMatcher reference: {0}\n", value)] };
+    } else {
+      const json = value;
+      return { value: new ProblemMatcherParser(context.problemReporter).parse(json) };
+    }
+  }
+  __name(resolveProblemMatcher, "resolveProblemMatcher");
+})(ProblemMatcherConverter || (ProblemMatcherConverter = {}));
+var GroupKind;
+(function(GroupKind2) {
+  function from(external) {
+    if (external === void 0) {
+      return void 0;
+    } else if (Types.isString(external) && Tasks.TaskGroup.is(external)) {
+      return { _id: external, isDefault: false };
+    } else if (Types.isString(external.kind) && Tasks.TaskGroup.is(external.kind)) {
+      const group = external.kind;
+      const isDefault = Types.isUndefined(external.isDefault) ? false : external.isDefault;
+      return { _id: group, isDefault };
+    }
+    return void 0;
+  }
+  __name(from, "from");
+  GroupKind2.from = from;
+  function to(group) {
+    if (Types.isString(group)) {
+      return group;
+    } else if (!group.isDefault) {
+      return group._id;
+    }
+    return {
+      kind: group._id,
+      isDefault: group.isDefault
+    };
+  }
+  __name(to, "to");
+  GroupKind2.to = to;
+})(GroupKind || (GroupKind = {}));
+var TaskDependency;
+(function(TaskDependency2) {
+  function uriFromSource(context, source) {
+    switch (source) {
+      case TaskConfigSource.User:
+        return Tasks.USER_TASKS_GROUP_KEY;
+      case TaskConfigSource.TasksJson:
+        return context.workspaceFolder.uri;
+      default:
+        return context.workspace && context.workspace.configuration ? context.workspace.configuration : context.workspaceFolder.uri;
+    }
+  }
+  __name(uriFromSource, "uriFromSource");
+  function from(external, context, source) {
+    if (Types.isString(external)) {
+      return { uri: uriFromSource(context, source), task: external };
+    } else if (ITaskIdentifier.is(external)) {
+      return {
+        uri: uriFromSource(context, source),
+        task: Tasks.TaskDefinition.createTaskIdentifier(external, context.problemReporter)
+      };
+    } else {
+      return void 0;
+    }
+  }
+  __name(from, "from");
+  TaskDependency2.from = from;
+})(TaskDependency || (TaskDependency = {}));
+var DependsOrder;
+(function(DependsOrder2) {
+  function from(order) {
+    switch (order) {
+      case "sequence":
+        return "sequence";
+      case "parallel":
+      default:
+        return "parallel";
+    }
+  }
+  __name(from, "from");
+  DependsOrder2.from = from;
+})(DependsOrder || (DependsOrder = {}));
+var ConfigurationProperties;
+(function(ConfigurationProperties2) {
+  const properties = [
+    { property: "name" },
+    { property: "identifier" },
+    { property: "group" },
+    { property: "isBackground" },
+    { property: "promptOnClose" },
+    { property: "dependsOn" },
+    { property: "presentation", type: CommandConfiguration.PresentationOptions },
+    { property: "problemMatchers" },
+    { property: "options" },
+    { property: "icon" },
+    { property: "hide" }
+  ];
+  function from(external, context, includeCommandOptions, source, properties2) {
+    if (!external) {
+      return {};
+    }
+    const result = {};
+    if (properties2) {
+      for (const propertyName of Object.keys(properties2)) {
+        if (external[propertyName] !== void 0) {
+          result[propertyName] = Objects.deepClone(external[propertyName]);
+        }
+      }
+    }
+    if (Types.isString(external.taskName)) {
+      result.name = external.taskName;
+    }
+    if (Types.isString(external.label) && context.schemaVersion === 2) {
+      result.name = external.label;
+    }
+    if (Types.isString(external.identifier)) {
+      result.identifier = external.identifier;
+    }
+    result.icon = external.icon;
+    result.hide = external.hide;
+    if (external.isBackground !== void 0) {
+      result.isBackground = !!external.isBackground;
+    }
+    if (external.promptOnClose !== void 0) {
+      result.promptOnClose = !!external.promptOnClose;
+    }
+    result.group = GroupKind.from(external.group);
+    if (external.dependsOn !== void 0) {
+      if (Array.isArray(external.dependsOn)) {
+        result.dependsOn = external.dependsOn.reduce((dependencies, item) => {
+          const dependency = TaskDependency.from(item, context, source);
+          if (dependency) {
+            dependencies.push(dependency);
+          }
+          return dependencies;
+        }, []);
+      } else {
+        const dependsOnValue = TaskDependency.from(external.dependsOn, context, source);
+        result.dependsOn = dependsOnValue ? [dependsOnValue] : void 0;
+      }
+    }
+    result.dependsOrder = DependsOrder.from(external.dependsOrder);
+    if (includeCommandOptions && (external.presentation !== void 0 || external.terminal !== void 0)) {
+      result.presentation = CommandConfiguration.PresentationOptions.from(external, context);
+    }
+    if (includeCommandOptions && external.options !== void 0) {
+      result.options = CommandOptions.from(external.options, context);
+    }
+    const configProblemMatcher = ProblemMatcherConverter.fromWithOsConfig(external, context);
+    if (configProblemMatcher.value !== void 0) {
+      result.problemMatchers = configProblemMatcher.value;
+    }
+    if (external.detail) {
+      result.detail = external.detail;
+    }
+    return isEmpty(result) ? {} : { value: result, errors: configProblemMatcher.errors };
+  }
+  __name(from, "from");
+  ConfigurationProperties2.from = from;
+  function isEmpty(value) {
+    return _isEmpty(value, properties);
+  }
+  __name(isEmpty, "isEmpty");
+  ConfigurationProperties2.isEmpty = isEmpty;
+})(ConfigurationProperties || (ConfigurationProperties = {}));
+const label = "Workspace";
+var ConfiguringTask;
+(function(ConfiguringTask2) {
+  const grunt = "grunt.";
+  const jake = "jake.";
+  const gulp = "gulp.";
+  const npm = "vscode.npm.";
+  const typescript = "vscode.typescript.";
+  function from(external, context, index, source, registry) {
+    if (!external) {
+      return void 0;
+    }
+    const type = external.type;
+    const customize = external.customize;
+    if (!type && !customize) {
+      context.problemReporter.error(nls.localize("ConfigurationParser.noTaskType", "Error: tasks configuration must have a type property. The configuration will be ignored.\n{0}\n", JSON.stringify(external, null, 4)));
+      return void 0;
+    }
+    const typeDeclaration = type ? registry?.get?.(type) || TaskDefinitionRegistry.get(type) : void 0;
+    if (!typeDeclaration) {
+      const message = nls.localize("ConfigurationParser.noTypeDefinition", "Error: there is no registered task type '{0}'. Did you miss installing an extension that provides a corresponding task provider?", type);
+      context.problemReporter.error(message);
+      return void 0;
+    }
+    let identifier;
+    if (Types.isString(customize)) {
+      if (customize.indexOf(grunt) === 0) {
+        identifier = { type: "grunt", task: customize.substring(grunt.length) };
+      } else if (customize.indexOf(jake) === 0) {
+        identifier = { type: "jake", task: customize.substring(jake.length) };
+      } else if (customize.indexOf(gulp) === 0) {
+        identifier = { type: "gulp", task: customize.substring(gulp.length) };
+      } else if (customize.indexOf(npm) === 0) {
+        identifier = { type: "npm", script: customize.substring(npm.length + 4) };
+      } else if (customize.indexOf(typescript) === 0) {
+        identifier = { type: "typescript", tsconfig: customize.substring(typescript.length + 6) };
+      }
+    } else {
+      if (Types.isString(external.type)) {
+        identifier = external;
+      }
+    }
+    if (identifier === void 0) {
+      context.problemReporter.error(nls.localize("ConfigurationParser.missingType", "Error: the task configuration '{0}' is missing the required property 'type'. The task configuration will be ignored.", JSON.stringify(external, void 0, 0)));
+      return void 0;
+    }
+    const taskIdentifier = Tasks.TaskDefinition.createTaskIdentifier(identifier, context.problemReporter);
+    if (taskIdentifier === void 0) {
+      context.problemReporter.error(nls.localize("ConfigurationParser.incorrectType", "Error: the task configuration '{0}' is using an unknown type. The task configuration will be ignored.", JSON.stringify(external, void 0, 0)));
+      return void 0;
+    }
+    const configElement = {
+      workspaceFolder: context.workspaceFolder,
+      file: ".vscode/tasks.json",
+      index,
+      element: external
+    };
+    let taskSource;
+    switch (source) {
+      case TaskConfigSource.User: {
+        taskSource = { kind: Tasks.TaskSourceKind.User, config: configElement, label };
+        break;
+      }
+      case TaskConfigSource.WorkspaceFile: {
+        taskSource = { kind: Tasks.TaskSourceKind.WorkspaceFile, config: configElement, label };
+        break;
+      }
+      default: {
+        taskSource = { kind: Tasks.TaskSourceKind.Workspace, config: configElement, label };
+        break;
+      }
+    }
+    const result = new Tasks.ConfiguringTask(`${typeDeclaration.extensionId}.${taskIdentifier._key}`, taskSource, void 0, type, taskIdentifier, RunOptions.fromConfiguration(external.runOptions), { hide: external.hide });
+    const configuration = ConfigurationProperties.from(external, context, true, source, typeDeclaration.properties);
+    result.addTaskLoadMessages(configuration.errors);
+    if (configuration.value) {
+      result.configurationProperties = Object.assign(result.configurationProperties, configuration.value);
+      if (result.configurationProperties.name) {
+        result._label = result.configurationProperties.name;
+      } else {
+        let label2 = result.configures.type;
+        if (typeDeclaration.required && typeDeclaration.required.length > 0) {
+          for (const required of typeDeclaration.required) {
+            const value = result.configures[required];
+            if (value) {
+              label2 = label2 + ": " + value;
+              break;
+            }
+          }
+        }
+        result._label = label2;
+      }
+      if (!result.configurationProperties.identifier) {
+        result.configurationProperties.identifier = taskIdentifier._key;
+      }
+    }
+    return result;
+  }
+  __name(from, "from");
+  ConfiguringTask2.from = from;
+})(ConfiguringTask || (ConfiguringTask = {}));
+var CustomTask;
+(function(CustomTask2) {
+  function from(external, context, index, source) {
+    if (!external) {
+      return void 0;
+    }
+    let type = external.type;
+    if (type === void 0 || type === null) {
+      type = Tasks.CUSTOMIZED_TASK_TYPE;
+    }
+    if (type !== Tasks.CUSTOMIZED_TASK_TYPE && type !== "shell" && type !== "process") {
+      context.problemReporter.error(nls.localize("ConfigurationParser.notCustom", "Error: tasks is not declared as a custom task. The configuration will be ignored.\n{0}\n", JSON.stringify(external, null, 4)));
+      return void 0;
+    }
+    let taskName = external.taskName;
+    if (Types.isString(external.label) && context.schemaVersion === 2) {
+      taskName = external.label;
+    }
+    if (!taskName) {
+      context.problemReporter.error(nls.localize("ConfigurationParser.noTaskName", "Error: a task must provide a label property. The task will be ignored.\n{0}\n", JSON.stringify(external, null, 4)));
+      return void 0;
+    }
+    let taskSource;
+    switch (source) {
+      case TaskConfigSource.User: {
+        taskSource = { kind: Tasks.TaskSourceKind.User, config: { index, element: external, file: ".vscode/tasks.json", workspaceFolder: context.workspaceFolder }, label };
+        break;
+      }
+      case TaskConfigSource.WorkspaceFile: {
+        taskSource = { kind: Tasks.TaskSourceKind.WorkspaceFile, config: { index, element: external, file: ".vscode/tasks.json", workspaceFolder: context.workspaceFolder, workspace: context.workspace }, label };
+        break;
+      }
+      default: {
+        taskSource = { kind: Tasks.TaskSourceKind.Workspace, config: { index, element: external, file: ".vscode/tasks.json", workspaceFolder: context.workspaceFolder }, label };
+        break;
+      }
+    }
+    const result = new Tasks.CustomTask(context.uuidMap.getUUID(taskName), taskSource, taskName, Tasks.CUSTOMIZED_TASK_TYPE, void 0, false, RunOptions.fromConfiguration(external.runOptions), {
+      name: taskName,
+      identifier: taskName
+    });
+    const configuration = ConfigurationProperties.from(external, context, false, source);
+    result.addTaskLoadMessages(configuration.errors);
+    if (configuration.value) {
+      result.configurationProperties = Object.assign(result.configurationProperties, configuration.value);
+    }
+    const supportLegacy = true;
+    if (supportLegacy) {
+      const legacy = external;
+      if (result.configurationProperties.isBackground === void 0 && legacy.isWatching !== void 0) {
+        result.configurationProperties.isBackground = !!legacy.isWatching;
+      }
+      if (result.configurationProperties.group === void 0) {
+        if (legacy.isBuildCommand === true) {
+          result.configurationProperties.group = Tasks.TaskGroup.Build;
+        } else if (legacy.isTestCommand === true) {
+          result.configurationProperties.group = Tasks.TaskGroup.Test;
+        }
+      }
+    }
+    const command = CommandConfiguration.from(external, context);
+    if (command) {
+      result.command = command;
+    }
+    if (external.command !== void 0) {
+      command.suppressTaskName = true;
+    }
+    return result;
+  }
+  __name(from, "from");
+  CustomTask2.from = from;
+  function fillGlobals(task, globals) {
+    if (CommandConfiguration.hasCommand(task.command) || task.configurationProperties.dependsOn === void 0) {
+      task.command = CommandConfiguration.fillGlobals(task.command, globals.command, task.configurationProperties.name);
+    }
+    if (task.configurationProperties.problemMatchers === void 0 && globals.problemMatcher !== void 0) {
+      task.configurationProperties.problemMatchers = Objects.deepClone(globals.problemMatcher);
+      task.hasDefinedMatchers = true;
+    }
+    if (task.configurationProperties.promptOnClose === void 0 && task.configurationProperties.isBackground === void 0 && globals.promptOnClose !== void 0) {
+      task.configurationProperties.promptOnClose = globals.promptOnClose;
+    }
+  }
+  __name(fillGlobals, "fillGlobals");
+  CustomTask2.fillGlobals = fillGlobals;
+  function fillDefaults(task, context) {
+    CommandConfiguration.fillDefaults(task.command, context);
+    if (task.configurationProperties.promptOnClose === void 0) {
+      task.configurationProperties.promptOnClose = task.configurationProperties.isBackground !== void 0 ? !task.configurationProperties.isBackground : true;
+    }
+    if (task.configurationProperties.isBackground === void 0) {
+      task.configurationProperties.isBackground = false;
+    }
+    if (task.configurationProperties.problemMatchers === void 0) {
+      task.configurationProperties.problemMatchers = EMPTY_ARRAY;
+    }
+  }
+  __name(fillDefaults, "fillDefaults");
+  CustomTask2.fillDefaults = fillDefaults;
+  function createCustomTask2(contributedTask, configuredProps) {
+    const result = new Tasks.CustomTask(configuredProps._id, Object.assign({}, configuredProps._source, { customizes: contributedTask.defines }), configuredProps.configurationProperties.name || contributedTask._label, Tasks.CUSTOMIZED_TASK_TYPE, contributedTask.command, false, contributedTask.runOptions, {
+      name: configuredProps.configurationProperties.name || contributedTask.configurationProperties.name,
+      identifier: configuredProps.configurationProperties.identifier || contributedTask.configurationProperties.identifier,
+      icon: configuredProps.configurationProperties.icon,
+      hide: configuredProps.configurationProperties.hide
+    });
+    result.addTaskLoadMessages(configuredProps.taskLoadMessages);
+    const resultConfigProps = result.configurationProperties;
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "group");
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "isBackground");
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "dependsOn");
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "problemMatchers");
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "promptOnClose");
+    assignProperty(resultConfigProps, configuredProps.configurationProperties, "detail");
+    result.command.presentation = CommandConfiguration.PresentationOptions.assignProperties(result.command.presentation, configuredProps.configurationProperties.presentation);
+    result.command.options = CommandOptions.assignProperties(result.command.options, configuredProps.configurationProperties.options);
+    result.runOptions = RunOptions.assignProperties(result.runOptions, configuredProps.runOptions);
+    const contributedConfigProps = contributedTask.configurationProperties;
+    fillProperty(resultConfigProps, contributedConfigProps, "group");
+    fillProperty(resultConfigProps, contributedConfigProps, "isBackground");
+    fillProperty(resultConfigProps, contributedConfigProps, "dependsOn");
+    fillProperty(resultConfigProps, contributedConfigProps, "problemMatchers");
+    fillProperty(resultConfigProps, contributedConfigProps, "promptOnClose");
+    fillProperty(resultConfigProps, contributedConfigProps, "detail");
+    result.command.presentation = CommandConfiguration.PresentationOptions.fillProperties(result.command.presentation, contributedConfigProps.presentation);
+    result.command.options = CommandOptions.fillProperties(result.command.options, contributedConfigProps.options);
+    result.runOptions = RunOptions.fillProperties(result.runOptions, contributedTask.runOptions);
+    if (contributedTask.hasDefinedMatchers === true) {
+      result.hasDefinedMatchers = true;
+    }
+    return result;
+  }
+  __name(createCustomTask2, "createCustomTask");
+  CustomTask2.createCustomTask = createCustomTask2;
+})(CustomTask || (CustomTask = {}));
+var TaskParser;
+(function(TaskParser2) {
+  function isCustomTask(value) {
+    const type = value.type;
+    const customize = value.customize;
+    return customize === void 0 && (type === void 0 || type === null || type === Tasks.CUSTOMIZED_TASK_TYPE || type === "shell" || type === "process");
+  }
+  __name(isCustomTask, "isCustomTask");
+  const builtinTypeContextMap = {
+    shell: ShellExecutionSupportedContext,
+    process: ProcessExecutionSupportedContext
+  };
+  function from(externals, globals, context, source, registry) {
+    const result = { custom: [], configured: [] };
+    if (!externals) {
+      return result;
+    }
+    const defaultBuildTask = { task: void 0, rank: -1 };
+    const defaultTestTask = { task: void 0, rank: -1 };
+    const schema2_0_0 = context.schemaVersion === 2;
+    const baseLoadIssues = Objects.deepClone(context.taskLoadIssues);
+    for (let index = 0; index < externals.length; index++) {
+      const external = externals[index];
+      const definition = external.type ? registry?.get?.(external.type) || TaskDefinitionRegistry.get(external.type) : void 0;
+      let typeNotSupported = false;
+      if (definition && definition.when && !context.contextKeyService.contextMatchesRules(definition.when)) {
+        typeNotSupported = true;
+      } else if (!definition && external.type) {
+        for (const key of Object.keys(builtinTypeContextMap)) {
+          if (external.type === key) {
+            typeNotSupported = !ShellExecutionSupportedContext.evaluate(context.contextKeyService.getContext(null));
+            break;
+          }
+        }
+      }
+      if (typeNotSupported) {
+        context.problemReporter.info(nls.localize("taskConfiguration.providerUnavailable", "Warning: {0} tasks are unavailable in the current environment.\n", external.type));
+        continue;
+      }
+      if (isCustomTask(external)) {
+        const customTask = CustomTask.from(external, context, index, source);
+        if (customTask) {
+          CustomTask.fillGlobals(customTask, globals);
+          CustomTask.fillDefaults(customTask, context);
+          if (schema2_0_0) {
+            if ((customTask.command === void 0 || customTask.command.name === void 0) && (customTask.configurationProperties.dependsOn === void 0 || customTask.configurationProperties.dependsOn.length === 0)) {
+              context.problemReporter.error(nls.localize("taskConfiguration.noCommandOrDependsOn", "Error: the task '{0}' neither specifies a command nor a dependsOn property. The task will be ignored. Its definition is:\n{1}", customTask.configurationProperties.name, JSON.stringify(external, void 0, 4)));
+              continue;
+            }
+          } else {
+            if (customTask.command === void 0 || customTask.command.name === void 0) {
+              context.problemReporter.warn(nls.localize("taskConfiguration.noCommand", "Error: the task '{0}' doesn't define a command. The task will be ignored. Its definition is:\n{1}", customTask.configurationProperties.name, JSON.stringify(external, void 0, 4)));
+              continue;
+            }
+          }
+          if (customTask.configurationProperties.group === Tasks.TaskGroup.Build && defaultBuildTask.rank < 2) {
+            defaultBuildTask.task = customTask;
+            defaultBuildTask.rank = 2;
+          } else if (customTask.configurationProperties.group === Tasks.TaskGroup.Test && defaultTestTask.rank < 2) {
+            defaultTestTask.task = customTask;
+            defaultTestTask.rank = 2;
+          } else if (customTask.configurationProperties.name === "build" && defaultBuildTask.rank < 1) {
+            defaultBuildTask.task = customTask;
+            defaultBuildTask.rank = 1;
+          } else if (customTask.configurationProperties.name === "test" && defaultTestTask.rank < 1) {
+            defaultTestTask.task = customTask;
+            defaultTestTask.rank = 1;
+          }
+          customTask.addTaskLoadMessages(context.taskLoadIssues);
+          result.custom.push(customTask);
+        }
+      } else {
+        const configuredTask = ConfiguringTask.from(external, context, index, source, registry);
+        if (configuredTask) {
+          configuredTask.addTaskLoadMessages(context.taskLoadIssues);
+          result.configured.push(configuredTask);
+        }
+      }
+      context.taskLoadIssues = Objects.deepClone(baseLoadIssues);
+    }
+    const defaultBuildGroupName = Types.isString(defaultBuildTask.task?.configurationProperties.group) ? defaultBuildTask.task?.configurationProperties.group : defaultBuildTask.task?.configurationProperties.group?._id;
+    const defaultTestTaskGroupName = Types.isString(defaultTestTask.task?.configurationProperties.group) ? defaultTestTask.task?.configurationProperties.group : defaultTestTask.task?.configurationProperties.group?._id;
+    if (defaultBuildGroupName !== Tasks.TaskGroup.Build._id && defaultBuildTask.rank > -1 && defaultBuildTask.rank < 2 && defaultBuildTask.task) {
+      defaultBuildTask.task.configurationProperties.group = Tasks.TaskGroup.Build;
+    } else if (defaultTestTaskGroupName !== Tasks.TaskGroup.Test._id && defaultTestTask.rank > -1 && defaultTestTask.rank < 2 && defaultTestTask.task) {
+      defaultTestTask.task.configurationProperties.group = Tasks.TaskGroup.Test;
+    }
+    return result;
+  }
+  __name(from, "from");
+  TaskParser2.from = from;
+  function assignTasks(target, source) {
+    if (source === void 0 || source.length === 0) {
+      return target;
+    }
+    if (target === void 0 || target.length === 0) {
+      return source;
+    }
+    if (source) {
+      const map = /* @__PURE__ */ Object.create(null);
+      target.forEach((task) => {
+        map[task.configurationProperties.name] = task;
+      });
+      source.forEach((task) => {
+        map[task.configurationProperties.name] = task;
+      });
+      const newTarget = [];
+      target.forEach((task) => {
+        newTarget.push(map[task.configurationProperties.name]);
+        delete map[task.configurationProperties.name];
+      });
+      Object.keys(map).forEach((key) => newTarget.push(map[key]));
+      target = newTarget;
+    }
+    return target;
+  }
+  __name(assignTasks, "assignTasks");
+  TaskParser2.assignTasks = assignTasks;
+})(TaskParser || (TaskParser = {}));
+var Globals;
+(function(Globals2) {
+  function from(config, context) {
+    let result = fromBase(config, context);
+    let osGlobals = void 0;
+    if (config.windows && context.platform === 3) {
+      osGlobals = fromBase(config.windows, context);
+    } else if (config.osx && context.platform === 1) {
+      osGlobals = fromBase(config.osx, context);
+    } else if (config.linux && context.platform === 2) {
+      osGlobals = fromBase(config.linux, context);
+    }
+    if (osGlobals) {
+      result = Globals2.assignProperties(result, osGlobals);
+    }
+    const command = CommandConfiguration.from(config, context);
+    if (command) {
+      result.command = command;
+    }
+    Globals2.fillDefaults(result, context);
+    Globals2.freeze(result);
+    return result;
+  }
+  __name(from, "from");
+  Globals2.from = from;
+  function fromBase(config, context) {
+    const result = {};
+    if (config.suppressTaskName !== void 0) {
+      result.suppressTaskName = !!config.suppressTaskName;
+    }
+    if (config.promptOnClose !== void 0) {
+      result.promptOnClose = !!config.promptOnClose;
+    }
+    if (config.problemMatcher) {
+      result.problemMatcher = ProblemMatcherConverter.from(config.problemMatcher, context).value;
+    }
+    return result;
+  }
+  __name(fromBase, "fromBase");
+  Globals2.fromBase = fromBase;
+  function isEmpty(value) {
+    return !value || value.command === void 0 && value.promptOnClose === void 0 && value.suppressTaskName === void 0;
+  }
+  __name(isEmpty, "isEmpty");
+  Globals2.isEmpty = isEmpty;
+  function assignProperties(target, source) {
+    if (isEmpty(source)) {
+      return target;
+    }
+    if (isEmpty(target)) {
+      return source;
+    }
+    assignProperty(target, source, "promptOnClose");
+    assignProperty(target, source, "suppressTaskName");
+    return target;
+  }
+  __name(assignProperties, "assignProperties");
+  Globals2.assignProperties = assignProperties;
+  function fillDefaults(value, context) {
+    if (!value) {
+      return;
+    }
+    CommandConfiguration.fillDefaults(value.command, context);
+    if (value.suppressTaskName === void 0) {
+      value.suppressTaskName = context.schemaVersion === 2;
+    }
+    if (value.promptOnClose === void 0) {
+      value.promptOnClose = true;
+    }
+  }
+  __name(fillDefaults, "fillDefaults");
+  Globals2.fillDefaults = fillDefaults;
+  function freeze(value) {
+    Object.freeze(value);
+    if (value.command) {
+      CommandConfiguration.freeze(value.command);
+    }
+  }
+  __name(freeze, "freeze");
+  Globals2.freeze = freeze;
+})(Globals || (Globals = {}));
+var ExecutionEngine;
+(function(ExecutionEngine2) {
+  function from(config) {
+    const runner = config.runner || config._runner;
+    let result;
+    if (runner) {
+      switch (runner) {
+        case "terminal":
+          result = Tasks.ExecutionEngine.Terminal;
+          break;
+        case "process":
+          result = Tasks.ExecutionEngine.Process;
+          break;
+      }
+    }
+    const schemaVersion = JsonSchemaVersion.from(config);
+    if (schemaVersion === 1) {
+      return result || Tasks.ExecutionEngine.Process;
+    } else if (schemaVersion === 2) {
+      return Tasks.ExecutionEngine.Terminal;
+    } else {
+      throw new Error("Shouldn't happen.");
+    }
+  }
+  __name(from, "from");
+  ExecutionEngine2.from = from;
+})(ExecutionEngine || (ExecutionEngine = {}));
+var JsonSchemaVersion;
+(function(JsonSchemaVersion2) {
+  const _default = 2;
+  function from(config) {
+    const version = config.version;
+    if (!version) {
+      return _default;
+    }
+    switch (version) {
+      case "0.1.0":
+        return 1;
+      case "2.0.0":
+        return 2;
+      default:
+        return _default;
+    }
+  }
+  __name(from, "from");
+  JsonSchemaVersion2.from = from;
+})(JsonSchemaVersion || (JsonSchemaVersion = {}));
+class UUIDMap {
+  static {
+    __name(this, "UUIDMap");
+  }
+  constructor(other) {
+    this.current = /* @__PURE__ */ Object.create(null);
+    if (other) {
+      for (const key of Object.keys(other.current)) {
+        const value = other.current[key];
+        if (Array.isArray(value)) {
+          this.current[key] = value.slice();
+        } else {
+          this.current[key] = value;
+        }
+      }
+    }
+  }
+  start() {
+    this.last = this.current;
+    this.current = /* @__PURE__ */ Object.create(null);
+  }
+  getUUID(identifier) {
+    const lastValue = this.last ? this.last[identifier] : void 0;
+    let result = void 0;
+    if (lastValue !== void 0) {
+      if (Array.isArray(lastValue)) {
+        result = lastValue.shift();
+        if (lastValue.length === 0) {
+          delete this.last[identifier];
+        }
+      } else {
+        result = lastValue;
+        delete this.last[identifier];
+      }
+    }
+    if (result === void 0) {
+      result = UUID.generateUuid();
+    }
+    const currentValue = this.current[identifier];
+    if (currentValue === void 0) {
+      this.current[identifier] = result;
+    } else {
+      if (Array.isArray(currentValue)) {
+        currentValue.push(result);
+      } else {
+        const arrayValue = [currentValue];
+        arrayValue.push(result);
+        this.current[identifier] = arrayValue;
+      }
+    }
+    return result;
+  }
+  finish() {
+    this.last = void 0;
+  }
+}
+var TaskConfigSource;
+(function(TaskConfigSource2) {
+  TaskConfigSource2[TaskConfigSource2["TasksJson"] = 0] = "TasksJson";
+  TaskConfigSource2[TaskConfigSource2["WorkspaceFile"] = 1] = "WorkspaceFile";
+  TaskConfigSource2[TaskConfigSource2["User"] = 2] = "User";
+})(TaskConfigSource || (TaskConfigSource = {}));
+class ConfigurationParser {
+  static {
+    __name(this, "ConfigurationParser");
+  }
+  constructor(workspaceFolder, workspace, platform, problemReporter, uuidMap) {
+    this.workspaceFolder = workspaceFolder;
+    this.workspace = workspace;
+    this.platform = platform;
+    this.problemReporter = problemReporter;
+    this.uuidMap = uuidMap;
+  }
+  run(fileConfig, source, contextKeyService) {
+    const engine = ExecutionEngine.from(fileConfig);
+    const schemaVersion = JsonSchemaVersion.from(fileConfig);
+    const context = {
+      workspaceFolder: this.workspaceFolder,
+      workspace: this.workspace,
+      problemReporter: this.problemReporter,
+      uuidMap: this.uuidMap,
+      namedProblemMatchers: {},
+      engine,
+      schemaVersion,
+      platform: this.platform,
+      taskLoadIssues: [],
+      contextKeyService
+    };
+    const taskParseResult = this.createTaskRunnerConfiguration(fileConfig, context, source);
+    return {
+      validationStatus: this.problemReporter.status,
+      custom: taskParseResult.custom,
+      configured: taskParseResult.configured,
+      engine
+    };
+  }
+  createTaskRunnerConfiguration(fileConfig, context, source) {
+    const globals = Globals.from(fileConfig, context);
+    if (this.problemReporter.status.isFatal()) {
+      return { custom: [], configured: [] };
+    }
+    context.namedProblemMatchers = ProblemMatcherConverter.namedFrom(fileConfig.declares, context);
+    let globalTasks = void 0;
+    let externalGlobalTasks = void 0;
+    if (fileConfig.windows && context.platform === 3) {
+      globalTasks = TaskParser.from(fileConfig.windows.tasks, globals, context, source).custom;
+      externalGlobalTasks = fileConfig.windows.tasks;
+    } else if (fileConfig.osx && context.platform === 1) {
+      globalTasks = TaskParser.from(fileConfig.osx.tasks, globals, context, source).custom;
+      externalGlobalTasks = fileConfig.osx.tasks;
+    } else if (fileConfig.linux && context.platform === 2) {
+      globalTasks = TaskParser.from(fileConfig.linux.tasks, globals, context, source).custom;
+      externalGlobalTasks = fileConfig.linux.tasks;
+    }
+    if (context.schemaVersion === 2 && globalTasks && globalTasks.length > 0 && externalGlobalTasks && externalGlobalTasks.length > 0) {
+      const taskContent = [];
+      for (const task of externalGlobalTasks) {
+        taskContent.push(JSON.stringify(task, null, 4));
+      }
+      context.problemReporter.error(nls.localize({ key: "TaskParse.noOsSpecificGlobalTasks", comment: ['"Task version 2.0.0" refers to the 2.0.0 version of the task system. The "version 2.0.0" is not localizable as it is a json key and value.'] }, "Task version 2.0.0 doesn't support global OS specific tasks. Convert them to a task with a OS specific command. Affected tasks are:\n{0}", taskContent.join("\n")));
+    }
+    let result = { custom: [], configured: [] };
+    if (fileConfig.tasks) {
+      result = TaskParser.from(fileConfig.tasks, globals, context, source);
+    }
+    if (globalTasks) {
+      result.custom = TaskParser.assignTasks(result.custom, globalTasks);
+    }
+    if ((!result.custom || result.custom.length === 0) && (globals.command && globals.command.name)) {
+      const matchers = ProblemMatcherConverter.from(fileConfig.problemMatcher, context).value ?? [];
+      const isBackground = fileConfig.isBackground ? !!fileConfig.isBackground : fileConfig.isWatching ? !!fileConfig.isWatching : void 0;
+      const name = Tasks.CommandString.value(globals.command.name);
+      const task = new Tasks.CustomTask(context.uuidMap.getUUID(name), Object.assign({}, source, "workspace", { config: { index: -1, element: fileConfig, workspaceFolder: context.workspaceFolder } }), name, Tasks.CUSTOMIZED_TASK_TYPE, {
+        name: void 0,
+        runtime: void 0,
+        presentation: void 0,
+        suppressTaskName: true
+      }, false, { reevaluateOnRerun: true }, {
+        name,
+        identifier: name,
+        group: Tasks.TaskGroup.Build,
+        isBackground,
+        problemMatchers: matchers
+      });
+      const taskGroupKind = GroupKind.from(fileConfig.group);
+      if (taskGroupKind !== void 0) {
+        task.configurationProperties.group = taskGroupKind;
+      } else if (fileConfig.group === "none") {
+        task.configurationProperties.group = void 0;
+      }
+      CustomTask.fillGlobals(task, globals);
+      CustomTask.fillDefaults(task, context);
+      result.custom = [task];
+    }
+    result.custom = result.custom || [];
+    result.configured = result.configured || [];
+    return result;
+  }
+}
+const uuidMaps = /* @__PURE__ */ new Map();
+const recentUuidMaps = /* @__PURE__ */ new Map();
+function parse(workspaceFolder, workspace, platform, configuration, logger, source, contextKeyService, isRecents = false) {
+  const recentOrOtherMaps = isRecents ? recentUuidMaps : uuidMaps;
+  let selectedUuidMaps = recentOrOtherMaps.get(source);
+  if (!selectedUuidMaps) {
+    recentOrOtherMaps.set(source, /* @__PURE__ */ new Map());
+    selectedUuidMaps = recentOrOtherMaps.get(source);
+  }
+  let uuidMap = selectedUuidMaps.get(workspaceFolder.uri.toString());
+  if (!uuidMap) {
+    uuidMap = new UUIDMap();
+    selectedUuidMaps.set(workspaceFolder.uri.toString(), uuidMap);
+  }
+  try {
+    uuidMap.start();
+    return new ConfigurationParser(workspaceFolder, workspace, platform, logger, uuidMap).run(configuration, source, contextKeyService);
+  } finally {
+    uuidMap.finish();
+  }
+}
+__name(parse, "parse");
+function createCustomTask(contributedTask, configuredProps) {
+  return CustomTask.createCustomTask(contributedTask, configuredProps);
+}
+__name(createCustomTask, "createCustomTask");
+export {
+  CommandString,
+  ExecutionEngine,
+  GroupKind,
+  ITaskIdentifier,
+  InstancePolicy,
+  JsonSchemaVersion,
+  ProblemMatcherConverter,
+  RunOnOptions,
+  RunOptions,
+  ShellQuoting,
+  TaskConfigSource,
+  TaskParser,
+  UUIDMap,
+  createCustomTask,
+  parse
+};
+//# sourceMappingURL=taskConfiguration.js.map

@@ -1,1 +1,109 @@
-import*as h from"../../../../../base/browser/dom.js";import{$L7 as L}from"../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$df as B}from"../../../../../base/common/event.js";import{$vd as D,$ud as I}from"../../../../../base/common/lifecycle.js";import{$$ as g}from"../../../../../base/common/path.js";import{URI as d}from"../../../../../base/common/uri.js";import{$cC as P}from"../../../../../editor/common/core/range.js";import{$mj as O}from"../../../../../platform/instantiation/common/instantiation.js";import{$QEb as j}from"../../../../browser/labels.js";import{$ZP as F,$XP as R,$YP as _,$WP as w,$3P as x,$4P as y,$6P as S}from"../../common/chatVariableEntries.js";import{ChatResponseReferencePartStatusKind as $}from"../../common/chatService.js";import{$5Lb as U,$0Lb as A,$2Lb as Q,$3Lb as k,$9Lb as E,$4Lb as N,$6Lb as q,$$Lb as H,$8Lb as J}from"../chatAttachmentWidgets.js";var v=function(l,t,s,e){var n=arguments.length,o=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,s):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,t,s,e);else for(var c=l.length-1;c>=0;c--)(a=l[c])&&(o=(n<3?a(o):n>3?a(t,s,o):a(t,s))||o);return n>3&&o&&Object.defineProperty(t,s,o),o},C=function(l,t){return function(s,e){t(s,e,l)}};let b=class extends D{constructor(t,s=[],e=h.$(".chat-attached-context"),n){super(),this.f=t,this.g=s,this.domNode=e,this.h=n,this.a=this.B(new I),this.b=this.B(new B),this.c=this.B(this.h.createInstance(j,{onDidChangeVisibility:this.b.event})),this.j(e),e.childElementCount||(this.domNode=void 0)}j(t){h.$I5(t),this.a.clear();const s=this.a.add(L());for(const e of this.f){const n=d.isUri(e.value)?e.value:e.value&&typeof e.value=="object"&&"uri"in e.value&&d.isUri(e.value.uri)?e.value.uri:void 0,o=e.value&&typeof e.value=="object"&&"range"in e.value&&P.isIRange(e.value.range)?e.value.range:void 0,a=this.g.find(r=>typeof r.reference=="object"&&"variableName"in r.reference&&r.reference.variableName===e.name||d.isUri(r.reference)&&g(r.reference.path)===e.name),u=a?.options?.status?.kind===$.Omitted||a?.options?.status?.kind===$.Partial;let i;if(e.kind==="tool"||e.kind==="toolset")i=this.h.createInstance(J,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s);else if(F(e))i=this.h.createInstance(A,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s);else if(R(e))e.omittedState=u?2:e.omittedState,i=this.h.createInstance(k,n,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s);else if(n&&x(e))i=this.h.createInstance(q,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s);else{if(y(e))continue;n&&(e.kind==="file"||e.kind==="directory")?i=this.h.createInstance(Q,n,o,e,a,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s):w(e)?i=this.h.createInstance(N,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s):n&&_(e)?i=this.h.createInstance(E,n,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s):S(e)?i=this.h.createInstance(H,e,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s):i=this.h.createInstance(U,n,o,e,a,void 0,{shouldFocusClearButton:!1,supportsDeletion:!1},t,this.c,s)}let f=null;u&&i.element.classList.add("warning");const m=a?.options?.status?.description;if(u){f=`${f}${m?` ${m}`:""}`;for(const r of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const p=i.label.element.querySelector(r);p&&p.classList.add("warning")}}if(this.B(h.$J5(i.element,"contextmenu",r=>this.contextMenuHandler?.(e,r))),this.a.isDisposed){i.dispose();return}f&&(i.element.ariaLabel=f),this.a.add(i)}}};b=v([C(3,O)],b);export{b as $QOb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../../base/browser/dom.js";
+import { createInstantHoverDelegate } from "../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { basename } from "../../../../../base/common/path.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { isElementVariableEntry, isImageVariableEntry, isNotebookOutputVariableEntry, isPasteVariableEntry, isPromptFileVariableEntry, isPromptTextVariableEntry, isSCMHistoryItemVariableEntry } from "../../common/chatVariableEntries.js";
+import { ChatResponseReferencePartStatusKind } from "../../common/chatService.js";
+import { DefaultChatAttachmentWidget, ElementChatAttachmentWidget, FileAttachmentWidget, ImageAttachmentWidget, NotebookCellOutputChatAttachmentWidget, PasteAttachmentWidget, PromptFileAttachmentWidget, SCMHistoryItemAttachmentWidget, ToolSetOrToolItemAttachmentWidget } from "../chatAttachmentWidgets.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ChatAttachmentsContentPart = class ChatAttachmentsContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatAttachmentsContentPart");
+  }
+  constructor(variables, contentReferences = [], domNode = dom.$(".chat-attached-context"), instantiationService) {
+    super();
+    this.variables = variables;
+    this.contentReferences = contentReferences;
+    this.domNode = domNode;
+    this.instantiationService = instantiationService;
+    this.attachedContextDisposables = this._register(new DisposableStore());
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this._contextResourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event }));
+    this.initAttachedContext(domNode);
+    if (!domNode.childElementCount) {
+      this.domNode = void 0;
+    }
+  }
+  initAttachedContext(container) {
+    dom.clearNode(container);
+    this.attachedContextDisposables.clear();
+    const hoverDelegate = this.attachedContextDisposables.add(createInstantHoverDelegate());
+    for (const attachment of this.variables) {
+      const resource = URI.isUri(attachment.value) ? attachment.value : attachment.value && typeof attachment.value === "object" && "uri" in attachment.value && URI.isUri(attachment.value.uri) ? attachment.value.uri : void 0;
+      const range = attachment.value && typeof attachment.value === "object" && "range" in attachment.value && Range.isIRange(attachment.value.range) ? attachment.value.range : void 0;
+      const correspondingContentReference = this.contentReferences.find((ref) => typeof ref.reference === "object" && "variableName" in ref.reference && ref.reference.variableName === attachment.name || URI.isUri(ref.reference) && basename(ref.reference.path) === attachment.name);
+      const isAttachmentOmitted = correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted;
+      const isAttachmentPartialOrOmitted = isAttachmentOmitted || correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial;
+      let widget;
+      if (attachment.kind === "tool" || attachment.kind === "toolset") {
+        widget = this.instantiationService.createInstance(ToolSetOrToolItemAttachmentWidget, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (isElementVariableEntry(attachment)) {
+        widget = this.instantiationService.createInstance(ElementChatAttachmentWidget, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (isImageVariableEntry(attachment)) {
+        attachment.omittedState = isAttachmentPartialOrOmitted ? 2 : attachment.omittedState;
+        widget = this.instantiationService.createInstance(ImageAttachmentWidget, resource, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (resource && isPromptFileVariableEntry(attachment)) {
+        widget = this.instantiationService.createInstance(PromptFileAttachmentWidget, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (isPromptTextVariableEntry(attachment)) {
+        continue;
+      } else if (resource && (attachment.kind === "file" || attachment.kind === "directory")) {
+        widget = this.instantiationService.createInstance(FileAttachmentWidget, resource, range, attachment, correspondingContentReference, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (isPasteVariableEntry(attachment)) {
+        widget = this.instantiationService.createInstance(PasteAttachmentWidget, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (resource && isNotebookOutputVariableEntry(attachment)) {
+        widget = this.instantiationService.createInstance(NotebookCellOutputChatAttachmentWidget, resource, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else if (isSCMHistoryItemVariableEntry(attachment)) {
+        widget = this.instantiationService.createInstance(SCMHistoryItemAttachmentWidget, attachment, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      } else {
+        widget = this.instantiationService.createInstance(DefaultChatAttachmentWidget, resource, range, attachment, correspondingContentReference, void 0, { shouldFocusClearButton: false, supportsDeletion: false }, container, this._contextResourceLabels, hoverDelegate);
+      }
+      let ariaLabel = null;
+      if (isAttachmentPartialOrOmitted) {
+        widget.element.classList.add("warning");
+      }
+      const description = correspondingContentReference?.options?.status?.description;
+      if (isAttachmentPartialOrOmitted) {
+        ariaLabel = `${ariaLabel}${description ? ` ${description}` : ""}`;
+        for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+          const element = widget.label.element.querySelector(selector);
+          if (element) {
+            element.classList.add("warning");
+          }
+        }
+      }
+      this._register(dom.addDisposableListener(widget.element, "contextmenu", (e) => this.contextMenuHandler?.(attachment, e)));
+      if (this.attachedContextDisposables.isDisposed) {
+        widget.dispose();
+        return;
+      }
+      if (ariaLabel) {
+        widget.element.ariaLabel = ariaLabel;
+      }
+      this.attachedContextDisposables.add(widget);
+    }
+  }
+};
+ChatAttachmentsContentPart = __decorate([
+  __param(3, IInstantiationService)
+], ChatAttachmentsContentPart);
+export {
+  ChatAttachmentsContentPart
+};
+//# sourceMappingURL=chatAttachmentsContentPart.js.map

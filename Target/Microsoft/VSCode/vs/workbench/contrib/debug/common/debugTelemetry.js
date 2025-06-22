@@ -1,1 +1,52 @@
-import{$Po as u}from"../../../../platform/telemetry/common/telemetry.js";var a=function(i,t,e,n){var s=arguments.length,o=s<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,t,e,n);else for(var c=i.length-1;c>=0;c--)(r=i[c])&&(o=(s<3?r(o):s>3?r(t,e,o):r(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},h=function(i,t){return function(e,n){t(e,n,i)}};let p=class{constructor(t,e){this.a=t,this.b=e}logDebugSessionStart(t,e){const n=t.getMainExtensionDescriptor();this.b.publicLog("debugSessionStart",{type:t.type,breakpointCount:this.a.getBreakpoints().length,exceptionBreakpoints:this.a.getExceptionBreakpoints(),watchExpressionsCount:this.a.getWatchExpressions().length,extensionName:n.identifier.value,isBuiltin:n.isBuiltin,launchJsonExists:e})}logDebugSessionStop(t,e){const n=this.a.getBreakpoints();this.b.publicLog("debugSessionStop",{type:t&&t.configuration.type,success:e.emittedStopped||n.length===0,sessionLengthInSeconds:e.sessionLengthInSeconds,breakpointCount:n.length,watchExpressionsCount:this.a.getWatchExpressions().length})}};p=a([h(1,u)],p);export{p as $Noc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let DebugTelemetry = class DebugTelemetry2 {
+  static {
+    __name(this, "DebugTelemetry");
+  }
+  constructor(model, telemetryService) {
+    this.model = model;
+    this.telemetryService = telemetryService;
+  }
+  logDebugSessionStart(dbgr, launchJsonExists) {
+    const extension = dbgr.getMainExtensionDescriptor();
+    this.telemetryService.publicLog("debugSessionStart", {
+      type: dbgr.type,
+      breakpointCount: this.model.getBreakpoints().length,
+      exceptionBreakpoints: this.model.getExceptionBreakpoints(),
+      watchExpressionsCount: this.model.getWatchExpressions().length,
+      extensionName: extension.identifier.value,
+      isBuiltin: extension.isBuiltin,
+      launchJsonExists
+    });
+  }
+  logDebugSessionStop(session, adapterExitEvent) {
+    const breakpoints = this.model.getBreakpoints();
+    this.telemetryService.publicLog("debugSessionStop", {
+      type: session && session.configuration.type,
+      success: adapterExitEvent.emittedStopped || breakpoints.length === 0,
+      sessionLengthInSeconds: adapterExitEvent.sessionLengthInSeconds,
+      breakpointCount: breakpoints.length,
+      watchExpressionsCount: this.model.getWatchExpressions().length
+    });
+  }
+};
+DebugTelemetry = __decorate([
+  __param(1, ITelemetryService)
+], DebugTelemetry);
+export {
+  DebugTelemetry
+};
+//# sourceMappingURL=debugTelemetry.js.map

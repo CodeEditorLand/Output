@@ -1,1 +1,41 @@
-import{$b9 as l}from"../../../../base/browser/webWorkerFactory.js";import{$8g as u}from"../../../../base/common/network.js";import{$Q7b as $}from"../../../../editor/browser/services/editorWorkerService.js";import{$pE as a}from"../../../../editor/common/languages/languageConfigurationRegistry.js";import{$sT as b}from"../../../../editor/common/services/languageFeatures.js";import{$gF as _}from"../../../../editor/common/services/model.js";import{$nF as h}from"../../../../editor/common/services/textResourceConfiguration.js";import{$3n as v}from"../../../../platform/log/common/log.js";var s=function(i,r,t,e){var n=arguments.length,o=n<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,t):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,r,t,e);else for(var p=i.length-1;p>=0;p--)(f=i[p])&&(o=(n<3?f(o):n>3?f(r,t,o):f(r,t))||o);return n>3&&o&&Object.defineProperty(r,t,o),o},m=function(i,r){return function(t,e){r(t,e,i)}};let c=class extends ${constructor(r,t,e,n,o){const f=new l(u.asBrowserUri("vs/editor/common/services/editorWebWorkerMain.js"),"TextEditorWorker");super(f,r,t,e,n,o)}};c=s([m(0,_),m(1,h),m(2,v),m(3,a),m(4,b)],c);export{c as $S7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { WebWorkerDescriptor } from "../../../../base/browser/webWorkerFactory.js";
+import { FileAccess } from "../../../../base/common/network.js";
+import { EditorWorkerService } from "../../../../editor/browser/services/editorWorkerService.js";
+import { ILanguageConfigurationService } from "../../../../editor/common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let WorkbenchEditorWorkerService = class WorkbenchEditorWorkerService2 extends EditorWorkerService {
+  static {
+    __name(this, "WorkbenchEditorWorkerService");
+  }
+  constructor(modelService, configurationService, logService, languageConfigurationService, languageFeaturesService) {
+    const workerDescriptor = new WebWorkerDescriptor(FileAccess.asBrowserUri("vs/editor/common/services/editorWebWorkerMain.js"), "TextEditorWorker");
+    super(workerDescriptor, modelService, configurationService, logService, languageConfigurationService, languageFeaturesService);
+  }
+};
+WorkbenchEditorWorkerService = __decorate([
+  __param(0, IModelService),
+  __param(1, ITextResourceConfigurationService),
+  __param(2, ILogService),
+  __param(3, ILanguageConfigurationService),
+  __param(4, ILanguageFeaturesService)
+], WorkbenchEditorWorkerService);
+export {
+  WorkbenchEditorWorkerService
+};
+//# sourceMappingURL=workbenchEditorWorkerService.js.map

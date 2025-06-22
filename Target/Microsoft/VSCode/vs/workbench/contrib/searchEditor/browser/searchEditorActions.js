@@ -1,1 +1,196 @@
-import{Schemas as k}from"../../../../base/common/network.js";import"./media/searchEditor.css";import{$6_ as O}from"../../../../editor/browser/editorBrowser.js";import{$El as F}from"../../../../platform/configuration/common/configuration.js";import{$mj as P}from"../../../../platform/instantiation/common/instantiation.js";import{$2H as V}from"../../../../platform/label/common/label.js";import{$Po as A}from"../../../../platform/telemetry/common/telemetry.js";import{$hl as b}from"../../../../platform/workspace/common/workspace.js";import{$Jwb as L}from"../../../services/views/common/viewsService.js";import{$obc as M}from"../../search/browser/searchActionsBase.js";import{$Bcc as w,$Acc as d}from"./searchEditorInput.js";import{$tcc as T}from"./searchEditorSerialization.js";import{$xW as q}from"../../../services/configurationResolver/common/configurationResolver.js";import{$kI as D}from"../../../services/editor/common/editorGroupsService.js";import{$pI as G,$oI as l,$qI as N}from"../../../services/editor/common/editorService.js";import{$x4 as j}from"../../../services/history/common/history.js";const re=e=>{const t=e.get(l);t.activeEditor instanceof d&&t.activeEditorPane.toggleCaseSensitive()},ce=e=>{const t=e.get(l);t.activeEditor instanceof d&&t.activeEditorPane.toggleWholeWords()},se=e=>{const t=e.get(l);t.activeEditor instanceof d&&t.activeEditorPane.toggleRegex()},ae=e=>{const t=e.get(l);t.activeEditor instanceof d&&t.activeEditorPane.toggleContextLines()},de=(e,t)=>{const n=e.get(l);n.activeEditor instanceof d&&n.activeEditorPane.modifyContextLines(t)},le=e=>{const t=e.get(l);t.activeEditor instanceof d&&t.activeEditorPane.focusAllResults()};async function ue(e){const t=e.get(L),n=e.get(P),o=M(t);o?await n.invokeFunction(W,{filesToInclude:o.searchIncludePattern.getValue(),onlyOpenEditors:o.searchIncludePattern.onlySearchInOpenEditors(),filesToExclude:o.searchExcludePattern.getValue(),isRegexp:o.searchAndReplaceWidget.searchInput?.getRegex(),isCaseSensitive:o.searchAndReplaceWidget.searchInput?.getCaseSensitive(),matchWholeWord:o.searchAndReplaceWidget.searchInput?.getWholeWords(),useExcludeSettingsAndIgnoreFiles:o.searchExcludePattern.useExcludesAndIgnoreFiles(),showIncludesExcludes:!!(o.searchIncludePattern.getValue()||o.searchExcludePattern.getValue()||!o.searchExcludePattern.useExcludesAndIgnoreFiles())}):await n.invokeFunction(W)}const W=async(e,t={},n=!1)=>{const o=e.get(l),E=e.get(D),v=e.get(A),x=e.get(P),f=e.get(F),$=e.get(q),h=e.get(b),m=e.get(j).getLastActiveWorkspaceRoot(k.file),y=m?h.getWorkspaceFolder(m)??void 0:void 0,a=o.activeTextEditorControl;let r,c="";if(a){O(a)?a.getOriginalEditor().hasTextFocus()?r=a.getOriginalEditor():r=a.getModifiedEditor():r=a;const i=r?.getSelection();if(c=(i&&r?.getModel()?.getValueInRange(i))??"",i?.isEmpty()&&f.getValue("search").seedWithNearestWord){const p=r.getModel()?.getWordAtPosition(i.getStartPosition());p&&(c=p.word)}}else o.activeEditor instanceof d&&(c=o.activeEditorPane.getSelected());v.publicLog2("searchEditor/openNewSearchEditor");const s={query:t.location==="new"||f.getValue("editor").find.seedSearchStringFromSelection?c:void 0};for(const i of Object.entries(t)){const p=i[0],S=i[1];S!==void 0&&(s[p]=typeof S=="string"?await $.resolveAsync(y,S):S)}const I=o.getEditors(0).find(i=>i.editor.typeId===d.ID);let g;if(I&&s.location==="reuse"){const i=E.getGroup(I.groupId);if(!i)throw new Error("Invalid group id for search editor");const p=I.editor;g=await i.openEditor(p),c?g.setQuery(c):g.selectQuery(),g.setSearchConfig(s)}else{const i=x.invokeFunction(w,{config:s,resultsContents:"",from:"rawData"});g=await o.openEditor(i,{pinned:!0},n?N:G)}const C=f.getValue("search").searchOnType;(s.triggerSearch===!0||s.triggerSearch!==!1&&C&&s.query)&&g.triggerSearch({focusResults:s.focusResults}),s.focusResults||g.focusSearchInput()},ge=async(e,t,n,o,E)=>{if(!t.query)return;const v=e.get(l),x=e.get(A),f=e.get(P),$=e.get(V),h=e.get(F),R=h.getValue("search").sortOrder;x.publicLog2("searchEditor/createEditorFromSearchResult");const m=u=>$.getUriLabel(u,{relative:!0}),{text:y,matchRanges:a,config:r}=T(t,n,o,0,m,R);r.onlyOpenEditors=E;const c=h.getValue("search").searchEditor.defaultNumberOfContextLines;if(t.isDirty||c===0||c===null){const u=f.invokeFunction(w,{resultsContents:y,config:r,from:"rawData"});await v.openEditor(u,{pinned:!0}),u.setMatchRanges(a)}else{const u=f.invokeFunction(w,{from:"rawData",resultsContents:"",config:{...r,contextLines:c}});(await v.openEditor(u,{pinned:!0})).triggerSearch()}};export{re as $Ecc,ce as $Fcc,se as $Gcc,ae as $Hcc,de as $Icc,le as $Jcc,ue as $Kcc,W as $Lcc,ge as $Mcc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../../base/common/network.js";
+import "./media/searchEditor.css";
+import { isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { getSearchView } from "../../search/browser/searchActionsBase.js";
+import { getOrMakeSearchEditorInput, SearchEditorInput } from "./searchEditorInput.js";
+import { serializeSearchResultForEditor } from "./searchEditorSerialization.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+const toggleSearchEditorCaseSensitiveCommand = /* @__PURE__ */ __name((accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.toggleCaseSensitive();
+  }
+}, "toggleSearchEditorCaseSensitiveCommand");
+const toggleSearchEditorWholeWordCommand = /* @__PURE__ */ __name((accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.toggleWholeWords();
+  }
+}, "toggleSearchEditorWholeWordCommand");
+const toggleSearchEditorRegexCommand = /* @__PURE__ */ __name((accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.toggleRegex();
+  }
+}, "toggleSearchEditorRegexCommand");
+const toggleSearchEditorContextLinesCommand = /* @__PURE__ */ __name((accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.toggleContextLines();
+  }
+}, "toggleSearchEditorContextLinesCommand");
+const modifySearchEditorContextLinesCommand = /* @__PURE__ */ __name((accessor, increase) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.modifyContextLines(increase);
+  }
+}, "modifySearchEditorContextLinesCommand");
+const selectAllSearchEditorMatchesCommand = /* @__PURE__ */ __name((accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    editorService.activeEditorPane.focusAllResults();
+  }
+}, "selectAllSearchEditorMatchesCommand");
+async function openSearchEditor(accessor) {
+  const viewsService = accessor.get(IViewsService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const searchView = getSearchView(viewsService);
+  if (searchView) {
+    await instantiationService.invokeFunction(openNewSearchEditor, {
+      filesToInclude: searchView.searchIncludePattern.getValue(),
+      onlyOpenEditors: searchView.searchIncludePattern.onlySearchInOpenEditors(),
+      filesToExclude: searchView.searchExcludePattern.getValue(),
+      isRegexp: searchView.searchAndReplaceWidget.searchInput?.getRegex(),
+      isCaseSensitive: searchView.searchAndReplaceWidget.searchInput?.getCaseSensitive(),
+      matchWholeWord: searchView.searchAndReplaceWidget.searchInput?.getWholeWords(),
+      useExcludeSettingsAndIgnoreFiles: searchView.searchExcludePattern.useExcludesAndIgnoreFiles(),
+      showIncludesExcludes: !!(searchView.searchIncludePattern.getValue() || searchView.searchExcludePattern.getValue() || !searchView.searchExcludePattern.useExcludesAndIgnoreFiles())
+    });
+  } else {
+    await instantiationService.invokeFunction(openNewSearchEditor);
+  }
+}
+__name(openSearchEditor, "openSearchEditor");
+const openNewSearchEditor = /* @__PURE__ */ __name(async (accessor, _args = {}, toSide = false) => {
+  const editorService = accessor.get(IEditorService);
+  const editorGroupsService = accessor.get(IEditorGroupsService);
+  const telemetryService = accessor.get(ITelemetryService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const configurationService = accessor.get(IConfigurationService);
+  const configurationResolverService = accessor.get(IConfigurationResolverService);
+  const workspaceContextService = accessor.get(IWorkspaceContextService);
+  const historyService = accessor.get(IHistoryService);
+  const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot(Schemas.file);
+  const lastActiveWorkspaceRoot = activeWorkspaceRootUri ? workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+  const activeEditorControl = editorService.activeTextEditorControl;
+  let activeModel;
+  let selected = "";
+  if (activeEditorControl) {
+    if (isDiffEditor(activeEditorControl)) {
+      if (activeEditorControl.getOriginalEditor().hasTextFocus()) {
+        activeModel = activeEditorControl.getOriginalEditor();
+      } else {
+        activeModel = activeEditorControl.getModifiedEditor();
+      }
+    } else {
+      activeModel = activeEditorControl;
+    }
+    const selection = activeModel?.getSelection();
+    selected = (selection && activeModel?.getModel()?.getValueInRange(selection)) ?? "";
+    if (selection?.isEmpty() && configurationService.getValue("search").seedWithNearestWord) {
+      const wordAtPosition = activeModel.getModel()?.getWordAtPosition(selection.getStartPosition());
+      if (wordAtPosition) {
+        selected = wordAtPosition.word;
+      }
+    }
+  } else {
+    if (editorService.activeEditor instanceof SearchEditorInput) {
+      const active = editorService.activeEditorPane;
+      selected = active.getSelected();
+    }
+  }
+  telemetryService.publicLog2("searchEditor/openNewSearchEditor");
+  const seedSearchStringFromSelection = _args.location === "new" || configurationService.getValue("editor").find.seedSearchStringFromSelection;
+  const args = { query: seedSearchStringFromSelection ? selected : void 0 };
+  for (const entry of Object.entries(_args)) {
+    const name = entry[0];
+    const value = entry[1];
+    if (value !== void 0) {
+      args[name] = typeof value === "string" ? await configurationResolverService.resolveAsync(lastActiveWorkspaceRoot, value) : value;
+    }
+  }
+  const existing = editorService.getEditors(
+    0
+    /* EditorsOrder.MOST_RECENTLY_ACTIVE */
+  ).find((id) => id.editor.typeId === SearchEditorInput.ID);
+  let editor;
+  if (existing && args.location === "reuse") {
+    const group = editorGroupsService.getGroup(existing.groupId);
+    if (!group) {
+      throw new Error("Invalid group id for search editor");
+    }
+    const input = existing.editor;
+    editor = await group.openEditor(input);
+    if (selected) {
+      editor.setQuery(selected);
+    } else {
+      editor.selectQuery();
+    }
+    editor.setSearchConfig(args);
+  } else {
+    const input = instantiationService.invokeFunction(getOrMakeSearchEditorInput, { config: args, resultsContents: "", from: "rawData" });
+    editor = await editorService.openEditor(input, { pinned: true }, toSide ? SIDE_GROUP : ACTIVE_GROUP);
+  }
+  const searchOnType = configurationService.getValue("search").searchOnType;
+  if (args.triggerSearch === true || args.triggerSearch !== false && searchOnType && args.query) {
+    editor.triggerSearch({ focusResults: args.focusResults });
+  }
+  if (!args.focusResults) {
+    editor.focusSearchInput();
+  }
+}, "openNewSearchEditor");
+const createEditorFromSearchResult = /* @__PURE__ */ __name(async (accessor, searchResult, rawIncludePattern, rawExcludePattern, onlySearchInOpenEditors) => {
+  if (!searchResult.query) {
+    console.error("Expected searchResult.query to be defined. Got", searchResult);
+    return;
+  }
+  const editorService = accessor.get(IEditorService);
+  const telemetryService = accessor.get(ITelemetryService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const labelService = accessor.get(ILabelService);
+  const configurationService = accessor.get(IConfigurationService);
+  const sortOrder = configurationService.getValue("search").sortOrder;
+  telemetryService.publicLog2("searchEditor/createEditorFromSearchResult");
+  const labelFormatter = /* @__PURE__ */ __name((uri) => labelService.getUriLabel(uri, { relative: true }), "labelFormatter");
+  const { text, matchRanges, config } = serializeSearchResultForEditor(searchResult, rawIncludePattern, rawExcludePattern, 0, labelFormatter, sortOrder);
+  config.onlyOpenEditors = onlySearchInOpenEditors;
+  const contextLines = configurationService.getValue("search").searchEditor.defaultNumberOfContextLines;
+  if (searchResult.isDirty || contextLines === 0 || contextLines === null) {
+    const input = instantiationService.invokeFunction(getOrMakeSearchEditorInput, { resultsContents: text, config, from: "rawData" });
+    await editorService.openEditor(input, { pinned: true });
+    input.setMatchRanges(matchRanges);
+  } else {
+    const input = instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "rawData", resultsContents: "", config: { ...config, contextLines } });
+    const editor = await editorService.openEditor(input, { pinned: true });
+    editor.triggerSearch();
+  }
+}, "createEditorFromSearchResult");
+export {
+  createEditorFromSearchResult,
+  modifySearchEditorContextLinesCommand,
+  openNewSearchEditor,
+  openSearchEditor,
+  selectAllSearchEditorMatchesCommand,
+  toggleSearchEditorCaseSensitiveCommand,
+  toggleSearchEditorContextLinesCommand,
+  toggleSearchEditorRegexCommand,
+  toggleSearchEditorWholeWordCommand
+};
+//# sourceMappingURL=searchEditorActions.js.map

@@ -1,1 +1,959 @@
-import*as R from"../../../base/common/arrays.js";import{$bC as w}from"../core/position.js";import{$cC as p}from"../core/range.js";import{$TE as N,$UE as I}from"../textModelGuides.js";import{$YH as W}from"../model/textModel.js";import{$JE as k}from"../textModelEvents.js";import*as b from"../viewEvents.js";import{$Qdb as x}from"./modelLineProjection.js";import{$lM as D}from"../model/prefixSumComputer.js";import{$V_ as S}from"../viewModel.js";class H{constructor(e,t,n,i,s,c,u,r,d,o){this.c=e,this.d=t,this.e=-1,this.f=n,this.h=i,this.k=s,this.l=c,this.q=u,this.m=r,this.n=d,this.o=o,this.w(!0,null)}dispose(){this.v=this.d.deltaDecorations(this.v,[])}createCoordinatesConverter(){return new _(this)}w(e,t){this.s=[],e&&(this.v=this.d.deltaDecorations(this.v,[]));const n=this.d.getLinesContent(),i=this.d.getInjectedTextDecorations(this.c),s=n.length,c=this.createLineBreaksComputer(),u=new R.$wc(k.fromDecorations(i));for(let m=0;m<s;m++){const g=u.takeWhile(f=>f.lineNumber===m+1);c.addRequest(n[m],g,t?t[m]:null)}const r=c.finalize(),d=[],o=this.v.map(m=>this.d.getDecorationRange(m)).sort(p.compareRangesUsingStarts);let h=1,l=0,a=-1,L=a+1<o.length?l+1:s+2;for(let m=0;m<s;m++){const g=m+1;g===L&&(a++,h=o[a].startLineNumber,l=o[a].endLineNumber,L=a+1<o.length?l+1:s+2);const f=g>=h&&g<=l,C=x(r[m],!f);d[m]=C.getViewLineCount(),this.s[m]=C}this.e=this.d.getVersionId(),this.u=new D(d)}getHiddenAreas(){return this.v.map(e=>this.d.getDecorationRange(e))}setHiddenAreas(e){const t=e.map(l=>this.d.validateRange(l)),n=O(t),i=this.v.map(l=>this.d.getDecorationRange(l)).sort(p.compareRangesUsingStarts);if(n.length===i.length){let l=!1;for(let a=0;a<n.length;a++)if(!n[a].equalsRange(i[a])){l=!0;break}if(!l)return!1}const s=n.map(l=>({range:l,options:W.EMPTY}));this.v=this.d.deltaDecorations(this.v,s);const c=n;let u=1,r=0,d=-1,o=d+1<c.length?r+1:this.s.length+2,h=!1;for(let l=0;l<this.s.length;l++){const a=l+1;a===o&&(d++,u=c[d].startLineNumber,r=c[d].endLineNumber,o=d+1<c.length?r+1:this.s.length+2);let L=!1;if(a>=u&&a<=r?this.s[l].isVisible()&&(this.s[l]=this.s[l].setVisible(!1),L=!0):(h=!0,this.s[l].isVisible()||(this.s[l]=this.s[l].setVisible(!0),L=!0)),L){const m=this.s[l].getViewLineCount();this.u.setValue(l,m)}}return h||this.setHiddenAreas([]),!0}modelPositionIsVisible(e,t){return e<1||e>this.s.length?!1:this.s[e-1].isVisible()}getModelLineViewLineCount(e){return e<1||e>this.s.length?1:this.s[e-1].getViewLineCount()}setTabSize(e){return this.l===e?!1:(this.l=e,this.w(!1,null),!0)}setWrappingSettings(e,t,n,i,s){const c=this.k.equals(e),u=this.q===t,r=this.m===n,d=this.n===i,o=this.o===s;if(c&&u&&r&&d&&o)return!1;const h=c&&u&&!r&&d&&o;this.k=e,this.q=t,this.m=n,this.n=i,this.o=s;let l=null;if(h){l=[];for(let a=0,L=this.s.length;a<L;a++)l[a]=this.s[a].getProjectionData()}return this.w(!1,l),!0}createLineBreaksComputer(){return(this.q==="advanced"?this.f:this.h).createLineBreaksComputer(this.k,this.l,this.m,this.n,this.o)}onModelFlushed(){this.w(!0,null)}onModelLinesDeleted(e,t,n){if(!e||e<=this.e)return null;const i=t===1?1:this.u.getPrefixSum(t-1)+1,s=this.u.getPrefixSum(n);return this.s.splice(t-1,n-t+1),this.u.removeValues(t-1,n-t+1),new b.$K_(i,s)}onModelLinesInserted(e,t,n,i){if(!e||e<=this.e)return null;const s=t>2&&!this.s[t-2].isVisible(),c=t===1?1:this.u.getPrefixSum(t-1)+1;let u=0;const r=[],d=[];for(let o=0,h=i.length;o<h;o++){const l=x(i[o],!s);r.push(l);const a=l.getViewLineCount();u+=a,d[o]=a}return this.s=this.s.slice(0,t-1).concat(r).concat(this.s.slice(t-1)),this.u.insertValues(t-1,d),new b.$L_(c,c+u-1)}onModelLineChanged(e,t,n){if(e!==null&&e<=this.e)return[!1,null,null,null];const i=t-1,s=this.s[i].getViewLineCount(),c=this.s[i].isVisible(),u=x(n,c);this.s[i]=u;const r=this.s[i].getViewLineCount();let d=!1,o=0,h=-1,l=0,a=-1,L=0,m=-1;s>r?(o=this.u.getPrefixSum(t-1)+1,h=o+r-1,L=h+1,m=L+(s-r)-1,d=!0):s<r?(o=this.u.getPrefixSum(t-1)+1,h=o+s-1,l=h+1,a=l+(r-s)-1,d=!0):(o=this.u.getPrefixSum(t-1)+1,h=o+r-1),this.u.setValue(i,r);const g=o<=h?new b.$J_(o,h-o+1):null,f=l<=a?new b.$L_(l,a):null,C=L<=m?new b.$K_(L,m):null;return[d,g,f,C]}acceptVersionId(e){this.e=e,this.s.length===1&&!this.s[0].isVisible()&&this.setHiddenAreas([])}getViewLineCount(){return this.u.getTotalSum()}x(e){if(e<1)return 1;const t=this.getViewLineCount();return e>t?t:e|0}getActiveIndentGuide(e,t,n){e=this.x(e),t=this.x(t),n=this.x(n);const i=this.convertViewPositionToModelPosition(e,this.getViewLineMinColumn(e)),s=this.convertViewPositionToModelPosition(t,this.getViewLineMinColumn(t)),c=this.convertViewPositionToModelPosition(n,this.getViewLineMinColumn(n)),u=this.d.guides.getActiveIndentGuide(i.lineNumber,s.lineNumber,c.lineNumber),r=this.convertModelPositionToViewPosition(u.startLineNumber,1),d=this.convertModelPositionToViewPosition(u.endLineNumber,this.d.getLineMaxColumn(u.endLineNumber));return{startLineNumber:r.lineNumber,endLineNumber:d.lineNumber,indent:u.indent}}y(e){e=this.x(e);const t=this.u.getIndexOf(e-1),n=t.index,i=t.remainder;return new T(n+1,i)}z(e){return this.s[e.modelLineNumber-1].getViewLineMinColumn(this.d,e.modelLineNumber,e.modelLineWrappedLineIdx)}A(e){return this.s[e.modelLineNumber-1].getViewLineMaxColumn(this.d,e.modelLineNumber,e.modelLineWrappedLineIdx)}B(e){const t=this.s[e.modelLineNumber-1],n=t.getViewLineMinColumn(this.d,e.modelLineNumber,e.modelLineWrappedLineIdx),i=t.getModelColumnOfViewPosition(e.modelLineWrappedLineIdx,n);return new w(e.modelLineNumber,i)}C(e){const t=this.s[e.modelLineNumber-1],n=t.getViewLineMaxColumn(this.d,e.modelLineNumber,e.modelLineWrappedLineIdx),i=t.getModelColumnOfViewPosition(e.modelLineWrappedLineIdx,n);return new w(e.modelLineNumber,i)}D(e,t){const n=this.y(e),i=this.y(t),s=new Array;let c=this.B(n),u=new Array;for(let r=n.modelLineNumber;r<=i.modelLineNumber;r++){const d=this.s[r-1];if(d.isVisible()){const o=r===n.modelLineNumber?n.modelLineWrappedLineIdx:0,h=r===i.modelLineNumber?i.modelLineWrappedLineIdx+1:d.getViewLineCount();for(let l=o;l<h;l++)u.push(new T(r,l))}if(!d.isVisible()&&c){const o=new w(r-1,this.d.getLineMaxColumn(r-1)+1),h=p.fromPositions(c,o);s.push(new v(h,u)),u=[],c=null}else d.isVisible()&&!c&&(c=new w(r,1))}if(c){const r=p.fromPositions(c,this.C(i));s.push(new v(r,u))}return s}getViewLinesBracketGuides(e,t,n,i){const s=n?this.convertViewPositionToModelPosition(n.lineNumber,n.column):null,c=[];for(const u of this.D(e,t)){const r=u.modelRange.startLineNumber,d=this.d.guides.getLinesBracketGuides(r,u.modelRange.endLineNumber,s,i);for(const o of u.viewLines){const l=d[o.modelLineNumber-r].map(a=>{if(a.forWrappedLinesAfterColumn!==-1&&this.s[o.modelLineNumber-1].getViewPositionOfModelPosition(0,a.forWrappedLinesAfterColumn).lineNumber>=o.modelLineWrappedLineIdx||a.forWrappedLinesBeforeOrAtColumn!==-1&&this.s[o.modelLineNumber-1].getViewPositionOfModelPosition(0,a.forWrappedLinesBeforeOrAtColumn).lineNumber<o.modelLineWrappedLineIdx)return;if(!a.horizontalLine)return a;let L=-1;if(a.column!==-1){const f=this.s[o.modelLineNumber-1].getViewPositionOfModelPosition(0,a.column);if(f.lineNumber===o.modelLineWrappedLineIdx)L=f.column;else if(f.lineNumber<o.modelLineWrappedLineIdx)L=this.z(o);else if(f.lineNumber>o.modelLineWrappedLineIdx)return}const m=this.convertModelPositionToViewPosition(o.modelLineNumber,a.horizontalLine.endColumn),g=this.s[o.modelLineNumber-1].getViewPositionOfModelPosition(0,a.horizontalLine.endColumn);return g.lineNumber===o.modelLineWrappedLineIdx?new N(a.visibleColumn,L,a.className,new I(a.horizontalLine.top,m.column),-1,-1):g.lineNumber<o.modelLineWrappedLineIdx||a.visibleColumn!==-1?void 0:new N(a.visibleColumn,L,a.className,new I(a.horizontalLine.top,this.A(o)),-1,-1)});c.push(l.filter(a=>!!a))}}return c}getViewLinesIndentGuides(e,t){e=this.x(e),t=this.x(t);const n=this.convertViewPositionToModelPosition(e,this.getViewLineMinColumn(e)),i=this.convertViewPositionToModelPosition(t,this.getViewLineMaxColumn(t));let s=[];const c=[],u=[],r=n.lineNumber-1,d=i.lineNumber-1;let o=null;for(let L=r;L<=d;L++){const m=this.s[L];if(m.isVisible()){const g=m.getViewLineNumberOfModelPosition(0,L===r?n.column:1),f=m.getViewLineNumberOfModelPosition(0,this.d.getLineMaxColumn(L+1)),C=f-g+1;let P=0;C>1&&m.getViewLineMinColumn(this.d,L+1,f)===1&&(P=g===0?1:2),c.push(C),u.push(P),o===null&&(o=new w(L+1,0))}else o!==null&&(s=s.concat(this.d.guides.getLinesIndentGuides(o.lineNumber,L)),o=null)}o!==null&&(s=s.concat(this.d.guides.getLinesIndentGuides(o.lineNumber,i.lineNumber)),o=null);const h=t-e+1,l=new Array(h);let a=0;for(let L=0,m=s.length;L<m;L++){let g=s[L];const f=Math.min(h-a,c[L]),C=u[L];let P;C===2?P=0:C===1?P=1:P=f;for(let M=0;M<f;M++)M===P&&(g=0),l[a++]=g}return l}getViewLineContent(e){const t=this.y(e);return this.s[t.modelLineNumber-1].getViewLineContent(this.d,t.modelLineNumber,t.modelLineWrappedLineIdx)}getViewLineLength(e){const t=this.y(e);return this.s[t.modelLineNumber-1].getViewLineLength(this.d,t.modelLineNumber,t.modelLineWrappedLineIdx)}getViewLineMinColumn(e){const t=this.y(e);return this.s[t.modelLineNumber-1].getViewLineMinColumn(this.d,t.modelLineNumber,t.modelLineWrappedLineIdx)}getViewLineMaxColumn(e){const t=this.y(e);return this.s[t.modelLineNumber-1].getViewLineMaxColumn(this.d,t.modelLineNumber,t.modelLineWrappedLineIdx)}getViewLineData(e){const t=this.y(e);return this.s[t.modelLineNumber-1].getViewLineData(this.d,t.modelLineNumber,t.modelLineWrappedLineIdx)}getViewLinesData(e,t,n){e=this.x(e),t=this.x(t);const i=this.u.getIndexOf(e-1);let s=e;const c=i.index,u=i.remainder,r=[];for(let d=c,o=this.d.getLineCount();d<o;d++){const h=this.s[d];if(!h.isVisible())continue;const l=d===c?u:0;let a=h.getViewLineCount()-l,L=!1;if(s+a>t&&(L=!0,a=t-s+1),h.getViewLinesData(this.d,d+1,l,a,s-e,n,r),s+=a,L)break}return r}validateViewPosition(e,t,n){e=this.x(e);const i=this.u.getIndexOf(e-1),s=i.index,c=i.remainder,u=this.s[s],r=u.getViewLineMinColumn(this.d,s+1,c),d=u.getViewLineMaxColumn(this.d,s+1,c);t<r&&(t=r),t>d&&(t=d);const o=u.getModelColumnOfViewPosition(c,t);return this.d.validatePosition(new w(s+1,o)).equals(n)?new w(e,t):this.convertModelPositionToViewPosition(n.lineNumber,n.column)}validateViewRange(e,t){const n=this.validateViewPosition(e.startLineNumber,e.startColumn,t.getStartPosition()),i=this.validateViewPosition(e.endLineNumber,e.endColumn,t.getEndPosition());return new p(n.lineNumber,n.column,i.lineNumber,i.column)}convertViewPositionToModelPosition(e,t){const n=this.y(e),i=this.s[n.modelLineNumber-1].getModelColumnOfViewPosition(n.modelLineWrappedLineIdx,t);return this.d.validatePosition(new w(n.modelLineNumber,i))}convertViewRangeToModelRange(e){const t=this.convertViewPositionToModelPosition(e.startLineNumber,e.startColumn),n=this.convertViewPositionToModelPosition(e.endLineNumber,e.endColumn);return new p(t.lineNumber,t.column,n.lineNumber,n.column)}convertModelPositionToViewPosition(e,t,n=2,i=!1,s=!1){const c=this.d.validatePosition(new w(e,t)),u=c.lineNumber,r=c.column;let d=u-1,o=!1;if(s)for(;d<this.s.length&&!this.s[d].isVisible();)d++,o=!0;else for(;d>0&&!this.s[d].isVisible();)d--,o=!0;if(d===0&&!this.s[d].isVisible())return new w(i?0:1,1);const h=1+this.u.getPrefixSum(d);let l;return o?s?l=this.s[d].getViewPositionOfModelPosition(h,1,n):l=this.s[d].getViewPositionOfModelPosition(h,this.d.getLineMaxColumn(d+1),n):l=this.s[u-1].getViewPositionOfModelPosition(h,r,n),l}convertModelRangeToViewRange(e,t=0){if(e.isEmpty()){const n=this.convertModelPositionToViewPosition(e.startLineNumber,e.startColumn,t);return p.fromPositions(n)}else{const n=this.convertModelPositionToViewPosition(e.startLineNumber,e.startColumn,1),i=this.convertModelPositionToViewPosition(e.endLineNumber,e.endColumn,0);return new p(n.lineNumber,n.column,i.lineNumber,i.column)}}getViewLineNumberOfModelPosition(e,t){let n=e-1;if(this.s[n].isVisible()){const s=1+this.u.getPrefixSum(n);return this.s[n].getViewLineNumberOfModelPosition(s,t)}for(;n>0&&!this.s[n].isVisible();)n--;if(n===0&&!this.s[n].isVisible())return 1;const i=1+this.u.getPrefixSum(n);return this.s[n].getViewLineNumberOfModelPosition(i,this.d.getLineMaxColumn(n+1))}getDecorationsInRange(e,t,n,i,s){const c=this.convertViewPositionToModelPosition(e.startLineNumber,e.startColumn),u=this.convertViewPositionToModelPosition(e.endLineNumber,e.endColumn);if(u.lineNumber-c.lineNumber<=e.endLineNumber-e.startLineNumber)return this.d.getDecorationsInRange(new p(c.lineNumber,1,u.lineNumber,u.column),t,n,i,s);let r=[];const d=c.lineNumber-1,o=u.lineNumber-1;let h=null;for(let m=d;m<=o;m++)if(this.s[m].isVisible())h===null&&(h=new w(m+1,m===d?c.column:1));else if(h!==null){const f=this.d.getLineMaxColumn(m);r=r.concat(this.d.getDecorationsInRange(new p(h.lineNumber,h.column,m,f),t,n,i)),h=null}h!==null&&(r=r.concat(this.d.getDecorationsInRange(new p(h.lineNumber,h.column,u.lineNumber,u.column),t,n,i)),h=null),r.sort((m,g)=>{const f=p.compareRangesUsingStarts(m.range,g.range);return f===0?m.id<g.id?-1:m.id>g.id?1:0:f});const l=[];let a=0,L=null;for(const m of r){const g=m.id;L!==g&&(L=g,l[a++]=m)}return l}getInjectedTextAt(e){const t=this.y(e.lineNumber);return this.s[t.modelLineNumber-1].getInjectedTextAt(t.modelLineWrappedLineIdx,e.column)}normalizePosition(e,t){const n=this.y(e.lineNumber);return this.s[n.modelLineNumber-1].normalizePosition(n.modelLineWrappedLineIdx,e,t)}getLineIndentColumn(e){const t=this.y(e);return t.modelLineWrappedLineIdx===0?this.d.getLineIndentColumn(t.modelLineNumber):0}}function O(V){if(V.length===0)return[];const e=V.slice();e.sort(p.compareRangesUsingStarts);const t=[];let n=e[0].startLineNumber,i=e[0].endLineNumber;for(let s=1,c=e.length;s<c;s++){const u=e[s];u.startLineNumber>i+1?(t.push(new p(n,1,i,1)),n=u.startLineNumber,i=u.endLineNumber):u.endLineNumber>i&&(i=u.endLineNumber)}return t.push(new p(n,1,i,1)),t}class T{get isWrappedLineContinuation(){return this.modelLineWrappedLineIdx>0}constructor(e,t){this.modelLineNumber=e,this.modelLineWrappedLineIdx=t}}class v{constructor(e,t){this.modelRange=e,this.viewLines=t}}class _{constructor(e){this.c=e}convertViewPositionToModelPosition(e){return this.c.convertViewPositionToModelPosition(e.lineNumber,e.column)}convertViewRangeToModelRange(e){return this.c.convertViewRangeToModelRange(e)}validateViewPosition(e,t){return this.c.validateViewPosition(e.lineNumber,e.column,t)}validateViewRange(e,t){return this.c.validateViewRange(e,t)}convertModelPositionToViewPosition(e,t,n,i){return this.c.convertModelPositionToViewPosition(e.lineNumber,e.column,t,n,i)}convertModelRangeToViewRange(e,t){return this.c.convertModelRangeToViewRange(e,t)}modelPositionIsVisible(e){return this.c.modelPositionIsVisible(e.lineNumber,e.column)}getModelLineViewLineCount(e){return this.c.getModelLineViewLineCount(e)}getViewLineNumberOfModelPosition(e,t){return this.c.getViewLineNumberOfModelPosition(e,t)}}var A;(function(V){V[V.BlockNone=0]="BlockNone",V[V.BlockSubsequent=1]="BlockSubsequent",V[V.BlockAll=2]="BlockAll"})(A||(A={}));class U{constructor(e){this.model=e}dispose(){}createCoordinatesConverter(){return new B(this)}getHiddenAreas(){return[]}setHiddenAreas(e){return!1}setTabSize(e){return!1}setWrappingSettings(e,t,n,i){return!1}createLineBreaksComputer(){const e=[];return{addRequest:(t,n,i)=>{e.push(null)},finalize:()=>e}}onModelFlushed(){}onModelLinesDeleted(e,t,n){return new b.$K_(t,n)}onModelLinesInserted(e,t,n,i){return new b.$L_(t,n)}onModelLineChanged(e,t,n){return[!1,new b.$J_(t,1),null,null]}acceptVersionId(e){}getViewLineCount(){return this.model.getLineCount()}getActiveIndentGuide(e,t,n){return{startLineNumber:e,endLineNumber:e,indent:0}}getViewLinesBracketGuides(e,t,n){return new Array(t-e+1).fill([])}getViewLinesIndentGuides(e,t){const n=t-e+1,i=new Array(n);for(let s=0;s<n;s++)i[s]=0;return i}getViewLineContent(e){return this.model.getLineContent(e)}getViewLineLength(e){return this.model.getLineLength(e)}getViewLineMinColumn(e){return this.model.getLineMinColumn(e)}getViewLineMaxColumn(e){return this.model.getLineMaxColumn(e)}getViewLineData(e){const t=this.model.tokenization.getLineTokens(e),n=t.getLineContent();return new S(n,!1,1,n.length+1,0,t.inflate(),null)}getViewLinesData(e,t,n){const i=this.model.getLineCount();e=Math.min(Math.max(1,e),i),t=Math.min(Math.max(1,t),i);const s=[];for(let c=e;c<=t;c++){const u=c-e;s[u]=n[u]?this.getViewLineData(c):null}return s}getDecorationsInRange(e,t,n,i,s){return this.model.getDecorationsInRange(e,t,n,i,s)}normalizePosition(e,t){return this.model.normalizePosition(e,t)}getLineIndentColumn(e){return this.model.getLineIndentColumn(e)}getInjectedTextAt(e){return null}}class B{constructor(e){this.c=e}d(e){return this.c.model.validatePosition(e)}e(e){return this.c.model.validateRange(e)}convertViewPositionToModelPosition(e){return this.d(e)}convertViewRangeToModelRange(e){return this.e(e)}validateViewPosition(e,t){return this.d(t)}validateViewRange(e,t){return this.e(t)}convertModelPositionToViewPosition(e){return this.d(e)}convertModelRangeToViewRange(e){return this.e(e)}modelPositionIsVisible(e){const t=this.c.model.getLineCount();return!(e.lineNumber<1||e.lineNumber>t)}modelRangeIsVisible(e){const t=this.c.model.getLineCount();return!(e.startLineNumber<1||e.startLineNumber>t||e.endLineNumber<1||e.endLineNumber>t)}getModelLineViewLineCount(e){return 1}getViewLineNumberOfModelPosition(e,t){return e}}export{H as $Rdb,U as $Sdb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "../../../base/common/arrays.js";
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { IndentGuide, IndentGuideHorizontalLine } from "../textModelGuides.js";
+import { ModelDecorationOptions } from "../model/textModel.js";
+import { LineInjectedText } from "../textModelEvents.js";
+import * as viewEvents from "../viewEvents.js";
+import { createModelLineProjection } from "./modelLineProjection.js";
+import { ConstantTimePrefixSumComputer } from "../model/prefixSumComputer.js";
+import { ViewLineData } from "../viewModel.js";
+class ViewModelLinesFromProjectedModel {
+  static {
+    __name(this, "ViewModelLinesFromProjectedModel");
+  }
+  constructor(editorId, model, domLineBreaksComputerFactory, monospaceLineBreaksComputerFactory, fontInfo, tabSize, wrappingStrategy, wrappingColumn, wrappingIndent, wordBreak) {
+    this._editorId = editorId;
+    this.model = model;
+    this._validModelVersionId = -1;
+    this._domLineBreaksComputerFactory = domLineBreaksComputerFactory;
+    this._monospaceLineBreaksComputerFactory = monospaceLineBreaksComputerFactory;
+    this.fontInfo = fontInfo;
+    this.tabSize = tabSize;
+    this.wrappingStrategy = wrappingStrategy;
+    this.wrappingColumn = wrappingColumn;
+    this.wrappingIndent = wrappingIndent;
+    this.wordBreak = wordBreak;
+    this._constructLines(
+      /*resetHiddenAreas*/
+      true,
+      null
+    );
+  }
+  dispose() {
+    this.hiddenAreasDecorationIds = this.model.deltaDecorations(this.hiddenAreasDecorationIds, []);
+  }
+  createCoordinatesConverter() {
+    return new CoordinatesConverter(this);
+  }
+  _constructLines(resetHiddenAreas, previousLineBreaks) {
+    this.modelLineProjections = [];
+    if (resetHiddenAreas) {
+      this.hiddenAreasDecorationIds = this.model.deltaDecorations(this.hiddenAreasDecorationIds, []);
+    }
+    const linesContent = this.model.getLinesContent();
+    const injectedTextDecorations = this.model.getInjectedTextDecorations(this._editorId);
+    const lineCount = linesContent.length;
+    const lineBreaksComputer = this.createLineBreaksComputer();
+    const injectedTextQueue = new arrays.ArrayQueue(LineInjectedText.fromDecorations(injectedTextDecorations));
+    for (let i = 0; i < lineCount; i++) {
+      const lineInjectedText = injectedTextQueue.takeWhile((t) => t.lineNumber === i + 1);
+      lineBreaksComputer.addRequest(linesContent[i], lineInjectedText, previousLineBreaks ? previousLineBreaks[i] : null);
+    }
+    const linesBreaks = lineBreaksComputer.finalize();
+    const values = [];
+    const hiddenAreas = this.hiddenAreasDecorationIds.map((areaId) => this.model.getDecorationRange(areaId)).sort(Range.compareRangesUsingStarts);
+    let hiddenAreaStart = 1, hiddenAreaEnd = 0;
+    let hiddenAreaIdx = -1;
+    let nextLineNumberToUpdateHiddenArea = hiddenAreaIdx + 1 < hiddenAreas.length ? hiddenAreaEnd + 1 : lineCount + 2;
+    for (let i = 0; i < lineCount; i++) {
+      const lineNumber = i + 1;
+      if (lineNumber === nextLineNumberToUpdateHiddenArea) {
+        hiddenAreaIdx++;
+        hiddenAreaStart = hiddenAreas[hiddenAreaIdx].startLineNumber;
+        hiddenAreaEnd = hiddenAreas[hiddenAreaIdx].endLineNumber;
+        nextLineNumberToUpdateHiddenArea = hiddenAreaIdx + 1 < hiddenAreas.length ? hiddenAreaEnd + 1 : lineCount + 2;
+      }
+      const isInHiddenArea = lineNumber >= hiddenAreaStart && lineNumber <= hiddenAreaEnd;
+      const line = createModelLineProjection(linesBreaks[i], !isInHiddenArea);
+      values[i] = line.getViewLineCount();
+      this.modelLineProjections[i] = line;
+    }
+    this._validModelVersionId = this.model.getVersionId();
+    this.projectedModelLineLineCounts = new ConstantTimePrefixSumComputer(values);
+  }
+  getHiddenAreas() {
+    return this.hiddenAreasDecorationIds.map((decId) => this.model.getDecorationRange(decId));
+  }
+  setHiddenAreas(_ranges) {
+    const validatedRanges = _ranges.map((r) => this.model.validateRange(r));
+    const newRanges = normalizeLineRanges(validatedRanges);
+    const oldRanges = this.hiddenAreasDecorationIds.map((areaId) => this.model.getDecorationRange(areaId)).sort(Range.compareRangesUsingStarts);
+    if (newRanges.length === oldRanges.length) {
+      let hasDifference = false;
+      for (let i = 0; i < newRanges.length; i++) {
+        if (!newRanges[i].equalsRange(oldRanges[i])) {
+          hasDifference = true;
+          break;
+        }
+      }
+      if (!hasDifference) {
+        return false;
+      }
+    }
+    const newDecorations = newRanges.map((r) => ({
+      range: r,
+      options: ModelDecorationOptions.EMPTY
+    }));
+    this.hiddenAreasDecorationIds = this.model.deltaDecorations(this.hiddenAreasDecorationIds, newDecorations);
+    const hiddenAreas = newRanges;
+    let hiddenAreaStart = 1, hiddenAreaEnd = 0;
+    let hiddenAreaIdx = -1;
+    let nextLineNumberToUpdateHiddenArea = hiddenAreaIdx + 1 < hiddenAreas.length ? hiddenAreaEnd + 1 : this.modelLineProjections.length + 2;
+    let hasVisibleLine = false;
+    for (let i = 0; i < this.modelLineProjections.length; i++) {
+      const lineNumber = i + 1;
+      if (lineNumber === nextLineNumberToUpdateHiddenArea) {
+        hiddenAreaIdx++;
+        hiddenAreaStart = hiddenAreas[hiddenAreaIdx].startLineNumber;
+        hiddenAreaEnd = hiddenAreas[hiddenAreaIdx].endLineNumber;
+        nextLineNumberToUpdateHiddenArea = hiddenAreaIdx + 1 < hiddenAreas.length ? hiddenAreaEnd + 1 : this.modelLineProjections.length + 2;
+      }
+      let lineChanged = false;
+      if (lineNumber >= hiddenAreaStart && lineNumber <= hiddenAreaEnd) {
+        if (this.modelLineProjections[i].isVisible()) {
+          this.modelLineProjections[i] = this.modelLineProjections[i].setVisible(false);
+          lineChanged = true;
+        }
+      } else {
+        hasVisibleLine = true;
+        if (!this.modelLineProjections[i].isVisible()) {
+          this.modelLineProjections[i] = this.modelLineProjections[i].setVisible(true);
+          lineChanged = true;
+        }
+      }
+      if (lineChanged) {
+        const newOutputLineCount = this.modelLineProjections[i].getViewLineCount();
+        this.projectedModelLineLineCounts.setValue(i, newOutputLineCount);
+      }
+    }
+    if (!hasVisibleLine) {
+      this.setHiddenAreas([]);
+    }
+    return true;
+  }
+  modelPositionIsVisible(modelLineNumber, _modelColumn) {
+    if (modelLineNumber < 1 || modelLineNumber > this.modelLineProjections.length) {
+      return false;
+    }
+    return this.modelLineProjections[modelLineNumber - 1].isVisible();
+  }
+  getModelLineViewLineCount(modelLineNumber) {
+    if (modelLineNumber < 1 || modelLineNumber > this.modelLineProjections.length) {
+      return 1;
+    }
+    return this.modelLineProjections[modelLineNumber - 1].getViewLineCount();
+  }
+  setTabSize(newTabSize) {
+    if (this.tabSize === newTabSize) {
+      return false;
+    }
+    this.tabSize = newTabSize;
+    this._constructLines(
+      /*resetHiddenAreas*/
+      false,
+      null
+    );
+    return true;
+  }
+  setWrappingSettings(fontInfo, wrappingStrategy, wrappingColumn, wrappingIndent, wordBreak) {
+    const equalFontInfo = this.fontInfo.equals(fontInfo);
+    const equalWrappingStrategy = this.wrappingStrategy === wrappingStrategy;
+    const equalWrappingColumn = this.wrappingColumn === wrappingColumn;
+    const equalWrappingIndent = this.wrappingIndent === wrappingIndent;
+    const equalWordBreak = this.wordBreak === wordBreak;
+    if (equalFontInfo && equalWrappingStrategy && equalWrappingColumn && equalWrappingIndent && equalWordBreak) {
+      return false;
+    }
+    const onlyWrappingColumnChanged = equalFontInfo && equalWrappingStrategy && !equalWrappingColumn && equalWrappingIndent && equalWordBreak;
+    this.fontInfo = fontInfo;
+    this.wrappingStrategy = wrappingStrategy;
+    this.wrappingColumn = wrappingColumn;
+    this.wrappingIndent = wrappingIndent;
+    this.wordBreak = wordBreak;
+    let previousLineBreaks = null;
+    if (onlyWrappingColumnChanged) {
+      previousLineBreaks = [];
+      for (let i = 0, len = this.modelLineProjections.length; i < len; i++) {
+        previousLineBreaks[i] = this.modelLineProjections[i].getProjectionData();
+      }
+    }
+    this._constructLines(
+      /*resetHiddenAreas*/
+      false,
+      previousLineBreaks
+    );
+    return true;
+  }
+  createLineBreaksComputer() {
+    const lineBreaksComputerFactory = this.wrappingStrategy === "advanced" ? this._domLineBreaksComputerFactory : this._monospaceLineBreaksComputerFactory;
+    return lineBreaksComputerFactory.createLineBreaksComputer(this.fontInfo, this.tabSize, this.wrappingColumn, this.wrappingIndent, this.wordBreak);
+  }
+  onModelFlushed() {
+    this._constructLines(
+      /*resetHiddenAreas*/
+      true,
+      null
+    );
+  }
+  onModelLinesDeleted(versionId, fromLineNumber, toLineNumber) {
+    if (!versionId || versionId <= this._validModelVersionId) {
+      return null;
+    }
+    const outputFromLineNumber = fromLineNumber === 1 ? 1 : this.projectedModelLineLineCounts.getPrefixSum(fromLineNumber - 1) + 1;
+    const outputToLineNumber = this.projectedModelLineLineCounts.getPrefixSum(toLineNumber);
+    this.modelLineProjections.splice(fromLineNumber - 1, toLineNumber - fromLineNumber + 1);
+    this.projectedModelLineLineCounts.removeValues(fromLineNumber - 1, toLineNumber - fromLineNumber + 1);
+    return new viewEvents.ViewLinesDeletedEvent(outputFromLineNumber, outputToLineNumber);
+  }
+  onModelLinesInserted(versionId, fromLineNumber, _toLineNumber, lineBreaks) {
+    if (!versionId || versionId <= this._validModelVersionId) {
+      return null;
+    }
+    const isInHiddenArea = fromLineNumber > 2 && !this.modelLineProjections[fromLineNumber - 2].isVisible();
+    const outputFromLineNumber = fromLineNumber === 1 ? 1 : this.projectedModelLineLineCounts.getPrefixSum(fromLineNumber - 1) + 1;
+    let totalOutputLineCount = 0;
+    const insertLines = [];
+    const insertPrefixSumValues = [];
+    for (let i = 0, len = lineBreaks.length; i < len; i++) {
+      const line = createModelLineProjection(lineBreaks[i], !isInHiddenArea);
+      insertLines.push(line);
+      const outputLineCount = line.getViewLineCount();
+      totalOutputLineCount += outputLineCount;
+      insertPrefixSumValues[i] = outputLineCount;
+    }
+    this.modelLineProjections = this.modelLineProjections.slice(0, fromLineNumber - 1).concat(insertLines).concat(this.modelLineProjections.slice(fromLineNumber - 1));
+    this.projectedModelLineLineCounts.insertValues(fromLineNumber - 1, insertPrefixSumValues);
+    return new viewEvents.ViewLinesInsertedEvent(outputFromLineNumber, outputFromLineNumber + totalOutputLineCount - 1);
+  }
+  onModelLineChanged(versionId, lineNumber, lineBreakData) {
+    if (versionId !== null && versionId <= this._validModelVersionId) {
+      return [false, null, null, null];
+    }
+    const lineIndex = lineNumber - 1;
+    const oldOutputLineCount = this.modelLineProjections[lineIndex].getViewLineCount();
+    const isVisible = this.modelLineProjections[lineIndex].isVisible();
+    const line = createModelLineProjection(lineBreakData, isVisible);
+    this.modelLineProjections[lineIndex] = line;
+    const newOutputLineCount = this.modelLineProjections[lineIndex].getViewLineCount();
+    let lineMappingChanged = false;
+    let changeFrom = 0;
+    let changeTo = -1;
+    let insertFrom = 0;
+    let insertTo = -1;
+    let deleteFrom = 0;
+    let deleteTo = -1;
+    if (oldOutputLineCount > newOutputLineCount) {
+      changeFrom = this.projectedModelLineLineCounts.getPrefixSum(lineNumber - 1) + 1;
+      changeTo = changeFrom + newOutputLineCount - 1;
+      deleteFrom = changeTo + 1;
+      deleteTo = deleteFrom + (oldOutputLineCount - newOutputLineCount) - 1;
+      lineMappingChanged = true;
+    } else if (oldOutputLineCount < newOutputLineCount) {
+      changeFrom = this.projectedModelLineLineCounts.getPrefixSum(lineNumber - 1) + 1;
+      changeTo = changeFrom + oldOutputLineCount - 1;
+      insertFrom = changeTo + 1;
+      insertTo = insertFrom + (newOutputLineCount - oldOutputLineCount) - 1;
+      lineMappingChanged = true;
+    } else {
+      changeFrom = this.projectedModelLineLineCounts.getPrefixSum(lineNumber - 1) + 1;
+      changeTo = changeFrom + newOutputLineCount - 1;
+    }
+    this.projectedModelLineLineCounts.setValue(lineIndex, newOutputLineCount);
+    const viewLinesChangedEvent = changeFrom <= changeTo ? new viewEvents.ViewLinesChangedEvent(changeFrom, changeTo - changeFrom + 1) : null;
+    const viewLinesInsertedEvent = insertFrom <= insertTo ? new viewEvents.ViewLinesInsertedEvent(insertFrom, insertTo) : null;
+    const viewLinesDeletedEvent = deleteFrom <= deleteTo ? new viewEvents.ViewLinesDeletedEvent(deleteFrom, deleteTo) : null;
+    return [lineMappingChanged, viewLinesChangedEvent, viewLinesInsertedEvent, viewLinesDeletedEvent];
+  }
+  acceptVersionId(versionId) {
+    this._validModelVersionId = versionId;
+    if (this.modelLineProjections.length === 1 && !this.modelLineProjections[0].isVisible()) {
+      this.setHiddenAreas([]);
+    }
+  }
+  getViewLineCount() {
+    return this.projectedModelLineLineCounts.getTotalSum();
+  }
+  _toValidViewLineNumber(viewLineNumber) {
+    if (viewLineNumber < 1) {
+      return 1;
+    }
+    const viewLineCount = this.getViewLineCount();
+    if (viewLineNumber > viewLineCount) {
+      return viewLineCount;
+    }
+    return viewLineNumber | 0;
+  }
+  getActiveIndentGuide(viewLineNumber, minLineNumber, maxLineNumber) {
+    viewLineNumber = this._toValidViewLineNumber(viewLineNumber);
+    minLineNumber = this._toValidViewLineNumber(minLineNumber);
+    maxLineNumber = this._toValidViewLineNumber(maxLineNumber);
+    const modelPosition = this.convertViewPositionToModelPosition(viewLineNumber, this.getViewLineMinColumn(viewLineNumber));
+    const modelMinPosition = this.convertViewPositionToModelPosition(minLineNumber, this.getViewLineMinColumn(minLineNumber));
+    const modelMaxPosition = this.convertViewPositionToModelPosition(maxLineNumber, this.getViewLineMinColumn(maxLineNumber));
+    const result = this.model.guides.getActiveIndentGuide(modelPosition.lineNumber, modelMinPosition.lineNumber, modelMaxPosition.lineNumber);
+    const viewStartPosition = this.convertModelPositionToViewPosition(result.startLineNumber, 1);
+    const viewEndPosition = this.convertModelPositionToViewPosition(result.endLineNumber, this.model.getLineMaxColumn(result.endLineNumber));
+    return {
+      startLineNumber: viewStartPosition.lineNumber,
+      endLineNumber: viewEndPosition.lineNumber,
+      indent: result.indent
+    };
+  }
+  // #region ViewLineInfo
+  getViewLineInfo(viewLineNumber) {
+    viewLineNumber = this._toValidViewLineNumber(viewLineNumber);
+    const r = this.projectedModelLineLineCounts.getIndexOf(viewLineNumber - 1);
+    const lineIndex = r.index;
+    const remainder = r.remainder;
+    return new ViewLineInfo(lineIndex + 1, remainder);
+  }
+  getMinColumnOfViewLine(viewLineInfo) {
+    return this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewLineMinColumn(this.model, viewLineInfo.modelLineNumber, viewLineInfo.modelLineWrappedLineIdx);
+  }
+  getMaxColumnOfViewLine(viewLineInfo) {
+    return this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewLineMaxColumn(this.model, viewLineInfo.modelLineNumber, viewLineInfo.modelLineWrappedLineIdx);
+  }
+  getModelStartPositionOfViewLine(viewLineInfo) {
+    const line = this.modelLineProjections[viewLineInfo.modelLineNumber - 1];
+    const minViewColumn = line.getViewLineMinColumn(this.model, viewLineInfo.modelLineNumber, viewLineInfo.modelLineWrappedLineIdx);
+    const column = line.getModelColumnOfViewPosition(viewLineInfo.modelLineWrappedLineIdx, minViewColumn);
+    return new Position(viewLineInfo.modelLineNumber, column);
+  }
+  getModelEndPositionOfViewLine(viewLineInfo) {
+    const line = this.modelLineProjections[viewLineInfo.modelLineNumber - 1];
+    const maxViewColumn = line.getViewLineMaxColumn(this.model, viewLineInfo.modelLineNumber, viewLineInfo.modelLineWrappedLineIdx);
+    const column = line.getModelColumnOfViewPosition(viewLineInfo.modelLineWrappedLineIdx, maxViewColumn);
+    return new Position(viewLineInfo.modelLineNumber, column);
+  }
+  getViewLineInfosGroupedByModelRanges(viewStartLineNumber, viewEndLineNumber) {
+    const startViewLine = this.getViewLineInfo(viewStartLineNumber);
+    const endViewLine = this.getViewLineInfo(viewEndLineNumber);
+    const result = new Array();
+    let lastVisibleModelPos = this.getModelStartPositionOfViewLine(startViewLine);
+    let viewLines = new Array();
+    for (let curModelLine = startViewLine.modelLineNumber; curModelLine <= endViewLine.modelLineNumber; curModelLine++) {
+      const line = this.modelLineProjections[curModelLine - 1];
+      if (line.isVisible()) {
+        const startOffset = curModelLine === startViewLine.modelLineNumber ? startViewLine.modelLineWrappedLineIdx : 0;
+        const endOffset = curModelLine === endViewLine.modelLineNumber ? endViewLine.modelLineWrappedLineIdx + 1 : line.getViewLineCount();
+        for (let i = startOffset; i < endOffset; i++) {
+          viewLines.push(new ViewLineInfo(curModelLine, i));
+        }
+      }
+      if (!line.isVisible() && lastVisibleModelPos) {
+        const lastVisibleModelPos2 = new Position(curModelLine - 1, this.model.getLineMaxColumn(curModelLine - 1) + 1);
+        const modelRange = Range.fromPositions(lastVisibleModelPos, lastVisibleModelPos2);
+        result.push(new ViewLineInfoGroupedByModelRange(modelRange, viewLines));
+        viewLines = [];
+        lastVisibleModelPos = null;
+      } else if (line.isVisible() && !lastVisibleModelPos) {
+        lastVisibleModelPos = new Position(curModelLine, 1);
+      }
+    }
+    if (lastVisibleModelPos) {
+      const modelRange = Range.fromPositions(lastVisibleModelPos, this.getModelEndPositionOfViewLine(endViewLine));
+      result.push(new ViewLineInfoGroupedByModelRange(modelRange, viewLines));
+    }
+    return result;
+  }
+  // #endregion
+  getViewLinesBracketGuides(viewStartLineNumber, viewEndLineNumber, activeViewPosition, options) {
+    const modelActivePosition = activeViewPosition ? this.convertViewPositionToModelPosition(activeViewPosition.lineNumber, activeViewPosition.column) : null;
+    const resultPerViewLine = [];
+    for (const group of this.getViewLineInfosGroupedByModelRanges(viewStartLineNumber, viewEndLineNumber)) {
+      const modelRangeStartLineNumber = group.modelRange.startLineNumber;
+      const bracketGuidesPerModelLine = this.model.guides.getLinesBracketGuides(modelRangeStartLineNumber, group.modelRange.endLineNumber, modelActivePosition, options);
+      for (const viewLineInfo of group.viewLines) {
+        const bracketGuides = bracketGuidesPerModelLine[viewLineInfo.modelLineNumber - modelRangeStartLineNumber];
+        const result = bracketGuides.map((g) => {
+          if (g.forWrappedLinesAfterColumn !== -1) {
+            const p2 = this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewPositionOfModelPosition(0, g.forWrappedLinesAfterColumn);
+            if (p2.lineNumber >= viewLineInfo.modelLineWrappedLineIdx) {
+              return void 0;
+            }
+          }
+          if (g.forWrappedLinesBeforeOrAtColumn !== -1) {
+            const p2 = this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewPositionOfModelPosition(0, g.forWrappedLinesBeforeOrAtColumn);
+            if (p2.lineNumber < viewLineInfo.modelLineWrappedLineIdx) {
+              return void 0;
+            }
+          }
+          if (!g.horizontalLine) {
+            return g;
+          }
+          let column = -1;
+          if (g.column !== -1) {
+            const p2 = this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewPositionOfModelPosition(0, g.column);
+            if (p2.lineNumber === viewLineInfo.modelLineWrappedLineIdx) {
+              column = p2.column;
+            } else if (p2.lineNumber < viewLineInfo.modelLineWrappedLineIdx) {
+              column = this.getMinColumnOfViewLine(viewLineInfo);
+            } else if (p2.lineNumber > viewLineInfo.modelLineWrappedLineIdx) {
+              return void 0;
+            }
+          }
+          const viewPosition = this.convertModelPositionToViewPosition(viewLineInfo.modelLineNumber, g.horizontalLine.endColumn);
+          const p = this.modelLineProjections[viewLineInfo.modelLineNumber - 1].getViewPositionOfModelPosition(0, g.horizontalLine.endColumn);
+          if (p.lineNumber === viewLineInfo.modelLineWrappedLineIdx) {
+            return new IndentGuide(g.visibleColumn, column, g.className, new IndentGuideHorizontalLine(g.horizontalLine.top, viewPosition.column), -1, -1);
+          } else if (p.lineNumber < viewLineInfo.modelLineWrappedLineIdx) {
+            return void 0;
+          } else {
+            if (g.visibleColumn !== -1) {
+              return void 0;
+            }
+            return new IndentGuide(g.visibleColumn, column, g.className, new IndentGuideHorizontalLine(g.horizontalLine.top, this.getMaxColumnOfViewLine(viewLineInfo)), -1, -1);
+          }
+        });
+        resultPerViewLine.push(result.filter((r) => !!r));
+      }
+    }
+    return resultPerViewLine;
+  }
+  getViewLinesIndentGuides(viewStartLineNumber, viewEndLineNumber) {
+    viewStartLineNumber = this._toValidViewLineNumber(viewStartLineNumber);
+    viewEndLineNumber = this._toValidViewLineNumber(viewEndLineNumber);
+    const modelStart = this.convertViewPositionToModelPosition(viewStartLineNumber, this.getViewLineMinColumn(viewStartLineNumber));
+    const modelEnd = this.convertViewPositionToModelPosition(viewEndLineNumber, this.getViewLineMaxColumn(viewEndLineNumber));
+    let result = [];
+    const resultRepeatCount = [];
+    const resultRepeatOption = [];
+    const modelStartLineIndex = modelStart.lineNumber - 1;
+    const modelEndLineIndex = modelEnd.lineNumber - 1;
+    let reqStart = null;
+    for (let modelLineIndex = modelStartLineIndex; modelLineIndex <= modelEndLineIndex; modelLineIndex++) {
+      const line = this.modelLineProjections[modelLineIndex];
+      if (line.isVisible()) {
+        const viewLineStartIndex = line.getViewLineNumberOfModelPosition(0, modelLineIndex === modelStartLineIndex ? modelStart.column : 1);
+        const viewLineEndIndex = line.getViewLineNumberOfModelPosition(0, this.model.getLineMaxColumn(modelLineIndex + 1));
+        const count = viewLineEndIndex - viewLineStartIndex + 1;
+        let option = 0;
+        if (count > 1 && line.getViewLineMinColumn(this.model, modelLineIndex + 1, viewLineEndIndex) === 1) {
+          option = viewLineStartIndex === 0 ? 1 : 2;
+        }
+        resultRepeatCount.push(count);
+        resultRepeatOption.push(option);
+        if (reqStart === null) {
+          reqStart = new Position(modelLineIndex + 1, 0);
+        }
+      } else {
+        if (reqStart !== null) {
+          result = result.concat(this.model.guides.getLinesIndentGuides(reqStart.lineNumber, modelLineIndex));
+          reqStart = null;
+        }
+      }
+    }
+    if (reqStart !== null) {
+      result = result.concat(this.model.guides.getLinesIndentGuides(reqStart.lineNumber, modelEnd.lineNumber));
+      reqStart = null;
+    }
+    const viewLineCount = viewEndLineNumber - viewStartLineNumber + 1;
+    const viewIndents = new Array(viewLineCount);
+    let currIndex = 0;
+    for (let i = 0, len = result.length; i < len; i++) {
+      let value = result[i];
+      const count = Math.min(viewLineCount - currIndex, resultRepeatCount[i]);
+      const option = resultRepeatOption[i];
+      let blockAtIndex;
+      if (option === 2) {
+        blockAtIndex = 0;
+      } else if (option === 1) {
+        blockAtIndex = 1;
+      } else {
+        blockAtIndex = count;
+      }
+      for (let j = 0; j < count; j++) {
+        if (j === blockAtIndex) {
+          value = 0;
+        }
+        viewIndents[currIndex++] = value;
+      }
+    }
+    return viewIndents;
+  }
+  getViewLineContent(viewLineNumber) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineContent(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+  }
+  getViewLineLength(viewLineNumber) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineLength(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+  }
+  getViewLineMinColumn(viewLineNumber) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineMinColumn(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+  }
+  getViewLineMaxColumn(viewLineNumber) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineMaxColumn(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+  }
+  getViewLineData(viewLineNumber) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getViewLineData(this.model, info.modelLineNumber, info.modelLineWrappedLineIdx);
+  }
+  getViewLinesData(viewStartLineNumber, viewEndLineNumber, needed) {
+    viewStartLineNumber = this._toValidViewLineNumber(viewStartLineNumber);
+    viewEndLineNumber = this._toValidViewLineNumber(viewEndLineNumber);
+    const start = this.projectedModelLineLineCounts.getIndexOf(viewStartLineNumber - 1);
+    let viewLineNumber = viewStartLineNumber;
+    const startModelLineIndex = start.index;
+    const startRemainder = start.remainder;
+    const result = [];
+    for (let modelLineIndex = startModelLineIndex, len = this.model.getLineCount(); modelLineIndex < len; modelLineIndex++) {
+      const line = this.modelLineProjections[modelLineIndex];
+      if (!line.isVisible()) {
+        continue;
+      }
+      const fromViewLineIndex = modelLineIndex === startModelLineIndex ? startRemainder : 0;
+      let remainingViewLineCount = line.getViewLineCount() - fromViewLineIndex;
+      let lastLine = false;
+      if (viewLineNumber + remainingViewLineCount > viewEndLineNumber) {
+        lastLine = true;
+        remainingViewLineCount = viewEndLineNumber - viewLineNumber + 1;
+      }
+      line.getViewLinesData(this.model, modelLineIndex + 1, fromViewLineIndex, remainingViewLineCount, viewLineNumber - viewStartLineNumber, needed, result);
+      viewLineNumber += remainingViewLineCount;
+      if (lastLine) {
+        break;
+      }
+    }
+    return result;
+  }
+  validateViewPosition(viewLineNumber, viewColumn, expectedModelPosition) {
+    viewLineNumber = this._toValidViewLineNumber(viewLineNumber);
+    const r = this.projectedModelLineLineCounts.getIndexOf(viewLineNumber - 1);
+    const lineIndex = r.index;
+    const remainder = r.remainder;
+    const line = this.modelLineProjections[lineIndex];
+    const minColumn = line.getViewLineMinColumn(this.model, lineIndex + 1, remainder);
+    const maxColumn = line.getViewLineMaxColumn(this.model, lineIndex + 1, remainder);
+    if (viewColumn < minColumn) {
+      viewColumn = minColumn;
+    }
+    if (viewColumn > maxColumn) {
+      viewColumn = maxColumn;
+    }
+    const computedModelColumn = line.getModelColumnOfViewPosition(remainder, viewColumn);
+    const computedModelPosition = this.model.validatePosition(new Position(lineIndex + 1, computedModelColumn));
+    if (computedModelPosition.equals(expectedModelPosition)) {
+      return new Position(viewLineNumber, viewColumn);
+    }
+    return this.convertModelPositionToViewPosition(expectedModelPosition.lineNumber, expectedModelPosition.column);
+  }
+  validateViewRange(viewRange, expectedModelRange) {
+    const validViewStart = this.validateViewPosition(viewRange.startLineNumber, viewRange.startColumn, expectedModelRange.getStartPosition());
+    const validViewEnd = this.validateViewPosition(viewRange.endLineNumber, viewRange.endColumn, expectedModelRange.getEndPosition());
+    return new Range(validViewStart.lineNumber, validViewStart.column, validViewEnd.lineNumber, validViewEnd.column);
+  }
+  convertViewPositionToModelPosition(viewLineNumber, viewColumn) {
+    const info = this.getViewLineInfo(viewLineNumber);
+    const inputColumn = this.modelLineProjections[info.modelLineNumber - 1].getModelColumnOfViewPosition(info.modelLineWrappedLineIdx, viewColumn);
+    return this.model.validatePosition(new Position(info.modelLineNumber, inputColumn));
+  }
+  convertViewRangeToModelRange(viewRange) {
+    const start = this.convertViewPositionToModelPosition(viewRange.startLineNumber, viewRange.startColumn);
+    const end = this.convertViewPositionToModelPosition(viewRange.endLineNumber, viewRange.endColumn);
+    return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+  }
+  convertModelPositionToViewPosition(_modelLineNumber, _modelColumn, affinity = 2, allowZeroLineNumber = false, belowHiddenRanges = false) {
+    const validPosition = this.model.validatePosition(new Position(_modelLineNumber, _modelColumn));
+    const inputLineNumber = validPosition.lineNumber;
+    const inputColumn = validPosition.column;
+    let lineIndex = inputLineNumber - 1, lineIndexChanged = false;
+    if (belowHiddenRanges) {
+      while (lineIndex < this.modelLineProjections.length && !this.modelLineProjections[lineIndex].isVisible()) {
+        lineIndex++;
+        lineIndexChanged = true;
+      }
+    } else {
+      while (lineIndex > 0 && !this.modelLineProjections[lineIndex].isVisible()) {
+        lineIndex--;
+        lineIndexChanged = true;
+      }
+    }
+    if (lineIndex === 0 && !this.modelLineProjections[lineIndex].isVisible()) {
+      return new Position(allowZeroLineNumber ? 0 : 1, 1);
+    }
+    const deltaLineNumber = 1 + this.projectedModelLineLineCounts.getPrefixSum(lineIndex);
+    let r;
+    if (lineIndexChanged) {
+      if (belowHiddenRanges) {
+        r = this.modelLineProjections[lineIndex].getViewPositionOfModelPosition(deltaLineNumber, 1, affinity);
+      } else {
+        r = this.modelLineProjections[lineIndex].getViewPositionOfModelPosition(deltaLineNumber, this.model.getLineMaxColumn(lineIndex + 1), affinity);
+      }
+    } else {
+      r = this.modelLineProjections[inputLineNumber - 1].getViewPositionOfModelPosition(deltaLineNumber, inputColumn, affinity);
+    }
+    return r;
+  }
+  /**
+   * @param affinity The affinity in case of an empty range. Has no effect for non-empty ranges.
+  */
+  convertModelRangeToViewRange(modelRange, affinity = 0) {
+    if (modelRange.isEmpty()) {
+      const start = this.convertModelPositionToViewPosition(modelRange.startLineNumber, modelRange.startColumn, affinity);
+      return Range.fromPositions(start);
+    } else {
+      const start = this.convertModelPositionToViewPosition(
+        modelRange.startLineNumber,
+        modelRange.startColumn,
+        1
+        /* PositionAffinity.Right */
+      );
+      const end = this.convertModelPositionToViewPosition(
+        modelRange.endLineNumber,
+        modelRange.endColumn,
+        0
+        /* PositionAffinity.Left */
+      );
+      return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+    }
+  }
+  getViewLineNumberOfModelPosition(modelLineNumber, modelColumn) {
+    let lineIndex = modelLineNumber - 1;
+    if (this.modelLineProjections[lineIndex].isVisible()) {
+      const deltaLineNumber2 = 1 + this.projectedModelLineLineCounts.getPrefixSum(lineIndex);
+      return this.modelLineProjections[lineIndex].getViewLineNumberOfModelPosition(deltaLineNumber2, modelColumn);
+    }
+    while (lineIndex > 0 && !this.modelLineProjections[lineIndex].isVisible()) {
+      lineIndex--;
+    }
+    if (lineIndex === 0 && !this.modelLineProjections[lineIndex].isVisible()) {
+      return 1;
+    }
+    const deltaLineNumber = 1 + this.projectedModelLineLineCounts.getPrefixSum(lineIndex);
+    return this.modelLineProjections[lineIndex].getViewLineNumberOfModelPosition(deltaLineNumber, this.model.getLineMaxColumn(lineIndex + 1));
+  }
+  getDecorationsInRange(range, ownerId, filterOutValidation, onlyMinimapDecorations, onlyMarginDecorations) {
+    const modelStart = this.convertViewPositionToModelPosition(range.startLineNumber, range.startColumn);
+    const modelEnd = this.convertViewPositionToModelPosition(range.endLineNumber, range.endColumn);
+    if (modelEnd.lineNumber - modelStart.lineNumber <= range.endLineNumber - range.startLineNumber) {
+      return this.model.getDecorationsInRange(new Range(modelStart.lineNumber, 1, modelEnd.lineNumber, modelEnd.column), ownerId, filterOutValidation, onlyMinimapDecorations, onlyMarginDecorations);
+    }
+    let result = [];
+    const modelStartLineIndex = modelStart.lineNumber - 1;
+    const modelEndLineIndex = modelEnd.lineNumber - 1;
+    let reqStart = null;
+    for (let modelLineIndex = modelStartLineIndex; modelLineIndex <= modelEndLineIndex; modelLineIndex++) {
+      const line = this.modelLineProjections[modelLineIndex];
+      if (line.isVisible()) {
+        if (reqStart === null) {
+          reqStart = new Position(modelLineIndex + 1, modelLineIndex === modelStartLineIndex ? modelStart.column : 1);
+        }
+      } else {
+        if (reqStart !== null) {
+          const maxLineColumn = this.model.getLineMaxColumn(modelLineIndex);
+          result = result.concat(this.model.getDecorationsInRange(new Range(reqStart.lineNumber, reqStart.column, modelLineIndex, maxLineColumn), ownerId, filterOutValidation, onlyMinimapDecorations));
+          reqStart = null;
+        }
+      }
+    }
+    if (reqStart !== null) {
+      result = result.concat(this.model.getDecorationsInRange(new Range(reqStart.lineNumber, reqStart.column, modelEnd.lineNumber, modelEnd.column), ownerId, filterOutValidation, onlyMinimapDecorations));
+      reqStart = null;
+    }
+    result.sort((a, b) => {
+      const res = Range.compareRangesUsingStarts(a.range, b.range);
+      if (res === 0) {
+        if (a.id < b.id) {
+          return -1;
+        }
+        if (a.id > b.id) {
+          return 1;
+        }
+        return 0;
+      }
+      return res;
+    });
+    const finalResult = [];
+    let finalResultLen = 0;
+    let prevDecId = null;
+    for (const dec of result) {
+      const decId = dec.id;
+      if (prevDecId === decId) {
+        continue;
+      }
+      prevDecId = decId;
+      finalResult[finalResultLen++] = dec;
+    }
+    return finalResult;
+  }
+  getInjectedTextAt(position) {
+    const info = this.getViewLineInfo(position.lineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].getInjectedTextAt(info.modelLineWrappedLineIdx, position.column);
+  }
+  normalizePosition(position, affinity) {
+    const info = this.getViewLineInfo(position.lineNumber);
+    return this.modelLineProjections[info.modelLineNumber - 1].normalizePosition(info.modelLineWrappedLineIdx, position, affinity);
+  }
+  getLineIndentColumn(lineNumber) {
+    const info = this.getViewLineInfo(lineNumber);
+    if (info.modelLineWrappedLineIdx === 0) {
+      return this.model.getLineIndentColumn(info.modelLineNumber);
+    }
+    return 0;
+  }
+}
+function normalizeLineRanges(ranges) {
+  if (ranges.length === 0) {
+    return [];
+  }
+  const sortedRanges = ranges.slice();
+  sortedRanges.sort(Range.compareRangesUsingStarts);
+  const result = [];
+  let currentRangeStart = sortedRanges[0].startLineNumber;
+  let currentRangeEnd = sortedRanges[0].endLineNumber;
+  for (let i = 1, len = sortedRanges.length; i < len; i++) {
+    const range = sortedRanges[i];
+    if (range.startLineNumber > currentRangeEnd + 1) {
+      result.push(new Range(currentRangeStart, 1, currentRangeEnd, 1));
+      currentRangeStart = range.startLineNumber;
+      currentRangeEnd = range.endLineNumber;
+    } else if (range.endLineNumber > currentRangeEnd) {
+      currentRangeEnd = range.endLineNumber;
+    }
+  }
+  result.push(new Range(currentRangeStart, 1, currentRangeEnd, 1));
+  return result;
+}
+__name(normalizeLineRanges, "normalizeLineRanges");
+class ViewLineInfo {
+  static {
+    __name(this, "ViewLineInfo");
+  }
+  get isWrappedLineContinuation() {
+    return this.modelLineWrappedLineIdx > 0;
+  }
+  constructor(modelLineNumber, modelLineWrappedLineIdx) {
+    this.modelLineNumber = modelLineNumber;
+    this.modelLineWrappedLineIdx = modelLineWrappedLineIdx;
+  }
+}
+class ViewLineInfoGroupedByModelRange {
+  static {
+    __name(this, "ViewLineInfoGroupedByModelRange");
+  }
+  constructor(modelRange, viewLines) {
+    this.modelRange = modelRange;
+    this.viewLines = viewLines;
+  }
+}
+class CoordinatesConverter {
+  static {
+    __name(this, "CoordinatesConverter");
+  }
+  constructor(lines) {
+    this._lines = lines;
+  }
+  // View -> Model conversion and related methods
+  convertViewPositionToModelPosition(viewPosition) {
+    return this._lines.convertViewPositionToModelPosition(viewPosition.lineNumber, viewPosition.column);
+  }
+  convertViewRangeToModelRange(viewRange) {
+    return this._lines.convertViewRangeToModelRange(viewRange);
+  }
+  validateViewPosition(viewPosition, expectedModelPosition) {
+    return this._lines.validateViewPosition(viewPosition.lineNumber, viewPosition.column, expectedModelPosition);
+  }
+  validateViewRange(viewRange, expectedModelRange) {
+    return this._lines.validateViewRange(viewRange, expectedModelRange);
+  }
+  // Model -> View conversion and related methods
+  convertModelPositionToViewPosition(modelPosition, affinity, allowZero, belowHiddenRanges) {
+    return this._lines.convertModelPositionToViewPosition(modelPosition.lineNumber, modelPosition.column, affinity, allowZero, belowHiddenRanges);
+  }
+  convertModelRangeToViewRange(modelRange, affinity) {
+    return this._lines.convertModelRangeToViewRange(modelRange, affinity);
+  }
+  modelPositionIsVisible(modelPosition) {
+    return this._lines.modelPositionIsVisible(modelPosition.lineNumber, modelPosition.column);
+  }
+  getModelLineViewLineCount(modelLineNumber) {
+    return this._lines.getModelLineViewLineCount(modelLineNumber);
+  }
+  getViewLineNumberOfModelPosition(modelLineNumber, modelColumn) {
+    return this._lines.getViewLineNumberOfModelPosition(modelLineNumber, modelColumn);
+  }
+}
+var IndentGuideRepeatOption;
+(function(IndentGuideRepeatOption2) {
+  IndentGuideRepeatOption2[IndentGuideRepeatOption2["BlockNone"] = 0] = "BlockNone";
+  IndentGuideRepeatOption2[IndentGuideRepeatOption2["BlockSubsequent"] = 1] = "BlockSubsequent";
+  IndentGuideRepeatOption2[IndentGuideRepeatOption2["BlockAll"] = 2] = "BlockAll";
+})(IndentGuideRepeatOption || (IndentGuideRepeatOption = {}));
+class ViewModelLinesFromModelAsIs {
+  static {
+    __name(this, "ViewModelLinesFromModelAsIs");
+  }
+  constructor(model) {
+    this.model = model;
+  }
+  dispose() {
+  }
+  createCoordinatesConverter() {
+    return new IdentityCoordinatesConverter(this);
+  }
+  getHiddenAreas() {
+    return [];
+  }
+  setHiddenAreas(_ranges) {
+    return false;
+  }
+  setTabSize(_newTabSize) {
+    return false;
+  }
+  setWrappingSettings(_fontInfo, _wrappingStrategy, _wrappingColumn, _wrappingIndent) {
+    return false;
+  }
+  createLineBreaksComputer() {
+    const result = [];
+    return {
+      addRequest: /* @__PURE__ */ __name((lineText, injectedText, previousLineBreakData) => {
+        result.push(null);
+      }, "addRequest"),
+      finalize: /* @__PURE__ */ __name(() => {
+        return result;
+      }, "finalize")
+    };
+  }
+  onModelFlushed() {
+  }
+  onModelLinesDeleted(_versionId, fromLineNumber, toLineNumber) {
+    return new viewEvents.ViewLinesDeletedEvent(fromLineNumber, toLineNumber);
+  }
+  onModelLinesInserted(_versionId, fromLineNumber, toLineNumber, lineBreaks) {
+    return new viewEvents.ViewLinesInsertedEvent(fromLineNumber, toLineNumber);
+  }
+  onModelLineChanged(_versionId, lineNumber, lineBreakData) {
+    return [false, new viewEvents.ViewLinesChangedEvent(lineNumber, 1), null, null];
+  }
+  acceptVersionId(_versionId) {
+  }
+  getViewLineCount() {
+    return this.model.getLineCount();
+  }
+  getActiveIndentGuide(viewLineNumber, _minLineNumber, _maxLineNumber) {
+    return {
+      startLineNumber: viewLineNumber,
+      endLineNumber: viewLineNumber,
+      indent: 0
+    };
+  }
+  getViewLinesBracketGuides(startLineNumber, endLineNumber, activePosition) {
+    return new Array(endLineNumber - startLineNumber + 1).fill([]);
+  }
+  getViewLinesIndentGuides(viewStartLineNumber, viewEndLineNumber) {
+    const viewLineCount = viewEndLineNumber - viewStartLineNumber + 1;
+    const result = new Array(viewLineCount);
+    for (let i = 0; i < viewLineCount; i++) {
+      result[i] = 0;
+    }
+    return result;
+  }
+  getViewLineContent(viewLineNumber) {
+    return this.model.getLineContent(viewLineNumber);
+  }
+  getViewLineLength(viewLineNumber) {
+    return this.model.getLineLength(viewLineNumber);
+  }
+  getViewLineMinColumn(viewLineNumber) {
+    return this.model.getLineMinColumn(viewLineNumber);
+  }
+  getViewLineMaxColumn(viewLineNumber) {
+    return this.model.getLineMaxColumn(viewLineNumber);
+  }
+  getViewLineData(viewLineNumber) {
+    const lineTokens = this.model.tokenization.getLineTokens(viewLineNumber);
+    const lineContent = lineTokens.getLineContent();
+    return new ViewLineData(lineContent, false, 1, lineContent.length + 1, 0, lineTokens.inflate(), null);
+  }
+  getViewLinesData(viewStartLineNumber, viewEndLineNumber, needed) {
+    const lineCount = this.model.getLineCount();
+    viewStartLineNumber = Math.min(Math.max(1, viewStartLineNumber), lineCount);
+    viewEndLineNumber = Math.min(Math.max(1, viewEndLineNumber), lineCount);
+    const result = [];
+    for (let lineNumber = viewStartLineNumber; lineNumber <= viewEndLineNumber; lineNumber++) {
+      const idx = lineNumber - viewStartLineNumber;
+      result[idx] = needed[idx] ? this.getViewLineData(lineNumber) : null;
+    }
+    return result;
+  }
+  getDecorationsInRange(range, ownerId, filterOutValidation, onlyMinimapDecorations, onlyMarginDecorations) {
+    return this.model.getDecorationsInRange(range, ownerId, filterOutValidation, onlyMinimapDecorations, onlyMarginDecorations);
+  }
+  normalizePosition(position, affinity) {
+    return this.model.normalizePosition(position, affinity);
+  }
+  getLineIndentColumn(lineNumber) {
+    return this.model.getLineIndentColumn(lineNumber);
+  }
+  getInjectedTextAt(position) {
+    return null;
+  }
+}
+class IdentityCoordinatesConverter {
+  static {
+    __name(this, "IdentityCoordinatesConverter");
+  }
+  constructor(lines) {
+    this._lines = lines;
+  }
+  _validPosition(pos) {
+    return this._lines.model.validatePosition(pos);
+  }
+  _validRange(range) {
+    return this._lines.model.validateRange(range);
+  }
+  // View -> Model conversion and related methods
+  convertViewPositionToModelPosition(viewPosition) {
+    return this._validPosition(viewPosition);
+  }
+  convertViewRangeToModelRange(viewRange) {
+    return this._validRange(viewRange);
+  }
+  validateViewPosition(_viewPosition, expectedModelPosition) {
+    return this._validPosition(expectedModelPosition);
+  }
+  validateViewRange(_viewRange, expectedModelRange) {
+    return this._validRange(expectedModelRange);
+  }
+  // Model -> View conversion and related methods
+  convertModelPositionToViewPosition(modelPosition) {
+    return this._validPosition(modelPosition);
+  }
+  convertModelRangeToViewRange(modelRange) {
+    return this._validRange(modelRange);
+  }
+  modelPositionIsVisible(modelPosition) {
+    const lineCount = this._lines.model.getLineCount();
+    if (modelPosition.lineNumber < 1 || modelPosition.lineNumber > lineCount) {
+      return false;
+    }
+    return true;
+  }
+  modelRangeIsVisible(modelRange) {
+    const lineCount = this._lines.model.getLineCount();
+    if (modelRange.startLineNumber < 1 || modelRange.startLineNumber > lineCount) {
+      return false;
+    }
+    if (modelRange.endLineNumber < 1 || modelRange.endLineNumber > lineCount) {
+      return false;
+    }
+    return true;
+  }
+  getModelLineViewLineCount(modelLineNumber) {
+    return 1;
+  }
+  getViewLineNumberOfModelPosition(modelLineNumber, modelColumn) {
+    return modelLineNumber;
+  }
+}
+export {
+  ViewModelLinesFromModelAsIs,
+  ViewModelLinesFromProjectedModel
+};
+//# sourceMappingURL=viewModelLines.js.map

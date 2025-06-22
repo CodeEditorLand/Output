@@ -1,2 +1,185 @@
-import{$hh as b}from"../../../base/common/resources.js";import f from"../../../base/common/severity.js";import{localize as s}from"../../../nls.js";import{$nj as g}from"../../instantiation/common/instantiation.js";import{$pm as B}from"../../../base/common/labels.js";import{$o as h,$n as I,$m as d}from"../../../base/common/platform.js";import{$2o as y}from"../../../base/common/objects.js";const L=g("dialogService");var c;(function(o){o[o.Confirmation=1]="Confirmation",o[o.Prompt=2]="Prompt",o[o.Input=3]="Input"})(c||(c={}));class _{a(e){return this.d(e,c.Confirmation)}b(e){return this.d(e,c.Prompt)}c(e){return this.d(e,c.Input)}d(e,u){const t=[];switch(u){case c.Confirmation:{const n=e;n.primaryButton?t.push(n.primaryButton):t.push(s(1827,null)),n.cancelButton?t.push(n.cancelButton):t.push(s(1828,null));break}case c.Prompt:{const n=e;Array.isArray(n.buttons)&&n.buttons.length>0&&t.push(...n.buttons.map(l=>l.label)),n.cancelButton&&(n.cancelButton===!0?t.push(s(1829,null)):typeof n.cancelButton=="string"?t.push(n.cancelButton):n.cancelButton.label?t.push(n.cancelButton.label):t.push(s(1830,null))),t.length===0&&t.push(s(1831,null));break}case c.Input:{const n=e;n.primaryButton?t.push(n.primaryButton):t.push(s(1832,null)),n.cancelButton?t.push(n.cancelButton):t.push(s(1833,null));break}}return t}e(e){if(typeof e=="string")return e;if(typeof e=="number")return e===f.Info?"info":e===f.Error?"error":e===f.Warning?"warning":"none"}f(e,u,t){const n=[...e.buttons??[]];e.cancelButton&&typeof e.cancelButton!="string"&&typeof e.cancelButton!="boolean"&&n.push(e.cancelButton);let l=n[u]?.run({checkboxChecked:t});return l instanceof Promise||(l=Promise.resolve(l)),{result:l,checkboxChecked:t}}}const C=g("fileDialogService");var m;(function(o){o[o.SAVE=0]="SAVE",o[o.DONT_SAVE=1]="DONT_SAVE",o[o.CANCEL=2]="CANCEL"})(m||(m={}));const a=10;function V(o){const e=[];return e.push(...o.slice(0,a).map(u=>typeof u=="string"?u:b(u))),o.length>a&&(o.length-a===1?e.push(s(1834,null)):e.push(s(1835,null,o.length-a))),e.push(""),e.join(`
-`)}function w(o,e){const u=y(o);let t=(u.buttons??[]).map(i=>B(i).withMnemonic),n=(o.buttons||[]).map((i,p)=>p),l=0,r=u.cancelId??t.length-1;if(t.length>1){const i=typeof r=="number"?t[r]:void 0;if(h||I){if(typeof i=="string"&&t.length>1&&r!==1){t.splice(r,1),t.splice(1,0,i);const p=n[r];n.splice(r,1),n.splice(1,0,p),r=1}h&&t.length>1&&(t=t.reverse(),n=n.reverse(),l=t.length-1,typeof i=="string"&&(r=l-1))}else if(d&&typeof i=="string"&&t.length>1&&r!==t.length-1){t.splice(r,1),t.push(i);const p=n[r];n.splice(r,1),n.push(p),r=t.length-1}}return u.buttons=t,u.defaultId=l,u.cancelId=r,u.noLink=!0,u.title=u.title||e.nameLong,{options:u,buttonIndeces:n}}export{L as $_o,_ as $ap,C as $bp,V as $cp,w as $dp,m as ConfirmResult};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { basename } from "../../../base/common/resources.js";
+import Severity from "../../../base/common/severity.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { mnemonicButtonLabel } from "../../../base/common/labels.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { deepClone } from "../../../base/common/objects.js";
+const IDialogService = createDecorator("dialogService");
+var DialogKind;
+(function(DialogKind2) {
+  DialogKind2[DialogKind2["Confirmation"] = 1] = "Confirmation";
+  DialogKind2[DialogKind2["Prompt"] = 2] = "Prompt";
+  DialogKind2[DialogKind2["Input"] = 3] = "Input";
+})(DialogKind || (DialogKind = {}));
+class AbstractDialogHandler {
+  static {
+    __name(this, "AbstractDialogHandler");
+  }
+  getConfirmationButtons(dialog) {
+    return this.getButtons(dialog, DialogKind.Confirmation);
+  }
+  getPromptButtons(dialog) {
+    return this.getButtons(dialog, DialogKind.Prompt);
+  }
+  getInputButtons(dialog) {
+    return this.getButtons(dialog, DialogKind.Input);
+  }
+  getButtons(dialog, kind) {
+    const buttons = [];
+    switch (kind) {
+      case DialogKind.Confirmation: {
+        const confirmationDialog = dialog;
+        if (confirmationDialog.primaryButton) {
+          buttons.push(confirmationDialog.primaryButton);
+        } else {
+          buttons.push(localize({ key: "yesButton", comment: ["&& denotes a mnemonic"] }, "&&Yes"));
+        }
+        if (confirmationDialog.cancelButton) {
+          buttons.push(confirmationDialog.cancelButton);
+        } else {
+          buttons.push(localize("cancelButton", "Cancel"));
+        }
+        break;
+      }
+      case DialogKind.Prompt: {
+        const promptDialog = dialog;
+        if (Array.isArray(promptDialog.buttons) && promptDialog.buttons.length > 0) {
+          buttons.push(...promptDialog.buttons.map((button) => button.label));
+        }
+        if (promptDialog.cancelButton) {
+          if (promptDialog.cancelButton === true) {
+            buttons.push(localize("cancelButton", "Cancel"));
+          } else if (typeof promptDialog.cancelButton === "string") {
+            buttons.push(promptDialog.cancelButton);
+          } else {
+            if (promptDialog.cancelButton.label) {
+              buttons.push(promptDialog.cancelButton.label);
+            } else {
+              buttons.push(localize("cancelButton", "Cancel"));
+            }
+          }
+        }
+        if (buttons.length === 0) {
+          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
+        }
+        break;
+      }
+      case DialogKind.Input: {
+        const inputDialog = dialog;
+        if (inputDialog.primaryButton) {
+          buttons.push(inputDialog.primaryButton);
+        } else {
+          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
+        }
+        if (inputDialog.cancelButton) {
+          buttons.push(inputDialog.cancelButton);
+        } else {
+          buttons.push(localize("cancelButton", "Cancel"));
+        }
+        break;
+      }
+    }
+    return buttons;
+  }
+  getDialogType(type) {
+    if (typeof type === "string") {
+      return type;
+    }
+    if (typeof type === "number") {
+      return type === Severity.Info ? "info" : type === Severity.Error ? "error" : type === Severity.Warning ? "warning" : "none";
+    }
+    return void 0;
+  }
+  getPromptResult(prompt, buttonIndex, checkboxChecked) {
+    const promptButtons = [...prompt.buttons ?? []];
+    if (prompt.cancelButton && typeof prompt.cancelButton !== "string" && typeof prompt.cancelButton !== "boolean") {
+      promptButtons.push(prompt.cancelButton);
+    }
+    let result = promptButtons[buttonIndex]?.run({ checkboxChecked });
+    if (!(result instanceof Promise)) {
+      result = Promise.resolve(result);
+    }
+    return { result, checkboxChecked };
+  }
+}
+const IFileDialogService = createDecorator("fileDialogService");
+var ConfirmResult;
+(function(ConfirmResult2) {
+  ConfirmResult2[ConfirmResult2["SAVE"] = 0] = "SAVE";
+  ConfirmResult2[ConfirmResult2["DONT_SAVE"] = 1] = "DONT_SAVE";
+  ConfirmResult2[ConfirmResult2["CANCEL"] = 2] = "CANCEL";
+})(ConfirmResult || (ConfirmResult = {}));
+const MAX_CONFIRM_FILES = 10;
+function getFileNamesMessage(fileNamesOrResources) {
+  const message = [];
+  message.push(...fileNamesOrResources.slice(0, MAX_CONFIRM_FILES).map((fileNameOrResource) => typeof fileNameOrResource === "string" ? fileNameOrResource : basename(fileNameOrResource)));
+  if (fileNamesOrResources.length > MAX_CONFIRM_FILES) {
+    if (fileNamesOrResources.length - MAX_CONFIRM_FILES === 1) {
+      message.push(localize("moreFile", "...1 additional file not shown"));
+    } else {
+      message.push(localize("moreFiles", "...{0} additional files not shown", fileNamesOrResources.length - MAX_CONFIRM_FILES));
+    }
+  }
+  message.push("");
+  return message.join("\n");
+}
+__name(getFileNamesMessage, "getFileNamesMessage");
+function massageMessageBoxOptions(options, productService) {
+  const massagedOptions = deepClone(options);
+  let buttons = (massagedOptions.buttons ?? []).map((button) => mnemonicButtonLabel(button).withMnemonic);
+  let buttonIndeces = (options.buttons || []).map((button, index) => index);
+  let defaultId = 0;
+  let cancelId = massagedOptions.cancelId ?? buttons.length - 1;
+  if (buttons.length > 1) {
+    const cancelButton = typeof cancelId === "number" ? buttons[cancelId] : void 0;
+    if (isLinux || isMacintosh) {
+      if (typeof cancelButton === "string" && buttons.length > 1 && cancelId !== 1) {
+        buttons.splice(cancelId, 1);
+        buttons.splice(1, 0, cancelButton);
+        const cancelButtonIndex = buttonIndeces[cancelId];
+        buttonIndeces.splice(cancelId, 1);
+        buttonIndeces.splice(1, 0, cancelButtonIndex);
+        cancelId = 1;
+      }
+      if (isLinux && buttons.length > 1) {
+        buttons = buttons.reverse();
+        buttonIndeces = buttonIndeces.reverse();
+        defaultId = buttons.length - 1;
+        if (typeof cancelButton === "string") {
+          cancelId = defaultId - 1;
+        }
+      }
+    } else if (isWindows) {
+      if (typeof cancelButton === "string" && buttons.length > 1 && cancelId !== buttons.length - 1) {
+        buttons.splice(cancelId, 1);
+        buttons.push(cancelButton);
+        const buttonIndex = buttonIndeces[cancelId];
+        buttonIndeces.splice(cancelId, 1);
+        buttonIndeces.push(buttonIndex);
+        cancelId = buttons.length - 1;
+      }
+    }
+  }
+  massagedOptions.buttons = buttons;
+  massagedOptions.defaultId = defaultId;
+  massagedOptions.cancelId = cancelId;
+  massagedOptions.noLink = true;
+  massagedOptions.title = massagedOptions.title || productService.nameLong;
+  return {
+    options: massagedOptions,
+    buttonIndeces
+  };
+}
+__name(massageMessageBoxOptions, "massageMessageBoxOptions");
+export {
+  AbstractDialogHandler,
+  ConfirmResult,
+  IDialogService,
+  IFileDialogService,
+  getFileNamesMessage,
+  massageMessageBoxOptions
+};
+//# sourceMappingURL=dialogs.js.map

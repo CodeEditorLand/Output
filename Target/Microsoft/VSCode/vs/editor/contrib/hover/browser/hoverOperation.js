@@ -1,1 +1,187 @@
-import{$ci as g,$Yh as d}from"../../../../base/common/async.js";import{$kb as f}from"../../../../base/common/errors.js";import{$df as m}from"../../../../base/common/event.js";import{$vd as a}from"../../../../base/common/lifecycle.js";var c;(function(i){i[i.Idle=0]="Idle",i[i.FirstWait=1]="FirstWait",i[i.SecondWait=2]="SecondWait",i[i.WaitingForAsync=3]="WaitingForAsync",i[i.WaitingForAsyncShowingLoading=4]="WaitingForAsyncShowingLoading"})(c||(c={}));var n;(function(i){i[i.Delayed=0]="Delayed",i[i.Immediate=1]="Immediate"})(n||(n={}));var l;(function(i){i[i.Mouse=0]="Mouse",i[i.Click=1]="Click",i[i.Keyboard=2]="Keyboard"})(l||(l={}));class r{constructor(t,s,h,u){this.value=t,this.isComplete=s,this.hasLoadingMessage=h,this.options=u}}class F extends a{constructor(t,s){super(),this.r=t,this.s=s,this.a=this.B(new m),this.onResult=this.a.event,this.b=this.B(new e(h=>this.C(h),0)),this.c=this.B(new e(h=>this.D(h),0)),this.f=this.B(new e(h=>this.F(h),0)),this.g=0,this.h=null,this.j=!1,this.m=[]}dispose(){this.h&&(this.h.cancel(),this.h=null),this.n=void 0,super.dispose()}get t(){return this.r.getOption(65).delay}get u(){return this.t/2}get w(){return this.t-this.u}get y(){return 3*this.t}z(t,s){this.n=s,this.g=t,this.G(s)}C(t){this.z(2,t),this.c.schedule(t,this.w),this.s.computeAsync?(this.j=!1,this.h=g(s=>this.s.computeAsync(t,s)),(async()=>{try{for await(const s of this.h)s&&(this.m.push(s),this.G(t));this.j=!0,(this.g===3||this.g===4)&&this.z(0,t)}catch(s){f(s)}})()):this.j=!0}D(t){this.s.computeSync&&(this.m=this.m.concat(this.s.computeSync(t))),this.z(this.j?0:3,t)}F(t){this.g===3&&this.z(4,t)}G(t){if(this.g===1||this.g===2)return;const s=this.g===0,h=this.g===4;this.a.fire(new r(this.m.slice(0),s,h,t))}start(t,s){if(t===0)this.g===0&&(this.z(1,s),this.b.schedule(s,this.u),this.f.schedule(s,this.y));else switch(this.g){case 0:this.C(s),this.c.cancel(),this.D(s);break;case 2:this.c.cancel(),this.D(s);break}}cancel(){this.b.cancel(),this.c.cancel(),this.f.cancel(),this.h&&(this.h.cancel(),this.h=null),this.m=[],this.n=void 0,this.g=0}get options(){return this.n}}class e extends a{constructor(t,s){super(),this.a=this.B(new d(()=>t(this.b),s))}schedule(t,s){this.b=t,this.a.schedule(s)}cancel(){this.a.cancel()}}export{r as $Xib,F as $Yib,n as HoverStartMode,l as HoverStartSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createCancelableAsyncIterable, RunOnceScheduler } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+var HoverOperationState;
+(function(HoverOperationState2) {
+  HoverOperationState2[HoverOperationState2["Idle"] = 0] = "Idle";
+  HoverOperationState2[HoverOperationState2["FirstWait"] = 1] = "FirstWait";
+  HoverOperationState2[HoverOperationState2["SecondWait"] = 2] = "SecondWait";
+  HoverOperationState2[HoverOperationState2["WaitingForAsync"] = 3] = "WaitingForAsync";
+  HoverOperationState2[HoverOperationState2["WaitingForAsyncShowingLoading"] = 4] = "WaitingForAsyncShowingLoading";
+})(HoverOperationState || (HoverOperationState = {}));
+var HoverStartMode;
+(function(HoverStartMode2) {
+  HoverStartMode2[HoverStartMode2["Delayed"] = 0] = "Delayed";
+  HoverStartMode2[HoverStartMode2["Immediate"] = 1] = "Immediate";
+})(HoverStartMode || (HoverStartMode = {}));
+var HoverStartSource;
+(function(HoverStartSource2) {
+  HoverStartSource2[HoverStartSource2["Mouse"] = 0] = "Mouse";
+  HoverStartSource2[HoverStartSource2["Click"] = 1] = "Click";
+  HoverStartSource2[HoverStartSource2["Keyboard"] = 2] = "Keyboard";
+})(HoverStartSource || (HoverStartSource = {}));
+class HoverResult {
+  static {
+    __name(this, "HoverResult");
+  }
+  constructor(value, isComplete, hasLoadingMessage, options) {
+    this.value = value;
+    this.isComplete = isComplete;
+    this.hasLoadingMessage = hasLoadingMessage;
+    this.options = options;
+  }
+}
+class HoverOperation extends Disposable {
+  static {
+    __name(this, "HoverOperation");
+  }
+  constructor(_editor, _computer) {
+    super();
+    this._editor = _editor;
+    this._computer = _computer;
+    this._onResult = this._register(new Emitter());
+    this.onResult = this._onResult.event;
+    this._asyncComputationScheduler = this._register(new Debouncer((options) => this._triggerAsyncComputation(options), 0));
+    this._syncComputationScheduler = this._register(new Debouncer((options) => this._triggerSyncComputation(options), 0));
+    this._loadingMessageScheduler = this._register(new Debouncer((options) => this._triggerLoadingMessage(options), 0));
+    this._state = 0;
+    this._asyncIterable = null;
+    this._asyncIterableDone = false;
+    this._result = [];
+  }
+  dispose() {
+    if (this._asyncIterable) {
+      this._asyncIterable.cancel();
+      this._asyncIterable = null;
+    }
+    this._options = void 0;
+    super.dispose();
+  }
+  get _hoverTime() {
+    return this._editor.getOption(
+      65
+      /* EditorOption.hover */
+    ).delay;
+  }
+  get _firstWaitTime() {
+    return this._hoverTime / 2;
+  }
+  get _secondWaitTime() {
+    return this._hoverTime - this._firstWaitTime;
+  }
+  get _loadingMessageTime() {
+    return 3 * this._hoverTime;
+  }
+  _setState(state, options) {
+    this._options = options;
+    this._state = state;
+    this._fireResult(options);
+  }
+  _triggerAsyncComputation(options) {
+    this._setState(2, options);
+    this._syncComputationScheduler.schedule(options, this._secondWaitTime);
+    if (this._computer.computeAsync) {
+      this._asyncIterableDone = false;
+      this._asyncIterable = createCancelableAsyncIterable((token) => this._computer.computeAsync(options, token));
+      (async () => {
+        try {
+          for await (const item of this._asyncIterable) {
+            if (item) {
+              this._result.push(item);
+              this._fireResult(options);
+            }
+          }
+          this._asyncIterableDone = true;
+          if (this._state === 3 || this._state === 4) {
+            this._setState(0, options);
+          }
+        } catch (e) {
+          onUnexpectedError(e);
+        }
+      })();
+    } else {
+      this._asyncIterableDone = true;
+    }
+  }
+  _triggerSyncComputation(options) {
+    if (this._computer.computeSync) {
+      this._result = this._result.concat(this._computer.computeSync(options));
+    }
+    this._setState(this._asyncIterableDone ? 0 : 3, options);
+  }
+  _triggerLoadingMessage(options) {
+    if (this._state === 3) {
+      this._setState(4, options);
+    }
+  }
+  _fireResult(options) {
+    if (this._state === 1 || this._state === 2) {
+      return;
+    }
+    const isComplete = this._state === 0;
+    const hasLoadingMessage = this._state === 4;
+    this._onResult.fire(new HoverResult(this._result.slice(0), isComplete, hasLoadingMessage, options));
+  }
+  start(mode, options) {
+    if (mode === 0) {
+      if (this._state === 0) {
+        this._setState(1, options);
+        this._asyncComputationScheduler.schedule(options, this._firstWaitTime);
+        this._loadingMessageScheduler.schedule(options, this._loadingMessageTime);
+      }
+    } else {
+      switch (this._state) {
+        case 0:
+          this._triggerAsyncComputation(options);
+          this._syncComputationScheduler.cancel();
+          this._triggerSyncComputation(options);
+          break;
+        case 2:
+          this._syncComputationScheduler.cancel();
+          this._triggerSyncComputation(options);
+          break;
+      }
+    }
+  }
+  cancel() {
+    this._asyncComputationScheduler.cancel();
+    this._syncComputationScheduler.cancel();
+    this._loadingMessageScheduler.cancel();
+    if (this._asyncIterable) {
+      this._asyncIterable.cancel();
+      this._asyncIterable = null;
+    }
+    this._result = [];
+    this._options = void 0;
+    this._state = 0;
+  }
+  get options() {
+    return this._options;
+  }
+}
+class Debouncer extends Disposable {
+  static {
+    __name(this, "Debouncer");
+  }
+  constructor(runner, debounceTimeMs) {
+    super();
+    this._scheduler = this._register(new RunOnceScheduler(() => runner(this._options), debounceTimeMs));
+  }
+  schedule(options, debounceTimeMs) {
+    this._options = options;
+    this._scheduler.schedule(debounceTimeMs);
+  }
+  cancel() {
+    this._scheduler.cancel();
+  }
+}
+export {
+  HoverOperation,
+  HoverResult,
+  HoverStartMode,
+  HoverStartSource
+};
+//# sourceMappingURL=hoverOperation.js.map

@@ -1,1 +1,221 @@
-import*as C from"../../../base/browser/dom.js";import{$c5 as U}from"../../../base/browser/window.js";import{CancellationToken as d}from"../../../base/common/cancellation.js";import{$Gd as f}from"../../../base/common/linkedList.js";import{$Ic as $}from"../../../base/common/map.js";import{$xm as w}from"../../../base/common/marshalling.js";import{$Wg as b,$Xg as v,Schemas as s}from"../../../base/common/network.js";import{$lh as R}from"../../../base/common/resources.js";import{URI as c}from"../../../base/common/uri.js";import{$0_ as E}from"./codeEditorService.js";import{$Yn as x}from"../../../platform/commands/common/commands.js";import{EditorOpenSource as y}from"../../../platform/editor/common/editor.js";import{$6$ as S}from"../../../platform/opener/common/opener.js";var m=function(i,e,t,r){var n=arguments.length,o=n<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,e,t,r);else for(var l=i.length-1;l>=0;l--)(a=i[l])&&(o=(n<3?a(o):n>3?a(e,t,o):a(e,t))||o);return n>3&&o&&Object.defineProperty(e,t,o),o},p=function(i,e){return function(t,r){e(t,r,i)}};let u=class{constructor(e){this.a=e}async open(e,t){if(!b(e,s.command))return!1;if(!t?.allowCommands||(typeof e=="string"&&(e=c.parse(e)),Array.isArray(t.allowCommands)&&!t.allowCommands.includes(e.path)))return!0;let r=[];try{r=w(decodeURIComponent(e.query))}catch{try{r=w(e.query)}catch{}}return Array.isArray(r)||(r=[r]),await this.a.executeCommand(e.path,...r),!0}};u=m([p(0,x)],u);let h=class{constructor(e){this.a=e}async open(e,t){typeof e=="string"&&(e=c.parse(e));const{selection:r,uri:n}=S(e);return e=n,e.scheme===s.file&&(e=R(e)),await this.a.openCodeEditor({resource:e,options:{selection:r,source:t?.fromUserGesture?y.USER:y.API,...t?.editorOptions}},this.a.getFocusedCodeEditor(),t?.openToSide),!0}};h=m([p(0,E)],h);let O=class{constructor(e,t){this.a=new f,this.b=new f,this.c=new f,this.d=new $(r=>r.with({path:null,fragment:null,query:null}).toString()),this.f=new f,this.e={openExternal:async r=>(v(r,s.http,s.https)?C.$Y6(r):U.location.href=r,!0)},this.a.push({open:async(r,n)=>n?.openExternal||v(r,s.mailto,s.http,s.https,s.vsls)?(await this.g(r,n),!0):!1}),this.a.push(new u(t)),this.a.push(new h(e))}registerOpener(e){return{dispose:this.a.unshift(e)}}registerValidator(e){return{dispose:this.b.push(e)}}registerExternalUriResolver(e){return{dispose:this.c.push(e)}}setDefaultExternalOpener(e){this.e=e}registerExternalOpener(e){return{dispose:this.f.push(e)}}async open(e,t){if(!t?.skipValidation){const r=typeof e=="string"?c.parse(e):e,n=this.d.get(r)??e;for(const o of this.b)if(!await o.shouldOpen(n,t))return!1}for(const r of this.a)if(await r.open(e,t))return!0;return!1}async resolveExternalUri(e,t){for(const r of this.c)try{const n=await r.resolveExternalUri(e,t);if(n)return this.d.has(n.resolved)||this.d.set(n.resolved,e),n}catch{}throw new Error("Could not resolve external URI: "+e.toString())}async g(e,t){const r=typeof e=="string"?c.parse(e):e;let n;try{n=(await this.resolveExternalUri(r,t)).resolved}catch{n=r}let o;if(typeof e=="string"&&r.toString()===n.toString()?o=e:o=encodeURI(n.toString(!0)),t?.allowContributedOpeners){const a=typeof t?.allowContributedOpeners=="string"?t?.allowContributedOpeners:void 0;for(const l of this.f)if(await l.openExternal(o,{sourceUri:r,preferredOpenerId:a},d.None))return!0}return this.e.openExternal(o,{sourceUri:r},d.None)}dispose(){this.b.clear()}};O=m([p(0,E),p(1,x)],O);export{O as $X7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../base/browser/dom.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { LinkedList } from "../../../base/common/linkedList.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { parse } from "../../../base/common/marshalling.js";
+import { matchesScheme, matchesSomeScheme, Schemas } from "../../../base/common/network.js";
+import { normalizePath } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { ICodeEditorService } from "./codeEditorService.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { EditorOpenSource } from "../../../platform/editor/common/editor.js";
+import { extractSelection } from "../../../platform/opener/common/opener.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let CommandOpener = class CommandOpener2 {
+  static {
+    __name(this, "CommandOpener");
+  }
+  constructor(_commandService) {
+    this._commandService = _commandService;
+  }
+  async open(target, options) {
+    if (!matchesScheme(target, Schemas.command)) {
+      return false;
+    }
+    if (!options?.allowCommands) {
+      return true;
+    }
+    if (typeof target === "string") {
+      target = URI.parse(target);
+    }
+    if (Array.isArray(options.allowCommands)) {
+      if (!options.allowCommands.includes(target.path)) {
+        return true;
+      }
+    }
+    let args = [];
+    try {
+      args = parse(decodeURIComponent(target.query));
+    } catch {
+      try {
+        args = parse(target.query);
+      } catch {
+      }
+    }
+    if (!Array.isArray(args)) {
+      args = [args];
+    }
+    await this._commandService.executeCommand(target.path, ...args);
+    return true;
+  }
+};
+CommandOpener = __decorate([
+  __param(0, ICommandService)
+], CommandOpener);
+let EditorOpener = class EditorOpener2 {
+  static {
+    __name(this, "EditorOpener");
+  }
+  constructor(_editorService) {
+    this._editorService = _editorService;
+  }
+  async open(target, options) {
+    if (typeof target === "string") {
+      target = URI.parse(target);
+    }
+    const { selection, uri } = extractSelection(target);
+    target = uri;
+    if (target.scheme === Schemas.file) {
+      target = normalizePath(target);
+    }
+    await this._editorService.openCodeEditor({
+      resource: target,
+      options: {
+        selection,
+        source: options?.fromUserGesture ? EditorOpenSource.USER : EditorOpenSource.API,
+        ...options?.editorOptions
+      }
+    }, this._editorService.getFocusedCodeEditor(), options?.openToSide);
+    return true;
+  }
+};
+EditorOpener = __decorate([
+  __param(0, ICodeEditorService)
+], EditorOpener);
+let OpenerService = class OpenerService2 {
+  static {
+    __name(this, "OpenerService");
+  }
+  constructor(editorService, commandService) {
+    this._openers = new LinkedList();
+    this._validators = new LinkedList();
+    this._resolvers = new LinkedList();
+    this._resolvedUriTargets = new ResourceMap((uri) => uri.with({ path: null, fragment: null, query: null }).toString());
+    this._externalOpeners = new LinkedList();
+    this._defaultExternalOpener = {
+      openExternal: /* @__PURE__ */ __name(async (href) => {
+        if (matchesSomeScheme(href, Schemas.http, Schemas.https)) {
+          dom.windowOpenNoOpener(href);
+        } else {
+          mainWindow.location.href = href;
+        }
+        return true;
+      }, "openExternal")
+    };
+    this._openers.push({
+      open: /* @__PURE__ */ __name(async (target, options) => {
+        if (options?.openExternal || matchesSomeScheme(target, Schemas.mailto, Schemas.http, Schemas.https, Schemas.vsls)) {
+          await this._doOpenExternal(target, options);
+          return true;
+        }
+        return false;
+      }, "open")
+    });
+    this._openers.push(new CommandOpener(commandService));
+    this._openers.push(new EditorOpener(editorService));
+  }
+  registerOpener(opener) {
+    const remove = this._openers.unshift(opener);
+    return { dispose: remove };
+  }
+  registerValidator(validator) {
+    const remove = this._validators.push(validator);
+    return { dispose: remove };
+  }
+  registerExternalUriResolver(resolver) {
+    const remove = this._resolvers.push(resolver);
+    return { dispose: remove };
+  }
+  setDefaultExternalOpener(externalOpener) {
+    this._defaultExternalOpener = externalOpener;
+  }
+  registerExternalOpener(opener) {
+    const remove = this._externalOpeners.push(opener);
+    return { dispose: remove };
+  }
+  async open(target, options) {
+    if (!options?.skipValidation) {
+      const targetURI = typeof target === "string" ? URI.parse(target) : target;
+      const validationTarget = this._resolvedUriTargets.get(targetURI) ?? target;
+      for (const validator of this._validators) {
+        if (!await validator.shouldOpen(validationTarget, options)) {
+          return false;
+        }
+      }
+    }
+    for (const opener of this._openers) {
+      const handled = await opener.open(target, options);
+      if (handled) {
+        return true;
+      }
+    }
+    return false;
+  }
+  async resolveExternalUri(resource, options) {
+    for (const resolver of this._resolvers) {
+      try {
+        const result = await resolver.resolveExternalUri(resource, options);
+        if (result) {
+          if (!this._resolvedUriTargets.has(result.resolved)) {
+            this._resolvedUriTargets.set(result.resolved, resource);
+          }
+          return result;
+        }
+      } catch {
+      }
+    }
+    throw new Error("Could not resolve external URI: " + resource.toString());
+  }
+  async _doOpenExternal(resource, options) {
+    const uri = typeof resource === "string" ? URI.parse(resource) : resource;
+    let externalUri;
+    try {
+      externalUri = (await this.resolveExternalUri(uri, options)).resolved;
+    } catch {
+      externalUri = uri;
+    }
+    let href;
+    if (typeof resource === "string" && uri.toString() === externalUri.toString()) {
+      href = resource;
+    } else {
+      href = encodeURI(externalUri.toString(true));
+    }
+    if (options?.allowContributedOpeners) {
+      const preferredOpenerId = typeof options?.allowContributedOpeners === "string" ? options?.allowContributedOpeners : void 0;
+      for (const opener of this._externalOpeners) {
+        const didOpen = await opener.openExternal(href, {
+          sourceUri: uri,
+          preferredOpenerId
+        }, CancellationToken.None);
+        if (didOpen) {
+          return true;
+        }
+      }
+    }
+    return this._defaultExternalOpener.openExternal(href, { sourceUri: uri }, CancellationToken.None);
+  }
+  dispose() {
+    this._validators.clear();
+  }
+};
+OpenerService = __decorate([
+  __param(0, ICodeEditorService),
+  __param(1, ICommandService)
+], OpenerService);
+export {
+  OpenerService
+};
+//# sourceMappingURL=openerService.js.map

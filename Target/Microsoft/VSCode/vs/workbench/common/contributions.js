@@ -1,1 +1,264 @@
-import{$mj as p}from"../../platform/instantiation/common/instantiation.js";import{$RK as y}from"../services/lifecycle/common/lifecycle.js";import{$Ql as k}from"../../platform/registry/common/platform.js";import{$0h as $,$3h as a}from"../../base/common/async.js";import{$T as d}from"../../base/common/performance.js";import{$3n as I}from"../../platform/log/common/log.js";import{$fl as W}from"../../platform/environment/common/environment.js";import{$Fc as b}from"../../base/common/map.js";import{$vd as E,$ud as R,$pd as N}from"../../base/common/lifecycle.js";import{$UK as S}from"../services/editor/common/editorPaneService.js";var u;(function(s){s.Workbench="workbench.contributions.kind"})(u||(u={}));var g;(function(s){s[s.BlockStartup=1]="BlockStartup",s[s.BlockRestore=2]="BlockRestore",s[s.AfterRestored=3]="AfterRestored",s[s.Eventually=4]="Eventually"})(g||(g={}));function l(s){const e=s;return!!e&&typeof e.editorTypeId=="string"}function T(s){switch(s){case 3:return 3;case 4:return 4}}function m(s){switch(s){case 1:return 1;case 2:return 2;case 3:return 3;case 4:return 4}}class c extends E{constructor(){super(...arguments),this.m=new Map,this.n=new Map,this.r=new Map,this.s=new Map,this.t=this.B(new R),this.u=new Map,this.w=new $,this.whenRestored=this.w.p}static{this.INSTANCE=new c}static{this.a=20}static{this.b=100}get timings(){return this.u}registerWorkbenchContribution2(e,n,i){const t={id:e,ctor:n};this.c&&this.f&&this.g&&this.h&&this.j&&(typeof i=="number"&&this.f.phase>=i||typeof e=="string"&&l(i)&&this.j.didInstantiateEditorPane(i.editorTypeId))?this.F(this.c,this.g,this.h,t,typeof i=="number"?m(i):this.f.phase):(typeof i=="number"&&b(this.m,m(i),[]).push(t),typeof e=="string"&&(this.r.has(e)||this.r.set(e,t),l(i)&&b(this.n,i.editorTypeId,[]).push(t)))}registerWorkbenchContribution(e,n){this.registerWorkbenchContribution2(void 0,e,T(n))}getWorkbenchContribution(e){if(this.s.has(e))return this.s.get(e);const n=this.c,i=this.f,t=this.g,r=this.h;if(!n||!i||!t||!r)throw new Error(`IWorkbenchContributionsRegistry#getContribution('${e}'): cannot be called before registry started`);const h=this.r.get(e);if(!h)throw new Error(`IWorkbenchContributionsRegistry#getContribution('${e}'): contribution with that identifier is unknown.`);i.phase<3&&t.warn(`IWorkbenchContributionsRegistry#getContribution('${e}'): contribution instantiated before LifecyclePhase.Restored!`),this.F(n,t,r,h,i.phase);const o=this.s.get(e);if(!o)throw new Error(`IWorkbenchContributionsRegistry#getContribution('${e}'): failed to create contribution.`);return o}start(e){const n=this.c=e.get(p),i=this.f=e.get(y),t=this.g=e.get(I),r=this.h=e.get(W),h=this.j=e.get(S);this.B(i.onDidShutdown(()=>{this.t.clear()}));for(const o of[1,2,3,4])this.z(n,i,t,r,o);for(const o of this.n.keys())h.didInstantiateEditorPane(o)&&this.y(o,n,i,t,r);this.B(h.onWillInstantiateEditorPane(o=>this.y(o.typeId,n,i,t,r)))}y(e,n,i,t,r){const h=this.n.get(e);if(h){this.n.delete(e);for(const o of h)this.F(n,t,r,o,i.phase)}}z(e,n,i,t,r){n.phase>=r?this.C(e,i,t,r):n.when(r).then(()=>this.C(e,i,t,r))}async C(e,n,i,t){const r=this.m.get(t);if(r)switch(this.m.delete(t),t){case 1:case 2:{d(`code/willCreateWorkbenchContributions/${t}`);for(const h of r)this.F(e,n,i,h,t);d(`code/didCreateWorkbenchContributions/${t}`);break}case 3:case 4:{t===4&&await this.w.p,this.D(r,e,n,i,t);break}}}D(e,n,i,t,r){d(`code/willCreateWorkbenchContributions/${r}`);let h=0;const o=r===4?3e3:500,f=w=>{for(;h<e.length;){const C=e[h++];if(this.F(n,i,t,C,r),w.timeRemaining()<1){a(f,o);break}}h===e.length&&(d(`code/didCreateWorkbenchContributions/${r}`),r===3&&this.w.complete())};a(f,o)}F(e,n,i,t,r){if(typeof t.id=="string"&&this.s.has(t.id))return;const h=Date.now();try{typeof t.id=="string"&&d(`code/willCreateWorkbenchContribution/${r}/${t.id}`);const o=e.createInstance(t.ctor);typeof t.id=="string"&&(this.s.set(t.id,o),this.r.delete(t.id)),N(o)&&this.t.add(o)}catch(o){n.error(`Unable to create workbench contribution '${t.id??t.ctor.name}'.`,o)}finally{typeof t.id=="string"&&d(`code/didCreateWorkbenchContribution/${r}/${t.id}`)}if(typeof t.id=="string"||!i.isBuilt){const o=Date.now()-h;if(o>(r<3?c.a:c.b)&&n.warn(`Creation of workbench contribution '${t.id??t.ctor.name}' took ${o}ms.`),typeof t.id=="string"){let f=this.u.get(r);f||(f=[],this.u.set(r,f)),f.push([t.id,o])}}}}const L=c.INSTANCE.registerWorkbenchContribution2.bind(c.INSTANCE),P=c.INSTANCE.getWorkbenchContribution.bind(c.INSTANCE);k.add(u.Workbench,c.INSTANCE);export{c as $VK,L as $WK,P as $XK,u as Extensions,g as WorkbenchPhase};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../platform/registry/common/platform.js";
+import { DeferredPromise, runWhenGlobalIdle } from "../../base/common/async.js";
+import { mark } from "../../base/common/performance.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { IEnvironmentService } from "../../platform/environment/common/environment.js";
+import { getOrSet } from "../../base/common/map.js";
+import { Disposable, DisposableStore, isDisposable } from "../../base/common/lifecycle.js";
+import { IEditorPaneService } from "../services/editor/common/editorPaneService.js";
+var Extensions;
+(function(Extensions2) {
+  Extensions2.Workbench = "workbench.contributions.kind";
+})(Extensions || (Extensions = {}));
+var WorkbenchPhase;
+(function(WorkbenchPhase2) {
+  WorkbenchPhase2[WorkbenchPhase2["BlockStartup"] = 1] = "BlockStartup";
+  WorkbenchPhase2[WorkbenchPhase2["BlockRestore"] = 2] = "BlockRestore";
+  WorkbenchPhase2[WorkbenchPhase2["AfterRestored"] = 3] = "AfterRestored";
+  WorkbenchPhase2[WorkbenchPhase2["Eventually"] = 4] = "Eventually";
+})(WorkbenchPhase || (WorkbenchPhase = {}));
+function isOnEditorWorkbenchContributionInstantiation(obj) {
+  const candidate = obj;
+  return !!candidate && typeof candidate.editorTypeId === "string";
+}
+__name(isOnEditorWorkbenchContributionInstantiation, "isOnEditorWorkbenchContributionInstantiation");
+function toWorkbenchPhase(phase) {
+  switch (phase) {
+    case 3:
+      return 3;
+    case 4:
+      return 4;
+  }
+}
+__name(toWorkbenchPhase, "toWorkbenchPhase");
+function toLifecyclePhase(instantiation) {
+  switch (instantiation) {
+    case 1:
+      return 1;
+    case 2:
+      return 2;
+    case 3:
+      return 3;
+    case 4:
+      return 4;
+  }
+}
+__name(toLifecyclePhase, "toLifecyclePhase");
+class WorkbenchContributionsRegistry extends Disposable {
+  static {
+    __name(this, "WorkbenchContributionsRegistry");
+  }
+  constructor() {
+    super(...arguments);
+    this.contributionsByPhase = /* @__PURE__ */ new Map();
+    this.contributionsByEditor = /* @__PURE__ */ new Map();
+    this.contributionsById = /* @__PURE__ */ new Map();
+    this.instancesById = /* @__PURE__ */ new Map();
+    this.instanceDisposables = this._register(new DisposableStore());
+    this.timingsByPhase = /* @__PURE__ */ new Map();
+    this.pendingRestoredContributions = new DeferredPromise();
+    this.whenRestored = this.pendingRestoredContributions.p;
+  }
+  static {
+    this.INSTANCE = new WorkbenchContributionsRegistry();
+  }
+  static {
+    this.BLOCK_BEFORE_RESTORE_WARN_THRESHOLD = 20;
+  }
+  static {
+    this.BLOCK_AFTER_RESTORE_WARN_THRESHOLD = 100;
+  }
+  get timings() {
+    return this.timingsByPhase;
+  }
+  registerWorkbenchContribution2(id, ctor, instantiation) {
+    const contribution = { id, ctor };
+    if (this.instantiationService && this.lifecycleService && this.logService && this.environmentService && this.editorPaneService && (typeof instantiation === "number" && this.lifecycleService.phase >= instantiation || typeof id === "string" && isOnEditorWorkbenchContributionInstantiation(instantiation) && this.editorPaneService.didInstantiateEditorPane(instantiation.editorTypeId))) {
+      this.safeCreateContribution(this.instantiationService, this.logService, this.environmentService, contribution, typeof instantiation === "number" ? toLifecyclePhase(instantiation) : this.lifecycleService.phase);
+    } else {
+      if (typeof instantiation === "number") {
+        getOrSet(this.contributionsByPhase, toLifecyclePhase(instantiation), []).push(contribution);
+      }
+      if (typeof id === "string") {
+        if (!this.contributionsById.has(id)) {
+          this.contributionsById.set(id, contribution);
+        } else {
+          console.error(`IWorkbenchContributionsRegistry#registerWorkbenchContribution(): Can't register multiple contributions with same id '${id}'`);
+        }
+        if (isOnEditorWorkbenchContributionInstantiation(instantiation)) {
+          getOrSet(this.contributionsByEditor, instantiation.editorTypeId, []).push(contribution);
+        }
+      }
+    }
+  }
+  registerWorkbenchContribution(ctor, phase) {
+    this.registerWorkbenchContribution2(void 0, ctor, toWorkbenchPhase(phase));
+  }
+  getWorkbenchContribution(id) {
+    if (this.instancesById.has(id)) {
+      return this.instancesById.get(id);
+    }
+    const instantiationService = this.instantiationService;
+    const lifecycleService = this.lifecycleService;
+    const logService = this.logService;
+    const environmentService = this.environmentService;
+    if (!instantiationService || !lifecycleService || !logService || !environmentService) {
+      throw new Error(`IWorkbenchContributionsRegistry#getContribution('${id}'): cannot be called before registry started`);
+    }
+    const contribution = this.contributionsById.get(id);
+    if (!contribution) {
+      throw new Error(`IWorkbenchContributionsRegistry#getContribution('${id}'): contribution with that identifier is unknown.`);
+    }
+    if (lifecycleService.phase < 3) {
+      logService.warn(`IWorkbenchContributionsRegistry#getContribution('${id}'): contribution instantiated before LifecyclePhase.Restored!`);
+    }
+    this.safeCreateContribution(instantiationService, logService, environmentService, contribution, lifecycleService.phase);
+    const instance = this.instancesById.get(id);
+    if (!instance) {
+      throw new Error(`IWorkbenchContributionsRegistry#getContribution('${id}'): failed to create contribution.`);
+    }
+    return instance;
+  }
+  start(accessor) {
+    const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
+    const lifecycleService = this.lifecycleService = accessor.get(ILifecycleService);
+    const logService = this.logService = accessor.get(ILogService);
+    const environmentService = this.environmentService = accessor.get(IEnvironmentService);
+    const editorPaneService = this.editorPaneService = accessor.get(IEditorPaneService);
+    this._register(lifecycleService.onDidShutdown(() => {
+      this.instanceDisposables.clear();
+    }));
+    for (const phase of [
+      1,
+      2,
+      3,
+      4
+      /* LifecyclePhase.Eventually */
+    ]) {
+      this.instantiateByPhase(instantiationService, lifecycleService, logService, environmentService, phase);
+    }
+    for (const editorTypeId of this.contributionsByEditor.keys()) {
+      if (editorPaneService.didInstantiateEditorPane(editorTypeId)) {
+        this.onEditor(editorTypeId, instantiationService, lifecycleService, logService, environmentService);
+      }
+    }
+    this._register(editorPaneService.onWillInstantiateEditorPane((e) => this.onEditor(e.typeId, instantiationService, lifecycleService, logService, environmentService)));
+  }
+  onEditor(editorTypeId, instantiationService, lifecycleService, logService, environmentService) {
+    const contributions = this.contributionsByEditor.get(editorTypeId);
+    if (contributions) {
+      this.contributionsByEditor.delete(editorTypeId);
+      for (const contribution of contributions) {
+        this.safeCreateContribution(instantiationService, logService, environmentService, contribution, lifecycleService.phase);
+      }
+    }
+  }
+  instantiateByPhase(instantiationService, lifecycleService, logService, environmentService, phase) {
+    if (lifecycleService.phase >= phase) {
+      this.doInstantiateByPhase(instantiationService, logService, environmentService, phase);
+    } else {
+      lifecycleService.when(phase).then(() => this.doInstantiateByPhase(instantiationService, logService, environmentService, phase));
+    }
+  }
+  async doInstantiateByPhase(instantiationService, logService, environmentService, phase) {
+    const contributions = this.contributionsByPhase.get(phase);
+    if (contributions) {
+      this.contributionsByPhase.delete(phase);
+      switch (phase) {
+        case 1:
+        case 2: {
+          mark(`code/willCreateWorkbenchContributions/${phase}`);
+          for (const contribution of contributions) {
+            this.safeCreateContribution(instantiationService, logService, environmentService, contribution, phase);
+          }
+          mark(`code/didCreateWorkbenchContributions/${phase}`);
+          break;
+        }
+        case 3:
+        case 4: {
+          if (phase === 4) {
+            await this.pendingRestoredContributions.p;
+          }
+          this.doInstantiateWhenIdle(contributions, instantiationService, logService, environmentService, phase);
+          break;
+        }
+      }
+    }
+  }
+  doInstantiateWhenIdle(contributions, instantiationService, logService, environmentService, phase) {
+    mark(`code/willCreateWorkbenchContributions/${phase}`);
+    let i = 0;
+    const forcedTimeout = phase === 4 ? 3e3 : 500;
+    const instantiateSome = /* @__PURE__ */ __name((idle) => {
+      while (i < contributions.length) {
+        const contribution = contributions[i++];
+        this.safeCreateContribution(instantiationService, logService, environmentService, contribution, phase);
+        if (idle.timeRemaining() < 1) {
+          runWhenGlobalIdle(instantiateSome, forcedTimeout);
+          break;
+        }
+      }
+      if (i === contributions.length) {
+        mark(`code/didCreateWorkbenchContributions/${phase}`);
+        if (phase === 3) {
+          this.pendingRestoredContributions.complete();
+        }
+      }
+    }, "instantiateSome");
+    runWhenGlobalIdle(instantiateSome, forcedTimeout);
+  }
+  safeCreateContribution(instantiationService, logService, environmentService, contribution, phase) {
+    if (typeof contribution.id === "string" && this.instancesById.has(contribution.id)) {
+      return;
+    }
+    const now = Date.now();
+    try {
+      if (typeof contribution.id === "string") {
+        mark(`code/willCreateWorkbenchContribution/${phase}/${contribution.id}`);
+      }
+      const instance = instantiationService.createInstance(contribution.ctor);
+      if (typeof contribution.id === "string") {
+        this.instancesById.set(contribution.id, instance);
+        this.contributionsById.delete(contribution.id);
+      }
+      if (isDisposable(instance)) {
+        this.instanceDisposables.add(instance);
+      }
+    } catch (error) {
+      logService.error(`Unable to create workbench contribution '${contribution.id ?? contribution.ctor.name}'.`, error);
+    } finally {
+      if (typeof contribution.id === "string") {
+        mark(`code/didCreateWorkbenchContribution/${phase}/${contribution.id}`);
+      }
+    }
+    if (typeof contribution.id === "string" || !environmentService.isBuilt) {
+      const time = Date.now() - now;
+      if (time > (phase < 3 ? WorkbenchContributionsRegistry.BLOCK_BEFORE_RESTORE_WARN_THRESHOLD : WorkbenchContributionsRegistry.BLOCK_AFTER_RESTORE_WARN_THRESHOLD)) {
+        logService.warn(`Creation of workbench contribution '${contribution.id ?? contribution.ctor.name}' took ${time}ms.`);
+      }
+      if (typeof contribution.id === "string") {
+        let timingsForPhase = this.timingsByPhase.get(phase);
+        if (!timingsForPhase) {
+          timingsForPhase = [];
+          this.timingsByPhase.set(phase, timingsForPhase);
+        }
+        timingsForPhase.push([contribution.id, time]);
+      }
+    }
+  }
+}
+const registerWorkbenchContribution2 = WorkbenchContributionsRegistry.INSTANCE.registerWorkbenchContribution2.bind(WorkbenchContributionsRegistry.INSTANCE);
+const getWorkbenchContribution = WorkbenchContributionsRegistry.INSTANCE.getWorkbenchContribution.bind(WorkbenchContributionsRegistry.INSTANCE);
+Registry.add(Extensions.Workbench, WorkbenchContributionsRegistry.INSTANCE);
+export {
+  Extensions,
+  WorkbenchContributionsRegistry,
+  WorkbenchPhase,
+  getWorkbenchContribution,
+  registerWorkbenchContribution2
+};
+//# sourceMappingURL=contributions.js.map

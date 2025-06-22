@@ -1,1 +1,366 @@
-import{$k7 as E}from"../../../../base/browser/dnd.js";import{$ as g,$_6 as v}from"../../../../base/browser/dom.js";import{$E8 as N}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$7b as I}from"../../../../base/common/arrays.js";import{CancellationToken as F}from"../../../../base/common/cancellation.js";import{$Mj as y}from"../../../../base/common/codicons.js";import{$7C as _}from"../../../../base/common/dataTransfer.js";import{$4B as O}from"../../../../base/common/mime.js";import{URI as R}from"../../../../base/common/uri.js";import{localize as c}from"../../../../nls.js";import{$Qgb as m,$Vgb as l,$Rgb as $,$1gb as M,$3gb as U,$Ygb as x}from"../../../../platform/dnd/browser/dnd.js";import{$3n as A}from"../../../../platform/log/common/log.js";import{$Mt as S,$Tt as w}from"../../../../platform/theme/common/themeService.js";import{$OA as B}from"../../../../platform/webContentExtractor/common/webContentExtractor.js";import{$XO as P,$1O as K}from"../../../services/extensions/common/extensions.js";import{$lWb as G}from"./chat.js";import{$iWb as C}from"./chatAttachmentResolveService.js";import{$3zb as H}from"./imageUtils.js";var b=function(s,t,e,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,r);else for(var h=s.length-1;h>=0;h--)(u=s[h])&&(i=(n<3?u(i):n>3?u(t,e,i):u(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},d=function(s,t){return function(e,r){t(e,r,s)}},a;(function(s){s[s.FILE_INTERNAL=0]="FILE_INTERNAL",s[s.FILE_EXTERNAL=1]="FILE_EXTERNAL",s[s.FOLDER=2]="FOLDER",s[s.IMAGE=3]="IMAGE",s[s.SYMBOL=4]="SYMBOL",s[s.HTML=5]="HTML",s[s.MARKER=6]="MARKER",s[s.NOTEBOOK_CELL_OUTPUT=7]="NOTEBOOK_CELL_OUTPUT"})(a||(a={}));const W=/^data:image\/[a-z]+;base64,/,j=/^https?:\/\/.+/;let T=class extends w{constructor(t,e,r,n,i,u,h,L){super(r),this.f=t,this.g=e,this.j=n,this.m=i,this.r=u,this.s=h,this.t=L,this.a=new Map,this.c="",this.u=void 0,this.updateStyles()}addOverlay(t,e){this.removeOverlay(t);const{overlay:r,disposable:n}=this.y(t,e);this.a.set(t,{overlay:r,disposable:n})}removeOverlay(t){this.u===t&&(this.u=void 0);const e=this.a.get(t);e&&(e.overlay.remove(),e.disposable.dispose(),this.a.delete(t))}y(t,e){const r=document.createElement("div");r.classList.add("chat-dnd-overlay"),this.R(r),e.appendChild(r);const n=new v(t,{onDragOver:i=>{i.stopPropagation(),i.preventDefault(),t!==this.u&&(this.u&&this.P(this.u,void 0),this.u=t,this.C(i,t))},onDragLeave:i=>{t===this.u&&(this.u=void 0),this.D(i,t)},onDrop:i=>{i.stopPropagation(),i.preventDefault(),t===this.u&&(this.u=void 0,this.F(i,t))}});return{overlay:r,disposable:n}}C(t,e){const r=this.I(t);this.H(t,e,r)}D(t,e){this.H(t,e,void 0)}F(t,e){this.H(t,e,void 0),this.G(t)}async G(t){const e=await this.M(t);e.length!==0&&this.f.addContext(...e)}H(t,e,r){const n=r!==void 0;t.dataTransfer&&(t.dataTransfer.dropEffect=n?"copy":"none"),this.P(e,r)}I(t){if(l(t,m.NOTEBOOK_CELL_OUTPUT))return a.NOTEBOOK_CELL_OUTPUT;if(X(t))return this.j.extensions.some(e=>K(e,"chatReferenceBinaryData"))?a.IMAGE:void 0;if(l(t,"text/html"))return a.HTML;if(l(t,m.SYMBOLS))return a.SYMBOL;if(l(t,m.MARKERS))return a.MARKER;if(l(t,E.FILES))return a.FILE_EXTERNAL;if(l(t,m.EDITORS))return a.FILE_INTERNAL;if(l(t,O.uriList,m.FILES,E.RESOURCES,E.INTERNAL_URI_LIST))return a.FOLDER}J(t){return this.I(t)!==void 0}L(t){switch(t){case a.FILE_INTERNAL:return c(5216,null);case a.FILE_EXTERNAL:return c(5217,null);case a.FOLDER:return c(5218,null);case a.IMAGE:return c(5219,null);case a.SYMBOL:return c(5220,null);case a.MARKER:return c(5221,null);case a.HTML:return c(5222,null);case a.NOTEBOOK_CELL_OUTPUT:return c(5223,null)}}async M(t){if(!this.J(t))return[];if(l(t,m.NOTEBOOK_CELL_OUTPUT)){const i=U(t);if(i)return this.t.resolveNotebookOutputAttachContext(i)}const e=M(t);if(e)return this.t.resolveMarkerAttachContext(e);if(l(t,m.SYMBOLS)){const i=x(t);return this.t.resolveSymbolsAttachContext(i)}const r=$(t);if(r.length>0)return I(await Promise.all(r.map(i=>this.t.resolveEditorAttachContext(i))));const n=t.dataTransfer?.getData(E.INTERNAL_URI_LIST);if(n){const i=_.parse(n);if(i.length)return I(await Promise.all(i.map(u=>this.t.resolveEditorAttachContext({resource:R.parse(u)}))))}return!l(t,E.INTERNAL_URI_LIST)&&l(t,O.uriList)&&(l(t,O.html)||l(t,O.text))?this.O(t):[]}async N(t){try{const r=await this.m.readImage(R.parse(t),F.None);if(r)return r.buffer}catch(r){this.s.warn("Fetch failed:",r)}const e=this.r.lastFocusedWidget?.inputEditor.getSelection();e&&this.r.lastFocusedWidget&&this.r.lastFocusedWidget.inputEditor.executeEdits("chatInsertUrl",[{range:e,text:t}]),this.s.warn(`Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${t}`)}async O(t){const e=new Set(this.f.attachments.map(o=>o.name)),r=()=>{const o=c(5224,null);let f=o,p=1;for(;e.has(f);)f=`${o} ${++p}`;return e.add(f),f},n=async o=>{const f=R.parse(o);if(W.test(o))return{data:H(o),name:r(),resource:f};if(j.test(o)){const p=await this.N(o);if(p)return{data:p,name:r(),resource:f,id:o}}},i=async o=>{try{const f=await o.arrayBuffer();return{data:new Uint8Array(f),name:r()}}catch(f){this.s.error("Error reading file:",f)}},u=[],h=k(t);if(h.length){const o=await Promise.all(h.map(f=>i(f)));u.push(...o.filter(f=>!!f))}const L=Y(t);if(L.length){const o=await Promise.all(L.map(n));u.push(...o.filter(f=>!!f))}return await this.t.resolveImageAttachContext(u)}P(t,e){this.b?.remove(),this.b=void 0;const{overlay:r}=this.a.get(t);if(e!==void 0){const i=N(`$(${y.attach.id}) ${this.Q(e)}`).map(u=>typeof u=="string"?g("span.overlay-text",void 0,u):u);this.b=g("span.attach-context-overlay-text",void 0,...i),this.b.style.backgroundColor=this.c,r.appendChild(this.b)}r.classList.toggle("visible",e!==void 0)}Q(t){const e=this.L(t);return c(5225,null,e)}R(t){t.style.backgroundColor=this.z(this.g.overlayBackground)||"",t.style.color=this.z(this.g.listForeground)||""}updateStyles(){this.a.forEach(t=>this.R(t.overlay)),this.c=this.z(this.g.listBackground)||""}};T=b([d(2,S),d(3,P),d(4,B),d(5,G),d(6,A),d(7,C)],T);function X(s){if(l(s,"image"))return!0;if(l(s,E.FILES)){const t=s.dataTransfer?.files;if(t&&t.length>0)return Array.from(t).some(r=>r.type.startsWith("image/"));const e=s.dataTransfer?.items;if(e&&e.length>0)return Array.from(e).some(r=>r.type.startsWith("image/"))}return!1}function Y(s,t){const e=s.dataTransfer?.getData("text/uri-list");if(e)try{const r=_.parse(e);if(r.length>0)return r}catch(r){return t?.error("Error parsing URI list:",r),[]}return[]}function k(s){const t=s.dataTransfer?.files;return t?Array.from(t).filter(e=>e.type.startsWith("image/")):[]}export{T as $hMb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DataTransfers } from "../../../../base/browser/dnd.js";
+import { $, DragAndDropObserver } from "../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { UriList } from "../../../../base/common/dataTransfer.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { CodeDataTransfers, containsDragType, extractEditorsDropData, extractMarkerDropData, extractNotebookCellOutputDropData, extractSymbolDropData } from "../../../../platform/dnd/browser/dnd.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { ISharedWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+import { IChatWidgetService } from "./chat.js";
+import { IChatAttachmentResolveService } from "./chatAttachmentResolveService.js";
+import { convertStringToUInt8Array } from "./imageUtils.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatDragAndDropType;
+(function(ChatDragAndDropType2) {
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_INTERNAL"] = 0] = "FILE_INTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_EXTERNAL"] = 1] = "FILE_EXTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FOLDER"] = 2] = "FOLDER";
+  ChatDragAndDropType2[ChatDragAndDropType2["IMAGE"] = 3] = "IMAGE";
+  ChatDragAndDropType2[ChatDragAndDropType2["SYMBOL"] = 4] = "SYMBOL";
+  ChatDragAndDropType2[ChatDragAndDropType2["HTML"] = 5] = "HTML";
+  ChatDragAndDropType2[ChatDragAndDropType2["MARKER"] = 6] = "MARKER";
+  ChatDragAndDropType2[ChatDragAndDropType2["NOTEBOOK_CELL_OUTPUT"] = 7] = "NOTEBOOK_CELL_OUTPUT";
+})(ChatDragAndDropType || (ChatDragAndDropType = {}));
+const IMAGE_DATA_REGEX = /^data:image\/[a-z]+;base64,/;
+const URL_REGEX = /^https?:\/\/.+/;
+let ChatDragAndDrop = class ChatDragAndDrop2 extends Themable {
+  static {
+    __name(this, "ChatDragAndDrop");
+  }
+  constructor(attachmentModel, styles, themeService, extensionService, webContentExtractorService, chatWidgetService, logService, chatAttachmentResolveService) {
+    super(themeService);
+    this.attachmentModel = attachmentModel;
+    this.styles = styles;
+    this.extensionService = extensionService;
+    this.webContentExtractorService = webContentExtractorService;
+    this.chatWidgetService = chatWidgetService;
+    this.logService = logService;
+    this.chatAttachmentResolveService = chatAttachmentResolveService;
+    this.overlays = /* @__PURE__ */ new Map();
+    this.overlayTextBackground = "";
+    this.currentActiveTarget = void 0;
+    this.updateStyles();
+  }
+  addOverlay(target, overlayContainer) {
+    this.removeOverlay(target);
+    const { overlay, disposable } = this.createOverlay(target, overlayContainer);
+    this.overlays.set(target, { overlay, disposable });
+  }
+  removeOverlay(target) {
+    if (this.currentActiveTarget === target) {
+      this.currentActiveTarget = void 0;
+    }
+    const existingOverlay = this.overlays.get(target);
+    if (existingOverlay) {
+      existingOverlay.overlay.remove();
+      existingOverlay.disposable.dispose();
+      this.overlays.delete(target);
+    }
+  }
+  createOverlay(target, overlayContainer) {
+    const overlay = document.createElement("div");
+    overlay.classList.add("chat-dnd-overlay");
+    this.updateOverlayStyles(overlay);
+    overlayContainer.appendChild(overlay);
+    const disposable = new DragAndDropObserver(target, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target === this.currentActiveTarget) {
+          return;
+        }
+        if (this.currentActiveTarget) {
+          this.setOverlay(this.currentActiveTarget, void 0);
+        }
+        this.currentActiveTarget = target;
+        this.onDragEnter(e, target);
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        if (target === this.currentActiveTarget) {
+          this.currentActiveTarget = void 0;
+        }
+        this.onDragLeave(e, target);
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target !== this.currentActiveTarget) {
+          return;
+        }
+        this.currentActiveTarget = void 0;
+        this.onDrop(e, target);
+      }, "onDrop")
+    });
+    return { overlay, disposable };
+  }
+  onDragEnter(e, target) {
+    const estimatedDropType = this.guessDropType(e);
+    this.updateDropFeedback(e, target, estimatedDropType);
+  }
+  onDragLeave(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+  }
+  onDrop(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+    this.drop(e);
+  }
+  async drop(e) {
+    const contexts = await this.resolveAttachmentsFromDragEvent(e);
+    if (contexts.length === 0) {
+      return;
+    }
+    this.attachmentModel.addContext(...contexts);
+  }
+  updateDropFeedback(e, target, dropType) {
+    const showOverlay = dropType !== void 0;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = showOverlay ? "copy" : "none";
+    }
+    this.setOverlay(target, dropType);
+  }
+  guessDropType(e) {
+    if (containsDragType(e, CodeDataTransfers.NOTEBOOK_CELL_OUTPUT)) {
+      return ChatDragAndDropType.NOTEBOOK_CELL_OUTPUT;
+    } else if (containsImageDragType(e)) {
+      return this.extensionService.extensions.some((ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")) ? ChatDragAndDropType.IMAGE : void 0;
+    } else if (containsDragType(e, "text/html")) {
+      return ChatDragAndDropType.HTML;
+    } else if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      return ChatDragAndDropType.SYMBOL;
+    } else if (containsDragType(e, CodeDataTransfers.MARKERS)) {
+      return ChatDragAndDropType.MARKER;
+    } else if (containsDragType(e, DataTransfers.FILES)) {
+      return ChatDragAndDropType.FILE_EXTERNAL;
+    } else if (containsDragType(e, CodeDataTransfers.EDITORS)) {
+      return ChatDragAndDropType.FILE_INTERNAL;
+    } else if (containsDragType(e, Mimes.uriList, CodeDataTransfers.FILES, DataTransfers.RESOURCES, DataTransfers.INTERNAL_URI_LIST)) {
+      return ChatDragAndDropType.FOLDER;
+    }
+    return void 0;
+  }
+  isDragEventSupported(e) {
+    const dropType = this.guessDropType(e);
+    return dropType !== void 0;
+  }
+  getDropTypeName(type) {
+    switch (type) {
+      case ChatDragAndDropType.FILE_INTERNAL:
+        return localize("file", "File");
+      case ChatDragAndDropType.FILE_EXTERNAL:
+        return localize("file", "File");
+      case ChatDragAndDropType.FOLDER:
+        return localize("folder", "Folder");
+      case ChatDragAndDropType.IMAGE:
+        return localize("image", "Image");
+      case ChatDragAndDropType.SYMBOL:
+        return localize("symbol", "Symbol");
+      case ChatDragAndDropType.MARKER:
+        return localize("problem", "Problem");
+      case ChatDragAndDropType.HTML:
+        return localize("url", "URL");
+      case ChatDragAndDropType.NOTEBOOK_CELL_OUTPUT:
+        return localize("notebookOutput", "Output");
+    }
+  }
+  async resolveAttachmentsFromDragEvent(e) {
+    if (!this.isDragEventSupported(e)) {
+      return [];
+    }
+    if (containsDragType(e, CodeDataTransfers.NOTEBOOK_CELL_OUTPUT)) {
+      const notebookOutputData = extractNotebookCellOutputDropData(e);
+      if (notebookOutputData) {
+        return this.chatAttachmentResolveService.resolveNotebookOutputAttachContext(notebookOutputData);
+      }
+    }
+    const markerData = extractMarkerDropData(e);
+    if (markerData) {
+      return this.chatAttachmentResolveService.resolveMarkerAttachContext(markerData);
+    }
+    if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      const symbolsData = extractSymbolDropData(e);
+      return this.chatAttachmentResolveService.resolveSymbolsAttachContext(symbolsData);
+    }
+    const editorDragData = extractEditorsDropData(e);
+    if (editorDragData.length > 0) {
+      return coalesce(await Promise.all(editorDragData.map((editorInput) => {
+        return this.chatAttachmentResolveService.resolveEditorAttachContext(editorInput);
+      })));
+    }
+    const internal = e.dataTransfer?.getData(DataTransfers.INTERNAL_URI_LIST);
+    if (internal) {
+      const uriList = UriList.parse(internal);
+      if (uriList.length) {
+        return coalesce(await Promise.all(uriList.map((uri) => this.chatAttachmentResolveService.resolveEditorAttachContext({ resource: URI.parse(uri) }))));
+      }
+    }
+    if (!containsDragType(e, DataTransfers.INTERNAL_URI_LIST) && containsDragType(e, Mimes.uriList) && (containsDragType(e, Mimes.html) || containsDragType(e, Mimes.text))) {
+      return this.resolveHTMLAttachContext(e);
+    }
+    return [];
+  }
+  async downloadImageAsUint8Array(url) {
+    try {
+      const extractedImages = await this.webContentExtractorService.readImage(URI.parse(url), CancellationToken.None);
+      if (extractedImages) {
+        return extractedImages.buffer;
+      }
+    } catch (error) {
+      this.logService.warn("Fetch failed:", error);
+    }
+    const selection = this.chatWidgetService.lastFocusedWidget?.inputEditor.getSelection();
+    if (selection && this.chatWidgetService.lastFocusedWidget) {
+      this.chatWidgetService.lastFocusedWidget.inputEditor.executeEdits("chatInsertUrl", [{ range: selection, text: url }]);
+    }
+    this.logService.warn(`Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${url}`);
+    return void 0;
+  }
+  async resolveHTMLAttachContext(e) {
+    const existingAttachmentNames = new Set(this.attachmentModel.attachments.map((attachment) => attachment.name));
+    const createDisplayName = /* @__PURE__ */ __name(() => {
+      const baseName = localize("dragAndDroppedImageName", "Image from URL");
+      let uniqueName = baseName;
+      let baseNameInstance = 1;
+      while (existingAttachmentNames.has(uniqueName)) {
+        uniqueName = `${baseName} ${++baseNameInstance}`;
+      }
+      existingAttachmentNames.add(uniqueName);
+      return uniqueName;
+    }, "createDisplayName");
+    const getImageTransferDataFromUrl = /* @__PURE__ */ __name(async (url) => {
+      const resource = URI.parse(url);
+      if (IMAGE_DATA_REGEX.test(url)) {
+        return { data: convertStringToUInt8Array(url), name: createDisplayName(), resource };
+      }
+      if (URL_REGEX.test(url)) {
+        const data = await this.downloadImageAsUint8Array(url);
+        if (data) {
+          return { data, name: createDisplayName(), resource, id: url };
+        }
+      }
+      return void 0;
+    }, "getImageTransferDataFromUrl");
+    const getImageTransferDataFromFile = /* @__PURE__ */ __name(async (file) => {
+      try {
+        const buffer = await file.arrayBuffer();
+        return { data: new Uint8Array(buffer), name: createDisplayName() };
+      } catch (error) {
+        this.logService.error("Error reading file:", error);
+      }
+      return void 0;
+    }, "getImageTransferDataFromFile");
+    const imageTransferData = [];
+    const imageFiles = extractImageFilesFromDragEvent(e);
+    if (imageFiles.length) {
+      const imageTransferDataFromFiles = await Promise.all(imageFiles.map((file) => getImageTransferDataFromFile(file)));
+      imageTransferData.push(...imageTransferDataFromFiles.filter((data) => !!data));
+    }
+    const imageUrls = extractUrlsFromDragEvent(e);
+    if (imageUrls.length) {
+      const imageTransferDataFromUrl = await Promise.all(imageUrls.map(getImageTransferDataFromUrl));
+      imageTransferData.push(...imageTransferDataFromUrl.filter((data) => !!data));
+    }
+    return await this.chatAttachmentResolveService.resolveImageAttachContext(imageTransferData);
+  }
+  setOverlay(target, type) {
+    this.overlayText?.remove();
+    this.overlayText = void 0;
+    const { overlay } = this.overlays.get(target);
+    if (type !== void 0) {
+      const iconAndtextElements = renderLabelWithIcons(`$(${Codicon.attach.id}) ${this.getOverlayText(type)}`);
+      const htmlElements = iconAndtextElements.map((element) => {
+        if (typeof element === "string") {
+          return $("span.overlay-text", void 0, element);
+        }
+        return element;
+      });
+      this.overlayText = $("span.attach-context-overlay-text", void 0, ...htmlElements);
+      this.overlayText.style.backgroundColor = this.overlayTextBackground;
+      overlay.appendChild(this.overlayText);
+    }
+    overlay.classList.toggle("visible", type !== void 0);
+  }
+  getOverlayText(type) {
+    const typeName = this.getDropTypeName(type);
+    return localize("attacAsContext", "Attach {0} as Context", typeName);
+  }
+  updateOverlayStyles(overlay) {
+    overlay.style.backgroundColor = this.getColor(this.styles.overlayBackground) || "";
+    overlay.style.color = this.getColor(this.styles.listForeground) || "";
+  }
+  updateStyles() {
+    this.overlays.forEach((overlay) => this.updateOverlayStyles(overlay.overlay));
+    this.overlayTextBackground = this.getColor(this.styles.listBackground) || "";
+  }
+};
+ChatDragAndDrop = __decorate([
+  __param(2, IThemeService),
+  __param(3, IExtensionService),
+  __param(4, ISharedWebContentExtractorService),
+  __param(5, IChatWidgetService),
+  __param(6, ILogService),
+  __param(7, IChatAttachmentResolveService)
+], ChatDragAndDrop);
+function containsImageDragType(e) {
+  if (containsDragType(e, "image")) {
+    return true;
+  }
+  if (containsDragType(e, DataTransfers.FILES)) {
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      return Array.from(files).some((file) => file.type.startsWith("image/"));
+    }
+    const items = e.dataTransfer?.items;
+    if (items && items.length > 0) {
+      return Array.from(items).some((item) => item.type.startsWith("image/"));
+    }
+  }
+  return false;
+}
+__name(containsImageDragType, "containsImageDragType");
+function extractUrlsFromDragEvent(e, logService) {
+  const textUrl = e.dataTransfer?.getData("text/uri-list");
+  if (textUrl) {
+    try {
+      const urls = UriList.parse(textUrl);
+      if (urls.length > 0) {
+        return urls;
+      }
+    } catch (error) {
+      logService?.error("Error parsing URI list:", error);
+      return [];
+    }
+  }
+  return [];
+}
+__name(extractUrlsFromDragEvent, "extractUrlsFromDragEvent");
+function extractImageFilesFromDragEvent(e) {
+  const files = e.dataTransfer?.files;
+  if (!files) {
+    return [];
+  }
+  return Array.from(files).filter((file) => file.type.startsWith("image/"));
+}
+__name(extractImageFilesFromDragEvent, "extractImageFilesFromDragEvent");
+export {
+  ChatDragAndDrop
+};
+//# sourceMappingURL=chatDragAndDrop.js.map

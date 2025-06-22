@@ -1,1 +1,526 @@
-import{URI as m}from"../../../base/common/uri.js";import{localize as k}from"../../../nls.js";import{$fl as v}from"../../environment/common/environment.js";import{$5j as S}from"../../files/common/files.js";import{$ru as D}from"../../externalServices/common/serviceMachineId.js";import{$Ho as C}from"../../storage/common/storage.js";import{$yo as x}from"../../uriIdentity/common/uriIdentity.js";import{$YMb as N,$aNb as O,$XMb as L,$3Mb as M,$cNb as g,$QMb as z}from"./userDataSync.js";import{$Ao as _}from"../../userDataProfile/common/userDataProfile.js";import{$76b as q}from"./abstractSynchronizer.js";import{$Bzc as y}from"./snippetsSync.js";import{$wzc as A}from"./settingsSync.js";import{$tzc as H}from"./keybindingsSync.js";import{$El as E}from"../../configuration/common/configuration.js";import{$Ezc as B}from"./tasksSync.js";import{$qzc as J,$nzc as W,$ozc as b}from"./extensionsSync.js";import{$d7b as G,$b7b as j}from"./globalStateSync.js";import{$mj as F}from"../../instantiation/common/instantiation.js";import{$vBc as $,$uBc as K}from"./userDataProfilesManifestSync.js";import{$ev as Q}from"../../../base/common/jsonFormatter.js";import{$Hf as T}from"../../../base/common/strings.js";import{$qBc as R}from"./promptsSync/promptsSync.js";var P=function(f,e,t,s){var n=arguments.length,r=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(f,e,t,s);else for(var i=f.length-1;i>=0;i--)(o=f[i])&&(r=(n<3?o(r):n>3?o(e,t,r):o(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},l=function(f,e){return function(t,s){e(t,s,f)}},a;let w=class{static{a=this}static{this.a="not-existing-resource"}static{this.b="remote-backup"}static{this.c="local-backup"}constructor(e,t,s,n,r,o,i,h,u,d){this.e=e,this.f=t,this.g=s,this.h=r,this.i=o,this.j=i,this.k=h,this.l=u,this.n=d,this.d=n.extUri}async getRemoteSyncedProfiles(){const e=await this.e.readResource("profiles",null,void 0);if(e.content){const t=this.N(e.content,"profiles");return $(t)}return[]}async getLocalSyncedProfiles(e){const t=await this.f.getAllResourceRefs("profiles",void 0,e);if(t.length){const s=await this.f.resolveResourceContent("profiles",t[0].ref,void 0,e);if(s){const n=this.N(s,"profiles");return $(n)}}return[]}async getLocalSyncedMachines(e){const t=await this.f.getAllResourceRefs("machines",void 0,e);if(t.length){const s=await this.f.resolveResourceContent("machines",t[0].ref,void 0,e);if(s)return JSON.parse(s).machines.map(r=>({...r,isCurrent:!1}))}return[]}async getRemoteSyncResourceHandles(e,t){return(await this.e.getAllResourceRefs(e,t?.collection)).map(({created:n,ref:r})=>({created:n,uri:this.L({remote:!0,syncResource:e,profile:t?.id??this.k.defaultProfile.id,location:void 0,collection:t?.collection,ref:r,node:void 0})}))}async getLocalSyncResourceHandles(e,t,s){return(await this.f.getAllResourceRefs(e,t?.collection,s)).map(({created:r,ref:o})=>({created:r,uri:this.L({remote:!1,syncResource:e,profile:t?.id??this.k.defaultProfile.id,collection:t?.collection,ref:o,node:void 0,location:s})}))}resolveUserDataSyncResource({uri:e}){const t=this.M(e),s=t?this.k.profiles.find(n=>n.id===t.profile):void 0;return t&&s?{profile:s,syncResource:t?.syncResource}:void 0}async getAssociatedResources({uri:e}){const t=this.M(e);if(!t)return[];const s=this.k.profiles.find(n=>n.id===t.profile);switch(t.syncResource){case"settings":return this.s(e,s);case"keybindings":return this.u(e,s);case"tasks":return this.w(e,s);case"snippets":return this.y(e,s);case"prompts":return this.A(e,s);case"globalState":return this.F(e,s);case"extensions":return this.C(e,s);case"profiles":return this.I(e,s);case"workspaceState":return[]}}async getMachineId({uri:e}){const t=this.M(e);if(t){if(t.remote){if(t.ref){const{content:s}=await this.O(t.syncResource,t.ref,t.collection);if(s)return this.N(s,t.syncResource)?.machineId}return}if(t.location){if(t.ref){const s=await this.f.resolveResourceContent(t.syncResource,t.ref,t.collection,t.location);if(s)return this.N(s,t.syncResource)?.machineId}return}return D(this.h,this.j,this.i)}}async resolveContent(e){const t=this.M(e);if(!t||t.node===a.a)return null;if(t.ref){const s=await this.o(t.remote,t.syncResource,t.collection,t.ref,t.location);return t.node&&s?this.q(t.syncResource,s,t.node):s}return!t.remote&&!t.node?this.r(t.syncResource,t.profile):null}async o(e,t,s,n,r){if(e){const{content:o}=await this.O(t,n,s);return o}return this.f.resolveResourceContent(t,n,s,r)}q(e,t,s){const n=this.N(t,e);switch(e){case"settings":return this.t(n,s);case"keybindings":return this.v(n,s);case"tasks":return this.x(n,s);case"snippets":return this.z(n,s);case"prompts":return this.B(n,s);case"globalState":return this.G(n,s);case"extensions":return this.D(n,s);case"profiles":return this.J(n,s);case"workspaceState":return null}}async r(e,t){const s=this.k.profiles.find(n=>n.id===t);if(!s)return null;switch(e){case"globalState":return this.H(s);case"extensions":return this.E(s);case"profiles":return this.K(s);case"settings":return null;case"keybindings":return null;case"tasks":return null;case"snippets":return null;case"prompts":return null;case"workspaceState":return null}}s(e,t){const s=this.d.joinPath(e,"settings.json"),n=t?t.settingsResource:this.d.joinPath(e,a.a);return[{resource:s,comparableResource:n}]}t(e,t){switch(t){case"settings.json":return A(e.content).settings}return null}u(e,t){const s=this.d.joinPath(e,"keybindings.json"),n=t?t.keybindingsResource:this.d.joinPath(e,a.a);return[{resource:s,comparableResource:n}]}v(e,t){switch(t){case"keybindings.json":return H(e.content,!!this.l.getValue(z),this.g)}return null}w(e,t){const s=this.d.joinPath(e,"tasks.json"),n=t?t.tasksResource:this.d.joinPath(e,a.a);return[{resource:s,comparableResource:n}]}x(e,t){switch(t){case"tasks.json":return B(e.content,this.g)}return null}async y(e,t){const s=await this.resolveContent(e);if(s){const n=this.N(s,"snippets");if(n){const r=y(n),o=[];for(const i of Object.keys(r)){const h=this.d.joinPath(e,i),u=t?this.d.joinPath(t.snippetsHome,i):this.d.joinPath(e,a.a);o.push({resource:h,comparableResource:u})}return o}}return[]}z(e,t){return y(e)[t]||null}async A(e,t){const s=await this.resolveContent(e);if(s){const n=this.N(s,"prompts");if(n){const r=R(n),o=[];for(const i of Object.keys(r)){const h=this.d.joinPath(e,i),u=t?this.d.joinPath(t.promptsHome,i):this.d.joinPath(e,a.a);o.push({resource:h,comparableResource:u})}return o}}return[]}B(e,t){return R(e)[t]||null}C(e,t){const s=this.d.joinPath(e,"extensions.json"),n=t?this.L({remote:!1,syncResource:"extensions",profile:t.id,location:void 0,collection:void 0,ref:void 0,node:void 0}):this.d.joinPath(e,a.a);return[{resource:s,comparableResource:n}]}D(e,t){switch(t){case"extensions.json":return b(W(e),!0)}return null}async E(e){const{localExtensions:t}=await this.n.createInstance(J).getLocalExtensions(e);return b(t,!0)}F(e,t){const s=this.d.joinPath(e,"globalState.json"),n=t?this.L({remote:!1,syncResource:"globalState",profile:t.id,location:void 0,collection:void 0,ref:void 0,node:void 0}):this.d.joinPath(e,a.a);return[{resource:s,comparableResource:n}]}G(e,t){switch(t){case"globalState.json":return j(JSON.parse(e.content),!0)}return null}async H(e){const t=await this.n.createInstance(G).getLocalGlobalState(e);return j(t,!0)}I(e,t){const s=this.d.joinPath(e,"profiles.json"),n=this.L({remote:!1,syncResource:"profiles",profile:this.k.defaultProfile.id,location:void 0,collection:void 0,ref:void 0,node:void 0});return[{resource:s,comparableResource:n}]}J(e,t){switch(t){case"profiles.json":return Q(JSON.parse(e.content),{})}return null}async K(e){return K(this.k.profiles.filter(t=>!t.isDefault&&!t.isTransient),!0)}L(e){const t=e.remote?a.b:a.c,s=[];return e.location&&(s.push(`scheme:${e.location.scheme}`),s.push(`authority:${e.location.authority}`),s.push(T(e.location.path,"/"))),s.push(`syncResource:${e.syncResource}`),s.push(`profile:${e.profile}`),e.collection&&s.push(`collection:${e.collection}`),e.ref&&s.push(`ref:${e.ref}`),e.node&&s.push(e.node),this.d.joinPath(m.from({scheme:g,authority:t,path:"/",query:e.location?.query,fragment:e.location?.fragment}),...s)}M(e){if(e.scheme!==g)return;const t=[];for(;e.path!=="/";)t.unshift(this.d.basename(e)),e=this.d.dirname(e);if(t.length<2)return;const s=e.authority===a.b;let n,r;const o=[];let i,h,u,d,p;for(;t.length;){const c=t.shift();c.startsWith("scheme:")?n=c.substring(7):c.startsWith("authority:")?r=c.substring(10):c.startsWith("syncResource:")?i=c.substring(13):c.startsWith("profile:")?h=c.substring(8):c.startsWith("collection:")?u=c.substring(11):c.startsWith("ref:")?d=c.substring(4):i?p=c:o.push(c)}return{remote:s,syncResource:i,profile:h,collection:u,ref:d,node:p,location:n&&r!==void 0?this.d.joinPath(m.from({scheme:n,authority:r,query:e.query,fragment:e.fragment,path:"/"}),...o):void 0}}N(e,t){try{const s=JSON.parse(e);if(q(s))return s}catch(s){this.g.error(s)}throw new M(k(2647,null),"IncompatibleRemoteContent",t)}async O(e,t,s){const n=await this.e.resolveResourceContent(e,t,s);return{ref:t,content:n}}};w=a=P([l(0,L),l(1,N),l(2,O),l(3,x),l(4,v),l(5,C),l(6,S),l(7,_),l(8,E),l(9,F)],w);export{w as $cCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncStoreService, UserDataSyncError, USER_DATA_SYNC_SCHEME, CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM } from "./userDataSync.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { isSyncData } from "./abstractSynchronizer.js";
+import { parseSnippets } from "./snippetsSync.js";
+import { parseSettingsSyncContent } from "./settingsSync.js";
+import { getKeybindingsContentFromSyncContent } from "./keybindingsSync.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { getTasksContentFromSyncContent } from "./tasksSync.js";
+import { LocalExtensionsProvider, parseExtensions, stringify as stringifyExtensions } from "./extensionsSync.js";
+import { LocalGlobalStateProvider, stringify as stringifyGlobalState } from "./globalStateSync.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { parseUserDataProfilesManifest, stringifyLocalProfiles } from "./userDataProfilesManifestSync.js";
+import { toFormattedString } from "../../../base/common/jsonFormatter.js";
+import { trim } from "../../../base/common/strings.js";
+import { parsePrompts } from "./promptsSync/promptsSync.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UserDataSyncResourceProviderService_1;
+let UserDataSyncResourceProviderService = class UserDataSyncResourceProviderService2 {
+  static {
+    __name(this, "UserDataSyncResourceProviderService");
+  }
+  static {
+    UserDataSyncResourceProviderService_1 = this;
+  }
+  static {
+    this.NOT_EXISTING_RESOURCE = "not-existing-resource";
+  }
+  static {
+    this.REMOTE_BACKUP_AUTHORITY = "remote-backup";
+  }
+  static {
+    this.LOCAL_BACKUP_AUTHORITY = "local-backup";
+  }
+  constructor(userDataSyncStoreService, userDataSyncLocalStoreService, logService, uriIdentityService, environmentService, storageService, fileService, userDataProfilesService, configurationService, instantiationService) {
+    this.userDataSyncStoreService = userDataSyncStoreService;
+    this.userDataSyncLocalStoreService = userDataSyncLocalStoreService;
+    this.logService = logService;
+    this.environmentService = environmentService;
+    this.storageService = storageService;
+    this.fileService = fileService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.configurationService = configurationService;
+    this.instantiationService = instantiationService;
+    this.extUri = uriIdentityService.extUri;
+  }
+  async getRemoteSyncedProfiles() {
+    const userData = await this.userDataSyncStoreService.readResource("profiles", null, void 0);
+    if (userData.content) {
+      const syncData = this.parseSyncData(
+        userData.content,
+        "profiles"
+        /* SyncResource.Profiles */
+      );
+      return parseUserDataProfilesManifest(syncData);
+    }
+    return [];
+  }
+  async getLocalSyncedProfiles(location) {
+    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs("profiles", void 0, location);
+    if (refs.length) {
+      const content = await this.userDataSyncLocalStoreService.resolveResourceContent("profiles", refs[0].ref, void 0, location);
+      if (content) {
+        const syncData = this.parseSyncData(
+          content,
+          "profiles"
+          /* SyncResource.Profiles */
+        );
+        return parseUserDataProfilesManifest(syncData);
+      }
+    }
+    return [];
+  }
+  async getLocalSyncedMachines(location) {
+    const refs = await this.userDataSyncLocalStoreService.getAllResourceRefs("machines", void 0, location);
+    if (refs.length) {
+      const content = await this.userDataSyncLocalStoreService.resolveResourceContent("machines", refs[0].ref, void 0, location);
+      if (content) {
+        const machinesData = JSON.parse(content);
+        return machinesData.machines.map((m) => ({ ...m, isCurrent: false }));
+      }
+    }
+    return [];
+  }
+  async getRemoteSyncResourceHandles(syncResource, profile) {
+    const handles = await this.userDataSyncStoreService.getAllResourceRefs(syncResource, profile?.collection);
+    return handles.map(({ created, ref }) => ({
+      created,
+      uri: this.toUri({
+        remote: true,
+        syncResource,
+        profile: profile?.id ?? this.userDataProfilesService.defaultProfile.id,
+        location: void 0,
+        collection: profile?.collection,
+        ref,
+        node: void 0
+      })
+    }));
+  }
+  async getLocalSyncResourceHandles(syncResource, profile, location) {
+    const handles = await this.userDataSyncLocalStoreService.getAllResourceRefs(syncResource, profile?.collection, location);
+    return handles.map(({ created, ref }) => ({
+      created,
+      uri: this.toUri({
+        remote: false,
+        syncResource,
+        profile: profile?.id ?? this.userDataProfilesService.defaultProfile.id,
+        collection: profile?.collection,
+        ref,
+        node: void 0,
+        location
+      })
+    }));
+  }
+  resolveUserDataSyncResource({ uri }) {
+    const resolved = this.resolveUri(uri);
+    const profile = resolved ? this.userDataProfilesService.profiles.find((p) => p.id === resolved.profile) : void 0;
+    return resolved && profile ? { profile, syncResource: resolved?.syncResource } : void 0;
+  }
+  async getAssociatedResources({ uri }) {
+    const resolved = this.resolveUri(uri);
+    if (!resolved) {
+      return [];
+    }
+    const profile = this.userDataProfilesService.profiles.find((p) => p.id === resolved.profile);
+    switch (resolved.syncResource) {
+      case "settings":
+        return this.getSettingsAssociatedResources(uri, profile);
+      case "keybindings":
+        return this.getKeybindingsAssociatedResources(uri, profile);
+      case "tasks":
+        return this.getTasksAssociatedResources(uri, profile);
+      case "snippets":
+        return this.getSnippetsAssociatedResources(uri, profile);
+      case "prompts":
+        return this.getPromptsAssociatedResources(uri, profile);
+      case "globalState":
+        return this.getGlobalStateAssociatedResources(uri, profile);
+      case "extensions":
+        return this.getExtensionsAssociatedResources(uri, profile);
+      case "profiles":
+        return this.getProfilesAssociatedResources(uri, profile);
+      case "workspaceState":
+        return [];
+    }
+  }
+  async getMachineId({ uri }) {
+    const resolved = this.resolveUri(uri);
+    if (!resolved) {
+      return void 0;
+    }
+    if (resolved.remote) {
+      if (resolved.ref) {
+        const { content } = await this.getUserData(resolved.syncResource, resolved.ref, resolved.collection);
+        if (content) {
+          const syncData = this.parseSyncData(content, resolved.syncResource);
+          return syncData?.machineId;
+        }
+      }
+      return void 0;
+    }
+    if (resolved.location) {
+      if (resolved.ref) {
+        const content = await this.userDataSyncLocalStoreService.resolveResourceContent(resolved.syncResource, resolved.ref, resolved.collection, resolved.location);
+        if (content) {
+          const syncData = this.parseSyncData(content, resolved.syncResource);
+          return syncData?.machineId;
+        }
+      }
+      return void 0;
+    }
+    return getServiceMachineId(this.environmentService, this.fileService, this.storageService);
+  }
+  async resolveContent(uri) {
+    const resolved = this.resolveUri(uri);
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.node === UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE) {
+      return null;
+    }
+    if (resolved.ref) {
+      const content = await this.getContentFromStore(resolved.remote, resolved.syncResource, resolved.collection, resolved.ref, resolved.location);
+      if (resolved.node && content) {
+        return this.resolveNodeContent(resolved.syncResource, content, resolved.node);
+      }
+      return content;
+    }
+    if (!resolved.remote && !resolved.node) {
+      return this.resolveLatestContent(resolved.syncResource, resolved.profile);
+    }
+    return null;
+  }
+  async getContentFromStore(remote, syncResource, collection, ref, location) {
+    if (remote) {
+      const { content } = await this.getUserData(syncResource, ref, collection);
+      return content;
+    }
+    return this.userDataSyncLocalStoreService.resolveResourceContent(syncResource, ref, collection, location);
+  }
+  resolveNodeContent(syncResource, content, node) {
+    const syncData = this.parseSyncData(content, syncResource);
+    switch (syncResource) {
+      case "settings":
+        return this.resolveSettingsNodeContent(syncData, node);
+      case "keybindings":
+        return this.resolveKeybindingsNodeContent(syncData, node);
+      case "tasks":
+        return this.resolveTasksNodeContent(syncData, node);
+      case "snippets":
+        return this.resolveSnippetsNodeContent(syncData, node);
+      case "prompts":
+        return this.resolvePromptsNodeContent(syncData, node);
+      case "globalState":
+        return this.resolveGlobalStateNodeContent(syncData, node);
+      case "extensions":
+        return this.resolveExtensionsNodeContent(syncData, node);
+      case "profiles":
+        return this.resolveProfileNodeContent(syncData, node);
+      case "workspaceState":
+        return null;
+    }
+  }
+  async resolveLatestContent(syncResource, profileId) {
+    const profile = this.userDataProfilesService.profiles.find((p) => p.id === profileId);
+    if (!profile) {
+      return null;
+    }
+    switch (syncResource) {
+      case "globalState":
+        return this.resolveLatestGlobalStateContent(profile);
+      case "extensions":
+        return this.resolveLatestExtensionsContent(profile);
+      case "profiles":
+        return this.resolveLatestProfilesContent(profile);
+      case "settings":
+        return null;
+      case "keybindings":
+        return null;
+      case "tasks":
+        return null;
+      case "snippets":
+        return null;
+      case "prompts":
+        return null;
+      case "workspaceState":
+        return null;
+    }
+  }
+  getSettingsAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "settings.json");
+    const comparableResource = profile ? profile.settingsResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+    return [{ resource, comparableResource }];
+  }
+  resolveSettingsNodeContent(syncData, node) {
+    switch (node) {
+      case "settings.json":
+        return parseSettingsSyncContent(syncData.content).settings;
+    }
+    return null;
+  }
+  getKeybindingsAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "keybindings.json");
+    const comparableResource = profile ? profile.keybindingsResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+    return [{ resource, comparableResource }];
+  }
+  resolveKeybindingsNodeContent(syncData, node) {
+    switch (node) {
+      case "keybindings.json":
+        return getKeybindingsContentFromSyncContent(syncData.content, !!this.configurationService.getValue(CONFIG_SYNC_KEYBINDINGS_PER_PLATFORM), this.logService);
+    }
+    return null;
+  }
+  getTasksAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "tasks.json");
+    const comparableResource = profile ? profile.tasksResource : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+    return [{ resource, comparableResource }];
+  }
+  resolveTasksNodeContent(syncData, node) {
+    switch (node) {
+      case "tasks.json":
+        return getTasksContentFromSyncContent(syncData.content, this.logService);
+    }
+    return null;
+  }
+  async getSnippetsAssociatedResources(uri, profile) {
+    const content = await this.resolveContent(uri);
+    if (content) {
+      const syncData = this.parseSyncData(
+        content,
+        "snippets"
+        /* SyncResource.Snippets */
+      );
+      if (syncData) {
+        const snippets = parseSnippets(syncData);
+        const result = [];
+        for (const snippet of Object.keys(snippets)) {
+          const resource = this.extUri.joinPath(uri, snippet);
+          const comparableResource = profile ? this.extUri.joinPath(profile.snippetsHome, snippet) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+          result.push({ resource, comparableResource });
+        }
+        return result;
+      }
+    }
+    return [];
+  }
+  resolveSnippetsNodeContent(syncData, node) {
+    return parseSnippets(syncData)[node] || null;
+  }
+  async getPromptsAssociatedResources(uri, profile) {
+    const content = await this.resolveContent(uri);
+    if (content) {
+      const syncData = this.parseSyncData(
+        content,
+        "prompts"
+        /* SyncResource.Prompts */
+      );
+      if (syncData) {
+        const prompts = parsePrompts(syncData);
+        const result = [];
+        for (const prompt of Object.keys(prompts)) {
+          const resource = this.extUri.joinPath(uri, prompt);
+          const comparableResource = profile ? this.extUri.joinPath(profile.promptsHome, prompt) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+          result.push({ resource, comparableResource });
+        }
+        return result;
+      }
+    }
+    return [];
+  }
+  resolvePromptsNodeContent(syncData, node) {
+    return parsePrompts(syncData)[node] || null;
+  }
+  getExtensionsAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "extensions.json");
+    const comparableResource = profile ? this.toUri({
+      remote: false,
+      syncResource: "extensions",
+      profile: profile.id,
+      location: void 0,
+      collection: void 0,
+      ref: void 0,
+      node: void 0
+    }) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+    return [{ resource, comparableResource }];
+  }
+  resolveExtensionsNodeContent(syncData, node) {
+    switch (node) {
+      case "extensions.json":
+        return stringifyExtensions(parseExtensions(syncData), true);
+    }
+    return null;
+  }
+  async resolveLatestExtensionsContent(profile) {
+    const { localExtensions } = await this.instantiationService.createInstance(LocalExtensionsProvider).getLocalExtensions(profile);
+    return stringifyExtensions(localExtensions, true);
+  }
+  getGlobalStateAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "globalState.json");
+    const comparableResource = profile ? this.toUri({
+      remote: false,
+      syncResource: "globalState",
+      profile: profile.id,
+      location: void 0,
+      collection: void 0,
+      ref: void 0,
+      node: void 0
+    }) : this.extUri.joinPath(uri, UserDataSyncResourceProviderService_1.NOT_EXISTING_RESOURCE);
+    return [{ resource, comparableResource }];
+  }
+  resolveGlobalStateNodeContent(syncData, node) {
+    switch (node) {
+      case "globalState.json":
+        return stringifyGlobalState(JSON.parse(syncData.content), true);
+    }
+    return null;
+  }
+  async resolveLatestGlobalStateContent(profile) {
+    const localGlobalState = await this.instantiationService.createInstance(LocalGlobalStateProvider).getLocalGlobalState(profile);
+    return stringifyGlobalState(localGlobalState, true);
+  }
+  getProfilesAssociatedResources(uri, profile) {
+    const resource = this.extUri.joinPath(uri, "profiles.json");
+    const comparableResource = this.toUri({
+      remote: false,
+      syncResource: "profiles",
+      profile: this.userDataProfilesService.defaultProfile.id,
+      location: void 0,
+      collection: void 0,
+      ref: void 0,
+      node: void 0
+    });
+    return [{ resource, comparableResource }];
+  }
+  resolveProfileNodeContent(syncData, node) {
+    switch (node) {
+      case "profiles.json":
+        return toFormattedString(JSON.parse(syncData.content), {});
+    }
+    return null;
+  }
+  async resolveLatestProfilesContent(profile) {
+    return stringifyLocalProfiles(this.userDataProfilesService.profiles.filter((p) => !p.isDefault && !p.isTransient), true);
+  }
+  toUri(syncResourceUriInfo) {
+    const authority = syncResourceUriInfo.remote ? UserDataSyncResourceProviderService_1.REMOTE_BACKUP_AUTHORITY : UserDataSyncResourceProviderService_1.LOCAL_BACKUP_AUTHORITY;
+    const paths = [];
+    if (syncResourceUriInfo.location) {
+      paths.push(`scheme:${syncResourceUriInfo.location.scheme}`);
+      paths.push(`authority:${syncResourceUriInfo.location.authority}`);
+      paths.push(trim(syncResourceUriInfo.location.path, "/"));
+    }
+    paths.push(`syncResource:${syncResourceUriInfo.syncResource}`);
+    paths.push(`profile:${syncResourceUriInfo.profile}`);
+    if (syncResourceUriInfo.collection) {
+      paths.push(`collection:${syncResourceUriInfo.collection}`);
+    }
+    if (syncResourceUriInfo.ref) {
+      paths.push(`ref:${syncResourceUriInfo.ref}`);
+    }
+    if (syncResourceUriInfo.node) {
+      paths.push(syncResourceUriInfo.node);
+    }
+    return this.extUri.joinPath(URI.from({ scheme: USER_DATA_SYNC_SCHEME, authority, path: `/`, query: syncResourceUriInfo.location?.query, fragment: syncResourceUriInfo.location?.fragment }), ...paths);
+  }
+  resolveUri(uri) {
+    if (uri.scheme !== USER_DATA_SYNC_SCHEME) {
+      return void 0;
+    }
+    const paths = [];
+    while (uri.path !== "/") {
+      paths.unshift(this.extUri.basename(uri));
+      uri = this.extUri.dirname(uri);
+    }
+    if (paths.length < 2) {
+      return void 0;
+    }
+    const remote = uri.authority === UserDataSyncResourceProviderService_1.REMOTE_BACKUP_AUTHORITY;
+    let scheme;
+    let authority;
+    const locationPaths = [];
+    let syncResource;
+    let profile;
+    let collection;
+    let ref;
+    let node;
+    while (paths.length) {
+      const path = paths.shift();
+      if (path.startsWith("scheme:")) {
+        scheme = path.substring("scheme:".length);
+      } else if (path.startsWith("authority:")) {
+        authority = path.substring("authority:".length);
+      } else if (path.startsWith("syncResource:")) {
+        syncResource = path.substring("syncResource:".length);
+      } else if (path.startsWith("profile:")) {
+        profile = path.substring("profile:".length);
+      } else if (path.startsWith("collection:")) {
+        collection = path.substring("collection:".length);
+      } else if (path.startsWith("ref:")) {
+        ref = path.substring("ref:".length);
+      } else if (!syncResource) {
+        locationPaths.push(path);
+      } else {
+        node = path;
+      }
+    }
+    return {
+      remote,
+      syncResource,
+      profile,
+      collection,
+      ref,
+      node,
+      location: scheme && authority !== void 0 ? this.extUri.joinPath(URI.from({ scheme, authority, query: uri.query, fragment: uri.fragment, path: "/" }), ...locationPaths) : void 0
+    };
+  }
+  parseSyncData(content, syncResource) {
+    try {
+      const syncData = JSON.parse(content);
+      if (isSyncData(syncData)) {
+        return syncData;
+      }
+    } catch (error) {
+      this.logService.error(error);
+    }
+    throw new UserDataSyncError(localize("incompatible sync data", "Cannot parse sync data as it is not compatible with the current version."), "IncompatibleRemoteContent", syncResource);
+  }
+  async getUserData(syncResource, ref, collection) {
+    const content = await this.userDataSyncStoreService.resolveResourceContent(syncResource, ref, collection);
+    return { ref, content };
+  }
+};
+UserDataSyncResourceProviderService = UserDataSyncResourceProviderService_1 = __decorate([
+  __param(0, IUserDataSyncStoreService),
+  __param(1, IUserDataSyncLocalStoreService),
+  __param(2, IUserDataSyncLogService),
+  __param(3, IUriIdentityService),
+  __param(4, IEnvironmentService),
+  __param(5, IStorageService),
+  __param(6, IFileService),
+  __param(7, IUserDataProfilesService),
+  __param(8, IConfigurationService),
+  __param(9, IInstantiationService)
+], UserDataSyncResourceProviderService);
+export {
+  UserDataSyncResourceProviderService
+};
+//# sourceMappingURL=userDataSyncResourceProvider.js.map

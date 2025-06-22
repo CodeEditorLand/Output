@@ -1,1 +1,304 @@
-import*as t from"../../../../base/browser/dom.js";import{$G5 as x}from"../../../../base/browser/keyboardEvent.js";import{$K7 as b}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$F8 as j}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$vd as C,$ud as l,$td as f}from"../../../../base/common/lifecycle.js";import{ThemeIcon as o}from"../../../../base/common/themables.js";import*as w from"../../../../base/common/platform.js";import{URI as D}from"../../../../base/common/uri.js";import{localize as p}from"../../../../nls.js";import{$ngb as v}from"../../../../platform/hover/browser/hover.js";import{$4$ as L}from"../../../../platform/opener/common/opener.js";import{$LOb as _}from"../../../services/extensionManagement/common/extensionsIcons.js";import{$pNb as B,$wNb as I,$uNb as S,$vNb as N}from"../../extensions/browser/extensionsIcons.js";import{$SW as A}from"../common/mcpTypes.js";var $=function(n,s,e,i){var r=arguments.length,h=r<3?s:i===null?i=Object.getOwnPropertyDescriptor(s,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")h=Reflect.decorate(n,s,e,i);else for(var d=n.length-1;d>=0;d--)(a=n[d])&&(h=(r<3?a(h):r>3?a(s,e,h):a(s,e))||h);return r>3&&h&&Object.defineProperty(s,e,h),h},c=function(n,s){return function(e,i){s(e,i,n)}},m;class u extends C{constructor(){super(...arguments),this.a=null}get mcpServer(){return this.a}set mcpServer(s){this.a=s,this.update()}update(){this.render()}}function P(n,s){const e=new l;return e.add(t.$J5(n,t.$F6.CLICK,t.$V6(s))),e.add(t.$J5(n,t.$F6.KEY_UP,i=>{const r=new x(i);(r.equals(10)||r.equals(3))&&(i.preventDefault(),i.stopPropagation(),s())})),e}class z extends u{constructor(s){super(),this.b=this.B(new l),this.c=t.$M6(s,t.$(".extension-icon")),this.f=t.$M6(this.c,t.$("img.icon",{alt:""})),this.f.style.display="none",this.g=t.$M6(this.c,t.$(o.asCSSSelector(A))),this.g.style.display="none",this.render(),this.B(f(()=>this.j()))}j(){this.h=void 0,this.f.src="",this.f.style.display="none",this.g.style.display="none",this.b.clear()}render(){if(!this.mcpServer){this.j();return}this.mcpServer.iconUrl?(this.f.style.display="inherit",this.g.style.display="none",this.h!==this.mcpServer.iconUrl&&(this.h=this.mcpServer.iconUrl,this.b.add(t.$J5(this.f,"error",()=>{this.f.style.display="none",this.g.style.display="inherit"},{once:!0})),this.f.src=this.h,this.f.complete?this.f.style.visibility="inherit":(this.f.style.visibility="hidden",this.f.onload=()=>this.f.style.visibility="inherit"))):(this.h=void 0,this.f.style.display="none",this.f.src="",this.g.style.display="inherit")}}let g=class extends u{constructor(s,e,i,r){super(),this.container=s,this.g=e,this.h=i,this.j=r,this.f=this.B(new l),this.render(),this.B(f(()=>this.m()))}m(){this.b?.remove(),this.f.clear()}render(){if(this.m(),!this.mcpServer?.publisherDisplayName)return;this.b=t.$M6(this.container,t.$(".publisher"));const s=t.$(".publisher-name.ellipsis");s.textContent=this.mcpServer.publisherDisplayName;const e=t.$(".verified-publisher");if(t.$M6(e,t.$("span.extension-verified-publisher.clickable"),j(_)),this.g)this.mcpServer.gallery?.publisherDomain?.verified&&t.$M6(this.b,e),t.$M6(this.b,s);else if(this.b.setAttribute("role","button"),this.b.tabIndex=0,this.c=this.f.add(this.h.setupManagedHover(b("mouse"),this.b,p(8830,null,this.mcpServer.publisherDisplayName))),t.$M6(this.b,s),this.mcpServer.gallery?.publisherDomain?.verified){t.$M6(this.b,e);const i=D.parse(this.mcpServer.gallery?.publisherDomain.link);e.tabIndex=0,e.setAttribute("role","button"),this.c.update(p(8831,null,this.mcpServer.gallery?.publisherDomain.link)),e.setAttribute("role","link"),t.$M6(e,t.$("span.extension-verified-publisher-domain",void 0,i.authority.startsWith("www.")?i.authority.substring(4):i.authority)),this.f.add(P(e,()=>this.j.open(i)))}}};g=$([c(2,v),c(3,L)],g);let y=m=class extends u{constructor(s,e,i){super(),this.container=s,this.c=e,this.f=i,this.b=this.B(new l),this.render(),this.B(f(()=>this.g()))}g(){this.container.innerText="",this.b.clear()}render(){if(this.g(),!this.mcpServer?.installCount)return;const s=m.getInstallLabel(this.mcpServer,this.c);if(!s)return;const e=this.c?this.container:t.$M6(this.container,t.$("span.install",{tabIndex:0}));t.$M6(e,t.$("span"+o.asCSSSelector(B)));const i=t.$M6(e,t.$("span.count"));i.textContent=s,this.c||this.b.add(this.f.setupManagedHover(b("mouse"),this.container,p(8832,null)))}static getInstallLabel(s,e){const i=s.installCount;if(!i)return;let r;return e?i>1e6?r=`${Math.floor(i/1e5)/10}M`:i>1e3?r=`${Math.floor(i/1e3)}K`:r=String(i):r=i.toLocaleString(w.$A),r}};y=m=$([c(2,v)],y);let M=class extends u{constructor(s,e,i){super(),this.container=s,this.f=e,this.g=i,this.c=this.B(new l),s.classList.add("extension-ratings"),this.f&&s.classList.add("small"),this.render(),this.B(f(()=>this.h()))}h(){this.container.innerText="",this.c.clear()}render(){if(this.h(),!this.mcpServer||this.mcpServer.rating===void 0||this.f&&!this.mcpServer.ratingCount||!this.mcpServer.url)return;const s=Math.round(this.mcpServer.rating*2)/2;if(this.f){t.$M6(this.container,t.$("span"+o.asCSSSelector(S)));const e=t.$M6(this.container,t.$("span.count"));e.textContent=String(s)}else{const e=t.$M6(this.container,t.$("span.rating.clickable",{tabIndex:0}));for(let i=1;i<=5;i++)s>=i?t.$M6(e,t.$("span"+o.asCSSSelector(S))):s>=i-.5?t.$M6(e,t.$("span"+o.asCSSSelector(N))):t.$M6(e,t.$("span"+o.asCSSSelector(I)));if(this.mcpServer.ratingCount){const i=t.$M6(e,t.$("span",void 0,` (${this.mcpServer.ratingCount})`));i.style.paddingLeft="1px"}this.b=this.B(this.g.setupManagedHover(b("mouse"),e,"")),this.b.update(p(8833,null,s)),e.setAttribute("role","link")}}};M=$([c(2,v)],M);export{u as $ejc,P as $fjc,z as $gjc,g as $hjc,y as $ijc,M as $jjc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import * as platform from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { verifiedPublisherIcon } from "../../../services/extensionManagement/common/extensionsIcons.js";
+import { installCountIcon, starEmptyIcon, starFullIcon, starHalfIcon } from "../../extensions/browser/extensionsIcons.js";
+import { mcpServerIcon } from "../common/mcpTypes.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InstallCountWidget_1;
+class McpServerWidget extends Disposable {
+  static {
+    __name(this, "McpServerWidget");
+  }
+  constructor() {
+    super(...arguments);
+    this._mcpServer = null;
+  }
+  get mcpServer() {
+    return this._mcpServer;
+  }
+  set mcpServer(mcpServer) {
+    this._mcpServer = mcpServer;
+    this.update();
+  }
+  update() {
+    this.render();
+  }
+}
+function onClick(element, callback) {
+  const disposables = new DisposableStore();
+  disposables.add(dom.addDisposableListener(element, dom.EventType.CLICK, dom.finalHandler(callback)));
+  disposables.add(dom.addDisposableListener(element, dom.EventType.KEY_UP, (e) => {
+    const keyboardEvent = new StandardKeyboardEvent(e);
+    if (keyboardEvent.equals(
+      10
+      /* KeyCode.Space */
+    ) || keyboardEvent.equals(
+      3
+      /* KeyCode.Enter */
+    )) {
+      e.preventDefault();
+      e.stopPropagation();
+      callback();
+    }
+  }));
+  return disposables;
+}
+__name(onClick, "onClick");
+class McpServerIconWidget extends McpServerWidget {
+  static {
+    __name(this, "McpServerIconWidget");
+  }
+  constructor(container) {
+    super();
+    this.disposables = this._register(new DisposableStore());
+    this.element = dom.append(container, dom.$(".extension-icon"));
+    this.iconElement = dom.append(this.element, dom.$("img.icon", { alt: "" }));
+    this.iconElement.style.display = "none";
+    this.defaultIconElement = dom.append(this.element, dom.$(ThemeIcon.asCSSSelector(mcpServerIcon)));
+    this.defaultIconElement.style.display = "none";
+    this.render();
+    this._register(toDisposable(() => this.clear()));
+  }
+  clear() {
+    this.iconUrl = void 0;
+    this.iconElement.src = "";
+    this.iconElement.style.display = "none";
+    this.defaultIconElement.style.display = "none";
+    this.disposables.clear();
+  }
+  render() {
+    if (!this.mcpServer) {
+      this.clear();
+      return;
+    }
+    if (this.mcpServer.iconUrl) {
+      this.iconElement.style.display = "inherit";
+      this.defaultIconElement.style.display = "none";
+      if (this.iconUrl !== this.mcpServer.iconUrl) {
+        this.iconUrl = this.mcpServer.iconUrl;
+        this.disposables.add(dom.addDisposableListener(this.iconElement, "error", () => {
+          this.iconElement.style.display = "none";
+          this.defaultIconElement.style.display = "inherit";
+        }, { once: true }));
+        this.iconElement.src = this.iconUrl;
+        if (!this.iconElement.complete) {
+          this.iconElement.style.visibility = "hidden";
+          this.iconElement.onload = () => this.iconElement.style.visibility = "inherit";
+        } else {
+          this.iconElement.style.visibility = "inherit";
+        }
+      }
+    } else {
+      this.iconUrl = void 0;
+      this.iconElement.style.display = "none";
+      this.iconElement.src = "";
+      this.defaultIconElement.style.display = "inherit";
+    }
+  }
+}
+let PublisherWidget = class PublisherWidget2 extends McpServerWidget {
+  static {
+    __name(this, "PublisherWidget");
+  }
+  constructor(container, small, hoverService, openerService) {
+    super();
+    this.container = container;
+    this.small = small;
+    this.hoverService = hoverService;
+    this.openerService = openerService;
+    this.disposables = this._register(new DisposableStore());
+    this.render();
+    this._register(toDisposable(() => this.clear()));
+  }
+  clear() {
+    this.element?.remove();
+    this.disposables.clear();
+  }
+  render() {
+    this.clear();
+    if (!this.mcpServer?.publisherDisplayName) {
+      return;
+    }
+    this.element = dom.append(this.container, dom.$(".publisher"));
+    const publisherDisplayName = dom.$(".publisher-name.ellipsis");
+    publisherDisplayName.textContent = this.mcpServer.publisherDisplayName;
+    const verifiedPublisher = dom.$(".verified-publisher");
+    dom.append(verifiedPublisher, dom.$("span.extension-verified-publisher.clickable"), renderIcon(verifiedPublisherIcon));
+    if (this.small) {
+      if (this.mcpServer.gallery?.publisherDomain?.verified) {
+        dom.append(this.element, verifiedPublisher);
+      }
+      dom.append(this.element, publisherDisplayName);
+    } else {
+      this.element.setAttribute("role", "button");
+      this.element.tabIndex = 0;
+      this.containerHover = this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.element, localize("publisher", "Publisher ({0})", this.mcpServer.publisherDisplayName)));
+      dom.append(this.element, publisherDisplayName);
+      if (this.mcpServer.gallery?.publisherDomain?.verified) {
+        dom.append(this.element, verifiedPublisher);
+        const publisherDomainLink = URI.parse(this.mcpServer.gallery?.publisherDomain.link);
+        verifiedPublisher.tabIndex = 0;
+        verifiedPublisher.setAttribute("role", "button");
+        this.containerHover.update(localize("verified publisher", "This publisher has verified ownership of {0}", this.mcpServer.gallery?.publisherDomain.link));
+        verifiedPublisher.setAttribute("role", "link");
+        dom.append(verifiedPublisher, dom.$("span.extension-verified-publisher-domain", void 0, publisherDomainLink.authority.startsWith("www.") ? publisherDomainLink.authority.substring(4) : publisherDomainLink.authority));
+        this.disposables.add(onClick(verifiedPublisher, () => this.openerService.open(publisherDomainLink)));
+      }
+    }
+  }
+};
+PublisherWidget = __decorate([
+  __param(2, IHoverService),
+  __param(3, IOpenerService)
+], PublisherWidget);
+let InstallCountWidget = InstallCountWidget_1 = class InstallCountWidget2 extends McpServerWidget {
+  static {
+    __name(this, "InstallCountWidget");
+  }
+  constructor(container, small, hoverService) {
+    super();
+    this.container = container;
+    this.small = small;
+    this.hoverService = hoverService;
+    this.disposables = this._register(new DisposableStore());
+    this.render();
+    this._register(toDisposable(() => this.clear()));
+  }
+  clear() {
+    this.container.innerText = "";
+    this.disposables.clear();
+  }
+  render() {
+    this.clear();
+    if (!this.mcpServer?.installCount) {
+      return;
+    }
+    const installLabel = InstallCountWidget_1.getInstallLabel(this.mcpServer, this.small);
+    if (!installLabel) {
+      return;
+    }
+    const parent = this.small ? this.container : dom.append(this.container, dom.$("span.install", { tabIndex: 0 }));
+    dom.append(parent, dom.$("span" + ThemeIcon.asCSSSelector(installCountIcon)));
+    const count = dom.append(parent, dom.$("span.count"));
+    count.textContent = installLabel;
+    if (!this.small) {
+      this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.container, localize("install count", "Install count")));
+    }
+  }
+  static getInstallLabel(extension, small) {
+    const installCount = extension.installCount;
+    if (!installCount) {
+      return void 0;
+    }
+    let installLabel;
+    if (small) {
+      if (installCount > 1e6) {
+        installLabel = `${Math.floor(installCount / 1e5) / 10}M`;
+      } else if (installCount > 1e3) {
+        installLabel = `${Math.floor(installCount / 1e3)}K`;
+      } else {
+        installLabel = String(installCount);
+      }
+    } else {
+      installLabel = installCount.toLocaleString(platform.language);
+    }
+    return installLabel;
+  }
+};
+InstallCountWidget = InstallCountWidget_1 = __decorate([
+  __param(2, IHoverService)
+], InstallCountWidget);
+let RatingsWidget = class RatingsWidget2 extends McpServerWidget {
+  static {
+    __name(this, "RatingsWidget");
+  }
+  constructor(container, small, hoverService) {
+    super();
+    this.container = container;
+    this.small = small;
+    this.hoverService = hoverService;
+    this.disposables = this._register(new DisposableStore());
+    container.classList.add("extension-ratings");
+    if (this.small) {
+      container.classList.add("small");
+    }
+    this.render();
+    this._register(toDisposable(() => this.clear()));
+  }
+  clear() {
+    this.container.innerText = "";
+    this.disposables.clear();
+  }
+  render() {
+    this.clear();
+    if (!this.mcpServer) {
+      return;
+    }
+    if (this.mcpServer.rating === void 0) {
+      return;
+    }
+    if (this.small && !this.mcpServer.ratingCount) {
+      return;
+    }
+    if (!this.mcpServer.url) {
+      return;
+    }
+    const rating = Math.round(this.mcpServer.rating * 2) / 2;
+    if (this.small) {
+      dom.append(this.container, dom.$("span" + ThemeIcon.asCSSSelector(starFullIcon)));
+      const count = dom.append(this.container, dom.$("span.count"));
+      count.textContent = String(rating);
+    } else {
+      const element = dom.append(this.container, dom.$("span.rating.clickable", { tabIndex: 0 }));
+      for (let i = 1; i <= 5; i++) {
+        if (rating >= i) {
+          dom.append(element, dom.$("span" + ThemeIcon.asCSSSelector(starFullIcon)));
+        } else if (rating >= i - 0.5) {
+          dom.append(element, dom.$("span" + ThemeIcon.asCSSSelector(starHalfIcon)));
+        } else {
+          dom.append(element, dom.$("span" + ThemeIcon.asCSSSelector(starEmptyIcon)));
+        }
+      }
+      if (this.mcpServer.ratingCount) {
+        const ratingCountElement = dom.append(element, dom.$("span", void 0, ` (${this.mcpServer.ratingCount})`));
+        ratingCountElement.style.paddingLeft = "1px";
+      }
+      this.containerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), element, ""));
+      this.containerHover.update(localize("ratedLabel", "Average rating: {0} out of 5", rating));
+      element.setAttribute("role", "link");
+    }
+  }
+};
+RatingsWidget = __decorate([
+  __param(2, IHoverService)
+], RatingsWidget);
+export {
+  InstallCountWidget,
+  McpServerIconWidget,
+  McpServerWidget,
+  PublisherWidget,
+  RatingsWidget,
+  onClick
+};
+//# sourceMappingURL=mcpServerWidgets.js.map

@@ -1,1 +1,120 @@
-import{$hbc as g}from"./notebookSearch/notebookSearchModelBase.js";import{$xM as I,$sM as o,$CM as $}from"../../../../base/common/comparers.js";import{$cC as P}from"../../../../editor/common/core/range.js";import{$Tac as b,$0ac as a,$6ac as d,$$ac as p}from"./searchTreeModel/searchTreeCommon.js";import{$ibc as v}from"./AISearch/aiSearchModelBase.js";let t=-1,e=-1;function S(r,n,f="default"){if(a(r)&&d(n))return 1;if(a(n)&&d(r))return-1;if(d(r)&&d(n)){if(t=r.index(),e=n.index(),t!==-1&&e!==-1)return t-e;if(v(r)&&v(n))return r.rank-n.rank;switch(f){case"countDescending":return n.count()-r.count();case"countAscending":return r.count()-n.count();case"type":return I(r.name(),n.name());case"fileNames":return o(r.name(),n.name());default:return!r.resource||!n.resource?0:$(r.resource.fsPath,n.resource.fsPath)||o(r.name(),n.name())}}if(a(r)&&a(n))switch(f){case"countDescending":return n.count()-r.count();case"countAscending":return r.count()-n.count();case"type":return I(r.name(),n.name());case"fileNames":return o(r.name(),n.name());case"modified":{const i=r.fileStat,u=n.fileStat;if(i&&u)return u.mtime-i.mtime}default:return $(r.resource.fsPath,n.resource.fsPath)||o(r.name(),n.name())}return g(r)&&g(n)?k(r,n):p(r)&&p(n)?P.compareRangesUsingStarts(r.range(),n.range()):0}function k(r,n){return r.cellIndex===n.cellIndex?r.webviewIndex!==void 0&&n.webviewIndex!==void 0?r.webviewIndex-n.webviewIndex:r.webviewIndex===void 0&&n.webviewIndex===void 0?P.compareRangesUsingStarts(r.range(),n.range()):r.webviewIndex!==void 0?1:-1:r.cellIndex<n.cellIndex?-1:1}function D(r,n,f="default"){const i=b(r),u=b(n);let s=i.length-1,c=u.length-1;for(;s>=0&&c>=0;){if(i[s].id()!==u[c].id())return S(i[s],u[c],f);s--,c--}const x=s===0,w=c===0;return x&&!w?1:!x&&w?-1:0}export{S as $jbc,D as $kbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isIMatchInNotebook } from "./notebookSearch/notebookSearchModelBase.js";
+import { compareFileExtensions, compareFileNames, comparePaths } from "../../../../base/common/comparers.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { createParentList, isSearchTreeFileMatch, isSearchTreeFolderMatch, isSearchTreeMatch } from "./searchTreeModel/searchTreeCommon.js";
+import { isSearchTreeAIFileMatch } from "./AISearch/aiSearchModelBase.js";
+let elemAIndex = -1;
+let elemBIndex = -1;
+function searchMatchComparer(elementA, elementB, sortOrder = "default") {
+  if (isSearchTreeFileMatch(elementA) && isSearchTreeFolderMatch(elementB)) {
+    return 1;
+  }
+  if (isSearchTreeFileMatch(elementB) && isSearchTreeFolderMatch(elementA)) {
+    return -1;
+  }
+  if (isSearchTreeFolderMatch(elementA) && isSearchTreeFolderMatch(elementB)) {
+    elemAIndex = elementA.index();
+    elemBIndex = elementB.index();
+    if (elemAIndex !== -1 && elemBIndex !== -1) {
+      return elemAIndex - elemBIndex;
+    }
+    if (isSearchTreeAIFileMatch(elementA) && isSearchTreeAIFileMatch(elementB)) {
+      return elementA.rank - elementB.rank;
+    }
+    switch (sortOrder) {
+      case "countDescending":
+        return elementB.count() - elementA.count();
+      case "countAscending":
+        return elementA.count() - elementB.count();
+      case "type":
+        return compareFileExtensions(elementA.name(), elementB.name());
+      case "fileNames":
+        return compareFileNames(elementA.name(), elementB.name());
+      // Fall through otherwise
+      default:
+        if (!elementA.resource || !elementB.resource) {
+          return 0;
+        }
+        return comparePaths(elementA.resource.fsPath, elementB.resource.fsPath) || compareFileNames(elementA.name(), elementB.name());
+    }
+  }
+  if (isSearchTreeFileMatch(elementA) && isSearchTreeFileMatch(elementB)) {
+    switch (sortOrder) {
+      case "countDescending":
+        return elementB.count() - elementA.count();
+      case "countAscending":
+        return elementA.count() - elementB.count();
+      case "type":
+        return compareFileExtensions(elementA.name(), elementB.name());
+      case "fileNames":
+        return compareFileNames(elementA.name(), elementB.name());
+      case "modified": {
+        const fileStatA = elementA.fileStat;
+        const fileStatB = elementB.fileStat;
+        if (fileStatA && fileStatB) {
+          return fileStatB.mtime - fileStatA.mtime;
+        }
+      }
+      // Fall through otherwise
+      default:
+        return comparePaths(elementA.resource.fsPath, elementB.resource.fsPath) || compareFileNames(elementA.name(), elementB.name());
+    }
+  }
+  if (isIMatchInNotebook(elementA) && isIMatchInNotebook(elementB)) {
+    return compareNotebookPos(elementA, elementB);
+  }
+  if (isSearchTreeMatch(elementA) && isSearchTreeMatch(elementB)) {
+    return Range.compareRangesUsingStarts(elementA.range(), elementB.range());
+  }
+  return 0;
+}
+__name(searchMatchComparer, "searchMatchComparer");
+function compareNotebookPos(match1, match2) {
+  if (match1.cellIndex === match2.cellIndex) {
+    if (match1.webviewIndex !== void 0 && match2.webviewIndex !== void 0) {
+      return match1.webviewIndex - match2.webviewIndex;
+    } else if (match1.webviewIndex === void 0 && match2.webviewIndex === void 0) {
+      return Range.compareRangesUsingStarts(match1.range(), match2.range());
+    } else {
+      if (match1.webviewIndex !== void 0) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+  } else if (match1.cellIndex < match2.cellIndex) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+__name(compareNotebookPos, "compareNotebookPos");
+function searchComparer(elementA, elementB, sortOrder = "default") {
+  const elemAParents = createParentList(elementA);
+  const elemBParents = createParentList(elementB);
+  let i = elemAParents.length - 1;
+  let j = elemBParents.length - 1;
+  while (i >= 0 && j >= 0) {
+    if (elemAParents[i].id() !== elemBParents[j].id()) {
+      return searchMatchComparer(elemAParents[i], elemBParents[j], sortOrder);
+    }
+    i--;
+    j--;
+  }
+  const elemAAtEnd = i === 0;
+  const elemBAtEnd = j === 0;
+  if (elemAAtEnd && !elemBAtEnd) {
+    return 1;
+  } else if (!elemAAtEnd && elemBAtEnd) {
+    return -1;
+  }
+  return 0;
+}
+__name(searchComparer, "searchComparer");
+export {
+  searchComparer,
+  searchMatchComparer
+};
+//# sourceMappingURL=searchCompare.js.map

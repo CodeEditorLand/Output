@@ -1,1 +1,205 @@
-import*as p from"../../../base/common/strings.js";class h{constructor(n,t,s,e){this.startColumn=n,this.endColumn=t,this.className=s,this.type=e,this._lineDecorationBrand=void 0}static c(n,t){return n.startColumn===t.startColumn&&n.endColumn===t.endColumn&&n.className===t.className&&n.type===t.type}static equalsArr(n,t){const s=n.length,e=t.length;if(s!==e)return!1;for(let i=0;i<s;i++)if(!h.c(n[i],t[i]))return!1;return!0}static extractWrapped(n,t,s){if(n.length===0)return n;const e=t+1,i=s+1,l=s-t,u=[];let o=0;for(const r of n)r.endColumn<=e||r.startColumn>=i||(u[o++]=new h(Math.max(1,r.startColumn-e+1),Math.min(l+1,r.endColumn-e+1),r.className,r.type));return u}static filter(n,t,s,e){if(n.length===0)return[];const i=[];let l=0;for(let u=0,o=n.length;u<o;u++){const r=n[u],c=r.range;if(c.endLineNumber<t||c.startLineNumber>t||c.isEmpty()&&(r.type===0||r.type===3))continue;const m=c.startLineNumber===t?c.startColumn:s,C=c.endLineNumber===t?c.endColumn:e;i[l++]=new h(m,C,r.inlineClassName,r.type)}return i}static e(n,t){const s=[2,0,1,3];return s[n]-s[t]}static compare(n,t){if(n.startColumn!==t.startColumn)return n.startColumn-t.startColumn;if(n.endColumn!==t.endColumn)return n.endColumn-t.endColumn;const s=h.e(n.type,t.type);return s!==0?s:n.className!==t.className?n.className<t.className?-1:1:0}}class g{constructor(n,t,s,e){this.startOffset=n,this.endOffset=t,this.className=s,this.metadata=e}}class a{constructor(){this.c=[],this.e=[],this.f=[],this.count=0}static g(n){let t=0;for(let s=0,e=n.length;s<e;s++)t|=n[s];return t}consumeLowerThan(n,t,s){for(;this.count>0&&this.c[0]<n;){let e=0;for(;e+1<this.count&&this.c[e]===this.c[e+1];)e++;s.push(new g(t,this.c[e],this.e.join(" "),a.g(this.f))),t=this.c[e]+1,this.c.splice(0,e+1),this.e.splice(0,e+1),this.f.splice(0,e+1),this.count-=e+1}return this.count>0&&t<n&&(s.push(new g(t,n-1,this.e.join(" "),a.g(this.f))),t=n),t}insert(n,t,s){if(this.count===0||this.c[this.count-1]<=n)this.c.push(n),this.e.push(t),this.f.push(s);else for(let e=0;e<this.count;e++)if(this.c[e]>=n){this.c.splice(e,0,n),this.e.splice(e,0,t),this.f.splice(e,0,s);break}this.count++}}class N{static normalize(n,t){if(t.length===0)return[];const s=[],e=new a;let i=0;for(let l=0,u=t.length;l<u;l++){const o=t[l];let r=o.startColumn,c=o.endColumn;const m=o.className,C=o.type===1?2:o.type===2?4:0;if(r>1){const d=n.charCodeAt(r-2);p.$9f(d)&&r--}if(c>1){const d=n.charCodeAt(c-2);p.$9f(d)&&c--}const f=r-1,L=c-2;i=e.consumeLowerThan(f,i,s),e.count===0&&(i=f),e.insert(L,m,C)}return e.consumeLowerThan(1073741824,i,s),s}}export{h as $Bbb,g as $Cbb,N as $Dbb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+class LineDecoration {
+  static {
+    __name(this, "LineDecoration");
+  }
+  constructor(startColumn, endColumn, className, type) {
+    this.startColumn = startColumn;
+    this.endColumn = endColumn;
+    this.className = className;
+    this.type = type;
+    this._lineDecorationBrand = void 0;
+  }
+  static _equals(a, b) {
+    return a.startColumn === b.startColumn && a.endColumn === b.endColumn && a.className === b.className && a.type === b.type;
+  }
+  static equalsArr(a, b) {
+    const aLen = a.length;
+    const bLen = b.length;
+    if (aLen !== bLen) {
+      return false;
+    }
+    for (let i = 0; i < aLen; i++) {
+      if (!LineDecoration._equals(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  static extractWrapped(arr, startOffset, endOffset) {
+    if (arr.length === 0) {
+      return arr;
+    }
+    const startColumn = startOffset + 1;
+    const endColumn = endOffset + 1;
+    const lineLength = endOffset - startOffset;
+    const r = [];
+    let rLength = 0;
+    for (const dec of arr) {
+      if (dec.endColumn <= startColumn || dec.startColumn >= endColumn) {
+        continue;
+      }
+      r[rLength++] = new LineDecoration(Math.max(1, dec.startColumn - startColumn + 1), Math.min(lineLength + 1, dec.endColumn - startColumn + 1), dec.className, dec.type);
+    }
+    return r;
+  }
+  static filter(lineDecorations, lineNumber, minLineColumn, maxLineColumn) {
+    if (lineDecorations.length === 0) {
+      return [];
+    }
+    const result = [];
+    let resultLen = 0;
+    for (let i = 0, len = lineDecorations.length; i < len; i++) {
+      const d = lineDecorations[i];
+      const range = d.range;
+      if (range.endLineNumber < lineNumber || range.startLineNumber > lineNumber) {
+        continue;
+      }
+      if (range.isEmpty() && (d.type === 0 || d.type === 3)) {
+        continue;
+      }
+      const startColumn = range.startLineNumber === lineNumber ? range.startColumn : minLineColumn;
+      const endColumn = range.endLineNumber === lineNumber ? range.endColumn : maxLineColumn;
+      result[resultLen++] = new LineDecoration(startColumn, endColumn, d.inlineClassName, d.type);
+    }
+    return result;
+  }
+  static _typeCompare(a, b) {
+    const ORDER = [2, 0, 1, 3];
+    return ORDER[a] - ORDER[b];
+  }
+  static compare(a, b) {
+    if (a.startColumn !== b.startColumn) {
+      return a.startColumn - b.startColumn;
+    }
+    if (a.endColumn !== b.endColumn) {
+      return a.endColumn - b.endColumn;
+    }
+    const typeCmp = LineDecoration._typeCompare(a.type, b.type);
+    if (typeCmp !== 0) {
+      return typeCmp;
+    }
+    if (a.className !== b.className) {
+      return a.className < b.className ? -1 : 1;
+    }
+    return 0;
+  }
+}
+class DecorationSegment {
+  static {
+    __name(this, "DecorationSegment");
+  }
+  constructor(startOffset, endOffset, className, metadata) {
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
+    this.className = className;
+    this.metadata = metadata;
+  }
+}
+class Stack {
+  static {
+    __name(this, "Stack");
+  }
+  constructor() {
+    this.stopOffsets = [];
+    this.classNames = [];
+    this.metadata = [];
+    this.count = 0;
+  }
+  static _metadata(metadata) {
+    let result = 0;
+    for (let i = 0, len = metadata.length; i < len; i++) {
+      result |= metadata[i];
+    }
+    return result;
+  }
+  consumeLowerThan(maxStopOffset, nextStartOffset, result) {
+    while (this.count > 0 && this.stopOffsets[0] < maxStopOffset) {
+      let i = 0;
+      while (i + 1 < this.count && this.stopOffsets[i] === this.stopOffsets[i + 1]) {
+        i++;
+      }
+      result.push(new DecorationSegment(nextStartOffset, this.stopOffsets[i], this.classNames.join(" "), Stack._metadata(this.metadata)));
+      nextStartOffset = this.stopOffsets[i] + 1;
+      this.stopOffsets.splice(0, i + 1);
+      this.classNames.splice(0, i + 1);
+      this.metadata.splice(0, i + 1);
+      this.count -= i + 1;
+    }
+    if (this.count > 0 && nextStartOffset < maxStopOffset) {
+      result.push(new DecorationSegment(nextStartOffset, maxStopOffset - 1, this.classNames.join(" "), Stack._metadata(this.metadata)));
+      nextStartOffset = maxStopOffset;
+    }
+    return nextStartOffset;
+  }
+  insert(stopOffset, className, metadata) {
+    if (this.count === 0 || this.stopOffsets[this.count - 1] <= stopOffset) {
+      this.stopOffsets.push(stopOffset);
+      this.classNames.push(className);
+      this.metadata.push(metadata);
+    } else {
+      for (let i = 0; i < this.count; i++) {
+        if (this.stopOffsets[i] >= stopOffset) {
+          this.stopOffsets.splice(i, 0, stopOffset);
+          this.classNames.splice(i, 0, className);
+          this.metadata.splice(i, 0, metadata);
+          break;
+        }
+      }
+    }
+    this.count++;
+    return;
+  }
+}
+class LineDecorationsNormalizer {
+  static {
+    __name(this, "LineDecorationsNormalizer");
+  }
+  /**
+   * Normalize line decorations. Overlapping decorations will generate multiple segments
+   */
+  static normalize(lineContent, lineDecorations) {
+    if (lineDecorations.length === 0) {
+      return [];
+    }
+    const result = [];
+    const stack = new Stack();
+    let nextStartOffset = 0;
+    for (let i = 0, len = lineDecorations.length; i < len; i++) {
+      const d = lineDecorations[i];
+      let startColumn = d.startColumn;
+      let endColumn = d.endColumn;
+      const className = d.className;
+      const metadata = d.type === 1 ? 2 : d.type === 2 ? 4 : 0;
+      if (startColumn > 1) {
+        const charCodeBefore = lineContent.charCodeAt(startColumn - 2);
+        if (strings.isHighSurrogate(charCodeBefore)) {
+          startColumn--;
+        }
+      }
+      if (endColumn > 1) {
+        const charCodeBefore = lineContent.charCodeAt(endColumn - 2);
+        if (strings.isHighSurrogate(charCodeBefore)) {
+          endColumn--;
+        }
+      }
+      const currentStartOffset = startColumn - 1;
+      const currentEndOffset = endColumn - 2;
+      nextStartOffset = stack.consumeLowerThan(currentStartOffset, nextStartOffset, result);
+      if (stack.count === 0) {
+        nextStartOffset = currentStartOffset;
+      }
+      stack.insert(currentEndOffset, className, metadata);
+    }
+    stack.consumeLowerThan(1073741824, nextStartOffset, result);
+    return result;
+  }
+}
+export {
+  DecorationSegment,
+  LineDecoration,
+  LineDecorationsNormalizer
+};
+//# sourceMappingURL=lineDecorations.js.map

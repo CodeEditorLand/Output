@@ -1,1 +1,61 @@
-import{URI as f}from"../../../../base/common/uri.js";import{$cC as e}from"../../../../editor/common/core/range.js";import{$nj as m}from"../../../../platform/instantiation/common/instantiation.js";var i;(function(r){r[r.Info=0]="Info",r[r.Warning=1]="Warning",r[r.Error=2]="Error"})(i||(i={}));function u(r){return!!r&&typeof r=="object"&&"uri"in r&&r.uri instanceof f&&"version"in r&&typeof r.version=="number"&&"ranges"in r&&Array.isArray(r.ranges)&&r.ranges.every(e.isIRange)}function d(r){return!!r&&typeof r=="object"&&"documents"in r&&Array.isArray(r.documents)&&r.documents.every(u)}var o;(function(r){r[r.Complete=1]="Complete",r[r.Partial=2]="Partial",r[r.Omitted=3]="Omitted"})(o||(o={}));var c;(function(r){r[r.Down=0]="Down",r[r.Up=1]="Up"})(c||(c={}));var n;(function(r){r.IncorrectCode="incorrectCode",r.DidNotFollowInstructions="didNotFollowInstructions",r.IncompleteCode="incompleteCode",r.MissingContext="missingContext",r.PoorlyWrittenOrFormatted="poorlyWrittenOrFormatted",r.RefusedAValidRequest="refusedAValidRequest",r.OffensiveOrUnsafe="offensiveOrUnsafe",r.Other="other",r.WillReportIssue="willReportIssue"})(n||(n={}));var t;(function(r){r[r.Action=1]="Action",r[r.Toolbar=2]="Toolbar"})(t||(t={}));const x=m("IChatService"),y="accessibility.voice.keywordActivation";export{u as $JS,d as $KS,x as $LS,y as $MS,c as ChatAgentVoteDirection,n as ChatAgentVoteDownReason,t as ChatCopyKind,i as ChatErrorLevel,o as ChatResponseReferencePartStatusKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+var ChatErrorLevel;
+(function(ChatErrorLevel2) {
+  ChatErrorLevel2[ChatErrorLevel2["Info"] = 0] = "Info";
+  ChatErrorLevel2[ChatErrorLevel2["Warning"] = 1] = "Warning";
+  ChatErrorLevel2[ChatErrorLevel2["Error"] = 2] = "Error";
+})(ChatErrorLevel || (ChatErrorLevel = {}));
+function isIDocumentContext(obj) {
+  return !!obj && typeof obj === "object" && "uri" in obj && obj.uri instanceof URI && "version" in obj && typeof obj.version === "number" && "ranges" in obj && Array.isArray(obj.ranges) && obj.ranges.every(Range.isIRange);
+}
+__name(isIDocumentContext, "isIDocumentContext");
+function isIUsedContext(obj) {
+  return !!obj && typeof obj === "object" && "documents" in obj && Array.isArray(obj.documents) && obj.documents.every(isIDocumentContext);
+}
+__name(isIUsedContext, "isIUsedContext");
+var ChatResponseReferencePartStatusKind;
+(function(ChatResponseReferencePartStatusKind2) {
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
+})(ChatResponseReferencePartStatusKind || (ChatResponseReferencePartStatusKind = {}));
+var ChatAgentVoteDirection;
+(function(ChatAgentVoteDirection2) {
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Down"] = 0] = "Down";
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Up"] = 1] = "Up";
+})(ChatAgentVoteDirection || (ChatAgentVoteDirection = {}));
+var ChatAgentVoteDownReason;
+(function(ChatAgentVoteDownReason2) {
+  ChatAgentVoteDownReason2["IncorrectCode"] = "incorrectCode";
+  ChatAgentVoteDownReason2["DidNotFollowInstructions"] = "didNotFollowInstructions";
+  ChatAgentVoteDownReason2["IncompleteCode"] = "incompleteCode";
+  ChatAgentVoteDownReason2["MissingContext"] = "missingContext";
+  ChatAgentVoteDownReason2["PoorlyWrittenOrFormatted"] = "poorlyWrittenOrFormatted";
+  ChatAgentVoteDownReason2["RefusedAValidRequest"] = "refusedAValidRequest";
+  ChatAgentVoteDownReason2["OffensiveOrUnsafe"] = "offensiveOrUnsafe";
+  ChatAgentVoteDownReason2["Other"] = "other";
+  ChatAgentVoteDownReason2["WillReportIssue"] = "willReportIssue";
+})(ChatAgentVoteDownReason || (ChatAgentVoteDownReason = {}));
+var ChatCopyKind;
+(function(ChatCopyKind2) {
+  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
+  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
+})(ChatCopyKind || (ChatCopyKind = {}));
+const IChatService = createDecorator("IChatService");
+const KEYWORD_ACTIVIATION_SETTING_ID = "accessibility.voice.keywordActivation";
+export {
+  ChatAgentVoteDirection,
+  ChatAgentVoteDownReason,
+  ChatCopyKind,
+  ChatErrorLevel,
+  ChatResponseReferencePartStatusKind,
+  IChatService,
+  KEYWORD_ACTIVIATION_SETTING_ID,
+  isIDocumentContext,
+  isIUsedContext
+};
+//# sourceMappingURL=chatService.js.map

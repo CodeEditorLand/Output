@@ -1,1 +1,127 @@
-import{$Ji as y}from"../../../../base/common/buffer.js";import{$eh as g,$kh as I,$mh as w}from"../../../../base/common/resources.js";import{URI as u}from"../../../../base/common/uri.js";import{$WB as W}from"../../../../platform/instantiation/common/extensions.js";import{$nj as $}from"../../../../platform/instantiation/common/instantiation.js";import{EditSessionIdentityMatch as S,$PM as U}from"../../../../platform/workspace/common/editSessions.js";import{$hl as _}from"../../../../platform/workspace/common/workspace.js";var k=function(f,t,r,o){var s=arguments.length,c=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(f,t,r,o);else for(var a=f.length-1;a>=0;a--)(l=f[a])&&(c=(s<3?l(c):s>3?l(t,r,c):l(t,r))||c);return s>3&&c&&Object.defineProperty(t,r,c),c},h=function(f,t){return function(r,o){t(r,o,f)}};const O=$("IWorkspaceIdentityService");let m=class{constructor(t,r){this.a=t,this.b=r}async getWorkspaceStateFolders(t){const r=[];for(const o of this.a.getWorkspace().folders){const s=await this.b.getEditSessionIdentifier(o,t);s&&r.push({resourceUri:o.uri.toString(),workspaceFolderIdentity:s})}return r}async matches(t,r){const o={},s={};for(const e of t)s[e.workspaceFolderIdentity]=e.resourceUri;const c=new Map;for(const e of this.a.getWorkspace().folders){const n=await this.b.getEditSessionIdentifier(e,r);n&&c.set(e,n)}for(const[e,n]of c.entries()){const i=s[n];if(i){o[i]=e.uri.toString();continue}let p=!1;for(const[d,F]of Object.entries(s))if(await this.b.provideEditSessionIdentityMatch(e,n,d,r)===S.Complete){o[F]=e.uri.toString(),p=!0;break}if(!p)return!1}const l=e=>{for(const n of Object.keys(o)){const i=u.parse(n);if(g(i,e)){const p=o[n],d=w(i,e);if(d)return I(u.parse(p),d)}}return e},a=(e,n=0)=>{if(!e||n>200||e instanceof y||e instanceof Uint8Array)return e;if(u.isUri(e))return l(e);if(Array.isArray(e))for(let i=0;i<e.length;++i)e[i]=a(e[i],n+1);else for(const i in e)Object.hasOwnProperty.call(e,i)&&(e[i]=a(e[i],n+1));return e};return a}};m=k([h(0,_),h(1,U)],m);W(O,m,1);export{O as $nxc,m as $oxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { isEqualOrParent, joinPath, relativePath } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { EditSessionIdentityMatch, IEditSessionIdentityService } from "../../../../platform/workspace/common/editSessions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const IWorkspaceIdentityService = createDecorator("IWorkspaceIdentityService");
+let WorkspaceIdentityService = class WorkspaceIdentityService2 {
+  static {
+    __name(this, "WorkspaceIdentityService");
+  }
+  constructor(workspaceContextService, editSessionIdentityService) {
+    this.workspaceContextService = workspaceContextService;
+    this.editSessionIdentityService = editSessionIdentityService;
+  }
+  async getWorkspaceStateFolders(cancellationToken) {
+    const workspaceStateFolders = [];
+    for (const workspaceFolder of this.workspaceContextService.getWorkspace().folders) {
+      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(workspaceFolder, cancellationToken);
+      if (!workspaceFolderIdentity) {
+        continue;
+      }
+      workspaceStateFolders.push({ resourceUri: workspaceFolder.uri.toString(), workspaceFolderIdentity });
+    }
+    return workspaceStateFolders;
+  }
+  async matches(incomingWorkspaceFolders, cancellationToken) {
+    const incomingToCurrentWorkspaceFolderUris = {};
+    const incomingIdentitiesToIncomingWorkspaceFolders = {};
+    for (const workspaceFolder of incomingWorkspaceFolders) {
+      incomingIdentitiesToIncomingWorkspaceFolders[workspaceFolder.workspaceFolderIdentity] = workspaceFolder.resourceUri;
+    }
+    const currentWorkspaceFoldersToIdentities = /* @__PURE__ */ new Map();
+    for (const workspaceFolder of this.workspaceContextService.getWorkspace().folders) {
+      const workspaceFolderIdentity = await this.editSessionIdentityService.getEditSessionIdentifier(workspaceFolder, cancellationToken);
+      if (!workspaceFolderIdentity) {
+        continue;
+      }
+      currentWorkspaceFoldersToIdentities.set(workspaceFolder, workspaceFolderIdentity);
+    }
+    for (const [currentWorkspaceFolder, currentWorkspaceFolderIdentity] of currentWorkspaceFoldersToIdentities.entries()) {
+      const incomingWorkspaceFolder = incomingIdentitiesToIncomingWorkspaceFolders[currentWorkspaceFolderIdentity];
+      if (incomingWorkspaceFolder) {
+        incomingToCurrentWorkspaceFolderUris[incomingWorkspaceFolder] = currentWorkspaceFolder.uri.toString();
+        continue;
+      }
+      let hasCompleteMatch = false;
+      for (const [incomingIdentity, incomingFolder] of Object.entries(incomingIdentitiesToIncomingWorkspaceFolders)) {
+        if (await this.editSessionIdentityService.provideEditSessionIdentityMatch(currentWorkspaceFolder, currentWorkspaceFolderIdentity, incomingIdentity, cancellationToken) === EditSessionIdentityMatch.Complete) {
+          incomingToCurrentWorkspaceFolderUris[incomingFolder] = currentWorkspaceFolder.uri.toString();
+          hasCompleteMatch = true;
+          break;
+        }
+      }
+      if (hasCompleteMatch) {
+        continue;
+      }
+      return false;
+    }
+    const convertUri = /* @__PURE__ */ __name((uriToConvert) => {
+      for (const incomingFolderUriKey of Object.keys(incomingToCurrentWorkspaceFolderUris)) {
+        const incomingFolderUri = URI.parse(incomingFolderUriKey);
+        if (isEqualOrParent(incomingFolderUri, uriToConvert)) {
+          const currentWorkspaceFolderUri = incomingToCurrentWorkspaceFolderUris[incomingFolderUriKey];
+          const relativeFilePath = relativePath(incomingFolderUri, uriToConvert);
+          if (relativeFilePath) {
+            return joinPath(URI.parse(currentWorkspaceFolderUri), relativeFilePath);
+          }
+        }
+      }
+      return uriToConvert;
+    }, "convertUri");
+    const uriReplacer = /* @__PURE__ */ __name((obj, depth = 0) => {
+      if (!obj || depth > 200) {
+        return obj;
+      }
+      if (obj instanceof VSBuffer || obj instanceof Uint8Array) {
+        return obj;
+      }
+      if (URI.isUri(obj)) {
+        return convertUri(obj);
+      }
+      if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; ++i) {
+          obj[i] = uriReplacer(obj[i], depth + 1);
+        }
+      } else {
+        for (const key in obj) {
+          if (Object.hasOwnProperty.call(obj, key)) {
+            obj[key] = uriReplacer(obj[key], depth + 1);
+          }
+        }
+      }
+      return obj;
+    }, "uriReplacer");
+    return uriReplacer;
+  }
+};
+WorkspaceIdentityService = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IEditSessionIdentityService)
+], WorkspaceIdentityService);
+registerSingleton(
+  IWorkspaceIdentityService,
+  WorkspaceIdentityService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IWorkspaceIdentityService,
+  WorkspaceIdentityService
+};
+//# sourceMappingURL=workspaceIdentityService.js.map

@@ -1,1 +1,63 @@
-import{$a8 as o}from"../../../../base/browser/ui/aria/aria.js";import{localize as t}from"../../../../nls.js";import{$vd as n}from"../../../../base/common/lifecycle.js";import"../../../../base/common/errorMessage.js";import{NotificationPriority as m,Severity as i}from"../../../../platform/notification/common/notification.js";import{Event as l}from"../../../../base/common/event.js";class x extends n{constructor(e){super(),this.a=e;for(const r of e.notifications)this.f(r);this.b()}b(){this.B(this.a.onDidChangeNotification(e=>this.c(e)))}c(e){e.kind===0&&(this.f(e.item),e.item.severity===i.Error&&e.item.message.original instanceof Error)}f(e){if(e.priority===m.SILENT)return;const r=e.onDidChangeContent(s=>{s.kind===1&&this.g(e)});l.once(e.onDidClose)(()=>r.dispose()),this.g(e)}g(e){let r;e.severity===i.Error?r=t(3805,null,e.message.linkedText.toString()):e.severity===i.Warning?r=t(3806,null,e.message.linkedText.toString()):r=t(3807,null,e.message.linkedText.toString()),o(r)}}export{x as $Pyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { localize } from "../../../../nls.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
+import { Event } from "../../../../base/common/event.js";
+class NotificationsAlerts extends Disposable {
+  static {
+    __name(this, "NotificationsAlerts");
+  }
+  constructor(model) {
+    super();
+    this.model = model;
+    for (const notification of model.notifications) {
+      this.triggerAriaAlert(notification);
+    }
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.model.onDidChangeNotification((e) => this.onDidChangeNotification(e)));
+  }
+  onDidChangeNotification(e) {
+    if (e.kind === 0) {
+      this.triggerAriaAlert(e.item);
+      if (e.item.severity === Severity.Error) {
+        if (e.item.message.original instanceof Error) {
+          console.error(e.item.message.original);
+        } else {
+          console.error(toErrorMessage(e.item.message.linkedText.toString(), true));
+        }
+      }
+    }
+  }
+  triggerAriaAlert(notification) {
+    if (notification.priority === NotificationPriority.SILENT) {
+      return;
+    }
+    const listener = notification.onDidChangeContent((e) => {
+      if (e.kind === 1) {
+        this.doTriggerAriaAlert(notification);
+      }
+    });
+    Event.once(notification.onDidClose)(() => listener.dispose());
+    this.doTriggerAriaAlert(notification);
+  }
+  doTriggerAriaAlert(notification) {
+    let alertText;
+    if (notification.severity === Severity.Error) {
+      alertText = localize("alertErrorMessage", "Error: {0}", notification.message.linkedText.toString());
+    } else if (notification.severity === Severity.Warning) {
+      alertText = localize("alertWarningMessage", "Warning: {0}", notification.message.linkedText.toString());
+    } else {
+      alertText = localize("alertInfoMessage", "Info: {0}", notification.message.linkedText.toString());
+    }
+    alert(alertText);
+  }
+}
+export {
+  NotificationsAlerts
+};
+//# sourceMappingURL=notificationsAlerts.js.map

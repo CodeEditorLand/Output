@@ -1,1 +1,297 @@
-import{$Nh as P}from"../../../base/common/async.js";import{$qb as D}from"../../../base/common/errors.js";import{$df as $}from"../../../base/common/event.js";import{$vd as M,$Ed as _}from"../../../base/common/lifecycle.js";import{observableValue as A}from"../../../base/common/observable.js";import S from"../../../base/common/severity.js";import{URI as j}from"../../../base/common/uri.js";import*as d from"../../../nls.js";import{$_o as z}from"../../../platform/dialogs/common/dialogs.js";import{LogLevel as v}from"../../../platform/log/common/log.js";import{$BW as R}from"../../contrib/mcp/common/mcpRegistryTypes.js";import{McpConnectionState as b,McpServerDefinition as H,McpServerLaunch as I}from"../../contrib/mcp/common/mcpTypes.js";import{$d3b as B}from"../../services/authentication/browser/authenticationMcpAccessService.js";import{$h3b as O}from"../../services/authentication/browser/authenticationMcpService.js";import{$f3b as C}from"../../services/authentication/browser/authenticationMcpUsageService.js";import{$cX as E}from"../../services/authentication/common/authentication.js";import{$HO as L}from"../../services/extensions/common/extensionHostKind.js";import{$Kyb as T}from"../../services/extensions/common/extHostCustomers.js";import{$pY as U,$oY as F}from"../common/extHost.protocol.js";var x=function(p,t,e,s){var n=arguments.length,i=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(p,t,e,s);else for(var a=p.length-1;a>=0;a--)(o=p[a])&&(i=(n<3?o(i):n>3?o(t,e,i):o(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},g=function(p,t){return function(e,s){t(e,s,p)}};let y=class extends M{constructor(t,e,s,n,i,o,a){super(),this.h=t,this.j=e,this.m=s,this.n=n,this.s=i,this.t=o,this.u=a,this.a=0,this.b=new Map,this.c=new Map,this.g=this.B(new _);const r=this.f=t.getProxy(U.ExtHostMcp);this.B(this.j.registerDelegate({priority:t.extensionHostKind===2?0:1,waitForInitialProviderPromises(){return r.$waitForInitialCollectionProviders()},canStart(l,m){return!(l.remoteAuthority!==t.remoteAuthority||m.launch.type===1&&t.extensionHostKind===2)},start:(l,m,f)=>{const h=++this.a,c=new N(t.extensionHostKind,()=>r.$stopMcp(h),w=>r.$sendMessage(h,JSON.stringify(w)));return this.b.set(h,c),this.c.set(h,m),r.$startMcp(h,f),c}}))}$upsertMcpCollection(t,e){const s=e.map(H.fromSerialized),n=this.g.get(t.id);if(n)n.servers.set(s,void 0);else{const i=A("mcpServers",s),o=this.j.registerCollection({...t,resolveServerLanch:t.canResolveLaunch?async a=>{const r=await this.f.$resolveMcpLaunch(t.id,a.label);return r?I.fromSerialized(r):void 0}:void 0,remoteAuthority:this.h.remoteAuthority,serverDefinitions:i});this.g.set(t.id,{fromExtHost:t,servers:i,dispose:()=>o.dispose()})}}$deleteMcpCollection(t){this.g.deleteAndDispose(t)}$onDidChangeState(t,e){const s=this.b.get(t);s&&(s.state.set(e,void 0),b.isRunning(e)||(s.dispose(),this.b.delete(t),this.c.delete(t)))}$onDidPublishLog(t,e,s){typeof e=="string"&&(e=v.Info,s=e),this.b.get(t)?.pushLog(e,s)}$onDidReceiveMessage(t,e){this.b.get(t)?.pushMessage(e)}async $getTokenFromServerMetadata(t,e,s,n){const i=this.c.get(t);if(!i)return;const o=j.revive(e),a=n?.scopes_supported||s.scopes_supported||[];let r=await this.n.getOrActivateProviderIdForServer(o);if(!r){const u=await this.n.createDynamicAuthenticationProvider(o,s,n);if(!u)return;r=u.id}const l=await this.n.getSessions(r,a,{authorizationServer:o},!0),m=this.s.getAccountPreference(i.id,r);let f;m&&(f=l.find(u=>u.account.label===m));const h=this.n.getProvider(r);let c;if(l.length){if(f&&this.t.isAccessAllowed(r,f.account.label,i.id))return this.j.setAuthenticationUsage(i.id,r),f.accessToken;if(!h.supportsMultipleAccounts&&this.t.isAccessAllowed(r,l[0].account.label,i.id))return this.j.setAuthenticationUsage(i.id,r),l[0].accessToken}if(!await this.y(i.label,h.label,!1))throw new Error("User did not consent to login.");if(l.length)c=h.supportsMultipleAccounts?await this.s.selectSession(r,i.id,i.label,a,l):l[0];else{const u=f?.account;do c=await this.n.createSession(r,a,{activateImmediate:!0,account:u,authorizationServer:o});while(u&&u.label!==c.account.label&&!await this.w(c.account.label,u.label))}return this.j.setAuthenticationUsage(i.id,r),this.t.updateAllowedMcpServers(r,c.account.label,[{id:i.id,name:i.label,allowed:!0}]),this.s.updateAccountPreference(i.id,r,c.account),this.u.addAccountUsage(r,c.account.label,a,i.id,i.label),c.accessToken}async w(t,e){const s=await this.m.prompt({message:d.localize(2755,null),detail:d.localize(2756,null,t,e),type:S.Warning,cancelButton:!0,buttons:[{label:d.localize(2757,null,t),run:()=>t},{label:d.localize(2758,null,e),run:()=>e}]});if(!s.result)throw new D;return s.result===t}async y(t,e,s){const n=s?d.localize(2759,null,t,e):d.localize(2760,null,t,e),i=[{label:d.localize(2761,null),run(){return!0}}],{result:o}=await this.m.prompt({type:S.Info,message:n,buttons:i,cancelButton:!0});return o??!1}dispose(){for(const t of this.b.values())t.extHostDispose();this.b.clear(),this.c.clear(),super.dispose()}};y=x([T(F.MainThreadMcp),g(1,R),g(2,z),g(3,E),g(4,O),g(5,B),g(6,C)],y);class N extends M{pushLog(t,e){this.a.fire({message:e,level:t})}pushMessage(t){let e;try{e=JSON.parse(t)}catch{this.pushLog(v.Warning,`Failed to parse message: ${JSON.stringify(t)}`)}e&&(Array.isArray(e)?e.forEach(s=>this.b.fire(s)):this.b.fire(e))}constructor(t,e,s){super(),this.stop=e,this.send=s,this.state=A("mcpServerState",{state:1}),this.a=this.B(new $),this.onDidLog=this.a.event,this.b=this.B(new $),this.onDidReceiveMessage=this.b.event,this.B(P(()=>{this.pushLog(v.Info,`Starting server from ${L(t)} extension host`)}))}extHostDispose(){b.isRunning(this.state.get())&&(this.pushLog(v.Warning,"Extension host shut down, server will stop."),this.state.set({state:0},void 0)),this.dispose()}dispose(){b.isRunning(this.state.get())&&this.stop(),super.dispose()}}export{y as $j3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { disposableTimeout } from "../../../base/common/async.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { observableValue } from "../../../base/common/observable.js";
+import Severity from "../../../base/common/severity.js";
+import { URI } from "../../../base/common/uri.js";
+import * as nls from "../../../nls.js";
+import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import { LogLevel } from "../../../platform/log/common/log.js";
+import { IMcpRegistry } from "../../contrib/mcp/common/mcpRegistryTypes.js";
+import { McpConnectionState, McpServerDefinition, McpServerLaunch } from "../../contrib/mcp/common/mcpTypes.js";
+import { IAuthenticationMcpAccessService } from "../../services/authentication/browser/authenticationMcpAccessService.js";
+import { IAuthenticationMcpService } from "../../services/authentication/browser/authenticationMcpService.js";
+import { IAuthenticationMcpUsageService } from "../../services/authentication/browser/authenticationMcpUsageService.js";
+import { IAuthenticationService } from "../../services/authentication/common/authentication.js";
+import { extensionHostKindToString } from "../../services/extensions/common/extensionHostKind.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let MainThreadMcp = class MainThreadMcp2 extends Disposable {
+  static {
+    __name(this, "MainThreadMcp");
+  }
+  constructor(_extHostContext, _mcpRegistry, dialogService, _authenticationService, authenticationMcpServersService, authenticationMCPServerAccessService, authenticationMCPServerUsageService) {
+    super();
+    this._extHostContext = _extHostContext;
+    this._mcpRegistry = _mcpRegistry;
+    this.dialogService = dialogService;
+    this._authenticationService = _authenticationService;
+    this.authenticationMcpServersService = authenticationMcpServersService;
+    this.authenticationMCPServerAccessService = authenticationMCPServerAccessService;
+    this.authenticationMCPServerUsageService = authenticationMCPServerUsageService;
+    this._serverIdCounter = 0;
+    this._servers = /* @__PURE__ */ new Map();
+    this._serverDefinitions = /* @__PURE__ */ new Map();
+    this._collectionDefinitions = this._register(new DisposableMap());
+    const proxy = this._proxy = _extHostContext.getProxy(ExtHostContext.ExtHostMcp);
+    this._register(this._mcpRegistry.registerDelegate({
+      // Prefer Node.js extension hosts when they're available. No CORS issues etc.
+      priority: _extHostContext.extensionHostKind === 2 ? 0 : 1,
+      waitForInitialProviderPromises() {
+        return proxy.$waitForInitialCollectionProviders();
+      },
+      canStart(collection, serverDefinition) {
+        if (collection.remoteAuthority !== _extHostContext.remoteAuthority) {
+          return false;
+        }
+        if (serverDefinition.launch.type === 1 && _extHostContext.extensionHostKind === 2) {
+          return false;
+        }
+        return true;
+      },
+      start: /* @__PURE__ */ __name((_collection, serverDefiniton, resolveLaunch) => {
+        const id = ++this._serverIdCounter;
+        const launch = new ExtHostMcpServerLaunch(_extHostContext.extensionHostKind, () => proxy.$stopMcp(id), (msg) => proxy.$sendMessage(id, JSON.stringify(msg)));
+        this._servers.set(id, launch);
+        this._serverDefinitions.set(id, serverDefiniton);
+        proxy.$startMcp(id, resolveLaunch);
+        return launch;
+      }, "start")
+    }));
+  }
+  $upsertMcpCollection(collection, serversDto) {
+    const servers = serversDto.map(McpServerDefinition.fromSerialized);
+    const existing = this._collectionDefinitions.get(collection.id);
+    if (existing) {
+      existing.servers.set(servers, void 0);
+    } else {
+      const serverDefinitions = observableValue("mcpServers", servers);
+      const handle = this._mcpRegistry.registerCollection({
+        ...collection,
+        resolveServerLanch: collection.canResolveLaunch ? async (def) => {
+          const r = await this._proxy.$resolveMcpLaunch(collection.id, def.label);
+          return r ? McpServerLaunch.fromSerialized(r) : void 0;
+        } : void 0,
+        remoteAuthority: this._extHostContext.remoteAuthority,
+        serverDefinitions
+      });
+      this._collectionDefinitions.set(collection.id, {
+        fromExtHost: collection,
+        servers: serverDefinitions,
+        dispose: /* @__PURE__ */ __name(() => handle.dispose(), "dispose")
+      });
+    }
+  }
+  $deleteMcpCollection(collectionId) {
+    this._collectionDefinitions.deleteAndDispose(collectionId);
+  }
+  $onDidChangeState(id, update) {
+    const server = this._servers.get(id);
+    if (!server) {
+      return;
+    }
+    server.state.set(update, void 0);
+    if (!McpConnectionState.isRunning(update)) {
+      server.dispose();
+      this._servers.delete(id);
+      this._serverDefinitions.delete(id);
+    }
+  }
+  $onDidPublishLog(id, level, log) {
+    if (typeof level === "string") {
+      level = LogLevel.Info;
+      log = level;
+    }
+    this._servers.get(id)?.pushLog(level, log);
+  }
+  $onDidReceiveMessage(id, message) {
+    this._servers.get(id)?.pushMessage(message);
+  }
+  async $getTokenFromServerMetadata(id, authServerComponents, serverMetadata, resourceMetadata) {
+    const server = this._serverDefinitions.get(id);
+    if (!server) {
+      return void 0;
+    }
+    const authorizationServer = URI.revive(authServerComponents);
+    const scopesSupported = resourceMetadata?.scopes_supported || serverMetadata.scopes_supported || [];
+    let providerId = await this._authenticationService.getOrActivateProviderIdForServer(authorizationServer);
+    if (!providerId) {
+      const provider2 = await this._authenticationService.createDynamicAuthenticationProvider(authorizationServer, serverMetadata, resourceMetadata);
+      if (!provider2) {
+        return void 0;
+      }
+      providerId = provider2.id;
+    }
+    const sessions = await this._authenticationService.getSessions(providerId, scopesSupported, { authorizationServer }, true);
+    const accountNamePreference = this.authenticationMcpServersService.getAccountPreference(server.id, providerId);
+    let matchingAccountPreferenceSession;
+    if (accountNamePreference) {
+      matchingAccountPreferenceSession = sessions.find((session2) => session2.account.label === accountNamePreference);
+    }
+    const provider = this._authenticationService.getProvider(providerId);
+    let session;
+    if (sessions.length) {
+      if (matchingAccountPreferenceSession && this.authenticationMCPServerAccessService.isAccessAllowed(providerId, matchingAccountPreferenceSession.account.label, server.id)) {
+        this._mcpRegistry.setAuthenticationUsage(server.id, providerId);
+        this.authenticationMCPServerUsageService.addAccountUsage(providerId, matchingAccountPreferenceSession.account.label, scopesSupported, server.id, server.label);
+        return matchingAccountPreferenceSession.accessToken;
+      }
+      if (!provider.supportsMultipleAccounts && this.authenticationMCPServerAccessService.isAccessAllowed(providerId, sessions[0].account.label, server.id)) {
+        this._mcpRegistry.setAuthenticationUsage(server.id, providerId);
+        this.authenticationMCPServerUsageService.addAccountUsage(providerId, sessions[0].account.label, scopesSupported, server.id, server.label);
+        return sessions[0].accessToken;
+      }
+    }
+    const isAllowed = await this.loginPrompt(server.label, provider.label, false);
+    if (!isAllowed) {
+      throw new Error("User did not consent to login.");
+    }
+    if (sessions.length) {
+      session = provider.supportsMultipleAccounts ? await this.authenticationMcpServersService.selectSession(providerId, server.id, server.label, scopesSupported, sessions) : sessions[0];
+    } else {
+      const accountToCreate = matchingAccountPreferenceSession?.account;
+      do {
+        session = await this._authenticationService.createSession(providerId, scopesSupported, {
+          activateImmediate: true,
+          account: accountToCreate,
+          authorizationServer
+        });
+      } while (accountToCreate && accountToCreate.label !== session.account.label && !await this.continueWithIncorrectAccountPrompt(session.account.label, accountToCreate.label));
+    }
+    this._mcpRegistry.setAuthenticationUsage(server.id, providerId);
+    this.authenticationMCPServerAccessService.updateAllowedMcpServers(providerId, session.account.label, [{ id: server.id, name: server.label, allowed: true }]);
+    this.authenticationMcpServersService.updateAccountPreference(server.id, providerId, session.account);
+    this.authenticationMCPServerUsageService.addAccountUsage(providerId, session.account.label, scopesSupported, server.id, server.label);
+    return session.accessToken;
+  }
+  async continueWithIncorrectAccountPrompt(chosenAccountLabel, requestedAccountLabel) {
+    const result = await this.dialogService.prompt({
+      message: nls.localize("incorrectAccount", "Incorrect account detected"),
+      detail: nls.localize("incorrectAccountDetail", "The chosen account, {0}, does not match the requested account, {1}.", chosenAccountLabel, requestedAccountLabel),
+      type: Severity.Warning,
+      cancelButton: true,
+      buttons: [
+        {
+          label: nls.localize("keep", "Keep {0}", chosenAccountLabel),
+          run: /* @__PURE__ */ __name(() => chosenAccountLabel, "run")
+        },
+        {
+          label: nls.localize("loginWith", "Login with {0}", requestedAccountLabel),
+          run: /* @__PURE__ */ __name(() => requestedAccountLabel, "run")
+        }
+      ]
+    });
+    if (!result.result) {
+      throw new CancellationError();
+    }
+    return result.result === chosenAccountLabel;
+  }
+  async loginPrompt(mcpLabel, providerLabel, recreatingSession) {
+    const message = recreatingSession ? nls.localize("confirmRelogin", "The MCP Server Definition '{0}' wants you to authenticate to {1}.", mcpLabel, providerLabel) : nls.localize("confirmLogin", "The MCP Server Definition '{0}' wants to authenticate to {1}.", mcpLabel, providerLabel);
+    const buttons = [
+      {
+        label: nls.localize({ key: "allow", comment: ["&& denotes a mnemonic"] }, "&&Allow"),
+        run() {
+          return true;
+        }
+      }
+    ];
+    const { result } = await this.dialogService.prompt({
+      type: Severity.Info,
+      message,
+      buttons,
+      cancelButton: true
+    });
+    return result ?? false;
+  }
+  dispose() {
+    for (const server of this._servers.values()) {
+      server.extHostDispose();
+    }
+    this._servers.clear();
+    this._serverDefinitions.clear();
+    super.dispose();
+  }
+};
+MainThreadMcp = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadMcp),
+  __param(1, IMcpRegistry),
+  __param(2, IDialogService),
+  __param(3, IAuthenticationService),
+  __param(4, IAuthenticationMcpService),
+  __param(5, IAuthenticationMcpAccessService),
+  __param(6, IAuthenticationMcpUsageService)
+], MainThreadMcp);
+class ExtHostMcpServerLaunch extends Disposable {
+  static {
+    __name(this, "ExtHostMcpServerLaunch");
+  }
+  pushLog(level, message) {
+    this._onDidLog.fire({ message, level });
+  }
+  pushMessage(message) {
+    let parsed;
+    try {
+      parsed = JSON.parse(message);
+    } catch (e) {
+      this.pushLog(LogLevel.Warning, `Failed to parse message: ${JSON.stringify(message)}`);
+    }
+    if (parsed) {
+      if (Array.isArray(parsed)) {
+        parsed.forEach((p) => this._onDidReceiveMessage.fire(p));
+      } else {
+        this._onDidReceiveMessage.fire(parsed);
+      }
+    }
+  }
+  constructor(extHostKind, stop, send) {
+    super();
+    this.stop = stop;
+    this.send = send;
+    this.state = observableValue("mcpServerState", {
+      state: 1
+      /* McpConnectionState.Kind.Starting */
+    });
+    this._onDidLog = this._register(new Emitter());
+    this.onDidLog = this._onDidLog.event;
+    this._onDidReceiveMessage = this._register(new Emitter());
+    this.onDidReceiveMessage = this._onDidReceiveMessage.event;
+    this._register(disposableTimeout(() => {
+      this.pushLog(LogLevel.Info, `Starting server from ${extensionHostKindToString(extHostKind)} extension host`);
+    }));
+  }
+  extHostDispose() {
+    if (McpConnectionState.isRunning(this.state.get())) {
+      this.pushLog(LogLevel.Warning, "Extension host shut down, server will stop.");
+      this.state.set({
+        state: 0
+        /* McpConnectionState.Kind.Stopped */
+      }, void 0);
+    }
+    this.dispose();
+  }
+  dispose() {
+    if (McpConnectionState.isRunning(this.state.get())) {
+      this.stop();
+    }
+    super.dispose();
+  }
+}
+export {
+  MainThreadMcp
+};
+//# sourceMappingURL=mainThreadMcp.js.map

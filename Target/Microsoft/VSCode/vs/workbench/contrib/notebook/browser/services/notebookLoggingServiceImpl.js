@@ -1,1 +1,49 @@
-import*as h from"../../../../../nls.js";import{$vd as p}from"../../../../../base/common/lifecycle.js";import{$4n as u}from"../../../../../platform/log/common/log.js";import{$SNb as $}from"../../../../services/log/common/logConstants.js";var s=function(o,r,t,n){var i=arguments.length,e=i<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,t):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(o,r,t,n);else for(var c=o.length-1;c>=0;c--)(a=o[c])&&(e=(i<3?a(e):i>3?a(r,t,e):a(r,t))||e);return i>3&&e&&Object.defineProperty(r,t,e),e},l=function(o,r){return function(t,n){r(t,n,o)}};const m="notebook.rendering";let f=class extends p{static{this.ID="notebook"}constructor(r){super(),this.a=this.B(r.createLogger(m,{name:h.localize(9591,null),group:$}))}debug(r,t){this.a.debug(`[${r}] ${t}`)}info(r,t){this.a.info(`[${r}] ${t}`)}warn(r,t){this.a.warn(`[${r}] ${t}`)}error(r,t){this.a.error(`[${r}] ${t}`)}};f=s([l(0,u)],f);export{f as $_dc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../../nls.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ILoggerService } from "../../../../../platform/log/common/log.js";
+import { windowLogGroup } from "../../../../services/log/common/logConstants.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const logChannelId = "notebook.rendering";
+let NotebookLoggingService = class NotebookLoggingService2 extends Disposable {
+  static {
+    __name(this, "NotebookLoggingService");
+  }
+  static {
+    this.ID = "notebook";
+  }
+  constructor(loggerService) {
+    super();
+    this._logger = this._register(loggerService.createLogger(logChannelId, { name: nls.localize("renderChannelName", "Notebook"), group: windowLogGroup }));
+  }
+  debug(category, output) {
+    this._logger.debug(`[${category}] ${output}`);
+  }
+  info(category, output) {
+    this._logger.info(`[${category}] ${output}`);
+  }
+  warn(category, output) {
+    this._logger.warn(`[${category}] ${output}`);
+  }
+  error(category, output) {
+    this._logger.error(`[${category}] ${output}`);
+  }
+};
+NotebookLoggingService = __decorate([
+  __param(0, ILoggerService)
+], NotebookLoggingService);
+export {
+  NotebookLoggingService
+};
+//# sourceMappingURL=notebookLoggingServiceImpl.js.map

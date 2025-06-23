@@ -1,1 +1,133 @@
-var o;(function(e){e[e.None=0]="None",e[e.Indent=1]="Indent",e[e.IndentOutdent=2]="IndentOutdent",e[e.Outdent=3]="Outdent"})(o||(o={}));class a{constructor(s){if(this.e=null,this.f=!1,this.open=s.open,this.close=s.close,this.b=!0,this.c=!0,this.d=!0,Array.isArray(s.notIn))for(let t=0,n=s.notIn.length;t<n;t++)switch(s.notIn[t]){case"string":this.b=!1;break;case"comment":this.c=!1;break;case"regex":this.d=!1;break}}isOK(s){switch(s){case 0:return!0;case 1:return this.c;case 2:return this.b;case 3:return this.d}}shouldAutoClose(s,t){if(s.getTokenCount()===0)return!0;const n=s.findTokenIndexAtOffset(t-2),i=s.getStandardTokenType(n);return this.isOK(i)}g(s,t){for(let n=s;n<=t;n++){const i=String.fromCharCode(n);if(!this.open.includes(i)&&!this.close.includes(i))return i}return null}findNeutralCharacter(){return this.f||(this.f=!0,this.e||(this.e=this.g(48,57)),this.e||(this.e=this.g(97,122)),this.e||(this.e=this.g(65,90))),this.e}}class h{constructor(s){this.autoClosingPairsOpenByStart=new Map,this.autoClosingPairsOpenByEnd=new Map,this.autoClosingPairsCloseByStart=new Map,this.autoClosingPairsCloseByEnd=new Map,this.autoClosingPairsCloseSingleChar=new Map;for(const t of s)r(this.autoClosingPairsOpenByStart,t.open.charAt(0),t),r(this.autoClosingPairsOpenByEnd,t.open.charAt(t.open.length-1),t),r(this.autoClosingPairsCloseByStart,t.close.charAt(0),t),r(this.autoClosingPairsCloseByEnd,t.close.charAt(t.close.length-1),t),t.close.length===1&&t.open.length===1&&r(this.autoClosingPairsCloseSingleChar,t.close,t)}}function r(e,s,t){e.has(s)?e.get(s).push(t):e.set(s,[t])}export{a as $FD,h as $GD,o as IndentAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var IndentAction;
+(function(IndentAction2) {
+  IndentAction2[IndentAction2["None"] = 0] = "None";
+  IndentAction2[IndentAction2["Indent"] = 1] = "Indent";
+  IndentAction2[IndentAction2["IndentOutdent"] = 2] = "IndentOutdent";
+  IndentAction2[IndentAction2["Outdent"] = 3] = "Outdent";
+})(IndentAction || (IndentAction = {}));
+class StandardAutoClosingPairConditional {
+  static {
+    __name(this, "StandardAutoClosingPairConditional");
+  }
+  constructor(source) {
+    this._neutralCharacter = null;
+    this._neutralCharacterSearched = false;
+    this.open = source.open;
+    this.close = source.close;
+    this._inString = true;
+    this._inComment = true;
+    this._inRegEx = true;
+    if (Array.isArray(source.notIn)) {
+      for (let i = 0, len = source.notIn.length; i < len; i++) {
+        const notIn = source.notIn[i];
+        switch (notIn) {
+          case "string":
+            this._inString = false;
+            break;
+          case "comment":
+            this._inComment = false;
+            break;
+          case "regex":
+            this._inRegEx = false;
+            break;
+        }
+      }
+    }
+  }
+  isOK(standardToken) {
+    switch (standardToken) {
+      case 0:
+        return true;
+      case 1:
+        return this._inComment;
+      case 2:
+        return this._inString;
+      case 3:
+        return this._inRegEx;
+    }
+  }
+  shouldAutoClose(context, column) {
+    if (context.getTokenCount() === 0) {
+      return true;
+    }
+    const tokenIndex = context.findTokenIndexAtOffset(column - 2);
+    const standardTokenType = context.getStandardTokenType(tokenIndex);
+    return this.isOK(standardTokenType);
+  }
+  _findNeutralCharacterInRange(fromCharCode, toCharCode) {
+    for (let charCode = fromCharCode; charCode <= toCharCode; charCode++) {
+      const character = String.fromCharCode(charCode);
+      if (!this.open.includes(character) && !this.close.includes(character)) {
+        return character;
+      }
+    }
+    return null;
+  }
+  /**
+   * Find a character in the range [0-9a-zA-Z] that does not appear in the open or close
+   */
+  findNeutralCharacter() {
+    if (!this._neutralCharacterSearched) {
+      this._neutralCharacterSearched = true;
+      if (!this._neutralCharacter) {
+        this._neutralCharacter = this._findNeutralCharacterInRange(
+          48,
+          57
+          /* CharCode.Digit9 */
+        );
+      }
+      if (!this._neutralCharacter) {
+        this._neutralCharacter = this._findNeutralCharacterInRange(
+          97,
+          122
+          /* CharCode.z */
+        );
+      }
+      if (!this._neutralCharacter) {
+        this._neutralCharacter = this._findNeutralCharacterInRange(
+          65,
+          90
+          /* CharCode.Z */
+        );
+      }
+    }
+    return this._neutralCharacter;
+  }
+}
+class AutoClosingPairs {
+  static {
+    __name(this, "AutoClosingPairs");
+  }
+  constructor(autoClosingPairs) {
+    this.autoClosingPairsOpenByStart = /* @__PURE__ */ new Map();
+    this.autoClosingPairsOpenByEnd = /* @__PURE__ */ new Map();
+    this.autoClosingPairsCloseByStart = /* @__PURE__ */ new Map();
+    this.autoClosingPairsCloseByEnd = /* @__PURE__ */ new Map();
+    this.autoClosingPairsCloseSingleChar = /* @__PURE__ */ new Map();
+    for (const pair of autoClosingPairs) {
+      appendEntry(this.autoClosingPairsOpenByStart, pair.open.charAt(0), pair);
+      appendEntry(this.autoClosingPairsOpenByEnd, pair.open.charAt(pair.open.length - 1), pair);
+      appendEntry(this.autoClosingPairsCloseByStart, pair.close.charAt(0), pair);
+      appendEntry(this.autoClosingPairsCloseByEnd, pair.close.charAt(pair.close.length - 1), pair);
+      if (pair.close.length === 1 && pair.open.length === 1) {
+        appendEntry(this.autoClosingPairsCloseSingleChar, pair.close, pair);
+      }
+    }
+  }
+}
+function appendEntry(target, key, value) {
+  if (target.has(key)) {
+    target.get(key).push(value);
+  } else {
+    target.set(key, [value]);
+  }
+}
+__name(appendEntry, "appendEntry");
+export {
+  AutoClosingPairs,
+  IndentAction,
+  StandardAutoClosingPairConditional
+};
+//# sourceMappingURL=languageConfiguration.js.map

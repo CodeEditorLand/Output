@@ -1,1 +1,80 @@
-import{Event as c}from"../../../base/common/event.js";import{$ud as p}from"../../../base/common/lifecycle.js";import{URI as l}from"../../../base/common/uri.js";import{$4$ as u}from"../../../platform/opener/common/opener.js";import{$Kyb as m}from"../../services/extensions/common/extHostCustomers.js";import{$pY as v,$oY as $}from"../common/extHost.protocol.js";import{$8$ as w}from"../../services/host/browser/host.js";import{$c1b as b}from"../../services/userActivity/common/userActivityService.js";import{$4i as g}from"../../../base/common/buffer.js";var f=function(r,e,t,i){var o=arguments.length,n=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,i);else for(var a=r.length-1;a>=0;a--)(s=r[a])&&(n=(o<3?s(n):o>3?s(e,t,n):s(e,t))||n);return o>3&&n&&Object.defineProperty(e,t,n),n},h=function(r,e){return function(t,i){e(t,i,r)}};let d=class{constructor(e,t,i,o){this.c=t,this.d=i,this.e=o,this.b=new p,this.a=e.getProxy(v.ExtHostWindow),c.latch(t.onDidChangeFocus)(this.a.$onDidChangeWindowFocus,this.a,this.b),o.onDidChangeIsActive(this.a.$onDidChangeWindowActive,this.a,this.b),this.registerNativeHandle()}dispose(){this.b.dispose()}registerNativeHandle(){c.latch(this.c.onDidChangeActiveWindow)(async e=>{const t=await this.c.getNativeWindowHandle(e);this.a.$onDidChangeActiveNativeWindowHandle(t?g(t):void 0)},this,this.b)}$getInitialState(){return Promise.resolve({isFocused:this.c.hasFocus,isActive:this.e.isActive})}async $openUri(e,t,i){const o=l.from(e);let n;return t&&l.parse(t).toString()===o.toString()?n=t:n=o,this.d.open(n,{openExternal:!0,allowTunneling:i.allowTunneling,allowContributedOpeners:i.allowContributedOpeners})}async $asExternalUri(e,t){return(await this.d.resolveExternalUri(l.revive(e),t)).resolved}};d=f([m($.MainThreadWindow),h(1,w),h(2,u),h(3,b)],d);export{d as $e1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IHostService } from "../../services/host/browser/host.js";
+import { IUserActivityService } from "../../services/userActivity/common/userActivityService.js";
+import { encodeBase64 } from "../../../base/common/buffer.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let MainThreadWindow = class MainThreadWindow2 {
+  static {
+    __name(this, "MainThreadWindow");
+  }
+  constructor(extHostContext, hostService, openerService, userActivityService) {
+    this.hostService = hostService;
+    this.openerService = openerService;
+    this.userActivityService = userActivityService;
+    this.disposables = new DisposableStore();
+    this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostWindow);
+    Event.latch(hostService.onDidChangeFocus)(this.proxy.$onDidChangeWindowFocus, this.proxy, this.disposables);
+    userActivityService.onDidChangeIsActive(this.proxy.$onDidChangeWindowActive, this.proxy, this.disposables);
+    this.registerNativeHandle();
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+  registerNativeHandle() {
+    Event.latch(this.hostService.onDidChangeActiveWindow)(async (windowId) => {
+      const handle = await this.hostService.getNativeWindowHandle(windowId);
+      this.proxy.$onDidChangeActiveNativeWindowHandle(handle ? encodeBase64(handle) : void 0);
+    }, this, this.disposables);
+  }
+  $getInitialState() {
+    return Promise.resolve({
+      isFocused: this.hostService.hasFocus,
+      isActive: this.userActivityService.isActive
+    });
+  }
+  async $openUri(uriComponents, uriString, options) {
+    const uri = URI.from(uriComponents);
+    let target;
+    if (uriString && URI.parse(uriString).toString() === uri.toString()) {
+      target = uriString;
+    } else {
+      target = uri;
+    }
+    return this.openerService.open(target, {
+      openExternal: true,
+      allowTunneling: options.allowTunneling,
+      allowContributedOpeners: options.allowContributedOpeners
+    });
+  }
+  async $asExternalUri(uriComponents, options) {
+    const result = await this.openerService.resolveExternalUri(URI.revive(uriComponents), options);
+    return result.resolved;
+  }
+};
+MainThreadWindow = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadWindow),
+  __param(1, IHostService),
+  __param(2, IOpenerService),
+  __param(3, IUserActivityService)
+], MainThreadWindow);
+export {
+  MainThreadWindow
+};
+//# sourceMappingURL=mainThreadWindow.js.map

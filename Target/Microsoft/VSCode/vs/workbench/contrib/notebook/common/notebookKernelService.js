@@ -1,1 +1,17 @@
-import{$nj as i}from"../../../../platform/instantiation/common/instantiation.js";const e=100;var n;(function(o){o[o.Disconnected=1]="Disconnected",o[o.Connected=2]="Connected",o[o.Initializing=3]="Initializing"})(n||(n={}));const t=i("INotebookKernelService"),s=i("INotebookKernelHistoryService");export{e as $IK,t as $JK,s as $KK,n as ProxyKernelState};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const variablePageSize = 100;
+var ProxyKernelState;
+(function(ProxyKernelState2) {
+  ProxyKernelState2[ProxyKernelState2["Disconnected"] = 1] = "Disconnected";
+  ProxyKernelState2[ProxyKernelState2["Connected"] = 2] = "Connected";
+  ProxyKernelState2[ProxyKernelState2["Initializing"] = 3] = "Initializing";
+})(ProxyKernelState || (ProxyKernelState = {}));
+const INotebookKernelService = createDecorator("INotebookKernelService");
+const INotebookKernelHistoryService = createDecorator("INotebookKernelHistoryService");
+export {
+  INotebookKernelHistoryService,
+  INotebookKernelService,
+  ProxyKernelState,
+  variablePageSize
+};
+//# sourceMappingURL=notebookKernelService.js.map

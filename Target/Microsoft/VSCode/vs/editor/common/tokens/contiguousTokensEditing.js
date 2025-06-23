@@ -1,1 +1,126 @@
-import{$dD as O}from"./lineTokens.js";const l=new Uint32Array(0).buffer;class p{static deleteBeginning(t,n){return t===null||t===l?t:p.delete(t,0,n)}static deleteEnding(t,n){if(t===null||t===l)return t;const f=i(t),r=f[f.length-2];return p.delete(t,n,r)}static delete(t,n,f){if(t===null||t===l||n===f)return t;const r=i(t),o=r.length>>>1;if(n===0&&r[r.length-2]===f)return l;const e=O.findIndexInTokensArray(r,n),s=e>0?r[e-1<<1]:0,y=r[e<<1];if(f<y){const a=f-n;for(let c=e;c<o;c++)r[c<<1]-=a;return t}let u,g;s!==n?(r[e<<1]=n,u=e+1<<1,g=n):(u=e<<1,g=s);const U=f-n;for(let a=e+1;a<o;a++){const c=r[a<<1]-U;c>g&&(r[u++]=c,r[u++]=r[(a<<1)+1],g=c)}if(u===r.length)return t;const A=new Uint32Array(u);return A.set(r.subarray(0,u),0),A.buffer}static append(t,n){if(n===l)return t;if(t===l)return n;if(t===null)return t;if(n===null)return null;const f=i(t),r=i(n),o=r.length>>>1,e=new Uint32Array(f.length+r.length);e.set(f,0);let s=f.length;const y=f[f.length-2];for(let u=0;u<o;u++)e[s++]=r[u<<1]+y,e[s++]=r[(u<<1)+1];return e.buffer}static insert(t,n,f){if(t===null||t===l)return t;const r=i(t),o=r.length>>>1;let e=O.findIndexInTokensArray(r,n);e>0&&r[e-1<<1]===n&&e--;for(let s=e;s<o;s++)r[s<<1]+=f;return t}}function i(d){return d instanceof Uint32Array?d:new Uint32Array(d)}export{l as $iD,p as $jD,i as $kD};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { LineTokens } from "./lineTokens.js";
+const EMPTY_LINE_TOKENS = new Uint32Array(0).buffer;
+class ContiguousTokensEditing {
+  static {
+    __name(this, "ContiguousTokensEditing");
+  }
+  static deleteBeginning(lineTokens, toChIndex) {
+    if (lineTokens === null || lineTokens === EMPTY_LINE_TOKENS) {
+      return lineTokens;
+    }
+    return ContiguousTokensEditing.delete(lineTokens, 0, toChIndex);
+  }
+  static deleteEnding(lineTokens, fromChIndex) {
+    if (lineTokens === null || lineTokens === EMPTY_LINE_TOKENS) {
+      return lineTokens;
+    }
+    const tokens = toUint32Array(lineTokens);
+    const lineTextLength = tokens[tokens.length - 2];
+    return ContiguousTokensEditing.delete(lineTokens, fromChIndex, lineTextLength);
+  }
+  static delete(lineTokens, fromChIndex, toChIndex) {
+    if (lineTokens === null || lineTokens === EMPTY_LINE_TOKENS || fromChIndex === toChIndex) {
+      return lineTokens;
+    }
+    const tokens = toUint32Array(lineTokens);
+    const tokensCount = tokens.length >>> 1;
+    if (fromChIndex === 0 && tokens[tokens.length - 2] === toChIndex) {
+      return EMPTY_LINE_TOKENS;
+    }
+    const fromTokenIndex = LineTokens.findIndexInTokensArray(tokens, fromChIndex);
+    const fromTokenStartOffset = fromTokenIndex > 0 ? tokens[fromTokenIndex - 1 << 1] : 0;
+    const fromTokenEndOffset = tokens[fromTokenIndex << 1];
+    if (toChIndex < fromTokenEndOffset) {
+      const delta2 = toChIndex - fromChIndex;
+      for (let i = fromTokenIndex; i < tokensCount; i++) {
+        tokens[i << 1] -= delta2;
+      }
+      return lineTokens;
+    }
+    let dest;
+    let lastEnd;
+    if (fromTokenStartOffset !== fromChIndex) {
+      tokens[fromTokenIndex << 1] = fromChIndex;
+      dest = fromTokenIndex + 1 << 1;
+      lastEnd = fromChIndex;
+    } else {
+      dest = fromTokenIndex << 1;
+      lastEnd = fromTokenStartOffset;
+    }
+    const delta = toChIndex - fromChIndex;
+    for (let tokenIndex = fromTokenIndex + 1; tokenIndex < tokensCount; tokenIndex++) {
+      const tokenEndOffset = tokens[tokenIndex << 1] - delta;
+      if (tokenEndOffset > lastEnd) {
+        tokens[dest++] = tokenEndOffset;
+        tokens[dest++] = tokens[(tokenIndex << 1) + 1];
+        lastEnd = tokenEndOffset;
+      }
+    }
+    if (dest === tokens.length) {
+      return lineTokens;
+    }
+    const tmp = new Uint32Array(dest);
+    tmp.set(tokens.subarray(0, dest), 0);
+    return tmp.buffer;
+  }
+  static append(lineTokens, _otherTokens) {
+    if (_otherTokens === EMPTY_LINE_TOKENS) {
+      return lineTokens;
+    }
+    if (lineTokens === EMPTY_LINE_TOKENS) {
+      return _otherTokens;
+    }
+    if (lineTokens === null) {
+      return lineTokens;
+    }
+    if (_otherTokens === null) {
+      return null;
+    }
+    const myTokens = toUint32Array(lineTokens);
+    const otherTokens = toUint32Array(_otherTokens);
+    const otherTokensCount = otherTokens.length >>> 1;
+    const result = new Uint32Array(myTokens.length + otherTokens.length);
+    result.set(myTokens, 0);
+    let dest = myTokens.length;
+    const delta = myTokens[myTokens.length - 2];
+    for (let i = 0; i < otherTokensCount; i++) {
+      result[dest++] = otherTokens[i << 1] + delta;
+      result[dest++] = otherTokens[(i << 1) + 1];
+    }
+    return result.buffer;
+  }
+  static insert(lineTokens, chIndex, textLength) {
+    if (lineTokens === null || lineTokens === EMPTY_LINE_TOKENS) {
+      return lineTokens;
+    }
+    const tokens = toUint32Array(lineTokens);
+    const tokensCount = tokens.length >>> 1;
+    let fromTokenIndex = LineTokens.findIndexInTokensArray(tokens, chIndex);
+    if (fromTokenIndex > 0) {
+      const fromTokenStartOffset = tokens[fromTokenIndex - 1 << 1];
+      if (fromTokenStartOffset === chIndex) {
+        fromTokenIndex--;
+      }
+    }
+    for (let tokenIndex = fromTokenIndex; tokenIndex < tokensCount; tokenIndex++) {
+      tokens[tokenIndex << 1] += textLength;
+    }
+    return lineTokens;
+  }
+}
+function toUint32Array(arr) {
+  if (arr instanceof Uint32Array) {
+    return arr;
+  } else {
+    return new Uint32Array(arr);
+  }
+}
+__name(toUint32Array, "toUint32Array");
+export {
+  ContiguousTokensEditing,
+  EMPTY_LINE_TOKENS,
+  toUint32Array
+};
+//# sourceMappingURL=contiguousTokensEditing.js.map

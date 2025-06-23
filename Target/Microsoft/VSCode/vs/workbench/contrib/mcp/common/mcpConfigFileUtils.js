@@ -1,1 +1,32 @@
-import{$Xu as l,$Wu as u}from"../../../../base/common/json.js";const m=n=>{const s=u(n.model.getValue()),t=l(s,n.pathToServers);if(!t||t.type!=="object")return new Map;const r=new Map;for(const e of t.children||[]){if(e.type!=="property"||e.children?.[0]?.type!=="string")continue;const o=n.model.getPositionAt(e.offset),i=n.model.getPositionAt(e.offset+e.length);r.set(e.children[0].value,{uri:n.model.uri,range:{startLineNumber:o.lineNumber,startColumn:o.column,endLineNumber:i.lineNumber,endColumn:i.column}})}return r};export{m as $lic};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { findNodeAtLocation, parseTree as jsonParseTree } from "../../../../base/common/json.js";
+const getMcpServerMapping = /* @__PURE__ */ __name((opts) => {
+  const tree = jsonParseTree(opts.model.getValue());
+  const servers = findNodeAtLocation(tree, opts.pathToServers);
+  if (!servers || servers.type !== "object") {
+    return /* @__PURE__ */ new Map();
+  }
+  const result = /* @__PURE__ */ new Map();
+  for (const node of servers.children || []) {
+    if (node.type !== "property" || node.children?.[0]?.type !== "string") {
+      continue;
+    }
+    const start = opts.model.getPositionAt(node.offset);
+    const end = opts.model.getPositionAt(node.offset + node.length);
+    result.set(node.children[0].value, {
+      uri: opts.model.uri,
+      range: {
+        startLineNumber: start.lineNumber,
+        startColumn: start.column,
+        endLineNumber: end.lineNumber,
+        endColumn: end.column
+      }
+    });
+  }
+  return result;
+}, "getMcpServerMapping");
+export {
+  getMcpServerMapping
+};
+//# sourceMappingURL=mcpConfigFileUtils.js.map

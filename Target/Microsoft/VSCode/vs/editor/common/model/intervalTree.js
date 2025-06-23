@@ -1,1 +1,1088 @@
-var V;(function(e){e.EditorHintDecoration="squiggly-hint",e.EditorInfoDecoration="squiggly-info",e.EditorWarningDecoration="squiggly-warning",e.EditorErrorDecoration="squiggly-error",e.EditorUnnecessaryDecoration="squiggly-unnecessary",e.EditorUnnecessaryInlineDecoration="squiggly-inline-unnecessary",e.EditorDeprecatedInlineDecoration="squiggly-inline-deprecated"})(V||(V={}));var R;(function(e){e[e.Black=0]="Black",e[e.Red=1]="Red"})(R||(R={}));var w;(function(e){e[e.ColorMask=1]="ColorMask",e[e.ColorMaskInverse=254]="ColorMaskInverse",e[e.ColorOffset=0]="ColorOffset",e[e.IsVisitedMask=2]="IsVisitedMask",e[e.IsVisitedMaskInverse=253]="IsVisitedMaskInverse",e[e.IsVisitedOffset=1]="IsVisitedOffset",e[e.IsForValidationMask=4]="IsForValidationMask",e[e.IsForValidationMaskInverse=251]="IsForValidationMaskInverse",e[e.IsForValidationOffset=2]="IsForValidationOffset",e[e.StickinessMask=24]="StickinessMask",e[e.StickinessMaskInverse=231]="StickinessMaskInverse",e[e.StickinessOffset=3]="StickinessOffset",e[e.CollapseOnReplaceEditMask=32]="CollapseOnReplaceEditMask",e[e.CollapseOnReplaceEditMaskInverse=223]="CollapseOnReplaceEditMaskInverse",e[e.CollapseOnReplaceEditOffset=5]="CollapseOnReplaceEditOffset",e[e.IsMarginMask=64]="IsMarginMask",e[e.IsMarginMaskInverse=191]="IsMarginMaskInverse",e[e.IsMarginOffset=6]="IsMarginOffset",e[e.MIN_SAFE_DELTA=-1073741824]="MIN_SAFE_DELTA",e[e.MAX_SAFE_DELTA=1073741824]="MAX_SAFE_DELTA"})(w||(w={}));function u(e){return(e.metadata&1)>>>0}function o(e,t){e.metadata=e.metadata&254|t<<0}function h(e){return(e.metadata&2)>>>1===1}function f(e,t){e.metadata=e.metadata&253|(t?1:0)<<1}function P(e){return(e.metadata&4)>>>2===1}function N(e,t){e.metadata=e.metadata&251|(t?1:0)<<2}function B(e){return(e.metadata&64)>>>6===1}function b(e,t){e.metadata=e.metadata&191|(t?1:0)<<6}function W(e){return(e.metadata&24)>>>3}function v(e,t){e.metadata=e.metadata&231|t<<3}function X(e){return(e.metadata&32)>>>5===1}function G(e,t){e.metadata=e.metadata&223|(t?1:0)<<5}function et(e,t){v(e,t)}class j{constructor(t,r,i){this.metadata=0,this.parent=this,this.left=this,this.right=this,o(this,1),this.start=r,this.end=i,this.delta=0,this.maxEnd=i,this.id=t,this.ownerId=0,this.options=null,N(this,!1),b(this,!1),v(this,1),G(this,!1),this.cachedVersionId=0,this.cachedAbsoluteStart=r,this.cachedAbsoluteEnd=i,this.range=null,f(this,!1)}reset(t,r,i,n){this.start=r,this.end=i,this.maxEnd=i,this.cachedVersionId=t,this.cachedAbsoluteStart=r,this.cachedAbsoluteEnd=i,this.range=n}setOptions(t){this.options=t;const r=this.options.className;N(this,r==="squiggly-error"||r==="squiggly-warning"||r==="squiggly-info"),b(this,this.options.glyphMarginClassName!==null),v(this,this.options.stickiness),G(this,this.options.collapseOnReplaceEdit)}setCachedOffsets(t,r,i){this.cachedVersionId!==i&&(this.range=null),this.cachedVersionId=i,this.cachedAbsoluteStart=t,this.cachedAbsoluteEnd=r}detach(){this.parent=null,this.left=null,this.right=null}}const l=new j(null,0,0);l.parent=l;l.left=l;l.right=l;o(l,0);class rt{constructor(){this.root=l,this.requestNormalizeDelta=!1}intervalSearch(t,r,i,n,a,c){return this.root===l?[]:C(this,t,r,i,n,a,c)}search(t,r,i,n){return this.root===l?[]:_(this,t,r,i,n)}collectNodesFromOwner(t){return Y(this,t)}collectNodesPostOrder(){return Z(this)}insert(t){y(this,t),this.a()}delete(t){$(this,t),this.a()}resolveNode(t,r){const i=t;let n=0;for(;t!==this.root;)t===t.parent.right&&(n+=t.parent.delta),t=t.parent;const a=i.start+n,c=i.end+n;i.setCachedOffsets(a,c,r)}acceptReplace(t,r,i,n){const a=J(this,t,t+r);for(let c=0,s=a.length;c<s;c++){const d=a[c];$(this,d)}this.a(),K(this,t,t+r,i),this.a();for(let c=0,s=a.length;c<s;c++){const d=a[c];d.start=d.cachedAbsoluteStart,d.end=d.cachedAbsoluteEnd,Q(d,t,t+r,i,n),d.maxEnd=d.end,y(this,d)}this.a()}getAllInOrder(){return _(this,0,!1,0,!1)}a(){this.requestNormalizeDelta&&(this.requestNormalizeDelta=!1,H(this))}}function H(e){let t=e.root,r=0;for(;t!==l;){if(t.left!==l&&!h(t.left)){t=t.left;continue}if(t.right!==l&&!h(t.right)){r+=t.delta,t=t.right;continue}t.start=r+t.start,t.end=r+t.end,t.delta=0,D(t),f(t,!0),f(t.left,!1),f(t.right,!1),t===t.parent.right&&(r-=t.parent.delta),t=t.parent}f(e.root,!1)}var L;(function(e){e[e.MarkerDefined=0]="MarkerDefined",e[e.ForceMove=1]="ForceMove",e[e.ForceStay=2]="ForceStay"})(L||(L={}));function S(e,t,r,i){return e<r?!0:e>r||i===1?!1:i===2?!0:t}function Q(e,t,r,i,n){const a=W(e),c=a===0||a===2,s=a===1||a===2,d=r-t,g=i,I=Math.min(d,g),p=e.start;let m=!1;const O=e.end;let E=!1;t<=p&&O<=r&&X(e)&&(e.start=t,m=!0,e.end=t,E=!0);{const M=n?1:d>0?2:0;!m&&S(p,c,t,M)&&(m=!0),!E&&S(O,s,t,M)&&(E=!0)}if(I>0&&!n){const M=d>g?2:0;!m&&S(p,c,t+I,M)&&(m=!0),!E&&S(O,s,t+I,M)&&(E=!0)}{const M=n?1:0;!m&&S(p,c,r,M)&&(e.start=t+g,m=!0),!E&&S(O,s,r,M)&&(e.end=t+g,E=!0)}const F=g-d;m||(e.start=Math.max(0,p+F)),E||(e.end=Math.max(0,O+F)),e.start>e.end&&(e.end=e.start)}function J(e,t,r){let i=e.root,n=0,a=0,c=0,s=0;const d=[];let g=0;for(;i!==l;){if(h(i)){f(i.left,!1),f(i.right,!1),i===i.parent.right&&(n-=i.parent.delta),i=i.parent;continue}if(!h(i.left)){if(a=n+i.maxEnd,a<t){f(i,!0);continue}if(i.left!==l){i=i.left;continue}}if(c=n+i.start,c>r){f(i,!0);continue}if(s=n+i.end,s>=t&&(i.setCachedOffsets(c,s,0),d[g++]=i),f(i,!0),i.right!==l&&!h(i.right)){n+=i.delta,i=i.right;continue}}return f(e.root,!1),d}function K(e,t,r,i){let n=e.root,a=0,c=0,s=0;const d=i-(r-t);for(;n!==l;){if(h(n)){f(n.left,!1),f(n.right,!1),n===n.parent.right&&(a-=n.parent.delta),D(n),n=n.parent;continue}if(!h(n.left)){if(c=a+n.maxEnd,c<t){f(n,!0);continue}if(n.left!==l){n=n.left;continue}}if(s=a+n.start,s>r){n.start+=d,n.end+=d,n.delta+=d,(n.delta<-1073741824||n.delta>1073741824)&&(e.requestNormalizeDelta=!0),f(n,!0);continue}if(f(n,!0),n.right!==l&&!h(n.right)){a+=n.delta,n=n.right;continue}}f(e.root,!1)}function Y(e,t){let r=e.root;const i=[];let n=0;for(;r!==l;){if(h(r)){f(r.left,!1),f(r.right,!1),r=r.parent;continue}if(r.left!==l&&!h(r.left)){r=r.left;continue}if(r.ownerId===t&&(i[n++]=r),f(r,!0),r.right!==l&&!h(r.right)){r=r.right;continue}}return f(e.root,!1),i}function Z(e){let t=e.root;const r=[];let i=0;for(;t!==l;){if(h(t)){f(t.left,!1),f(t.right,!1),t=t.parent;continue}if(t.left!==l&&!h(t.left)){t=t.left;continue}if(t.right!==l&&!h(t.right)){t=t.right;continue}r[i++]=t,f(t,!0)}return f(e.root,!1),r}function _(e,t,r,i,n){let a=e.root,c=0,s=0,d=0;const g=[];let I=0;for(;a!==l;){if(h(a)){f(a.left,!1),f(a.right,!1),a===a.parent.right&&(c-=a.parent.delta),a=a.parent;continue}if(a.left!==l&&!h(a.left)){a=a.left;continue}s=c+a.start,d=c+a.end,a.setCachedOffsets(s,d,i);let p=!0;if(t&&a.ownerId&&a.ownerId!==t&&(p=!1),r&&P(a)&&(p=!1),n&&!B(a)&&(p=!1),p&&(g[I++]=a),f(a,!0),a.right!==l&&!h(a.right)){c+=a.delta,a=a.right;continue}}return f(e.root,!1),g}function C(e,t,r,i,n,a,c){let s=e.root,d=0,g=0,I=0,p=0;const m=[];let O=0;for(;s!==l;){if(h(s)){f(s.left,!1),f(s.right,!1),s===s.parent.right&&(d-=s.parent.delta),s=s.parent;continue}if(!h(s.left)){if(g=d+s.maxEnd,g<t){f(s,!0);continue}if(s.left!==l){s=s.left;continue}}if(I=d+s.start,I>r){f(s,!0);continue}if(p=d+s.end,p>=t){s.setCachedOffsets(I,p,a);let E=!0;i&&s.ownerId&&s.ownerId!==i&&(E=!1),n&&P(s)&&(E=!1),c&&!B(s)&&(E=!1),E&&(m[O++]=s)}if(f(s,!0),s.right!==l&&!h(s.right)){d+=s.delta,s=s.right;continue}}return f(e.root,!1),m}function y(e,t){if(e.root===l)return t.parent=l,t.left=l,t.right=l,o(t,0),e.root=t,e.root;T(e,t),k(t.parent);let r=t;for(;r!==e.root&&u(r.parent)===1;)if(r.parent===r.parent.parent.left){const i=r.parent.parent.right;u(i)===1?(o(r.parent,0),o(i,0),o(r.parent.parent,1),r=r.parent.parent):(r===r.parent.right&&(r=r.parent,x(e,r)),o(r.parent,0),o(r.parent.parent,1),A(e,r.parent.parent))}else{const i=r.parent.parent.left;u(i)===1?(o(r.parent,0),o(i,0),o(r.parent.parent,1),r=r.parent.parent):(r===r.parent.left&&(r=r.parent,A(e,r)),o(r.parent,0),o(r.parent.parent,1),x(e,r.parent.parent))}return o(e.root,0),t}function T(e,t){let r=0,i=e.root;const n=t.start,a=t.end;for(;;)if(tt(n,a,i.start+r,i.end+r)<0)if(i.left===l){t.start-=r,t.end-=r,t.maxEnd-=r,i.left=t;break}else i=i.left;else if(i.right===l){t.start-=r+i.delta,t.end-=r+i.delta,t.maxEnd-=r+i.delta,i.right=t;break}else r+=i.delta,i=i.right;t.parent=i,t.left=l,t.right=l,o(t,1)}function $(e,t){let r,i;if(t.left===l?(r=t.right,i=t,r.delta+=t.delta,(r.delta<-1073741824||r.delta>1073741824)&&(e.requestNormalizeDelta=!0),r.start+=t.delta,r.end+=t.delta):t.right===l?(r=t.left,i=t):(i=z(t.right),r=i.right,r.start+=i.delta,r.end+=i.delta,r.delta+=i.delta,(r.delta<-1073741824||r.delta>1073741824)&&(e.requestNormalizeDelta=!0),i.start+=t.delta,i.end+=t.delta,i.delta=t.delta,(i.delta<-1073741824||i.delta>1073741824)&&(e.requestNormalizeDelta=!0)),i===e.root){e.root=r,o(r,0),t.detach(),q(),D(r),e.root.parent=l;return}const n=u(i)===1;if(i===i.parent.left?i.parent.left=r:i.parent.right=r,i===t?r.parent=i.parent:(i.parent===t?r.parent=i:r.parent=i.parent,i.left=t.left,i.right=t.right,i.parent=t.parent,o(i,u(t)),t===e.root?e.root=i:t===t.parent.left?t.parent.left=i:t.parent.right=i,i.left!==l&&(i.left.parent=i),i.right!==l&&(i.right.parent=i)),t.detach(),n){k(r.parent),i!==t&&(k(i),k(i.parent)),q();return}k(r),k(r.parent),i!==t&&(k(i),k(i.parent));let a;for(;r!==e.root&&u(r)===0;)r===r.parent.left?(a=r.parent.right,u(a)===1&&(o(a,0),o(r.parent,1),x(e,r.parent),a=r.parent.right),u(a.left)===0&&u(a.right)===0?(o(a,1),r=r.parent):(u(a.right)===0&&(o(a.left,0),o(a,1),A(e,a),a=r.parent.right),o(a,u(r.parent)),o(r.parent,0),o(a.right,0),x(e,r.parent),r=e.root)):(a=r.parent.left,u(a)===1&&(o(a,0),o(r.parent,1),A(e,r.parent),a=r.parent.left),u(a.left)===0&&u(a.right)===0?(o(a,1),r=r.parent):(u(a.left)===0&&(o(a.right,0),o(a,1),x(e,a),a=r.parent.left),o(a,u(r.parent)),o(r.parent,0),o(a.left,0),A(e,r.parent),r=e.root));o(r,0),q()}function z(e){for(;e.left!==l;)e=e.left;return e}function q(){l.parent=l,l.delta=0,l.start=0,l.end=0}function x(e,t){const r=t.right;r.delta+=t.delta,(r.delta<-1073741824||r.delta>1073741824)&&(e.requestNormalizeDelta=!0),r.start+=t.delta,r.end+=t.delta,t.right=r.left,r.left!==l&&(r.left.parent=t),r.parent=t.parent,t.parent===l?e.root=r:t===t.parent.left?t.parent.left=r:t.parent.right=r,r.left=t,t.parent=r,D(t),D(r)}function A(e,t){const r=t.left;t.delta-=r.delta,(t.delta<-1073741824||t.delta>1073741824)&&(e.requestNormalizeDelta=!0),t.start-=r.delta,t.end-=r.delta,t.left=r.right,r.right!==l&&(r.right.parent=t),r.parent=t.parent,t.parent===l?e.root=r:t===t.parent.right?t.parent.right=r:t.parent.left=r,r.right=t,t.parent=r,D(t),D(r)}function U(e){let t=e.end;if(e.left!==l){const r=e.left.maxEnd;r>t&&(t=r)}if(e.right!==l){const r=e.right.maxEnd+e.delta;r>t&&(t=r)}return t}function D(e){e.maxEnd=U(e)}function k(e){for(;e!==l;){const t=U(e);if(e.maxEnd===t)return;e.maxEnd=t,e=e.parent}}function tt(e,t,r,i){return e===r?t-i:e-r}export{u as $NG,et as $OG,j as $PG,l as $QG,rt as $RG,Q as $SG,D as $TG,tt as $UG,V as ClassName,R as NodeColor};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var ClassName;
+(function(ClassName2) {
+  ClassName2["EditorHintDecoration"] = "squiggly-hint";
+  ClassName2["EditorInfoDecoration"] = "squiggly-info";
+  ClassName2["EditorWarningDecoration"] = "squiggly-warning";
+  ClassName2["EditorErrorDecoration"] = "squiggly-error";
+  ClassName2["EditorUnnecessaryDecoration"] = "squiggly-unnecessary";
+  ClassName2["EditorUnnecessaryInlineDecoration"] = "squiggly-inline-unnecessary";
+  ClassName2["EditorDeprecatedInlineDecoration"] = "squiggly-inline-deprecated";
+})(ClassName || (ClassName = {}));
+var NodeColor;
+(function(NodeColor2) {
+  NodeColor2[NodeColor2["Black"] = 0] = "Black";
+  NodeColor2[NodeColor2["Red"] = 1] = "Red";
+})(NodeColor || (NodeColor = {}));
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["ColorMask"] = 1] = "ColorMask";
+  Constants2[Constants2["ColorMaskInverse"] = 254] = "ColorMaskInverse";
+  Constants2[Constants2["ColorOffset"] = 0] = "ColorOffset";
+  Constants2[Constants2["IsVisitedMask"] = 2] = "IsVisitedMask";
+  Constants2[Constants2["IsVisitedMaskInverse"] = 253] = "IsVisitedMaskInverse";
+  Constants2[Constants2["IsVisitedOffset"] = 1] = "IsVisitedOffset";
+  Constants2[Constants2["IsForValidationMask"] = 4] = "IsForValidationMask";
+  Constants2[Constants2["IsForValidationMaskInverse"] = 251] = "IsForValidationMaskInverse";
+  Constants2[Constants2["IsForValidationOffset"] = 2] = "IsForValidationOffset";
+  Constants2[Constants2["StickinessMask"] = 24] = "StickinessMask";
+  Constants2[Constants2["StickinessMaskInverse"] = 231] = "StickinessMaskInverse";
+  Constants2[Constants2["StickinessOffset"] = 3] = "StickinessOffset";
+  Constants2[Constants2["CollapseOnReplaceEditMask"] = 32] = "CollapseOnReplaceEditMask";
+  Constants2[Constants2["CollapseOnReplaceEditMaskInverse"] = 223] = "CollapseOnReplaceEditMaskInverse";
+  Constants2[Constants2["CollapseOnReplaceEditOffset"] = 5] = "CollapseOnReplaceEditOffset";
+  Constants2[Constants2["IsMarginMask"] = 64] = "IsMarginMask";
+  Constants2[Constants2["IsMarginMaskInverse"] = 191] = "IsMarginMaskInverse";
+  Constants2[Constants2["IsMarginOffset"] = 6] = "IsMarginOffset";
+  Constants2[Constants2["MIN_SAFE_DELTA"] = -1073741824] = "MIN_SAFE_DELTA";
+  Constants2[Constants2["MAX_SAFE_DELTA"] = 1073741824] = "MAX_SAFE_DELTA";
+})(Constants || (Constants = {}));
+function getNodeColor(node) {
+  return (node.metadata & 1) >>> 0;
+}
+__name(getNodeColor, "getNodeColor");
+function setNodeColor(node, color) {
+  node.metadata = node.metadata & 254 | color << 0;
+}
+__name(setNodeColor, "setNodeColor");
+function getNodeIsVisited(node) {
+  return (node.metadata & 2) >>> 1 === 1;
+}
+__name(getNodeIsVisited, "getNodeIsVisited");
+function setNodeIsVisited(node, value) {
+  node.metadata = node.metadata & 253 | (value ? 1 : 0) << 1;
+}
+__name(setNodeIsVisited, "setNodeIsVisited");
+function getNodeIsForValidation(node) {
+  return (node.metadata & 4) >>> 2 === 1;
+}
+__name(getNodeIsForValidation, "getNodeIsForValidation");
+function setNodeIsForValidation(node, value) {
+  node.metadata = node.metadata & 251 | (value ? 1 : 0) << 2;
+}
+__name(setNodeIsForValidation, "setNodeIsForValidation");
+function getNodeIsInGlyphMargin(node) {
+  return (node.metadata & 64) >>> 6 === 1;
+}
+__name(getNodeIsInGlyphMargin, "getNodeIsInGlyphMargin");
+function setNodeIsInGlyphMargin(node, value) {
+  node.metadata = node.metadata & 191 | (value ? 1 : 0) << 6;
+}
+__name(setNodeIsInGlyphMargin, "setNodeIsInGlyphMargin");
+function getNodeStickiness(node) {
+  return (node.metadata & 24) >>> 3;
+}
+__name(getNodeStickiness, "getNodeStickiness");
+function _setNodeStickiness(node, stickiness) {
+  node.metadata = node.metadata & 231 | stickiness << 3;
+}
+__name(_setNodeStickiness, "_setNodeStickiness");
+function getCollapseOnReplaceEdit(node) {
+  return (node.metadata & 32) >>> 5 === 1;
+}
+__name(getCollapseOnReplaceEdit, "getCollapseOnReplaceEdit");
+function setCollapseOnReplaceEdit(node, value) {
+  node.metadata = node.metadata & 223 | (value ? 1 : 0) << 5;
+}
+__name(setCollapseOnReplaceEdit, "setCollapseOnReplaceEdit");
+function setNodeStickiness(node, stickiness) {
+  _setNodeStickiness(node, stickiness);
+}
+__name(setNodeStickiness, "setNodeStickiness");
+class IntervalNode {
+  static {
+    __name(this, "IntervalNode");
+  }
+  constructor(id, start, end) {
+    this.metadata = 0;
+    this.parent = this;
+    this.left = this;
+    this.right = this;
+    setNodeColor(
+      this,
+      1
+      /* NodeColor.Red */
+    );
+    this.start = start;
+    this.end = end;
+    this.delta = 0;
+    this.maxEnd = end;
+    this.id = id;
+    this.ownerId = 0;
+    this.options = null;
+    setNodeIsForValidation(this, false);
+    setNodeIsInGlyphMargin(this, false);
+    _setNodeStickiness(
+      this,
+      1
+      /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */
+    );
+    setCollapseOnReplaceEdit(this, false);
+    this.cachedVersionId = 0;
+    this.cachedAbsoluteStart = start;
+    this.cachedAbsoluteEnd = end;
+    this.range = null;
+    setNodeIsVisited(this, false);
+  }
+  reset(versionId, start, end, range) {
+    this.start = start;
+    this.end = end;
+    this.maxEnd = end;
+    this.cachedVersionId = versionId;
+    this.cachedAbsoluteStart = start;
+    this.cachedAbsoluteEnd = end;
+    this.range = range;
+  }
+  setOptions(options) {
+    this.options = options;
+    const className = this.options.className;
+    setNodeIsForValidation(this, className === "squiggly-error" || className === "squiggly-warning" || className === "squiggly-info");
+    setNodeIsInGlyphMargin(this, this.options.glyphMarginClassName !== null);
+    _setNodeStickiness(this, this.options.stickiness);
+    setCollapseOnReplaceEdit(this, this.options.collapseOnReplaceEdit);
+  }
+  setCachedOffsets(absoluteStart, absoluteEnd, cachedVersionId) {
+    if (this.cachedVersionId !== cachedVersionId) {
+      this.range = null;
+    }
+    this.cachedVersionId = cachedVersionId;
+    this.cachedAbsoluteStart = absoluteStart;
+    this.cachedAbsoluteEnd = absoluteEnd;
+  }
+  detach() {
+    this.parent = null;
+    this.left = null;
+    this.right = null;
+  }
+}
+const SENTINEL = new IntervalNode(null, 0, 0);
+SENTINEL.parent = SENTINEL;
+SENTINEL.left = SENTINEL;
+SENTINEL.right = SENTINEL;
+setNodeColor(
+  SENTINEL,
+  0
+  /* NodeColor.Black */
+);
+class IntervalTree {
+  static {
+    __name(this, "IntervalTree");
+  }
+  constructor() {
+    this.root = SENTINEL;
+    this.requestNormalizeDelta = false;
+  }
+  intervalSearch(start, end, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations) {
+    if (this.root === SENTINEL) {
+      return [];
+    }
+    return intervalSearch(this, start, end, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
+  }
+  search(filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations) {
+    if (this.root === SENTINEL) {
+      return [];
+    }
+    return search(this, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations);
+  }
+  /**
+   * Will not set `cachedAbsoluteStart` nor `cachedAbsoluteEnd` on the returned nodes!
+   */
+  collectNodesFromOwner(ownerId) {
+    return collectNodesFromOwner(this, ownerId);
+  }
+  /**
+   * Will not set `cachedAbsoluteStart` nor `cachedAbsoluteEnd` on the returned nodes!
+   */
+  collectNodesPostOrder() {
+    return collectNodesPostOrder(this);
+  }
+  insert(node) {
+    rbTreeInsert(this, node);
+    this._normalizeDeltaIfNecessary();
+  }
+  delete(node) {
+    rbTreeDelete(this, node);
+    this._normalizeDeltaIfNecessary();
+  }
+  resolveNode(node, cachedVersionId) {
+    const initialNode = node;
+    let delta = 0;
+    while (node !== this.root) {
+      if (node === node.parent.right) {
+        delta += node.parent.delta;
+      }
+      node = node.parent;
+    }
+    const nodeStart = initialNode.start + delta;
+    const nodeEnd = initialNode.end + delta;
+    initialNode.setCachedOffsets(nodeStart, nodeEnd, cachedVersionId);
+  }
+  acceptReplace(offset, length, textLength, forceMoveMarkers) {
+    const nodesOfInterest = searchForEditing(this, offset, offset + length);
+    for (let i = 0, len = nodesOfInterest.length; i < len; i++) {
+      const node = nodesOfInterest[i];
+      rbTreeDelete(this, node);
+    }
+    this._normalizeDeltaIfNecessary();
+    noOverlapReplace(this, offset, offset + length, textLength);
+    this._normalizeDeltaIfNecessary();
+    for (let i = 0, len = nodesOfInterest.length; i < len; i++) {
+      const node = nodesOfInterest[i];
+      node.start = node.cachedAbsoluteStart;
+      node.end = node.cachedAbsoluteEnd;
+      nodeAcceptEdit(node, offset, offset + length, textLength, forceMoveMarkers);
+      node.maxEnd = node.end;
+      rbTreeInsert(this, node);
+    }
+    this._normalizeDeltaIfNecessary();
+  }
+  getAllInOrder() {
+    return search(this, 0, false, 0, false);
+  }
+  _normalizeDeltaIfNecessary() {
+    if (!this.requestNormalizeDelta) {
+      return;
+    }
+    this.requestNormalizeDelta = false;
+    normalizeDelta(this);
+  }
+}
+function normalizeDelta(T) {
+  let node = T.root;
+  let delta = 0;
+  while (node !== SENTINEL) {
+    if (node.left !== SENTINEL && !getNodeIsVisited(node.left)) {
+      node = node.left;
+      continue;
+    }
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      delta += node.delta;
+      node = node.right;
+      continue;
+    }
+    node.start = delta + node.start;
+    node.end = delta + node.end;
+    node.delta = 0;
+    recomputeMaxEnd(node);
+    setNodeIsVisited(node, true);
+    setNodeIsVisited(node.left, false);
+    setNodeIsVisited(node.right, false);
+    if (node === node.parent.right) {
+      delta -= node.parent.delta;
+    }
+    node = node.parent;
+  }
+  setNodeIsVisited(T.root, false);
+}
+__name(normalizeDelta, "normalizeDelta");
+var MarkerMoveSemantics;
+(function(MarkerMoveSemantics2) {
+  MarkerMoveSemantics2[MarkerMoveSemantics2["MarkerDefined"] = 0] = "MarkerDefined";
+  MarkerMoveSemantics2[MarkerMoveSemantics2["ForceMove"] = 1] = "ForceMove";
+  MarkerMoveSemantics2[MarkerMoveSemantics2["ForceStay"] = 2] = "ForceStay";
+})(MarkerMoveSemantics || (MarkerMoveSemantics = {}));
+function adjustMarkerBeforeColumn(markerOffset, markerStickToPreviousCharacter, checkOffset, moveSemantics) {
+  if (markerOffset < checkOffset) {
+    return true;
+  }
+  if (markerOffset > checkOffset) {
+    return false;
+  }
+  if (moveSemantics === 1) {
+    return false;
+  }
+  if (moveSemantics === 2) {
+    return true;
+  }
+  return markerStickToPreviousCharacter;
+}
+__name(adjustMarkerBeforeColumn, "adjustMarkerBeforeColumn");
+function nodeAcceptEdit(node, start, end, textLength, forceMoveMarkers) {
+  const nodeStickiness = getNodeStickiness(node);
+  const startStickToPreviousCharacter = nodeStickiness === 0 || nodeStickiness === 2;
+  const endStickToPreviousCharacter = nodeStickiness === 1 || nodeStickiness === 2;
+  const deletingCnt = end - start;
+  const insertingCnt = textLength;
+  const commonLength = Math.min(deletingCnt, insertingCnt);
+  const nodeStart = node.start;
+  let startDone = false;
+  const nodeEnd = node.end;
+  let endDone = false;
+  if (start <= nodeStart && nodeEnd <= end && getCollapseOnReplaceEdit(node)) {
+    node.start = start;
+    startDone = true;
+    node.end = start;
+    endDone = true;
+  }
+  {
+    const moveSemantics = forceMoveMarkers ? 1 : deletingCnt > 0 ? 2 : 0;
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, start, moveSemantics)) {
+      startDone = true;
+    }
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, start, moveSemantics)) {
+      endDone = true;
+    }
+  }
+  if (commonLength > 0 && !forceMoveMarkers) {
+    const moveSemantics = deletingCnt > insertingCnt ? 2 : 0;
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, start + commonLength, moveSemantics)) {
+      startDone = true;
+    }
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, start + commonLength, moveSemantics)) {
+      endDone = true;
+    }
+  }
+  {
+    const moveSemantics = forceMoveMarkers ? 1 : 0;
+    if (!startDone && adjustMarkerBeforeColumn(nodeStart, startStickToPreviousCharacter, end, moveSemantics)) {
+      node.start = start + insertingCnt;
+      startDone = true;
+    }
+    if (!endDone && adjustMarkerBeforeColumn(nodeEnd, endStickToPreviousCharacter, end, moveSemantics)) {
+      node.end = start + insertingCnt;
+      endDone = true;
+    }
+  }
+  const deltaColumn = insertingCnt - deletingCnt;
+  if (!startDone) {
+    node.start = Math.max(0, nodeStart + deltaColumn);
+  }
+  if (!endDone) {
+    node.end = Math.max(0, nodeEnd + deltaColumn);
+  }
+  if (node.start > node.end) {
+    node.end = node.start;
+  }
+}
+__name(nodeAcceptEdit, "nodeAcceptEdit");
+function searchForEditing(T, start, end) {
+  let node = T.root;
+  let delta = 0;
+  let nodeMaxEnd = 0;
+  let nodeStart = 0;
+  let nodeEnd = 0;
+  const result = [];
+  let resultLen = 0;
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      if (node === node.parent.right) {
+        delta -= node.parent.delta;
+      }
+      node = node.parent;
+      continue;
+    }
+    if (!getNodeIsVisited(node.left)) {
+      nodeMaxEnd = delta + node.maxEnd;
+      if (nodeMaxEnd < start) {
+        setNodeIsVisited(node, true);
+        continue;
+      }
+      if (node.left !== SENTINEL) {
+        node = node.left;
+        continue;
+      }
+    }
+    nodeStart = delta + node.start;
+    if (nodeStart > end) {
+      setNodeIsVisited(node, true);
+      continue;
+    }
+    nodeEnd = delta + node.end;
+    if (nodeEnd >= start) {
+      node.setCachedOffsets(nodeStart, nodeEnd, 0);
+      result[resultLen++] = node;
+    }
+    setNodeIsVisited(node, true);
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      delta += node.delta;
+      node = node.right;
+      continue;
+    }
+  }
+  setNodeIsVisited(T.root, false);
+  return result;
+}
+__name(searchForEditing, "searchForEditing");
+function noOverlapReplace(T, start, end, textLength) {
+  let node = T.root;
+  let delta = 0;
+  let nodeMaxEnd = 0;
+  let nodeStart = 0;
+  const editDelta = textLength - (end - start);
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      if (node === node.parent.right) {
+        delta -= node.parent.delta;
+      }
+      recomputeMaxEnd(node);
+      node = node.parent;
+      continue;
+    }
+    if (!getNodeIsVisited(node.left)) {
+      nodeMaxEnd = delta + node.maxEnd;
+      if (nodeMaxEnd < start) {
+        setNodeIsVisited(node, true);
+        continue;
+      }
+      if (node.left !== SENTINEL) {
+        node = node.left;
+        continue;
+      }
+    }
+    nodeStart = delta + node.start;
+    if (nodeStart > end) {
+      node.start += editDelta;
+      node.end += editDelta;
+      node.delta += editDelta;
+      if (node.delta < -1073741824 || node.delta > 1073741824) {
+        T.requestNormalizeDelta = true;
+      }
+      setNodeIsVisited(node, true);
+      continue;
+    }
+    setNodeIsVisited(node, true);
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      delta += node.delta;
+      node = node.right;
+      continue;
+    }
+  }
+  setNodeIsVisited(T.root, false);
+}
+__name(noOverlapReplace, "noOverlapReplace");
+function collectNodesFromOwner(T, ownerId) {
+  let node = T.root;
+  const result = [];
+  let resultLen = 0;
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      node = node.parent;
+      continue;
+    }
+    if (node.left !== SENTINEL && !getNodeIsVisited(node.left)) {
+      node = node.left;
+      continue;
+    }
+    if (node.ownerId === ownerId) {
+      result[resultLen++] = node;
+    }
+    setNodeIsVisited(node, true);
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      node = node.right;
+      continue;
+    }
+  }
+  setNodeIsVisited(T.root, false);
+  return result;
+}
+__name(collectNodesFromOwner, "collectNodesFromOwner");
+function collectNodesPostOrder(T) {
+  let node = T.root;
+  const result = [];
+  let resultLen = 0;
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      node = node.parent;
+      continue;
+    }
+    if (node.left !== SENTINEL && !getNodeIsVisited(node.left)) {
+      node = node.left;
+      continue;
+    }
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      node = node.right;
+      continue;
+    }
+    result[resultLen++] = node;
+    setNodeIsVisited(node, true);
+  }
+  setNodeIsVisited(T.root, false);
+  return result;
+}
+__name(collectNodesPostOrder, "collectNodesPostOrder");
+function search(T, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations) {
+  let node = T.root;
+  let delta = 0;
+  let nodeStart = 0;
+  let nodeEnd = 0;
+  const result = [];
+  let resultLen = 0;
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      if (node === node.parent.right) {
+        delta -= node.parent.delta;
+      }
+      node = node.parent;
+      continue;
+    }
+    if (node.left !== SENTINEL && !getNodeIsVisited(node.left)) {
+      node = node.left;
+      continue;
+    }
+    nodeStart = delta + node.start;
+    nodeEnd = delta + node.end;
+    node.setCachedOffsets(nodeStart, nodeEnd, cachedVersionId);
+    let include = true;
+    if (filterOwnerId && node.ownerId && node.ownerId !== filterOwnerId) {
+      include = false;
+    }
+    if (filterOutValidation && getNodeIsForValidation(node)) {
+      include = false;
+    }
+    if (onlyMarginDecorations && !getNodeIsInGlyphMargin(node)) {
+      include = false;
+    }
+    if (include) {
+      result[resultLen++] = node;
+    }
+    setNodeIsVisited(node, true);
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      delta += node.delta;
+      node = node.right;
+      continue;
+    }
+  }
+  setNodeIsVisited(T.root, false);
+  return result;
+}
+__name(search, "search");
+function intervalSearch(T, intervalStart, intervalEnd, filterOwnerId, filterOutValidation, cachedVersionId, onlyMarginDecorations) {
+  let node = T.root;
+  let delta = 0;
+  let nodeMaxEnd = 0;
+  let nodeStart = 0;
+  let nodeEnd = 0;
+  const result = [];
+  let resultLen = 0;
+  while (node !== SENTINEL) {
+    if (getNodeIsVisited(node)) {
+      setNodeIsVisited(node.left, false);
+      setNodeIsVisited(node.right, false);
+      if (node === node.parent.right) {
+        delta -= node.parent.delta;
+      }
+      node = node.parent;
+      continue;
+    }
+    if (!getNodeIsVisited(node.left)) {
+      nodeMaxEnd = delta + node.maxEnd;
+      if (nodeMaxEnd < intervalStart) {
+        setNodeIsVisited(node, true);
+        continue;
+      }
+      if (node.left !== SENTINEL) {
+        node = node.left;
+        continue;
+      }
+    }
+    nodeStart = delta + node.start;
+    if (nodeStart > intervalEnd) {
+      setNodeIsVisited(node, true);
+      continue;
+    }
+    nodeEnd = delta + node.end;
+    if (nodeEnd >= intervalStart) {
+      node.setCachedOffsets(nodeStart, nodeEnd, cachedVersionId);
+      let include = true;
+      if (filterOwnerId && node.ownerId && node.ownerId !== filterOwnerId) {
+        include = false;
+      }
+      if (filterOutValidation && getNodeIsForValidation(node)) {
+        include = false;
+      }
+      if (onlyMarginDecorations && !getNodeIsInGlyphMargin(node)) {
+        include = false;
+      }
+      if (include) {
+        result[resultLen++] = node;
+      }
+    }
+    setNodeIsVisited(node, true);
+    if (node.right !== SENTINEL && !getNodeIsVisited(node.right)) {
+      delta += node.delta;
+      node = node.right;
+      continue;
+    }
+  }
+  setNodeIsVisited(T.root, false);
+  return result;
+}
+__name(intervalSearch, "intervalSearch");
+function rbTreeInsert(T, newNode) {
+  if (T.root === SENTINEL) {
+    newNode.parent = SENTINEL;
+    newNode.left = SENTINEL;
+    newNode.right = SENTINEL;
+    setNodeColor(
+      newNode,
+      0
+      /* NodeColor.Black */
+    );
+    T.root = newNode;
+    return T.root;
+  }
+  treeInsert(T, newNode);
+  recomputeMaxEndWalkToRoot(newNode.parent);
+  let x = newNode;
+  while (x !== T.root && getNodeColor(x.parent) === 1) {
+    if (x.parent === x.parent.parent.left) {
+      const y = x.parent.parent.right;
+      if (getNodeColor(y) === 1) {
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          y,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent.parent,
+          1
+          /* NodeColor.Red */
+        );
+        x = x.parent.parent;
+      } else {
+        if (x === x.parent.right) {
+          x = x.parent;
+          leftRotate(T, x);
+        }
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent.parent,
+          1
+          /* NodeColor.Red */
+        );
+        rightRotate(T, x.parent.parent);
+      }
+    } else {
+      const y = x.parent.parent.left;
+      if (getNodeColor(y) === 1) {
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          y,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent.parent,
+          1
+          /* NodeColor.Red */
+        );
+        x = x.parent.parent;
+      } else {
+        if (x === x.parent.left) {
+          x = x.parent;
+          rightRotate(T, x);
+        }
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent.parent,
+          1
+          /* NodeColor.Red */
+        );
+        leftRotate(T, x.parent.parent);
+      }
+    }
+  }
+  setNodeColor(
+    T.root,
+    0
+    /* NodeColor.Black */
+  );
+  return newNode;
+}
+__name(rbTreeInsert, "rbTreeInsert");
+function treeInsert(T, z) {
+  let delta = 0;
+  let x = T.root;
+  const zAbsoluteStart = z.start;
+  const zAbsoluteEnd = z.end;
+  while (true) {
+    const cmp = intervalCompare(zAbsoluteStart, zAbsoluteEnd, x.start + delta, x.end + delta);
+    if (cmp < 0) {
+      if (x.left === SENTINEL) {
+        z.start -= delta;
+        z.end -= delta;
+        z.maxEnd -= delta;
+        x.left = z;
+        break;
+      } else {
+        x = x.left;
+      }
+    } else {
+      if (x.right === SENTINEL) {
+        z.start -= delta + x.delta;
+        z.end -= delta + x.delta;
+        z.maxEnd -= delta + x.delta;
+        x.right = z;
+        break;
+      } else {
+        delta += x.delta;
+        x = x.right;
+      }
+    }
+  }
+  z.parent = x;
+  z.left = SENTINEL;
+  z.right = SENTINEL;
+  setNodeColor(
+    z,
+    1
+    /* NodeColor.Red */
+  );
+}
+__name(treeInsert, "treeInsert");
+function rbTreeDelete(T, z) {
+  let x;
+  let y;
+  if (z.left === SENTINEL) {
+    x = z.right;
+    y = z;
+    x.delta += z.delta;
+    if (x.delta < -1073741824 || x.delta > 1073741824) {
+      T.requestNormalizeDelta = true;
+    }
+    x.start += z.delta;
+    x.end += z.delta;
+  } else if (z.right === SENTINEL) {
+    x = z.left;
+    y = z;
+  } else {
+    y = leftest(z.right);
+    x = y.right;
+    x.start += y.delta;
+    x.end += y.delta;
+    x.delta += y.delta;
+    if (x.delta < -1073741824 || x.delta > 1073741824) {
+      T.requestNormalizeDelta = true;
+    }
+    y.start += z.delta;
+    y.end += z.delta;
+    y.delta = z.delta;
+    if (y.delta < -1073741824 || y.delta > 1073741824) {
+      T.requestNormalizeDelta = true;
+    }
+  }
+  if (y === T.root) {
+    T.root = x;
+    setNodeColor(
+      x,
+      0
+      /* NodeColor.Black */
+    );
+    z.detach();
+    resetSentinel();
+    recomputeMaxEnd(x);
+    T.root.parent = SENTINEL;
+    return;
+  }
+  const yWasRed = getNodeColor(y) === 1;
+  if (y === y.parent.left) {
+    y.parent.left = x;
+  } else {
+    y.parent.right = x;
+  }
+  if (y === z) {
+    x.parent = y.parent;
+  } else {
+    if (y.parent === z) {
+      x.parent = y;
+    } else {
+      x.parent = y.parent;
+    }
+    y.left = z.left;
+    y.right = z.right;
+    y.parent = z.parent;
+    setNodeColor(y, getNodeColor(z));
+    if (z === T.root) {
+      T.root = y;
+    } else {
+      if (z === z.parent.left) {
+        z.parent.left = y;
+      } else {
+        z.parent.right = y;
+      }
+    }
+    if (y.left !== SENTINEL) {
+      y.left.parent = y;
+    }
+    if (y.right !== SENTINEL) {
+      y.right.parent = y;
+    }
+  }
+  z.detach();
+  if (yWasRed) {
+    recomputeMaxEndWalkToRoot(x.parent);
+    if (y !== z) {
+      recomputeMaxEndWalkToRoot(y);
+      recomputeMaxEndWalkToRoot(y.parent);
+    }
+    resetSentinel();
+    return;
+  }
+  recomputeMaxEndWalkToRoot(x);
+  recomputeMaxEndWalkToRoot(x.parent);
+  if (y !== z) {
+    recomputeMaxEndWalkToRoot(y);
+    recomputeMaxEndWalkToRoot(y.parent);
+  }
+  let w;
+  while (x !== T.root && getNodeColor(x) === 0) {
+    if (x === x.parent.left) {
+      w = x.parent.right;
+      if (getNodeColor(w) === 1) {
+        setNodeColor(
+          w,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent,
+          1
+          /* NodeColor.Red */
+        );
+        leftRotate(T, x.parent);
+        w = x.parent.right;
+      }
+      if (getNodeColor(w.left) === 0 && getNodeColor(w.right) === 0) {
+        setNodeColor(
+          w,
+          1
+          /* NodeColor.Red */
+        );
+        x = x.parent;
+      } else {
+        if (getNodeColor(w.right) === 0) {
+          setNodeColor(
+            w.left,
+            0
+            /* NodeColor.Black */
+          );
+          setNodeColor(
+            w,
+            1
+            /* NodeColor.Red */
+          );
+          rightRotate(T, w);
+          w = x.parent.right;
+        }
+        setNodeColor(w, getNodeColor(x.parent));
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          w.right,
+          0
+          /* NodeColor.Black */
+        );
+        leftRotate(T, x.parent);
+        x = T.root;
+      }
+    } else {
+      w = x.parent.left;
+      if (getNodeColor(w) === 1) {
+        setNodeColor(
+          w,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          x.parent,
+          1
+          /* NodeColor.Red */
+        );
+        rightRotate(T, x.parent);
+        w = x.parent.left;
+      }
+      if (getNodeColor(w.left) === 0 && getNodeColor(w.right) === 0) {
+        setNodeColor(
+          w,
+          1
+          /* NodeColor.Red */
+        );
+        x = x.parent;
+      } else {
+        if (getNodeColor(w.left) === 0) {
+          setNodeColor(
+            w.right,
+            0
+            /* NodeColor.Black */
+          );
+          setNodeColor(
+            w,
+            1
+            /* NodeColor.Red */
+          );
+          leftRotate(T, w);
+          w = x.parent.left;
+        }
+        setNodeColor(w, getNodeColor(x.parent));
+        setNodeColor(
+          x.parent,
+          0
+          /* NodeColor.Black */
+        );
+        setNodeColor(
+          w.left,
+          0
+          /* NodeColor.Black */
+        );
+        rightRotate(T, x.parent);
+        x = T.root;
+      }
+    }
+  }
+  setNodeColor(
+    x,
+    0
+    /* NodeColor.Black */
+  );
+  resetSentinel();
+}
+__name(rbTreeDelete, "rbTreeDelete");
+function leftest(node) {
+  while (node.left !== SENTINEL) {
+    node = node.left;
+  }
+  return node;
+}
+__name(leftest, "leftest");
+function resetSentinel() {
+  SENTINEL.parent = SENTINEL;
+  SENTINEL.delta = 0;
+  SENTINEL.start = 0;
+  SENTINEL.end = 0;
+}
+__name(resetSentinel, "resetSentinel");
+function leftRotate(T, x) {
+  const y = x.right;
+  y.delta += x.delta;
+  if (y.delta < -1073741824 || y.delta > 1073741824) {
+    T.requestNormalizeDelta = true;
+  }
+  y.start += x.delta;
+  y.end += x.delta;
+  x.right = y.left;
+  if (y.left !== SENTINEL) {
+    y.left.parent = x;
+  }
+  y.parent = x.parent;
+  if (x.parent === SENTINEL) {
+    T.root = y;
+  } else if (x === x.parent.left) {
+    x.parent.left = y;
+  } else {
+    x.parent.right = y;
+  }
+  y.left = x;
+  x.parent = y;
+  recomputeMaxEnd(x);
+  recomputeMaxEnd(y);
+}
+__name(leftRotate, "leftRotate");
+function rightRotate(T, y) {
+  const x = y.left;
+  y.delta -= x.delta;
+  if (y.delta < -1073741824 || y.delta > 1073741824) {
+    T.requestNormalizeDelta = true;
+  }
+  y.start -= x.delta;
+  y.end -= x.delta;
+  y.left = x.right;
+  if (x.right !== SENTINEL) {
+    x.right.parent = y;
+  }
+  x.parent = y.parent;
+  if (y.parent === SENTINEL) {
+    T.root = x;
+  } else if (y === y.parent.right) {
+    y.parent.right = x;
+  } else {
+    y.parent.left = x;
+  }
+  x.right = y;
+  y.parent = x;
+  recomputeMaxEnd(y);
+  recomputeMaxEnd(x);
+}
+__name(rightRotate, "rightRotate");
+function computeMaxEnd(node) {
+  let maxEnd = node.end;
+  if (node.left !== SENTINEL) {
+    const leftMaxEnd = node.left.maxEnd;
+    if (leftMaxEnd > maxEnd) {
+      maxEnd = leftMaxEnd;
+    }
+  }
+  if (node.right !== SENTINEL) {
+    const rightMaxEnd = node.right.maxEnd + node.delta;
+    if (rightMaxEnd > maxEnd) {
+      maxEnd = rightMaxEnd;
+    }
+  }
+  return maxEnd;
+}
+__name(computeMaxEnd, "computeMaxEnd");
+function recomputeMaxEnd(node) {
+  node.maxEnd = computeMaxEnd(node);
+}
+__name(recomputeMaxEnd, "recomputeMaxEnd");
+function recomputeMaxEndWalkToRoot(node) {
+  while (node !== SENTINEL) {
+    const maxEnd = computeMaxEnd(node);
+    if (node.maxEnd === maxEnd) {
+      return;
+    }
+    node.maxEnd = maxEnd;
+    node = node.parent;
+  }
+}
+__name(recomputeMaxEndWalkToRoot, "recomputeMaxEndWalkToRoot");
+function intervalCompare(aStart, aEnd, bStart, bEnd) {
+  if (aStart === bStart) {
+    return aEnd - bEnd;
+  }
+  return aStart - bStart;
+}
+__name(intervalCompare, "intervalCompare");
+export {
+  ClassName,
+  IntervalNode,
+  IntervalTree,
+  NodeColor,
+  SENTINEL,
+  getNodeColor,
+  intervalCompare,
+  nodeAcceptEdit,
+  recomputeMaxEnd,
+  setNodeStickiness
+};
+//# sourceMappingURL=intervalTree.js.map

@@ -1,1 +1,138 @@
-import{$Ji as p}from"../../../../base/common/buffer.js";import{$kh as x}from"../../../../base/common/resources.js";async function F(t,e){const c=e==="image/gif";return typeof t=="string"&&(t=b(t)),new Promise((u,i)=>{const s=new Blob([t],{type:e}),o=new Image,r=URL.createObjectURL(s);o.src=r,o.onload=()=>{URL.revokeObjectURL(r);let{width:n,height:a}=o;if((n<=768||a<=768)&&!c){u(t);return}if(n>2048||a>2048){const d=2048/Math.max(n,a);n=Math.round(n*d),a=Math.round(a*d)}const m=768/Math.min(n,a);n=Math.round(n*m),a=Math.round(a*m);const f=document.createElement("canvas");f.width=n,f.height=a;const w=f.getContext("2d");w?(w.drawImage(o,0,0,n,a),f.toBlob(d=>{if(d){const l=new FileReader;l.onload=()=>{u(new Uint8Array(l.result))},l.onerror=h=>i(h),l.readAsArrayBuffer(d)}else i(new Error("Failed to create blob from canvas"))},"image/png")):i(new Error("Failed to get canvas context"))},o.onerror=n=>{URL.revokeObjectURL(r),i(n)}})}function b(t){const e=t.includes(",")?t.split(",")[1]:t;return g(e)?Uint8Array.from(atob(e),c=>c.charCodeAt(0)):new TextEncoder().encode(t)}function R(t){try{return new TextDecoder().decode(t)}catch{return""}}function g(t){return/^[A-Za-z0-9+/]*={0,2}$/.test(t)&&(()=>{try{return atob(t),!0}catch{return!1}})()}async function z(t,e,c,u){await t.exists(e)||await t.createFolder(e);const s=u.split("/")[1]||"png",o=`image-${Date.now()}.${s}`,r=x(e,o),n=p.wrap(c);return await t.writeFile(r,n),r}async function A(t,e,c){if(!await t.exists(c))return;const i=7*24*60*60*1e3,s=await t.resolve(c);s.children&&await Promise.all(s.children.map(async o=>{try{const r=y(o.name);r&&Date.now()-r>i&&await t.del(o.resource)}catch(r){e.error("Failed to clean up old images",r)}}))}function y(t){const e=t.match(/image-(\d+)\./);if(e)return parseInt(e[1],10)}export{F as $2zb,b as $3zb,R as $4zb,z as $5zb,A as $6zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { joinPath } from "../../../../base/common/resources.js";
+async function resizeImage(data, mimeType) {
+  const isGif = mimeType === "image/gif";
+  if (typeof data === "string") {
+    data = convertStringToUInt8Array(data);
+  }
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([data], { type: mimeType });
+    const img = new Image();
+    const url = URL.createObjectURL(blob);
+    img.src = url;
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if ((width <= 768 || height <= 768) && !isGif) {
+        resolve(data);
+        return;
+      }
+      if (width > 2048 || height > 2048) {
+        const scaleFactor2 = 2048 / Math.max(width, height);
+        width = Math.round(width * scaleFactor2);
+        height = Math.round(height * scaleFactor2);
+      }
+      const scaleFactor = 768 / Math.min(width, height);
+      width = Math.round(width * scaleFactor);
+      height = Math.round(height * scaleFactor);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob2) => {
+          if (blob2) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve(new Uint8Array(reader.result));
+            };
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(blob2);
+          } else {
+            reject(new Error("Failed to create blob from canvas"));
+          }
+        }, "image/png");
+      } else {
+        reject(new Error("Failed to get canvas context"));
+      }
+    };
+    img.onerror = (error) => {
+      URL.revokeObjectURL(url);
+      reject(error);
+    };
+  });
+}
+__name(resizeImage, "resizeImage");
+function convertStringToUInt8Array(data) {
+  const base64Data = data.includes(",") ? data.split(",")[1] : data;
+  if (isValidBase64(base64Data)) {
+    return Uint8Array.from(atob(base64Data), (char) => char.charCodeAt(0));
+  }
+  return new TextEncoder().encode(data);
+}
+__name(convertStringToUInt8Array, "convertStringToUInt8Array");
+function convertUint8ArrayToString(data) {
+  try {
+    const decoder = new TextDecoder();
+    const decodedString = decoder.decode(data);
+    return decodedString;
+  } catch {
+    return "";
+  }
+}
+__name(convertUint8ArrayToString, "convertUint8ArrayToString");
+function isValidBase64(str) {
+  return /^[A-Za-z0-9+/]*={0,2}$/.test(str) && (() => {
+    try {
+      atob(str);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+}
+__name(isValidBase64, "isValidBase64");
+async function createFileForMedia(fileService, imagesFolder, dataTransfer, mimeType) {
+  const exists = await fileService.exists(imagesFolder);
+  if (!exists) {
+    await fileService.createFolder(imagesFolder);
+  }
+  const ext = mimeType.split("/")[1] || "png";
+  const filename = `image-${Date.now()}.${ext}`;
+  const fileUri = joinPath(imagesFolder, filename);
+  const buffer = VSBuffer.wrap(dataTransfer);
+  await fileService.writeFile(fileUri, buffer);
+  return fileUri;
+}
+__name(createFileForMedia, "createFileForMedia");
+async function cleanupOldImages(fileService, logService, imagesFolder) {
+  const exists = await fileService.exists(imagesFolder);
+  if (!exists) {
+    return;
+  }
+  const duration = 7 * 24 * 60 * 60 * 1e3;
+  const files = await fileService.resolve(imagesFolder);
+  if (!files.children) {
+    return;
+  }
+  await Promise.all(files.children.map(async (file) => {
+    try {
+      const timestamp = getTimestampFromFilename(file.name);
+      if (timestamp && Date.now() - timestamp > duration) {
+        await fileService.del(file.resource);
+      }
+    } catch (err) {
+      logService.error("Failed to clean up old images", err);
+    }
+  }));
+}
+__name(cleanupOldImages, "cleanupOldImages");
+function getTimestampFromFilename(filename) {
+  const match = filename.match(/image-(\d+)\./);
+  if (match) {
+    return parseInt(match[1], 10);
+  }
+  return void 0;
+}
+__name(getTimestampFromFilename, "getTimestampFromFilename");
+export {
+  cleanupOldImages,
+  convertStringToUInt8Array,
+  convertUint8ArrayToString,
+  createFileForMedia,
+  resizeImage
+};
+//# sourceMappingURL=imageUtils.js.map

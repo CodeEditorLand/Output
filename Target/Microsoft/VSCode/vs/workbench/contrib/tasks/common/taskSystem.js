@@ -1,1 +1,66 @@
-var t;(function(n){n[n.NotConfigured=0]="NotConfigured",n[n.RunningTask=1]="RunningTask",n[n.NoBuildTask=2]="NoBuildTask",n[n.NoTestTask=3]="NoTestTask",n[n.ConfigValidationError=4]="ConfigValidationError",n[n.TaskNotFound=5]="TaskNotFound",n[n.NoValidTaskRunner=6]="NoValidTaskRunner",n[n.UnknownError=7]="UnknownError"})(t||(t={}));class d{constructor(e,c,u){this.severity=e,this.message=c,this.code=u}}var o;(function(n){n.shortcut="shortcut",n.command="command",n.reconnect="reconnect"})(o||(o={}));var i;(function(n){n[n.Started=1]="Started",n[n.Active=2]="Active"})(i||(i={}));export{d as $g2b,t as TaskErrors,i as TaskExecuteKind,o as Triggers};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var TaskErrors;
+(function(TaskErrors2) {
+  TaskErrors2[TaskErrors2["NotConfigured"] = 0] = "NotConfigured";
+  TaskErrors2[TaskErrors2["RunningTask"] = 1] = "RunningTask";
+  TaskErrors2[TaskErrors2["NoBuildTask"] = 2] = "NoBuildTask";
+  TaskErrors2[TaskErrors2["NoTestTask"] = 3] = "NoTestTask";
+  TaskErrors2[TaskErrors2["ConfigValidationError"] = 4] = "ConfigValidationError";
+  TaskErrors2[TaskErrors2["TaskNotFound"] = 5] = "TaskNotFound";
+  TaskErrors2[TaskErrors2["NoValidTaskRunner"] = 6] = "NoValidTaskRunner";
+  TaskErrors2[TaskErrors2["UnknownError"] = 7] = "UnknownError";
+})(TaskErrors || (TaskErrors = {}));
+class VerifiedTask {
+  static {
+    __name(this, "VerifiedTask");
+  }
+  constructor(task, resolver, trigger) {
+    this.task = task;
+    this.resolver = resolver;
+    this.trigger = trigger;
+  }
+  verify() {
+    let verified = false;
+    if (this.trigger && this.resolvedVariables && this.workspaceFolder && this.shellLaunchConfig !== void 0) {
+      verified = true;
+    }
+    return verified;
+  }
+  getVerifiedTask() {
+    if (this.verify()) {
+      return { task: this.task, resolver: this.resolver, trigger: this.trigger, resolvedVariables: this.resolvedVariables, systemInfo: this.systemInfo, workspaceFolder: this.workspaceFolder, shellLaunchConfig: this.shellLaunchConfig };
+    } else {
+      throw new Error("VerifiedTask was not checked. verify must be checked before getVerifiedTask.");
+    }
+  }
+}
+class TaskError {
+  static {
+    __name(this, "TaskError");
+  }
+  constructor(severity, message, code) {
+    this.severity = severity;
+    this.message = message;
+    this.code = code;
+  }
+}
+var Triggers;
+(function(Triggers2) {
+  Triggers2.shortcut = "shortcut";
+  Triggers2.command = "command";
+  Triggers2.reconnect = "reconnect";
+})(Triggers || (Triggers = {}));
+var TaskExecuteKind;
+(function(TaskExecuteKind2) {
+  TaskExecuteKind2[TaskExecuteKind2["Started"] = 1] = "Started";
+  TaskExecuteKind2[TaskExecuteKind2["Active"] = 2] = "Active";
+})(TaskExecuteKind || (TaskExecuteKind = {}));
+export {
+  TaskError,
+  TaskErrors,
+  TaskExecuteKind,
+  Triggers,
+  VerifiedTask
+};
+//# sourceMappingURL=taskSystem.js.map

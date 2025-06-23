@@ -1,1 +1,68 @@
-import*as a from"../../../../../../base/browser/dom.js";import{$Mj as h}from"../../../../../../base/common/codicons.js";import{$Uj as d}from"../../../../../../base/common/htmlContent.js";import{autorun as u}from"../../../../../../base/common/observable.js";import{$mj as l}from"../../../../../../platform/instantiation/common/instantiation.js";import{$mQb as g}from"../chatProgressContentPart.js";import{$vQb as b}from"./chatToolInvocationSubPart.js";var c=function(i,e,t,s){var o=arguments.length,r=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,e,t,s);else for(var f=i.length-1;f>=0;f--)(n=i[f])&&(r=(o<3?n(r):o>3?n(e,t,r):n(e,t))||r);return o>3&&r&&Object.defineProperty(e,t,r),r},p=function(i,e){return function(t,s){e(t,s,i)}};let m=class extends b{constructor(e,t,s,o){super(e),this.f=e,this.g=t,this.h=s,this.j=o,this.codeblocks=[],this.domNode=this.m()}m(){if(this.f.isComplete&&this.f.isConfirmed!==!1&&this.f.pastTenseMessage){const e=this.n(this.f.pastTenseMessage);return this.B(e),e.domNode}else{const e=document.createElement("div"),t=this.f.kind==="toolInvocation"?this.f.progress:void 0;return this.B(u(s=>{const o=t?.read(s),r=s.store.add(this.n(o?.message||this.f.invocationMessage));a.$O6(e,r.domNode)})),e}}n(e){typeof e=="string"&&(e=new d().appendText(e));const t={kind:"progressMessage",content:e},s=this.f.isConfirmed?this.f.isComplete?h.check:void 0:h.error;return this.j.createInstance(g,t,this.h,this.g,void 0,!0,s)}};m=c([p(3,l)],m);export{m as $DQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatProgressContentPart } from "../chatProgressContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatToolProgressSubPart");
+  }
+  constructor(toolInvocation, context, renderer, instantiationService) {
+    super(toolInvocation);
+    this.toolInvocation = toolInvocation;
+    this.context = context;
+    this.renderer = renderer;
+    this.instantiationService = instantiationService;
+    this.codeblocks = [];
+    this.domNode = this.createProgressPart();
+  }
+  createProgressPart() {
+    if (this.toolInvocation.isComplete && this.toolInvocation.isConfirmed !== false && this.toolInvocation.pastTenseMessage) {
+      const part = this.renderProgressContent(this.toolInvocation.pastTenseMessage);
+      this._register(part);
+      return part.domNode;
+    } else {
+      const container = document.createElement("div");
+      const progressObservable = this.toolInvocation.kind === "toolInvocation" ? this.toolInvocation.progress : void 0;
+      this._register(autorun((reader) => {
+        const progress = progressObservable?.read(reader);
+        const part = reader.store.add(this.renderProgressContent(progress?.message || this.toolInvocation.invocationMessage));
+        dom.reset(container, part.domNode);
+      }));
+      return container;
+    }
+  }
+  renderProgressContent(content) {
+    if (typeof content === "string") {
+      content = new MarkdownString().appendText(content);
+    }
+    const progressMessage = {
+      kind: "progressMessage",
+      content
+    };
+    const iconOverride = !this.toolInvocation.isConfirmed ? Codicon.error : this.toolInvocation.isComplete ? Codicon.check : void 0;
+    return this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, iconOverride);
+  }
+};
+ChatToolProgressSubPart = __decorate([
+  __param(3, IInstantiationService)
+], ChatToolProgressSubPart);
+export {
+  ChatToolProgressSubPart
+};
+//# sourceMappingURL=chatToolProgressPart.js.map

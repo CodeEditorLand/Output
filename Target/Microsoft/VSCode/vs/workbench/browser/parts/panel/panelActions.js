@@ -1,1 +1,453 @@
-import"./media/panelpart.css";import{localize as n,localize2 as a}from"../../../../nls.js";import{$dI as c,$fI as w,$jI as r,$iI as p}from"../../../../platform/actions/common/actions.js";import{$Xn as l}from"../../../../platform/action/common/actionCommonCategories.js";import{$9tb as R,$8tb as g,$0tb as q}from"../../../services/layout/browser/layoutService.js";import{$rN as H,$fO as V,$hO as z,$eO as P,$gO as x}from"../../../common/contextkeys.js";import{$Bn as d}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as h}from"../../../../base/common/codicons.js";import{$Ct as b}from"../../../../platform/theme/common/iconRegistry.js";import{$YM as F}from"../../../common/views.js";import{$Jwb as _}from"../../../services/views/common/viewsService.js";import{$Cxb as J}from"../../../services/panecomposite/browser/panecomposite.js";import{$RI as G}from"../../../../platform/notification/common/notification.js";import{$Qxb as B}from"../compositeBarActions.js";const N=b("panel-maximize",h.chevronUp,n(3860,null)),j=b("panel-restore",h.chevronDown,n(3861,null)),$=b("panel-close",h.close,n(3862,null)),U=b("panel-layout-icon",h.layoutPanel,n(3863,null)),Y=b("panel-layout-icon-off",h.layoutPanelOff,n(3864,null));class f extends p{static{this.ID="workbench.action.togglePanel"}static{this.LABEL=a(3883,"Toggle Panel Visibility")}constructor(){super({id:f.ID,title:f.LABEL,toggled:{condition:x,title:n(3865,null),icon:$,mnemonicTitle:n(3866,null)},icon:$,f1:!0,category:l.View,metadata:{description:n(3867,null)},keybinding:{primary:2088,weight:200},menu:[{id:c.MenubarAppearanceMenu,group:"2_workbench_layout",order:5},{id:c.LayoutControlMenuSubmenu,group:"0_workbench_layout",order:4},{id:c.PanelTitle,group:"navigation",order:2}]})}async run(e){const t=e.get(g);t.setPartHidden(t.isVisible("workbench.parts.panel"),"workbench.parts.panel")}}r(f);r(class extends p{constructor(){super({id:"workbench.action.closePanel",title:a(3884,"Hide Panel"),category:l.View,precondition:x,f1:!0})}run(o){o.get(g).setPartHidden(!0,"workbench.parts.panel")}});r(class extends p{static{this.ID="workbench.action.focusPanel"}static{this.LABEL=n(3868,null)}constructor(){super({id:"workbench.action.focusPanel",title:a(3885,"Focus into Panel"),category:l.View,f1:!0})}async run(o){const e=o.get(g),t=o.get(J);e.isVisible("workbench.parts.panel")||e.setPartHidden(!1,"workbench.parts.panel"),t.getActivePaneComposite(1)?.focus()}});const T={LEFT:"workbench.action.positionPanelLeft",RIGHT:"workbench.action.positionPanelRight",BOTTOM:"workbench.action.positionPanelBottom",TOP:"workbench.action.positionPanelTop"},v={LEFT:"workbench.action.alignPanelLeft",RIGHT:"workbench.action.alignPanelRight",CENTER:"workbench.action.alignPanelCenter",JUSTIFY:"workbench.action.alignPanelJustify"};function D(o,e,t,i,s){return{id:o,title:e,shortLabel:t,value:i,when:s}}function k(o,e,t,i){return D(o,e,t,i,P.notEqualsTo(q(i)))}function M(o,e,t,i){return D(o,e,t,i,V.notEqualsTo(i))}const Q=[k(T.TOP,a(3886,"Move Panel To Top"),n(3869,null),3),k(T.LEFT,a(3887,"Move Panel Left"),n(3870,null),0),k(T.RIGHT,a(3888,"Move Panel Right"),n(3871,null),1),k(T.BOTTOM,a(3889,"Move Panel To Bottom"),n(3872,null),2)],X=[M(v.LEFT,a(3890,"Set Panel Alignment to Left"),n(3873,null),"left"),M(v.RIGHT,a(3891,"Set Panel Alignment to Right"),n(3874,null),"right"),M(v.CENTER,a(3892,"Set Panel Alignment to Center"),n(3875,null),"center"),M(v.JUSTIFY,a(3893,"Set Panel Alignment to Justify"),n(3876,null),"justify")];w.appendMenuItem(c.MenubarAppearanceMenu,{submenu:c.PanelPositionMenu,title:n(3877,null),group:"3_workbench_layout_move",order:4});Q.forEach((o,e)=>{const{id:t,title:i,shortLabel:s,value:u,when:m}=o;r(class extends p{constructor(){super({id:t,title:i,category:l.View,f1:!0})}run(y){y.get(g).setPanelPosition(u===void 0?2:u)}}),w.appendMenuItem(c.PanelPositionMenu,{command:{id:t,title:s,toggled:m.negate()},order:5+e})});w.appendMenuItem(c.MenubarAppearanceMenu,{submenu:c.PanelAlignmentMenu,title:n(3878,null),group:"3_workbench_layout_move",order:5});X.forEach(o=>{const{id:e,title:t,shortLabel:i,value:s,when:u}=o;r(class extends p{constructor(){super({id:e,title:t,category:l.View,toggled:u.negate(),f1:!0})}run(m){m.get(g).setPanelAlignment(s===void 0?"center":s)}}),w.appendMenuItem(c.PanelAlignmentMenu,{command:{id:e,title:i,toggled:u.negate()},order:5})});r(class extends B{constructor(){super({id:"workbench.action.previousPanelView",title:a(3894,"Previous Panel View"),category:l.View,f1:!0},1,-1)}});r(class extends B{constructor(){super({id:"workbench.action.nextPanelView",title:a(3895,"Next Panel View"),category:l.View,f1:!0},1,1)}});r(class extends p{constructor(){super({id:"workbench.action.toggleMaximizedPanel",title:a(3896,"Toggle Maximized Panel"),tooltip:n(3879,null),category:l.View,f1:!0,icon:N,precondition:d.or(V.isEqualTo("center"),d.and(P.notEqualsTo("bottom"),P.notEqualsTo("top"))),toggled:{condition:z,icon:j,tooltip:n(3880,null)},menu:[{id:c.PanelTitle,group:"navigation",order:1,when:d.or(V.isEqualTo("center"),d.and(P.notEqualsTo("bottom"),P.notEqualsTo("top")))}]})}run(o){const e=o.get(g),t=o.get(G);if(e.getPanelAlignment()!=="center"&&R(e.getPanelPosition())){t.warn(n(3881,null));return}e.isVisible("workbench.parts.panel")?e.toggleMaximizedPanel():(e.setPartHidden(!1,"workbench.parts.panel"),e.isPanelMaximized()||e.toggleMaximizedPanel())}});w.appendMenuItems([{id:c.LayoutControlMenu,item:{group:"2_pane_toggles",command:{id:f.ID,title:n(3882,null),icon:Y,toggled:{condition:x,icon:U}},when:d.and(H.negate(),d.or(d.equals("config.workbench.layoutControl.type","toggles"),d.equals("config.workbench.layoutControl.type","both"))),order:1}}]);class I extends p{constructor(e,t,i){super(i),this.a=e,this.b=t}run(e,...t){const i=e.get(F),s=e.get(g),u=e.get(_),m=i.getViewContainersByLocation(this.a),y=i.getViewContainersByLocation(this.b);if(m.length){const S=u.getVisibleViewContainer(this.a);m.forEach(O=>i.moveViewContainerToLocation(O,this.b,void 0,this.desc.id)),s.setPartHidden(!1,this.b===1?"workbench.parts.panel":"workbench.parts.auxiliarybar"),S&&y.length===0&&u.openViewContainer(S.id,!0)}}}class A extends I{static{this.ID="workbench.action.movePanelToSidePanel"}constructor(){super(1,2,{id:A.ID,title:a(3897,"Move Panel Views To Secondary Side Bar"),category:l.View,f1:!1})}}class C extends I{static{this.ID="workbench.action.movePanelToSecondarySideBar"}constructor(){super(1,2,{id:C.ID,title:a(3898,"Move Panel Views To Secondary Side Bar"),category:l.View,f1:!0})}}r(A);r(C);class E extends I{static{this.ID="workbench.action.moveSidePanelToPanel"}constructor(){super(2,1,{id:E.ID,title:a(3899,"Move Secondary Side Bar Views To Panel"),category:l.View,f1:!1})}}class L extends I{static{this.ID="workbench.action.moveSecondarySideBarToPanel"}constructor(){super(2,1,{id:L.ID,title:a(3900,"Move Secondary Side Bar Views To Panel"),category:l.View,f1:!0})}}r(E);r(L);export{$ as $Rxb,f as $Sxb,C as $Txb,L as $Uxb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/panelpart.css";
+import { localize, localize2 } from "../../../../nls.js";
+import { MenuId, MenuRegistry, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { isHorizontal, IWorkbenchLayoutService, positionToString } from "../../../services/layout/browser/layoutService.js";
+import { IsAuxiliaryWindowContext, PanelAlignmentContext, PanelMaximizedContext, PanelPositionContext, PanelVisibleContext } from "../../../common/contextkeys.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { SwitchCompositeViewAction } from "../compositeBarActions.js";
+const maximizeIcon = registerIcon("panel-maximize", Codicon.chevronUp, localize("maximizeIcon", "Icon to maximize a panel."));
+const restoreIcon = registerIcon("panel-restore", Codicon.chevronDown, localize("restoreIcon", "Icon to restore a panel."));
+const closeIcon = registerIcon("panel-close", Codicon.close, localize("closeIcon", "Icon to close a panel."));
+const panelIcon = registerIcon("panel-layout-icon", Codicon.layoutPanel, localize("togglePanelOffIcon", "Icon to toggle the panel off when it is on."));
+const panelOffIcon = registerIcon("panel-layout-icon-off", Codicon.layoutPanelOff, localize("togglePanelOnIcon", "Icon to toggle the panel on when it is off."));
+class TogglePanelAction extends Action2 {
+  static {
+    __name(this, "TogglePanelAction");
+  }
+  static {
+    this.ID = "workbench.action.togglePanel";
+  }
+  static {
+    this.LABEL = localize2("togglePanelVisibility", "Toggle Panel Visibility");
+  }
+  constructor() {
+    super({
+      id: TogglePanelAction.ID,
+      title: TogglePanelAction.LABEL,
+      toggled: {
+        condition: PanelVisibleContext,
+        title: localize("closePanel", "Hide Panel"),
+        icon: closeIcon,
+        mnemonicTitle: localize({ key: "toggle panel mnemonic", comment: ["&& denotes a mnemonic"] }, "&&Panel")
+      },
+      icon: closeIcon,
+      // Ensures no flickering when using toggled.icon
+      f1: true,
+      category: Categories.View,
+      metadata: {
+        description: localize("openAndClosePanel", "Open/Show and Close/Hide Panel")
+      },
+      keybinding: {
+        primary: 2048 | 40,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: [
+        {
+          id: MenuId.MenubarAppearanceMenu,
+          group: "2_workbench_layout",
+          order: 5
+        },
+        {
+          id: MenuId.LayoutControlMenuSubmenu,
+          group: "0_workbench_layout",
+          order: 4
+        },
+        {
+          id: MenuId.PanelTitle,
+          group: "navigation",
+          order: 2
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    layoutService.setPartHidden(
+      layoutService.isVisible(
+        "workbench.parts.panel"
+        /* Parts.PANEL_PART */
+      ),
+      "workbench.parts.panel"
+      /* Parts.PANEL_PART */
+    );
+  }
+}
+registerAction2(TogglePanelAction);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.closePanel",
+      title: localize2("closePanel", "Hide Panel"),
+      category: Categories.View,
+      precondition: PanelVisibleContext,
+      f1: true
+    });
+  }
+  run(accessor) {
+    accessor.get(IWorkbenchLayoutService).setPartHidden(
+      true,
+      "workbench.parts.panel"
+      /* Parts.PANEL_PART */
+    );
+  }
+});
+registerAction2(class extends Action2 {
+  static {
+    this.ID = "workbench.action.focusPanel";
+  }
+  static {
+    this.LABEL = localize("focusPanel", "Focus into Panel");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.focusPanel",
+      title: localize2("focusPanel", "Focus into Panel"),
+      category: Categories.View,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    if (!layoutService.isVisible(
+      "workbench.parts.panel"
+      /* Parts.PANEL_PART */
+    )) {
+      layoutService.setPartHidden(
+        false,
+        "workbench.parts.panel"
+        /* Parts.PANEL_PART */
+      );
+    }
+    const panel = paneCompositeService.getActivePaneComposite(
+      1
+      /* ViewContainerLocation.Panel */
+    );
+    panel?.focus();
+  }
+});
+const PositionPanelActionId = {
+  LEFT: "workbench.action.positionPanelLeft",
+  RIGHT: "workbench.action.positionPanelRight",
+  BOTTOM: "workbench.action.positionPanelBottom",
+  TOP: "workbench.action.positionPanelTop"
+};
+const AlignPanelActionId = {
+  LEFT: "workbench.action.alignPanelLeft",
+  RIGHT: "workbench.action.alignPanelRight",
+  CENTER: "workbench.action.alignPanelCenter",
+  JUSTIFY: "workbench.action.alignPanelJustify"
+};
+function createPanelActionConfig(id, title, shortLabel, value, when) {
+  return {
+    id,
+    title,
+    shortLabel,
+    value,
+    when
+  };
+}
+__name(createPanelActionConfig, "createPanelActionConfig");
+function createPositionPanelActionConfig(id, title, shortLabel, position) {
+  return createPanelActionConfig(id, title, shortLabel, position, PanelPositionContext.notEqualsTo(positionToString(position)));
+}
+__name(createPositionPanelActionConfig, "createPositionPanelActionConfig");
+function createAlignmentPanelActionConfig(id, title, shortLabel, alignment) {
+  return createPanelActionConfig(id, title, shortLabel, alignment, PanelAlignmentContext.notEqualsTo(alignment));
+}
+__name(createAlignmentPanelActionConfig, "createAlignmentPanelActionConfig");
+const PositionPanelActionConfigs = [
+  createPositionPanelActionConfig(
+    PositionPanelActionId.TOP,
+    localize2("positionPanelTop", "Move Panel To Top"),
+    localize("positionPanelTopShort", "Top"),
+    3
+    /* Position.TOP */
+  ),
+  createPositionPanelActionConfig(
+    PositionPanelActionId.LEFT,
+    localize2("positionPanelLeft", "Move Panel Left"),
+    localize("positionPanelLeftShort", "Left"),
+    0
+    /* Position.LEFT */
+  ),
+  createPositionPanelActionConfig(
+    PositionPanelActionId.RIGHT,
+    localize2("positionPanelRight", "Move Panel Right"),
+    localize("positionPanelRightShort", "Right"),
+    1
+    /* Position.RIGHT */
+  ),
+  createPositionPanelActionConfig(
+    PositionPanelActionId.BOTTOM,
+    localize2("positionPanelBottom", "Move Panel To Bottom"),
+    localize("positionPanelBottomShort", "Bottom"),
+    2
+    /* Position.BOTTOM */
+  )
+];
+const AlignPanelActionConfigs = [
+  createAlignmentPanelActionConfig(AlignPanelActionId.LEFT, localize2("alignPanelLeft", "Set Panel Alignment to Left"), localize("alignPanelLeftShort", "Left"), "left"),
+  createAlignmentPanelActionConfig(AlignPanelActionId.RIGHT, localize2("alignPanelRight", "Set Panel Alignment to Right"), localize("alignPanelRightShort", "Right"), "right"),
+  createAlignmentPanelActionConfig(AlignPanelActionId.CENTER, localize2("alignPanelCenter", "Set Panel Alignment to Center"), localize("alignPanelCenterShort", "Center"), "center"),
+  createAlignmentPanelActionConfig(AlignPanelActionId.JUSTIFY, localize2("alignPanelJustify", "Set Panel Alignment to Justify"), localize("alignPanelJustifyShort", "Justify"), "justify")
+];
+MenuRegistry.appendMenuItem(MenuId.MenubarAppearanceMenu, {
+  submenu: MenuId.PanelPositionMenu,
+  title: localize("positionPanel", "Panel Position"),
+  group: "3_workbench_layout_move",
+  order: 4
+});
+PositionPanelActionConfigs.forEach((positionPanelAction, index) => {
+  const { id, title, shortLabel, value, when } = positionPanelAction;
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id,
+        title,
+        category: Categories.View,
+        f1: true
+      });
+    }
+    run(accessor) {
+      const layoutService = accessor.get(IWorkbenchLayoutService);
+      layoutService.setPanelPosition(value === void 0 ? 2 : value);
+    }
+  });
+  MenuRegistry.appendMenuItem(MenuId.PanelPositionMenu, {
+    command: {
+      id,
+      title: shortLabel,
+      toggled: when.negate()
+    },
+    order: 5 + index
+  });
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarAppearanceMenu, {
+  submenu: MenuId.PanelAlignmentMenu,
+  title: localize("alignPanel", "Align Panel"),
+  group: "3_workbench_layout_move",
+  order: 5
+});
+AlignPanelActionConfigs.forEach((alignPanelAction) => {
+  const { id, title, shortLabel, value, when } = alignPanelAction;
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id,
+        title,
+        category: Categories.View,
+        toggled: when.negate(),
+        f1: true
+      });
+    }
+    run(accessor) {
+      const layoutService = accessor.get(IWorkbenchLayoutService);
+      layoutService.setPanelAlignment(value === void 0 ? "center" : value);
+    }
+  });
+  MenuRegistry.appendMenuItem(MenuId.PanelAlignmentMenu, {
+    command: {
+      id,
+      title: shortLabel,
+      toggled: when.negate()
+    },
+    order: 5
+  });
+});
+registerAction2(class extends SwitchCompositeViewAction {
+  constructor() {
+    super({
+      id: "workbench.action.previousPanelView",
+      title: localize2("previousPanelView", "Previous Panel View"),
+      category: Categories.View,
+      f1: true
+    }, 1, -1);
+  }
+});
+registerAction2(class extends SwitchCompositeViewAction {
+  constructor() {
+    super({
+      id: "workbench.action.nextPanelView",
+      title: localize2("nextPanelView", "Next Panel View"),
+      category: Categories.View,
+      f1: true
+    }, 1, 1);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.toggleMaximizedPanel",
+      title: localize2("toggleMaximizedPanel", "Toggle Maximized Panel"),
+      tooltip: localize("maximizePanel", "Maximize Panel Size"),
+      category: Categories.View,
+      f1: true,
+      icon: maximizeIcon,
+      // This is being rotated in CSS depending on the panel position
+      // the workbench grid currently prevents us from supporting panel maximization with non-center panel alignment
+      precondition: ContextKeyExpr.or(PanelAlignmentContext.isEqualTo("center"), ContextKeyExpr.and(PanelPositionContext.notEqualsTo("bottom"), PanelPositionContext.notEqualsTo("top"))),
+      toggled: { condition: PanelMaximizedContext, icon: restoreIcon, tooltip: localize("minimizePanel", "Restore Panel Size") },
+      menu: [{
+        id: MenuId.PanelTitle,
+        group: "navigation",
+        order: 1,
+        // the workbench grid currently prevents us from supporting panel maximization with non-center panel alignment
+        when: ContextKeyExpr.or(PanelAlignmentContext.isEqualTo("center"), ContextKeyExpr.and(PanelPositionContext.notEqualsTo("bottom"), PanelPositionContext.notEqualsTo("top")))
+      }]
+    });
+  }
+  run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const notificationService = accessor.get(INotificationService);
+    if (layoutService.getPanelAlignment() !== "center" && isHorizontal(layoutService.getPanelPosition())) {
+      notificationService.warn(localize("panelMaxNotSupported", "Maximizing the panel is only supported when it is center aligned."));
+      return;
+    }
+    if (!layoutService.isVisible(
+      "workbench.parts.panel"
+      /* Parts.PANEL_PART */
+    )) {
+      layoutService.setPartHidden(
+        false,
+        "workbench.parts.panel"
+        /* Parts.PANEL_PART */
+      );
+      if (!layoutService.isPanelMaximized()) {
+        layoutService.toggleMaximizedPanel();
+      }
+    } else {
+      layoutService.toggleMaximizedPanel();
+    }
+  }
+});
+MenuRegistry.appendMenuItems([
+  {
+    id: MenuId.LayoutControlMenu,
+    item: {
+      group: "2_pane_toggles",
+      command: {
+        id: TogglePanelAction.ID,
+        title: localize("togglePanel", "Toggle Panel"),
+        icon: panelOffIcon,
+        toggled: { condition: PanelVisibleContext, icon: panelIcon }
+      },
+      when: ContextKeyExpr.and(IsAuxiliaryWindowContext.negate(), ContextKeyExpr.or(ContextKeyExpr.equals("config.workbench.layoutControl.type", "toggles"), ContextKeyExpr.equals("config.workbench.layoutControl.type", "both"))),
+      order: 1
+    }
+  }
+]);
+class MoveViewsBetweenPanelsAction extends Action2 {
+  static {
+    __name(this, "MoveViewsBetweenPanelsAction");
+  }
+  constructor(source, destination, desc) {
+    super(desc);
+    this.source = source;
+    this.destination = destination;
+  }
+  run(accessor, ...args) {
+    const viewDescriptorService = accessor.get(IViewDescriptorService);
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const viewsService = accessor.get(IViewsService);
+    const srcContainers = viewDescriptorService.getViewContainersByLocation(this.source);
+    const destContainers = viewDescriptorService.getViewContainersByLocation(this.destination);
+    if (srcContainers.length) {
+      const activeViewContainer = viewsService.getVisibleViewContainer(this.source);
+      srcContainers.forEach((viewContainer) => viewDescriptorService.moveViewContainerToLocation(viewContainer, this.destination, void 0, this.desc.id));
+      layoutService.setPartHidden(
+        false,
+        this.destination === 1 ? "workbench.parts.panel" : "workbench.parts.auxiliarybar"
+        /* Parts.AUXILIARYBAR_PART */
+      );
+      if (activeViewContainer && destContainers.length === 0) {
+        viewsService.openViewContainer(activeViewContainer.id, true);
+      }
+    }
+  }
+}
+class MovePanelToSidePanelAction extends MoveViewsBetweenPanelsAction {
+  static {
+    __name(this, "MovePanelToSidePanelAction");
+  }
+  static {
+    this.ID = "workbench.action.movePanelToSidePanel";
+  }
+  constructor() {
+    super(1, 2, {
+      id: MovePanelToSidePanelAction.ID,
+      title: localize2("movePanelToSecondarySideBar", "Move Panel Views To Secondary Side Bar"),
+      category: Categories.View,
+      f1: false
+    });
+  }
+}
+class MovePanelToSecondarySideBarAction extends MoveViewsBetweenPanelsAction {
+  static {
+    __name(this, "MovePanelToSecondarySideBarAction");
+  }
+  static {
+    this.ID = "workbench.action.movePanelToSecondarySideBar";
+  }
+  constructor() {
+    super(1, 2, {
+      id: MovePanelToSecondarySideBarAction.ID,
+      title: localize2("movePanelToSecondarySideBar", "Move Panel Views To Secondary Side Bar"),
+      category: Categories.View,
+      f1: true
+    });
+  }
+}
+registerAction2(MovePanelToSidePanelAction);
+registerAction2(MovePanelToSecondarySideBarAction);
+class MoveSidePanelToPanelAction extends MoveViewsBetweenPanelsAction {
+  static {
+    __name(this, "MoveSidePanelToPanelAction");
+  }
+  static {
+    this.ID = "workbench.action.moveSidePanelToPanel";
+  }
+  constructor() {
+    super(2, 1, {
+      id: MoveSidePanelToPanelAction.ID,
+      title: localize2("moveSidePanelToPanel", "Move Secondary Side Bar Views To Panel"),
+      category: Categories.View,
+      f1: false
+    });
+  }
+}
+class MoveSecondarySideBarToPanelAction extends MoveViewsBetweenPanelsAction {
+  static {
+    __name(this, "MoveSecondarySideBarToPanelAction");
+  }
+  static {
+    this.ID = "workbench.action.moveSecondarySideBarToPanel";
+  }
+  constructor() {
+    super(2, 1, {
+      id: MoveSecondarySideBarToPanelAction.ID,
+      title: localize2("moveSidePanelToPanel", "Move Secondary Side Bar Views To Panel"),
+      category: Categories.View,
+      f1: true
+    });
+  }
+}
+registerAction2(MoveSidePanelToPanelAction);
+registerAction2(MoveSecondarySideBarToPanelAction);
+export {
+  MovePanelToSecondarySideBarAction,
+  MoveSecondarySideBarToPanelAction,
+  TogglePanelAction,
+  closeIcon
+};
+//# sourceMappingURL=panelActions.js.map

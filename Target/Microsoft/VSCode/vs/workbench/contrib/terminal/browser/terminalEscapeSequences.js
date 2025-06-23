@@ -1,1 +1,55 @@
-var m;(function(r){r[r.FinalTerm=133]="FinalTerm",r[r.VSCode=633]="VSCode",r[r.ITerm=1337]="ITerm"})(m||(m={}));var i;(function(r){r.PromptStart="A",r.CommandStart="B",r.CommandExecuted="C",r.CommandFinished="D",r.CommandLine="E",r.ContinuationStart="F",r.ContinuationEnd="G",r.RightPromptStart="H",r.RightPromptEnd="I",r.Property="P"})(i||(i={}));var o;(function(r){r.Task="Task",r.Cwd="Cwd"})(o||(o={}));var a;(function(r){r.SetMark="SetMark"})(a||(a={}));function p(r,n){return e(633,r,n)}function f(r,n){return e(1337,r,n)}function e(r,n,u){let t=`\x1B]${r};${n}`;return u&&(t+=`;${u}`),t+="\x07",t}export{p as $juc,f as $kuc,a as ITermOscPt,o as VSCodeOscProperty,i as VSCodeOscPt};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var ShellIntegrationOscPs;
+(function(ShellIntegrationOscPs2) {
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["FinalTerm"] = 133] = "FinalTerm";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["VSCode"] = 633] = "VSCode";
+  ShellIntegrationOscPs2[ShellIntegrationOscPs2["ITerm"] = 1337] = "ITerm";
+})(ShellIntegrationOscPs || (ShellIntegrationOscPs = {}));
+var VSCodeOscPt;
+(function(VSCodeOscPt2) {
+  VSCodeOscPt2["PromptStart"] = "A";
+  VSCodeOscPt2["CommandStart"] = "B";
+  VSCodeOscPt2["CommandExecuted"] = "C";
+  VSCodeOscPt2["CommandFinished"] = "D";
+  VSCodeOscPt2["CommandLine"] = "E";
+  VSCodeOscPt2["ContinuationStart"] = "F";
+  VSCodeOscPt2["ContinuationEnd"] = "G";
+  VSCodeOscPt2["RightPromptStart"] = "H";
+  VSCodeOscPt2["RightPromptEnd"] = "I";
+  VSCodeOscPt2["Property"] = "P";
+})(VSCodeOscPt || (VSCodeOscPt = {}));
+var VSCodeOscProperty;
+(function(VSCodeOscProperty2) {
+  VSCodeOscProperty2["Task"] = "Task";
+  VSCodeOscProperty2["Cwd"] = "Cwd";
+})(VSCodeOscProperty || (VSCodeOscProperty = {}));
+var ITermOscPt;
+(function(ITermOscPt2) {
+  ITermOscPt2["SetMark"] = "SetMark";
+})(ITermOscPt || (ITermOscPt = {}));
+function VSCodeSequence(osc, data) {
+  return oscSequence(633, osc, data);
+}
+__name(VSCodeSequence, "VSCodeSequence");
+function ITermSequence(osc, data) {
+  return oscSequence(1337, osc, data);
+}
+__name(ITermSequence, "ITermSequence");
+function oscSequence(ps, pt, data) {
+  let result = `\x1B]${ps};${pt}`;
+  if (data) {
+    result += `;${data}`;
+  }
+  result += `\x07`;
+  return result;
+}
+__name(oscSequence, "oscSequence");
+export {
+  ITermOscPt,
+  ITermSequence,
+  VSCodeOscProperty,
+  VSCodeOscPt,
+  VSCodeSequence
+};
+//# sourceMappingURL=terminalEscapeSequences.js.map

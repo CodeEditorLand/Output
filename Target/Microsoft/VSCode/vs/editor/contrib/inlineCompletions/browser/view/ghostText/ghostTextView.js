@@ -1,1 +1,543 @@
-import{$98 as X}from"../../../../../../base/browser/trustedTypes.js";import{$F8 as J}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Mj as Q}from"../../../../../../base/common/codicons.js";import{$df as Z,Event as K}from"../../../../../../base/common/event.js";import{$W0 as Y}from"../../../../../../base/common/hotReloadHelpers.js";import{$vd as A,$ud as tt,$wd as et,$td as it}from"../../../../../../base/common/lifecycle.js";import{autorun as nt,autorunWithStore as st,constObservable as ot,derived as p,observableSignalFromEvent as rt,observableValue as G}from"../../../../../../base/common/observable.js";import*as E from"../../../../../../base/common/strings.js";import{$e_ as at}from"../../../../../browser/config/domFontInfo.js";import{$reb as z}from"../../../../../browser/observableCodeEditor.js";import{EditorFontLigatures as ht}from"../../../../../common/config/editorOptions.js";import{$1L as dt,$2L as lt}from"../../../../../common/core/edits/stringEdit.js";import{$bC as R}from"../../../../../common/core/position.js";import{$cC as H}from"../../../../../common/core/range.js";import{$VC as ct}from"../../../../../common/core/stringBuilder.js";import{$BD as ft}from"../../../../../common/languages/language.js";import{InjectedTextCursorStops as gt}from"../../../../../common/model.js";import{$dD as ut}from"../../../../../common/tokens/lineTokens.js";import{$Bbb as I}from"../../../../../common/viewLayout/lineDecorations.js";import{$Ebb as mt,$Ibb as pt}from"../../../../../common/viewLayout/viewLineRenderer.js";import{$rkb as wt}from"../../model/ghostText.js";import{$gpb as bt}from"../../../../../common/core/ranges/rangeSingleLine.js";import{$okb as y}from"../../../../../common/core/ranges/columnRange.js";import{$J5 as B,getWindow as xt,$t6 as Ct,n as O}from"../../../../../../base/browser/dom.js";import"./ghostTextView.css";import{$B5 as vt}from"../../../../../../base/browser/mouseEvent.js";import{$Zdb as Tt}from"../../../../../browser/widget/codeEditor/codeEditorWidget.js";import{$hpb as W}from"../../../../../common/tokens/tokenWithTextArray.js";var U=function(f,i,r,o){var c=arguments.length,n=c<3?i:o===null?o=Object.getOwnPropertyDescriptor(i,r):o,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(f,i,r,o);else for(var t=f.length-1;t>=0;t--)(d=f[t])&&(n=(c<3?d(n):c>3?d(i,r,n):d(i,r))||n);return c>3&&n&&Object.defineProperty(i,r,n),n},q=function(f,i){return function(r,o){i(r,o,f)}},k;const _=!0,V="ghost-text";let j=class extends A{static{k=this}static{this.hot=Y(k)}constructor(i,r,o,c,n,d){super(),this.j=i,this.m=r,this.r=o,this.s=c,this.u=n,this.w=d,this.b=G(this,!1),this.f=z(this.j),this.g=p(t=>{const e=this.m.ghostText.read(t);if(!e)return;const s=this.m.warning.read(t);if(s)return{lineNumber:e.lineNumber,position:new R(e.lineNumber,e.parts[0].column),icon:s.icon}}),this.h=this.B(new Z),this.onDidClick=this.h.event,this.y=this.r.map(t=>t.syntaxHighlightingEnabled),this.z=p(this,t=>{const e=[...this.r.read(t).extraClasses??[]];return this.y.read(t)&&e.push("syntax-highlighted"),_&&this.g.read(t)&&e.push("warning"),e.map(h=>` ${h}`).join("")}),this.C=p(this,t=>{if(this.b.read(t))return;const e=this.f.model.read(t);if(e!==this.m.targetTextModel.read(t))return;const s=this.m.ghostText.read(t);if(!s)return;const h=s instanceof wt?s.columnRange:void 0,a=this.y.read(t),g=this.z.read(t),{inlineTexts:l,additionalLines:w,hiddenRange:L,additionalLinesOriginalSuffix:m}=Lt(s,e,V+g),$=e.getLineContent(s.lineNumber),b=new dt(l.map(u=>lt.insert(u.column-1,u.text))),x=a?e.tokenization.tokenizeLinesAt(s.lineNumber,[b.apply($),...w.map(u=>u.content)]):void 0,C=b.getNewRanges(),N=l.map((u,v)=>({...u,tokens:x?.[0]?.getTokensInRange(C[v])})),S=w.map((u,v)=>{let T=x?.[v+1]??ut.createEmpty(u.content,this.w.languageIdCodec);if(v===w.length-1&&m){const P=W.fromLineTokens(e.tokenization.getLineTokens(m.lineNumber)).slice(m.columnRange.toZeroBasedOffsetRange());T=W.fromLineTokens(T).append(P).toLineTokens(T.languageIdCodec)}return{content:T,decorations:u.decorations}});return{replacedRange:h,inlineTexts:N,additionalLines:S,hiddenRange:L,lineNumber:s.lineNumber,additionalReservedLineCount:this.m.minReservedLineCount.read(t),targetTextModel:e,syntaxHighlightingEnabled:a}}),this.D=p(this,t=>{const e=this.C.read(t);if(!e)return[];const s=[],h=this.z.read(t);e.replacedRange&&s.push({range:e.replacedRange.toRange(e.lineNumber),options:{inlineClassName:"inline-completion-text-to-replace"+h,description:"GhostTextReplacement"}}),e.hiddenRange&&s.push({range:e.hiddenRange.toRange(e.lineNumber),options:{inlineClassName:"ghost-text-hidden",description:"ghost-text-hidden"}});for(const a of e.inlineTexts)s.push({range:H.fromPositions(new R(e.lineNumber,a.column)),options:{description:"ghost-text-decoration",after:{content:a.text,tokens:a.tokens,inlineClassName:(a.preview?"ghost-text-decoration-preview":"ghost-text-decoration")+(this.u?" clickable":"")+h+a.lineDecorations.map(g=>" "+g.className).join(" "),cursorStops:gt.Left,attachedData:new D(this)},showIfCollapsed:!0}});return s}),this.F=this.B(new $t(this.j,p(t=>{const e=this.C.read(t);return e?{lineNumber:e.lineNumber,additionalLines:e.additionalLines,minReservedLineCount:e.additionalReservedLineCount,targetTextModel:e.targetTextModel}:void 0}),this.s,this.u)),this.G=this.f.isTargetHovered(t=>t.target.type===6&&t.target.detail.injectedText?.options.attachedData instanceof D&&t.target.detail.injectedText.options.attachedData.owner===this,this.q),this.isHovered=p(this,t=>this.b.read(t)?!1:this.G.read(t)||this.F.isHovered.read(t)),this.height=p(this,t=>this.f.getOption(71).read(t)+(this.F.viewZoneHeight.read(t)??0)),this.B(it(()=>{this.b.set(!0,void 0)})),this.B(this.f.setDecorations(this.D)),this.u&&(this.B(this.F.onDidClick(t=>this.h.fire(t))),this.B(this.j.onMouseUp(t=>{if(t.target.type!==6)return;const e=t.target.detail.injectedText?.options.attachedData;e instanceof D&&e.owner===this&&this.h.fire(t.event)}))),this.B(st((t,e)=>{if(_)return;const s=this.g.read(t);if(!s)return;const h=this.f.getOption(71);e.add(this.f.createContentWidget({position:ot({position:new R(s.lineNumber,Number.MAX_SAFE_INTEGER),preference:[0],positionAffinity:1}),allowEditorOverflow:!1,domNode:O.div({class:"ghost-text-view-warning-widget",style:{width:h,height:h,marginLeft:4,color:"orange"},ref:a=>{a.ghostTextViewWarningWidgetData={range:H.fromPositions(s.position)}}},[O.div({class:"ghost-text-view-warning-widget-icon",style:{width:"100%",height:"100%",display:"flex",alignContent:"center",alignItems:"center"}},[J(s.icon&&"id"in s.icon?s.icon:Q.warning)])]).keepUpdated(e).element}))}))}static getWarningWidgetContext(i){const r=i.ghostTextViewWarningWidgetData;if(r)return r;if(i.parentElement)return this.getWarningWidgetContext(i.parentElement)}ownsViewZone(i){return this.F.viewZoneId===i}};j=k=U([q(5,ft)],j);class D{constructor(i){this.owner=i}}function Lt(f,i,r){const o=[],c=[];function n(a,g){if(c.length>0){const l=c[c.length-1];g&&l.decorations.push(new I(l.content.length+1,l.content.length+1+a[0].line.length,g,0)),l.content+=a[0].line,a=a.slice(1)}for(const l of a)c.push({content:l.line,decorations:g?[new I(1,l.line.length+1,g,0),...l.lineDecorations]:[...l.lineDecorations]})}const d=i.getLineContent(f.lineNumber);let t,e=0;for(const a of f.parts){let g=a.lines;t===void 0?(o.push({column:a.column,text:g[0].line,preview:a.preview,lineDecorations:g[0].lineDecorations}),g=g.slice(1)):n([{line:d.substring(e,a.column-1),lineDecorations:[]}],void 0),g.length>0&&(n(g,r),t===void 0&&a.column<=d.length&&(t=a.column)),e=a.column-1}let s;t!==void 0&&(s=new bt(f.lineNumber,new y(e+1,d.length+1)));const h=t!==void 0?new y(t,d.length+1):void 0;return{inlineTexts:o,additionalLines:c,hiddenRange:h,additionalLinesOriginalSuffix:s}}class $t extends A{get viewZoneId(){return this.b?.viewZoneId}get viewZoneHeight(){return this.f}constructor(i,r,o,c){super(),this.r=i,this.s=r,this.u=o,this.w=c,this.f=G("viewZoneHeight",void 0),this.g=rt("editorOptionChanged",K.filter(this.r.onDidChangeConfiguration,n=>n.hasChanged(36)||n.hasChanged(125)||n.hasChanged(107)||n.hasChanged(102)||n.hasChanged(56)||n.hasChanged(55)||n.hasChanged(71))),this.h=this.B(new Z),this.onDidClick=this.h.event,this.j=this.B(new et),this.isHovered=z(this.r).isTargetHovered(n=>M(n.target.element),this.q),this.m=!1,this.r instanceof Tt&&this.u&&this.B(this.r.onBeforeExecuteEdit(n=>this.m=n.source==="inlineSuggestion.accept")),this.B(nt(n=>{const d=this.s.read(n);this.g.read(n),d?(this.m=!1,this.z(d.lineNumber,d.additionalLines,d.minReservedLineCount)):this.y()}))}dispose(){super.dispose(),this.y()}y(){this.j.clear(),this.r.changeViewZones(i=>{this.D(i)})}z(i,r,o){const c=this.r.getModel();if(!c)return;const{tabSize:n}=c.getOptions();this.r.changeViewZones(d=>{const t=new tt;this.D(d);const e=Math.max(r.length,o);if(e>0){const s=document.createElement("div");Nt(s,n,r,this.r.getOptions(),this.w),this.w&&(t.add(B(s,"mousedown",h=>{h.preventDefault()})),t.add(B(s,"click",h=>{M(h.target)&&this.h.fire(new vt(xt(h),h))}))),this.C(d,i,e,s)}this.j.value=t})}C(i,r,o,c){const n=i.addZone({afterLineNumber:r,heightInLines:o,domNode:c,afterColumnAffinity:1,onComputedHeight:d=>{this.f.set(d,void 0)}});this.F(r,o),this.b={viewZoneId:n,heightInLines:o,lineNumber:r}}D(i){this.b&&(i.removeZone(this.b.viewZoneId),this.m||this.F(this.b.lineNumber,-this.b.heightInLines),this.b=void 0,this.f.set(void 0,void 0))}F(i,r){if(!this.u)return;const o=this.r.getSelection()?.getStartPosition()?.lineNumber;o!==void 0&&i<o&&this.r.setScrollTop(this.r.getScrollTop()+r*this.r.getOption(71))}}function M(f){return Ct(f)&&f.classList.contains(V)}function Nt(f,i,r,o,c){const n=o.get(36),d=o.get(125),t="none",e=o.get(102),s=o.get(56),h=o.get(55),a=o.get(71);let g="suggest-preview-text";c&&(g+=" clickable");const l=new ct(1e4);l.appendString(`<div class="${g}">`);for(let m=0,$=r.length;m<$;m++){const b=r[m],x=b.content;l.appendString('<div class="view-line'),l.appendString('" style="top:'),l.appendString(String(m*a)),l.appendString('px;width:1000000px;">');const C=x.getLineContent(),N=E.$hg(C),S=E.$gg(C);pt(new mt(h.isMonospace&&!n,h.canUseHalfwidthRightwardsArrow,C,!1,N,S,0,x,b.decorations,i,0,h.spaceWidth,h.middotWidth,h.wsmiddotWidth,d,t,e,s!==ht.OFF,null),l),l.appendString("</div>")}l.appendString("</div>"),at(f,h);const w=l.build(),L=F?F.createHTML(w):w;f.innerHTML=L}const F=X("editorGhostText",{createHTML:f=>f});export{j as $kpb,$t as $lpb,F as $mpb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createTrustedTypesPolicy } from "../../../../../../base/browser/trustedTypes.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { createHotClass } from "../../../../../../base/common/hotReloadHelpers.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, constObservable, derived, observableSignalFromEvent, observableValue } from "../../../../../../base/common/observable.js";
+import * as strings from "../../../../../../base/common/strings.js";
+import { applyFontInfo } from "../../../../../browser/config/domFontInfo.js";
+import { observableCodeEditor } from "../../../../../browser/observableCodeEditor.js";
+import { EditorFontLigatures } from "../../../../../common/config/editorOptions.js";
+import { StringEdit, StringReplacement } from "../../../../../common/core/edits/stringEdit.js";
+import { Position } from "../../../../../common/core/position.js";
+import { Range } from "../../../../../common/core/range.js";
+import { StringBuilder } from "../../../../../common/core/stringBuilder.js";
+import { ILanguageService } from "../../../../../common/languages/language.js";
+import { InjectedTextCursorStops } from "../../../../../common/model.js";
+import { LineTokens } from "../../../../../common/tokens/lineTokens.js";
+import { LineDecoration } from "../../../../../common/viewLayout/lineDecorations.js";
+import { RenderLineInput, renderViewLine } from "../../../../../common/viewLayout/viewLineRenderer.js";
+import { GhostTextReplacement } from "../../model/ghostText.js";
+import { RangeSingleLine } from "../../../../../common/core/ranges/rangeSingleLine.js";
+import { ColumnRange } from "../../../../../common/core/ranges/columnRange.js";
+import { addDisposableListener, getWindow, isHTMLElement, n } from "../../../../../../base/browser/dom.js";
+import "./ghostTextView.css";
+import { StandardMouseEvent } from "../../../../../../base/browser/mouseEvent.js";
+import { CodeEditorWidget } from "../../../../../browser/widget/codeEditor/codeEditorWidget.js";
+import { TokenWithTextArray } from "../../../../../common/tokens/tokenWithTextArray.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var GhostTextView_1;
+const USE_SQUIGGLES_FOR_WARNING = true;
+const GHOST_TEXT_CLASS_NAME = "ghost-text";
+let GhostTextView = class GhostTextView2 extends Disposable {
+  static {
+    __name(this, "GhostTextView");
+  }
+  static {
+    GhostTextView_1 = this;
+  }
+  static {
+    this.hot = createHotClass(GhostTextView_1);
+  }
+  constructor(_editor, _model, _options, _shouldKeepCursorStable, _isClickable, _languageService) {
+    super();
+    this._editor = _editor;
+    this._model = _model;
+    this._options = _options;
+    this._shouldKeepCursorStable = _shouldKeepCursorStable;
+    this._isClickable = _isClickable;
+    this._languageService = _languageService;
+    this._isDisposed = observableValue(this, false);
+    this._editorObs = observableCodeEditor(this._editor);
+    this._warningState = derived((reader) => {
+      const gt = this._model.ghostText.read(reader);
+      if (!gt) {
+        return void 0;
+      }
+      const warning = this._model.warning.read(reader);
+      if (!warning) {
+        return void 0;
+      }
+      return { lineNumber: gt.lineNumber, position: new Position(gt.lineNumber, gt.parts[0].column), icon: warning.icon };
+    });
+    this._onDidClick = this._register(new Emitter());
+    this.onDidClick = this._onDidClick.event;
+    this._useSyntaxHighlighting = this._options.map((o) => o.syntaxHighlightingEnabled);
+    this._extraClassNames = derived(this, (reader) => {
+      const extraClasses = [...this._options.read(reader).extraClasses ?? []];
+      if (this._useSyntaxHighlighting.read(reader)) {
+        extraClasses.push("syntax-highlighted");
+      }
+      if (USE_SQUIGGLES_FOR_WARNING && this._warningState.read(reader)) {
+        extraClasses.push("warning");
+      }
+      const extraClassNames = extraClasses.map((c) => ` ${c}`).join("");
+      return extraClassNames;
+    });
+    this.uiState = derived(this, (reader) => {
+      if (this._isDisposed.read(reader)) {
+        return void 0;
+      }
+      const textModel = this._editorObs.model.read(reader);
+      if (textModel !== this._model.targetTextModel.read(reader)) {
+        return void 0;
+      }
+      const ghostText = this._model.ghostText.read(reader);
+      if (!ghostText) {
+        return void 0;
+      }
+      const replacedRange = ghostText instanceof GhostTextReplacement ? ghostText.columnRange : void 0;
+      const syntaxHighlightingEnabled = this._useSyntaxHighlighting.read(reader);
+      const extraClassNames = this._extraClassNames.read(reader);
+      const { inlineTexts, additionalLines, hiddenRange, additionalLinesOriginalSuffix } = computeGhostTextViewData(ghostText, textModel, GHOST_TEXT_CLASS_NAME + extraClassNames);
+      const currentLine = textModel.getLineContent(ghostText.lineNumber);
+      const edit = new StringEdit(inlineTexts.map((t) => StringReplacement.insert(t.column - 1, t.text)));
+      const tokens = syntaxHighlightingEnabled ? textModel.tokenization.tokenizeLinesAt(ghostText.lineNumber, [edit.apply(currentLine), ...additionalLines.map((l) => l.content)]) : void 0;
+      const newRanges = edit.getNewRanges();
+      const inlineTextsWithTokens = inlineTexts.map((t, idx) => ({ ...t, tokens: tokens?.[0]?.getTokensInRange(newRanges[idx]) }));
+      const tokenizedAdditionalLines = additionalLines.map((l, idx) => {
+        let content = tokens?.[idx + 1] ?? LineTokens.createEmpty(l.content, this._languageService.languageIdCodec);
+        if (idx === additionalLines.length - 1 && additionalLinesOriginalSuffix) {
+          const t = TokenWithTextArray.fromLineTokens(textModel.tokenization.getLineTokens(additionalLinesOriginalSuffix.lineNumber));
+          const existingContent = t.slice(additionalLinesOriginalSuffix.columnRange.toZeroBasedOffsetRange());
+          content = TokenWithTextArray.fromLineTokens(content).append(existingContent).toLineTokens(content.languageIdCodec);
+        }
+        return {
+          content,
+          decorations: l.decorations
+        };
+      });
+      return {
+        replacedRange,
+        inlineTexts: inlineTextsWithTokens,
+        additionalLines: tokenizedAdditionalLines,
+        hiddenRange,
+        lineNumber: ghostText.lineNumber,
+        additionalReservedLineCount: this._model.minReservedLineCount.read(reader),
+        targetTextModel: textModel,
+        syntaxHighlightingEnabled
+      };
+    });
+    this.decorations = derived(this, (reader) => {
+      const uiState = this.uiState.read(reader);
+      if (!uiState) {
+        return [];
+      }
+      const decorations = [];
+      const extraClassNames = this._extraClassNames.read(reader);
+      if (uiState.replacedRange) {
+        decorations.push({
+          range: uiState.replacedRange.toRange(uiState.lineNumber),
+          options: { inlineClassName: "inline-completion-text-to-replace" + extraClassNames, description: "GhostTextReplacement" }
+        });
+      }
+      if (uiState.hiddenRange) {
+        decorations.push({
+          range: uiState.hiddenRange.toRange(uiState.lineNumber),
+          options: { inlineClassName: "ghost-text-hidden", description: "ghost-text-hidden" }
+        });
+      }
+      for (const p of uiState.inlineTexts) {
+        decorations.push({
+          range: Range.fromPositions(new Position(uiState.lineNumber, p.column)),
+          options: {
+            description: "ghost-text-decoration",
+            after: {
+              content: p.text,
+              tokens: p.tokens,
+              inlineClassName: (p.preview ? "ghost-text-decoration-preview" : "ghost-text-decoration") + (this._isClickable ? " clickable" : "") + extraClassNames + p.lineDecorations.map((d) => " " + d.className).join(" "),
+              // TODO: take the ranges into account for line decorations
+              cursorStops: InjectedTextCursorStops.Left,
+              attachedData: new GhostTextAttachedData(this)
+            },
+            showIfCollapsed: true
+          }
+        });
+      }
+      return decorations;
+    });
+    this._additionalLinesWidget = this._register(new AdditionalLinesWidget(this._editor, derived((reader) => {
+      const uiState = this.uiState.read(reader);
+      return uiState ? {
+        lineNumber: uiState.lineNumber,
+        additionalLines: uiState.additionalLines,
+        minReservedLineCount: uiState.additionalReservedLineCount,
+        targetTextModel: uiState.targetTextModel
+      } : void 0;
+    }), this._shouldKeepCursorStable, this._isClickable));
+    this._isInlineTextHovered = this._editorObs.isTargetHovered((p) => p.target.type === 6 && p.target.detail.injectedText?.options.attachedData instanceof GhostTextAttachedData && p.target.detail.injectedText.options.attachedData.owner === this, this._store);
+    this.isHovered = derived(this, (reader) => {
+      if (this._isDisposed.read(reader)) {
+        return false;
+      }
+      return this._isInlineTextHovered.read(reader) || this._additionalLinesWidget.isHovered.read(reader);
+    });
+    this.height = derived(this, (reader) => {
+      const lineHeight = this._editorObs.getOption(
+        71
+        /* EditorOption.lineHeight */
+      ).read(reader);
+      return lineHeight + (this._additionalLinesWidget.viewZoneHeight.read(reader) ?? 0);
+    });
+    this._register(toDisposable(() => {
+      this._isDisposed.set(true, void 0);
+    }));
+    this._register(this._editorObs.setDecorations(this.decorations));
+    if (this._isClickable) {
+      this._register(this._additionalLinesWidget.onDidClick((e) => this._onDidClick.fire(e)));
+      this._register(this._editor.onMouseUp((e) => {
+        if (e.target.type !== 6) {
+          return;
+        }
+        const a = e.target.detail.injectedText?.options.attachedData;
+        if (a instanceof GhostTextAttachedData && a.owner === this) {
+          this._onDidClick.fire(e.event);
+        }
+      }));
+    }
+    this._register(autorunWithStore((reader, store) => {
+      if (USE_SQUIGGLES_FOR_WARNING) {
+        return;
+      }
+      const state = this._warningState.read(reader);
+      if (!state) {
+        return;
+      }
+      const lineHeight = this._editorObs.getOption(
+        71
+        /* EditorOption.lineHeight */
+      );
+      store.add(this._editorObs.createContentWidget({
+        position: constObservable({
+          position: new Position(state.lineNumber, Number.MAX_SAFE_INTEGER),
+          preference: [
+            0
+            /* ContentWidgetPositionPreference.EXACT */
+          ],
+          positionAffinity: 1
+        }),
+        allowEditorOverflow: false,
+        domNode: n.div({
+          class: "ghost-text-view-warning-widget",
+          style: {
+            width: lineHeight,
+            height: lineHeight,
+            marginLeft: 4,
+            color: "orange"
+          },
+          ref: /* @__PURE__ */ __name((dom) => {
+            dom.ghostTextViewWarningWidgetData = { range: Range.fromPositions(state.position) };
+          }, "ref")
+        }, [
+          n.div({
+            class: "ghost-text-view-warning-widget-icon",
+            style: {
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignContent: "center",
+              alignItems: "center"
+            }
+          }, [
+            renderIcon(state.icon && "id" in state.icon ? state.icon : Codicon.warning)
+          ])
+        ]).keepUpdated(store).element
+      }));
+    }));
+  }
+  static getWarningWidgetContext(domNode) {
+    const data = domNode.ghostTextViewWarningWidgetData;
+    if (data) {
+      return data;
+    } else if (domNode.parentElement) {
+      return this.getWarningWidgetContext(domNode.parentElement);
+    }
+    return void 0;
+  }
+  ownsViewZone(viewZoneId) {
+    return this._additionalLinesWidget.viewZoneId === viewZoneId;
+  }
+};
+GhostTextView = GhostTextView_1 = __decorate([
+  __param(5, ILanguageService)
+], GhostTextView);
+class GhostTextAttachedData {
+  static {
+    __name(this, "GhostTextAttachedData");
+  }
+  constructor(owner) {
+    this.owner = owner;
+  }
+}
+function computeGhostTextViewData(ghostText, textModel, ghostTextClassName) {
+  const inlineTexts = [];
+  const additionalLines = [];
+  function addToAdditionalLines(ghLines, className) {
+    if (additionalLines.length > 0) {
+      const lastLine = additionalLines[additionalLines.length - 1];
+      if (className) {
+        lastLine.decorations.push(new LineDecoration(
+          lastLine.content.length + 1,
+          lastLine.content.length + 1 + ghLines[0].line.length,
+          className,
+          0
+          /* InlineDecorationType.Regular */
+        ));
+      }
+      lastLine.content += ghLines[0].line;
+      ghLines = ghLines.slice(1);
+    }
+    for (const ghLine of ghLines) {
+      additionalLines.push({
+        content: ghLine.line,
+        decorations: className ? [new LineDecoration(
+          1,
+          ghLine.line.length + 1,
+          className,
+          0
+          /* InlineDecorationType.Regular */
+        ), ...ghLine.lineDecorations] : [...ghLine.lineDecorations]
+      });
+    }
+  }
+  __name(addToAdditionalLines, "addToAdditionalLines");
+  const textBufferLine = textModel.getLineContent(ghostText.lineNumber);
+  let hiddenTextStartColumn = void 0;
+  let lastIdx = 0;
+  for (const part of ghostText.parts) {
+    let ghLines = part.lines;
+    if (hiddenTextStartColumn === void 0) {
+      inlineTexts.push({ column: part.column, text: ghLines[0].line, preview: part.preview, lineDecorations: ghLines[0].lineDecorations });
+      ghLines = ghLines.slice(1);
+    } else {
+      addToAdditionalLines([{ line: textBufferLine.substring(lastIdx, part.column - 1), lineDecorations: [] }], void 0);
+    }
+    if (ghLines.length > 0) {
+      addToAdditionalLines(ghLines, ghostTextClassName);
+      if (hiddenTextStartColumn === void 0 && part.column <= textBufferLine.length) {
+        hiddenTextStartColumn = part.column;
+      }
+    }
+    lastIdx = part.column - 1;
+  }
+  let additionalLinesOriginalSuffix = void 0;
+  if (hiddenTextStartColumn !== void 0) {
+    additionalLinesOriginalSuffix = new RangeSingleLine(ghostText.lineNumber, new ColumnRange(lastIdx + 1, textBufferLine.length + 1));
+  }
+  const hiddenRange = hiddenTextStartColumn !== void 0 ? new ColumnRange(hiddenTextStartColumn, textBufferLine.length + 1) : void 0;
+  return {
+    inlineTexts,
+    additionalLines,
+    hiddenRange,
+    additionalLinesOriginalSuffix
+  };
+}
+__name(computeGhostTextViewData, "computeGhostTextViewData");
+class AdditionalLinesWidget extends Disposable {
+  static {
+    __name(this, "AdditionalLinesWidget");
+  }
+  get viewZoneId() {
+    return this._viewZoneInfo?.viewZoneId;
+  }
+  get viewZoneHeight() {
+    return this._viewZoneHeight;
+  }
+  constructor(_editor, _lines, _shouldKeepCursorStable, _isClickable) {
+    super();
+    this._editor = _editor;
+    this._lines = _lines;
+    this._shouldKeepCursorStable = _shouldKeepCursorStable;
+    this._isClickable = _isClickable;
+    this._viewZoneHeight = observableValue("viewZoneHeight", void 0);
+    this.editorOptionsChanged = observableSignalFromEvent("editorOptionChanged", Event.filter(this._editor.onDidChangeConfiguration, (e) => e.hasChanged(
+      36
+      /* EditorOption.disableMonospaceOptimizations */
+    ) || e.hasChanged(
+      125
+      /* EditorOption.stopRenderingLineAfter */
+    ) || e.hasChanged(
+      107
+      /* EditorOption.renderWhitespace */
+    ) || e.hasChanged(
+      102
+      /* EditorOption.renderControlCharacters */
+    ) || e.hasChanged(
+      56
+      /* EditorOption.fontLigatures */
+    ) || e.hasChanged(
+      55
+      /* EditorOption.fontInfo */
+    ) || e.hasChanged(
+      71
+      /* EditorOption.lineHeight */
+    )));
+    this._onDidClick = this._register(new Emitter());
+    this.onDidClick = this._onDidClick.event;
+    this._viewZoneListener = this._register(new MutableDisposable());
+    this.isHovered = observableCodeEditor(this._editor).isTargetHovered((p) => isTargetGhostText(p.target.element), this._store);
+    this.hasBeenAccepted = false;
+    if (this._editor instanceof CodeEditorWidget && this._shouldKeepCursorStable) {
+      this._register(this._editor.onBeforeExecuteEdit((e) => this.hasBeenAccepted = e.source === "inlineSuggestion.accept"));
+    }
+    this._register(autorun((reader) => {
+      const lines = this._lines.read(reader);
+      this.editorOptionsChanged.read(reader);
+      if (lines) {
+        this.hasBeenAccepted = false;
+        this.updateLines(lines.lineNumber, lines.additionalLines, lines.minReservedLineCount);
+      } else {
+        this.clear();
+      }
+    }));
+  }
+  dispose() {
+    super.dispose();
+    this.clear();
+  }
+  clear() {
+    this._viewZoneListener.clear();
+    this._editor.changeViewZones((changeAccessor) => {
+      this.removeActiveViewZone(changeAccessor);
+    });
+  }
+  updateLines(lineNumber, additionalLines, minReservedLineCount) {
+    const textModel = this._editor.getModel();
+    if (!textModel) {
+      return;
+    }
+    const { tabSize } = textModel.getOptions();
+    this._editor.changeViewZones((changeAccessor) => {
+      const store = new DisposableStore();
+      this.removeActiveViewZone(changeAccessor);
+      const heightInLines = Math.max(additionalLines.length, minReservedLineCount);
+      if (heightInLines > 0) {
+        const domNode = document.createElement("div");
+        renderLines(domNode, tabSize, additionalLines, this._editor.getOptions(), this._isClickable);
+        if (this._isClickable) {
+          store.add(addDisposableListener(domNode, "mousedown", (e) => {
+            e.preventDefault();
+          }));
+          store.add(addDisposableListener(domNode, "click", (e) => {
+            if (isTargetGhostText(e.target)) {
+              this._onDidClick.fire(new StandardMouseEvent(getWindow(e), e));
+            }
+          }));
+        }
+        this.addViewZone(changeAccessor, lineNumber, heightInLines, domNode);
+      }
+      this._viewZoneListener.value = store;
+    });
+  }
+  addViewZone(changeAccessor, afterLineNumber, heightInLines, domNode) {
+    const id = changeAccessor.addZone({
+      afterLineNumber,
+      heightInLines,
+      domNode,
+      afterColumnAffinity: 1,
+      onComputedHeight: /* @__PURE__ */ __name((height) => {
+        this._viewZoneHeight.set(height, void 0);
+      }, "onComputedHeight")
+    });
+    this.keepCursorStable(afterLineNumber, heightInLines);
+    this._viewZoneInfo = { viewZoneId: id, heightInLines, lineNumber: afterLineNumber };
+  }
+  removeActiveViewZone(changeAccessor) {
+    if (this._viewZoneInfo) {
+      changeAccessor.removeZone(this._viewZoneInfo.viewZoneId);
+      if (!this.hasBeenAccepted) {
+        this.keepCursorStable(this._viewZoneInfo.lineNumber, -this._viewZoneInfo.heightInLines);
+      }
+      this._viewZoneInfo = void 0;
+      this._viewZoneHeight.set(void 0, void 0);
+    }
+  }
+  keepCursorStable(lineNumber, heightInLines) {
+    if (!this._shouldKeepCursorStable) {
+      return;
+    }
+    const cursorLineNumber = this._editor.getSelection()?.getStartPosition()?.lineNumber;
+    if (cursorLineNumber !== void 0 && lineNumber < cursorLineNumber) {
+      this._editor.setScrollTop(this._editor.getScrollTop() + heightInLines * this._editor.getOption(
+        71
+        /* EditorOption.lineHeight */
+      ));
+    }
+  }
+}
+function isTargetGhostText(target) {
+  return isHTMLElement(target) && target.classList.contains(GHOST_TEXT_CLASS_NAME);
+}
+__name(isTargetGhostText, "isTargetGhostText");
+function renderLines(domNode, tabSize, lines, opts, isClickable) {
+  const disableMonospaceOptimizations = opts.get(
+    36
+    /* EditorOption.disableMonospaceOptimizations */
+  );
+  const stopRenderingLineAfter = opts.get(
+    125
+    /* EditorOption.stopRenderingLineAfter */
+  );
+  const renderWhitespace = "none";
+  const renderControlCharacters = opts.get(
+    102
+    /* EditorOption.renderControlCharacters */
+  );
+  const fontLigatures = opts.get(
+    56
+    /* EditorOption.fontLigatures */
+  );
+  const fontInfo = opts.get(
+    55
+    /* EditorOption.fontInfo */
+  );
+  const lineHeight = opts.get(
+    71
+    /* EditorOption.lineHeight */
+  );
+  let classNames = "suggest-preview-text";
+  if (isClickable) {
+    classNames += " clickable";
+  }
+  const sb = new StringBuilder(1e4);
+  sb.appendString(`<div class="${classNames}">`);
+  for (let i = 0, len = lines.length; i < len; i++) {
+    const lineData = lines[i];
+    const lineTokens = lineData.content;
+    sb.appendString('<div class="view-line');
+    sb.appendString('" style="top:');
+    sb.appendString(String(i * lineHeight));
+    sb.appendString('px;width:1000000px;">');
+    const line = lineTokens.getLineContent();
+    const isBasicASCII = strings.isBasicASCII(line);
+    const containsRTL = strings.containsRTL(line);
+    renderViewLine(new RenderLineInput(fontInfo.isMonospace && !disableMonospaceOptimizations, fontInfo.canUseHalfwidthRightwardsArrow, line, false, isBasicASCII, containsRTL, 0, lineTokens, lineData.decorations, tabSize, 0, fontInfo.spaceWidth, fontInfo.middotWidth, fontInfo.wsmiddotWidth, stopRenderingLineAfter, renderWhitespace, renderControlCharacters, fontLigatures !== EditorFontLigatures.OFF, null), sb);
+    sb.appendString("</div>");
+  }
+  sb.appendString("</div>");
+  applyFontInfo(domNode, fontInfo);
+  const html = sb.build();
+  const trustedhtml = ttPolicy ? ttPolicy.createHTML(html) : html;
+  domNode.innerHTML = trustedhtml;
+}
+__name(renderLines, "renderLines");
+const ttPolicy = createTrustedTypesPolicy("editorGhostText", { createHTML: /* @__PURE__ */ __name((value) => value, "createHTML") });
+export {
+  AdditionalLinesWidget,
+  GhostTextView,
+  ttPolicy
+};
+//# sourceMappingURL=ghostTextView.js.map

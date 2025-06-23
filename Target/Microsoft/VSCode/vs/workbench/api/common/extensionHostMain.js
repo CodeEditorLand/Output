@@ -1,3 +1,172 @@
-import*as m from"../../../base/common/errors.js";import*as T from"../../../base/common/performance.js";import{URI as s}from"../../../base/common/uri.js";import{$oY as $}from"./extHost.protocol.js";import{$hAc as L}from"../../services/extensions/common/rpcProtocol.js";import{$Ty as H}from"../../../platform/extensions/common/extensions.js";import{$3n as h}from"../../../platform/log/common/log.js";import{$XB as F}from"../../../platform/instantiation/common/extensions.js";import{$lj as M}from"../../../platform/instantiation/common/serviceCollection.js";import{$y2 as B}from"./extHostInitDataService.js";import{$bB as j}from"../../../platform/instantiation/common/instantiationService.js";import{$i2 as I,$j2 as K}from"./extHostRpcService.js";import{$IKc as O,$JKc as A}from"./extHostUriTransformerService.js";import{$nLc as k,$lLc as C}from"./extHostExtensionService.js";import{$C2 as N}from"./extHostTelemetry.js";import{$dKc as W}from"./extHostApiDeprecationService.js";class R{static async installEarlyHandler(e){Error.stackTraceLimit=100;const t=e.get(h),o=e.get(I).getProxy($.MainThreadErrors);m.setUnexpectedErrorHandler(f=>{t.error(f);const a=m.$mb(f);o.$onUnexpectedError(a)})}static async installFullHandler(e){const t=e.get(h),i=e.get(I),o=e.get(k),f=e.get(N),a=e.get(W),l=i.getProxy($.MainThreadExtensionService),d=i.getProxy($.MainThreadErrors),b=await o.getExtensionRegistry(),y=await o.getExtensionPathIndex(),g=new WeakMap;function x(n,p){if(g.has(n))return g.get(n).stack;let r="",c,E;for(const U of p)r+=`
-	at ${U.toString()}`,E=U.getFileName(),!c&&E&&(c=y.findSubstr(s.file(E)));const S=`${n.name||"Error"}: ${n.message||""}${r}`;return g.set(n,{extensionIdentifier:c?.identifier,stack:S}),S}const u=Symbol("prepareStackTrace wrapped");let v=x;Object.defineProperty(Error,"prepareStackTrace",{configurable:!1,get(){return v},set(n){if(n===x||!n||n[u]){v=n||x;return}v=function(p,r){return x(p,r),n.call(Error,p,r)},Object.assign(v,{[u]:!0})}}),m.setUnexpectedErrorHandler(n=>{m.$rb.is(n)||t.error(n);const p=m.$mb(n);let r;if(n instanceof H?r=n.extension:r=g.get(n)?.extensionIdentifier,!!r)if(m.$rb.is(n)){const c=b.getExtensionDescription(r);c&&a.report(n.name,c,`${n.message}
- FROM: ${n.stack}`)}else{l.$onExtensionRuntimeError(r,p);const c=f.onExtensionError(r,n);t.trace("forwarded error to extension?",c,r)}}),m.$gb.addListener(n=>{d.$onUnexpectedError(n)})}}class w{constructor(e,t,i,o,f){this.a=i,this.b=new L(e,null,o),t=w.e(t,this.b);const a=new M(...F());a.set(B,{_serviceBrand:void 0,...t,messagePorts:f}),a.set(I,new K(this.b)),a.set(O,new A(o)),a.set(C,i);const l=new j(a,!0);l.invokeFunction(R.installEarlyHandler),this.d=l.invokeFunction(d=>d.get(h)),T.$T("code/extHost/didCreateServices"),this.a.pid?this.d.info(`Extension host with pid ${this.a.pid} started`):this.d.info("Extension host started"),this.d.trace("initData",t),this.c=l.invokeFunction(d=>d.get(k)),this.c.initialize(),l.invokeFunction(R.installFullHandler)}async asBrowserUri(e){const t=this.b.getProxy($.MainThreadExtensionService);return s.revive(await t.$asBrowserUri(e))}terminate(e){this.c.terminate(e)}static e(e,t){e.extensions.allExtensions.forEach(o=>{o.extensionLocation=s.revive(t.transformIncomingURIs(o.extensionLocation))}),e.environment.appRoot=s.revive(t.transformIncomingURIs(e.environment.appRoot));const i=e.environment.extensionDevelopmentLocationURI;return i&&(e.environment.extensionDevelopmentLocationURI=i.map(o=>s.revive(t.transformIncomingURIs(o)))),e.environment.extensionTestsLocationURI=s.revive(t.transformIncomingURIs(e.environment.extensionTestsLocationURI)),e.environment.globalStorageHome=s.revive(t.transformIncomingURIs(e.environment.globalStorageHome)),e.environment.workspaceStorageHome=s.revive(t.transformIncomingURIs(e.environment.workspaceStorageHome)),e.nlsBaseUrl=s.revive(t.transformIncomingURIs(e.nlsBaseUrl)),e.logsLocation=s.revive(t.transformIncomingURIs(e.logsLocation)),e.workspace=t.transformIncomingURIs(e.workspace),e}}export{R as $FMc,w as $GMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as errors from "../../../base/common/errors.js";
+import * as performance from "../../../base/common/performance.js";
+import { URI } from "../../../base/common/uri.js";
+import { MainContext } from "./extHost.protocol.js";
+import { RPCProtocol } from "../../services/extensions/common/rpcProtocol.js";
+import { ExtensionError } from "../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { getSingletonServiceDescriptors } from "../../../platform/instantiation/common/extensions.js";
+import { ServiceCollection } from "../../../platform/instantiation/common/serviceCollection.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { InstantiationService } from "../../../platform/instantiation/common/instantiationService.js";
+import { IExtHostRpcService, ExtHostRpcService } from "./extHostRpcService.js";
+import { IURITransformerService, URITransformerService } from "./extHostUriTransformerService.js";
+import { IExtHostExtensionService, IHostUtils } from "./extHostExtensionService.js";
+import { IExtHostTelemetry } from "./extHostTelemetry.js";
+import { IExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
+class ErrorHandler {
+  static {
+    __name(this, "ErrorHandler");
+  }
+  static async installEarlyHandler(accessor) {
+    Error.stackTraceLimit = 100;
+    const logService = accessor.get(ILogService);
+    const rpcService = accessor.get(IExtHostRpcService);
+    const mainThreadErrors = rpcService.getProxy(MainContext.MainThreadErrors);
+    errors.setUnexpectedErrorHandler((err) => {
+      logService.error(err);
+      const data = errors.transformErrorForSerialization(err);
+      mainThreadErrors.$onUnexpectedError(data);
+    });
+  }
+  static async installFullHandler(accessor) {
+    const logService = accessor.get(ILogService);
+    const rpcService = accessor.get(IExtHostRpcService);
+    const extensionService = accessor.get(IExtHostExtensionService);
+    const extensionTelemetry = accessor.get(IExtHostTelemetry);
+    const apiDeprecationService = accessor.get(IExtHostApiDeprecationService);
+    const mainThreadExtensions = rpcService.getProxy(MainContext.MainThreadExtensionService);
+    const mainThreadErrors = rpcService.getProxy(MainContext.MainThreadErrors);
+    const extensionsRegistry = await extensionService.getExtensionRegistry();
+    const extensionsMap = await extensionService.getExtensionPathIndex();
+    const extensionErrors = /* @__PURE__ */ new WeakMap();
+    function prepareStackTraceAndFindExtension(error, stackTrace) {
+      if (extensionErrors.has(error)) {
+        return extensionErrors.get(error).stack;
+      }
+      let stackTraceMessage = "";
+      let extension;
+      let fileName;
+      for (const call of stackTrace) {
+        stackTraceMessage += `
+	at ${call.toString()}`;
+        fileName = call.getFileName();
+        if (!extension && fileName) {
+          extension = extensionsMap.findSubstr(URI.file(fileName));
+        }
+      }
+      const result = `${error.name || "Error"}: ${error.message || ""}${stackTraceMessage}`;
+      extensionErrors.set(error, { extensionIdentifier: extension?.identifier, stack: result });
+      return result;
+    }
+    __name(prepareStackTraceAndFindExtension, "prepareStackTraceAndFindExtension");
+    const _wasWrapped = Symbol("prepareStackTrace wrapped");
+    let _prepareStackTrace = prepareStackTraceAndFindExtension;
+    Object.defineProperty(Error, "prepareStackTrace", {
+      configurable: false,
+      get() {
+        return _prepareStackTrace;
+      },
+      set(v) {
+        if (v === prepareStackTraceAndFindExtension || !v || v[_wasWrapped]) {
+          _prepareStackTrace = v || prepareStackTraceAndFindExtension;
+          return;
+        }
+        _prepareStackTrace = /* @__PURE__ */ __name(function(error, stackTrace) {
+          prepareStackTraceAndFindExtension(error, stackTrace);
+          return v.call(Error, error, stackTrace);
+        }, "_prepareStackTrace");
+        Object.assign(_prepareStackTrace, { [_wasWrapped]: true });
+      }
+    });
+    errors.setUnexpectedErrorHandler((err) => {
+      if (!errors.PendingMigrationError.is(err)) {
+        logService.error(err);
+      }
+      const errorData = errors.transformErrorForSerialization(err);
+      let extension;
+      if (err instanceof ExtensionError) {
+        extension = err.extension;
+      } else {
+        const stackData = extensionErrors.get(err);
+        extension = stackData?.extensionIdentifier;
+      }
+      if (!extension) {
+        return;
+      }
+      if (errors.PendingMigrationError.is(err)) {
+        const extensionDesc = extensionsRegistry.getExtensionDescription(extension);
+        if (extensionDesc) {
+          apiDeprecationService.report(err.name, extensionDesc, `${err.message}
+ FROM: ${err.stack}`);
+        }
+      } else {
+        mainThreadExtensions.$onExtensionRuntimeError(extension, errorData);
+        const reported = extensionTelemetry.onExtensionError(extension, err);
+        logService.trace("forwarded error to extension?", reported, extension);
+      }
+    });
+    errors.errorHandler.addListener((err) => {
+      mainThreadErrors.$onUnexpectedError(err);
+    });
+  }
+}
+class ExtensionHostMain {
+  static {
+    __name(this, "ExtensionHostMain");
+  }
+  constructor(protocol, initData, hostUtils, uriTransformer, messagePorts) {
+    this._hostUtils = hostUtils;
+    this._rpcProtocol = new RPCProtocol(protocol, null, uriTransformer);
+    initData = ExtensionHostMain._transform(initData, this._rpcProtocol);
+    const services = new ServiceCollection(...getSingletonServiceDescriptors());
+    services.set(IExtHostInitDataService, { _serviceBrand: void 0, ...initData, messagePorts });
+    services.set(IExtHostRpcService, new ExtHostRpcService(this._rpcProtocol));
+    services.set(IURITransformerService, new URITransformerService(uriTransformer));
+    services.set(IHostUtils, hostUtils);
+    const instaService = new InstantiationService(services, true);
+    instaService.invokeFunction(ErrorHandler.installEarlyHandler);
+    this._logService = instaService.invokeFunction((accessor) => accessor.get(ILogService));
+    performance.mark(`code/extHost/didCreateServices`);
+    if (this._hostUtils.pid) {
+      this._logService.info(`Extension host with pid ${this._hostUtils.pid} started`);
+    } else {
+      this._logService.info(`Extension host started`);
+    }
+    this._logService.trace("initData", initData);
+    this._extensionService = instaService.invokeFunction((accessor) => accessor.get(IExtHostExtensionService));
+    this._extensionService.initialize();
+    instaService.invokeFunction(ErrorHandler.installFullHandler);
+  }
+  async asBrowserUri(uri) {
+    const mainThreadExtensionsProxy = this._rpcProtocol.getProxy(MainContext.MainThreadExtensionService);
+    return URI.revive(await mainThreadExtensionsProxy.$asBrowserUri(uri));
+  }
+  terminate(reason) {
+    this._extensionService.terminate(reason);
+  }
+  static _transform(initData, rpcProtocol) {
+    initData.extensions.allExtensions.forEach((ext) => {
+      ext.extensionLocation = URI.revive(rpcProtocol.transformIncomingURIs(ext.extensionLocation));
+    });
+    initData.environment.appRoot = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.appRoot));
+    const extDevLocs = initData.environment.extensionDevelopmentLocationURI;
+    if (extDevLocs) {
+      initData.environment.extensionDevelopmentLocationURI = extDevLocs.map((url) => URI.revive(rpcProtocol.transformIncomingURIs(url)));
+    }
+    initData.environment.extensionTestsLocationURI = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.extensionTestsLocationURI));
+    initData.environment.globalStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.globalStorageHome));
+    initData.environment.workspaceStorageHome = URI.revive(rpcProtocol.transformIncomingURIs(initData.environment.workspaceStorageHome));
+    initData.nlsBaseUrl = URI.revive(rpcProtocol.transformIncomingURIs(initData.nlsBaseUrl));
+    initData.logsLocation = URI.revive(rpcProtocol.transformIncomingURIs(initData.logsLocation));
+    initData.workspace = rpcProtocol.transformIncomingURIs(initData.workspace);
+    return initData;
+  }
+}
+export {
+  ErrorHandler,
+  ExtensionHostMain
+};
+//# sourceMappingURL=extensionHostMain.js.map

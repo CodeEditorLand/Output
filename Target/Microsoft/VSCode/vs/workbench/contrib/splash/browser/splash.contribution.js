@@ -1,0 +1,1 @@
+import{$WK as s}from"../../../common/contributions.js";import{$0Bc as t}from"./splash.js";import{$WB as m}from"../../../../platform/instantiation/common/extensions.js";import{$$Bc as o}from"./partsSplash.js";m(t,class{async saveWindowSplash(r){const a=JSON.stringify(r);localStorage.setItem("monaco-parts-splash",a)}},1);s(o.ID,o,1);

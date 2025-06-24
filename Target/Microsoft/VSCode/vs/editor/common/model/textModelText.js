@@ -1,0 +1,1 @@
+import{$7L as n}from"../core/text/abstractText.js";import{$QD as r}from"../core/text/textLength.js";class L extends n{constructor(e){super(),this.b=e}getValueOfRange(e){return this.b.getValueInRange(e)}getLineLength(e){return this.b.getLineLength(e)}get length(){const e=this.b.getLineCount(),t=this.b.getLineLength(e);return new r(e-1,t)}}export{L as $qgb};

@@ -6,17 +6,17 @@ fi
 
 # shellcheck disable=SC2154
 case "$Dependency" in
-	"Microsoft/VSCode")
-		Build="out-build"
-		;;
+"Microsoft/VSCode")
+	Build="out-build"
+	;;
 
-	"CodeEditorLand/Editor")
-		Build="Source"
-		;;
+"CodeEditorLand/Editor")
+	Build="Source"
+	;;
 
-	*)
-		exit 1
-		;;
+*)
+	exit 1
+	;;
 
 esac
 

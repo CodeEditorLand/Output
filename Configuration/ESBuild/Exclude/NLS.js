@@ -1,1 +1,2 @@
-var r=e=>[];export{r as default};
+var r = (e) => [];
+export { r as default };

@@ -1,1 +1,18 @@
-var s=t=>[`${t}/base/parts/ipc/test/*`,`${t}/base/parts/request/test/*`,`${t}/base/parts/sandbox/test/*`,`${t}/base/parts/storage/test/*`,`${t}/base/test/*`,`${t}/editor/contrib/**/test/*`,`${t}/editor/standalone/test/*`,`${t}/editor/test/*`,`${t}/platform/test/*`,`${t}/platform/**/test/*`,`${t}/server/test/*`,`${t}/workbench/api/test/*`,`${t}/workbench/contrib/**/test/*`,`${t}/workbench/services/**/test/*`,`${t}/workbench/test/*`];export{s as default};
+var s = (t) => [
+	`${t}/base/parts/ipc/test/*`,
+	`${t}/base/parts/request/test/*`,
+	`${t}/base/parts/sandbox/test/*`,
+	`${t}/base/parts/storage/test/*`,
+	`${t}/base/test/*`,
+	`${t}/editor/contrib/**/test/*`,
+	`${t}/editor/standalone/test/*`,
+	`${t}/editor/test/*`,
+	`${t}/platform/test/*`,
+	`${t}/platform/**/test/*`,
+	`${t}/server/test/*`,
+	`${t}/workbench/api/test/*`,
+	`${t}/workbench/contrib/**/test/*`,
+	`${t}/workbench/services/**/test/*`,
+	`${t}/workbench/test/*`,
+];
+export { s as default };

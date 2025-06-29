@@ -1,1 +1,0 @@
-import{$WB as r}from"../../../../platform/instantiation/common/extensions.js";import{$8bc as m}from"./replace.js";import{$Inc as t,$Hnc as o}from"./replaceService.js";import{$WK as $}from"../../../common/contributions.js";function p(){r(m,t,1),$(o.ID,o,1)}export{p as $Jnc};

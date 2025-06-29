@@ -1,1 +1,0 @@
-import{$WB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$7bc as r}from"../../common/notebookSearch.js";import{$Knc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $Lnc};

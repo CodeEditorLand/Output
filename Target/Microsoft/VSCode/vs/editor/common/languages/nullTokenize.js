@@ -1,1 +1,0 @@
-import{$pD as e,$qD as o,$rD as u}from"../languages.js";const s=new class{clone(){return this}equals(n){return this===n}};function i(n,r){return new o([new e(0,"",n)],r)}function $(n,r){const t=new Uint32Array(2);return t[0]=0,t[1]=(n<<0|0|0|32768|2<<24)>>>0,new u(t,r===null?s:r)}export{s as $sH,i as $tH,$ as $uH};

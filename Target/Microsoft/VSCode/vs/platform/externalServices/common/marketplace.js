@@ -1,0 +1,1 @@
+import{$su as i}from"./serviceMachineId.js";import{$Iu as I,$Gu as m}from"../../telemetry/common/telemetryUtils.js";async function f(t,o,a,s,d,n,$){const e={"X-Market-Client-Id":`VSCode ${t}`,"User-Agent":`VSCode ${t} (${o.nameShort})`};if(m(o,a)&&I(s)===3){const r=await i(a,d,n);e["X-Market-User-Id"]=r,e["VSCode-SessionId"]=$.machineId||r}return e}export{f as $Ou};

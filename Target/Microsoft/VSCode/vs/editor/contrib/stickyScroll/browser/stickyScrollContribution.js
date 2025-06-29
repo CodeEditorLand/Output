@@ -1,0 +1,1 @@
+import{$xab as m}from"../../../browser/editorExtensions.js";import{$8sb as o,$9sb as r,$atb as p,$$sb as s,$0sb as t,$_sb as f}from"./stickyScrollActions.js";import{$Tpb as b}from"./stickyScrollController.js";import{$zI as $}from"../../../../platform/actions/common/actions.js";m(b.ID,b,1);$(o);$(r);$(s);$(t);$(f);$(p);

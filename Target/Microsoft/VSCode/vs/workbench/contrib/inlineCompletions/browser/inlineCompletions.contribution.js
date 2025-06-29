@@ -1,0 +1,1 @@
+import{$tpb as m}from"../../../../platform/observable/common/wrapInHotClass.js";import{$aL as r}from"../../../common/contributions.js";import{$Xyc as o}from"./inlineCompletionLanguageStatusBarContribution.js";r(o.Id,m(o.hot),4);

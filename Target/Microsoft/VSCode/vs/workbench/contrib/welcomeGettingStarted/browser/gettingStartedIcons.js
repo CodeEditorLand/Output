@@ -1,0 +1,1 @@
+import{localize as t}from"../../../../nls.js";import{$Mj as e}from"../../../../base/common/codicons.js";import{$Dt as r}from"../../../../platform/theme/common/iconRegistry.js";const l=r("getting-started-step-unchecked",e.circleLargeOutline,t(13233,null)),n=r("getting-started-step-checked",e.passFilled,t(13234,null));export{l as $hwc,n as $iwc};

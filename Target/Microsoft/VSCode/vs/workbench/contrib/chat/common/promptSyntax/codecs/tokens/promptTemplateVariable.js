@@ -1,0 +1,1 @@
+import{$PR as r}from"./promptToken.js";import{$zQ as s}from"../base/simpleCodec/tokens/dollarSign.js";import{$FQ as e,$GQ as n}from"../base/simpleCodec/tokens/curlyBraces.js";class p extends r{constructor(t,o){super(t),this.contents=o}get text(){return[s.symbol,e.symbol,this.contents,n.symbol].join("")}toString(){return`${this.text}${this.range}`}}export{p as $2R};

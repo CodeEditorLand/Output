@@ -1,0 +1,1 @@
+import{$bC as i}from"../../../../../../../../../editor/common/core/range.js";import{$kQ as m}from"../../baseToken.js";class a extends m{static newOnLine(s,e,n){const{range:t}=s;return new n(new i(t.startLineNumber,e,t.startLineNumber,e+n.symbol.length))}}class x extends a{}export{a as $mQ,x as $nQ};

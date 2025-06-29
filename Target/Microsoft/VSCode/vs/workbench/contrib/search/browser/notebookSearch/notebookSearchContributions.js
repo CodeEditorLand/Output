@@ -1,0 +1,1 @@
+import{$VB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$vcc as r}from"../../common/notebookSearch.js";import{$joc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $koc};

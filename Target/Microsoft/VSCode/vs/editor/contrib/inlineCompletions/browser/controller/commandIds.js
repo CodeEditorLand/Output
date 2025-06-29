@@ -1,0 +1,1 @@
+const t="editor.action.inlineSuggest.commit",o="editor.action.inlineSuggest.showPrevious",e="editor.action.inlineSuggest.showNext",i="editor.action.inlineSuggest.jump",n="editor.action.inlineSuggest.hide",s="editor.action.inlineSuggest.toggleShowCollapsed";export{t as $Gjb,o as $Hjb,e as $Ijb,i as $Jjb,n as $Kjb,s as $Ljb};

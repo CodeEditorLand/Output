@@ -1,0 +1,1 @@
+import{$tAc as r}from"../common/integrity.js";import{$VB as o}from"../../../../platform/instantiation/common/extensions.js";class t{async isPure(){return{isPure:!0,proof:[]}}}o(r,t,1);export{t as $uAc};

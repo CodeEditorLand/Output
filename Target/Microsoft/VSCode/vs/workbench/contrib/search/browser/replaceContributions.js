@@ -1,0 +1,1 @@
+import{$VB as r}from"../../../../platform/instantiation/common/extensions.js";import{$wcc as m}from"./replace.js";import{$hoc as c,$goc as o}from"./replaceService.js";import{$aL as i}from"../../../common/contributions.js";function n(){r(m,c,1),i(o.ID,o,1)}export{n as $ioc};

@@ -1,0 +1,1 @@
+import{$Ujc as n}from"./abstractRuntimeExtensionsEditor.js";import{$yCc as r}from"../common/reportExtensionIssueAction.js";class c extends n{nb(){return null}ob(e){}pb(e){return null}qb(e){return e.marketplaceInfo?this.db.createInstance(r,e.description):null}}export{c as $zCc};

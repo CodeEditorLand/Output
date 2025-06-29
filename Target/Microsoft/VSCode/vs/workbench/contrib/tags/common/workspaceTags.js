@@ -1,0 +1,1 @@
+import{$nj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$pxc as t}from"../../../../platform/extensionManagement/common/configRemotes.js";const n=p("workspaceTagsService");async function s(r,o=!1,c){return Promise.all(t(r,o).map(e=>c(e)))}export{n as $qxc,s as $rxc};

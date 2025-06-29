@@ -1,0 +1,1 @@
+import{$kQ as i}from"../../baseToken.js";import{$bC as a}from"../../../../../../../../../editor/common/core/range.js";class s extends i{constructor(r,t){super(r),this.text=t}static newOnLine(r,t,e){const n=typeof t=="number"?t:t.range.startLineNumber,o=new a(n,e,n,e+r.length);return new s(o,r)}toString(){return`word("${this.shortText()}")${this.range}`}}export{s as $sQ};

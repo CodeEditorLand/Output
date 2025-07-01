@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("localizationService"),a=e("activeLanguageService");export{t as $aOb,a as $bOb};
+import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const i=e("localizationService"),t=e("activeLanguageService");export{i as $hOb,t as $iOb};

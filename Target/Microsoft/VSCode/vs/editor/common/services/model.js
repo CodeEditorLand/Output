@@ -1,1 +1,1 @@
-import{$nj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("modelService");export{r as $wF};
+import{$nj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("modelService");export{r as $AF};

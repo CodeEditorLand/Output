@@ -1,1 +1,1 @@
-import{$nj as o}from"../../../../platform/instantiation/common/instantiation.js";const p=o("workingCopyBackupService");export{p as $CF};
+import{$nj as o}from"../../../../platform/instantiation/common/instantiation.js";const p=o("workingCopyBackupService");export{p as $GF};

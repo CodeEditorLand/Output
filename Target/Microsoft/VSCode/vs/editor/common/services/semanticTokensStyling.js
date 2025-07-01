@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../platform/instantiation/common/instantiation.js";const o=e("semanticTokensStylingService");export{o as $Qsb};
+import{$nj as e}from"../../../platform/instantiation/common/instantiation.js";const o=e("semanticTokensStylingService");export{o as $Zsb};

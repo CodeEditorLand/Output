@@ -1,1 +1,1 @@
-import{$VB as e}from"../../../../platform/instantiation/common/extensions.js";import{$oJ as o}from"../common/elevatedFileService.js";class t{isSupported(r){return!1}async writeFileElevated(r,p,i){throw new Error("Unsupported")}}e(o,t,1);export{t as $OBc};
+import{$WB as e}from"../../../../platform/instantiation/common/extensions.js";import{$sJ as o}from"../common/elevatedFileService.js";class s{isSupported(r){return!1}async writeFileElevated(r,p,i){throw new Error("Unsupported")}}e(o,s,1);export{s as $4Bc};

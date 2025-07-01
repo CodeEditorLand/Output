@@ -1,1 +1,1 @@
-import{$nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("INotebookModelResolverService");export{r as $9yb};
+import{$nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("INotebookModelResolverService");export{r as $fzb};

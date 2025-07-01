@@ -413,6 +413,12 @@
 		"vs/editor/browser/services/hoverService/updatableHoverWidget": [
 			"iconLabel.loading"
 		],
+		"vs/editor/browser/services/inlineCompletionsService": [
+			"inlineCompletions.snoozed",
+			"snooze.placeholder",
+			"action.inlineSuggest.snooze",
+			"action.inlineSuggest.cancelSnooze"
+		],
 		"vs/editor/browser/widget/codeEditor/codeEditorWidget": [
 			"cursors.maximum",
 			"goToSetting"
@@ -710,6 +716,7 @@
 			"inlineSuggest.syntaxHighlightingEnabled",
 			"inlineSuggest.suppressSuggestions",
 			"inlineSuggest.suppressInlineSuggestions",
+			"inlineSuggest.triggerCommandOnProviderChange",
 			"inlineSuggest.fontFamily",
 			"inlineSuggest.edits.allowCodeShifting",
 			"inlineSuggest.edits.renderSideBySide",
@@ -801,6 +808,8 @@
 			"acceptSuggestionOnEnterSmart",
 			"acceptSuggestionOnEnter",
 			"accessibilityPageSize",
+			"allowVariableFonts",
+			"allowVariableFontsInAccessibilityMode",
 			"editorViewAccessibleLabel",
 			"screenReaderAnnounceInlineSuggestion",
 			"editor.autoClosingBrackets.languageDefined",
@@ -2707,6 +2716,10 @@
 			"mcp",
 			"cliDataDir",
 			"cliDataDir",
+			"prompt",
+			"chatMode",
+			"addFile",
+			"help",
 			"diff",
 			"merge",
 			"add",
@@ -2745,12 +2758,12 @@
 			"locateShellIntegrationPath",
 			"telemetry",
 			"deprecated.useInstead",
+			"cliPrompt",
 			"paths",
 			"usage",
 			"options",
-			"stdinWindows",
-			"stdinUnix",
 			"subcommands",
+			"stdinUsage",
 			"unknownVersion",
 			"unknownCommit"
 		],
@@ -7371,7 +7384,8 @@
 			"resetTrustedTools",
 			"updateInstructions",
 			"updateInstructions.short",
-			"config.label"
+			"config.label",
+			"mcp.servers"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
 			"chat.newChat.label",
@@ -8102,9 +8116,10 @@
 			"premiumChatsLabel",
 			"limitQuota",
 			"upgradeToCopilotPro",
-			"settingsTitle",
+			"completionsAndNES",
 			"settingsLabel",
 			"settingsTooltip",
+			"settings.snooze",
 			"activateDescription",
 			"enableDescription",
 			"signInDescription",
@@ -8121,7 +8136,11 @@
 			"additionalUsageDisabled",
 			"settings.codeCompletions",
 			"settings.codeCompletionsLanguage",
-			"settings.nextEditSuggestions"
+			"settings.nextEditSuggestions",
+			"settings.mute5minutes",
+			"settings.snooze5minutes",
+			"settings.plus5mins",
+			"settings.snoozeAdditional5minutes"
 		],
 		"vs/workbench/contrib/chat/browser/chatWidget": [
 			"scrollDownButtonLabel",
@@ -8132,7 +8151,11 @@
 			"editsTitle",
 			"editsMessage",
 			"editsTitle",
-			"agentMessage"
+			"agentMessage",
+			"chatMessage",
+			"expChatTitle",
+			"chatWidget.suggestedPrompts.gettingStarted",
+			"chatWidget.suggestedPrompts.newProject"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"chat.codeBlockHelp",
@@ -8361,7 +8384,6 @@
 			"chatModelsAreUserSelectable",
 			"chatRemoteJobCreating",
 			"hasRemoteCodingAgent",
-			"chatAgentModeDisallowed",
 			"chatEditingHasToolConfirmation",
 			"toolsCount",
 			"chatHasCustomChatModes",
@@ -8439,6 +8461,26 @@
 		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/decorationsProvider/decorations/frontMatterDecoration": [
 			"chat.prompt.frontMatter.background.description",
 			"chat.prompt.frontMatter.inactiveBackground.description"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptHeaderDiagnosticsProvider": [
+			"promptHeaderDiagnosticsProvider.modelNotFound",
+			"promptHeaderDiagnosticsProvider.modelNotSuited",
+			"promptHeaderDiagnosticsProvider.toolNotFound"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptHeaderHovers": [
+			"promptHeader.instructions.description",
+			"promptHeader.instructions.applyToRange",
+			"promptHeader.mode.description",
+			"promptHeader.mode.model",
+			"promptHeader.mode.tools",
+			"promptHeader.prompt.description",
+			"promptHeader.prompt.model",
+			"promptHeader.prompt.tools",
+			"promptHeader.prompt.mode",
+			"toolSetName",
+			"modelName",
+			"modelFamily",
+			"modelVendor"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptLinkDiagnosticsProvider": [
 			"fileNotFound"
@@ -8547,10 +8589,14 @@
 			"workbench.action.chat.stopReadChatItemAloud",
 			"workbench.action.chat.installProviderForVoiceChat.label"
 		],
+		"vs/workbench/contrib/chat/electron-browser/chat.contribution": [
+			"copilotWorkspaceTrust"
+		],
 		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"fetchWebPage.modelDescription",
 			"fetchWebPage.urlsDescription",
 			"fetchWebPage.noValidUrls",
+			"fetchWebPage.binaryNotSupported",
 			"fetchWebPage.pastTenseMessage.plural",
 			"fetchWebPage.pastTenseMessage.singular",
 			"fetchWebPage.pastTenseMessageResult.plural",
@@ -12863,6 +12909,10 @@
 			"mcp.command.browse",
 			"mcp.command.browse.mcp",
 			"mcp.command.show.installed",
+			"mcp.command.openUserMcp",
+			"mcp.command.openRemoteUserMcp",
+			"mcp.command.openWorkspaceFolderMcp",
+			"mcp.command.openWorkspaceMcp",
 			"mcp.browseResources",
 			"mcp.configureSamplingModels",
 			"mcp.startPromptingServer"
@@ -12958,6 +13008,13 @@
 			"edit",
 			"clear",
 			"clearAll"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpMigration": [
+			"mcp.migration.remoteConfigFound",
+			"mcp.migration.userConfigFound",
+			"mcp.migration.openRemoteConfig",
+			"mcp.migration.openUserConfig",
+			"mcp.migration.update"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
 			"optional",
@@ -13664,6 +13721,7 @@
 		"vs/workbench/contrib/notebook/browser/controller/chat/notebook.chat.contribution": [
 			"pickKernelVariableLabel",
 			"selectKernelVariablePlaceholder",
+			"noKernelVariables",
 			"chatContext.notebook.kernelVariable",
 			"chatContext.notebook.kernelVariable.placeholder",
 			"notebookActions.addOutputToChat"
@@ -14537,6 +14595,10 @@
 			"unknown configuration setting",
 			"manage workspace trust",
 			"manage workspace trust",
+			"mcp.renderer.remoteConfigFound",
+			"mcp.renderer.userConfigFound",
+			"mcp.renderer.openRemoteConfig",
+			"mcp.renderer.openUserConfig",
 			"unsupportedProperty"
 		],
 		"vs/workbench/contrib/preferences/browser/preferencesWidgets": [
@@ -15185,6 +15247,7 @@
 			"remoteCodingAgentsExtPoint.command",
 			"remoteCodingAgentsExtPoint.displayName",
 			"remoteCodingAgentsExtPoint.description",
+			"remoteCodingAgentsExtPoint.followUpRegex",
 			"remoteCodingAgentsExtPoint.when"
 		],
 		"vs/workbench/contrib/remoteTunnel/electron-browser/remoteTunnel.contribution": [
@@ -17547,6 +17610,8 @@
 		],
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminal.suggest.contribution": [
 			"workbench.action.terminal.configureSuggestSettings",
+			"workbench.action.terminal.learnMore",
+			"workbench.action.terminal.resetDiscoverability",
 			"workbench.action.terminal.requestCompletions",
 			"workbench.action.terminal.resetSuggestWidgetSize",
 			"workbench.action.terminal.selectPrevSuggestion",
@@ -21840,6 +21905,12 @@
 		"vs/editor/browser/services/hoverService/updatableHoverWidget": [
 			"Loading..."
 		],
+		"vs/editor/browser/services/inlineCompletionsService": [
+			"Whether inline completions are currently snoozed",
+			"Select snooze duration",
+			"Snooze Inline Suggestions",
+			"Cancel Snooze Inline Suggestions"
+		],
 		"vs/editor/browser/widget/codeEditor/codeEditorWidget": [
 			"The number of cursors has been limited to {0}. Consider using [find and replace](https://code.visualstudio.com/docs/editor/codebasics#_find-and-replace) for larger changes or increase the editor multi cursor limit setting.",
 			"Increase Multi Cursor Limit"
@@ -22122,6 +22193,7 @@
 			"Controls whether to show syntax highlighting for inline suggestions in the editor.",
 			"Controls how inline suggestions interact with the suggest widget. If enabled, the suggest widget is not shown automatically when inline suggestions are available.",
 			"Suppresses inline completions for specified extension IDs -- comma separated.",
+			"Controls whether to trigger a command when the inline suggestion provider changes.",
 			"Controls the font family of the inline suggestions.",
 			"Controls whether showing a suggestion will shift the code to make space for the suggestion inline.",
 			"Controls whether larger suggestions can be shown side by side.",
@@ -22213,6 +22285,8 @@
 			"Only accept a suggestion with `Enter` when it makes a textual change.",
 			"Controls whether suggestions should be accepted on `Enter`, in addition to `Tab`. Helps to avoid ambiguity between inserting new lines or accepting suggestions.",
 			"Controls the number of lines in the editor that can be read out by a screen reader at once. When we detect a screen reader we automatically set the default to be 500. Warning: this has a performance implication for numbers larger than the default.",
+			"Controls whether to allow using variable fonts in the editor.",
+			"Controls whether to allow using variable fonts in the editor in the accessibility mode.",
 			"Editor content",
 			"Control whether inline suggestions are announced by a screen reader.",
 			"Use language configurations to determine when to autoclose brackets.",
@@ -23765,6 +23839,10 @@
 			"Model Context Protocol",
 			"Directory where CLI metadata should be stored.",
 			"Directory where CLI metadata should be stored.",
+			"The prompt to use as chat.",
+			"The mode to use for the chat session. Defaults to 'agent'.",
+			"Add files as context to the chat session.",
+			"Print usage.",
 			"Compare two files with each other.",
 			"Perform a three-way merge by providing paths for two modified versions of a file, the common origin of both modified versions and the output file to save merge results.",
 			"Add folder(s) to the last active window.",
@@ -23803,12 +23881,12 @@
 			"Print the path to a terminal shell integration script. Allowed values are 'bash', 'pwsh', 'zsh' or 'fish'.",
 			"Shows all telemetry events which VS code collects.",
 			"Use {0} instead.",
+			"prompt",
 			"paths",
 			"Usage",
 			"options",
-			"To read output from another program, append '-' (e.g. 'echo Hello World | {0} -')",
-			"To read from stdin, append '-' (e.g. 'ps aux | grep code | {0} -')",
 			"Subcommands",
+			"To read from stdin, append '-' (e.g. '{0}')",
 			"Unknown version",
 			"Unknown commit"
 		],
@@ -27318,7 +27396,8 @@
 			"Reset Tool Confirmations",
 			"Generate Instructions",
 			"Generate Instructions",
-			"Configure Chat..."
+			"Configure Chat...",
+			"MCP Servers"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
 			"New Chat",
@@ -27379,7 +27458,7 @@
 			"Set Mode",
 			"Resume Request",
 			"Pause Request",
-			"Pushing to Coding Agent",
+			"Pushing to Copilot coding agent",
 			"Analyzing chat history",
 			"Pushing state to coding agent",
 			"Coding agent session cancelled.",
@@ -27391,7 +27470,7 @@
 			"Change Model",
 			"Send",
 			"Send",
-			"Push to Coding Agent",
+			"Push to Copilot coding agent",
 			"Send with {0}",
 			"Send to New Chat",
 			"Cancel",
@@ -27453,8 +27532,8 @@
 			"Select tools for this chat session",
 			"The selected tools were configured by a prompt command and only apply to this chat session.",
 			"Select tools for this chat mode",
-			"The selected tools are configured by the '{0}' chat mode.",
-			"Select tools that are available to chat",
+			"The selected tools are configured by the '{0}' chat mode. Changes to the tools will be applied to the mode file as well.",
+			"Select tools that are available to chat.",
 			"Accept"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatToolPicker": [
@@ -28017,9 +28096,10 @@
 			"Premium requests",
 			"Allowance resets {0}.",
 			"Upgrade to Copilot Pro",
-			"Settings",
+			"Completions / NES",
 			"Settings",
 			"Open Settings",
+			"Snooze",
 			"Set up Copilot to use AI features.",
 			"Enable Copilot to use AI features.",
 			"Sign in to use Copilot AI features.",
@@ -28036,7 +28116,11 @@
 			"Additional paid premium requests disabled.",
 			"Code completions (all files)",
 			"Code completions ({0})",
-			"Next edit suggestions"
+			"Next edit suggestions",
+			"Mute for 5 mins",
+			"Snooze completions and NES for 5 mins",
+			"+5 mins",
+			"Snooze additional 5 mins"
 		],
 		"vs/workbench/contrib/chat/browser/chatWidget": [
 			"Scroll down",
@@ -28047,7 +28131,11 @@
 			"Edit with Copilot",
 			"Start your editing session by defining a set of files that you want to work with. Then ask Copilot for the changes you want to make.",
 			"Edit with Copilot",
-			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors."
+			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors.",
+			"Copilot is powered by AI, so mistakes are possible. Review output carefully before use.",
+			"Get Started with VS Code",
+			"Ask @vscode",
+			"Create a #new Project"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"Code block",
@@ -28167,8 +28255,8 @@
 			"Are you sure you want to delete '{0}'?"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptCodingAgentActionOverlay": [
-			"Run with Coding Agent",
-			"{0} Run with Coding Agent"
+			"Run prompt file in a remote coding agent",
+			"{0} Push to Copilot coding agent"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
 			"Configure Tools...",
@@ -28258,7 +28346,7 @@
 			"True when focus is in the chat widget, false otherwise.",
 			"Whether focus is in a chat editor.",
 			"True when the chat has a prompt file attached.",
-			"The current chat mode.",
+			"The 'kind' of the current chat mode- Agent for custom modes.",
 			"True when chat is enabled because a default chat participant is activated with an implementation.",
 			"True when a default chat participant is registered for the panel from an extension.",
 			"True when a default chat participant is registered for the panel.",
@@ -28271,7 +28359,6 @@
 			"True when the chat model can be selected manually by the user.",
 			"True when a remote coding agent job is being created.",
 			"Whether any remote coding agent is available",
-			"True when agent mode is not allowed.",
 			"True when a tool confirmation is present.",
 			"The count of tools available in the chat.",
 			"True when the chat has custom chat modes available.",
@@ -28350,17 +28437,37 @@
 			"Background color of a Front Matter header block.",
 			"Background color of an inactive Front Matter header block."
 		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptHeaderDiagnosticsProvider": [
+			"Unknown model '{0}'",
+			"Model '{0}' is not suited for agent mode",
+			"Unknown tool '{0}'"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptHeaderHovers": [
+			"The description of the instruction file. It can be used to provide additional context or information about the instructions and is passed to the language model as part of the prompt.",
+			"One or more glob pattern (separated by comma) that describe for which files the instructions apply to. Based on these patterns, the file is automatically included in the prompt, when the context contains a file that matches one or more of these patterns. Use `**` when you want this file to always be added.\nExample: **/*.ts, **/*.js, client/**",
+			"The description of the mode file. It can be used to provide additional context or information about the mode to the mode author.",
+			"The model to use in this mode.",
+			"The tools to use in this mode.",
+			"The description of the prompt file. It can be used to provide additional context or information about the prompt to the prompt author.",
+			"The model to use in this prompt.",
+			"The tools to use in this prompt.",
+			"The mode (ask, edit or agent) to use when running this prompt.",
+			"ToolSet: {0}\n\n",
+			"{0}",
+			"- Family: {0}",
+			"- Vendor: {0}"
+		],
 		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptLinkDiagnosticsProvider": [
 			"File not found."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/headerBase": [
 			"Unexpected token '{0}'.",
-			"Duplicate metadata '{0}' will be ignored.",
-			"Unknown metadata '{0}' will be ignored.",
+			"Duplicate property '{0}' will be ignored.",
+			"Unknown property '{0}' will be ignored.",
 			"Failed to parse prompt header: {0}"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/applyTo": [
-			"The '{0}' metadata record is only valid in instruction files.",
+			"The '{0}' header property is only valid in instruction files.",
 			"Invalid glob pattern '{0}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/enum": [
@@ -28370,13 +28477,13 @@
 			"The '{0}' metadata must be a '{1}', got '{2}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/tools": [
-			"The '{0}' metadata must be an array of tool names, got '{2}'.",
-			"Unexpected tool name '{0}', expected '{1}'.",
+			"Must be an array of tool names, got '{0}'.",
+			"Unexpected tool name '{0}', expected a string literal.",
 			"Tool name cannot be empty.",
 			"Duplicate tool name '{0}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/promptHeader": [
-			"Record '{0}' is implied to have the '{1}' value if '{2}' record is present so the specified value will be ignored."
+			"Tools can only be used when in 'agent' mode, but the mode is set to '{0}'. The tools will be ignored."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/topError": [
 			"\n(+{0} more issues)",
@@ -28457,16 +28564,20 @@
 			"Stop Reading Aloud",
 			"Start Voice Chat"
 		],
+		"vs/workbench/contrib/chat/electron-browser/chat.contribution": [
+			"Copilot is currently only supported in trusted workspaces."
+		],
 		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage.",
 			"An array of URLs to fetch content from.",
 			"No valid URLs provided.",
-			"Fetched {0} web pages, but the following were invalid URLs:\n\n{1}\n\n",
-			"Fetched web page, but the following was an invalid URL:\n\n{0}\n\n",
-			"Fetched {0} web pages",
-			"Fetching {0} web pages",
-			"Fetched [web page]({0})",
-			"Fetching [web page]({0})",
+			"Binary files are not supported at the moment.",
+			"Fetched {0} resources, but the following were invalid URLs:\n\n{1}\n\n",
+			"Fetched resource, but the following was an invalid URL:\n\n{0}\n\n",
+			"Fetched {0} resources",
+			"Fetching {0} resources",
+			"Fetched [resource]({0})",
+			"Fetching [resource]({0})",
 			"Fetched {0}",
 			"Fetching {0}",
 			"Fetch web page?",
@@ -31776,6 +31887,10 @@
 			"MCP Servers",
 			"Browse Servers",
 			"Show Installed Servers",
+			"Open User Configuration",
+			"Open Remote User Configuration",
+			"Open Workspace Folder MCP Configuration",
+			"Open Workspace MCP Configuration",
 			"Browse Resources...",
 			"Configure SamplingModel",
 			"Start Prompting Server"
@@ -31871,6 +31986,13 @@
 			"Edit",
 			"Clear",
 			"Clear All"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpMigration": [
+			"MCP servers should no longer be configured in remote user settings. Use the dedicated MCP configuration instead.",
+			"MCP servers should no longer be configured in user settings. Use the dedicated MCP configuration instead.",
+			"Open Remote User MCP Configuration",
+			"Open User MCP Configuration",
+			"Update Now"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
 			"Optional",
@@ -32506,6 +32628,7 @@
 		"vs/workbench/contrib/notebook/browser/controller/chat/notebook.chat.contribution": [
 			"Pick a variable from the kernel",
 			"Select a kernel variable",
+			"No kernel variables found",
 			"Kernel Variable...",
 			"Select a kernel variable",
 			"Add Cell Output to Chat"
@@ -33287,6 +33410,10 @@
 			"Unknown Configuration Setting",
 			"Manage Workspace Trust",
 			"Manage Workspace Trust",
+			"MCP servers should not be configured in remote user settings. Use the dedicated MCP configuration instead.",
+			"MCP servers should not be configured in user settings. Use the dedicated MCP configuration instead.",
+			"Open Remote User MCP Configuration",
+			"Open User MCP Configuration",
 			"Unsupported Property"
 		],
 		"vs/workbench/contrib/preferences/browser/preferencesWidgets": [
@@ -33845,6 +33972,7 @@
 			"Identifier of the command to execute. The command must be declared in the \"commands\" section.",
 			"A user-friendly name for this item which is used for display in menus.",
 			"Description of the remote agent for use in menus and tooltips.",
+			"The last occurrence of pattern in an existing chat conversation is sent to the contributing extension to facilitate follow-up responses.",
 			"Condition which must be true to show this item."
 		],
 		"vs/workbench/contrib/remoteTunnel/electron-browser/remoteTunnel.contribution": [
@@ -35916,6 +36044,8 @@
 		],
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminal.suggest.contribution": [
 			"Configure",
+			"Learn More",
+			"Reset Suggest Discoverability",
 			"Request Completions",
 			"Reset Suggest Widget Size",
 			"Select the Previous Suggestion",

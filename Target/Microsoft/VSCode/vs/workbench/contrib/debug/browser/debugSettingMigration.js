@@ -1,1 +1,1 @@
-import{$Ql as i}from"../../../../platform/registry/common/platform.js";import{$jL as e}from"../../../common/configuration.js";i.as(e.ConfigurationMigration).registerConfigurationMigrations([{key:"debug.autoExpandLazyVariables",migrateFn:r=>r===!0?{value:"on"}:r===!1?{value:"off"}:[]}]);
+import{$Rl as i}from"../../../../platform/registry/common/platform.js";import{$nL as e}from"../../../common/configuration.js";i.as(e.ConfigurationMigration).registerConfigurationMigrations([{key:"debug.autoExpandLazyVariables",migrateFn:r=>r===!0?{value:"on"}:r===!1?{value:"off"}:[]}]);

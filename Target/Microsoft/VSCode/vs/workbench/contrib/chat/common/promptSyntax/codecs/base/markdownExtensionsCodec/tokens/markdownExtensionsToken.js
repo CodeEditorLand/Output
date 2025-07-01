@@ -1,1 +1,1 @@
-import{$qR as r}from"../../markdownCodec/tokens/markdownToken.js";class s extends r{}export{s as $rR};
+import{$tR as t}from"../../markdownCodec/tokens/markdownToken.js";class r extends t{}export{r as $uR};

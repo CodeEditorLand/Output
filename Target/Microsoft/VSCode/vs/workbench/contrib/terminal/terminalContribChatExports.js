@@ -1,1 +1,1 @@
-import{TerminalChatContextKeys as o}from"../terminalContrib/chat/browser/terminalChat.js";import{$Qsc as a}from"../terminalContrib/chat/browser/terminalChatController.js";export{o as TerminalChatContextKeys,a as TerminalChatController};
+import{TerminalChatContextKeys as o}from"../terminalContrib/chat/browser/terminalChat.js";import{$3sc as a}from"../terminalContrib/chat/browser/terminalChatController.js";export{o as TerminalChatContextKeys,a as TerminalChatController};

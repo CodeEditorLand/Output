@@ -1,1 +1,1 @@
-const o="vscode:contextmenu",e="vscode:onCloseContextMenu";export{o as $2m,e as $3m};
+const o="vscode:contextmenu",e="vscode:onCloseContextMenu";export{o as $3m,e as $4m};

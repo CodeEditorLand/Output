@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("IInlineChatSessionService");export{o as $ZCb};
+import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("IInlineChatSessionService");export{o as $9Cb};

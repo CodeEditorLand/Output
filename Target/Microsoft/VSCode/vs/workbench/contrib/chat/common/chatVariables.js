@@ -1,1 +1,1 @@
-import{$nj as t}from"../../../../platform/instantiation/common/instantiation.js";const r=e=>typeof e=="object"&&e!==null&&"id"in e&&e.id==="vscode.problems",i=t("IChatVariablesService");export{r as $fQ,i as $gQ};
+import{$nj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=e=>typeof e=="object"&&e!==null&&"id"in e&&e.id==="vscode.problems",r=t("IChatVariablesService");export{o as $iQ,r as $jQ};

@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("snippetService");export{o as $nFb};
+import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const p=e("snippetService");export{p as $uFb};

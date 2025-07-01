@@ -1,1 +1,1 @@
-import{$jR as e}from"./promptHeader.js";class s extends e{}export{s as $kR};
+import{$LR as a}from"./headerBase.js";import{$iR as s}from"./metadata/model.js";import{$jR as r}from"./metadata/tools.js";class m extends a{g(e){if(r.isToolsRecord(e)){const t=new r(e,this.languageId);return this.f.push(...t.validate()),this.b.tools=t,!0}if(s.isModelRecord(e)){const t=new s(e,this.languageId);return this.f.push(...t.validate()),this.b.model=t,!0}return!1}}export{m as $kR};

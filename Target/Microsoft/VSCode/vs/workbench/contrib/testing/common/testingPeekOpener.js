@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const n=e("testingPeekOpener");export{n as $Ilc};
+import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const n=e("testingPeekOpener");export{n as $Ulc};

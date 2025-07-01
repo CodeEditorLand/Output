@@ -1,0 +1,1 @@
+import{$DI as m}from"../../../../platform/actions/common/actions.js";import{$WB as o}from"../../../../platform/instantiation/common/extensions.js";import{$tzb as r}from"../browser/webview.js";import*as i from"./webviewCommands.js";import{$IKc as t}from"./webviewService.js";o(r,t,1);m(i.$FKc);

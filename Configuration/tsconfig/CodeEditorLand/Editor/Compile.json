@@ -8,10 +8,6 @@
 
 		"jsx": "preserve",
 
-		"emitDeclarationOnly": false,
-
-		"noEmit": false,
-
 		"lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"],
 
 		"useDefineForClassFields": false,

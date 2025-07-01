@@ -1,0 +1,1 @@
+import{$nj as r}from"../../../../platform/instantiation/common/instantiation.js";import{$A$ as o}from"../../../../base/parts/sandbox/electron-browser/globals.js";import{$WB as e}from"../../../../platform/instantiation/common/extensions.js";const t=r("shellEnvironmentService");class n{getShellEnv(){return o.shellEnv()}}e(t,n,1);export{t as $oJc,n as $pJc};

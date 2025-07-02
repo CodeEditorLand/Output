@@ -24,9 +24,22 @@
 	},
 	"devDependencies": {
 		"@playform/build": "0.2.5",
+		"@types/mocha": "10.0.10",
+		"@types/semver": "7.7.0",
+		"@types/sinon": "17.0.4",
+		"@types/trusted-types": "2.0.7",
+		"@types/wicg-file-system-access": "2023.10.6",
+		"@types/winreg": "1.2.36",
+		"@webgpu/types": "0.1.63",
 		"browserslist": "4.25.1",
 		"cross-env": "7.0.3",
-		"deepmerge-ts": "7.1.5"
+		"deepmerge-ts": "7.1.5",
+		"mocha": "11.7.1",
+		"semver": "7.7.2",
+		"sinon": "21.0.0",
+		"trusted-types": "2.0.0",
+		"typescript": "5.8.3",
+		"winreg": "1.2.5"
 	},
 	"publishConfig": {
 		"access": "public",

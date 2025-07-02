@@ -1,1 +1,116 @@
-const a=(await import("../../ESBuild.js")).On,t=`out${a?"":"-build"}/vs`,r=(await import("../../ESBuild.js")).Dependency;var c=async f=>(await import("deepmerge-ts")).deepmerge((await import("../../ESBuild.js")).default,{outdir:`Target/${r}`,tsconfig:`tsconfig/${r}.json`,drop:a?[]:["debugger","console"],define:{__DEV__:a?"true":"false",__INCREMENT__:`"${`${a?"DEVELOPMENT":"PRODUCTION"}-${(await import("ulid")).ulid()}`}"`},treeShaking:!a,target:(o=>{const s=new Set,u=new Set(["chrome","edge","firefox","ios","safari","opera"]),d={ios_saf:"ios"};for(const l of o){const n=l.split(" ");if(n.length!==2)continue;let[i,e]=n;i=i?.toLowerCase();const p=(d[i??0]||i)??"";u.has(p)&&(e?.includes("-")&&(e=e.split("-")[0]),e?.includes(".")&&(e=e.split(".")[0]),/^\d+$/.test(e??"")&&s.add(`${p}${e}`))}return Array.from(s).sort()})((await import("browserslist")).default("defaults")),entryPoints:(await import("@playform/build/Target/Function/Entry.js")).default(f,[...(await import("../Exclude/Test.js")).default(t),...(await import("../Exclude/Electron.js")).default(t),...(await import("../Exclude/Server.js")).default(t),...(await import("../Exclude/WebWorker.js")).default(t),...(await import("../Exclude/Standalone.js")).default(t),...(await import("../Exclude/Workbench.js")).default(t),...(await import("../Exclude/BuiltIn.js")).default(t),...(await import("../Exclude/NLS.js")).default(t),...(await import("../Exclude/Potential.js")).default(t),...(await import("../Exclude/Types.js")).default(),...(await import("../Exclude/Bootstrap.js")).default(t),...(await import("../Exclude/Node.js")).default(t),"tsec.exemptions.json","cgmanifest.json"]),platform:"browser",plugins:[{name:"Declaration",setup({onEnd:o}){switch(!0){case a===!0:o(async()=>await(await import("@playform/build/Target/Function/Exec.js")).default(`tsc -p Configuration/tsconfig/${r}/Declaration.json`));break;default:break}}}]});export{r as Dependency,a as On,t as Prefix,c as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const On = (await import("../../ESBuild.js")).On;
+const Prefix = `out${!On ? "-build" : ""}/vs`;
+const Dependency = (await import("../../ESBuild.js")).Dependency;
+var VSCode_default = /* @__PURE__ */ __name(async (Current) => (await import("deepmerge-ts")).deepmerge(
+  (await import("../../ESBuild.js")).default,
+  {
+    outdir: `Target/${Dependency}`,
+    tsconfig: `tsconfig/${Dependency}.json`,
+    drop: On ? [] : ["debugger", "console"],
+    define: {
+      __DEV__: On ? "true" : "false",
+      __INCREMENT__: `"${`${On ? "DEVELOPMENT" : "PRODUCTION"}-${(await import("ulid")).ulid()}`}"`
+    },
+    treeShaking: !On,
+    target: ((Browser) => {
+      const Target = /* @__PURE__ */ new Set();
+      const Supported = /* @__PURE__ */ new Set([
+        "chrome",
+        "edge",
+        "firefox",
+        "ios",
+        "safari",
+        "opera"
+      ]);
+      const _Map = {
+        ios_saf: "ios"
+      };
+      for (const _Browser of Browser) {
+        const Part = _Browser.split(" ");
+        if (Part.length !== 2) {
+          continue;
+        }
+        let [Name, Version] = Part;
+        Name = Name?.toLowerCase();
+        const NameMap = (_Map[Name ?? 0] || Name) ?? "";
+        if (!Supported.has(NameMap)) {
+          continue;
+        }
+        if (Version?.includes("-")) {
+          Version = Version.split("-")[0];
+        }
+        if (Version?.includes(".")) {
+          Version = Version.split(".")[0];
+        }
+        if (!/^\d+$/.test(Version ?? "")) {
+          continue;
+        }
+        Target.add(`${NameMap}${Version}`);
+      }
+      return Array.from(Target).sort();
+    })((await import("browserslist")).default("defaults")),
+    entryPoints: (await import("@playform/build/Target/Function/Entry.js")).default(
+      Current,
+      [
+        ...(await import("../Exclude/Test.js")).default(Prefix),
+        ...(await import("../Exclude/Electron.js")).default(Prefix),
+        ...(await import("../Exclude/Server.js")).default(Prefix),
+        ...(await import("../Exclude/WebWorker.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/Standalone.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/Workbench.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/BuiltIn.js")).default(Prefix),
+        ...(await import("../Exclude/NLS.js")).default(Prefix),
+        ...(await import("../Exclude/Potential.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/Types.js")).default(),
+        ...(await import("../Exclude/Bootstrap.js")).default(
+          Prefix
+        ),
+        ...(await import("../Exclude/Node.js")).default(Prefix),
+        // ...(await import("../Exclude/Telemetry.js")).default(
+        // 	Prefix,
+        // ),
+        "tsec.exemptions.json",
+        "cgmanifest.json"
+      ]
+    ),
+    platform: "browser",
+    plugins: [
+      {
+        name: "Declaration",
+        setup({ onEnd }) {
+          switch (true) {
+            case On === true:
+              onEnd(async () => {
+                await (await import("@playform/build/Target/Function/Exec.js")).default(
+                  `Build '../../Dependency/Microsoft/Dependency/Editor/src/**/*.d.ts' 											--ESBuild Configuration/ESBuild/${Dependency}/Declaration.js 											--TypeScript Configuration/tsconfig/${Dependency}/Declaration.json`
+                );
+                await (await import("@playform/build/Target/Function/Exec.js")).default(
+                  `tsc -p Configuration/tsconfig/${Dependency}/Declaration.json`
+                );
+              });
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    ]
+  }
+), "default");
+export {
+  Dependency,
+  On,
+  Prefix,
+  VSCode_default as default
+};
+//# sourceMappingURL=VSCode.js.map

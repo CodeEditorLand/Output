@@ -4,10 +4,18 @@
 
 		"outDir": "Target",
 
-		"rootDir": "Source"
+		"rootDir": ".",
+
+		"composite": true,
+
+		"declarationMap": true,
+
+		"emitDeclarationOnly": true
 	},
 
 	"extends": "@playform/build/tsconfig",
 
-	"include": ["Source"]
+	"include": ["Source/**/*"],
+
+	"exclude": ["node_modules"]
 }

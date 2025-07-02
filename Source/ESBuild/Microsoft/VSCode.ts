@@ -1,9 +1,8 @@
-import type Interface from "@playform/build/Target/Interface/Build/Set.js";
 import type { BuildOptions } from "esbuild";
 
 export const On = (await import("../../ESBuild.js")).On;
 
-export const Prefix = `out${On ? "" : "-build"}/vs`;
+export const Prefix = `out${!On ? "-build" : ""}/vs`;
 
 export const Dependency = (await import("../../ESBuild.js")).Dependency;
 
@@ -11,7 +10,7 @@ export const Dependency = (await import("../../ESBuild.js")).Dependency;
  * @module ESBuild
  *
  */
-export default (async (Current: BuildOptions): Promise<BuildOptions> =>
+export default async (Current: BuildOptions): Promise<BuildOptions> =>
 	(await import("deepmerge-ts")).deepmerge<[BuildOptions, BuildOptions]>(
 		(await import("../../ESBuild.js")).default,
 
@@ -144,16 +143,25 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 					setup({ onEnd }) {
 						switch (true) {
 							case On === true:
-								onEnd(
-									async () =>
-										await (
-											await import(
-												"@playform/build/Target/Function/Exec.js"
-											)
-										).default(
-											`tsc -p Configuration/tsconfig/${Dependency}/Declaration.json`,
-										),
-								);
+								onEnd(async () => {
+									await (
+										await import(
+											"@playform/build/Target/Function/Exec.js"
+										)
+									).default(
+										`Build '../../Dependency/Microsoft/Dependency/Editor/src/**/*.d.ts' \
+											--ESBuild Configuration/ESBuild/${Dependency}/Declaration.js \
+											--TypeScript Configuration/tsconfig/${Dependency}/Declaration.json`,
+									);
+
+									await (
+										await import(
+											"@playform/build/Target/Function/Exec.js"
+										)
+									).default(
+										`tsc -p Configuration/tsconfig/${Dependency}/Declaration.json`,
+									);
+								});
 
 								break;
 
@@ -164,4 +172,4 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 				},
 			],
 		},
-	)) satisfies Interface as Interface;
+	);

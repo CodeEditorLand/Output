@@ -6,6 +6,8 @@ export const On =
 
 export const Clean = process.env["Clean"] === "true";
 
+export const Bundle = process.env["Bundle"] === "true";
+
 /**
  * @module ESBuild
  *

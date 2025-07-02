@@ -18,6 +18,19 @@
 		"url": "https://Editor.Land"
 	},
 	"type": "module",
+	"exports": {
+		"./*": {
+			"import": "./Target/Microsoft/VSCode/*.js",
+			"types": "./Target/Microsoft/VSCode/*.d.ts"
+		}
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./Target/Microsoft/VSCode/*"
+			]
+		}
+	},
 	"scripts": {
 		"Run": "sh Source/Run.sh",
 		"prepublishOnly": "sh Source/prepublishOnly.sh"

@@ -24,9 +24,11 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 
 			define: {
 				__DEV__: On ? "true" : "false",
+
+				__INCREMENT__: `"${`${On ? "DEVELOPMENT" : "PRODUCTION"}-${(await import("ulid")).ulid()}`}"`,
 			},
 
-			treeShaking: true,
+			treeShaking: !On,
 
 			target: ((Browser: string[]) => {
 				const Target = new Set<string>();
@@ -126,7 +128,6 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 
 					// ...(await import("../Exclude/Telemetry.js")).default(
 					// 	Prefix,
-
 					// ),
 
 					"tsec.exemptions.json",
@@ -136,5 +137,31 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 			),
 
 			platform: "browser",
+
+			plugins: [
+				{
+					name: "Declaration",
+					setup({ onEnd }) {
+						switch (true) {
+							case On === true:
+								onEnd(
+									async () =>
+										await (
+											await import(
+												"@playform/build/Target/Function/Exec.js"
+											)
+										).default(
+											`tsc -p Configuration/tsconfig/${Dependency}/Declaration.json`,
+										),
+								);
+
+								break;
+
+							default:
+								break;
+						}
+					},
+				},
+			],
 		},
 	)) satisfies Interface as Interface;

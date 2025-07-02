@@ -1,0 +1,115 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+
+		"allowSyntheticDefaultImports": true,
+
+		"allowUnreachableCode": false,
+
+		"baseUrl": "../../../../../../Dependency/Microsoft/Dependency/Editor/src",
+
+		"declaration": true,
+
+		"emitDeclarationOnly": true,
+
+		"esModuleInterop": true,
+
+		"exactOptionalPropertyTypes": false,
+
+		"experimentalDecorators": true,
+
+		"forceConsistentCasingInFileNames": true,
+
+		"isolatedModules": false,
+
+		"lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"],
+
+		"module": "NodeNext",
+
+		"moduleDetection": "legacy",
+
+		"moduleResolution": "NodeNext",
+
+		"noImplicitOverride": true,
+
+		"noImplicitReturns": true,
+
+		"noUncheckedSideEffectImports": true,
+
+		"noUnusedLocals": true,
+
+		"outDir": "../../../../Target/Microsoft/VSCode",
+
+		"paths": {
+			"iconv-lite-umd": [
+				"../node_modules/@vscode/iconv-lite-umd/lib/iconv-lite-umd.js"
+			],
+
+			"jschardet": ["../node_modules/jschardet/dist/jschardet.min.js"],
+
+			"vs/*": ["./vs/*"]
+		},
+
+		"preserveConstEnums": true,
+
+		"removeComments": false,
+
+		"resolveJsonModule": true,
+
+		"rootDir": "../../../../../../Dependency/Microsoft/Dependency/Editor/src",
+
+		"skipLibCheck": true,
+
+		"sourceMap": false,
+
+		"strict": true,
+
+		"target": "ESNext",
+
+		"types": [
+			"@types/node",
+
+			"@webgpu/types",
+
+			"mocha",
+
+			"semver",
+
+			"sinon",
+
+			"trusted-types",
+
+			"winreg",
+
+			"wicg-file-system-access"
+		],
+
+		"useDefineForClassFields": false,
+
+		"useUnknownInCatchVariables": false,
+
+		"verbatimModuleSyntax": false
+	},
+
+	"exclude": [
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/**/node_modules/**",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/**/test/**",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/**/*.test.ts"
+	],
+
+	"extends": "@playform/build/tsconfig",
+
+	"include": [
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/*.ts",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/typings",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/**/*.ts",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/vscode-dts/vscode.proposed.*.d.ts",
+
+		"../../../../../../Dependency/Microsoft/Dependency/Editor/src/vscode-dts/vscode.d.ts"
+	]
+}

@@ -22,7 +22,7 @@
 
 		"isolatedModules": false,
 
-		"lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"],
 
 		"module": "NodeNext",
 
@@ -64,9 +64,11 @@
 
 		"strict": true,
 
-		"target": "es2022",
+		"target": "ESNext",
 
 		"types": [
+			"@types/node",
+
 			"@webgpu/types",
 
 			"mocha",

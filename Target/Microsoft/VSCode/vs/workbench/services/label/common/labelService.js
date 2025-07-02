@@ -1,1 +1,412 @@
-import{localize as n}from"../../../../nls.js";import{URI as m}from"../../../../base/common/uri.js";import{$vd as P,$qd as k}from"../../../../base/common/lifecycle.js";import{$4 as f,sep as j,$3 as c}from"../../../../base/common/path.js";import{$df as R}from"../../../../base/common/event.js";import{Extensions as w}from"../../../common/contributions.js";import{$Rl as C}from"../../../../platform/registry/common/platform.js";import{$HW as _}from"../../environment/common/environmentService.js";import{$il as H,$ql as O,$jl as b,$ol as y,$nl as E,$vl as $,$zl as T,$Al as z}from"../../../../platform/workspace/common/workspace.js";import{$gh as M,$hh as x,$kh as q,$jh as I}from"../../../../base/common/resources.js";import{$lm as A,$jm as D}from"../../../../base/common/labels.js";import{$jI as W}from"../../../../platform/label/common/label.js";import{$VO as B}from"../../extensions/common/extensionsRegistry.js";import{$_i as J}from"../../../../base/common/glob.js";import{$_K as N}from"../../lifecycle/common/lifecycle.js";import{$WB as U}from"../../../../platform/instantiation/common/extensions.js";import{$tY as K}from"../../path/common/pathService.js";import{$2O as V}from"../../extensions/common/extensions.js";import{OS as v}from"../../../../base/common/platform.js";import{$gL as Y}from"../../remote/common/remoteAgentService.js";import{Schemas as Z}from"../../../../base/common/network.js";import{$Jo as G}from"../../../../platform/storage/common/storage.js";import{$rub as Q}from"../../../common/memento.js";var S=function(l,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,t,e,r);else for(var a=l.length-1;a>=0;a--)(s=l[a])&&(o=(i<3?s(o):i>3?s(t,e,o):s(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},u=function(l,t){return function(e,r){t(e,r,l)}};const X=B.registerExtensionPoint({extensionPoint:"resourceLabelFormatters",jsonSchema:{description:n(14433,null),type:"array",items:{type:"object",required:["scheme","formatting"],properties:{scheme:{type:"string",description:n(14434,null)},authority:{type:"string",description:n(14435,null)},formatting:{description:n(14436,null),type:"object",properties:{label:{type:"string",description:n(14437,null)},separator:{type:"string",description:n(14438,null)},stripPathStartingSeparator:{type:"boolean",description:n(14439,null)},tildify:{type:"boolean",description:n(14440,null)},workspaceSuffix:{type:"string",description:n(14441,null)}}}}}}}),F=/\//g,tt=/\$\{(scheme|authoritySuffix|authority|path|(query)\.(.+?))\}/g;function et(l){return!!(l&&l[2]===":")}let p=class{constructor(t){this.a=new Map,X.setHandler((e,r)=>{for(const i of r.added)for(const o of i.value){const s={...o};typeof s.formatting.label!="string"&&(s.formatting.label="${authority}${path}"),typeof s.formatting.separator!="string"&&(s.formatting.separator=j),!V(i.description,"contribLabelFormatterWorkspaceTooltip")&&s.formatting.workspaceTooltip&&(s.formatting.workspaceTooltip=void 0),this.a.set(s,t.registerFormatter(s))}for(const i of r.removed)for(const o of i.value)k(this.a.get(o))})}};p=S([u(0,W)],p);C.as(w.Workbench).registerWorkbenchContribution(p,3);const L=50;let d=class extends P{constructor(t,e,r,i,o,s){super(),this.m=t,this.n=e,this.r=r,this.s=i,this.b=this.B(new R({leakWarningThreshold:400})),this.onDidChangeFormatters=this.b.event,this.h=v,this.j=r.defaultUriScheme===Z.file?this.r.userHome({preferLocal:!0}):void 0;const a=this.c=new Q("cachedResourceLabelFormatters2",o);this.g=a.getMemento(0,1),this.a=this.g?.formatters?.slice()||[],this.t()}async t(){const t=await this.s.getEnvironment();this.h=t?.os??v,this.j=await this.r.userHome()}findFormatting(t){let e;for(const r of this.a)if(r.scheme===t.scheme){if(!r.authority&&(!e||r.priority)){e=r;continue}if(!r.authority)continue;J(r.authority.toLowerCase(),t.authority.toLowerCase())&&(!e||!e.authority||r.authority.length>e.authority.length||r.authority.length===e.authority.length&&r.priority)&&(e=r)}return e?e.formatting:void 0}getUriLabel(t,e={}){let r=this.findFormatting(t);r&&e.separator&&(r={...r,separator:e.separator});let i=this.u(t,r,e);return!r&&e.separator&&(i=i.replace(F,e.separator)),e.appendWorkspaceSuffix&&r?.workspaceSuffix&&(i=this.C(i,t)),i}u(t,e,r={}){if(!e)return D(t,{os:this.h,tildify:this.j?{userHome:this.j}:void 0,relative:r.relative?{noPrefix:r.noPrefix,getWorkspace:()=>this.n.getWorkspace(),getWorkspaceFolder:i=>this.n.getWorkspaceFolder(i)}:void 0});if(r.relative&&this.n){let i=this.n.getWorkspaceFolder(t);if(!i){const s=this.n.getWorkspace().folders.at(0);s&&t.scheme!==s.uri.scheme&&t.path.startsWith(f.sep)&&(i=this.n.getWorkspaceFolder(s.uri.with({path:t.path})))}if(i){const o=this.z(i.uri,e,r.noPrefix);let s=this.z(t,e,r.noPrefix),a=0;for(;s[a]&&s[a]===o[a];)a++;if(!s[a]||s[a]===e.separator?s=s.substring(1+a):a===o.length&&i.uri.path===f.sep&&(s=s.substring(a)),this.n.getWorkspace().folders.length>1&&!r.noPrefix){const h=i?.name??M(i.uri);s=s?`${h} \u2022 ${s}`:h}return s}}return this.z(t,e,r.noPrefix)}getUriBasenameLabel(t){const e=this.findFormatting(t),r=this.u(t,e);let i;return e?.separator===c.sep?i=c:e?.separator===f.sep?i=f:i=this.h===1?c:f,i.basename(r)}getWorkspaceLabel(t,e){if(O(t)){const r=E(t);return b(r)||y(r)?this.getWorkspaceLabel(r,e):""}return m.isUri(t)?this.y(t,e):b(t)?this.y(t.uri,e):y(t)?this.w(t.configPath,e):""}w(t,e){if(T(t,this.m))return n(14442,null);if(z(t))return n(14443,null);let r=x(t);r.endsWith($)&&(r=r.substr(0,r.length-$.length-1));let i;switch(e?.verbose){case 0:i=r;break;case 2:i=n(14444,null,this.getUriLabel(q(I(t),r)));break;case 1:default:i=n(14445,null,r);break}return e?.verbose===0?i:this.C(i,t)}y(t,e){let r;switch(e?.verbose){case 2:r=this.getUriLabel(t);break;case 0:case 1:default:r=x(t)||f.sep;break}return e?.verbose===0?r:this.C(r,t)}getSeparator(t,e){return this.findFormatting(m.from({scheme:t,authority:e}))?.separator||f.sep}getHostLabel(t,e){return this.findFormatting(m.from({scheme:t,authority:e}))?.workspaceSuffix||e||""}getHostTooltip(t,e){return this.findFormatting(m.from({scheme:t,authority:e}))?.workspaceTooltip}registerCachedFormatter(t){const e=this.g.formatters??=[];let r=e.findIndex(i=>i.scheme===t.scheme&&i.authority===t.authority);if(r===-1&&e.length>=L&&(r=L-1),r===-1)e.unshift(t);else{for(let i=r;i>0;i--)e[i]=e[i-1];e[0]=t}return this.c.saveMemento(),this.registerFormatter(t)}registerFormatter(t){return this.a.push(t),this.b.fire({scheme:t.scheme}),{dispose:()=>{this.a=this.a.filter(e=>e!==t),this.b.fire({scheme:t.scheme})}}}z(t,e,r){let i=e.label.replace(tt,(o,s,a,g)=>{switch(s){case"scheme":return t.scheme;case"authority":return t.authority;case"authoritySuffix":{const h=t.authority.indexOf("+");return h===-1?t.authority:t.authority.slice(h+1)}case"path":return e.stripPathStartingSeparator?t.path.slice(t.path[0]===e.separator?1:0):t.path;default:{if(a==="query"){const{query:h}=t;if(h&&h[0]==="{"&&h[h.length-1]==="}")try{return JSON.parse(h)[g]||""}catch{}}return""}}});return e.normalizeDriveLetter&&et(i)&&(i=i.charAt(1).toUpperCase()+i.substr(2)),e.tildify&&!r&&this.j&&(i=A(i,this.j.fsPath,this.h)),e.authorityPrefix&&t.authority&&(i=e.authorityPrefix+i),i.replace(F,e.separator)}C(t,e){const r=this.findFormatting(e),i=r&&typeof r.workspaceSuffix=="string"?r.workspaceSuffix:void 0;return i?`${t} [${i}]`:t}};d=S([u(0,_),u(1,H),u(2,K),u(3,Y),u(4,G),u(5,N)],d);U(W,d,1);export{d as $o6b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Disposable, dispose } from "../../../../base/common/lifecycle.js";
+import { posix, sep, win32 } from "../../../../base/common/path.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkspaceContextService, isWorkspace, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier, WORKSPACE_EXTENSION, isUntitledWorkspace, isTemporaryWorkspace } from "../../../../platform/workspace/common/workspace.js";
+import { basenameOrAuthority, basename, joinPath, dirname } from "../../../../base/common/resources.js";
+import { tildify, getPathLabel } from "../../../../base/common/labels.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
+import { match } from "../../../../base/common/glob.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { isProposedApiEnabled } from "../../extensions/common/extensions.js";
+import { OS } from "../../../../base/common/platform.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../common/memento.js";
+const resourceLabelFormattersExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "resourceLabelFormatters",
+  jsonSchema: {
+    description: localize("vscode.extension.contributes.resourceLabelFormatters", "Contributes resource label formatting rules."),
+    type: "array",
+    items: {
+      type: "object",
+      required: ["scheme", "formatting"],
+      properties: {
+        scheme: {
+          type: "string",
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.scheme", 'URI scheme on which to match the formatter on. For example "file". Simple glob patterns are supported.')
+        },
+        authority: {
+          type: "string",
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.authority", "URI authority on which to match the formatter on. Simple glob patterns are supported.")
+        },
+        formatting: {
+          description: localize("vscode.extension.contributes.resourceLabelFormatters.formatting", "Rules for formatting uri resource labels."),
+          type: "object",
+          properties: {
+            label: {
+              type: "string",
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.label", "Label rules to display. For example: myLabel:/${path}. ${path}, ${scheme}, ${authority} and ${authoritySuffix} are supported as variables.")
+            },
+            separator: {
+              type: "string",
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.separator", "Separator to be used in the uri label display. '/' or '' as an example.")
+            },
+            stripPathStartingSeparator: {
+              type: "boolean",
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.stripPathStartingSeparator", "Controls whether `${path}` substitutions should have starting separator characters stripped.")
+            },
+            tildify: {
+              type: "boolean",
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.tildify", "Controls if the start of the uri label should be tildified when possible.")
+            },
+            workspaceSuffix: {
+              type: "string",
+              description: localize("vscode.extension.contributes.resourceLabelFormatters.formatting.workspaceSuffix", "Suffix appended to the workspace label.")
+            }
+          }
+        }
+      }
+    }
+  }
+});
+const sepRegexp = /\//g;
+const labelMatchingRegexp = /\$\{(scheme|authoritySuffix|authority|path|(query)\.(.+?))\}/g;
+function hasDriveLetterIgnorePlatform(path) {
+  return !!(path && path[2] === ":");
+}
+__name(hasDriveLetterIgnorePlatform, "hasDriveLetterIgnorePlatform");
+let ResourceLabelFormattersHandler = class ResourceLabelFormattersHandler2 {
+  static {
+    __name(this, "ResourceLabelFormattersHandler");
+  }
+  constructor(labelService) {
+    this.formattersDisposables = /* @__PURE__ */ new Map();
+    resourceLabelFormattersExtPoint.setHandler((extensions, delta) => {
+      for (const added of delta.added) {
+        for (const untrustedFormatter of added.value) {
+          const formatter = { ...untrustedFormatter };
+          if (typeof formatter.formatting.label !== "string") {
+            formatter.formatting.label = "${authority}${path}";
+          }
+          if (typeof formatter.formatting.separator !== `string`) {
+            formatter.formatting.separator = sep;
+          }
+          if (!isProposedApiEnabled(added.description, "contribLabelFormatterWorkspaceTooltip") && formatter.formatting.workspaceTooltip) {
+            formatter.formatting.workspaceTooltip = void 0;
+          }
+          this.formattersDisposables.set(formatter, labelService.registerFormatter(formatter));
+        }
+      }
+      for (const removed of delta.removed) {
+        for (const formatter of removed.value) {
+          dispose(this.formattersDisposables.get(formatter));
+        }
+      }
+    });
+  }
+};
+ResourceLabelFormattersHandler = __decorate([
+  __param(0, ILabelService)
+], ResourceLabelFormattersHandler);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  ResourceLabelFormattersHandler,
+  3
+  /* LifecyclePhase.Restored */
+);
+const FORMATTER_CACHE_SIZE = 50;
+let LabelService = class LabelService2 extends Disposable {
+  static {
+    __name(this, "LabelService");
+  }
+  constructor(environmentService, contextService, pathService, remoteAgentService, storageService, lifecycleService) {
+    super();
+    this.environmentService = environmentService;
+    this.contextService = contextService;
+    this.pathService = pathService;
+    this.remoteAgentService = remoteAgentService;
+    this._onDidChangeFormatters = this._register(new Emitter({ leakWarningThreshold: 400 }));
+    this.onDidChangeFormatters = this._onDidChangeFormatters.event;
+    this.os = OS;
+    this.userHome = pathService.defaultUriScheme === Schemas.file ? this.pathService.userHome({ preferLocal: true }) : void 0;
+    const memento = this.storedFormattersMemento = new Memento("cachedResourceLabelFormatters2", storageService);
+    this.storedFormatters = memento.getMemento(
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this.formatters = this.storedFormatters?.formatters?.slice() || [];
+    this.resolveRemoteEnvironment();
+  }
+  async resolveRemoteEnvironment() {
+    const env = await this.remoteAgentService.getEnvironment();
+    this.os = env?.os ?? OS;
+    this.userHome = await this.pathService.userHome();
+  }
+  findFormatting(resource) {
+    let bestResult;
+    for (const formatter of this.formatters) {
+      if (formatter.scheme === resource.scheme) {
+        if (!formatter.authority && (!bestResult || formatter.priority)) {
+          bestResult = formatter;
+          continue;
+        }
+        if (!formatter.authority) {
+          continue;
+        }
+        if (match(formatter.authority.toLowerCase(), resource.authority.toLowerCase()) && (!bestResult || !bestResult.authority || formatter.authority.length > bestResult.authority.length || formatter.authority.length === bestResult.authority.length && formatter.priority)) {
+          bestResult = formatter;
+        }
+      }
+    }
+    return bestResult ? bestResult.formatting : void 0;
+  }
+  getUriLabel(resource, options = {}) {
+    let formatting = this.findFormatting(resource);
+    if (formatting && options.separator) {
+      formatting = { ...formatting, separator: options.separator };
+    }
+    let label = this.doGetUriLabel(resource, formatting, options);
+    if (!formatting && options.separator) {
+      label = label.replace(sepRegexp, options.separator);
+    }
+    if (options.appendWorkspaceSuffix && formatting?.workspaceSuffix) {
+      label = this.appendWorkspaceSuffix(label, resource);
+    }
+    return label;
+  }
+  doGetUriLabel(resource, formatting, options = {}) {
+    if (!formatting) {
+      return getPathLabel(resource, {
+        os: this.os,
+        tildify: this.userHome ? { userHome: this.userHome } : void 0,
+        relative: options.relative ? {
+          noPrefix: options.noPrefix,
+          getWorkspace: /* @__PURE__ */ __name(() => this.contextService.getWorkspace(), "getWorkspace"),
+          getWorkspaceFolder: /* @__PURE__ */ __name((resource2) => this.contextService.getWorkspaceFolder(resource2), "getWorkspaceFolder")
+        } : void 0
+      });
+    }
+    if (options.relative && this.contextService) {
+      let folder = this.contextService.getWorkspaceFolder(resource);
+      if (!folder) {
+        const workspace = this.contextService.getWorkspace();
+        const firstFolder = workspace.folders.at(0);
+        if (firstFolder && resource.scheme !== firstFolder.uri.scheme && resource.path.startsWith(posix.sep)) {
+          folder = this.contextService.getWorkspaceFolder(firstFolder.uri.with({ path: resource.path }));
+        }
+      }
+      if (folder) {
+        const folderLabel = this.formatUri(folder.uri, formatting, options.noPrefix);
+        let relativeLabel = this.formatUri(resource, formatting, options.noPrefix);
+        let overlap = 0;
+        while (relativeLabel[overlap] && relativeLabel[overlap] === folderLabel[overlap]) {
+          overlap++;
+        }
+        if (!relativeLabel[overlap] || relativeLabel[overlap] === formatting.separator) {
+          relativeLabel = relativeLabel.substring(1 + overlap);
+        } else if (overlap === folderLabel.length && folder.uri.path === posix.sep) {
+          relativeLabel = relativeLabel.substring(overlap);
+        }
+        const hasMultipleRoots = this.contextService.getWorkspace().folders.length > 1;
+        if (hasMultipleRoots && !options.noPrefix) {
+          const rootName = folder?.name ?? basenameOrAuthority(folder.uri);
+          relativeLabel = relativeLabel ? `${rootName} \u2022 ${relativeLabel}` : rootName;
+        }
+        return relativeLabel;
+      }
+    }
+    return this.formatUri(resource, formatting, options.noPrefix);
+  }
+  getUriBasenameLabel(resource) {
+    const formatting = this.findFormatting(resource);
+    const label = this.doGetUriLabel(resource, formatting);
+    let pathLib;
+    if (formatting?.separator === win32.sep) {
+      pathLib = win32;
+    } else if (formatting?.separator === posix.sep) {
+      pathLib = posix;
+    } else {
+      pathLib = this.os === 1 ? win32 : posix;
+    }
+    return pathLib.basename(label);
+  }
+  getWorkspaceLabel(workspace, options) {
+    if (isWorkspace(workspace)) {
+      const identifier = toWorkspaceIdentifier(workspace);
+      if (isSingleFolderWorkspaceIdentifier(identifier) || isWorkspaceIdentifier(identifier)) {
+        return this.getWorkspaceLabel(identifier, options);
+      }
+      return "";
+    }
+    if (URI.isUri(workspace)) {
+      return this.doGetSingleFolderWorkspaceLabel(workspace, options);
+    }
+    if (isSingleFolderWorkspaceIdentifier(workspace)) {
+      return this.doGetSingleFolderWorkspaceLabel(workspace.uri, options);
+    }
+    if (isWorkspaceIdentifier(workspace)) {
+      return this.doGetWorkspaceLabel(workspace.configPath, options);
+    }
+    return "";
+  }
+  doGetWorkspaceLabel(workspaceUri, options) {
+    if (isUntitledWorkspace(workspaceUri, this.environmentService)) {
+      return localize("untitledWorkspace", "Untitled (Workspace)");
+    }
+    if (isTemporaryWorkspace(workspaceUri)) {
+      return localize("temporaryWorkspace", "Workspace");
+    }
+    let filename = basename(workspaceUri);
+    if (filename.endsWith(WORKSPACE_EXTENSION)) {
+      filename = filename.substr(0, filename.length - WORKSPACE_EXTENSION.length - 1);
+    }
+    let label;
+    switch (options?.verbose) {
+      case 0:
+        label = filename;
+        break;
+      case 2:
+        label = localize("workspaceNameVerbose", "{0} (Workspace)", this.getUriLabel(joinPath(dirname(workspaceUri), filename)));
+        break;
+      case 1:
+      default:
+        label = localize("workspaceName", "{0} (Workspace)", filename);
+        break;
+    }
+    if (options?.verbose === 0) {
+      return label;
+    }
+    return this.appendWorkspaceSuffix(label, workspaceUri);
+  }
+  doGetSingleFolderWorkspaceLabel(folderUri, options) {
+    let label;
+    switch (options?.verbose) {
+      case 2:
+        label = this.getUriLabel(folderUri);
+        break;
+      case 0:
+      case 1:
+      default:
+        label = basename(folderUri) || posix.sep;
+        break;
+    }
+    if (options?.verbose === 0) {
+      return label;
+    }
+    return this.appendWorkspaceSuffix(label, folderUri);
+  }
+  getSeparator(scheme, authority) {
+    const formatter = this.findFormatting(URI.from({ scheme, authority }));
+    return formatter?.separator || posix.sep;
+  }
+  getHostLabel(scheme, authority) {
+    const formatter = this.findFormatting(URI.from({ scheme, authority }));
+    return formatter?.workspaceSuffix || authority || "";
+  }
+  getHostTooltip(scheme, authority) {
+    const formatter = this.findFormatting(URI.from({ scheme, authority }));
+    return formatter?.workspaceTooltip;
+  }
+  registerCachedFormatter(formatter) {
+    const list = this.storedFormatters.formatters ??= [];
+    let replace = list.findIndex((f) => f.scheme === formatter.scheme && f.authority === formatter.authority);
+    if (replace === -1 && list.length >= FORMATTER_CACHE_SIZE) {
+      replace = FORMATTER_CACHE_SIZE - 1;
+    }
+    if (replace === -1) {
+      list.unshift(formatter);
+    } else {
+      for (let i = replace; i > 0; i--) {
+        list[i] = list[i - 1];
+      }
+      list[0] = formatter;
+    }
+    this.storedFormattersMemento.saveMemento();
+    return this.registerFormatter(formatter);
+  }
+  registerFormatter(formatter) {
+    this.formatters.push(formatter);
+    this._onDidChangeFormatters.fire({ scheme: formatter.scheme });
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this.formatters = this.formatters.filter((f) => f !== formatter);
+        this._onDidChangeFormatters.fire({ scheme: formatter.scheme });
+      }, "dispose")
+    };
+  }
+  formatUri(resource, formatting, forceNoTildify) {
+    let label = formatting.label.replace(labelMatchingRegexp, (match2, token, qsToken, qsValue) => {
+      switch (token) {
+        case "scheme":
+          return resource.scheme;
+        case "authority":
+          return resource.authority;
+        case "authoritySuffix": {
+          const i = resource.authority.indexOf("+");
+          return i === -1 ? resource.authority : resource.authority.slice(i + 1);
+        }
+        case "path":
+          return formatting.stripPathStartingSeparator ? resource.path.slice(resource.path[0] === formatting.separator ? 1 : 0) : resource.path;
+        default: {
+          if (qsToken === "query") {
+            const { query } = resource;
+            if (query && query[0] === "{" && query[query.length - 1] === "}") {
+              try {
+                return JSON.parse(query)[qsValue] || "";
+              } catch {
+              }
+            }
+          }
+          return "";
+        }
+      }
+    });
+    if (formatting.normalizeDriveLetter && hasDriveLetterIgnorePlatform(label)) {
+      label = label.charAt(1).toUpperCase() + label.substr(2);
+    }
+    if (formatting.tildify && !forceNoTildify) {
+      if (this.userHome) {
+        label = tildify(label, this.userHome.fsPath, this.os);
+      }
+    }
+    if (formatting.authorityPrefix && resource.authority) {
+      label = formatting.authorityPrefix + label;
+    }
+    return label.replace(sepRegexp, formatting.separator);
+  }
+  appendWorkspaceSuffix(label, uri) {
+    const formatting = this.findFormatting(uri);
+    const suffix = formatting && typeof formatting.workspaceSuffix === "string" ? formatting.workspaceSuffix : void 0;
+    return suffix ? `${label} [${suffix}]` : label;
+  }
+};
+LabelService = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, IWorkspaceContextService),
+  __param(2, IPathService),
+  __param(3, IRemoteAgentService),
+  __param(4, IStorageService),
+  __param(5, ILifecycleService)
+], LabelService);
+registerSingleton(
+  ILabelService,
+  LabelService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  LabelService
+};
+//# sourceMappingURL=labelService.js.map

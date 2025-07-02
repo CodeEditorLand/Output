@@ -1,1 +1,5 @@
-const o="comments";export{o as $LTb};
+const COMMENTS_SECTION = "comments";
+export {
+  COMMENTS_SECTION
+};
+//# sourceMappingURL=commentsConfiguration.js.map

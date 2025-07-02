@@ -1,1 +1,350 @@
-import{$Z5 as F,getWindow as L}from"../../../../../base/browser/dom.js";import{$Uc as O}from"../../../../../base/common/assert.js";import{$0h as S,$Yh as T,$Mh as k}from"../../../../../base/common/async.js";import{$df as R}from"../../../../../base/common/event.js";import{$vd as j,$td as J}from"../../../../../base/common/lifecycle.js";import{observableValue as P}from"../../../../../base/common/observable.js";import{$dh as U}from"../../../../../base/common/resources.js";import{$Nj as y}from"../../../../../base/common/themables.js";import{$0c as x}from"../../../../../base/common/types.js";import{$TC as f}from"../../../../../editor/common/core/editOperation.js";import{$_E as p}from"../../../../../editor/common/core/edits/stringEdit.js";import{$cC as g}from"../../../../../editor/common/core/range.js";import{$Leb as c}from"../../../../../editor/common/diff/documentDiffProvider.js";import{$yD as w}from"../../../../../editor/common/languages.js";import{OverviewRulerLane as z}from"../../../../../editor/common/model.js";import{$gI as E}from"../../../../../editor/common/model/textModel.js";import{$Tkb as B,$Ukb as G,$Skb as W}from"../../../../../editor/common/model/textModelStringEdit.js";import{$kfb as q}from"../../../../../editor/common/services/editorWorker.js";import{$KE as b}from"../../../../../editor/common/textModelEditReason.js";import{$peb as v,$keb as H}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$tq as X}from"../../../../../platform/theme/common/colorRegistry.js";import{$ugc as N}from"./chatEditingModifiedFileEntry.js";var C=function(h,i,t,e){var s=arguments.length,n=s<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,t):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,i,t,e);else for(var l=h.length-1;l>=0;l--)(r=h[l])&&(n=(s<3?r(n):s>3?r(i,t,n):r(i,t))||n);return s>3&&n&&Object.defineProperty(i,t,n),n},_=function(h,i){return function(t,e){i(t,e,h)}},m;let V=class extends j{static{m=this}static{this.a=E.register({isWholeLine:!0,description:"chat-last-edit",className:"chat-editing-last-edit-line",marginClassName:"chat-editing-last-edit",overviewRuler:{position:z.Full,color:y(X)}})}static{this.b=E.register({isWholeLine:!0,description:"chat-pending-edit",className:"chat-editing-pending-edit",minimap:{position:1,color:y(N)}})}static{this.c=E.register({isWholeLine:!0,description:"chat-atomic-edit",className:"chat-editing-atomic-edit",minimap:{position:1,color:y(N)}})}get isEditFromUs(){return this.f}get allEditsAreFromUs(){return this.g}get diffInfo(){return this.m.map(i=>({...i,originalModel:this.w,modifiedModel:this.y,keep:t=>this.H(t),undo:t=>this.I(t)}))}constructor(i,t,e,s,n){super(),this.w=i,this.y=t,this.z=e,this.C=s,this.D=n,this.f=!1,this.g=!0,this.j=0,this.m=P(this,c),this.n=this.B(new T(()=>{this.r=this.y.deltaDecorations(this.r,[])},500)),this.r=[],this.s=this.B(new R),this.onDidAcceptOrRejectAllHunks=this.s.event,this.t=this.B(new R),this.onDidUserEditModel=this.t.event,this.u=p.empty,this.B(this.y.onDidChangeContent(r=>{this.G(r)})),this.B(J(()=>{this.clearCurrentEditLineDecoration()}))}clearCurrentEditLineDecoration(){this.r=this.y.deltaDecorations(this.r,[])}async areOriginalAndModifiedIdentical(){const i=await this.h;return i?i.identical:!1}async acceptAgentEdits(i,t,e,s){x(t.every(w.isTextEdit),"INVALID args, can only handle text edits"),O(U(i,this.y.uri)," INVALID args, can only edit THIS document");const n=t.length>0&&e;let r=0,l=0;const A=s.session.getRequests().at(-1)?.modelId,$=b.chatApplyEdits({modelId:A});if(n){const I=(await this.C.computeMoreMinimalEdits(this.y.uri,t)??t).map(w.asEditOperation),d=this.F(I,$);if(d.length>0){let o;for(let a=0;a<d.length;a++){const u=d[a];o?o=g.plusRange(o,u.range):o=g.lift(u.range)}if(o){const a=new S,u=F(L(void 0),"animationend",M=>{M.animationName==="kf-chat-editing-atomic-edit"&&(a.complete(),u.dispose())});this.r=this.y.deltaDecorations(this.r,[{options:m.c,range:o}]),await Promise.any([a.p,k(500)]),u.dispose()}}}else{const D=t.map(w.asEditOperation);r=this.F(D,$).reduce((o,a)=>Math.max(o,a.range.startLineNumber),0),l=Math.min(1,r/this.y.getLineCount());const d=[{options:m.b,range:new g(r+1,1,Number.MAX_SAFE_INTEGER,Number.MAX_SAFE_INTEGER)}];r>0&&d.push({options:m.a,range:new g(r,1,r,Number.MAX_SAFE_INTEGER)}),this.r=this.y.deltaDecorations(this.r,d)}return e&&(this.J(),this.n.schedule()),{rewriteRatio:l,maxLineNumber:r}}F(i,t){t||(t=b.chatApplyEdits({modelId:void 0}));try{this.f=!0;let e=[];return this.y.pushEditOperations(null,i,s=>(e=s,null),void 0,t),e}finally{this.f=!1}}keep(){this.w.setValue(this.y.createSnapshot()),this.m.set(c,void 0),this.u=p.empty}undo(){this.y.pushStackElement(),this.F([f.replace(this.y.getFullModelRange(),this.w.getValue())]),this.y.pushStackElement(),this.u=p.empty,this.m.set(c,void 0)}async resetDocumentValues(i,t){let e=!1;i!==void 0&&(this.w.setValue(i),e=!0),t!==void 0&&this.y.getValue()!==t&&(this.y.pushStackElement(),this.F([f.replace(this.y.getFullModelRange(),t)]),this.y.pushStackElement(),e=!0),e&&await this.J()}G(i){const t=B(i.changes);if(this.f){const e=this.u,s=t;this.u=e.compose(s)}else{const e=this.u,s=t,n=s.tryRebase(e.inverse(this.w.getValue()),!0);if(n===void 0)this.u=e.compose(s);else{const r=W(n,this.w);this.w.applyEdits(r),this.u=e.tryRebase(n)}this.g=!1,this.J(),this.t.fire()}}async H(i){if(!this.m.get().changes.includes(i))return!1;const t=[];for(const e of i.innerChanges??[]){const s=this.y.getValueInRange(e.modifiedRange);t.push(f.replace(e.originalRange,s))}return this.w.pushEditOperations(null,t,e=>null),await this.J(),this.m.get().identical&&this.s.fire(1),this.D.playSignal(v.editsKept,{allowManyInParallel:!0}),!0}async I(i){if(!this.m.get().changes.includes(i))return!1;const t=[];for(const e of i.innerChanges??[]){const s=this.w.getValueInRange(e.originalRange);t.push(f.replace(e.modifiedRange,s))}return this.y.pushEditOperations(null,t,e=>null),await this.J(),this.m.get().identical&&this.s.fire(2),this.D.playSignal(v.editsUndone,{allowManyInParallel:!0}),!0}async J(){const i=++this.j;if(await Promise.resolve(this.h),this.j===i){const t=this.L();this.h=t,await t}}async L(){if(this.w.isDisposed()||this.y.isDisposed()||this.q.isDisposed)return;if(this.z.get()!==0)return this.m.set(c,void 0),this.u=p.empty,c;const i=this.y.getVersionId(),t=this.w.getVersionId(),e=await this.C.computeDiff(this.w.uri,this.y.uri,{ignoreTrimWhitespace:!1,computeMoves:!1,maxComputationTimeMs:3e3},"advanced");if(!(this.w.isDisposed()||this.y.isDisposed()||this.q.isDisposed)&&this.y.getVersionId()===i&&this.w.getVersionId()===t){const s=e??c;return this.m.set(s,void 0),this.u=G(this.w,this.y,s.changes),s}}};V=m=C([_(3,q),_(4,H)],V);export{V as $zgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEditingTextModelChangeService_1;
+import { addDisposableListener, getWindow } from "../../../../../base/browser/dom.js";
+import { assert } from "../../../../../base/common/assert.js";
+import { DeferredPromise, RunOnceScheduler, timeout } from "../../../../../base/common/async.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { themeColorFromId } from "../../../../../base/common/themables.js";
+import { assertType } from "../../../../../base/common/types.js";
+import { EditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { StringEdit } from "../../../../../editor/common/core/edits/stringEdit.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { nullDocumentDiff } from "../../../../../editor/common/diff/documentDiffProvider.js";
+import { TextEdit } from "../../../../../editor/common/languages.js";
+import { OverviewRulerLane } from "../../../../../editor/common/model.js";
+import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
+import { offsetEditFromContentChanges, offsetEditFromLineRangeMapping, offsetEditToEditOperations } from "../../../../../editor/common/model/textModelStringEdit.js";
+import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
+import { EditReasons } from "../../../../../editor/common/textModelEditReason.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { editorSelectionBackground } from "../../../../../platform/theme/common/colorRegistry.js";
+import { pendingRewriteMinimap } from "./chatEditingModifiedFileEntry.js";
+let ChatEditingTextModelChangeService = class ChatEditingTextModelChangeService2 extends Disposable {
+  static {
+    __name(this, "ChatEditingTextModelChangeService");
+  }
+  static {
+    ChatEditingTextModelChangeService_1 = this;
+  }
+  static {
+    this._lastEditDecorationOptions = ModelDecorationOptions.register({
+      isWholeLine: true,
+      description: "chat-last-edit",
+      className: "chat-editing-last-edit-line",
+      marginClassName: "chat-editing-last-edit",
+      overviewRuler: {
+        position: OverviewRulerLane.Full,
+        color: themeColorFromId(editorSelectionBackground)
+      }
+    });
+  }
+  static {
+    this._pendingEditDecorationOptions = ModelDecorationOptions.register({
+      isWholeLine: true,
+      description: "chat-pending-edit",
+      className: "chat-editing-pending-edit",
+      minimap: {
+        position: 1,
+        color: themeColorFromId(pendingRewriteMinimap)
+      }
+    });
+  }
+  static {
+    this._atomicEditDecorationOptions = ModelDecorationOptions.register({
+      isWholeLine: true,
+      description: "chat-atomic-edit",
+      className: "chat-editing-atomic-edit",
+      minimap: {
+        position: 1,
+        color: themeColorFromId(pendingRewriteMinimap)
+      }
+    });
+  }
+  get isEditFromUs() {
+    return this._isEditFromUs;
+  }
+  get allEditsAreFromUs() {
+    return this._allEditsAreFromUs;
+  }
+  get diffInfo() {
+    return this._diffInfo.map((value) => {
+      return {
+        ...value,
+        originalModel: this.originalModel,
+        modifiedModel: this.modifiedModel,
+        keep: /* @__PURE__ */ __name((changes) => this._keepHunk(changes), "keep"),
+        undo: /* @__PURE__ */ __name((changes) => this._undoHunk(changes), "undo")
+      };
+    });
+  }
+  constructor(originalModel, modifiedModel, state, _editorWorkerService, _accessibilitySignalService) {
+    super();
+    this.originalModel = originalModel;
+    this.modifiedModel = modifiedModel;
+    this.state = state;
+    this._editorWorkerService = _editorWorkerService;
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._isEditFromUs = false;
+    this._allEditsAreFromUs = true;
+    this._diffOperationIds = 0;
+    this._diffInfo = observableValue(this, nullDocumentDiff);
+    this._editDecorationClear = this._register(new RunOnceScheduler(() => {
+      this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, []);
+    }, 500));
+    this._editDecorations = [];
+    this._didAcceptOrRejectAllHunks = this._register(new Emitter());
+    this.onDidAcceptOrRejectAllHunks = this._didAcceptOrRejectAllHunks.event;
+    this._didUserEditModel = this._register(new Emitter());
+    this.onDidUserEditModel = this._didUserEditModel.event;
+    this._originalToModifiedEdit = StringEdit.empty;
+    this._register(this.modifiedModel.onDidChangeContent((e) => {
+      this._mirrorEdits(e);
+    }));
+    this._register(toDisposable(() => {
+      this.clearCurrentEditLineDecoration();
+    }));
+  }
+  clearCurrentEditLineDecoration() {
+    this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, []);
+  }
+  async areOriginalAndModifiedIdentical() {
+    const diff = await this._diffOperation;
+    return diff ? diff.identical : false;
+  }
+  async acceptAgentEdits(resource, textEdits, isLastEdits, responseModel) {
+    assertType(textEdits.every(TextEdit.isTextEdit), "INVALID args, can only handle text edits");
+    assert(isEqual(resource, this.modifiedModel.uri), " INVALID args, can only edit THIS document");
+    const isAtomicEdits = textEdits.length > 0 && isLastEdits;
+    let maxLineNumber = 0;
+    let rewriteRatio = 0;
+    const modelId = responseModel.session.getRequests().at(-1)?.modelId;
+    const reason = EditReasons.chatApplyEdits({ modelId });
+    if (isAtomicEdits) {
+      const minimalEdits = await this._editorWorkerService.computeMoreMinimalEdits(this.modifiedModel.uri, textEdits) ?? textEdits;
+      const ops = minimalEdits.map(TextEdit.asEditOperation);
+      const undoEdits = this._applyEdits(ops, reason);
+      if (undoEdits.length > 0) {
+        let range;
+        for (let i = 0; i < undoEdits.length; i++) {
+          const op = undoEdits[i];
+          if (!range) {
+            range = Range.lift(op.range);
+          } else {
+            range = Range.plusRange(range, op.range);
+          }
+        }
+        if (range) {
+          const defer = new DeferredPromise();
+          const listener = addDisposableListener(getWindow(void 0), "animationend", (e) => {
+            if (e.animationName === "kf-chat-editing-atomic-edit") {
+              defer.complete();
+              listener.dispose();
+            }
+          });
+          this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, [{
+            options: ChatEditingTextModelChangeService_1._atomicEditDecorationOptions,
+            range
+          }]);
+          await Promise.any([defer.p, timeout(500)]);
+          listener.dispose();
+        }
+      }
+    } else {
+      const ops = textEdits.map(TextEdit.asEditOperation);
+      const undoEdits = this._applyEdits(ops, reason);
+      maxLineNumber = undoEdits.reduce((max, op) => Math.max(max, op.range.startLineNumber), 0);
+      rewriteRatio = Math.min(1, maxLineNumber / this.modifiedModel.getLineCount());
+      const newDecorations = [
+        // decorate pending edit (region)
+        {
+          options: ChatEditingTextModelChangeService_1._pendingEditDecorationOptions,
+          range: new Range(maxLineNumber + 1, 1, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+        }
+      ];
+      if (maxLineNumber > 0) {
+        newDecorations.push({
+          options: ChatEditingTextModelChangeService_1._lastEditDecorationOptions,
+          range: new Range(maxLineNumber, 1, maxLineNumber, Number.MAX_SAFE_INTEGER)
+        });
+      }
+      this._editDecorations = this.modifiedModel.deltaDecorations(this._editDecorations, newDecorations);
+    }
+    if (isLastEdits) {
+      this._updateDiffInfoSeq();
+      this._editDecorationClear.schedule();
+    }
+    return { rewriteRatio, maxLineNumber };
+  }
+  _applyEdits(edits, reason) {
+    if (!reason) {
+      reason = EditReasons.chatApplyEdits({ modelId: void 0 });
+    }
+    try {
+      this._isEditFromUs = true;
+      let result = [];
+      this.modifiedModel.pushEditOperations(null, edits, (undoEdits) => {
+        result = undoEdits;
+        return null;
+      }, void 0, reason);
+      return result;
+    } finally {
+      this._isEditFromUs = false;
+    }
+  }
+  /**
+   * Keeps the current modified document as the final contents.
+   */
+  keep() {
+    this.originalModel.setValue(this.modifiedModel.createSnapshot());
+    this._diffInfo.set(nullDocumentDiff, void 0);
+    this._originalToModifiedEdit = StringEdit.empty;
+  }
+  /**
+   * Undoes the current modified document as the final contents.
+   */
+  undo() {
+    this.modifiedModel.pushStackElement();
+    this._applyEdits([EditOperation.replace(this.modifiedModel.getFullModelRange(), this.originalModel.getValue())]);
+    this.modifiedModel.pushStackElement();
+    this._originalToModifiedEdit = StringEdit.empty;
+    this._diffInfo.set(nullDocumentDiff, void 0);
+  }
+  async resetDocumentValues(newOriginal, newModified) {
+    let didChange = false;
+    if (newOriginal !== void 0) {
+      this.originalModel.setValue(newOriginal);
+      didChange = true;
+    }
+    if (newModified !== void 0 && this.modifiedModel.getValue() !== newModified) {
+      this.modifiedModel.pushStackElement();
+      this._applyEdits([EditOperation.replace(this.modifiedModel.getFullModelRange(), newModified)]);
+      this.modifiedModel.pushStackElement();
+      didChange = true;
+    }
+    if (didChange) {
+      await this._updateDiffInfoSeq();
+    }
+  }
+  _mirrorEdits(event) {
+    const edit = offsetEditFromContentChanges(event.changes);
+    if (this._isEditFromUs) {
+      const e_sum = this._originalToModifiedEdit;
+      const e_ai = edit;
+      this._originalToModifiedEdit = e_sum.compose(e_ai);
+    } else {
+      const e_ai = this._originalToModifiedEdit;
+      const e_user = edit;
+      const e_user_r = e_user.tryRebase(e_ai.inverse(this.originalModel.getValue()), true);
+      if (e_user_r === void 0) {
+        this._originalToModifiedEdit = e_ai.compose(e_user);
+      } else {
+        const edits = offsetEditToEditOperations(e_user_r, this.originalModel);
+        this.originalModel.applyEdits(edits);
+        this._originalToModifiedEdit = e_ai.tryRebase(e_user_r);
+      }
+      this._allEditsAreFromUs = false;
+      this._updateDiffInfoSeq();
+      this._didUserEditModel.fire();
+    }
+  }
+  async _keepHunk(change) {
+    if (!this._diffInfo.get().changes.includes(change)) {
+      return false;
+    }
+    const edits = [];
+    for (const edit of change.innerChanges ?? []) {
+      const newText = this.modifiedModel.getValueInRange(edit.modifiedRange);
+      edits.push(EditOperation.replace(edit.originalRange, newText));
+    }
+    this.originalModel.pushEditOperations(null, edits, (_) => null);
+    await this._updateDiffInfoSeq();
+    if (this._diffInfo.get().identical) {
+      this._didAcceptOrRejectAllHunks.fire(
+        1
+        /* ModifiedFileEntryState.Accepted */
+      );
+    }
+    this._accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+    return true;
+  }
+  async _undoHunk(change) {
+    if (!this._diffInfo.get().changes.includes(change)) {
+      return false;
+    }
+    const edits = [];
+    for (const edit of change.innerChanges ?? []) {
+      const newText = this.originalModel.getValueInRange(edit.originalRange);
+      edits.push(EditOperation.replace(edit.modifiedRange, newText));
+    }
+    this.modifiedModel.pushEditOperations(null, edits, (_) => null);
+    await this._updateDiffInfoSeq();
+    if (this._diffInfo.get().identical) {
+      this._didAcceptOrRejectAllHunks.fire(
+        2
+        /* ModifiedFileEntryState.Rejected */
+      );
+    }
+    this._accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+    return true;
+  }
+  async _updateDiffInfoSeq() {
+    const myDiffOperationId = ++this._diffOperationIds;
+    await Promise.resolve(this._diffOperation);
+    if (this._diffOperationIds === myDiffOperationId) {
+      const thisDiffOperation = this._updateDiffInfo();
+      this._diffOperation = thisDiffOperation;
+      await thisDiffOperation;
+    }
+  }
+  async _updateDiffInfo() {
+    if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed() || this._store.isDisposed) {
+      return void 0;
+    }
+    if (this.state.get() !== 0) {
+      this._diffInfo.set(nullDocumentDiff, void 0);
+      this._originalToModifiedEdit = StringEdit.empty;
+      return nullDocumentDiff;
+    }
+    const docVersionNow = this.modifiedModel.getVersionId();
+    const snapshotVersionNow = this.originalModel.getVersionId();
+    const diff = await this._editorWorkerService.computeDiff(this.originalModel.uri, this.modifiedModel.uri, {
+      ignoreTrimWhitespace: false,
+      // NEVER ignore whitespace so that undo/accept edits are correct and so that all changes (1 of 2) are spelled out
+      computeMoves: false,
+      maxComputationTimeMs: 3e3
+    }, "advanced");
+    if (this.originalModel.isDisposed() || this.modifiedModel.isDisposed() || this._store.isDisposed) {
+      return void 0;
+    }
+    if (this.modifiedModel.getVersionId() === docVersionNow && this.originalModel.getVersionId() === snapshotVersionNow) {
+      const diff2 = diff ?? nullDocumentDiff;
+      this._diffInfo.set(diff2, void 0);
+      this._originalToModifiedEdit = offsetEditFromLineRangeMapping(this.originalModel, this.modifiedModel, diff2.changes);
+      return diff2;
+    }
+    return void 0;
+  }
+};
+ChatEditingTextModelChangeService = ChatEditingTextModelChangeService_1 = __decorate([
+  __param(3, IEditorWorkerService),
+  __param(4, IAccessibilitySignalService)
+], ChatEditingTextModelChangeService);
+export {
+  ChatEditingTextModelChangeService
+};
+//# sourceMappingURL=chatEditingTextModelChangeService.js.map

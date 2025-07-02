@@ -1,1 +1,50 @@
-const a=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;function f(t){return a.test(t)}const c=function(){if(typeof crypto.randomUUID=="function")return crypto.randomUUID.bind(crypto);const t=new Uint8Array(16),r=[];for(let o=0;o<256;o++)r.push(o.toString(16).padStart(2,"0"));return function(){crypto.getRandomValues(t),t[6]=t[6]&15|64,t[8]=t[8]&63|128;let e=0,n="";return n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n+="-",n+=r[t[e++]],n+=r[t[e++]],n+="-",n+=r[t[e++]],n+=r[t[e++]],n+="-",n+=r[t[e++]],n+=r[t[e++]],n+="-",n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n+=r[t[e++]],n}}();export{f as $Rm,c as $Sm};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const _UUIDPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isUUID(value) {
+  return _UUIDPattern.test(value);
+}
+__name(isUUID, "isUUID");
+const generateUuid = function() {
+  if (typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID.bind(crypto);
+  }
+  const _data = new Uint8Array(16);
+  const _hex = [];
+  for (let i = 0; i < 256; i++) {
+    _hex.push(i.toString(16).padStart(2, "0"));
+  }
+  return /* @__PURE__ */ __name(function generateUuid2() {
+    crypto.getRandomValues(_data);
+    _data[6] = _data[6] & 15 | 64;
+    _data[8] = _data[8] & 63 | 128;
+    let i = 0;
+    let result = "";
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += "-";
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += "-";
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += "-";
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += "-";
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    result += _hex[_data[i++]];
+    return result;
+  }, "generateUuid");
+}();
+export {
+  generateUuid,
+  isUUID
+};
+//# sourceMappingURL=uuid.js.map

@@ -1,10 +1,400 @@
-import"./media/mcpServerEditor.css";import{$ as n,$36 as s,$Y5 as P,$t6 as ot}from"../../../../base/browser/dom.js";import{$37 as T}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$17 as J}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$R7 as j}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$am as st}from"../../../../base/common/actions.js";import*as w from"../../../../base/common/arrays.js";import{$rf as A}from"../../../../base/common/cache.js";import{$pf as Y}from"../../../../base/common/cancellation.js";import{$pb as at}from"../../../../base/common/errors.js";import{$df as rt,Event as L}from"../../../../base/common/event.js";import{$vd as K,$ud as H,$wd as ct,$qd as lt,$td as y}from"../../../../base/common/lifecycle.js";import{Schemas as S,$Wg as Z}from"../../../../base/common/network.js";import{$A as dt}from"../../../../base/common/platform.js";import{URI as N}from"../../../../base/common/uri.js";import{$Sm as U}from"../../../../base/common/uuid.js";import{$BD as ut}from"../../../../editor/common/languages.js";import{$CD as ht}from"../../../../editor/common/languages/language.js";import{$FQb as ft}from"../../../../editor/common/languages/supports/tokenization.js";import{localize as l}from"../../../../nls.js";import{$Wn as bt}from"../../../../platform/contextkey/common/contextkey.js";import{$mj as mt}from"../../../../platform/instantiation/common/instantiation.js";import{$_I as gt}from"../../../../platform/notification/common/notification.js";import{$i_ as Q}from"../../../../platform/opener/common/opener.js";import{$Jo as pt}from"../../../../platform/storage/common/storage.js";import{$Ro as vt}from"../../../../platform/telemetry/common/telemetry.js";import{$Ot as yt}from"../../../../platform/theme/common/themeService.js";import{$1Db as It}from"../../../browser/parts/editor/editorPane.js";import{$Ric as Ct,$Sic as wt}from"../../markdown/browser/markdownDocumentRenderer.js";import{$tzb as $t}from"../../webview/browser/webview.js";import{$YO as Dt}from"../../../services/extensions/common/extensions.js";import{$Fgb as X}from"../../../../platform/hover/browser/hover.js";import{$gX as kt}from"../common/mcpTypes.js";import{$Xic as xt,$Vic as jt,$Uic as q,$Wic as Lt,$Yic as St}from"./mcpServerWidgets.js";import{$1ic as Zt,$3ic as Mt,$5ic as Ht,$4ic as Nt}from"./mcpServerActions.js";var V=function(f,e,t,o){var i=arguments.length,a=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(f,e,t,o);else for(var d=f.length-1;d>=0;d--)(r=f[d])&&(a=(i<3?r(a):i>3?r(e,t,a):r(e,t))||a);return i>3&&a&&Object.defineProperty(e,t,a),a},g=function(f,e){return function(t,o){e(t,o,f)}},M,O;(function(f){f.Readme="readme",f.Configuration="configuration",f.Manifest="manifest"})(O||(O={}));function Bt(f){return`${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,"0")}-${String(f.getDate()).padStart(2,"0")}, ${f.toLocaleTimeString(dt,{hourCycle:"h23"})}`}class Gt extends K{get onChange(){return this.b.event}get currentId(){return this.c}constructor(e){super(),this.b=this.B(new rt),this.c=null;const t=s(e,n(".navbar"));this.f=[],this.g=this.B(new T(t))}push(e,t,o){const i=new st(e,t,void 0,!0,()=>this.h(e,!0));i.tooltip=o,this.f.push(i),this.g.push(i),this.f.length===1&&this.h(e)}clear(){this.f=lt(this.f),this.g.clear()}switch(e){const t=this.f.find(o=>o.id===e);return t?(t.run(),!0):!1}h(e,t){this.c=e,this.b.fire({id:e,focus:!!t}),this.f.forEach(o=>o.checked=o.id===e)}}var _;(function(f){f[f.Readme=0]="Readme",f[f.Changelog=1]="Changelog"})(_||(_={}));let F=class extends It{static{M=this}static{this.ID="workbench.editor.mcpServer"}constructor(e,t,o,i,a,r,d,b,c,h,u,m){super(M.ID,e,t,i,d),this.eb=o,this.fb=a,this.gb=r,this.hb=b,this.ib=c,this.jb=h,this.kb=u,this.lb=m,this.b=this.B(new ct),this.j=new Map,this.m="",this.r=[],this.s=this.B(new H),this.u=this.B(new H),this.cb=null,this.f=null,this.g=null}get scopedContextKeyService(){return this.b.value}Y(e){const t=s(e,n(".extension-editor.mcp-server-editor"));this.b.value=this.kb.createScoped(t),this.b.value.createKey("inExtensionEditor",!0),t.tabIndex=0,t.style.outline="none",t.setAttribute("role","document");const o=s(t,n(".header")),i=s(o,n(".icon-container")),a=this.eb.createInstance(jt,i),r=s(o,n(".details")),d=s(r,n(".title")),b=s(d,n("span.name.clickable",{role:"heading",tabIndex:0}));this.B(this.lb.setupManagedHover(J("mouse"),b,l(8899,null)));const c=s(r,n(".subtitle")),h=[],u=s(c,n(".subtitle-entry"));h.push(u);const m=this.eb.createInstance(Lt,u,!1),C=s(c,n(".subtitle-entry"));h.push(C);const k=this.eb.createInstance(xt,C,!1),$=s(c,n(".subtitle-entry"));h.push($);const tt=this.eb.createInstance(St,$,!1),G=[a,m,k,tt],et=s(r,n(".description")),D=[this.eb.createInstance(Mt),this.eb.createInstance(Nt),this.eb.createInstance(Ht,!0)],E=s(r,n(".actions-status-container.mcp-server-actions")),I=this.B(new T(E,{actionViewItemProvider:(v,p)=>{if(v instanceof Zt)return v.createActionViewItem(p)},focusOnlyEnabledItems:!0}));I.push(D,{icon:!0,label:!0}),I.setFocusable(!0),this.B(L.any(...D.map(v=>L.filter(v.onDidChange,p=>p.enabled!==void 0)))(()=>{I.setFocusable(!1),I.setFocusable(!0)}));const z=this.eb.createInstance(kt,[...D,...G]);for(const v of[...D,...G,z])this.B(v);const nt=L.chain(I.onDidRun,v=>v.map(({error:p})=>p).filter(p=>!!p));this.B(nt(this.Bb,this));const R=s(t,n(".body")),it=new Gt(R),W=s(R,n(".content"));W.id=U(),this.c={content:W,description:et,header:o,name:b,navbar:it,actionsAndStatusContainer:E,actionBar:I,set mcpServer(v){z.mcpServer=v;let p;for(const x of h)x.classList.remove("last-non-empty"),x.children.length>0&&(p=x);p&&p.classList.add("last-non-empty")}}}async setInput(e,t,o,i){await super.setInput(e,t,o,i),this.c&&await this.nb(e.mcpServer,this.c,!!t?.preserveFocus)}async nb(e,t,o){this.cb=null,this.u.clear();const i=this.u.add(new Y).token;this.f=new A(()=>e.getReadme(i)),this.g=new A(()=>e.getManifest(i)),t.mcpServer=e,t.name.textContent=e.label,t.name.classList.toggle("clickable",!!e.url),t.description.textContent=e.description,e.url&&this.u.add(q(t.name,()=>this.gb.open(N.parse(e.url)))),this.ob(e,t,o)}ob(e,t,o){t.content.innerText="",t.navbar.clear(),this.m!==e.id&&(this.j.clear(),this.m=e.id),e.hasReadme()&&t.navbar.push("readme",l(8900,null),l(8901,null)),e.config&&t.navbar.push("configuration",l(8902,null),l(8903,null)),(e.gallery||e.local?.manifest)&&t.navbar.push("manifest",l(8904,null),l(8905,null)),t.navbar.currentId&&this.pb(e,{id:t.navbar.currentId,focus:!o},t),t.navbar.onChange(i=>this.pb(e,i,t),this,this.u)}clearInput(){this.s.clear(),this.u.clear(),super.clearInput()}focus(){super.focus(),this.cb?.focus()}showFind(){this.activeWebview?.showFind()}runFindAction(e){this.activeWebview?.runFindAction(e)}get activeWebview(){if(!(!this.cb||!this.cb.runFindAction))return this.cb}pb(e,{id:t,focus:o},i){if(this.s.clear(),i.content.innerText="",this.cb=null,t){const a=new Y;this.s.add(y(()=>a.dispose(!0))),this.qb(t,e,i,a.token).then(r=>{a.token.isCancellationRequested||(this.cb=r,o&&this.focus())})}}qb(e,t,o,i){switch(e){case"configuration":return this.vb(t,o,i);case"readme":return this.ub(t,o,i);case"manifest":return this.wb(t,o,i)}return Promise.resolve(null)}async rb(e,t,o,i,a,r,d){try{const b=await this.sb(e,t,i,d);if(d.isCancellationRequested)return Promise.resolve(null);const c=this.s.add(this.ib.createWebviewOverlay({title:r,options:{enableFindWidget:!0,tryRestoreScrollPosition:!0,disableServiceWorker:!0},contentOptions:{},extension:void 0}));c.initialScrollProgress=this.j.get(a)||0,c.claim(this,this.window,this.scopedContextKeyService),ot(c.container,i),c.layoutWebviewOverElement(i),c.setHtml(b),c.claim(this,this.window,void 0),this.s.add(c.onDidFocus(()=>this.y?.fire())),this.s.add(c.onDidScroll(()=>this.j.set(a,c.initialScrollProgress)));const h=w.$ec(this.r,{layout:()=>{c.layoutWebviewOverElement(i)}});this.s.add(y(h));let u=!1;return this.s.add(y(()=>{u=!0})),this.s.add(this.n.onDidColorThemeChange(async()=>{const m=await this.sb(e,t,i);u||c.setHtml(m)})),this.s.add(c.onDidClickLink(m=>{m&&(Z(m,S.http)||Z(m,S.https)||Z(m,S.mailto))&&this.gb.open(m)})),c}catch{const c=s(i,n("p.nocontent"));return c.textContent=o,c}}async sb(e,t,o,i){const a=await this.Ab(()=>t,o);if(i?.isCancellationRequested)return"";const r=await wt(a,this.hb,this.jb,{shouldSanitize:!0,token:i});return i?.isCancellationRequested?"":this.tb(r)}tb(e){const t=U(),o=ut.getColorMap(),i=o?ft(o):"";return`<!DOCTYPE html>
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var McpServerEditor_1;
+import "./media/mcpServerEditor.css";
+import { $, append, clearNode, setParentFlowTo } from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Action } from "../../../../base/common/actions.js";
+import * as arrays from "../../../../base/common/arrays.js";
+import { Cache } from "../../../../base/common/cache.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { language } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
+import { IWebviewService } from "../../webview/browser/webview.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { McpServerContainers } from "../common/mcpTypes.js";
+import { InstallCountWidget, McpServerIconWidget, onClick, PublisherWidget, RatingsWidget } from "./mcpServerWidgets.js";
+import { DropDownAction, InstallAction, ManageMcpServerAction, UninstallAction } from "./mcpServerActions.js";
+var McpServerEditorTab;
+(function(McpServerEditorTab2) {
+  McpServerEditorTab2["Readme"] = "readme";
+  McpServerEditorTab2["Configuration"] = "configuration";
+  McpServerEditorTab2["Manifest"] = "manifest";
+})(McpServerEditorTab || (McpServerEditorTab = {}));
+function toDateString(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}, ${date.toLocaleTimeString(language, { hourCycle: "h23" })}`;
+}
+__name(toDateString, "toDateString");
+class NavBar extends Disposable {
+  static {
+    __name(this, "NavBar");
+  }
+  get onChange() {
+    return this._onChange.event;
+  }
+  get currentId() {
+    return this._currentId;
+  }
+  constructor(container) {
+    super();
+    this._onChange = this._register(new Emitter());
+    this._currentId = null;
+    const element = append(container, $(".navbar"));
+    this.actions = [];
+    this.actionbar = this._register(new ActionBar(element));
+  }
+  push(id, label, tooltip) {
+    const action = new Action(id, label, void 0, true, () => this.update(id, true));
+    action.tooltip = tooltip;
+    this.actions.push(action);
+    this.actionbar.push(action);
+    if (this.actions.length === 1) {
+      this.update(id);
+    }
+  }
+  clear() {
+    this.actions = dispose(this.actions);
+    this.actionbar.clear();
+  }
+  switch(id) {
+    const action = this.actions.find((action2) => action2.id === id);
+    if (action) {
+      action.run();
+      return true;
+    }
+    return false;
+  }
+  update(id, focus) {
+    this._currentId = id;
+    this._onChange.fire({ id, focus: !!focus });
+    this.actions.forEach((a) => a.checked = a.id === id);
+  }
+}
+var WebviewIndex;
+(function(WebviewIndex2) {
+  WebviewIndex2[WebviewIndex2["Readme"] = 0] = "Readme";
+  WebviewIndex2[WebviewIndex2["Changelog"] = 1] = "Changelog";
+})(WebviewIndex || (WebviewIndex = {}));
+let McpServerEditor = class McpServerEditor2 extends EditorPane {
+  static {
+    __name(this, "McpServerEditor");
+  }
+  static {
+    McpServerEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.mcpServer";
+  }
+  constructor(group, telemetryService, instantiationService, themeService, notificationService, openerService, storageService, extensionService, webviewService, languageService, contextKeyService, hoverService) {
+    super(McpServerEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.notificationService = notificationService;
+    this.openerService = openerService;
+    this.extensionService = extensionService;
+    this.webviewService = webviewService;
+    this.languageService = languageService;
+    this.contextKeyService = contextKeyService;
+    this.hoverService = hoverService;
+    this._scopedContextKeyService = this._register(new MutableDisposable());
+    this.initialScrollProgress = /* @__PURE__ */ new Map();
+    this.currentIdentifier = "";
+    this.layoutParticipants = [];
+    this.contentDisposables = this._register(new DisposableStore());
+    this.transientDisposables = this._register(new DisposableStore());
+    this.activeElement = null;
+    this.mcpServerReadme = null;
+    this.mcpServerManifest = null;
+  }
+  get scopedContextKeyService() {
+    return this._scopedContextKeyService.value;
+  }
+  createEditor(parent) {
+    const root = append(parent, $(".extension-editor.mcp-server-editor"));
+    this._scopedContextKeyService.value = this.contextKeyService.createScoped(root);
+    this._scopedContextKeyService.value.createKey("inExtensionEditor", true);
+    root.tabIndex = 0;
+    root.style.outline = "none";
+    root.setAttribute("role", "document");
+    const header = append(root, $(".header"));
+    const iconContainer = append(header, $(".icon-container"));
+    const iconWidget = this.instantiationService.createInstance(McpServerIconWidget, iconContainer);
+    const details = append(header, $(".details"));
+    const title = append(details, $(".title"));
+    const name = append(title, $("span.name.clickable", { role: "heading", tabIndex: 0 }));
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), name, localize("name", "Extension name")));
+    const subtitle = append(details, $(".subtitle"));
+    const subTitleEntryContainers = [];
+    const publisherContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(publisherContainer);
+    const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
+    const installCountContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(installCountContainer);
+    const installCountWidget = this.instantiationService.createInstance(InstallCountWidget, installCountContainer, false);
+    const ratingsContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(ratingsContainer);
+    const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratingsContainer, false);
+    const widgets = [
+      iconWidget,
+      publisherWidget,
+      installCountWidget,
+      ratingsWidget
+    ];
+    const description = append(details, $(".description"));
+    const actions = [
+      this.instantiationService.createInstance(InstallAction),
+      this.instantiationService.createInstance(UninstallAction),
+      this.instantiationService.createInstance(ManageMcpServerAction, true)
+    ];
+    const actionsAndStatusContainer = append(details, $(".actions-status-container.mcp-server-actions"));
+    const actionBar = this._register(new ActionBar(actionsAndStatusContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof DropDownAction) {
+          return action.createActionViewItem(options);
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      focusOnlyEnabledItems: true
+    }));
+    actionBar.push(actions, { icon: true, label: true });
+    actionBar.setFocusable(true);
+    this._register(Event.any(...actions.map((a) => Event.filter(a.onDidChange, (e) => e.enabled !== void 0)))(() => {
+      actionBar.setFocusable(false);
+      actionBar.setFocusable(true);
+    }));
+    const mcpServerContainers = this.instantiationService.createInstance(McpServerContainers, [...actions, ...widgets]);
+    for (const disposable of [...actions, ...widgets, mcpServerContainers]) {
+      this._register(disposable);
+    }
+    const onError = Event.chain(actionBar.onDidRun, ($2) => $2.map(({ error }) => error).filter((error) => !!error));
+    this._register(onError(this.onError, this));
+    const body = append(root, $(".body"));
+    const navbar = new NavBar(body);
+    const content = append(body, $(".content"));
+    content.id = generateUuid();
+    this.template = {
+      content,
+      description,
+      header,
+      name,
+      navbar,
+      actionsAndStatusContainer,
+      actionBar,
+      set mcpServer(mcpServer) {
+        mcpServerContainers.mcpServer = mcpServer;
+        let lastNonEmptySubtitleEntryContainer;
+        for (const subTitleEntryElement of subTitleEntryContainers) {
+          subTitleEntryElement.classList.remove("last-non-empty");
+          if (subTitleEntryElement.children.length > 0) {
+            lastNonEmptySubtitleEntryContainer = subTitleEntryElement;
+          }
+        }
+        if (lastNonEmptySubtitleEntryContainer) {
+          lastNonEmptySubtitleEntryContainer.classList.add("last-non-empty");
+        }
+      }
+    };
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    if (this.template) {
+      await this.render(input.mcpServer, this.template, !!options?.preserveFocus);
+    }
+  }
+  async render(mcpServer, template, preserveFocus) {
+    this.activeElement = null;
+    this.transientDisposables.clear();
+    const token = this.transientDisposables.add(new CancellationTokenSource()).token;
+    this.mcpServerReadme = new Cache(() => mcpServer.getReadme(token));
+    this.mcpServerManifest = new Cache(() => mcpServer.getManifest(token));
+    template.mcpServer = mcpServer;
+    template.name.textContent = mcpServer.label;
+    template.name.classList.toggle("clickable", !!mcpServer.url);
+    template.description.textContent = mcpServer.description;
+    if (mcpServer.url) {
+      this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(mcpServer.url))));
+    }
+    this.renderNavbar(mcpServer, template, preserveFocus);
+  }
+  renderNavbar(extension, template, preserveFocus) {
+    template.content.innerText = "";
+    template.navbar.clear();
+    if (this.currentIdentifier !== extension.id) {
+      this.initialScrollProgress.clear();
+      this.currentIdentifier = extension.id;
+    }
+    if (extension.hasReadme()) {
+      template.navbar.push("readme", localize("details", "Details"), localize("detailstooltip", "Extension details, rendered from the extension's 'README.md' file"));
+    }
+    if (extension.config) {
+      template.navbar.push("configuration", localize("configuration", "Configuration"), localize("configurationtooltip", "Server configuration details"));
+    }
+    if (extension.gallery || extension.local?.manifest) {
+      template.navbar.push("manifest", localize("manifest", "Manifest"), localize("manifesttooltip", "Server manifest details"));
+    }
+    if (template.navbar.currentId) {
+      this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
+    }
+    template.navbar.onChange((e) => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
+  }
+  clearInput() {
+    this.contentDisposables.clear();
+    this.transientDisposables.clear();
+    super.clearInput();
+  }
+  focus() {
+    super.focus();
+    this.activeElement?.focus();
+  }
+  showFind() {
+    this.activeWebview?.showFind();
+  }
+  runFindAction(previous) {
+    this.activeWebview?.runFindAction(previous);
+  }
+  get activeWebview() {
+    if (!this.activeElement || !this.activeElement.runFindAction) {
+      return void 0;
+    }
+    return this.activeElement;
+  }
+  onNavbarChange(extension, { id, focus }, template) {
+    this.contentDisposables.clear();
+    template.content.innerText = "";
+    this.activeElement = null;
+    if (id) {
+      const cts = new CancellationTokenSource();
+      this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
+      this.open(id, extension, template, cts.token).then((activeElement) => {
+        if (cts.token.isCancellationRequested) {
+          return;
+        }
+        this.activeElement = activeElement;
+        if (focus) {
+          this.focus();
+        }
+      });
+    }
+  }
+  open(id, extension, template, token) {
+    switch (id) {
+      case "configuration":
+        return this.openConfiguration(extension, template, token);
+      case "readme":
+        return this.openDetails(extension, template, token);
+      case "manifest":
+        return this.openManifest(extension, template, token);
+    }
+    return Promise.resolve(null);
+  }
+  async openMarkdown(extension, cacheResult, noContentCopy, container, webviewIndex, title, token) {
+    try {
+      const body = await this.renderMarkdown(extension, cacheResult, container, token);
+      if (token.isCancellationRequested) {
+        return Promise.resolve(null);
+      }
+      const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
+        title,
+        options: {
+          enableFindWidget: true,
+          tryRestoreScrollPosition: true,
+          disableServiceWorker: true
+        },
+        contentOptions: {},
+        extension: void 0
+      }));
+      webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
+      webview.claim(this, this.window, this.scopedContextKeyService);
+      setParentFlowTo(webview.container, container);
+      webview.layoutWebviewOverElement(container);
+      webview.setHtml(body);
+      webview.claim(this, this.window, void 0);
+      this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
+      this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
+      const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+        layout: /* @__PURE__ */ __name(() => {
+          webview.layoutWebviewOverElement(container);
+        }, "layout")
+      });
+      this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+      let isDisposed = false;
+      this.contentDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+        const body2 = await this.renderMarkdown(extension, cacheResult, container);
+        if (!isDisposed) {
+          webview.setHtml(body2);
+        }
+      }));
+      this.contentDisposables.add(webview.onDidClickLink((link) => {
+        if (!link) {
+          return;
+        }
+        if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
+          this.openerService.open(link);
+        }
+      }));
+      return webview;
+    } catch (e) {
+      const p = append(container, $("p.nocontent"));
+      p.textContent = noContentCopy;
+      return p;
+    }
+  }
+  async renderMarkdown(extension, cacheResult, container, token) {
+    const contents = await this.loadContents(() => cacheResult, container);
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, { shouldSanitize: true, token });
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    return this.renderBody(content);
+  }
+  renderBody(body) {
+    const nonce = generateUuid();
+    const colorMap = TokenizationRegistry.getColorMap();
+    const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
+    return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${t}';">
-				<style nonce="${t}">
-					${Ct}
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${nonce}';">
+				<style nonce="${nonce}">
+					${DEFAULT_MARKDOWN_STYLES}
 
 					/* prevent scroll-to-top button from blocking the body text */
 					body {
@@ -49,11 +439,290 @@ import"./media/mcpServerEditor.css";import{$ as n,$36 as s,$Y5 as P,$t6 as ot}fr
 						width: 16px;
 						height: 16px;
 					}
-					${i}
+					${css}
 				</style>
 			</head>
 			<body>
 				<a id="scroll-to-top" role="button" aria-label="scroll to top" href="#"><span class="icon"></span></a>
-				${e}
+				${body}
 			</body>
-		</html>`}async ub(e,t,o){const i=s(t.content,n(".details")),a=s(i,n(".readme-container")),r=s(i,n(".additional-details-container")),d=()=>i.classList.toggle("narrow",this.db&&this.db.width<500);d(),this.s.add(y(w.$ec(this.r,{layout:d})));const b=await this.rb(e,this.f.get(),l(8906,null),a,0,l(8907,null),o);return this.zb(r,e),b}async vb(e,t,o){const i=s(t.content,n(".configuration")),a=n("div",{class:"configuration-content",tabindex:"0"});this.xb(a,e);const r=new j(a,{}),d=()=>r.scanDomNode();return this.s.add(y(w.$ec(this.r,{layout:d}))),s(i,r.getDomNode()),{focus:()=>a.focus()}}async wb(e,t,o){const i=s(t.content,n(".manifest")),a=n("div",{class:"manifest-content",tabindex:"0"});try{const b=await this.Ab(()=>this.g.get(),a);if(o.isCancellationRequested)return null;this.yb(a,b)}catch{for(;a.firstChild;)a.removeChild(a.firstChild);const c=s(a,n(".no-manifest"));c.textContent=l(8908,null)}const r=new j(a,{}),d=()=>r.scanDomNode();return this.s.add(y(w.$ec(this.r,{layout:d}))),s(i,r.getDomNode()),{focus:()=>a.focus()}}xb(e,t){P(e);const o=t.config;if(!o){const h=s(e,n(".no-config"));h.textContent=l(8909,null);return}const i=s(e,n(".config-section")),a=s(i,n(".config-label"));a.textContent=l(8910,null);const r=s(i,n(".config-value"));r.textContent=t.name;const d=s(e,n(".config-section")),b=s(d,n(".config-label"));b.textContent=l(8911,null);const c=s(d,n(".config-value"));if(c.textContent=o.type,o.type==="stdio"){const h=s(e,n(".config-section")),u=s(h,n(".config-label"));u.textContent=l(8912,null);const m=s(h,n("code.config-value"));if(m.textContent=o.command,o.args&&o.args.length>0){const C=s(e,n(".config-section")),k=s(C,n(".config-label"));k.textContent=l(8913,null);const $=s(C,n("code.config-value"));$.textContent=o.args.join(" ")}}else if(o.type==="http"){const h=s(e,n(".config-section")),u=s(h,n(".config-label"));u.textContent=l(8914,null);const m=s(h,n("code.config-value"));m.textContent=o.url}}yb(e,t){if(P(e),t.packages&&t.packages.length>0){const o=new Map;for(const i of t.packages){const a=i.registry_name;let r=o.get(a);r||o.set(a,r=[]),r.push(i)}s(e,n(".manifest-section",void 0,n(".manifest-section-title",void 0,l(8915,null))));for(const[i,a]of o){const r=s(e,n(".package-section",void 0,n(".package-section-title",void 0,i.toUpperCase()))),d=s(r,n(".package-details"));for(let b=0;b<a.length;b++){const c=a[b];if(s(d,n(".package-detail",void 0,n(".detail-label",void 0,l(8916,null)),n(".detail-value",void 0,c.name))),c.package_arguments&&c.package_arguments.length>0){const h=[];for(const u of c.package_arguments)u.type==="named"&&(h.push(u.name),u.value&&h.push(u.value)),u.type==="positional"&&h.push(u.value??u.value_hint);s(d,n(".package-detail",void 0,n(".detail-label",void 0,l(8917,null)),n("code.detail-value",void 0,h.join(" "))))}if(c.runtime_arguments&&c.runtime_arguments.length>0){const h=[];for(const u of c.runtime_arguments)u.type==="named"&&(h.push(u.name),u.value&&h.push(u.value)),u.type==="positional"&&h.push(u.value??u.value_hint);s(d,n(".package-detail",void 0,n(".detail-label",void 0,l(8918,null)),n("code.detail-value",void 0,h.join(" "))))}if(c.environment_variables&&c.environment_variables.length>0){const h=c.environment_variables.map(u=>`${u.name}=${u.value}`);s(d,n(".package-detail",void 0,n(".detail-label",void 0,l(8919,null)),n("code.detail-value",void 0,h.join(" "))))}b<a.length-1&&s(d,n(".package-separator"))}}}if(t.remotes&&t.remotes.length>0){const o=s(e,n(".package-section",void 0,n(".package-section-title",void 0,l(8920,null).toLocaleUpperCase())));for(const i of t.remotes){const a=s(o,n(".package-details"));if(s(a,n(".package-detail",void 0,n(".detail-label",void 0,l(8921,null)),n(".detail-value",void 0,i.url))),i.transport_type&&s(a,n(".package-detail",void 0,n(".detail-label",void 0,l(8922,null)),n(".detail-value",void 0,i.transport_type))),i.headers&&i.headers.length>0){const r=i.headers.map(d=>`${d.name}: ${d.value}`);s(a,n(".package-detail",void 0,n(".detail-label",void 0,l(8923,null)),n(".detail-value",void 0,r.join(", "))))}}}}zb(e,t){const o=n("div",{class:"additional-details-content",tabindex:"0"}),i=new j(o,{}),a=()=>i.scanDomNode(),r=w.$ec(this.r,{layout:a});this.s.add(y(r)),this.s.add(i),this.s.add(this.eb.createInstance(B,o,t)),s(e,i.getDomNode()),i.scanDomNode()}Ab(e,t){t.classList.add("loading");const o=this.s.add(e()),i=()=>t.classList.remove("loading");return o.promise.then(i,i),o.promise}layout(e){this.db=e,this.r.forEach(t=>t.layout())}Bb(e){at(e)||this.fb.error(e)}};F=M=V([g(1,vt),g(2,mt),g(3,yt),g(4,gt),g(5,Q),g(6,pt),g(7,Dt),g(8,$t),g(9,ht),g(10,bt),g(11,X)],F);let B=class extends K{constructor(e,t,o,i){super(),this.c=e,this.f=o,this.g=i,this.b=this.B(new H),this.h(t)}h(e){this.c.innerText="",this.b.clear(),e.local&&this.m(this.c,e.local),e.gallery&&this.n(this.c,e),this.j(this.c,e)}j(e,t){const o=[];if(t.repository)try{o.push([l(8924,null),N.parse(t.repository)])}catch{}if(t.publisherUrl&&t.publisherDisplayName&&o.push([t.publisherDisplayName,N.parse(t.publisherUrl)]),o.length){const i=s(e,n(".resources-container.additional-details-element"));s(i,n(".additional-details-title",void 0,l(8925,null)));const a=s(i,n(".resources"));for(const[r,d]of o){const b=s(a,n("a.resource",{tabindex:"0"},r));this.b.add(q(b,()=>this.g.open(d))),this.b.add(this.f.setupManagedHover(J("mouse"),b,d.toString()))}}}m(e,t){const o=s(e,n(".more-info-container.additional-details-element"));s(o,n(".additional-details-title",void 0,l(8926,null)));const i=s(o,n(".more-info"));s(i,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(8927,null)),n("code",void 0,t.name))),t.version&&s(i,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(8928,null)),n("code",void 0,t.version)))}n(e,t){const o=t.gallery,i=s(e,n(".more-info-container.additional-details-element"));s(i,n(".additional-details-title",void 0,l(8929,null)));const a=s(i,n(".more-info"));o&&(t.local||(s(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(8930,null)),n("code",void 0,t.name))),o.version&&s(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(8931,null)),n("code",void 0,o.version)))),o.lastUpdated&&s(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(8932,null)),n("div",void 0,Bt(new Date(o.lastUpdated))))))}};B=V([g(2,X),g(3,Q)],B);export{F as $djc};
+		</html>`;
+  }
+  async openDetails(extension, template, token) {
+    const details = append(template.content, $(".details"));
+    const readmeContainer = append(details, $(".readme-container"));
+    const additionalDetailsContainer = append(details, $(".additional-details-container"));
+    const layout = /* @__PURE__ */ __name(() => details.classList.toggle("narrow", this.dimension && this.dimension.width < 500), "layout");
+    layout();
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    const activeElement = await this.openMarkdown(extension, this.mcpServerReadme.get(), localize("noReadme", "No README available."), readmeContainer, 0, localize("Readme title", "Readme"), token);
+    this.renderAdditionalDetails(additionalDetailsContainer, extension);
+    return activeElement;
+  }
+  async openConfiguration(mcpServer, template, token) {
+    const configContainer = append(template.content, $(".configuration"));
+    const content = $("div", { class: "configuration-content", tabindex: "0" });
+    this.renderConfigurationDetails(content, mcpServer);
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    append(configContainer, scrollableContent.getDomNode());
+    return { focus: /* @__PURE__ */ __name(() => content.focus(), "focus") };
+  }
+  async openManifest(mcpServer, template, token) {
+    const manifestContainer = append(template.content, $(".manifest"));
+    const content = $("div", { class: "manifest-content", tabindex: "0" });
+    try {
+      const manifest = await this.loadContents(() => this.mcpServerManifest.get(), content);
+      if (token.isCancellationRequested) {
+        return null;
+      }
+      this.renderManifestDetails(content, manifest);
+    } catch (error) {
+      while (content.firstChild) {
+        content.removeChild(content.firstChild);
+      }
+      const noManifestMessage = append(content, $(".no-manifest"));
+      noManifestMessage.textContent = localize("noManifest", "No manifest available for this MCP server.");
+    }
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    append(manifestContainer, scrollableContent.getDomNode());
+    return { focus: /* @__PURE__ */ __name(() => content.focus(), "focus") };
+  }
+  renderConfigurationDetails(container, mcpServer) {
+    clearNode(container);
+    const config = mcpServer.config;
+    if (!config) {
+      const noConfigMessage = append(container, $(".no-config"));
+      noConfigMessage.textContent = localize("noConfig", "No configuration available for this MCP server.");
+      return;
+    }
+    const nameSection = append(container, $(".config-section"));
+    const nameLabel = append(nameSection, $(".config-label"));
+    nameLabel.textContent = localize("serverName", "Name:");
+    const nameValue = append(nameSection, $(".config-value"));
+    nameValue.textContent = mcpServer.name;
+    const typeSection = append(container, $(".config-section"));
+    const typeLabel = append(typeSection, $(".config-label"));
+    typeLabel.textContent = localize("serverType", "Type:");
+    const typeValue = append(typeSection, $(".config-value"));
+    typeValue.textContent = config.type;
+    if (config.type === "stdio") {
+      const commandSection = append(container, $(".config-section"));
+      const commandLabel = append(commandSection, $(".config-label"));
+      commandLabel.textContent = localize("command", "Command:");
+      const commandValue = append(commandSection, $("code.config-value"));
+      commandValue.textContent = config.command;
+      if (config.args && config.args.length > 0) {
+        const argsSection = append(container, $(".config-section"));
+        const argsLabel = append(argsSection, $(".config-label"));
+        argsLabel.textContent = localize("arguments", "Arguments:");
+        const argsValue = append(argsSection, $("code.config-value"));
+        argsValue.textContent = config.args.join(" ");
+      }
+    } else if (config.type === "http") {
+      const urlSection = append(container, $(".config-section"));
+      const urlLabel = append(urlSection, $(".config-label"));
+      urlLabel.textContent = localize("url", "URL:");
+      const urlValue = append(urlSection, $("code.config-value"));
+      urlValue.textContent = config.url;
+    }
+  }
+  renderManifestDetails(container, manifest) {
+    clearNode(container);
+    if (manifest.packages && manifest.packages.length > 0) {
+      const packagesByType = /* @__PURE__ */ new Map();
+      for (const pkg of manifest.packages) {
+        const type = pkg.registry_name;
+        let packages = packagesByType.get(type);
+        if (!packages) {
+          packagesByType.set(type, packages = []);
+        }
+        packages.push(pkg);
+      }
+      append(container, $(".manifest-section", void 0, $(".manifest-section-title", void 0, localize("packages", "Packages"))));
+      for (const [packageType, packages] of packagesByType) {
+        const packageSection = append(container, $(".package-section", void 0, $(".package-section-title", void 0, packageType.toUpperCase())));
+        const packagesGrid = append(packageSection, $(".package-details"));
+        for (let i = 0; i < packages.length; i++) {
+          const pkg = packages[i];
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("packageName", "Package:")), $(".detail-value", void 0, pkg.name)));
+          if (pkg.package_arguments && pkg.package_arguments.length > 0) {
+            const argStrings = [];
+            for (const arg of pkg.package_arguments) {
+              if (arg.type === "named") {
+                argStrings.push(arg.name);
+                if (arg.value) {
+                  argStrings.push(arg.value);
+                }
+              }
+              if (arg.type === "positional") {
+                argStrings.push(arg.value ?? arg.value_hint);
+              }
+            }
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("packagearguments", "Package Arguments:")), $("code.detail-value", void 0, argStrings.join(" "))));
+          }
+          if (pkg.runtime_arguments && pkg.runtime_arguments.length > 0) {
+            const argStrings = [];
+            for (const arg of pkg.runtime_arguments) {
+              if (arg.type === "named") {
+                argStrings.push(arg.name);
+                if (arg.value) {
+                  argStrings.push(arg.value);
+                }
+              }
+              if (arg.type === "positional") {
+                argStrings.push(arg.value ?? arg.value_hint);
+              }
+            }
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("runtimeargs", "Runtime Arguments:")), $("code.detail-value", void 0, argStrings.join(" "))));
+          }
+          if (pkg.environment_variables && pkg.environment_variables.length > 0) {
+            const envStrings = pkg.environment_variables.map((envVar) => `${envVar.name}=${envVar.value}`);
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("environmentVariables", "Environment Variables:")), $("code.detail-value", void 0, envStrings.join(" "))));
+          }
+          if (i < packages.length - 1) {
+            append(packagesGrid, $(".package-separator"));
+          }
+        }
+      }
+    }
+    if (manifest.remotes && manifest.remotes.length > 0) {
+      const packageSection = append(container, $(".package-section", void 0, $(".package-section-title", void 0, localize("remotes", "Remote").toLocaleUpperCase())));
+      for (const remote of manifest.remotes) {
+        const packagesGrid = append(packageSection, $(".package-details"));
+        append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("url", "URL:")), $(".detail-value", void 0, remote.url)));
+        if (remote.transport_type) {
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("transport", "Transport:")), $(".detail-value", void 0, remote.transport_type)));
+        }
+        if (remote.headers && remote.headers.length > 0) {
+          const headerStrings = remote.headers.map((header) => `${header.name}: ${header.value}`);
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("headers", "Headers:")), $(".detail-value", void 0, headerStrings.join(", "))));
+        }
+      }
+    }
+  }
+  renderAdditionalDetails(container, extension) {
+    const content = $("div", { class: "additional-details-content", tabindex: "0" });
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+    this.contentDisposables.add(scrollableContent);
+    this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
+    append(container, scrollableContent.getDomNode());
+    scrollableContent.scanDomNode();
+  }
+  loadContents(loadingTask, container) {
+    container.classList.add("loading");
+    const result = this.contentDisposables.add(loadingTask());
+    const onDone = /* @__PURE__ */ __name(() => container.classList.remove("loading"), "onDone");
+    result.promise.then(onDone, onDone);
+    return result.promise;
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    this.layoutParticipants.forEach((p) => p.layout());
+  }
+  onError(err) {
+    if (isCancellationError(err)) {
+      return;
+    }
+    this.notificationService.error(err);
+  }
+};
+McpServerEditor = McpServerEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IInstantiationService),
+  __param(3, IThemeService),
+  __param(4, INotificationService),
+  __param(5, IOpenerService),
+  __param(6, IStorageService),
+  __param(7, IExtensionService),
+  __param(8, IWebviewService),
+  __param(9, ILanguageService),
+  __param(10, IContextKeyService),
+  __param(11, IHoverService)
+], McpServerEditor);
+let AdditionalDetailsWidget = class AdditionalDetailsWidget2 extends Disposable {
+  static {
+    __name(this, "AdditionalDetailsWidget");
+  }
+  constructor(container, extension, hoverService, openerService) {
+    super();
+    this.container = container;
+    this.hoverService = hoverService;
+    this.openerService = openerService;
+    this.disposables = this._register(new DisposableStore());
+    this.render(extension);
+  }
+  render(extension) {
+    this.container.innerText = "";
+    this.disposables.clear();
+    if (extension.local) {
+      this.renderInstallInfo(this.container, extension.local);
+    }
+    if (extension.gallery) {
+      this.renderMarketplaceInfo(this.container, extension);
+    }
+    this.renderExtensionResources(this.container, extension);
+  }
+  renderExtensionResources(container, extension) {
+    const resources = [];
+    if (extension.repository) {
+      try {
+        resources.push([localize("repository", "Repository"), URI.parse(extension.repository)]);
+      } catch (error) {
+      }
+    }
+    if (extension.publisherUrl && extension.publisherDisplayName) {
+      resources.push([extension.publisherDisplayName, URI.parse(extension.publisherUrl)]);
+    }
+    if (resources.length) {
+      const extensionResourcesContainer = append(container, $(".resources-container.additional-details-element"));
+      append(extensionResourcesContainer, $(".additional-details-title", void 0, localize("resources", "Resources")));
+      const resourcesElement = append(extensionResourcesContainer, $(".resources"));
+      for (const [label, uri] of resources) {
+        const resource = append(resourcesElement, $("a.resource", { tabindex: "0" }, label));
+        this.disposables.add(onClick(resource, () => this.openerService.open(uri)));
+        this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), resource, uri.toString()));
+      }
+    }
+  }
+  renderInstallInfo(container, extension) {
+    const installInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(installInfoContainer, $(".additional-details-title", void 0, localize("Install Info", "Installation")));
+    const installInfo = append(installInfoContainer, $(".more-info"));
+    append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.name)));
+    if (extension.version) {
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, extension.version)));
+    }
+  }
+  renderMarketplaceInfo(container, extension) {
+    const gallery = extension.gallery;
+    const moreInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(moreInfoContainer, $(".additional-details-title", void 0, localize("Marketplace Info", "Marketplace")));
+    const moreInfo = append(moreInfoContainer, $(".more-info"));
+    if (gallery) {
+      if (!extension.local) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.name)));
+        if (gallery.version) {
+          append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, gallery.version)));
+        }
+      }
+      if (gallery.lastUpdated) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("last released", "Last Released")), $("div", void 0, toDateString(new Date(gallery.lastUpdated)))));
+      }
+    }
+  }
+};
+AdditionalDetailsWidget = __decorate([
+  __param(2, IHoverService),
+  __param(3, IOpenerService)
+], AdditionalDetailsWidget);
+export {
+  McpServerEditor
+};
+//# sourceMappingURL=mcpServerEditor.js.map

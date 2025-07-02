@@ -1,1 +1,210 @@
-import{$vd as L,$ud as d,$wd as S}from"../../../../base/common/lifecycle.js";import{localize as c,localize2 as u}from"../../../../nls.js";import{$Yn as p}from"../../../../platform/action/common/actionCommonCategories.js";import{$CI as g,$DI as m}from"../../../../platform/actions/common/actions.js";import{$ux as y}from"../../../../platform/keybinding/common/keybinding.js";import{$WGb as P}from"../../../browser/parts/editor/sideBySideEditor.js";import{$tK as a}from"../../../common/editor.js";import{$60 as $}from"../../../../base/common/controlFlow.js";import{$II as k}from"../../../services/editor/common/editorService.js";import{$1yb as E}from"../../../services/statusbar/browser/statusbar.js";var b=function(r,t,o,i){var e=arguments.length,n=e<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,o,i);else for(var l=r.length-1;l>=0;l--)(s=r[l])&&(n=(e<3?s(n):e>3?s(t,o,n):s(t,o))||n);return e>3&&n&&Object.defineProperty(t,o,n),n},h=function(r,t){return function(o,i){t(o,i,r)}};let w=class extends L{static{this.ID="workbench.contrib.syncScrolling"}constructor(t,o){super(),this.h=t,this.j=o,this.a=new Map,this.b=this.B(new d),this.c=new d,this.f=this.B(new S),this.g=!1,this.r=new $,this.z()}m(){this.b.add(this.h.onDidVisibleEditorsChange(()=>this.s()))}n(){this.m(),this.s()}toggle(){this.g?this.w():this.n(),this.g=!this.g,this.y(this.g)}s(){this.c.clear(),this.a.clear();for(const t of this.u())a(t)&&(this.a.set(t,t.getScrollPosition()),this.c.add(t.onDidChangeScroll(()=>this.r.runExclusivelyOrSkip(()=>{this.t(t)}))))}t(t){const o=this.a.get(t);if(o===void 0)throw new Error("Scrolled pane not tracked");if(!a(t))throw new Error("Scrolled pane does not support scrolling");const i=t.getScrollPosition(),e={scrollTop:i.scrollTop-o.scrollTop,scrollLeft:i.scrollLeft!==void 0&&o.scrollLeft!==void 0?i.scrollLeft-o.scrollLeft:void 0};for(const n of this.u()){if(n===t||!a(n))continue;const s=this.a.get(n);if(s===void 0)throw new Error("Could not find initial offset for pane");const l=n.getScrollPosition(),f={scrollTop:s.scrollTop+e.scrollTop,scrollLeft:s.scrollLeft!==void 0&&e.scrollLeft!==void 0?s.scrollLeft+e.scrollLeft:void 0};l.scrollTop===f.scrollTop&&l.scrollLeft===f.scrollLeft||n.setScrollPosition(f)}}u(){const t=[];for(const o of this.h.visibleEditorPanes){if(o instanceof P){const i=o.getPrimaryEditorPane(),e=o.getSecondaryEditorPane();i&&t.push(i),e&&t.push(e);continue}t.push(o)}return t}w(){this.c.clear(),this.b.clear(),this.a.clear()}y(t){if(t){if(!this.f.value){const o=c(10779,null),i=c(10780,null);this.f.value=this.j.addEntry({name:o,text:o,tooltip:i,ariaLabel:o,command:{id:"workbench.action.toggleLockedScrolling",title:""},kind:"prominent",showInAllWindows:!0},"status.scrollLockingEnabled",1,102)}}else this.f.clear()}z(){const t=this;this.B(m(class extends g{constructor(){super({id:"workbench.action.toggleLockedScrolling",title:{...u(10784,"Toggle Locked Scrolling Across Editors"),mnemonicTitle:c(10781,null)},category:p.View,f1:!0,metadata:{description:c(10782,null)}})}run(){t.toggle()}})),this.B(m(class extends g{constructor(){super({id:"workbench.action.holdLockedScrolling",title:{...u(10785,"Hold Locked Scrolling Across Editors"),mnemonicTitle:c(10783,null)},category:p.View})}run(o){const i=o.get(y);t.toggle();const e=i.enableKeybindingHoldMode("workbench.action.holdLockedScrolling");e&&e.finally(()=>{t.toggle()})}}))}dispose(){this.w(),super.dispose()}};w=b([h(0,k),h(1,E)],w);export{w as $_yc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { SideBySideEditor } from "../../../browser/parts/editor/sideBySideEditor.js";
+import { isEditorPaneWithScrolling } from "../../../common/editor.js";
+import { ReentrancyBarrier } from "../../../../base/common/controlFlow.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+let SyncScroll = class SyncScroll2 extends Disposable {
+  static {
+    __name(this, "SyncScroll");
+  }
+  static {
+    this.ID = "workbench.contrib.syncScrolling";
+  }
+  constructor(editorService, statusbarService) {
+    super();
+    this.editorService = editorService;
+    this.statusbarService = statusbarService;
+    this.paneInitialScrollTop = /* @__PURE__ */ new Map();
+    this.syncScrollDispoasbles = this._register(new DisposableStore());
+    this.paneDisposables = new DisposableStore();
+    this.statusBarEntry = this._register(new MutableDisposable());
+    this.isActive = false;
+    this._reentrancyBarrier = new ReentrancyBarrier();
+    this.registerActions();
+  }
+  registerActiveListeners() {
+    this.syncScrollDispoasbles.add(this.editorService.onDidVisibleEditorsChange(() => this.trackVisiblePanes()));
+  }
+  activate() {
+    this.registerActiveListeners();
+    this.trackVisiblePanes();
+  }
+  toggle() {
+    if (this.isActive) {
+      this.deactivate();
+    } else {
+      this.activate();
+    }
+    this.isActive = !this.isActive;
+    this.toggleStatusbarItem(this.isActive);
+  }
+  trackVisiblePanes() {
+    this.paneDisposables.clear();
+    this.paneInitialScrollTop.clear();
+    for (const pane of this.getAllVisiblePanes()) {
+      if (!isEditorPaneWithScrolling(pane)) {
+        continue;
+      }
+      this.paneInitialScrollTop.set(pane, pane.getScrollPosition());
+      this.paneDisposables.add(pane.onDidChangeScroll(() => this._reentrancyBarrier.runExclusivelyOrSkip(() => {
+        this.onDidEditorPaneScroll(pane);
+      })));
+    }
+  }
+  onDidEditorPaneScroll(scrolledPane) {
+    const scrolledPaneInitialOffset = this.paneInitialScrollTop.get(scrolledPane);
+    if (scrolledPaneInitialOffset === void 0) {
+      throw new Error("Scrolled pane not tracked");
+    }
+    if (!isEditorPaneWithScrolling(scrolledPane)) {
+      throw new Error("Scrolled pane does not support scrolling");
+    }
+    const scrolledPaneCurrentPosition = scrolledPane.getScrollPosition();
+    const scrolledFromInitial = {
+      scrollTop: scrolledPaneCurrentPosition.scrollTop - scrolledPaneInitialOffset.scrollTop,
+      scrollLeft: scrolledPaneCurrentPosition.scrollLeft !== void 0 && scrolledPaneInitialOffset.scrollLeft !== void 0 ? scrolledPaneCurrentPosition.scrollLeft - scrolledPaneInitialOffset.scrollLeft : void 0
+    };
+    for (const pane of this.getAllVisiblePanes()) {
+      if (pane === scrolledPane) {
+        continue;
+      }
+      if (!isEditorPaneWithScrolling(pane)) {
+        continue;
+      }
+      const initialOffset = this.paneInitialScrollTop.get(pane);
+      if (initialOffset === void 0) {
+        throw new Error("Could not find initial offset for pane");
+      }
+      const currentPanePosition = pane.getScrollPosition();
+      const newPaneScrollPosition = {
+        scrollTop: initialOffset.scrollTop + scrolledFromInitial.scrollTop,
+        scrollLeft: initialOffset.scrollLeft !== void 0 && scrolledFromInitial.scrollLeft !== void 0 ? initialOffset.scrollLeft + scrolledFromInitial.scrollLeft : void 0
+      };
+      if (currentPanePosition.scrollTop === newPaneScrollPosition.scrollTop && currentPanePosition.scrollLeft === newPaneScrollPosition.scrollLeft) {
+        continue;
+      }
+      pane.setScrollPosition(newPaneScrollPosition);
+    }
+  }
+  getAllVisiblePanes() {
+    const panes = [];
+    for (const pane of this.editorService.visibleEditorPanes) {
+      if (pane instanceof SideBySideEditor) {
+        const primaryPane = pane.getPrimaryEditorPane();
+        const secondaryPane = pane.getSecondaryEditorPane();
+        if (primaryPane) {
+          panes.push(primaryPane);
+        }
+        if (secondaryPane) {
+          panes.push(secondaryPane);
+        }
+        continue;
+      }
+      panes.push(pane);
+    }
+    return panes;
+  }
+  deactivate() {
+    this.paneDisposables.clear();
+    this.syncScrollDispoasbles.clear();
+    this.paneInitialScrollTop.clear();
+  }
+  // Actions & Commands
+  toggleStatusbarItem(active) {
+    if (active) {
+      if (!this.statusBarEntry.value) {
+        const text = localize("mouseScrolllingLocked", "Scrolling Locked");
+        const tooltip = localize("mouseLockScrollingEnabled", "Lock Scrolling Enabled");
+        this.statusBarEntry.value = this.statusbarService.addEntry({
+          name: text,
+          text,
+          tooltip,
+          ariaLabel: text,
+          command: {
+            id: "workbench.action.toggleLockedScrolling",
+            title: ""
+          },
+          kind: "prominent",
+          showInAllWindows: true
+        }, "status.scrollLockingEnabled", 1, 102);
+      }
+    } else {
+      this.statusBarEntry.clear();
+    }
+  }
+  registerActions() {
+    const $this = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.toggleLockedScrolling",
+          title: {
+            ...localize2("toggleLockedScrolling", "Toggle Locked Scrolling Across Editors"),
+            mnemonicTitle: localize({ key: "miToggleLockedScrolling", comment: ["&& denotes a mnemonic"] }, "Locked Scrolling")
+          },
+          category: Categories.View,
+          f1: true,
+          metadata: {
+            description: localize("synchronizeScrolling", "Synchronize Scrolling Editors")
+          }
+        });
+      }
+      run() {
+        $this.toggle();
+      }
+    }));
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.holdLockedScrolling",
+          title: {
+            ...localize2("holdLockedScrolling", "Hold Locked Scrolling Across Editors"),
+            mnemonicTitle: localize({ key: "miHoldLockedScrolling", comment: ["&& denotes a mnemonic"] }, "Locked Scrolling")
+          },
+          category: Categories.View
+        });
+      }
+      run(accessor) {
+        const keybindingService = accessor.get(IKeybindingService);
+        $this.toggle();
+        const holdMode = keybindingService.enableKeybindingHoldMode("workbench.action.holdLockedScrolling");
+        if (!holdMode) {
+          return;
+        }
+        holdMode.finally(() => {
+          $this.toggle();
+        });
+      }
+    }));
+  }
+  dispose() {
+    this.deactivate();
+    super.dispose();
+  }
+};
+SyncScroll = __decorate([
+  __param(0, IEditorService),
+  __param(1, IStatusbarService)
+], SyncScroll);
+export {
+  SyncScroll
+};
+//# sourceMappingURL=scrollLocking.js.map

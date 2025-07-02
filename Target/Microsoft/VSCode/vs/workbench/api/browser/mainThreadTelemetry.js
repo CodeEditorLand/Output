@@ -1,1 +1,73 @@
-import{$vd as u}from"../../../base/common/lifecycle.js";import{$Fl as p}from"../../../platform/configuration/common/configuration.js";import{$gl as $}from"../../../platform/environment/common/environment.js";import{$on as g}from"../../../platform/product/common/productService.js";import{$Ro as b,$3o as v,$1o as y}from"../../../platform/telemetry/common/telemetry.js";import{$Hu as l}from"../../../platform/telemetry/common/telemetryUtils.js";import{$9yb as _}from"../../services/extensions/common/extHostCustomers.js";import{$CY as L,$BY as j}from"../common/extHost.protocol.js";var a=function(h,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(h,t,e,r);else for(var f=h.length-1;f>=0;f--)(o=h[f])&&(i=(s<3?o(i):s>3?o(t,e,i):o(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},n=function(h,t){return function(e,r){t(e,r,h)}},c;let m=class extends u{static{c=this}static{this.b="pluginHostTelemetry"}constructor(t,e,r,s,i){super(),this.c=e,this.f=r,this.g=s,this.h=i,this.a=t.getProxy(L.ExtHostTelemetry),l(this.h,this.g)&&this.B(this.f.onDidChangeConfiguration(o=>{(o.affectsConfiguration(y)||o.affectsConfiguration(v))&&this.a.$onDidChangeTelemetryLevel(this.j)})),this.a.$initializeTelemetryLevel(this.j,l(this.h,this.g),this.h.enabledTelemetryLevels)}get j(){return l(this.h,this.g)?this.c.telemetryLevel:0}$publicLog(t,e=Object.create(null)){e[c.b]=!0,this.c.publicLog(t,e)}$publicLog2(t,e){this.$publicLog(t,e)}};m=c=a([_(j.MainThreadTelemetry),n(1,b),n(2,p),n(3,$),n(4,g)],m);export{m as $1Zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadTelemetry_1;
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+import { ITelemetryService, TELEMETRY_OLD_SETTING_ID, TELEMETRY_SETTING_ID } from "../../../platform/telemetry/common/telemetry.js";
+import { supportsTelemetry } from "../../../platform/telemetry/common/telemetryUtils.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+let MainThreadTelemetry = class MainThreadTelemetry2 extends Disposable {
+  static {
+    __name(this, "MainThreadTelemetry");
+  }
+  static {
+    MainThreadTelemetry_1 = this;
+  }
+  static {
+    this._name = "pluginHostTelemetry";
+  }
+  constructor(extHostContext, _telemetryService, _configurationService, _environmentService, _productService) {
+    super();
+    this._telemetryService = _telemetryService;
+    this._configurationService = _configurationService;
+    this._environmentService = _environmentService;
+    this._productService = _productService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTelemetry);
+    if (supportsTelemetry(this._productService, this._environmentService)) {
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TELEMETRY_SETTING_ID) || e.affectsConfiguration(TELEMETRY_OLD_SETTING_ID)) {
+          this._proxy.$onDidChangeTelemetryLevel(this.telemetryLevel);
+        }
+      }));
+    }
+    this._proxy.$initializeTelemetryLevel(this.telemetryLevel, supportsTelemetry(this._productService, this._environmentService), this._productService.enabledTelemetryLevels);
+  }
+  get telemetryLevel() {
+    if (!supportsTelemetry(this._productService, this._environmentService)) {
+      return 0;
+    }
+    return this._telemetryService.telemetryLevel;
+  }
+  $publicLog(eventName, data = /* @__PURE__ */ Object.create(null)) {
+    data[MainThreadTelemetry_1._name] = true;
+    this._telemetryService.publicLog(eventName, data);
+  }
+  $publicLog2(eventName, data) {
+    this.$publicLog(eventName, data);
+  }
+};
+MainThreadTelemetry = MainThreadTelemetry_1 = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadTelemetry),
+  __param(1, ITelemetryService),
+  __param(2, IConfigurationService),
+  __param(3, IEnvironmentService),
+  __param(4, IProductService)
+], MainThreadTelemetry);
+export {
+  MainThreadTelemetry
+};
+//# sourceMappingURL=mainThreadTelemetry.js.map

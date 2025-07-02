@@ -1,1 +1,160 @@
-import*as o from"../../../base/browser/dom.js";import{$W5 as l}from"../../../base/browser/keyboardEvent.js";import{$a9 as D}from"../../../base/browser/ui/actionbar/actionViewItems.js";import{$89 as d}from"../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{$ugb as v}from"./menuEntryActionViewItem.js";import{$Wn as w}from"../../contextkey/common/contextkey.js";import{$ux as R}from"../../keybinding/common/keybinding.js";import{$_I as x}from"../../notification/common/notification.js";import{$Ot as y}from"../../theme/common/themeService.js";import{$Gfb as C}from"../../contextview/browser/contextView.js";import{$tC as _}from"../../accessibility/common/accessibility.js";var $=function(h,e,i,n){var s=arguments.length,t=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(h,e,i,n);else for(var c=h.length-1;c>=0;c--)(r=h[c])&&(t=(s<3?r(t):s>3?r(e,i,t):r(e,i))||t);return s>3&&t&&Object.defineProperty(e,i,t),t},a=function(h,e){return function(i,n){e(i,n,h)}};let u=class extends D{get onDidChangeDropdownVisibility(){return this.g.onDidChangeVisibility}constructor(e,i,n,s,t,r,c,m,f,p,g){super(null,e,{hoverDelegate:t?.hoverDelegate}),this.w=t,this.y=r,this.n=null,this.s=null,this.c=new v(e,{hoverDelegate:t?.hoverDelegate},c,m,f,p,r,g),t?.actionRunner&&(this.c.actionRunner=t.actionRunner),this.g=new d(i,n,this.y,{menuAsChild:t?.menuAsChild??!0,classNames:s?["codicon","codicon-chevron-down",s]:["codicon","codicon-chevron-down"],actionRunner:this.w?.actionRunner,keybindingProvider:this.w?.getKeyBinding??(b=>c.lookupKeybinding(b.id)),hoverDelegate:t?.hoverDelegate,skipTelemetry:t?.skipTelemetry})}set actionRunner(e){super.actionRunner=e,this.c.actionRunner=e,this.g.actionRunner=e}setActionContext(e){super.setActionContext(e),this.c.setActionContext(e),this.g.setActionContext(e)}render(e){this.n=e,super.render(this.n),this.n.classList.add("monaco-dropdown-with-primary");const i=o.$(".action-container");i.role="button",i.ariaDisabled=String(!this.action.enabled),this.c.render(o.$36(this.n,i)),this.s=o.$(".dropdown-action-container"),this.g.render(o.$36(this.n,this.s)),this.B(o.$Z5(i,o.$V6.KEY_DOWN,n=>{if(!this.action.enabled)return;const s=new l(n);s.equals(17)&&(this.c.element.tabIndex=-1,this.g.focus(),s.stopPropagation())})),this.B(o.$Z5(this.s,o.$V6.KEY_DOWN,n=>{if(!this.action.enabled)return;const s=new l(n);s.equals(15)&&(this.c.element.tabIndex=0,this.g.setFocusable(!1),this.c.element?.focus(),s.stopPropagation())})),this.z()}focus(e){e?this.g.focus():(this.c.element.tabIndex=0,this.c.element.focus())}blur(){this.c.element.tabIndex=-1,this.g.blur(),this.n.blur()}setFocusable(e){e?this.c.element.tabIndex=0:(this.c.element.tabIndex=-1,this.g.setFocusable(!1))}z(){const e=!this.action.enabled;this.element?.classList.toggle("disabled",e)}update(e,i,n){this.g.dispose(),this.g=new d(e,i,this.y,{menuAsChild:this.w?.menuAsChild??!0,classNames:["codicon",n||"codicon-chevron-down"],actionRunner:this.w?.actionRunner,hoverDelegate:this.w?.hoverDelegate,keybindingProvider:this.w?.getKeyBinding}),this.s&&this.g.render(this.s)}showDropdown(){this.g.show()}dispose(){this.c.dispose(),this.g.dispose(),super.dispose()}};u=$([a(5,C),a(6,R),a(7,x),a(8,w),a(9,y),a(10,_)],u);export{u as $fDb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as DOM from "../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { BaseActionViewItem } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { DropdownMenuActionViewItem } from "../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { MenuEntryActionViewItem } from "./menuEntryActionViewItem.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { IThemeService } from "../../theme/common/themeService.js";
+import { IContextMenuService } from "../../contextview/browser/contextView.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+let DropdownWithPrimaryActionViewItem = class DropdownWithPrimaryActionViewItem2 extends BaseActionViewItem {
+  static {
+    __name(this, "DropdownWithPrimaryActionViewItem");
+  }
+  get onDidChangeDropdownVisibility() {
+    return this._dropdown.onDidChangeVisibility;
+  }
+  constructor(primaryAction, dropdownAction, dropdownMenuActions, className, _options, _contextMenuProvider, _keybindingService, _notificationService, _contextKeyService, _themeService, _accessibilityService) {
+    super(null, primaryAction, { hoverDelegate: _options?.hoverDelegate });
+    this._options = _options;
+    this._contextMenuProvider = _contextMenuProvider;
+    this._container = null;
+    this._dropdownContainer = null;
+    this._primaryAction = new MenuEntryActionViewItem(primaryAction, { hoverDelegate: _options?.hoverDelegate }, _keybindingService, _notificationService, _contextKeyService, _themeService, _contextMenuProvider, _accessibilityService);
+    if (_options?.actionRunner) {
+      this._primaryAction.actionRunner = _options.actionRunner;
+    }
+    this._dropdown = new DropdownMenuActionViewItem(dropdownAction, dropdownMenuActions, this._contextMenuProvider, {
+      menuAsChild: _options?.menuAsChild ?? true,
+      classNames: className ? ["codicon", "codicon-chevron-down", className] : ["codicon", "codicon-chevron-down"],
+      actionRunner: this._options?.actionRunner,
+      keybindingProvider: this._options?.getKeyBinding ?? ((action) => _keybindingService.lookupKeybinding(action.id)),
+      hoverDelegate: _options?.hoverDelegate,
+      skipTelemetry: _options?.skipTelemetry
+    });
+  }
+  set actionRunner(actionRunner) {
+    super.actionRunner = actionRunner;
+    this._primaryAction.actionRunner = actionRunner;
+    this._dropdown.actionRunner = actionRunner;
+  }
+  setActionContext(newContext) {
+    super.setActionContext(newContext);
+    this._primaryAction.setActionContext(newContext);
+    this._dropdown.setActionContext(newContext);
+  }
+  render(container) {
+    this._container = container;
+    super.render(this._container);
+    this._container.classList.add("monaco-dropdown-with-primary");
+    const primaryContainer = DOM.$(".action-container");
+    primaryContainer.role = "button";
+    primaryContainer.ariaDisabled = String(!this.action.enabled);
+    this._primaryAction.render(DOM.append(this._container, primaryContainer));
+    this._dropdownContainer = DOM.$(".dropdown-action-container");
+    this._dropdown.render(DOM.append(this._container, this._dropdownContainer));
+    this._register(DOM.addDisposableListener(primaryContainer, DOM.EventType.KEY_DOWN, (e) => {
+      if (!this.action.enabled) {
+        return;
+      }
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        17
+        /* KeyCode.RightArrow */
+      )) {
+        this._primaryAction.element.tabIndex = -1;
+        this._dropdown.focus();
+        event.stopPropagation();
+      }
+    }));
+    this._register(DOM.addDisposableListener(this._dropdownContainer, DOM.EventType.KEY_DOWN, (e) => {
+      if (!this.action.enabled) {
+        return;
+      }
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        15
+        /* KeyCode.LeftArrow */
+      )) {
+        this._primaryAction.element.tabIndex = 0;
+        this._dropdown.setFocusable(false);
+        this._primaryAction.element?.focus();
+        event.stopPropagation();
+      }
+    }));
+    this.updateEnabled();
+  }
+  focus(fromRight) {
+    if (fromRight) {
+      this._dropdown.focus();
+    } else {
+      this._primaryAction.element.tabIndex = 0;
+      this._primaryAction.element.focus();
+    }
+  }
+  blur() {
+    this._primaryAction.element.tabIndex = -1;
+    this._dropdown.blur();
+    this._container.blur();
+  }
+  setFocusable(focusable) {
+    if (focusable) {
+      this._primaryAction.element.tabIndex = 0;
+    } else {
+      this._primaryAction.element.tabIndex = -1;
+      this._dropdown.setFocusable(false);
+    }
+  }
+  updateEnabled() {
+    const disabled = !this.action.enabled;
+    this.element?.classList.toggle("disabled", disabled);
+  }
+  update(dropdownAction, dropdownMenuActions, dropdownIcon) {
+    this._dropdown.dispose();
+    this._dropdown = new DropdownMenuActionViewItem(dropdownAction, dropdownMenuActions, this._contextMenuProvider, {
+      menuAsChild: this._options?.menuAsChild ?? true,
+      classNames: ["codicon", dropdownIcon || "codicon-chevron-down"],
+      actionRunner: this._options?.actionRunner,
+      hoverDelegate: this._options?.hoverDelegate,
+      keybindingProvider: this._options?.getKeyBinding
+    });
+    if (this._dropdownContainer) {
+      this._dropdown.render(this._dropdownContainer);
+    }
+  }
+  showDropdown() {
+    this._dropdown.show();
+  }
+  dispose() {
+    this._primaryAction.dispose();
+    this._dropdown.dispose();
+    super.dispose();
+  }
+};
+DropdownWithPrimaryActionViewItem = __decorate([
+  __param(5, IContextMenuService),
+  __param(6, IKeybindingService),
+  __param(7, INotificationService),
+  __param(8, IContextKeyService),
+  __param(9, IThemeService),
+  __param(10, IAccessibilityService)
+], DropdownWithPrimaryActionViewItem);
+export {
+  DropdownWithPrimaryActionViewItem
+};
+//# sourceMappingURL=dropdownWithPrimaryActionViewItem.js.map

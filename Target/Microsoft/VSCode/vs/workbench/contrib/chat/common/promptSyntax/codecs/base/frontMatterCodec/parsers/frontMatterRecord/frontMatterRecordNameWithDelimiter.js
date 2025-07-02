@@ -1,1 +1,67 @@
-import{$Uc as p}from"../../../../../../../../../../base/common/assert.js";import{Colon as u,SpacingToken as a}from"../../../simpleCodec/tokens/tokens.js";import{FrontMatterRecordName as l,FrontMatterRecordDelimiter as m}from"../../tokens/index.js";import{$zR as h,$yR as d}from"../../../simpleCodec/parserBase.js";var f=function(o,e,r,n){var s=arguments.length,t=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,e,r,n);else for(var i=o.length-1;i>=0;i--)(c=o[i])&&(t=(s<3?c(t):s>3?c(e,r,t):c(e,r))||t);return s>3&&t&&Object.defineProperty(e,r,t),t};class R extends d{constructor(e,r){super([...r]),this.e=e}accept(e){const r=this.c[this.c.length-1];if(e instanceof a&&r instanceof u){const s=new m([r,e]),t=this.c[0];return p(t instanceof l,`Expected a front matter record name, got '${t}'.`),this.a=!0,{result:"success",nextParser:this.e.createRecord([t,s]),wasTokenConsumed:!0}}return e instanceof a?(this.c.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0}):e instanceof u?(this.c.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0}):(this.a=!0,{result:"failure",wasTokenConsumed:!1})}}f([h],R.prototype,"accept",null);export{R as $IR};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { assert } from "../../../../../../../../../../base/common/assert.js";
+import { Colon, SpacingToken } from "../../../simpleCodec/tokens/tokens.js";
+import { FrontMatterRecordName, FrontMatterRecordDelimiter } from "../../tokens/index.js";
+import { assertNotConsumed, ParserBase } from "../../../simpleCodec/parserBase.js";
+class PartialFrontMatterRecordNameWithDelimiter extends ParserBase {
+  static {
+    __name(this, "PartialFrontMatterRecordNameWithDelimiter");
+  }
+  constructor(factory, tokens) {
+    super([...tokens]);
+    this.factory = factory;
+  }
+  accept(token) {
+    const previousToken = this.currentTokens[this.currentTokens.length - 1];
+    const isSpacingToken = token instanceof SpacingToken;
+    if (isSpacingToken && previousToken instanceof Colon) {
+      const recordDelimiter = new FrontMatterRecordDelimiter([
+        previousToken,
+        token
+      ]);
+      const recordName = this.currentTokens[0];
+      assert(recordName instanceof FrontMatterRecordName, `Expected a front matter record name, got '${recordName}'.`);
+      this.isConsumed = true;
+      return {
+        result: "success",
+        nextParser: this.factory.createRecord([recordName, recordDelimiter]),
+        wasTokenConsumed: true
+      };
+    }
+    if (token instanceof SpacingToken) {
+      this.currentTokens.push(token);
+      return {
+        result: "success",
+        nextParser: this,
+        wasTokenConsumed: true
+      };
+    }
+    if (token instanceof Colon) {
+      this.currentTokens.push(token);
+      return {
+        result: "success",
+        nextParser: this,
+        wasTokenConsumed: true
+      };
+    }
+    this.isConsumed = true;
+    return {
+      result: "failure",
+      wasTokenConsumed: false
+    };
+  }
+}
+__decorate([
+  assertNotConsumed
+], PartialFrontMatterRecordNameWithDelimiter.prototype, "accept", null);
+export {
+  PartialFrontMatterRecordNameWithDelimiter
+};
+//# sourceMappingURL=frontMatterRecordNameWithDelimiter.js.map

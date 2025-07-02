@@ -1,1 +1,58 @@
-import*as f from"../../../../../base/browser/dom.js";import{Event as l}from"../../../../../base/common/event.js";import{$vd as c}from"../../../../../base/common/lifecycle.js";import{$mj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$RQb as u}from"./chatProgressContentPart.js";import{$LMb as _}from"./chatReferencesContentPart.js";var p=function(i,e,r,o){var n=arguments.length,t=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,r,o);else for(var d=i.length-1;d>=0;d--)(s=i[d])&&(t=(n<3?s(t):n>3?s(e,r,t):s(e,r))||t);return n>3&&t&&Object.defineProperty(e,r,t),t},m=function(i,e){return function(r,o){e(r,o,i)}};let h=class extends c{constructor(e,r,o,n,t){if(super(),this.b=e,e.progress.length){this.a=!0;const s=this.B(t.createInstance(_,e.progress,e.content.value,n,r));this.domNode=f.$(".chat-progress-task"),this.domNode.appendChild(s.domNode),this.onDidChangeHeight=s.onDidChangeHeight}else{const s=e.kind==="progressTask"?e.isSettled():!0;this.a=s;const d=!s&&!n.element.isComplete,a=this.B(t.createInstance(u,e,o,n,d,!0,void 0));this.domNode=a.domNode,this.onDidChangeHeight=l.None}}hasSameContent(e){return e.kind==="progressTask"&&this.b.kind==="progressTask"&&e.isSettled()!==this.a?!1:e.kind===this.b.kind&&e.progress.length===this.b.progress.length}addDisposable(e){this.B(e)}};h=p([m(4,g)],h);export{h as $VQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../base/browser/dom.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ChatProgressContentPart } from "./chatProgressContentPart.js";
+import { ChatCollapsibleListContentPart } from "./chatReferencesContentPart.js";
+let ChatTaskContentPart = class ChatTaskContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatTaskContentPart");
+  }
+  constructor(task, contentReferencesListPool, renderer, context, instantiationService) {
+    super();
+    this.task = task;
+    if (task.progress.length) {
+      this.isSettled = true;
+      const refsPart = this._register(instantiationService.createInstance(ChatCollapsibleListContentPart, task.progress, task.content.value, context, contentReferencesListPool));
+      this.domNode = dom.$(".chat-progress-task");
+      this.domNode.appendChild(refsPart.domNode);
+      this.onDidChangeHeight = refsPart.onDidChangeHeight;
+    } else {
+      const isSettled = task.kind === "progressTask" ? task.isSettled() : true;
+      this.isSettled = isSettled;
+      const showSpinner = !isSettled && !context.element.isComplete;
+      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, task, renderer, context, showSpinner, true, void 0));
+      this.domNode = progressPart.domNode;
+      this.onDidChangeHeight = Event.None;
+    }
+  }
+  hasSameContent(other) {
+    if (other.kind === "progressTask" && this.task.kind === "progressTask" && other.isSettled() !== this.isSettled) {
+      return false;
+    }
+    return other.kind === this.task.kind && other.progress.length === this.task.progress.length;
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatTaskContentPart = __decorate([
+  __param(4, IInstantiationService)
+], ChatTaskContentPart);
+export {
+  ChatTaskContentPart
+};
+//# sourceMappingURL=chatTaskContentPart.js.map

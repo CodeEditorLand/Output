@@ -1,1 +1,10 @@
-import{localize as t}from"../../../../nls.js";import{$Mj as e}from"../../../../base/common/codicons.js";import{$Et as r}from"../../../../platform/theme/common/iconRegistry.js";const i=r("getting-started-step-unchecked",e.circleLargeOutline,t(13288,null)),n=r("getting-started-step-checked",e.passFilled,t(13289,null));export{i as $wwc,n as $xwc};
+import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const gettingStartedUncheckedCodicon = registerIcon("getting-started-step-unchecked", Codicon.circleLargeOutline, localize("gettingStartedUnchecked", "Used to represent walkthrough steps which have not been completed"));
+const gettingStartedCheckedCodicon = registerIcon("getting-started-step-checked", Codicon.passFilled, localize("gettingStartedChecked", "Used to represent walkthrough steps which have been completed"));
+export {
+  gettingStartedCheckedCodicon,
+  gettingStartedUncheckedCodicon
+};
+//# sourceMappingURL=gettingStartedIcons.js.map

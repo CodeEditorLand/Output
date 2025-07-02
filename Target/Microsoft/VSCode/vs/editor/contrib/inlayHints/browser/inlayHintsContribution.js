@@ -1,1 +1,12 @@
-import{$Bab as m}from"../../../browser/editorExtensions.js";import{$ijb as o}from"../../hover/browser/hoverTypes.js";import{$snb as r}from"./inlayHintsController.js";import{$tnb as i}from"./inlayHintsHover.js";m(r.ID,r,1);o.register(i);
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { HoverParticipantRegistry } from "../../hover/browser/hoverTypes.js";
+import { InlayHintsController } from "./inlayHintsController.js";
+import { InlayHintsHover } from "./inlayHintsHover.js";
+registerEditorContribution(
+  InlayHintsController.ID,
+  InlayHintsController,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+HoverParticipantRegistry.register(InlayHintsHover);
+//# sourceMappingURL=inlayHintsContribution.js.map

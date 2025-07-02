@@ -1,1 +1,125 @@
-import{$df as f}from"../../../../../base/common/event.js";import{$vd as L}from"../../../../../base/common/lifecycle.js";import{localize as c}from"../../../../../nls.js";import{$mj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$qtc as w}from"./terminalLink.js";var d=function(a,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,i,e);else for(var h=a.length-1;h>=0;h--)(r=a[h])&&(s=(n<3?r(s):n>3?r(t,i,s):r(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},v=function(a,t){return function(i,e){t(i,e,a)}};let l=class extends L{constructor(t,i){super(),this.f=t,this.g=i,this.b=this.B(new f),this.onDidActivateLink=this.b.event,this.c=this.B(new f),this.onDidShowHover=this.c.event,this.h=new Map}async provideLinks(t,i){let e=this.h.get(t);if(e){await e,i(this.a);return}if(this.a)for(const n of this.a)n.dispose();e=this.j(t),this.h.set(t,e),this.a=await e,this.h.delete(t),i(this.a)}async j(t){const i=[];let e=t-1,n=e;const s=[this.f.xterm.buffer.active.getLine(e)],r=Math.max(this.f.maxLinkLength,this.f.xterm.cols),h=Math.ceil(r/this.f.xterm.cols),u=Math.max(e-h,0),m=Math.min(n+h,this.f.xterm.buffer.active.length);for(;e>=u&&this.f.xterm.buffer.active.getLine(e)?.isWrapped;)s.unshift(this.f.xterm.buffer.active.getLine(e-1)),e--;for(;n<m&&this.f.xterm.buffer.active.getLine(n+1)?.isWrapped;)s.push(this.f.xterm.buffer.active.getLine(n+1)),n++;const p=await this.f.detect(s,e,n);for(const o of p)i.push(this.m(o,async x=>this.b.fire({link:o,event:x})));return i}m(t,i){return!t.disableTrimColon&&t.text.length>0&&t.text.charAt(t.text.length-1)===":"&&(t.text=t.text.slice(0,-1),t.bufferRange.end.x--),this.g.createInstance(w,this.f.xterm,t.bufferRange,t.text,t.uri,t.parsedLink,t.actions,this.f.xterm.buffer.active.viewportY,i,(e,n,s,r)=>this.c.fire({link:e,viewportRange:n,modifierDownCallback:s,modifierUpCallback:r}),t.type!=="Search",t.label||this.n(t.type),t.type)}n(t){switch(t){case"Search":return c(12215,null);case"LocalFile":return c(12216,null);case"LocalFolderInWorkspace":return c(12217,null);case"LocalFolderOutsideWorkspace":return c(12218,null);case"Url":default:return c(12219,null)}}};l=d([v(1,g)],l);export{l as $rtc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { TerminalLink } from "./terminalLink.js";
+let TerminalLinkDetectorAdapter = class TerminalLinkDetectorAdapter2 extends Disposable {
+  static {
+    __name(this, "TerminalLinkDetectorAdapter");
+  }
+  constructor(_detector, _instantiationService) {
+    super();
+    this._detector = _detector;
+    this._instantiationService = _instantiationService;
+    this._onDidActivateLink = this._register(new Emitter());
+    this.onDidActivateLink = this._onDidActivateLink.event;
+    this._onDidShowHover = this._register(new Emitter());
+    this.onDidShowHover = this._onDidShowHover.event;
+    this._activeProvideLinkRequests = /* @__PURE__ */ new Map();
+  }
+  async provideLinks(bufferLineNumber, callback) {
+    let activeRequest = this._activeProvideLinkRequests.get(bufferLineNumber);
+    if (activeRequest) {
+      await activeRequest;
+      callback(this._activeLinks);
+      return;
+    }
+    if (this._activeLinks) {
+      for (const link of this._activeLinks) {
+        link.dispose();
+      }
+    }
+    activeRequest = this._provideLinks(bufferLineNumber);
+    this._activeProvideLinkRequests.set(bufferLineNumber, activeRequest);
+    this._activeLinks = await activeRequest;
+    this._activeProvideLinkRequests.delete(bufferLineNumber);
+    callback(this._activeLinks);
+  }
+  async _provideLinks(bufferLineNumber) {
+    const links = [];
+    let startLine = bufferLineNumber - 1;
+    let endLine = startLine;
+    const lines = [
+      this._detector.xterm.buffer.active.getLine(startLine)
+    ];
+    const maxCharacterContext = Math.max(this._detector.maxLinkLength, this._detector.xterm.cols);
+    const maxLineContext = Math.ceil(maxCharacterContext / this._detector.xterm.cols);
+    const minStartLine = Math.max(startLine - maxLineContext, 0);
+    const maxEndLine = Math.min(endLine + maxLineContext, this._detector.xterm.buffer.active.length);
+    while (startLine >= minStartLine && this._detector.xterm.buffer.active.getLine(startLine)?.isWrapped) {
+      lines.unshift(this._detector.xterm.buffer.active.getLine(startLine - 1));
+      startLine--;
+    }
+    while (endLine < maxEndLine && this._detector.xterm.buffer.active.getLine(endLine + 1)?.isWrapped) {
+      lines.push(this._detector.xterm.buffer.active.getLine(endLine + 1));
+      endLine++;
+    }
+    const detectedLinks = await this._detector.detect(lines, startLine, endLine);
+    for (const link of detectedLinks) {
+      links.push(this._createTerminalLink(link, async (event) => this._onDidActivateLink.fire({ link, event })));
+    }
+    return links;
+  }
+  _createTerminalLink(l, activateCallback) {
+    if (!l.disableTrimColon && l.text.length > 0 && l.text.charAt(l.text.length - 1) === ":") {
+      l.text = l.text.slice(0, -1);
+      l.bufferRange.end.x--;
+    }
+    return this._instantiationService.createInstance(
+      TerminalLink,
+      this._detector.xterm,
+      l.bufferRange,
+      l.text,
+      l.uri,
+      l.parsedLink,
+      l.actions,
+      this._detector.xterm.buffer.active.viewportY,
+      activateCallback,
+      (link, viewportRange, modifierDownCallback, modifierUpCallback) => this._onDidShowHover.fire({
+        link,
+        viewportRange,
+        modifierDownCallback,
+        modifierUpCallback
+      }),
+      l.type !== "Search",
+      // Only search is low confidence
+      l.label || this._getLabel(l.type),
+      l.type
+    );
+  }
+  _getLabel(type) {
+    switch (type) {
+      case "Search":
+        return localize("searchWorkspace", "Search workspace");
+      case "LocalFile":
+        return localize("openFile", "Open file in editor");
+      case "LocalFolderInWorkspace":
+        return localize("focusFolder", "Focus folder in explorer");
+      case "LocalFolderOutsideWorkspace":
+        return localize("openFolder", "Open folder in new window");
+      case "Url":
+      default:
+        return localize("followLink", "Follow link");
+    }
+  }
+};
+TerminalLinkDetectorAdapter = __decorate([
+  __param(1, IInstantiationService)
+], TerminalLinkDetectorAdapter);
+export {
+  TerminalLinkDetectorAdapter
+};
+//# sourceMappingURL=terminalLinkDetectorAdapter.js.map

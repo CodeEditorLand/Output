@@ -1,1 +1,31 @@
-import{$kb as b,$nb as s}from"../../../base/common/errors.js";import{$9yb as $}from"../../services/extensions/common/extHostCustomers.js";import{$BY as m}from"../common/extHost.protocol.js";var l=function(t,o,r,f){var n=arguments.length,e=n<3?o:f===null?f=Object.getOwnPropertyDescriptor(o,r):f,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(t,o,r,f);else for(var c=t.length-1;c>=0;c--)(i=t[c])&&(e=(n<3?i(e):n>3?i(o,r,e):i(o,r))||e);return n>3&&e&&Object.defineProperty(o,r,e),e};let p=class{dispose(){}$onUnexpectedError(o){o&&o.$isError&&(o=s(o)),b(o)}};p=l([$(m.MainThreadErrors)],p);export{p as $sZb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { onUnexpectedError, transformErrorFromSerialization } from "../../../base/common/errors.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { MainContext } from "../common/extHost.protocol.js";
+let MainThreadErrors = class MainThreadErrors2 {
+  static {
+    __name(this, "MainThreadErrors");
+  }
+  dispose() {
+  }
+  $onUnexpectedError(err) {
+    if (err && err.$isError) {
+      err = transformErrorFromSerialization(err);
+    }
+    onUnexpectedError(err);
+  }
+};
+MainThreadErrors = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadErrors)
+], MainThreadErrors);
+export {
+  MainThreadErrors
+};
+//# sourceMappingURL=mainThreadErrors.js.map

@@ -1,1 +1,112 @@
-import"./linesDecorations.css";import{$Ycb as p,$2cb as g}from"../glyphMargin/glyphMargin.js";class N extends g{constructor(t){super(),this.f=t;const e=this.f.configuration.options.get(156);this.g=e.decorationsLeft,this.h=e.decorationsWidth,this.j=null,this.f.addEventHandler(this)}dispose(){this.f.removeEventHandler(this),this.j=null,super.dispose()}onConfigurationChanged(t){const e=this.f.configuration.options.get(156);return this.g=e.decorationsLeft,this.h=e.decorationsWidth,!0}onDecorationsChanged(t){return!0}onFlushed(t){return!0}onLinesChanged(t){return!0}onLinesDeleted(t){return!0}onLinesInserted(t){return!0}onScrollChanged(t){return t.scrollTopChanged}onZonesChanged(t){return!0}n(t){const o=t.getDecorationsInViewport(),e=[];let l=0;for(let s=0,c=o.length;s<c;s++){const n=o[s],r=n.options.linesDecorationsClassName,i=n.options.zIndex;r&&(e[l++]=new p(n.range.startLineNumber,n.range.endLineNumber,r,n.options.linesDecorationsTooltip??null,i));const a=n.options.firstLineDecorationClassName;a&&(e[l++]=new p(n.range.startLineNumber,n.range.startLineNumber,a,n.options.linesDecorationsTooltip??null,i))}return e}prepareRender(t){const o=t.visibleRange.startLineNumber,e=t.visibleRange.endLineNumber,l=this.c(o,e,this.n(t)),s=this.g.toString(),c=this.h.toString(),n='" style="left:'+s+"px;width:"+c+'px;"></div>',r=[];for(let i=o;i<=e;i++){const a=i-o,f=l[a].getDecorations();let h="";for(const u of f){let d='<div class="cldr '+u.className;u.tooltip!==null&&(d+='" title="'+u.tooltip),d+=n,h+=d}r[a]=h}this.j=r}render(t,o){return this.j?this.j[o-t]:""}}export{N as $7cb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./linesDecorations.css";
+import { DecorationToRender, DedupOverlay } from "../glyphMargin/glyphMargin.js";
+class LinesDecorationsOverlay extends DedupOverlay {
+  static {
+    __name(this, "LinesDecorationsOverlay");
+  }
+  constructor(context) {
+    super();
+    this._context = context;
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      156
+      /* EditorOption.layoutInfo */
+    );
+    this._decorationsLeft = layoutInfo.decorationsLeft;
+    this._decorationsWidth = layoutInfo.decorationsWidth;
+    this._renderResult = null;
+    this._context.addEventHandler(this);
+  }
+  dispose() {
+    this._context.removeEventHandler(this);
+    this._renderResult = null;
+    super.dispose();
+  }
+  // --- begin event handlers
+  onConfigurationChanged(e) {
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      156
+      /* EditorOption.layoutInfo */
+    );
+    this._decorationsLeft = layoutInfo.decorationsLeft;
+    this._decorationsWidth = layoutInfo.decorationsWidth;
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onLinesChanged(e) {
+    return true;
+  }
+  onLinesDeleted(e) {
+    return true;
+  }
+  onLinesInserted(e) {
+    return true;
+  }
+  onScrollChanged(e) {
+    return e.scrollTopChanged;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // --- end event handlers
+  _getDecorations(ctx) {
+    const decorations = ctx.getDecorationsInViewport();
+    const r = [];
+    let rLen = 0;
+    for (let i = 0, len = decorations.length; i < len; i++) {
+      const d = decorations[i];
+      const linesDecorationsClassName = d.options.linesDecorationsClassName;
+      const zIndex = d.options.zIndex;
+      if (linesDecorationsClassName) {
+        r[rLen++] = new DecorationToRender(d.range.startLineNumber, d.range.endLineNumber, linesDecorationsClassName, d.options.linesDecorationsTooltip ?? null, zIndex);
+      }
+      const firstLineDecorationClassName = d.options.firstLineDecorationClassName;
+      if (firstLineDecorationClassName) {
+        r[rLen++] = new DecorationToRender(d.range.startLineNumber, d.range.startLineNumber, firstLineDecorationClassName, d.options.linesDecorationsTooltip ?? null, zIndex);
+      }
+    }
+    return r;
+  }
+  prepareRender(ctx) {
+    const visibleStartLineNumber = ctx.visibleRange.startLineNumber;
+    const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
+    const toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));
+    const left = this._decorationsLeft.toString();
+    const width = this._decorationsWidth.toString();
+    const common = '" style="left:' + left + "px;width:" + width + 'px;"></div>';
+    const output = [];
+    for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+      const lineIndex = lineNumber - visibleStartLineNumber;
+      const decorations = toRender[lineIndex].getDecorations();
+      let lineOutput = "";
+      for (const decoration of decorations) {
+        let addition = '<div class="cldr ' + decoration.className;
+        if (decoration.tooltip !== null) {
+          addition += '" title="' + decoration.tooltip;
+        }
+        addition += common;
+        lineOutput += addition;
+      }
+      output[lineIndex] = lineOutput;
+    }
+    this._renderResult = output;
+  }
+  render(startLineNumber, lineNumber) {
+    if (!this._renderResult) {
+      return "";
+    }
+    return this._renderResult[lineNumber - startLineNumber];
+  }
+}
+export {
+  LinesDecorationsOverlay
+};
+//# sourceMappingURL=linesDecorations.js.map

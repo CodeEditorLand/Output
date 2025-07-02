@@ -1,1 +1,62 @@
-import{$tab as g,$yab as p}from"../../../../editor/browser/editorExtensions.js";import{EditorContextKeys as r}from"../../../../editor/common/editorContextKeys.js";import*as o from"../../../../nls.js";import{$Cn as b}from"../../../../platform/contextkey/common/contextkey.js";import{$Zn as $}from"../../../../platform/commands/common/commands.js";import{$_I as x}from"../../../../platform/notification/common/notification.js";import{$tDb as y}from"../../extensions/common/extensions.js";import{$bp as v}from"../../../../platform/dialogs/common/dialogs.js";import{$tT as D}from"../../../../editor/common/services/languageFeatures.js";p(class extends g{constructor(){super({id:"editor.action.formatDocument.none",label:o.localize2(8250,"Format Document"),precondition:b.and(r.writable,r.hasDocumentFormattingProvider.toNegated()),kbOpts:{kbExpr:r.editorTextFocus,primary:1572,linux:{primary:3111},weight:100}})}async run(t,n){if(!n.hasModel())return;const i=t.get($),c=t.get(y),l=t.get(x),u=t.get(v),s=t.get(D),e=n.getModel(),m=s.documentFormattingEditProvider.all(e).length;if(m>1)return i.executeCommand("editor.action.formatDocument.multiple");if(m===1)return i.executeCommand("editor.action.formatDocument");if(e.isTooLargeForSyncing())l.warn(o.localize(8247,null));else{const a=e.getLanguageId(),d=o.localize(8248,null,a),{confirmed:f}=await u.confirm({message:d,primaryButton:o.localize(8249,null)});f&&c.openSearch(`category:formatters ${a}`)}}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorAction, registerEditorAction } from "../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import * as nls from "../../../../nls.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+registerEditorAction(class FormatDocumentMultipleAction extends EditorAction {
+  static {
+    __name(this, "FormatDocumentMultipleAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.formatDocument.none",
+      label: nls.localize2("formatDocument.label.multiple", "Format Document"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasDocumentFormattingProvider.toNegated()),
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 1024 | 512 | 36,
+        linux: {
+          primary: 2048 | 1024 | 39
+          /* KeyCode.KeyI */
+        },
+        weight: 100
+      }
+    });
+  }
+  async run(accessor, editor) {
+    if (!editor.hasModel()) {
+      return;
+    }
+    const commandService = accessor.get(ICommandService);
+    const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+    const notificationService = accessor.get(INotificationService);
+    const dialogService = accessor.get(IDialogService);
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const model = editor.getModel();
+    const formatterCount = languageFeaturesService.documentFormattingEditProvider.all(model).length;
+    if (formatterCount > 1) {
+      return commandService.executeCommand("editor.action.formatDocument.multiple");
+    } else if (formatterCount === 1) {
+      return commandService.executeCommand("editor.action.formatDocument");
+    } else if (model.isTooLargeForSyncing()) {
+      notificationService.warn(nls.localize("too.large", "This file cannot be formatted because it is too large"));
+    } else {
+      const langName = model.getLanguageId();
+      const message = nls.localize("no.provider", "There is no formatter for '{0}' files installed.", langName);
+      const { confirmed } = await dialogService.confirm({
+        message,
+        primaryButton: nls.localize({ key: "install.formatter", comment: ["&& denotes a mnemonic"] }, "&&Install Formatter...")
+      });
+      if (confirmed) {
+        extensionsWorkbenchService.openSearch(`category:formatters ${langName}`);
+      }
+    }
+  }
+});
+//# sourceMappingURL=formatActionsNone.js.map

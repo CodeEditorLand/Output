@@ -1,1 +1,38 @@
-import{$vd as p}from"../../../../base/common/lifecycle.js";import{$wC as m}from"../../../../platform/accessibility/common/accessibility.js";import{$nj as u}from"../../../../platform/instantiation/common/instantiation.js";import{$Jo as h}from"../../../../platform/storage/common/storage.js";var a=function(o,e,r,n){var i=arguments.length,t=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,e,r,n);else for(var f=o.length-1;f>=0;f--)(c=o[f])&&(t=(i<3?c(t):i>3?c(e,r,t):c(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t},l=function(o,e){return function(r,n){e(r,n,o)}};const x=u("accessibleViewInformationService");let s=class extends p{constructor(e){super(),this.a=e}hasShownAccessibleView(e){return this.a.getBoolean(`${m}${e}`,-1,!1)===!0}};s=a([l(0,h)],s);export{x as $Jxb,s as $Kxb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX } from "../../../../platform/accessibility/common/accessibility.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+const IAccessibleViewInformationService = createDecorator("accessibleViewInformationService");
+let AccessibleViewInformationService = class AccessibleViewInformationService2 extends Disposable {
+  static {
+    __name(this, "AccessibleViewInformationService");
+  }
+  constructor(_storageService) {
+    super();
+    this._storageService = _storageService;
+  }
+  hasShownAccessibleView(viewId) {
+    return this._storageService.getBoolean(`${ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX}${viewId}`, -1, false) === true;
+  }
+};
+AccessibleViewInformationService = __decorate([
+  __param(0, IStorageService)
+], AccessibleViewInformationService);
+export {
+  AccessibleViewInformationService,
+  IAccessibleViewInformationService
+};
+//# sourceMappingURL=accessibleViewInformationService.js.map

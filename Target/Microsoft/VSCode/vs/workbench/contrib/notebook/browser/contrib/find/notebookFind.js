@@ -1,1 +1,190 @@
-import"./media/notebookFind.css";import{Schemas as v}from"../../../../../../base/common/network.js";import{$dh as y}from"../../../../../../base/common/resources.js";import{$oab as O}from"../../../../../../editor/browser/services/codeEditorService.js";import{EditorContextKeys as k}from"../../../../../../editor/common/editorContextKeys.js";import{$rob as u,$uob as N,$Eob as A}from"../../../../../../editor/contrib/find/browser/findController.js";import{localize2 as f}from"../../../../../../nls.js";import{$CI as w,$DI as h}from"../../../../../../platform/actions/common/actions.js";import{$Cn as g}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ucc as i}from"./notebookFindWidget.js";import{$zWb as x}from"../../controller/coreActions.js";import{$gAb as a}from"../../notebookBrowser.js";import{$qCb as M}from"../../notebookEditorExtensions.js";import{CellUri as b,NotebookFindScopeType as I}from"../../../common/notebookCommon.js";import{$YAb as P,$UAb as R,$2Ab as F,$XAb as E}from"../../../common/notebookContextKeys.js";import{$II as S}from"../../../../../services/editor/common/editorService.js";M(i.id,i);h(class extends w{constructor(){super({id:"notebook.hideFind",title:f(9238,"Hide Find in Notebook"),keybinding:{when:g.and(F,R),primary:9,weight:200}})}async run(o){const e=o.get(S),t=a(e.activeEditorPane);if(!t)return;t.getContribution(i.id).hide(),t.focus()}});h(class extends x{constructor(){super({id:"notebook.find",title:f(9239,"Find in Notebook"),keybinding:{when:g.and(F,g.or(E,P),k.focus.toNegated()),primary:2084,weight:200}})}async runWithContext(o,e){const t=o.get(S),n=a(t.activeEditorPane);if(!n)return;n.getContribution(i.id).show(void 0,{findScope:{findScopeType:I.None}})}});function T(o,e){if(e.uri.scheme===v.vscodeNotebookCell){const t=b.parse(e.uri);if(t&&y(t.notebook,o))return!0}return!1}function C(o,e){if(e.seedSearchStringFromSelection==="single"){const t=u(o,e.seedSearchStringFromSelection,e.seedSearchStringFromNonEmptySelection);if(t)return{searchString:t,selection:o.getSelection()}}else if(e.seedSearchStringFromSelection==="multiple"&&!e.updateSearchScope){const t=u(o,e.seedSearchStringFromSelection);if(t)return{searchString:t,selection:o.getSelection()}}}N.addImplementation(100,(o,e,t)=>{const n=o.get(S),r=a(n.activeEditorPane);if(!r||!e.hasModel())return!1;if(!r.hasEditorFocus()&&!r.hasWebviewFocus()){const l=o.get(O),d=l.getFocusedCodeEditor()||l.getActiveCodeEditor();if(!(r.hasModel()&&d&&d.hasModel()&&T(r.textModel.uri,d.getModel())))return!1}const s=r.getContribution(i.id),c=C(e,{forceRevealReplace:!1,seedSearchStringFromSelection:e.getOption(48).seedSearchStringFromSelection!=="never"?"single":"none",seedSearchStringFromNonEmptySelection:e.getOption(48).seedSearchStringFromSelection==="selection",seedSearchStringFromGlobalClipboard:e.getOption(48).globalFindClipboard,shouldFocus:1,shouldAnimate:!0,updateSearchScope:!1,loop:e.getOption(48).loop});let m;const $=e.getModel().uri,p=b.parse($);if(c?.selection&&p){const l=r.getCellByHandle(p.handle);l&&(m={searchStringSeededFrom:{cell:l,range:c.selection}})}return s.show(c?.searchString,m),!0});A.addImplementation(100,(o,e,t)=>{const n=o.get(S),r=a(n.activeEditorPane);if(!r||!e.hasModel())return!1;const s=r.getContribution(i.id),c=C(e,{forceRevealReplace:!1,seedSearchStringFromSelection:e.getOption(48).seedSearchStringFromSelection!=="never"?"single":"none",seedSearchStringFromNonEmptySelection:e.getOption(48).seedSearchStringFromSelection==="selection",seedSearchStringFromGlobalClipboard:e.getOption(48).globalFindClipboard,shouldFocus:1,shouldAnimate:!0,updateSearchScope:!1,loop:e.getOption(48).loop});return s?(s.replace(c?.searchString),!0):!1});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/notebookFind.css";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import { ICodeEditorService } from "../../../../../../editor/browser/services/codeEditorService.js";
+import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
+import { getSelectionSearchString, StartFindAction, StartFindReplaceAction } from "../../../../../../editor/contrib/find/browser/findController.js";
+import { localize2 } from "../../../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { NotebookFindContrib } from "./notebookFindWidget.js";
+import { NotebookMultiCellAction } from "../../controller/coreActions.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CellUri, NotebookFindScopeType } from "../../../common/notebookCommon.js";
+import { INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR, KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED, NOTEBOOK_EDITOR_FOCUSED, NOTEBOOK_IS_ACTIVE_EDITOR } from "../../../common/notebookContextKeys.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+registerNotebookContribution(NotebookFindContrib.id, NotebookFindContrib);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.hideFind",
+      title: localize2("notebookActions.hideFind", "Hide Find in Notebook"),
+      keybinding: {
+        when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED),
+        primary: 9,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor) {
+      return;
+    }
+    const controller = editor.getContribution(NotebookFindContrib.id);
+    controller.hide();
+    editor.focus();
+  }
+});
+registerAction2(class extends NotebookMultiCellAction {
+  constructor() {
+    super({
+      id: "notebook.find",
+      title: localize2("notebookActions.findInNotebook", "Find in Notebook"),
+      keybinding: {
+        when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.or(NOTEBOOK_IS_ACTIVE_EDITOR, INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR), EditorContextKeys.focus.toNegated()),
+        primary: 36 | 2048,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor) {
+      return;
+    }
+    const controller = editor.getContribution(NotebookFindContrib.id);
+    controller.show(void 0, { findScope: { findScopeType: NotebookFindScopeType.None } });
+  }
+});
+function notebookContainsTextModel(uri, textModel) {
+  if (textModel.uri.scheme === Schemas.vscodeNotebookCell) {
+    const cellUri = CellUri.parse(textModel.uri);
+    if (cellUri && isEqual(cellUri.notebook, uri)) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(notebookContainsTextModel, "notebookContainsTextModel");
+function getSearchStringOptions(editor, opts) {
+  if (opts.seedSearchStringFromSelection === "single") {
+    const selectionSearchString = getSelectionSearchString(editor, opts.seedSearchStringFromSelection, opts.seedSearchStringFromNonEmptySelection);
+    if (selectionSearchString) {
+      return {
+        searchString: selectionSearchString,
+        selection: editor.getSelection()
+      };
+    }
+  } else if (opts.seedSearchStringFromSelection === "multiple" && !opts.updateSearchScope) {
+    const selectionSearchString = getSelectionSearchString(editor, opts.seedSearchStringFromSelection);
+    if (selectionSearchString) {
+      return {
+        searchString: selectionSearchString,
+        selection: editor.getSelection()
+      };
+    }
+  }
+  return void 0;
+}
+__name(getSearchStringOptions, "getSearchStringOptions");
+StartFindAction.addImplementation(100, (accessor, codeEditor, args) => {
+  const editorService = accessor.get(IEditorService);
+  const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+  if (!editor) {
+    return false;
+  }
+  if (!codeEditor.hasModel()) {
+    return false;
+  }
+  if (!editor.hasEditorFocus() && !editor.hasWebviewFocus()) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const textEditor = codeEditorService.getFocusedCodeEditor() || codeEditorService.getActiveCodeEditor();
+    if (editor.hasModel() && textEditor && textEditor.hasModel() && notebookContainsTextModel(editor.textModel.uri, textEditor.getModel())) {
+    } else {
+      return false;
+    }
+  }
+  const controller = editor.getContribution(NotebookFindContrib.id);
+  const searchStringOptions = getSearchStringOptions(codeEditor, {
+    forceRevealReplace: false,
+    seedSearchStringFromSelection: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).seedSearchStringFromSelection !== "never" ? "single" : "none",
+    seedSearchStringFromNonEmptySelection: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).seedSearchStringFromSelection === "selection",
+    seedSearchStringFromGlobalClipboard: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).globalFindClipboard,
+    shouldFocus: 1,
+    shouldAnimate: true,
+    updateSearchScope: false,
+    loop: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).loop
+  });
+  let options = void 0;
+  const uri = codeEditor.getModel().uri;
+  const data = CellUri.parse(uri);
+  if (searchStringOptions?.selection && data) {
+    const cell = editor.getCellByHandle(data.handle);
+    if (cell) {
+      options = {
+        searchStringSeededFrom: { cell, range: searchStringOptions.selection }
+      };
+    }
+  }
+  controller.show(searchStringOptions?.searchString, options);
+  return true;
+});
+StartFindReplaceAction.addImplementation(100, (accessor, codeEditor, args) => {
+  const editorService = accessor.get(IEditorService);
+  const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+  if (!editor) {
+    return false;
+  }
+  if (!codeEditor.hasModel()) {
+    return false;
+  }
+  const controller = editor.getContribution(NotebookFindContrib.id);
+  const searchStringOptions = getSearchStringOptions(codeEditor, {
+    forceRevealReplace: false,
+    seedSearchStringFromSelection: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).seedSearchStringFromSelection !== "never" ? "single" : "none",
+    seedSearchStringFromNonEmptySelection: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).seedSearchStringFromSelection === "selection",
+    seedSearchStringFromGlobalClipboard: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).globalFindClipboard,
+    shouldFocus: 1,
+    shouldAnimate: true,
+    updateSearchScope: false,
+    loop: codeEditor.getOption(
+      48
+      /* EditorOption.find */
+    ).loop
+  });
+  if (controller) {
+    controller.replace(searchStringOptions?.searchString);
+    return true;
+  }
+  return false;
+});
+//# sourceMappingURL=notebookFind.js.map

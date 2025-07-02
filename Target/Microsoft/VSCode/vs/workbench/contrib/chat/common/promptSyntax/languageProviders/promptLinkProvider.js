@@ -1,1 +1,53 @@
-import{$IS as d}from"../service/promptsService.js";import{$Uc as c}from"../../../../../../base/common/assert.js";import{$_c as h}from"../../../../../../base/common/types.js";import{$qb as l}from"../../../../../../base/common/errors.js";var u=function(s,e,t,r){var i=arguments.length,n=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(s,e,t,r);else for(var a=s.length-1;a>=0;a--)(o=s[a])&&(n=(i<3?o(n):i>3?o(e,t,n):o(e,t))||n);return i>3&&n&&Object.defineProperty(e,t,n),n},m=function(s,e){return function(t,r){e(t,r,s)}};let p=class{constructor(e){this.a=e}async provideLinks(e,t){c(!t.isCancellationRequested,new l);const r=this.a.getSyntaxParserFor(e);c(r.isDisposed===!1,"Prompt parser must not be disposed.");const{references:i}=await r.start(t).settled();return c(!t.isCancellationRequested,new l),{links:i.map(o=>{const{uri:a,linkRange:f}=o;return h(f,"Link range must be defined."),{range:f,url:a}})}}};p=u([m(0,d)],p);export{p as $hfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IPromptsService } from "../service/promptsService.js";
+import { assert } from "../../../../../../base/common/assert.js";
+import { assertDefined } from "../../../../../../base/common/types.js";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+let PromptLinkProvider = class PromptLinkProvider2 {
+  static {
+    __name(this, "PromptLinkProvider");
+  }
+  constructor(promptsService) {
+    this.promptsService = promptsService;
+  }
+  /**
+   * Provide list of links for the provided text model.
+   */
+  async provideLinks(model, token) {
+    assert(!token.isCancellationRequested, new CancellationError());
+    const parser = this.promptsService.getSyntaxParserFor(model);
+    assert(parser.isDisposed === false, "Prompt parser must not be disposed.");
+    const { references } = await parser.start(token).settled();
+    assert(!token.isCancellationRequested, new CancellationError());
+    const links = references.map((reference) => {
+      const { uri, linkRange } = reference;
+      assertDefined(linkRange, "Link range must be defined.");
+      return {
+        range: linkRange,
+        url: uri
+      };
+    });
+    return {
+      links
+    };
+  }
+};
+PromptLinkProvider = __decorate([
+  __param(0, IPromptsService)
+], PromptLinkProvider);
+export {
+  PromptLinkProvider
+};
+//# sourceMappingURL=promptLinkProvider.js.map

@@ -1,1 +1,35 @@
-import{$2kb as o}from"../../../../../common/core/edits/lineEdit.js";import{$mD as r}from"../../../../../common/core/ranges/lineRange.js";class m{get lineEdit(){return o.fromSingleTextEdit(this.edit.toReplacement(this.originalText),this.originalText)}get originalLineRange(){return this.lineEdit.lineRange}get modifiedLineRange(){return this.lineEdit.toLineEdit().getNewLineRanges()[0]}get displayRange(){return this.originalText.lineRange.intersect(this.originalLineRange.join(r.ofLength(this.originalLineRange.startLineNumber,this.lineEdit.newLines.length)))}constructor(i,e,t,n,s){this.originalText=i,this.edit=e,this.cursorPosition=t,this.commands=n,this.inlineCompletion=s}equals(i){return this.originalText.getValue()===i.originalText.getValue()&&this.edit.equals(i.edit)&&this.cursorPosition.equals(i.cursorPosition)&&this.commands===i.commands&&this.inlineCompletion===i.inlineCompletion}}export{m as $3kb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { LineReplacement } from "../../../../../common/core/edits/lineEdit.js";
+import { LineRange } from "../../../../../common/core/ranges/lineRange.js";
+class InlineEditWithChanges {
+  static {
+    __name(this, "InlineEditWithChanges");
+  }
+  get lineEdit() {
+    return LineReplacement.fromSingleTextEdit(this.edit.toReplacement(this.originalText), this.originalText);
+  }
+  get originalLineRange() {
+    return this.lineEdit.lineRange;
+  }
+  get modifiedLineRange() {
+    return this.lineEdit.toLineEdit().getNewLineRanges()[0];
+  }
+  get displayRange() {
+    return this.originalText.lineRange.intersect(this.originalLineRange.join(LineRange.ofLength(this.originalLineRange.startLineNumber, this.lineEdit.newLines.length)));
+  }
+  constructor(originalText, edit, cursorPosition, commands, inlineCompletion) {
+    this.originalText = originalText;
+    this.edit = edit;
+    this.cursorPosition = cursorPosition;
+    this.commands = commands;
+    this.inlineCompletion = inlineCompletion;
+  }
+  equals(other) {
+    return this.originalText.getValue() === other.originalText.getValue() && this.edit.equals(other.edit) && this.cursorPosition.equals(other.cursorPosition) && this.commands === other.commands && this.inlineCompletion === other.inlineCompletion;
+  }
+}
+export {
+  InlineEditWithChanges
+};
+//# sourceMappingURL=inlineEditWithChanges.js.map

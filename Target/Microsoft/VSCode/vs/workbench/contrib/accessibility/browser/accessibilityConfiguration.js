@@ -1,1 +1,1134 @@
-import{localize as i}from"../../../../nls.js";import{$Tl as E}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Rl as p}from"../../../../platform/registry/common/platform.js";import{$Vn as y}from"../../../../platform/contextkey/common/contextkey.js";import{$jL as D,$nL as g}from"../../../common/configuration.js";import{$peb as x}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{AccessibilityVoiceSettingId as N,$rX as O,$wX as M}from"../../speech/common/speechService.js";import{$vd as K}from"../../../../base/common/lifecycle.js";import{Event as S}from"../../../../base/common/event.js";import{$8c as F}from"../../../../base/common/types.js";var P=function(e,n,a,r){var c=arguments.length,l=c<3?n:r===null?r=Object.getOwnPropertyDescriptor(n,a):r,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(e,n,a,r);else for(var d=e.length-1;d>=0;d--)(f=e[d])&&(l=(c<3?f(l):c>3?f(n,a,l):f(n,a))||l);return c>3&&l&&Object.defineProperty(n,a,l),l},k=function(e,n){return function(a,r){n(a,r,e)}};const X=new y("accessibilityHelpIsShown",!1,!0),Q=new y("accessibleViewIsShown",!1,!0),J=new y("accessibleViewSupportsNavigation",!1,!0),Y=new y("accessibleViewVerbosityEnabled",!1,!0),Z=new y("accessibleViewGoToSymbolSupported",!1,!0),I=new y("accessibleViewOnLastLine",!1,!0),ii=new y("accessibleViewCurrentProviderId",void 0,void 0),ei=new y("accessibleViewInCodeBlock",void 0,void 0),ni=new y("accessibleViewContainsCodeBlocks",void 0,void 0),si=new y("accessibleViewHasUnassignedKeybindings",void 0,void 0),ti=new y("accessibleViewHasAssignedKeybindings",void 0,void 0);var v;(function(e){e.DimUnfocusedEnabled="accessibility.dimUnfocused.enabled",e.DimUnfocusedOpacity="accessibility.dimUnfocused.opacity",e.HideAccessibleView="accessibility.hideAccessibleView",e.AccessibleViewCloseOnKeyPress="accessibility.accessibleView.closeOnKeyPress"})(v||(v={}));var C;(function(e){e[e.Default=.75]="Default",e[e.Minimum=.2]="Minimum",e[e.Maximum=1]="Maximum"})(C||(C={}));var h;(function(e){e.Terminal="accessibility.verbosity.terminal",e.DiffEditor="accessibility.verbosity.diffEditor",e.MergeEditor="accessibility.verbosity.mergeEditor",e.Chat="accessibility.verbosity.panelChat",e.InlineChat="accessibility.verbosity.inlineChat",e.TerminalChat="accessibility.verbosity.terminalChat",e.InlineCompletions="accessibility.verbosity.inlineCompletions",e.KeybindingsEditor="accessibility.verbosity.keybindingsEditor",e.Notebook="accessibility.verbosity.notebook",e.Editor="accessibility.verbosity.editor",e.Hover="accessibility.verbosity.hover",e.Notification="accessibility.verbosity.notification",e.EmptyEditorHint="accessibility.verbosity.emptyEditorHint",e.ReplEditor="accessibility.verbosity.replEditor",e.Comments="accessibility.verbosity.comments",e.DiffEditorActive="accessibility.verbosity.diffEditorActive",e.Debug="accessibility.verbosity.debug",e.Walkthrough="accessibility.verbosity.walkthrough",e.SourceControl="accessibility.verbosity.sourceControl"})(h||(h={}));const u={type:"boolean",default:!0,tags:["accessibility"]},$=Object.freeze({id:"accessibility",title:i(4503,null),type:"object"}),s={type:"string",enum:["auto","on","off"],default:"auto",enumDescriptions:[i(4504,null),i(4505,null),i(4506,null)],tags:["accessibility"]},t={type:"object",tags:["accessibility"],additionalProperties:!1,default:{sound:"auto",announcement:"auto"}},o={type:"string",enum:["auto","off"],default:"auto",enumDescriptions:[i(4507,null),i(4508,null)],tags:["accessibility"]},b={type:"object",tags:["accessibility"],additionalProperties:!1,default:{sound:"auto"}},H={...$,scope:5,properties:{"accessibility.verbosity.terminal":{description:i(4509,null),...u},"accessibility.verbosity.diffEditor":{description:i(4510,null),...u},"accessibility.verbosity.panelChat":{description:i(4511,null),...u},"accessibility.verbosity.inlineChat":{description:i(4512,null),...u},"accessibility.verbosity.inlineCompletions":{description:i(4513,null),...u},"accessibility.verbosity.keybindingsEditor":{description:i(4514,null),...u},"accessibility.verbosity.notebook":{description:i(4515,null),...u},"accessibility.verbosity.hover":{description:i(4516,null),...u},"accessibility.verbosity.notification":{description:i(4517,null),...u},"accessibility.verbosity.emptyEditorHint":{description:i(4518,null),...u},"accessibility.verbosity.replEditor":{description:i(4519,null),...u},"accessibility.verbosity.comments":{description:i(4520,null),...u},"accessibility.verbosity.diffEditorActive":{description:i(4521,null),...u},"accessibility.verbosity.debug":{description:i(4522,null),...u},"accessibility.verbosity.walkthrough":{description:i(4523,null),...u},"accessibility.accessibleView.closeOnKeyPress":{markdownDescription:i(4524,null),type:"boolean",default:!0},"accessibility.verbosity.sourceControl":{description:i(4525,null),...u},"accessibility.signalOptions.volume":{description:i(4526,null),type:"number",minimum:0,maximum:100,default:70,tags:["accessibility"]},"accessibility.signalOptions.debouncePositionChanges":{description:i(4527,null),type:"boolean",default:!1,tags:["accessibility"]},"accessibility.signalOptions.experimental.delays.general":{type:"object",description:"Delays for all signals besides error and warning at position",additionalProperties:!1,properties:{announcement:{description:i(4528,null),type:"number",minimum:0,default:3e3},sound:{description:i(4529,null),type:"number",minimum:0,default:400}},tags:["accessibility"]},"accessibility.signalOptions.experimental.delays.warningAtPosition":{type:"object",additionalProperties:!1,properties:{announcement:{description:i(4530,null),type:"number",minimum:0,default:3e3},sound:{description:i(4531,null),type:"number",minimum:0,default:1e3}},tags:["accessibility"]},"accessibility.signalOptions.experimental.delays.errorAtPosition":{type:"object",additionalProperties:!1,properties:{announcement:{description:i(4532,null),type:"number",minimum:0,default:3e3},sound:{description:i(4533,null),type:"number",minimum:0,default:1e3}},tags:["accessibility"]},"accessibility.signals.lineHasBreakpoint":{...t,description:i(4534,null),properties:{sound:{description:i(4535,null),...s},announcement:{description:i(4536,null),...o}}},"accessibility.signals.lineHasInlineSuggestion":{...b,description:i(4537,null),properties:{sound:{description:i(4538,null),...s,default:"off"}}},"accessibility.signals.nextEditSuggestion":{...t,description:i(4539,null),properties:{sound:{description:i(4540,null),...s},announcement:{description:i(4541,null),...o}}},"accessibility.signals.lineHasError":{...t,description:i(4542,null),properties:{sound:{description:i(4543,null),...s},announcement:{description:i(4544,null),...o,default:"off"}}},"accessibility.signals.lineHasFoldedArea":{...t,description:i(4545,null),properties:{sound:{description:i(4546,null),...s,default:"off"},announcement:{description:i(4547,null),...o}}},"accessibility.signals.lineHasWarning":{...t,description:i(4548,null),properties:{sound:{description:i(4549,null),...s},announcement:{description:i(4550,null),...o,default:"off"}}},"accessibility.signals.positionHasError":{...t,description:i(4551,null),properties:{sound:{description:i(4552,null),...s},announcement:{description:i(4553,null),...o,default:"on"}}},"accessibility.signals.positionHasWarning":{...t,description:i(4554,null),properties:{sound:{description:i(4555,null),...s},announcement:{description:i(4556,null),...o,default:"on"}}},"accessibility.signals.onDebugBreak":{...t,description:i(4557,null),properties:{sound:{description:i(4558,null),...s},announcement:{description:i(4559,null),...o}}},"accessibility.signals.noInlayHints":{...t,description:i(4560,null),properties:{sound:{description:i(4561,null),...s},announcement:{description:i(4562,null),...o}}},"accessibility.signals.taskCompleted":{...t,description:i(4563,null),properties:{sound:{description:i(4564,null),...s},announcement:{description:i(4565,null),...o}}},"accessibility.signals.taskFailed":{...t,description:i(4566,null),properties:{sound:{description:i(4567,null),...s},announcement:{description:i(4568,null),...o}}},"accessibility.signals.terminalCommandFailed":{...t,description:i(4569,null),properties:{sound:{description:i(4570,null),...s},announcement:{description:i(4571,null),...o}}},"accessibility.signals.terminalCommandSucceeded":{...t,description:i(4572,null),properties:{sound:{description:i(4573,null),...s},announcement:{description:i(4574,null),...o}}},"accessibility.signals.terminalQuickFix":{...t,description:i(4575,null),properties:{sound:{description:i(4576,null),...s},announcement:{description:i(4577,null),...o}}},"accessibility.signals.terminalBell":{...t,description:i(4578,null),properties:{sound:{description:i(4579,null),...s},announcement:{description:i(4580,null),...o}}},"accessibility.signals.diffLineInserted":{...b,description:i(4581,null),properties:{sound:{description:i(4582,null),...s}}},"accessibility.signals.diffLineModified":{...b,description:i(4583,null),properties:{sound:{description:i(4584,null),...s}}},"accessibility.signals.diffLineDeleted":{...b,description:i(4585,null),properties:{sound:{description:i(4586,null),...s}}},"accessibility.signals.chatEditModifiedFile":{...b,description:i(4587,null),properties:{sound:{description:i(4588,null),...s}}},"accessibility.signals.notebookCellCompleted":{...t,description:i(4589,null),properties:{sound:{description:i(4590,null),...s},announcement:{description:i(4591,null),...o}}},"accessibility.signals.notebookCellFailed":{...t,description:i(4592,null),properties:{sound:{description:i(4593,null),...s},announcement:{description:i(4594,null),...o}}},"accessibility.signals.progress":{...t,description:i(4595,null),properties:{sound:{description:i(4596,null),...s},announcement:{description:i(4597,null),...o}}},"accessibility.signals.chatRequestSent":{...t,description:i(4598,null),properties:{sound:{description:i(4599,null),...s},announcement:{description:i(4600,null),...o}}},"accessibility.signals.chatResponseReceived":{...b,description:i(4601,null),properties:{sound:{description:i(4602,null),...s}}},"accessibility.signals.codeActionTriggered":{...b,description:i(4603,null),properties:{sound:{description:i(4604,null),...s}}},"accessibility.signals.codeActionApplied":{...b,description:i(4605,null),properties:{sound:{description:i(4606,null),...s}}},"accessibility.signals.voiceRecordingStarted":{...b,description:i(4607,null),properties:{sound:{description:i(4608,null),...s}},default:{sound:"on"}},"accessibility.signals.voiceRecordingStopped":{...b,description:i(4609,null),properties:{sound:{description:i(4610,null),...s,default:"off"}}},"accessibility.signals.clear":{...t,description:i(4611,null),properties:{sound:{description:i(4612,null),...s},announcement:{description:i(4613,null),...o}}},"accessibility.signals.editsUndone":{...t,description:i(4614,null),properties:{sound:{description:i(4615,null),...s},announcement:{description:i(4616,null),...o}}},"accessibility.signals.editsKept":{...t,description:i(4617,null),properties:{sound:{description:i(4618,null),...s},announcement:{description:i(4619,null),...o}}},"accessibility.signals.save":{type:"object",tags:["accessibility"],additionalProperties:!1,markdownDescription:i(4620,null),properties:{sound:{description:i(4621,null),type:"string",enum:["userGesture","always","never"],default:"never",enumDescriptions:[i(4622,null),i(4623,null),i(4624,null)]},announcement:{description:i(4625,null),type:"string",enum:["userGesture","always","never"],default:"never",enumDescriptions:[i(4626,null),i(4627,null),i(4628,null)]}},default:{sound:"never",announcement:"never"}},"accessibility.signals.format":{type:"object",tags:["accessibility"],additionalProperties:!1,markdownDescription:i(4629,null),properties:{sound:{description:i(4630,null),type:"string",enum:["userGesture","always","never"],default:"never",enumDescriptions:[i(4631,null),i(4632,null),i(4633,null)]},announcement:{description:i(4634,null),type:"string",enum:["userGesture","always","never"],default:"never",enumDescriptions:[i(4635,null),i(4636,null),i(4637,null)]}},default:{sound:"never",announcement:"never"}},"accessibility.signals.chatUserActionRequired":{...t,markdownDescription:i(4638,null),properties:{sound:{description:i(4639,null),type:"string",enum:["auto","on","off"],enumDescriptions:[i(4640,null),i(4641,null),i(4642,null)]},announcement:{description:i(4643,null),...o}},default:{sound:"auto",announcement:"auto"},tags:["accessibility"]},"accessibility.underlineLinks":{type:"boolean",description:i(4644,null),default:!1},"accessibility.debugWatchVariableAnnouncements":{type:"boolean",description:i(4645,null),default:!0},"accessibility.replEditor.readLastExecutionOutput":{type:"boolean",description:i(4646,null),default:!0},"accessibility.replEditor.autoFocusReplExecution":{type:"string",enum:["none","input","lastExecution"],default:"input",description:i(4647,null)},"accessibility.windowTitleOptimized":{type:"boolean",default:!0,markdownDescription:i(4648,null,"`#window.title#`","`activeEditorState`")}}};function oi(){const e=p.as(E.Configuration);e.registerConfiguration(H),e.registerConfiguration({...D,properties:{"accessibility.dimUnfocused.enabled":{description:i(4649,null),type:"boolean",default:!1,tags:["accessibility"],scope:1},"accessibility.dimUnfocused.opacity":{markdownDescription:i(4650,null,"`#accessibility.dimUnfocused.enabled#`"),type:"number",minimum:.2,maximum:1,default:.75,tags:["accessibility"],scope:1},"accessibility.hideAccessibleView":{description:i(4651,null),type:"boolean",default:!1,tags:["accessibility"]}}})}const j=1200;let w=class extends K{static{this.ID="workbench.contrib.dynamicSpeechAccessibilityConfiguration"}constructor(n){super(),this.a=n,this.B(S.runAndSubscribe(n.onDidChangeHasSpeechProvider,()=>this.b()))}b(){if(!this.a.hasSpeechProvider)return;const n=this.c(),a=Object.keys(n).sort((c,l)=>n[c].name.localeCompare(n[l].name));p.as(E.Configuration).registerConfiguration({...$,properties:{"accessibility.voice.speechTimeout":{markdownDescription:i(4652,null),type:"number",default:j,minimum:0,tags:["accessibility"]},"accessibility.voice.ignoreCodeBlocks":{markdownDescription:i(4653,null),type:"boolean",default:!1,tags:["accessibility"]},"accessibility.voice.speechLanguage":{markdownDescription:i(4654,null),type:"string",enum:a,default:"auto",tags:["accessibility"],enumDescriptions:a.map(c=>n[c].name),enumItemLabels:a.map(c=>n[c].name)},"accessibility.voice.autoSynthesize":{type:"string",enum:["on","off"],enumDescriptions:[i(4655,null),i(4656,null)],markdownDescription:i(4657,null),default:"off",tags:["accessibility"]}}})}c(){return{auto:{name:i(4658,null)},...M}}};w=P([k(0,O)],w);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"audioCues.volume",migrateFn:(e,n)=>[["accessibility.signalOptions.volume",{value:e}],["audioCues.volume",{value:void 0}]]}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"audioCues.debouncePositionChanges",migrateFn:e=>[["accessibility.signalOptions.debouncePositionChanges",{value:e}],["audioCues.debouncePositionChanges",{value:void 0}]]}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"accessibility.signalOptions",migrateFn:(e,n)=>{const a=m(n,"general"),r=m(n,"errorAtPosition"),c=m(n,"warningAtPosition"),l=R(n),f=A(n),d=[];return l&&d.push(["accessibility.signalOptions.volume",{value:l}]),a&&d.push(["accessibility.signalOptions.experimental.delays.general",{value:a}]),r&&d.push(["accessibility.signalOptions.experimental.delays.errorAtPosition",{value:r}]),c&&d.push(["accessibility.signalOptions.experimental.delays.warningAtPosition",{value:c}]),f&&d.push(["accessibility.signalOptions.debouncePositionChanges",{value:f}]),d.push(["accessibility.signalOptions",{value:void 0}]),d}}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"accessibility.signals.sounds.volume",migrateFn:e=>[["accessibility.signalOptions.volume",{value:e}],["accessibility.signals.sounds.volume",{value:void 0}]]}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"accessibility.signals.debouncePositionChanges",migrateFn:e=>[["accessibility.signalOptions.debouncePositionChanges",{value:e}],["accessibility.signals.debouncePositionChanges",{value:void 0}]]}]);function m(e,n){return e(`accessibility.signalOptions.experimental.delays.${n}`)||e("accessibility.signalOptions")?.["experimental.delays"]?.[`${n}`]||e("accessibility.signalOptions")?.delays?.[`${n}`]}function R(e){return e("accessibility.signalOptions.volume")||e("accessibility.signalOptions")?.volume||e("accessibility.signals.sounds.volume")||e("audioCues.volume")}function A(e){return e("accessibility.signalOptions.debouncePositionChanges")||e("accessibility.signalOptions")?.debouncePositionChanges||e("accessibility.signals.debouncePositionChanges")||e("audioCues.debouncePositionChanges")}p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"accessibility.voice.autoSynthesize",migrateFn:e=>{let n;if(e===!0)n="on";else if(e===!1)n="off";else return[];return[["accessibility.voice.autoSynthesize",{value:n}]]}}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations([{key:"accessibility.signals.chatResponsePending",migrateFn:(e,n)=>[["accessibility.signals.progress",{value:e}],["accessibility.signals.chatResponsePending",{value:void 0}]]}]);p.as(g.ConfigurationMigration).registerConfigurationMigrations(x.allAccessibilitySignals.map(e=>e.legacySoundSettingsKey?{key:e.legacySoundSettingsKey,migrateFn:(n,a)=>{const r=[],c=e.legacyAnnouncementSettingsKey;let l;return c&&(l=a(c)??void 0,l!==void 0&&typeof l!="string"&&(l=l?"auto":"off")),r.push([`${e.legacySoundSettingsKey}`,{value:void 0}]),r.push([`${e.settingsKey}`,{value:l!==void 0?{announcement:l,sound:n}:{sound:n}}]),r}}:void 0).filter(F));p.as(g.ConfigurationMigration).registerConfigurationMigrations(x.allAccessibilitySignals.filter(e=>!!e.legacyAnnouncementSettingsKey&&!!e.legacySoundSettingsKey).map(e=>({key:e.legacyAnnouncementSettingsKey,migrateFn:(n,a)=>{const r=[],c=a(e.settingsKey)?.sound||a(e.legacySoundSettingsKey);return n!==void 0&&typeof n!="string"&&(n=n?"auto":"off"),r.push([`${e.settingsKey}`,{value:n!==void 0?{announcement:n,sound:c}:{sound:c}}]),r.push([`${e.legacyAnnouncementSettingsKey}`,{value:void 0}]),r.push([`${e.legacySoundSettingsKey}`,{value:void 0}]),r}})));export{ni as $AEb,si as $BEb,ti as $CEb,$ as $DEb,s as $EEb,o as $FEb,oi as $GEb,j as $HEb,w as $IEb,X as $sEb,Q as $tEb,J as $uEb,Y as $vEb,Z as $wEb,I as $xEb,ii as $yEb,ei as $zEb,h as AccessibilityVerbositySettingId,N as AccessibilityVoiceSettingId,v as AccessibilityWorkbenchSettingId,C as ViewDimUnfocusedOpacityProperties};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { workbenchConfigurationNodeBase, Extensions as WorkbenchExtensions } from "../../../common/configuration.js";
+import { AccessibilitySignal } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { AccessibilityVoiceSettingId, ISpeechService, SPEECH_LANGUAGES } from "../../speech/common/speechService.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Event } from "../../../../base/common/event.js";
+import { isDefined } from "../../../../base/common/types.js";
+const accessibilityHelpIsShown = new RawContextKey("accessibilityHelpIsShown", false, true);
+const accessibleViewIsShown = new RawContextKey("accessibleViewIsShown", false, true);
+const accessibleViewSupportsNavigation = new RawContextKey("accessibleViewSupportsNavigation", false, true);
+const accessibleViewVerbosityEnabled = new RawContextKey("accessibleViewVerbosityEnabled", false, true);
+const accessibleViewGoToSymbolSupported = new RawContextKey("accessibleViewGoToSymbolSupported", false, true);
+const accessibleViewOnLastLine = new RawContextKey("accessibleViewOnLastLine", false, true);
+const accessibleViewCurrentProviderId = new RawContextKey("accessibleViewCurrentProviderId", void 0, void 0);
+const accessibleViewInCodeBlock = new RawContextKey("accessibleViewInCodeBlock", void 0, void 0);
+const accessibleViewContainsCodeBlocks = new RawContextKey("accessibleViewContainsCodeBlocks", void 0, void 0);
+const accessibleViewHasUnassignedKeybindings = new RawContextKey("accessibleViewHasUnassignedKeybindings", void 0, void 0);
+const accessibleViewHasAssignedKeybindings = new RawContextKey("accessibleViewHasAssignedKeybindings", void 0, void 0);
+var AccessibilityWorkbenchSettingId;
+(function(AccessibilityWorkbenchSettingId2) {
+  AccessibilityWorkbenchSettingId2["DimUnfocusedEnabled"] = "accessibility.dimUnfocused.enabled";
+  AccessibilityWorkbenchSettingId2["DimUnfocusedOpacity"] = "accessibility.dimUnfocused.opacity";
+  AccessibilityWorkbenchSettingId2["HideAccessibleView"] = "accessibility.hideAccessibleView";
+  AccessibilityWorkbenchSettingId2["AccessibleViewCloseOnKeyPress"] = "accessibility.accessibleView.closeOnKeyPress";
+})(AccessibilityWorkbenchSettingId || (AccessibilityWorkbenchSettingId = {}));
+var ViewDimUnfocusedOpacityProperties;
+(function(ViewDimUnfocusedOpacityProperties2) {
+  ViewDimUnfocusedOpacityProperties2[ViewDimUnfocusedOpacityProperties2["Default"] = 0.75] = "Default";
+  ViewDimUnfocusedOpacityProperties2[ViewDimUnfocusedOpacityProperties2["Minimum"] = 0.2] = "Minimum";
+  ViewDimUnfocusedOpacityProperties2[ViewDimUnfocusedOpacityProperties2["Maximum"] = 1] = "Maximum";
+})(ViewDimUnfocusedOpacityProperties || (ViewDimUnfocusedOpacityProperties = {}));
+var AccessibilityVerbositySettingId;
+(function(AccessibilityVerbositySettingId2) {
+  AccessibilityVerbositySettingId2["Terminal"] = "accessibility.verbosity.terminal";
+  AccessibilityVerbositySettingId2["DiffEditor"] = "accessibility.verbosity.diffEditor";
+  AccessibilityVerbositySettingId2["MergeEditor"] = "accessibility.verbosity.mergeEditor";
+  AccessibilityVerbositySettingId2["Chat"] = "accessibility.verbosity.panelChat";
+  AccessibilityVerbositySettingId2["InlineChat"] = "accessibility.verbosity.inlineChat";
+  AccessibilityVerbositySettingId2["TerminalChat"] = "accessibility.verbosity.terminalChat";
+  AccessibilityVerbositySettingId2["InlineCompletions"] = "accessibility.verbosity.inlineCompletions";
+  AccessibilityVerbositySettingId2["KeybindingsEditor"] = "accessibility.verbosity.keybindingsEditor";
+  AccessibilityVerbositySettingId2["Notebook"] = "accessibility.verbosity.notebook";
+  AccessibilityVerbositySettingId2["Editor"] = "accessibility.verbosity.editor";
+  AccessibilityVerbositySettingId2["Hover"] = "accessibility.verbosity.hover";
+  AccessibilityVerbositySettingId2["Notification"] = "accessibility.verbosity.notification";
+  AccessibilityVerbositySettingId2["EmptyEditorHint"] = "accessibility.verbosity.emptyEditorHint";
+  AccessibilityVerbositySettingId2["ReplEditor"] = "accessibility.verbosity.replEditor";
+  AccessibilityVerbositySettingId2["Comments"] = "accessibility.verbosity.comments";
+  AccessibilityVerbositySettingId2["DiffEditorActive"] = "accessibility.verbosity.diffEditorActive";
+  AccessibilityVerbositySettingId2["Debug"] = "accessibility.verbosity.debug";
+  AccessibilityVerbositySettingId2["Walkthrough"] = "accessibility.verbosity.walkthrough";
+  AccessibilityVerbositySettingId2["SourceControl"] = "accessibility.verbosity.sourceControl";
+})(AccessibilityVerbositySettingId || (AccessibilityVerbositySettingId = {}));
+const baseVerbosityProperty = {
+  type: "boolean",
+  default: true,
+  tags: ["accessibility"]
+};
+const accessibilityConfigurationNodeBase = Object.freeze({
+  id: "accessibility",
+  title: localize("accessibilityConfigurationTitle", "Accessibility"),
+  type: "object"
+});
+const soundFeatureBase = {
+  "type": "string",
+  "enum": ["auto", "on", "off"],
+  "default": "auto",
+  "enumDescriptions": [
+    localize("sound.enabled.auto", "Enable sound when a screen reader is attached."),
+    localize("sound.enabled.on", "Enable sound."),
+    localize("sound.enabled.off", "Disable sound.")
+  ],
+  tags: ["accessibility"]
+};
+const signalFeatureBase = {
+  "type": "object",
+  "tags": ["accessibility"],
+  additionalProperties: false,
+  default: {
+    sound: "auto",
+    announcement: "auto"
+  }
+};
+const announcementFeatureBase = {
+  "type": "string",
+  "enum": ["auto", "off"],
+  "default": "auto",
+  "enumDescriptions": [
+    localize("announcement.enabled.auto", "Enable announcement, will only play when in screen reader optimized mode."),
+    localize("announcement.enabled.off", "Disable announcement.")
+  ],
+  tags: ["accessibility"]
+};
+const defaultNoAnnouncement = {
+  "type": "object",
+  "tags": ["accessibility"],
+  additionalProperties: false,
+  "default": {
+    "sound": "auto"
+  }
+};
+const configuration = {
+  ...accessibilityConfigurationNodeBase,
+  scope: 5,
+  properties: {
+    [
+      "accessibility.verbosity.terminal"
+      /* AccessibilityVerbositySettingId.Terminal */
+    ]: {
+      description: localize("verbosity.terminal.description", "Provide information about how to access the terminal accessibility help menu when the terminal is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.diffEditor"
+      /* AccessibilityVerbositySettingId.DiffEditor */
+    ]: {
+      description: localize("verbosity.diffEditor.description", "Provide information about how to navigate changes in the diff editor when it is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.panelChat"
+      /* AccessibilityVerbositySettingId.Chat */
+    ]: {
+      description: localize("verbosity.chat.description", "Provide information about how to access the chat help menu when the chat input is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.inlineChat"
+      /* AccessibilityVerbositySettingId.InlineChat */
+    ]: {
+      description: localize("verbosity.interactiveEditor.description", "Provide information about how to access the inline editor chat accessibility help menu and alert with hints that describe how to use the feature when the input is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.inlineCompletions"
+      /* AccessibilityVerbositySettingId.InlineCompletions */
+    ]: {
+      description: localize("verbosity.inlineCompletions.description", "Provide information about how to access the inline completions hover and Accessible View."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.keybindingsEditor"
+      /* AccessibilityVerbositySettingId.KeybindingsEditor */
+    ]: {
+      description: localize("verbosity.keybindingsEditor.description", "Provide information about how to change a keybinding in the keybindings editor when a row is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.notebook"
+      /* AccessibilityVerbositySettingId.Notebook */
+    ]: {
+      description: localize("verbosity.notebook", "Provide information about how to focus the cell container or inner editor when a notebook cell is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.hover"
+      /* AccessibilityVerbositySettingId.Hover */
+    ]: {
+      description: localize("verbosity.hover", "Provide information about how to open the hover in an Accessible View."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.notification"
+      /* AccessibilityVerbositySettingId.Notification */
+    ]: {
+      description: localize("verbosity.notification", "Provide information about how to open the notification in an Accessible View."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.emptyEditorHint"
+      /* AccessibilityVerbositySettingId.EmptyEditorHint */
+    ]: {
+      description: localize("verbosity.emptyEditorHint", "Provide information about relevant actions in an empty text editor."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.replEditor"
+      /* AccessibilityVerbositySettingId.ReplEditor */
+    ]: {
+      description: localize("verbosity.replEditor.description", "Provide information about how to access the REPL editor accessibility help menu when the REPL editor is focused."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.comments"
+      /* AccessibilityVerbositySettingId.Comments */
+    ]: {
+      description: localize("verbosity.comments", "Provide information about actions that can be taken in the comment widget or in a file which contains comments."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.diffEditorActive"
+      /* AccessibilityVerbositySettingId.DiffEditorActive */
+    ]: {
+      description: localize("verbosity.diffEditorActive", "Indicate when a diff editor becomes the active editor."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.debug"
+      /* AccessibilityVerbositySettingId.Debug */
+    ]: {
+      description: localize("verbosity.debug", "Provide information about how to access the debug console accessibility help dialog when the debug console or run and debug viewlet is focused. Note that a reload of the window is required for this to take effect."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.verbosity.walkthrough"
+      /* AccessibilityVerbositySettingId.Walkthrough */
+    ]: {
+      description: localize("verbosity.walkthrough", "Provide information about how to open the walkthrough in an Accessible View."),
+      ...baseVerbosityProperty
+    },
+    [
+      "accessibility.accessibleView.closeOnKeyPress"
+      /* AccessibilityWorkbenchSettingId.AccessibleViewCloseOnKeyPress */
+    ]: {
+      markdownDescription: localize("terminal.integrated.accessibleView.closeOnKeyPress", "On keypress, close the Accessible View and focus the element from which it was invoked."),
+      type: "boolean",
+      default: true
+    },
+    [
+      "accessibility.verbosity.sourceControl"
+      /* AccessibilityVerbositySettingId.SourceControl */
+    ]: {
+      description: localize("verbosity.scm", "Provide information about how to access the source control accessibility help menu when the input is focused."),
+      ...baseVerbosityProperty
+    },
+    "accessibility.signalOptions.volume": {
+      "description": localize("accessibility.signalOptions.volume", "The volume of the sounds in percent (0-100)."),
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 70,
+      "tags": ["accessibility"]
+    },
+    "accessibility.signalOptions.debouncePositionChanges": {
+      "description": localize("accessibility.signalOptions.debouncePositionChanges", "Whether or not position changes should be debounced"),
+      "type": "boolean",
+      "default": false,
+      "tags": ["accessibility"]
+    },
+    "accessibility.signalOptions.experimental.delays.general": {
+      "type": "object",
+      "description": "Delays for all signals besides error and warning at position",
+      "additionalProperties": false,
+      "properties": {
+        "announcement": {
+          "description": localize("accessibility.signalOptions.delays.general.announcement", "The delay in milliseconds before an announcement is made."),
+          "type": "number",
+          "minimum": 0,
+          "default": 3e3
+        },
+        "sound": {
+          "description": localize("accessibility.signalOptions.delays.general.sound", "The delay in milliseconds before a sound is played."),
+          "type": "number",
+          "minimum": 0,
+          "default": 400
+        }
+      },
+      "tags": ["accessibility"]
+    },
+    "accessibility.signalOptions.experimental.delays.warningAtPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "announcement": {
+          "description": localize("accessibility.signalOptions.delays.warningAtPosition.announcement", "The delay in milliseconds before an announcement is made when there's a warning at the position."),
+          "type": "number",
+          "minimum": 0,
+          "default": 3e3
+        },
+        "sound": {
+          "description": localize("accessibility.signalOptions.delays.warningAtPosition.sound", "The delay in milliseconds before a sound is played when there's a warning at the position."),
+          "type": "number",
+          "minimum": 0,
+          "default": 1e3
+        }
+      },
+      "tags": ["accessibility"]
+    },
+    "accessibility.signalOptions.experimental.delays.errorAtPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "announcement": {
+          "description": localize("accessibility.signalOptions.delays.errorAtPosition.announcement", "The delay in milliseconds before an announcement is made when there's an error at the position."),
+          "type": "number",
+          "minimum": 0,
+          "default": 3e3
+        },
+        "sound": {
+          "description": localize("accessibility.signalOptions.delays.errorAtPosition.sound", "The delay in milliseconds before a sound is played when there's an error at the position."),
+          "type": "number",
+          "minimum": 0,
+          "default": 1e3
+        }
+      },
+      "tags": ["accessibility"]
+    },
+    "accessibility.signals.lineHasBreakpoint": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.lineHasBreakpoint", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the active line has a breakpoint."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.lineHasBreakpoint.sound", "Plays a sound when the active line has a breakpoint."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.lineHasBreakpoint.announcement", "Announces when the active line has a breakpoint."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.lineHasInlineSuggestion": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.lineHasInlineSuggestion", "Plays a sound / audio cue when the active line has an inline suggestion."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.lineHasInlineSuggestion.sound", "Plays a sound when the active line has an inline suggestion."),
+          ...soundFeatureBase,
+          "default": "off"
+        }
+      }
+    },
+    "accessibility.signals.nextEditSuggestion": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.nextEditSuggestion", "Plays a signal - sound / audio cue and/or announcement (alert) when there is a next edit suggestion."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.nextEditSuggestion.sound", "Plays a sound when there is a next edit suggestion."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.nextEditSuggestion.announcement", "Announces when there is a next edit suggestion."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.lineHasError": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.lineHasError", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the active line has an error."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.lineHasError.sound", "Plays a sound when the active line has an error."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.lineHasError.announcement", "Announces when the active line has an error."),
+          ...announcementFeatureBase,
+          default: "off"
+        }
+      }
+    },
+    "accessibility.signals.lineHasFoldedArea": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.lineHasFoldedArea", "Plays a signal - sound (audio cue) and/or announcement (alert) - the active line has a folded area that can be unfolded."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.lineHasFoldedArea.sound", "Plays a sound when the active line has a folded area that can be unfolded."),
+          ...soundFeatureBase,
+          default: "off"
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.lineHasFoldedArea.announcement", "Announces when the active line has a folded area that can be unfolded."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.lineHasWarning": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.lineHasWarning", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the active line has a warning."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.lineHasWarning.sound", "Plays a sound when the active line has a warning."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.lineHasWarning.announcement", "Announces when the active line has a warning."),
+          ...announcementFeatureBase,
+          default: "off"
+        }
+      }
+    },
+    "accessibility.signals.positionHasError": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.positionHasError", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the active line has a warning."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.positionHasError.sound", "Plays a sound when the active line has a warning."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.positionHasError.announcement", "Announces when the active line has a warning."),
+          ...announcementFeatureBase,
+          default: "on"
+        }
+      }
+    },
+    "accessibility.signals.positionHasWarning": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.positionHasWarning", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the active line has a warning."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.positionHasWarning.sound", "Plays a sound when the active line has a warning."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.positionHasWarning.announcement", "Announces when the active line has a warning."),
+          ...announcementFeatureBase,
+          default: "on"
+        }
+      }
+    },
+    "accessibility.signals.onDebugBreak": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.onDebugBreak", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the debugger stopped on a breakpoint."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.onDebugBreak.sound", "Plays a sound when the debugger stopped on a breakpoint."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.onDebugBreak.announcement", "Announces when the debugger stopped on a breakpoint."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.noInlayHints": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.noInlayHints", "Plays a signal - sound (audio cue) and/or announcement (alert) - when trying to read a line with inlay hints that has no inlay hints."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.noInlayHints.sound", "Plays a sound when trying to read a line with inlay hints that has no inlay hints."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.noInlayHints.announcement", "Announces when trying to read a line with inlay hints that has no inlay hints."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.taskCompleted": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.taskCompleted", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a task is completed."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.taskCompleted.sound", "Plays a sound when a task is completed."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.taskCompleted.announcement", "Announces when a task is completed."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.taskFailed": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.taskFailed", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a task fails (non-zero exit code)."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.taskFailed.sound", "Plays a sound when a task fails (non-zero exit code)."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.taskFailed.announcement", "Announces when a task fails (non-zero exit code)."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.terminalCommandFailed": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.terminalCommandFailed", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a terminal command fails (non-zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.terminalCommandFailed.sound", "Plays a sound when a terminal command fails (non-zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.terminalCommandFailed.announcement", "Announces when a terminal command fails (non-zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.terminalCommandSucceeded": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.terminalCommandSucceeded", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a terminal command succeeds (zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.terminalCommandSucceeded.sound", "Plays a sound when a terminal command succeeds (zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.terminalCommandSucceeded.announcement", "Announces when a terminal command succeeds (zero exit code) or when a command with such an exit code is navigated to in the accessible view."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.terminalQuickFix": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.terminalQuickFix", "Plays a signal - sound (audio cue) and/or announcement (alert) - when terminal Quick Fixes are available."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.terminalQuickFix.sound", "Plays a sound when terminal Quick Fixes are available."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.terminalQuickFix.announcement", "Announces when terminal Quick Fixes are available."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.terminalBell": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.terminalBell", "Plays a signal - sound (audio cue) and/or announcement (alert) - when the terminal bell is ringing."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.terminalBell.sound", "Plays a sound when the terminal bell is ringing."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.terminalBell.announcement", "Announces when the terminal bell is ringing."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.diffLineInserted": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.diffLineInserted", "Plays a sound / audio cue when the focus moves to an inserted line in Accessible Diff Viewer mode or to the next/previous change."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.sound", "Plays a sound when the focus moves to an inserted line in Accessible Diff Viewer mode or to the next/previous change."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.diffLineModified": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.diffLineModified", "Plays a sound / audio cue when the focus moves to an modified line in Accessible Diff Viewer mode or to the next/previous change."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.diffLineModified.sound", "Plays a sound when the focus moves to a modified line in Accessible Diff Viewer mode or to the next/previous change."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.diffLineDeleted": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.diffLineDeleted", "Plays a sound / audio cue when the focus moves to an deleted line in Accessible Diff Viewer mode or to the next/previous change."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.diffLineDeleted.sound", "Plays a sound when the focus moves to an deleted line in Accessible Diff Viewer mode or to the next/previous change."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.chatEditModifiedFile": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.chatEditModifiedFile", "Plays a sound / audio cue when revealing a file with changes from chat edits"),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.chatEditModifiedFile.sound", "Plays a sound when revealing a file with changes from chat edits"),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.notebookCellCompleted": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.notebookCellCompleted", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a notebook cell execution is successfully completed."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.notebookCellCompleted.sound", "Plays a sound when a notebook cell execution is successfully completed."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.notebookCellCompleted.announcement", "Announces when a notebook cell execution is successfully completed."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.notebookCellFailed": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.notebookCellFailed", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a notebook cell execution fails."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.notebookCellFailed.sound", "Plays a sound when a notebook cell execution fails."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.notebookCellFailed.announcement", "Announces when a notebook cell execution fails."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.progress": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.progress", "Plays a signal - sound (audio cue) and/or announcement (alert) - on loop while progress is occurring."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.progress.sound", "Plays a sound on loop while progress is occurring."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.progress.announcement", "Alerts on loop while progress is occurring."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.chatRequestSent": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.chatRequestSent", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a chat request is made."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.chatRequestSent.sound", "Plays a sound when a chat request is made."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.chatRequestSent.announcement", "Announces when a chat request is made."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.chatResponseReceived": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.chatResponseReceived", "Plays a sound / audio cue when the response has been received."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.chatResponseReceived.sound", "Plays a sound on when the response has been received."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.codeActionTriggered": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.codeActionTriggered", "Plays a sound / audio cue - when a code action has been triggered."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.codeActionTriggered.sound", "Plays a sound when a code action has been triggered."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.codeActionApplied": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.codeActionApplied", "Plays a sound / audio cue when the code action has been applied."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.codeActionApplied.sound", "Plays a sound when the code action has been applied."),
+          ...soundFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.voiceRecordingStarted": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.voiceRecordingStarted", "Plays a sound / audio cue when the voice recording has started."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.voiceRecordingStarted.sound", "Plays a sound when the voice recording has started."),
+          ...soundFeatureBase
+        }
+      },
+      "default": {
+        "sound": "on"
+      }
+    },
+    "accessibility.signals.voiceRecordingStopped": {
+      ...defaultNoAnnouncement,
+      "description": localize("accessibility.signals.voiceRecordingStopped", "Plays a sound / audio cue when the voice recording has stopped."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.voiceRecordingStopped.sound", "Plays a sound when the voice recording has stopped."),
+          ...soundFeatureBase,
+          default: "off"
+        }
+      }
+    },
+    "accessibility.signals.clear": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.clear", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a feature is cleared (for example, the terminal, Debug Console, or Output channel)."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.clear.sound", "Plays a sound when a feature is cleared."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.clear.announcement", "Announces when a feature is cleared."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.editsUndone": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.editsUndone", "Plays a signal - sound (audio cue) and/or announcement (alert) - when edits have been undone."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.editsUndone.sound", "Plays a sound when edits have been undone."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.editsUndone.announcement", "Announces when edits have been undone."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.editsKept": {
+      ...signalFeatureBase,
+      "description": localize("accessibility.signals.editsKept", "Plays a signal - sound (audio cue) and/or announcement (alert) - when edits are kept."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.editsKept.sound", "Plays a sound when edits are kept."),
+          ...soundFeatureBase
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.editsKept.announcement", "Announces when edits are kept."),
+          ...announcementFeatureBase
+        }
+      }
+    },
+    "accessibility.signals.save": {
+      "type": "object",
+      "tags": ["accessibility"],
+      additionalProperties: false,
+      "markdownDescription": localize("accessibility.signals.save", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a file is saved."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.save.sound", "Plays a sound when a file is saved."),
+          "type": "string",
+          "enum": ["userGesture", "always", "never"],
+          "default": "never",
+          "enumDescriptions": [
+            localize("accessibility.signals.save.sound.userGesture", "Plays the sound when a user explicitly saves a file."),
+            localize("accessibility.signals.save.sound.always", "Plays the sound whenever a file is saved, including auto save."),
+            localize("accessibility.signals.save.sound.never", "Never plays the sound.")
+          ]
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.save.announcement", "Announces when a file is saved."),
+          "type": "string",
+          "enum": ["userGesture", "always", "never"],
+          "default": "never",
+          "enumDescriptions": [
+            localize("accessibility.signals.save.announcement.userGesture", "Announces when a user explicitly saves a file."),
+            localize("accessibility.signals.save.announcement.always", "Announces whenever a file is saved, including auto save."),
+            localize("accessibility.signals.save.announcement.never", "Never plays the announcement.")
+          ]
+        }
+      },
+      default: {
+        "sound": "never",
+        "announcement": "never"
+      }
+    },
+    "accessibility.signals.format": {
+      "type": "object",
+      "tags": ["accessibility"],
+      additionalProperties: false,
+      "markdownDescription": localize("accessibility.signals.format", "Plays a signal - sound (audio cue) and/or announcement (alert) - when a file or notebook is formatted."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.format.sound", "Plays a sound when a file or notebook is formatted."),
+          "type": "string",
+          "enum": ["userGesture", "always", "never"],
+          "default": "never",
+          "enumDescriptions": [
+            localize("accessibility.signals.format.userGesture", "Plays the sound when a user explicitly formats a file."),
+            localize("accessibility.signals.format.always", "Plays the sound whenever a file is formatted, including if it is set to format on save, type, or, paste, or run of a cell."),
+            localize("accessibility.signals.format.never", "Never plays the sound.")
+          ]
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.format.announcement", "Announces when a file or notebook is formatted."),
+          "type": "string",
+          "enum": ["userGesture", "always", "never"],
+          "default": "never",
+          "enumDescriptions": [
+            localize("accessibility.signals.format.announcement.userGesture", "Announces when a user explicitly formats a file."),
+            localize("accessibility.signals.format.announcement.always", "Announces whenever a file is formatted, including if it is set to format on save, type, or, paste, or run of a cell."),
+            localize("accessibility.signals.format.announcement.never", "Never announces.")
+          ]
+        }
+      },
+      default: {
+        "sound": "never",
+        "announcement": "never"
+      }
+    },
+    "accessibility.signals.chatUserActionRequired": {
+      ...signalFeatureBase,
+      "markdownDescription": localize("accessibility.signals.chatUserActionRequired", "Plays a signal - sound (audio cue) and/or announcement (alert) - when user action is required in the chat."),
+      "properties": {
+        "sound": {
+          "description": localize("accessibility.signals.chatUserActionRequired.sound", "Plays a sound when user action is required in the chat."),
+          "type": "string",
+          "enum": ["auto", "on", "off"],
+          "enumDescriptions": [
+            localize("sound.enabled.autoWindow", "Enable sound when a screen reader is attached."),
+            localize("sound.enabled.on", "Enable sound."),
+            localize("sound.enabled.off", "Disable sound.")
+          ]
+        },
+        "announcement": {
+          "description": localize("accessibility.signals.chatUserActionRequired.announcement", "Announces when a user action is required in the chat - including information about the action and how to take it."),
+          ...announcementFeatureBase
+        }
+      },
+      default: {
+        "sound": "auto",
+        "announcement": "auto"
+      },
+      tags: ["accessibility"]
+    },
+    "accessibility.underlineLinks": {
+      "type": "boolean",
+      "description": localize("accessibility.underlineLinks", "Controls whether links should be underlined in the workbench."),
+      "default": false
+    },
+    "accessibility.debugWatchVariableAnnouncements": {
+      "type": "boolean",
+      "description": localize("accessibility.debugWatchVariableAnnouncements", "Controls whether variable changes should be announced in the debug watch view."),
+      "default": true
+    },
+    "accessibility.replEditor.readLastExecutionOutput": {
+      "type": "boolean",
+      "description": localize("accessibility.replEditor.readLastExecutedOutput", "Controls whether the output from an execution in the native REPL will be announced."),
+      "default": true
+    },
+    "accessibility.replEditor.autoFocusReplExecution": {
+      type: "string",
+      enum: ["none", "input", "lastExecution"],
+      default: "input",
+      description: localize("replEditor.autoFocusAppendedCell", "Control whether focus should automatically be sent to the REPL when code is executed.")
+    },
+    "accessibility.windowTitleOptimized": {
+      "type": "boolean",
+      "default": true,
+      "markdownDescription": localize("accessibility.windowTitleOptimized", "Controls whether the {0} should be optimized for screen readers when in screen reader mode. When enabled, the window title will have {1} appended to the end.", "`#window.title#`", "`activeEditorState`")
+    }
+  }
+};
+function registerAccessibilityConfiguration() {
+  const registry = Registry.as(Extensions.Configuration);
+  registry.registerConfiguration(configuration);
+  registry.registerConfiguration({
+    ...workbenchConfigurationNodeBase,
+    properties: {
+      [
+        "accessibility.dimUnfocused.enabled"
+        /* AccessibilityWorkbenchSettingId.DimUnfocusedEnabled */
+      ]: {
+        description: localize("dimUnfocusedEnabled", "Whether to dim unfocused editors and terminals, which makes it more clear where typed input will go to. This works with the majority of editors with the notable exceptions of those that utilize iframes like notebooks and extension webview editors."),
+        type: "boolean",
+        default: false,
+        tags: ["accessibility"],
+        scope: 1
+      },
+      [
+        "accessibility.dimUnfocused.opacity"
+        /* AccessibilityWorkbenchSettingId.DimUnfocusedOpacity */
+      ]: {
+        markdownDescription: localize("dimUnfocusedOpacity", "The opacity fraction (0.2 to 1.0) to use for unfocused editors and terminals. This will only take effect when {0} is enabled.", `\`#${"accessibility.dimUnfocused.enabled"}#\``),
+        type: "number",
+        minimum: 0.2,
+        maximum: 1,
+        default: 0.75,
+        tags: ["accessibility"],
+        scope: 1
+      },
+      [
+        "accessibility.hideAccessibleView"
+        /* AccessibilityWorkbenchSettingId.HideAccessibleView */
+      ]: {
+        description: localize("accessibility.hideAccessibleView", "Controls whether the Accessible View is hidden."),
+        type: "boolean",
+        default: false,
+        tags: ["accessibility"]
+      }
+    }
+  });
+}
+__name(registerAccessibilityConfiguration, "registerAccessibilityConfiguration");
+const SpeechTimeoutDefault = 1200;
+let DynamicSpeechAccessibilityConfiguration = class DynamicSpeechAccessibilityConfiguration2 extends Disposable {
+  static {
+    __name(this, "DynamicSpeechAccessibilityConfiguration");
+  }
+  static {
+    this.ID = "workbench.contrib.dynamicSpeechAccessibilityConfiguration";
+  }
+  constructor(speechService) {
+    super();
+    this.speechService = speechService;
+    this._register(Event.runAndSubscribe(speechService.onDidChangeHasSpeechProvider, () => this.updateConfiguration()));
+  }
+  updateConfiguration() {
+    if (!this.speechService.hasSpeechProvider) {
+      return;
+    }
+    const languages = this.getLanguages();
+    const languagesSorted = Object.keys(languages).sort((langA, langB) => {
+      return languages[langA].name.localeCompare(languages[langB].name);
+    });
+    const registry = Registry.as(Extensions.Configuration);
+    registry.registerConfiguration({
+      ...accessibilityConfigurationNodeBase,
+      properties: {
+        [
+          "accessibility.voice.speechTimeout"
+          /* AccessibilityVoiceSettingId.SpeechTimeout */
+        ]: {
+          "markdownDescription": localize("voice.speechTimeout", "The duration in milliseconds that voice speech recognition remains active after you stop speaking. For example in a chat session, the transcribed text is submitted automatically after the timeout is met. Set to `0` to disable this feature."),
+          "type": "number",
+          "default": SpeechTimeoutDefault,
+          "minimum": 0,
+          "tags": ["accessibility"]
+        },
+        [
+          "accessibility.voice.ignoreCodeBlocks"
+          /* AccessibilityVoiceSettingId.IgnoreCodeBlocks */
+        ]: {
+          "markdownDescription": localize("voice.ignoreCodeBlocks", "Whether to ignore code snippets in text-to-speech synthesis."),
+          "type": "boolean",
+          "default": false,
+          "tags": ["accessibility"]
+        },
+        [
+          "accessibility.voice.speechLanguage"
+          /* AccessibilityVoiceSettingId.SpeechLanguage */
+        ]: {
+          "markdownDescription": localize("voice.speechLanguage", "The language that text-to-speech and speech-to-text should use. Select `auto` to use the configured display language if possible. Note that not all display languages maybe supported by speech recognition and synthesizers."),
+          "type": "string",
+          "enum": languagesSorted,
+          "default": "auto",
+          "tags": ["accessibility"],
+          "enumDescriptions": languagesSorted.map((key) => languages[key].name),
+          "enumItemLabels": languagesSorted.map((key) => languages[key].name)
+        },
+        [
+          "accessibility.voice.autoSynthesize"
+          /* AccessibilityVoiceSettingId.AutoSynthesize */
+        ]: {
+          "type": "string",
+          "enum": ["on", "off"],
+          "enumDescriptions": [
+            localize("accessibility.voice.autoSynthesize.on", "Enable the feature. When a screen reader is enabled, note that this will disable aria updates."),
+            localize("accessibility.voice.autoSynthesize.off", "Disable the feature.")
+          ],
+          "markdownDescription": localize("autoSynthesize", "Whether a textual response should automatically be read out aloud when speech was used as input. For example in a chat session, a response is automatically synthesized when voice was used as chat request."),
+          "default": "off",
+          "tags": ["accessibility"]
+        }
+      }
+    });
+  }
+  getLanguages() {
+    return {
+      ["auto"]: {
+        name: localize("speechLanguage.auto", "Auto (Use Display Language)")
+      },
+      ...SPEECH_LANGUAGES
+    };
+  }
+};
+DynamicSpeechAccessibilityConfiguration = __decorate([
+  __param(0, ISpeechService)
+], DynamicSpeechAccessibilityConfiguration);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "audioCues.volume",
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    return [
+      ["accessibility.signalOptions.volume", { value }],
+      ["audioCues.volume", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "audioCues.debouncePositionChanges",
+  migrateFn: /* @__PURE__ */ __name((value) => {
+    return [
+      ["accessibility.signalOptions.debouncePositionChanges", { value }],
+      ["audioCues.debouncePositionChanges", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "accessibility.signalOptions",
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    const delayGeneral = getDelaysFromConfig(accessor, "general");
+    const delayError = getDelaysFromConfig(accessor, "errorAtPosition");
+    const delayWarning = getDelaysFromConfig(accessor, "warningAtPosition");
+    const volume = getVolumeFromConfig(accessor);
+    const debouncePositionChanges = getDebouncePositionChangesFromConfig(accessor);
+    const result = [];
+    if (!!volume) {
+      result.push(["accessibility.signalOptions.volume", { value: volume }]);
+    }
+    if (!!delayGeneral) {
+      result.push(["accessibility.signalOptions.experimental.delays.general", { value: delayGeneral }]);
+    }
+    if (!!delayError) {
+      result.push(["accessibility.signalOptions.experimental.delays.errorAtPosition", { value: delayError }]);
+    }
+    if (!!delayWarning) {
+      result.push(["accessibility.signalOptions.experimental.delays.warningAtPosition", { value: delayWarning }]);
+    }
+    if (!!debouncePositionChanges) {
+      result.push(["accessibility.signalOptions.debouncePositionChanges", { value: debouncePositionChanges }]);
+    }
+    result.push(["accessibility.signalOptions", { value: void 0 }]);
+    return result;
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "accessibility.signals.sounds.volume",
+  migrateFn: /* @__PURE__ */ __name((value) => {
+    return [
+      ["accessibility.signalOptions.volume", { value }],
+      ["accessibility.signals.sounds.volume", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "accessibility.signals.debouncePositionChanges",
+  migrateFn: /* @__PURE__ */ __name((value) => {
+    return [
+      ["accessibility.signalOptions.debouncePositionChanges", { value }],
+      ["accessibility.signals.debouncePositionChanges", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+function getDelaysFromConfig(accessor, type) {
+  return accessor(`accessibility.signalOptions.experimental.delays.${type}`) || accessor("accessibility.signalOptions")?.["experimental.delays"]?.[`${type}`] || accessor("accessibility.signalOptions")?.["delays"]?.[`${type}`];
+}
+__name(getDelaysFromConfig, "getDelaysFromConfig");
+function getVolumeFromConfig(accessor) {
+  return accessor("accessibility.signalOptions.volume") || accessor("accessibility.signalOptions")?.volume || accessor("accessibility.signals.sounds.volume") || accessor("audioCues.volume");
+}
+__name(getVolumeFromConfig, "getVolumeFromConfig");
+function getDebouncePositionChangesFromConfig(accessor) {
+  return accessor("accessibility.signalOptions.debouncePositionChanges") || accessor("accessibility.signalOptions")?.debouncePositionChanges || accessor("accessibility.signals.debouncePositionChanges") || accessor("audioCues.debouncePositionChanges");
+}
+__name(getDebouncePositionChangesFromConfig, "getDebouncePositionChangesFromConfig");
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "accessibility.voice.autoSynthesize",
+  migrateFn: /* @__PURE__ */ __name((value) => {
+    let newValue;
+    if (value === true) {
+      newValue = "on";
+    } else if (value === false) {
+      newValue = "off";
+    } else {
+      return [];
+    }
+    return [
+      ["accessibility.voice.autoSynthesize", { value: newValue }]
+    ];
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "accessibility.signals.chatResponsePending",
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    return [
+      ["accessibility.signals.progress", { value }],
+      ["accessibility.signals.chatResponsePending", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations(AccessibilitySignal.allAccessibilitySignals.map((item) => item.legacySoundSettingsKey ? {
+  key: item.legacySoundSettingsKey,
+  migrateFn: /* @__PURE__ */ __name((sound, accessor) => {
+    const configurationKeyValuePairs = [];
+    const legacyAnnouncementSettingsKey = item.legacyAnnouncementSettingsKey;
+    let announcement;
+    if (legacyAnnouncementSettingsKey) {
+      announcement = accessor(legacyAnnouncementSettingsKey) ?? void 0;
+      if (announcement !== void 0 && typeof announcement !== "string") {
+        announcement = announcement ? "auto" : "off";
+      }
+    }
+    configurationKeyValuePairs.push([`${item.legacySoundSettingsKey}`, { value: void 0 }]);
+    configurationKeyValuePairs.push([`${item.settingsKey}`, { value: announcement !== void 0 ? { announcement, sound } : { sound } }]);
+    return configurationKeyValuePairs;
+  }, "migrateFn")
+} : void 0).filter(isDefined));
+Registry.as(WorkbenchExtensions.ConfigurationMigration).registerConfigurationMigrations(AccessibilitySignal.allAccessibilitySignals.filter((i) => !!i.legacyAnnouncementSettingsKey && !!i.legacySoundSettingsKey).map((item) => ({
+  key: item.legacyAnnouncementSettingsKey,
+  migrateFn: /* @__PURE__ */ __name((announcement, accessor) => {
+    const configurationKeyValuePairs = [];
+    const sound = accessor(item.settingsKey)?.sound || accessor(item.legacySoundSettingsKey);
+    if (announcement !== void 0 && typeof announcement !== "string") {
+      announcement = announcement ? "auto" : "off";
+    }
+    configurationKeyValuePairs.push([`${item.settingsKey}`, { value: announcement !== void 0 ? { announcement, sound } : { sound } }]);
+    configurationKeyValuePairs.push([`${item.legacyAnnouncementSettingsKey}`, { value: void 0 }]);
+    configurationKeyValuePairs.push([`${item.legacySoundSettingsKey}`, { value: void 0 }]);
+    return configurationKeyValuePairs;
+  }, "migrateFn")
+})));
+export {
+  AccessibilityVerbositySettingId,
+  AccessibilityVoiceSettingId,
+  AccessibilityWorkbenchSettingId,
+  DynamicSpeechAccessibilityConfiguration,
+  SpeechTimeoutDefault,
+  ViewDimUnfocusedOpacityProperties,
+  accessibilityConfigurationNodeBase,
+  accessibilityHelpIsShown,
+  accessibleViewContainsCodeBlocks,
+  accessibleViewCurrentProviderId,
+  accessibleViewGoToSymbolSupported,
+  accessibleViewHasAssignedKeybindings,
+  accessibleViewHasUnassignedKeybindings,
+  accessibleViewInCodeBlock,
+  accessibleViewIsShown,
+  accessibleViewOnLastLine,
+  accessibleViewSupportsNavigation,
+  accessibleViewVerbosityEnabled,
+  announcementFeatureBase,
+  registerAccessibilityConfiguration,
+  soundFeatureBase
+};
+//# sourceMappingURL=accessibilityConfiguration.js.map

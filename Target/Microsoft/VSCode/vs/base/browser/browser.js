@@ -1,1 +1,139 @@
-import{$s5 as s}from"./window.js";import{$df as a}from"../common/event.js";class n{constructor(){this.a=new Map,this.b=new a,this.onDidChangeZoomLevel=this.b.event,this.c=new Map,this.d=new a,this.onDidChangeFullscreen=this.d.event,this.e=new Map}static{this.INSTANCE=new n}getZoomLevel(t){return this.a.get(this.f(t))??0}setZoomLevel(t,o){if(this.getZoomLevel(o)===t)return;const r=this.f(o);this.a.set(r,t),this.b.fire(r)}getZoomFactor(t){return this.c.get(this.f(t))??1}setZoomFactor(t,o){this.c.set(this.f(o),t)}setFullscreen(t,o){if(this.isFullscreen(o)===t)return;const r=this.f(o);this.e.set(r,t),this.d.fire(r)}isFullscreen(t){return!!this.e.get(this.f(t))}f(t){return t.vscodeWindowId}}function l(e,t,o){typeof t=="string"&&(t=e.matchMedia(t)),t.addEventListener("change",o)}function x(e,t){n.INSTANCE.setZoomLevel(e,t)}function m(e){return n.INSTANCE.getZoomLevel(e)}const $=n.INSTANCE.onDidChangeZoomLevel;function g(e){return n.INSTANCE.getZoomFactor(e)}function N(e,t){n.INSTANCE.setZoomFactor(e,t)}function v(e,t){n.INSTANCE.setFullscreen(e,t)}function C(e){return n.INSTANCE.isFullscreen(e)}const w=n.INSTANCE.onDidChangeFullscreen,i=navigator.userAgent,A=i.indexOf("Firefox")>=0,f=i.indexOf("AppleWebKit")>=0,d=i.indexOf("Chrome")>=0,h=!d&&i.indexOf("Safari")>=0,F=!d&&!h&&f,I=i.indexOf("Electron/")>=0,E=i.indexOf("Android")>=0;let c=!1;if(typeof s.matchMedia=="function"){const e=s.matchMedia("(display-mode: standalone) or (display-mode: window-controls-overlay)"),t=s.matchMedia("(display-mode: fullscreen)");c=e.matches,l(s,e,({matches:o})=>{c&&t.matches||(c=o)})}function M(){return c}function S(){return navigator?.windowControlsOverlay?.visible}function Z(e){return e.navigator?.windowControlsOverlay?.getTitlebarAreaRect()}export{N as $A5,v as $B5,C as $C5,w as $D5,A as $E5,f as $F5,d as $G5,h as $H5,F as $I5,I as $J5,E as $K5,M as $L5,S as $M5,Z as $N5,l as $v5,x as $w5,m as $x5,$ as $y5,g as $z5};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { mainWindow } from "./window.js";
+import { Emitter } from "../common/event.js";
+class WindowManager {
+  static {
+    __name(this, "WindowManager");
+  }
+  constructor() {
+    this.mapWindowIdToZoomLevel = /* @__PURE__ */ new Map();
+    this._onDidChangeZoomLevel = new Emitter();
+    this.onDidChangeZoomLevel = this._onDidChangeZoomLevel.event;
+    this.mapWindowIdToZoomFactor = /* @__PURE__ */ new Map();
+    this._onDidChangeFullscreen = new Emitter();
+    this.onDidChangeFullscreen = this._onDidChangeFullscreen.event;
+    this.mapWindowIdToFullScreen = /* @__PURE__ */ new Map();
+  }
+  static {
+    this.INSTANCE = new WindowManager();
+  }
+  getZoomLevel(targetWindow) {
+    return this.mapWindowIdToZoomLevel.get(this.getWindowId(targetWindow)) ?? 0;
+  }
+  setZoomLevel(zoomLevel, targetWindow) {
+    if (this.getZoomLevel(targetWindow) === zoomLevel) {
+      return;
+    }
+    const targetWindowId = this.getWindowId(targetWindow);
+    this.mapWindowIdToZoomLevel.set(targetWindowId, zoomLevel);
+    this._onDidChangeZoomLevel.fire(targetWindowId);
+  }
+  getZoomFactor(targetWindow) {
+    return this.mapWindowIdToZoomFactor.get(this.getWindowId(targetWindow)) ?? 1;
+  }
+  setZoomFactor(zoomFactor, targetWindow) {
+    this.mapWindowIdToZoomFactor.set(this.getWindowId(targetWindow), zoomFactor);
+  }
+  setFullscreen(fullscreen, targetWindow) {
+    if (this.isFullscreen(targetWindow) === fullscreen) {
+      return;
+    }
+    const windowId = this.getWindowId(targetWindow);
+    this.mapWindowIdToFullScreen.set(windowId, fullscreen);
+    this._onDidChangeFullscreen.fire(windowId);
+  }
+  isFullscreen(targetWindow) {
+    return !!this.mapWindowIdToFullScreen.get(this.getWindowId(targetWindow));
+  }
+  getWindowId(targetWindow) {
+    return targetWindow.vscodeWindowId;
+  }
+}
+function addMatchMediaChangeListener(targetWindow, query, callback) {
+  if (typeof query === "string") {
+    query = targetWindow.matchMedia(query);
+  }
+  query.addEventListener("change", callback);
+}
+__name(addMatchMediaChangeListener, "addMatchMediaChangeListener");
+function setZoomLevel(zoomLevel, targetWindow) {
+  WindowManager.INSTANCE.setZoomLevel(zoomLevel, targetWindow);
+}
+__name(setZoomLevel, "setZoomLevel");
+function getZoomLevel(targetWindow) {
+  return WindowManager.INSTANCE.getZoomLevel(targetWindow);
+}
+__name(getZoomLevel, "getZoomLevel");
+const onDidChangeZoomLevel = WindowManager.INSTANCE.onDidChangeZoomLevel;
+function getZoomFactor(targetWindow) {
+  return WindowManager.INSTANCE.getZoomFactor(targetWindow);
+}
+__name(getZoomFactor, "getZoomFactor");
+function setZoomFactor(zoomFactor, targetWindow) {
+  WindowManager.INSTANCE.setZoomFactor(zoomFactor, targetWindow);
+}
+__name(setZoomFactor, "setZoomFactor");
+function setFullscreen(fullscreen, targetWindow) {
+  WindowManager.INSTANCE.setFullscreen(fullscreen, targetWindow);
+}
+__name(setFullscreen, "setFullscreen");
+function isFullscreen(targetWindow) {
+  return WindowManager.INSTANCE.isFullscreen(targetWindow);
+}
+__name(isFullscreen, "isFullscreen");
+const onDidChangeFullscreen = WindowManager.INSTANCE.onDidChangeFullscreen;
+const userAgent = navigator.userAgent;
+const isFirefox = userAgent.indexOf("Firefox") >= 0;
+const isWebKit = userAgent.indexOf("AppleWebKit") >= 0;
+const isChrome = userAgent.indexOf("Chrome") >= 0;
+const isSafari = !isChrome && userAgent.indexOf("Safari") >= 0;
+const isWebkitWebView = !isChrome && !isSafari && isWebKit;
+const isElectron = userAgent.indexOf("Electron/") >= 0;
+const isAndroid = userAgent.indexOf("Android") >= 0;
+let standalone = false;
+if (typeof mainWindow.matchMedia === "function") {
+  const standaloneMatchMedia = mainWindow.matchMedia("(display-mode: standalone) or (display-mode: window-controls-overlay)");
+  const fullScreenMatchMedia = mainWindow.matchMedia("(display-mode: fullscreen)");
+  standalone = standaloneMatchMedia.matches;
+  addMatchMediaChangeListener(mainWindow, standaloneMatchMedia, ({ matches }) => {
+    if (standalone && fullScreenMatchMedia.matches) {
+      return;
+    }
+    standalone = matches;
+  });
+}
+function isStandalone() {
+  return standalone;
+}
+__name(isStandalone, "isStandalone");
+function isWCOEnabled() {
+  return navigator?.windowControlsOverlay?.visible;
+}
+__name(isWCOEnabled, "isWCOEnabled");
+function getWCOTitlebarAreaRect(targetWindow) {
+  return targetWindow.navigator?.windowControlsOverlay?.getTitlebarAreaRect();
+}
+__name(getWCOTitlebarAreaRect, "getWCOTitlebarAreaRect");
+export {
+  addMatchMediaChangeListener,
+  getWCOTitlebarAreaRect,
+  getZoomFactor,
+  getZoomLevel,
+  isAndroid,
+  isChrome,
+  isElectron,
+  isFirefox,
+  isFullscreen,
+  isSafari,
+  isStandalone,
+  isWCOEnabled,
+  isWebKit,
+  isWebkitWebView,
+  onDidChangeFullscreen,
+  onDidChangeZoomLevel,
+  setFullscreen,
+  setZoomFactor,
+  setZoomLevel
+};
+//# sourceMappingURL=browser.js.map

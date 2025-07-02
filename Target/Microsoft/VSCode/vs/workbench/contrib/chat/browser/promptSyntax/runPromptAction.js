@@ -1,1 +1,210 @@
-import{$2Wb as M,$WWb as T}from"../chat.js";import{$hEb as R,$gEb as f,$lEb as D}from"../actions/chatActions.js";import{OS as F}from"../../../../../base/common/platform.js";import{$Mj as l}from"../../../../../base/common/codicons.js";import{ChatContextKeys as c}from"../../common/chatContextKeys.js";import{$_c as L}from"../../../../../base/common/types.js";import{$mO as N}from"../../../../common/contextkeys.js";import{PromptsType as b,$nQ as w}from"../../common/promptSyntax/promptTypes.js";import{localize as P,localize2 as p}from"../../../../../nls.js";import{$h0 as W}from"../../../../../base/common/keybindingLabels.js";import{PromptsConfig as a}from"../../common/promptSyntax/config/config.js";import{$8wb as h}from"../../../../services/views/common/viewsService.js";import{$Ufc as E}from"./pickers/promptFilePickers.js";import{EditorContextKeys as H}from"../../../../../editor/common/editorContextKeys.js";import{$Zn as y}from"../../../../../platform/commands/common/commands.js";import{$Cn as r}from"../../../../../platform/contextkey/common/contextkey.js";import{$oab as K}from"../../../../../editor/browser/services/codeEditorService.js";import{$CI as C,$xI as j,$DI as u}from"../../../../../platform/actions/common/actions.js";import{$mj as O}from"../../../../../platform/instantiation/common/instantiation.js";import{$i_ as q}from"../../../../../platform/opener/common/opener.js";import{$0ec as $}from"../../common/promptSyntax/service/promptsServiceImpl.js";const g=r.and(r.and(a.enabledCtx,c.enabled),N.HasResource,N.LangId.isEqualTo(w)),_=858,x="workbench.action.chat.run.prompt.current",z="workbench.action.chat.run.prompt",B="workbench.action.chat.configure.prompts";class A extends C{constructor(t){super({id:t.id,title:t.title,f1:!1,precondition:r.and(a.enabledCtx,c.enabled),category:f,icon:t.icon,keybinding:{when:r.and(H.editorTextFocus,g),weight:200,primary:t.keybinding},menu:[{id:j.EditorTitleRun,group:"navigation",order:t.alt?0:1,alt:t.alt,when:g}]})}async execute(t,e,i){const s=i.get(h),m=i.get(y);t||=Z(i),L(t,"Cannot find URI resource for an active text editor."),e===!0&&await m.executeCommand(R);const n=await T(s);return n&&(n.setInput(`/${$(t.path)}`),await n.acceptInput()),n}}const v=p(5670,"Run Prompt in Current Chat"),k=l.playCircle;class G extends A{constructor(){super({id:x,title:v,icon:k,keybinding:_})}async run(t,e){return await super.execute(e,!1,t)}}class Q extends C{constructor(){super({id:z,title:p(5671,"Run Prompt..."),icon:l.bookmark,f1:!0,precondition:r.and(a.enabledCtx,c.enabled),keybinding:{when:r.and(a.enabledCtx,c.enabled),weight:200,primary:_},category:f})}async run(t){const e=t.get(h),i=t.get(y),m=t.get(O).createInstance(E),n=P(5668,null,W.modifierLabels[F].ctrlKey),I=await m.selectPromptFile({placeholder:n,type:b.prompt});if(I===void 0)return;const{promptFile:S,keyMods:U}=I;U.ctrlCmd===!0&&await i.executeCommand(R);const d=await T(e);d&&(d.setInput(`/${$(S.path)}`),await d.acceptInput(),d.focusInput())}}class Y extends C{constructor(){super({id:B,title:p(5672,"Configure Prompt Files..."),shortTitle:p(5673,"Prompt Files"),icon:l.bookmark,f1:!0,precondition:r.and(a.enabledCtx,c.enabled),category:f,menu:{id:D,when:r.and(a.enabledCtx,c.enabled,r.equals("view",M)),order:10,group:"0_level"}})}async run(t){const e=t.get(q),s=t.get(O).createInstance(E),m=P(5669,null),n=await s.selectPromptFile({placeholder:m,type:b.prompt,optionEdit:!1});n!==void 0&&await e.open(n.promptFile)}}function Z(o){const e=o.get(K).getActiveCodeEditor()?.getModel();if(e?.getLanguageId()===w)return e.uri}const J="workbench.action.chat.run-in-new-chat.prompt.current",V=p(5674,"Run Prompt In New Chat"),X=l.play;class tt extends A{constructor(){super({id:J,title:V,icon:X,keybinding:_|2048,alt:{id:x,title:v,icon:k}})}async run(t,e){return await super.execute(e,!0,t)}}function bt(){u(tt),u(G),u(Q),u(Y)}export{bt as $7fc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ChatViewId, showChatView } from "../chat.js";
+import { ACTION_ID_NEW_CHAT, CHAT_CATEGORY, CHAT_CONFIG_MENU_ID } from "../actions/chatActions.js";
+import { OS } from "../../../../../base/common/platform.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ChatContextKeys } from "../../common/chatContextKeys.js";
+import { assertDefined } from "../../../../../base/common/types.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { PromptsType, PROMPT_LANGUAGE_ID } from "../../common/promptSyntax/promptTypes.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { UILabelProvider } from "../../../../../base/common/keybindingLabels.js";
+import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { PromptFilePickers } from "./pickers/promptFilePickers.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { getPromptCommandName } from "../../common/promptSyntax/service/promptsServiceImpl.js";
+const EDITOR_ACTIONS_CONDITION = ContextKeyExpr.and(ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled), ResourceContextKey.HasResource, ResourceContextKey.LangId.isEqualTo(PROMPT_LANGUAGE_ID));
+const COMMAND_KEY_BINDING = 256 | 90 | 512;
+const RUN_CURRENT_PROMPT_ACTION_ID = "workbench.action.chat.run.prompt.current";
+const RUN_SELECTED_PROMPT_ACTION_ID = "workbench.action.chat.run.prompt";
+const CONFIGURE_PROMPTS_ACTION_ID = "workbench.action.chat.configure.prompts";
+class RunPromptBaseAction extends Action2 {
+  static {
+    __name(this, "RunPromptBaseAction");
+  }
+  constructor(options) {
+    super({
+      id: options.id,
+      title: options.title,
+      f1: false,
+      precondition: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
+      category: CHAT_CATEGORY,
+      icon: options.icon,
+      keybinding: {
+        when: ContextKeyExpr.and(EditorContextKeys.editorTextFocus, EDITOR_ACTIONS_CONDITION),
+        weight: 200,
+        primary: options.keybinding
+      },
+      menu: [
+        {
+          id: MenuId.EditorTitleRun,
+          group: "navigation",
+          order: options.alt ? 0 : 1,
+          alt: options.alt,
+          when: EDITOR_ACTIONS_CONDITION
+        }
+      ]
+    });
+  }
+  /**
+   * Executes the run prompt action with provided options.
+   */
+  async execute(resource, inNewChat, accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const commandService = accessor.get(ICommandService);
+    resource ||= getActivePromptFileUri(accessor);
+    assertDefined(resource, "Cannot find URI resource for an active text editor.");
+    if (inNewChat === true) {
+      await commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }
+    const widget = await showChatView(viewsService);
+    if (widget) {
+      widget.setInput(`/${getPromptCommandName(resource.path)}`);
+      await widget.acceptInput();
+    }
+    return widget;
+  }
+}
+const RUN_CURRENT_PROMPT_ACTION_TITLE = localize2("run-prompt.capitalized", "Run Prompt in Current Chat");
+const RUN_CURRENT_PROMPT_ACTION_ICON = Codicon.playCircle;
+class RunCurrentPromptAction extends RunPromptBaseAction {
+  static {
+    __name(this, "RunCurrentPromptAction");
+  }
+  constructor() {
+    super({
+      id: RUN_CURRENT_PROMPT_ACTION_ID,
+      title: RUN_CURRENT_PROMPT_ACTION_TITLE,
+      icon: RUN_CURRENT_PROMPT_ACTION_ICON,
+      keybinding: COMMAND_KEY_BINDING
+    });
+  }
+  async run(accessor, resource) {
+    return await super.execute(resource, false, accessor);
+  }
+}
+class RunSelectedPromptAction extends Action2 {
+  static {
+    __name(this, "RunSelectedPromptAction");
+  }
+  constructor() {
+    super({
+      id: RUN_SELECTED_PROMPT_ACTION_ID,
+      title: localize2("run-prompt.capitalized.ellipses", "Run Prompt..."),
+      icon: Codicon.bookmark,
+      f1: true,
+      precondition: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
+      keybinding: {
+        when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
+        weight: 200,
+        primary: COMMAND_KEY_BINDING
+      },
+      category: CHAT_CATEGORY
+    });
+  }
+  async run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const commandService = accessor.get(ICommandService);
+    const instaService = accessor.get(IInstantiationService);
+    const pickers = instaService.createInstance(PromptFilePickers);
+    const placeholder = localize("commands.prompt.select-dialog.placeholder", "Select the prompt file to run (hold {0}-key to use in new chat)", UILabelProvider.modifierLabels[OS].ctrlKey);
+    const result = await pickers.selectPromptFile({ placeholder, type: PromptsType.prompt });
+    if (result === void 0) {
+      return;
+    }
+    const { promptFile, keyMods } = result;
+    if (keyMods.ctrlCmd === true) {
+      await commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }
+    const widget = await showChatView(viewsService);
+    if (widget) {
+      widget.setInput(`/${getPromptCommandName(promptFile.path)}`);
+      await widget.acceptInput();
+      widget.focusInput();
+    }
+  }
+}
+class ManagePromptFilesAction extends Action2 {
+  static {
+    __name(this, "ManagePromptFilesAction");
+  }
+  constructor() {
+    super({
+      id: CONFIGURE_PROMPTS_ACTION_ID,
+      title: localize2("configure-prompts", "Configure Prompt Files..."),
+      shortTitle: localize2("configure-prompts.short", "Prompt Files"),
+      icon: Codicon.bookmark,
+      f1: true,
+      precondition: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled),
+      category: CHAT_CATEGORY,
+      menu: {
+        id: CHAT_CONFIG_MENU_ID,
+        when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled, ContextKeyExpr.equals("view", ChatViewId)),
+        order: 10,
+        group: "0_level"
+      }
+    });
+  }
+  async run(accessor) {
+    const openerService = accessor.get(IOpenerService);
+    const instaService = accessor.get(IInstantiationService);
+    const pickers = instaService.createInstance(PromptFilePickers);
+    const placeholder = localize("commands.prompt.manage-dialog.placeholder", "Select the prompt file to open");
+    const result = await pickers.selectPromptFile({ placeholder, type: PromptsType.prompt, optionEdit: false });
+    if (result !== void 0) {
+      await openerService.open(result.promptFile);
+    }
+  }
+}
+function getActivePromptFileUri(accessor) {
+  const codeEditorService = accessor.get(ICodeEditorService);
+  const model = codeEditorService.getActiveCodeEditor()?.getModel();
+  if (model?.getLanguageId() === PROMPT_LANGUAGE_ID) {
+    return model.uri;
+  }
+  return void 0;
+}
+__name(getActivePromptFileUri, "getActivePromptFileUri");
+const RUN_CURRENT_PROMPT_IN_NEW_CHAT_ACTION_ID = "workbench.action.chat.run-in-new-chat.prompt.current";
+const RUN_IN_NEW_CHAT_ACTION_TITLE = localize2("run-prompt-in-new-chat.capitalized", "Run Prompt In New Chat");
+const RUN_IN_NEW_CHAT_ACTION_ICON = Codicon.play;
+class RunCurrentPromptInNewChatAction extends RunPromptBaseAction {
+  static {
+    __name(this, "RunCurrentPromptInNewChatAction");
+  }
+  constructor() {
+    super({
+      id: RUN_CURRENT_PROMPT_IN_NEW_CHAT_ACTION_ID,
+      title: RUN_IN_NEW_CHAT_ACTION_TITLE,
+      icon: RUN_IN_NEW_CHAT_ACTION_ICON,
+      keybinding: COMMAND_KEY_BINDING | 2048,
+      alt: {
+        id: RUN_CURRENT_PROMPT_ACTION_ID,
+        title: RUN_CURRENT_PROMPT_ACTION_TITLE,
+        icon: RUN_CURRENT_PROMPT_ACTION_ICON
+      }
+    });
+  }
+  async run(accessor, resource) {
+    return await super.execute(resource, true, accessor);
+  }
+}
+function registerRunPromptActions() {
+  registerAction2(RunCurrentPromptInNewChatAction);
+  registerAction2(RunCurrentPromptAction);
+  registerAction2(RunSelectedPromptAction);
+  registerAction2(ManagePromptFilesAction);
+}
+__name(registerRunPromptActions, "registerRunPromptActions");
+export {
+  registerRunPromptActions
+};
+//# sourceMappingURL=runPromptAction.js.map

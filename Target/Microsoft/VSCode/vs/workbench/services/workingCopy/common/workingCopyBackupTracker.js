@@ -1,1 +1,267 @@
-import{$vd as o,$td as f}from"../../../../base/common/lifecycle.js";import{$pf as h}from"../../../../base/common/cancellation.js";import{Promises as l}from"../../../../base/common/async.js";class u extends o{constructor(t,s,e,r,i,n,a,c){super(),this.a=t,this.b=s,this.c=e,this.f=r,this.g=i,this.h=n,this.j=a,this.m=c,this.u=new Map,this.w=new Map,this.y=!1,this.Q=new Set,this.S=!1,this.R=this.W();for(const d of this.b.modifiedWorkingCopies)this.z(d);this.n()}n(){this.B(this.b.onDidRegister(t=>this.z(t))),this.B(this.b.onDidUnregister(t=>this.C(t))),this.B(this.b.onDidChangeDirty(t=>this.D(t))),this.B(this.b.onDidChangeContent(t=>this.F(t))),this.B(this.f.onBeforeShutdown(t=>t.finalVeto(()=>this.r(t.reason),"veto.backups"))),this.B(this.f.onWillShutdown(()=>this.s())),this.B(this.h.onDidRegisterHandler(t=>this.X(t)))}s(){this.O(),this.P()}static{this.t={default:1e3,delayed:2e3}}z(t){if(this.y){this.c.warn("[backup tracker] suspended, ignoring register event",t.resource.toString(),t.typeId);return}t.isModified()&&this.G(t)}C(t){if(this.u.delete(t),this.y){this.c.warn("[backup tracker] suspended, ignoring unregister event",t.resource.toString(),t.typeId);return}this.J(t)}D(t){if(this.y){this.c.warn("[backup tracker] suspended, ignoring dirty change event",t.resource.toString(),t.typeId);return}t.isDirty()?this.G(t):this.J(t)}F(t){const s=this.I(t);if(this.u.set(t,s+1),this.y){this.c.warn("[backup tracker] suspended, ignoring content change event",t.resource.toString(),t.typeId);return}t.isModified()&&this.G(t)}G(t){this.M(t),this.c.trace("[backup tracker] scheduling backup",t.resource.toString(),t.typeId);const s={resource:t.resource,typeId:t.typeId},e=new h,r=setTimeout(async()=>{if(!e.token.isCancellationRequested){if(t.isModified()){this.c.trace("[backup tracker] creating backup",t.resource.toString(),t.typeId);try{const i=await t.backup(e.token);if(e.token.isCancellationRequested)return;t.isModified()&&(this.c.trace("[backup tracker] storing backup",t.resource.toString(),t.typeId),await this.a.backup(t,i.content,this.I(t),i.meta,e.token))}catch(i){this.c.error(i)}}e.token.isCancellationRequested||this.N(s)}},this.H(t));this.w.set(s,{cancel:()=>{this.c.trace("[backup tracker] clearing pending backup creation",t.resource.toString(),t.typeId),e.cancel()},disposable:f(()=>{e.dispose(),clearTimeout(r)})})}H(t){if(typeof t.backupDelay=="number")return t.backupDelay;let s;return t.capabilities&2?s="default":s=this.g.hasShortAutoSaveDelay(t.resource)?"delayed":"default",u.t[s]}I(t){return this.u.get(t)||0}J(t){this.M(t);const s={resource:t.resource,typeId:t.typeId},e=new h;this.L(s,e),this.w.set(s,{cancel:()=>{this.c.trace("[backup tracker] clearing pending backup discard",t.resource.toString(),t.typeId),e.cancel()},disposable:e})}async L(t,s){this.c.trace("[backup tracker] discarding backup",t.resource.toString(),t.typeId);try{await this.a.discardBackup(t,s.token)}catch(e){this.c.error(e)}s.token.isCancellationRequested||this.N(t)}M(t){let s;for(const[e]of this.w)if(e.resource.toString()===t.resource.toString()&&e.typeId===t.typeId){s=e;break}s&&this.N(s,{cancel:!0})}N(t,s){const e=this.w.get(t);e&&(s?.cancel&&e.cancel(),e.disposable.dispose(),this.w.delete(t))}O(){for(const[,t]of this.w)t.cancel(),t.disposable.dispose();this.w.clear()}P(){return this.y=!0,{resume:()=>this.y=!1}}get U(){return this.S}async W(){await this.f.when(3);for(const t of await this.a.getBackups())this.Q.add(t);this.S=!0}async X(t){await this.R;const s=new Set,e=new Set,r=new Set;for(const i of this.Q){if(!await t.handles(i))continue;let a=!1;for(const{editor:c}of this.j.getEditors(0))t.isOpen(i,c)&&(s.add(c),a=!0);a||e.add(await t.createEditor(i)),r.add(i)}if(e.size>0){await this.m.activeGroup.openEditors([...e].map(i=>({editor:i,options:{pinned:!0,preserveFocus:!0,inactive:!0}})));for(const i of e)s.add(i)}await l.settled([...s].map(async i=>{if(!this.j.isVisible(i))return i.resolve()}));for(const i of r)this.Q.delete(i)}}export{u as $ZBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Promises } from "../../../../base/common/async.js";
+class WorkingCopyBackupTracker extends Disposable {
+  static {
+    __name(this, "WorkingCopyBackupTracker");
+  }
+  constructor(workingCopyBackupService, workingCopyService, logService, lifecycleService, filesConfigurationService, workingCopyEditorService, editorService, editorGroupService) {
+    super();
+    this.workingCopyBackupService = workingCopyBackupService;
+    this.workingCopyService = workingCopyService;
+    this.logService = logService;
+    this.lifecycleService = lifecycleService;
+    this.filesConfigurationService = filesConfigurationService;
+    this.workingCopyEditorService = workingCopyEditorService;
+    this.editorService = editorService;
+    this.editorGroupService = editorGroupService;
+    this.mapWorkingCopyToContentVersion = /* @__PURE__ */ new Map();
+    this.pendingBackupOperations = /* @__PURE__ */ new Map();
+    this.suspended = false;
+    this.unrestoredBackups = /* @__PURE__ */ new Set();
+    this._isReady = false;
+    this.whenReady = this.resolveBackupsToRestore();
+    for (const workingCopy of this.workingCopyService.modifiedWorkingCopies) {
+      this.onDidRegister(workingCopy);
+    }
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.workingCopyService.onDidRegister((workingCopy) => this.onDidRegister(workingCopy)));
+    this._register(this.workingCopyService.onDidUnregister((workingCopy) => this.onDidUnregister(workingCopy)));
+    this._register(this.workingCopyService.onDidChangeDirty((workingCopy) => this.onDidChangeDirty(workingCopy)));
+    this._register(this.workingCopyService.onDidChangeContent((workingCopy) => this.onDidChangeContent(workingCopy)));
+    this._register(this.lifecycleService.onBeforeShutdown((event) => event.finalVeto(() => this.onFinalBeforeShutdown(event.reason), "veto.backups")));
+    this._register(this.lifecycleService.onWillShutdown(() => this.onWillShutdown()));
+    this._register(this.workingCopyEditorService.onDidRegisterHandler((handler) => this.restoreBackups(handler)));
+  }
+  onWillShutdown() {
+    this.cancelBackupOperations();
+    this.suspendBackupOperations();
+  }
+  static {
+    this.DEFAULT_BACKUP_SCHEDULE_DELAYS = {
+      ["default"]: 1e3,
+      ["delayed"]: 2e3
+    };
+  }
+  onDidRegister(workingCopy) {
+    if (this.suspended) {
+      this.logService.warn(`[backup tracker] suspended, ignoring register event`, workingCopy.resource.toString(), workingCopy.typeId);
+      return;
+    }
+    if (workingCopy.isModified()) {
+      this.scheduleBackup(workingCopy);
+    }
+  }
+  onDidUnregister(workingCopy) {
+    this.mapWorkingCopyToContentVersion.delete(workingCopy);
+    if (this.suspended) {
+      this.logService.warn(`[backup tracker] suspended, ignoring unregister event`, workingCopy.resource.toString(), workingCopy.typeId);
+      return;
+    }
+    this.discardBackup(workingCopy);
+  }
+  onDidChangeDirty(workingCopy) {
+    if (this.suspended) {
+      this.logService.warn(`[backup tracker] suspended, ignoring dirty change event`, workingCopy.resource.toString(), workingCopy.typeId);
+      return;
+    }
+    if (workingCopy.isDirty()) {
+      this.scheduleBackup(workingCopy);
+    } else {
+      this.discardBackup(workingCopy);
+    }
+  }
+  onDidChangeContent(workingCopy) {
+    const contentVersionId = this.getContentVersion(workingCopy);
+    this.mapWorkingCopyToContentVersion.set(workingCopy, contentVersionId + 1);
+    if (this.suspended) {
+      this.logService.warn(`[backup tracker] suspended, ignoring content change event`, workingCopy.resource.toString(), workingCopy.typeId);
+      return;
+    }
+    if (workingCopy.isModified()) {
+      this.scheduleBackup(workingCopy);
+    }
+  }
+  scheduleBackup(workingCopy) {
+    this.cancelBackupOperation(workingCopy);
+    this.logService.trace(`[backup tracker] scheduling backup`, workingCopy.resource.toString(), workingCopy.typeId);
+    const workingCopyIdentifier = { resource: workingCopy.resource, typeId: workingCopy.typeId };
+    const cts = new CancellationTokenSource();
+    const handle = setTimeout(async () => {
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      if (workingCopy.isModified()) {
+        this.logService.trace(`[backup tracker] creating backup`, workingCopy.resource.toString(), workingCopy.typeId);
+        try {
+          const backup = await workingCopy.backup(cts.token);
+          if (cts.token.isCancellationRequested) {
+            return;
+          }
+          if (workingCopy.isModified()) {
+            this.logService.trace(`[backup tracker] storing backup`, workingCopy.resource.toString(), workingCopy.typeId);
+            await this.workingCopyBackupService.backup(workingCopy, backup.content, this.getContentVersion(workingCopy), backup.meta, cts.token);
+          }
+        } catch (error) {
+          this.logService.error(error);
+        }
+      }
+      if (!cts.token.isCancellationRequested) {
+        this.doClearPendingBackupOperation(workingCopyIdentifier);
+      }
+    }, this.getBackupScheduleDelay(workingCopy));
+    this.pendingBackupOperations.set(workingCopyIdentifier, {
+      cancel: /* @__PURE__ */ __name(() => {
+        this.logService.trace(`[backup tracker] clearing pending backup creation`, workingCopy.resource.toString(), workingCopy.typeId);
+        cts.cancel();
+      }, "cancel"),
+      disposable: toDisposable(() => {
+        cts.dispose();
+        clearTimeout(handle);
+      })
+    });
+  }
+  getBackupScheduleDelay(workingCopy) {
+    if (typeof workingCopy.backupDelay === "number") {
+      return workingCopy.backupDelay;
+    }
+    let backupScheduleDelay;
+    if (workingCopy.capabilities & 2) {
+      backupScheduleDelay = "default";
+    } else {
+      backupScheduleDelay = this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource) ? "delayed" : "default";
+    }
+    return WorkingCopyBackupTracker.DEFAULT_BACKUP_SCHEDULE_DELAYS[backupScheduleDelay];
+  }
+  getContentVersion(workingCopy) {
+    return this.mapWorkingCopyToContentVersion.get(workingCopy) || 0;
+  }
+  discardBackup(workingCopy) {
+    this.cancelBackupOperation(workingCopy);
+    const workingCopyIdentifier = { resource: workingCopy.resource, typeId: workingCopy.typeId };
+    const cts = new CancellationTokenSource();
+    this.doDiscardBackup(workingCopyIdentifier, cts);
+    this.pendingBackupOperations.set(workingCopyIdentifier, {
+      cancel: /* @__PURE__ */ __name(() => {
+        this.logService.trace(`[backup tracker] clearing pending backup discard`, workingCopy.resource.toString(), workingCopy.typeId);
+        cts.cancel();
+      }, "cancel"),
+      disposable: cts
+    });
+  }
+  async doDiscardBackup(workingCopyIdentifier, cts) {
+    this.logService.trace(`[backup tracker] discarding backup`, workingCopyIdentifier.resource.toString(), workingCopyIdentifier.typeId);
+    try {
+      await this.workingCopyBackupService.discardBackup(workingCopyIdentifier, cts.token);
+    } catch (error) {
+      this.logService.error(error);
+    }
+    if (!cts.token.isCancellationRequested) {
+      this.doClearPendingBackupOperation(workingCopyIdentifier);
+    }
+  }
+  cancelBackupOperation(workingCopy) {
+    let workingCopyIdentifier = void 0;
+    for (const [identifier] of this.pendingBackupOperations) {
+      if (identifier.resource.toString() === workingCopy.resource.toString() && identifier.typeId === workingCopy.typeId) {
+        workingCopyIdentifier = identifier;
+        break;
+      }
+    }
+    if (workingCopyIdentifier) {
+      this.doClearPendingBackupOperation(workingCopyIdentifier, { cancel: true });
+    }
+  }
+  doClearPendingBackupOperation(workingCopyIdentifier, options) {
+    const pendingBackupOperation = this.pendingBackupOperations.get(workingCopyIdentifier);
+    if (!pendingBackupOperation) {
+      return;
+    }
+    if (options?.cancel) {
+      pendingBackupOperation.cancel();
+    }
+    pendingBackupOperation.disposable.dispose();
+    this.pendingBackupOperations.delete(workingCopyIdentifier);
+  }
+  cancelBackupOperations() {
+    for (const [, operation] of this.pendingBackupOperations) {
+      operation.cancel();
+      operation.disposable.dispose();
+    }
+    this.pendingBackupOperations.clear();
+  }
+  suspendBackupOperations() {
+    this.suspended = true;
+    return { resume: /* @__PURE__ */ __name(() => this.suspended = false, "resume") };
+  }
+  get isReady() {
+    return this._isReady;
+  }
+  async resolveBackupsToRestore() {
+    await this.lifecycleService.when(
+      3
+      /* LifecyclePhase.Restored */
+    );
+    for (const backup of await this.workingCopyBackupService.getBackups()) {
+      this.unrestoredBackups.add(backup);
+    }
+    this._isReady = true;
+  }
+  async restoreBackups(handler) {
+    await this.whenReady;
+    const openedEditorsForBackups = /* @__PURE__ */ new Set();
+    const nonOpenedEditorsForBackups = /* @__PURE__ */ new Set();
+    const restoredBackups = /* @__PURE__ */ new Set();
+    for (const unrestoredBackup of this.unrestoredBackups) {
+      const canHandleUnrestoredBackup = await handler.handles(unrestoredBackup);
+      if (!canHandleUnrestoredBackup) {
+        continue;
+      }
+      let hasOpenedEditorForBackup = false;
+      for (const { editor } of this.editorService.getEditors(
+        0
+        /* EditorsOrder.MOST_RECENTLY_ACTIVE */
+      )) {
+        const isUnrestoredBackupOpened = handler.isOpen(unrestoredBackup, editor);
+        if (isUnrestoredBackupOpened) {
+          openedEditorsForBackups.add(editor);
+          hasOpenedEditorForBackup = true;
+        }
+      }
+      if (!hasOpenedEditorForBackup) {
+        nonOpenedEditorsForBackups.add(await handler.createEditor(unrestoredBackup));
+      }
+      restoredBackups.add(unrestoredBackup);
+    }
+    if (nonOpenedEditorsForBackups.size > 0) {
+      await this.editorGroupService.activeGroup.openEditors([...nonOpenedEditorsForBackups].map((nonOpenedEditorForBackup) => ({
+        editor: nonOpenedEditorForBackup,
+        options: {
+          pinned: true,
+          preserveFocus: true,
+          inactive: true
+        }
+      })));
+      for (const nonOpenedEditorForBackup of nonOpenedEditorsForBackups) {
+        openedEditorsForBackups.add(nonOpenedEditorForBackup);
+      }
+    }
+    await Promises.settled([...openedEditorsForBackups].map(async (openedEditorForBackup) => {
+      if (this.editorService.isVisible(openedEditorForBackup)) {
+        return;
+      }
+      return openedEditorForBackup.resolve();
+    }));
+    for (const restoredBackup of restoredBackups) {
+      this.unrestoredBackups.delete(restoredBackup);
+    }
+  }
+}
+export {
+  WorkingCopyBackupTracker
+};
+//# sourceMappingURL=workingCopyBackupTracker.js.map

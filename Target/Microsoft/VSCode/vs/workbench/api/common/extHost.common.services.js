@@ -1,1 +1,199 @@
-import{$WB as o}from"../../../platform/instantiation/common/extensions.js";import{$aNc as m,$_Mc as r}from"./extHostOutput.js";import{$ILc as $,$HLc as c}from"./extHostWorkspace.js";import{$AMc as f,$zMc as p}from"./extHostDecorations.js";import{$LLc as t,$JLc as i}from"./extHostConfiguration.js";import{$V2 as L,$U2 as M}from"./extHostCommands.js";import{$K2 as N,$J2 as b}from"./extHostDocumentsAndEditors.js";import{$0Lc as n,$aMc as a}from"./extHostTerminalService.js";import{$mNc as e,$lNc as l}from"./extHostTask.js";import{$uMc as y,$yMc as J}from"./extHostDebugService.js";import{$VMc as V,$WMc as W}from"./extHostSearch.js";import{$7Lc as d,$6Lc as g}from"./extHostStorage.js";import{$32b as h,$42b as k}from"./extHostTunnelService.js";import{$aLc as s,$bLc as u}from"./extHostApiDeprecationService.js";import{$lLc as v,$kLc as w}from"./extHostWindow.js";import{$NLc as z,$MLc as A}from"./extHostFileSystemConsumer.js";import{$eLc as B,$dLc as H}from"./extHostFileSystemInfo.js";import{$cMc as I,$bMc as K}from"./extHostSecretState.js";import{$YLc as U,$XLc as X}from"./extHostEditorTabs.js";import{$yNc as Y}from"./extHostLoggerService.js";import{$5n as _}from"../../../platform/log/common/log.js";import{$tMc as j,$sMc as q}from"./extHostVariableResolverService.js";import{$eMc as x,$fMc as C}from"./extHostLocalizationService.js";import{$hMc as D,$gMc as E}from"./extHostManagedSockets.js";import{$wLc as F,$vLc as G}from"./extHostLanguageModels.js";import{$nNc as O,$oNc as P}from"./extHostTerminalShellIntegration.js";import{$oMc as Q,$nMc as R}from"./extHostTesting.js";import{$4Mc as S,$3Mc as T}from"./extHostMcp.js";import{$mLc as Z,$nLc as oo}from"./extHostUrls.js";import{$pLc as mo,$oLc as ro}from"./extHostProgress.js";o(C,x,1);o(_,Y,1);o(s,u,1);o(L,M,0);o(ro,mo,0);o(G,F,0);o(t,i,0);o(z,A,0);o(R,Q,0);o(y,J,0);o(f,p,0);o(N,b,0);o(E,D,0);o(B,H,0);o(m,r,1);o(V,W,0);o(d,g,0);o(e,l,0);o(n,a,0);o(O,P,0);o(h,k,0);o(v,w,0);o(oo,Z,0);o($,c,0);o(I,K,0);o(X,U,0);o(q,j,0);o(T,S,0);
+import { registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { IExtHostOutputService, ExtHostOutputService } from "./extHostOutput.js";
+import { IExtHostWorkspace, ExtHostWorkspace } from "./extHostWorkspace.js";
+import { IExtHostDecorations, ExtHostDecorations } from "./extHostDecorations.js";
+import { IExtHostConfiguration, ExtHostConfiguration } from "./extHostConfiguration.js";
+import { IExtHostCommands, ExtHostCommands } from "./extHostCommands.js";
+import { IExtHostDocumentsAndEditors, ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostTerminalService, WorkerExtHostTerminalService } from "./extHostTerminalService.js";
+import { IExtHostTask, WorkerExtHostTask } from "./extHostTask.js";
+import { IExtHostDebugService, WorkerExtHostDebugService } from "./extHostDebugService.js";
+import { IExtHostSearch, ExtHostSearch } from "./extHostSearch.js";
+import { IExtHostStorage, ExtHostStorage } from "./extHostStorage.js";
+import { IExtHostTunnelService, ExtHostTunnelService } from "./extHostTunnelService.js";
+import { IExtHostApiDeprecationService, ExtHostApiDeprecationService } from "./extHostApiDeprecationService.js";
+import { IExtHostWindow, ExtHostWindow } from "./extHostWindow.js";
+import { IExtHostConsumerFileSystem, ExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
+import { IExtHostFileSystemInfo, ExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
+import { IExtHostSecretState, ExtHostSecretState } from "./extHostSecretState.js";
+import { ExtHostEditorTabs, IExtHostEditorTabs } from "./extHostEditorTabs.js";
+import { ExtHostLoggerService } from "./extHostLoggerService.js";
+import { ILoggerService } from "../../../platform/log/common/log.js";
+import { ExtHostVariableResolverProviderService, IExtHostVariableResolverProvider } from "./extHostVariableResolverService.js";
+import { ExtHostLocalizationService, IExtHostLocalizationService } from "./extHostLocalizationService.js";
+import { ExtHostManagedSockets, IExtHostManagedSockets } from "./extHostManagedSockets.js";
+import { ExtHostLanguageModels, IExtHostLanguageModels } from "./extHostLanguageModels.js";
+import { IExtHostTerminalShellIntegration, ExtHostTerminalShellIntegration } from "./extHostTerminalShellIntegration.js";
+import { ExtHostTesting, IExtHostTesting } from "./extHostTesting.js";
+import { ExtHostMcpService, IExtHostMpcService } from "./extHostMcp.js";
+import { ExtHostUrls, IExtHostUrlsService } from "./extHostUrls.js";
+import { ExtHostProgress, IExtHostProgress } from "./extHostProgress.js";
+registerSingleton(
+  IExtHostLocalizationService,
+  ExtHostLocalizationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILoggerService,
+  ExtHostLoggerService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IExtHostApiDeprecationService,
+  ExtHostApiDeprecationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IExtHostCommands,
+  ExtHostCommands,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostProgress,
+  ExtHostProgress,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostLanguageModels,
+  ExtHostLanguageModels,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostConfiguration,
+  ExtHostConfiguration,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostConsumerFileSystem,
+  ExtHostConsumerFileSystem,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostTesting,
+  ExtHostTesting,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostDebugService,
+  WorkerExtHostDebugService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostDecorations,
+  ExtHostDecorations,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostDocumentsAndEditors,
+  ExtHostDocumentsAndEditors,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostManagedSockets,
+  ExtHostManagedSockets,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostFileSystemInfo,
+  ExtHostFileSystemInfo,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostOutputService,
+  ExtHostOutputService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IExtHostSearch,
+  ExtHostSearch,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostStorage,
+  ExtHostStorage,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostTask,
+  WorkerExtHostTask,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostTerminalService,
+  WorkerExtHostTerminalService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostTerminalShellIntegration,
+  ExtHostTerminalShellIntegration,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostTunnelService,
+  ExtHostTunnelService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostWindow,
+  ExtHostWindow,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostUrlsService,
+  ExtHostUrls,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostWorkspace,
+  ExtHostWorkspace,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostSecretState,
+  ExtHostSecretState,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostEditorTabs,
+  ExtHostEditorTabs,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostVariableResolverProvider,
+  ExtHostVariableResolverProviderService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IExtHostMpcService,
+  ExtHostMcpService,
+  0
+  /* InstantiationType.Eager */
+);
+//# sourceMappingURL=extHost.common.services.js.map

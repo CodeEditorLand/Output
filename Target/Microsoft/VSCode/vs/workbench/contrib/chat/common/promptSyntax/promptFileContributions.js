@@ -1,1 +1,36 @@
-import{$gfc as m}from"./config/configMigration.js";import{$Rl as f}from"../../../../../platform/registry/common/platform.js";import{Extensions as i}from"../../../../common/contributions.js";import{$hfc as t}from"./languageProviders/promptLinkProvider.js";import{$kfc as n}from"./languageProviders/promptLinkDiagnosticsProvider.js";import{$lfc as c}from"./languageProviders/promptHeaderDiagnosticsProvider.js";import{$m as p}from"../../../../../base/common/platform.js";import{$mfc as $}from"./languageProviders/promptPathAutocompletion.js";import{$nfc as e}from"./languageProviders/promptHeaderAutocompletion.js";import{$ofc as s}from"./languageProviders/promptHeaderHovers.js";function E(){o(t),o(n),o(c),p||o($),o(e),o(s),o(m)}function o(r){f.as(i.Workbench).registerWorkbenchContribution(r,4)}export{E as $pfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ConfigMigration } from "./config/configMigration.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { Extensions } from "../../../../common/contributions.js";
+import { PromptLinkProvider } from "./languageProviders/promptLinkProvider.js";
+import { PromptLinkDiagnosticsInstanceManager } from "./languageProviders/promptLinkDiagnosticsProvider.js";
+import { PromptHeaderDiagnosticsInstanceManager } from "./languageProviders/promptHeaderDiagnosticsProvider.js";
+import { isWindows } from "../../../../../base/common/platform.js";
+import { PromptPathAutocompletion } from "./languageProviders/promptPathAutocompletion.js";
+import { PromptHeaderAutocompletion } from "./languageProviders/promptHeaderAutocompletion.js";
+import { PromptHeaderHoverProvider } from "./languageProviders/promptHeaderHovers.js";
+function registerPromptFileContributions() {
+  registerContribution(PromptLinkProvider);
+  registerContribution(PromptLinkDiagnosticsInstanceManager);
+  registerContribution(PromptHeaderDiagnosticsInstanceManager);
+  if (!isWindows) {
+    registerContribution(PromptPathAutocompletion);
+  }
+  registerContribution(PromptHeaderAutocompletion);
+  registerContribution(PromptHeaderHoverProvider);
+  registerContribution(ConfigMigration);
+}
+__name(registerPromptFileContributions, "registerPromptFileContributions");
+function registerContribution(contribution) {
+  Registry.as(Extensions.Workbench).registerWorkbenchContribution(
+    contribution,
+    4
+    /* LifecyclePhase.Eventually */
+  );
+}
+__name(registerContribution, "registerContribution");
+export {
+  registerPromptFileContributions
+};
+//# sourceMappingURL=promptFileContributions.js.map

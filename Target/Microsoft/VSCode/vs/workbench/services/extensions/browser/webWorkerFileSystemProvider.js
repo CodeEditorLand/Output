@@ -1,1 +1,60 @@
-import{FileType as a,FileSystemProviderErrorCode as o,$gk as i}from"../../../../platform/files/common/files.js";import{Event as n}from"../../../../base/common/event.js";import{$vd as c}from"../../../../base/common/lifecycle.js";import{$yb as t}from"../../../../base/common/errors.js";class _{constructor(){this.capabilities=3074,this.onDidChangeCapabilities=n.None,this.onDidChangeFile=n.None}async readFile(r){try{const e=await fetch(r.toString(!0));if(e.status===200)return new Uint8Array(await e.arrayBuffer());throw i(e.statusText,o.Unknown)}catch(e){throw i(e,o.Unknown)}}async stat(r){return{type:a.File,size:0,mtime:0,ctime:0}}watch(){return c.None}writeFile(r,e,s){throw new t}readdir(r){throw new t}mkdir(r){throw new t}delete(r,e){throw new t}rename(r,e,s){throw new t}}export{_ as $4Ac};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FileType, FileSystemProviderErrorCode, createFileSystemProviderError } from "../../../../platform/files/common/files.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { NotSupportedError } from "../../../../base/common/errors.js";
+class FetchFileSystemProvider {
+  static {
+    __name(this, "FetchFileSystemProvider");
+  }
+  constructor() {
+    this.capabilities = 2048 + 2 + 1024;
+    this.onDidChangeCapabilities = Event.None;
+    this.onDidChangeFile = Event.None;
+  }
+  // working implementations
+  async readFile(resource) {
+    try {
+      const res = await fetch(resource.toString(true));
+      if (res.status === 200) {
+        return new Uint8Array(await res.arrayBuffer());
+      }
+      throw createFileSystemProviderError(res.statusText, FileSystemProviderErrorCode.Unknown);
+    } catch (err) {
+      throw createFileSystemProviderError(err, FileSystemProviderErrorCode.Unknown);
+    }
+  }
+  // fake implementations
+  async stat(_resource) {
+    return {
+      type: FileType.File,
+      size: 0,
+      mtime: 0,
+      ctime: 0
+    };
+  }
+  watch() {
+    return Disposable.None;
+  }
+  // error implementations
+  writeFile(_resource, _content, _opts) {
+    throw new NotSupportedError();
+  }
+  readdir(_resource) {
+    throw new NotSupportedError();
+  }
+  mkdir(_resource) {
+    throw new NotSupportedError();
+  }
+  delete(_resource, _opts) {
+    throw new NotSupportedError();
+  }
+  rename(_from, _to, _opts) {
+    throw new NotSupportedError();
+  }
+}
+export {
+  FetchFileSystemProvider
+};
+//# sourceMappingURL=webWorkerFileSystemProvider.js.map

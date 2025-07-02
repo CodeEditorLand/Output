@@ -1,1 +1,190 @@
-import{$Wb as k}from"../../../../base/common/arrays.js";import{$Aj as w,$Ej as C,FuzzyScore as x,$Fj as D,$Dj as j}from"../../../../base/common/filters.js";import{$Zf as v}from"../../../../base/common/strings.js";class y{constructor(e,i){this.leadingLineContent=e,this.characterCountDelta=i}}var L;(function(s){s[s.Nothing=0]="Nothing",s[s.All=1]="All",s[s.Incr=2]="Incr"})(L||(L={}));class d{constructor(e,i,c,o,l,h,u=j.default,m=void 0){this.clipboardText=m,this.g=d.q,this.c=e,this.d=i,this.e=o,this.f=l,this.k=1,this.j=c,this.h=u,h==="top"?this.g=d.s:h==="bottom"&&(this.g=d.r)}get lineContext(){return this.j}set lineContext(e){(this.j.leadingLineContent!==e.leadingLineContent||this.j.characterCountDelta!==e.characterCountDelta)&&(this.k=this.j.characterCountDelta<e.characterCountDelta&&this.l?2:1,this.j=e)}get items(){return this.o(),this.l}getItemsByProvider(){return this.o(),this.m}getIncompleteProvider(){this.o();const e=new Set;for(const[i,c]of this.getItemsByProvider())c.length>0&&c[0].container.incomplete&&e.add(i);return e}get stats(){return this.o(),this.n}o(){this.k!==0&&this.p()}p(){this.m=new Map;const e=[],{leadingLineContent:i,characterCountDelta:c}=this.j;let o="",l="";const h=this.k===1?this.c:this.l,u=[],m=!this.f.filterGraceful||h.length>2e3?C:D;for(let a=0;a<h.length;a++){const t=h[a];if(t.isInvalid)continue;const p=this.m.get(t.provider);p?p.push(t):this.m.set(t.provider,[t]);const g=t.position.column-t.editStart.column,f=g+c-(t.position.column-this.d);if(o.length!==f&&(o=f===0?"":i.slice(-f),l=o.toLowerCase()),t.word=o,f===0)t.score=x.Default;else{let r=0;for(;r<g;){const n=o.charCodeAt(r);if(n===32||n===9)r+=1;else break}if(r>=f)t.score=x.Default;else if(typeof t.completion.filterText=="string"){const n=m(o,l,r,t.completion.filterText,t.filterTextLow,0,this.h);if(!n)continue;v(t.completion.filterText,t.textLabel)===0?t.score=n:(t.score=w(o,l,r,t.textLabel,t.labelLow,0),t.score[0]=n[0])}else{const n=m(o,l,r,t.textLabel,t.labelLow,0,this.h);if(!n)continue;t.score=n}}t.idx=a,t.distance=this.e.distance(t.position,t.completion),u.push(t),e.push(t.textLabel.length)}this.l=u.sort(this.g),this.k=0,this.n={pLabelLen:e.length?k(e.length-.85,e,(a,t)=>a-t):0}}static q(e,i){return e.score[0]>i.score[0]?-1:e.score[0]<i.score[0]?1:e.distance<i.distance?-1:e.distance>i.distance?1:e.idx<i.idx?-1:e.idx>i.idx?1:0}static r(e,i){if(e.completion.kind!==i.completion.kind){if(e.completion.kind===28)return 1;if(i.completion.kind===28)return-1}return d.q(e,i)}static s(e,i){if(e.completion.kind!==i.completion.kind){if(e.completion.kind===28)return-1;if(i.completion.kind===28)return 1}return d.q(e,i)}}export{d as $$jb,y as $0jb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { quickSelect } from "../../../../base/common/arrays.js";
+import { anyScore, fuzzyScore, FuzzyScore, fuzzyScoreGracefulAggressive, FuzzyScoreOptions } from "../../../../base/common/filters.js";
+import { compareIgnoreCase } from "../../../../base/common/strings.js";
+class LineContext {
+  static {
+    __name(this, "LineContext");
+  }
+  constructor(leadingLineContent, characterCountDelta) {
+    this.leadingLineContent = leadingLineContent;
+    this.characterCountDelta = characterCountDelta;
+  }
+}
+var Refilter;
+(function(Refilter2) {
+  Refilter2[Refilter2["Nothing"] = 0] = "Nothing";
+  Refilter2[Refilter2["All"] = 1] = "All";
+  Refilter2[Refilter2["Incr"] = 2] = "Incr";
+})(Refilter || (Refilter = {}));
+class CompletionModel {
+  static {
+    __name(this, "CompletionModel");
+  }
+  constructor(items, column, lineContext, wordDistance, options, snippetSuggestions, fuzzyScoreOptions = FuzzyScoreOptions.default, clipboardText = void 0) {
+    this.clipboardText = clipboardText;
+    this._snippetCompareFn = CompletionModel._compareCompletionItems;
+    this._items = items;
+    this._column = column;
+    this._wordDistance = wordDistance;
+    this._options = options;
+    this._refilterKind = 1;
+    this._lineContext = lineContext;
+    this._fuzzyScoreOptions = fuzzyScoreOptions;
+    if (snippetSuggestions === "top") {
+      this._snippetCompareFn = CompletionModel._compareCompletionItemsSnippetsUp;
+    } else if (snippetSuggestions === "bottom") {
+      this._snippetCompareFn = CompletionModel._compareCompletionItemsSnippetsDown;
+    }
+  }
+  get lineContext() {
+    return this._lineContext;
+  }
+  set lineContext(value) {
+    if (this._lineContext.leadingLineContent !== value.leadingLineContent || this._lineContext.characterCountDelta !== value.characterCountDelta) {
+      this._refilterKind = this._lineContext.characterCountDelta < value.characterCountDelta && this._filteredItems ? 2 : 1;
+      this._lineContext = value;
+    }
+  }
+  get items() {
+    this._ensureCachedState();
+    return this._filteredItems;
+  }
+  getItemsByProvider() {
+    this._ensureCachedState();
+    return this._itemsByProvider;
+  }
+  getIncompleteProvider() {
+    this._ensureCachedState();
+    const result = /* @__PURE__ */ new Set();
+    for (const [provider, items] of this.getItemsByProvider()) {
+      if (items.length > 0 && items[0].container.incomplete) {
+        result.add(provider);
+      }
+    }
+    return result;
+  }
+  get stats() {
+    this._ensureCachedState();
+    return this._stats;
+  }
+  _ensureCachedState() {
+    if (this._refilterKind !== 0) {
+      this._createCachedState();
+    }
+  }
+  _createCachedState() {
+    this._itemsByProvider = /* @__PURE__ */ new Map();
+    const labelLengths = [];
+    const { leadingLineContent, characterCountDelta } = this._lineContext;
+    let word = "";
+    let wordLow = "";
+    const source = this._refilterKind === 1 ? this._items : this._filteredItems;
+    const target = [];
+    const scoreFn = !this._options.filterGraceful || source.length > 2e3 ? fuzzyScore : fuzzyScoreGracefulAggressive;
+    for (let i = 0; i < source.length; i++) {
+      const item = source[i];
+      if (item.isInvalid) {
+        continue;
+      }
+      const arr = this._itemsByProvider.get(item.provider);
+      if (arr) {
+        arr.push(item);
+      } else {
+        this._itemsByProvider.set(item.provider, [item]);
+      }
+      const overwriteBefore = item.position.column - item.editStart.column;
+      const wordLen = overwriteBefore + characterCountDelta - (item.position.column - this._column);
+      if (word.length !== wordLen) {
+        word = wordLen === 0 ? "" : leadingLineContent.slice(-wordLen);
+        wordLow = word.toLowerCase();
+      }
+      item.word = word;
+      if (wordLen === 0) {
+        item.score = FuzzyScore.Default;
+      } else {
+        let wordPos = 0;
+        while (wordPos < overwriteBefore) {
+          const ch = word.charCodeAt(wordPos);
+          if (ch === 32 || ch === 9) {
+            wordPos += 1;
+          } else {
+            break;
+          }
+        }
+        if (wordPos >= wordLen) {
+          item.score = FuzzyScore.Default;
+        } else if (typeof item.completion.filterText === "string") {
+          const match = scoreFn(word, wordLow, wordPos, item.completion.filterText, item.filterTextLow, 0, this._fuzzyScoreOptions);
+          if (!match) {
+            continue;
+          }
+          if (compareIgnoreCase(item.completion.filterText, item.textLabel) === 0) {
+            item.score = match;
+          } else {
+            item.score = anyScore(word, wordLow, wordPos, item.textLabel, item.labelLow, 0);
+            item.score[0] = match[0];
+          }
+        } else {
+          const match = scoreFn(word, wordLow, wordPos, item.textLabel, item.labelLow, 0, this._fuzzyScoreOptions);
+          if (!match) {
+            continue;
+          }
+          item.score = match;
+        }
+      }
+      item.idx = i;
+      item.distance = this._wordDistance.distance(item.position, item.completion);
+      target.push(item);
+      labelLengths.push(item.textLabel.length);
+    }
+    this._filteredItems = target.sort(this._snippetCompareFn);
+    this._refilterKind = 0;
+    this._stats = {
+      pLabelLen: labelLengths.length ? quickSelect(labelLengths.length - 0.85, labelLengths, (a, b) => a - b) : 0
+    };
+  }
+  static _compareCompletionItems(a, b) {
+    if (a.score[0] > b.score[0]) {
+      return -1;
+    } else if (a.score[0] < b.score[0]) {
+      return 1;
+    } else if (a.distance < b.distance) {
+      return -1;
+    } else if (a.distance > b.distance) {
+      return 1;
+    } else if (a.idx < b.idx) {
+      return -1;
+    } else if (a.idx > b.idx) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  static _compareCompletionItemsSnippetsDown(a, b) {
+    if (a.completion.kind !== b.completion.kind) {
+      if (a.completion.kind === 28) {
+        return 1;
+      } else if (b.completion.kind === 28) {
+        return -1;
+      }
+    }
+    return CompletionModel._compareCompletionItems(a, b);
+  }
+  static _compareCompletionItemsSnippetsUp(a, b) {
+    if (a.completion.kind !== b.completion.kind) {
+      if (a.completion.kind === 28) {
+        return -1;
+      } else if (b.completion.kind === 28) {
+        return 1;
+      }
+    }
+    return CompletionModel._compareCompletionItems(a, b);
+  }
+}
+export {
+  CompletionModel,
+  LineContext
+};
+//# sourceMappingURL=completionModel.js.map

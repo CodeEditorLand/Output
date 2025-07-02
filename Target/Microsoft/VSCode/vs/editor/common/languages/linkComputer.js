@@ -1,1 +1,409 @@
-import{$ZC as E}from"../core/characterClassifier.js";var H;(function(e){e[e.Invalid=0]="Invalid",e[e.Start=1]="Start",e[e.H=2]="H",e[e.HT=3]="HT",e[e.HTT=4]="HTT",e[e.HTTP=5]="HTTP",e[e.F=6]="F",e[e.FI=7]="FI",e[e.FIL=8]="FIL",e[e.BeforeColon=9]="BeforeColon",e[e.AfterColon=10]="AfterColon",e[e.AlmostThere=11]="AlmostThere",e[e.End=12]="End",e[e.Accept=13]="Accept",e[e.LastKnownState=14]="LastKnownState"})(H||(H={}));class F{constructor(n,t,r){const i=new Uint8Array(n*t);for(let s=0,l=n*t;s<l;s++)i[s]=r;this.a=i,this.rows=n,this.cols=t}get(n,t){return this.a[n*this.cols+t]}set(n,t,r){this.a[n*this.cols+t]=r}}class N{constructor(n){let t=0,r=0;for(let s=0,l=n.length;s<l;s++){const[c,a,f]=n[s];a>t&&(t=a),c>r&&(r=c),f>r&&(r=f)}t++,r++;const i=new F(r,t,0);for(let s=0,l=n.length;s<l;s++){const[c,a,f]=n[s];i.set(c,a,f)}this.a=i,this.b=t}nextState(n,t){return t<0||t>=this.b?0:this.a.get(n,t)}}let m=null;function w(){return m===null&&(m=new N([[1,104,2],[1,72,2],[1,102,6],[1,70,6],[2,116,3],[2,84,3],[3,116,4],[3,84,4],[4,112,5],[4,80,5],[5,115,9],[5,83,9],[5,58,10],[6,105,7],[6,73,7],[7,108,8],[7,76,8],[8,101,9],[8,69,9],[9,58,10],[10,47,11],[11,47,12]])),m}var I;(function(e){e[e.None=0]="None",e[e.ForceTermination=1]="ForceTermination",e[e.CannotEndIn=2]="CannotEndIn"})(I||(I={}));let T=null;function x(){if(T===null){T=new E(0);const e=` 	<>'"\u3001\u3002\uFF61\uFF64\uFF0C\uFF0E\uFF1A\uFF1B\u2018\u3008\u300C\u300E\u3014\uFF08\uFF3B\uFF5B\uFF62\uFF63\uFF5D\uFF3D\uFF09\u3015\u300F\u300D\u3009\u2019\uFF40\uFF5E\u2026`;for(let t=0;t<e.length;t++)T.set(e.charCodeAt(t),1);const n=".,;:";for(let t=0;t<n.length;t++)T.set(n.charCodeAt(t),2)}return T}class d{static a(n,t,r,i,s){let l=s-1;do{const c=t.charCodeAt(l);if(n.get(c)!==2)break;l--}while(l>i);if(i>0){const c=t.charCodeAt(i-1),a=t.charCodeAt(l);(c===40&&a===41||c===91&&a===93||c===123&&a===125)&&l--}return{range:{startLineNumber:r,startColumn:i+1,endLineNumber:r,endColumn:l+2},url:t.substring(i,l+1)}}static computeLinks(n,t=w()){const r=x(),i=[];for(let s=1,l=n.getLineCount();s<=l;s++){const c=n.getLineContent(s),a=c.length;let f=0,k=0,h=0,u=1,p=!1,A=!1,L=!1,g=!1;for(;f<a;){let b=!1;const C=c.charCodeAt(f);if(u===13){let o;switch(C){case 40:p=!0,o=0;break;case 41:o=p?0:1;break;case 91:L=!0,A=!0,o=0;break;case 93:L=!1,o=A?0:1;break;case 123:g=!0,o=0;break;case 125:o=g?0:1;break;case 39:case 34:case 96:h===C?o=1:h===39||h===34||h===96?o=0:o=1;break;case 42:o=h===42?1:0;break;case 124:o=h===124?1:0;break;case 32:o=L?0:1;break;default:o=r.get(C)}o===1&&(i.push(d.a(r,c,s,k,f)),b=!0)}else if(u===12){let o;C===91?(A=!0,o=0):o=r.get(C),o===1?b=!0:u=13}else u=t.nextState(u,C),u===0&&(b=!0);b&&(u=1,p=!1,A=!1,g=!1,k=f+1,h=C),f++}u===13&&i.push(d.a(r,c,s,k,a))}return i}}function M(e){return!e||typeof e.getLineCount!="function"||typeof e.getLineContent!="function"?[]:d.computeLinks(e)}export{N as $Neb,d as $Oeb,M as $Peb,H as State};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CharacterClassifier } from "../core/characterClassifier.js";
+var State;
+(function(State2) {
+  State2[State2["Invalid"] = 0] = "Invalid";
+  State2[State2["Start"] = 1] = "Start";
+  State2[State2["H"] = 2] = "H";
+  State2[State2["HT"] = 3] = "HT";
+  State2[State2["HTT"] = 4] = "HTT";
+  State2[State2["HTTP"] = 5] = "HTTP";
+  State2[State2["F"] = 6] = "F";
+  State2[State2["FI"] = 7] = "FI";
+  State2[State2["FIL"] = 8] = "FIL";
+  State2[State2["BeforeColon"] = 9] = "BeforeColon";
+  State2[State2["AfterColon"] = 10] = "AfterColon";
+  State2[State2["AlmostThere"] = 11] = "AlmostThere";
+  State2[State2["End"] = 12] = "End";
+  State2[State2["Accept"] = 13] = "Accept";
+  State2[State2["LastKnownState"] = 14] = "LastKnownState";
+})(State || (State = {}));
+class Uint8Matrix {
+  static {
+    __name(this, "Uint8Matrix");
+  }
+  constructor(rows, cols, defaultValue) {
+    const data = new Uint8Array(rows * cols);
+    for (let i = 0, len = rows * cols; i < len; i++) {
+      data[i] = defaultValue;
+    }
+    this._data = data;
+    this.rows = rows;
+    this.cols = cols;
+  }
+  get(row, col) {
+    return this._data[row * this.cols + col];
+  }
+  set(row, col, value) {
+    this._data[row * this.cols + col] = value;
+  }
+}
+class StateMachine {
+  static {
+    __name(this, "StateMachine");
+  }
+  constructor(edges) {
+    let maxCharCode = 0;
+    let maxState = 0;
+    for (let i = 0, len = edges.length; i < len; i++) {
+      const [from, chCode, to] = edges[i];
+      if (chCode > maxCharCode) {
+        maxCharCode = chCode;
+      }
+      if (from > maxState) {
+        maxState = from;
+      }
+      if (to > maxState) {
+        maxState = to;
+      }
+    }
+    maxCharCode++;
+    maxState++;
+    const states = new Uint8Matrix(
+      maxState,
+      maxCharCode,
+      0
+      /* State.Invalid */
+    );
+    for (let i = 0, len = edges.length; i < len; i++) {
+      const [from, chCode, to] = edges[i];
+      states.set(from, chCode, to);
+    }
+    this._states = states;
+    this._maxCharCode = maxCharCode;
+  }
+  nextState(currentState, chCode) {
+    if (chCode < 0 || chCode >= this._maxCharCode) {
+      return 0;
+    }
+    return this._states.get(currentState, chCode);
+  }
+}
+let _stateMachine = null;
+function getStateMachine() {
+  if (_stateMachine === null) {
+    _stateMachine = new StateMachine([
+      [
+        1,
+        104,
+        2
+        /* State.H */
+      ],
+      [
+        1,
+        72,
+        2
+        /* State.H */
+      ],
+      [
+        1,
+        102,
+        6
+        /* State.F */
+      ],
+      [
+        1,
+        70,
+        6
+        /* State.F */
+      ],
+      [
+        2,
+        116,
+        3
+        /* State.HT */
+      ],
+      [
+        2,
+        84,
+        3
+        /* State.HT */
+      ],
+      [
+        3,
+        116,
+        4
+        /* State.HTT */
+      ],
+      [
+        3,
+        84,
+        4
+        /* State.HTT */
+      ],
+      [
+        4,
+        112,
+        5
+        /* State.HTTP */
+      ],
+      [
+        4,
+        80,
+        5
+        /* State.HTTP */
+      ],
+      [
+        5,
+        115,
+        9
+        /* State.BeforeColon */
+      ],
+      [
+        5,
+        83,
+        9
+        /* State.BeforeColon */
+      ],
+      [
+        5,
+        58,
+        10
+        /* State.AfterColon */
+      ],
+      [
+        6,
+        105,
+        7
+        /* State.FI */
+      ],
+      [
+        6,
+        73,
+        7
+        /* State.FI */
+      ],
+      [
+        7,
+        108,
+        8
+        /* State.FIL */
+      ],
+      [
+        7,
+        76,
+        8
+        /* State.FIL */
+      ],
+      [
+        8,
+        101,
+        9
+        /* State.BeforeColon */
+      ],
+      [
+        8,
+        69,
+        9
+        /* State.BeforeColon */
+      ],
+      [
+        9,
+        58,
+        10
+        /* State.AfterColon */
+      ],
+      [
+        10,
+        47,
+        11
+        /* State.AlmostThere */
+      ],
+      [
+        11,
+        47,
+        12
+        /* State.End */
+      ]
+    ]);
+  }
+  return _stateMachine;
+}
+__name(getStateMachine, "getStateMachine");
+var CharacterClass;
+(function(CharacterClass2) {
+  CharacterClass2[CharacterClass2["None"] = 0] = "None";
+  CharacterClass2[CharacterClass2["ForceTermination"] = 1] = "ForceTermination";
+  CharacterClass2[CharacterClass2["CannotEndIn"] = 2] = "CannotEndIn";
+})(CharacterClass || (CharacterClass = {}));
+let _classifier = null;
+function getClassifier() {
+  if (_classifier === null) {
+    _classifier = new CharacterClassifier(
+      0
+      /* CharacterClass.None */
+    );
+    const FORCE_TERMINATION_CHARACTERS = ` 	<>'"\u3001\u3002\uFF61\uFF64\uFF0C\uFF0E\uFF1A\uFF1B\u2018\u3008\u300C\u300E\u3014\uFF08\uFF3B\uFF5B\uFF62\uFF63\uFF5D\uFF3D\uFF09\u3015\u300F\u300D\u3009\u2019\uFF40\uFF5E\u2026`;
+    for (let i = 0; i < FORCE_TERMINATION_CHARACTERS.length; i++) {
+      _classifier.set(
+        FORCE_TERMINATION_CHARACTERS.charCodeAt(i),
+        1
+        /* CharacterClass.ForceTermination */
+      );
+    }
+    const CANNOT_END_WITH_CHARACTERS = ".,;:";
+    for (let i = 0; i < CANNOT_END_WITH_CHARACTERS.length; i++) {
+      _classifier.set(
+        CANNOT_END_WITH_CHARACTERS.charCodeAt(i),
+        2
+        /* CharacterClass.CannotEndIn */
+      );
+    }
+  }
+  return _classifier;
+}
+__name(getClassifier, "getClassifier");
+class LinkComputer {
+  static {
+    __name(this, "LinkComputer");
+  }
+  static _createLink(classifier, line, lineNumber, linkBeginIndex, linkEndIndex) {
+    let lastIncludedCharIndex = linkEndIndex - 1;
+    do {
+      const chCode = line.charCodeAt(lastIncludedCharIndex);
+      const chClass = classifier.get(chCode);
+      if (chClass !== 2) {
+        break;
+      }
+      lastIncludedCharIndex--;
+    } while (lastIncludedCharIndex > linkBeginIndex);
+    if (linkBeginIndex > 0) {
+      const charCodeBeforeLink = line.charCodeAt(linkBeginIndex - 1);
+      const lastCharCodeInLink = line.charCodeAt(lastIncludedCharIndex);
+      if (charCodeBeforeLink === 40 && lastCharCodeInLink === 41 || charCodeBeforeLink === 91 && lastCharCodeInLink === 93 || charCodeBeforeLink === 123 && lastCharCodeInLink === 125) {
+        lastIncludedCharIndex--;
+      }
+    }
+    return {
+      range: {
+        startLineNumber: lineNumber,
+        startColumn: linkBeginIndex + 1,
+        endLineNumber: lineNumber,
+        endColumn: lastIncludedCharIndex + 2
+      },
+      url: line.substring(linkBeginIndex, lastIncludedCharIndex + 1)
+    };
+  }
+  static computeLinks(model, stateMachine = getStateMachine()) {
+    const classifier = getClassifier();
+    const result = [];
+    for (let i = 1, lineCount = model.getLineCount(); i <= lineCount; i++) {
+      const line = model.getLineContent(i);
+      const len = line.length;
+      let j = 0;
+      let linkBeginIndex = 0;
+      let linkBeginChCode = 0;
+      let state = 1;
+      let hasOpenParens = false;
+      let hasOpenSquareBracket = false;
+      let inSquareBrackets = false;
+      let hasOpenCurlyBracket = false;
+      while (j < len) {
+        let resetStateMachine = false;
+        const chCode = line.charCodeAt(j);
+        if (state === 13) {
+          let chClass;
+          switch (chCode) {
+            case 40:
+              hasOpenParens = true;
+              chClass = 0;
+              break;
+            case 41:
+              chClass = hasOpenParens ? 0 : 1;
+              break;
+            case 91:
+              inSquareBrackets = true;
+              hasOpenSquareBracket = true;
+              chClass = 0;
+              break;
+            case 93:
+              inSquareBrackets = false;
+              chClass = hasOpenSquareBracket ? 0 : 1;
+              break;
+            case 123:
+              hasOpenCurlyBracket = true;
+              chClass = 0;
+              break;
+            case 125:
+              chClass = hasOpenCurlyBracket ? 0 : 1;
+              break;
+            // The following three rules make it that ' or " or ` are allowed inside links
+            // only if the link is wrapped by some other quote character
+            case 39:
+            case 34:
+            case 96:
+              if (linkBeginChCode === chCode) {
+                chClass = 1;
+              } else if (linkBeginChCode === 39 || linkBeginChCode === 34 || linkBeginChCode === 96) {
+                chClass = 0;
+              } else {
+                chClass = 1;
+              }
+              break;
+            case 42:
+              chClass = linkBeginChCode === 42 ? 1 : 0;
+              break;
+            case 124:
+              chClass = linkBeginChCode === 124 ? 1 : 0;
+              break;
+            case 32:
+              chClass = inSquareBrackets ? 0 : 1;
+              break;
+            default:
+              chClass = classifier.get(chCode);
+          }
+          if (chClass === 1) {
+            result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, j));
+            resetStateMachine = true;
+          }
+        } else if (state === 12) {
+          let chClass;
+          if (chCode === 91) {
+            hasOpenSquareBracket = true;
+            chClass = 0;
+          } else {
+            chClass = classifier.get(chCode);
+          }
+          if (chClass === 1) {
+            resetStateMachine = true;
+          } else {
+            state = 13;
+          }
+        } else {
+          state = stateMachine.nextState(state, chCode);
+          if (state === 0) {
+            resetStateMachine = true;
+          }
+        }
+        if (resetStateMachine) {
+          state = 1;
+          hasOpenParens = false;
+          hasOpenSquareBracket = false;
+          hasOpenCurlyBracket = false;
+          linkBeginIndex = j + 1;
+          linkBeginChCode = chCode;
+        }
+        j++;
+      }
+      if (state === 13) {
+        result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, len));
+      }
+    }
+    return result;
+  }
+}
+function computeLinks(model) {
+  if (!model || typeof model.getLineCount !== "function" || typeof model.getLineContent !== "function") {
+    return [];
+  }
+  return LinkComputer.computeLinks(model);
+}
+__name(computeLinks, "computeLinks");
+export {
+  LinkComputer,
+  State,
+  StateMachine,
+  computeLinks
+};
+//# sourceMappingURL=linkComputer.js.map

@@ -1,1 +1,153 @@
-import"./media/scm.css";import{$ud as M,$sd as w}from"../../../../base/common/lifecycle.js";import{autorun as _,autorunWithStore as g}from"../../../../base/common/observable.js";import{$36 as a,$ as f}from"../../../../base/browser/dom.js";import{$UP as x}from"../common/scm.js";import{$Z9 as E}from"../../../../base/browser/ui/countBadge/countBadge.js";import{$Gfb as P}from"../../../../platform/contextview/browser/contextView.js";import{$Zn as T}from"../../../../platform/commands/common/commands.js";import{$bm as A}from"../../../../base/common/actions.js";import{$oMb as I,$tMb as S,$eMb as j,$qMb as B}from"./util.js";import{$fgb as L}from"../../../../platform/theme/browser/defaultStyles.js";import{$Dgb as R}from"../../../../platform/actions/browser/toolbar.js";import{$yI as H,$xI as K,$BI as O}from"../../../../platform/actions/common/actions.js";import{$Wn as U}from"../../../../platform/contextkey/common/contextkey.js";import{$ux as q}from"../../../../platform/keybinding/common/keybinding.js";import{$Ro as D}from"../../../../platform/telemetry/common/telemetry.js";import{$Fgb as V}from"../../../../platform/hover/browser/hover.js";import{$17 as W}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";var y=function(l,e,s,o){var t=arguments.length,r=t<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,s):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,e,s,o);else for(var n=l.length-1;n>=0;n--)(i=l[n])&&(r=(t<3?i(r):t>3?i(e,s,r):i(e,s))||r);return t>3&&r&&Object.defineProperty(e,s,r),r},m=function(l,e){return function(s,o){e(s,o,l)}},b;class po extends A{constructor(e){super(),this.a=e}async u(e,s){if(!(e instanceof O))return super.u(e,s);const o=this.a().map(r=>r.provider),t=o.some(r=>r===s)?o:[s];await e.run(...t)}}let v=class{static{b=this}static{this.TEMPLATE_ID="repository"}get templateId(){return b.TEMPLATE_ID}constructor(e,s,o,t,r,i,n,c,d,h){this.a=e,this.b=s,this.d=o,this.f=t,this.g=r,this.h=i,this.i=n,this.j=c,this.k=d,this.l=h}renderTemplate(e){e.classList.contains("monaco-tl-contents")&&e.parentElement.parentElement.querySelector(".monaco-tl-twistie").classList.add("force-twistie");const s=a(e,f(".scm-provider")),o=a(s,f(".label")),t=this.h.setupManagedHover(W("mouse"),o,"",{}),r=a(o,f("span.name")),i=a(o,f("span.description")),n=a(s,f(".actions")),c=new R(n,{actionViewItemProvider:this.b,resetMenu:this.a},this.j,this.f,this.g,this.i,this.d,this.l),d=a(s,f(".count")),h=new E(d,{},L),u=c.onDidChangeDropdownVisibility($=>s.classList.toggle("active",$)),p=w(t,u,c);return{label:o,labelCustomHover:t,name:r,description:i,countContainer:d,count:h,toolBar:c,elementDisposables:new M,templateDisposable:p}}renderElement(e,s,o){const t=j(e)?e:e.element;o.name.textContent=t.provider.name,t.provider.rootUri?(o.labelCustomHover.update(`${t.provider.label}: ${t.provider.rootUri.fsPath}`),o.description.textContent=t.provider.label):(o.labelCustomHover.update(t.provider.label),o.description.textContent="");let r=[],i=[],n=[];const c=()=>{o.toolBar.setActions([...r,...i],n)};o.elementDisposables.add(g((u,p)=>{r=(t.provider.statusBarCommands.read(u)??[]).map(C=>p.add(new B(C,this.d))),c()})),o.elementDisposables.add(_(u=>{const p=t.provider.count.read(u)??S(t.provider);o.countContainer.setAttribute("data-count",String(p)),o.count.setCount(p)}));const d=this.k.menus.getRepositoryMenus(t.provider),h=this.a===K.SCMTitle?d.titleMenu.menu:d.repositoryMenu;o.elementDisposables.add(I(h,(u,p)=>{i=u,n=p,c()})),o.toolBar.context=t.provider}renderCompressedElements(){throw new Error("Should never happen since node is incompressible")}disposeElement(e,s,o){o.elementDisposables.clear()}disposeTemplate(e){e.elementDisposables.dispose(),e.templateDisposable.dispose(),e.count.dispose()}};v=b=y([m(2,T),m(3,U),m(4,P),m(5,V),m(6,q),m(7,H),m(8,x),m(9,D)],v);export{po as $Joc,v as $Koc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RepositoryRenderer_1;
+import "./media/scm.css";
+import { DisposableStore, combinedDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore } from "../../../../base/common/observable.js";
+import { append, $ } from "../../../../base/browser/dom.js";
+import { ISCMViewService } from "../common/scm.js";
+import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
+import { connectPrimaryMenu, getRepositoryResourceCount, isSCMRepository, StatusBarAction } from "./util.js";
+import { defaultCountBadgeStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+class RepositoryActionRunner extends ActionRunner {
+  static {
+    __name(this, "RepositoryActionRunner");
+  }
+  constructor(getSelectedRepositories) {
+    super();
+    this.getSelectedRepositories = getSelectedRepositories;
+  }
+  async runAction(action, context) {
+    if (!(action instanceof MenuItemAction)) {
+      return super.runAction(action, context);
+    }
+    const selection = this.getSelectedRepositories().map((r) => r.provider);
+    const actionContext = selection.some((s) => s === context) ? selection : [context];
+    await action.run(...actionContext);
+  }
+}
+let RepositoryRenderer = class RepositoryRenderer2 {
+  static {
+    __name(this, "RepositoryRenderer");
+  }
+  static {
+    RepositoryRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "repository";
+  }
+  get templateId() {
+    return RepositoryRenderer_1.TEMPLATE_ID;
+  }
+  constructor(toolbarMenuId, actionViewItemProvider, commandService, contextKeyService, contextMenuService, hoverService, keybindingService, menuService, scmViewService, telemetryService) {
+    this.toolbarMenuId = toolbarMenuId;
+    this.actionViewItemProvider = actionViewItemProvider;
+    this.commandService = commandService;
+    this.contextKeyService = contextKeyService;
+    this.contextMenuService = contextMenuService;
+    this.hoverService = hoverService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.scmViewService = scmViewService;
+    this.telemetryService = telemetryService;
+  }
+  renderTemplate(container) {
+    if (container.classList.contains("monaco-tl-contents")) {
+      container.parentElement.parentElement.querySelector(".monaco-tl-twistie").classList.add("force-twistie");
+    }
+    const provider = append(container, $(".scm-provider"));
+    const label = append(provider, $(".label"));
+    const labelCustomHover = this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), label, "", {});
+    const name = append(label, $("span.name"));
+    const description = append(label, $("span.description"));
+    const actions = append(provider, $(".actions"));
+    const toolBar = new WorkbenchToolBar(actions, { actionViewItemProvider: this.actionViewItemProvider, resetMenu: this.toolbarMenuId }, this.menuService, this.contextKeyService, this.contextMenuService, this.keybindingService, this.commandService, this.telemetryService);
+    const countContainer = append(provider, $(".count"));
+    const count = new CountBadge(countContainer, {}, defaultCountBadgeStyles);
+    const visibilityDisposable = toolBar.onDidChangeDropdownVisibility((e) => provider.classList.toggle("active", e));
+    const templateDisposable = combinedDisposable(labelCustomHover, visibilityDisposable, toolBar);
+    return { label, labelCustomHover, name, description, countContainer, count, toolBar, elementDisposables: new DisposableStore(), templateDisposable };
+  }
+  renderElement(arg, index, templateData) {
+    const repository = isSCMRepository(arg) ? arg : arg.element;
+    templateData.name.textContent = repository.provider.name;
+    if (repository.provider.rootUri) {
+      templateData.labelCustomHover.update(`${repository.provider.label}: ${repository.provider.rootUri.fsPath}`);
+      templateData.description.textContent = repository.provider.label;
+    } else {
+      templateData.labelCustomHover.update(repository.provider.label);
+      templateData.description.textContent = "";
+    }
+    let statusPrimaryActions = [];
+    let menuPrimaryActions = [];
+    let menuSecondaryActions = [];
+    const updateToolbar = /* @__PURE__ */ __name(() => {
+      templateData.toolBar.setActions([...statusPrimaryActions, ...menuPrimaryActions], menuSecondaryActions);
+    }, "updateToolbar");
+    templateData.elementDisposables.add(autorunWithStore((reader, store) => {
+      const commands = repository.provider.statusBarCommands.read(reader) ?? [];
+      statusPrimaryActions = commands.map((c) => store.add(new StatusBarAction(c, this.commandService)));
+      updateToolbar();
+    }));
+    templateData.elementDisposables.add(autorun((reader) => {
+      const count = repository.provider.count.read(reader) ?? getRepositoryResourceCount(repository.provider);
+      templateData.countContainer.setAttribute("data-count", String(count));
+      templateData.count.setCount(count);
+    }));
+    const repositoryMenus = this.scmViewService.menus.getRepositoryMenus(repository.provider);
+    const menu = this.toolbarMenuId === MenuId.SCMTitle ? repositoryMenus.titleMenu.menu : repositoryMenus.repositoryMenu;
+    templateData.elementDisposables.add(connectPrimaryMenu(menu, (primary, secondary) => {
+      menuPrimaryActions = primary;
+      menuSecondaryActions = secondary;
+      updateToolbar();
+    }));
+    templateData.toolBar.context = repository.provider;
+  }
+  renderCompressedElements() {
+    throw new Error("Should never happen since node is incompressible");
+  }
+  disposeElement(group, index, template) {
+    template.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.templateDisposable.dispose();
+    templateData.count.dispose();
+  }
+};
+RepositoryRenderer = RepositoryRenderer_1 = __decorate([
+  __param(2, ICommandService),
+  __param(3, IContextKeyService),
+  __param(4, IContextMenuService),
+  __param(5, IHoverService),
+  __param(6, IKeybindingService),
+  __param(7, IMenuService),
+  __param(8, ISCMViewService),
+  __param(9, ITelemetryService)
+], RepositoryRenderer);
+export {
+  RepositoryActionRunner,
+  RepositoryRenderer
+};
+//# sourceMappingURL=scmRepositoryRenderer.js.map

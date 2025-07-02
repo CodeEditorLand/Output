@@ -1,1 +1,124 @@
-import{$R0 as u}from"./abstractTree.js";import{$S0 as f}from"./objectTreeModel.js";import{$E0 as d}from"./tree.js";import{Iterable as c}from"../../../common/iterator.js";class I extends u{constructor(t,s,i,h,e,o={}){super(t,s,i,h,o),this.f=t,this.g=e,this.d=new Map,this.c=o.identityProvider}getInput(){return this.b}setInput(t,s){if(s&&!this.c)throw new d(this.f,"Can't restore tree view state without an identity provider");if(this.b=t,!t){this.d.clear(),this.o.setChildren(null,c.empty());return}if(!s){this.m(t);return}const i=[],h=[],e=r=>{const n=this.c.getId(r).toString();return!s.expanded[n]},o=r=>{const n=this.c.getId(r.element).toString();s.focus.has(n)&&i.push(r.element),s.selection.has(n)&&h.push(r.element)};this.m(t,e,o),this.setFocus(i),this.setSelection(h),s&&typeof s.scrollTop=="number"&&(this.scrollTop=s.scrollTop)}updateChildren(t=this.b){if(typeof this.b>"u")throw new d(this.f,"Tree input not set");let s;this.c&&(s=i=>{const h=this.c.getId(i).toString(),e=this.d.get(h);if(e)return e.collapsed}),this.m(t,s)}resort(t=this.b,s=!0){this.o.resort(t===this.b?null:t,s)}refresh(t){if(t===void 0){this.j.rerender();return}this.o.rerender(t)}m(t,s,i){let h;if(this.c){const e=new Set,o=i;i=r=>{const n=this.c.getId(r.element).toString();e.add(n),this.d.set(n,r),o?.(r)},h=r=>{const n=this.c.getId(r.element).toString();e.has(n)||this.d.delete(n)}}this.o.setChildren(t===this.b?null:t,this.s(t,s).elements,{onDidCreateNode:i,onDidDeleteNode:h})}s(t,s){const i=[...this.g.getChildren(t)];return{elements:c.map(i,e=>{const{elements:o,size:r}=this.s(e,s),n=this.g.hasChildren?this.g.hasChildren(e):void 0,l=r===0?void 0:s&&s(e);return{element:e,children:o,collapsible:n,collapsed:l}}),size:i.length}}V(t,s){return new f(t,s)}}export{I as $30};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AbstractTree } from "./abstractTree.js";
+import { ObjectTreeModel } from "./objectTreeModel.js";
+import { TreeError } from "./tree.js";
+import { Iterable } from "../../../common/iterator.js";
+class DataTree extends AbstractTree {
+  static {
+    __name(this, "DataTree");
+  }
+  constructor(user, container, delegate, renderers, dataSource, options = {}) {
+    super(user, container, delegate, renderers, options);
+    this.user = user;
+    this.dataSource = dataSource;
+    this.nodesByIdentity = /* @__PURE__ */ new Map();
+    this.identityProvider = options.identityProvider;
+  }
+  // Model
+  getInput() {
+    return this.input;
+  }
+  setInput(input, viewState) {
+    if (viewState && !this.identityProvider) {
+      throw new TreeError(this.user, "Can't restore tree view state without an identity provider");
+    }
+    this.input = input;
+    if (!input) {
+      this.nodesByIdentity.clear();
+      this.model.setChildren(null, Iterable.empty());
+      return;
+    }
+    if (!viewState) {
+      this._refresh(input);
+      return;
+    }
+    const focus = [];
+    const selection = [];
+    const isCollapsed = /* @__PURE__ */ __name((element) => {
+      const id = this.identityProvider.getId(element).toString();
+      return !viewState.expanded[id];
+    }, "isCollapsed");
+    const onDidCreateNode = /* @__PURE__ */ __name((node) => {
+      const id = this.identityProvider.getId(node.element).toString();
+      if (viewState.focus.has(id)) {
+        focus.push(node.element);
+      }
+      if (viewState.selection.has(id)) {
+        selection.push(node.element);
+      }
+    }, "onDidCreateNode");
+    this._refresh(input, isCollapsed, onDidCreateNode);
+    this.setFocus(focus);
+    this.setSelection(selection);
+    if (viewState && typeof viewState.scrollTop === "number") {
+      this.scrollTop = viewState.scrollTop;
+    }
+  }
+  updateChildren(element = this.input) {
+    if (typeof this.input === "undefined") {
+      throw new TreeError(this.user, "Tree input not set");
+    }
+    let isCollapsed;
+    if (this.identityProvider) {
+      isCollapsed = /* @__PURE__ */ __name((element2) => {
+        const id = this.identityProvider.getId(element2).toString();
+        const node = this.nodesByIdentity.get(id);
+        if (!node) {
+          return void 0;
+        }
+        return node.collapsed;
+      }, "isCollapsed");
+    }
+    this._refresh(element, isCollapsed);
+  }
+  resort(element = this.input, recursive = true) {
+    this.model.resort(element === this.input ? null : element, recursive);
+  }
+  // View
+  refresh(element) {
+    if (element === void 0) {
+      this.view.rerender();
+      return;
+    }
+    this.model.rerender(element);
+  }
+  // Implementation
+  _refresh(element, isCollapsed, onDidCreateNode) {
+    let onDidDeleteNode;
+    if (this.identityProvider) {
+      const insertedElements = /* @__PURE__ */ new Set();
+      const outerOnDidCreateNode = onDidCreateNode;
+      onDidCreateNode = /* @__PURE__ */ __name((node) => {
+        const id = this.identityProvider.getId(node.element).toString();
+        insertedElements.add(id);
+        this.nodesByIdentity.set(id, node);
+        outerOnDidCreateNode?.(node);
+      }, "onDidCreateNode");
+      onDidDeleteNode = /* @__PURE__ */ __name((node) => {
+        const id = this.identityProvider.getId(node.element).toString();
+        if (!insertedElements.has(id)) {
+          this.nodesByIdentity.delete(id);
+        }
+      }, "onDidDeleteNode");
+    }
+    this.model.setChildren(element === this.input ? null : element, this.iterate(element, isCollapsed).elements, { onDidCreateNode, onDidDeleteNode });
+  }
+  iterate(element, isCollapsed) {
+    const children = [...this.dataSource.getChildren(element)];
+    const elements = Iterable.map(children, (element2) => {
+      const { elements: children2, size } = this.iterate(element2, isCollapsed);
+      const collapsible = this.dataSource.hasChildren ? this.dataSource.hasChildren(element2) : void 0;
+      const collapsed = size === 0 ? void 0 : isCollapsed && isCollapsed(element2);
+      return { element: element2, children: children2, collapsible, collapsed };
+    });
+    return { elements, size: children.length };
+  }
+  createModel(user, options) {
+    return new ObjectTreeModel(user, options);
+  }
+}
+export {
+  DataTree
+};
+//# sourceMappingURL=dataTree.js.map

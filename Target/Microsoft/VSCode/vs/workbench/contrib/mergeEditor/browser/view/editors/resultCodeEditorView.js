@@ -1,1 +1,186 @@
-import{$56 as C}from"../../../../../../base/browser/dom.js";import{$37 as j}from"../../../../../../base/browser/ui/actionbar/actionbar.js";import{$U8 as $}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{CompareResult as y}from"../../../../../../base/common/arrays.js";import{$Bb as L}from"../../../../../../base/common/errors.js";import{$td as N}from"../../../../../../base/common/lifecycle.js";import{autorun as w,autorunWithStore as _,derived as O}from"../../../../../../base/common/observable.js";import{OverviewRulerLane as D}from"../../../../../../editor/common/model.js";import{localize as g}from"../../../../../../nls.js";import{$xI as E}from"../../../../../../platform/actions/common/actions.js";import{$Fl as W}from"../../../../../../platform/configuration/common/configuration.js";import{$Wn as A}from"../../../../../../platform/contextkey/common/contextkey.js";import{$mj as k}from"../../../../../../platform/instantiation/common/instantiation.js";import{$jI as H}from"../../../../../../platform/label/common/label.js";import{$tRb as P}from"../../model/lineRange.js";import{$XRb as G,join as U}from"../../utils.js";import{$bSb as M,$cSb as B}from"../colors.js";import{$gSb as z}from"../editorGutter.js";import{$pSb as F}from"../../../common/mergeEditor.js";import{$hSb as K,$iSb as V,$jSb as X}from"./codeEditorView.js";var T=function(c,r,s,d){var f=arguments.length,n=f<3?r:d===null?d=Object.getOwnPropertyDescriptor(r,s):d,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(c,r,s,d);else for(var t=c.length-1;t>=0;t--)(e=c[t])&&(n=(f<3?e(n):f>3?e(r,s,n):e(r,s))||n);return f>3&&n&&Object.defineProperty(r,s,n),n},R=function(c,r){return function(s,d){r(s,d,c)}};let x=class extends K{constructor(r,s,d,f){super(s,r,f),this.w=d,this.y=O(this,e=>{const t=this.viewModel.read(e);if(!t)return[];const o=t.model,l=o.resultTextModel,u=new Array,b=U(o.modifiedBaseRanges.read(e),o.baseResultDiffs.read(e),(p,i)=>p.baseRange.intersectsOrTouches(i.inputRange)?y.neitherLessOrGreaterThan:P.compareByStart(p.baseRange,i.inputRange)),S=t.activeModifiedBaseRange.read(e),I=t.showNonConflictingChanges.read(e);for(const p of b){const i=p.left;if(i){const a=["merge-editor-block"];let h=[0,0,0,0];const m=o.isHandled(i).read(e);if(m&&a.push("handled"),i===S&&(a.push("focused"),h=[0,2,0,2]),i.isConflicting&&a.push("conflicting"),a.push("result"),!i.isConflicting&&!I&&m)continue;const v=o.getLineRangeInResult(i.baseRange,e);u.push({range:v.toInclusiveRangeOrEmpty(),options:{showIfCollapsed:!0,blockClassName:a.join(" "),blockPadding:h,blockIsAfterEnd:v.startLineNumber>l.getLineCount(),description:"Result Diff",minimap:{position:2,color:{id:m?M:B}},overviewRuler:i.isConflicting?{position:D.Center,color:{id:m?M:B}}:void 0}})}if(!i||i.isConflicting)for(const a of p.rights){const h=a.outputRange.toInclusiveRange();if(h&&u.push({range:h,options:{className:"merge-editor-diff result",description:"Merge Editor",isWholeLine:!0}}),a.rangeMappings)for(const m of a.rangeMappings)u.push({range:m.outputRange,options:{className:"merge-editor-diff-word result",description:"Merge Editor"}})}}return u}),this.editor.invokeWithinContext(e=>{const t=e.get(A),o=F.bindTo(t);o.set(!0),this.B(N(()=>o.reset()))}),this.a.gutterDiv.style.width="5px",this.a.root.classList.add("result"),this.B(_((e,t)=>{this.f.read(e)&&t.add(new z(this.editor,this.a.gutterDiv,{getIntersectingGutterItems:(o,l)=>[],createView:(o,l)=>{throw new L}}))})),this.B(w(e=>{const t=this.viewModel.read(e);t&&(this.editor.setModel(t.model.resultTextModel),C(this.a.title,...$(g(9157,null))),C(this.a.description,...$(this.w.getUriLabel(t.model.resultTextModel.uri,{relative:!0}))))}));const n=this.B(new j(this.a.detail));this.B(w(e=>{const t=this.viewModel.read(e);if(!t)return;const o=t.model;if(!o)return;const l=o.unhandledConflictsCount.read(e),u=l===1?g(9158,null,l):g(9159,null,l);n.clear(),n.push({class:void 0,enabled:l>0,id:"nextConflict",label:u,run(){t.model.telemetry.reportConflictCounterClicked(),t.goToNextModifiedBaseRange(b=>!o.isHandled(b).get())},tooltip:l>0?g(9160,null):g(9161,null)})})),this.B(G(this.editor,this.y)),this.B(V(this,(e,t)=>t.model.translateBaseRangeToResult(e))),this.B(s.createInstance(X,E.MergeInputResultToolbar,this.a.toolbar))}};x=T([R(1,k),R(2,H),R(3,W)],x);export{x as $xSb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { reset } from "../../../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../../../base/browser/ui/actionbar/actionbar.js";
+import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { CompareResult } from "../../../../../../base/common/arrays.js";
+import { BugIndicatingError } from "../../../../../../base/common/errors.js";
+import { toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived } from "../../../../../../base/common/observable.js";
+import { OverviewRulerLane } from "../../../../../../editor/common/model.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { MergeEditorLineRange } from "../../model/lineRange.js";
+import { applyObservableDecorations, join } from "../../utils.js";
+import { handledConflictMinimapOverViewRulerColor, unhandledConflictMinimapOverViewRulerColor } from "../colors.js";
+import { EditorGutter } from "../editorGutter.js";
+import { ctxIsMergeResultEditor } from "../../../common/mergeEditor.js";
+import { CodeEditorView, createSelectionsAutorun, TitleMenu } from "./codeEditorView.js";
+let ResultCodeEditorView = class ResultCodeEditorView2 extends CodeEditorView {
+  static {
+    __name(this, "ResultCodeEditorView");
+  }
+  constructor(viewModel, instantiationService, _labelService, configurationService) {
+    super(instantiationService, viewModel, configurationService);
+    this._labelService = _labelService;
+    this.decorations = derived(this, (reader) => {
+      const viewModel2 = this.viewModel.read(reader);
+      if (!viewModel2) {
+        return [];
+      }
+      const model = viewModel2.model;
+      const textModel = model.resultTextModel;
+      const result = new Array();
+      const baseRangeWithStoreAndTouchingDiffs = join(model.modifiedBaseRanges.read(reader), model.baseResultDiffs.read(reader), (baseRange, diff) => baseRange.baseRange.intersectsOrTouches(diff.inputRange) ? CompareResult.neitherLessOrGreaterThan : MergeEditorLineRange.compareByStart(baseRange.baseRange, diff.inputRange));
+      const activeModifiedBaseRange = viewModel2.activeModifiedBaseRange.read(reader);
+      const showNonConflictingChanges = viewModel2.showNonConflictingChanges.read(reader);
+      for (const m of baseRangeWithStoreAndTouchingDiffs) {
+        const modifiedBaseRange = m.left;
+        if (modifiedBaseRange) {
+          const blockClassNames = ["merge-editor-block"];
+          let blockPadding = [0, 0, 0, 0];
+          const isHandled = model.isHandled(modifiedBaseRange).read(reader);
+          if (isHandled) {
+            blockClassNames.push("handled");
+          }
+          if (modifiedBaseRange === activeModifiedBaseRange) {
+            blockClassNames.push("focused");
+            blockPadding = [0, 2, 0, 2];
+          }
+          if (modifiedBaseRange.isConflicting) {
+            blockClassNames.push("conflicting");
+          }
+          blockClassNames.push("result");
+          if (!modifiedBaseRange.isConflicting && !showNonConflictingChanges && isHandled) {
+            continue;
+          }
+          const range = model.getLineRangeInResult(modifiedBaseRange.baseRange, reader);
+          result.push({
+            range: range.toInclusiveRangeOrEmpty(),
+            options: {
+              showIfCollapsed: true,
+              blockClassName: blockClassNames.join(" "),
+              blockPadding,
+              blockIsAfterEnd: range.startLineNumber > textModel.getLineCount(),
+              description: "Result Diff",
+              minimap: {
+                position: 2,
+                color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
+              },
+              overviewRuler: modifiedBaseRange.isConflicting ? {
+                position: OverviewRulerLane.Center,
+                color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
+              } : void 0
+            }
+          });
+        }
+        if (!modifiedBaseRange || modifiedBaseRange.isConflicting) {
+          for (const diff of m.rights) {
+            const range = diff.outputRange.toInclusiveRange();
+            if (range) {
+              result.push({
+                range,
+                options: {
+                  className: `merge-editor-diff result`,
+                  description: "Merge Editor",
+                  isWholeLine: true
+                }
+              });
+            }
+            if (diff.rangeMappings) {
+              for (const d of diff.rangeMappings) {
+                result.push({
+                  range: d.outputRange,
+                  options: {
+                    className: `merge-editor-diff-word result`,
+                    description: "Merge Editor"
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+      return result;
+    });
+    this.editor.invokeWithinContext((accessor) => {
+      const contextKeyService = accessor.get(IContextKeyService);
+      const isMergeResultEditor = ctxIsMergeResultEditor.bindTo(contextKeyService);
+      isMergeResultEditor.set(true);
+      this._register(toDisposable(() => isMergeResultEditor.reset()));
+    });
+    this.htmlElements.gutterDiv.style.width = "5px";
+    this.htmlElements.root.classList.add(`result`);
+    this._register(autorunWithStore((reader, store) => {
+      if (this.checkboxesVisible.read(reader)) {
+        store.add(new EditorGutter(this.editor, this.htmlElements.gutterDiv, {
+          getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader2) => [], "getIntersectingGutterItems"),
+          createView: /* @__PURE__ */ __name((item, target) => {
+            throw new BugIndicatingError();
+          }, "createView")
+        }));
+      }
+    }));
+    this._register(autorun((reader) => {
+      const vm = this.viewModel.read(reader);
+      if (!vm) {
+        return;
+      }
+      this.editor.setModel(vm.model.resultTextModel);
+      reset(this.htmlElements.title, ...renderLabelWithIcons(localize("result", "Result")));
+      reset(this.htmlElements.description, ...renderLabelWithIcons(this._labelService.getUriLabel(vm.model.resultTextModel.uri, { relative: true })));
+    }));
+    const remainingConflictsActionBar = this._register(new ActionBar(this.htmlElements.detail));
+    this._register(autorun((reader) => {
+      const vm = this.viewModel.read(reader);
+      if (!vm) {
+        return;
+      }
+      const model = vm.model;
+      if (!model) {
+        return;
+      }
+      const count = model.unhandledConflictsCount.read(reader);
+      const text = count === 1 ? localize("mergeEditor.remainingConflicts", "{0} Conflict Remaining", count) : localize("mergeEditor.remainingConflict", "{0} Conflicts Remaining ", count);
+      remainingConflictsActionBar.clear();
+      remainingConflictsActionBar.push({
+        class: void 0,
+        enabled: count > 0,
+        id: "nextConflict",
+        label: text,
+        run() {
+          vm.model.telemetry.reportConflictCounterClicked();
+          vm.goToNextModifiedBaseRange((m) => !model.isHandled(m).get());
+        },
+        tooltip: count > 0 ? localize("goToNextConflict", "Go to next conflict") : localize("allConflictHandled", "All conflicts handled, the merge can be completed now.")
+      });
+    }));
+    this._register(applyObservableDecorations(this.editor, this.decorations));
+    this._register(createSelectionsAutorun(this, (baseRange, viewModel2) => viewModel2.model.translateBaseRangeToResult(baseRange)));
+    this._register(instantiationService.createInstance(TitleMenu, MenuId.MergeInputResultToolbar, this.htmlElements.toolbar));
+  }
+};
+ResultCodeEditorView = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ILabelService),
+  __param(3, IConfigurationService)
+], ResultCodeEditorView);
+export {
+  ResultCodeEditorView
+};
+//# sourceMappingURL=resultCodeEditorView.js.map

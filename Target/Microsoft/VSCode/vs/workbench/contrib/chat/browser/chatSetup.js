@@ -1,1 +1,1307 @@
-import"./media/chatSetup.css";import{$ as Ce}from"../../../../base/browser/dom.js";import{$79 as We,DialogContentsAlignment as Ne}from"../../../../base/browser/ui/dialog/dialog.js";import{$Mh as Be}from"../../../../base/common/async.js";import{$Mj as ue}from"../../../../base/common/codicons.js";import{$gm as fe}from"../../../../base/common/errorMessage.js";import{$pb as ye}from"../../../../base/common/errors.js";import{$df as Se,Event as k}from"../../../../base/common/event.js";import{$Uj as P}from"../../../../base/common/htmlContent.js";import{$vf as Fe}from"../../../../base/common/lazy.js";import{$vd as ne,$ud as N,$od as Ae,$wd as se}from"../../../../base/common/lifecycle.js";import _ from"../../../../base/common/severity.js";import{$0e as Ve}from"../../../../base/common/stopwatch.js";import{$5f as je}from"../../../../base/common/strings.js";import{$1c as ze}from"../../../../base/common/types.js";import{URI as ce}from"../../../../base/common/uri.js";import{$vhb as _e}from"../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";import{localize as d,localize2 as S}from"../../../../nls.js";import{$CI as F,$xI as K,$DI as V}from"../../../../platform/actions/common/actions.js";import{$Zn as M}from"../../../../platform/commands/common/commands.js";import{$Fl as ie}from"../../../../platform/configuration/common/configuration.js";import{$Tl as Me}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Cn as A}from"../../../../platform/contextkey/common/contextkey.js";import{$D5b as Oe}from"../../../../platform/dialogs/browser/dialog.js";import{$bp as he}from"../../../../platform/dialogs/common/dialogs.js";import{$mj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$ux as Ee}from"../../../../platform/keybinding/common/keybinding.js";import{$Rhb as He}from"../../../../platform/layout/browser/layoutService.js";import{$4n as Q}from"../../../../platform/log/common/log.js";import{$i_ as q}from"../../../../platform/opener/common/opener.js";import g from"../../../../platform/product/common/product.js";import{$on as De}from"../../../../platform/product/common/productService.js";import{$eJ as Ge}from"../../../../platform/progress/common/progress.js";import{$PM as Qe}from"../../../../platform/quickinput/common/quickInput.js";import{$Rl as Je}from"../../../../platform/registry/common/platform.js";import{$Ro as j}from"../../../../platform/telemetry/common/telemetry.js";import{$TM as Ke}from"../../../../platform/workspace/common/workspaceTrust.js";import{$ZM as Ze}from"../../../common/views.js";import{$2xb as Xe,$5xb as qe}from"../../../services/activity/common/activity.js";import{$GX as Ye}from"../../../services/authentication/common/authentication.js";import{$q1b as et}from"../../../services/extensions/browser/extensionUrlHandler.js";import{$WO as oe}from"../../../services/extensions/common/extensions.js";import{$m_ as tt}from"../../../services/host/browser/host.js";import{$tub as X}from"../../../services/layout/browser/layoutService.js";import{$_K as Ue}from"../../../services/lifecycle/common/lifecycle.js";import{$8wb as Y}from"../../../services/views/common/viewsService.js";import{$fQ as Re,ToolDataSource as nt}from"../../chat/common/languageModelToolsService.js";import{$tDb as it}from"../../extensions/common/extensions.js";import{$jT as ae}from"../common/chatAgents.js";import{ChatContextKeys as v}from"../common/chatContextKeys.js";import{ChatEntitlement as U,$TDb as H,$QDb as ge,$RDb as ee}from"../common/chatEntitlementService.js";import{$0S as Ie}from"../common/chatModel.js";import{$XS as le,$VS as Z}from"../common/chatParserTypes.js";import{$MS as rt}from"../common/chatService.js";import{ChatAgentLocation as $,ChatConfiguration as st,ChatModeKind as E,$oO as ot}from"../common/constants.js";import{$9O as at}from"../common/languageModels.js";import{$gEb as Pe,$jEb as lt,$kEb as x}from"./actions/chatActions.js";import{$2Wb as Te,$VWb as dt,$XWb as pe}from"./chat.js";import{$cEb as ut}from"./chatViewPane.js";import{$7b as $e}from"../../../../base/common/arrays.js";import{ChatMode as de}from"../common/chatModes.js";import{$HW as ct}from"../../../services/environment/common/environmentService.js";var te=function(c,e,t,n){var i=arguments.length,r=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,e,t,n);else for(var o=c.length-1;o>=0;o--)(s=c[o])&&(r=(i<3?s(r):i>3?s(e,t,r):s(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},u=function(c,e){return function(t,n){e(t,n,c)}},L,z;const l={extensionId:g.defaultChatAgent?.extensionId??"",chatExtensionId:g.defaultChatAgent?.chatExtensionId??"",documentationUrl:g.defaultChatAgent?.documentationUrl??"",skusDocumentationUrl:g.defaultChatAgent?.skusDocumentationUrl??"",publicCodeMatchesUrl:g.defaultChatAgent?.publicCodeMatchesUrl??"",manageOveragesUrl:g.defaultChatAgent?.manageOverageUrl??"",upgradePlanUrl:g.defaultChatAgent?.upgradePlanUrl??"",signUpUrl:g.defaultChatAgent?.signUpUrl??"",providerName:g.defaultChatAgent?.providerName??"",enterpriseProviderId:g.defaultChatAgent?.enterpriseProviderId??"",enterpriseProviderName:g.defaultChatAgent?.enterpriseProviderName??"",alternativeProviderId:g.defaultChatAgent?.alternativeProviderId??"",alternativeProviderName:g.defaultChatAgent?.alternativeProviderName??"",providerUriSetting:g.defaultChatAgent?.providerUriSetting??"",providerScopes:g.defaultChatAgent?.providerScopes??[[]],manageSettingsUrl:g.defaultChatAgent?.manageSettingsUrl??"",completionsAdvancedSetting:g.defaultChatAgent?.completionsAdvancedSetting??"",walkthroughCommand:g.defaultChatAgent?.walkthroughCommand??"",completionsRefreshTokenCommand:g.defaultChatAgent?.completionsRefreshTokenCommand??"",chatRefreshTokenCommand:g.defaultChatAgent?.chatRefreshTokenCommand??""},ht=A.and(A.equals(`config.${st.AgentEnabled}`,!0),A.not("previewFeaturesDisabled"));let W=class extends ne{static{L=this}static registerDefaultAgents(e,t,n,i,r){return e.invokeFunction(s=>{const o=s.get(ae);let a,h=de.Ask.description.get();switch(t){case $.Panel:n===E.Ask?a="setup.chat":n===E.Edit?(a="setup.edits",h=de.Edit.description.get()):(a="setup.agent",h=de.Agent.description.get());break;case $.Terminal:a="setup.terminal";break;case $.Editor:a="setup.editor";break;case $.Notebook:a="setup.notebook";break}return L.a(e,o,a,`${l.providerName} Copilot`,!0,h,t,n,i,r)})}static registerVSCodeAgent(e,t,n){return e.invokeFunction(i=>{const r=i.get(ae),s=new N,{agent:o,disposable:a}=L.a(e,r,"setup.vscode","vscode",!1,S(5494,"Ask questions about VS Code").value,$.Panel,void 0,t,n);return s.add(a),s.add(ve.registerTool(e,{id:"setup.tools.createNewWorkspace",source:nt.Internal,icon:ue.newFolder,displayName:d(5454,null),modelDescription:d(5455,null),userDescription:d(5456,null),canBeReferencedInPrompt:!0,toolReferenceName:"new",when:A.true()}).disposable),{agent:o,disposable:s}})}static a(e,t,n,i,r,s,o,a,h,y){const b=new N;b.add(t.registerAgent(n,{id:n,name:i,isDefault:r,isCore:!0,modes:a?[a]:[E.Ask],when:a===E.Agent?ht?.serialize():void 0,slashCommands:[],disambiguation:[],locations:[o],metadata:{helpTextPrefix:L.b},description:s,extensionId:oe.identifier,extensionDisplayName:oe.name,extensionPublisherId:oe.publisher}));const C=b.add(e.createInstance(L,h,y,o));return b.add(t.registerAgentImplementation(n,C)),a===E.Agent&&t.updateAgent(n,{themeIcon:ue.tools}),{agent:C,disposable:b}}static{this.b=new P(d(5457,null))}constructor(e,t,n,i,r,s,o,a){super(),this.g=e,this.h=t,this.j=n,this.m=i,this.n=r,this.s=s,this.t=o,this.u=a,this.c=this.B(new Se),this.onUnresolvableError=this.c.event,this.f=new Map}async invoke(e,t){return this.m.invokeFunction(async n=>{const i=n.get(rt),r=n.get(at),s=n.get(dt),o=n.get(ae),a=n.get(Re);return this.w(e,h=>t([h]),i,r,s,o,a)})}async w(e,t,n,i,r,s,o){return!this.g.state.installed||this.g.state.disabled||this.g.state.untrusted||this.g.state.entitlement===U.Available||this.g.state.entitlement===U.Unknown?this.J(e,t,n,i,r,s,o):this.y(e,t,n,i,r,s,o)}async y(e,t,n,i,r,s,o){const a=r.getWidgetBySessionId(e.sessionId)?.viewModel?.model.getRequests().at(-1);return a?(t({kind:"progressMessage",content:new P(d(5458,null))}),await this.z(a,t,n,i,s,r,o),{}):(this.n.error("[chat setup] Request model not found, cannot redispatch request."),{})}async z(e,t,n,i,r,s,o){try{await this.C(e,t,n,i,r,s,o)}catch{t({kind:"warning",content:new P(d(5459,null))})}}async C(e,t,n,i,r,s,o){if(this.f.has(e.session.sessionId))throw new Error("Request already in progress");const a=this.D(e,t,n,i,r,s,o);this.f.set(e.session.sessionId,a);try{await a}finally{this.f.delete(e.session.sessionId)}}async D(e,t,n,i,r,s,o){const a=s.getWidgetBySessionId(e.session.sessionId),h=a?.input.currentModeKind,y=a?.input.currentLanguageModel,b=this.H(r,h),C=this.F(i),I=this.G(o,e);if(C instanceof Promise||b instanceof Promise||I instanceof Promise){const p=setTimeout(()=>{t({kind:"progressMessage",content:new P(d(5460,null))})},1e4);try{const f=await Promise.race([Be(this.u.remoteAuthority?6e4:2e4).then(()=>"timedout"),this.I(n).then(()=>"error"),Promise.allSettled([C,b,I])]);if(f==="error"||f==="timedout"){let w;f==="timedout"?w=d(5461,null,l.providerName,l.chatExtensionId):w=d(5462,null,l.providerName,l.chatExtensionId),t({kind:"warning",content:new P(w)}),this.c.fire();return}}finally{clearTimeout(p)}}await n.resendRequest(e,{mode:h,userSelectedModelId:y,userSelectedTools:a?.getUserSelectedTools()})}F(e){for(const t of e.getLanguageModelIds()){const n=e.lookupLanguageModel(t);if(n&&n.isDefault)return}return k.toPromise(k.filter(e.onDidChangeLanguageModels,t=>t.added?.some(n=>n.metadata.isDefault)??!1))}G(e,t){if(t.message.parts.some(i=>i instanceof Z)){for(const i of e.getTools())if(i.source.type!=="internal")return;return k.toPromise(k.filter(e.onDidChangeTools,()=>{for(const i of e.getTools())if(i.source.type!=="internal")return!0;return!1}))}}H(e,t){const n=e.getDefaultAgent(this.j,t);if(!(n&&!n.isCore))return k.toPromise(k.filter(e.onDidChangeAgents,()=>{const i=e.getDefaultAgent(this.j,t);return!!(i&&!i.isCore)}))}async I(e){return new Promise(t=>{e.activateDefaultAgent(this.j).catch(()=>t())})}async J(e,t,n,i,r,s,o){this.t.publicLog2("workbenchActionExecuted",{id:x,from:"chat"});const a=r.getWidgetBySessionId(e.sessionId),h=a?.viewModel?.model.getRequests().at(-1),y=k.runAndSubscribe(this.h.value.onDidChange,()=>{switch(this.h.value.step){case D.SigningIn:t({kind:"progressMessage",content:new P(d(5463,null,H.providerId(this.s)===l.enterpriseProviderId?l.enterpriseProviderName:l.providerName))});break;case D.Installing:t({kind:"progressMessage",content:new P(d(5464,null))});break}});let b;try{b=await G.getInstance(this.m,this.g,this.h).run({disableChatViewReveal:!0})}catch(C){this.n.error(`[chat setup] Error during setup: ${fe(C)}`)}finally{y.dispose()}if(typeof b?.success=="boolean")if(b.success){if(b.dialogSkipped)a?.clear();else if(h){let C=this.L(h,s);C=this.M(C),await this.z(C,t,n,i,s,r,o)}}else t({kind:"warning",content:new P(d(5465,null))});else t({kind:"markdownContent",content:L.b});return{}}L(e,t){const n=e.message.parts.find(o=>o instanceof le);if(!n)return e;const i=n.agent.id.replace(/setup\./,`${l.extensionId}.`.toLowerCase()),r=t.getAgent(i);if(!r)return e;const s=new le(n.range,n.editorRange,r);return new Ie({session:e.session,message:{parts:e.message.parts.map(o=>o instanceof le?s:o),text:e.message.text},variableData:e.variableData,timestamp:Date.now(),attempt:e.attempt,confirmation:e.confirmation,locationData:e.locationData,attachedContext:e.attachedContext,isCompleteAddedRequest:e.isCompleteAddedRequest})}M(e){const t=e.message.parts.find(o=>o instanceof Z);if(!t)return e;const n=t.toolId.replace(/setup.tools\./,"copilot_".toLowerCase()),i=new Z(t.range,t.editorRange,t.toolName,n,t.displayName,t.icon),r={id:n,name:"new",range:t.range,kind:"tool",value:void 0},s={variables:[r]};return new Ie({session:e.session,message:{parts:e.message.parts.map(o=>o instanceof Z?i:o),text:e.message.text},variableData:s,timestamp:Date.now(),attempt:e.attempt,confirmation:e.confirmation,locationData:e.locationData,attachedContext:[r],isCompleteAddedRequest:e.isCompleteAddedRequest})}};W=L=te([u(3,O),u(4,Q),u(5,ie),u(6,j),u(7,ct)],W);class ve extends ne{static registerTool(e,t){return e.invokeFunction(n=>{const i=n.get(Re),r=new N;r.add(i.registerToolData(t));const s=e.createInstance(ve);return r.add(i.registerToolImplementation(t.id,s)),{tool:s,disposable:r}})}async invoke(e,t,n,i){return{content:[{kind:"text",value:""}]}}async prepareToolInvocation(e,t){}}var m;(function(c){c[c.Canceled=0]="Canceled",c[c.DefaultSetup=1]="DefaultSetup",c[c.SetupWithoutEnterpriseProvider=2]="SetupWithoutEnterpriseProvider",c[c.SetupWithEnterpriseProvider=3]="SetupWithEnterpriseProvider",c[c.SetupWithAccountCreate=4]="SetupWithAccountCreate",c[c.SetupWithAlternateProvider=5]="SetupWithAlternateProvider"})(m||(m={}));let G=class{static{z=this}static{this.a=void 0}static getInstance(e,t,n){let i=z.a;return i||(i=z.a=e.invokeFunction(r=>new z(t,n,e,r.get(j),r.get(X),r.get(Ee),r.get(ge),r.get(Q),r.get(ie),r.get(Y),r.get(q)))),i}constructor(e,t,n,i,r,s,o,a,h,y,b){this.d=e,this.f=t,this.g=n,this.h=i,this.i=r,this.j=s,this.k=o,this.l=a,this.m=h,this.n=y,this.o=b,this.b=void 0,this.c=!1}skipDialog(){this.c=!0}async run(e){if(this.b)return this.b;this.b=this.p(e);try{return await this.b}finally{this.b=void 0}}async p(e){this.d.update({later:!1});const t=this.c;this.c=!1;let n;t||ee(this.k.entitlement)||this.k.entitlement===U.Free?n=m.DefaultSetup:n=await this.q(),n===m.DefaultSetup&&H.providerId(this.m)===l.enterpriseProviderId&&(n=m.SetupWithEnterpriseProvider),n!==m.Canceled&&!e?.disableChatViewReveal&&pe(this.n,this.i);let i;try{switch(n){case m.SetupWithEnterpriseProvider:i=await this.f.value.setupWithProvider({useEnterpriseProvider:!0,useAlternateProvider:!1});break;case m.SetupWithoutEnterpriseProvider:i=await this.f.value.setupWithProvider({useEnterpriseProvider:!1,useAlternateProvider:!1});break;case m.SetupWithAlternateProvider:i=await this.f.value.setupWithProvider({useEnterpriseProvider:!1,useAlternateProvider:!0});break;case m.DefaultSetup:i=await this.f.value.setup();break;case m.SetupWithAccountCreate:return this.o.open(ce.parse(l.signUpUrl)),this.p(e);case m.Canceled:this.d.update({later:!0}),this.h.publicLog2("commandCenter.chatInstall",{installResult:"failedMaybeLater",installDuration:0,signUpErrorCode:void 0});break}}catch(r){this.l.error(`[chat setup] Error during setup: ${fe(r)}`),i=!1}return{success:i,dialogSkipped:t}}async q(){const e=new N,t=this.m.getValue("chat.setup.signInDialogVariant"),n=this.s(t),i=e.add(new We(this.i.activeContainer,this.t(),n.map(s=>s[0]),Oe({type:"none",extraClasses:["chat-setup-dialog"],detail:" ",icon:ue.copilotLarge,alignment:Ne.Vertical,cancelId:n.length-1,disableCloseButton:!0,renderFooter:this.h.telemetryLevel!==0?s=>s.appendChild(this.u(e)):void 0,buttonOptions:n.map(s=>s[2])},this.j,this.i))),{button:r}=await i.show();return e.dispose(),n[r]?.[1]??m.Canceled}s(e){let t;if(this.d.state.entitlement===U.Unknown){let n="off";if(l.alternativeProviderId)switch(this.m.getValue("chat.setup.signInWithAlternateProvider")&&(n="colorful"),e){case"alternate-first":n="first";break;case"alternate-color":n="colorful";break;case"alternate-monochrome":n="monochrome";break}H.providerId(this.m)===l.enterpriseProviderId?t=$e([[d(5466,null,l.enterpriseProviderName),m.SetupWithEnterpriseProvider,{styleButton:i=>i.element.classList.add("continue-button","default")}],n!=="off"?[d(5467,null,l.alternativeProviderName),m.SetupWithAlternateProvider,{styleButton:i=>i.element.classList.add("continue-button","alternate",n)}]:void 0,[d(5468,null,l.providerName),m.SetupWithoutEnterpriseProvider,{styleButton:i=>i.element.classList.add("link-button")}]]):t=$e([[d(5469,null,l.providerName),m.SetupWithoutEnterpriseProvider,{styleButton:i=>i.element.classList.add("continue-button","default")}],n!=="off"?[d(5470,null,l.alternativeProviderName),m.SetupWithAlternateProvider,{styleButton:i=>i.element.classList.add("continue-button","alternate",n)}]:void 0,[d(5471,null,l.enterpriseProviderName),m.SetupWithEnterpriseProvider,{styleButton:i=>i.element.classList.add("link-button")}]]),n==="first"&&([t[0],t[1]]=[t[1],t[0]])}else t=[[d(5472,null),m.DefaultSetup,void 0]];return t.push([d(5473,null),m.Canceled,{styleButton:n=>n.element.classList.add("link-button","skip-button")}]),t}t(){return this.d.state.entitlement===U.Unknown?d(5474,null):d(5475,null)}u(e){const t=Ce(".chat-setup-dialog-footer"),n=this.g.createInstance(_e,{}),i=d(5476,null,l.providerName,l.publicCodeMatchesUrl,l.manageSettingsUrl);return t.appendChild(Ce("p",void 0,e.add(n.render(new P(i,{isTrusted:!0}))).element)),t}};G=z=te([u(2,O),u(3,j),u(4,He),u(5,Ee),u(6,ge),u(7,Q),u(8,ie),u(9,Y),u(10,q)],G);let ke=class extends ne{static{this.ID="workbench.contrib.chatSetup"}constructor(e,t,n,i,r,s){super(),this.a=e,this.b=t,this.c=n,this.f=i,this.g=s;const o=r.context?.value,a=r.requests?.value;if(!o||!a)return;const h=new Fe(()=>this.B(this.b.createInstance(me,o,a)));this.h(o,h),this.j(o,a,h),this.m()}h(e,t){const n=Ae(new se),i=Ae(new se),r=()=>{if(!e.state.hidden&&!e.state.disabled){if(!n.value){const s=n.value=new N,o=s.add(new N);for(const a of[E.Ask,E.Edit,E.Agent]){const{agent:h,disposable:y}=W.registerDefaultAgents(this.b,$.Panel,a,e,t);o.add(y),o.add(h.onUnresolvableError(()=>{this.g.error("[chat setup] Unresolvable error from Copilot agent registration, clearing registration."),o.dispose()}))}s.add(W.registerDefaultAgents(this.b,$.Terminal,void 0,e,t).disposable),s.add(W.registerDefaultAgents(this.b,$.Notebook,void 0,e,t).disposable),s.add(W.registerDefaultAgents(this.b,$.Editor,void 0,e,t).disposable)}!(e.state.installed&&!e.state.disabled)&&!i.value&&(i.value=new N).add(W.registerVSCodeAgent(this.b,e,t).disposable)}else n.clear(),i.clear();e.state.installed&&!e.state.disabled&&i.clear()};this.B(k.runAndSubscribe(e.onDidChange,()=>r()))}j(e,t,n){const i=A.or(v.Setup.installed.negate(),v.Entitlement.canSignUp),r=S(5495,"Use AI Features with Copilot for free...");class s extends F{constructor(){super({id:x,title:r,category:Pe,f1:!0,precondition:i})}async run(p,f){const w=p.get(Y),R=p.get(X),T=p.get(O),B=p.get(he),J=p.get(M),re=p.get(Ue);await e.update({hidden:!1}),f&&(await pe(w,R))?.input.setChatMode(f);const xe=G.getInstance(T,e,n),{success:be}=await xe.run();if(be===!1&&!re.willShutdown){const{confirmed:we}=await B.confirm({type:_.Error,message:d(5477,null),primaryButton:d(5478,null)});if(we)return!!await J.executeCommand(x)}return!!be}}class o extends F{constructor(){super({id:"workbench.action.chat.triggerSetupWithoutDialog",title:r,precondition:i})}async run(p){const f=p.get(Y),w=p.get(X),R=p.get(O);await e.update({hidden:!1});const T=await pe(f,w);G.getInstance(R,e,n).skipDialog(),T?.acceptInput(d(5479,null))}}class a extends F{constructor(){super({id:"workbench.action.chat.triggerSetupFromAccounts",title:S(5496,"Sign in to use Copilot..."),menu:{id:K.AccountsContext,group:"2_copilot",when:A.and(v.Setup.hidden.negate(),v.Setup.installed.negate(),v.Entitlement.signedOut)}})}async run(p){const f=p.get(M);return p.get(j).publicLog2("workbenchActionExecuted",{id:x,from:"accounts"}),f.executeCommand(x)}}class h extends F{static{this.ID="workbench.action.chat.hideSetup"}static{this.TITLE=S(5497,"Hide Copilot")}constructor(){super({id:h.ID,title:h.TITLE,f1:!0,category:Pe,precondition:A.and(v.Setup.installed.negate(),v.Setup.hidden.negate()),menu:{id:K.ChatTitleBarMenu,group:"z_hide",order:1,when:v.Setup.installed.negate()}})}async run(p){const f=p.get(Ze),w=p.get(X),R=p.get(he),{confirmed:T}=await R.confirm({message:d(5480,null),detail:d(5481,null,r.value),primaryButton:d(5482,null)});if(!T)return;const B=f.getViewLocationById(Te);await e.update({hidden:!0}),B===2&&f.getViewContainersByLocation(B).filter(re=>f.getViewContainerModel(re).activeViewDescriptors.length>0).length===0&&w.setPartHidden(!0,"workbench.parts.auxiliarybar")}}const y=this.B(new se);class b extends F{constructor(){super({id:"workbench.action.chat.upgradePlan",title:S(5498,"Upgrade to Copilot Pro"),category:S(5499,"Chat"),f1:!0,precondition:A.or(v.Entitlement.canSignUp,v.Entitlement.free),menu:{id:K.ChatTitleBarMenu,group:"a_first",order:1,when:A.and(v.Entitlement.free,A.or(v.chatQuotaExceeded,v.completionsQuotaExceeded))}})}async run(p,f){const w=p.get(q),R=p.get(tt),T=p.get(M);w.open(ce.parse(l.upgradePlanUrl));const B=e.state.entitlement;ee(B)||(y.value=R.onDidChangeFocus(J=>this.a(J,T)))}async a(p,f){if(p){y.clear();const w=await t.forceResolveEntitlement(void 0);w?.entitlement&&ee(w?.entitlement)&&Le(f)}}}class C extends F{constructor(){super({id:"workbench.action.chat.manageOverages",title:S(5500,"Manage Copilot Overages"),category:S(5501,"Chat"),f1:!0,precondition:A.or(v.Entitlement.pro,v.Entitlement.proPlus),menu:{id:K.ChatTitleBarMenu,group:"a_first",order:1,when:A.and(A.or(v.Entitlement.pro,v.Entitlement.proPlus),A.or(v.chatQuotaExceeded,v.completionsQuotaExceeded))}})}async run(p,f){p.get(q).open(ce.parse(l.manageOveragesUrl))}}V(s),V(a),V(o),V(h),V(b),V(C)}m(){this.B(et.registerHandler({canHandleURL:e=>e.scheme===this.a.urlProtocol&&je(e.authority,l.chatExtensionId),handleURL:async e=>{const t=new URLSearchParams(e.query);return this.f.publicLog2("workbenchActionExecuted",{id:x,from:"url",detail:t.get("referrer")??void 0}),await this.c.executeCommand(x,ot(t.get("mode"))),!0}}))}};ke=te([u(0,De),u(1,O),u(2,M),u(3,j),u(4,ge),u(5,Q)],ke);var D;(function(c){c[c.Initial=1]="Initial",c[c.SigningIn=2]="SigningIn",c[c.Installing=3]="Installing"})(D||(D={}));let me=class extends ne{get step(){return this.b}constructor(e,t,n,i,r,s,o,a,h,y,b,C,I,p,f){super(),this.c=e,this.f=t,this.g=n,this.h=i,this.j=r,this.m=s,this.n=o,this.s=a,this.t=h,this.u=y,this.w=b,this.y=C,this.z=I,this.C=p,this.D=f,this.a=this.B(new Se),this.onDidChange=this.a.event,this.b=D.Initial,this.F()}F(){this.B(this.c.onDidChange(()=>this.a.fire()))}G(e){this.b!==e&&(this.b=e,this.a.fire())}async setup(e){const t=new Ve(!1),n=d(5483,null),i=this.t.showViewContainerActivity(ut,{badge:new qe(()=>n)});try{return await this.s.withProgress({location:10,command:lt,title:n},()=>this.H(e??{},t))}finally{i.dispose()}}async H(e,t){this.c.suspend();let n=!1;try{const i=H.providerId(this.z);let r,s;const o=this.M();if(this.c.state.entitlement===U.Unknown||e.forceSignIn){this.G(D.SigningIn);const h=await this.I({useAlternateProvider:e.useAlternateProvider});if(!h.session){this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedNotSignedIn",installDuration:t.elapsed(),signUpErrorCode:void 0});return}r=h.session,s=h.entitlement}if(!await this.w.requestWorkspaceTrust({message:d(5484,null)}))return this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedNotTrusted",installDuration:t.elapsed(),signUpErrorCode:void 0}),!1;this.G(D.Installing),n=await this.J(r,s??this.c.state.entitlement,i,t,o)}finally{this.G(D.Initial),this.c.resume()}return n}async I(e){let t,n;try{({session:t,entitlements:n}=await this.f.signIn(e))}catch(i){this.n.error(`[chat setup] signIn: error ${i}`)}if(!t&&!this.C.willShutdown){const{confirmed:i}=await this.y.confirm({type:_.Error,message:d(5485,null,e?.useAlternateProvider?l.alternativeProviderName:H.providerId(this.z)===l.enterpriseProviderId?l.enterpriseProviderName:l.providerName),detail:d(5486,null),primaryButton:d(5487,null)});if(i)return this.I(e)}return{session:t,entitlement:n?.entitlement}}async J(e,t,n,i,r){const s=this.c.state.installed&&!this.c.state.disabled;let o;try{if(t!==U.Free&&!ee(t)&&t!==U.Unavailable){if(!e){try{e=(await this.h.getSessions(n)).at(0)}catch{}if(!e)return this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedNoSession",installDuration:i.elapsed(),signUpErrorCode:void 0}),!1}o=await this.f.signUpFree(e),typeof o!="boolean"&&this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedSignUp",installDuration:i.elapsed(),signUpErrorCode:o.errorCode})}await this.L(r)}catch(a){return this.n.error(`[chat setup] install: error ${a}`),this.g.publicLog2("commandCenter.chatInstall",{installResult:ye(a)?"cancelled":"failedInstall",installDuration:i.elapsed(),signUpErrorCode:void 0}),!1}return typeof o=="boolean"&&this.g.publicLog2("commandCenter.chatInstall",{installResult:s&&!o?"alreadyInstalled":"installed",installDuration:i.elapsed(),signUpErrorCode:void 0}),s&&o===!0&&Le(this.u),!0}async L(e){let t;try{await e}catch(n){this.n.error(`[chat setup] install: error ${t}`),t=n}if(t){if(!this.C.willShutdown){const{confirmed:n}=await this.y.confirm({type:_.Error,message:d(5488,null),detail:t&&!ye(t)?fe(t):void 0,primaryButton:d(5489,null)});if(n)return this.L(this.M())}throw t}}async M(){await this.j.install(l.extensionId,{enable:!0,isApplicationScoped:!0,isMachineScoped:!1,installEverywhere:!0,installPreReleaseVersion:this.m.quality!=="stable"},Te)}async setupWithProvider(e){if(Je.as(Me.Configuration).registerConfiguration({id:"copilot.setup",type:"object",properties:{[l.completionsAdvancedSetting]:{type:"object",properties:{authProvider:{type:"string"}}},[l.providerUriSetting]:{type:"string"}}}),e.useEnterpriseProvider){const i=await this.N();if(!i)return i}let n=this.z.inspect(l.completionsAdvancedSetting).user?.value;return ze(n)||(n={}),e.useEnterpriseProvider?await this.z.updateValue(`${l.completionsAdvancedSetting}`,{...n,authProvider:l.enterpriseProviderId},2):await this.z.updateValue(`${l.completionsAdvancedSetting}`,Object.keys(n).length>0?{...n,authProvider:void 0}:void 0,2),this.setup({...e,forceSignIn:!0})}async N(){const e=/^[a-zA-Z\-_]+$/,t=/^(https:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.ghe\.com\/?$/,n=this.z.getValue(l.providerUriSetting);if(typeof n=="string"&&t.test(n))return!0;let i=!1;const r=await this.D.input({prompt:d(5490,null,l.enterpriseProviderName),placeHolder:d(5491,null),ignoreFocusLost:!0,value:n,validateInput:async o=>{if(i=!1,!!o){if(e.test(o))return i=!0,{content:d(5492,null,`https://${o}.ghe.com`),severity:_.Info};if(!t.test(o))return{content:d(5493,null,l.enterpriseProviderName),severity:_.Error}}}});if(!r)return;let s=r;return i?s=`https://${s}.ghe.com`:r.toLowerCase().startsWith("https://")||(s=`https://${r}`),await this.z.updateValue(l.providerUriSetting,s,2),!0}};me=te([u(2,j),u(3,Ye),u(4,it),u(5,De),u(6,Q),u(7,Ge),u(8,Xe),u(9,M),u(10,Ke),u(11,he),u(12,ie),u(13,Ue),u(14,Qe)],me);function Le(c){c.executeCommand(l.completionsRefreshTokenCommand),c.executeCommand(l.chatRefreshTokenCommand)}export{ke as $dhc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SetupAgent_1, ChatSetup_1;
+import "./media/chatSetup.css";
+import { $ } from "../../../../base/browser/dom.js";
+import { Dialog, DialogContentsAlignment } from "../../../../base/browser/ui/dialog/dialog.js";
+import { timeout } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, DisposableStore, markAsSingleton, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { equalsIgnoreCase } from "../../../../base/common/strings.js";
+import { isObject } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { createWorkbenchDialogOptions } from "../../../../platform/dialogs/browser/dialog.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import product from "../../../../platform/product/common/product.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IActivityService, ProgressBadge } from "../../../services/activity/common/activity.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { ExtensionUrlHandlerOverrideRegistry } from "../../../services/extensions/browser/extensionUrlHandler.js";
+import { nullExtensionDescription } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ILanguageModelToolsService, ToolDataSource } from "../../chat/common/languageModelToolsService.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+import { IChatAgentService } from "../common/chatAgents.js";
+import { ChatContextKeys } from "../common/chatContextKeys.js";
+import { ChatEntitlement, ChatEntitlementRequests, IChatEntitlementService, isProUser } from "../common/chatEntitlementService.js";
+import { ChatRequestModel } from "../common/chatModel.js";
+import { ChatRequestAgentPart, ChatRequestToolPart } from "../common/chatParserTypes.js";
+import { IChatService } from "../common/chatService.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind, validateChatMode } from "../common/constants.js";
+import { ILanguageModelsService } from "../common/languageModels.js";
+import { CHAT_CATEGORY, CHAT_OPEN_ACTION_ID, CHAT_SETUP_ACTION_ID } from "./actions/chatActions.js";
+import { ChatViewId, IChatWidgetService, showCopilotView } from "./chat.js";
+import { CHAT_SIDEBAR_PANEL_ID } from "./chatViewPane.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { ChatMode } from "../common/chatModes.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+const defaultChat = {
+  extensionId: product.defaultChatAgent?.extensionId ?? "",
+  chatExtensionId: product.defaultChatAgent?.chatExtensionId ?? "",
+  documentationUrl: product.defaultChatAgent?.documentationUrl ?? "",
+  skusDocumentationUrl: product.defaultChatAgent?.skusDocumentationUrl ?? "",
+  publicCodeMatchesUrl: product.defaultChatAgent?.publicCodeMatchesUrl ?? "",
+  manageOveragesUrl: product.defaultChatAgent?.manageOverageUrl ?? "",
+  upgradePlanUrl: product.defaultChatAgent?.upgradePlanUrl ?? "",
+  signUpUrl: product.defaultChatAgent?.signUpUrl ?? "",
+  providerName: product.defaultChatAgent?.providerName ?? "",
+  enterpriseProviderId: product.defaultChatAgent?.enterpriseProviderId ?? "",
+  enterpriseProviderName: product.defaultChatAgent?.enterpriseProviderName ?? "",
+  alternativeProviderId: product.defaultChatAgent?.alternativeProviderId ?? "",
+  alternativeProviderName: product.defaultChatAgent?.alternativeProviderName ?? "",
+  providerUriSetting: product.defaultChatAgent?.providerUriSetting ?? "",
+  providerScopes: product.defaultChatAgent?.providerScopes ?? [[]],
+  manageSettingsUrl: product.defaultChatAgent?.manageSettingsUrl ?? "",
+  completionsAdvancedSetting: product.defaultChatAgent?.completionsAdvancedSetting ?? "",
+  walkthroughCommand: product.defaultChatAgent?.walkthroughCommand ?? "",
+  completionsRefreshTokenCommand: product.defaultChatAgent?.completionsRefreshTokenCommand ?? "",
+  chatRefreshTokenCommand: product.defaultChatAgent?.chatRefreshTokenCommand ?? ""
+};
+const ToolsAgentContextKey = ContextKeyExpr.and(
+  ContextKeyExpr.equals(`config.${ChatConfiguration.AgentEnabled}`, true),
+  ContextKeyExpr.not(`previewFeaturesDisabled`)
+  // Set by extension
+);
+let SetupAgent = class SetupAgent2 extends Disposable {
+  static {
+    __name(this, "SetupAgent");
+  }
+  static {
+    SetupAgent_1 = this;
+  }
+  static registerDefaultAgents(instantiationService, location, mode, context, controller) {
+    return instantiationService.invokeFunction((accessor) => {
+      const chatAgentService = accessor.get(IChatAgentService);
+      let id;
+      let description = ChatMode.Ask.description.get();
+      switch (location) {
+        case ChatAgentLocation.Panel:
+          if (mode === ChatModeKind.Ask) {
+            id = "setup.chat";
+          } else if (mode === ChatModeKind.Edit) {
+            id = "setup.edits";
+            description = ChatMode.Edit.description.get();
+          } else {
+            id = "setup.agent";
+            description = ChatMode.Agent.description.get();
+          }
+          break;
+        case ChatAgentLocation.Terminal:
+          id = "setup.terminal";
+          break;
+        case ChatAgentLocation.Editor:
+          id = "setup.editor";
+          break;
+        case ChatAgentLocation.Notebook:
+          id = "setup.notebook";
+          break;
+      }
+      return SetupAgent_1.doRegisterAgent(instantiationService, chatAgentService, id, `${defaultChat.providerName} Copilot`, true, description, location, mode, context, controller);
+    });
+  }
+  static registerVSCodeAgent(instantiationService, context, controller) {
+    return instantiationService.invokeFunction((accessor) => {
+      const chatAgentService = accessor.get(IChatAgentService);
+      const disposables = new DisposableStore();
+      const { agent, disposable } = SetupAgent_1.doRegisterAgent(instantiationService, chatAgentService, "setup.vscode", "vscode", false, localize2("vscodeAgentDescription", "Ask questions about VS Code").value, ChatAgentLocation.Panel, void 0, context, controller);
+      disposables.add(disposable);
+      disposables.add(SetupTool.registerTool(instantiationService, {
+        id: "setup.tools.createNewWorkspace",
+        source: ToolDataSource.Internal,
+        icon: Codicon.newFolder,
+        displayName: localize("setupToolDisplayName", "New Workspace"),
+        modelDescription: localize("setupToolsDescription", "Scaffold a new workspace in VS Code"),
+        userDescription: localize("setupToolsDescription", "Scaffold a new workspace in VS Code"),
+        canBeReferencedInPrompt: true,
+        toolReferenceName: "new",
+        when: ContextKeyExpr.true()
+      }).disposable);
+      return { agent, disposable: disposables };
+    });
+  }
+  static doRegisterAgent(instantiationService, chatAgentService, id, name, isDefault, description, location, mode, context, controller) {
+    const disposables = new DisposableStore();
+    disposables.add(chatAgentService.registerAgent(id, {
+      id,
+      name,
+      isDefault,
+      isCore: true,
+      modes: mode ? [mode] : [ChatModeKind.Ask],
+      when: mode === ChatModeKind.Agent ? ToolsAgentContextKey?.serialize() : void 0,
+      slashCommands: [],
+      disambiguation: [],
+      locations: [location],
+      metadata: { helpTextPrefix: SetupAgent_1.SETUP_NEEDED_MESSAGE },
+      description,
+      extensionId: nullExtensionDescription.identifier,
+      extensionDisplayName: nullExtensionDescription.name,
+      extensionPublisherId: nullExtensionDescription.publisher
+    }));
+    const agent = disposables.add(instantiationService.createInstance(SetupAgent_1, context, controller, location));
+    disposables.add(chatAgentService.registerAgentImplementation(id, agent));
+    if (mode === ChatModeKind.Agent) {
+      chatAgentService.updateAgent(id, { themeIcon: Codicon.tools });
+    }
+    return { agent, disposable: disposables };
+  }
+  static {
+    this.SETUP_NEEDED_MESSAGE = new MarkdownString(localize("settingUpCopilotNeeded", "You need to set up Copilot and be signed in to use Chat."));
+  }
+  constructor(context, controller, location, instantiationService, logService, configurationService, telemetryService, environmentService) {
+    super();
+    this.context = context;
+    this.controller = controller;
+    this.location = location;
+    this.instantiationService = instantiationService;
+    this.logService = logService;
+    this.configurationService = configurationService;
+    this.telemetryService = telemetryService;
+    this.environmentService = environmentService;
+    this._onUnresolvableError = this._register(new Emitter());
+    this.onUnresolvableError = this._onUnresolvableError.event;
+    this.pendingForwardedRequests = /* @__PURE__ */ new Map();
+  }
+  async invoke(request, progress) {
+    return this.instantiationService.invokeFunction(async (accessor) => {
+      const chatService = accessor.get(IChatService);
+      const languageModelsService = accessor.get(ILanguageModelsService);
+      const chatWidgetService = accessor.get(IChatWidgetService);
+      const chatAgentService = accessor.get(IChatAgentService);
+      const languageModelToolsService = accessor.get(ILanguageModelToolsService);
+      return this.doInvoke(request, (part) => progress([part]), chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService);
+    });
+  }
+  async doInvoke(request, progress, chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService) {
+    if (!this.context.state.installed || this.context.state.disabled || this.context.state.untrusted || this.context.state.entitlement === ChatEntitlement.Available || this.context.state.entitlement === ChatEntitlement.Unknown) {
+      return this.doInvokeWithSetup(request, progress, chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService);
+    }
+    return this.doInvokeWithoutSetup(request, progress, chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService);
+  }
+  async doInvokeWithoutSetup(request, progress, chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService) {
+    const requestModel = chatWidgetService.getWidgetBySessionId(request.sessionId)?.viewModel?.model.getRequests().at(-1);
+    if (!requestModel) {
+      this.logService.error("[chat setup] Request model not found, cannot redispatch request.");
+      return {};
+    }
+    progress({
+      kind: "progressMessage",
+      content: new MarkdownString(localize("waitingCopilot", "Getting Copilot ready"))
+    });
+    await this.forwardRequestToCopilot(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService);
+    return {};
+  }
+  async forwardRequestToCopilot(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService) {
+    try {
+      await this.doForwardRequestToCopilot(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService);
+    } catch (error) {
+      progress({
+        kind: "warning",
+        content: new MarkdownString(localize("copilotUnavailableWarning", "Copilot failed to get a response. Please try again."))
+      });
+    }
+  }
+  async doForwardRequestToCopilot(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService) {
+    if (this.pendingForwardedRequests.has(requestModel.session.sessionId)) {
+      throw new Error("Request already in progress");
+    }
+    const forwardRequest = this.doForwardRequestToCopilotWhenReady(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService);
+    this.pendingForwardedRequests.set(requestModel.session.sessionId, forwardRequest);
+    try {
+      await forwardRequest;
+    } finally {
+      this.pendingForwardedRequests.delete(requestModel.session.sessionId);
+    }
+  }
+  async doForwardRequestToCopilotWhenReady(requestModel, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService) {
+    const widget = chatWidgetService.getWidgetBySessionId(requestModel.session.sessionId);
+    const mode = widget?.input.currentModeKind;
+    const languageModel = widget?.input.currentLanguageModel;
+    const whenAgentReady = this.whenAgentReady(chatAgentService, mode);
+    const whenLanguageModelReady = this.whenLanguageModelReady(languageModelsService);
+    const whenToolsModelReady = this.whenToolsModelReady(languageModelToolsService, requestModel);
+    if (whenLanguageModelReady instanceof Promise || whenAgentReady instanceof Promise || whenToolsModelReady instanceof Promise) {
+      const timeoutHandle = setTimeout(() => {
+        progress({
+          kind: "progressMessage",
+          content: new MarkdownString(localize("waitingCopilot2", "Copilot is almost ready"))
+        });
+      }, 1e4);
+      try {
+        const ready = await Promise.race([
+          timeout(this.environmentService.remoteAuthority ? 6e4 : 2e4).then(() => "timedout"),
+          this.whenDefaultAgentFailed(chatService).then(() => "error"),
+          Promise.allSettled([whenLanguageModelReady, whenAgentReady, whenToolsModelReady])
+        ]);
+        if (ready === "error" || ready === "timedout") {
+          let warningMessage;
+          if (ready === "timedout") {
+            warningMessage = localize("copilotTookLongWarning", "Copilot took too long to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled.", defaultChat.providerName, defaultChat.chatExtensionId);
+          } else {
+            warningMessage = localize("copilotFailedWarning", "Copilot failed to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled.", defaultChat.providerName, defaultChat.chatExtensionId);
+          }
+          progress({
+            kind: "warning",
+            content: new MarkdownString(warningMessage)
+          });
+          this._onUnresolvableError.fire();
+          return;
+        }
+      } finally {
+        clearTimeout(timeoutHandle);
+      }
+    }
+    await chatService.resendRequest(requestModel, {
+      mode,
+      userSelectedModelId: languageModel,
+      userSelectedTools: widget?.getUserSelectedTools()
+    });
+  }
+  whenLanguageModelReady(languageModelsService) {
+    for (const id of languageModelsService.getLanguageModelIds()) {
+      const model = languageModelsService.lookupLanguageModel(id);
+      if (model && model.isDefault) {
+        return;
+      }
+    }
+    return Event.toPromise(Event.filter(languageModelsService.onDidChangeLanguageModels, (e) => e.added?.some((added) => added.metadata.isDefault) ?? false));
+  }
+  whenToolsModelReady(languageModelToolsService, requestModel) {
+    const needsToolsModel = requestModel.message.parts.some((part) => part instanceof ChatRequestToolPart);
+    if (!needsToolsModel) {
+      return;
+    }
+    for (const tool of languageModelToolsService.getTools()) {
+      if (tool.source.type !== "internal") {
+        return;
+      }
+    }
+    return Event.toPromise(Event.filter(languageModelToolsService.onDidChangeTools, () => {
+      for (const tool of languageModelToolsService.getTools()) {
+        if (tool.source.type !== "internal") {
+          return true;
+        }
+      }
+      return false;
+    }));
+  }
+  whenAgentReady(chatAgentService, mode) {
+    const defaultAgent = chatAgentService.getDefaultAgent(this.location, mode);
+    if (defaultAgent && !defaultAgent.isCore) {
+      return;
+    }
+    return Event.toPromise(Event.filter(chatAgentService.onDidChangeAgents, () => {
+      const defaultAgent2 = chatAgentService.getDefaultAgent(this.location, mode);
+      return Boolean(defaultAgent2 && !defaultAgent2.isCore);
+    }));
+  }
+  async whenDefaultAgentFailed(chatService) {
+    return new Promise((resolve) => {
+      chatService.activateDefaultAgent(this.location).catch(() => resolve());
+    });
+  }
+  async doInvokeWithSetup(request, progress, chatService, languageModelsService, chatWidgetService, chatAgentService, languageModelToolsService) {
+    this.telemetryService.publicLog2("workbenchActionExecuted", { id: CHAT_SETUP_ACTION_ID, from: "chat" });
+    const widget = chatWidgetService.getWidgetBySessionId(request.sessionId);
+    const requestModel = widget?.viewModel?.model.getRequests().at(-1);
+    const setupListener = Event.runAndSubscribe(this.controller.value.onDidChange, () => {
+      switch (this.controller.value.step) {
+        case ChatSetupStep.SigningIn:
+          progress({
+            kind: "progressMessage",
+            content: new MarkdownString(localize("setupChatSignIn2", "Signing in to {0}.", ChatEntitlementRequests.providerId(this.configurationService) === defaultChat.enterpriseProviderId ? defaultChat.enterpriseProviderName : defaultChat.providerName))
+          });
+          break;
+        case ChatSetupStep.Installing:
+          progress({
+            kind: "progressMessage",
+            content: new MarkdownString(localize("installingCopilot", "Getting Copilot ready"))
+          });
+          break;
+      }
+    });
+    let result = void 0;
+    try {
+      result = await ChatSetup.getInstance(this.instantiationService, this.context, this.controller).run({
+        disableChatViewReveal: true
+        /* we are already in a chat context */
+      });
+    } catch (error) {
+      this.logService.error(`[chat setup] Error during setup: ${toErrorMessage(error)}`);
+    } finally {
+      setupListener.dispose();
+    }
+    if (typeof result?.success === "boolean") {
+      if (result.success) {
+        if (result.dialogSkipped) {
+          widget?.clear();
+        } else if (requestModel) {
+          let newRequest = this.replaceAgentInRequestModel(requestModel, chatAgentService);
+          newRequest = this.replaceToolInRequestModel(newRequest);
+          await this.forwardRequestToCopilot(newRequest, progress, chatService, languageModelsService, chatAgentService, chatWidgetService, languageModelToolsService);
+        }
+      } else {
+        progress({
+          kind: "warning",
+          content: new MarkdownString(localize("copilotSetupError", "Copilot setup failed."))
+        });
+      }
+    } else {
+      progress({
+        kind: "markdownContent",
+        content: SetupAgent_1.SETUP_NEEDED_MESSAGE
+      });
+    }
+    return {};
+  }
+  replaceAgentInRequestModel(requestModel, chatAgentService) {
+    const agentPart = requestModel.message.parts.find((r) => r instanceof ChatRequestAgentPart);
+    if (!agentPart) {
+      return requestModel;
+    }
+    const agentId = agentPart.agent.id.replace(/setup\./, `${defaultChat.extensionId}.`.toLowerCase());
+    const githubAgent = chatAgentService.getAgent(agentId);
+    if (!githubAgent) {
+      return requestModel;
+    }
+    const newAgentPart = new ChatRequestAgentPart(agentPart.range, agentPart.editorRange, githubAgent);
+    return new ChatRequestModel({
+      session: requestModel.session,
+      message: {
+        parts: requestModel.message.parts.map((part) => {
+          if (part instanceof ChatRequestAgentPart) {
+            return newAgentPart;
+          }
+          return part;
+        }),
+        text: requestModel.message.text
+      },
+      variableData: requestModel.variableData,
+      timestamp: Date.now(),
+      attempt: requestModel.attempt,
+      confirmation: requestModel.confirmation,
+      locationData: requestModel.locationData,
+      attachedContext: requestModel.attachedContext,
+      isCompleteAddedRequest: requestModel.isCompleteAddedRequest
+    });
+  }
+  replaceToolInRequestModel(requestModel) {
+    const toolPart = requestModel.message.parts.find((r) => r instanceof ChatRequestToolPart);
+    if (!toolPart) {
+      return requestModel;
+    }
+    const toolId = toolPart.toolId.replace(/setup.tools\./, `copilot_`.toLowerCase());
+    const newToolPart = new ChatRequestToolPart(toolPart.range, toolPart.editorRange, toolPart.toolName, toolId, toolPart.displayName, toolPart.icon);
+    const chatRequestToolEntry = {
+      id: toolId,
+      name: "new",
+      range: toolPart.range,
+      kind: "tool",
+      value: void 0
+    };
+    const variableData = {
+      variables: [chatRequestToolEntry]
+    };
+    return new ChatRequestModel({
+      session: requestModel.session,
+      message: {
+        parts: requestModel.message.parts.map((part) => {
+          if (part instanceof ChatRequestToolPart) {
+            return newToolPart;
+          }
+          return part;
+        }),
+        text: requestModel.message.text
+      },
+      variableData,
+      timestamp: Date.now(),
+      attempt: requestModel.attempt,
+      confirmation: requestModel.confirmation,
+      locationData: requestModel.locationData,
+      attachedContext: [chatRequestToolEntry],
+      isCompleteAddedRequest: requestModel.isCompleteAddedRequest
+    });
+  }
+};
+SetupAgent = SetupAgent_1 = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, ILogService),
+  __param(5, IConfigurationService),
+  __param(6, ITelemetryService),
+  __param(7, IWorkbenchEnvironmentService)
+], SetupAgent);
+class SetupTool extends Disposable {
+  static {
+    __name(this, "SetupTool");
+  }
+  static registerTool(instantiationService, toolData) {
+    return instantiationService.invokeFunction((accessor) => {
+      const toolService = accessor.get(ILanguageModelToolsService);
+      const disposables = new DisposableStore();
+      disposables.add(toolService.registerToolData(toolData));
+      const tool = instantiationService.createInstance(SetupTool);
+      disposables.add(toolService.registerToolImplementation(toolData.id, tool));
+      return { tool, disposable: disposables };
+    });
+  }
+  async invoke(invocation, countTokens, progress, token) {
+    const result = {
+      content: [
+        {
+          kind: "text",
+          value: ""
+        }
+      ]
+    };
+    return result;
+  }
+  async prepareToolInvocation(parameters, token) {
+    return void 0;
+  }
+}
+var ChatSetupStrategy;
+(function(ChatSetupStrategy2) {
+  ChatSetupStrategy2[ChatSetupStrategy2["Canceled"] = 0] = "Canceled";
+  ChatSetupStrategy2[ChatSetupStrategy2["DefaultSetup"] = 1] = "DefaultSetup";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithoutEnterpriseProvider"] = 2] = "SetupWithoutEnterpriseProvider";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithEnterpriseProvider"] = 3] = "SetupWithEnterpriseProvider";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithAccountCreate"] = 4] = "SetupWithAccountCreate";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithAlternateProvider"] = 5] = "SetupWithAlternateProvider";
+})(ChatSetupStrategy || (ChatSetupStrategy = {}));
+let ChatSetup = class ChatSetup2 {
+  static {
+    __name(this, "ChatSetup");
+  }
+  static {
+    ChatSetup_1 = this;
+  }
+  static {
+    this.instance = void 0;
+  }
+  static getInstance(instantiationService, context, controller) {
+    let instance = ChatSetup_1.instance;
+    if (!instance) {
+      instance = ChatSetup_1.instance = instantiationService.invokeFunction((accessor) => {
+        return new ChatSetup_1(context, controller, instantiationService, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IConfigurationService), accessor.get(IViewsService), accessor.get(IOpenerService));
+      });
+    }
+    return instance;
+  }
+  constructor(context, controller, instantiationService, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, configurationService, viewsService, openerService) {
+    this.context = context;
+    this.controller = controller;
+    this.instantiationService = instantiationService;
+    this.telemetryService = telemetryService;
+    this.layoutService = layoutService;
+    this.keybindingService = keybindingService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.logService = logService;
+    this.configurationService = configurationService;
+    this.viewsService = viewsService;
+    this.openerService = openerService;
+    this.pendingRun = void 0;
+    this.skipDialogOnce = false;
+  }
+  skipDialog() {
+    this.skipDialogOnce = true;
+  }
+  async run(options) {
+    if (this.pendingRun) {
+      return this.pendingRun;
+    }
+    this.pendingRun = this.doRun(options);
+    try {
+      return await this.pendingRun;
+    } finally {
+      this.pendingRun = void 0;
+    }
+  }
+  async doRun(options) {
+    this.context.update({ later: false });
+    const dialogSkipped = this.skipDialogOnce;
+    this.skipDialogOnce = false;
+    let setupStrategy;
+    if (dialogSkipped || isProUser(this.chatEntitlementService.entitlement) || this.chatEntitlementService.entitlement === ChatEntitlement.Free) {
+      setupStrategy = ChatSetupStrategy.DefaultSetup;
+    } else {
+      setupStrategy = await this.showDialog();
+    }
+    if (setupStrategy === ChatSetupStrategy.DefaultSetup && ChatEntitlementRequests.providerId(this.configurationService) === defaultChat.enterpriseProviderId) {
+      setupStrategy = ChatSetupStrategy.SetupWithEnterpriseProvider;
+    }
+    if (setupStrategy !== ChatSetupStrategy.Canceled && !options?.disableChatViewReveal) {
+      showCopilotView(this.viewsService, this.layoutService);
+    }
+    let success = void 0;
+    try {
+      switch (setupStrategy) {
+        case ChatSetupStrategy.SetupWithEnterpriseProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: true, useAlternateProvider: false });
+          break;
+        case ChatSetupStrategy.SetupWithoutEnterpriseProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useAlternateProvider: false });
+          break;
+        case ChatSetupStrategy.SetupWithAlternateProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useAlternateProvider: true });
+          break;
+        case ChatSetupStrategy.DefaultSetup:
+          success = await this.controller.value.setup();
+          break;
+        case ChatSetupStrategy.SetupWithAccountCreate:
+          this.openerService.open(URI.parse(defaultChat.signUpUrl));
+          return this.doRun(options);
+        // open dialog again
+        case ChatSetupStrategy.Canceled:
+          this.context.update({ later: true });
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedMaybeLater", installDuration: 0, signUpErrorCode: void 0 });
+          break;
+      }
+    } catch (error) {
+      this.logService.error(`[chat setup] Error during setup: ${toErrorMessage(error)}`);
+      success = false;
+    }
+    return { success, dialogSkipped };
+  }
+  async showDialog() {
+    const disposables = new DisposableStore();
+    const dialogVariant = this.configurationService.getValue("chat.setup.signInDialogVariant");
+    const buttons = this.getButtons(dialogVariant);
+    const dialog = disposables.add(new Dialog(this.layoutService.activeContainer, this.getDialogTitle(), buttons.map((button2) => button2[0]), createWorkbenchDialogOptions({
+      type: "none",
+      extraClasses: ["chat-setup-dialog"],
+      detail: " ",
+      // workaround allowing us to render the message in large
+      icon: Codicon.copilotLarge,
+      alignment: DialogContentsAlignment.Vertical,
+      cancelId: buttons.length - 1,
+      disableCloseButton: true,
+      renderFooter: this.telemetryService.telemetryLevel !== 0 ? (footer) => footer.appendChild(this.createDialogFooter(disposables)) : void 0,
+      buttonOptions: buttons.map((button2) => button2[2])
+    }, this.keybindingService, this.layoutService)));
+    const { button } = await dialog.show();
+    disposables.dispose();
+    return buttons[button]?.[1] ?? ChatSetupStrategy.Canceled;
+  }
+  getButtons(variant) {
+    let buttons;
+    if (this.context.state.entitlement === ChatEntitlement.Unknown) {
+      let alternateProvider = "off";
+      if (defaultChat.alternativeProviderId) {
+        if (this.configurationService.getValue("chat.setup.signInWithAlternateProvider")) {
+          alternateProvider = "colorful";
+        }
+        switch (variant) {
+          case "alternate-first":
+            alternateProvider = "first";
+            break;
+          case "alternate-color":
+            alternateProvider = "colorful";
+            break;
+          case "alternate-monochrome":
+            alternateProvider = "monochrome";
+            break;
+        }
+      }
+      if (ChatEntitlementRequests.providerId(this.configurationService) === defaultChat.enterpriseProviderId) {
+        buttons = coalesce([
+          [localize("continueWith", "Continue with {0}", defaultChat.enterpriseProviderName), ChatSetupStrategy.SetupWithEnterpriseProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("continue-button", "default"), "styleButton")
+          }],
+          alternateProvider !== "off" ? [localize("continueWith", "Continue with {0}", defaultChat.alternativeProviderName), ChatSetupStrategy.SetupWithAlternateProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("continue-button", "alternate", alternateProvider), "styleButton")
+          }] : void 0,
+          [localize("signInWithProvider", "Sign in with a {0} account", defaultChat.providerName), ChatSetupStrategy.SetupWithoutEnterpriseProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("link-button"), "styleButton")
+          }]
+        ]);
+      } else {
+        buttons = coalesce([
+          [localize("continueWith", "Continue with {0}", defaultChat.providerName), ChatSetupStrategy.SetupWithoutEnterpriseProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("continue-button", "default"), "styleButton")
+          }],
+          alternateProvider !== "off" ? [localize("continueWith", "Continue with {0}", defaultChat.alternativeProviderName), ChatSetupStrategy.SetupWithAlternateProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("continue-button", "alternate", alternateProvider), "styleButton")
+          }] : void 0,
+          [localize("signInWithProvider", "Sign in with a {0} account", defaultChat.enterpriseProviderName), ChatSetupStrategy.SetupWithEnterpriseProvider, {
+            styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("link-button"), "styleButton")
+          }]
+        ]);
+      }
+      if (alternateProvider === "first") {
+        [buttons[0], buttons[1]] = [buttons[1], buttons[0]];
+      }
+    } else {
+      buttons = [[localize("setupCopilotButton", "Set up Copilot"), ChatSetupStrategy.DefaultSetup, void 0]];
+    }
+    buttons.push([localize("skipForNow", "Skip for now"), ChatSetupStrategy.Canceled, { styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add("link-button", "skip-button"), "styleButton") }]);
+    return buttons;
+  }
+  getDialogTitle() {
+    if (this.context.state.entitlement === ChatEntitlement.Unknown) {
+      return localize("signIn", "Sign in to use Copilot");
+    }
+    return localize("startUsing", "Start using Copilot");
+  }
+  createDialogFooter(disposables) {
+    const element = $(".chat-setup-dialog-footer");
+    const markdown = this.instantiationService.createInstance(MarkdownRenderer, {});
+    const settings = localize({ key: "settings", comment: ['{Locked="["}', '{Locked="]({0})"}', '{Locked="]({1})"}'] }, "{0} Copilot Free, Pro and Pro+ may show [public code]({1}) suggestions and we may use your data for product improvement. You can change these [settings]({2}) at any time.", defaultChat.providerName, defaultChat.publicCodeMatchesUrl, defaultChat.manageSettingsUrl);
+    element.appendChild($("p", void 0, disposables.add(markdown.render(new MarkdownString(settings, { isTrusted: true }))).element));
+    return element;
+  }
+};
+ChatSetup = ChatSetup_1 = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, ITelemetryService),
+  __param(4, ILayoutService),
+  __param(5, IKeybindingService),
+  __param(6, IChatEntitlementService),
+  __param(7, ILogService),
+  __param(8, IConfigurationService),
+  __param(9, IViewsService),
+  __param(10, IOpenerService)
+], ChatSetup);
+let ChatSetupContribution = class ChatSetupContribution2 extends Disposable {
+  static {
+    __name(this, "ChatSetupContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatSetup";
+  }
+  constructor(productService, instantiationService, commandService, telemetryService, chatEntitlementService, logService) {
+    super();
+    this.productService = productService;
+    this.instantiationService = instantiationService;
+    this.commandService = commandService;
+    this.telemetryService = telemetryService;
+    this.logService = logService;
+    const context = chatEntitlementService.context?.value;
+    const requests = chatEntitlementService.requests?.value;
+    if (!context || !requests) {
+      return;
+    }
+    const controller = new Lazy(() => this._register(this.instantiationService.createInstance(ChatSetupController, context, requests)));
+    this.registerSetupAgents(context, controller);
+    this.registerActions(context, requests, controller);
+    this.registerUrlLinkHandler();
+  }
+  registerSetupAgents(context, controller) {
+    const defaultAgentDisposables = markAsSingleton(new MutableDisposable());
+    const vscodeAgentDisposables = markAsSingleton(new MutableDisposable());
+    const updateRegistration = /* @__PURE__ */ __name(() => {
+      if (!context.state.hidden && !context.state.disabled) {
+        if (!defaultAgentDisposables.value) {
+          const disposables = defaultAgentDisposables.value = new DisposableStore();
+          const panelAgentDisposables = disposables.add(new DisposableStore());
+          for (const mode of [ChatModeKind.Ask, ChatModeKind.Edit, ChatModeKind.Agent]) {
+            const { agent, disposable } = SetupAgent.registerDefaultAgents(this.instantiationService, ChatAgentLocation.Panel, mode, context, controller);
+            panelAgentDisposables.add(disposable);
+            panelAgentDisposables.add(agent.onUnresolvableError(() => {
+              this.logService.error("[chat setup] Unresolvable error from Copilot agent registration, clearing registration.");
+              panelAgentDisposables.dispose();
+            }));
+          }
+          disposables.add(SetupAgent.registerDefaultAgents(this.instantiationService, ChatAgentLocation.Terminal, void 0, context, controller).disposable);
+          disposables.add(SetupAgent.registerDefaultAgents(this.instantiationService, ChatAgentLocation.Notebook, void 0, context, controller).disposable);
+          disposables.add(SetupAgent.registerDefaultAgents(this.instantiationService, ChatAgentLocation.Editor, void 0, context, controller).disposable);
+        }
+        if (!(context.state.installed && !context.state.disabled) && !vscodeAgentDisposables.value) {
+          const disposables = vscodeAgentDisposables.value = new DisposableStore();
+          disposables.add(SetupAgent.registerVSCodeAgent(this.instantiationService, context, controller).disposable);
+        }
+      } else {
+        defaultAgentDisposables.clear();
+        vscodeAgentDisposables.clear();
+      }
+      if (context.state.installed && !context.state.disabled) {
+        vscodeAgentDisposables.clear();
+      }
+    }, "updateRegistration");
+    this._register(Event.runAndSubscribe(context.onDidChange, () => updateRegistration()));
+  }
+  registerActions(context, requests, controller) {
+    const chatSetupTriggerContext = ContextKeyExpr.or(ChatContextKeys.Setup.installed.negate(), ChatContextKeys.Entitlement.canSignUp);
+    const CHAT_SETUP_ACTION_LABEL = localize2("triggerChatSetup", "Use AI Features with Copilot for free...");
+    class ChatSetupTriggerAction extends Action2 {
+      static {
+        __name(this, "ChatSetupTriggerAction");
+      }
+      constructor() {
+        super({
+          id: CHAT_SETUP_ACTION_ID,
+          title: CHAT_SETUP_ACTION_LABEL,
+          category: CHAT_CATEGORY,
+          f1: true,
+          precondition: chatSetupTriggerContext
+        });
+      }
+      async run(accessor, mode) {
+        const viewsService = accessor.get(IViewsService);
+        const layoutService = accessor.get(IWorkbenchLayoutService);
+        const instantiationService = accessor.get(IInstantiationService);
+        const dialogService = accessor.get(IDialogService);
+        const commandService = accessor.get(ICommandService);
+        const lifecycleService = accessor.get(ILifecycleService);
+        await context.update({ hidden: false });
+        if (mode) {
+          const chatWidget = await showCopilotView(viewsService, layoutService);
+          chatWidget?.input.setChatMode(mode);
+        }
+        const setup = ChatSetup.getInstance(instantiationService, context, controller);
+        const { success } = await setup.run();
+        if (success === false && !lifecycleService.willShutdown) {
+          const { confirmed } = await dialogService.confirm({
+            type: Severity.Error,
+            message: localize("setupErrorDialog", "Copilot setup failed. Would you like to try again?"),
+            primaryButton: localize("retry", "Retry")
+          });
+          if (confirmed) {
+            return Boolean(await commandService.executeCommand(CHAT_SETUP_ACTION_ID));
+          }
+        }
+        return Boolean(success);
+      }
+    }
+    class ChatSetupTriggerWithoutDialogAction extends Action2 {
+      static {
+        __name(this, "ChatSetupTriggerWithoutDialogAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.triggerSetupWithoutDialog",
+          title: CHAT_SETUP_ACTION_LABEL,
+          precondition: chatSetupTriggerContext
+        });
+      }
+      async run(accessor) {
+        const viewsService = accessor.get(IViewsService);
+        const layoutService = accessor.get(IWorkbenchLayoutService);
+        const instantiationService = accessor.get(IInstantiationService);
+        await context.update({ hidden: false });
+        const chatWidget = await showCopilotView(viewsService, layoutService);
+        ChatSetup.getInstance(instantiationService, context, controller).skipDialog();
+        chatWidget?.acceptInput(localize("setupCopilot", "Set up Copilot."));
+      }
+    }
+    class ChatSetupFromAccountsAction extends Action2 {
+      static {
+        __name(this, "ChatSetupFromAccountsAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.triggerSetupFromAccounts",
+          title: localize2("triggerChatSetupFromAccounts", "Sign in to use Copilot..."),
+          menu: {
+            id: MenuId.AccountsContext,
+            group: "2_copilot",
+            when: ContextKeyExpr.and(ChatContextKeys.Setup.hidden.negate(), ChatContextKeys.Setup.installed.negate(), ChatContextKeys.Entitlement.signedOut)
+          }
+        });
+      }
+      async run(accessor) {
+        const commandService = accessor.get(ICommandService);
+        const telemetryService = accessor.get(ITelemetryService);
+        telemetryService.publicLog2("workbenchActionExecuted", { id: CHAT_SETUP_ACTION_ID, from: "accounts" });
+        return commandService.executeCommand(CHAT_SETUP_ACTION_ID);
+      }
+    }
+    class ChatSetupHideAction extends Action2 {
+      static {
+        __name(this, "ChatSetupHideAction");
+      }
+      static {
+        this.ID = "workbench.action.chat.hideSetup";
+      }
+      static {
+        this.TITLE = localize2("hideChatSetup", "Hide Copilot");
+      }
+      constructor() {
+        super({
+          id: ChatSetupHideAction.ID,
+          title: ChatSetupHideAction.TITLE,
+          f1: true,
+          category: CHAT_CATEGORY,
+          precondition: ContextKeyExpr.and(ChatContextKeys.Setup.installed.negate(), ChatContextKeys.Setup.hidden.negate()),
+          menu: {
+            id: MenuId.ChatTitleBarMenu,
+            group: "z_hide",
+            order: 1,
+            when: ChatContextKeys.Setup.installed.negate()
+          }
+        });
+      }
+      async run(accessor) {
+        const viewsDescriptorService = accessor.get(IViewDescriptorService);
+        const layoutService = accessor.get(IWorkbenchLayoutService);
+        const dialogService = accessor.get(IDialogService);
+        const { confirmed } = await dialogService.confirm({
+          message: localize("hideChatSetupConfirm", "Are you sure you want to hide Copilot?"),
+          detail: localize("hideChatSetupDetail", "You can restore Copilot by running the '{0}' command.", CHAT_SETUP_ACTION_LABEL.value),
+          primaryButton: localize("hideChatSetupButton", "Hide Copilot")
+        });
+        if (!confirmed) {
+          return;
+        }
+        const location = viewsDescriptorService.getViewLocationById(ChatViewId);
+        await context.update({ hidden: true });
+        if (location === 2) {
+          const activeContainers = viewsDescriptorService.getViewContainersByLocation(location).filter((container) => viewsDescriptorService.getViewContainerModel(container).activeViewDescriptors.length > 0);
+          if (activeContainers.length === 0) {
+            layoutService.setPartHidden(
+              true,
+              "workbench.parts.auxiliarybar"
+              /* Parts.AUXILIARYBAR_PART */
+            );
+          }
+        }
+      }
+    }
+    const windowFocusListener = this._register(new MutableDisposable());
+    class UpgradePlanAction extends Action2 {
+      static {
+        __name(this, "UpgradePlanAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.upgradePlan",
+          title: localize2("managePlan", "Upgrade to Copilot Pro"),
+          category: localize2("chat.category", "Chat"),
+          f1: true,
+          precondition: ContextKeyExpr.or(ChatContextKeys.Entitlement.canSignUp, ChatContextKeys.Entitlement.free),
+          menu: {
+            id: MenuId.ChatTitleBarMenu,
+            group: "a_first",
+            order: 1,
+            when: ContextKeyExpr.and(ChatContextKeys.Entitlement.free, ContextKeyExpr.or(ChatContextKeys.chatQuotaExceeded, ChatContextKeys.completionsQuotaExceeded))
+          }
+        });
+      }
+      async run(accessor, from) {
+        const openerService = accessor.get(IOpenerService);
+        const hostService = accessor.get(IHostService);
+        const commandService = accessor.get(ICommandService);
+        openerService.open(URI.parse(defaultChat.upgradePlanUrl));
+        const entitlement = context.state.entitlement;
+        if (!isProUser(entitlement)) {
+          windowFocusListener.value = hostService.onDidChangeFocus((focus) => this.onWindowFocus(focus, commandService));
+        }
+      }
+      async onWindowFocus(focus, commandService) {
+        if (focus) {
+          windowFocusListener.clear();
+          const entitlements = await requests.forceResolveEntitlement(void 0);
+          if (entitlements?.entitlement && isProUser(entitlements?.entitlement)) {
+            refreshTokens(commandService);
+          }
+        }
+      }
+    }
+    class EnableOveragesAction extends Action2 {
+      static {
+        __name(this, "EnableOveragesAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.manageOverages",
+          title: localize2("manageOverages", "Manage Copilot Overages"),
+          category: localize2("chat.category", "Chat"),
+          f1: true,
+          precondition: ContextKeyExpr.or(ChatContextKeys.Entitlement.pro, ChatContextKeys.Entitlement.proPlus),
+          menu: {
+            id: MenuId.ChatTitleBarMenu,
+            group: "a_first",
+            order: 1,
+            when: ContextKeyExpr.and(ContextKeyExpr.or(ChatContextKeys.Entitlement.pro, ChatContextKeys.Entitlement.proPlus), ContextKeyExpr.or(ChatContextKeys.chatQuotaExceeded, ChatContextKeys.completionsQuotaExceeded))
+          }
+        });
+      }
+      async run(accessor, from) {
+        const openerService = accessor.get(IOpenerService);
+        openerService.open(URI.parse(defaultChat.manageOveragesUrl));
+      }
+    }
+    registerAction2(ChatSetupTriggerAction);
+    registerAction2(ChatSetupFromAccountsAction);
+    registerAction2(ChatSetupTriggerWithoutDialogAction);
+    registerAction2(ChatSetupHideAction);
+    registerAction2(UpgradePlanAction);
+    registerAction2(EnableOveragesAction);
+  }
+  registerUrlLinkHandler() {
+    this._register(ExtensionUrlHandlerOverrideRegistry.registerHandler({
+      canHandleURL: /* @__PURE__ */ __name((url) => {
+        return url.scheme === this.productService.urlProtocol && equalsIgnoreCase(url.authority, defaultChat.chatExtensionId);
+      }, "canHandleURL"),
+      handleURL: /* @__PURE__ */ __name(async (url) => {
+        const params = new URLSearchParams(url.query);
+        this.telemetryService.publicLog2("workbenchActionExecuted", { id: CHAT_SETUP_ACTION_ID, from: "url", detail: params.get("referrer") ?? void 0 });
+        await this.commandService.executeCommand(CHAT_SETUP_ACTION_ID, validateChatMode(params.get("mode")));
+        return true;
+      }, "handleURL")
+    }));
+  }
+};
+ChatSetupContribution = __decorate([
+  __param(0, IProductService),
+  __param(1, IInstantiationService),
+  __param(2, ICommandService),
+  __param(3, ITelemetryService),
+  __param(4, IChatEntitlementService),
+  __param(5, ILogService)
+], ChatSetupContribution);
+var ChatSetupStep;
+(function(ChatSetupStep2) {
+  ChatSetupStep2[ChatSetupStep2["Initial"] = 1] = "Initial";
+  ChatSetupStep2[ChatSetupStep2["SigningIn"] = 2] = "SigningIn";
+  ChatSetupStep2[ChatSetupStep2["Installing"] = 3] = "Installing";
+})(ChatSetupStep || (ChatSetupStep = {}));
+let ChatSetupController = class ChatSetupController2 extends Disposable {
+  static {
+    __name(this, "ChatSetupController");
+  }
+  get step() {
+    return this._step;
+  }
+  constructor(context, requests, telemetryService, authenticationService, extensionsWorkbenchService, productService, logService, progressService, activityService, commandService, workspaceTrustRequestService, dialogService, configurationService, lifecycleService, quickInputService) {
+    super();
+    this.context = context;
+    this.requests = requests;
+    this.telemetryService = telemetryService;
+    this.authenticationService = authenticationService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.productService = productService;
+    this.logService = logService;
+    this.progressService = progressService;
+    this.activityService = activityService;
+    this.commandService = commandService;
+    this.workspaceTrustRequestService = workspaceTrustRequestService;
+    this.dialogService = dialogService;
+    this.configurationService = configurationService;
+    this.lifecycleService = lifecycleService;
+    this.quickInputService = quickInputService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._step = ChatSetupStep.Initial;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.context.onDidChange(() => this._onDidChange.fire()));
+  }
+  setStep(step) {
+    if (this._step === step) {
+      return;
+    }
+    this._step = step;
+    this._onDidChange.fire();
+  }
+  async setup(options) {
+    const watch = new StopWatch(false);
+    const title = localize("setupChatProgress", "Getting Copilot ready...");
+    const badge = this.activityService.showViewContainerActivity(CHAT_SIDEBAR_PANEL_ID, {
+      badge: new ProgressBadge(() => title)
+    });
+    try {
+      return await this.progressService.withProgress({
+        location: 10,
+        command: CHAT_OPEN_ACTION_ID,
+        title
+      }, () => this.doSetup(options ?? {}, watch));
+    } finally {
+      badge.dispose();
+    }
+  }
+  async doSetup(options, watch) {
+    this.context.suspend();
+    let success = false;
+    try {
+      const providerId = ChatEntitlementRequests.providerId(this.configurationService);
+      let session;
+      let entitlement;
+      const installation = this.doInstall();
+      if (this.context.state.entitlement === ChatEntitlement.Unknown || options.forceSignIn) {
+        this.setStep(ChatSetupStep.SigningIn);
+        const result = await this.signIn({ useAlternateProvider: options.useAlternateProvider });
+        if (!result.session) {
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNotSignedIn", installDuration: watch.elapsed(), signUpErrorCode: void 0 });
+          return void 0;
+        }
+        session = result.session;
+        entitlement = result.entitlement;
+      }
+      const trusted = await this.workspaceTrustRequestService.requestWorkspaceTrust({
+        message: localize("copilotWorkspaceTrust", "Copilot is currently only supported in trusted workspaces.")
+      });
+      if (!trusted) {
+        this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNotTrusted", installDuration: watch.elapsed(), signUpErrorCode: void 0 });
+        return false;
+      }
+      this.setStep(ChatSetupStep.Installing);
+      success = await this.install(session, entitlement ?? this.context.state.entitlement, providerId, watch, installation);
+    } finally {
+      this.setStep(ChatSetupStep.Initial);
+      this.context.resume();
+    }
+    return success;
+  }
+  async signIn(options) {
+    let session;
+    let entitlements;
+    try {
+      ({ session, entitlements } = await this.requests.signIn(options));
+    } catch (e) {
+      this.logService.error(`[chat setup] signIn: error ${e}`);
+    }
+    if (!session && !this.lifecycleService.willShutdown) {
+      const { confirmed } = await this.dialogService.confirm({
+        type: Severity.Error,
+        message: localize("unknownSignInError", "Failed to sign in to {0}. Would you like to try again?", options?.useAlternateProvider ? defaultChat.alternativeProviderName : ChatEntitlementRequests.providerId(this.configurationService) === defaultChat.enterpriseProviderId ? defaultChat.enterpriseProviderName : defaultChat.providerName),
+        detail: localize("unknownSignInErrorDetail", "You must be signed in to use Copilot."),
+        primaryButton: localize("retry", "Retry")
+      });
+      if (confirmed) {
+        return this.signIn(options);
+      }
+    }
+    return { session, entitlement: entitlements?.entitlement };
+  }
+  async install(session, entitlement, providerId, watch, installation) {
+    const wasRunning = this.context.state.installed && !this.context.state.disabled;
+    let signUpResult = void 0;
+    try {
+      if (entitlement !== ChatEntitlement.Free && // User is not signed up to Copilot Free
+      !isProUser(entitlement) && // User is not signed up for a Copilot subscription
+      entitlement !== ChatEntitlement.Unavailable) {
+        if (!session) {
+          try {
+            session = (await this.authenticationService.getSessions(providerId)).at(0);
+          } catch (error) {
+          }
+          if (!session) {
+            this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNoSession", installDuration: watch.elapsed(), signUpErrorCode: void 0 });
+            return false;
+          }
+        }
+        signUpResult = await this.requests.signUpFree(session);
+        if (typeof signUpResult !== "boolean") {
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedSignUp", installDuration: watch.elapsed(), signUpErrorCode: signUpResult.errorCode });
+        }
+      }
+      await this.doInstallWithRetry(installation);
+    } catch (error) {
+      this.logService.error(`[chat setup] install: error ${error}`);
+      this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: isCancellationError(error) ? "cancelled" : "failedInstall", installDuration: watch.elapsed(), signUpErrorCode: void 0 });
+      return false;
+    }
+    if (typeof signUpResult === "boolean") {
+      this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: wasRunning && !signUpResult ? "alreadyInstalled" : "installed", installDuration: watch.elapsed(), signUpErrorCode: void 0 });
+    }
+    if (wasRunning && signUpResult === true) {
+      refreshTokens(this.commandService);
+    }
+    return true;
+  }
+  async doInstallWithRetry(installation) {
+    let error;
+    try {
+      await installation;
+    } catch (e) {
+      this.logService.error(`[chat setup] install: error ${error}`);
+      error = e;
+    }
+    if (error) {
+      if (!this.lifecycleService.willShutdown) {
+        const { confirmed } = await this.dialogService.confirm({
+          type: Severity.Error,
+          message: localize("unknownSetupError", "An error occurred while setting up Copilot. Would you like to try again?"),
+          detail: error && !isCancellationError(error) ? toErrorMessage(error) : void 0,
+          primaryButton: localize("retry", "Retry")
+        });
+        if (confirmed) {
+          return this.doInstallWithRetry(this.doInstall());
+        }
+      }
+      throw error;
+    }
+  }
+  async doInstall() {
+    await this.extensionsWorkbenchService.install(defaultChat.extensionId, {
+      enable: true,
+      isApplicationScoped: true,
+      // install into all profiles
+      isMachineScoped: false,
+      // do not ask to sync
+      installEverywhere: true,
+      // install in local and remote
+      installPreReleaseVersion: this.productService.quality !== "stable"
+    }, ChatViewId);
+  }
+  async setupWithProvider(options) {
+    const registry = Registry.as(ConfigurationExtensions.Configuration);
+    registry.registerConfiguration({
+      "id": "copilot.setup",
+      "type": "object",
+      "properties": {
+        [defaultChat.completionsAdvancedSetting]: {
+          "type": "object",
+          "properties": {
+            "authProvider": {
+              "type": "string"
+            }
+          }
+        },
+        [defaultChat.providerUriSetting]: {
+          "type": "string"
+        }
+      }
+    });
+    if (options.useEnterpriseProvider) {
+      const success = await this.handleEnterpriseInstance();
+      if (!success) {
+        return success;
+      }
+    }
+    let existingAdvancedSetting = this.configurationService.inspect(defaultChat.completionsAdvancedSetting).user?.value;
+    if (!isObject(existingAdvancedSetting)) {
+      existingAdvancedSetting = {};
+    }
+    if (options.useEnterpriseProvider) {
+      await this.configurationService.updateValue(
+        `${defaultChat.completionsAdvancedSetting}`,
+        {
+          ...existingAdvancedSetting,
+          "authProvider": defaultChat.enterpriseProviderId
+        },
+        2
+        /* ConfigurationTarget.USER */
+      );
+    } else {
+      await this.configurationService.updateValue(
+        `${defaultChat.completionsAdvancedSetting}`,
+        Object.keys(existingAdvancedSetting).length > 0 ? {
+          ...existingAdvancedSetting,
+          "authProvider": void 0
+        } : void 0,
+        2
+        /* ConfigurationTarget.USER */
+      );
+    }
+    return this.setup({ ...options, forceSignIn: true });
+  }
+  async handleEnterpriseInstance() {
+    const domainRegEx = /^[a-zA-Z\-_]+$/;
+    const fullUriRegEx = /^(https:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.ghe\.com\/?$/;
+    const uri = this.configurationService.getValue(defaultChat.providerUriSetting);
+    if (typeof uri === "string" && fullUriRegEx.test(uri)) {
+      return true;
+    }
+    let isSingleWord = false;
+    const result = await this.quickInputService.input({
+      prompt: localize("enterpriseInstance", "What is your {0} instance?", defaultChat.enterpriseProviderName),
+      placeHolder: localize("enterpriseInstancePlaceholder", 'i.e. "octocat" or "https://octocat.ghe.com"...'),
+      ignoreFocusLost: true,
+      value: uri,
+      validateInput: /* @__PURE__ */ __name(async (value) => {
+        isSingleWord = false;
+        if (!value) {
+          return void 0;
+        }
+        if (domainRegEx.test(value)) {
+          isSingleWord = true;
+          return {
+            content: localize("willResolveTo", "Will resolve to {0}", `https://${value}.ghe.com`),
+            severity: Severity.Info
+          };
+        }
+        if (!fullUriRegEx.test(value)) {
+          return {
+            content: localize("invalidEnterpriseInstance", 'You must enter a valid {0} instance (i.e. "octocat" or "https://octocat.ghe.com")', defaultChat.enterpriseProviderName),
+            severity: Severity.Error
+          };
+        }
+        return void 0;
+      }, "validateInput")
+    });
+    if (!result) {
+      return void 0;
+    }
+    let resolvedUri = result;
+    if (isSingleWord) {
+      resolvedUri = `https://${resolvedUri}.ghe.com`;
+    } else {
+      const normalizedUri = result.toLowerCase();
+      const hasHttps = normalizedUri.startsWith("https://");
+      if (!hasHttps) {
+        resolvedUri = `https://${result}`;
+      }
+    }
+    await this.configurationService.updateValue(
+      defaultChat.providerUriSetting,
+      resolvedUri,
+      2
+      /* ConfigurationTarget.USER */
+    );
+    return true;
+  }
+};
+ChatSetupController = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, IAuthenticationService),
+  __param(4, IExtensionsWorkbenchService),
+  __param(5, IProductService),
+  __param(6, ILogService),
+  __param(7, IProgressService),
+  __param(8, IActivityService),
+  __param(9, ICommandService),
+  __param(10, IWorkspaceTrustRequestService),
+  __param(11, IDialogService),
+  __param(12, IConfigurationService),
+  __param(13, ILifecycleService),
+  __param(14, IQuickInputService)
+], ChatSetupController);
+function refreshTokens(commandService) {
+  commandService.executeCommand(defaultChat.completionsRefreshTokenCommand);
+  commandService.executeCommand(defaultChat.chatRefreshTokenCommand);
+}
+__name(refreshTokens, "refreshTokens");
+export {
+  ChatSetupContribution
+};
+//# sourceMappingURL=chatSetup.js.map

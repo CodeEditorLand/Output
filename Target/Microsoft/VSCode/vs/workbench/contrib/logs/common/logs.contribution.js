@@ -1,1 +1,205 @@
-import*as f from"../../../../nls.js";import{$Rl as C}from"../../../../platform/registry/common/platform.js";import{$Yn as m}from"../../../../platform/action/common/actionCommonCategories.js";import{$CI as p,$DI as d}from"../../../../platform/actions/common/actions.js";import{$Inc as h}from"./logsActions.js";import{Extensions as x}from"../../../common/contributions.js";import{$$X as w,$_X as D,$bY as b,$aY as g}from"../../../services/output/common/output.js";import{$vd as R}from"../../../../base/common/lifecycle.js";import{$lo as y,$5n as E,$io as L,$6n as I}from"../../../../platform/log/common/log.js";import{$mj as S}from"../../../../platform/instantiation/common/instantiation.js";import{Event as _}from"../../../../base/common/event.js";import{$jOb as O,$lOb as j}from"../../../services/log/common/logConstants.js";import{$Hnc as z}from"./defaultLogLevels.js";import{$Cn as a,$Wn as T}from"../../../../platform/contextkey/common/contextkey.js";import{$Nc as W}from"../../../../base/common/map.js";import{$Ao as B}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{Schemas as $}from"../../../../base/common/network.js";var v=function(r,e,t,s){var n=arguments.length,o=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,e,t,s);else for(var c=r.length-1;c>=0;c--)(i=r[c])&&(o=(n<3?i(o):n>3?i(e,t,o):i(e,t))||o);return n>3&&o&&Object.defineProperty(e,t,o),o},u=function(r,e){return function(t,s){e(t,s,r)}};d(class extends p{constructor(){super({id:h.ID,title:h.TITLE,category:m.Developer,f1:!0})}run(r){return r.get(S).createInstance(h,h.ID,h.TITLE.value).run()}});d(class extends p{constructor(){super({id:"workbench.action.setDefaultLogLevel",title:f.localize2(8575,"Set Default Log Level"),category:m.Developer})}run(r,e,t){return r.get(z).setDefaultLogLevel(e,t)}});let l=class extends R{constructor(e,t,s){super(),this.c=e,this.f=t,this.g=s,this.a=new W,this.b=C.as(D.OutputChannels);const n=y.bindTo(t);n.set(L(e.getLogLevel())),this.B(e.onDidChangeLogLevel(o=>{I(o)&&n.set(L(e.getLogLevel()))})),this.h(e.getRegisteredLoggers()),this.B(e.onDidChangeLoggers(({added:o,removed:i})=>{this.h(o),this.m(i)})),this.B(e.onDidChangeVisibility(([o,i])=>{const c=e.getRegisteredLogger(o);c&&(i?this.n(c):this.s(c))})),this.t(),this.B(_.filter(t.onDidChangeContext,o=>o.affectsSome(this.a))(()=>this.j()))}h(e){for(const t of e){if(t.when){const s=a.deserialize(t.when);if(s){for(const n of s.keys())this.a.add(n);if(!this.f.contextMatchesRules(s))continue}}t.hidden||this.n(t)}}j(){for(const e of this.c.getRegisteredLoggers())e.when&&(this.f.contextMatchesRules(a.deserialize(e.when))?this.n(e):this.s(e))}m(e){for(const t of e){if(t.when){const s=a.deserialize(t.when);if(s)for(const n of s.keys())this.a.delete(n)}this.s(t)}}n(e){if(e.group){this.r(e.group.id,e.group.name,e);return}const t=this.b.getChannel(e.id);if(t&&g(t)&&this.g.extUri.isEqual(t.source.resource,e.resource))return;const s=this.b.getChannel(e.id),n=s&&g(s)&&s.source.resource.scheme===$.vscodeRemote?this.c.getRegisteredLogger(s.source.resource):void 0;n&&this.s(n);const o=s&&e.resource.scheme===$.vscodeRemote,i=o?`${e.id}.remote`:e.id,c=o?f.localize(8574,null,e.name??e.id):e.name??e.id;this.b.registerChannel({id:i,label:c,source:{resource:e.resource},log:!0,extensionId:e.extensionId})}r(e,t,s){const n=this.b.getChannel(e),o={resource:s.resource,name:s.name??s.id};n?b(n)&&!n.source.some(({resource:i})=>this.g.extUri.isEqual(i,s.resource))&&this.b.updateChannelSources(e,[...n.source,o]):this.b.registerChannel({id:e,label:t,log:!0,source:[o]})}s(e){if(e.group){const t=this.b.getChannel(e.group.id);t&&b(t)&&this.b.updateChannelSources(e.group.id,t.source.filter(({resource:s})=>!this.g.extUri.isEqual(s,e.resource)))}else this.b.removeChannel(e.id)}t(){this.B(d(class extends p{constructor(){super({id:j,title:f.localize2(8576,"Show Window Log"),category:m.Developer,f1:!0})}async run(t){t.get(w).showChannel(O)}}))}};l=v([u(0,E),u(1,T),u(2,B)],l);C.as(x.Workbench).registerWorkbenchContribution(l,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SetLogLevelAction } from "./logsActions.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IOutputService, Extensions, isMultiSourceOutputChannelDescriptor, isSingleSourceOutputChannelDescriptor } from "../../../services/output/common/output.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { CONTEXT_LOG_LEVEL, ILoggerService, LogLevelToString, isLogLevel } from "../../../../platform/log/common/log.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Event } from "../../../../base/common/event.js";
+import { windowLogId, showWindowLogActionId } from "../../../services/log/common/logConstants.js";
+import { IDefaultLogLevelsService } from "./defaultLogLevels.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { CounterSet } from "../../../../base/common/map.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { Schemas } from "../../../../base/common/network.js";
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: SetLogLevelAction.ID,
+      title: SetLogLevelAction.TITLE,
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(servicesAccessor) {
+    return servicesAccessor.get(IInstantiationService).createInstance(SetLogLevelAction, SetLogLevelAction.ID, SetLogLevelAction.TITLE.value).run();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.setDefaultLogLevel",
+      title: nls.localize2("setDefaultLogLevel", "Set Default Log Level"),
+      category: Categories.Developer
+    });
+  }
+  run(servicesAccessor, logLevel, extensionId) {
+    return servicesAccessor.get(IDefaultLogLevelsService).setDefaultLogLevel(logLevel, extensionId);
+  }
+});
+let LogOutputChannels = class LogOutputChannels2 extends Disposable {
+  static {
+    __name(this, "LogOutputChannels");
+  }
+  constructor(loggerService, contextKeyService, uriIdentityService) {
+    super();
+    this.loggerService = loggerService;
+    this.contextKeyService = contextKeyService;
+    this.uriIdentityService = uriIdentityService;
+    this.contextKeys = new CounterSet();
+    this.outputChannelRegistry = Registry.as(Extensions.OutputChannels);
+    const contextKey = CONTEXT_LOG_LEVEL.bindTo(contextKeyService);
+    contextKey.set(LogLevelToString(loggerService.getLogLevel()));
+    this._register(loggerService.onDidChangeLogLevel((e) => {
+      if (isLogLevel(e)) {
+        contextKey.set(LogLevelToString(loggerService.getLogLevel()));
+      }
+    }));
+    this.onDidAddLoggers(loggerService.getRegisteredLoggers());
+    this._register(loggerService.onDidChangeLoggers(({ added, removed }) => {
+      this.onDidAddLoggers(added);
+      this.onDidRemoveLoggers(removed);
+    }));
+    this._register(loggerService.onDidChangeVisibility(([resource, visibility]) => {
+      const logger = loggerService.getRegisteredLogger(resource);
+      if (logger) {
+        if (visibility) {
+          this.registerLogChannel(logger);
+        } else {
+          this.deregisterLogChannel(logger);
+        }
+      }
+    }));
+    this.registerShowWindowLogAction();
+    this._register(Event.filter(contextKeyService.onDidChangeContext, (e) => e.affectsSome(this.contextKeys))(() => this.onDidChangeContext()));
+  }
+  onDidAddLoggers(loggers) {
+    for (const logger of loggers) {
+      if (logger.when) {
+        const contextKeyExpr = ContextKeyExpr.deserialize(logger.when);
+        if (contextKeyExpr) {
+          for (const key of contextKeyExpr.keys()) {
+            this.contextKeys.add(key);
+          }
+          if (!this.contextKeyService.contextMatchesRules(contextKeyExpr)) {
+            continue;
+          }
+        }
+      }
+      if (logger.hidden) {
+        continue;
+      }
+      this.registerLogChannel(logger);
+    }
+  }
+  onDidChangeContext() {
+    for (const logger of this.loggerService.getRegisteredLoggers()) {
+      if (logger.when) {
+        if (this.contextKeyService.contextMatchesRules(ContextKeyExpr.deserialize(logger.when))) {
+          this.registerLogChannel(logger);
+        } else {
+          this.deregisterLogChannel(logger);
+        }
+      }
+    }
+  }
+  onDidRemoveLoggers(loggers) {
+    for (const logger of loggers) {
+      if (logger.when) {
+        const contextKeyExpr = ContextKeyExpr.deserialize(logger.when);
+        if (contextKeyExpr) {
+          for (const key of contextKeyExpr.keys()) {
+            this.contextKeys.delete(key);
+          }
+        }
+      }
+      this.deregisterLogChannel(logger);
+    }
+  }
+  registerLogChannel(logger) {
+    if (logger.group) {
+      this.registerCompoundLogChannel(logger.group.id, logger.group.name, logger);
+      return;
+    }
+    const channel = this.outputChannelRegistry.getChannel(logger.id);
+    if (channel && isSingleSourceOutputChannelDescriptor(channel) && this.uriIdentityService.extUri.isEqual(channel.source.resource, logger.resource)) {
+      return;
+    }
+    const existingChannel = this.outputChannelRegistry.getChannel(logger.id);
+    const remoteLogger = existingChannel && isSingleSourceOutputChannelDescriptor(existingChannel) && existingChannel.source.resource.scheme === Schemas.vscodeRemote ? this.loggerService.getRegisteredLogger(existingChannel.source.resource) : void 0;
+    if (remoteLogger) {
+      this.deregisterLogChannel(remoteLogger);
+    }
+    const hasToAppendRemote = existingChannel && logger.resource.scheme === Schemas.vscodeRemote;
+    const id = hasToAppendRemote ? `${logger.id}.remote` : logger.id;
+    const label = hasToAppendRemote ? nls.localize("remote name", "{0} (Remote)", logger.name ?? logger.id) : logger.name ?? logger.id;
+    this.outputChannelRegistry.registerChannel({ id, label, source: { resource: logger.resource }, log: true, extensionId: logger.extensionId });
+  }
+  registerCompoundLogChannel(id, name, logger) {
+    const channel = this.outputChannelRegistry.getChannel(id);
+    const source = { resource: logger.resource, name: logger.name ?? logger.id };
+    if (channel) {
+      if (isMultiSourceOutputChannelDescriptor(channel) && !channel.source.some(({ resource }) => this.uriIdentityService.extUri.isEqual(resource, logger.resource))) {
+        this.outputChannelRegistry.updateChannelSources(id, [...channel.source, source]);
+      }
+    } else {
+      this.outputChannelRegistry.registerChannel({ id, label: name, log: true, source: [source] });
+    }
+  }
+  deregisterLogChannel(logger) {
+    if (logger.group) {
+      const channel = this.outputChannelRegistry.getChannel(logger.group.id);
+      if (channel && isMultiSourceOutputChannelDescriptor(channel)) {
+        this.outputChannelRegistry.updateChannelSources(logger.group.id, channel.source.filter(({ resource }) => !this.uriIdentityService.extUri.isEqual(resource, logger.resource)));
+      }
+    } else {
+      this.outputChannelRegistry.removeChannel(logger.id);
+    }
+  }
+  registerShowWindowLogAction() {
+    this._register(registerAction2(class ShowWindowLogAction extends Action2 {
+      static {
+        __name(this, "ShowWindowLogAction");
+      }
+      constructor() {
+        super({
+          id: showWindowLogActionId,
+          title: nls.localize2("show window log", "Show Window Log"),
+          category: Categories.Developer,
+          f1: true
+        });
+      }
+      async run(servicesAccessor) {
+        const outputService = servicesAccessor.get(IOutputService);
+        outputService.showChannel(windowLogId);
+      }
+    }));
+  }
+};
+LogOutputChannels = __decorate([
+  __param(0, ILoggerService),
+  __param(1, IContextKeyService),
+  __param(2, IUriIdentityService)
+], LogOutputChannels);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  LogOutputChannels,
+  3
+  /* LifecyclePhase.Restored */
+);
+//# sourceMappingURL=logs.contribution.js.map

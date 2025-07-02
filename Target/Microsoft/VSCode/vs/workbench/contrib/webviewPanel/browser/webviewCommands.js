@@ -1,1 +1,161 @@
-import{EditorContextKeys as m}from"../../../../editor/common/editorContextKeys.js";import*as i from"../../../../nls.js";import{$CI as o,$xI as h}from"../../../../platform/actions/common/actions.js";import{$Cn as e}from"../../../../platform/contextkey/common/contextkey.js";import{$Yn as v}from"../../../../platform/action/common/actionCommonCategories.js";import{$tzb as L,$szb as f,$rzb as u,$qzb as E}from"../../webview/browser/webview.js";import{$SXb as x}from"./webviewEditor.js";import{$XVb as A}from"./webviewEditorInput.js";import{$II as I}from"../../../services/editor/common/editorService.js";const n=e.and(e.equals("activeEditor",x.ID),m.focus.toNegated());class c extends o{static{this.ID="editor.action.webvieweditor.showFind"}static{this.LABEL=i.localize(13166,null)}constructor(){super({id:c.ID,title:c.LABEL,keybinding:{when:e.and(n,f),primary:2084,weight:100}})}run(t){s(t)?.showFind()}}class d extends o{static{this.ID="editor.action.webvieweditor.hideFind"}static{this.LABEL=i.localize(13167,null)}constructor(){super({id:d.ID,title:d.LABEL,keybinding:{when:e.and(n,E),primary:9,weight:100}})}run(t){s(t)?.hideFind()}}class a extends o{static{this.ID="editor.action.webvieweditor.findNext"}static{this.LABEL=i.localize(13168,null)}constructor(){super({id:a.ID,title:a.LABEL,keybinding:{when:e.and(n,u),primary:3,weight:100}})}run(t){s(t)?.runFindAction(!1)}}class l extends o{static{this.ID="editor.action.webvieweditor.findPrevious"}static{this.LABEL=i.localize(13169,null)}constructor(){super({id:l.ID,title:l.LABEL,keybinding:{when:e.and(n,u),primary:1027,weight:100}})}run(t){s(t)?.runFindAction(!0)}}class w extends o{static{this.ID="workbench.action.webview.reloadWebviewAction"}static{this.LABEL=i.localize2(13170,"Reload Webviews")}constructor(){super({id:w.ID,title:w.LABEL,category:v.Developer,menu:[{id:h.CommandPalette}]})}async run(t){const r=t.get(L);for(const b of r.webviews)b.reload()}}function s(p){const r=p.get(I).activeEditor;return r instanceof A?r.webview:void 0}export{c as $irc,d as $jrc,a as $krc,l as $lrc,w as $mrc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import * as nls from "../../../../nls.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IWebviewService, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE } from "../../webview/browser/webview.js";
+import { WebviewEditor } from "./webviewEditor.js";
+import { WebviewInput } from "./webviewEditorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+const webviewActiveContextKeyExpr = ContextKeyExpr.and(
+  ContextKeyExpr.equals("activeEditor", WebviewEditor.ID),
+  EditorContextKeys.focus.toNegated()
+  /* https://github.com/microsoft/vscode/issues/58668 */
+);
+class ShowWebViewEditorFindWidgetAction extends Action2 {
+  static {
+    __name(this, "ShowWebViewEditorFindWidgetAction");
+  }
+  static {
+    this.ID = "editor.action.webvieweditor.showFind";
+  }
+  static {
+    this.LABEL = nls.localize("editor.action.webvieweditor.showFind", "Show find");
+  }
+  constructor() {
+    super({
+      id: ShowWebViewEditorFindWidgetAction.ID,
+      title: ShowWebViewEditorFindWidgetAction.LABEL,
+      keybinding: {
+        when: ContextKeyExpr.and(webviewActiveContextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED),
+        primary: 2048 | 36,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    getActiveWebviewEditor(accessor)?.showFind();
+  }
+}
+class HideWebViewEditorFindCommand extends Action2 {
+  static {
+    __name(this, "HideWebViewEditorFindCommand");
+  }
+  static {
+    this.ID = "editor.action.webvieweditor.hideFind";
+  }
+  static {
+    this.LABEL = nls.localize("editor.action.webvieweditor.hideFind", "Stop find");
+  }
+  constructor() {
+    super({
+      id: HideWebViewEditorFindCommand.ID,
+      title: HideWebViewEditorFindCommand.LABEL,
+      keybinding: {
+        when: ContextKeyExpr.and(webviewActiveContextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE),
+        primary: 9,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    getActiveWebviewEditor(accessor)?.hideFind();
+  }
+}
+class WebViewEditorFindNextCommand extends Action2 {
+  static {
+    __name(this, "WebViewEditorFindNextCommand");
+  }
+  static {
+    this.ID = "editor.action.webvieweditor.findNext";
+  }
+  static {
+    this.LABEL = nls.localize("editor.action.webvieweditor.findNext", "Find next");
+  }
+  constructor() {
+    super({
+      id: WebViewEditorFindNextCommand.ID,
+      title: WebViewEditorFindNextCommand.LABEL,
+      keybinding: {
+        when: ContextKeyExpr.and(webviewActiveContextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED),
+        primary: 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    getActiveWebviewEditor(accessor)?.runFindAction(false);
+  }
+}
+class WebViewEditorFindPreviousCommand extends Action2 {
+  static {
+    __name(this, "WebViewEditorFindPreviousCommand");
+  }
+  static {
+    this.ID = "editor.action.webvieweditor.findPrevious";
+  }
+  static {
+    this.LABEL = nls.localize("editor.action.webvieweditor.findPrevious", "Find previous");
+  }
+  constructor() {
+    super({
+      id: WebViewEditorFindPreviousCommand.ID,
+      title: WebViewEditorFindPreviousCommand.LABEL,
+      keybinding: {
+        when: ContextKeyExpr.and(webviewActiveContextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED),
+        primary: 1024 | 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    getActiveWebviewEditor(accessor)?.runFindAction(true);
+  }
+}
+class ReloadWebviewAction extends Action2 {
+  static {
+    __name(this, "ReloadWebviewAction");
+  }
+  static {
+    this.ID = "workbench.action.webview.reloadWebviewAction";
+  }
+  static {
+    this.LABEL = nls.localize2("refreshWebviewLabel", "Reload Webviews");
+  }
+  constructor() {
+    super({
+      id: ReloadWebviewAction.ID,
+      title: ReloadWebviewAction.LABEL,
+      category: Categories.Developer,
+      menu: [{
+        id: MenuId.CommandPalette
+      }]
+    });
+  }
+  async run(accessor) {
+    const webviewService = accessor.get(IWebviewService);
+    for (const webview of webviewService.webviews) {
+      webview.reload();
+    }
+  }
+}
+function getActiveWebviewEditor(accessor) {
+  const editorService = accessor.get(IEditorService);
+  const activeEditor = editorService.activeEditor;
+  return activeEditor instanceof WebviewInput ? activeEditor.webview : void 0;
+}
+__name(getActiveWebviewEditor, "getActiveWebviewEditor");
+export {
+  HideWebViewEditorFindCommand,
+  ReloadWebviewAction,
+  ShowWebViewEditorFindWidgetAction,
+  WebViewEditorFindNextCommand,
+  WebViewEditorFindPreviousCommand
+};
+//# sourceMappingURL=webviewCommands.js.map

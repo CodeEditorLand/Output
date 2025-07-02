@@ -1,1 +1,15 @@
-const t="editor.action.inlineSuggest.commit",o="editor.action.inlineSuggest.showPrevious",e="editor.action.inlineSuggest.showNext",i="editor.action.inlineSuggest.jump",n="editor.action.inlineSuggest.hide",s="editor.action.inlineSuggest.toggleShowCollapsed";export{t as $Ljb,o as $Mjb,e as $Njb,i as $Ojb,n as $Pjb,s as $Qjb};
+const inlineSuggestCommitId = "editor.action.inlineSuggest.commit";
+const showPreviousInlineSuggestionActionId = "editor.action.inlineSuggest.showPrevious";
+const showNextInlineSuggestionActionId = "editor.action.inlineSuggest.showNext";
+const jumpToNextInlineEditId = "editor.action.inlineSuggest.jump";
+const hideInlineCompletionId = "editor.action.inlineSuggest.hide";
+const toggleShowCollapsedId = "editor.action.inlineSuggest.toggleShowCollapsed";
+export {
+  hideInlineCompletionId,
+  inlineSuggestCommitId,
+  jumpToNextInlineEditId,
+  showNextInlineSuggestionActionId,
+  showPreviousInlineSuggestionActionId,
+  toggleShowCollapsedId
+};
+//# sourceMappingURL=commandIds.js.map

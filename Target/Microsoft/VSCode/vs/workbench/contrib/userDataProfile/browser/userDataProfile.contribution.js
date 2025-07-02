@@ -1,1 +1,10 @@
-import{$eL as o}from"../../../common/contributions.js";import{$Vxc as m}from"./userDataProfile.js";import"./userDataProfileActions.js";o(m.ID,m,2);
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { UserDataProfilesWorkbenchContribution } from "./userDataProfile.js";
+import "./userDataProfileActions.js";
+registerWorkbenchContribution2(
+  UserDataProfilesWorkbenchContribution.ID,
+  UserDataProfilesWorkbenchContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+//# sourceMappingURL=userDataProfile.contribution.js.map

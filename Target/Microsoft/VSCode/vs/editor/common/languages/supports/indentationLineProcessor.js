@@ -1,1 +1,185 @@
-import*as p from"../../../../base/common/strings.js";import{$DD as u}from"../supports.js";import{$eD as h}from"../../tokens/lineTokens.js";class O{constructor(e,t,n){this.a=t,this.b=new k(e,n)}shouldIncrease(e,t){const n=this.b.getProcessedLine(e,t);return this.a.shouldIncrease(n)}shouldDecrease(e,t){const n=this.b.getProcessedLine(e,t);return this.a.shouldDecrease(n)}shouldIgnore(e,t){const n=this.b.getProcessedLine(e,t);return this.a.shouldIgnore(n)}shouldIndentNextLine(e,t){const n=this.b.getProcessedLine(e,t);return this.a.shouldIndentNextLine(n)}}class z{constructor(e,t){this.a=e,this.b=new k(e,t)}getProcessedTokenContextAroundRange(e){const t=this.c(e),n=this.d(e),s=this.e(e);return{beforeRangeProcessedTokens:t,afterRangeProcessedTokens:n,previousLineProcessedTokens:s}}c(e){this.a.tokenization.forceTokenization(e.startLineNumber);const t=this.a.tokenization.getLineTokens(e.startLineNumber),n=u(t,e.startColumn-1);let s;if(m(this.a,e.getStartPosition())){const o=e.startColumn-1-n.firstCharOffset,c=n.firstCharOffset,r=c+o;s=t.sliceAndInflate(c,r,0)}else{const o=e.startColumn-1;s=t.sliceAndInflate(0,o,0)}return this.b.getProcessedTokens(s)}d(e){const t=e.isEmpty()?e.getStartPosition():e.getEndPosition();this.a.tokenization.forceTokenization(t.lineNumber);const n=this.a.tokenization.getLineTokens(t.lineNumber),s=u(n,t.column-1),i=t.column-1-s.firstCharOffset,o=s.firstCharOffset+i,c=s.firstCharOffset+s.getLineLength(),r=n.sliceAndInflate(o,c,0);return this.b.getProcessedTokens(r)}e(e){const t=L=>{this.a.tokenization.forceTokenization(L);const l=this.a.tokenization.getLineTokens(L),T=this.a.getLineMaxColumn(L)-1;return u(l,T)};this.a.tokenization.forceTokenization(e.startLineNumber);const n=this.a.tokenization.getLineTokens(e.startLineNumber),s=u(n,e.startColumn-1),i=h.createEmpty("",s.languageIdCodec),o=e.startLineNumber-1;if(o===0||!(s.firstCharOffset===0))return i;const a=t(o);if(!(s.languageId===a.languageId))return i;const g=a.toIViewLineTokens();return this.b.getProcessedTokens(g)}}class k{constructor(e,t){this.a=e,this.b=t}getProcessedLine(e,t){const n=(o,c)=>{const r=p.$Tf(o);return c+o.substring(r.length)};this.a.tokenization.forceTokenization?.(e);const s=this.a.tokenization.getLineTokens(e);let i=this.getProcessedTokens(s).getLineContent();return t!==void 0&&(i=n(i,t)),i}getProcessedTokens(e){const t=r=>r===2||r===3||r===1,n=e.getLanguageId(0),i=this.b.getLanguageConfiguration(n).bracketsNew.getBracketRegExp({global:!0}),o=[];return e.forEach(r=>{const a=e.getStandardTokenType(r);let f=e.getTokenText(r);t(a)&&(f=f.replace(i,""));const g=e.getMetadata(r);o.push({text:f,metadata:g})}),h.createFromTextAndMetadata(o,e.languageIdCodec)}}function m(d,e){d.tokenization.forceTokenization(e.lineNumber);const t=d.tokenization.getLineTokens(e.lineNumber),n=u(t,e.column-1),s=n.firstCharOffset===0,i=t.getLanguageId(0)===n.languageId;return!s&&!i}export{O as $1ab,z as $2ab,m as $3ab};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../../base/common/strings.js";
+import { createScopedLineTokens } from "../supports.js";
+import { LineTokens } from "../../tokens/lineTokens.js";
+class ProcessedIndentRulesSupport {
+  static {
+    __name(this, "ProcessedIndentRulesSupport");
+  }
+  constructor(model, indentRulesSupport, languageConfigurationService) {
+    this._indentRulesSupport = indentRulesSupport;
+    this._indentationLineProcessor = new IndentationLineProcessor(model, languageConfigurationService);
+  }
+  /**
+   * Apply the new indentation and return whether the indentation level should be increased after the given line number
+   */
+  shouldIncrease(lineNumber, newIndentation) {
+    const processedLine = this._indentationLineProcessor.getProcessedLine(lineNumber, newIndentation);
+    return this._indentRulesSupport.shouldIncrease(processedLine);
+  }
+  /**
+   * Apply the new indentation and return whether the indentation level should be decreased after the given line number
+   */
+  shouldDecrease(lineNumber, newIndentation) {
+    const processedLine = this._indentationLineProcessor.getProcessedLine(lineNumber, newIndentation);
+    return this._indentRulesSupport.shouldDecrease(processedLine);
+  }
+  /**
+   * Apply the new indentation and return whether the indentation level should remain unchanged at the given line number
+   */
+  shouldIgnore(lineNumber, newIndentation) {
+    const processedLine = this._indentationLineProcessor.getProcessedLine(lineNumber, newIndentation);
+    return this._indentRulesSupport.shouldIgnore(processedLine);
+  }
+  /**
+   * Apply the new indentation and return whether the indentation level should increase on the line after the given line number
+   */
+  shouldIndentNextLine(lineNumber, newIndentation) {
+    const processedLine = this._indentationLineProcessor.getProcessedLine(lineNumber, newIndentation);
+    return this._indentRulesSupport.shouldIndentNextLine(processedLine);
+  }
+}
+class IndentationContextProcessor {
+  static {
+    __name(this, "IndentationContextProcessor");
+  }
+  constructor(model, languageConfigurationService) {
+    this.model = model;
+    this.indentationLineProcessor = new IndentationLineProcessor(model, languageConfigurationService);
+  }
+  /**
+   * Returns the processed text, stripped from the language configuration brackets within the string, comment and regex tokens, around the given range
+   */
+  getProcessedTokenContextAroundRange(range) {
+    const beforeRangeProcessedTokens = this._getProcessedTokensBeforeRange(range);
+    const afterRangeProcessedTokens = this._getProcessedTokensAfterRange(range);
+    const previousLineProcessedTokens = this._getProcessedPreviousLineTokens(range);
+    return { beforeRangeProcessedTokens, afterRangeProcessedTokens, previousLineProcessedTokens };
+  }
+  _getProcessedTokensBeforeRange(range) {
+    this.model.tokenization.forceTokenization(range.startLineNumber);
+    const lineTokens = this.model.tokenization.getLineTokens(range.startLineNumber);
+    const scopedLineTokens = createScopedLineTokens(lineTokens, range.startColumn - 1);
+    let slicedTokens;
+    if (isLanguageDifferentFromLineStart(this.model, range.getStartPosition())) {
+      const columnIndexWithinScope = range.startColumn - 1 - scopedLineTokens.firstCharOffset;
+      const firstCharacterOffset = scopedLineTokens.firstCharOffset;
+      const lastCharacterOffset = firstCharacterOffset + columnIndexWithinScope;
+      slicedTokens = lineTokens.sliceAndInflate(firstCharacterOffset, lastCharacterOffset, 0);
+    } else {
+      const columnWithinLine = range.startColumn - 1;
+      slicedTokens = lineTokens.sliceAndInflate(0, columnWithinLine, 0);
+    }
+    const processedTokens = this.indentationLineProcessor.getProcessedTokens(slicedTokens);
+    return processedTokens;
+  }
+  _getProcessedTokensAfterRange(range) {
+    const position = range.isEmpty() ? range.getStartPosition() : range.getEndPosition();
+    this.model.tokenization.forceTokenization(position.lineNumber);
+    const lineTokens = this.model.tokenization.getLineTokens(position.lineNumber);
+    const scopedLineTokens = createScopedLineTokens(lineTokens, position.column - 1);
+    const columnIndexWithinScope = position.column - 1 - scopedLineTokens.firstCharOffset;
+    const firstCharacterOffset = scopedLineTokens.firstCharOffset + columnIndexWithinScope;
+    const lastCharacterOffset = scopedLineTokens.firstCharOffset + scopedLineTokens.getLineLength();
+    const slicedTokens = lineTokens.sliceAndInflate(firstCharacterOffset, lastCharacterOffset, 0);
+    const processedTokens = this.indentationLineProcessor.getProcessedTokens(slicedTokens);
+    return processedTokens;
+  }
+  _getProcessedPreviousLineTokens(range) {
+    const getScopedLineTokensAtEndColumnOfLine = /* @__PURE__ */ __name((lineNumber) => {
+      this.model.tokenization.forceTokenization(lineNumber);
+      const lineTokens2 = this.model.tokenization.getLineTokens(lineNumber);
+      const endColumnOfLine = this.model.getLineMaxColumn(lineNumber) - 1;
+      const scopedLineTokensAtEndColumn = createScopedLineTokens(lineTokens2, endColumnOfLine);
+      return scopedLineTokensAtEndColumn;
+    }, "getScopedLineTokensAtEndColumnOfLine");
+    this.model.tokenization.forceTokenization(range.startLineNumber);
+    const lineTokens = this.model.tokenization.getLineTokens(range.startLineNumber);
+    const scopedLineTokens = createScopedLineTokens(lineTokens, range.startColumn - 1);
+    const emptyTokens = LineTokens.createEmpty("", scopedLineTokens.languageIdCodec);
+    const previousLineNumber = range.startLineNumber - 1;
+    const isFirstLine = previousLineNumber === 0;
+    if (isFirstLine) {
+      return emptyTokens;
+    }
+    const canScopeExtendOnPreviousLine = scopedLineTokens.firstCharOffset === 0;
+    if (!canScopeExtendOnPreviousLine) {
+      return emptyTokens;
+    }
+    const scopedLineTokensAtEndColumnOfPreviousLine = getScopedLineTokensAtEndColumnOfLine(previousLineNumber);
+    const doesLanguageContinueOnPreviousLine = scopedLineTokens.languageId === scopedLineTokensAtEndColumnOfPreviousLine.languageId;
+    if (!doesLanguageContinueOnPreviousLine) {
+      return emptyTokens;
+    }
+    const previousSlicedLineTokens = scopedLineTokensAtEndColumnOfPreviousLine.toIViewLineTokens();
+    const processedTokens = this.indentationLineProcessor.getProcessedTokens(previousSlicedLineTokens);
+    return processedTokens;
+  }
+}
+class IndentationLineProcessor {
+  static {
+    __name(this, "IndentationLineProcessor");
+  }
+  constructor(model, languageConfigurationService) {
+    this.model = model;
+    this.languageConfigurationService = languageConfigurationService;
+  }
+  /**
+   * Get the processed line for the given line number and potentially adjust the indentation level.
+   * Remove the language configuration brackets from the regex, string and comment tokens.
+   */
+  getProcessedLine(lineNumber, newIndentation) {
+    const replaceIndentation = /* @__PURE__ */ __name((line, newIndentation2) => {
+      const currentIndentation = strings.getLeadingWhitespace(line);
+      const adjustedLine = newIndentation2 + line.substring(currentIndentation.length);
+      return adjustedLine;
+    }, "replaceIndentation");
+    this.model.tokenization.forceTokenization?.(lineNumber);
+    const tokens = this.model.tokenization.getLineTokens(lineNumber);
+    let processedLine = this.getProcessedTokens(tokens).getLineContent();
+    if (newIndentation !== void 0) {
+      processedLine = replaceIndentation(processedLine, newIndentation);
+    }
+    return processedLine;
+  }
+  /**
+   * Process the line with the given tokens, remove the language configuration brackets from the regex, string and comment tokens.
+   */
+  getProcessedTokens(tokens) {
+    const shouldRemoveBracketsFromTokenType = /* @__PURE__ */ __name((tokenType) => {
+      return tokenType === 2 || tokenType === 3 || tokenType === 1;
+    }, "shouldRemoveBracketsFromTokenType");
+    const languageId = tokens.getLanguageId(0);
+    const bracketsConfiguration = this.languageConfigurationService.getLanguageConfiguration(languageId).bracketsNew;
+    const bracketsRegExp = bracketsConfiguration.getBracketRegExp({ global: true });
+    const textAndMetadata = [];
+    tokens.forEach((tokenIndex) => {
+      const tokenType = tokens.getStandardTokenType(tokenIndex);
+      let text = tokens.getTokenText(tokenIndex);
+      if (shouldRemoveBracketsFromTokenType(tokenType)) {
+        text = text.replace(bracketsRegExp, "");
+      }
+      const metadata = tokens.getMetadata(tokenIndex);
+      textAndMetadata.push({ text, metadata });
+    });
+    const processedLineTokens = LineTokens.createFromTextAndMetadata(textAndMetadata, tokens.languageIdCodec);
+    return processedLineTokens;
+  }
+}
+function isLanguageDifferentFromLineStart(model, position) {
+  model.tokenization.forceTokenization(position.lineNumber);
+  const lineTokens = model.tokenization.getLineTokens(position.lineNumber);
+  const scopedLineTokens = createScopedLineTokens(lineTokens, position.column - 1);
+  const doesScopeStartAtOffsetZero = scopedLineTokens.firstCharOffset === 0;
+  const isScopedLanguageEqualToFirstLanguageOnLine = lineTokens.getLanguageId(0) === scopedLineTokens.languageId;
+  const languageIsDifferentFromLineStart = !doesScopeStartAtOffsetZero && !isScopedLanguageEqualToFirstLanguageOnLine;
+  return languageIsDifferentFromLineStart;
+}
+__name(isLanguageDifferentFromLineStart, "isLanguageDifferentFromLineStart");
+export {
+  IndentationContextProcessor,
+  ProcessedIndentRulesSupport,
+  isLanguageDifferentFromLineStart
+};
+//# sourceMappingURL=indentationLineProcessor.js.map

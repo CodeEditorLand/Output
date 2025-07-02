@@ -1,1 +1,111 @@
-import{$Vhb as g}from"./actionWidget.js";import{$B9 as y}from"../../../base/browser/ui/dropdown/dropdown.js";import{ThemeIcon as w}from"../../../base/common/themables.js";import{$Mj as h}from"../../../base/common/codicons.js";import{$A6 as _,$J6 as A}from"../../../base/browser/dom.js";import{$ux as v}from"../../keybinding/common/keybinding.js";var b=function(l,t,o,i){var n=arguments.length,c=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(l,t,o,i);else for(var d=l.length-1;d>=0;d--)(a=l[d])&&(c=(n<3?a(c):n>3?a(t,o,c):a(t,o))||c);return n>3&&c&&Object.defineProperty(t,o,c),c},f=function(l,t){return function(o,i){t(o,i,l)}};let u=class extends y{constructor(t,o,i,n){super(t,o),this.w=o,this.y=i,this.z=n}show(){let t=this.w.actionBarActions??this.w.actionBarActionProvider?.getActions()??[];const o=this.w.actions??this.w.actionProvider?.getActions()??[],i=[],n=new Map;for(const e of o){let r=e.category;r||(r={label:"",order:Number.MIN_SAFE_INTEGER}),n.has(r.label)||n.set(r.label,[]),n.get(r.label).push(e)}const c=Array.from(n.entries()).sort((e,r)=>{const s=e[1][0]?.category?.order??Number.MAX_SAFE_INTEGER,p=r[1][0]?.category?.order??Number.MAX_SAFE_INTEGER;return s-p});for(const[e,r]of c){e!==""&&i.push({label:e,kind:"header",canPreview:!1,disabled:!1,hideIcon:!1});for(const s of r)i.push({item:s,tooltip:s.tooltip,description:s.description,kind:"action",canPreview:!1,group:{title:"",icon:w.fromId(s.checked?h.check.id:h.blank.id)},disabled:!1,hideIcon:!1,label:s.label,keybinding:this.w.showItemKeybindings?this.z.lookupKeybinding(s.id):void 0})}const a=_(),d={onSelect:(e,r)=>{this.y.hide(),e.run()},onHide:()=>{A(a)&&a.focus()}};t=t.map(e=>({...e,run:async(...r)=>(this.y.hide(),e.run(...r))}));const m={isChecked(e){return e.kind==="action"&&!!e?.item?.checked},getRole:e=>e.kind==="action"?"menuitemcheckbox":"separator",getWidgetRole:()=>"menu"};this.y.show(this.w.label??"",!1,i,d,this.element,void 0,t,m)}};u=b([f(2,g),f(3,v)],u);export{u as $UMb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IActionWidgetService } from "./actionWidget.js";
+import { BaseDropdown } from "../../../base/browser/ui/dropdown/dropdown.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { Codicon } from "../../../base/common/codicons.js";
+import { getActiveElement, isHTMLElement } from "../../../base/browser/dom.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
+  static {
+    __name(this, "ActionWidgetDropdown");
+  }
+  constructor(container, _options, actionWidgetService, keybindingService) {
+    super(container, _options);
+    this._options = _options;
+    this.actionWidgetService = actionWidgetService;
+    this.keybindingService = keybindingService;
+  }
+  show() {
+    let actionBarActions = this._options.actionBarActions ?? this._options.actionBarActionProvider?.getActions() ?? [];
+    const actions = this._options.actions ?? this._options.actionProvider?.getActions() ?? [];
+    const actionWidgetItems = [];
+    const actionsByCategory = /* @__PURE__ */ new Map();
+    for (const action of actions) {
+      let category = action.category;
+      if (!category) {
+        category = { label: "", order: Number.MIN_SAFE_INTEGER };
+      }
+      if (!actionsByCategory.has(category.label)) {
+        actionsByCategory.set(category.label, []);
+      }
+      actionsByCategory.get(category.label).push(action);
+    }
+    const sortedCategories = Array.from(actionsByCategory.entries()).sort((a, b) => {
+      const aOrder = a[1][0]?.category?.order ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = b[1][0]?.category?.order ?? Number.MAX_SAFE_INTEGER;
+      return aOrder - bOrder;
+    });
+    for (const [categoryLabel, categoryActions] of sortedCategories) {
+      if (categoryLabel !== "") {
+        actionWidgetItems.push({
+          label: categoryLabel,
+          kind: "header",
+          canPreview: false,
+          disabled: false,
+          hideIcon: false
+        });
+      }
+      for (const action of categoryActions) {
+        actionWidgetItems.push({
+          item: action,
+          tooltip: action.tooltip,
+          description: action.description,
+          kind: "action",
+          canPreview: false,
+          group: { title: "", icon: ThemeIcon.fromId(action.checked ? Codicon.check.id : Codicon.blank.id) },
+          disabled: false,
+          hideIcon: false,
+          label: action.label,
+          keybinding: this._options.showItemKeybindings ? this.keybindingService.lookupKeybinding(action.id) : void 0
+        });
+      }
+    }
+    const previouslyFocusedElement = getActiveElement();
+    const actionWidgetDelegate = {
+      onSelect: /* @__PURE__ */ __name((action, preview) => {
+        this.actionWidgetService.hide();
+        action.run();
+      }, "onSelect"),
+      onHide: /* @__PURE__ */ __name(() => {
+        if (isHTMLElement(previouslyFocusedElement)) {
+          previouslyFocusedElement.focus();
+        }
+      }, "onHide")
+    };
+    actionBarActions = actionBarActions.map((action) => ({
+      ...action,
+      run: /* @__PURE__ */ __name(async (...args) => {
+        this.actionWidgetService.hide();
+        return action.run(...args);
+      }, "run")
+    }));
+    const accessibilityProvider = {
+      isChecked(element) {
+        return element.kind === "action" && !!element?.item?.checked;
+      },
+      getRole: /* @__PURE__ */ __name((e) => e.kind === "action" ? "menuitemcheckbox" : "separator", "getRole"),
+      getWidgetRole: /* @__PURE__ */ __name(() => "menu", "getWidgetRole")
+    };
+    this.actionWidgetService.show(this._options.label ?? "", false, actionWidgetItems, actionWidgetDelegate, this.element, void 0, actionBarActions, accessibilityProvider);
+  }
+};
+ActionWidgetDropdown = __decorate([
+  __param(2, IActionWidgetService),
+  __param(3, IKeybindingService)
+], ActionWidgetDropdown);
+export {
+  ActionWidgetDropdown
+};
+//# sourceMappingURL=actionWidgetDropdown.js.map

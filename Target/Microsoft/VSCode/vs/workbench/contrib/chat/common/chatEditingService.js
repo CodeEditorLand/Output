@@ -1,1 +1,77 @@
-import{URI as d}from"../../../../base/common/uri.js";import{localize as i}from"../../../../nls.js";import{$Vn as o}from"../../../../platform/contextkey/common/contextkey.js";import{$nj as p}from"../../../../platform/instantiation/common/instantiation.js";const l=p("chatEditingService"),O="chat-editing-snapshot-text-model";var t;(function(e){e[e.Modified=0]="Modified",e[e.Accepted=1]="Accepted",e[e.Rejected=2]="Rejected"})(t||(t={}));var r;(function(e){e[e.Initial=0]="Initial",e[e.StreamingEdits=1]="StreamingEdits",e[e.Idle=2]="Idle",e[e.Disposed=3]="Disposed"})(r||(r={}));const u="chat-editing-multi-diff-source",m=new o("chatEditingWidgetFileState",void 0,i(5745,null)),h=new o("chatEditingAgentSupportsReadonlyReferences",void 0,i(5746,null)),w=new o("decidedChatEditingResource",[]),g=new o("chatEditingResource",void 0),v=new o("inChatEditingSession",void 0),I=new o("hasUndecidedChatEditingResource",!1),R=new o("hasAppliedChatEdits",!1),A=new o("applyingChatEditsFailed",!1),j="chatEditingSessionFileLimit",y=10;var c;(function(e){e[e.Created=0]="Created",e[e.Modified=1]="Modified"})(c||(c={}));function q(e){return typeof e=="object"&&!!e&&"sessionId"in e}function D(e,n){return d.from({scheme:u,authority:e.chatSessionId,query:n?"previous":void 0})}function z(e){const n=e.authority,s=e.query==="previous";return{chatSessionId:n,showPreviousChanges:s}}export{A as $AO,j as $BO,y as $CO,q as $DO,D as $EO,z as $FO,l as $qO,O as $rO,u as $sO,m as $tO,h as $uO,w as $vO,g as $wO,v as $xO,I as $yO,R as $zO,c as ChatEditKind,r as ChatEditingSessionState,t as ModifiedFileEntryState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IChatEditingService = createDecorator("chatEditingService");
+const chatEditingSnapshotScheme = "chat-editing-snapshot-text-model";
+var ModifiedFileEntryState;
+(function(ModifiedFileEntryState2) {
+  ModifiedFileEntryState2[ModifiedFileEntryState2["Modified"] = 0] = "Modified";
+  ModifiedFileEntryState2[ModifiedFileEntryState2["Accepted"] = 1] = "Accepted";
+  ModifiedFileEntryState2[ModifiedFileEntryState2["Rejected"] = 2] = "Rejected";
+})(ModifiedFileEntryState || (ModifiedFileEntryState = {}));
+var ChatEditingSessionState;
+(function(ChatEditingSessionState2) {
+  ChatEditingSessionState2[ChatEditingSessionState2["Initial"] = 0] = "Initial";
+  ChatEditingSessionState2[ChatEditingSessionState2["StreamingEdits"] = 1] = "StreamingEdits";
+  ChatEditingSessionState2[ChatEditingSessionState2["Idle"] = 2] = "Idle";
+  ChatEditingSessionState2[ChatEditingSessionState2["Disposed"] = 3] = "Disposed";
+})(ChatEditingSessionState || (ChatEditingSessionState = {}));
+const CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME = "chat-editing-multi-diff-source";
+const chatEditingWidgetFileStateContextKey = new RawContextKey("chatEditingWidgetFileState", void 0, localize("chatEditingWidgetFileState", "The current state of the file in the chat editing widget"));
+const chatEditingAgentSupportsReadonlyReferencesContextKey = new RawContextKey("chatEditingAgentSupportsReadonlyReferences", void 0, localize("chatEditingAgentSupportsReadonlyReferences", "Whether the chat editing agent supports readonly references (temporary)"));
+const decidedChatEditingResourceContextKey = new RawContextKey("decidedChatEditingResource", []);
+const chatEditingResourceContextKey = new RawContextKey("chatEditingResource", void 0);
+const inChatEditingSessionContextKey = new RawContextKey("inChatEditingSession", void 0);
+const hasUndecidedChatEditingResourceContextKey = new RawContextKey("hasUndecidedChatEditingResource", false);
+const hasAppliedChatEditsContextKey = new RawContextKey("hasAppliedChatEdits", false);
+const applyingChatEditsFailedContextKey = new RawContextKey("applyingChatEditsFailed", false);
+const chatEditingMaxFileAssignmentName = "chatEditingSessionFileLimit";
+const defaultChatEditingMaxFileLimit = 10;
+var ChatEditKind;
+(function(ChatEditKind2) {
+  ChatEditKind2[ChatEditKind2["Created"] = 0] = "Created";
+  ChatEditKind2[ChatEditKind2["Modified"] = 1] = "Modified";
+})(ChatEditKind || (ChatEditKind = {}));
+function isChatEditingActionContext(thing) {
+  return typeof thing === "object" && !!thing && "sessionId" in thing;
+}
+__name(isChatEditingActionContext, "isChatEditingActionContext");
+function getMultiDiffSourceUri(session, showPreviousChanges) {
+  return URI.from({
+    scheme: CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME,
+    authority: session.chatSessionId,
+    query: showPreviousChanges ? "previous" : void 0
+  });
+}
+__name(getMultiDiffSourceUri, "getMultiDiffSourceUri");
+function parseChatMultiDiffUri(uri) {
+  const chatSessionId = uri.authority;
+  const showPreviousChanges = uri.query === "previous";
+  return { chatSessionId, showPreviousChanges };
+}
+__name(parseChatMultiDiffUri, "parseChatMultiDiffUri");
+export {
+  CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME,
+  ChatEditKind,
+  ChatEditingSessionState,
+  IChatEditingService,
+  ModifiedFileEntryState,
+  applyingChatEditsFailedContextKey,
+  chatEditingAgentSupportsReadonlyReferencesContextKey,
+  chatEditingMaxFileAssignmentName,
+  chatEditingResourceContextKey,
+  chatEditingSnapshotScheme,
+  chatEditingWidgetFileStateContextKey,
+  decidedChatEditingResourceContextKey,
+  defaultChatEditingMaxFileLimit,
+  getMultiDiffSourceUri,
+  hasAppliedChatEditsContextKey,
+  hasUndecidedChatEditingResourceContextKey,
+  inChatEditingSessionContextKey,
+  isChatEditingActionContext,
+  parseChatMultiDiffUri
+};
+//# sourceMappingURL=chatEditingService.js.map

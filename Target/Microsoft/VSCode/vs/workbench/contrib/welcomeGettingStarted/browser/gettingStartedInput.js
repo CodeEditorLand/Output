@@ -1,1 +1,93 @@
-import"./media/gettingStarted.css";import{localize as r}from"../../../../nls.js";import{$vF as s}from"../../../common/editor/editorInput.js";import{URI as h}from"../../../../base/common/uri.js";import{Schemas as i}from"../../../../base/common/network.js";const o="workbench.editors.gettingStartedInput";class t extends s{static{this.ID=o}static{this.RESOURCE=h.from({scheme:i.walkThrough,authority:"vscode_getting_started_page"})}get typeId(){return t.ID}get editorId(){return this.typeId}toUntyped(){return{resource:t.RESOURCE,options:{override:t.ID,pinned:!1}}}get resource(){return t.RESOURCE}matches(e){return super.matches(e)?!0:e instanceof t?e.selectedCategory===this.selectedCategory:!1}constructor(e){super(),this.a=e.selectedCategory,this.b=e.selectedStep,this.c=!!e.showTelemetryNotice,this.h=e.showWelcome??!0,this.m=e.walkthroughPageTitle}getName(){return this.walkthroughPageTitle?r(13290,null,this.walkthroughPageTitle):r(13291,null)}get selectedCategory(){return this.a}set selectedCategory(e){this.a=e,this.g.fire()}get selectedStep(){return this.b}set selectedStep(e){this.b=e}get showTelemetryNotice(){return this.c}set showTelemetryNotice(e){this.c=e}get showWelcome(){return this.h}set showWelcome(e){this.h=e}get walkthroughPageTitle(){return this.m}set walkthroughPageTitle(e){this.m=e}}export{o as $ywc,t as $zwc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/gettingStarted.css";
+import { localize } from "../../../../nls.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Schemas } from "../../../../base/common/network.js";
+const gettingStartedInputTypeId = "workbench.editors.gettingStartedInput";
+class GettingStartedInput extends EditorInput {
+  static {
+    __name(this, "GettingStartedInput");
+  }
+  static {
+    this.ID = gettingStartedInputTypeId;
+  }
+  static {
+    this.RESOURCE = URI.from({ scheme: Schemas.walkThrough, authority: "vscode_getting_started_page" });
+  }
+  get typeId() {
+    return GettingStartedInput.ID;
+  }
+  get editorId() {
+    return this.typeId;
+  }
+  toUntyped() {
+    return {
+      resource: GettingStartedInput.RESOURCE,
+      options: {
+        override: GettingStartedInput.ID,
+        pinned: false
+      }
+    };
+  }
+  get resource() {
+    return GettingStartedInput.RESOURCE;
+  }
+  matches(other) {
+    if (super.matches(other)) {
+      return true;
+    }
+    if (other instanceof GettingStartedInput) {
+      return other.selectedCategory === this.selectedCategory;
+    }
+    return false;
+  }
+  constructor(options) {
+    super();
+    this._selectedCategory = options.selectedCategory;
+    this._selectedStep = options.selectedStep;
+    this._showTelemetryNotice = !!options.showTelemetryNotice;
+    this._showWelcome = options.showWelcome ?? true;
+    this._walkthroughPageTitle = options.walkthroughPageTitle;
+  }
+  getName() {
+    return this.walkthroughPageTitle ? localize("walkthroughPageTitle", "Walkthrough: {0}", this.walkthroughPageTitle) : localize("getStarted", "Welcome");
+  }
+  get selectedCategory() {
+    return this._selectedCategory;
+  }
+  set selectedCategory(selectedCategory) {
+    this._selectedCategory = selectedCategory;
+    this._onDidChangeLabel.fire();
+  }
+  get selectedStep() {
+    return this._selectedStep;
+  }
+  set selectedStep(selectedStep) {
+    this._selectedStep = selectedStep;
+  }
+  get showTelemetryNotice() {
+    return this._showTelemetryNotice;
+  }
+  set showTelemetryNotice(value) {
+    this._showTelemetryNotice = value;
+  }
+  get showWelcome() {
+    return this._showWelcome;
+  }
+  set showWelcome(value) {
+    this._showWelcome = value;
+  }
+  get walkthroughPageTitle() {
+    return this._walkthroughPageTitle;
+  }
+  set walkthroughPageTitle(value) {
+    this._walkthroughPageTitle = value;
+  }
+}
+export {
+  GettingStartedInput,
+  gettingStartedInputTypeId
+};
+//# sourceMappingURL=gettingStartedInput.js.map

@@ -1,1 +1,46 @@
-import{$1n as m}from"../../../../platform/commands/common/commands.js";import{$$b as f}from"../../../../base/common/arrays.js";import{EditorExtensionsRegistry as i}from"../../../../editor/browser/editorExtensions.js";import{$zI as u,$xI as c,$vI as d}from"../../../../platform/actions/common/actions.js";function I(s){const n=[],r=new Map,o=(t,a)=>{if(!r.has(t)&&(r.set(t,!0),!(t[0]==="_"||t.indexOf("vscode.")===0)&&s.get(t)!==!0)){if(!a){const e=m.getCommand(t);if(e&&typeof e.metadata=="object"&&f(e.metadata.args))return}n.push(t)}};for(const t of u.getMenuItems(c.CommandPalette))d(t)&&o(t.command.id,!0);for(const t of i.getEditorActions())o(t.id,!0);for(const t of m.getCommands().keys())o(t,!1);return n}export{I as $K5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { MenuRegistry, MenuId, isIMenuItem } from "../../../../platform/actions/common/actions.js";
+function getAllUnboundCommands(boundCommands) {
+  const unboundCommands = [];
+  const seenMap = /* @__PURE__ */ new Map();
+  const addCommand = /* @__PURE__ */ __name((id, includeCommandWithArgs) => {
+    if (seenMap.has(id)) {
+      return;
+    }
+    seenMap.set(id, true);
+    if (id[0] === "_" || id.indexOf("vscode.") === 0) {
+      return;
+    }
+    if (boundCommands.get(id) === true) {
+      return;
+    }
+    if (!includeCommandWithArgs) {
+      const command = CommandsRegistry.getCommand(id);
+      if (command && typeof command.metadata === "object" && isNonEmptyArray(command.metadata.args)) {
+        return;
+      }
+    }
+    unboundCommands.push(id);
+  }, "addCommand");
+  for (const menuItem of MenuRegistry.getMenuItems(MenuId.CommandPalette)) {
+    if (isIMenuItem(menuItem)) {
+      addCommand(menuItem.command.id, true);
+    }
+  }
+  for (const editorAction of EditorExtensionsRegistry.getEditorActions()) {
+    addCommand(editorAction.id, true);
+  }
+  for (const id of CommandsRegistry.getCommands().keys()) {
+    addCommand(id, false);
+  }
+  return unboundCommands;
+}
+__name(getAllUnboundCommands, "getAllUnboundCommands");
+export {
+  getAllUnboundCommands
+};
+//# sourceMappingURL=unboundCommands.js.map

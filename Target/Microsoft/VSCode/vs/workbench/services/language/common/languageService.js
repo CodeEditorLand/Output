@@ -1,1 +1,351 @@
-import{localize as t}from"../../../../nls.js";import{$yFb as w,$wFb as E}from"../../../../editor/common/services/languagesAssociations.js";import{$kh as h}from"../../../../base/common/resources.js";import{$CD as F}from"../../../../editor/common/languages/language.js";import{$DFb as R}from"../../../../editor/common/services/languageService.js";import{$Fl as P}from"../../../../platform/configuration/common/configuration.js";import{$gl as _}from"../../../../platform/environment/common/environment.js";import{$tk as D}from"../../../../platform/files/common/files.js";import{$YO as O}from"../../extensions/common/extensions.js";import{$VO as k}from"../../extensions/common/extensionsRegistry.js";import{$WB as B}from"../../../../platform/instantiation/common/extensions.js";import{$4n as C}from"../../../../platform/log/common/log.js";import{$vd as G}from"../../../../base/common/lifecycle.js";import{Extensions as S}from"../../extensionManagement/common/extensionFeatures.js";import{$Rl as A}from"../../../../platform/registry/common/platform.js";import{$kj as I}from"../../../../platform/instantiation/common/descriptors.js";import{$dc as T}from"../../../../base/common/arrays.js";import{$Uj as V}from"../../../../base/common/htmlContent.js";import{$Yc as b}from"../../../../base/common/types.js";var j=function(i,e,r,a){var f=arguments.length,s=f<3?e:a===null?a=Object.getOwnPropertyDescriptor(e,r):a,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,e,r,a);else for(var g=i.length-1;g>=0;g--)(p=i[g])&&(s=(f<3?p(s):f>3?p(e,r,s):p(e,r))||s);return f>3&&s&&Object.defineProperty(e,r,s),s},c=function(i,e){return function(r,a){e(r,a,i)}};const y=k.registerExtensionPoint({extensionPoint:"languages",jsonSchema:{description:t(14446,null),type:"array",items:{type:"object",defaultSnippets:[{body:{id:"${1:languageId}",aliases:["${2:label}"],extensions:["${3:extension}"],configuration:"./language-configuration.json"}}],properties:{id:{description:t(14447,null),type:"string"},aliases:{description:t(14448,null),type:"array",items:{type:"string"}},extensions:{description:t(14449,null),default:[".foo"],type:"array",items:{type:"string"}},filenames:{description:t(14450,null),type:"array",items:{type:"string"}},filenamePatterns:{description:t(14451,null),type:"array",items:{type:"string"}},mimetypes:{description:t(14452,null),type:"array",items:{type:"string"}},firstLine:{description:t(14453,null),type:"string"},configuration:{description:t(14454,null),type:"string",default:"./language-configuration.json"},icon:{type:"object",description:t(14455,null),properties:{light:{description:t(14456,null),type:"string"},dark:{description:t(14457,null),type:"string"}}}}}},activationEventsGenerator:(i,e)=>{for(const r of i)r.id&&r.configuration&&e.push(`onLanguage:${r.id}`)}});class M extends G{constructor(){super(...arguments),this.type="table"}shouldRender(e){return!!e.contributes?.languages}render(e){const r=e.contributes,a=r?.languages||[],f=[];for(const n of a)L(n)&&f.push({id:n.id,name:(n.aliases||[])[0]||n.id,extensions:n.extensions||[],hasGrammar:!1,hasSnippets:!1});const s=T(f,n=>n.id);if((r?.grammars||[]).forEach(n=>{if(!b(n.language))return;let o=s[n.language];o?o.hasGrammar=!0:(o={id:n.language,name:n.language,extensions:[],hasGrammar:!0,hasSnippets:!1},s[o.id]=o,f.push(o))}),(r?.snippets||[]).forEach(n=>{if(!b(n.language))return;let o=s[n.language];o?o.hasSnippets=!0:(o={id:n.language,name:n.language,extensions:[],hasGrammar:!1,hasSnippets:!0},s[o.id]=o,f.push(o))}),!f.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const d=[t(14458,null),t(14459,null),t(14460,null),t(14461,null),t(14462,null)],u=f.sort((n,o)=>n.id.localeCompare(o.id)).map(n=>[n.id,n.name,new V().appendMarkdown(`${n.extensions.map(o=>`\`${o}\``).join("&nbsp;")}`),n.hasGrammar?"\u2714\uFE0E":"\u2014",n.hasSnippets?"\u2714\uFE0E":"\u2014"]);return{data:{headers:d,rows:u},dispose:()=>{}}}}A.as(S.ExtensionFeaturesRegistry).registerExtensionFeature({id:"languages",label:t(14463,null),access:{canToggle:!1},renderer:new I(M)});let $=class extends R{constructor(e,r,a,f){super(a.verbose||a.isExtensionDevelopment||!a.isBuilt),this.u=f,this.r=r,this.t=e,y.setHandler(s=>{const p=[];for(let g=0,d=s.length;g<d;g++){const u=s[g];if(!Array.isArray(u.value)){u.collector.error(t(14464,null,y.name));continue}for(let n=0,o=u.value.length;n<o;n++){const l=u.value[n];if(L(l,u.collector)){let x;l.configuration&&(x=h(u.description.extensionLocation,l.configuration)),p.push({id:l.id,extensions:l.extensions,filenames:l.filenames,filenamePatterns:l.filenamePatterns,firstLine:l.firstLine,aliases:l.aliases,mimetypes:l.mimetypes,configuration:x,icon:l.icon&&{light:h(u.description.extensionLocation,l.icon.light),dark:h(u.description.extensionLocation,l.icon.dark)}})}}}this.n.setDynamicLanguages(p)}),this.w(),this.B(this.r.onDidChangeConfiguration(s=>{s.affectsConfiguration(D)&&this.w()})),this.t.whenInstalledExtensionsRegistered().then(()=>{this.w()}),this.B(this.onDidRequestRichLanguageFeatures(s=>{this.t.activateByEvent(`onLanguage:${s}`),this.t.activateByEvent("onLanguage")}))}w(){const e=this.r.getValue();w(),e.files?.associations&&Object.keys(e.files.associations).forEach(r=>{const a=e.files.associations[r];if(typeof a!="string"){this.u.warn(`Ignoring configured 'files.associations' for '${r}' because its type is not a string but '${typeof a}'`);return}const f=this.getMimeType(a)||`text/x-${a}`;E({id:a,mime:f,filepattern:r})}),this.g.fire()}};$=j([c(0,O),c(1,P),c(2,_),c(3,C)],$);function m(i){return typeof i>"u"?!0:Array.isArray(i)?i.every(e=>typeof e=="string"):!1}function L(i,e){return i?typeof i.id!="string"?(e?.error(t(14466,null,"id")),!1):m(i.extensions)?m(i.filenames)?typeof i.firstLine<"u"&&typeof i.firstLine!="string"?(e?.error(t(14469,null,"firstLine")),!1):typeof i.configuration<"u"&&typeof i.configuration!="string"?(e?.error(t(14470,null,"configuration")),!1):m(i.aliases)?m(i.mimetypes)?typeof i.icon<"u"&&(typeof i.icon!="object"||typeof i.icon.light!="string"||typeof i.icon.dark!="string")?(e?.error(t(14473,null,"icon","light","dark")),!1):!0:(e?.error(t(14472,null,"mimetypes")),!1):(e?.error(t(14471,null,"aliases")),!1):(e?.error(t(14468,null,"filenames")),!1):(e?.error(t(14467,null,"extensions")),!1):(e?.error(t(14465,null,y.name)),!1)}B(F,$,0);export{y as $EFb,$ as $FFb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { clearConfiguredLanguageAssociations, registerConfiguredLanguageAssociation } from "../../../../editor/common/services/languagesAssociations.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { LanguageService } from "../../../../editor/common/services/languageService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { FILES_ASSOCIATIONS_CONFIG } from "../../../../platform/files/common/files.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Extensions } from "../../extensionManagement/common/extensionFeatures.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { index } from "../../../../base/common/arrays.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { isString } from "../../../../base/common/types.js";
+const languagesExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "languages",
+  jsonSchema: {
+    description: localize("vscode.extension.contributes.languages", "Contributes language declarations."),
+    type: "array",
+    items: {
+      type: "object",
+      defaultSnippets: [{ body: { id: "${1:languageId}", aliases: ["${2:label}"], extensions: ["${3:extension}"], configuration: "./language-configuration.json" } }],
+      properties: {
+        id: {
+          description: localize("vscode.extension.contributes.languages.id", "ID of the language."),
+          type: "string"
+        },
+        aliases: {
+          description: localize("vscode.extension.contributes.languages.aliases", "Name aliases for the language."),
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        extensions: {
+          description: localize("vscode.extension.contributes.languages.extensions", "File extensions associated to the language."),
+          default: [".foo"],
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        filenames: {
+          description: localize("vscode.extension.contributes.languages.filenames", "File names associated to the language."),
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        filenamePatterns: {
+          description: localize("vscode.extension.contributes.languages.filenamePatterns", "File name glob patterns associated to the language."),
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        mimetypes: {
+          description: localize("vscode.extension.contributes.languages.mimetypes", "Mime types associated to the language."),
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        firstLine: {
+          description: localize("vscode.extension.contributes.languages.firstLine", "A regular expression matching the first line of a file of the language."),
+          type: "string"
+        },
+        configuration: {
+          description: localize("vscode.extension.contributes.languages.configuration", "A relative path to a file containing configuration options for the language."),
+          type: "string",
+          default: "./language-configuration.json"
+        },
+        icon: {
+          type: "object",
+          description: localize("vscode.extension.contributes.languages.icon", "A icon to use as file icon, if no icon theme provides one for the language."),
+          properties: {
+            light: {
+              description: localize("vscode.extension.contributes.languages.icon.light", "Icon path when a light theme is used"),
+              type: "string"
+            },
+            dark: {
+              description: localize("vscode.extension.contributes.languages.icon.dark", "Icon path when a dark theme is used"),
+              type: "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  activationEventsGenerator: /* @__PURE__ */ __name((languageContributions, result) => {
+    for (const languageContribution of languageContributions) {
+      if (languageContribution.id && languageContribution.configuration) {
+        result.push(`onLanguage:${languageContribution.id}`);
+      }
+    }
+  }, "activationEventsGenerator")
+});
+class LanguageTableRenderer extends Disposable {
+  static {
+    __name(this, "LanguageTableRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.languages;
+  }
+  render(manifest) {
+    const contributes = manifest.contributes;
+    const rawLanguages = contributes?.languages || [];
+    const languages = [];
+    for (const l of rawLanguages) {
+      if (isValidLanguageExtensionPoint(l)) {
+        languages.push({
+          id: l.id,
+          name: (l.aliases || [])[0] || l.id,
+          extensions: l.extensions || [],
+          hasGrammar: false,
+          hasSnippets: false
+        });
+      }
+    }
+    const byId = index(languages, (l) => l.id);
+    const grammars = contributes?.grammars || [];
+    grammars.forEach((grammar) => {
+      if (!isString(grammar.language)) {
+        return;
+      }
+      let language = byId[grammar.language];
+      if (language) {
+        language.hasGrammar = true;
+      } else {
+        language = { id: grammar.language, name: grammar.language, extensions: [], hasGrammar: true, hasSnippets: false };
+        byId[language.id] = language;
+        languages.push(language);
+      }
+    });
+    const snippets = contributes?.snippets || [];
+    snippets.forEach((snippet) => {
+      if (!isString(snippet.language)) {
+        return;
+      }
+      let language = byId[snippet.language];
+      if (language) {
+        language.hasSnippets = true;
+      } else {
+        language = { id: snippet.language, name: snippet.language, extensions: [], hasGrammar: false, hasSnippets: true };
+        byId[language.id] = language;
+        languages.push(language);
+      }
+    });
+    if (!languages.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("language id", "ID"),
+      localize("language name", "Name"),
+      localize("file extensions", "File Extensions"),
+      localize("grammar", "Grammar"),
+      localize("snippets", "Snippets")
+    ];
+    const rows = languages.sort((a, b) => a.id.localeCompare(b.id)).map((l) => {
+      return [
+        l.id,
+        l.name,
+        new MarkdownString().appendMarkdown(`${l.extensions.map((e) => `\`${e}\``).join("&nbsp;")}`),
+        l.hasGrammar ? "\u2714\uFE0E" : "\u2014",
+        l.hasSnippets ? "\u2714\uFE0E" : "\u2014"
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "languages",
+  label: localize("languages", "Programming Languages"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(LanguageTableRenderer)
+});
+let WorkbenchLanguageService = class WorkbenchLanguageService2 extends LanguageService {
+  static {
+    __name(this, "WorkbenchLanguageService");
+  }
+  constructor(extensionService, configurationService, environmentService, logService) {
+    super(environmentService.verbose || environmentService.isExtensionDevelopment || !environmentService.isBuilt);
+    this.logService = logService;
+    this._configurationService = configurationService;
+    this._extensionService = extensionService;
+    languagesExtPoint.setHandler((extensions) => {
+      const allValidLanguages = [];
+      for (let i = 0, len = extensions.length; i < len; i++) {
+        const extension = extensions[i];
+        if (!Array.isArray(extension.value)) {
+          extension.collector.error(localize("invalid", "Invalid `contributes.{0}`. Expected an array.", languagesExtPoint.name));
+          continue;
+        }
+        for (let j = 0, lenJ = extension.value.length; j < lenJ; j++) {
+          const ext = extension.value[j];
+          if (isValidLanguageExtensionPoint(ext, extension.collector)) {
+            let configuration = void 0;
+            if (ext.configuration) {
+              configuration = joinPath(extension.description.extensionLocation, ext.configuration);
+            }
+            allValidLanguages.push({
+              id: ext.id,
+              extensions: ext.extensions,
+              filenames: ext.filenames,
+              filenamePatterns: ext.filenamePatterns,
+              firstLine: ext.firstLine,
+              aliases: ext.aliases,
+              mimetypes: ext.mimetypes,
+              configuration,
+              icon: ext.icon && {
+                light: joinPath(extension.description.extensionLocation, ext.icon.light),
+                dark: joinPath(extension.description.extensionLocation, ext.icon.dark)
+              }
+            });
+          }
+        }
+      }
+      this._registry.setDynamicLanguages(allValidLanguages);
+    });
+    this.updateMime();
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(FILES_ASSOCIATIONS_CONFIG)) {
+        this.updateMime();
+      }
+    }));
+    this._extensionService.whenInstalledExtensionsRegistered().then(() => {
+      this.updateMime();
+    });
+    this._register(this.onDidRequestRichLanguageFeatures((languageId) => {
+      this._extensionService.activateByEvent(`onLanguage:${languageId}`);
+      this._extensionService.activateByEvent(`onLanguage`);
+    }));
+  }
+  updateMime() {
+    const configuration = this._configurationService.getValue();
+    clearConfiguredLanguageAssociations();
+    if (configuration.files?.associations) {
+      Object.keys(configuration.files.associations).forEach((pattern) => {
+        const langId = configuration.files.associations[pattern];
+        if (typeof langId !== "string") {
+          this.logService.warn(`Ignoring configured 'files.associations' for '${pattern}' because its type is not a string but '${typeof langId}'`);
+          return;
+        }
+        const mimeType = this.getMimeType(langId) || `text/x-${langId}`;
+        registerConfiguredLanguageAssociation({ id: langId, mime: mimeType, filepattern: pattern });
+      });
+    }
+    this._onDidChange.fire();
+  }
+};
+WorkbenchLanguageService = __decorate([
+  __param(0, IExtensionService),
+  __param(1, IConfigurationService),
+  __param(2, IEnvironmentService),
+  __param(3, ILogService)
+], WorkbenchLanguageService);
+function isUndefinedOrStringArray(value) {
+  if (typeof value === "undefined") {
+    return true;
+  }
+  if (!Array.isArray(value)) {
+    return false;
+  }
+  return value.every((item) => typeof item === "string");
+}
+__name(isUndefinedOrStringArray, "isUndefinedOrStringArray");
+function isValidLanguageExtensionPoint(value, collector) {
+  if (!value) {
+    collector?.error(localize("invalid.empty", "Empty value for `contributes.{0}`", languagesExtPoint.name));
+    return false;
+  }
+  if (typeof value.id !== "string") {
+    collector?.error(localize("require.id", "property `{0}` is mandatory and must be of type `string`", "id"));
+    return false;
+  }
+  if (!isUndefinedOrStringArray(value.extensions)) {
+    collector?.error(localize("opt.extensions", "property `{0}` can be omitted and must be of type `string[]`", "extensions"));
+    return false;
+  }
+  if (!isUndefinedOrStringArray(value.filenames)) {
+    collector?.error(localize("opt.filenames", "property `{0}` can be omitted and must be of type `string[]`", "filenames"));
+    return false;
+  }
+  if (typeof value.firstLine !== "undefined" && typeof value.firstLine !== "string") {
+    collector?.error(localize("opt.firstLine", "property `{0}` can be omitted and must be of type `string`", "firstLine"));
+    return false;
+  }
+  if (typeof value.configuration !== "undefined" && typeof value.configuration !== "string") {
+    collector?.error(localize("opt.configuration", "property `{0}` can be omitted and must be of type `string`", "configuration"));
+    return false;
+  }
+  if (!isUndefinedOrStringArray(value.aliases)) {
+    collector?.error(localize("opt.aliases", "property `{0}` can be omitted and must be of type `string[]`", "aliases"));
+    return false;
+  }
+  if (!isUndefinedOrStringArray(value.mimetypes)) {
+    collector?.error(localize("opt.mimetypes", "property `{0}` can be omitted and must be of type `string[]`", "mimetypes"));
+    return false;
+  }
+  if (typeof value.icon !== "undefined") {
+    if (typeof value.icon !== "object" || typeof value.icon.light !== "string" || typeof value.icon.dark !== "string") {
+      collector?.error(localize("opt.icon", "property `{0}` can be omitted and must be of type `object` with properties `{1}` and `{2}` of type `string`", "icon", "light", "dark"));
+      return false;
+    }
+  }
+  return true;
+}
+__name(isValidLanguageExtensionPoint, "isValidLanguageExtensionPoint");
+registerSingleton(
+  ILanguageService,
+  WorkbenchLanguageService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  WorkbenchLanguageService,
+  languagesExtPoint
+};
+//# sourceMappingURL=languageService.js.map

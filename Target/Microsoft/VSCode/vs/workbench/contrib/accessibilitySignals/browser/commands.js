@@ -1,1 +1,157 @@
-import{$Mj as v}from"../../../../base/common/codicons.js";import{ThemeIcon as K}from"../../../../base/common/themables.js";import{localize as r,localize2 as V}from"../../../../nls.js";import{$tC as I}from"../../../../platform/accessibility/common/accessibility.js";import{$CI as h}from"../../../../platform/actions/common/actions.js";import{$peb as m,$leb as M,$keb as $}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$Fl as A}from"../../../../platform/configuration/common/configuration.js";import{$PM as D}from"../../../../platform/quickinput/common/quickInput.js";import{$hK as k}from"../../../services/preferences/common/preferences.js";import{$ud as C}from"../../../../base/common/lifecycle.js";class w extends h{static{this.ID="signals.sounds.help"}constructor(){super({id:w.ID,title:V(4713,"Help: List Signal Sounds"),f1:!0,metadata:{description:r(4706,null)}})}async run(l){const f=l.get($),S=l.get(D),a=l.get(A),g=l.get(I),y=l.get(k),c=[m.save,m.format],p=m.allAccessibilitySignals.map((n,t)=>({label:c.includes(n)?`${n.name} (${a.getValue(n.settingsKey+".sound")})`:n.name,signal:n,buttons:c.includes(n)?[{iconClass:K.asClassName(v.settingsGear),tooltip:r(4707,null),alwaysVisible:!0}]:[]})).sort((n,t)=>n.label.localeCompare(t.label)),o=new C,e=o.add(S.createQuickPick());e.items=p,e.selectedItems=p.filter(n=>f.isSoundEnabled(n.signal)||c.includes(n.signal)&&a.getValue(n.signal.settingsKey+".sound")!=="never"),o.add(e.onDidAccept(()=>{const n=e.selectedItems.map(i=>i.signal),t=e.items.map(i=>i.signal).filter(i=>!n.includes(i));for(const i of n){let{sound:s,announcement:u}=a.getValue(i.settingsKey);s=c.includes(i)?"userGesture":g.isScreenReaderOptimized()?"auto":"on",u?a.updateValue(i.settingsKey,{sound:s,announcement:u}):a.updateValue(i.settingsKey,{sound:s})}for(const i of t){const s=a.getValue(i.settingsKey+".announcement"),u=z(c.includes(i),g.isScreenReaderOptimized()),d=s?{sound:u,announcement:s}:{sound:u};a.updateValue(i.settingsKey,d)}e.hide()})),o.add(e.onDidTriggerItemButton(n=>{y.openUserSettings({jsonEditor:!0,revealSetting:{key:n.item.signal.settingsKey,edit:!0}})})),o.add(e.onDidChangeActive(()=>{f.playSound(e.activeItems[0].signal.sound.getSound(!0),!0,M)})),o.add(e.onDidHide(()=>o.dispose())),e.placeholder=r(4708,null),e.canSelectMany=!0,await e.show()}}function z(b,l){return l?b?"never":"off":b?"never":"auto"}class x extends h{static{this.ID="accessibility.announcement.help"}constructor(){super({id:x.ID,title:V(4714,"Help: List Signal Announcements"),f1:!0,metadata:{description:r(4709,null)}})}async run(l){const f=l.get($),S=l.get(D),a=l.get(A),g=l.get(I),y=l.get(k),c=[m.save,m.format],p=m.allAccessibilitySignals.filter(t=>!!t.legacyAnnouncementSettingsKey).map((t,i)=>({label:c.includes(t)?`${t.name} (${a.getValue(t.settingsKey+".announcement")})`:t.name,signal:t,buttons:c.includes(t)?[{iconClass:K.asClassName(v.settingsGear),tooltip:r(4710,null),alwaysVisible:!0}]:[]})).sort((t,i)=>t.label.localeCompare(i.label)),o=new C,e=o.add(S.createQuickPick());e.items=p,e.selectedItems=p.filter(t=>f.isAnnouncementEnabled(t.signal)||c.includes(t.signal)&&a.getValue(t.signal.settingsKey+".announcement")!=="never");const n=g.isScreenReaderOptimized();o.add(e.onDidAccept(()=>{if(!n){e.hide();return}const t=e.selectedItems.map(s=>s.signal),i=m.allAccessibilitySignals.filter(s=>!!s.legacyAnnouncementSettingsKey&&!t.includes(s));for(const s of t){let{sound:u,announcement:d}=a.getValue(s.settingsKey);d=c.includes(s)?"userGesture":s.announcementMessage&&g.isScreenReaderOptimized()?"auto":void 0,a.updateValue(s.settingsKey,{sound:u,announcement:d})}for(const s of i){const u=z(c.includes(s),!0),d=a.getValue(s.settingsKey+".sound"),G=u?{sound:d,announcement:u}:{sound:d};a.updateValue(s.settingsKey,G)}e.hide()})),o.add(e.onDidTriggerItemButton(t=>{y.openUserSettings({jsonEditor:!0,revealSetting:{key:t.item.signal.settingsKey,edit:!0}})})),o.add(e.onDidHide(()=>o.dispose())),e.placeholder=n?r(4711,null):r(4712,null),e.canSelectMany=!0,await e.show()}}export{w as $Vyc,x as $Wyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { AccessibilitySignal, AcknowledgeDocCommentsToken, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+class ShowSignalSoundHelp extends Action2 {
+  static {
+    __name(this, "ShowSignalSoundHelp");
+  }
+  static {
+    this.ID = "signals.sounds.help";
+  }
+  constructor() {
+    super({
+      id: ShowSignalSoundHelp.ID,
+      title: localize2("signals.sound.help", "Help: List Signal Sounds"),
+      f1: true,
+      metadata: {
+        description: localize("accessibility.sound.help.description", "List all accessibility sounds, noises, or audio cues and configure their settings")
+      }
+    });
+  }
+  async run(accessor) {
+    const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const configurationService = accessor.get(IConfigurationService);
+    const accessibilityService = accessor.get(IAccessibilityService);
+    const preferencesService = accessor.get(IPreferencesService);
+    const userGestureSignals = [AccessibilitySignal.save, AccessibilitySignal.format];
+    const items = AccessibilitySignal.allAccessibilitySignals.map((signal, idx) => ({
+      label: userGestureSignals.includes(signal) ? `${signal.name} (${configurationService.getValue(signal.settingsKey + ".sound")})` : signal.name,
+      signal,
+      buttons: userGestureSignals.includes(signal) ? [{
+        iconClass: ThemeIcon.asClassName(Codicon.settingsGear),
+        tooltip: localize("sounds.help.settings", "Configure Sound"),
+        alwaysVisible: true
+      }] : []
+    })).sort((a, b) => a.label.localeCompare(b.label));
+    const disposables = new DisposableStore();
+    const qp = disposables.add(quickInputService.createQuickPick());
+    qp.items = items;
+    qp.selectedItems = items.filter((i) => accessibilitySignalService.isSoundEnabled(i.signal) || userGestureSignals.includes(i.signal) && configurationService.getValue(i.signal.settingsKey + ".sound") !== "never");
+    disposables.add(qp.onDidAccept(() => {
+      const enabledSounds = qp.selectedItems.map((i) => i.signal);
+      const disabledSounds = qp.items.map((i) => i.signal).filter((i) => !enabledSounds.includes(i));
+      for (const signal of enabledSounds) {
+        let { sound, announcement } = configurationService.getValue(signal.settingsKey);
+        sound = userGestureSignals.includes(signal) ? "userGesture" : accessibilityService.isScreenReaderOptimized() ? "auto" : "on";
+        if (announcement) {
+          configurationService.updateValue(signal.settingsKey, { sound, announcement });
+        } else {
+          configurationService.updateValue(signal.settingsKey, { sound });
+        }
+      }
+      for (const signal of disabledSounds) {
+        const announcement = configurationService.getValue(signal.settingsKey + ".announcement");
+        const sound = getDisabledSettingValue(userGestureSignals.includes(signal), accessibilityService.isScreenReaderOptimized());
+        const value = announcement ? { sound, announcement } : { sound };
+        configurationService.updateValue(signal.settingsKey, value);
+      }
+      qp.hide();
+    }));
+    disposables.add(qp.onDidTriggerItemButton((e) => {
+      preferencesService.openUserSettings({ jsonEditor: true, revealSetting: { key: e.item.signal.settingsKey, edit: true } });
+    }));
+    disposables.add(qp.onDidChangeActive(() => {
+      accessibilitySignalService.playSound(qp.activeItems[0].signal.sound.getSound(true), true, AcknowledgeDocCommentsToken);
+    }));
+    disposables.add(qp.onDidHide(() => disposables.dispose()));
+    qp.placeholder = localize("sounds.help.placeholder", "Select a sound to play and configure");
+    qp.canSelectMany = true;
+    await qp.show();
+  }
+}
+function getDisabledSettingValue(isUserGestureSignal, isScreenReaderOptimized) {
+  return isScreenReaderOptimized ? isUserGestureSignal ? "never" : "off" : isUserGestureSignal ? "never" : "auto";
+}
+__name(getDisabledSettingValue, "getDisabledSettingValue");
+class ShowAccessibilityAnnouncementHelp extends Action2 {
+  static {
+    __name(this, "ShowAccessibilityAnnouncementHelp");
+  }
+  static {
+    this.ID = "accessibility.announcement.help";
+  }
+  constructor() {
+    super({
+      id: ShowAccessibilityAnnouncementHelp.ID,
+      title: localize2("accessibility.announcement.help", "Help: List Signal Announcements"),
+      f1: true,
+      metadata: {
+        description: localize("accessibility.announcement.help.description", "List all accessibility announcements, alerts, braille messages, and configure their settings")
+      }
+    });
+  }
+  async run(accessor) {
+    const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const configurationService = accessor.get(IConfigurationService);
+    const accessibilityService = accessor.get(IAccessibilityService);
+    const preferencesService = accessor.get(IPreferencesService);
+    const userGestureSignals = [AccessibilitySignal.save, AccessibilitySignal.format];
+    const items = AccessibilitySignal.allAccessibilitySignals.filter((c) => !!c.legacyAnnouncementSettingsKey).map((signal, idx) => ({
+      label: userGestureSignals.includes(signal) ? `${signal.name} (${configurationService.getValue(signal.settingsKey + ".announcement")})` : signal.name,
+      signal,
+      buttons: userGestureSignals.includes(signal) ? [{
+        iconClass: ThemeIcon.asClassName(Codicon.settingsGear),
+        tooltip: localize("announcement.help.settings", "Configure Announcement"),
+        alwaysVisible: true
+      }] : []
+    })).sort((a, b) => a.label.localeCompare(b.label));
+    const disposables = new DisposableStore();
+    const qp = disposables.add(quickInputService.createQuickPick());
+    qp.items = items;
+    qp.selectedItems = items.filter((i) => accessibilitySignalService.isAnnouncementEnabled(i.signal) || userGestureSignals.includes(i.signal) && configurationService.getValue(i.signal.settingsKey + ".announcement") !== "never");
+    const screenReaderOptimized = accessibilityService.isScreenReaderOptimized();
+    disposables.add(qp.onDidAccept(() => {
+      if (!screenReaderOptimized) {
+        qp.hide();
+        return;
+      }
+      const enabledAnnouncements = qp.selectedItems.map((i) => i.signal);
+      const disabledAnnouncements = AccessibilitySignal.allAccessibilitySignals.filter((cue) => !!cue.legacyAnnouncementSettingsKey && !enabledAnnouncements.includes(cue));
+      for (const signal of enabledAnnouncements) {
+        let { sound, announcement } = configurationService.getValue(signal.settingsKey);
+        announcement = userGestureSignals.includes(signal) ? "userGesture" : signal.announcementMessage && accessibilityService.isScreenReaderOptimized() ? "auto" : void 0;
+        configurationService.updateValue(signal.settingsKey, { sound, announcement });
+      }
+      for (const signal of disabledAnnouncements) {
+        const announcement = getDisabledSettingValue(userGestureSignals.includes(signal), true);
+        const sound = configurationService.getValue(signal.settingsKey + ".sound");
+        const value = announcement ? { sound, announcement } : { sound };
+        configurationService.updateValue(signal.settingsKey, value);
+      }
+      qp.hide();
+    }));
+    disposables.add(qp.onDidTriggerItemButton((e) => {
+      preferencesService.openUserSettings({ jsonEditor: true, revealSetting: { key: e.item.signal.settingsKey, edit: true } });
+    }));
+    disposables.add(qp.onDidHide(() => disposables.dispose()));
+    qp.placeholder = screenReaderOptimized ? localize("announcement.help.placeholder", "Select an announcement to configure") : localize("announcement.help.placeholder.disabled", "Screen reader is not active, announcements are disabled by default.");
+    qp.canSelectMany = true;
+    await qp.show();
+  }
+}
+export {
+  ShowAccessibilityAnnouncementHelp,
+  ShowSignalSoundHelp
+};
+//# sourceMappingURL=commands.js.map

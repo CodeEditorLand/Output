@@ -1,1 +1,175 @@
-import{Event as P}from"../../../../../base/common/event.js";import{$ud as v}from"../../../../../base/common/lifecycle.js";import{localize as i,localize2 as b}from"../../../../../nls.js";import{$CI as w}from"../../../../../platform/actions/common/actions.js";import{$bp as M}from"../../../../../platform/dialogs/common/dialogs.js";import{$mj as $}from"../../../../../platform/instantiation/common/instantiation.js";import{$4n as y}from"../../../../../platform/log/common/log.js";import{$PM as _}from"../../../../../platform/quickinput/common/quickInput.js";import{$GX as j}from"../../../../services/authentication/common/authentication.js";import{$V7b as B}from"../../../../services/authentication/common/authenticationQuery.js";import{$$W as D}from"../../../mcp/common/mcpTypes.js";var A=function(a,t,e,r){var n=arguments.length,c=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(a,t,e,r);else for(var l=a.length-1;l>=0;l--)(o=a[l])&&(c=(n<3?o(c):n>3?o(t,e,c):o(t,e))||c);return n>3&&c&&Object.defineProperty(t,e,c),c},u=function(a,t){return function(e,r){t(e,r,a)}};class z extends w{constructor(){super({id:"_manageAccountPreferencesForMcpServer",title:b(4734,"Manage MCP Server Account Preferences"),category:b(4735,"Accounts"),f1:!1})}run(t,e,r){return t.get($).createInstance(d).run(e,r)}}let d=class{constructor(t,e,r,n,c,o){this.c=t,this.d=e,this.f=r,this.g=n,this.h=c,this.i=o}async run(t,e){if(!t)return;const r=this.h.servers.get().find(h=>h.definition.id===t);if(!r)throw new Error(`No MCP server with id ${t}`);if(!e){const s=await this.g.mcpServer(t).getProvidersWithAccess();if(!s.length){await this.f.info(i(4726,null));return}if(e=s[0],s.length>1){const p=await this.d.pick(s.map(g=>({label:this.c.getProvider(g).label,id:g})),{placeHolder:i(4727,null),title:i(4728,null)});if(!p)return;e=p.id}}const n=await this.c.getAccounts(e),c=this.g.provider(e).mcpServer(t).getPreferredAccount(),o=this.k(n,e,c),l=this.c.getProvider(e);if(l.supportsMultipleAccounts){const h=n.flatMap(s=>this.g.provider(e).account(s.label).mcpServer(t).getUsage()).sort((s,p)=>p.lastUsed-s.lastUsed)[0]?.scopes;h&&(o.push({type:"separator"}),o.push({providerId:e,scopes:h,label:i(4729,null)}))}const f=new v,m=this.j(f,t,r.definition.label,l.label);if(o.length===0){f.add(this.l(m));return}m.items=o,m.show()}j(t,e,r,n){const c=t.add(this.d.createQuickPick({useSeparators:!0}));return t.add(c.onDidHide(()=>{t.dispose()})),c.placeholder=i(4730,null,r,n),c.title=i(4731,null,r),c.sortByLabel=!1,t.add(c.onDidAccept(async()=>{c.hide(),await this.m(e,c.selectedItems)})),c}k(t,e,r){return t.map(n=>r===n.label?{label:n.label,account:n,providerId:e,description:i(4732,null),picked:!0}:{label:n.label,account:n,providerId:e})}l(t){return t.validationMessage=i(4733,null),t.buttons=[this.d.backButton],t.show(),P.filter(t.onDidTriggerButton,e=>e===this.d.backButton)(()=>this.run())}async m(t,e){for(const r of e){let n;if(r.account)n=r.account;else try{n=(await this.c.createSession(r.providerId,[...r.scopes])).account}catch(f){this.i.error(f);continue}const c=r.providerId,o=this.g.provider(c).mcpServer(t);o.getPreferredAccount()!==n.label&&o.setPreferredAccount(n)}}};d=A([u(0,j),u(1,_),u(2,M),u(3,B),u(4,D),u(5,y)],d);export{z as $vxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IAuthenticationService } from "../../../../services/authentication/common/authentication.js";
+import { IAuthenticationQueryService } from "../../../../services/authentication/common/authenticationQuery.js";
+import { IMcpService } from "../../../mcp/common/mcpTypes.js";
+class ManageAccountPreferencesForMcpServerAction extends Action2 {
+  static {
+    __name(this, "ManageAccountPreferencesForMcpServerAction");
+  }
+  constructor() {
+    super({
+      id: "_manageAccountPreferencesForMcpServer",
+      title: localize2("manageAccountPreferenceForMcpServer", "Manage MCP Server Account Preferences"),
+      category: localize2("accounts", "Accounts"),
+      f1: false
+    });
+  }
+  run(accessor, mcpServerId, providerId) {
+    return accessor.get(IInstantiationService).createInstance(ManageAccountPreferenceForMcpServerActionImpl).run(mcpServerId, providerId);
+  }
+}
+let ManageAccountPreferenceForMcpServerActionImpl = class ManageAccountPreferenceForMcpServerActionImpl2 {
+  static {
+    __name(this, "ManageAccountPreferenceForMcpServerActionImpl");
+  }
+  constructor(_authenticationService, _quickInputService, _dialogService, _authenticationQueryService, _mcpService, _logService) {
+    this._authenticationService = _authenticationService;
+    this._quickInputService = _quickInputService;
+    this._dialogService = _dialogService;
+    this._authenticationQueryService = _authenticationQueryService;
+    this._mcpService = _mcpService;
+    this._logService = _logService;
+  }
+  async run(mcpServerId, providerId) {
+    if (!mcpServerId) {
+      return;
+    }
+    const mcpServer = this._mcpService.servers.get().find((s) => s.definition.id === mcpServerId);
+    if (!mcpServer) {
+      throw new Error(`No MCP server with id ${mcpServerId}`);
+    }
+    if (!providerId) {
+      const mcpServerQuery = this._authenticationQueryService.mcpServer(mcpServerId);
+      const providersWithAccess = await mcpServerQuery.getProvidersWithAccess();
+      if (!providersWithAccess.length) {
+        await this._dialogService.info(localize("noAccountUsage", "This MCP server has not used any accounts yet."));
+        return;
+      }
+      providerId = providersWithAccess[0];
+      if (providersWithAccess.length > 1) {
+        const result = await this._quickInputService.pick(providersWithAccess.map((providerId2) => ({
+          label: this._authenticationService.getProvider(providerId2).label,
+          id: providerId2
+        })), {
+          placeHolder: localize("selectProvider", "Select an authentication provider to manage account preferences for"),
+          title: localize("pickAProviderTitle", "Manage MCP Server Account Preferences")
+        });
+        if (!result) {
+          return;
+        }
+        providerId = result.id;
+      }
+    }
+    const accounts = await this._authenticationService.getAccounts(providerId);
+    const currentAccountNamePreference = this._authenticationQueryService.provider(providerId).mcpServer(mcpServerId).getPreferredAccount();
+    const items = this._getItems(accounts, providerId, currentAccountNamePreference);
+    const provider = this._authenticationService.getProvider(providerId);
+    if (provider.supportsMultipleAccounts) {
+      const lastUsedScopes = accounts.flatMap((account) => this._authenticationQueryService.provider(providerId).account(account.label).mcpServer(mcpServerId).getUsage()).sort((a, b) => b.lastUsed - a.lastUsed)[0]?.scopes;
+      if (lastUsedScopes) {
+        items.push({ type: "separator" });
+        items.push({
+          providerId,
+          scopes: lastUsedScopes,
+          label: localize("use new account", "Use a new account...")
+        });
+      }
+    }
+    const disposables = new DisposableStore();
+    const picker = this._createQuickPick(disposables, mcpServerId, mcpServer.definition.label, provider.label);
+    if (items.length === 0) {
+      disposables.add(this._handleNoAccounts(picker));
+      return;
+    }
+    picker.items = items;
+    picker.show();
+  }
+  _createQuickPick(disposableStore, mcpServerId, mcpServerLabel, providerLabel) {
+    const picker = disposableStore.add(this._quickInputService.createQuickPick({ useSeparators: true }));
+    disposableStore.add(picker.onDidHide(() => {
+      disposableStore.dispose();
+    }));
+    picker.placeholder = localize("placeholder v2", "Manage '{0}' account preferences for {1}...", mcpServerLabel, providerLabel);
+    picker.title = localize("title", "'{0}' Account Preferences For This Workspace", mcpServerLabel);
+    picker.sortByLabel = false;
+    disposableStore.add(picker.onDidAccept(async () => {
+      picker.hide();
+      await this._accept(mcpServerId, picker.selectedItems);
+    }));
+    return picker;
+  }
+  _getItems(accounts, providerId, currentAccountNamePreference) {
+    return accounts.map((a) => currentAccountNamePreference === a.label ? {
+      label: a.label,
+      account: a,
+      providerId,
+      description: localize("currentAccount", "Current account"),
+      picked: true
+    } : {
+      label: a.label,
+      account: a,
+      providerId
+    });
+  }
+  _handleNoAccounts(picker) {
+    picker.validationMessage = localize("noAccounts", "No accounts are currently used by this MCP server.");
+    picker.buttons = [this._quickInputService.backButton];
+    picker.show();
+    return Event.filter(picker.onDidTriggerButton, (e) => e === this._quickInputService.backButton)(() => this.run());
+  }
+  async _accept(mcpServerId, selectedItems) {
+    for (const item of selectedItems) {
+      let account;
+      if (!item.account) {
+        try {
+          const session = await this._authenticationService.createSession(item.providerId, [...item.scopes]);
+          account = session.account;
+        } catch (e) {
+          this._logService.error(e);
+          continue;
+        }
+      } else {
+        account = item.account;
+      }
+      const providerId = item.providerId;
+      const mcpQuery = this._authenticationQueryService.provider(providerId).mcpServer(mcpServerId);
+      const currentAccountName = mcpQuery.getPreferredAccount();
+      if (currentAccountName === account.label) {
+        continue;
+      }
+      mcpQuery.setPreferredAccount(account);
+    }
+  }
+};
+ManageAccountPreferenceForMcpServerActionImpl = __decorate([
+  __param(0, IAuthenticationService),
+  __param(1, IQuickInputService),
+  __param(2, IDialogService),
+  __param(3, IAuthenticationQueryService),
+  __param(4, IMcpService),
+  __param(5, ILogService)
+], ManageAccountPreferenceForMcpServerActionImpl);
+export {
+  ManageAccountPreferencesForMcpServerAction
+};
+//# sourceMappingURL=manageAccountPreferencesForMcpServerAction.js.map

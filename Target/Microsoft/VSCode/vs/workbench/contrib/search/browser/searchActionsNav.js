@@ -1,1 +1,466 @@
-import{$n as w}from"../../../../base/common/platform.js";import*as s from"../../../../nls.js";import{$Fl as V}from"../../../../platform/configuration/common/configuration.js";import{$8wb as l}from"../../../services/views/common/viewsService.js";import*as o from"../common/constants.js";import*as h from"../../searchEditor/browser/constants.js";import{$_cc as y}from"../../searchEditor/browser/searchEditorInput.js";import{$II as p}from"../../../services/editor/common/editorService.js";import{$Cn as u,$Wn as S}from"../../../../platform/contextkey/common/contextkey.js";import{$$c as $}from"../../../../base/common/types.js";import{$CI as i,$xI as F,$DI as n}from"../../../../platform/actions/common/actions.js";import{$8nb as x,$_nb as v,$0nb as R,$9nb as C}from"../../../../editor/contrib/find/browser/findModel.js";import{$Wbc as a,$Zbc as g,$3bc as b}from"./searchActionsBase.js";import{$uC as A}from"../../../../platform/accessibility/common/accessibility.js";import{$A6 as Z}from"../../../../base/browser/dom.js";import{$Ebc as I}from"./searchTreeModel/searchTreeCommon.js";n(class extends i{constructor(){super({id:"workbench.action.search.toggleQueryDetails",title:s.localize2(10907,"Toggle Query Details"),category:a,keybinding:{weight:200,when:u.or(o.$VZb.SearchViewFocusedKey,h.$4bc),primary:3112}})}run(e,...t){const r=e.get(S).getContext(Z());if(r.getValue(h.$4bc.serialize()))e.get(p).activeEditorPane.toggleQueryDetails(t[0]?.show);else if(r.getValue(o.$VZb.SearchViewFocusedKey.serialize())){const d=g(e.get(l));$(d).toggleQueryDetails(void 0,t[0]?.show)}}});n(class extends i{constructor(){super({id:"closeReplaceInFilesWidget",title:s.localize2(10908,"Close Replace Widget"),category:a,keybinding:{weight:200,when:u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.ReplaceInputBoxFocusedKey),primary:9}})}run(e){const t=g(e.get(l));return t&&(t.searchAndReplaceWidget.toggleReplace(!1),t.searchAndReplaceWidget.focus()),Promise.resolve(null)}});n(class extends i{constructor(){super({id:"toggleSearchCaseSensitive",title:s.localize2(10909,"Toggle Case Sensitive"),category:a,keybinding:Object.assign({weight:200,when:w?u.and(o.$VZb.SearchViewFocusedKey,o.$VZb.FileMatchOrFolderMatchFocusKey.toNegated()):o.$VZb.SearchViewFocusedKey},x)})}async run(e){K(e)}});n(class extends i{constructor(){super({id:"toggleSearchWholeWord",title:s.localize2(10910,"Toggle Whole Word"),keybinding:Object.assign({weight:200,when:o.$VZb.SearchViewFocusedKey},C),category:a})}async run(e){return T(e)}});n(class extends i{constructor(){super({id:"toggleSearchRegex",title:s.localize2(10911,"Toggle Regex"),keybinding:Object.assign({weight:200,when:o.$VZb.SearchViewFocusedKey},R),category:a})}async run(e){return P(e)}});n(class extends i{constructor(){super({id:"toggleSearchPreserveCase",title:s.localize2(10912,"Toggle Preserve Case"),keybinding:Object.assign({weight:200,when:o.$VZb.SearchViewFocusedKey},v),category:a})}async run(e){return W(e)}});n(class extends i{constructor(){super({id:"search.action.openResult",title:s.localize2(10913,"Open Match"),category:a,keybinding:{weight:200,when:u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.FileMatchOrMatchFocusKey),primary:3,mac:{primary:3,secondary:[2066]}}})}run(e){const t=g(e.get(l));if(t){const r=t.getControl(),d=t.getControl(),m=r.getFocus()[0];I(m)?d.toggleCollapsed(m):t.open(r.getFocus()[0],!1,!1,!0)}}});n(class extends i{constructor(){super({id:"search.action.openResultToSide",title:s.localize2(10914,"Open Match To Side"),category:a,keybinding:{weight:200,when:u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.FileMatchOrMatchFocusKey),primary:2051,mac:{primary:259}}})}run(e){const t=g(e.get(l));if(t){const r=t.getControl();t.open(r.getFocus()[0],!1,!0,!0)}}});n(class extends i{constructor(){super({id:"addCursorsAtSearchResults",title:s.localize2(10915,"Add Cursors at Search Results"),keybinding:{weight:200,when:u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.FileMatchOrMatchFocusKey),primary:3114},category:a})}async run(e){const t=g(e.get(l));if(t){const r=t.getControl();t.openEditorWithMultiCursor(r.getFocus()[0])}}});n(class extends i{constructor(){super({id:"search.focus.nextInputBox",title:s.localize2(10916,"Focus Next Input"),category:a,keybinding:{weight:200,when:u.or(u.and(h.$4bc,o.$VZb.InputBoxFocusedKey),u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.InputBoxFocusedKey)),primary:2066}})}async run(e){const t=e.get(p);t.activeEditor instanceof y&&t.activeEditorPane.focusNextInput(),g(e.get(l))?.focusNextInputBox()}});n(class extends i{constructor(){super({id:"search.focus.previousInputBox",title:s.localize2(10917,"Focus Previous Input"),category:a,keybinding:{weight:200,when:u.or(u.and(h.$4bc,o.$VZb.InputBoxFocusedKey),u.and(o.$VZb.SearchViewVisibleKey,o.$VZb.InputBoxFocusedKey,o.$VZb.SearchInputBoxFocusedKey.toNegated())),primary:2064}})}async run(e){const t=e.get(p);t.activeEditor instanceof y&&t.activeEditorPane.focusPrevInput(),g(e.get(l))?.focusPreviousInputBox()}});n(class extends i{constructor(){super({id:"search.action.focusSearchFromResults",title:s.localize2(10918,"Focus Search From Results"),category:a,keybinding:{weight:200,when:u.and(o.$VZb.SearchViewVisibleKey,u.or(o.$VZb.FirstMatchFocusKey,A)),primary:2064}})}run(e){g(e.get(l))?.focusPreviousInputBox()}});n(class f extends i{static{this.a="search.searchOnType"}constructor(){super({id:"workbench.action.toggleSearchOnType",title:s.localize2(10919,"Toggle Search on Type"),category:a})}async run(e){const t=e.get(V),r=t.getValue(f.a);return t.updateValue(f.a,!r)}});n(class extends i{constructor(){super({id:"search.action.focusSearchList",title:s.localize2(10920,"Focus List"),category:a,f1:!0})}async run(e){z(e)}});n(class extends i{constructor(){super({id:"search.action.focusNextSearchResult",title:s.localize2(10921,"Focus Next Search Result"),keybinding:[{primary:62,weight:200}],category:a,f1:!0,precondition:u.or(o.$VZb.HasSearchResults,h.$4bc)})}async run(e){return await k(e)}});n(class extends i{constructor(){super({id:"search.action.focusPreviousSearchResult",title:s.localize2(10922,"Focus Previous Search Result"),keybinding:[{primary:1086,weight:200}],category:a,f1:!0,precondition:u.or(o.$VZb.HasSearchResults,h.$4bc)})}async run(e){return await M(e)}});n(class extends i{constructor(){super({id:"workbench.action.replaceInFiles",title:s.localize2(10923,"Replace in Files"),keybinding:[{primary:3110,weight:200}],category:a,f1:!0,menu:[{id:F.MenubarEditMenu,group:"4_find_global",order:2}]})}async run(e){return await O(e,!0)}});function K(c){g(c.get(l))?.toggleCaseSensitive()}function T(c){g(c.get(l))?.toggleWholeWords()}function P(c){g(c.get(l))?.toggleRegex()}function W(c){g(c.get(l))?.togglePreserveCase()}const z=c=>{const e=c.get(l);b(e).then(t=>{t?.moveFocusToResults()})};async function k(c){const e=c.get(p);return e.activeEditor instanceof y?e.activeEditorPane.focusNextResult():b(c.get(l)).then(r=>r?.selectNextMatch())}async function M(c){const e=c.get(p);return e.activeEditor instanceof y?e.activeEditorPane.focusPreviousResult():b(c.get(l)).then(r=>r?.selectPreviousMatch())}async function O(c,e){return b(c.get(l),!1).then(t=>{if(t){t.searchAndReplaceWidget.toggleReplace(e);const d=t.updateTextFromFindWidgetOrSelection({allowUnselectedWord:!e});t.searchAndReplaceWidget.focus(void 0,d,d)}})}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isMacintosh } from "../../../../base/common/platform.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import * as Constants from "../common/constants.js";
+import * as SearchEditorConstants from "../../searchEditor/browser/constants.js";
+import { SearchEditorInput } from "../../searchEditor/browser/searchEditorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ToggleCaseSensitiveKeybinding, TogglePreserveCaseKeybinding, ToggleRegexKeybinding, ToggleWholeWordKeybinding } from "../../../../editor/contrib/find/browser/findModel.js";
+import { category, getSearchView, openSearchView } from "./searchActionsBase.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../platform/accessibility/common/accessibility.js";
+import { getActiveElement } from "../../../../base/browser/dom.js";
+import { isSearchTreeFolderMatch } from "./searchTreeModel/searchTreeCommon.js";
+registerAction2(class ToggleQueryDetailsAction extends Action2 {
+  static {
+    __name(this, "ToggleQueryDetailsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.search.toggleQueryDetails",
+      title: nls.localize2("ToggleQueryDetailsAction.label", "Toggle Query Details"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.or(Constants.SearchContext.SearchViewFocusedKey, SearchEditorConstants.InSearchEditor),
+        primary: 2048 | 1024 | 40
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const contextService = accessor.get(IContextKeyService).getContext(getActiveElement());
+    if (contextService.getValue(SearchEditorConstants.InSearchEditor.serialize())) {
+      accessor.get(IEditorService).activeEditorPane.toggleQueryDetails(args[0]?.show);
+    } else if (contextService.getValue(Constants.SearchContext.SearchViewFocusedKey.serialize())) {
+      const searchView = getSearchView(accessor.get(IViewsService));
+      assertReturnsDefined(searchView).toggleQueryDetails(void 0, args[0]?.show);
+    }
+  }
+});
+registerAction2(class CloseReplaceAction extends Action2 {
+  static {
+    __name(this, "CloseReplaceAction");
+  }
+  constructor() {
+    super({
+      id: "closeReplaceInFilesWidget",
+      title: nls.localize2("CloseReplaceWidget.label", "Close Replace Widget"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceInputBoxFocusedKey),
+        primary: 9
+      }
+    });
+  }
+  run(accessor) {
+    const searchView = getSearchView(accessor.get(IViewsService));
+    if (searchView) {
+      searchView.searchAndReplaceWidget.toggleReplace(false);
+      searchView.searchAndReplaceWidget.focus();
+    }
+    return Promise.resolve(null);
+  }
+});
+registerAction2(class ToggleCaseSensitiveCommandAction extends Action2 {
+  static {
+    __name(this, "ToggleCaseSensitiveCommandAction");
+  }
+  constructor() {
+    super({
+      id: "toggleSearchCaseSensitive",
+      title: nls.localize2("ToggleCaseSensitiveCommandId.label", "Toggle Case Sensitive"),
+      category,
+      keybinding: Object.assign({
+        weight: 200,
+        when: isMacintosh ? ContextKeyExpr.and(Constants.SearchContext.SearchViewFocusedKey, Constants.SearchContext.FileMatchOrFolderMatchFocusKey.toNegated()) : Constants.SearchContext.SearchViewFocusedKey
+      }, ToggleCaseSensitiveKeybinding)
+    });
+  }
+  async run(accessor) {
+    toggleCaseSensitiveCommand(accessor);
+  }
+});
+registerAction2(class ToggleWholeWordCommandAction extends Action2 {
+  static {
+    __name(this, "ToggleWholeWordCommandAction");
+  }
+  constructor() {
+    super({
+      id: "toggleSearchWholeWord",
+      title: nls.localize2("ToggleWholeWordCommandId.label", "Toggle Whole Word"),
+      keybinding: Object.assign({
+        weight: 200,
+        when: Constants.SearchContext.SearchViewFocusedKey
+      }, ToggleWholeWordKeybinding),
+      category
+    });
+  }
+  async run(accessor) {
+    return toggleWholeWordCommand(accessor);
+  }
+});
+registerAction2(class ToggleRegexCommandAction extends Action2 {
+  static {
+    __name(this, "ToggleRegexCommandAction");
+  }
+  constructor() {
+    super({
+      id: "toggleSearchRegex",
+      title: nls.localize2("ToggleRegexCommandId.label", "Toggle Regex"),
+      keybinding: Object.assign({
+        weight: 200,
+        when: Constants.SearchContext.SearchViewFocusedKey
+      }, ToggleRegexKeybinding),
+      category
+    });
+  }
+  async run(accessor) {
+    return toggleRegexCommand(accessor);
+  }
+});
+registerAction2(class TogglePreserveCaseAction extends Action2 {
+  static {
+    __name(this, "TogglePreserveCaseAction");
+  }
+  constructor() {
+    super({
+      id: "toggleSearchPreserveCase",
+      title: nls.localize2("TogglePreserveCaseId.label", "Toggle Preserve Case"),
+      keybinding: Object.assign({
+        weight: 200,
+        when: Constants.SearchContext.SearchViewFocusedKey
+      }, TogglePreserveCaseKeybinding),
+      category
+    });
+  }
+  async run(accessor) {
+    return togglePreserveCaseCommand(accessor);
+  }
+});
+registerAction2(class OpenMatchAction extends Action2 {
+  static {
+    __name(this, "OpenMatchAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.openResult",
+      title: nls.localize2("OpenMatch.label", "Open Match"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.FileMatchOrMatchFocusKey),
+        primary: 3,
+        mac: {
+          primary: 3,
+          secondary: [
+            2048 | 18
+            /* KeyCode.DownArrow */
+          ]
+        }
+      }
+    });
+  }
+  run(accessor) {
+    const searchView = getSearchView(accessor.get(IViewsService));
+    if (searchView) {
+      const tree = searchView.getControl();
+      const viewer = searchView.getControl();
+      const focus = tree.getFocus()[0];
+      if (isSearchTreeFolderMatch(focus)) {
+        viewer.toggleCollapsed(focus);
+      } else {
+        searchView.open(tree.getFocus()[0], false, false, true);
+      }
+    }
+  }
+});
+registerAction2(class OpenMatchToSideAction extends Action2 {
+  static {
+    __name(this, "OpenMatchToSideAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.openResultToSide",
+      title: nls.localize2("OpenMatchToSide.label", "Open Match To Side"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.FileMatchOrMatchFocusKey),
+        primary: 2048 | 3,
+        mac: {
+          primary: 256 | 3
+          /* KeyCode.Enter */
+        }
+      }
+    });
+  }
+  run(accessor) {
+    const searchView = getSearchView(accessor.get(IViewsService));
+    if (searchView) {
+      const tree = searchView.getControl();
+      searchView.open(tree.getFocus()[0], false, true, true);
+    }
+  }
+});
+registerAction2(class AddCursorsAtSearchResultsAction extends Action2 {
+  static {
+    __name(this, "AddCursorsAtSearchResultsAction");
+  }
+  constructor() {
+    super({
+      id: "addCursorsAtSearchResults",
+      title: nls.localize2("AddCursorsAtSearchResults.label", "Add Cursors at Search Results"),
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.FileMatchOrMatchFocusKey),
+        primary: 2048 | 1024 | 42
+      },
+      category
+    });
+  }
+  async run(accessor) {
+    const searchView = getSearchView(accessor.get(IViewsService));
+    if (searchView) {
+      const tree = searchView.getControl();
+      searchView.openEditorWithMultiCursor(tree.getFocus()[0]);
+    }
+  }
+});
+registerAction2(class FocusNextInputAction extends Action2 {
+  static {
+    __name(this, "FocusNextInputAction");
+  }
+  constructor() {
+    super({
+      id: "search.focus.nextInputBox",
+      title: nls.localize2("FocusNextInputAction.label", "Focus Next Input"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.or(ContextKeyExpr.and(SearchEditorConstants.InSearchEditor, Constants.SearchContext.InputBoxFocusedKey), ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.InputBoxFocusedKey)),
+        primary: 2048 | 18
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.focusNextInput();
+    }
+    const searchView = getSearchView(accessor.get(IViewsService));
+    searchView?.focusNextInputBox();
+  }
+});
+registerAction2(class FocusPreviousInputAction extends Action2 {
+  static {
+    __name(this, "FocusPreviousInputAction");
+  }
+  constructor() {
+    super({
+      id: "search.focus.previousInputBox",
+      title: nls.localize2("FocusPreviousInputAction.label", "Focus Previous Input"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.or(ContextKeyExpr.and(SearchEditorConstants.InSearchEditor, Constants.SearchContext.InputBoxFocusedKey), ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.InputBoxFocusedKey, Constants.SearchContext.SearchInputBoxFocusedKey.toNegated())),
+        primary: 2048 | 16
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.focusPrevInput();
+    }
+    const searchView = getSearchView(accessor.get(IViewsService));
+    searchView?.focusPreviousInputBox();
+  }
+});
+registerAction2(class FocusSearchFromResultsAction extends Action2 {
+  static {
+    __name(this, "FocusSearchFromResultsAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.focusSearchFromResults",
+      title: nls.localize2("FocusSearchFromResults.label", "Focus Search From Results"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, ContextKeyExpr.or(Constants.SearchContext.FirstMatchFocusKey, CONTEXT_ACCESSIBILITY_MODE_ENABLED)),
+        primary: 2048 | 16
+      }
+    });
+  }
+  run(accessor) {
+    const searchView = getSearchView(accessor.get(IViewsService));
+    searchView?.focusPreviousInputBox();
+  }
+});
+registerAction2(class ToggleSearchOnTypeAction extends Action2 {
+  static {
+    __name(this, "ToggleSearchOnTypeAction");
+  }
+  static {
+    this.searchOnTypeKey = "search.searchOnType";
+  }
+  constructor() {
+    super({
+      id: "workbench.action.toggleSearchOnType",
+      title: nls.localize2("toggleTabs", "Toggle Search on Type"),
+      category
+    });
+  }
+  async run(accessor) {
+    const configurationService = accessor.get(IConfigurationService);
+    const searchOnType = configurationService.getValue(ToggleSearchOnTypeAction.searchOnTypeKey);
+    return configurationService.updateValue(ToggleSearchOnTypeAction.searchOnTypeKey, !searchOnType);
+  }
+});
+registerAction2(class FocusSearchListCommandAction extends Action2 {
+  static {
+    __name(this, "FocusSearchListCommandAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.focusSearchList",
+      title: nls.localize2("focusSearchListCommandLabel", "Focus List"),
+      category,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    focusSearchListCommand(accessor);
+  }
+});
+registerAction2(class FocusNextSearchResultAction extends Action2 {
+  static {
+    __name(this, "FocusNextSearchResultAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.focusNextSearchResult",
+      title: nls.localize2("FocusNextSearchResult.label", "Focus Next Search Result"),
+      keybinding: [{
+        primary: 62,
+        weight: 200
+      }],
+      category,
+      f1: true,
+      precondition: ContextKeyExpr.or(Constants.SearchContext.HasSearchResults, SearchEditorConstants.InSearchEditor)
+    });
+  }
+  async run(accessor) {
+    return await focusNextSearchResult(accessor);
+  }
+});
+registerAction2(class FocusPreviousSearchResultAction extends Action2 {
+  static {
+    __name(this, "FocusPreviousSearchResultAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.focusPreviousSearchResult",
+      title: nls.localize2("FocusPreviousSearchResult.label", "Focus Previous Search Result"),
+      keybinding: [{
+        primary: 1024 | 62,
+        weight: 200
+      }],
+      category,
+      f1: true,
+      precondition: ContextKeyExpr.or(Constants.SearchContext.HasSearchResults, SearchEditorConstants.InSearchEditor)
+    });
+  }
+  async run(accessor) {
+    return await focusPreviousSearchResult(accessor);
+  }
+});
+registerAction2(class ReplaceInFilesAction extends Action2 {
+  static {
+    __name(this, "ReplaceInFilesAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.replaceInFiles",
+      title: nls.localize2("replaceInFiles", "Replace in Files"),
+      keybinding: [{
+        primary: 2048 | 1024 | 38,
+        weight: 200
+      }],
+      category,
+      f1: true,
+      menu: [{
+        id: MenuId.MenubarEditMenu,
+        group: "4_find_global",
+        order: 2
+      }]
+    });
+  }
+  async run(accessor) {
+    return await findOrReplaceInFiles(accessor, true);
+  }
+});
+function toggleCaseSensitiveCommand(accessor) {
+  const searchView = getSearchView(accessor.get(IViewsService));
+  searchView?.toggleCaseSensitive();
+}
+__name(toggleCaseSensitiveCommand, "toggleCaseSensitiveCommand");
+function toggleWholeWordCommand(accessor) {
+  const searchView = getSearchView(accessor.get(IViewsService));
+  searchView?.toggleWholeWords();
+}
+__name(toggleWholeWordCommand, "toggleWholeWordCommand");
+function toggleRegexCommand(accessor) {
+  const searchView = getSearchView(accessor.get(IViewsService));
+  searchView?.toggleRegex();
+}
+__name(toggleRegexCommand, "toggleRegexCommand");
+function togglePreserveCaseCommand(accessor) {
+  const searchView = getSearchView(accessor.get(IViewsService));
+  searchView?.togglePreserveCase();
+}
+__name(togglePreserveCaseCommand, "togglePreserveCaseCommand");
+const focusSearchListCommand = /* @__PURE__ */ __name((accessor) => {
+  const viewsService = accessor.get(IViewsService);
+  openSearchView(viewsService).then((searchView) => {
+    searchView?.moveFocusToResults();
+  });
+}, "focusSearchListCommand");
+async function focusNextSearchResult(accessor) {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    return editorService.activeEditorPane.focusNextResult();
+  }
+  return openSearchView(accessor.get(IViewsService)).then((searchView) => searchView?.selectNextMatch());
+}
+__name(focusNextSearchResult, "focusNextSearchResult");
+async function focusPreviousSearchResult(accessor) {
+  const editorService = accessor.get(IEditorService);
+  const input = editorService.activeEditor;
+  if (input instanceof SearchEditorInput) {
+    return editorService.activeEditorPane.focusPreviousResult();
+  }
+  return openSearchView(accessor.get(IViewsService)).then((searchView) => searchView?.selectPreviousMatch());
+}
+__name(focusPreviousSearchResult, "focusPreviousSearchResult");
+async function findOrReplaceInFiles(accessor, expandSearchReplaceWidget) {
+  return openSearchView(accessor.get(IViewsService), false).then((openedView) => {
+    if (openedView) {
+      const searchAndReplaceWidget = openedView.searchAndReplaceWidget;
+      searchAndReplaceWidget.toggleReplace(expandSearchReplaceWidget);
+      const updatedText = openedView.updateTextFromFindWidgetOrSelection({ allowUnselectedWord: !expandSearchReplaceWidget });
+      openedView.searchAndReplaceWidget.focus(void 0, updatedText, updatedText);
+    }
+  });
+}
+__name(findOrReplaceInFiles, "findOrReplaceInFiles");
+//# sourceMappingURL=searchActionsNav.js.map

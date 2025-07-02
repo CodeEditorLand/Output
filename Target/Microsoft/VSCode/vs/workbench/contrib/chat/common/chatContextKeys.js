@@ -1,1 +1,95 @@
-import{localize as l}from"../../../../nls.js";import{$Cn as a,$Vn as e}from"../../../../platform/contextkey/common/contextkey.js";import{$9M as o}from"../../../../platform/contextkey/common/contextkeys.js";import{$kN as r}from"../../../common/contextkeys.js";import{ChatModeKind as t}from"./constants.js";var i;(function(n){n.responseVote=new e("chatSessionResponseVote","",{type:"string",description:l(5707,null)}),n.responseDetectedAgentCommand=new e("chatSessionResponseDetectedAgentOrCommand",!1,{type:"boolean",description:l(5708,null)}),n.responseSupportsIssueReporting=new e("chatResponseSupportsIssueReporting",!1,{type:"boolean",description:l(5709,null)}),n.responseIsFiltered=new e("chatSessionResponseFiltered",!1,{type:"boolean",description:l(5710,null)}),n.responseHasError=new e("chatSessionResponseError",!1,{type:"boolean",description:l(5711,null)}),n.requestInProgress=new e("chatSessionRequestInProgress",!1,{type:"boolean",description:l(5712,null)}),n.currentlyEditing=new e("chatSessionCurrentlyEditing",!1,{type:"boolean",description:l(5713,null)}),n.currentlyEditingInput=new e("chatSessionCurrentlyEditingInput",!1,{type:"boolean",description:l(5714,null)}),n.isRequestPaused=new e("chatRequestIsPaused",!1,{type:"boolean",description:l(5715,null)}),n.canRequestBePaused=new e("chatCanRequestBePaused",!1,{type:"boolean",description:l(5716,null)}),n.isResponse=new e("chatResponse",!1,{type:"boolean",description:l(5717,null)}),n.isRequest=new e("chatRequest",!1,{type:"boolean",description:l(5718,null)}),n.itemId=new e("chatItemId","",{type:"string",description:l(5719,null)}),n.lastItemId=new e("chatLastItemId",[],{type:"string",description:l(5720,null)}),n.editApplied=new e("chatEditApplied",!1,{type:"boolean",description:l(5721,null)}),n.inputHasText=new e("chatInputHasText",!1,{type:"boolean",description:l(5722,null)}),n.inputHasFocus=new e("chatInputHasFocus",!1,{type:"boolean",description:l(5723,null)}),n.inChatInput=new e("inChatInput",!1,{type:"boolean",description:l(5724,null)}),n.inChatSession=new e("inChat",!1,{type:"boolean",description:l(5725,null)}),n.inChatEditor=new e("inChatEditor",!1,{type:"boolean",description:l(5726,null)}),n.hasPromptFile=new e("chatPromptFileAttached",!1,{type:"boolean",description:l(5727,null)}),n.chatModeKind=new e("chatMode",t.Ask,{type:"string",description:l(5728,null)}),n.supported=a.or(o.negate(),r.notEqualsTo(""),a.has("config.chat.experimental.serverlessWebEnabled")),n.enabled=new e("chatIsEnabled",!1,{type:"boolean",description:l(5729,null)}),n.extensionParticipantRegistered=new e("chatPanelExtensionParticipantRegistered",!1,{type:"boolean",description:l(5730,null)}),n.panelParticipantRegistered=new e("chatPanelParticipantRegistered",!1,{type:"boolean",description:l(5731,null)}),n.editingParticipantRegistered=new e("chatEditingParticipantRegistered",!1,{type:"boolean",description:l(5732,null)}),n.chatEditingCanUndo=new e("chatEditingCanUndo",!1,{type:"boolean",description:l(5733,null)}),n.chatEditingCanRedo=new e("chatEditingCanRedo",!1,{type:"boolean",description:l(5734,null)}),n.extensionInvalid=new e("chatExtensionInvalid",!1,{type:"boolean",description:l(5735,null)}),n.inputCursorAtTop=new e("chatCursorAtTop",!1),n.inputHasAgent=new e("chatInputHasAgent",!1),n.location=new e("chatLocation",void 0),n.inQuickChat=new e("quickChatHasFocus",!1,{type:"boolean",description:l(5736,null)}),n.hasFileAttachments=new e("chatHasFileAttachments",!1,{type:"boolean",description:l(5737,null)}),n.languageModelsAreUserSelectable=new e("chatModelsAreUserSelectable",!1,{type:"boolean",description:l(5738,null)}),n.remoteJobCreating=new e("chatRemoteJobCreating",!1,{type:"boolean",description:l(5739,null)}),n.hasRemoteCodingAgent=new e("hasRemoteCodingAgent",!1,l(5740,null)),n.Setup={hidden:new e("chatSetupHidden",!1,!0),installed:new e("chatSetupInstalled",!1,!0),disabled:new e("chatSetupDisabled",!1,!0),untrusted:new e("chatSetupUntrusted",!1,!0),later:new e("chatSetupLater",!1,!0)},n.Entitlement={signedOut:new e("chatEntitlementSignedOut",!1,!0),canSignUp:new e("chatPlanCanSignUp",!1,!0),free:new e("chatPlanFree",!1,!0),pro:new e("chatPlanPro",!1,!0),proPlus:new e("chatPlanProPlus",!1,!0),business:new e("chatPlanBusiness",!1,!0),enterprise:new e("chatPlanEnterprise",!1,!0)},n.chatQuotaExceeded=new e("chatQuotaExceeded",!1,!0),n.completionsQuotaExceeded=new e("completionsQuotaExceeded",!1,!0),n.Editing={hasToolConfirmation:new e("chatHasToolConfirmation",!1,{type:"boolean",description:l(5741,null)})},n.Tools={toolsCount:new e("toolsCount",0,{type:"number",description:l(5742,null)})},n.Modes={hasCustomChatModes:new e("chatHasCustomChatModes",!1,{type:"boolean",description:l(5743,null)})},n.panelLocation=new e("chatPanelLocation",void 0,{type:"number",description:l(5744,null)})})(i||(i={}));var s;(function(n){n.inEditingMode=a.or(i.chatModeKind.isEqualTo(t.Edit),i.chatModeKind.isEqualTo(t.Agent))})(s||(s={}));export{s as ChatContextKeyExprs,i as ChatContextKeys};
+import { localize } from "../../../../nls.js";
+import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { RemoteNameContext } from "../../../common/contextkeys.js";
+import { ChatModeKind } from "./constants.js";
+var ChatContextKeys;
+(function(ChatContextKeys2) {
+  ChatContextKeys2.responseVote = new RawContextKey("chatSessionResponseVote", "", { type: "string", description: localize("interactiveSessionResponseVote", "When the response has been voted up, is set to 'up'. When voted down, is set to 'down'. Otherwise an empty string.") });
+  ChatContextKeys2.responseDetectedAgentCommand = new RawContextKey("chatSessionResponseDetectedAgentOrCommand", false, { type: "boolean", description: localize("chatSessionResponseDetectedAgentOrCommand", "When the agent or command was automatically detected") });
+  ChatContextKeys2.responseSupportsIssueReporting = new RawContextKey("chatResponseSupportsIssueReporting", false, { type: "boolean", description: localize("chatResponseSupportsIssueReporting", "True when the current chat response supports issue reporting.") });
+  ChatContextKeys2.responseIsFiltered = new RawContextKey("chatSessionResponseFiltered", false, { type: "boolean", description: localize("chatResponseFiltered", "True when the chat response was filtered out by the server.") });
+  ChatContextKeys2.responseHasError = new RawContextKey("chatSessionResponseError", false, { type: "boolean", description: localize("chatResponseErrored", "True when the chat response resulted in an error.") });
+  ChatContextKeys2.requestInProgress = new RawContextKey("chatSessionRequestInProgress", false, { type: "boolean", description: localize("interactiveSessionRequestInProgress", "True when the current request is still in progress.") });
+  ChatContextKeys2.currentlyEditing = new RawContextKey("chatSessionCurrentlyEditing", false, { type: "boolean", description: localize("interactiveSessionCurrentlyEditing", "True when the current request is being edited.") });
+  ChatContextKeys2.currentlyEditingInput = new RawContextKey("chatSessionCurrentlyEditingInput", false, { type: "boolean", description: localize("interactiveSessionCurrentlyEditingInput", "True when the current request input at the bottom is being edited.") });
+  ChatContextKeys2.isRequestPaused = new RawContextKey("chatRequestIsPaused", false, { type: "boolean", description: localize("chatRequestIsPaused", "True when the current request is paused.") });
+  ChatContextKeys2.canRequestBePaused = new RawContextKey("chatCanRequestBePaused", false, { type: "boolean", description: localize("chatCanRequestBePaused", "True when the current request can be paused.") });
+  ChatContextKeys2.isResponse = new RawContextKey("chatResponse", false, { type: "boolean", description: localize("chatResponse", "The chat item is a response.") });
+  ChatContextKeys2.isRequest = new RawContextKey("chatRequest", false, { type: "boolean", description: localize("chatRequest", "The chat item is a request") });
+  ChatContextKeys2.itemId = new RawContextKey("chatItemId", "", { type: "string", description: localize("chatItemId", "The id of the chat item.") });
+  ChatContextKeys2.lastItemId = new RawContextKey("chatLastItemId", [], { type: "string", description: localize("chatLastItemId", "The id of the last chat item.") });
+  ChatContextKeys2.editApplied = new RawContextKey("chatEditApplied", false, { type: "boolean", description: localize("chatEditApplied", "True when the chat text edits have been applied.") });
+  ChatContextKeys2.inputHasText = new RawContextKey("chatInputHasText", false, { type: "boolean", description: localize("interactiveInputHasText", "True when the chat input has text.") });
+  ChatContextKeys2.inputHasFocus = new RawContextKey("chatInputHasFocus", false, { type: "boolean", description: localize("interactiveInputHasFocus", "True when the chat input has focus.") });
+  ChatContextKeys2.inChatInput = new RawContextKey("inChatInput", false, { type: "boolean", description: localize("inInteractiveInput", "True when focus is in the chat input, false otherwise.") });
+  ChatContextKeys2.inChatSession = new RawContextKey("inChat", false, { type: "boolean", description: localize("inChat", "True when focus is in the chat widget, false otherwise.") });
+  ChatContextKeys2.inChatEditor = new RawContextKey("inChatEditor", false, { type: "boolean", description: localize("inChatEditor", "Whether focus is in a chat editor.") });
+  ChatContextKeys2.hasPromptFile = new RawContextKey("chatPromptFileAttached", false, { type: "boolean", description: localize("chatPromptFileAttachedContextDescription", "True when the chat has a prompt file attached.") });
+  ChatContextKeys2.chatModeKind = new RawContextKey("chatMode", ChatModeKind.Ask, { type: "string", description: localize("chatMode", "The 'kind' of the current chat mode- Agent for custom modes.") });
+  ChatContextKeys2.supported = ContextKeyExpr.or(IsWebContext.negate(), RemoteNameContext.notEqualsTo(""), ContextKeyExpr.has("config.chat.experimental.serverlessWebEnabled"));
+  ChatContextKeys2.enabled = new RawContextKey("chatIsEnabled", false, { type: "boolean", description: localize("chatIsEnabled", "True when chat is enabled because a default chat participant is activated with an implementation.") });
+  ChatContextKeys2.extensionParticipantRegistered = new RawContextKey("chatPanelExtensionParticipantRegistered", false, { type: "boolean", description: localize("chatPanelExtensionParticipantRegistered", "True when a default chat participant is registered for the panel from an extension.") });
+  ChatContextKeys2.panelParticipantRegistered = new RawContextKey("chatPanelParticipantRegistered", false, { type: "boolean", description: localize("chatParticipantRegistered", "True when a default chat participant is registered for the panel.") });
+  ChatContextKeys2.editingParticipantRegistered = new RawContextKey("chatEditingParticipantRegistered", false, { type: "boolean", description: localize("chatEditingParticipantRegistered", "True when a default chat participant is registered for editing.") });
+  ChatContextKeys2.chatEditingCanUndo = new RawContextKey("chatEditingCanUndo", false, { type: "boolean", description: localize("chatEditingCanUndo", "True when it is possible to undo an interaction in the editing panel.") });
+  ChatContextKeys2.chatEditingCanRedo = new RawContextKey("chatEditingCanRedo", false, { type: "boolean", description: localize("chatEditingCanRedo", "True when it is possible to redo an interaction in the editing panel.") });
+  ChatContextKeys2.extensionInvalid = new RawContextKey("chatExtensionInvalid", false, { type: "boolean", description: localize("chatExtensionInvalid", "True when the installed chat extension is invalid and needs to be updated.") });
+  ChatContextKeys2.inputCursorAtTop = new RawContextKey("chatCursorAtTop", false);
+  ChatContextKeys2.inputHasAgent = new RawContextKey("chatInputHasAgent", false);
+  ChatContextKeys2.location = new RawContextKey("chatLocation", void 0);
+  ChatContextKeys2.inQuickChat = new RawContextKey("quickChatHasFocus", false, { type: "boolean", description: localize("inQuickChat", "True when the quick chat UI has focus, false otherwise.") });
+  ChatContextKeys2.hasFileAttachments = new RawContextKey("chatHasFileAttachments", false, { type: "boolean", description: localize("chatHasFileAttachments", "True when the chat has file attachments.") });
+  ChatContextKeys2.languageModelsAreUserSelectable = new RawContextKey("chatModelsAreUserSelectable", false, { type: "boolean", description: localize("chatModelsAreUserSelectable", "True when the chat model can be selected manually by the user.") });
+  ChatContextKeys2.remoteJobCreating = new RawContextKey("chatRemoteJobCreating", false, { type: "boolean", description: localize("chatRemoteJobCreating", "True when a remote coding agent job is being created.") });
+  ChatContextKeys2.hasRemoteCodingAgent = new RawContextKey("hasRemoteCodingAgent", false, localize("hasRemoteCodingAgent", "Whether any remote coding agent is available"));
+  ChatContextKeys2.Setup = {
+    hidden: new RawContextKey("chatSetupHidden", false, true),
+    // True when chat setup is explicitly hidden.
+    installed: new RawContextKey("chatSetupInstalled", false, true),
+    // True when the chat extension is installed and enabled.
+    disabled: new RawContextKey("chatSetupDisabled", false, true),
+    // True when the chat extension is disabled due to any other reason than workspace trust.
+    untrusted: new RawContextKey("chatSetupUntrusted", false, true),
+    // True when the chat extension is disabled due to workspace trust.
+    later: new RawContextKey("chatSetupLater", false, true)
+    // True when the user wants to finish setup later.
+  };
+  ChatContextKeys2.Entitlement = {
+    signedOut: new RawContextKey("chatEntitlementSignedOut", false, true),
+    // True when user is signed out.
+    canSignUp: new RawContextKey("chatPlanCanSignUp", false, true),
+    // True when user can sign up to be a chat free user.
+    free: new RawContextKey("chatPlanFree", false, true),
+    // True when user is a chat free user.
+    pro: new RawContextKey("chatPlanPro", false, true),
+    // True when user is a chat pro user.
+    proPlus: new RawContextKey("chatPlanProPlus", false, true),
+    // True when user is a chat pro plus user.
+    business: new RawContextKey("chatPlanBusiness", false, true),
+    // True when user is a chat business user.
+    enterprise: new RawContextKey("chatPlanEnterprise", false, true)
+    // True when user is a chat enterprise user.
+  };
+  ChatContextKeys2.chatQuotaExceeded = new RawContextKey("chatQuotaExceeded", false, true);
+  ChatContextKeys2.completionsQuotaExceeded = new RawContextKey("completionsQuotaExceeded", false, true);
+  ChatContextKeys2.Editing = {
+    hasToolConfirmation: new RawContextKey("chatHasToolConfirmation", false, { type: "boolean", description: localize("chatEditingHasToolConfirmation", "True when a tool confirmation is present.") })
+  };
+  ChatContextKeys2.Tools = {
+    toolsCount: new RawContextKey("toolsCount", 0, { type: "number", description: localize("toolsCount", "The count of tools available in the chat.") })
+  };
+  ChatContextKeys2.Modes = {
+    hasCustomChatModes: new RawContextKey("chatHasCustomChatModes", false, { type: "boolean", description: localize("chatHasCustomChatModes", "True when the chat has custom chat modes available.") })
+  };
+  ChatContextKeys2.panelLocation = new RawContextKey("chatPanelLocation", void 0, { type: "number", description: localize("chatPanelLocation", "The location of the chat panel.") });
+})(ChatContextKeys || (ChatContextKeys = {}));
+var ChatContextKeyExprs;
+(function(ChatContextKeyExprs2) {
+  ChatContextKeyExprs2.inEditingMode = ContextKeyExpr.or(ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Edit), ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent));
+})(ChatContextKeyExprs || (ChatContextKeyExprs = {}));
+export {
+  ChatContextKeyExprs,
+  ChatContextKeys
+};
+//# sourceMappingURL=chatContextKeys.js.map

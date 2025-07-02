@@ -1,1 +1,23 @@
-import{$0_ as i}from"../../../common/viewEventHandler.js";class n extends i{get glyphRasterizer(){return this.f.value}constructor(t,s,e,r){super(),this.a=t,this.b=s,this.c=e,this.f=r,this.a.addEventHandler(this)}}export{n as $ncb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ViewEventHandler } from "../../../common/viewEventHandler.js";
+class BaseRenderStrategy extends ViewEventHandler {
+  static {
+    __name(this, "BaseRenderStrategy");
+  }
+  get glyphRasterizer() {
+    return this._glyphRasterizer.value;
+  }
+  constructor(_context, _viewGpuContext, _device, _glyphRasterizer) {
+    super();
+    this._context = _context;
+    this._viewGpuContext = _viewGpuContext;
+    this._device = _device;
+    this._glyphRasterizer = _glyphRasterizer;
+    this._context.addEventHandler(this);
+  }
+}
+export {
+  BaseRenderStrategy
+};
+//# sourceMappingURL=baseRenderStrategy.js.map

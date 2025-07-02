@@ -1,1 +1,875 @@
-import{$Rl as p}from"../../../../platform/registry/common/platform.js";import{localize as e,localize2 as r}from"../../../../nls.js";import{$RGb as C}from"../../editor.js";import{$nK as c}from"../../../common/editor.js";import{$GN as m,$uN as Qe,$IN as We,$xN as b,$EN as te,$SN as ie,$tN as K,$MN as s,$CN as re,$HN as I,$1N as w,$wN as de,$UN as ue,$NN as l,$WN as le,$sN as h,$zN as Oe,$PN as x}from"../../../common/contextkeys.js";import{$kI as ae,$mI as Ze}from"../../../common/editor/sideBySideEditorInput.js";import{$Y4b as q}from"./textResourceEditor.js";import{$WGb as V}from"./sideBySideEditor.js";import{$3Gb as v,$4Gb as Xe}from"../../../common/editor/diffEditorInput.js";import{$QAb as pe}from"../../../services/untitled/common/untitledTextEditorInput.js";import{$PAb as je}from"../../../common/editor/textResourceEditorInput.js";import{$5Gb as z}from"./textDiffEditor.js";import{$14b as F}from"./binaryDiffEditor.js";import{$64b as Ye,$54b as eo,$44b as oo,$24b as U}from"./editorStatus.js";import{$Yn as a}from"../../../../platform/action/common/actionCommonCategories.js";import{$zI as n,$xI as o,$DI as t}from"../../../../platform/actions/common/actions.js";import{$kj as $}from"../../../../platform/instantiation/common/descriptors.js";import{$KJb as no,$IJb as to,$MJb as io,$NJb as ro,$lJb as uo,$rJb as lo,$GJb as ao,$tJb as po,$uJb as mo,$vJb as co,$WJb as bo,$UJb as so,$yJb as go,$xJb as Mo,$HJb as $o,$1Jb as Io,$2Jb as wo,$8Jb as D,$7Jb as H,$9Jb as ho,$fKb as me,$mKb as Eo,$oKb as _o,$iKb as ce,$tKb as fo,$vKb as To,$3Jb as yo,$4Jb as Co,$pKb as Ko,$qKb as xo,$wKb as So,$xKb as ko,$CKb as Go,$uKb as Jo,$gKb as be,$6Jb as Po,$hKb as se,$DKb as No,$5Jb as Do,$OJb as Ho,$PJb as vo,$wJb as Lo,$nJb as Bo,$oJb as Ro,$pJb as Ao,$qJb as qo,$AKb as Vo,$BKb as zo,$yKb as Fo,$zKb as Uo,$JJb as Qo,$sJb as Wo,$zJb as Oo,$BJb as Zo,$AJb as Xo,$CJb as jo,$MKb as ge,$NKb as Me,$OKb as $e,$RKb as Ie,$PKb as we,$QKb as he,$SKb as Ee,$TKb as _e,$UKb as Yo,$VKb as en,$WKb as on,$XKb as nn,$mJb as tn,$LJb as rn,$aKb as dn,$XJb as un,$jKb as fe,$kKb as ln,$sKb as an,$rKb as pn,$lKb as mn,$nKb as cn,$ZKb as bn,$TJb as sn,$QJb as gn,$RJb as Mn,$SJb as $n,$YKb as In,$GKb as wn,$HKb as hn,$KKb as En,$LKb as _n,$IKb as fn,$FKb as Tn,$EKb as yn,$JKb as Cn,$0Jb as Kn,$$Jb as xn,$bKb as Sn,$cKb as kn,$dKb as Gn,$_Jb as Jn,$eKb as Pn,$YJb as Nn,$1Kb as Dn,$2Kb as Hn,$5Kb as vn,$ZJb as Ln,$VJb as Bn,$4Kb as Rn,$3Kb as An,$6Kb as qn}from"./editorActions.js";import{$gHb as Vn,$fHb as E,$hHb as Te,$iHb as g,$kHb as ye,$lHb as Ce,$jHb as zn,$eHb as L,$pHb as Ke,$xHb as xe,$uHb as Fn,$BHb as _,$CHb as S,$DHb as f,$AHb as k,$qHb as Un,$yHb as G,$2Hb as Qn,$vHb as Se,$rHb as ke,$tHb as Ge,$FHb as Je,$HHb as Pe,$JHb as Wn,$KHb as On,$IHb as Zn,$sHb as Ne,$zHb as De,$EHb as He,$RHb as ve,$SHb as Le,$THb as Xn,$UHb as jn,$VHb as Yn}from"./editorCommands.js";import{$7Gb as et,$8Gb as ot,$aHb as nt,$6Gb as tt,$bHb as it}from"./diffEditorCommands.js";import{$JLb as rt,$MLb as Be}from"../../quickaccess.js";import{$tI as Re}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$Cn as i}from"../../../../platform/contextkey/common/contextkey.js";import{$n as dt}from"../../../../base/common/platform.js";import{$Bab as ut}from"../../../../editor/browser/editorExtensions.js";import{$tVb as Q}from"../../codeeditor.js";import{$eL as J}from"../../../common/contributions.js";import{$74b as W}from"./editorAutoSave.js";import{$rM as lt}from"../../../../platform/quickinput/common/quickAccess.js";import{$OGb as O,$PGb as Z,$QGb as X}from"./editorQuickAccess.js";import{$8g as j}from"../../../../base/common/network.js";import{$Mj as d}from"../../../../base/common/codicons.js";import{$Et as B}from"../../../../platform/theme/common/iconRegistry.js";import{$04b as at,$$4b as Y}from"../../../services/untitled/common/untitledTextEditorHandler.js";import{$_4b as ee}from"./editorConfiguration.js";import{$Qyb as pt,$Pyb as mt,$Myb as ct,$Lyb as bt,$Nyb as st,$Fyb as gt,$Hyb as Mt,$Jyb as $t,$Gyb as It,$Iyb as wt,$Kyb as ht}from"../../actions/layoutActions.js";import{EditorContextKeys as Ae}from"../../../../editor/common/editorContextKeys.js";import{$i9 as Et}from"../../../../base/browser/fonts.js";import{$8hb as _t}from"../../../../editor/common/config/editorConfigurationSchema.js";p.as(c.EditorPane).registerEditorPane(C.create(q,q.ID,e(3360,null)),[new $(pe),new $(je)]);p.as(c.EditorPane).registerEditorPane(C.create(z,z.ID,e(3361,null)),[new $(v)]);p.as(c.EditorPane).registerEditorPane(C.create(F,F.ID,e(3362,null)),[new $(v)]);p.as(c.EditorPane).registerEditorPane(C.create(V,V.ID,e(3363,null)),[new $(ae)]);p.as(c.EditorFactory).registerEditorSerializer(pe.ID,at);p.as(c.EditorFactory).registerEditorSerializer(ae.ID,Ze);p.as(c.EditorFactory).registerEditorSerializer(v.ID,Xe);J(W.ID,W,2);J(U.ID,U,2);J(Y.ID,Y,2);J(ee.ID,ee,2);ut(Q.ID,Q,1);const R=p.as(lt.Quickaccess),P="inEditorsPicker",qe=i.and(rt,i.has(P));R.registerQuickAccessProvider({ctor:O,prefix:O.PREFIX,contextKey:P,placeholder:e(3364,null),helpEntries:[{description:e(3365,null),commandId:se.ID}]});R.registerQuickAccessProvider({ctor:Z,prefix:Z.PREFIX,contextKey:P,placeholder:e(3366,null),helpEntries:[{description:e(3367,null),commandId:ce.ID}]});R.registerQuickAccessProvider({ctor:X,prefix:X.PREFIX,contextKey:P,placeholder:e(3368,null),helpEntries:[{description:e(3369,null),commandId:fe.ID}]});t(oo);t(eo);t(Ye);t(H);t(D);t(Io);t(wo);t(yo);t(Co);t(Do);t(Po);t(Ko);t(xo);t(pn);t(an);t(me);t(be);t(ce);t(fe);t(se);t(to);t(Qo);t($o);t(no);t(rn);t(ao);t(uo);t(tn);t(Bo);t(Ro);t(Ao);t(qo);t(lo);t(Wo);t(po);t(bo);t(un);t(Nn);t(Ln);t(so);t(Bn);t(Jo);t(To);t(io);t(ro);t(Ho);t(vo);t(gn);t(Mn);t($n);t(sn);t(So);t(ko);t(Go);t(No);t(Vo);t(zo);t(Fo);t(Uo);t(yn);t(Tn);t(En);t(_n);t(fn);t(Cn);t(wn);t(hn);t(mo);t(co);t(Lo);t(go);t(Mo);t(Oo);t(Xo);t(Zo);t(jo);t(Yo);t(en);t(on);t(nn);t(ho);t(Kn);t(xn);t(Jn);t(dn);t(Sn);t(kn);t(Gn);t(Pn);t(fo);t(ge);t(Me);t($e);t(we);t(he);t(Ie);t(_e);t(Ee);t(In);t(bn);t(ln);t(mn);t(Eo);t(cn);t(_o);t(Dn);t(Hn);t(An);t(Rn);t(vn);t(qn);const oe="workbench.action.quickOpenNavigateNextInEditorPicker";Re.registerCommandAndKeybindingRule({id:oe,weight:250,handler:Be(oe,!0),when:qe,primary:2050,mac:{primary:258}});const ne="workbench.action.quickOpenNavigatePreviousInEditorPicker";Re.registerCommandAndKeybindingRule({id:ne,weight:250,handler:Be(ne,!1),when:qe,primary:3074,mac:{primary:1282}});Qn();dt&&(n.appendMenuItem(o.TouchBarContext,{command:{id:D.ID,title:D.LABEL,icon:{dark:j.asFileUri("vs/workbench/browser/parts/editor/media/back-tb.png")}},group:"navigation",order:0}),n.appendMenuItem(o.TouchBarContext,{command:{id:H.ID,title:H.LABEL,icon:{dark:j.asFileUri("vs/workbench/browser/parts/editor/media/forward-tb.png")}},group:"navigation",order:1}));n.appendMenuItem(o.EmptyEditorGroup,{command:{id:Ne,title:e(3370,null),icon:d.unlock},group:"navigation",order:10,when:i.and(h,s.toNegated())});n.appendMenuItem(o.EmptyEditorGroup,{command:{id:Ge,title:e(3371,null),icon:d.lock,toggled:i.true()},group:"navigation",order:10,when:s});n.appendMenuItem(o.EmptyEditorGroup,{command:{id:ye,title:e(3372,null),icon:d.close},group:"navigation",order:20,when:i.or(h,ie)});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:k,title:e(3373,null)},group:"2_split",order:10});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:_,title:e(3374,null)},group:"2_split",order:20});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:S,title:e(3375,null)},group:"2_split",order:30});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:f,title:e(3376,null)},group:"2_split",order:40});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:Yn,title:e(3377,null)},group:"3_window",order:10});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:ke,title:e(3378,null),toggled:s},group:"4_lock",order:10,when:h.toNegated()});n.appendMenuItem(o.EmptyEditorGroupContext,{command:{id:ye,title:e(3379,null)},group:"5_close",order:10,when:l});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:k,title:e(3380,null)},group:"2_split",order:10});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:_,title:e(3381,null)},group:"2_split",order:20});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:S,title:e(3382,null)},group:"2_split",order:30});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:f,title:e(3383,null)},group:"2_split",order:40});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:Xn,title:e(3384,null)},group:"3_window",order:10});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:jn,title:e(3385,null)},group:"3_window",order:20});n.appendMenuItem(o.EditorTabsBarContext,{submenu:o.EditorTabsBarShowTabsSubmenu,title:e(3386,null),group:"4_config",order:10,when:le.negate()});n.appendMenuItem(o.EditorTabsBarShowTabsSubmenu,{command:{id:Mt.ID,title:e(3387,null),toggled:i.equals("config.workbench.editor.showTabs","multiple")},group:"1_config",order:10});n.appendMenuItem(o.EditorTabsBarShowTabsSubmenu,{command:{id:$t.ID,title:e(3388,null),toggled:i.equals("config.workbench.editor.showTabs","single")},group:"1_config",order:20});n.appendMenuItem(o.EditorTabsBarShowTabsSubmenu,{command:{id:gt.ID,title:e(3389,null),toggled:i.equals("config.workbench.editor.showTabs","none")},group:"1_config",order:30});n.appendMenuItem(o.EditorTabsBarContext,{submenu:o.EditorTabsBarShowTabsZenModeSubmenu,title:e(3390,null),group:"4_config",order:10,when:le});n.appendMenuItem(o.EditorTabsBarShowTabsZenModeSubmenu,{command:{id:wt.ID,title:e(3391,null),toggled:i.equals("config.zenMode.showTabs","multiple")},group:"1_config",order:10});n.appendMenuItem(o.EditorTabsBarShowTabsZenModeSubmenu,{command:{id:ht.ID,title:e(3392,null),toggled:i.equals("config.zenMode.showTabs","single")},group:"1_config",order:20});n.appendMenuItem(o.EditorTabsBarShowTabsZenModeSubmenu,{command:{id:It.ID,title:e(3393,null),toggled:i.equals("config.zenMode.showTabs","none")},group:"1_config",order:30});n.appendMenuItem(o.EditorTabsBarContext,{submenu:o.EditorActionsPositionSubmenu,title:e(3394,null),group:"4_config",order:20});n.appendMenuItem(o.EditorActionsPositionSubmenu,{command:{id:ct.ID,title:e(3395,null),toggled:i.equals("config.workbench.editor.editorActionsLocation","default")},group:"1_config",order:10,when:i.equals("config.workbench.editor.showTabs","none").negate()});n.appendMenuItem(o.EditorActionsPositionSubmenu,{command:{id:bt.ID,title:e(3396,null),toggled:i.or(i.equals("config.workbench.editor.editorActionsLocation","titleBar"),i.and(i.equals("config.workbench.editor.showTabs","none"),i.equals("config.workbench.editor.editorActionsLocation","default")))},group:"1_config",order:20});n.appendMenuItem(o.EditorActionsPositionSubmenu,{command:{id:st.ID,title:e(3397,null),toggled:i.equals("config.workbench.editor.editorActionsLocation","hidden")},group:"1_config",order:30});n.appendMenuItem(o.EditorTabsBarContext,{command:{id:mt.ID,title:e(3398,null)},group:"9_configure",order:10});n.appendMenuItem(o.EditorTitleContext,{command:{id:g,title:e(3399,null)},group:"1_close",order:10});n.appendMenuItem(o.EditorTitleContext,{command:{id:Ce,title:e(3400,null),precondition:We.notEqualsTo("1")},group:"1_close",order:20});n.appendMenuItem(o.EditorTitleContext,{command:{id:Te,title:e(3401,null),precondition:i.and(de.toNegated(),x.negate())},group:"1_close",order:30,when:w});n.appendMenuItem(o.EditorTitleContext,{command:{id:L,title:e(3402,null)},group:"1_close",order:40});n.appendMenuItem(o.EditorTitleContext,{command:{id:E,title:e(3403,null)},group:"1_close",order:50});n.appendMenuItem(o.EditorTitleContext,{command:{id:Se,title:e(3404,null)},group:"1_open",order:10,when:te});n.appendMenuItem(o.EditorTitleContext,{command:{id:Ke,title:e(3405,null),precondition:Qe.toNegated()},group:"3_preview",order:10,when:i.has("config.workbench.editor.enablePreview")});n.appendMenuItem(o.EditorTitleContext,{command:{id:xe,title:e(3406,null)},group:"3_preview",order:20,when:b.toNegated()});n.appendMenuItem(o.EditorTitleContext,{command:{id:G,title:e(3407,null)},group:"3_preview",order:20,when:b});n.appendMenuItem(o.EditorTitleContext,{command:{id:k,title:e(3408,null)},group:"5_split",order:10});n.appendMenuItem(o.EditorTitleContext,{command:{id:_,title:e(3409,null)},group:"5_split",order:20});n.appendMenuItem(o.EditorTitleContext,{command:{id:S,title:e(3410,null)},group:"5_split",order:30});n.appendMenuItem(o.EditorTitleContext,{command:{id:f,title:e(3411,null)},group:"5_split",order:40});n.appendMenuItem(o.EditorTitleContext,{command:{id:Je,title:e(3412,null),precondition:x.negate()},group:"6_split_in_group",order:10,when:re});n.appendMenuItem(o.EditorTitleContext,{command:{id:Pe,title:e(3413,null),precondition:x.negate()},group:"6_split_in_group",order:10,when:I});n.appendMenuItem(o.EditorTitleContext,{command:{id:ve,title:e(3414,null)},group:"7_new_window",order:10});n.appendMenuItem(o.EditorTitleContext,{command:{id:Le,title:e(3415,null)},group:"7_new_window",order:20});n.appendMenuItem(o.EditorTitleContext,{submenu:o.EditorTitleContextShare,title:e(3416,null),group:"11_share",order:-1,when:x.negate()});n.appendMenuItem(o.EditorTitle,{command:{id:tt,title:e(3417,null),toggled:i.equals("config.diffEditor.renderSideBySide",!1)},group:"1_diff",order:10,when:i.has("isInDiffEditor")});n.appendMenuItem(o.EditorTitle,{command:{id:Fn,title:e(3418,null)},group:"3_open",order:10});n.appendMenuItem(o.EditorTitle,{command:{id:E,title:e(3419,null)},group:"5_close",order:10});n.appendMenuItem(o.EditorTitle,{command:{id:L,title:e(3420,null)},group:"5_close",order:20});n.appendMenuItem(o.EditorTitle,{command:{id:Un,title:e(3421,null),toggled:i.has("config.workbench.editor.enablePreview")},group:"7_settings",order:10});n.appendMenuItem(o.EditorTitle,{command:{id:He,title:e(3422,null)},group:"8_group_operations",order:5,when:i.and(ue.negate(),ie)});n.appendMenuItem(o.EditorTitle,{command:{id:He,title:e(3423,null)},group:"8_group_operations",order:5,when:ue});n.appendMenuItem(o.EditorTitle,{command:{id:ke,title:e(3424,null),toggled:s},group:"8_group_operations",order:10,when:h.toNegated()});n.appendMenuItem(o.EditorTitle,{command:{id:pt.ID,title:e(3425,null)},group:"9_configure",order:10});function u(T,Ve,ze,y,Fe,Ue){const N={command:{id:T.id,title:T.title,icon:T.icon,toggled:T.toggled,precondition:Fe},group:"navigation",when:Ve,order:ze};y&&(N.alt={id:y.id,title:y.title,icon:y.icon}),n.appendMenuItem(o.EditorTitle,N),Ue&&n.appendMenuItem(o.CompactWindowEditorTitle,N)}const A=1e5,M=1e6;u({id:De,title:e(3426,null),icon:d.splitHorizontal},i.not("splitEditorsVertically"),A,{id:_,title:e(3427,null),icon:d.splitVertical});u({id:De,title:e(3428,null),icon:d.splitVertical},i.has("splitEditorsVertically"),A,{id:f,title:e(3429,null),icon:d.splitHorizontal});u({id:Zn,title:e(3430,null),icon:d.editorLayout},I,A-1);u({id:g,title:e(3431,null),icon:d.close},i.and(w.toNegated(),K.toNegated(),b.toNegated()),M,{id:E,title:e(3432,null),icon:d.closeAll});u({id:g,title:e(3433,null),icon:d.closeDirty},i.and(w.toNegated(),K,b.toNegated()),M,{id:E,title:e(3434,null),icon:d.closeAll});u({id:G,title:e(3435,null),icon:d.pinned},i.and(w.toNegated(),K.toNegated(),b),M,{id:g,title:e(3436,null),icon:d.close});u({id:G,title:e(3437,null),icon:d.pinnedDirty},i.and(w.toNegated(),K,b),M,{id:g,title:e(3438,null),icon:d.close});u({id:Ne,title:e(3439,null),icon:d.unlock},i.and(h,s.toNegated()),M-1);u({id:Ge,title:e(3440,null),icon:d.lock,toggled:i.true()},s,M-1);const ft=B("diff-editor-previous-change",d.arrowUp,e(3441,null));u({id:ot,title:e(3442,null),icon:ft},m,10,void 0,Ae.hasChanges,!0);const Tt=B("diff-editor-next-change",d.arrowDown,e(3443,null));u({id:et,title:e(3444,null),icon:Tt},m,11,void 0,Ae.hasChanges,!0);u({id:it,title:e(3445,null),icon:d.arrowSwap},i.and(m,Oe),15,void 0,void 0);const yt=B("diff-editor-toggle-whitespace",d.whitespace,e(3446,null));n.appendMenuItem(o.EditorTitle,{command:{id:nt,title:e(3447,null),icon:yt,precondition:m,toggled:i.equals("config.diffEditor.ignoreTrimWhitespace",!1)},group:"navigation",when:m,order:20});n.appendMenuItem(o.CommandPalette,{command:{id:Ke,title:r(3492,"Keep Editor"),category:a.View},when:i.has("config.workbench.editor.enablePreview")});n.appendMenuItem(o.CommandPalette,{command:{id:xe,title:r(3493,"Pin Editor"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:G,title:r(3494,"Unpin Editor"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:g,title:r(3495,"Close Editor"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:zn,title:r(3496,"Close Pinned Editor"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:E,title:r(3497,"Close All Editors in Group"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:L,title:r(3498,"Close Saved Editors in Group"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:Ce,title:r(3499,"Close Other Editors in Group"),category:a.View}});n.appendMenuItem(o.CommandPalette,{command:{id:Te,title:r(3500,"Close Editors to the Right in Group"),category:a.View},when:de.toNegated()});n.appendMenuItem(o.CommandPalette,{command:{id:Vn,title:r(3501,"Close Editor Group"),category:a.View},when:l});n.appendMenuItem(o.CommandPalette,{command:{id:Se,title:r(3502,"Reopen Editor With..."),category:a.View},when:te});n.appendMenuItem(o.MenubarRecentMenu,{group:"1_editor",command:{id:me.ID,title:e(3448,null),precondition:i.has("canReopenClosedEditor")},order:1});n.appendMenuItem(o.MenubarRecentMenu,{group:"z_clear",command:{id:be.ID,title:e(3449,null)},order:1});n.appendMenuItem(o.MenubarFileMenu,{title:e(3450,null),submenu:o.MenubarShare,group:"45_share",order:1});n.appendMenuItem(o.MenubarViewMenu,{group:"2_appearance",title:e(3451,null),submenu:o.MenubarLayoutMenu,order:2});n.appendMenuItem(o.MenubarLayoutMenu,{group:"1_split",command:{id:k,title:{...r(3503,"Split Up"),mnemonicTitle:e(3452,null)}},order:1});n.appendMenuItem(o.MenubarLayoutMenu,{group:"1_split",command:{id:_,title:{...r(3504,"Split Down"),mnemonicTitle:e(3453,null)}},order:2});n.appendMenuItem(o.MenubarLayoutMenu,{group:"1_split",command:{id:S,title:{...r(3505,"Split Left"),mnemonicTitle:e(3454,null)}},order:3});n.appendMenuItem(o.MenubarLayoutMenu,{group:"1_split",command:{id:f,title:{...r(3506,"Split Right"),mnemonicTitle:e(3455,null)}},order:4});n.appendMenuItem(o.MenubarLayoutMenu,{group:"2_split_in_group",command:{id:Je,title:{...r(3507,"Split in Group"),mnemonicTitle:e(3456,null)}},when:re,order:1});n.appendMenuItem(o.MenubarLayoutMenu,{group:"2_split_in_group",command:{id:Pe,title:{...r(3508,"Join in Group"),mnemonicTitle:e(3457,null)}},when:I,order:1});n.appendMenuItem(o.MenubarLayoutMenu,{group:"3_new_window",command:{id:ve,title:{...r(3509,"Move Editor into New Window"),mnemonicTitle:e(3458,null)}},order:1});n.appendMenuItem(o.MenubarLayoutMenu,{group:"3_new_window",command:{id:Le,title:{...r(3510,"Copy Editor into New Window"),mnemonicTitle:e(3459,null)}},order:2});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:ge.ID,title:{...r(3511,"Single"),mnemonicTitle:e(3460,null)}},order:1});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:Me.ID,title:{...r(3512,"Two Columns"),mnemonicTitle:e(3461,null)}},order:3});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:$e.ID,title:{...r(3513,"Three Columns"),mnemonicTitle:e(3462,null)}},order:4});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:we.ID,title:{...r(3514,"Two Rows"),mnemonicTitle:e(3463,null)}},order:5});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:he.ID,title:{...r(3515,"Three Rows"),mnemonicTitle:e(3464,null)}},order:6});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:Ie.ID,title:{...r(3516,"Grid (2x2)"),mnemonicTitle:e(3465,null)}},order:7});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:_e.ID,title:{...r(3517,"Two Rows Right"),mnemonicTitle:e(3466,null)}},order:8});n.appendMenuItem(o.MenubarLayoutMenu,{group:"4_layouts",command:{id:Ee.ID,title:{...r(3518,"Two Columns Bottom"),mnemonicTitle:e(3467,null)}},order:9});n.appendMenuItem(o.MenubarGoMenu,{group:"1_history_nav",command:{id:"workbench.action.navigateToLastEditLocation",title:e(3468,null),precondition:i.has("canNavigateToLastEditLocation")},order:3});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"1_sideBySide",command:{id:Wn,title:e(3469,null)},when:i.or(I,m),order:1});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"1_sideBySide",command:{id:On,title:e(3470,null)},when:i.or(I,m),order:2});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"2_any",command:{id:"workbench.action.nextEditor",title:e(3471,null)},order:1});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"2_any",command:{id:"workbench.action.previousEditor",title:e(3472,null)},order:2});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"3_any_used",command:{id:"workbench.action.openNextRecentlyUsedEditor",title:e(3473,null)},order:1});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"3_any_used",command:{id:"workbench.action.openPreviousRecentlyUsedEditor",title:e(3474,null)},order:2});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"4_group",command:{id:"workbench.action.nextEditorInGroup",title:e(3475,null)},order:1});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"4_group",command:{id:"workbench.action.previousEditorInGroup",title:e(3476,null)},order:2});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"5_group_used",command:{id:"workbench.action.openNextRecentlyUsedEditorInGroup",title:e(3477,null)},order:1});n.appendMenuItem(o.MenubarSwitchEditorMenu,{group:"5_group_used",command:{id:"workbench.action.openPreviousRecentlyUsedEditorInGroup",title:e(3478,null)},order:2});n.appendMenuItem(o.MenubarGoMenu,{group:"2_editor_nav",title:e(3479,null),submenu:o.MenubarSwitchEditorMenu,order:1});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"1_focus_index",command:{id:"workbench.action.focusFirstEditorGroup",title:e(3480,null)},order:1});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"1_focus_index",command:{id:"workbench.action.focusSecondEditorGroup",title:e(3481,null)},order:2});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"1_focus_index",command:{id:"workbench.action.focusThirdEditorGroup",title:e(3482,null),precondition:l},order:3});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"1_focus_index",command:{id:"workbench.action.focusFourthEditorGroup",title:e(3483,null),precondition:l},order:4});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"1_focus_index",command:{id:"workbench.action.focusFifthEditorGroup",title:e(3484,null),precondition:l},order:5});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"2_next_prev",command:{id:"workbench.action.focusNextGroup",title:e(3485,null),precondition:l},order:1});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"2_next_prev",command:{id:"workbench.action.focusPreviousGroup",title:e(3486,null),precondition:l},order:2});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"3_directional",command:{id:"workbench.action.focusLeftGroup",title:e(3487,null),precondition:l},order:1});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"3_directional",command:{id:"workbench.action.focusRightGroup",title:e(3488,null),precondition:l},order:2});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"3_directional",command:{id:"workbench.action.focusAboveGroup",title:e(3489,null),precondition:l},order:3});n.appendMenuItem(o.MenubarSwitchGroupMenu,{group:"3_directional",command:{id:"workbench.action.focusBelowGroup",title:e(3490,null),precondition:l},order:4});n.appendMenuItem(o.MenubarGoMenu,{group:"2_editor_nav",title:e(3491,null),submenu:o.MenubarSwitchGroupMenu,order:2});_t(Et);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { EditorPaneDescriptor } from "../../editor.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { TextCompareEditorActiveContext, ActiveEditorPinnedContext, EditorGroupEditorsCountContext, ActiveEditorStickyContext, ActiveEditorAvailableEditorIdsContext, EditorPartMultipleEditorGroupsContext, ActiveEditorDirtyContext, ActiveEditorGroupLockedContext, ActiveEditorCanSplitInGroupContext, SideBySideEditorActiveContext, EditorTabsVisibleContext, ActiveEditorLastInGroupContext, EditorPartMaximizedEditorGroupContext, MultipleEditorGroupsContext, InEditorZenModeContext, IsAuxiliaryWindowContext, ActiveCompareEditorCanSwapContext, MultipleEditorsSelectedInGroupContext } from "../../../common/contextkeys.js";
+import { SideBySideEditorInput, SideBySideEditorInputSerializer } from "../../../common/editor/sideBySideEditorInput.js";
+import { TextResourceEditor } from "./textResourceEditor.js";
+import { SideBySideEditor } from "./sideBySideEditor.js";
+import { DiffEditorInput, DiffEditorInputSerializer } from "../../../common/editor/diffEditorInput.js";
+import { UntitledTextEditorInput } from "../../../services/untitled/common/untitledTextEditorInput.js";
+import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { TextDiffEditor } from "./textDiffEditor.js";
+import { BinaryResourceDiffEditor } from "./binaryDiffEditor.js";
+import { ChangeEncodingAction, ChangeEOLAction, ChangeLanguageAction, EditorStatusContribution } from "./editorStatus.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { MenuRegistry, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { CloseEditorsInOtherGroupsAction, CloseAllEditorsAction, MoveGroupLeftAction, MoveGroupRightAction, SplitEditorAction, JoinTwoGroupsAction, RevertAndCloseEditorAction, NavigateBetweenGroupsAction, FocusActiveGroupAction, FocusFirstGroupAction, ResetGroupSizesAction, MinimizeOtherGroupsAction, FocusPreviousGroup, FocusNextGroup, CloseLeftEditorsInGroupAction, OpenNextEditor, OpenPreviousEditor, NavigateBackwardsAction, NavigateForwardAction, NavigatePreviousAction, ReopenClosedEditorAction, QuickAccessPreviousRecentlyUsedEditorInGroupAction, QuickAccessPreviousEditorFromHistoryAction, ShowAllEditorsByAppearanceAction, ClearEditorHistoryAction, MoveEditorRightInGroupAction, OpenNextEditorInGroup, OpenPreviousEditorInGroup, OpenNextRecentlyUsedEditorAction, OpenPreviousRecentlyUsedEditorAction, MoveEditorToPreviousGroupAction, MoveEditorToNextGroupAction, MoveEditorToFirstGroupAction, MoveEditorLeftInGroupAction, ClearRecentFilesAction, OpenLastEditorInGroup, ShowEditorsInActiveGroupByMostRecentlyUsedAction, MoveEditorToLastGroupAction, OpenFirstEditorInGroup, MoveGroupUpAction, MoveGroupDownAction, FocusLastGroupAction, SplitEditorLeftAction, SplitEditorRightAction, SplitEditorUpAction, SplitEditorDownAction, MoveEditorToLeftGroupAction, MoveEditorToRightGroupAction, MoveEditorToAboveGroupAction, MoveEditorToBelowGroupAction, CloseAllEditorGroupsAction, JoinAllGroupsAction, FocusLeftGroup, FocusAboveGroup, FocusRightGroup, FocusBelowGroup, EditorLayoutSingleAction, EditorLayoutTwoColumnsAction, EditorLayoutThreeColumnsAction, EditorLayoutTwoByTwoGridAction, EditorLayoutTwoRowsAction, EditorLayoutThreeRowsAction, EditorLayoutTwoColumnsBottomAction, EditorLayoutTwoRowsRightAction, NewEditorGroupLeftAction, NewEditorGroupRightAction, NewEditorGroupAboveAction, NewEditorGroupBelowAction, SplitEditorOrthogonalAction, CloseEditorInAllGroupsAction, NavigateToLastEditLocationAction, ToggleGroupSizesAction, ShowAllEditorsByMostRecentlyUsedAction, QuickAccessPreviousRecentlyUsedEditorAction, OpenPreviousRecentlyUsedEditorInGroupAction, OpenNextRecentlyUsedEditorInGroupAction, QuickAccessLeastRecentlyUsedEditorAction, QuickAccessLeastRecentlyUsedEditorInGroupAction, ReOpenInTextEditorAction, DuplicateGroupDownAction, DuplicateGroupLeftAction, DuplicateGroupRightAction, DuplicateGroupUpAction, ToggleEditorTypeAction, SplitEditorToAboveGroupAction, SplitEditorToBelowGroupAction, SplitEditorToFirstGroupAction, SplitEditorToLastGroupAction, SplitEditorToLeftGroupAction, SplitEditorToNextGroupAction, SplitEditorToPreviousGroupAction, SplitEditorToRightGroupAction, NavigateForwardInEditsAction, NavigateBackwardsInEditsAction, NavigateForwardInNavigationsAction, NavigateBackwardsInNavigationsAction, NavigatePreviousInNavigationsAction, NavigatePreviousInEditsAction, NavigateToLastNavigationLocationAction, MaximizeGroupHideSidebarAction, MoveEditorToNewWindowAction, CopyEditorToNewindowAction, RestoreEditorsToMainWindowAction, ToggleMaximizeEditorGroupAction, MinimizeOtherGroupsHideSidebarAction, CopyEditorGroupToNewWindowAction, MoveEditorGroupToNewWindowAction, NewEmptyEditorWindowAction } from "./editorActions.js";
+import { CLOSE_EDITORS_AND_GROUP_COMMAND_ID, CLOSE_EDITORS_IN_GROUP_COMMAND_ID, CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID, CLOSE_EDITOR_COMMAND_ID, CLOSE_EDITOR_GROUP_COMMAND_ID, CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID, CLOSE_PINNED_EDITOR_COMMAND_ID, CLOSE_SAVED_EDITORS_COMMAND_ID, KEEP_EDITOR_COMMAND_ID, PIN_EDITOR_COMMAND_ID, SHOW_EDITORS_IN_GROUP, SPLIT_EDITOR_DOWN, SPLIT_EDITOR_LEFT, SPLIT_EDITOR_RIGHT, SPLIT_EDITOR_UP, TOGGLE_KEEP_EDITORS_COMMAND_ID, UNPIN_EDITOR_COMMAND_ID, setup as registerEditorCommands, REOPEN_WITH_COMMAND_ID, TOGGLE_LOCK_GROUP_COMMAND_ID, UNLOCK_GROUP_COMMAND_ID, SPLIT_EDITOR_IN_GROUP, JOIN_EDITOR_IN_GROUP, FOCUS_FIRST_SIDE_EDITOR, FOCUS_SECOND_SIDE_EDITOR, TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT, LOCK_GROUP_COMMAND_ID, SPLIT_EDITOR, TOGGLE_MAXIMIZE_EDITOR_GROUP, MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID, COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID, MOVE_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID, COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID, NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID } from "./editorCommands.js";
+import { GOTO_NEXT_CHANGE, GOTO_PREVIOUS_CHANGE, TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE, TOGGLE_DIFF_SIDE_BY_SIDE, DIFF_SWAP_SIDES } from "./diffEditorCommands.js";
+import { inQuickPickContext, getQuickNavigateHandler } from "../../quickaccess.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { FloatingEditorClickMenu } from "../../codeeditor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorAutoSave } from "./editorAutoSave.js";
+import { Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { ActiveGroupEditorsByMostRecentlyUsedQuickAccess, AllEditorsByAppearanceQuickAccess, AllEditorsByMostRecentlyUsedQuickAccess } from "./editorQuickAccess.js";
+import { FileAccess } from "../../../../base/common/network.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { UntitledTextEditorInputSerializer, UntitledTextEditorWorkingCopyEditorHandler } from "../../../services/untitled/common/untitledTextEditorHandler.js";
+import { DynamicEditorConfigurations } from "./editorConfiguration.js";
+import { ConfigureEditorAction, ConfigureEditorTabsAction, EditorActionsDefaultAction, EditorActionsTitleBarAction, HideEditorActionsAction, HideEditorTabsAction, ShowMultipleEditorTabsAction, ShowSingleEditorTabAction, ZenHideEditorTabsAction, ZenShowMultipleEditorTabsAction, ZenShowSingleEditorTabAction } from "../../actions/layoutActions.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { getFontSnippets } from "../../../../base/browser/fonts.js";
+import { registerEditorFontConfigurations } from "../../../../editor/common/config/editorConfigurationSchema.js";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(TextResourceEditor, TextResourceEditor.ID, localize("textEditor", "Text Editor")), [
+  new SyncDescriptor(UntitledTextEditorInput),
+  new SyncDescriptor(TextResourceEditorInput)
+]);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(TextDiffEditor, TextDiffEditor.ID, localize("textDiffEditor", "Text Diff Editor")), [
+  new SyncDescriptor(DiffEditorInput)
+]);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(BinaryResourceDiffEditor, BinaryResourceDiffEditor.ID, localize("binaryDiffEditor", "Binary Diff Editor")), [
+  new SyncDescriptor(DiffEditorInput)
+]);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(SideBySideEditor, SideBySideEditor.ID, localize("sideBySideEditor", "Side by Side Editor")), [
+  new SyncDescriptor(SideBySideEditorInput)
+]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(UntitledTextEditorInput.ID, UntitledTextEditorInputSerializer);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(SideBySideEditorInput.ID, SideBySideEditorInputSerializer);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(DiffEditorInput.ID, DiffEditorInputSerializer);
+registerWorkbenchContribution2(
+  EditorAutoSave.ID,
+  EditorAutoSave,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  EditorStatusContribution.ID,
+  EditorStatusContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  UntitledTextEditorWorkingCopyEditorHandler.ID,
+  UntitledTextEditorWorkingCopyEditorHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  DynamicEditorConfigurations.ID,
+  DynamicEditorConfigurations,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerEditorContribution(
+  FloatingEditorClickMenu.ID,
+  FloatingEditorClickMenu,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+const quickAccessRegistry = Registry.as(QuickAccessExtensions.Quickaccess);
+const editorPickerContextKey = "inEditorsPicker";
+const editorPickerContext = ContextKeyExpr.and(inQuickPickContext, ContextKeyExpr.has(editorPickerContextKey));
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: ActiveGroupEditorsByMostRecentlyUsedQuickAccess,
+  prefix: ActiveGroupEditorsByMostRecentlyUsedQuickAccess.PREFIX,
+  contextKey: editorPickerContextKey,
+  placeholder: localize("editorQuickAccessPlaceholder", "Type the name of an editor to open it."),
+  helpEntries: [{ description: localize("activeGroupEditorsByMostRecentlyUsedQuickAccess", "Show Editors in Active Group by Most Recently Used"), commandId: ShowEditorsInActiveGroupByMostRecentlyUsedAction.ID }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: AllEditorsByAppearanceQuickAccess,
+  prefix: AllEditorsByAppearanceQuickAccess.PREFIX,
+  contextKey: editorPickerContextKey,
+  placeholder: localize("editorQuickAccessPlaceholder", "Type the name of an editor to open it."),
+  helpEntries: [{ description: localize("allEditorsByAppearanceQuickAccess", "Show All Opened Editors By Appearance"), commandId: ShowAllEditorsByAppearanceAction.ID }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: AllEditorsByMostRecentlyUsedQuickAccess,
+  prefix: AllEditorsByMostRecentlyUsedQuickAccess.PREFIX,
+  contextKey: editorPickerContextKey,
+  placeholder: localize("editorQuickAccessPlaceholder", "Type the name of an editor to open it."),
+  helpEntries: [{ description: localize("allEditorsByMostRecentlyUsedQuickAccess", "Show All Opened Editors By Most Recently Used"), commandId: ShowAllEditorsByMostRecentlyUsedAction.ID }]
+});
+registerAction2(ChangeLanguageAction);
+registerAction2(ChangeEOLAction);
+registerAction2(ChangeEncodingAction);
+registerAction2(NavigateForwardAction);
+registerAction2(NavigateBackwardsAction);
+registerAction2(OpenNextEditor);
+registerAction2(OpenPreviousEditor);
+registerAction2(OpenNextEditorInGroup);
+registerAction2(OpenPreviousEditorInGroup);
+registerAction2(OpenFirstEditorInGroup);
+registerAction2(OpenLastEditorInGroup);
+registerAction2(OpenNextRecentlyUsedEditorAction);
+registerAction2(OpenPreviousRecentlyUsedEditorAction);
+registerAction2(OpenNextRecentlyUsedEditorInGroupAction);
+registerAction2(OpenPreviousRecentlyUsedEditorInGroupAction);
+registerAction2(ReopenClosedEditorAction);
+registerAction2(ClearRecentFilesAction);
+registerAction2(ShowAllEditorsByAppearanceAction);
+registerAction2(ShowAllEditorsByMostRecentlyUsedAction);
+registerAction2(ShowEditorsInActiveGroupByMostRecentlyUsedAction);
+registerAction2(CloseAllEditorsAction);
+registerAction2(CloseAllEditorGroupsAction);
+registerAction2(CloseLeftEditorsInGroupAction);
+registerAction2(CloseEditorsInOtherGroupsAction);
+registerAction2(CloseEditorInAllGroupsAction);
+registerAction2(RevertAndCloseEditorAction);
+registerAction2(SplitEditorAction);
+registerAction2(SplitEditorOrthogonalAction);
+registerAction2(SplitEditorLeftAction);
+registerAction2(SplitEditorRightAction);
+registerAction2(SplitEditorUpAction);
+registerAction2(SplitEditorDownAction);
+registerAction2(JoinTwoGroupsAction);
+registerAction2(JoinAllGroupsAction);
+registerAction2(NavigateBetweenGroupsAction);
+registerAction2(ResetGroupSizesAction);
+registerAction2(ToggleGroupSizesAction);
+registerAction2(MaximizeGroupHideSidebarAction);
+registerAction2(ToggleMaximizeEditorGroupAction);
+registerAction2(MinimizeOtherGroupsAction);
+registerAction2(MinimizeOtherGroupsHideSidebarAction);
+registerAction2(MoveEditorLeftInGroupAction);
+registerAction2(MoveEditorRightInGroupAction);
+registerAction2(MoveGroupLeftAction);
+registerAction2(MoveGroupRightAction);
+registerAction2(MoveGroupUpAction);
+registerAction2(MoveGroupDownAction);
+registerAction2(DuplicateGroupLeftAction);
+registerAction2(DuplicateGroupRightAction);
+registerAction2(DuplicateGroupUpAction);
+registerAction2(DuplicateGroupDownAction);
+registerAction2(MoveEditorToPreviousGroupAction);
+registerAction2(MoveEditorToNextGroupAction);
+registerAction2(MoveEditorToFirstGroupAction);
+registerAction2(MoveEditorToLastGroupAction);
+registerAction2(MoveEditorToLeftGroupAction);
+registerAction2(MoveEditorToRightGroupAction);
+registerAction2(MoveEditorToAboveGroupAction);
+registerAction2(MoveEditorToBelowGroupAction);
+registerAction2(SplitEditorToPreviousGroupAction);
+registerAction2(SplitEditorToNextGroupAction);
+registerAction2(SplitEditorToFirstGroupAction);
+registerAction2(SplitEditorToLastGroupAction);
+registerAction2(SplitEditorToLeftGroupAction);
+registerAction2(SplitEditorToRightGroupAction);
+registerAction2(SplitEditorToAboveGroupAction);
+registerAction2(SplitEditorToBelowGroupAction);
+registerAction2(FocusActiveGroupAction);
+registerAction2(FocusFirstGroupAction);
+registerAction2(FocusLastGroupAction);
+registerAction2(FocusPreviousGroup);
+registerAction2(FocusNextGroup);
+registerAction2(FocusLeftGroup);
+registerAction2(FocusRightGroup);
+registerAction2(FocusAboveGroup);
+registerAction2(FocusBelowGroup);
+registerAction2(NewEditorGroupLeftAction);
+registerAction2(NewEditorGroupRightAction);
+registerAction2(NewEditorGroupAboveAction);
+registerAction2(NewEditorGroupBelowAction);
+registerAction2(NavigatePreviousAction);
+registerAction2(NavigateForwardInEditsAction);
+registerAction2(NavigateBackwardsInEditsAction);
+registerAction2(NavigatePreviousInEditsAction);
+registerAction2(NavigateToLastEditLocationAction);
+registerAction2(NavigateForwardInNavigationsAction);
+registerAction2(NavigateBackwardsInNavigationsAction);
+registerAction2(NavigatePreviousInNavigationsAction);
+registerAction2(NavigateToLastNavigationLocationAction);
+registerAction2(ClearEditorHistoryAction);
+registerAction2(EditorLayoutSingleAction);
+registerAction2(EditorLayoutTwoColumnsAction);
+registerAction2(EditorLayoutThreeColumnsAction);
+registerAction2(EditorLayoutTwoRowsAction);
+registerAction2(EditorLayoutThreeRowsAction);
+registerAction2(EditorLayoutTwoByTwoGridAction);
+registerAction2(EditorLayoutTwoRowsRightAction);
+registerAction2(EditorLayoutTwoColumnsBottomAction);
+registerAction2(ToggleEditorTypeAction);
+registerAction2(ReOpenInTextEditorAction);
+registerAction2(QuickAccessPreviousRecentlyUsedEditorAction);
+registerAction2(QuickAccessLeastRecentlyUsedEditorAction);
+registerAction2(QuickAccessPreviousRecentlyUsedEditorInGroupAction);
+registerAction2(QuickAccessLeastRecentlyUsedEditorInGroupAction);
+registerAction2(QuickAccessPreviousEditorFromHistoryAction);
+registerAction2(MoveEditorToNewWindowAction);
+registerAction2(CopyEditorToNewindowAction);
+registerAction2(MoveEditorGroupToNewWindowAction);
+registerAction2(CopyEditorGroupToNewWindowAction);
+registerAction2(RestoreEditorsToMainWindowAction);
+registerAction2(NewEmptyEditorWindowAction);
+const quickAccessNavigateNextInEditorPickerId = "workbench.action.quickOpenNavigateNextInEditorPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigateNextInEditorPickerId,
+  weight: 200 + 50,
+  handler: getQuickNavigateHandler(quickAccessNavigateNextInEditorPickerId, true),
+  when: editorPickerContext,
+  primary: 2048 | 2,
+  mac: {
+    primary: 256 | 2
+    /* KeyCode.Tab */
+  }
+});
+const quickAccessNavigatePreviousInEditorPickerId = "workbench.action.quickOpenNavigatePreviousInEditorPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigatePreviousInEditorPickerId,
+  weight: 200 + 50,
+  handler: getQuickNavigateHandler(quickAccessNavigatePreviousInEditorPickerId, false),
+  when: editorPickerContext,
+  primary: 2048 | 1024 | 2,
+  mac: {
+    primary: 256 | 1024 | 2
+    /* KeyCode.Tab */
+  }
+});
+registerEditorCommands();
+if (isMacintosh) {
+  MenuRegistry.appendMenuItem(MenuId.TouchBarContext, {
+    command: { id: NavigateBackwardsAction.ID, title: NavigateBackwardsAction.LABEL, icon: { dark: FileAccess.asFileUri("vs/workbench/browser/parts/editor/media/back-tb.png") } },
+    group: "navigation",
+    order: 0
+  });
+  MenuRegistry.appendMenuItem(MenuId.TouchBarContext, {
+    command: { id: NavigateForwardAction.ID, title: NavigateForwardAction.LABEL, icon: { dark: FileAccess.asFileUri("vs/workbench/browser/parts/editor/media/forward-tb.png") } },
+    group: "navigation",
+    order: 1
+  });
+}
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroup, { command: { id: LOCK_GROUP_COMMAND_ID, title: localize("lockGroupAction", "Lock Group"), icon: Codicon.unlock }, group: "navigation", order: 10, when: ContextKeyExpr.and(IsAuxiliaryWindowContext, ActiveEditorGroupLockedContext.toNegated()) });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroup, { command: { id: UNLOCK_GROUP_COMMAND_ID, title: localize("unlockGroupAction", "Unlock Group"), icon: Codicon.lock, toggled: ContextKeyExpr.true() }, group: "navigation", order: 10, when: ActiveEditorGroupLockedContext });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroup, { command: { id: CLOSE_EDITOR_GROUP_COMMAND_ID, title: localize("closeGroupAction", "Close Group"), icon: Codicon.close }, group: "navigation", order: 20, when: ContextKeyExpr.or(IsAuxiliaryWindowContext, EditorPartMultipleEditorGroupsContext) });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: SPLIT_EDITOR_UP, title: localize("splitUp", "Split Up") }, group: "2_split", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: SPLIT_EDITOR_DOWN, title: localize("splitDown", "Split Down") }, group: "2_split", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: SPLIT_EDITOR_LEFT, title: localize("splitLeft", "Split Left") }, group: "2_split", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: SPLIT_EDITOR_RIGHT, title: localize("splitRight", "Split Right") }, group: "2_split", order: 40 });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID, title: localize("newWindow", "New Window") }, group: "3_window", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, {
+  command: { id: TOGGLE_LOCK_GROUP_COMMAND_ID, title: localize("toggleLockGroup", "Lock Group"), toggled: ActiveEditorGroupLockedContext },
+  group: "4_lock",
+  order: 10,
+  when: IsAuxiliaryWindowContext.toNegated()
+  /* already a primary action for aux windows */
+});
+MenuRegistry.appendMenuItem(MenuId.EmptyEditorGroupContext, { command: { id: CLOSE_EDITOR_GROUP_COMMAND_ID, title: localize("close", "Close") }, group: "5_close", order: 10, when: MultipleEditorGroupsContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: SPLIT_EDITOR_UP, title: localize("splitUp", "Split Up") }, group: "2_split", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: SPLIT_EDITOR_DOWN, title: localize("splitDown", "Split Down") }, group: "2_split", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: SPLIT_EDITOR_LEFT, title: localize("splitLeft", "Split Left") }, group: "2_split", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: SPLIT_EDITOR_RIGHT, title: localize("splitRight", "Split Right") }, group: "2_split", order: 40 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: MOVE_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID, title: localize("moveEditorGroupToNewWindow", "Move into New Window") }, group: "3_window", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID, title: localize("copyEditorGroupToNewWindow", "Copy into New Window") }, group: "3_window", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { submenu: MenuId.EditorTabsBarShowTabsSubmenu, title: localize("tabBar", "Tab Bar"), group: "4_config", order: 10, when: InEditorZenModeContext.negate() });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsSubmenu, { command: { id: ShowMultipleEditorTabsAction.ID, title: localize("multipleTabs", "Multiple Tabs"), toggled: ContextKeyExpr.equals("config.workbench.editor.showTabs", "multiple") }, group: "1_config", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsSubmenu, { command: { id: ShowSingleEditorTabAction.ID, title: localize("singleTab", "Single Tab"), toggled: ContextKeyExpr.equals("config.workbench.editor.showTabs", "single") }, group: "1_config", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsSubmenu, { command: { id: HideEditorTabsAction.ID, title: localize("hideTabs", "Hidden"), toggled: ContextKeyExpr.equals("config.workbench.editor.showTabs", "none") }, group: "1_config", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { submenu: MenuId.EditorTabsBarShowTabsZenModeSubmenu, title: localize("tabBar", "Tab Bar"), group: "4_config", order: 10, when: InEditorZenModeContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsZenModeSubmenu, { command: { id: ZenShowMultipleEditorTabsAction.ID, title: localize("multipleTabs", "Multiple Tabs"), toggled: ContextKeyExpr.equals("config.zenMode.showTabs", "multiple") }, group: "1_config", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsZenModeSubmenu, { command: { id: ZenShowSingleEditorTabAction.ID, title: localize("singleTab", "Single Tab"), toggled: ContextKeyExpr.equals("config.zenMode.showTabs", "single") }, group: "1_config", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarShowTabsZenModeSubmenu, { command: { id: ZenHideEditorTabsAction.ID, title: localize("hideTabs", "Hidden"), toggled: ContextKeyExpr.equals("config.zenMode.showTabs", "none") }, group: "1_config", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { submenu: MenuId.EditorActionsPositionSubmenu, title: localize("editorActionsPosition", "Editor Actions Position"), group: "4_config", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorActionsPositionSubmenu, { command: { id: EditorActionsDefaultAction.ID, title: localize("tabBar", "Tab Bar"), toggled: ContextKeyExpr.equals("config.workbench.editor.editorActionsLocation", "default") }, group: "1_config", order: 10, when: ContextKeyExpr.equals("config.workbench.editor.showTabs", "none").negate() });
+MenuRegistry.appendMenuItem(MenuId.EditorActionsPositionSubmenu, { command: { id: EditorActionsTitleBarAction.ID, title: localize("titleBar", "Title Bar"), toggled: ContextKeyExpr.or(ContextKeyExpr.equals("config.workbench.editor.editorActionsLocation", "titleBar"), ContextKeyExpr.and(ContextKeyExpr.equals("config.workbench.editor.showTabs", "none"), ContextKeyExpr.equals("config.workbench.editor.editorActionsLocation", "default"))) }, group: "1_config", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorActionsPositionSubmenu, { command: { id: HideEditorActionsAction.ID, title: localize("hidden", "Hidden"), toggled: ContextKeyExpr.equals("config.workbench.editor.editorActionsLocation", "hidden") }, group: "1_config", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EditorTabsBarContext, { command: { id: ConfigureEditorTabsAction.ID, title: localize("configureTabs", "Configure Tabs") }, group: "9_configure", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: CLOSE_EDITOR_COMMAND_ID, title: localize("close", "Close") }, group: "1_close", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID, title: localize("closeOthers", "Close Others"), precondition: EditorGroupEditorsCountContext.notEqualsTo("1") }, group: "1_close", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID, title: localize("closeRight", "Close to the Right"), precondition: ContextKeyExpr.and(ActiveEditorLastInGroupContext.toNegated(), MultipleEditorsSelectedInGroupContext.negate()) }, group: "1_close", order: 30, when: EditorTabsVisibleContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: CLOSE_SAVED_EDITORS_COMMAND_ID, title: localize("closeAllSaved", "Close Saved") }, group: "1_close", order: 40 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID, title: localize("closeAll", "Close All") }, group: "1_close", order: 50 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: REOPEN_WITH_COMMAND_ID, title: localize("reopenWith", "Reopen Editor With...") }, group: "1_open", order: 10, when: ActiveEditorAvailableEditorIdsContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: KEEP_EDITOR_COMMAND_ID, title: localize("keepOpen", "Keep Open"), precondition: ActiveEditorPinnedContext.toNegated() }, group: "3_preview", order: 10, when: ContextKeyExpr.has("config.workbench.editor.enablePreview") });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: PIN_EDITOR_COMMAND_ID, title: localize("pin", "Pin") }, group: "3_preview", order: 20, when: ActiveEditorStickyContext.toNegated() });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: UNPIN_EDITOR_COMMAND_ID, title: localize("unpin", "Unpin") }, group: "3_preview", order: 20, when: ActiveEditorStickyContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: SPLIT_EDITOR_UP, title: localize("splitUp", "Split Up") }, group: "5_split", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: SPLIT_EDITOR_DOWN, title: localize("splitDown", "Split Down") }, group: "5_split", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: SPLIT_EDITOR_LEFT, title: localize("splitLeft", "Split Left") }, group: "5_split", order: 30 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: SPLIT_EDITOR_RIGHT, title: localize("splitRight", "Split Right") }, group: "5_split", order: 40 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: SPLIT_EDITOR_IN_GROUP, title: localize("splitInGroup", "Split in Group"), precondition: MultipleEditorsSelectedInGroupContext.negate() }, group: "6_split_in_group", order: 10, when: ActiveEditorCanSplitInGroupContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: JOIN_EDITOR_IN_GROUP, title: localize("joinInGroup", "Join in Group"), precondition: MultipleEditorsSelectedInGroupContext.negate() }, group: "6_split_in_group", order: 10, when: SideBySideEditorActiveContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID, title: localize("moveToNewWindow", "Move into New Window") }, group: "7_new_window", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { command: { id: COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID, title: localize("copyToNewWindow", "Copy into New Window") }, group: "7_new_window", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitleContext, { submenu: MenuId.EditorTitleContextShare, title: localize("share", "Share"), group: "11_share", order: -1, when: MultipleEditorsSelectedInGroupContext.negate() });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: TOGGLE_DIFF_SIDE_BY_SIDE, title: localize("inlineView", "Inline View"), toggled: ContextKeyExpr.equals("config.diffEditor.renderSideBySide", false) }, group: "1_diff", order: 10, when: ContextKeyExpr.has("isInDiffEditor") });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: SHOW_EDITORS_IN_GROUP, title: localize("showOpenedEditors", "Show Opened Editors") }, group: "3_open", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID, title: localize("closeAll", "Close All") }, group: "5_close", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: CLOSE_SAVED_EDITORS_COMMAND_ID, title: localize("closeAllSaved", "Close Saved") }, group: "5_close", order: 20 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: TOGGLE_KEEP_EDITORS_COMMAND_ID, title: localize("togglePreviewMode", "Enable Preview Editors"), toggled: ContextKeyExpr.has("config.workbench.editor.enablePreview") }, group: "7_settings", order: 10 });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: TOGGLE_MAXIMIZE_EDITOR_GROUP, title: localize("maximizeGroup", "Maximize Group") }, group: "8_group_operations", order: 5, when: ContextKeyExpr.and(EditorPartMaximizedEditorGroupContext.negate(), EditorPartMultipleEditorGroupsContext) });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: TOGGLE_MAXIMIZE_EDITOR_GROUP, title: localize("unmaximizeGroup", "Unmaximize Group") }, group: "8_group_operations", order: 5, when: EditorPartMaximizedEditorGroupContext });
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
+  command: { id: TOGGLE_LOCK_GROUP_COMMAND_ID, title: localize("lockGroup", "Lock Group"), toggled: ActiveEditorGroupLockedContext },
+  group: "8_group_operations",
+  order: 10,
+  when: IsAuxiliaryWindowContext.toNegated()
+  /* already a primary action for aux windows */
+});
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { command: { id: ConfigureEditorAction.ID, title: localize("configureEditors", "Configure Editors") }, group: "9_configure", order: 10 });
+function appendEditorToolItem(primary, when, order, alternative, precondition, enableInCompactMode) {
+  const item = {
+    command: {
+      id: primary.id,
+      title: primary.title,
+      icon: primary.icon,
+      toggled: primary.toggled,
+      precondition
+    },
+    group: "navigation",
+    when,
+    order
+  };
+  if (alternative) {
+    item.alt = {
+      id: alternative.id,
+      title: alternative.title,
+      icon: alternative.icon
+    };
+  }
+  MenuRegistry.appendMenuItem(MenuId.EditorTitle, item);
+  if (enableInCompactMode) {
+    MenuRegistry.appendMenuItem(MenuId.CompactWindowEditorTitle, item);
+  }
+}
+__name(appendEditorToolItem, "appendEditorToolItem");
+const SPLIT_ORDER = 1e5;
+const CLOSE_ORDER = 1e6;
+appendEditorToolItem({
+  id: SPLIT_EDITOR,
+  title: localize("splitEditorRight", "Split Editor Right"),
+  icon: Codicon.splitHorizontal
+}, ContextKeyExpr.not("splitEditorsVertically"), SPLIT_ORDER, {
+  id: SPLIT_EDITOR_DOWN,
+  title: localize("splitEditorDown", "Split Editor Down"),
+  icon: Codicon.splitVertical
+});
+appendEditorToolItem({
+  id: SPLIT_EDITOR,
+  title: localize("splitEditorDown", "Split Editor Down"),
+  icon: Codicon.splitVertical
+}, ContextKeyExpr.has("splitEditorsVertically"), SPLIT_ORDER, {
+  id: SPLIT_EDITOR_RIGHT,
+  title: localize("splitEditorRight", "Split Editor Right"),
+  icon: Codicon.splitHorizontal
+});
+appendEditorToolItem({
+  id: TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
+  title: localize("toggleSplitEditorInGroupLayout", "Toggle Layout"),
+  icon: Codicon.editorLayout
+}, SideBySideEditorActiveContext, SPLIT_ORDER - 1);
+appendEditorToolItem({
+  id: CLOSE_EDITOR_COMMAND_ID,
+  title: localize("close", "Close"),
+  icon: Codicon.close
+}, ContextKeyExpr.and(EditorTabsVisibleContext.toNegated(), ActiveEditorDirtyContext.toNegated(), ActiveEditorStickyContext.toNegated()), CLOSE_ORDER, {
+  id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID,
+  title: localize("closeAll", "Close All"),
+  icon: Codicon.closeAll
+});
+appendEditorToolItem({
+  id: CLOSE_EDITOR_COMMAND_ID,
+  title: localize("close", "Close"),
+  icon: Codicon.closeDirty
+}, ContextKeyExpr.and(EditorTabsVisibleContext.toNegated(), ActiveEditorDirtyContext, ActiveEditorStickyContext.toNegated()), CLOSE_ORDER, {
+  id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID,
+  title: localize("closeAll", "Close All"),
+  icon: Codicon.closeAll
+});
+appendEditorToolItem({
+  id: UNPIN_EDITOR_COMMAND_ID,
+  title: localize("unpin", "Unpin"),
+  icon: Codicon.pinned
+}, ContextKeyExpr.and(EditorTabsVisibleContext.toNegated(), ActiveEditorDirtyContext.toNegated(), ActiveEditorStickyContext), CLOSE_ORDER, {
+  id: CLOSE_EDITOR_COMMAND_ID,
+  title: localize("close", "Close"),
+  icon: Codicon.close
+});
+appendEditorToolItem({
+  id: UNPIN_EDITOR_COMMAND_ID,
+  title: localize("unpin", "Unpin"),
+  icon: Codicon.pinnedDirty
+}, ContextKeyExpr.and(EditorTabsVisibleContext.toNegated(), ActiveEditorDirtyContext, ActiveEditorStickyContext), CLOSE_ORDER, {
+  id: CLOSE_EDITOR_COMMAND_ID,
+  title: localize("close", "Close"),
+  icon: Codicon.close
+});
+appendEditorToolItem({
+  id: LOCK_GROUP_COMMAND_ID,
+  title: localize("lockEditorGroup", "Lock Group"),
+  icon: Codicon.unlock
+}, ContextKeyExpr.and(IsAuxiliaryWindowContext, ActiveEditorGroupLockedContext.toNegated()), CLOSE_ORDER - 1);
+appendEditorToolItem({
+  id: UNLOCK_GROUP_COMMAND_ID,
+  title: localize("unlockEditorGroup", "Unlock Group"),
+  icon: Codicon.lock,
+  toggled: ContextKeyExpr.true()
+}, ActiveEditorGroupLockedContext, CLOSE_ORDER - 1);
+const previousChangeIcon = registerIcon("diff-editor-previous-change", Codicon.arrowUp, localize("previousChangeIcon", "Icon for the previous change action in the diff editor."));
+appendEditorToolItem({
+  id: GOTO_PREVIOUS_CHANGE,
+  title: localize("navigate.prev.label", "Previous Change"),
+  icon: previousChangeIcon
+}, TextCompareEditorActiveContext, 10, void 0, EditorContextKeys.hasChanges, true);
+const nextChangeIcon = registerIcon("diff-editor-next-change", Codicon.arrowDown, localize("nextChangeIcon", "Icon for the next change action in the diff editor."));
+appendEditorToolItem({
+  id: GOTO_NEXT_CHANGE,
+  title: localize("navigate.next.label", "Next Change"),
+  icon: nextChangeIcon
+}, TextCompareEditorActiveContext, 11, void 0, EditorContextKeys.hasChanges, true);
+appendEditorToolItem({
+  id: DIFF_SWAP_SIDES,
+  title: localize("swapDiffSides", "Swap Left and Right Side"),
+  icon: Codicon.arrowSwap
+}, ContextKeyExpr.and(TextCompareEditorActiveContext, ActiveCompareEditorCanSwapContext), 15, void 0, void 0);
+const toggleWhitespace = registerIcon("diff-editor-toggle-whitespace", Codicon.whitespace, localize("toggleWhitespace", "Icon for the toggle whitespace action in the diff editor."));
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
+  command: {
+    id: TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE,
+    title: localize("ignoreTrimWhitespace.label", "Show Leading/Trailing Whitespace Differences"),
+    icon: toggleWhitespace,
+    precondition: TextCompareEditorActiveContext,
+    toggled: ContextKeyExpr.equals("config.diffEditor.ignoreTrimWhitespace", false)
+  },
+  group: "navigation",
+  when: TextCompareEditorActiveContext,
+  order: 20
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: KEEP_EDITOR_COMMAND_ID, title: localize2("keepEditor", "Keep Editor"), category: Categories.View }, when: ContextKeyExpr.has("config.workbench.editor.enablePreview") });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: PIN_EDITOR_COMMAND_ID, title: localize2("pinEditor", "Pin Editor"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: UNPIN_EDITOR_COMMAND_ID, title: localize2("unpinEditor", "Unpin Editor"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_EDITOR_COMMAND_ID, title: localize2("closeEditor", "Close Editor"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_PINNED_EDITOR_COMMAND_ID, title: localize2("closePinnedEditor", "Close Pinned Editor"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID, title: localize2("closeEditorsInGroup", "Close All Editors in Group"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_SAVED_EDITORS_COMMAND_ID, title: localize2("closeSavedEditors", "Close Saved Editors in Group"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID, title: localize2("closeOtherEditors", "Close Other Editors in Group"), category: Categories.View } });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID, title: localize2("closeRightEditors", "Close Editors to the Right in Group"), category: Categories.View }, when: ActiveEditorLastInGroupContext.toNegated() });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLOSE_EDITORS_AND_GROUP_COMMAND_ID, title: localize2("closeEditorGroup", "Close Editor Group"), category: Categories.View }, when: MultipleEditorGroupsContext });
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: REOPEN_WITH_COMMAND_ID, title: localize2("reopenWith", "Reopen Editor With..."), category: Categories.View }, when: ActiveEditorAvailableEditorIdsContext });
+MenuRegistry.appendMenuItem(MenuId.MenubarRecentMenu, {
+  group: "1_editor",
+  command: {
+    id: ReopenClosedEditorAction.ID,
+    title: localize({ key: "miReopenClosedEditor", comment: ["&& denotes a mnemonic"] }, "&&Reopen Closed Editor"),
+    precondition: ContextKeyExpr.has("canReopenClosedEditor")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarRecentMenu, {
+  group: "z_clear",
+  command: {
+    id: ClearRecentFilesAction.ID,
+    title: localize({ key: "miClearRecentOpen", comment: ["&& denotes a mnemonic"] }, "&&Clear Recently Opened...")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarFileMenu, {
+  title: localize("miShare", "Share"),
+  submenu: MenuId.MenubarShare,
+  group: "45_share",
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarViewMenu, {
+  group: "2_appearance",
+  title: localize({ key: "miEditorLayout", comment: ["&& denotes a mnemonic"] }, "Editor &&Layout"),
+  submenu: MenuId.MenubarLayoutMenu,
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "1_split",
+  command: {
+    id: SPLIT_EDITOR_UP,
+    title: {
+      ...localize2("miSplitEditorUpWithoutMnemonic", "Split Up"),
+      mnemonicTitle: localize({ key: "miSplitEditorUp", comment: ["&& denotes a mnemonic"] }, "Split &&Up")
+    }
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "1_split",
+  command: {
+    id: SPLIT_EDITOR_DOWN,
+    title: {
+      ...localize2("miSplitEditorDownWithoutMnemonic", "Split Down"),
+      mnemonicTitle: localize({ key: "miSplitEditorDown", comment: ["&& denotes a mnemonic"] }, "Split &&Down")
+    }
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "1_split",
+  command: {
+    id: SPLIT_EDITOR_LEFT,
+    title: {
+      ...localize2("miSplitEditorLeftWithoutMnemonic", "Split Left"),
+      mnemonicTitle: localize({ key: "miSplitEditorLeft", comment: ["&& denotes a mnemonic"] }, "Split &&Left")
+    }
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "1_split",
+  command: {
+    id: SPLIT_EDITOR_RIGHT,
+    title: {
+      ...localize2("miSplitEditorRightWithoutMnemonic", "Split Right"),
+      mnemonicTitle: localize({ key: "miSplitEditorRight", comment: ["&& denotes a mnemonic"] }, "Split &&Right")
+    }
+  },
+  order: 4
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "2_split_in_group",
+  command: {
+    id: SPLIT_EDITOR_IN_GROUP,
+    title: {
+      ...localize2("miSplitEditorInGroupWithoutMnemonic", "Split in Group"),
+      mnemonicTitle: localize({ key: "miSplitEditorInGroup", comment: ["&& denotes a mnemonic"] }, "Split in &&Group")
+    }
+  },
+  when: ActiveEditorCanSplitInGroupContext,
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "2_split_in_group",
+  command: {
+    id: JOIN_EDITOR_IN_GROUP,
+    title: {
+      ...localize2("miJoinEditorInGroupWithoutMnemonic", "Join in Group"),
+      mnemonicTitle: localize({ key: "miJoinEditorInGroup", comment: ["&& denotes a mnemonic"] }, "Join in &&Group")
+    }
+  },
+  when: SideBySideEditorActiveContext,
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "3_new_window",
+  command: {
+    id: MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID,
+    title: {
+      ...localize2("moveEditorToNewWindow", "Move Editor into New Window"),
+      mnemonicTitle: localize({ key: "miMoveEditorToNewWindow", comment: ["&& denotes a mnemonic"] }, "&&Move Editor into New Window")
+    }
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "3_new_window",
+  command: {
+    id: COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID,
+    title: {
+      ...localize2("copyEditorToNewWindow", "Copy Editor into New Window"),
+      mnemonicTitle: localize({ key: "miCopyEditorToNewWindow", comment: ["&& denotes a mnemonic"] }, "&&Copy Editor into New Window")
+    }
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutSingleAction.ID,
+    title: {
+      ...localize2("miSingleColumnEditorLayoutWithoutMnemonic", "Single"),
+      mnemonicTitle: localize({ key: "miSingleColumnEditorLayout", comment: ["&& denotes a mnemonic"] }, "&&Single")
+    }
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutTwoColumnsAction.ID,
+    title: {
+      ...localize2("miTwoColumnsEditorLayoutWithoutMnemonic", "Two Columns"),
+      mnemonicTitle: localize({ key: "miTwoColumnsEditorLayout", comment: ["&& denotes a mnemonic"] }, "&&Two Columns")
+    }
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutThreeColumnsAction.ID,
+    title: {
+      ...localize2("miThreeColumnsEditorLayoutWithoutMnemonic", "Three Columns"),
+      mnemonicTitle: localize({ key: "miThreeColumnsEditorLayout", comment: ["&& denotes a mnemonic"] }, "T&&hree Columns")
+    }
+  },
+  order: 4
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutTwoRowsAction.ID,
+    title: {
+      ...localize2("miTwoRowsEditorLayoutWithoutMnemonic", "Two Rows"),
+      mnemonicTitle: localize({ key: "miTwoRowsEditorLayout", comment: ["&& denotes a mnemonic"] }, "T&&wo Rows")
+    }
+  },
+  order: 5
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutThreeRowsAction.ID,
+    title: {
+      ...localize2("miThreeRowsEditorLayoutWithoutMnemonic", "Three Rows"),
+      mnemonicTitle: localize({ key: "miThreeRowsEditorLayout", comment: ["&& denotes a mnemonic"] }, "Three &&Rows")
+    }
+  },
+  order: 6
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutTwoByTwoGridAction.ID,
+    title: {
+      ...localize2("miTwoByTwoGridEditorLayoutWithoutMnemonic", "Grid (2x2)"),
+      mnemonicTitle: localize({ key: "miTwoByTwoGridEditorLayout", comment: ["&& denotes a mnemonic"] }, "&&Grid (2x2)")
+    }
+  },
+  order: 7
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutTwoRowsRightAction.ID,
+    title: {
+      ...localize2("miTwoRowsRightEditorLayoutWithoutMnemonic", "Two Rows Right"),
+      mnemonicTitle: localize({ key: "miTwoRowsRightEditorLayout", comment: ["&& denotes a mnemonic"] }, "Two R&&ows Right")
+    }
+  },
+  order: 8
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "4_layouts",
+  command: {
+    id: EditorLayoutTwoColumnsBottomAction.ID,
+    title: {
+      ...localize2("miTwoColumnsBottomEditorLayoutWithoutMnemonic", "Two Columns Bottom"),
+      mnemonicTitle: localize({ key: "miTwoColumnsBottomEditorLayout", comment: ["&& denotes a mnemonic"] }, "Two &&Columns Bottom")
+    }
+  },
+  order: 9
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "1_history_nav",
+  command: {
+    id: "workbench.action.navigateToLastEditLocation",
+    title: localize({ key: "miLastEditLocation", comment: ["&& denotes a mnemonic"] }, "&&Last Edit Location"),
+    precondition: ContextKeyExpr.has("canNavigateToLastEditLocation")
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "1_sideBySide",
+  command: {
+    id: FOCUS_FIRST_SIDE_EDITOR,
+    title: localize({ key: "miFirstSideEditor", comment: ["&& denotes a mnemonic"] }, "&&First Side in Editor")
+  },
+  when: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "1_sideBySide",
+  command: {
+    id: FOCUS_SECOND_SIDE_EDITOR,
+    title: localize({ key: "miSecondSideEditor", comment: ["&& denotes a mnemonic"] }, "&&Second Side in Editor")
+  },
+  when: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "2_any",
+  command: {
+    id: "workbench.action.nextEditor",
+    title: localize({ key: "miNextEditor", comment: ["&& denotes a mnemonic"] }, "&&Next Editor")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "2_any",
+  command: {
+    id: "workbench.action.previousEditor",
+    title: localize({ key: "miPreviousEditor", comment: ["&& denotes a mnemonic"] }, "&&Previous Editor")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "3_any_used",
+  command: {
+    id: "workbench.action.openNextRecentlyUsedEditor",
+    title: localize({ key: "miNextRecentlyUsedEditor", comment: ["&& denotes a mnemonic"] }, "&&Next Used Editor")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "3_any_used",
+  command: {
+    id: "workbench.action.openPreviousRecentlyUsedEditor",
+    title: localize({ key: "miPreviousRecentlyUsedEditor", comment: ["&& denotes a mnemonic"] }, "&&Previous Used Editor")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "4_group",
+  command: {
+    id: "workbench.action.nextEditorInGroup",
+    title: localize({ key: "miNextEditorInGroup", comment: ["&& denotes a mnemonic"] }, "&&Next Editor in Group")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "4_group",
+  command: {
+    id: "workbench.action.previousEditorInGroup",
+    title: localize({ key: "miPreviousEditorInGroup", comment: ["&& denotes a mnemonic"] }, "&&Previous Editor in Group")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "5_group_used",
+  command: {
+    id: "workbench.action.openNextRecentlyUsedEditorInGroup",
+    title: localize({ key: "miNextUsedEditorInGroup", comment: ["&& denotes a mnemonic"] }, "&&Next Used Editor in Group")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchEditorMenu, {
+  group: "5_group_used",
+  command: {
+    id: "workbench.action.openPreviousRecentlyUsedEditorInGroup",
+    title: localize({ key: "miPreviousUsedEditorInGroup", comment: ["&& denotes a mnemonic"] }, "&&Previous Used Editor in Group")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "2_editor_nav",
+  title: localize({ key: "miSwitchEditor", comment: ["&& denotes a mnemonic"] }, "Switch &&Editor"),
+  submenu: MenuId.MenubarSwitchEditorMenu,
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "1_focus_index",
+  command: {
+    id: "workbench.action.focusFirstEditorGroup",
+    title: localize({ key: "miFocusFirstGroup", comment: ["&& denotes a mnemonic"] }, "Group &&1")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "1_focus_index",
+  command: {
+    id: "workbench.action.focusSecondEditorGroup",
+    title: localize({ key: "miFocusSecondGroup", comment: ["&& denotes a mnemonic"] }, "Group &&2")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "1_focus_index",
+  command: {
+    id: "workbench.action.focusThirdEditorGroup",
+    title: localize({ key: "miFocusThirdGroup", comment: ["&& denotes a mnemonic"] }, "Group &&3"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "1_focus_index",
+  command: {
+    id: "workbench.action.focusFourthEditorGroup",
+    title: localize({ key: "miFocusFourthGroup", comment: ["&& denotes a mnemonic"] }, "Group &&4"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 4
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "1_focus_index",
+  command: {
+    id: "workbench.action.focusFifthEditorGroup",
+    title: localize({ key: "miFocusFifthGroup", comment: ["&& denotes a mnemonic"] }, "Group &&5"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 5
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "2_next_prev",
+  command: {
+    id: "workbench.action.focusNextGroup",
+    title: localize({ key: "miNextGroup", comment: ["&& denotes a mnemonic"] }, "&&Next Group"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "2_next_prev",
+  command: {
+    id: "workbench.action.focusPreviousGroup",
+    title: localize({ key: "miPreviousGroup", comment: ["&& denotes a mnemonic"] }, "&&Previous Group"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "3_directional",
+  command: {
+    id: "workbench.action.focusLeftGroup",
+    title: localize({ key: "miFocusLeftGroup", comment: ["&& denotes a mnemonic"] }, "Group &&Left"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "3_directional",
+  command: {
+    id: "workbench.action.focusRightGroup",
+    title: localize({ key: "miFocusRightGroup", comment: ["&& denotes a mnemonic"] }, "Group &&Right"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "3_directional",
+  command: {
+    id: "workbench.action.focusAboveGroup",
+    title: localize({ key: "miFocusAboveGroup", comment: ["&& denotes a mnemonic"] }, "Group &&Above"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarSwitchGroupMenu, {
+  group: "3_directional",
+  command: {
+    id: "workbench.action.focusBelowGroup",
+    title: localize({ key: "miFocusBelowGroup", comment: ["&& denotes a mnemonic"] }, "Group &&Below"),
+    precondition: MultipleEditorGroupsContext
+  },
+  order: 4
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "2_editor_nav",
+  title: localize({ key: "miSwitchGroup", comment: ["&& denotes a mnemonic"] }, "Switch &&Group"),
+  submenu: MenuId.MenubarSwitchGroupMenu,
+  order: 2
+});
+registerEditorFontConfigurations(getFontSnippets);
+//# sourceMappingURL=editor.contribution.js.map

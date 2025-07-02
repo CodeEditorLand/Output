@@ -1,2 +1,311 @@
-import{$Tc as g}from"../../../../base/common/assert.js";import{$Nh as k,$Yh as S,$Mh as T}from"../../../../base/common/async.js";import{$pf as w}from"../../../../base/common/cancellation.js";import{$Mj as $}from"../../../../base/common/codicons.js";import{$vd as _,$ud as y,$td as I}from"../../../../base/common/lifecycle.js";import{autorun as O,derived as j,ObservablePromise as R,observableValue as q}from"../../../../base/common/observable.js";import{$hh as x}from"../../../../base/common/resources.js";import{ThemeIcon as C}from"../../../../base/common/themables.js";import{$CD as A}from"../../../../editor/common/languages/language.js";import{$olb as E}from"../../../../editor/common/services/getIconClasses.js";import{$AF as L}from"../../../../editor/common/services/model.js";import{localize as m}from"../../../../nls.js";import{$5j as N}from"../../../../platform/files/common/files.js";import{$mj as F}from"../../../../platform/instantiation/common/instantiation.js";import{$jI as G}from"../../../../platform/label/common/label.js";import{$PM as B}from"../../../../platform/quickinput/common/quickInput.js";import{TerminalLocation as H}from"../../../../platform/terminal/common/terminal.js";import{$il as M}from"../../../../platform/workspace/common/workspace.js";import{$xY as z}from"../../../services/search/common/queryBuilder.js";import{$kP as U}from"../../../services/search/common/search.js";import{$fZb as V,$cZb as Y}from"../../terminal/browser/terminal.js";var P=function(f,n,s,a){var r=arguments.length,e=r<3?n:a===null?a=Object.getOwnPropertyDescriptor(n,s):a,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,n,s,a);else for(var i=f.length-1;i>=0;i--)(t=f[i])&&(e=(r<3?t(e):r>3?t(n,s,e):t(n,s))||e);return r>3&&e&&Object.defineProperty(n,s,e),e},d=function(f,n){return function(s,a){n(s,a,f)}};const Z=5e3,Q=1e3,W=200;let D=class extends _{constructor(n,s,a,r,e,t,i,o,c,l,u){super(),this.g=n,this.h=s,this.j=a,this.m=r,this.n=e,this.r=t,this.s=i,this.u=o,this.w=c,this.y=l,this.z=u,this.b=this.B(s.createQuickPick({useSeparators:!0}))}async createArgs(n){const{b:s,g:a}=this;s.totalSteps=a.arguments.length,s.step=0,s.ignoreFocusOut=!0,s.sortByLabel=!1;const r={},e=[];for(let t=0;t<a.arguments.length;t++){const i=a.arguments[t],o=e.at(t);s.step=t+1,s.placeholder=i.required?i.description:`${i.description||""} (${m(8859,null)})`,s.title=m(8860,null,i.title||i.name),s.value=o?.value??(r.hasOwnProperty(i.name)&&r[i.name]||""),s.items=o?.items??[],s.activeItems=o?.activeItems??[],s.buttons=t>0?[this.h.backButton]:[];const c=await this.C(i,!!o,r,n);if(c.type==="back")t-=2;else{if(c.type==="cancel")return;c.type==="arg"?(e[t]={value:s.value,items:s.items.slice(),activeItems:s.activeItems.slice()},r[i.name]=c.value):g(c)}}return s.value="",s.placeholder=m(8861,null),s.busy=!0,r}async C(n,s,a,r){const{b:e}=this,t=new y,i=q(this,e.value),o=[{name:m(8862,null),observer:this.D(n,i,a)},{name:m(8863,null),observer:this.F(i)}];t.add(O(c=>{if(s){i.read(c);return}let l=[];l.push({id:"insert-text",label:m(8864,null),iconClass:C.asClassName($.textSize),action:"text",alwaysShow:!0}),l.push({id:"run-command",label:m(8865,null),description:m(8866,null),iconClass:C.asClassName($.terminal),action:"command",alwaysShow:!0});let u=!1;for(const b of o){const h=b.observer.read(c);u||=h.busy,h.picks&&(l.push({label:b.name,type:"separator"}),l=l.concat(h.picks))}const p=e.activeItems;e.busy=u,e.items=l;const v=l.find(b=>p.some(h=>h.id===b.id));v?e.activeItems=[v]:l.length>2?e.activeItems=[l[3]]:u?e.activeItems=[]:e.activeItems=[l[0]]}));try{const c=await new Promise(u=>{r&&t.add(r.onCancellationRequested(()=>{u(void 0)})),t.add(e.onDidChangeValue(p=>{e.validationMessage=void 0,i.set(p,void 0)})),t.add(e.onDidAccept(()=>{const p=e.selectedItems[0];!e.value&&n.required&&(p.action==="text"||p.action==="command")?e.validationMessage=m(8867,null):u(e.selectedItems[0])})),t.add(e.onDidTriggerButton(()=>{u("back")})),t.add(e.onDidHide(()=>{u(void 0)})),e.show()});if(c==="back")return{type:"back"};if(c===void 0)return{type:"cancel"};t.clear();const l=new w;switch(t.add(I(()=>l.dispose(!0))),t.add(e.onDidHide(()=>t.dispose())),c.action){case"text":return{type:"arg",value:e.value||void 0};case"command":return e.value?(e.busy=!0,{type:"arg",value:await this.H(e.value,l.token)}):{type:"arg",value:void 0};case"suggest":return{type:"arg",value:c.label};case"file":return e.busy=!0,{type:"arg",value:await this.s.readFile(c.uri).then(u=>u.value.toString())};default:g(c)}}finally{t.dispose()}}D(n,s,a){const r={};for(const[e,t]of Object.entries(a))t&&(r[e]=t);return this.G(s,async(e,t)=>(await this.g.complete(n.name,e,r,t)).map(o=>({id:`suggest:${o}`,label:o,action:"suggest"})))}F(n){const s=this.z.createInstance(z);return this.G(n,async(a,r)=>{if(!a)return[];const e=s.file(this.n.getWorkspace().folders,{filePattern:a,maxResults:10}),{results:t}=await this.m.fileSearch(e,r);return t.map(i=>({id:i.resource.toString(),label:x(i.resource),description:this.r.getUriLabel(i.resource),iconClasses:E(this.u,this.w,i.resource),uri:i.resource,action:"file"}))})}G(n,s){return j(r=>{const e=n.read(r),t=new w;return r.store.add(I(()=>t.dispose(!0))),new R(T(W,t.token).then(()=>s(e,t.token)).catch(()=>[]))}).map((r,e)=>{const t=r.promiseResult.read(e);return{picks:t?.data||[],busy:t===void 0}})}async H(n,s){const a=this.f??=this.B(await this.j.createTerminal({config:{name:m(8868,null),isTransient:!0,forceShellIntegration:!0,isFeatureTerminal:!0},location:H.Panel}));this.j.setActiveInstance(a),this.y.showPanel(!1);const r=a.capabilities.get(2);if(r)return this.I(a,n,r,s);const e=new y;return await new Promise(t=>{e.add(a.capabilities.onDidAddCapability(i=>{i.id===2&&(e.dispose(),t(this.I(a,n,i.capability,s)))})),e.add(s.onCancellationRequested(()=>{e.dispose(),t(void 0)})),e.add(k(()=>{e.dispose(),t(this.I(a,n,void 0,s))},Z))})}async I(n,s,a,r){const e=new y;return new Promise(t=>{let i="";if(e.add(n.onLineData(o=>i+=o+`
-`)),a)e.add(a.onCommandFinished(o=>t(o.getOutput()||i)));else{const o=e.add(new S(()=>t(i),Q));e.add(n.onData(()=>o.schedule()))}e.add(r.onCancellationRequested(()=>t(void 0))),e.add(n.onDisposed(()=>t(void 0))),n.runCommand(s,!0)}).finally(()=>{e.dispose()})}};D=P([d(1,B),d(2,Y),d(3,U),d(4,M),d(5,G),d(6,N),d(7,L),d(8,A),d(9,V),d(10,F)],D);export{D as $fbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { assertNever } from "../../../../base/common/assert.js";
+import { disposableTimeout, RunOnceScheduler, timeout } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, derived, ObservablePromise, observableValue } from "../../../../base/common/observable.js";
+import { basename } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { localize } from "../../../../nls.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { QueryBuilder } from "../../../services/search/common/queryBuilder.js";
+import { ISearchService } from "../../../services/search/common/search.js";
+import { ITerminalGroupService, ITerminalService } from "../../terminal/browser/terminal.js";
+const SHELL_INTEGRATION_TIMEOUT = 5e3;
+const NO_SHELL_INTEGRATION_IDLE = 1e3;
+const SUGGEST_DEBOUNCE = 200;
+let McpPromptArgumentPick = class McpPromptArgumentPick2 extends Disposable {
+  static {
+    __name(this, "McpPromptArgumentPick");
+  }
+  constructor(prompt, _quickInputService, _terminalService, _searchService, _workspaceContextService, _labelService, _fileService, _modelService, _languageService, _terminalGroupService, _instantiationService) {
+    super();
+    this.prompt = prompt;
+    this._quickInputService = _quickInputService;
+    this._terminalService = _terminalService;
+    this._searchService = _searchService;
+    this._workspaceContextService = _workspaceContextService;
+    this._labelService = _labelService;
+    this._fileService = _fileService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._terminalGroupService = _terminalGroupService;
+    this._instantiationService = _instantiationService;
+    this.quickPick = this._register(_quickInputService.createQuickPick({ useSeparators: true }));
+  }
+  async createArgs(token) {
+    const { quickPick, prompt } = this;
+    quickPick.totalSteps = prompt.arguments.length;
+    quickPick.step = 0;
+    quickPick.ignoreFocusOut = true;
+    quickPick.sortByLabel = false;
+    const args = {};
+    const backSnapshots = [];
+    for (let i = 0; i < prompt.arguments.length; i++) {
+      const arg = prompt.arguments[i];
+      const restore = backSnapshots.at(i);
+      quickPick.step = i + 1;
+      quickPick.placeholder = arg.required ? arg.description : `${arg.description || ""} (${localize("optional", "Optional")})`;
+      quickPick.title = localize("mcp.prompt.pick.title", "Value for: {0}", arg.title || arg.name);
+      quickPick.value = restore?.value ?? (args.hasOwnProperty(arg.name) && args[arg.name] || "");
+      quickPick.items = restore?.items ?? [];
+      quickPick.activeItems = restore?.activeItems ?? [];
+      quickPick.buttons = i > 0 ? [this._quickInputService.backButton] : [];
+      const value = await this._getArg(arg, !!restore, args, token);
+      if (value.type === "back") {
+        i -= 2;
+      } else if (value.type === "cancel") {
+        return void 0;
+      } else if (value.type === "arg") {
+        backSnapshots[i] = { value: quickPick.value, items: quickPick.items.slice(), activeItems: quickPick.activeItems.slice() };
+        args[arg.name] = value.value;
+      } else {
+        assertNever(value);
+      }
+    }
+    quickPick.value = "";
+    quickPick.placeholder = localize("loading", "Loading...");
+    quickPick.busy = true;
+    return args;
+  }
+  async _getArg(arg, didRestoreState, argsSoFar, token) {
+    const { quickPick } = this;
+    const store = new DisposableStore();
+    const input$ = observableValue(this, quickPick.value);
+    const asyncPicks = [
+      {
+        name: localize("mcp.arg.suggestions", "Suggestions"),
+        observer: this._promptCompletions(arg, input$, argsSoFar)
+      },
+      {
+        name: localize("mcp.arg.files", "Files"),
+        observer: this._fileCompletions(input$)
+      }
+    ];
+    store.add(autorun((reader) => {
+      if (didRestoreState) {
+        input$.read(reader);
+        return;
+      }
+      let items = [];
+      items.push({ id: "insert-text", label: localize("mcp.arg.asText", "Insert as text"), iconClass: ThemeIcon.asClassName(Codicon.textSize), action: "text", alwaysShow: true });
+      items.push({ id: "run-command", label: localize("mcp.arg.asCommand", "Run as Command"), description: localize("mcp.arg.asCommand.description", "Inserts the command output as the prompt argument"), iconClass: ThemeIcon.asClassName(Codicon.terminal), action: "command", alwaysShow: true });
+      let busy = false;
+      for (const pick of asyncPicks) {
+        const state = pick.observer.read(reader);
+        busy ||= state.busy;
+        if (state.picks) {
+          items.push({ label: pick.name, type: "separator" });
+          items = items.concat(state.picks);
+        }
+      }
+      const previouslyActive = quickPick.activeItems;
+      quickPick.busy = busy;
+      quickPick.items = items;
+      const lastActive = items.find((i) => previouslyActive.some((a) => a.id === i.id));
+      if (lastActive) {
+        quickPick.activeItems = [lastActive];
+      } else if (items.length > 2) {
+        quickPick.activeItems = [items[3]];
+      } else if (busy) {
+        quickPick.activeItems = [];
+      } else {
+        quickPick.activeItems = [items[0]];
+      }
+    }));
+    try {
+      const value = await new Promise((resolve) => {
+        if (token) {
+          store.add(token.onCancellationRequested(() => {
+            resolve(void 0);
+          }));
+        }
+        store.add(quickPick.onDidChangeValue((value2) => {
+          quickPick.validationMessage = void 0;
+          input$.set(value2, void 0);
+        }));
+        store.add(quickPick.onDidAccept(() => {
+          const item = quickPick.selectedItems[0];
+          if (!quickPick.value && arg.required && (item.action === "text" || item.action === "command")) {
+            quickPick.validationMessage = localize("mcp.arg.required", "This argument is required");
+          } else {
+            resolve(quickPick.selectedItems[0]);
+          }
+        }));
+        store.add(quickPick.onDidTriggerButton(() => {
+          resolve("back");
+        }));
+        store.add(quickPick.onDidHide(() => {
+          resolve(void 0);
+        }));
+        quickPick.show();
+      });
+      if (value === "back") {
+        return { type: "back" };
+      }
+      if (value === void 0) {
+        return { type: "cancel" };
+      }
+      store.clear();
+      const cts = new CancellationTokenSource();
+      store.add(toDisposable(() => cts.dispose(true)));
+      store.add(quickPick.onDidHide(() => store.dispose()));
+      switch (value.action) {
+        case "text":
+          return { type: "arg", value: quickPick.value || void 0 };
+        case "command":
+          if (!quickPick.value) {
+            return { type: "arg", value: void 0 };
+          }
+          quickPick.busy = true;
+          return { type: "arg", value: await this._getTerminalOutput(quickPick.value, cts.token) };
+        case "suggest":
+          return { type: "arg", value: value.label };
+        case "file":
+          quickPick.busy = true;
+          return { type: "arg", value: await this._fileService.readFile(value.uri).then((c) => c.value.toString()) };
+        default:
+          assertNever(value);
+      }
+    } finally {
+      store.dispose();
+    }
+  }
+  _promptCompletions(arg, input, argsSoFar) {
+    const alreadyResolved = {};
+    for (const [key, value] of Object.entries(argsSoFar)) {
+      if (value) {
+        alreadyResolved[key] = value;
+      }
+    }
+    return this._asyncCompletions(input, async (i, t) => {
+      const items = await this.prompt.complete(arg.name, i, alreadyResolved, t);
+      return items.map((i2) => ({ id: `suggest:${i2}`, label: i2, action: "suggest" }));
+    });
+  }
+  _fileCompletions(input) {
+    const qb = this._instantiationService.createInstance(QueryBuilder);
+    return this._asyncCompletions(input, async (i, token) => {
+      if (!i) {
+        return [];
+      }
+      const query = qb.file(this._workspaceContextService.getWorkspace().folders, {
+        filePattern: i,
+        maxResults: 10
+      });
+      const { results } = await this._searchService.fileSearch(query, token);
+      return results.map((i2) => ({
+        id: i2.resource.toString(),
+        label: basename(i2.resource),
+        description: this._labelService.getUriLabel(i2.resource),
+        iconClasses: getIconClasses(this._modelService, this._languageService, i2.resource),
+        uri: i2.resource,
+        action: "file"
+      }));
+    });
+  }
+  _asyncCompletions(input, mapper) {
+    const promise = derived((reader) => {
+      const queryValue = input.read(reader);
+      const cts = new CancellationTokenSource();
+      reader.store.add(toDisposable(() => cts.dispose(true)));
+      return new ObservablePromise(timeout(SUGGEST_DEBOUNCE, cts.token).then(() => mapper(queryValue, cts.token)).catch(() => []));
+    });
+    return promise.map((value, reader) => {
+      const result = value.promiseResult.read(reader);
+      return { picks: result?.data || [], busy: result === void 0 };
+    });
+  }
+  async _getTerminalOutput(command, token) {
+    const terminal = this._terminal ??= this._register(await this._terminalService.createTerminal({
+      config: {
+        name: localize("mcp.terminal.name", "MCP Terminal"),
+        isTransient: true,
+        forceShellIntegration: true,
+        isFeatureTerminal: true
+      },
+      location: TerminalLocation.Panel
+    }));
+    this._terminalService.setActiveInstance(terminal);
+    this._terminalGroupService.showPanel(false);
+    const shellIntegration = terminal.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    if (shellIntegration) {
+      return this._getTerminalOutputInner(terminal, command, shellIntegration, token);
+    }
+    const store = new DisposableStore();
+    return await new Promise((resolve) => {
+      store.add(terminal.capabilities.onDidAddCapability((e) => {
+        if (e.id === 2) {
+          store.dispose();
+          resolve(this._getTerminalOutputInner(terminal, command, e.capability, token));
+        }
+      }));
+      store.add(token.onCancellationRequested(() => {
+        store.dispose();
+        resolve(void 0);
+      }));
+      store.add(disposableTimeout(() => {
+        store.dispose();
+        resolve(this._getTerminalOutputInner(terminal, command, void 0, token));
+      }, SHELL_INTEGRATION_TIMEOUT));
+    });
+  }
+  async _getTerminalOutputInner(terminal, command, shellIntegration, token) {
+    const store = new DisposableStore();
+    return new Promise((resolve) => {
+      let allData = "";
+      store.add(terminal.onLineData((d) => allData += d + "\n"));
+      if (shellIntegration) {
+        store.add(shellIntegration.onCommandFinished((e) => resolve(e.getOutput() || allData)));
+      } else {
+        const done = store.add(new RunOnceScheduler(() => resolve(allData), NO_SHELL_INTEGRATION_IDLE));
+        store.add(terminal.onData(() => done.schedule()));
+      }
+      store.add(token.onCancellationRequested(() => resolve(void 0)));
+      store.add(terminal.onDisposed(() => resolve(void 0)));
+      terminal.runCommand(command, true);
+    }).finally(() => {
+      store.dispose();
+    });
+  }
+};
+McpPromptArgumentPick = __decorate([
+  __param(1, IQuickInputService),
+  __param(2, ITerminalService),
+  __param(3, ISearchService),
+  __param(4, IWorkspaceContextService),
+  __param(5, ILabelService),
+  __param(6, IFileService),
+  __param(7, IModelService),
+  __param(8, ILanguageService),
+  __param(9, ITerminalGroupService),
+  __param(10, IInstantiationService)
+], McpPromptArgumentPick);
+export {
+  McpPromptArgumentPick
+};
+//# sourceMappingURL=mcpPromptArgumentPick.js.map

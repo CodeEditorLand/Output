@@ -1,1 +1,74 @@
-import{$kb as c}from"../../../base/common/errors.js";import{$Qy as o}from"../../extensions/common/extensions.js";class f{constructor(){this.a=new Map,this.b=new WeakMap}register(t,r){this.a.set(t,r)}readActivationEvents(t){return this.b.has(t)||this.b.set(t,this.c(t)),this.b.get(t)}createActivationEventsMap(t){const r=Object.create(null);for(const i of t){const n=this.readActivationEvents(i);n.length>0&&(r[o.toKey(i.identifier)]=n)}return r}c(t){if(typeof t.main>"u"&&typeof t.browser>"u")return[];const r=Array.isArray(t.activationEvents)?t.activationEvents.slice(0):[];for(let i=0;i<r.length;i++)r[i]==="onUri"&&(r[i]=`onUri:${o.toKey(t.identifier)}`);if(!t.contributes)return r;for(const i in t.contributes){const n=this.a.get(i);if(!n)continue;const e=t.contributes[i],a=Array.isArray(e)?e:[e];try{n(a,r)}catch(s){c(s)}}return r}}const b=new f;export{f as $GO,b as $HO};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { ExtensionIdentifier } from "../../extensions/common/extensions.js";
+class ImplicitActivationEventsImpl {
+  static {
+    __name(this, "ImplicitActivationEventsImpl");
+  }
+  constructor() {
+    this._generators = /* @__PURE__ */ new Map();
+    this._cache = /* @__PURE__ */ new WeakMap();
+  }
+  register(extensionPointName, generator) {
+    this._generators.set(extensionPointName, generator);
+  }
+  /**
+   * This can run correctly only on the renderer process because that is the only place
+   * where all extension points and all implicit activation events generators are known.
+   */
+  readActivationEvents(extensionDescription) {
+    if (!this._cache.has(extensionDescription)) {
+      this._cache.set(extensionDescription, this._readActivationEvents(extensionDescription));
+    }
+    return this._cache.get(extensionDescription);
+  }
+  /**
+   * This can run correctly only on the renderer process because that is the only place
+   * where all extension points and all implicit activation events generators are known.
+   */
+  createActivationEventsMap(extensionDescriptions) {
+    const result = /* @__PURE__ */ Object.create(null);
+    for (const extensionDescription of extensionDescriptions) {
+      const activationEvents = this.readActivationEvents(extensionDescription);
+      if (activationEvents.length > 0) {
+        result[ExtensionIdentifier.toKey(extensionDescription.identifier)] = activationEvents;
+      }
+    }
+    return result;
+  }
+  _readActivationEvents(desc) {
+    if (typeof desc.main === "undefined" && typeof desc.browser === "undefined") {
+      return [];
+    }
+    const activationEvents = Array.isArray(desc.activationEvents) ? desc.activationEvents.slice(0) : [];
+    for (let i = 0; i < activationEvents.length; i++) {
+      if (activationEvents[i] === "onUri") {
+        activationEvents[i] = `onUri:${ExtensionIdentifier.toKey(desc.identifier)}`;
+      }
+    }
+    if (!desc.contributes) {
+      return activationEvents;
+    }
+    for (const extPointName in desc.contributes) {
+      const generator = this._generators.get(extPointName);
+      if (!generator) {
+        continue;
+      }
+      const contrib = desc.contributes[extPointName];
+      const contribArr = Array.isArray(contrib) ? contrib : [contrib];
+      try {
+        generator(contribArr, activationEvents);
+      } catch (err) {
+        onUnexpectedError(err);
+      }
+    }
+    return activationEvents;
+  }
+}
+const ImplicitActivationEvents = new ImplicitActivationEventsImpl();
+export {
+  ImplicitActivationEvents,
+  ImplicitActivationEventsImpl
+};
+//# sourceMappingURL=implicitActivationEvents.js.map

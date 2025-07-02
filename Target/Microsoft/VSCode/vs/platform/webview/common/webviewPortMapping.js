@@ -1,1 +1,70 @@
-import{Schemas as a}from"../../../base/common/network.js";import{URI as c}from"../../../base/common/uri.js";import{$AB as u}from"../../tunnel/common/tunnel.js";class l{constructor(e,i,n){this.b=e,this.c=i,this.d=n,this.a=new Map}async getRedirect(e,i){const n=c.parse(i),o=u(n);if(o){for(const t of this.c())if(t.webviewPort===o.port){const r=this.b();if(r&&r.scheme===a.vscodeRemote){const s=e&&await this.e(e,t.extensionHostPort);if(s)return s.tunnelLocalPort===t.webviewPort?void 0:encodeURI(n.with({authority:`127.0.0.1:${s.tunnelLocalPort}`}).toString(!0))}if(t.webviewPort!==t.extensionHostPort)return encodeURI(n.with({authority:`${o.address}:${t.extensionHostPort}`}).toString(!0))}}}async dispose(){for(const e of this.a.values())await e.dispose();this.a.clear()}async e(e,i){const n=this.a.get(i);if(n)return n;const o=await this.d.openTunnel({getAddress:async()=>e},void 0,i);let t;return typeof o=="string"&&(t=void 0),t&&this.a.set(i,t),t}}export{l as $pzb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { extractLocalHostUriMetaDataForPortMapping } from "../../tunnel/common/tunnel.js";
+class WebviewPortMappingManager {
+  static {
+    __name(this, "WebviewPortMappingManager");
+  }
+  constructor(_getExtensionLocation, _getMappings, tunnelService) {
+    this._getExtensionLocation = _getExtensionLocation;
+    this._getMappings = _getMappings;
+    this.tunnelService = tunnelService;
+    this._tunnels = /* @__PURE__ */ new Map();
+  }
+  async getRedirect(resolveAuthority, url) {
+    const uri = URI.parse(url);
+    const requestLocalHostInfo = extractLocalHostUriMetaDataForPortMapping(uri);
+    if (!requestLocalHostInfo) {
+      return void 0;
+    }
+    for (const mapping of this._getMappings()) {
+      if (mapping.webviewPort === requestLocalHostInfo.port) {
+        const extensionLocation = this._getExtensionLocation();
+        if (extensionLocation && extensionLocation.scheme === Schemas.vscodeRemote) {
+          const tunnel = resolveAuthority && await this.getOrCreateTunnel(resolveAuthority, mapping.extensionHostPort);
+          if (tunnel) {
+            if (tunnel.tunnelLocalPort === mapping.webviewPort) {
+              return void 0;
+            }
+            return encodeURI(uri.with({
+              authority: `127.0.0.1:${tunnel.tunnelLocalPort}`
+            }).toString(true));
+          }
+        }
+        if (mapping.webviewPort !== mapping.extensionHostPort) {
+          return encodeURI(uri.with({
+            authority: `${requestLocalHostInfo.address}:${mapping.extensionHostPort}`
+          }).toString(true));
+        }
+      }
+    }
+    return void 0;
+  }
+  async dispose() {
+    for (const tunnel of this._tunnels.values()) {
+      await tunnel.dispose();
+    }
+    this._tunnels.clear();
+  }
+  async getOrCreateTunnel(remoteAuthority, remotePort) {
+    const existing = this._tunnels.get(remotePort);
+    if (existing) {
+      return existing;
+    }
+    const tunnelOrError = await this.tunnelService.openTunnel({ getAddress: /* @__PURE__ */ __name(async () => remoteAuthority, "getAddress") }, void 0, remotePort);
+    let tunnel;
+    if (typeof tunnelOrError === "string") {
+      tunnel = void 0;
+    }
+    if (tunnel) {
+      this._tunnels.set(remotePort, tunnel);
+    }
+    return tunnel;
+  }
+}
+export {
+  WebviewPortMappingManager
+};
+//# sourceMappingURL=webviewPortMapping.js.map

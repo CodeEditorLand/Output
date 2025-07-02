@@ -1,1 +1,27 @@
-import{$cC as i}from"../../../../../../../../../editor/common/core/range.js";import{$uQ as a}from"../../baseToken.js";class m extends a{static newOnLine(s,e,t){const{range:n}=s;return new t(new i(n.startLineNumber,e,n.startLineNumber,e+t.symbol.length))}}class c extends m{}export{m as $wQ,c as $xQ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Range } from "../../../../../../../../../editor/common/core/range.js";
+import { BaseToken } from "../../baseToken.js";
+class SimpleToken extends BaseToken {
+  static {
+    __name(this, "SimpleToken");
+  }
+  /**
+   * Create new token instance with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber, Constructor) {
+    const { range } = line;
+    return new Constructor(new Range(range.startLineNumber, atColumnNumber, range.startLineNumber, atColumnNumber + Constructor.symbol.length));
+  }
+}
+class SpacingToken extends SimpleToken {
+  static {
+    __name(this, "SpacingToken");
+  }
+}
+export {
+  SimpleToken,
+  SpacingToken
+};
+//# sourceMappingURL=simpleToken.js.map

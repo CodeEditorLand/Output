@@ -1,1 +1,109 @@
-import{$cC as n}from"../../../../../../editor/common/core/range.js";import{$Yib as $}from"../../../../../../editor/contrib/codeAction/browser/codeActionController.js";import{$9hb as C,CodeActionTriggerSource as N}from"../../../../../../editor/contrib/codeAction/common/types.js";import{localize as E,localize2 as u}from"../../../../../../nls.js";import{$DI as d}from"../../../../../../platform/actions/common/actions.js";import{$Cn as l}from"../../../../../../platform/contextkey/common/contextkey.js";import{$AWb as f,$xWb as p}from"../../controller/coreActions.js";import{$NSb as g}from"../../viewModel/codeCellViewModel.js";import{$fBb as c,$eBb as a,$sBb as s}from"../../../common/notebookContextKeys.js";import{$0$b as h}from"../../../../inlineChat/browser/inlineChatController.js";import{$WWb as k}from"../../../../chat/browser/chat.js";import{$8wb as x}from"../../../../../services/views/common/viewsService.js";const w="notebook.cell.openFailureActions",L="notebook.cell.chat.fixError",W="notebook.cell.chat.explainError";d(class extends f{constructor(){super({id:w,title:u(9207,"Show Cell Failure Actions"),precondition:l.and(a,s,c.toNegated()),f1:!0,keybinding:{when:l.and(a,s,c.toNegated()),primary:2137,weight:200}})}async runWithContext(m,o){if(o.cell instanceof g){const e=o.cell.executionErrorDiagnostic.get();if(e?.location){const r=n.lift({startLineNumber:e.location.startLineNumber+1,startColumn:e.location.startColumn+1,endLineNumber:e.location.endLineNumber+1,endColumn:e.location.endColumn+1});o.notebookEditor.setCellEditorSelection(o.cell,n.lift(r));const t=p(o,o.cell);t&&$.get(t)?.manualTriggerAtCurrentPosition(E(9206,null),N.Default,{include:C.QuickFix})}}}});d(class extends f{constructor(){super({id:L,title:u(9208,"Fix Cell Error"),precondition:l.and(a,s,c.toNegated()),f1:!0})}async runWithContext(m,o){if(o.cell instanceof g){const e=o.cell.executionErrorDiagnostic.get();if(e?.location){const r=n.lift({startLineNumber:e.location.startLineNumber+1,startColumn:e.location.startColumn+1,endLineNumber:e.location.endLineNumber+1,endColumn:e.location.endColumn+1});o.notebookEditor.setCellEditorSelection(o.cell,n.lift(r));const t=p(o,o.cell);if(t){const i=h.get(t),b=e.name?`${e.name}: ${e.message}`:e.message;i&&await i.run({message:"/fix "+b,initialRange:r,autoSend:!0})}}}}});d(class extends f{constructor(){super({id:W,title:u(9209,"Explain Cell Error"),precondition:l.and(a,s,c.toNegated()),f1:!0})}async runWithContext(m,o){if(o.cell instanceof g){const e=o.cell.executionErrorDiagnostic.get();if(e?.message){const r=m.get(x),t=await k(r),i=e.name?`${e.name}: ${e.message}`:e.message;t?.acceptInput("@workspace /explain "+i)}}}});export{w as $iec,L as $jec,W as $kec};
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { CodeActionController } from "../../../../../../editor/contrib/codeAction/browser/codeActionController.js";
+import { CodeActionKind, CodeActionTriggerSource } from "../../../../../../editor/contrib/codeAction/common/types.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { NotebookCellAction, findTargetCellEditor } from "../../controller/coreActions.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { NOTEBOOK_CELL_EDITOR_FOCUSED, NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS } from "../../../common/notebookContextKeys.js";
+import { InlineChatController } from "../../../../inlineChat/browser/inlineChatController.js";
+import { showChatView } from "../../../../chat/browser/chat.js";
+import { IViewsService } from "../../../../../services/views/common/viewsService.js";
+const OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID = "notebook.cell.openFailureActions";
+const FIX_CELL_ERROR_COMMAND_ID = "notebook.cell.chat.fixError";
+const EXPLAIN_CELL_ERROR_COMMAND_ID = "notebook.cell.chat.explainError";
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID,
+      title: localize2("notebookActions.cellFailureActions", "Show Cell Failure Actions"),
+      precondition: ContextKeyExpr.and(NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS, NOTEBOOK_CELL_EDITOR_FOCUSED.toNegated()),
+      f1: true,
+      keybinding: {
+        when: ContextKeyExpr.and(NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS, NOTEBOOK_CELL_EDITOR_FOCUSED.toNegated()),
+        primary: 2048 | 89,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async runWithContext(accessor, context) {
+    if (context.cell instanceof CodeCellViewModel) {
+      const error = context.cell.executionErrorDiagnostic.get();
+      if (error?.location) {
+        const location = Range.lift({
+          startLineNumber: error.location.startLineNumber + 1,
+          startColumn: error.location.startColumn + 1,
+          endLineNumber: error.location.endLineNumber + 1,
+          endColumn: error.location.endColumn + 1
+        });
+        context.notebookEditor.setCellEditorSelection(context.cell, Range.lift(location));
+        const editor = findTargetCellEditor(context, context.cell);
+        if (editor) {
+          const controller = CodeActionController.get(editor);
+          controller?.manualTriggerAtCurrentPosition(localize("cellCommands.quickFix.noneMessage", "No code actions available"), CodeActionTriggerSource.Default, { include: CodeActionKind.QuickFix });
+        }
+      }
+    }
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: FIX_CELL_ERROR_COMMAND_ID,
+      title: localize2("notebookActions.chatFixCellError", "Fix Cell Error"),
+      precondition: ContextKeyExpr.and(NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS, NOTEBOOK_CELL_EDITOR_FOCUSED.toNegated()),
+      f1: true
+    });
+  }
+  async runWithContext(accessor, context) {
+    if (context.cell instanceof CodeCellViewModel) {
+      const error = context.cell.executionErrorDiagnostic.get();
+      if (error?.location) {
+        const location = Range.lift({
+          startLineNumber: error.location.startLineNumber + 1,
+          startColumn: error.location.startColumn + 1,
+          endLineNumber: error.location.endLineNumber + 1,
+          endColumn: error.location.endColumn + 1
+        });
+        context.notebookEditor.setCellEditorSelection(context.cell, Range.lift(location));
+        const editor = findTargetCellEditor(context, context.cell);
+        if (editor) {
+          const controller = InlineChatController.get(editor);
+          const message = error.name ? `${error.name}: ${error.message}` : error.message;
+          if (controller) {
+            await controller.run({ message: "/fix " + message, initialRange: location, autoSend: true });
+          }
+        }
+      }
+    }
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: EXPLAIN_CELL_ERROR_COMMAND_ID,
+      title: localize2("notebookActions.chatExplainCellError", "Explain Cell Error"),
+      precondition: ContextKeyExpr.and(NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS, NOTEBOOK_CELL_EDITOR_FOCUSED.toNegated()),
+      f1: true
+    });
+  }
+  async runWithContext(accessor, context) {
+    if (context.cell instanceof CodeCellViewModel) {
+      const error = context.cell.executionErrorDiagnostic.get();
+      if (error?.message) {
+        const viewsService = accessor.get(IViewsService);
+        const chatWidget = await showChatView(viewsService);
+        const message = error.name ? `${error.name}: ${error.message}` : error.message;
+        chatWidget?.acceptInput("@workspace /explain " + message);
+      }
+    }
+  }
+});
+export {
+  EXPLAIN_CELL_ERROR_COMMAND_ID,
+  FIX_CELL_ERROR_COMMAND_ID,
+  OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID
+};
+//# sourceMappingURL=cellDiagnosticsActions.js.map

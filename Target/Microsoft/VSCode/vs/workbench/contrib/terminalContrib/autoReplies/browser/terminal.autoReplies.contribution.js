@@ -1,1 +1,72 @@
-import{$vd as u}from"../../../../../base/common/lifecycle.js";import{$Fl as h}from"../../../../../platform/configuration/common/configuration.js";import{$eL as m}from"../../../../common/contributions.js";import{$gZb as R}from"../../../terminal/browser/terminal.js";import{$t4 as c}from"../../../terminal/common/terminal.js";var p=function(r,e,o,t){var s=arguments.length,i=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,o,t);else for(var a=r.length-1;a>=0;a--)(n=r[a])&&(i=(s<3?n(i):s>3?n(e,o,i):n(e,o))||i);return s>3&&i&&Object.defineProperty(e,o,i),i},f=function(r,e){return function(o,t){e(o,t,r)}};let l=class extends u{static{this.ID="terminalAutoReplies"}constructor(e,o){super(),this.a=e;for(const t of o.getRegisteredBackends())this.b(t);this.B(o.onDidRegisterBackend(async t=>this.b(t)))}b(e){const o=this.a.getValue(c);for(const t of Object.keys(o.autoReplies)){const s=o.autoReplies[t];s&&e.installAutoReply(t,s)}this.B(this.a.onDidChangeConfiguration(async t=>{if(t.affectsConfiguration("terminal.integrated.autoReplies")){e.uninstallAllAutoReplies();const s=this.a.getValue(c);for(const i of Object.keys(s.autoReplies)){const n=s.autoReplies[i];n&&e.installAutoReply(i,n)}}}))}};l=p([f(0,h),f(1,R)],l);m(l.ID,l,3);export{l as $Osc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { registerWorkbenchContribution2 } from "../../../../common/contributions.js";
+import { ITerminalInstanceService } from "../../../terminal/browser/terminal.js";
+import { TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
+let TerminalAutoRepliesContribution = class TerminalAutoRepliesContribution2 extends Disposable {
+  static {
+    __name(this, "TerminalAutoRepliesContribution");
+  }
+  static {
+    this.ID = "terminalAutoReplies";
+  }
+  constructor(_configurationService, terminalInstanceService) {
+    super();
+    this._configurationService = _configurationService;
+    for (const backend of terminalInstanceService.getRegisteredBackends()) {
+      this._installListenersOnBackend(backend);
+    }
+    this._register(terminalInstanceService.onDidRegisterBackend(async (e) => this._installListenersOnBackend(e)));
+  }
+  _installListenersOnBackend(backend) {
+    const initialConfig = this._configurationService.getValue(TERMINAL_CONFIG_SECTION);
+    for (const match of Object.keys(initialConfig.autoReplies)) {
+      const reply = initialConfig.autoReplies[match];
+      if (reply) {
+        backend.installAutoReply(match, reply);
+      }
+    }
+    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.autoReplies"
+        /* TerminalAutoRepliesSettingId.AutoReplies */
+      )) {
+        backend.uninstallAllAutoReplies();
+        const config = this._configurationService.getValue(TERMINAL_CONFIG_SECTION);
+        for (const match of Object.keys(config.autoReplies)) {
+          const reply = config.autoReplies[match];
+          if (reply) {
+            backend.installAutoReply(match, reply);
+          }
+        }
+      }
+    }));
+  }
+};
+TerminalAutoRepliesContribution = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ITerminalInstanceService)
+], TerminalAutoRepliesContribution);
+registerWorkbenchContribution2(
+  TerminalAutoRepliesContribution.ID,
+  TerminalAutoRepliesContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+export {
+  TerminalAutoRepliesContribution
+};
+//# sourceMappingURL=terminal.autoReplies.contribution.js.map

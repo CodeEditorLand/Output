@@ -1,1 +1,331 @@
-import{$j6 as M,h as Y}from"../../../../../../../base/browser/dom.js";import{$m0 as A,$l0 as k}from"../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{$sc as H}from"../../../../../../../base/common/arrays.js";import{$Nb as F}from"../../../../../../../base/common/arraysFind.js";import{$td as j}from"../../../../../../../base/common/lifecycle.js";import{derived as l,derivedObservableWithCache as z,derivedOpts as U,observableValue as q,transaction as D}from"../../../../../../../base/common/observable.js";import{OS as E}from"../../../../../../../base/common/platform.js";import{$Vf as V,$Pf as G}from"../../../../../../../base/common/strings.js";import{URI as K}from"../../../../../../../base/common/uri.js";import{$ugb as Q}from"../../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{Rect as _}from"../../../../../../common/core/2d/rect.js";import{$cD as J}from"../../../../../../common/core/ranges/offsetRange.js";import{$bC as Z}from"../../../../../../common/core/position.js";import{$cC as P}from"../../../../../../common/core/range.js";import{$kF as tt,$jF as et}from"../../../../../../common/core/edits/textEdit.js";import{$hM as ot}from"../../../../../../common/diff/rangeMapping.js";import{$bI as O}from"../../../../../../common/model/textModel.js";function Ct(e,t,o){e.layoutInfo.read(o),e.value.read(o);const n=e.model.read(o);if(!n)return 0;let i=0;e.scrollTop.read(o);for(let r=t.startLineNumber;r<t.endLineNumberExclusive;r++){const h=n.getLineMaxColumn(r);let f=e.editor.getOffsetForColumn(r,h);if(f===-1){const c=e.editor.getOption(57).typicalHalfwidthCharacterWidth;f=h*c}i=Math.max(i,f)}const s=t.mapToLineArray(r=>n.getLineContent(r));return i<5&&s.some(r=>r.length>0)&&n.uri.scheme,i}function yt(e,t,o){return e.layoutInfo.read(o),e.value.read(o),e.model.read(o)?(e.scrollTop.read(o),e.editor.getOffsetForColumn(t.lineNumber,t.column)):0}function wt(e,t,o,n){const i=n.getModel();if(!i)return{prefixTrim:0,prefixLeftOffset:0};const s=e.map(m=>m.isSingleLine()?m.startColumn-1:0),r=t.mapToLineArray(m=>O(i.getLineContent(m))),h=o.filter(m=>m!=="").map(m=>O(m)),f=Math.min(...s,...r,...h);let c;if(i.getLineIndentColumn(t.startLineNumber)>=f+1)c=n.getOffsetForColumn(t.startLineNumber,f+1);else if(o.length>0)c=nt(o[0].slice(0,f),n,i);else return{prefixTrim:0,prefixLeftOffset:0};return{prefixTrim:f,prefixLeftOffset:c}}function nt(e,t,o){const n=t.getOption(57).typicalHalfwidthCharacterWidth,i=o.getOptions().tabSize*n,s=e.split("	").length-1;return(e.length-s)*n+s*i}function It(e){const t=e.layoutInfoContentLeft,o=l(i=>{const s=e.layoutInfoMinimap.read(i).minimapLeft!==0,r=e.layoutInfoWidth.read(i)-t.read(i);if(s){const h=e.layoutInfoMinimap.read(i).minimapWidth+e.layoutInfoVerticalScrollbarWidth.read(i);return r-h}return r}),n=l(i=>e.layoutInfoHeight.read(i)+e.contentHeight.read(i));return l(i=>_.fromLeftTopWidthHeight(t.read(i),0,o.read(i),n.read(i)))}class Rt extends Q{constructor(){super(...arguments),this.b=this.B(this.eb.onDidChangeContext(()=>{this.C()}))}C(){const t=this.cb.lookupKeybinding(this._action.id,this.eb,!0);if(!t)return super.C();if(this.L){const o=Y("div.keybinding").root;this.B(new A(o,E,{disableTitle:!0,...k})).set(t),this.L.textContent=this._action.label,this.L.appendChild(o),this.L.classList.add("inlineSuggestionStatusBarItemLabel")}}G(){}}class W{static{this.a=0}constructor(t){this.scheme=t}getUniqueUri(){return K.from({scheme:this.scheme,path:new Date().toString()+String(W.a++)})}}function Mt(e,t){const o=[];for(const n of e){const i=t.mapRange(n.modifiedRange);o.push(new ot(n.originalRange,i))}return o}function qt(...e){return e.filter(t=>typeof t=="string").join(" ")}function it(e,t){return new P(t.lineNumber,t.column+e.start,t.lineNumber,t.column+e.endExclusive)}function Ot(e,t){const o=G(e),n=[],i=F(t.mapToLineArray(s=>V(o[s-1])),H);return t.forEach(s=>{n.push(new tt(it(new J(0,i),new Z(s,1)),""))}),new et(n)}class rt{constructor(){this.a=""}moveTo(t){return this.a+=`M ${t.x} ${t.y} `,this}lineTo(t){return this.a+=`L ${t.x} ${t.y} `,this}curveTo(t,o){return this.a+=`Q ${t.x} ${t.y} ${o.x} ${o.y} `,this}curveTo2(t,o,n){return this.a+=`C ${t.x} ${t.y} ${o.x} ${o.y} ${n.x} ${n.y} `,this}build(){return this.a}}function Wt(e,t,o,n={}){const i=e.topLeft,s=i.deltaX(e.width),r=i.deltaY(e.height),h=r.deltaX(e.width),{top:f,bottom:c,left:u,right:m}=typeof t=="number"?{top:t,bottom:t,left:t,right:t}:t,{topLeft:T,topRight:v,bottomLeft:C,bottomRight:y}=typeof o=="number"?{topLeft:o,topRight:o,bottomLeft:o,bottomRight:o}:o,d=e.height+f+c,p=e.width+u+m,b=i.deltaX(-u).deltaY(-f),g=s.deltaX(m).deltaY(-f),B=b.deltaY(Math.min(T,d/2)),w=b.deltaX(Math.min(T,p/2)),N=g.deltaX(-Math.min(v,p/2)),I=g.deltaY(Math.min(v,d/2)),L=r.deltaX(-u).deltaY(c),$=h.deltaX(m).deltaY(c),S=L.deltaX(Math.min(C,p/2)),x=L.deltaY(-Math.min(C,d/2)),X=$.deltaY(-Math.min(y,d/2)),R=$.deltaX(-Math.min(y,p/2)),a=new rt;return n.hideLeft||a.moveTo(x).lineTo(B),!n.hideLeft&&!n.hideTop?a.curveTo(b,w):a.moveTo(w),n.hideTop||a.lineTo(N),!n.hideTop&&!n.hideRight?a.curveTo(g,I):a.moveTo(I),n.hideRight||a.lineTo(X),!n.hideRight&&!n.hideBottom?a.curveTo($,R):a.moveTo(R),n.hideBottom||a.lineTo(S),!n.hideBottom&&!n.hideLeft?a.curveTo(L,x):a.moveTo(x),a.build()}function Bt(e){const t=z(void 0,(o,n)=>e.read(o)||n);return U({debugName:()=>`${e.debugName}.mapOutFalsy`},o=>{if(t.read(o),!!e.read(o))return t})}function Nt(e,t){const o=M(e),n=q("top",o.top),i=q("left",o.left),s=new ResizeObserver(()=>{D(r=>{const h=M(e);n.set(h.top,r),i.set(h.left,r)})});return s.observe(e),t.add(j(()=>s.disconnect())),{top:n,left:i}}function St(e){return{left:l(t=>e(t).left),top:l(t=>e(t).top),width:l(t=>e(t).right-e(t).left),height:l(t=>e(t).bottom-e(t).top)}}export{Ct as $hqb,yt as $iqb,wt as $jqb,nt as $kqb,It as $lqb,Rt as $mqb,W as $nqb,Mt as $oqb,qt as $pqb,Ot as $qqb,rt as $rqb,Wt as $sqb,Bt as $tqb,Nt as $uqb,St as $vqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getDomNodePagePosition, h } from "../../../../../../../base/browser/dom.js";
+import { KeybindingLabel, unthemedKeybindingLabelOptions } from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { numberComparator } from "../../../../../../../base/common/arrays.js";
+import { findFirstMin } from "../../../../../../../base/common/arraysFind.js";
+import { toDisposable } from "../../../../../../../base/common/lifecycle.js";
+import { derived, derivedObservableWithCache, derivedOpts, observableValue, transaction } from "../../../../../../../base/common/observable.js";
+import { OS } from "../../../../../../../base/common/platform.js";
+import { getIndentationLength, splitLines } from "../../../../../../../base/common/strings.js";
+import { URI } from "../../../../../../../base/common/uri.js";
+import { MenuEntryActionViewItem } from "../../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { Position } from "../../../../../../common/core/position.js";
+import { Range } from "../../../../../../common/core/range.js";
+import { TextReplacement, TextEdit } from "../../../../../../common/core/edits/textEdit.js";
+import { RangeMapping } from "../../../../../../common/diff/rangeMapping.js";
+import { indentOfLine } from "../../../../../../common/model/textModel.js";
+function maxContentWidthInRange(editor, range, reader) {
+  editor.layoutInfo.read(reader);
+  editor.value.read(reader);
+  const model = editor.model.read(reader);
+  if (!model) {
+    return 0;
+  }
+  let maxContentWidth = 0;
+  editor.scrollTop.read(reader);
+  for (let i = range.startLineNumber; i < range.endLineNumberExclusive; i++) {
+    const column = model.getLineMaxColumn(i);
+    let lineContentWidth = editor.editor.getOffsetForColumn(i, column);
+    if (lineContentWidth === -1) {
+      const typicalHalfwidthCharacterWidth = editor.editor.getOption(
+        57
+        /* EditorOption.fontInfo */
+      ).typicalHalfwidthCharacterWidth;
+      const approximation = column * typicalHalfwidthCharacterWidth;
+      lineContentWidth = approximation;
+    }
+    maxContentWidth = Math.max(maxContentWidth, lineContentWidth);
+  }
+  const lines = range.mapToLineArray((l) => model.getLineContent(l));
+  if (maxContentWidth < 5 && lines.some((l) => l.length > 0) && model.uri.scheme !== "file") {
+    console.error("unexpected width");
+  }
+  return maxContentWidth;
+}
+__name(maxContentWidthInRange, "maxContentWidthInRange");
+function getOffsetForPos(editor, pos, reader) {
+  editor.layoutInfo.read(reader);
+  editor.value.read(reader);
+  const model = editor.model.read(reader);
+  if (!model) {
+    return 0;
+  }
+  editor.scrollTop.read(reader);
+  const lineContentWidth = editor.editor.getOffsetForColumn(pos.lineNumber, pos.column);
+  return lineContentWidth;
+}
+__name(getOffsetForPos, "getOffsetForPos");
+function getPrefixTrim(diffRanges, originalLinesRange, modifiedLines, editor) {
+  const textModel = editor.getModel();
+  if (!textModel) {
+    return { prefixTrim: 0, prefixLeftOffset: 0 };
+  }
+  const replacementStart = diffRanges.map((r) => r.isSingleLine() ? r.startColumn - 1 : 0);
+  const originalIndents = originalLinesRange.mapToLineArray((line) => indentOfLine(textModel.getLineContent(line)));
+  const modifiedIndents = modifiedLines.filter((line) => line !== "").map((line) => indentOfLine(line));
+  const prefixTrim = Math.min(...replacementStart, ...originalIndents, ...modifiedIndents);
+  let prefixLeftOffset;
+  const startLineIndent = textModel.getLineIndentColumn(originalLinesRange.startLineNumber);
+  if (startLineIndent >= prefixTrim + 1) {
+    prefixLeftOffset = editor.getOffsetForColumn(originalLinesRange.startLineNumber, prefixTrim + 1);
+  } else if (modifiedLines.length > 0) {
+    prefixLeftOffset = getContentRenderWidth(modifiedLines[0].slice(0, prefixTrim), editor, textModel);
+  } else {
+    return { prefixTrim: 0, prefixLeftOffset: 0 };
+  }
+  return { prefixTrim, prefixLeftOffset };
+}
+__name(getPrefixTrim, "getPrefixTrim");
+function getContentRenderWidth(content, editor, textModel) {
+  const w = editor.getOption(
+    57
+    /* EditorOption.fontInfo */
+  ).typicalHalfwidthCharacterWidth;
+  const tabSize = textModel.getOptions().tabSize * w;
+  const numTabs = content.split("	").length - 1;
+  const numNoneTabs = content.length - numTabs;
+  return numNoneTabs * w + numTabs * tabSize;
+}
+__name(getContentRenderWidth, "getContentRenderWidth");
+function getEditorValidOverlayRect(editor) {
+  const contentLeft = editor.layoutInfoContentLeft;
+  const width = derived((r) => {
+    const hasMinimapOnTheRight = editor.layoutInfoMinimap.read(r).minimapLeft !== 0;
+    const editorWidth = editor.layoutInfoWidth.read(r) - contentLeft.read(r);
+    if (hasMinimapOnTheRight) {
+      const minimapAndScrollbarWidth = editor.layoutInfoMinimap.read(r).minimapWidth + editor.layoutInfoVerticalScrollbarWidth.read(r);
+      return editorWidth - minimapAndScrollbarWidth;
+    }
+    return editorWidth;
+  });
+  const height = derived((r) => editor.layoutInfoHeight.read(r) + editor.contentHeight.read(r));
+  return derived((r) => Rect.fromLeftTopWidthHeight(contentLeft.read(r), 0, width.read(r), height.read(r)));
+}
+__name(getEditorValidOverlayRect, "getEditorValidOverlayRect");
+class StatusBarViewItem extends MenuEntryActionViewItem {
+  static {
+    __name(this, "StatusBarViewItem");
+  }
+  constructor() {
+    super(...arguments);
+    this._updateLabelListener = this._register(this._contextKeyService.onDidChangeContext(() => {
+      this.updateLabel();
+    }));
+  }
+  updateLabel() {
+    const kb = this._keybindingService.lookupKeybinding(this._action.id, this._contextKeyService, true);
+    if (!kb) {
+      return super.updateLabel();
+    }
+    if (this.label) {
+      const div = h("div.keybinding").root;
+      const keybindingLabel = this._register(new KeybindingLabel(div, OS, { disableTitle: true, ...unthemedKeybindingLabelOptions }));
+      keybindingLabel.set(kb);
+      this.label.textContent = this._action.label;
+      this.label.appendChild(div);
+      this.label.classList.add("inlineSuggestionStatusBarItemLabel");
+    }
+  }
+  updateTooltip() {
+  }
+}
+class UniqueUriGenerator {
+  static {
+    __name(this, "UniqueUriGenerator");
+  }
+  static {
+    this._modelId = 0;
+  }
+  constructor(scheme) {
+    this.scheme = scheme;
+  }
+  getUniqueUri() {
+    return URI.from({ scheme: this.scheme, path: (/* @__PURE__ */ new Date()).toString() + String(UniqueUriGenerator._modelId++) });
+  }
+}
+function applyEditToModifiedRangeMappings(rangeMapping, edit) {
+  const updatedMappings = [];
+  for (const m of rangeMapping) {
+    const updatedRange = edit.mapRange(m.modifiedRange);
+    updatedMappings.push(new RangeMapping(m.originalRange, updatedRange));
+  }
+  return updatedMappings;
+}
+__name(applyEditToModifiedRangeMappings, "applyEditToModifiedRangeMappings");
+function classNames(...classes) {
+  return classes.filter((c) => typeof c === "string").join(" ");
+}
+__name(classNames, "classNames");
+function offsetRangeToRange(columnOffsetRange, startPos) {
+  return new Range(startPos.lineNumber, startPos.column + columnOffsetRange.start, startPos.lineNumber, startPos.column + columnOffsetRange.endExclusive);
+}
+__name(offsetRangeToRange, "offsetRangeToRange");
+function createReindentEdit(text, range) {
+  const newLines = splitLines(text);
+  const edits = [];
+  const minIndent = findFirstMin(range.mapToLineArray((l) => getIndentationLength(newLines[l - 1])), numberComparator);
+  range.forEach((lineNumber) => {
+    edits.push(new TextReplacement(offsetRangeToRange(new OffsetRange(0, minIndent), new Position(lineNumber, 1)), ""));
+  });
+  return new TextEdit(edits);
+}
+__name(createReindentEdit, "createReindentEdit");
+class PathBuilder {
+  static {
+    __name(this, "PathBuilder");
+  }
+  constructor() {
+    this._data = "";
+  }
+  moveTo(point) {
+    this._data += `M ${point.x} ${point.y} `;
+    return this;
+  }
+  lineTo(point) {
+    this._data += `L ${point.x} ${point.y} `;
+    return this;
+  }
+  curveTo(cp, to) {
+    this._data += `Q ${cp.x} ${cp.y} ${to.x} ${to.y} `;
+    return this;
+  }
+  curveTo2(cp1, cp2, to) {
+    this._data += `C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${to.x} ${to.y} `;
+    return this;
+  }
+  build() {
+    return this._data;
+  }
+}
+function createRectangle(layout, padding, borderRadius, options = {}) {
+  const topLeftInner = layout.topLeft;
+  const topRightInner = topLeftInner.deltaX(layout.width);
+  const bottomLeftInner = topLeftInner.deltaY(layout.height);
+  const bottomRightInner = bottomLeftInner.deltaX(layout.width);
+  const { top: paddingTop, bottom: paddingBottom, left: paddingLeft, right: paddingRight } = typeof padding === "number" ? { top: padding, bottom: padding, left: padding, right: padding } : padding;
+  const { topLeft: radiusTL, topRight: radiusTR, bottomLeft: radiusBL, bottomRight: radiusBR } = typeof borderRadius === "number" ? { topLeft: borderRadius, topRight: borderRadius, bottomLeft: borderRadius, bottomRight: borderRadius } : borderRadius;
+  const totalHeight = layout.height + paddingTop + paddingBottom;
+  const totalWidth = layout.width + paddingLeft + paddingRight;
+  const topLeft = topLeftInner.deltaX(-paddingLeft).deltaY(-paddingTop);
+  const topRight = topRightInner.deltaX(paddingRight).deltaY(-paddingTop);
+  const topLeftBefore = topLeft.deltaY(Math.min(radiusTL, totalHeight / 2));
+  const topLeftAfter = topLeft.deltaX(Math.min(radiusTL, totalWidth / 2));
+  const topRightBefore = topRight.deltaX(-Math.min(radiusTR, totalWidth / 2));
+  const topRightAfter = topRight.deltaY(Math.min(radiusTR, totalHeight / 2));
+  const bottomLeft = bottomLeftInner.deltaX(-paddingLeft).deltaY(paddingBottom);
+  const bottomRight = bottomRightInner.deltaX(paddingRight).deltaY(paddingBottom);
+  const bottomLeftBefore = bottomLeft.deltaX(Math.min(radiusBL, totalWidth / 2));
+  const bottomLeftAfter = bottomLeft.deltaY(-Math.min(radiusBL, totalHeight / 2));
+  const bottomRightBefore = bottomRight.deltaY(-Math.min(radiusBR, totalHeight / 2));
+  const bottomRightAfter = bottomRight.deltaX(-Math.min(radiusBR, totalWidth / 2));
+  const path = new PathBuilder();
+  if (!options.hideLeft) {
+    path.moveTo(bottomLeftAfter).lineTo(topLeftBefore);
+  }
+  if (!options.hideLeft && !options.hideTop) {
+    path.curveTo(topLeft, topLeftAfter);
+  } else {
+    path.moveTo(topLeftAfter);
+  }
+  if (!options.hideTop) {
+    path.lineTo(topRightBefore);
+  }
+  if (!options.hideTop && !options.hideRight) {
+    path.curveTo(topRight, topRightAfter);
+  } else {
+    path.moveTo(topRightAfter);
+  }
+  if (!options.hideRight) {
+    path.lineTo(bottomRightBefore);
+  }
+  if (!options.hideRight && !options.hideBottom) {
+    path.curveTo(bottomRight, bottomRightAfter);
+  } else {
+    path.moveTo(bottomRightAfter);
+  }
+  if (!options.hideBottom) {
+    path.lineTo(bottomLeftBefore);
+  }
+  if (!options.hideBottom && !options.hideLeft) {
+    path.curveTo(bottomLeft, bottomLeftAfter);
+  } else {
+    path.moveTo(bottomLeftAfter);
+  }
+  return path.build();
+}
+__name(createRectangle, "createRectangle");
+function mapOutFalsy(obs) {
+  const nonUndefinedObs = derivedObservableWithCache(void 0, (reader, lastValue) => obs.read(reader) || lastValue);
+  return derivedOpts({
+    debugName: /* @__PURE__ */ __name(() => `${obs.debugName}.mapOutFalsy`, "debugName")
+  }, (reader) => {
+    nonUndefinedObs.read(reader);
+    const val = obs.read(reader);
+    if (!val) {
+      return void 0;
+    }
+    return nonUndefinedObs;
+  });
+}
+__name(mapOutFalsy, "mapOutFalsy");
+function observeElementPosition(element, store) {
+  const topLeft = getDomNodePagePosition(element);
+  const top = observableValue("top", topLeft.top);
+  const left = observableValue("left", topLeft.left);
+  const resizeObserver = new ResizeObserver(() => {
+    transaction((tx) => {
+      const topLeft2 = getDomNodePagePosition(element);
+      top.set(topLeft2.top, tx);
+      left.set(topLeft2.left, tx);
+    });
+  });
+  resizeObserver.observe(element);
+  store.add(toDisposable(() => resizeObserver.disconnect()));
+  return {
+    top,
+    left
+  };
+}
+__name(observeElementPosition, "observeElementPosition");
+function rectToProps(fn) {
+  return {
+    left: derived((reader) => (
+      /** @description left */
+      fn(reader).left
+    )),
+    top: derived((reader) => (
+      /** @description top */
+      fn(reader).top
+    )),
+    width: derived((reader) => (
+      /** @description width */
+      fn(reader).right - fn(reader).left
+    )),
+    height: derived((reader) => (
+      /** @description height */
+      fn(reader).bottom - fn(reader).top
+    ))
+  };
+}
+__name(rectToProps, "rectToProps");
+export {
+  PathBuilder,
+  StatusBarViewItem,
+  UniqueUriGenerator,
+  applyEditToModifiedRangeMappings,
+  classNames,
+  createRectangle,
+  createReindentEdit,
+  getContentRenderWidth,
+  getEditorValidOverlayRect,
+  getOffsetForPos,
+  getPrefixTrim,
+  mapOutFalsy,
+  maxContentWidthInRange,
+  observeElementPosition,
+  rectToProps
+};
+//# sourceMappingURL=utils.js.map

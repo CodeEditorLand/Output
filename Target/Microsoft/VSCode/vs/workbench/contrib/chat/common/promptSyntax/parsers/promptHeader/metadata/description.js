@@ -1,1 +1,33 @@
-import{$hR as o}from"./base/string.js";import{FrontMatterRecord as s}from"../../../codecs/base/frontMatterCodec/tokens/index.js";const e="description";class a extends o{get recordName(){return e}constructor(r,t){super(e,r,t)}static isDescriptionRecord(r){return r instanceof s?r.nameToken.text===e:!1}}export{a as $KR};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PromptStringMetadata } from "./base/string.js";
+import { FrontMatterRecord } from "../../../codecs/base/frontMatterCodec/tokens/index.js";
+const RECORD_NAME = "description";
+class PromptDescriptionMetadata extends PromptStringMetadata {
+  static {
+    __name(this, "PromptDescriptionMetadata");
+  }
+  get recordName() {
+    return RECORD_NAME;
+  }
+  constructor(recordToken, languageId) {
+    super(RECORD_NAME, recordToken, languageId);
+  }
+  /**
+   * Check if a provided front matter token is a metadata record
+   * with name equal to `description`.
+   */
+  static isDescriptionRecord(token) {
+    if (token instanceof FrontMatterRecord === false) {
+      return false;
+    }
+    if (token.nameToken.text === RECORD_NAME) {
+      return true;
+    }
+    return false;
+  }
+}
+export {
+  PromptDescriptionMetadata
+};
+//# sourceMappingURL=description.js.map

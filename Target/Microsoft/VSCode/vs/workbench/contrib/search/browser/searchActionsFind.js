@@ -1,1 +1,386 @@
-import{$jh as z}from"../../../../base/common/resources.js";import*as m from"../../../../nls.js";import{$Zn as I}from"../../../../platform/commands/common/commands.js";import{$Fl as C}from"../../../../platform/configuration/common/configuration.js";import{$Amb as Z}from"../../../../platform/list/browser/listService.js";import{$8wb as S}from"../../../services/views/common/viewsService.js";import*as h from"../common/constants.js";import*as E from"../../searchEditor/browser/constants.js";import{$Cn as b}from"../../../../platform/contextkey/common/contextkey.js";import{$CI as g,$xI as y,$DI as x}from"../../../../platform/actions/common/actions.js";import{$yY as O}from"../../../services/search/common/queryBuilder.js";import{$$Hb as j,$9Hb as k}from"../../files/browser/files.js";import{$5j as K}from"../../../../platform/files/common/files.js";import{$il as R}from"../../../../platform/workspace/common/workspace.js";import{$TFb as v,$YFb as _,$0Fb as q,$PFb as D}from"../../files/common/files.js";import{$1xb as H}from"../../../services/panecomposite/browser/panecomposite.js";import{$kb as P}from"../../../../base/common/errors.js";import{$Wbc as w,$1bc as L,$Zbc as W,$3bc as A}from"./searchActionsBase.js";import{$2W as M}from"../../../services/configurationResolver/common/configurationResolver.js";import{$O4 as U}from"../../../services/history/common/history.js";import{Schemas as T}from"../../../../base/common/network.js";import{$EI as B}from"../../../services/editor/common/editorGroupsService.js";import{$II as Y}from"../../../services/editor/common/editorService.js";import{$odc as J}from"./searchActionsTopBar.js";import{$Ibc as N,$Jbc as Q}from"./searchTreeModel/searchTreeCommon.js";x(class extends g{constructor(){super({id:"search.action.restrictSearchToFolder",title:m.localize2(10901,"Restrict Search to Folder"),category:w,keybinding:{weight:200,when:b.and(h.$VZb.SearchViewVisibleKey,h.$VZb.ResourceFolderFocusKey),primary:1572},menu:[{id:y.SearchContext,group:"search",order:3,when:b.and(h.$VZb.ResourceFolderFocusKey)}]})}async run(t,o){await V(t,!1,!0,void 0,o)}});x(class extends g{constructor(){super({id:"search.action.expandRecursively",title:m.localize(10897,null),category:w,menu:[{id:y.SearchContext,when:b.and(h.$VZb.FolderFocusKey,h.$VZb.HasSearchResults),group:"search",order:4}]})}async run(t){return G(t)}});x(class extends g{constructor(){super({id:"search.action.excludeFromSearch",title:m.localize2(10902,"Exclude Folder from Search"),category:w,menu:[{id:y.SearchContext,group:"search",order:4,when:h.$VZb.ResourceFolderFocusKey}]})}async run(t,o){await V(t,!1,!1,void 0,o)}});x(class extends g{constructor(){super({id:"search.action.revealInSideBar",title:m.localize2(10903,"Reveal in Explorer View"),category:w,menu:[{id:y.SearchContext,when:b.and(h.$VZb.FileFocusKey,h.$VZb.HasSearchResults),group:"search_3",order:1}]})}async run(t,o){const n=t.get(H),p=t.get(k),s=t.get(R),f=W(t.get(S));if(!f)return;let i;if(N(o))i=o;else{o=f.getControl().getFocus()[0];return}n.openPaneComposite(D,0,!1).then(r=>{if(!r)return;const d=r.getViewPaneContainer(),l=i.resource;if(l&&s.isInsideWorkspace(l)){const a=d.getExplorerView();a.setExpanded(!0),p.select(l,!0).then(()=>a.focus(),P)}})}});x(class extends g{constructor(){super({id:"workbench.action.findInFiles",title:{...m.localize2(10904,"Find in Files"),mnemonicTitle:m.localize(10898,null)},metadata:{description:m.localize(10899,null),args:[{name:m.localize(10900,null),schema:{type:"object",properties:{query:{type:"string"},replace:{type:"string"},preserveCase:{type:"boolean"},triggerSearch:{type:"boolean"},filesToInclude:{type:"string"},filesToExclude:{type:"string"},isRegex:{type:"boolean"},isCaseSensitive:{type:"boolean"},matchWholeWord:{type:"boolean"},useExcludeSettingsAndIgnoreFiles:{type:"boolean"},onlyOpenEditors:{type:"boolean"},showIncludesExcludes:{type:"boolean"}}}}]},category:w,keybinding:{weight:200,primary:3108},menu:[{id:y.MenubarEditMenu,group:"4_find_global",order:1}],f1:!0})}async run(t,o={}){ee(t,o)}});x(class extends g{constructor(){super({id:"filesExplorer.findInFolder",title:m.localize2(10905,"Find in Folder..."),category:w,keybinding:{weight:200,when:b.and(q,v),primary:1572},menu:[{id:y.ExplorerContext,group:"4_search",order:10,when:v}]})}async run(t,o){await V(t,!0,!0,o)}});x(class extends g{constructor(){super({id:"filesExplorer.findInWorkspace",title:m.localize2(10906,"Find in Workspace..."),category:w,menu:[{id:y.ExplorerContext,group:"4_search",order:10,when:b.and(_,v.toNegated())}]})}async run(t){const n=t.get(C).getValue().search.mode;if(n==="view")(await A(t.get(S),!0))?.searchInFolders();else return t.get(I).executeCommand(E.$0bc,{location:n==="newEditor"?"new":"reuse",filesToInclude:""})}});async function G(e){const t=e.get(S),o=W(t);if(o){const n=o.getControl(),p=n.getFocus()[0];await J(n,p)}}async function V(e,t,o,n,p){const s=e.get(K),f=e.get(S),i=e.get(R),r=e.get(I),d=e.get(C).getValue().search,l=d.mode;let a;if(t)a=j(n,e.get(Z),e.get(Y),e.get(B),e.get(k));else{const c=W(f);if(!c)return;a=X(c.getControl(),p,d)}const F=s.resolveAll(a.map(c=>({resource:c}))).then(c=>{const $=[];return c.forEach(u=>{u.success&&u.stat&&$.push(u.stat.isDirectory?u.stat.resource:z(u.stat.resource))}),O($,i)});if(l==="view"){const c=await A(f,!0);a&&a.length&&c&&(o?c.searchInFolders(await F):c.searchOutsideOfFolders(await F));return}else return o?r.executeCommand(E.$0bc,{filesToInclude:(await F).join(", "),showIncludesExcludes:!0,location:l==="newEditor"?"new":"reuse"}):r.executeCommand(E.$0bc,{filesToExclude:(await F).join(", "),showIncludesExcludes:!0,location:l==="newEditor"?"new":"reuse"})}function X(e,t,o){return L(e,t,o).map(n=>Q(n)?null:n.resource).filter(n=>n!==null)}async function ee(e,t={}){const o=e.get(C).getValue().search,n=e.get(S),p=e.get(I),s={};if(Object.keys(t).length!==0){const i=e.get(M),r=e.get(U),d=e.get(R),l=r.getLastActiveWorkspaceRoot(),a=l?.scheme===T.file||l?.scheme===T.vscodeRemote?l:void 0,F=a?d.getWorkspaceFolder(a)??void 0:void 0;for(const c of Object.entries(t)){const $=c[0],u=c[1];u!==void 0&&(s[$]=typeof u=="string"?await i.resolveAsync(F,u):u)}}const f=o.mode;if(f==="view")A(n,!1).then(i=>{if(i){i.searchAndReplaceWidget.toggleReplace(typeof s.replace=="string");let d=!1;typeof s.query!="string"&&(d=i.updateTextFromFindWidgetOrSelection({allowUnselectedWord:typeof s.replace!="string"})),i.setSearchParameters(s),typeof s.showIncludesExcludes=="boolean"&&i.toggleQueryDetails(!1,s.showIncludesExcludes),i.searchAndReplaceWidget.focus(void 0,d,d)}});else{const i=r=>({location:f==="newEditor"?"new":"reuse",query:r.query,filesToInclude:r.filesToInclude,filesToExclude:r.filesToExclude,matchWholeWord:r.matchWholeWord,isCaseSensitive:r.isCaseSensitive,isRegexp:r.isRegex,useExcludeSettingsAndIgnoreFiles:r.useExcludeSettingsAndIgnoreFiles,onlyOpenEditors:r.onlyOpenEditors,showIncludesExcludes:!!(r.filesToExclude||r.filesToExclude||!r.useExcludeSettingsAndIgnoreFiles)});p.executeCommand(E.$0bc,i(s))}}export{ee as $pdc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { dirname } from "../../../../base/common/resources.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import * as Constants from "../common/constants.js";
+import * as SearchEditorConstants from "../../searchEditor/browser/constants.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { resolveResourcesForSearchIncludes } from "../../../services/search/common/queryBuilder.js";
+import { getMultiSelectedResources, IExplorerService } from "../../files/browser/files.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ExplorerFolderContext, ExplorerRootContext, FilesExplorerFocusCondition, VIEWLET_ID as VIEWLET_ID_FILES } from "../../files/common/files.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { category, getElementsToOperateOn, getSearchView, openSearchView } from "./searchActionsBase.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { forcedExpandRecursively } from "./searchActionsTopBar.js";
+import { isSearchTreeFileMatch, isSearchTreeMatch } from "./searchTreeModel/searchTreeCommon.js";
+registerAction2(class RestrictSearchToFolderAction extends Action2 {
+  static {
+    __name(this, "RestrictSearchToFolderAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.restrictSearchToFolder",
+      title: nls.localize2("restrictResultsToFolder", "Restrict Search to Folder"),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ResourceFolderFocusKey),
+        primary: 1024 | 512 | 36
+      },
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          group: "search",
+          order: 3,
+          when: ContextKeyExpr.and(Constants.SearchContext.ResourceFolderFocusKey)
+        }
+      ]
+    });
+  }
+  async run(accessor, folderMatch) {
+    await searchWithFolderCommand(accessor, false, true, void 0, folderMatch);
+  }
+});
+registerAction2(class ExpandSelectedTreeCommandAction extends Action2 {
+  static {
+    __name(this, "ExpandSelectedTreeCommandAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.expandRecursively",
+      title: nls.localize("search.expandRecursively", "Expand Recursively"),
+      category,
+      menu: [{
+        id: MenuId.SearchContext,
+        when: ContextKeyExpr.and(Constants.SearchContext.FolderFocusKey, Constants.SearchContext.HasSearchResults),
+        group: "search",
+        order: 4
+      }]
+    });
+  }
+  async run(accessor) {
+    return expandSelectSubtree(accessor);
+  }
+});
+registerAction2(class ExcludeFolderFromSearchAction extends Action2 {
+  static {
+    __name(this, "ExcludeFolderFromSearchAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.excludeFromSearch",
+      title: nls.localize2("excludeFolderFromSearch", "Exclude Folder from Search"),
+      category,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          group: "search",
+          order: 4,
+          when: Constants.SearchContext.ResourceFolderFocusKey
+        }
+      ]
+    });
+  }
+  async run(accessor, folderMatch) {
+    await searchWithFolderCommand(accessor, false, false, void 0, folderMatch);
+  }
+});
+registerAction2(class RevealInSideBarForSearchResultsAction extends Action2 {
+  static {
+    __name(this, "RevealInSideBarForSearchResultsAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.revealInSideBar",
+      title: nls.localize2("revealInSideBar", "Reveal in Explorer View"),
+      category,
+      menu: [{
+        id: MenuId.SearchContext,
+        when: ContextKeyExpr.and(Constants.SearchContext.FileFocusKey, Constants.SearchContext.HasSearchResults),
+        group: "search_3",
+        order: 1
+      }]
+    });
+  }
+  async run(accessor, args) {
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    const explorerService = accessor.get(IExplorerService);
+    const contextService = accessor.get(IWorkspaceContextService);
+    const searchView = getSearchView(accessor.get(IViewsService));
+    if (!searchView) {
+      return;
+    }
+    let fileMatch;
+    if (isSearchTreeFileMatch(args)) {
+      fileMatch = args;
+    } else {
+      args = searchView.getControl().getFocus()[0];
+      return;
+    }
+    paneCompositeService.openPaneComposite(VIEWLET_ID_FILES, 0, false).then((viewlet) => {
+      if (!viewlet) {
+        return;
+      }
+      const explorerViewContainer = viewlet.getViewPaneContainer();
+      const uri = fileMatch.resource;
+      if (uri && contextService.isInsideWorkspace(uri)) {
+        const explorerView = explorerViewContainer.getExplorerView();
+        explorerView.setExpanded(true);
+        explorerService.select(uri, true).then(() => explorerView.focus(), onUnexpectedError);
+      }
+    });
+  }
+});
+registerAction2(class FindInFilesAction extends Action2 {
+  static {
+    __name(this, "FindInFilesAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.findInFiles",
+      title: {
+        ...nls.localize2("findInFiles", "Find in Files"),
+        mnemonicTitle: nls.localize({ key: "miFindInFiles", comment: ["&& denotes a mnemonic"] }, "Find &&in Files")
+      },
+      metadata: {
+        description: nls.localize("findInFiles.description", "Open a workspace search"),
+        args: [
+          {
+            name: nls.localize("findInFiles.args", "A set of options for the search"),
+            schema: {
+              type: "object",
+              properties: {
+                query: { "type": "string" },
+                replace: { "type": "string" },
+                preserveCase: { "type": "boolean" },
+                triggerSearch: { "type": "boolean" },
+                filesToInclude: { "type": "string" },
+                filesToExclude: { "type": "string" },
+                isRegex: { "type": "boolean" },
+                isCaseSensitive: { "type": "boolean" },
+                matchWholeWord: { "type": "boolean" },
+                useExcludeSettingsAndIgnoreFiles: { "type": "boolean" },
+                onlyOpenEditors: { "type": "boolean" },
+                showIncludesExcludes: { "type": "boolean" }
+              }
+            }
+          }
+        ]
+      },
+      category,
+      keybinding: {
+        weight: 200,
+        primary: 2048 | 1024 | 36
+      },
+      menu: [{
+        id: MenuId.MenubarEditMenu,
+        group: "4_find_global",
+        order: 1
+      }],
+      f1: true
+    });
+  }
+  async run(accessor, args = {}) {
+    findInFilesCommand(accessor, args);
+  }
+});
+registerAction2(class FindInFolderAction extends Action2 {
+  static {
+    __name(this, "FindInFolderAction");
+  }
+  // from explorer
+  constructor() {
+    super({
+      id: "filesExplorer.findInFolder",
+      title: nls.localize2("findInFolder", "Find in Folder..."),
+      category,
+      keybinding: {
+        weight: 200,
+        when: ContextKeyExpr.and(FilesExplorerFocusCondition, ExplorerFolderContext),
+        primary: 1024 | 512 | 36
+      },
+      menu: [
+        {
+          id: MenuId.ExplorerContext,
+          group: "4_search",
+          order: 10,
+          when: ExplorerFolderContext
+        }
+      ]
+    });
+  }
+  async run(accessor, resource) {
+    await searchWithFolderCommand(accessor, true, true, resource);
+  }
+});
+registerAction2(class FindInWorkspaceAction extends Action2 {
+  static {
+    __name(this, "FindInWorkspaceAction");
+  }
+  // from explorer
+  constructor() {
+    super({
+      id: "filesExplorer.findInWorkspace",
+      title: nls.localize2("findInWorkspace", "Find in Workspace..."),
+      category,
+      menu: [
+        {
+          id: MenuId.ExplorerContext,
+          group: "4_search",
+          order: 10,
+          when: ContextKeyExpr.and(ExplorerRootContext, ExplorerFolderContext.toNegated())
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const searchConfig = accessor.get(IConfigurationService).getValue().search;
+    const mode = searchConfig.mode;
+    if (mode === "view") {
+      const searchView = await openSearchView(accessor.get(IViewsService), true);
+      searchView?.searchInFolders();
+    } else {
+      return accessor.get(ICommandService).executeCommand(SearchEditorConstants.OpenEditorCommandId, {
+        location: mode === "newEditor" ? "new" : "reuse",
+        filesToInclude: ""
+      });
+    }
+  }
+});
+async function expandSelectSubtree(accessor) {
+  const viewsService = accessor.get(IViewsService);
+  const searchView = getSearchView(viewsService);
+  if (searchView) {
+    const viewer = searchView.getControl();
+    const selected = viewer.getFocus()[0];
+    await forcedExpandRecursively(viewer, selected);
+  }
+}
+__name(expandSelectSubtree, "expandSelectSubtree");
+async function searchWithFolderCommand(accessor, isFromExplorer, isIncludes, resource, folderMatch) {
+  const fileService = accessor.get(IFileService);
+  const viewsService = accessor.get(IViewsService);
+  const contextService = accessor.get(IWorkspaceContextService);
+  const commandService = accessor.get(ICommandService);
+  const searchConfig = accessor.get(IConfigurationService).getValue().search;
+  const mode = searchConfig.mode;
+  let resources;
+  if (isFromExplorer) {
+    resources = getMultiSelectedResources(resource, accessor.get(IListService), accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IExplorerService));
+  } else {
+    const searchView = getSearchView(viewsService);
+    if (!searchView) {
+      return;
+    }
+    resources = getMultiSelectedSearchResources(searchView.getControl(), folderMatch, searchConfig);
+  }
+  const resolvedResources = fileService.resolveAll(resources.map((resource2) => ({ resource: resource2 }))).then((results) => {
+    const folders = [];
+    results.forEach((result) => {
+      if (result.success && result.stat) {
+        folders.push(result.stat.isDirectory ? result.stat.resource : dirname(result.stat.resource));
+      }
+    });
+    return resolveResourcesForSearchIncludes(folders, contextService);
+  });
+  if (mode === "view") {
+    const searchView = await openSearchView(viewsService, true);
+    if (resources && resources.length && searchView) {
+      if (isIncludes) {
+        searchView.searchInFolders(await resolvedResources);
+      } else {
+        searchView.searchOutsideOfFolders(await resolvedResources);
+      }
+    }
+    return void 0;
+  } else {
+    if (isIncludes) {
+      return commandService.executeCommand(SearchEditorConstants.OpenEditorCommandId, {
+        filesToInclude: (await resolvedResources).join(", "),
+        showIncludesExcludes: true,
+        location: mode === "newEditor" ? "new" : "reuse"
+      });
+    } else {
+      return commandService.executeCommand(SearchEditorConstants.OpenEditorCommandId, {
+        filesToExclude: (await resolvedResources).join(", "),
+        showIncludesExcludes: true,
+        location: mode === "newEditor" ? "new" : "reuse"
+      });
+    }
+  }
+}
+__name(searchWithFolderCommand, "searchWithFolderCommand");
+function getMultiSelectedSearchResources(viewer, currElement, sortConfig) {
+  return getElementsToOperateOn(viewer, currElement, sortConfig).map((renderableMatch) => isSearchTreeMatch(renderableMatch) ? null : renderableMatch.resource).filter((renderableMatch) => renderableMatch !== null);
+}
+__name(getMultiSelectedSearchResources, "getMultiSelectedSearchResources");
+async function findInFilesCommand(accessor, _args = {}) {
+  const searchConfig = accessor.get(IConfigurationService).getValue().search;
+  const viewsService = accessor.get(IViewsService);
+  const commandService = accessor.get(ICommandService);
+  const args = {};
+  if (Object.keys(_args).length !== 0) {
+    const configurationResolverService = accessor.get(IConfigurationResolverService);
+    const historyService = accessor.get(IHistoryService);
+    const workspaceContextService = accessor.get(IWorkspaceContextService);
+    const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot();
+    const filteredActiveWorkspaceRootUri = activeWorkspaceRootUri?.scheme === Schemas.file || activeWorkspaceRootUri?.scheme === Schemas.vscodeRemote ? activeWorkspaceRootUri : void 0;
+    const lastActiveWorkspaceRoot = filteredActiveWorkspaceRootUri ? workspaceContextService.getWorkspaceFolder(filteredActiveWorkspaceRootUri) ?? void 0 : void 0;
+    for (const entry of Object.entries(_args)) {
+      const name = entry[0];
+      const value = entry[1];
+      if (value !== void 0) {
+        args[name] = typeof value === "string" ? await configurationResolverService.resolveAsync(lastActiveWorkspaceRoot, value) : value;
+      }
+    }
+  }
+  const mode = searchConfig.mode;
+  if (mode === "view") {
+    openSearchView(viewsService, false).then((openedView) => {
+      if (openedView) {
+        const searchAndReplaceWidget = openedView.searchAndReplaceWidget;
+        searchAndReplaceWidget.toggleReplace(typeof args.replace === "string");
+        let updatedText = false;
+        if (typeof args.query !== "string") {
+          updatedText = openedView.updateTextFromFindWidgetOrSelection({ allowUnselectedWord: typeof args.replace !== "string" });
+        }
+        openedView.setSearchParameters(args);
+        if (typeof args.showIncludesExcludes === "boolean") {
+          openedView.toggleQueryDetails(false, args.showIncludesExcludes);
+        }
+        openedView.searchAndReplaceWidget.focus(void 0, updatedText, updatedText);
+      }
+    });
+  } else {
+    const convertArgs = /* @__PURE__ */ __name((args2) => ({
+      location: mode === "newEditor" ? "new" : "reuse",
+      query: args2.query,
+      filesToInclude: args2.filesToInclude,
+      filesToExclude: args2.filesToExclude,
+      matchWholeWord: args2.matchWholeWord,
+      isCaseSensitive: args2.isCaseSensitive,
+      isRegexp: args2.isRegex,
+      useExcludeSettingsAndIgnoreFiles: args2.useExcludeSettingsAndIgnoreFiles,
+      onlyOpenEditors: args2.onlyOpenEditors,
+      showIncludesExcludes: !!(args2.filesToExclude || args2.filesToExclude || !args2.useExcludeSettingsAndIgnoreFiles)
+    }), "convertArgs");
+    commandService.executeCommand(SearchEditorConstants.OpenEditorCommandId, convertArgs(args));
+  }
+}
+__name(findInFilesCommand, "findInFilesCommand");
+export {
+  findInFilesCommand
+};
+//# sourceMappingURL=searchActionsFind.js.map

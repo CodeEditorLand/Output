@@ -1,1 +1,58 @@
-import{CancellationToken as b}from"../../../../base/common/cancellation.js";import{$tb as l}from"../../../../base/common/errors.js";import{URI as s}from"../../../../base/common/uri.js";import{$DI as P}from"../../../../platform/actions/common/actions.js";import{$1n as $}from"../../../../platform/commands/common/commands.js";import{$yab as p,$Bab as i}from"../../../browser/editorExtensions.js";import{$yhb as v}from"../../../common/editorFeatures.js";import{$ijb as w}from"../../hover/browser/hoverTypes.js";import{$pjb as u,$qjb as d,$ojb as R,$njb as x}from"./color.js";import{$sjb as f}from"./colorDetector.js";import{$kjb as E}from"./defaultDocumentColorProvider.js";import{$znb as c}from"./hoverColorPicker/hoverColorPickerContribution.js";import{$0lb as k}from"./hoverColorPicker/hoverColorPickerParticipant.js";import{$Gnb as A,$Hnb as N,$Fnb as _}from"./standaloneColorPicker/standaloneColorPickerActions.js";import{$Enb as a}from"./standaloneColorPicker/standaloneColorPickerController.js";import{$cC as q}from"../../../common/core/range.js";p(A);p(N);P(_);i(c.ID,c,2);i(a.ID,a,1);i(f.ID,f,1);v(E);w.register(k);$.registerCommand("_executeDocumentColorProvider",function(t,...n){const[o]=n;if(!(o instanceof s))throw l();const{model:m,colorProviderRegistry:r,defaultColorDecoratorsEnablement:e}=d(t,o);return u(new x,r,m,b.None,e)});$.registerCommand("_executeColorPresentationProvider",function(t,...n){const[o,m]=n,{uri:r,range:e}=m;if(!(r instanceof s)||!Array.isArray(o)||o.length!==4||!q.isIRange(e))throw l();const{model:g,colorProviderRegistry:C,defaultColorDecoratorsEnablement:j}=d(t,r),[D,y,I,h]=o;return u(new R({range:e,color:{red:D,green:y,blue:I,alpha:h}}),C,g,b.None,j)});
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { illegalArgument } from "../../../../base/common/errors.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { registerEditorAction, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { registerEditorFeature } from "../../../common/editorFeatures.js";
+import { HoverParticipantRegistry } from "../../hover/browser/hoverTypes.js";
+import { _findColorData, _setupColorCommand, ColorPresentationsCollector, ExtColorDataCollector } from "./color.js";
+import { ColorDetector } from "./colorDetector.js";
+import { DefaultDocumentColorProviderFeature } from "./defaultDocumentColorProvider.js";
+import { HoverColorPickerContribution } from "./hoverColorPicker/hoverColorPickerContribution.js";
+import { HoverColorPickerParticipant } from "./hoverColorPicker/hoverColorPickerParticipant.js";
+import { HideStandaloneColorPicker, InsertColorWithStandaloneColorPicker, ShowOrFocusStandaloneColorPicker } from "./standaloneColorPicker/standaloneColorPickerActions.js";
+import { StandaloneColorPickerController } from "./standaloneColorPicker/standaloneColorPickerController.js";
+import { Range } from "../../../common/core/range.js";
+registerEditorAction(HideStandaloneColorPicker);
+registerEditorAction(InsertColorWithStandaloneColorPicker);
+registerAction2(ShowOrFocusStandaloneColorPicker);
+registerEditorContribution(
+  HoverColorPickerContribution.ID,
+  HoverColorPickerContribution,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+registerEditorContribution(
+  StandaloneColorPickerController.ID,
+  StandaloneColorPickerController,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerEditorContribution(
+  ColorDetector.ID,
+  ColorDetector,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerEditorFeature(DefaultDocumentColorProviderFeature);
+HoverParticipantRegistry.register(HoverColorPickerParticipant);
+CommandsRegistry.registerCommand("_executeDocumentColorProvider", function(accessor, ...args) {
+  const [resource] = args;
+  if (!(resource instanceof URI)) {
+    throw illegalArgument();
+  }
+  const { model, colorProviderRegistry, defaultColorDecoratorsEnablement } = _setupColorCommand(accessor, resource);
+  return _findColorData(new ExtColorDataCollector(), colorProviderRegistry, model, CancellationToken.None, defaultColorDecoratorsEnablement);
+});
+CommandsRegistry.registerCommand("_executeColorPresentationProvider", function(accessor, ...args) {
+  const [color, context] = args;
+  const { uri, range } = context;
+  if (!(uri instanceof URI) || !Array.isArray(color) || color.length !== 4 || !Range.isIRange(range)) {
+    throw illegalArgument();
+  }
+  const { model, colorProviderRegistry, defaultColorDecoratorsEnablement } = _setupColorCommand(accessor, uri);
+  const [red, green, blue, alpha] = color;
+  return _findColorData(new ColorPresentationsCollector({ range, color: { red, green, blue, alpha } }), colorProviderRegistry, model, CancellationToken.None, defaultColorDecoratorsEnablement);
+});
+//# sourceMappingURL=colorPickerContribution.js.map

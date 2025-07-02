@@ -1,1 +1,117 @@
-import{localize as s}from"../../../../../nls.js";import*as d from"../../../../../base/browser/dom.js";import{$U8 as M}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$VMb as g}from"../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";import{$Vhb as P}from"../../../../../platform/actionWidget/browser/actionWidget.js";import{$yI as A,$xI as _}from"../../../../../platform/actions/common/actions.js";import{$Wn as C}from"../../../../../platform/contextkey/common/contextkey.js";import{$sgb as v}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$Zn as W}from"../../../../../platform/commands/common/commands.js";import{ChatEntitlement as x,$QDb as D}from"../../common/chatEntitlementService.js";import{$ux as I}from"../../../../../platform/keybinding/common/keybinding.js";var $=function(n,t,o,i){var a=arguments.length,e=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,o,i);else for(var c=n.length-1;c>=0;c--)(r=n[c])&&(e=(a<3?r(e):a>3?r(t,o,e):r(t,o))||e);return a>3&&e&&Object.defineProperty(t,o,e),e},m=function(n,t){return function(o,i){t(o,i,n)}};function L(n){return{getActions:()=>n.getModels().map(t=>({id:t.metadata.id,enabled:!0,checked:t.metadata.id===n.getCurrentModel()?.metadata.id,category:t.metadata.modelPickerCategory,class:void 0,description:t.metadata.cost,tooltip:t.metadata.description??t.metadata.name,label:t.metadata.name,run:()=>{n.setModel(t)}}))}}function O(n,t,o,i){const a=n.createMenu(_.ChatModelPicker,t),e=v(a.getActions());a.dispose();const r=[];return e.length>0&&r.push(...e),i.entitlement===x.Free&&r.push({id:"moreModels",label:s(5591,null),enabled:!0,tooltip:s(5592,null),class:void 0,run:()=>{o.executeCommand("workbench.action.chat.upgradePlan")}}),r}let l=class extends g{constructor(t,o,i,a,e,r,c,u,p){const f={...t,label:o.metadata.name,tooltip:s(5593,null),run:()=>{}},h={actionProvider:L(i),actionBarActions:O(e,r,c,u)};super(f,h,a,p,r),this.L=o,this.B(i.onDidChangeModel(b=>{this.L=b,this.element&&this.n(this.element)}))}n(t){return d.$56(t,d.$("span.chat-model-label",void 0,this.L.metadata.name),...M("$(chevron-down)")),this.s(t),null}render(t){super.render(t),t.classList.add("chat-modelPicker-item")}};l=$([m(3,P),m(4,A),m(5,C),m(6,W),m(7,D),m(8,I)],l);export{l as $WMb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../../nls.js";
+import * as dom from "../../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { ActionWidgetDropdownActionViewItem } from "../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";
+import { IActionWidgetService } from "../../../../../platform/actionWidget/browser/actionWidget.js";
+import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { getFlatActionBarActions } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ChatEntitlement, IChatEntitlementService } from "../../common/chatEntitlementService.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+function modelDelegateToWidgetActionsProvider(delegate) {
+  return {
+    getActions: /* @__PURE__ */ __name(() => {
+      return delegate.getModels().map((model) => {
+        return {
+          id: model.metadata.id,
+          enabled: true,
+          checked: model.metadata.id === delegate.getCurrentModel()?.metadata.id,
+          category: model.metadata.modelPickerCategory,
+          class: void 0,
+          description: model.metadata.cost,
+          tooltip: model.metadata.description ?? model.metadata.name,
+          label: model.metadata.name,
+          run: /* @__PURE__ */ __name(() => {
+            delegate.setModel(model);
+          }, "run")
+        };
+      });
+    }, "getActions")
+  };
+}
+__name(modelDelegateToWidgetActionsProvider, "modelDelegateToWidgetActionsProvider");
+function getModelPickerActionBarActions(menuService, contextKeyService, commandService, chatEntitlementService) {
+  const menuActions = menuService.createMenu(MenuId.ChatModelPicker, contextKeyService);
+  const menuContributions = getFlatActionBarActions(menuActions.getActions());
+  menuActions.dispose();
+  const additionalActions = [];
+  if (menuContributions.length > 0) {
+    additionalActions.push(...menuContributions);
+  }
+  if (chatEntitlementService.entitlement === ChatEntitlement.Free) {
+    additionalActions.push({
+      id: "moreModels",
+      label: localize("chat.moreModels", "Add Premium Models"),
+      enabled: true,
+      tooltip: localize("chat.moreModels.tooltip", "Add premium models"),
+      class: void 0,
+      run: /* @__PURE__ */ __name(() => {
+        const commandId = "workbench.action.chat.upgradePlan";
+        commandService.executeCommand(commandId);
+      }, "run")
+    });
+  }
+  return additionalActions;
+}
+__name(getModelPickerActionBarActions, "getModelPickerActionBarActions");
+let ModelPickerActionItem = class ModelPickerActionItem2 extends ActionWidgetDropdownActionViewItem {
+  static {
+    __name(this, "ModelPickerActionItem");
+  }
+  constructor(action, currentModel, delegate, actionWidgetService, menuService, contextKeyService, commandService, chatEntitlementService, keybindingService) {
+    const actionWithLabel = {
+      ...action,
+      label: currentModel.metadata.name,
+      tooltip: localize("chat.modelPicker.label", "Pick Model"),
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    };
+    const modelPickerActionWidgetOptions = {
+      actionProvider: modelDelegateToWidgetActionsProvider(delegate),
+      actionBarActions: getModelPickerActionBarActions(menuService, contextKeyService, commandService, chatEntitlementService)
+    };
+    super(actionWithLabel, modelPickerActionWidgetOptions, actionWidgetService, keybindingService, contextKeyService);
+    this.currentModel = currentModel;
+    this._register(delegate.onDidChangeModel((model) => {
+      this.currentModel = model;
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+  }
+  renderLabel(element) {
+    dom.reset(element, dom.$("span.chat-model-label", void 0, this.currentModel.metadata.name), ...renderLabelWithIcons(`$(chevron-down)`));
+    this.setAriaLabelAttributes(element);
+    return null;
+  }
+  render(container) {
+    super.render(container);
+    container.classList.add("chat-modelPicker-item");
+  }
+};
+ModelPickerActionItem = __decorate([
+  __param(3, IActionWidgetService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService),
+  __param(6, ICommandService),
+  __param(7, IChatEntitlementService),
+  __param(8, IKeybindingService)
+], ModelPickerActionItem);
+export {
+  ModelPickerActionItem
+};
+//# sourceMappingURL=modelPickerActionItem.js.map

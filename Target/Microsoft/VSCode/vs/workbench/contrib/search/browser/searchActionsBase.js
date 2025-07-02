@@ -1,1 +1,63 @@
-import*as u from"../../../../base/browser/dom.js";import*as f from"../../../../nls.js";import{$gP as a}from"../../../services/search/common/search.js";import{$Jbc as i,$Ibc as c,$Ebc as s}from"./searchTreeModel/searchTreeCommon.js";import{$Vbc as $}from"./searchCompare.js";const w=f.localize2(10892,"Search");function m(t){const r=b(t);return!!(r&&u.$C6(r.getContainer()))}function D(t,r){return d(t,r)}function b(t){return t.getActiveViewWithId(a)}function M(t,r,e){let n=t.getSelection().filter(o=>o!==null).sort((o,p)=>$(o,p,e.sortOrder));return r&&!(n.length>1&&n.includes(r))&&(n=[r]),n}function V(t,r){return r?!r||t.includes(r)||h(t,r):!1}function h(t,r){for(const e of t)if(c(e)&&i(r)&&e.matches().includes(r)||s(e)&&(c(r)&&e.getDownstreamFileMatch(r.resource)||i(r)&&e.getDownstreamFileMatch(r.parent().resource)))return!0;return!1}function A(t,r){return t.openView(a,r).then(e=>e??void 0)}function d(t,r){return r?t+" ("+r.getLabel()+")":t}export{M as $1bc,V as $2bc,A as $3bc,w as $Wbc,m as $Xbc,D as $Ybc,b as $Zbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../base/browser/dom.js";
+import * as nls from "../../../../nls.js";
+import { VIEW_ID } from "../../../services/search/common/search.js";
+import { isSearchTreeMatch, isSearchTreeFileMatch, isSearchTreeFolderMatch } from "./searchTreeModel/searchTreeCommon.js";
+import { searchComparer } from "./searchCompare.js";
+const category = nls.localize2("search", "Search");
+function isSearchViewFocused(viewsService) {
+  const searchView = getSearchView(viewsService);
+  return !!(searchView && DOM.isAncestorOfActiveElement(searchView.getContainer()));
+}
+__name(isSearchViewFocused, "isSearchViewFocused");
+function appendKeyBindingLabel(label, inputKeyBinding) {
+  return doAppendKeyBindingLabel(label, inputKeyBinding);
+}
+__name(appendKeyBindingLabel, "appendKeyBindingLabel");
+function getSearchView(viewsService) {
+  return viewsService.getActiveViewWithId(VIEW_ID);
+}
+__name(getSearchView, "getSearchView");
+function getElementsToOperateOn(viewer, currElement, sortConfig) {
+  let elements = viewer.getSelection().filter((x) => x !== null).sort((a, b) => searchComparer(a, b, sortConfig.sortOrder));
+  if (currElement && !(elements.length > 1 && elements.includes(currElement))) {
+    elements = [currElement];
+  }
+  return elements;
+}
+__name(getElementsToOperateOn, "getElementsToOperateOn");
+function shouldRefocus(elements, focusElement) {
+  if (!focusElement) {
+    return false;
+  }
+  return !focusElement || elements.includes(focusElement) || hasDownstreamMatch(elements, focusElement);
+}
+__name(shouldRefocus, "shouldRefocus");
+function hasDownstreamMatch(elements, focusElement) {
+  for (const elem of elements) {
+    if (isSearchTreeFileMatch(elem) && isSearchTreeMatch(focusElement) && elem.matches().includes(focusElement) || isSearchTreeFolderMatch(elem) && (isSearchTreeFileMatch(focusElement) && elem.getDownstreamFileMatch(focusElement.resource) || isSearchTreeMatch(focusElement) && elem.getDownstreamFileMatch(focusElement.parent().resource))) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(hasDownstreamMatch, "hasDownstreamMatch");
+function openSearchView(viewsService, focus) {
+  return viewsService.openView(VIEW_ID, focus).then((view) => view ?? void 0);
+}
+__name(openSearchView, "openSearchView");
+function doAppendKeyBindingLabel(label, keyBinding) {
+  return keyBinding ? label + " (" + keyBinding.getLabel() + ")" : label;
+}
+__name(doAppendKeyBindingLabel, "doAppendKeyBindingLabel");
+export {
+  appendKeyBindingLabel,
+  category,
+  getElementsToOperateOn,
+  getSearchView,
+  isSearchViewFocused,
+  openSearchView,
+  shouldRefocus
+};
+//# sourceMappingURL=searchActionsBase.js.map

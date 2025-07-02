@@ -1,1 +1,203 @@
-import{$df as a}from"../../../base/common/event.js";import{$ud as m}from"../../../base/common/lifecycle.js";import{URI as d}from"../../../base/common/uri.js";import{$BY as f}from"./extHost.protocol.js";import{$B2 as g}from"./extHostDocumentData.js";import*as s from"./extHostTypeConverters.js";import{$$c as D}from"../../../base/common/types.js";import{$5o as h}from"../../../base/common/objects.js";import{TextDocumentChangeReason as u}from"./extHostTypes.js";class S{constructor(t,e){this.a=new a,this.b=new a,this.c=new a,this.d=new a,this.e=new a,this.onDidAddDocument=this.a.event,this.onDidRemoveDocument=this.b.event,this.onDidChangeDocument=this.c.event,this.onDidChangeDocumentWithReason=this.d.event,this.onDidSaveDocument=this.e.event,this.f=new m,this.i=new Map,this.g=t.getProxy(f.MainThreadDocuments),this.h=e,this.h.onDidRemoveDocuments(o=>{for(const n of o)this.b.fire(n.document)},void 0,this.f),this.h.onDidAddDocuments(o=>{for(const n of o)this.a.fire(n.document)},void 0,this.f)}dispose(){this.f.dispose()}getAllDocumentData(){return[...this.h.allDocuments()]}getDocumentData(t){if(!t)return;const e=this.h.getDocument(t);if(e)return e}getDocument(t){const e=this.getDocumentData(t);if(!e?.document)throw new Error(`Unable to retrieve document from URI '${t}'`);return e.document}ensureDocumentData(t,e){const o=this.h.getDocument(t);if(o&&(!e?.encoding||o.document.encoding===e.encoding))return Promise.resolve(o);let n=this.i.get(t.toString());return n?e?.encoding&&(n=n.then(i=>i.document.encoding!==e.encoding?this.ensureDocumentData(t,e):i)):(n=this.g.$tryOpenDocument(t,e).then(i=>{this.i.delete(t.toString());const c=d.revive(i);return D(this.h.getDocument(c))},i=>(this.i.delete(t.toString()),Promise.reject(i))),this.i.set(t.toString(),n)),n}createDocumentData(t){return this.g.$tryCreateDocument(t).then(e=>d.revive(e))}$acceptModelLanguageChanged(t,e){const o=d.revive(t),n=this.h.getDocument(o);if(!n)throw new Error("unknown document");this.b.fire(n.document),n._acceptLanguageId(e),this.a.fire(n.document)}$acceptModelSaved(t){const e=d.revive(t),o=this.h.getDocument(e);if(!o)throw new Error("unknown document");this.$acceptDirtyStateChanged(t,!1),this.e.fire(o.document)}$acceptDirtyStateChanged(t,e){const o=d.revive(t),n=this.h.getDocument(o);if(!n)throw new Error("unknown document");n._acceptIsDirty(e),this.c.fire({document:n.document,contentChanges:[],reason:void 0}),this.d.fire({document:n.document,contentChanges:[],reason:void 0,detailedReason:void 0})}$acceptEncodingChanged(t,e){const o=d.revive(t),n=this.h.getDocument(o);if(!n)throw new Error("unknown document");n._acceptEncoding(e),this.c.fire({document:n.document,contentChanges:[],reason:void 0}),this.d.fire({document:n.document,contentChanges:[],reason:void 0,detailedReason:void 0})}$acceptModelChanged(t,e,o){const n=d.revive(t),i=this.h.getDocument(n);if(!i)throw new Error("unknown document");i._acceptIsDirty(o),i.onEvents(e);let c;e.isUndoing?c=u.Undo:e.isRedoing&&(c=u.Redo),this.c.fire(h({document:i.document,contentChanges:e.changes.map(r=>({range:s.Range.to(r.range),rangeOffset:r.rangeOffset,rangeLength:r.rangeLength,text:r.text})),reason:c})),this.d.fire(h({document:i.document,contentChanges:e.changes.map(r=>({range:s.Range.to(r.range),rangeOffset:r.rangeOffset,rangeLength:r.rangeLength,text:r.text})),reason:c,detailedReason:e.detailedReason?{source:e.detailedReason.source,metadata:e.detailedReason}:void 0}))}setWordDefinitionFor(t,e){g(t,e)}}export{S as $hLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { MainContext } from "./extHost.protocol.js";
+import { setWordDefinitionFor } from "./extHostDocumentData.js";
+import * as TypeConverters from "./extHostTypeConverters.js";
+import { assertReturnsDefined } from "../../../base/common/types.js";
+import { deepFreeze } from "../../../base/common/objects.js";
+import { TextDocumentChangeReason } from "./extHostTypes.js";
+class ExtHostDocuments {
+  static {
+    __name(this, "ExtHostDocuments");
+  }
+  constructor(mainContext, documentsAndEditors) {
+    this._onDidAddDocument = new Emitter();
+    this._onDidRemoveDocument = new Emitter();
+    this._onDidChangeDocument = new Emitter();
+    this._onDidChangeDocumentWithReason = new Emitter();
+    this._onDidSaveDocument = new Emitter();
+    this.onDidAddDocument = this._onDidAddDocument.event;
+    this.onDidRemoveDocument = this._onDidRemoveDocument.event;
+    this.onDidChangeDocument = this._onDidChangeDocument.event;
+    this.onDidChangeDocumentWithReason = this._onDidChangeDocumentWithReason.event;
+    this.onDidSaveDocument = this._onDidSaveDocument.event;
+    this._toDispose = new DisposableStore();
+    this._documentLoader = /* @__PURE__ */ new Map();
+    this._proxy = mainContext.getProxy(MainContext.MainThreadDocuments);
+    this._documentsAndEditors = documentsAndEditors;
+    this._documentsAndEditors.onDidRemoveDocuments((documents) => {
+      for (const data of documents) {
+        this._onDidRemoveDocument.fire(data.document);
+      }
+    }, void 0, this._toDispose);
+    this._documentsAndEditors.onDidAddDocuments((documents) => {
+      for (const data of documents) {
+        this._onDidAddDocument.fire(data.document);
+      }
+    }, void 0, this._toDispose);
+  }
+  dispose() {
+    this._toDispose.dispose();
+  }
+  getAllDocumentData() {
+    return [...this._documentsAndEditors.allDocuments()];
+  }
+  getDocumentData(resource) {
+    if (!resource) {
+      return void 0;
+    }
+    const data = this._documentsAndEditors.getDocument(resource);
+    if (data) {
+      return data;
+    }
+    return void 0;
+  }
+  getDocument(resource) {
+    const data = this.getDocumentData(resource);
+    if (!data?.document) {
+      throw new Error(`Unable to retrieve document from URI '${resource}'`);
+    }
+    return data.document;
+  }
+  ensureDocumentData(uri, options) {
+    const cached = this._documentsAndEditors.getDocument(uri);
+    if (cached && (!options?.encoding || cached.document.encoding === options.encoding)) {
+      return Promise.resolve(cached);
+    }
+    let promise = this._documentLoader.get(uri.toString());
+    if (!promise) {
+      promise = this._proxy.$tryOpenDocument(uri, options).then((uriData) => {
+        this._documentLoader.delete(uri.toString());
+        const canonicalUri = URI.revive(uriData);
+        return assertReturnsDefined(this._documentsAndEditors.getDocument(canonicalUri));
+      }, (err) => {
+        this._documentLoader.delete(uri.toString());
+        return Promise.reject(err);
+      });
+      this._documentLoader.set(uri.toString(), promise);
+    } else {
+      if (options?.encoding) {
+        promise = promise.then((data) => {
+          if (data.document.encoding !== options.encoding) {
+            return this.ensureDocumentData(uri, options);
+          }
+          return data;
+        });
+      }
+    }
+    return promise;
+  }
+  createDocumentData(options) {
+    return this._proxy.$tryCreateDocument(options).then((data) => URI.revive(data));
+  }
+  $acceptModelLanguageChanged(uriComponents, newLanguageId) {
+    const uri = URI.revive(uriComponents);
+    const data = this._documentsAndEditors.getDocument(uri);
+    if (!data) {
+      throw new Error("unknown document");
+    }
+    this._onDidRemoveDocument.fire(data.document);
+    data._acceptLanguageId(newLanguageId);
+    this._onDidAddDocument.fire(data.document);
+  }
+  $acceptModelSaved(uriComponents) {
+    const uri = URI.revive(uriComponents);
+    const data = this._documentsAndEditors.getDocument(uri);
+    if (!data) {
+      throw new Error("unknown document");
+    }
+    this.$acceptDirtyStateChanged(uriComponents, false);
+    this._onDidSaveDocument.fire(data.document);
+  }
+  $acceptDirtyStateChanged(uriComponents, isDirty) {
+    const uri = URI.revive(uriComponents);
+    const data = this._documentsAndEditors.getDocument(uri);
+    if (!data) {
+      throw new Error("unknown document");
+    }
+    data._acceptIsDirty(isDirty);
+    this._onDidChangeDocument.fire({
+      document: data.document,
+      contentChanges: [],
+      reason: void 0
+    });
+    this._onDidChangeDocumentWithReason.fire({
+      document: data.document,
+      contentChanges: [],
+      reason: void 0,
+      detailedReason: void 0
+    });
+  }
+  $acceptEncodingChanged(uriComponents, encoding) {
+    const uri = URI.revive(uriComponents);
+    const data = this._documentsAndEditors.getDocument(uri);
+    if (!data) {
+      throw new Error("unknown document");
+    }
+    data._acceptEncoding(encoding);
+    this._onDidChangeDocument.fire({
+      document: data.document,
+      contentChanges: [],
+      reason: void 0
+    });
+    this._onDidChangeDocumentWithReason.fire({
+      document: data.document,
+      contentChanges: [],
+      reason: void 0,
+      detailedReason: void 0
+    });
+  }
+  $acceptModelChanged(uriComponents, events, isDirty) {
+    const uri = URI.revive(uriComponents);
+    const data = this._documentsAndEditors.getDocument(uri);
+    if (!data) {
+      throw new Error("unknown document");
+    }
+    data._acceptIsDirty(isDirty);
+    data.onEvents(events);
+    let reason = void 0;
+    if (events.isUndoing) {
+      reason = TextDocumentChangeReason.Undo;
+    } else if (events.isRedoing) {
+      reason = TextDocumentChangeReason.Redo;
+    }
+    this._onDidChangeDocument.fire(deepFreeze({
+      document: data.document,
+      contentChanges: events.changes.map((change) => {
+        return {
+          range: TypeConverters.Range.to(change.range),
+          rangeOffset: change.rangeOffset,
+          rangeLength: change.rangeLength,
+          text: change.text
+        };
+      }),
+      reason
+    }));
+    this._onDidChangeDocumentWithReason.fire(deepFreeze({
+      document: data.document,
+      contentChanges: events.changes.map((change) => {
+        return {
+          range: TypeConverters.Range.to(change.range),
+          rangeOffset: change.rangeOffset,
+          rangeLength: change.rangeLength,
+          text: change.text
+        };
+      }),
+      reason,
+      detailedReason: events.detailedReason ? {
+        source: events.detailedReason.source,
+        metadata: events.detailedReason
+      } : void 0
+    }));
+  }
+  setWordDefinitionFor(languageId, wordDefinition) {
+    setWordDefinitionFor(languageId, wordDefinition);
+  }
+}
+export {
+  ExtHostDocuments
+};
+//# sourceMappingURL=extHostDocuments.js.map

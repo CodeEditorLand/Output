@@ -1,1 +1,40 @@
-import*as o from"../../../../nls.js";import{$Mj as e}from"../../../../base/common/codicons.js";import{$Et as l}from"../../../../platform/theme/common/iconRegistry.js";const c=l("remote-explorer-get-started",e.star,o.localize(10335,null)),n=l("remote-explorer-documentation",e.book,o.localize(10336,null)),p=l("remote-explorer-feedback",e.twitter,o.localize(10337,null)),i=l("remote-explorer-review-issues",e.issues,o.localize(10338,null)),s=l("remote-explorer-report-issues",e.comment,o.localize(10339,null)),a=l("remote-explorer-view-icon",e.remoteExplorer,o.localize(10340,null)),u=l("ports-view-icon",e.plug,o.localize(10341,null)),x=l("ports-view-icon",e.plug,o.localize(10342,null)),b=l("private-ports-view-icon",e.lock,o.localize(10343,null)),$=l("ports-forward-icon",e.plus,o.localize(10344,null)),z=l("ports-stop-forward-icon",e.x,o.localize(10345,null)),m=l("ports-open-browser-icon",e.globe,o.localize(10346,null)),w=l("ports-open-preview-icon",e.openPreview,o.localize(10347,null)),d=l("ports-copy-address-icon",e.clippy,o.localize(10348,null)),v=l("ports-label-icon",e.tag,o.localize(10349,null)),f=l("ports-forwarded-without-process-icon",e.circleOutline,o.localize(10350,null)),g=l("ports-forwarded-with-process-icon",e.circleFilled,o.localize(10351,null));export{u as $A4b,x as $B4b,b as $C4b,$ as $D4b,z as $E4b,m as $F4b,w as $G4b,d as $H4b,v as $I4b,f as $J4b,g as $K4b,c as $u4b,n as $v4b,p as $w4b,i as $x4b,s as $y4b,a as $z4b};
+import * as nls from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const getStartedIcon = registerIcon("remote-explorer-get-started", Codicon.star, nls.localize("getStartedIcon", "Getting started icon in the remote explorer view."));
+const documentationIcon = registerIcon("remote-explorer-documentation", Codicon.book, nls.localize("documentationIcon", "Documentation icon in the remote explorer view."));
+const feedbackIcon = registerIcon("remote-explorer-feedback", Codicon.twitter, nls.localize("feedbackIcon", "Feedback icon in the remote explorer view."));
+const reviewIssuesIcon = registerIcon("remote-explorer-review-issues", Codicon.issues, nls.localize("reviewIssuesIcon", "Review issue icon in the remote explorer view."));
+const reportIssuesIcon = registerIcon("remote-explorer-report-issues", Codicon.comment, nls.localize("reportIssuesIcon", "Report issue icon in the remote explorer view."));
+const remoteExplorerViewIcon = registerIcon("remote-explorer-view-icon", Codicon.remoteExplorer, nls.localize("remoteExplorerViewIcon", "View icon of the remote explorer view."));
+const portsViewIcon = registerIcon("ports-view-icon", Codicon.plug, nls.localize("portsViewIcon", "View icon of the remote ports view."));
+const portIcon = registerIcon("ports-view-icon", Codicon.plug, nls.localize("portIcon", "Icon representing a remote port."));
+const privatePortIcon = registerIcon("private-ports-view-icon", Codicon.lock, nls.localize("privatePortIcon", "Icon representing a private remote port."));
+const forwardPortIcon = registerIcon("ports-forward-icon", Codicon.plus, nls.localize("forwardPortIcon", "Icon for the forward action."));
+const stopForwardIcon = registerIcon("ports-stop-forward-icon", Codicon.x, nls.localize("stopForwardIcon", "Icon for the stop forwarding action."));
+const openBrowserIcon = registerIcon("ports-open-browser-icon", Codicon.globe, nls.localize("openBrowserIcon", "Icon for the open browser action."));
+const openPreviewIcon = registerIcon("ports-open-preview-icon", Codicon.openPreview, nls.localize("openPreviewIcon", "Icon for the open preview action."));
+const copyAddressIcon = registerIcon("ports-copy-address-icon", Codicon.clippy, nls.localize("copyAddressIcon", "Icon for the copy local address action."));
+const labelPortIcon = registerIcon("ports-label-icon", Codicon.tag, nls.localize("labelPortIcon", "Icon for the label port action."));
+const forwardedPortWithoutProcessIcon = registerIcon("ports-forwarded-without-process-icon", Codicon.circleOutline, nls.localize("forwardedPortWithoutProcessIcon", "Icon for forwarded ports that don't have a running process."));
+const forwardedPortWithProcessIcon = registerIcon("ports-forwarded-with-process-icon", Codicon.circleFilled, nls.localize("forwardedPortWithProcessIcon", "Icon for forwarded ports that do have a running process."));
+export {
+  copyAddressIcon,
+  documentationIcon,
+  feedbackIcon,
+  forwardPortIcon,
+  forwardedPortWithProcessIcon,
+  forwardedPortWithoutProcessIcon,
+  getStartedIcon,
+  labelPortIcon,
+  openBrowserIcon,
+  openPreviewIcon,
+  portIcon,
+  portsViewIcon,
+  privatePortIcon,
+  remoteExplorerViewIcon,
+  reportIssuesIcon,
+  reviewIssuesIcon,
+  stopForwardIcon
+};
+//# sourceMappingURL=remoteIcons.js.map

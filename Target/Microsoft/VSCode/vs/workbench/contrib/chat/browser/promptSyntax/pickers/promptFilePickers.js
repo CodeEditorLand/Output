@@ -1,1 +1,335 @@
-import{localize as c}from"../../../../../../nls.js";import{URI as O}from"../../../../../../base/common/uri.js";import{$Uc as y}from"../../../../../../base/common/assert.js";import{$Mj as p}from"../../../../../../base/common/codicons.js";import{ThemeIcon as d}from"../../../../../../base/common/themables.js";import{$IS as D}from"../../../common/promptSyntax/service/promptsService.js";import{$jh as $,$ah as I,$kh as T}from"../../../../../../base/common/resources.js";import{$ud as P}from"../../../../../../base/common/lifecycle.js";import{$5j as x}from"../../../../../../platform/files/common/files.js";import{$jI as z}from"../../../../../../platform/label/common/label.js";import{$i_ as M}from"../../../../../../platform/opener/common/opener.js";import{$bp as B}from"../../../../../../platform/dialogs/common/dialogs.js";import{$Zn as L}from"../../../../../../platform/commands/common/commands.js";import{$ES as E}from"../../../common/promptSyntax/config/promptFileLocations.js";import{PromptsType as N,$lQ as S,$mQ as A,$kQ as Q}from"../../../common/promptSyntax/promptTypes.js";import{$Qfc as W,$Rfc as H,$Sfc as J}from"../newPromptFileActions.js";import{$PM as K}from"../../../../../../platform/quickinput/common/quickInput.js";import{$Ofc as _}from"./askForPromptName.js";import{$mj as Y}from"../../../../../../platform/instantiation/common/instantiation.js";import{CancellationToken as Z}from"../../../../../../base/common/cancellation.js";import{$h0 as k}from"../../../../../../base/common/keybindingLabels.js";import{OS as G}from"../../../../../../base/common/platform.js";import{$Pfc as V}from"./askForPromptSourceFolder.js";var R=function(f,e,t,o){var i=arguments.length,r=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(f,e,t,o);else for(var n=f.length-1;n>=0;n--)(s=f[n])&&(r=(i<3?s(r):i>3?s(e,t,r):s(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},m=function(f,e){return function(t,o){e(t,o,f)}};const h=Object.freeze({tooltip:c(5643,null),iconClass:d.asClassName(p.question)}),X=Object.freeze({type:"item",label:`$(plus) ${c(5644,null)}`,value:O.parse(Q),pickable:!1,alwaysShow:!0,buttons:[h],commandId:W}),q=Object.freeze({type:"item",label:`$(plus) ${c(5645,null)}`,value:O.parse(S),pickable:!1,alwaysShow:!0,buttons:[h],commandId:H}),ee=Object.freeze({type:"item",label:`$(refresh) ${c(5646,null)}`,value:O.parse(S),pickable:!1,alwaysShow:!0,buttons:[h],commandId:"workbench.action.chat.updateInstructions"}),te=Object.freeze({type:"item",label:`$(plus) ${c(5647,null)}`,value:O.parse(A),pickable:!1,alwaysShow:!0,buttons:[h],commandId:J}),F=Object.freeze({tooltip:c(5648,null),iconClass:d.asClassName(p.edit)}),g=Object.freeze({tooltip:c(5649,null),iconClass:d.asClassName(p.trash)}),j=Object.freeze({tooltip:c(5650,null),iconClass:d.asClassName(p.replace)}),C=Object.freeze({tooltip:c(5651,null,k.modifierLabels[G].ctrlKey),iconClass:d.asClassName(p.copy)});let U=class{constructor(e,t,o,i,r,s,n,a){this.a=e,this.b=t,this.c=o,this.d=i,this.g=r,this.h=s,this.i=n,this.j=a}async selectPromptFile(e){const t=this.b.createQuickPick();t.busy=!0,t.placeholder=c(5652,null);try{const o=await this.k(e),i=e.resource&&o.find(r=>I.isEqual(r.value,e.resource));t.activeItems=[i??o[0]],t.placeholder=e.placeholder,t.canAcceptInBackground=!0,t.matchOnDescription=!0,t.items=o}finally{t.busy=!1}return new Promise(o=>{const i=new P;let r=!1;i.add({dispose(){t.dispose(),r||(o(void 0),r=!0)}}),i.add(t.onDidAccept(async s=>{const{selectedItems:n}=t,{keyMods:a}=t,l=n[0];if(l.commandId){await this.h.executeCommand(l.commandId);return}l&&(o({promptFile:l.value,keyMods:{...a}}),r=!0),s.inBackground||i.dispose()})),i.add(t.onDidTriggerItemButton(s=>this.o(t,s,e))),i.add(t.onDidHide(i.dispose.bind(i))),t.show()})}async k(e){const{resource:t}=e,o=[];e.optionEdit!==!1&&o.push(F),e.optionCopy!==!1&&o.push(C),e.optionRename!==!1&&o.push(j),e.optionDelete!==!1&&o.push(g);const r=(await this.j.listPromptFiles(e.type,Z.None)).map(a=>this.m(a,o));let s;e.resource&&(s=r.find(a=>I.isEqual(a.value,e.resource)),s||(s=this.m({uri:e.resource,storage:"local",type:e.type},o),r.push(s)),r.sort((a,l)=>I.isEqual(a.value,t)?-1:I.isEqual(l.value,t)?1:0));const n=e.optionNew!==!1?this.l(e.type):[];return n.length>0&&r.splice(0,0,...n),r}l(e){switch(e){case N.prompt:return[X];case N.instructions:return[q,ee];case N.mode:return[te];default:throw new Error(`Unknown prompt type '${e}'.`)}}m(e,t){const{uri:o,storage:i}=e,r=E(o),s=i==="user"?c(5653,null):this.a.getUriLabel($(o),{relative:!0}),n=i==="user"?s:o.fsPath;return{id:o.toString(),type:"item",label:r,description:s,tooltip:n,value:o,buttons:t}}async n(e,t){const o=e.ignoreFocusOut;e.ignoreFocusOut=!0;try{await t()}finally{e.ignoreFocusOut=o}}async o(e,t,o){const{item:i,button:r}=t,{value:s}=i;if(r===F){await this.c.open(s);return}if(r===C){const n=$(s),a=e.keyMods.ctrlCmd,l=await this.i.invokeFunction(V,o.type,n,a);if(!l)return;const w=await this.i.invokeFunction(_,o.type,l.uri,i.label);if(!w)return;const u=T(l.uri,w);a?await this.d.move(s,u):await this.d.copy(s,u),await this.c.open(u);return}if(r===j){const n=$(s),a=await this.i.invokeFunction(_,o.type,n,i.label);if(a){const l=T(n,a);await this.d.move(s,l),await this.c.open(l)}return}if(r===g){y(e.activeItems.length<2,`Expected maximum one active item, got '${e.activeItems.length}'.`);const n=e.activeItems[0],a=await this.d.stat(s);y(a.isDirectory===!1,`'${s.fsPath}' points to a folder.`),await this.n(e,async()=>{const l=E(s),{confirmed:w}=await this.g.confirm({message:c(5654,null,l)});if(!w)return;await this.d.del(s);let u=-1;if(e.items=e.items.filter((v,b)=>v===i?(u=b,!1):!0),n&&n===i){y(u>=0,"Removed item index must be a valid index.");const v=Math.max(u-1,0),b=e.items[v];e.activeItems=b?[b]:[]}});return}if(r===h){await this.c.open(i.value);return}throw new Error(`Unknown button '${JSON.stringify(r)}'.`)}};U=R([m(0,z),m(1,K),m(2,M),m(3,x),m(4,B),m(5,L),m(6,Y),m(7,D)],U);export{U as $Ufc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../../../nls.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { assert } from "../../../../../../base/common/assert.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { IPromptsService } from "../../../common/promptSyntax/service/promptsService.js";
+import { dirname, extUri, joinPath } from "../../../../../../base/common/resources.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { IDialogService } from "../../../../../../platform/dialogs/common/dialogs.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { getCleanPromptName } from "../../../common/promptSyntax/config/promptFileLocations.js";
+import { PromptsType, INSTRUCTIONS_DOCUMENTATION_URL, MODE_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL } from "../../../common/promptSyntax/promptTypes.js";
+import { NEW_PROMPT_COMMAND_ID, NEW_INSTRUCTIONS_COMMAND_ID, NEW_MODE_COMMAND_ID } from "../newPromptFileActions.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { askForPromptFileName } from "./askForPromptName.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { UILabelProvider } from "../../../../../../base/common/keybindingLabels.js";
+import { OS } from "../../../../../../base/common/platform.js";
+import { askForPromptSourceFolder } from "./askForPromptSourceFolder.js";
+const HELP_BUTTON = Object.freeze({
+  tooltip: localize("help", "Help"),
+  iconClass: ThemeIcon.asClassName(Codicon.question)
+});
+const NEW_PROMPT_FILE_OPTION = Object.freeze({
+  type: "item",
+  label: `$(plus) ${localize("commands.new-promptfile.select-dialog.label", "New prompt file...")}`,
+  value: URI.parse(PROMPT_DOCUMENTATION_URL),
+  pickable: false,
+  alwaysShow: true,
+  buttons: [HELP_BUTTON],
+  commandId: NEW_PROMPT_COMMAND_ID
+});
+const NEW_INSTRUCTIONS_FILE_OPTION = Object.freeze({
+  type: "item",
+  label: `$(plus) ${localize("commands.new-instructionsfile.select-dialog.label", "New instruction file...")}`,
+  value: URI.parse(INSTRUCTIONS_DOCUMENTATION_URL),
+  pickable: false,
+  alwaysShow: true,
+  buttons: [HELP_BUTTON],
+  commandId: NEW_INSTRUCTIONS_COMMAND_ID
+});
+const UPDATE_INSTRUCTIONS_OPTION = Object.freeze({
+  type: "item",
+  label: `$(refresh) ${localize("commands.update-instructions.select-dialog.label", "Generate instructions...")}`,
+  value: URI.parse(INSTRUCTIONS_DOCUMENTATION_URL),
+  pickable: false,
+  alwaysShow: true,
+  buttons: [HELP_BUTTON],
+  commandId: "workbench.action.chat.updateInstructions"
+});
+const NEW_MODE_FILE_OPTION = Object.freeze({
+  type: "item",
+  label: `$(plus) ${localize("commands.new-modefile.select-dialog.label", "Create new custom chat mode file...")}`,
+  value: URI.parse(MODE_DOCUMENTATION_URL),
+  pickable: false,
+  alwaysShow: true,
+  buttons: [HELP_BUTTON],
+  commandId: NEW_MODE_COMMAND_ID
+});
+const EDIT_BUTTON = Object.freeze({
+  tooltip: localize("open", "Open in Editor"),
+  iconClass: ThemeIcon.asClassName(Codicon.edit)
+});
+const DELETE_BUTTON = Object.freeze({
+  tooltip: localize("delete", "Delete"),
+  iconClass: ThemeIcon.asClassName(Codicon.trash)
+});
+const RENAME_BUTTON = Object.freeze({
+  tooltip: localize("rename", "Rename"),
+  iconClass: ThemeIcon.asClassName(Codicon.replace)
+});
+const COPY_BUTTON = Object.freeze({
+  tooltip: localize("copy", "Copy or Move (press {0})", UILabelProvider.modifierLabels[OS].ctrlKey),
+  iconClass: ThemeIcon.asClassName(Codicon.copy)
+});
+let PromptFilePickers = class PromptFilePickers2 {
+  static {
+    __name(this, "PromptFilePickers");
+  }
+  constructor(_labelService, _quickInputService, _openerService, _fileService, _dialogService, _commandService, _instaService, _promptsService) {
+    this._labelService = _labelService;
+    this._quickInputService = _quickInputService;
+    this._openerService = _openerService;
+    this._fileService = _fileService;
+    this._dialogService = _dialogService;
+    this._commandService = _commandService;
+    this._instaService = _instaService;
+    this._promptsService = _promptsService;
+  }
+  /**
+   * Shows the prompt file selection dialog to the user that allows to run a prompt file(s).
+   *
+   * If {@link ISelectOptions.resource resource} is provided, the dialog will have
+   * the resource pre-selected in the prompts list.
+   */
+  async selectPromptFile(options) {
+    const quickPick = this._quickInputService.createQuickPick();
+    quickPick.busy = true;
+    quickPick.placeholder = localize("searching", "Searching file system...");
+    try {
+      const fileOptions = await this._createPromptPickItems(options);
+      const activeItem = options.resource && fileOptions.find((f) => extUri.isEqual(f.value, options.resource));
+      quickPick.activeItems = [activeItem ?? fileOptions[0]];
+      quickPick.placeholder = options.placeholder;
+      quickPick.canAcceptInBackground = true;
+      quickPick.matchOnDescription = true;
+      quickPick.items = fileOptions;
+    } finally {
+      quickPick.busy = false;
+    }
+    return new Promise((resolve) => {
+      const disposables = new DisposableStore();
+      let isResolved = false;
+      disposables.add({
+        dispose() {
+          quickPick.dispose();
+          if (!isResolved) {
+            resolve(void 0);
+            isResolved = true;
+          }
+        }
+      });
+      disposables.add(quickPick.onDidAccept(async (event) => {
+        const { selectedItems } = quickPick;
+        const { keyMods } = quickPick;
+        const selectedItem = selectedItems[0];
+        if (selectedItem.commandId) {
+          await this._commandService.executeCommand(selectedItem.commandId);
+          return;
+        }
+        if (selectedItem) {
+          resolve({ promptFile: selectedItem.value, keyMods: { ...keyMods } });
+          isResolved = true;
+        }
+        if (!event.inBackground) {
+          disposables.dispose();
+        }
+      }));
+      disposables.add(quickPick.onDidTriggerItemButton((e) => this._handleButtonClick(quickPick, e, options)));
+      disposables.add(quickPick.onDidHide(disposables.dispose.bind(disposables)));
+      quickPick.show();
+    });
+  }
+  async _createPromptPickItems(options) {
+    const { resource } = options;
+    const buttons = [];
+    if (options.optionEdit !== false) {
+      buttons.push(EDIT_BUTTON);
+    }
+    if (options.optionCopy !== false) {
+      buttons.push(COPY_BUTTON);
+    }
+    if (options.optionRename !== false) {
+      buttons.push(RENAME_BUTTON);
+    }
+    if (options.optionDelete !== false) {
+      buttons.push(DELETE_BUTTON);
+    }
+    const promptFiles = await this._promptsService.listPromptFiles(options.type, CancellationToken.None);
+    const fileOptions = promptFiles.map((promptFile) => {
+      return this._createPromptPickItem(promptFile, buttons);
+    });
+    let activeItem;
+    if (options.resource) {
+      activeItem = fileOptions.find((file) => {
+        return extUri.isEqual(file.value, options.resource);
+      });
+      if (!activeItem) {
+        activeItem = this._createPromptPickItem({
+          uri: options.resource,
+          // "user" prompts are always registered in the prompts list, hence it
+          // should be safe to assume that `resource` is not "user" prompt here
+          storage: "local",
+          type: options.type
+        }, buttons);
+        fileOptions.push(activeItem);
+      }
+      fileOptions.sort((file1, file2) => {
+        if (extUri.isEqual(file1.value, resource)) {
+          return -1;
+        }
+        if (extUri.isEqual(file2.value, resource)) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    const newItems = options.optionNew !== false ? this._getNewItems(options.type) : [];
+    if (newItems.length > 0) {
+      fileOptions.splice(0, 0, ...newItems);
+    }
+    return fileOptions;
+  }
+  _getNewItems(type) {
+    switch (type) {
+      case PromptsType.prompt:
+        return [NEW_PROMPT_FILE_OPTION];
+      case PromptsType.instructions:
+        return [NEW_INSTRUCTIONS_FILE_OPTION, UPDATE_INSTRUCTIONS_OPTION];
+      case PromptsType.mode:
+        return [NEW_MODE_FILE_OPTION];
+      default:
+        throw new Error(`Unknown prompt type '${type}'.`);
+    }
+  }
+  _createPromptPickItem(promptFile, buttons) {
+    const { uri, storage } = promptFile;
+    const fileWithoutExtension = getCleanPromptName(uri);
+    const description = storage === "user" ? localize("user-data-dir.capitalized", "User data folder") : this._labelService.getUriLabel(dirname(uri), { relative: true });
+    const tooltip = storage === "user" ? description : uri.fsPath;
+    return {
+      id: uri.toString(),
+      type: "item",
+      label: fileWithoutExtension,
+      description,
+      tooltip,
+      value: uri,
+      buttons
+    };
+  }
+  async keepQuickPickOpen(quickPick, work) {
+    const previousIgnoreFocusOut = quickPick.ignoreFocusOut;
+    quickPick.ignoreFocusOut = true;
+    try {
+      await work();
+    } finally {
+      quickPick.ignoreFocusOut = previousIgnoreFocusOut;
+    }
+  }
+  async _handleButtonClick(quickPick, context, options) {
+    const { item, button } = context;
+    const { value } = item;
+    if (button === EDIT_BUTTON) {
+      await this._openerService.open(value);
+      return;
+    }
+    if (button === COPY_BUTTON) {
+      const currentFolder = dirname(value);
+      const isMove = quickPick.keyMods.ctrlCmd;
+      const newFolder = await this._instaService.invokeFunction(askForPromptSourceFolder, options.type, currentFolder, isMove);
+      if (!newFolder) {
+        return;
+      }
+      const newName = await this._instaService.invokeFunction(askForPromptFileName, options.type, newFolder.uri, item.label);
+      if (!newName) {
+        return;
+      }
+      const newFile = joinPath(newFolder.uri, newName);
+      if (isMove) {
+        await this._fileService.move(value, newFile);
+      } else {
+        await this._fileService.copy(value, newFile);
+      }
+      await this._openerService.open(newFile);
+      return;
+    }
+    if (button === RENAME_BUTTON) {
+      const currentFolder = dirname(value);
+      const newName = await this._instaService.invokeFunction(askForPromptFileName, options.type, currentFolder, item.label);
+      if (newName) {
+        const newFile = joinPath(currentFolder, newName);
+        await this._fileService.move(value, newFile);
+        await this._openerService.open(newFile);
+      }
+      return;
+    }
+    if (button === DELETE_BUTTON) {
+      assert(quickPick.activeItems.length < 2, `Expected maximum one active item, got '${quickPick.activeItems.length}'.`);
+      const activeItem = quickPick.activeItems[0];
+      const info = await this._fileService.stat(value);
+      assert(info.isDirectory === false, `'${value.fsPath}' points to a folder.`);
+      await this.keepQuickPickOpen(quickPick, async () => {
+        const filename = getCleanPromptName(value);
+        const { confirmed } = await this._dialogService.confirm({
+          message: localize("commands.prompts.use.select-dialog.delete-prompt.confirm.message", "Are you sure you want to delete '{0}'?", filename)
+        });
+        if (!confirmed) {
+          return;
+        }
+        await this._fileService.del(value);
+        let removedIndex = -1;
+        quickPick.items = quickPick.items.filter((option, index) => {
+          if (option === item) {
+            removedIndex = index;
+            return false;
+          }
+          return true;
+        });
+        if (activeItem && activeItem === item) {
+          assert(removedIndex >= 0, "Removed item index must be a valid index.");
+          const newActiveItemIndex = Math.max(removedIndex - 1, 0);
+          const newActiveItem = quickPick.items[newActiveItemIndex];
+          quickPick.activeItems = newActiveItem ? [newActiveItem] : [];
+        }
+      });
+      return;
+    }
+    if (button === HELP_BUTTON) {
+      await this._openerService.open(item.value);
+      return;
+    }
+    throw new Error(`Unknown button '${JSON.stringify(button)}'.`);
+  }
+};
+PromptFilePickers = __decorate([
+  __param(0, ILabelService),
+  __param(1, IQuickInputService),
+  __param(2, IOpenerService),
+  __param(3, IFileService),
+  __param(4, IDialogService),
+  __param(5, ICommandService),
+  __param(6, IInstantiationService),
+  __param(7, IPromptsService)
+], PromptFilePickers);
+export {
+  PromptFilePickers
+};
+//# sourceMappingURL=promptFilePickers.js.map

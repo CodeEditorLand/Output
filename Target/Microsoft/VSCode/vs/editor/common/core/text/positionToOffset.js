@@ -1,1 +1,17 @@
-import{$_E as t,$aF as r}from"../edits/stringEdit.js";import{$jF as e,$kF as o}from"../edits/textEdit.js";import{$dF as m}from"./positionToOffsetImpl.js";import{$RD as i}from"./textLength.js";import{$cF as F,$eF as T}from"./positionToOffsetImpl.js";m({StringEdit:t,StringReplacement:r,TextReplacement:o,TextEdit:e,TextLength:i});export{T as PositionOffsetTransformer,F as PositionOffsetTransformerBase};
+import { StringEdit, StringReplacement } from "../edits/stringEdit.js";
+import { TextEdit, TextReplacement } from "../edits/textEdit.js";
+import { _setPositionOffsetTransformerDependencies } from "./positionToOffsetImpl.js";
+import { TextLength } from "./textLength.js";
+import { PositionOffsetTransformerBase, PositionOffsetTransformer } from "./positionToOffsetImpl.js";
+_setPositionOffsetTransformerDependencies({
+  StringEdit,
+  StringReplacement,
+  TextReplacement,
+  TextEdit,
+  TextLength
+});
+export {
+  PositionOffsetTransformer,
+  PositionOffsetTransformerBase
+};
+//# sourceMappingURL=positionToOffset.js.map

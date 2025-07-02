@@ -1,2 +1,903 @@
-import{$kb as R}from"../../../base/common/errors.js";import*as L from"../../../base/common/strings.js";import{$Edb as I}from"./cursorCollection.js";import{$K_ as E,$O_ as N}from"../cursorCommon.js";import{$Cdb as P}from"./cursorContext.js";import{$Rab as M}from"./cursorDeleteOperations.js";import{$nbb as v,$mbb as w}from"./cursorTypeOperations.js";import{$ibb as $}from"./cursorTypeEditOperations.js";import{$cC as g}from"../core/range.js";import{$SC as x}from"../core/selection.js";import{$UE as D}from"../textModelEvents.js";import{$U_ as B,$4_ as V}from"../viewEvents.js";import{$qd as z,$vd as j}from"../../../base/common/lifecycle.js";import{$Ndb as F}from"../viewModelEventDispatcher.js";import{$KE as C}from"../textModelEditReason.js";class it extends j{constructor(t,s,e,n){super(),this.c=t,this.f=this.c.getVersionId(),this.g=s,this.h=e,this.context=new P(this.c,this.g,this.h,n),this.n=new I(this.context),this.t=!1,this.u=!1,this.w=null,this.y=null,this.z=[],this.C=0}dispose(){this.n.dispose(),this.z=z(this.z),super.dispose()}updateConfiguration(t){this.context=new P(this.c,this.g,this.h,t),this.n.updateContext(this.context)}onLineMappingChanged(t){this.f===this.c.getVersionId()&&this.setStates(t,"viewModel",0,this.getCursorStates())}setHasFocus(t){this.t=t}D(){if(this.z.length>0){const t=this.n.getSelections();for(let s=0;s<this.z.length;s++){const e=this.z[s];e.isValid(t)||(e.dispose(),this.z.splice(s,1),s--)}}}getPrimaryCursorState(){return this.n.getPrimaryCursor()}getLastAddedCursorIndex(){return this.n.getLastAddedCursorIndex()}getCursorStates(){return this.n.getAll()}setStates(t,s,e,n){let i=!1;const o=this.context.cursorConfig.multiCursorLimit;n!==null&&n.length>o&&(n=n.slice(0,o),i=!0);const r=k.from(this.c,this);return this.n.setStates(n),this.n.normalize(),this.y=null,this.D(),this.I(t,s,e,r,i)}setCursorColumnSelectData(t){this.y=t}revealAll(t,s,e,n,i,o){const r=this.n.getViewPositions();let l=null,u=null;r.length>1?u=this.n.getViewSelections():l=g.fromPositions(r[0],r[0]),t.emitViewEvent(new V(s,e,l,u,n,i,o))}revealPrimary(t,s,e,n,i,o){const l=[this.n.getPrimaryCursor().viewState.selection];t.emitViewEvent(new V(s,e,null,l,n,i,o))}saveState(){const t=[],s=this.n.getSelections();for(let e=0,n=s.length;e<n;e++){const i=s[e];t.push({inSelectionMode:!i.isEmpty(),selectionStart:{lineNumber:i.selectionStartLineNumber,column:i.selectionStartColumn},position:{lineNumber:i.positionLineNumber,column:i.positionColumn}})}return t}restoreState(t,s){const e=[];for(let n=0,i=s.length;n<i;n++){const o=s[n];let r=1,l=1;o.position&&o.position.lineNumber&&(r=o.position.lineNumber),o.position&&o.position.column&&(l=o.position.column);let u=r,c=l;o.selectionStart&&o.selectionStart.lineNumber&&(u=o.selectionStart.lineNumber),o.selectionStart&&o.selectionStart.column&&(c=o.selectionStart.column),e.push({selectionStartLineNumber:u,selectionStartColumn:c,positionLineNumber:r,positionColumn:l})}this.setStates(t,"restoreState",0,E.fromModelSelections(e)),this.revealAll(t,"restoreState",!1,0,!0,1)}onModelContentChanged(t,s){if(s instanceof D){if(this.u)return;this.u=!0;try{this.setStates(t,"modelChange",0,this.getCursorStates())}finally{this.u=!1}}else{const e=s.rawContentChangedEvent;if(this.f=e.versionId,this.u)return;const n=e.containsEvent(1);if(this.C=0,n)this.n.dispose(),this.n=new I(this.context),this.D(),this.I(t,"model",1,null,!1);else if(this.t&&e.resultingSelection&&e.resultingSelection.length>0){const i=E.fromModelSelections(e.resultingSelection);this.setStates(t,"modelChange",e.isUndoing?5:e.isRedoing?6:2,i)&&this.revealAll(t,"modelChange",!1,0,!0,0)}else{const i=this.n.readSelectionFromMarkers();this.setStates(t,"modelChange",2,E.fromModelSelections(i))}}}getSelection(){return this.n.getPrimaryCursor().modelState.selection}getTopMostViewPosition(){return this.n.getTopMostViewPosition()}getBottomMostViewPosition(){return this.n.getBottomMostViewPosition()}getCursorColumnSelectData(){if(this.y)return this.y;const t=this.n.getPrimaryCursor(),s=t.viewState.selectionStart.getStartPosition(),e=t.viewState.position;return{isReal:!1,fromViewLineNumber:s.lineNumber,fromViewVisualColumn:this.context.cursorConfig.visibleColumnFromColumn(this.g,s),toViewLineNumber:e.lineNumber,toViewVisualColumn:this.context.cursorConfig.visibleColumnFromColumn(this.g,e)}}getSelections(){return this.n.getSelections()}getPosition(){return this.n.getPrimaryCursor().modelState.position}setSelections(t,s,e,n){this.setStates(t,s,n,E.fromModelSelections(e))}getPrevEditOperationType(){return this.C}setPrevEditOperationType(t){this.C=t}F(t,s){const e=[],n=[];for(let r=0,l=t.length;r<l;r++)e.push({range:t[r],options:{description:"auto-closed-character",inlineClassName:"auto-closed-character",stickiness:1}}),n.push({range:s[r],options:{description:"auto-closed-enclosing",stickiness:1}});const i=this.c.deltaDecorations([],e),o=this.c.deltaDecorations([],n);this.z.push(new T(this.c,i,o))}G(t,s){if(!t)return;t.shouldPushStackElementBefore&&this.c.pushStackElement();const e=G.executeCommands(this.c,this.n.getSelections(),t.commands,s);if(e){this.H(e);const n=[],i=[];for(let o=0;o<t.commands.length;o++){const r=t.commands[o];r instanceof $&&r.enclosingRange&&r.closeCharacterRange&&(n.push(r.closeCharacterRange),i.push(r.enclosingRange))}n.length>0&&this.F(n,i),this.C=t.type}t.shouldPushStackElementAfter&&this.c.pushStackElement()}H(t){(!t||t.length===0)&&(t=this.n.readSelectionFromMarkers()),this.y=null,this.n.setSelections(t),this.n.normalize()}I(t,s,e,n,i){const o=k.from(this.c,this);if(o.equals(n))return!1;const r=this.n.getSelections(),l=this.n.getViewSelections();if(t.emitViewEvent(new B(l,r,e)),!n||n.cursorState.length!==o.cursorState.length||o.cursorState.some((u,c)=>!u.modelState.equals(n.cursorState[c].modelState))){const u=n?n.cursorState.map(h=>h.modelState.selection):null,c=n?n.modelVersionId:0;t.emitOutgoingEvent(new F(u,r,c,o.modelVersionId,s||"keyboard",e,i))}return!0}J(t){if(!t.length)return null;const s=[];for(let e=0,n=t.length;e<n;e++){const i=t[e];if(!i.text||i.text.indexOf(`
-`)>=0)return null;const o=i.text.match(/([)\]}>'"`])([^)\]}>'"`]*)$/);if(!o)return null;const r=o[1],l=this.context.cursorConfig.autoClosingPairs.autoClosingPairsCloseSingleChar.get(r);if(!l||l.length!==1)return null;const u=l[0].open,c=i.text.length-o[2].length-1,h=i.text.lastIndexOf(u,c-1);if(h===-1)return null;s.push([h,c])}return s}executeEdits(t,s,e,n,i){let o=null;s==="snippet"&&(o=this.J(e)),o&&(e[0]._isTracked=!0);const r=[],l=[],u=this.c.pushEditOperations(this.getSelections(),e,c=>{if(o)for(let m=0,d=o.length;m<d;m++){const[a,p]=o[m],S=c[m],f=S.range.startLineNumber,A=S.range.startColumn-1+a,y=S.range.startColumn-1+p;r.push(new g(f,y+1,f,y+2)),l.push(new g(f,A+1,f,y+2))}const h=n(c);return h&&(this.u=!0),h},void 0,i);u&&(this.u=!1,this.setSelections(t,s,u,0)),r.length>0&&this.F(r,l)}L(t,s,e,n=0){if(this.context.cursorConfig.readOnly)return;const i=k.from(this.c,this);this.n.stopTrackingSelections(),this.u=!0;try{this.n.ensureValidState(),t()}catch(o){R(o)}this.u=!1,this.n.startTrackingSelections(),this.D(),this.I(s,e,n,i,!1)&&this.revealAll(s,e,!1,0,!0,0)}getAutoClosedCharacters(){return T.getAllAutoClosedCharacters(this.z)}startComposition(t){this.w=new b(this.c,this.getSelections())}endComposition(t,s){const e=C.cursor({kind:"compositionEnd",detailedSource:s}),n=this.w?this.w.deduceOutcome(this.c,this.getSelections()):null;this.w=null,this.L(()=>{s==="keyboard"&&this.G(w.compositionEndWithInterceptors(this.C,this.context.cursorConfig,this.c,n,this.getSelections(),this.getAutoClosedCharacters()),e)},t,s)}type(t,s,e){const n=C.cursor({kind:"type",detailedSource:e});this.L(()=>{if(e==="keyboard"){const i=s.length;let o=0;for(;o<i;){const r=L.$cg(s,o),l=s.substr(o,r);this.G(w.typeWithInterceptors(!!this.w,this.C,this.context.cursorConfig,this.c,this.getSelections(),this.getAutoClosedCharacters(),l),n),o+=r}}else this.G(w.typeWithoutInterceptors(this.C,this.context.cursorConfig,this.c,this.getSelections(),s),n)},t,e)}compositionType(t,s,e,n,i,o){const r=C.cursor({kind:"compositionType",detailedSource:o});if(s.length===0&&e===0&&n===0){if(i!==0){const l=this.getSelections().map(u=>{const c=u.getPosition();return new x(c.lineNumber,c.column+i,c.lineNumber,c.column+i)});this.setSelections(t,o,l,0)}return}this.L(()=>{this.G(w.compositionType(this.C,this.context.cursorConfig,this.c,this.getSelections(),s,e,n,i),r)},t,o)}paste(t,s,e,n,i){const o=C.cursor({kind:"paste",detailedSource:i});this.L(()=>{this.G(w.paste(this.context.cursorConfig,this.c,this.getSelections(),s,e,n||[]),o)},t,i,4)}cut(t,s){const e=C.cursor({kind:"cut",detailedSource:s});this.L(()=>{this.G(M.cut(this.context.cursorConfig,this.c,this.getSelections()),e)},t,s)}executeCommand(t,s,e){const n=C.cursor({kind:"executeCommand",detailedSource:e});this.L(()=>{this.n.killSecondaryCursors(),this.G(new N(0,[s],{shouldPushStackElementBefore:!1,shouldPushStackElementAfter:!1}),n)},t,e)}executeCommands(t,s,e){const n=C.cursor({kind:"executeCommands",detailedSource:e});this.L(()=>{this.G(new N(0,s,{shouldPushStackElementBefore:!1,shouldPushStackElementAfter:!1}),n)},t,e)}}class k{static from(t,s){return new k(t.getVersionId(),s.getCursorStates())}constructor(t,s){this.modelVersionId=t,this.cursorState=s}equals(t){if(!t||this.modelVersionId!==t.modelVersionId||this.cursorState.length!==t.cursorState.length)return!1;for(let s=0,e=this.cursorState.length;s<e;s++)if(!this.cursorState[s].equals(t.cursorState[s]))return!1;return!0}}class T{static getAllAutoClosedCharacters(t){let s=[];for(const e of t)s=s.concat(e.getAutoClosedCharactersRanges());return s}constructor(t,s,e){this.c=t,this.d=s,this.f=e}dispose(){this.d=this.c.deltaDecorations(this.d,[]),this.f=this.c.deltaDecorations(this.f,[])}getAutoClosedCharactersRanges(){const t=[];for(let s=0;s<this.d.length;s++){const e=this.c.getDecorationRange(this.d[s]);e&&t.push(e)}return t}isValid(t){const s=[];for(let e=0;e<this.f.length;e++){const n=this.c.getDecorationRange(this.f[e]);if(n&&(s.push(n),n.startLineNumber!==n.endLineNumber))return!1}s.sort(g.compareRangesUsingStarts),t.sort(g.compareRangesUsingStarts);for(let e=0;e<t.length;e++)if(e>=s.length||!s[e].strictContainsRange(t[e]))return!1;return!0}}class G{static executeCommands(t,s,e,n=C.unknown({name:"executeCommands"})){const i={model:t,selectionsBefore:s,trackedRanges:[],trackedRangesDirection:[]},o=this.c(i,e,n);for(let r=0,l=i.trackedRanges.length;r<l;r++)i.model._setTrackedRange(i.trackedRanges[r],null,0);return o}static c(t,s,e){if(this.d(s))return null;const n=this.f(t,s);if(n.operations.length===0)return null;const i=n.operations,o=this.h(i);if(o.hasOwnProperty("0"))return null;const r=[];for(let c=0,h=i.length;c<h;c++)o.hasOwnProperty(i[c].identifier.major.toString())||r.push(i[c]);n.hadTrackedEditOperation&&r.length>0&&(r[0]._isTracked=!0);let l=t.model.pushEditOperations(t.selectionsBefore,r,c=>{const h=[];for(let a=0;a<t.selectionsBefore.length;a++)h[a]=[];for(const a of c)a.identifier&&h[a.identifier.major].push(a);const m=(a,p)=>a.identifier.minor-p.identifier.minor,d=[];for(let a=0;a<t.selectionsBefore.length;a++)h[a].length>0?(h[a].sort(m),d[a]=s[a].computeCursorState(t.model,{getInverseEditOperations:()=>h[a],getTrackedSelection:p=>{const S=parseInt(p,10),f=t.model._getTrackedRange(t.trackedRanges[S]);return t.trackedRangesDirection[S]===0?new x(f.startLineNumber,f.startColumn,f.endLineNumber,f.endColumn):new x(f.endLineNumber,f.endColumn,f.startLineNumber,f.startColumn)}})):d[a]=t.selectionsBefore[a];return d},void 0,e);l||(l=t.selectionsBefore);const u=[];for(const c in o)o.hasOwnProperty(c)&&u.push(parseInt(c,10));u.sort((c,h)=>h-c);for(const c of u)l.splice(c,1);return l}static d(t){for(let s=0,e=t.length;s<e;s++)if(t[s])return!1;return!0}static f(t,s){let e=[],n=!1;for(let i=0,o=s.length;i<o;i++){const r=s[i];if(r){const l=this.g(t,i,r);e=e.concat(l.operations),n=n||l.hadTrackedEditOperation}}return{operations:e,hadTrackedEditOperation:n}}static g(t,s,e){const n=[];let i=0;const o=(h,m,d=!1)=>{g.isEmpty(h)&&m===""||n.push({identifier:{major:s,minor:i++},range:h,text:m,forceMoveMarkers:d,isAutoWhitespaceEdit:e.insertsAutoWhitespace})};let r=!1;const c={addEditOperation:o,addTrackedEditOperation:(h,m,d)=>{r=!0,o(h,m,d)},trackSelection:(h,m)=>{const d=x.liftSelection(h);let a;if(d.isEmpty())if(typeof m=="boolean")m?a=2:a=3;else{const f=t.model.getLineMaxColumn(d.startLineNumber);d.startColumn===f?a=2:a=3}else a=1;const p=t.trackedRanges.length,S=t.model._setTrackedRange(null,d,a);return t.trackedRanges[p]=S,t.trackedRangesDirection[p]=d.getDirection(),p.toString()}};try{e.getEditOperations(t.model,c)}catch(h){return R(h),{operations:[],hadTrackedEditOperation:!1}}return{operations:n,hadTrackedEditOperation:r}}static h(t){t=t.slice(0),t.sort((e,n)=>-g.compareRangesUsingEnds(e.range,n.range));const s={};for(let e=1;e<t.length;e++){const n=t[e-1],i=t[e];if(g.getStartPosition(n.range).isBefore(g.getEndPosition(i.range))){let o;n.identifier.major>i.identifier.major?o=n.identifier.major:o=i.identifier.major,s[o.toString()]=!0;for(let r=0;r<t.length;r++)t[r].identifier.major===o&&(t.splice(r,1),r<e&&e--,r--);e>0&&e--}}return s}}class U{constructor(t,s,e,n){this.text=t,this.lineNumber=s,this.startSelectionOffset=e,this.endSelectionOffset=n}}class b{static d(t,s){const e=[];for(const n of s){if(n.startLineNumber!==n.endLineNumber)return null;const i=n.startLineNumber;e.push(new U(t.getLineContent(i),i,n.startColumn-1,n.endColumn-1))}return e}constructor(t,s){this.c=b.d(t,s)}deduceOutcome(t,s){if(!this.c)return null;const e=b.d(t,s);if(!e||this.c.length!==e.length)return null;const n=[];for(let i=0,o=this.c.length;i<o;i++)n.push(b.f(this.c[i],e[i]));return n}static f(t,s){const e=Math.min(t.startSelectionOffset,s.startSelectionOffset,L.$7f(t.text,s.text)),n=Math.min(t.text.length-t.endSelectionOffset,s.text.length-s.endSelectionOffset,L.$8f(t.text,s.text)),i=t.text.substring(e,t.text.length-n),o=e,r=s.text.length-n,l=s.text.substring(o,r),u=new g(s.lineNumber,o+1,s.lineNumber,r+1);return new v(i,t.startSelectionOffset-e,t.endSelectionOffset-e,l,s.startSelectionOffset-e,s.endSelectionOffset-e,u)}}export{it as $Xdb,G as $Ydb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import * as strings from "../../../base/common/strings.js";
+import { CursorCollection } from "./cursorCollection.js";
+import { CursorState, EditOperationResult } from "../cursorCommon.js";
+import { CursorContext } from "./cursorContext.js";
+import { DeleteOperations } from "./cursorDeleteOperations.js";
+import { CompositionOutcome, TypeOperations } from "./cursorTypeOperations.js";
+import { BaseTypeWithAutoClosingCommand } from "./cursorTypeEditOperations.js";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import { ModelInjectedTextChangedEvent } from "../textModelEvents.js";
+import { ViewCursorStateChangedEvent, ViewRevealRangeRequestEvent } from "../viewEvents.js";
+import { dispose, Disposable } from "../../../base/common/lifecycle.js";
+import { CursorStateChangedEvent } from "../viewModelEventDispatcher.js";
+import { EditReasons } from "../textModelEditReason.js";
+class CursorsController extends Disposable {
+  static {
+    __name(this, "CursorsController");
+  }
+  constructor(model, viewModel, coordinatesConverter, cursorConfig) {
+    super();
+    this._model = model;
+    this._knownModelVersionId = this._model.getVersionId();
+    this._viewModel = viewModel;
+    this._coordinatesConverter = coordinatesConverter;
+    this.context = new CursorContext(this._model, this._viewModel, this._coordinatesConverter, cursorConfig);
+    this._cursors = new CursorCollection(this.context);
+    this._hasFocus = false;
+    this._isHandling = false;
+    this._compositionState = null;
+    this._columnSelectData = null;
+    this._autoClosedActions = [];
+    this._prevEditOperationType = 0;
+  }
+  dispose() {
+    this._cursors.dispose();
+    this._autoClosedActions = dispose(this._autoClosedActions);
+    super.dispose();
+  }
+  updateConfiguration(cursorConfig) {
+    this.context = new CursorContext(this._model, this._viewModel, this._coordinatesConverter, cursorConfig);
+    this._cursors.updateContext(this.context);
+  }
+  onLineMappingChanged(eventsCollector) {
+    if (this._knownModelVersionId !== this._model.getVersionId()) {
+      return;
+    }
+    this.setStates(eventsCollector, "viewModel", 0, this.getCursorStates());
+  }
+  setHasFocus(hasFocus) {
+    this._hasFocus = hasFocus;
+  }
+  _validateAutoClosedActions() {
+    if (this._autoClosedActions.length > 0) {
+      const selections = this._cursors.getSelections();
+      for (let i = 0; i < this._autoClosedActions.length; i++) {
+        const autoClosedAction = this._autoClosedActions[i];
+        if (!autoClosedAction.isValid(selections)) {
+          autoClosedAction.dispose();
+          this._autoClosedActions.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+  // ------ some getters/setters
+  getPrimaryCursorState() {
+    return this._cursors.getPrimaryCursor();
+  }
+  getLastAddedCursorIndex() {
+    return this._cursors.getLastAddedCursorIndex();
+  }
+  getCursorStates() {
+    return this._cursors.getAll();
+  }
+  setStates(eventsCollector, source, reason, states) {
+    let reachedMaxCursorCount = false;
+    const multiCursorLimit = this.context.cursorConfig.multiCursorLimit;
+    if (states !== null && states.length > multiCursorLimit) {
+      states = states.slice(0, multiCursorLimit);
+      reachedMaxCursorCount = true;
+    }
+    const oldState = CursorModelState.from(this._model, this);
+    this._cursors.setStates(states);
+    this._cursors.normalize();
+    this._columnSelectData = null;
+    this._validateAutoClosedActions();
+    return this._emitStateChangedIfNecessary(eventsCollector, source, reason, oldState, reachedMaxCursorCount);
+  }
+  setCursorColumnSelectData(columnSelectData) {
+    this._columnSelectData = columnSelectData;
+  }
+  revealAll(eventsCollector, source, minimalReveal, verticalType, revealHorizontal, scrollType) {
+    const viewPositions = this._cursors.getViewPositions();
+    let revealViewRange = null;
+    let revealViewSelections = null;
+    if (viewPositions.length > 1) {
+      revealViewSelections = this._cursors.getViewSelections();
+    } else {
+      revealViewRange = Range.fromPositions(viewPositions[0], viewPositions[0]);
+    }
+    eventsCollector.emitViewEvent(new ViewRevealRangeRequestEvent(source, minimalReveal, revealViewRange, revealViewSelections, verticalType, revealHorizontal, scrollType));
+  }
+  revealPrimary(eventsCollector, source, minimalReveal, verticalType, revealHorizontal, scrollType) {
+    const primaryCursor = this._cursors.getPrimaryCursor();
+    const revealViewSelections = [primaryCursor.viewState.selection];
+    eventsCollector.emitViewEvent(new ViewRevealRangeRequestEvent(source, minimalReveal, null, revealViewSelections, verticalType, revealHorizontal, scrollType));
+  }
+  saveState() {
+    const result = [];
+    const selections = this._cursors.getSelections();
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      result.push({
+        inSelectionMode: !selection.isEmpty(),
+        selectionStart: {
+          lineNumber: selection.selectionStartLineNumber,
+          column: selection.selectionStartColumn
+        },
+        position: {
+          lineNumber: selection.positionLineNumber,
+          column: selection.positionColumn
+        }
+      });
+    }
+    return result;
+  }
+  restoreState(eventsCollector, states) {
+    const desiredSelections = [];
+    for (let i = 0, len = states.length; i < len; i++) {
+      const state = states[i];
+      let positionLineNumber = 1;
+      let positionColumn = 1;
+      if (state.position && state.position.lineNumber) {
+        positionLineNumber = state.position.lineNumber;
+      }
+      if (state.position && state.position.column) {
+        positionColumn = state.position.column;
+      }
+      let selectionStartLineNumber = positionLineNumber;
+      let selectionStartColumn = positionColumn;
+      if (state.selectionStart && state.selectionStart.lineNumber) {
+        selectionStartLineNumber = state.selectionStart.lineNumber;
+      }
+      if (state.selectionStart && state.selectionStart.column) {
+        selectionStartColumn = state.selectionStart.column;
+      }
+      desiredSelections.push({
+        selectionStartLineNumber,
+        selectionStartColumn,
+        positionLineNumber,
+        positionColumn
+      });
+    }
+    this.setStates(eventsCollector, "restoreState", 0, CursorState.fromModelSelections(desiredSelections));
+    this.revealAll(
+      eventsCollector,
+      "restoreState",
+      false,
+      0,
+      true,
+      1
+      /* editorCommon.ScrollType.Immediate */
+    );
+  }
+  onModelContentChanged(eventsCollector, event) {
+    if (event instanceof ModelInjectedTextChangedEvent) {
+      if (this._isHandling) {
+        return;
+      }
+      this._isHandling = true;
+      try {
+        this.setStates(eventsCollector, "modelChange", 0, this.getCursorStates());
+      } finally {
+        this._isHandling = false;
+      }
+    } else {
+      const e = event.rawContentChangedEvent;
+      this._knownModelVersionId = e.versionId;
+      if (this._isHandling) {
+        return;
+      }
+      const hadFlushEvent = e.containsEvent(
+        1
+        /* RawContentChangedType.Flush */
+      );
+      this._prevEditOperationType = 0;
+      if (hadFlushEvent) {
+        this._cursors.dispose();
+        this._cursors = new CursorCollection(this.context);
+        this._validateAutoClosedActions();
+        this._emitStateChangedIfNecessary(eventsCollector, "model", 1, null, false);
+      } else {
+        if (this._hasFocus && e.resultingSelection && e.resultingSelection.length > 0) {
+          const cursorState = CursorState.fromModelSelections(e.resultingSelection);
+          if (this.setStates(eventsCollector, "modelChange", e.isUndoing ? 5 : e.isRedoing ? 6 : 2, cursorState)) {
+            this.revealAll(
+              eventsCollector,
+              "modelChange",
+              false,
+              0,
+              true,
+              0
+              /* editorCommon.ScrollType.Smooth */
+            );
+          }
+        } else {
+          const selectionsFromMarkers = this._cursors.readSelectionFromMarkers();
+          this.setStates(eventsCollector, "modelChange", 2, CursorState.fromModelSelections(selectionsFromMarkers));
+        }
+      }
+    }
+  }
+  getSelection() {
+    return this._cursors.getPrimaryCursor().modelState.selection;
+  }
+  getTopMostViewPosition() {
+    return this._cursors.getTopMostViewPosition();
+  }
+  getBottomMostViewPosition() {
+    return this._cursors.getBottomMostViewPosition();
+  }
+  getCursorColumnSelectData() {
+    if (this._columnSelectData) {
+      return this._columnSelectData;
+    }
+    const primaryCursor = this._cursors.getPrimaryCursor();
+    const viewSelectionStart = primaryCursor.viewState.selectionStart.getStartPosition();
+    const viewPosition = primaryCursor.viewState.position;
+    return {
+      isReal: false,
+      fromViewLineNumber: viewSelectionStart.lineNumber,
+      fromViewVisualColumn: this.context.cursorConfig.visibleColumnFromColumn(this._viewModel, viewSelectionStart),
+      toViewLineNumber: viewPosition.lineNumber,
+      toViewVisualColumn: this.context.cursorConfig.visibleColumnFromColumn(this._viewModel, viewPosition)
+    };
+  }
+  getSelections() {
+    return this._cursors.getSelections();
+  }
+  getPosition() {
+    return this._cursors.getPrimaryCursor().modelState.position;
+  }
+  setSelections(eventsCollector, source, selections, reason) {
+    this.setStates(eventsCollector, source, reason, CursorState.fromModelSelections(selections));
+  }
+  getPrevEditOperationType() {
+    return this._prevEditOperationType;
+  }
+  setPrevEditOperationType(type) {
+    this._prevEditOperationType = type;
+  }
+  // ------ auxiliary handling logic
+  _pushAutoClosedAction(autoClosedCharactersRanges, autoClosedEnclosingRanges) {
+    const autoClosedCharactersDeltaDecorations = [];
+    const autoClosedEnclosingDeltaDecorations = [];
+    for (let i = 0, len = autoClosedCharactersRanges.length; i < len; i++) {
+      autoClosedCharactersDeltaDecorations.push({
+        range: autoClosedCharactersRanges[i],
+        options: {
+          description: "auto-closed-character",
+          inlineClassName: "auto-closed-character",
+          stickiness: 1
+          /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */
+        }
+      });
+      autoClosedEnclosingDeltaDecorations.push({
+        range: autoClosedEnclosingRanges[i],
+        options: {
+          description: "auto-closed-enclosing",
+          stickiness: 1
+          /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */
+        }
+      });
+    }
+    const autoClosedCharactersDecorations = this._model.deltaDecorations([], autoClosedCharactersDeltaDecorations);
+    const autoClosedEnclosingDecorations = this._model.deltaDecorations([], autoClosedEnclosingDeltaDecorations);
+    this._autoClosedActions.push(new AutoClosedAction(this._model, autoClosedCharactersDecorations, autoClosedEnclosingDecorations));
+  }
+  _executeEditOperation(opResult, editReason) {
+    if (!opResult) {
+      return;
+    }
+    if (opResult.shouldPushStackElementBefore) {
+      this._model.pushStackElement();
+    }
+    const result = CommandExecutor.executeCommands(this._model, this._cursors.getSelections(), opResult.commands, editReason);
+    if (result) {
+      this._interpretCommandResult(result);
+      const autoClosedCharactersRanges = [];
+      const autoClosedEnclosingRanges = [];
+      for (let i = 0; i < opResult.commands.length; i++) {
+        const command = opResult.commands[i];
+        if (command instanceof BaseTypeWithAutoClosingCommand && command.enclosingRange && command.closeCharacterRange) {
+          autoClosedCharactersRanges.push(command.closeCharacterRange);
+          autoClosedEnclosingRanges.push(command.enclosingRange);
+        }
+      }
+      if (autoClosedCharactersRanges.length > 0) {
+        this._pushAutoClosedAction(autoClosedCharactersRanges, autoClosedEnclosingRanges);
+      }
+      this._prevEditOperationType = opResult.type;
+    }
+    if (opResult.shouldPushStackElementAfter) {
+      this._model.pushStackElement();
+    }
+  }
+  _interpretCommandResult(cursorState) {
+    if (!cursorState || cursorState.length === 0) {
+      cursorState = this._cursors.readSelectionFromMarkers();
+    }
+    this._columnSelectData = null;
+    this._cursors.setSelections(cursorState);
+    this._cursors.normalize();
+  }
+  // -----------------------------------------------------------------------------------------------------------
+  // ----- emitting events
+  _emitStateChangedIfNecessary(eventsCollector, source, reason, oldState, reachedMaxCursorCount) {
+    const newState = CursorModelState.from(this._model, this);
+    if (newState.equals(oldState)) {
+      return false;
+    }
+    const selections = this._cursors.getSelections();
+    const viewSelections = this._cursors.getViewSelections();
+    eventsCollector.emitViewEvent(new ViewCursorStateChangedEvent(viewSelections, selections, reason));
+    if (!oldState || oldState.cursorState.length !== newState.cursorState.length || newState.cursorState.some((newCursorState, i) => !newCursorState.modelState.equals(oldState.cursorState[i].modelState))) {
+      const oldSelections = oldState ? oldState.cursorState.map((s) => s.modelState.selection) : null;
+      const oldModelVersionId = oldState ? oldState.modelVersionId : 0;
+      eventsCollector.emitOutgoingEvent(new CursorStateChangedEvent(oldSelections, selections, oldModelVersionId, newState.modelVersionId, source || "keyboard", reason, reachedMaxCursorCount));
+    }
+    return true;
+  }
+  // -----------------------------------------------------------------------------------------------------------
+  // ----- handlers beyond this point
+  _findAutoClosingPairs(edits) {
+    if (!edits.length) {
+      return null;
+    }
+    const indices = [];
+    for (let i = 0, len = edits.length; i < len; i++) {
+      const edit = edits[i];
+      if (!edit.text || edit.text.indexOf("\n") >= 0) {
+        return null;
+      }
+      const m = edit.text.match(/([)\]}>'"`])([^)\]}>'"`]*)$/);
+      if (!m) {
+        return null;
+      }
+      const closeChar = m[1];
+      const autoClosingPairsCandidates = this.context.cursorConfig.autoClosingPairs.autoClosingPairsCloseSingleChar.get(closeChar);
+      if (!autoClosingPairsCandidates || autoClosingPairsCandidates.length !== 1) {
+        return null;
+      }
+      const openChar = autoClosingPairsCandidates[0].open;
+      const closeCharIndex = edit.text.length - m[2].length - 1;
+      const openCharIndex = edit.text.lastIndexOf(openChar, closeCharIndex - 1);
+      if (openCharIndex === -1) {
+        return null;
+      }
+      indices.push([openCharIndex, closeCharIndex]);
+    }
+    return indices;
+  }
+  executeEdits(eventsCollector, source, edits, cursorStateComputer, reason) {
+    let autoClosingIndices = null;
+    if (source === "snippet") {
+      autoClosingIndices = this._findAutoClosingPairs(edits);
+    }
+    if (autoClosingIndices) {
+      edits[0]._isTracked = true;
+    }
+    const autoClosedCharactersRanges = [];
+    const autoClosedEnclosingRanges = [];
+    const selections = this._model.pushEditOperations(this.getSelections(), edits, (undoEdits) => {
+      if (autoClosingIndices) {
+        for (let i = 0, len = autoClosingIndices.length; i < len; i++) {
+          const [openCharInnerIndex, closeCharInnerIndex] = autoClosingIndices[i];
+          const undoEdit = undoEdits[i];
+          const lineNumber = undoEdit.range.startLineNumber;
+          const openCharIndex = undoEdit.range.startColumn - 1 + openCharInnerIndex;
+          const closeCharIndex = undoEdit.range.startColumn - 1 + closeCharInnerIndex;
+          autoClosedCharactersRanges.push(new Range(lineNumber, closeCharIndex + 1, lineNumber, closeCharIndex + 2));
+          autoClosedEnclosingRanges.push(new Range(lineNumber, openCharIndex + 1, lineNumber, closeCharIndex + 2));
+        }
+      }
+      const selections2 = cursorStateComputer(undoEdits);
+      if (selections2) {
+        this._isHandling = true;
+      }
+      return selections2;
+    }, void 0, reason);
+    if (selections) {
+      this._isHandling = false;
+      this.setSelections(
+        eventsCollector,
+        source,
+        selections,
+        0
+        /* CursorChangeReason.NotSet */
+      );
+    }
+    if (autoClosedCharactersRanges.length > 0) {
+      this._pushAutoClosedAction(autoClosedCharactersRanges, autoClosedEnclosingRanges);
+    }
+  }
+  _executeEdit(callback, eventsCollector, source, cursorChangeReason = 0) {
+    if (this.context.cursorConfig.readOnly) {
+      return;
+    }
+    const oldState = CursorModelState.from(this._model, this);
+    this._cursors.stopTrackingSelections();
+    this._isHandling = true;
+    try {
+      this._cursors.ensureValidState();
+      callback();
+    } catch (err) {
+      onUnexpectedError(err);
+    }
+    this._isHandling = false;
+    this._cursors.startTrackingSelections();
+    this._validateAutoClosedActions();
+    if (this._emitStateChangedIfNecessary(eventsCollector, source, cursorChangeReason, oldState, false)) {
+      this.revealAll(
+        eventsCollector,
+        source,
+        false,
+        0,
+        true,
+        0
+        /* editorCommon.ScrollType.Smooth */
+      );
+    }
+  }
+  getAutoClosedCharacters() {
+    return AutoClosedAction.getAllAutoClosedCharacters(this._autoClosedActions);
+  }
+  startComposition(eventsCollector) {
+    this._compositionState = new CompositionState(this._model, this.getSelections());
+  }
+  endComposition(eventsCollector, source) {
+    const reason = EditReasons.cursor({ kind: "compositionEnd", detailedSource: source });
+    const compositionOutcome = this._compositionState ? this._compositionState.deduceOutcome(this._model, this.getSelections()) : null;
+    this._compositionState = null;
+    this._executeEdit(() => {
+      if (source === "keyboard") {
+        this._executeEditOperation(TypeOperations.compositionEndWithInterceptors(this._prevEditOperationType, this.context.cursorConfig, this._model, compositionOutcome, this.getSelections(), this.getAutoClosedCharacters()), reason);
+      }
+    }, eventsCollector, source);
+  }
+  type(eventsCollector, text, source) {
+    const reason = EditReasons.cursor({ kind: "type", detailedSource: source });
+    this._executeEdit(() => {
+      if (source === "keyboard") {
+        const len = text.length;
+        let offset = 0;
+        while (offset < len) {
+          const charLength = strings.nextCharLength(text, offset);
+          const chr = text.substr(offset, charLength);
+          this._executeEditOperation(TypeOperations.typeWithInterceptors(!!this._compositionState, this._prevEditOperationType, this.context.cursorConfig, this._model, this.getSelections(), this.getAutoClosedCharacters(), chr), reason);
+          offset += charLength;
+        }
+      } else {
+        this._executeEditOperation(TypeOperations.typeWithoutInterceptors(this._prevEditOperationType, this.context.cursorConfig, this._model, this.getSelections(), text), reason);
+      }
+    }, eventsCollector, source);
+  }
+  compositionType(eventsCollector, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta, source) {
+    const reason = EditReasons.cursor({ kind: "compositionType", detailedSource: source });
+    if (text.length === 0 && replacePrevCharCnt === 0 && replaceNextCharCnt === 0) {
+      if (positionDelta !== 0) {
+        const newSelections = this.getSelections().map((selection) => {
+          const position = selection.getPosition();
+          return new Selection(position.lineNumber, position.column + positionDelta, position.lineNumber, position.column + positionDelta);
+        });
+        this.setSelections(
+          eventsCollector,
+          source,
+          newSelections,
+          0
+          /* CursorChangeReason.NotSet */
+        );
+      }
+      return;
+    }
+    this._executeEdit(() => {
+      this._executeEditOperation(TypeOperations.compositionType(this._prevEditOperationType, this.context.cursorConfig, this._model, this.getSelections(), text, replacePrevCharCnt, replaceNextCharCnt, positionDelta), reason);
+    }, eventsCollector, source);
+  }
+  paste(eventsCollector, text, pasteOnNewLine, multicursorText, source) {
+    const reason = EditReasons.cursor({ kind: "paste", detailedSource: source });
+    this._executeEdit(
+      () => {
+        this._executeEditOperation(TypeOperations.paste(this.context.cursorConfig, this._model, this.getSelections(), text, pasteOnNewLine, multicursorText || []), reason);
+      },
+      eventsCollector,
+      source,
+      4
+      /* CursorChangeReason.Paste */
+    );
+  }
+  cut(eventsCollector, source) {
+    const reason = EditReasons.cursor({ kind: "cut", detailedSource: source });
+    this._executeEdit(() => {
+      this._executeEditOperation(DeleteOperations.cut(this.context.cursorConfig, this._model, this.getSelections()), reason);
+    }, eventsCollector, source);
+  }
+  executeCommand(eventsCollector, command, source) {
+    const reason = EditReasons.cursor({ kind: "executeCommand", detailedSource: source });
+    this._executeEdit(() => {
+      this._cursors.killSecondaryCursors();
+      this._executeEditOperation(new EditOperationResult(0, [command], {
+        shouldPushStackElementBefore: false,
+        shouldPushStackElementAfter: false
+      }), reason);
+    }, eventsCollector, source);
+  }
+  executeCommands(eventsCollector, commands, source) {
+    const reason = EditReasons.cursor({ kind: "executeCommands", detailedSource: source });
+    this._executeEdit(() => {
+      this._executeEditOperation(new EditOperationResult(0, commands, {
+        shouldPushStackElementBefore: false,
+        shouldPushStackElementAfter: false
+      }), reason);
+    }, eventsCollector, source);
+  }
+}
+class CursorModelState {
+  static {
+    __name(this, "CursorModelState");
+  }
+  static from(model, cursor) {
+    return new CursorModelState(model.getVersionId(), cursor.getCursorStates());
+  }
+  constructor(modelVersionId, cursorState) {
+    this.modelVersionId = modelVersionId;
+    this.cursorState = cursorState;
+  }
+  equals(other) {
+    if (!other) {
+      return false;
+    }
+    if (this.modelVersionId !== other.modelVersionId) {
+      return false;
+    }
+    if (this.cursorState.length !== other.cursorState.length) {
+      return false;
+    }
+    for (let i = 0, len = this.cursorState.length; i < len; i++) {
+      if (!this.cursorState[i].equals(other.cursorState[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+class AutoClosedAction {
+  static {
+    __name(this, "AutoClosedAction");
+  }
+  static getAllAutoClosedCharacters(autoClosedActions) {
+    let autoClosedCharacters = [];
+    for (const autoClosedAction of autoClosedActions) {
+      autoClosedCharacters = autoClosedCharacters.concat(autoClosedAction.getAutoClosedCharactersRanges());
+    }
+    return autoClosedCharacters;
+  }
+  constructor(model, autoClosedCharactersDecorations, autoClosedEnclosingDecorations) {
+    this._model = model;
+    this._autoClosedCharactersDecorations = autoClosedCharactersDecorations;
+    this._autoClosedEnclosingDecorations = autoClosedEnclosingDecorations;
+  }
+  dispose() {
+    this._autoClosedCharactersDecorations = this._model.deltaDecorations(this._autoClosedCharactersDecorations, []);
+    this._autoClosedEnclosingDecorations = this._model.deltaDecorations(this._autoClosedEnclosingDecorations, []);
+  }
+  getAutoClosedCharactersRanges() {
+    const result = [];
+    for (let i = 0; i < this._autoClosedCharactersDecorations.length; i++) {
+      const decorationRange = this._model.getDecorationRange(this._autoClosedCharactersDecorations[i]);
+      if (decorationRange) {
+        result.push(decorationRange);
+      }
+    }
+    return result;
+  }
+  isValid(selections) {
+    const enclosingRanges = [];
+    for (let i = 0; i < this._autoClosedEnclosingDecorations.length; i++) {
+      const decorationRange = this._model.getDecorationRange(this._autoClosedEnclosingDecorations[i]);
+      if (decorationRange) {
+        enclosingRanges.push(decorationRange);
+        if (decorationRange.startLineNumber !== decorationRange.endLineNumber) {
+          return false;
+        }
+      }
+    }
+    enclosingRanges.sort(Range.compareRangesUsingStarts);
+    selections.sort(Range.compareRangesUsingStarts);
+    for (let i = 0; i < selections.length; i++) {
+      if (i >= enclosingRanges.length) {
+        return false;
+      }
+      if (!enclosingRanges[i].strictContainsRange(selections[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+class CommandExecutor {
+  static {
+    __name(this, "CommandExecutor");
+  }
+  static executeCommands(model, selectionsBefore, commands, editReason = EditReasons.unknown({ name: "executeCommands" })) {
+    const ctx = {
+      model,
+      selectionsBefore,
+      trackedRanges: [],
+      trackedRangesDirection: []
+    };
+    const result = this._innerExecuteCommands(ctx, commands, editReason);
+    for (let i = 0, len = ctx.trackedRanges.length; i < len; i++) {
+      ctx.model._setTrackedRange(
+        ctx.trackedRanges[i],
+        null,
+        0
+        /* TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges */
+      );
+    }
+    return result;
+  }
+  static _innerExecuteCommands(ctx, commands, editReason) {
+    if (this._arrayIsEmpty(commands)) {
+      return null;
+    }
+    const commandsData = this._getEditOperations(ctx, commands);
+    if (commandsData.operations.length === 0) {
+      return null;
+    }
+    const rawOperations = commandsData.operations;
+    const loserCursorsMap = this._getLoserCursorMap(rawOperations);
+    if (loserCursorsMap.hasOwnProperty("0")) {
+      console.warn("Ignoring commands");
+      return null;
+    }
+    const filteredOperations = [];
+    for (let i = 0, len = rawOperations.length; i < len; i++) {
+      if (!loserCursorsMap.hasOwnProperty(rawOperations[i].identifier.major.toString())) {
+        filteredOperations.push(rawOperations[i]);
+      }
+    }
+    if (commandsData.hadTrackedEditOperation && filteredOperations.length > 0) {
+      filteredOperations[0]._isTracked = true;
+    }
+    let selectionsAfter = ctx.model.pushEditOperations(ctx.selectionsBefore, filteredOperations, (inverseEditOperations) => {
+      const groupedInverseEditOperations = [];
+      for (let i = 0; i < ctx.selectionsBefore.length; i++) {
+        groupedInverseEditOperations[i] = [];
+      }
+      for (const op of inverseEditOperations) {
+        if (!op.identifier) {
+          continue;
+        }
+        groupedInverseEditOperations[op.identifier.major].push(op);
+      }
+      const minorBasedSorter = /* @__PURE__ */ __name((a, b) => {
+        return a.identifier.minor - b.identifier.minor;
+      }, "minorBasedSorter");
+      const cursorSelections = [];
+      for (let i = 0; i < ctx.selectionsBefore.length; i++) {
+        if (groupedInverseEditOperations[i].length > 0) {
+          groupedInverseEditOperations[i].sort(minorBasedSorter);
+          cursorSelections[i] = commands[i].computeCursorState(ctx.model, {
+            getInverseEditOperations: /* @__PURE__ */ __name(() => {
+              return groupedInverseEditOperations[i];
+            }, "getInverseEditOperations"),
+            getTrackedSelection: /* @__PURE__ */ __name((id) => {
+              const idx = parseInt(id, 10);
+              const range = ctx.model._getTrackedRange(ctx.trackedRanges[idx]);
+              if (ctx.trackedRangesDirection[idx] === 0) {
+                return new Selection(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
+              }
+              return new Selection(range.endLineNumber, range.endColumn, range.startLineNumber, range.startColumn);
+            }, "getTrackedSelection")
+          });
+        } else {
+          cursorSelections[i] = ctx.selectionsBefore[i];
+        }
+      }
+      return cursorSelections;
+    }, void 0, editReason);
+    if (!selectionsAfter) {
+      selectionsAfter = ctx.selectionsBefore;
+    }
+    const losingCursors = [];
+    for (const losingCursorIndex in loserCursorsMap) {
+      if (loserCursorsMap.hasOwnProperty(losingCursorIndex)) {
+        losingCursors.push(parseInt(losingCursorIndex, 10));
+      }
+    }
+    losingCursors.sort((a, b) => {
+      return b - a;
+    });
+    for (const losingCursor of losingCursors) {
+      selectionsAfter.splice(losingCursor, 1);
+    }
+    return selectionsAfter;
+  }
+  static _arrayIsEmpty(commands) {
+    for (let i = 0, len = commands.length; i < len; i++) {
+      if (commands[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  static _getEditOperations(ctx, commands) {
+    let operations = [];
+    let hadTrackedEditOperation = false;
+    for (let i = 0, len = commands.length; i < len; i++) {
+      const command = commands[i];
+      if (command) {
+        const r = this._getEditOperationsFromCommand(ctx, i, command);
+        operations = operations.concat(r.operations);
+        hadTrackedEditOperation = hadTrackedEditOperation || r.hadTrackedEditOperation;
+      }
+    }
+    return {
+      operations,
+      hadTrackedEditOperation
+    };
+  }
+  static _getEditOperationsFromCommand(ctx, majorIdentifier, command) {
+    const operations = [];
+    let operationMinor = 0;
+    const addEditOperation = /* @__PURE__ */ __name((range, text, forceMoveMarkers = false) => {
+      if (Range.isEmpty(range) && text === "") {
+        return;
+      }
+      operations.push({
+        identifier: {
+          major: majorIdentifier,
+          minor: operationMinor++
+        },
+        range,
+        text,
+        forceMoveMarkers,
+        isAutoWhitespaceEdit: command.insertsAutoWhitespace
+      });
+    }, "addEditOperation");
+    let hadTrackedEditOperation = false;
+    const addTrackedEditOperation = /* @__PURE__ */ __name((selection, text, forceMoveMarkers) => {
+      hadTrackedEditOperation = true;
+      addEditOperation(selection, text, forceMoveMarkers);
+    }, "addTrackedEditOperation");
+    const trackSelection = /* @__PURE__ */ __name((_selection, trackPreviousOnEmpty) => {
+      const selection = Selection.liftSelection(_selection);
+      let stickiness;
+      if (selection.isEmpty()) {
+        if (typeof trackPreviousOnEmpty === "boolean") {
+          if (trackPreviousOnEmpty) {
+            stickiness = 2;
+          } else {
+            stickiness = 3;
+          }
+        } else {
+          const maxLineColumn = ctx.model.getLineMaxColumn(selection.startLineNumber);
+          if (selection.startColumn === maxLineColumn) {
+            stickiness = 2;
+          } else {
+            stickiness = 3;
+          }
+        }
+      } else {
+        stickiness = 1;
+      }
+      const l = ctx.trackedRanges.length;
+      const id = ctx.model._setTrackedRange(null, selection, stickiness);
+      ctx.trackedRanges[l] = id;
+      ctx.trackedRangesDirection[l] = selection.getDirection();
+      return l.toString();
+    }, "trackSelection");
+    const editOperationBuilder = {
+      addEditOperation,
+      addTrackedEditOperation,
+      trackSelection
+    };
+    try {
+      command.getEditOperations(ctx.model, editOperationBuilder);
+    } catch (e) {
+      onUnexpectedError(e);
+      return {
+        operations: [],
+        hadTrackedEditOperation: false
+      };
+    }
+    return {
+      operations,
+      hadTrackedEditOperation
+    };
+  }
+  static _getLoserCursorMap(operations) {
+    operations = operations.slice(0);
+    operations.sort((a, b) => {
+      return -Range.compareRangesUsingEnds(a.range, b.range);
+    });
+    const loserCursorsMap = {};
+    for (let i = 1; i < operations.length; i++) {
+      const previousOp = operations[i - 1];
+      const currentOp = operations[i];
+      if (Range.getStartPosition(previousOp.range).isBefore(Range.getEndPosition(currentOp.range))) {
+        let loserMajor;
+        if (previousOp.identifier.major > currentOp.identifier.major) {
+          loserMajor = previousOp.identifier.major;
+        } else {
+          loserMajor = currentOp.identifier.major;
+        }
+        loserCursorsMap[loserMajor.toString()] = true;
+        for (let j = 0; j < operations.length; j++) {
+          if (operations[j].identifier.major === loserMajor) {
+            operations.splice(j, 1);
+            if (j < i) {
+              i--;
+            }
+            j--;
+          }
+        }
+        if (i > 0) {
+          i--;
+        }
+      }
+    }
+    return loserCursorsMap;
+  }
+}
+class CompositionLineState {
+  static {
+    __name(this, "CompositionLineState");
+  }
+  constructor(text, lineNumber, startSelectionOffset, endSelectionOffset) {
+    this.text = text;
+    this.lineNumber = lineNumber;
+    this.startSelectionOffset = startSelectionOffset;
+    this.endSelectionOffset = endSelectionOffset;
+  }
+}
+class CompositionState {
+  static {
+    __name(this, "CompositionState");
+  }
+  static _capture(textModel, selections) {
+    const result = [];
+    for (const selection of selections) {
+      if (selection.startLineNumber !== selection.endLineNumber) {
+        return null;
+      }
+      const lineNumber = selection.startLineNumber;
+      result.push(new CompositionLineState(textModel.getLineContent(lineNumber), lineNumber, selection.startColumn - 1, selection.endColumn - 1));
+    }
+    return result;
+  }
+  constructor(textModel, selections) {
+    this._original = CompositionState._capture(textModel, selections);
+  }
+  /**
+   * Returns the inserted text during this composition.
+   * If the composition resulted in existing text being changed (i.e. not a pure insertion) it returns null.
+   */
+  deduceOutcome(textModel, selections) {
+    if (!this._original) {
+      return null;
+    }
+    const current = CompositionState._capture(textModel, selections);
+    if (!current) {
+      return null;
+    }
+    if (this._original.length !== current.length) {
+      return null;
+    }
+    const result = [];
+    for (let i = 0, len = this._original.length; i < len; i++) {
+      result.push(CompositionState._deduceOutcome(this._original[i], current[i]));
+    }
+    return result;
+  }
+  static _deduceOutcome(original, current) {
+    const commonPrefix = Math.min(original.startSelectionOffset, current.startSelectionOffset, strings.commonPrefixLength(original.text, current.text));
+    const commonSuffix = Math.min(original.text.length - original.endSelectionOffset, current.text.length - current.endSelectionOffset, strings.commonSuffixLength(original.text, current.text));
+    const deletedText = original.text.substring(commonPrefix, original.text.length - commonSuffix);
+    const insertedTextStartOffset = commonPrefix;
+    const insertedTextEndOffset = current.text.length - commonSuffix;
+    const insertedText = current.text.substring(insertedTextStartOffset, insertedTextEndOffset);
+    const insertedTextRange = new Range(current.lineNumber, insertedTextStartOffset + 1, current.lineNumber, insertedTextEndOffset + 1);
+    return new CompositionOutcome(deletedText, original.startSelectionOffset - commonPrefix, original.endSelectionOffset - commonPrefix, insertedText, current.startSelectionOffset - commonPrefix, current.endSelectionOffset - commonPrefix, insertedTextRange);
+  }
+}
+export {
+  CommandExecutor,
+  CursorsController
+};
+//# sourceMappingURL=cursor.js.map

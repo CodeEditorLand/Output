@@ -1,1 +1,45 @@
-import{$4n as a}from"../../../../platform/log/common/log.js";import{$Co as l}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ao as $}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$Lz as s,$Kz as _}from"../../../../platform/extensionManagement/common/extensionsProfileScannerService.js";import{$5j as h}from"../../../../platform/files/common/files.js";import{$WB as j}from"../../../../platform/instantiation/common/extensions.js";import{$HW as v}from"../../environment/common/environmentService.js";var u=function(f,r,t,e){var n=arguments.length,o=n<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,t):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,r,t,e);else for(var c=f.length-1;c>=0;c--)(i=f[c])&&(o=(n<3?i(o):n>3?i(r,t,o):i(r,t))||o);return n>3&&o&&Object.defineProperty(r,t,o),o},m=function(f,r){return function(t,e){r(t,e,f)}};let p=class extends s{constructor(r,t,e,n,o){super(r.userRoamingDataHome,t,e,n,o)}};p=u([m(0,v),m(1,h),m(2,l),m(3,$),m(4,a)],p);j(_,p,1);export{p as $yBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { AbstractExtensionsProfileScannerService, IExtensionsProfileScannerService } from "../../../../platform/extensionManagement/common/extensionsProfileScannerService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+let ExtensionsProfileScannerService = class ExtensionsProfileScannerService2 extends AbstractExtensionsProfileScannerService {
+  static {
+    __name(this, "ExtensionsProfileScannerService");
+  }
+  constructor(environmentService, fileService, userDataProfilesService, uriIdentityService, logService) {
+    super(environmentService.userRoamingDataHome, fileService, userDataProfilesService, uriIdentityService, logService);
+  }
+};
+ExtensionsProfileScannerService = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, IFileService),
+  __param(2, IUserDataProfilesService),
+  __param(3, IUriIdentityService),
+  __param(4, ILogService)
+], ExtensionsProfileScannerService);
+registerSingleton(
+  IExtensionsProfileScannerService,
+  ExtensionsProfileScannerService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionsProfileScannerService
+};
+//# sourceMappingURL=extensionsProfileScannerService.js.map

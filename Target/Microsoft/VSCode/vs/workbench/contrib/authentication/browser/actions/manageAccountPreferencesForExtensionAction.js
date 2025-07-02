@@ -1,1 +1,175 @@
-import{Event as P}from"../../../../../base/common/event.js";import{$ud as w}from"../../../../../base/common/lifecycle.js";import{localize as i,localize2 as A}from"../../../../../nls.js";import{$CI as y}from"../../../../../platform/actions/common/actions.js";import{$bp as $}from"../../../../../platform/dialogs/common/dialogs.js";import{$mj as x}from"../../../../../platform/instantiation/common/instantiation.js";import{$4n as _}from"../../../../../platform/log/common/log.js";import{$PM as v}from"../../../../../platform/quickinput/common/quickInput.js";import{$GX as E}from"../../../../services/authentication/common/authentication.js";import{$V7b as M}from"../../../../services/authentication/common/authenticationQuery.js";import{$YO as j}from"../../../../services/extensions/common/extensions.js";var b=function(a,t,e,n){var o=arguments.length,c=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(a,t,e,n);else for(var l=a.length-1;l>=0;l--)(s=a[l])&&(c=(o<3?s(c):o>3?s(t,e,c):s(t,e))||c);return o>3&&c&&Object.defineProperty(t,e,c),c},u=function(a,t){return function(e,n){t(e,n,a)}};class W extends y{constructor(){super({id:"_manageAccountPreferencesForExtension",title:A(4724,"Manage Extension Account Preferences"),category:A(4725,"Accounts"),f1:!1})}run(t,e,n){return t.get(x).createInstance(d).run(e,n)}}let d=class{constructor(t,e,n,o,c,s){this.c=t,this.d=e,this.f=n,this.g=o,this.h=c,this.i=s}async run(t,e){if(!t)return;const n=await this.h.getExtension(t);if(!n)throw new Error(`No extension with id ${t}`);if(!e){const r=await this.g.extension(t).getProvidersWithAccess();if(!r.length){await this.f.info(i(4716,null));return}if(e=r[0],r.length>1){const h=await this.d.pick(r.map(g=>({label:this.c.getProvider(g).label,id:g})),{placeHolder:i(4717,null),title:i(4718,null)});if(!h)return;e=h.id}}const o=await this.c.getAccounts(e),c=this.g.provider(e).extension(t).getPreferredAccount(),s=this.k(o,e,c),l=this.c.getProvider(e);if(l.supportsMultipleAccounts){const p=o.flatMap(r=>this.g.provider(e).account(r.label).extension(t).getUsage()).sort((r,h)=>h.lastUsed-r.lastUsed)[0]?.scopes;p&&(s.push({type:"separator"}),s.push({providerId:e,scopes:p,label:i(4719,null)}))}const f=new w,m=this.j(f,t,n.displayName??n.name,l.label);if(s.length===0){f.add(this.l(m));return}m.items=s,m.show()}j(t,e,n,o){const c=t.add(this.d.createQuickPick({useSeparators:!0}));return t.add(c.onDidHide(()=>{t.dispose()})),c.placeholder=i(4720,null,n,o),c.title=i(4721,null,n),c.sortByLabel=!1,t.add(c.onDidAccept(async()=>{c.hide(),await this.m(e,c.selectedItems)})),c}k(t,e,n){return t.map(o=>n===o.label?{label:o.label,account:o,providerId:e,description:i(4722,null),picked:!0}:{label:o.label,account:o,providerId:e})}l(t){return t.validationMessage=i(4723,null),t.buttons=[this.d.backButton],t.show(),P.filter(t.onDidTriggerButton,e=>e===this.d.backButton)(()=>this.run())}async m(t,e){for(const n of e){let o;if(n.account)o=n.account;else try{o=(await this.c.createSession(n.providerId,[...n.scopes])).account}catch(f){this.i.error(f);continue}const c=n.providerId,s=this.g.provider(c).extension(t);s.getPreferredAccount()!==o.label&&s.setPreferredAccount(o)}}};d=b([u(0,E),u(1,v),u(2,$),u(3,M),u(4,j),u(5,_)],d);export{W as $uxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IAuthenticationService } from "../../../../services/authentication/common/authentication.js";
+import { IAuthenticationQueryService } from "../../../../services/authentication/common/authenticationQuery.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+class ManageAccountPreferencesForExtensionAction extends Action2 {
+  static {
+    __name(this, "ManageAccountPreferencesForExtensionAction");
+  }
+  constructor() {
+    super({
+      id: "_manageAccountPreferencesForExtension",
+      title: localize2("manageAccountPreferenceForExtension", "Manage Extension Account Preferences"),
+      category: localize2("accounts", "Accounts"),
+      f1: false
+    });
+  }
+  run(accessor, extensionId, providerId) {
+    return accessor.get(IInstantiationService).createInstance(ManageAccountPreferenceForExtensionActionImpl).run(extensionId, providerId);
+  }
+}
+let ManageAccountPreferenceForExtensionActionImpl = class ManageAccountPreferenceForExtensionActionImpl2 {
+  static {
+    __name(this, "ManageAccountPreferenceForExtensionActionImpl");
+  }
+  constructor(_authenticationService, _quickInputService, _dialogService, _authenticationQueryService, _extensionService, _logService) {
+    this._authenticationService = _authenticationService;
+    this._quickInputService = _quickInputService;
+    this._dialogService = _dialogService;
+    this._authenticationQueryService = _authenticationQueryService;
+    this._extensionService = _extensionService;
+    this._logService = _logService;
+  }
+  async run(extensionId, providerId) {
+    if (!extensionId) {
+      return;
+    }
+    const extension = await this._extensionService.getExtension(extensionId);
+    if (!extension) {
+      throw new Error(`No extension with id ${extensionId}`);
+    }
+    if (!providerId) {
+      const extensionQuery = this._authenticationQueryService.extension(extensionId);
+      const providersWithAccess = await extensionQuery.getProvidersWithAccess();
+      if (!providersWithAccess.length) {
+        await this._dialogService.info(localize("noAccountUsage", "This extension has not used any accounts yet."));
+        return;
+      }
+      providerId = providersWithAccess[0];
+      if (providersWithAccess.length > 1) {
+        const result = await this._quickInputService.pick(providersWithAccess.map((providerId2) => ({
+          label: this._authenticationService.getProvider(providerId2).label,
+          id: providerId2
+        })), {
+          placeHolder: localize("selectProvider", "Select an authentication provider to manage account preferences for"),
+          title: localize("pickAProviderTitle", "Manage Extension Account Preferences")
+        });
+        if (!result) {
+          return;
+        }
+        providerId = result.id;
+      }
+    }
+    const accounts = await this._authenticationService.getAccounts(providerId);
+    const currentAccountNamePreference = this._authenticationQueryService.provider(providerId).extension(extensionId).getPreferredAccount();
+    const items = this._getItems(accounts, providerId, currentAccountNamePreference);
+    const provider = this._authenticationService.getProvider(providerId);
+    if (provider.supportsMultipleAccounts) {
+      const lastUsedScopes = accounts.flatMap((account) => this._authenticationQueryService.provider(providerId).account(account.label).extension(extensionId).getUsage()).sort((a, b) => b.lastUsed - a.lastUsed)[0]?.scopes;
+      if (lastUsedScopes) {
+        items.push({ type: "separator" });
+        items.push({
+          providerId,
+          scopes: lastUsedScopes,
+          label: localize("use new account", "Use a new account...")
+        });
+      }
+    }
+    const disposables = new DisposableStore();
+    const picker = this._createQuickPick(disposables, extensionId, extension.displayName ?? extension.name, provider.label);
+    if (items.length === 0) {
+      disposables.add(this._handleNoAccounts(picker));
+      return;
+    }
+    picker.items = items;
+    picker.show();
+  }
+  _createQuickPick(disposableStore, extensionId, extensionLabel, providerLabel) {
+    const picker = disposableStore.add(this._quickInputService.createQuickPick({ useSeparators: true }));
+    disposableStore.add(picker.onDidHide(() => {
+      disposableStore.dispose();
+    }));
+    picker.placeholder = localize("placeholder v2", "Manage '{0}' account preferences for {1}...", extensionLabel, providerLabel);
+    picker.title = localize("title", "'{0}' Account Preferences For This Workspace", extensionLabel);
+    picker.sortByLabel = false;
+    disposableStore.add(picker.onDidAccept(async () => {
+      picker.hide();
+      await this._accept(extensionId, picker.selectedItems);
+    }));
+    return picker;
+  }
+  _getItems(accounts, providerId, currentAccountNamePreference) {
+    return accounts.map((a) => currentAccountNamePreference === a.label ? {
+      label: a.label,
+      account: a,
+      providerId,
+      description: localize("currentAccount", "Current account"),
+      picked: true
+    } : {
+      label: a.label,
+      account: a,
+      providerId
+    });
+  }
+  _handleNoAccounts(picker) {
+    picker.validationMessage = localize("noAccounts", "No accounts are currently used by this extension.");
+    picker.buttons = [this._quickInputService.backButton];
+    picker.show();
+    return Event.filter(picker.onDidTriggerButton, (e) => e === this._quickInputService.backButton)(() => this.run());
+  }
+  async _accept(extensionId, selectedItems) {
+    for (const item of selectedItems) {
+      let account;
+      if (!item.account) {
+        try {
+          const session = await this._authenticationService.createSession(item.providerId, [...item.scopes]);
+          account = session.account;
+        } catch (e) {
+          this._logService.error(e);
+          continue;
+        }
+      } else {
+        account = item.account;
+      }
+      const providerId = item.providerId;
+      const extensionQuery = this._authenticationQueryService.provider(providerId).extension(extensionId);
+      const currentAccountName = extensionQuery.getPreferredAccount();
+      if (currentAccountName === account.label) {
+        continue;
+      }
+      extensionQuery.setPreferredAccount(account);
+    }
+  }
+};
+ManageAccountPreferenceForExtensionActionImpl = __decorate([
+  __param(0, IAuthenticationService),
+  __param(1, IQuickInputService),
+  __param(2, IDialogService),
+  __param(3, IAuthenticationQueryService),
+  __param(4, IExtensionService),
+  __param(5, ILogService)
+], ManageAccountPreferenceForExtensionActionImpl);
+export {
+  ManageAccountPreferencesForExtensionAction
+};
+//# sourceMappingURL=manageAccountPreferencesForExtensionAction.js.map

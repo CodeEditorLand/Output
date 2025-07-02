@@ -1,1 +1,54 @@
-import"./accessibility.css";import*as r from"../../../../../nls.js";import{$Fl as c}from"../../../../../platform/configuration/common/configuration.js";import{$tC as a}from"../../../../../platform/accessibility/common/accessibility.js";import{$CI as d,$DI as n}from"../../../../../platform/actions/common/actions.js";import{$sEb as l}from"../../../accessibility/browser/accessibilityConfiguration.js";import{$q8 as m}from"../../../../../base/browser/ui/aria/aria.js";import{AccessibilityHelpNLS as o}from"../../../../../editor/common/standaloneStrings.js";class p extends d{constructor(){super({id:"editor.action.toggleScreenReaderAccessibilityMode",title:r.localize2(5918,"Toggle Screen Reader Accessibility Mode"),metadata:{description:r.localize2(5919,"Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies.")},f1:!0,keybinding:[{primary:2083,weight:210,when:l},{primary:1595,linux:{primary:1598},weight:210}]})}async run(e){const t=e.get(a),s=e.get(c),i=t.isScreenReaderOptimized();s.updateValue("editor.accessibilitySupport",i?"off":"on",2),m(i?o.screenReaderModeDisabled:o.screenReaderModeEnabled)}}n(p);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./accessibility.css";
+import * as nls from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { accessibilityHelpIsShown } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { alert } from "../../../../../base/browser/ui/aria/aria.js";
+import { AccessibilityHelpNLS } from "../../../../../editor/common/standaloneStrings.js";
+class ToggleScreenReaderMode extends Action2 {
+  static {
+    __name(this, "ToggleScreenReaderMode");
+  }
+  constructor() {
+    super({
+      id: "editor.action.toggleScreenReaderAccessibilityMode",
+      title: nls.localize2("toggleScreenReaderMode", "Toggle Screen Reader Accessibility Mode"),
+      metadata: {
+        description: nls.localize2("toggleScreenReaderModeDescription", "Toggles an optimized mode for usage with screen readers, braille devices, and other assistive technologies.")
+      },
+      f1: true,
+      keybinding: [
+        {
+          primary: 2048 | 35,
+          weight: 200 + 10,
+          when: accessibilityHelpIsShown
+        },
+        {
+          primary: 512 | 59 | 1024,
+          linux: {
+            primary: 512 | 62 | 1024
+            /* KeyMod.Shift */
+          },
+          weight: 200 + 10
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const accessibiiltyService = accessor.get(IAccessibilityService);
+    const configurationService = accessor.get(IConfigurationService);
+    const isScreenReaderOptimized = accessibiiltyService.isScreenReaderOptimized();
+    configurationService.updateValue(
+      "editor.accessibilitySupport",
+      isScreenReaderOptimized ? "off" : "on",
+      2
+      /* ConfigurationTarget.USER */
+    );
+    alert(isScreenReaderOptimized ? AccessibilityHelpNLS.screenReaderModeDisabled : AccessibilityHelpNLS.screenReaderModeEnabled);
+  }
+}
+registerAction2(ToggleScreenReaderMode);
+//# sourceMappingURL=accessibility.js.map

@@ -1,1 +1,140 @@
-import{$Tc as r}from"../../../../base/common/assert.js";import{URI as a}from"../../../../base/common/uri.js";const m="vscode-test-data";var l;(function(t){t[t.TaskOutput=0]="TaskOutput",t[t.TestOutput=1]="TestOutput",t[t.ResultMessage=2]="ResultMessage",t[t.ResultActualOutput=3]="ResultActualOutput",t[t.ResultExpectedOutput=4]="ResultExpectedOutput"})(l||(l={}));var x;(function(t){t.Results="results",t.AllOutput="output",t.Messages="message",t.Text="TestFailureMessage",t.ActualOutput="ActualOutput",t.ExpectedOutput="ExpectedOutput"})(x||(x={}));const g=t=>{const c=t.authority,[e,...u]=t.path.slice(1).split("/");if(u[0]==="message"){const s=Number(u[1]),n=t.query,o=Number(u[2]),I=u[3];if(c==="results")switch(I){case"TestFailureMessage":return{resultId:e,taskIndex:s,testExtId:n,messageIndex:o,type:2};case"ActualOutput":return{resultId:e,taskIndex:s,testExtId:n,messageIndex:o,type:3};case"ExpectedOutput":return{resultId:e,taskIndex:s,testExtId:n,messageIndex:o,type:4};case"message":}}if(u[0]==="output"){const s=t.query,n=Number(u[1]);return s?{resultId:e,taskIndex:n,testExtId:s,type:1}:{resultId:e,taskIndex:n,type:0}}},O=t=>{const c={scheme:m,authority:"results"};if(t.type===0)return a.from({...c,path:["",t.resultId,"output",t.taskIndex].join("/")});const e=(u,...s)=>a.from({...c,query:t.testExtId,path:["",u,"message",...s].join("/")});switch(t.type){case 3:return e(t.resultId,t.taskIndex,t.messageIndex,"ActualOutput");case 4:return e(t.resultId,t.taskIndex,t.messageIndex,"ExpectedOutput");case 2:return e(t.resultId,t.taskIndex,t.messageIndex,"TestFailureMessage");case 1:return a.from({...c,query:t.testExtId,path:["",t.resultId,"output",t.taskIndex].join("/")});default:r(t,"Invalid test uri")}};export{m as $Vlc,g as $Wlc,O as $Xlc,l as TestUriType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertNever } from "../../../../base/common/assert.js";
+import { URI } from "../../../../base/common/uri.js";
+const TEST_DATA_SCHEME = "vscode-test-data";
+var TestUriType;
+(function(TestUriType2) {
+  TestUriType2[TestUriType2["TaskOutput"] = 0] = "TaskOutput";
+  TestUriType2[TestUriType2["TestOutput"] = 1] = "TestOutput";
+  TestUriType2[TestUriType2["ResultMessage"] = 2] = "ResultMessage";
+  TestUriType2[TestUriType2["ResultActualOutput"] = 3] = "ResultActualOutput";
+  TestUriType2[TestUriType2["ResultExpectedOutput"] = 4] = "ResultExpectedOutput";
+})(TestUriType || (TestUriType = {}));
+var TestUriParts;
+(function(TestUriParts2) {
+  TestUriParts2["Results"] = "results";
+  TestUriParts2["AllOutput"] = "output";
+  TestUriParts2["Messages"] = "message";
+  TestUriParts2["Text"] = "TestFailureMessage";
+  TestUriParts2["ActualOutput"] = "ActualOutput";
+  TestUriParts2["ExpectedOutput"] = "ExpectedOutput";
+})(TestUriParts || (TestUriParts = {}));
+const parseTestUri = /* @__PURE__ */ __name((uri) => {
+  const type = uri.authority;
+  const [resultId, ...request] = uri.path.slice(1).split("/");
+  if (request[0] === "message") {
+    const taskIndex = Number(request[1]);
+    const testExtId = uri.query;
+    const index = Number(request[2]);
+    const part = request[3];
+    if (type === "results") {
+      switch (part) {
+        case "TestFailureMessage":
+          return {
+            resultId,
+            taskIndex,
+            testExtId,
+            messageIndex: index,
+            type: 2
+            /* TestUriType.ResultMessage */
+          };
+        case "ActualOutput":
+          return {
+            resultId,
+            taskIndex,
+            testExtId,
+            messageIndex: index,
+            type: 3
+            /* TestUriType.ResultActualOutput */
+          };
+        case "ExpectedOutput":
+          return {
+            resultId,
+            taskIndex,
+            testExtId,
+            messageIndex: index,
+            type: 4
+            /* TestUriType.ResultExpectedOutput */
+          };
+        case "message":
+      }
+    }
+  }
+  if (request[0] === "output") {
+    const testExtId = uri.query;
+    const taskIndex = Number(request[1]);
+    return testExtId ? {
+      resultId,
+      taskIndex,
+      testExtId,
+      type: 1
+      /* TestUriType.TestOutput */
+    } : {
+      resultId,
+      taskIndex,
+      type: 0
+      /* TestUriType.TaskOutput */
+    };
+  }
+  return void 0;
+}, "parseTestUri");
+const buildTestUri = /* @__PURE__ */ __name((parsed) => {
+  const uriParts = {
+    scheme: TEST_DATA_SCHEME,
+    authority: "results"
+    /* TestUriParts.Results */
+  };
+  if (parsed.type === 0) {
+    return URI.from({
+      ...uriParts,
+      path: ["", parsed.resultId, "output", parsed.taskIndex].join("/")
+    });
+  }
+  const msgRef = /* @__PURE__ */ __name((resultId, ...remaining) => URI.from({
+    ...uriParts,
+    query: parsed.testExtId,
+    path: ["", resultId, "message", ...remaining].join("/")
+  }), "msgRef");
+  switch (parsed.type) {
+    case 3:
+      return msgRef(
+        parsed.resultId,
+        parsed.taskIndex,
+        parsed.messageIndex,
+        "ActualOutput"
+        /* TestUriParts.ActualOutput */
+      );
+    case 4:
+      return msgRef(
+        parsed.resultId,
+        parsed.taskIndex,
+        parsed.messageIndex,
+        "ExpectedOutput"
+        /* TestUriParts.ExpectedOutput */
+      );
+    case 2:
+      return msgRef(
+        parsed.resultId,
+        parsed.taskIndex,
+        parsed.messageIndex,
+        "TestFailureMessage"
+        /* TestUriParts.Text */
+      );
+    case 1:
+      return URI.from({
+        ...uriParts,
+        query: parsed.testExtId,
+        path: ["", parsed.resultId, "output", parsed.taskIndex].join("/")
+      });
+    default:
+      assertNever(parsed, "Invalid test uri");
+  }
+}, "buildTestUri");
+export {
+  TEST_DATA_SCHEME,
+  TestUriType,
+  buildTestUri,
+  parseTestUri
+};
+//# sourceMappingURL=testingUri.js.map

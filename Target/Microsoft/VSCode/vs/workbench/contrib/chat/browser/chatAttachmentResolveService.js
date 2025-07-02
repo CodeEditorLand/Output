@@ -1,1 +1,253 @@
-import{$Mj as A}from"../../../../base/common/codicons.js";import{$hh as l}from"../../../../base/common/resources.js";import{URI as m}from"../../../../base/common/uri.js";import{SymbolKinds as w}from"../../../../editor/common/languages.js";import{$wF as C}from"../../../../editor/common/services/resolverService.js";import{localize as u}from"../../../../nls.js";import{$bp as E}from"../../../../platform/dialogs/common/dialogs.js";import{$5j as I}from"../../../../platform/files/common/files.js";import{$nj as S}from"../../../../platform/instantiation/common/instantiation.js";import{MarkerSeverity as P}from"../../../../platform/markers/common/markers.js";import{$zK as R}from"../../../common/editor.js";import{$II as g}from"../../../services/editor/common/editorService.js";import{$YO as M,$2O as F}from"../../../services/extensions/common/extensions.js";import{$QAb as N}from"../../../services/untitled/common/untitledTextEditorInput.js";import{$SAb as _,$RAb as O}from"../../notebook/browser/contrib/chat/notebookChatUtils.js";import{$GWb as j}from"../../notebook/browser/controller/cellOutputActions.js";import{$gAb as T}from"../../notebook/browser/notebookBrowser.js";import{$6S as b,$7S as k}from"../common/chatModel.js";import{IDiagnosticVariableEntryFilterData as d,$8P as p,PromptFileVariableKind as h}from"../common/chatVariableEntries.js";import{$sQ as D,PromptsType as v}from"../common/promptSyntax/promptTypes.js";import{$NWb as L}from"./chatPasteProviders.js";import{$nAb as U}from"./imageUtils.js";var y=function(o,t,e,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,r);else for(var f=o.length-1;f>=0;f--)(a=o[f])&&(i=(n<3?a(i):n>3?a(t,e,i):a(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},c=function(o,t){return function(e,r){t(e,r,o)}};const ut=S("IChatAttachmentResolveService");let $=class{constructor(t,e,r,n,i){this.a=t,this.b=e,this.c=r,this.d=n,this.e=i}async resolveEditorAttachContext(t){if(R(t))return await this.resolveUntitledEditorAttachContext(t);if(!t.resource)return;let e;try{e=await this.a.stat(t.resource)}catch{return}if(!e.isDirectory&&!e.isFile)return;const r=await this.resolveImageEditorAttachContext(t.resource);return r?this.d.extensions.some(n=>F(n,"chatReferenceBinaryData"))?r:void 0:await this.resolveResourceAttachContext(t.resource,e.isDirectory)}async resolveUntitledEditorAttachContext(t){if(t.resource)return await this.resolveResourceAttachContext(t.resource,!1);const e=this.b.editors.filter(r=>r instanceof N);for(const r of e)if((await r.resolve()).textEditorModel?.getValue()===t.contents)return await this.resolveResourceAttachContext(r.resource,!1)}async resolveResourceAttachContext(t,e){let r=0;if(!e){let n;try{const i=await this.c.createModelReference(t);n=i.object.getLanguageId(),i.dispose()}catch{r=2}if(/\.(svg)$/i.test(t.path)&&(r=2),n){const i=D(n);if(i===v.prompt)return p(t,h.PromptFile);if(i===v.instructions)return p(t,h.Instruction)}}return{kind:e?"directory":"file",value:t,id:t.toString(),name:l(t),omittedState:r}}async resolveImageEditorAttachContext(t,e,r){if(!t)return;if(r){if(!k(r))return}else{const s=K.exec(t.path);if(!s)return;r=V(s)}const n=l(t);let i;if(e)i=e;else{let s;try{s=await this.a.stat(t)}catch{return}const x=await this.a.readFile(t);if(s.size>30*1024*1024)throw this.e.error(u(5172,null),u(5173,null,n)),new Error("Image is too large");i=x.value}const a=/\.gif$/i.test(t.path);return(await this.resolveImageAttachContext([{id:t.toString(),name:n,data:i.buffer,icon:A.fileMedia,resource:t,mimeType:r,omittedState:a?1:0}]))[0]}resolveImageAttachContext(t){return Promise.all(t.map(async e=>({id:e.id||await L(e.data),name:e.name,fullName:e.resource?e.resource.path:void 0,value:await U(e.data,e.mimeType),icon:e.icon,kind:"image",isFile:!1,isDirectory:!1,omittedState:e.omittedState||0,references:e.resource?[{reference:e.resource,kind:"reference"}]:[]})))}resolveMarkerAttachContext(t){return t.map(e=>{let r;return"severity"in e?r=d.fromMarker(e):r={filterUri:m.revive(e.uri),filterSeverity:P.Warning},d.toEntry(r)})}resolveSymbolsAttachContext(t){return t.map(e=>{const r=m.file(e.fsPath);return{kind:"symbol",id:W(r,e.range),value:{uri:r,range:e.range},symbolKind:e.kind,icon:w.toIcon(e.kind),fullName:e.name,name:e.name}})}resolveNotebookOutputAttachContext(t){const e=T(this.b.activeEditorPane);if(!e)return[];const r=j(t.outputId,e);if(!r)return[];const n=r.pickedMimeType?.mimeType;if(n&&O.includes(n)){const i=_(r,n,e);return i?[i]:[]}return[]}};$=y([c(0,I),c(1,g),c(2,C),c(3,M),c(4,E)],$);function W(o,t){let e="";return t&&(e=`:${t.startLineNumber}`,t.startLineNumber!==t.endLineNumber&&(e+=`-${t.endLineNumber}`)),o.fsPath+e}const K=new RegExp(`\\.(${Object.keys(b).join("|")})$`,"i");function V(o){const t=o[1].toLowerCase();return b[t]}export{ut as $SWb,$ as $TWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { SymbolKinds } from "../../../../editor/common/languages.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { isUntitledResourceEditorInput } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+import { UntitledTextEditorInput } from "../../../services/untitled/common/untitledTextEditorInput.js";
+import { createNotebookOutputVariableEntry, NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT_CONST } from "../../notebook/browser/contrib/chat/notebookChatUtils.js";
+import { getOutputViewModelFromId } from "../../notebook/browser/controller/cellOutputActions.js";
+import { getNotebookEditorFromEditorPane } from "../../notebook/browser/notebookBrowser.js";
+import { CHAT_ATTACHABLE_IMAGE_MIME_TYPES, getAttachableImageExtension } from "../common/chatModel.js";
+import { IDiagnosticVariableEntryFilterData, toPromptFileVariableEntry, PromptFileVariableKind } from "../common/chatVariableEntries.js";
+import { getPromptsTypeForLanguageId, PromptsType } from "../common/promptSyntax/promptTypes.js";
+import { imageToHash } from "./chatPasteProviders.js";
+import { resizeImage } from "./imageUtils.js";
+const IChatAttachmentResolveService = createDecorator("IChatAttachmentResolveService");
+let ChatAttachmentResolveService = class ChatAttachmentResolveService2 {
+  static {
+    __name(this, "ChatAttachmentResolveService");
+  }
+  constructor(fileService, editorService, textModelService, extensionService, dialogService) {
+    this.fileService = fileService;
+    this.editorService = editorService;
+    this.textModelService = textModelService;
+    this.extensionService = extensionService;
+    this.dialogService = dialogService;
+  }
+  // --- EDITORS ---
+  async resolveEditorAttachContext(editor) {
+    if (isUntitledResourceEditorInput(editor)) {
+      return await this.resolveUntitledEditorAttachContext(editor);
+    }
+    if (!editor.resource) {
+      return void 0;
+    }
+    let stat;
+    try {
+      stat = await this.fileService.stat(editor.resource);
+    } catch {
+      return void 0;
+    }
+    if (!stat.isDirectory && !stat.isFile) {
+      return void 0;
+    }
+    const imageContext = await this.resolveImageEditorAttachContext(editor.resource);
+    if (imageContext) {
+      return this.extensionService.extensions.some((ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")) ? imageContext : void 0;
+    }
+    return await this.resolveResourceAttachContext(editor.resource, stat.isDirectory);
+  }
+  async resolveUntitledEditorAttachContext(editor) {
+    if (editor.resource) {
+      return await this.resolveResourceAttachContext(editor.resource, false);
+    }
+    const openUntitledEditors = this.editorService.editors.filter((editor2) => editor2 instanceof UntitledTextEditorInput);
+    for (const canidate of openUntitledEditors) {
+      const model = await canidate.resolve();
+      const contents = model.textEditorModel?.getValue();
+      if (contents === editor.contents) {
+        return await this.resolveResourceAttachContext(canidate.resource, false);
+      }
+    }
+    return void 0;
+  }
+  async resolveResourceAttachContext(resource, isDirectory) {
+    let omittedState = 0;
+    if (!isDirectory) {
+      let languageId;
+      try {
+        const createdModel = await this.textModelService.createModelReference(resource);
+        languageId = createdModel.object.getLanguageId();
+        createdModel.dispose();
+      } catch {
+        omittedState = 2;
+      }
+      if (/\.(svg)$/i.test(resource.path)) {
+        omittedState = 2;
+      }
+      if (languageId) {
+        const promptsType = getPromptsTypeForLanguageId(languageId);
+        if (promptsType === PromptsType.prompt) {
+          return toPromptFileVariableEntry(resource, PromptFileVariableKind.PromptFile);
+        } else if (promptsType === PromptsType.instructions) {
+          return toPromptFileVariableEntry(resource, PromptFileVariableKind.Instruction);
+        }
+      }
+    }
+    return {
+      kind: isDirectory ? "directory" : "file",
+      value: resource,
+      id: resource.toString(),
+      name: basename(resource),
+      omittedState
+    };
+  }
+  // --- IMAGES ---
+  async resolveImageEditorAttachContext(resource, data, mimeType) {
+    if (!resource) {
+      return void 0;
+    }
+    if (mimeType) {
+      if (!getAttachableImageExtension(mimeType)) {
+        return void 0;
+      }
+    } else {
+      const match = SUPPORTED_IMAGE_EXTENSIONS_REGEX.exec(resource.path);
+      if (!match) {
+        return void 0;
+      }
+      mimeType = getMimeTypeFromPath(match);
+    }
+    const fileName = basename(resource);
+    let dataBuffer;
+    if (data) {
+      dataBuffer = data;
+    } else {
+      let stat;
+      try {
+        stat = await this.fileService.stat(resource);
+      } catch {
+        return void 0;
+      }
+      const readFile = await this.fileService.readFile(resource);
+      if (stat.size > 30 * 1024 * 1024) {
+        this.dialogService.error(localize("imageTooLarge", "Image is too large"), localize("imageTooLargeMessage", "The image {0} is too large to be attached.", fileName));
+        throw new Error("Image is too large");
+      }
+      dataBuffer = readFile.value;
+    }
+    const isPartiallyOmitted = /\.gif$/i.test(resource.path);
+    const imageFileContext = await this.resolveImageAttachContext([{
+      id: resource.toString(),
+      name: fileName,
+      data: dataBuffer.buffer,
+      icon: Codicon.fileMedia,
+      resource,
+      mimeType,
+      omittedState: isPartiallyOmitted ? 1 : 0
+      /* OmittedState.NotOmitted */
+    }]);
+    return imageFileContext[0];
+  }
+  resolveImageAttachContext(images) {
+    return Promise.all(images.map(async (image) => ({
+      id: image.id || await imageToHash(image.data),
+      name: image.name,
+      fullName: image.resource ? image.resource.path : void 0,
+      value: await resizeImage(image.data, image.mimeType),
+      icon: image.icon,
+      kind: "image",
+      isFile: false,
+      isDirectory: false,
+      omittedState: image.omittedState || 0,
+      references: image.resource ? [{ reference: image.resource, kind: "reference" }] : []
+    })));
+  }
+  // --- MARKERS ---
+  resolveMarkerAttachContext(markers) {
+    return markers.map((marker) => {
+      let filter;
+      if (!("severity" in marker)) {
+        filter = { filterUri: URI.revive(marker.uri), filterSeverity: MarkerSeverity.Warning };
+      } else {
+        filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
+      }
+      return IDiagnosticVariableEntryFilterData.toEntry(filter);
+    });
+  }
+  // --- SYMBOLS ---
+  resolveSymbolsAttachContext(symbols) {
+    return symbols.map((symbol) => {
+      const resource = URI.file(symbol.fsPath);
+      return {
+        kind: "symbol",
+        id: symbolId(resource, symbol.range),
+        value: { uri: resource, range: symbol.range },
+        symbolKind: symbol.kind,
+        icon: SymbolKinds.toIcon(symbol.kind),
+        fullName: symbol.name,
+        name: symbol.name
+      };
+    });
+  }
+  // --- NOTEBOOKS ---
+  resolveNotebookOutputAttachContext(data) {
+    const notebookEditor = getNotebookEditorFromEditorPane(this.editorService.activeEditorPane);
+    if (!notebookEditor) {
+      return [];
+    }
+    const outputViewModel = getOutputViewModelFromId(data.outputId, notebookEditor);
+    if (!outputViewModel) {
+      return [];
+    }
+    const mimeType = outputViewModel.pickedMimeType?.mimeType;
+    if (mimeType && NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT_CONST.includes(mimeType)) {
+      const entry = createNotebookOutputVariableEntry(outputViewModel, mimeType, notebookEditor);
+      if (!entry) {
+        return [];
+      }
+      return [entry];
+    }
+    return [];
+  }
+};
+ChatAttachmentResolveService = __decorate([
+  __param(0, IFileService),
+  __param(1, IEditorService),
+  __param(2, ITextModelService),
+  __param(3, IExtensionService),
+  __param(4, IDialogService)
+], ChatAttachmentResolveService);
+function symbolId(resource, range) {
+  let rangePart = "";
+  if (range) {
+    rangePart = `:${range.startLineNumber}`;
+    if (range.startLineNumber !== range.endLineNumber) {
+      rangePart += `-${range.endLineNumber}`;
+    }
+  }
+  return resource.fsPath + rangePart;
+}
+__name(symbolId, "symbolId");
+const SUPPORTED_IMAGE_EXTENSIONS_REGEX = new RegExp(`\\.(${Object.keys(CHAT_ATTACHABLE_IMAGE_MIME_TYPES).join("|")})$`, "i");
+function getMimeTypeFromPath(match) {
+  const ext = match[1].toLowerCase();
+  return CHAT_ATTACHABLE_IMAGE_MIME_TYPES[ext];
+}
+__name(getMimeTypeFromPath, "getMimeTypeFromPath");
+export {
+  ChatAttachmentResolveService,
+  IChatAttachmentResolveService
+};
+//# sourceMappingURL=chatAttachmentResolveService.js.map

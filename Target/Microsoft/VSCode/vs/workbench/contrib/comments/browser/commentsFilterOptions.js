@@ -1,1 +1,29 @@
-import{$yj as i,$zj as r}from"../../../../base/common/filters.js";import*as h from"../../../../base/common/strings.js";class c{static{this._filter=r}static{this._messageFilter=i}constructor(t,e,o){this.filter=t,this.showResolved=!0,this.showUnresolved=!0,t=t.trim(),this.showResolved=e,this.showUnresolved=o;const s=t.startsWith("!");this.textFilter={text:(s?h.$If(t,"!"):t).trim(),negate:s}}}export{c as $81b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { matchesFuzzy, matchesFuzzy2 } from "../../../../base/common/filters.js";
+import * as strings from "../../../../base/common/strings.js";
+class FilterOptions {
+  static {
+    __name(this, "FilterOptions");
+  }
+  static {
+    this._filter = matchesFuzzy2;
+  }
+  static {
+    this._messageFilter = matchesFuzzy;
+  }
+  constructor(filter, showResolved, showUnresolved) {
+    this.filter = filter;
+    this.showResolved = true;
+    this.showUnresolved = true;
+    filter = filter.trim();
+    this.showResolved = showResolved;
+    this.showUnresolved = showUnresolved;
+    const negate = filter.startsWith("!");
+    this.textFilter = { text: (negate ? strings.ltrim(filter, "!") : filter).trim(), negate };
+  }
+}
+export {
+  FilterOptions
+};
+//# sourceMappingURL=commentsFilterOptions.js.map

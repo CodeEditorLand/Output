@@ -1,1 +1,195 @@
-import{CancellationToken as $}from"../../../../base/common/cancellation.js";import{FuzzyScore as M}from"../../../../base/common/filters.js";import{Iterable as h}from"../../../../base/common/iterator.js";import{$vd as R,$yd as k}from"../../../../base/common/lifecycle.js";import{$oab as j}from"../../../browser/services/codeEditorService.js";import{$cC as p}from"../../../common/core/range.js";import{$yhb as P}from"../../../common/editorFeatures.js";import{$tT as S}from"../../../common/services/languageFeatures.js";import{$$jb as _,$0jb as x}from"./completionModel.js";import{$Zjb as O,$4jb as z,$7jb as T}from"./suggest.js";import{$glb as v}from"./suggestMemory.js";import{$bkb as y}from"./suggestModel.js";import{$9jb as E}from"./wordDistance.js";import{$Efb as D}from"../../../../platform/clipboard/common/clipboardService.js";var I=function(c,t,e,i){var r=arguments.length,o=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,t,e,i);else for(var n=c.length-1;n>=0;n--)(l=c[n])&&(o=(r<3?l(o):r>3?l(t,e,o):l(t,e))||o);return r>3&&o&&Object.defineProperty(t,e,o),o},d=function(c,t){return function(e,i){t(e,i,c)}};class L{constructor(t,e,i,r,o,l,n){this.range=t,this.insertText=e,this.filterText=i,this.additionalTextEdits=r,this.command=o,this.action=l,this.completion=n}}let b=class extends k{constructor(t,e,i,r,o,l){super(o.disposable),this.model=t,this.line=e,this.word=i,this.completionModel=r,this.c=l}canBeReused(t,e,i){return this.model===t&&this.line===e&&this.word.word.length>0&&this.word.startColumn===i.startColumn&&this.word.endColumn<i.endColumn&&this.completionModel.getIncompleteProvider().size===0}get items(){const t=[],{items:e}=this.completionModel,i=this.c.select(this.model,{lineNumber:this.line,column:this.word.endColumn+this.completionModel.lineContext.characterCountDelta},e),r=h.slice(e,i),o=h.slice(e,0,i);let l=5;for(const n of h.concat(r,o)){if(n.score===M.Default)continue;const f=new p(n.editStart.lineNumber,n.editStart.column,n.editInsertEnd.lineNumber,n.editInsertEnd.column+this.completionModel.lineContext.characterCountDelta),s=n.completion.insertTextRules&&n.completion.insertTextRules&4?{snippet:n.completion.insertText}:n.completion.insertText;t.push(new L(f,s,n.filterTextLow??n.labelLow,n.completion.additionalTextEdits,n.completion.command,n.completion.action,n)),l-->=0&&n.resolve($.None)}return t}};b=I([d(5,v)],b);let g=class extends R{constructor(t,e,i,r){super(),this.b=t,this.c=e,this.f=i,this.g=r,this.q.add(t.inlineCompletionsProvider.register("*",this))}async provideInlineCompletions(t,e,i,r){if(i.selectedSuggestionInfo)return;let o;for(const m of this.g.listCodeEditors())if(m.getModel()===t){o=m;break}if(!o)return;const l=o.getOption(99);if(T.isAllOff(l))return;t.tokenization.tokenizeIfCheap(e.lineNumber);const n=t.tokenization.getLineTokens(e.lineNumber),f=n.getStandardTokenType(n.findTokenIndexAtOffset(Math.max(e.column-1-1,0)));if(T.valueFor(l,f)!=="inline")return;let s=t.getWordAtPosition(e),a;if(s?.word||(a=this.h(t,e)),!s?.word&&!a||(s||(s=t.getWordUntilPosition(e)),s.endColumn!==e.column))return;let u;const C=t.getValueInRange(new p(e.lineNumber,1,e.lineNumber,e.column));if(!a&&this.a?.canBeReused(t,e.lineNumber,s)){const m=new x(C,e.column-this.a.word.endColumn);this.a.completionModel.lineContext=m,this.a.acquire(),u=this.a}else{const m=await z(this.b.completionProvider,t,e,new O(void 0,y.createSuggestFilter(o).itemKind,a?.providers),a&&{triggerKind:1,triggerCharacter:a.ch},r);let w;m.needsClipboard&&(w=await this.c.readText());const N=new _(m.items,e.column,new x(C,0),E.None,o.getOption(128),o.getOption(122),{boostFullMatch:!1,firstMatchCanBeWeak:!1},w);u=new b(t,e.lineNumber,s,N,m,this.f)}return this.a=u,u}handleItemDidShow(t,e){e.completion.resolve($.None)}disposeInlineCompletions(t){t.release()}h(t,e){const i=t.getValueInRange(p.fromPositions({lineNumber:e.lineNumber,column:e.column-1},e)),r=new Set;for(const o of this.b.completionProvider.all(t))o.triggerCharacters?.includes(i)&&r.add(o);if(r.size!==0)return{providers:r,ch:i}}};g=I([d(0,S),d(1,D),d(2,v),d(3,j)],g);P(g);export{g as $ktb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { Disposable, RefCountedDisposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { Range } from "../../../common/core/range.js";
+import { registerEditorFeature } from "../../../common/editorFeatures.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CompletionModel, LineContext } from "./completionModel.js";
+import { CompletionOptions, provideSuggestionItems, QuickSuggestionsOptions } from "./suggest.js";
+import { ISuggestMemoryService } from "./suggestMemory.js";
+import { SuggestModel } from "./suggestModel.js";
+import { WordDistance } from "./wordDistance.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+class SuggestInlineCompletion {
+  static {
+    __name(this, "SuggestInlineCompletion");
+  }
+  constructor(range, insertText, filterText, additionalTextEdits, command, action, completion) {
+    this.range = range;
+    this.insertText = insertText;
+    this.filterText = filterText;
+    this.additionalTextEdits = additionalTextEdits;
+    this.command = command;
+    this.action = action;
+    this.completion = completion;
+  }
+}
+let InlineCompletionResults = class InlineCompletionResults2 extends RefCountedDisposable {
+  static {
+    __name(this, "InlineCompletionResults");
+  }
+  constructor(model, line, word, completionModel, completions, _suggestMemoryService) {
+    super(completions.disposable);
+    this.model = model;
+    this.line = line;
+    this.word = word;
+    this.completionModel = completionModel;
+    this._suggestMemoryService = _suggestMemoryService;
+  }
+  canBeReused(model, line, word) {
+    return this.model === model && this.line === line && this.word.word.length > 0 && this.word.startColumn === word.startColumn && this.word.endColumn < word.endColumn && this.completionModel.getIncompleteProvider().size === 0;
+  }
+  get items() {
+    const result = [];
+    const { items } = this.completionModel;
+    const selectedIndex = this._suggestMemoryService.select(this.model, { lineNumber: this.line, column: this.word.endColumn + this.completionModel.lineContext.characterCountDelta }, items);
+    const first = Iterable.slice(items, selectedIndex);
+    const second = Iterable.slice(items, 0, selectedIndex);
+    let resolveCount = 5;
+    for (const item of Iterable.concat(first, second)) {
+      if (item.score === FuzzyScore.Default) {
+        continue;
+      }
+      const range = new Range(
+        item.editStart.lineNumber,
+        item.editStart.column,
+        item.editInsertEnd.lineNumber,
+        item.editInsertEnd.column + this.completionModel.lineContext.characterCountDelta
+        // end PLUS character delta
+      );
+      const insertText = item.completion.insertTextRules && item.completion.insertTextRules & 4 ? { snippet: item.completion.insertText } : item.completion.insertText;
+      result.push(new SuggestInlineCompletion(range, insertText, item.filterTextLow ?? item.labelLow, item.completion.additionalTextEdits, item.completion.command, item.completion.action, item));
+      if (resolveCount-- >= 0) {
+        item.resolve(CancellationToken.None);
+      }
+    }
+    return result;
+  }
+};
+InlineCompletionResults = __decorate([
+  __param(5, ISuggestMemoryService)
+], InlineCompletionResults);
+let SuggestInlineCompletions = class SuggestInlineCompletions2 extends Disposable {
+  static {
+    __name(this, "SuggestInlineCompletions");
+  }
+  constructor(_languageFeatureService, _clipboardService, _suggestMemoryService, _editorService) {
+    super();
+    this._languageFeatureService = _languageFeatureService;
+    this._clipboardService = _clipboardService;
+    this._suggestMemoryService = _suggestMemoryService;
+    this._editorService = _editorService;
+    this._store.add(_languageFeatureService.inlineCompletionsProvider.register("*", this));
+  }
+  async provideInlineCompletions(model, position, context, token) {
+    if (context.selectedSuggestionInfo) {
+      return;
+    }
+    let editor;
+    for (const candidate of this._editorService.listCodeEditors()) {
+      if (candidate.getModel() === model) {
+        editor = candidate;
+        break;
+      }
+    }
+    if (!editor) {
+      return;
+    }
+    const config = editor.getOption(
+      99
+      /* EditorOption.quickSuggestions */
+    );
+    if (QuickSuggestionsOptions.isAllOff(config)) {
+      return;
+    }
+    model.tokenization.tokenizeIfCheap(position.lineNumber);
+    const lineTokens = model.tokenization.getLineTokens(position.lineNumber);
+    const tokenType = lineTokens.getStandardTokenType(lineTokens.findTokenIndexAtOffset(Math.max(position.column - 1 - 1, 0)));
+    if (QuickSuggestionsOptions.valueFor(config, tokenType) !== "inline") {
+      return void 0;
+    }
+    let wordInfo = model.getWordAtPosition(position);
+    let triggerCharacterInfo;
+    if (!wordInfo?.word) {
+      triggerCharacterInfo = this._getTriggerCharacterInfo(model, position);
+    }
+    if (!wordInfo?.word && !triggerCharacterInfo) {
+      return;
+    }
+    if (!wordInfo) {
+      wordInfo = model.getWordUntilPosition(position);
+    }
+    if (wordInfo.endColumn !== position.column) {
+      return;
+    }
+    let result;
+    const leadingLineContents = model.getValueInRange(new Range(position.lineNumber, 1, position.lineNumber, position.column));
+    if (!triggerCharacterInfo && this._lastResult?.canBeReused(model, position.lineNumber, wordInfo)) {
+      const newLineContext = new LineContext(leadingLineContents, position.column - this._lastResult.word.endColumn);
+      this._lastResult.completionModel.lineContext = newLineContext;
+      this._lastResult.acquire();
+      result = this._lastResult;
+    } else {
+      const completions = await provideSuggestionItems(this._languageFeatureService.completionProvider, model, position, new CompletionOptions(void 0, SuggestModel.createSuggestFilter(editor).itemKind, triggerCharacterInfo?.providers), triggerCharacterInfo && { triggerKind: 1, triggerCharacter: triggerCharacterInfo.ch }, token);
+      let clipboardText;
+      if (completions.needsClipboard) {
+        clipboardText = await this._clipboardService.readText();
+      }
+      const completionModel = new CompletionModel(completions.items, position.column, new LineContext(leadingLineContents, 0), WordDistance.None, editor.getOption(
+        128
+        /* EditorOption.suggest */
+      ), editor.getOption(
+        122
+        /* EditorOption.snippetSuggestions */
+      ), { boostFullMatch: false, firstMatchCanBeWeak: false }, clipboardText);
+      result = new InlineCompletionResults(model, position.lineNumber, wordInfo, completionModel, completions, this._suggestMemoryService);
+    }
+    this._lastResult = result;
+    return result;
+  }
+  handleItemDidShow(_completions, item) {
+    item.completion.resolve(CancellationToken.None);
+  }
+  disposeInlineCompletions(result) {
+    result.release();
+  }
+  _getTriggerCharacterInfo(model, position) {
+    const ch = model.getValueInRange(Range.fromPositions({ lineNumber: position.lineNumber, column: position.column - 1 }, position));
+    const providers = /* @__PURE__ */ new Set();
+    for (const provider of this._languageFeatureService.completionProvider.all(model)) {
+      if (provider.triggerCharacters?.includes(ch)) {
+        providers.add(provider);
+      }
+    }
+    if (providers.size === 0) {
+      return void 0;
+    }
+    return { providers, ch };
+  }
+};
+SuggestInlineCompletions = __decorate([
+  __param(0, ILanguageFeaturesService),
+  __param(1, IClipboardService),
+  __param(2, ISuggestMemoryService),
+  __param(3, ICodeEditorService)
+], SuggestInlineCompletions);
+registerEditorFeature(SuggestInlineCompletions);
+export {
+  SuggestInlineCompletions
+};
+//# sourceMappingURL=suggestInlineCompletions.js.map

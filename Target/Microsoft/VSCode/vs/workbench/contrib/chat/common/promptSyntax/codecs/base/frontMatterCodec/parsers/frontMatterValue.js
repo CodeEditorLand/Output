@@ -1,1 +1,132 @@
-import{$_Q as h,$$Q as p}from"../tokens/frontMatterBoolean.js";import{$8Q as m}from"../tokens/frontMatterToken.js";import{$BR as d}from"./frontMatterSequence.js";import{$6Q as $}from"../tokens/frontMatterSequence.js";import{Word as R,Quote as o,DoubleQuote as f,LeftBracket as a}from"../../simpleCodec/tokens/tokens.js";import{$zR as x,$yR as T}from"../../simpleCodec/parserBase.js";var l=function(u,e,t,n){var i=arguments.length,r=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(u,e,t,n);else for(var c=u.length-1;c>=0;c--)(s=u[c])&&(r=(i<3?s(r):i>3?s(e,t,r):s(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r};const P=Object.freeze([o,f,a]);class b extends T{get tokens(){return this.e===void 0?[]:this.e.tokens}constructor(e,t){super(),this.f=e,this.g=t}accept(e){if(this.e!==void 0){const n=this.e.accept(e),{result:i,wasTokenConsumed:r}=n;if(this.a=this.e.consumed,i==="success"){const{nextParser:s}=n;return s instanceof m?{result:"success",nextParser:s,wasTokenConsumed:r}:(this.e=s,{result:"success",nextParser:this,wasTokenConsumed:r})}return{result:"failure",wasTokenConsumed:r}}if(e instanceof o||e instanceof f)return this.e=this.f.createString(e),{result:"success",nextParser:this,wasTokenConsumed:!0};if(e instanceof a)return this.e=this.f.createArray(e),{result:"success",nextParser:this,wasTokenConsumed:!0};const t=p.tryFromToken(e);return t!==null?(this.a=!0,{result:"success",nextParser:t,wasTokenConsumed:!0}):(this.e=this.f.createSequence(this.g),this.accept(e))}static isValueStartToken(e){for(const t of P)if(e instanceof t)return!0;return e instanceof R&&h(e)!==null}get isSequence(){return this.e===void 0?!1:this.e instanceof d}asSequenceToken(){return this.a=!0,new $(this.tokens)}}l([x],b.prototype,"accept",null);export{P as $FR,b as $GR};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { asBoolean, FrontMatterBoolean } from "../tokens/frontMatterBoolean.js";
+import { FrontMatterValueToken } from "../tokens/frontMatterToken.js";
+import { PartialFrontMatterSequence } from "./frontMatterSequence.js";
+import { FrontMatterSequence } from "../tokens/frontMatterSequence.js";
+import { Word, Quote, DoubleQuote, LeftBracket } from "../../simpleCodec/tokens/tokens.js";
+import { assertNotConsumed, ParserBase } from "../../simpleCodec/parserBase.js";
+const VALID_VALUE_START_TOKENS = Object.freeze([
+  Quote,
+  DoubleQuote,
+  LeftBracket
+]);
+class PartialFrontMatterValue extends ParserBase {
+  static {
+    __name(this, "PartialFrontMatterValue");
+  }
+  /**
+   * Get the tokens that were accumulated so far.
+   */
+  get tokens() {
+    if (this.currentValueParser === void 0) {
+      return [];
+    }
+    return this.currentValueParser.tokens;
+  }
+  constructor(factory, shouldStop) {
+    super();
+    this.factory = factory;
+    this.shouldStop = shouldStop;
+  }
+  accept(token) {
+    if (this.currentValueParser !== void 0) {
+      const acceptResult = this.currentValueParser.accept(token);
+      const { result, wasTokenConsumed } = acceptResult;
+      this.isConsumed = this.currentValueParser.consumed;
+      if (result === "success") {
+        const { nextParser } = acceptResult;
+        if (nextParser instanceof FrontMatterValueToken) {
+          return {
+            result: "success",
+            nextParser,
+            wasTokenConsumed
+          };
+        }
+        this.currentValueParser = nextParser;
+        return {
+          result: "success",
+          nextParser: this,
+          wasTokenConsumed
+        };
+      }
+      return {
+        result: "failure",
+        wasTokenConsumed
+      };
+    }
+    if (token instanceof Quote || token instanceof DoubleQuote) {
+      this.currentValueParser = this.factory.createString(token);
+      return {
+        result: "success",
+        nextParser: this,
+        wasTokenConsumed: true
+      };
+    }
+    if (token instanceof LeftBracket) {
+      this.currentValueParser = this.factory.createArray(token);
+      return {
+        result: "success",
+        nextParser: this,
+        wasTokenConsumed: true
+      };
+    }
+    const maybeBoolean = FrontMatterBoolean.tryFromToken(token);
+    if (maybeBoolean !== null) {
+      this.isConsumed = true;
+      return {
+        result: "success",
+        nextParser: maybeBoolean,
+        wasTokenConsumed: true
+      };
+    }
+    this.currentValueParser = this.factory.createSequence(this.shouldStop);
+    return this.accept(token);
+  }
+  /**
+   * Check if provided token can be a start of a "value" sequence.
+   * See {@link VALID_VALUE_START_TOKENS} for the list of valid tokens.
+   */
+  static isValueStartToken(token) {
+    for (const ValidToken of VALID_VALUE_START_TOKENS) {
+      if (token instanceof ValidToken) {
+        return true;
+      }
+    }
+    if (token instanceof Word && asBoolean(token) !== null) {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Check if the current 'value' sequence does not have a specific type
+   * and is represented by a generic sequence of tokens ({@link PartialFrontMatterSequence}).
+   */
+  get isSequence() {
+    if (this.currentValueParser === void 0) {
+      return false;
+    }
+    return this.currentValueParser instanceof PartialFrontMatterSequence;
+  }
+  /**
+   * Convert current parser into a generic sequence of tokens.
+   */
+  asSequenceToken() {
+    this.isConsumed = true;
+    return new FrontMatterSequence(this.tokens);
+  }
+}
+__decorate([
+  assertNotConsumed
+], PartialFrontMatterValue.prototype, "accept", null);
+export {
+  PartialFrontMatterValue,
+  VALID_VALUE_START_TOKENS
+};
+//# sourceMappingURL=frontMatterValue.js.map

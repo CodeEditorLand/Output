@@ -1,1 +1,22 @@
-import*as o from"../../../../nls.js";import{$qp as l}from"../colorUtils.js";import{$Ip as r,$Jp as t}from"./baseColors.js";import{$ds as n,$bs as e}from"./inputColors.js";import{$Js as c,$Ks as u}from"./listColors.js";const p=l("menu.border",{dark:null,light:null,hcDark:r,hcLight:r},o.localize(2514,null)),$=l("menu.foreground",n,o.localize(2515,null)),h=l("menu.background",e,o.localize(2516,null)),d=l("menu.selectionForeground",u,o.localize(2517,null)),g=l("menu.selectionBackground",c,o.localize(2518,null)),k=l("menu.selectionBorder",{dark:null,light:null,hcDark:t,hcLight:t},o.localize(2519,null)),f=l("menu.separatorBackground",{dark:"#606060",light:"#D4D4D4",hcDark:r,hcLight:r},o.localize(2520,null));export{p as $dt,$ as $et,h as $ft,d as $gt,g as $ht,k as $it,f as $jt};
+import * as nls from "../../../../nls.js";
+import { registerColor } from "../colorUtils.js";
+import { contrastBorder, activeContrastBorder } from "./baseColors.js";
+import { selectForeground, selectBackground } from "./inputColors.js";
+import { listActiveSelectionBackground, listActiveSelectionForeground } from "./listColors.js";
+const menuBorder = registerColor("menu.border", { dark: null, light: null, hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("menuBorder", "Border color of menus."));
+const menuForeground = registerColor("menu.foreground", selectForeground, nls.localize("menuForeground", "Foreground color of menu items."));
+const menuBackground = registerColor("menu.background", selectBackground, nls.localize("menuBackground", "Background color of menu items."));
+const menuSelectionForeground = registerColor("menu.selectionForeground", listActiveSelectionForeground, nls.localize("menuSelectionForeground", "Foreground color of the selected menu item in menus."));
+const menuSelectionBackground = registerColor("menu.selectionBackground", listActiveSelectionBackground, nls.localize("menuSelectionBackground", "Background color of the selected menu item in menus."));
+const menuSelectionBorder = registerColor("menu.selectionBorder", { dark: null, light: null, hcDark: activeContrastBorder, hcLight: activeContrastBorder }, nls.localize("menuSelectionBorder", "Border color of the selected menu item in menus."));
+const menuSeparatorBackground = registerColor("menu.separatorBackground", { dark: "#606060", light: "#D4D4D4", hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("menuSeparatorBackground", "Color of a separator menu item in menus."));
+export {
+  menuBackground,
+  menuBorder,
+  menuForeground,
+  menuSelectionBackground,
+  menuSelectionBorder,
+  menuSelectionForeground,
+  menuSeparatorBackground
+};
+//# sourceMappingURL=menuColors.js.map

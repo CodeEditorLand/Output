@@ -1,1 +1,137 @@
-import{$Mj as k}from"../../../../../base/common/codicons.js";import{localize as t,localize2 as x}from"../../../../../nls.js";import{$CI as T,$xI as y,$DI as h}from"../../../../../platform/actions/common/actions.js";import{$Cn as E}from"../../../../../platform/contextkey/common/contextkey.js";import{$mj as I}from"../../../../../platform/instantiation/common/instantiation.js";import{$Ro as A}from"../../../../../platform/telemetry/common/telemetry.js";import{ChatContextKeys as d}from"../../common/chatContextKeys.js";import{$HAb as W}from"../../common/chatViewModel.js";import{ChatModeKind as b}from"../../common/constants.js";import{$eQ as z}from"../../common/languageModelToolsService.js";import{$VWb as $}from"../chat.js";import{ToolsScope as u}from"../chatSelectedTools.js";import{$gEb as M}from"./chatActions.js";import{$REb as K}from"./chatToolPicker.js";const F="workbench.action.chat.acceptTool";class q extends T{constructor(){super({id:F,title:x(5058,"Accept"),f1:!1,category:M,keybinding:{when:E.and(d.inChatSession,d.Editing.hasToolConfirmation),primary:2051,weight:201}})}run(i,...m){const r=i.get($).lastFocusedWidget,s=r?.viewModel?.getItems().at(-1);if(!W(s))return;const e=s.model.response.value.find(o=>o.kind==="toolInvocation"&&!o.isConfirmed);e&&e.confirmed.complete(!0),r?.focusInput()}}class R extends T{constructor(){super({id:"workbench.action.chat.configureTools",title:t(5052,null),icon:k.tools,f1:!1,category:M,precondition:d.chatModeKind.isEqualTo(b.Agent),menu:[{when:d.chatModeKind.isEqualTo(b.Agent),id:y.ChatExecute,group:"navigation",order:1}]})}async run(i,...m){const p=i.get(I),r=i.get($),s=i.get(A);let e=r.lastFocusedWidget;if(!e){let l=function(n){return n&&typeof n=="object"&&n.widget};var j=l;const a=m[0];l(a)&&(e=a.widget)}if(!e)return;let o,c;const{entriesScope:v,entriesMap:C}=e.input.selectedToolsModel;switch(v){case u.Session:o=t(5053,null),c=t(5054,null);break;case u.Mode:o=t(5055,null),c=t(5056,null,e.input.currentModeObs.get().name);break;case u.Global:o=t(5057,null),c=void 0;break}const g=await p.invokeFunction(K,o,c,C.get(),l=>{const a=[],n=[];for(const[f,S]of l)S||(f instanceof z?a.push(f):n.push(f))});g&&e.input.selectedToolsModel.set(g,!1),s.publicLog2("chat/selectedTools",{total:e.input.selectedToolsModel.entriesMap.get().size,enabled:e.input.selectedToolsModel.entries.get().size})}}function Z(){h(q),h(R)}export{F as $SEb,Z as $TEb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChatContextKeys } from "../../common/chatContextKeys.js";
+import { isResponseVM } from "../../common/chatViewModel.js";
+import { ChatModeKind } from "../../common/constants.js";
+import { ToolSet } from "../../common/languageModelToolsService.js";
+import { IChatWidgetService } from "../chat.js";
+import { ToolsScope } from "../chatSelectedTools.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { showToolsPicker } from "./chatToolPicker.js";
+const AcceptToolConfirmationActionId = "workbench.action.chat.acceptTool";
+class AcceptToolConfirmation extends Action2 {
+  static {
+    __name(this, "AcceptToolConfirmation");
+  }
+  constructor() {
+    super({
+      id: AcceptToolConfirmationActionId,
+      title: localize2("chat.accept", "Accept"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        when: ContextKeyExpr.and(ChatContextKeys.inChatSession, ChatContextKeys.Editing.hasToolConfirmation),
+        primary: 2048 | 3,
+        // Override chatEditor.action.accept
+        weight: 200 + 1
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const widget = chatWidgetService.lastFocusedWidget;
+    const lastItem = widget?.viewModel?.getItems().at(-1);
+    if (!isResponseVM(lastItem)) {
+      return;
+    }
+    const unconfirmedToolInvocation = lastItem.model.response.value.find((item) => item.kind === "toolInvocation" && !item.isConfirmed);
+    if (unconfirmedToolInvocation) {
+      unconfirmedToolInvocation.confirmed.complete(true);
+    }
+    widget?.focusInput();
+  }
+}
+class ConfigureToolsAction extends Action2 {
+  static {
+    __name(this, "ConfigureToolsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.configureTools",
+      title: localize("label", "Configure Tools..."),
+      icon: Codicon.tools,
+      f1: false,
+      category: CHAT_CATEGORY,
+      precondition: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
+      menu: [{
+        when: ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Agent),
+        id: MenuId.ChatExecute,
+        group: "navigation",
+        order: 1
+      }]
+    });
+  }
+  async run(accessor, ...args) {
+    const instaService = accessor.get(IInstantiationService);
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const telemetryService = accessor.get(ITelemetryService);
+    let widget = chatWidgetService.lastFocusedWidget;
+    if (!widget) {
+      let isChatActionContext2 = function(obj) {
+        return obj && typeof obj === "object" && obj.widget;
+      };
+      var isChatActionContext = isChatActionContext2;
+      __name(isChatActionContext2, "isChatActionContext");
+      const context = args[0];
+      if (isChatActionContext2(context)) {
+        widget = context.widget;
+      }
+    }
+    if (!widget) {
+      return;
+    }
+    let placeholder;
+    let description;
+    const { entriesScope, entriesMap } = widget.input.selectedToolsModel;
+    switch (entriesScope) {
+      case ToolsScope.Session:
+        placeholder = localize("chat.tools.placeholder.session", "Select tools for this chat session");
+        description = localize("chat.tools.description.session", "The selected tools were configured by a prompt command and only apply to this chat session.");
+        break;
+      case ToolsScope.Mode:
+        placeholder = localize("chat.tools.placeholder.mode", "Select tools for this chat mode");
+        description = localize("chat.tools.description.mode", "The selected tools are configured by the '{0}' chat mode. Changes to the tools will be applied to the mode file as well.", widget.input.currentModeObs.get().name);
+        break;
+      case ToolsScope.Global:
+        placeholder = localize("chat.tools.placeholder.global", "Select tools that are available to chat.");
+        description = void 0;
+        break;
+    }
+    const result = await instaService.invokeFunction(showToolsPicker, placeholder, description, entriesMap.get(), (newEntriesMap) => {
+      const disableToolSets = [];
+      const disableTools = [];
+      for (const [item, enabled] of newEntriesMap) {
+        if (!enabled) {
+          if (item instanceof ToolSet) {
+            disableToolSets.push(item);
+          } else {
+            disableTools.push(item);
+          }
+        }
+      }
+    });
+    if (result) {
+      widget.input.selectedToolsModel.set(result, false);
+    }
+    telemetryService.publicLog2("chat/selectedTools", {
+      total: widget.input.selectedToolsModel.entriesMap.get().size,
+      enabled: widget.input.selectedToolsModel.entries.get().size
+    });
+  }
+}
+function registerChatToolActions() {
+  registerAction2(AcceptToolConfirmation);
+  registerAction2(ConfigureToolsAction);
+}
+__name(registerChatToolActions, "registerChatToolActions");
+export {
+  AcceptToolConfirmationActionId,
+  registerChatToolActions
+};
+//# sourceMappingURL=chatToolActions.js.map

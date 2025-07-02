@@ -1,1 +1,257 @@
-import*as d from"../../../base/browser/dom.js";import{$37 as C}from"../../../base/browser/ui/actionbar/actionbar.js";import{$vd as B,$ud as W,$wd as _}from"../../../base/common/lifecycle.js";import"./actionWidget.css";import{localize as x,localize2 as m}from"../../../nls.js";import{$Shb as k,$Uhb as E,$Thb as O}from"./actionList.js";import{$CI as v,$DI as g}from"../../actions/common/actions.js";import{$Wn as P,$Vn as A}from"../../contextkey/common/contextkey.js";import{$Ffb as N}from"../../contextview/browser/contextView.js";import{$WB as j}from"../../instantiation/common/extensions.js";import{$nj as D,$mj as I}from"../../instantiation/common/instantiation.js";import{$2r as L,$qp as M}from"../../theme/common/colorRegistry.js";var S=function(i,e,o,n){var c=arguments.length,t=c<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,o):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,o,n);else for(var s=i.length-1;s>=0;s--)(r=i[s])&&(t=(c<3?r(t):c>3?r(e,o,t):r(e,o))||t);return c>3&&t&&Object.defineProperty(e,o,t),t},y=function(i,e){return function(o,n){e(o,n,i)}};M("actionBar.toggledBackground",L,x(1791,null));const l={Visible:new A("codeActionMenuVisible",!1,x(1792,null))},h=D("actionWidgetService");let u=class extends B{get isVisible(){return l.Visible.getValue(this.c)||!1}constructor(e,o,n){super(),this.b=e,this.c=o,this.f=n,this.a=this.B(new _)}show(e,o,n,c,t,r,s,w){const a=l.Visible.bindTo(this.c),$=this.f.createInstance(E,e,o,n,c,w);this.b.showContextView({getAnchor:()=>t,render:f=>(a.set(!0),this.g(f,$,s??[])),onHide:f=>{a.reset(),this.j(f)}},r,!1)}acceptSelected(e){this.a.value?.acceptSelected(e)}focusPrevious(){this.a?.value?.focusPrevious()}focusNext(){this.a?.value?.focusNext()}hide(e){this.a.value?.hide(e),this.a.clear()}clear(){this.a.clear()}g(e,o,n){const c=document.createElement("div");if(c.classList.add("action-widget"),e.appendChild(c),this.a.value=o,this.a.value)c.appendChild(this.a.value.domNode);else throw new Error("List has no value");const t=new W,r=document.createElement("div"),s=e.appendChild(r);s.classList.add("context-view-block"),t.add(d.$Z5(s,d.$V6.MOUSE_DOWN,p=>p.stopPropagation()));const w=document.createElement("div"),a=e.appendChild(w);a.classList.add("context-view-pointerBlock"),t.add(d.$Z5(a,d.$V6.POINTER_MOVE,()=>a.remove())),t.add(d.$Z5(a,d.$V6.MOUSE_DOWN,()=>a.remove()));let $=0;if(n.length){const p=this.h(".action-widget-action-bar",n);p&&(c.appendChild(p.getContainer().parentElement),t.add(p),$=p.getContainer().offsetWidth)}const f=this.a.value?.layout($);c.style.width=`${f}px`;const V=t.add(d.$16(e));return t.add(V.onDidBlur(()=>this.hide(!0))),t}h(e,o){if(!o.length)return;const n=d.$(e),c=new C(n);return c.push(o,{icon:!1,label:!0}),c}j(e){this.a.value?.hide(e)}};u=S([y(0,N),y(1,P),y(2,I)],u);j(h,u,1);const b=1100;g(class extends v{constructor(){super({id:"hideCodeActionWidget",title:m(1793,"Hide action widget"),precondition:l.Visible,keybinding:{weight:b,primary:9,secondary:[1033]}})}run(i){i.get(h).hide(!0)}});g(class extends v{constructor(){super({id:"selectPrevCodeAction",title:m(1794,"Select previous action"),precondition:l.Visible,keybinding:{weight:b,primary:16,secondary:[2064],mac:{primary:16,secondary:[2064,302]}}})}run(i){const e=i.get(h);e instanceof u&&e.focusPrevious()}});g(class extends v{constructor(){super({id:"selectNextCodeAction",title:m(1795,"Select next action"),precondition:l.Visible,keybinding:{weight:b,primary:18,secondary:[2066],mac:{primary:18,secondary:[2066,300]}}})}run(i){const e=i.get(h);e instanceof u&&e.focusNext()}});g(class extends v{constructor(){super({id:k,title:m(1796,"Accept selected action"),precondition:l.Visible,keybinding:{weight:b,primary:3,secondary:[2137]}})}run(i){const e=i.get(h);e instanceof u&&e.acceptSelected()}});g(class extends v{constructor(){super({id:O,title:m(1797,"Preview selected action"),precondition:l.Visible,keybinding:{weight:b,primary:2051}})}run(i){const e=i.get(h);e instanceof u&&e.acceptSelected(!0)}});export{h as $Vhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../base/browser/dom.js";
+import { ActionBar } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../base/common/lifecycle.js";
+import "./actionWidget.css";
+import { localize, localize2 } from "../../../nls.js";
+import { acceptSelectedActionCommand, ActionList, previewSelectedActionCommand } from "./actionList.js";
+import { Action2, registerAction2 } from "../../actions/common/actions.js";
+import { IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IContextViewService } from "../../contextview/browser/contextView.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { createDecorator, IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { inputActiveOptionBackground, registerColor } from "../../theme/common/colorRegistry.js";
+registerColor("actionBar.toggledBackground", inputActiveOptionBackground, localize("actionBar.toggledBackground", "Background color for toggled action items in action bar."));
+const ActionWidgetContextKeys = {
+  Visible: new RawContextKey("codeActionMenuVisible", false, localize("codeActionMenuVisible", "Whether the action widget list is visible"))
+};
+const IActionWidgetService = createDecorator("actionWidgetService");
+let ActionWidgetService = class ActionWidgetService2 extends Disposable {
+  static {
+    __name(this, "ActionWidgetService");
+  }
+  get isVisible() {
+    return ActionWidgetContextKeys.Visible.getValue(this._contextKeyService) || false;
+  }
+  constructor(_contextViewService, _contextKeyService, _instantiationService) {
+    super();
+    this._contextViewService = _contextViewService;
+    this._contextKeyService = _contextKeyService;
+    this._instantiationService = _instantiationService;
+    this._list = this._register(new MutableDisposable());
+  }
+  show(user, supportsPreview, items, delegate, anchor, container, actionBarActions, accessibilityProvider) {
+    const visibleContext = ActionWidgetContextKeys.Visible.bindTo(this._contextKeyService);
+    const list = this._instantiationService.createInstance(ActionList, user, supportsPreview, items, delegate, accessibilityProvider);
+    this._contextViewService.showContextView({
+      getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
+      render: /* @__PURE__ */ __name((container2) => {
+        visibleContext.set(true);
+        return this._renderWidget(container2, list, actionBarActions ?? []);
+      }, "render"),
+      onHide: /* @__PURE__ */ __name((didCancel) => {
+        visibleContext.reset();
+        this._onWidgetClosed(didCancel);
+      }, "onHide")
+    }, container, false);
+  }
+  acceptSelected(preview) {
+    this._list.value?.acceptSelected(preview);
+  }
+  focusPrevious() {
+    this._list?.value?.focusPrevious();
+  }
+  focusNext() {
+    this._list?.value?.focusNext();
+  }
+  hide(didCancel) {
+    this._list.value?.hide(didCancel);
+    this._list.clear();
+  }
+  clear() {
+    this._list.clear();
+  }
+  _renderWidget(element, list, actionBarActions) {
+    const widget = document.createElement("div");
+    widget.classList.add("action-widget");
+    element.appendChild(widget);
+    this._list.value = list;
+    if (this._list.value) {
+      widget.appendChild(this._list.value.domNode);
+    } else {
+      throw new Error("List has no value");
+    }
+    const renderDisposables = new DisposableStore();
+    const menuBlock = document.createElement("div");
+    const block = element.appendChild(menuBlock);
+    block.classList.add("context-view-block");
+    renderDisposables.add(dom.addDisposableListener(block, dom.EventType.MOUSE_DOWN, (e) => e.stopPropagation()));
+    const pointerBlockDiv = document.createElement("div");
+    const pointerBlock = element.appendChild(pointerBlockDiv);
+    pointerBlock.classList.add("context-view-pointerBlock");
+    renderDisposables.add(dom.addDisposableListener(pointerBlock, dom.EventType.POINTER_MOVE, () => pointerBlock.remove()));
+    renderDisposables.add(dom.addDisposableListener(pointerBlock, dom.EventType.MOUSE_DOWN, () => pointerBlock.remove()));
+    let actionBarWidth = 0;
+    if (actionBarActions.length) {
+      const actionBar = this._createActionBar(".action-widget-action-bar", actionBarActions);
+      if (actionBar) {
+        widget.appendChild(actionBar.getContainer().parentElement);
+        renderDisposables.add(actionBar);
+        actionBarWidth = actionBar.getContainer().offsetWidth;
+      }
+    }
+    const width = this._list.value?.layout(actionBarWidth);
+    widget.style.width = `${width}px`;
+    const focusTracker = renderDisposables.add(dom.trackFocus(element));
+    renderDisposables.add(focusTracker.onDidBlur(() => this.hide(true)));
+    return renderDisposables;
+  }
+  _createActionBar(className, actions) {
+    if (!actions.length) {
+      return void 0;
+    }
+    const container = dom.$(className);
+    const actionBar = new ActionBar(container);
+    actionBar.push(actions, { icon: false, label: true });
+    return actionBar;
+  }
+  _onWidgetClosed(didCancel) {
+    this._list.value?.hide(didCancel);
+  }
+};
+ActionWidgetService = __decorate([
+  __param(0, IContextViewService),
+  __param(1, IContextKeyService),
+  __param(2, IInstantiationService)
+], ActionWidgetService);
+registerSingleton(
+  IActionWidgetService,
+  ActionWidgetService,
+  1
+  /* InstantiationType.Delayed */
+);
+const weight = 100 + 1e3;
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "hideCodeActionWidget",
+      title: localize2("hideCodeActionWidget.title", "Hide action widget"),
+      precondition: ActionWidgetContextKeys.Visible,
+      keybinding: {
+        weight,
+        primary: 9,
+        secondary: [
+          1024 | 9
+          /* KeyCode.Escape */
+        ]
+      }
+    });
+  }
+  run(accessor) {
+    accessor.get(IActionWidgetService).hide(true);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "selectPrevCodeAction",
+      title: localize2("selectPrevCodeAction.title", "Select previous action"),
+      precondition: ActionWidgetContextKeys.Visible,
+      keybinding: {
+        weight,
+        primary: 16,
+        secondary: [
+          2048 | 16
+          /* KeyCode.UpArrow */
+        ],
+        mac: { primary: 16, secondary: [
+          2048 | 16,
+          256 | 46
+          /* KeyCode.KeyP */
+        ] }
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.focusPrevious();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "selectNextCodeAction",
+      title: localize2("selectNextCodeAction.title", "Select next action"),
+      precondition: ActionWidgetContextKeys.Visible,
+      keybinding: {
+        weight,
+        primary: 18,
+        secondary: [
+          2048 | 18
+          /* KeyCode.DownArrow */
+        ],
+        mac: { primary: 18, secondary: [
+          2048 | 18,
+          256 | 44
+          /* KeyCode.KeyN */
+        ] }
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.focusNext();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: acceptSelectedActionCommand,
+      title: localize2("acceptSelected.title", "Accept selected action"),
+      precondition: ActionWidgetContextKeys.Visible,
+      keybinding: {
+        weight,
+        primary: 3,
+        secondary: [
+          2048 | 89
+          /* KeyCode.Period */
+        ]
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.acceptSelected();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: previewSelectedActionCommand,
+      title: localize2("previewSelected.title", "Preview selected action"),
+      precondition: ActionWidgetContextKeys.Visible,
+      keybinding: {
+        weight,
+        primary: 2048 | 3
+      }
+    });
+  }
+  run(accessor) {
+    const widgetService = accessor.get(IActionWidgetService);
+    if (widgetService instanceof ActionWidgetService) {
+      widgetService.acceptSelected(true);
+    }
+  }
+});
+export {
+  IActionWidgetService
+};
+//# sourceMappingURL=actionWidget.js.map

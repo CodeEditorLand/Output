@@ -1,1 +1,95 @@
-import{$eJ as l}from"../../../platform/progress/common/progress.js";import{$BY as u,$CY as $}from"../common/extHost.protocol.js";import{$9yb as g}from"../../services/extensions/common/extHostCustomers.js";import{$Zn as b}from"../../../platform/commands/common/commands.js";import{localize as y}from"../../../nls.js";import{$lb as P}from"../../../base/common/errors.js";import{$fm as _}from"../../../base/common/actions.js";import{NotificationPriority as h}from"../../../platform/notification/common/notification.js";var p=function(i,t,r,o){var s=arguments.length,e=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(i,t,r,o);else for(var n=i.length-1;n>=0;n--)(c=i[n])&&(e=(s<3?c(e):s>3?c(t,r,e):c(t,r))||e);return s>3&&e&&Object.defineProperty(t,r,e),e},f=function(i,t){return function(r,o){t(r,o,i)}},a;let m=class{static{a=this}static{this.a=["vscode.github-authentication","vscode.microsoft-authentication"]}constructor(t,r,o){this.e=o,this.c=new Map,this.d=t.getProxy($.ExtHostProgress),this.b=r}dispose(){this.c.forEach(t=>t.resolve()),this.c.clear()}async $startProgress(t,r,o){const s=this.f(t);if(r.location===15&&o){const e=a.a.includes(o);r={...r,priority:e?h.URGENT:h.DEFAULT,location:15,secondaryActions:[_({id:o,label:y(2783,null),run:()=>this.e.executeCommand("_extensions.manage",o)})]}}try{this.b.withProgress(r,s,()=>this.d.$acceptProgressCanceled(t))}catch(e){P(e)}}$progressReport(t,r){this.c.get(t)?.progress.report(r)}$progressEnd(t){const r=this.c.get(t);r&&(r.resolve(),this.c.delete(t))}f(t){return r=>new Promise(o=>{this.c.set(t,{resolve:o,progress:r})})}};m=a=p([g(u.MainThreadProgress),f(1,l),f(2,b)],m);export{m as $NZb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadProgress_1;
+import { IProgressService } from "../../../platform/progress/common/progress.js";
+import { MainContext, ExtHostContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { localize } from "../../../nls.js";
+import { onUnexpectedExternalError } from "../../../base/common/errors.js";
+import { toAction } from "../../../base/common/actions.js";
+import { NotificationPriority } from "../../../platform/notification/common/notification.js";
+let MainThreadProgress = class MainThreadProgress2 {
+  static {
+    __name(this, "MainThreadProgress");
+  }
+  static {
+    MainThreadProgress_1 = this;
+  }
+  static {
+    this.URGENT_PROGRESS_SOURCES = [
+      "vscode.github-authentication",
+      "vscode.microsoft-authentication"
+    ];
+  }
+  constructor(extHostContext, progressService, _commandService) {
+    this._commandService = _commandService;
+    this._progress = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostProgress);
+    this._progressService = progressService;
+  }
+  dispose() {
+    this._progress.forEach((handle) => handle.resolve());
+    this._progress.clear();
+  }
+  async $startProgress(handle, options, extensionId) {
+    const task = this._createTask(handle);
+    if (options.location === 15 && extensionId) {
+      const sourceIsUrgent = MainThreadProgress_1.URGENT_PROGRESS_SOURCES.includes(extensionId);
+      const notificationOptions = {
+        ...options,
+        priority: sourceIsUrgent ? NotificationPriority.URGENT : NotificationPriority.DEFAULT,
+        location: 15,
+        secondaryActions: [toAction({
+          id: extensionId,
+          label: localize("manageExtension", "Manage Extension"),
+          run: /* @__PURE__ */ __name(() => this._commandService.executeCommand("_extensions.manage", extensionId), "run")
+        })]
+      };
+      options = notificationOptions;
+    }
+    try {
+      this._progressService.withProgress(options, task, () => this._proxy.$acceptProgressCanceled(handle));
+    } catch (err) {
+      onUnexpectedExternalError(err);
+    }
+  }
+  $progressReport(handle, message) {
+    const entry = this._progress.get(handle);
+    entry?.progress.report(message);
+  }
+  $progressEnd(handle) {
+    const entry = this._progress.get(handle);
+    if (entry) {
+      entry.resolve();
+      this._progress.delete(handle);
+    }
+  }
+  _createTask(handle) {
+    return (progress) => {
+      return new Promise((resolve) => {
+        this._progress.set(handle, { resolve, progress });
+      });
+    };
+  }
+};
+MainThreadProgress = MainThreadProgress_1 = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadProgress),
+  __param(1, IProgressService),
+  __param(2, ICommandService)
+], MainThreadProgress);
+export {
+  MainThreadProgress
+};
+//# sourceMappingURL=mainThreadProgress.js.map

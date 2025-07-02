@@ -1,1 +1,94 @@
-import{$Xb as d}from"../../../../base/common/arrays.js";import{$Mj as v}from"../../../../base/common/codicons.js";import{$vd as k}from"../../../../base/common/lifecycle.js";import{$ah as C}from"../../../../base/common/resources.js";import{localize as l}from"../../../../nls.js";import{$mj as $}from"../../../../platform/instantiation/common/instantiation.js";import{$jI as y}from"../../../../platform/label/common/label.js";import{$pD as _,MarkerSeverity as m}from"../../../../platform/markers/common/markers.js";import{$ibc as I}from"../../chat/browser/chatContextPickService.js";import{IDiagnosticVariableEntryFilterData as f}from"../../chat/common/chatVariableEntries.js";var b=function(s,r,t,n){var o=arguments.length,e=o<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,t):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,r,t,n);else for(var c=s.length-1;c>=0;c--)(i=s[c])&&(e=(o<3?i(e):o>3?i(r,t,e):i(r,t))||e);return o>3&&e&&Object.defineProperty(r,t,e),e},p=function(s,r){return function(t,n){r(t,n,s)}};let u=class{constructor(r,t){this.c=r,this.d=t,this.type="pickerPick",this.label=l(8648,null),this.icon=v.error,this.ordinal=-100}asPicker(){const r=this.c.read({severities:m.Error|m.Warning|m.Info}),t=d(r,(i,c)=>C.compare(i.resource,c.resource)),n=new Set,o=[];let e=0;for(const i of t){const c=i[0].resource;o.push({type:"separator",label:this.d.getUriLabel(c,{relative:!0})});for(const a of i)e++,n.add(a.severity),o.push({label:a.message,description:l(8649,null,""+a.startLineNumber,""+a.startColumn),asAttachment(){return f.toEntry(f.fromMarker(a))}})}return o.unshift({label:l(8650,null),asAttachment(){return f.toEntry({filterSeverity:m.Info})}}),{placeholder:l(8651,null),picks:Promise.resolve(o)}}};u=b([p(0,_),p(1,y)],u);let h=class extends k{static{this.ID="workbench.contrib.chat.markerChatContextContribution"}constructor(r,t){super(),this.q.add(r.registerChatContextItem(t.createInstance(u)))}};h=b([p(0,I),p(1,$)],h);export{h as $wqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { groupBy } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { extUri } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IChatContextPickService } from "../../chat/browser/chatContextPickService.js";
+import { IDiagnosticVariableEntryFilterData } from "../../chat/common/chatVariableEntries.js";
+let MarkerChatContextPick = class MarkerChatContextPick2 {
+  static {
+    __name(this, "MarkerChatContextPick");
+  }
+  constructor(_markerService, _labelService) {
+    this._markerService = _markerService;
+    this._labelService = _labelService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.diagnstic", "Problems...");
+    this.icon = Codicon.error;
+    this.ordinal = -100;
+  }
+  asPicker() {
+    const markers = this._markerService.read({ severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info });
+    const grouped = groupBy(markers, (a, b) => extUri.compare(a.resource, b.resource));
+    const severities = /* @__PURE__ */ new Set();
+    const items = [];
+    let pickCount = 0;
+    for (const group of grouped) {
+      const resource = group[0].resource;
+      items.push({ type: "separator", label: this._labelService.getUriLabel(resource, { relative: true }) });
+      for (const marker of group) {
+        pickCount++;
+        severities.add(marker.severity);
+        items.push({
+          label: marker.message,
+          description: localize("markers.panel.at.ln.col.number", "[Ln {0}, Col {1}]", "" + marker.startLineNumber, "" + marker.startColumn),
+          asAttachment() {
+            return IDiagnosticVariableEntryFilterData.toEntry(IDiagnosticVariableEntryFilterData.fromMarker(marker));
+          }
+        });
+      }
+    }
+    items.unshift({
+      label: localize("markers.panel.allErrors", "All Problems"),
+      asAttachment() {
+        return IDiagnosticVariableEntryFilterData.toEntry({
+          filterSeverity: MarkerSeverity.Info
+        });
+      }
+    });
+    return {
+      placeholder: localize("chatContext.diagnstic.placeholder", "Select a problem to attach"),
+      picks: Promise.resolve(items)
+    };
+  }
+};
+MarkerChatContextPick = __decorate([
+  __param(0, IMarkerService),
+  __param(1, ILabelService)
+], MarkerChatContextPick);
+let MarkerChatContextContribution = class MarkerChatContextContribution2 extends Disposable {
+  static {
+    __name(this, "MarkerChatContextContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chat.markerChatContextContribution";
+  }
+  constructor(contextPickService, instantiationService) {
+    super();
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(MarkerChatContextPick)));
+  }
+};
+MarkerChatContextContribution = __decorate([
+  __param(0, IChatContextPickService),
+  __param(1, IInstantiationService)
+], MarkerChatContextContribution);
+export {
+  MarkerChatContextContribution
+};
+//# sourceMappingURL=markersChatContext.js.map

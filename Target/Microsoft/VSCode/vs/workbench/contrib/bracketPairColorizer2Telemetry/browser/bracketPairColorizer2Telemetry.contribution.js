@@ -1,1 +1,54 @@
-import{$kb as f}from"../../../../base/common/errors.js";import{$Fl as m}from"../../../../platform/configuration/common/configuration.js";import{$Rl as h}from"../../../../platform/registry/common/platform.js";import{$Ro as u}from"../../../../platform/telemetry/common/telemetry.js";import{Extensions as p}from"../../../common/contributions.js";import{$tDb as d}from"../../extensions/common/extensions.js";var b=function(i,e,t,o){var n=arguments.length,r=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,e,t,o);else for(var c=i.length-1;c>=0;c--)(a=i[c])&&(r=(n<3?a(r):n>3?a(e,t,r):a(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},l=function(i,e){return function(t,o){e(t,o,i)}};let s=class{constructor(e,t,o){this.a=e,this.b=t,this.c=o,this.d().catch(f)}async d(){const e="coenraads.bracket-pair-colorizer-2";await this.b.queryLocal();const t=this.b.installed.find(r=>r.identifier.id===e);if(!t||t.enablementState!==11&&t.enablementState!==12)return;const n=!!this.a.getValue("editor.bracketPairColorization.enabled");this.c.publicLog2("bracketPairColorizerTwoUsage",{nativeColorizationEnabled:n})}};s=b([l(0,m),l(1,d),l(2,u)],s);h.as(p.Workbench).registerWorkbenchContribution(s,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+let BracketPairColorizer2TelemetryContribution = class BracketPairColorizer2TelemetryContribution2 {
+  static {
+    __name(this, "BracketPairColorizer2TelemetryContribution");
+  }
+  constructor(configurationService, extensionsWorkbenchService, telemetryService) {
+    this.configurationService = configurationService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.telemetryService = telemetryService;
+    this.init().catch(onUnexpectedError);
+  }
+  async init() {
+    const bracketPairColorizerId = "coenraads.bracket-pair-colorizer-2";
+    await this.extensionsWorkbenchService.queryLocal();
+    const extension = this.extensionsWorkbenchService.installed.find((e) => e.identifier.id === bracketPairColorizerId);
+    if (!extension || extension.enablementState !== 11 && extension.enablementState !== 12) {
+      return;
+    }
+    const nativeBracketPairColorizationEnabledKey = "editor.bracketPairColorization.enabled";
+    const nativeColorizationEnabled = !!this.configurationService.getValue(nativeBracketPairColorizationEnabledKey);
+    this.telemetryService.publicLog2("bracketPairColorizerTwoUsage", {
+      nativeColorizationEnabled
+    });
+  }
+};
+BracketPairColorizer2TelemetryContribution = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IExtensionsWorkbenchService),
+  __param(2, ITelemetryService)
+], BracketPairColorizer2TelemetryContribution);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  BracketPairColorizer2TelemetryContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+//# sourceMappingURL=bracketPairColorizer2Telemetry.contribution.js.map

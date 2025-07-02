@@ -1,1 +1,68 @@
-import{$nj as s}from"../../../../platform/instantiation/common/instantiation.js";import{$oK as u}from"../../../common/editor.js";var r;(function(o){o.Null="null",o.Enum="enum",o.String="string",o.MultilineString="multiline-string",o.Integer="integer",o.Number="number",o.Boolean="boolean",o.Array="array",o.Exclude="exclude",o.Include="include",o.Complex="complex",o.NullableInteger="nullable-integer",o.NullableNumber="nullable-number",o.Object="object",o.BooleanObject="boolean-object",o.LanguageTag="language-tag",o.ExtensionToggle="extension-toggle",o.ComplexObject="complex-object"})(r||(r={}));var n;(function(o){o[o.None=0]="None",o[o.LanguageTagSettingMatch=1]="LanguageTagSettingMatch",o[o.RemoteMatch=2]="RemoteMatch",o[o.NonContiguousQueryInSettingId=4]="NonContiguousQueryInSettingId",o[o.DescriptionOrValueMatch=8]="DescriptionOrValueMatch",o[o.NonContiguousWordsInSettingsLabel=16]="NonContiguousWordsInSettingsLabel",o[o.ContiguousWordsInSettingsLabel=32]="ContiguousWordsInSettingsLabel",o[o.ContiguousQueryInSettingId=64]="ContiguousQueryInSettingId",o[o.AllWordsInSettingsLabel=128]="AllWordsInSettingsLabel",o[o.ExactMatch=256]="ExactMatch"})(n||(n={}));const i=n.AllWordsInSettingsLabel|n.ContiguousWordsInSettingsLabel|n.NonContiguousWordsInSettingsLabel|n.NonContiguousQueryInSettingId|n.ContiguousQueryInSettingId;function t(o){return{...o,override:u.id,pinned:!0}}const b=s("preferencesService"),d="editor.contrib.defineKeybinding",g=".vscode/settings.json",I="workbench.settings.openDefaultSettings",c="workbench.settings.useSplitJSON",x="settings";export{i as $fK,t as $gK,b as $hK,d as $iK,g as $jK,I as $kK,c as $lK,x as $mK,n as SettingMatchType,r as SettingValueType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { DEFAULT_EDITOR_ASSOCIATION } from "../../../common/editor.js";
+var SettingValueType;
+(function(SettingValueType2) {
+  SettingValueType2["Null"] = "null";
+  SettingValueType2["Enum"] = "enum";
+  SettingValueType2["String"] = "string";
+  SettingValueType2["MultilineString"] = "multiline-string";
+  SettingValueType2["Integer"] = "integer";
+  SettingValueType2["Number"] = "number";
+  SettingValueType2["Boolean"] = "boolean";
+  SettingValueType2["Array"] = "array";
+  SettingValueType2["Exclude"] = "exclude";
+  SettingValueType2["Include"] = "include";
+  SettingValueType2["Complex"] = "complex";
+  SettingValueType2["NullableInteger"] = "nullable-integer";
+  SettingValueType2["NullableNumber"] = "nullable-number";
+  SettingValueType2["Object"] = "object";
+  SettingValueType2["BooleanObject"] = "boolean-object";
+  SettingValueType2["LanguageTag"] = "language-tag";
+  SettingValueType2["ExtensionToggle"] = "extension-toggle";
+  SettingValueType2["ComplexObject"] = "complex-object";
+})(SettingValueType || (SettingValueType = {}));
+var SettingMatchType;
+(function(SettingMatchType2) {
+  SettingMatchType2[SettingMatchType2["None"] = 0] = "None";
+  SettingMatchType2[SettingMatchType2["LanguageTagSettingMatch"] = 1] = "LanguageTagSettingMatch";
+  SettingMatchType2[SettingMatchType2["RemoteMatch"] = 2] = "RemoteMatch";
+  SettingMatchType2[SettingMatchType2["NonContiguousQueryInSettingId"] = 4] = "NonContiguousQueryInSettingId";
+  SettingMatchType2[SettingMatchType2["DescriptionOrValueMatch"] = 8] = "DescriptionOrValueMatch";
+  SettingMatchType2[SettingMatchType2["NonContiguousWordsInSettingsLabel"] = 16] = "NonContiguousWordsInSettingsLabel";
+  SettingMatchType2[SettingMatchType2["ContiguousWordsInSettingsLabel"] = 32] = "ContiguousWordsInSettingsLabel";
+  SettingMatchType2[SettingMatchType2["ContiguousQueryInSettingId"] = 64] = "ContiguousQueryInSettingId";
+  SettingMatchType2[SettingMatchType2["AllWordsInSettingsLabel"] = 128] = "AllWordsInSettingsLabel";
+  SettingMatchType2[SettingMatchType2["ExactMatch"] = 256] = "ExactMatch";
+})(SettingMatchType || (SettingMatchType = {}));
+const SettingKeyMatchTypes = SettingMatchType.AllWordsInSettingsLabel | SettingMatchType.ContiguousWordsInSettingsLabel | SettingMatchType.NonContiguousWordsInSettingsLabel | SettingMatchType.NonContiguousQueryInSettingId | SettingMatchType.ContiguousQueryInSettingId;
+function validateSettingsEditorOptions(options) {
+  return {
+    // Inherit provided options
+    ...options,
+    // Enforce some options for settings specifically
+    override: DEFAULT_EDITOR_ASSOCIATION.id,
+    pinned: true
+  };
+}
+__name(validateSettingsEditorOptions, "validateSettingsEditorOptions");
+const IPreferencesService = createDecorator("preferencesService");
+const DEFINE_KEYBINDING_EDITOR_CONTRIB_ID = "editor.contrib.defineKeybinding";
+const FOLDER_SETTINGS_PATH = ".vscode/settings.json";
+const DEFAULT_SETTINGS_EDITOR_SETTING = "workbench.settings.openDefaultSettings";
+const USE_SPLIT_JSON_SETTING = "workbench.settings.useSplitJSON";
+const SETTINGS_AUTHORITY = "settings";
+export {
+  DEFAULT_SETTINGS_EDITOR_SETTING,
+  DEFINE_KEYBINDING_EDITOR_CONTRIB_ID,
+  FOLDER_SETTINGS_PATH,
+  IPreferencesService,
+  SETTINGS_AUTHORITY,
+  SettingKeyMatchTypes,
+  SettingMatchType,
+  SettingValueType,
+  USE_SPLIT_JSON_SETTING,
+  validateSettingsEditorOptions
+};
+//# sourceMappingURL=preferences.js.map

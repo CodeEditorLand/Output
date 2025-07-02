@@ -1,1 +1,13 @@
-import*as h from"../../../../nls.js";import{$qp as i,$vp as r}from"../colorUtils.js";import{$Cp as t}from"./baseColors.js";import{$Bq as o,$Fq as c}from"./editorColors.js";const n=i("search.resultsInfoForeground",{light:t,dark:r(t,.65),hcDark:t,hcLight:t},h.localize(2556,null)),d=i("searchEditor.findMatchBackground",{light:r(o,.66),dark:r(o,.66),hcDark:o,hcLight:o},h.localize(2557,null)),p=i("searchEditor.findMatchBorder",{light:r(c,.66),dark:r(c,.66),hcDark:c,hcLight:c},h.localize(2558,null));export{n as $tt,d as $ut,p as $vt};
+import * as nls from "../../../../nls.js";
+import { registerColor, transparent } from "../colorUtils.js";
+import { foreground } from "./baseColors.js";
+import { editorFindMatchHighlight, editorFindMatchHighlightBorder } from "./editorColors.js";
+const searchResultsInfoForeground = registerColor("search.resultsInfoForeground", { light: foreground, dark: transparent(foreground, 0.65), hcDark: foreground, hcLight: foreground }, nls.localize("search.resultsInfoForeground", "Color of the text in the search viewlet's completion message."));
+const searchEditorFindMatch = registerColor("searchEditor.findMatchBackground", { light: transparent(editorFindMatchHighlight, 0.66), dark: transparent(editorFindMatchHighlight, 0.66), hcDark: editorFindMatchHighlight, hcLight: editorFindMatchHighlight }, nls.localize("searchEditor.queryMatch", "Color of the Search Editor query matches."));
+const searchEditorFindMatchBorder = registerColor("searchEditor.findMatchBorder", { light: transparent(editorFindMatchHighlightBorder, 0.66), dark: transparent(editorFindMatchHighlightBorder, 0.66), hcDark: editorFindMatchHighlightBorder, hcLight: editorFindMatchHighlightBorder }, nls.localize("searchEditor.editorFindMatchBorder", "Border color of the Search Editor query matches."));
+export {
+  searchEditorFindMatch,
+  searchEditorFindMatchBorder,
+  searchResultsInfoForeground
+};
+//# sourceMappingURL=searchColors.js.map

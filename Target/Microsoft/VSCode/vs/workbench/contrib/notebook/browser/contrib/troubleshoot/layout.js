@@ -1,1 +1,325 @@
-import{$vd as x,$ud as v,$qd as b}from"../../../../../../base/common/lifecycle.js";import{localize2 as u}from"../../../../../../nls.js";import{$Yn as g}from"../../../../../../platform/action/common/actionCommonCategories.js";import{$CI as f,$DI as y}from"../../../../../../platform/actions/common/actions.js";import{$gAb as m}from"../../notebookBrowser.js";import{$qCb as j}from"../../notebookEditorExtensions.js";import{$dzb as $}from"../../../common/notebookService.js";import{$II as C}from"../../../../../services/editor/common/editorService.js";import{n as c}from"../../../../../../base/browser/dom.js";class p extends x{static{this.id="workbench.notebook.troubleshoot"}constructor(t){super(),this.j=t,this.a=this.B(new v),this.b=[],this.c=!1,this.f=[],this.g=[],this.B(this.j.onDidChangeModel(()=>{this.m()})),this.m()}toggle(){this.c=!this.c,this.m()}m(){this.a.clear(),this.b.forEach(t=>t.dispose()),this.w(),this.y(),this.j.hasModel()&&(this.z(),this.c&&(this.t(),this.s()))}r(t,o){if(this.c){const e=this.j.getViewHeight(t)}}s(){if(this.j.hasModel()){for(let t=0;t<this.j.getLength();t++){const o=this.j.cellAt(t);this.u(o,t)}this.a.add(this.j.onDidChangeViewCells(t=>{const o=t.splices.reduce((e,[,,i])=>[...e,...i],[]);for(let e=0;e<o.length;e++){const i=this.j.getCellIndex(o[e]);i!==void 0&&this.u(o[e],i)}}))}}t(){if(!this.j.hasModel())return;const t=this.j.getLayoutInfo().listViewOffsetTop,o=this.j.scrollTop,e=c.div({style:{position:"absolute",top:"0",left:"0",width:"100%",height:"100%",pointerEvents:"none",zIndex:"1000"}},[c.div({style:{position:"absolute",top:`${t}px`,left:"0",width:"100%",height:"2px",backgroundColor:"rgba(0, 0, 255, 0.7)"}}),c.div({style:{position:"absolute",top:`${t}px`,left:"10px",backgroundColor:"rgba(0, 0, 255, 0.7)",color:"white",fontSize:"11px",fontWeight:"bold",padding:"2px 6px",borderRadius:"3px",whiteSpace:"nowrap",pointerEvents:"none",zIndex:"1001"}},[`ScrollTop: ${o}px`])]).keepUpdated(this.q);this.h=e.element,this.h&&this.j.getDomNode().appendChild(this.h),this.a.add(this.j.onDidScroll(()=>{const i=this.j.scrollTop,n=this.j.getLayoutInfo().listViewOffsetTop;if(this.h){const s=this.h.querySelector("div:nth-child(2)");s&&(s.textContent=`ScrollTop: ${i}px`,s.style.top=`${n}px`);const l=this.h.querySelector("div:first-child");l&&(l.style.top=`${n}px`)}}))}u(t,o){const e=document.createElement("div");e.style.position="absolute",e.style.top="0",e.style.left="0",e.style.width="100%",e.style.height="100%",e.style.pointerEvents="none",e.style.zIndex="1000";const i=document.createElement("div");i.style.position="absolute",i.style.top="0",i.style.left="0",i.style.width="100%",i.style.height="2px",i.style.backgroundColor="rgba(255, 0, 0, 0.7)",e.appendChild(i);const n=this.j.getAbsoluteTopOfElement(t),s=document.createElement("div");s.textContent=`cell #${o} (handle: ${t.handle}) | AbsoluteTopOfElement: ${n}px`,s.style.position="absolute",s.style.top="0px",s.style.right="10px",s.style.backgroundColor="rgba(255, 0, 0, 0.5)",s.style.color="white",s.style.fontSize="11px",s.style.fontWeight="bold",s.style.padding="2px 6px",s.style.borderRadius="3px",s.style.whiteSpace="nowrap",s.style.pointerEvents="none",s.style.zIndex="1001",e.appendChild(s);let l;if(this.j.changeCellOverlays(r=>{l=r.addOverlay({cell:t,domNode:e})}),l){this.g.push(l);const r=()=>{const d=this.j.getAbsoluteTopOfElement(t);s.textContent=`cell #${o} (handle: ${t.handle}) | AbsoluteTopOfElement: ${d}px`,l&&this.j.changeCellOverlays(a=>{a.layoutOverlay(l)})};this.a.add(t.onDidChangeLayout(d=>{r()})),this.a.add(this.j.onDidChangeLayout(()=>{r()}))}}w(){this.g.length>0&&(this.j.changeCellOverlays(t=>{for(const o of this.g)t.removeOverlay(o)}),this.g=[])}y(){this.h&&(this.h.remove(),this.h=void 0)}z(){if(!this.j.hasModel())return;for(let e=0;e<this.j.getLength();e++){const i=this.j.cellAt(e);this.b.push(i.onDidChangeLayout(n=>{this.r(i,n)}))}this.a.add(this.j.onDidChangeViewCells(e=>{[...e.splices].reverse().forEach(i=>{const[n,s,l]=i,r=this.b.splice(n,s,...l.map(d=>d.onDidChangeLayout(a=>{this.r(d,a)})));b(r)})}));const t=this.j.getViewModel();let o=[];this.c&&(o=this.C()),this.f=t.deltaCellStatusBarItems(this.f,o)}C(){const t=[];for(let o=0;o<this.j.getLength();o++)t.push({handle:o,items:[{text:`index: ${o}`,alignment:1,priority:Number.MAX_SAFE_INTEGER}]});return t}dispose(){b(this.b),this.w(),this.y(),this.a.clear(),super.dispose()}}j(p.id,p);y(class extends f{constructor(){super({id:"notebook.toggleLayoutTroubleshoot",title:u(9314,"Toggle Notebook Layout Troubleshoot"),category:g.Developer,f1:!0})}async run(h){const t=h.get(C),o=m(t.activeEditorPane);if(!o)return;o.getContribution(p.id)?.toggle()}});y(class extends f{constructor(){super({id:"notebook.inspectLayout",title:u(9315,"Inspect Notebook Layout"),category:g.Developer,f1:!0})}async run(h){const t=h.get(C),o=m(t.activeEditorPane);if(!(!o||!o.hasModel()))for(let e=0;e<o.getLength();e++){const i=o.cellAt(e)}}});y(class extends f{constructor(){super({id:"notebook.clearNotebookEdtitorTypeCache",title:u(9316,"Clear Notebook Editor Type Cache"),category:g.Developer,f1:!0})}async run(h){h.get($).clearEditorCache()}});export{p as $9dc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableStore, dispose } from "../../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../../nls.js";
+import { Categories } from "../../../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { n } from "../../../../../../base/browser/dom.js";
+class TroubleshootController extends Disposable {
+  static {
+    __name(this, "TroubleshootController");
+  }
+  static {
+    this.id = "workbench.notebook.troubleshoot";
+  }
+  constructor(_notebookEditor) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._localStore = this._register(new DisposableStore());
+    this._cellStateListeners = [];
+    this._enabled = false;
+    this._cellStatusItems = [];
+    this._cellOverlayIds = [];
+    this._register(this._notebookEditor.onDidChangeModel(() => {
+      this._update();
+    }));
+    this._update();
+  }
+  toggle() {
+    this._enabled = !this._enabled;
+    this._update();
+  }
+  _update() {
+    this._localStore.clear();
+    this._cellStateListeners.forEach((listener) => listener.dispose());
+    this._removeCellOverlays();
+    this._removeNotebookOverlay();
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    this._updateListener();
+    if (this._enabled) {
+      this._createNotebookOverlay();
+      this._createCellOverlays();
+    }
+  }
+  _log(cell, e) {
+    if (this._enabled) {
+      const oldHeight = this._notebookEditor.getViewHeight(cell);
+      console.log(`cell#${cell.handle}`, e, `${oldHeight} -> ${cell.layoutInfo.totalHeight}`);
+    }
+  }
+  _createCellOverlays() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      const cell = this._notebookEditor.cellAt(i);
+      this._createCellOverlay(cell, i);
+    }
+    this._localStore.add(this._notebookEditor.onDidChangeViewCells((e) => {
+      const addedCells = e.splices.reduce((acc, [, , newCells]) => [...acc, ...newCells], []);
+      for (let i = 0; i < addedCells.length; i++) {
+        const cellIndex = this._notebookEditor.getCellIndex(addedCells[i]);
+        if (cellIndex !== void 0) {
+          this._createCellOverlay(addedCells[i], cellIndex);
+        }
+      }
+    }));
+  }
+  _createNotebookOverlay() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    const listViewTop = this._notebookEditor.getLayoutInfo().listViewOffsetTop;
+    const scrollTop = this._notebookEditor.scrollTop;
+    const overlay = n.div({
+      style: {
+        position: "absolute",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: "1000"
+      }
+    }, [
+      // Top line
+      n.div({
+        style: {
+          position: "absolute",
+          top: `${listViewTop}px`,
+          left: "0",
+          width: "100%",
+          height: "2px",
+          backgroundColor: "rgba(0, 0, 255, 0.7)"
+        }
+      }),
+      // Text label for the notebook overlay
+      n.div({
+        style: {
+          position: "absolute",
+          top: `${listViewTop}px`,
+          left: "10px",
+          backgroundColor: "rgba(0, 0, 255, 0.7)",
+          color: "white",
+          fontSize: "11px",
+          fontWeight: "bold",
+          padding: "2px 6px",
+          borderRadius: "3px",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          zIndex: "1001"
+        }
+      }, [`ScrollTop: ${scrollTop}px`])
+    ]).keepUpdated(this._store);
+    this._notebookOverlayDomNode = overlay.element;
+    if (this._notebookOverlayDomNode) {
+      this._notebookEditor.getDomNode().appendChild(this._notebookOverlayDomNode);
+    }
+    this._localStore.add(this._notebookEditor.onDidScroll(() => {
+      const scrollTop2 = this._notebookEditor.scrollTop;
+      const listViewTop2 = this._notebookEditor.getLayoutInfo().listViewOffsetTop;
+      if (this._notebookOverlayDomNode) {
+        const labelElement = this._notebookOverlayDomNode.querySelector("div:nth-child(2)");
+        if (labelElement) {
+          labelElement.textContent = `ScrollTop: ${scrollTop2}px`;
+          labelElement.style.top = `${listViewTop2}px`;
+        }
+        const topLineElement = this._notebookOverlayDomNode.querySelector("div:first-child");
+        if (topLineElement) {
+          topLineElement.style.top = `${listViewTop2}px`;
+        }
+      }
+    }));
+  }
+  _createCellOverlay(cell, index) {
+    const overlayContainer = document.createElement("div");
+    overlayContainer.style.position = "absolute";
+    overlayContainer.style.top = "0";
+    overlayContainer.style.left = "0";
+    overlayContainer.style.width = "100%";
+    overlayContainer.style.height = "100%";
+    overlayContainer.style.pointerEvents = "none";
+    overlayContainer.style.zIndex = "1000";
+    const topLine = document.createElement("div");
+    topLine.style.position = "absolute";
+    topLine.style.top = "0";
+    topLine.style.left = "0";
+    topLine.style.width = "100%";
+    topLine.style.height = "2px";
+    topLine.style.backgroundColor = "rgba(255, 0, 0, 0.7)";
+    overlayContainer.appendChild(topLine);
+    const cellTop = this._notebookEditor.getAbsoluteTopOfElement(cell);
+    const label = document.createElement("div");
+    label.textContent = `cell #${index} (handle: ${cell.handle}) | AbsoluteTopOfElement: ${cellTop}px`;
+    label.style.position = "absolute";
+    label.style.top = "0px";
+    label.style.right = "10px";
+    label.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+    label.style.color = "white";
+    label.style.fontSize = "11px";
+    label.style.fontWeight = "bold";
+    label.style.padding = "2px 6px";
+    label.style.borderRadius = "3px";
+    label.style.whiteSpace = "nowrap";
+    label.style.pointerEvents = "none";
+    label.style.zIndex = "1001";
+    overlayContainer.appendChild(label);
+    let overlayId = void 0;
+    this._notebookEditor.changeCellOverlays((accessor) => {
+      overlayId = accessor.addOverlay({
+        cell,
+        domNode: overlayContainer
+      });
+    });
+    if (overlayId) {
+      this._cellOverlayIds.push(overlayId);
+      const updateLayout = /* @__PURE__ */ __name(() => {
+        const scrollTop = this._notebookEditor.getAbsoluteTopOfElement(cell);
+        label.textContent = `cell #${index} (handle: ${cell.handle}) | AbsoluteTopOfElement: ${scrollTop}px`;
+        if (overlayId) {
+          this._notebookEditor.changeCellOverlays((accessor) => {
+            accessor.layoutOverlay(overlayId);
+          });
+        }
+      }, "updateLayout");
+      this._localStore.add(cell.onDidChangeLayout((e) => {
+        updateLayout();
+      }));
+      this._localStore.add(this._notebookEditor.onDidChangeLayout(() => {
+        updateLayout();
+      }));
+    }
+  }
+  _removeCellOverlays() {
+    if (this._cellOverlayIds.length > 0) {
+      this._notebookEditor.changeCellOverlays((accessor) => {
+        for (const id of this._cellOverlayIds) {
+          accessor.removeOverlay(id);
+        }
+      });
+      this._cellOverlayIds = [];
+    }
+  }
+  _removeNotebookOverlay() {
+    if (this._notebookOverlayDomNode) {
+      this._notebookOverlayDomNode.remove();
+      this._notebookOverlayDomNode = void 0;
+    }
+  }
+  _updateListener() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      const cell = this._notebookEditor.cellAt(i);
+      this._cellStateListeners.push(cell.onDidChangeLayout((e) => {
+        this._log(cell, e);
+      }));
+    }
+    this._localStore.add(this._notebookEditor.onDidChangeViewCells((e) => {
+      [...e.splices].reverse().forEach((splice) => {
+        const [start, deleted, newCells] = splice;
+        const deletedCells = this._cellStateListeners.splice(start, deleted, ...newCells.map((cell) => {
+          return cell.onDidChangeLayout((e2) => {
+            this._log(cell, e2);
+          });
+        }));
+        dispose(deletedCells);
+      });
+    }));
+    const vm = this._notebookEditor.getViewModel();
+    let items = [];
+    if (this._enabled) {
+      items = this._getItemsForCells();
+    }
+    this._cellStatusItems = vm.deltaCellStatusBarItems(this._cellStatusItems, items);
+  }
+  _getItemsForCells() {
+    const items = [];
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      items.push({
+        handle: i,
+        items: [
+          {
+            text: `index: ${i}`,
+            alignment: 1,
+            priority: Number.MAX_SAFE_INTEGER
+          }
+        ]
+      });
+    }
+    return items;
+  }
+  dispose() {
+    dispose(this._cellStateListeners);
+    this._removeCellOverlays();
+    this._removeNotebookOverlay();
+    this._localStore.clear();
+    super.dispose();
+  }
+}
+registerNotebookContribution(TroubleshootController.id, TroubleshootController);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.toggleLayoutTroubleshoot",
+      title: localize2("workbench.notebook.toggleLayoutTroubleshoot", "Toggle Notebook Layout Troubleshoot"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor) {
+      return;
+    }
+    const controller = editor.getContribution(TroubleshootController.id);
+    controller?.toggle();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.inspectLayout",
+      title: localize2("workbench.notebook.inspectLayout", "Inspect Notebook Layout"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < editor.getLength(); i++) {
+      const cell = editor.cellAt(i);
+      console.log(`cell#${cell.handle}`, cell.layoutInfo);
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.clearNotebookEdtitorTypeCache",
+      title: localize2("workbench.notebook.clearNotebookEdtitorTypeCache", "Clear Notebook Editor Type Cache"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const notebookService = accessor.get(INotebookService);
+    notebookService.clearEditorCache();
+  }
+});
+export {
+  TroubleshootController
+};
+//# sourceMappingURL=layout.js.map

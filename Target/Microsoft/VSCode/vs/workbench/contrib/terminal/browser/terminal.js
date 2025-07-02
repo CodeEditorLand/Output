@@ -1,1 +1,57 @@
-import{$nj as n}from"../../../../platform/instantiation/common/instantiation.js";const i=n("terminalService"),s=n("terminalConfigurationService"),f=n("terminalEditorService"),m=n("terminalGroupService"),b=n("terminalInstanceService");var t;(function(e){e[e.Left=0]="Left",e[e.Right=1]="Right",e[e.Up=2]="Up",e[e.Down=3]="Down"})(t||(t={}));var r;(function(e){e[e.Connecting=0]="Connecting",e[e.Connected=1]="Connected"})(r||(r={}));const v=e=>typeof e.instanceId!="number";class g extends MouseEvent{}const l="terminalEditor";var o;(function(e){e[e.SearchHighlightLimit=2e4]="SearchHighlightLimit"})(o||(o={}));var a;(function(e){e[e.Unknown=1]="Unknown",e[e.Fedora=2]="Fedora",e[e.Ubuntu=3]="Ubuntu"})(a||(a={}));var c;(function(e){e.Terminals="Terminals"})(c||(c={}));export{i as $cZb,s as $dZb,f as $eZb,m as $fZb,b as $gZb,v as $hZb,g as $iZb,l as $jZb,t as Direction,a as LinuxDistro,r as TerminalConnectionState,c as TerminalDataTransfers,o as XtermTerminalConstants};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITerminalService = createDecorator("terminalService");
+const ITerminalConfigurationService = createDecorator("terminalConfigurationService");
+const ITerminalEditorService = createDecorator("terminalEditorService");
+const ITerminalGroupService = createDecorator("terminalGroupService");
+const ITerminalInstanceService = createDecorator("terminalInstanceService");
+var Direction;
+(function(Direction2) {
+  Direction2[Direction2["Left"] = 0] = "Left";
+  Direction2[Direction2["Right"] = 1] = "Right";
+  Direction2[Direction2["Up"] = 2] = "Up";
+  Direction2[Direction2["Down"] = 3] = "Down";
+})(Direction || (Direction = {}));
+var TerminalConnectionState;
+(function(TerminalConnectionState2) {
+  TerminalConnectionState2[TerminalConnectionState2["Connecting"] = 0] = "Connecting";
+  TerminalConnectionState2[TerminalConnectionState2["Connected"] = 1] = "Connected";
+})(TerminalConnectionState || (TerminalConnectionState = {}));
+const isDetachedTerminalInstance = /* @__PURE__ */ __name((t) => typeof t.instanceId !== "number", "isDetachedTerminalInstance");
+class TerminalLinkQuickPickEvent extends MouseEvent {
+  static {
+    __name(this, "TerminalLinkQuickPickEvent");
+  }
+}
+const terminalEditorId = "terminalEditor";
+var XtermTerminalConstants;
+(function(XtermTerminalConstants2) {
+  XtermTerminalConstants2[XtermTerminalConstants2["SearchHighlightLimit"] = 2e4] = "SearchHighlightLimit";
+})(XtermTerminalConstants || (XtermTerminalConstants = {}));
+var LinuxDistro;
+(function(LinuxDistro2) {
+  LinuxDistro2[LinuxDistro2["Unknown"] = 1] = "Unknown";
+  LinuxDistro2[LinuxDistro2["Fedora"] = 2] = "Fedora";
+  LinuxDistro2[LinuxDistro2["Ubuntu"] = 3] = "Ubuntu";
+})(LinuxDistro || (LinuxDistro = {}));
+var TerminalDataTransfers;
+(function(TerminalDataTransfers2) {
+  TerminalDataTransfers2["Terminals"] = "Terminals";
+})(TerminalDataTransfers || (TerminalDataTransfers = {}));
+export {
+  Direction,
+  ITerminalConfigurationService,
+  ITerminalEditorService,
+  ITerminalGroupService,
+  ITerminalInstanceService,
+  ITerminalService,
+  LinuxDistro,
+  TerminalConnectionState,
+  TerminalDataTransfers,
+  TerminalLinkQuickPickEvent,
+  XtermTerminalConstants,
+  isDetachedTerminalInstance,
+  terminalEditorId
+};
+//# sourceMappingURL=terminal.js.map

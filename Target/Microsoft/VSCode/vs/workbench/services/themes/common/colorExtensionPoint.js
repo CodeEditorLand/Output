@@ -1,1 +1,197 @@
-import*as r from"../../../../nls.js";import{$VO as m}from"../../extensions/common/extensionsRegistry.js";import{$op as y}from"../../../../platform/theme/common/colorRegistry.js";import{$jp as u}from"../../../../base/common/color.js";import{$Rl as p}from"../../../../platform/registry/common/platform.js";import{$vd as C}from"../../../../base/common/lifecycle.js";import{Extensions as z}from"../../extensionManagement/common/extensionFeatures.js";import{$kj as x}from"../../../../platform/instantiation/common/descriptors.js";import{$Uj as c}from"../../../../base/common/htmlContent.js";const f=p.as(y.ColorContribution),d=f.getColorReferenceSchema(),g="^\\w+[.\\w+]*$",k=m.registerExtensionPoint({extensionPoint:"colors",jsonSchema:{description:r.localize(14646,null),type:"array",items:{type:"object",properties:{id:{type:"string",description:r.localize(14647,null),pattern:g,patternErrorMessage:r.localize(14648,null)},description:{type:"string",description:r.localize(14649,null)},defaults:{type:"object",properties:{light:{description:r.localize(14650,null),type:"string",anyOf:[d,{type:"string",format:"color-hex"}]},dark:{description:r.localize(14651,null),type:"string",anyOf:[d,{type:"string",format:"color-hex"}]},highContrast:{description:r.localize(14652,null),type:"string",anyOf:[d,{type:"string",format:"color-hex"}]},highContrastLight:{description:r.localize(14653,null),type:"string",anyOf:[d,{type:"string",format:"color-hex"}]}},required:["light","dark"]}}}}});class S{constructor(){k.setHandler((a,s)=>{for(const l of s.added){const i=l.value,n=l.collector;if(!i||!Array.isArray(i)){n.error(r.localize(14654,null));return}const t=(o,e)=>o.length>0?o[0]==="#"?u.Format.CSS.parseHex(o):o:(n.error(r.localize(14655,null,e)),u.red);for(const o of i){if(typeof o.id!="string"||o.id.length===0){n.error(r.localize(14656,null));return}if(!o.id.match(g)){n.error(r.localize(14657,null));return}if(typeof o.description!="string"||o.id.length===0){n.error(r.localize(14658,null));return}const e=o.defaults;if(!e||typeof e!="object"||typeof e.light!="string"||typeof e.dark!="string"){n.error(r.localize(14659,null));return}if(e.highContrast&&typeof e.highContrast!="string"){n.error(r.localize(14660,null));return}if(e.highContrastLight&&typeof e.highContrastLight!="string"){n.error(r.localize(14661,null));return}f.registerColor(o.id,{light:t(e.light,"configuration.colors.defaults.light"),dark:t(e.dark,"configuration.colors.defaults.dark"),hcDark:t(e.highContrast??e.dark,"configuration.colors.defaults.highContrast"),hcLight:t(e.highContrastLight??e.light,"configuration.colors.defaults.highContrastLight")},o.description)}}for(const l of s.removed){const i=l.value;for(const n of i)f.deregisterColor(n.id)}})}}class w extends C{constructor(){super(...arguments),this.type="table"}shouldRender(a){return!!a.contributes?.colors}render(a){const s=a.contributes?.colors||[];if(!s.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const l=[r.localize(14662,null),r.localize(14663,null),r.localize(14664,null),r.localize(14665,null),r.localize(14666,null)],i=t=>t[0]==="#"?u.fromHex(t):void 0,n=s.sort((t,o)=>t.id.localeCompare(o.id)).map(t=>[new c().appendMarkdown(`\`${t.id}\``),t.description,i(t.defaults.dark)??new c().appendMarkdown(`\`${t.defaults.dark}\``),i(t.defaults.light)??new c().appendMarkdown(`\`${t.defaults.light}\``),i(t.defaults.highContrast)??new c().appendMarkdown(`\`${t.defaults.highContrast}\``)]);return{data:{headers:l,rows:n},dispose:()=>{}}}}p.as(z.ExtensionFeaturesRegistry).registerExtensionFeature({id:"colors",label:r.localize(14667,null),access:{canToggle:!1},renderer:new x(w)});export{S as $fub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
+import { Extensions as ColorRegistryExtensions } from "../../../../platform/theme/common/colorRegistry.js";
+import { Color } from "../../../../base/common/color.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Extensions } from "../../extensionManagement/common/extensionFeatures.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+const colorRegistry = Registry.as(ColorRegistryExtensions.ColorContribution);
+const colorReferenceSchema = colorRegistry.getColorReferenceSchema();
+const colorIdPattern = "^\\w+[.\\w+]*$";
+const configurationExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "colors",
+  jsonSchema: {
+    description: nls.localize("contributes.color", "Contributes extension defined themable colors"),
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: nls.localize("contributes.color.id", "The identifier of the themable color"),
+          pattern: colorIdPattern,
+          patternErrorMessage: nls.localize("contributes.color.id.format", "Identifiers must only contain letters, digits and dots and can not start with a dot")
+        },
+        description: {
+          type: "string",
+          description: nls.localize("contributes.color.description", "The description of the themable color")
+        },
+        defaults: {
+          type: "object",
+          properties: {
+            light: {
+              description: nls.localize("contributes.defaults.light", "The default color for light themes. Either a color value in hex (#RRGGBB[AA]) or the identifier of a themable color which provides the default."),
+              type: "string",
+              anyOf: [
+                colorReferenceSchema,
+                { type: "string", format: "color-hex" }
+              ]
+            },
+            dark: {
+              description: nls.localize("contributes.defaults.dark", "The default color for dark themes. Either a color value in hex (#RRGGBB[AA]) or the identifier of a themable color which provides the default."),
+              type: "string",
+              anyOf: [
+                colorReferenceSchema,
+                { type: "string", format: "color-hex" }
+              ]
+            },
+            highContrast: {
+              description: nls.localize("contributes.defaults.highContrast", "The default color for high contrast dark themes. Either a color value in hex (#RRGGBB[AA]) or the identifier of a themable color which provides the default. If not provided, the `dark` color is used as default for high contrast dark themes."),
+              type: "string",
+              anyOf: [
+                colorReferenceSchema,
+                { type: "string", format: "color-hex" }
+              ]
+            },
+            highContrastLight: {
+              description: nls.localize("contributes.defaults.highContrastLight", "The default color for high contrast light themes. Either a color value in hex (#RRGGBB[AA]) or the identifier of a themable color which provides the default. If not provided, the `light` color is used as default for high contrast light themes."),
+              type: "string",
+              anyOf: [
+                colorReferenceSchema,
+                { type: "string", format: "color-hex" }
+              ]
+            }
+          },
+          required: ["light", "dark"]
+        }
+      }
+    }
+  }
+});
+class ColorExtensionPoint {
+  static {
+    __name(this, "ColorExtensionPoint");
+  }
+  constructor() {
+    configurationExtPoint.setHandler((extensions, delta) => {
+      for (const extension of delta.added) {
+        const extensionValue = extension.value;
+        const collector = extension.collector;
+        if (!extensionValue || !Array.isArray(extensionValue)) {
+          collector.error(nls.localize("invalid.colorConfiguration", "'configuration.colors' must be a array"));
+          return;
+        }
+        const parseColorValue = /* @__PURE__ */ __name((s, name) => {
+          if (s.length > 0) {
+            if (s[0] === "#") {
+              return Color.Format.CSS.parseHex(s);
+            } else {
+              return s;
+            }
+          }
+          collector.error(nls.localize("invalid.default.colorType", "{0} must be either a color value in hex (#RRGGBB[AA] or #RGB[A]) or the identifier of a themable color which provides the default.", name));
+          return Color.red;
+        }, "parseColorValue");
+        for (const colorContribution of extensionValue) {
+          if (typeof colorContribution.id !== "string" || colorContribution.id.length === 0) {
+            collector.error(nls.localize("invalid.id", "'configuration.colors.id' must be defined and can not be empty"));
+            return;
+          }
+          if (!colorContribution.id.match(colorIdPattern)) {
+            collector.error(nls.localize("invalid.id.format", "'configuration.colors.id' must only contain letters, digits and dots and can not start with a dot"));
+            return;
+          }
+          if (typeof colorContribution.description !== "string" || colorContribution.id.length === 0) {
+            collector.error(nls.localize("invalid.description", "'configuration.colors.description' must be defined and can not be empty"));
+            return;
+          }
+          const defaults = colorContribution.defaults;
+          if (!defaults || typeof defaults !== "object" || typeof defaults.light !== "string" || typeof defaults.dark !== "string") {
+            collector.error(nls.localize("invalid.defaults", "'configuration.colors.defaults' must be defined and must contain 'light' and 'dark'"));
+            return;
+          }
+          if (defaults.highContrast && typeof defaults.highContrast !== "string") {
+            collector.error(nls.localize("invalid.defaults.highContrast", "If defined, 'configuration.colors.defaults.highContrast' must be a string."));
+            return;
+          }
+          if (defaults.highContrastLight && typeof defaults.highContrastLight !== "string") {
+            collector.error(nls.localize("invalid.defaults.highContrastLight", "If defined, 'configuration.colors.defaults.highContrastLight' must be a string."));
+            return;
+          }
+          colorRegistry.registerColor(colorContribution.id, {
+            light: parseColorValue(defaults.light, "configuration.colors.defaults.light"),
+            dark: parseColorValue(defaults.dark, "configuration.colors.defaults.dark"),
+            hcDark: parseColorValue(defaults.highContrast ?? defaults.dark, "configuration.colors.defaults.highContrast"),
+            hcLight: parseColorValue(defaults.highContrastLight ?? defaults.light, "configuration.colors.defaults.highContrastLight")
+          }, colorContribution.description);
+        }
+      }
+      for (const extension of delta.removed) {
+        const extensionValue = extension.value;
+        for (const colorContribution of extensionValue) {
+          colorRegistry.deregisterColor(colorContribution.id);
+        }
+      }
+    });
+  }
+}
+class ColorDataRenderer extends Disposable {
+  static {
+    __name(this, "ColorDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.colors;
+  }
+  render(manifest) {
+    const colors = manifest.contributes?.colors || [];
+    if (!colors.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      nls.localize("id", "ID"),
+      nls.localize("description", "Description"),
+      nls.localize("defaultDark", "Dark Default"),
+      nls.localize("defaultLight", "Light Default"),
+      nls.localize("defaultHC", "High Contrast Default")
+    ];
+    const toColor = /* @__PURE__ */ __name((colorReference) => colorReference[0] === "#" ? Color.fromHex(colorReference) : void 0, "toColor");
+    const rows = colors.sort((a, b) => a.id.localeCompare(b.id)).map((color) => {
+      return [
+        new MarkdownString().appendMarkdown(`\`${color.id}\``),
+        color.description,
+        toColor(color.defaults.dark) ?? new MarkdownString().appendMarkdown(`\`${color.defaults.dark}\``),
+        toColor(color.defaults.light) ?? new MarkdownString().appendMarkdown(`\`${color.defaults.light}\``),
+        toColor(color.defaults.highContrast) ?? new MarkdownString().appendMarkdown(`\`${color.defaults.highContrast}\``)
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "colors",
+  label: nls.localize("colors", "Colors"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ColorDataRenderer)
+});
+export {
+  ColorExtensionPoint
+};
+//# sourceMappingURL=colorExtensionPoint.js.map

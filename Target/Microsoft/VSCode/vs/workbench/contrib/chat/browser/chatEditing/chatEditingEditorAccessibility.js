@@ -1,1 +1,52 @@
-import{$ud as m}from"../../../../../base/common/lifecycle.js";import{autorun as l,observableFromEvent as u}from"../../../../../base/common/observable.js";import{$peb as h,$keb as b}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$II as v}from"../../../../services/editor/common/editorService.js";import{$qO as _}from"../../common/chatEditingService.js";var p=function(n,e,i,r){var c=arguments.length,t=c<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,i):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,e,i,r);else for(var s=n.length-1;s>=0;s--)(o=n[s])&&(t=(c<3?o(t):c>3?o(e,i,t):o(e,i))||t);return c>3&&t&&Object.defineProperty(e,i,t),t},a=function(n,e){return function(i,r){e(i,r,n)}};let f=class{static{this.ID="chat.edits.accessibilty"}constructor(e,i,r){this.a=new m;const c=u(this,i.onDidActiveEditorChange,()=>i.activeEditorPane?.input.resource);this.a.add(l(t=>{const o=c.read(t);if(!o)return;e.editingSessionsObs.read(t).find(d=>d.readEntry(o,t))&&r.playSignal(h.chatEditModifiedFile)}))}dispose(){this.a.dispose()}};f=p([a(0,_),a(1,v),a(2,b)],f);export{f as $mgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { autorun, observableFromEvent } from "../../../../../base/common/observable.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IChatEditingService } from "../../common/chatEditingService.js";
+let ChatEditingEditorAccessibility = class ChatEditingEditorAccessibility2 {
+  static {
+    __name(this, "ChatEditingEditorAccessibility");
+  }
+  static {
+    this.ID = "chat.edits.accessibilty";
+  }
+  constructor(chatEditingService, editorService, accessibilityService) {
+    this._store = new DisposableStore();
+    const activeUri = observableFromEvent(this, editorService.onDidActiveEditorChange, () => editorService.activeEditorPane?.input.resource);
+    this._store.add(autorun((r) => {
+      const editor = activeUri.read(r);
+      if (!editor) {
+        return;
+      }
+      const entry = chatEditingService.editingSessionsObs.read(r).find((session) => session.readEntry(editor, r));
+      if (entry) {
+        accessibilityService.playSignal(AccessibilitySignal.chatEditModifiedFile);
+      }
+    }));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+ChatEditingEditorAccessibility = __decorate([
+  __param(0, IChatEditingService),
+  __param(1, IEditorService),
+  __param(2, IAccessibilitySignalService)
+], ChatEditingEditorAccessibility);
+export {
+  ChatEditingEditorAccessibility
+};
+//# sourceMappingURL=chatEditingEditorAccessibility.js.map

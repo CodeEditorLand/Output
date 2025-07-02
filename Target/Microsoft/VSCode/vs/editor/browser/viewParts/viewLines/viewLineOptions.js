@@ -1,1 +1,58 @@
-class h{constructor(t,s){this.themeType=s;const i=t.options,e=i.get(57);this.renderWhitespace=i.get(109),this.experimentalWhitespaceRendering=i.get(45),this.renderControlCharacters=i.get(104),this.spaceWidth=e.spaceWidth,this.middotWidth=e.middotWidth,this.wsmiddotWidth=e.wsmiddotWidth,this.useMonospaceOptimizations=e.isMonospace&&!i.get(38),this.canUseHalfwidthRightwardsArrow=e.canUseHalfwidthRightwardsArrow,this.lineHeight=i.get(73),this.stopRenderingLineAfter=i.get(127),this.fontLigatures=i.get(58),this.useGpu=i.get(44)==="on"}equals(t){return this.themeType===t.themeType&&this.renderWhitespace===t.renderWhitespace&&this.experimentalWhitespaceRendering===t.experimentalWhitespaceRendering&&this.renderControlCharacters===t.renderControlCharacters&&this.spaceWidth===t.spaceWidth&&this.middotWidth===t.middotWidth&&this.wsmiddotWidth===t.wsmiddotWidth&&this.useMonospaceOptimizations===t.useMonospaceOptimizations&&this.canUseHalfwidthRightwardsArrow===t.canUseHalfwidthRightwardsArrow&&this.lineHeight===t.lineHeight&&this.stopRenderingLineAfter===t.stopRenderingLineAfter&&this.fontLigatures===t.fontLigatures&&this.useGpu===t.useGpu}}export{h as $3bb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ViewLineOptions {
+  static {
+    __name(this, "ViewLineOptions");
+  }
+  constructor(config, themeType) {
+    this.themeType = themeType;
+    const options = config.options;
+    const fontInfo = options.get(
+      57
+      /* EditorOption.fontInfo */
+    );
+    this.renderWhitespace = options.get(
+      109
+      /* EditorOption.renderWhitespace */
+    );
+    this.experimentalWhitespaceRendering = options.get(
+      45
+      /* EditorOption.experimentalWhitespaceRendering */
+    );
+    this.renderControlCharacters = options.get(
+      104
+      /* EditorOption.renderControlCharacters */
+    );
+    this.spaceWidth = fontInfo.spaceWidth;
+    this.middotWidth = fontInfo.middotWidth;
+    this.wsmiddotWidth = fontInfo.wsmiddotWidth;
+    this.useMonospaceOptimizations = fontInfo.isMonospace && !options.get(
+      38
+      /* EditorOption.disableMonospaceOptimizations */
+    );
+    this.canUseHalfwidthRightwardsArrow = fontInfo.canUseHalfwidthRightwardsArrow;
+    this.lineHeight = options.get(
+      73
+      /* EditorOption.lineHeight */
+    );
+    this.stopRenderingLineAfter = options.get(
+      127
+      /* EditorOption.stopRenderingLineAfter */
+    );
+    this.fontLigatures = options.get(
+      58
+      /* EditorOption.fontLigatures */
+    );
+    this.useGpu = options.get(
+      44
+      /* EditorOption.experimentalGpuAcceleration */
+    ) === "on";
+  }
+  equals(other) {
+    return this.themeType === other.themeType && this.renderWhitespace === other.renderWhitespace && this.experimentalWhitespaceRendering === other.experimentalWhitespaceRendering && this.renderControlCharacters === other.renderControlCharacters && this.spaceWidth === other.spaceWidth && this.middotWidth === other.middotWidth && this.wsmiddotWidth === other.wsmiddotWidth && this.useMonospaceOptimizations === other.useMonospaceOptimizations && this.canUseHalfwidthRightwardsArrow === other.canUseHalfwidthRightwardsArrow && this.lineHeight === other.lineHeight && this.stopRenderingLineAfter === other.stopRenderingLineAfter && this.fontLigatures === other.fontLigatures && this.useGpu === other.useGpu;
+  }
+}
+export {
+  ViewLineOptions
+};
+//# sourceMappingURL=viewLineOptions.js.map

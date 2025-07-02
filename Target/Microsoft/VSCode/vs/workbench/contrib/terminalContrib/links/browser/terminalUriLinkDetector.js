@@ -1,1 +1,144 @@
-import{Schemas as x}from"../../../../../base/common/network.js";import{URI as g}from"../../../../../base/common/uri.js";import{$Oeb as $}from"../../../../../editor/common/languages/linkComputer.js";import{$Ao as _}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$il as C}from"../../../../../platform/workspace/common/workspace.js";import{$jtc as R,$ltc as O}from"./terminalLinkHelpers.js";import{$Iw as U}from"../../../../../platform/terminal/common/terminal.js";var v=function(n,t,e,i){var o=arguments.length,r=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,i);else for(var l=n.length-1;l>=0;l--)(s=n[l])&&(r=(o<3?s(r):o>3?s(t,e,r):s(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},p=function(n,t){return function(e,i){t(e,i,n)}},b;(function(n){n[n.MaxResolvedLinksInLine=10]="MaxResolvedLinksInLine"})(b||(b={}));let y=class{static{this.id="uri"}constructor(t,e,i,o,r,s){this.xterm=t,this.a=e,this.b=i,this.c=o,this.d=r,this.e=s,this.maxLinkLength=2048}async detect(t,e,i){const o=[],r=new D(this.xterm,e,i),s=$.computeLinks(r);let l=0;this.c.trace("terminalUriLinkDetector#detect computedLinks",s);for(const c of s){const L=R(t,this.xterm.cols,c.range,e),a=c.url?typeof c.url=="string"?g.parse(this.g(c.url)):c.url:void 0;if(!a)continue;const f=c.url?.toString()||"";if(f.length>this.maxLinkLength)continue;if(a.scheme!==x.file){o.push({text:f,uri:a,bufferRange:L,type:"Url"});continue}if(a.authority.length!==2&&a.authority.endsWith(":"))continue;const h=[a];a.authority.length>0&&h.push(g.from({...a,authority:void 0})),this.c.trace("terminalUriLinkDetector#detect uriCandidates",h);for(const m of h){const d=await this.b.resolveLink(this.a,f,m);if(d){let u;d.isDirectory?this.f(m)?u="LocalFolderInWorkspace":u="LocalFolderOutsideWorkspace":u="LocalFile";const k={text:typeof c.url=="string"?c.url:d.link,uri:m,bufferRange:L,type:u};this.c.trace("terminalUriLinkDetector#detect verified link",k),o.push(k),l++;break}}if(++l>=10)break}return o}f(t){const e=this.e.getWorkspace().folders;for(let i=0;i<e.length;i++)if(this.d.extUri.isEqualOrParent(t,e[i].uri))return!0;return!1}g(t){return t.replace(/:\d+(:\d+)?$/,"")}};y=v([p(3,U),p(4,_),p(5,C)],y);class D{constructor(t,e,i){this.a=t,this.b=e,this.c=i}getLineCount(){return 1}getLineContent(){return O(this.a.buffer.active,this.b,this.c,this.a.cols)}}export{y as $ytc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Schemas } from "../../../../../base/common/network.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { LinkComputer } from "../../../../../editor/common/languages/linkComputer.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { convertLinkRangeToBuffer, getXtermLineContent } from "./terminalLinkHelpers.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["MaxResolvedLinksInLine"] = 10] = "MaxResolvedLinksInLine";
+})(Constants || (Constants = {}));
+let TerminalUriLinkDetector = class TerminalUriLinkDetector2 {
+  static {
+    __name(this, "TerminalUriLinkDetector");
+  }
+  static {
+    this.id = "uri";
+  }
+  constructor(xterm, _processManager, _linkResolver, _logService, _uriIdentityService, _workspaceContextService) {
+    this.xterm = xterm;
+    this._processManager = _processManager;
+    this._linkResolver = _linkResolver;
+    this._logService = _logService;
+    this._uriIdentityService = _uriIdentityService;
+    this._workspaceContextService = _workspaceContextService;
+    this.maxLinkLength = 2048;
+  }
+  async detect(lines, startLine, endLine) {
+    const links = [];
+    const linkComputerTarget = new TerminalLinkAdapter(this.xterm, startLine, endLine);
+    const computedLinks = LinkComputer.computeLinks(linkComputerTarget);
+    let resolvedLinkCount = 0;
+    this._logService.trace("terminalUriLinkDetector#detect computedLinks", computedLinks);
+    for (const computedLink of computedLinks) {
+      const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, computedLink.range, startLine);
+      const uri = computedLink.url ? typeof computedLink.url === "string" ? URI.parse(this._excludeLineAndColSuffix(computedLink.url)) : computedLink.url : void 0;
+      if (!uri) {
+        continue;
+      }
+      const text = computedLink.url?.toString() || "";
+      if (text.length > this.maxLinkLength) {
+        continue;
+      }
+      if (uri.scheme !== Schemas.file) {
+        links.push({
+          text,
+          uri,
+          bufferRange,
+          type: "Url"
+          /* TerminalBuiltinLinkType.Url */
+        });
+        continue;
+      }
+      if (uri.authority.length !== 2 && uri.authority.endsWith(":")) {
+        continue;
+      }
+      const uriCandidates = [uri];
+      if (uri.authority.length > 0) {
+        uriCandidates.push(URI.from({ ...uri, authority: void 0 }));
+      }
+      this._logService.trace("terminalUriLinkDetector#detect uriCandidates", uriCandidates);
+      for (const uriCandidate of uriCandidates) {
+        const linkStat = await this._linkResolver.resolveLink(this._processManager, text, uriCandidate);
+        if (linkStat) {
+          let type;
+          if (linkStat.isDirectory) {
+            if (this._isDirectoryInsideWorkspace(uriCandidate)) {
+              type = "LocalFolderInWorkspace";
+            } else {
+              type = "LocalFolderOutsideWorkspace";
+            }
+          } else {
+            type = "LocalFile";
+          }
+          const simpleLink = {
+            // Use computedLink.url if it's a string to retain the line/col suffix
+            text: typeof computedLink.url === "string" ? computedLink.url : linkStat.link,
+            uri: uriCandidate,
+            bufferRange,
+            type
+          };
+          this._logService.trace("terminalUriLinkDetector#detect verified link", simpleLink);
+          links.push(simpleLink);
+          resolvedLinkCount++;
+          break;
+        }
+      }
+      if (++resolvedLinkCount >= 10) {
+        break;
+      }
+    }
+    return links;
+  }
+  _isDirectoryInsideWorkspace(uri) {
+    const folders = this._workspaceContextService.getWorkspace().folders;
+    for (let i = 0; i < folders.length; i++) {
+      if (this._uriIdentityService.extUri.isEqualOrParent(uri, folders[i].uri)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _excludeLineAndColSuffix(path) {
+    return path.replace(/:\d+(:\d+)?$/, "");
+  }
+};
+TerminalUriLinkDetector = __decorate([
+  __param(3, ITerminalLogService),
+  __param(4, IUriIdentityService),
+  __param(5, IWorkspaceContextService)
+], TerminalUriLinkDetector);
+class TerminalLinkAdapter {
+  static {
+    __name(this, "TerminalLinkAdapter");
+  }
+  constructor(_xterm, _lineStart, _lineEnd) {
+    this._xterm = _xterm;
+    this._lineStart = _lineStart;
+    this._lineEnd = _lineEnd;
+  }
+  getLineCount() {
+    return 1;
+  }
+  getLineContent() {
+    return getXtermLineContent(this._xterm.buffer.active, this._lineStart, this._lineEnd, this._xterm.cols);
+  }
+}
+export {
+  TerminalUriLinkDetector
+};
+//# sourceMappingURL=terminalUriLinkDetector.js.map

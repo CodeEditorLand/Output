@@ -1,1 +1,144 @@
-import{$O5 as f}from"../../../base/browser/canIUse.js";import*as n from"../../../base/browser/dom.js";import{EventType as h,$B7 as d}from"../../../base/browser/touch.js";import{$s5 as p}from"../../../base/browser/window.js";import{$vd as u}from"../../../base/common/lifecycle.js";import*as c from"../../../base/common/platform.js";import{$ycb as l}from"./mouseHandler.js";import{$xbb as r,$zbb as w}from"../editorDom.js";import{TextAreaSyntethicEvents as D}from"./editContext/textArea/textAreaEditContextInput.js";class T extends l{constructor(t,e,s){super(t,e,s),this.B(d.addTarget(this.c.linesContentDomNode)),this.B(n.$Z5(this.c.linesContentDomNode,h.Tap,i=>this.J(i))),this.B(n.$Z5(this.c.linesContentDomNode,h.Change,i=>this.L(i))),this.B(n.$Z5(this.c.linesContentDomNode,h.Contextmenu,i=>this.z(new r(i,!1,this.c.viewDomNode),!1))),this.I="mouse",this.B(n.$Z5(this.c.linesContentDomNode,"pointerdown",i=>{const a=i.pointerType;if(a==="mouse"){this.I="mouse";return}else a==="touch"?this.I="touch":this.I="pen"}));const o=new w(this.c.viewDomNode);this.B(o.onPointerMove(this.c.viewDomNode,i=>this.C(i))),this.B(o.onPointerUp(this.c.viewDomNode,i=>this.F(i))),this.B(o.onPointerLeave(this.c.viewDomNode,i=>this.D(i))),this.B(o.onPointerDown(this.c.viewDomNode,(i,a)=>this.G(i,a)))}J(t){!t.initialTarget||!this.c.linesContentDomNode.contains(t.initialTarget)||(t.preventDefault(),this.c.focusTextArea(),this.M(t,!1))}L(t){this.I==="touch"&&this.a.viewModel.viewLayout.deltaScrollNow(-t.translationX,-t.translationY),this.I==="pen"&&this.M(t,!0)}M(t,e){const s=this.s(new r(t,!1,this.c.viewDomNode),!1);s.position&&this.b.dispatchMouse({position:s.position,mouseColumn:s.position.column,startedOnLineNumbers:!1,revealType:1,mouseDownCount:t.tapCount,inSelectionMode:e,altKey:!1,ctrlKey:!1,metaKey:!1,shiftKey:!1,leftButton:!1,middleButton:!1,onInjectedText:s.type===6&&s.detail.injectedText!==null})}G(t,e){t.browserEvent.pointerType!=="touch"&&super.G(t,e)}}class N extends l{constructor(t,e,s){super(t,e,s),this.B(d.addTarget(this.c.linesContentDomNode)),this.B(n.$Z5(this.c.linesContentDomNode,h.Tap,o=>this.I(o))),this.B(n.$Z5(this.c.linesContentDomNode,h.Change,o=>this.J(o))),this.B(n.$Z5(this.c.linesContentDomNode,h.Contextmenu,o=>this.z(new r(o,!1,this.c.viewDomNode),!1)))}I(t){t.preventDefault(),this.c.focusTextArea();const e=this.s(new r(t,!1,this.c.viewDomNode),!1);if(e.position){const s=document.createEvent("CustomEvent");s.initEvent(D.Tap,!1,!0),this.c.dispatchTextAreaEvent(s),this.b.moveTo(e.position,1)}}J(t){this.a.viewModel.viewLayout.deltaScrollNow(-t.translationX,-t.translationY)}}class b extends u{constructor(t,e,s){super(),(c.$v||c.$M&&c.$w)&&f.pointerEvents?this.a=this.B(new T(t,e,s)):p.TouchEvent?this.a=this.B(new N(t,e,s)):this.a=this.B(new l(t,e,s))}getTargetAtClientPoint(t,e){return this.a.getTargetAtClientPoint(t,e)}}export{T as $Kcb,b as $Lcb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BrowserFeatures } from "../../../base/browser/canIUse.js";
+import * as dom from "../../../base/browser/dom.js";
+import { EventType, Gesture } from "../../../base/browser/touch.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import * as platform from "../../../base/common/platform.js";
+import { MouseHandler } from "./mouseHandler.js";
+import { EditorMouseEvent, EditorPointerEventFactory } from "../editorDom.js";
+import { TextAreaSyntethicEvents } from "./editContext/textArea/textAreaEditContextInput.js";
+class PointerEventHandler extends MouseHandler {
+  static {
+    __name(this, "PointerEventHandler");
+  }
+  constructor(context, viewController, viewHelper) {
+    super(context, viewController, viewHelper);
+    this._register(Gesture.addTarget(this.viewHelper.linesContentDomNode));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Tap, (e) => this.onTap(e)));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Change, (e) => this.onChange(e)));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Contextmenu, (e) => this._onContextMenu(new EditorMouseEvent(e, false, this.viewHelper.viewDomNode), false)));
+    this._lastPointerType = "mouse";
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, "pointerdown", (e) => {
+      const pointerType = e.pointerType;
+      if (pointerType === "mouse") {
+        this._lastPointerType = "mouse";
+        return;
+      } else if (pointerType === "touch") {
+        this._lastPointerType = "touch";
+      } else {
+        this._lastPointerType = "pen";
+      }
+    }));
+    const pointerEvents = new EditorPointerEventFactory(this.viewHelper.viewDomNode);
+    this._register(pointerEvents.onPointerMove(this.viewHelper.viewDomNode, (e) => this._onMouseMove(e)));
+    this._register(pointerEvents.onPointerUp(this.viewHelper.viewDomNode, (e) => this._onMouseUp(e)));
+    this._register(pointerEvents.onPointerLeave(this.viewHelper.viewDomNode, (e) => this._onMouseLeave(e)));
+    this._register(pointerEvents.onPointerDown(this.viewHelper.viewDomNode, (e, pointerId) => this._onMouseDown(e, pointerId)));
+  }
+  onTap(event) {
+    if (!event.initialTarget || !this.viewHelper.linesContentDomNode.contains(event.initialTarget)) {
+      return;
+    }
+    event.preventDefault();
+    this.viewHelper.focusTextArea();
+    this._dispatchGesture(
+      event,
+      /*inSelectionMode*/
+      false
+    );
+  }
+  onChange(event) {
+    if (this._lastPointerType === "touch") {
+      this._context.viewModel.viewLayout.deltaScrollNow(-event.translationX, -event.translationY);
+    }
+    if (this._lastPointerType === "pen") {
+      this._dispatchGesture(
+        event,
+        /*inSelectionMode*/
+        true
+      );
+    }
+  }
+  _dispatchGesture(event, inSelectionMode) {
+    const target = this._createMouseTarget(new EditorMouseEvent(event, false, this.viewHelper.viewDomNode), false);
+    if (target.position) {
+      this.viewController.dispatchMouse({
+        position: target.position,
+        mouseColumn: target.position.column,
+        startedOnLineNumbers: false,
+        revealType: 1,
+        mouseDownCount: event.tapCount,
+        inSelectionMode,
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+        leftButton: false,
+        middleButton: false,
+        onInjectedText: target.type === 6 && target.detail.injectedText !== null
+      });
+    }
+  }
+  _onMouseDown(e, pointerId) {
+    if (e.browserEvent.pointerType === "touch") {
+      return;
+    }
+    super._onMouseDown(e, pointerId);
+  }
+}
+class TouchHandler extends MouseHandler {
+  static {
+    __name(this, "TouchHandler");
+  }
+  constructor(context, viewController, viewHelper) {
+    super(context, viewController, viewHelper);
+    this._register(Gesture.addTarget(this.viewHelper.linesContentDomNode));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Tap, (e) => this.onTap(e)));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Change, (e) => this.onChange(e)));
+    this._register(dom.addDisposableListener(this.viewHelper.linesContentDomNode, EventType.Contextmenu, (e) => this._onContextMenu(new EditorMouseEvent(e, false, this.viewHelper.viewDomNode), false)));
+  }
+  onTap(event) {
+    event.preventDefault();
+    this.viewHelper.focusTextArea();
+    const target = this._createMouseTarget(new EditorMouseEvent(event, false, this.viewHelper.viewDomNode), false);
+    if (target.position) {
+      const event2 = document.createEvent("CustomEvent");
+      event2.initEvent(TextAreaSyntethicEvents.Tap, false, true);
+      this.viewHelper.dispatchTextAreaEvent(event2);
+      this.viewController.moveTo(
+        target.position,
+        1
+        /* NavigationCommandRevealType.Minimal */
+      );
+    }
+  }
+  onChange(e) {
+    this._context.viewModel.viewLayout.deltaScrollNow(-e.translationX, -e.translationY);
+  }
+}
+class PointerHandler extends Disposable {
+  static {
+    __name(this, "PointerHandler");
+  }
+  constructor(context, viewController, viewHelper) {
+    super();
+    const isPhone = platform.isIOS || platform.isAndroid && platform.isMobile;
+    if (isPhone && BrowserFeatures.pointerEvents) {
+      this.handler = this._register(new PointerEventHandler(context, viewController, viewHelper));
+    } else if (mainWindow.TouchEvent) {
+      this.handler = this._register(new TouchHandler(context, viewController, viewHelper));
+    } else {
+      this.handler = this._register(new MouseHandler(context, viewController, viewHelper));
+    }
+  }
+  getTargetAtClientPoint(clientX, clientY) {
+    return this.handler.getTargetAtClientPoint(clientX, clientY);
+  }
+}
+export {
+  PointerEventHandler,
+  PointerHandler
+};
+//# sourceMappingURL=pointerHandler.js.map

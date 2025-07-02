@@ -1,1 +1,252 @@
-import"./media/scm.css";import{localize as w}from"../../../../nls.js";import{$Oxb as M}from"../../../browser/parts/views/viewPane.js";import{$36 as F,$ as B}from"../../../../base/browser/dom.js";import{$2mb as D}from"../../../../platform/list/browser/listService.js";import{$UP as S}from"../common/scm.js";import{$mj as T}from"../../../../platform/instantiation/common/instantiation.js";import{$Gfb as x}from"../../../../platform/contextview/browser/contextView.js";import{$Wn as _}from"../../../../platform/contextkey/common/contextkey.js";import{$ux as j}from"../../../../platform/keybinding/common/keybinding.js";import{$Ot as P}from"../../../../platform/theme/common/themeService.js";import{$vd as C,$ud as d}from"../../../../base/common/lifecycle.js";import{$Fl as E}from"../../../../platform/configuration/common/configuration.js";import{$ZM as L}from"../../../common/views.js";import{$i_ as V}from"../../../../platform/opener/common/opener.js";import{$Joc as z,$Koc as v}from"./scmRepositoryRenderer.js";import{$pMb as A,$rMb as O}from"./util.js";import{Iterable as p}from"../../../../base/common/iterator.js";import{$xI as u}from"../../../../platform/actions/common/actions.js";import{$Fgb as N}from"../../../../platform/hover/browser/hover.js";import{$ieb as m}from"../../../../platform/observable/common/platformObservableUtils.js";import{autorun as l,observableSignalFromEvent as f}from"../../../../base/common/observable.js";var g=function(a,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,e,i);else for(var o=a.length-1;o>=0;o--)(n=a[o])&&(r=(s<3?n(r):s>3?n(t,e,r):n(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},h=function(a,t){return function(e,i){t(e,i,a)}};class Y{getHeight(){return 22}getTemplateId(){return v.TEMPLATE_ID}}class W extends C{async getChildren(t){return t instanceof c?t.repositories:[]}hasChildren(t){return t instanceof c}}class H{getId(t){return t.provider.id}}let c=class extends C{constructor(t){super(),this.a=t,this.onDidChangeRepositoriesSignal=f(this,this.a.onDidChangeRepositories),this.onDidChangeVisibleRepositoriesSignal=f(this,this.a.onDidChangeVisibleRepositories)}get repositories(){return this.a.repositories}};c=g([h(0,S)],c);let b=class extends M{constructor(t,e,i,s,r,n,o,I,$,y,R){super({...t,titleMenuId:u.SCMSourceControlTitle},i,s,I,o,n,r,$,y,R),this.m=e,this.j=new d,this.g=m("scm.repositories.visible",10,this.Cb),this.h=m("scm.providerCountBadge","hidden",this.Cb)}X(t){super.X(t);const e=F(t,B(".scm-view.scm-repositories-view"));this.B(l(i=>{const s=this.h.read(i);e.classList.toggle("hide-provider-counts",s==="hidden"),e.classList.toggle("auto-provider-counts",s==="auto")})),this.t(e),this.onDidChangeBodyVisibility(i=>{if(!i){this.j.clear();return}this.b=this.Fb.createInstance(c),this.B(this.b),this.a.setInput(this.b),this.j.add(l(s=>{const r=this.g.read(s);this.dc(r)})),this.j.add(l(async s=>{this.b.onDidChangeRepositoriesSignal.read(s),await this.cc()})),this.j.add(l(async s=>{this.b.onDidChangeVisibleRepositoriesSignal.read(s),this.ec()}))},this,this.q)}Y(t,e){super.Y(t,e),this.a.layout(t,e)}focus(){super.focus(),this.a.domFocus()}t(t){this.f=new H,this.c=this.Fb.createInstance(W),this.B(this.c);const e=m("scm.compactFolders",!0,this.Cb);this.a=this.Fb.createInstance(D,"SCM Repositories",t,new Y,{isIncompressible:()=>!0},[this.Fb.createInstance(v,u.SCMSourceControlInline,O(this.Fb))],this.c,{identityProvider:this.f,horizontalScrolling:!1,compressionEnabled:e.get(),overrideStyles:this.Zb().listOverrideStyles,accessibilityProvider:{getAriaLabel(i){return i.provider.label},getWidgetAriaLabel(){return w(10734,null)}}}),this.B(this.a),this.B(this.a.onDidChangeSelection(this.ab,this)),this.B(this.a.onDidChangeFocus(this.sb,this)),this.B(this.a.onContextMenu(this.L,this))}L(t){if(!t.element)return;const e=t.element.provider,s=this.m.menus.getRepositoryMenus(e).repositoryContextMenu,r=A(s),n=new d,o=new z(()=>this.a.getSelection());n.add(o),n.add(o.onWillRun(()=>this.a.domFocus())),this.Bb.showContextMenu({actionRunner:o,getAnchor:()=>t.anchor,getActions:()=>r,getActionsContext:()=>e,onHide:()=>n.dispose()})}ab(t){if(t.browserEvent&&t.elements.length>0){const e=this.a.scrollTop;this.m.visibleRepositories=t.elements,this.a.scrollTop=e}}sb(t){t.browserEvent&&t.elements.length>0&&this.m.focus(t.elements[0])}async cc(){await this.a.updateChildren(this.b),this.dc(this.g.get())}dc(t){if(this.orientation===1)return;const e=this.m.repositories.length===0,i=Math.min(this.m.repositories.length,t)*22;this.minimumBodySize=t===0?22:i,this.maximumBodySize=t===0||e?Number.POSITIVE_INFINITY:i}ec(){const t=this.a.getSelection(),e=new Set(t),i=new Set(this.m.visibleRepositories),s=new Set(p.filter(i,o=>!e.has(o))),r=new Set(p.filter(e,o=>!i.has(o)));if(s.size===0&&r.size===0)return;const n=t.filter(o=>!r.has(o));for(const o of this.m.repositories)s.has(o)&&n.push(o);this.a.setSelection(n),n.length>0&&!this.a.getFocus().includes(n[0])&&(this.a.setAnchor(n[0]),this.a.setFocus([n[0]]))}dispose(){this.j.dispose(),super.dispose()}};b=g([h(1,S),h(2,j),h(3,x),h(4,T),h(5,L),h(6,_),h(7,E),h(8,V),h(9,P),h(10,N)],b);export{b as $3oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/scm.css";
+import { localize } from "../../../../nls.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { append, $ } from "../../../../base/browser/dom.js";
+import { WorkbenchCompressibleAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { ISCMViewService } from "../common/scm.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { RepositoryActionRunner, RepositoryRenderer } from "./scmRepositoryRenderer.js";
+import { collectContextMenuActions, getActionViewItemProvider } from "./util.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { autorun, observableSignalFromEvent } from "../../../../base/common/observable.js";
+class ListDelegate {
+  static {
+    __name(this, "ListDelegate");
+  }
+  getHeight() {
+    return 22;
+  }
+  getTemplateId() {
+    return RepositoryRenderer.TEMPLATE_ID;
+  }
+}
+class RepositoryTreeDataSource extends Disposable {
+  static {
+    __name(this, "RepositoryTreeDataSource");
+  }
+  async getChildren(inputOrElement) {
+    if (inputOrElement instanceof SCMRepositoriesViewModel) {
+      return inputOrElement.repositories;
+    }
+    return [];
+  }
+  hasChildren(inputOrElement) {
+    return inputOrElement instanceof SCMRepositoriesViewModel;
+  }
+}
+class RepositoryTreeIdentityProvider {
+  static {
+    __name(this, "RepositoryTreeIdentityProvider");
+  }
+  getId(element) {
+    return element.provider.id;
+  }
+}
+let SCMRepositoriesViewModel = class SCMRepositoriesViewModel2 extends Disposable {
+  static {
+    __name(this, "SCMRepositoriesViewModel");
+  }
+  constructor(scmViewService) {
+    super();
+    this.scmViewService = scmViewService;
+    this.onDidChangeRepositoriesSignal = observableSignalFromEvent(this, this.scmViewService.onDidChangeRepositories);
+    this.onDidChangeVisibleRepositoriesSignal = observableSignalFromEvent(this, this.scmViewService.onDidChangeVisibleRepositories);
+  }
+  get repositories() {
+    return this.scmViewService.repositories;
+  }
+};
+SCMRepositoriesViewModel = __decorate([
+  __param(0, ISCMViewService)
+], SCMRepositoriesViewModel);
+let SCMRepositoriesViewPane = class SCMRepositoriesViewPane2 extends ViewPane {
+  static {
+    __name(this, "SCMRepositoriesViewPane");
+  }
+  constructor(options, scmViewService, keybindingService, contextMenuService, instantiationService, viewDescriptorService, contextKeyService, configurationService, openerService, themeService, hoverService) {
+    super({ ...options, titleMenuId: MenuId.SCMSourceControlTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.scmViewService = scmViewService;
+    this.visibilityDisposables = new DisposableStore();
+    this.visibleCountObs = observableConfigValue("scm.repositories.visible", 10, this.configurationService);
+    this.providerCountBadgeObs = observableConfigValue("scm.providerCountBadge", "hidden", this.configurationService);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    const treeContainer = append(container, $(".scm-view.scm-repositories-view"));
+    this._register(autorun((reader) => {
+      const providerCountBadge = this.providerCountBadgeObs.read(reader);
+      treeContainer.classList.toggle("hide-provider-counts", providerCountBadge === "hidden");
+      treeContainer.classList.toggle("auto-provider-counts", providerCountBadge === "auto");
+    }));
+    this.createTree(treeContainer);
+    this.onDidChangeBodyVisibility((visible) => {
+      if (!visible) {
+        this.visibilityDisposables.clear();
+        return;
+      }
+      this.treeViewModel = this.instantiationService.createInstance(SCMRepositoriesViewModel);
+      this._register(this.treeViewModel);
+      this.tree.setInput(this.treeViewModel);
+      this.visibilityDisposables.add(autorun((reader) => {
+        const visibleCount = this.visibleCountObs.read(reader);
+        this.updateBodySize(visibleCount);
+      }));
+      this.visibilityDisposables.add(autorun(async (reader) => {
+        this.treeViewModel.onDidChangeRepositoriesSignal.read(reader);
+        await this.updateChildren();
+      }));
+      this.visibilityDisposables.add(autorun(async (reader) => {
+        this.treeViewModel.onDidChangeVisibleRepositoriesSignal.read(reader);
+        this.updateTreeSelection();
+      }));
+    }, this, this._store);
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.tree.layout(height, width);
+  }
+  focus() {
+    super.focus();
+    this.tree.domFocus();
+  }
+  createTree(container) {
+    this.treeIdentityProvider = new RepositoryTreeIdentityProvider();
+    this.treeDataSource = this.instantiationService.createInstance(RepositoryTreeDataSource);
+    this._register(this.treeDataSource);
+    const compressionEnabled = observableConfigValue("scm.compactFolders", true, this.configurationService);
+    this.tree = this.instantiationService.createInstance(WorkbenchCompressibleAsyncDataTree, "SCM Repositories", container, new ListDelegate(), {
+      isIncompressible: /* @__PURE__ */ __name(() => true, "isIncompressible")
+    }, [
+      this.instantiationService.createInstance(RepositoryRenderer, MenuId.SCMSourceControlInline, getActionViewItemProvider(this.instantiationService))
+    ], this.treeDataSource, {
+      identityProvider: this.treeIdentityProvider,
+      horizontalScrolling: false,
+      compressionEnabled: compressionEnabled.get(),
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      accessibilityProvider: {
+        getAriaLabel(r) {
+          return r.provider.label;
+        },
+        getWidgetAriaLabel() {
+          return localize("scm", "Source Control Repositories");
+        }
+      }
+    });
+    this._register(this.tree);
+    this._register(this.tree.onDidChangeSelection(this.onTreeSelectionChange, this));
+    this._register(this.tree.onDidChangeFocus(this.onTreeDidChangeFocus, this));
+    this._register(this.tree.onContextMenu(this.onTreeContextMenu, this));
+  }
+  onTreeContextMenu(e) {
+    if (!e.element) {
+      return;
+    }
+    const provider = e.element.provider;
+    const menus = this.scmViewService.menus.getRepositoryMenus(provider);
+    const menu = menus.repositoryContextMenu;
+    const actions = collectContextMenuActions(menu);
+    const disposables = new DisposableStore();
+    const actionRunner = new RepositoryActionRunner(() => {
+      return this.tree.getSelection();
+    });
+    disposables.add(actionRunner);
+    disposables.add(actionRunner.onWillRun(() => this.tree.domFocus()));
+    this.contextMenuService.showContextMenu({
+      actionRunner,
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => provider, "getActionsContext"),
+      onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide")
+    });
+  }
+  onTreeSelectionChange(e) {
+    if (e.browserEvent && e.elements.length > 0) {
+      const scrollTop = this.tree.scrollTop;
+      this.scmViewService.visibleRepositories = e.elements;
+      this.tree.scrollTop = scrollTop;
+    }
+  }
+  onTreeDidChangeFocus(e) {
+    if (e.browserEvent && e.elements.length > 0) {
+      this.scmViewService.focus(e.elements[0]);
+    }
+  }
+  async updateChildren() {
+    await this.tree.updateChildren(this.treeViewModel);
+    this.updateBodySize(this.visibleCountObs.get());
+  }
+  updateBodySize(visibleCount) {
+    if (this.orientation === 1) {
+      return;
+    }
+    const empty = this.scmViewService.repositories.length === 0;
+    const size = Math.min(this.scmViewService.repositories.length, visibleCount) * 22;
+    this.minimumBodySize = visibleCount === 0 ? 22 : size;
+    this.maximumBodySize = visibleCount === 0 ? Number.POSITIVE_INFINITY : empty ? Number.POSITIVE_INFINITY : size;
+  }
+  updateTreeSelection() {
+    const oldSelection = this.tree.getSelection();
+    const oldSet = new Set(oldSelection);
+    const set = new Set(this.scmViewService.visibleRepositories);
+    const added = new Set(Iterable.filter(set, (r) => !oldSet.has(r)));
+    const removed = new Set(Iterable.filter(oldSet, (r) => !set.has(r)));
+    if (added.size === 0 && removed.size === 0) {
+      return;
+    }
+    const selection = oldSelection.filter((repo) => !removed.has(repo));
+    for (const repo of this.scmViewService.repositories) {
+      if (added.has(repo)) {
+        selection.push(repo);
+      }
+    }
+    this.tree.setSelection(selection);
+    if (selection.length > 0 && !this.tree.getFocus().includes(selection[0])) {
+      this.tree.setAnchor(selection[0]);
+      this.tree.setFocus([selection[0]]);
+    }
+  }
+  dispose() {
+    this.visibilityDisposables.dispose();
+    super.dispose();
+  }
+};
+SCMRepositoriesViewPane = __decorate([
+  __param(1, ISCMViewService),
+  __param(2, IKeybindingService),
+  __param(3, IContextMenuService),
+  __param(4, IInstantiationService),
+  __param(5, IViewDescriptorService),
+  __param(6, IContextKeyService),
+  __param(7, IConfigurationService),
+  __param(8, IOpenerService),
+  __param(9, IThemeService),
+  __param(10, IHoverService)
+], SCMRepositoriesViewPane);
+export {
+  SCMRepositoriesViewPane
+};
+//# sourceMappingURL=scmRepositoriesViewPane.js.map

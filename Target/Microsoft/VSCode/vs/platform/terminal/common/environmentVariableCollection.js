@@ -1,1 +1,207 @@
-import{$m as f}from"../../../base/common/platform.js";import{EnvironmentVariableMutatorType as l}from"./environmentVariable.js";const M=new Map([[l.Append,"APPEND"],[l.Prepend,"PREPEND"],[l.Replace,"REPLACE"]]);class y{constructor(e){this.collections=e,this.a=new Map,this.b=new Map,e.forEach((r,o)=>{this.d(r,o);const t=r.map.entries();let s=t.next();for(;!s.done;){const c=s.value[1],a=s.value[0];let n=this.a.get(a);if(n||(n=[],this.a.set(a,n)),n.length>0&&n[0].type===l.Replace){s=t.next();continue}const i={extensionIdentifier:o,value:c.value,type:c.type,scope:c.scope,variable:c.variable,options:c.options};i.scope||delete i.scope,n.unshift(i),s=t.next()}})}async applyToProcessEnvironment(e,r,o){let t;f&&(t={},Object.keys(e).forEach(s=>t[s.toLowerCase()]=s));for(const[s,c]of this.getVariableMap(r)){const a=f&&t[s.toLowerCase()]||s;for(const n of c){const i=o?await o(n.value):n.value;if(n.options?.applyAtProcessCreation??!0)switch(n.type){case l.Append:e[a]=(e[a]||"")+i;break;case l.Prepend:e[a]=i+(e[a]||"");break;case l.Replace:e[a]=i;break}if(n.options?.applyAtShellIntegration??!1){const u=`VSCODE_ENV_${M.get(n.type)}`;e[u]=(e[u]?e[u]+":":"")+s+"="+this.c(i)}}}}c(e){return e.replaceAll(":","\\x3a")}diff(e,r){const o=new Map,t=new Map,s=new Map;if(e.getVariableMap(r).forEach((c,a)=>{const n=this.getVariableMap(r).get(a),i=h(c,n);i&&o.set(a,i)}),this.getVariableMap(r).forEach((c,a)=>{const n=e.getVariableMap(r).get(a),i=h(c,n);i&&s.set(a,i)}),this.getVariableMap(r).forEach((c,a)=>{const n=e.getVariableMap(r).get(a),i=g(c,n);i&&t.set(a,i)}),!(o.size===0&&t.size===0&&s.size===0))return{added:o,changed:t,removed:s}}getVariableMap(e){const r=new Map;for(const o of this.a.values()){const t=o.filter(s=>d(s,e));t.length>0&&r.set(t[0].variable,t)}return r}getDescriptionMap(e){const r=new Map;for(const o of this.b.values()){const t=o.filter(s=>d(s,e,!0));for(const s of t)r.set(s.extensionIdentifier,s.description)}return r}d(e,r){if(!e.descriptionMap)return;const o=e.descriptionMap.entries();let t=o.next();for(;!t.done;){const s=t.value[1],c=t.value[0];let a=this.b.get(c);a||(a=[],this.b.set(c,a));const n={extensionIdentifier:r,scope:s.scope,description:s.description};n.scope||delete n.scope,a.push(n),t=o.next()}}}function d(p,e,r=!1){return p.scope?!!(p.scope.workspaceFolder&&e?.workspaceFolder&&p.scope.workspaceFolder.index===e.workspaceFolder.index):r?e===p.scope:!0}function h(p,e){if(!e)return p;const r=new Set;e.forEach(t=>r.add(t.extensionIdentifier));const o=[];return p.forEach(t=>{r.has(t.extensionIdentifier)||o.push(t)}),o.length===0?void 0:o}function g(p,e){if(!e)return;const r=new Map;e.forEach(t=>r.set(t.extensionIdentifier,t));const o=[];return p.forEach(t=>{const s=r.get(t.extensionIdentifier);s&&(t.type!==s.type||t.value!==s.value||t.scope?.workspaceFolder?.index!==s.scope?.workspaceFolder?.index)&&o.push(s)}),o.length===0?void 0:o}export{y as $BA};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isWindows } from "../../../base/common/platform.js";
+import { EnvironmentVariableMutatorType } from "./environmentVariable.js";
+const mutatorTypeToLabelMap = /* @__PURE__ */ new Map([
+  [EnvironmentVariableMutatorType.Append, "APPEND"],
+  [EnvironmentVariableMutatorType.Prepend, "PREPEND"],
+  [EnvironmentVariableMutatorType.Replace, "REPLACE"]
+]);
+class MergedEnvironmentVariableCollection {
+  static {
+    __name(this, "MergedEnvironmentVariableCollection");
+  }
+  constructor(collections) {
+    this.collections = collections;
+    this.map = /* @__PURE__ */ new Map();
+    this.descriptionMap = /* @__PURE__ */ new Map();
+    collections.forEach((collection, extensionIdentifier) => {
+      this.populateDescriptionMap(collection, extensionIdentifier);
+      const it = collection.map.entries();
+      let next = it.next();
+      while (!next.done) {
+        const mutator = next.value[1];
+        const key = next.value[0];
+        let entry = this.map.get(key);
+        if (!entry) {
+          entry = [];
+          this.map.set(key, entry);
+        }
+        if (entry.length > 0 && entry[0].type === EnvironmentVariableMutatorType.Replace) {
+          next = it.next();
+          continue;
+        }
+        const extensionMutator = {
+          extensionIdentifier,
+          value: mutator.value,
+          type: mutator.type,
+          scope: mutator.scope,
+          variable: mutator.variable,
+          options: mutator.options
+        };
+        if (!extensionMutator.scope) {
+          delete extensionMutator.scope;
+        }
+        entry.unshift(extensionMutator);
+        next = it.next();
+      }
+    });
+  }
+  async applyToProcessEnvironment(env, scope, variableResolver) {
+    let lowerToActualVariableNames;
+    if (isWindows) {
+      lowerToActualVariableNames = {};
+      Object.keys(env).forEach((e) => lowerToActualVariableNames[e.toLowerCase()] = e);
+    }
+    for (const [variable, mutators] of this.getVariableMap(scope)) {
+      const actualVariable = isWindows ? lowerToActualVariableNames[variable.toLowerCase()] || variable : variable;
+      for (const mutator of mutators) {
+        const value = variableResolver ? await variableResolver(mutator.value) : mutator.value;
+        if (mutator.options?.applyAtProcessCreation ?? true) {
+          switch (mutator.type) {
+            case EnvironmentVariableMutatorType.Append:
+              env[actualVariable] = (env[actualVariable] || "") + value;
+              break;
+            case EnvironmentVariableMutatorType.Prepend:
+              env[actualVariable] = value + (env[actualVariable] || "");
+              break;
+            case EnvironmentVariableMutatorType.Replace:
+              env[actualVariable] = value;
+              break;
+          }
+        }
+        if (mutator.options?.applyAtShellIntegration ?? false) {
+          const key = `VSCODE_ENV_${mutatorTypeToLabelMap.get(mutator.type)}`;
+          env[key] = (env[key] ? env[key] + ":" : "") + variable + "=" + this._encodeColons(value);
+        }
+      }
+    }
+  }
+  _encodeColons(value) {
+    return value.replaceAll(":", "\\x3a");
+  }
+  diff(other, scope) {
+    const added = /* @__PURE__ */ new Map();
+    const changed = /* @__PURE__ */ new Map();
+    const removed = /* @__PURE__ */ new Map();
+    other.getVariableMap(scope).forEach((otherMutators, variable) => {
+      const currentMutators = this.getVariableMap(scope).get(variable);
+      const result = getMissingMutatorsFromArray(otherMutators, currentMutators);
+      if (result) {
+        added.set(variable, result);
+      }
+    });
+    this.getVariableMap(scope).forEach((currentMutators, variable) => {
+      const otherMutators = other.getVariableMap(scope).get(variable);
+      const result = getMissingMutatorsFromArray(currentMutators, otherMutators);
+      if (result) {
+        removed.set(variable, result);
+      }
+    });
+    this.getVariableMap(scope).forEach((currentMutators, variable) => {
+      const otherMutators = other.getVariableMap(scope).get(variable);
+      const result = getChangedMutatorsFromArray(currentMutators, otherMutators);
+      if (result) {
+        changed.set(variable, result);
+      }
+    });
+    if (added.size === 0 && changed.size === 0 && removed.size === 0) {
+      return void 0;
+    }
+    return { added, changed, removed };
+  }
+  getVariableMap(scope) {
+    const result = /* @__PURE__ */ new Map();
+    for (const mutators of this.map.values()) {
+      const filteredMutators = mutators.filter((m) => filterScope(m, scope));
+      if (filteredMutators.length > 0) {
+        result.set(filteredMutators[0].variable, filteredMutators);
+      }
+    }
+    return result;
+  }
+  getDescriptionMap(scope) {
+    const result = /* @__PURE__ */ new Map();
+    for (const mutators of this.descriptionMap.values()) {
+      const filteredMutators = mutators.filter((m) => filterScope(m, scope, true));
+      for (const mutator of filteredMutators) {
+        result.set(mutator.extensionIdentifier, mutator.description);
+      }
+    }
+    return result;
+  }
+  populateDescriptionMap(collection, extensionIdentifier) {
+    if (!collection.descriptionMap) {
+      return;
+    }
+    const it = collection.descriptionMap.entries();
+    let next = it.next();
+    while (!next.done) {
+      const mutator = next.value[1];
+      const key = next.value[0];
+      let entry = this.descriptionMap.get(key);
+      if (!entry) {
+        entry = [];
+        this.descriptionMap.set(key, entry);
+      }
+      const extensionMutator = {
+        extensionIdentifier,
+        scope: mutator.scope,
+        description: mutator.description
+      };
+      if (!extensionMutator.scope) {
+        delete extensionMutator.scope;
+      }
+      entry.push(extensionMutator);
+      next = it.next();
+    }
+  }
+}
+function filterScope(mutator, scope, strictFilter = false) {
+  if (!mutator.scope) {
+    if (strictFilter) {
+      return scope === mutator.scope;
+    }
+    return true;
+  }
+  if (mutator.scope.workspaceFolder && scope?.workspaceFolder && mutator.scope.workspaceFolder.index === scope.workspaceFolder.index) {
+    return true;
+  }
+  return false;
+}
+__name(filterScope, "filterScope");
+function getMissingMutatorsFromArray(current, other) {
+  if (!other) {
+    return current;
+  }
+  const otherMutatorExtensions = /* @__PURE__ */ new Set();
+  other.forEach((m) => otherMutatorExtensions.add(m.extensionIdentifier));
+  const result = [];
+  current.forEach((mutator) => {
+    if (!otherMutatorExtensions.has(mutator.extensionIdentifier)) {
+      result.push(mutator);
+    }
+  });
+  return result.length === 0 ? void 0 : result;
+}
+__name(getMissingMutatorsFromArray, "getMissingMutatorsFromArray");
+function getChangedMutatorsFromArray(current, other) {
+  if (!other) {
+    return void 0;
+  }
+  const otherMutatorExtensions = /* @__PURE__ */ new Map();
+  other.forEach((m) => otherMutatorExtensions.set(m.extensionIdentifier, m));
+  const result = [];
+  current.forEach((mutator) => {
+    const otherMutator = otherMutatorExtensions.get(mutator.extensionIdentifier);
+    if (otherMutator && (mutator.type !== otherMutator.type || mutator.value !== otherMutator.value || mutator.scope?.workspaceFolder?.index !== otherMutator.scope?.workspaceFolder?.index)) {
+      result.push(otherMutator);
+    }
+  });
+  return result.length === 0 ? void 0 : result;
+}
+__name(getChangedMutatorsFromArray, "getChangedMutatorsFromArray");
+export {
+  MergedEnvironmentVariableCollection
+};
+//# sourceMappingURL=environmentVariableCollection.js.map

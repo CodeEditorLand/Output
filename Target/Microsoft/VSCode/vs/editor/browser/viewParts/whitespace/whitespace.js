@@ -1,1 +1,277 @@
-import"./whitespace.css";import{$Mcb as M}from"../../view/dynamicViewOverlay.js";import*as I from"../../../../base/common/strings.js";import{$bC as U}from"../../../common/core/position.js";import{$6F as G}from"../../../common/core/editorColorRegistry.js";import{$cD as D}from"../../../common/core/ranges/offsetRange.js";class k extends M{constructor(e){super(),this.a=e,this.b=new V(this.a.configuration),this.c=[],this.f=null,this.a.addEventHandler(this)}dispose(){this.a.removeEventHandler(this),this.f=null,super.dispose()}onConfigurationChanged(e){const t=new V(this.a.configuration);return this.b.equals(t)?e.hasChanged(156):(this.b=t,!0)}onCursorStateChanged(e){return this.c=e.selections,this.b.renderWhitespace==="selection"}onDecorationsChanged(e){return!0}onFlushed(e){return!0}onLinesChanged(e){return!0}onLinesDeleted(e){return!0}onLinesInserted(e){return!0}onScrollChanged(e){return e.scrollTopChanged}onZonesChanged(e){return!0}prepareRender(e){if(this.b.renderWhitespace==="none"){this.f=null;return}const t=e.visibleRange.startLineNumber,d=e.visibleRange.endLineNumber-t+1,w=new Array(d);for(let n=0;n<d;n++)w[n]=!0;this.f=[];for(let n=e.viewportData.startLineNumber;n<=e.viewportData.endLineNumber;n++){const a=n-e.viewportData.startLineNumber,h=this.a.viewModel.getViewLineRenderingData(n);let s=null;if(this.b.renderWhitespace==="selection"){const l=this.c;for(const o of l){if(o.endLineNumber<n||o.startLineNumber>n)continue;const u=o.startLineNumber===n?o.startColumn:h.minColumn,c=o.endLineNumber===n?o.endColumn:h.maxColumn;u<c&&(s||(s=[]),s.push(new D(u-1,c-1)))}}this.f[a]=this.g(e,n,s,h)}}g(e,t,i,d){if(d.hasVariableFonts||this.b.renderWhitespace==="selection"&&!i||this.b.renderWhitespace==="trailing"&&d.continuesWithWrappedLine)return"";const w=this.a.theme.getColor(G),n=this.b.renderWithSVG,a=d.content,h=this.b.stopRenderingLineAfter===-1?a.length:Math.min(this.b.stopRenderingLineAfter,a.length),s=d.continuesWithWrappedLine,l=d.minColumn-1,o=this.b.renderWhitespace==="boundary",u=this.b.renderWhitespace==="trailing",c=e.getLineHeightForLineNumber(t),L=this.b.middotWidth,v=this.b.wsmiddotWidth,f=this.b.spaceWidth,$=Math.abs(v-f),A=Math.abs(L-f),N=$<A?11825:183,b=this.b.canUseHalfwidthRightwardsArrow;let p="",H=!1,S=I.$Sf(a),C;S===-1?(H=!0,S=h,C=h):C=I.$Uf(a);let R=0,g=i&&i[R],m=0;for(let r=l;r<h;r++){const x=a.charCodeAt(r);if(g&&g.endExclusive<=r&&(R++,g=i&&i[R]),x!==9&&x!==32||u&&!H&&r<=C)continue;if(o&&r>=S&&r<=C&&x===32){const y=r-1>=0?a.charCodeAt(r-1):0,F=r+1<h?a.charCodeAt(r+1):0;if(y!==32&&F!==32)continue}if(o&&s&&r===h-1){const y=r-1>=0?a.charCodeAt(r-1):0;if(x===32&&y!==32&&y!==9)continue}if(i&&!(g&&g.start<=r&&r<g.endExclusive))continue;const W=e.visibleRangeForPosition(new U(t,r+1));W&&(n?(m=Math.max(m,W.left),x===9?p+=this.h(c,f,W.left):p+=`<circle cx="${(W.left+f/2).toFixed(2)}" cy="${(c/2).toFixed(2)}" r="${(f/7).toFixed(2)}" />`):x===9?p+=`<div class="mwh" style="left:${W.left}px;height:${c}px;">${b?"\uFFEB":"\u2192"}</div>`:p+=`<div class="mwh" style="left:${W.left}px;height:${c}px;">${String.fromCharCode(N)}</div>`)}return n?(m=Math.round(m+f),`<svg style="bottom:0;position:absolute;width:${m}px;height:${c}px" viewBox="0 0 ${m} ${c}" xmlns="http://www.w3.org/2000/svg" fill="${w}">`+p+"</svg>"):p}h(e,t,i){const d=t/7,w=t,n=e/2,a=i,h={x:0,y:d/2},s={x:100/125*w,y:h.y},l={x:s.x-.2*s.x,y:s.y+.2*s.x},o={x:l.x+.1*s.x,y:l.y+.1*s.x},u={x:o.x+.35*s.x,y:o.y-.35*s.x},c={x:u.x,y:-u.y},L={x:o.x,y:-o.y},v={x:l.x,y:-l.y},f={x:s.x,y:-s.y},$={x:h.x,y:-h.y};return`<path d="M ${[h,s,l,o,u,c,L,v,f,$].map(b=>`${(a+b.x).toFixed(2)} ${(n+b.y).toFixed(2)}`).join(" L ")}" />`}render(e,t){if(!this.f)return"";const i=t-e;return i<0||i>=this.f.length?"":this.f[i]}}class V{constructor(e){const t=e.options,i=t.get(57),d=t.get(45);d==="off"?(this.renderWhitespace="none",this.renderWithSVG=!1):d==="svg"?(this.renderWhitespace=t.get(109),this.renderWithSVG=!0):(this.renderWhitespace=t.get(109),this.renderWithSVG=!1),this.spaceWidth=i.spaceWidth,this.middotWidth=i.middotWidth,this.wsmiddotWidth=i.wsmiddotWidth,this.canUseHalfwidthRightwardsArrow=i.canUseHalfwidthRightwardsArrow,this.lineHeight=t.get(73),this.stopRenderingLineAfter=t.get(127)}equals(e){return this.renderWhitespace===e.renderWhitespace&&this.renderWithSVG===e.renderWithSVG&&this.spaceWidth===e.spaceWidth&&this.middotWidth===e.middotWidth&&this.wsmiddotWidth===e.wsmiddotWidth&&this.canUseHalfwidthRightwardsArrow===e.canUseHalfwidthRightwardsArrow&&this.lineHeight===e.lineHeight&&this.stopRenderingLineAfter===e.stopRenderingLineAfter}}export{k as $ndb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./whitespace.css";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
+import * as strings from "../../../../base/common/strings.js";
+import { Position } from "../../../common/core/position.js";
+import { editorWhitespaces } from "../../../common/core/editorColorRegistry.js";
+import { OffsetRange } from "../../../common/core/ranges/offsetRange.js";
+class WhitespaceOverlay extends DynamicViewOverlay {
+  static {
+    __name(this, "WhitespaceOverlay");
+  }
+  constructor(context) {
+    super();
+    this._context = context;
+    this._options = new WhitespaceOptions(this._context.configuration);
+    this._selection = [];
+    this._renderResult = null;
+    this._context.addEventHandler(this);
+  }
+  dispose() {
+    this._context.removeEventHandler(this);
+    this._renderResult = null;
+    super.dispose();
+  }
+  // --- begin event handlers
+  onConfigurationChanged(e) {
+    const newOptions = new WhitespaceOptions(this._context.configuration);
+    if (this._options.equals(newOptions)) {
+      return e.hasChanged(
+        156
+        /* EditorOption.layoutInfo */
+      );
+    }
+    this._options = newOptions;
+    return true;
+  }
+  onCursorStateChanged(e) {
+    this._selection = e.selections;
+    if (this._options.renderWhitespace === "selection") {
+      return true;
+    }
+    return false;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onLinesChanged(e) {
+    return true;
+  }
+  onLinesDeleted(e) {
+    return true;
+  }
+  onLinesInserted(e) {
+    return true;
+  }
+  onScrollChanged(e) {
+    return e.scrollTopChanged;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // --- end event handlers
+  prepareRender(ctx) {
+    if (this._options.renderWhitespace === "none") {
+      this._renderResult = null;
+      return;
+    }
+    const startLineNumber = ctx.visibleRange.startLineNumber;
+    const endLineNumber = ctx.visibleRange.endLineNumber;
+    const lineCount = endLineNumber - startLineNumber + 1;
+    const needed = new Array(lineCount);
+    for (let i = 0; i < lineCount; i++) {
+      needed[i] = true;
+    }
+    this._renderResult = [];
+    for (let lineNumber = ctx.viewportData.startLineNumber; lineNumber <= ctx.viewportData.endLineNumber; lineNumber++) {
+      const lineIndex = lineNumber - ctx.viewportData.startLineNumber;
+      const lineData = this._context.viewModel.getViewLineRenderingData(lineNumber);
+      let selectionsOnLine = null;
+      if (this._options.renderWhitespace === "selection") {
+        const selections = this._selection;
+        for (const selection of selections) {
+          if (selection.endLineNumber < lineNumber || selection.startLineNumber > lineNumber) {
+            continue;
+          }
+          const startColumn = selection.startLineNumber === lineNumber ? selection.startColumn : lineData.minColumn;
+          const endColumn = selection.endLineNumber === lineNumber ? selection.endColumn : lineData.maxColumn;
+          if (startColumn < endColumn) {
+            if (!selectionsOnLine) {
+              selectionsOnLine = [];
+            }
+            selectionsOnLine.push(new OffsetRange(startColumn - 1, endColumn - 1));
+          }
+        }
+      }
+      this._renderResult[lineIndex] = this._applyRenderWhitespace(ctx, lineNumber, selectionsOnLine, lineData);
+    }
+  }
+  _applyRenderWhitespace(ctx, lineNumber, selections, lineData) {
+    if (lineData.hasVariableFonts) {
+      return "";
+    }
+    if (this._options.renderWhitespace === "selection" && !selections) {
+      return "";
+    }
+    if (this._options.renderWhitespace === "trailing" && lineData.continuesWithWrappedLine) {
+      return "";
+    }
+    const color = this._context.theme.getColor(editorWhitespaces);
+    const USE_SVG = this._options.renderWithSVG;
+    const lineContent = lineData.content;
+    const len = this._options.stopRenderingLineAfter === -1 ? lineContent.length : Math.min(this._options.stopRenderingLineAfter, lineContent.length);
+    const continuesWithWrappedLine = lineData.continuesWithWrappedLine;
+    const fauxIndentLength = lineData.minColumn - 1;
+    const onlyBoundary = this._options.renderWhitespace === "boundary";
+    const onlyTrailing = this._options.renderWhitespace === "trailing";
+    const lineHeight = ctx.getLineHeightForLineNumber(lineNumber);
+    const middotWidth = this._options.middotWidth;
+    const wsmiddotWidth = this._options.wsmiddotWidth;
+    const spaceWidth = this._options.spaceWidth;
+    const wsmiddotDiff = Math.abs(wsmiddotWidth - spaceWidth);
+    const middotDiff = Math.abs(middotWidth - spaceWidth);
+    const renderSpaceCharCode = wsmiddotDiff < middotDiff ? 11825 : 183;
+    const canUseHalfwidthRightwardsArrow = this._options.canUseHalfwidthRightwardsArrow;
+    let result = "";
+    let lineIsEmptyOrWhitespace = false;
+    let firstNonWhitespaceIndex = strings.firstNonWhitespaceIndex(lineContent);
+    let lastNonWhitespaceIndex;
+    if (firstNonWhitespaceIndex === -1) {
+      lineIsEmptyOrWhitespace = true;
+      firstNonWhitespaceIndex = len;
+      lastNonWhitespaceIndex = len;
+    } else {
+      lastNonWhitespaceIndex = strings.lastNonWhitespaceIndex(lineContent);
+    }
+    let currentSelectionIndex = 0;
+    let currentSelection = selections && selections[currentSelectionIndex];
+    let maxLeft = 0;
+    for (let charIndex = fauxIndentLength; charIndex < len; charIndex++) {
+      const chCode = lineContent.charCodeAt(charIndex);
+      if (currentSelection && currentSelection.endExclusive <= charIndex) {
+        currentSelectionIndex++;
+        currentSelection = selections && selections[currentSelectionIndex];
+      }
+      if (chCode !== 9 && chCode !== 32) {
+        continue;
+      }
+      if (onlyTrailing && !lineIsEmptyOrWhitespace && charIndex <= lastNonWhitespaceIndex) {
+        continue;
+      }
+      if (onlyBoundary && charIndex >= firstNonWhitespaceIndex && charIndex <= lastNonWhitespaceIndex && chCode === 32) {
+        const prevChCode = charIndex - 1 >= 0 ? lineContent.charCodeAt(charIndex - 1) : 0;
+        const nextChCode = charIndex + 1 < len ? lineContent.charCodeAt(charIndex + 1) : 0;
+        if (prevChCode !== 32 && nextChCode !== 32) {
+          continue;
+        }
+      }
+      if (onlyBoundary && continuesWithWrappedLine && charIndex === len - 1) {
+        const prevCharCode = charIndex - 1 >= 0 ? lineContent.charCodeAt(charIndex - 1) : 0;
+        const isSingleTrailingSpace = chCode === 32 && (prevCharCode !== 32 && prevCharCode !== 9);
+        if (isSingleTrailingSpace) {
+          continue;
+        }
+      }
+      if (selections && !(currentSelection && currentSelection.start <= charIndex && charIndex < currentSelection.endExclusive)) {
+        continue;
+      }
+      const visibleRange = ctx.visibleRangeForPosition(new Position(lineNumber, charIndex + 1));
+      if (!visibleRange) {
+        continue;
+      }
+      if (USE_SVG) {
+        maxLeft = Math.max(maxLeft, visibleRange.left);
+        if (chCode === 9) {
+          result += this._renderArrow(lineHeight, spaceWidth, visibleRange.left);
+        } else {
+          result += `<circle cx="${(visibleRange.left + spaceWidth / 2).toFixed(2)}" cy="${(lineHeight / 2).toFixed(2)}" r="${(spaceWidth / 7).toFixed(2)}" />`;
+        }
+      } else {
+        if (chCode === 9) {
+          result += `<div class="mwh" style="left:${visibleRange.left}px;height:${lineHeight}px;">${canUseHalfwidthRightwardsArrow ? String.fromCharCode(65515) : String.fromCharCode(8594)}</div>`;
+        } else {
+          result += `<div class="mwh" style="left:${visibleRange.left}px;height:${lineHeight}px;">${String.fromCharCode(renderSpaceCharCode)}</div>`;
+        }
+      }
+    }
+    if (USE_SVG) {
+      maxLeft = Math.round(maxLeft + spaceWidth);
+      return `<svg style="bottom:0;position:absolute;width:${maxLeft}px;height:${lineHeight}px" viewBox="0 0 ${maxLeft} ${lineHeight}" xmlns="http://www.w3.org/2000/svg" fill="${color}">` + result + `</svg>`;
+    }
+    return result;
+  }
+  _renderArrow(lineHeight, spaceWidth, left) {
+    const strokeWidth = spaceWidth / 7;
+    const width = spaceWidth;
+    const dy = lineHeight / 2;
+    const dx = left;
+    const p1 = { x: 0, y: strokeWidth / 2 };
+    const p2 = { x: 100 / 125 * width, y: p1.y };
+    const p3 = { x: p2.x - 0.2 * p2.x, y: p2.y + 0.2 * p2.x };
+    const p4 = { x: p3.x + 0.1 * p2.x, y: p3.y + 0.1 * p2.x };
+    const p5 = { x: p4.x + 0.35 * p2.x, y: p4.y - 0.35 * p2.x };
+    const p6 = { x: p5.x, y: -p5.y };
+    const p7 = { x: p4.x, y: -p4.y };
+    const p8 = { x: p3.x, y: -p3.y };
+    const p9 = { x: p2.x, y: -p2.y };
+    const p10 = { x: p1.x, y: -p1.y };
+    const p = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+    const parts = p.map((p11) => `${(dx + p11.x).toFixed(2)} ${(dy + p11.y).toFixed(2)}`).join(" L ");
+    return `<path d="M ${parts}" />`;
+  }
+  render(startLineNumber, lineNumber) {
+    if (!this._renderResult) {
+      return "";
+    }
+    const lineIndex = lineNumber - startLineNumber;
+    if (lineIndex < 0 || lineIndex >= this._renderResult.length) {
+      return "";
+    }
+    return this._renderResult[lineIndex];
+  }
+}
+class WhitespaceOptions {
+  static {
+    __name(this, "WhitespaceOptions");
+  }
+  constructor(config) {
+    const options = config.options;
+    const fontInfo = options.get(
+      57
+      /* EditorOption.fontInfo */
+    );
+    const experimentalWhitespaceRendering = options.get(
+      45
+      /* EditorOption.experimentalWhitespaceRendering */
+    );
+    if (experimentalWhitespaceRendering === "off") {
+      this.renderWhitespace = "none";
+      this.renderWithSVG = false;
+    } else if (experimentalWhitespaceRendering === "svg") {
+      this.renderWhitespace = options.get(
+        109
+        /* EditorOption.renderWhitespace */
+      );
+      this.renderWithSVG = true;
+    } else {
+      this.renderWhitespace = options.get(
+        109
+        /* EditorOption.renderWhitespace */
+      );
+      this.renderWithSVG = false;
+    }
+    this.spaceWidth = fontInfo.spaceWidth;
+    this.middotWidth = fontInfo.middotWidth;
+    this.wsmiddotWidth = fontInfo.wsmiddotWidth;
+    this.canUseHalfwidthRightwardsArrow = fontInfo.canUseHalfwidthRightwardsArrow;
+    this.lineHeight = options.get(
+      73
+      /* EditorOption.lineHeight */
+    );
+    this.stopRenderingLineAfter = options.get(
+      127
+      /* EditorOption.stopRenderingLineAfter */
+    );
+  }
+  equals(other) {
+    return this.renderWhitespace === other.renderWhitespace && this.renderWithSVG === other.renderWithSVG && this.spaceWidth === other.spaceWidth && this.middotWidth === other.middotWidth && this.wsmiddotWidth === other.wsmiddotWidth && this.canUseHalfwidthRightwardsArrow === other.canUseHalfwidthRightwardsArrow && this.lineHeight === other.lineHeight && this.stopRenderingLineAfter === other.stopRenderingLineAfter;
+  }
+}
+export {
+  WhitespaceOverlay
+};
+//# sourceMappingURL=whitespace.js.map

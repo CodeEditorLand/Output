@@ -1,1 +1,31 @@
-var t;(function(H){H.DARK="dark",H.LIGHT="light",H.HIGH_CONTRAST_DARK="hcDark",H.HIGH_CONTRAST_LIGHT="hcLight"})(t||(t={}));var _;(function(H){H.VS="vs",H.VS_DARK="vs-dark",H.HC_BLACK="hc-black",H.HC_LIGHT="hc-light"})(_||(_={}));function A(H){return H===t.HIGH_CONTRAST_DARK||H===t.HIGH_CONTRAST_LIGHT}function R(H){return H===t.DARK||H===t.HIGH_CONTRAST_DARK}export{A as $Mt,R as $Nt,t as ColorScheme,_ as ThemeTypeSelector};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var ColorScheme;
+(function(ColorScheme2) {
+  ColorScheme2["DARK"] = "dark";
+  ColorScheme2["LIGHT"] = "light";
+  ColorScheme2["HIGH_CONTRAST_DARK"] = "hcDark";
+  ColorScheme2["HIGH_CONTRAST_LIGHT"] = "hcLight";
+})(ColorScheme || (ColorScheme = {}));
+var ThemeTypeSelector;
+(function(ThemeTypeSelector2) {
+  ThemeTypeSelector2["VS"] = "vs";
+  ThemeTypeSelector2["VS_DARK"] = "vs-dark";
+  ThemeTypeSelector2["HC_BLACK"] = "hc-black";
+  ThemeTypeSelector2["HC_LIGHT"] = "hc-light";
+})(ThemeTypeSelector || (ThemeTypeSelector = {}));
+function isHighContrast(scheme) {
+  return scheme === ColorScheme.HIGH_CONTRAST_DARK || scheme === ColorScheme.HIGH_CONTRAST_LIGHT;
+}
+__name(isHighContrast, "isHighContrast");
+function isDark(scheme) {
+  return scheme === ColorScheme.DARK || scheme === ColorScheme.HIGH_CONTRAST_DARK;
+}
+__name(isDark, "isDark");
+export {
+  ColorScheme,
+  ThemeTypeSelector,
+  isDark,
+  isHighContrast
+};
+//# sourceMappingURL=theme.js.map

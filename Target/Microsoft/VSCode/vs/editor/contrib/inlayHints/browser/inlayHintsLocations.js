@@ -1,1 +1,98 @@
-import*as y from"../../../../base/browser/dom.js";import{$am as g,$cm as x}from"../../../../base/common/actions.js";import{CancellationToken as b}from"../../../../base/common/cancellation.js";import{$Sm as M}from"../../../../base/common/uuid.js";import{$cC as u}from"../../../common/core/range.js";import{$wF as S}from"../../../common/services/resolverService.js";import{$onb as I,$nnb as k,$mnb as $}from"../../gotoSymbol/browser/goToCommands.js";import{PeekContext as C}from"../../peekView/browser/peekView.js";import{$vI as P,$xI as E,$BI as j,$zI as A}from"../../../../platform/actions/common/actions.js";import{$Zn as F}from"../../../../platform/commands/common/commands.js";import{$Wn as N}from"../../../../platform/contextkey/common/contextkey.js";import{$Gfb as O}from"../../../../platform/contextview/browser/contextView.js";import{$mj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$_I as T,Severity as B}from"../../../../platform/notification/common/notification.js";async function U(o,n,r,t){const l=o.get(S),c=o.get(O),m=o.get(F),a=o.get(R),f=o.get(T);if(await t.item.resolve(b.None),!t.part.location)return;const s=t.part.location,i=[],p=new Set(A.getMenuItems(E.EditorContext).map(e=>P(e)?e.command.id:M()));for(const e of k.all())p.has(e.desc.id)&&i.push(new g(e.desc.id,j.label(e.desc,{renderShortTitle:!0}),void 0,!0,async()=>{const d=await l.createModelReference(s.uri);try{const w=new $(d.object.textEditorModel,u.getStartPosition(s.range)),h=t.item.anchor.range;await a.invokeFunction(e.runEditorCommand.bind(e),n,w,h)}finally{d.dispose()}}));if(t.part.command){const{command:e}=t.part;i.push(new x),i.push(new g(e.id,e.title,void 0,!0,async()=>{try{await m.executeCommand(e.id,...e.arguments??[])}catch(d){f.notify({severity:B.Error,source:t.item.provider.displayName,message:d})}}))}const v=n.getOption(137);c.showContextMenu({domForShadowRoot:v?n.getDomNode()??void 0:void 0,getAnchor:()=>{const e=y.$j6(r);return{x:e.left,y:e.top+e.height+8}},getActions:()=>i,onHide:()=>{n.focus()},autoSelectFirstItem:!0})}async function X(o,n,r,t){const c=await o.get(S).createModelReference(t.uri);await r.invokeWithinContext(async m=>{const a=n.hasSideBySideModifier,f=m.get(N),s=C.inPeekEditor.getValue(f),i=!a&&r.getOption(98)&&!s;return new I({openToSide:a,openInPeek:i,muteMessage:!0},{title:{value:"",original:""},id:"",precondition:void 0}).run(m,new $(c.object.textEditorModel,u.getStartPosition(t.range)),u.lift(t.range))}),c.dispose()}export{U as $pnb,X as $qnb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { Action, Separator } from "../../../../base/common/actions.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { Range } from "../../../common/core/range.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import { DefinitionAction, SymbolNavigationAction, SymbolNavigationAnchor } from "../../gotoSymbol/browser/goToCommands.js";
+import { PeekContext } from "../../peekView/browser/peekView.js";
+import { isIMenuItem, MenuId, MenuItemAction, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+async function showGoToContextMenu(accessor, editor, anchor, part) {
+  const resolverService = accessor.get(ITextModelService);
+  const contextMenuService = accessor.get(IContextMenuService);
+  const commandService = accessor.get(ICommandService);
+  const instaService = accessor.get(IInstantiationService);
+  const notificationService = accessor.get(INotificationService);
+  await part.item.resolve(CancellationToken.None);
+  if (!part.part.location) {
+    return;
+  }
+  const location = part.part.location;
+  const menuActions = [];
+  const filter = new Set(MenuRegistry.getMenuItems(MenuId.EditorContext).map((item) => isIMenuItem(item) ? item.command.id : generateUuid()));
+  for (const delegate of SymbolNavigationAction.all()) {
+    if (filter.has(delegate.desc.id)) {
+      menuActions.push(new Action(delegate.desc.id, MenuItemAction.label(delegate.desc, { renderShortTitle: true }), void 0, true, async () => {
+        const ref = await resolverService.createModelReference(location.uri);
+        try {
+          const symbolAnchor = new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range));
+          const range = part.item.anchor.range;
+          await instaService.invokeFunction(delegate.runEditorCommand.bind(delegate), editor, symbolAnchor, range);
+        } finally {
+          ref.dispose();
+        }
+      }));
+    }
+  }
+  if (part.part.command) {
+    const { command } = part.part;
+    menuActions.push(new Separator());
+    menuActions.push(new Action(command.id, command.title, void 0, true, async () => {
+      try {
+        await commandService.executeCommand(command.id, ...command.arguments ?? []);
+      } catch (err) {
+        notificationService.notify({
+          severity: Severity.Error,
+          source: part.item.provider.displayName,
+          message: err
+        });
+      }
+    }));
+  }
+  const useShadowDOM = editor.getOption(
+    137
+    /* EditorOption.useShadowDOM */
+  );
+  contextMenuService.showContextMenu({
+    domForShadowRoot: useShadowDOM ? editor.getDomNode() ?? void 0 : void 0,
+    getAnchor: /* @__PURE__ */ __name(() => {
+      const box = dom.getDomNodePagePosition(anchor);
+      return { x: box.left, y: box.top + box.height + 8 };
+    }, "getAnchor"),
+    getActions: /* @__PURE__ */ __name(() => menuActions, "getActions"),
+    onHide: /* @__PURE__ */ __name(() => {
+      editor.focus();
+    }, "onHide"),
+    autoSelectFirstItem: true
+  });
+}
+__name(showGoToContextMenu, "showGoToContextMenu");
+async function goToDefinitionWithLocation(accessor, event, editor, location) {
+  const resolverService = accessor.get(ITextModelService);
+  const ref = await resolverService.createModelReference(location.uri);
+  await editor.invokeWithinContext(async (accessor2) => {
+    const openToSide = event.hasSideBySideModifier;
+    const contextKeyService = accessor2.get(IContextKeyService);
+    const isInPeek = PeekContext.inPeekEditor.getValue(contextKeyService);
+    const canPeek = !openToSide && editor.getOption(
+      98
+      /* EditorOption.definitionLinkOpensInPeek */
+    ) && !isInPeek;
+    const action = new DefinitionAction({ openToSide, openInPeek: canPeek, muteMessage: true }, { title: { value: "", original: "" }, id: "", precondition: void 0 });
+    return action.run(accessor2, new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range)), Range.lift(location.range));
+  });
+  ref.dispose();
+}
+__name(goToDefinitionWithLocation, "goToDefinitionWithLocation");
+export {
+  goToDefinitionWithLocation,
+  showGoToContextMenu
+};
+//# sourceMappingURL=inlayHintsLocations.js.map

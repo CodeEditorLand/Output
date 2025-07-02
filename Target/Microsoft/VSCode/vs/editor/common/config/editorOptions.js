@@ -1,1 +1,3680 @@
-import*as xe from"../../../base/common/arrays.js";import*as ge from"../../../base/common/objects.js";import*as z from"../../../base/common/platform.js";import{$nC as we}from"../core/misc/textModelDefaults.js";import{$oC as Ve}from"../core/wordHelper.js";import*as t from"../../../nls.js";var ye;(function(e){e[e.None=0]="None",e[e.Keep=1]="Keep",e[e.Brackets=2]="Brackets",e[e.Advanced=3]="Advanced",e[e.Full=4]="Full"})(ye||(ye={}));const He=8;class Ll{constructor(l){this.c=l}hasChanged(l){return this.c[l]}}class Me{constructor(){this.stableMinimapLayoutInput=null,this.stableFitMaxMinimapScale=0,this.stableFitRemainingWidth=0}}class f{constructor(l,n,a,o){this.id=l,this.name=n,this.defaultValue=a,this.schema=o}applyUpdate(l,n){return de(l,n)}compute(l,n,a){return a}}class ce{constructor(l,n){this.newValue=l,this.didChange=n}}function de(e,l){if(typeof e!="object"||typeof l!="object"||!e||!l)return new ce(l,e!==l);if(Array.isArray(e)||Array.isArray(l)){const a=Array.isArray(e)&&Array.isArray(l)&&xe.$Sb(e,l);return new ce(l,!a)}let n=!1;for(const a in l)if(l.hasOwnProperty(a)){const o=de(e[a],l[a]);o.didChange&&(e[a]=o.newValue,n=!0)}return new ce(e,n)}class M{constructor(l){this.schema=void 0,this.id=l,this.name="_never_",this.defaultValue=void 0}applyUpdate(l,n){return de(l,n)}validate(l){return this.defaultValue}}class X{constructor(l,n,a,o){this.id=l,this.name=n,this.defaultValue=a,this.schema=o}applyUpdate(l,n){return de(l,n)}validate(l){return typeof l>"u"?this.defaultValue:l}compute(l,n,a){return a}}function r(e,l){return typeof e>"u"?l:e==="false"?!1:!!e}class s extends X{constructor(l,n,a,o=void 0){typeof o<"u"&&(o.type="boolean",o.default=a),super(l,n,a,o)}validate(l){return r(l,this.defaultValue)}}function We(e,l,n,a){if(typeof e>"u")return l;let o=parseInt(e,10);return isNaN(o)?l:(o=Math.max(n,o),o=Math.min(a,o),o|0)}class c extends X{static clampedInt(l,n,a,o){return We(l,n,a,o)}constructor(l,n,a,o,u,d=void 0){typeof d<"u"&&(d.type="integer",d.default=a,d.minimum=o,d.maximum=u),super(l,n,a,d),this.minimum=o,this.maximum=u}validate(l){return c.clampedInt(l,this.defaultValue,this.minimum,this.maximum)}}function xl(e,l,n,a){if(typeof e>"u")return l;const o=b.float(e,l);return b.clamp(o,n,a)}class b extends X{static clamp(l,n,a){return l<n?n:l>a?a:l}static float(l,n){if(typeof l=="number")return l;if(typeof l>"u")return n;const a=parseFloat(l);return isNaN(a)?n:a}constructor(l,n,a,o,u){typeof u<"u"&&(u.type="number",u.default=a),super(l,n,a,u),this.validationFn=o}validate(l){return this.validationFn(b.float(l,this.defaultValue))}}class p extends X{static string(l,n){return typeof l!="string"?n:l}constructor(l,n,a,o=void 0){typeof o<"u"&&(o.type="string",o.default=a),super(l,n,a,o)}validate(l){return p.string(l,this.defaultValue)}}function h(e,l,n,a){return typeof e!="string"?l:a&&e in a?a[e]:n.indexOf(e)===-1?l:e}class m extends X{constructor(l,n,a,o,u=void 0){typeof u<"u"&&(u.type="string",u.enum=o,u.default=a),super(l,n,a,u),this.c=o}validate(l){return h(l,this.defaultValue,this.c)}}class ae extends f{constructor(l,n,a,o,u,d,y=void 0){typeof y<"u"&&(y.type="string",y.enum=u,y.default=o),super(l,n,a,y),this.c=u,this.d=d}validate(l){return typeof l!="string"?this.defaultValue:this.c.indexOf(l)===-1?this.defaultValue:this.d(l)}}function Ie(e){switch(e){case"none":return 0;case"keep":return 1;case"brackets":return 2;case"advanced":return 3;case"full":return 4}}class Fe extends f{constructor(){super(2,"accessibilitySupport",0,{type:"string",enum:["auto","on","off"],enumDescriptions:[t.localize(312,null),t.localize(313,null),t.localize(314,null)],default:"auto",tags:["accessibility"],description:t.localize(315,null)})}validate(l){switch(l){case"auto":return 0;case"off":return 1;case"on":return 2}return this.defaultValue}compute(l,n,a){return a===0?l.accessibilitySupport:a}}class Pe extends f{constructor(){const l={insertSpace:!0,ignoreEmptyLines:!0};super(28,"comments",l,{"editor.comments.insertSpace":{type:"boolean",default:l.insertSpace,description:t.localize(316,null)},"editor.comments.ignoreEmptyLines":{type:"boolean",default:l.ignoreEmptyLines,description:t.localize(317,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{insertSpace:r(n.insertSpace,this.defaultValue.insertSpace),ignoreEmptyLines:r(n.ignoreEmptyLines,this.defaultValue.ignoreEmptyLines)}}}var be;(function(e){e[e.Hidden=0]="Hidden",e[e.Blink=1]="Blink",e[e.Smooth=2]="Smooth",e[e.Phase=3]="Phase",e[e.Expand=4]="Expand",e[e.Solid=5]="Solid"})(be||(be={}));function Ae(e){switch(e){case"blink":return 1;case"smooth":return 2;case"phase":return 3;case"expand":return 4;case"solid":return 5}}var w;(function(e){e[e.Line=1]="Line",e[e.Block=2]="Block",e[e.Underline=3]="Underline",e[e.LineThin=4]="LineThin",e[e.BlockOutline=5]="BlockOutline",e[e.UnderlineThin=6]="UnderlineThin"})(w||(w={}));function Vl(e){switch(e){case w.Line:return"line";case w.Block:return"block";case w.Underline:return"underline";case w.LineThin:return"line-thin";case w.BlockOutline:return"block-outline";case w.UnderlineThin:return"underline-thin"}}function ze(e){switch(e){case"line":return w.Line;case"block":return w.Block;case"underline":return w.Underline;case"line-thin":return w.LineThin;case"block-outline":return w.BlockOutline;case"underline-thin":return w.UnderlineThin}}class Be extends M{constructor(){super(153)}compute(l,n,a){const o=["monaco-editor"];return n.get(46)&&o.push(n.get(46)),l.extraEditorClassName&&o.push(l.extraEditorClassName),n.get(80)==="default"?o.push("mouse-default"):n.get(80)==="copy"&&o.push("mouse-copy"),n.get(121)&&o.push("showUnused"),n.get(150)&&o.push("showDeprecated"),o.join(" ")}}class Te extends s{constructor(){super(43,"emptySelectionClipboard",!0,{description:t.localize(318,null)})}compute(l,n,a){return a&&l.emptySelectionClipboard}}class Re extends f{constructor(){const l={cursorMoveOnType:!0,findOnType:!0,seedSearchStringFromSelection:"always",autoFindInSelection:"never",globalFindClipboard:!1,addExtraSpaceOnTop:!0,loop:!0,history:"workspace",replaceHistory:"workspace"};super(48,"find",l,{"editor.find.cursorMoveOnType":{type:"boolean",default:l.cursorMoveOnType,description:t.localize(319,null)},"editor.find.seedSearchStringFromSelection":{type:"string",enum:["never","always","selection"],default:l.seedSearchStringFromSelection,enumDescriptions:[t.localize(320,null),t.localize(321,null),t.localize(322,null)],description:t.localize(323,null)},"editor.find.autoFindInSelection":{type:"string",enum:["never","always","multiline"],default:l.autoFindInSelection,enumDescriptions:[t.localize(324,null),t.localize(325,null),t.localize(326,null)],description:t.localize(327,null)},"editor.find.globalFindClipboard":{type:"boolean",default:l.globalFindClipboard,description:t.localize(328,null),included:z.$n},"editor.find.addExtraSpaceOnTop":{type:"boolean",default:l.addExtraSpaceOnTop,description:t.localize(329,null)},"editor.find.loop":{type:"boolean",default:l.loop,description:t.localize(330,null)},"editor.find.history":{type:"string",enum:["never","workspace"],default:"workspace",enumDescriptions:[t.localize(331,null),t.localize(332,null)],description:t.localize(333,null)},"editor.find.replaceHistory":{type:"string",enum:["never","workspace"],default:"workspace",enumDescriptions:[t.localize(334,null),t.localize(335,null)],description:t.localize(336,null)},"editor.find.findOnType":{type:"boolean",default:l.findOnType,description:t.localize(337,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{cursorMoveOnType:r(n.cursorMoveOnType,this.defaultValue.cursorMoveOnType),findOnType:r(n.findOnType,this.defaultValue.findOnType),seedSearchStringFromSelection:typeof l.seedSearchStringFromSelection=="boolean"?l.seedSearchStringFromSelection?"always":"never":h(n.seedSearchStringFromSelection,this.defaultValue.seedSearchStringFromSelection,["never","always","selection"]),autoFindInSelection:typeof l.autoFindInSelection=="boolean"?l.autoFindInSelection?"always":"never":h(n.autoFindInSelection,this.defaultValue.autoFindInSelection,["never","always","multiline"]),globalFindClipboard:r(n.globalFindClipboard,this.defaultValue.globalFindClipboard),addExtraSpaceOnTop:r(n.addExtraSpaceOnTop,this.defaultValue.addExtraSpaceOnTop),loop:r(n.loop,this.defaultValue.loop),history:h(n.history,this.defaultValue.history,["never","workspace"]),replaceHistory:h(n.replaceHistory,this.defaultValue.replaceHistory,["never","workspace"])}}}class T extends f{static{this.OFF='"liga" off, "calt" off'}static{this.ON='"liga" on, "calt" on'}constructor(){super(58,"fontLigatures",T.OFF,{anyOf:[{type:"boolean",description:t.localize(338,null)},{type:"string",description:t.localize(339,null)}],description:t.localize(340,null),default:!1})}validate(l){return typeof l>"u"?this.defaultValue:typeof l=="string"?l==="false"||l.length===0?T.OFF:l==="true"?T.ON:l:l?T.ON:T.OFF}}class R extends f{static{this.OFF="normal"}static{this.TRANSLATE="translate"}constructor(){super(61,"fontVariations",R.OFF,{anyOf:[{type:"boolean",description:t.localize(341,null)},{type:"string",description:t.localize(342,null)}],description:t.localize(343,null),default:!1})}validate(l){return typeof l>"u"?this.defaultValue:typeof l=="string"?l==="false"?R.OFF:l==="true"?R.TRANSLATE:l:l?R.TRANSLATE:R.OFF}compute(l,n,a){return l.fontInfo.fontVariationSettings}}class Ne extends M{constructor(){super(57)}compute(l,n,a){return l.fontInfo}}class Ue extends M{constructor(){super(152)}compute(l,n,a){return l.inputMode==="overtype"?n.get(89):n.get(33)}}class je extends M{constructor(){super(161)}compute(l,n){return l.editContextSupported&&n.get(42)}}class $e extends M{constructor(){super(163)}compute(l,n){return l.accessibilitySupport===2?n.get(6):n.get(5)}}class Ge extends X{constructor(){super(59,"fontSize",k.fontSize,{type:"number",minimum:6,maximum:100,default:k.fontSize,description:t.localize(344,null)})}validate(l){const n=b.float(l,this.defaultValue);return n===0?k.fontSize:b.clamp(n,6,100)}compute(l,n,a){return l.fontInfo.fontSize}}class N extends f{static{this.c=["normal","bold","100","200","300","400","500","600","700","800","900"]}static{this.d=1}static{this.e=1e3}constructor(){super(60,"fontWeight",k.fontWeight,{anyOf:[{type:"number",minimum:N.d,maximum:N.e,errorMessage:t.localize(345,null)},{type:"string",pattern:"^(normal|bold|1000|[1-9][0-9]{0,2})$"},{enum:N.c}],default:k.fontWeight,description:t.localize(346,null)})}validate(l){return l==="normal"||l==="bold"?l:String(c.clampedInt(l,k.fontWeight,N.d,N.e))}}class qe extends f{constructor(){const l={multiple:"peek",multipleDefinitions:"peek",multipleTypeDefinitions:"peek",multipleDeclarations:"peek",multipleImplementations:"peek",multipleReferences:"peek",multipleTests:"peek",alternativeDefinitionCommand:"editor.action.goToReferences",alternativeTypeDefinitionCommand:"editor.action.goToReferences",alternativeDeclarationCommand:"editor.action.goToReferences",alternativeImplementationCommand:"",alternativeReferenceCommand:"",alternativeTestsCommand:""},n={type:"string",enum:["peek","gotoAndPeek","goto"],default:l.multiple,enumDescriptions:[t.localize(347,null),t.localize(348,null),t.localize(349,null)]},a=["","editor.action.referenceSearch.trigger","editor.action.goToReferences","editor.action.peekImplementation","editor.action.goToImplementation","editor.action.peekTypeDefinition","editor.action.goToTypeDefinition","editor.action.peekDeclaration","editor.action.revealDeclaration","editor.action.peekDefinition","editor.action.revealDefinitionAside","editor.action.revealDefinition"];super(65,"gotoLocation",l,{"editor.gotoLocation.multiple":{deprecationMessage:t.localize(350,null)},"editor.gotoLocation.multipleDefinitions":{description:t.localize(351,null),...n},"editor.gotoLocation.multipleTypeDefinitions":{description:t.localize(352,null),...n},"editor.gotoLocation.multipleDeclarations":{description:t.localize(353,null),...n},"editor.gotoLocation.multipleImplementations":{description:t.localize(354,null),...n},"editor.gotoLocation.multipleReferences":{description:t.localize(355,null),...n},"editor.gotoLocation.alternativeDefinitionCommand":{type:"string",default:l.alternativeDefinitionCommand,enum:a,description:t.localize(356,null)},"editor.gotoLocation.alternativeTypeDefinitionCommand":{type:"string",default:l.alternativeTypeDefinitionCommand,enum:a,description:t.localize(357,null)},"editor.gotoLocation.alternativeDeclarationCommand":{type:"string",default:l.alternativeDeclarationCommand,enum:a,description:t.localize(358,null)},"editor.gotoLocation.alternativeImplementationCommand":{type:"string",default:l.alternativeImplementationCommand,enum:a,description:t.localize(359,null)},"editor.gotoLocation.alternativeReferenceCommand":{type:"string",default:l.alternativeReferenceCommand,enum:a,description:t.localize(360,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{multiple:h(n.multiple,this.defaultValue.multiple,["peek","gotoAndPeek","goto"]),multipleDefinitions:n.multipleDefinitions??h(n.multipleDefinitions,"peek",["peek","gotoAndPeek","goto"]),multipleTypeDefinitions:n.multipleTypeDefinitions??h(n.multipleTypeDefinitions,"peek",["peek","gotoAndPeek","goto"]),multipleDeclarations:n.multipleDeclarations??h(n.multipleDeclarations,"peek",["peek","gotoAndPeek","goto"]),multipleImplementations:n.multipleImplementations??h(n.multipleImplementations,"peek",["peek","gotoAndPeek","goto"]),multipleReferences:n.multipleReferences??h(n.multipleReferences,"peek",["peek","gotoAndPeek","goto"]),multipleTests:n.multipleTests??h(n.multipleTests,"peek",["peek","gotoAndPeek","goto"]),alternativeDefinitionCommand:p.string(n.alternativeDefinitionCommand,this.defaultValue.alternativeDefinitionCommand),alternativeTypeDefinitionCommand:p.string(n.alternativeTypeDefinitionCommand,this.defaultValue.alternativeTypeDefinitionCommand),alternativeDeclarationCommand:p.string(n.alternativeDeclarationCommand,this.defaultValue.alternativeDeclarationCommand),alternativeImplementationCommand:p.string(n.alternativeImplementationCommand,this.defaultValue.alternativeImplementationCommand),alternativeReferenceCommand:p.string(n.alternativeReferenceCommand,this.defaultValue.alternativeReferenceCommand),alternativeTestsCommand:p.string(n.alternativeTestsCommand,this.defaultValue.alternativeTestsCommand)}}}class Ke extends f{constructor(){const l={enabled:!0,delay:300,hidingDelay:300,sticky:!0,above:!0};super(67,"hover",l,{"editor.hover.enabled":{type:"boolean",default:l.enabled,description:t.localize(361,null)},"editor.hover.delay":{type:"number",default:l.delay,minimum:0,maximum:1e4,description:t.localize(362,null)},"editor.hover.sticky":{type:"boolean",default:l.sticky,description:t.localize(363,null)},"editor.hover.hidingDelay":{type:"integer",minimum:0,default:l.hidingDelay,description:t.localize(364,null)},"editor.hover.above":{type:"boolean",default:l.above,description:t.localize(365,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),delay:c.clampedInt(n.delay,this.defaultValue.delay,0,1e4),sticky:r(n.sticky,this.defaultValue.sticky),hidingDelay:c.clampedInt(n.hidingDelay,this.defaultValue.hidingDelay,0,6e5),above:r(n.above,this.defaultValue.above)}}}var Se;(function(e){e[e.None=0]="None",e[e.Text=1]="Text",e[e.Blocks=2]="Blocks"})(Se||(Se={}));class oe extends M{constructor(){super(156)}compute(l,n,a){return oe.computeLayout(n,{memory:l.memory,outerWidth:l.outerWidth,outerHeight:l.outerHeight,isDominatedByLongLines:l.isDominatedByLongLines,lineHeight:l.fontInfo.lineHeight,viewLineCount:l.viewLineCount,lineNumbersDigitCount:l.lineNumbersDigitCount,typicalHalfwidthCharacterWidth:l.fontInfo.typicalHalfwidthCharacterWidth,maxDigitWidth:l.fontInfo.maxDigitWidth,pixelRatio:l.pixelRatio,glyphMarginDecorationLaneCount:l.glyphMarginDecorationLaneCount})}static computeContainedMinimapLineCount(l){const n=l.height/l.lineHeight,a=Math.floor(l.paddingTop/l.lineHeight);let o=Math.floor(l.paddingBottom/l.lineHeight);l.scrollBeyondLastLine&&(o=Math.max(o,n-1));const u=(a+l.viewLineCount+o)/(l.pixelRatio*l.height),d=Math.floor(l.viewLineCount/u);return{typicalViewportLineCount:n,extraLinesBeforeFirstLine:a,extraLinesBeyondLastLine:o,desiredRatio:u,minimapLineCount:d}}static c(l,n){const a=l.outerWidth,o=l.outerHeight,u=l.pixelRatio;if(!l.minimap.enabled)return{renderMinimap:0,minimapLeft:0,minimapWidth:0,minimapHeightIsEditorHeight:!1,minimapIsSampling:!1,minimapScale:1,minimapLineHeight:1,minimapCanvasInnerWidth:0,minimapCanvasInnerHeight:Math.floor(u*o),minimapCanvasOuterWidth:0,minimapCanvasOuterHeight:o};const d=n.stableMinimapLayoutInput,y=d&&l.outerHeight===d.outerHeight&&l.lineHeight===d.lineHeight&&l.typicalHalfwidthCharacterWidth===d.typicalHalfwidthCharacterWidth&&l.pixelRatio===d.pixelRatio&&l.scrollBeyondLastLine===d.scrollBeyondLastLine&&l.paddingTop===d.paddingTop&&l.paddingBottom===d.paddingBottom&&l.minimap.enabled===d.minimap.enabled&&l.minimap.side===d.minimap.side&&l.minimap.size===d.minimap.size&&l.minimap.showSlider===d.minimap.showSlider&&l.minimap.renderCharacters===d.minimap.renderCharacters&&l.minimap.maxColumn===d.minimap.maxColumn&&l.minimap.scale===d.minimap.scale&&l.verticalScrollbarWidth===d.verticalScrollbarWidth&&l.isViewportWrapping===d.isViewportWrapping,L=l.lineHeight,W=l.typicalHalfwidthCharacterWidth,fe=l.scrollBeyondLastLine,J=l.minimap.renderCharacters;let g=u>=2?Math.round(l.minimap.scale*2):l.minimap.scale;const U=l.minimap.maxColumn,I=l.minimap.size,me=l.minimap.side,re=l.verticalScrollbarWidth,j=l.viewLineCount,$=l.remainingWidth,_=l.isViewportWrapping,O=J?2:3;let G=Math.floor(u*o);const q=G/u;let x=!1,se=!1,V=O*g,F=g/u,E=1;if(I==="fill"||I==="fit"){const{typicalViewportLineCount:te,extraLinesBeforeFirstLine:ne,extraLinesBeyondLastLine:ie,desiredRatio:ue,minimapLineCount:P}=oe.computeContainedMinimapLineCount({viewLineCount:j,scrollBeyondLastLine:fe,paddingTop:l.paddingTop,paddingBottom:l.paddingBottom,height:o,lineHeight:L,pixelRatio:u});if(j/P>1)x=!0,se=!0,g=1,V=1,F=g/u;else{let S=!1,Z=g+1;if(I==="fit"){const A=Math.ceil((ne+j+ie)*V);_&&y&&$<=n.stableFitRemainingWidth?(S=!0,Z=n.stableFitMaxMinimapScale):S=A>G}if(I==="fill"||S){x=!0;const A=g;V=Math.min(L*u,Math.max(1,Math.floor(1/ue))),_&&y&&$<=n.stableFitRemainingWidth&&(Z=n.stableFitMaxMinimapScale),g=Math.min(Z,Math.max(1,Math.floor(V/O))),g>A&&(E=Math.min(2,g/A)),F=g/u/E,G=Math.ceil(Math.max(te,ne+j+ie)*V),_?(n.stableMinimapLayoutInput=l,n.stableFitRemainingWidth=$,n.stableFitMaxMinimapScale=g):(n.stableMinimapLayoutInput=null,n.stableFitRemainingWidth=0)}}}const he=Math.floor(U*F),H=Math.min(he,Math.max(0,Math.floor(($-re-2)*F/(W+F)))+He);let v=Math.floor(u*H);const K=v/u;v=Math.floor(v*E);const ee=J?1:2,le=me==="left"?0:a-H-re;return{renderMinimap:ee,minimapLeft:le,minimapWidth:H,minimapHeightIsEditorHeight:x,minimapIsSampling:se,minimapScale:g,minimapLineHeight:V,minimapCanvasInnerWidth:v,minimapCanvasInnerHeight:G,minimapCanvasOuterWidth:K,minimapCanvasOuterHeight:q}}static computeLayout(l,n){const a=n.outerWidth|0,o=n.outerHeight|0,u=n.lineHeight|0,d=n.lineNumbersDigitCount|0,y=n.typicalHalfwidthCharacterWidth,L=n.maxDigitWidth,W=n.pixelRatio,fe=n.viewLineCount,J=l.get(147),g=J==="inherit"?l.get(146):J,U=g==="inherit"?l.get(142):g,I=l.get(145),me=n.isDominatedByLongLines,re=l.get(64),j=l.get(74).renderType!==0,$=l.get(75),_=l.get(115),O=l.get(93),G=l.get(79),q=l.get(113),x=q.verticalScrollbarSize,se=q.verticalHasArrows,V=q.arrowSize,F=q.horizontalScrollbarSize,E=l.get(50),he=l.get(120)!=="never";let H=l.get(72);E&&he&&(H+=16);let v=0;if(j){const Le=Math.max(d,$);v=Math.round(Le*L)}let K=0;re&&(K=u*n.glyphMarginDecorationLaneCount);let ee=0,le=ee+K,te=le+v,ne=te+H;const ie=a-K-v-H;let ue=!1,P=!1,Q=-1;g==="inherit"&&me?(ue=!0,P=!0):U==="on"||U==="bounded"?P=!0:U==="wordWrapColumn"&&(Q=I);const S=oe.c({outerWidth:a,outerHeight:o,lineHeight:u,typicalHalfwidthCharacterWidth:y,pixelRatio:W,scrollBeyondLastLine:_,paddingTop:O.top,paddingBottom:O.bottom,minimap:G,verticalScrollbarWidth:x,viewLineCount:fe,remainingWidth:ie,isViewportWrapping:P},n.memory||new Me);S.renderMinimap!==0&&S.minimapLeft===0&&(ee+=S.minimapWidth,le+=S.minimapWidth,te+=S.minimapWidth,ne+=S.minimapWidth);const Z=ie-S.minimapWidth,A=Math.max(1,Math.floor((Z-x-2)/y)),pe=se?V:0;return P&&(Q=Math.max(1,A),U==="bounded"&&(Q=Math.min(Q,I))),{width:a,height:o,glyphMarginLeft:ee,glyphMarginWidth:K,glyphMarginDecorationLaneCount:n.glyphMarginDecorationLaneCount,lineNumbersLeft:le,lineNumbersWidth:v,decorationsLeft:te,decorationsWidth:H,contentLeft:ne,contentWidth:Z,minimap:S,viewportColumn:A,isWordWrapMinified:ue,isViewportWrapping:P,wrappingColumn:Q,verticalScrollbarWidth:x,horizontalScrollbarHeight:F,overviewRuler:{top:pe,width:x,height:o-2*pe,right:0}}}}class Qe extends f{constructor(){super(149,"wrappingStrategy","simple",{"editor.wrappingStrategy":{enumDescriptions:[t.localize(366,null),t.localize(367,null)],type:"string",enum:["simple","advanced"],default:"simple",description:t.localize(368,null)}})}validate(l){return h(l,"simple",["simple","advanced"])}compute(l,n,a){return n.get(2)===2?"advanced":a}}var D;(function(e){e.Off="off",e.OnCode="onCode",e.On="on"})(D||(D={}));class Ze extends f{constructor(){const l={enabled:D.OnCode};super(71,"lightbulb",l,{"editor.lightbulb.enabled":{type:"string",enum:[D.Off,D.OnCode,D.On],default:l.enabled,enumDescriptions:[t.localize(369,null),t.localize(370,null),t.localize(371,null)],description:t.localize(372,null)}})}validate(l){return!l||typeof l!="object"?this.defaultValue:{enabled:h(l.enabled,this.defaultValue.enabled,[D.Off,D.OnCode,D.On])}}}class Ye extends f{constructor(){const l={enabled:!0,maxLineCount:5,defaultModel:"outlineModel",scrollWithEditor:!0};super(125,"stickyScroll",l,{"editor.stickyScroll.enabled":{type:"boolean",default:l.enabled,description:t.localize(373,null)},"editor.stickyScroll.maxLineCount":{type:"number",default:l.maxLineCount,minimum:1,maximum:20,description:t.localize(374,null)},"editor.stickyScroll.defaultModel":{type:"string",enum:["outlineModel","foldingProviderModel","indentationModel"],default:l.defaultModel,description:t.localize(375,null)},"editor.stickyScroll.scrollWithEditor":{type:"boolean",default:l.scrollWithEditor,description:t.localize(376,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),maxLineCount:c.clampedInt(n.maxLineCount,this.defaultValue.maxLineCount,1,20),defaultModel:h(n.defaultModel,this.defaultValue.defaultModel,["outlineModel","foldingProviderModel","indentationModel"]),scrollWithEditor:r(n.scrollWithEditor,this.defaultValue.scrollWithEditor)}}}class Xe extends f{constructor(){const l={enabled:"on",fontSize:0,fontFamily:"",padding:!1,maximumLength:43};super(151,"inlayHints",l,{"editor.inlayHints.enabled":{type:"string",default:l.enabled,description:t.localize(377,null),enum:["on","onUnlessPressed","offUnlessPressed","off"],markdownEnumDescriptions:[t.localize(378,null),t.localize(379,null,z.$n?"Ctrl+Option":"Ctrl+Alt"),t.localize(380,null,z.$n?"Ctrl+Option":"Ctrl+Alt"),t.localize(381,null)]},"editor.inlayHints.fontSize":{type:"number",default:l.fontSize,markdownDescription:t.localize(382,null,"`#editor.fontSize#`","`5`")},"editor.inlayHints.fontFamily":{type:"string",default:l.fontFamily,markdownDescription:t.localize(383,null,"`#editor.fontFamily#`")},"editor.inlayHints.padding":{type:"boolean",default:l.padding,description:t.localize(384,null)},"editor.inlayHints.maximumLength":{type:"number",default:l.maximumLength,markdownDescription:t.localize(385,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return typeof n.enabled=="boolean"&&(n.enabled=n.enabled?"on":"off"),{enabled:h(n.enabled,this.defaultValue.enabled,["on","off","offUnlessPressed","onUnlessPressed"]),fontSize:c.clampedInt(n.fontSize,this.defaultValue.fontSize,0,100),fontFamily:p.string(n.fontFamily,this.defaultValue.fontFamily),padding:r(n.padding,this.defaultValue.padding),maximumLength:c.clampedInt(n.maximumLength,this.defaultValue.maximumLength,0,Number.MAX_SAFE_INTEGER)}}}class Je extends f{constructor(){super(72,"lineDecorationsWidth",10)}validate(l){return typeof l=="string"&&/^\d+(\.\d+)?ch$/.test(l)?-parseFloat(l.substring(0,l.length-2)):c.clampedInt(l,this.defaultValue,0,1e3)}compute(l,n,a){return a<0?c.clampedInt(-a*l.fontInfo.typicalHalfwidthCharacterWidth,this.defaultValue,0,1e3):a}}class _e extends b{constructor(){super(73,"lineHeight",k.lineHeight,l=>b.clamp(l,0,150),{markdownDescription:t.localize(386,null)})}compute(l,n,a){return l.fontInfo.lineHeight}}class Oe extends f{constructor(){const l={enabled:!0,size:"proportional",side:"right",showSlider:"mouseover",autohide:!1,renderCharacters:!0,maxColumn:120,scale:1,showRegionSectionHeaders:!0,showMarkSectionHeaders:!0,markSectionHeaderRegex:"\\bMARK:\\s*(?<separator>-?)\\s*(?<label>.*)$",sectionHeaderFontSize:9,sectionHeaderLetterSpacing:1};super(79,"minimap",l,{"editor.minimap.enabled":{type:"boolean",default:l.enabled,description:t.localize(387,null)},"editor.minimap.autohide":{type:"boolean",default:l.autohide,description:t.localize(388,null)},"editor.minimap.size":{type:"string",enum:["proportional","fill","fit"],enumDescriptions:[t.localize(389,null),t.localize(390,null),t.localize(391,null)],default:l.size,description:t.localize(392,null)},"editor.minimap.side":{type:"string",enum:["left","right"],default:l.side,description:t.localize(393,null)},"editor.minimap.showSlider":{type:"string",enum:["always","mouseover"],default:l.showSlider,description:t.localize(394,null)},"editor.minimap.scale":{type:"number",default:l.scale,minimum:1,maximum:3,enum:[1,2,3],description:t.localize(395,null)},"editor.minimap.renderCharacters":{type:"boolean",default:l.renderCharacters,description:t.localize(396,null)},"editor.minimap.maxColumn":{type:"number",default:l.maxColumn,description:t.localize(397,null)},"editor.minimap.showRegionSectionHeaders":{type:"boolean",default:l.showRegionSectionHeaders,description:t.localize(398,null)},"editor.minimap.showMarkSectionHeaders":{type:"boolean",default:l.showMarkSectionHeaders,description:t.localize(399,null)},"editor.minimap.markSectionHeaderRegex":{type:"string",default:l.markSectionHeaderRegex,description:t.localize(400,null)},"editor.minimap.sectionHeaderFontSize":{type:"number",default:l.sectionHeaderFontSize,description:t.localize(401,null)},"editor.minimap.sectionHeaderLetterSpacing":{type:"number",default:l.sectionHeaderLetterSpacing,description:t.localize(402,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;let a=this.defaultValue.markSectionHeaderRegex;const o=l.markSectionHeaderRegex;if(typeof o=="string")try{new RegExp(o,"d"),a=o}catch{}return{enabled:r(n.enabled,this.defaultValue.enabled),autohide:r(n.autohide,this.defaultValue.autohide),size:h(n.size,this.defaultValue.size,["proportional","fill","fit"]),side:h(n.side,this.defaultValue.side,["right","left"]),showSlider:h(n.showSlider,this.defaultValue.showSlider,["always","mouseover"]),renderCharacters:r(n.renderCharacters,this.defaultValue.renderCharacters),scale:c.clampedInt(n.scale,1,1,3),maxColumn:c.clampedInt(n.maxColumn,this.defaultValue.maxColumn,1,1e4),showRegionSectionHeaders:r(n.showRegionSectionHeaders,this.defaultValue.showRegionSectionHeaders),showMarkSectionHeaders:r(n.showMarkSectionHeaders,this.defaultValue.showMarkSectionHeaders),markSectionHeaderRegex:a,sectionHeaderFontSize:b.clamp(n.sectionHeaderFontSize??this.defaultValue.sectionHeaderFontSize,4,32),sectionHeaderLetterSpacing:b.clamp(n.sectionHeaderLetterSpacing??this.defaultValue.sectionHeaderLetterSpacing,0,5)}}}function Ee(e){return e==="ctrlCmd"?z.$n?"metaKey":"ctrlKey":"altKey"}class el extends f{constructor(){super(93,"padding",{top:0,bottom:0},{"editor.padding.top":{type:"number",default:0,minimum:0,maximum:1e3,description:t.localize(403,null)},"editor.padding.bottom":{type:"number",default:0,minimum:0,maximum:1e3,description:t.localize(404,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{top:c.clampedInt(n.top,0,0,1e3),bottom:c.clampedInt(n.bottom,0,0,1e3)}}}class ll extends f{constructor(){const l={enabled:!0,cycle:!0};super(95,"parameterHints",l,{"editor.parameterHints.enabled":{type:"boolean",default:l.enabled,description:t.localize(405,null)},"editor.parameterHints.cycle":{type:"boolean",default:l.cycle,description:t.localize(406,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),cycle:r(n.cycle,this.defaultValue.cycle)}}}class tl extends M{constructor(){super(154)}compute(l,n,a){return l.pixelRatio}}class nl extends f{constructor(){super(97,"placeholder",void 0)}validate(l){return typeof l>"u"?this.defaultValue:typeof l=="string"?l:this.defaultValue}}class il extends f{constructor(){const l={other:"on",comments:"off",strings:"off"},n=[{type:"boolean"},{type:"string",enum:["on","inline","off"],enumDescriptions:[t.localize(407,null),t.localize(408,null),t.localize(409,null)]}];super(99,"quickSuggestions",l,{type:"object",additionalProperties:!1,properties:{strings:{anyOf:n,default:l.strings,description:t.localize(410,null)},comments:{anyOf:n,default:l.comments,description:t.localize(411,null)},other:{anyOf:n,default:l.other,description:t.localize(412,null)}},default:l,markdownDescription:t.localize(413,null,"`#editor.suggestOnTriggerCharacters#`")}),this.defaultValue=l}validate(l){if(typeof l=="boolean"){const W=l?"on":"off";return{comments:W,strings:W,other:W}}if(!l||typeof l!="object")return this.defaultValue;const{other:n,comments:a,strings:o}=l,u=["on","inline","off"];let d,y,L;return typeof n=="boolean"?d=n?"on":"off":d=h(n,this.defaultValue.other,u),typeof a=="boolean"?y=a?"on":"off":y=h(a,this.defaultValue.comments,u),typeof o=="boolean"?L=o?"on":"off":L=h(o,this.defaultValue.strings,u),{other:d,comments:y,strings:L}}}var Ce;(function(e){e[e.Off=0]="Off",e[e.On=1]="On",e[e.Relative=2]="Relative",e[e.Interval=3]="Interval",e[e.Custom=4]="Custom"})(Ce||(Ce={}));class al extends f{constructor(){super(74,"lineNumbers",{renderType:1,renderFn:null},{type:"string",enum:["off","on","relative","interval"],enumDescriptions:[t.localize(414,null),t.localize(415,null),t.localize(416,null),t.localize(417,null)],default:"on",description:t.localize(418,null)})}validate(l){let n=this.defaultValue.renderType,a=this.defaultValue.renderFn;return typeof l<"u"&&(typeof l=="function"?(n=4,a=l):l==="interval"?n=3:l==="relative"?n=2:l==="on"?n=1:n=0),{renderType:n,renderFn:a}}}function Hl(e){const l=e.get(108);return l==="editable"?e.get(101):l!=="on"}function Ml(e){return!e.get(163)}class ol extends f{constructor(){const l=[],n={type:"number",description:t.localize(419,null)};super(112,"rulers",l,{type:"array",items:{anyOf:[n,{type:["object"],properties:{column:n,color:{type:"string",description:t.localize(420,null),format:"color-hex"}}}]},default:l,description:t.localize(421,null)})}validate(l){if(Array.isArray(l)){const n=[];for(const a of l)if(typeof a=="number")n.push({column:c.clampedInt(a,0,0,1e4),color:null});else if(a&&typeof a=="object"){const o=a;n.push({column:c.clampedInt(o.column,0,0,1e4),color:o.color})}return n.sort((a,o)=>a.column-o.column),n}return this.defaultValue}}class rl extends f{constructor(){super(102,"readOnlyMessage",void 0)}validate(l){return!l||typeof l!="object"?this.defaultValue:l}}function ve(e,l){if(typeof e!="string")return l;switch(e){case"hidden":return 2;case"visible":return 3;default:return 1}}class sl extends f{constructor(){const l={vertical:1,horizontal:1,arrowSize:11,useShadows:!0,verticalHasArrows:!1,horizontalHasArrows:!1,horizontalScrollbarSize:12,horizontalSliderSize:12,verticalScrollbarSize:14,verticalSliderSize:14,handleMouseWheel:!0,alwaysConsumeMouseWheel:!0,scrollByPage:!1,ignoreHorizontalScrollbarInContentHeight:!1};super(113,"scrollbar",l,{"editor.scrollbar.vertical":{type:"string",enum:["auto","visible","hidden"],enumDescriptions:[t.localize(422,null),t.localize(423,null),t.localize(424,null)],default:"auto",description:t.localize(425,null)},"editor.scrollbar.horizontal":{type:"string",enum:["auto","visible","hidden"],enumDescriptions:[t.localize(426,null),t.localize(427,null),t.localize(428,null)],default:"auto",description:t.localize(429,null)},"editor.scrollbar.verticalScrollbarSize":{type:"number",default:l.verticalScrollbarSize,description:t.localize(430,null)},"editor.scrollbar.horizontalScrollbarSize":{type:"number",default:l.horizontalScrollbarSize,description:t.localize(431,null)},"editor.scrollbar.scrollByPage":{type:"boolean",default:l.scrollByPage,description:t.localize(432,null)},"editor.scrollbar.ignoreHorizontalScrollbarInContentHeight":{type:"boolean",default:l.ignoreHorizontalScrollbarInContentHeight,description:t.localize(433,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l,a=c.clampedInt(n.horizontalScrollbarSize,this.defaultValue.horizontalScrollbarSize,0,1e3),o=c.clampedInt(n.verticalScrollbarSize,this.defaultValue.verticalScrollbarSize,0,1e3);return{arrowSize:c.clampedInt(n.arrowSize,this.defaultValue.arrowSize,0,1e3),vertical:ve(n.vertical,this.defaultValue.vertical),horizontal:ve(n.horizontal,this.defaultValue.horizontal),useShadows:r(n.useShadows,this.defaultValue.useShadows),verticalHasArrows:r(n.verticalHasArrows,this.defaultValue.verticalHasArrows),horizontalHasArrows:r(n.horizontalHasArrows,this.defaultValue.horizontalHasArrows),handleMouseWheel:r(n.handleMouseWheel,this.defaultValue.handleMouseWheel),alwaysConsumeMouseWheel:r(n.alwaysConsumeMouseWheel,this.defaultValue.alwaysConsumeMouseWheel),horizontalScrollbarSize:a,horizontalSliderSize:c.clampedInt(n.horizontalSliderSize,a,0,1e3),verticalScrollbarSize:o,verticalSliderSize:c.clampedInt(n.verticalSliderSize,o,0,1e3),scrollByPage:r(n.scrollByPage,this.defaultValue.scrollByPage),ignoreHorizontalScrollbarInContentHeight:r(n.ignoreHorizontalScrollbarInContentHeight,this.defaultValue.ignoreHorizontalScrollbarInContentHeight)}}}const C="inUntrustedWorkspace",B={allowedCharacters:"editor.unicodeHighlight.allowedCharacters",invisibleCharacters:"editor.unicodeHighlight.invisibleCharacters",nonBasicASCII:"editor.unicodeHighlight.nonBasicASCII",ambiguousCharacters:"editor.unicodeHighlight.ambiguousCharacters",includeComments:"editor.unicodeHighlight.includeComments",includeStrings:"editor.unicodeHighlight.includeStrings",allowedLocales:"editor.unicodeHighlight.allowedLocales"};class ul extends f{constructor(){const l={nonBasicASCII:C,invisibleCharacters:!0,ambiguousCharacters:!0,includeComments:C,includeStrings:!0,allowedCharacters:{},allowedLocales:{_os:!0,_vscode:!0}};super(135,"unicodeHighlight",l,{[B.nonBasicASCII]:{restricted:!0,type:["boolean","string"],enum:[!0,!1,C],default:l.nonBasicASCII,description:t.localize(434,null)},[B.invisibleCharacters]:{restricted:!0,type:"boolean",default:l.invisibleCharacters,description:t.localize(435,null)},[B.ambiguousCharacters]:{restricted:!0,type:"boolean",default:l.ambiguousCharacters,description:t.localize(436,null)},[B.includeComments]:{restricted:!0,type:["boolean","string"],enum:[!0,!1,C],default:l.includeComments,description:t.localize(437,null)},[B.includeStrings]:{restricted:!0,type:["boolean","string"],enum:[!0,!1,C],default:l.includeStrings,description:t.localize(438,null)},[B.allowedCharacters]:{restricted:!0,type:"object",default:l.allowedCharacters,description:t.localize(439,null),additionalProperties:{type:"boolean"}},[B.allowedLocales]:{restricted:!0,type:"object",additionalProperties:{type:"boolean"},default:l.allowedLocales,description:t.localize(440,null)}})}applyUpdate(l,n){let a=!1;n.allowedCharacters&&l&&(ge.$8o(l.allowedCharacters,n.allowedCharacters)||(l={...l,allowedCharacters:n.allowedCharacters},a=!0)),n.allowedLocales&&l&&(ge.$8o(l.allowedLocales,n.allowedLocales)||(l={...l,allowedLocales:n.allowedLocales},a=!0));const o=super.applyUpdate(l,n);return a?new ce(o.newValue,!0):o}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{nonBasicASCII:Y(n.nonBasicASCII,C,[!0,!1,C]),invisibleCharacters:r(n.invisibleCharacters,this.defaultValue.invisibleCharacters),ambiguousCharacters:r(n.ambiguousCharacters,this.defaultValue.ambiguousCharacters),includeComments:Y(n.includeComments,C,[!0,!1,C]),includeStrings:Y(n.includeStrings,C,[!0,!1,C]),allowedCharacters:this.c(l.allowedCharacters,this.defaultValue.allowedCharacters),allowedLocales:this.c(l.allowedLocales,this.defaultValue.allowedLocales)}}c(l,n){if(typeof l!="object"||!l)return n;const a={};for(const[o,u]of Object.entries(l))u===!0&&(a[o]=!0);return a}}class cl extends f{constructor(){const l={enabled:!0,mode:"subwordSmart",showToolbar:"onHover",suppressSuggestions:!1,keepOnBlur:!1,fontFamily:"default",syntaxHighlightingEnabled:!0,edits:{enabled:!0,showCollapsed:!1,renderSideBySide:"auto",allowCodeShifting:"always"},experimental:{suppressInlineSuggestions:"",triggerCommandOnProviderChange:!0}};super(69,"inlineSuggest",l,{"editor.inlineSuggest.enabled":{type:"boolean",default:l.enabled,description:t.localize(441,null)},"editor.inlineSuggest.showToolbar":{type:"string",default:l.showToolbar,enum:["always","onHover","never"],enumDescriptions:[t.localize(442,null),t.localize(443,null),t.localize(444,null)],description:t.localize(445,null)},"editor.inlineSuggest.syntaxHighlightingEnabled":{type:"boolean",default:l.syntaxHighlightingEnabled,description:t.localize(446,null)},"editor.inlineSuggest.suppressSuggestions":{type:"boolean",default:l.suppressSuggestions,description:t.localize(447,null)},"editor.inlineSuggest.experimental.suppressInlineSuggestions":{type:"string",default:l.experimental.suppressInlineSuggestions,tags:["experimental","onExp"],description:t.localize(448,null)},"editor.inlineSuggest.experimental.triggerCommandOnProviderChange":{type:"boolean",default:l.experimental.triggerCommandOnProviderChange,tags:["experimental","onExp"],description:t.localize(449,null)},"editor.inlineSuggest.fontFamily":{type:"string",default:l.fontFamily,description:t.localize(450,null)},"editor.inlineSuggest.edits.allowCodeShifting":{type:"string",default:l.edits.allowCodeShifting,description:t.localize(451,null),enum:["always","horizontal","never"],tags:["nextEditSuggestions"]},"editor.inlineSuggest.edits.renderSideBySide":{type:"string",default:l.edits.renderSideBySide,description:t.localize(452,null),enum:["auto","never"],enumDescriptions:[t.localize(453,null),t.localize(454,null)],tags:["nextEditSuggestions"]},"editor.inlineSuggest.edits.showCollapsed":{type:"boolean",default:l.edits.showCollapsed,description:t.localize(455,null),tags:["nextEditSuggestions"]}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),mode:h(n.mode,this.defaultValue.mode,["prefix","subword","subwordSmart"]),showToolbar:h(n.showToolbar,this.defaultValue.showToolbar,["always","onHover","never"]),suppressSuggestions:r(n.suppressSuggestions,this.defaultValue.suppressSuggestions),keepOnBlur:r(n.keepOnBlur,this.defaultValue.keepOnBlur),fontFamily:p.string(n.fontFamily,this.defaultValue.fontFamily),syntaxHighlightingEnabled:r(n.syntaxHighlightingEnabled,this.defaultValue.syntaxHighlightingEnabled),edits:{enabled:r(n.edits?.enabled,this.defaultValue.edits.enabled),showCollapsed:r(n.edits?.showCollapsed,this.defaultValue.edits.showCollapsed),allowCodeShifting:h(n.edits?.allowCodeShifting,this.defaultValue.edits.allowCodeShifting,["always","horizontal","never"]),renderSideBySide:h(n.edits?.renderSideBySide,this.defaultValue.edits.renderSideBySide,["never","auto"])},experimental:{suppressInlineSuggestions:p.string(n.experimental?.suppressInlineSuggestions,this.defaultValue.experimental.suppressInlineSuggestions),triggerCommandOnProviderChange:r(n.experimental?.triggerCommandOnProviderChange,this.defaultValue.experimental.triggerCommandOnProviderChange)}}}}class dl extends f{constructor(){const l={enabled:we.bracketPairColorizationOptions.enabled,independentColorPoolPerBracketType:we.bracketPairColorizationOptions.independentColorPoolPerBracketType};super(20,"bracketPairColorization",l,{"editor.bracketPairColorization.enabled":{type:"boolean",default:l.enabled,markdownDescription:t.localize(456,null,"`#workbench.colorCustomizations#`")},"editor.bracketPairColorization.independentColorPoolPerBracketType":{type:"boolean",default:l.independentColorPoolPerBracketType,description:t.localize(457,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),independentColorPoolPerBracketType:r(n.independentColorPoolPerBracketType,this.defaultValue.independentColorPoolPerBracketType)}}}class fl extends f{constructor(){const l={bracketPairs:!1,bracketPairsHorizontal:"active",highlightActiveBracketPair:!0,indentation:!0,highlightActiveIndentation:!0};super(21,"guides",l,{"editor.guides.bracketPairs":{type:["boolean","string"],enum:[!0,"active",!1],enumDescriptions:[t.localize(458,null),t.localize(459,null),t.localize(460,null)],default:l.bracketPairs,description:t.localize(461,null)},"editor.guides.bracketPairsHorizontal":{type:["boolean","string"],enum:[!0,"active",!1],enumDescriptions:[t.localize(462,null),t.localize(463,null),t.localize(464,null)],default:l.bracketPairsHorizontal,description:t.localize(465,null)},"editor.guides.highlightActiveBracketPair":{type:"boolean",default:l.highlightActiveBracketPair,description:t.localize(466,null)},"editor.guides.indentation":{type:"boolean",default:l.indentation,description:t.localize(467,null)},"editor.guides.highlightActiveIndentation":{type:["boolean","string"],enum:[!0,"always",!1],enumDescriptions:[t.localize(468,null),t.localize(469,null),t.localize(470,null)],default:l.highlightActiveIndentation,description:t.localize(471,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{bracketPairs:Y(n.bracketPairs,this.defaultValue.bracketPairs,[!0,!1,"active"]),bracketPairsHorizontal:Y(n.bracketPairsHorizontal,this.defaultValue.bracketPairsHorizontal,[!0,!1,"active"]),highlightActiveBracketPair:r(n.highlightActiveBracketPair,this.defaultValue.highlightActiveBracketPair),indentation:r(n.indentation,this.defaultValue.indentation),highlightActiveIndentation:Y(n.highlightActiveIndentation,this.defaultValue.highlightActiveIndentation,[!0,!1,"always"])}}}function Y(e,l,n){const a=n.indexOf(e);return a===-1?l:n[a]}class ml extends f{constructor(){const l={insertMode:"insert",filterGraceful:!0,snippetsPreventQuickSuggestions:!1,localityBonus:!1,shareSuggestSelections:!1,selectionMode:"always",showIcons:!0,showStatusBar:!1,preview:!1,previewMode:"subwordSmart",showInlineDetails:!0,showMethods:!0,showFunctions:!0,showConstructors:!0,showDeprecated:!0,matchOnWordStartOnly:!0,showFields:!0,showVariables:!0,showClasses:!0,showStructs:!0,showInterfaces:!0,showModules:!0,showProperties:!0,showEvents:!0,showOperators:!0,showUnits:!0,showValues:!0,showConstants:!0,showEnums:!0,showEnumMembers:!0,showKeywords:!0,showWords:!0,showColors:!0,showFiles:!0,showReferences:!0,showFolders:!0,showTypeParameters:!0,showSnippets:!0,showUsers:!0,showIssues:!0};super(128,"suggest",l,{"editor.suggest.insertMode":{type:"string",enum:["insert","replace"],enumDescriptions:[t.localize(472,null),t.localize(473,null)],default:l.insertMode,description:t.localize(474,null)},"editor.suggest.filterGraceful":{type:"boolean",default:l.filterGraceful,description:t.localize(475,null)},"editor.suggest.localityBonus":{type:"boolean",default:l.localityBonus,description:t.localize(476,null)},"editor.suggest.shareSuggestSelections":{type:"boolean",default:l.shareSuggestSelections,markdownDescription:t.localize(477,null)},"editor.suggest.selectionMode":{type:"string",enum:["always","never","whenTriggerCharacter","whenQuickSuggestion"],enumDescriptions:[t.localize(478,null),t.localize(479,null),t.localize(480,null),t.localize(481,null)],default:l.selectionMode,markdownDescription:t.localize(482,null,"`#editor.quickSuggestions#`","`#editor.suggestOnTriggerCharacters#`")},"editor.suggest.snippetsPreventQuickSuggestions":{type:"boolean",default:l.snippetsPreventQuickSuggestions,description:t.localize(483,null)},"editor.suggest.showIcons":{type:"boolean",default:l.showIcons,description:t.localize(484,null)},"editor.suggest.showStatusBar":{type:"boolean",default:l.showStatusBar,description:t.localize(485,null)},"editor.suggest.preview":{type:"boolean",default:l.preview,description:t.localize(486,null)},"editor.suggest.showInlineDetails":{type:"boolean",default:l.showInlineDetails,description:t.localize(487,null)},"editor.suggest.maxVisibleSuggestions":{type:"number",deprecationMessage:t.localize(488,null)},"editor.suggest.filteredTypes":{type:"object",deprecationMessage:t.localize(489,null)},"editor.suggest.showMethods":{type:"boolean",default:!0,markdownDescription:t.localize(490,null)},"editor.suggest.showFunctions":{type:"boolean",default:!0,markdownDescription:t.localize(491,null)},"editor.suggest.showConstructors":{type:"boolean",default:!0,markdownDescription:t.localize(492,null)},"editor.suggest.showDeprecated":{type:"boolean",default:!0,markdownDescription:t.localize(493,null)},"editor.suggest.matchOnWordStartOnly":{type:"boolean",default:!0,markdownDescription:t.localize(494,null)},"editor.suggest.showFields":{type:"boolean",default:!0,markdownDescription:t.localize(495,null)},"editor.suggest.showVariables":{type:"boolean",default:!0,markdownDescription:t.localize(496,null)},"editor.suggest.showClasses":{type:"boolean",default:!0,markdownDescription:t.localize(497,null)},"editor.suggest.showStructs":{type:"boolean",default:!0,markdownDescription:t.localize(498,null)},"editor.suggest.showInterfaces":{type:"boolean",default:!0,markdownDescription:t.localize(499,null)},"editor.suggest.showModules":{type:"boolean",default:!0,markdownDescription:t.localize(500,null)},"editor.suggest.showProperties":{type:"boolean",default:!0,markdownDescription:t.localize(501,null)},"editor.suggest.showEvents":{type:"boolean",default:!0,markdownDescription:t.localize(502,null)},"editor.suggest.showOperators":{type:"boolean",default:!0,markdownDescription:t.localize(503,null)},"editor.suggest.showUnits":{type:"boolean",default:!0,markdownDescription:t.localize(504,null)},"editor.suggest.showValues":{type:"boolean",default:!0,markdownDescription:t.localize(505,null)},"editor.suggest.showConstants":{type:"boolean",default:!0,markdownDescription:t.localize(506,null)},"editor.suggest.showEnums":{type:"boolean",default:!0,markdownDescription:t.localize(507,null)},"editor.suggest.showEnumMembers":{type:"boolean",default:!0,markdownDescription:t.localize(508,null)},"editor.suggest.showKeywords":{type:"boolean",default:!0,markdownDescription:t.localize(509,null)},"editor.suggest.showWords":{type:"boolean",default:!0,markdownDescription:t.localize(510,null)},"editor.suggest.showColors":{type:"boolean",default:!0,markdownDescription:t.localize(511,null)},"editor.suggest.showFiles":{type:"boolean",default:!0,markdownDescription:t.localize(512,null)},"editor.suggest.showReferences":{type:"boolean",default:!0,markdownDescription:t.localize(513,null)},"editor.suggest.showCustomcolors":{type:"boolean",default:!0,markdownDescription:t.localize(514,null)},"editor.suggest.showFolders":{type:"boolean",default:!0,markdownDescription:t.localize(515,null)},"editor.suggest.showTypeParameters":{type:"boolean",default:!0,markdownDescription:t.localize(516,null)},"editor.suggest.showSnippets":{type:"boolean",default:!0,markdownDescription:t.localize(517,null)},"editor.suggest.showUsers":{type:"boolean",default:!0,markdownDescription:t.localize(518,null)},"editor.suggest.showIssues":{type:"boolean",default:!0,markdownDescription:t.localize(519,null)}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{insertMode:h(n.insertMode,this.defaultValue.insertMode,["insert","replace"]),filterGraceful:r(n.filterGraceful,this.defaultValue.filterGraceful),snippetsPreventQuickSuggestions:r(n.snippetsPreventQuickSuggestions,this.defaultValue.filterGraceful),localityBonus:r(n.localityBonus,this.defaultValue.localityBonus),shareSuggestSelections:r(n.shareSuggestSelections,this.defaultValue.shareSuggestSelections),selectionMode:h(n.selectionMode,this.defaultValue.selectionMode,["always","never","whenQuickSuggestion","whenTriggerCharacter"]),showIcons:r(n.showIcons,this.defaultValue.showIcons),showStatusBar:r(n.showStatusBar,this.defaultValue.showStatusBar),preview:r(n.preview,this.defaultValue.preview),previewMode:h(n.previewMode,this.defaultValue.previewMode,["prefix","subword","subwordSmart"]),showInlineDetails:r(n.showInlineDetails,this.defaultValue.showInlineDetails),showMethods:r(n.showMethods,this.defaultValue.showMethods),showFunctions:r(n.showFunctions,this.defaultValue.showFunctions),showConstructors:r(n.showConstructors,this.defaultValue.showConstructors),showDeprecated:r(n.showDeprecated,this.defaultValue.showDeprecated),matchOnWordStartOnly:r(n.matchOnWordStartOnly,this.defaultValue.matchOnWordStartOnly),showFields:r(n.showFields,this.defaultValue.showFields),showVariables:r(n.showVariables,this.defaultValue.showVariables),showClasses:r(n.showClasses,this.defaultValue.showClasses),showStructs:r(n.showStructs,this.defaultValue.showStructs),showInterfaces:r(n.showInterfaces,this.defaultValue.showInterfaces),showModules:r(n.showModules,this.defaultValue.showModules),showProperties:r(n.showProperties,this.defaultValue.showProperties),showEvents:r(n.showEvents,this.defaultValue.showEvents),showOperators:r(n.showOperators,this.defaultValue.showOperators),showUnits:r(n.showUnits,this.defaultValue.showUnits),showValues:r(n.showValues,this.defaultValue.showValues),showConstants:r(n.showConstants,this.defaultValue.showConstants),showEnums:r(n.showEnums,this.defaultValue.showEnums),showEnumMembers:r(n.showEnumMembers,this.defaultValue.showEnumMembers),showKeywords:r(n.showKeywords,this.defaultValue.showKeywords),showWords:r(n.showWords,this.defaultValue.showWords),showColors:r(n.showColors,this.defaultValue.showColors),showFiles:r(n.showFiles,this.defaultValue.showFiles),showReferences:r(n.showReferences,this.defaultValue.showReferences),showFolders:r(n.showFolders,this.defaultValue.showFolders),showTypeParameters:r(n.showTypeParameters,this.defaultValue.showTypeParameters),showSnippets:r(n.showSnippets,this.defaultValue.showSnippets),showUsers:r(n.showUsers,this.defaultValue.showUsers),showIssues:r(n.showIssues,this.defaultValue.showIssues)}}}class hl extends f{constructor(){super(123,"smartSelect",{selectLeadingAndTrailingWhitespace:!0,selectSubwords:!0},{"editor.smartSelect.selectLeadingAndTrailingWhitespace":{description:t.localize(520,null),default:!0,type:"boolean"},"editor.smartSelect.selectSubwords":{description:t.localize(521,null),default:!0,type:"boolean"}})}validate(l){return!l||typeof l!="object"?this.defaultValue:{selectLeadingAndTrailingWhitespace:r(l.selectLeadingAndTrailingWhitespace,this.defaultValue.selectLeadingAndTrailingWhitespace),selectSubwords:r(l.selectSubwords,this.defaultValue.selectSubwords)}}}class pl extends f{constructor(){const l=[];super(140,"wordSegmenterLocales",l,{anyOf:[{description:t.localize(522,null),type:"string"},{description:t.localize(523,null),type:"array",items:{type:"string"}}]})}validate(l){if(typeof l=="string"&&(l=[l]),Array.isArray(l)){const n=[];for(const a of l)if(typeof a=="string")try{Intl.Segmenter.supportedLocalesOf(a).length>0&&n.push(a)}catch{}return n}return this.defaultValue}}var De;(function(e){e[e.None=0]="None",e[e.Same=1]="Same",e[e.Indent=2]="Indent",e[e.DeepIndent=3]="DeepIndent"})(De||(De={}));class gl extends f{constructor(){super(148,"wrappingIndent",1,{"editor.wrappingIndent":{type:"string",enum:["none","same","indent","deepIndent"],enumDescriptions:[t.localize(524,null),t.localize(525,null),t.localize(526,null),t.localize(527,null)],description:t.localize(528,null),default:"same"}})}validate(l){switch(l){case"none":return 0;case"same":return 1;case"indent":return 2;case"deepIndent":return 3}return 1}compute(l,n,a){return n.get(2)===2?0:a}}class wl extends M{constructor(){super(157)}compute(l,n,a){const o=n.get(156);return{isDominatedByLongLines:l.isDominatedByLongLines,isWordWrapMinified:o.isWordWrapMinified,isViewportWrapping:o.isViewportWrapping,wrappingColumn:o.wrappingColumn}}}class yl extends f{constructor(){const l={enabled:!0,showDropSelector:"afterDrop"};super(41,"dropIntoEditor",l,{"editor.dropIntoEditor.enabled":{type:"boolean",default:l.enabled,markdownDescription:t.localize(529,null)},"editor.dropIntoEditor.showDropSelector":{type:"string",markdownDescription:t.localize(530,null),enum:["afterDrop","never"],enumDescriptions:[t.localize(531,null),t.localize(532,null)],default:"afterDrop"}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),showDropSelector:h(n.showDropSelector,this.defaultValue.showDropSelector,["afterDrop","never"])}}}class bl extends f{constructor(){const l={enabled:!0,showPasteSelector:"afterPaste"};super(94,"pasteAs",l,{"editor.pasteAs.enabled":{type:"boolean",default:l.enabled,markdownDescription:t.localize(533,null)},"editor.pasteAs.showPasteSelector":{type:"string",markdownDescription:t.localize(534,null),enum:["afterPaste","never"],enumDescriptions:[t.localize(535,null),t.localize(536,null)],default:"afterPaste"}})}validate(l){if(!l||typeof l!="object")return this.defaultValue;const n=l;return{enabled:r(n.enabled,this.defaultValue.enabled),showPasteSelector:h(n.showPasteSelector,this.defaultValue.showPasteSelector,["afterPaste","never"])}}}const zl="Consolas, 'Courier New', monospace",Sl="Menlo, Monaco, 'Courier New', monospace",Cl="'Droid Sans Mono', 'monospace', monospace",k={fontFamily:z.$n?Sl:z.$m?zl:Cl,fontWeight:"normal",fontSize:z.$n?12:14,lineHeight:0,letterSpacing:0},vl=[];function i(e){return vl[e.id]=e,e}var ke;(function(e){e[e.acceptSuggestionOnCommitCharacter=0]="acceptSuggestionOnCommitCharacter",e[e.acceptSuggestionOnEnter=1]="acceptSuggestionOnEnter",e[e.accessibilitySupport=2]="accessibilitySupport",e[e.accessibilityPageSize=3]="accessibilityPageSize",e[e.allowVariableLineHeights=4]="allowVariableLineHeights",e[e.allowVariableFonts=5]="allowVariableFonts",e[e.allowVariableFontsInAccessibilityMode=6]="allowVariableFontsInAccessibilityMode",e[e.ariaLabel=7]="ariaLabel",e[e.ariaRequired=8]="ariaRequired",e[e.autoClosingBrackets=9]="autoClosingBrackets",e[e.autoClosingComments=10]="autoClosingComments",e[e.screenReaderAnnounceInlineSuggestion=11]="screenReaderAnnounceInlineSuggestion",e[e.autoClosingDelete=12]="autoClosingDelete",e[e.autoClosingOvertype=13]="autoClosingOvertype",e[e.autoClosingQuotes=14]="autoClosingQuotes",e[e.autoIndent=15]="autoIndent",e[e.autoIndentOnPaste=16]="autoIndentOnPaste",e[e.autoIndentOnPasteWithinString=17]="autoIndentOnPasteWithinString",e[e.automaticLayout=18]="automaticLayout",e[e.autoSurround=19]="autoSurround",e[e.bracketPairColorization=20]="bracketPairColorization",e[e.guides=21]="guides",e[e.codeLens=22]="codeLens",e[e.codeLensFontFamily=23]="codeLensFontFamily",e[e.codeLensFontSize=24]="codeLensFontSize",e[e.colorDecorators=25]="colorDecorators",e[e.colorDecoratorsLimit=26]="colorDecoratorsLimit",e[e.columnSelection=27]="columnSelection",e[e.comments=28]="comments",e[e.contextmenu=29]="contextmenu",e[e.copyWithSyntaxHighlighting=30]="copyWithSyntaxHighlighting",e[e.cursorBlinking=31]="cursorBlinking",e[e.cursorSmoothCaretAnimation=32]="cursorSmoothCaretAnimation",e[e.cursorStyle=33]="cursorStyle",e[e.cursorSurroundingLines=34]="cursorSurroundingLines",e[e.cursorSurroundingLinesStyle=35]="cursorSurroundingLinesStyle",e[e.cursorWidth=36]="cursorWidth",e[e.disableLayerHinting=37]="disableLayerHinting",e[e.disableMonospaceOptimizations=38]="disableMonospaceOptimizations",e[e.domReadOnly=39]="domReadOnly",e[e.dragAndDrop=40]="dragAndDrop",e[e.dropIntoEditor=41]="dropIntoEditor",e[e.editContext=42]="editContext",e[e.emptySelectionClipboard=43]="emptySelectionClipboard",e[e.experimentalGpuAcceleration=44]="experimentalGpuAcceleration",e[e.experimentalWhitespaceRendering=45]="experimentalWhitespaceRendering",e[e.extraEditorClassName=46]="extraEditorClassName",e[e.fastScrollSensitivity=47]="fastScrollSensitivity",e[e.find=48]="find",e[e.fixedOverflowWidgets=49]="fixedOverflowWidgets",e[e.folding=50]="folding",e[e.foldingStrategy=51]="foldingStrategy",e[e.foldingHighlight=52]="foldingHighlight",e[e.foldingImportsByDefault=53]="foldingImportsByDefault",e[e.foldingMaximumRegions=54]="foldingMaximumRegions",e[e.unfoldOnClickAfterEndOfLine=55]="unfoldOnClickAfterEndOfLine",e[e.fontFamily=56]="fontFamily",e[e.fontInfo=57]="fontInfo",e[e.fontLigatures=58]="fontLigatures",e[e.fontSize=59]="fontSize",e[e.fontWeight=60]="fontWeight",e[e.fontVariations=61]="fontVariations",e[e.formatOnPaste=62]="formatOnPaste",e[e.formatOnType=63]="formatOnType",e[e.glyphMargin=64]="glyphMargin",e[e.gotoLocation=65]="gotoLocation",e[e.hideCursorInOverviewRuler=66]="hideCursorInOverviewRuler",e[e.hover=67]="hover",e[e.inDiffEditor=68]="inDiffEditor",e[e.inlineSuggest=69]="inlineSuggest",e[e.letterSpacing=70]="letterSpacing",e[e.lightbulb=71]="lightbulb",e[e.lineDecorationsWidth=72]="lineDecorationsWidth",e[e.lineHeight=73]="lineHeight",e[e.lineNumbers=74]="lineNumbers",e[e.lineNumbersMinChars=75]="lineNumbersMinChars",e[e.linkedEditing=76]="linkedEditing",e[e.links=77]="links",e[e.matchBrackets=78]="matchBrackets",e[e.minimap=79]="minimap",e[e.mouseStyle=80]="mouseStyle",e[e.mouseWheelScrollSensitivity=81]="mouseWheelScrollSensitivity",e[e.mouseWheelZoom=82]="mouseWheelZoom",e[e.multiCursorMergeOverlapping=83]="multiCursorMergeOverlapping",e[e.multiCursorModifier=84]="multiCursorModifier",e[e.multiCursorPaste=85]="multiCursorPaste",e[e.multiCursorLimit=86]="multiCursorLimit",e[e.occurrencesHighlight=87]="occurrencesHighlight",e[e.occurrencesHighlightDelay=88]="occurrencesHighlightDelay",e[e.overtypeCursorStyle=89]="overtypeCursorStyle",e[e.overtypeOnPaste=90]="overtypeOnPaste",e[e.overviewRulerBorder=91]="overviewRulerBorder",e[e.overviewRulerLanes=92]="overviewRulerLanes",e[e.padding=93]="padding",e[e.pasteAs=94]="pasteAs",e[e.parameterHints=95]="parameterHints",e[e.peekWidgetDefaultFocus=96]="peekWidgetDefaultFocus",e[e.placeholder=97]="placeholder",e[e.definitionLinkOpensInPeek=98]="definitionLinkOpensInPeek",e[e.quickSuggestions=99]="quickSuggestions",e[e.quickSuggestionsDelay=100]="quickSuggestionsDelay",e[e.readOnly=101]="readOnly",e[e.readOnlyMessage=102]="readOnlyMessage",e[e.renameOnType=103]="renameOnType",e[e.renderControlCharacters=104]="renderControlCharacters",e[e.renderFinalNewline=105]="renderFinalNewline",e[e.renderLineHighlight=106]="renderLineHighlight",e[e.renderLineHighlightOnlyWhenFocus=107]="renderLineHighlightOnlyWhenFocus",e[e.renderValidationDecorations=108]="renderValidationDecorations",e[e.renderWhitespace=109]="renderWhitespace",e[e.revealHorizontalRightPadding=110]="revealHorizontalRightPadding",e[e.roundedSelection=111]="roundedSelection",e[e.rulers=112]="rulers",e[e.scrollbar=113]="scrollbar",e[e.scrollBeyondLastColumn=114]="scrollBeyondLastColumn",e[e.scrollBeyondLastLine=115]="scrollBeyondLastLine",e[e.scrollPredominantAxis=116]="scrollPredominantAxis",e[e.selectionClipboard=117]="selectionClipboard",e[e.selectionHighlight=118]="selectionHighlight",e[e.selectOnLineNumbers=119]="selectOnLineNumbers",e[e.showFoldingControls=120]="showFoldingControls",e[e.showUnused=121]="showUnused",e[e.snippetSuggestions=122]="snippetSuggestions",e[e.smartSelect=123]="smartSelect",e[e.smoothScrolling=124]="smoothScrolling",e[e.stickyScroll=125]="stickyScroll",e[e.stickyTabStops=126]="stickyTabStops",e[e.stopRenderingLineAfter=127]="stopRenderingLineAfter",e[e.suggest=128]="suggest",e[e.suggestFontSize=129]="suggestFontSize",e[e.suggestLineHeight=130]="suggestLineHeight",e[e.suggestOnTriggerCharacters=131]="suggestOnTriggerCharacters",e[e.suggestSelection=132]="suggestSelection",e[e.tabCompletion=133]="tabCompletion",e[e.tabIndex=134]="tabIndex",e[e.unicodeHighlighting=135]="unicodeHighlighting",e[e.unusualLineTerminators=136]="unusualLineTerminators",e[e.useShadowDOM=137]="useShadowDOM",e[e.useTabStops=138]="useTabStops",e[e.wordBreak=139]="wordBreak",e[e.wordSegmenterLocales=140]="wordSegmenterLocales",e[e.wordSeparators=141]="wordSeparators",e[e.wordWrap=142]="wordWrap",e[e.wordWrapBreakAfterCharacters=143]="wordWrapBreakAfterCharacters",e[e.wordWrapBreakBeforeCharacters=144]="wordWrapBreakBeforeCharacters",e[e.wordWrapColumn=145]="wordWrapColumn",e[e.wordWrapOverride1=146]="wordWrapOverride1",e[e.wordWrapOverride2=147]="wordWrapOverride2",e[e.wrappingIndent=148]="wrappingIndent",e[e.wrappingStrategy=149]="wrappingStrategy",e[e.showDeprecated=150]="showDeprecated",e[e.inlayHints=151]="inlayHints",e[e.effectiveCursorStyle=152]="effectiveCursorStyle",e[e.editorClassName=153]="editorClassName",e[e.pixelRatio=154]="pixelRatio",e[e.tabFocusMode=155]="tabFocusMode",e[e.layoutInfo=156]="layoutInfo",e[e.wrappingInfo=157]="wrappingInfo",e[e.defaultColorDecorators=158]="defaultColorDecorators",e[e.colorDecoratorsActivatedOn=159]="colorDecoratorsActivatedOn",e[e.inlineCompletionsAccessibilityVerbose=160]="inlineCompletionsAccessibilityVerbose",e[e.effectiveEditContext=161]="effectiveEditContext",e[e.scrollOnMiddleClick=162]="scrollOnMiddleClick",e[e.effectiveAllowVariableFonts=163]="effectiveAllowVariableFonts"})(ke||(ke={}));const Wl={acceptSuggestionOnCommitCharacter:i(new s(0,"acceptSuggestionOnCommitCharacter",!0,{markdownDescription:t.localize(537,null)})),acceptSuggestionOnEnter:i(new m(1,"acceptSuggestionOnEnter","on",["on","smart","off"],{markdownEnumDescriptions:["",t.localize(538,null),""],markdownDescription:t.localize(539,null)})),accessibilitySupport:i(new Fe),accessibilityPageSize:i(new c(3,"accessibilityPageSize",500,1,1073741824,{description:t.localize(540,null),tags:["accessibility"]})),allowVariableLineHeights:i(new s(4,"allowVariableLineHeights",!0)),allowVariableFonts:i(new s(5,"allowVariableFonts",!0,{description:t.localize(541,null)})),allowVariableFontsInAccessibilityMode:i(new s(6,"allowVariableFontsInAccessibilityMode",!1,{description:t.localize(542,null),tags:["accessibility"]})),ariaLabel:i(new p(7,"ariaLabel",t.localize(543,null))),ariaRequired:i(new s(8,"ariaRequired",!1,void 0)),screenReaderAnnounceInlineSuggestion:i(new s(11,"screenReaderAnnounceInlineSuggestion",!0,{description:t.localize(544,null),tags:["accessibility"]})),autoClosingBrackets:i(new m(9,"autoClosingBrackets","languageDefined",["always","languageDefined","beforeWhitespace","never"],{enumDescriptions:["",t.localize(545,null),t.localize(546,null),""],description:t.localize(547,null)})),autoClosingComments:i(new m(10,"autoClosingComments","languageDefined",["always","languageDefined","beforeWhitespace","never"],{enumDescriptions:["",t.localize(548,null),t.localize(549,null),""],description:t.localize(550,null)})),autoClosingDelete:i(new m(12,"autoClosingDelete","auto",["always","auto","never"],{enumDescriptions:["",t.localize(551,null),""],description:t.localize(552,null)})),autoClosingOvertype:i(new m(13,"autoClosingOvertype","auto",["always","auto","never"],{enumDescriptions:["",t.localize(553,null),""],description:t.localize(554,null)})),autoClosingQuotes:i(new m(14,"autoClosingQuotes","languageDefined",["always","languageDefined","beforeWhitespace","never"],{enumDescriptions:["",t.localize(555,null),t.localize(556,null),""],description:t.localize(557,null)})),autoIndent:i(new ae(15,"autoIndent",4,"full",["none","keep","brackets","advanced","full"],Ie,{enumDescriptions:[t.localize(558,null),t.localize(559,null),t.localize(560,null),t.localize(561,null),t.localize(562,null)],description:t.localize(563,null)})),autoIndentOnPaste:i(new s(16,"autoIndentOnPaste",!1,{description:t.localize(564,null)})),autoIndentOnPasteWithinString:i(new s(17,"autoIndentOnPasteWithinString",!0,{description:t.localize(565,null)})),automaticLayout:i(new s(18,"automaticLayout",!1)),autoSurround:i(new m(19,"autoSurround","languageDefined",["languageDefined","quotes","brackets","never"],{enumDescriptions:[t.localize(566,null),t.localize(567,null),t.localize(568,null),""],description:t.localize(569,null)})),bracketPairColorization:i(new dl),bracketPairGuides:i(new fl),stickyTabStops:i(new s(126,"stickyTabStops",!1,{description:t.localize(570,null)})),codeLens:i(new s(22,"codeLens",!0,{description:t.localize(571,null)})),codeLensFontFamily:i(new p(23,"codeLensFontFamily","",{description:t.localize(572,null)})),codeLensFontSize:i(new c(24,"codeLensFontSize",0,0,100,{type:"number",default:0,minimum:0,maximum:100,markdownDescription:t.localize(573,null)})),colorDecorators:i(new s(25,"colorDecorators",!0,{description:t.localize(574,null)})),colorDecoratorActivatedOn:i(new m(159,"colorDecoratorsActivatedOn","clickAndHover",["clickAndHover","hover","click"],{enumDescriptions:[t.localize(575,null),t.localize(576,null),t.localize(577,null)],description:t.localize(578,null)})),colorDecoratorsLimit:i(new c(26,"colorDecoratorsLimit",500,1,1e6,{markdownDescription:t.localize(579,null)})),columnSelection:i(new s(27,"columnSelection",!1,{description:t.localize(580,null)})),comments:i(new Pe),contextmenu:i(new s(29,"contextmenu",!0)),copyWithSyntaxHighlighting:i(new s(30,"copyWithSyntaxHighlighting",!0,{description:t.localize(581,null)})),cursorBlinking:i(new ae(31,"cursorBlinking",1,"blink",["blink","smooth","phase","expand","solid"],Ae,{description:t.localize(582,null)})),cursorSmoothCaretAnimation:i(new m(32,"cursorSmoothCaretAnimation","off",["off","explicit","on"],{enumDescriptions:[t.localize(583,null),t.localize(584,null),t.localize(585,null)],description:t.localize(586,null)})),cursorStyle:i(new ae(33,"cursorStyle",w.Line,"line",["line","block","underline","line-thin","block-outline","underline-thin"],ze,{description:t.localize(587,null)})),overtypeCursorStyle:i(new ae(89,"overtypeCursorStyle",w.Block,"block",["line","block","underline","line-thin","block-outline","underline-thin"],ze,{description:t.localize(588,null)})),cursorSurroundingLines:i(new c(34,"cursorSurroundingLines",0,0,1073741824,{description:t.localize(589,null)})),cursorSurroundingLinesStyle:i(new m(35,"cursorSurroundingLinesStyle","default",["default","all"],{enumDescriptions:[t.localize(590,null),t.localize(591,null)],markdownDescription:t.localize(592,null)})),cursorWidth:i(new c(36,"cursorWidth",0,0,1073741824,{markdownDescription:t.localize(593,null)})),disableLayerHinting:i(new s(37,"disableLayerHinting",!1)),disableMonospaceOptimizations:i(new s(38,"disableMonospaceOptimizations",!1)),domReadOnly:i(new s(39,"domReadOnly",!1)),dragAndDrop:i(new s(40,"dragAndDrop",!0,{description:t.localize(594,null)})),emptySelectionClipboard:i(new Te),dropIntoEditor:i(new yl),editContext:i(new s(42,"editContext",!0,{description:t.localize(595,null),included:z.$I||z.$L||z.$q})),stickyScroll:i(new Ye),experimentalGpuAcceleration:i(new m(44,"experimentalGpuAcceleration","off",["off","on"],{tags:["experimental"],enumDescriptions:[t.localize(596,null),t.localize(597,null)],description:t.localize(598,null)})),experimentalWhitespaceRendering:i(new m(45,"experimentalWhitespaceRendering","svg",["svg","font","off"],{enumDescriptions:[t.localize(599,null),t.localize(600,null),t.localize(601,null)],description:t.localize(602,null)})),extraEditorClassName:i(new p(46,"extraEditorClassName","")),fastScrollSensitivity:i(new b(47,"fastScrollSensitivity",5,e=>e<=0?5:e,{markdownDescription:t.localize(603,null)})),find:i(new Re),fixedOverflowWidgets:i(new s(49,"fixedOverflowWidgets",!1)),folding:i(new s(50,"folding",!0,{description:t.localize(604,null)})),foldingStrategy:i(new m(51,"foldingStrategy","auto",["auto","indentation"],{enumDescriptions:[t.localize(605,null),t.localize(606,null)],description:t.localize(607,null)})),foldingHighlight:i(new s(52,"foldingHighlight",!0,{description:t.localize(608,null)})),foldingImportsByDefault:i(new s(53,"foldingImportsByDefault",!1,{description:t.localize(609,null)})),foldingMaximumRegions:i(new c(54,"foldingMaximumRegions",5e3,10,65e3,{description:t.localize(610,null)})),unfoldOnClickAfterEndOfLine:i(new s(55,"unfoldOnClickAfterEndOfLine",!1,{description:t.localize(611,null)})),fontFamily:i(new p(56,"fontFamily",k.fontFamily,{description:t.localize(612,null)})),fontInfo:i(new Ne),fontLigatures2:i(new T),fontSize:i(new Ge),fontWeight:i(new N),fontVariations:i(new R),formatOnPaste:i(new s(62,"formatOnPaste",!1,{description:t.localize(613,null)})),formatOnType:i(new s(63,"formatOnType",!1,{description:t.localize(614,null)})),glyphMargin:i(new s(64,"glyphMargin",!0,{description:t.localize(615,null)})),gotoLocation:i(new qe),hideCursorInOverviewRuler:i(new s(66,"hideCursorInOverviewRuler",!1,{description:t.localize(616,null)})),hover:i(new Ke),inDiffEditor:i(new s(68,"inDiffEditor",!1)),letterSpacing:i(new b(70,"letterSpacing",k.letterSpacing,e=>b.clamp(e,-5,20),{description:t.localize(617,null)})),lightbulb:i(new Ze),lineDecorationsWidth:i(new Je),lineHeight:i(new _e),lineNumbers:i(new al),lineNumbersMinChars:i(new c(75,"lineNumbersMinChars",5,1,300)),linkedEditing:i(new s(76,"linkedEditing",!1,{description:t.localize(618,null)})),links:i(new s(77,"links",!0,{description:t.localize(619,null)})),matchBrackets:i(new m(78,"matchBrackets","always",["always","near","never"],{description:t.localize(620,null)})),minimap:i(new Oe),mouseStyle:i(new m(80,"mouseStyle","text",["text","default","copy"])),mouseWheelScrollSensitivity:i(new b(81,"mouseWheelScrollSensitivity",1,e=>e===0?1:e,{markdownDescription:t.localize(621,null)})),mouseWheelZoom:i(new s(82,"mouseWheelZoom",!1,{markdownDescription:z.$n?t.localize(622,null):t.localize(623,null)})),multiCursorMergeOverlapping:i(new s(83,"multiCursorMergeOverlapping",!0,{description:t.localize(624,null)})),multiCursorModifier:i(new ae(84,"multiCursorModifier","altKey","alt",["ctrlCmd","alt"],Ee,{markdownEnumDescriptions:[t.localize(625,null),t.localize(626,null)],markdownDescription:t.localize(627,null)})),multiCursorPaste:i(new m(85,"multiCursorPaste","spread",["spread","full"],{markdownEnumDescriptions:[t.localize(628,null),t.localize(629,null)],markdownDescription:t.localize(630,null)})),multiCursorLimit:i(new c(86,"multiCursorLimit",1e4,1,1e5,{markdownDescription:t.localize(631,null)})),occurrencesHighlight:i(new m(87,"occurrencesHighlight","singleFile",["off","singleFile","multiFile"],{markdownEnumDescriptions:[t.localize(632,null),t.localize(633,null),t.localize(634,null)],markdownDescription:t.localize(635,null)})),occurrencesHighlightDelay:i(new c(88,"occurrencesHighlightDelay",0,0,2e3,{description:t.localize(636,null),tags:["preview"]})),overtypeOnPaste:i(new s(90,"overtypeOnPaste",!0,{description:t.localize(637,null)})),overviewRulerBorder:i(new s(91,"overviewRulerBorder",!0,{description:t.localize(638,null)})),overviewRulerLanes:i(new c(92,"overviewRulerLanes",3,0,3)),padding:i(new el),pasteAs:i(new bl),parameterHints:i(new ll),peekWidgetDefaultFocus:i(new m(96,"peekWidgetDefaultFocus","tree",["tree","editor"],{enumDescriptions:[t.localize(639,null),t.localize(640,null)],description:t.localize(641,null)})),placeholder:i(new nl),definitionLinkOpensInPeek:i(new s(98,"definitionLinkOpensInPeek",!1,{description:t.localize(642,null)})),quickSuggestions:i(new il),quickSuggestionsDelay:i(new c(100,"quickSuggestionsDelay",10,0,1073741824,{description:t.localize(643,null),tags:["onExP"]})),readOnly:i(new s(101,"readOnly",!1)),readOnlyMessage:i(new rl),renameOnType:i(new s(103,"renameOnType",!1,{description:t.localize(644,null),markdownDeprecationMessage:t.localize(645,null)})),renderControlCharacters:i(new s(104,"renderControlCharacters",!0,{description:t.localize(646,null),restricted:!0})),renderFinalNewline:i(new m(105,"renderFinalNewline",z.$o?"dimmed":"on",["off","on","dimmed"],{description:t.localize(647,null)})),renderLineHighlight:i(new m(106,"renderLineHighlight","line",["none","gutter","line","all"],{enumDescriptions:["","","",t.localize(648,null)],description:t.localize(649,null)})),renderLineHighlightOnlyWhenFocus:i(new s(107,"renderLineHighlightOnlyWhenFocus",!1,{description:t.localize(650,null)})),renderValidationDecorations:i(new m(108,"renderValidationDecorations","editable",["editable","on","off"])),renderWhitespace:i(new m(109,"renderWhitespace","selection",["none","boundary","selection","trailing","all"],{enumDescriptions:["",t.localize(651,null),t.localize(652,null),t.localize(653,null),""],description:t.localize(654,null)})),revealHorizontalRightPadding:i(new c(110,"revealHorizontalRightPadding",15,0,1e3)),roundedSelection:i(new s(111,"roundedSelection",!0,{description:t.localize(655,null)})),rulers:i(new ol),scrollbar:i(new sl),scrollBeyondLastColumn:i(new c(114,"scrollBeyondLastColumn",4,0,1073741824,{description:t.localize(656,null)})),scrollBeyondLastLine:i(new s(115,"scrollBeyondLastLine",!0,{description:t.localize(657,null)})),scrollOnMiddleClick:i(new s(162,"scrollOnMiddleClick",!1,{description:t.localize(658,null)})),scrollPredominantAxis:i(new s(116,"scrollPredominantAxis",!0,{description:t.localize(659,null)})),selectionClipboard:i(new s(117,"selectionClipboard",!0,{description:t.localize(660,null),included:z.$o})),selectionHighlight:i(new s(118,"selectionHighlight",!0,{description:t.localize(661,null)})),selectOnLineNumbers:i(new s(119,"selectOnLineNumbers",!0)),showFoldingControls:i(new m(120,"showFoldingControls","mouseover",["always","never","mouseover"],{enumDescriptions:[t.localize(662,null),t.localize(663,null),t.localize(664,null)],description:t.localize(665,null)})),showUnused:i(new s(121,"showUnused",!0,{description:t.localize(666,null)})),showDeprecated:i(new s(150,"showDeprecated",!0,{description:t.localize(667,null)})),inlayHints:i(new Xe),snippetSuggestions:i(new m(122,"snippetSuggestions","inline",["top","bottom","inline","none"],{enumDescriptions:[t.localize(668,null),t.localize(669,null),t.localize(670,null),t.localize(671,null)],description:t.localize(672,null)})),smartSelect:i(new hl),smoothScrolling:i(new s(124,"smoothScrolling",!1,{description:t.localize(673,null)})),stopRenderingLineAfter:i(new c(127,"stopRenderingLineAfter",1e4,-1,1073741824)),suggest:i(new ml),inlineSuggest:i(new cl),inlineCompletionsAccessibilityVerbose:i(new s(160,"inlineCompletionsAccessibilityVerbose",!1,{description:t.localize(674,null)})),suggestFontSize:i(new c(129,"suggestFontSize",0,0,1e3,{markdownDescription:t.localize(675,null,"`0`","`#editor.fontSize#`")})),suggestLineHeight:i(new c(130,"suggestLineHeight",0,0,1e3,{markdownDescription:t.localize(676,null,"`0`","`#editor.lineHeight#`")})),suggestOnTriggerCharacters:i(new s(131,"suggestOnTriggerCharacters",!0,{description:t.localize(677,null)})),suggestSelection:i(new m(132,"suggestSelection","first",["first","recentlyUsed","recentlyUsedByPrefix"],{markdownEnumDescriptions:[t.localize(678,null),t.localize(679,null),t.localize(680,null)],description:t.localize(681,null)})),tabCompletion:i(new m(133,"tabCompletion","off",["on","off","onlySnippets"],{enumDescriptions:[t.localize(682,null),t.localize(683,null),t.localize(684,null)],description:t.localize(685,null)})),tabIndex:i(new c(134,"tabIndex",0,-1,1073741824)),unicodeHighlight:i(new ul),unusualLineTerminators:i(new m(136,"unusualLineTerminators","prompt",["auto","off","prompt"],{enumDescriptions:[t.localize(686,null),t.localize(687,null),t.localize(688,null)],description:t.localize(689,null)})),useShadowDOM:i(new s(137,"useShadowDOM",!0)),useTabStops:i(new s(138,"useTabStops",!0,{description:t.localize(690,null)})),wordBreak:i(new m(139,"wordBreak","normal",["normal","keepAll"],{markdownEnumDescriptions:[t.localize(691,null),t.localize(692,null)],description:t.localize(693,null)})),wordSegmenterLocales:i(new pl),wordSeparators:i(new p(141,"wordSeparators",Ve,{description:t.localize(694,null)})),wordWrap:i(new m(142,"wordWrap","off",["off","on","wordWrapColumn","bounded"],{markdownEnumDescriptions:[t.localize(695,null),t.localize(696,null),t.localize(697,null),t.localize(698,null)],description:t.localize(699,null)})),wordWrapBreakAfterCharacters:i(new p(143,"wordWrapBreakAfterCharacters"," 	})]?|/&.,;\xA2\xB0\u2032\u2033\u2030\u2103\u3001\u3002\uFF61\uFF64\uFFE0\uFF0C\uFF0E\uFF1A\uFF1B\uFF1F\uFF01\uFF05\u30FB\uFF65\u309D\u309E\u30FD\u30FE\u30FC\u30A1\u30A3\u30A5\u30A7\u30A9\u30C3\u30E3\u30E5\u30E7\u30EE\u30F5\u30F6\u3041\u3043\u3045\u3047\u3049\u3063\u3083\u3085\u3087\u308E\u3095\u3096\u31F0\u31F1\u31F2\u31F3\u31F4\u31F5\u31F6\u31F7\u31F8\u31F9\u31FA\u31FB\u31FC\u31FD\u31FE\u31FF\u3005\u303B\uFF67\uFF68\uFF69\uFF6A\uFF6B\uFF6C\uFF6D\uFF6E\uFF6F\uFF70\u201D\u3009\u300B\u300D\u300F\u3011\u3015\uFF09\uFF3D\uFF5D\uFF63")),wordWrapBreakBeforeCharacters:i(new p(144,"wordWrapBreakBeforeCharacters","([{\u2018\u201C\u3008\u300A\u300C\u300E\u3010\u3014\uFF08\uFF3B\uFF5B\uFF62\xA3\xA5\uFF04\uFFE1\uFFE5+\uFF0B")),wordWrapColumn:i(new c(145,"wordWrapColumn",80,1,1073741824,{markdownDescription:t.localize(700,null)})),wordWrapOverride1:i(new m(146,"wordWrapOverride1","inherit",["off","on","inherit"])),wordWrapOverride2:i(new m(147,"wordWrapOverride2","inherit",["off","on","inherit"])),effectiveCursorStyle:i(new Ue),editorClassName:i(new Be),defaultColorDecorators:i(new m(158,"defaultColorDecorators","auto",["auto","always","never"],{enumDescriptions:[t.localize(701,null),t.localize(702,null),t.localize(703,null)],description:t.localize(704,null)})),pixelRatio:i(new tl),tabFocusMode:i(new s(155,"tabFocusMode",!1,{markdownDescription:t.localize(705,null)})),layoutInfo:i(new oe),wrappingInfo:i(new wl),wrappingIndent:i(new gl),wrappingStrategy:i(new Qe),effectiveEditContextEnabled:i(new je),effectiveAllowVariableFonts:i(new $e)};export{ce as ApplyUpdateResult,Me as ComputeOptionsMemory,Ll as ConfigurationChangedEvent,k as EDITOR_FONT_DEFAULTS,ye as EditorAutoIndentStrategy,T as EditorFontLigatures,R as EditorFontVariations,oe as EditorLayoutInfoComputer,ke as EditorOption,Wl as EditorOptions,He as MINIMAP_GUTTER_WIDTH,Ce as RenderLineNumbersType,Se as RenderMinimap,D as ShowLightbulbIconMode,be as TextEditorCursorBlinkingStyle,w as TextEditorCursorStyle,De as WrappingIndent,r as boolean,xl as clampedFloat,We as clampedInt,Ae as cursorBlinkingStyleFromString,ze as cursorStyleFromString,Vl as cursorStyleToString,vl as editorOptionsRegistry,Ml as filterFontDecorations,Hl as filterValidationDecorations,C as inUntrustedWorkspace,h as stringSet,B as unicodeHighlightConfigKeys};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "../../../base/common/arrays.js";
+import * as objects from "../../../base/common/objects.js";
+import * as platform from "../../../base/common/platform.js";
+import { EDITOR_MODEL_DEFAULTS } from "../core/misc/textModelDefaults.js";
+import { USUAL_WORD_SEPARATORS } from "../core/wordHelper.js";
+import * as nls from "../../../nls.js";
+var EditorAutoIndentStrategy;
+(function(EditorAutoIndentStrategy2) {
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["None"] = 0] = "None";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Keep"] = 1] = "Keep";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Brackets"] = 2] = "Brackets";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Advanced"] = 3] = "Advanced";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Full"] = 4] = "Full";
+})(EditorAutoIndentStrategy || (EditorAutoIndentStrategy = {}));
+const MINIMAP_GUTTER_WIDTH = 8;
+class ConfigurationChangedEvent {
+  static {
+    __name(this, "ConfigurationChangedEvent");
+  }
+  /**
+   * @internal
+   */
+  constructor(values) {
+    this._values = values;
+  }
+  hasChanged(id) {
+    return this._values[id];
+  }
+}
+class ComputeOptionsMemory {
+  static {
+    __name(this, "ComputeOptionsMemory");
+  }
+  constructor() {
+    this.stableMinimapLayoutInput = null;
+    this.stableFitMaxMinimapScale = 0;
+    this.stableFitRemainingWidth = 0;
+  }
+}
+class BaseEditorOption {
+  static {
+    __name(this, "BaseEditorOption");
+  }
+  constructor(id, name, defaultValue, schema) {
+    this.id = id;
+    this.name = name;
+    this.defaultValue = defaultValue;
+    this.schema = schema;
+  }
+  applyUpdate(value, update) {
+    return applyUpdate(value, update);
+  }
+  compute(env, options, value) {
+    return value;
+  }
+}
+class ApplyUpdateResult {
+  static {
+    __name(this, "ApplyUpdateResult");
+  }
+  constructor(newValue, didChange) {
+    this.newValue = newValue;
+    this.didChange = didChange;
+  }
+}
+function applyUpdate(value, update) {
+  if (typeof value !== "object" || typeof update !== "object" || !value || !update) {
+    return new ApplyUpdateResult(update, value !== update);
+  }
+  if (Array.isArray(value) || Array.isArray(update)) {
+    const arrayEquals = Array.isArray(value) && Array.isArray(update) && arrays.equals(value, update);
+    return new ApplyUpdateResult(update, !arrayEquals);
+  }
+  let didChange = false;
+  for (const key in update) {
+    if (update.hasOwnProperty(key)) {
+      const result = applyUpdate(value[key], update[key]);
+      if (result.didChange) {
+        value[key] = result.newValue;
+        didChange = true;
+      }
+    }
+  }
+  return new ApplyUpdateResult(value, didChange);
+}
+__name(applyUpdate, "applyUpdate");
+class ComputedEditorOption {
+  static {
+    __name(this, "ComputedEditorOption");
+  }
+  constructor(id) {
+    this.schema = void 0;
+    this.id = id;
+    this.name = "_never_";
+    this.defaultValue = void 0;
+  }
+  applyUpdate(value, update) {
+    return applyUpdate(value, update);
+  }
+  validate(input) {
+    return this.defaultValue;
+  }
+}
+class SimpleEditorOption {
+  static {
+    __name(this, "SimpleEditorOption");
+  }
+  constructor(id, name, defaultValue, schema) {
+    this.id = id;
+    this.name = name;
+    this.defaultValue = defaultValue;
+    this.schema = schema;
+  }
+  applyUpdate(value, update) {
+    return applyUpdate(value, update);
+  }
+  validate(input) {
+    if (typeof input === "undefined") {
+      return this.defaultValue;
+    }
+    return input;
+  }
+  compute(env, options, value) {
+    return value;
+  }
+}
+function boolean(value, defaultValue) {
+  if (typeof value === "undefined") {
+    return defaultValue;
+  }
+  if (value === "false") {
+    return false;
+  }
+  return Boolean(value);
+}
+__name(boolean, "boolean");
+class EditorBooleanOption extends SimpleEditorOption {
+  static {
+    __name(this, "EditorBooleanOption");
+  }
+  constructor(id, name, defaultValue, schema = void 0) {
+    if (typeof schema !== "undefined") {
+      schema.type = "boolean";
+      schema.default = defaultValue;
+    }
+    super(id, name, defaultValue, schema);
+  }
+  validate(input) {
+    return boolean(input, this.defaultValue);
+  }
+}
+function clampedInt(value, defaultValue, minimum, maximum) {
+  if (typeof value === "undefined") {
+    return defaultValue;
+  }
+  let r = parseInt(value, 10);
+  if (isNaN(r)) {
+    return defaultValue;
+  }
+  r = Math.max(minimum, r);
+  r = Math.min(maximum, r);
+  return r | 0;
+}
+__name(clampedInt, "clampedInt");
+class EditorIntOption extends SimpleEditorOption {
+  static {
+    __name(this, "EditorIntOption");
+  }
+  static clampedInt(value, defaultValue, minimum, maximum) {
+    return clampedInt(value, defaultValue, minimum, maximum);
+  }
+  constructor(id, name, defaultValue, minimum, maximum, schema = void 0) {
+    if (typeof schema !== "undefined") {
+      schema.type = "integer";
+      schema.default = defaultValue;
+      schema.minimum = minimum;
+      schema.maximum = maximum;
+    }
+    super(id, name, defaultValue, schema);
+    this.minimum = minimum;
+    this.maximum = maximum;
+  }
+  validate(input) {
+    return EditorIntOption.clampedInt(input, this.defaultValue, this.minimum, this.maximum);
+  }
+}
+function clampedFloat(value, defaultValue, minimum, maximum) {
+  if (typeof value === "undefined") {
+    return defaultValue;
+  }
+  const r = EditorFloatOption.float(value, defaultValue);
+  return EditorFloatOption.clamp(r, minimum, maximum);
+}
+__name(clampedFloat, "clampedFloat");
+class EditorFloatOption extends SimpleEditorOption {
+  static {
+    __name(this, "EditorFloatOption");
+  }
+  static clamp(n, min, max) {
+    if (n < min) {
+      return min;
+    }
+    if (n > max) {
+      return max;
+    }
+    return n;
+  }
+  static float(value, defaultValue) {
+    if (typeof value === "number") {
+      return value;
+    }
+    if (typeof value === "undefined") {
+      return defaultValue;
+    }
+    const r = parseFloat(value);
+    return isNaN(r) ? defaultValue : r;
+  }
+  constructor(id, name, defaultValue, validationFn, schema) {
+    if (typeof schema !== "undefined") {
+      schema.type = "number";
+      schema.default = defaultValue;
+    }
+    super(id, name, defaultValue, schema);
+    this.validationFn = validationFn;
+  }
+  validate(input) {
+    return this.validationFn(EditorFloatOption.float(input, this.defaultValue));
+  }
+}
+class EditorStringOption extends SimpleEditorOption {
+  static {
+    __name(this, "EditorStringOption");
+  }
+  static string(value, defaultValue) {
+    if (typeof value !== "string") {
+      return defaultValue;
+    }
+    return value;
+  }
+  constructor(id, name, defaultValue, schema = void 0) {
+    if (typeof schema !== "undefined") {
+      schema.type = "string";
+      schema.default = defaultValue;
+    }
+    super(id, name, defaultValue, schema);
+  }
+  validate(input) {
+    return EditorStringOption.string(input, this.defaultValue);
+  }
+}
+function stringSet(value, defaultValue, allowedValues, renamedValues) {
+  if (typeof value !== "string") {
+    return defaultValue;
+  }
+  if (renamedValues && value in renamedValues) {
+    return renamedValues[value];
+  }
+  if (allowedValues.indexOf(value) === -1) {
+    return defaultValue;
+  }
+  return value;
+}
+__name(stringSet, "stringSet");
+class EditorStringEnumOption extends SimpleEditorOption {
+  static {
+    __name(this, "EditorStringEnumOption");
+  }
+  constructor(id, name, defaultValue, allowedValues, schema = void 0) {
+    if (typeof schema !== "undefined") {
+      schema.type = "string";
+      schema.enum = allowedValues;
+      schema.default = defaultValue;
+    }
+    super(id, name, defaultValue, schema);
+    this._allowedValues = allowedValues;
+  }
+  validate(input) {
+    return stringSet(input, this.defaultValue, this._allowedValues);
+  }
+}
+class EditorEnumOption extends BaseEditorOption {
+  static {
+    __name(this, "EditorEnumOption");
+  }
+  constructor(id, name, defaultValue, defaultStringValue, allowedValues, convert, schema = void 0) {
+    if (typeof schema !== "undefined") {
+      schema.type = "string";
+      schema.enum = allowedValues;
+      schema.default = defaultStringValue;
+    }
+    super(id, name, defaultValue, schema);
+    this._allowedValues = allowedValues;
+    this._convert = convert;
+  }
+  validate(input) {
+    if (typeof input !== "string") {
+      return this.defaultValue;
+    }
+    if (this._allowedValues.indexOf(input) === -1) {
+      return this.defaultValue;
+    }
+    return this._convert(input);
+  }
+}
+function _autoIndentFromString(autoIndent) {
+  switch (autoIndent) {
+    case "none":
+      return 0;
+    case "keep":
+      return 1;
+    case "brackets":
+      return 2;
+    case "advanced":
+      return 3;
+    case "full":
+      return 4;
+  }
+}
+__name(_autoIndentFromString, "_autoIndentFromString");
+class EditorAccessibilitySupport extends BaseEditorOption {
+  static {
+    __name(this, "EditorAccessibilitySupport");
+  }
+  constructor() {
+    super(2, "accessibilitySupport", 0, {
+      type: "string",
+      enum: ["auto", "on", "off"],
+      enumDescriptions: [
+        nls.localize("accessibilitySupport.auto", "Use platform APIs to detect when a Screen Reader is attached."),
+        nls.localize("accessibilitySupport.on", "Optimize for usage with a Screen Reader."),
+        nls.localize("accessibilitySupport.off", "Assume a screen reader is not attached.")
+      ],
+      default: "auto",
+      tags: ["accessibility"],
+      description: nls.localize("accessibilitySupport", "Controls if the UI should run in a mode where it is optimized for screen readers.")
+    });
+  }
+  validate(input) {
+    switch (input) {
+      case "auto":
+        return 0;
+      case "off":
+        return 1;
+      case "on":
+        return 2;
+    }
+    return this.defaultValue;
+  }
+  compute(env, options, value) {
+    if (value === 0) {
+      return env.accessibilitySupport;
+    }
+    return value;
+  }
+}
+class EditorComments extends BaseEditorOption {
+  static {
+    __name(this, "EditorComments");
+  }
+  constructor() {
+    const defaults = {
+      insertSpace: true,
+      ignoreEmptyLines: true
+    };
+    super(28, "comments", defaults, {
+      "editor.comments.insertSpace": {
+        type: "boolean",
+        default: defaults.insertSpace,
+        description: nls.localize("comments.insertSpace", "Controls whether a space character is inserted when commenting.")
+      },
+      "editor.comments.ignoreEmptyLines": {
+        type: "boolean",
+        default: defaults.ignoreEmptyLines,
+        description: nls.localize("comments.ignoreEmptyLines", "Controls if empty lines should be ignored with toggle, add or remove actions for line comments.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      insertSpace: boolean(input.insertSpace, this.defaultValue.insertSpace),
+      ignoreEmptyLines: boolean(input.ignoreEmptyLines, this.defaultValue.ignoreEmptyLines)
+    };
+  }
+}
+var TextEditorCursorBlinkingStyle;
+(function(TextEditorCursorBlinkingStyle2) {
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Hidden"] = 0] = "Hidden";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Blink"] = 1] = "Blink";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Smooth"] = 2] = "Smooth";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Phase"] = 3] = "Phase";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Expand"] = 4] = "Expand";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Solid"] = 5] = "Solid";
+})(TextEditorCursorBlinkingStyle || (TextEditorCursorBlinkingStyle = {}));
+function cursorBlinkingStyleFromString(cursorBlinkingStyle) {
+  switch (cursorBlinkingStyle) {
+    case "blink":
+      return 1;
+    case "smooth":
+      return 2;
+    case "phase":
+      return 3;
+    case "expand":
+      return 4;
+    case "solid":
+      return 5;
+  }
+}
+__name(cursorBlinkingStyleFromString, "cursorBlinkingStyleFromString");
+var TextEditorCursorStyle;
+(function(TextEditorCursorStyle2) {
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Line"] = 1] = "Line";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Block"] = 2] = "Block";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Underline"] = 3] = "Underline";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["LineThin"] = 4] = "LineThin";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["BlockOutline"] = 5] = "BlockOutline";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["UnderlineThin"] = 6] = "UnderlineThin";
+})(TextEditorCursorStyle || (TextEditorCursorStyle = {}));
+function cursorStyleToString(cursorStyle) {
+  switch (cursorStyle) {
+    case TextEditorCursorStyle.Line:
+      return "line";
+    case TextEditorCursorStyle.Block:
+      return "block";
+    case TextEditorCursorStyle.Underline:
+      return "underline";
+    case TextEditorCursorStyle.LineThin:
+      return "line-thin";
+    case TextEditorCursorStyle.BlockOutline:
+      return "block-outline";
+    case TextEditorCursorStyle.UnderlineThin:
+      return "underline-thin";
+  }
+}
+__name(cursorStyleToString, "cursorStyleToString");
+function cursorStyleFromString(cursorStyle) {
+  switch (cursorStyle) {
+    case "line":
+      return TextEditorCursorStyle.Line;
+    case "block":
+      return TextEditorCursorStyle.Block;
+    case "underline":
+      return TextEditorCursorStyle.Underline;
+    case "line-thin":
+      return TextEditorCursorStyle.LineThin;
+    case "block-outline":
+      return TextEditorCursorStyle.BlockOutline;
+    case "underline-thin":
+      return TextEditorCursorStyle.UnderlineThin;
+  }
+}
+__name(cursorStyleFromString, "cursorStyleFromString");
+class EditorClassName extends ComputedEditorOption {
+  static {
+    __name(this, "EditorClassName");
+  }
+  constructor() {
+    super(
+      153
+      /* EditorOption.editorClassName */
+    );
+  }
+  compute(env, options, _) {
+    const classNames = ["monaco-editor"];
+    if (options.get(
+      46
+      /* EditorOption.extraEditorClassName */
+    )) {
+      classNames.push(options.get(
+        46
+        /* EditorOption.extraEditorClassName */
+      ));
+    }
+    if (env.extraEditorClassName) {
+      classNames.push(env.extraEditorClassName);
+    }
+    if (options.get(
+      80
+      /* EditorOption.mouseStyle */
+    ) === "default") {
+      classNames.push("mouse-default");
+    } else if (options.get(
+      80
+      /* EditorOption.mouseStyle */
+    ) === "copy") {
+      classNames.push("mouse-copy");
+    }
+    if (options.get(
+      121
+      /* EditorOption.showUnused */
+    )) {
+      classNames.push("showUnused");
+    }
+    if (options.get(
+      150
+      /* EditorOption.showDeprecated */
+    )) {
+      classNames.push("showDeprecated");
+    }
+    return classNames.join(" ");
+  }
+}
+class EditorEmptySelectionClipboard extends EditorBooleanOption {
+  static {
+    __name(this, "EditorEmptySelectionClipboard");
+  }
+  constructor() {
+    super(43, "emptySelectionClipboard", true, { description: nls.localize("emptySelectionClipboard", "Controls whether copying without a selection copies the current line.") });
+  }
+  compute(env, options, value) {
+    return value && env.emptySelectionClipboard;
+  }
+}
+class EditorFind extends BaseEditorOption {
+  static {
+    __name(this, "EditorFind");
+  }
+  constructor() {
+    const defaults = {
+      cursorMoveOnType: true,
+      findOnType: true,
+      seedSearchStringFromSelection: "always",
+      autoFindInSelection: "never",
+      globalFindClipboard: false,
+      addExtraSpaceOnTop: true,
+      loop: true,
+      history: "workspace",
+      replaceHistory: "workspace"
+    };
+    super(48, "find", defaults, {
+      "editor.find.cursorMoveOnType": {
+        type: "boolean",
+        default: defaults.cursorMoveOnType,
+        description: nls.localize("find.cursorMoveOnType", "Controls whether the cursor should jump to find matches while typing.")
+      },
+      "editor.find.seedSearchStringFromSelection": {
+        type: "string",
+        enum: ["never", "always", "selection"],
+        default: defaults.seedSearchStringFromSelection,
+        enumDescriptions: [
+          nls.localize("editor.find.seedSearchStringFromSelection.never", "Never seed search string from the editor selection."),
+          nls.localize("editor.find.seedSearchStringFromSelection.always", "Always seed search string from the editor selection, including word at cursor position."),
+          nls.localize("editor.find.seedSearchStringFromSelection.selection", "Only seed search string from the editor selection.")
+        ],
+        description: nls.localize("find.seedSearchStringFromSelection", "Controls whether the search string in the Find Widget is seeded from the editor selection.")
+      },
+      "editor.find.autoFindInSelection": {
+        type: "string",
+        enum: ["never", "always", "multiline"],
+        default: defaults.autoFindInSelection,
+        enumDescriptions: [
+          nls.localize("editor.find.autoFindInSelection.never", "Never turn on Find in Selection automatically (default)."),
+          nls.localize("editor.find.autoFindInSelection.always", "Always turn on Find in Selection automatically."),
+          nls.localize("editor.find.autoFindInSelection.multiline", "Turn on Find in Selection automatically when multiple lines of content are selected.")
+        ],
+        description: nls.localize("find.autoFindInSelection", "Controls the condition for turning on Find in Selection automatically.")
+      },
+      "editor.find.globalFindClipboard": {
+        type: "boolean",
+        default: defaults.globalFindClipboard,
+        description: nls.localize("find.globalFindClipboard", "Controls whether the Find Widget should read or modify the shared find clipboard on macOS."),
+        included: platform.isMacintosh
+      },
+      "editor.find.addExtraSpaceOnTop": {
+        type: "boolean",
+        default: defaults.addExtraSpaceOnTop,
+        description: nls.localize("find.addExtraSpaceOnTop", "Controls whether the Find Widget should add extra lines on top of the editor. When true, you can scroll beyond the first line when the Find Widget is visible.")
+      },
+      "editor.find.loop": {
+        type: "boolean",
+        default: defaults.loop,
+        description: nls.localize("find.loop", "Controls whether the search automatically restarts from the beginning (or the end) when no further matches can be found.")
+      },
+      "editor.find.history": {
+        type: "string",
+        enum: ["never", "workspace"],
+        default: "workspace",
+        enumDescriptions: [
+          nls.localize("editor.find.history.never", "Do not store search history from the find widget."),
+          nls.localize("editor.find.history.workspace", "Store search history across the active workspace")
+        ],
+        description: nls.localize("find.history", "Controls how the find widget history should be stored")
+      },
+      "editor.find.replaceHistory": {
+        type: "string",
+        enum: ["never", "workspace"],
+        default: "workspace",
+        enumDescriptions: [
+          nls.localize("editor.find.replaceHistory.never", "Do not store history from the replace widget."),
+          nls.localize("editor.find.replaceHistory.workspace", "Store replace history across the active workspace")
+        ],
+        description: nls.localize("find.replaceHistory", "Controls how the replace widget history should be stored")
+      },
+      "editor.find.findOnType": {
+        type: "boolean",
+        default: defaults.findOnType,
+        description: nls.localize("find.findOnType", "Controls whether the Find Widget should search as you type.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      cursorMoveOnType: boolean(input.cursorMoveOnType, this.defaultValue.cursorMoveOnType),
+      findOnType: boolean(input.findOnType, this.defaultValue.findOnType),
+      seedSearchStringFromSelection: typeof _input.seedSearchStringFromSelection === "boolean" ? _input.seedSearchStringFromSelection ? "always" : "never" : stringSet(input.seedSearchStringFromSelection, this.defaultValue.seedSearchStringFromSelection, ["never", "always", "selection"]),
+      autoFindInSelection: typeof _input.autoFindInSelection === "boolean" ? _input.autoFindInSelection ? "always" : "never" : stringSet(input.autoFindInSelection, this.defaultValue.autoFindInSelection, ["never", "always", "multiline"]),
+      globalFindClipboard: boolean(input.globalFindClipboard, this.defaultValue.globalFindClipboard),
+      addExtraSpaceOnTop: boolean(input.addExtraSpaceOnTop, this.defaultValue.addExtraSpaceOnTop),
+      loop: boolean(input.loop, this.defaultValue.loop),
+      history: stringSet(input.history, this.defaultValue.history, ["never", "workspace"]),
+      replaceHistory: stringSet(input.replaceHistory, this.defaultValue.replaceHistory, ["never", "workspace"])
+    };
+  }
+}
+class EditorFontLigatures extends BaseEditorOption {
+  static {
+    __name(this, "EditorFontLigatures");
+  }
+  static {
+    this.OFF = '"liga" off, "calt" off';
+  }
+  static {
+    this.ON = '"liga" on, "calt" on';
+  }
+  constructor() {
+    super(58, "fontLigatures", EditorFontLigatures.OFF, {
+      anyOf: [
+        {
+          type: "boolean",
+          description: nls.localize("fontLigatures", "Enables/Disables font ligatures ('calt' and 'liga' font features). Change this to a string for fine-grained control of the 'font-feature-settings' CSS property.")
+        },
+        {
+          type: "string",
+          description: nls.localize("fontFeatureSettings", "Explicit 'font-feature-settings' CSS property. A boolean can be passed instead if one only needs to turn on/off ligatures.")
+        }
+      ],
+      description: nls.localize("fontLigaturesGeneral", "Configures font ligatures or font features. Can be either a boolean to enable/disable ligatures or a string for the value of the CSS 'font-feature-settings' property."),
+      default: false
+    });
+  }
+  validate(input) {
+    if (typeof input === "undefined") {
+      return this.defaultValue;
+    }
+    if (typeof input === "string") {
+      if (input === "false" || input.length === 0) {
+        return EditorFontLigatures.OFF;
+      }
+      if (input === "true") {
+        return EditorFontLigatures.ON;
+      }
+      return input;
+    }
+    if (Boolean(input)) {
+      return EditorFontLigatures.ON;
+    }
+    return EditorFontLigatures.OFF;
+  }
+}
+class EditorFontVariations extends BaseEditorOption {
+  static {
+    __name(this, "EditorFontVariations");
+  }
+  static {
+    this.OFF = "normal";
+  }
+  static {
+    this.TRANSLATE = "translate";
+  }
+  constructor() {
+    super(61, "fontVariations", EditorFontVariations.OFF, {
+      anyOf: [
+        {
+          type: "boolean",
+          description: nls.localize("fontVariations", "Enables/Disables the translation from font-weight to font-variation-settings. Change this to a string for fine-grained control of the 'font-variation-settings' CSS property.")
+        },
+        {
+          type: "string",
+          description: nls.localize("fontVariationSettings", "Explicit 'font-variation-settings' CSS property. A boolean can be passed instead if one only needs to translate font-weight to font-variation-settings.")
+        }
+      ],
+      description: nls.localize("fontVariationsGeneral", "Configures font variations. Can be either a boolean to enable/disable the translation from font-weight to font-variation-settings or a string for the value of the CSS 'font-variation-settings' property."),
+      default: false
+    });
+  }
+  validate(input) {
+    if (typeof input === "undefined") {
+      return this.defaultValue;
+    }
+    if (typeof input === "string") {
+      if (input === "false") {
+        return EditorFontVariations.OFF;
+      }
+      if (input === "true") {
+        return EditorFontVariations.TRANSLATE;
+      }
+      return input;
+    }
+    if (Boolean(input)) {
+      return EditorFontVariations.TRANSLATE;
+    }
+    return EditorFontVariations.OFF;
+  }
+  compute(env, options, value) {
+    return env.fontInfo.fontVariationSettings;
+  }
+}
+class EditorFontInfo extends ComputedEditorOption {
+  static {
+    __name(this, "EditorFontInfo");
+  }
+  constructor() {
+    super(
+      57
+      /* EditorOption.fontInfo */
+    );
+  }
+  compute(env, options, _) {
+    return env.fontInfo;
+  }
+}
+class EffectiveCursorStyle extends ComputedEditorOption {
+  static {
+    __name(this, "EffectiveCursorStyle");
+  }
+  constructor() {
+    super(
+      152
+      /* EditorOption.effectiveCursorStyle */
+    );
+  }
+  compute(env, options, _) {
+    return env.inputMode === "overtype" ? options.get(
+      89
+      /* EditorOption.overtypeCursorStyle */
+    ) : options.get(
+      33
+      /* EditorOption.cursorStyle */
+    );
+  }
+}
+class EffectiveEditContextEnabled extends ComputedEditorOption {
+  static {
+    __name(this, "EffectiveEditContextEnabled");
+  }
+  constructor() {
+    super(
+      161
+      /* EditorOption.effectiveEditContext */
+    );
+  }
+  compute(env, options) {
+    return env.editContextSupported && options.get(
+      42
+      /* EditorOption.editContext */
+    );
+  }
+}
+class EffectiveAllowVariableFonts extends ComputedEditorOption {
+  static {
+    __name(this, "EffectiveAllowVariableFonts");
+  }
+  constructor() {
+    super(
+      163
+      /* EditorOption.effectiveAllowVariableFonts */
+    );
+  }
+  compute(env, options) {
+    const accessibilitySupport = env.accessibilitySupport;
+    if (accessibilitySupport === 2) {
+      return options.get(
+        6
+        /* EditorOption.allowVariableFontsInAccessibilityMode */
+      );
+    } else {
+      return options.get(
+        5
+        /* EditorOption.allowVariableFonts */
+      );
+    }
+  }
+}
+class EditorFontSize extends SimpleEditorOption {
+  static {
+    __name(this, "EditorFontSize");
+  }
+  constructor() {
+    super(59, "fontSize", EDITOR_FONT_DEFAULTS.fontSize, {
+      type: "number",
+      minimum: 6,
+      maximum: 100,
+      default: EDITOR_FONT_DEFAULTS.fontSize,
+      description: nls.localize("fontSize", "Controls the font size in pixels.")
+    });
+  }
+  validate(input) {
+    const r = EditorFloatOption.float(input, this.defaultValue);
+    if (r === 0) {
+      return EDITOR_FONT_DEFAULTS.fontSize;
+    }
+    return EditorFloatOption.clamp(r, 6, 100);
+  }
+  compute(env, options, value) {
+    return env.fontInfo.fontSize;
+  }
+}
+class EditorFontWeight extends BaseEditorOption {
+  static {
+    __name(this, "EditorFontWeight");
+  }
+  static {
+    this.SUGGESTION_VALUES = ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"];
+  }
+  static {
+    this.MINIMUM_VALUE = 1;
+  }
+  static {
+    this.MAXIMUM_VALUE = 1e3;
+  }
+  constructor() {
+    super(60, "fontWeight", EDITOR_FONT_DEFAULTS.fontWeight, {
+      anyOf: [
+        {
+          type: "number",
+          minimum: EditorFontWeight.MINIMUM_VALUE,
+          maximum: EditorFontWeight.MAXIMUM_VALUE,
+          errorMessage: nls.localize("fontWeightErrorMessage", 'Only "normal" and "bold" keywords or numbers between 1 and 1000 are allowed.')
+        },
+        {
+          type: "string",
+          pattern: "^(normal|bold|1000|[1-9][0-9]{0,2})$"
+        },
+        {
+          enum: EditorFontWeight.SUGGESTION_VALUES
+        }
+      ],
+      default: EDITOR_FONT_DEFAULTS.fontWeight,
+      description: nls.localize("fontWeight", 'Controls the font weight. Accepts "normal" and "bold" keywords or numbers between 1 and 1000.')
+    });
+  }
+  validate(input) {
+    if (input === "normal" || input === "bold") {
+      return input;
+    }
+    return String(EditorIntOption.clampedInt(input, EDITOR_FONT_DEFAULTS.fontWeight, EditorFontWeight.MINIMUM_VALUE, EditorFontWeight.MAXIMUM_VALUE));
+  }
+}
+class EditorGoToLocation extends BaseEditorOption {
+  static {
+    __name(this, "EditorGoToLocation");
+  }
+  constructor() {
+    const defaults = {
+      multiple: "peek",
+      multipleDefinitions: "peek",
+      multipleTypeDefinitions: "peek",
+      multipleDeclarations: "peek",
+      multipleImplementations: "peek",
+      multipleReferences: "peek",
+      multipleTests: "peek",
+      alternativeDefinitionCommand: "editor.action.goToReferences",
+      alternativeTypeDefinitionCommand: "editor.action.goToReferences",
+      alternativeDeclarationCommand: "editor.action.goToReferences",
+      alternativeImplementationCommand: "",
+      alternativeReferenceCommand: "",
+      alternativeTestsCommand: ""
+    };
+    const jsonSubset = {
+      type: "string",
+      enum: ["peek", "gotoAndPeek", "goto"],
+      default: defaults.multiple,
+      enumDescriptions: [
+        nls.localize("editor.gotoLocation.multiple.peek", "Show Peek view of the results (default)"),
+        nls.localize("editor.gotoLocation.multiple.gotoAndPeek", "Go to the primary result and show a Peek view"),
+        nls.localize("editor.gotoLocation.multiple.goto", "Go to the primary result and enable Peek-less navigation to others")
+      ]
+    };
+    const alternativeCommandOptions = ["", "editor.action.referenceSearch.trigger", "editor.action.goToReferences", "editor.action.peekImplementation", "editor.action.goToImplementation", "editor.action.peekTypeDefinition", "editor.action.goToTypeDefinition", "editor.action.peekDeclaration", "editor.action.revealDeclaration", "editor.action.peekDefinition", "editor.action.revealDefinitionAside", "editor.action.revealDefinition"];
+    super(65, "gotoLocation", defaults, {
+      "editor.gotoLocation.multiple": {
+        deprecationMessage: nls.localize("editor.gotoLocation.multiple.deprecated", "This setting is deprecated, please use separate settings like 'editor.editor.gotoLocation.multipleDefinitions' or 'editor.editor.gotoLocation.multipleImplementations' instead.")
+      },
+      "editor.gotoLocation.multipleDefinitions": {
+        description: nls.localize("editor.editor.gotoLocation.multipleDefinitions", "Controls the behavior the 'Go to Definition'-command when multiple target locations exist."),
+        ...jsonSubset
+      },
+      "editor.gotoLocation.multipleTypeDefinitions": {
+        description: nls.localize("editor.editor.gotoLocation.multipleTypeDefinitions", "Controls the behavior the 'Go to Type Definition'-command when multiple target locations exist."),
+        ...jsonSubset
+      },
+      "editor.gotoLocation.multipleDeclarations": {
+        description: nls.localize("editor.editor.gotoLocation.multipleDeclarations", "Controls the behavior the 'Go to Declaration'-command when multiple target locations exist."),
+        ...jsonSubset
+      },
+      "editor.gotoLocation.multipleImplementations": {
+        description: nls.localize("editor.editor.gotoLocation.multipleImplemenattions", "Controls the behavior the 'Go to Implementations'-command when multiple target locations exist."),
+        ...jsonSubset
+      },
+      "editor.gotoLocation.multipleReferences": {
+        description: nls.localize("editor.editor.gotoLocation.multipleReferences", "Controls the behavior the 'Go to References'-command when multiple target locations exist."),
+        ...jsonSubset
+      },
+      "editor.gotoLocation.alternativeDefinitionCommand": {
+        type: "string",
+        default: defaults.alternativeDefinitionCommand,
+        enum: alternativeCommandOptions,
+        description: nls.localize("alternativeDefinitionCommand", "Alternative command id that is being executed when the result of 'Go to Definition' is the current location.")
+      },
+      "editor.gotoLocation.alternativeTypeDefinitionCommand": {
+        type: "string",
+        default: defaults.alternativeTypeDefinitionCommand,
+        enum: alternativeCommandOptions,
+        description: nls.localize("alternativeTypeDefinitionCommand", "Alternative command id that is being executed when the result of 'Go to Type Definition' is the current location.")
+      },
+      "editor.gotoLocation.alternativeDeclarationCommand": {
+        type: "string",
+        default: defaults.alternativeDeclarationCommand,
+        enum: alternativeCommandOptions,
+        description: nls.localize("alternativeDeclarationCommand", "Alternative command id that is being executed when the result of 'Go to Declaration' is the current location.")
+      },
+      "editor.gotoLocation.alternativeImplementationCommand": {
+        type: "string",
+        default: defaults.alternativeImplementationCommand,
+        enum: alternativeCommandOptions,
+        description: nls.localize("alternativeImplementationCommand", "Alternative command id that is being executed when the result of 'Go to Implementation' is the current location.")
+      },
+      "editor.gotoLocation.alternativeReferenceCommand": {
+        type: "string",
+        default: defaults.alternativeReferenceCommand,
+        enum: alternativeCommandOptions,
+        description: nls.localize("alternativeReferenceCommand", "Alternative command id that is being executed when the result of 'Go to Reference' is the current location.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      multiple: stringSet(input.multiple, this.defaultValue.multiple, ["peek", "gotoAndPeek", "goto"]),
+      multipleDefinitions: input.multipleDefinitions ?? stringSet(input.multipleDefinitions, "peek", ["peek", "gotoAndPeek", "goto"]),
+      multipleTypeDefinitions: input.multipleTypeDefinitions ?? stringSet(input.multipleTypeDefinitions, "peek", ["peek", "gotoAndPeek", "goto"]),
+      multipleDeclarations: input.multipleDeclarations ?? stringSet(input.multipleDeclarations, "peek", ["peek", "gotoAndPeek", "goto"]),
+      multipleImplementations: input.multipleImplementations ?? stringSet(input.multipleImplementations, "peek", ["peek", "gotoAndPeek", "goto"]),
+      multipleReferences: input.multipleReferences ?? stringSet(input.multipleReferences, "peek", ["peek", "gotoAndPeek", "goto"]),
+      multipleTests: input.multipleTests ?? stringSet(input.multipleTests, "peek", ["peek", "gotoAndPeek", "goto"]),
+      alternativeDefinitionCommand: EditorStringOption.string(input.alternativeDefinitionCommand, this.defaultValue.alternativeDefinitionCommand),
+      alternativeTypeDefinitionCommand: EditorStringOption.string(input.alternativeTypeDefinitionCommand, this.defaultValue.alternativeTypeDefinitionCommand),
+      alternativeDeclarationCommand: EditorStringOption.string(input.alternativeDeclarationCommand, this.defaultValue.alternativeDeclarationCommand),
+      alternativeImplementationCommand: EditorStringOption.string(input.alternativeImplementationCommand, this.defaultValue.alternativeImplementationCommand),
+      alternativeReferenceCommand: EditorStringOption.string(input.alternativeReferenceCommand, this.defaultValue.alternativeReferenceCommand),
+      alternativeTestsCommand: EditorStringOption.string(input.alternativeTestsCommand, this.defaultValue.alternativeTestsCommand)
+    };
+  }
+}
+class EditorHover extends BaseEditorOption {
+  static {
+    __name(this, "EditorHover");
+  }
+  constructor() {
+    const defaults = {
+      enabled: true,
+      delay: 300,
+      hidingDelay: 300,
+      sticky: true,
+      above: true
+    };
+    super(67, "hover", defaults, {
+      "editor.hover.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        description: nls.localize("hover.enabled", "Controls whether the hover is shown.")
+      },
+      "editor.hover.delay": {
+        type: "number",
+        default: defaults.delay,
+        minimum: 0,
+        maximum: 1e4,
+        description: nls.localize("hover.delay", "Controls the delay in milliseconds after which the hover is shown.")
+      },
+      "editor.hover.sticky": {
+        type: "boolean",
+        default: defaults.sticky,
+        description: nls.localize("hover.sticky", "Controls whether the hover should remain visible when mouse is moved over it.")
+      },
+      "editor.hover.hidingDelay": {
+        type: "integer",
+        minimum: 0,
+        default: defaults.hidingDelay,
+        description: nls.localize("hover.hidingDelay", "Controls the delay in milliseconds after which the hover is hidden. Requires `editor.hover.sticky` to be enabled.")
+      },
+      "editor.hover.above": {
+        type: "boolean",
+        default: defaults.above,
+        description: nls.localize("hover.above", "Prefer showing hovers above the line, if there's space.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      delay: EditorIntOption.clampedInt(input.delay, this.defaultValue.delay, 0, 1e4),
+      sticky: boolean(input.sticky, this.defaultValue.sticky),
+      hidingDelay: EditorIntOption.clampedInt(input.hidingDelay, this.defaultValue.hidingDelay, 0, 6e5),
+      above: boolean(input.above, this.defaultValue.above)
+    };
+  }
+}
+var RenderMinimap;
+(function(RenderMinimap2) {
+  RenderMinimap2[RenderMinimap2["None"] = 0] = "None";
+  RenderMinimap2[RenderMinimap2["Text"] = 1] = "Text";
+  RenderMinimap2[RenderMinimap2["Blocks"] = 2] = "Blocks";
+})(RenderMinimap || (RenderMinimap = {}));
+class EditorLayoutInfoComputer extends ComputedEditorOption {
+  static {
+    __name(this, "EditorLayoutInfoComputer");
+  }
+  constructor() {
+    super(
+      156
+      /* EditorOption.layoutInfo */
+    );
+  }
+  compute(env, options, _) {
+    return EditorLayoutInfoComputer.computeLayout(options, {
+      memory: env.memory,
+      outerWidth: env.outerWidth,
+      outerHeight: env.outerHeight,
+      isDominatedByLongLines: env.isDominatedByLongLines,
+      lineHeight: env.fontInfo.lineHeight,
+      viewLineCount: env.viewLineCount,
+      lineNumbersDigitCount: env.lineNumbersDigitCount,
+      typicalHalfwidthCharacterWidth: env.fontInfo.typicalHalfwidthCharacterWidth,
+      maxDigitWidth: env.fontInfo.maxDigitWidth,
+      pixelRatio: env.pixelRatio,
+      glyphMarginDecorationLaneCount: env.glyphMarginDecorationLaneCount
+    });
+  }
+  static computeContainedMinimapLineCount(input) {
+    const typicalViewportLineCount = input.height / input.lineHeight;
+    const extraLinesBeforeFirstLine = Math.floor(input.paddingTop / input.lineHeight);
+    let extraLinesBeyondLastLine = Math.floor(input.paddingBottom / input.lineHeight);
+    if (input.scrollBeyondLastLine) {
+      extraLinesBeyondLastLine = Math.max(extraLinesBeyondLastLine, typicalViewportLineCount - 1);
+    }
+    const desiredRatio = (extraLinesBeforeFirstLine + input.viewLineCount + extraLinesBeyondLastLine) / (input.pixelRatio * input.height);
+    const minimapLineCount = Math.floor(input.viewLineCount / desiredRatio);
+    return { typicalViewportLineCount, extraLinesBeforeFirstLine, extraLinesBeyondLastLine, desiredRatio, minimapLineCount };
+  }
+  static _computeMinimapLayout(input, memory) {
+    const outerWidth = input.outerWidth;
+    const outerHeight = input.outerHeight;
+    const pixelRatio = input.pixelRatio;
+    if (!input.minimap.enabled) {
+      return {
+        renderMinimap: 0,
+        minimapLeft: 0,
+        minimapWidth: 0,
+        minimapHeightIsEditorHeight: false,
+        minimapIsSampling: false,
+        minimapScale: 1,
+        minimapLineHeight: 1,
+        minimapCanvasInnerWidth: 0,
+        minimapCanvasInnerHeight: Math.floor(pixelRatio * outerHeight),
+        minimapCanvasOuterWidth: 0,
+        minimapCanvasOuterHeight: outerHeight
+      };
+    }
+    const stableMinimapLayoutInput = memory.stableMinimapLayoutInput;
+    const couldUseMemory = stableMinimapLayoutInput && input.outerHeight === stableMinimapLayoutInput.outerHeight && input.lineHeight === stableMinimapLayoutInput.lineHeight && input.typicalHalfwidthCharacterWidth === stableMinimapLayoutInput.typicalHalfwidthCharacterWidth && input.pixelRatio === stableMinimapLayoutInput.pixelRatio && input.scrollBeyondLastLine === stableMinimapLayoutInput.scrollBeyondLastLine && input.paddingTop === stableMinimapLayoutInput.paddingTop && input.paddingBottom === stableMinimapLayoutInput.paddingBottom && input.minimap.enabled === stableMinimapLayoutInput.minimap.enabled && input.minimap.side === stableMinimapLayoutInput.minimap.side && input.minimap.size === stableMinimapLayoutInput.minimap.size && input.minimap.showSlider === stableMinimapLayoutInput.minimap.showSlider && input.minimap.renderCharacters === stableMinimapLayoutInput.minimap.renderCharacters && input.minimap.maxColumn === stableMinimapLayoutInput.minimap.maxColumn && input.minimap.scale === stableMinimapLayoutInput.minimap.scale && input.verticalScrollbarWidth === stableMinimapLayoutInput.verticalScrollbarWidth && input.isViewportWrapping === stableMinimapLayoutInput.isViewportWrapping;
+    const lineHeight = input.lineHeight;
+    const typicalHalfwidthCharacterWidth = input.typicalHalfwidthCharacterWidth;
+    const scrollBeyondLastLine = input.scrollBeyondLastLine;
+    const minimapRenderCharacters = input.minimap.renderCharacters;
+    let minimapScale = pixelRatio >= 2 ? Math.round(input.minimap.scale * 2) : input.minimap.scale;
+    const minimapMaxColumn = input.minimap.maxColumn;
+    const minimapSize = input.minimap.size;
+    const minimapSide = input.minimap.side;
+    const verticalScrollbarWidth = input.verticalScrollbarWidth;
+    const viewLineCount = input.viewLineCount;
+    const remainingWidth = input.remainingWidth;
+    const isViewportWrapping = input.isViewportWrapping;
+    const baseCharHeight = minimapRenderCharacters ? 2 : 3;
+    let minimapCanvasInnerHeight = Math.floor(pixelRatio * outerHeight);
+    const minimapCanvasOuterHeight = minimapCanvasInnerHeight / pixelRatio;
+    let minimapHeightIsEditorHeight = false;
+    let minimapIsSampling = false;
+    let minimapLineHeight = baseCharHeight * minimapScale;
+    let minimapCharWidth = minimapScale / pixelRatio;
+    let minimapWidthMultiplier = 1;
+    if (minimapSize === "fill" || minimapSize === "fit") {
+      const { typicalViewportLineCount, extraLinesBeforeFirstLine, extraLinesBeyondLastLine, desiredRatio, minimapLineCount } = EditorLayoutInfoComputer.computeContainedMinimapLineCount({
+        viewLineCount,
+        scrollBeyondLastLine,
+        paddingTop: input.paddingTop,
+        paddingBottom: input.paddingBottom,
+        height: outerHeight,
+        lineHeight,
+        pixelRatio
+      });
+      const ratio = viewLineCount / minimapLineCount;
+      if (ratio > 1) {
+        minimapHeightIsEditorHeight = true;
+        minimapIsSampling = true;
+        minimapScale = 1;
+        minimapLineHeight = 1;
+        minimapCharWidth = minimapScale / pixelRatio;
+      } else {
+        let fitBecomesFill = false;
+        let maxMinimapScale = minimapScale + 1;
+        if (minimapSize === "fit") {
+          const effectiveMinimapHeight = Math.ceil((extraLinesBeforeFirstLine + viewLineCount + extraLinesBeyondLastLine) * minimapLineHeight);
+          if (isViewportWrapping && couldUseMemory && remainingWidth <= memory.stableFitRemainingWidth) {
+            fitBecomesFill = true;
+            maxMinimapScale = memory.stableFitMaxMinimapScale;
+          } else {
+            fitBecomesFill = effectiveMinimapHeight > minimapCanvasInnerHeight;
+          }
+        }
+        if (minimapSize === "fill" || fitBecomesFill) {
+          minimapHeightIsEditorHeight = true;
+          const configuredMinimapScale = minimapScale;
+          minimapLineHeight = Math.min(lineHeight * pixelRatio, Math.max(1, Math.floor(1 / desiredRatio)));
+          if (isViewportWrapping && couldUseMemory && remainingWidth <= memory.stableFitRemainingWidth) {
+            maxMinimapScale = memory.stableFitMaxMinimapScale;
+          }
+          minimapScale = Math.min(maxMinimapScale, Math.max(1, Math.floor(minimapLineHeight / baseCharHeight)));
+          if (minimapScale > configuredMinimapScale) {
+            minimapWidthMultiplier = Math.min(2, minimapScale / configuredMinimapScale);
+          }
+          minimapCharWidth = minimapScale / pixelRatio / minimapWidthMultiplier;
+          minimapCanvasInnerHeight = Math.ceil(Math.max(typicalViewportLineCount, extraLinesBeforeFirstLine + viewLineCount + extraLinesBeyondLastLine) * minimapLineHeight);
+          if (isViewportWrapping) {
+            memory.stableMinimapLayoutInput = input;
+            memory.stableFitRemainingWidth = remainingWidth;
+            memory.stableFitMaxMinimapScale = minimapScale;
+          } else {
+            memory.stableMinimapLayoutInput = null;
+            memory.stableFitRemainingWidth = 0;
+          }
+        }
+      }
+    }
+    const minimapMaxWidth = Math.floor(minimapMaxColumn * minimapCharWidth);
+    const minimapWidth = Math.min(minimapMaxWidth, Math.max(0, Math.floor((remainingWidth - verticalScrollbarWidth - 2) * minimapCharWidth / (typicalHalfwidthCharacterWidth + minimapCharWidth))) + MINIMAP_GUTTER_WIDTH);
+    let minimapCanvasInnerWidth = Math.floor(pixelRatio * minimapWidth);
+    const minimapCanvasOuterWidth = minimapCanvasInnerWidth / pixelRatio;
+    minimapCanvasInnerWidth = Math.floor(minimapCanvasInnerWidth * minimapWidthMultiplier);
+    const renderMinimap = minimapRenderCharacters ? 1 : 2;
+    const minimapLeft = minimapSide === "left" ? 0 : outerWidth - minimapWidth - verticalScrollbarWidth;
+    return {
+      renderMinimap,
+      minimapLeft,
+      minimapWidth,
+      minimapHeightIsEditorHeight,
+      minimapIsSampling,
+      minimapScale,
+      minimapLineHeight,
+      minimapCanvasInnerWidth,
+      minimapCanvasInnerHeight,
+      minimapCanvasOuterWidth,
+      minimapCanvasOuterHeight
+    };
+  }
+  static computeLayout(options, env) {
+    const outerWidth = env.outerWidth | 0;
+    const outerHeight = env.outerHeight | 0;
+    const lineHeight = env.lineHeight | 0;
+    const lineNumbersDigitCount = env.lineNumbersDigitCount | 0;
+    const typicalHalfwidthCharacterWidth = env.typicalHalfwidthCharacterWidth;
+    const maxDigitWidth = env.maxDigitWidth;
+    const pixelRatio = env.pixelRatio;
+    const viewLineCount = env.viewLineCount;
+    const wordWrapOverride2 = options.get(
+      147
+      /* EditorOption.wordWrapOverride2 */
+    );
+    const wordWrapOverride1 = wordWrapOverride2 === "inherit" ? options.get(
+      146
+      /* EditorOption.wordWrapOverride1 */
+    ) : wordWrapOverride2;
+    const wordWrap = wordWrapOverride1 === "inherit" ? options.get(
+      142
+      /* EditorOption.wordWrap */
+    ) : wordWrapOverride1;
+    const wordWrapColumn = options.get(
+      145
+      /* EditorOption.wordWrapColumn */
+    );
+    const isDominatedByLongLines = env.isDominatedByLongLines;
+    const showGlyphMargin = options.get(
+      64
+      /* EditorOption.glyphMargin */
+    );
+    const showLineNumbers = options.get(
+      74
+      /* EditorOption.lineNumbers */
+    ).renderType !== 0;
+    const lineNumbersMinChars = options.get(
+      75
+      /* EditorOption.lineNumbersMinChars */
+    );
+    const scrollBeyondLastLine = options.get(
+      115
+      /* EditorOption.scrollBeyondLastLine */
+    );
+    const padding = options.get(
+      93
+      /* EditorOption.padding */
+    );
+    const minimap = options.get(
+      79
+      /* EditorOption.minimap */
+    );
+    const scrollbar = options.get(
+      113
+      /* EditorOption.scrollbar */
+    );
+    const verticalScrollbarWidth = scrollbar.verticalScrollbarSize;
+    const verticalScrollbarHasArrows = scrollbar.verticalHasArrows;
+    const scrollbarArrowSize = scrollbar.arrowSize;
+    const horizontalScrollbarHeight = scrollbar.horizontalScrollbarSize;
+    const folding = options.get(
+      50
+      /* EditorOption.folding */
+    );
+    const showFoldingDecoration = options.get(
+      120
+      /* EditorOption.showFoldingControls */
+    ) !== "never";
+    let lineDecorationsWidth = options.get(
+      72
+      /* EditorOption.lineDecorationsWidth */
+    );
+    if (folding && showFoldingDecoration) {
+      lineDecorationsWidth += 16;
+    }
+    let lineNumbersWidth = 0;
+    if (showLineNumbers) {
+      const digitCount = Math.max(lineNumbersDigitCount, lineNumbersMinChars);
+      lineNumbersWidth = Math.round(digitCount * maxDigitWidth);
+    }
+    let glyphMarginWidth = 0;
+    if (showGlyphMargin) {
+      glyphMarginWidth = lineHeight * env.glyphMarginDecorationLaneCount;
+    }
+    let glyphMarginLeft = 0;
+    let lineNumbersLeft = glyphMarginLeft + glyphMarginWidth;
+    let decorationsLeft = lineNumbersLeft + lineNumbersWidth;
+    let contentLeft = decorationsLeft + lineDecorationsWidth;
+    const remainingWidth = outerWidth - glyphMarginWidth - lineNumbersWidth - lineDecorationsWidth;
+    let isWordWrapMinified = false;
+    let isViewportWrapping = false;
+    let wrappingColumn = -1;
+    if (wordWrapOverride1 === "inherit" && isDominatedByLongLines) {
+      isWordWrapMinified = true;
+      isViewportWrapping = true;
+    } else if (wordWrap === "on" || wordWrap === "bounded") {
+      isViewportWrapping = true;
+    } else if (wordWrap === "wordWrapColumn") {
+      wrappingColumn = wordWrapColumn;
+    }
+    const minimapLayout = EditorLayoutInfoComputer._computeMinimapLayout({
+      outerWidth,
+      outerHeight,
+      lineHeight,
+      typicalHalfwidthCharacterWidth,
+      pixelRatio,
+      scrollBeyondLastLine,
+      paddingTop: padding.top,
+      paddingBottom: padding.bottom,
+      minimap,
+      verticalScrollbarWidth,
+      viewLineCount,
+      remainingWidth,
+      isViewportWrapping
+    }, env.memory || new ComputeOptionsMemory());
+    if (minimapLayout.renderMinimap !== 0 && minimapLayout.minimapLeft === 0) {
+      glyphMarginLeft += minimapLayout.minimapWidth;
+      lineNumbersLeft += minimapLayout.minimapWidth;
+      decorationsLeft += minimapLayout.minimapWidth;
+      contentLeft += minimapLayout.minimapWidth;
+    }
+    const contentWidth = remainingWidth - minimapLayout.minimapWidth;
+    const viewportColumn = Math.max(1, Math.floor((contentWidth - verticalScrollbarWidth - 2) / typicalHalfwidthCharacterWidth));
+    const verticalArrowSize = verticalScrollbarHasArrows ? scrollbarArrowSize : 0;
+    if (isViewportWrapping) {
+      wrappingColumn = Math.max(1, viewportColumn);
+      if (wordWrap === "bounded") {
+        wrappingColumn = Math.min(wrappingColumn, wordWrapColumn);
+      }
+    }
+    return {
+      width: outerWidth,
+      height: outerHeight,
+      glyphMarginLeft,
+      glyphMarginWidth,
+      glyphMarginDecorationLaneCount: env.glyphMarginDecorationLaneCount,
+      lineNumbersLeft,
+      lineNumbersWidth,
+      decorationsLeft,
+      decorationsWidth: lineDecorationsWidth,
+      contentLeft,
+      contentWidth,
+      minimap: minimapLayout,
+      viewportColumn,
+      isWordWrapMinified,
+      isViewportWrapping,
+      wrappingColumn,
+      verticalScrollbarWidth,
+      horizontalScrollbarHeight,
+      overviewRuler: {
+        top: verticalArrowSize,
+        width: verticalScrollbarWidth,
+        height: outerHeight - 2 * verticalArrowSize,
+        right: 0
+      }
+    };
+  }
+}
+class WrappingStrategy extends BaseEditorOption {
+  static {
+    __name(this, "WrappingStrategy");
+  }
+  constructor() {
+    super(149, "wrappingStrategy", "simple", {
+      "editor.wrappingStrategy": {
+        enumDescriptions: [
+          nls.localize("wrappingStrategy.simple", "Assumes that all characters are of the same width. This is a fast algorithm that works correctly for monospace fonts and certain scripts (like Latin characters) where glyphs are of equal width."),
+          nls.localize("wrappingStrategy.advanced", "Delegates wrapping points computation to the browser. This is a slow algorithm, that might cause freezes for large files, but it works correctly in all cases.")
+        ],
+        type: "string",
+        enum: ["simple", "advanced"],
+        default: "simple",
+        description: nls.localize("wrappingStrategy", "Controls the algorithm that computes wrapping points. Note that when in accessibility mode, advanced will be used for the best experience.")
+      }
+    });
+  }
+  validate(input) {
+    return stringSet(input, "simple", ["simple", "advanced"]);
+  }
+  compute(env, options, value) {
+    const accessibilitySupport = options.get(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    if (accessibilitySupport === 2) {
+      return "advanced";
+    }
+    return value;
+  }
+}
+var ShowLightbulbIconMode;
+(function(ShowLightbulbIconMode2) {
+  ShowLightbulbIconMode2["Off"] = "off";
+  ShowLightbulbIconMode2["OnCode"] = "onCode";
+  ShowLightbulbIconMode2["On"] = "on";
+})(ShowLightbulbIconMode || (ShowLightbulbIconMode = {}));
+class EditorLightbulb extends BaseEditorOption {
+  static {
+    __name(this, "EditorLightbulb");
+  }
+  constructor() {
+    const defaults = { enabled: ShowLightbulbIconMode.OnCode };
+    super(71, "lightbulb", defaults, {
+      "editor.lightbulb.enabled": {
+        type: "string",
+        enum: [ShowLightbulbIconMode.Off, ShowLightbulbIconMode.OnCode, ShowLightbulbIconMode.On],
+        default: defaults.enabled,
+        enumDescriptions: [
+          nls.localize("editor.lightbulb.enabled.off", "Disable the code action menu."),
+          nls.localize("editor.lightbulb.enabled.onCode", "Show the code action menu when the cursor is on lines with code."),
+          nls.localize("editor.lightbulb.enabled.on", "Show the code action menu when the cursor is on lines with code or on empty lines.")
+        ],
+        description: nls.localize("enabled", "Enables the Code Action lightbulb in the editor.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: stringSet(input.enabled, this.defaultValue.enabled, [ShowLightbulbIconMode.Off, ShowLightbulbIconMode.OnCode, ShowLightbulbIconMode.On])
+    };
+  }
+}
+class EditorStickyScroll extends BaseEditorOption {
+  static {
+    __name(this, "EditorStickyScroll");
+  }
+  constructor() {
+    const defaults = { enabled: true, maxLineCount: 5, defaultModel: "outlineModel", scrollWithEditor: true };
+    super(125, "stickyScroll", defaults, {
+      "editor.stickyScroll.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        description: nls.localize("editor.stickyScroll.enabled", "Shows the nested current scopes during the scroll at the top of the editor.")
+      },
+      "editor.stickyScroll.maxLineCount": {
+        type: "number",
+        default: defaults.maxLineCount,
+        minimum: 1,
+        maximum: 20,
+        description: nls.localize("editor.stickyScroll.maxLineCount", "Defines the maximum number of sticky lines to show.")
+      },
+      "editor.stickyScroll.defaultModel": {
+        type: "string",
+        enum: ["outlineModel", "foldingProviderModel", "indentationModel"],
+        default: defaults.defaultModel,
+        description: nls.localize("editor.stickyScroll.defaultModel", "Defines the model to use for determining which lines to stick. If the outline model does not exist, it will fall back on the folding provider model which falls back on the indentation model. This order is respected in all three cases.")
+      },
+      "editor.stickyScroll.scrollWithEditor": {
+        type: "boolean",
+        default: defaults.scrollWithEditor,
+        description: nls.localize("editor.stickyScroll.scrollWithEditor", "Enable scrolling of Sticky Scroll with the editor's horizontal scrollbar.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      maxLineCount: EditorIntOption.clampedInt(input.maxLineCount, this.defaultValue.maxLineCount, 1, 20),
+      defaultModel: stringSet(input.defaultModel, this.defaultValue.defaultModel, ["outlineModel", "foldingProviderModel", "indentationModel"]),
+      scrollWithEditor: boolean(input.scrollWithEditor, this.defaultValue.scrollWithEditor)
+    };
+  }
+}
+class EditorInlayHints extends BaseEditorOption {
+  static {
+    __name(this, "EditorInlayHints");
+  }
+  constructor() {
+    const defaults = { enabled: "on", fontSize: 0, fontFamily: "", padding: false, maximumLength: 43 };
+    super(151, "inlayHints", defaults, {
+      "editor.inlayHints.enabled": {
+        type: "string",
+        default: defaults.enabled,
+        description: nls.localize("inlayHints.enable", "Enables the inlay hints in the editor."),
+        enum: ["on", "onUnlessPressed", "offUnlessPressed", "off"],
+        markdownEnumDescriptions: [
+          nls.localize("editor.inlayHints.on", "Inlay hints are enabled"),
+          nls.localize("editor.inlayHints.onUnlessPressed", "Inlay hints are showing by default and hide when holding {0}", platform.isMacintosh ? `Ctrl+Option` : `Ctrl+Alt`),
+          nls.localize("editor.inlayHints.offUnlessPressed", "Inlay hints are hidden by default and show when holding {0}", platform.isMacintosh ? `Ctrl+Option` : `Ctrl+Alt`),
+          nls.localize("editor.inlayHints.off", "Inlay hints are disabled")
+        ]
+      },
+      "editor.inlayHints.fontSize": {
+        type: "number",
+        default: defaults.fontSize,
+        markdownDescription: nls.localize("inlayHints.fontSize", "Controls font size of inlay hints in the editor. As default the {0} is used when the configured value is less than {1} or greater than the editor font size.", "`#editor.fontSize#`", "`5`")
+      },
+      "editor.inlayHints.fontFamily": {
+        type: "string",
+        default: defaults.fontFamily,
+        markdownDescription: nls.localize("inlayHints.fontFamily", "Controls font family of inlay hints in the editor. When set to empty, the {0} is used.", "`#editor.fontFamily#`")
+      },
+      "editor.inlayHints.padding": {
+        type: "boolean",
+        default: defaults.padding,
+        description: nls.localize("inlayHints.padding", "Enables the padding around the inlay hints in the editor.")
+      },
+      "editor.inlayHints.maximumLength": {
+        type: "number",
+        default: defaults.maximumLength,
+        markdownDescription: nls.localize("inlayHints.maximumLength", "Maximum overall length of inlay hints, for a single line, before they get truncated by the editor. Set to `0` to never truncate")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    if (typeof input.enabled === "boolean") {
+      input.enabled = input.enabled ? "on" : "off";
+    }
+    return {
+      enabled: stringSet(input.enabled, this.defaultValue.enabled, ["on", "off", "offUnlessPressed", "onUnlessPressed"]),
+      fontSize: EditorIntOption.clampedInt(input.fontSize, this.defaultValue.fontSize, 0, 100),
+      fontFamily: EditorStringOption.string(input.fontFamily, this.defaultValue.fontFamily),
+      padding: boolean(input.padding, this.defaultValue.padding),
+      maximumLength: EditorIntOption.clampedInt(input.maximumLength, this.defaultValue.maximumLength, 0, Number.MAX_SAFE_INTEGER)
+    };
+  }
+}
+class EditorLineDecorationsWidth extends BaseEditorOption {
+  static {
+    __name(this, "EditorLineDecorationsWidth");
+  }
+  constructor() {
+    super(72, "lineDecorationsWidth", 10);
+  }
+  validate(input) {
+    if (typeof input === "string" && /^\d+(\.\d+)?ch$/.test(input)) {
+      const multiple = parseFloat(input.substring(0, input.length - 2));
+      return -multiple;
+    } else {
+      return EditorIntOption.clampedInt(input, this.defaultValue, 0, 1e3);
+    }
+  }
+  compute(env, options, value) {
+    if (value < 0) {
+      return EditorIntOption.clampedInt(-value * env.fontInfo.typicalHalfwidthCharacterWidth, this.defaultValue, 0, 1e3);
+    } else {
+      return value;
+    }
+  }
+}
+class EditorLineHeight extends EditorFloatOption {
+  static {
+    __name(this, "EditorLineHeight");
+  }
+  constructor() {
+    super(73, "lineHeight", EDITOR_FONT_DEFAULTS.lineHeight, (x) => EditorFloatOption.clamp(x, 0, 150), { markdownDescription: nls.localize("lineHeight", "Controls the line height. \n - Use 0 to automatically compute the line height from the font size.\n - Values between 0 and 8 will be used as a multiplier with the font size.\n - Values greater than or equal to 8 will be used as effective values.") });
+  }
+  compute(env, options, value) {
+    return env.fontInfo.lineHeight;
+  }
+}
+class EditorMinimap extends BaseEditorOption {
+  static {
+    __name(this, "EditorMinimap");
+  }
+  constructor() {
+    const defaults = {
+      enabled: true,
+      size: "proportional",
+      side: "right",
+      showSlider: "mouseover",
+      autohide: false,
+      renderCharacters: true,
+      maxColumn: 120,
+      scale: 1,
+      showRegionSectionHeaders: true,
+      showMarkSectionHeaders: true,
+      markSectionHeaderRegex: "\\bMARK:\\s*(?<separator>-?)\\s*(?<label>.*)$",
+      sectionHeaderFontSize: 9,
+      sectionHeaderLetterSpacing: 1
+    };
+    super(79, "minimap", defaults, {
+      "editor.minimap.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        description: nls.localize("minimap.enabled", "Controls whether the minimap is shown.")
+      },
+      "editor.minimap.autohide": {
+        type: "boolean",
+        default: defaults.autohide,
+        description: nls.localize("minimap.autohide", "Controls whether the minimap is hidden automatically.")
+      },
+      "editor.minimap.size": {
+        type: "string",
+        enum: ["proportional", "fill", "fit"],
+        enumDescriptions: [
+          nls.localize("minimap.size.proportional", "The minimap has the same size as the editor contents (and might scroll)."),
+          nls.localize("minimap.size.fill", "The minimap will stretch or shrink as necessary to fill the height of the editor (no scrolling)."),
+          nls.localize("minimap.size.fit", "The minimap will shrink as necessary to never be larger than the editor (no scrolling).")
+        ],
+        default: defaults.size,
+        description: nls.localize("minimap.size", "Controls the size of the minimap.")
+      },
+      "editor.minimap.side": {
+        type: "string",
+        enum: ["left", "right"],
+        default: defaults.side,
+        description: nls.localize("minimap.side", "Controls the side where to render the minimap.")
+      },
+      "editor.minimap.showSlider": {
+        type: "string",
+        enum: ["always", "mouseover"],
+        default: defaults.showSlider,
+        description: nls.localize("minimap.showSlider", "Controls when the minimap slider is shown.")
+      },
+      "editor.minimap.scale": {
+        type: "number",
+        default: defaults.scale,
+        minimum: 1,
+        maximum: 3,
+        enum: [1, 2, 3],
+        description: nls.localize("minimap.scale", "Scale of content drawn in the minimap: 1, 2 or 3.")
+      },
+      "editor.minimap.renderCharacters": {
+        type: "boolean",
+        default: defaults.renderCharacters,
+        description: nls.localize("minimap.renderCharacters", "Render the actual characters on a line as opposed to color blocks.")
+      },
+      "editor.minimap.maxColumn": {
+        type: "number",
+        default: defaults.maxColumn,
+        description: nls.localize("minimap.maxColumn", "Limit the width of the minimap to render at most a certain number of columns.")
+      },
+      "editor.minimap.showRegionSectionHeaders": {
+        type: "boolean",
+        default: defaults.showRegionSectionHeaders,
+        description: nls.localize("minimap.showRegionSectionHeaders", "Controls whether named regions are shown as section headers in the minimap.")
+      },
+      "editor.minimap.showMarkSectionHeaders": {
+        type: "boolean",
+        default: defaults.showMarkSectionHeaders,
+        description: nls.localize("minimap.showMarkSectionHeaders", "Controls whether MARK: comments are shown as section headers in the minimap.")
+      },
+      "editor.minimap.markSectionHeaderRegex": {
+        type: "string",
+        default: defaults.markSectionHeaderRegex,
+        description: nls.localize("minimap.markSectionHeaderRegex", "Defines the regular expression used to find section headers in comments. The regex must contain a named match group `label` (written as `(?<label>.+)`) that encapsulates the section header, otherwise it will not work. Optionally you can include another match group named `separator`. Use \\n in the pattern to match multi-line headers.")
+      },
+      "editor.minimap.sectionHeaderFontSize": {
+        type: "number",
+        default: defaults.sectionHeaderFontSize,
+        description: nls.localize("minimap.sectionHeaderFontSize", "Controls the font size of section headers in the minimap.")
+      },
+      "editor.minimap.sectionHeaderLetterSpacing": {
+        type: "number",
+        default: defaults.sectionHeaderLetterSpacing,
+        description: nls.localize("minimap.sectionHeaderLetterSpacing", "Controls the amount of space (in pixels) between characters of section header. This helps the readability of the header in small font sizes.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    let markSectionHeaderRegex = this.defaultValue.markSectionHeaderRegex;
+    const inputRegex = _input.markSectionHeaderRegex;
+    if (typeof inputRegex === "string") {
+      try {
+        new RegExp(inputRegex, "d");
+        markSectionHeaderRegex = inputRegex;
+      } catch {
+      }
+    }
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      autohide: boolean(input.autohide, this.defaultValue.autohide),
+      size: stringSet(input.size, this.defaultValue.size, ["proportional", "fill", "fit"]),
+      side: stringSet(input.side, this.defaultValue.side, ["right", "left"]),
+      showSlider: stringSet(input.showSlider, this.defaultValue.showSlider, ["always", "mouseover"]),
+      renderCharacters: boolean(input.renderCharacters, this.defaultValue.renderCharacters),
+      scale: EditorIntOption.clampedInt(input.scale, 1, 1, 3),
+      maxColumn: EditorIntOption.clampedInt(input.maxColumn, this.defaultValue.maxColumn, 1, 1e4),
+      showRegionSectionHeaders: boolean(input.showRegionSectionHeaders, this.defaultValue.showRegionSectionHeaders),
+      showMarkSectionHeaders: boolean(input.showMarkSectionHeaders, this.defaultValue.showMarkSectionHeaders),
+      markSectionHeaderRegex,
+      sectionHeaderFontSize: EditorFloatOption.clamp(input.sectionHeaderFontSize ?? this.defaultValue.sectionHeaderFontSize, 4, 32),
+      sectionHeaderLetterSpacing: EditorFloatOption.clamp(input.sectionHeaderLetterSpacing ?? this.defaultValue.sectionHeaderLetterSpacing, 0, 5)
+    };
+  }
+}
+function _multiCursorModifierFromString(multiCursorModifier) {
+  if (multiCursorModifier === "ctrlCmd") {
+    return platform.isMacintosh ? "metaKey" : "ctrlKey";
+  }
+  return "altKey";
+}
+__name(_multiCursorModifierFromString, "_multiCursorModifierFromString");
+class EditorPadding extends BaseEditorOption {
+  static {
+    __name(this, "EditorPadding");
+  }
+  constructor() {
+    super(93, "padding", { top: 0, bottom: 0 }, {
+      "editor.padding.top": {
+        type: "number",
+        default: 0,
+        minimum: 0,
+        maximum: 1e3,
+        description: nls.localize("padding.top", "Controls the amount of space between the top edge of the editor and the first line.")
+      },
+      "editor.padding.bottom": {
+        type: "number",
+        default: 0,
+        minimum: 0,
+        maximum: 1e3,
+        description: nls.localize("padding.bottom", "Controls the amount of space between the bottom edge of the editor and the last line.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      top: EditorIntOption.clampedInt(input.top, 0, 0, 1e3),
+      bottom: EditorIntOption.clampedInt(input.bottom, 0, 0, 1e3)
+    };
+  }
+}
+class EditorParameterHints extends BaseEditorOption {
+  static {
+    __name(this, "EditorParameterHints");
+  }
+  constructor() {
+    const defaults = {
+      enabled: true,
+      cycle: true
+    };
+    super(95, "parameterHints", defaults, {
+      "editor.parameterHints.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        description: nls.localize("parameterHints.enabled", "Enables a pop-up that shows parameter documentation and type information as you type.")
+      },
+      "editor.parameterHints.cycle": {
+        type: "boolean",
+        default: defaults.cycle,
+        description: nls.localize("parameterHints.cycle", "Controls whether the parameter hints menu cycles or closes when reaching the end of the list.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      cycle: boolean(input.cycle, this.defaultValue.cycle)
+    };
+  }
+}
+class EditorPixelRatio extends ComputedEditorOption {
+  static {
+    __name(this, "EditorPixelRatio");
+  }
+  constructor() {
+    super(
+      154
+      /* EditorOption.pixelRatio */
+    );
+  }
+  compute(env, options, _) {
+    return env.pixelRatio;
+  }
+}
+class PlaceholderOption extends BaseEditorOption {
+  static {
+    __name(this, "PlaceholderOption");
+  }
+  constructor() {
+    super(97, "placeholder", void 0);
+  }
+  validate(input) {
+    if (typeof input === "undefined") {
+      return this.defaultValue;
+    }
+    if (typeof input === "string") {
+      return input;
+    }
+    return this.defaultValue;
+  }
+}
+class EditorQuickSuggestions extends BaseEditorOption {
+  static {
+    __name(this, "EditorQuickSuggestions");
+  }
+  constructor() {
+    const defaults = {
+      other: "on",
+      comments: "off",
+      strings: "off"
+    };
+    const types = [
+      { type: "boolean" },
+      {
+        type: "string",
+        enum: ["on", "inline", "off"],
+        enumDescriptions: [nls.localize("on", "Quick suggestions show inside the suggest widget"), nls.localize("inline", "Quick suggestions show as ghost text"), nls.localize("off", "Quick suggestions are disabled")]
+      }
+    ];
+    super(99, "quickSuggestions", defaults, {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        strings: {
+          anyOf: types,
+          default: defaults.strings,
+          description: nls.localize("quickSuggestions.strings", "Enable quick suggestions inside strings.")
+        },
+        comments: {
+          anyOf: types,
+          default: defaults.comments,
+          description: nls.localize("quickSuggestions.comments", "Enable quick suggestions inside comments.")
+        },
+        other: {
+          anyOf: types,
+          default: defaults.other,
+          description: nls.localize("quickSuggestions.other", "Enable quick suggestions outside of strings and comments.")
+        }
+      },
+      default: defaults,
+      markdownDescription: nls.localize("quickSuggestions", "Controls whether suggestions should automatically show up while typing. This can be controlled for typing in comments, strings, and other code. Quick suggestion can be configured to show as ghost text or with the suggest widget. Also be aware of the {0}-setting which controls if suggestions are triggered by special characters.", "`#editor.suggestOnTriggerCharacters#`")
+    });
+    this.defaultValue = defaults;
+  }
+  validate(input) {
+    if (typeof input === "boolean") {
+      const value = input ? "on" : "off";
+      return { comments: value, strings: value, other: value };
+    }
+    if (!input || typeof input !== "object") {
+      return this.defaultValue;
+    }
+    const { other, comments, strings } = input;
+    const allowedValues = ["on", "inline", "off"];
+    let validatedOther;
+    let validatedComments;
+    let validatedStrings;
+    if (typeof other === "boolean") {
+      validatedOther = other ? "on" : "off";
+    } else {
+      validatedOther = stringSet(other, this.defaultValue.other, allowedValues);
+    }
+    if (typeof comments === "boolean") {
+      validatedComments = comments ? "on" : "off";
+    } else {
+      validatedComments = stringSet(comments, this.defaultValue.comments, allowedValues);
+    }
+    if (typeof strings === "boolean") {
+      validatedStrings = strings ? "on" : "off";
+    } else {
+      validatedStrings = stringSet(strings, this.defaultValue.strings, allowedValues);
+    }
+    return {
+      other: validatedOther,
+      comments: validatedComments,
+      strings: validatedStrings
+    };
+  }
+}
+var RenderLineNumbersType;
+(function(RenderLineNumbersType2) {
+  RenderLineNumbersType2[RenderLineNumbersType2["Off"] = 0] = "Off";
+  RenderLineNumbersType2[RenderLineNumbersType2["On"] = 1] = "On";
+  RenderLineNumbersType2[RenderLineNumbersType2["Relative"] = 2] = "Relative";
+  RenderLineNumbersType2[RenderLineNumbersType2["Interval"] = 3] = "Interval";
+  RenderLineNumbersType2[RenderLineNumbersType2["Custom"] = 4] = "Custom";
+})(RenderLineNumbersType || (RenderLineNumbersType = {}));
+class EditorRenderLineNumbersOption extends BaseEditorOption {
+  static {
+    __name(this, "EditorRenderLineNumbersOption");
+  }
+  constructor() {
+    super(74, "lineNumbers", { renderType: 1, renderFn: null }, {
+      type: "string",
+      enum: ["off", "on", "relative", "interval"],
+      enumDescriptions: [
+        nls.localize("lineNumbers.off", "Line numbers are not rendered."),
+        nls.localize("lineNumbers.on", "Line numbers are rendered as absolute number."),
+        nls.localize("lineNumbers.relative", "Line numbers are rendered as distance in lines to cursor position."),
+        nls.localize("lineNumbers.interval", "Line numbers are rendered every 10 lines.")
+      ],
+      default: "on",
+      description: nls.localize("lineNumbers", "Controls the display of line numbers.")
+    });
+  }
+  validate(lineNumbers) {
+    let renderType = this.defaultValue.renderType;
+    let renderFn = this.defaultValue.renderFn;
+    if (typeof lineNumbers !== "undefined") {
+      if (typeof lineNumbers === "function") {
+        renderType = 4;
+        renderFn = lineNumbers;
+      } else if (lineNumbers === "interval") {
+        renderType = 3;
+      } else if (lineNumbers === "relative") {
+        renderType = 2;
+      } else if (lineNumbers === "on") {
+        renderType = 1;
+      } else {
+        renderType = 0;
+      }
+    }
+    return {
+      renderType,
+      renderFn
+    };
+  }
+}
+function filterValidationDecorations(options) {
+  const renderValidationDecorations = options.get(
+    108
+    /* EditorOption.renderValidationDecorations */
+  );
+  if (renderValidationDecorations === "editable") {
+    return options.get(
+      101
+      /* EditorOption.readOnly */
+    );
+  }
+  return renderValidationDecorations === "on" ? false : true;
+}
+__name(filterValidationDecorations, "filterValidationDecorations");
+function filterFontDecorations(options) {
+  return !options.get(
+    163
+    /* EditorOption.effectiveAllowVariableFonts */
+  );
+}
+__name(filterFontDecorations, "filterFontDecorations");
+class EditorRulers extends BaseEditorOption {
+  static {
+    __name(this, "EditorRulers");
+  }
+  constructor() {
+    const defaults = [];
+    const columnSchema = { type: "number", description: nls.localize("rulers.size", "Number of monospace characters at which this editor ruler will render.") };
+    super(112, "rulers", defaults, {
+      type: "array",
+      items: {
+        anyOf: [
+          columnSchema,
+          {
+            type: [
+              "object"
+            ],
+            properties: {
+              column: columnSchema,
+              color: {
+                type: "string",
+                description: nls.localize("rulers.color", "Color of this editor ruler."),
+                format: "color-hex"
+              }
+            }
+          }
+        ]
+      },
+      default: defaults,
+      description: nls.localize("rulers", "Render vertical rulers after a certain number of monospace characters. Use multiple values for multiple rulers. No rulers are drawn if array is empty.")
+    });
+  }
+  validate(input) {
+    if (Array.isArray(input)) {
+      const rulers = [];
+      for (const _element of input) {
+        if (typeof _element === "number") {
+          rulers.push({
+            column: EditorIntOption.clampedInt(_element, 0, 0, 1e4),
+            color: null
+          });
+        } else if (_element && typeof _element === "object") {
+          const element = _element;
+          rulers.push({
+            column: EditorIntOption.clampedInt(element.column, 0, 0, 1e4),
+            color: element.color
+          });
+        }
+      }
+      rulers.sort((a, b) => a.column - b.column);
+      return rulers;
+    }
+    return this.defaultValue;
+  }
+}
+class ReadonlyMessage extends BaseEditorOption {
+  static {
+    __name(this, "ReadonlyMessage");
+  }
+  constructor() {
+    const defaults = void 0;
+    super(102, "readOnlyMessage", defaults);
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    return _input;
+  }
+}
+function _scrollbarVisibilityFromString(visibility, defaultValue) {
+  if (typeof visibility !== "string") {
+    return defaultValue;
+  }
+  switch (visibility) {
+    case "hidden":
+      return 2;
+    case "visible":
+      return 3;
+    default:
+      return 1;
+  }
+}
+__name(_scrollbarVisibilityFromString, "_scrollbarVisibilityFromString");
+class EditorScrollbar extends BaseEditorOption {
+  static {
+    __name(this, "EditorScrollbar");
+  }
+  constructor() {
+    const defaults = {
+      vertical: 1,
+      horizontal: 1,
+      arrowSize: 11,
+      useShadows: true,
+      verticalHasArrows: false,
+      horizontalHasArrows: false,
+      horizontalScrollbarSize: 12,
+      horizontalSliderSize: 12,
+      verticalScrollbarSize: 14,
+      verticalSliderSize: 14,
+      handleMouseWheel: true,
+      alwaysConsumeMouseWheel: true,
+      scrollByPage: false,
+      ignoreHorizontalScrollbarInContentHeight: false
+    };
+    super(113, "scrollbar", defaults, {
+      "editor.scrollbar.vertical": {
+        type: "string",
+        enum: ["auto", "visible", "hidden"],
+        enumDescriptions: [
+          nls.localize("scrollbar.vertical.auto", "The vertical scrollbar will be visible only when necessary."),
+          nls.localize("scrollbar.vertical.visible", "The vertical scrollbar will always be visible."),
+          nls.localize("scrollbar.vertical.fit", "The vertical scrollbar will always be hidden.")
+        ],
+        default: "auto",
+        description: nls.localize("scrollbar.vertical", "Controls the visibility of the vertical scrollbar.")
+      },
+      "editor.scrollbar.horizontal": {
+        type: "string",
+        enum: ["auto", "visible", "hidden"],
+        enumDescriptions: [
+          nls.localize("scrollbar.horizontal.auto", "The horizontal scrollbar will be visible only when necessary."),
+          nls.localize("scrollbar.horizontal.visible", "The horizontal scrollbar will always be visible."),
+          nls.localize("scrollbar.horizontal.fit", "The horizontal scrollbar will always be hidden.")
+        ],
+        default: "auto",
+        description: nls.localize("scrollbar.horizontal", "Controls the visibility of the horizontal scrollbar.")
+      },
+      "editor.scrollbar.verticalScrollbarSize": {
+        type: "number",
+        default: defaults.verticalScrollbarSize,
+        description: nls.localize("scrollbar.verticalScrollbarSize", "The width of the vertical scrollbar.")
+      },
+      "editor.scrollbar.horizontalScrollbarSize": {
+        type: "number",
+        default: defaults.horizontalScrollbarSize,
+        description: nls.localize("scrollbar.horizontalScrollbarSize", "The height of the horizontal scrollbar.")
+      },
+      "editor.scrollbar.scrollByPage": {
+        type: "boolean",
+        default: defaults.scrollByPage,
+        description: nls.localize("scrollbar.scrollByPage", "Controls whether clicks scroll by page or jump to click position.")
+      },
+      "editor.scrollbar.ignoreHorizontalScrollbarInContentHeight": {
+        type: "boolean",
+        default: defaults.ignoreHorizontalScrollbarInContentHeight,
+        description: nls.localize("scrollbar.ignoreHorizontalScrollbarInContentHeight", "When set, the horizontal scrollbar will not increase the size of the editor's content.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    const horizontalScrollbarSize = EditorIntOption.clampedInt(input.horizontalScrollbarSize, this.defaultValue.horizontalScrollbarSize, 0, 1e3);
+    const verticalScrollbarSize = EditorIntOption.clampedInt(input.verticalScrollbarSize, this.defaultValue.verticalScrollbarSize, 0, 1e3);
+    return {
+      arrowSize: EditorIntOption.clampedInt(input.arrowSize, this.defaultValue.arrowSize, 0, 1e3),
+      vertical: _scrollbarVisibilityFromString(input.vertical, this.defaultValue.vertical),
+      horizontal: _scrollbarVisibilityFromString(input.horizontal, this.defaultValue.horizontal),
+      useShadows: boolean(input.useShadows, this.defaultValue.useShadows),
+      verticalHasArrows: boolean(input.verticalHasArrows, this.defaultValue.verticalHasArrows),
+      horizontalHasArrows: boolean(input.horizontalHasArrows, this.defaultValue.horizontalHasArrows),
+      handleMouseWheel: boolean(input.handleMouseWheel, this.defaultValue.handleMouseWheel),
+      alwaysConsumeMouseWheel: boolean(input.alwaysConsumeMouseWheel, this.defaultValue.alwaysConsumeMouseWheel),
+      horizontalScrollbarSize,
+      horizontalSliderSize: EditorIntOption.clampedInt(input.horizontalSliderSize, horizontalScrollbarSize, 0, 1e3),
+      verticalScrollbarSize,
+      verticalSliderSize: EditorIntOption.clampedInt(input.verticalSliderSize, verticalScrollbarSize, 0, 1e3),
+      scrollByPage: boolean(input.scrollByPage, this.defaultValue.scrollByPage),
+      ignoreHorizontalScrollbarInContentHeight: boolean(input.ignoreHorizontalScrollbarInContentHeight, this.defaultValue.ignoreHorizontalScrollbarInContentHeight)
+    };
+  }
+}
+const inUntrustedWorkspace = "inUntrustedWorkspace";
+const unicodeHighlightConfigKeys = {
+  allowedCharacters: "editor.unicodeHighlight.allowedCharacters",
+  invisibleCharacters: "editor.unicodeHighlight.invisibleCharacters",
+  nonBasicASCII: "editor.unicodeHighlight.nonBasicASCII",
+  ambiguousCharacters: "editor.unicodeHighlight.ambiguousCharacters",
+  includeComments: "editor.unicodeHighlight.includeComments",
+  includeStrings: "editor.unicodeHighlight.includeStrings",
+  allowedLocales: "editor.unicodeHighlight.allowedLocales"
+};
+class UnicodeHighlight extends BaseEditorOption {
+  static {
+    __name(this, "UnicodeHighlight");
+  }
+  constructor() {
+    const defaults = {
+      nonBasicASCII: inUntrustedWorkspace,
+      invisibleCharacters: true,
+      ambiguousCharacters: true,
+      includeComments: inUntrustedWorkspace,
+      includeStrings: true,
+      allowedCharacters: {},
+      allowedLocales: { _os: true, _vscode: true }
+    };
+    super(135, "unicodeHighlight", defaults, {
+      [unicodeHighlightConfigKeys.nonBasicASCII]: {
+        restricted: true,
+        type: ["boolean", "string"],
+        enum: [true, false, inUntrustedWorkspace],
+        default: defaults.nonBasicASCII,
+        description: nls.localize("unicodeHighlight.nonBasicASCII", "Controls whether all non-basic ASCII characters are highlighted. Only characters between U+0020 and U+007E, tab, line-feed and carriage-return are considered basic ASCII.")
+      },
+      [unicodeHighlightConfigKeys.invisibleCharacters]: {
+        restricted: true,
+        type: "boolean",
+        default: defaults.invisibleCharacters,
+        description: nls.localize("unicodeHighlight.invisibleCharacters", "Controls whether characters that just reserve space or have no width at all are highlighted.")
+      },
+      [unicodeHighlightConfigKeys.ambiguousCharacters]: {
+        restricted: true,
+        type: "boolean",
+        default: defaults.ambiguousCharacters,
+        description: nls.localize("unicodeHighlight.ambiguousCharacters", "Controls whether characters are highlighted that can be confused with basic ASCII characters, except those that are common in the current user locale.")
+      },
+      [unicodeHighlightConfigKeys.includeComments]: {
+        restricted: true,
+        type: ["boolean", "string"],
+        enum: [true, false, inUntrustedWorkspace],
+        default: defaults.includeComments,
+        description: nls.localize("unicodeHighlight.includeComments", "Controls whether characters in comments should also be subject to Unicode highlighting.")
+      },
+      [unicodeHighlightConfigKeys.includeStrings]: {
+        restricted: true,
+        type: ["boolean", "string"],
+        enum: [true, false, inUntrustedWorkspace],
+        default: defaults.includeStrings,
+        description: nls.localize("unicodeHighlight.includeStrings", "Controls whether characters in strings should also be subject to Unicode highlighting.")
+      },
+      [unicodeHighlightConfigKeys.allowedCharacters]: {
+        restricted: true,
+        type: "object",
+        default: defaults.allowedCharacters,
+        description: nls.localize("unicodeHighlight.allowedCharacters", "Defines allowed characters that are not being highlighted."),
+        additionalProperties: {
+          type: "boolean"
+        }
+      },
+      [unicodeHighlightConfigKeys.allowedLocales]: {
+        restricted: true,
+        type: "object",
+        additionalProperties: {
+          type: "boolean"
+        },
+        default: defaults.allowedLocales,
+        description: nls.localize("unicodeHighlight.allowedLocales", "Unicode characters that are common in allowed locales are not being highlighted.")
+      }
+    });
+  }
+  applyUpdate(value, update) {
+    let didChange = false;
+    if (update.allowedCharacters && value) {
+      if (!objects.equals(value.allowedCharacters, update.allowedCharacters)) {
+        value = { ...value, allowedCharacters: update.allowedCharacters };
+        didChange = true;
+      }
+    }
+    if (update.allowedLocales && value) {
+      if (!objects.equals(value.allowedLocales, update.allowedLocales)) {
+        value = { ...value, allowedLocales: update.allowedLocales };
+        didChange = true;
+      }
+    }
+    const result = super.applyUpdate(value, update);
+    if (didChange) {
+      return new ApplyUpdateResult(result.newValue, true);
+    }
+    return result;
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      nonBasicASCII: primitiveSet(input.nonBasicASCII, inUntrustedWorkspace, [true, false, inUntrustedWorkspace]),
+      invisibleCharacters: boolean(input.invisibleCharacters, this.defaultValue.invisibleCharacters),
+      ambiguousCharacters: boolean(input.ambiguousCharacters, this.defaultValue.ambiguousCharacters),
+      includeComments: primitiveSet(input.includeComments, inUntrustedWorkspace, [true, false, inUntrustedWorkspace]),
+      includeStrings: primitiveSet(input.includeStrings, inUntrustedWorkspace, [true, false, inUntrustedWorkspace]),
+      allowedCharacters: this.validateBooleanMap(_input.allowedCharacters, this.defaultValue.allowedCharacters),
+      allowedLocales: this.validateBooleanMap(_input.allowedLocales, this.defaultValue.allowedLocales)
+    };
+  }
+  validateBooleanMap(map, defaultValue) {
+    if (typeof map !== "object" || !map) {
+      return defaultValue;
+    }
+    const result = {};
+    for (const [key, value] of Object.entries(map)) {
+      if (value === true) {
+        result[key] = true;
+      }
+    }
+    return result;
+  }
+}
+class InlineEditorSuggest extends BaseEditorOption {
+  static {
+    __name(this, "InlineEditorSuggest");
+  }
+  constructor() {
+    const defaults = {
+      enabled: true,
+      mode: "subwordSmart",
+      showToolbar: "onHover",
+      suppressSuggestions: false,
+      keepOnBlur: false,
+      fontFamily: "default",
+      syntaxHighlightingEnabled: true,
+      edits: {
+        enabled: true,
+        showCollapsed: false,
+        renderSideBySide: "auto",
+        allowCodeShifting: "always"
+      },
+      experimental: {
+        suppressInlineSuggestions: "",
+        triggerCommandOnProviderChange: true
+      }
+    };
+    super(69, "inlineSuggest", defaults, {
+      "editor.inlineSuggest.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        description: nls.localize("inlineSuggest.enabled", "Controls whether to automatically show inline suggestions in the editor.")
+      },
+      "editor.inlineSuggest.showToolbar": {
+        type: "string",
+        default: defaults.showToolbar,
+        enum: ["always", "onHover", "never"],
+        enumDescriptions: [
+          nls.localize("inlineSuggest.showToolbar.always", "Show the inline suggestion toolbar whenever an inline suggestion is shown."),
+          nls.localize("inlineSuggest.showToolbar.onHover", "Show the inline suggestion toolbar when hovering over an inline suggestion."),
+          nls.localize("inlineSuggest.showToolbar.never", "Never show the inline suggestion toolbar.")
+        ],
+        description: nls.localize("inlineSuggest.showToolbar", "Controls when to show the inline suggestion toolbar.")
+      },
+      "editor.inlineSuggest.syntaxHighlightingEnabled": {
+        type: "boolean",
+        default: defaults.syntaxHighlightingEnabled,
+        description: nls.localize("inlineSuggest.syntaxHighlightingEnabled", "Controls whether to show syntax highlighting for inline suggestions in the editor.")
+      },
+      "editor.inlineSuggest.suppressSuggestions": {
+        type: "boolean",
+        default: defaults.suppressSuggestions,
+        description: nls.localize("inlineSuggest.suppressSuggestions", "Controls how inline suggestions interact with the suggest widget. If enabled, the suggest widget is not shown automatically when inline suggestions are available.")
+      },
+      "editor.inlineSuggest.experimental.suppressInlineSuggestions": {
+        type: "string",
+        default: defaults.experimental.suppressInlineSuggestions,
+        tags: ["experimental", "onExp"],
+        description: nls.localize("inlineSuggest.suppressInlineSuggestions", "Suppresses inline completions for specified extension IDs -- comma separated.")
+      },
+      "editor.inlineSuggest.experimental.triggerCommandOnProviderChange": {
+        type: "boolean",
+        default: defaults.experimental.triggerCommandOnProviderChange,
+        tags: ["experimental", "onExp"],
+        description: nls.localize("inlineSuggest.triggerCommandOnProviderChange", "Controls whether to trigger a command when the inline suggestion provider changes.")
+      },
+      "editor.inlineSuggest.fontFamily": {
+        type: "string",
+        default: defaults.fontFamily,
+        description: nls.localize("inlineSuggest.fontFamily", "Controls the font family of the inline suggestions.")
+      },
+      "editor.inlineSuggest.edits.allowCodeShifting": {
+        type: "string",
+        default: defaults.edits.allowCodeShifting,
+        description: nls.localize("inlineSuggest.edits.allowCodeShifting", "Controls whether showing a suggestion will shift the code to make space for the suggestion inline."),
+        enum: ["always", "horizontal", "never"],
+        tags: ["nextEditSuggestions"]
+      },
+      "editor.inlineSuggest.edits.renderSideBySide": {
+        type: "string",
+        default: defaults.edits.renderSideBySide,
+        description: nls.localize("inlineSuggest.edits.renderSideBySide", "Controls whether larger suggestions can be shown side by side."),
+        enum: ["auto", "never"],
+        enumDescriptions: [
+          nls.localize("editor.inlineSuggest.edits.renderSideBySide.auto", "Larger suggestions will show side by side if there is enough space, otherwise they will be shown below."),
+          nls.localize("editor.inlineSuggest.edits.renderSideBySide.never", "Larger suggestions are never shown side by side and will always be shown below.")
+        ],
+        tags: ["nextEditSuggestions"]
+      },
+      "editor.inlineSuggest.edits.showCollapsed": {
+        type: "boolean",
+        default: defaults.edits.showCollapsed,
+        description: nls.localize("inlineSuggest.edits.showCollapsed", "Controls whether the suggestion will show as collapsed until jumping to it."),
+        tags: ["nextEditSuggestions"]
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      mode: stringSet(input.mode, this.defaultValue.mode, ["prefix", "subword", "subwordSmart"]),
+      showToolbar: stringSet(input.showToolbar, this.defaultValue.showToolbar, ["always", "onHover", "never"]),
+      suppressSuggestions: boolean(input.suppressSuggestions, this.defaultValue.suppressSuggestions),
+      keepOnBlur: boolean(input.keepOnBlur, this.defaultValue.keepOnBlur),
+      fontFamily: EditorStringOption.string(input.fontFamily, this.defaultValue.fontFamily),
+      syntaxHighlightingEnabled: boolean(input.syntaxHighlightingEnabled, this.defaultValue.syntaxHighlightingEnabled),
+      edits: {
+        enabled: boolean(input.edits?.enabled, this.defaultValue.edits.enabled),
+        showCollapsed: boolean(input.edits?.showCollapsed, this.defaultValue.edits.showCollapsed),
+        allowCodeShifting: stringSet(input.edits?.allowCodeShifting, this.defaultValue.edits.allowCodeShifting, ["always", "horizontal", "never"]),
+        renderSideBySide: stringSet(input.edits?.renderSideBySide, this.defaultValue.edits.renderSideBySide, ["never", "auto"])
+      },
+      experimental: {
+        suppressInlineSuggestions: EditorStringOption.string(input.experimental?.suppressInlineSuggestions, this.defaultValue.experimental.suppressInlineSuggestions),
+        triggerCommandOnProviderChange: boolean(input.experimental?.triggerCommandOnProviderChange, this.defaultValue.experimental.triggerCommandOnProviderChange)
+      }
+    };
+  }
+}
+class BracketPairColorization extends BaseEditorOption {
+  static {
+    __name(this, "BracketPairColorization");
+  }
+  constructor() {
+    const defaults = {
+      enabled: EDITOR_MODEL_DEFAULTS.bracketPairColorizationOptions.enabled,
+      independentColorPoolPerBracketType: EDITOR_MODEL_DEFAULTS.bracketPairColorizationOptions.independentColorPoolPerBracketType
+    };
+    super(20, "bracketPairColorization", defaults, {
+      "editor.bracketPairColorization.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        markdownDescription: nls.localize("bracketPairColorization.enabled", "Controls whether bracket pair colorization is enabled or not. Use {0} to override the bracket highlight colors.", "`#workbench.colorCustomizations#`")
+      },
+      "editor.bracketPairColorization.independentColorPoolPerBracketType": {
+        type: "boolean",
+        default: defaults.independentColorPoolPerBracketType,
+        description: nls.localize("bracketPairColorization.independentColorPoolPerBracketType", "Controls whether each bracket type has its own independent color pool.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      independentColorPoolPerBracketType: boolean(input.independentColorPoolPerBracketType, this.defaultValue.independentColorPoolPerBracketType)
+    };
+  }
+}
+class GuideOptions extends BaseEditorOption {
+  static {
+    __name(this, "GuideOptions");
+  }
+  constructor() {
+    const defaults = {
+      bracketPairs: false,
+      bracketPairsHorizontal: "active",
+      highlightActiveBracketPair: true,
+      indentation: true,
+      highlightActiveIndentation: true
+    };
+    super(21, "guides", defaults, {
+      "editor.guides.bracketPairs": {
+        type: ["boolean", "string"],
+        enum: [true, "active", false],
+        enumDescriptions: [
+          nls.localize("editor.guides.bracketPairs.true", "Enables bracket pair guides."),
+          nls.localize("editor.guides.bracketPairs.active", "Enables bracket pair guides only for the active bracket pair."),
+          nls.localize("editor.guides.bracketPairs.false", "Disables bracket pair guides.")
+        ],
+        default: defaults.bracketPairs,
+        description: nls.localize("editor.guides.bracketPairs", "Controls whether bracket pair guides are enabled or not.")
+      },
+      "editor.guides.bracketPairsHorizontal": {
+        type: ["boolean", "string"],
+        enum: [true, "active", false],
+        enumDescriptions: [
+          nls.localize("editor.guides.bracketPairsHorizontal.true", "Enables horizontal guides as addition to vertical bracket pair guides."),
+          nls.localize("editor.guides.bracketPairsHorizontal.active", "Enables horizontal guides only for the active bracket pair."),
+          nls.localize("editor.guides.bracketPairsHorizontal.false", "Disables horizontal bracket pair guides.")
+        ],
+        default: defaults.bracketPairsHorizontal,
+        description: nls.localize("editor.guides.bracketPairsHorizontal", "Controls whether horizontal bracket pair guides are enabled or not.")
+      },
+      "editor.guides.highlightActiveBracketPair": {
+        type: "boolean",
+        default: defaults.highlightActiveBracketPair,
+        description: nls.localize("editor.guides.highlightActiveBracketPair", "Controls whether the editor should highlight the active bracket pair.")
+      },
+      "editor.guides.indentation": {
+        type: "boolean",
+        default: defaults.indentation,
+        description: nls.localize("editor.guides.indentation", "Controls whether the editor should render indent guides.")
+      },
+      "editor.guides.highlightActiveIndentation": {
+        type: ["boolean", "string"],
+        enum: [true, "always", false],
+        enumDescriptions: [
+          nls.localize("editor.guides.highlightActiveIndentation.true", "Highlights the active indent guide."),
+          nls.localize("editor.guides.highlightActiveIndentation.always", "Highlights the active indent guide even if bracket guides are highlighted."),
+          nls.localize("editor.guides.highlightActiveIndentation.false", "Do not highlight the active indent guide.")
+        ],
+        default: defaults.highlightActiveIndentation,
+        description: nls.localize("editor.guides.highlightActiveIndentation", "Controls whether the editor should highlight the active indent guide.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      bracketPairs: primitiveSet(input.bracketPairs, this.defaultValue.bracketPairs, [true, false, "active"]),
+      bracketPairsHorizontal: primitiveSet(input.bracketPairsHorizontal, this.defaultValue.bracketPairsHorizontal, [true, false, "active"]),
+      highlightActiveBracketPair: boolean(input.highlightActiveBracketPair, this.defaultValue.highlightActiveBracketPair),
+      indentation: boolean(input.indentation, this.defaultValue.indentation),
+      highlightActiveIndentation: primitiveSet(input.highlightActiveIndentation, this.defaultValue.highlightActiveIndentation, [true, false, "always"])
+    };
+  }
+}
+function primitiveSet(value, defaultValue, allowedValues) {
+  const idx = allowedValues.indexOf(value);
+  if (idx === -1) {
+    return defaultValue;
+  }
+  return allowedValues[idx];
+}
+__name(primitiveSet, "primitiveSet");
+class EditorSuggest extends BaseEditorOption {
+  static {
+    __name(this, "EditorSuggest");
+  }
+  constructor() {
+    const defaults = {
+      insertMode: "insert",
+      filterGraceful: true,
+      snippetsPreventQuickSuggestions: false,
+      localityBonus: false,
+      shareSuggestSelections: false,
+      selectionMode: "always",
+      showIcons: true,
+      showStatusBar: false,
+      preview: false,
+      previewMode: "subwordSmart",
+      showInlineDetails: true,
+      showMethods: true,
+      showFunctions: true,
+      showConstructors: true,
+      showDeprecated: true,
+      matchOnWordStartOnly: true,
+      showFields: true,
+      showVariables: true,
+      showClasses: true,
+      showStructs: true,
+      showInterfaces: true,
+      showModules: true,
+      showProperties: true,
+      showEvents: true,
+      showOperators: true,
+      showUnits: true,
+      showValues: true,
+      showConstants: true,
+      showEnums: true,
+      showEnumMembers: true,
+      showKeywords: true,
+      showWords: true,
+      showColors: true,
+      showFiles: true,
+      showReferences: true,
+      showFolders: true,
+      showTypeParameters: true,
+      showSnippets: true,
+      showUsers: true,
+      showIssues: true
+    };
+    super(128, "suggest", defaults, {
+      "editor.suggest.insertMode": {
+        type: "string",
+        enum: ["insert", "replace"],
+        enumDescriptions: [
+          nls.localize("suggest.insertMode.insert", "Insert suggestion without overwriting text right of the cursor."),
+          nls.localize("suggest.insertMode.replace", "Insert suggestion and overwrite text right of the cursor.")
+        ],
+        default: defaults.insertMode,
+        description: nls.localize("suggest.insertMode", "Controls whether words are overwritten when accepting completions. Note that this depends on extensions opting into this feature.")
+      },
+      "editor.suggest.filterGraceful": {
+        type: "boolean",
+        default: defaults.filterGraceful,
+        description: nls.localize("suggest.filterGraceful", "Controls whether filtering and sorting suggestions accounts for small typos.")
+      },
+      "editor.suggest.localityBonus": {
+        type: "boolean",
+        default: defaults.localityBonus,
+        description: nls.localize("suggest.localityBonus", "Controls whether sorting favors words that appear close to the cursor.")
+      },
+      "editor.suggest.shareSuggestSelections": {
+        type: "boolean",
+        default: defaults.shareSuggestSelections,
+        markdownDescription: nls.localize("suggest.shareSuggestSelections", "Controls whether remembered suggestion selections are shared between multiple workspaces and windows (needs `#editor.suggestSelection#`).")
+      },
+      "editor.suggest.selectionMode": {
+        type: "string",
+        enum: ["always", "never", "whenTriggerCharacter", "whenQuickSuggestion"],
+        enumDescriptions: [
+          nls.localize("suggest.insertMode.always", "Always select a suggestion when automatically triggering IntelliSense."),
+          nls.localize("suggest.insertMode.never", "Never select a suggestion when automatically triggering IntelliSense."),
+          nls.localize("suggest.insertMode.whenTriggerCharacter", "Select a suggestion only when triggering IntelliSense from a trigger character."),
+          nls.localize("suggest.insertMode.whenQuickSuggestion", "Select a suggestion only when triggering IntelliSense as you type.")
+        ],
+        default: defaults.selectionMode,
+        markdownDescription: nls.localize("suggest.selectionMode", "Controls whether a suggestion is selected when the widget shows. Note that this only applies to automatically triggered suggestions ({0} and {1}) and that a suggestion is always selected when explicitly invoked, e.g via `Ctrl+Space`.", "`#editor.quickSuggestions#`", "`#editor.suggestOnTriggerCharacters#`")
+      },
+      "editor.suggest.snippetsPreventQuickSuggestions": {
+        type: "boolean",
+        default: defaults.snippetsPreventQuickSuggestions,
+        description: nls.localize("suggest.snippetsPreventQuickSuggestions", "Controls whether an active snippet prevents quick suggestions.")
+      },
+      "editor.suggest.showIcons": {
+        type: "boolean",
+        default: defaults.showIcons,
+        description: nls.localize("suggest.showIcons", "Controls whether to show or hide icons in suggestions.")
+      },
+      "editor.suggest.showStatusBar": {
+        type: "boolean",
+        default: defaults.showStatusBar,
+        description: nls.localize("suggest.showStatusBar", "Controls the visibility of the status bar at the bottom of the suggest widget.")
+      },
+      "editor.suggest.preview": {
+        type: "boolean",
+        default: defaults.preview,
+        description: nls.localize("suggest.preview", "Controls whether to preview the suggestion outcome in the editor.")
+      },
+      "editor.suggest.showInlineDetails": {
+        type: "boolean",
+        default: defaults.showInlineDetails,
+        description: nls.localize("suggest.showInlineDetails", "Controls whether suggest details show inline with the label or only in the details widget.")
+      },
+      "editor.suggest.maxVisibleSuggestions": {
+        type: "number",
+        deprecationMessage: nls.localize("suggest.maxVisibleSuggestions.dep", "This setting is deprecated. The suggest widget can now be resized.")
+      },
+      "editor.suggest.filteredTypes": {
+        type: "object",
+        deprecationMessage: nls.localize("deprecated", "This setting is deprecated, please use separate settings like 'editor.suggest.showKeywords' or 'editor.suggest.showSnippets' instead.")
+      },
+      "editor.suggest.showMethods": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showMethods", "When enabled IntelliSense shows `method`-suggestions.")
+      },
+      "editor.suggest.showFunctions": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showFunctions", "When enabled IntelliSense shows `function`-suggestions.")
+      },
+      "editor.suggest.showConstructors": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showConstructors", "When enabled IntelliSense shows `constructor`-suggestions.")
+      },
+      "editor.suggest.showDeprecated": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showDeprecated", "When enabled IntelliSense shows `deprecated`-suggestions.")
+      },
+      "editor.suggest.matchOnWordStartOnly": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.matchOnWordStartOnly", "When enabled IntelliSense filtering requires that the first character matches on a word start. For example, `c` on `Console` or `WebContext` but _not_ on `description`. When disabled IntelliSense will show more results but still sorts them by match quality.")
+      },
+      "editor.suggest.showFields": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showFields", "When enabled IntelliSense shows `field`-suggestions.")
+      },
+      "editor.suggest.showVariables": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showVariables", "When enabled IntelliSense shows `variable`-suggestions.")
+      },
+      "editor.suggest.showClasses": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showClasss", "When enabled IntelliSense shows `class`-suggestions.")
+      },
+      "editor.suggest.showStructs": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showStructs", "When enabled IntelliSense shows `struct`-suggestions.")
+      },
+      "editor.suggest.showInterfaces": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showInterfaces", "When enabled IntelliSense shows `interface`-suggestions.")
+      },
+      "editor.suggest.showModules": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showModules", "When enabled IntelliSense shows `module`-suggestions.")
+      },
+      "editor.suggest.showProperties": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showPropertys", "When enabled IntelliSense shows `property`-suggestions.")
+      },
+      "editor.suggest.showEvents": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showEvents", "When enabled IntelliSense shows `event`-suggestions.")
+      },
+      "editor.suggest.showOperators": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showOperators", "When enabled IntelliSense shows `operator`-suggestions.")
+      },
+      "editor.suggest.showUnits": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showUnits", "When enabled IntelliSense shows `unit`-suggestions.")
+      },
+      "editor.suggest.showValues": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showValues", "When enabled IntelliSense shows `value`-suggestions.")
+      },
+      "editor.suggest.showConstants": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showConstants", "When enabled IntelliSense shows `constant`-suggestions.")
+      },
+      "editor.suggest.showEnums": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showEnums", "When enabled IntelliSense shows `enum`-suggestions.")
+      },
+      "editor.suggest.showEnumMembers": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showEnumMembers", "When enabled IntelliSense shows `enumMember`-suggestions.")
+      },
+      "editor.suggest.showKeywords": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showKeywords", "When enabled IntelliSense shows `keyword`-suggestions.")
+      },
+      "editor.suggest.showWords": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showTexts", "When enabled IntelliSense shows `text`-suggestions.")
+      },
+      "editor.suggest.showColors": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showColors", "When enabled IntelliSense shows `color`-suggestions.")
+      },
+      "editor.suggest.showFiles": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showFiles", "When enabled IntelliSense shows `file`-suggestions.")
+      },
+      "editor.suggest.showReferences": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showReferences", "When enabled IntelliSense shows `reference`-suggestions.")
+      },
+      "editor.suggest.showCustomcolors": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showCustomcolors", "When enabled IntelliSense shows `customcolor`-suggestions.")
+      },
+      "editor.suggest.showFolders": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showFolders", "When enabled IntelliSense shows `folder`-suggestions.")
+      },
+      "editor.suggest.showTypeParameters": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showTypeParameters", "When enabled IntelliSense shows `typeParameter`-suggestions.")
+      },
+      "editor.suggest.showSnippets": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showSnippets", "When enabled IntelliSense shows `snippet`-suggestions.")
+      },
+      "editor.suggest.showUsers": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showUsers", "When enabled IntelliSense shows `user`-suggestions.")
+      },
+      "editor.suggest.showIssues": {
+        type: "boolean",
+        default: true,
+        markdownDescription: nls.localize("editor.suggest.showIssues", "When enabled IntelliSense shows `issues`-suggestions.")
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      insertMode: stringSet(input.insertMode, this.defaultValue.insertMode, ["insert", "replace"]),
+      filterGraceful: boolean(input.filterGraceful, this.defaultValue.filterGraceful),
+      snippetsPreventQuickSuggestions: boolean(input.snippetsPreventQuickSuggestions, this.defaultValue.filterGraceful),
+      localityBonus: boolean(input.localityBonus, this.defaultValue.localityBonus),
+      shareSuggestSelections: boolean(input.shareSuggestSelections, this.defaultValue.shareSuggestSelections),
+      selectionMode: stringSet(input.selectionMode, this.defaultValue.selectionMode, ["always", "never", "whenQuickSuggestion", "whenTriggerCharacter"]),
+      showIcons: boolean(input.showIcons, this.defaultValue.showIcons),
+      showStatusBar: boolean(input.showStatusBar, this.defaultValue.showStatusBar),
+      preview: boolean(input.preview, this.defaultValue.preview),
+      previewMode: stringSet(input.previewMode, this.defaultValue.previewMode, ["prefix", "subword", "subwordSmart"]),
+      showInlineDetails: boolean(input.showInlineDetails, this.defaultValue.showInlineDetails),
+      showMethods: boolean(input.showMethods, this.defaultValue.showMethods),
+      showFunctions: boolean(input.showFunctions, this.defaultValue.showFunctions),
+      showConstructors: boolean(input.showConstructors, this.defaultValue.showConstructors),
+      showDeprecated: boolean(input.showDeprecated, this.defaultValue.showDeprecated),
+      matchOnWordStartOnly: boolean(input.matchOnWordStartOnly, this.defaultValue.matchOnWordStartOnly),
+      showFields: boolean(input.showFields, this.defaultValue.showFields),
+      showVariables: boolean(input.showVariables, this.defaultValue.showVariables),
+      showClasses: boolean(input.showClasses, this.defaultValue.showClasses),
+      showStructs: boolean(input.showStructs, this.defaultValue.showStructs),
+      showInterfaces: boolean(input.showInterfaces, this.defaultValue.showInterfaces),
+      showModules: boolean(input.showModules, this.defaultValue.showModules),
+      showProperties: boolean(input.showProperties, this.defaultValue.showProperties),
+      showEvents: boolean(input.showEvents, this.defaultValue.showEvents),
+      showOperators: boolean(input.showOperators, this.defaultValue.showOperators),
+      showUnits: boolean(input.showUnits, this.defaultValue.showUnits),
+      showValues: boolean(input.showValues, this.defaultValue.showValues),
+      showConstants: boolean(input.showConstants, this.defaultValue.showConstants),
+      showEnums: boolean(input.showEnums, this.defaultValue.showEnums),
+      showEnumMembers: boolean(input.showEnumMembers, this.defaultValue.showEnumMembers),
+      showKeywords: boolean(input.showKeywords, this.defaultValue.showKeywords),
+      showWords: boolean(input.showWords, this.defaultValue.showWords),
+      showColors: boolean(input.showColors, this.defaultValue.showColors),
+      showFiles: boolean(input.showFiles, this.defaultValue.showFiles),
+      showReferences: boolean(input.showReferences, this.defaultValue.showReferences),
+      showFolders: boolean(input.showFolders, this.defaultValue.showFolders),
+      showTypeParameters: boolean(input.showTypeParameters, this.defaultValue.showTypeParameters),
+      showSnippets: boolean(input.showSnippets, this.defaultValue.showSnippets),
+      showUsers: boolean(input.showUsers, this.defaultValue.showUsers),
+      showIssues: boolean(input.showIssues, this.defaultValue.showIssues)
+    };
+  }
+}
+class SmartSelect extends BaseEditorOption {
+  static {
+    __name(this, "SmartSelect");
+  }
+  constructor() {
+    super(123, "smartSelect", {
+      selectLeadingAndTrailingWhitespace: true,
+      selectSubwords: true
+    }, {
+      "editor.smartSelect.selectLeadingAndTrailingWhitespace": {
+        description: nls.localize("selectLeadingAndTrailingWhitespace", "Whether leading and trailing whitespace should always be selected."),
+        default: true,
+        type: "boolean"
+      },
+      "editor.smartSelect.selectSubwords": {
+        description: nls.localize("selectSubwords", "Whether subwords (like 'foo' in 'fooBar' or 'foo_bar') should be selected."),
+        default: true,
+        type: "boolean"
+      }
+    });
+  }
+  validate(input) {
+    if (!input || typeof input !== "object") {
+      return this.defaultValue;
+    }
+    return {
+      selectLeadingAndTrailingWhitespace: boolean(input.selectLeadingAndTrailingWhitespace, this.defaultValue.selectLeadingAndTrailingWhitespace),
+      selectSubwords: boolean(input.selectSubwords, this.defaultValue.selectSubwords)
+    };
+  }
+}
+class WordSegmenterLocales extends BaseEditorOption {
+  static {
+    __name(this, "WordSegmenterLocales");
+  }
+  constructor() {
+    const defaults = [];
+    super(140, "wordSegmenterLocales", defaults, {
+      anyOf: [
+        {
+          description: nls.localize("wordSegmenterLocales", "Locales to be used for word segmentation when doing word related navigations or operations. Specify the BCP 47 language tag of the word you wish to recognize (e.g., ja, zh-CN, zh-Hant-TW, etc.)."),
+          type: "string"
+        },
+        {
+          description: nls.localize("wordSegmenterLocales", "Locales to be used for word segmentation when doing word related navigations or operations. Specify the BCP 47 language tag of the word you wish to recognize (e.g., ja, zh-CN, zh-Hant-TW, etc.)."),
+          type: "array",
+          items: {
+            type: "string"
+          }
+        }
+      ]
+    });
+  }
+  validate(input) {
+    if (typeof input === "string") {
+      input = [input];
+    }
+    if (Array.isArray(input)) {
+      const validLocales = [];
+      for (const locale of input) {
+        if (typeof locale === "string") {
+          try {
+            if (Intl.Segmenter.supportedLocalesOf(locale).length > 0) {
+              validLocales.push(locale);
+            }
+          } catch {
+          }
+        }
+      }
+      return validLocales;
+    }
+    return this.defaultValue;
+  }
+}
+var WrappingIndent;
+(function(WrappingIndent2) {
+  WrappingIndent2[WrappingIndent2["None"] = 0] = "None";
+  WrappingIndent2[WrappingIndent2["Same"] = 1] = "Same";
+  WrappingIndent2[WrappingIndent2["Indent"] = 2] = "Indent";
+  WrappingIndent2[WrappingIndent2["DeepIndent"] = 3] = "DeepIndent";
+})(WrappingIndent || (WrappingIndent = {}));
+class WrappingIndentOption extends BaseEditorOption {
+  static {
+    __name(this, "WrappingIndentOption");
+  }
+  constructor() {
+    super(148, "wrappingIndent", 1, {
+      "editor.wrappingIndent": {
+        type: "string",
+        enum: ["none", "same", "indent", "deepIndent"],
+        enumDescriptions: [
+          nls.localize("wrappingIndent.none", "No indentation. Wrapped lines begin at column 1."),
+          nls.localize("wrappingIndent.same", "Wrapped lines get the same indentation as the parent."),
+          nls.localize("wrappingIndent.indent", "Wrapped lines get +1 indentation toward the parent."),
+          nls.localize("wrappingIndent.deepIndent", "Wrapped lines get +2 indentation toward the parent.")
+        ],
+        description: nls.localize("wrappingIndent", "Controls the indentation of wrapped lines."),
+        default: "same"
+      }
+    });
+  }
+  validate(input) {
+    switch (input) {
+      case "none":
+        return 0;
+      case "same":
+        return 1;
+      case "indent":
+        return 2;
+      case "deepIndent":
+        return 3;
+    }
+    return 1;
+  }
+  compute(env, options, value) {
+    const accessibilitySupport = options.get(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    if (accessibilitySupport === 2) {
+      return 0;
+    }
+    return value;
+  }
+}
+class EditorWrappingInfoComputer extends ComputedEditorOption {
+  static {
+    __name(this, "EditorWrappingInfoComputer");
+  }
+  constructor() {
+    super(
+      157
+      /* EditorOption.wrappingInfo */
+    );
+  }
+  compute(env, options, _) {
+    const layoutInfo = options.get(
+      156
+      /* EditorOption.layoutInfo */
+    );
+    return {
+      isDominatedByLongLines: env.isDominatedByLongLines,
+      isWordWrapMinified: layoutInfo.isWordWrapMinified,
+      isViewportWrapping: layoutInfo.isViewportWrapping,
+      wrappingColumn: layoutInfo.wrappingColumn
+    };
+  }
+}
+class EditorDropIntoEditor extends BaseEditorOption {
+  static {
+    __name(this, "EditorDropIntoEditor");
+  }
+  constructor() {
+    const defaults = { enabled: true, showDropSelector: "afterDrop" };
+    super(41, "dropIntoEditor", defaults, {
+      "editor.dropIntoEditor.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        markdownDescription: nls.localize("dropIntoEditor.enabled", "Controls whether you can drag and drop a file into a text editor by holding down the `Shift` key (instead of opening the file in an editor).")
+      },
+      "editor.dropIntoEditor.showDropSelector": {
+        type: "string",
+        markdownDescription: nls.localize("dropIntoEditor.showDropSelector", "Controls if a widget is shown when dropping files into the editor. This widget lets you control how the file is dropped."),
+        enum: [
+          "afterDrop",
+          "never"
+        ],
+        enumDescriptions: [
+          nls.localize("dropIntoEditor.showDropSelector.afterDrop", "Show the drop selector widget after a file is dropped into the editor."),
+          nls.localize("dropIntoEditor.showDropSelector.never", "Never show the drop selector widget. Instead the default drop provider is always used.")
+        ],
+        default: "afterDrop"
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      showDropSelector: stringSet(input.showDropSelector, this.defaultValue.showDropSelector, ["afterDrop", "never"])
+    };
+  }
+}
+class EditorPasteAs extends BaseEditorOption {
+  static {
+    __name(this, "EditorPasteAs");
+  }
+  constructor() {
+    const defaults = { enabled: true, showPasteSelector: "afterPaste" };
+    super(94, "pasteAs", defaults, {
+      "editor.pasteAs.enabled": {
+        type: "boolean",
+        default: defaults.enabled,
+        markdownDescription: nls.localize("pasteAs.enabled", "Controls whether you can paste content in different ways.")
+      },
+      "editor.pasteAs.showPasteSelector": {
+        type: "string",
+        markdownDescription: nls.localize("pasteAs.showPasteSelector", "Controls if a widget is shown when pasting content in to the editor. This widget lets you control how the file is pasted."),
+        enum: [
+          "afterPaste",
+          "never"
+        ],
+        enumDescriptions: [
+          nls.localize("pasteAs.showPasteSelector.afterPaste", "Show the paste selector widget after content is pasted into the editor."),
+          nls.localize("pasteAs.showPasteSelector.never", "Never show the paste selector widget. Instead the default pasting behavior is always used.")
+        ],
+        default: "afterPaste"
+      }
+    });
+  }
+  validate(_input) {
+    if (!_input || typeof _input !== "object") {
+      return this.defaultValue;
+    }
+    const input = _input;
+    return {
+      enabled: boolean(input.enabled, this.defaultValue.enabled),
+      showPasteSelector: stringSet(input.showPasteSelector, this.defaultValue.showPasteSelector, ["afterPaste", "never"])
+    };
+  }
+}
+const DEFAULT_WINDOWS_FONT_FAMILY = "Consolas, 'Courier New', monospace";
+const DEFAULT_MAC_FONT_FAMILY = "Menlo, Monaco, 'Courier New', monospace";
+const DEFAULT_LINUX_FONT_FAMILY = "'Droid Sans Mono', 'monospace', monospace";
+const EDITOR_FONT_DEFAULTS = {
+  fontFamily: platform.isMacintosh ? DEFAULT_MAC_FONT_FAMILY : platform.isWindows ? DEFAULT_WINDOWS_FONT_FAMILY : DEFAULT_LINUX_FONT_FAMILY,
+  fontWeight: "normal",
+  fontSize: platform.isMacintosh ? 12 : 14,
+  lineHeight: 0,
+  letterSpacing: 0
+};
+const editorOptionsRegistry = [];
+function register(option) {
+  editorOptionsRegistry[option.id] = option;
+  return option;
+}
+__name(register, "register");
+var EditorOption;
+(function(EditorOption2) {
+  EditorOption2[EditorOption2["acceptSuggestionOnCommitCharacter"] = 0] = "acceptSuggestionOnCommitCharacter";
+  EditorOption2[EditorOption2["acceptSuggestionOnEnter"] = 1] = "acceptSuggestionOnEnter";
+  EditorOption2[EditorOption2["accessibilitySupport"] = 2] = "accessibilitySupport";
+  EditorOption2[EditorOption2["accessibilityPageSize"] = 3] = "accessibilityPageSize";
+  EditorOption2[EditorOption2["allowVariableLineHeights"] = 4] = "allowVariableLineHeights";
+  EditorOption2[EditorOption2["allowVariableFonts"] = 5] = "allowVariableFonts";
+  EditorOption2[EditorOption2["allowVariableFontsInAccessibilityMode"] = 6] = "allowVariableFontsInAccessibilityMode";
+  EditorOption2[EditorOption2["ariaLabel"] = 7] = "ariaLabel";
+  EditorOption2[EditorOption2["ariaRequired"] = 8] = "ariaRequired";
+  EditorOption2[EditorOption2["autoClosingBrackets"] = 9] = "autoClosingBrackets";
+  EditorOption2[EditorOption2["autoClosingComments"] = 10] = "autoClosingComments";
+  EditorOption2[EditorOption2["screenReaderAnnounceInlineSuggestion"] = 11] = "screenReaderAnnounceInlineSuggestion";
+  EditorOption2[EditorOption2["autoClosingDelete"] = 12] = "autoClosingDelete";
+  EditorOption2[EditorOption2["autoClosingOvertype"] = 13] = "autoClosingOvertype";
+  EditorOption2[EditorOption2["autoClosingQuotes"] = 14] = "autoClosingQuotes";
+  EditorOption2[EditorOption2["autoIndent"] = 15] = "autoIndent";
+  EditorOption2[EditorOption2["autoIndentOnPaste"] = 16] = "autoIndentOnPaste";
+  EditorOption2[EditorOption2["autoIndentOnPasteWithinString"] = 17] = "autoIndentOnPasteWithinString";
+  EditorOption2[EditorOption2["automaticLayout"] = 18] = "automaticLayout";
+  EditorOption2[EditorOption2["autoSurround"] = 19] = "autoSurround";
+  EditorOption2[EditorOption2["bracketPairColorization"] = 20] = "bracketPairColorization";
+  EditorOption2[EditorOption2["guides"] = 21] = "guides";
+  EditorOption2[EditorOption2["codeLens"] = 22] = "codeLens";
+  EditorOption2[EditorOption2["codeLensFontFamily"] = 23] = "codeLensFontFamily";
+  EditorOption2[EditorOption2["codeLensFontSize"] = 24] = "codeLensFontSize";
+  EditorOption2[EditorOption2["colorDecorators"] = 25] = "colorDecorators";
+  EditorOption2[EditorOption2["colorDecoratorsLimit"] = 26] = "colorDecoratorsLimit";
+  EditorOption2[EditorOption2["columnSelection"] = 27] = "columnSelection";
+  EditorOption2[EditorOption2["comments"] = 28] = "comments";
+  EditorOption2[EditorOption2["contextmenu"] = 29] = "contextmenu";
+  EditorOption2[EditorOption2["copyWithSyntaxHighlighting"] = 30] = "copyWithSyntaxHighlighting";
+  EditorOption2[EditorOption2["cursorBlinking"] = 31] = "cursorBlinking";
+  EditorOption2[EditorOption2["cursorSmoothCaretAnimation"] = 32] = "cursorSmoothCaretAnimation";
+  EditorOption2[EditorOption2["cursorStyle"] = 33] = "cursorStyle";
+  EditorOption2[EditorOption2["cursorSurroundingLines"] = 34] = "cursorSurroundingLines";
+  EditorOption2[EditorOption2["cursorSurroundingLinesStyle"] = 35] = "cursorSurroundingLinesStyle";
+  EditorOption2[EditorOption2["cursorWidth"] = 36] = "cursorWidth";
+  EditorOption2[EditorOption2["disableLayerHinting"] = 37] = "disableLayerHinting";
+  EditorOption2[EditorOption2["disableMonospaceOptimizations"] = 38] = "disableMonospaceOptimizations";
+  EditorOption2[EditorOption2["domReadOnly"] = 39] = "domReadOnly";
+  EditorOption2[EditorOption2["dragAndDrop"] = 40] = "dragAndDrop";
+  EditorOption2[EditorOption2["dropIntoEditor"] = 41] = "dropIntoEditor";
+  EditorOption2[EditorOption2["editContext"] = 42] = "editContext";
+  EditorOption2[EditorOption2["emptySelectionClipboard"] = 43] = "emptySelectionClipboard";
+  EditorOption2[EditorOption2["experimentalGpuAcceleration"] = 44] = "experimentalGpuAcceleration";
+  EditorOption2[EditorOption2["experimentalWhitespaceRendering"] = 45] = "experimentalWhitespaceRendering";
+  EditorOption2[EditorOption2["extraEditorClassName"] = 46] = "extraEditorClassName";
+  EditorOption2[EditorOption2["fastScrollSensitivity"] = 47] = "fastScrollSensitivity";
+  EditorOption2[EditorOption2["find"] = 48] = "find";
+  EditorOption2[EditorOption2["fixedOverflowWidgets"] = 49] = "fixedOverflowWidgets";
+  EditorOption2[EditorOption2["folding"] = 50] = "folding";
+  EditorOption2[EditorOption2["foldingStrategy"] = 51] = "foldingStrategy";
+  EditorOption2[EditorOption2["foldingHighlight"] = 52] = "foldingHighlight";
+  EditorOption2[EditorOption2["foldingImportsByDefault"] = 53] = "foldingImportsByDefault";
+  EditorOption2[EditorOption2["foldingMaximumRegions"] = 54] = "foldingMaximumRegions";
+  EditorOption2[EditorOption2["unfoldOnClickAfterEndOfLine"] = 55] = "unfoldOnClickAfterEndOfLine";
+  EditorOption2[EditorOption2["fontFamily"] = 56] = "fontFamily";
+  EditorOption2[EditorOption2["fontInfo"] = 57] = "fontInfo";
+  EditorOption2[EditorOption2["fontLigatures"] = 58] = "fontLigatures";
+  EditorOption2[EditorOption2["fontSize"] = 59] = "fontSize";
+  EditorOption2[EditorOption2["fontWeight"] = 60] = "fontWeight";
+  EditorOption2[EditorOption2["fontVariations"] = 61] = "fontVariations";
+  EditorOption2[EditorOption2["formatOnPaste"] = 62] = "formatOnPaste";
+  EditorOption2[EditorOption2["formatOnType"] = 63] = "formatOnType";
+  EditorOption2[EditorOption2["glyphMargin"] = 64] = "glyphMargin";
+  EditorOption2[EditorOption2["gotoLocation"] = 65] = "gotoLocation";
+  EditorOption2[EditorOption2["hideCursorInOverviewRuler"] = 66] = "hideCursorInOverviewRuler";
+  EditorOption2[EditorOption2["hover"] = 67] = "hover";
+  EditorOption2[EditorOption2["inDiffEditor"] = 68] = "inDiffEditor";
+  EditorOption2[EditorOption2["inlineSuggest"] = 69] = "inlineSuggest";
+  EditorOption2[EditorOption2["letterSpacing"] = 70] = "letterSpacing";
+  EditorOption2[EditorOption2["lightbulb"] = 71] = "lightbulb";
+  EditorOption2[EditorOption2["lineDecorationsWidth"] = 72] = "lineDecorationsWidth";
+  EditorOption2[EditorOption2["lineHeight"] = 73] = "lineHeight";
+  EditorOption2[EditorOption2["lineNumbers"] = 74] = "lineNumbers";
+  EditorOption2[EditorOption2["lineNumbersMinChars"] = 75] = "lineNumbersMinChars";
+  EditorOption2[EditorOption2["linkedEditing"] = 76] = "linkedEditing";
+  EditorOption2[EditorOption2["links"] = 77] = "links";
+  EditorOption2[EditorOption2["matchBrackets"] = 78] = "matchBrackets";
+  EditorOption2[EditorOption2["minimap"] = 79] = "minimap";
+  EditorOption2[EditorOption2["mouseStyle"] = 80] = "mouseStyle";
+  EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 81] = "mouseWheelScrollSensitivity";
+  EditorOption2[EditorOption2["mouseWheelZoom"] = 82] = "mouseWheelZoom";
+  EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 83] = "multiCursorMergeOverlapping";
+  EditorOption2[EditorOption2["multiCursorModifier"] = 84] = "multiCursorModifier";
+  EditorOption2[EditorOption2["multiCursorPaste"] = 85] = "multiCursorPaste";
+  EditorOption2[EditorOption2["multiCursorLimit"] = 86] = "multiCursorLimit";
+  EditorOption2[EditorOption2["occurrencesHighlight"] = 87] = "occurrencesHighlight";
+  EditorOption2[EditorOption2["occurrencesHighlightDelay"] = 88] = "occurrencesHighlightDelay";
+  EditorOption2[EditorOption2["overtypeCursorStyle"] = 89] = "overtypeCursorStyle";
+  EditorOption2[EditorOption2["overtypeOnPaste"] = 90] = "overtypeOnPaste";
+  EditorOption2[EditorOption2["overviewRulerBorder"] = 91] = "overviewRulerBorder";
+  EditorOption2[EditorOption2["overviewRulerLanes"] = 92] = "overviewRulerLanes";
+  EditorOption2[EditorOption2["padding"] = 93] = "padding";
+  EditorOption2[EditorOption2["pasteAs"] = 94] = "pasteAs";
+  EditorOption2[EditorOption2["parameterHints"] = 95] = "parameterHints";
+  EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 96] = "peekWidgetDefaultFocus";
+  EditorOption2[EditorOption2["placeholder"] = 97] = "placeholder";
+  EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 98] = "definitionLinkOpensInPeek";
+  EditorOption2[EditorOption2["quickSuggestions"] = 99] = "quickSuggestions";
+  EditorOption2[EditorOption2["quickSuggestionsDelay"] = 100] = "quickSuggestionsDelay";
+  EditorOption2[EditorOption2["readOnly"] = 101] = "readOnly";
+  EditorOption2[EditorOption2["readOnlyMessage"] = 102] = "readOnlyMessage";
+  EditorOption2[EditorOption2["renameOnType"] = 103] = "renameOnType";
+  EditorOption2[EditorOption2["renderControlCharacters"] = 104] = "renderControlCharacters";
+  EditorOption2[EditorOption2["renderFinalNewline"] = 105] = "renderFinalNewline";
+  EditorOption2[EditorOption2["renderLineHighlight"] = 106] = "renderLineHighlight";
+  EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 107] = "renderLineHighlightOnlyWhenFocus";
+  EditorOption2[EditorOption2["renderValidationDecorations"] = 108] = "renderValidationDecorations";
+  EditorOption2[EditorOption2["renderWhitespace"] = 109] = "renderWhitespace";
+  EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 110] = "revealHorizontalRightPadding";
+  EditorOption2[EditorOption2["roundedSelection"] = 111] = "roundedSelection";
+  EditorOption2[EditorOption2["rulers"] = 112] = "rulers";
+  EditorOption2[EditorOption2["scrollbar"] = 113] = "scrollbar";
+  EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 114] = "scrollBeyondLastColumn";
+  EditorOption2[EditorOption2["scrollBeyondLastLine"] = 115] = "scrollBeyondLastLine";
+  EditorOption2[EditorOption2["scrollPredominantAxis"] = 116] = "scrollPredominantAxis";
+  EditorOption2[EditorOption2["selectionClipboard"] = 117] = "selectionClipboard";
+  EditorOption2[EditorOption2["selectionHighlight"] = 118] = "selectionHighlight";
+  EditorOption2[EditorOption2["selectOnLineNumbers"] = 119] = "selectOnLineNumbers";
+  EditorOption2[EditorOption2["showFoldingControls"] = 120] = "showFoldingControls";
+  EditorOption2[EditorOption2["showUnused"] = 121] = "showUnused";
+  EditorOption2[EditorOption2["snippetSuggestions"] = 122] = "snippetSuggestions";
+  EditorOption2[EditorOption2["smartSelect"] = 123] = "smartSelect";
+  EditorOption2[EditorOption2["smoothScrolling"] = 124] = "smoothScrolling";
+  EditorOption2[EditorOption2["stickyScroll"] = 125] = "stickyScroll";
+  EditorOption2[EditorOption2["stickyTabStops"] = 126] = "stickyTabStops";
+  EditorOption2[EditorOption2["stopRenderingLineAfter"] = 127] = "stopRenderingLineAfter";
+  EditorOption2[EditorOption2["suggest"] = 128] = "suggest";
+  EditorOption2[EditorOption2["suggestFontSize"] = 129] = "suggestFontSize";
+  EditorOption2[EditorOption2["suggestLineHeight"] = 130] = "suggestLineHeight";
+  EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 131] = "suggestOnTriggerCharacters";
+  EditorOption2[EditorOption2["suggestSelection"] = 132] = "suggestSelection";
+  EditorOption2[EditorOption2["tabCompletion"] = 133] = "tabCompletion";
+  EditorOption2[EditorOption2["tabIndex"] = 134] = "tabIndex";
+  EditorOption2[EditorOption2["unicodeHighlighting"] = 135] = "unicodeHighlighting";
+  EditorOption2[EditorOption2["unusualLineTerminators"] = 136] = "unusualLineTerminators";
+  EditorOption2[EditorOption2["useShadowDOM"] = 137] = "useShadowDOM";
+  EditorOption2[EditorOption2["useTabStops"] = 138] = "useTabStops";
+  EditorOption2[EditorOption2["wordBreak"] = 139] = "wordBreak";
+  EditorOption2[EditorOption2["wordSegmenterLocales"] = 140] = "wordSegmenterLocales";
+  EditorOption2[EditorOption2["wordSeparators"] = 141] = "wordSeparators";
+  EditorOption2[EditorOption2["wordWrap"] = 142] = "wordWrap";
+  EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 143] = "wordWrapBreakAfterCharacters";
+  EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 144] = "wordWrapBreakBeforeCharacters";
+  EditorOption2[EditorOption2["wordWrapColumn"] = 145] = "wordWrapColumn";
+  EditorOption2[EditorOption2["wordWrapOverride1"] = 146] = "wordWrapOverride1";
+  EditorOption2[EditorOption2["wordWrapOverride2"] = 147] = "wordWrapOverride2";
+  EditorOption2[EditorOption2["wrappingIndent"] = 148] = "wrappingIndent";
+  EditorOption2[EditorOption2["wrappingStrategy"] = 149] = "wrappingStrategy";
+  EditorOption2[EditorOption2["showDeprecated"] = 150] = "showDeprecated";
+  EditorOption2[EditorOption2["inlayHints"] = 151] = "inlayHints";
+  EditorOption2[EditorOption2["effectiveCursorStyle"] = 152] = "effectiveCursorStyle";
+  EditorOption2[EditorOption2["editorClassName"] = 153] = "editorClassName";
+  EditorOption2[EditorOption2["pixelRatio"] = 154] = "pixelRatio";
+  EditorOption2[EditorOption2["tabFocusMode"] = 155] = "tabFocusMode";
+  EditorOption2[EditorOption2["layoutInfo"] = 156] = "layoutInfo";
+  EditorOption2[EditorOption2["wrappingInfo"] = 157] = "wrappingInfo";
+  EditorOption2[EditorOption2["defaultColorDecorators"] = 158] = "defaultColorDecorators";
+  EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 159] = "colorDecoratorsActivatedOn";
+  EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 160] = "inlineCompletionsAccessibilityVerbose";
+  EditorOption2[EditorOption2["effectiveEditContext"] = 161] = "effectiveEditContext";
+  EditorOption2[EditorOption2["scrollOnMiddleClick"] = 162] = "scrollOnMiddleClick";
+  EditorOption2[EditorOption2["effectiveAllowVariableFonts"] = 163] = "effectiveAllowVariableFonts";
+})(EditorOption || (EditorOption = {}));
+const EditorOptions = {
+  acceptSuggestionOnCommitCharacter: register(new EditorBooleanOption(0, "acceptSuggestionOnCommitCharacter", true, { markdownDescription: nls.localize("acceptSuggestionOnCommitCharacter", "Controls whether suggestions should be accepted on commit characters. For example, in JavaScript, the semi-colon (`;`) can be a commit character that accepts a suggestion and types that character.") })),
+  acceptSuggestionOnEnter: register(new EditorStringEnumOption(1, "acceptSuggestionOnEnter", "on", ["on", "smart", "off"], {
+    markdownEnumDescriptions: [
+      "",
+      nls.localize("acceptSuggestionOnEnterSmart", "Only accept a suggestion with `Enter` when it makes a textual change."),
+      ""
+    ],
+    markdownDescription: nls.localize("acceptSuggestionOnEnter", "Controls whether suggestions should be accepted on `Enter`, in addition to `Tab`. Helps to avoid ambiguity between inserting new lines or accepting suggestions.")
+  })),
+  accessibilitySupport: register(new EditorAccessibilitySupport()),
+  accessibilityPageSize: register(new EditorIntOption(3, "accessibilityPageSize", 500, 1, 1073741824, {
+    description: nls.localize("accessibilityPageSize", "Controls the number of lines in the editor that can be read out by a screen reader at once. When we detect a screen reader we automatically set the default to be 500. Warning: this has a performance implication for numbers larger than the default."),
+    tags: ["accessibility"]
+  })),
+  allowVariableLineHeights: register(new EditorBooleanOption(4, "allowVariableLineHeights", true)),
+  allowVariableFonts: register(new EditorBooleanOption(5, "allowVariableFonts", true, {
+    description: nls.localize("allowVariableFonts", "Controls whether to allow using variable fonts in the editor.")
+  })),
+  allowVariableFontsInAccessibilityMode: register(new EditorBooleanOption(6, "allowVariableFontsInAccessibilityMode", false, {
+    description: nls.localize("allowVariableFontsInAccessibilityMode", "Controls whether to allow using variable fonts in the editor in the accessibility mode."),
+    tags: ["accessibility"]
+  })),
+  ariaLabel: register(new EditorStringOption(7, "ariaLabel", nls.localize("editorViewAccessibleLabel", "Editor content"))),
+  ariaRequired: register(new EditorBooleanOption(8, "ariaRequired", false, void 0)),
+  screenReaderAnnounceInlineSuggestion: register(new EditorBooleanOption(11, "screenReaderAnnounceInlineSuggestion", true, {
+    description: nls.localize("screenReaderAnnounceInlineSuggestion", "Control whether inline suggestions are announced by a screen reader."),
+    tags: ["accessibility"]
+  })),
+  autoClosingBrackets: register(new EditorStringEnumOption(9, "autoClosingBrackets", "languageDefined", ["always", "languageDefined", "beforeWhitespace", "never"], {
+    enumDescriptions: [
+      "",
+      nls.localize("editor.autoClosingBrackets.languageDefined", "Use language configurations to determine when to autoclose brackets."),
+      nls.localize("editor.autoClosingBrackets.beforeWhitespace", "Autoclose brackets only when the cursor is to the left of whitespace."),
+      ""
+    ],
+    description: nls.localize("autoClosingBrackets", "Controls whether the editor should automatically close brackets after the user adds an opening bracket.")
+  })),
+  autoClosingComments: register(new EditorStringEnumOption(10, "autoClosingComments", "languageDefined", ["always", "languageDefined", "beforeWhitespace", "never"], {
+    enumDescriptions: [
+      "",
+      nls.localize("editor.autoClosingComments.languageDefined", "Use language configurations to determine when to autoclose comments."),
+      nls.localize("editor.autoClosingComments.beforeWhitespace", "Autoclose comments only when the cursor is to the left of whitespace."),
+      ""
+    ],
+    description: nls.localize("autoClosingComments", "Controls whether the editor should automatically close comments after the user adds an opening comment.")
+  })),
+  autoClosingDelete: register(new EditorStringEnumOption(12, "autoClosingDelete", "auto", ["always", "auto", "never"], {
+    enumDescriptions: [
+      "",
+      nls.localize("editor.autoClosingDelete.auto", "Remove adjacent closing quotes or brackets only if they were automatically inserted."),
+      ""
+    ],
+    description: nls.localize("autoClosingDelete", "Controls whether the editor should remove adjacent closing quotes or brackets when deleting.")
+  })),
+  autoClosingOvertype: register(new EditorStringEnumOption(13, "autoClosingOvertype", "auto", ["always", "auto", "never"], {
+    enumDescriptions: [
+      "",
+      nls.localize("editor.autoClosingOvertype.auto", "Type over closing quotes or brackets only if they were automatically inserted."),
+      ""
+    ],
+    description: nls.localize("autoClosingOvertype", "Controls whether the editor should type over closing quotes or brackets.")
+  })),
+  autoClosingQuotes: register(new EditorStringEnumOption(14, "autoClosingQuotes", "languageDefined", ["always", "languageDefined", "beforeWhitespace", "never"], {
+    enumDescriptions: [
+      "",
+      nls.localize("editor.autoClosingQuotes.languageDefined", "Use language configurations to determine when to autoclose quotes."),
+      nls.localize("editor.autoClosingQuotes.beforeWhitespace", "Autoclose quotes only when the cursor is to the left of whitespace."),
+      ""
+    ],
+    description: nls.localize("autoClosingQuotes", "Controls whether the editor should automatically close quotes after the user adds an opening quote.")
+  })),
+  autoIndent: register(new EditorEnumOption(15, "autoIndent", 4, "full", ["none", "keep", "brackets", "advanced", "full"], _autoIndentFromString, {
+    enumDescriptions: [
+      nls.localize("editor.autoIndent.none", "The editor will not insert indentation automatically."),
+      nls.localize("editor.autoIndent.keep", "The editor will keep the current line's indentation."),
+      nls.localize("editor.autoIndent.brackets", "The editor will keep the current line's indentation and honor language defined brackets."),
+      nls.localize("editor.autoIndent.advanced", "The editor will keep the current line's indentation, honor language defined brackets and invoke special onEnterRules defined by languages."),
+      nls.localize("editor.autoIndent.full", "The editor will keep the current line's indentation, honor language defined brackets, invoke special onEnterRules defined by languages, and honor indentationRules defined by languages.")
+    ],
+    description: nls.localize("autoIndent", "Controls whether the editor should automatically adjust the indentation when users type, paste, move or indent lines.")
+  })),
+  autoIndentOnPaste: register(new EditorBooleanOption(16, "autoIndentOnPaste", false, { description: nls.localize("autoIndentOnPaste", "Controls whether the editor should automatically auto-indent the pasted content.") })),
+  autoIndentOnPasteWithinString: register(new EditorBooleanOption(17, "autoIndentOnPasteWithinString", true, { description: nls.localize("autoIndentOnPasteWithinString", "Controls whether the editor should automatically auto-indent the pasted content when pasted within a string. This takes effect when autoIndentOnPaste is true.") })),
+  automaticLayout: register(new EditorBooleanOption(18, "automaticLayout", false)),
+  autoSurround: register(new EditorStringEnumOption(19, "autoSurround", "languageDefined", ["languageDefined", "quotes", "brackets", "never"], {
+    enumDescriptions: [
+      nls.localize("editor.autoSurround.languageDefined", "Use language configurations to determine when to automatically surround selections."),
+      nls.localize("editor.autoSurround.quotes", "Surround with quotes but not brackets."),
+      nls.localize("editor.autoSurround.brackets", "Surround with brackets but not quotes."),
+      ""
+    ],
+    description: nls.localize("autoSurround", "Controls whether the editor should automatically surround selections when typing quotes or brackets.")
+  })),
+  bracketPairColorization: register(new BracketPairColorization()),
+  bracketPairGuides: register(new GuideOptions()),
+  stickyTabStops: register(new EditorBooleanOption(126, "stickyTabStops", false, { description: nls.localize("stickyTabStops", "Emulate selection behavior of tab characters when using spaces for indentation. Selection will stick to tab stops.") })),
+  codeLens: register(new EditorBooleanOption(22, "codeLens", true, { description: nls.localize("codeLens", "Controls whether the editor shows CodeLens.") })),
+  codeLensFontFamily: register(new EditorStringOption(23, "codeLensFontFamily", "", { description: nls.localize("codeLensFontFamily", "Controls the font family for CodeLens.") })),
+  codeLensFontSize: register(new EditorIntOption(24, "codeLensFontSize", 0, 0, 100, {
+    type: "number",
+    default: 0,
+    minimum: 0,
+    maximum: 100,
+    markdownDescription: nls.localize("codeLensFontSize", "Controls the font size in pixels for CodeLens. When set to 0, 90% of `#editor.fontSize#` is used.")
+  })),
+  colorDecorators: register(new EditorBooleanOption(25, "colorDecorators", true, { description: nls.localize("colorDecorators", "Controls whether the editor should render the inline color decorators and color picker.") })),
+  colorDecoratorActivatedOn: register(new EditorStringEnumOption(159, "colorDecoratorsActivatedOn", "clickAndHover", ["clickAndHover", "hover", "click"], {
+    enumDescriptions: [
+      nls.localize("editor.colorDecoratorActivatedOn.clickAndHover", "Make the color picker appear both on click and hover of the color decorator"),
+      nls.localize("editor.colorDecoratorActivatedOn.hover", "Make the color picker appear on hover of the color decorator"),
+      nls.localize("editor.colorDecoratorActivatedOn.click", "Make the color picker appear on click of the color decorator")
+    ],
+    description: nls.localize("colorDecoratorActivatedOn", "Controls the condition to make a color picker appear from a color decorator.")
+  })),
+  colorDecoratorsLimit: register(new EditorIntOption(26, "colorDecoratorsLimit", 500, 1, 1e6, {
+    markdownDescription: nls.localize("colorDecoratorsLimit", "Controls the max number of color decorators that can be rendered in an editor at once.")
+  })),
+  columnSelection: register(new EditorBooleanOption(27, "columnSelection", false, { description: nls.localize("columnSelection", "Enable that the selection with the mouse and keys is doing column selection.") })),
+  comments: register(new EditorComments()),
+  contextmenu: register(new EditorBooleanOption(29, "contextmenu", true)),
+  copyWithSyntaxHighlighting: register(new EditorBooleanOption(30, "copyWithSyntaxHighlighting", true, { description: nls.localize("copyWithSyntaxHighlighting", "Controls whether syntax highlighting should be copied into the clipboard.") })),
+  cursorBlinking: register(new EditorEnumOption(31, "cursorBlinking", 1, "blink", ["blink", "smooth", "phase", "expand", "solid"], cursorBlinkingStyleFromString, { description: nls.localize("cursorBlinking", "Control the cursor animation style.") })),
+  cursorSmoothCaretAnimation: register(new EditorStringEnumOption(32, "cursorSmoothCaretAnimation", "off", ["off", "explicit", "on"], {
+    enumDescriptions: [
+      nls.localize("cursorSmoothCaretAnimation.off", "Smooth caret animation is disabled."),
+      nls.localize("cursorSmoothCaretAnimation.explicit", "Smooth caret animation is enabled only when the user moves the cursor with an explicit gesture."),
+      nls.localize("cursorSmoothCaretAnimation.on", "Smooth caret animation is always enabled.")
+    ],
+    description: nls.localize("cursorSmoothCaretAnimation", "Controls whether the smooth caret animation should be enabled.")
+  })),
+  cursorStyle: register(new EditorEnumOption(33, "cursorStyle", TextEditorCursorStyle.Line, "line", ["line", "block", "underline", "line-thin", "block-outline", "underline-thin"], cursorStyleFromString, { description: nls.localize("cursorStyle", "Controls the cursor style in insert input mode.") })),
+  overtypeCursorStyle: register(new EditorEnumOption(89, "overtypeCursorStyle", TextEditorCursorStyle.Block, "block", ["line", "block", "underline", "line-thin", "block-outline", "underline-thin"], cursorStyleFromString, { description: nls.localize("overtypeCursorStyle", "Controls the cursor style in overtype input mode.") })),
+  cursorSurroundingLines: register(new EditorIntOption(34, "cursorSurroundingLines", 0, 0, 1073741824, { description: nls.localize("cursorSurroundingLines", "Controls the minimal number of visible leading lines (minimum 0) and trailing lines (minimum 1) surrounding the cursor. Known as 'scrollOff' or 'scrollOffset' in some other editors.") })),
+  cursorSurroundingLinesStyle: register(new EditorStringEnumOption(35, "cursorSurroundingLinesStyle", "default", ["default", "all"], {
+    enumDescriptions: [
+      nls.localize("cursorSurroundingLinesStyle.default", "`cursorSurroundingLines` is enforced only when triggered via the keyboard or API."),
+      nls.localize("cursorSurroundingLinesStyle.all", "`cursorSurroundingLines` is enforced always.")
+    ],
+    markdownDescription: nls.localize("cursorSurroundingLinesStyle", "Controls when `#editor.cursorSurroundingLines#` should be enforced.")
+  })),
+  cursorWidth: register(new EditorIntOption(36, "cursorWidth", 0, 0, 1073741824, { markdownDescription: nls.localize("cursorWidth", "Controls the width of the cursor when `#editor.cursorStyle#` is set to `line`.") })),
+  disableLayerHinting: register(new EditorBooleanOption(37, "disableLayerHinting", false)),
+  disableMonospaceOptimizations: register(new EditorBooleanOption(38, "disableMonospaceOptimizations", false)),
+  domReadOnly: register(new EditorBooleanOption(39, "domReadOnly", false)),
+  dragAndDrop: register(new EditorBooleanOption(40, "dragAndDrop", true, { description: nls.localize("dragAndDrop", "Controls whether the editor should allow moving selections via drag and drop.") })),
+  emptySelectionClipboard: register(new EditorEmptySelectionClipboard()),
+  dropIntoEditor: register(new EditorDropIntoEditor()),
+  editContext: register(new EditorBooleanOption(42, "editContext", true, {
+    description: nls.localize("editContext", "Sets whether the EditContext API should be used instead of the text area to power input in the editor."),
+    included: platform.isChrome || platform.isEdge || platform.isNative
+  })),
+  stickyScroll: register(new EditorStickyScroll()),
+  experimentalGpuAcceleration: register(new EditorStringEnumOption(44, "experimentalGpuAcceleration", "off", ["off", "on"], {
+    tags: ["experimental"],
+    enumDescriptions: [
+      nls.localize("experimentalGpuAcceleration.off", "Use regular DOM-based rendering."),
+      nls.localize("experimentalGpuAcceleration.on", "Use GPU acceleration.")
+    ],
+    description: nls.localize("experimentalGpuAcceleration", "Controls whether to use the experimental GPU acceleration to render the editor.")
+  })),
+  experimentalWhitespaceRendering: register(new EditorStringEnumOption(45, "experimentalWhitespaceRendering", "svg", ["svg", "font", "off"], {
+    enumDescriptions: [
+      nls.localize("experimentalWhitespaceRendering.svg", "Use a new rendering method with svgs."),
+      nls.localize("experimentalWhitespaceRendering.font", "Use a new rendering method with font characters."),
+      nls.localize("experimentalWhitespaceRendering.off", "Use the stable rendering method.")
+    ],
+    description: nls.localize("experimentalWhitespaceRendering", "Controls whether whitespace is rendered with a new, experimental method.")
+  })),
+  extraEditorClassName: register(new EditorStringOption(46, "extraEditorClassName", "")),
+  fastScrollSensitivity: register(new EditorFloatOption(47, "fastScrollSensitivity", 5, (x) => x <= 0 ? 5 : x, { markdownDescription: nls.localize("fastScrollSensitivity", "Scrolling speed multiplier when pressing `Alt`.") })),
+  find: register(new EditorFind()),
+  fixedOverflowWidgets: register(new EditorBooleanOption(49, "fixedOverflowWidgets", false)),
+  folding: register(new EditorBooleanOption(50, "folding", true, { description: nls.localize("folding", "Controls whether the editor has code folding enabled.") })),
+  foldingStrategy: register(new EditorStringEnumOption(51, "foldingStrategy", "auto", ["auto", "indentation"], {
+    enumDescriptions: [
+      nls.localize("foldingStrategy.auto", "Use a language-specific folding strategy if available, else the indentation-based one."),
+      nls.localize("foldingStrategy.indentation", "Use the indentation-based folding strategy.")
+    ],
+    description: nls.localize("foldingStrategy", "Controls the strategy for computing folding ranges.")
+  })),
+  foldingHighlight: register(new EditorBooleanOption(52, "foldingHighlight", true, { description: nls.localize("foldingHighlight", "Controls whether the editor should highlight folded ranges.") })),
+  foldingImportsByDefault: register(new EditorBooleanOption(53, "foldingImportsByDefault", false, { description: nls.localize("foldingImportsByDefault", "Controls whether the editor automatically collapses import ranges.") })),
+  foldingMaximumRegions: register(new EditorIntOption(
+    54,
+    "foldingMaximumRegions",
+    5e3,
+    10,
+    65e3,
+    // limit must be less than foldingRanges MAX_FOLDING_REGIONS
+    { description: nls.localize("foldingMaximumRegions", "The maximum number of foldable regions. Increasing this value may result in the editor becoming less responsive when the current source has a large number of foldable regions.") }
+  )),
+  unfoldOnClickAfterEndOfLine: register(new EditorBooleanOption(55, "unfoldOnClickAfterEndOfLine", false, { description: nls.localize("unfoldOnClickAfterEndOfLine", "Controls whether clicking on the empty content after a folded line will unfold the line.") })),
+  fontFamily: register(new EditorStringOption(56, "fontFamily", EDITOR_FONT_DEFAULTS.fontFamily, { description: nls.localize("fontFamily", "Controls the font family.") })),
+  fontInfo: register(new EditorFontInfo()),
+  fontLigatures2: register(new EditorFontLigatures()),
+  fontSize: register(new EditorFontSize()),
+  fontWeight: register(new EditorFontWeight()),
+  fontVariations: register(new EditorFontVariations()),
+  formatOnPaste: register(new EditorBooleanOption(62, "formatOnPaste", false, { description: nls.localize("formatOnPaste", "Controls whether the editor should automatically format the pasted content. A formatter must be available and the formatter should be able to format a range in a document.") })),
+  formatOnType: register(new EditorBooleanOption(63, "formatOnType", false, { description: nls.localize("formatOnType", "Controls whether the editor should automatically format the line after typing.") })),
+  glyphMargin: register(new EditorBooleanOption(64, "glyphMargin", true, { description: nls.localize("glyphMargin", "Controls whether the editor should render the vertical glyph margin. Glyph margin is mostly used for debugging.") })),
+  gotoLocation: register(new EditorGoToLocation()),
+  hideCursorInOverviewRuler: register(new EditorBooleanOption(66, "hideCursorInOverviewRuler", false, { description: nls.localize("hideCursorInOverviewRuler", "Controls whether the cursor should be hidden in the overview ruler.") })),
+  hover: register(new EditorHover()),
+  inDiffEditor: register(new EditorBooleanOption(68, "inDiffEditor", false)),
+  letterSpacing: register(new EditorFloatOption(70, "letterSpacing", EDITOR_FONT_DEFAULTS.letterSpacing, (x) => EditorFloatOption.clamp(x, -5, 20), { description: nls.localize("letterSpacing", "Controls the letter spacing in pixels.") })),
+  lightbulb: register(new EditorLightbulb()),
+  lineDecorationsWidth: register(new EditorLineDecorationsWidth()),
+  lineHeight: register(new EditorLineHeight()),
+  lineNumbers: register(new EditorRenderLineNumbersOption()),
+  lineNumbersMinChars: register(new EditorIntOption(75, "lineNumbersMinChars", 5, 1, 300)),
+  linkedEditing: register(new EditorBooleanOption(76, "linkedEditing", false, { description: nls.localize("linkedEditing", "Controls whether the editor has linked editing enabled. Depending on the language, related symbols such as HTML tags, are updated while editing.") })),
+  links: register(new EditorBooleanOption(77, "links", true, { description: nls.localize("links", "Controls whether the editor should detect links and make them clickable.") })),
+  matchBrackets: register(new EditorStringEnumOption(78, "matchBrackets", "always", ["always", "near", "never"], { description: nls.localize("matchBrackets", "Highlight matching brackets.") })),
+  minimap: register(new EditorMinimap()),
+  mouseStyle: register(new EditorStringEnumOption(80, "mouseStyle", "text", ["text", "default", "copy"])),
+  mouseWheelScrollSensitivity: register(new EditorFloatOption(81, "mouseWheelScrollSensitivity", 1, (x) => x === 0 ? 1 : x, { markdownDescription: nls.localize("mouseWheelScrollSensitivity", "A multiplier to be used on the `deltaX` and `deltaY` of mouse wheel scroll events.") })),
+  mouseWheelZoom: register(new EditorBooleanOption(82, "mouseWheelZoom", false, {
+    markdownDescription: platform.isMacintosh ? nls.localize("mouseWheelZoom.mac", "Zoom the font of the editor when using mouse wheel and holding `Cmd`.") : nls.localize("mouseWheelZoom", "Zoom the font of the editor when using mouse wheel and holding `Ctrl`.")
+  })),
+  multiCursorMergeOverlapping: register(new EditorBooleanOption(83, "multiCursorMergeOverlapping", true, { description: nls.localize("multiCursorMergeOverlapping", "Merge multiple cursors when they are overlapping.") })),
+  multiCursorModifier: register(new EditorEnumOption(84, "multiCursorModifier", "altKey", "alt", ["ctrlCmd", "alt"], _multiCursorModifierFromString, {
+    markdownEnumDescriptions: [
+      nls.localize("multiCursorModifier.ctrlCmd", "Maps to `Control` on Windows and Linux and to `Command` on macOS."),
+      nls.localize("multiCursorModifier.alt", "Maps to `Alt` on Windows and Linux and to `Option` on macOS.")
+    ],
+    markdownDescription: nls.localize({
+      key: "multiCursorModifier",
+      comment: [
+        "- `ctrlCmd` refers to a value the setting can take and should not be localized.",
+        "- `Control` and `Command` refer to the modifier keys Ctrl or Cmd on the keyboard and can be localized."
+      ]
+    }, "The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the [multicursor modifier](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).")
+  })),
+  multiCursorPaste: register(new EditorStringEnumOption(85, "multiCursorPaste", "spread", ["spread", "full"], {
+    markdownEnumDescriptions: [
+      nls.localize("multiCursorPaste.spread", "Each cursor pastes a single line of the text."),
+      nls.localize("multiCursorPaste.full", "Each cursor pastes the full text.")
+    ],
+    markdownDescription: nls.localize("multiCursorPaste", "Controls pasting when the line count of the pasted text matches the cursor count.")
+  })),
+  multiCursorLimit: register(new EditorIntOption(86, "multiCursorLimit", 1e4, 1, 1e5, {
+    markdownDescription: nls.localize("multiCursorLimit", "Controls the max number of cursors that can be in an active editor at once.")
+  })),
+  occurrencesHighlight: register(new EditorStringEnumOption(87, "occurrencesHighlight", "singleFile", ["off", "singleFile", "multiFile"], {
+    markdownEnumDescriptions: [
+      nls.localize("occurrencesHighlight.off", "Does not highlight occurrences."),
+      nls.localize("occurrencesHighlight.singleFile", "Highlights occurrences only in the current file."),
+      nls.localize("occurrencesHighlight.multiFile", "Experimental: Highlights occurrences across all valid open files.")
+    ],
+    markdownDescription: nls.localize("occurrencesHighlight", "Controls whether occurrences should be highlighted across open files.")
+  })),
+  occurrencesHighlightDelay: register(new EditorIntOption(88, "occurrencesHighlightDelay", 0, 0, 2e3, {
+    description: nls.localize("occurrencesHighlightDelay", "Controls the delay in milliseconds after which occurrences are highlighted."),
+    tags: ["preview"]
+  })),
+  overtypeOnPaste: register(new EditorBooleanOption(90, "overtypeOnPaste", true, { description: nls.localize("overtypeOnPaste", "Controls whether pasting should overtype.") })),
+  overviewRulerBorder: register(new EditorBooleanOption(91, "overviewRulerBorder", true, { description: nls.localize("overviewRulerBorder", "Controls whether a border should be drawn around the overview ruler.") })),
+  overviewRulerLanes: register(new EditorIntOption(92, "overviewRulerLanes", 3, 0, 3)),
+  padding: register(new EditorPadding()),
+  pasteAs: register(new EditorPasteAs()),
+  parameterHints: register(new EditorParameterHints()),
+  peekWidgetDefaultFocus: register(new EditorStringEnumOption(96, "peekWidgetDefaultFocus", "tree", ["tree", "editor"], {
+    enumDescriptions: [
+      nls.localize("peekWidgetDefaultFocus.tree", "Focus the tree when opening peek"),
+      nls.localize("peekWidgetDefaultFocus.editor", "Focus the editor when opening peek")
+    ],
+    description: nls.localize("peekWidgetDefaultFocus", "Controls whether to focus the inline editor or the tree in the peek widget.")
+  })),
+  placeholder: register(new PlaceholderOption()),
+  definitionLinkOpensInPeek: register(new EditorBooleanOption(98, "definitionLinkOpensInPeek", false, { description: nls.localize("definitionLinkOpensInPeek", "Controls whether the Go to Definition mouse gesture always opens the peek widget.") })),
+  quickSuggestions: register(new EditorQuickSuggestions()),
+  quickSuggestionsDelay: register(new EditorIntOption(100, "quickSuggestionsDelay", 10, 0, 1073741824, {
+    description: nls.localize("quickSuggestionsDelay", "Controls the delay in milliseconds after which quick suggestions will show up."),
+    tags: ["onExP"]
+  })),
+  readOnly: register(new EditorBooleanOption(101, "readOnly", false)),
+  readOnlyMessage: register(new ReadonlyMessage()),
+  renameOnType: register(new EditorBooleanOption(103, "renameOnType", false, { description: nls.localize("renameOnType", "Controls whether the editor auto renames on type."), markdownDeprecationMessage: nls.localize("renameOnTypeDeprecate", "Deprecated, use `editor.linkedEditing` instead.") })),
+  renderControlCharacters: register(new EditorBooleanOption(104, "renderControlCharacters", true, { description: nls.localize("renderControlCharacters", "Controls whether the editor should render control characters."), restricted: true })),
+  renderFinalNewline: register(new EditorStringEnumOption(105, "renderFinalNewline", platform.isLinux ? "dimmed" : "on", ["off", "on", "dimmed"], { description: nls.localize("renderFinalNewline", "Render last line number when the file ends with a newline.") })),
+  renderLineHighlight: register(new EditorStringEnumOption(106, "renderLineHighlight", "line", ["none", "gutter", "line", "all"], {
+    enumDescriptions: [
+      "",
+      "",
+      "",
+      nls.localize("renderLineHighlight.all", "Highlights both the gutter and the current line.")
+    ],
+    description: nls.localize("renderLineHighlight", "Controls how the editor should render the current line highlight.")
+  })),
+  renderLineHighlightOnlyWhenFocus: register(new EditorBooleanOption(107, "renderLineHighlightOnlyWhenFocus", false, { description: nls.localize("renderLineHighlightOnlyWhenFocus", "Controls if the editor should render the current line highlight only when the editor is focused.") })),
+  renderValidationDecorations: register(new EditorStringEnumOption(108, "renderValidationDecorations", "editable", ["editable", "on", "off"])),
+  renderWhitespace: register(new EditorStringEnumOption(109, "renderWhitespace", "selection", ["none", "boundary", "selection", "trailing", "all"], {
+    enumDescriptions: [
+      "",
+      nls.localize("renderWhitespace.boundary", "Render whitespace characters except for single spaces between words."),
+      nls.localize("renderWhitespace.selection", "Render whitespace characters only on selected text."),
+      nls.localize("renderWhitespace.trailing", "Render only trailing whitespace characters."),
+      ""
+    ],
+    description: nls.localize("renderWhitespace", "Controls how the editor should render whitespace characters.")
+  })),
+  revealHorizontalRightPadding: register(new EditorIntOption(110, "revealHorizontalRightPadding", 15, 0, 1e3)),
+  roundedSelection: register(new EditorBooleanOption(111, "roundedSelection", true, { description: nls.localize("roundedSelection", "Controls whether selections should have rounded corners.") })),
+  rulers: register(new EditorRulers()),
+  scrollbar: register(new EditorScrollbar()),
+  scrollBeyondLastColumn: register(new EditorIntOption(114, "scrollBeyondLastColumn", 4, 0, 1073741824, { description: nls.localize("scrollBeyondLastColumn", "Controls the number of extra characters beyond which the editor will scroll horizontally.") })),
+  scrollBeyondLastLine: register(new EditorBooleanOption(115, "scrollBeyondLastLine", true, { description: nls.localize("scrollBeyondLastLine", "Controls whether the editor will scroll beyond the last line.") })),
+  scrollOnMiddleClick: register(new EditorBooleanOption(162, "scrollOnMiddleClick", false, { description: nls.localize("scrollOnMiddleClick", "Controls whether the editor will scroll when the middle button is pressed.") })),
+  scrollPredominantAxis: register(new EditorBooleanOption(116, "scrollPredominantAxis", true, { description: nls.localize("scrollPredominantAxis", "Scroll only along the predominant axis when scrolling both vertically and horizontally at the same time. Prevents horizontal drift when scrolling vertically on a trackpad.") })),
+  selectionClipboard: register(new EditorBooleanOption(117, "selectionClipboard", true, {
+    description: nls.localize("selectionClipboard", "Controls whether the Linux primary clipboard should be supported."),
+    included: platform.isLinux
+  })),
+  selectionHighlight: register(new EditorBooleanOption(118, "selectionHighlight", true, { description: nls.localize("selectionHighlight", "Controls whether the editor should highlight matches similar to the selection.") })),
+  selectOnLineNumbers: register(new EditorBooleanOption(119, "selectOnLineNumbers", true)),
+  showFoldingControls: register(new EditorStringEnumOption(120, "showFoldingControls", "mouseover", ["always", "never", "mouseover"], {
+    enumDescriptions: [
+      nls.localize("showFoldingControls.always", "Always show the folding controls."),
+      nls.localize("showFoldingControls.never", "Never show the folding controls and reduce the gutter size."),
+      nls.localize("showFoldingControls.mouseover", "Only show the folding controls when the mouse is over the gutter.")
+    ],
+    description: nls.localize("showFoldingControls", "Controls when the folding controls on the gutter are shown.")
+  })),
+  showUnused: register(new EditorBooleanOption(121, "showUnused", true, { description: nls.localize("showUnused", "Controls fading out of unused code.") })),
+  showDeprecated: register(new EditorBooleanOption(150, "showDeprecated", true, { description: nls.localize("showDeprecated", "Controls strikethrough deprecated variables.") })),
+  inlayHints: register(new EditorInlayHints()),
+  snippetSuggestions: register(new EditorStringEnumOption(122, "snippetSuggestions", "inline", ["top", "bottom", "inline", "none"], {
+    enumDescriptions: [
+      nls.localize("snippetSuggestions.top", "Show snippet suggestions on top of other suggestions."),
+      nls.localize("snippetSuggestions.bottom", "Show snippet suggestions below other suggestions."),
+      nls.localize("snippetSuggestions.inline", "Show snippets suggestions with other suggestions."),
+      nls.localize("snippetSuggestions.none", "Do not show snippet suggestions.")
+    ],
+    description: nls.localize("snippetSuggestions", "Controls whether snippets are shown with other suggestions and how they are sorted.")
+  })),
+  smartSelect: register(new SmartSelect()),
+  smoothScrolling: register(new EditorBooleanOption(124, "smoothScrolling", false, { description: nls.localize("smoothScrolling", "Controls whether the editor will scroll using an animation.") })),
+  stopRenderingLineAfter: register(new EditorIntOption(
+    127,
+    "stopRenderingLineAfter",
+    1e4,
+    -1,
+    1073741824
+    /* Constants.MAX_SAFE_SMALL_INTEGER */
+  )),
+  suggest: register(new EditorSuggest()),
+  inlineSuggest: register(new InlineEditorSuggest()),
+  inlineCompletionsAccessibilityVerbose: register(new EditorBooleanOption(160, "inlineCompletionsAccessibilityVerbose", false, { description: nls.localize("inlineCompletionsAccessibilityVerbose", "Controls whether the accessibility hint should be provided to screen reader users when an inline completion is shown.") })),
+  suggestFontSize: register(new EditorIntOption(129, "suggestFontSize", 0, 0, 1e3, { markdownDescription: nls.localize("suggestFontSize", "Font size for the suggest widget. When set to {0}, the value of {1} is used.", "`0`", "`#editor.fontSize#`") })),
+  suggestLineHeight: register(new EditorIntOption(130, "suggestLineHeight", 0, 0, 1e3, { markdownDescription: nls.localize("suggestLineHeight", "Line height for the suggest widget. When set to {0}, the value of {1} is used. The minimum value is 8.", "`0`", "`#editor.lineHeight#`") })),
+  suggestOnTriggerCharacters: register(new EditorBooleanOption(131, "suggestOnTriggerCharacters", true, { description: nls.localize("suggestOnTriggerCharacters", "Controls whether suggestions should automatically show up when typing trigger characters.") })),
+  suggestSelection: register(new EditorStringEnumOption(132, "suggestSelection", "first", ["first", "recentlyUsed", "recentlyUsedByPrefix"], {
+    markdownEnumDescriptions: [
+      nls.localize("suggestSelection.first", "Always select the first suggestion."),
+      nls.localize("suggestSelection.recentlyUsed", "Select recent suggestions unless further typing selects one, e.g. `console.| -> console.log` because `log` has been completed recently."),
+      nls.localize("suggestSelection.recentlyUsedByPrefix", "Select suggestions based on previous prefixes that have completed those suggestions, e.g. `co -> console` and `con -> const`.")
+    ],
+    description: nls.localize("suggestSelection", "Controls how suggestions are pre-selected when showing the suggest list.")
+  })),
+  tabCompletion: register(new EditorStringEnumOption(133, "tabCompletion", "off", ["on", "off", "onlySnippets"], {
+    enumDescriptions: [
+      nls.localize("tabCompletion.on", "Tab complete will insert the best matching suggestion when pressing tab."),
+      nls.localize("tabCompletion.off", "Disable tab completions."),
+      nls.localize("tabCompletion.onlySnippets", "Tab complete snippets when their prefix match. Works best when 'quickSuggestions' aren't enabled.")
+    ],
+    description: nls.localize("tabCompletion", "Enables tab completions.")
+  })),
+  tabIndex: register(new EditorIntOption(
+    134,
+    "tabIndex",
+    0,
+    -1,
+    1073741824
+    /* Constants.MAX_SAFE_SMALL_INTEGER */
+  )),
+  unicodeHighlight: register(new UnicodeHighlight()),
+  unusualLineTerminators: register(new EditorStringEnumOption(136, "unusualLineTerminators", "prompt", ["auto", "off", "prompt"], {
+    enumDescriptions: [
+      nls.localize("unusualLineTerminators.auto", "Unusual line terminators are automatically removed."),
+      nls.localize("unusualLineTerminators.off", "Unusual line terminators are ignored."),
+      nls.localize("unusualLineTerminators.prompt", "Unusual line terminators prompt to be removed.")
+    ],
+    description: nls.localize("unusualLineTerminators", "Remove unusual line terminators that might cause problems.")
+  })),
+  useShadowDOM: register(new EditorBooleanOption(137, "useShadowDOM", true)),
+  useTabStops: register(new EditorBooleanOption(138, "useTabStops", true, { description: nls.localize("useTabStops", "Spaces and tabs are inserted and deleted in alignment with tab stops.") })),
+  wordBreak: register(new EditorStringEnumOption(139, "wordBreak", "normal", ["normal", "keepAll"], {
+    markdownEnumDescriptions: [
+      nls.localize("wordBreak.normal", "Use the default line break rule."),
+      nls.localize("wordBreak.keepAll", "Word breaks should not be used for Chinese/Japanese/Korean (CJK) text. Non-CJK text behavior is the same as for normal.")
+    ],
+    description: nls.localize("wordBreak", "Controls the word break rules used for Chinese/Japanese/Korean (CJK) text.")
+  })),
+  wordSegmenterLocales: register(new WordSegmenterLocales()),
+  wordSeparators: register(new EditorStringOption(141, "wordSeparators", USUAL_WORD_SEPARATORS, { description: nls.localize("wordSeparators", "Characters that will be used as word separators when doing word related navigations or operations.") })),
+  wordWrap: register(new EditorStringEnumOption(142, "wordWrap", "off", ["off", "on", "wordWrapColumn", "bounded"], {
+    markdownEnumDescriptions: [
+      nls.localize("wordWrap.off", "Lines will never wrap."),
+      nls.localize("wordWrap.on", "Lines will wrap at the viewport width."),
+      nls.localize({
+        key: "wordWrap.wordWrapColumn",
+        comment: [
+          "- `editor.wordWrapColumn` refers to a different setting and should not be localized."
+        ]
+      }, "Lines will wrap at `#editor.wordWrapColumn#`."),
+      nls.localize({
+        key: "wordWrap.bounded",
+        comment: [
+          "- viewport means the edge of the visible window size.",
+          "- `editor.wordWrapColumn` refers to a different setting and should not be localized."
+        ]
+      }, "Lines will wrap at the minimum of viewport and `#editor.wordWrapColumn#`.")
+    ],
+    description: nls.localize({
+      key: "wordWrap",
+      comment: [
+        "- 'off', 'on', 'wordWrapColumn' and 'bounded' refer to values the setting can take and should not be localized.",
+        "- `editor.wordWrapColumn` refers to a different setting and should not be localized."
+      ]
+    }, "Controls how lines should wrap.")
+  })),
+  wordWrapBreakAfterCharacters: register(new EditorStringOption(
+    143,
+    "wordWrapBreakAfterCharacters",
+    // allow-any-unicode-next-line
+    " 	})]?|/&.,;\xA2\xB0\u2032\u2033\u2030\u2103\u3001\u3002\uFF61\uFF64\uFFE0\uFF0C\uFF0E\uFF1A\uFF1B\uFF1F\uFF01\uFF05\u30FB\uFF65\u309D\u309E\u30FD\u30FE\u30FC\u30A1\u30A3\u30A5\u30A7\u30A9\u30C3\u30E3\u30E5\u30E7\u30EE\u30F5\u30F6\u3041\u3043\u3045\u3047\u3049\u3063\u3083\u3085\u3087\u308E\u3095\u3096\u31F0\u31F1\u31F2\u31F3\u31F4\u31F5\u31F6\u31F7\u31F8\u31F9\u31FA\u31FB\u31FC\u31FD\u31FE\u31FF\u3005\u303B\uFF67\uFF68\uFF69\uFF6A\uFF6B\uFF6C\uFF6D\uFF6E\uFF6F\uFF70\u201D\u3009\u300B\u300D\u300F\u3011\u3015\uFF09\uFF3D\uFF5D\uFF63"
+  )),
+  wordWrapBreakBeforeCharacters: register(new EditorStringOption(
+    144,
+    "wordWrapBreakBeforeCharacters",
+    // allow-any-unicode-next-line
+    "([{\u2018\u201C\u3008\u300A\u300C\u300E\u3010\u3014\uFF08\uFF3B\uFF5B\uFF62\xA3\xA5\uFF04\uFFE1\uFFE5+\uFF0B"
+  )),
+  wordWrapColumn: register(new EditorIntOption(145, "wordWrapColumn", 80, 1, 1073741824, {
+    markdownDescription: nls.localize({
+      key: "wordWrapColumn",
+      comment: [
+        "- `editor.wordWrap` refers to a different setting and should not be localized.",
+        "- 'wordWrapColumn' and 'bounded' refer to values the different setting can take and should not be localized."
+      ]
+    }, "Controls the wrapping column of the editor when `#editor.wordWrap#` is `wordWrapColumn` or `bounded`.")
+  })),
+  wordWrapOverride1: register(new EditorStringEnumOption(146, "wordWrapOverride1", "inherit", ["off", "on", "inherit"])),
+  wordWrapOverride2: register(new EditorStringEnumOption(147, "wordWrapOverride2", "inherit", ["off", "on", "inherit"])),
+  // Leave these at the end (because they have dependencies!)
+  effectiveCursorStyle: register(new EffectiveCursorStyle()),
+  editorClassName: register(new EditorClassName()),
+  defaultColorDecorators: register(new EditorStringEnumOption(158, "defaultColorDecorators", "auto", ["auto", "always", "never"], {
+    enumDescriptions: [
+      nls.localize("editor.defaultColorDecorators.auto", "Show default color decorators only when no extension provides colors decorators."),
+      nls.localize("editor.defaultColorDecorators.always", "Always show default color decorators."),
+      nls.localize("editor.defaultColorDecorators.never", "Never show default color decorators.")
+    ],
+    description: nls.localize("defaultColorDecorators", "Controls whether inline color decorations should be shown using the default document color provider.")
+  })),
+  pixelRatio: register(new EditorPixelRatio()),
+  tabFocusMode: register(new EditorBooleanOption(155, "tabFocusMode", false, { markdownDescription: nls.localize("tabFocusMode", "Controls whether the editor receives tabs or defers them to the workbench for navigation.") })),
+  layoutInfo: register(new EditorLayoutInfoComputer()),
+  wrappingInfo: register(new EditorWrappingInfoComputer()),
+  wrappingIndent: register(new WrappingIndentOption()),
+  wrappingStrategy: register(new WrappingStrategy()),
+  effectiveEditContextEnabled: register(new EffectiveEditContextEnabled()),
+  effectiveAllowVariableFonts: register(new EffectiveAllowVariableFonts())
+};
+export {
+  ApplyUpdateResult,
+  ComputeOptionsMemory,
+  ConfigurationChangedEvent,
+  EDITOR_FONT_DEFAULTS,
+  EditorAutoIndentStrategy,
+  EditorFontLigatures,
+  EditorFontVariations,
+  EditorLayoutInfoComputer,
+  EditorOption,
+  EditorOptions,
+  MINIMAP_GUTTER_WIDTH,
+  RenderLineNumbersType,
+  RenderMinimap,
+  ShowLightbulbIconMode,
+  TextEditorCursorBlinkingStyle,
+  TextEditorCursorStyle,
+  WrappingIndent,
+  boolean,
+  clampedFloat,
+  clampedInt,
+  cursorBlinkingStyleFromString,
+  cursorStyleFromString,
+  cursorStyleToString,
+  editorOptionsRegistry,
+  filterFontDecorations,
+  filterValidationDecorations,
+  inUntrustedWorkspace,
+  stringSet,
+  unicodeHighlightConfigKeys
+};
+//# sourceMappingURL=editorOptions.js.map

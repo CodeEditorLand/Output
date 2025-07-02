@@ -1,1 +1,66 @@
-import{$vd as v}from"../../../../base/common/lifecycle.js";import{autorun as w}from"../../../../base/common/observable.js";import{localize as d}from"../../../../nls.js";import{$Wn as T,$Vn as f}from"../../../../platform/contextkey/common/contextkey.js";import{$jeb as _}from"../../../../platform/observable/common/platformObservableUtils.js";import{$$W as $}from"./mcpTypes.js";var b=function(n,e,t,l){var a=arguments.length,r=a<3?e:l===null?l=Object.getOwnPropertyDescriptor(e,t):l,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,e,t,l);else for(var s=n.length-1;s>=0;s--)(o=n[s])&&(r=(a<3?o(r):a>3?o(e,t,r):o(e,t))||r);return a>3&&r&&Object.defineProperty(e,t,r),r},p=function(n,e){return function(t,l){e(t,l,n)}},u;(function(n){n.serverCount=new f("mcp.serverCount",void 0,{type:"number",description:d(8974,null)}),n.hasUnknownTools=new f("mcp.hasUnknownTools",void 0,{type:"boolean",description:d(8975,null)}),n.hasServersWithErrors=new f("mcp.hasServersWithErrors",void 0,{type:"boolean",description:d(8976,null)}),n.toolsCount=new f("mcp.toolsCount",void 0,{type:"number",description:d(8977,null)})})(u||(u={}));let h=class extends v{static{this.ID="workbench.contrib.mcp.contextKey"}constructor(e,t){super();const l=u.serverCount.bindTo(t),a=u.toolsCount.bindTo(t),r=u.hasUnknownTools.bindTo(t);this.q.add(_(u.hasServersWithErrors,t,o=>e.servers.read(o).some(s=>s.connectionState.read(o).state===3))),this.q.add(w(o=>{const s=e.servers.read(o),m=s.map(i=>i.tools.read(o));l.set(s.length),a.set(m.reduce((i,c)=>i+c.length,0)),r.set(e.lazyCollectionState.read(o)!==2||s.some(i=>{if(i.trusted.read(o)===!1)return!1;const c=i.cacheState.read(o);return c===0||c===2||c===3}))}))}};h=b([p(0,$),p(1,T)],h);export{h as $8hc,u as McpContextKeys};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { bindContextKey } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IMcpService } from "./mcpTypes.js";
+var McpContextKeys;
+(function(McpContextKeys2) {
+  McpContextKeys2.serverCount = new RawContextKey("mcp.serverCount", void 0, { type: "number", description: localize("mcp.serverCount.description", "Context key that has the number of registered MCP servers") });
+  McpContextKeys2.hasUnknownTools = new RawContextKey("mcp.hasUnknownTools", void 0, { type: "boolean", description: localize("mcp.hasUnknownTools.description", "Indicates whether there are MCP servers with unknown tools.") });
+  McpContextKeys2.hasServersWithErrors = new RawContextKey("mcp.hasServersWithErrors", void 0, { type: "boolean", description: localize("mcp.hasServersWithErrors.description", "Indicates whether there are any MCP servers with errors.") });
+  McpContextKeys2.toolsCount = new RawContextKey("mcp.toolsCount", void 0, { type: "number", description: localize("mcp.toolsCount.description", "Context key that has the number of registered MCP tools") });
+})(McpContextKeys || (McpContextKeys = {}));
+let McpContextKeysController = class McpContextKeysController2 extends Disposable {
+  static {
+    __name(this, "McpContextKeysController");
+  }
+  static {
+    this.ID = "workbench.contrib.mcp.contextKey";
+  }
+  constructor(mcpService, contextKeyService) {
+    super();
+    const ctxServerCount = McpContextKeys.serverCount.bindTo(contextKeyService);
+    const ctxToolsCount = McpContextKeys.toolsCount.bindTo(contextKeyService);
+    const ctxHasUnknownTools = McpContextKeys.hasUnknownTools.bindTo(contextKeyService);
+    this._store.add(bindContextKey(McpContextKeys.hasServersWithErrors, contextKeyService, (r) => mcpService.servers.read(r).some(
+      (c) => c.connectionState.read(r).state === 3
+      /* McpConnectionState.Kind.Error */
+    )));
+    this._store.add(autorun((r) => {
+      const servers = mcpService.servers.read(r);
+      const serverTools = servers.map((s) => s.tools.read(r));
+      ctxServerCount.set(servers.length);
+      ctxToolsCount.set(serverTools.reduce((count, tools) => count + tools.length, 0));
+      ctxHasUnknownTools.set(mcpService.lazyCollectionState.read(r) !== 2 || servers.some((s) => {
+        if (s.trusted.read(r) === false) {
+          return false;
+        }
+        const toolState = s.cacheState.read(r);
+        return toolState === 0 || toolState === 2 || toolState === 3;
+      }));
+    }));
+  }
+};
+McpContextKeysController = __decorate([
+  __param(0, IMcpService),
+  __param(1, IContextKeyService)
+], McpContextKeysController);
+export {
+  McpContextKeys,
+  McpContextKeysController
+};
+//# sourceMappingURL=mcpContextKeys.js.map

@@ -1,1 +1,32 @@
-import{localize as t}from"../../../../nls.js";import{$Mj as r}from"../../../../base/common/codicons.js";import{$A as c}from"../../../../base/common/platform.js";import{$Cn as l}from"../../../../platform/contextkey/common/contextkey.js";import{$Et as e}from"../../../../platform/theme/common/iconRegistry.js";import{$nn as a}from"../../../../base/common/date.js";let o;function H(){if(!o){const i={year:"numeric",month:"long",day:"numeric",hour:"numeric",minute:"numeric"},m=a.DateTimeFormat(c,i).value;o={format:n=>m.format(n)}}return o}const u="localHistory:item",d=l.equals("timelineItem",u),h=e("localHistory-icon",r.circleOutline,t(8509,null)),D=e("localHistory-restore",r.check,t(8510,null));export{H as $Byc,u as $Cyc,d as $Dyc,h as $Eyc,D as $Fyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { language } from "../../../../base/common/platform.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { safeIntl } from "../../../../base/common/date.js";
+let localHistoryDateFormatter = void 0;
+function getLocalHistoryDateFormatter() {
+  if (!localHistoryDateFormatter) {
+    const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" };
+    const formatter = safeIntl.DateTimeFormat(language, options).value;
+    localHistoryDateFormatter = {
+      format: /* @__PURE__ */ __name((date) => formatter.format(date), "format")
+    };
+  }
+  return localHistoryDateFormatter;
+}
+__name(getLocalHistoryDateFormatter, "getLocalHistoryDateFormatter");
+const LOCAL_HISTORY_MENU_CONTEXT_VALUE = "localHistory:item";
+const LOCAL_HISTORY_MENU_CONTEXT_KEY = ContextKeyExpr.equals("timelineItem", LOCAL_HISTORY_MENU_CONTEXT_VALUE);
+const LOCAL_HISTORY_ICON_ENTRY = registerIcon("localHistory-icon", Codicon.circleOutline, localize("localHistoryIcon", "Icon for a local history entry in the timeline view."));
+const LOCAL_HISTORY_ICON_RESTORE = registerIcon("localHistory-restore", Codicon.check, localize("localHistoryRestore", "Icon for restoring contents of a local history entry."));
+export {
+  LOCAL_HISTORY_ICON_ENTRY,
+  LOCAL_HISTORY_ICON_RESTORE,
+  LOCAL_HISTORY_MENU_CONTEXT_KEY,
+  LOCAL_HISTORY_MENU_CONTEXT_VALUE,
+  getLocalHistoryDateFormatter
+};
+//# sourceMappingURL=localHistory.js.map

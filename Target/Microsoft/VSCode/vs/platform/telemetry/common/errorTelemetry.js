@@ -1,2 +1,91 @@
-import{$Ub as a}from"../../../base/common/arrays.js";import{$gb as h,$Ab as f}from"../../../base/common/errors.js";import{$ud as l,$td as d}from"../../../base/common/lifecycle.js";import{$9o as r}from"../../../base/common/objects.js";import{$ok as u}from"../../files/common/files.js";var o;(function(c){function t(i,s){return i.callstack<s.callstack?-1:i.callstack>s.callstack?1:0}c.compare=t})(o||(o={}));class n{static{this.ERROR_FLUSH_TIMEOUT=5*1e3}constructor(t,i=n.ERROR_FLUSH_TIMEOUT){this.f=void 0,this.g=[],this.h=new l,this.c=t,this.d=i;const s=h.addListener(e=>this.j(e));this.h.add(d(s)),this.i()}dispose(){clearTimeout(this.f),this.l(),this.h.dispose()}i(){}j(t){if(!t||t.code||(t.detail&&t.detail.stack&&(t=t.detail),f.isErrorNoTelemetry(t)||t instanceof u||typeof t?.message=="string"&&t.message.includes("Unable to read file")))return;const i=Array.isArray(t.stack)?t.stack.join(`
-`):t.stack,s=t.message?t.message:r(t);i&&this.k({msg:s,callstack:i})}k(t){const i=a(this.g,t,o.compare);i<0?(t.count=1,this.g.splice(~i,0,t)):(this.g[i].count||(this.g[i].count=0),this.g[i].count+=1),this.f===void 0&&(this.f=setTimeout(()=>{this.l(),this.f=void 0},this.d))}l(){for(const t of this.g)this.c.publicLogError2("UnhandledError",t);this.g.length=0}}export{o as ErrorEvent,n as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { binarySearch } from "../../../base/common/arrays.js";
+import { errorHandler, ErrorNoTelemetry } from "../../../base/common/errors.js";
+import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { safeStringify } from "../../../base/common/objects.js";
+import { FileOperationError } from "../../files/common/files.js";
+var ErrorEvent;
+(function(ErrorEvent2) {
+  function compare(a, b) {
+    if (a.callstack < b.callstack) {
+      return -1;
+    } else if (a.callstack > b.callstack) {
+      return 1;
+    }
+    return 0;
+  }
+  __name(compare, "compare");
+  ErrorEvent2.compare = compare;
+})(ErrorEvent || (ErrorEvent = {}));
+class BaseErrorTelemetry {
+  static {
+    __name(this, "BaseErrorTelemetry");
+  }
+  static {
+    this.ERROR_FLUSH_TIMEOUT = 5 * 1e3;
+  }
+  constructor(telemetryService, flushDelay = BaseErrorTelemetry.ERROR_FLUSH_TIMEOUT) {
+    this._flushHandle = void 0;
+    this._buffer = [];
+    this._disposables = new DisposableStore();
+    this._telemetryService = telemetryService;
+    this._flushDelay = flushDelay;
+    const unbind = errorHandler.addListener((err) => this._onErrorEvent(err));
+    this._disposables.add(toDisposable(unbind));
+    this.installErrorListeners();
+  }
+  dispose() {
+    clearTimeout(this._flushHandle);
+    this._flushBuffer();
+    this._disposables.dispose();
+  }
+  installErrorListeners() {
+  }
+  _onErrorEvent(err) {
+    if (!err || err.code) {
+      return;
+    }
+    if (err.detail && err.detail.stack) {
+      err = err.detail;
+    }
+    if (ErrorNoTelemetry.isErrorNoTelemetry(err) || err instanceof FileOperationError || typeof err?.message === "string" && err.message.includes("Unable to read file")) {
+      return;
+    }
+    const callstack = Array.isArray(err.stack) ? err.stack.join("\n") : err.stack;
+    const msg = err.message ? err.message : safeStringify(err);
+    if (!callstack) {
+      return;
+    }
+    this._enqueue({ msg, callstack });
+  }
+  _enqueue(e) {
+    const idx = binarySearch(this._buffer, e, ErrorEvent.compare);
+    if (idx < 0) {
+      e.count = 1;
+      this._buffer.splice(~idx, 0, e);
+    } else {
+      if (!this._buffer[idx].count) {
+        this._buffer[idx].count = 0;
+      }
+      this._buffer[idx].count += 1;
+    }
+    if (this._flushHandle === void 0) {
+      this._flushHandle = setTimeout(() => {
+        this._flushBuffer();
+        this._flushHandle = void 0;
+      }, this._flushDelay);
+    }
+  }
+  _flushBuffer() {
+    for (const error of this._buffer) {
+      this._telemetryService.publicLogError2("UnhandledError", error);
+    }
+    this._buffer.length = 0;
+  }
+}
+export {
+  ErrorEvent,
+  BaseErrorTelemetry as default
+};
+//# sourceMappingURL=errorTelemetry.js.map

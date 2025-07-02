@@ -1,1 +1,291 @@
-import"./style.js";import{$75 as k}from"../../base/browser/dom.js";import{Event as u,$df as b,$af as y}from"../../base/common/event.js";import{$Yh as C,$Mh as B}from"../../base/common/async.js";import{$E5 as S,$H5 as v,$G5 as I}from"../../base/browser/browser.js";import{$T as h}from"../../base/common/performance.js";import{$kb as f,setUnexpectedErrorHandler as D}from"../../base/common/errors.js";import{$Rl as $}from"../../platform/registry/common/platform.js";import{$m as V,$o as F,$s as z,$q as W,$n as x}from"../../base/common/platform.js";import{Extensions as L}from"../common/contributions.js";import{$nK as P}from"../common/editor.js";import{$XB as A}from"../../platform/instantiation/common/extensions.js";import{$tub as E,$vub as q}from"../services/layout/browser/layoutService.js";import{$Jo as R,WillSaveStateReason as J}from"../../platform/storage/common/storage.js";import{$Fl as g}from"../../platform/configuration/common/configuration.js";import{$_K as w}from"../services/lifecycle/common/lifecycle.js";import{$_I as N}from"../../platform/notification/common/notification.js";import{$Izc as O}from"./parts/notifications/notificationsCenter.js";import{$Jzc as H}from"./parts/notifications/notificationsAlerts.js";import{$Kzc as M}from"./parts/notifications/notificationsStatus.js";import{$rzc as _}from"./parts/notifications/notificationsCommands.js";import{$Lzc as K}from"./parts/notifications/notificationsToasts.js";import{$p8 as T}from"../../base/browser/ui/aria/aria.js";import{$z_ as p}from"../../editor/browser/config/fontMeasurements.js";import{$kC as j}from"../../editor/common/config/fontInfo.js";import{$gm as G}from"../../base/common/errorMessage.js";import{$Mzc as U}from"./contextkeys.js";import{$7b as Q}from"../../base/common/arrays.js";import{$bB as X}from"../../platform/instantiation/common/instantiationService.js";import{$Ozc as Y}from"./layout.js";import{$m_ as Z}from"../services/host/browser/host.js";import{$bp as tt}from"../../platform/dialogs/common/dialogs.js";import{$s5 as a}from"../../base/browser/window.js";import{$l9 as it}from"../../base/browser/pixelRatio.js";import{$Fgb as et,$Ggb as ot}from"../../platform/hover/browser/hover.js";import{$Z7 as st}from"../../base/browser/ui/hover/hoverDelegateFactory.js";import{$28 as rt}from"../../base/browser/ui/hover/hoverDelegate2.js";import{$jgc as nt}from"../../platform/accessibilitySignal/browser/progressAccessibilitySignalScheduler.js";import{$q0 as at}from"../../base/browser/ui/progressbar/progressAccessibilitySignal.js";import{$vpb as ct}from"../../platform/accessibility/browser/accessibleViewRegistry.js";import{$Pzc as ht}from"./parts/notifications/notificationAccessibleView.js";class Yt extends Y{constructor(i,t,o,e){super(i,{resetLayout:!!t?.resetLayout}),this.mc=t,this.nc=o,this.kc=this.B(new b),this.onWillShutdown=this.kc.event,this.lc=this.B(new b),this.onDidShutdown=this.lc.event,this.pc={message:void 0,time:0},h("code/willStartWorkbench"),this.oc(e)}oc(i){a.addEventListener("unhandledrejection",t=>{f(t.reason),t.preventDefault()}),D(t=>this.qc(t,i))}qc(i,t){const o=G(i,!0);if(!o)return;const e=Date.now();o===this.pc.message&&e-this.pc.time<=1e3||(this.pc.time=e,this.pc.message=o,t.error(o))}startup(){try{this.B(y(175));const i=this.rc(this.nc);return i.invokeFunction(t=>{const o=t.get(w),e=t.get(R),s=t.get(g),r=t.get(Z),n=t.get(et),c=t.get(tt),m=t.get(N);st((l,d)=>i.createInstance(ot,l,{instantHover:d},{})),rt(n),this.qb(t),$.as(L.Workbench).start(t),$.as(P.EditorFactory).start(t),this.B(i.createInstance(U)),this.sc(o,e,s,r,c),this.xc(i,m,e,s),this.Vb(),this.layout(),this.Ac(o)}),i}catch(i){throw f(i),i}}rc(i){i.set(E,this);const t=A();for(const[e,s]of t)i.set(e,s);const o=new X(i,!0);return o.invokeFunction(e=>{const s=e.get(w),r=e.get(g);typeof r.acquireInstantiationService=="function"&&r.acquireInstantiationService(o),s.phase=2}),o}sc(i,t,o,e,s){this.B(o.onDidChangeConfiguration(r=>this.uc(r,o))),W?this.B(t.onWillSaveState(r=>{r.reason===J.SHUTDOWN&&this.wc(t)})):this.B(i.onWillShutdown(()=>this.wc(t))),this.B(i.onWillShutdown(r=>this.kc.fire(r))),this.B(i.onDidShutdown(()=>{this.lc.fire(),this.dispose()})),this.B(e.onDidChangeFocus(r=>{r||t.flush()})),this.B(s.onWillShowDialog(()=>this.mainContainer.classList.add("modal-dialog-visible"))),this.B(s.onDidShowDialog(()=>this.mainContainer.classList.remove("modal-dialog-visible")))}uc(i,t){if(!x||i&&!i.affectsConfiguration("workbench.fontAliasing"))return;const o=t.getValue("workbench.fontAliasing");if(this.tc===o)return;this.tc=o;const e=["antialiased","none","auto"];this.mainContainer.classList.remove(...e.map(s=>`monaco-font-aliasing-${s}`)),e.some(s=>s===o)&&this.mainContainer.classList.add(`monaco-font-aliasing-${o}`)}vc(i,t){const o=i.get("editorFontInfo",-1);if(o)try{const e=JSON.parse(o);Array.isArray(e)&&p.restoreFontInfo(a,e)}catch{}p.readFontInfo(a,j.createFromRawSettings(t.getValue("editor"),it.getInstance(a).value))}wc(i){const t=p.serializeFontInfo(a);t&&i.store("editorFontInfo",JSON.stringify(t),-1,1)}xc(i,t,o,e){T(this.mainContainer),at((n,c)=>i.createInstance(nt,n,c));const r=Q(["monaco-workbench",V?"windows":F?"linux":"mac",z?"web":void 0,I?"chromium":S?"firefox":v?"safari":void 0,...this.getLayoutClasses(),...this.mc?.extraClasses?this.mc.extraClasses:[]]);this.mainContainer.classList.add(...r),this.uc(void 0,e),this.vc(o,e);for(const{id:n,role:c,classes:m,options:l}of[{id:"workbench.parts.titlebar",role:"none",classes:["titlebar"]},{id:"workbench.parts.banner",role:"banner",classes:["banner"]},{id:"workbench.parts.activitybar",role:"none",classes:["activitybar",this.getSideBarPosition()===0?"left":"right"]},{id:"workbench.parts.sidebar",role:"none",classes:["sidebar",this.getSideBarPosition()===0?"left":"right"]},{id:"workbench.parts.editor",role:"main",classes:["editor"],options:{restorePreviousState:this.Eb()}},{id:"workbench.parts.panel",role:"none",classes:["panel","basepanel",q(this.getPanelPosition())]},{id:"workbench.parts.auxiliarybar",role:"none",classes:["auxiliarybar","basepanel",this.getSideBarPosition()===0?"right":"left"]},{id:"workbench.parts.statusbar",role:"status",classes:["statusbar"]}]){const d=this.yc(n,c,m);h(`code/willCreatePart/${n}`),this.Ob(n).create(d,l),h(`code/didCreatePart/${n}`)}this.zc(i,t),this.ob.appendChild(this.mainContainer)}yc(i,t,o){const e=document.createElement(t==="status"?"footer":"div");return e.classList.add("part",...o),e.id=i,e.setAttribute("role",t),t==="status"&&e.setAttribute("aria-live","off"),e}zc(i,t){const o=this.B(i.createInstance(O,this.mainContainer,t.model)),e=this.B(i.createInstance(K,this.mainContainer,t.model));this.B(i.createInstance(H,t.model));const s=i.createInstance(M,t.model);this.B(o.onDidChangeVisibility(()=>{s.update(o.isVisible,e.isVisible),e.update(o.isVisible)})),this.B(e.onDidChangeVisibility(()=>{s.update(o.isVisible,e.isVisible)})),_(o,e,t.model),ct.register(new ht),this.registerNotifications({onDidChangeNotificationsVisibility:u.map(u.any(e.onDidChangeVisibility,o.onDidChangeVisibility),()=>e.isVisible||o.isVisible)})}Ac(i){try{this.Mb()}catch(t){f(t)}this.Jb.finally(()=>Promise.race([this.whenRestored,B(2e3)]).finally(()=>{function t(){h("code/didStartWorkbench"),performance.measure("perf: workbench create & restore","code/didLoadWorkbenchMain","code/didStartWorkbench")}this.isRestored()?t():this.whenRestored.finally(()=>t()),i.phase=3,this.B(new C(()=>{this.B(k(a,()=>i.phase=4,2500))},2500)).schedule()}))}}export{Yt as $Qzc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./style.js";
+import { runWhenWindowIdle } from "../../base/browser/dom.js";
+import { Event, Emitter, setGlobalLeakWarningThreshold } from "../../base/common/event.js";
+import { RunOnceScheduler, timeout } from "../../base/common/async.js";
+import { isFirefox, isSafari, isChrome } from "../../base/browser/browser.js";
+import { mark } from "../../base/common/performance.js";
+import { onUnexpectedError, setUnexpectedErrorHandler } from "../../base/common/errors.js";
+import { Registry } from "../../platform/registry/common/platform.js";
+import { isWindows, isLinux, isWeb, isNative, isMacintosh } from "../../base/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../common/contributions.js";
+import { EditorExtensions } from "../common/editor.js";
+import { getSingletonServiceDescriptors } from "../../platform/instantiation/common/extensions.js";
+import { IWorkbenchLayoutService, positionToString } from "../services/layout/browser/layoutService.js";
+import { IStorageService, WillSaveStateReason } from "../../platform/storage/common/storage.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+import { INotificationService } from "../../platform/notification/common/notification.js";
+import { NotificationsCenter } from "./parts/notifications/notificationsCenter.js";
+import { NotificationsAlerts } from "./parts/notifications/notificationsAlerts.js";
+import { NotificationsStatus } from "./parts/notifications/notificationsStatus.js";
+import { registerNotificationCommands } from "./parts/notifications/notificationsCommands.js";
+import { NotificationsToasts } from "./parts/notifications/notificationsToasts.js";
+import { setARIAContainer } from "../../base/browser/ui/aria/aria.js";
+import { FontMeasurements } from "../../editor/browser/config/fontMeasurements.js";
+import { BareFontInfo } from "../../editor/common/config/fontInfo.js";
+import { toErrorMessage } from "../../base/common/errorMessage.js";
+import { WorkbenchContextKeysHandler } from "./contextkeys.js";
+import { coalesce } from "../../base/common/arrays.js";
+import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
+import { Layout } from "./layout.js";
+import { IHostService } from "../services/host/browser/host.js";
+import { IDialogService } from "../../platform/dialogs/common/dialogs.js";
+import { mainWindow } from "../../base/browser/window.js";
+import { PixelRatio } from "../../base/browser/pixelRatio.js";
+import { IHoverService, WorkbenchHoverDelegate } from "../../platform/hover/browser/hover.js";
+import { setHoverDelegateFactory } from "../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { setBaseLayerHoverDelegate } from "../../base/browser/ui/hover/hoverDelegate2.js";
+import { AccessibilityProgressSignalScheduler } from "../../platform/accessibilitySignal/browser/progressAccessibilitySignalScheduler.js";
+import { setProgressAcccessibilitySignalScheduler } from "../../base/browser/ui/progressbar/progressAccessibilitySignal.js";
+import { AccessibleViewRegistry } from "../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { NotificationAccessibleView } from "./parts/notifications/notificationAccessibleView.js";
+class Workbench extends Layout {
+  static {
+    __name(this, "Workbench");
+  }
+  constructor(parent, options, serviceCollection, logService) {
+    super(parent, { resetLayout: Boolean(options?.resetLayout) });
+    this.options = options;
+    this.serviceCollection = serviceCollection;
+    this._onWillShutdown = this._register(new Emitter());
+    this.onWillShutdown = this._onWillShutdown.event;
+    this._onDidShutdown = this._register(new Emitter());
+    this.onDidShutdown = this._onDidShutdown.event;
+    this.previousUnexpectedError = { message: void 0, time: 0 };
+    mark("code/willStartWorkbench");
+    this.registerErrorHandler(logService);
+  }
+  registerErrorHandler(logService) {
+    mainWindow.addEventListener("unhandledrejection", (event) => {
+      onUnexpectedError(event.reason);
+      event.preventDefault();
+    });
+    setUnexpectedErrorHandler((error) => this.handleUnexpectedError(error, logService));
+  }
+  handleUnexpectedError(error, logService) {
+    const message = toErrorMessage(error, true);
+    if (!message) {
+      return;
+    }
+    const now = Date.now();
+    if (message === this.previousUnexpectedError.message && now - this.previousUnexpectedError.time <= 1e3) {
+      return;
+    }
+    this.previousUnexpectedError.time = now;
+    this.previousUnexpectedError.message = message;
+    logService.error(message);
+  }
+  startup() {
+    try {
+      this._register(setGlobalLeakWarningThreshold(175));
+      const instantiationService = this.initServices(this.serviceCollection);
+      instantiationService.invokeFunction((accessor) => {
+        const lifecycleService = accessor.get(ILifecycleService);
+        const storageService = accessor.get(IStorageService);
+        const configurationService = accessor.get(IConfigurationService);
+        const hostService = accessor.get(IHostService);
+        const hoverService = accessor.get(IHoverService);
+        const dialogService = accessor.get(IDialogService);
+        const notificationService = accessor.get(INotificationService);
+        setHoverDelegateFactory((placement, enableInstantHover) => instantiationService.createInstance(WorkbenchHoverDelegate, placement, { instantHover: enableInstantHover }, {}));
+        setBaseLayerHoverDelegate(hoverService);
+        this.initLayout(accessor);
+        Registry.as(WorkbenchExtensions.Workbench).start(accessor);
+        Registry.as(EditorExtensions.EditorFactory).start(accessor);
+        this._register(instantiationService.createInstance(WorkbenchContextKeysHandler));
+        this.registerListeners(lifecycleService, storageService, configurationService, hostService, dialogService);
+        this.renderWorkbench(instantiationService, notificationService, storageService, configurationService);
+        this.createWorkbenchLayout();
+        this.layout();
+        this.restore(lifecycleService);
+      });
+      return instantiationService;
+    } catch (error) {
+      onUnexpectedError(error);
+      throw error;
+    }
+  }
+  initServices(serviceCollection) {
+    serviceCollection.set(IWorkbenchLayoutService, this);
+    const contributedServices = getSingletonServiceDescriptors();
+    for (const [id, descriptor] of contributedServices) {
+      serviceCollection.set(id, descriptor);
+    }
+    const instantiationService = new InstantiationService(serviceCollection, true);
+    instantiationService.invokeFunction((accessor) => {
+      const lifecycleService = accessor.get(ILifecycleService);
+      const configurationService = accessor.get(IConfigurationService);
+      if (typeof configurationService.acquireInstantiationService === "function") {
+        configurationService.acquireInstantiationService(instantiationService);
+      }
+      lifecycleService.phase = 2;
+    });
+    return instantiationService;
+  }
+  registerListeners(lifecycleService, storageService, configurationService, hostService, dialogService) {
+    this._register(configurationService.onDidChangeConfiguration((e) => this.updateFontAliasing(e, configurationService)));
+    if (isNative) {
+      this._register(storageService.onWillSaveState((e) => {
+        if (e.reason === WillSaveStateReason.SHUTDOWN) {
+          this.storeFontInfo(storageService);
+        }
+      }));
+    } else {
+      this._register(lifecycleService.onWillShutdown(() => this.storeFontInfo(storageService)));
+    }
+    this._register(lifecycleService.onWillShutdown((event) => this._onWillShutdown.fire(event)));
+    this._register(lifecycleService.onDidShutdown(() => {
+      this._onDidShutdown.fire();
+      this.dispose();
+    }));
+    this._register(hostService.onDidChangeFocus((focus) => {
+      if (!focus) {
+        storageService.flush();
+      }
+    }));
+    this._register(dialogService.onWillShowDialog(() => this.mainContainer.classList.add("modal-dialog-visible")));
+    this._register(dialogService.onDidShowDialog(() => this.mainContainer.classList.remove("modal-dialog-visible")));
+  }
+  updateFontAliasing(e, configurationService) {
+    if (!isMacintosh) {
+      return;
+    }
+    if (e && !e.affectsConfiguration("workbench.fontAliasing")) {
+      return;
+    }
+    const aliasing = configurationService.getValue("workbench.fontAliasing");
+    if (this.fontAliasing === aliasing) {
+      return;
+    }
+    this.fontAliasing = aliasing;
+    const fontAliasingValues = ["antialiased", "none", "auto"];
+    this.mainContainer.classList.remove(...fontAliasingValues.map((value) => `monaco-font-aliasing-${value}`));
+    if (fontAliasingValues.some((option) => option === aliasing)) {
+      this.mainContainer.classList.add(`monaco-font-aliasing-${aliasing}`);
+    }
+  }
+  restoreFontInfo(storageService, configurationService) {
+    const storedFontInfoRaw = storageService.get(
+      "editorFontInfo",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (storedFontInfoRaw) {
+      try {
+        const storedFontInfo = JSON.parse(storedFontInfoRaw);
+        if (Array.isArray(storedFontInfo)) {
+          FontMeasurements.restoreFontInfo(mainWindow, storedFontInfo);
+        }
+      } catch (err) {
+      }
+    }
+    FontMeasurements.readFontInfo(mainWindow, BareFontInfo.createFromRawSettings(configurationService.getValue("editor"), PixelRatio.getInstance(mainWindow).value));
+  }
+  storeFontInfo(storageService) {
+    const serializedFontInfo = FontMeasurements.serializeFontInfo(mainWindow);
+    if (serializedFontInfo) {
+      storageService.store(
+        "editorFontInfo",
+        JSON.stringify(serializedFontInfo),
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+  }
+  renderWorkbench(instantiationService, notificationService, storageService, configurationService) {
+    setARIAContainer(this.mainContainer);
+    setProgressAcccessibilitySignalScheduler((msDelayTime, msLoopTime) => instantiationService.createInstance(AccessibilityProgressSignalScheduler, msDelayTime, msLoopTime));
+    const platformClass = isWindows ? "windows" : isLinux ? "linux" : "mac";
+    const workbenchClasses = coalesce([
+      "monaco-workbench",
+      platformClass,
+      isWeb ? "web" : void 0,
+      isChrome ? "chromium" : isFirefox ? "firefox" : isSafari ? "safari" : void 0,
+      ...this.getLayoutClasses(),
+      ...this.options?.extraClasses ? this.options.extraClasses : []
+    ]);
+    this.mainContainer.classList.add(...workbenchClasses);
+    this.updateFontAliasing(void 0, configurationService);
+    this.restoreFontInfo(storageService, configurationService);
+    for (const { id, role, classes, options } of [
+      { id: "workbench.parts.titlebar", role: "none", classes: ["titlebar"] },
+      { id: "workbench.parts.banner", role: "banner", classes: ["banner"] },
+      { id: "workbench.parts.activitybar", role: "none", classes: ["activitybar", this.getSideBarPosition() === 0 ? "left" : "right"] },
+      // Use role 'none' for some parts to make screen readers less chatty #114892
+      { id: "workbench.parts.sidebar", role: "none", classes: ["sidebar", this.getSideBarPosition() === 0 ? "left" : "right"] },
+      { id: "workbench.parts.editor", role: "main", classes: ["editor"], options: { restorePreviousState: this.willRestoreEditors() } },
+      { id: "workbench.parts.panel", role: "none", classes: ["panel", "basepanel", positionToString(this.getPanelPosition())] },
+      { id: "workbench.parts.auxiliarybar", role: "none", classes: ["auxiliarybar", "basepanel", this.getSideBarPosition() === 0 ? "right" : "left"] },
+      { id: "workbench.parts.statusbar", role: "status", classes: ["statusbar"] }
+    ]) {
+      const partContainer = this.createPart(id, role, classes);
+      mark(`code/willCreatePart/${id}`);
+      this.getPart(id).create(partContainer, options);
+      mark(`code/didCreatePart/${id}`);
+    }
+    this.createNotificationsHandlers(instantiationService, notificationService);
+    this.parent.appendChild(this.mainContainer);
+  }
+  createPart(id, role, classes) {
+    const part = document.createElement(role === "status" ? "footer" : "div");
+    part.classList.add("part", ...classes);
+    part.id = id;
+    part.setAttribute("role", role);
+    if (role === "status") {
+      part.setAttribute("aria-live", "off");
+    }
+    return part;
+  }
+  createNotificationsHandlers(instantiationService, notificationService) {
+    const notificationsCenter = this._register(instantiationService.createInstance(NotificationsCenter, this.mainContainer, notificationService.model));
+    const notificationsToasts = this._register(instantiationService.createInstance(NotificationsToasts, this.mainContainer, notificationService.model));
+    this._register(instantiationService.createInstance(NotificationsAlerts, notificationService.model));
+    const notificationsStatus = instantiationService.createInstance(NotificationsStatus, notificationService.model);
+    this._register(notificationsCenter.onDidChangeVisibility(() => {
+      notificationsStatus.update(notificationsCenter.isVisible, notificationsToasts.isVisible);
+      notificationsToasts.update(notificationsCenter.isVisible);
+    }));
+    this._register(notificationsToasts.onDidChangeVisibility(() => {
+      notificationsStatus.update(notificationsCenter.isVisible, notificationsToasts.isVisible);
+    }));
+    registerNotificationCommands(notificationsCenter, notificationsToasts, notificationService.model);
+    AccessibleViewRegistry.register(new NotificationAccessibleView());
+    this.registerNotifications({
+      onDidChangeNotificationsVisibility: Event.map(Event.any(notificationsToasts.onDidChangeVisibility, notificationsCenter.onDidChangeVisibility), () => notificationsToasts.isVisible || notificationsCenter.isVisible)
+    });
+  }
+  restore(lifecycleService) {
+    try {
+      this.restoreParts();
+    } catch (error) {
+      onUnexpectedError(error);
+    }
+    this.whenReady.finally(() => Promise.race([
+      this.whenRestored,
+      timeout(2e3)
+    ]).finally(() => {
+      function markDidStartWorkbench() {
+        mark("code/didStartWorkbench");
+        performance.measure("perf: workbench create & restore", "code/didLoadWorkbenchMain", "code/didStartWorkbench");
+      }
+      __name(markDidStartWorkbench, "markDidStartWorkbench");
+      if (this.isRestored()) {
+        markDidStartWorkbench();
+      } else {
+        this.whenRestored.finally(() => markDidStartWorkbench());
+      }
+      lifecycleService.phase = 3;
+      const eventuallyPhaseScheduler = this._register(new RunOnceScheduler(() => {
+        this._register(runWhenWindowIdle(mainWindow, () => lifecycleService.phase = 4, 2500));
+      }, 2500));
+      eventuallyPhaseScheduler.schedule();
+    }));
+  }
+}
+export {
+  Workbench
+};
+//# sourceMappingURL=workbench.js.map

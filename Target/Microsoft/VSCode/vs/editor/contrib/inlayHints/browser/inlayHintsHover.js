@@ -1,1 +1,154 @@
-import{$ai as h}from"../../../../base/common/async.js";import{$Vj as v,$Uj as c}from"../../../../base/common/htmlContent.js";import{$bC as T}from"../../../common/core/position.js";import{$fI as O}from"../../../common/model/textModel.js";import{$gjb as _}from"../../hover/browser/hoverTypes.js";import{$CD as x}from"../../../common/languages/language.js";import{$wF as j}from"../../../common/services/resolverService.js";import{$Plb as P}from"../../hover/browser/getHover.js";import{$Rlb as u,$Slb as M}from"../../hover/browser/markdownHoverParticipant.js";import{$rnb as R,$snb as D}from"./inlayHintsController.js";import{$Fl as C}from"../../../../platform/configuration/common/configuration.js";import{$i_ as H}from"../../../../platform/opener/common/opener.js";import{$tT as A}from"../../../common/services/languageFeatures.js";import{localize as p}from"../../../../nls.js";import*as b from"../../../../base/common/platform.js";import{$fmb as F}from"./inlayHints.js";import{$$b as K}from"../../../../base/common/arrays.js";import{$ux as Y}from"../../../../platform/keybinding/common/keybinding.js";import{$Fgb as E}from"../../../../platform/hover/browser/hover.js";import{$Zn as I}from"../../../../platform/commands/common/commands.js";var y=function(s,t,o,n){var i=arguments.length,r=i<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,t,o,n);else for(var a=s.length-1;a>=0;a--)(e=s[a])&&(r=(i<3?e(r):i>3?e(t,o,r):e(t,o))||r);return i>3&&r&&Object.defineProperty(t,o,r),r},l=function(s,t){return function(o,n){t(o,n,s)}};class w extends _{constructor(t,o,n,i){super(10,o,t.item.anchor.range,n,i,!0),this.part=t}}let g=class extends M{constructor(t,o,n,i,r,e,a,f,$){super(t,o,n,e,f,i,r,$),this.m=a,this.hoverOrdinal=6}suggestHoverAnchor(t){if(!D.get(this.b)||t.target.type!==6)return null;const n=t.target.detail.injectedText?.options;return n instanceof O&&n.attachedData instanceof R?new w(n.attachedData,this,t.event.posx,t.event.posy):null}computeSync(){return[]}computeAsync(t,o,n,i){return t instanceof w?new h(async r=>{const{part:e}=t;if(await e.item.resolve(i),i.isCancellationRequested)return;let a;typeof e.item.hint.tooltip=="string"?a=new c().appendText(e.item.hint.tooltip):e.item.hint.tooltip&&(a=e.item.hint.tooltip),a&&r.emitOne(new u(this,t.range,[a],!1,0)),K(e.item.hint.textEdits)&&r.emitOne(new u(this,t.range,[new c().appendText(p(1299,null))],!1,10001));let f;if(typeof e.part.tooltip=="string"?f=new c().appendText(e.part.tooltip):e.part.tooltip&&(f=e.part.tooltip),f&&r.emitOne(new u(this,t.range,[f],!1,1)),e.part.location||e.part.command){let m;const d=this.b.getOption(84)==="altKey"?b.$n?p(1300,null):p(1301,null):b.$n?p(1302,null):p(1303,null);e.part.location&&e.part.command?m=new c().appendText(p(1304,null,d)):e.part.location?m=new c().appendText(p(1305,null,d)):e.part.command&&(m=new c(`[${p(1306,null)}](${F(e.part.command)} "${e.part.command.title}") (${d})`,{isTrusted:!0})),m&&r.emitOne(new u(this,t.range,[m],!1,1e4))}const $=await this.n(e,i);for await(const m of $)r.emitOne(m)}):h.EMPTY}async n(t,o){if(!t.part.location)return h.EMPTY;const{uri:n,range:i}=t.part.location,r=await this.m.createModelReference(n);try{const e=r.object.textEditorModel;return this.h.hoverProvider.has(e)?P(this.h.hoverProvider,e,new T(i.startLineNumber,i.startColumn),o).filter(a=>!v(a.hover.contents)).map(a=>new u(this,t.item.anchor.range,a.hover.contents,!1,2+a.ordinal)):h.EMPTY}finally{r.dispose()}}};g=y([l(1,x),l(2,H),l(3,Y),l(4,E),l(5,C),l(6,j),l(7,A),l(8,I)],g);export{g as $tnb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { isEmptyMarkdownString, MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Position } from "../../../common/core/position.js";
+import { ModelDecorationInjectedTextOptions } from "../../../common/model/textModel.js";
+import { HoverForeignElementAnchor } from "../../hover/browser/hoverTypes.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import { getHoverProviderResultsAsAsyncIterable } from "../../hover/browser/getHover.js";
+import { MarkdownHover, MarkdownHoverParticipant } from "../../hover/browser/markdownHoverParticipant.js";
+import { RenderedInlayHintLabelPart, InlayHintsController } from "./inlayHintsController.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { localize } from "../../../../nls.js";
+import * as platform from "../../../../base/common/platform.js";
+import { asCommandLink } from "./inlayHints.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+class InlayHintsHoverAnchor extends HoverForeignElementAnchor {
+  static {
+    __name(this, "InlayHintsHoverAnchor");
+  }
+  constructor(part, owner, initialMousePosX, initialMousePosY) {
+    super(10, owner, part.item.anchor.range, initialMousePosX, initialMousePosY, true);
+    this.part = part;
+  }
+}
+let InlayHintsHover = class InlayHintsHover2 extends MarkdownHoverParticipant {
+  static {
+    __name(this, "InlayHintsHover");
+  }
+  constructor(editor, languageService, openerService, keybindingService, hoverService, configurationService, _resolverService, languageFeaturesService, commandService) {
+    super(editor, languageService, openerService, configurationService, languageFeaturesService, keybindingService, hoverService, commandService);
+    this._resolverService = _resolverService;
+    this.hoverOrdinal = 6;
+  }
+  suggestHoverAnchor(mouseEvent) {
+    const controller = InlayHintsController.get(this._editor);
+    if (!controller) {
+      return null;
+    }
+    if (mouseEvent.target.type !== 6) {
+      return null;
+    }
+    const options = mouseEvent.target.detail.injectedText?.options;
+    if (!(options instanceof ModelDecorationInjectedTextOptions && options.attachedData instanceof RenderedInlayHintLabelPart)) {
+      return null;
+    }
+    return new InlayHintsHoverAnchor(options.attachedData, this, mouseEvent.event.posx, mouseEvent.event.posy);
+  }
+  computeSync() {
+    return [];
+  }
+  computeAsync(anchor, _lineDecorations, source, token) {
+    if (!(anchor instanceof InlayHintsHoverAnchor)) {
+      return AsyncIterableObject.EMPTY;
+    }
+    return new AsyncIterableObject(async (executor) => {
+      const { part } = anchor;
+      await part.item.resolve(token);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      let itemTooltip;
+      if (typeof part.item.hint.tooltip === "string") {
+        itemTooltip = new MarkdownString().appendText(part.item.hint.tooltip);
+      } else if (part.item.hint.tooltip) {
+        itemTooltip = part.item.hint.tooltip;
+      }
+      if (itemTooltip) {
+        executor.emitOne(new MarkdownHover(this, anchor.range, [itemTooltip], false, 0));
+      }
+      if (isNonEmptyArray(part.item.hint.textEdits)) {
+        executor.emitOne(new MarkdownHover(this, anchor.range, [new MarkdownString().appendText(localize("hint.dbl", "Double-click to insert"))], false, 10001));
+      }
+      let partTooltip;
+      if (typeof part.part.tooltip === "string") {
+        partTooltip = new MarkdownString().appendText(part.part.tooltip);
+      } else if (part.part.tooltip) {
+        partTooltip = part.part.tooltip;
+      }
+      if (partTooltip) {
+        executor.emitOne(new MarkdownHover(this, anchor.range, [partTooltip], false, 1));
+      }
+      if (part.part.location || part.part.command) {
+        let linkHint;
+        const useMetaKey = this._editor.getOption(
+          84
+          /* EditorOption.multiCursorModifier */
+        ) === "altKey";
+        const kb = useMetaKey ? platform.isMacintosh ? localize("links.navigate.kb.meta.mac", "cmd + click") : localize("links.navigate.kb.meta", "ctrl + click") : platform.isMacintosh ? localize("links.navigate.kb.alt.mac", "option + click") : localize("links.navigate.kb.alt", "alt + click");
+        if (part.part.location && part.part.command) {
+          linkHint = new MarkdownString().appendText(localize("hint.defAndCommand", "Go to Definition ({0}), right click for more", kb));
+        } else if (part.part.location) {
+          linkHint = new MarkdownString().appendText(localize("hint.def", "Go to Definition ({0})", kb));
+        } else if (part.part.command) {
+          linkHint = new MarkdownString(`[${localize("hint.cmd", "Execute Command")}](${asCommandLink(part.part.command)} "${part.part.command.title}") (${kb})`, { isTrusted: true });
+        }
+        if (linkHint) {
+          executor.emitOne(new MarkdownHover(this, anchor.range, [linkHint], false, 1e4));
+        }
+      }
+      const iterable = await this._resolveInlayHintLabelPartHover(part, token);
+      for await (const item of iterable) {
+        executor.emitOne(item);
+      }
+    });
+  }
+  async _resolveInlayHintLabelPartHover(part, token) {
+    if (!part.part.location) {
+      return AsyncIterableObject.EMPTY;
+    }
+    const { uri, range } = part.part.location;
+    const ref = await this._resolverService.createModelReference(uri);
+    try {
+      const model = ref.object.textEditorModel;
+      if (!this._languageFeaturesService.hoverProvider.has(model)) {
+        return AsyncIterableObject.EMPTY;
+      }
+      return getHoverProviderResultsAsAsyncIterable(this._languageFeaturesService.hoverProvider, model, new Position(range.startLineNumber, range.startColumn), token).filter((item) => !isEmptyMarkdownString(item.hover.contents)).map((item) => new MarkdownHover(this, part.item.anchor.range, item.hover.contents, false, 2 + item.ordinal));
+    } finally {
+      ref.dispose();
+    }
+  }
+};
+InlayHintsHover = __decorate([
+  __param(1, ILanguageService),
+  __param(2, IOpenerService),
+  __param(3, IKeybindingService),
+  __param(4, IHoverService),
+  __param(5, IConfigurationService),
+  __param(6, ITextModelService),
+  __param(7, ILanguageFeaturesService),
+  __param(8, ICommandService)
+], InlayHintsHover);
+export {
+  InlayHintsHover
+};
+//# sourceMappingURL=inlayHintsHover.js.map

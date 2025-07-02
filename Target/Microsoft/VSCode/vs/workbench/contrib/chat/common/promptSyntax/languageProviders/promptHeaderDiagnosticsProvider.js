@@ -1,1 +1,170 @@
-import{$IS as p}from"../service/promptsService.js";import{$ifc as v}from"./providerInstanceBase.js";import{$Tc as M}from"../../../../../../base/common/assert.js";import{CancellationToken as c}from"../../../../../../base/common/cancellation.js";import{$jfc as y}from"./providerInstanceManagerBase.js";import{$fR as $,$eR as R}from"../parsers/promptHeader/diagnostics.js";import{$pD as _,MarkerSeverity as f}from"../../../../../../platform/markers/common/markers.js";import{$nR as b}from"../parsers/promptHeader/promptHeader.js";import{$kR as S}from"../parsers/promptHeader/modeHeader.js";import{ILanguageModelChatMetadata as T,$9O as D}from"../../languageModels.js";import{$fQ as j}from"../../languageModelToolsService.js";import{localize as u}from"../../../../../../nls.js";import{ChatModeKind as s}from"../../constants.js";var g=function(n,r,o,e){var t=arguments.length,a=t<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,o):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(n,r,o,e);else for(var m=n.length-1;m>=0;m--)(i=n[m])&&(a=(t<3?i(a):t>3?i(r,o,a):i(r,o))||a);return t>3&&a&&Object.defineProperty(r,o,a),a},l=function(n,r){return function(o,e){r(o,e,n)}};const h="prompts-header-diagnostics-provider";let d=class extends v{constructor(r,o,e,t,a){super(r,o),this.g=e,this.h=t,this.j=a,this.B(t.onDidChangeLanguageModels(()=>{this.b(void 0,c.None)})),this.B(a.onDidChangeTools(()=>{this.b(void 0,c.None)}))}async b(r,o){this.g.remove(h,[this.f.uri]);const{header:e}=this.c;if(e===void 0||(await e.settled,o.isCancellationRequested))return;const t=[];for(const a of e.diagnostics)t.push(A(a));e instanceof b?(this.validateTools(e.metadataUtility.tools,e.metadata.mode,t),this.validateModel(e.metadataUtility.model,e.metadata.mode,t)):e instanceof S&&(this.validateTools(e.metadataUtility.tools,s.Agent,t),this.validateModel(e.metadataUtility.model,s.Agent,t)),this.g.changeOne(h,this.f.uri,t)}validateModel(r,o,e){if(!r||r.value===void 0)return;const t=this.h.getLanguageModelIds();if(t.length===0)return;const a=this.findModelByName(t,r.value);a?o===s.Agent&&!T.suitableForAgentMode(a)&&e.push({message:u(5791,null,r.value),severity:f.Warning,...r.range}):e.push({message:u(5790,null,r.value),severity:f.Warning,...r.range})}findModelByName(r,o){for(const e of r){const t=this.h.lookupLanguageModel(e);if(t&&t.isUserSelectable!==!1&&t.name===o)return t}}validateTools(r,o,e){if(!r||r.value===void 0||o===s.Ask||o===s.Edit)return;const t=new Set(r.value);if(t.size!==0){for(const a of this.j.getTools())t.delete(a.toolReferenceName??a.displayName);for(const a of this.j.toolSets.get())t.delete(a.referenceName);for(const a of t){const i=r.getToolRange(a);i&&e.push({message:u(5792,null,a),severity:f.Warning,...i})}}}toString(){return`prompt-header-diagnostics:${this.f.uri.path}`}};d=g([l(1,p),l(2,_),l(3,D),l(4,j)],d);function A(n){if(n instanceof R)return{message:n.message,severity:f.Warning,...n.range};if(n instanceof $)return{message:n.message,severity:f.Error,...n.range};M(n,`Unknown prompt metadata diagnostic type '${n}'.`)}class H extends y{get b(){return d}}export{H as $lfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IPromptsService } from "../service/promptsService.js";
+import { ProviderInstanceBase } from "./providerInstanceBase.js";
+import { assertNever } from "../../../../../../base/common/assert.js";
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { ProviderInstanceManagerBase } from "./providerInstanceManagerBase.js";
+import { PromptMetadataError, PromptMetadataWarning } from "../parsers/promptHeader/diagnostics.js";
+import { IMarkerService, MarkerSeverity } from "../../../../../../platform/markers/common/markers.js";
+import { PromptHeader } from "../parsers/promptHeader/promptHeader.js";
+import { ModeHeader } from "../parsers/promptHeader/modeHeader.js";
+import { ILanguageModelChatMetadata, ILanguageModelsService } from "../../languageModels.js";
+import { ILanguageModelToolsService } from "../../languageModelToolsService.js";
+import { localize } from "../../../../../../nls.js";
+import { ChatModeKind } from "../../constants.js";
+const MARKERS_OWNER_ID = "prompts-header-diagnostics-provider";
+let PromptHeaderDiagnosticsProvider = class PromptHeaderDiagnosticsProvider2 extends ProviderInstanceBase {
+  static {
+    __name(this, "PromptHeaderDiagnosticsProvider");
+  }
+  constructor(model, promptsService, markerService, languageModelsService, languageModelToolsService) {
+    super(model, promptsService);
+    this.markerService = markerService;
+    this.languageModelsService = languageModelsService;
+    this.languageModelToolsService = languageModelToolsService;
+    this._register(languageModelsService.onDidChangeLanguageModels(() => {
+      this.onPromptSettled(void 0, CancellationToken.None);
+    }));
+    this._register(languageModelToolsService.onDidChangeTools(() => {
+      this.onPromptSettled(void 0, CancellationToken.None);
+    }));
+  }
+  /**
+   * Update diagnostic markers for the current editor.
+   */
+  async onPromptSettled(_error, token) {
+    this.markerService.remove(MARKERS_OWNER_ID, [this.model.uri]);
+    const { header } = this.parser;
+    if (header === void 0) {
+      return;
+    }
+    await header.settled;
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const markers = [];
+    for (const diagnostic of header.diagnostics) {
+      markers.push(toMarker(diagnostic));
+    }
+    if (header instanceof PromptHeader) {
+      this.validateTools(header.metadataUtility.tools, header.metadata.mode, markers);
+      this.validateModel(header.metadataUtility.model, header.metadata.mode, markers);
+    } else if (header instanceof ModeHeader) {
+      this.validateTools(header.metadataUtility.tools, ChatModeKind.Agent, markers);
+      this.validateModel(header.metadataUtility.model, ChatModeKind.Agent, markers);
+    }
+    this.markerService.changeOne(MARKERS_OWNER_ID, this.model.uri, markers);
+    return;
+  }
+  validateModel(modelNode, modeKind, markers) {
+    if (!modelNode || modelNode.value === void 0) {
+      return;
+    }
+    const languageModes = this.languageModelsService.getLanguageModelIds();
+    if (languageModes.length === 0) {
+      return;
+    }
+    const modelMetadata = this.findModelByName(languageModes, modelNode.value);
+    if (!modelMetadata) {
+      markers.push({
+        message: localize("promptHeaderDiagnosticsProvider.modelNotFound", "Unknown model '{0}'", modelNode.value),
+        severity: MarkerSeverity.Warning,
+        ...modelNode.range
+      });
+    } else if (modeKind === ChatModeKind.Agent && !ILanguageModelChatMetadata.suitableForAgentMode(modelMetadata)) {
+      markers.push({
+        message: localize("promptHeaderDiagnosticsProvider.modelNotSuited", "Model '{0}' is not suited for agent mode", modelNode.value),
+        severity: MarkerSeverity.Warning,
+        ...modelNode.range
+      });
+    }
+  }
+  findModelByName(languageModes, modelName) {
+    for (const model of languageModes) {
+      const metadata = this.languageModelsService.lookupLanguageModel(model);
+      if (metadata && metadata.isUserSelectable !== false && metadata.name === modelName) {
+        return metadata;
+      }
+    }
+    return void 0;
+  }
+  validateTools(tools, modeKind, markers) {
+    if (!tools || tools.value === void 0 || modeKind === ChatModeKind.Ask || modeKind === ChatModeKind.Edit) {
+      return;
+    }
+    const toolNames = new Set(tools.value);
+    if (toolNames.size === 0) {
+      return;
+    }
+    for (const tool of this.languageModelToolsService.getTools()) {
+      toolNames.delete(tool.toolReferenceName ?? tool.displayName);
+    }
+    for (const toolSet of this.languageModelToolsService.toolSets.get()) {
+      toolNames.delete(toolSet.referenceName);
+    }
+    for (const toolName of toolNames) {
+      const range = tools.getToolRange(toolName);
+      if (range) {
+        markers.push({
+          message: localize("promptHeaderDiagnosticsProvider.toolNotFound", "Unknown tool '{0}'", toolName),
+          severity: MarkerSeverity.Warning,
+          ...range
+        });
+      }
+    }
+  }
+  /**
+   * Returns a string representation of this object.
+   */
+  toString() {
+    return `prompt-header-diagnostics:${this.model.uri.path}`;
+  }
+};
+PromptHeaderDiagnosticsProvider = __decorate([
+  __param(1, IPromptsService),
+  __param(2, IMarkerService),
+  __param(3, ILanguageModelsService),
+  __param(4, ILanguageModelToolsService)
+], PromptHeaderDiagnosticsProvider);
+function toMarker(diagnostic) {
+  if (diagnostic instanceof PromptMetadataWarning) {
+    return {
+      message: diagnostic.message,
+      severity: MarkerSeverity.Warning,
+      ...diagnostic.range
+    };
+  }
+  if (diagnostic instanceof PromptMetadataError) {
+    return {
+      message: diagnostic.message,
+      severity: MarkerSeverity.Error,
+      ...diagnostic.range
+    };
+  }
+  assertNever(diagnostic, `Unknown prompt metadata diagnostic type '${diagnostic}'.`);
+}
+__name(toMarker, "toMarker");
+class PromptHeaderDiagnosticsInstanceManager extends ProviderInstanceManagerBase {
+  static {
+    __name(this, "PromptHeaderDiagnosticsInstanceManager");
+  }
+  get InstanceClass() {
+    return PromptHeaderDiagnosticsProvider;
+  }
+}
+export {
+  PromptHeaderDiagnosticsInstanceManager
+};
+//# sourceMappingURL=promptHeaderDiagnosticsProvider.js.map

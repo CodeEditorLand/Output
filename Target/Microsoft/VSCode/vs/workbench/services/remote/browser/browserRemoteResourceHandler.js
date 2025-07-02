@@ -1,1 +1,62 @@
-import{$Ji as m}from"../../../../base/common/buffer.js";import{$vd as l}from"../../../../base/common/lifecycle.js";import{$5B as d}from"../../../../base/common/mime.js";import{URI as p}from"../../../../base/common/uri.js";import{$ok as R,$5j as v}from"../../../../platform/files/common/files.js";var u=function(f,t,e,r){var n=arguments.length,o=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,e,r);else for(var c=f.length-1;c>=0;c--)(i=f[c])&&(o=(n<3?i(o):n>3?i(t,e,o):i(t,e))||o);return n>3&&o&&Object.defineProperty(t,e,o),o},h=function(f,t){return function(e,r){t(e,r,f)}};let s=class extends l{constructor(t,e){super(),this.a=e,this.B(e.onDidReceiveRequest(async r=>{let n;try{n=JSON.parse(decodeURIComponent(r.uri.query))}catch{return r.respondWith(404,new Uint8Array,{})}let o;try{o=await t.readFile(p.from(n,!0))}catch(c){const a=m.fromString(c.message).buffer;return c instanceof R&&c.fileOperationResult===1?r.respondWith(404,a,{}):r.respondWith(500,a,{})}const i=n.path&&d(n.path);r.respondWith(200,o.value.buffer,i?{"content-type":i}:{})}))}getResourceUriProvider(){const t=p.parse(document.location.href);return e=>t.with({path:this.a.path,query:JSON.stringify(e)})}};s=u([h(0,v)],s);export{s as $DAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { getMediaOrTextMime } from "../../../../base/common/mime.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileOperationError, IFileService } from "../../../../platform/files/common/files.js";
+let BrowserRemoteResourceLoader = class BrowserRemoteResourceLoader2 extends Disposable {
+  static {
+    __name(this, "BrowserRemoteResourceLoader");
+  }
+  constructor(fileService, provider) {
+    super();
+    this.provider = provider;
+    this._register(provider.onDidReceiveRequest(async (request) => {
+      let uri;
+      try {
+        uri = JSON.parse(decodeURIComponent(request.uri.query));
+      } catch {
+        return request.respondWith(404, new Uint8Array(), {});
+      }
+      let content;
+      try {
+        content = await fileService.readFile(URI.from(uri, true));
+      } catch (e) {
+        const str = VSBuffer.fromString(e.message).buffer;
+        if (e instanceof FileOperationError && e.fileOperationResult === 1) {
+          return request.respondWith(404, str, {});
+        } else {
+          return request.respondWith(500, str, {});
+        }
+      }
+      const mime = uri.path && getMediaOrTextMime(uri.path);
+      request.respondWith(200, content.value.buffer, mime ? { "content-type": mime } : {});
+    }));
+  }
+  getResourceUriProvider() {
+    const baseUri = URI.parse(document.location.href);
+    return (uri) => baseUri.with({
+      path: this.provider.path,
+      query: JSON.stringify(uri)
+    });
+  }
+};
+BrowserRemoteResourceLoader = __decorate([
+  __param(0, IFileService)
+], BrowserRemoteResourceLoader);
+export {
+  BrowserRemoteResourceLoader
+};
+//# sourceMappingURL=browserRemoteResourceHandler.js.map

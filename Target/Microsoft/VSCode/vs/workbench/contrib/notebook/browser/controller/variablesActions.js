@@ -1,1 +1,64 @@
-import{localize2 as n}from"../../../../../nls.js";import{$xI as e,$DI as a}from"../../../../../platform/actions/common/actions.js";import{$Cn as o}from"../../../../../platform/contextkey/common/contextkey.js";import{$8wb as l}from"../../../../services/views/common/viewsService.js";import{$BBb as r}from"../../common/notebookContextKeys.js";import{$Idc as t}from"../contrib/notebookVariables/notebookVariableContextKeys.js";import*as u from"../notebookIcons.js";import{$yWb as b}from"./coreActions.js";const s="notebook.openVariablesView";a(class extends b{constructor(){super({id:s,title:n(9476,"Variables"),icon:u.$NUb,menu:[{id:e.InteractiveToolbar,group:"navigation",when:o.and(r,o.notEquals("jupyter.kernel.isjupyter",!0),t)},{id:e.EditorTitle,order:-1,group:"navigation",when:o.and(r,o.notEquals("jupyter.kernel.isjupyter",!0),o.notEquals("config.notebook.globalToolbar",!0),t)},{id:e.NotebookToolbar,order:-1,group:"navigation",when:o.and(r,o.notEquals("jupyter.kernel.isjupyter",!0),o.equals("config.notebook.globalToolbar",!0),t)}]})}async runWithContext(i,m){i.get(l).openView("workbench.notebook.variables",!0)}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../../../nls.js";
+import { MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { KERNEL_HAS_VARIABLE_PROVIDER } from "../../common/notebookContextKeys.js";
+import { NOTEBOOK_VARIABLE_VIEW_ENABLED } from "../contrib/notebookVariables/notebookVariableContextKeys.js";
+import * as icons from "../notebookIcons.js";
+import { NotebookAction } from "./coreActions.js";
+const OPEN_VARIABLES_VIEW_COMMAND_ID = "notebook.openVariablesView";
+registerAction2(class OpenVariablesViewAction extends NotebookAction {
+  static {
+    __name(this, "OpenVariablesViewAction");
+  }
+  constructor() {
+    super({
+      id: OPEN_VARIABLES_VIEW_COMMAND_ID,
+      title: localize2("notebookActions.openVariablesView", "Variables"),
+      icon: icons.variablesViewIcon,
+      menu: [
+        {
+          id: MenuId.InteractiveToolbar,
+          group: "navigation",
+          when: ContextKeyExpr.and(
+            KERNEL_HAS_VARIABLE_PROVIDER,
+            // jupyter extension currently contributes their own goto variables button
+            ContextKeyExpr.notEquals("jupyter.kernel.isjupyter", true),
+            NOTEBOOK_VARIABLE_VIEW_ENABLED
+          )
+        },
+        {
+          id: MenuId.EditorTitle,
+          order: -1,
+          group: "navigation",
+          when: ContextKeyExpr.and(
+            KERNEL_HAS_VARIABLE_PROVIDER,
+            // jupyter extension currently contributes their own goto variables button
+            ContextKeyExpr.notEquals("jupyter.kernel.isjupyter", true),
+            ContextKeyExpr.notEquals("config.notebook.globalToolbar", true),
+            NOTEBOOK_VARIABLE_VIEW_ENABLED
+          )
+        },
+        {
+          id: MenuId.NotebookToolbar,
+          order: -1,
+          group: "navigation",
+          when: ContextKeyExpr.and(
+            KERNEL_HAS_VARIABLE_PROVIDER,
+            // jupyter extension currently contributes their own goto variables button
+            ContextKeyExpr.notEquals("jupyter.kernel.isjupyter", true),
+            ContextKeyExpr.equals("config.notebook.globalToolbar", true),
+            NOTEBOOK_VARIABLE_VIEW_ENABLED
+          )
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    const variableViewId = "workbench.notebook.variables";
+    accessor.get(IViewsService).openView(variableViewId, true);
+  }
+});
+//# sourceMappingURL=variablesActions.js.map

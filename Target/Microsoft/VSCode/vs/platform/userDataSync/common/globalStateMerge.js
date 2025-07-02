@@ -1,1 +1,118 @@
-import*as k from"../../../base/common/objects.js";import{$xNb as h}from"./userDataSync.js";function b(n,t,c,a,r){if(!t)return{remote:{added:Object.keys(n),removed:[],updated:[],all:Object.keys(n).length>0?n:null},local:{added:{},removed:[],updated:{}}};const l=m(n,t);if(l.added.size===0&&l.removed.size===0&&l.updated.size===0)return{remote:{added:[],removed:[],updated:[],all:null},local:{added:{},removed:[],updated:{}}};const i=c?m(c,t):{added:Object.keys(t).reduce((e,s)=>(e.add(s),e),new Set),removed:new Set,updated:new Set},d=c?m(c,n):{added:Object.keys(n).reduce((e,s)=>(e.add(s),e),new Set),removed:new Set,updated:new Set},u={added:{},removed:[],updated:{}},o=k.$4o(t),v=!c;for(const e of d.added.values())e!==h&&v&&i.added.has(e)||(o[e]=n[e]);for(const e of d.updated.values())o[e]=n[e];for(const e of d.removed.values())a.unregistered.includes(e)||delete o[e];for(const e of i.added.values()){const s=t[e];if(a.machine.includes(e)){r.info(`GlobalState: Skipped adding ${e} in local storage because it is declared as machine scoped.`);continue}if(c&&d.added.has(e))continue;const p=n[e];p&&p.value===s.value||e===h&&v&&d.added.has(e)||(p?u.updated[e]=s:u.added[e]=s)}for(const e of i.updated.values()){const s=t[e];if(a.machine.includes(e)){r.info(`GlobalState: Skipped updating ${e} in local storage because it is declared as machine scoped.`);continue}if(d.updated.has(e)||d.removed.has(e))continue;const p=n[e];p&&p.value===s.value||(u.updated[e]=s)}for(const e of i.removed.values()){if(a.machine.includes(e)){r.trace(`GlobalState: Skipped removing ${e} in local storage because it is declared as machine scoped.`);continue}d.updated.has(e)||d.removed.has(e)||u.removed.push(e)}const f=m(t,o);return{local:u,remote:{added:[...f.added],updated:[...f.updated],removed:[...f.removed],all:f.added.size===0&&f.removed.size===0&&f.updated.size===0?null:o}}}function m(n,t){const c=Object.keys(n),a=Object.keys(t),r=a.filter(d=>!c.includes(d)).reduce((d,u)=>(d.add(u),d),new Set),l=c.filter(d=>!a.includes(d)).reduce((d,u)=>(d.add(u),d),new Set),i=new Set;for(const d of c){if(l.has(d))continue;const u=n[d],o=t[d];k.$8o(u,o)||i.add(d)}return{added:r,removed:l,updated:i}}export{b as $L7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as objects from "../../../base/common/objects.js";
+import { SYNC_SERVICE_URL_TYPE } from "./userDataSync.js";
+function merge(localStorage, remoteStorage, baseStorage, storageKeys, logService) {
+  if (!remoteStorage) {
+    return { remote: { added: Object.keys(localStorage), removed: [], updated: [], all: Object.keys(localStorage).length > 0 ? localStorage : null }, local: { added: {}, removed: [], updated: {} } };
+  }
+  const localToRemote = compare(localStorage, remoteStorage);
+  if (localToRemote.added.size === 0 && localToRemote.removed.size === 0 && localToRemote.updated.size === 0) {
+    return { remote: { added: [], removed: [], updated: [], all: null }, local: { added: {}, removed: [], updated: {} } };
+  }
+  const baseToRemote = baseStorage ? compare(baseStorage, remoteStorage) : { added: Object.keys(remoteStorage).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
+  const baseToLocal = baseStorage ? compare(baseStorage, localStorage) : { added: Object.keys(localStorage).reduce((r, k) => {
+    r.add(k);
+    return r;
+  }, /* @__PURE__ */ new Set()), removed: /* @__PURE__ */ new Set(), updated: /* @__PURE__ */ new Set() };
+  const local = { added: {}, removed: [], updated: {} };
+  const remote = objects.deepClone(remoteStorage);
+  const isFirstTimeSync = !baseStorage;
+  for (const key of baseToLocal.added.values()) {
+    if (key !== SYNC_SERVICE_URL_TYPE && isFirstTimeSync && baseToRemote.added.has(key)) {
+      continue;
+    }
+    remote[key] = localStorage[key];
+  }
+  for (const key of baseToLocal.updated.values()) {
+    remote[key] = localStorage[key];
+  }
+  for (const key of baseToLocal.removed.values()) {
+    if (storageKeys.unregistered.includes(key)) {
+      continue;
+    }
+    delete remote[key];
+  }
+  for (const key of baseToRemote.added.values()) {
+    const remoteValue = remoteStorage[key];
+    if (storageKeys.machine.includes(key)) {
+      logService.info(`GlobalState: Skipped adding ${key} in local storage because it is declared as machine scoped.`);
+      continue;
+    }
+    if (baseStorage && baseToLocal.added.has(key)) {
+      continue;
+    }
+    const localValue = localStorage[key];
+    if (localValue && localValue.value === remoteValue.value) {
+      continue;
+    }
+    if (key === SYNC_SERVICE_URL_TYPE && isFirstTimeSync && baseToLocal.added.has(key)) {
+      continue;
+    }
+    if (localValue) {
+      local.updated[key] = remoteValue;
+    } else {
+      local.added[key] = remoteValue;
+    }
+  }
+  for (const key of baseToRemote.updated.values()) {
+    const remoteValue = remoteStorage[key];
+    if (storageKeys.machine.includes(key)) {
+      logService.info(`GlobalState: Skipped updating ${key} in local storage because it is declared as machine scoped.`);
+      continue;
+    }
+    if (baseToLocal.updated.has(key) || baseToLocal.removed.has(key)) {
+      continue;
+    }
+    const localValue = localStorage[key];
+    if (localValue && localValue.value === remoteValue.value) {
+      continue;
+    }
+    local.updated[key] = remoteValue;
+  }
+  for (const key of baseToRemote.removed.values()) {
+    if (storageKeys.machine.includes(key)) {
+      logService.trace(`GlobalState: Skipped removing ${key} in local storage because it is declared as machine scoped.`);
+      continue;
+    }
+    if (baseToLocal.updated.has(key) || baseToLocal.removed.has(key)) {
+      continue;
+    }
+    local.removed.push(key);
+  }
+  const result = compare(remoteStorage, remote);
+  return { local, remote: { added: [...result.added], updated: [...result.updated], removed: [...result.removed], all: result.added.size === 0 && result.removed.size === 0 && result.updated.size === 0 ? null : remote } };
+}
+__name(merge, "merge");
+function compare(from, to) {
+  const fromKeys = Object.keys(from);
+  const toKeys = Object.keys(to);
+  const added = toKeys.filter((key) => !fromKeys.includes(key)).reduce((r, key) => {
+    r.add(key);
+    return r;
+  }, /* @__PURE__ */ new Set());
+  const removed = fromKeys.filter((key) => !toKeys.includes(key)).reduce((r, key) => {
+    r.add(key);
+    return r;
+  }, /* @__PURE__ */ new Set());
+  const updated = /* @__PURE__ */ new Set();
+  for (const key of fromKeys) {
+    if (removed.has(key)) {
+      continue;
+    }
+    const value1 = from[key];
+    const value2 = to[key];
+    if (!objects.equals(value1, value2)) {
+      updated.add(key);
+    }
+  }
+  return { added, removed, updated };
+}
+__name(compare, "compare");
+export {
+  merge
+};
+//# sourceMappingURL=globalStateMerge.js.map

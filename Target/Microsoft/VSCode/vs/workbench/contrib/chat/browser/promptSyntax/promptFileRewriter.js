@@ -1,1 +1,76 @@
-import{$oab as d}from"../../../../../editor/browser/services/codeEditorService.js";import{$TC as f}from"../../../../../editor/common/core/editOperation.js";import{$eQ as h}from"../../common/languageModelToolsService.js";import{$IS as m}from"../../common/promptSyntax/service/promptsService.js";var p=function(s,e,n,r){var o=arguments.length,t=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,n):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,n,r);else for(var a=s.length-1;a>=0;a--)(i=s[a])&&(t=(o<3?i(t):o>3?i(e,n,t):i(e,n))||t);return o>3&&t&&Object.defineProperty(e,n,t),t},c=function(s,e){return function(n,r){e(n,r,s)}};let u=class{constructor(e,n){this.a=e,this.b=n}async openAndRewriteTools(e,n,r){const o=await this.a.openCodeEditor({resource:e},this.a.getFocusedCodeEditor());if(!o||!o.hasModel())return;const t=o.getModel(),i=this.b.getSyntaxParserFor(t),{header:a}=await i.start(r).settled();if(a===void 0||r.isCancellationRequested||!("tools"in a.metadataUtility))return;const{tools:l}=a.metadataUtility;l!==void 0&&(o.setSelection(l.range),await this.rewriteTools(t,n,l.range))}rewriteTools(e,n,r){const o=[];if(n===void 0){e.pushStackElement(),e.pushEditOperations(null,[f.replaceMove(r,"")],()=>null),e.pushStackElement();return}for(const[t,i]of n)i&&(t instanceof h?o.push(t.referenceName):o.push(t.toolReferenceName??t.displayName));e.pushStackElement(),e.pushEditOperations(null,[f.replaceMove(r,`tools: [${o.map(t=>`'${t}'`).join(", ")}]`)],()=>null),e.pushStackElement()}};u=p([c(0,d),c(1,m)],u);export{u as $LEb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { EditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { ToolSet } from "../../common/languageModelToolsService.js";
+import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+let PromptFileRewriter = class PromptFileRewriter2 {
+  static {
+    __name(this, "PromptFileRewriter");
+  }
+  constructor(_codeEditorService, _promptsService) {
+    this._codeEditorService = _codeEditorService;
+    this._promptsService = _promptsService;
+  }
+  async openAndRewriteTools(uri, newTools, token) {
+    const editor = await this._codeEditorService.openCodeEditor({ resource: uri }, this._codeEditorService.getFocusedCodeEditor());
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const parser = this._promptsService.getSyntaxParserFor(model);
+    const { header } = await parser.start(token).settled();
+    if (header === void 0 || token.isCancellationRequested) {
+      return void 0;
+    }
+    if ("tools" in header.metadataUtility === false) {
+      return void 0;
+    }
+    const { tools } = header.metadataUtility;
+    if (tools === void 0) {
+      return void 0;
+    }
+    editor.setSelection(tools.range);
+    await this.rewriteTools(model, newTools, tools.range);
+  }
+  rewriteTools(model, newTools, range) {
+    const newToolNames = [];
+    if (newTools === void 0) {
+      model.pushStackElement();
+      model.pushEditOperations(null, [EditOperation.replaceMove(range, "")], () => null);
+      model.pushStackElement();
+      return;
+    }
+    for (const [item, picked] of newTools) {
+      if (picked) {
+        if (item instanceof ToolSet) {
+          newToolNames.push(item.referenceName);
+        } else {
+          newToolNames.push(item.toolReferenceName ?? item.displayName);
+        }
+      }
+    }
+    model.pushStackElement();
+    model.pushEditOperations(null, [EditOperation.replaceMove(range, `tools: [${newToolNames.map((s) => `'${s}'`).join(", ")}]`)], () => null);
+    model.pushStackElement();
+  }
+};
+PromptFileRewriter = __decorate([
+  __param(0, ICodeEditorService),
+  __param(1, IPromptsService)
+], PromptFileRewriter);
+export {
+  PromptFileRewriter
+};
+//# sourceMappingURL=promptFileRewriter.js.map

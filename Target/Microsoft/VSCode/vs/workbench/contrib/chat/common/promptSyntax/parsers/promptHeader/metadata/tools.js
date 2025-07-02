@@ -1,1 +1,89 @@
-import{$gR as a}from"./base/record.js";import{localize as n}from"../../../../../../../../nls.js";import{$fR as f,$eR as i}from"../diagnostics.js";import{$6Q as u}from"../../../codecs/base/frontMatterCodec/tokens/frontMatterSequence.js";import{FrontMatterArray as h,FrontMatterRecord as c,FrontMatterString as l}from"../../../codecs/base/frontMatterCodec/tokens/index.js";const o="tools";class x extends a{get value(){return this.f===void 0?[]:[...this.f.keys()]}get recordName(){return o}constructor(t,r){super(o,t,r)}validate(){const{valueToken:t}=this.c;if(!(t instanceof h))return this.a.push(new f(t.range,n(5815,null,t.valueTypeName.toString()))),delete this.e,this.a;this.e=t,this.f=new Map;for(const r of this.e.items)this.a.push(...this.g(r,this.f));return this.a}getToolRange(t){return this.f?.get(t)}g(t,r){const e=[];if(!(t instanceof l)&&!(t instanceof u))return e.push(new i(t.range,n(5816,null,t.text))),e;const s=t.cleanText.trim();return s.length===0?(e.push(new i(t.range,n(5817,null))),e):r.has(s)?(e.push(new i(t.range,n(5818,null,s))),e):(r.set(s,t.range),e)}static isToolsRecord(t){return t instanceof c?t.nameToken.text===o:!1}}export{x as $jR};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PromptMetadataRecord } from "./base/record.js";
+import { localize } from "../../../../../../../../nls.js";
+import { PromptMetadataError, PromptMetadataWarning } from "../diagnostics.js";
+import { FrontMatterSequence } from "../../../codecs/base/frontMatterCodec/tokens/frontMatterSequence.js";
+import { FrontMatterArray, FrontMatterRecord, FrontMatterString } from "../../../codecs/base/frontMatterCodec/tokens/index.js";
+const RECORD_NAME = "tools";
+class PromptToolsMetadata extends PromptMetadataRecord {
+  static {
+    __name(this, "PromptToolsMetadata");
+  }
+  /**
+   * List of all valid tool names that were found in
+   * this metadata record.
+   */
+  get value() {
+    if (this.validToolNames === void 0) {
+      return [];
+    }
+    return [...this.validToolNames.keys()];
+  }
+  get recordName() {
+    return RECORD_NAME;
+  }
+  constructor(recordToken, languageId) {
+    super(RECORD_NAME, recordToken, languageId);
+  }
+  /**
+   * Validate the metadata record and collect all issues
+   * related to its content.
+   */
+  validate() {
+    const { valueToken } = this.recordToken;
+    if (valueToken instanceof FrontMatterArray === false) {
+      this.issues.push(new PromptMetadataError(valueToken.range, localize("prompt.header.metadata.tools.diagnostics.invalid-value-type", "Must be an array of tool names, got '{0}'.", valueToken.valueTypeName.toString())));
+      delete this.valueToken;
+      return this.issues;
+    }
+    this.valueToken = valueToken;
+    this.validToolNames = /* @__PURE__ */ new Map();
+    for (const item of this.valueToken.items) {
+      this.issues.push(...this.validateToolName(item, this.validToolNames));
+    }
+    return this.issues;
+  }
+  getToolRange(toolName) {
+    return this.validToolNames?.get(toolName);
+  }
+  /**
+   * Validate an individual provided value token that is used
+   * for a tool name.
+   */
+  validateToolName(valueToken, validToolNames) {
+    const issues = [];
+    if (valueToken instanceof FrontMatterString === false && valueToken instanceof FrontMatterSequence === false) {
+      issues.push(new PromptMetadataWarning(valueToken.range, localize("prompt.header.metadata.tools.diagnostics.invalid-tool-name-type", "Unexpected tool name '{0}', expected a string literal.", valueToken.text)));
+      return issues;
+    }
+    const cleanToolName = valueToken.cleanText.trim();
+    if (cleanToolName.length === 0) {
+      issues.push(new PromptMetadataWarning(valueToken.range, localize("prompt.header.metadata.tools.diagnostics.empty-tool-name", "Tool name cannot be empty.")));
+      return issues;
+    }
+    if (validToolNames.has(cleanToolName)) {
+      issues.push(new PromptMetadataWarning(valueToken.range, localize("prompt.header.metadata.tools.diagnostics.duplicate-tool-name", "Duplicate tool name '{0}'.", cleanToolName)));
+      return issues;
+    }
+    validToolNames.set(cleanToolName, valueToken.range);
+    return issues;
+  }
+  /**
+   * Check if a provided front matter token is a metadata record
+   * with name equal to `tools`.
+   */
+  static isToolsRecord(token) {
+    if (token instanceof FrontMatterRecord === false) {
+      return false;
+    }
+    if (token.nameToken.text === RECORD_NAME) {
+      return true;
+    }
+    return false;
+  }
+}
+export {
+  PromptToolsMetadata
+};
+//# sourceMappingURL=tools.js.map

@@ -1,1 +1,42 @@
-import{$gz as u,$mz as $}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$pM as h}from"../../../../platform/extensionManagement/common/extensionStorage.js";import{$$jc as i}from"../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";import{$4n as j}from"../../../../platform/log/common/log.js";import{$mDb as l}from"../../../services/extensionManagement/common/extensionManagement.js";var _=function(m,t,r,n){var f=arguments.length,o=f<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,r):n,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(m,t,r,n);else for(var c=m.length-1;c>=0;c--)(p=m[c])&&(o=(f<3?p(o):f>3?p(t,r,o):p(t,r))||o);return f>3&&o&&Object.defineProperty(t,r,o),o},e=function(m,t){return function(r,n){t(r,n,m)}};let a=class{constructor(t,r,n,f,o){t.remoteExtensionManagementServer&&i(t.remoteExtensionManagementServer.extensionManagementService,r,n,f,o),t.webExtensionManagementServer&&i(t.webExtensionManagementServer.extensionManagementService,r,n,f,o)}};a=_([e(0,l),e(1,u),e(2,h),e(3,$),e(4,j)],a);export{a as $_jc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IExtensionGalleryService, IGlobalExtensionEnablementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
+import { migrateUnsupportedExtensions } from "../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionManagementServerService } from "../../../services/extensionManagement/common/extensionManagement.js";
+let UnsupportedExtensionsMigrationContrib = class UnsupportedExtensionsMigrationContrib2 {
+  static {
+    __name(this, "UnsupportedExtensionsMigrationContrib");
+  }
+  constructor(extensionManagementServerService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService) {
+    if (extensionManagementServerService.remoteExtensionManagementServer) {
+      migrateUnsupportedExtensions(extensionManagementServerService.remoteExtensionManagementServer.extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService);
+    }
+    if (extensionManagementServerService.webExtensionManagementServer) {
+      migrateUnsupportedExtensions(extensionManagementServerService.webExtensionManagementServer.extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, logService);
+    }
+  }
+};
+UnsupportedExtensionsMigrationContrib = __decorate([
+  __param(0, IExtensionManagementServerService),
+  __param(1, IExtensionGalleryService),
+  __param(2, IExtensionStorageService),
+  __param(3, IGlobalExtensionEnablementService),
+  __param(4, ILogService)
+], UnsupportedExtensionsMigrationContrib);
+export {
+  UnsupportedExtensionsMigrationContrib
+};
+//# sourceMappingURL=unsupportedExtensionsMigrationContribution.js.map

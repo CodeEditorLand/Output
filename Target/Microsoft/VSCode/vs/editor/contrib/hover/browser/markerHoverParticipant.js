@@ -1,1 +1,266 @@
-import*as l from"../../../../base/browser/dom.js";import{$$b as F}from"../../../../base/common/arrays.js";import{$wh as S,$Nh as D}from"../../../../base/common/async.js";import{$kb as w}from"../../../../base/common/errors.js";import{$vd as O,$ud as x,$td as E}from"../../../../base/common/lifecycle.js";import{$hh as R}from"../../../../base/common/resources.js";import{$cC as L}from"../../../common/core/range.js";import{$tT as z}from"../../../common/services/languageFeatures.js";import{$pbb as B}from"../../../common/services/markerDecorations.js";import{ApplyCodeActionReason as q,$jib as H,$cib as K}from"../../codeAction/browser/codeAction.js";import{$Yib as N}from"../../codeAction/browser/codeActionController.js";import{$9hb as Q,CodeActionTriggerSource as V}from"../../codeAction/common/types.js";import{$$qb as Z,$_qb as G}from"../../gotoError/browser/gotoError.js";import{$hjb as I}from"./hoverTypes.js";import*as $ from"../../../../nls.js";import{IMarkerData as P,MarkerSeverity as C}from"../../../../platform/markers/common/markers.js";import{$i_ as J}from"../../../../platform/opener/common/opener.js";import{$gJ as U}from"../../../../platform/progress/common/progress.js";var j=function(u,e,t,o){var n=arguments.length,i=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(u,e,t,o);else for(var r=u.length-1;r>=0;r--)(s=u[r])&&(i=(n<3?s(i):n>3?s(e,t,i):s(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},v=function(u,e){return function(t,o){e(t,o,u)}};const m=l.$;class W{constructor(e,t,o){this.owner=e,this.range=t,this.marker=o}isValidForHoverAnchor(e){return e.type===1&&this.range.startColumn<=e.range.startColumn&&this.range.endColumn>=e.range.endColumn}}const M={type:1,filter:{include:Q.QuickFix},triggerAction:V.QuickFixHover};let T=class{constructor(e,t,o,n){this.f=e,this.g=t,this.h=o,this.i=n,this.hoverOrdinal=1,this.c=void 0}computeSync(e,t){if(!this.f.hasModel()||e.type!==1&&!e.supportsMarkerHover)return[];const o=this.f.getModel(),n=e.range;if(!o.isValidRange(e.range))return[];const i=n.startLineNumber,s=o.getLineMaxColumn(i),r=[];for(const d of t){const f=d.range.startLineNumber===i?d.range.startColumn:1,h=d.range.endLineNumber===i?d.range.endColumn:s,a=this.g.getMarker(o.uri,d);if(!a)continue;const c=new L(e.range.startLineNumber,f,e.range.startLineNumber,h);r.push(new W(this,c,a))}return r}renderHoverParts(e,t){if(!t.length)return new I([]);const o=[];t.forEach(s=>{const r=this.j(s);e.fragment.appendChild(r.hoverElement),o.push(r)});const n=t.length===1?t[0]:t.sort((s,r)=>C.compare(s.marker.severity,r.marker.severity))[0],i=this.k(e,n);return new I(o,i)}getAccessibleContent(e){return e.marker.message}j(e){const t=new x,o=m("div.hover-row"),n=l.$36(o,m("div.marker.hover-contents")),{source:i,message:s,code:r,relatedInformation:d}=e.marker;this.f.applyFontInfo(n);const f=l.$36(n,m("span"));if(f.style.whiteSpace="pre-wrap",f.innerText=s,i||r)if(r&&typeof r!="string"){const a=m("span");if(i){const p=l.$36(a,m("span"));p.innerText=i}const c=l.$36(a,m("a.code-link"));c.setAttribute("href",r.target.toString(!0)),t.add(l.$Z5(c,"click",p=>{this.h.open(r.target,{allowCommands:!0}),p.preventDefault(),p.stopPropagation()}));const b=l.$36(c,m("span"));b.innerText=r.value;const g=l.$36(n,a);g.style.opacity="0.6",g.style.paddingLeft="6px"}else{const a=l.$36(n,m("span"));a.style.opacity="0.6",a.style.paddingLeft="6px",a.innerText=i&&r?`${i}(${r})`:i||`(${r})`}if(F(d))for(const{message:a,resource:c,startLineNumber:b,startColumn:g}of d){const p=l.$36(n,m("div"));p.style.marginTop="8px";const y=l.$36(p,m("a"));y.innerText=`${R(c)}(${b}, ${g}): `,y.style.cursor="pointer",t.add(l.$Z5(y,"click",k=>{if(k.stopPropagation(),k.preventDefault(),this.h){const _={selection:{startLineNumber:b,startColumn:g}};this.h.open(c,{fromUserGesture:!0,editorOptions:_}).catch(w)}}));const A=l.$36(p,m("span"));A.innerText=a,this.f.applyFontInfo(A)}return{hoverPart:e,hoverElement:o,dispose:()=>t.dispose()}}k(e,t){const o=new x;if(t.marker.severity===C.Error||t.marker.severity===C.Warning||t.marker.severity===C.Info){const n=Z.get(this.f);n&&e.statusBar.addAction({label:$.localize(1274,null),commandId:G.ID,run:()=>{e.hide(),n.showAtMarker(t.marker),this.f.focus()}})}if(!this.f.getOption(101)){const n=e.statusBar.append(m("div"));this.c&&(P.makeKey(this.c.marker)===P.makeKey(t.marker)?this.c.hasCodeActions||(n.textContent=$.localize(1275,null)):this.c=void 0);const i=this.c&&!this.c.hasCodeActions?O.None:D(()=>n.textContent=$.localize(1276,null),200,o);n.textContent||(n.textContent="\xA0");const s=this.l(t.marker);o.add(E(()=>s.cancel())),s.then(r=>{if(i.dispose(),this.c={marker:t.marker,hasCodeActions:r.validActions.length>0},!this.c.hasCodeActions){r.dispose(),n.textContent=$.localize(1277,null);return}n.style.display="none";let d=!1;o.add(E(()=>{d||r.dispose()})),e.statusBar.addAction({label:$.localize(1278,null),commandId:K,run:h=>{d=!0;const a=N.get(this.f),c=l.$j6(h);e.hide(),a?.showCodeActions(M,r,{x:c.left,y:c.top,width:c.width,height:c.height})}});const f=r.validActions.find(h=>h.action.isAI);f&&e.statusBar.addAction({label:f.action.title,commandId:f.action.command?.id??"",run:()=>{N.get(this.f)?.applyCodeAction(f,!1,!1,q.FromProblemsHover)}})},w)}return o}l(e){return S(t=>H(this.i.codeActionProvider,this.f.getModel(),new L(e.startLineNumber,e.startColumn,e.endLineNumber,e.endColumn),M,U.None,t))}};T=j([v(1,B),v(2,J),v(3,z)],T);export{W as $nrb,T as $orb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { createCancelablePromise, disposableTimeout } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { basename } from "../../../../base/common/resources.js";
+import { Range } from "../../../common/core/range.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IMarkerDecorationsService } from "../../../common/services/markerDecorations.js";
+import { ApplyCodeActionReason, getCodeActions, quickFixCommandId } from "../../codeAction/browser/codeAction.js";
+import { CodeActionController } from "../../codeAction/browser/codeActionController.js";
+import { CodeActionKind, CodeActionTriggerSource } from "../../codeAction/common/types.js";
+import { MarkerController, NextMarkerAction } from "../../gotoError/browser/gotoError.js";
+import { RenderedHoverParts } from "./hoverTypes.js";
+import * as nls from "../../../../nls.js";
+import { IMarkerData, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Progress } from "../../../../platform/progress/common/progress.js";
+const $ = dom.$;
+class MarkerHover {
+  static {
+    __name(this, "MarkerHover");
+  }
+  constructor(owner, range, marker) {
+    this.owner = owner;
+    this.range = range;
+    this.marker = marker;
+  }
+  isValidForHoverAnchor(anchor) {
+    return anchor.type === 1 && this.range.startColumn <= anchor.range.startColumn && this.range.endColumn >= anchor.range.endColumn;
+  }
+}
+const markerCodeActionTrigger = {
+  type: 1,
+  filter: { include: CodeActionKind.QuickFix },
+  triggerAction: CodeActionTriggerSource.QuickFixHover
+};
+let MarkerHoverParticipant = class MarkerHoverParticipant2 {
+  static {
+    __name(this, "MarkerHoverParticipant");
+  }
+  constructor(_editor, _markerDecorationsService, _openerService, _languageFeaturesService) {
+    this._editor = _editor;
+    this._markerDecorationsService = _markerDecorationsService;
+    this._openerService = _openerService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this.hoverOrdinal = 1;
+    this.recentMarkerCodeActionsInfo = void 0;
+  }
+  computeSync(anchor, lineDecorations) {
+    if (!this._editor.hasModel() || anchor.type !== 1 && !anchor.supportsMarkerHover) {
+      return [];
+    }
+    const model = this._editor.getModel();
+    const anchorRange = anchor.range;
+    if (!model.isValidRange(anchor.range)) {
+      return [];
+    }
+    const lineNumber = anchorRange.startLineNumber;
+    const maxColumn = model.getLineMaxColumn(lineNumber);
+    const result = [];
+    for (const d of lineDecorations) {
+      const startColumn = d.range.startLineNumber === lineNumber ? d.range.startColumn : 1;
+      const endColumn = d.range.endLineNumber === lineNumber ? d.range.endColumn : maxColumn;
+      const marker = this._markerDecorationsService.getMarker(model.uri, d);
+      if (!marker) {
+        continue;
+      }
+      const range = new Range(anchor.range.startLineNumber, startColumn, anchor.range.startLineNumber, endColumn);
+      result.push(new MarkerHover(this, range, marker));
+    }
+    return result;
+  }
+  renderHoverParts(context, hoverParts) {
+    if (!hoverParts.length) {
+      return new RenderedHoverParts([]);
+    }
+    const renderedHoverParts = [];
+    hoverParts.forEach((hoverPart) => {
+      const renderedMarkerHover = this._renderMarkerHover(hoverPart);
+      context.fragment.appendChild(renderedMarkerHover.hoverElement);
+      renderedHoverParts.push(renderedMarkerHover);
+    });
+    const markerHoverForStatusbar = hoverParts.length === 1 ? hoverParts[0] : hoverParts.sort((a, b) => MarkerSeverity.compare(a.marker.severity, b.marker.severity))[0];
+    const disposables = this._renderMarkerStatusbar(context, markerHoverForStatusbar);
+    return new RenderedHoverParts(renderedHoverParts, disposables);
+  }
+  getAccessibleContent(hoverPart) {
+    return hoverPart.marker.message;
+  }
+  _renderMarkerHover(markerHover) {
+    const disposables = new DisposableStore();
+    const hoverElement = $("div.hover-row");
+    const markerElement = dom.append(hoverElement, $("div.marker.hover-contents"));
+    const { source, message, code, relatedInformation } = markerHover.marker;
+    this._editor.applyFontInfo(markerElement);
+    const messageElement = dom.append(markerElement, $("span"));
+    messageElement.style.whiteSpace = "pre-wrap";
+    messageElement.innerText = message;
+    if (source || code) {
+      if (code && typeof code !== "string") {
+        const sourceAndCodeElement = $("span");
+        if (source) {
+          const sourceElement = dom.append(sourceAndCodeElement, $("span"));
+          sourceElement.innerText = source;
+        }
+        const codeLink = dom.append(sourceAndCodeElement, $("a.code-link"));
+        codeLink.setAttribute("href", code.target.toString(true));
+        disposables.add(dom.addDisposableListener(codeLink, "click", (e) => {
+          this._openerService.open(code.target, { allowCommands: true });
+          e.preventDefault();
+          e.stopPropagation();
+        }));
+        const codeElement = dom.append(codeLink, $("span"));
+        codeElement.innerText = code.value;
+        const detailsElement = dom.append(markerElement, sourceAndCodeElement);
+        detailsElement.style.opacity = "0.6";
+        detailsElement.style.paddingLeft = "6px";
+      } else {
+        const detailsElement = dom.append(markerElement, $("span"));
+        detailsElement.style.opacity = "0.6";
+        detailsElement.style.paddingLeft = "6px";
+        detailsElement.innerText = source && code ? `${source}(${code})` : source ? source : `(${code})`;
+      }
+    }
+    if (isNonEmptyArray(relatedInformation)) {
+      for (const { message: message2, resource, startLineNumber, startColumn } of relatedInformation) {
+        const relatedInfoContainer = dom.append(markerElement, $("div"));
+        relatedInfoContainer.style.marginTop = "8px";
+        const a = dom.append(relatedInfoContainer, $("a"));
+        a.innerText = `${basename(resource)}(${startLineNumber}, ${startColumn}): `;
+        a.style.cursor = "pointer";
+        disposables.add(dom.addDisposableListener(a, "click", (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (this._openerService) {
+            const editorOptions = { selection: { startLineNumber, startColumn } };
+            this._openerService.open(resource, {
+              fromUserGesture: true,
+              editorOptions
+            }).catch(onUnexpectedError);
+          }
+        }));
+        const messageElement2 = dom.append(relatedInfoContainer, $("span"));
+        messageElement2.innerText = message2;
+        this._editor.applyFontInfo(messageElement2);
+      }
+    }
+    const renderedHoverPart = {
+      hoverPart: markerHover,
+      hoverElement,
+      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+    };
+    return renderedHoverPart;
+  }
+  _renderMarkerStatusbar(context, markerHover) {
+    const disposables = new DisposableStore();
+    if (markerHover.marker.severity === MarkerSeverity.Error || markerHover.marker.severity === MarkerSeverity.Warning || markerHover.marker.severity === MarkerSeverity.Info) {
+      const markerController = MarkerController.get(this._editor);
+      if (markerController) {
+        context.statusBar.addAction({
+          label: nls.localize("view problem", "View Problem"),
+          commandId: NextMarkerAction.ID,
+          run: /* @__PURE__ */ __name(() => {
+            context.hide();
+            markerController.showAtMarker(markerHover.marker);
+            this._editor.focus();
+          }, "run")
+        });
+      }
+    }
+    if (!this._editor.getOption(
+      101
+      /* EditorOption.readOnly */
+    )) {
+      const quickfixPlaceholderElement = context.statusBar.append($("div"));
+      if (this.recentMarkerCodeActionsInfo) {
+        if (IMarkerData.makeKey(this.recentMarkerCodeActionsInfo.marker) === IMarkerData.makeKey(markerHover.marker)) {
+          if (!this.recentMarkerCodeActionsInfo.hasCodeActions) {
+            quickfixPlaceholderElement.textContent = nls.localize("noQuickFixes", "No quick fixes available");
+          }
+        } else {
+          this.recentMarkerCodeActionsInfo = void 0;
+        }
+      }
+      const updatePlaceholderDisposable = this.recentMarkerCodeActionsInfo && !this.recentMarkerCodeActionsInfo.hasCodeActions ? Disposable.None : disposableTimeout(() => quickfixPlaceholderElement.textContent = nls.localize("checkingForQuickFixes", "Checking for quick fixes..."), 200, disposables);
+      if (!quickfixPlaceholderElement.textContent) {
+        quickfixPlaceholderElement.textContent = String.fromCharCode(160);
+      }
+      const codeActionsPromise = this.getCodeActions(markerHover.marker);
+      disposables.add(toDisposable(() => codeActionsPromise.cancel()));
+      codeActionsPromise.then((actions) => {
+        updatePlaceholderDisposable.dispose();
+        this.recentMarkerCodeActionsInfo = { marker: markerHover.marker, hasCodeActions: actions.validActions.length > 0 };
+        if (!this.recentMarkerCodeActionsInfo.hasCodeActions) {
+          actions.dispose();
+          quickfixPlaceholderElement.textContent = nls.localize("noQuickFixes", "No quick fixes available");
+          return;
+        }
+        quickfixPlaceholderElement.style.display = "none";
+        let showing = false;
+        disposables.add(toDisposable(() => {
+          if (!showing) {
+            actions.dispose();
+          }
+        }));
+        context.statusBar.addAction({
+          label: nls.localize("quick fixes", "Quick Fix..."),
+          commandId: quickFixCommandId,
+          run: /* @__PURE__ */ __name((target) => {
+            showing = true;
+            const controller = CodeActionController.get(this._editor);
+            const elementPosition = dom.getDomNodePagePosition(target);
+            context.hide();
+            controller?.showCodeActions(markerCodeActionTrigger, actions, {
+              x: elementPosition.left,
+              y: elementPosition.top,
+              width: elementPosition.width,
+              height: elementPosition.height
+            });
+          }, "run")
+        });
+        const aiCodeAction = actions.validActions.find((action) => action.action.isAI);
+        if (aiCodeAction) {
+          context.statusBar.addAction({
+            label: aiCodeAction.action.title,
+            commandId: aiCodeAction.action.command?.id ?? "",
+            run: /* @__PURE__ */ __name(() => {
+              const controller = CodeActionController.get(this._editor);
+              controller?.applyCodeAction(aiCodeAction, false, false, ApplyCodeActionReason.FromProblemsHover);
+            }, "run")
+          });
+        }
+      }, onUnexpectedError);
+    }
+    return disposables;
+  }
+  getCodeActions(marker) {
+    return createCancelablePromise((cancellationToken) => {
+      return getCodeActions(this._languageFeaturesService.codeActionProvider, this._editor.getModel(), new Range(marker.startLineNumber, marker.startColumn, marker.endLineNumber, marker.endColumn), markerCodeActionTrigger, Progress.None, cancellationToken);
+    });
+  }
+};
+MarkerHoverParticipant = __decorate([
+  __param(1, IMarkerDecorationsService),
+  __param(2, IOpenerService),
+  __param(3, ILanguageFeaturesService)
+], MarkerHoverParticipant);
+export {
+  MarkerHover,
+  MarkerHoverParticipant
+};
+//# sourceMappingURL=markerHoverParticipant.js.map

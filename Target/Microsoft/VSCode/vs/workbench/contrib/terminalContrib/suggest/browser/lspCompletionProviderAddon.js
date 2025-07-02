@@ -1,2 +1,78 @@
-import{$vd as b}from"../../../../../base/common/lifecycle.js";import{$b1b as C,TerminalCompletionItemKind as c}from"./terminalCompletionItem.js";import{$bC as I}from"../../../../../editor/common/core/position.js";class L extends b{constructor(t,e,i){super(),this.id="lsp",this.isBuiltin=!0,this.a=t,this.b=e,this.c=i,this.triggerCharacters=t.triggerCharacters?[...t.triggerCharacters," "]:[" "]}activate(t){}async provideCompletions(t,e,i,s){this.c.trackPromptInputToVirtualFile(t);const r=t.substring(0,e),o=r.split(`
-`),n=o[o.length-1].length+1,h=this.b.object.textEditorModel.getLineCount(),g=new I(h,n),m=[];if(this.a&&this.a._debugDisplayName!=="wordbasedCompletions"){const u=await this.a.provideCompletionItems(this.b.object.textEditorModel,g,{triggerKind:1},s);m.push(...(u?.suggestions||[]).map(l=>{const p=l.kind?C(l.kind):c.Method,d=x(e,r,p,"lspCompletionItem",void 0);return{label:l.insertText,provider:`lsp:${this.a._debugDisplayName}`,detail:l.detail,kind:p,replacementIndex:d.replacementIndex,replacementLength:d.replacementLength}}))}return m}}function x(a,t,e,i,s){const r=t.endsWith("."),o=t.endsWith(" ");if(o){const n=o?"":t.split(" ").at(-1)??"";return{label:i,detail:s??s??"",replacementIndex:a-n.length,replacementLength:n.length,kind:e??e??c.Method}}else{const n=r?"":t.split(".").at(-1)??"";return{label:i,detail:s??s??"",replacementIndex:a-n.length,replacementLength:n.length,kind:e??e??c.Method}}}export{L as $Quc,x as $Ruc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { mapLspKindToTerminalKind, TerminalCompletionItemKind } from "./terminalCompletionItem.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+class LspCompletionProviderAddon extends Disposable {
+  static {
+    __name(this, "LspCompletionProviderAddon");
+  }
+  constructor(provider, textVirtualModel, lspTerminalModelContentProvider) {
+    super();
+    this.id = "lsp";
+    this.isBuiltin = true;
+    this._provider = provider;
+    this._textVirtualModel = textVirtualModel;
+    this._lspTerminalModelContentProvider = lspTerminalModelContentProvider;
+    this.triggerCharacters = provider.triggerCharacters ? [...provider.triggerCharacters, " "] : [" "];
+  }
+  activate(terminal) {
+  }
+  async provideCompletions(value, cursorPosition, allowFallbackCompletions, token) {
+    this._lspTerminalModelContentProvider.trackPromptInputToVirtualFile(value);
+    const textBeforeCursor = value.substring(0, cursorPosition);
+    const lines = textBeforeCursor.split("\n");
+    const column = lines[lines.length - 1].length + 1;
+    const lineNum = this._textVirtualModel.object.textEditorModel.getLineCount();
+    const positionVirtualDocument = new Position(lineNum, column);
+    const completions = [];
+    if (this._provider && this._provider._debugDisplayName !== "wordbasedCompletions") {
+      const result = await this._provider.provideCompletionItems(this._textVirtualModel.object.textEditorModel, positionVirtualDocument, {
+        triggerKind: 1
+        /* CompletionTriggerKind.TriggerCharacter */
+      }, token);
+      completions.push(...(result?.suggestions || []).map((e) => {
+        const convertedKind = e.kind ? mapLspKindToTerminalKind(e.kind) : TerminalCompletionItemKind.Method;
+        const completionItemTemp = createCompletionItemPython(cursorPosition, textBeforeCursor, convertedKind, "lspCompletionItem", void 0);
+        return {
+          label: e.insertText,
+          provider: `lsp:${this._provider._debugDisplayName}`,
+          detail: e.detail,
+          kind: convertedKind,
+          replacementIndex: completionItemTemp.replacementIndex,
+          replacementLength: completionItemTemp.replacementLength
+        };
+      }));
+    }
+    return completions;
+  }
+}
+function createCompletionItemPython(cursorPosition, prefix, kind, label, detail) {
+  const endsWithDot = prefix.endsWith(".");
+  const endsWithSpace = prefix.endsWith(" ");
+  if (endsWithSpace) {
+    const lastWord = endsWithSpace ? "" : prefix.split(" ").at(-1) ?? "";
+    return {
+      label,
+      detail: detail ?? detail ?? "",
+      replacementIndex: cursorPosition - lastWord.length,
+      replacementLength: lastWord.length,
+      kind: kind ?? kind ?? TerminalCompletionItemKind.Method
+    };
+  } else {
+    const lastWord = endsWithDot ? "" : prefix.split(".").at(-1) ?? "";
+    return {
+      label,
+      detail: detail ?? detail ?? "",
+      replacementIndex: cursorPosition - lastWord.length,
+      replacementLength: lastWord.length,
+      kind: kind ?? kind ?? TerminalCompletionItemKind.Method
+    };
+  }
+}
+__name(createCompletionItemPython, "createCompletionItemPython");
+export {
+  LspCompletionProviderAddon,
+  createCompletionItemPython
+};
+//# sourceMappingURL=lspCompletionProviderAddon.js.map

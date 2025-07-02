@@ -1,1 +1,48 @@
-import{$90 as s,$00 as f}from"./hotReload.js";import{constObservable as d,observableSignalFromEvent as a,observableValue as m}from"./observable.js";function p(e,n){return b([e],n),e}function b(e,n){s()&&a("reload",i=>f(({oldExports:u})=>{if([...Object.values(u)].some(r=>e.includes(r)))return r=>(i(void 0),!0)})).read(n)}const o=new Map;function $(e){if(!s())return d(e);const n=e.name;let t=o.get(n);return t?setTimeout(()=>{t.set(e,void 0)},0):(t=m(n,e),o.set(n,t)),t}export{p as $$0,b as $_0,$ as $a$};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isHotReloadEnabled, registerHotReloadHandler } from "./hotReload.js";
+import { constObservable, observableSignalFromEvent, observableValue } from "./observable.js";
+function readHotReloadableExport(value, reader) {
+  observeHotReloadableExports([value], reader);
+  return value;
+}
+__name(readHotReloadableExport, "readHotReloadableExport");
+function observeHotReloadableExports(values, reader) {
+  if (isHotReloadEnabled()) {
+    const o = observableSignalFromEvent("reload", (event) => registerHotReloadHandler(({ oldExports }) => {
+      if (![...Object.values(oldExports)].some((v) => values.includes(v))) {
+        return void 0;
+      }
+      return (_newExports) => {
+        event(void 0);
+        return true;
+      };
+    }));
+    o.read(reader);
+  }
+}
+__name(observeHotReloadableExports, "observeHotReloadableExports");
+const classes = /* @__PURE__ */ new Map();
+function createHotClass(clazz) {
+  if (!isHotReloadEnabled()) {
+    return constObservable(clazz);
+  }
+  const id = clazz.name;
+  let existing = classes.get(id);
+  if (!existing) {
+    existing = observableValue(id, clazz);
+    classes.set(id, existing);
+  } else {
+    setTimeout(() => {
+      existing.set(clazz, void 0);
+    }, 0);
+  }
+  return existing;
+}
+__name(createHotClass, "createHotClass");
+export {
+  createHotClass,
+  observeHotReloadableExports,
+  readHotReloadableExport
+};
+//# sourceMappingURL=hotReloadHelpers.js.map

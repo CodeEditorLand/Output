@@ -1,1 +1,789 @@
-import{localize as f}from"../../../../nls.js";import{$df as a}from"../../../../base/common/event.js";import{$T as m}from"../../../../base/common/performance.js";import{$$c as M}from"../../../../base/common/types.js";import{$zJ as X}from"./textfiles.js";import{$BK as C}from"../../../common/editor.js";import{$FF as B}from"../../../common/editor/textEditorModel.js";import{$GF as k}from"../../workingCopy/common/workingCopyBackup.js";import{$5j as I,$yk as c,$qk as O}from"../../../../platform/files/common/files.js";import{$CD as P}from"../../../../editor/common/languages/language.js";import{$AF as T}from"../../../../editor/common/services/model.js";import{$Mh as g,$8h as j}from"../../../../base/common/async.js";import{$4n as L}from"../../../../platform/log/common/log.js";import{$$ as U}from"../../../../base/common/path.js";import{$hI as z}from"../../workingCopy/common/workingCopyService.js";import{$yF as N}from"../../workingCopy/common/workingCopy.js";import{$oJ as W}from"../../filesConfiguration/common/filesConfigurationService.js";import{$jI as q}from"../../../../platform/label/common/label.js";import{CancellationToken as A,$pf as Z}from"../../../../base/common/cancellation.js";import{$SI as _,$TI as H,$QI as u,$RI as V}from"./encoding.js";import{$0H as J}from"../../../../editor/common/model/textModel.js";import{$BF as Q}from"../../languageDetection/common/languageDetectionWorkerService.js";import{$tY as G}from"../../path/common/pathService.js";import{$ah as Y}from"../../../../base/common/resources.js";import{$tC as K}from"../../../../platform/accessibility/common/accessibility.js";import{$nE as ee}from"../../../../editor/common/languages/modesRegistry.js";import{$YO as te}from"../../extensions/common/extensions.js";import{$eJ as ie}from"../../../../platform/progress/common/progress.js";import{$pb as se}from"../../../../base/common/errors.js";import{$KE as re}from"../../../../editor/common/textModelEditReason.js";var x=function(d,e,t,i){var s=arguments.length,r=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(d,e,t,i);else for(var n=d.length-1;n>=0;n--)(o=d[n])&&(r=(s<3?o(r):s>3?o(e,t,r):o(e,t))||r);return s>3&&r&&Object.defineProperty(e,t,r),r},h=function(d,e){return function(t,i){e(t,i,d)}},b;let v=class extends B{static{b=this}static{this.M=C.registerSource("textFileEncoding.source",f(14604,null))}static{this.db=500}constructor(e,t,i,s,r,o,n,l,y,w,p,R,$,S,D,F,E){super(r,s,$,S),this.resource=e,this.kb=t,this.lb=i,this.mb=o,this.nb=n,this.ob=l,this.pb=y,this.qb=w,this.rb=p,this.sb=R,this.tb=D,this.ub=F,this.vb=E,this.N=this.B(new a),this.onDidChangeContent=this.N.event,this.O=this.B(new a),this.onDidResolve=this.O.event,this.P=this.B(new a),this.onDidChangeDirty=this.P.event,this.Q=this.B(new a),this.onDidSaveError=this.Q.event,this.R=this.B(new a),this.onDidSave=this.R.event,this.S=this.B(new a),this.onDidRevert=this.S.event,this.U=this.B(new a),this.onDidChangeEncoding=this.U.event,this.W=this.B(new a),this.onDidChangeOrphaned=this.W.event,this.X=this.B(new a),this.onDidChangeReadonly=this.X.event,this.typeId=N,this.capabilities=0,this.$=0,this.bb=!1,this.cb=!1,this.eb=void 0,this.fb=new j,this.gb=!1,this.hb=!1,this.ib=!1,this.jb=!1,this.Ub=!1,this.name=U(this.sb.getUriLabel(this.resource)),this.Y=!!Y.extname(this.resource),this.B(this.qb.registerWorkingCopy(this)),this.wb()}wb(){this.B(this.mb.onDidFilesChange(e=>this.xb(e))),this.B(this.rb.onDidChangeFilesAssociation(()=>this.zb())),this.B(this.rb.onDidChangeReadonly(()=>this.X.fire()))}async xb(e){let t=!1,i;if(this.ib?e.contains(this.resource,1)&&(i=!1,t=!0):e.contains(this.resource,2)&&(i=!0,t=!0),t&&this.ib!==i){let s=!1;i&&(await g(100,A.None),this.isDisposed()?s=!0:s=!await this.mb.exists(this.resource)),this.ib!==s&&!this.isDisposed()&&this.yb(s)}}yb(e){this.ib!==e&&(this.ib=e,this.W.fire())}zb(){if(!this.isResolved())return;const e=this.J(this.textEditorModel),t=this.L(this.resource,this.r,this.lb,e);this.textEditorModel.setLanguage(t)}setLanguageId(e,t){super.setLanguageId(e,t),this.lb=e}async backup(e){let t;this.lastResolvedFileStat&&(t={mtime:this.lastResolvedFileStat.mtime,ctime:this.lastResolvedFileStat.ctime,size:this.lastResolvedFileStat.size,etag:this.lastResolvedFileStat.etag,orphaned:this.ib});const i=await this.nb.getEncodedReadable(this.resource,this.createSnapshot()??void 0,{encoding:u});return{meta:t,content:i}}async revert(e){if(!this.isResolved())return;const t=this.gb,i=this.Mb(!1);if(!e?.soft)try{await this.Lb()}catch(r){if(r.fileOperationResult!==1)throw i(),r}this.S.fire(),t&&this.P.fire()}async resolve(e){if(this.Xb("resolve() - enter"),m("code/willResolveTextFileEditorModel"),this.isDisposed()){this.Xb("resolve() - exit - without resolving because model is disposed");return}if(!e?.contents&&(this.gb||this.fb.isRunning())){this.Xb("resolve() - exit - without resolving because model is dirty or being saved");return}await this.Ab(e),m("code/didResolveTextFileEditorModel")}async Ab(e){if(e?.contents)return this.Bb(e.contents,e);if(!(!this.isResolved()&&await this.Cb(e)))return this.Eb(e)}async Bb(e,t){this.Xb("resolveFromBuffer()");let i,s,r,o;try{const l=await this.mb.stat(this.resource);i=l.mtime,s=l.ctime,r=l.size,o=l.etag,this.yb(!1)}catch(l){i=Date.now(),s=Date.now(),r=0,o=c,this.yb(l.fileOperationResult===1)}const n=await this.nb.encoding.getPreferredWriteEncoding(this.resource,this.kb);this.Fb({resource:this.resource,name:this.name,mtime:i,ctime:s,size:r,etag:o,value:e,encoding:n.encoding,readonly:!1,locked:!1},!0,t)}async Cb(e){const t=await this.ob.resolve(this);let i=u;return t&&(i=(await this.nb.encoding.getPreferredWriteEncoding(this.resource,this.kb)).encoding),!this.isResolved()?t?(await this.Db(t,i,e),!0):!1:(this.Xb("resolveFromBackup() - exit - without resolving because previously new model got created meanwhile"),!0)}async Db(e,t,i){this.Xb("doResolveFromBackup()"),this.Fb({resource:this.resource,name:this.name,mtime:e.meta?e.meta.mtime:Date.now(),ctime:e.meta?e.meta.ctime:Date.now(),size:e.meta?e.meta.size:0,etag:e.meta?e.meta.etag:c,value:await J(await this.nb.getDecodedStream(this.resource,e.value,{encoding:u})),encoding:t,readonly:!1,locked:!1},!0,i),e.meta?.orphaned&&this.yb(!0)}async Eb(e){this.Xb("resolveFromFile()");const t=e?.forceReadFromFile,i=this.isResolved()||e?.allowBinary;let s;t?s=c:this.lastResolvedFileStat&&(s=this.lastResolvedFileStat.etag);const r=this.$;try{const o=await this.nb.readStream(this.resource,{acceptTextOnly:!i,etag:s,encoding:this.kb,limits:e?.limits});if(this.yb(!1),r!==this.$){this.Xb("resolveFromFile() - exit - without resolving because model content changed");return}return this.Fb(o,!1,e)}catch(o){const n=o.fileOperationResult;if(this.yb(n===1),this.isResolved()&&n===2){o instanceof O&&this.Sb(o.stat);return}if(this.isResolved()&&n===1&&!t)return;throw o}}Fb(e,t,i){if(this.Xb("resolveFromContent() - enter"),this.isDisposed()){this.Xb("resolveFromContent() - exit - because model is disposed");return}this.Sb({resource:this.resource,name:e.name,mtime:e.mtime,ctime:e.ctime,size:e.size,etag:e.etag,readonly:e.readonly,locked:e.locked,isFile:!0,isDirectory:!1,isSymbolicLink:!1,children:void 0});const s=this.Z;this.Z=e.encoding,this.kb?this.updatePreferredEncoding(this.Z):s!==this.Z&&this.U.fire(),this.textEditorModel?this.Hb(e.value,re.reloadFromDisk()):this.Gb(e.resource,e.value),this.setDirty(!!t),this.O.fire(i?.reason??3)}Gb(e,t){this.Xb("doCreateTextModel()");const i=this.H(t,e,this.lb);this.D(i),this.F()}Hb(e,t){this.Xb("doUpdateTextModel()"),this.bb=!0;try{this.updateTextEditorModel(e,this.lb,t)}finally{this.bb=!1}}D(e){this.B(e.onDidChangeContent(t=>this.Jb(e,t.isUndoing||t.isRedoing))),this.B(e.onDidChangeLanguage(()=>this.Tb())),super.D(e)}Jb(e,t){if(this.Xb("onModelContentChanged() - enter"),this.$++,this.Xb(`onModelContentChanged() - new versionId ${this.$}`),t&&(this.eb=Date.now()),!this.bb&&!this.isReadonly())if(e.getAlternativeVersionId()===this.ab){this.Xb("onModelContentChanged() - model content changed back to last saved version");const i=this.gb;this.setDirty(!1),i&&this.S.fire()}else this.Xb("onModelContentChanged() - model content changed and marked as dirty"),this.setDirty(!0);this.N.fire(),this.F()}async F(){await this.ub?.whenInstalledExtensionsRegistered();const e=this.getLanguageId();if(this.resource.scheme===this.tb.defaultUriScheme&&(!e||e===ee)&&!this.Y)return super.F()}async Lb(){this.isDisposed()||await this.nb.files.resolve(this.resource,{reload:{async:!1},forceReadFromFile:!0})}isDirty(){return this.gb}isModified(){return this.isDirty()}setDirty(e){if(!this.isResolved())return;const t=this.gb;this.Mb(e),e!==t&&this.P.fire()}Mb(e){const t=this.gb,i=this.hb,s=this.jb,r=this.ab;return e?this.gb=!0:(this.gb=!1,this.hb=!1,this.jb=!1,this.Rb()),()=>{this.gb=t,this.hb=i,this.jb=s,this.ab=r}}async save(e=Object.create(null)){return this.isResolved()?this.isReadonly()?(this.Xb("save() - ignoring request for readonly resource"),!1):(this.hasState(3)||this.hasState(5))&&(e.reason===2||e.reason===3||e.reason===4)?(this.Xb("save() - ignoring auto save request for model that is in conflict or error"),!1):(this.Xb("save() - enter"),await this.Nb(e),this.Xb("save() - exit"),this.hasState(0)):!1}async Nb(e){typeof e.reason!="number"&&(e.reason=1);const t=this.$;if(this.Xb(`doSave(${t}) - enter with versionId ${t}`),this.cb){this.Xb(`doSave(${t}) - exit - refusing to save() recursively from save participant`);return}if(this.fb.isRunning(t))return this.Xb(`doSave(${t}) - exit - found a running save for versionId ${t}`),this.fb.running;if(!e.force&&!this.gb){this.Xb(`doSave(${t}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.gb}, this.versionId: ${this.$})`);return}if(this.fb.isRunning())return this.Xb(`doSave(${t}) - exit - because busy saving`),this.fb.cancelRunning(),this.fb.queue(()=>this.Nb(e));this.isResolved()&&this.textEditorModel.pushStackElement();const i=new Z;return this.vb.withProgress({title:f(14605,null,this.name),location:10,cancellable:!0,delay:this.isDirty()?3e3:5e3},s=>this.Ob(t,e,s,i),()=>{i.cancel()}).finally(()=>{i.dispose()})}Ob(e,t,i,s){return this.fb.run(e,(async()=>{if(this.isResolved()&&!t.skipSaveParticipants)try{if(t.reason===2&&typeof this.eb=="number"){const n=Date.now()-this.eb;n<b.db&&await g(b.db-n)}if(!s.token.isCancellationRequested){this.cb=!0;try{await this.nb.files.runSaveParticipants(this,{reason:t.reason??1,savedFrom:t.from},i,s.token)}catch(n){se(n)&&!s.token.isCancellationRequested&&s.cancel()}finally{this.cb=!1}}}catch(n){this.pb.error(`[text file model] runSaveParticipants(${e}) - resulted in an error: ${n.toString()}`,this.resource.toString())}if(s.token.isCancellationRequested||(s.dispose(),this.isDisposed())||!this.isResolved())return;e=this.$,this.jb=!1,i.report({message:f(14606,null)}),this.Xb(`doSave(${e}) - before write()`);const r=M(this.lastResolvedFileStat),o=this;return this.fb.run(e,(async()=>{try{const n=await this.nb.write(r.resource,o.createSnapshot(),{mtime:r.mtime,encoding:this.getEncoding(),etag:t.ignoreModifiedSince||!this.rb.preventSaveConflicts(r.resource,o.getLanguageId())?c:r.etag,unlock:t.writeUnlock,writeElevated:t.writeElevated});this.Pb(n,e,t)}catch(n){this.Qb(n,e,t)}})())})(),()=>s.cancel())}Pb(e,t,i){this.Sb(e),t===this.$?(this.Xb(`handleSaveSuccess(${t}) - setting dirty to false because versionId did not change`),this.setDirty(!1)):this.Xb(`handleSaveSuccess(${t}) - not setting dirty to false because versionId did change meanwhile`),this.yb(!1),this.R.fire({reason:i.reason,stat:e,source:i.source})}Qb(e,t,i){if((i.ignoreErrorHandler?this.pb.trace:this.pb.error).apply(this.pb,[`[text file model] handleSaveError(${t}) - exit - resulted in a save error: ${e.toString()}`,this.resource.toString()]),i.ignoreErrorHandler)throw e;this.setDirty(!0),this.jb=!0,e.fileOperationResult===3&&(this.hb=!0),this.nb.files.saveErrorHandler.onSaveError(e,this,i),this.Q.fire()}Rb(){this.isResolved()&&(this.ab=this.textEditorModel.getAlternativeVersionId())}Sb(e){const t=this.isReadonly();this.lastResolvedFileStat?this.lastResolvedFileStat.mtime<=e.mtime?this.lastResolvedFileStat=e:this.lastResolvedFileStat={...this.lastResolvedFileStat,readonly:e.readonly,locked:e.locked}:this.lastResolvedFileStat=e,this.isReadonly()!==t&&this.X.fire()}hasState(e){switch(e){case 3:return this.hb;case 1:return this.gb;case 5:return this.jb;case 4:return this.ib;case 2:return this.fb.isRunning();case 0:return!this.gb}}async joinState(e){return this.fb.running}getLanguageId(){return this.textEditorModel?this.textEditorModel.getLanguageId():this.lb}async Tb(){if(this.Ub){this.Xb("onMaybeShouldChangeEncoding() - ignoring because encoding was set explicitly");return}if(this.Z===V||this.Z===_||this.Z===H){this.Xb("onMaybeShouldChangeEncoding() - ignoring because content encoding has a BOM");return}const{encoding:e}=await this.nb.encoding.getPreferredReadEncoding(this.resource);if(typeof e!="string"||!this.Wb(e)){this.Xb(`onMaybeShouldChangeEncoding() - ignoring because preferred encoding ${e} is not new`);return}if(this.isDirty()){this.Xb("onMaybeShouldChangeEncoding() - ignoring because model is dirty");return}return this.pb.info(`Adjusting encoding based on configured language override to '${e}' for ${this.resource.toString(!0)}.`),this.Lb()}setEncoding(e,t){return this.Ub=!0,this.Vb(e,t)}async Vb(e,t){if(t===0)this.updatePreferredEncoding(e),this.isDirty()||(this.$++,this.setDirty(!0)),this.hb||await this.save({source:b.M});else{if(!this.Wb(e))return;this.isDirty()&&!this.hb&&await this.save(),this.updatePreferredEncoding(e),await this.Lb()}}updatePreferredEncoding(e){this.Wb(e)&&(this.kb=e,this.U.fire())}Wb(e){return!(this.kb===e||!this.kb&&this.Z===e)}getEncoding(){return this.kb||this.Z}Xb(e){this.pb.trace(`[text file model] ${e}`,this.resource.toString())}isResolved(){return!!this.textEditorModel}isReadonly(){return this.rb.isReadonly(this.resource,this.lastResolvedFileStat)}dispose(){this.Xb("dispose()"),this.hb=!1,this.ib=!1,this.jb=!1,super.dispose()}};v=b=x([h(3,P),h(4,T),h(5,I),h(6,X),h(7,k),h(8,L),h(9,z),h(10,W),h(11,q),h(12,Q),h(13,K),h(14,G),h(15,te),h(16,ie)],v);export{v as $T5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TextFileEditorModel_1;
+import { localize } from "../../../../nls.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { mark } from "../../../../base/common/performance.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { ITextFileService } from "./textfiles.js";
+import { SaveSourceRegistry } from "../../../common/editor.js";
+import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
+import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
+import { IFileService, ETAG_DISABLED, NotModifiedSinceFileOperationError } from "../../../../platform/files/common/files.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { timeout, TaskSequentializer } from "../../../../base/common/async.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { basename } from "../../../../base/common/path.js";
+import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
+import { NO_TYPE_ID } from "../../workingCopy/common/workingCopy.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { UTF16be, UTF16le, UTF8, UTF8_with_bom } from "./encoding.js";
+import { createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
+import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { extUri } from "../../../../base/common/resources.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { EditReasons } from "../../../../editor/common/textModelEditReason.js";
+let TextFileEditorModel = class TextFileEditorModel2 extends BaseTextEditorModel {
+  static {
+    __name(this, "TextFileEditorModel");
+  }
+  static {
+    TextFileEditorModel_1 = this;
+  }
+  static {
+    this.TEXTFILE_SAVE_ENCODING_SOURCE = SaveSourceRegistry.registerSource("textFileEncoding.source", localize("textFileCreate.source", "File Encoding Changed"));
+  }
+  static {
+    this.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD = 500;
+  }
+  constructor(resource, preferredEncoding, preferredLanguageId, languageService, modelService, fileService, textFileService, workingCopyBackupService, logService, workingCopyService, filesConfigurationService, labelService, languageDetectionService, accessibilityService, pathService, extensionService, progressService) {
+    super(modelService, languageService, languageDetectionService, accessibilityService);
+    this.resource = resource;
+    this.preferredEncoding = preferredEncoding;
+    this.preferredLanguageId = preferredLanguageId;
+    this.fileService = fileService;
+    this.textFileService = textFileService;
+    this.workingCopyBackupService = workingCopyBackupService;
+    this.logService = logService;
+    this.workingCopyService = workingCopyService;
+    this.filesConfigurationService = filesConfigurationService;
+    this.labelService = labelService;
+    this.pathService = pathService;
+    this.extensionService = extensionService;
+    this.progressService = progressService;
+    this._onDidChangeContent = this._register(new Emitter());
+    this.onDidChangeContent = this._onDidChangeContent.event;
+    this._onDidResolve = this._register(new Emitter());
+    this.onDidResolve = this._onDidResolve.event;
+    this._onDidChangeDirty = this._register(new Emitter());
+    this.onDidChangeDirty = this._onDidChangeDirty.event;
+    this._onDidSaveError = this._register(new Emitter());
+    this.onDidSaveError = this._onDidSaveError.event;
+    this._onDidSave = this._register(new Emitter());
+    this.onDidSave = this._onDidSave.event;
+    this._onDidRevert = this._register(new Emitter());
+    this.onDidRevert = this._onDidRevert.event;
+    this._onDidChangeEncoding = this._register(new Emitter());
+    this.onDidChangeEncoding = this._onDidChangeEncoding.event;
+    this._onDidChangeOrphaned = this._register(new Emitter());
+    this.onDidChangeOrphaned = this._onDidChangeOrphaned.event;
+    this._onDidChangeReadonly = this._register(new Emitter());
+    this.onDidChangeReadonly = this._onDidChangeReadonly.event;
+    this.typeId = NO_TYPE_ID;
+    this.capabilities = 0;
+    this.versionId = 0;
+    this.ignoreDirtyOnModelContentChange = false;
+    this.ignoreSaveFromSaveParticipants = false;
+    this.lastModelContentChangeFromUndoRedo = void 0;
+    this.saveSequentializer = new TaskSequentializer();
+    this.dirty = false;
+    this.inConflictMode = false;
+    this.inOrphanMode = false;
+    this.inErrorMode = false;
+    this.hasEncodingSetExplicitly = false;
+    this.name = basename(this.labelService.getUriLabel(this.resource));
+    this.resourceHasExtension = !!extUri.extname(this.resource);
+    this._register(this.workingCopyService.registerWorkingCopy(this));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
+    this._register(this.filesConfigurationService.onDidChangeFilesAssociation(() => this.onDidChangeFilesAssociation()));
+    this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeReadonly.fire()));
+  }
+  async onDidFilesChange(e) {
+    let fileEventImpactsModel = false;
+    let newInOrphanModeGuess;
+    if (this.inOrphanMode) {
+      const modelFileAdded = e.contains(
+        this.resource,
+        1
+        /* FileChangeType.ADDED */
+      );
+      if (modelFileAdded) {
+        newInOrphanModeGuess = false;
+        fileEventImpactsModel = true;
+      }
+    } else {
+      const modelFileDeleted = e.contains(
+        this.resource,
+        2
+        /* FileChangeType.DELETED */
+      );
+      if (modelFileDeleted) {
+        newInOrphanModeGuess = true;
+        fileEventImpactsModel = true;
+      }
+    }
+    if (fileEventImpactsModel && this.inOrphanMode !== newInOrphanModeGuess) {
+      let newInOrphanModeValidated = false;
+      if (newInOrphanModeGuess) {
+        await timeout(100, CancellationToken.None);
+        if (this.isDisposed()) {
+          newInOrphanModeValidated = true;
+        } else {
+          const exists = await this.fileService.exists(this.resource);
+          newInOrphanModeValidated = !exists;
+        }
+      }
+      if (this.inOrphanMode !== newInOrphanModeValidated && !this.isDisposed()) {
+        this.setOrphaned(newInOrphanModeValidated);
+      }
+    }
+  }
+  setOrphaned(orphaned) {
+    if (this.inOrphanMode !== orphaned) {
+      this.inOrphanMode = orphaned;
+      this._onDidChangeOrphaned.fire();
+    }
+  }
+  onDidChangeFilesAssociation() {
+    if (!this.isResolved()) {
+      return;
+    }
+    const firstLineText = this.getFirstLineText(this.textEditorModel);
+    const languageSelection = this.getOrCreateLanguage(this.resource, this.languageService, this.preferredLanguageId, firstLineText);
+    this.textEditorModel.setLanguage(languageSelection);
+  }
+  setLanguageId(languageId, source) {
+    super.setLanguageId(languageId, source);
+    this.preferredLanguageId = languageId;
+  }
+  //#region Backup
+  async backup(token) {
+    let meta = void 0;
+    if (this.lastResolvedFileStat) {
+      meta = {
+        mtime: this.lastResolvedFileStat.mtime,
+        ctime: this.lastResolvedFileStat.ctime,
+        size: this.lastResolvedFileStat.size,
+        etag: this.lastResolvedFileStat.etag,
+        orphaned: this.inOrphanMode
+      };
+    }
+    const content = await this.textFileService.getEncodedReadable(this.resource, this.createSnapshot() ?? void 0, { encoding: UTF8 });
+    return { meta, content };
+  }
+  //#endregion
+  //#region Revert
+  async revert(options) {
+    if (!this.isResolved()) {
+      return;
+    }
+    const wasDirty = this.dirty;
+    const undo = this.doSetDirty(false);
+    const softUndo = options?.soft;
+    if (!softUndo) {
+      try {
+        await this.forceResolveFromFile();
+      } catch (error) {
+        if (error.fileOperationResult !== 1) {
+          undo();
+          throw error;
+        }
+      }
+    }
+    this._onDidRevert.fire();
+    if (wasDirty) {
+      this._onDidChangeDirty.fire();
+    }
+  }
+  //#endregion
+  //#region Resolve
+  async resolve(options) {
+    this.trace("resolve() - enter");
+    mark("code/willResolveTextFileEditorModel");
+    if (this.isDisposed()) {
+      this.trace("resolve() - exit - without resolving because model is disposed");
+      return;
+    }
+    if (!options?.contents && (this.dirty || this.saveSequentializer.isRunning())) {
+      this.trace("resolve() - exit - without resolving because model is dirty or being saved");
+      return;
+    }
+    await this.doResolve(options);
+    mark("code/didResolveTextFileEditorModel");
+  }
+  async doResolve(options) {
+    if (options?.contents) {
+      return this.resolveFromBuffer(options.contents, options);
+    }
+    const isNewModel = !this.isResolved();
+    if (isNewModel) {
+      const resolvedFromBackup = await this.resolveFromBackup(options);
+      if (resolvedFromBackup) {
+        return;
+      }
+    }
+    return this.resolveFromFile(options);
+  }
+  async resolveFromBuffer(buffer, options) {
+    this.trace("resolveFromBuffer()");
+    let mtime;
+    let ctime;
+    let size;
+    let etag;
+    try {
+      const metadata = await this.fileService.stat(this.resource);
+      mtime = metadata.mtime;
+      ctime = metadata.ctime;
+      size = metadata.size;
+      etag = metadata.etag;
+      this.setOrphaned(false);
+    } catch (error) {
+      mtime = Date.now();
+      ctime = Date.now();
+      size = 0;
+      etag = ETAG_DISABLED;
+      this.setOrphaned(
+        error.fileOperationResult === 1
+        /* FileOperationResult.FILE_NOT_FOUND */
+      );
+    }
+    const preferredEncoding = await this.textFileService.encoding.getPreferredWriteEncoding(this.resource, this.preferredEncoding);
+    this.resolveFromContent({
+      resource: this.resource,
+      name: this.name,
+      mtime,
+      ctime,
+      size,
+      etag,
+      value: buffer,
+      encoding: preferredEncoding.encoding,
+      readonly: false,
+      locked: false
+    }, true, options);
+  }
+  async resolveFromBackup(options) {
+    const backup = await this.workingCopyBackupService.resolve(this);
+    let encoding = UTF8;
+    if (backup) {
+      encoding = (await this.textFileService.encoding.getPreferredWriteEncoding(this.resource, this.preferredEncoding)).encoding;
+    }
+    const isNewModel = !this.isResolved();
+    if (!isNewModel) {
+      this.trace("resolveFromBackup() - exit - without resolving because previously new model got created meanwhile");
+      return true;
+    }
+    if (backup) {
+      await this.doResolveFromBackup(backup, encoding, options);
+      return true;
+    }
+    return false;
+  }
+  async doResolveFromBackup(backup, encoding, options) {
+    this.trace("doResolveFromBackup()");
+    this.resolveFromContent({
+      resource: this.resource,
+      name: this.name,
+      mtime: backup.meta ? backup.meta.mtime : Date.now(),
+      ctime: backup.meta ? backup.meta.ctime : Date.now(),
+      size: backup.meta ? backup.meta.size : 0,
+      etag: backup.meta ? backup.meta.etag : ETAG_DISABLED,
+      // etag disabled if unknown!
+      value: await createTextBufferFactoryFromStream(await this.textFileService.getDecodedStream(this.resource, backup.value, { encoding: UTF8 })),
+      encoding,
+      readonly: false,
+      locked: false
+    }, true, options);
+    if (backup.meta?.orphaned) {
+      this.setOrphaned(true);
+    }
+  }
+  async resolveFromFile(options) {
+    this.trace("resolveFromFile()");
+    const forceReadFromFile = options?.forceReadFromFile;
+    const allowBinary = this.isResolved() || options?.allowBinary;
+    let etag;
+    if (forceReadFromFile) {
+      etag = ETAG_DISABLED;
+    } else if (this.lastResolvedFileStat) {
+      etag = this.lastResolvedFileStat.etag;
+    }
+    const currentVersionId = this.versionId;
+    try {
+      const content = await this.textFileService.readStream(this.resource, {
+        acceptTextOnly: !allowBinary,
+        etag,
+        encoding: this.preferredEncoding,
+        limits: options?.limits
+      });
+      this.setOrphaned(false);
+      if (currentVersionId !== this.versionId) {
+        this.trace("resolveFromFile() - exit - without resolving because model content changed");
+        return;
+      }
+      return this.resolveFromContent(content, false, options);
+    } catch (error) {
+      const result = error.fileOperationResult;
+      this.setOrphaned(
+        result === 1
+        /* FileOperationResult.FILE_NOT_FOUND */
+      );
+      if (this.isResolved() && result === 2) {
+        if (error instanceof NotModifiedSinceFileOperationError) {
+          this.updateLastResolvedFileStat(error.stat);
+        }
+        return;
+      }
+      if (this.isResolved() && result === 1 && !forceReadFromFile) {
+        return;
+      }
+      throw error;
+    }
+  }
+  resolveFromContent(content, dirty, options) {
+    this.trace("resolveFromContent() - enter");
+    if (this.isDisposed()) {
+      this.trace("resolveFromContent() - exit - because model is disposed");
+      return;
+    }
+    this.updateLastResolvedFileStat({
+      resource: this.resource,
+      name: content.name,
+      mtime: content.mtime,
+      ctime: content.ctime,
+      size: content.size,
+      etag: content.etag,
+      readonly: content.readonly,
+      locked: content.locked,
+      isFile: true,
+      isDirectory: false,
+      isSymbolicLink: false,
+      children: void 0
+    });
+    const oldEncoding = this.contentEncoding;
+    this.contentEncoding = content.encoding;
+    if (this.preferredEncoding) {
+      this.updatePreferredEncoding(this.contentEncoding);
+    } else if (oldEncoding !== this.contentEncoding) {
+      this._onDidChangeEncoding.fire();
+    }
+    if (this.textEditorModel) {
+      this.doUpdateTextModel(content.value, EditReasons.reloadFromDisk());
+    } else {
+      this.doCreateTextModel(content.resource, content.value);
+    }
+    this.setDirty(!!dirty);
+    this._onDidResolve.fire(
+      options?.reason ?? 3
+      /* TextFileResolveReason.OTHER */
+    );
+  }
+  doCreateTextModel(resource, value) {
+    this.trace("doCreateTextModel()");
+    const textModel = this.createTextEditorModel(value, resource, this.preferredLanguageId);
+    this.installModelListeners(textModel);
+    this.autoDetectLanguage();
+  }
+  doUpdateTextModel(value, reason) {
+    this.trace("doUpdateTextModel()");
+    this.ignoreDirtyOnModelContentChange = true;
+    try {
+      this.updateTextEditorModel(value, this.preferredLanguageId, reason);
+    } finally {
+      this.ignoreDirtyOnModelContentChange = false;
+    }
+  }
+  installModelListeners(model) {
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(model, e.isUndoing || e.isRedoing)));
+    this._register(model.onDidChangeLanguage(() => this.onMaybeShouldChangeEncoding()));
+    super.installModelListeners(model);
+  }
+  onModelContentChanged(model, isUndoingOrRedoing) {
+    this.trace(`onModelContentChanged() - enter`);
+    this.versionId++;
+    this.trace(`onModelContentChanged() - new versionId ${this.versionId}`);
+    if (isUndoingOrRedoing) {
+      this.lastModelContentChangeFromUndoRedo = Date.now();
+    }
+    if (!this.ignoreDirtyOnModelContentChange && !this.isReadonly()) {
+      if (model.getAlternativeVersionId() === this.bufferSavedVersionId) {
+        this.trace("onModelContentChanged() - model content changed back to last saved version");
+        const wasDirty = this.dirty;
+        this.setDirty(false);
+        if (wasDirty) {
+          this._onDidRevert.fire();
+        }
+      } else {
+        this.trace("onModelContentChanged() - model content changed and marked as dirty");
+        this.setDirty(true);
+      }
+    }
+    this._onDidChangeContent.fire();
+    this.autoDetectLanguage();
+  }
+  async autoDetectLanguage() {
+    await this.extensionService?.whenInstalledExtensionsRegistered();
+    const languageId = this.getLanguageId();
+    if (this.resource.scheme === this.pathService.defaultUriScheme && // make sure to not detect language for non-user visible documents
+    (!languageId || languageId === PLAINTEXT_LANGUAGE_ID) && // only run on files with plaintext language set or no language set at all
+    !this.resourceHasExtension) {
+      return super.autoDetectLanguage();
+    }
+  }
+  async forceResolveFromFile() {
+    if (this.isDisposed()) {
+      return;
+    }
+    await this.textFileService.files.resolve(this.resource, {
+      reload: { async: false },
+      forceReadFromFile: true
+    });
+  }
+  //#endregion
+  //#region Dirty
+  isDirty() {
+    return this.dirty;
+  }
+  isModified() {
+    return this.isDirty();
+  }
+  setDirty(dirty) {
+    if (!this.isResolved()) {
+      return;
+    }
+    const wasDirty = this.dirty;
+    this.doSetDirty(dirty);
+    if (dirty !== wasDirty) {
+      this._onDidChangeDirty.fire();
+    }
+  }
+  doSetDirty(dirty) {
+    const wasDirty = this.dirty;
+    const wasInConflictMode = this.inConflictMode;
+    const wasInErrorMode = this.inErrorMode;
+    const oldBufferSavedVersionId = this.bufferSavedVersionId;
+    if (!dirty) {
+      this.dirty = false;
+      this.inConflictMode = false;
+      this.inErrorMode = false;
+      this.updateSavedVersionId();
+    } else {
+      this.dirty = true;
+    }
+    return () => {
+      this.dirty = wasDirty;
+      this.inConflictMode = wasInConflictMode;
+      this.inErrorMode = wasInErrorMode;
+      this.bufferSavedVersionId = oldBufferSavedVersionId;
+    };
+  }
+  //#endregion
+  //#region Save
+  async save(options = /* @__PURE__ */ Object.create(null)) {
+    if (!this.isResolved()) {
+      return false;
+    }
+    if (this.isReadonly()) {
+      this.trace("save() - ignoring request for readonly resource");
+      return false;
+    }
+    if ((this.hasState(
+      3
+      /* TextFileEditorModelState.CONFLICT */
+    ) || this.hasState(
+      5
+      /* TextFileEditorModelState.ERROR */
+    )) && (options.reason === 2 || options.reason === 3 || options.reason === 4)) {
+      this.trace("save() - ignoring auto save request for model that is in conflict or error");
+      return false;
+    }
+    this.trace("save() - enter");
+    await this.doSave(options);
+    this.trace("save() - exit");
+    return this.hasState(
+      0
+      /* TextFileEditorModelState.SAVED */
+    );
+  }
+  async doSave(options) {
+    if (typeof options.reason !== "number") {
+      options.reason = 1;
+    }
+    const versionId = this.versionId;
+    this.trace(`doSave(${versionId}) - enter with versionId ${versionId}`);
+    if (this.ignoreSaveFromSaveParticipants) {
+      this.trace(`doSave(${versionId}) - exit - refusing to save() recursively from save participant`);
+      return;
+    }
+    if (this.saveSequentializer.isRunning(versionId)) {
+      this.trace(`doSave(${versionId}) - exit - found a running save for versionId ${versionId}`);
+      return this.saveSequentializer.running;
+    }
+    if (!options.force && !this.dirty) {
+      this.trace(`doSave(${versionId}) - exit - because not dirty and/or versionId is different (this.isDirty: ${this.dirty}, this.versionId: ${this.versionId})`);
+      return;
+    }
+    if (this.saveSequentializer.isRunning()) {
+      this.trace(`doSave(${versionId}) - exit - because busy saving`);
+      this.saveSequentializer.cancelRunning();
+      return this.saveSequentializer.queue(() => this.doSave(options));
+    }
+    if (this.isResolved()) {
+      this.textEditorModel.pushStackElement();
+    }
+    const saveCancellation = new CancellationTokenSource();
+    return this.progressService.withProgress({
+      title: localize("saveParticipants", "Saving '{0}'", this.name),
+      location: 10,
+      cancellable: true,
+      delay: this.isDirty() ? 3e3 : 5e3
+    }, (progress) => {
+      return this.doSaveSequential(versionId, options, progress, saveCancellation);
+    }, () => {
+      saveCancellation.cancel();
+    }).finally(() => {
+      saveCancellation.dispose();
+    });
+  }
+  doSaveSequential(versionId, options, progress, saveCancellation) {
+    return this.saveSequentializer.run(versionId, (async () => {
+      if (this.isResolved() && !options.skipSaveParticipants) {
+        try {
+          if (options.reason === 2 && typeof this.lastModelContentChangeFromUndoRedo === "number") {
+            const timeFromUndoRedoToSave = Date.now() - this.lastModelContentChangeFromUndoRedo;
+            if (timeFromUndoRedoToSave < TextFileEditorModel_1.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD) {
+              await timeout(TextFileEditorModel_1.UNDO_REDO_SAVE_PARTICIPANTS_AUTO_SAVE_THROTTLE_THRESHOLD - timeFromUndoRedoToSave);
+            }
+          }
+          if (!saveCancellation.token.isCancellationRequested) {
+            this.ignoreSaveFromSaveParticipants = true;
+            try {
+              await this.textFileService.files.runSaveParticipants(this, { reason: options.reason ?? 1, savedFrom: options.from }, progress, saveCancellation.token);
+            } catch (err) {
+              if (isCancellationError(err) && !saveCancellation.token.isCancellationRequested) {
+                saveCancellation.cancel();
+              }
+            } finally {
+              this.ignoreSaveFromSaveParticipants = false;
+            }
+          }
+        } catch (error) {
+          this.logService.error(`[text file model] runSaveParticipants(${versionId}) - resulted in an error: ${error.toString()}`, this.resource.toString());
+        }
+      }
+      if (saveCancellation.token.isCancellationRequested) {
+        return;
+      } else {
+        saveCancellation.dispose();
+      }
+      if (this.isDisposed()) {
+        return;
+      }
+      if (!this.isResolved()) {
+        return;
+      }
+      versionId = this.versionId;
+      this.inErrorMode = false;
+      progress.report({ message: localize("saveTextFile", "Writing into file...") });
+      this.trace(`doSave(${versionId}) - before write()`);
+      const lastResolvedFileStat = assertReturnsDefined(this.lastResolvedFileStat);
+      const resolvedTextFileEditorModel = this;
+      return this.saveSequentializer.run(versionId, (async () => {
+        try {
+          const stat = await this.textFileService.write(lastResolvedFileStat.resource, resolvedTextFileEditorModel.createSnapshot(), {
+            mtime: lastResolvedFileStat.mtime,
+            encoding: this.getEncoding(),
+            etag: options.ignoreModifiedSince || !this.filesConfigurationService.preventSaveConflicts(lastResolvedFileStat.resource, resolvedTextFileEditorModel.getLanguageId()) ? ETAG_DISABLED : lastResolvedFileStat.etag,
+            unlock: options.writeUnlock,
+            writeElevated: options.writeElevated
+          });
+          this.handleSaveSuccess(stat, versionId, options);
+        } catch (error) {
+          this.handleSaveError(error, versionId, options);
+        }
+      })());
+    })(), () => saveCancellation.cancel());
+  }
+  handleSaveSuccess(stat, versionId, options) {
+    this.updateLastResolvedFileStat(stat);
+    if (versionId === this.versionId) {
+      this.trace(`handleSaveSuccess(${versionId}) - setting dirty to false because versionId did not change`);
+      this.setDirty(false);
+    } else {
+      this.trace(`handleSaveSuccess(${versionId}) - not setting dirty to false because versionId did change meanwhile`);
+    }
+    this.setOrphaned(false);
+    this._onDidSave.fire({ reason: options.reason, stat, source: options.source });
+  }
+  handleSaveError(error, versionId, options) {
+    (options.ignoreErrorHandler ? this.logService.trace : this.logService.error).apply(this.logService, [`[text file model] handleSaveError(${versionId}) - exit - resulted in a save error: ${error.toString()}`, this.resource.toString()]);
+    if (options.ignoreErrorHandler) {
+      throw error;
+    }
+    this.setDirty(true);
+    this.inErrorMode = true;
+    if (error.fileOperationResult === 3) {
+      this.inConflictMode = true;
+    }
+    this.textFileService.files.saveErrorHandler.onSaveError(error, this, options);
+    this._onDidSaveError.fire();
+  }
+  updateSavedVersionId() {
+    if (this.isResolved()) {
+      this.bufferSavedVersionId = this.textEditorModel.getAlternativeVersionId();
+    }
+  }
+  updateLastResolvedFileStat(newFileStat) {
+    const oldReadonly = this.isReadonly();
+    if (!this.lastResolvedFileStat) {
+      this.lastResolvedFileStat = newFileStat;
+    } else if (this.lastResolvedFileStat.mtime <= newFileStat.mtime) {
+      this.lastResolvedFileStat = newFileStat;
+    } else {
+      this.lastResolvedFileStat = { ...this.lastResolvedFileStat, readonly: newFileStat.readonly, locked: newFileStat.locked };
+    }
+    if (this.isReadonly() !== oldReadonly) {
+      this._onDidChangeReadonly.fire();
+    }
+  }
+  //#endregion
+  hasState(state) {
+    switch (state) {
+      case 3:
+        return this.inConflictMode;
+      case 1:
+        return this.dirty;
+      case 5:
+        return this.inErrorMode;
+      case 4:
+        return this.inOrphanMode;
+      case 2:
+        return this.saveSequentializer.isRunning();
+      case 0:
+        return !this.dirty;
+    }
+  }
+  async joinState(state) {
+    return this.saveSequentializer.running;
+  }
+  getLanguageId() {
+    if (this.textEditorModel) {
+      return this.textEditorModel.getLanguageId();
+    }
+    return this.preferredLanguageId;
+  }
+  //#region Encoding
+  async onMaybeShouldChangeEncoding() {
+    if (this.hasEncodingSetExplicitly) {
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because encoding was set explicitly");
+      return;
+    }
+    if (this.contentEncoding === UTF8_with_bom || this.contentEncoding === UTF16be || this.contentEncoding === UTF16le) {
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because content encoding has a BOM");
+      return;
+    }
+    const { encoding } = await this.textFileService.encoding.getPreferredReadEncoding(this.resource);
+    if (typeof encoding !== "string" || !this.isNewEncoding(encoding)) {
+      this.trace(`onMaybeShouldChangeEncoding() - ignoring because preferred encoding ${encoding} is not new`);
+      return;
+    }
+    if (this.isDirty()) {
+      this.trace("onMaybeShouldChangeEncoding() - ignoring because model is dirty");
+      return;
+    }
+    this.logService.info(`Adjusting encoding based on configured language override to '${encoding}' for ${this.resource.toString(true)}.`);
+    return this.forceResolveFromFile();
+  }
+  setEncoding(encoding, mode) {
+    this.hasEncodingSetExplicitly = true;
+    return this.setEncodingInternal(encoding, mode);
+  }
+  async setEncodingInternal(encoding, mode) {
+    if (mode === 0) {
+      this.updatePreferredEncoding(encoding);
+      if (!this.isDirty()) {
+        this.versionId++;
+        this.setDirty(true);
+      }
+      if (!this.inConflictMode) {
+        await this.save({ source: TextFileEditorModel_1.TEXTFILE_SAVE_ENCODING_SOURCE });
+      }
+    } else {
+      if (!this.isNewEncoding(encoding)) {
+        return;
+      }
+      if (this.isDirty() && !this.inConflictMode) {
+        await this.save();
+      }
+      this.updatePreferredEncoding(encoding);
+      await this.forceResolveFromFile();
+    }
+  }
+  updatePreferredEncoding(encoding) {
+    if (!this.isNewEncoding(encoding)) {
+      return;
+    }
+    this.preferredEncoding = encoding;
+    this._onDidChangeEncoding.fire();
+  }
+  isNewEncoding(encoding) {
+    if (this.preferredEncoding === encoding) {
+      return false;
+    }
+    if (!this.preferredEncoding && this.contentEncoding === encoding) {
+      return false;
+    }
+    return true;
+  }
+  getEncoding() {
+    return this.preferredEncoding || this.contentEncoding;
+  }
+  //#endregion
+  trace(msg) {
+    this.logService.trace(`[text file model] ${msg}`, this.resource.toString());
+  }
+  isResolved() {
+    return !!this.textEditorModel;
+  }
+  isReadonly() {
+    return this.filesConfigurationService.isReadonly(this.resource, this.lastResolvedFileStat);
+  }
+  dispose() {
+    this.trace("dispose()");
+    this.inConflictMode = false;
+    this.inOrphanMode = false;
+    this.inErrorMode = false;
+    super.dispose();
+  }
+};
+TextFileEditorModel = TextFileEditorModel_1 = __decorate([
+  __param(3, ILanguageService),
+  __param(4, IModelService),
+  __param(5, IFileService),
+  __param(6, ITextFileService),
+  __param(7, IWorkingCopyBackupService),
+  __param(8, ILogService),
+  __param(9, IWorkingCopyService),
+  __param(10, IFilesConfigurationService),
+  __param(11, ILabelService),
+  __param(12, ILanguageDetectionService),
+  __param(13, IAccessibilityService),
+  __param(14, IPathService),
+  __param(15, IExtensionService),
+  __param(16, IProgressService)
+], TextFileEditorModel);
+export {
+  TextFileEditorModel
+};
+//# sourceMappingURL=textFileEditorModel.js.map

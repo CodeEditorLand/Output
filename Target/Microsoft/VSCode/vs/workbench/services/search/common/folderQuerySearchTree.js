@@ -1,1 +1,55 @@
-import{$jj as c,$ij as m}from"../../../../base/common/ternarySearchTree.js";import{$Ic as h}from"../../../../base/common/map.js";class p extends c{constructor(r,e,s=()=>!1){const a=new m(s,()=>!1);super(a);const o=new h;r.forEach((n,f)=>{const t=n.folder.with({query:"",fragment:""});o.has(t)?o.get(t).push({fq:n,i:f}):o.set(t,[{fq:n,i:f}])}),o.forEach((n,f)=>{const t=new Map;for(const u of n){const i=e(u.fq,u.i);t.set(this.m(u.fq.folder),i)}super.set(f,t)})}findQueryFragmentAwareSubstr(r){const e=super.findSubstr(r.with({query:"",fragment:""}));if(!e)return;const s=this.m(r);return e.get(s)}forEachFolderQueryInfo(r){return this.forEach(e=>e.forEach(s=>r(s)))}m(r){let e="";return r.query&&(e+=r.query),r.fragment&&(e+="#"+r.fragment),e}}export{p as $QMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { TernarySearchTree, UriIterator } from "../../../../base/common/ternarySearchTree.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+class FolderQuerySearchTree extends TernarySearchTree {
+  static {
+    __name(this, "FolderQuerySearchTree");
+  }
+  constructor(folderQueries, getFolderQueryInfo, ignorePathCasing = () => false) {
+    const uriIterator = new UriIterator(ignorePathCasing, () => false);
+    super(uriIterator);
+    const fqBySameBase = new ResourceMap();
+    folderQueries.forEach((fq, i) => {
+      const uriWithoutQueryOrFragment = fq.folder.with({ query: "", fragment: "" });
+      if (fqBySameBase.has(uriWithoutQueryOrFragment)) {
+        fqBySameBase.get(uriWithoutQueryOrFragment).push({ fq, i });
+      } else {
+        fqBySameBase.set(uriWithoutQueryOrFragment, [{ fq, i }]);
+      }
+    });
+    fqBySameBase.forEach((values, key) => {
+      const folderQueriesWithQueries = /* @__PURE__ */ new Map();
+      for (const fqBases of values) {
+        const folderQueryInfo = getFolderQueryInfo(fqBases.fq, fqBases.i);
+        folderQueriesWithQueries.set(this.encodeKey(fqBases.fq.folder), folderQueryInfo);
+      }
+      super.set(key, folderQueriesWithQueries);
+    });
+  }
+  findQueryFragmentAwareSubstr(key) {
+    const baseURIResult = super.findSubstr(key.with({ query: "", fragment: "" }));
+    if (!baseURIResult) {
+      return void 0;
+    }
+    const queryAndFragmentKey = this.encodeKey(key);
+    return baseURIResult.get(queryAndFragmentKey);
+  }
+  forEachFolderQueryInfo(fn) {
+    return this.forEach((elem) => elem.forEach((mapElem) => fn(mapElem)));
+  }
+  encodeKey(key) {
+    let str = "";
+    if (key.query) {
+      str += key.query;
+    }
+    if (key.fragment) {
+      str += "#" + key.fragment;
+    }
+    return str;
+  }
+}
+export {
+  FolderQuerySearchTree
+};
+//# sourceMappingURL=folderQuerySearchTree.js.map

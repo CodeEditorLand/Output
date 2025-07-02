@@ -1,1 +1,653 @@
-import{$df as S}from"../../../../base/common/event.js";import{$vd as M}from"../../../../base/common/lifecycle.js";import{$WB as y}from"../../../../platform/instantiation/common/extensions.js";import{$4n as E}from"../../../../platform/log/common/log.js";import{$GX as P,$IX as b,$FX as v}from"../common/authentication.js";import{$V7b as Q}from"../common/authenticationQuery.js";import{$mOb as $}from"./authenticationUsageService.js";import{$R3b as T}from"./authenticationMcpUsageService.js";import{$p_ as C}from"./authenticationAccessService.js";import{$P3b as W}from"./authenticationMcpAccessService.js";import{$T3b as _}from"./authenticationMcpService.js";import{$Qy as D}from"../../../../platform/extensions/common/extensions.js";var N=function(a,e,t,s){var c=arguments.length,i=c<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(a,e,t,s);else for(var n=a.length-1;n>=0;n--)(r=a[n])&&(i=(c<3?r(i):c>3?r(e,t,i):r(e,t))||i);return c>3&&i&&Object.defineProperty(e,t,i),i},u=function(a,e){return function(t,s){e(t,s,a)}};class h{constructor(e,t){this.providerId=e,this.c=t}}class p extends h{constructor(e,t,s,c){super(e,c),this.accountName=t,this.extensionId=s}isAccessAllowed(){return this.c.authenticationAccessService.isAccessAllowed(this.providerId,this.accountName,this.extensionId)}setAccessAllowed(e,t){this.c.authenticationAccessService.updateAllowedExtensions(this.providerId,this.accountName,[{id:this.extensionId,name:t||this.extensionId,allowed:e}])}addUsage(e,t){this.c.authenticationUsageService.addAccountUsage(this.providerId,this.accountName,e,this.extensionId,t)}getUsage(){return this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName).filter(t=>t.extensionId===D.toKey(this.extensionId)).map(t=>({extensionId:t.extensionId,extensionName:t.extensionName,scopes:t.scopes||[],lastUsed:t.lastUsed}))}removeUsage(){const t=this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName).filter(s=>s.extensionId!==this.extensionId);this.c.authenticationUsageService.removeAccountUsage(this.providerId,this.accountName);for(const s of t)this.c.authenticationUsageService.addAccountUsage(this.providerId,this.accountName,s.scopes||[],s.extensionId,s.extensionName)}setAsPreferred(){this.c.authenticationExtensionsService.updateAccountPreference(this.extensionId,this.providerId,{label:this.accountName,id:this.accountName})}isPreferred(){return this.c.authenticationExtensionsService.getAccountPreference(this.extensionId,this.providerId)===this.accountName}isTrusted(){return this.c.authenticationAccessService.readAllowedExtensions(this.providerId,this.accountName).find(s=>s.id===this.extensionId)?.trusted===!0}}class f extends h{constructor(e,t,s,c){super(e,c),this.accountName=t,this.mcpServerId=s}isAccessAllowed(){return this.c.authenticationMcpAccessService.isAccessAllowed(this.providerId,this.accountName,this.mcpServerId)}setAccessAllowed(e,t){this.c.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId,this.accountName,[{id:this.mcpServerId,name:t||this.mcpServerId,allowed:e}])}addUsage(e,t){this.c.authenticationMcpUsageService.addAccountUsage(this.providerId,this.accountName,e,this.mcpServerId,t)}getUsage(){return this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,this.accountName).filter(t=>t.mcpServerId===this.mcpServerId).map(t=>({mcpServerId:t.mcpServerId,mcpServerName:t.mcpServerName,scopes:t.scopes||[],lastUsed:t.lastUsed}))}removeUsage(){const t=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,this.accountName).filter(s=>s.mcpServerId!==this.mcpServerId);this.c.authenticationMcpUsageService.removeAccountUsage(this.providerId,this.accountName);for(const s of t)this.c.authenticationMcpUsageService.addAccountUsage(this.providerId,this.accountName,s.scopes||[],s.mcpServerId,s.mcpServerName)}setAsPreferred(){this.c.authenticationMcpService.updateAccountPreference(this.mcpServerId,this.providerId,{label:this.accountName,id:this.accountName})}isPreferred(){return this.c.authenticationMcpService.getAccountPreference(this.mcpServerId,this.providerId)===this.accountName}isTrusted(){return this.c.authenticationMcpAccessService.readAllowedMcpServers(this.providerId,this.accountName).find(s=>s.id===this.mcpServerId)?.trusted===!0}}class l extends h{constructor(e,t,s){super(e,s),this.accountName=t}getAllowedExtensions(){const e=this.c.authenticationAccessService.readAllowedExtensions(this.providerId,this.accountName),t=this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName);return e.filter(s=>s.allowed!==!1).map(s=>{const c=t.filter(d=>d.extensionId===s.id),i=c.length>0?Math.max(...c.map(d=>d.lastUsed)):void 0,n=new p(this.providerId,this.accountName,s.id,this.c).isTrusted();return{id:s.id,name:s.name,allowed:s.allowed,lastUsed:i,trusted:n}})}allowAccess(e){const t=e.map(s=>({id:s,name:s,allowed:!0}));this.c.authenticationAccessService.updateAllowedExtensions(this.providerId,this.accountName,t)}removeAccess(e){const t=e.map(s=>({id:s,name:s,allowed:!1}));this.c.authenticationAccessService.updateAllowedExtensions(this.providerId,this.accountName,t)}forEach(e){const t=this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName),s=this.c.authenticationAccessService.readAllowedExtensions(this.providerId,this.accountName),c=new Set;t.forEach(i=>c.add(i.extensionId)),s.forEach(i=>c.add(i.id));for(const i of c){const r=new p(this.providerId,this.accountName,i,this.c);e(r)}}}class m extends h{constructor(e,t,s){super(e,s),this.accountName=t}getAllowedMcpServers(){return this.c.authenticationMcpAccessService.readAllowedMcpServers(this.providerId,this.accountName).filter(e=>e.allowed!==!1)}allowAccess(e){const t=e.map(s=>({id:s,name:s,allowed:!0}));this.c.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId,this.accountName,t)}removeAccess(e){const t=e.map(s=>({id:s,name:s,allowed:!1}));this.c.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId,this.accountName,t)}forEach(e){const t=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,this.accountName),s=this.c.authenticationMcpAccessService.readAllowedMcpServers(this.providerId,this.accountName),c=new Set;t.forEach(i=>c.add(i.mcpServerId)),s.forEach(i=>c.add(i.id));for(const i of c){const r=new f(this.providerId,this.accountName,i,this.c);e(r)}}}class B extends h{constructor(e,t,s){super(e,s),this.accountName=t}hasAnyUsage(){return!!(this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName).length>0||this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,this.accountName).length>0||this.c.authenticationAccessService.readAllowedExtensions(this.providerId,this.accountName).some(i=>i.allowed!==!1)||this.c.authenticationMcpAccessService.readAllowedMcpServers(this.providerId,this.accountName).some(i=>i.allowed!==!1))}getEntityCount(){const e=this.c.authenticationUsageService.readAccountUsages(this.providerId,this.accountName),t=this.c.authenticationAccessService.readAllowedExtensions(this.providerId,this.accountName).filter(o=>o.allowed),s=new Set;e.forEach(o=>s.add(o.extensionId)),t.forEach(o=>s.add(o.id));const c=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,this.accountName),i=this.c.authenticationMcpAccessService.readAllowedMcpServers(this.providerId,this.accountName).filter(o=>o.allowed),r=new Set;c.forEach(o=>r.add(o.mcpServerId)),i.forEach(o=>r.add(o.id));const n=s.size,d=r.size;return{extensions:n,mcpServers:d,total:n+d}}removeAllAccess(){const e=new l(this.providerId,this.accountName,this.c),s=e.getAllowedExtensions().map(n=>n.id);s.length>0&&e.removeAccess(s);const c=new m(this.providerId,this.accountName,this.c),r=c.getAllowedMcpServers().map(n=>n.id);r.length>0&&c.removeAccess(r)}forEach(e){new l(this.providerId,this.accountName,this.c).forEach(c=>{e(c.extensionId,"extension")}),new m(this.providerId,this.accountName,this.c).forEach(c=>{e(c.mcpServerId,"mcpServer")})}}class I extends h{constructor(e,t,s){super(e,s),this.accountName=t}extension(e){return new p(this.providerId,this.accountName,e,this.c)}mcpServer(e){return new f(this.providerId,this.accountName,e,this.c)}extensions(){return new l(this.providerId,this.accountName,this.c)}mcpServers(){return new m(this.providerId,this.accountName,this.c)}entities(){return new B(this.providerId,this.accountName,this.c)}remove(){this.c.authenticationAccessService.removeAllowedExtensions(this.providerId,this.accountName),this.c.authenticationUsageService.removeAccountUsage(this.providerId,this.accountName),this.c.authenticationMcpAccessService.removeAllowedMcpServers(this.providerId,this.accountName),this.c.authenticationMcpUsageService.removeAccountUsage(this.providerId,this.accountName)}}class g extends h{constructor(e,t,s){super(e,s),this.extensionId=t}getPreferredAccount(){return this.c.authenticationExtensionsService.getAccountPreference(this.extensionId,this.providerId)}setPreferredAccount(e){this.c.authenticationExtensionsService.updateAccountPreference(this.extensionId,this.providerId,e)}removeAccountPreference(){this.c.authenticationExtensionsService.removeAccountPreference(this.extensionId,this.providerId)}}class w extends h{constructor(e,t,s){super(e,s),this.mcpServerId=t}async getLastUsedAccount(){try{const e=await this.c.authenticationService.getAccounts(this.providerId);let t,s=0;for(const c of e){const r=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,c.label).filter(n=>n.mcpServerId===this.mcpServerId);for(const n of r)n.lastUsed>s&&(s=n.lastUsed,t=c.label)}return t}catch{return}}getPreferredAccount(){return this.c.authenticationMcpService.getAccountPreference(this.mcpServerId,this.providerId)}setPreferredAccount(e){this.c.authenticationMcpService.updateAccountPreference(this.mcpServerId,this.providerId,e)}removeAccountPreference(){this.c.authenticationMcpService.removeAccountPreference(this.mcpServerId,this.providerId)}async getUsedAccounts(){try{const e=await this.c.authenticationService.getAccounts(this.providerId),t=[];for(const s of e)this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,s.label).some(i=>i.mcpServerId===this.mcpServerId)&&t.push(s.label);return t}catch{return[]}}}class R extends h{constructor(e,t){super(e,t)}account(e){return new I(this.providerId,e,this.c)}extension(e){return new g(this.providerId,e,this.c)}mcpServer(e){return new w(this.providerId,e,this.c)}async getActiveEntities(){const e=[],t=[];try{const s=await this.c.authenticationService.getAccounts(this.providerId);for(const c of s){const i=this.c.authenticationUsageService.readAccountUsages(this.providerId,c.label);for(const n of i)e.includes(n.extensionId)||e.push(n.extensionId);const r=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,c.label);for(const n of r)t.includes(n.mcpServerId)||t.push(n.mcpServerId)}}catch{}return{extensions:e,mcpServers:t}}async getAccountNames(){try{return(await this.c.authenticationService.getAccounts(this.providerId)).map(t=>t.label)}catch{return[]}}async getUsageStats(){const e=[];let t=0,s=0;try{const c=await this.c.authenticationService.getAccounts(this.providerId);s=c.length;for(const i of c){const r=this.c.authenticationUsageService.readAccountUsages(this.providerId,i.label),n=this.c.authenticationMcpUsageService.readAccountUsages(this.providerId,i.label),d=[...r,...n],o=d.length,x=Math.max(...d.map(U=>U.lastUsed),0);o>0&&e.push({accountName:i.label,lastUsed:x,usageCount:o})}e.sort((i,r)=>r.lastUsed-i.lastUsed),t=e.reduce((i,r)=>i+r.usageCount,0)}catch{}return{totalSessions:t,totalAccounts:s,recentActivity:e}}async forEachAccount(e){try{const t=await this.c.authenticationService.getAccounts(this.providerId);for(const s of t){const c=new I(this.providerId,s.label,this.c);e(c)}}catch{}}}class L{constructor(e,t){this.extensionId=e,this.c=t}async getProvidersWithAccess(e){const t=[],s=this.c.authenticationService.getProviderIds();for(const c of s)if(!(!e&&c.startsWith(v)))try{(await this.c.authenticationService.getAccounts(c)).some(n=>this.c.authenticationAccessService.isAccessAllowed(c,n.label,this.extensionId)===!0)&&t.push(c)}catch{}return t}getAllAccountPreferences(e){const t=new Map,s=this.c.authenticationService.getProviderIds();for(const c of s){if(!e&&c.startsWith(v))continue;const i=this.c.authenticationExtensionsService.getAccountPreference(this.extensionId,c);i&&t.set(c,i)}return t}provider(e){return new g(e,this.extensionId,this.c)}}class O{constructor(e,t){this.mcpServerId=e,this.c=t}async getProvidersWithAccess(e){const t=[],s=this.c.authenticationService.getProviderIds();for(const c of s)if(!(!e&&c.startsWith(v)))try{(await this.c.authenticationService.getAccounts(c)).some(n=>this.c.authenticationMcpAccessService.isAccessAllowed(c,n.label,this.mcpServerId)===!0)&&t.push(c)}catch{}return t}getAllAccountPreferences(e){const t=new Map,s=this.c.authenticationService.getProviderIds();for(const c of s){if(!e&&c.startsWith(v))continue;const i=this.c.authenticationMcpService.getAccountPreference(this.mcpServerId,c);i&&t.set(c,i)}return t}provider(e){return new w(e,this.mcpServerId,this.c)}}let A=class extends M{constructor(e,t,s,c,i,r,n,d){super(),this.authenticationService=e,this.authenticationUsageService=t,this.authenticationMcpUsageService=s,this.authenticationAccessService=c,this.authenticationMcpAccessService=i,this.authenticationExtensionsService=r,this.authenticationMcpService=n,this.logService=d,this.c=this.B(new S),this.onDidChangePreferences=this.c.event,this.f=this.B(new S),this.onDidChangeAccess=this.f.event,this.B(this.authenticationExtensionsService.onDidChangeAccountPreference(o=>{this.c.fire({providerId:o.providerId,entityType:"extension",entityIds:o.extensionIds})})),this.B(this.authenticationMcpService.onDidChangeAccountPreference(o=>{this.c.fire({providerId:o.providerId,entityType:"mcpServer",entityIds:o.mcpServerIds})})),this.B(this.authenticationAccessService.onDidChangeExtensionSessionAccess(o=>{this.f.fire({providerId:o.providerId,accountName:o.accountName})})),this.B(this.authenticationMcpAccessService.onDidChangeMcpSessionAccess(o=>{this.f.fire({providerId:o.providerId,accountName:o.accountName})}))}provider(e){return new R(e,this)}extension(e){return new L(e,this)}mcpServer(e){return new O(e,this)}getProviderIds(e){return this.authenticationService.getProviderIds().filter(t=>e||!t.startsWith(v))}async clearAllData(e,t=!0){if(e!=="CLEAR_ALL_AUTH_DATA")throw new Error("Must provide confirmation string to clear all authentication data");const s=this.getProviderIds(t);for(const c of s)try{const i=await this.authenticationService.getAccounts(c);for(const r of i)this.authenticationAccessService.removeAllowedExtensions(c,r.label),this.authenticationUsageService.removeAccountUsage(c,r.label),this.authenticationMcpAccessService.removeAllowedMcpServers(c,r.label),this.authenticationMcpUsageService.removeAccountUsage(c,r.label)}catch(i){this.logService.error(`Error clearing data for provider ${c}:`,i)}this.logService.info("All authentication data cleared")}};A=N([u(0,P),u(1,$),u(2,T),u(3,C),u(4,W),u(5,b),u(6,_),u(7,E)],A);y(Q,A,1);export{A as $W7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IAuthenticationService, IAuthenticationExtensionsService, INTERNAL_AUTH_PROVIDER_PREFIX } from "../common/authentication.js";
+import { IAuthenticationQueryService } from "../common/authenticationQuery.js";
+import { IAuthenticationUsageService } from "./authenticationUsageService.js";
+import { IAuthenticationMcpUsageService } from "./authenticationMcpUsageService.js";
+import { IAuthenticationAccessService } from "./authenticationAccessService.js";
+import { IAuthenticationMcpAccessService } from "./authenticationMcpAccessService.js";
+import { IAuthenticationMcpService } from "./authenticationMcpService.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+class BaseQuery {
+  static {
+    __name(this, "BaseQuery");
+  }
+  constructor(providerId, queryService) {
+    this.providerId = providerId;
+    this.queryService = queryService;
+  }
+}
+class AccountExtensionQuery extends BaseQuery {
+  static {
+    __name(this, "AccountExtensionQuery");
+  }
+  constructor(providerId, accountName, extensionId, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+    this.extensionId = extensionId;
+  }
+  isAccessAllowed() {
+    return this.queryService.authenticationAccessService.isAccessAllowed(this.providerId, this.accountName, this.extensionId);
+  }
+  setAccessAllowed(allowed, extensionName) {
+    this.queryService.authenticationAccessService.updateAllowedExtensions(this.providerId, this.accountName, [{ id: this.extensionId, name: extensionName || this.extensionId, allowed }]);
+  }
+  addUsage(scopes, extensionName) {
+    this.queryService.authenticationUsageService.addAccountUsage(this.providerId, this.accountName, scopes, this.extensionId, extensionName);
+  }
+  getUsage() {
+    const allUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    return allUsages.filter((usage) => usage.extensionId === ExtensionIdentifier.toKey(this.extensionId)).map((usage) => ({
+      extensionId: usage.extensionId,
+      extensionName: usage.extensionName,
+      scopes: usage.scopes || [],
+      lastUsed: usage.lastUsed
+    }));
+  }
+  removeUsage() {
+    const allUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    const filteredUsages = allUsages.filter((usage) => usage.extensionId !== this.extensionId);
+    this.queryService.authenticationUsageService.removeAccountUsage(this.providerId, this.accountName);
+    for (const usage of filteredUsages) {
+      this.queryService.authenticationUsageService.addAccountUsage(this.providerId, this.accountName, usage.scopes || [], usage.extensionId, usage.extensionName);
+    }
+  }
+  setAsPreferred() {
+    this.queryService.authenticationExtensionsService.updateAccountPreference(this.extensionId, this.providerId, { label: this.accountName, id: this.accountName });
+  }
+  isPreferred() {
+    const preferredAccount = this.queryService.authenticationExtensionsService.getAccountPreference(this.extensionId, this.providerId);
+    return preferredAccount === this.accountName;
+  }
+  isTrusted() {
+    const allowedExtensions = this.queryService.authenticationAccessService.readAllowedExtensions(this.providerId, this.accountName);
+    const extension = allowedExtensions.find((ext) => ext.id === this.extensionId);
+    return extension?.trusted === true;
+  }
+}
+class AccountMcpServerQuery extends BaseQuery {
+  static {
+    __name(this, "AccountMcpServerQuery");
+  }
+  constructor(providerId, accountName, mcpServerId, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+    this.mcpServerId = mcpServerId;
+  }
+  isAccessAllowed() {
+    return this.queryService.authenticationMcpAccessService.isAccessAllowed(this.providerId, this.accountName, this.mcpServerId);
+  }
+  setAccessAllowed(allowed, mcpServerName) {
+    this.queryService.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId, this.accountName, [{ id: this.mcpServerId, name: mcpServerName || this.mcpServerId, allowed }]);
+  }
+  addUsage(scopes, mcpServerName) {
+    this.queryService.authenticationMcpUsageService.addAccountUsage(this.providerId, this.accountName, scopes, this.mcpServerId, mcpServerName);
+  }
+  getUsage() {
+    const allUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, this.accountName);
+    return allUsages.filter((usage) => usage.mcpServerId === this.mcpServerId).map((usage) => ({
+      mcpServerId: usage.mcpServerId,
+      mcpServerName: usage.mcpServerName,
+      scopes: usage.scopes || [],
+      lastUsed: usage.lastUsed
+    }));
+  }
+  removeUsage() {
+    const allUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, this.accountName);
+    const filteredUsages = allUsages.filter((usage) => usage.mcpServerId !== this.mcpServerId);
+    this.queryService.authenticationMcpUsageService.removeAccountUsage(this.providerId, this.accountName);
+    for (const usage of filteredUsages) {
+      this.queryService.authenticationMcpUsageService.addAccountUsage(this.providerId, this.accountName, usage.scopes || [], usage.mcpServerId, usage.mcpServerName);
+    }
+  }
+  setAsPreferred() {
+    this.queryService.authenticationMcpService.updateAccountPreference(this.mcpServerId, this.providerId, { label: this.accountName, id: this.accountName });
+  }
+  isPreferred() {
+    const preferredAccount = this.queryService.authenticationMcpService.getAccountPreference(this.mcpServerId, this.providerId);
+    return preferredAccount === this.accountName;
+  }
+  isTrusted() {
+    const allowedMcpServers = this.queryService.authenticationMcpAccessService.readAllowedMcpServers(this.providerId, this.accountName);
+    const mcpServer = allowedMcpServers.find((server) => server.id === this.mcpServerId);
+    return mcpServer?.trusted === true;
+  }
+}
+class AccountExtensionsQuery extends BaseQuery {
+  static {
+    __name(this, "AccountExtensionsQuery");
+  }
+  constructor(providerId, accountName, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+  }
+  getAllowedExtensions() {
+    const allowedExtensions = this.queryService.authenticationAccessService.readAllowedExtensions(this.providerId, this.accountName);
+    const usages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    return allowedExtensions.filter((ext) => ext.allowed !== false).map((ext) => {
+      const extensionUsages = usages.filter((usage) => usage.extensionId === ext.id);
+      const lastUsed = extensionUsages.length > 0 ? Math.max(...extensionUsages.map((u) => u.lastUsed)) : void 0;
+      const extensionQuery = new AccountExtensionQuery(this.providerId, this.accountName, ext.id, this.queryService);
+      const trusted = extensionQuery.isTrusted();
+      return {
+        id: ext.id,
+        name: ext.name,
+        allowed: ext.allowed,
+        lastUsed,
+        trusted
+      };
+    });
+  }
+  allowAccess(extensionIds) {
+    const extensionsToAllow = extensionIds.map((id) => ({ id, name: id, allowed: true }));
+    this.queryService.authenticationAccessService.updateAllowedExtensions(this.providerId, this.accountName, extensionsToAllow);
+  }
+  removeAccess(extensionIds) {
+    const extensionsToRemove = extensionIds.map((id) => ({ id, name: id, allowed: false }));
+    this.queryService.authenticationAccessService.updateAllowedExtensions(this.providerId, this.accountName, extensionsToRemove);
+  }
+  forEach(callback) {
+    const usages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    const allowedExtensions = this.queryService.authenticationAccessService.readAllowedExtensions(this.providerId, this.accountName);
+    const extensionIds = /* @__PURE__ */ new Set();
+    usages.forEach((usage) => extensionIds.add(usage.extensionId));
+    allowedExtensions.forEach((ext) => extensionIds.add(ext.id));
+    for (const extensionId of extensionIds) {
+      const extensionQuery = new AccountExtensionQuery(this.providerId, this.accountName, extensionId, this.queryService);
+      callback(extensionQuery);
+    }
+  }
+}
+class AccountMcpServersQuery extends BaseQuery {
+  static {
+    __name(this, "AccountMcpServersQuery");
+  }
+  constructor(providerId, accountName, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+  }
+  getAllowedMcpServers() {
+    return this.queryService.authenticationMcpAccessService.readAllowedMcpServers(this.providerId, this.accountName).filter((server) => server.allowed !== false);
+  }
+  allowAccess(mcpServerIds) {
+    const mcpServersToAllow = mcpServerIds.map((id) => ({ id, name: id, allowed: true }));
+    this.queryService.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId, this.accountName, mcpServersToAllow);
+  }
+  removeAccess(mcpServerIds) {
+    const mcpServersToRemove = mcpServerIds.map((id) => ({ id, name: id, allowed: false }));
+    this.queryService.authenticationMcpAccessService.updateAllowedMcpServers(this.providerId, this.accountName, mcpServersToRemove);
+  }
+  forEach(callback) {
+    const usages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, this.accountName);
+    const allowedMcpServers = this.queryService.authenticationMcpAccessService.readAllowedMcpServers(this.providerId, this.accountName);
+    const mcpServerIds = /* @__PURE__ */ new Set();
+    usages.forEach((usage) => mcpServerIds.add(usage.mcpServerId));
+    allowedMcpServers.forEach((server) => mcpServerIds.add(server.id));
+    for (const mcpServerId of mcpServerIds) {
+      const mcpServerQuery = new AccountMcpServerQuery(this.providerId, this.accountName, mcpServerId, this.queryService);
+      callback(mcpServerQuery);
+    }
+  }
+}
+class AccountEntitiesQuery extends BaseQuery {
+  static {
+    __name(this, "AccountEntitiesQuery");
+  }
+  constructor(providerId, accountName, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+  }
+  hasAnyUsage() {
+    const extensionUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    if (extensionUsages.length > 0) {
+      return true;
+    }
+    const mcpUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, this.accountName);
+    if (mcpUsages.length > 0) {
+      return true;
+    }
+    const allowedExtensions = this.queryService.authenticationAccessService.readAllowedExtensions(this.providerId, this.accountName);
+    if (allowedExtensions.some((ext) => ext.allowed !== false)) {
+      return true;
+    }
+    const allowedMcpServers = this.queryService.authenticationMcpAccessService.readAllowedMcpServers(this.providerId, this.accountName);
+    if (allowedMcpServers.some((server) => server.allowed !== false)) {
+      return true;
+    }
+    return false;
+  }
+  getEntityCount() {
+    const extensionUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, this.accountName);
+    const allowedExtensions = this.queryService.authenticationAccessService.readAllowedExtensions(this.providerId, this.accountName).filter((ext) => ext.allowed);
+    const extensionIds = /* @__PURE__ */ new Set();
+    extensionUsages.forEach((usage) => extensionIds.add(usage.extensionId));
+    allowedExtensions.forEach((ext) => extensionIds.add(ext.id));
+    const mcpUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, this.accountName);
+    const allowedMcpServers = this.queryService.authenticationMcpAccessService.readAllowedMcpServers(this.providerId, this.accountName).filter((server) => server.allowed);
+    const mcpServerIds = /* @__PURE__ */ new Set();
+    mcpUsages.forEach((usage) => mcpServerIds.add(usage.mcpServerId));
+    allowedMcpServers.forEach((server) => mcpServerIds.add(server.id));
+    const extensionCount = extensionIds.size;
+    const mcpServerCount = mcpServerIds.size;
+    return {
+      extensions: extensionCount,
+      mcpServers: mcpServerCount,
+      total: extensionCount + mcpServerCount
+    };
+  }
+  removeAllAccess() {
+    const extensionsQuery = new AccountExtensionsQuery(this.providerId, this.accountName, this.queryService);
+    const extensions = extensionsQuery.getAllowedExtensions();
+    const extensionIds = extensions.map((ext) => ext.id);
+    if (extensionIds.length > 0) {
+      extensionsQuery.removeAccess(extensionIds);
+    }
+    const mcpServersQuery = new AccountMcpServersQuery(this.providerId, this.accountName, this.queryService);
+    const mcpServers = mcpServersQuery.getAllowedMcpServers();
+    const mcpServerIds = mcpServers.map((server) => server.id);
+    if (mcpServerIds.length > 0) {
+      mcpServersQuery.removeAccess(mcpServerIds);
+    }
+  }
+  forEach(callback) {
+    const extensionsQuery = new AccountExtensionsQuery(this.providerId, this.accountName, this.queryService);
+    extensionsQuery.forEach((extensionQuery) => {
+      callback(extensionQuery.extensionId, "extension");
+    });
+    const mcpServersQuery = new AccountMcpServersQuery(this.providerId, this.accountName, this.queryService);
+    mcpServersQuery.forEach((mcpServerQuery) => {
+      callback(mcpServerQuery.mcpServerId, "mcpServer");
+    });
+  }
+}
+class AccountQuery extends BaseQuery {
+  static {
+    __name(this, "AccountQuery");
+  }
+  constructor(providerId, accountName, queryService) {
+    super(providerId, queryService);
+    this.accountName = accountName;
+  }
+  extension(extensionId) {
+    return new AccountExtensionQuery(this.providerId, this.accountName, extensionId, this.queryService);
+  }
+  mcpServer(mcpServerId) {
+    return new AccountMcpServerQuery(this.providerId, this.accountName, mcpServerId, this.queryService);
+  }
+  extensions() {
+    return new AccountExtensionsQuery(this.providerId, this.accountName, this.queryService);
+  }
+  mcpServers() {
+    return new AccountMcpServersQuery(this.providerId, this.accountName, this.queryService);
+  }
+  entities() {
+    return new AccountEntitiesQuery(this.providerId, this.accountName, this.queryService);
+  }
+  remove() {
+    this.queryService.authenticationAccessService.removeAllowedExtensions(this.providerId, this.accountName);
+    this.queryService.authenticationUsageService.removeAccountUsage(this.providerId, this.accountName);
+    this.queryService.authenticationMcpAccessService.removeAllowedMcpServers(this.providerId, this.accountName);
+    this.queryService.authenticationMcpUsageService.removeAccountUsage(this.providerId, this.accountName);
+  }
+}
+class ProviderExtensionQuery extends BaseQuery {
+  static {
+    __name(this, "ProviderExtensionQuery");
+  }
+  constructor(providerId, extensionId, queryService) {
+    super(providerId, queryService);
+    this.extensionId = extensionId;
+  }
+  getPreferredAccount() {
+    return this.queryService.authenticationExtensionsService.getAccountPreference(this.extensionId, this.providerId);
+  }
+  setPreferredAccount(account) {
+    this.queryService.authenticationExtensionsService.updateAccountPreference(this.extensionId, this.providerId, account);
+  }
+  removeAccountPreference() {
+    this.queryService.authenticationExtensionsService.removeAccountPreference(this.extensionId, this.providerId);
+  }
+}
+class ProviderMcpServerQuery extends BaseQuery {
+  static {
+    __name(this, "ProviderMcpServerQuery");
+  }
+  constructor(providerId, mcpServerId, queryService) {
+    super(providerId, queryService);
+    this.mcpServerId = mcpServerId;
+  }
+  async getLastUsedAccount() {
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      let lastUsedAccount;
+      let lastUsedTime = 0;
+      for (const account of accounts) {
+        const usages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, account.label);
+        const mcpServerUsages = usages.filter((usage) => usage.mcpServerId === this.mcpServerId);
+        for (const usage of mcpServerUsages) {
+          if (usage.lastUsed > lastUsedTime) {
+            lastUsedTime = usage.lastUsed;
+            lastUsedAccount = account.label;
+          }
+        }
+      }
+      return lastUsedAccount;
+    } catch {
+      return void 0;
+    }
+  }
+  getPreferredAccount() {
+    return this.queryService.authenticationMcpService.getAccountPreference(this.mcpServerId, this.providerId);
+  }
+  setPreferredAccount(account) {
+    this.queryService.authenticationMcpService.updateAccountPreference(this.mcpServerId, this.providerId, account);
+  }
+  removeAccountPreference() {
+    this.queryService.authenticationMcpService.removeAccountPreference(this.mcpServerId, this.providerId);
+  }
+  async getUsedAccounts() {
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      const usedAccounts = [];
+      for (const account of accounts) {
+        const usages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, account.label);
+        if (usages.some((usage) => usage.mcpServerId === this.mcpServerId)) {
+          usedAccounts.push(account.label);
+        }
+      }
+      return usedAccounts;
+    } catch {
+      return [];
+    }
+  }
+}
+class ProviderQuery extends BaseQuery {
+  static {
+    __name(this, "ProviderQuery");
+  }
+  constructor(providerId, queryService) {
+    super(providerId, queryService);
+  }
+  account(accountName) {
+    return new AccountQuery(this.providerId, accountName, this.queryService);
+  }
+  extension(extensionId) {
+    return new ProviderExtensionQuery(this.providerId, extensionId, this.queryService);
+  }
+  mcpServer(mcpServerId) {
+    return new ProviderMcpServerQuery(this.providerId, mcpServerId, this.queryService);
+  }
+  async getActiveEntities() {
+    const extensions = [];
+    const mcpServers = [];
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      for (const account of accounts) {
+        const extensionUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, account.label);
+        for (const usage of extensionUsages) {
+          if (!extensions.includes(usage.extensionId)) {
+            extensions.push(usage.extensionId);
+          }
+        }
+        const mcpUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, account.label);
+        for (const usage of mcpUsages) {
+          if (!mcpServers.includes(usage.mcpServerId)) {
+            mcpServers.push(usage.mcpServerId);
+          }
+        }
+      }
+    } catch {
+    }
+    return { extensions, mcpServers };
+  }
+  async getAccountNames() {
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      return accounts.map((account) => account.label);
+    } catch {
+      return [];
+    }
+  }
+  async getUsageStats() {
+    const recentActivity = [];
+    let totalSessions = 0;
+    let totalAccounts = 0;
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      totalAccounts = accounts.length;
+      for (const account of accounts) {
+        const extensionUsages = this.queryService.authenticationUsageService.readAccountUsages(this.providerId, account.label);
+        const mcpUsages = this.queryService.authenticationMcpUsageService.readAccountUsages(this.providerId, account.label);
+        const allUsages = [...extensionUsages, ...mcpUsages];
+        const usageCount = allUsages.length;
+        const lastUsed = Math.max(...allUsages.map((u) => u.lastUsed), 0);
+        if (usageCount > 0) {
+          recentActivity.push({ accountName: account.label, lastUsed, usageCount });
+        }
+      }
+      recentActivity.sort((a, b) => b.lastUsed - a.lastUsed);
+      totalSessions = recentActivity.reduce((sum, activity) => sum + activity.usageCount, 0);
+    } catch {
+    }
+    return { totalSessions, totalAccounts, recentActivity };
+  }
+  async forEachAccount(callback) {
+    try {
+      const accounts = await this.queryService.authenticationService.getAccounts(this.providerId);
+      for (const account of accounts) {
+        const accountQuery = new AccountQuery(this.providerId, account.label, this.queryService);
+        callback(accountQuery);
+      }
+    } catch {
+    }
+  }
+}
+class ExtensionQuery {
+  static {
+    __name(this, "ExtensionQuery");
+  }
+  constructor(extensionId, queryService) {
+    this.extensionId = extensionId;
+    this.queryService = queryService;
+  }
+  async getProvidersWithAccess(includeInternal) {
+    const providersWithAccess = [];
+    const providerIds = this.queryService.authenticationService.getProviderIds();
+    for (const providerId of providerIds) {
+      if (!includeInternal && providerId.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
+        continue;
+      }
+      try {
+        const accounts = await this.queryService.authenticationService.getAccounts(providerId);
+        const hasAccess = accounts.some((account) => {
+          const accessAllowed = this.queryService.authenticationAccessService.isAccessAllowed(providerId, account.label, this.extensionId);
+          return accessAllowed === true;
+        });
+        if (hasAccess) {
+          providersWithAccess.push(providerId);
+        }
+      } catch {
+      }
+    }
+    return providersWithAccess;
+  }
+  getAllAccountPreferences(includeInternal) {
+    const preferences = /* @__PURE__ */ new Map();
+    const providerIds = this.queryService.authenticationService.getProviderIds();
+    for (const providerId of providerIds) {
+      if (!includeInternal && providerId.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
+        continue;
+      }
+      const preferredAccount = this.queryService.authenticationExtensionsService.getAccountPreference(this.extensionId, providerId);
+      if (preferredAccount) {
+        preferences.set(providerId, preferredAccount);
+      }
+    }
+    return preferences;
+  }
+  provider(providerId) {
+    return new ProviderExtensionQuery(providerId, this.extensionId, this.queryService);
+  }
+}
+class McpServerQuery {
+  static {
+    __name(this, "McpServerQuery");
+  }
+  constructor(mcpServerId, queryService) {
+    this.mcpServerId = mcpServerId;
+    this.queryService = queryService;
+  }
+  async getProvidersWithAccess(includeInternal) {
+    const providersWithAccess = [];
+    const providerIds = this.queryService.authenticationService.getProviderIds();
+    for (const providerId of providerIds) {
+      if (!includeInternal && providerId.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
+        continue;
+      }
+      try {
+        const accounts = await this.queryService.authenticationService.getAccounts(providerId);
+        const hasAccess = accounts.some((account) => {
+          const accessAllowed = this.queryService.authenticationMcpAccessService.isAccessAllowed(providerId, account.label, this.mcpServerId);
+          return accessAllowed === true;
+        });
+        if (hasAccess) {
+          providersWithAccess.push(providerId);
+        }
+      } catch {
+      }
+    }
+    return providersWithAccess;
+  }
+  getAllAccountPreferences(includeInternal) {
+    const preferences = /* @__PURE__ */ new Map();
+    const providerIds = this.queryService.authenticationService.getProviderIds();
+    for (const providerId of providerIds) {
+      if (!includeInternal && providerId.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
+        continue;
+      }
+      const preferredAccount = this.queryService.authenticationMcpService.getAccountPreference(this.mcpServerId, providerId);
+      if (preferredAccount) {
+        preferences.set(providerId, preferredAccount);
+      }
+    }
+    return preferences;
+  }
+  provider(providerId) {
+    return new ProviderMcpServerQuery(providerId, this.mcpServerId, this.queryService);
+  }
+}
+let AuthenticationQueryService = class AuthenticationQueryService2 extends Disposable {
+  static {
+    __name(this, "AuthenticationQueryService");
+  }
+  constructor(authenticationService, authenticationUsageService, authenticationMcpUsageService, authenticationAccessService, authenticationMcpAccessService, authenticationExtensionsService, authenticationMcpService, logService) {
+    super();
+    this.authenticationService = authenticationService;
+    this.authenticationUsageService = authenticationUsageService;
+    this.authenticationMcpUsageService = authenticationMcpUsageService;
+    this.authenticationAccessService = authenticationAccessService;
+    this.authenticationMcpAccessService = authenticationMcpAccessService;
+    this.authenticationExtensionsService = authenticationExtensionsService;
+    this.authenticationMcpService = authenticationMcpService;
+    this.logService = logService;
+    this._onDidChangePreferences = this._register(new Emitter());
+    this.onDidChangePreferences = this._onDidChangePreferences.event;
+    this._onDidChangeAccess = this._register(new Emitter());
+    this.onDidChangeAccess = this._onDidChangeAccess.event;
+    this._register(this.authenticationExtensionsService.onDidChangeAccountPreference((e) => {
+      this._onDidChangePreferences.fire({
+        providerId: e.providerId,
+        entityType: "extension",
+        entityIds: e.extensionIds
+      });
+    }));
+    this._register(this.authenticationMcpService.onDidChangeAccountPreference((e) => {
+      this._onDidChangePreferences.fire({
+        providerId: e.providerId,
+        entityType: "mcpServer",
+        entityIds: e.mcpServerIds
+      });
+    }));
+    this._register(this.authenticationAccessService.onDidChangeExtensionSessionAccess((e) => {
+      this._onDidChangeAccess.fire({
+        providerId: e.providerId,
+        accountName: e.accountName
+      });
+    }));
+    this._register(this.authenticationMcpAccessService.onDidChangeMcpSessionAccess((e) => {
+      this._onDidChangeAccess.fire({
+        providerId: e.providerId,
+        accountName: e.accountName
+      });
+    }));
+  }
+  provider(providerId) {
+    return new ProviderQuery(providerId, this);
+  }
+  extension(extensionId) {
+    return new ExtensionQuery(extensionId, this);
+  }
+  mcpServer(mcpServerId) {
+    return new McpServerQuery(mcpServerId, this);
+  }
+  getProviderIds(includeInternal) {
+    return this.authenticationService.getProviderIds().filter((providerId) => {
+      return includeInternal || !providerId.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX);
+    });
+  }
+  async clearAllData(confirmation, includeInternal = true) {
+    if (confirmation !== "CLEAR_ALL_AUTH_DATA") {
+      throw new Error("Must provide confirmation string to clear all authentication data");
+    }
+    const providerIds = this.getProviderIds(includeInternal);
+    for (const providerId of providerIds) {
+      try {
+        const accounts = await this.authenticationService.getAccounts(providerId);
+        for (const account of accounts) {
+          this.authenticationAccessService.removeAllowedExtensions(providerId, account.label);
+          this.authenticationUsageService.removeAccountUsage(providerId, account.label);
+          this.authenticationMcpAccessService.removeAllowedMcpServers(providerId, account.label);
+          this.authenticationMcpUsageService.removeAccountUsage(providerId, account.label);
+        }
+      } catch (error) {
+        this.logService.error(`Error clearing data for provider ${providerId}:`, error);
+      }
+    }
+    this.logService.info("All authentication data cleared");
+  }
+};
+AuthenticationQueryService = __decorate([
+  __param(0, IAuthenticationService),
+  __param(1, IAuthenticationUsageService),
+  __param(2, IAuthenticationMcpUsageService),
+  __param(3, IAuthenticationAccessService),
+  __param(4, IAuthenticationMcpAccessService),
+  __param(5, IAuthenticationExtensionsService),
+  __param(6, IAuthenticationMcpService),
+  __param(7, ILogService)
+], AuthenticationQueryService);
+registerSingleton(
+  IAuthenticationQueryService,
+  AuthenticationQueryService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  AuthenticationQueryService
+};
+//# sourceMappingURL=authenticationQueryService.js.map

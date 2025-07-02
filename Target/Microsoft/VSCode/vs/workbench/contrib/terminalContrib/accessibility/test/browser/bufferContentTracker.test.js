@@ -1,7 +1,151 @@
-import n from"assert";import{$OI as $}from"../../../../../../amdX.js";import{$m as h}from"../../../../../../base/common/platform.js";import{$O$ as b}from"../../../../../../base/test/common/utils.js";import{$Fl as g}from"../../../../../../platform/configuration/common/configuration.js";import{$JGc as w}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$Wn as S}from"../../../../../../platform/contextkey/common/contextkey.js";import{$eCc as E}from"../../../../../../platform/contextview/browser/contextMenuService.js";import{$Gfb as v}from"../../../../../../platform/contextview/browser/contextView.js";import{$OGc as y}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$WGc as q}from"../../../../../../platform/keybinding/test/common/mockKeybindingService.js";import{$Rhb as x}from"../../../../../../platform/layout/browser/layoutService.js";import{$5n as I,$fo as k}from"../../../../../../platform/log/common/log.js";import{$JYb as A}from"../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{$Iw as C}from"../../../../../../platform/terminal/common/terminal.js";import{$Ot as O}from"../../../../../../platform/theme/common/themeService.js";import{$NGc as B}from"../../../../../../platform/theme/test/common/testThemeService.js";import{$0Qc as l}from"../../../../terminal/browser/terminalTestHelpers.js";import{$aZb as G}from"../../../../terminal/browser/xterm/xtermTerminal.js";import{$Isc as W}from"../../browser/bufferContentTracker.js";import{$_K as P}from"../../../../../services/lifecycle/common/lifecycle.js";import{$2Oc as T,$dPc as F}from"../../../../../test/browser/workbenchTestServices.js";import{$wOc as J}from"../../../../../test/common/workbenchTestServices.js";import{$keb as R}from"../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$dZb as Z}from"../../../../terminal/browser/terminal.js";import{$$rc as j}from"../../../../terminal/browser/terminalConfigurationService.js";const z={fontFamily:"monospace",fontWeight:"normal",fontWeightBold:"normal",gpuAcceleration:"off",scrollback:1e3,fastScrollSensitivity:2,mouseWheelScrollSensitivity:1,unicodeVersion:"6"};suite("Buffer Content Tracker",()=>{const i=b();let e,m,d,r,p,t;const a="vscode-git:(prompt/more-tests)",o="vscode-git:(prompt/more-tests) some data";setup(async()=>{m=new w({terminal:{integrated:z}}),e=i.add(new y),d=new B,e.stub(g,m),e.stub(Z,i.add(e.createInstance(j))),e.stub(O,d),e.stub(C,new k),e.stub(I,i.add(new J)),e.stub(v,i.add(e.createInstance(E))),e.stub(P,i.add(new F)),e.stub(S,i.add(new q)),e.stub(R,{playSignal:async()=>{},isSoundEnabled(u){return!1}}),e.stub(x,new T),p=i.add(new A),h||p.add(1,null);const c=(await $("@xterm/xterm","lib/xterm.js")).Terminal;r=i.add(e.createInstance(G,c,{cols:80,rows:30,xtermColorProvider:{getBackgroundColor:()=>{}},capabilities:p,disableShellIntegrationReporting:!0},void 0));const s=document.createElement("div");r.raw.open(s),m=new w({terminal:{integrated:{tabs:{separator:" - ",title:"${cwd}",description:"${cwd}"}}}}),t=i.add(e.createInstance(W,r))}),test("should not clear the prompt line",async()=>{n.strictEqual(t.lines.length,0),await l(r.raw,a),r.clearBuffer(),t.update(),n.deepStrictEqual(t.lines,[a])}),test("repeated updates should not change the content",async()=>{n.strictEqual(t.lines.length,0),await l(r.raw,a),t.update(),n.deepStrictEqual(t.lines,[a]),t.update(),n.deepStrictEqual(t.lines,[a]),t.update(),n.deepStrictEqual(t.lines,[a])}),test("should add lines in the viewport and scrollback",async()=>{await f(o,38,r.raw,t)}),test("should add lines in the viewport and full scrollback",async()=>{await f(o,1030,r.raw,t)}),test("should refresh viewport",async()=>{await f(o,6,r.raw,t),await l(r.raw,"\x1B[3Ainserteddata"),t.update(),n.deepStrictEqual(t.lines,[o,o,`${o}inserteddata`,o,o,o])}),test("should refresh viewport with full scrollback",async()=>{const c=`${a}\r
-`.repeat(1030).trimEnd();await l(r.raw,c),t.update(),await l(r.raw,"\x1B[4Ainsertion"),t.update();const s=c.split(`\r
-`);s[1025]=`${a}insertion`,n.deepStrictEqual(t.lines[1025],`${a}insertion`)}),test("should cap the size of the cached lines, removing old lines in favor of new lines",async()=>{const c=`${a}\r
-`.repeat(1036).trimEnd();await l(r.raw,c),t.update();const s=c.split(`\r
-`);for(let u=0;u<6;u++)s.pop();await l(r.raw,"\x1B[2Ainsertion"),t.update(),s[1027]=`${a}insertion`,n.strictEqual(t.lines.length,s.length),n.deepStrictEqual(t.lines,s)})});async function f(i,e,m,d){const r=`${i}\r
-`.repeat(e).trimEnd();await l(m,r),d.update(),n.strictEqual(d.lines.length,e),n.deepStrictEqual(d.lines,r.split(`\r
-`))}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import assert from "assert";
+import { importAMDNodeModule } from "../../../../../../amdX.js";
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { ContextMenuService } from "../../../../../../platform/contextview/browser/contextMenuService.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { MockContextKeyService } from "../../../../../../platform/keybinding/test/common/mockKeybindingService.js";
+import { ILayoutService } from "../../../../../../platform/layout/browser/layoutService.js";
+import { ILoggerService, NullLogService } from "../../../../../../platform/log/common/log.js";
+import { TerminalCapabilityStore } from "../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { TestThemeService } from "../../../../../../platform/theme/test/common/testThemeService.js";
+import { writeP } from "../../../../terminal/browser/terminalTestHelpers.js";
+import { XtermTerminal } from "../../../../terminal/browser/xterm/xtermTerminal.js";
+import { BufferContentTracker } from "../../browser/bufferContentTracker.js";
+import { ILifecycleService } from "../../../../../services/lifecycle/common/lifecycle.js";
+import { TestLayoutService, TestLifecycleService } from "../../../../../test/browser/workbenchTestServices.js";
+import { TestLoggerService } from "../../../../../test/common/workbenchTestServices.js";
+import { IAccessibilitySignalService } from "../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ITerminalConfigurationService } from "../../../../terminal/browser/terminal.js";
+import { TerminalConfigurationService } from "../../../../terminal/browser/terminalConfigurationService.js";
+const defaultTerminalConfig = {
+  fontFamily: "monospace",
+  fontWeight: "normal",
+  fontWeightBold: "normal",
+  gpuAcceleration: "off",
+  scrollback: 1e3,
+  fastScrollSensitivity: 2,
+  mouseWheelScrollSensitivity: 1,
+  unicodeVersion: "6"
+};
+suite("Buffer Content Tracker", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let configurationService;
+  let themeService;
+  let xterm;
+  let capabilities;
+  let bufferTracker;
+  const prompt = "vscode-git:(prompt/more-tests)";
+  const promptPlusData = "vscode-git:(prompt/more-tests) some data";
+  setup(async () => {
+    configurationService = new TestConfigurationService({ terminal: { integrated: defaultTerminalConfig } });
+    instantiationService = store.add(new TestInstantiationService());
+    themeService = new TestThemeService();
+    instantiationService.stub(IConfigurationService, configurationService);
+    instantiationService.stub(ITerminalConfigurationService, store.add(instantiationService.createInstance(TerminalConfigurationService)));
+    instantiationService.stub(IThemeService, themeService);
+    instantiationService.stub(ITerminalLogService, new NullLogService());
+    instantiationService.stub(ILoggerService, store.add(new TestLoggerService()));
+    instantiationService.stub(IContextMenuService, store.add(instantiationService.createInstance(ContextMenuService)));
+    instantiationService.stub(ILifecycleService, store.add(new TestLifecycleService()));
+    instantiationService.stub(IContextKeyService, store.add(new MockContextKeyService()));
+    instantiationService.stub(IAccessibilitySignalService, {
+      playSignal: /* @__PURE__ */ __name(async () => {
+      }, "playSignal"),
+      isSoundEnabled(signal) {
+        return false;
+      }
+    });
+    instantiationService.stub(ILayoutService, new TestLayoutService());
+    capabilities = store.add(new TerminalCapabilityStore());
+    if (!isWindows) {
+      capabilities.add(1, null);
+    }
+    const TerminalCtor = (await importAMDNodeModule("@xterm/xterm", "lib/xterm.js")).Terminal;
+    xterm = store.add(instantiationService.createInstance(XtermTerminal, TerminalCtor, {
+      cols: 80,
+      rows: 30,
+      xtermColorProvider: { getBackgroundColor: /* @__PURE__ */ __name(() => void 0, "getBackgroundColor") },
+      capabilities,
+      disableShellIntegrationReporting: true
+    }, void 0));
+    const container = document.createElement("div");
+    xterm.raw.open(container);
+    configurationService = new TestConfigurationService({ terminal: { integrated: { tabs: { separator: " - ", title: "${cwd}", description: "${cwd}" } } } });
+    bufferTracker = store.add(instantiationService.createInstance(BufferContentTracker, xterm));
+  });
+  test("should not clear the prompt line", async () => {
+    assert.strictEqual(bufferTracker.lines.length, 0);
+    await writeP(xterm.raw, prompt);
+    xterm.clearBuffer();
+    bufferTracker.update();
+    assert.deepStrictEqual(bufferTracker.lines, [prompt]);
+  });
+  test("repeated updates should not change the content", async () => {
+    assert.strictEqual(bufferTracker.lines.length, 0);
+    await writeP(xterm.raw, prompt);
+    bufferTracker.update();
+    assert.deepStrictEqual(bufferTracker.lines, [prompt]);
+    bufferTracker.update();
+    assert.deepStrictEqual(bufferTracker.lines, [prompt]);
+    bufferTracker.update();
+    assert.deepStrictEqual(bufferTracker.lines, [prompt]);
+  });
+  test("should add lines in the viewport and scrollback", async () => {
+    await writeAndAssertBufferState(promptPlusData, 38, xterm.raw, bufferTracker);
+  });
+  test("should add lines in the viewport and full scrollback", async () => {
+    await writeAndAssertBufferState(promptPlusData, 1030, xterm.raw, bufferTracker);
+  });
+  test("should refresh viewport", async () => {
+    await writeAndAssertBufferState(promptPlusData, 6, xterm.raw, bufferTracker);
+    await writeP(xterm.raw, "\x1B[3Ainserteddata");
+    bufferTracker.update();
+    assert.deepStrictEqual(bufferTracker.lines, [promptPlusData, promptPlusData, `${promptPlusData}inserteddata`, promptPlusData, promptPlusData, promptPlusData]);
+  });
+  test("should refresh viewport with full scrollback", async () => {
+    const content = `${prompt}\r
+`.repeat(1030).trimEnd();
+    await writeP(xterm.raw, content);
+    bufferTracker.update();
+    await writeP(xterm.raw, "\x1B[4Ainsertion");
+    bufferTracker.update();
+    const expected = content.split("\r\n");
+    expected[1025] = `${prompt}insertion`;
+    assert.deepStrictEqual(bufferTracker.lines[1025], `${prompt}insertion`);
+  });
+  test("should cap the size of the cached lines, removing old lines in favor of new lines", async () => {
+    const content = `${prompt}\r
+`.repeat(1036).trimEnd();
+    await writeP(xterm.raw, content);
+    bufferTracker.update();
+    const expected = content.split("\r\n");
+    for (let i = 0; i < 6; i++) {
+      expected.pop();
+    }
+    await writeP(xterm.raw, "\x1B[2Ainsertion");
+    bufferTracker.update();
+    expected[1027] = `${prompt}insertion`;
+    assert.strictEqual(bufferTracker.lines.length, expected.length);
+    assert.deepStrictEqual(bufferTracker.lines, expected);
+  });
+});
+async function writeAndAssertBufferState(data, rows, terminal, bufferTracker) {
+  const content = `${data}\r
+`.repeat(rows).trimEnd();
+  await writeP(terminal, content);
+  bufferTracker.update();
+  assert.strictEqual(bufferTracker.lines.length, rows);
+  assert.deepStrictEqual(bufferTracker.lines, content.split("\r\n"));
+}
+__name(writeAndAssertBufferState, "writeAndAssertBufferState");
+//# sourceMappingURL=bufferContentTracker.test.js.map

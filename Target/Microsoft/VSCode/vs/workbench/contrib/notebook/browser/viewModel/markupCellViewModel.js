@@ -1,1 +1,246 @@
-import{$df as b}from"../../../../../base/common/event.js";import*as C from"../../../../../base/common/uuid.js";import{$Fl as w}from"../../../../../platform/configuration/common/configuration.js";import{CellEditState as d,CellLayoutContext as v,CellLayoutState as r}from"../notebookBrowser.js";import{$LSb as O}from"./baseCellViewModel.js";import{CellKind as y}from"../../common/notebookCommon.js";import{$wF as S}from"../../../../../editor/common/services/resolverService.js";import{$4E as I}from"../../../../../platform/undoRedo/common/undoRedo.js";import{$oab as x}from"../../../../../editor/browser/services/codeEditorService.js";import{$bzb as k}from"../notebookViewEvents.js";import{$9Cb as T}from"../../../inlineChat/browser/inlineChatSessionService.js";var H=function(s,t,e,i){var n=arguments.length,o=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,t,e,i);else for(var l=s.length-1;l>=0;l--)(h=s[l])&&(o=(n<3?h(o):n>3?h(t,e,o):h(t,e))||o);return n>3&&o&&Object.defineProperty(t,e,o),o},a=function(s,t){return function(e,i){t(e,i,s)}};let g=class extends O{get renderedHtml(){return this.eb}set renderedHtml(t){this.eb!==t&&(this.eb=t,this.b.fire({contentChanged:!0}))}get layoutInfo(){return this.db}set renderedMarkdownHeight(t){this.fb=t,this.pb(this.nb())}set chatHeight(t){this.gb=t,this.pb(this.nb())}get chatHeight(){return this.gb}set editorHeight(t){this.hb=t,this.ib=this.viewContext.notebookOptions.computeStatusBarHeight(),this.pb(this.nb())}get editorHeight(){throw new Error("MarkdownCellViewModel.editorHeight is write only")}get foldingState(){return this.foldingDelegate.getFoldingState(this.foldingDelegate.getCellIndex(this))}get outputIsHovered(){return this.kb}set outputIsHovered(t){this.kb=t}get outputIsFocused(){return this.lb}set outputIsFocused(t){this.lb=t}get inputInOutputIsFocused(){return!1}set inputInOutputIsFocused(t){}get cellIsHovered(){return this.mb}set cellIsHovered(t){this.mb=t,this.b.fire({cellIsHoveredChanged:!0})}constructor(t,e,i,n,o,h,l,f,p,m){super(t,e,C.$Sm(),o,h,l,f,p,m),this.foldingDelegate=n,this.viewContext=o,this.cellKind=y.Markup,this.fb=0,this.gb=0,this.hb=0,this.ib=0,this.jb=this.B(new b),this.onDidChangeLayout=this.jb.event,this.kb=!1,this.lb=!1,this.mb=!1,this.outputsViewModels=[],this.rb=this.B(new b),this.hasFindResult=this.rb.event;const{bottomToolbarGap:c}=this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType);this.db={chatHeight:0,editorHeight:0,previewHeight:0,fontInfo:i?.fontInfo||null,editorWidth:i?.width?this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(i.width):0,commentOffset:0,commentHeight:0,bottomToolbarOffset:c,totalHeight:100,layoutState:r.Uninitialized,foldHintHeight:0,statusBarHeight:0},this.B(this.onDidChangeState(u=>{this.viewContext.eventDispatcher.emit([new k(u,this.model)]),u.foldingStateChanged&&this.pb(this.nb(),v.Fold)}))}nb(){const t=this.viewContext.notebookOptions.getLayoutConfiguration(),{bottomToolbarGap:e}=this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType),i=this.ob();return this.getEditState()===d.Editing?this.hb+t.markdownCellTopMargin+t.markdownCellBottomMargin+e+this.ib+this.L:Math.max(1,this.fb+e+i+this.L)}ob(){return this.getEditState()===d.Editing||this.foldingState!==2?0:this.viewContext.notebookOptions.getLayoutConfiguration().markdownFoldHintHeight}updateOptions(t){super.updateOptions(t),(t.cellStatusBarVisibility||t.insertToolbarPosition||t.cellToolbarLocation)&&this.pb(this.nb())}getOutputOffset(t){return-1}updateOutputHeight(t,e){}triggerFoldingStateChange(){this.b.fire({foldingStateChanged:!0})}pb(t,e){t!==this.layoutInfo.totalHeight&&this.layoutChange({totalHeight:t,context:e})}layoutChange(t){let e,i;this.isInputCollapsed?(e=this.viewContext.notebookOptions.computeCollapsedMarkdownCellHeight(this.viewType),t.totalHeight=e,i=0):(e=t.totalHeight===void 0?this.db.layoutState===r.Uninitialized?100:this.db.totalHeight:t.totalHeight,i=this.ob());let n;if(this.getEditState()===d.Editing){const o=this.viewContext.notebookOptions.getLayoutConfiguration();n=o.editorToolbarHeight+o.cellTopMargin+this.gb+this.hb+this.ib}else n=this.fb;this.db={fontInfo:t.font||this.db.fontInfo,editorWidth:t.outerWidth!==void 0?this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(t.outerWidth):this.db.editorWidth,chatHeight:this.gb,editorHeight:this.hb,statusBarHeight:this.ib,previewHeight:this.fb,bottomToolbarOffset:this.viewContext.notebookOptions.computeBottomToolbarOffset(e,this.viewType),totalHeight:e,layoutState:r.Measured,foldHintHeight:i,commentOffset:n,commentHeight:t.commentHeight?this.L:this.db.commentHeight},this.jb.fire(t)}restoreEditorViewState(t,e){super.restoreEditorViewState(t),e!==void 0&&this.layoutInfo.layoutState===r.Uninitialized&&(this.db={...this.layoutInfo,totalHeight:e,chatHeight:this.gb,editorHeight:this.hb,statusBarHeight:this.ib,layoutState:r.FromCache},this.layoutChange({}))}getDynamicHeight(){return null}getHeight(t){return this.db.layoutState===r.Uninitialized?100:this.db.totalHeight}bb(){this.b.fire({contentChanged:!0})}onDeselect(){}startFind(t,e){const i=super.cb(t,e);return i===null?null:{cell:this,contentMatches:i}}dispose(){super.dispose(),this.foldingDelegate=null}};g=H([a(5,w),a(6,S),a(7,I),a(8,x),a(9,T)],g);export{g as $OSb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import * as UUID from "../../../../../base/common/uuid.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { CellEditState, CellLayoutContext, CellLayoutState } from "../notebookBrowser.js";
+import { BaseCellViewModel } from "./baseCellViewModel.js";
+import { CellKind } from "../../common/notebookCommon.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { NotebookCellStateChangedEvent } from "../notebookViewEvents.js";
+import { IInlineChatSessionService } from "../../../inlineChat/browser/inlineChatSessionService.js";
+let MarkupCellViewModel = class MarkupCellViewModel2 extends BaseCellViewModel {
+  static {
+    __name(this, "MarkupCellViewModel");
+  }
+  get renderedHtml() {
+    return this._renderedHtml;
+  }
+  set renderedHtml(value) {
+    if (this._renderedHtml !== value) {
+      this._renderedHtml = value;
+      this._onDidChangeState.fire({ contentChanged: true });
+    }
+  }
+  get layoutInfo() {
+    return this._layoutInfo;
+  }
+  set renderedMarkdownHeight(newHeight) {
+    this._previewHeight = newHeight;
+    this._updateTotalHeight(this._computeTotalHeight());
+  }
+  set chatHeight(newHeight) {
+    this._chatHeight = newHeight;
+    this._updateTotalHeight(this._computeTotalHeight());
+  }
+  get chatHeight() {
+    return this._chatHeight;
+  }
+  set editorHeight(newHeight) {
+    this._editorHeight = newHeight;
+    this._statusBarHeight = this.viewContext.notebookOptions.computeStatusBarHeight();
+    this._updateTotalHeight(this._computeTotalHeight());
+  }
+  get editorHeight() {
+    throw new Error("MarkdownCellViewModel.editorHeight is write only");
+  }
+  get foldingState() {
+    return this.foldingDelegate.getFoldingState(this.foldingDelegate.getCellIndex(this));
+  }
+  get outputIsHovered() {
+    return this._hoveringOutput;
+  }
+  set outputIsHovered(v) {
+    this._hoveringOutput = v;
+  }
+  get outputIsFocused() {
+    return this._focusOnOutput;
+  }
+  set outputIsFocused(v) {
+    this._focusOnOutput = v;
+  }
+  get inputInOutputIsFocused() {
+    return false;
+  }
+  set inputInOutputIsFocused(_) {
+  }
+  get cellIsHovered() {
+    return this._hoveringCell;
+  }
+  set cellIsHovered(v) {
+    this._hoveringCell = v;
+    this._onDidChangeState.fire({ cellIsHoveredChanged: true });
+  }
+  constructor(viewType, model, initialNotebookLayoutInfo, foldingDelegate, viewContext, configurationService, textModelService, undoRedoService, codeEditorService, inlineChatSessionService) {
+    super(viewType, model, UUID.generateUuid(), viewContext, configurationService, textModelService, undoRedoService, codeEditorService, inlineChatSessionService);
+    this.foldingDelegate = foldingDelegate;
+    this.viewContext = viewContext;
+    this.cellKind = CellKind.Markup;
+    this._previewHeight = 0;
+    this._chatHeight = 0;
+    this._editorHeight = 0;
+    this._statusBarHeight = 0;
+    this._onDidChangeLayout = this._register(new Emitter());
+    this.onDidChangeLayout = this._onDidChangeLayout.event;
+    this._hoveringOutput = false;
+    this._focusOnOutput = false;
+    this._hoveringCell = false;
+    this.outputsViewModels = [];
+    this._hasFindResult = this._register(new Emitter());
+    this.hasFindResult = this._hasFindResult.event;
+    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType);
+    this._layoutInfo = {
+      chatHeight: 0,
+      editorHeight: 0,
+      previewHeight: 0,
+      fontInfo: initialNotebookLayoutInfo?.fontInfo || null,
+      editorWidth: initialNotebookLayoutInfo?.width ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(initialNotebookLayoutInfo.width) : 0,
+      commentOffset: 0,
+      commentHeight: 0,
+      bottomToolbarOffset: bottomToolbarGap,
+      totalHeight: 100,
+      layoutState: CellLayoutState.Uninitialized,
+      foldHintHeight: 0,
+      statusBarHeight: 0
+    };
+    this._register(this.onDidChangeState((e) => {
+      this.viewContext.eventDispatcher.emit([new NotebookCellStateChangedEvent(e, this.model)]);
+      if (e.foldingStateChanged) {
+        this._updateTotalHeight(this._computeTotalHeight(), CellLayoutContext.Fold);
+      }
+    }));
+  }
+  _computeTotalHeight() {
+    const layoutConfiguration = this.viewContext.notebookOptions.getLayoutConfiguration();
+    const { bottomToolbarGap } = this.viewContext.notebookOptions.computeBottomToolbarDimensions(this.viewType);
+    const foldHintHeight = this._computeFoldHintHeight();
+    if (this.getEditState() === CellEditState.Editing) {
+      return this._editorHeight + layoutConfiguration.markdownCellTopMargin + layoutConfiguration.markdownCellBottomMargin + bottomToolbarGap + this._statusBarHeight + this._commentHeight;
+    } else {
+      return Math.max(1, this._previewHeight + bottomToolbarGap + foldHintHeight + this._commentHeight);
+    }
+  }
+  _computeFoldHintHeight() {
+    return this.getEditState() === CellEditState.Editing || this.foldingState !== 2 ? 0 : this.viewContext.notebookOptions.getLayoutConfiguration().markdownFoldHintHeight;
+  }
+  updateOptions(e) {
+    super.updateOptions(e);
+    if (e.cellStatusBarVisibility || e.insertToolbarPosition || e.cellToolbarLocation) {
+      this._updateTotalHeight(this._computeTotalHeight());
+    }
+  }
+  getOutputOffset(index) {
+    return -1;
+  }
+  updateOutputHeight(index, height) {
+  }
+  triggerFoldingStateChange() {
+    this._onDidChangeState.fire({ foldingStateChanged: true });
+  }
+  _updateTotalHeight(newHeight, context) {
+    if (newHeight !== this.layoutInfo.totalHeight) {
+      this.layoutChange({ totalHeight: newHeight, context });
+    }
+  }
+  layoutChange(state) {
+    let totalHeight;
+    let foldHintHeight;
+    if (!this.isInputCollapsed) {
+      totalHeight = state.totalHeight === void 0 ? this._layoutInfo.layoutState === CellLayoutState.Uninitialized ? 100 : this._layoutInfo.totalHeight : state.totalHeight;
+      foldHintHeight = this._computeFoldHintHeight();
+    } else {
+      totalHeight = this.viewContext.notebookOptions.computeCollapsedMarkdownCellHeight(this.viewType);
+      state.totalHeight = totalHeight;
+      foldHintHeight = 0;
+    }
+    let commentOffset;
+    if (this.getEditState() === CellEditState.Editing) {
+      const notebookLayoutConfiguration = this.viewContext.notebookOptions.getLayoutConfiguration();
+      commentOffset = notebookLayoutConfiguration.editorToolbarHeight + notebookLayoutConfiguration.cellTopMargin + this._chatHeight + this._editorHeight + this._statusBarHeight;
+    } else {
+      commentOffset = this._previewHeight;
+    }
+    this._layoutInfo = {
+      fontInfo: state.font || this._layoutInfo.fontInfo,
+      editorWidth: state.outerWidth !== void 0 ? this.viewContext.notebookOptions.computeMarkdownCellEditorWidth(state.outerWidth) : this._layoutInfo.editorWidth,
+      chatHeight: this._chatHeight,
+      editorHeight: this._editorHeight,
+      statusBarHeight: this._statusBarHeight,
+      previewHeight: this._previewHeight,
+      bottomToolbarOffset: this.viewContext.notebookOptions.computeBottomToolbarOffset(totalHeight, this.viewType),
+      totalHeight,
+      layoutState: CellLayoutState.Measured,
+      foldHintHeight,
+      commentOffset,
+      commentHeight: state.commentHeight ? this._commentHeight : this._layoutInfo.commentHeight
+    };
+    this._onDidChangeLayout.fire(state);
+  }
+  restoreEditorViewState(editorViewStates, totalHeight) {
+    super.restoreEditorViewState(editorViewStates);
+    if (totalHeight !== void 0 && this.layoutInfo.layoutState === CellLayoutState.Uninitialized) {
+      this._layoutInfo = {
+        ...this.layoutInfo,
+        totalHeight,
+        chatHeight: this._chatHeight,
+        editorHeight: this._editorHeight,
+        statusBarHeight: this._statusBarHeight,
+        layoutState: CellLayoutState.FromCache
+      };
+      this.layoutChange({});
+    }
+  }
+  getDynamicHeight() {
+    return null;
+  }
+  getHeight(lineHeight) {
+    if (this._layoutInfo.layoutState === CellLayoutState.Uninitialized) {
+      return 100;
+    } else {
+      return this._layoutInfo.totalHeight;
+    }
+  }
+  onDidChangeTextModelContent() {
+    this._onDidChangeState.fire({ contentChanged: true });
+  }
+  onDeselect() {
+  }
+  startFind(value, options) {
+    const matches = super.cellStartFind(value, options);
+    if (matches === null) {
+      return null;
+    }
+    return {
+      cell: this,
+      contentMatches: matches
+    };
+  }
+  dispose() {
+    super.dispose();
+    this.foldingDelegate = null;
+  }
+};
+MarkupCellViewModel = __decorate([
+  __param(5, IConfigurationService),
+  __param(6, ITextModelService),
+  __param(7, IUndoRedoService),
+  __param(8, ICodeEditorService),
+  __param(9, IInlineChatSessionService)
+], MarkupCellViewModel);
+export {
+  MarkupCellViewModel
+};
+//# sourceMappingURL=markupCellViewModel.js.map

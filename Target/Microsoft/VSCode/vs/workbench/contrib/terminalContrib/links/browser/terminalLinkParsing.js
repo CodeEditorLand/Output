@@ -1,1 +1,289 @@
-import{$vf as $}from"../../../../../base/common/lazy.js";const E=new $(()=>C(!0)),g=new $(()=>C(!1));function C(t){let e=0,n=0,i=0,r=0;function u(){return`(?<row${e++}>\\d+)`}function a(){return`(?<col${n++}>\\d+)`}function c(){return`(?<rowEnd${i++}>\\d+)`}function o(){return`(?<colEnd${r++}>\\d+)`}const s=t?"$":"",x=[`(?::|#| |['"],|, )${u()}([:.]${a()}(?:-(?:${c()}\\.)?${o()})?)?`+s,`['"]?(?:,? |: ?| on )lines? ${u()}(?:-${c()})?(?:,? (?:col(?:umn)?|characters?) ${a()}(?:-${o()})?)?`+s,`:? ?[\\[\\(]${u()}(?:(?:, ?|:)${a()})?[\\]\\)]`+s].join("|").replace(/ /g,"[\xA0 ]");return new RegExp(`(${x})`,t?void 0:"g")}function v(t){const e=S(t)?.suffix;return e?t.substring(0,e.index):t}function O(t){const e=t.startsWith("\\\\?\\")?4:0,n=t.indexOf("?",e);return n===-1?t:t.substring(0,n)}function P(t){let e;const n=[];for(g.value.lastIndex=0;(e=g.value.exec(t))!==null;){const i=b(e);if(i===null)break;n.push(i)}return n}function S(t){return b(E.value.exec(t))}function b(t){const e=t?.groups;return!e||t.length<1?null:{row:h(e.row0||e.row1||e.row2),col:h(e.col0||e.col1||e.col2),rowEnd:h(e.rowEnd0||e.rowEnd1||e.rowEnd2),colEnd:h(e.colEnd0||e.colEnd1||e.colEnd2),suffix:{index:t.index,text:t[0]}}}function h(t){return t===void 0?t:parseInt(t)}const W=/(?<path>(?:file:\/\/\/)?[^\s\|<>\[\({][^\s\|<>]*)$/;function j(t,e){const n=Z(t),i=m(t,e);return k(n,i),n}function k(t,e){t.length===0&&t.push(...e);for(const n of e)d(t,n,0,t.length)}function d(t,e,n,i){if(t.length===0){t.push(e);return}if(n>i)return;const r=Math.floor((n+i)/2);if(r>=t.length||e.path.index<t[r].path.index&&(r===0||e.path.index>t[r-1].path.index)){(r>=t.length||e.path.index+e.path.text.length<t[r].path.index&&(r===0||e.path.index>t[r-1].path.index+t[r-1].path.text.length))&&t.splice(r,0,e);return}e.path.index>t[r].path.index?d(t,e,r+1,i):d(t,e,n,r-1)}function Z(t){const e=[],n=P(t);for(const i of n){const u=t.substring(0,i.suffix.index).match(W);if(u&&u.index!==void 0&&u.groups?.path){let a=u.index,c=u.groups.path,o;const s=c.match(/^(?<prefix>['"]+)/);if(s?.groups?.prefix){if(o={index:a,text:s.groups.prefix},c=c.substring(o.text.length),c.trim().length===0)continue;if(s.groups.prefix.length>1&&i.suffix.text[0].match(/['"]/)&&s.groups.prefix[s.groups.prefix.length-1]===i.suffix.text[0]){const x=s.groups.prefix.length-1;o.index+=x,o.text=s.groups.prefix[s.groups.prefix.length-1],a+=x}}e.push({path:{index:a+(o?.text.length||0),text:c},prefix:o,suffix:i});const l=c.matchAll(/(?<bracket>[\[\(])(?![\]\)])/g);for(const x of l){const p=x.groups?.bracket;p&&e.push({path:{index:a+(o?.text.length||0)+x.index+1,text:c.substring(x.index+p.length)},prefix:o,suffix:i})}}}return e}var f;(function(t){t.PathPrefix="(?:\\.\\.?|\\~|file://)",t.PathSeparatorClause="\\/",t.ExcludedPathCharactersClause="[^\\0<>\\?\\s!`&*()'\":;\\\\]",t.ExcludedStartPathCharactersClause="[^\\0<>\\?\\s!`&*()\\[\\]'\":;\\\\]",t.WinOtherPathPrefix="\\.\\.?|\\~",t.WinPathSeparatorClause="(?:\\\\|\\/)",t.WinExcludedPathCharactersClause="[^\\0<>\\?\\|\\/\\s!`&*()'\":;]",t.WinExcludedStartPathCharactersClause="[^\\0<>\\?\\|\\/\\s!`&*()\\[\\]'\":;]"})(f||(f={}));const L="(?:(?:"+f.PathPrefix+"|(?:"+f.ExcludedStartPathCharactersClause+f.ExcludedPathCharactersClause+"*))?(?:"+f.PathSeparatorClause+"(?:"+f.ExcludedPathCharactersClause+")+)+)",A="(?:\\\\\\\\\\?\\\\|file:\\/\\/\\/)?[a-zA-Z]:",w=`(?:(?:(?:${A}|${f.WinOtherPathPrefix})|(?:`+f.WinExcludedStartPathCharactersClause+f.WinExcludedPathCharactersClause+"*))?(?:"+f.WinPathSeparatorClause+"(?:"+f.WinExcludedPathCharactersClause+")+)+)";function m(t,e){const n=[],i=new RegExp(e===1?w:L,"g");let r;for(;(r=i.exec(t))!==null;){let u=r[0],a=r.index;if(!u)break;((t.startsWith("--- a/")||t.startsWith("+++ b/"))&&a===4||t.startsWith("diff --git")&&(u.startsWith("a/")||u.startsWith("b/")))&&(u=u.substring(2),a+=2),n.push({path:{index:a,text:u},prefix:void 0,suffix:void 0})}return n}export{A as $0Zb,v as $4Zb,O as $5Zb,P as $6Zb,S as $7Zb,b as $8Zb,j as $9Zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Lazy } from "../../../../../base/common/lazy.js";
+const linkSuffixRegexEol = new Lazy(() => generateLinkSuffixRegex(true));
+const linkSuffixRegex = new Lazy(() => generateLinkSuffixRegex(false));
+function generateLinkSuffixRegex(eolOnly) {
+  let ri = 0;
+  let ci = 0;
+  let rei = 0;
+  let cei = 0;
+  function r() {
+    return `(?<row${ri++}>\\d+)`;
+  }
+  __name(r, "r");
+  function c() {
+    return `(?<col${ci++}>\\d+)`;
+  }
+  __name(c, "c");
+  function re() {
+    return `(?<rowEnd${rei++}>\\d+)`;
+  }
+  __name(re, "re");
+  function ce() {
+    return `(?<colEnd${cei++}>\\d+)`;
+  }
+  __name(ce, "ce");
+  const eolSuffix = eolOnly ? "$" : "";
+  const lineAndColumnRegexClauses = [
+    // foo:339
+    // foo:339:12
+    // foo:339:12-789
+    // foo:339:12-341.789
+    // foo:339.12
+    // foo 339
+    // foo 339:12                              [#140780]
+    // foo 339.12
+    // foo#339
+    // foo#339:12                              [#190288]
+    // foo#339.12
+    // foo, 339                                [#217927]
+    // "foo",339
+    // "foo",339:12
+    // "foo",339.12
+    // "foo",339.12-789
+    // "foo",339.12-341.789
+    `(?::|#| |['"],|, )${r()}([:.]${c()}(?:-(?:${re()}\\.)?${ce()})?)?` + eolSuffix,
+    // The quotes below are optional           [#171652]
+    // "foo", line 339                         [#40468]
+    // "foo", line 339, col 12
+    // "foo", line 339, column 12
+    // "foo":line 339
+    // "foo":line 339, col 12
+    // "foo":line 339, column 12
+    // "foo": line 339
+    // "foo": line 339, col 12
+    // "foo": line 339, column 12
+    // "foo" on line 339
+    // "foo" on line 339, col 12
+    // "foo" on line 339, column 12
+    // "foo" line 339 column 12
+    // "foo", line 339, character 12           [#171880]
+    // "foo", line 339, characters 12-789      [#171880]
+    // "foo", lines 339-341                    [#171880]
+    // "foo", lines 339-341, characters 12-789 [#178287]
+    `['"]?(?:,? |: ?| on )lines? ${r()}(?:-${re()})?(?:,? (?:col(?:umn)?|characters?) ${c()}(?:-${ce()})?)?` + eolSuffix,
+    // () and [] are interchangeable
+    // foo(339)
+    // foo(339,12)
+    // foo(339, 12)
+    // foo (339)
+    // foo (339,12)
+    // foo (339, 12)
+    // foo: (339)
+    // foo: (339,12)
+    // foo: (339, 12)
+    // foo(339:12)                             [#229842]
+    // foo (339:12)                            [#229842]
+    `:? ?[\\[\\(]${r()}(?:(?:, ?|:)${c()})?[\\]\\)]` + eolSuffix
+  ];
+  const suffixClause = lineAndColumnRegexClauses.join("|").replace(/ /g, `[${"\xA0"} ]`);
+  return new RegExp(`(${suffixClause})`, eolOnly ? void 0 : "g");
+}
+__name(generateLinkSuffixRegex, "generateLinkSuffixRegex");
+function removeLinkSuffix(link) {
+  const suffix = getLinkSuffix(link)?.suffix;
+  if (!suffix) {
+    return link;
+  }
+  return link.substring(0, suffix.index);
+}
+__name(removeLinkSuffix, "removeLinkSuffix");
+function removeLinkQueryString(link) {
+  const start = link.startsWith("\\\\?\\") ? 4 : 0;
+  const index = link.indexOf("?", start);
+  if (index === -1) {
+    return link;
+  }
+  return link.substring(0, index);
+}
+__name(removeLinkQueryString, "removeLinkQueryString");
+function detectLinkSuffixes(line) {
+  let match;
+  const results = [];
+  linkSuffixRegex.value.lastIndex = 0;
+  while ((match = linkSuffixRegex.value.exec(line)) !== null) {
+    const suffix = toLinkSuffix(match);
+    if (suffix === null) {
+      break;
+    }
+    results.push(suffix);
+  }
+  return results;
+}
+__name(detectLinkSuffixes, "detectLinkSuffixes");
+function getLinkSuffix(link) {
+  return toLinkSuffix(linkSuffixRegexEol.value.exec(link));
+}
+__name(getLinkSuffix, "getLinkSuffix");
+function toLinkSuffix(match) {
+  const groups = match?.groups;
+  if (!groups || match.length < 1) {
+    return null;
+  }
+  return {
+    row: parseIntOptional(groups.row0 || groups.row1 || groups.row2),
+    col: parseIntOptional(groups.col0 || groups.col1 || groups.col2),
+    rowEnd: parseIntOptional(groups.rowEnd0 || groups.rowEnd1 || groups.rowEnd2),
+    colEnd: parseIntOptional(groups.colEnd0 || groups.colEnd1 || groups.colEnd2),
+    suffix: { index: match.index, text: match[0] }
+  };
+}
+__name(toLinkSuffix, "toLinkSuffix");
+function parseIntOptional(value) {
+  if (value === void 0) {
+    return value;
+  }
+  return parseInt(value);
+}
+__name(parseIntOptional, "parseIntOptional");
+const linkWithSuffixPathCharacters = /(?<path>(?:file:\/\/\/)?[^\s\|<>\[\({][^\s\|<>]*)$/;
+function detectLinks(line, os) {
+  const results = detectLinksViaSuffix(line);
+  const noSuffixPaths = detectPathsNoSuffix(line, os);
+  binaryInsertList(results, noSuffixPaths);
+  return results;
+}
+__name(detectLinks, "detectLinks");
+function binaryInsertList(list, newItems) {
+  if (list.length === 0) {
+    list.push(...newItems);
+  }
+  for (const item of newItems) {
+    binaryInsert(list, item, 0, list.length);
+  }
+}
+__name(binaryInsertList, "binaryInsertList");
+function binaryInsert(list, newItem, low, high) {
+  if (list.length === 0) {
+    list.push(newItem);
+    return;
+  }
+  if (low > high) {
+    return;
+  }
+  const mid = Math.floor((low + high) / 2);
+  if (mid >= list.length || newItem.path.index < list[mid].path.index && (mid === 0 || newItem.path.index > list[mid - 1].path.index)) {
+    if (mid >= list.length || newItem.path.index + newItem.path.text.length < list[mid].path.index && (mid === 0 || newItem.path.index > list[mid - 1].path.index + list[mid - 1].path.text.length)) {
+      list.splice(mid, 0, newItem);
+    }
+    return;
+  }
+  if (newItem.path.index > list[mid].path.index) {
+    binaryInsert(list, newItem, mid + 1, high);
+  } else {
+    binaryInsert(list, newItem, low, mid - 1);
+  }
+}
+__name(binaryInsert, "binaryInsert");
+function detectLinksViaSuffix(line) {
+  const results = [];
+  const suffixes = detectLinkSuffixes(line);
+  for (const suffix of suffixes) {
+    const beforeSuffix = line.substring(0, suffix.suffix.index);
+    const possiblePathMatch = beforeSuffix.match(linkWithSuffixPathCharacters);
+    if (possiblePathMatch && possiblePathMatch.index !== void 0 && possiblePathMatch.groups?.path) {
+      let linkStartIndex = possiblePathMatch.index;
+      let path = possiblePathMatch.groups.path;
+      let prefix = void 0;
+      const prefixMatch = path.match(/^(?<prefix>['"]+)/);
+      if (prefixMatch?.groups?.prefix) {
+        prefix = {
+          index: linkStartIndex,
+          text: prefixMatch.groups.prefix
+        };
+        path = path.substring(prefix.text.length);
+        if (path.trim().length === 0) {
+          continue;
+        }
+        if (prefixMatch.groups.prefix.length > 1) {
+          if (suffix.suffix.text[0].match(/['"]/) && prefixMatch.groups.prefix[prefixMatch.groups.prefix.length - 1] === suffix.suffix.text[0]) {
+            const trimPrefixAmount = prefixMatch.groups.prefix.length - 1;
+            prefix.index += trimPrefixAmount;
+            prefix.text = prefixMatch.groups.prefix[prefixMatch.groups.prefix.length - 1];
+            linkStartIndex += trimPrefixAmount;
+          }
+        }
+      }
+      results.push({
+        path: {
+          index: linkStartIndex + (prefix?.text.length || 0),
+          text: path
+        },
+        prefix,
+        suffix
+      });
+      const openingBracketMatch = path.matchAll(/(?<bracket>[\[\(])(?![\]\)])/g);
+      for (const match of openingBracketMatch) {
+        const bracket = match.groups?.bracket;
+        if (bracket) {
+          results.push({
+            path: {
+              index: linkStartIndex + (prefix?.text.length || 0) + match.index + 1,
+              text: path.substring(match.index + bracket.length)
+            },
+            prefix,
+            suffix
+          });
+        }
+      }
+    }
+  }
+  return results;
+}
+__name(detectLinksViaSuffix, "detectLinksViaSuffix");
+var RegexPathConstants;
+(function(RegexPathConstants2) {
+  RegexPathConstants2["PathPrefix"] = "(?:\\.\\.?|\\~|file://)";
+  RegexPathConstants2["PathSeparatorClause"] = "\\/";
+  RegexPathConstants2["ExcludedPathCharactersClause"] = "[^\\0<>\\?\\s!`&*()'\":;\\\\]";
+  RegexPathConstants2["ExcludedStartPathCharactersClause"] = "[^\\0<>\\?\\s!`&*()\\[\\]'\":;\\\\]";
+  RegexPathConstants2["WinOtherPathPrefix"] = "\\.\\.?|\\~";
+  RegexPathConstants2["WinPathSeparatorClause"] = "(?:\\\\|\\/)";
+  RegexPathConstants2["WinExcludedPathCharactersClause"] = "[^\\0<>\\?\\|\\/\\s!`&*()'\":;]";
+  RegexPathConstants2["WinExcludedStartPathCharactersClause"] = "[^\\0<>\\?\\|\\/\\s!`&*()\\[\\]'\":;]";
+})(RegexPathConstants || (RegexPathConstants = {}));
+const unixLocalLinkClause = "(?:(?:" + RegexPathConstants.PathPrefix + "|(?:" + RegexPathConstants.ExcludedStartPathCharactersClause + RegexPathConstants.ExcludedPathCharactersClause + "*))?(?:" + RegexPathConstants.PathSeparatorClause + "(?:" + RegexPathConstants.ExcludedPathCharactersClause + ")+)+)";
+const winDrivePrefix = "(?:\\\\\\\\\\?\\\\|file:\\/\\/\\/)?[a-zA-Z]:";
+const winLocalLinkClause = `(?:(?:(?:${winDrivePrefix}|${RegexPathConstants.WinOtherPathPrefix})|(?:` + RegexPathConstants.WinExcludedStartPathCharactersClause + RegexPathConstants.WinExcludedPathCharactersClause + "*))?(?:" + RegexPathConstants.WinPathSeparatorClause + "(?:" + RegexPathConstants.WinExcludedPathCharactersClause + ")+)+)";
+function detectPathsNoSuffix(line, os) {
+  const results = [];
+  const regex = new RegExp(os === 1 ? winLocalLinkClause : unixLocalLinkClause, "g");
+  let match;
+  while ((match = regex.exec(line)) !== null) {
+    let text = match[0];
+    let index = match.index;
+    if (!text) {
+      break;
+    }
+    if (
+      // --- a/foo/bar
+      // +++ b/foo/bar
+      (line.startsWith("--- a/") || line.startsWith("+++ b/")) && index === 4 || // diff --git a/foo/bar b/foo/bar
+      line.startsWith("diff --git") && (text.startsWith("a/") || text.startsWith("b/"))
+    ) {
+      text = text.substring(2);
+      index += 2;
+    }
+    results.push({
+      path: {
+        index,
+        text
+      },
+      prefix: void 0,
+      suffix: void 0
+    });
+  }
+  return results;
+}
+__name(detectPathsNoSuffix, "detectPathsNoSuffix");
+export {
+  detectLinkSuffixes,
+  detectLinks,
+  getLinkSuffix,
+  removeLinkQueryString,
+  removeLinkSuffix,
+  toLinkSuffix,
+  winDrivePrefix
+};
+//# sourceMappingURL=terminalLinkParsing.js.map

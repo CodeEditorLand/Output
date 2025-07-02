@@ -1,1 +1,755 @@
-import"./media/workspaceTrustEditor.css";import{$kj as nt}from"../../../../platform/instantiation/common/descriptors.js";import{$vd as W,$wd as ot}from"../../../../base/common/lifecycle.js";import{localize as e,localize2 as O}from"../../../../nls.js";import{$CI as U,$DI as H}from"../../../../platform/actions/common/actions.js";import{$Tl as at}from"../../../../platform/configuration/common/configurationRegistry.js";import{$bp as J}from"../../../../platform/dialogs/common/dialogs.js";import{$mj as lt}from"../../../../platform/instantiation/common/instantiation.js";import{Severity as b}from"../../../../platform/notification/common/notification.js";import{$Rl as m}from"../../../../platform/registry/common/platform.js";import{$RM as _,$SM as y,$TM as K}from"../../../../platform/workspace/common/workspaceTrust.js";import{Extensions as N,$eL as ut}from"../../../common/contributions.js";import{$Mj as g}from"../../../../base/common/codicons.js";import{$II as ct}from"../../../services/editor/common/editorService.js";import{$Cn as k,$Wn as ht}from"../../../../platform/contextkey/common/contextkey.js";import{$Zn as pt}from"../../../../platform/commands/common/commands.js";import{$1yb as mt}from"../../../services/statusbar/browser/statusbar.js";import{$RGb as dt}from"../../../browser/editor.js";import{$Lyc as ft,$Myc as G}from"./workspaceTrustEditor.js";import{$Kyc as I}from"../../../services/workspaces/browser/workspaceTrustEditorInput.js";import{$9Nb as Y,$$Nb as M,$7Nb as P,$8Nb as Q,$0Nb as B}from"../../../services/workspaces/common/workspaceTrust.js";import{$nK as V}from"../../../common/editor.js";import{$Ro as bt}from"../../../../platform/telemetry/common/telemetry.js";import{$kl as gt,$jl as R,$il as x,$nl as E}from"../../../../platform/workspace/common/workspace.js";import{$0 as q,$8 as kt}from"../../../../base/common/path.js";import{$Fl as Tt}from"../../../../platform/configuration/common/configuration.js";import{$Uj as f}from"../../../../base/common/htmlContent.js";import{$Jo as wt}from"../../../../platform/storage/common/storage.js";import{$m_ as $t}from"../../../services/host/browser/host.js";import{$s5b as Wt}from"../../../services/banner/browser/bannerService.js";import{$sY as yt}from"../../../../platform/workspace/common/virtualWorkspace.js";import{$FDb as S}from"../../extensions/common/extensions.js";import{$HW as It}from"../../../services/environment/common/environmentService.js";import{$j9b as p}from"../../preferences/common/preferences.js";import{$hK as Dt}from"../../../services/preferences/common/preferences.js";import{$jI as Ct}from"../../../../platform/label/common/label.js";import{$on as St}from"../../../../platform/product/common/productService.js";import{$5oc as h,$4oc as T}from"../common/workspace.js";import{$s as Rt}from"../../../../base/common/platform.js";import{$gL as Et}from"../../../services/remote/common/remoteAgentService.js";import{$kL as jt}from"../../../common/configuration.js";import{$hh as Ft,$jh as vt}from"../../../../base/common/resources.js";import{URI as Ot}from"../../../../base/common/uri.js";import{$gl as _t}from"../../../../platform/environment/common/environment.js";import{$5j as Nt}from"../../../../platform/files/common/files.js";var $=function(u,t,s,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,s):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(u,t,s,r);else for(var l=u.length-1;l>=0;l--)(a=u[l])&&(i=(n<3?a(i):n>3?a(t,s,i):a(t,s))||i);return n>3&&i&&Object.defineProperty(t,s,i),i},o=function(u,t){return function(s,r){t(s,r,u)}};const L="workbench.banner.restrictedMode",z="workspace.trust.startupPrompt.shown",A="workbench.banner.restrictedMode.dismissed";let j=class extends W{constructor(t,s,r){super(),this.a=T.IsEnabled.bindTo(t),this.a.set(s.isWorkspaceTrustEnabled()),this.c=T.IsTrusted.bindTo(t),this.c.set(r.isWorkspaceTrusted()),this.B(r.onDidChangeTrust(n=>this.c.set(n)))}};j=$([o(0,ht),o(1,_),o(2,y)],j);m.as(N.Workbench).registerWorkbenchContribution(j,3);let w=class extends W{static{this.ID="workbench.contrib.workspaceTrustRequestHandler"}constructor(t,s,r,n,i){super(),this.a=t,this.c=s,this.f=r,this.g=n,this.h=i,this.m()}get j(){return!R(E(this.f.getWorkspace()))}m(){this.B(this.h.onDidInitiateOpenFilesTrustRequest(async()=>{await this.g.workspaceResolved;const t=[this.f.getWorkbenchState()!==1?e(13513,null):e(13514,null),e(13515,null)];await this.a.prompt({type:b.Info,message:this.f.getWorkbenchState()!==1?e(13516,null):e(13517,null),buttons:[{label:e(13518,null),run:({checkboxChecked:s})=>this.h.completeOpenFilesTrustRequest(1,!!s)},{label:e(13519,null),run:({checkboxChecked:s})=>this.h.completeOpenFilesTrustRequest(2,!!s)}],cancelButton:{run:()=>this.h.completeOpenFilesTrustRequest(3)},checkbox:{label:e(13520,null),checked:!1},custom:{icon:g.shield,markdownDetails:t.map(s=>({markdown:new f(s)}))}})})),this.B(this.h.onDidInitiateWorkspaceTrustRequest(async t=>{await this.g.workspaceResolved;const s=this.j?e(13521,null):e(13522,null),r=e(13523,null),n=t?.message??r,i=t?.buttons??[{label:this.j?e(13524,null):e(13525,null),type:"ContinueWithTrust"},{label:e(13526,null),type:"Manage"}];i.some(l=>l.type==="Cancel")||i.push({label:e(13527,null),type:"Cancel"});const{result:a}=await this.a.prompt({type:b.Info,message:s,custom:{icon:g.shield,markdownDetails:[{markdown:new f(n)},{markdown:new f(e(13528,null))}]},buttons:i.filter(l=>l.type!=="Cancel").map(l=>({label:l.label,run:()=>l.type})),cancelButton:(()=>{const l=i.find(c=>c.type==="Cancel");if(l)return{label:l.label,run:()=>l.type}})()});switch(a){case"ContinueWithTrust":await this.h.completeWorkspaceTrustRequest(!0);break;case"ContinueWithoutTrust":await this.h.completeWorkspaceTrustRequest(void 0);break;case"Manage":this.h.cancelWorkspaceTrustRequest(),await this.c.executeCommand(h);break;case"Cancel":this.h.cancelWorkspaceTrustRequest();break}}))}};w=$([o(0,J),o(1,pt),o(2,x),o(3,y),o(4,K)],w);let F=class extends W{constructor(t,s,r,n,i,a,l,c,d,D,C,X,tt,et,st){super(),this.f=t,this.g=s,this.h=r,this.j=n,this.m=i,this.n=a,this.r=l,this.s=c,this.t=d,this.u=D,this.w=C,this.y=X,this.z=tt,this.C=et,this.D=st,this.a="status.workspaceTrust",this.c=this.B(new ot),(async()=>{if(await this.j.workspaceTrustInitialized,this.h.isWorkspaceTrustEnabled())if(this.F(),this.S(this.j.isWorkspaceTrusted()),this.w.hasFocus)this.I();else{const rt=this.w.onDidChangeFocus(it=>{it&&(rt.dispose(),this.I())})}})()}F(){this.B(this.g.onWillChangeWorkspaceFolders(t=>{if(t.fromCache||!this.h.isWorkspaceTrustEnabled())return;const s=async r=>{if(this.j.isWorkspaceTrusted()&&(r.changes.added.length||r.changes.changed.length)){const i=await Promise.all(r.changes.added.map(a=>this.j.getUriTrustInfo(a.uri)));if(!i.map(a=>a.trusted).every(a=>a)){const{confirmed:a}=await this.f.confirm({type:b.Info,message:e(13529,null),detail:e(13530,null),cancelButton:e(13531,null),custom:{icon:g.shield}});await this.j.setUrisTrust(i.map(l=>l.uri),a)}}};return t.join(s(t))})),this.B(this.j.onDidChangeTrust(t=>{this.G(t)})),this.B(this.s.onDidInitiateWorkspaceTrustRequestOnStartup(async()=>{let t,s,r,n;const i=await this.M();i&&this.y.aiGeneratedWorkspaceTrust&&(t=this.y.aiGeneratedWorkspaceTrust.title,s=this.y.aiGeneratedWorkspaceTrust.startupTrustRequestLearnMore,r=this.y.aiGeneratedWorkspaceTrust.trustOption,n=this.y.aiGeneratedWorkspaceTrust.dontTrustOption);const a=t??(this.L?e(13532,null):e(13533,null));let l;const c=E(this.g.getWorkspace()),d=R(c),D=gt(c);if(!i&&this.j.canSetParentFolderTrust()){const C=Ft(vt(c.uri));l=e(13534,null,C)}this.H(a,{label:r??e(13535,null),sublabel:d?e(13536,null):e(13537,null)},{label:n??e(13538,null),sublabel:d?e(13539,null):e(13540,null)},[d?e(13542,null,this.y.nameShort):e(13541,null,this.y.nameShort),s??e(13543,null),D?"":`\`${this.u.getWorkspaceLabel(c,{verbose:2})}\``],l)}))}G(t){const s=this.N(!t);this.S(t),s&&(t?this.t.hide(L):this.t.show(s))}async H(t,s,r,n,i){await this.f.prompt({type:b.Info,message:t,checkbox:i?{label:i}:void 0,buttons:[{label:s.label,run:async({checkboxChecked:a})=>{a?await this.j.setParentFolderTrust(!0):await this.s.completeWorkspaceTrustRequest(!0)}},{label:r.label,run:()=>{this.G(!1),this.s.cancelWorkspaceTrustRequest()}}],custom:{buttonDetails:[s.sublabel,r.sublabel],disableCloseAction:!0,icon:g.shield,markdownDetails:n.map(a=>({markdown:new f(a)}))}}),this.r.store(z,!0,1,1)}async I(){if(this.j.isWorkspaceTrusted()){this.G(!0);return}if(this.j.canSetWorkspaceTrust()){if(yt(this.g.getWorkspace())){this.G(!1);return}if(this.g.getWorkbenchState()===1){this.G(!1);return}if(this.J==="never"){this.G(!1);return}if(this.J==="once"&&this.r.getBoolean(z,1,!1)){this.G(!1);return}this.s.requestWorkspaceTrustOnStartup()}}get J(){return this.m.getValue(Q)}get L(){return!R(E(this.g.getWorkspace()))}async M(){const t=Ot.joinPath(this.C.workspaceStorageHome,"aiGeneratedWorkspaces.json");return await this.D.exists(t).then(async s=>{if(s)try{const r=await this.D.readFile(t);if(JSON.parse(r.value.toString()).indexOf(this.g.getWorkspace().folders[0].uri.toString())>-1)return!0}catch{}return!1})}N(t){const s=this.r.getBoolean(A,1,!1);if(this.Q==="never"||this.Q==="untilDismissed"&&s)return;const r=[{label:e(13544,null),href:"command:"+h},{label:e(13545,null),href:"https://aka.ms/vscode-workspace-trust"}];return{id:L,icon:ft,ariaLabel:this.O(),message:this.P(),actions:r,onClose:()=>{t&&this.r.store(A,!0,1,1)}}}O(){switch(this.g.getWorkbenchState()){case 1:return e(13546,null);case 2:return e(13547,null);case 3:return e(13548,null)}}P(){switch(this.g.getWorkbenchState()){case 1:return e(13549,null);case 2:return e(13550,null);case 3:return e(13551,null)}}get Q(){const t=this.m.getValue(Y);return t!=="always"&&Rt&&!this.z.getConnection()?.remoteAuthority?"never":t}R(){let t="",s;switch(this.g.getWorkbenchState()){case 1:{t=e(13552,null),s={value:e(13553,null,`command:${S}`,`command:${h}`),isTrusted:!0,supportThemeIcons:!0};break}case 2:{t=e(13554,null),s={value:e(13555,null,`command:${S}`,`command:${h}`),isTrusted:!0,supportThemeIcons:!0};break}case 3:{t=e(13556,null),s={value:e(13557,null,`command:${S}`,`command:${h}`),isTrusted:!0,supportThemeIcons:!0};break}}return{name:e(13558,null),text:`$(shield) ${e(13559,null)}`,ariaLabel:t,tooltip:s,command:h,kind:"prominent"}}S(t){if(t&&this.c.value){this.c.clear();return}if(!t&&!this.c.value){const s=this.R();this.c.value=this.n.addEntry(s,this.a,0,{location:{id:"status.host",priority:Number.POSITIVE_INFINITY},alignment:1})}}};F=$([o(0,J),o(1,x),o(2,_),o(3,y),o(4,Tt),o(5,mt),o(6,wt),o(7,K),o(8,Wt),o(9,Ct),o(10,$t),o(11,St),o(12,Et),o(13,_t),o(14,Nt)],F);ut(w.ID,w,2);m.as(N.Workbench).registerWorkbenchContribution(F,3);class Pt{canSerialize(t){return!0}serialize(t){return""}deserialize(t){return t.createInstance(I)}}m.as(V.EditorFactory).registerEditorSerializer(I.ID,Pt);m.as(V.EditorPane).registerEditorPane(dt.create(G,G.ID,e(13560,null)),[new nt(I)]);const xt="workbench.trust.configure",Z=O(13575,"Workspaces");H(class extends U{constructor(){super({id:xt,title:O(13576,"Configure Workspace Trust Settings"),precondition:k.and(T.IsEnabled,k.equals(`config.${P}`,!0)),category:Z,f1:!0})}run(u){u.get(Dt).openUserSettings({jsonEditor:!1,query:`@tag:${p}`})}});H(class extends U{constructor(){super({id:h,title:O(13577,"Manage Workspace Trust"),precondition:k.and(T.IsEnabled,k.equals(`config.${P}`,!0)),category:Z,f1:!0})}run(u){const t=u.get(ct),r=u.get(lt).createInstance(I);t.openEditor(r,{pinned:!0})}});m.as(at.Configuration).registerConfiguration({...jt,properties:{[P]:{type:"boolean",default:!0,description:e(13561,null),tags:[p],scope:1},[Q]:{type:"string",default:"once",description:e(13562,null),tags:[p],scope:1,enum:["always","once","never"],enumDescriptions:[e(13563,null),e(13564,null),e(13565,null)]},[Y]:{type:"string",default:"untilDismissed",description:e(13566,null),tags:[p],scope:1,enum:["always","untilDismissed","never"],enumDescriptions:[e(13567,null),e(13568,null),e(13569,null)]},[B]:{type:"string",default:"prompt",markdownDescription:e(13570,null,M),tags:[p],scope:1,enum:["prompt","open","newWindow"],enumDescriptions:[e(13571,null),e(13572,null),e(13573,null)]},[M]:{type:"boolean",default:!0,markdownDescription:e(13574,null,B),tags:[p],scope:1}}});let v=class extends W{constructor(t,s,r,n,i){super(),this.a=t,this.c=s,this.f=r,this.g=n,this.h=i,this.h.workspaceTrustInitialized.then(()=>{this.j(),this.m(this.h.isWorkspaceTrusted()),this.B(this.h.onDidChangeTrust(a=>this.m(a)))})}j(){if(!this.g.isWorkspaceTrustEnabled()){const t=this.a.disableWorkspaceTrust;this.c.publicLog2("workspaceTrustDisabled",{reason:t?"cli":"setting"});return}this.c.publicLog2("workspaceTrustFolderCounts",{trustedFoldersCount:this.h.getTrustedUris().length})}async m(t){if(this.g.isWorkspaceTrustEnabled()&&(this.c.publicLog2("workspaceTrustStateChanged",{workspaceId:this.f.getWorkspace().id,isTrusted:t}),t)){const s=r=>{let n=kt(r),i=0;for(;q(n)!==n&&i<100;)n=q(n),i++;return i};for(const r of this.f.getWorkspace().folders){const{trusted:n,uri:i}=await this.h.getUriTrustInfo(r.uri);if(!n)continue;const a=s(r.uri.fsPath),l=s(i.fsPath),c=a-l;this.c.publicLog2("workspaceFolderDepthBelowTrustedFolder",{workspaceFolderDepth:a,trustedFolderDepth:l,delta:c})}}}};v=$([o(0,It),o(1,bt),o(2,x),o(3,_),o(4,y)],v);m.as(N.Workbench).registerWorkbenchContribution(v,3);export{j as $Nyc,w as $Oyc,F as $Pyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/workspaceTrustEditor.css";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Severity } from "../../../../platform/notification/common/notification.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { shieldIcon, WorkspaceTrustEditor } from "./workspaceTrustEditor.js";
+import { WorkspaceTrustEditorInput } from "../../../services/workspaces/browser/workspaceTrustEditorInput.js";
+import { WORKSPACE_TRUST_BANNER, WORKSPACE_TRUST_EMPTY_WINDOW, WORKSPACE_TRUST_ENABLED, WORKSPACE_TRUST_STARTUP_PROMPT, WORKSPACE_TRUST_UNTRUSTED_FILES } from "../../../services/workspaces/common/workspaceTrust.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { isEmptyWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, IWorkspaceContextService, toWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { dirname, resolve } from "../../../../base/common/path.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { isVirtualWorkspace } from "../../../../platform/workspace/common/virtualWorkspace.js";
+import { LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID } from "../../extensions/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { WORKSPACE_TRUST_SETTING_TAG } from "../../preferences/common/preferences.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { MANAGE_TRUST_COMMAND_ID, WorkspaceTrustContext } from "../common/workspace.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { securityConfigurationNodeBase } from "../../../common/configuration.js";
+import { basename, dirname as uriDirname } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+const BANNER_RESTRICTED_MODE = "workbench.banner.restrictedMode";
+const STARTUP_PROMPT_SHOWN_KEY = "workspace.trust.startupPrompt.shown";
+const BANNER_RESTRICTED_MODE_DISMISSED_KEY = "workbench.banner.restrictedMode.dismissed";
+let WorkspaceTrustContextKeys = class WorkspaceTrustContextKeys2 extends Disposable {
+  static {
+    __name(this, "WorkspaceTrustContextKeys");
+  }
+  constructor(contextKeyService, workspaceTrustEnablementService, workspaceTrustManagementService) {
+    super();
+    this._ctxWorkspaceTrustEnabled = WorkspaceTrustContext.IsEnabled.bindTo(contextKeyService);
+    this._ctxWorkspaceTrustEnabled.set(workspaceTrustEnablementService.isWorkspaceTrustEnabled());
+    this._ctxWorkspaceTrustState = WorkspaceTrustContext.IsTrusted.bindTo(contextKeyService);
+    this._ctxWorkspaceTrustState.set(workspaceTrustManagementService.isWorkspaceTrusted());
+    this._register(workspaceTrustManagementService.onDidChangeTrust((trusted) => this._ctxWorkspaceTrustState.set(trusted)));
+  }
+};
+WorkspaceTrustContextKeys = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, IWorkspaceTrustEnablementService),
+  __param(2, IWorkspaceTrustManagementService)
+], WorkspaceTrustContextKeys);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  WorkspaceTrustContextKeys,
+  3
+  /* LifecyclePhase.Restored */
+);
+let WorkspaceTrustRequestHandler = class WorkspaceTrustRequestHandler2 extends Disposable {
+  static {
+    __name(this, "WorkspaceTrustRequestHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.workspaceTrustRequestHandler";
+  }
+  constructor(dialogService, commandService, workspaceContextService, workspaceTrustManagementService, workspaceTrustRequestService) {
+    super();
+    this.dialogService = dialogService;
+    this.commandService = commandService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.workspaceTrustRequestService = workspaceTrustRequestService;
+    this.registerListeners();
+  }
+  get useWorkspaceLanguage() {
+    return !isSingleFolderWorkspaceIdentifier(toWorkspaceIdentifier(this.workspaceContextService.getWorkspace()));
+  }
+  registerListeners() {
+    this._register(this.workspaceTrustRequestService.onDidInitiateOpenFilesTrustRequest(async () => {
+      await this.workspaceTrustManagementService.workspaceResolved;
+      const markdownDetails = [
+        this.workspaceContextService.getWorkbenchState() !== 1 ? localize("openLooseFileWorkspaceDetails", "You are trying to open untrusted files in a workspace which is trusted.") : localize("openLooseFileWindowDetails", "You are trying to open untrusted files in a window which is trusted."),
+        localize("openLooseFileLearnMore", "If you don't want to open untrusted files, we recommend to open them in Restricted Mode in a new window as the files may be malicious. See [our docs](https://aka.ms/vscode-workspace-trust) to learn more.")
+      ];
+      await this.dialogService.prompt({
+        type: Severity.Info,
+        message: this.workspaceContextService.getWorkbenchState() !== 1 ? localize("openLooseFileWorkspaceMesssage", "Do you want to allow untrusted files in this workspace?") : localize("openLooseFileWindowMesssage", "Do you want to allow untrusted files in this window?"),
+        buttons: [
+          {
+            label: localize({ key: "open", comment: ["&& denotes a mnemonic"] }, "&&Open"),
+            run: /* @__PURE__ */ __name(({ checkboxChecked }) => this.workspaceTrustRequestService.completeOpenFilesTrustRequest(1, !!checkboxChecked), "run")
+          },
+          {
+            label: localize({ key: "newWindow", comment: ["&& denotes a mnemonic"] }, "Open in &&Restricted Mode"),
+            run: /* @__PURE__ */ __name(({ checkboxChecked }) => this.workspaceTrustRequestService.completeOpenFilesTrustRequest(2, !!checkboxChecked), "run")
+          }
+        ],
+        cancelButton: {
+          run: /* @__PURE__ */ __name(() => this.workspaceTrustRequestService.completeOpenFilesTrustRequest(
+            3
+            /* WorkspaceTrustUriResponse.Cancel */
+          ), "run")
+        },
+        checkbox: {
+          label: localize("openLooseFileWorkspaceCheckbox", "Remember my decision for all workspaces"),
+          checked: false
+        },
+        custom: {
+          icon: Codicon.shield,
+          markdownDetails: markdownDetails.map((md) => {
+            return { markdown: new MarkdownString(md) };
+          })
+        }
+      });
+    }));
+    this._register(this.workspaceTrustRequestService.onDidInitiateWorkspaceTrustRequest(async (requestOptions) => {
+      await this.workspaceTrustManagementService.workspaceResolved;
+      const message = this.useWorkspaceLanguage ? localize("workspaceTrust", "Do you trust the authors of the files in this workspace?") : localize("folderTrust", "Do you trust the authors of the files in this folder?");
+      const defaultDetails = localize("immediateTrustRequestMessage", "A feature you are trying to use may be a security risk if you do not trust the source of the files or folders you currently have open.");
+      const details = requestOptions?.message ?? defaultDetails;
+      const buttons = requestOptions?.buttons ?? [
+        { label: this.useWorkspaceLanguage ? localize({ key: "grantWorkspaceTrustButton", comment: ["&& denotes a mnemonic"] }, "&&Trust Workspace & Continue") : localize({ key: "grantFolderTrustButton", comment: ["&& denotes a mnemonic"] }, "&&Trust Folder & Continue"), type: "ContinueWithTrust" },
+        { label: localize({ key: "manageWorkspaceTrustButton", comment: ["&& denotes a mnemonic"] }, "&&Manage"), type: "Manage" }
+      ];
+      if (!buttons.some((b) => b.type === "Cancel")) {
+        buttons.push({ label: localize("cancelWorkspaceTrustButton", "Cancel"), type: "Cancel" });
+      }
+      const { result } = await this.dialogService.prompt({
+        type: Severity.Info,
+        message,
+        custom: {
+          icon: Codicon.shield,
+          markdownDetails: [
+            { markdown: new MarkdownString(details) },
+            { markdown: new MarkdownString(localize("immediateTrustRequestLearnMore", "If you don't trust the authors of these files, we do not recommend continuing as the files may be malicious. See [our docs](https://aka.ms/vscode-workspace-trust) to learn more.")) }
+          ]
+        },
+        buttons: buttons.filter((b) => b.type !== "Cancel").map((button) => {
+          return {
+            label: button.label,
+            run: /* @__PURE__ */ __name(() => button.type, "run")
+          };
+        }),
+        cancelButton: (() => {
+          const cancelButton = buttons.find((b) => b.type === "Cancel");
+          if (!cancelButton) {
+            return void 0;
+          }
+          return {
+            label: cancelButton.label,
+            run: /* @__PURE__ */ __name(() => cancelButton.type, "run")
+          };
+        })()
+      });
+      switch (result) {
+        case "ContinueWithTrust":
+          await this.workspaceTrustRequestService.completeWorkspaceTrustRequest(true);
+          break;
+        case "ContinueWithoutTrust":
+          await this.workspaceTrustRequestService.completeWorkspaceTrustRequest(void 0);
+          break;
+        case "Manage":
+          this.workspaceTrustRequestService.cancelWorkspaceTrustRequest();
+          await this.commandService.executeCommand(MANAGE_TRUST_COMMAND_ID);
+          break;
+        case "Cancel":
+          this.workspaceTrustRequestService.cancelWorkspaceTrustRequest();
+          break;
+      }
+    }));
+  }
+};
+WorkspaceTrustRequestHandler = __decorate([
+  __param(0, IDialogService),
+  __param(1, ICommandService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IWorkspaceTrustManagementService),
+  __param(4, IWorkspaceTrustRequestService)
+], WorkspaceTrustRequestHandler);
+let WorkspaceTrustUXHandler = class WorkspaceTrustUXHandler2 extends Disposable {
+  static {
+    __name(this, "WorkspaceTrustUXHandler");
+  }
+  constructor(dialogService, workspaceContextService, workspaceTrustEnablementService, workspaceTrustManagementService, configurationService, statusbarService, storageService, workspaceTrustRequestService, bannerService, labelService, hostService, productService, remoteAgentService, environmentService, fileService) {
+    super();
+    this.dialogService = dialogService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspaceTrustEnablementService = workspaceTrustEnablementService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.configurationService = configurationService;
+    this.statusbarService = statusbarService;
+    this.storageService = storageService;
+    this.workspaceTrustRequestService = workspaceTrustRequestService;
+    this.bannerService = bannerService;
+    this.labelService = labelService;
+    this.hostService = hostService;
+    this.productService = productService;
+    this.remoteAgentService = remoteAgentService;
+    this.environmentService = environmentService;
+    this.fileService = fileService;
+    this.entryId = `status.workspaceTrust`;
+    this.statusbarEntryAccessor = this._register(new MutableDisposable());
+    (async () => {
+      await this.workspaceTrustManagementService.workspaceTrustInitialized;
+      if (this.workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+        this.registerListeners();
+        this.updateStatusbarEntry(this.workspaceTrustManagementService.isWorkspaceTrusted());
+        if (this.hostService.hasFocus) {
+          this.showModalOnStart();
+        } else {
+          const focusDisposable = this.hostService.onDidChangeFocus((focused) => {
+            if (focused) {
+              focusDisposable.dispose();
+              this.showModalOnStart();
+            }
+          });
+        }
+      }
+    })();
+  }
+  registerListeners() {
+    this._register(this.workspaceContextService.onWillChangeWorkspaceFolders((e) => {
+      if (e.fromCache) {
+        return;
+      }
+      if (!this.workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+        return;
+      }
+      const addWorkspaceFolder = /* @__PURE__ */ __name(async (e2) => {
+        const trusted = this.workspaceTrustManagementService.isWorkspaceTrusted();
+        if (trusted && (e2.changes.added.length || e2.changes.changed.length)) {
+          const addedFoldersTrustInfo = await Promise.all(e2.changes.added.map((folder) => this.workspaceTrustManagementService.getUriTrustInfo(folder.uri)));
+          if (!addedFoldersTrustInfo.map((info) => info.trusted).every((trusted2) => trusted2)) {
+            const { confirmed } = await this.dialogService.confirm({
+              type: Severity.Info,
+              message: localize("addWorkspaceFolderMessage", "Do you trust the authors of the files in this folder?"),
+              detail: localize("addWorkspaceFolderDetail", "You are adding files that are not currently trusted to a trusted workspace. Do you trust the authors of these new files?"),
+              cancelButton: localize("no", "No"),
+              custom: { icon: Codicon.shield }
+            });
+            await this.workspaceTrustManagementService.setUrisTrust(addedFoldersTrustInfo.map((i) => i.uri), confirmed);
+          }
+        }
+      }, "addWorkspaceFolder");
+      return e.join(addWorkspaceFolder(e));
+    }));
+    this._register(this.workspaceTrustManagementService.onDidChangeTrust((trusted) => {
+      this.updateWorkbenchIndicators(trusted);
+    }));
+    this._register(this.workspaceTrustRequestService.onDidInitiateWorkspaceTrustRequestOnStartup(async () => {
+      let titleString;
+      let learnMoreString;
+      let trustOption;
+      let dontTrustOption;
+      const isAiGeneratedWorkspace = await this.isAiGeneratedWorkspace();
+      if (isAiGeneratedWorkspace && this.productService.aiGeneratedWorkspaceTrust) {
+        titleString = this.productService.aiGeneratedWorkspaceTrust.title;
+        learnMoreString = this.productService.aiGeneratedWorkspaceTrust.startupTrustRequestLearnMore;
+        trustOption = this.productService.aiGeneratedWorkspaceTrust.trustOption;
+        dontTrustOption = this.productService.aiGeneratedWorkspaceTrust.dontTrustOption;
+      } else {
+        console.warn("AI generated workspace trust dialog contents not available.");
+      }
+      const title = titleString ?? (this.useWorkspaceLanguage ? localize("workspaceTrust", "Do you trust the authors of the files in this workspace?") : localize("folderTrust", "Do you trust the authors of the files in this folder?"));
+      let checkboxText;
+      const workspaceIdentifier = toWorkspaceIdentifier(this.workspaceContextService.getWorkspace());
+      const isSingleFolderWorkspace = isSingleFolderWorkspaceIdentifier(workspaceIdentifier);
+      const isEmptyWindow = isEmptyWorkspaceIdentifier(workspaceIdentifier);
+      if (!isAiGeneratedWorkspace && this.workspaceTrustManagementService.canSetParentFolderTrust()) {
+        const name = basename(uriDirname(workspaceIdentifier.uri));
+        checkboxText = localize("checkboxString", "Trust the authors of all files in the parent folder '{0}'", name);
+      }
+      this.doShowModal(title, { label: trustOption ?? localize({ key: "trustOption", comment: ["&& denotes a mnemonic"] }, "&&Yes, I trust the authors"), sublabel: isSingleFolderWorkspace ? localize("trustFolderOptionDescription", "Trust folder and enable all features") : localize("trustWorkspaceOptionDescription", "Trust workspace and enable all features") }, { label: dontTrustOption ?? localize({ key: "dontTrustOption", comment: ["&& denotes a mnemonic"] }, "&&No, I don't trust the authors"), sublabel: isSingleFolderWorkspace ? localize("dontTrustFolderOptionDescription", "Browse folder in restricted mode") : localize("dontTrustWorkspaceOptionDescription", "Browse workspace in restricted mode") }, [
+        !isSingleFolderWorkspace ? localize("workspaceStartupTrustDetails", "{0} provides features that may automatically execute files in this workspace.", this.productService.nameShort) : localize("folderStartupTrustDetails", "{0} provides features that may automatically execute files in this folder.", this.productService.nameShort),
+        learnMoreString ?? localize("startupTrustRequestLearnMore", "If you don't trust the authors of these files, we recommend to continue in restricted mode as the files may be malicious. See [our docs](https://aka.ms/vscode-workspace-trust) to learn more."),
+        !isEmptyWindow ? `\`${this.labelService.getWorkspaceLabel(workspaceIdentifier, {
+          verbose: 2
+          /* Verbosity.LONG */
+        })}\`` : ""
+      ], checkboxText);
+    }));
+  }
+  updateWorkbenchIndicators(trusted) {
+    const bannerItem = this.getBannerItem(!trusted);
+    this.updateStatusbarEntry(trusted);
+    if (bannerItem) {
+      if (!trusted) {
+        this.bannerService.show(bannerItem);
+      } else {
+        this.bannerService.hide(BANNER_RESTRICTED_MODE);
+      }
+    }
+  }
+  //#region Dialog
+  async doShowModal(question, trustedOption, untrustedOption, markdownStrings, trustParentString) {
+    await this.dialogService.prompt({
+      type: Severity.Info,
+      message: question,
+      checkbox: trustParentString ? {
+        label: trustParentString
+      } : void 0,
+      buttons: [
+        {
+          label: trustedOption.label,
+          run: /* @__PURE__ */ __name(async ({ checkboxChecked }) => {
+            if (checkboxChecked) {
+              await this.workspaceTrustManagementService.setParentFolderTrust(true);
+            } else {
+              await this.workspaceTrustRequestService.completeWorkspaceTrustRequest(true);
+            }
+          }, "run")
+        },
+        {
+          label: untrustedOption.label,
+          run: /* @__PURE__ */ __name(() => {
+            this.updateWorkbenchIndicators(false);
+            this.workspaceTrustRequestService.cancelWorkspaceTrustRequest();
+          }, "run")
+        }
+      ],
+      custom: {
+        buttonDetails: [
+          trustedOption.sublabel,
+          untrustedOption.sublabel
+        ],
+        disableCloseAction: true,
+        icon: Codicon.shield,
+        markdownDetails: markdownStrings.map((md) => {
+          return { markdown: new MarkdownString(md) };
+        })
+      }
+    });
+    this.storageService.store(
+      STARTUP_PROMPT_SHOWN_KEY,
+      true,
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  async showModalOnStart() {
+    if (this.workspaceTrustManagementService.isWorkspaceTrusted()) {
+      this.updateWorkbenchIndicators(true);
+      return;
+    }
+    if (!this.workspaceTrustManagementService.canSetWorkspaceTrust()) {
+      return;
+    }
+    if (isVirtualWorkspace(this.workspaceContextService.getWorkspace())) {
+      this.updateWorkbenchIndicators(false);
+      return;
+    }
+    if (this.workspaceContextService.getWorkbenchState() === 1) {
+      this.updateWorkbenchIndicators(false);
+      return;
+    }
+    if (this.startupPromptSetting === "never") {
+      this.updateWorkbenchIndicators(false);
+      return;
+    }
+    if (this.startupPromptSetting === "once" && this.storageService.getBoolean(STARTUP_PROMPT_SHOWN_KEY, 1, false)) {
+      this.updateWorkbenchIndicators(false);
+      return;
+    }
+    this.workspaceTrustRequestService.requestWorkspaceTrustOnStartup();
+  }
+  get startupPromptSetting() {
+    return this.configurationService.getValue(WORKSPACE_TRUST_STARTUP_PROMPT);
+  }
+  get useWorkspaceLanguage() {
+    return !isSingleFolderWorkspaceIdentifier(toWorkspaceIdentifier(this.workspaceContextService.getWorkspace()));
+  }
+  async isAiGeneratedWorkspace() {
+    const aiGeneratedWorkspaces = URI.joinPath(this.environmentService.workspaceStorageHome, "aiGeneratedWorkspaces.json");
+    return await this.fileService.exists(aiGeneratedWorkspaces).then(async (result) => {
+      if (result) {
+        try {
+          const content = await this.fileService.readFile(aiGeneratedWorkspaces);
+          const workspaces = JSON.parse(content.value.toString());
+          if (workspaces.indexOf(this.workspaceContextService.getWorkspace().folders[0].uri.toString()) > -1) {
+            return true;
+          }
+        } catch (e) {
+        }
+      }
+      return false;
+    });
+  }
+  //#endregion
+  //#region Banner
+  getBannerItem(restrictedMode) {
+    const dismissedRestricted = this.storageService.getBoolean(BANNER_RESTRICTED_MODE_DISMISSED_KEY, 1, false);
+    if (this.bannerSetting === "never") {
+      return void 0;
+    }
+    if (this.bannerSetting === "untilDismissed" && dismissedRestricted) {
+      return void 0;
+    }
+    const actions = [
+      {
+        label: localize("restrictedModeBannerManage", "Manage"),
+        href: "command:" + MANAGE_TRUST_COMMAND_ID
+      },
+      {
+        label: localize("restrictedModeBannerLearnMore", "Learn More"),
+        href: "https://aka.ms/vscode-workspace-trust"
+      }
+    ];
+    return {
+      id: BANNER_RESTRICTED_MODE,
+      icon: shieldIcon,
+      ariaLabel: this.getBannerItemAriaLabels(),
+      message: this.getBannerItemMessages(),
+      actions,
+      onClose: /* @__PURE__ */ __name(() => {
+        if (restrictedMode) {
+          this.storageService.store(
+            BANNER_RESTRICTED_MODE_DISMISSED_KEY,
+            true,
+            1,
+            1
+            /* StorageTarget.MACHINE */
+          );
+        }
+      }, "onClose")
+    };
+  }
+  getBannerItemAriaLabels() {
+    switch (this.workspaceContextService.getWorkbenchState()) {
+      case 1:
+        return localize("restrictedModeBannerAriaLabelWindow", "Restricted Mode is intended for safe code browsing. Trust this window to enable all features. Use navigation keys to access banner actions.");
+      case 2:
+        return localize("restrictedModeBannerAriaLabelFolder", "Restricted Mode is intended for safe code browsing. Trust this folder to enable all features. Use navigation keys to access banner actions.");
+      case 3:
+        return localize("restrictedModeBannerAriaLabelWorkspace", "Restricted Mode is intended for safe code browsing. Trust this workspace to enable all features. Use navigation keys to access banner actions.");
+    }
+  }
+  getBannerItemMessages() {
+    switch (this.workspaceContextService.getWorkbenchState()) {
+      case 1:
+        return localize("restrictedModeBannerMessageWindow", "Restricted Mode is intended for safe code browsing. Trust this window to enable all features.");
+      case 2:
+        return localize("restrictedModeBannerMessageFolder", "Restricted Mode is intended for safe code browsing. Trust this folder to enable all features.");
+      case 3:
+        return localize("restrictedModeBannerMessageWorkspace", "Restricted Mode is intended for safe code browsing. Trust this workspace to enable all features.");
+    }
+  }
+  get bannerSetting() {
+    const result = this.configurationService.getValue(WORKSPACE_TRUST_BANNER);
+    if (result !== "always" && isWeb && !this.remoteAgentService.getConnection()?.remoteAuthority) {
+      return "never";
+    }
+    return result;
+  }
+  //#endregion
+  //#region Statusbar
+  getRestrictedModeStatusbarEntry() {
+    let ariaLabel = "";
+    let toolTip;
+    switch (this.workspaceContextService.getWorkbenchState()) {
+      case 1: {
+        ariaLabel = localize("status.ariaUntrustedWindow", "Restricted Mode: Some features are disabled because this window is not trusted.");
+        toolTip = {
+          value: localize({ key: "status.tooltipUntrustedWindow2", comment: ["[abc]({n}) are links.  Only translate `features are disabled` and `window is not trusted`. Do not change brackets and parentheses or {n}"] }, "Running in Restricted Mode\n\nSome [features are disabled]({0}) because this [window is not trusted]({1}).", `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`, `command:${MANAGE_TRUST_COMMAND_ID}`),
+          isTrusted: true,
+          supportThemeIcons: true
+        };
+        break;
+      }
+      case 2: {
+        ariaLabel = localize("status.ariaUntrustedFolder", "Restricted Mode: Some features are disabled because this folder is not trusted.");
+        toolTip = {
+          value: localize({ key: "status.tooltipUntrustedFolder2", comment: ["[abc]({n}) are links.  Only translate `features are disabled` and `folder is not trusted`. Do not change brackets and parentheses or {n}"] }, "Running in Restricted Mode\n\nSome [features are disabled]({0}) because this [folder is not trusted]({1}).", `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`, `command:${MANAGE_TRUST_COMMAND_ID}`),
+          isTrusted: true,
+          supportThemeIcons: true
+        };
+        break;
+      }
+      case 3: {
+        ariaLabel = localize("status.ariaUntrustedWorkspace", "Restricted Mode: Some features are disabled because this workspace is not trusted.");
+        toolTip = {
+          value: localize({ key: "status.tooltipUntrustedWorkspace2", comment: ["[abc]({n}) are links. Only translate `features are disabled` and `workspace is not trusted`. Do not change brackets and parentheses or {n}"] }, "Running in Restricted Mode\n\nSome [features are disabled]({0}) because this [workspace is not trusted]({1}).", `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`, `command:${MANAGE_TRUST_COMMAND_ID}`),
+          isTrusted: true,
+          supportThemeIcons: true
+        };
+        break;
+      }
+    }
+    return {
+      name: localize("status.WorkspaceTrust", "Workspace Trust"),
+      text: `$(shield) ${localize("untrusted", "Restricted Mode")}`,
+      ariaLabel,
+      tooltip: toolTip,
+      command: MANAGE_TRUST_COMMAND_ID,
+      kind: "prominent"
+    };
+  }
+  updateStatusbarEntry(trusted) {
+    if (trusted && this.statusbarEntryAccessor.value) {
+      this.statusbarEntryAccessor.clear();
+      return;
+    }
+    if (!trusted && !this.statusbarEntryAccessor.value) {
+      const entry = this.getRestrictedModeStatusbarEntry();
+      this.statusbarEntryAccessor.value = this.statusbarService.addEntry(entry, this.entryId, 0, {
+        location: { id: "status.host", priority: Number.POSITIVE_INFINITY },
+        alignment: 1
+        /* StatusbarAlignment.RIGHT */
+      });
+    }
+  }
+};
+WorkspaceTrustUXHandler = __decorate([
+  __param(0, IDialogService),
+  __param(1, IWorkspaceContextService),
+  __param(2, IWorkspaceTrustEnablementService),
+  __param(3, IWorkspaceTrustManagementService),
+  __param(4, IConfigurationService),
+  __param(5, IStatusbarService),
+  __param(6, IStorageService),
+  __param(7, IWorkspaceTrustRequestService),
+  __param(8, IBannerService),
+  __param(9, ILabelService),
+  __param(10, IHostService),
+  __param(11, IProductService),
+  __param(12, IRemoteAgentService),
+  __param(13, IEnvironmentService),
+  __param(14, IFileService)
+], WorkspaceTrustUXHandler);
+registerWorkbenchContribution2(
+  WorkspaceTrustRequestHandler.ID,
+  WorkspaceTrustRequestHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  WorkspaceTrustUXHandler,
+  3
+  /* LifecyclePhase.Restored */
+);
+class WorkspaceTrustEditorInputSerializer {
+  static {
+    __name(this, "WorkspaceTrustEditorInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(input) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(WorkspaceTrustEditorInput);
+  }
+}
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(WorkspaceTrustEditorInput.ID, WorkspaceTrustEditorInputSerializer);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(WorkspaceTrustEditor, WorkspaceTrustEditor.ID, localize("workspaceTrustEditor", "Workspace Trust Editor")), [
+  new SyncDescriptor(WorkspaceTrustEditorInput)
+]);
+const CONFIGURE_TRUST_COMMAND_ID = "workbench.trust.configure";
+const WORKSPACES_CATEGORY = localize2("workspacesCategory", "Workspaces");
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: CONFIGURE_TRUST_COMMAND_ID,
+      title: localize2("configureWorkspaceTrustSettings", "Configure Workspace Trust Settings"),
+      precondition: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true)),
+      category: WORKSPACES_CATEGORY,
+      f1: true
+    });
+  }
+  run(accessor) {
+    accessor.get(IPreferencesService).openUserSettings({ jsonEditor: false, query: `@tag:${WORKSPACE_TRUST_SETTING_TAG}` });
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: MANAGE_TRUST_COMMAND_ID,
+      title: localize2("manageWorkspaceTrust", "Manage Workspace Trust"),
+      precondition: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true)),
+      category: WORKSPACES_CATEGORY,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const input = instantiationService.createInstance(WorkspaceTrustEditorInput);
+    editorService.openEditor(input, { pinned: true });
+    return;
+  }
+});
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  ...securityConfigurationNodeBase,
+  properties: {
+    [WORKSPACE_TRUST_ENABLED]: {
+      type: "boolean",
+      default: true,
+      description: localize("workspace.trust.description", "Controls whether or not Workspace Trust is enabled within VS Code."),
+      tags: [WORKSPACE_TRUST_SETTING_TAG],
+      scope: 1
+    },
+    [WORKSPACE_TRUST_STARTUP_PROMPT]: {
+      type: "string",
+      default: "once",
+      description: localize("workspace.trust.startupPrompt.description", "Controls when the startup prompt to trust a workspace is shown."),
+      tags: [WORKSPACE_TRUST_SETTING_TAG],
+      scope: 1,
+      enum: ["always", "once", "never"],
+      enumDescriptions: [
+        localize("workspace.trust.startupPrompt.always", "Ask for trust every time an untrusted workspace is opened."),
+        localize("workspace.trust.startupPrompt.once", "Ask for trust the first time an untrusted workspace is opened."),
+        localize("workspace.trust.startupPrompt.never", "Do not ask for trust when an untrusted workspace is opened.")
+      ]
+    },
+    [WORKSPACE_TRUST_BANNER]: {
+      type: "string",
+      default: "untilDismissed",
+      description: localize("workspace.trust.banner.description", "Controls when the restricted mode banner is shown."),
+      tags: [WORKSPACE_TRUST_SETTING_TAG],
+      scope: 1,
+      enum: ["always", "untilDismissed", "never"],
+      enumDescriptions: [
+        localize("workspace.trust.banner.always", "Show the banner every time an untrusted workspace is open."),
+        localize("workspace.trust.banner.untilDismissed", "Show the banner when an untrusted workspace is opened until dismissed."),
+        localize("workspace.trust.banner.never", "Do not show the banner when an untrusted workspace is open.")
+      ]
+    },
+    [WORKSPACE_TRUST_UNTRUSTED_FILES]: {
+      type: "string",
+      default: "prompt",
+      markdownDescription: localize("workspace.trust.untrustedFiles.description", "Controls how to handle opening untrusted files in a trusted workspace. This setting also applies to opening files in an empty window which is trusted via `#{0}#`.", WORKSPACE_TRUST_EMPTY_WINDOW),
+      tags: [WORKSPACE_TRUST_SETTING_TAG],
+      scope: 1,
+      enum: ["prompt", "open", "newWindow"],
+      enumDescriptions: [
+        localize("workspace.trust.untrustedFiles.prompt", "Ask how to handle untrusted files for each workspace. Once untrusted files are introduced to a trusted workspace, you will not be prompted again."),
+        localize("workspace.trust.untrustedFiles.open", "Always allow untrusted files to be introduced to a trusted workspace without prompting."),
+        localize("workspace.trust.untrustedFiles.newWindow", "Always open untrusted files in a separate window in restricted mode without prompting.")
+      ]
+    },
+    [WORKSPACE_TRUST_EMPTY_WINDOW]: {
+      type: "boolean",
+      default: true,
+      markdownDescription: localize("workspace.trust.emptyWindow.description", "Controls whether or not the empty window is trusted by default within VS Code. When used with `#{0}#`, you can enable the full functionality of VS Code without prompting in an empty window.", WORKSPACE_TRUST_UNTRUSTED_FILES),
+      tags: [WORKSPACE_TRUST_SETTING_TAG],
+      scope: 1
+      /* ConfigurationScope.APPLICATION */
+    }
+  }
+});
+let WorkspaceTrustTelemetryContribution = class WorkspaceTrustTelemetryContribution2 extends Disposable {
+  static {
+    __name(this, "WorkspaceTrustTelemetryContribution");
+  }
+  constructor(environmentService, telemetryService, workspaceContextService, workspaceTrustEnablementService, workspaceTrustManagementService) {
+    super();
+    this.environmentService = environmentService;
+    this.telemetryService = telemetryService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspaceTrustEnablementService = workspaceTrustEnablementService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.workspaceTrustManagementService.workspaceTrustInitialized.then(() => {
+      this.logInitialWorkspaceTrustInfo();
+      this.logWorkspaceTrust(this.workspaceTrustManagementService.isWorkspaceTrusted());
+      this._register(this.workspaceTrustManagementService.onDidChangeTrust((isTrusted) => this.logWorkspaceTrust(isTrusted)));
+    });
+  }
+  logInitialWorkspaceTrustInfo() {
+    if (!this.workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+      const disabledByCliFlag = this.environmentService.disableWorkspaceTrust;
+      this.telemetryService.publicLog2("workspaceTrustDisabled", {
+        reason: disabledByCliFlag ? "cli" : "setting"
+      });
+      return;
+    }
+    this.telemetryService.publicLog2("workspaceTrustFolderCounts", {
+      trustedFoldersCount: this.workspaceTrustManagementService.getTrustedUris().length
+    });
+  }
+  async logWorkspaceTrust(isTrusted) {
+    if (!this.workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+      return;
+    }
+    this.telemetryService.publicLog2("workspaceTrustStateChanged", {
+      workspaceId: this.workspaceContextService.getWorkspace().id,
+      isTrusted
+    });
+    if (isTrusted) {
+      const getDepth = /* @__PURE__ */ __name((folder) => {
+        let resolvedPath = resolve(folder);
+        let depth = 0;
+        while (dirname(resolvedPath) !== resolvedPath && depth < 100) {
+          resolvedPath = dirname(resolvedPath);
+          depth++;
+        }
+        return depth;
+      }, "getDepth");
+      for (const folder of this.workspaceContextService.getWorkspace().folders) {
+        const { trusted, uri } = await this.workspaceTrustManagementService.getUriTrustInfo(folder.uri);
+        if (!trusted) {
+          continue;
+        }
+        const workspaceFolderDepth = getDepth(folder.uri.fsPath);
+        const trustedFolderDepth = getDepth(uri.fsPath);
+        const delta = workspaceFolderDepth - trustedFolderDepth;
+        this.telemetryService.publicLog2("workspaceFolderDepthBelowTrustedFolder", { workspaceFolderDepth, trustedFolderDepth, delta });
+      }
+    }
+  }
+};
+WorkspaceTrustTelemetryContribution = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, ITelemetryService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IWorkspaceTrustEnablementService),
+  __param(4, IWorkspaceTrustManagementService)
+], WorkspaceTrustTelemetryContribution);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  WorkspaceTrustTelemetryContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+export {
+  WorkspaceTrustContextKeys,
+  WorkspaceTrustRequestHandler,
+  WorkspaceTrustUXHandler
+};
+//# sourceMappingURL=workspace.contribution.js.map

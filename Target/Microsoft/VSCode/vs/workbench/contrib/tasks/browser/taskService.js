@@ -1,1 +1,47 @@
-import*as s from"../../../../nls.js";import{ExecutionEngine as r}from"../common/tasks.js";import{$jvc as e}from"./abstractTaskService.js";import{$Z2b as o}from"../common/taskService.js";import{$WB as h}from"../../../../platform/instantiation/common/extensions.js";class t extends e{static{this.Ud=s.localize(11378,null)}Qc(){if(this.I)return this.I;if(this.Rb!==r.Terminal)throw new Error(t.Ud);return this.I=this.Pc(),this.J=[this.I.onDidStateChange(i=>{this.O.set(this.I.isActiveSync()),this.Q.fire(i)})],this.I}gd(i){throw new Error(t.Ud)}bc(i){return this.Rb===r.Terminal}}h(o,t,1);export{t as $RCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { ExecutionEngine } from "../common/tasks.js";
+import { AbstractTaskService } from "./abstractTaskService.js";
+import { ITaskService } from "../common/taskService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+class TaskService extends AbstractTaskService {
+  static {
+    __name(this, "TaskService");
+  }
+  static {
+    this.ProcessTaskSystemSupportMessage = nls.localize("taskService.processTaskSystem", "Process task system is not support in the web.");
+  }
+  _getTaskSystem() {
+    if (this._taskSystem) {
+      return this._taskSystem;
+    }
+    if (this.executionEngine !== ExecutionEngine.Terminal) {
+      throw new Error(TaskService.ProcessTaskSystemSupportMessage);
+    }
+    this._taskSystem = this._createTerminalTaskSystem();
+    this._taskSystemListeners = [
+      this._taskSystem.onDidStateChange((event) => {
+        this._taskRunningState.set(this._taskSystem.isActiveSync());
+        this._onDidStateChange.fire(event);
+      })
+    ];
+    return this._taskSystem;
+  }
+  _computeLegacyConfiguration(workspaceFolder) {
+    throw new Error(TaskService.ProcessTaskSystemSupportMessage);
+  }
+  _versionAndEngineCompatible(filter) {
+    return this.executionEngine === ExecutionEngine.Terminal;
+  }
+}
+registerSingleton(
+  ITaskService,
+  TaskService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  TaskService
+};
+//# sourceMappingURL=taskService.js.map

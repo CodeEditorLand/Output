@@ -1,1 +1,89 @@
-import{$0h as o,$Yh as c}from"../../../base/common/async.js";class a{constructor(t,s,i){this.h=new Map,this.a=t,this.b=s,this.c=i,this.d=this.c.initializeExtensionStorage(this.b,this.a,Object.create(null)).then(e=>(this.f=e,this)),this.g=this.c.onDidChangeStorage(e=>{e.shared===this.b&&e.key===this.a&&(this.f=e.value)}),this.i=new c(()=>{const e=this.h;this.h=new Map,(async()=>{try{await this.c.setValue(this.b,this.a,this.f);for(const h of e.values())h.complete()}catch(h){for(const n of e.values())n.error(h)}})()},0)}keys(){return Object.entries(this.f??{}).filter(([,t])=>t!==void 0).map(([t])=>t)}get whenReady(){return this.d}get(t,s){let i=this.f[t];return typeof i>"u"&&(i=s),i}update(t,s){s!==null&&typeof s=="object"?this.f[t]=JSON.parse(JSON.stringify(s)):this.f[t]=s;const i=this.h.get(t);if(i!==void 0)return i.p;const e=new o;return this.h.set(t,e),this.i.isScheduled()||this.i.schedule(),e.p}dispose(){this.g.dispose()}}class u extends a{setKeysForSync(t){this.c.registerExtensionStorageKeysToSync({id:this.a,version:this.j.version},t)}constructor(t,s){super(t.identifier.value,!0,s),this.j=t}}export{a as $8Lc,u as $9Lc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise, RunOnceScheduler } from "../../../base/common/async.js";
+class ExtensionMemento {
+  static {
+    __name(this, "ExtensionMemento");
+  }
+  constructor(id, global, storage) {
+    this._deferredPromises = /* @__PURE__ */ new Map();
+    this._id = id;
+    this._shared = global;
+    this._storage = storage;
+    this._init = this._storage.initializeExtensionStorage(this._shared, this._id, /* @__PURE__ */ Object.create(null)).then((value) => {
+      this._value = value;
+      return this;
+    });
+    this._storageListener = this._storage.onDidChangeStorage((e) => {
+      if (e.shared === this._shared && e.key === this._id) {
+        this._value = e.value;
+      }
+    });
+    this._scheduler = new RunOnceScheduler(() => {
+      const records = this._deferredPromises;
+      this._deferredPromises = /* @__PURE__ */ new Map();
+      (async () => {
+        try {
+          await this._storage.setValue(this._shared, this._id, this._value);
+          for (const value of records.values()) {
+            value.complete();
+          }
+        } catch (e) {
+          for (const value of records.values()) {
+            value.error(e);
+          }
+        }
+      })();
+    }, 0);
+  }
+  keys() {
+    return Object.entries(this._value ?? {}).filter(([, value]) => value !== void 0).map(([key]) => key);
+  }
+  get whenReady() {
+    return this._init;
+  }
+  get(key, defaultValue) {
+    let value = this._value[key];
+    if (typeof value === "undefined") {
+      value = defaultValue;
+    }
+    return value;
+  }
+  update(key, value) {
+    if (value !== null && typeof value === "object") {
+      this._value[key] = JSON.parse(JSON.stringify(value));
+    } else {
+      this._value[key] = value;
+    }
+    const record = this._deferredPromises.get(key);
+    if (record !== void 0) {
+      return record.p;
+    }
+    const promise = new DeferredPromise();
+    this._deferredPromises.set(key, promise);
+    if (!this._scheduler.isScheduled()) {
+      this._scheduler.schedule();
+    }
+    return promise.p;
+  }
+  dispose() {
+    this._storageListener.dispose();
+  }
+}
+class ExtensionGlobalMemento extends ExtensionMemento {
+  static {
+    __name(this, "ExtensionGlobalMemento");
+  }
+  setKeysForSync(keys) {
+    this._storage.registerExtensionStorageKeysToSync({ id: this._id, version: this._extension.version }, keys);
+  }
+  constructor(extensionDescription, storage) {
+    super(extensionDescription.identifier.value, true, storage);
+    this._extension = extensionDescription;
+  }
+}
+export {
+  ExtensionGlobalMemento,
+  ExtensionMemento
+};
+//# sourceMappingURL=extHostMemento.js.map

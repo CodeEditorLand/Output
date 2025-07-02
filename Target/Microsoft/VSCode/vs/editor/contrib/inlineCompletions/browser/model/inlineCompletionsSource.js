@@ -1,1 +1,368 @@
-import{$vc as M,$sc as V}from"../../../../../base/common/arrays.js";import{$Mb as B}from"../../../../../base/common/arraysFind.js";import{$pf as F}from"../../../../../base/common/cancellation.js";import{$Ld as U,$Kd as z}from"../../../../../base/common/equals.js";import{$vd as T,$ud as L,$wd as X,$td as G}from"../../../../../base/common/lifecycle.js";import{derived as H,observableValue as J,recordChanges as N,transaction as j}from"../../../../../base/common/observable.js";import{$r$ as Q}from"../../../../../base/common/observableInternal/experimental/reducer.js";import{$8c as O}from"../../../../../base/common/types.js";import{$Fl as Y}from"../../../../../platform/configuration/common/configuration.js";import{$mj as Z}from"../../../../../platform/instantiation/common/instantiation.js";import{$4n as ee}from"../../../../../platform/log/common/log.js";import{$ieb as ie}from"../../../../../platform/observable/common/platformObservableUtils.js";import{$_E as D}from"../../../../common/core/edits/stringEdit.js";import{InlineCompletionEndOfLifeReasonKind as te,InlineCompletionTriggerKind as C}from"../../../../common/languages.js";import{$qE as se}from"../../../../common/languages/languageConfigurationRegistry.js";import{$Tkb as ne}from"../../../../common/model/textModelStringEdit.js";import{$Wkb as oe,$Xkb as re}from"../structuredLogger.js";import{wait as le}from"../utils.js";import{InlineSuggestionItem as de}from"./inlineSuggestionItem.js";import{$4kb as he,$5kb as ce}from"./provideInlineCompletions.js";var P=function(l,e,i,s){var n=arguments.length,o=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,i):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,e,i,s);else for(var m=l.length-1;m>=0;m--)(h=l[m])&&(o=(n<3?h(o):n>3?h(e,i,o):h(e,i))||o);return n>3&&o&&Object.defineProperty(e,i,o),o},W=function(l,e){return function(i,s){e(i,s,l)}},w;let S=class extends T{static{w=this}static{this.a=0}constructor(e,i,s,n,o,h,m,u){super(),this.j=e,this.m=i,this.n=s,this.r=n,this.t=o,this.u=h,this.w=m,this.y=u,this.b=this.B(new X),this.f=ie("editor.inlineSuggest.logFetch",!1,this.w).recomputeInitiallyAndOnChange(this.q),this.g=this.B(this.y.createInstance(re.cast(),"editor.inlineSuggest.logFetch.commandId")),this.h=Q(this,{initial:()=>({inlineCompletions:a.createEmpty(),suggestWidgetInlineCompletions:a.createEmpty()}),disposeFinal:t=>{t.inlineCompletions.dispose(),t.suggestWidgetInlineCompletions.dispose()},changeTracker:N({versionId:this.m}),update:(t,r,p)=>{const g=D.compose(p.changes.map(I=>I.change?ne(I.change.changes):D.empty).filter(O));if(g.isEmpty())return r;try{return{inlineCompletions:r.inlineCompletions.createStateWithAppliedEdit(g,this.j),suggestWidgetInlineCompletions:r.suggestWidgetInlineCompletions.createStateWithAppliedEdit(g,this.j)}}finally{r.inlineCompletions.dispose(),r.suggestWidgetInlineCompletions.dispose()}}}),this.inlineCompletions=this.h.map(this,t=>t.inlineCompletions),this.suggestWidgetInlineCompletions=this.h.map(this,t=>t.suggestWidgetInlineCompletions),this.clearOperationOnTextModelChange=H(this,t=>{this.m.read(t),this.b.clear()}),this.C=J(this,0),this.loading=this.C.map(this,t=>t>0),this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this.q)}z(e){this.f.get()&&this.u.info(oe(e)),this.g.log(e)}fetch(e,i,s,n,o,h,m){const u=this.r.get(),t=new ae(u,i,this.j.getVersionId(),new Set(e)),r=i.selectedSuggestionInfo?this.suggestWidgetInlineCompletions.get():this.inlineCompletions.get();if(!h&&this.b.value?.request.satisfies(t))return this.b.value.promise;if(r?.request?.satisfies(t))return Promise.resolve(!0);const p=!!this.b.value;this.b.clear();const g=new F,I=(async()=>{this.C.set(this.C.get()+1,void 0);const y=new L;try{const x=this.n.get(this.j),K=B(e.map(c=>c.debounceDelayMs),M(V))??x;if((p||n&&i.triggerKind===C.Automatic)&&await le(K,g.token),g.token.isCancellationRequested||this.q.isDisposed||this.j.getVersionId()!==t.versionId)return!1;const $=w.a++;(this.f.get()||this.g.isEnabled.get())&&this.z({sourceId:"InlineCompletions.fetch",kind:"start",requestId:$,modelUri:this.j.uri,modelVersion:this.j.getVersionId(),context:{triggerKind:i.triggerKind},time:Date.now()});const R=new Date,b=he(e,this.r.get(),this.j,i,m,this.t);ce(g.token,()=>b.cancelAndDispose({kind:"tokenCancellation"}));let k=!1;const E=[];for await(const c of b.lists)if(c){c.addRef(),y.add(G(()=>c.removeRef(c.inlineSuggestionsData.length===0?{kind:"empty"}:{kind:"notTaken"})));for(const d of c.inlineSuggestionsData){if(!i.includeInlineEdits&&(d.isInlineEdit||d.showInlineEditMenu)||!i.includeInlineCompletions&&!(d.isInlineEdit||d.showInlineEditMenu))continue;const f=de.create(d,this.j);E.push(f),!f.isInlineEdit&&!f.showInlineEditMenu&&i.triggerKind===C.Automatic&&f.isVisible(this.j,this.r.get())&&(k=!0)}if(k)break}if(b.cancelAndDispose({kind:"lostRace"}),this.f.get()||this.g.isEnabled.get()){const c=b.didAllProvidersReturn;let d;(g.token.isCancellationRequested||this.q.isDisposed||this.j.getVersionId()!==t.versionId)&&(d="canceled");const f=E.map(v=>({range:v.editRange.toString(),text:v.insertText,isInlineEdit:!!v.isInlineEdit,source:v.source.provider.groupId}));this.z({sourceId:"InlineCompletions.fetch",kind:"end",requestId:$,durationMs:Date.now()-R.getTime(),error:d,result:f,time:Date.now(),didAllProvidersReturn:c})}if(g.token.isCancellationRequested||this.q.isDisposed||this.j.getVersionId()!==t.versionId||o.get())return!1;const _=new Date;this.n.update(this.j,_.getTime()-R.getTime());const q=this.r.get();this.b.clear(),j(c=>{const d=this.h.get();i.selectedSuggestionInfo?this.h.set({inlineCompletions:a.createEmpty(),suggestWidgetInlineCompletions:d.suggestWidgetInlineCompletions.createStateWithAppliedResults(E,t,this.j,q,s)},c):this.h.set({inlineCompletions:d.inlineCompletions.createStateWithAppliedResults(E,t,this.j,q,s),suggestWidgetInlineCompletions:a.createEmpty()},c),d.inlineCompletions.dispose(),d.suggestWidgetInlineCompletions.dispose()})}finally{this.C.set(this.C.get()-1,void 0),y.dispose()}return!0})(),A=new ge(t,g,I);return this.b.value=A,I}clear(e){this.b.clear();const i=this.h.get();this.h.set({inlineCompletions:a.createEmpty(),suggestWidgetInlineCompletions:a.createEmpty()},e),i.inlineCompletions.dispose(),i.suggestWidgetInlineCompletions.dispose()}seedInlineCompletionsWithSuggestWidget(){const e=this.inlineCompletions.get(),i=this.suggestWidgetInlineCompletions.get();i&&j(s=>{if(!e||(i.request?.versionId??-1)>(e.request?.versionId??-1)){e?.dispose();const n=this.h.get();this.h.set({inlineCompletions:i.clone(),suggestWidgetInlineCompletions:a.createEmpty()},s),n.inlineCompletions.dispose(),n.suggestWidgetInlineCompletions.dispose()}this.clearSuggestWidgetInlineCompletions(s)})}clearSuggestWidgetInlineCompletions(e){this.b.value?.request.context.selectedSuggestionInfo&&this.b.clear()}cancelUpdate(){this.b.clear()}};S=w=P([W(4,se),W(5,ee),W(6,Y),W(7,Z)],S);class ae{constructor(e,i,s,n){this.position=e,this.context=i,this.versionId=s,this.providers=n}satisfies(e){return this.position.equals(e.position)&&U(this.context.selectedSuggestionInfo,e.context.selectedSuggestionInfo,z())&&(e.context.triggerKind===C.Automatic||this.context.triggerKind===C.Explicit)&&this.versionId===e.versionId&&pe(e.providers,this.providers)}get isExplicitRequest(){return this.context.triggerKind===C.Explicit}}function pe(l,e){return[...l].every(i=>e.has(i))}class ge{constructor(e,i,s){this.request=e,this.cancellationTokenSource=i,this.promise=s}dispose(){this.cancellationTokenSource.cancel()}}class a extends T{static createEmpty(){return new a([],void 0)}constructor(e,i){for(const s of e)s.addRef();super(),this.inlineCompletions=e,this.request=i,this.B({dispose:()=>{for(const s of this.inlineCompletions)s.removeRef()}})}a(e){return this.inlineCompletions.find(i=>i.identity===e)}b(e){return this.inlineCompletions.find(i=>i.hash===e)}createStateWithAppliedEdit(e,i){const s=this.inlineCompletions.map(n=>n.withEdit(e,i)).filter(O);return new a(s,this.request)}createStateWithAppliedResults(e,i,s,n,o){let h;if(o){const t=this.a(o);if(t&&t.canBeReused(s,i.position)){h=t;const r=e.find(p=>p.hash===t.hash);r?e=me(r,e):e=[t,...e]}}const m=h?!h.isInlineEdit:e.some(t=>!t.isInlineEdit&&t.isVisible(s,n)),u=[];for(const t of e){const r=this.b(t.hash);let p;r&&r!==t?(p=t.withIdentity(r.identity),r.setEndOfLifeReason({kind:te.Ignored,userTypingDisagreed:!1,supersededBy:t.getSourceCompletion()})):p=t,m!==p.isInlineEdit&&u.push(p)}return new a(u,i)}clone(){return new a(this.inlineCompletions,this.request)}}function me(l,e){const i=e.indexOf(l);return i>-1?[l,...e.slice(0,i),...e.slice(i+1)]:e}export{S as $_kb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlineCompletionsSource_1;
+import { compareUndefinedSmallest, numberComparator } from "../../../../../base/common/arrays.js";
+import { findLastMax } from "../../../../../base/common/arraysFind.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { equalsIfDefined, itemEquals } from "../../../../../base/common/equals.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { derived, observableValue, recordChanges, transaction } from "../../../../../base/common/observable.js";
+import { observableReducerSettable } from "../../../../../base/common/observableInternal/experimental/reducer.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { StringEdit } from "../../../../common/core/edits/stringEdit.js";
+import { InlineCompletionEndOfLifeReasonKind, InlineCompletionTriggerKind } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { offsetEditFromContentChanges } from "../../../../common/model/textModelStringEdit.js";
+import { formatRecordableLogEntry, StructuredLogger } from "../structuredLogger.js";
+import { wait } from "../utils.js";
+import { InlineSuggestionItem } from "./inlineSuggestionItem.js";
+import { provideInlineCompletions, runWhenCancelled } from "./provideInlineCompletions.js";
+let InlineCompletionsSource = class InlineCompletionsSource2 extends Disposable {
+  static {
+    __name(this, "InlineCompletionsSource");
+  }
+  static {
+    InlineCompletionsSource_1 = this;
+  }
+  static {
+    this._requestId = 0;
+  }
+  constructor(_textModel, _versionId, _debounceValue, _cursorPosition, _languageConfigurationService, _logService, _configurationService, _instantiationService) {
+    super();
+    this._textModel = _textModel;
+    this._versionId = _versionId;
+    this._debounceValue = _debounceValue;
+    this._cursorPosition = _cursorPosition;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._logService = _logService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._updateOperation = this._register(new MutableDisposable());
+    this._loggingEnabled = observableConfigValue("editor.inlineSuggest.logFetch", false, this._configurationService).recomputeInitiallyAndOnChange(this._store);
+    this._structuredFetchLogger = this._register(this._instantiationService.createInstance(StructuredLogger.cast(), "editor.inlineSuggest.logFetch.commandId"));
+    this._state = observableReducerSettable(this, {
+      initial: /* @__PURE__ */ __name(() => ({
+        inlineCompletions: InlineCompletionsState.createEmpty(),
+        suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+      }), "initial"),
+      disposeFinal: /* @__PURE__ */ __name((values) => {
+        values.inlineCompletions.dispose();
+        values.suggestWidgetInlineCompletions.dispose();
+      }, "disposeFinal"),
+      changeTracker: recordChanges({ versionId: this._versionId }),
+      update: /* @__PURE__ */ __name((reader, previousValue, changes) => {
+        const edit = StringEdit.compose(changes.changes.map((c) => c.change ? offsetEditFromContentChanges(c.change.changes) : StringEdit.empty).filter(isDefined));
+        if (edit.isEmpty()) {
+          return previousValue;
+        }
+        try {
+          return {
+            inlineCompletions: previousValue.inlineCompletions.createStateWithAppliedEdit(edit, this._textModel),
+            suggestWidgetInlineCompletions: previousValue.suggestWidgetInlineCompletions.createStateWithAppliedEdit(edit, this._textModel)
+          };
+        } finally {
+          previousValue.inlineCompletions.dispose();
+          previousValue.suggestWidgetInlineCompletions.dispose();
+        }
+      }, "update")
+    });
+    this.inlineCompletions = this._state.map(this, (v) => v.inlineCompletions);
+    this.suggestWidgetInlineCompletions = this._state.map(this, (v) => v.suggestWidgetInlineCompletions);
+    this.clearOperationOnTextModelChange = derived(this, (reader) => {
+      this._versionId.read(reader);
+      this._updateOperation.clear();
+      return void 0;
+    });
+    this._loadingCount = observableValue(this, 0);
+    this.loading = this._loadingCount.map(this, (v) => v > 0);
+    this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this._store);
+  }
+  _log(entry) {
+    if (this._loggingEnabled.get()) {
+      this._logService.info(formatRecordableLogEntry(entry));
+    }
+    this._structuredFetchLogger.log(entry);
+  }
+  fetch(providers, context, activeInlineCompletion, withDebounce, userJumpedToActiveCompletion, providerhasChangedCompletion, requestInfo) {
+    const position = this._cursorPosition.get();
+    const request = new UpdateRequest(position, context, this._textModel.getVersionId(), new Set(providers));
+    const target = context.selectedSuggestionInfo ? this.suggestWidgetInlineCompletions.get() : this.inlineCompletions.get();
+    if (!providerhasChangedCompletion && this._updateOperation.value?.request.satisfies(request)) {
+      return this._updateOperation.value.promise;
+    } else if (target?.request?.satisfies(request)) {
+      return Promise.resolve(true);
+    }
+    const updateOngoing = !!this._updateOperation.value;
+    this._updateOperation.clear();
+    const source = new CancellationTokenSource();
+    const promise = (async () => {
+      this._loadingCount.set(this._loadingCount.get() + 1, void 0);
+      const store = new DisposableStore();
+      try {
+        const recommendedDebounceValue = this._debounceValue.get(this._textModel);
+        const debounceValue = findLastMax(providers.map((p) => p.debounceDelayMs), compareUndefinedSmallest(numberComparator)) ?? recommendedDebounceValue;
+        const shouldDebounce = updateOngoing || withDebounce && context.triggerKind === InlineCompletionTriggerKind.Automatic;
+        if (shouldDebounce) {
+          await wait(debounceValue, source.token);
+        }
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+          return false;
+        }
+        const requestId = InlineCompletionsSource_1._requestId++;
+        if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+          this._log({ sourceId: "InlineCompletions.fetch", kind: "start", requestId, modelUri: this._textModel.uri, modelVersion: this._textModel.getVersionId(), context: { triggerKind: context.triggerKind }, time: Date.now() });
+        }
+        const startTime = /* @__PURE__ */ new Date();
+        const providerResult = provideInlineCompletions(providers, this._cursorPosition.get(), this._textModel, context, requestInfo, this._languageConfigurationService);
+        runWhenCancelled(source.token, () => providerResult.cancelAndDispose({ kind: "tokenCancellation" }));
+        let shouldStopEarly = false;
+        const suggestions = [];
+        for await (const list of providerResult.lists) {
+          if (!list) {
+            continue;
+          }
+          list.addRef();
+          store.add(toDisposable(() => list.removeRef(list.inlineSuggestionsData.length === 0 ? { kind: "empty" } : { kind: "notTaken" })));
+          for (const item of list.inlineSuggestionsData) {
+            if (!context.includeInlineEdits && (item.isInlineEdit || item.showInlineEditMenu)) {
+              continue;
+            }
+            if (!context.includeInlineCompletions && !(item.isInlineEdit || item.showInlineEditMenu)) {
+              continue;
+            }
+            const i = InlineSuggestionItem.create(item, this._textModel);
+            suggestions.push(i);
+            if (!i.isInlineEdit && !i.showInlineEditMenu && context.triggerKind === InlineCompletionTriggerKind.Automatic) {
+              if (i.isVisible(this._textModel, this._cursorPosition.get())) {
+                shouldStopEarly = true;
+              }
+            }
+          }
+          if (shouldStopEarly) {
+            break;
+          }
+        }
+        providerResult.cancelAndDispose({ kind: "lostRace" });
+        if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+          const didAllProvidersReturn = providerResult.didAllProvidersReturn;
+          let error = void 0;
+          if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+            error = "canceled";
+          }
+          const result = suggestions.map((c) => ({
+            range: c.editRange.toString(),
+            text: c.insertText,
+            isInlineEdit: !!c.isInlineEdit,
+            source: c.source.provider.groupId
+          }));
+          this._log({ sourceId: "InlineCompletions.fetch", kind: "end", requestId, durationMs: Date.now() - startTime.getTime(), error, result, time: Date.now(), didAllProvidersReturn });
+        }
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId || userJumpedToActiveCompletion.get()) {
+          return false;
+        }
+        const endTime = /* @__PURE__ */ new Date();
+        this._debounceValue.update(this._textModel, endTime.getTime() - startTime.getTime());
+        const cursorPosition = this._cursorPosition.get();
+        this._updateOperation.clear();
+        transaction((tx) => {
+          const v = this._state.get();
+          if (context.selectedSuggestionInfo) {
+            this._state.set({
+              inlineCompletions: InlineCompletionsState.createEmpty(),
+              suggestWidgetInlineCompletions: v.suggestWidgetInlineCompletions.createStateWithAppliedResults(suggestions, request, this._textModel, cursorPosition, activeInlineCompletion)
+            }, tx);
+          } else {
+            this._state.set({
+              inlineCompletions: v.inlineCompletions.createStateWithAppliedResults(suggestions, request, this._textModel, cursorPosition, activeInlineCompletion),
+              suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+            }, tx);
+          }
+          v.inlineCompletions.dispose();
+          v.suggestWidgetInlineCompletions.dispose();
+        });
+      } finally {
+        this._loadingCount.set(this._loadingCount.get() - 1, void 0);
+        store.dispose();
+      }
+      return true;
+    })();
+    const updateOperation = new UpdateOperation(request, source, promise);
+    this._updateOperation.value = updateOperation;
+    return promise;
+  }
+  clear(tx) {
+    this._updateOperation.clear();
+    const v = this._state.get();
+    this._state.set({
+      inlineCompletions: InlineCompletionsState.createEmpty(),
+      suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+    }, tx);
+    v.inlineCompletions.dispose();
+    v.suggestWidgetInlineCompletions.dispose();
+  }
+  seedInlineCompletionsWithSuggestWidget() {
+    const inlineCompletions = this.inlineCompletions.get();
+    const suggestWidgetInlineCompletions = this.suggestWidgetInlineCompletions.get();
+    if (!suggestWidgetInlineCompletions) {
+      return;
+    }
+    transaction((tx) => {
+      if (!inlineCompletions || (suggestWidgetInlineCompletions.request?.versionId ?? -1) > (inlineCompletions.request?.versionId ?? -1)) {
+        inlineCompletions?.dispose();
+        const s = this._state.get();
+        this._state.set({
+          inlineCompletions: suggestWidgetInlineCompletions.clone(),
+          suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+        }, tx);
+        s.inlineCompletions.dispose();
+        s.suggestWidgetInlineCompletions.dispose();
+      }
+      this.clearSuggestWidgetInlineCompletions(tx);
+    });
+  }
+  clearSuggestWidgetInlineCompletions(tx) {
+    if (this._updateOperation.value?.request.context.selectedSuggestionInfo) {
+      this._updateOperation.clear();
+    }
+  }
+  cancelUpdate() {
+    this._updateOperation.clear();
+  }
+};
+InlineCompletionsSource = InlineCompletionsSource_1 = __decorate([
+  __param(4, ILanguageConfigurationService),
+  __param(5, ILogService),
+  __param(6, IConfigurationService),
+  __param(7, IInstantiationService)
+], InlineCompletionsSource);
+class UpdateRequest {
+  static {
+    __name(this, "UpdateRequest");
+  }
+  constructor(position, context, versionId, providers) {
+    this.position = position;
+    this.context = context;
+    this.versionId = versionId;
+    this.providers = providers;
+  }
+  satisfies(other) {
+    return this.position.equals(other.position) && equalsIfDefined(this.context.selectedSuggestionInfo, other.context.selectedSuggestionInfo, itemEquals()) && (other.context.triggerKind === InlineCompletionTriggerKind.Automatic || this.context.triggerKind === InlineCompletionTriggerKind.Explicit) && this.versionId === other.versionId && isSubset(other.providers, this.providers);
+  }
+  get isExplicitRequest() {
+    return this.context.triggerKind === InlineCompletionTriggerKind.Explicit;
+  }
+}
+function isSubset(set1, set2) {
+  return [...set1].every((item) => set2.has(item));
+}
+__name(isSubset, "isSubset");
+class UpdateOperation {
+  static {
+    __name(this, "UpdateOperation");
+  }
+  constructor(request, cancellationTokenSource, promise) {
+    this.request = request;
+    this.cancellationTokenSource = cancellationTokenSource;
+    this.promise = promise;
+  }
+  dispose() {
+    this.cancellationTokenSource.cancel();
+  }
+}
+class InlineCompletionsState extends Disposable {
+  static {
+    __name(this, "InlineCompletionsState");
+  }
+  static createEmpty() {
+    return new InlineCompletionsState([], void 0);
+  }
+  constructor(inlineCompletions, request) {
+    for (const inlineCompletion of inlineCompletions) {
+      inlineCompletion.addRef();
+    }
+    super();
+    this.inlineCompletions = inlineCompletions;
+    this.request = request;
+    this._register({
+      dispose: /* @__PURE__ */ __name(() => {
+        for (const inlineCompletion of this.inlineCompletions) {
+          inlineCompletion.removeRef();
+        }
+      }, "dispose")
+    });
+  }
+  _findById(id) {
+    return this.inlineCompletions.find((i) => i.identity === id);
+  }
+  _findByHash(hash) {
+    return this.inlineCompletions.find((i) => i.hash === hash);
+  }
+  /**
+   * Applies the edit on the state.
+  */
+  createStateWithAppliedEdit(edit, textModel) {
+    const newInlineCompletions = this.inlineCompletions.map((i) => i.withEdit(edit, textModel)).filter(isDefined);
+    return new InlineCompletionsState(newInlineCompletions, this.request);
+  }
+  createStateWithAppliedResults(updatedSuggestions, request, textModel, cursorPosition, itemIdToPreserveAtTop) {
+    let itemToPreserve = void 0;
+    if (itemIdToPreserveAtTop) {
+      const itemToPreserveCandidate = this._findById(itemIdToPreserveAtTop);
+      if (itemToPreserveCandidate && itemToPreserveCandidate.canBeReused(textModel, request.position)) {
+        itemToPreserve = itemToPreserveCandidate;
+        const updatedItemToPreserve = updatedSuggestions.find((i) => i.hash === itemToPreserveCandidate.hash);
+        if (updatedItemToPreserve) {
+          updatedSuggestions = moveToFront(updatedItemToPreserve, updatedSuggestions);
+        } else {
+          updatedSuggestions = [itemToPreserveCandidate, ...updatedSuggestions];
+        }
+      }
+    }
+    const preferInlineCompletions = itemToPreserve ? !itemToPreserve.isInlineEdit : updatedSuggestions.some((i) => !i.isInlineEdit && i.isVisible(textModel, cursorPosition));
+    const updatedItems = [];
+    for (const i of updatedSuggestions) {
+      const oldItem = this._findByHash(i.hash);
+      let item;
+      if (oldItem && oldItem !== i) {
+        item = i.withIdentity(oldItem.identity);
+        oldItem.setEndOfLifeReason({ kind: InlineCompletionEndOfLifeReasonKind.Ignored, userTypingDisagreed: false, supersededBy: i.getSourceCompletion() });
+      } else {
+        item = i;
+      }
+      if (preferInlineCompletions !== item.isInlineEdit) {
+        updatedItems.push(item);
+      }
+    }
+    return new InlineCompletionsState(updatedItems, request);
+  }
+  clone() {
+    return new InlineCompletionsState(this.inlineCompletions, this.request);
+  }
+}
+function moveToFront(item, items) {
+  const index = items.indexOf(item);
+  if (index > -1) {
+    return [item, ...items.slice(0, index), ...items.slice(index + 1)];
+  }
+  return items;
+}
+__name(moveToFront, "moveToFront");
+export {
+  InlineCompletionsSource
+};
+//# sourceMappingURL=inlineCompletionsSource.js.map

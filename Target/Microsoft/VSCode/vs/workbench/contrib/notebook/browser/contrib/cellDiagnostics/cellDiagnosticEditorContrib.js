@@ -1,1 +1,161 @@
-import{$vd as d,$td as f}from"../../../../../../base/common/lifecycle.js";import{$pD as p}from"../../../../../../platform/markers/common/markers.js";import{$XK as g,NotebookExecutionType as b}from"../../../common/notebookExecutionStateService.js";import{$Fl as C}from"../../../../../../platform/configuration/common/configuration.js";import{CellKind as D,$UL as l}from"../../../common/notebookCommon.js";import{$qCb as $}from"../../notebookEditorExtensions.js";import{$NSb as v}from"../../viewModel/codeCellViewModel.js";import{Event as x}from"../../../../../../base/common/event.js";import{$jT as E}from"../../../../chat/common/chatAgents.js";import{ChatAgentLocation as _}from"../../../../chat/common/constants.js";import{autorun as N}from"../../../../../../base/common/observable.js";var m=function(n,t,e,s){var i=arguments.length,o=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,s);else for(var a=n.length-1;a>=0;a--)(r=n[a])&&(o=(i<3?r(o):i>3?r(t,e,o):r(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},h=function(n,t){return function(e,s){t(e,s,n)}},c;let u=class extends d{static{c=this}static{this.ID="workbench.notebook.cellDiagnostics"}constructor(t,e,s,i,o){super(),this.f=t,this.g=e,this.h=s,this.j=i,this.m=o,this.a=!1,this.b=!1,this.c=new Map,this.s(),this.B(i.onDidChangeAgents(()=>this.s())),this.B(o.onDidChangeConfiguration(r=>{r.affectsConfiguration(l.cellFailureDiagnostics)&&this.s()}))}n(){return!!this.j.getAgents().find(e=>e.locations.includes(_.Notebook))}s(){const t=this.m.getValue(l.cellFailureDiagnostics);this.a&&(!t||!this.n())?(this.a=!1,this.u()):!this.a&&t&&this.n()&&(this.a=!0,this.b||(this.b=!0,this.B(x.accumulate(this.g.onDidChangeExecution,200)(e=>this.t(e)))))}t(t){if(!this.a)return;const e=new Set;for(const s of t.reverse()){const i=this.f.textModel?.uri;s.type===b.cell&&i&&s.affectsNotebook(i)&&!e.has(s.cellHandle)&&(e.add(s.cellHandle),s.changed?this.clear(s.cellHandle):this.w(s.cellHandle))}}u(){for(const t of this.c.keys())this.clear(t)}clear(t){const e=this.c.get(t);if(e){for(const s of e)s.dispose();this.c.delete(t)}}w(t){if(this.c.has(t))return;const e=this.f.getCellByHandle(t);if(!e||e.cellKind!==D.Code)return;const s=e.model.internalMetadata;if(e instanceof v&&!s.lastRunSuccess&&s?.error?.location){const i=[],o=s.error.name?`${s.error.name}: ${s.error.message}`:s.error.message,r=this.y(o,s.error.location);this.h.changeOne(c.ID,e.uri,[r]),i.push(f(()=>this.h.changeOne(c.ID,e.uri,[]))),e.executionErrorDiagnostic.set(s.error,void 0),i.push(f(()=>e.executionErrorDiagnostic.set(void 0,void 0))),i.push(N(a=>{e.executionErrorDiagnostic.read(a)||this.clear(t)})),i.push(e.model.onDidChangeOutputs(()=>{e.model.outputs.length===0&&this.clear(t)})),i.push(e.model.onDidChangeContent(()=>{this.clear(t)})),this.c.set(t,i)}}y(t,e){return{severity:8,message:t,startLineNumber:e.startLineNumber+1,startColumn:e.startColumn+1,endLineNumber:e.endLineNumber+1,endColumn:e.endColumn+1,source:"Cell Execution Error"}}dispose(){super.dispose(),this.u()}};u=c=m([h(1,g),h(2,p),h(3,E),h(4,C)],u);$(u.ID,u);export{u as $hec};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CellDiagnostics_1;
+import { Disposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { IMarkerService } from "../../../../../../platform/markers/common/markers.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { CellKind, NotebookSetting } from "../../../common/notebookCommon.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { IChatAgentService } from "../../../../chat/common/chatAgents.js";
+import { ChatAgentLocation } from "../../../../chat/common/constants.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+let CellDiagnostics = class CellDiagnostics2 extends Disposable {
+  static {
+    __name(this, "CellDiagnostics");
+  }
+  static {
+    CellDiagnostics_1 = this;
+  }
+  static {
+    this.ID = "workbench.notebook.cellDiagnostics";
+  }
+  constructor(notebookEditor, notebookExecutionStateService, markerService, chatAgentService, configurationService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this.markerService = markerService;
+    this.chatAgentService = chatAgentService;
+    this.configurationService = configurationService;
+    this.enabled = false;
+    this.listening = false;
+    this.diagnosticsByHandle = /* @__PURE__ */ new Map();
+    this.updateEnabled();
+    this._register(chatAgentService.onDidChangeAgents(() => this.updateEnabled()));
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(NotebookSetting.cellFailureDiagnostics)) {
+        this.updateEnabled();
+      }
+    }));
+  }
+  hasNotebookAgent() {
+    const agents = this.chatAgentService.getAgents();
+    return !!agents.find((agent) => agent.locations.includes(ChatAgentLocation.Notebook));
+  }
+  updateEnabled() {
+    const settingEnabled = this.configurationService.getValue(NotebookSetting.cellFailureDiagnostics);
+    if (this.enabled && (!settingEnabled || !this.hasNotebookAgent())) {
+      this.enabled = false;
+      this.clearAll();
+    } else if (!this.enabled && settingEnabled && this.hasNotebookAgent()) {
+      this.enabled = true;
+      if (!this.listening) {
+        this.listening = true;
+        this._register(Event.accumulate(this.notebookExecutionStateService.onDidChangeExecution, 200)((e) => this.handleChangeExecutionState(e)));
+      }
+    }
+  }
+  handleChangeExecutionState(changes) {
+    if (!this.enabled) {
+      return;
+    }
+    const handled = /* @__PURE__ */ new Set();
+    for (const e of changes.reverse()) {
+      const notebookUri = this.notebookEditor.textModel?.uri;
+      if (e.type === NotebookExecutionType.cell && notebookUri && e.affectsNotebook(notebookUri) && !handled.has(e.cellHandle)) {
+        handled.add(e.cellHandle);
+        if (!!e.changed) {
+          this.clear(e.cellHandle);
+        } else {
+          this.setDiagnostics(e.cellHandle);
+        }
+      }
+    }
+  }
+  clearAll() {
+    for (const handle of this.diagnosticsByHandle.keys()) {
+      this.clear(handle);
+    }
+  }
+  clear(cellHandle) {
+    const disposables = this.diagnosticsByHandle.get(cellHandle);
+    if (disposables) {
+      for (const disposable of disposables) {
+        disposable.dispose();
+      }
+      this.diagnosticsByHandle.delete(cellHandle);
+    }
+  }
+  setDiagnostics(cellHandle) {
+    if (this.diagnosticsByHandle.has(cellHandle)) {
+      return;
+    }
+    const cell = this.notebookEditor.getCellByHandle(cellHandle);
+    if (!cell || cell.cellKind !== CellKind.Code) {
+      return;
+    }
+    const metadata = cell.model.internalMetadata;
+    if (cell instanceof CodeCellViewModel && !metadata.lastRunSuccess && metadata?.error?.location) {
+      const disposables = [];
+      const errorLabel = metadata.error.name ? `${metadata.error.name}: ${metadata.error.message}` : metadata.error.message;
+      const marker = this.createMarkerData(errorLabel, metadata.error.location);
+      this.markerService.changeOne(CellDiagnostics_1.ID, cell.uri, [marker]);
+      disposables.push(toDisposable(() => this.markerService.changeOne(CellDiagnostics_1.ID, cell.uri, [])));
+      cell.executionErrorDiagnostic.set(metadata.error, void 0);
+      disposables.push(toDisposable(() => cell.executionErrorDiagnostic.set(void 0, void 0)));
+      disposables.push(autorun((r) => {
+        if (!cell.executionErrorDiagnostic.read(r)) {
+          this.clear(cellHandle);
+        }
+      }));
+      disposables.push(cell.model.onDidChangeOutputs(() => {
+        if (cell.model.outputs.length === 0) {
+          this.clear(cellHandle);
+        }
+      }));
+      disposables.push(cell.model.onDidChangeContent(() => {
+        this.clear(cellHandle);
+      }));
+      this.diagnosticsByHandle.set(cellHandle, disposables);
+    }
+  }
+  createMarkerData(message, location) {
+    return {
+      severity: 8,
+      message,
+      startLineNumber: location.startLineNumber + 1,
+      startColumn: location.startColumn + 1,
+      endLineNumber: location.endLineNumber + 1,
+      endColumn: location.endColumn + 1,
+      source: "Cell Execution Error"
+    };
+  }
+  dispose() {
+    super.dispose();
+    this.clearAll();
+  }
+};
+CellDiagnostics = CellDiagnostics_1 = __decorate([
+  __param(1, INotebookExecutionStateService),
+  __param(2, IMarkerService),
+  __param(3, IChatAgentService),
+  __param(4, IConfigurationService)
+], CellDiagnostics);
+registerNotebookContribution(CellDiagnostics.ID, CellDiagnostics);
+export {
+  CellDiagnostics
+};
+//# sourceMappingURL=cellDiagnosticEditorContrib.js.map

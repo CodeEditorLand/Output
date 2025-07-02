@@ -1,1 +1,160 @@
-import{$Ji as p}from"../../../../base/common/buffer.js";import{$Tl as $}from"../../../../platform/configuration/common/configurationRegistry.js";import{$ok as C,$5j as b}from"../../../../platform/files/common/files.js";import{$4n as d}from"../../../../platform/log/common/log.js";import{$Rl as S}from"../../../../platform/registry/common/platform.js";import{$nW as y}from"../common/userDataProfile.js";import{$K6b as u}from"../../../../platform/userDataSync/common/settingsMerge.js";import{$DNb as O}from"../../../../platform/userDataSync/common/userDataSync.js";import{TreeItemCollapsibleState as h}from"../../../common/views.js";import{$WHb as R}from"../../../browser/parts/editor/editorCommands.js";import{$mj as w}from"../../../../platform/instantiation/common/instantiation.js";import{localize as P}from"../../../../nls.js";import{$Ao as _}from"../../../../platform/uriIdentity/common/uriIdentity.js";var g=function(i,e,t,n){var o=arguments.length,s=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,e,t,n);else for(var l=i.length-1;l>=0;l--)(a=i[l])&&(s=(o<3?a(s):o>3?a(e,t,s):a(e,t))||s);return o>3&&s&&Object.defineProperty(e,t,s),s},r=function(i,e){return function(t,n){e(t,n,i)}};let f=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n}async initialize(e){const t=JSON.parse(e);if(t.settings===null){this.c.info("Initializing Profile: No settings to apply...");return}await this.b.writeFile(this.a.currentProfile.settingsResource,p.fromString(t.settings))}};f=g([r(0,y),r(1,b),r(2,d)],f);let c=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n}async getContent(e){const t=await this.getSettingsContent(e);return JSON.stringify(t)}async getSettingsContent(e){const t=await this.e(e);if(t===null)return{settings:null};{const n=this.d(),o=await this.b.resolveFormattingOptions(e.settingsResource);return{settings:u(t||"{}","{}",n,o)}}}async apply(e,t){const n=JSON.parse(e);if(n.settings===null){this.c.info(`Importing Profile (${t.name}): No settings to apply...`);return}const o=await this.e(t),s=await this.b.resolveFormattingOptions(t.settingsResource),a=u(n.settings,o||"{}",this.d(),s);await this.a.writeFile(t.settingsResource,p.fromString(a))}d(){const e=S.as($.Configuration).getConfigurationProperties();return Object.keys(e).filter(n=>e[n]?.scope===2||e[n]?.scope===3||e[n]?.scope===7)}async e(e){try{return(await this.a.readFile(e.settingsResource)).value.toString()}catch(t){if(t instanceof C&&t.fileOperationResult===1)return null;throw t}}};c=g([r(0,b),r(1,O),r(2,d)],c);let m=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n,this.type="settings",this.handle="settings",this.label={label:P(14841,null)},this.collapsibleState=h.Expanded}async getChildren(){return[{handle:this.a.settingsResource.toString(),resourceUri:this.a.settingsResource,collapsibleState:h.None,parent:this,accessibilityInformation:{label:this.b.extUri.basename(this.a.settingsResource)},command:{id:R,title:"",arguments:[this.a.settingsResource,void 0,void 0]}}]}async hasContent(){return(await this.c.createInstance(c).getSettingsContent(this.a)).settings!==null}async getContent(){return this.c.createInstance(c).getContent(this.a)}isFromDefaultProfile(){return!this.a.isDefault&&!!this.a.useDefaultFlags?.settings}};m=g([r(1,_),r(2,w)],m);export{f as $O6b,c as $P6b,m as $Q6b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { FileOperationError, IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IUserDataProfileService } from "../common/userDataProfile.js";
+import { updateIgnoredSettings } from "../../../../platform/userDataSync/common/settingsMerge.js";
+import { IUserDataSyncUtilService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { TreeItemCollapsibleState } from "../../../common/views.js";
+import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+let SettingsResourceInitializer = class SettingsResourceInitializer2 {
+  static {
+    __name(this, "SettingsResourceInitializer");
+  }
+  constructor(userDataProfileService, fileService, logService) {
+    this.userDataProfileService = userDataProfileService;
+    this.fileService = fileService;
+    this.logService = logService;
+  }
+  async initialize(content) {
+    const settingsContent = JSON.parse(content);
+    if (settingsContent.settings === null) {
+      this.logService.info(`Initializing Profile: No settings to apply...`);
+      return;
+    }
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.settingsResource, VSBuffer.fromString(settingsContent.settings));
+  }
+};
+SettingsResourceInitializer = __decorate([
+  __param(0, IUserDataProfileService),
+  __param(1, IFileService),
+  __param(2, ILogService)
+], SettingsResourceInitializer);
+let SettingsResource = class SettingsResource2 {
+  static {
+    __name(this, "SettingsResource");
+  }
+  constructor(fileService, userDataSyncUtilService, logService) {
+    this.fileService = fileService;
+    this.userDataSyncUtilService = userDataSyncUtilService;
+    this.logService = logService;
+  }
+  async getContent(profile) {
+    const settingsContent = await this.getSettingsContent(profile);
+    return JSON.stringify(settingsContent);
+  }
+  async getSettingsContent(profile) {
+    const localContent = await this.getLocalFileContent(profile);
+    if (localContent === null) {
+      return { settings: null };
+    } else {
+      const ignoredSettings = this.getIgnoredSettings();
+      const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(profile.settingsResource);
+      const settings = updateIgnoredSettings(localContent || "{}", "{}", ignoredSettings, formattingOptions);
+      return { settings };
+    }
+  }
+  async apply(content, profile) {
+    const settingsContent = JSON.parse(content);
+    if (settingsContent.settings === null) {
+      this.logService.info(`Importing Profile (${profile.name}): No settings to apply...`);
+      return;
+    }
+    const localSettingsContent = await this.getLocalFileContent(profile);
+    const formattingOptions = await this.userDataSyncUtilService.resolveFormattingOptions(profile.settingsResource);
+    const contentToUpdate = updateIgnoredSettings(settingsContent.settings, localSettingsContent || "{}", this.getIgnoredSettings(), formattingOptions);
+    await this.fileService.writeFile(profile.settingsResource, VSBuffer.fromString(contentToUpdate));
+  }
+  getIgnoredSettings() {
+    const allSettings = Registry.as(Extensions.Configuration).getConfigurationProperties();
+    const ignoredSettings = Object.keys(allSettings).filter(
+      (key) => allSettings[key]?.scope === 2 || allSettings[key]?.scope === 3 || allSettings[key]?.scope === 7
+      /* ConfigurationScope.MACHINE_OVERRIDABLE */
+    );
+    return ignoredSettings;
+  }
+  async getLocalFileContent(profile) {
+    try {
+      const content = await this.fileService.readFile(profile.settingsResource);
+      return content.value.toString();
+    } catch (error) {
+      if (error instanceof FileOperationError && error.fileOperationResult === 1) {
+        return null;
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+SettingsResource = __decorate([
+  __param(0, IFileService),
+  __param(1, IUserDataSyncUtilService),
+  __param(2, ILogService)
+], SettingsResource);
+let SettingsResourceTreeItem = class SettingsResourceTreeItem2 {
+  static {
+    __name(this, "SettingsResourceTreeItem");
+  }
+  constructor(profile, uriIdentityService, instantiationService) {
+    this.profile = profile;
+    this.uriIdentityService = uriIdentityService;
+    this.instantiationService = instantiationService;
+    this.type = "settings";
+    this.handle = "settings";
+    this.label = { label: localize("settings", "Settings") };
+    this.collapsibleState = TreeItemCollapsibleState.Expanded;
+  }
+  async getChildren() {
+    return [{
+      handle: this.profile.settingsResource.toString(),
+      resourceUri: this.profile.settingsResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.settingsResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.settingsResource, void 0, void 0]
+      }
+    }];
+  }
+  async hasContent() {
+    const settingsContent = await this.instantiationService.createInstance(SettingsResource).getSettingsContent(this.profile);
+    return settingsContent.settings !== null;
+  }
+  async getContent() {
+    return this.instantiationService.createInstance(SettingsResource).getContent(this.profile);
+  }
+  isFromDefaultProfile() {
+    return !this.profile.isDefault && !!this.profile.useDefaultFlags?.settings;
+  }
+};
+SettingsResourceTreeItem = __decorate([
+  __param(1, IUriIdentityService),
+  __param(2, IInstantiationService)
+], SettingsResourceTreeItem);
+export {
+  SettingsResource,
+  SettingsResourceInitializer,
+  SettingsResourceTreeItem
+};
+//# sourceMappingURL=settingsResource.js.map

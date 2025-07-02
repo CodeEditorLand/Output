@@ -1,3 +1,78 @@
-import{$Fl as u}from"../../../../platform/configuration/common/configuration.js";import{$IF as p}from"../../../../editor/common/services/textResourceConfiguration.js";import{OS as c}from"../../../../base/common/platform.js";import{Schemas as a}from"../../../../base/common/network.js";import{$Jo as $}from"../../../../platform/storage/common/storage.js";import{$HW as b}from"../../environment/common/environmentService.js";import{$WB as _}from"../../../../platform/instantiation/common/extensions.js";import{$gL as d}from"../../remote/common/remoteAgentService.js";var l=function(n,t,o,e){var r=arguments.length,i=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,o):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,t,o,e);else for(var h=n.length-1;h>=0;h--)(s=n[h])&&(i=(r<3?s(i):r>3?s(t,o,i):s(t,o))||i);return r>3&&i&&Object.defineProperty(t,o,i),i},f=function(n,t){return function(o,e){t(o,e,n)}};let m=class{constructor(t,o,e,r){this.b=t,this.c=e,this.d=r,this.a=null,o.getEnvironment().then(i=>this.a=i)}getEOL(t,o){const e=this.b.getValue("files.eol",{overrideIdentifier:o,resource:t});if(e&&typeof e=="string"&&e!=="auto")return e;const r=this.e(t);return r===3||r===2?`
-`:`\r
-`}e(t){let o=c;const e=this.c.remoteAuthority;if(e&&t&&t.scheme!==a.file){const r=`resource.authority.os.${e}`;o=this.a?this.a.os:this.d.getNumber(r,1,c),this.d.store(r,o,1,1)}return o}};m=l([f(0,u),f(1,d),f(2,b),f(3,$)],m);_(p,m,1);export{m as $95b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { OS } from "../../../../base/common/platform.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+let TextResourcePropertiesService = class TextResourcePropertiesService2 {
+  static {
+    __name(this, "TextResourcePropertiesService");
+  }
+  constructor(configurationService, remoteAgentService, environmentService, storageService) {
+    this.configurationService = configurationService;
+    this.environmentService = environmentService;
+    this.storageService = storageService;
+    this.remoteEnvironment = null;
+    remoteAgentService.getEnvironment().then((remoteEnv) => this.remoteEnvironment = remoteEnv);
+  }
+  getEOL(resource, language) {
+    const eol = this.configurationService.getValue("files.eol", { overrideIdentifier: language, resource });
+    if (eol && typeof eol === "string" && eol !== "auto") {
+      return eol;
+    }
+    const os = this.getOS(resource);
+    return os === 3 || os === 2 ? "\n" : "\r\n";
+  }
+  getOS(resource) {
+    let os = OS;
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    if (remoteAuthority) {
+      if (resource && resource.scheme !== Schemas.file) {
+        const osCacheKey = `resource.authority.os.${remoteAuthority}`;
+        os = this.remoteEnvironment ? this.remoteEnvironment.os : (
+          /* Get it from cache */
+          this.storageService.getNumber(osCacheKey, 1, OS)
+        );
+        this.storageService.store(
+          osCacheKey,
+          os,
+          1,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }
+    }
+    return os;
+  }
+};
+TextResourcePropertiesService = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IRemoteAgentService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IStorageService)
+], TextResourcePropertiesService);
+registerSingleton(
+  ITextResourcePropertiesService,
+  TextResourcePropertiesService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  TextResourcePropertiesService
+};
+//# sourceMappingURL=textResourcePropertiesService.js.map

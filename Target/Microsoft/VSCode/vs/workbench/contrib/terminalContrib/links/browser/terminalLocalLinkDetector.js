@@ -1,1 +1,266 @@
-import{OS as _}from"../../../../../base/common/platform.js";import{URI as C}from"../../../../../base/common/uri.js";import{$Ao as I}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$il as O}from"../../../../../platform/workspace/common/workspace.js";import{$jtc as R,$ltc as D,$mtc as W,$otc as E,$ntc as F}from"./terminalLinkHelpers.js";import{$9Zb as P}from"./terminalLinkParsing.js";import{$Iw as N}from"../../../../../platform/terminal/common/terminal.js";var j=function(c,s,t,n){var a=arguments.length,i=a<3?s:n===null?n=Object.getOwnPropertyDescriptor(s,t):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(c,s,t,n);else for(var h=c.length-1;h>=0;h--)(o=c[h])&&(i=(a<3?o(i):a>3?o(s,t,i):o(s,t))||i);return a>3&&i&&Object.defineProperty(s,t,i),i},b=function(c,s){return function(t,n){s(t,n,c)}},w;(function(c){c[c.MaxLineLength=2e3]="MaxLineLength",c[c.MaxResolvedLinksInLine=10]="MaxResolvedLinksInLine",c[c.MaxResolvedLinkLength=1024]="MaxResolvedLinkLength"})(w||(w={}));const S=[/^ *File (?<link>"(?<path>.+)"(, line (?<line>\d+))?)/,/^ +FILE +(?<link>(?<path>.+)(?::(?<line>\d+)(?::(?<col>\d+))?)?)/,/^(?<link>(?<path>.+)\((?<line>\d+)(?:, ?(?<col>\d+))?\)) ?:/,/^(?<link>(?<path>.+):(?<line>\d+)(?::(?<col>\d+))?) ?:/,/^(?<link>(?<path>.+))>/,/^ *(?<link>(?<path>.+))/];let M=class{static{this.id="local"}constructor(s,t,n,a,i,o,h){this.xterm=s,this.a=t,this.b=n,this.c=a,this.d=i,this.e=o,this.f=h,this.maxLinkLength=500}async detect(s,t,n){const a=[],i=D(this.xterm.buffer.active,t,n,this.xterm.cols);if(i===""||i.length>2e3)return[];let o=-1,h=0;const v=this.b.os||_,$=P(i,v);this.d.trace("terminalLocalLinkDetector#detect text",i),this.d.trace("terminalLocalLinkDetector#detect parsedLinks",$);for(const e of $){if(e.path.text.length>1024)continue;const l=R(s,this.xterm.cols,{startColumn:(e.prefix?.index??e.path.index)+1,startLineNumber:1,endColumn:e.path.index+e.path.text.length+(e.suffix?.suffix.text.length??0)+1,endLineNumber:1},t),r=[],d=E(v),f=e.path.text.startsWith("file://");if(d.isAbsolute(e.path.text)||e.path.text.startsWith("~")||f)r.push(e.path.text);else{if(this.a.has(2)){const m=F(this.a,l.start.y,e.path.text,d,this.d);m&&r.push(...m)}r.length===0&&(r.push(e.path.text),e.path.text.match(/^(\.\.[\/\\])+/)&&r.push(e.path.text.replace(/^(\.\.[\/\\])+/,"")))}const p=/[\[\]"'\.]$/,u=new Map,k=[];for(const m of r){let g=m,L=g.replace(p,""),y=0;for(;L!==g;)e.suffix||y++,k.push(L),u.set(L,y),g=L,L=L.replace(p,"")}r.push(...k),this.d.trace("terminalLocalLinkDetector#detect linkCandidates",r);const x=await this.j(void 0,l,r,u);if(x&&(x.parsedLink=e,x.text=i.substring(e.prefix?.index??e.path.index,e.suffix?e.suffix.suffix.index+e.suffix.suffix.text.length:e.path.index+e.path.text.length),this.d.trace("terminalLocalLinkDetector#detect verified link",x),a.push(x)),++h>=10)break}if(a.length===0)for(const e of S){const r=i.match(e)?.groups;if(!r)continue;const d=r?.link,f=r?.path,p=r?.line,u=r?.col;if(!d||!f||d.length>1024)continue;o=i.indexOf(d);const k=R(s,this.xterm.cols,{startColumn:o+1,startLineNumber:1,endColumn:o+d.length+1,endLineNumber:1},t),x=p?`:${p}${u?`:${u}`:""}`:"",m=await this.j(`${f}${x}`,k,[f]);m&&a.push(m);break}if(a.length===0){const e=W(this.xterm.buffer.active,t,n,this.xterm.cols);for(const l of e){let r="";for(let f=l.start.y;f<=l.end.y;f++){const p=this.xterm.buffer.active.getLine(f);if(!p)break;const u=f===l.start.y?l.start.x:0,k=f===l.end.y?l.end.x:this.xterm.cols-1;r+=p.translateToString(!1,u,k)}l.start.x++,l.start.y++,l.end.y++;const d=await this.j(r,l,[r]);if(d&&a.push(d),++h>=10)break}}return a}g(s){const t=this.f.getWorkspace().folders;for(let n=0;n<t.length;n++)if(this.e.extUri.isEqualOrParent(s,t[n].uri))return!0;return!1}async h(s){for(const t of s){let n;t.startsWith("file://")&&(n=C.parse(t));const a=await this.c.resolveLink(this.b,t,n);if(a)return a}}async j(s,t,n,a){const i=await this.h(n);if(i){let o;i.isDirectory?this.g(i.uri)?o="LocalFolderInWorkspace":o="LocalFolderOutsideWorkspace":o="LocalFile";const h=a?.get(i.link);return h&&(t.end.x-=h,t.end.x<0&&(t.end.y--,t.end.x+=this.xterm.cols)),{text:s??i.link,uri:i.uri,bufferRange:t,type:o}}}};M=j([b(4,N),b(5,I),b(6,O)],M);export{M as $xtc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { OS } from "../../../../../base/common/platform.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { convertLinkRangeToBuffer, getXtermLineContent, getXtermRangesByAttr, osPathModule, updateLinkWithRelativeCwd } from "./terminalLinkHelpers.js";
+import { detectLinks } from "./terminalLinkParsing.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["MaxLineLength"] = 2e3] = "MaxLineLength";
+  Constants2[Constants2["MaxResolvedLinksInLine"] = 10] = "MaxResolvedLinksInLine";
+  Constants2[Constants2["MaxResolvedLinkLength"] = 1024] = "MaxResolvedLinkLength";
+})(Constants || (Constants = {}));
+const fallbackMatchers = [
+  // Python style error: File "<path>", line <line>
+  /^ *File (?<link>"(?<path>.+)"(, line (?<line>\d+))?)/,
+  // Unknown tool #200166: FILE  <path>:<line>:<col>
+  /^ +FILE +(?<link>(?<path>.+)(?::(?<line>\d+)(?::(?<col>\d+))?)?)/,
+  // Some C++ compile error formats:
+  // C:\foo\bar baz(339) : error ...
+  // C:\foo\bar baz(339,12) : error ...
+  // C:\foo\bar baz(339, 12) : error ...
+  // C:\foo\bar baz(339): error ...       [#178584, Visual Studio CL/NVIDIA CUDA compiler]
+  // C:\foo\bar baz(339,12): ...
+  // C:\foo\bar baz(339, 12): ...
+  /^(?<link>(?<path>.+)\((?<line>\d+)(?:, ?(?<col>\d+))?\)) ?:/,
+  // C:\foo/bar baz:339 : error ...
+  // C:\foo/bar baz:339:12 : error ...
+  // C:\foo/bar baz:339: error ...
+  // C:\foo/bar baz:339:12: error ...     [#178584, Clang]
+  /^(?<link>(?<path>.+):(?<line>\d+)(?::(?<col>\d+))?) ?:/,
+  // Cmd prompt
+  /^(?<link>(?<path>.+))>/,
+  // The whole line is the path
+  /^ *(?<link>(?<path>.+))/
+];
+let TerminalLocalLinkDetector = class TerminalLocalLinkDetector2 {
+  static {
+    __name(this, "TerminalLocalLinkDetector");
+  }
+  static {
+    this.id = "local";
+  }
+  constructor(xterm, _capabilities, _processManager, _linkResolver, _logService, _uriIdentityService, _workspaceContextService) {
+    this.xterm = xterm;
+    this._capabilities = _capabilities;
+    this._processManager = _processManager;
+    this._linkResolver = _linkResolver;
+    this._logService = _logService;
+    this._uriIdentityService = _uriIdentityService;
+    this._workspaceContextService = _workspaceContextService;
+    this.maxLinkLength = 500;
+  }
+  async detect(lines, startLine, endLine) {
+    const links = [];
+    const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
+    if (text === "" || text.length > 2e3) {
+      return [];
+    }
+    let stringIndex = -1;
+    let resolvedLinkCount = 0;
+    const os = this._processManager.os || OS;
+    const parsedLinks = detectLinks(text, os);
+    this._logService.trace("terminalLocalLinkDetector#detect text", text);
+    this._logService.trace("terminalLocalLinkDetector#detect parsedLinks", parsedLinks);
+    for (const parsedLink of parsedLinks) {
+      if (parsedLink.path.text.length > 1024) {
+        continue;
+      }
+      const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+        startColumn: (parsedLink.prefix?.index ?? parsedLink.path.index) + 1,
+        startLineNumber: 1,
+        endColumn: parsedLink.path.index + parsedLink.path.text.length + (parsedLink.suffix?.suffix.text.length ?? 0) + 1,
+        endLineNumber: 1
+      }, startLine);
+      const linkCandidates = [];
+      const osPath = osPathModule(os);
+      const isUri = parsedLink.path.text.startsWith("file://");
+      if (osPath.isAbsolute(parsedLink.path.text) || parsedLink.path.text.startsWith("~") || isUri) {
+        linkCandidates.push(parsedLink.path.text);
+      } else {
+        if (this._capabilities.has(
+          2
+          /* TerminalCapability.CommandDetection */
+        )) {
+          const absolutePath = updateLinkWithRelativeCwd(this._capabilities, bufferRange.start.y, parsedLink.path.text, osPath, this._logService);
+          if (absolutePath) {
+            linkCandidates.push(...absolutePath);
+          }
+        }
+        if (linkCandidates.length === 0) {
+          linkCandidates.push(parsedLink.path.text);
+          if (parsedLink.path.text.match(/^(\.\.[\/\\])+/)) {
+            linkCandidates.push(parsedLink.path.text.replace(/^(\.\.[\/\\])+/, ""));
+          }
+        }
+      }
+      const specialEndCharRegex = /[\[\]"'\.]$/;
+      const trimRangeMap = /* @__PURE__ */ new Map();
+      const specialEndLinkCandidates = [];
+      for (const candidate of linkCandidates) {
+        let previous = candidate;
+        let removed = previous.replace(specialEndCharRegex, "");
+        let trimRange = 0;
+        while (removed !== previous) {
+          if (!parsedLink.suffix) {
+            trimRange++;
+          }
+          specialEndLinkCandidates.push(removed);
+          trimRangeMap.set(removed, trimRange);
+          previous = removed;
+          removed = removed.replace(specialEndCharRegex, "");
+        }
+      }
+      linkCandidates.push(...specialEndLinkCandidates);
+      this._logService.trace("terminalLocalLinkDetector#detect linkCandidates", linkCandidates);
+      const simpleLink = await this._validateAndGetLink(void 0, bufferRange, linkCandidates, trimRangeMap);
+      if (simpleLink) {
+        simpleLink.parsedLink = parsedLink;
+        simpleLink.text = text.substring(parsedLink.prefix?.index ?? parsedLink.path.index, parsedLink.suffix ? parsedLink.suffix.suffix.index + parsedLink.suffix.suffix.text.length : parsedLink.path.index + parsedLink.path.text.length);
+        this._logService.trace("terminalLocalLinkDetector#detect verified link", simpleLink);
+        links.push(simpleLink);
+      }
+      if (++resolvedLinkCount >= 10) {
+        break;
+      }
+    }
+    if (links.length === 0) {
+      for (const matcher of fallbackMatchers) {
+        const match = text.match(matcher);
+        const group = match?.groups;
+        if (!group) {
+          continue;
+        }
+        const link = group?.link;
+        const path = group?.path;
+        const line = group?.line;
+        const col = group?.col;
+        if (!link || !path) {
+          continue;
+        }
+        if (link.length > 1024) {
+          continue;
+        }
+        stringIndex = text.indexOf(link);
+        const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+          startColumn: stringIndex + 1,
+          startLineNumber: 1,
+          endColumn: stringIndex + link.length + 1,
+          endLineNumber: 1
+        }, startLine);
+        const suffix = line ? `:${line}${col ? `:${col}` : ""}` : "";
+        const simpleLink = await this._validateAndGetLink(`${path}${suffix}`, bufferRange, [path]);
+        if (simpleLink) {
+          links.push(simpleLink);
+        }
+        break;
+      }
+    }
+    if (links.length === 0) {
+      const rangeCandidates = getXtermRangesByAttr(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
+      for (const rangeCandidate of rangeCandidates) {
+        let text2 = "";
+        for (let y = rangeCandidate.start.y; y <= rangeCandidate.end.y; y++) {
+          const line = this.xterm.buffer.active.getLine(y);
+          if (!line) {
+            break;
+          }
+          const lineStartX = y === rangeCandidate.start.y ? rangeCandidate.start.x : 0;
+          const lineEndX = y === rangeCandidate.end.y ? rangeCandidate.end.x : this.xterm.cols - 1;
+          text2 += line.translateToString(false, lineStartX, lineEndX);
+        }
+        rangeCandidate.start.x++;
+        rangeCandidate.start.y++;
+        rangeCandidate.end.y++;
+        const simpleLink = await this._validateAndGetLink(text2, rangeCandidate, [text2]);
+        if (simpleLink) {
+          links.push(simpleLink);
+        }
+        if (++resolvedLinkCount >= 10) {
+          break;
+        }
+      }
+    }
+    return links;
+  }
+  _isDirectoryInsideWorkspace(uri) {
+    const folders = this._workspaceContextService.getWorkspace().folders;
+    for (let i = 0; i < folders.length; i++) {
+      if (this._uriIdentityService.extUri.isEqualOrParent(uri, folders[i].uri)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  async _validateLinkCandidates(linkCandidates) {
+    for (const link of linkCandidates) {
+      let uri;
+      if (link.startsWith("file://")) {
+        uri = URI.parse(link);
+      }
+      const result = await this._linkResolver.resolveLink(this._processManager, link, uri);
+      if (result) {
+        return result;
+      }
+    }
+    return void 0;
+  }
+  /**
+   * Validates a set of link candidates and returns a link if validated.
+   * @param linkText The link text, this should be undefined to use the link stat value
+   * @param trimRangeMap A map of link candidates to the amount of buffer range they need trimmed.
+   */
+  async _validateAndGetLink(linkText, bufferRange, linkCandidates, trimRangeMap) {
+    const linkStat = await this._validateLinkCandidates(linkCandidates);
+    if (linkStat) {
+      let type;
+      if (linkStat.isDirectory) {
+        if (this._isDirectoryInsideWorkspace(linkStat.uri)) {
+          type = "LocalFolderInWorkspace";
+        } else {
+          type = "LocalFolderOutsideWorkspace";
+        }
+      } else {
+        type = "LocalFile";
+      }
+      const trimRange = trimRangeMap?.get(linkStat.link);
+      if (trimRange) {
+        bufferRange.end.x -= trimRange;
+        if (bufferRange.end.x < 0) {
+          bufferRange.end.y--;
+          bufferRange.end.x += this.xterm.cols;
+        }
+      }
+      return {
+        text: linkText ?? linkStat.link,
+        uri: linkStat.uri,
+        bufferRange,
+        type
+      };
+    }
+    return void 0;
+  }
+};
+TerminalLocalLinkDetector = __decorate([
+  __param(4, ITerminalLogService),
+  __param(5, IUriIdentityService),
+  __param(6, IWorkspaceContextService)
+], TerminalLocalLinkDetector);
+export {
+  TerminalLocalLinkDetector
+};
+//# sourceMappingURL=terminalLocalLinkDetector.js.map

@@ -1,1 +1,41 @@
-import{$Qj as n}from"../../../../base/common/iconLabels.js";import{$2n as d}from"../../../../platform/action/common/action.js";import{$Onc as c}from"../../../../platform/quickinput/browser/commandsQuickAccess.js";class f extends c{constructor(i,e,t,o,a,r){super(i,e,t,o,a,r)}J(){const i=this.I;if(!i)return[];const e=[];for(const t of i.getSupportedActions()){let o;t.metadata?.description&&(d(t.metadata.description)?o=t.metadata.description:o={original:t.metadata.description,value:t.metadata.description}),e.push({commandId:t.id,commandAlias:t.alias,commandDescription:o,label:n(t.label)||t.id})}return e}}export{f as $Qnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { stripIcons } from "../../../../base/common/iconLabels.js";
+import { isLocalizedString } from "../../../../platform/action/common/action.js";
+import { AbstractCommandsQuickAccessProvider } from "../../../../platform/quickinput/browser/commandsQuickAccess.js";
+class AbstractEditorCommandsQuickAccessProvider extends AbstractCommandsQuickAccessProvider {
+  static {
+    __name(this, "AbstractEditorCommandsQuickAccessProvider");
+  }
+  constructor(options, instantiationService, keybindingService, commandService, telemetryService, dialogService) {
+    super(options, instantiationService, keybindingService, commandService, telemetryService, dialogService);
+  }
+  getCodeEditorCommandPicks() {
+    const activeTextEditorControl = this.activeTextEditorControl;
+    if (!activeTextEditorControl) {
+      return [];
+    }
+    const editorCommandPicks = [];
+    for (const editorAction of activeTextEditorControl.getSupportedActions()) {
+      let commandDescription;
+      if (editorAction.metadata?.description) {
+        if (isLocalizedString(editorAction.metadata.description)) {
+          commandDescription = editorAction.metadata.description;
+        } else {
+          commandDescription = { original: editorAction.metadata.description, value: editorAction.metadata.description };
+        }
+      }
+      editorCommandPicks.push({
+        commandId: editorAction.id,
+        commandAlias: editorAction.alias,
+        commandDescription,
+        label: stripIcons(editorAction.label) || editorAction.id
+      });
+    }
+    return editorCommandPicks;
+  }
+}
+export {
+  AbstractEditorCommandsQuickAccessProvider
+};
+//# sourceMappingURL=commandsQuickAccess.js.map

@@ -1,1 +1,38 @@
-import{localize as o,localize2 as e}from"../../../../nls.js";const l={terminal:o(12068,null),new:o(12069,null),doNotShowAgain:o(12070,null),currentSessionCategory:o(12071,null),previousSessionCategory:o(12072,null),typeTask:o(12073,null),typeLocal:o(12074,null),actionCategory:e(12077,"Terminal"),focus:e(12078,"Focus Terminal"),focusAndHideAccessibleBuffer:e(12079,"Focus Terminal and Hide Accessible Buffer"),kill:{...e(12080,"Kill Terminal"),short:o(12075,null)},moveToEditor:e(12081,"Move Terminal into Editor Area"),moveIntoNewWindow:e(12082,"Move Terminal into New Window"),moveToTerminalPanel:e(12083,"Move Terminal into Panel"),changeIcon:e(12084,"Change Icon..."),changeColor:e(12085,"Change Color..."),split:{...e(12086,"Split Terminal"),short:o(12076,null)},unsplit:e(12087,"Unsplit Terminal"),rename:e(12088,"Rename..."),toggleSizeToContentWidth:e(12089,"Toggle Size to Content Width"),focusHover:e(12090,"Focus Hover"),newWithCwd:e(12091,"Create New Terminal Starting in a Custom Working Directory"),renameWithArgs:e(12092,"Rename the Currently Active Terminal"),scrollToPreviousCommand:e(12093,"Scroll to Previous Command"),scrollToNextCommand:e(12094,"Scroll to Next Command")};export{l as $Grc};
+import { localize, localize2 } from "../../../../nls.js";
+const terminalStrings = {
+  terminal: localize("terminal", "Terminal"),
+  new: localize("terminal.new", "New Terminal"),
+  doNotShowAgain: localize("doNotShowAgain", "Do Not Show Again"),
+  currentSessionCategory: localize("currentSessionCategory", "current session"),
+  previousSessionCategory: localize("previousSessionCategory", "previous session"),
+  typeTask: localize("task", "Task"),
+  typeLocal: localize("local", "Local"),
+  actionCategory: localize2("terminalCategory", "Terminal"),
+  focus: localize2("workbench.action.terminal.focus", "Focus Terminal"),
+  focusAndHideAccessibleBuffer: localize2("workbench.action.terminal.focusAndHideAccessibleBuffer", "Focus Terminal and Hide Accessible Buffer"),
+  kill: {
+    ...localize2("killTerminal", "Kill Terminal"),
+    short: localize("killTerminal.short", "Kill")
+  },
+  moveToEditor: localize2("moveToEditor", "Move Terminal into Editor Area"),
+  moveIntoNewWindow: localize2("moveIntoNewWindow", "Move Terminal into New Window"),
+  moveToTerminalPanel: localize2("workbench.action.terminal.moveToTerminalPanel", "Move Terminal into Panel"),
+  changeIcon: localize2("workbench.action.terminal.changeIcon", "Change Icon..."),
+  changeColor: localize2("workbench.action.terminal.changeColor", "Change Color..."),
+  split: {
+    ...localize2("splitTerminal", "Split Terminal"),
+    short: localize("splitTerminal.short", "Split")
+  },
+  unsplit: localize2("unsplitTerminal", "Unsplit Terminal"),
+  rename: localize2("workbench.action.terminal.rename", "Rename..."),
+  toggleSizeToContentWidth: localize2("workbench.action.terminal.sizeToContentWidthInstance", "Toggle Size to Content Width"),
+  focusHover: localize2("workbench.action.terminal.focusHover", "Focus Hover"),
+  newWithCwd: localize2("workbench.action.terminal.newWithCwd", "Create New Terminal Starting in a Custom Working Directory"),
+  renameWithArgs: localize2("workbench.action.terminal.renameWithArg", "Rename the Currently Active Terminal"),
+  scrollToPreviousCommand: localize2("workbench.action.terminal.scrollToPreviousCommand", "Scroll to Previous Command"),
+  scrollToNextCommand: localize2("workbench.action.terminal.scrollToNextCommand", "Scroll to Next Command")
+};
+export {
+  terminalStrings
+};
+//# sourceMappingURL=terminalStrings.js.map

@@ -1,1 +1,992 @@
-import*as u from"../../../../nls.js";import*as h from"../../../../base/common/resources.js";import*as E from"../../../../base/common/objects.js";import{$5j as U,FileKind as H}from"../../../../platform/files/common/files.js";import{$PM as k,ItemActivation as J}from"../../../../platform/quickinput/common/quickInput.js";import{URI as z}from"../../../../base/common/uri.js";import{$m as T}from"../../../../base/common/platform.js";import{$dp as $}from"../../../../platform/dialogs/common/dialogs.js";import{$jI as q}from"../../../../platform/label/common/label.js";import{$il as R}from"../../../../platform/workspace/common/workspace.js";import{$_I as _}from"../../../../platform/notification/common/notification.js";import{$AF as K}from"../../../../editor/common/services/model.js";import{$CD as V}from"../../../../editor/common/languages/language.js";import{$olb as L}from"../../../../editor/common/services/getIconClasses.js";import{Schemas as p}from"../../../../base/common/network.js";import{$HW as Z}from"../../environment/common/environmentService.js";import{$gL as Q}from"../../remote/common/remoteAgentService.js";import{$Wn as Y,$Vn as X}from"../../../../platform/contextkey/common/contextkey.js";import{$5f as g,$zf as tt,$6f as x}from"../../../../base/common/strings.js";import{$ux as et}from"../../../../platform/keybinding/common/keybinding.js";import{$Kg as it}from"../../../../base/common/extpath.js";import{$df as st}from"../../../../base/common/event.js";import{$vd as ht,$ud as j}from"../../../../base/common/lifecycle.js";import{$wh as rt}from"../../../../base/common/async.js";import{$II as lt}from"../../editor/common/editorService.js";import{$km as nt}from"../../../../base/common/labels.js";import{$tY as at}from"../../path/common/pathService.js";import{$tC as ot}from"../../../../platform/accessibility/common/accessibility.js";import{$E6 as M}from"../../../../base/browser/dom.js";import{$Mj as A}from"../../../../base/common/codicons.js";import{ThemeIcon as N}from"../../../../base/common/themables.js";import{$Jo as ct}from"../../../../platform/storage/common/storage.js";var C=function(o,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,e,i);else for(var l=o.length-1;l>=0;l--)(a=o[l])&&(r=(s<3?a(r):s>3?a(t,e,r):a(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},m=function(o,t){return function(e,i){t(e,i,o)}},y;(function(o){o.ID="workbench.action.files.openLocalFile",o.LABEL=u.localize(14102,null);function t(){return e=>e.get($).pickFileAndOpen({forceNewWindow:!1,availableFileSystems:[p.file]})}o.handler=t})(y||(y={}));var w;(function(o){o.ID="workbench.action.files.saveLocalFile",o.LABEL=u.localize(14103,null);function t(){return e=>{const i=e.get(lt),s=i.activeEditorPane;return s?i.save({groupId:s.group.id,editor:s.input},{saveAs:!0,availableFileSystems:[p.file],reason:1}):Promise.resolve(void 0)}}o.handler=t})(w||(w={}));var D;(function(o){o.ID="workbench.action.files.openLocalFolder",o.LABEL=u.localize(14104,null);function t(){return e=>e.get($).pickFolderAndOpen({forceNewWindow:!1,availableFileSystems:[p.file]})}o.handler=t})(D||(D={}));var S;(function(o){o.ID="workbench.action.files.openLocalFileFolder",o.LABEL=u.localize(14105,null);function t(){return e=>e.get($).pickFileFolderAndOpen({forceNewWindow:!1,availableFileSystems:[p.file]})}o.handler=t})(S||(S={}));var b;(function(o){o[o.Updated=0]="Updated",o[o.UpdatedWithTrailing=1]="UpdatedWithTrailing",o[o.Updating=2]="Updating",o[o.NotUpdated=3]="NotUpdated",o[o.InvalidPath=4]="InvalidPath"})(b||(b={}));const ft=new X("remoteFileDialogVisible",!1);let O=class extends ht{constructor(t,e,i,s,r,a,l,c,f,n,d,v,F,B,G){super(),this.N=t,this.O=e,this.P=i,this.Q=s,this.R=r,this.S=a,this.U=l,this.W=c,this.X=f,this.Y=n,this.Z=d,this.$=v,this.ab=B,this.bb=G,this.f=!1,this.g=!0,this.h=!1,this.n=!1,this.w="",this.y="",this.F=!1,this.I="/",this.J=this.B(new st),this.M=!0,this.m=this.X.remoteAuthority,this.u=ft.bindTo(F),this.t=this.Z.defaultUriScheme,this.db();const I=this.B(new j);I.add(this.bb.onDidChangeValue(1,"remoteFileDialog.showDotFiles",I)(async ut=>{this.db(),this.lb();const W=this.c.value,P=this.Gb(this.b,!0);this.c.value=P,await this.wb(P,this.b,!0),this.c.value=W}))}cb(t){this.bb.store("remoteFileDialog.showDotFiles",t,1,0)}db(){this.M=this.bb.getBoolean("remoteFileDialog.showDotFiles",1,!0)}set busy(t){this.c.busy!==t&&(this.c.busy=t,this.J.fire(t))}get busy(){return this.c.busy}async showOpenDialog(t={}){this.t=this.gb(t.availableFileSystems,t.defaultUri),this.C=await this.ib(),this.D=await this.ib(!0);const e=this.eb(t);return e?(this.a=e,this.jb()):Promise.resolve(void 0)}async showSaveDialog(t){this.t=this.gb(t.availableFileSystems,t.defaultUri),this.C=await this.ib(),this.D=await this.ib(!0),this.n=!0;const e=this.eb(t,!0);return e?(this.a=e,this.a.canSelectFolders=!0,this.a.canSelectFiles=!0,new Promise(i=>{this.jb(!0).then(s=>{i(s)})})):Promise.resolve(void 0)}eb(t,e=!1){let i,s;if(t.defaultUri&&(i=this.t===t.defaultUri.scheme?t.defaultUri:void 0,s=e?h.$hh(t.defaultUri):void 0),i||(i=this.C,s&&(i=h.$kh(i,s))),this.t!==p.file&&!this.N.hasProvider(i)){this.R.info(u.localize(14106,null,i.toString()));return}const r=E.$4o(t);return r.defaultUri=i,r}fb(t,e){t.startsWith("\\\\")||(t=t.replace(/\\/g,"/"));const i=this.t===p.file?z.file(t):z.from({scheme:this.t,path:t,query:e?.query,fragment:e?.fragment}),s=i.scheme===p.file?void 0:this.m??e?.authority;return h.$uh(i,s,s?this.Z.defaultUriScheme:i.scheme)}gb(t,e){return t&&t.length>0?e&&t.indexOf(e.scheme)>=0?e.scheme:t[0]:e?e.scheme:p.file}async hb(){return this.H===void 0&&(this.H=await this.Y.getEnvironment()),this.H}ib(t=!1){return t?this.Z.userHome({preferLocal:this.t===p.file}):this.S.preferredHome(this.t)}async jb(t=!1){this.h=!!this.a.canSelectFolders,this.g=!!this.a.canSelectFiles,this.I=this.P.getSeparator(this.t,this.m),this.f=!1,this.F=await this.Ib();let e=this.a.defaultUri?this.a.defaultUri:this.Q.getWorkspace().folders[0].uri,i;const s=h.$ih(e);if(this.a.defaultUri){try{i=await this.N.stat(this.a.defaultUri)}catch{}(!i||!i.isDirectory)&&(e=h.$jh(this.a.defaultUri),this.r=h.$hh(this.a.defaultUri))}return new Promise(r=>{if(this.c=this.B(this.O.createQuickPick()),this.busy=!0,this.c.matchOnLabel=!1,this.c.sortByLabel=!1,this.c.ignoreFocusOut=!0,this.c.ok=!0,this.c.okLabel=typeof this.a.openLabel=="string"?this.a.openLabel:this.a.openLabel?.withoutMnemonic,this.t!==p.file&&this.a&&this.a.availableFileSystems&&this.a.availableFileSystems.length>1&&this.a.availableFileSystems.indexOf(p.file)>-1){this.c.customButton=!0,this.c.customLabel=u.localize(14107,null);let n;t?n=w:n=this.g?this.h?S:y:D;const d=this.$.lookupKeybinding(n.ID);if(d){const v=d.getLabel();v&&(this.c.customHover=tt("{0} ({1})",n.LABEL,v))}}this.lb(),this.B(this.c.onDidTriggerButton(n=>{this.cb(!this.M)}));let a=0,l=!1;this.b=h.$jh(e),this.w="",this.y="",this.c.title=this.a.title,this.c.value=this.Gb(this.b,!0),this.c.valueSelection=[this.c.value.length,this.c.value.length];const c=n=>{n&&(n=h.$sh(n,this.I),n=h.$rh(n)),r(n),this.u.set(!1),this.dispose()};this.B(this.c.onDidCustom(()=>{if(!(l||this.busy))return l=!0,a++,this.a.availableFileSystems&&this.a.availableFileSystems.length>1&&(this.a.availableFileSystems=this.a.availableFileSystems.slice(1)),this.c.hide(),t?this.S.showSaveDialog(this.a).then(n=>{c(n)}):this.S.showOpenDialog(this.a).then(n=>{c(n?n[0]:void 0)})}));const f=()=>{if(this.busy){this.J.event(n=>{n||f()});return}else if(l)return;l=!0,a++,this.rb().then(n=>{n?(this.c.hide(),c(n)):this.f?c(void 0):(a--,l=!1)})};this.B(this.c.onDidAccept(n=>{f()})),this.B(this.c.onDidChangeActive(n=>{if(l=!1,n.length===1&&this.ob()){this.c.validationMessage=void 0;const d=this.pb();g(this.c.value.substring(0,d.length),d)||(this.c.valueSelection=[0,this.c.value.length],this.Ab(d,d)),this.zb(d,this.w,n[0],!0)}})),this.B(this.c.onDidChangeValue(async n=>this.kb(n))),this.B(this.c.onDidHide(()=>{this.f=!0,a===0&&c(void 0)})),this.c.show(),this.u.set(!0),this.Fb(e,!0,this.r).then(()=>{this.r?this.c.valueSelection=[this.c.value.length-this.r.length,this.c.value.length-s.length]:this.c.valueSelection=[this.c.value.length,this.c.value.length],this.busy=!1})})}dispose(){super.dispose()}async kb(t){try{if(this.nb())if(!g(t,this.pb())&&(!this.mb(t)||this.tb(t))){this.c.validationMessage=void 0;const e=this.qb();let i=b.NotUpdated;h.$ch.isEqual(this.b,e)||(i=await this.wb(t,e)),(i===b.NotUpdated||i===b.UpdatedWithTrailing)&&this.yb(t)}else this.c.activeItems=[],this.w=""}catch{}}lb(){this.c.buttons=[{iconClass:this.M?N.asClassName(A.eye):N.asClassName(A.eyeClosed),tooltip:this.M?u.localize(14108,null):u.localize(14109,null),alwaysVisible:!0}]}mb(t){return this.G&&t.length>this.G.length&&g(t.substring(0,this.G.length),this.G)}nb(){return!g(this.c.value,this.Hb(this.b,this.w+this.y))}ob(){return this.z!==(this.c.activeItems?this.c.activeItems[0]:void 0)}pb(){const t=this.Gb(this.b);return g(this.c.value.substr(0,this.w.length),this.w)?g(this.c.value.substr(0,t.length),t)?t:this.w:this.Hb(this.b,this.w)}qb(){const t=this.fb(this.c.value.trimRight(),this.b),e=this.Gb(this.b);if(g(this.c.value,e))return this.b;const i=this.fb(e,this.b),s=h.$mh(i,t),r=this.c.value.length>1&&e.length>1?g(this.c.value.substr(0,2),e.substr(0,2)):!1;if(s&&r){let a=h.$kh(this.b,s);const l=h.$hh(t);return(l==="."||l==="..")&&(a=this.fb(this.Hb(a,l),this.b)),h.$qh(t)?h.$sh(a):a}else return t}async rb(){if(this.busy=!0,!this.L&&this.c.activeItems.length===1){const e=this.c.selectedItems[0];if(e.isFolder){if(this.r)await this.Fb(e.uri,!0,this.r);else{const i=this.Gb(e.uri);x(i,this.c.value)&&g(e.label,h.$hh(e.uri))?(this.c.valueSelection=[this.Gb(this.b).length,this.c.value.length],this.Ab(i,this.Kb(e.uri))):e.label===".."&&x(this.c.value,i)?(this.c.valueSelection=[i.length,this.c.value.length],this.Ab(i,"")):await this.Fb(e.uri,!0)}this.c.busy=!1;return}}else if(!this.L&&await this.wb(this.c.value,this.qb())!==b.NotUpdated){this.c.busy=!1;return}let t;if(this.c.activeItems.length===0?t=this.qb():this.c.activeItems.length===1&&(t=this.c.selectedItems[0].uri),t&&(t=this.Bb(t)),await this.Eb(t))return this.busy=!1,t;this.busy=!1}sb(t){let e=t,i=h.$jh(t);for(;!h.$dh(e,i);)e=i,i=h.$jh(i);return i}tb(t){return!!(t.endsWith("~")&&this.mb(t))}ub(t){const e=this.D;return t.length>0&&t[0]==="~"?h.$kh(e,t.substring(1)):this.tb(t)?e:this.fb(t)}vb(t,e){return e.isDirectory&&!this.Jb(t.path)?h.$sh(t):t}async wb(t,e,i=!1){if(t.length>0&&(t[0]==="~"||this.tb(t))){const s=this.ub(t);return await this.Fb(s,!0)?b.UpdatedWithTrailing:b.Updated}else{if(t==="\\")return e=this.sb(this.b),t=this.Gb(e),await this.Fb(e,!0)?b.UpdatedWithTrailing:b.Updated;{const s=h.$ch.isEqual(this.b,e),r=h.$ch.isEqual(this.b,h.$jh(e)),a=h.$ch.isEqualOrParent(this.b,h.$jh(e)),l=!a&&!r;if(!s&&(this.Jb(t)||a||l)||i){let c;try{c=await this.N.stat(e)}catch{}if(c&&c.isDirectory&&h.$hh(e)!=="."&&this.Jb(t))return e=this.vb(e,c),await this.Fb(e)?b.UpdatedWithTrailing:b.Updated;if(this.Jb(t))return this.c.validationMessage=u.localize(14110,null),this.G=t,b.InvalidPath;{let f=h.$jh(e);const n=h.$rh(h.$sh(this.b)),d=h.$rh(h.$sh(f));if(!h.$ch.isEqual(n,d)&&(!/^[a-zA-Z]:$/.test(this.c.value)||!g(this.Gb(this.b).substring(0,this.c.value.length),this.c.value))){let v;try{v=await this.N.stat(f)}catch{}if(v&&v.isDirectory)return this.G=void 0,f=this.vb(f,v),await this.Fb(f,!1,h.$hh(e))?b.UpdatedWithTrailing:b.Updated}}}}}return this.G=void 0,b.NotUpdated}xb(t){const e=h.$ih(t);this.r&&e&&(this.r=h.$hh(t))}yb(t){t=this.Gb(this.ub(t));const e=this.fb(t),i=h.$hh(e),s=this.pb();if(g(s,t.substring(0,s.length))||g(t,s.substring(0,t.length))){let a=!1;for(let l=0;l<this.c.items.length;l++){const c=this.c.items[l];if(this.zb(t,i,c)){a=!0;break}}if(!a){const l=i.length>=2?s.substring(s.length-i.length+2):"";this.w=l===i?i:"",this.y="",this.c.activeItems=[],this.xb(e)}}else this.w=i,this.y="",this.c.activeItems=[],this.xb(e)}zb(t,e,i,s=!1){if(this.busy)return this.w=e,this.y="",!1;const r=i.label;return r===".."?(this.w="",this.y="",this.z=i,s&&M().execCommand("insertText",!1,""),!1):!s&&r.length>=e.length&&g(r.substr(0,e.length),e)?(this.w=e,this.z=i,this.y="",i.isFolder||!this.r?this.c.activeItems=[i]:this.c.activeItems=[],!0):s&&!g(this.Kb(i.uri),this.w+this.y)?(this.w="",this.ab.isScreenReaderOptimized()||(this.y=this.Cb(r)),this.z=i,this.ab.isScreenReaderOptimized()||(this.c.valueSelection=[this.Gb(this.b,!0).length,this.c.value.length],this.Ab(this.Hb(this.b,this.y),this.y),this.c.valueSelection=[this.c.value.length-this.y.length,this.c.value.length]),!0):(this.w=e,this.y="",!1)}Ab(t,e){this.c.inputHasFocus()?(M().execCommand("insertText",!1,e),this.c.value!==t&&(this.c.value=t,this.kb(t))):(this.c.value=t,this.kb(t))}Bb(t){let e=t;if(this.n&&this.a.filters&&this.a.filters.length>0&&!h.$qh(t)){let i=!1;const s=h.$ih(t).substr(1);for(let r=0;r<this.a.filters.length;r++){for(let a=0;a<this.a.filters[r].extensions.length;a++)if(this.a.filters[r].extensions[a]==="*"||this.a.filters[r].extensions[a]===s){i=!0;break}if(i)break}i||(e=h.$kh(h.$jh(t),h.$hh(t)+"."+this.a.filters[0].extensions[0]))}return e}Cb(t){return t.length>1&&this.Jb(t)?t.substr(0,t.length-1):t}Db(t,e){const i=new j,s=i.add(this.O.createQuickPick());s.title=e,s.ignoreFocusOut=!0,s.ok=!0,s.customButton=!0,s.customLabel=u.localize(14111,null),s.value=this.Gb(t);let r=!1;return new Promise(a=>{i.add(s.onDidAccept(()=>{r=!0,s.hide(),a(!0)})),i.add(s.onDidHide(()=>{r||a(!1),this.c.show(),this.f=!1,i.dispose()})),i.add(s.onDidChangeValue(()=>{s.hide()})),i.add(s.onDidCustom(()=>{s.hide()})),s.show()})}async Eb(t){if(t===void 0)return this.c.validationMessage=u.localize(14112,null),Promise.resolve(!1);let e,i;try{i=await this.N.stat(h.$jh(t)),e=await this.N.stat(t)}catch{}if(this.n){if(e&&e.isDirectory)return this.c.validationMessage=u.localize(14113,null),Promise.resolve(!1);if(e){const s=u.localize(14114,null,h.$hh(t));return this.Db(t,s)}else if(it(h.$hh(t),this.F))if(i)if(i.isDirectory){if(i.readonly)return this.c.validationMessage=u.localize(14118,null),Promise.resolve(!1)}else return this.c.validationMessage=u.localize(14117,null),Promise.resolve(!1);else{const s=u.localize(14116,null,h.$hh(h.$jh(t)));return this.Db(t,s)}else return this.c.validationMessage=u.localize(14115,null),Promise.resolve(!1)}else if(e){if(t.path==="/"&&this.F)return this.c.validationMessage=u.localize(14120,null),Promise.resolve(!1);if(e.isDirectory&&!this.h)return this.c.validationMessage=u.localize(14121,null),Promise.resolve(!1);if(!e.isDirectory&&!this.g)return this.c.validationMessage=u.localize(14122,null),Promise.resolve(!1)}else return this.c.validationMessage=u.localize(14119,null),Promise.resolve(!1);return Promise.resolve(!0)}async Fb(t,e=!1,i){this.busy=!0,this.y="";const s=i==="..";i=s?void 0:i;const r=!!i;let a=!1;const l=rt(async c=>{let f;try{f=await this.N.resolve(t),f.isDirectory||(i=h.$hh(t),t=h.$jh(t),f=void 0,a=!0)}catch{}const n=i?this.Hb(t,i):this.Gb(t,!0);return this.b=this.Jb(t.path)?t:h.$sh(t,this.I),this.w=i||"",this.Mb(f,this.b,c).then(d=>c.isCancellationRequested?(this.busy=!1,!1):(this.c.itemActivation=J.NONE,this.c.items=d,!g(this.c.value,n)&&(e||s)&&(this.c.valueSelection=[0,this.c.value.length],this.Ab(n,n)),e&&i&&r?this.c.valueSelection=[this.c.value.length-i.length,this.c.value.length-i.length]:i||(this.c.valueSelection=[this.c.value.length,this.c.value.length]),this.busy=!1,this.L=void 0,a))});return this.L!==void 0&&this.L.cancel(),this.L=l,l}Gb(t,e=!1){let i=nt(t.fsPath,this.F).replace(/\n/g,"");return this.I==="/"?i=i.replace(/\\/g,this.I):i=i.replace(/\//g,this.I),e&&!this.Jb(i)&&(i=i+this.I),i}Hb(t,e){return e===".."||e==="."?this.Gb(t,!0)+e:this.Gb(h.$kh(t,e))}async Ib(){let t=T;const e=await this.hb();return e&&(t=e.os===1),t}Jb(t){return/[\/\\]$/.test(t)}Kb(t){const e=this.Gb(t,!0),i=this.Gb(h.$jh(t),!0);return e.substring(i.length)}async Lb(t){const e=this.b.with({scheme:p.file,authority:""}),i=h.$jh(e);if(!h.$dh(e,i)){const s=h.$jh(t);if(await this.N.exists(s))return{label:"..",uri:h.$sh(s,this.I),isFolder:!0}}}async Mb(t,e,i){const s=[],r=await this.Lb(e);try{t||(t=await this.N.resolve(e));const l=this.M?t.children:t.children?.filter(f=>!f.name.startsWith(".")),c=l?await Promise.all(l.map(f=>this.Ob(f,e,i))):[];for(const f of c)f&&s.push(f)}catch{}if(i.isCancellationRequested)return[];const a=s.sort((l,c)=>{if(l.isFolder!==c.isFolder)return l.isFolder?-1:1;const f=this.Jb(l.label)?l.label.substr(0,l.label.length-1):l.label,n=this.Jb(c.label)?c.label.substr(0,c.label.length-1):c.label;return f.localeCompare(n)});return r&&a.unshift(r),a}Nb(t){if(this.a.filters){for(let e=0;e<this.a.filters.length;e++)for(let i=0;i<this.a.filters[e].extensions.length;i++){const s=this.a.filters[e].extensions[i];if(s==="*"||t.path.endsWith("."+s))return!0}return!1}return!0}async Ob(t,e,i){if(i.isCancellationRequested)return;let s=h.$kh(e,t.name);if(t.isDirectory){const r=h.$hh(s);return s=h.$sh(s,this.I),{label:r,uri:s,isFolder:!0,iconClasses:L(this.U,this.W,s||void 0,H.FOLDER)}}else if(!t.isDirectory&&this.g&&this.Nb(s))return{label:t.name,uri:s,isFolder:!1,iconClasses:L(this.U,this.W,s||void 0)}}};O=C([m(0,U),m(1,k),m(2,q),m(3,R),m(4,_),m(5,$),m(6,K),m(7,V),m(8,Z),m(9,Q),m(10,at),m(11,et),m(12,Y),m(13,ot),m(14,ct)],O);export{ft as $LBc,O as $MBc,y as OpenLocalFileCommand,S as OpenLocalFileFolderCommand,D as OpenLocalFolderCommand,w as SaveLocalFileCommand};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import * as resources from "../../../../base/common/resources.js";
+import * as objects from "../../../../base/common/objects.js";
+import { IFileService, FileKind } from "../../../../platform/files/common/files.js";
+import { IQuickInputService, ItemActivation } from "../../../../platform/quickinput/common/quickInput.js";
+import { URI } from "../../../../base/common/uri.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { equalsIgnoreCase, format, startsWithIgnoreCase } from "../../../../base/common/strings.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { isValidBasename } from "../../../../base/common/extpath.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { createCancelablePromise } from "../../../../base/common/async.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { normalizeDriveLetter } from "../../../../base/common/labels.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { getActiveDocument } from "../../../../base/browser/dom.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+var OpenLocalFileCommand;
+(function(OpenLocalFileCommand2) {
+  OpenLocalFileCommand2.ID = "workbench.action.files.openLocalFile";
+  OpenLocalFileCommand2.LABEL = nls.localize("openLocalFile", "Open Local File...");
+  function handler() {
+    return (accessor) => {
+      const dialogService = accessor.get(IFileDialogService);
+      return dialogService.pickFileAndOpen({ forceNewWindow: false, availableFileSystems: [Schemas.file] });
+    };
+  }
+  __name(handler, "handler");
+  OpenLocalFileCommand2.handler = handler;
+})(OpenLocalFileCommand || (OpenLocalFileCommand = {}));
+var SaveLocalFileCommand;
+(function(SaveLocalFileCommand2) {
+  SaveLocalFileCommand2.ID = "workbench.action.files.saveLocalFile";
+  SaveLocalFileCommand2.LABEL = nls.localize("saveLocalFile", "Save Local File...");
+  function handler() {
+    return (accessor) => {
+      const editorService = accessor.get(IEditorService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane) {
+        return editorService.save({ groupId: activeEditorPane.group.id, editor: activeEditorPane.input }, {
+          saveAs: true,
+          availableFileSystems: [Schemas.file],
+          reason: 1
+          /* SaveReason.EXPLICIT */
+        });
+      }
+      return Promise.resolve(void 0);
+    };
+  }
+  __name(handler, "handler");
+  SaveLocalFileCommand2.handler = handler;
+})(SaveLocalFileCommand || (SaveLocalFileCommand = {}));
+var OpenLocalFolderCommand;
+(function(OpenLocalFolderCommand2) {
+  OpenLocalFolderCommand2.ID = "workbench.action.files.openLocalFolder";
+  OpenLocalFolderCommand2.LABEL = nls.localize("openLocalFolder", "Open Local Folder...");
+  function handler() {
+    return (accessor) => {
+      const dialogService = accessor.get(IFileDialogService);
+      return dialogService.pickFolderAndOpen({ forceNewWindow: false, availableFileSystems: [Schemas.file] });
+    };
+  }
+  __name(handler, "handler");
+  OpenLocalFolderCommand2.handler = handler;
+})(OpenLocalFolderCommand || (OpenLocalFolderCommand = {}));
+var OpenLocalFileFolderCommand;
+(function(OpenLocalFileFolderCommand2) {
+  OpenLocalFileFolderCommand2.ID = "workbench.action.files.openLocalFileFolder";
+  OpenLocalFileFolderCommand2.LABEL = nls.localize("openLocalFileFolder", "Open Local...");
+  function handler() {
+    return (accessor) => {
+      const dialogService = accessor.get(IFileDialogService);
+      return dialogService.pickFileFolderAndOpen({ forceNewWindow: false, availableFileSystems: [Schemas.file] });
+    };
+  }
+  __name(handler, "handler");
+  OpenLocalFileFolderCommand2.handler = handler;
+})(OpenLocalFileFolderCommand || (OpenLocalFileFolderCommand = {}));
+var UpdateResult;
+(function(UpdateResult2) {
+  UpdateResult2[UpdateResult2["Updated"] = 0] = "Updated";
+  UpdateResult2[UpdateResult2["UpdatedWithTrailing"] = 1] = "UpdatedWithTrailing";
+  UpdateResult2[UpdateResult2["Updating"] = 2] = "Updating";
+  UpdateResult2[UpdateResult2["NotUpdated"] = 3] = "NotUpdated";
+  UpdateResult2[UpdateResult2["InvalidPath"] = 4] = "InvalidPath";
+})(UpdateResult || (UpdateResult = {}));
+const RemoteFileDialogContext = new RawContextKey("remoteFileDialogVisible", false);
+let SimpleFileDialog = class SimpleFileDialog2 extends Disposable {
+  static {
+    __name(this, "SimpleFileDialog");
+  }
+  constructor(fileService, quickInputService, labelService, workspaceContextService, notificationService, fileDialogService, modelService, languageService, environmentService, remoteAgentService, pathService, keybindingService, contextKeyService, accessibilityService, storageService) {
+    super();
+    this.fileService = fileService;
+    this.quickInputService = quickInputService;
+    this.labelService = labelService;
+    this.workspaceContextService = workspaceContextService;
+    this.notificationService = notificationService;
+    this.fileDialogService = fileDialogService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this.environmentService = environmentService;
+    this.remoteAgentService = remoteAgentService;
+    this.pathService = pathService;
+    this.keybindingService = keybindingService;
+    this.accessibilityService = accessibilityService;
+    this.storageService = storageService;
+    this.hidden = false;
+    this.allowFileSelection = true;
+    this.allowFolderSelection = false;
+    this.requiresTrailing = false;
+    this.userEnteredPathSegment = "";
+    this.autoCompletePathSegment = "";
+    this.isWindows = false;
+    this.separator = "/";
+    this.onBusyChangeEmitter = this._register(new Emitter());
+    this._showDotFiles = true;
+    this.remoteAuthority = this.environmentService.remoteAuthority;
+    this.contextKey = RemoteFileDialogContext.bindTo(contextKeyService);
+    this.scheme = this.pathService.defaultUriScheme;
+    this.getShowDotFiles();
+    const disposableStore = this._register(new DisposableStore());
+    disposableStore.add(this.storageService.onDidChangeValue(1, "remoteFileDialog.showDotFiles", disposableStore)(async (_) => {
+      this.getShowDotFiles();
+      this.setButtons();
+      const startingValue = this.filePickBox.value;
+      const folderValue = this.pathFromUri(this.currentFolder, true);
+      this.filePickBox.value = folderValue;
+      await this.tryUpdateItems(folderValue, this.currentFolder, true);
+      this.filePickBox.value = startingValue;
+    }));
+  }
+  setShowDotFiles(showDotFiles) {
+    this.storageService.store(
+      "remoteFileDialog.showDotFiles",
+      showDotFiles,
+      1,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  getShowDotFiles() {
+    this._showDotFiles = this.storageService.getBoolean("remoteFileDialog.showDotFiles", 1, true);
+  }
+  set busy(busy) {
+    if (this.filePickBox.busy !== busy) {
+      this.filePickBox.busy = busy;
+      this.onBusyChangeEmitter.fire(busy);
+    }
+  }
+  get busy() {
+    return this.filePickBox.busy;
+  }
+  async showOpenDialog(options = {}) {
+    this.scheme = this.getScheme(options.availableFileSystems, options.defaultUri);
+    this.userHome = await this.getUserHome();
+    this.trueHome = await this.getUserHome(true);
+    const newOptions = this.getOptions(options);
+    if (!newOptions) {
+      return Promise.resolve(void 0);
+    }
+    this.options = newOptions;
+    return this.pickResource();
+  }
+  async showSaveDialog(options) {
+    this.scheme = this.getScheme(options.availableFileSystems, options.defaultUri);
+    this.userHome = await this.getUserHome();
+    this.trueHome = await this.getUserHome(true);
+    this.requiresTrailing = true;
+    const newOptions = this.getOptions(options, true);
+    if (!newOptions) {
+      return Promise.resolve(void 0);
+    }
+    this.options = newOptions;
+    this.options.canSelectFolders = true;
+    this.options.canSelectFiles = true;
+    return new Promise((resolve) => {
+      this.pickResource(true).then((folderUri) => {
+        resolve(folderUri);
+      });
+    });
+  }
+  getOptions(options, isSave = false) {
+    let defaultUri = void 0;
+    let filename = void 0;
+    if (options.defaultUri) {
+      defaultUri = this.scheme === options.defaultUri.scheme ? options.defaultUri : void 0;
+      filename = isSave ? resources.basename(options.defaultUri) : void 0;
+    }
+    if (!defaultUri) {
+      defaultUri = this.userHome;
+      if (filename) {
+        defaultUri = resources.joinPath(defaultUri, filename);
+      }
+    }
+    if (this.scheme !== Schemas.file && !this.fileService.hasProvider(defaultUri)) {
+      this.notificationService.info(nls.localize("remoteFileDialog.notConnectedToRemote", "File system provider for {0} is not available.", defaultUri.toString()));
+      return void 0;
+    }
+    const newOptions = objects.deepClone(options);
+    newOptions.defaultUri = defaultUri;
+    return newOptions;
+  }
+  remoteUriFrom(path, hintUri) {
+    if (!path.startsWith("\\\\")) {
+      path = path.replace(/\\/g, "/");
+    }
+    const uri = this.scheme === Schemas.file ? URI.file(path) : URI.from({ scheme: this.scheme, path, query: hintUri?.query, fragment: hintUri?.fragment });
+    const authority = uri.scheme === Schemas.file ? void 0 : this.remoteAuthority ?? hintUri?.authority;
+    return resources.toLocalResource(
+      uri,
+      authority,
+      // If there is a remote authority, then we should use the system's default URI as the local scheme.
+      // If there is *no* remote authority, then we should use the default scheme for this dialog as that is already local.
+      authority ? this.pathService.defaultUriScheme : uri.scheme
+    );
+  }
+  getScheme(available, defaultUri) {
+    if (available && available.length > 0) {
+      if (defaultUri && available.indexOf(defaultUri.scheme) >= 0) {
+        return defaultUri.scheme;
+      }
+      return available[0];
+    } else if (defaultUri) {
+      return defaultUri.scheme;
+    }
+    return Schemas.file;
+  }
+  async getRemoteAgentEnvironment() {
+    if (this.remoteAgentEnvironment === void 0) {
+      this.remoteAgentEnvironment = await this.remoteAgentService.getEnvironment();
+    }
+    return this.remoteAgentEnvironment;
+  }
+  getUserHome(trueHome = false) {
+    return trueHome ? this.pathService.userHome({ preferLocal: this.scheme === Schemas.file }) : this.fileDialogService.preferredHome(this.scheme);
+  }
+  async pickResource(isSave = false) {
+    this.allowFolderSelection = !!this.options.canSelectFolders;
+    this.allowFileSelection = !!this.options.canSelectFiles;
+    this.separator = this.labelService.getSeparator(this.scheme, this.remoteAuthority);
+    this.hidden = false;
+    this.isWindows = await this.checkIsWindowsOS();
+    let homedir = this.options.defaultUri ? this.options.defaultUri : this.workspaceContextService.getWorkspace().folders[0].uri;
+    let stat;
+    const ext = resources.extname(homedir);
+    if (this.options.defaultUri) {
+      try {
+        stat = await this.fileService.stat(this.options.defaultUri);
+      } catch (e) {
+      }
+      if (!stat || !stat.isDirectory) {
+        homedir = resources.dirname(this.options.defaultUri);
+        this.trailing = resources.basename(this.options.defaultUri);
+      }
+    }
+    return new Promise((resolve) => {
+      this.filePickBox = this._register(this.quickInputService.createQuickPick());
+      this.busy = true;
+      this.filePickBox.matchOnLabel = false;
+      this.filePickBox.sortByLabel = false;
+      this.filePickBox.ignoreFocusOut = true;
+      this.filePickBox.ok = true;
+      this.filePickBox.okLabel = typeof this.options.openLabel === "string" ? this.options.openLabel : this.options.openLabel?.withoutMnemonic;
+      if (this.scheme !== Schemas.file && this.options && this.options.availableFileSystems && this.options.availableFileSystems.length > 1 && this.options.availableFileSystems.indexOf(Schemas.file) > -1) {
+        this.filePickBox.customButton = true;
+        this.filePickBox.customLabel = nls.localize("remoteFileDialog.local", "Show Local");
+        let action;
+        if (isSave) {
+          action = SaveLocalFileCommand;
+        } else {
+          action = this.allowFileSelection ? this.allowFolderSelection ? OpenLocalFileFolderCommand : OpenLocalFileCommand : OpenLocalFolderCommand;
+        }
+        const keybinding = this.keybindingService.lookupKeybinding(action.ID);
+        if (keybinding) {
+          const label = keybinding.getLabel();
+          if (label) {
+            this.filePickBox.customHover = format("{0} ({1})", action.LABEL, label);
+          }
+        }
+      }
+      this.setButtons();
+      this._register(this.filePickBox.onDidTriggerButton((e) => {
+        this.setShowDotFiles(!this._showDotFiles);
+      }));
+      let isResolving = 0;
+      let isAcceptHandled = false;
+      this.currentFolder = resources.dirname(homedir);
+      this.userEnteredPathSegment = "";
+      this.autoCompletePathSegment = "";
+      this.filePickBox.title = this.options.title;
+      this.filePickBox.value = this.pathFromUri(this.currentFolder, true);
+      this.filePickBox.valueSelection = [this.filePickBox.value.length, this.filePickBox.value.length];
+      const doResolve = /* @__PURE__ */ __name((uri) => {
+        if (uri) {
+          uri = resources.addTrailingPathSeparator(uri, this.separator);
+          uri = resources.removeTrailingPathSeparator(uri);
+        }
+        resolve(uri);
+        this.contextKey.set(false);
+        this.dispose();
+      }, "doResolve");
+      this._register(this.filePickBox.onDidCustom(() => {
+        if (isAcceptHandled || this.busy) {
+          return;
+        }
+        isAcceptHandled = true;
+        isResolving++;
+        if (this.options.availableFileSystems && this.options.availableFileSystems.length > 1) {
+          this.options.availableFileSystems = this.options.availableFileSystems.slice(1);
+        }
+        this.filePickBox.hide();
+        if (isSave) {
+          return this.fileDialogService.showSaveDialog(this.options).then((result) => {
+            doResolve(result);
+          });
+        } else {
+          return this.fileDialogService.showOpenDialog(this.options).then((result) => {
+            doResolve(result ? result[0] : void 0);
+          });
+        }
+      }));
+      const handleAccept = /* @__PURE__ */ __name(() => {
+        if (this.busy) {
+          this.onBusyChangeEmitter.event((busy) => {
+            if (!busy) {
+              handleAccept();
+            }
+          });
+          return;
+        } else if (isAcceptHandled) {
+          return;
+        }
+        isAcceptHandled = true;
+        isResolving++;
+        this.onDidAccept().then((resolveValue) => {
+          if (resolveValue) {
+            this.filePickBox.hide();
+            doResolve(resolveValue);
+          } else if (this.hidden) {
+            doResolve(void 0);
+          } else {
+            isResolving--;
+            isAcceptHandled = false;
+          }
+        });
+      }, "handleAccept");
+      this._register(this.filePickBox.onDidAccept((_) => {
+        handleAccept();
+      }));
+      this._register(this.filePickBox.onDidChangeActive((i) => {
+        isAcceptHandled = false;
+        if (i.length === 1 && this.isSelectionChangeFromUser()) {
+          this.filePickBox.validationMessage = void 0;
+          const userPath = this.constructFullUserPath();
+          if (!equalsIgnoreCase(this.filePickBox.value.substring(0, userPath.length), userPath)) {
+            this.filePickBox.valueSelection = [0, this.filePickBox.value.length];
+            this.insertText(userPath, userPath);
+          }
+          this.setAutoComplete(userPath, this.userEnteredPathSegment, i[0], true);
+        }
+      }));
+      this._register(this.filePickBox.onDidChangeValue(async (value) => {
+        return this.handleValueChange(value);
+      }));
+      this._register(this.filePickBox.onDidHide(() => {
+        this.hidden = true;
+        if (isResolving === 0) {
+          doResolve(void 0);
+        }
+      }));
+      this.filePickBox.show();
+      this.contextKey.set(true);
+      this.updateItems(homedir, true, this.trailing).then(() => {
+        if (this.trailing) {
+          this.filePickBox.valueSelection = [this.filePickBox.value.length - this.trailing.length, this.filePickBox.value.length - ext.length];
+        } else {
+          this.filePickBox.valueSelection = [this.filePickBox.value.length, this.filePickBox.value.length];
+        }
+        this.busy = false;
+      });
+    });
+  }
+  dispose() {
+    super.dispose();
+  }
+  async handleValueChange(value) {
+    try {
+      if (this.isValueChangeFromUser()) {
+        if (!equalsIgnoreCase(value, this.constructFullUserPath()) && (!this.isBadSubpath(value) || this.canTildaEscapeHatch(value))) {
+          this.filePickBox.validationMessage = void 0;
+          const filePickBoxUri = this.filePickBoxValue();
+          let updated = UpdateResult.NotUpdated;
+          if (!resources.extUriIgnorePathCase.isEqual(this.currentFolder, filePickBoxUri)) {
+            updated = await this.tryUpdateItems(value, filePickBoxUri);
+          }
+          if (updated === UpdateResult.NotUpdated || updated === UpdateResult.UpdatedWithTrailing) {
+            this.setActiveItems(value);
+          }
+        } else {
+          this.filePickBox.activeItems = [];
+          this.userEnteredPathSegment = "";
+        }
+      }
+    } catch {
+    }
+  }
+  setButtons() {
+    this.filePickBox.buttons = [{
+      iconClass: this._showDotFiles ? ThemeIcon.asClassName(Codicon.eye) : ThemeIcon.asClassName(Codicon.eyeClosed),
+      tooltip: this._showDotFiles ? nls.localize("remoteFileDialog.hideDotFiles", "Hide dot files") : nls.localize("remoteFileDialog.showDotFiles", "Show dot files"),
+      alwaysVisible: true
+    }];
+  }
+  isBadSubpath(value) {
+    return this.badPath && value.length > this.badPath.length && equalsIgnoreCase(value.substring(0, this.badPath.length), this.badPath);
+  }
+  isValueChangeFromUser() {
+    if (equalsIgnoreCase(this.filePickBox.value, this.pathAppend(this.currentFolder, this.userEnteredPathSegment + this.autoCompletePathSegment))) {
+      return false;
+    }
+    return true;
+  }
+  isSelectionChangeFromUser() {
+    if (this.activeItem === (this.filePickBox.activeItems ? this.filePickBox.activeItems[0] : void 0)) {
+      return false;
+    }
+    return true;
+  }
+  constructFullUserPath() {
+    const currentFolderPath = this.pathFromUri(this.currentFolder);
+    if (equalsIgnoreCase(this.filePickBox.value.substr(0, this.userEnteredPathSegment.length), this.userEnteredPathSegment)) {
+      if (equalsIgnoreCase(this.filePickBox.value.substr(0, currentFolderPath.length), currentFolderPath)) {
+        return currentFolderPath;
+      } else {
+        return this.userEnteredPathSegment;
+      }
+    } else {
+      return this.pathAppend(this.currentFolder, this.userEnteredPathSegment);
+    }
+  }
+  filePickBoxValue() {
+    const directUri = this.remoteUriFrom(this.filePickBox.value.trimRight(), this.currentFolder);
+    const currentPath = this.pathFromUri(this.currentFolder);
+    if (equalsIgnoreCase(this.filePickBox.value, currentPath)) {
+      return this.currentFolder;
+    }
+    const currentDisplayUri = this.remoteUriFrom(currentPath, this.currentFolder);
+    const relativePath = resources.relativePath(currentDisplayUri, directUri);
+    const isSameRoot = this.filePickBox.value.length > 1 && currentPath.length > 1 ? equalsIgnoreCase(this.filePickBox.value.substr(0, 2), currentPath.substr(0, 2)) : false;
+    if (relativePath && isSameRoot) {
+      let path = resources.joinPath(this.currentFolder, relativePath);
+      const directBasename = resources.basename(directUri);
+      if (directBasename === "." || directBasename === "..") {
+        path = this.remoteUriFrom(this.pathAppend(path, directBasename), this.currentFolder);
+      }
+      return resources.hasTrailingPathSeparator(directUri) ? resources.addTrailingPathSeparator(path) : path;
+    } else {
+      return directUri;
+    }
+  }
+  async onDidAccept() {
+    this.busy = true;
+    if (!this.updatingPromise && this.filePickBox.activeItems.length === 1) {
+      const item = this.filePickBox.selectedItems[0];
+      if (item.isFolder) {
+        if (this.trailing) {
+          await this.updateItems(item.uri, true, this.trailing);
+        } else {
+          const newPath = this.pathFromUri(item.uri);
+          if (startsWithIgnoreCase(newPath, this.filePickBox.value) && equalsIgnoreCase(item.label, resources.basename(item.uri))) {
+            this.filePickBox.valueSelection = [this.pathFromUri(this.currentFolder).length, this.filePickBox.value.length];
+            this.insertText(newPath, this.basenameWithTrailingSlash(item.uri));
+          } else if (item.label === ".." && startsWithIgnoreCase(this.filePickBox.value, newPath)) {
+            this.filePickBox.valueSelection = [newPath.length, this.filePickBox.value.length];
+            this.insertText(newPath, "");
+          } else {
+            await this.updateItems(item.uri, true);
+          }
+        }
+        this.filePickBox.busy = false;
+        return;
+      }
+    } else if (!this.updatingPromise) {
+      if (await this.tryUpdateItems(this.filePickBox.value, this.filePickBoxValue()) !== UpdateResult.NotUpdated) {
+        this.filePickBox.busy = false;
+        return;
+      }
+    }
+    let resolveValue;
+    if (this.filePickBox.activeItems.length === 0) {
+      resolveValue = this.filePickBoxValue();
+    } else if (this.filePickBox.activeItems.length === 1) {
+      resolveValue = this.filePickBox.selectedItems[0].uri;
+    }
+    if (resolveValue) {
+      resolveValue = this.addPostfix(resolveValue);
+    }
+    if (await this.validate(resolveValue)) {
+      this.busy = false;
+      return resolveValue;
+    }
+    this.busy = false;
+    return void 0;
+  }
+  root(value) {
+    let lastDir = value;
+    let dir = resources.dirname(value);
+    while (!resources.isEqual(lastDir, dir)) {
+      lastDir = dir;
+      dir = resources.dirname(dir);
+    }
+    return dir;
+  }
+  canTildaEscapeHatch(value) {
+    return !!(value.endsWith("~") && this.isBadSubpath(value));
+  }
+  tildaReplace(value) {
+    const home = this.trueHome;
+    if (value.length > 0 && value[0] === "~") {
+      return resources.joinPath(home, value.substring(1));
+    } else if (this.canTildaEscapeHatch(value)) {
+      return home;
+    }
+    return this.remoteUriFrom(value);
+  }
+  tryAddTrailingSeparatorToDirectory(uri, stat) {
+    if (stat.isDirectory) {
+      if (!this.endsWithSlash(uri.path)) {
+        return resources.addTrailingPathSeparator(uri);
+      }
+    }
+    return uri;
+  }
+  async tryUpdateItems(value, valueUri, reset = false) {
+    if (value.length > 0 && (value[0] === "~" || this.canTildaEscapeHatch(value))) {
+      const newDir = this.tildaReplace(value);
+      return await this.updateItems(newDir, true) ? UpdateResult.UpdatedWithTrailing : UpdateResult.Updated;
+    } else if (value === "\\") {
+      valueUri = this.root(this.currentFolder);
+      value = this.pathFromUri(valueUri);
+      return await this.updateItems(valueUri, true) ? UpdateResult.UpdatedWithTrailing : UpdateResult.Updated;
+    } else {
+      const newFolderIsOldFolder = resources.extUriIgnorePathCase.isEqual(this.currentFolder, valueUri);
+      const newFolderIsSubFolder = resources.extUriIgnorePathCase.isEqual(this.currentFolder, resources.dirname(valueUri));
+      const newFolderIsParent = resources.extUriIgnorePathCase.isEqualOrParent(this.currentFolder, resources.dirname(valueUri));
+      const newFolderIsUnrelated = !newFolderIsParent && !newFolderIsSubFolder;
+      if (!newFolderIsOldFolder && (this.endsWithSlash(value) || newFolderIsParent || newFolderIsUnrelated) || reset) {
+        let stat;
+        try {
+          stat = await this.fileService.stat(valueUri);
+        } catch (e) {
+        }
+        if (stat && stat.isDirectory && resources.basename(valueUri) !== "." && this.endsWithSlash(value)) {
+          valueUri = this.tryAddTrailingSeparatorToDirectory(valueUri, stat);
+          return await this.updateItems(valueUri) ? UpdateResult.UpdatedWithTrailing : UpdateResult.Updated;
+        } else if (this.endsWithSlash(value)) {
+          this.filePickBox.validationMessage = nls.localize("remoteFileDialog.badPath", "The path does not exist. Use ~ to go to your home directory.");
+          this.badPath = value;
+          return UpdateResult.InvalidPath;
+        } else {
+          let inputUriDirname = resources.dirname(valueUri);
+          const currentFolderWithoutSep = resources.removeTrailingPathSeparator(resources.addTrailingPathSeparator(this.currentFolder));
+          const inputUriDirnameWithoutSep = resources.removeTrailingPathSeparator(resources.addTrailingPathSeparator(inputUriDirname));
+          if (!resources.extUriIgnorePathCase.isEqual(currentFolderWithoutSep, inputUriDirnameWithoutSep) && (!/^[a-zA-Z]:$/.test(this.filePickBox.value) || !equalsIgnoreCase(this.pathFromUri(this.currentFolder).substring(0, this.filePickBox.value.length), this.filePickBox.value))) {
+            let statWithoutTrailing;
+            try {
+              statWithoutTrailing = await this.fileService.stat(inputUriDirname);
+            } catch (e) {
+            }
+            if (statWithoutTrailing && statWithoutTrailing.isDirectory) {
+              this.badPath = void 0;
+              inputUriDirname = this.tryAddTrailingSeparatorToDirectory(inputUriDirname, statWithoutTrailing);
+              return await this.updateItems(inputUriDirname, false, resources.basename(valueUri)) ? UpdateResult.UpdatedWithTrailing : UpdateResult.Updated;
+            }
+          }
+        }
+      }
+    }
+    this.badPath = void 0;
+    return UpdateResult.NotUpdated;
+  }
+  tryUpdateTrailing(value) {
+    const ext = resources.extname(value);
+    if (this.trailing && ext) {
+      this.trailing = resources.basename(value);
+    }
+  }
+  setActiveItems(value) {
+    value = this.pathFromUri(this.tildaReplace(value));
+    const asUri = this.remoteUriFrom(value);
+    const inputBasename = resources.basename(asUri);
+    const userPath = this.constructFullUserPath();
+    const pathsEqual = equalsIgnoreCase(userPath, value.substring(0, userPath.length)) || equalsIgnoreCase(value, userPath.substring(0, value.length));
+    if (pathsEqual) {
+      let hasMatch = false;
+      for (let i = 0; i < this.filePickBox.items.length; i++) {
+        const item = this.filePickBox.items[i];
+        if (this.setAutoComplete(value, inputBasename, item)) {
+          hasMatch = true;
+          break;
+        }
+      }
+      if (!hasMatch) {
+        const userBasename = inputBasename.length >= 2 ? userPath.substring(userPath.length - inputBasename.length + 2) : "";
+        this.userEnteredPathSegment = userBasename === inputBasename ? inputBasename : "";
+        this.autoCompletePathSegment = "";
+        this.filePickBox.activeItems = [];
+        this.tryUpdateTrailing(asUri);
+      }
+    } else {
+      this.userEnteredPathSegment = inputBasename;
+      this.autoCompletePathSegment = "";
+      this.filePickBox.activeItems = [];
+      this.tryUpdateTrailing(asUri);
+    }
+  }
+  setAutoComplete(startingValue, startingBasename, quickPickItem, force = false) {
+    if (this.busy) {
+      this.userEnteredPathSegment = startingBasename;
+      this.autoCompletePathSegment = "";
+      return false;
+    }
+    const itemBasename = quickPickItem.label;
+    if (itemBasename === "..") {
+      this.userEnteredPathSegment = "";
+      this.autoCompletePathSegment = "";
+      this.activeItem = quickPickItem;
+      if (force) {
+        getActiveDocument().execCommand("insertText", false, "");
+      }
+      return false;
+    } else if (!force && itemBasename.length >= startingBasename.length && equalsIgnoreCase(itemBasename.substr(0, startingBasename.length), startingBasename)) {
+      this.userEnteredPathSegment = startingBasename;
+      this.activeItem = quickPickItem;
+      this.autoCompletePathSegment = "";
+      if (quickPickItem.isFolder || !this.trailing) {
+        this.filePickBox.activeItems = [quickPickItem];
+      } else {
+        this.filePickBox.activeItems = [];
+      }
+      return true;
+    } else if (force && !equalsIgnoreCase(this.basenameWithTrailingSlash(quickPickItem.uri), this.userEnteredPathSegment + this.autoCompletePathSegment)) {
+      this.userEnteredPathSegment = "";
+      if (!this.accessibilityService.isScreenReaderOptimized()) {
+        this.autoCompletePathSegment = this.trimTrailingSlash(itemBasename);
+      }
+      this.activeItem = quickPickItem;
+      if (!this.accessibilityService.isScreenReaderOptimized()) {
+        this.filePickBox.valueSelection = [this.pathFromUri(this.currentFolder, true).length, this.filePickBox.value.length];
+        this.insertText(this.pathAppend(this.currentFolder, this.autoCompletePathSegment), this.autoCompletePathSegment);
+        this.filePickBox.valueSelection = [this.filePickBox.value.length - this.autoCompletePathSegment.length, this.filePickBox.value.length];
+      }
+      return true;
+    } else {
+      this.userEnteredPathSegment = startingBasename;
+      this.autoCompletePathSegment = "";
+      return false;
+    }
+  }
+  insertText(wholeValue, insertText) {
+    if (this.filePickBox.inputHasFocus()) {
+      getActiveDocument().execCommand("insertText", false, insertText);
+      if (this.filePickBox.value !== wholeValue) {
+        this.filePickBox.value = wholeValue;
+        this.handleValueChange(wholeValue);
+      }
+    } else {
+      this.filePickBox.value = wholeValue;
+      this.handleValueChange(wholeValue);
+    }
+  }
+  addPostfix(uri) {
+    let result = uri;
+    if (this.requiresTrailing && this.options.filters && this.options.filters.length > 0 && !resources.hasTrailingPathSeparator(uri)) {
+      let hasExt = false;
+      const currentExt = resources.extname(uri).substr(1);
+      for (let i = 0; i < this.options.filters.length; i++) {
+        for (let j = 0; j < this.options.filters[i].extensions.length; j++) {
+          if (this.options.filters[i].extensions[j] === "*" || this.options.filters[i].extensions[j] === currentExt) {
+            hasExt = true;
+            break;
+          }
+        }
+        if (hasExt) {
+          break;
+        }
+      }
+      if (!hasExt) {
+        result = resources.joinPath(resources.dirname(uri), resources.basename(uri) + "." + this.options.filters[0].extensions[0]);
+      }
+    }
+    return result;
+  }
+  trimTrailingSlash(path) {
+    return path.length > 1 && this.endsWithSlash(path) ? path.substr(0, path.length - 1) : path;
+  }
+  yesNoPrompt(uri, message) {
+    const disposableStore = new DisposableStore();
+    const prompt = disposableStore.add(this.quickInputService.createQuickPick());
+    prompt.title = message;
+    prompt.ignoreFocusOut = true;
+    prompt.ok = true;
+    prompt.customButton = true;
+    prompt.customLabel = nls.localize("remoteFileDialog.cancel", "Cancel");
+    prompt.value = this.pathFromUri(uri);
+    let isResolving = false;
+    return new Promise((resolve) => {
+      disposableStore.add(prompt.onDidAccept(() => {
+        isResolving = true;
+        prompt.hide();
+        resolve(true);
+      }));
+      disposableStore.add(prompt.onDidHide(() => {
+        if (!isResolving) {
+          resolve(false);
+        }
+        this.filePickBox.show();
+        this.hidden = false;
+        disposableStore.dispose();
+      }));
+      disposableStore.add(prompt.onDidChangeValue(() => {
+        prompt.hide();
+      }));
+      disposableStore.add(prompt.onDidCustom(() => {
+        prompt.hide();
+      }));
+      prompt.show();
+    });
+  }
+  async validate(uri) {
+    if (uri === void 0) {
+      this.filePickBox.validationMessage = nls.localize("remoteFileDialog.invalidPath", "Please enter a valid path.");
+      return Promise.resolve(false);
+    }
+    let stat;
+    let statDirname;
+    try {
+      statDirname = await this.fileService.stat(resources.dirname(uri));
+      stat = await this.fileService.stat(uri);
+    } catch (e) {
+    }
+    if (this.requiresTrailing) {
+      if (stat && stat.isDirectory) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateFolder", "The folder already exists. Please use a new file name.");
+        return Promise.resolve(false);
+      } else if (stat) {
+        const message = nls.localize("remoteFileDialog.validateExisting", "{0} already exists. Are you sure you want to overwrite it?", resources.basename(uri));
+        return this.yesNoPrompt(uri, message);
+      } else if (!isValidBasename(resources.basename(uri), this.isWindows)) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateBadFilename", "Please enter a valid file name.");
+        return Promise.resolve(false);
+      } else if (!statDirname) {
+        const message = nls.localize("remoteFileDialog.validateCreateDirectory", "The folder {0} does not exist. Would you like to create it?", resources.basename(resources.dirname(uri)));
+        return this.yesNoPrompt(uri, message);
+      } else if (!statDirname.isDirectory) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateNonexistentDir", "Please enter a path that exists.");
+        return Promise.resolve(false);
+      } else if (statDirname.readonly) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateReadonlyFolder", "This folder cannot be used as a save destination. Please choose another folder");
+        return Promise.resolve(false);
+      }
+    } else {
+      if (!stat) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateNonexistentDir", "Please enter a path that exists.");
+        return Promise.resolve(false);
+      } else if (uri.path === "/" && this.isWindows) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.windowsDriveLetter", "Please start the path with a drive letter.");
+        return Promise.resolve(false);
+      } else if (stat.isDirectory && !this.allowFolderSelection) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateFileOnly", "Please select a file.");
+        return Promise.resolve(false);
+      } else if (!stat.isDirectory && !this.allowFileSelection) {
+        this.filePickBox.validationMessage = nls.localize("remoteFileDialog.validateFolderOnly", "Please select a folder.");
+        return Promise.resolve(false);
+      }
+    }
+    return Promise.resolve(true);
+  }
+  // Returns true if there is a file at the end of the URI.
+  async updateItems(newFolder, force = false, trailing) {
+    this.busy = true;
+    this.autoCompletePathSegment = "";
+    const wasDotDot = trailing === "..";
+    trailing = wasDotDot ? void 0 : trailing;
+    const isSave = !!trailing;
+    let result = false;
+    const updatingPromise = createCancelablePromise(async (token) => {
+      let folderStat;
+      try {
+        folderStat = await this.fileService.resolve(newFolder);
+        if (!folderStat.isDirectory) {
+          trailing = resources.basename(newFolder);
+          newFolder = resources.dirname(newFolder);
+          folderStat = void 0;
+          result = true;
+        }
+      } catch (e) {
+      }
+      const newValue = trailing ? this.pathAppend(newFolder, trailing) : this.pathFromUri(newFolder, true);
+      this.currentFolder = this.endsWithSlash(newFolder.path) ? newFolder : resources.addTrailingPathSeparator(newFolder, this.separator);
+      this.userEnteredPathSegment = trailing ? trailing : "";
+      return this.createItems(folderStat, this.currentFolder, token).then((items) => {
+        if (token.isCancellationRequested) {
+          this.busy = false;
+          return false;
+        }
+        this.filePickBox.itemActivation = ItemActivation.NONE;
+        this.filePickBox.items = items;
+        if (!equalsIgnoreCase(this.filePickBox.value, newValue) && (force || wasDotDot)) {
+          this.filePickBox.valueSelection = [0, this.filePickBox.value.length];
+          this.insertText(newValue, newValue);
+        }
+        if (force && trailing && isSave) {
+          this.filePickBox.valueSelection = [this.filePickBox.value.length - trailing.length, this.filePickBox.value.length - trailing.length];
+        } else if (!trailing) {
+          this.filePickBox.valueSelection = [this.filePickBox.value.length, this.filePickBox.value.length];
+        }
+        this.busy = false;
+        this.updatingPromise = void 0;
+        return result;
+      });
+    });
+    if (this.updatingPromise !== void 0) {
+      this.updatingPromise.cancel();
+    }
+    this.updatingPromise = updatingPromise;
+    return updatingPromise;
+  }
+  pathFromUri(uri, endWithSeparator = false) {
+    let result = normalizeDriveLetter(uri.fsPath, this.isWindows).replace(/\n/g, "");
+    if (this.separator === "/") {
+      result = result.replace(/\\/g, this.separator);
+    } else {
+      result = result.replace(/\//g, this.separator);
+    }
+    if (endWithSeparator && !this.endsWithSlash(result)) {
+      result = result + this.separator;
+    }
+    return result;
+  }
+  pathAppend(uri, additional) {
+    if (additional === ".." || additional === ".") {
+      const basePath = this.pathFromUri(uri, true);
+      return basePath + additional;
+    } else {
+      return this.pathFromUri(resources.joinPath(uri, additional));
+    }
+  }
+  async checkIsWindowsOS() {
+    let isWindowsOS = isWindows;
+    const env = await this.getRemoteAgentEnvironment();
+    if (env) {
+      isWindowsOS = env.os === 1;
+    }
+    return isWindowsOS;
+  }
+  endsWithSlash(s) {
+    return /[\/\\]$/.test(s);
+  }
+  basenameWithTrailingSlash(fullPath) {
+    const child = this.pathFromUri(fullPath, true);
+    const parent = this.pathFromUri(resources.dirname(fullPath), true);
+    return child.substring(parent.length);
+  }
+  async createBackItem(currFolder) {
+    const fileRepresentationCurr = this.currentFolder.with({ scheme: Schemas.file, authority: "" });
+    const fileRepresentationParent = resources.dirname(fileRepresentationCurr);
+    if (!resources.isEqual(fileRepresentationCurr, fileRepresentationParent)) {
+      const parentFolder = resources.dirname(currFolder);
+      if (await this.fileService.exists(parentFolder)) {
+        return { label: "..", uri: resources.addTrailingPathSeparator(parentFolder, this.separator), isFolder: true };
+      }
+    }
+    return void 0;
+  }
+  async createItems(folder, currentFolder, token) {
+    const result = [];
+    const backDir = await this.createBackItem(currentFolder);
+    try {
+      if (!folder) {
+        folder = await this.fileService.resolve(currentFolder);
+      }
+      const filteredChildren = this._showDotFiles ? folder.children : folder.children?.filter((child) => !child.name.startsWith("."));
+      const items = filteredChildren ? await Promise.all(filteredChildren.map((child) => this.createItem(child, currentFolder, token))) : [];
+      for (const item of items) {
+        if (item) {
+          result.push(item);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    const sorted = result.sort((i1, i2) => {
+      if (i1.isFolder !== i2.isFolder) {
+        return i1.isFolder ? -1 : 1;
+      }
+      const trimmed1 = this.endsWithSlash(i1.label) ? i1.label.substr(0, i1.label.length - 1) : i1.label;
+      const trimmed2 = this.endsWithSlash(i2.label) ? i2.label.substr(0, i2.label.length - 1) : i2.label;
+      return trimmed1.localeCompare(trimmed2);
+    });
+    if (backDir) {
+      sorted.unshift(backDir);
+    }
+    return sorted;
+  }
+  filterFile(file) {
+    if (this.options.filters) {
+      for (let i = 0; i < this.options.filters.length; i++) {
+        for (let j = 0; j < this.options.filters[i].extensions.length; j++) {
+          const testExt = this.options.filters[i].extensions[j];
+          if (testExt === "*" || file.path.endsWith("." + testExt)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+  async createItem(stat, parent, token) {
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    let fullPath = resources.joinPath(parent, stat.name);
+    if (stat.isDirectory) {
+      const filename = resources.basename(fullPath);
+      fullPath = resources.addTrailingPathSeparator(fullPath, this.separator);
+      return { label: filename, uri: fullPath, isFolder: true, iconClasses: getIconClasses(this.modelService, this.languageService, fullPath || void 0, FileKind.FOLDER) };
+    } else if (!stat.isDirectory && this.allowFileSelection && this.filterFile(fullPath)) {
+      return { label: stat.name, uri: fullPath, isFolder: false, iconClasses: getIconClasses(this.modelService, this.languageService, fullPath || void 0) };
+    }
+    return void 0;
+  }
+};
+SimpleFileDialog = __decorate([
+  __param(0, IFileService),
+  __param(1, IQuickInputService),
+  __param(2, ILabelService),
+  __param(3, IWorkspaceContextService),
+  __param(4, INotificationService),
+  __param(5, IFileDialogService),
+  __param(6, IModelService),
+  __param(7, ILanguageService),
+  __param(8, IWorkbenchEnvironmentService),
+  __param(9, IRemoteAgentService),
+  __param(10, IPathService),
+  __param(11, IKeybindingService),
+  __param(12, IContextKeyService),
+  __param(13, IAccessibilityService),
+  __param(14, IStorageService)
+], SimpleFileDialog);
+export {
+  OpenLocalFileCommand,
+  OpenLocalFileFolderCommand,
+  OpenLocalFolderCommand,
+  RemoteFileDialogContext,
+  SaveLocalFileCommand,
+  SimpleFileDialog
+};
+//# sourceMappingURL=simpleFileDialog.js.map

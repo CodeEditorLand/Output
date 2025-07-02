@@ -1,1 +1,12 @@
-import{localize as e}from"../../../../nls.js";import{$Vn as o}from"../../../../platform/contextkey/common/contextkey.js";const n={IsEnabled:new o("isWorkspaceTrustEnabled",!1,e(13649,null)),IsTrusted:new o("isWorkspaceTrusted",!1,e(13650,null))},t="workbench.trust.manage";export{n as $4oc,t as $5oc};
+import { localize } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+const WorkspaceTrustContext = {
+  IsEnabled: new RawContextKey("isWorkspaceTrustEnabled", false, localize("workspaceTrustEnabledCtx", "Whether the workspace trust feature is enabled.")),
+  IsTrusted: new RawContextKey("isWorkspaceTrusted", false, localize("workspaceTrustedCtx", "Whether the current workspace has been trusted by the user."))
+};
+const MANAGE_TRUST_COMMAND_ID = "workbench.trust.manage";
+export {
+  MANAGE_TRUST_COMMAND_ID,
+  WorkspaceTrustContext
+};
+//# sourceMappingURL=workspace.js.map

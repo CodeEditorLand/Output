@@ -1,1 +1,66 @@
-import{CancellationToken as l}from"../../../base/common/cancellation.js";import{$qd as b}from"../../../base/common/lifecycle.js";import{URI as u}from"../../../base/common/uri.js";import{$CY as v,$BY as d}from"../common/extHost.protocol.js";import{$H3b as $}from"../../contrib/share/common/share.js";import{$9yb as _}from"../../services/extensions/common/extHostCustomers.js";var p=function(s,r,t,i){var c=arguments.length,e=c<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,t):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,r,t,i);else for(var a=s.length-1;a>=0;a--)(o=s[a])&&(e=(c<3?o(e):c>3?o(r,t,e):o(r,t))||e);return c>3&&e&&Object.defineProperty(r,t,e),e},m=function(s,r){return function(t,i){r(t,i,s)}};let n=class{constructor(r,t){this.d=t,this.b=new Map,this.c=new Map,this.a=r.getProxy(v.ExtHostShare)}$registerShareProvider(r,t,i,c,e){const o={id:i,label:c,selector:t,priority:e,provideShare:async f=>{const h=await this.a.$provideShare(r,f,l.None);return typeof h=="string"?h:u.revive(h)}};this.b.set(r,o);const a=this.d.registerShareProvider(o);this.c.set(r,a)}$unregisterShareProvider(r){this.b.has(r)&&this.b.delete(r),this.c.has(r)&&this.c.delete(r)}dispose(){this.b.clear(),b(this.c.values()),this.c.clear()}};n=p([_(d.MainThreadShare),m(1,$)],n);export{n as $I3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { dispose } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IShareService } from "../../contrib/share/common/share.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+let MainThreadShare = class MainThreadShare2 {
+  static {
+    __name(this, "MainThreadShare");
+  }
+  constructor(extHostContext, shareService) {
+    this.shareService = shareService;
+    this.providers = /* @__PURE__ */ new Map();
+    this.providerDisposables = /* @__PURE__ */ new Map();
+    this.proxy = extHostContext.getProxy(ExtHostContext.ExtHostShare);
+  }
+  $registerShareProvider(handle, selector, id, label, priority) {
+    const provider = {
+      id,
+      label,
+      selector,
+      priority,
+      provideShare: /* @__PURE__ */ __name(async (item) => {
+        const result = await this.proxy.$provideShare(handle, item, CancellationToken.None);
+        return typeof result === "string" ? result : URI.revive(result);
+      }, "provideShare")
+    };
+    this.providers.set(handle, provider);
+    const disposable = this.shareService.registerShareProvider(provider);
+    this.providerDisposables.set(handle, disposable);
+  }
+  $unregisterShareProvider(handle) {
+    if (this.providers.has(handle)) {
+      this.providers.delete(handle);
+    }
+    if (this.providerDisposables.has(handle)) {
+      this.providerDisposables.delete(handle);
+    }
+  }
+  dispose() {
+    this.providers.clear();
+    dispose(this.providerDisposables.values());
+    this.providerDisposables.clear();
+  }
+};
+MainThreadShare = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadShare),
+  __param(1, IShareService)
+], MainThreadShare);
+export {
+  MainThreadShare
+};
+//# sourceMappingURL=mainThreadShare.js.map

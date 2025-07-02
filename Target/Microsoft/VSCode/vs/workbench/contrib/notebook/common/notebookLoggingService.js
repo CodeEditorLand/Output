@@ -1,1 +1,6 @@
-import{$nj as o}from"../../../../platform/instantiation/common/instantiation.js";const e=o("INotebookLoggingService");export{e as $tTb};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INotebookLoggingService = createDecorator("INotebookLoggingService");
+export {
+  INotebookLoggingService
+};
+//# sourceMappingURL=notebookLoggingService.js.map

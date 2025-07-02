@@ -1,1 +1,61 @@
-import{$ow as c}from"../../../../base/common/numbers.js";import{$K9 as m,$L9 as u}from"../../../../base/browser/ui/sash/sash.js";import{Event as f}from"../../../../base/common/event.js";import{$ud as d}from"../../../../base/common/lifecycle.js";import{$Fl as C}from"../../../../platform/configuration/common/configuration.js";import{$Rhb as v}from"../../../../platform/layout/browser/layoutService.js";var l=function(n,e,o,i){var s=arguments.length,t=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,o):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,e,o,i);else for(var h=n.length-1;h>=0;h--)(r=n[h])&&(t=(s<3?r(t):s>3?r(e,o,t):r(e,o))||t);return s>3&&t&&Object.defineProperty(e,o,t),t},a=function(n,e){return function(o,i){e(o,i,n)}};const _=1,w=20;let p=class{constructor(e,o){this.b=e,this.c=o,this.a=new d,f.filter(e.onDidChangeConfiguration,t=>t.affectsConfiguration("workbench.sash.size"))(this.d,this,this.a),this.d(),f.filter(e.onDidChangeConfiguration,t=>t.affectsConfiguration("workbench.sash.hoverDelay"))(this.f,this,this.a),this.f()}d(){const e=this.b.getValue("workbench.sash.size"),o=c(e,4,20),i=c(e,1,8);this.c.mainContainer.style.setProperty("--vscode-sash-size",o+"px"),this.c.mainContainer.style.setProperty("--vscode-sash-hover-size",i+"px"),m(o)}f(){u(this.b.getValue("workbench.sash.hoverDelay"))}dispose(){this.a.dispose()}};p=l([a(0,C),a(1,v)],p);export{_ as $Aoc,w as $Boc,p as $Coc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { clamp } from "../../../../base/common/numbers.js";
+import { setGlobalSashSize, setGlobalHoverDelay } from "../../../../base/browser/ui/sash/sash.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+const minSize = 1;
+const maxSize = 20;
+let SashSettingsController = class SashSettingsController2 {
+  static {
+    __name(this, "SashSettingsController");
+  }
+  constructor(configurationService, layoutService) {
+    this.configurationService = configurationService;
+    this.layoutService = layoutService;
+    this.disposables = new DisposableStore();
+    const onDidChangeSize = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.size"));
+    onDidChangeSize(this.onDidChangeSize, this, this.disposables);
+    this.onDidChangeSize();
+    const onDidChangeHoverDelay = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.hoverDelay"));
+    onDidChangeHoverDelay(this.onDidChangeHoverDelay, this, this.disposables);
+    this.onDidChangeHoverDelay();
+  }
+  onDidChangeSize() {
+    const configuredSize = this.configurationService.getValue("workbench.sash.size");
+    const size = clamp(configuredSize, 4, 20);
+    const hoverSize = clamp(configuredSize, 1, 8);
+    this.layoutService.mainContainer.style.setProperty("--vscode-sash-size", size + "px");
+    this.layoutService.mainContainer.style.setProperty("--vscode-sash-hover-size", hoverSize + "px");
+    setGlobalSashSize(size);
+  }
+  onDidChangeHoverDelay() {
+    setGlobalHoverDelay(this.configurationService.getValue("workbench.sash.hoverDelay"));
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+SashSettingsController = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ILayoutService)
+], SashSettingsController);
+export {
+  SashSettingsController,
+  maxSize,
+  minSize
+};
+//# sourceMappingURL=sash.js.map

@@ -1,1 +1,285 @@
-import{CancellationToken as y}from"../../../../base/common/cancellation.js";import{$df as A}from"../../../../base/common/event.js";import{$vd as v}from"../../../../base/common/lifecycle.js";import{observableValue as h,transaction as M}from"../../../../base/common/observable.js";import{URI as T}from"../../../../base/common/uri.js";import{localize as m}from"../../../../nls.js";import{$Wn as $}from"../../../../platform/contextkey/common/contextkey.js";import{$nj as j}from"../../../../platform/instantiation/common/instantiation.js";import{$4n as S}from"../../../../platform/log/common/log.js";import{$Jo as C}from"../../../../platform/storage/common/storage.js";import{$jT as k}from"./chatAgents.js";import{ChatContextKeys as D}from"./chatContextKeys.js";import{ChatModeKind as u}from"./constants.js";import{$IS as w}from"./promptSyntax/service/promptsService.js";var b=function(s,t,i,e){var r=arguments.length,o=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,t,i,e);else for(var l=s.length-1;l>=0;l--)(n=s[l])&&(o=(r<3?n(o):r>3?n(t,i,o):n(t,i))||o);return r>3&&o&&Object.defineProperty(t,i,o),o},c=function(s,t){return function(i,e){t(i,e,s)}},a;const V=j("chatModeService");let p=class extends v{static{a=this}static{this.a="chat.customModes"}constructor(t,i,e,r,o){super(),this.g=t,this.h=i,this.j=r,this.m=o,this.c=new Map,this.f=new A,this.onDidChangeChatModes=this.f.event,this.b=D.Modes.hasCustomChatModes.bindTo(e),this.n(),this.t(!0),this.B(this.g.onDidChangeCustomChatModes(()=>{this.t(!0)})),this.B(this.m.onWillSaveState(()=>this.s()));let n=this.h.hasToolsAgent;this.B(this.h.onDidChangeAgents(()=>{n!==this.h.hasToolsAgent&&(n=this.h.hasToolsAgent,this.f.fire())}))}n(){try{const t=this.m.getObject(a.a,1);t&&this.r(t)}catch(t){this.j.error(t,"Failed to load cached custom chat modes")}}r(t){if(!Array.isArray(t)){this.j.error("Invalid cached custom modes data: expected array");return}for(const i of t)if(_(i)&&i.uri)try{const e=T.revive(i.uri),r={uri:e,name:i.name,description:i.description,tools:i.customTools,model:i.model,body:i.body||""},o=new g(r);this.c.set(e.toString(),o)}catch(e){this.j.error(e,"Failed to create custom chat mode instance from cached data")}this.b.set(this.c.size>0)}s(){try{const t=Array.from(this.c.values());this.m.store(a.a,t,1,1)}catch(t){this.j.warn("Failed to save cached custom chat modes",t)}}async t(t){try{const i=await this.g.getCustomChatModes(y.None),e=new Set;for(const r of i){const o=r.uri.toString();e.add(o);let n=this.c.get(o);n?n.updateData(r):(n=new g(r),this.c.set(o,n))}for(const[r]of this.c.entries())e.has(r)||this.c.delete(r);this.b.set(this.c.size>0),t&&this.f.fire()}catch(i){this.j.error(i,"Failed to load custom chat modes"),this.c.clear(),this.b.set(!1)}}getModes(){return{builtin:this.w(),custom:Array.from(this.c.values())}}u(){const t=this.getModes();return[...t.builtin,...t.custom]}findModeById(t){return this.u().find(e=>e.id===t)}findModeByName(t){return this.u().find(e=>e.name===t)}w(){const t=[d.Ask];return this.h.hasToolsAgent&&t.push(d.Agent),t.push(d.Edit),t}};p=a=b([c(0,w),c(1,k),c(2,$),c(3,S),c(4,C)],p);function _(s){if(typeof s!="object"||s===null)return!1;const t=s;return typeof t.id=="string"&&typeof t.name=="string"&&typeof t.kind=="string"&&(t.description===void 0||typeof t.description=="string")&&(t.customTools===void 0||Array.isArray(t.customTools))&&(t.body===void 0||typeof t.body=="string")&&(t.model===void 0||typeof t.model=="string")&&(t.uri===void 0||typeof t.uri=="object"&&t.uri!==null)}class g{get description(){return this.a}get customTools(){return this.b}get model(){return this.e}get body(){return this.c}get uri(){return this.d}constructor(t){this.kind=u.Agent,this.id=t.uri.toString(),this.name=t.name,this.a=h("description",t.description),this.b=h("customTools",t.tools),this.e=h("model",t.model),this.c=h("body",t.body),this.d=h("uri",t.uri)}updateData(t){M(i=>{this.a.set(t.description,i),this.b.set(t.tools,i),this.e.set(t.model,i),this.c.set(t.body,i),this.d.set(t.uri,i)})}toJSON(){return{id:this.id,name:this.name,description:this.description.get(),kind:this.kind,customTools:this.customTools.get(),model:this.model.get(),body:this.body.get(),uri:this.uri.get()}}}class f{constructor(t,i,e){this.kind=t,this.name=i,this.description=h("description",e)}get id(){return this.kind}toJSON(){return{id:this.id,name:this.name,description:this.description.get(),kind:this.kind}}}var d;(function(s){s.Ask=new f(u.Ask,"Ask",m(5759,null)),s.Edit=new f(u.Edit,"Edit",m(5760,null)),s.Agent=new f(u.Agent,"Agent",m(5761,null))})(d||(d={}));function X(s){return s.id===d.Ask.id||s.id===d.Edit.id||s.id===d.Agent.id}export{V as $VDb,p as $WDb,g as $XDb,f as $YDb,X as $ZDb,d as ChatMode};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatModeService_1;
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { observableValue, transaction } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IChatAgentService } from "./chatAgents.js";
+import { ChatContextKeys } from "./chatContextKeys.js";
+import { ChatModeKind } from "./constants.js";
+import { IPromptsService } from "./promptSyntax/service/promptsService.js";
+const IChatModeService = createDecorator("chatModeService");
+let ChatModeService = class ChatModeService2 extends Disposable {
+  static {
+    __name(this, "ChatModeService");
+  }
+  static {
+    ChatModeService_1 = this;
+  }
+  static {
+    this.CUSTOM_MODES_STORAGE_KEY = "chat.customModes";
+  }
+  constructor(promptsService, chatAgentService, contextKeyService, logService, storageService) {
+    super();
+    this.promptsService = promptsService;
+    this.chatAgentService = chatAgentService;
+    this.logService = logService;
+    this.storageService = storageService;
+    this._customModeInstances = /* @__PURE__ */ new Map();
+    this._onDidChangeChatModes = new Emitter();
+    this.onDidChangeChatModes = this._onDidChangeChatModes.event;
+    this.hasCustomModes = ChatContextKeys.Modes.hasCustomChatModes.bindTo(contextKeyService);
+    this.loadCachedModes();
+    void this.refreshCustomPromptModes(true);
+    this._register(this.promptsService.onDidChangeCustomChatModes(() => {
+      void this.refreshCustomPromptModes(true);
+    }));
+    this._register(this.storageService.onWillSaveState(() => this.saveCachedModes()));
+    let didHaveToolsAgent = this.chatAgentService.hasToolsAgent;
+    this._register(this.chatAgentService.onDidChangeAgents(() => {
+      if (didHaveToolsAgent !== this.chatAgentService.hasToolsAgent) {
+        didHaveToolsAgent = this.chatAgentService.hasToolsAgent;
+        this._onDidChangeChatModes.fire();
+      }
+    }));
+  }
+  loadCachedModes() {
+    try {
+      const cachedCustomModes = this.storageService.getObject(
+        ChatModeService_1.CUSTOM_MODES_STORAGE_KEY,
+        1
+        /* StorageScope.WORKSPACE */
+      );
+      if (cachedCustomModes) {
+        this.deserializeCachedModes(cachedCustomModes);
+      }
+    } catch (error) {
+      this.logService.error(error, "Failed to load cached custom chat modes");
+    }
+  }
+  deserializeCachedModes(cachedCustomModes) {
+    if (!Array.isArray(cachedCustomModes)) {
+      this.logService.error("Invalid cached custom modes data: expected array");
+      return;
+    }
+    for (const cachedMode of cachedCustomModes) {
+      if (isCachedChatModeData(cachedMode) && cachedMode.uri) {
+        try {
+          const uri = URI.revive(cachedMode.uri);
+          const customChatMode = {
+            uri,
+            name: cachedMode.name,
+            description: cachedMode.description,
+            tools: cachedMode.customTools,
+            model: cachedMode.model,
+            body: cachedMode.body || ""
+          };
+          const instance = new CustomChatMode(customChatMode);
+          this._customModeInstances.set(uri.toString(), instance);
+        } catch (error) {
+          this.logService.error(error, "Failed to create custom chat mode instance from cached data");
+        }
+      }
+    }
+    this.hasCustomModes.set(this._customModeInstances.size > 0);
+  }
+  saveCachedModes() {
+    try {
+      const modesToCache = Array.from(this._customModeInstances.values());
+      this.storageService.store(
+        ChatModeService_1.CUSTOM_MODES_STORAGE_KEY,
+        modesToCache,
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } catch (error) {
+      this.logService.warn("Failed to save cached custom chat modes", error);
+    }
+  }
+  async refreshCustomPromptModes(fireChangeEvent) {
+    try {
+      const customModes = await this.promptsService.getCustomChatModes(CancellationToken.None);
+      const seenUris = /* @__PURE__ */ new Set();
+      for (const customMode of customModes) {
+        const uriString = customMode.uri.toString();
+        seenUris.add(uriString);
+        let modeInstance = this._customModeInstances.get(uriString);
+        if (modeInstance) {
+          modeInstance.updateData(customMode);
+        } else {
+          modeInstance = new CustomChatMode(customMode);
+          this._customModeInstances.set(uriString, modeInstance);
+        }
+      }
+      for (const [uriString] of this._customModeInstances.entries()) {
+        if (!seenUris.has(uriString)) {
+          this._customModeInstances.delete(uriString);
+        }
+      }
+      this.hasCustomModes.set(this._customModeInstances.size > 0);
+      if (fireChangeEvent) {
+        this._onDidChangeChatModes.fire();
+      }
+    } catch (error) {
+      this.logService.error(error, "Failed to load custom chat modes");
+      this._customModeInstances.clear();
+      this.hasCustomModes.set(false);
+    }
+  }
+  getModes() {
+    return { builtin: this.getBuiltinModes(), custom: Array.from(this._customModeInstances.values()) };
+  }
+  getFlatModes() {
+    const allModes = this.getModes();
+    return [...allModes.builtin, ...allModes.custom];
+  }
+  findModeById(id) {
+    const allModes = this.getFlatModes();
+    return allModes.find((mode) => mode.id === id);
+  }
+  findModeByName(name) {
+    const allModes = this.getFlatModes();
+    return allModes.find((mode) => mode.name === name);
+  }
+  getBuiltinModes() {
+    const builtinModes = [
+      ChatMode.Ask
+    ];
+    if (this.chatAgentService.hasToolsAgent) {
+      builtinModes.push(ChatMode.Agent);
+    }
+    builtinModes.push(ChatMode.Edit);
+    return builtinModes;
+  }
+};
+ChatModeService = ChatModeService_1 = __decorate([
+  __param(0, IPromptsService),
+  __param(1, IChatAgentService),
+  __param(2, IContextKeyService),
+  __param(3, ILogService),
+  __param(4, IStorageService)
+], ChatModeService);
+function isCachedChatModeData(data) {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const mode = data;
+  return typeof mode.id === "string" && typeof mode.name === "string" && typeof mode.kind === "string" && (mode.description === void 0 || typeof mode.description === "string") && (mode.customTools === void 0 || Array.isArray(mode.customTools)) && (mode.body === void 0 || typeof mode.body === "string") && (mode.model === void 0 || typeof mode.model === "string") && (mode.uri === void 0 || typeof mode.uri === "object" && mode.uri !== null);
+}
+__name(isCachedChatModeData, "isCachedChatModeData");
+class CustomChatMode {
+  static {
+    __name(this, "CustomChatMode");
+  }
+  get description() {
+    return this._descriptionObservable;
+  }
+  get customTools() {
+    return this._customToolsObservable;
+  }
+  get model() {
+    return this._modelObservable;
+  }
+  get body() {
+    return this._bodyObservable;
+  }
+  get uri() {
+    return this._uriObservable;
+  }
+  constructor(customChatMode) {
+    this.kind = ChatModeKind.Agent;
+    this.id = customChatMode.uri.toString();
+    this.name = customChatMode.name;
+    this._descriptionObservable = observableValue("description", customChatMode.description);
+    this._customToolsObservable = observableValue("customTools", customChatMode.tools);
+    this._modelObservable = observableValue("model", customChatMode.model);
+    this._bodyObservable = observableValue("body", customChatMode.body);
+    this._uriObservable = observableValue("uri", customChatMode.uri);
+  }
+  /**
+   * Updates the underlying data and triggers observable changes
+   */
+  updateData(newData) {
+    transaction((tx) => {
+      this._descriptionObservable.set(newData.description, tx);
+      this._customToolsObservable.set(newData.tools, tx);
+      this._modelObservable.set(newData.model, tx);
+      this._bodyObservable.set(newData.body, tx);
+      this._uriObservable.set(newData.uri, tx);
+    });
+  }
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description.get(),
+      kind: this.kind,
+      customTools: this.customTools.get(),
+      model: this.model.get(),
+      body: this.body.get(),
+      uri: this.uri.get()
+    };
+  }
+}
+class BuiltinChatMode {
+  static {
+    __name(this, "BuiltinChatMode");
+  }
+  constructor(kind, name, description) {
+    this.kind = kind;
+    this.name = name;
+    this.description = observableValue("description", description);
+  }
+  get id() {
+    return this.kind;
+  }
+  /**
+   * Getters are not json-stringified
+   */
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description.get(),
+      kind: this.kind
+    };
+  }
+}
+var ChatMode;
+(function(ChatMode2) {
+  ChatMode2.Ask = new BuiltinChatMode(ChatModeKind.Ask, "Ask", localize("chatDescription", "Ask Copilot"));
+  ChatMode2.Edit = new BuiltinChatMode(ChatModeKind.Edit, "Edit", localize("editsDescription", "Edit files in your workspace"));
+  ChatMode2.Agent = new BuiltinChatMode(ChatModeKind.Agent, "Agent", localize("agentDescription", "Edit files in your workspace in agent mode"));
+})(ChatMode || (ChatMode = {}));
+function isBuiltinChatMode(mode) {
+  return mode.id === ChatMode.Ask.id || mode.id === ChatMode.Edit.id || mode.id === ChatMode.Agent.id;
+}
+__name(isBuiltinChatMode, "isBuiltinChatMode");
+export {
+  BuiltinChatMode,
+  ChatMode,
+  ChatModeService,
+  CustomChatMode,
+  IChatModeService,
+  isBuiltinChatMode
+};
+//# sourceMappingURL=chatModes.js.map

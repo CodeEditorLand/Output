@@ -1,10 +1,212 @@
-import{$x5 as U}from"../../../../base/browser/browser.js";import*as $ from"../../../../base/browser/dom.js";import{$s5 as E}from"../../../../base/browser/window.js";import{$z as v}from"../../../../base/common/platform.js";import{$Fl as y}from"../../../../platform/configuration/common/configuration.js";import{$jz as I}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$WB as k}from"../../../../platform/instantiation/common/extensions.js";import{$TCc as m}from"../common/issueReporterUtil.js";import{$on as C}from"../../../../platform/product/common/productService.js";import{$hs as R,$fs as B,$is as S,$Cp as D,$Zr as j,$Wr as _,$Yr as L,$Xr as O,$$r as T,$as as A,$_r as F,$4p as N,$2p as M,$3p as P,$Mp as H,$Lp as W}from"../../../../platform/theme/common/colorRegistry.js";import{$Ot as z}from"../../../../platform/theme/common/themeService.js";import{$SM as G}from"../../../../platform/workspace/common/workspaceTrust.js";import{$qwb as V}from"../../../common/theme.js";import{$ZMb as X,$1Mb as Y}from"../common/issue.js";import{$oFb as Z}from"../../../services/assignment/common/assignmentService.js";import{$GX as q}from"../../../services/authentication/common/authentication.js";import{$oDb as K}from"../../../services/extensionManagement/common/extensionManagement.js";import{$YO as J}from"../../../services/extensions/common/extensions.js";import{$IAc as Q}from"../../../services/integrity/common/integrity.js";var x=function(r,e,t,o){var s=arguments.length,n=s<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,o);else for(var d=r.length-1;d>=0;d--)(u=r[d])&&(n=(s<3?u(n):s>3?u(e,t,n):u(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},l=function(r,e){return function(t,o){e(t,o,r)}};let b=class{constructor(e,t,o,s,n,u,d,a,f,p,c){this.a=e,this.b=t,this.c=o,this.d=s,this.f=n,this.g=u,this.h=d,this.i=a,this.j=f,this.k=p,this.l=c}async openReporter(e){if(!this.l.getValue("issueReporter.experimental.webReporter")){const t=e.extensionId;if(!t){if(this.b.reportIssueUrl){const u=this.n(this.b.reportIssueUrl);$.$c7(u);return}throw new Error(`No issue reporting URL configured for ${this.b.nameLong}.`)}const o=this.a.extensions.filter(u=>u.identifier.value===e.extensionId)[0],s=this.m(o);if(!s)throw new Error(`Unable to find issue reporting url for ${t}`);const n=this.n(`${s}/issues/new`,o);$.$c7(n)}if(this.b.reportIssueUrl){const t=this.d.getColorTheme(),o=await this.f.getCurrentExperiments();let s="";try{s=(await this.k.getSessions("github")).filter(p=>p.scopes.includes("repo"))[0]?.accessToken}catch{}let n=!1;try{n=!(await this.h.isPure()).isPure}catch{}const u=[];try{const f=(await this.i.getInstalled()).filter(p=>this.j.isEnabled(p)||e.extensionId&&p.identifier.id===e.extensionId);u.push(...f.map(p=>{const{manifest:c}=p,h=c.contributes?Object.keys(c.contributes):[],g=!c.main&&!c.browser&&h.length===1&&h[0]==="themes",w=p.type===0;return{name:c.name,publisher:c.publisher,version:c.version,repositoryUrl:c.repository&&c.repository.url,bugsUrl:c.bugs&&c.bugs.url,displayName:c.displayName,id:p.identifier.id,data:e.data,uri:e.uri,isTheme:g,isBuiltin:w,extensionData:"Extensions data loading"}}))}catch(a){u.push({name:"Workbench Issue Service",publisher:"Unknown",version:"Unknown",repositoryUrl:void 0,bugsUrl:void 0,extensionData:`Extensions not loaded: ${a}`,displayName:`Extensions not loaded: ${a}`,id:"workbench.issue",isTheme:!1,isBuiltin:!0})}const d=Object.assign({styles:rr(t),zoomLevel:U(E),enabledExtensions:u,experiments:o?.join(`
-`),restrictedMode:!this.g.isWorkspaceTrusted(),isUnsupported:n,githubAccessToken:s},e);return this.c.openReporter(d)}throw new Error(`No issue reporting URL configured for ${this.b.nameLong}.`)}m(e){if(e.isBuiltin&&this.b.reportIssueUrl)return m(this.b.reportIssueUrl);let t="";const o=e?.bugs?.url,s=e?.repository?.url;return o&&o.match(/^https?:\/\/github\.com\/(.*)/)?t=m(o):s&&s.match(/^https?:\/\/github\.com\/(.*)/)&&(t=m(s)),t}n(e,t){const o=`ADD ISSUE DESCRIPTION HERE
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getZoomLevel } from "../../../../base/browser/browser.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { userAgent } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { normalizeGitHubUrl } from "../common/issueReporterUtil.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { buttonBackground, buttonForeground, buttonHoverBackground, foreground, inputActiveOptionBorder, inputBackground, inputBorder, inputForeground, inputValidationErrorBackground, inputValidationErrorBorder, inputValidationErrorForeground, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground, textLinkActiveForeground, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { SIDE_BAR_BACKGROUND } from "../../../common/theme.js";
+import { IIssueFormService, IWorkbenchIssueService } from "../common/issue.js";
+import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IIntegrityService } from "../../../services/integrity/common/integrity.js";
+let BrowserIssueService = class BrowserIssueService2 {
+  static {
+    __name(this, "BrowserIssueService");
+  }
+  constructor(extensionService, productService, issueFormService, themeService, experimentService, workspaceTrustManagementService, integrityService, extensionManagementService, extensionEnablementService, authenticationService, configurationService) {
+    this.extensionService = extensionService;
+    this.productService = productService;
+    this.issueFormService = issueFormService;
+    this.themeService = themeService;
+    this.experimentService = experimentService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.integrityService = integrityService;
+    this.extensionManagementService = extensionManagementService;
+    this.extensionEnablementService = extensionEnablementService;
+    this.authenticationService = authenticationService;
+    this.configurationService = configurationService;
+  }
+  async openReporter(options) {
+    if (!this.configurationService.getValue("issueReporter.experimental.webReporter")) {
+      const extensionId = options.extensionId;
+      if (!extensionId) {
+        if (this.productService.reportIssueUrl) {
+          const uri2 = this.getIssueUriFromStaticContent(this.productService.reportIssueUrl);
+          dom.windowOpenNoOpener(uri2);
+          return;
+        }
+        throw new Error(`No issue reporting URL configured for ${this.productService.nameLong}.`);
+      }
+      const selectedExtension = this.extensionService.extensions.filter((ext) => ext.identifier.value === options.extensionId)[0];
+      const extensionGitHubUrl = this.getExtensionGitHubUrl(selectedExtension);
+      if (!extensionGitHubUrl) {
+        throw new Error(`Unable to find issue reporting url for ${extensionId}`);
+      }
+      const uri = this.getIssueUriFromStaticContent(`${extensionGitHubUrl}/issues/new`, selectedExtension);
+      dom.windowOpenNoOpener(uri);
+    }
+    if (this.productService.reportIssueUrl) {
+      const theme = this.themeService.getColorTheme();
+      const experiments = await this.experimentService.getCurrentExperiments();
+      let githubAccessToken = "";
+      try {
+        const githubSessions = await this.authenticationService.getSessions("github");
+        const potentialSessions = githubSessions.filter((session) => session.scopes.includes("repo"));
+        githubAccessToken = potentialSessions[0]?.accessToken;
+      } catch (e) {
+      }
+      let isUnsupported = false;
+      try {
+        isUnsupported = !(await this.integrityService.isPure()).isPure;
+      } catch (e) {
+      }
+      const extensionData = [];
+      try {
+        const extensions = await this.extensionManagementService.getInstalled();
+        const enabledExtensions = extensions.filter((extension) => this.extensionEnablementService.isEnabled(extension) || options.extensionId && extension.identifier.id === options.extensionId);
+        extensionData.push(...enabledExtensions.map((extension) => {
+          const { manifest } = extension;
+          const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
+          const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
+          const isBuiltin = extension.type === 0;
+          return {
+            name: manifest.name,
+            publisher: manifest.publisher,
+            version: manifest.version,
+            repositoryUrl: manifest.repository && manifest.repository.url,
+            bugsUrl: manifest.bugs && manifest.bugs.url,
+            displayName: manifest.displayName,
+            id: extension.identifier.id,
+            data: options.data,
+            uri: options.uri,
+            isTheme,
+            isBuiltin,
+            extensionData: "Extensions data loading"
+          };
+        }));
+      } catch (e) {
+        extensionData.push({
+          name: "Workbench Issue Service",
+          publisher: "Unknown",
+          version: "Unknown",
+          repositoryUrl: void 0,
+          bugsUrl: void 0,
+          extensionData: `Extensions not loaded: ${e}`,
+          displayName: `Extensions not loaded: ${e}`,
+          id: "workbench.issue",
+          isTheme: false,
+          isBuiltin: true
+        });
+      }
+      const issueReporterData = Object.assign({
+        styles: getIssueReporterStyles(theme),
+        zoomLevel: getZoomLevel(mainWindow),
+        enabledExtensions: extensionData,
+        experiments: experiments?.join("\n"),
+        restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
+        isUnsupported,
+        githubAccessToken
+      }, options);
+      return this.issueFormService.openReporter(issueReporterData);
+    }
+    throw new Error(`No issue reporting URL configured for ${this.productService.nameLong}.`);
+  }
+  getExtensionGitHubUrl(extension) {
+    if (extension.isBuiltin && this.productService.reportIssueUrl) {
+      return normalizeGitHubUrl(this.productService.reportIssueUrl);
+    }
+    let repositoryUrl = "";
+    const bugsUrl = extension?.bugs?.url;
+    const extensionUrl = extension?.repository?.url;
+    if (bugsUrl && bugsUrl.match(/^https?:\/\/github\.com\/(.*)/)) {
+      repositoryUrl = normalizeGitHubUrl(bugsUrl);
+    } else if (extensionUrl && extensionUrl.match(/^https?:\/\/github\.com\/(.*)/)) {
+      repositoryUrl = normalizeGitHubUrl(extensionUrl);
+    }
+    return repositoryUrl;
+  }
+  getIssueUriFromStaticContent(baseUri, extension) {
+    const issueDescription = `ADD ISSUE DESCRIPTION HERE
 
-Version: ${this.b.version}
-Commit: ${this.b.commit??"unknown"}
-User Agent: ${v??"unknown"}
-Embedder: ${this.b.embedderIdentifier??"unknown"}
-${t?.version?`
-Extension version: ${t.version}`:""}
-<!-- generated by web issue reporter -->`;return`${e}?body=${encodeURIComponent(o)}&labels=web`}};b=x([l(0,J),l(1,C),l(2,X),l(3,z),l(4,Z),l(5,G),l(6,Q),l(7,I),l(8,K),l(9,q),l(10,y)],b);function rr(r){return{backgroundColor:i(r,V),color:i(r,D),textLinkColor:i(r,W),textLinkActiveForeground:i(r,H),inputBackground:i(r,_),inputForeground:i(r,O),inputBorder:i(r,L),inputActiveBorder:i(r,j),inputErrorBorder:i(r,A),inputErrorBackground:i(r,T),inputErrorForeground:i(r,F),buttonBackground:i(r,R),buttonForeground:i(r,B),buttonHoverBackground:i(r,S),sliderActiveColor:i(r,N),sliderBackgroundColor:i(r,M),sliderHoverColor:i(r,P)}}function i(r,e){const t=r.getColor(e);return t?t.toString():void 0}k(Y,b,1);export{b as $1Cc,rr as $2Cc};
+Version: ${this.productService.version}
+Commit: ${this.productService.commit ?? "unknown"}
+User Agent: ${userAgent ?? "unknown"}
+Embedder: ${this.productService.embedderIdentifier ?? "unknown"}
+${extension?.version ? `
+Extension version: ${extension.version}` : ""}
+<!-- generated by web issue reporter -->`;
+    return `${baseUri}?body=${encodeURIComponent(issueDescription)}&labels=web`;
+  }
+};
+BrowserIssueService = __decorate([
+  __param(0, IExtensionService),
+  __param(1, IProductService),
+  __param(2, IIssueFormService),
+  __param(3, IThemeService),
+  __param(4, IWorkbenchAssignmentService),
+  __param(5, IWorkspaceTrustManagementService),
+  __param(6, IIntegrityService),
+  __param(7, IExtensionManagementService),
+  __param(8, IWorkbenchExtensionEnablementService),
+  __param(9, IAuthenticationService),
+  __param(10, IConfigurationService)
+], BrowserIssueService);
+function getIssueReporterStyles(theme) {
+  return {
+    backgroundColor: getColor(theme, SIDE_BAR_BACKGROUND),
+    color: getColor(theme, foreground),
+    textLinkColor: getColor(theme, textLinkForeground),
+    textLinkActiveForeground: getColor(theme, textLinkActiveForeground),
+    inputBackground: getColor(theme, inputBackground),
+    inputForeground: getColor(theme, inputForeground),
+    inputBorder: getColor(theme, inputBorder),
+    inputActiveBorder: getColor(theme, inputActiveOptionBorder),
+    inputErrorBorder: getColor(theme, inputValidationErrorBorder),
+    inputErrorBackground: getColor(theme, inputValidationErrorBackground),
+    inputErrorForeground: getColor(theme, inputValidationErrorForeground),
+    buttonBackground: getColor(theme, buttonBackground),
+    buttonForeground: getColor(theme, buttonForeground),
+    buttonHoverBackground: getColor(theme, buttonHoverBackground),
+    sliderActiveColor: getColor(theme, scrollbarSliderActiveBackground),
+    sliderBackgroundColor: getColor(theme, scrollbarSliderBackground),
+    sliderHoverColor: getColor(theme, scrollbarSliderHoverBackground)
+  };
+}
+__name(getIssueReporterStyles, "getIssueReporterStyles");
+function getColor(theme, key) {
+  const color = theme.getColor(key);
+  return color ? color.toString() : void 0;
+}
+__name(getColor, "getColor");
+registerSingleton(
+  IWorkbenchIssueService,
+  BrowserIssueService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserIssueService,
+  getIssueReporterStyles
+};
+//# sourceMappingURL=issueService.js.map

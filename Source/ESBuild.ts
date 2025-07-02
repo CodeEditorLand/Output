@@ -1,14 +1,14 @@
 import type { BuildOptions } from "esbuild";
 
-export const On =
-	process.env["NODE_ENV"] === "development" ||
-	process.env["TAURI_ENV_DEBUG"] === "true";
-
-export const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";
+export const Browser = process.env["Browser"] === "true";
 
 export const Clean = process.env["Clean"] === "true";
 
-export const Browser = process.env["Browser"] === "true";
+export const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";
+
+export const On =
+	process.env["NODE_ENV"] === "development" ||
+	process.env["TAURI_ENV_DEBUG"] === "true";
 
 /**
  * @module ESBuild

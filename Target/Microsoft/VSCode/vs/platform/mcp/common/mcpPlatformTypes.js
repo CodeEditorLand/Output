@@ -1,15 +1,1 @@
-var McpServerVariableType;
-(function(McpServerVariableType2) {
-  McpServerVariableType2["PROMPT"] = "promptString";
-  McpServerVariableType2["PICK"] = "pickString";
-})(McpServerVariableType || (McpServerVariableType = {}));
-var McpServerType;
-(function(McpServerType2) {
-  McpServerType2["LOCAL"] = "stdio";
-  McpServerType2["REMOTE"] = "http";
-})(McpServerType || (McpServerType = {}));
-export {
-  McpServerType,
-  McpServerVariableType
-};
-//# sourceMappingURL=mcpPlatformTypes.js.map
+var r;(function(t){t.PROMPT="promptString",t.PICK="pickString"})(r||(r={}));var i;(function(t){t.LOCAL="stdio",t.REMOTE="http"})(i||(i={}));export{i as McpServerType,r as McpServerVariableType};

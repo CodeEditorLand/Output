@@ -1,8 +1,8 @@
 import type { BuildOptions } from "esbuild";
-export declare const On: boolean;
-export declare const Dependency: string;
-export declare const Clean: boolean;
 export declare const Browser: boolean;
+export declare const Clean: boolean;
+export declare const Dependency: string;
+export declare const On: boolean;
 /**
  * @module ESBuild
  *

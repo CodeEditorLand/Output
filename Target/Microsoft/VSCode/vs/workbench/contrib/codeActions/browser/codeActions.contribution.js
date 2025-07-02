@@ -1,12 +1,1 @@
-import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
-import { CodeActionsContribution, editorConfiguration, notebookEditorConfiguration } from "./codeActionsContribution.js";
-Registry.as(Extensions.Configuration).registerConfiguration(editorConfiguration);
-Registry.as(Extensions.Configuration).registerConfiguration(notebookEditorConfiguration);
-Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
-  CodeActionsContribution,
-  4
-  /* LifecyclePhase.Eventually */
-);
-//# sourceMappingURL=codeActions.contribution.js.map
+import{$Tl as r}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Rl as o}from"../../../../platform/registry/common/platform.js";import{Extensions as i}from"../../../common/contributions.js";import{$nyc as n,$lyc as t,$myc as e}from"./codeActionsContribution.js";o.as(r.Configuration).registerConfiguration(t);o.as(r.Configuration).registerConfiguration(e);o.as(i.Workbench).registerWorkbenchContribution(n,4);

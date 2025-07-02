@@ -1,8 +1,1 @@
-import { Codicon } from "../../../../base/common/codicons.js";
-import { localize } from "../../../../nls.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-const MultiDiffEditorIcon = registerIcon("multi-diff-editor-label-icon", Codicon.diffMultiple, localize("multiDiffEditorLabelIcon", "Icon of the multi diff editor label."));
-export {
-  MultiDiffEditorIcon
-};
-//# sourceMappingURL=icons.contribution.js.map
+import{$Mj as o}from"../../../../base/common/codicons.js";import{localize as i}from"../../../../nls.js";import{$Et as l}from"../../../../platform/theme/common/iconRegistry.js";const m=l("multi-diff-editor-label-icon",o.diffMultiple,i(9179,null));export{m as $$Xb};

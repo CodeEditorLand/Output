@@ -1,11 +1,1 @@
-var TerminalLinksCommandId;
-(function(TerminalLinksCommandId2) {
-  TerminalLinksCommandId2["OpenDetectedLink"] = "workbench.action.terminal.openDetectedLink";
-  TerminalLinksCommandId2["OpenWordLink"] = "workbench.action.terminal.openWordLink";
-  TerminalLinksCommandId2["OpenFileLink"] = "workbench.action.terminal.openFileLink";
-  TerminalLinksCommandId2["OpenWebLink"] = "workbench.action.terminal.openUrlLink";
-})(TerminalLinksCommandId || (TerminalLinksCommandId = {}));
-export {
-  TerminalLinksCommandId
-};
-//# sourceMappingURL=terminal.links.js.map
+var n;(function(e){e.OpenDetectedLink="workbench.action.terminal.openDetectedLink",e.OpenWordLink="workbench.action.terminal.openWordLink",e.OpenFileLink="workbench.action.terminal.openFileLink",e.OpenWebLink="workbench.action.terminal.openUrlLink"})(n||(n={}));export{n as TerminalLinksCommandId};

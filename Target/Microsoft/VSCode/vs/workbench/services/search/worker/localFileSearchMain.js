@@ -1,4 +1,1 @@
-import { bootstrapWebWorker } from "../../../../base/common/worker/webWorkerBootstrap.js";
-import { create } from "./localFileSearch.js";
-bootstrapWebWorker(create);
-//# sourceMappingURL=localFileSearchMain.js.map
+import{$t$ as m}from"../../../../base/common/worker/webWorkerBootstrap.js";import{$KRc as o}from"./localFileSearch.js";m(o);

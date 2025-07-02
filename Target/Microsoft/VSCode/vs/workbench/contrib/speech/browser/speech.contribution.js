@@ -1,10 +1,1 @@
-import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { ISpeechService } from "../common/speechService.js";
-import { SpeechService } from "./speechService.js";
-registerSingleton(
-  ISpeechService,
-  SpeechService,
-  0
-  /* InstantiationType.Eager */
-);
-//# sourceMappingURL=speech.contribution.js.map
+import{$WB as r}from"../../../../platform/instantiation/common/extensions.js";import{$rX as m}from"../common/speechService.js";import{$4ec as o}from"./speechService.js";r(m,o,0);

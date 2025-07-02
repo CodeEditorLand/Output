@@ -1,4 +1,1 @@
-import { create } from "./textMateTokenizationWorker.worker.js";
-import { bootstrapWebWorker } from "../../../../../../base/common/worker/webWorkerBootstrap.js";
-bootstrapWebWorker(create);
-//# sourceMappingURL=textMateTokenizationWorker.workerMain.js.map
+import{$b8b as m}from"./textMateTokenizationWorker.worker.js";import{$t$ as o}from"../../../../../../base/common/worker/webWorkerBootstrap.js";o(m);

@@ -1,10 +1,1 @@
-import { EnvironmentVariableService } from "./environmentVariableService.js";
-import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IEnvironmentVariableService } from "./environmentVariable.js";
-registerSingleton(
-  IEnvironmentVariableService,
-  EnvironmentVariableService,
-  1
-  /* InstantiationType.Delayed */
-);
-//# sourceMappingURL=environmentVariable.contribution.js.map
+import{$Hsc as m}from"./environmentVariableService.js";import{$WB as o}from"../../../../platform/instantiation/common/extensions.js";import{$03 as r}from"./environmentVariable.js";o(r,m,1);

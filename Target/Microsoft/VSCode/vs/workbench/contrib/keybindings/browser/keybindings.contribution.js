@@ -1,47 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { showWindowLogActionId } from "../../../services/log/common/logConstants.js";
-import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { $, append, getDomNodePagePosition, getWindows, onDidRegisterWindow } from "../../../../base/browser/dom.js";
-import { createCSSRule, createStyleSheet } from "../../../../base/browser/domStylesheets.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { DomEmitter } from "../../../../base/browser/event.js";
-class ToggleKeybindingsLogAction extends Action2 {
-  static {
-    __name(this, "ToggleKeybindingsLogAction");
-  }
-  constructor() {
-    super({
-      id: "workbench.action.toggleKeybindingsLog",
-      title: nls.localize2("toggleKeybindingsLog", "Toggle Keyboard Shortcuts Troubleshooting"),
-      category: Categories.Developer,
-      f1: true
-    });
-  }
-  run(accessor) {
-    const logging = accessor.get(IKeybindingService).toggleLogging();
-    if (logging) {
-      const commandService = accessor.get(ICommandService);
-      commandService.executeCommand(showWindowLogActionId);
-    }
-    if (ToggleKeybindingsLogAction.disposable) {
-      ToggleKeybindingsLogAction.disposable.dispose();
-      ToggleKeybindingsLogAction.disposable = void 0;
-      return;
-    }
-    const layoutService = accessor.get(ILayoutService);
-    const disposables = new DisposableStore();
-    const container = layoutService.activeContainer;
-    const focusMarker = append(container, $(".focus-troubleshooting-marker"));
-    disposables.add(toDisposable(() => focusMarker.remove()));
-    const stylesheet = createStyleSheet(void 0, void 0, disposables);
-    createCSSRule(".focus-troubleshooting-marker", `
+import*as c from"../../../../nls.js";import{$CI as f,$DI as u}from"../../../../platform/actions/common/actions.js";import{$ux as g}from"../../../../platform/keybinding/common/keybinding.js";import{$Yn as $}from"../../../../platform/action/common/actionCommonCategories.js";import{$Zn as b}from"../../../../platform/commands/common/commands.js";import{$lOb as h}from"../../../services/log/common/logConstants.js";import{$ud as w,$td as y}from"../../../../base/common/lifecycle.js";import{$Rhb as v}from"../../../../platform/layout/browser/layoutService.js";import{$ as x,$36 as k,$j6 as C,getWindows as D,onDidRegisterWindow as S}from"../../../../base/browser/dom.js";import{$c8 as W,$a8 as z}from"../../../../base/browser/domStylesheets.js";import{$df as I}from"../../../../base/common/event.js";import{$o8 as R}from"../../../../base/browser/event.js";class i extends f{constructor(){super({id:"workbench.action.toggleKeybindingsLog",title:c.localize2(8480,"Toggle Keyboard Shortcuts Troubleshooting"),category:$.Developer,f1:!0})}run(d){if(d.get(g).toggleLogging()&&d.get(b).executeCommand(h),i.disposable){i.disposable.dispose(),i.disposable=void 0;return}const s=d.get(v),r=new w,l=s.activeContainer,e=k(l,x(".focus-troubleshooting-marker"));r.add(y(()=>e.remove()));const m=z(void 0,void 0,r);W(".focus-troubleshooting-marker",`
 			position: fixed;
 			pointer-events: none;
 			z-index: 100000;
@@ -49,35 +6,4 @@ class ToggleKeybindingsLogAction extends Action2 {
 			border: 2px solid rgba(255, 0, 0, 0.8);
 			border-radius: 2px;
 			display: none;
-		`, stylesheet);
-    const onKeyDown = disposables.add(new Emitter());
-    function registerWindowListeners(window, disposables2) {
-      disposables2.add(disposables2.add(new DomEmitter(window, "keydown", true)).event((e) => onKeyDown.fire(e)));
-    }
-    __name(registerWindowListeners, "registerWindowListeners");
-    for (const { window, disposables: disposables2 } of getWindows()) {
-      registerWindowListeners(window, disposables2);
-    }
-    disposables.add(onDidRegisterWindow(({ window, disposables: disposables2 }) => registerWindowListeners(window, disposables2)));
-    disposables.add(layoutService.onDidChangeActiveContainer(() => {
-      layoutService.activeContainer.appendChild(focusMarker);
-    }));
-    disposables.add(onKeyDown.event((e) => {
-      const target = e.target;
-      if (target) {
-        const position = getDomNodePagePosition(target);
-        focusMarker.style.top = `${position.top}px`;
-        focusMarker.style.left = `${position.left}px`;
-        focusMarker.style.width = `${position.width}px`;
-        focusMarker.style.height = `${position.height}px`;
-        focusMarker.style.display = "block";
-        setTimeout(() => {
-          focusMarker.style.display = "none";
-        }, 800);
-      }
-    }));
-    ToggleKeybindingsLogAction.disposable = disposables;
-  }
-}
-registerAction2(ToggleKeybindingsLogAction);
-//# sourceMappingURL=keybindings.contribution.js.map
+		`,m);const a=r.add(new I);function p(t,o){o.add(o.add(new R(t,"keydown",!0)).event(n=>a.fire(n)))}for(const{window:t,disposables:o}of D())p(t,o);r.add(S(({window:t,disposables:o})=>p(t,o))),r.add(s.onDidChangeActiveContainer(()=>{s.activeContainer.appendChild(e)})),r.add(a.event(t=>{const o=t.target;if(o){const n=C(o);e.style.top=`${n.top}px`,e.style.left=`${n.left}px`,e.style.width=`${n.width}px`,e.style.height=`${n.height}px`,e.style.display="block",setTimeout(()=>{e.style.display="none"},800)}})),i.disposable=r}}u(i);

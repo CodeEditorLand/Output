@@ -1,4 +1,1 @@
-import { bootstrapWebWorker } from "../../../../../base/common/worker/webWorkerBootstrap.js";
-import { create } from "./notebookWebWorker.js";
-bootstrapWebWorker(create);
-//# sourceMappingURL=notebookWebWorkerMain.js.map
+import{$t$ as m}from"../../../../../base/common/worker/webWorkerBootstrap.js";import{$W$b as o}from"./notebookWebWorker.js";m(o);

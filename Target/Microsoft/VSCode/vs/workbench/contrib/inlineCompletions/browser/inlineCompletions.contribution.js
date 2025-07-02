@@ -1,10 +1,1 @@
-import { wrapInHotClass1 } from "../../../../platform/observable/common/wrapInHotClass.js";
-import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { InlineCompletionLanguageStatusBarContribution } from "./inlineCompletionLanguageStatusBarContribution.js";
-registerWorkbenchContribution2(
-  InlineCompletionLanguageStatusBarContribution.Id,
-  wrapInHotClass1(InlineCompletionLanguageStatusBarContribution.hot),
-  4
-  /* WorkbenchPhase.Eventually */
-);
-//# sourceMappingURL=inlineCompletions.contribution.js.map
+import{$ypb as m}from"../../../../platform/observable/common/wrapInHotClass.js";import{$eL as r}from"../../../common/contributions.js";import{$azc as o}from"./inlineCompletionLanguageStatusBarContribution.js";r(o.Id,m(o.hot),4);

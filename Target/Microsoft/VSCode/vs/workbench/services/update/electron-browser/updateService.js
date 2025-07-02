@@ -1,0 +1,1 @@
+import{$Wx as o}from"../../../../platform/update/common/update.js";import{$kDc as r}from"../../../../platform/ipc/electron-browser/services.js";import{$fy as m}from"../../../../platform/update/common/updateIpc.js";r(o,"update",{channelClientCtor:m});

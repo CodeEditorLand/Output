@@ -1,0 +1,1 @@
+import{localize as l}from"../../../../nls.js";const n={showLanguagePackExtensions:l(8570,null),searchMarketplace:l(8571,null),installAndRestartMessage:l(8572,null),installAndRestart:l(8573,null)};export{n as $UJc};

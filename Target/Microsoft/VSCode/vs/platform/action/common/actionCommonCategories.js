@@ -1,1 +1,1 @@
-import{localize2 as e}from"../../../nls.js";const l=Object.freeze({View:e(1767,"View"),Help:e(1768,"Help"),Test:e(1769,"Test"),File:e(1770,"File"),Preferences:e(1771,"Preferences"),Developer:e(1772,"Developer")});export{l as $Yn};
+import{localize2 as e}from"../../../nls.js";const l=Object.freeze({View:e(1768,"View"),Help:e(1769,"Help"),Test:e(1770,"Test"),File:e(1771,"File"),Preferences:e(1772,"Preferences"),Developer:e(1773,"Developer")});export{l as $Yn};

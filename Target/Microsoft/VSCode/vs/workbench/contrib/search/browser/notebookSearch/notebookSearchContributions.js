@@ -1,1 +1,1 @@
-import{$WB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$Ccc as r}from"../../common/notebookSearch.js";import{$voc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $woc};
+import{$WB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$Ccc as r}from"../../common/notebookSearch.js";import{$xoc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $yoc};

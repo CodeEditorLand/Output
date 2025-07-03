@@ -1,1 +1,1 @@
-function e(o){return o.lookupKeybinding("history.showPrevious")?.getElectronAccelerator()==="Up"&&o.lookupKeybinding("history.showNext")?.getElectronAccelerator()==="Down"}export{e as $eob};
+function t(o){return o.lookupKeybinding("history.showPrevious")?.getElectronAccelerator()==="Up"&&o.lookupKeybinding("history.showNext")?.getElectronAccelerator()==="Down"}export{t as $iob};

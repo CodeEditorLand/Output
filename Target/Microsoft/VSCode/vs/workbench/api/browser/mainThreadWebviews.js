@@ -4,5 +4,5 @@ import{$vd as h,$ud as d}from"../../../base/common/lifecycle.js";import{Schemas 
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none';">
 			</head>
-			<body>${C(2790,null,$(t))}</body>
+			<body>${C(2791,null,$(t))}</body>
 		</html>`}};f=m=u([p(1,g),p(2,y)],f);function H(o){return{id:o.id,location:l.revive(o.location)}}function _(o){return{allowScripts:o.enableScripts,allowForms:o.enableForms,enableCommandUris:o.enableCommandUris,localResourceRoots:Array.isArray(o.localResourceRoots)?o.localResourceRoots.map(t=>l.revive(t)):void 0,portMapping:o.portMapping}}export{H as $$Wb,f as $0Wb,_ as $_Wb};

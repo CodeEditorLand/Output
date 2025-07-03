@@ -70,4 +70,4 @@ ${e}
 ${t}
 ${s}
 
-</details>`}}export{h as $UCc};
+</details>`}}export{h as $XCc};

@@ -1,1 +1,1 @@
-import{$7jc as n}from"./abstractRuntimeExtensionsEditor.js";import{$NCc as r}from"../common/reportExtensionIssueAction.js";class c extends n{nb(){return null}ob(e){}pb(e){return null}qb(e){return e.marketplaceInfo?this.db.createInstance(r,e.description):null}}export{c as $OCc};
+import{$9jc as n}from"./abstractRuntimeExtensionsEditor.js";import{$QCc as r}from"../common/reportExtensionIssueAction.js";class c extends n{nb(){return null}ob(e){}pb(e){return null}qb(e){return e.marketplaceInfo?this.db.createInstance(r,e.description):null}}export{c as $RCc};

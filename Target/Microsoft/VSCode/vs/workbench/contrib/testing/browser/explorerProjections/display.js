@@ -1,1 +1,1 @@
-const c=" \u203A ";export{c as $Jmc};
+const c=" \u203A ";export{c as $Smc};

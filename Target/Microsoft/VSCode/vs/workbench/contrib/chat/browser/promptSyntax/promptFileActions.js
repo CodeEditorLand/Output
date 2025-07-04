@@ -1,1 +1,1 @@
-import{$Vfc as f}from"./attachInstructionsAction.js";import{$6fc as o}from"./chatModeActions.js";import{$7fc as r}from"./runPromptAction.js";import{$0fc as m}from"./saveToPromptAction.js";import{$Tfc as c}from"./newPromptFileActions.js";function e(){r(),f(),m(),o(),c()}export{e as $$fc};
+import{$5fc as o}from"./attachInstructionsAction.js";import{$cgc as r}from"./chatModeActions.js";import{$dgc as m}from"./runPromptAction.js";import{$ggc as c}from"./saveToPromptAction.js";import{$3fc as f}from"./newPromptFileActions.js";function n(){m(),o(),c(),r(),f()}export{n as $hgc};

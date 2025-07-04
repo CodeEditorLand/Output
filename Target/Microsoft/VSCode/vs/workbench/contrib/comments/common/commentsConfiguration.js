@@ -1,1 +1,1 @@
-const o="comments";export{o as $LTb};
+const o="comments";export{o as $XTb};

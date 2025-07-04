@@ -1,1 +1,1 @@
-import{$qb as e}from"../../errors.js";import{CancellationToken as r,$pf as l,$qf as c}from"../../cancellation.js";export{e as CancellationError,r as CancellationToken,l as CancellationTokenSource,c as cancelOnDispose};
+import{$qb as e}from"../../errors.js";import{CancellationToken as r,$qf as l,$rf as c}from"../../cancellation.js";export{e as CancellationError,r as CancellationToken,l as CancellationTokenSource,c as cancelOnDispose};

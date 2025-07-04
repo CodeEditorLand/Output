@@ -2718,6 +2718,9 @@
 			"prompt",
 			"chatMode",
 			"addFile",
+			"chatMaximize",
+			"reuseWindowForChat",
+			"newWindowForChat",
 			"help",
 			"cliDataDir",
 			"cliDataDir",
@@ -2758,6 +2761,7 @@
 			"disableChromiumSandbox",
 			"locateShellIntegrationPath",
 			"telemetry",
+			"startupExperimentGroup",
 			"deprecated.useInstead",
 			"cliPrompt",
 			"paths",
@@ -5469,6 +5473,7 @@
 			"unpinEditor",
 			"closeOneEditor",
 			"reverting",
+			"unmaximizeGroup",
 			"navigateForward",
 			{
 				"key": "miForward",
@@ -7385,7 +7390,7 @@
 			"generateInstructions",
 			"generateInstructions.short",
 			"config.label",
-			"mcp.servers"
+			"chat.toggleDefaultVisibility.label"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
 			"chat.newChat.label",
@@ -7455,6 +7460,7 @@
 			"interactive.toggleRequestPausd.label",
 			"interactive.switchToNextModel.label",
 			"interactive.openModelPicker.label",
+			"interactive.openModePicker.label",
 			"interactive.changeModel.label",
 			"edits.submit.label",
 			"interactive.submitWithoutDispatch.label",
@@ -8108,6 +8114,7 @@
 			"completionsQuotaExceededStatus",
 			"chatAndCompletionsQuotaExceededStatus",
 			"completionsDisabledStatus",
+			"completionsSnoozedStatus",
 			"chatStatus",
 			"usageTitle",
 			"quotaLabel",
@@ -8117,7 +8124,7 @@
 			"premiumChatsLabel",
 			"limitQuota",
 			"upgradeToCopilotPro",
-			"completionsAndNES",
+			"codeCompletions",
 			"settingsLabel",
 			"settingsTooltip",
 			"settings.snooze",
@@ -8138,10 +8145,12 @@
 			"settings.codeCompletions.allFiles",
 			"settings.codeCompletions.language",
 			"settings.nextEditSuggestions",
+			"cancelSnooze",
 			"completions.snooze5minutesTitle",
 			"completions.snooze5minutes",
 			"completions.remainingTime",
-			"completions.plus5mins",
+			"completions.snoozeTimeDescription",
+			"completions.plus5min",
 			"completions.snoozeAdditional5minutes"
 		],
 		"vs/workbench/contrib/chat/browser/chatWidget": [
@@ -8154,10 +8163,17 @@
 			"editsMessage",
 			"editsTitle",
 			"agentMessage",
-			"chatMessage",
 			"expChatTitle",
+			"expchatMessage",
+			"expChatAdditionalMessage",
 			"chatWidget.suggestedPrompts.gettingStarted",
-			"chatWidget.suggestedPrompts.newProject"
+			"chatWidget.suggestedPrompts.gettingStartedPrompt",
+			"chatWidget.suggestedPrompts.newProject",
+			"chatWidget.suggestedPrompts.newProjectPrompt",
+			"chatWidget.suggestedPrompts.buildWorkspace",
+			"chatWidget.suggestedPrompts.buildWorkspacePrompt",
+			"chatWidget.suggestedPrompts.findConfig",
+			"chatWidget.suggestedPrompts.findConfigPrompt"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"chat.codeBlockHelp",
@@ -8287,18 +8303,17 @@
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptUrlHandler": [
 			"failed",
 			"confirmOpenDetail2",
-			"confirmOpenDetail1",
 			"confirmOpenDetail3",
 			"confirmInstallPrompt",
 			"confirmInstallInstructions",
 			"confirmInstallMode",
 			{
-				"key": "confirmOpenButton",
+				"key": "yesButton",
 				"comment": [
 					"&& denotes a mnemonic"
 				]
 			},
-			"confirmOpenDoNotAskAgain"
+			"noButton"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/runPromptAction": [
 			"commands.prompt.select-dialog.placeholder",
@@ -8386,6 +8401,7 @@
 			"chatModelsAreUserSelectable",
 			"chatRemoteJobCreating",
 			"hasRemoteCodingAgent",
+			"enableRemoteCodingAgentPromptFileOverlay",
 			"chatEditingHasToolConfirmation",
 			"toolsCount",
 			"chatHasCustomChatModes",
@@ -8525,7 +8541,9 @@
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsServiceImpl": [
 			"prompt.file.detail",
-			"prompt.file.detail"
+			"prompt.file.detail",
+			"promptParser.notCompleted",
+			"promptParser.notCompleted"
 		],
 		"vs/workbench/contrib/chat/common/tools/languageModelToolsContribution": [
 			"vscode.extension.contributes.tools",
@@ -10558,6 +10576,12 @@
 		],
 		"vs/workbench/contrib/editSessions/common/editSessionsLogService": [
 			"cloudChangesLog"
+		],
+		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
+			"editTelemetry",
+			"telemetry.editStats.enabled",
+			"telemetry.editStats.showStatusBar",
+			"telemetry.editStats.showDecorations"
 		],
 		"vs/workbench/contrib/emmet/browser/actions/expandAbbreviation": [
 			{
@@ -13075,6 +13099,8 @@
 			"configurationtooltip",
 			"manifest",
 			"manifesttooltip",
+			"configuration",
+			"configurationtooltip",
 			"noReadme",
 			"Readme title",
 			"noManifest",
@@ -17616,7 +17642,6 @@
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminal.suggest.contribution": [
 			"workbench.action.terminal.configureSuggestSettings",
 			"workbench.action.terminal.learnMore",
-			"workbench.action.terminal.resetDiscoverability",
 			"workbench.action.terminal.requestCompletions",
 			"workbench.action.terminal.resetSuggestWidgetSize",
 			"workbench.action.terminal.selectPrevSuggestion",
@@ -23846,6 +23871,9 @@
 			"The prompt to use as chat.",
 			"The mode to use for the chat session. Available options: 'ask', 'edit', 'agent', or the identifier of a custom mode. Defaults to 'agent'.",
 			"Add files as context to the chat session.",
+			"Maximize the chat session view.",
+			"Force to use the last active window for the chat session.",
+			"Force to open an empty window for the chat session.",
 			"Print usage.",
 			"Directory where CLI metadata should be stored.",
 			"Directory where CLI metadata should be stored.",
@@ -23886,6 +23914,7 @@
 			"Use this option only when there is requirement to launch the application as sudo user on Linux or when running as an elevated user in an applocker environment on Windows.",
 			"Print the path to a terminal shell integration script. Allowed values are 'bash', 'pwsh', 'zsh' or 'fish'.",
 			"Shows all telemetry events which VS code collects.",
+			"Override the startup experiment group.",
 			"Use {0} instead.",
 			"prompt",
 			"paths",
@@ -25821,6 +25850,7 @@
 			"Unpin Editor",
 			"Close",
 			"Reverting Editors...",
+			"Unmaximize Group",
 			"Go Forward",
 			"&&Forward",
 			"Go Back",
@@ -27402,7 +27432,7 @@
 			"Generate Workspace Instructions File",
 			"Generate Instructions",
 			"Configure Chat...",
-			"MCP Servers"
+			"Show View by Default"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
 			"New Chat",
@@ -27463,19 +27493,20 @@
 			"Set Mode",
 			"Resume Request",
 			"Pause Request",
-			"Pushing to Copilot coding agent",
+			"Delegating to coding agent",
 			"Analyzing chat history",
-			"Pushing state to coding agent",
+			"Delegating to coding agent",
 			"Coding agent session cancelled.",
 			"Send and Dispatch",
 			"Set Chat Mode",
 			"Toggle Request Paused",
 			"Switch to Next Model",
 			"Open Model Picker",
+			"Open Mode Picker",
 			"Change Model",
 			"Send",
 			"Send",
-			"Push to Copilot coding agent",
+			"Delegate to coding agent",
 			"Send with {0}",
 			"Send to New Chat",
 			"Cancel",
@@ -28093,6 +28124,7 @@
 			"Completions quota reached",
 			"Quota reached",
 			"Code completions disabled",
+			"Code completions snoozed",
 			"Copilot Status",
 			"Copilot Usage",
 			"Manage Copilot",
@@ -28102,7 +28134,7 @@
 			"Premium requests",
 			"Allowance resets {0}.",
 			"Upgrade to Copilot Pro",
-			"Completions",
+			"Code Completions",
 			"Settings",
 			"Open Settings",
 			"Snooze",
@@ -28123,11 +28155,13 @@
 			"All files",
 			"{0}",
 			"Next edit suggestions",
-			"Hide completions for 5 mins",
-			"Hide completions and NES for 5 mins",
+			"Cancel Snooze",
+			"Hide completions for 5 min",
+			"Hide completions and NES for 5 min",
 			"remaining",
-			"+5 mins",
-			"Hide additional 5 mins"
+			"Completions are hidden for the remaining duration",
+			"+5 min",
+			"Snooze additional 5 min"
 		],
 		"vs/workbench/contrib/chat/browser/chatWidget": [
 			"Scroll down",
@@ -28139,10 +28173,17 @@
 			"Start your editing session by defining a set of files that you want to work with. Then ask Copilot for the changes you want to make.",
 			"Edit with Copilot",
 			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors.",
-			"Copilot is powered by AI, so mistakes are possible. Review output carefully before use.",
-			"Get Started with VS Code",
+			"Welcome to Copilot",
+			"Let's get started",
+			"Review AI output carefully before use.",
 			"Ask @vscode",
-			"Create a #new Project"
+			"@vscode How do I change the theme to light mode?",
+			"Create project",
+			"Create a #new Hello World project in TypeScript",
+			"Build workspace",
+			"How do I build this workspace?",
+			"Show project config",
+			"Where is the configuration for this project defined?"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"Code block",
@@ -28263,7 +28304,7 @@
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptCodingAgentActionOverlay": [
 			"Run prompt file in a remote coding agent",
-			"{0} Push to Copilot coding agent"
+			"{0} Delegate to Copilot coding agent"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
 			"Configure Tools...",
@@ -28272,13 +28313,12 @@
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptUrlHandler": [
 			"Failed to fetch URL: {0}",
 			"This will access {0}.\n\n",
-			"Do you want to continue by selecting a destination folder and name?\n\n",
-			"If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press 'Cancel'",
-			"An external application wants to create a prompt file with content from a URL.",
-			"An external application wants to create an instructions file with content from a URL.",
-			"An external application wants to create a chat mode with content from a URL.",
-			"&&Continue",
-			"Do not show this message again for files from '{0}'"
+			"If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press 'No'",
+			"An external application wants to create a prompt file with content from a URL. Do you want to continue by selecting a destination folder and name?",
+			"An external application wants to create an instructions file with content from a URL. Do you want to continue by selecting a destination folder and name?",
+			"An external application wants to create a chat mode with content from a URL. Do you want to continue by selecting a destination folder and name?",
+			"&&Yes",
+			"No"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/runPromptAction": [
 			"Select the prompt file to run (hold {0}-key to use in new chat)",
@@ -28366,6 +28406,7 @@
 			"True when the chat model can be selected manually by the user.",
 			"True when a remote coding agent job is being created.",
 			"Whether any remote coding agent is available",
+			"Whether the remote coding agent prompt file overlay feature is enabled",
 			"True when a tool confirmation is present.",
 			"The count of tools available in the chat.",
 			"True when the chat has custom chat modes available.",
@@ -28460,7 +28501,7 @@
 			"The tools to use in this prompt.",
 			"The mode (ask, edit or agent) to use when running this prompt.",
 			"ToolSet: {0}\n\n",
-			"{0}",
+			"- Name: {0}",
 			"- Family: {0}",
 			"- Vendor: {0}"
 		],
@@ -28505,7 +28546,9 @@
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsServiceImpl": [
 			"Prompt file: {0}",
-			"Prompt file: {0}"
+			"Prompt file: {0}",
+			"Prompt parser for {0} did not complete.",
+			"Prompt parser for {0} did not complete."
 		],
 		"vs/workbench/contrib/chat/common/tools/languageModelToolsContribution": [
 			"Contributes a tool that can be invoked by a language model in a chat session, or from a standalone command. Registered tools can be used by all extensions.",
@@ -28634,10 +28677,10 @@
 		"vs/workbench/contrib/codeEditor/browser/emptyTextEditorHint/emptyTextEditorHint": [
 			"Disable Empty Editor Hint",
 			"Disable Empty Editor Hint",
-			"[[Open chat]] ({0}), or [[select a language]] ({1}), or [[fill with template]] ({2}) to get started.\nStart typing to dismiss or [[don't show]] this again.",
-			"[[Select a language]] ({0}), or [[fill with template]] ({1}), or [[open a different editor]] ({2}) to get started.\nStart typing to dismiss or [[don't show]] this again.",
-			"Execute {0} to ask a question, execute {1} to select a language, or execute {2} to fill with template and get started. Start typing to dismiss.",
-			"Execute {0} to select a language, execute {1} to fill with template, or execute {2} to open a different editor and get started. Start typing to dismiss.",
+			"[[Generate code]] ({0}), or [[select a language]] ({1}). Start typing to dismiss or [[don't show]] this again.",
+			"[[Select a language]] ({0}) to get started. Start typing to dismiss or [[don't show]] this again.",
+			"Execute {0} to ask a question, execute {1} to select a language and get started. Start typing to dismiss.",
+			"Execute {0} to select a language and get started. Start typing to dismiss.",
 			" Toggle {0} in settings to disable this hint."
 		],
 		"vs/workbench/contrib/codeEditor/browser/find/simpleFindWidget": [
@@ -30002,6 +30045,12 @@
 		],
 		"vs/workbench/contrib/editSessions/common/editSessionsLogService": [
 			"Cloud Changes"
+		],
+		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
+			"Edit Telemetry",
+			"Controls whether to enable telemetry for edit statistics (only sends statistics if general telemetry is enabled).",
+			"Controls whether to show the status bar for edit telemetry.",
+			"Controls whether to show decorations for edit telemetry."
 		],
 		"vs/workbench/contrib/emmet/browser/actions/expandAbbreviation": [
 			"Emmet: E&&xpand Abbreviation",
@@ -32058,6 +32107,8 @@
 			"Server configuration details",
 			"Manifest",
 			"Server manifest details",
+			"Configuration",
+			"Server configuration details",
 			"No README available.",
 			"Readme",
 			"No manifest available for this MCP server.",
@@ -36055,7 +36106,6 @@
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminal.suggest.contribution": [
 			"Configure",
 			"Learn More",
-			"Reset Suggest Discoverability",
 			"Request Completions",
 			"Reset Suggest Widget Size",
 			"Select the Previous Suggestion",

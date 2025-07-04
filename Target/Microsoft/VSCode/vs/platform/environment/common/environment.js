@@ -1,1 +1,1 @@
-import{$nj as o,$oj as e}from"../../instantiation/common/instantiation.js";const n=o("environmentService"),t=e(n);export{n as $gl,t as $hl};
+import{$oj as o,$pj as e}from"../../instantiation/common/instantiation.js";const r=o("environmentService"),n=e(r);export{r as $hl,n as $il};

@@ -1,1 +1,1 @@
-import{$WB as r}from"../../../../platform/instantiation/common/extensions.js";import{$rX as m}from"../common/speechService.js";import{$4ec as o}from"./speechService.js";r(m,o,0);
+import{$YB as m}from"../../../../platform/instantiation/common/extensions.js";import{$AX as o}from"../common/speechService.js";import{$afc as r}from"./speechService.js";m(o,r,0);

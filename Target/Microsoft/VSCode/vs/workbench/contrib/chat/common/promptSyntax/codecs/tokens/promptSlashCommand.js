@@ -1,1 +1,1 @@
-import{$TR as r}from"./promptToken.js";const s="/";class i extends r{constructor(t,e){super(t),this.name=e}get text(){return`${s}${this.name}`}toString(){return`${this.text}${this.range}`}}export{i as $2R};
+import{$2R as r}from"./promptToken.js";const s="/";class i extends r{constructor(t,e){super(t),this.name=e}get text(){return`${s}${this.name}`}toString(){return`${this.text}${this.range}`}}export{i as $0R};

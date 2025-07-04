@@ -1,1 +1,1 @@
-import{$xQ as e}from"./simpleToken.js";class t extends e{static{this.symbol=" "}get text(){return t.symbol}toString(){return`space${this.range}`}}export{t as $GQ};
+import{$FQ as e}from"./simpleToken.js";class t extends e{static{this.symbol=" "}get text(){return t.symbol}toString(){return`space${this.range}`}}export{t as $OQ};

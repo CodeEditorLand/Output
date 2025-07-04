@@ -1,1 +1,1 @@
-import{$Rl as o}from"../../../../platform/registry/common/platform.js";import{Extensions as r}from"../../../common/contributions.js";import{$0Cc as n}from"./remoteStartEntry.js";o.as(r.Workbench).registerWorkbenchContribution(n,3);
+import{$Sl as o}from"../../../../platform/registry/common/platform.js";import{Extensions as r}from"../../../common/contributions.js";import{$JDc as n}from"./remoteStartEntry.js";o.as(r.Workbench).registerWorkbenchContribution(n,3);

@@ -1,1 +1,1 @@
-function d(e,n){const o=e;typeof o.vscodeWindowId!="number"&&Object.defineProperty(o,"vscodeWindowId",{get:()=>n})}const t=window;function c(e){return e===t?!1:typeof e?.vscodeWindowId=="number"}export{d as $r5,t as $s5,c as $t5};
+function t(e,n){const o=e;typeof o.vscodeWindowId!="number"&&Object.defineProperty(o,"vscodeWindowId",{get:()=>n})}const d=window;function c(e){return e===d?!1:typeof e?.vscodeWindowId=="number"}export{t as $C5,d as $D5,c as $E5};

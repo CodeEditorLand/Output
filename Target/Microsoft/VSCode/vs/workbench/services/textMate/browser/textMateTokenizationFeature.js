@@ -1,1 +1,1 @@
-import{$nj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("textMateTokenizationFeature");export{o as $hQb};
+import{$oj as t}from"../../../../platform/instantiation/common/instantiation.js";const e=t("textMateTokenizationFeature");export{e as $tQb};

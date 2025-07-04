@@ -1,1 +1,1 @@
-import{$bm as s}from"../../../../base/common/actions.js";class u extends s{constructor(t){super(),this.a=t}u(t,o){const r=this.a();return super.u(t,r)}}export{u as $Jgb};
+import{$cm as s}from"../../../../base/common/actions.js";class u extends s{constructor(t){super(),this.a=t}u(t,e){const r=this.a();return super.u(t,r)}}export{u as $Vgb};

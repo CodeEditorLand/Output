@@ -1,1 +1,1 @@
-import{$t$ as m}from"../../../../../base/common/worker/webWorkerBootstrap.js";import{$W$b as o}from"./notebookWebWorker.js";m(o);
+import{$E$ as m}from"../../../../../base/common/worker/webWorkerBootstrap.js";import{$9$b as o}from"./notebookWebWorker.js";m(o);

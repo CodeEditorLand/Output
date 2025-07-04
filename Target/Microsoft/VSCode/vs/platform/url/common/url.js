@@ -1,1 +1,1 @@
-import{$nj as r}from"../../instantiation/common/instantiation.js";const e=r("urlService");export{e as $Ex};
+import{$oj as o}from"../../instantiation/common/instantiation.js";const e=o("urlService");export{e as $Gx};

@@ -1,1 +1,1 @@
-import{$wQ as r}from"./simpleToken.js";class t extends r{static{this.symbol="#"}get text(){return t.symbol}toString(){return`hash${this.range}`}}export{t as $BQ};
+import{$EQ as r}from"./simpleToken.js";class t extends r{static{this.symbol="#"}get text(){return t.symbol}toString(){return`hash${this.range}`}}export{t as $JQ};

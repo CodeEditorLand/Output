@@ -59,4 +59,4 @@ struct VSOutput {
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return vsOut.color;
 }
-`;export{s as $fcb,o as RectangleRendererBindingId};
+`;export{s as $qcb,o as RectangleRendererBindingId};

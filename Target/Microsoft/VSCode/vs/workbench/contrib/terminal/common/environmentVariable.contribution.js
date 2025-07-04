@@ -1,1 +1,1 @@
-import{$Jsc as m}from"./environmentVariableService.js";import{$WB as o}from"../../../../platform/instantiation/common/extensions.js";import{$03 as r}from"./environmentVariable.js";o(r,m,1);
+import{$Ssc as m}from"./environmentVariableService.js";import{$YB as o}from"../../../../platform/instantiation/common/extensions.js";import{$g4 as r}from"./environmentVariable.js";o(r,m,1);

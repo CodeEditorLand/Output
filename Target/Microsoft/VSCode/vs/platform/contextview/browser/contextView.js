@@ -1,1 +1,1 @@
-import{$nj as e}from"../../instantiation/common/instantiation.js";const o=e("contextViewService"),c=e("contextMenuService");export{o as $Ffb,c as $Gfb};
+import{$oj as e}from"../../instantiation/common/instantiation.js";const t=e("contextViewService"),c=e("contextMenuService");export{t as $Rfb,c as $Sfb};

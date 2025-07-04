@@ -1,1 +1,1 @@
-import{$nj as e}from"../../../../../platform/instantiation/common/instantiation.js";const o=e("searchViewModelWorkbenchService");export{o as $Xcc};
+import{$oj as e}from"../../../../../platform/instantiation/common/instantiation.js";const c=e("searchViewModelWorkbenchService");export{c as $0cc};

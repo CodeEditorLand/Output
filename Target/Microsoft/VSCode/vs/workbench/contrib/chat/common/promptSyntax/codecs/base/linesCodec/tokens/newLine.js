@@ -1,2 +1,2 @@
-import{$Ji as e}from"../../../../../../../../../base/common/buffer.js";import{$wQ as r}from"../../simpleCodec/tokens/simpleToken.js";class t extends r{static{this.symbol=`
-`}static{this.byte=e.fromString(t.symbol)}get text(){return t.symbol}get byte(){return t.byte}toString(){return`newline${this.range}`}}export{t as $WQ};
+import{$Ki as e}from"../../../../../../../../../base/common/buffer.js";import{$EQ as r}from"../../simpleCodec/tokens/simpleToken.js";class t extends r{static{this.symbol=`
+`}static{this.byte=e.fromString(t.symbol)}get text(){return t.symbol}get byte(){return t.byte}toString(){return`newline${this.range}`}}export{t as $5Q};

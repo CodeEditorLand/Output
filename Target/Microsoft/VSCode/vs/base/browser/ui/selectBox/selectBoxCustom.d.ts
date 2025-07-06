@@ -1,0 +1,78 @@
+export { u as $c9 };
+declare class u extends O {
+    constructor(t: any, e: any, i: any, s: any, o: any);
+    m: any[];
+    F: number;
+    H: boolean;
+    J: boolean;
+    N: boolean;
+    f: boolean;
+    s: any;
+    g: any;
+    h: HTMLSelectElement;
+    r: H;
+    n: any;
+    O(t: any): void;
+    M: any;
+    getHeight(): number;
+    getTemplateId(): string;
+    P(t: any): void;
+    u: any;
+    w: HTMLElement | undefined;
+    I: any;
+    D: HTMLSpanElement | undefined;
+    G: number | undefined;
+    y: HTMLStyleElement | undefined;
+    Q(): void;
+    get onDidSelect(): any;
+    setOptions(t: any, e: any): void;
+    setEnabled(t: any): void;
+    R(): void;
+    select(t: any): void;
+    setAriaLabel(t: any): void;
+    focus(): void;
+    blur(): void;
+    setFocusable(t: any): void;
+    render(t: any): void;
+    j: any;
+    S(): void;
+    U(): void;
+    W(): void;
+    X(t: any, e: any, i: any): HTMLOptionElement;
+    Y(): void;
+    Z(t: any): void;
+    ab(t: any, e: any): {
+        dispose: () => void;
+    };
+    bb(): number;
+    cb(t: any): boolean;
+    L: number | undefined;
+    db(t: any): number;
+    eb(t: any): void;
+    C: any;
+    t: T | undefined;
+    z: any;
+    fb(t: any): void;
+    gb(): void;
+    hb(t: any, e: any): HTMLDivElement | HTMLSpanElement;
+    ib(t: any): void;
+    jb(t: any): void;
+    kb(t: any): void;
+    lb(t: any): void;
+    mb(t: any): void;
+    nb(t: any): void;
+    ob(t: any): void;
+    pb(t: any): void;
+    qb(t: any): void;
+    rb(t: any): void;
+    sb(t: any): void;
+}
+import { $vd as O } from "../../../common/lifecycle.js";
+import { $ef as H } from "../../../common/event.js";
+declare class T {
+    get templateId(): string;
+    renderTemplate(t: any): any;
+    renderElement(t: any, e: any, i: any): void;
+    disposeTemplate(t: any): void;
+}
+//# sourceMappingURL=selectBoxCustom.d.ts.map

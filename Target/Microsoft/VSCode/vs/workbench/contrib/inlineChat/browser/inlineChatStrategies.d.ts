@@ -1,0 +1,45 @@
+declare let z: {
+    new (n: any, e: any, t: any, a: any, o: any, i: any, s: any, r: any, d: any, h: any, g: any, v: any): {
+        n: any;
+        o: any;
+        p: any;
+        q: any;
+        r: any;
+        s: any;
+        t: any;
+        u: any;
+        v: any;
+        w: any;
+        x: any;
+        a: A;
+        b: A;
+        c: x;
+        d: any;
+        e: any;
+        k: number;
+        m: Map<any, any>;
+        onDidAccept: any;
+        onDidDiscard: any;
+        f: any;
+        g: any;
+        h: any;
+        j: any;
+        dispose(): void;
+        y(): void;
+        apply(): Promise<void>;
+        cancel(): any;
+        makeChanges(n: any, e: any, t: any): Promise<void>;
+        makeProgressiveChanges(n: any, e: any, t: any, a: any): Promise<void>;
+        z(n: any, e: any, t: any, a: any, o: any): Promise<void>;
+        performHunkAction(n: any, e: any): void;
+        A(n: any): any;
+        renderChanges(): Promise<any>;
+        getWholeRangeDecoration(): never[];
+        B(n: any): Promise<void>;
+    };
+};
+declare var _: any;
+import { $oI as A } from "../../../../editor/common/model/textModel.js";
+import { $ud as x } from "../../../../base/common/lifecycle.js";
+export { z as $NSb, _ as HunkAction };
+//# sourceMappingURL=inlineChatStrategies.d.ts.map

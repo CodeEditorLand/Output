@@ -1,0 +1,57 @@
+declare const ct: any;
+declare let D: {
+    new (t: any, e: any, s: any, d: any, n: any, o: any, f: any, R: any, q: any): {
+        readonly telemetryInfo: any;
+        readonly lastModifyingRequestId: any;
+        modifiedURI: any;
+        D: any;
+        F: any;
+        G: any;
+        H: any;
+        I: any;
+        J: any;
+        entryId: string;
+        f: any;
+        onDidDelete: any;
+        g: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        state: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        h: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        waitsForLastEdits: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        j: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        isCurrentlyBeingModifiedBy: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        m: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De | import("../../../../../base/common/observableInternal/observables/lazyObservableValue.js").$Ge;
+        lastModifyingResponse: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De | import("../../../../../base/common/observableInternal/observables/lazyObservableValue.js").$Ge;
+        n: any;
+        t: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        rewriteRatio: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        u: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        w: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        autoAcceptController: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+        z: number;
+        C: any;
+        O: any;
+        createdInRequestId: any;
+        y: import("../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        reviewMode: import("../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        dispose(): void;
+        acquire(): /*elided*/ any;
+        enableReviewModeUntilSettled(): void;
+        updateTelemetryInfo(t: any): void;
+        accept(): Promise<void>;
+        reject(): Promise<void>;
+        N(t: any): void;
+        getEditorIntegration(t: any): any;
+        acceptStreamingEditsStart(t: any, e: any): void;
+        acceptStreamingEditsEnd(): Promise<void>;
+        S(t: any): void;
+        q: import("../../../../../base/common/lifecycle.js").$ud;
+        B(t: any): any;
+    };
+    scheme: string | undefined;
+    c: number | undefined;
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+export { ct as $Dgc, D as $Egc };
+//# sourceMappingURL=chatEditingModifiedFileEntry.d.ts.map

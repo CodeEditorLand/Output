@@ -1,0 +1,55 @@
+export { g as $sCc };
+declare let g: {
+    new (e: any, t: any, i: any, r: any, n: any, c: any, s: any, u: any, m: any, o: any, a: any): {
+        c: any;
+        f: any;
+        g: any;
+        h: any;
+        j: any;
+        m: any;
+        n: any;
+        s: any;
+        t: any;
+        u: any;
+        w: any;
+        b: any;
+        a: any;
+        y(): void;
+        z(e: any): void;
+        C(): void;
+        readonly onDidChangeFocus: any;
+        readonly hasFocus: any;
+        hadLastFocus(): Promise<boolean>;
+        focus(e: any): Promise<void>;
+        readonly onDidChangeActiveWindow: any;
+        readonly onDidChangeFullScreen: any;
+        openWindow(e: any, t: any): Promise<void>;
+        D(e: any, t: any): Promise<void>;
+        F(e: any): void;
+        G(e: any, t: any): any[] | undefined;
+        H(e: any): any;
+        I(e: any, t: any): boolean;
+        J(e: any): Promise<void>;
+        L(e: any, t: any): Promise<void>;
+        toggleFullScreen(e: any): Promise<any>;
+        moveTop(e: any): Promise<void>;
+        getCursorScreenPoint(): Promise<void>;
+        restart(): Promise<void>;
+        reload(): Promise<void>;
+        close(): Promise<void>;
+        withExpectedShutdown(e: any): Promise<any>;
+        M(e: any): Promise<any>;
+        getScreenshot(): Promise<he | undefined>;
+        getBrowserId(): Promise<void>;
+        getNativeWindowHandle(e: any): Promise<void>;
+        q: z;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $Ki as he } from "../../../../base/common/buffer.js";
+import { $ud as z } from "../../../../base/common/lifecycle.js";
+//# sourceMappingURL=browserHostService.d.ts.map

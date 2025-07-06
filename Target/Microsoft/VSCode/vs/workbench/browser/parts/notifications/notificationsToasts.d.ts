@@ -1,0 +1,72 @@
+export { S as $nAc };
+declare let S: {
+    new (t: any, i: any, s: any, e: any, o: any, r: any, n: any, f: any, u: any): {
+        readonly isVisible: boolean;
+        D: any;
+        F: any;
+        G: any;
+        H: any;
+        I: any;
+        J: any;
+        L: any;
+        g: any;
+        onDidChangeVisibility: any;
+        j: boolean;
+        t: Map<any, any>;
+        u: Map<any, any>;
+        C: Y;
+        y: any;
+        M(): void;
+        N(t: any): void;
+        O(t: any): void;
+        P(t: any, i: any): void;
+        m: HTMLElement | undefined;
+        Q(t: any, i: any, s: any, e: any): void;
+        R(t: any): void;
+        S(): void;
+        U(): void;
+        hide(): void;
+        focus(): boolean;
+        focusNext(): boolean;
+        focusPrevious(): boolean;
+        focusFirst(): boolean;
+        focusLast(): boolean;
+        update(t: any): void;
+        s: any;
+        updateStyles(): void;
+        W(t: any): any[];
+        layout(t: any): void;
+        r: any;
+        X(): v;
+        Y(t: any): void;
+        Z(t: any): void;
+        ab(t: any, i: any): void;
+        bb(t: any): boolean;
+        n: any;
+        h: any;
+        w(t: any): void;
+        z(t: any, r: any): any;
+        q: C;
+        dispose(): void;
+        B(t: any): any;
+    };
+    a: number | undefined;
+    b: number | undefined;
+    c: {
+        [d.Info]: number;
+        [d.Warning]: number;
+        [d.Error]: number;
+    } | undefined;
+    f: {
+        interval: number;
+        limit: number;
+    } | undefined;
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $0h as Y } from "../../../../base/common/async.js";
+import { $q6 as v } from "../../../../base/browser/dom.js";
+import { $ud as C } from "../../../../base/common/lifecycle.js";
+import { Severity as d } from "../../../../platform/notification/common/notification.js";
+//# sourceMappingURL=notificationsToasts.d.ts.map

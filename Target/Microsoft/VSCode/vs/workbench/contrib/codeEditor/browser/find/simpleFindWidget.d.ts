@@ -1,0 +1,43 @@
+declare class tt extends C {
+    constructor(t: any, s: any, h: any, n: any, o: any);
+    M: any;
+    I: boolean;
+    J: boolean;
+    L: number;
+    state: any;
+    y: any;
+    a: any;
+    r: any;
+    t: any;
+    w: any;
+    g: HTMLDivElement;
+    c: HTMLDivElement;
+    h: any;
+    n: any;
+    H: HTMLDivElement | undefined;
+    getVerticalSashLeft(t: any): number;
+    get U(): any;
+    get focusTracker(): any;
+    W(t: any): string;
+    isVisible(): boolean;
+    getDomNode(): HTMLDivElement;
+    getFindInputDomNode(): any;
+    reveal(t: any, s?: boolean): void;
+    show(t: any): void;
+    hide(t?: boolean): void;
+    layout(t?: number): void;
+    X(): void;
+    Y(): void;
+    Z(): any;
+    $(): any;
+    ab(): any;
+    bb(t: any): void;
+    cb(): void;
+    updateResultCount(): Promise<void>;
+    changeState(t: any): void;
+    db(t: any, s: any): any;
+}
+declare const M: any;
+import { $Q7 as C } from "../../../../../base/browser/ui/widget.js";
+export { tt as $1sc, M as $2sc };
+//# sourceMappingURL=simpleFindWidget.d.ts.map

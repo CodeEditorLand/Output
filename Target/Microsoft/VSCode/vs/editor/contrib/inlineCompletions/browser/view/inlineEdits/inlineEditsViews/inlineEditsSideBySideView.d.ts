@@ -1,0 +1,64 @@
+export { rt as $Uqb };
+declare let rt: {
+    new (f: any, p: any, m: any, u: any, l: any, y: any, x: any): {
+        f: any;
+        g: any;
+        j: any;
+        m: any;
+        t: any;
+        u: any;
+        w: any;
+        a: any;
+        b: any;
+        onDidClick: any;
+        z: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        C: any;
+        D: any;
+        isHovered: any;
+        previewEditor: any;
+        F: any;
+        G: any[];
+        H: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        I: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        J: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        L: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        M: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        N: any;
+        O: any;
+        P: any;
+        Q: any;
+        R: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        S: any;
+        U: import("../../../../../../../base/common/observableInternal/observables/observableFromEvent.js").$_d | {
+            a: any;
+            readonly debugName: string;
+            get(): any;
+            addObserver(e: any): void;
+            removeObserver(e: any): void;
+            log(): /*elided*/ any;
+            toString(): string;
+            readonly TChange: null;
+            reportChanges(): void;
+            read(e: any): any;
+            map(e: any, t: any): any;
+            flatten(): any;
+            recomputeInitiallyAndOnChange(e: any, t: any): /*elided*/ any;
+            keepObserved(e: any): /*elided*/ any;
+            readonly b: any;
+        };
+        W: import("../../../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        X: import("../../../../../../../base/common/observableInternal/observables/observableFromEvent.js").$_d;
+        Y: any;
+        Z: any;
+        ab: any;
+        bb: any;
+        q: import("../../../../../../../base/common/lifecycle.js").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    fitsInsideViewport(f: any, p: any, m: any, u: any): boolean;
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+//# sourceMappingURL=inlineEditsSideBySideView.d.ts.map

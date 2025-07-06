@@ -1,0 +1,61 @@
+declare let T: {
+    new (t: any, i: any, e: any): {
+        activate(t: any): void;
+        f: any;
+        a: any;
+        m: any;
+        n: any;
+        r: any;
+        b: any;
+        c: boolean;
+        j: any;
+        s(t: any): any;
+        t(t: any): any;
+        clear(): void;
+        u(): void;
+        g: any;
+        w(t: any): boolean;
+        scrollToPreviousMark(t?: number, i?: boolean, e?: boolean): void;
+        scrollToNextMark(t?: number, i?: boolean, e?: boolean): void;
+        z(t: any, i: any): void;
+        C(t: any, i: any, e: any, s: any): void;
+        D(t: any, i: any): any;
+        revealCommand(t: any, i?: number): void;
+        revealRange(t: any): void;
+        showCommandGuide(t: any): void;
+        h: any;
+        saveScrollState(): void;
+        F: {
+            viewportY: any;
+        } | undefined;
+        restoreScrollState(): void;
+        G(t: any): void;
+        registerTemporaryDecoration(t: any, i: any, e: any): void;
+        scrollToLine(t: any, i: any): void;
+        getTargetScrollLine(t: any, i: any): any;
+        H(t: any, i: any): boolean;
+        scrollToClosestMarker(t: any, i: any, e: any): void;
+        selectToPreviousMark(): void;
+        selectToNextMark(): void;
+        selectToPreviousLine(): void;
+        selectToNextLine(): void;
+        scrollToPreviousLine(t: any, i?: number, e?: boolean): void;
+        scrollToNextLine(t: any, i?: number, e?: boolean): void;
+        I(t: any, i: any): any;
+        J(t: any): any;
+        L(t?: boolean): number;
+        M(t?: boolean): any;
+        q: Y;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+declare function c(h: any, t: any): any;
+declare function g(h: any, t: any, i: any): void;
+declare var v: any;
+import { $ud as Y } from "../../../../../base/common/lifecycle.js";
+export { T as $SYb, c as $TYb, g as $UYb, v as ScrollPosition };
+//# sourceMappingURL=markNavigationAddon.d.ts.map

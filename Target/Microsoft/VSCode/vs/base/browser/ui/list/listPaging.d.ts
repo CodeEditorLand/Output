@@ -1,0 +1,48 @@
+export { M as $y0 };
+declare class M {
+    constructor(e: any, t: any, s: any, i: any, r?: {});
+    a: g;
+    updateOptions(e: any): void;
+    getHTMLElement(): HTMLDivElement;
+    isDOMFocused(): boolean;
+    domFocus(): void;
+    get onDidFocus(): any;
+    get onDidBlur(): any;
+    get widget(): g;
+    get onDidDispose(): any;
+    get onMouseClick(): any;
+    get onMouseDblClick(): any;
+    get onTap(): any;
+    get onPointer(): any;
+    get onDidChangeFocus(): any;
+    get onDidChangeSelection(): any;
+    get onContextMenu(): any;
+    set model(e: any);
+    get model(): any;
+    b: any;
+    get length(): number;
+    set scrollTop(e: any);
+    get scrollTop(): any;
+    set scrollLeft(e: any);
+    get scrollLeft(): any;
+    setAnchor(e: any): void;
+    getAnchor(): any;
+    setFocus(e: any): void;
+    focusNext(e: any, t: any): void;
+    focusPrevious(e: any, t: any): void;
+    focusNextPage(): Promise<void>;
+    focusPreviousPage(): Promise<void>;
+    focusLast(): void;
+    focusFirst(): void;
+    getFocus(): any;
+    setSelection(e: any, t: any): void;
+    getSelection(): any;
+    getSelectedElements(): any;
+    layout(e: any, t: any): void;
+    triggerTypeNavigation(): void;
+    reveal(e: any, t: any): void;
+    style(e: any): void;
+    dispose(): void;
+}
+import { $58 as g } from "./listWidget.js";
+//# sourceMappingURL=listPaging.d.ts.map

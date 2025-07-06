@@ -1,0 +1,138 @@
+export { W as $KVb };
+declare let W: {
+    new (e: any, t: any, o: any, r: any, n: any, i: any, h: any, s: any, d: any, w: any, b: any, l: any, p: any, u: any, f: any, c: any, $: any): {
+        readonly onDidFocus: any;
+        readonly onDidBlur: any;
+        eb: any;
+        fb: any;
+        gb: any;
+        hb: any;
+        ib: any;
+        jb: any;
+        kb: any;
+        lb: any;
+        mb: any;
+        nb: any;
+        ob: any;
+        pb: any;
+        b: any;
+        c: any;
+        f: {
+            value: undefined;
+        };
+        m: any;
+        r: any;
+        s: any;
+        u: any;
+        onDidChangeModel: any;
+        cb: any;
+        onDidChangeSelection: any;
+        db: any;
+        onDidChangeScroll: any;
+        a: any;
+        qb(e: any): void;
+        rb(e: any): void;
+        sb(e: any): void;
+        readonly textModel: any;
+        minimumWidth: number;
+        maximumWidth: number;
+        readonly scopedContextKeyService: any;
+        Y(e: any): void;
+        g: any;
+        getActionViewItem(e: any, t: any): any;
+        getControl(): undefined;
+        setVisible(e: any): void;
+        Z(e: any): void;
+        focus(): void;
+        hasFocus(): boolean;
+        setInput(e: any, t: any, o: any, r: any, n: any): any;
+        vb(e: any, t: any, o: any): void;
+        clearInput(): void;
+        setOptions(e: any): void;
+        I(): void;
+        getViewState(): any;
+        getSelection(): x | undefined;
+        getScrollPosition(): {
+            scrollTop: any;
+            scrollLeft: number;
+        };
+        setScrollPosition(e: any): void;
+        xb(e: any): void;
+        yb(e: any): any;
+        layout(e: any, t: any): void;
+        j: {
+            dimension: any;
+            position: any;
+        } | undefined;
+        readonly minimumHeight: any;
+        readonly maximumHeight: any;
+        readonly input: any;
+        readonly options: any;
+        readonly window: any;
+        group: any;
+        onDidChangeSizeConstraints: any;
+        S: any;
+        onDidChangeControl: any;
+        create(t: any): void;
+        W: any;
+        X: any;
+        setBoundarySashes(t: any): void;
+        ab(t: any, e: any, n: any, i?: number): any;
+        dispose(): void;
+        y: any;
+        J: any;
+        M(): any;
+        L: boolean;
+        Q: any;
+        t: any;
+        onTitleAreaUpdate: any;
+        O: boolean;
+        getTitle(): void;
+        P: any;
+        getContainer(): any;
+        getMenuIds(): never[];
+        getActions(): never[];
+        getSecondaryActions(): never[];
+        getContextMenuActions(): never[];
+        getActionsContext(): null;
+        getActionRunner(): any;
+        N: any;
+        R(): void;
+        isVisible(): boolean;
+        D: any;
+        C: import("../../../common/memento.js").$Dub;
+        getId(): any;
+        F(t: any, e: any): any;
+        G(t: any): void;
+        H(t: any, e: any): any;
+        n: any;
+        h: any;
+        w(t: any): void;
+        updateStyles(): void;
+        z(t: any, r: any): any;
+        q: M;
+        B(t: any): any;
+    };
+    ID: string | undefined;
+    U: Map<any, any> | undefined;
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+declare class x {
+    constructor(e: any, t: any);
+    a: any;
+    b: any;
+    compare(e: any): 1 | 3;
+    restore(e: any): {
+        cellOptions: {
+            resource: any;
+            options: {
+                selection: any;
+            };
+        };
+    };
+    log(): any;
+}
+import { $ud as M } from "../../../../base/common/lifecycle.js";
+//# sourceMappingURL=notebookEditor.d.ts.map

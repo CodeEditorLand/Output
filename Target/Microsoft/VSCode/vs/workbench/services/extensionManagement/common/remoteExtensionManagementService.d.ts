@@ -1,0 +1,76 @@
+export { a as $fCc };
+declare let a: {
+    new (e: any, t: any, r: any, s: any, i: any, o: any, n: any): {
+        $: any;
+        ab: any;
+        Z(e: any, t: any): Promise<boolean>;
+        Y(e: any): Promise<any>;
+        X(e: any, t: any, r: any): Promise<{
+            removed: any[];
+            added: any[];
+        } | {
+            added: never[];
+            removed: never[];
+        }>;
+        readonly onProfileAwareDidInstallExtensions: any;
+        readonly onProfileAwareDidUninstallExtension: any;
+        readonly onProfileAwareDidUpdateExtensionMetadata: any;
+        M: any;
+        N: any;
+        H: any;
+        onDidChangeProfile: any;
+        I: any;
+        J: any;
+        L: any;
+        w(t: any): Promise<void>;
+        y(t: any): Promise<void>;
+        z(t: any): Promise<void>;
+        C(t: any): Promise<void>;
+        D(t: any): Promise<void>;
+        install(t: any, i: any): Promise<any>;
+        installFromLocation(t: any, i: any): Promise<any>;
+        installFromGallery(t: any, i: any): Promise<any>;
+        installGalleryExtensions(t: any): Promise<any>;
+        uninstall(t: any, i: any): Promise<any>;
+        uninstallExtensions(t: any): Promise<any>;
+        getInstalled(t: null | undefined, i: any, e: any): Promise<any>;
+        updateMetadata(t: any, i: any, e: any): Promise<any>;
+        toggleApplicationScope(t: any, i: any): Promise<any>;
+        copyExtensions(t: any, i: any): Promise<any>;
+        W(t: any): Promise<void>;
+        readonly onInstallExtension: any;
+        readonly onDidInstallExtensions: any;
+        readonly onUninstallExtension: any;
+        readonly onDidUninstallExtension: any;
+        readonly onDidUpdateExtensionMetadata: any;
+        u: any;
+        f: any;
+        m: any;
+        n: any;
+        s: any;
+        t: any;
+        F(t: any): boolean;
+        getTargetPlatform(): any;
+        G: any;
+        zip(t: any): Promise<any>;
+        installExtensionsFromProfile(t: any, i: any, e: any): Promise<any>;
+        getManifest(t: any): Promise<any>;
+        resetPinnedStateForAllUserExtensions(t: any): any;
+        getExtensionsControlManifest(): Promise<any>;
+        download(t: any, i: any, e: any): Promise<any>;
+        cleanUp(): Promise<any>;
+        registerParticipant(): void;
+        g: any;
+        h: any;
+        preferPreReleases: boolean;
+        canInstall(i: any): Promise<true | import("../../../../base/common/htmlContent.js").$Vj>;
+        j(i: any): Promise<any>;
+        q: import("../../../../base/common/lifecycle.js").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+//# sourceMappingURL=remoteExtensionManagementService.d.ts.map

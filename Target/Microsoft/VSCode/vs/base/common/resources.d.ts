@@ -1,0 +1,47 @@
+declare function s(i: any): any;
+declare class u {
+    constructor(t: any);
+    a: any;
+    compare(t: any, e: any, n?: boolean): 0 | 1 | -1;
+    isEqual(t: any, e: any, n?: boolean): boolean;
+    getComparisonKey(t: any, e?: boolean): any;
+    ignorePathCasing(t: any): any;
+    isEqualOrParent(t: any, e: any, n?: boolean): boolean;
+    joinPath(t: any, ...e: any[]): any;
+    basenameOrAuthority(t: any): any;
+    basename(t: any): any;
+    extname(t: any): any;
+    dirname(t: any): any;
+    normalizePath(t: any): any;
+    relativePath(t: any, e: any): any;
+    resolvePath(t: any, e: any): any;
+    isAbsolutePath(t: any): boolean;
+    isEqualAuthority(t: any, e: any): boolean;
+    hasTrailingPathSeparator(t: any, e?: string): boolean;
+    removeTrailingPathSeparator(t: any, e?: string): any;
+    addTrailingPathSeparator(t: any, e?: string): any;
+}
+declare const h: u;
+declare const S: u;
+declare const C: u;
+declare function I(t: any, e: any, n?: boolean): boolean;
+declare function w(t: any, e: any, n?: boolean): boolean;
+declare function O(t: any, e?: boolean): any;
+declare function z(t: any): any;
+declare function T(t: any): any;
+declare function K(t: any): any;
+declare function L(t: any): any;
+declare function R(t: any, ...e: any[]): any;
+declare function j(t: any): any;
+declare function D(t: any, e: any): any;
+declare function k(t: any, e: any): any;
+declare function N(t: any): boolean;
+declare function c(t: any, e: any): boolean;
+declare function d(t: any, e?: string): boolean;
+declare function J(t: any, e?: string): any;
+declare function Z(t: any, e?: string): any;
+declare function B(i: any, t: any): any[];
+declare function H(i: any, t: any, e: any): any;
+declare var x: any;
+export { s as $_g, u as $ah, h as $bh, S as $ch, C as $dh, I as $eh, w as $fh, O as $gh, z as $hh, T as $ih, K as $jh, L as $kh, R as $lh, j as $mh, D as $nh, k as $oh, N as $ph, c as $qh, d as $rh, J as $sh, Z as $th, B as $uh, H as $vh, x as DataUri };
+//# sourceMappingURL=resources.d.ts.map

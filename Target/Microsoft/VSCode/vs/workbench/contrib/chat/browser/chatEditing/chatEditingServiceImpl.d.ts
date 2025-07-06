@@ -1,0 +1,85 @@
+declare let j: {
+    new (t: any, i: any, e: any, n: any, s: any, o: any, a: any, u: any, v: any, S: any, y: any, l: any, c: any, d: any): {
+        h: any;
+        j: any;
+        m: any;
+        n: any;
+        s: any;
+        t: any;
+        c: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De | import("../../../../../base/common/observableInternal/observables/lazyObservableValue.js").$Ge;
+        editingSessionsObs: import("../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+        g: Map<any, any>;
+        dispose(): void;
+        startOrContinueGlobalEditingSession(t: any, i?: boolean): Promise<any>;
+        u(t: any): {
+            readonly telemetryInfo: any;
+            readonly lastModifyingRequestId: any;
+            modifiedURI: any;
+            D: any;
+            F: any;
+            G: any;
+            H: any;
+            I: any;
+            J: any;
+            entryId: string;
+            f: any;
+            onDidDelete: any;
+            g: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            state: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            h: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            waitsForLastEdits: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            j: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            isCurrentlyBeingModifiedBy: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            m: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De | import("../../../../../base/common/observableInternal/observables/lazyObservableValue.js").$Ge;
+            lastModifyingResponse: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De | import("../../../../../base/common/observableInternal/observables/lazyObservableValue.js").$Ge;
+            n: any;
+            t: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            rewriteRatio: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            u: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            w: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            autoAcceptController: import("../../../../../base/common/observableInternal/observables/observableValue.js").$De;
+            z: number;
+            C: any;
+            O: any;
+            createdInRequestId: any;
+            y: import("../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+            reviewMode: import("../../../../../base/common/observableInternal/observables/derivedImpl.js").$re;
+            dispose(): void;
+            acquire(): /*elided*/ any;
+            enableReviewModeUntilSettled(): void;
+            updateTelemetryInfo(t: any): void;
+            accept(): Promise<void>;
+            reject(): Promise<void>;
+            N(t: any): void;
+            getEditorIntegration(t: any): any;
+            acceptStreamingEditsStart(t: any, e: any): void;
+            acceptStreamingEditsEnd(): Promise<void>;
+            S(t: any): void;
+            q: P;
+            B(t: any): any;
+        } | undefined;
+        getEditingSession(t: any): any;
+        createEditingSession(t: any, i?: boolean): Promise<any>;
+        w(t: any, i: any): P;
+        y(t: any, i: any, e: any, n: any): void;
+        hasRelatedFilesProviders(): boolean;
+        registerRelatedFilesProvider(t: any, i: any): any;
+        getRelatedFiles(t: any, i: any, e: any, n: any): Promise<any>;
+        q: P;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+declare let C: {
+    new (t: any, i: any): {
+        c: any;
+        d: any;
+        canHandleUri(t: any): boolean;
+        resolveDiffSource(t: any): Promise<any>;
+    };
+};
+import { $ud as P } from "../../../../../base/common/lifecycle.js";
+export { j as $ehc, C as $fhc };
+//# sourceMappingURL=chatEditingServiceImpl.d.ts.map

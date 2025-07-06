@@ -1,0 +1,51 @@
+export { c as $Icb };
+declare class c {
+    constructor(e: any, i: any, s: any, t: any);
+    a: any;
+    b: any;
+    c: any;
+    d: any;
+    paste(e: any, i: any, s: any, t: any): void;
+    type(e: any): void;
+    compositionType(e: any, i: any, s: any, t: any): void;
+    compositionStart(): void;
+    compositionEnd(): void;
+    cut(): void;
+    setSelection(e: any): void;
+    f(e: any): any;
+    g(e: any): any;
+    h(e: any): any;
+    dispatchMouse(e: any): void;
+    i(e: any, i: any): {
+        source: string;
+        position: any;
+        viewPosition: any;
+        revealType: any;
+    };
+    moveTo(e: any, i: any): void;
+    j(e: any, i: any): void;
+    k(e: any, i: any, s: any): void;
+    l(e: any, i: any): void;
+    m(e: any, i: any): void;
+    n(e: any, i: any): void;
+    o(e: any, i: any): void;
+    p(e: any, i: any): void;
+    q(e: any, i: any): void;
+    r(e: any, i: any): void;
+    s(e: any, i: any): void;
+    t(e: any, i: any): void;
+    u(): void;
+    v(e: any): any;
+    emitKeyDown(e: any): void;
+    emitKeyUp(e: any): void;
+    emitContextMenu(e: any): void;
+    emitMouseMove(e: any): void;
+    emitMouseLeave(e: any): void;
+    emitMouseUp(e: any): void;
+    emitMouseDown(e: any): void;
+    emitMouseDrag(e: any): void;
+    emitMouseDrop(e: any): void;
+    emitMouseDropCanceled(): void;
+    emitMouseWheel(e: any): void;
+}
+//# sourceMappingURL=viewController.d.ts.map

@@ -1,0 +1,101 @@
+export { d as $F5b };
+declare let d: {
+    new (t: any, e: any, i: any, s: any, r: any): {
+        readonly minimumHeight: number;
+        readonly maximumHeight: number;
+        readonly onDidChange: any;
+        eb: any;
+        fb: any;
+        height: number;
+        minimumWidth: number;
+        maximumWidth: number;
+        a: any;
+        y: boolean;
+        db: number;
+        c: any;
+        Q(t: any): any;
+        element: any;
+        hb(t: any): void;
+        ib(): void;
+        jb(t: any): any;
+        kb(t: any): any;
+        lb(t: any): void;
+        focus(): void;
+        focusNextAction(): void;
+        focusPreviousAction(): void;
+        hide(t: any): void;
+        show(t: any): void;
+        cb: any;
+        bb: any;
+        b: any;
+        toJSON(): {
+            type: string;
+        };
+        readonly dimension: import("../../../../base/browser/dom.js").$q6 | undefined;
+        readonly contentPosition: {
+            top: any;
+            left: any;
+        } | undefined;
+        L: any;
+        M: any;
+        j: any;
+        onDidVisibilityChange: any;
+        ab: any;
+        w(t: any): void;
+        create(t: any, i: any): void;
+        m: any;
+        s: void | undefined;
+        t: void | undefined;
+        J: {
+            f: any;
+            g: any;
+            d: boolean;
+            e: boolean;
+            layout(t: any, i: any): {
+                headerSize: import("../../../../base/browser/dom.js").$q6 | undefined;
+                titleSize: import("../../../../base/browser/dom.js").$q6 | undefined;
+                contentSize: import("../../../../base/browser/dom.js").$q6;
+                footerSize: import("../../../../base/browser/dom.js").$q6 | undefined;
+            };
+            setFooterVisibility(t: any): void;
+            setHeaderVisibility(t: any): void;
+        } | undefined;
+        getContainer(): any;
+        O(t: any, i: any): void;
+        P(): void | undefined;
+        R(): void | undefined;
+        S(t: any): void;
+        r: any;
+        U(t: any): void;
+        u: any;
+        W(): void;
+        X(): void;
+        Y(): void;
+        Z(t: any, i: any): any;
+        layout(t: any, i: any, s: any, e: any): void;
+        f: import("../../../../base/browser/dom.js").$q6 | undefined;
+        g: {
+            top: any;
+            left: any;
+        } | undefined;
+        setVisible(t: any): void;
+        D: any;
+        C: import("../../../common/memento").$Dub;
+        getId(): any;
+        F(t: any, e: any): any;
+        G(t: any): void;
+        H(t: any, e: any): any;
+        I(): void;
+        n: any;
+        h: any;
+        updateStyles(): void;
+        z(t: any, r: any): any;
+        q: import("../../../../base/common/lifecycle").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+//# sourceMappingURL=bannerPart.d.ts.map

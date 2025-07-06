@@ -1,0 +1,25 @@
+declare function A(t: any): any;
+declare function g(t: any, n: any): void;
+declare function i(t: any): boolean;
+declare function x(t: any): boolean;
+declare function $(t: any): boolean;
+declare function a(t: any): boolean;
+declare function h(t: any): boolean;
+declare function w(t: any): boolean;
+declare function p(t: any): boolean;
+declare function m(t: any): boolean;
+declare function o(t: any): boolean;
+declare function u(t: any): t is string;
+declare function y(t: any): t is string[];
+declare function E(t: any, n: any): void;
+declare function O(...t: any[]): any[];
+declare function T(t: any, n: any): any;
+declare function U(t: any): void;
+declare function P(t: any): boolean;
+declare function c(t: any): boolean;
+declare function N(...t: any[]): boolean;
+declare function S(t: any, n: any): void;
+declare function l(t: any, n: any): void;
+declare function _(t: any): any;
+export { A as $$c, g as $0c, i as $1c, x as $2c, $ as $3c, a as $4c, h as $5c, w as $6c, p as $7c, m as $8c, o as $9c, u as $Yc, y as $Zc, E as $_c, O as $ad, T as $bd, U as $cd, P as $dd, c as $ed, N as $fd, S as $gd, l as $hd, _ as $id };
+//# sourceMappingURL=types.d.ts.map

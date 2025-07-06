@@ -1,0 +1,48 @@
+declare function it(e: any): void;
+declare function st(e: any): void;
+declare class l extends W {
+    static J(t: any, i?: boolean): void;
+    static L(t: any, i?: boolean): void;
+    constructor(t: any, i: any, s: any);
+    set state(t: number);
+    get state(): number;
+    set orthogonalStartSash(t: any);
+    get orthogonalStartSash(): any;
+    set orthogonalEndSash(t: any);
+    get orthogonalEndSash(): any;
+    j: number;
+    z: any;
+    w: any;
+    G: any;
+    D: any;
+    g: number;
+    h: any;
+    m: any;
+    n: any;
+    r: any;
+    s: any;
+    t: any;
+    u: any;
+    y: any;
+    C: any;
+    F: any;
+    onDidStart: any;
+    onDidChange: any;
+    onDidReset: any;
+    onDidEnd: any;
+    a: any;
+    f: any;
+    b: any;
+    c: any;
+    H(t: any, i: any): void;
+    I(t: any): void;
+    clearSashHoverState(): void;
+    layout(): void;
+    M(t: any): any;
+}
+declare var H: any;
+declare var T: any;
+declare var C: any;
+import { $vd as W } from "../../../common/lifecycle.js";
+export { it as $V9, st as $W9, l as $X9, H as Orientation, T as OrthogonalEdge, C as SashState };
+//# sourceMappingURL=sash.d.ts.map

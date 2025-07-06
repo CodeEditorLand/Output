@@ -1,0 +1,71 @@
+declare let F: {
+    new (e: any, t: any, i: any, n: any, r: any): {
+        r: any;
+        s: any;
+        t: any;
+        u: any;
+        w: any;
+        c: any;
+        onDidChangeViewVisibility: any;
+        f: any;
+        onDidChangeViewContainerVisibility: any;
+        g: any;
+        onDidChangeFocusedView: any;
+        h: any;
+        a: Map<any, any>;
+        j: Map<any, any>;
+        m: Map<any, any>;
+        b: Map<any, any>;
+        n: any;
+        y(e: any): void;
+        z(e: any, t: any): void;
+        C(e: any): void;
+        D(e: any): any;
+        F(e: any, t: any): void;
+        G(e: any, t: any): void;
+        H(e: any, t: any): void;
+        I(e: any, t: any, i: any): void;
+        J(e: any, t: any): void;
+        L(e: any): void;
+        M(e: any): void;
+        N(e: any, t: any, i: any): Promise<any>;
+        O(e: any, t: any): any;
+        isViewContainerVisible(e: any): boolean;
+        isViewContainerActive(e: any): boolean;
+        getVisibleViewContainer(e: any): any;
+        getActiveViewPaneContainerWithId(e: any): any;
+        openViewContainer(e: any, t: any): Promise<any>;
+        closeViewContainer(e: any): Promise<any>;
+        isViewVisible(e: any): any;
+        getActiveViewWithId(e: any): any;
+        getViewWithId(e: any): any;
+        getFocusedView(): any;
+        getFocusedViewName(): any;
+        openView(e: any, t: any): Promise<any>;
+        closeView(e: any): void;
+        P(e: any): any;
+        getViewProgressIndicator(e: any): any;
+        Q(e: any): any;
+        R(e: any): w;
+        S(e: any): w;
+        U(e: any, t: any): {
+            dispose(): void;
+        };
+        W(e: any): {
+            dispose(): void;
+        };
+        X(e: any, t: any): void;
+        Y(e: any, t: any): void;
+        Z(e: any, t: any, i: any, n: any, r: any): any;
+        q: w;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+declare function M(d: any): "workbench.parts.sidebar" | "workbench.parts.panel" | "workbench.parts.auxiliarybar";
+import { $ud as w } from "../../../../base/common/lifecycle.js";
+export { F as $q7b, M as $r7b };
+//# sourceMappingURL=viewsService.d.ts.map

@@ -1,0 +1,87 @@
+declare const nt: D;
+declare const Ft: D;
+declare let z: {
+    new (t: any, e: any, i: any, s: any, n: any, o: any): {
+        z: any;
+        A: any;
+        B: any;
+        C: any;
+        D: any;
+        allowEditorOverflow: boolean;
+        y: y;
+        x: any;
+        l: boolean;
+        s: number;
+        t: boolean;
+        m: Set<any>;
+        q: M;
+        b: ot;
+        dispose(): void;
+        getId(): string;
+        getDomNode(): HTMLDivElement;
+        a: HTMLDivElement | undefined;
+        d: any;
+        f: HTMLDivElement | undefined;
+        E(t: any): void;
+        F(): void;
+        G(t: any): number;
+        getPosition(): {
+            position: j | undefined;
+            preference: number[];
+        } | null;
+        g: any;
+        h: number | undefined;
+        beforeRender(): null;
+        afterRender(t: any): void;
+        acceptInput(t: any): void;
+        cancelInput(t: any, e: any): void;
+        focusNextRenameSuggestion(): void;
+        focusPreviousRenameSuggestion(): void;
+        getInput(t: any, e: any, i: any, s: any, n: any): Promise<any>;
+        w: any;
+        J: any;
+        i: j | undefined;
+        j: any;
+        I: any;
+        H: any;
+        K(t: any, e: any): void;
+        u: T | undefined;
+        L(t: any, e: any): {
+            start: number;
+            end: any;
+        };
+        M(): void;
+        o: boolean | undefined;
+        N(t: any, e: any, i: any): Promise<void>;
+        O(): void;
+        P(): number;
+        Q(...t: any[]): void;
+    };
+};
+import { $Wn as D } from "../../../../platform/contextkey/common/contextkey.js";
+import { $ud as y } from "../../../../base/common/lifecycle.js";
+import { $$e as M } from "../../../../base/common/stopwatch.js";
+declare class ot {
+    g: string;
+    m: L;
+    onDidInputChange: any;
+    o: y;
+    get domNode(): HTMLDivElement;
+    b: HTMLDivElement | undefined;
+    d: HTMLInputElement | undefined;
+    f: HTMLDivElement | undefined;
+    h: any;
+    i: any;
+    get input(): HTMLInputElement | undefined;
+    get button(): HTMLDivElement | undefined;
+    get buttonState(): string | undefined;
+    setSparkleButton(): void;
+    a: string | undefined;
+    setStopButton(): void;
+    dispose(): void;
+}
+import { $dC as j } from "../../../common/core/position.js";
+import { $qf as T } from "../../../../base/common/cancellation.js";
+import { $ef as L } from "../../../../base/common/event.js";
+export { nt as $4sb, Ft as $5sb, z as $6sb };
+//# sourceMappingURL=renameWidget.d.ts.map

@@ -1,0 +1,65 @@
+export { p as $8sc };
+declare let p: {
+    new (t: any, i: any, s: any, r: any, n: any, h: any, e: any, m: any, u: any, g: any, f: any, w: any): {
+        w: any;
+        y: any;
+        z: any;
+        C: any;
+        D: any;
+        F: any;
+        G: any;
+        H: any;
+        b: J;
+        r: any;
+        s: number;
+        t: boolean;
+        u: number;
+        n: any;
+        a: any;
+        c: any;
+        lockHide(): void;
+        unlockHide(): void;
+        I(t: any): void;
+        J(): void;
+        L(): void;
+        M(t: any): void;
+        N(): void;
+        O(): void;
+        P(t: any, i: any): void;
+        m: any;
+        j: any;
+        Q(): void;
+        h: HTMLElement | undefined;
+        g: any;
+        R(): void;
+        S(): {
+            cursorInactiveStyle: string;
+            scrollback: number;
+            logLevel: string;
+            theme: any;
+            documentOverride: any;
+            fontFamily: any;
+            fontWeight: any;
+            fontWeightBold: any;
+            fontSize: any;
+            letterSpacing: any;
+            lineHeight: any;
+            drawBoldTextInBrightColors: any;
+            minimumContrastRatio: any;
+            tabStopWidth: any;
+            customGlyphs: any;
+        };
+        U(): Promise<void>;
+        f: any;
+        W(): boolean;
+        X(t: any): any;
+        q: import("../../../../../base/common/lifecycle.js").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $lZb as J } from "../../../terminal/browser/xterm/xtermAddonImporter.js";
+//# sourceMappingURL=terminalStickyScrollOverlay.d.ts.map

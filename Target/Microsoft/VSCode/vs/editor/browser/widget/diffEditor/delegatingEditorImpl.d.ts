@@ -1,0 +1,41 @@
+export { r as $bgb };
+declare class r extends o {
+    constructor(...args: any[]);
+    b: number;
+    f: any;
+    onDidDispose: any;
+    getId(): string;
+    getVisibleColumnFromPosition(e: any): any;
+    getStatusbarColumn(e: any): any;
+    getPosition(): any;
+    setPosition(e: any, t?: string): void;
+    revealLine(e: any, t?: number): void;
+    revealLineInCenter(e: any, t?: number): void;
+    revealLineInCenterIfOutsideViewport(e: any, t?: number): void;
+    revealLineNearTop(e: any, t?: number): void;
+    revealPosition(e: any, t?: number): void;
+    revealPositionInCenter(e: any, t?: number): void;
+    revealPositionInCenterIfOutsideViewport(e: any, t?: number): void;
+    revealPositionNearTop(e: any, t?: number): void;
+    getSelection(): any;
+    getSelections(): any;
+    setSelection(e: any, t?: string): void;
+    setSelections(e: any, t?: string): void;
+    revealLines(e: any, t: any, i?: number): void;
+    revealLinesInCenter(e: any, t: any, i?: number): void;
+    revealLinesInCenterIfOutsideViewport(e: any, t: any, i?: number): void;
+    revealLinesNearTop(e: any, t: any, i?: number): void;
+    revealRange(e: any, t?: number, i?: boolean, n?: boolean): void;
+    revealRangeInCenter(e: any, t?: number): void;
+    revealRangeInCenterIfOutsideViewport(e: any, t?: number): void;
+    revealRangeNearTop(e: any, t?: number): void;
+    revealRangeNearTopIfOutsideViewport(e: any, t?: number): void;
+    revealRangeAtTop(e: any, t?: number): void;
+    getSupportedActions(): any;
+    focus(): void;
+    trigger(e: any, t: any, i: any): void;
+    createDecorationsCollection(e: any): any;
+    changeDecorations(e: any): any;
+}
+import { $vd as o } from "../../../../base/common/lifecycle.js";
+//# sourceMappingURL=delegatingEditorImpl.d.ts.map

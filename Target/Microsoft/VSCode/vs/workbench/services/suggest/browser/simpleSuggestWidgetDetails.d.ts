@@ -1,0 +1,72 @@
+declare function A(r: any): boolean;
+declare const K: "suggest-details";
+declare let v: {
+    new (t: any, s: any, e: any, i: any): {
+        r: any;
+        s: any;
+        c: C;
+        onDidClose: any;
+        d: C;
+        onDidChangeContents: any;
+        l: b;
+        n: any;
+        o: number;
+        q: n.$q6;
+        domNode: HTMLElement;
+        m: any;
+        h: HTMLElement;
+        g: L;
+        i: any;
+        f: any;
+        j: any;
+        k: any;
+        t(): void;
+        dispose(): void;
+        getLayoutInfo(): {
+            lineHeight: any;
+            borderWidth: number;
+            borderHeight: number;
+            verticalPadding: number;
+            horizontalPadding: number;
+        };
+        renderLoading(): void;
+        renderItem(t: any, s: any): void;
+        clearContents(): void;
+        readonly isEmpty: boolean;
+        readonly size: n.$q6;
+        layout(t: any, s: any): void;
+        scrollDown(t?: number): void;
+        scrollUp(t?: number): void;
+        scrollTop(): void;
+        scrollBottom(): void;
+        pageDown(): void;
+        pageUp(): void;
+        borderWidth: number;
+        focus(): void;
+    };
+};
+declare class X {
+    constructor(t: any, s: any);
+    widget: any;
+    j: any;
+    c: b;
+    f: boolean;
+    d: any;
+    h: any;
+    dispose(): void;
+    getId(): string;
+    getDomNode(): any;
+    show(): void;
+    hide(t?: boolean): void;
+    placeAtAnchor(t: any): void;
+    g: any;
+    _placeAtAnchor(t: any, s: any): void;
+    k(t: any): void;
+    i: any;
+}
+import { $ef as C } from "../../../../base/common/event.js";
+import { $ud as b } from "../../../../base/common/lifecycle.js";
+import * as n from "../../../../base/browser/dom.js";
+import { $37 as L } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+export { A as $luc, K as $muc, v as $nuc, X as $ouc };
+//# sourceMappingURL=simpleSuggestWidgetDetails.d.ts.map

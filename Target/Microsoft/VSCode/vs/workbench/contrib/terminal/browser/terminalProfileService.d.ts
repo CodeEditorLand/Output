@@ -1,0 +1,50 @@
+export { l as $Osc };
+declare let l: {
+    new (t: any, e: any, i: any, s: any, o: any, n: any, a: any): {
+        readonly onDidChangeAvailableProfiles: any;
+        readonly profilesReady: any;
+        readonly availableProfiles: any;
+        readonly contributedProfiles: any[];
+        t: any;
+        u: any;
+        w: any;
+        y: any;
+        z: any;
+        C: any;
+        D: any;
+        h: any[];
+        m: boolean;
+        n: any;
+        r: Map<any, any>;
+        s: any;
+        a: any;
+        c: any;
+        b: m;
+        F(): Promise<void>;
+        getDefaultProfileName(): any;
+        getDefaultProfile(t: any): any;
+        G(t: any): "linux" | "windows" | "osx" | undefined;
+        refreshAvailableProfiles(): void;
+        H(): Promise<void>;
+        f: any;
+        g: any;
+        I(): Promise<boolean>;
+        getContributedProfileProvider(t: any, e: any): any;
+        J(t: any): any;
+        j: any;
+        L(): void;
+        M(t: any): Promise<void>;
+        getPlatformKey(): Promise<"linux" | "windows" | "osx">;
+        registerTerminalProfileProvider(t: any, e: any, i: any): any;
+        registerContributedProfile(t: any): Promise<void>;
+        getContributedDefaultProfile(t: any): Promise<any>;
+        q: import("../../../../base/common/lifecycle.js").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $Mh as m } from "../../../../base/common/async.js";
+//# sourceMappingURL=terminalProfileService.d.ts.map

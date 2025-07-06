@@ -1,0 +1,135 @@
+declare let p: {
+    new (e: any, h: any, o: any, n: any, i: any, t: any, s: any, c: any, l: any, m: any, P: any, $: any): {
+        nb: number;
+        tb: any;
+        ob(e: any, h: any, o: any): Promise<any[]>;
+        sb(e: any): Promise<boolean>;
+        pb(e: any, h: any): Promise<any>;
+        qb(e: any, h: any, o: any, n: any): Promise<{
+            content: any;
+            localChange: any;
+            remoteChange: any;
+        }>;
+        rb(e: any, h: any, o: any, n: any): Promise<void>;
+        zb(e: any, h: any, o: any, n: any): any[];
+        resolveContent(e: any): Promise<any>;
+        hasLocalData(): Promise<boolean>;
+        Ab(e: any): Promise<void>;
+        Bb(e: any, h: any): Promise<void>;
+        Cb(e: any, h: any, o: any): Promise<any>;
+        Db(e: any): any;
+        Eb(e: any): {};
+        Fb(): Promise<{}>;
+        readonly status: string;
+        readonly conflicts: any;
+        syncResource: any;
+        collection: any;
+        G: any;
+        H: any;
+        I: any;
+        J: any;
+        L: any;
+        M: any;
+        N: any;
+        O: any;
+        P: any;
+        c: any;
+        m: string;
+        n: any;
+        onDidChangeStatus: any;
+        s: any[];
+        t: any;
+        onDidChangeConflicts: any;
+        u: any;
+        w: any;
+        onDidChangeLocal: any;
+        C: boolean;
+        F: {};
+        z: string;
+        resource: any;
+        D: string;
+        h: any;
+        f: any;
+        g: any;
+        y: any;
+        j: Promise<any>;
+        Q(): void;
+        R(): Promise<void>;
+        S(t: any): void;
+        sync(t: any, e?: boolean, s?: any, i?: {}): Promise<any>;
+        apply(t: any, e?: {}): Promise<any>;
+        replace(t: any): Promise<boolean>;
+        U(t: any): Promise<boolean>;
+        W(t: any, e: any): Promise<any>;
+        X(t: any, e: any, s: any, i: any): any;
+        Y(t: any, e: any, s: any, i: any): Promise<"idle" | "syncing" | "hasConflicts">;
+        accept(t: any, e: any): Promise<any>;
+        discard(t: any): Promise<any>;
+        Z(t: any, e: any): Promise<void>;
+        $(t: any): Promise<"idle" | "syncing" | "hasConflicts">;
+        ab(): Promise<void>;
+        bb(t: any): void;
+        hasPreviouslySynced(): Promise<boolean>;
+        cb(t: any): Promise<any>;
+        resetLocal(): Promise<void>;
+        db(t: any, e: any, s: any, i: any, r: any, n: any): Promise<{
+            syncResource: any;
+            profile: any;
+            remoteUserData: any;
+            lastSyncUserData: any;
+            resourcePreviews: any[];
+            isLastSyncFromCurrentMachine: any;
+        }>;
+        getLastSyncUserData(): Promise<any>;
+        eb(t: any, e?: {}): Promise<void>;
+        fb(): any;
+        gb(): Promise<any>;
+        hb(t: any): Promise<void>;
+        getRemoteUserData(t: any): Promise<{
+            ref: any;
+            syncData: any;
+        }>;
+        ib(t: any): any;
+        jb(t: any): Promise<any>;
+        kb(t: any, e: any): Promise<{
+            ref: any;
+            syncData: {
+                version: any;
+                machineId: any;
+                content: any;
+            };
+        }>;
+        lb(t: any): Promise<any>;
+        stop(): Promise<void>;
+        mb(): any;
+        q: import("../../../base/common/lifecycle.js").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+declare function B(u: any): any;
+declare let C: {
+    new (e: any, h: any, o: any, n: any, i: any, t: any): {
+        o(e: any): Promise<void>;
+        i(): Promise<boolean>;
+        resource: any;
+        g: any;
+        h: any;
+        j: any;
+        k: any;
+        l: any;
+        d: any;
+        f: any;
+        initialize({ ref: t, content: e }: {
+            ref: any;
+            content: any;
+        }): Promise<void>;
+        m(t: any): any;
+        n(t: any, e?: {}): Promise<void>;
+    };
+};
+export { p as $$Ac, B as $0Ac, C as $_Ac };
+//# sourceMappingURL=snippetsSync.d.ts.map

@@ -1,0 +1,22 @@
+declare const A: any;
+declare const F: any;
+declare const k: any;
+declare const g: any;
+declare const S: any;
+declare const T: any;
+declare const t: any;
+declare const n: any;
+declare const a: any;
+declare const p: any;
+declare const h: any;
+declare const u: any;
+declare const x: any;
+declare const i: any;
+declare const $: any;
+declare const m: any;
+declare const d: any;
+declare const f: any;
+declare const w: any;
+declare const v: any;
+export { A as $Acc, F as $Bcc, k as $Ccc, g as $Dcc, S as $Ecc, T as $Fcc, t as $mcc, n as $ncc, a as $occ, p as $pcc, h as $qcc, u as $rcc, x as $scc, i as $tcc, $ as $ucc, m as $vcc, d as $wcc, f as $xcc, w as $ycc, v as $zcc };
+//# sourceMappingURL=searchIcons.d.ts.map

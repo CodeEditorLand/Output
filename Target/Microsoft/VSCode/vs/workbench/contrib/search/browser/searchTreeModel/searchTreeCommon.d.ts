@@ -1,0 +1,30 @@
+declare function E(t: any, e: any): boolean;
+declare const A: "plainTextSearch";
+declare const C: "aiTextSearch";
+declare function _(t: any): any[];
+declare const p: "SEARCH_MODEL_";
+declare const s: "SEARCH_RESULT_";
+declare const o: "TEXT_SEARCH_HEADING_";
+declare const a: "FOLDER_MATCH_";
+declare const l: "FILE_MATCH_";
+declare const d: "MATCH_";
+declare function m(t: any): {
+    elements: never[];
+    added: boolean;
+    removed: boolean;
+};
+declare function S(t: any): any;
+declare function x(t: any): any;
+declare function i(t: any): any;
+declare function T(t: any): any;
+declare function f(t: any): any;
+declare function $(t: any): any;
+declare function H(t: any): any;
+declare function M(t: any): any;
+declare function h(t: any): any;
+declare function W(t: any): any;
+declare function R(t: any): any;
+declare function F(t: any): any[];
+declare var c: any;
+export { E as $Bbc, A as $Cbc, C as $Dbc, _ as $Ebc, p as $Fbc, s as $Gbc, o as $Hbc, a as $Ibc, l as $Jbc, d as $Kbc, m as $Lbc, S as $Mbc, x as $Nbc, i as $Obc, T as $Pbc, f as $Qbc, $ as $Rbc, H as $Sbc, M as $Tbc, h as $Ubc, W as $Vbc, R as $Wbc, F as $Xbc, c as SearchModelLocation };
+//# sourceMappingURL=searchTreeCommon.d.ts.map

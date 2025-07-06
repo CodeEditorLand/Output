@@ -1,0 +1,44 @@
+declare class W {
+    static addCursorDown(t: any, n: any, a: any): (m | import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_)[];
+    static addCursorUp(t: any, n: any, a: any): (m | import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_)[];
+    static moveToBeginningOfLine(t: any, n: any, a: any): (import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_)[];
+    static a(t: any, n: any, a: any): import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_;
+    static b(t: any, n: any, a: any): import("../cursorCommon.js").$X_;
+    static c(t: any, n: any, a: any): import("../cursorCommon.js").$W_;
+    static moveToEndOfLine(t: any, n: any, a: any, i: any): (import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_)[];
+    static d(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_;
+    static e(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$X_;
+    static f(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$W_;
+    static expandLineSelection(t: any, n: any): import("../cursorCommon.js").$W_[];
+    static moveToBeginningOfBuffer(t: any, n: any, a: any): import("../cursorCommon.js").$W_[];
+    static moveToEndOfBuffer(t: any, n: any, a: any): import("../cursorCommon.js").$W_[];
+    static selectAll(t: any, n: any): import("../cursorCommon.js").$W_;
+    static line(t: any, n: any, a: any, i: any, e: any): import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_;
+    static word(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$W_;
+    static cancelSelection(t: any, n: any): m | import("../cursorCommon.js").$X_;
+    static moveTo(t: any, n: any, a: any, i: any, e: any): import("../cursorCommon.js").$W_ | import("../cursorCommon.js").$X_;
+    static simpleMove(t: any, n: any, a: any, i: any, e: any, r: any): any;
+    static viewportMove(t: any, n: any, a: any, i: any, e: any): import("../cursorCommon.js").$W_[] | null;
+    static findPositionInViewportIfOutside(t: any, n: any, a: any, i: any): m | import("../cursorCommon.js").$X_;
+    static g(t: any, n: any, a: any): number;
+    static h(t: any, n: any, a: any): number;
+    static j(t: any, n: any, a: any, i: any): any;
+    static k(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static l(t: any, n: any, a: any, i: any): any;
+    static m(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static n(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$X_[];
+    static o(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$W_[];
+    static p(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$X_[];
+    static q(t: any, n: any, a: any, i: any): import("../cursorCommon.js").$W_[];
+    static r(t: any, n: any, a: any, i: any, e: any): import("../cursorCommon.js").$X_;
+    static s(t: any, n: any, a: any, i: any, e: any): import("../cursorCommon.js").$W_;
+    static t(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static u(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static v(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static w(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+    static x(t: any, n: any, a: any): import("../cursorCommon.js").$X_[];
+}
+declare var g: any;
+import { $V_ as m } from "../cursorCommon.js";
+export { W as $6ab, g as CursorMove };
+//# sourceMappingURL=cursorMoveCommands.d.ts.map

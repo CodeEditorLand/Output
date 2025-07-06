@@ -1,0 +1,48 @@
+export { n as $eC };
+declare class n {
+    static isEmpty(e: any): boolean;
+    static containsPosition(e: any, t: any): boolean;
+    static strictContainsPosition(e: any, t: any): boolean;
+    static containsRange(e: any, t: any): boolean;
+    static strictContainsRange(e: any, t: any): boolean;
+    static plusRange(e: any, t: any): n;
+    static intersectRanges(e: any, t: any): n | null;
+    static equalsRange(e: any, t: any): boolean;
+    static getEndPosition(e: any): L;
+    static getStartPosition(e: any): L;
+    static collapseToStart(e: any): n;
+    static collapseToEnd(e: any): n;
+    static fromPositions(e: any, t?: any): n;
+    static lift(e: any): n | null;
+    static isIRange(e: any): any;
+    static areIntersectingOrTouching(e: any, t: any): boolean;
+    static areIntersecting(e: any, t: any): boolean;
+    static areOnlyIntersecting(e: any, t: any): boolean;
+    static compareRangesUsingStarts(e: any, t: any): number;
+    static compareRangesUsingEnds(e: any, t: any): number;
+    static spansMultipleLines(e: any): boolean;
+    constructor(e: any, t: any, r: any, u: any);
+    startLineNumber: any;
+    startColumn: any;
+    endLineNumber: any;
+    endColumn: any;
+    isEmpty(): boolean;
+    containsPosition(e: any): boolean;
+    containsRange(e: any): boolean;
+    strictContainsRange(e: any): boolean;
+    plusRange(e: any): n;
+    intersectRanges(e: any): n | null;
+    equalsRange(e: any): boolean;
+    getEndPosition(): L;
+    getStartPosition(): L;
+    toString(): string;
+    setEndPosition(e: any, t: any): n;
+    setStartPosition(e: any, t: any): n;
+    collapseToStart(): n;
+    collapseToEnd(): n;
+    delta(e: any): n;
+    isSingleLine(): boolean;
+    toJSON(): this;
+}
+import { $dC as L } from "./position.js";
+//# sourceMappingURL=range.d.ts.map

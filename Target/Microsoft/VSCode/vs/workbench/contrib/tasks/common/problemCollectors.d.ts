@@ -1,0 +1,81 @@
+declare class g extends k {
+    constructor(t: any, e: any, i: any, h: any);
+    problemMatchers: any;
+    D: any;
+    F: any;
+    m: w;
+    y: u;
+    onDidFindFirstMatch: any;
+    z: u;
+    onDidFindErrors: any;
+    C: u;
+    onDidRequestInvalidateLastMarker: any;
+    a: any;
+    h: number;
+    g: any[];
+    b: any;
+    c: number;
+    j: any;
+    r: Map<any, any>;
+    s: Map<any, any>;
+    t: Map<any, any>;
+    u: Map<any, any>;
+    w: u;
+    get onDidStateChange(): any;
+    processLine(t: any): void;
+    n: any;
+    get numberOfMatches(): number;
+    get maxMarkerSeverity(): any;
+    H(t: any): any;
+    I(t: any): Promise<boolean>;
+    J(t: any, e: any): any;
+    L(): any;
+    M(t: any): void;
+    f: any;
+    N(): void;
+    O(t: any): void;
+    P(t: any, e: any): void;
+    Q(t: any, e: any): void;
+    R(t: any): any;
+    S(): void;
+    U(t: any): void;
+    W(t: any, e: any): void;
+    X(t: any, e: any, i: any): void;
+    Y(): void;
+    Z(t: any, e: any): void;
+    $(t: any, e: any, i: any, h: any): void;
+    ab(t: any): any;
+    bb(): void;
+    done(): void;
+}
+declare class B extends g {
+    constructor(t: any, e: any, i: any, h: number | undefined, s: any);
+    fb: boolean;
+    cb: string[];
+    G(t: any): Promise<void>;
+    db: any;
+    eb: any;
+}
+declare class T extends g {
+    gb: any[];
+    beginPatterns: any[];
+    cb: any[];
+    db: Set<any>;
+    aboutToStart(): void;
+    G(t: any): Promise<void>;
+    eb: any;
+    fb: any;
+    forceDelivery(): void;
+    ib(t: any): Promise<boolean>;
+    jb(t: any): boolean;
+    kb(): void;
+    lb(): void;
+    isWatching(): boolean;
+}
+declare var d: any;
+declare var l: any;
+import { $vd as k } from "../../../../base/common/lifecycle.js";
+import { $ud as w } from "../../../../base/common/lifecycle.js";
+import { $ef as u } from "../../../../base/common/event.js";
+export { g as $gvc, B as $hvc, T as $ivc, d as ProblemCollectorEventKind, l as ProblemHandlingStrategy };
+//# sourceMappingURL=problemCollectors.d.ts.map

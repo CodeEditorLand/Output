@@ -1,0 +1,51 @@
+export { B as $kAc };
+declare let B: {
+    new (t: any, s: any, i: any, o: any, e: any, n: any, l: any, h: any, m: any, r: any, $: any): {
+        F: any;
+        G: any;
+        H: any;
+        I: any;
+        J: any;
+        L: any;
+        M: any;
+        N: any;
+        O: any;
+        g: any;
+        onDidChangeVisibility: any;
+        y: any;
+        P(): void;
+        Q(): void;
+        readonly isVisible: boolean;
+        show(): void;
+        t: boolean | undefined;
+        R(): void;
+        S(): void;
+        j: HTMLElement | undefined;
+        m: HTMLElement | undefined;
+        r: HTMLElement | undefined;
+        C: any;
+        D: any;
+        s: any;
+        U(t: any): any;
+        W(t: any): void;
+        hide(): void;
+        updateStyles(): void;
+        layout(t: any): void;
+        u: any;
+        clearAll(): void;
+        n: any;
+        h: any;
+        w(t: any): void;
+        z(t: any, r: any): any;
+        q: import("../../../../base/common/lifecycle").$ud;
+        dispose(): void;
+        B(t: any): any;
+    };
+    c: w | undefined;
+    f: number | undefined;
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $q6 as w } from "../../../../base/browser/dom.js";
+//# sourceMappingURL=notificationsCenter.d.ts.map

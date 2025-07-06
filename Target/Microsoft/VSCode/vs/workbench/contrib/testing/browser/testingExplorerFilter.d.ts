@@ -1,0 +1,51 @@
+export { f as $Jnc };
+declare let f: {
+    new (e: any, n: any, l: any, i: any, t: any): {
+        m: any;
+        n: any;
+        s: any;
+        c: any;
+        onDidFocus: any;
+        h: F;
+        g: any;
+        render(e: any): void;
+        b: HTMLElement | undefined;
+        a: any;
+        layout(e: any): void;
+        focus(): void;
+        saveState(): void;
+        dispose(): void;
+        w(): void;
+        readonly action: any;
+        t: {};
+        _context: any;
+        _action: any;
+        u(t: any): void;
+        actionRunner: any;
+        j: any;
+        isEnabled(): any;
+        setActionContext(t: any): void;
+        element: any;
+        onClick(t: any, e?: boolean): void;
+        isFocused(): boolean;
+        blur(): void;
+        setFocusable(t: any): void;
+        readonly trapsArrowNavigation: boolean;
+        z(): void;
+        C(): void;
+        D(): any;
+        F(): any;
+        G(): void;
+        f: any;
+        H(): void;
+        I(): void;
+        J(): void;
+        q: import("../../../../base/common/lifecycle.js").$ud;
+        B(t: any): any;
+    };
+    None: Readonly<{
+        dispose(): void;
+    }> | undefined;
+};
+import { $bm as F } from "../../../../base/common/actions.js";
+//# sourceMappingURL=testingExplorerFilter.d.ts.map

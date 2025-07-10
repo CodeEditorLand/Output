@@ -1,1 +1,1 @@
-import{$oj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("elevatedFileService");export{r as $AJ};
+import{$oj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("elevatedFileService");export{r as $BJ};

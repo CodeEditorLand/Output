@@ -1,1 +1,1 @@
-const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $B0,r as $C0};
+const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $D0,r as $E0};

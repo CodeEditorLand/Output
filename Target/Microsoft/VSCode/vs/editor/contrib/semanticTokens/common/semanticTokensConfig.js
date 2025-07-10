@@ -1,1 +1,1 @@
-const r="editor.semanticHighlighting";function g(e,i,n){const t=n.getValue(r,{overrideIdentifier:e.getLanguageId(),resource:e.uri})?.enabled;return typeof t=="boolean"?t:i.getColorTheme().semanticHighlighting}export{r as $jtb,g as $ktb};
+const r="editor.semanticHighlighting";function o(e,i,n){const t=n.getValue(r,{overrideIdentifier:e.getLanguageId(),resource:e.uri})?.enabled;return typeof t=="boolean"?t:i.getColorTheme().semanticHighlighting}export{r as $otb,o as $ptb};

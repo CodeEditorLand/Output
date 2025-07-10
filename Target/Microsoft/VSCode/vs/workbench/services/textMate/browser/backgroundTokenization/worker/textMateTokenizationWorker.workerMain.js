@@ -1,1 +1,1 @@
-import{$n8b as m}from"./textMateTokenizationWorker.worker.js";import{$E$ as o}from"../../../../../../base/common/worker/webWorkerBootstrap.js";o(m);
+import{$r8b as r}from"./textMateTokenizationWorker.worker.js";import{$G$ as m}from"../../../../../../base/common/worker/webWorkerBootstrap.js";m(r);

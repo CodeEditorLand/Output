@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("languageService");export{r as $FD};
+import{$oj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("languageService");export{r as $GD};

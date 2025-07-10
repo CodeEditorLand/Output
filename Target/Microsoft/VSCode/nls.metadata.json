@@ -6456,6 +6456,8 @@
 			"workbench.secondarySideBar.defaultVisibility.hidden",
 			"workbench.secondarySideBar.defaultVisibility.visibleInWorkspace",
 			"workbench.secondarySideBar.defaultVisibility.visible",
+			"workbench.secondarySideBar.defaultVisibility.maximizedInWorkspace",
+			"workbench.secondarySideBar.defaultVisibility.maximized",
 			"secondarySideBarShowLabels",
 			"statusBarVisibility",
 			{
@@ -7371,7 +7373,7 @@
 			"agent.newSession",
 			"agent.newSessionMessage",
 			"agent.newSession.confirm",
-			"copilot",
+			"ai actions",
 			"chat.category",
 			"openChat",
 			"openChatMode",
@@ -7540,6 +7542,7 @@
 			"noTools",
 			"mcplabel",
 			"configMcpCol",
+			"configMcpCol",
 			"mcpShowOutput",
 			"ext",
 			"editUserBucket",
@@ -7574,6 +7577,8 @@
 			"enableHint",
 			"hint.label.current",
 			"disable",
+			"enable",
+			"disable",
 			"enable"
 		],
 		"vs/workbench/contrib/chat/browser/chat.contribution": [
@@ -7589,6 +7594,7 @@
 			"chat.implicitContext.value.never",
 			"chat.implicitContext.value.first",
 			"chat.implicitContext.value.always",
+			"chat.implicitContext.suggestedContext",
 			"chat.editing.autoAcceptDelay",
 			"chat.editing.confirmEditRequestRemoval",
 			"chat.editing.confirmEditRequestRetry",
@@ -7597,7 +7603,8 @@
 			"chat.detectParticipant.enabled",
 			"chat.renderRelatedFiles",
 			"chat.notifyWindowOnConfirmation",
-			"chat.tools.autoApprove",
+			"chat.tools.autoApprove.description",
+			"chat.tools.autoApprove.markdownDescription",
 			"chat.sendElementsToChat.enabled",
 			"chat.sendElementsToChat.attachCSS",
 			"chat.sendElementsToChat.attachImages",
@@ -7615,7 +7622,7 @@
 			"chat.extensionToolsPolicy",
 			"chat.agent.enabled.description",
 			"mcp.discovery.source",
-			"mpc.discovery.enabled",
+			"mcp.discovery.enabled",
 			"mcp.gallery.serviceUrl",
 			"chat.reusablePrompts.config.enabled.title",
 			"chat.reusablePrompts.config.enabled.description",
@@ -10580,6 +10587,7 @@
 		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
 			"editTelemetry",
 			"telemetry.editStats.enabled",
+			"telemetry.editStats.detailed.enabled",
 			"telemetry.editStats.showStatusBar",
 			"telemetry.editStats.showDecorations"
 		],
@@ -12936,6 +12944,7 @@
 			"mcp.command.browse.mcp",
 			"mcp.command.open",
 			"mcp.command.show.installed",
+			"mcp.servers",
 			"mcp.command.openUserMcp",
 			"mcp.command.openRemoteUserMcp",
 			"mcp.command.openWorkspaceFolderMcp",
@@ -13137,6 +13146,8 @@
 			"mcp servers",
 			"mcp.welcome.title",
 			"mcp.welcome.descriptionWithLink",
+			"mcp.welcome.browseButton",
+			"mcp.welcome.browseButton",
 			"mcp-installed",
 			"mcp",
 			"mcp"
@@ -13182,7 +13193,10 @@
 			"app.mcp.json.headers",
 			"vscode.extension.contributes.mcp",
 			"vscode.extension.contributes.mcp.id",
-			"vscode.extension.contributes.mcp.label"
+			"vscode.extension.contributes.mcp.label",
+			"id",
+			"name",
+			"mcpServerDefinitionProviders"
 		],
 		"vs/workbench/contrib/mcp/common/mcpContextKeys": [
 			"mcp.serverCount.description",
@@ -15929,7 +15943,7 @@
 			{
 				"key": "searchFolderMatch.aiText.label",
 				"comment": [
-					"This is displayed before the AI text search results, where {0} will be in the place of the AI name (ie: Copilot)"
+					"This is displayed before the AI text search results, now always \"AI-assisted results\"."
 				]
 			},
 			"searchFolderMatch.other.label",
@@ -20470,7 +20484,9 @@
 			"vscode.extension.activationEvents.onIssueReporterOpened",
 			"vscode.extension.activationEvents.onChatParticipant",
 			"vscode.extension.activationEvents.onLanguageModelTool",
+			"vscode.extension.activationEvents.onTerminal",
 			"vscode.extension.activationEvents.onTerminalCompletionsRequested",
+			"vscode.extension.activationEvents.onTerminalShellIntegration",
 			"vscode.extension.activationEvents.onMcpCollection",
 			"vscode.extension.activationEvents.star",
 			"vscode.extension.badges",
@@ -24413,7 +24429,7 @@
 			"The id of the extension terminal",
 			"The name of the extension terminal",
 			"Controls whether or not WSL distros are shown in the terminal dropdown",
-			"Whether new shells should inherit their environment from VS Code, which may source a login shell to ensure $PATH and other development variables are initialized.",
+			"Whether new shells should inherit their environment from VS Code, which may source a login shell to ensure $PATH and other development variables are initialized. This has no effect on Windows.",
 			"Controls the maximum amount of lines that will be restored when reconnecting to a persistent terminal session. Increasing this will restore more lines of scrollback at the cost of more memory and increase the time it takes to connect to terminals on start up. This setting requires a restart to take effect and should be set to a value less than or equal to `#terminal.integrated.scrollback#`.",
 			"Whether to show hovers for links in the terminal output.",
 			"A set of process names to ignore when using the {0} setting.",
@@ -26568,6 +26584,8 @@
 			"The secondary side bar is hidden by default.",
 			"The secondary side bar is visible by default if a workspace is opened.",
 			"The secondary side bar is visible by default.",
+			"The secondary side bar is visible and maximized by default if a workspace is opened.",
+			"The secondary side bar is visible and maximized by default.",
 			"Controls whether activity items in the secondary side bar title are shown as label or icon. This setting only has an effect when {0} is not set to {1}.",
 			"Controls the visibility of the status bar at the bottom of the workbench.",
 			"Controls the location of the Activity Bar relative to the Primary and Secondary Side Bars.",
@@ -27413,7 +27431,7 @@
 			"Start new session?",
 			"Changing the chat mode will end your current edit session. Would you like to change the chat mode?",
 			"Yes",
-			"Copilot",
+			"AI Actions",
 			"Chat",
 			"Open Chat",
 			"Open Chat ({0})",
@@ -27582,6 +27600,7 @@
 			"Add tools to chat",
 			"MCP Server: {0}",
 			"Configure {0}",
+			"Configure {0}",
 			"Show Output",
 			"Extension: {0}",
 			"Edit Tool Set",
@@ -27616,6 +27635,8 @@
 			"disabled",
 			"Current {0}",
 			"Disable current {0} context",
+			"Enable current {0} context",
+			"Disable current {0} context",
 			"Enable current {0} context"
 		],
 		"vs/workbench/contrib/chat/browser/chat.contribution": [
@@ -27631,6 +27652,7 @@
 			"Implicit context is never enabled.",
 			"Implicit context is enabled for the first interaction.",
 			"Implicit context is always enabled.",
+			"Controls whether the new implicit context flow is shown. In Ask and Edit modes, the context will automatically be included. In Agent mode context will be suggested as an attachment. Selections are always included as context.",
 			"Delay after which changes made by chat are automatically accepted. Values are in seconds, `0` means disabled and `100` seconds is the maximum.",
 			"Whether to show a confirmation before removing a request and its associated edits.",
 			"Whether to show a confirmation before retrying a request and its associated edits.",
@@ -27639,7 +27661,8 @@
 			"Enables chat participant autodetection for panel chat.",
 			"Controls whether related files should be rendered in the chat input.",
 			"Controls whether the Copilot window should notify the user when a confirmation is needed.",
-			"Controls whether tool use should be automatically approved.",
+			"Controls whether tool use should be automatically approved. Allow all tools to run automatically without user confirmation, overriding any tool-specific settings such as terminal auto-approval. Use with caution: carefully review selected tools and be extra wary of possible sources of prompt injection!",
+			"Controls whether tool use should be automatically approved.\n\nAllows _all_ tools to run automatically without user confirmation, overriding any tool-specific settings such as terminal auto-approval.\n\nUse with caution: carefully review selected tools and be extra wary of possible sources of prompt injection!",
 			"Controls whether elements can be sent to chat from the Simple Browser.",
 			"Controls whether CSS of the selected element will be added to the chat. {0} must be enabled.",
 			"Controls whether a screenshot of the selected element will be added to the chat. {0} must be enabled.",
@@ -30049,6 +30072,7 @@
 		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
 			"Edit Telemetry",
 			"Controls whether to enable telemetry for edit statistics (only sends statistics if general telemetry is enabled).",
+			"Controls whether to enable telemetry for detailed edit statistics (only sends statistics if general telemetry is enabled).",
 			"Controls whether to show the status bar for edit telemetry.",
 			"Controls whether to show decorations for edit telemetry."
 		],
@@ -31944,6 +31968,7 @@
 			"Browse Servers",
 			"Browse MCP Servers",
 			"Show Installed Servers",
+			"MCP Servers",
 			"Open User Configuration",
 			"Open Remote User Configuration",
 			"Open Workspace Folder MCP Configuration",
@@ -32144,7 +32169,9 @@
 		"vs/workbench/contrib/mcp/browser/mcpServersView": [
 			"MCP Servers",
 			"MCP Servers",
-			"Extend agent mode by installing [MCP servers]({0}) to bring extra tools for connecting to databases, invoking APIs and performing specialized tasks.",
+			"Extend agent mode by installing MCP servers to bring extra tools for connecting to databases, invoking APIs and performing specialized tasks.",
+			"Browse MCP Servers",
+			"Browse MCP Servers",
 			"MCP Servers - Installed",
 			"MCP Servers",
 			"MCP Servers"
@@ -32190,7 +32217,10 @@
 			"Additional headers sent to the server.",
 			"Contributes Model Context Protocol servers. Users of this should also use `vscode.lm.registerMcpServerDefinitionProvider`.",
 			"Unique ID for the collection.",
-			"Display name for the collection."
+			"Display name for the collection.",
+			"ID",
+			"Name",
+			"MCP Servers"
 		],
 		"vs/workbench/contrib/mcp/common/mcpContextKeys": [
 			"Context key that has the number of registered MCP servers",
@@ -34318,7 +34348,7 @@
 			"Sort Changes by Status",
 			"Collapse All Repositories",
 			"Expand All Repositories",
-			"Generate Commit Message with Copilot",
+			"Generate commit message",
 			"More Actions...",
 			"Cancel",
 			"{0}, Use {1} to open Source Control Accessibility Help.",
@@ -34576,7 +34606,7 @@
 		],
 		"vs/workbench/contrib/search/browser/searchResultsView": [
 			"Text Results",
-			"{0} Results",
+			"AI-assisted results",
 			"Other files",
 			"Other files",
 			"{0} files found",
@@ -34620,8 +34650,8 @@
 			"Empty Search",
 			"Search path not found: {0}",
 			"No results found. ",
-			"Search with {0}",
-			"Search with {0}.",
+			"Search with AI.",
+			"Search with AI.",
 			"No results found in open editors matching '{0}' excluding '{1}' - ",
 			"No results found in open editors matching '{0}' - ",
 			"No results found in open editors excluding '{0}' - ",
@@ -35877,9 +35907,9 @@
 			"The reply to send to the process."
 		],
 		"vs/workbench/contrib/terminalContrib/chat/browser/terminal.initialHint.contribution": [
-			"Press {0} to ask {1} to do something. ",
+			"Open chat {0}. ",
 			"Start typing to dismiss.",
-			"[[Ask {0} to do something]] or start typing to dismiss.",
+			"[[Open chat]] or start typing to dismiss.",
 			" Toggle {0} in settings to disable this hint.",
 			"Disable Initial Hint",
 			"Disable Initial Hint"
@@ -37420,7 +37450,7 @@
 			"Get code suggestions that predict your next edit.",
 			"Personalized to how you work",
 			"Swap models, add agent mode tools, and create personalized instructions.\n{0}",
-			"Set up AI",
+			"Enable AI features",
 			"All commands within reach",
 			"Run commands without reaching for your mouse to accomplish any task in VS Code.\n{0}",
 			"Open Command Palette",
@@ -38385,7 +38415,9 @@
 			"An activation event emitted when the issue reporter is opened.",
 			"An activation event emitted when the specified chat participant is invoked.",
 			"An activation event emitted when the specified language model tool is invoked.",
+			"An activation event emitted when a terminal of the given shell type is opened.",
 			"An activation event emitted when terminal completions are requested.",
+			"An activation event emitted when terminal shell integration is activated for the given shell type.",
 			"An activation event emitted whenver a tool from the MCP server is requested.",
 			"An activation event emitted on VS Code startup. To ensure a great end user experience, please use this activation event in your extension only when no other activation events combination works in your use-case.",
 			"Array of badges to display in the sidebar of the Marketplace's extension page.",

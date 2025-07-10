@@ -3,25 +3,25 @@ import{$Df as c}from"../../../../../base/common/strings.js";import{localize as h
 	<div class="theme-picker-row">
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_DARK}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_DARK}'">
 			<img width="200" src="./dark.png"/>
-			${c(h(13509,null))}
+			${c(h(13523,null))}
 		</checkbox>
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_LIGHT}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_LIGHT}'">
 			<img width="200" src="./light.png"/>
-			${c(h(13510,null))}
+			${c(h(13524,null))}
 		</checkbox>
 	</div>
 	<div class="theme-picker-row">
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_HC_DARK}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_HC_DARK}'">
 			<img width="200" src="./dark-hc.png"/>
-			${c(h(13511,null))}
+			${c(h(13525,null))}
 		</checkbox>
 		<checkbox when-checked="setTheme:${e.COLOR_THEME_HC_LIGHT}" checked-on="config.workbench.colorTheme == '${e.COLOR_THEME_HC_LIGHT}'">
 			<img width="200" src="./light-hc.png"/>
-			${c(h(13512,null))}
+			${c(h(13526,null))}
 		</checkbox>
 	</div>
 </checklist>
 <checkbox class="theme-picker-link" when-checked="command:workbench.action.selectTheme" checked-on="false">
-	${c(h(13513,null))}
+	${c(h(13527,null))}
 </checkbox>
 `;export{i as default};

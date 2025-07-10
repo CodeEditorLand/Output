@@ -1,1 +1,1 @@
-import{$wR as r}from"./metadata/applyTo.js";import{$TR as a}from"./headerBase.js";class p extends a{g(t){if(r.isApplyToRecord(t)){const e=new r(t,this.languageId);return this.f.push(...e.validate()),this.b.applyTo=e,!0}return!1}}export{p as $xR};
+import{$xR as r}from"./metadata/applyTo.js";import{$UR as a}from"./headerBase.js";class p extends a{g(t){if(r.isApplyToRecord(t)){const e=new r(t,this.languageId);return this.f.push(...e.validate()),this.b.applyTo=e,!0}return!1}}export{p as $yR};

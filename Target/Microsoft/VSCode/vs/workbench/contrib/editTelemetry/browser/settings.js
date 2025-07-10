@@ -1,1 +1,1 @@
-const t="telemetry.editStats.enabled",e="telemetry.editStats.showDecorations",o="telemetry.editStats.showStatusBar";export{t as $Kzc,e as $Lzc,o as $Mzc};
+const t="telemetry.editStats.enabled",e="telemetry.editStats.details.enabled",s="telemetry.editStats.showDecorations",o="telemetry.editStats.showStatusBar";export{t as $Vzc,e as $Wzc,s as $Xzc,o as $Yzc};

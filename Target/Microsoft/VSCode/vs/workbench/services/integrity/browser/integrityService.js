@@ -1,1 +1,1 @@
-import{$kBc as r}from"../common/integrity.js";import{$YB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $lBc};
+import{$wBc as r}from"../common/integrity.js";import{$YB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $xBc};

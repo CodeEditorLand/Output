@@ -1,1 +1,1 @@
-import{$oj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("browserElementsService");export{r as $ghc};
+import{$oj as r}from"../../../../platform/instantiation/common/instantiation.js";const o=r("browserElementsService");export{o as $rhc};

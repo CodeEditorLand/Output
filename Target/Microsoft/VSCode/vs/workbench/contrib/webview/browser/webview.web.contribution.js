@@ -1,1 +1,1 @@
-import{$YB as m}from"../../../../platform/instantiation/common/extensions.js";import{$Fzb as o}from"./webview.js";import{$pDc as r}from"./webviewService.js";m(o,r,1);
+import{$YB as m}from"../../../../platform/instantiation/common/extensions.js";import{$Jzb as o}from"./webview.js";import{$BDc as r}from"./webviewService.js";m(o,r,1);

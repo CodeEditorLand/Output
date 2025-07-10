@@ -1,1 +1,1 @@
-import{$EQ as r}from"./simpleToken.js";class t extends r{static{this.symbol='"'}get text(){return t.symbol}sameType(e){return e instanceof this.constructor}toString(){return`double-quote${this.range}`}}export{t as $TQ};
+import{$FQ as r}from"./simpleToken.js";class t extends r{static{this.symbol='"'}get text(){return t.symbol}sameType(e){return e instanceof this.constructor}toString(){return`double-quote${this.range}`}}export{t as $UQ};

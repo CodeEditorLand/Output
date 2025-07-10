@@ -1,1 +1,1 @@
-import{$ef as e}from"./event.js";class t{constructor(){this.a=new e,this.onDidChange=this.a.event,this.b=!0}get enabled(){return this.b}enable(){this.b=!0,this.a.fire()}disable(){this.b=!1,this.a.fire()}}const r=new t;export{t as $m$,r as IME};
+import{$ef as e}from"./event.js";class t{constructor(){this.a=new e,this.onDidChange=this.a.event,this.b=!0}get enabled(){return this.b}enable(){this.b=!0,this.a.fire()}disable(){this.b=!1,this.a.fire()}}const r=new t;export{t as $o$,r as IME};

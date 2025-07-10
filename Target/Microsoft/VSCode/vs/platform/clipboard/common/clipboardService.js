@@ -1,1 +1,1 @@
-import{$oj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $Qfb};
+import{$oj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $Ufb};

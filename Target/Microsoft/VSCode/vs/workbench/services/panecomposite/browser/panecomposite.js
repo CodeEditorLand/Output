@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("paneCompositePartService");export{r as $ayb};
+import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("paneCompositePartService");export{r as $eyb};

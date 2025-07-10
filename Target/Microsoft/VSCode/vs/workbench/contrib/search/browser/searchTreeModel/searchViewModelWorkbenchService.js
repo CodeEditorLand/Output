@@ -1,1 +1,1 @@
-import{$oj as e}from"../../../../../platform/instantiation/common/instantiation.js";const c=e("searchViewModelWorkbenchService");export{c as $0cc};
+import{$oj as e}from"../../../../../platform/instantiation/common/instantiation.js";const r=e("searchViewModelWorkbenchService");export{r as $hdc};

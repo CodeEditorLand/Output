@@ -1,1 +1,1 @@
-import{$oj as c}from"../../../../platform/instantiation/common/instantiation.js";const o=c("replaceService");export{o as $Pcc};
+import{$oj as c}from"../../../../platform/instantiation/common/instantiation.js";const o=c("replaceService");export{o as $Zcc};

@@ -1,1 +1,1 @@
-import{$Mab as m}from"../../../browser/editorExtensions.js";import{$ujb as o}from"../../hover/browser/hoverTypes.js";import{$Inb as r}from"./inlayHintsController.js";import{$Jnb as i}from"./inlayHintsHover.js";m(r.ID,r,1);o.register(i);
+import{$Pab as m}from"../../../browser/editorExtensions.js";import{$yjb as o}from"../../hover/browser/hoverTypes.js";import{$Nnb as r}from"./inlayHintsController.js";import{$Onb as i}from"./inlayHintsHover.js";m(r.ID,r,1);o.register(i);

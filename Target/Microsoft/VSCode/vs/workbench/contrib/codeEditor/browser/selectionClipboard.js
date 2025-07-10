@@ -1,1 +1,1 @@
-const o="editor.contrib.selectionClipboard";export{o as $DFb};
+const o="editor.contrib.selectionClipboard";export{o as $GFb};

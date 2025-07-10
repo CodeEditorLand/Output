@@ -1,2 +1,2 @@
-function r(t){const i=[];return f(t.node,i),i.join("")}function f(t,i){if(t.type===2)t.lineBreakBefore&&i.push(`
-`),typeof t.text=="string"&&i.push(t.text);else if(t.ctor===3)i.push("<image>");else if(t.ctor===1||t.ctor===2)for(const e of t.children)f(e,i)}export{r as $hQ};
+function r(i){const t=[];return f(i.node,t),t.join("")}function f(i,t){if(i.type===2)i.lineBreakBefore&&t.push(`
+`),typeof i.text=="string"&&t.push(i.text);else if(i.ctor===3)t.push("<image>");else if(i.ctor===1||i.ctor===2)for(const e of i.children)f(e,t)}export{r as $iQ};

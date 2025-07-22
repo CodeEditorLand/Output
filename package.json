@@ -38,7 +38,11 @@
 	"devDependencies": {
 		"@playform/build": "0.2.5",
 		"@types/mocha": "10.0.10",
+<<<<<<< HEAD
 		"@types/node": "24.0.14",
+=======
+		"@types/node": "24.0.15",
+>>>>>>> e87edd7b520e1ba1f7b2b59fdad05fed49a7e40d
 		"@types/semver": "7.7.0",
 		"@types/sinon": "17.0.4",
 		"@types/trusted-types": "2.0.7",

@@ -1,1 +1,1 @@
-import{$nL as r}from"../../../common/contributions.js";import{$zzc as o}from"./scrollLocking.js";r(o.ID,o,4);
+import{$tL as r}from"../../../common/contributions.js";import{$aBc as o}from"./scrollLocking.js";r(o.ID,o,4);

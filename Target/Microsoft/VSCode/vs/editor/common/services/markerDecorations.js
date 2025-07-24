@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../platform/instantiation/common/instantiation.js";const e=o("markerDecorationsService");export{e as $Dbb};
+import{$sj as r}from"../../../platform/instantiation/common/instantiation.js";const e=r("markerDecorationsService");export{e as $Ybb};

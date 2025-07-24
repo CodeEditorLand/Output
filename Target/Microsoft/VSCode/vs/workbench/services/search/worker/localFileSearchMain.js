@@ -1,1 +1,1 @@
-import{$G$ as m}from"../../../../base/common/worker/webWorkerBootstrap.js";import{$zSc as o}from"./localFileSearch.js";m(o);
+import{$2$ as o}from"../../../../base/common/worker/webWorkerBootstrap.js";import{$oUc as m}from"./localFileSearch.js";o(m);

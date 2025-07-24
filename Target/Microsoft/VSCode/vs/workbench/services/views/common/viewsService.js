@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("viewsService");export{r as $lxb};
+import{$sj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("viewsService");export{r as $Pxb};

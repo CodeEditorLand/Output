@@ -1,1 +1,1 @@
-import{$FQ as r}from"./simpleToken.js";class t extends r{static{this.symbol=","}get text(){return t.symbol}toString(){return`comma${this.range}`}}export{t as $QQ};
+import{$QQ as r}from"./simpleToken.js";class t extends r{static{this.symbol=","}get text(){return t.symbol}toString(){return`comma${this.range}`}}export{t as $2Q};

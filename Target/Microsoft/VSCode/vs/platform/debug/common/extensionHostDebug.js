@@ -1,1 +1,1 @@
-import{$oj as o}from"../../instantiation/common/instantiation.js";const t=o("extensionHostDebugService");export{t as $2v};
+import{$sj as e}from"../../instantiation/common/instantiation.js";const t=e("extensionHostDebugService");export{t as $6v};

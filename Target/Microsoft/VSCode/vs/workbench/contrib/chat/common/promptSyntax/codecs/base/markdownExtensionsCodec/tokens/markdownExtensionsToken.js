@@ -1,1 +1,1 @@
-import{$CR as e}from"../../markdownCodec/tokens/markdownToken.js";class s extends e{}export{s as $DR};
+import{$NR as e}from"../../markdownCodec/tokens/markdownToken.js";class s extends e{}export{s as $OR};

@@ -1,1 +1,1 @@
-const e="remote.defaultExtensionsIfInstalledLocally";export{e as $Kvc};
+const e="remote.defaultExtensionsIfInstalledLocally";export{e as $kxc};

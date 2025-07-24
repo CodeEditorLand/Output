@@ -1,1 +1,1 @@
-import{$oj as o}from"../../instantiation/common/instantiation.js";const e=o("externalTerminal"),t="Terminal.app";export{e as $Lw,t as $Mw};
+import{$sj as r}from"../../instantiation/common/instantiation.js";const o=r("externalTerminal"),t="Terminal.app";export{o as $Pw,t as $Qw};

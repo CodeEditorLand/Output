@@ -1,1 +1,1 @@
-import{$oj as e}from"../../../platform/instantiation/common/instantiation.js";const t=e("semanticTokensStylingService");export{t as $etb};
+import{$sj as t}from"../../../platform/instantiation/common/instantiation.js";const o=t("semanticTokensStylingService");export{o as $Itb};

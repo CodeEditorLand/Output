@@ -1,1 +1,1 @@
-import{$lab as e}from"../../common/viewEventHandler.js";class s extends e{}export{s as $5cb};
+import{$Gab as t}from"../../common/viewEventHandler.js";class r extends t{}export{r as $tdb};

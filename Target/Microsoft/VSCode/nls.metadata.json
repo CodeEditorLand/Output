@@ -655,6 +655,9 @@
 			"inlayHints.maximumLength",
 			"lineHeight",
 			"minimap.enabled",
+			"minimap.autohide.none",
+			"minimap.autohide.mouseover",
+			"minimap.autohide.scroll",
 			"minimap.autohide",
 			"minimap.size.proportional",
 			"minimap.size.fill",
@@ -790,7 +793,6 @@
 			"selectLeadingAndTrailingWhitespace",
 			"selectSubwords",
 			"wordSegmenterLocales",
-			"wordSegmenterLocales",
 			"wrappingIndent.none",
 			"wrappingIndent.same",
 			"wrappingIndent.indent",
@@ -862,8 +864,10 @@
 			"cursorSurroundingLinesStyle.all",
 			"cursorSurroundingLinesStyle",
 			"cursorWidth",
+			"cursorHeight",
 			"dragAndDrop",
 			"editContext",
+			"renderRichScreenReaderContent",
 			"experimentalGpuAcceleration.off",
 			"experimentalGpuAcceleration.on",
 			"experimentalGpuAcceleration",
@@ -885,6 +889,7 @@
 			"formatOnType",
 			"glyphMargin",
 			"hideCursorInOverviewRuler",
+			"inertialScroll",
 			"letterSpacing",
 			"linkedEditing",
 			"links",
@@ -936,6 +941,8 @@
 			"scrollPredominantAxis",
 			"selectionClipboard",
 			"selectionHighlight",
+			"selectionHighlightMaxLength",
+			"selectionHighlightMultiline",
 			"showFoldingControls.always",
 			"showFoldingControls.never",
 			"showFoldingControls.mouseover",
@@ -960,6 +967,7 @@
 			"tabCompletion.off",
 			"tabCompletion.onlySnippets",
 			"tabCompletion",
+			"trimWhitespaceOnDelete",
 			"unusualLineTerminators.auto",
 			"unusualLineTerminators.off",
 			"unusualLineTerminators.prompt",
@@ -998,6 +1006,7 @@
 					"- 'wordWrapColumn' and 'bounded' refer to values the different setting can take and should not be localized."
 				]
 			},
+			"wrapOnEscapedLineFeeds",
 			"editor.defaultColorDecorators.auto",
 			"editor.defaultColorDecorators.always",
 			"editor.defaultColorDecorators.never",
@@ -1911,6 +1920,7 @@
 			"inlineSuggestionHasIndentation",
 			"inlineSuggestionHasIndentationLessThanTabSize",
 			"suppressSuggestions",
+			"cursorBeforeGhostText",
 			"cursorInIndentation",
 			"editor.hasSelection",
 			"cursorAtInlineEdit",
@@ -2026,6 +2036,7 @@
 			"lines.sortAscending",
 			"lines.sortDescending",
 			"lines.deleteDuplicates",
+			"lines.reverseLines",
 			"lines.trimTrailingWhitespace",
 			"lines.delete",
 			"lines.indent",
@@ -3069,9 +3080,15 @@
 			"filtered",
 			"filtered.network"
 		],
+		"vs/platform/mcp/common/allowedMcpServersService": [
+			"mcp servers are not allowed"
+		],
 		"vs/platform/mcp/common/mcpGalleryService": [
 			"noReadme",
 			"readme.viewInBrowser"
+		],
+		"vs/platform/mcp/common/mcpManagementService": [
+			"not allowed to install"
 		],
 		"vs/platform/menubar/electron-main/menubar": [
 			{
@@ -3147,7 +3164,14 @@
 					"&& denotes a mnemonic"
 				]
 			},
+			{
+				"key": "exit",
+				"comment": [
+					"&& denotes a mnemonic"
+				]
+			},
 			"cancel",
+			"quitMessageMac",
 			"quitMessage",
 			"mMinimize",
 			"mZoom",
@@ -3271,7 +3295,7 @@
 			"quickInput.backWithKeybinding",
 			"quickInput.back"
 		],
-		"vs/platform/quickinput/browser/quickInputTree": [
+		"vs/platform/quickinput/browser/quickInputList": [
 			"quickInput"
 		],
 		"vs/platform/quickinput/browser/quickInputUtils": [
@@ -4053,7 +4077,17 @@
 			"deviceCodeTitle",
 			"deviceCodeDetail",
 			"copyAndContinue",
-			"failedToOpenUri"
+			"failedToOpenUri",
+			"dcrNotSupported",
+			"dcrNotSupportedDetail",
+			"provideClientDetails",
+			"cancel",
+			"addClientRegistrationDetails",
+			"clientIdPrompt",
+			"clientIdPlaceholder",
+			"clientIdRequired",
+			"clientSecretPrompt",
+			"clientSecretPlaceholder"
 		],
 		"vs/workbench/api/browser/mainThreadCLICommands": [
 			"cannot be installed"
@@ -4594,6 +4628,8 @@
 				]
 			},
 			"openAndCloseSidebar",
+			"sidebarHidden",
+			"sidebarVisible",
 			"compositePart.hideSideBarLabel",
 			"toggleSideBar",
 			"toggleSideBar",
@@ -4950,6 +4986,8 @@
 				]
 			},
 			"openAndCloseAuxiliaryBar",
+			"auxiliaryBarHidden",
+			"auxiliaryBarVisible",
 			"closeSecondarySideBar",
 			"toggleSecondarySideBar",
 			"toggleSecondarySideBar",
@@ -5139,15 +5177,22 @@
 			"keepOpen",
 			"pin",
 			"unpin",
+			"splitRight",
+			"splitDown",
+			"splitAndMoveEditor",
+			"moveToNewWindow",
+			"copyToNewWindow",
+			"share",
 			"splitUp",
 			"splitDown",
 			"splitLeft",
 			"splitRight",
+			"moveAbove",
+			"moveBelow",
+			"moveLeft",
+			"moveRight",
 			"splitInGroup",
 			"joinInGroup",
-			"moveToNewWindow",
-			"copyToNewWindow",
-			"share",
 			"inlineView",
 			"showOpenedEditors",
 			"closeAll",
@@ -7008,6 +7053,7 @@
 			"accessibility.replEditor.readLastExecutedOutput",
 			"replEditor.autoFocusAppendedCell",
 			"accessibility.windowTitleOptimized",
+			"accessibility.openChatEditedFiles",
 			"dimUnfocusedEnabled",
 			"dimUnfocusedOpacity",
 			"accessibility.hideAccessibleView",
@@ -7186,33 +7232,10 @@
 			"workspaceEdit",
 			"nothing",
 			"closeTheWindow.message",
-			{
-				"key": "closeTheWindow",
-				"comment": [
-					"&& denotes a mnemonic"
-				]
-			},
 			"changeWorkspace.message",
-			{
-				"key": "changeWorkspace",
-				"comment": [
-					"&& denotes a mnemonic"
-				]
-			},
 			"reloadTheWindow.message",
-			{
-				"key": "reloadTheWindow",
-				"comment": [
-					"&& denotes a mnemonic"
-				]
-			},
-			"quit.message",
-			{
-				"key": "quit",
-				"comment": [
-					"&& denotes a mnemonic"
-				]
-			},
+			"quitMessageMac",
+			"quitMessage",
 			"areYouSureQuiteBulkEdit.detail",
 			"fileOperation",
 			"refactoring.autoSave"
@@ -7320,6 +7343,7 @@
 			"chatAgent.runCommand",
 			"chatAgent.autoApprove",
 			"chatAgent.acceptTool",
+			"chatAgent.openEditedFilesSetting",
 			"chatEditing.helpfulCommands",
 			"workbench.action.chat.undoEdits",
 			"workbench.action.chat.editing.attachFiles",
@@ -7330,6 +7354,7 @@
 			"chatEditing.discardAllFiles",
 			"chatEditing.openFileInDiff",
 			"chatEditing.viewChanges",
+			"chatEditing.viewPreviousEdits",
 			"inlineChat.overview",
 			"inlineChat.access",
 			"inlineChat.requestHistory",
@@ -7341,7 +7366,6 @@
 			"chat.signals"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatActions": [
-			"switchChat.confirmPhrase",
 			"interactiveSession.history.clear",
 			"interactiveSession.history.editor",
 			"interactiveSession.history.delete",
@@ -7350,6 +7374,19 @@
 			"interactiveSession.history.title",
 			"interactiveSession.history.pick",
 			"newChatTitle",
+			"interactiveSession.history.clear",
+			"interactiveSession.history.editor",
+			"interactiveSession.history.delete",
+			"chat.history.rename",
+			"currentChatLabel",
+			"chat.history.recent",
+			"chat.history.showMore",
+			"chat.history.showMoreAgents",
+			"interactiveSession.history.titleAll",
+			"interactiveSession.history.title",
+			"interactiveSession.history.pick",
+			"newChatTitle",
+			"switchChat.confirmPhrase",
 			"upgradeChat",
 			"chatQuotaExceeded",
 			"completionsQuotaExceeded",
@@ -7398,7 +7435,9 @@
 			"chat.newChat.label",
 			"chat.newEdits.label",
 			"chat.undoEdit.label",
-			"chat.redoEdit.label"
+			"chat.redoEdit.label",
+			"chat.redoEdit.label2",
+			"chat.redoEdit.tooltip"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatCodeblockActions": [
 			"interactive.applyInEditorWithURL.label",
@@ -7487,6 +7526,7 @@
 			"extensionOwner",
 			"openExtension",
 			"trustedExtension",
+			"openExtension",
 			"noAllowedExtensions",
 			"noAccessDescription",
 			"languageModelAuthTitle",
@@ -7568,6 +7608,9 @@
 			"applyCodeBlock.progress",
 			"applyCodeBlock.error"
 		],
+		"vs/workbench/contrib/chat/browser/actions/manageModelsActions": [
+			"manageLanguageModels"
+		],
 		"vs/workbench/contrib/chat/browser/attachments/implicitContextAttachment": [
 			"cell.lowercase",
 			"file.lowercase",
@@ -7575,9 +7618,7 @@
 			"chat.fileAttachment",
 			"openEditor",
 			"enableHint",
-			"hint.label.current",
 			"disable",
-			"enable",
 			"disable",
 			"enable"
 		],
@@ -7610,6 +7651,8 @@
 			"chat.sendElementsToChat.attachImages",
 			"chat.undoRequests.restoreInput",
 			"chat.editRequests",
+			"chat.emptyChatState",
+			"chat.checkpoints.enabled",
 			"chat.mcp.enabled",
 			"chat.mcp.serverSampling",
 			"mcp.list",
@@ -7621,6 +7664,8 @@
 			"chat.extensionToolsEnabled",
 			"chat.extensionToolsPolicy",
 			"chat.agent.enabled.description",
+			"chat.mathEnabled.description",
+			"chat.sessionsViewLocation.description",
 			"mcp.discovery.source",
 			"mcp.discovery.enabled",
 			"mcp.gallery.serviceUrl",
@@ -7634,6 +7679,7 @@
 			"chat.mode.config.locations.title",
 			"chat.mode.config.locations.description",
 			"chat.signInDialogVariant",
+			"chat.manageTasksTool.enabled",
 			"chat",
 			"chat",
 			"interactiveSessionConfigurationTitle",
@@ -7712,9 +7758,10 @@
 			"accept",
 			"dismiss"
 		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/chatElicitationContentPart": [
-			"accept",
-			"dismiss"
+		"vs/workbench/contrib/chat/browser/chatContentParts/chatConfirmationWidget": [
+			"notificationTitle",
+			"defaultTitle",
+			"notificationDetail"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatExtensionsContentPart": [
 			"chat.extensions.loading"
@@ -7770,6 +7817,9 @@
 			"installExtensions",
 			"installExtensionsConfirmation"
 		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTaskListSubPart": [
+			"chat.task.title"
+		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTerminalToolSubPart": [
 			"continue",
 			"cancel"
@@ -7788,6 +7838,9 @@
 			"seeMore",
 			"seeMore"
 		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatToolOutputPart": [
+			"loading"
+		],
 		"vs/workbench/contrib/chat/browser/chatDragAndDrop": [
 			"file",
 			"file",
@@ -7797,6 +7850,7 @@
 			"problem",
 			"url",
 			"notebookOutput",
+			"scmHistoryItem",
 			"dragAndDroppedImageName",
 			"attacAsContext"
 		],
@@ -7826,8 +7880,12 @@
 			"accept.file",
 			"discard.file",
 			"chat.undoEdits.label",
+			"chat.restoreCheckpoint.label",
+			"chat.restoreCheckpoint.tooltip",
+			"chat.restoreLastCheckpoint.label",
 			"chat.editRequests.label",
-			"addFilesFromReferences"
+			"addFilesFromReferences",
+			"chatEditing.viewPreviousEdits"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingCodeEditorIntegration": [
 			"diff.agent",
@@ -7982,6 +8040,7 @@
 			"chatEditingSession.addSuggested"
 		],
 		"vs/workbench/contrib/chat/browser/chatListRenderer": [
+			"checkpointRestore",
 			"usedAgentSlashCommand",
 			"usedAgent",
 			"paused",
@@ -7998,6 +8057,10 @@
 			"incompleteCode",
 			"reportIssue",
 			"other"
+		],
+		"vs/workbench/contrib/chat/browser/chatOutputItemRenderer": [
+			"vscode.extension.contributes.chatOutputRenderer",
+			"chatOutputRenderer.mimeTypes"
 		],
 		"vs/workbench/contrib/chat/browser/chatParticipant.contribution": [
 			{
@@ -8047,6 +8110,14 @@
 			"pastedAttachment.multipleLines",
 			"pastedAttachment.multiple"
 		],
+		"vs/workbench/contrib/chat/browser/chatSessions.contribution": [
+			"chatSessionsExtPoint",
+			"chatSessionsExtPoint.id",
+			"chatSessionsExtPoint.name",
+			"chatSessionsExtPoint.displayName",
+			"chatSessionsExtPoint.description",
+			"chatSessionsExtPoint.when"
+		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
 			"setupToolDisplayName",
 			"setupToolsDescription",
@@ -8064,10 +8135,8 @@
 			"copilotWorkspaceTrust",
 			"continueWith",
 			"continueWith",
-			"signInWithProvider",
 			"continueWith",
 			"continueWith",
-			"signInWithProvider",
 			"setupCopilotButton",
 			"skipForNow",
 			"signIn",
@@ -8098,6 +8167,7 @@
 			"invalidEnterpriseInstance",
 			"vscodeAgentDescription",
 			"triggerChatSetup",
+			"forceSignIn",
 			"triggerChatSetupFromAccounts",
 			"hideChatSetup",
 			"managePlan",
@@ -8164,12 +8234,13 @@
 			"scrollDownButtonLabel",
 			"chatWidget.tips",
 			"chatWidget.tips.withoutParticipants",
+			"chatDisclaimer",
 			"chatMessage",
 			"chatDescription",
-			"editsTitle",
-			"editsMessage",
+			"editsHelp",
 			"editsTitle",
 			"agentMessage",
+			"agentTitle",
 			"expChatTitle",
 			"expchatMessage",
 			"expChatAdditionalMessage",
@@ -8208,7 +8279,12 @@
 			"mcp.prompt.image",
 			"mcp.prompt.image",
 			"fileEntryDescription",
+			"activeFile",
 			"tool_source_completion"
+		],
+		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorContrib": [
+			"askPlaceholderHint",
+			"editPlaceholderHint"
 		],
 		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorHover": [
 			"hoverAccessibilityChatAgent"
@@ -8220,8 +8296,12 @@
 			"screenshot"
 		],
 		"vs/workbench/contrib/chat/browser/modelPicker/modelPickerActionItem": [
+			"chat.manageModels",
+			"chat.manageModels.tooltip",
 			"chat.moreModels",
 			"chat.moreModels.tooltip",
+			"chat.modelPicker.label",
+			"chat.modelPicker.label",
 			"chat.modelPicker.label"
 		],
 		"vs/workbench/contrib/chat/browser/modelPicker/modePickerActionItem": [
@@ -8357,7 +8437,8 @@
 			"chatViewsWelcome.when"
 		],
 		"vs/workbench/contrib/chat/browser/viewsWelcome/chatViewWelcomeController": [
-			"agentModeSubtitle"
+			"agentModeSubtitle",
+			"suggestedPromptAriaLabel"
 		],
 		"vs/workbench/contrib/chat/common/chatColors": [
 			"chat.requestBorder",
@@ -8399,13 +8480,11 @@
 			"chatIsEnabled",
 			"chatPanelExtensionParticipantRegistered",
 			"chatParticipantRegistered",
-			"chatEditingParticipantRegistered",
 			"chatEditingCanUndo",
 			"chatEditingCanRedo",
 			"chatExtensionInvalid",
 			"inQuickChat",
 			"chatHasFileAttachments",
-			"chatModelsAreUserSelectable",
 			"chatRemoteJobCreating",
 			"hasRemoteCodingAgent",
 			"enableRemoteCodingAgentPromptFileOverlay",
@@ -8457,6 +8536,8 @@
 		],
 		"vs/workbench/contrib/chat/common/languageModels": [
 			"vscode.extension.contributes.languageModels.vendor",
+			"vscode.extension.contributes.languageModels.displayName",
+			"vscode.extension.contributes.languageModels.managementCommand",
 			"vscode.extension.contributes.languageModels",
 			"vscode.extension.contributes.languageModels.chatProviderRequired",
 			"vscode.extension.contributes.languageModels.vendorAlreadyRegistered",
@@ -8617,7 +8698,13 @@
 			"workbench.action.chat.installProviderForVoiceChat.label"
 		],
 		"vs/workbench/contrib/chat/electron-browser/chat.contribution": [
-			"copilotWorkspaceTrust"
+			"copilotWorkspaceTrust",
+			"closeTheWindow.message",
+			"changeWorkspace.message",
+			"reloadTheWindow.message",
+			"quit.message",
+			"exit.message",
+			"quit.detail"
 		],
 		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"fetchWebPage.modelDescription",
@@ -9247,6 +9334,7 @@
 			"write",
 			"access",
 			"expressionAndHitCount",
+			"debug.decimal.address",
 			"functionBreakpointPlaceholder",
 			"functionBreakPointInputAriaLabel",
 			"functionBreakpointExpressionPlaceholder",
@@ -10584,9 +10672,14 @@
 		"vs/workbench/contrib/editSessions/common/editSessionsLogService": [
 			"cloudChangesLog"
 		],
+		"vs/workbench/contrib/editTelemetry/browser/editStats/aiStatsStatusBar": [
+			"inlineSuggestions",
+			"inlineSuggestionsStatusBar"
+		],
 		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
 			"editTelemetry",
 			"telemetry.editStats.enabled",
+			"editor.aiStats.enabled",
 			"telemetry.editStats.detailed.enabled",
 			"telemetry.editStats.showStatusBar",
 			"telemetry.editStats.showDecorations"
@@ -10929,7 +11022,8 @@
 			"workbench.extensions.action.addToWorkspaceFolderRecommendations",
 			"workbench.extensions.action.addToWorkspaceIgnoredRecommendations",
 			"workbench.extensions.action.addToWorkspaceFolderIgnoredRecommendations",
-			"workbench.extensions.action.manageTrustedPublishers"
+			"workbench.extensions.action.manageTrustedPublishers",
+			"signInToMarketplace"
 		],
 		"vs/workbench/contrib/extensions/browser/extensions.web.contribution": [
 			"runtimeExtension"
@@ -11190,6 +11284,8 @@
 			"extensions"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViewlet": [
+			"sign in",
+			"access denied",
 			"installed",
 			"searchExtensions",
 			"click show",
@@ -11210,12 +11306,16 @@
 			"reloadNow",
 			"learnMore",
 			"malicious warning",
+			"signInRequired",
+			"accessDenied",
+			"sign in enterprise marketplace",
 			{
 				"key": "remote",
 				"comment": [
 					"Remote as in remote machine"
 				]
 			},
+			"marketPlace",
 			"select and install local extensions",
 			"install remote in local",
 			"popularExtensions",
@@ -12962,6 +13062,10 @@
 			"mcp.pip.placeholder",
 			"mcp.serverType.pip",
 			"mcp.serverType.pip.description",
+			"mcp.nuget.title",
+			"mcp.nuget.placeholder",
+			"mcp.serverType.nuget",
+			"mcp.serverType.nuget.description",
 			"mcp.docker.title",
 			"mcp.docker.placeholder",
 			"mcp.serverType.docker",
@@ -13008,6 +13112,8 @@
 			"mcp.elicit.enum.none.description",
 			"mcp.elicit.title",
 			"msg.subtitle",
+			"mcp.elicit.accept",
+			"mcp.elicit.reject",
 			"mcp.elicit.source",
 			"mcp.elicit.give",
 			"mcp.elicit.cancel",
@@ -13075,7 +13181,6 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"install",
-			"install",
 			"mcpServerInstallation",
 			"installing",
 			"uninstall",
@@ -13098,7 +13203,8 @@
 			"mcp.configAccess",
 			"mcp.samplingLog",
 			"mcp.samplingLog.title",
-			"mcp.resources"
+			"mcp.resources",
+			"disabled - not allowed"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerEditor": [
 			"name",
@@ -13142,6 +13248,11 @@
 			"mcpServerEditorLabelIcon",
 			"extensionsInputName"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpServerIcons": [
+			"mcpServer",
+			"mcpServerRemoteIcon",
+			"mcpServerWorkspaceIcon"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpServersView": [
 			"mcp servers",
 			"mcp.welcome.title",
@@ -13156,9 +13267,15 @@
 			"publisher",
 			"verified publisher",
 			"install count",
-			"ratedLabel"
+			"ratedLabel",
+			"workspace extension",
+			"remote user extension"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpWorkbenchService": [
+			"overwriting",
+			"overwriting",
+			"not an extension",
+			"cannot be installed",
 			"mcp.configuration.userLocalValue"
 		],
 		"vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery": [
@@ -13260,8 +13377,7 @@
 			"mcpstate.stopped",
 			"mcpstate.starting",
 			"mcpstate.running",
-			"mcpstate.error",
-			"mcpServer"
+			"mcpstate.error"
 		],
 		"vs/workbench/contrib/mergeEditor/browser/commands/commands": [
 			"mergeEditor.compareWithBase",
@@ -15537,7 +15653,6 @@
 			"open in external terminal",
 			"open in integrated terminal",
 			"quickDiffDecoration",
-			"scmHistoryItemChatContext",
 			"source control",
 			"scmRepositories",
 			"scmChanges",
@@ -16689,6 +16804,8 @@
 		"vs/workbench/contrib/tasks/common/problemMatcher": [
 			"ProblemPatternParser.problemPattern.missingRegExp",
 			"ProblemPatternParser.loopProperty.notLast",
+			"ProblemPatternParser.problemPattern.emptyPattern",
+			"ProblemPatternParser.problemPattern.emptyPattern",
 			"ProblemPatternParser.problemPattern.kindProperty.notFirst",
 			"ProblemPatternParser.problemPattern.missingProperty",
 			"ProblemPatternParser.problemPattern.missingLocation",
@@ -17387,8 +17504,11 @@
 			"focusAfterRun",
 			"focusViewOnExecution",
 			"suggestTrigger",
+			"suggest",
 			"suggestCommands",
 			"suggestCommandsMore",
+			"suggestLearnMore",
+			"suggestConfigure",
 			"commandPromptMigration",
 			"shellIntegration",
 			"goToNextCommand",
@@ -17465,6 +17585,80 @@
 		],
 		"vs/workbench/contrib/terminalContrib/chat/common/terminalInitialHintConfiguration": [
 			"terminal.integrated.initialHint"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/bufferOutputPolling": [
+			"poll.terminal.waiting",
+			"poll.terminal.polling",
+			"poll.terminal.accept",
+			"poll.terminal.reject"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/getTerminalOutputTool": [
+			"getTerminalOutputTool.displayName",
+			"bg.progressive",
+			"bg.past"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/runInTerminalTool": [
+			"runInTerminalTool.displayName",
+			"runInTerminalTool.userDescription",
+			"runInTerminal.background",
+			"runInTerminal.foreground"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task.chatAgentTools.contribution": [
+			"toolset.runTaskGetOutput"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task/getTaskOutputTool": [
+			"getTaskOutputTool.displayName",
+			"copilotChat.taskNotFound",
+			"copilotChat.taskAlreadyRunning",
+			"copilotChat.checkingTerminalOutput",
+			"copilotChat.checkedTerminalOutput",
+			"copilotChat.taskNotFound",
+			"copilotChat.terminalNotFound"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task/runTaskTool": [
+			"copilotChat.taskNotFound",
+			"copilotChat.taskAlreadyRunning",
+			"copilotChat.noTerminal",
+			"copilotChat.checkingOutput",
+			"copilotChat.taskNotFound",
+			"copilotChat.taskAlreadyActive",
+			"copilotChat.taskIsAlreadyRunning",
+			"copilotChat.taskWasAlreadyRunning",
+			"copilotChat.runningTask",
+			"copilotChat.startedTask",
+			"copilotChat.ranTask",
+			"copilotChat.allowTaskRunTitle",
+			"copilotChat.allowTaskRunMsg",
+			"runInTerminalTool.displayName",
+			"runInTerminalTool.userDescription"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/terminal.chatAgentTools.contribution": [
+			"toolset.runCommands"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/common/terminalChatAgentToolsConfiguration": [
+			"autoApprove.true",
+			"autoApprove.false",
+			"autoApprove.key",
+			"newTaskToolsEnabled.description",
+			"autoApprove.description.intro",
+			"autoApprove.description.values",
+			"autoApprove.description.subCommands",
+			"autoApprove.description.commandLine",
+			"autoApprove.description.examples.title",
+			"autoApprove.description.examples.value",
+			"autoApprove.description.examples.description",
+			"autoApprove.description.examples.mkdir",
+			"autoApprove.description.examples.npmRunBuild",
+			"autoApprove.description.examples.regexGit",
+			"autoApprove.description.examples.regexCase",
+			"autoApprove.description.examples.regexAll",
+			"autoApprove.description.examples.rm",
+			"autoApprove.description.examples.ps1",
+			"autoApprove.description.examples.rmUnset",
+			"autoApprove.matchCommandLine.true",
+			"autoApprove.matchCommandLine.false",
+			"autoApprove.matchCommandLine",
+			"autoApprove.null"
 		],
 		"vs/workbench/contrib/terminalContrib/clipboard/browser/terminal.clipboard.contribution": [
 			"workbench.action.terminal.copyLastCommand",
@@ -17735,7 +17929,10 @@
 			"suggest.inlineSuggestion.off",
 			"suggest.inlineSuggestion.alwaysOnTopExceptExactMatch",
 			"suggest.inlineSuggestion.alwaysOnTop",
-			"suggest.upArrowNavigatesHistory"
+			"suggest.upArrowNavigatesHistory",
+			"suggest.provider.description",
+			"terminalSuggestProvidersConfigurationTitle",
+			"suggest.providers"
 		],
 		"vs/workbench/contrib/terminalContrib/typeAhead/common/terminalTypeAheadConfiguration": [
 			"terminal.integrated.localEchoLatencyThreshold",
@@ -17745,6 +17942,13 @@
 			"terminal.integrated.localEchoEnabled.auto",
 			"terminal.integrated.localEchoExcludePrograms",
 			"terminal.integrated.localEchoStyle"
+		],
+		"vs/workbench/contrib/terminalContrib/voice/browser/terminalVoice": [
+			"terminalVoiceTextInserted"
+		],
+		"vs/workbench/contrib/terminalContrib/voice/browser/terminalVoiceActions": [
+			"workbench.action.terminal.startDictation",
+			"workbench.action.terminal.stopDictation"
 		],
 		"vs/workbench/contrib/terminalContrib/wslRecommendation/browser/terminal.wslRecommendation.contribution": [
 			"useWslExtension.title",
@@ -18002,13 +18206,6 @@
 			"testing.toggleTestingPeekHistory",
 			"testing.toggleTestingPeekHistory.description"
 		],
-		"vs/workbench/contrib/testing/browser/testingProgressUiService": [
-			"testProgress.runningInitial",
-			"testProgress.running",
-			"testProgressWithSkip.running",
-			"testProgress.completed",
-			"testProgressWithSkip.completed"
-		],
 		"vs/workbench/contrib/testing/browser/testingViewPaneContainer": [
 			"testing"
 		],
@@ -18137,6 +18334,20 @@
 			"testGroup.run",
 			"testGroup.coverage"
 		],
+		"vs/workbench/contrib/testing/common/testingChatAgentTool": [
+			"runTestTool.userDescription",
+			"runTestTool.noTests",
+			"runTestTool.invoke.progress",
+			"runTestTool.noRunStarted",
+			"runTestTool.invoke.cancelled",
+			"runTestTool.invoke.cancelled",
+			"runTestTool.invoke.filterProgress",
+			"runTestTool.invoke.filesProgress",
+			"runTestTool.confirm.title",
+			"runTestTool.confirm.invocation",
+			"runTestTool.confirm.message",
+			"runTestTool.confirm.all"
+		],
 		"vs/workbench/contrib/testing/common/testingContentProvider": [
 			"runNoOutout"
 		],
@@ -18171,6 +18382,13 @@
 			"testing.testResultOutdated",
 			"testing.testResultState",
 			"testing.profile.context.group"
+		],
+		"vs/workbench/contrib/testing/common/testingProgressMessages": [
+			"testProgress.runningInitial",
+			"testProgress.running",
+			"testProgressWithSkip.running",
+			"testProgress.completed",
+			"testProgressWithSkip.completed"
 		],
 		"vs/workbench/contrib/testing/common/testResult": [
 			"runFinished",
@@ -19807,10 +20025,9 @@
 			"menus.diffEditorGutterToolBarMenus",
 			"menus.diffEditorGutterToolBarMenus",
 			"searchPanel.aiResultsCommands",
-			"menus.chatModelPicker",
-			"menus.chatExplorer",
 			"menus.chatTextEditor",
 			"menus.chatTerminal",
+			"menus.chatSessions",
 			"requirestring",
 			"optstring",
 			"optstring",
@@ -22178,6 +22395,9 @@
 			"Maximum overall length of inlay hints, for a single line, before they get truncated by the editor. Set to `0` to never truncate",
 			"Controls the line height. \n - Use 0 to automatically compute the line height from the font size.\n - Values between 0 and 8 will be used as a multiplier with the font size.\n - Values greater than or equal to 8 will be used as effective values.",
 			"Controls whether the minimap is shown.",
+			"The minimap is always shown.",
+			"The minimap is hidden when mouse is not over the minimap and shown when mouse is over the minimap.",
+			"The minimap is only shown when the editor is scrolled",
 			"Controls whether the minimap is hidden automatically.",
 			"The minimap has the same size as the editor contents (and might scroll).",
 			"The minimap will stretch or shrink as necessary to fill the height of the editor (no scrolling).",
@@ -22313,7 +22533,6 @@
 			"Whether leading and trailing whitespace should always be selected.",
 			"Whether subwords (like 'foo' in 'fooBar' or 'foo_bar') should be selected.",
 			"Locales to be used for word segmentation when doing word related navigations or operations. Specify the BCP 47 language tag of the word you wish to recognize (e.g., ja, zh-CN, zh-Hant-TW, etc.).",
-			"Locales to be used for word segmentation when doing word related navigations or operations. Specify the BCP 47 language tag of the word you wish to recognize (e.g., ja, zh-CN, zh-Hant-TW, etc.).",
 			"No indentation. Wrapped lines begin at column 1.",
 			"Wrapped lines get the same indentation as the parent.",
 			"Wrapped lines get +1 indentation toward the parent.",
@@ -22385,8 +22604,10 @@
 			"`cursorSurroundingLines` is enforced always.",
 			"Controls when `#editor.cursorSurroundingLines#` should be enforced.",
 			"Controls the width of the cursor when `#editor.cursorStyle#` is set to `line`.",
+			"Controls the height of the cursor when `#editor.cursorStyle#` is set to `line`. Cursor's max height depends on line height.",
 			"Controls whether the editor should allow moving selections via drag and drop.",
 			"Sets whether the EditContext API should be used instead of the text area to power input in the editor.",
+			"Whether to render rich screen reader content when the `editor.editContext` is enabled.",
 			"Use regular DOM-based rendering.",
 			"Use GPU acceleration.",
 			"Controls whether to use the experimental GPU acceleration to render the editor.",
@@ -22408,6 +22629,7 @@
 			"Controls whether the editor should automatically format the line after typing.",
 			"Controls whether the editor should render the vertical glyph margin. Glyph margin is mostly used for debugging.",
 			"Controls whether the cursor should be hidden in the overview ruler.",
+			"Make scrolling inertial - mostly useful with touchpad on linux.",
 			"Controls the letter spacing in pixels.",
 			"Controls whether the editor has linked editing enabled. Depending on the language, related symbols such as HTML tags, are updated while editing.",
 			"Controls whether the editor should detect links and make them clickable.",
@@ -22453,6 +22675,8 @@
 			"Scroll only along the predominant axis when scrolling both vertically and horizontally at the same time. Prevents horizontal drift when scrolling vertically on a trackpad.",
 			"Controls whether the Linux primary clipboard should be supported.",
 			"Controls whether the editor should highlight matches similar to the selection.",
+			"Controls how many characters can be in the selection before similiar matches are not highlighted. Set to zero for unlimited.",
+			"Controls whether the editor should highlight selection matches that span multiple lines.",
 			"Always show the folding controls.",
 			"Never show the folding controls and reduce the gutter size.",
 			"Only show the folding controls when the mouse is over the gutter.",
@@ -22477,6 +22701,7 @@
 			"Disable tab completions.",
 			"Tab complete snippets when their prefix match. Works best when 'quickSuggestions' aren't enabled.",
 			"Enables tab completions.",
+			"Controls whether the editor will also delete the next line's indentation whitespace when deleting a newline.",
 			"Unusual line terminators are automatically removed.",
 			"Unusual line terminators are ignored.",
 			"Unusual line terminators prompt to be removed.",
@@ -22492,6 +22717,7 @@
 			"Lines will wrap at the minimum of viewport and `#editor.wordWrapColumn#`.",
 			"Controls how lines should wrap.",
 			"Controls the wrapping column of the editor when `#editor.wordWrap#` is `wordWrapColumn` or `bounded`.",
+			"Controls whether literal `\\n` shall trigger a wordWrap.\nfor example\n```c\nchar* str=\"hello\\nworld\"\n```\nwill be displayed as\n```c\nchar* str=\"hello\\n\n           world\"\n```",
 			"Show default color decorators only when no extension provides colors decorators.",
 			"Always show default color decorators.",
 			"Never show default color decorators.",
@@ -23237,6 +23463,7 @@
 			"Whether the inline suggestion starts with whitespace",
 			"Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab",
 			"Whether suggestions should be suppressed for the current suggestion",
+			"Whether the cursor is at ghost text",
 			"Whether the cursor is in indentation",
 			"Whether the editor has a selection",
 			"Whether the cursor is at an inline edit",
@@ -23321,6 +23548,7 @@
 			"Sort Lines Ascending",
 			"Sort Lines Descending",
 			"Delete Duplicate Lines",
+			"Reverse lines",
 			"Trim Trailing Whitespace",
 			"Delete Line",
 			"Indent Line",
@@ -24222,9 +24450,15 @@
 			"Problems are paused because: \"{0}\"",
 			"Problems are paused because: \"{0}\" and {1} more"
 		],
+		"vs/platform/mcp/common/allowedMcpServersService": [
+			"Model Context Protocol servers are disabled in the Editor. Please check your [settings]({0})."
+		],
 		"vs/platform/mcp/common/mcpGalleryService": [
 			"No README available",
 			"You can find information about this server [here]({0})"
+		],
+		"vs/platform/mcp/common/mcpManagementService": [
+			"This mcp server cannot be installed because {0}"
 		],
 		"vs/platform/menubar/electron-main/menubar": [
 			"New &&Window",
@@ -24245,8 +24479,10 @@
 			"Show All",
 			"Quit {0}",
 			"&&Quit",
+			"&&Exit",
 			"Cancel",
 			"Are you sure you want to quit?",
+			"Are you sure you want to exit?",
 			"Minimize",
 			"Zoom",
 			"Bring All to Front",
@@ -24329,7 +24565,7 @@
 			"Back ({0})",
 			"Back"
 		],
-		"vs/platform/quickinput/browser/quickInputTree": [
+		"vs/platform/quickinput/browser/quickInputList": [
 			"Quick Input"
 		],
 		"vs/platform/quickinput/browser/quickInputUtils": [
@@ -24936,7 +25172,17 @@
 			"Device Code Authentication",
 			"Your code: {0}\n\nTo complete authentication, navigate to {1} and enter the code above.",
 			"Copy & Continue",
-			"Failed to open {0}"
+			"Failed to open {0}",
+			"Dynamic Client Registration not supported",
+			"The authorization server '{0}' does not support automatic client registration. Do you want to proceed by manually providing a client registration (client ID)?\n\nNote: When registering your OAuth application, make sure to include these redirect URIs:\nhttp://127.0.0.1:33418\nhttps://vscode.dev/redirect",
+			"Proceed",
+			"Cancel",
+			"Add Client Registration Details",
+			"Enter an existing client ID that has been registered with the following redirect URIs: http://127.0.0.1:33418, https://vscode.dev/redirect",
+			"OAuth client ID (azye39d...)",
+			"Client ID is required",
+			"(optional) Enter an existing client secret associated with the client id '{0}' or leave this field blank",
+			"OAuth client secret (wer32o50f...) or leave it blank"
 		],
 		"vs/workbench/api/browser/mainThreadCLICommands": [
 			"Cannot install the '{0}' extension because it is declared to not run in this setup."
@@ -25337,6 +25583,8 @@
 			"Primary Side Bar",
 			"&&Primary Side Bar",
 			"Open/Show and Close/Hide Sidebar",
+			"Primary Side Bar hidden",
+			"Primary Side Bar shown",
 			"Hide Primary Side Bar",
 			"Toggle Primary Side Bar",
 			"Toggle Primary Side Bar",
@@ -25568,6 +25816,8 @@
 			"Hide Secondary Side Bar",
 			"&&Secondary Side Bar",
 			"Open/Show and Close/Hide Secondary Side Bar",
+			"Secondary Side Bar hidden",
+			"Secondary Side Bar shown",
 			"Hide Secondary Side Bar",
 			"Toggle Secondary Side Bar",
 			"Toggle Secondary Side Bar",
@@ -25747,15 +25997,22 @@
 			"Keep Open",
 			"Pin",
 			"Unpin",
+			"Split Right",
+			"Split Down",
+			"Split & Move",
+			"Move into New Window",
+			"Copy into New Window",
+			"Share",
 			"Split Up",
 			"Split Down",
 			"Split Left",
 			"Split Right",
+			"Move Above",
+			"Move Below",
+			"Move Left",
+			"Move Right",
 			"Split in Group",
 			"Join in Group",
-			"Move into New Window",
-			"Copy into New Window",
-			"Share",
 			"Inline View",
 			"Show Opened Editors",
 			"Close All",
@@ -26533,7 +26790,7 @@
 			"Controls whether editors remain in preview when a code navigation is started from them. Preview editors do not stay open, and are reused until explicitly set to be kept open (via double-click or editing). This value is ignored when {0} is not set to {1}.",
 			"Controls whether editors showing a file that was opened during the session should close automatically when getting deleted or renamed by some other process. Disabling this will keep the editor open  on such an event. Note that deleting from within the application will always close the editor and that editors with unsaved changes will never close to preserve your data.",
 			"Controls where editors open. Select {0} or {1} to open editors to the left or right of the currently active one. Select {2} or {3} to open editors independently from the currently active one.",
-			"Controls the default direction of editors that are opened side by side (for example, from the Explorer). By default, editors will open on the right hand side of the currently active one. If changed to `down`, the editors will open below the currently active one.",
+			"Controls the default direction of editors that are opened side by side (for example, from the Explorer). By default, editors will open on the right hand side of the currently active one. If changed to `down`, the editors will open below the currently active one. This also impacts the split editor action in the editor toolbar.",
 			"Controls the behavior of empty editor groups when the last tab in the group is closed. When enabled, empty groups will automatically close. When disabled, empty groups will remain part of the grid.",
 			"Controls whether an editor is revealed in any of the visible groups if opened. If disabled, an editor will prefer to open in the currently active editor group. If enabled, an already opened editor will be revealed instead of opened again in the currently active editor group. Note that there are some cases where this setting is ignored, such as when forcing an editor to open in a specific group or to the side of the currently active group.",
 			"Enables the use of mouse buttons four and five for commands 'Go Back' and 'Go Forward'.",
@@ -27106,6 +27363,7 @@
 			"Controls whether the output from an execution in the native REPL will be announced.",
 			"Control whether focus should automatically be sent to the REPL when code is executed.",
 			"Controls whether the {0} should be optimized for screen readers when in screen reader mode. When enabled, the window title will have {1} appended to the end.",
+			"Controls whether files should be opened when the chat agent has applied edits to them.",
 			"Whether to dim unfocused editors and terminals, which makes it more clear where typed input will go to. This works with the majority of editors with the notable exceptions of those that utilize iframes like notebooks and extension webview editors.",
 			"The opacity fraction (0.2 to 1.0) to use for unfocused editors and terminals. This will only take effect when {0} is enabled.",
 			"Controls whether the Accessible View is hidden.",
@@ -27269,13 +27527,10 @@
 			"Workspace Edit",
 			"Made no edits",
 			"Are you sure you want to close the window?",
-			"&&Close Window",
 			"Are you sure you want to change the workspace?",
-			"Change &&Workspace",
 			"Are you sure you want to reload the window?",
-			"&&Reload Window",
 			"Are you sure you want to quit?",
-			"&&Quit",
+			"Are you sure you want to exit?",
 			"'{0}' is in progress.",
 			"File operation",
 			"Controls if files that were part of a refactoring are saved automatically"
@@ -27378,6 +27633,7 @@
 			"To take the action, use the accept tool command{0}.",
 			"To automatically approve tool actions without manual confirmation, set chat.tools.autoApprove to true in your settings.",
 			"To accept a tool action, use the Accept Tool Confirmation command{0}.",
+			"By default, when edits are made to files, they will be opened. To change this behavior, set accessibility.openChatEditedFiles to false in your settings.",
 			"Some helpful commands include:",
 			"- Undo Edits{0}.",
 			"- Attach Files{0}.",
@@ -27388,6 +27644,7 @@
 			"- Undo All Edits{0}.",
 			"- Open File in Diff{0}.",
 			"- View Changes{0}.",
+			"- View Previous Edits{0}.",
 			"Inline chat occurs within a code editor and takes into account the current selection. It is useful for making changes to the current editor. For example, fixing diagnostics, documenting or refactoring code. Keep in mind that AI generated code may be incorrect.",
 			"It can be activated via code actions or directly using the command: Inline Chat: Start Inline Chat{0}.",
 			"In the input box, use Show Previous{0} and Show Next{1} to navigate your request history. Edit input and use enter or the submit button to run a new request.",
@@ -27399,7 +27656,6 @@
 			"Accessibility Signals can be changed via settings with a prefix of signals.chat. By default, if a request takes more than 4 seconds, you will hear a sound indicating that progress is still occurring."
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatActions": [
-			"Switching chats will end your current edit session.",
 			"Clear All Workspace Chats",
 			"Open in Editor",
 			"Delete",
@@ -27408,6 +27664,19 @@
 			"Workspace Chat History",
 			"Switch to chat",
 			"New chat title",
+			"Clear All Workspace Chats",
+			"Open in Editor",
+			"Delete",
+			"Rename",
+			"current",
+			"Recent Chats",
+			"Show more...",
+			"Show more...",
+			"All Workspace Chat History",
+			"Workspace Chat History",
+			"Switch to chat",
+			"New chat title",
+			"Switching chats will end your current edit session.",
 			"Upgrade Copilot Plan",
 			"You've reached your monthly chat messages quota. You still have free code completions available.",
 			"You've reached your monthly code completions quota. You still have free chat messages available.",
@@ -27456,7 +27725,9 @@
 			"New Chat",
 			"New Chat",
 			"Undo Last Request",
-			"Redo Last Request"
+			"Redo Last Request",
+			"Redo",
+			"Reapply discarded workspace changes and chat"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatCodeblockActions": [
 			"Apply to {0}",
@@ -27545,6 +27816,7 @@
 			"{0}",
 			"Open Extension",
 			"Trusted by Microsoft",
+			"Open Extension",
 			"No extensions have access",
 			"No extensions are currently allowed to use models from {0}",
 			"Manage Language Model Access",
@@ -27626,16 +27898,17 @@
 			"Applying code block using {0}...",
 			"Failed to apply code block: {0}"
 		],
+		"vs/workbench/contrib/chat/browser/actions/manageModelsActions": [
+			"Manage Language Models..."
+		],
 		"vs/workbench/contrib/chat/browser/attachments/implicitContextAttachment": [
 			"cell",
 			"file",
 			"Attached {0}, {1}, line {2} to line {3}",
 			"Attached {0}, {1}",
 			"Current {0} context",
-			"disabled",
-			"Current {0}",
-			"Disable current {0} context",
 			"Enable current {0} context",
+			"Disable current {0} context",
 			"Disable current {0} context",
 			"Enable current {0} context"
 		],
@@ -27660,7 +27933,7 @@
 			"Enables chat participant autodetection for panel chat.",
 			"Enables chat participant autodetection for panel chat.",
 			"Controls whether related files should be rendered in the chat input.",
-			"Controls whether the Copilot window should notify the user when a confirmation is needed.",
+			"Controls whether the Copilot window should notify the user when a confirmation is needed while the window is not in focus. This includes a window badge as well as notification toast.",
 			"Controls whether tool use should be automatically approved. Allow all tools to run automatically without user confirmation, overriding any tool-specific settings such as terminal auto-approval. Use with caution: carefully review selected tools and be extra wary of possible sources of prompt injection!",
 			"Controls whether tool use should be automatically approved.\n\nAllows _all_ tools to run automatically without user confirmation, overriding any tool-specific settings such as terminal auto-approval.\n\nUse with caution: carefully review selected tools and be extra wary of possible sources of prompt injection!",
 			"Controls whether elements can be sent to chat from the Simple Browser.",
@@ -27668,6 +27941,8 @@
 			"Controls whether a screenshot of the selected element will be added to the chat. {0} must be enabled.",
 			"Controls whether the input of the chat should be restored when an undo request is made. The input will be filled with the text of the request that was restored.",
 			"Enables editing of requests in the chat. This allows you to change the request content and resubmit it to the model.",
+			"Shows a modified empty chat state with hints in the input placeholder text.",
+			"Enables checkpoints in chat. Checkpoints allow you to restore the chat to a previous state.",
 			"Enables integration with Model Context Protocol servers to provide additional tools and functionality.",
 			"Configures which models are exposed to MCP servers for sampling (making model requests in the background). This setting can be edited in a graphical way under the `{0}` command.",
 			"List Servers",
@@ -27679,19 +27954,22 @@
 			"Enable using tools contributed by third-party extensions.",
 			"Enable using tools contributed by third-party extensions.",
 			"Enable agent mode for {0}. When this is enabled, agent mode can be activated via the dropdown in the view.",
+			"Enable math rendering in chat responses using Katex.",
+			"Controls where to show the agent sessions menu.",
 			"Enables discovery of {0} servers",
 			"Configures discovery of Model Context Protocol servers on the machine. It may be set to `true` or `false` to disable or enable all sources, and an mapping sources you wish to enable.",
 			"Configure the MCP Gallery service URL to connect to",
 			"Prompt Files",
-			"Enable reusable prompt (`*{0}`) and instruction files in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).",
-			"Enables reusable prompt and instruction files in Chat, Edits, and Inline Chat sessions.",
+			"Enable reusable prompt (`*{0}`) and instruction files (`*{1}`) in Chat sessions. [Learn More]({2}).",
+			"Enables reusable prompt and instruction files in Chat sessions.",
 			"Instructions File Locations",
-			"Specify location(s) of instructions files (`*{0}`) that can be attached in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
+			"Specify location(s) of instructions files (`*{0}`) that can be attached in Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Prompt File Locations",
-			"Specify location(s) of reusable prompt files (`*{0}`) that can be run in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
+			"Specify location(s) of reusable prompt files (`*{0}`) that can be run in Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Mode File Locations",
 			"Specify location(s) of custom chat mode files (`*{0}`). [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Control variations of the sign-in dialog.",
+			"Enables manageTasksTool in chat. This tool allows you to use task lists in chat.",
 			"Chat",
 			"Chat",
 			"Chat",
@@ -27770,9 +28048,10 @@
 			"Accept",
 			"Dismiss"
 		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/chatElicitationContentPart": [
-			"Respond",
-			"Cancel"
+		"vs/workbench/contrib/chat/browser/chatContentParts/chatConfirmationWidget": [
+			"Chat: {0}",
+			"Chat: Confirmation Required",
+			"The current chat session requires your confirmation to proceed."
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatExtensionsContentPart": [
 			"Loading extensions..."
@@ -27801,7 +28080,7 @@
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatReferencesContentPart": [
 			"Used {0} references",
 			"Used {0} reference",
-			"Collapsible Chat List",
+			"Collapsible Chat References List",
 			"Open setting '{0}'",
 			"Add File to Chat",
 			"Copy Link"
@@ -27828,6 +28107,9 @@
 			"Install Extensions",
 			"Click the Install button on the extension and then press Continue when finished."
 		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTaskListSubPart": [
+			"Tasks"
+		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTerminalToolSubPart": [
 			"Continue",
 			"Cancel"
@@ -27846,6 +28128,9 @@
 			"See more",
 			"See more"
 		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatToolOutputPart": [
+			"Rendering tool output..."
+		],
 		"vs/workbench/contrib/chat/browser/chatDragAndDrop": [
 			"File",
 			"File",
@@ -27855,6 +28140,7 @@
 			"Problem",
 			"URL",
 			"Output",
+			"Change",
 			"Image from URL",
 			"Attach {0} as Context"
 		],
@@ -27884,8 +28170,12 @@
 			"Keep",
 			"Undo",
 			"Undo Requests",
+			"Restore checkpoint",
+			"Restores workspace and chat to this point",
+			"Restore to last checkpoint",
 			"Edit Request",
-			"Add Files From References"
+			"Add Files From References",
+			"View Previous Edits"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingCodeEditorIntegration": [
 			"{0} (changes from {1})",
@@ -28020,13 +28310,14 @@
 			"Add suggestion"
 		],
 		"vs/workbench/contrib/chat/browser/chatListRenderer": [
+			"Checkpoint restored",
 			"used {0} [[(rerun without)]]",
 			"[[(rerun without)]]",
 			"Paused",
 			"Working",
 			"selected \"{0}\"",
 			"Failed to render content",
-			"Click to edit",
+			"Click to Edit",
 			"Suggested incorrect code",
 			"Didn't follow instructions",
 			"Missing context",
@@ -28036,6 +28327,10 @@
 			"Incomplete code",
 			"Report an issue",
 			"Other"
+		],
+		"vs/workbench/contrib/chat/browser/chatOutputItemRenderer": [
+			"Contributes a renderer for specific MIME types in chat outputs",
+			"MIME types that this renderer can handle"
 		],
 		"vs/workbench/contrib/chat/browser/chatParticipant.contribution": [
 			"&&Chat",
@@ -28080,6 +28375,14 @@
 			"{0} lines",
 			"{0} and {1} more"
 		],
+		"vs/workbench/contrib/chat/browser/chatSessions.contribution": [
+			"Contributes chat session integrations to the chat widget.",
+			"A unique identifier for this item.",
+			"Name shown in the chat widget. (eg: @agent)",
+			"A longer name for this item which is used for display in menus.",
+			"Description of the chat session for use in menus and tooltips.",
+			"Condition which must be true to show this item."
+		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
 			"New Workspace",
 			"Scaffold a new workspace in VS Code",
@@ -28097,10 +28400,8 @@
 			"Copilot is currently only supported in trusted workspaces.",
 			"Continue with {0}",
 			"Continue with {0}",
-			"Sign in with a {0} account",
 			"Continue with {0}",
 			"Continue with {0}",
-			"Sign in with a {0} account",
 			"Set up Copilot",
 			"Skip for now",
 			"Sign in to use Copilot",
@@ -28124,6 +28425,7 @@
 			"You must enter a valid {0} instance (i.e. \"octocat\" or \"https://octocat.ghe.com\")",
 			"Ask questions about VS Code",
 			"Use AI Features with Copilot for free...",
+			"Sign in to use Copilot",
 			"Sign in to use Copilot...",
 			"Hide Copilot",
 			"Upgrade to Copilot Pro",
@@ -28190,12 +28492,13 @@
 			"Scroll down",
 			"{0} or type {1} to attach context\n\n{2} to chat with extensions\n\nType {3} to use commands",
 			"{0} or type {1} to attach context",
+			"AI responses may be inaccurate.",
 			"Copilot is powered by AI, so mistakes are possible. Review output carefully before use.",
-			"Ask Copilot",
-			"Edit with Copilot",
+			"Ask about your code.",
 			"Start your editing session by defining a set of files that you want to work with. Then ask Copilot for the changes you want to make.",
-			"Edit with Copilot",
+			"Edit in context.",
 			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors.",
+			"Build with agent mode.",
 			"Welcome to Copilot",
 			"Let's get started",
 			"Review AI output carefully before use.",
@@ -28234,7 +28537,12 @@
 			"Prompt Image",
 			"Prompt Image",
 			"{0} ({1})",
+			"Active file",
 			"{0}: {1}"
+		],
+		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorContrib": [
+			"# to add context, @ for extensions, / for commands",
+			"# to add context"
 		],
 		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorHover": [
 			"There is a chat agent hover part here."
@@ -28246,8 +28554,12 @@
 			"Screenshot"
 		],
 		"vs/workbench/contrib/chat/browser/modelPicker/modelPickerActionItem": [
+			"Manage Models...",
+			"Manage language models",
 			"Add Premium Models",
 			"Add premium models",
+			"Pick Model",
+			"Pick Model",
 			"Pick Model"
 		],
 		"vs/workbench/contrib/chat/browser/modelPicker/modePickerActionItem": [
@@ -28378,7 +28690,8 @@
 			"Condition when the welcome message is shown."
 		],
 		"vs/workbench/contrib/chat/browser/viewsWelcome/chatViewWelcomeController": [
-			"Agent Mode"
+			"Agent Mode",
+			"Suggested prompt: {0}"
 		],
 		"vs/workbench/contrib/chat/common/chatColors": [
 			"The border color of a chat request.",
@@ -28420,13 +28733,11 @@
 			"True when chat is enabled because a default chat participant is activated with an implementation.",
 			"True when a default chat participant is registered for the panel from an extension.",
 			"True when a default chat participant is registered for the panel.",
-			"True when a default chat participant is registered for editing.",
 			"True when it is possible to undo an interaction in the editing panel.",
 			"True when it is possible to redo an interaction in the editing panel.",
 			"True when the installed chat extension is invalid and needs to be updated.",
 			"True when the quick chat UI has focus, false otherwise.",
 			"True when the chat has file attachments.",
-			"True when the chat model can be selected manually by the user.",
 			"True when a remote coding agent job is being created.",
 			"Whether any remote coding agent is available",
 			"Whether the remote coding agent prompt file overlay feature is enabled",
@@ -28456,9 +28767,9 @@
 			"Similar code found with {0} license types"
 		],
 		"vs/workbench/contrib/chat/common/chatModes": [
-			"Ask Copilot",
-			"Edit files in your workspace",
-			"Edit files in your workspace in agent mode"
+			"Ask a question.",
+			"Edit files.",
+			"Build autonomously."
 		],
 		"vs/workbench/contrib/chat/common/chatProgressTypes/chatToolInvocation": [
 			"Using {0}"
@@ -28478,6 +28789,8 @@
 		],
 		"vs/workbench/contrib/chat/common/languageModels": [
 			"A globally unique vendor of language models.",
+			"The display name of the language model vendor.",
+			"A command to manage the language model vendor, e.g. 'Manage Copilot models'. This is used in the chat model picker. If not provided, a gear icon is not rendered during vendor selection.",
 			"Contribute language models of a specific vendor.",
 			"This contribution point requires the 'chatProvider' proposal.",
 			"The vendor '{0}' is already registered and cannot be registered twice",
@@ -28638,7 +28951,13 @@
 			"Start Voice Chat"
 		],
 		"vs/workbench/contrib/chat/electron-browser/chat.contribution": [
-			"Copilot is currently only supported in trusted workspaces."
+			"Copilot is currently only supported in trusted workspaces.",
+			"A chat request is in progress. Are you sure you want to close the window?",
+			"A chat request is in progress. Are you sure you want to change the workspace?",
+			"A chat request is in progress. Are you sure you want to reload the window?",
+			"A chat request is in progress. Are you sure you want to quit?",
+			"A chat request is in progress. Are you sure you want to exit?",
+			"The chat request will be cancelled if you continue."
 		],
 		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage.",
@@ -29147,6 +29466,7 @@
 			"Write",
 			"Access",
 			"Condition: {0} | Hit Count: {1}",
+			"Decimal Address: {0}",
 			"Function to break on",
 			"Type function breakpoint.",
 			"Break when expression evaluates to true",
@@ -30069,9 +30389,14 @@
 		"vs/workbench/contrib/editSessions/common/editSessionsLogService": [
 			"Cloud Changes"
 		],
+		"vs/workbench/contrib/editTelemetry/browser/editStats/aiStatsStatusBar": [
+			"Inline Suggestions",
+			"Inline suggestions status bar"
+		],
 		"vs/workbench/contrib/editTelemetry/browser/editTelemetry.contribution": [
 			"Edit Telemetry",
 			"Controls whether to enable telemetry for edit statistics (only sends statistics if general telemetry is enabled).",
+			"Controls whether to enable AI statistics in the editor.",
 			"Controls whether to enable telemetry for detailed edit statistics (only sends statistics if general telemetry is enabled).",
 			"Controls whether to show the status bar for edit telemetry.",
 			"Controls whether to show decorations for edit telemetry."
@@ -30350,7 +30675,8 @@
 			"Add Extension to Workspace Folder Recommendations",
 			"Add Extension to Workspace Ignored Recommendations",
 			"Add Extension to Workspace Folder Ignored Recommendations",
-			"Manage Trusted Extension Publishers"
+			"Manage Trusted Extension Publishers",
+			"Sign in to access Extensions Marketplace"
 		],
 		"vs/workbench/contrib/extensions/browser/extensions.web.contribution": [
 			"Running Extensions"
@@ -30591,6 +30917,8 @@
 			"Extensions"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViewlet": [
+			"[Sign in to access Extensions Marketplace]({0})",
+			"Your account does not have access to the Extensions Marketplace. Please contact your administrator.",
 			"Installed",
 			"Search Extensions in Marketplace",
 			"Click to Show",
@@ -30611,7 +30939,11 @@
 			"Reload Now",
 			"Learn More",
 			"The extension '{0}' was found to be problematic and has been uninstalled",
+			"Sign in required to access marketplace",
+			"Access denied to marketplace",
+			"Sign in to access Marketplace",
 			"Remote",
+			"Marketplace",
 			"Install Local Extensions in '{0}'...",
 			"Install Remote Extensions Locally...",
 			"Popular",
@@ -31986,6 +32318,10 @@
 			"Package name (e.g., package-name)",
 			"Pip Package",
 			"Install from a Pip package name",
+			"Enter NuGet Package Name",
+			"Package name (e.g., Package.Name)",
+			"NuGet Package",
+			"Install from a NuGet package name",
 			"Enter Docker Image Name",
 			"Image name (e.g., mcp/imagename)",
 			"Docker Image",
@@ -32032,6 +32368,8 @@
 			"No selection",
 			"Request for Input",
 			"{0} (MCP Server)",
+			"Respond",
+			"Cancel",
 			"MCP Server ({0})",
 			"Respond",
 			"Cancel",
@@ -32099,7 +32437,6 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"Install",
-			"Install",
 			"Installing MCP Server {0} started. An editor is now open with more details on this MCP Server",
 			"Installing",
 			"Uninstall",
@@ -32122,7 +32459,8 @@
 			"Configure Model Access",
 			"Show Sampling Requests",
 			"MCP Sampling: {0}",
-			"Browse Resources"
+			"Browse Resources",
+			"This MCP Server is disabled because {0}"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerEditor": [
 			"Extension name",
@@ -32166,6 +32504,11 @@
 			"Icon of the MCP Server editor.",
 			"MCP Server: {0}"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpServerIcons": [
+			"Icon used for the MCP server.",
+			"Icon to indicate that an MCP server is for the remote user scope.",
+			"Icon to indicate that an MCP server is for the workspace scope."
+		],
 		"vs/workbench/contrib/mcp/browser/mcpServersView": [
 			"MCP Servers",
 			"MCP Servers",
@@ -32180,9 +32523,15 @@
 			"Publisher ({0})",
 			"This publisher has verified ownership of {0}",
 			"Install count",
-			"Average rating: {0} out of 5"
+			"Average rating: {0} out of 5",
+			"Workspace MCP Server",
+			"Remote MCP Server"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpWorkbenchService": [
+			"Overwriting mcp server '{0}' from {1} with {2}.",
+			"Overwriting mcp server '{0}' from {1} with {2}.",
+			"The provided object is not an mcp server.",
+			"Cannot install the '{0}' MCP Server because it is not available in this setup.",
 			"Global in {0}"
 		],
 		"vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery": [
@@ -32284,8 +32633,7 @@
 			"Stopped",
 			"Starting",
 			"Running",
-			"Error {0}",
-			"Icon used for the MCP server."
+			"Error {0}"
 		],
 		"vs/workbench/contrib/mergeEditor/browser/commands/commands": [
 			"Compare With Base",
@@ -33495,7 +33843,7 @@
 			"This setting cannot be applied because it is configured to be applied in all profiles using setting {0}. Value from the default profile will be used instead.",
 			"This setting cannot be applied in this window. It will be applied when you open a local window.",
 			"This setting cannot be applied in this workspace. It will be applied when you open the containing workspace folder directly.",
-			"This setting has an application scope and can be set only in the user settings file.",
+			"This setting has an application scope and can only be set in the settings file from the Default profile.",
 			"This setting can only be applied in user settings in local window or in remote settings in remote window.",
 			"This setting can only be applied in a trusted workspace.",
 			"Unknown Configuration Setting",
@@ -34248,7 +34596,6 @@
 			"Open in External Terminal",
 			"Open in Integrated Terminal",
 			"Diff Decorations",
-			"Copilot",
 			"Source Control",
 			"Repositories",
 			"Changes",
@@ -34299,8 +34646,8 @@
 			"Source Control...",
 			"Select a change",
 			"file(s)",
-			"Add History Item to Chat",
-			"Summarize History Item"
+			"Add to Chat",
+			"Explain Changes"
 		],
 		"vs/workbench/contrib/scm/browser/scmHistoryViewPane": [
 			"All",
@@ -35258,6 +35605,8 @@
 		"vs/workbench/contrib/tasks/common/problemMatcher": [
 			"The problem pattern is missing a regular expression.",
 			"The loop property is only supported on the last line matcher.",
+			"The problem pattern is invalid. It must contain at least one pattern.",
+			"The problem pattern is invalid. It must contain at least one pattern.",
 			"The problem pattern is invalid. The kind property must be provided only in the first element",
 			"The problem pattern is invalid. It must have at least have a file and a message.",
 			"The problem pattern is invalid. It must either have kind: \"file\" or have a line or location match group.",
@@ -35887,8 +36236,11 @@
 			"Configure what gets focused after running selected text in the terminal with `{0}`.",
 			"Enable `terminal.integrated.accessibleViewFocusOnCommandExecution` to automatically focus the terminal accessible view when a command is executed in the terminal.",
 			"The terminal request completions command can be invoked manually<keybinding:{0}>, but also appears while typing.",
-			"When the terminal suggest widget is focused, accept the suggestion<keybinding:{0}> and configure suggest settings<keybinding:{1}>.",
-			"Also, when the suggest widget is focused, toggle between the widget and terminal<keybinding:{0}> and toggle details focus<keybinding:{1}> to learn more about the suggestion.",
+			"When the terminal suggest widget is focused:",
+			"- Accept the suggestion<keybinding:{0}> and configure suggest settings<keybinding:{1}>.",
+			"- Toggle between the widget and terminal<keybinding:{0}> and toggle details focus<keybinding:{1}> to learn more about the suggestion.",
+			"- Learn more about the suggestion<keybinding:{0}>.",
+			"-Configure suggest settings<keybinding:{0}> ",
 			"Consider using powershell instead of command prompt for an improved experience",
 			"The terminal has a feature called shell integration that offers an enhanced experience and provides useful commands for screen readers such as:",
 			"Go to Next Command<keybinding:{0}> in the accessible view",
@@ -35960,6 +36312,80 @@
 		],
 		"vs/workbench/contrib/terminalContrib/chat/common/terminalInitialHintConfiguration": [
 			"Controls if the first terminal without input will show a hint about available actions when it is focused."
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/bufferOutputPolling": [
+			"Continue waiting for `{0}` to finish?",
+			"Copilot will continue to poll for output to determine when the terminal becomes idle for up to 2 minutes.",
+			"Yes",
+			"No"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/getTerminalOutputTool": [
+			"Get Terminal Output",
+			"Checking background terminal output",
+			"Checked background terminal output"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/runInTerminalTool": [
+			"Run in Terminal",
+			"Tool for running commands in the terminal",
+			"Run command in background terminal",
+			"Run command in terminal"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task.chatAgentTools.contribution": [
+			"Runs tasks and gets their output for your workspace"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task/getTaskOutputTool": [
+			"Get Task Output",
+			"Task not found: `{0}`",
+			"The task `{0}` is already running.",
+			"Checking output for task `{0}`",
+			"Checked output for task `{0}`",
+			"Task not found: `{0}`",
+			"Terminal not found for task `{0}`"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/task/runTaskTool": [
+			"Task not found: `{0}`",
+			"The task `{0}` is already running.",
+			"Task started but no terminal was found for: `{0}`",
+			"Checking output for `{0}`",
+			"Task not found: `{0}`",
+			"The task is already running.",
+			"`{0}` is already running.",
+			"`{0}` was already running.",
+			"Running `{0}`",
+			"Started `{0}`",
+			"Ran `{0}`",
+			"Allow task run?",
+			"Allow Copilot to run the task `{0}`?",
+			"Run Task",
+			"Tool for running tasks in the workspace"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/browser/terminal.chatAgentTools.contribution": [
+			"Runs commands in the terminal"
+		],
+		"vs/workbench/contrib/terminalContrib/chatAgentTools/common/terminalChatAgentToolsConfiguration": [
+			"Automatically approve the pattern.",
+			"Require explicit approval for the pattern.",
+			"The start of a command to match against. A regular expression can be provided by wrapping the string in `/` characters.",
+			"Whether the new task tools are enabled.",
+			"A list of commands or regular expressions that control whether the run in terminal tool commands require explicit approval. These will be matched against the start of a command. A regular expression can be provided by wrapping the string in {0} characters followed by optional flags such as {1} for case-insensitivity.",
+			"Set to {0} to automatically approve commands, {1} to always require explicit approval or {2} to unset the value.",
+			"Note that these commands and regular expressions are evaluated for every _sub-command_ within the full _command line_, so {0} for example will need both {1} and {2} to match a {3} entry and must not match a {4} entry in order to auto approve. Inline commands are also detected so {5} will need both {5} and {6} to pass.",
+			"An object can be used to match against the full command line instead of matching sub-commands and inline commands, for example {0}. This will be checked _after_ sub-commands are checked, taking precedence over even denied sub-commands.",
+			"Examples:",
+			"Value",
+			"Description",
+			"Allow all commands starting with {0}",
+			"Allow all commands starting with {0}",
+			"Allow {0} and all commands starting with {1}",
+			"will allow {0} commands regardless of casing",
+			"Allow all commands (denied commands still require approval)",
+			"Require explicit approval for all commands starting with {0}",
+			"Require explicit approval for any _command line_ that contains {0} regardless of casing",
+			"Unset the default {0} value for {1}",
+			"Match against the full command line, eg. `foo && bar`.",
+			"Match against sub-commands and inline commands, eg. `foo && bar` will need both `foo` and `bar` to match.",
+			"Whether to match against the full command line, as opposed to splitting by sub-commands and inline commands.",
+			"Ignore the pattern, this is useful for unsetting the same pattern set at a higher scope."
 		],
 		"vs/workbench/contrib/terminalContrib/clipboard/browser/terminal.clipboard.contribution": [
 			"Copy Last Command",
@@ -36215,7 +36641,10 @@
 			"Disable the feature.",
 			"Enable the feature and sort the inline suggestion without forcing it to be on top. This means that exact matches will be will be above the inline suggestion.",
 			"Enable the feature and always put the inline suggestion on top.",
-			"Determines whether the up arrow key navigates the command history when focus is on the first suggestion and navigation has not yet occurred. When set to false, the up arrow will move focus to the last suggestion instead."
+			"Determines whether the up arrow key navigates the command history when focus is on the first suggestion and navigation has not yet occurred. When set to false, the up arrow will move focus to the last suggestion instead.",
+			"Enable or disable the '{0}' terminal suggestion provider.",
+			"Terminal Suggest Providers",
+			"Providers are enabled by default. Omit them by setting the id of the provider to `false`."
 		],
 		"vs/workbench/contrib/terminalContrib/typeAhead/common/terminalTypeAheadConfiguration": [
 			"Length of network delay, in milliseconds, where local edits will be echoed on the terminal without waiting for server acknowledgement. If '0', local echo will always be on, and if '-1' it will be disabled.",
@@ -36225,6 +36654,13 @@
 			"Enabled only for remote workspaces",
 			"Local echo will be disabled when any of these program names are found in the terminal title.",
 			"Terminal style of locally echoed text; either a font style or an RGB color."
+		],
+		"vs/workbench/contrib/terminalContrib/voice/browser/terminalVoice": [
+			"{0} inserted"
+		],
+		"vs/workbench/contrib/terminalContrib/voice/browser/terminalVoiceActions": [
+			"Start Dictation in Terminal",
+			"Stop Dictation in Terminal"
 		],
 		"vs/workbench/contrib/terminalContrib/wslRecommendation/browser/terminal.wslRecommendation.contribution": [
 			"The '{0}' extension is recommended for opening a terminal in WSL.",
@@ -36467,13 +36903,6 @@
 			"Toggle Test History in Peek",
 			"Shows or hides the history of test runs in the peek view"
 		],
-		"vs/workbench/contrib/testing/browser/testingProgressUiService": [
-			"Running tests...",
-			"Running tests, {0}/{1} passed ({2}%)",
-			"Running tests, {0}/{1} tests passed ({2}%, {3} skipped)",
-			"{0}/{1} tests passed ({2}%)",
-			"{0}/{1} tests passed ({2}%, {3} skipped)"
-		],
 		"vs/workbench/contrib/testing/browser/testingViewPaneContainer": [
 			"Testing"
 		],
@@ -36597,6 +37026,20 @@
 			"Run",
 			"Coverage"
 		],
+		"vs/workbench/contrib/testing/common/testingChatAgentTool": [
+			"Runs unit tests",
+			"No tests found in the files",
+			"Starting test run...",
+			"No test run was started. This may be an issue with your test runner or extension.",
+			"Test run was cancelled.",
+			"Test run was cancelled.",
+			"Filtering tests...",
+			"Discovering tests...",
+			"Allow test run?",
+			"Running tests...",
+			"The model wants to run tests in {0}.",
+			"The model wants to run all tests."
+		],
 		"vs/workbench/contrib/testing/common/testingContentProvider": [
 			"The test run did not record any output."
 		],
@@ -36631,6 +37074,13 @@
 			"Value available in editor/content and testing/message/context when the result is outdated",
 			"Value available testing/item/result indicating the state of the item.",
 			"Type of menu where the configure testing profile submenu exists. Either \"run\", \"debug\", or \"coverage\""
+		],
+		"vs/workbench/contrib/testing/common/testingProgressMessages": [
+			"Running tests...",
+			"Running tests, {0}/{1} passed ({2}%)",
+			"Running tests, {0}/{1} tests passed ({2}%, {3} skipped)",
+			"{0}/{1} tests passed ({2}%)",
+			"{0}/{1} tests passed ({2}%, {3} skipped)"
 		],
 		"vs/workbench/contrib/testing/common/testResult": [
 			"Test run at {0}",
@@ -37387,7 +37837,7 @@
 			"List Signal Sounds",
 			"List Signal Announcements",
 			"Access the hover in the editor to get more information on a variable or symbol",
-			"While focus is in the editor on a variable or symbol, a hover can be can be focused with the Show or Open Hover command.\n{0}",
+			"While focus is in the editor on a variable or symbol, a hover can be focused with the Show or Open Hover command.\n{0}",
 			"Show or Focus Hover",
 			"Navigate to symbols in a file",
 			"The Go to Symbol command is useful for navigating between important landmarks in a document.\n{0}",
@@ -37918,10 +38368,9 @@
 			"The gutter toolbar in the diff editor",
 			"The gutter toolbar in the diff editor",
 			"The commands that will contribute to the menu rendered as buttons next to the AI search title",
-			"The chat model picker dropdown menu",
-			"The Chat submenu in the explorer context menu.",
 			"The Chat submenu in the text editor context menu.",
 			"The Chat submenu in the terminal context menu.",
+			"The Chat Sessions menu.",
 			"property `{0}` is mandatory and must be of type `string`",
 			"property `{0}` can be omitted or must be of type `string`",
 			"property `{0}` can be omitted or must be of type `string`",

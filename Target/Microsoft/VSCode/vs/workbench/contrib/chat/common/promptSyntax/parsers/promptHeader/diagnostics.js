@@ -1,1 +1,1 @@
-class e{constructor(t,r){this.range=t,this.message=r}}class n extends e{toString(){return`warning(${this.message})${this.range}`}}class a extends e{toString(){return`error(${this.message})${this.range}`}}export{e as $mR,n as $nR,a as $oR};
+class e{constructor(t,r){this.range=t,this.message=r}}class n extends e{toString(){return`warning(${this.message})${this.range}`}}class a extends e{toString(){return`error(${this.message})${this.range}`}}export{e as $xR,n as $yR,a as $zR};

@@ -1,1 +1,1 @@
-import{$Pab as o}from"../../../browser/editorExtensions.js";import{$Hsb as m}from"./middleScrollController.js";o(m.ID,m,2);
+import{$$ab as o}from"../../../browser/editorExtensions.js";import{$_sb as m}from"./middleScrollController.js";o(m.ID,m,2);

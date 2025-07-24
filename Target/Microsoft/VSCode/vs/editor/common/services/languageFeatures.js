@@ -1,1 +1,1 @@
-import{$oj as e}from"../../../platform/instantiation/common/instantiation.js";const r=e("ILanguageFeaturesService");export{r as $DT};
+import{$sj as e}from"../../../platform/instantiation/common/instantiation.js";const o=e("ILanguageFeaturesService");export{o as $QT};

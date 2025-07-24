@@ -1,1 +1,1 @@
-const t=[];function n(e){t.push(e)}function o(){return t.slice(0)}export{n as $Ohb,o as $Phb};
+const t=[];function i(e){t.push(e)}function n(){return t.slice(0)}export{i as $fib,n as $gib};

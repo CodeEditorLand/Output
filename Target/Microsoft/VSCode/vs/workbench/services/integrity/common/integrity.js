@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("integrityService");export{t as $wBc};
+import{$sj as r}from"../../../../platform/instantiation/common/instantiation.js";const e=r("integrityService");export{e as $hDc};

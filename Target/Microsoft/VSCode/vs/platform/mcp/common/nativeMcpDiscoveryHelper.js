@@ -1,1 +1,1 @@
-import{$oj as e}from"../../instantiation/common/instantiation.js";const r=e("INativeMcpDiscoveryHelperService"),c="NativeMcpDiscoveryHelper";export{r as $MA,c as $NA};
+import{$sj as e}from"../../instantiation/common/instantiation.js";const o=e("INativeMcpDiscoveryHelperService"),c="NativeMcpDiscoveryHelper";export{o as $QA,c as $RA};

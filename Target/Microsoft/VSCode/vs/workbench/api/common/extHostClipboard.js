@@ -1,1 +1,1 @@
-import{$MY as o}from"./extHost.protocol.js";class c{constructor(r){const e=r.getProxy(o.MainThreadClipboard);this.value=Object.freeze({readText(){return e.$readText()},writeText(t){return e.$writeText(t)}})}}export{c as $pMc};
+import{$5Y as o}from"./extHost.protocol.js";class c{constructor(r){const e=r.getProxy(o.MainThreadClipboard);this.value=Object.freeze({readText(){return e.$readText()},writeText(t){return e.$writeText(t)}})}}export{c as $aOc};

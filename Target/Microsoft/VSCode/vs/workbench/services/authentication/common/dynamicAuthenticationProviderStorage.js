@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("dynamicAuthenticationProviderStorageService");export{r as $t3b};
+import{$sj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("dynamicAuthenticationProviderStorageService");export{t as $v4b};

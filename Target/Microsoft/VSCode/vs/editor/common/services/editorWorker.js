@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../platform/instantiation/common/instantiation.js";const e=o("editorWorkerService");export{e as $Afb};
+import{$sj as r}from"../../../platform/instantiation/common/instantiation.js";const e=r("editorWorkerService");export{e as $4fb};

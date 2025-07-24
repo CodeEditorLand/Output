@@ -1,1 +1,1 @@
-import{$FQ as e}from"./simpleToken.js";class t extends e{static{this.symbol="\f"}get text(){return t.symbol}toString(){return`formfeed${this.range}`}}export{t as $RQ};
+import{$QQ as e}from"./simpleToken.js";class t extends e{static{this.symbol="\f"}get text(){return t.symbol}toString(){return`formfeed${this.range}`}}export{t as $3Q};

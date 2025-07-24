@@ -1,1 +1,1 @@
-import{$oj as e}from"../../instantiation/common/instantiation.js";const r=e("sharedProcessTunnelService"),s="sharedProcessTunnel";export{r as $KEc,s as $LEc};
+import{$sj as e}from"../../instantiation/common/instantiation.js";const s=e("sharedProcessTunnelService"),o="sharedProcessTunnel";export{s as $vGc,o as $wGc};

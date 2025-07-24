@@ -1,1 +1,1 @@
-import{$oj as o}from"../../instantiation/common/instantiation.js";const t=o("nativeBrowserElementsService");var r;(function(e){e.SimpleBrowser="simpleBrowser",e.LiveServer="liveServer"})(r||(r={}));export{t as $fw,r as BrowserType};
+import{$sj as o}from"../../instantiation/common/instantiation.js";const s=o("nativeBrowserElementsService");var r;(function(e){e.SimpleBrowser="simpleBrowser",e.LiveServer="liveServer"})(r||(r={}));export{s as $jw,r as BrowserType};

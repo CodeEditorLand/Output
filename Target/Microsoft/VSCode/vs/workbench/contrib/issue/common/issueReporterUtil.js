@@ -1,1 +1,1 @@
-import{$Kf as s}from"../../../../base/common/strings.js";function t(i){return i.endsWith(".git")&&(i=i.substr(0,i.length-4)),i=s(i,"/"),i.endsWith("/new")&&(i=s(i,"/new")),i.endsWith("/issues")&&(i=s(i,"/issues")),i}export{t as $IDc};
+import{$Kf as s}from"../../../../base/common/strings.js";function e(i){return i.endsWith(".git")&&(i=i.substr(0,i.length-4)),i=s(i,"/"),i.endsWith("/new")&&(i=s(i,"/new")),i.endsWith("/issues")&&(i=s(i,"/issues")),i}export{e as $tFc};

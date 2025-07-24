@@ -1,1 +1,1 @@
-const o="workbench.actions.manage",c="workbench.actions.accounts";export{o as $wDb,c as $xDb};
+const o="workbench.actions.manage",c="workbench.actions.accounts";export{o as $XDb,c as $YDb};

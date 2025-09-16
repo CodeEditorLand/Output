@@ -44,7 +44,7 @@
 		"@types/trusted-types": "2.0.7",
 		"@types/wicg-file-system-access": "2023.10.6",
 		"@types/winreg": "1.2.36",
-		"@webgpu/types": "0.1.64",
+		"@webgpu/types": "0.1.65",
 		"browserslist": "4.26.2",
 		"cross-env": "10.0.0",
 		"deepmerge-ts": "7.1.5",

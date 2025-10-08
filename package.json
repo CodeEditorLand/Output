@@ -49,7 +49,7 @@
 		"cross-env": "10.1.0",
 		"deepmerge-ts": "7.1.5",
 		"mocha": "11.7.4",
-		"semver": "7.7.2",
+		"semver": "7.7.3",
 		"sinon": "21.0.0",
 		"trusted-types": "2.0.0",
 		"typescript": "5.9.3",

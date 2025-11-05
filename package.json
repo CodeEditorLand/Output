@@ -48,7 +48,7 @@
 		"browserslist": "4.27.0",
 		"cross-env": "10.1.0",
 		"deepmerge-ts": "7.1.5",
-		"mocha": "11.7.4",
+		"mocha": "11.7.5",
 		"semver": "7.7.3",
 		"sinon": "21.0.0",
 		"trusted-types": "2.0.0",

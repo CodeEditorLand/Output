@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": false,
 	"description": "Output ⚫",
-	"homepage": "https://GitHub.Com/CodeEditorLand/Output#readme",
+	"homepage": "https://GitHub.Com/CodeEditorLand/Output?tab=readme-ov-file",
 	"bugs": {
 		"url": "https://GitHub.Com/CodeEditorLand/Output/issues"
 	},
@@ -38,13 +38,13 @@
 	"devDependencies": {
 		"@playform/build": "0.2.6",
 		"@types/mocha": "10.0.10",
-		"@types/node": "25.0.3",
+		"@types/node": "25.0.9",
 		"@types/semver": "7.7.1",
 		"@types/sinon": "21.0.0",
 		"@types/trusted-types": "2.0.7",
 		"@types/wicg-file-system-access": "2023.10.7",
 		"@types/winreg": "1.2.36",
-		"@webgpu/types": "0.1.68",
+		"@webgpu/types": "0.1.69",
 		"browserslist": "4.28.1",
 		"cross-env": "10.1.0",
 		"deepmerge-ts": "7.1.5",

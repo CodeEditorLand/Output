@@ -1,1 +1,1 @@
-import{$2$ as m}from"../../../base/common/worker/webWorkerBootstrap.js";import{$3fb as o}from"./editorWebWorker.js";m(()=>new o(null));
+import{$wab as m}from"../../../base/common/worker/webWorkerBootstrap.js";import{$7db as o}from"./editorWebWorker.js";m(()=>new o(null));

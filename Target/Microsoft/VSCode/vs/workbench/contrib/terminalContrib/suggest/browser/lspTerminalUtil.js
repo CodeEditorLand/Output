@@ -1,2 +1,2 @@
-const t=`vscode_lsp_terminal_prompt_tracker= {}
-`,o=`ms-python.python(.["')`,p="python";export{t as $Gwc,o as $Hwc,p as $Iwc};
+const o=`vscode_lsp_terminal_prompt_tracker= {}
+`,t=new Set([{shellType:"python",languageId:"python",extension:"py"}]);function p(n){for(const e of t)if(e.shellType===n)return e}export{o as $jEc,t as $kEc,p as $lEc};

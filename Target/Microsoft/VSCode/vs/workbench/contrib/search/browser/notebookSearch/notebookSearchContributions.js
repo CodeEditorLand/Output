@@ -1,1 +1,1 @@
-import{$3B as o}from"../../../../../platform/instantiation/common/extensions.js";import{$2dc as r}from"../../common/notebookSearch.js";import{$3pc as m}from"./notebookSearchService.js";function f(){o(r,m,1)}export{f as $4pc};
+import{$TC as o}from"../../../../../platform/instantiation/common/extensions.js";import{$Kic as r}from"../../common/notebookSearch.js";import{$rwc as m}from"./notebookSearchService.js";function f(){o(r,m,1)}export{f as $swc};

@@ -1,15 +1,15 @@
-import{$Rj as t}from"../../../../base/common/codicons.js";import{localize as n}from"../../../../nls.js";import{$Kt as e,$Rt as g}from"../../../../platform/theme/common/iconRegistry.js";import{$1t as a}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as o}from"../../../../base/common/themables.js";import{$Nmc as p,$5mc as $,$_mc as d}from"./theme.js";const R=e("test-view-icon",t.beaker,n(12619,null)),A=e("test-results-icon",t.checklist,n(12620,null)),m=e("testing-run-icon",t.run,n(12621,null)),q=e("testing-rerun-icon",t.debugRerun,n(12622,null)),x=e("testing-run-all-icon",t.runAll,n(12623,null)),S=e("testing-debug-all-icon",t.debugAltSmall,n(12624,null)),f=e("testing-debug-icon",t.debugAltSmall,n(12625,null)),j=e("testing-coverage-icon",t.runCoverage,n(12626,null)),O=e("testing-coverage-all-icon",t.runAllCoverage,n(12627,null)),T=e("testing-cancel-icon",t.debugStop,n(12628,null)),z=e("testing-filter",t.filter,n(12629,null)),F=e("testing-hidden",t.eyeClosed,n(12630,null)),I=e("testing-show-as-list-icon",t.listTree,n(12631,null)),K=e("testing-show-as-list-icon",t.listFlat,n(12632,null)),M=e("testing-update-profiles",t.gear,n(12633,null)),N=e("testing-refresh-tests",t.refresh,n(12634,null)),_=e("testing-turn-continuous-run-on",t.eye,n(12635,null)),B=e("testing-turn-continuous-run-off",t.eyeClosed,n(12636,null)),D=e("testing-continuous-is-on",t.eye,n(12637,null)),E=e("testing-cancel-refresh-tests",t.stop,n(12638,null)),G=e("testing-coverage",t.coverage,n(12639,null)),H=e("testing-was-covered",t.check,n(12640,null)),J=e("testing-missing-branch",t.question,n(12641,null)),h=new Map([[6,e("testing-error-icon",t.issues,n(12642,null))],[4,e("testing-failed-icon",t.error,n(12643,null))],[3,e("testing-passed-icon",t.pass,n(12644,null))],[1,e("testing-queued-icon",t.history,n(12645,null))],[2,g],[5,e("testing-skipped-icon",t.debugStepOver,n(12646,null))],[0,e("testing-unset-icon",t.circleOutline,n(12647,null))]]);a((r,l)=>{for(const[c,s]of h.entries()){const i=$[c],u=d[c];i&&(l.addRule(`.monaco-workbench ${o.asCSSSelector(s)} {
-			color: ${r.getColor(i)} !important;
-		}`),u&&l.addRule(`
-			.test-explorer .computed-state.retired${o.asCSSSelector(s)},
-			.testing-run-glyph.retired${o.asCSSSelector(s)}{
-				color: ${r.getColor(u)} !important;
+import{$ak as t}from"../../../../base/common/codicons.js";import{localize as e}from"../../../../nls.js";import{$eu as o,$lu as g}from"../../../../platform/theme/common/iconRegistry.js";import{$vu as a}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as n}from"../../../../base/common/themables.js";import{$gtc as p,$xtc as $,$Etc as d}from"./theme.js";const R=o("test-view-icon",t.beaker,e(13816,null)),A=o("test-results-icon",t.checklist,e(13817,null)),m=o("testing-run-icon",t.run,e(13818,null)),O=o("testing-rerun-icon",t.debugRerun,e(13819,null)),x=o("testing-run-all-icon",t.runAll,e(13820,null)),S=o("testing-debug-all-icon",t.debugAltSmall,e(13821,null)),f=o("testing-debug-icon",t.debugAltSmall,e(13822,null)),T=o("testing-coverage-icon",t.runCoverage,e(13823,null)),q=o("testing-coverage-all-icon",t.runAllCoverage,e(13824,null)),F=o("testing-cancel-icon",t.debugStop,e(13825,null)),I=o("testing-filter",t.filter,e(13826,null)),M=o("testing-hidden",t.eyeClosed,e(13827,null)),z=o("testing-show-as-list-icon",t.listTree,e(13828,null)),E=o("testing-show-as-list-icon",t.listFlat,e(13829,null)),G=o("testing-update-profiles",t.gear,e(13830,null)),H=o("testing-refresh-tests",t.refresh,e(13831,null)),J=o("testing-turn-continuous-run-on",t.eye,e(13832,null)),K=o("testing-turn-continuous-run-off",t.eyeClosed,e(13833,null)),L=o("testing-continuous-is-on",t.eye,e(13834,null)),N=o("testing-cancel-refresh-tests",t.stop,e(13835,null)),P=o("testing-coverage",t.coverage,e(13836,null)),Q=o("testing-was-covered",t.check,e(13837,null)),U=o("testing-missing-branch",t.question,e(13838,null)),h=new Map([[6,o("testing-error-icon",t.issues,e(13839,null))],[4,o("testing-failed-icon",t.error,e(13840,null))],[3,o("testing-passed-icon",t.pass,e(13841,null))],[1,o("testing-queued-icon",t.history,e(13842,null))],[2,g],[5,o("testing-skipped-icon",t.debugStepOver,e(13843,null))],[0,o("testing-unset-icon",t.circleOutline,e(13844,null))]]);a((l,r)=>{for(const[c,s]of h.entries()){const i=$[c],u=d[c];i&&(r.addRule(`.monaco-workbench ${n.asCSSSelector(s)} {
+			color: ${l.getColor(i)} !important;
+		}`),u&&r.addRule(`
+			.test-explorer .computed-state.retired${n.asCSSSelector(s)},
+			.testing-run-glyph.retired${n.asCSSSelector(s)}{
+				color: ${l.getColor(u)} !important;
 			}
-		`))}l.addRule(`
-		.monaco-editor .glyph-margin-widgets ${o.asCSSSelector(m)},
-		.monaco-editor .glyph-margin-widgets ${o.asCSSSelector(x)},
-		.monaco-editor .glyph-margin-widgets ${o.asCSSSelector(f)},
-		.monaco-editor .glyph-margin-widgets ${o.asCSSSelector(S)} {
-			color: ${r.getColor(p)};
+		`))}r.addRule(`
+		.monaco-editor .glyph-margin-widgets ${n.asCSSSelector(m)},
+		.monaco-editor .glyph-margin-widgets ${n.asCSSSelector(x)},
+		.monaco-editor .glyph-margin-widgets ${n.asCSSSelector(f)},
+		.monaco-editor .glyph-margin-widgets ${n.asCSSSelector(S)} {
+			color: ${l.getColor(p)};
 		}
-	`)});export{R as $anc,A as $bnc,m as $cnc,q as $dnc,x as $enc,S as $fnc,f as $gnc,j as $hnc,O as $inc,T as $jnc,z as $knc,F as $lnc,I as $mnc,K as $nnc,M as $onc,N as $pnc,_ as $qnc,B as $rnc,D as $snc,E as $tnc,G as $unc,H as $vnc,J as $wnc,h as $xnc};
+	`)});export{Q as $1tc,U as $2tc,h as $3tc,R as $Ftc,A as $Gtc,m as $Htc,O as $Itc,x as $Jtc,S as $Ktc,f as $Ltc,T as $Mtc,q as $Ntc,F as $Otc,I as $Ptc,M as $Qtc,z as $Rtc,E as $Stc,G as $Ttc,H as $Utc,J as $Vtc,K as $Wtc,L as $Xtc,N as $Ytc,P as $Ztc};

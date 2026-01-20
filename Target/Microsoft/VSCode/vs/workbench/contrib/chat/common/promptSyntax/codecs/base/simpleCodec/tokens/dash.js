@@ -1,1 +1,0 @@
-import{$QQ as r}from"./simpleToken.js";class t extends r{static{this.symbol="-"}get text(){return t.symbol}toString(){return`dash${this.range}`}}export{t as $UQ};

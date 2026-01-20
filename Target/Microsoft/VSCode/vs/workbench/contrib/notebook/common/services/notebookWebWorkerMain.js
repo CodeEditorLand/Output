@@ -1,1 +1,1 @@
-import{$2$ as m}from"../../../../../base/common/worker/webWorkerBootstrap.js";import{$nac as o}from"./notebookWebWorker.js";m(o);
+import{$wab as m}from"../../../../../base/common/worker/webWorkerBootstrap.js";import{$8ec as o}from"./notebookWebWorker.js";m(o);

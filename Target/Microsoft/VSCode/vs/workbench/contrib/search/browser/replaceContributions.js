@@ -1,1 +1,1 @@
-import{$3B as r}from"../../../../platform/instantiation/common/extensions.js";import{$3dc as m}from"./replace.js";import{$1pc as p,$Zpc as o}from"./replaceService.js";import{$tL as t}from"../../../common/contributions.js";function n(){r(m,p,1),t(o.ID,o,1)}export{n as $2pc};
+import{$TC as r}from"../../../../platform/instantiation/common/extensions.js";import{$Lic as m}from"./replace.js";import{$pwc as i,$owc as o}from"./replaceService.js";import{$XN as p}from"../../../common/contributions.js";function w(){r(m,i,1),p(o.ID,o,1)}export{w as $qwc};

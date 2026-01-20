@@ -1,1 +1,1 @@
-const c=" \u203A ";export{c as $Hnc};
+const c=" \u203A ";export{c as $auc};

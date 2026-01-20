@@ -1,1 +1,1 @@
-class i{constructor(o,t,e,r){this._cursorContextBrand=void 0,this.model=o,this.viewModel=t,this.coordinatesConverter=e,this.cursorConfig=r}}export{i as $meb};
+class i{constructor(o,t,r,s){this._cursorContextBrand=void 0,this.model=o,this.viewModel=t,this.coordinatesConverter=r,this.cursorConfig=s}}export{i as $Dgb};

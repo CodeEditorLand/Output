@@ -1,1 +1,1 @@
-import"./mouseCursor.css";const t="monaco-mouse-cursor-text";export{t as $X0};
+import"./mouseCursor.css";const t="monaco-mouse-cursor-text";export{t as $7$};

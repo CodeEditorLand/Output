@@ -1,1 +1,1 @@
-import{$ef as t}from"./event.js";class l{constructor(){this.elements=[],this.a=new t,this.onDidSplice=this.a.event}splice(i,e,s=[]){this.elements.splice(i,e,...s),this.a.fire({start:i,deleteCount:e,toInsert:s})}}export{l as $Qb};
+import{$wf as t}from"./event.js";class l{constructor(){this.elements=[],this.a=new t,this.onDidSplice=this.a.event}splice(i,s,e=[]){this.elements.splice(i,s,...e),this.a.fire({start:i,deleteCount:s,toInsert:e})}}export{l as $Ub};

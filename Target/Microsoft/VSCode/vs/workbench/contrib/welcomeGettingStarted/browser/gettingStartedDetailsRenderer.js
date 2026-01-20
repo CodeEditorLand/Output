@@ -1,4 +1,4 @@
-import{$Xm as l}from"../../../../base/common/uuid.js";import{$SRb as m}from"../../../../editor/common/languages/supports/tokenization.js";import{$JD as h}from"../../../../editor/common/languages.js";import{$Mjc as p,$Njc as w}from"../../markdown/browser/markdownDocumentRenderer.js";import{$A as u}from"../../../../base/common/platform.js";import{$mh as k}from"../../../../base/common/resources.js";import{$$c as f}from"../../../../base/common/types.js";import{$UUb as C}from"../../webview/common/webview.js";import{$Ic as y}from"../../../../base/common/map.js";import{$0j as S}from"../../../../platform/files/common/files.js";import{$oJ as L}from"../../../../platform/notification/common/notification.js";import{$KD as P}from"../../../../editor/common/languages/language.js";import{$fP as q}from"../../../services/extensions/common/extensions.js";import{$rxc as E}from"../common/gettingStartedContent.js";var v=function(i,t,n,e){var o=arguments.length,r=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,n,e);else for(var s=i.length-1;s>=0;s--)(c=i[s])&&(r=(o<3?c(r):o>3?c(t,n,r):c(t,n))||r);return o>3&&r&&Object.defineProperty(t,n,r),r},a=function(i,t){return function(n,e){t(n,e,i)}};let g=class{constructor(t,n,e,o){this.c=t,this.d=n,this.f=e,this.g=o,this.a=new y,this.b=new y}async renderMarkdown(t,n){const e=await this.i(t,n),o=l(),r=h.getColorMap(),c=r?m(r):"";return`<!DOCTYPE html>
+import{$kn as l}from"../../../../base/common/uuid.js";import{$PK as m}from"../../../../editor/common/languages/supports/tokenization.js";import{$VF as h}from"../../../../editor/common/languages.js";import{$cqc as p,$dqc as w}from"../../markdown/browser/markdownDocumentRenderer.js";import{$A as u}from"../../../../base/common/platform.js";import{$Hh as k}from"../../../../base/common/resources.js";import{$gd as f}from"../../../../base/common/types.js";import{$wGb as C}from"../../webview/common/webview.js";import{$Oc as y}from"../../../../base/common/map.js";import{$uk as q}from"../../../../platform/files/common/files.js";import{$mH as L}from"../../../../platform/notification/common/notification.js";import{$WF as S}from"../../../../editor/common/languages/language.js";import{$4R as E}from"../../../services/extensions/common/extensions.js";import{$REc as P}from"../common/gettingStartedContent.js";var v=function(i,e,n,t){var o=arguments.length,r=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,e,n,t);else for(var s=i.length-1;s>=0;s--)(c=i[s])&&(r=(o<3?c(r):o>3?c(e,n,r):c(e,n))||r);return o>3&&r&&Object.defineProperty(e,n,r),r},a=function(i,e){return function(n,t){e(n,t,i)}};let g=class{constructor(e,n,t,o){this.c=e,this.d=n,this.f=t,this.g=o,this.a=new y,this.b=new y}async renderMarkdown(e,n){const t=await this.i(e,n),o=l(),r=h.getColorMap(),c=r?m(r):"";return`<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
@@ -78,7 +78,7 @@ import{$Xm as l}from"../../../../base/common/uuid.js";import{$SRb as m}from"../.
 			</head>
 			<body>
 				<vertically-centered>
-					${e}
+					${t}
 				</vertically-centered>
 			</body>
 			<script nonce="${o}">
@@ -123,12 +123,12 @@ import{$Xm as l}from"../../../../base/common/uuid.js";import{$SRb as m}from"../.
 					}
 				});
 		<\/script>
-		</html>`}async renderSVG(t){const n=await this.h(t),e=l(),o=h.getColorMap(),r=o?m(o):"";return`<!DOCTYPE html>
+		</html>`}async renderSVG(e){const n=await this.h(e),t=l(),o=h.getColorMap(),r=o?m(o):"";return`<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${e}';">
-				<style nonce="${e}">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${t}';">
+				<style nonce="${t}">
 					${p}
 					${r}
 					svg {
@@ -146,7 +146,7 @@ import{$Xm as l}from"../../../../base/common/uuid.js";import{$SRb as m}from"../.
 			<body>
 				${n}
 			</body>
-		</html>`}async renderVideo(t,n,e){const o=l();return`<!DOCTYPE html>
+		</html>`}async renderVideo(e,n,t){const o=l();return`<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
@@ -160,8 +160,8 @@ import{$Xm as l}from"../../../../base/common/uuid.js";import{$SRb as m}from"../.
 				</style>
 			</head>
 			<body>
-				<video controls autoplay ${n?`poster="${n.toString(!0)}"`:""} muted ${e?`aria-label="${e}"`:""}>
-					<source src="${t.toString(!0)}" type="video/mp4">
+				<video controls autoplay ${n?`poster="${n.toString(!0)}"`:""} muted ${t?`aria-label="${t}"`:""}>
+					<source src="${e.toString(!0)}" type="video/mp4">
 				</video>
 			</body>
-		</html>`}async h(t){if(!this.b.has(t)){const n=await this.j(t,!1);this.b.set(t,n)}return f(this.b.get(t))}async i(t,n){if(!this.a.has(t)){const e=await this.j(t),o=await w(j(e,n),this.f,this.g,{allowUnknownProtocols:!0});this.a.set(t,o)}return f(this.a.get(t))}async j(t,n=!0){try{const e=JSON.parse(t.query).moduleId;if(n&&e)return await new Promise((r,c)=>{const s=E.getProvider(e);s?r(s()):c(`Getting started: no provider registered for ${e}`)})}catch{}try{const e=t.with({path:t.path.replace(/\.md$/,`.nls.${u}.md`)}),o=u?.replace(/-.*$/,""),r=t.with({path:t.path.replace(/\.md$/,`.nls.${o}.md`)}),c=x=>this.c.stat(x).then(b=>!!b.size).catch(()=>!1),[s,d]=await Promise.all([c(e),c(r)]);return(await this.c.readFile(s?e:d?r:t)).value.toString()}catch(e){return this.d.error("Error reading markdown document at `"+t+"`: "+e),""}}};g=v([a(0,S),a(1,L),a(2,q),a(3,P)],g);const $=(i,t)=>{const n=k(t,i);return C(n).toString(!0)},j=(i,t)=>i.replace(/src="([^"]*)"/g,(n,e)=>e.startsWith("https://")?`src="${e}"`:`src="${$(e,t)}"`).replace(/!\[([^\]]*)\]\(([^)]*)\)/g,(n,e,o)=>o.startsWith("https://")?`![${e}](${o})`:`![${e}](${$(o,t)})`);export{g as $xyc};
+		</html>`}async h(e){if(!this.b.has(e)){const n=await this.j(e,!1);this.b.set(e,n)}return f(this.b.get(e))}async i(e,n){if(!this.a.has(e)){const t=await this.j(e),o=await w(z(t,n),this.f,this.g,{sanitizerConfig:{allowedLinkProtocols:{override:"*"},allowedTags:{augment:["select","checkbox","checklist"]},allowedAttributes:{augment:["x-dispatch","data-command","when-checked","checked-on","checked"]}}});this.a.set(e,o)}return f(this.a.get(e))}async j(e,n=!0){try{const t=JSON.parse(e.query).moduleId;if(n&&t)return await new Promise((r,c)=>{const s=P.getProvider(t);s?r(s()):c(`Getting started: no provider registered for ${t}`)})}catch{}try{const t=e.with({path:e.path.replace(/\.md$/,`.nls.${u}.md`)}),o=u?.replace(/-.*$/,""),r=e.with({path:e.path.replace(/\.md$/,`.nls.${o}.md`)}),c=x=>this.c.stat(x).then(b=>!!b.size).catch(()=>!1),[s,d]=await Promise.all([c(t),c(r)]);return(await this.c.readFile(s?t:d?r:e)).value.toString()}catch(t){return this.d.error("Error reading markdown document at `"+e+"`: "+t),""}}};g=v([a(0,q),a(1,L),a(2,E),a(3,S)],g);const $=(i,e)=>{const n=k(e,i);return C(n).toString(!0)},z=(i,e)=>i.replace(/src="([^"]*)"/g,(n,t)=>t.startsWith("https://")?`src="${t}"`:`src="${$(t,e)}"`).replace(/!\[([^\]]*)\]\(([^)]*)\)/g,(n,t,o)=>o.startsWith("https://")?`![${t}](${o})`:`![${t}](${$(o,e)})`);export{g as $3Fc};

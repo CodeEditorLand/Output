@@ -1,1 +1,1 @@
-import{$wUb as r}from"../../cellPart.js";class d extends r{get activeCell(){return this.c}constructor(e,n){super()}didRenderCell(e){super.didRenderCell(e)}unrenderCell(e){super.unrenderCell(e)}updateInternalLayoutNow(e){}dispose(){super.dispose()}}export{d as $3Ub};
+import{$SFb as r}from"../../cellPart.js";class d extends r{get activeCell(){return this.c}constructor(e,n){super()}didRenderCell(e){super.didRenderCell(e)}unrenderCell(e){super.unrenderCell(e)}updateInternalLayoutNow(e){}dispose(){super.dispose()}}export{d as $EGb};

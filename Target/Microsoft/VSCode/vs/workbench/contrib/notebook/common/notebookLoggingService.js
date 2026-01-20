@@ -1,1 +1,1 @@
-import{$sj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("INotebookLoggingService");export{r as $OUb};
+import{$Mj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("INotebookLoggingService");export{r as $JP};

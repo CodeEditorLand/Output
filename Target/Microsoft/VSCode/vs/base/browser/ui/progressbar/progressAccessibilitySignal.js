@@ -1,1 +1,1 @@
-const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $Y0,r as $Z0};
+const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $8$,r as $9$};

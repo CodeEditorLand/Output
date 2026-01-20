@@ -1,1 +1,1 @@
-import{$W8b as e}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class s extends e{}export{s as $Wzc};
+import{$Dac as c}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class r extends c{}export{r as $uHc};

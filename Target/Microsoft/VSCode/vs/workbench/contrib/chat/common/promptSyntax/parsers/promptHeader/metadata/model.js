@@ -1,1 +1,0 @@
-import{FrontMatterRecord as o}from"../../../codecs/base/frontMatterCodec/tokens/index.js";import{$BR as s}from"./base/string.js";const r="model";class f extends s{get recordName(){return r}constructor(e,t){super(r,e,t)}static isModelRecord(e){return e instanceof o?e.nameToken.text===r:!1}}export{f as $CR};

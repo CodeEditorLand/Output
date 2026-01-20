@@ -1,1 +1,1 @@
-import{$sj as o}from"../../../../platform/instantiation/common/instantiation.js";const e=o("ISplashStorageService");export{e as $DFc};
+import{$Mj as o}from"../../../../platform/instantiation/common/instantiation.js";const e=o("ISplashStorageService");export{e as $pNc};

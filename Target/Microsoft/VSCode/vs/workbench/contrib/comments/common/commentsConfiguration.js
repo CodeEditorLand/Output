@@ -1,1 +1,1 @@
-const o="comments";export{o as $7Ub};
+const o="comments";export{o as $IGb};

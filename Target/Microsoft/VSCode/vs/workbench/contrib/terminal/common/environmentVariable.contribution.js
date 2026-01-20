@@ -1,1 +1,1 @@
-import{$$tc as m}from"./environmentVariableService.js";import{$3B as o}from"../../../../platform/instantiation/common/extensions.js";import{$A4 as r}from"./environmentVariable.js";o(r,m,1);
+import{$BAc as m}from"./environmentVariableService.js";import{$TC as o}from"../../../../platform/instantiation/common/extensions.js";import{$B5 as r}from"./environmentVariable.js";o(r,m,1);

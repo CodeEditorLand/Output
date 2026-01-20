@@ -1,1 +1,1 @@
-import{$sj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("IAuthenticationQueryService");export{o as $e9b};
+import{$Mj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("IAuthenticationQueryService");export{o as $Xac};

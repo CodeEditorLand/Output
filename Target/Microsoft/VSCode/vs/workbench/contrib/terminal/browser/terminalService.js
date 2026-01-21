@@ -1,3 +1,1245 @@
-import*as N from"../../../../base/browser/domStylesheets.js";import*as v from"../../../../base/browser/cssValue.js";import{$ti as W,$9h as x}from"../../../../base/common/async.js";import{$Zm as R,$Ym as I}from"../../../../base/common/decorators.js";import{$Df as J,$wf as g,Event as y}from"../../../../base/common/event.js";import{$Ed as Q,$Dd as K,$zd as X,$Cd as _}from"../../../../base/common/lifecycle.js";import{Schemas as L}from"../../../../base/common/network.js";import{$n as V,$s as k}from"../../../../base/common/platform.js";import{URI as A}from"../../../../base/common/uri.js";import*as $ from"../../../../nls.js";import{$to as Z}from"../../../../platform/commands/common/commands.js";import{$9l as tt}from"../../../../platform/configuration/common/configuration.js";import{$qo as et}from"../../../../platform/contextkey/common/contextkey.js";import{$Lp as it}from"../../../../platform/dialogs/common/dialogs.js";import{$Lj as nt}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as st}from"../../../../platform/notification/common/notification.js";import{$vx as rt,TerminalExitReason as E,TerminalLocation as o,TitleEventSource as ot}from"../../../../platform/terminal/common/terminal.js";import{$wuc as G}from"../../../../platform/terminal/common/terminalStrings.js";import{$eq as at}from"../../../../platform/theme/common/colorRegistry.js";import{$fu as ct}from"../../../../platform/theme/common/iconRegistry.js";import{$nu as ht}from"../../../../platform/theme/common/theme.js";import{$ou as lt,$wu as dt}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as ft}from"../../../../base/common/themables.js";import{$Ll as mt}from"../../../../platform/workspace/common/workspace.js";import{$oO as ut}from"../../../common/contextkeys.js";import{$SYb as bt,$TYb as pt,$VYb as gt,$WYb as It,$RYb as yt}from"./terminal.js";import{$Lzc as wt}from"./terminalActions.js";import{$QYb as O}from"./terminalEditorInput.js";import{$NYb as vt,$OYb as Tt}from"./terminalIcon.js";import{$Fzc as Dt}from"./terminalProfileQuickpick.js";import{$FYb as Pt,$DYb as Ct,$CYb as $t}from"./terminalUri.js";import{$c6 as j}from"../common/terminal.js";import{TerminalContextKeys as C}from"../common/terminalContextKey.js";import{$WY as At}from"../../../services/editor/common/editorGroupColumn.js";import{$uL as Et}from"../../../services/editor/common/editorGroupsService.js";import{$zL as St,$BL as Rt,$yL as xt,$AL as Lt}from"../../../services/editor/common/editorService.js";import{$BP as kt}from"../../../services/environment/common/environmentService.js";import{$4R as Gt}from"../../../services/extensions/common/extensions.js";import{$SN as Ot}from"../../../services/lifecycle/common/lifecycle.js";import{$ZN as Ft}from"../../../services/remote/common/remoteAgentService.js";import{$IYb as jt}from"./xterm/xtermTerminal.js";import{$pAc as Bt}from"./terminalInstance.js";import{$cy as Yt}from"../../../../platform/keybinding/common/keybinding.js";import{$IXb as Ht}from"../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{$b6b as Ut}from"../../../services/timer/browser/timerService.js";import{$V as h}from"../../../../base/common/performance.js";import{$P2b as qt}from"./detachedTerminal.js";import{$yAc as zt}from"./terminalEvents.js";import{$06 as Mt,$96 as Nt}from"../../../../base/browser/window.js";import{$l8 as Wt}from"../../../../base/browser/dom.js";import{$rd as l,$6c as F}from"../../../../base/common/types.js";var p=function(T,t,e,i){var n=arguments.length,s=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(T,t,e,i);else for(var c=T.length-1;c>=0;c--)(r=T[c])&&(s=(n<3?r(s):n>3?r(t,e,s):r(t,e))||s);return n>3&&s&&Object.defineProperty(t,e,s),s},a=function(T,t){return function(e,i){t(e,i,T)}};let b=class extends Q{get isProcessSupportRegistered(){return!!this.q.get()}get connectionState(){return this.C}get whenConnected(){return this.F.p}get restoredGroupCount(){return this.G}get instances(){return this.hb.instances.concat(this.gb.instances).concat(this.m.map(t=>t.instance))}get foregroundInstances(){return this.hb.instances.concat(this.gb.instances)}get detachedInstances(){return this.b}getReconnectedTerminals(t){return this.I.get(t)}get activeInstance(){for(const t of this.a.values())if(t?.hasFocus)return t;return this.J}get onDidCreateInstance(){return this.L.event}get onDidChangeInstanceDimensions(){return this.M.event}get onDidRegisterProcessSupport(){return this.N.event}get onDidChangeConnectionState(){return this.O.event}get onDidRequestStartExtensionTerminal(){return this.P.event}get onDidDisposeInstance(){return this.Q.event}get onDidFocusInstance(){return this.R.event}get onDidChangeActiveInstance(){return this.S.event}get onDidChangeInstances(){return this.U.event}get onDidChangeInstanceCapability(){return this.W.event}get onDidChangeActiveGroup(){return this.X.event}get onAnyInstanceData(){return this.D(this.createOnInstanceEvent(t=>y.map(t.onData,e=>({instance:t,data:e})))).event}get onAnyInstanceDataInput(){return this.D(this.createOnInstanceEvent(t=>y.map(t.onDidInputData,()=>t,t.store))).event}get onAnyInstanceIconChange(){return this.D(this.createOnInstanceEvent(t=>t.onIconChanged)).event}get onAnyInstanceMaximumDimensionsChange(){return this.D(this.createOnInstanceEvent(t=>y.map(t.onMaximumDimensionsChanged,()=>t,t.store))).event}get onAnyInstancePrimaryStatusChange(){return this.D(this.createOnInstanceEvent(t=>y.map(t.statusList.onDidChangePrimaryStatus,()=>t,t.store))).event}get onAnyInstanceProcessIdReady(){return this.D(this.createOnInstanceEvent(t=>t.onProcessIdReady)).event}get onAnyInstanceSelectionChange(){return this.D(this.createOnInstanceEvent(t=>t.onDidChangeSelection)).event}get onAnyInstanceTitleChange(){return this.D(this.createOnInstanceEvent(t=>t.onTitleChanged)).event}get onAnyInstanceShellTypeChanged(){return this.D(this.createOnInstanceEvent(t=>y.map(t.onDidChangeShellType,()=>t))).event}get onAnyInstanceAddedCapabilityType(){return this.D(this.createOnInstanceEvent(t=>y.map(t.capabilities.onDidAddCapability,e=>e.id))).event}constructor(t,e,i,n,s,r,c,d,w,m,u,D,P,B,Y,H,U,q,z,M){super(),this.Y=t,this.Z=e,this.$=i,this.ab=n,this.bb=s,this.cb=r,this.db=c,this.eb=d,this.fb=w,this.gb=m,this.hb=u,this.ib=D,this.jb=P,this.kb=B,this.lb=Y,this.mb=H,this.nb=U,this.ob=q,this.pb=z,this.qb=M,this.a=new Map,this.b=new Set,this.j=!1,this.m=[],this.n=new Map,this.C=0,this.F=new W,this.G=0,this.I=new Map,this.L=this.D(new g),this.M=this.D(new g),this.N=this.D(new g),this.O=this.D(new g),this.P=this.D(new g),this.Q=this.D(new g),this.R=this.D(new g),this.S=this.D(new g),this.U=this.D(new g),this.W=this.D(new g),this.X=this.D(new g),this.D(this.onDidCreateInstance(()=>this.kb.refreshAvailableProfiles())),this.sb(this.hb),this.sb(this.gb),this.D(this.hb.onDidChangeActiveGroup(this.X.fire,this.X)),this.D(this.ib.onDidCreateInstance(f=>{this.Kb(f),this.L.fire(f)})),this.D(this.hb.onDidChangeActiveInstance(f=>{!f&&!this.j&&this.fb.config.hideOnLastClosed&&this.hb.hidePanel(),f?.shellType?this.h.set(f.shellType.toString()):(!f||!f.shellType)&&this.h.reset()})),this.Bb(),this.h=C.shellType.bindTo(this.Y),this.q=C.processSupported.bindTo(this.Y),this.q.set(!k||this.cb.getConnection()!==null),this.u=C.terminalHasBeenCreated.bindTo(this.Y),this.w=C.count.bindTo(this.Y),this.f=C.terminalEditorActive.bindTo(this.Y),this.D(this.onDidChangeActiveInstance(f=>{this.f.set(!!f?.target&&f.target===o.Editor)})),this.D(e.onBeforeShutdown(async f=>f.veto(this.Cb(f.reason),"veto.terminal"))),this.D(e.onWillShutdown(f=>this.Gb(f))),this.rb(),x(0).then(()=>this.D(this.bb.createInstance(S,Nt.document.head)))}async showProfileQuickPick(t,e){const n=await this.bb.createInstance(Dt).showAndGetResult(t);if(!n||F(n))return;const s=n.keyMods;if(t==="createInstance"){const r=this.getDefaultInstanceHost().activeInstance,c=this.fb.defaultLocation;let d;if(n.config&&l(n.config,{id:!0})){await this.createContributedTerminalProfile(n.config.extensionIdentifier,n.config.id,{icon:n.config.options?.icon,color:n.config.options?.color,location:s?.alt&&r?{splitActiveTerminal:!0}:c});return}else n.config&&l(n.config,{profileName:!0})&&(s?.alt&&r?d=await this.createTerminal({location:{parentTerminal:r},config:n.config,cwd:e}):d=await this.createTerminal({location:c,config:n.config,cwd:e}));if(d&&c!==o.Editor)return this.hb.showPanel(!0),this.setActiveInstance(d),d}}async rb(){h("code/terminal/willGetTerminalBackend"),this.s=await this.ib.getBackend(this.eb.remoteAuthority),h("code/terminal/didGetTerminalBackend");const t=this.fb.config.enablePersistentSessions;this.C=0;const e=!!this.eb.remoteAuthority&&t;this.s&&this.D(this.s.onDidRequestDetach(async n=>{const s=this.getInstanceFromResource(Ct(n.workspaceId,n.instanceId));if(s){const r=s?.persistentProcessId;r&&!s.shellLaunchConfig.isFeatureTerminal&&!s.shellLaunchConfig.customPtyImplementation?(s.target===o.Editor?this.gb.detachInstance(s):this.hb.getGroupForInstance(s)?.removeInstance(s),await s.detachProcessAndDispose(E.User),await this.s?.acceptDetachInstanceReply(n.requestId,r)):await this.s?.acceptDetachInstanceReply(n.requestId,void 0)}})),h("code/terminal/willReconnect");let i;e?i=this.vb():t?i=this.wb():i=Promise.resolve(),i.then(async()=>{this.ub(),h("code/terminal/didReconnect"),h("code/terminal/willReplay");const n=await this.H?.then(s=>s.map(r=>r.terminalInstances).flat())??[];await Promise.all(n.map(s=>new Promise(r=>y.once(s.onProcessReplayComplete)(r)))),h("code/terminal/didReplay"),h("code/terminal/willGetPerformanceMarks"),await Promise.all(Array.from(this.ib.getRegisteredBackends()).map(async s=>{this.qb.setPerformanceMarks(s.remoteAuthority===void 0?"localPtyHost":"remotePtyHost",await s.getPerformanceMarks()),s.setReady()})),h("code/terminal/didGetPerformanceMarks"),this.F.complete()})}getPrimaryBackend(){return this.s}async setNextCommandId(t,e,i){!this.s||t<=0||await this.s.setNextCommandId(t,e,i)}sb(t){this.D(t.onDidChangeInstances(this.U.fire,this.U)),this.D(t.onDidDisposeInstance(this.Q.fire,this.Q)),this.D(t.onDidChangeActiveInstance(e=>this.tb(t,e))),this.D(t.onDidFocusInstance(e=>{this.R.fire(e),this.tb(t,e)})),this.D(t.onDidChangeInstanceCapability(e=>{this.W.fire(e)})),this.a.set(t,void 0)}tb(t,e){if(this.a.set(t,e),e===void 0)for(const i of this.a.values())i&&(e=i);this.J=e,this.S.fire(e)}setActiveInstance(t){t&&(t.shellLaunchConfig.hideFromUser&&this.showBackgroundTerminal(t),t.target===o.Editor?this.gb.setActiveInstance(t):this.hb.setActiveInstance(t))}async focusInstance(t){if(this.J!==t&&this.setActiveInstance(t),t.target===o.Editor){await this.gb.focusInstance(t);return}await this.hb.focusInstance(t)}async focusActiveInstance(){if(this.J)return this.focusInstance(this.J)}async createContributedTerminalProfile(t,e,i){await this.lb.activateByEvent(`onTerminalProfile:${e}`);const n=this.kb.getContributedProfileProvider(t,e);if(!n){this.mb.error(`No terminal profile provider registered for id "${e}"`);return}try{await n.createContributedTerminalProfile(i),this.hb.setActiveInstanceByIndex(this.hb.instances.length-1),await this.hb.activeInstance?.focusWhenReady()}catch(s){this.mb.error(s.message)}}async safeDisposeTerminal(t){if(!(t.target!==o.Editor&&t.hasChildProcesses&&(this.fb.config.confirmOnKill==="panel"||this.fb.config.confirmOnKill==="always")&&await this.Nb(!0)))return new Promise(e=>{y.once(t.onExit)(()=>e()),t.dispose(E.User)})}ub(){this.C=1,this.O.fire(),this.$.trace("Pty host ready")}async vb(){const t=this.eb.remoteAuthority;if(!t)return;const e=await this.ib.getBackend(t);if(!e)return;h("code/terminal/willGetTerminalLayoutInfo");const i=await e.getTerminalLayoutInfo();h("code/terminal/didGetTerminalLayoutInfo"),e.reduceConnectionGraceTime(),h("code/terminal/willRecreateTerminalGroups"),await this.xb(i),h("code/terminal/didRecreateTerminalGroups"),this.Ab(),this.$.trace("Reconnected to remote terminals")}async wb(){const t=await this.ib.getBackend();if(!t)return;h("code/terminal/willGetTerminalLayoutInfo");const e=await t.getTerminalLayoutInfo();if(h("code/terminal/didGetTerminalLayoutInfo"),e&&(e.tabs.length>0||e?.background?.length)){h("code/terminal/willRecreateTerminalGroups"),this.H=this.xb(e);const i=await this.yb(e.background||[]);this.m=i.map(n=>({instance:n})),h("code/terminal/didRecreateTerminalGroups")}this.Ab(),this.$.trace("Reconnected to local terminals")}xb(t){const e=[];let i;if(t){for(const n of t.tabs){const s=n.terminals.filter(r=>r.terminal&&r.terminal.isOrphan);if(s.length){this.G+=s.length;const r=this.zb(n,s);e.push(r),n.isActive&&(i=r);const c=this.instances.find(d=>d.shellLaunchConfig.attachPersistentProcess?.id===n.activePersistentProcessId);c&&this.setActiveInstance(c)}}t.tabs.length&&i?.then(n=>this.hb.activeGroup=n)}return Promise.all(e).then(n=>n.filter(s=>!!s))}async yb(t){const e=[];for(const i of t){const n=i;if(!n)continue;const s=await this.createTerminal({config:{attachPersistentProcess:n,hideFromUser:!0,forcePersist:!0},location:o.Panel});e.push(s)}return e}async zb(t,e){let i;for(const s of e){const r=s.terminal;this.Z.startupKind!==3&&r.type==="Task"||(h(`code/terminal/willRecreateTerminal/${r.id}-${r.pid}`),i=this.createTerminal({config:{attachPersistentProcess:r},location:i?{parentTerminal:i}:o.Panel}),i.then(()=>h(`code/terminal/didRecreateTerminal/${r.id}-${r.pid}`)))}return i?.then(s=>{const r=this.hb.getGroupForInstance(s);return r?.resizePanes(t.terminals.map(c=>c.relativeSize)),r})}Ab(){this.D(this.onDidChangeActiveGroup(()=>this.Hb())),this.D(this.onDidChangeActiveInstance(()=>this.Hb())),this.D(this.onDidChangeInstances(()=>this.Hb())),this.D(this.onAnyInstanceProcessIdReady(()=>this.Hb())),this.D(this.onAnyInstanceTitleChange(t=>this.Ib(t))),this.D(this.onAnyInstanceIconChange(t=>this.Jb(t.instance,t.userInitiated)))}Bb(){const t=C.isOpen.bindTo(this.Y),e=()=>{t.set(this.instances.length>0),this.w.set(this.instances.length)};this.D(this.onDidChangeInstances(()=>e()))}async getActiveOrCreateInstance(t){const e=this.activeInstance;if(!e)return this.createTerminal();if(!t?.acceptsInput||e.xterm?.isStdinDisabled!==!0)return e;const i=await this.createTerminal();return this.setActiveInstance(i),await this.revealActiveTerminal(),i}async revealTerminal(t,e){t.target===o.Editor?await this.gb.revealActiveEditor(e):await this.hb.showPanel()}async revealActiveTerminal(t){const e=this.activeInstance;e&&await this.revealTerminal(e,t)}requestStartExtensionTerminal(t,e,i){return new Promise(n=>{this.P.fire({proxy:t,cols:e,rows:i,callback:n})})}Cb(t){return k?(this.j=!0,!1):this.Db(t)}async Db(t){if(this.instances.length===0)return!1;try{if(this.z=await this.y?.getWindowCount(),this.Eb(t)&&await Promise.race([this.s?.persistTerminalState(),x(2e3)]),!(this.fb.config.enablePersistentSessions&&t===3)&&(this.fb.config.confirmOnExit==="always"&&this.foregroundInstances.length>0||this.fb.config.confirmOnExit==="hasChildProcesses"&&this.foregroundInstances.some(s=>s.hasChildProcesses)))return this.Fb(t)}catch(e){this.$.warn("Exception occurred during terminal shutdown",e)}return this.j=!0,!1}setNativeDelegate(t){this.y=t}Eb(t){if(!this.fb.config.enablePersistentSessions)return!1;switch(this.fb.config.persistentSessionReviveProcess){case"onExit":return t===1&&this.z===1&&!V?!0:t===4||t===2;case"onExitAndWindowClose":return t!==3;default:return!1}}async Fb(t){const e=await this.Nb();return e||(this.j=!0),e}Gb(t){const e=this.fb.config.enablePersistentSessions&&t.reason===3;for(const i of[...this.hb.instances,...this.m.map(n=>n.instance)])e&&i.shouldPersist?i.detachProcessAndDispose(E.Shutdown):i.dispose(E.Shutdown);!e&&!this.Eb(t.reason)&&this.s?.setTerminalLayoutInfo(void 0)}Hb(){if(this.j||!this.fb.config.enablePersistentSessions)return;const e={tabs:this.hb.groups.map(i=>i.getLayoutInfo(i===this.hb.activeGroup)),background:this.m.map(i=>i.instance).filter(i=>i.shellLaunchConfig.forcePersist).map(i=>i.persistentProcessId).filter(i=>i!==void 0)};this.s?.setTerminalLayoutInfo(e)}Ib(t){!this.fb.config.enablePersistentSessions||!t||!t.persistentProcessId||!t.title||t.isDisposed||(t.staticTitle?this.s?.updateTitle(t.persistentProcessId,t.staticTitle,ot.Api):this.s?.updateTitle(t.persistentProcessId,t.title,t.titleSource))}Jb(t,e){!this.fb.config.enablePersistentSessions||!t||!t.persistentProcessId||!t.icon||t.isDisposed||this.s?.updateIcon(t.persistentProcessId,e,t.icon,t.color)}refreshActiveGroup(){this.X.fire(this.hb.activeGroup)}getInstanceFromId(t){let e=-1;if(this.m.forEach((i,n)=>{i.instance.instanceId===t&&(e=n)}),e!==-1)return this.m[e].instance;try{return this.instances[this.Mb(t)]}catch{return}}getInstanceFromResource(t){return Pt(this.instances,t)}openResource(t){const e=this.getInstanceFromResource(t);if(e){this.setActiveInstance(e),this.revealTerminal(e);const i=e.capabilities.get(2)?.commands,n=new URLSearchParams(t.query),s=i?.find(r=>r.id===n.get("command"));s&&e.xterm?.markTracker.revealCommand(s)}}isAttachedToTerminal(t){return this.instances.some(e=>e.processId===t.pid)}moveToEditor(t,e){if(t.target===o.Editor)return;const i=this.hb.getGroupForInstance(t);i&&(i.removeInstance(t),this.gb.openEditor(t,e?{viewColumn:e}:void 0))}moveIntoNewEditor(t){this.moveToEditor(t,Rt)}async moveToTerminalView(t,e,i){if(A.isUri(t)&&(t=this.getInstanceFromResource(t)),!t)return;if(this.gb.detachInstance(t),t.target!==o.Editor){await this.hb.showPanel(!0);return}t.target=o.Panel;let n;if(e&&(n=this.hb.getGroupForInstance(e)),n||(n=this.hb.createGroup()),n.addInstance(t),this.setActiveInstance(t),await this.hb.showPanel(!0),e&&i){const s=n.terminalInstances.indexOf(e)+(i==="after"?1:0);n.moveInstance(t,s,i)}this.U.fire(),this.X.fire(this.hb.activeGroup)}Kb(t){const e=new K;e.add(t.onDimensionsChanged(()=>{this.M.fire(t),this.fb.config.enablePersistentSessions&&this.isProcessSupportRegistered&&this.Hb()})),e.add(t.onDidFocus(this.S.fire,this.S)),e.add(t.onRequestAddInstanceToGroup(async n=>await this.Lb(t,n))),e.add(t.onDidChangeShellType(()=>this.lb.activateByEvent(`onTerminal:${t.shellType}`))),e.add(y.runAndSubscribe(t.capabilities.onDidAddCapability,(()=>{t.capabilities.has(2)&&this.lb.activateByEvent(`onTerminalShellIntegration:${t.shellType}`)})));const i=this.D(t.onDisposed(()=>{e.dispose(),this.B.delete(i)}))}async Lb(t,e){const i=$t(e.uri);if(i.instanceId===void 0)return;let n=this.getInstanceFromResource(e.uri);if(!n){const s=await this.s?.requestDetachInstance(i.workspaceId,i.instanceId);if(s){n=await this.createTerminal({config:{attachPersistentProcess:s},resource:e.uri}),this.hb.moveInstance(n,t,e.side);return}}if(n=this.hb.getInstanceFromResource(e.uri),n){this.hb.moveInstance(n,t,e.side);return}if(n=this.gb.getInstanceFromResource(e.uri),n){this.moveToTerminalView(n,t,e.side);return}}registerProcessSupport(t){t&&(this.q.set(t),this.N.fire())}Mb(t){let e=-1;if(this.instances.forEach((i,n)=>{i.instanceId===t&&(e=n)}),e===-1)throw new Error(`Terminal with ID ${t} does not exist (has it already been disposed?)`);return e}async Nb(t){let e;const i=this.foregroundInstances;i.length===1||t?e=$.localize(12988,null):e=$.localize(12989,null,i.length);const{confirmed:n}=await this.ab.confirm({type:"warning",message:e,primaryButton:$.localize(12990,null)});return!n}getDefaultInstanceHost(){return this.fb.defaultLocation===o.Editor?this.gb:this.hb}async getInstanceHost(t){if(t){if(t===o.Editor)return this.gb;if(typeof t=="object"){if(l(t,{viewColumn:!0}))return this.gb;if(l(t,{parentTerminal:!0}))return(await t.parentTerminal).target===o.Editor?this.gb:this.hb}else return this.hb}return this}async createTerminal(t){const e=this.cb.getConnection()&&A.isUri(t?.cwd)&&t?.cwd.scheme===L.file;this.kb.availableProfiles.length===0&&!(t?.config&&l(t.config,{customPtyImplementation:!0}))&&!e&&(this.C===0&&h("code/terminal/willGetProfiles"),await this.kb.profilesReady,this.C===0&&h("code/terminal/didGetProfiles"));let i=t?.config;if(!i&&e){const u=await(await this.ib.getBackend(void 0))?.getDefaultSystemShell();u&&(i={executable:u})}i||(i=this.kb.getDefaultProfile());const n=i&&l(i,{extensionIdentifier:!0})?{}:this.ib.convertProfileToShellLaunchConfig(i||{}),s=t?.skipContributedProfileCheck?void 0:await this.Ob(n,t),r=typeof t?.location=="object"&&l(t.location,{splitActiveTerminal:!0})?t.location.splitActiveTerminal:typeof t?.location=="object"?l(t.location,{parentTerminal:!0}):!1;if(await this.Pb(n,r,t),!n.customPtyImplementation&&s){const m=await this.resolveLocation(t?.location);let u;r?u=m===o.Editor?{viewColumn:Lt}:{splitActiveTerminal:!0}:u=typeof t?.location=="object"&&l(t.location,{viewColumn:!0})?t.location:m,await this.createContributedTerminalProfile(s.extensionIdentifier,s.id,{icon:s.icon,color:s.color,location:u,cwd:n.cwd});const D=m===o.Editor?this.gb:this.hb,P=D.instances[D.instances.length-1];return await P?.focusWhenReady(),this.u.set(!0),P}if(!n.customPtyImplementation&&!this.isProcessSupportRegistered)throw new Error("Could not create terminal when process support is not registered");this.Ub(n);const c=await this.resolveLocation(t?.location)||this.fb.defaultLocation;if(n.hideFromUser){const m=this.ib.createInstance(n,c);return this.m.push({instance:m,terminalLocationOptions:t?.location}),this.n.set(m.instanceId,[m.onDisposed(u=>{const D=this.m.findIndex(P=>P.instance===u);D!==-1&&this.m.splice(D,1),this.Q.fire(u)})]),this.U.fire(),m}const d=await this.Sb(t?.location);this.u.set(!0),this.lb.activateByEvent("onTerminal:*");let w;return d?w=this.Qb(n,c,d):w=this.Rb(n,c,t),w.shellType&&this.lb.activateByEvent(`onTerminal:${w.shellType}`),w}async createAndFocusTerminal(t){const e=await this.createTerminal(t);return this.setActiveInstance(e),await e.focusWhenReady(),e}async Ob(t,e){return e?.config&&l(e.config,{extensionIdentifier:!0})?e.config:this.kb.getContributedDefaultProfile(t)}async createDetachedTerminal(t){const e=await Bt.getXtermConstructor(this.pb,this.Y),i=t.capabilities??new Ht,n=this.bb.createInstance(jt,void 0,e,{cols:t.cols,rows:t.rows,xtermColorProvider:t.colorProvider,capabilities:i,disableOverviewRuler:t.disableOverviewRuler},void 0);t.readonly&&n.raw.attachCustomKeyEventHandler(()=>!1);const s=new qt(n,{...t,capabilities:i},this.bb);this.b.add(s);const r=n.onDidDispose(()=>{this.b.delete(s),r.dispose()});return s}async Pb(t,e,i){if(!t.cwd){if(i?.cwd)t.cwd=i.cwd;else if(e&&i?.location){let s=this.activeInstance;if(typeof i.location=="object"&&l(i.location,{parentTerminal:!0})&&(s=await i.location.parentTerminal),!s)throw new Error("Cannot split without an active instance");t.cwd=await wt(s,this.nb.getWorkspace().folders,this.ob,this.fb)}}}Qb(t,e,i){let n;if(typeof t.cwd!="object"&&typeof i.shellLaunchConfig.cwd=="object"&&(t.cwd=A.from({scheme:i.shellLaunchConfig.cwd.scheme,authority:i.shellLaunchConfig.cwd.authority,path:t.cwd||i.shellLaunchConfig.cwd.path})),e===o.Editor||i.target===o.Editor)n=this.gb.splitInstance(i,t);else{const s=this.hb.getGroupForInstance(i);if(!s)throw new Error(`Cannot split a terminal without a group (instanceId: ${i.instanceId}, title: ${i.title})`);t.parentTerminalId=i.instanceId,n=s.split(t)}return n}Rb(t,e,i){let n;if(e===o.Editor){if(n=this.ib.createInstance(t,o.Editor),!t.hideFromUser){const s=this.Tb(i?.location);this.gb.openEditor(n,s)}}else n=this.hb.createGroup(t).terminalInstances[0];return n}async resolveLocation(t){if(t&&typeof t=="object")if(l(t,{parentTerminal:!0})){const e=await t.parentTerminal;return e.target?e.target:o.Panel}else{if(l(t,{viewColumn:!0}))return o.Editor;if(l(t,{splitActiveTerminal:!0}))return this.J?.target?this.J?.target:o.Panel}return t}async Sb(t){if(t&&typeof t=="object"&&l(t,{parentTerminal:!0}))return t.parentTerminal;if(t&&typeof t=="object"&&l(t,{splitActiveTerminal:!0}))return this.activeInstance}Tb(t){if(t&&typeof t=="object"&&l(t,{viewColumn:!0}))return t.viewColumn===St&&Mt(Wt())?(t.viewColumn=this.jb.activeGroup.id,t):(t.viewColumn=At(this.jb,this.db,t.viewColumn),t)}Ub(t){!F(t.cwd)&&t.cwd?.scheme===L.file&&(ut.getValue(this.Y)?(t.initialText=G($.localize(12991,null,"\x1B[3m","\x1B[23m"),{excludeLeadingNewLine:!0,loudFormatting:!0}),t.type="Local"):this.cb.getConnection()&&(t.initialText=G($.localize(12992,null,"\x1B[3m","\x1B[23m"),{excludeLeadingNewLine:!0,loudFormatting:!0}),t.type="Local"))}async showBackgroundTerminal(t,e){const i=this.m.findIndex(r=>r.instance===t);if(i===-1)return;const n=this.m[i];this.m.splice(i,1);const s=this.n.get(t.instanceId);if(s&&X(s),this.n.delete(t.instanceId),t.target===o.Panel)this.hb.createGroup(t),this.instances.length===1&&!e&&this.hb.setActiveInstanceByIndex(0);else{const r=n.terminalLocationOptions?this.Tb(n.terminalLocationOptions):this.Tb(t.target);this.gb.openEditor(t,r)}this.U.fire()}async setContainers(t,e){this.fb.setPanelContainer(t),this.hb.setContainer(e)}createOnInstanceEvent(t){return new J(this.instances,this.onDidCreateInstance,this.onDidDisposeInstance,t)}createOnInstanceCapabilityEvent(t,e){return zt(this.instances,this.onDidCreateInstance,this.onDidDisposeInstance,t,e)}};p([I],b.prototype,"onAnyInstanceData",null);p([I],b.prototype,"onAnyInstanceDataInput",null);p([I],b.prototype,"onAnyInstanceIconChange",null);p([I],b.prototype,"onAnyInstanceMaximumDimensionsChange",null);p([I],b.prototype,"onAnyInstancePrimaryStatusChange",null);p([I],b.prototype,"onAnyInstanceProcessIdReady",null);p([I],b.prototype,"onAnyInstanceSelectionChange",null);p([I],b.prototype,"onAnyInstanceTitleChange",null);p([I],b.prototype,"onAnyInstanceShellTypeChanged",null);p([I],b.prototype,"onAnyInstanceAddedCapabilityType",null);p([R(500)],b.prototype,"Hb",null);p([R(500)],b.prototype,"Ib",null);p([R(500)],b.prototype,"Jb",null);b=p([a(0,et),a(1,Ot),a(2,rt),a(3,it),a(4,nt),a(5,Ft),a(6,tt),a(7,kt),a(8,bt),a(9,pt),a(10,gt),a(11,It),a(12,Et),a(13,j),a(14,Gt),a(15,st),a(16,mt),a(17,Z),a(18,Yt),a(19,Ut)],b);let S=class extends dt{constructor(t,e,i,n,s){super(i),this.b=e,this.f=i,this.h=n,this.j=s,this.m(),this.a=N.$Y9(t),this.D(_(()=>this.a.remove())),this.updateStyles()}m(){this.D(this.b.onAnyInstanceIconChange(()=>this.updateStyles())),this.D(this.b.onDidCreateInstance(()=>this.updateStyles())),this.D(this.j.onDidActiveEditorChange(()=>{this.j.activeEditor instanceof O&&this.updateStyles()})),this.D(this.j.onDidCloseEditor(()=>{this.j.activeEditor instanceof O&&this.updateStyles()})),this.D(this.h.onDidChangeAvailableProfiles(()=>this.updateStyles()))}updateStyles(){super.updateStyles();const t=this.f.getColorTheme();let e="";const i=this.f.getProductIconTheme();for(const s of this.b.instances){const r=s.icon;if(!r)continue;let c;r instanceof A?c=r:r instanceof Object&&l(r,{light:!0,dark:!0})&&(c=ht(t.type)?r.dark:r.light);const d=Tt(s,t.type);if(c instanceof A&&d&&d.length>1&&(e+=v.$$9`.monaco-workbench .terminal-tab.${v.$09(d[0])}::before
-					{content: ''; background-image: ${v.$99(c)};}`),ft.isThemeIcon(r)){const m=ct().getIcon(r.id);if(m){const u=i.getIcon(m);u&&(e+=v.$$9`.monaco-workbench .terminal-tab.codicon-${v.$09(r.id)}::before
-							{content: ${v.$89(u.fontCharacter)} !important; font-family: ${v.$89(u.font?.id??"codicon")} !important;}`)}}}const n=t.getColor(at);n&&(e+=v.$$9`.monaco-workbench .show-file-icons .file-icon.terminal-tab::before { color: ${n}; }`),e+=vt(t,!0),this.a.textContent=e}};S=p([a(1,yt),a(2,lt),a(3,j),a(4,xt)],S);export{b as $zAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as domStylesheets from "../../../../base/browser/domStylesheets.js";
+import * as cssValue from "../../../../base/browser/cssValue.js";
+import { DeferredPromise, timeout } from "../../../../base/common/async.js";
+import { debounce, memoize } from "../../../../base/common/decorators.js";
+import { DynamicListEventMultiplexer, Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isMacintosh, isWeb } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITerminalLogService, TerminalExitReason, TerminalLocation, TitleEventSource } from "../../../../platform/terminal/common/terminal.js";
+import { formatMessageForTerminal } from "../../../../platform/terminal/common/terminalStrings.js";
+import { iconForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { getIconRegistry } from "../../../../platform/theme/common/iconRegistry.js";
+import { isDark } from "../../../../platform/theme/common/theme.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { VirtualWorkspaceContext } from "../../../common/contextkeys.js";
+import { ITerminalConfigurationService, ITerminalEditorService, ITerminalGroupService, ITerminalInstanceService, ITerminalService } from "./terminal.js";
+import { getCwdForSplit } from "./terminalActions.js";
+import { TerminalEditorInput } from "./terminalEditorInput.js";
+import { getColorStyleContent, getUriClasses } from "./terminalIcon.js";
+import { TerminalProfileQuickpick } from "./terminalProfileQuickpick.js";
+import { getInstanceFromResource, getTerminalUri, parseTerminalUri } from "./terminalUri.js";
+import { ITerminalProfileService } from "../common/terminal.js";
+import { TerminalContextKeys } from "../common/terminalContextKey.js";
+import { columnToEditorGroup } from "../../../services/editor/common/editorGroupColumn.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, AUX_WINDOW_GROUP, IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { XtermTerminal } from "./xterm/xtermTerminal.js";
+import { TerminalInstance } from "./terminalInstance.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import { mark } from "../../../../base/common/performance.js";
+import { DetachedTerminal } from "./detachedTerminal.js";
+import { createInstanceCapabilityEventMultiplexer } from "./terminalEvents.js";
+import { isAuxiliaryWindow, mainWindow } from "../../../../base/browser/window.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { hasKey, isString } from "../../../../base/common/types.js";
+let TerminalService = class TerminalService2 extends Disposable {
+  static {
+    __name(this, "TerminalService");
+  }
+  get isProcessSupportRegistered() {
+    return !!this._processSupportContextKey.get();
+  }
+  get connectionState() {
+    return this._connectionState;
+  }
+  get whenConnected() {
+    return this._whenConnected.p;
+  }
+  get restoredGroupCount() {
+    return this._restoredGroupCount;
+  }
+  get instances() {
+    return this._terminalGroupService.instances.concat(this._terminalEditorService.instances).concat(this._backgroundedTerminalInstances.map((bg) => bg.instance));
+  }
+  /** Gets all non-background terminals. */
+  get foregroundInstances() {
+    return this._terminalGroupService.instances.concat(this._terminalEditorService.instances);
+  }
+  get detachedInstances() {
+    return this._detachedXterms;
+  }
+  getReconnectedTerminals(reconnectionOwner) {
+    return this._reconnectedTerminals.get(reconnectionOwner);
+  }
+  get activeInstance() {
+    for (const activeHostTerminal of this._hostActiveTerminals.values()) {
+      if (activeHostTerminal?.hasFocus) {
+        return activeHostTerminal;
+      }
+    }
+    return this._activeInstance;
+  }
+  get onDidCreateInstance() {
+    return this._onDidCreateInstance.event;
+  }
+  get onDidChangeInstanceDimensions() {
+    return this._onDidChangeInstanceDimensions.event;
+  }
+  get onDidRegisterProcessSupport() {
+    return this._onDidRegisterProcessSupport.event;
+  }
+  get onDidChangeConnectionState() {
+    return this._onDidChangeConnectionState.event;
+  }
+  get onDidRequestStartExtensionTerminal() {
+    return this._onDidRequestStartExtensionTerminal.event;
+  }
+  get onDidDisposeInstance() {
+    return this._onDidDisposeInstance.event;
+  }
+  get onDidFocusInstance() {
+    return this._onDidFocusInstance.event;
+  }
+  get onDidChangeActiveInstance() {
+    return this._onDidChangeActiveInstance.event;
+  }
+  get onDidChangeInstances() {
+    return this._onDidChangeInstances.event;
+  }
+  get onDidChangeInstanceCapability() {
+    return this._onDidChangeInstanceCapability.event;
+  }
+  get onDidChangeActiveGroup() {
+    return this._onDidChangeActiveGroup.event;
+  }
+  // Lazily initialized events that fire when the specified event fires on _any_ terminal
+  // TODO: Batch events
+  get onAnyInstanceData() {
+    return this._register(this.createOnInstanceEvent((instance) => Event.map(instance.onData, (data) => ({ instance, data })))).event;
+  }
+  get onAnyInstanceDataInput() {
+    return this._register(this.createOnInstanceEvent((e) => Event.map(e.onDidInputData, () => e, e.store))).event;
+  }
+  get onAnyInstanceIconChange() {
+    return this._register(this.createOnInstanceEvent((e) => e.onIconChanged)).event;
+  }
+  get onAnyInstanceMaximumDimensionsChange() {
+    return this._register(this.createOnInstanceEvent((e) => Event.map(e.onMaximumDimensionsChanged, () => e, e.store))).event;
+  }
+  get onAnyInstancePrimaryStatusChange() {
+    return this._register(this.createOnInstanceEvent((e) => Event.map(e.statusList.onDidChangePrimaryStatus, () => e, e.store))).event;
+  }
+  get onAnyInstanceProcessIdReady() {
+    return this._register(this.createOnInstanceEvent((e) => e.onProcessIdReady)).event;
+  }
+  get onAnyInstanceSelectionChange() {
+    return this._register(this.createOnInstanceEvent((e) => e.onDidChangeSelection)).event;
+  }
+  get onAnyInstanceTitleChange() {
+    return this._register(this.createOnInstanceEvent((e) => e.onTitleChanged)).event;
+  }
+  get onAnyInstanceShellTypeChanged() {
+    return this._register(this.createOnInstanceEvent((e) => Event.map(e.onDidChangeShellType, () => e))).event;
+  }
+  get onAnyInstanceAddedCapabilityType() {
+    return this._register(this.createOnInstanceEvent((e) => Event.map(e.capabilities.onDidAddCapability, (e2) => e2.id))).event;
+  }
+  constructor(_contextKeyService, _lifecycleService, _logService, _dialogService, _instantiationService, _remoteAgentService, _configurationService, _environmentService, _terminalConfigurationService, _terminalEditorService, _terminalGroupService, _terminalInstanceService, _editorGroupsService, _terminalProfileService, _extensionService, _notificationService, _workspaceContextService, _commandService, _keybindingService, _timerService) {
+    super();
+    this._contextKeyService = _contextKeyService;
+    this._lifecycleService = _lifecycleService;
+    this._logService = _logService;
+    this._dialogService = _dialogService;
+    this._instantiationService = _instantiationService;
+    this._remoteAgentService = _remoteAgentService;
+    this._configurationService = _configurationService;
+    this._environmentService = _environmentService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+    this._terminalEditorService = _terminalEditorService;
+    this._terminalGroupService = _terminalGroupService;
+    this._terminalInstanceService = _terminalInstanceService;
+    this._editorGroupsService = _editorGroupsService;
+    this._terminalProfileService = _terminalProfileService;
+    this._extensionService = _extensionService;
+    this._notificationService = _notificationService;
+    this._workspaceContextService = _workspaceContextService;
+    this._commandService = _commandService;
+    this._keybindingService = _keybindingService;
+    this._timerService = _timerService;
+    this._hostActiveTerminals = /* @__PURE__ */ new Map();
+    this._detachedXterms = /* @__PURE__ */ new Set();
+    this._isShuttingDown = false;
+    this._backgroundedTerminalInstances = [];
+    this._backgroundedTerminalDisposables = /* @__PURE__ */ new Map();
+    this._connectionState = 0;
+    this._whenConnected = new DeferredPromise();
+    this._restoredGroupCount = 0;
+    this._reconnectedTerminals = /* @__PURE__ */ new Map();
+    this._onDidCreateInstance = this._register(new Emitter());
+    this._onDidChangeInstanceDimensions = this._register(new Emitter());
+    this._onDidRegisterProcessSupport = this._register(new Emitter());
+    this._onDidChangeConnectionState = this._register(new Emitter());
+    this._onDidRequestStartExtensionTerminal = this._register(new Emitter());
+    this._onDidDisposeInstance = this._register(new Emitter());
+    this._onDidFocusInstance = this._register(new Emitter());
+    this._onDidChangeActiveInstance = this._register(new Emitter());
+    this._onDidChangeInstances = this._register(new Emitter());
+    this._onDidChangeInstanceCapability = this._register(new Emitter());
+    this._onDidChangeActiveGroup = this._register(new Emitter());
+    this._register(this.onDidCreateInstance(() => this._terminalProfileService.refreshAvailableProfiles()));
+    this._forwardInstanceHostEvents(this._terminalGroupService);
+    this._forwardInstanceHostEvents(this._terminalEditorService);
+    this._register(this._terminalGroupService.onDidChangeActiveGroup(this._onDidChangeActiveGroup.fire, this._onDidChangeActiveGroup));
+    this._register(this._terminalInstanceService.onDidCreateInstance((instance) => {
+      this._initInstanceListeners(instance);
+      this._onDidCreateInstance.fire(instance);
+    }));
+    this._register(this._terminalGroupService.onDidChangeActiveInstance((instance) => {
+      if (!instance && !this._isShuttingDown && this._terminalConfigurationService.config.hideOnLastClosed) {
+        this._terminalGroupService.hidePanel();
+      }
+      if (instance?.shellType) {
+        this._terminalShellTypeContextKey.set(instance.shellType.toString());
+      } else if (!instance || !instance.shellType) {
+        this._terminalShellTypeContextKey.reset();
+      }
+    }));
+    this._handleInstanceContextKeys();
+    this._terminalShellTypeContextKey = TerminalContextKeys.shellType.bindTo(this._contextKeyService);
+    this._processSupportContextKey = TerminalContextKeys.processSupported.bindTo(this._contextKeyService);
+    this._processSupportContextKey.set(!isWeb || this._remoteAgentService.getConnection() !== null);
+    this._terminalHasBeenCreated = TerminalContextKeys.terminalHasBeenCreated.bindTo(this._contextKeyService);
+    this._terminalCountContextKey = TerminalContextKeys.count.bindTo(this._contextKeyService);
+    this._terminalEditorActive = TerminalContextKeys.terminalEditorActive.bindTo(this._contextKeyService);
+    this._register(this.onDidChangeActiveInstance((instance) => {
+      this._terminalEditorActive.set(!!instance?.target && instance.target === TerminalLocation.Editor);
+    }));
+    this._register(_lifecycleService.onBeforeShutdown(async (e) => e.veto(this._onBeforeShutdown(e.reason), "veto.terminal")));
+    this._register(_lifecycleService.onWillShutdown((e) => this._onWillShutdown(e)));
+    this._initializePrimaryBackend();
+    timeout(0).then(() => this._register(this._instantiationService.createInstance(TerminalEditorStyle, mainWindow.document.head)));
+  }
+  async showProfileQuickPick(type, cwd) {
+    const quickPick = this._instantiationService.createInstance(TerminalProfileQuickpick);
+    const result = await quickPick.showAndGetResult(type);
+    if (!result) {
+      return;
+    }
+    if (isString(result)) {
+      return;
+    }
+    const keyMods = result.keyMods;
+    if (type === "createInstance") {
+      const activeInstance = this.getDefaultInstanceHost().activeInstance;
+      const defaultLocation = this._terminalConfigurationService.defaultLocation;
+      let instance;
+      if (result.config && hasKey(result.config, { id: true })) {
+        await this.createContributedTerminalProfile(result.config.extensionIdentifier, result.config.id, {
+          icon: result.config.options?.icon,
+          color: result.config.options?.color,
+          location: !!(keyMods?.alt && activeInstance) ? { splitActiveTerminal: true } : defaultLocation
+        });
+        return;
+      } else if (result.config && hasKey(result.config, { profileName: true })) {
+        if (keyMods?.alt && activeInstance) {
+          instance = await this.createTerminal({ location: { parentTerminal: activeInstance }, config: result.config, cwd });
+        } else {
+          instance = await this.createTerminal({ location: defaultLocation, config: result.config, cwd });
+        }
+      }
+      if (instance && defaultLocation !== TerminalLocation.Editor) {
+        this._terminalGroupService.showPanel(true);
+        this.setActiveInstance(instance);
+        return instance;
+      }
+    }
+    return void 0;
+  }
+  async _initializePrimaryBackend() {
+    mark("code/terminal/willGetTerminalBackend");
+    this._primaryBackend = await this._terminalInstanceService.getBackend(this._environmentService.remoteAuthority);
+    mark("code/terminal/didGetTerminalBackend");
+    const enableTerminalReconnection = this._terminalConfigurationService.config.enablePersistentSessions;
+    this._connectionState = 0;
+    const isPersistentRemote = !!this._environmentService.remoteAuthority && enableTerminalReconnection;
+    if (this._primaryBackend) {
+      this._register(this._primaryBackend.onDidRequestDetach(async (e) => {
+        const instanceToDetach = this.getInstanceFromResource(getTerminalUri(e.workspaceId, e.instanceId));
+        if (instanceToDetach) {
+          const persistentProcessId = instanceToDetach?.persistentProcessId;
+          if (persistentProcessId && !instanceToDetach.shellLaunchConfig.isFeatureTerminal && !instanceToDetach.shellLaunchConfig.customPtyImplementation) {
+            if (instanceToDetach.target === TerminalLocation.Editor) {
+              this._terminalEditorService.detachInstance(instanceToDetach);
+            } else {
+              this._terminalGroupService.getGroupForInstance(instanceToDetach)?.removeInstance(instanceToDetach);
+            }
+            await instanceToDetach.detachProcessAndDispose(TerminalExitReason.User);
+            await this._primaryBackend?.acceptDetachInstanceReply(e.requestId, persistentProcessId);
+          } else {
+            await this._primaryBackend?.acceptDetachInstanceReply(e.requestId, void 0);
+          }
+        }
+      }));
+    }
+    mark("code/terminal/willReconnect");
+    let reconnectedPromise;
+    if (isPersistentRemote) {
+      reconnectedPromise = this._reconnectToRemoteTerminals();
+    } else if (enableTerminalReconnection) {
+      reconnectedPromise = this._reconnectToLocalTerminals();
+    } else {
+      reconnectedPromise = Promise.resolve();
+    }
+    reconnectedPromise.then(async () => {
+      this._setConnected();
+      mark("code/terminal/didReconnect");
+      mark("code/terminal/willReplay");
+      const instances = await this._reconnectedTerminalGroups?.then((groups) => groups.map((e) => e.terminalInstances).flat()) ?? [];
+      await Promise.all(instances.map((e) => new Promise((r) => Event.once(e.onProcessReplayComplete)(r))));
+      mark("code/terminal/didReplay");
+      mark("code/terminal/willGetPerformanceMarks");
+      await Promise.all(Array.from(this._terminalInstanceService.getRegisteredBackends()).map(async (backend) => {
+        this._timerService.setPerformanceMarks(backend.remoteAuthority === void 0 ? "localPtyHost" : "remotePtyHost", await backend.getPerformanceMarks());
+        backend.setReady();
+      }));
+      mark("code/terminal/didGetPerformanceMarks");
+      this._whenConnected.complete();
+    });
+  }
+  getPrimaryBackend() {
+    return this._primaryBackend;
+  }
+  async setNextCommandId(id, commandLine, commandId) {
+    if (!this._primaryBackend || id <= 0) {
+      return;
+    }
+    await this._primaryBackend.setNextCommandId(id, commandLine, commandId);
+  }
+  _forwardInstanceHostEvents(host) {
+    this._register(host.onDidChangeInstances(this._onDidChangeInstances.fire, this._onDidChangeInstances));
+    this._register(host.onDidDisposeInstance(this._onDidDisposeInstance.fire, this._onDidDisposeInstance));
+    this._register(host.onDidChangeActiveInstance((instance) => this._evaluateActiveInstance(host, instance)));
+    this._register(host.onDidFocusInstance((instance) => {
+      this._onDidFocusInstance.fire(instance);
+      this._evaluateActiveInstance(host, instance);
+    }));
+    this._register(host.onDidChangeInstanceCapability((instance) => {
+      this._onDidChangeInstanceCapability.fire(instance);
+    }));
+    this._hostActiveTerminals.set(host, void 0);
+  }
+  _evaluateActiveInstance(host, instance) {
+    this._hostActiveTerminals.set(host, instance);
+    if (instance === void 0) {
+      for (const active of this._hostActiveTerminals.values()) {
+        if (active) {
+          instance = active;
+        }
+      }
+    }
+    this._activeInstance = instance;
+    this._onDidChangeActiveInstance.fire(instance);
+  }
+  setActiveInstance(value) {
+    if (!value) {
+      return;
+    }
+    if (value.shellLaunchConfig.hideFromUser) {
+      this.showBackgroundTerminal(value);
+    }
+    if (value.target === TerminalLocation.Editor) {
+      this._terminalEditorService.setActiveInstance(value);
+    } else {
+      this._terminalGroupService.setActiveInstance(value);
+    }
+  }
+  async focusInstance(instance) {
+    if (this._activeInstance !== instance) {
+      this.setActiveInstance(instance);
+    }
+    if (instance.target === TerminalLocation.Editor) {
+      await this._terminalEditorService.focusInstance(instance);
+      return;
+    }
+    await this._terminalGroupService.focusInstance(instance);
+  }
+  async focusActiveInstance() {
+    if (!this._activeInstance) {
+      return;
+    }
+    return this.focusInstance(this._activeInstance);
+  }
+  async createContributedTerminalProfile(extensionIdentifier, id, options) {
+    await this._extensionService.activateByEvent(`onTerminalProfile:${id}`);
+    const profileProvider = this._terminalProfileService.getContributedProfileProvider(extensionIdentifier, id);
+    if (!profileProvider) {
+      this._notificationService.error(`No terminal profile provider registered for id "${id}"`);
+      return;
+    }
+    try {
+      await profileProvider.createContributedTerminalProfile(options);
+      this._terminalGroupService.setActiveInstanceByIndex(this._terminalGroupService.instances.length - 1);
+      await this._terminalGroupService.activeInstance?.focusWhenReady();
+    } catch (e) {
+      this._notificationService.error(e.message);
+    }
+  }
+  async safeDisposeTerminal(instance) {
+    if (instance.target !== TerminalLocation.Editor && instance.hasChildProcesses && (this._terminalConfigurationService.config.confirmOnKill === "panel" || this._terminalConfigurationService.config.confirmOnKill === "always")) {
+      const veto = await this._showTerminalCloseConfirmation(true);
+      if (veto) {
+        return;
+      }
+    }
+    return new Promise((r) => {
+      Event.once(instance.onExit)(() => r());
+      instance.dispose(TerminalExitReason.User);
+    });
+  }
+  _setConnected() {
+    this._connectionState = 1;
+    this._onDidChangeConnectionState.fire();
+    this._logService.trace("Pty host ready");
+  }
+  async _reconnectToRemoteTerminals() {
+    const remoteAuthority = this._environmentService.remoteAuthority;
+    if (!remoteAuthority) {
+      return;
+    }
+    const backend = await this._terminalInstanceService.getBackend(remoteAuthority);
+    if (!backend) {
+      return;
+    }
+    mark("code/terminal/willGetTerminalLayoutInfo");
+    const layoutInfo = await backend.getTerminalLayoutInfo();
+    mark("code/terminal/didGetTerminalLayoutInfo");
+    backend.reduceConnectionGraceTime();
+    mark("code/terminal/willRecreateTerminalGroups");
+    await this._recreateTerminalGroups(layoutInfo);
+    mark("code/terminal/didRecreateTerminalGroups");
+    this._attachProcessLayoutListeners();
+    this._logService.trace("Reconnected to remote terminals");
+  }
+  async _reconnectToLocalTerminals() {
+    const localBackend = await this._terminalInstanceService.getBackend();
+    if (!localBackend) {
+      return;
+    }
+    mark("code/terminal/willGetTerminalLayoutInfo");
+    const layoutInfo = await localBackend.getTerminalLayoutInfo();
+    mark("code/terminal/didGetTerminalLayoutInfo");
+    if (layoutInfo && (layoutInfo.tabs.length > 0 || layoutInfo?.background?.length)) {
+      mark("code/terminal/willRecreateTerminalGroups");
+      this._reconnectedTerminalGroups = this._recreateTerminalGroups(layoutInfo);
+      const revivedInstances = await this._reviveBackgroundTerminalInstances(layoutInfo.background || []);
+      this._backgroundedTerminalInstances = revivedInstances.map((instance) => ({ instance }));
+      mark("code/terminal/didRecreateTerminalGroups");
+    }
+    this._attachProcessLayoutListeners();
+    this._logService.trace("Reconnected to local terminals");
+  }
+  _recreateTerminalGroups(layoutInfo) {
+    const groupPromises = [];
+    let activeGroup;
+    if (layoutInfo) {
+      for (const tabLayout of layoutInfo.tabs) {
+        const terminalLayouts = tabLayout.terminals.filter((t) => t.terminal && t.terminal.isOrphan);
+        if (terminalLayouts.length) {
+          this._restoredGroupCount += terminalLayouts.length;
+          const promise = this._recreateTerminalGroup(tabLayout, terminalLayouts);
+          groupPromises.push(promise);
+          if (tabLayout.isActive) {
+            activeGroup = promise;
+          }
+          const activeInstance = this.instances.find((t) => t.shellLaunchConfig.attachPersistentProcess?.id === tabLayout.activePersistentProcessId);
+          if (activeInstance) {
+            this.setActiveInstance(activeInstance);
+          }
+        }
+      }
+      if (layoutInfo.tabs.length) {
+        activeGroup?.then((group) => this._terminalGroupService.activeGroup = group);
+      }
+    }
+    return Promise.all(groupPromises).then((result) => result.filter((e) => !!e));
+  }
+  async _reviveBackgroundTerminalInstances(bgTerminals) {
+    const instances = [];
+    for (const bg of bgTerminals) {
+      const attachPersistentProcess = bg;
+      if (!attachPersistentProcess) {
+        continue;
+      }
+      const instance = await this.createTerminal({ config: { attachPersistentProcess, hideFromUser: true, forcePersist: true }, location: TerminalLocation.Panel });
+      instances.push(instance);
+    }
+    return instances;
+  }
+  async _recreateTerminalGroup(tabLayout, terminalLayouts) {
+    let lastInstance;
+    for (const terminalLayout of terminalLayouts) {
+      const attachPersistentProcess = terminalLayout.terminal;
+      if (this._lifecycleService.startupKind !== 3 && attachPersistentProcess.type === "Task") {
+        continue;
+      }
+      mark(`code/terminal/willRecreateTerminal/${attachPersistentProcess.id}-${attachPersistentProcess.pid}`);
+      lastInstance = this.createTerminal({
+        config: { attachPersistentProcess },
+        location: lastInstance ? { parentTerminal: lastInstance } : TerminalLocation.Panel
+      });
+      lastInstance.then(() => mark(`code/terminal/didRecreateTerminal/${attachPersistentProcess.id}-${attachPersistentProcess.pid}`));
+    }
+    const group = lastInstance?.then((instance) => {
+      const g = this._terminalGroupService.getGroupForInstance(instance);
+      g?.resizePanes(tabLayout.terminals.map((terminal) => terminal.relativeSize));
+      return g;
+    });
+    return group;
+  }
+  _attachProcessLayoutListeners() {
+    this._register(this.onDidChangeActiveGroup(() => this._saveState()));
+    this._register(this.onDidChangeActiveInstance(() => this._saveState()));
+    this._register(this.onDidChangeInstances(() => this._saveState()));
+    this._register(this.onAnyInstanceProcessIdReady(() => this._saveState()));
+    this._register(this.onAnyInstanceTitleChange((instance) => this._updateTitle(instance)));
+    this._register(this.onAnyInstanceIconChange((e) => this._updateIcon(e.instance, e.userInitiated)));
+  }
+  _handleInstanceContextKeys() {
+    const terminalIsOpenContext = TerminalContextKeys.isOpen.bindTo(this._contextKeyService);
+    const updateTerminalContextKeys = /* @__PURE__ */ __name(() => {
+      terminalIsOpenContext.set(this.instances.length > 0);
+      this._terminalCountContextKey.set(this.instances.length);
+    }, "updateTerminalContextKeys");
+    this._register(this.onDidChangeInstances(() => updateTerminalContextKeys()));
+  }
+  async getActiveOrCreateInstance(options) {
+    const activeInstance = this.activeInstance;
+    if (!activeInstance) {
+      return this.createTerminal();
+    }
+    if (!options?.acceptsInput || activeInstance.xterm?.isStdinDisabled !== true) {
+      return activeInstance;
+    }
+    const instance = await this.createTerminal();
+    this.setActiveInstance(instance);
+    await this.revealActiveTerminal();
+    return instance;
+  }
+  async revealTerminal(source, preserveFocus) {
+    if (source.target === TerminalLocation.Editor) {
+      await this._terminalEditorService.revealActiveEditor(preserveFocus);
+    } else {
+      await this._terminalGroupService.showPanel();
+    }
+  }
+  async revealActiveTerminal(preserveFocus) {
+    const instance = this.activeInstance;
+    if (!instance) {
+      return;
+    }
+    await this.revealTerminal(instance, preserveFocus);
+  }
+  requestStartExtensionTerminal(proxy, cols, rows) {
+    return new Promise((callback) => {
+      this._onDidRequestStartExtensionTerminal.fire({ proxy, cols, rows, callback });
+    });
+  }
+  _onBeforeShutdown(reason) {
+    if (isWeb) {
+      this._isShuttingDown = true;
+      return false;
+    }
+    return this._onBeforeShutdownAsync(reason);
+  }
+  async _onBeforeShutdownAsync(reason) {
+    if (this.instances.length === 0) {
+      return false;
+    }
+    try {
+      this._shutdownWindowCount = await this._nativeDelegate?.getWindowCount();
+      const shouldReviveProcesses = this._shouldReviveProcesses(reason);
+      if (shouldReviveProcesses) {
+        await Promise.race([
+          this._primaryBackend?.persistTerminalState(),
+          timeout(2e3)
+        ]);
+      }
+      const shouldPersistProcesses = this._terminalConfigurationService.config.enablePersistentSessions && reason === 3;
+      if (!shouldPersistProcesses) {
+        const hasDirtyInstances = this._terminalConfigurationService.config.confirmOnExit === "always" && this.foregroundInstances.length > 0 || this._terminalConfigurationService.config.confirmOnExit === "hasChildProcesses" && this.foregroundInstances.some((e) => e.hasChildProcesses);
+        if (hasDirtyInstances) {
+          return this._onBeforeShutdownConfirmation(reason);
+        }
+      }
+    } catch (err) {
+      this._logService.warn("Exception occurred during terminal shutdown", err);
+    }
+    this._isShuttingDown = true;
+    return false;
+  }
+  setNativeDelegate(nativeDelegate) {
+    this._nativeDelegate = nativeDelegate;
+  }
+  _shouldReviveProcesses(reason) {
+    if (!this._terminalConfigurationService.config.enablePersistentSessions) {
+      return false;
+    }
+    switch (this._terminalConfigurationService.config.persistentSessionReviveProcess) {
+      case "onExit": {
+        if (reason === 1 && (this._shutdownWindowCount === 1 && !isMacintosh)) {
+          return true;
+        }
+        return reason === 4 || reason === 2;
+      }
+      case "onExitAndWindowClose":
+        return reason !== 3;
+      default:
+        return false;
+    }
+  }
+  async _onBeforeShutdownConfirmation(reason) {
+    const veto = await this._showTerminalCloseConfirmation();
+    if (!veto) {
+      this._isShuttingDown = true;
+    }
+    return veto;
+  }
+  _onWillShutdown(e) {
+    const shouldPersistTerminals = this._terminalConfigurationService.config.enablePersistentSessions && e.reason === 3;
+    for (const instance of [...this._terminalGroupService.instances, ...this._backgroundedTerminalInstances.map((bg) => bg.instance)]) {
+      if (shouldPersistTerminals && instance.shouldPersist) {
+        instance.detachProcessAndDispose(TerminalExitReason.Shutdown);
+      } else {
+        instance.dispose(TerminalExitReason.Shutdown);
+      }
+    }
+    if (!shouldPersistTerminals && !this._shouldReviveProcesses(e.reason)) {
+      this._primaryBackend?.setTerminalLayoutInfo(void 0);
+    }
+  }
+  _saveState() {
+    if (this._isShuttingDown) {
+      return;
+    }
+    if (!this._terminalConfigurationService.config.enablePersistentSessions) {
+      return;
+    }
+    const tabs = this._terminalGroupService.groups.map((g) => g.getLayoutInfo(g === this._terminalGroupService.activeGroup));
+    const state = { tabs, background: this._backgroundedTerminalInstances.map((bg) => bg.instance).filter((i) => i.shellLaunchConfig.forcePersist).map((i) => i.persistentProcessId).filter((e) => e !== void 0) };
+    this._primaryBackend?.setTerminalLayoutInfo(state);
+  }
+  _updateTitle(instance) {
+    if (!this._terminalConfigurationService.config.enablePersistentSessions || !instance || !instance.persistentProcessId || !instance.title || instance.isDisposed) {
+      return;
+    }
+    if (instance.staticTitle) {
+      this._primaryBackend?.updateTitle(instance.persistentProcessId, instance.staticTitle, TitleEventSource.Api);
+    } else {
+      this._primaryBackend?.updateTitle(instance.persistentProcessId, instance.title, instance.titleSource);
+    }
+  }
+  _updateIcon(instance, userInitiated) {
+    if (!this._terminalConfigurationService.config.enablePersistentSessions || !instance || !instance.persistentProcessId || !instance.icon || instance.isDisposed) {
+      return;
+    }
+    this._primaryBackend?.updateIcon(instance.persistentProcessId, userInitiated, instance.icon, instance.color);
+  }
+  refreshActiveGroup() {
+    this._onDidChangeActiveGroup.fire(this._terminalGroupService.activeGroup);
+  }
+  getInstanceFromId(terminalId) {
+    let bgIndex = -1;
+    this._backgroundedTerminalInstances.forEach((bg, i) => {
+      if (bg.instance.instanceId === terminalId) {
+        bgIndex = i;
+      }
+    });
+    if (bgIndex !== -1) {
+      return this._backgroundedTerminalInstances[bgIndex].instance;
+    }
+    try {
+      return this.instances[this._getIndexFromId(terminalId)];
+    } catch {
+      return void 0;
+    }
+  }
+  getInstanceFromResource(resource) {
+    return getInstanceFromResource(this.instances, resource);
+  }
+  openResource(resource) {
+    const instance = this.getInstanceFromResource(resource);
+    if (instance) {
+      this.setActiveInstance(instance);
+      this.revealTerminal(instance);
+      const commands = instance.capabilities.get(
+        2
+        /* TerminalCapability.CommandDetection */
+      )?.commands;
+      const params = new URLSearchParams(resource.query);
+      const relevantCommand = commands?.find((c) => c.id === params.get("command"));
+      if (relevantCommand) {
+        instance.xterm?.markTracker.revealCommand(relevantCommand);
+      }
+    }
+  }
+  isAttachedToTerminal(remoteTerm) {
+    return this.instances.some((term) => term.processId === remoteTerm.pid);
+  }
+  moveToEditor(source, group) {
+    if (source.target === TerminalLocation.Editor) {
+      return;
+    }
+    const sourceGroup = this._terminalGroupService.getGroupForInstance(source);
+    if (!sourceGroup) {
+      return;
+    }
+    sourceGroup.removeInstance(source);
+    this._terminalEditorService.openEditor(source, group ? { viewColumn: group } : void 0);
+  }
+  moveIntoNewEditor(source) {
+    this.moveToEditor(source, AUX_WINDOW_GROUP);
+  }
+  async moveToTerminalView(source, target, side) {
+    if (URI.isUri(source)) {
+      source = this.getInstanceFromResource(source);
+    }
+    if (!source) {
+      return;
+    }
+    this._terminalEditorService.detachInstance(source);
+    if (source.target !== TerminalLocation.Editor) {
+      await this._terminalGroupService.showPanel(true);
+      return;
+    }
+    source.target = TerminalLocation.Panel;
+    let group;
+    if (target) {
+      group = this._terminalGroupService.getGroupForInstance(target);
+    }
+    if (!group) {
+      group = this._terminalGroupService.createGroup();
+    }
+    group.addInstance(source);
+    this.setActiveInstance(source);
+    await this._terminalGroupService.showPanel(true);
+    if (target && side) {
+      const index = group.terminalInstances.indexOf(target) + (side === "after" ? 1 : 0);
+      group.moveInstance(source, index, side);
+    }
+    this._onDidChangeInstances.fire();
+    this._onDidChangeActiveGroup.fire(this._terminalGroupService.activeGroup);
+  }
+  _initInstanceListeners(instance) {
+    const instanceDisposables = new DisposableStore();
+    instanceDisposables.add(instance.onDimensionsChanged(() => {
+      this._onDidChangeInstanceDimensions.fire(instance);
+      if (this._terminalConfigurationService.config.enablePersistentSessions && this.isProcessSupportRegistered) {
+        this._saveState();
+      }
+    }));
+    instanceDisposables.add(instance.onDidFocus(this._onDidChangeActiveInstance.fire, this._onDidChangeActiveInstance));
+    instanceDisposables.add(instance.onRequestAddInstanceToGroup(async (e) => await this._addInstanceToGroup(instance, e)));
+    instanceDisposables.add(instance.onDidChangeShellType(() => this._extensionService.activateByEvent(`onTerminal:${instance.shellType}`)));
+    instanceDisposables.add(Event.runAndSubscribe(instance.capabilities.onDidAddCapability, (() => {
+      if (instance.capabilities.has(
+        2
+        /* TerminalCapability.CommandDetection */
+      )) {
+        this._extensionService.activateByEvent(`onTerminalShellIntegration:${instance.shellType}`);
+      }
+    })));
+    const disposeListener = this._register(instance.onDisposed(() => {
+      instanceDisposables.dispose();
+      this._store.delete(disposeListener);
+    }));
+  }
+  async _addInstanceToGroup(instance, e) {
+    const terminalIdentifier = parseTerminalUri(e.uri);
+    if (terminalIdentifier.instanceId === void 0) {
+      return;
+    }
+    let sourceInstance = this.getInstanceFromResource(e.uri);
+    if (!sourceInstance) {
+      const attachPersistentProcess = await this._primaryBackend?.requestDetachInstance(terminalIdentifier.workspaceId, terminalIdentifier.instanceId);
+      if (attachPersistentProcess) {
+        sourceInstance = await this.createTerminal({ config: { attachPersistentProcess }, resource: e.uri });
+        this._terminalGroupService.moveInstance(sourceInstance, instance, e.side);
+        return;
+      }
+    }
+    sourceInstance = this._terminalGroupService.getInstanceFromResource(e.uri);
+    if (sourceInstance) {
+      this._terminalGroupService.moveInstance(sourceInstance, instance, e.side);
+      return;
+    }
+    sourceInstance = this._terminalEditorService.getInstanceFromResource(e.uri);
+    if (sourceInstance) {
+      this.moveToTerminalView(sourceInstance, instance, e.side);
+      return;
+    }
+    return;
+  }
+  registerProcessSupport(isSupported) {
+    if (!isSupported) {
+      return;
+    }
+    this._processSupportContextKey.set(isSupported);
+    this._onDidRegisterProcessSupport.fire();
+  }
+  // TODO: Remove this, it should live in group/editor servioce
+  _getIndexFromId(terminalId) {
+    let terminalIndex = -1;
+    this.instances.forEach((terminalInstance, i) => {
+      if (terminalInstance.instanceId === terminalId) {
+        terminalIndex = i;
+      }
+    });
+    if (terminalIndex === -1) {
+      throw new Error(`Terminal with ID ${terminalId} does not exist (has it already been disposed?)`);
+    }
+    return terminalIndex;
+  }
+  async _showTerminalCloseConfirmation(singleTerminal) {
+    let message;
+    const foregroundInstances = this.foregroundInstances;
+    if (foregroundInstances.length === 1 || singleTerminal) {
+      message = nls.localize("terminalService.terminalCloseConfirmationSingular", "Do you want to terminate the active terminal session?");
+    } else {
+      message = nls.localize("terminalService.terminalCloseConfirmationPlural", "Do you want to terminate the {0} active terminal sessions?", foregroundInstances.length);
+    }
+    const { confirmed } = await this._dialogService.confirm({
+      type: "warning",
+      message,
+      primaryButton: nls.localize({ key: "terminate", comment: ["&& denotes a mnemonic"] }, "&&Terminate")
+    });
+    return !confirmed;
+  }
+  getDefaultInstanceHost() {
+    if (this._terminalConfigurationService.defaultLocation === TerminalLocation.Editor) {
+      return this._terminalEditorService;
+    }
+    return this._terminalGroupService;
+  }
+  async getInstanceHost(location) {
+    if (location) {
+      if (location === TerminalLocation.Editor) {
+        return this._terminalEditorService;
+      } else if (typeof location === "object") {
+        if (hasKey(location, { viewColumn: true })) {
+          return this._terminalEditorService;
+        } else if (hasKey(location, { parentTerminal: true })) {
+          return (await location.parentTerminal).target === TerminalLocation.Editor ? this._terminalEditorService : this._terminalGroupService;
+        }
+      } else {
+        return this._terminalGroupService;
+      }
+    }
+    return this;
+  }
+  async createTerminal(options) {
+    const isLocalInRemoteTerminal = this._remoteAgentService.getConnection() && URI.isUri(options?.cwd) && options?.cwd.scheme === Schemas.file;
+    if (this._terminalProfileService.availableProfiles.length === 0) {
+      const isPtyTerminal = options?.config && hasKey(options.config, { customPtyImplementation: true });
+      if (!isPtyTerminal && !isLocalInRemoteTerminal) {
+        if (this._connectionState === 0) {
+          mark(`code/terminal/willGetProfiles`);
+        }
+        await this._terminalProfileService.profilesReady;
+        if (this._connectionState === 0) {
+          mark(`code/terminal/didGetProfiles`);
+        }
+      }
+    }
+    let config = options?.config;
+    if (!config && isLocalInRemoteTerminal) {
+      const backend = await this._terminalInstanceService.getBackend(void 0);
+      const executable = await backend?.getDefaultSystemShell();
+      if (executable) {
+        config = { executable };
+      }
+    }
+    if (!config) {
+      config = this._terminalProfileService.getDefaultProfile();
+    }
+    const shellLaunchConfig = config && hasKey(config, { extensionIdentifier: true }) ? {} : this._terminalInstanceService.convertProfileToShellLaunchConfig(config || {});
+    const contributedProfile = options?.skipContributedProfileCheck ? void 0 : await this._getContributedProfile(shellLaunchConfig, options);
+    const splitActiveTerminal = typeof options?.location === "object" && hasKey(options.location, { splitActiveTerminal: true }) ? options.location.splitActiveTerminal : typeof options?.location === "object" ? hasKey(options.location, { parentTerminal: true }) : false;
+    await this._resolveCwd(shellLaunchConfig, splitActiveTerminal, options);
+    if (!shellLaunchConfig.customPtyImplementation && contributedProfile) {
+      const resolvedLocation = await this.resolveLocation(options?.location);
+      let location2;
+      if (splitActiveTerminal) {
+        location2 = resolvedLocation === TerminalLocation.Editor ? { viewColumn: SIDE_GROUP } : { splitActiveTerminal: true };
+      } else {
+        location2 = typeof options?.location === "object" && hasKey(options.location, { viewColumn: true }) ? options.location : resolvedLocation;
+      }
+      await this.createContributedTerminalProfile(contributedProfile.extensionIdentifier, contributedProfile.id, {
+        icon: contributedProfile.icon,
+        color: contributedProfile.color,
+        location: location2,
+        cwd: shellLaunchConfig.cwd
+      });
+      const instanceHost = resolvedLocation === TerminalLocation.Editor ? this._terminalEditorService : this._terminalGroupService;
+      const instance2 = instanceHost.instances[instanceHost.instances.length - 1];
+      await instance2?.focusWhenReady();
+      this._terminalHasBeenCreated.set(true);
+      return instance2;
+    }
+    if (!shellLaunchConfig.customPtyImplementation && !this.isProcessSupportRegistered) {
+      throw new Error("Could not create terminal when process support is not registered");
+    }
+    this._evaluateLocalCwd(shellLaunchConfig);
+    const location = await this.resolveLocation(options?.location) || this._terminalConfigurationService.defaultLocation;
+    if (shellLaunchConfig.hideFromUser) {
+      const instance2 = this._terminalInstanceService.createInstance(shellLaunchConfig, location);
+      this._backgroundedTerminalInstances.push({ instance: instance2, terminalLocationOptions: options?.location });
+      this._backgroundedTerminalDisposables.set(instance2.instanceId, [
+        instance2.onDisposed((instance3) => {
+          const idx = this._backgroundedTerminalInstances.findIndex((bg) => bg.instance === instance3);
+          if (idx !== -1) {
+            this._backgroundedTerminalInstances.splice(idx, 1);
+          }
+          this._onDidDisposeInstance.fire(instance3);
+        })
+      ]);
+      this._onDidChangeInstances.fire();
+      return instance2;
+    }
+    const parent = await this._getSplitParent(options?.location);
+    this._terminalHasBeenCreated.set(true);
+    this._extensionService.activateByEvent("onTerminal:*");
+    let instance;
+    if (parent) {
+      instance = this._splitTerminal(shellLaunchConfig, location, parent);
+    } else {
+      instance = this._createTerminal(shellLaunchConfig, location, options);
+    }
+    if (instance.shellType) {
+      this._extensionService.activateByEvent(`onTerminal:${instance.shellType}`);
+    }
+    return instance;
+  }
+  async createAndFocusTerminal(options) {
+    const instance = await this.createTerminal(options);
+    this.setActiveInstance(instance);
+    await instance.focusWhenReady();
+    return instance;
+  }
+  async _getContributedProfile(shellLaunchConfig, options) {
+    if (options?.config && hasKey(options.config, { extensionIdentifier: true })) {
+      return options.config;
+    }
+    return this._terminalProfileService.getContributedDefaultProfile(shellLaunchConfig);
+  }
+  async createDetachedTerminal(options) {
+    const ctor = await TerminalInstance.getXtermConstructor(this._keybindingService, this._contextKeyService);
+    const capabilities = options.capabilities ?? new TerminalCapabilityStore();
+    const xterm = this._instantiationService.createInstance(XtermTerminal, void 0, ctor, {
+      cols: options.cols,
+      rows: options.rows,
+      xtermColorProvider: options.colorProvider,
+      capabilities,
+      disableOverviewRuler: options.disableOverviewRuler
+    }, void 0);
+    if (options.readonly) {
+      xterm.raw.attachCustomKeyEventHandler(() => false);
+    }
+    const instance = new DetachedTerminal(xterm, { ...options, capabilities }, this._instantiationService);
+    this._detachedXterms.add(instance);
+    const l = xterm.onDidDispose(() => {
+      this._detachedXterms.delete(instance);
+      l.dispose();
+    });
+    return instance;
+  }
+  async _resolveCwd(shellLaunchConfig, splitActiveTerminal, options) {
+    const cwd = shellLaunchConfig.cwd;
+    if (!cwd) {
+      if (options?.cwd) {
+        shellLaunchConfig.cwd = options.cwd;
+      } else if (splitActiveTerminal && options?.location) {
+        let parent = this.activeInstance;
+        if (typeof options.location === "object" && hasKey(options.location, { parentTerminal: true })) {
+          parent = await options.location.parentTerminal;
+        }
+        if (!parent) {
+          throw new Error("Cannot split without an active instance");
+        }
+        shellLaunchConfig.cwd = await getCwdForSplit(parent, this._workspaceContextService.getWorkspace().folders, this._commandService, this._terminalConfigurationService);
+      }
+    }
+  }
+  _splitTerminal(shellLaunchConfig, location, parent) {
+    let instance;
+    if (typeof shellLaunchConfig.cwd !== "object" && typeof parent.shellLaunchConfig.cwd === "object") {
+      shellLaunchConfig.cwd = URI.from({
+        scheme: parent.shellLaunchConfig.cwd.scheme,
+        authority: parent.shellLaunchConfig.cwd.authority,
+        path: shellLaunchConfig.cwd || parent.shellLaunchConfig.cwd.path
+      });
+    }
+    if (location === TerminalLocation.Editor || parent.target === TerminalLocation.Editor) {
+      instance = this._terminalEditorService.splitInstance(parent, shellLaunchConfig);
+    } else {
+      const group = this._terminalGroupService.getGroupForInstance(parent);
+      if (!group) {
+        throw new Error(`Cannot split a terminal without a group (instanceId: ${parent.instanceId}, title: ${parent.title})`);
+      }
+      shellLaunchConfig.parentTerminalId = parent.instanceId;
+      instance = group.split(shellLaunchConfig);
+    }
+    return instance;
+  }
+  _createTerminal(shellLaunchConfig, location, options) {
+    let instance;
+    if (location === TerminalLocation.Editor) {
+      instance = this._terminalInstanceService.createInstance(shellLaunchConfig, TerminalLocation.Editor);
+      if (!shellLaunchConfig.hideFromUser) {
+        const editorOptions = this._getEditorOptions(options?.location);
+        this._terminalEditorService.openEditor(instance, editorOptions);
+      }
+    } else {
+      const group = this._terminalGroupService.createGroup(shellLaunchConfig);
+      instance = group.terminalInstances[0];
+    }
+    return instance;
+  }
+  async resolveLocation(location) {
+    if (location && typeof location === "object") {
+      if (hasKey(location, { parentTerminal: true })) {
+        const parentTerminal = await location.parentTerminal;
+        return !parentTerminal.target ? TerminalLocation.Panel : parentTerminal.target;
+      } else if (hasKey(location, { viewColumn: true })) {
+        return TerminalLocation.Editor;
+      } else if (hasKey(location, { splitActiveTerminal: true })) {
+        return !this._activeInstance?.target ? TerminalLocation.Panel : this._activeInstance?.target;
+      }
+    }
+    return location;
+  }
+  async _getSplitParent(location) {
+    if (location && typeof location === "object" && hasKey(location, { parentTerminal: true })) {
+      return location.parentTerminal;
+    } else if (location && typeof location === "object" && hasKey(location, { splitActiveTerminal: true })) {
+      return this.activeInstance;
+    }
+    return void 0;
+  }
+  _getEditorOptions(location) {
+    if (location && typeof location === "object" && hasKey(location, { viewColumn: true })) {
+      if (location.viewColumn === ACTIVE_GROUP && isAuxiliaryWindow(getActiveWindow())) {
+        location.viewColumn = this._editorGroupsService.activeGroup.id;
+        return location;
+      }
+      location.viewColumn = columnToEditorGroup(this._editorGroupsService, this._configurationService, location.viewColumn);
+      return location;
+    }
+    return void 0;
+  }
+  _evaluateLocalCwd(shellLaunchConfig) {
+    if (!isString(shellLaunchConfig.cwd) && shellLaunchConfig.cwd?.scheme === Schemas.file) {
+      if (VirtualWorkspaceContext.getValue(this._contextKeyService)) {
+        shellLaunchConfig.initialText = formatMessageForTerminal(nls.localize("localTerminalVirtualWorkspace", "This shell is open to a {0}local{1} folder, NOT to the virtual folder", "\x1B[3m", "\x1B[23m"), { excludeLeadingNewLine: true, loudFormatting: true });
+        shellLaunchConfig.type = "Local";
+      } else if (this._remoteAgentService.getConnection()) {
+        shellLaunchConfig.initialText = formatMessageForTerminal(nls.localize("localTerminalRemote", "This shell is running on your {0}local{1} machine, NOT on the connected remote machine", "\x1B[3m", "\x1B[23m"), { excludeLeadingNewLine: true, loudFormatting: true });
+        shellLaunchConfig.type = "Local";
+      }
+    }
+  }
+  async showBackgroundTerminal(instance, suppressSetActive) {
+    const index = this._backgroundedTerminalInstances.findIndex((bg) => bg.instance === instance);
+    if (index === -1) {
+      return;
+    }
+    const backgroundTerminal = this._backgroundedTerminalInstances[index];
+    this._backgroundedTerminalInstances.splice(index, 1);
+    const disposables = this._backgroundedTerminalDisposables.get(instance.instanceId);
+    if (disposables) {
+      dispose(disposables);
+    }
+    this._backgroundedTerminalDisposables.delete(instance.instanceId);
+    if (instance.target === TerminalLocation.Panel) {
+      this._terminalGroupService.createGroup(instance);
+      if (this.instances.length === 1 && !suppressSetActive) {
+        this._terminalGroupService.setActiveInstanceByIndex(0);
+      }
+    } else {
+      const editorOptions = backgroundTerminal.terminalLocationOptions ? this._getEditorOptions(backgroundTerminal.terminalLocationOptions) : this._getEditorOptions(instance.target);
+      this._terminalEditorService.openEditor(instance, editorOptions);
+    }
+    this._onDidChangeInstances.fire();
+  }
+  async setContainers(panelContainer, terminalContainer) {
+    this._terminalConfigurationService.setPanelContainer(panelContainer);
+    this._terminalGroupService.setContainer(terminalContainer);
+  }
+  createOnInstanceEvent(getEvent) {
+    return new DynamicListEventMultiplexer(this.instances, this.onDidCreateInstance, this.onDidDisposeInstance, getEvent);
+  }
+  createOnInstanceCapabilityEvent(capabilityId, getEvent) {
+    return createInstanceCapabilityEventMultiplexer(this.instances, this.onDidCreateInstance, this.onDidDisposeInstance, capabilityId, getEvent);
+  }
+};
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceData", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceDataInput", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceIconChange", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceMaximumDimensionsChange", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstancePrimaryStatusChange", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceProcessIdReady", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceSelectionChange", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceTitleChange", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceShellTypeChanged", null);
+__decorate([
+  memoize
+], TerminalService.prototype, "onAnyInstanceAddedCapabilityType", null);
+__decorate([
+  debounce(500)
+], TerminalService.prototype, "_saveState", null);
+__decorate([
+  debounce(500)
+], TerminalService.prototype, "_updateTitle", null);
+__decorate([
+  debounce(500)
+], TerminalService.prototype, "_updateIcon", null);
+TerminalService = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, ILifecycleService),
+  __param(2, ITerminalLogService),
+  __param(3, IDialogService),
+  __param(4, IInstantiationService),
+  __param(5, IRemoteAgentService),
+  __param(6, IConfigurationService),
+  __param(7, IWorkbenchEnvironmentService),
+  __param(8, ITerminalConfigurationService),
+  __param(9, ITerminalEditorService),
+  __param(10, ITerminalGroupService),
+  __param(11, ITerminalInstanceService),
+  __param(12, IEditorGroupsService),
+  __param(13, ITerminalProfileService),
+  __param(14, IExtensionService),
+  __param(15, INotificationService),
+  __param(16, IWorkspaceContextService),
+  __param(17, ICommandService),
+  __param(18, IKeybindingService),
+  __param(19, ITimerService)
+], TerminalService);
+let TerminalEditorStyle = class TerminalEditorStyle2 extends Themable {
+  static {
+    __name(this, "TerminalEditorStyle");
+  }
+  constructor(container, _terminalService, _themeService, _terminalProfileService, _editorService) {
+    super(_themeService);
+    this._terminalService = _terminalService;
+    this._themeService = _themeService;
+    this._terminalProfileService = _terminalProfileService;
+    this._editorService = _editorService;
+    this._registerListeners();
+    this._styleElement = domStylesheets.createStyleSheet(container);
+    this._register(toDisposable(() => this._styleElement.remove()));
+    this.updateStyles();
+  }
+  _registerListeners() {
+    this._register(this._terminalService.onAnyInstanceIconChange(() => this.updateStyles()));
+    this._register(this._terminalService.onDidCreateInstance(() => this.updateStyles()));
+    this._register(this._editorService.onDidActiveEditorChange(() => {
+      if (this._editorService.activeEditor instanceof TerminalEditorInput) {
+        this.updateStyles();
+      }
+    }));
+    this._register(this._editorService.onDidCloseEditor(() => {
+      if (this._editorService.activeEditor instanceof TerminalEditorInput) {
+        this.updateStyles();
+      }
+    }));
+    this._register(this._terminalProfileService.onDidChangeAvailableProfiles(() => this.updateStyles()));
+  }
+  updateStyles() {
+    super.updateStyles();
+    const colorTheme = this._themeService.getColorTheme();
+    let css = "";
+    const productIconTheme = this._themeService.getProductIconTheme();
+    for (const instance of this._terminalService.instances) {
+      const icon = instance.icon;
+      if (!icon) {
+        continue;
+      }
+      let uri = void 0;
+      if (icon instanceof URI) {
+        uri = icon;
+      } else if (icon instanceof Object && hasKey(icon, { light: true, dark: true })) {
+        uri = isDark(colorTheme.type) ? icon.dark : icon.light;
+      }
+      const iconClasses = getUriClasses(instance, colorTheme.type);
+      if (uri instanceof URI && iconClasses && iconClasses.length > 1) {
+        css += cssValue.inline`.monaco-workbench .terminal-tab.${cssValue.className(iconClasses[0])}::before
+					{content: ''; background-image: ${cssValue.asCSSUrl(uri)};}`;
+      }
+      if (ThemeIcon.isThemeIcon(icon)) {
+        const iconRegistry = getIconRegistry();
+        const iconContribution = iconRegistry.getIcon(icon.id);
+        if (iconContribution) {
+          const def = productIconTheme.getIcon(iconContribution);
+          if (def) {
+            css += cssValue.inline`.monaco-workbench .terminal-tab.codicon-${cssValue.className(icon.id)}::before
+							{content: ${cssValue.stringValue(def.fontCharacter)} !important; font-family: ${cssValue.stringValue(def.font?.id ?? "codicon")} !important;}`;
+          }
+        }
+      }
+    }
+    const iconForegroundColor = colorTheme.getColor(iconForeground);
+    if (iconForegroundColor) {
+      css += cssValue.inline`.monaco-workbench .show-file-icons .file-icon.terminal-tab::before { color: ${iconForegroundColor}; }`;
+    }
+    css += getColorStyleContent(colorTheme, true);
+    this._styleElement.textContent = css;
+  }
+};
+TerminalEditorStyle = __decorate([
+  __param(1, ITerminalService),
+  __param(2, IThemeService),
+  __param(3, ITerminalProfileService),
+  __param(4, IEditorService)
+], TerminalEditorStyle);
+export {
+  TerminalService
+};
+//# sourceMappingURL=terminalService.js.map

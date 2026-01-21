@@ -1,1 +1,153 @@
-import{$Dd as p}from"../../../../base/common/lifecycle.js";import{$scb as b}from"../../../../editor/browser/editorBrowser.js";import{localize as l,localize2 as y}from"../../../../nls.js";import{$im as w}from"../../../../platform/registry/common/platform.js";import{Extensions as E}from"../../../common/contributions.js";import{$yL as L}from"../../../services/editor/common/editorService.js";import{$fCb as _}from"../../../services/statusbar/browser/statusbar.js";import{$7H as $,$8H as j}from"../../../services/languageDetection/common/languageDetectionWorkerService.js";import{$6h as S}from"../../../../base/common/async.js";import{$WF as M}from"../../../../editor/common/languages/language.js";import{$cy as k}from"../../../../platform/keybinding/common/keybinding.js";import{$tL as H,$sL as I}from"../../../../platform/actions/common/actions.js";import{$mH as W}from"../../../../platform/notification/common/notification.js";import{$9n as N}from"../../../../platform/contextkey/common/contextkey.js";import{$uEb as O}from"../../notebook/common/notebookContextKeys.js";import{EditorContextKeys as R}from"../../../../editor/common/editorContextKeys.js";import{Schemas as T}from"../../../../base/common/network.js";import{$9l as z}from"../../../../platform/configuration/common/configuration.js";var x=function(s,t,i,o){var n=arguments.length,e=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,i,o);else for(var d=s.length-1;d>=0;d--)(r=s[d])&&(e=(n<3?r(e):n>3?r(t,i,e):r(t,i))||e);return n>3&&e&&Object.defineProperty(t,i,e),e},c=function(s,t){return function(i,o){t(i,o,s)}},h;const g="editor.detectLanguage";let u=class{static{h=this}static{this.a="status.languageDetectionStatus"}constructor(t,i,o,n,e,r){this.f=t,this.g=i,this.h=o,this.i=n,this.j=e,this.k=r,this.b=new p,this.d=new S(1e3),this.e=new p,n.onDidActiveEditorChange(()=>this.l(!0),this,this.b),this.l(!1)}dispose(){this.b.dispose(),this.d.dispose(),this.c?.dispose(),this.e.dispose()}l(t){t&&(this.c?.dispose(),this.c=void 0),this.d.trigger(()=>this.m())}async m(){const t=b(this.i.activeTextEditorControl);this.e.clear(),t?.onDidChangeModelLanguage(()=>this.l(!0),this,this.e),t?.onDidChangeModelContent(()=>this.l(!1),this,this.e);const i=t?.getModel(),o=i?.uri,n=i?.getLanguageId(),e=this.h.getValue("workbench.editor.languageDetectionHints");if(!(typeof e=="object"&&e?.untitledEditors)||o?.scheme!==T.untitled||!n||!o)this.c?.dispose(),this.c=void 0;else{const a=await this.f.detectLanguage(o),C={jsonc:"json"},m=i.getLanguageId();if(a&&a!==m&&C[m]!==a){const D=this.j.getLanguageName(a)||a,v=this.k.appendKeybinding(l(9534,null,D),g),f={name:l(9535,null),ariaLabel:l(9536,null,a),tooltip:v,command:g,text:"$(lightbulb-autofix)"};this.c?this.c.update(f):this.c=this.g.addEntry(f,h.a,1,{location:{id:"status.editor.mode",priority:100.1},alignment:1,compact:!0})}else this.c?.dispose(),this.c=void 0}}};u=h=x([c(0,$),c(1,_),c(2,z),c(3,L),c(4,M),c(5,k)],u);w.as(E.Workbench).registerWorkbenchContribution(u,3);H(class extends I{constructor(){super({id:g,title:y(9538,"Detect Language from Content"),f1:!0,precondition:N.and(O.toNegated(),R.editorTextFocus),keybinding:{primary:1570,weight:200}})}async run(s){const t=s.get(L),i=s.get($),o=b(t.activeTextEditorControl),n=s.get(W),e=o?.getModel()?.uri;if(e){const r=await i.detectLanguage(e);r?o.getModel()?.setLanguage(r,j):n.warn(l(9537,null))}}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var LanguageDetectionStatusContribution_1;
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { ILanguageDetectionService, LanguageDetectionLanguageEventSource } from "../../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { ThrottledDelayer } from "../../../../base/common/async.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { NOTEBOOK_EDITOR_EDITABLE } from "../../notebook/common/notebookContextKeys.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+const detectLanguageCommandId = "editor.detectLanguage";
+let LanguageDetectionStatusContribution = class LanguageDetectionStatusContribution2 {
+  static {
+    __name(this, "LanguageDetectionStatusContribution");
+  }
+  static {
+    LanguageDetectionStatusContribution_1 = this;
+  }
+  static {
+    this._id = "status.languageDetectionStatus";
+  }
+  constructor(_languageDetectionService, _statusBarService, _configurationService, _editorService, _languageService, _keybindingService) {
+    this._languageDetectionService = _languageDetectionService;
+    this._statusBarService = _statusBarService;
+    this._configurationService = _configurationService;
+    this._editorService = _editorService;
+    this._languageService = _languageService;
+    this._keybindingService = _keybindingService;
+    this._disposables = new DisposableStore();
+    this._delayer = new ThrottledDelayer(1e3);
+    this._renderDisposables = new DisposableStore();
+    _editorService.onDidActiveEditorChange(() => this._update(true), this, this._disposables);
+    this._update(false);
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._delayer.dispose();
+    this._combinedEntry?.dispose();
+    this._renderDisposables.dispose();
+  }
+  _update(clear) {
+    if (clear) {
+      this._combinedEntry?.dispose();
+      this._combinedEntry = void 0;
+    }
+    this._delayer.trigger(() => this._doUpdate());
+  }
+  async _doUpdate() {
+    const editor = getCodeEditor(this._editorService.activeTextEditorControl);
+    this._renderDisposables.clear();
+    editor?.onDidChangeModelLanguage(() => this._update(true), this, this._renderDisposables);
+    editor?.onDidChangeModelContent(() => this._update(false), this, this._renderDisposables);
+    const editorModel = editor?.getModel();
+    const editorUri = editorModel?.uri;
+    const existingId = editorModel?.getLanguageId();
+    const enablementConfig = this._configurationService.getValue("workbench.editor.languageDetectionHints");
+    const enabled = typeof enablementConfig === "object" && enablementConfig?.untitledEditors;
+    const disableLightbulb = !enabled || editorUri?.scheme !== Schemas.untitled || !existingId;
+    if (disableLightbulb || !editorUri) {
+      this._combinedEntry?.dispose();
+      this._combinedEntry = void 0;
+    } else {
+      const lang = await this._languageDetectionService.detectLanguage(editorUri);
+      const skip = { "jsonc": "json" };
+      const existing = editorModel.getLanguageId();
+      if (lang && lang !== existing && skip[existing] !== lang) {
+        const detectedName = this._languageService.getLanguageName(lang) || lang;
+        const tooltip = this._keybindingService.appendKeybinding(localize("status.autoDetectLanguage", "Accept Detected Language: {0}", detectedName), detectLanguageCommandId);
+        const props = {
+          name: localize("langDetection.name", "Language Detection"),
+          ariaLabel: localize("langDetection.aria", "Change to Detected Language: {0}", lang),
+          tooltip,
+          command: detectLanguageCommandId,
+          text: "$(lightbulb-autofix)"
+        };
+        if (!this._combinedEntry) {
+          this._combinedEntry = this._statusBarService.addEntry(props, LanguageDetectionStatusContribution_1._id, 1, { location: { id: "status.editor.mode", priority: 100.1 }, alignment: 1, compact: true });
+        } else {
+          this._combinedEntry.update(props);
+        }
+      } else {
+        this._combinedEntry?.dispose();
+        this._combinedEntry = void 0;
+      }
+    }
+  }
+};
+LanguageDetectionStatusContribution = LanguageDetectionStatusContribution_1 = __decorate([
+  __param(0, ILanguageDetectionService),
+  __param(1, IStatusbarService),
+  __param(2, IConfigurationService),
+  __param(3, IEditorService),
+  __param(4, ILanguageService),
+  __param(5, IKeybindingService)
+], LanguageDetectionStatusContribution);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  LanguageDetectionStatusContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: detectLanguageCommandId,
+      title: localize2("detectlang", "Detect Language from Content"),
+      f1: true,
+      precondition: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.toNegated(), EditorContextKeys.editorTextFocus),
+      keybinding: {
+        primary: 34 | 512 | 1024,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const languageDetectionService = accessor.get(ILanguageDetectionService);
+    const editor = getCodeEditor(editorService.activeTextEditorControl);
+    const notificationService = accessor.get(INotificationService);
+    const editorUri = editor?.getModel()?.uri;
+    if (editorUri) {
+      const lang = await languageDetectionService.detectLanguage(editorUri);
+      if (lang) {
+        editor.getModel()?.setLanguage(lang, LanguageDetectionLanguageEventSource);
+      } else {
+        notificationService.warn(localize("noDetection", "Unable to detect editor language"));
+      }
+    }
+  }
+});
+//# sourceMappingURL=languageDetection.contribution.js.map

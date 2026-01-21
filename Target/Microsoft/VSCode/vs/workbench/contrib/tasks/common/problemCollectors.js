@@ -1,1 +1,498 @@
-import{URI as p}from"../../../../base/common/uri.js";import{Event as m,$wf as u}from"../../../../base/common/event.js";import{$Dd as w,$Ed as k}from"../../../../base/common/lifecycle.js";import{$wW as y,ApplyToKind as c,$vW as M}from"./problemMatcher.js";import{IMarkerData as P}from"../../../../platform/markers/common/markers.js";import{$kn as S}from"../../../../base/common/uuid.js";import{$m as v}from"../../../../base/common/platform.js";var d;(function(o){o.BackgroundProcessingBegins="backgroundProcessingBegins",o.BackgroundProcessingEnds="backgroundProcessingEnds"})(d||(d={}));var a;(function(o){function t(e){return Object.freeze({kind:e})}o.create=t})(a||(a={}));class g extends k{constructor(t,e,i,r){super(),this.problemMatchers=t,this.C=e,this.F=i,this.m=new w,this.w=new u,this.onDidFindFirstMatch=this.w.event,this.y=new u,this.onDidFindErrors=this.y.event,this.z=new u,this.onDidRequestInvalidateLastMarker=this.z.event,this.a=Object.create(null),this.h=1,t.map(s=>y(s,r)).forEach(s=>{const h=s.matchLength;h>this.h&&(this.h=h);let n=this.a[h];n||(n=[],this.a[h]=n),n.push(s)}),this.g=[],this.b=null,this.c=0,this.f=void 0,this.j=Object.create(null),this.q=new Map;for(const s of t){const h=this.q.get(s.owner);h===void 0?this.q.set(s.owner,s.applyTo):this.q.set(s.owner,this.J(h,s.applyTo))}this.r=new Map,this.s=new Map,this.t=new Map,this.D(this.F.onModelAdded(s=>{this.j[s.uri.toString()]=!0},this,this.m)),this.D(this.F.onModelRemoved(s=>{delete this.j[s.uri.toString()]},this,this.m)),this.F.getModels().forEach(s=>this.j[s.uri.toString()]=!0),this.u=new u}get onDidStateChange(){return this.u.event}processLine(t){if(this.n){const e=this.n;this.n=e.then(()=>this.G(t))}else this.n=this.G(t)}dispose(){super.dispose(),this.m.dispose()}get numberOfMatches(){return this.c}get maxMarkerSeverity(){return this.f}H(t){let e=null;if(this.b){if(e=this.b.next(t),e)return this.M(e),e;this.N(),this.b=null}if(this.g.length<this.h)this.g.push(t);else{const i=this.g.length-1;for(let r=0;r<i;r++)this.g[r]=this.g[r+1];this.g[i]=t}return e=this.L(),e&&this.N(),e}async I(t){switch(t.description.applyTo){case c.allDocuments:return!0;case c.openDocuments:return!!this.j[(await t.resource).toString()];case c.closedDocuments:return!this.j[(await t.resource).toString()];default:return!0}}J(t,e){return t===e||t===c.allDocuments?t:c.allDocuments}L(){this.b=null;const t=this.g.length;for(let e=0;e<t;e++){const i=this.a[t-e];if(i)for(const r of i){const s=r.handle(this.g,e);if(s.match)return this.M(s.match),s.continue&&(this.b=r),s.match}}return null}M(t){this.c++,(this.f===void 0||t.marker.severity>this.f)&&(this.f=t.marker.severity)}N(){this.g.length>0&&(this.g=[])}O(t){const e=this.R(t);this.C.read({owner:t}).forEach(i=>e.set(i.resource.toString(),i.resource))}P(t,e){this.R(t).set(e.toString(),e)}Q(t,e){this.r.get(t)?.delete(e)}R(t){let e=this.r.get(t);return e||(e=new Map,this.r.set(t,e)),e}S(){this.r.forEach((t,e)=>{this.W(e,t)}),this.r=new Map}U(t){const e=this.r.get(t);e&&(this.W(t,e),this.r.delete(t))}W(t,e){const i=[],r=this.q.get(t);e.forEach((s,h)=>{(r===c.allDocuments||r===c.openDocuments&&this.j[h]||r===c.closedDocuments&&!this.j[h])&&i.push(s)}),this.C.remove(t,i)}X(t,e,i){let r=this.s.get(e);r||(r=new Map,this.s.set(e,r));let s=r.get(i);s||(s=new Map,r.set(i,s));const h=P.makeKeyOptionalMessage(t,!1);let n;s.has(h)?(n=s.get(h))!==void 0&&n.message.length<t.message.length&&v&&s.set(h,t):s.set(h,t)}Y(){this.s.forEach((t,e)=>{const i=this.ab(e);t.forEach((r,s)=>{this.$(e,s,r,i)})})}Z(t,e){const i=this.s.get(t);if(!i)return;const r=this.ab(t),s=i.get(e);s&&this.$(t,e,s,r)}$(t,e,i,r){if(i.size!==r.get(e)){const s=[];i.forEach(h=>s.push(h)),this.C.changeOne(t,p.parse(e),s),r.set(e,i.size)}}ab(t){let e=this.t.get(t);return e||(e=new Map,this.t.set(t,e)),e}bb(){this.c=0,this.f=void 0,this.s.clear(),this.t.clear()}done(){this.Y(),this.S()}}var l;(function(o){o[o.Clean=0]="Clean"})(l||(l={}));class B extends g{constructor(t,e,i,r=0,s){super(t,e,i,s),this.fb=!1;const h=Object.create(null);t.forEach(n=>h[n.owner]=!0),this.cb=Object.keys(h),this.cb.forEach(n=>{this.O(n)})}async G(t){this.fb||(this.fb=!0,this.u.fire(a.create("backgroundProcessingBegins")));const e=this.H(t);if(!e)return;const i=e.description.owner,s=(await e.resource).toString();this.Q(i,s),await this.I(e)&&(this.X(e.marker,i,s),(this.db!==i||this.eb!==s)&&(this.db&&this.eb&&this.Z(this.db,this.eb),this.db=i,this.eb=s))}}class R extends g{constructor(t,e,i,r){super(t,e,i,r),this.gb=[],this.beginPatterns=[],this.kb(),this.cb=[],this.db=new Set,this.problemMatchers.forEach(s=>{if(s.watching){const h=S();this.cb.push({key:h,matcher:s,begin:s.watching.beginsPattern,end:s.watching.endsPattern}),this.beginPatterns.push(s.watching.beginsPattern.regexp)}}),this.m.add(this.F.onModelRemoved(s=>{let h=m.debounce(this.C.onMarkerChanged,(n,f)=>(n??[]).concat(f),500,!1,!0)(async n=>{if(!n||!n.includes(s.uri)||this.C.read({resource:s.uri}).length!==0)return;const f=Array.from(this.gb);for(const b of f)await this.G(b)});this.D(h),setTimeout(()=>{if(h){const n=h;h=void 0,n.dispose()}},600)}))}aboutToStart(){for(const t of this.cb)t.matcher.watching&&t.matcher.watching.activeOnStart&&(this.db.add(t.key),this.u.fire(a.create("backgroundProcessingBegins")),this.O(t.matcher.owner))}async G(t){if(await this.ib(t)||this.jb(t))return;this.gb.push(t);const e=this.H(t);if(!e)return;const i=await e.resource,r=e.description.owner,s=i.toString();this.Q(r,s),await this.I(e)&&(this.X(e.marker,r,s),(this.eb!==r||this.fb!==s)&&(this.lb(),this.eb=r,this.fb=s))}forceDelivery(){this.lb()}async ib(t){let e=!1;for(const i of this.cb){const r=i.begin.regexp.exec(t);if(r){if(this.db.has(i.key))continue;this.db.add(i.key),e=!0,this.w.fire(),this.gb=[],this.gb.push(t),this.u.fire(a.create("backgroundProcessingBegins")),this.bb(),this.kb();const s=i.matcher.owner,h=r[i.begin.file];if(h){const n=M(h,i.matcher);this.P(s,await n)}else this.O(s)}}return e}jb(t){let e=!1;for(const i of this.cb)if(i.end.regexp.exec(t)&&(this.c>0?this.y.fire(this.C.read({owner:i.matcher.owner})):this.z.fire(),this.db.delete(i.key))){this.kb(),this.u.fire(a.create("backgroundProcessingEnds")),e=!0,this.gb.push(t);const s=i.matcher.owner;this.U(s),this.bb()}return e}kb(){this.lb(),this.eb=void 0,this.fb=void 0}lb(){this.eb&&this.fb&&this.Z(this.eb,this.fb)}done(){[...this.q.keys()].forEach(t=>{this.O(t)}),super.done()}isWatching(){return this.cb.length>0}}export{g as $lBc,B as $mBc,R as $nBc,d as ProblemCollectorEventKind,l as ProblemHandlingStrategy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { DisposableStore, Disposable } from "../../../../base/common/lifecycle.js";
+import { createLineMatcher, ApplyToKind, getResource } from "./problemMatcher.js";
+import { IMarkerData } from "../../../../platform/markers/common/markers.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { isWindows } from "../../../../base/common/platform.js";
+var ProblemCollectorEventKind;
+(function(ProblemCollectorEventKind2) {
+  ProblemCollectorEventKind2["BackgroundProcessingBegins"] = "backgroundProcessingBegins";
+  ProblemCollectorEventKind2["BackgroundProcessingEnds"] = "backgroundProcessingEnds";
+})(ProblemCollectorEventKind || (ProblemCollectorEventKind = {}));
+var IProblemCollectorEvent;
+(function(IProblemCollectorEvent2) {
+  function create(kind) {
+    return Object.freeze({ kind });
+  }
+  __name(create, "create");
+  IProblemCollectorEvent2.create = create;
+})(IProblemCollectorEvent || (IProblemCollectorEvent = {}));
+class AbstractProblemCollector extends Disposable {
+  static {
+    __name(this, "AbstractProblemCollector");
+  }
+  constructor(problemMatchers, markerService, modelService, fileService) {
+    super();
+    this.problemMatchers = problemMatchers;
+    this.markerService = markerService;
+    this.modelService = modelService;
+    this.modelListeners = new DisposableStore();
+    this._onDidFindFirstMatch = new Emitter();
+    this.onDidFindFirstMatch = this._onDidFindFirstMatch.event;
+    this._onDidFindErrors = new Emitter();
+    this.onDidFindErrors = this._onDidFindErrors.event;
+    this._onDidRequestInvalidateLastMarker = new Emitter();
+    this.onDidRequestInvalidateLastMarker = this._onDidRequestInvalidateLastMarker.event;
+    this.matchers = /* @__PURE__ */ Object.create(null);
+    this.bufferLength = 1;
+    problemMatchers.map((elem) => createLineMatcher(elem, fileService)).forEach((matcher) => {
+      const length = matcher.matchLength;
+      if (length > this.bufferLength) {
+        this.bufferLength = length;
+      }
+      let value = this.matchers[length];
+      if (!value) {
+        value = [];
+        this.matchers[length] = value;
+      }
+      value.push(matcher);
+    });
+    this.buffer = [];
+    this.activeMatcher = null;
+    this._numberOfMatches = 0;
+    this._maxMarkerSeverity = void 0;
+    this.openModels = /* @__PURE__ */ Object.create(null);
+    this.applyToByOwner = /* @__PURE__ */ new Map();
+    for (const problemMatcher of problemMatchers) {
+      const current = this.applyToByOwner.get(problemMatcher.owner);
+      if (current === void 0) {
+        this.applyToByOwner.set(problemMatcher.owner, problemMatcher.applyTo);
+      } else {
+        this.applyToByOwner.set(problemMatcher.owner, this.mergeApplyTo(current, problemMatcher.applyTo));
+      }
+    }
+    this.resourcesToClean = /* @__PURE__ */ new Map();
+    this.markers = /* @__PURE__ */ new Map();
+    this.deliveredMarkers = /* @__PURE__ */ new Map();
+    this._register(this.modelService.onModelAdded((model) => {
+      this.openModels[model.uri.toString()] = true;
+    }, this, this.modelListeners));
+    this._register(this.modelService.onModelRemoved((model) => {
+      delete this.openModels[model.uri.toString()];
+    }, this, this.modelListeners));
+    this.modelService.getModels().forEach((model) => this.openModels[model.uri.toString()] = true);
+    this._onDidStateChange = new Emitter();
+  }
+  get onDidStateChange() {
+    return this._onDidStateChange.event;
+  }
+  processLine(line) {
+    if (this.tail) {
+      const oldTail = this.tail;
+      this.tail = oldTail.then(() => {
+        return this.processLineInternal(line);
+      });
+    } else {
+      this.tail = this.processLineInternal(line);
+    }
+  }
+  dispose() {
+    super.dispose();
+    this.modelListeners.dispose();
+  }
+  get numberOfMatches() {
+    return this._numberOfMatches;
+  }
+  get maxMarkerSeverity() {
+    return this._maxMarkerSeverity;
+  }
+  tryFindMarker(line) {
+    let result = null;
+    if (this.activeMatcher) {
+      result = this.activeMatcher.next(line);
+      if (result) {
+        this.captureMatch(result);
+        return result;
+      }
+      this.clearBuffer();
+      this.activeMatcher = null;
+    }
+    if (this.buffer.length < this.bufferLength) {
+      this.buffer.push(line);
+    } else {
+      const end = this.buffer.length - 1;
+      for (let i = 0; i < end; i++) {
+        this.buffer[i] = this.buffer[i + 1];
+      }
+      this.buffer[end] = line;
+    }
+    result = this.tryMatchers();
+    if (result) {
+      this.clearBuffer();
+    }
+    return result;
+  }
+  async shouldApplyMatch(result) {
+    switch (result.description.applyTo) {
+      case ApplyToKind.allDocuments:
+        return true;
+      case ApplyToKind.openDocuments:
+        return !!this.openModels[(await result.resource).toString()];
+      case ApplyToKind.closedDocuments:
+        return !this.openModels[(await result.resource).toString()];
+      default:
+        return true;
+    }
+  }
+  mergeApplyTo(current, value) {
+    if (current === value || current === ApplyToKind.allDocuments) {
+      return current;
+    }
+    return ApplyToKind.allDocuments;
+  }
+  tryMatchers() {
+    this.activeMatcher = null;
+    const length = this.buffer.length;
+    for (let startIndex = 0; startIndex < length; startIndex++) {
+      const candidates = this.matchers[length - startIndex];
+      if (!candidates) {
+        continue;
+      }
+      for (const matcher of candidates) {
+        const result = matcher.handle(this.buffer, startIndex);
+        if (result.match) {
+          this.captureMatch(result.match);
+          if (result.continue) {
+            this.activeMatcher = matcher;
+          }
+          return result.match;
+        }
+      }
+    }
+    return null;
+  }
+  captureMatch(match) {
+    this._numberOfMatches++;
+    if (this._maxMarkerSeverity === void 0 || match.marker.severity > this._maxMarkerSeverity) {
+      this._maxMarkerSeverity = match.marker.severity;
+    }
+  }
+  clearBuffer() {
+    if (this.buffer.length > 0) {
+      this.buffer = [];
+    }
+  }
+  recordResourcesToClean(owner) {
+    const resourceSetToClean = this.getResourceSetToClean(owner);
+    this.markerService.read({ owner }).forEach((marker) => resourceSetToClean.set(marker.resource.toString(), marker.resource));
+  }
+  recordResourceToClean(owner, resource) {
+    this.getResourceSetToClean(owner).set(resource.toString(), resource);
+  }
+  removeResourceToClean(owner, resource) {
+    const resourceSet = this.resourcesToClean.get(owner);
+    resourceSet?.delete(resource);
+  }
+  getResourceSetToClean(owner) {
+    let result = this.resourcesToClean.get(owner);
+    if (!result) {
+      result = /* @__PURE__ */ new Map();
+      this.resourcesToClean.set(owner, result);
+    }
+    return result;
+  }
+  cleanAllMarkers() {
+    this.resourcesToClean.forEach((value, owner) => {
+      this._cleanMarkers(owner, value);
+    });
+    this.resourcesToClean = /* @__PURE__ */ new Map();
+  }
+  cleanMarkers(owner) {
+    const toClean = this.resourcesToClean.get(owner);
+    if (toClean) {
+      this._cleanMarkers(owner, toClean);
+      this.resourcesToClean.delete(owner);
+    }
+  }
+  _cleanMarkers(owner, toClean) {
+    const uris = [];
+    const applyTo = this.applyToByOwner.get(owner);
+    toClean.forEach((uri, uriAsString) => {
+      if (applyTo === ApplyToKind.allDocuments || applyTo === ApplyToKind.openDocuments && this.openModels[uriAsString] || applyTo === ApplyToKind.closedDocuments && !this.openModels[uriAsString]) {
+        uris.push(uri);
+      }
+    });
+    this.markerService.remove(owner, uris);
+  }
+  recordMarker(marker, owner, resourceAsString) {
+    let markersPerOwner = this.markers.get(owner);
+    if (!markersPerOwner) {
+      markersPerOwner = /* @__PURE__ */ new Map();
+      this.markers.set(owner, markersPerOwner);
+    }
+    let markersPerResource = markersPerOwner.get(resourceAsString);
+    if (!markersPerResource) {
+      markersPerResource = /* @__PURE__ */ new Map();
+      markersPerOwner.set(resourceAsString, markersPerResource);
+    }
+    const key = IMarkerData.makeKeyOptionalMessage(marker, false);
+    let existingMarker;
+    if (!markersPerResource.has(key)) {
+      markersPerResource.set(key, marker);
+    } else if ((existingMarker = markersPerResource.get(key)) !== void 0 && existingMarker.message.length < marker.message.length && isWindows) {
+      markersPerResource.set(key, marker);
+    }
+  }
+  reportMarkers() {
+    this.markers.forEach((markersPerOwner, owner) => {
+      const deliveredMarkersPerOwner = this.getDeliveredMarkersPerOwner(owner);
+      markersPerOwner.forEach((markers, resource) => {
+        this.deliverMarkersPerOwnerAndResourceResolved(owner, resource, markers, deliveredMarkersPerOwner);
+      });
+    });
+  }
+  deliverMarkersPerOwnerAndResource(owner, resource) {
+    const markersPerOwner = this.markers.get(owner);
+    if (!markersPerOwner) {
+      return;
+    }
+    const deliveredMarkersPerOwner = this.getDeliveredMarkersPerOwner(owner);
+    const markersPerResource = markersPerOwner.get(resource);
+    if (!markersPerResource) {
+      return;
+    }
+    this.deliverMarkersPerOwnerAndResourceResolved(owner, resource, markersPerResource, deliveredMarkersPerOwner);
+  }
+  deliverMarkersPerOwnerAndResourceResolved(owner, resource, markers, reported) {
+    if (markers.size !== reported.get(resource)) {
+      const toSet = [];
+      markers.forEach((value) => toSet.push(value));
+      this.markerService.changeOne(owner, URI.parse(resource), toSet);
+      reported.set(resource, markers.size);
+    }
+  }
+  getDeliveredMarkersPerOwner(owner) {
+    let result = this.deliveredMarkers.get(owner);
+    if (!result) {
+      result = /* @__PURE__ */ new Map();
+      this.deliveredMarkers.set(owner, result);
+    }
+    return result;
+  }
+  cleanMarkerCaches() {
+    this._numberOfMatches = 0;
+    this._maxMarkerSeverity = void 0;
+    this.markers.clear();
+    this.deliveredMarkers.clear();
+  }
+  done() {
+    this.reportMarkers();
+    this.cleanAllMarkers();
+  }
+}
+var ProblemHandlingStrategy;
+(function(ProblemHandlingStrategy2) {
+  ProblemHandlingStrategy2[ProblemHandlingStrategy2["Clean"] = 0] = "Clean";
+})(ProblemHandlingStrategy || (ProblemHandlingStrategy = {}));
+class StartStopProblemCollector extends AbstractProblemCollector {
+  static {
+    __name(this, "StartStopProblemCollector");
+  }
+  constructor(problemMatchers, markerService, modelService, _strategy = 0, fileService) {
+    super(problemMatchers, markerService, modelService, fileService);
+    this._hasStarted = false;
+    const ownerSet = /* @__PURE__ */ Object.create(null);
+    problemMatchers.forEach((description) => ownerSet[description.owner] = true);
+    this.owners = Object.keys(ownerSet);
+    this.owners.forEach((owner) => {
+      this.recordResourcesToClean(owner);
+    });
+  }
+  async processLineInternal(line) {
+    if (!this._hasStarted) {
+      this._hasStarted = true;
+      this._onDidStateChange.fire(IProblemCollectorEvent.create(
+        "backgroundProcessingBegins"
+        /* ProblemCollectorEventKind.BackgroundProcessingBegins */
+      ));
+    }
+    const markerMatch = this.tryFindMarker(line);
+    if (!markerMatch) {
+      return;
+    }
+    const owner = markerMatch.description.owner;
+    const resource = await markerMatch.resource;
+    const resourceAsString = resource.toString();
+    this.removeResourceToClean(owner, resourceAsString);
+    const shouldApplyMatch = await this.shouldApplyMatch(markerMatch);
+    if (shouldApplyMatch) {
+      this.recordMarker(markerMatch.marker, owner, resourceAsString);
+      if (this.currentOwner !== owner || this.currentResource !== resourceAsString) {
+        if (this.currentOwner && this.currentResource) {
+          this.deliverMarkersPerOwnerAndResource(this.currentOwner, this.currentResource);
+        }
+        this.currentOwner = owner;
+        this.currentResource = resourceAsString;
+      }
+    }
+  }
+}
+class WatchingProblemCollector extends AbstractProblemCollector {
+  static {
+    __name(this, "WatchingProblemCollector");
+  }
+  constructor(problemMatchers, markerService, modelService, fileService) {
+    super(problemMatchers, markerService, modelService, fileService);
+    this.lines = [];
+    this.beginPatterns = [];
+    this.resetCurrentResource();
+    this.backgroundPatterns = [];
+    this._activeBackgroundMatchers = /* @__PURE__ */ new Set();
+    this.problemMatchers.forEach((matcher) => {
+      if (matcher.watching) {
+        const key = generateUuid();
+        this.backgroundPatterns.push({
+          key,
+          matcher,
+          begin: matcher.watching.beginsPattern,
+          end: matcher.watching.endsPattern
+        });
+        this.beginPatterns.push(matcher.watching.beginsPattern.regexp);
+      }
+    });
+    this.modelListeners.add(this.modelService.onModelRemoved((modelEvent) => {
+      let markerChanged = Event.debounce(this.markerService.onMarkerChanged, (last, e) => (last ?? []).concat(e), 500, false, true)(async (markerEvent) => {
+        if (!markerEvent || !markerEvent.includes(modelEvent.uri) || this.markerService.read({ resource: modelEvent.uri }).length !== 0) {
+          return;
+        }
+        const oldLines = Array.from(this.lines);
+        for (const line of oldLines) {
+          await this.processLineInternal(line);
+        }
+      });
+      this._register(markerChanged);
+      setTimeout(() => {
+        if (markerChanged) {
+          const _markerChanged = markerChanged;
+          markerChanged = void 0;
+          _markerChanged.dispose();
+        }
+      }, 600);
+    }));
+  }
+  aboutToStart() {
+    for (const background of this.backgroundPatterns) {
+      if (background.matcher.watching && background.matcher.watching.activeOnStart) {
+        this._activeBackgroundMatchers.add(background.key);
+        this._onDidStateChange.fire(IProblemCollectorEvent.create(
+          "backgroundProcessingBegins"
+          /* ProblemCollectorEventKind.BackgroundProcessingBegins */
+        ));
+        this.recordResourcesToClean(background.matcher.owner);
+      }
+    }
+  }
+  async processLineInternal(line) {
+    if (await this.tryBegin(line) || this.tryFinish(line)) {
+      return;
+    }
+    this.lines.push(line);
+    const markerMatch = this.tryFindMarker(line);
+    if (!markerMatch) {
+      return;
+    }
+    const resource = await markerMatch.resource;
+    const owner = markerMatch.description.owner;
+    const resourceAsString = resource.toString();
+    this.removeResourceToClean(owner, resourceAsString);
+    const shouldApplyMatch = await this.shouldApplyMatch(markerMatch);
+    if (shouldApplyMatch) {
+      this.recordMarker(markerMatch.marker, owner, resourceAsString);
+      if (this.currentOwner !== owner || this.currentResource !== resourceAsString) {
+        this.reportMarkersForCurrentResource();
+        this.currentOwner = owner;
+        this.currentResource = resourceAsString;
+      }
+    }
+  }
+  forceDelivery() {
+    this.reportMarkersForCurrentResource();
+  }
+  async tryBegin(line) {
+    let result = false;
+    for (const background of this.backgroundPatterns) {
+      const matches = background.begin.regexp.exec(line);
+      if (matches) {
+        if (this._activeBackgroundMatchers.has(background.key)) {
+          continue;
+        }
+        this._activeBackgroundMatchers.add(background.key);
+        result = true;
+        this._onDidFindFirstMatch.fire();
+        this.lines = [];
+        this.lines.push(line);
+        this._onDidStateChange.fire(IProblemCollectorEvent.create(
+          "backgroundProcessingBegins"
+          /* ProblemCollectorEventKind.BackgroundProcessingBegins */
+        ));
+        this.cleanMarkerCaches();
+        this.resetCurrentResource();
+        const owner = background.matcher.owner;
+        const file = matches[background.begin.file];
+        if (file) {
+          const resource = getResource(file, background.matcher);
+          this.recordResourceToClean(owner, await resource);
+        } else {
+          this.recordResourcesToClean(owner);
+        }
+      }
+    }
+    return result;
+  }
+  tryFinish(line) {
+    let result = false;
+    for (const background of this.backgroundPatterns) {
+      const matches = background.end.regexp.exec(line);
+      if (matches) {
+        if (this._numberOfMatches > 0) {
+          this._onDidFindErrors.fire(this.markerService.read({ owner: background.matcher.owner }));
+        } else {
+          this._onDidRequestInvalidateLastMarker.fire();
+        }
+        if (this._activeBackgroundMatchers.delete(background.key)) {
+          this.resetCurrentResource();
+          this._onDidStateChange.fire(IProblemCollectorEvent.create(
+            "backgroundProcessingEnds"
+            /* ProblemCollectorEventKind.BackgroundProcessingEnds */
+          ));
+          result = true;
+          this.lines.push(line);
+          const owner = background.matcher.owner;
+          this.cleanMarkers(owner);
+          this.cleanMarkerCaches();
+        }
+      }
+    }
+    return result;
+  }
+  resetCurrentResource() {
+    this.reportMarkersForCurrentResource();
+    this.currentOwner = void 0;
+    this.currentResource = void 0;
+  }
+  reportMarkersForCurrentResource() {
+    if (this.currentOwner && this.currentResource) {
+      this.deliverMarkersPerOwnerAndResource(this.currentOwner, this.currentResource);
+    }
+  }
+  done() {
+    [...this.applyToByOwner.keys()].forEach((owner) => {
+      this.recordResourcesToClean(owner);
+    });
+    super.done();
+  }
+  isWatching() {
+    return this.backgroundPatterns.length > 0;
+  }
+}
+export {
+  AbstractProblemCollector,
+  ProblemCollectorEventKind,
+  ProblemHandlingStrategy,
+  StartStopProblemCollector,
+  WatchingProblemCollector
+};
+//# sourceMappingURL=problemCollectors.js.map

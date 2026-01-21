@@ -1,1 +1,40 @@
-import{$Lj as u}from"../../../../platform/instantiation/common/instantiation.js";import{$gp as a}from"../../../../platform/storage/common/storage.js";import{$op as l}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as h}from"../../../../platform/theme/common/themeService.js";import{$vNc as _}from"../browser/processExplorerEditor.js";import{$HUc as $}from"./processExplorerControl.js";var s=function(c,t,o,e){var n=arguments.length,r=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,o):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,t,o,e);else for(var p=c.length-1;p>=0;p--)(f=c[p])&&(r=(n<3?f(r):n>3?f(t,o,r):f(t,o))||r);return n>3&&r&&Object.defineProperty(t,o,r),r},i=function(c,t){return function(o,e){t(o,e,c)}};let m=class extends _{constructor(t,o,e,n,r){super(t,o,e,n,r)}bb(t){this.a=this.D(this.b.createInstance($,t))}};m=s([i(1,l),i(2,h),i(3,a),i(4,u)],m);export{m as $IUc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ProcessExplorerEditor } from "../browser/processExplorerEditor.js";
+import { NativeProcessExplorerControl } from "./processExplorerControl.js";
+let NativeProcessExplorerEditor = class NativeProcessExplorerEditor2 extends ProcessExplorerEditor {
+  static {
+    __name(this, "NativeProcessExplorerEditor");
+  }
+  constructor(group, telemetryService, themeService, storageService, instantiationService) {
+    super(group, telemetryService, themeService, storageService, instantiationService);
+  }
+  createEditor(parent) {
+    this.processExplorerControl = this._register(this.instantiationService.createInstance(NativeProcessExplorerControl, parent));
+  }
+};
+NativeProcessExplorerEditor = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IInstantiationService)
+], NativeProcessExplorerEditor);
+export {
+  NativeProcessExplorerEditor
+};
+//# sourceMappingURL=processExplorerEditor.js.map

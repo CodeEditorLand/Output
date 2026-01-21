@@ -1,2 +1,381 @@
-import{$ as et,$38 as z,n as c}from"../../../../../../../base/browser/dom.js";import{$R9 as it}from"../../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$4$ as ot,$3$ as nt}from"../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{$wf as rt}from"../../../../../../../base/common/event.js";import{$Ed as st}from"../../../../../../../base/common/lifecycle.js";import{constObservable as q,derived as v,observableFromEvent as W,observableFromPromise as dt,observableValue as j}from"../../../../../../../base/common/observable.js";import{OS as at}from"../../../../../../../base/common/platform.js";import{localize as R}from"../../../../../../../nls.js";import{$7ib as lt}from"../../../../../../../platform/hover/browser/hover.js";import{$cy as ct}from"../../../../../../../platform/keybinding/common/keybinding.js";import{$jr as I}from"../../../../../../../platform/theme/common/colorRegistry.js";import{$gq as ht}from"../../../../../../../platform/theme/common/colors/baseColors.js";import{$Vp as f}from"../../../../../../../platform/theme/common/colorUtils.js";import{$ou as mt}from"../../../../../../../platform/theme/common/themeService.js";import{$8hb as pt,$7hb as ft,$9hb as ut}from"../../../../../../browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";import{$Hhb as F}from"../../../../../../common/core/2d/point.js";import{Rect as N}from"../../../../../../common/core/2d/rect.js";import{$xE as bt}from"../../../../../../common/core/edits/stringEdit.js";import{$eE as gt}from"../../../../../../common/core/ranges/offsetRange.js";import{$WF as vt}from"../../../../../../common/languages/language.js";import{$9E as yt,$$E as $t}from"../../../../../../common/tokens/lineTokens.js";import{$dmb as wt}from"../../../controller/commandIds.js";import{$tnb as xt}from"../inlineEditsViewInterface.js";import{$Mtb as G,$Jtb as Ct,$Ktb as Lt,$Otb as M,$Btb as Et,$Atb as kt,$ztb as At,$ytb as St,$Ntb as J,$wtb as Ot}from"../theme.js";import{$Utb as qt,$3tb as K,$5tb as D}from"../utils/utils.js";var tt=function(h,o,n,d){var w=arguments.length,a=w<3?o:d===null?d=Object.getOwnPropertyDescriptor(o,n):d,x;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(h,o,n,d);else for(var k=h.length-1;k>=0;k--)(x=h[k])&&(a=(w<3?x(a):w>3?x(o,n,a):x(o,n))||a);return w>3&&a&&Object.defineProperty(o,n,a),a},_=function(h,o){return function(n,d){o(n,d,h)}};class oe{constructor(o,n,d){this.edit=o,this.editorType=n,this.alternativeAction=d}equals(o){return this.edit.equals(o.edit)&&this.alternativeAction===o.alternativeAction}}const r=1,U="word-replacement-view-overlay",V="word-replacement-view-widget",X="word-replacement-view-replacement",T="word-replacement-view-rename";let Y=class extends st{static{this.MAX_LENGTH=100}constructor(o,n,d,w,a,x,k){super(),this.m=o,this.q=n,this.u=d,this.z=w,this.C=a,this.F=x,this.G=k,this.a=this.D(new rt),this.onDidClick=this.a.event,this.b=this.m.observePosition(q(this.q.edit.range.getStartPosition()),this.B),this.f=this.m.observePosition(q(this.q.edit.range.getEndPosition()),this.B),this.g=document.createElement("div"),this.h=j(this,null),this.j=j(this,null),this.isHovered=this.h.map((e,i)=>e?.didMouseMoveDuringHover.read(i)??!1),this.H=v(this,e=>{const i=this.m.model.get(),u=i.getLineContent(this.q.edit.range.startLineNumber),y=bt.replace(new gt(this.q.edit.range.startColumn-1,this.q.edit.range.endColumn-1),this.q.edit.text),A=y.replace(u),m=i.tokenization.tokenizeLinesAt(this.q.edit.range.startLineNumber,[A])?.[0];let b;m?b=$t.fromLineTokens(m).slice(y.getRangeAfterReplace()).toLineTokens(this.q.edit.text,this.z.languageIdCodec):b=yt.createEmpty(this.q.edit.text,this.z.languageIdCodec);const H=ft(new pt([b]),ut.fromEditor(this.m.editor).withSetWidth(!1).withScrollBeyondLastColumn(0),[],this.g,!0);this.g.style.width=`${H.minWidthInPx}px`});const Q=this.m.observeLineHeightForPosition(this.q.edit.range.getStartPosition()),Z=dt(this.q.alternativeAction?.count??new Promise(e=>e(void 0))).map(e=>e.value),P=W(this,z.getInstance().event,()=>z.getInstance().keyStatus.shiftKey);this.I=v(this,e=>{this.H.read(e);const i=this.b.read(e),u=this.f.read(e);if(!i||!u||i.x>u.x||i.y>u.y)return;const y=Q.read(e),A=this.m.scrollLeft.read(e),m=this.m.getOption(59).read(e).typicalHalfwidthCharacterWidth,b=3*m,H=4,g=new F(b,H);let $;if(this.q.alternativeAction){const l=this.q.alternativeAction.label,t=Z.read(e),p=P.read(e),E=t!==void 0?t===1?R(1388,null,l):R(1389,null,l,t):l,B=R(1390,null,"[shift]");$={label:t!==void 0&&p?E:l,tooltip:E?`${E}
-${B}`:void 0,icon:void 0,count:t,keybinding:this.F.lookupKeybinding(wt),active:P}}const C=N.fromPoints(i,u).withHeight(y).translateX(-A),S=N.fromPointSize(C.getLeftBottom().add(g),new F(this.q.edit.text.length*m,C.height)),L=S.withWidth(S.width+($?$.label.length*m+8+4+12:0)),O=L.withLeft(C.left);return{alternativeAction:$,originalLine:C,codeLine:S,modifiedLine:L,lowerBackground:O,lineHeight:y}}),this.minEditorScrollHeight=v(this,e=>{const i=K(this.I).read(e);return i?i.read(e).modifiedLine.bottom+r+this.m.editor.getScrollTop():0}),this.J=c.div({class:"word-replacement"},[v(this,e=>{const i=K(this.I).read(e);if(!i)return[];const u=Lt(this.u).map(t=>f(t)).read(e),y=Ct(this.u).map(t=>f(t)).read(e);this.g.style.lineHeight=`${i.read(e).modifiedLine.height+2*r}px`;const A=q(!1),m=i.map(t=>t.alternativeAction),b=v(t=>(m.read(t)?.active.read(t)??!1)||A.read(t)),g=W(this.C.onDidColorThemeChange,()=>{const t=this.C.getColorTheme();return t.type==="hcDark"||t.type==="hcLight"}).read(e)?J(ht,this.C).read(e):null,$={borderColor:g?g.toString():y,backgroundColor:f(St),color:"",opacity:"1"},C={borderColor:g?g.toString():f(kt),backgroundColor:f(Et),color:f(At),opacity:"1"},S={borderColor:g?g.toString():J(I,this.C).map(t=>t.transparent(.2).toString()).read(e),backgroundColor:G(this.q.editorType),color:"",opacity:"0.7"},L=G(this.q.editorType),O=v(this,t=>(b.read(t),$)),l=v(this,t=>b.read(t)?C:S);return[c.div({id:U,style:{position:"absolute",...D(t=>qt(this.m).read(t)),overflow:"hidden",pointerEvents:"none"}},[c.div({style:{position:"absolute",...D(t=>i.read(t).lowerBackground.withMargin(r,2*r,r,0)),background:L,cursor:"pointer",pointerEvents:"auto"},onmousedown:t=>this.L(t)}),c.div({id:V,style:{position:"absolute",...D(t=>i.read(t).modifiedLine.withMargin(r,2*r)),width:void 0,pointerEvents:"auto",boxSizing:"border-box",borderRadius:`${M}px`,background:L,display:"flex",justifyContent:"left",outline:`2px solid ${L}`},onmousedown:t=>this.L(t)},[c.div({id:X,style:{fontFamily:this.m.getOption(58),fontSize:this.m.getOption(61),fontWeight:this.m.getOption(62),width:D(t=>i.read(t).codeLine.withMargin(r,2*r)).width,borderRadius:`${M}px`,border:O.map(t=>`${r}px solid ${t.borderColor}`),boxSizing:"border-box",padding:`${r}px`,opacity:O.map(t=>t.opacity),background:O.map(t=>t.backgroundColor),display:"flex",justifyContent:"left",alignItems:"center",pointerEvents:"auto",cursor:"pointer"},obsRef:t=>{this.h.set(t,void 0)}},[this.g]),v(this,t=>{const p=m.read(t);if(!p)return;const E=document.createElement("div");return t.store.add(new ot(E,at,{...nt,disableTitle:!0})).set(p.keybinding),c.div({id:T,style:{position:"relative",borderRadius:`${M}px`,borderTop:`${r}px solid`,borderRight:`${r}px solid`,borderBottom:`${r}px solid`,borderLeft:`${r}px solid`,borderColor:l.map(s=>s.borderColor),opacity:l.map(s=>s.opacity),color:l.map(s=>s.color),display:"flex",justifyContent:"center",alignItems:"center",padding:"0 4px 0 1px",marginLeft:"4px",background:l.map(s=>s.backgroundColor),cursor:"pointer",textWrap:"nowrap"},class:"inline-edit-alternative-action-label",obsRef:s=>{this.j.set(s,void 0)},ref:s=>{p.tooltip&&t.store.add(this.G.setupDelayedHoverAtMouse(s,{content:p.tooltip,appearance:{compact:!0}}))}},[E,et("div.inline-edit-alternative-action-label-separator"),p.icon?it(p.icon):void 0,p.label])})]),c.div({style:{position:"absolute",...D(t=>i.read(t).originalLine.withMargin(r)),boxSizing:"border-box",borderRadius:`${M}px`,border:`${r}px solid ${u}`,background:f(Ot),pointerEvents:"none"}},[]),c.svg({width:11,height:14,viewBox:"0 0 11 14",fill:"none",style:{position:"absolute",left:i.map(t=>t.modifiedLine.left-16),top:i.map(t=>t.modifiedLine.top+Math.round((t.lineHeight-14-5)/2)),pointerEvents:"none"},onmousedown:t=>this.L(t)},[c.svgElem("path",{d:"M1 0C1 2.98966 1 5.92087 1 8.49952C1 9.60409 1.89543 10.5 3 10.5H10.5",stroke:f(I)}),c.svgElem("path",{d:"M6 7.5L9.99999 10.49998L6 13.5",stroke:f(I)})])])]})]).keepUpdated(this.B),this.D(this.m.createOverlayWidget({domNode:this.J.element,minContentWidthInPx:q(0),position:q({preference:{top:0,left:0}}),allowEditorOverflow:!1}))}L(o){const n=Dt(o.target,new Set([V,X,T,U]));n&&(o.preventDefault(),this.a.fire(xt.create(o,n===T)))}};Y=tt([_(3,vt),_(4,mt),_(5,ct),_(6,lt)],Y);function Dt(h,o){let n=h;for(;n;){if(o.has(n.id))return n.id;n=n.parentElement}return null}export{oe as $xub,Y as $yub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, ModifierKeyEmitter, n } from "../../../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { KeybindingLabel, unthemedKeybindingLabelOptions } from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { constObservable, derived, observableFromEvent, observableFromPromise, observableValue } from "../../../../../../../base/common/observable.js";
+import { OS } from "../../../../../../../base/common/platform.js";
+import { localize } from "../../../../../../../nls.js";
+import { IHoverService } from "../../../../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../../../../platform/keybinding/common/keybinding.js";
+import { editorHoverForeground } from "../../../../../../../platform/theme/common/colorRegistry.js";
+import { contrastBorder } from "../../../../../../../platform/theme/common/colors/baseColors.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { LineSource, renderLines, RenderOptions } from "../../../../../../browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
+import { Point } from "../../../../../../common/core/2d/point.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { StringReplacement } from "../../../../../../common/core/edits/stringEdit.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { ILanguageService } from "../../../../../../common/languages/language.js";
+import { LineTokens, TokenArray } from "../../../../../../common/tokens/lineTokens.js";
+import { inlineSuggestCommitAlternativeActionId } from "../../../controller/commandIds.js";
+import { InlineEditClickEvent } from "../inlineEditsViewInterface.js";
+import { getEditorBackgroundColor, getModifiedBorderColor, getOriginalBorderColor, INLINE_EDITS_BORDER_RADIUS, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorPrimaryBorder, inlineEditIndicatorPrimaryForeground, modifiedChangedTextOverlayColor, observeColor, originalChangedTextOverlayColor } from "../theme.js";
+import { getEditorValidOverlayRect, mapOutFalsy, rectToProps } from "../utils/utils.js";
+class WordReplacementsViewData {
+  static {
+    __name(this, "WordReplacementsViewData");
+  }
+  constructor(edit, editorType, alternativeAction) {
+    this.edit = edit;
+    this.editorType = editorType;
+    this.alternativeAction = alternativeAction;
+  }
+  equals(other) {
+    return this.edit.equals(other.edit) && this.alternativeAction === other.alternativeAction;
+  }
+}
+const BORDER_WIDTH = 1;
+const DOM_ID_OVERLAY = "word-replacement-view-overlay";
+const DOM_ID_WIDGET = "word-replacement-view-widget";
+const DOM_ID_REPLACEMENT = "word-replacement-view-replacement";
+const DOM_ID_RENAME = "word-replacement-view-rename";
+let InlineEditsWordReplacementView = class InlineEditsWordReplacementView2 extends Disposable {
+  static {
+    __name(this, "InlineEditsWordReplacementView");
+  }
+  static {
+    this.MAX_LENGTH = 100;
+  }
+  constructor(_editor, _viewData, _tabAction, _languageService, _themeService, _keybindingService, _hoverService) {
+    super();
+    this._editor = _editor;
+    this._viewData = _viewData;
+    this._tabAction = _tabAction;
+    this._languageService = _languageService;
+    this._themeService = _themeService;
+    this._keybindingService = _keybindingService;
+    this._hoverService = _hoverService;
+    this._onDidClick = this._register(new Emitter());
+    this.onDidClick = this._onDidClick.event;
+    this._start = this._editor.observePosition(constObservable(this._viewData.edit.range.getStartPosition()), this._store);
+    this._end = this._editor.observePosition(constObservable(this._viewData.edit.range.getEndPosition()), this._store);
+    this._line = document.createElement("div");
+    this._primaryElement = observableValue(this, null);
+    this._secondaryElement = observableValue(this, null);
+    this.isHovered = this._primaryElement.map((e, reader) => e?.didMouseMoveDuringHover.read(reader) ?? false);
+    this._renderTextEffect = derived(this, (_reader) => {
+      const tm = this._editor.model.get();
+      const origLine = tm.getLineContent(this._viewData.edit.range.startLineNumber);
+      const edit = StringReplacement.replace(new OffsetRange(this._viewData.edit.range.startColumn - 1, this._viewData.edit.range.endColumn - 1), this._viewData.edit.text);
+      const lineToTokenize = edit.replace(origLine);
+      const t = tm.tokenization.tokenizeLinesAt(this._viewData.edit.range.startLineNumber, [lineToTokenize])?.[0];
+      let tokens;
+      if (t) {
+        tokens = TokenArray.fromLineTokens(t).slice(edit.getRangeAfterReplace()).toLineTokens(this._viewData.edit.text, this._languageService.languageIdCodec);
+      } else {
+        tokens = LineTokens.createEmpty(this._viewData.edit.text, this._languageService.languageIdCodec);
+      }
+      const res = renderLines(new LineSource([tokens]), RenderOptions.fromEditor(this._editor.editor).withSetWidth(false).withScrollBeyondLastColumn(0), [], this._line, true);
+      this._line.style.width = `${res.minWidthInPx}px`;
+    });
+    const modifiedLineHeight = this._editor.observeLineHeightForPosition(this._viewData.edit.range.getStartPosition());
+    const altCount = observableFromPromise(this._viewData.alternativeAction?.count ?? new Promise((resolve) => resolve(void 0))).map((c) => c.value);
+    const altModifierActive = observableFromEvent(this, ModifierKeyEmitter.getInstance().event, () => ModifierKeyEmitter.getInstance().keyStatus.shiftKey);
+    this._layout = derived(this, (reader) => {
+      this._renderTextEffect.read(reader);
+      const widgetStart = this._start.read(reader);
+      const widgetEnd = this._end.read(reader);
+      if (!widgetStart || !widgetEnd || widgetStart.x > widgetEnd.x || widgetStart.y > widgetEnd.y) {
+        return void 0;
+      }
+      const lineHeight = modifiedLineHeight.read(reader);
+      const scrollLeft = this._editor.scrollLeft.read(reader);
+      const w = this._editor.getOption(
+        59
+        /* EditorOption.fontInfo */
+      ).read(reader).typicalHalfwidthCharacterWidth;
+      const modifiedLeftOffset = 3 * w;
+      const modifiedTopOffset = 4;
+      const modifiedOffset = new Point(modifiedLeftOffset, modifiedTopOffset);
+      let alternativeAction = void 0;
+      if (this._viewData.alternativeAction) {
+        const label = this._viewData.alternativeAction.label;
+        const count = altCount.read(reader);
+        const active = altModifierActive.read(reader);
+        const occurrencesLabel = count !== void 0 ? count === 1 ? localize("labelOccurence", "{0} 1 occurrence", label) : localize("labelOccurences", "{0} {1} occurrences", label, count) : label;
+        const keybindingTooltip = localize("shiftToSeeOccurences", "{0} show occurrences", "[shift]");
+        alternativeAction = {
+          label: count !== void 0 ? active ? occurrencesLabel : label : label,
+          tooltip: occurrencesLabel ? `${occurrencesLabel}
+${keybindingTooltip}` : void 0,
+          icon: void 0,
+          //this._viewData.alternativeAction.icon, Do not render icon fo the moment
+          count,
+          keybinding: this._keybindingService.lookupKeybinding(inlineSuggestCommitAlternativeActionId),
+          active: altModifierActive
+        };
+      }
+      const originalLine = Rect.fromPoints(widgetStart, widgetEnd).withHeight(lineHeight).translateX(-scrollLeft);
+      const codeLine = Rect.fromPointSize(originalLine.getLeftBottom().add(modifiedOffset), new Point(this._viewData.edit.text.length * w, originalLine.height));
+      const modifiedLine = codeLine.withWidth(codeLine.width + (alternativeAction ? alternativeAction.label.length * w + 8 + 4 + 12 : 0));
+      const lowerBackground = modifiedLine.withLeft(originalLine.left);
+      return {
+        alternativeAction,
+        originalLine,
+        codeLine,
+        modifiedLine,
+        lowerBackground,
+        lineHeight
+      };
+    });
+    this.minEditorScrollHeight = derived(this, (reader) => {
+      const layout = mapOutFalsy(this._layout).read(reader);
+      if (!layout) {
+        return 0;
+      }
+      return layout.read(reader).modifiedLine.bottom + BORDER_WIDTH + this._editor.editor.getScrollTop();
+    });
+    this._root = n.div({
+      class: "word-replacement"
+    }, [
+      derived(this, (reader) => {
+        const layout = mapOutFalsy(this._layout).read(reader);
+        if (!layout) {
+          return [];
+        }
+        const originalBorderColor = getOriginalBorderColor(this._tabAction).map((c) => asCssVariable(c)).read(reader);
+        const modifiedBorderColor = getModifiedBorderColor(this._tabAction).map((c) => asCssVariable(c)).read(reader);
+        this._line.style.lineHeight = `${layout.read(reader).modifiedLine.height + 2 * BORDER_WIDTH}px`;
+        const secondaryElementHovered = constObservable(false);
+        const alternativeAction = layout.map((l) => l.alternativeAction);
+        const alternativeActionActive = derived((reader2) => (alternativeAction.read(reader2)?.active.read(reader2) ?? false) || secondaryElementHovered.read(reader2));
+        const isHighContrast = observableFromEvent(this._themeService.onDidColorThemeChange, () => {
+          const theme = this._themeService.getColorTheme();
+          return theme.type === "hcDark" || theme.type === "hcLight";
+        }).read(reader);
+        const hcBorderColor = isHighContrast ? observeColor(contrastBorder, this._themeService).read(reader) : null;
+        const primaryActiveStyles = {
+          borderColor: hcBorderColor ? hcBorderColor.toString() : modifiedBorderColor,
+          backgroundColor: asCssVariable(modifiedChangedTextOverlayColor),
+          color: "",
+          opacity: "1"
+        };
+        const secondaryActiveStyles = {
+          borderColor: hcBorderColor ? hcBorderColor.toString() : asCssVariable(inlineEditIndicatorPrimaryBorder),
+          backgroundColor: asCssVariable(inlineEditIndicatorPrimaryBackground),
+          color: asCssVariable(inlineEditIndicatorPrimaryForeground),
+          opacity: "1"
+        };
+        const passiveStyles = {
+          borderColor: hcBorderColor ? hcBorderColor.toString() : observeColor(editorHoverForeground, this._themeService).map((c) => c.transparent(0.2).toString()).read(reader),
+          backgroundColor: getEditorBackgroundColor(this._viewData.editorType),
+          color: "",
+          opacity: "0.7"
+        };
+        const editorBackground = getEditorBackgroundColor(this._viewData.editorType);
+        const primaryActionStyles = derived(this, (r) => alternativeActionActive.read(r) ? primaryActiveStyles : primaryActiveStyles);
+        const secondaryActionStyles = derived(this, (r) => alternativeActionActive.read(r) ? secondaryActiveStyles : passiveStyles);
+        return [
+          n.div({
+            id: DOM_ID_OVERLAY,
+            style: {
+              position: "absolute",
+              ...rectToProps((r) => getEditorValidOverlayRect(this._editor).read(r)),
+              overflow: "hidden",
+              pointerEvents: "none"
+            }
+          }, [
+            n.div({
+              style: {
+                position: "absolute",
+                ...rectToProps((reader2) => layout.read(reader2).lowerBackground.withMargin(BORDER_WIDTH, 2 * BORDER_WIDTH, BORDER_WIDTH, 0)),
+                background: editorBackground,
+                cursor: "pointer",
+                pointerEvents: "auto"
+              },
+              onmousedown: /* @__PURE__ */ __name((e) => this._mouseDown(e), "onmousedown")
+            }),
+            n.div({
+              id: DOM_ID_WIDGET,
+              style: {
+                position: "absolute",
+                ...rectToProps((reader2) => layout.read(reader2).modifiedLine.withMargin(BORDER_WIDTH, 2 * BORDER_WIDTH)),
+                width: void 0,
+                pointerEvents: "auto",
+                boxSizing: "border-box",
+                borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+                background: editorBackground,
+                display: "flex",
+                justifyContent: "left",
+                outline: `2px solid ${editorBackground}`
+              },
+              onmousedown: /* @__PURE__ */ __name((e) => this._mouseDown(e), "onmousedown")
+            }, [
+              n.div({
+                id: DOM_ID_REPLACEMENT,
+                style: {
+                  fontFamily: this._editor.getOption(
+                    58
+                    /* EditorOption.fontFamily */
+                  ),
+                  fontSize: this._editor.getOption(
+                    61
+                    /* EditorOption.fontSize */
+                  ),
+                  fontWeight: this._editor.getOption(
+                    62
+                    /* EditorOption.fontWeight */
+                  ),
+                  width: rectToProps((reader2) => layout.read(reader2).codeLine.withMargin(BORDER_WIDTH, 2 * BORDER_WIDTH)).width,
+                  borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+                  border: primaryActionStyles.map((s) => `${BORDER_WIDTH}px solid ${s.borderColor}`),
+                  boxSizing: "border-box",
+                  padding: `${BORDER_WIDTH}px`,
+                  opacity: primaryActionStyles.map((s) => s.opacity),
+                  background: primaryActionStyles.map((s) => s.backgroundColor),
+                  display: "flex",
+                  justifyContent: "left",
+                  alignItems: "center",
+                  pointerEvents: "auto",
+                  cursor: "pointer"
+                },
+                obsRef: /* @__PURE__ */ __name((elem) => {
+                  this._primaryElement.set(elem, void 0);
+                }, "obsRef")
+              }, [this._line]),
+              derived(this, (reader2) => {
+                const altAction = alternativeAction.read(reader2);
+                if (!altAction) {
+                  return void 0;
+                }
+                const keybinding = document.createElement("div");
+                const keybindingLabel = reader2.store.add(new KeybindingLabel(keybinding, OS, { ...unthemedKeybindingLabelOptions, disableTitle: true }));
+                keybindingLabel.set(altAction.keybinding);
+                return n.div({
+                  id: DOM_ID_RENAME,
+                  style: {
+                    position: "relative",
+                    borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+                    borderTop: `${BORDER_WIDTH}px solid`,
+                    borderRight: `${BORDER_WIDTH}px solid`,
+                    borderBottom: `${BORDER_WIDTH}px solid`,
+                    borderLeft: `${BORDER_WIDTH}px solid`,
+                    borderColor: secondaryActionStyles.map((s) => s.borderColor),
+                    opacity: secondaryActionStyles.map((s) => s.opacity),
+                    color: secondaryActionStyles.map((s) => s.color),
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "0 4px 0 1px",
+                    marginLeft: "4px",
+                    background: secondaryActionStyles.map((s) => s.backgroundColor),
+                    cursor: "pointer",
+                    textWrap: "nowrap"
+                  },
+                  class: "inline-edit-alternative-action-label",
+                  obsRef: /* @__PURE__ */ __name((elem) => {
+                    this._secondaryElement.set(elem, void 0);
+                  }, "obsRef"),
+                  ref: /* @__PURE__ */ __name((elem) => {
+                    if (altAction.tooltip) {
+                      reader2.store.add(this._hoverService.setupDelayedHoverAtMouse(elem, { content: altAction.tooltip, appearance: { compact: true } }));
+                    }
+                  }, "ref")
+                }, [
+                  keybinding,
+                  $("div.inline-edit-alternative-action-label-separator"),
+                  altAction.icon ? renderIcon(altAction.icon) : void 0,
+                  altAction.label
+                ]);
+              })
+            ]),
+            n.div({
+              style: {
+                position: "absolute",
+                ...rectToProps((reader2) => layout.read(reader2).originalLine.withMargin(BORDER_WIDTH)),
+                boxSizing: "border-box",
+                borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+                border: `${BORDER_WIDTH}px solid ${originalBorderColor}`,
+                background: asCssVariable(originalChangedTextOverlayColor),
+                pointerEvents: "none"
+              }
+            }, []),
+            n.svg({
+              width: 11,
+              height: 14,
+              viewBox: "0 0 11 14",
+              fill: "none",
+              style: {
+                position: "absolute",
+                left: layout.map((l) => l.modifiedLine.left - 16),
+                top: layout.map((l) => l.modifiedLine.top + Math.round((l.lineHeight - 14 - 5) / 2)),
+                pointerEvents: "none"
+              },
+              onmousedown: /* @__PURE__ */ __name((e) => this._mouseDown(e), "onmousedown")
+            }, [
+              n.svgElem("path", {
+                d: "M1 0C1 2.98966 1 5.92087 1 8.49952C1 9.60409 1.89543 10.5 3 10.5H10.5",
+                stroke: asCssVariable(editorHoverForeground)
+              }),
+              n.svgElem("path", {
+                d: "M6 7.5L9.99999 10.49998L6 13.5",
+                stroke: asCssVariable(editorHoverForeground)
+              })
+            ])
+          ])
+        ];
+      })
+    ]).keepUpdated(this._store);
+    this._register(this._editor.createOverlayWidget({
+      domNode: this._root.element,
+      minContentWidthInPx: constObservable(0),
+      position: constObservable({ preference: { top: 0, left: 0 } }),
+      allowEditorOverflow: false
+    }));
+  }
+  _mouseDown(e) {
+    const target_id = traverseParentsUntilId(e.target, /* @__PURE__ */ new Set([DOM_ID_WIDGET, DOM_ID_REPLACEMENT, DOM_ID_RENAME, DOM_ID_OVERLAY]));
+    if (!target_id) {
+      return;
+    }
+    e.preventDefault();
+    this._onDidClick.fire(InlineEditClickEvent.create(e, target_id === DOM_ID_RENAME));
+  }
+};
+InlineEditsWordReplacementView = __decorate([
+  __param(3, ILanguageService),
+  __param(4, IThemeService),
+  __param(5, IKeybindingService),
+  __param(6, IHoverService)
+], InlineEditsWordReplacementView);
+function traverseParentsUntilId(element, ids) {
+  let current = element;
+  while (current) {
+    if (ids.has(current.id)) {
+      return current.id;
+    }
+    current = current.parentElement;
+  }
+  return null;
+}
+__name(traverseParentsUntilId, "traverseParentsUntilId");
+export {
+  InlineEditsWordReplacementView,
+  WordReplacementsViewData
+};
+//# sourceMappingURL=inlineEditsWordReplacementView.js.map

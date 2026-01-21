@@ -1,1 +1,44 @@
-import{$Mj as s}from"../../instantiation/common/instantiation.js";const o="diagnosticsService",a=s(o);function c(r){const e=r;return!!e?.hostName&&!!e?.errorMessage}class m{async getPerformanceInfo(e,n){return{}}async getSystemInfo(e,n){return{processArgs:"nullProcessArgs",gpuStatus:"nullGpuStatus",screenReader:"nullScreenReader",remoteData:[],os:"nullOs",memory:"nullMemory",vmHint:"nullVmHint"}}async getDiagnostics(e,n){return""}async getWorkspaceFileExtensions(e){return{extensions:[]}}async reportWorkspaceStats(e){}}export{a as $Iw,c as $Jw,m as $Kw,o as ID};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const ID = "diagnosticsService";
+const IDiagnosticsService = createDecorator(ID);
+function isRemoteDiagnosticError(x) {
+  const candidate = x;
+  return !!candidate?.hostName && !!candidate?.errorMessage;
+}
+__name(isRemoteDiagnosticError, "isRemoteDiagnosticError");
+class NullDiagnosticsService {
+  static {
+    __name(this, "NullDiagnosticsService");
+  }
+  async getPerformanceInfo(mainProcessInfo, remoteInfo) {
+    return {};
+  }
+  async getSystemInfo(mainProcessInfo, remoteInfo) {
+    return {
+      processArgs: "nullProcessArgs",
+      gpuStatus: "nullGpuStatus",
+      screenReader: "nullScreenReader",
+      remoteData: [],
+      os: "nullOs",
+      memory: "nullMemory",
+      vmHint: "nullVmHint"
+    };
+  }
+  async getDiagnostics(mainProcessInfo, remoteInfo) {
+    return "";
+  }
+  async getWorkspaceFileExtensions(workspace) {
+    return { extensions: [] };
+  }
+  async reportWorkspaceStats(workspace) {
+  }
+}
+export {
+  ID,
+  IDiagnosticsService,
+  NullDiagnosticsService,
+  isRemoteDiagnosticError
+};
+//# sourceMappingURL=diagnostics.js.map

@@ -1,1 +1,196 @@
-import{$Ed as p,$Dd as g}from"../../../../../../base/common/lifecycle.js";import{autorun as E}from"../../../../../../base/common/observable.js";import{$qo as m}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Lj as C}from"../../../../../../platform/instantiation/common/instantiation.js";import{CellEditState as y,CellFocusMode as $}from"../../notebookBrowser.js";import{$SFb as z}from"../cellPart.js";import{$5Fb as a}from"../../viewModel/codeCellViewModel.js";import{$6Fb as f}from"../../viewModel/markupCellViewModel.js";import{NotebookCellExecutionState as l}from"../../../common/notebookCommon.js";import{$EEb as F,$GEb as T,$KEb as v,$JEb as x,$FEb as D,$LEb as S,$PEb as w,$IEb as R,$HEb as _,$QEb as j,$REb as M,$DEb as O,$SEb as I}from"../../../common/notebookContextKeys.js";import{$PP as L,NotebookExecutionType as P}from"../../../common/notebookExecutionStateService.js";var b=function(h,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var r=h.length-1;r>=0;r--)(o=h[r])&&(s=(n<3?o(s):n>3?o(t,i,s):o(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},d=function(h,t){return function(i,e){t(i,e,h)}};let c=class extends z{constructor(t,i){super(),this.b=i,this.a=this.D(this.b.createInstance(u,t,void 0))}didRenderCell(t){this.a.updateForElement(t)}};c=b([d(1,C)],c);let u=class extends p{constructor(t,i,e,n){super(),this.w=t,this.y=i,this.z=e,this.C=n,this.u=this.D(new g),this.z.bufferChangeEvents(()=>{this.a=O.bindTo(this.z),this.b=F.bindTo(this.z),this.c=D.bindTo(this.z),this.f=T.bindTo(this.z),this.t=_.bindTo(this.z),this.g=x.bindTo(this.z),this.h=v.bindTo(this.z),this.j=S.bindTo(this.z),this.m=w.bindTo(this.z),this.n=j.bindTo(this.z),this.q=R.bindTo(this.z),this.r=M.bindTo(this.z),this.s=I.bindTo(this.z),i&&this.updateForElement(i)}),this.D(this.C.onDidChangeExecution(s=>{s.type===P.cell&&this.y&&s.affectsCell(this.y.uri)&&this.H()}))}updateForElement(t){this.u.clear(),this.y=t,t&&(this.u.add(t.onDidChangeState(i=>this.F(i))),t instanceof a&&(this.u.add(t.onDidChangeOutputs(()=>this.L())),this.u.add(E(i=>{this.s.set(!!i.readObservable(t.executionErrorDiagnostic))}))),this.u.add(this.w.onDidChangeActiveCell(()=>this.G())),this.y instanceof f?this.a.set("markup"):this.y instanceof a&&this.a.set("code"),this.z.bufferChangeEvents(()=>{this.G(),this.H(),this.I(),this.J(),this.L(),this.q.set(this.y.lineNumbers),this.r.set(this.y.uri.toString())}))}F(t){this.z.bufferChangeEvents(()=>{t.internalMetadataChanged&&this.H(),t.editStateChanged&&this.I(),t.focusModeChanged&&this.G(),t.cellLineNumberChanged&&this.q.set(this.y.lineNumbers),(t.inputCollapsedChanged||t.outputCollapsedChanged)&&this.J()})}G(){if(!this.y)return;const t=this.w.getActiveCell();this.c.set(this.w.getActiveCell()===this.y),t===this.y?this.f.set(this.y.focusMode===$.Editor):this.f.set(!1)}H(){if(!this.y)return;const t=this.y.internalMetadata;this.b.set(!this.w.isReadOnly);const i=this.C.getCellExecution(this.y.uri);this.y instanceof f?(this.g.reset(),this.h.reset()):i?.state===l.Executing?(this.g.set("executing"),this.h.set(!0)):i?.state===l.Pending||i?.state===l.Unconfirmed?(this.g.set("pending"),this.h.set(!0)):t.lastRunSuccess===!0?(this.g.set("succeeded"),this.h.set(!1)):t.lastRunSuccess===!1?(this.g.set("failed"),this.h.set(!1)):(this.g.set("idle"),this.h.set(!1))}I(){this.y&&(this.y instanceof f?this.t.set(this.y.getEditState()===y.Editing):this.t.set(!1))}J(){this.y&&(this.m.set(!!this.y.isInputCollapsed),this.n.set(!!this.y.isOutputCollapsed))}L(){this.y instanceof a?this.j.set(this.y.outputsViewModels.length>0):this.j.set(!1)}};u=b([d(2,m),d(3,L)],u);export{c as $7Fb,u as $8Fb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { CellEditState, CellFocusMode } from "../../notebookBrowser.js";
+import { CellContentPart } from "../cellPart.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { MarkupCellViewModel } from "../../viewModel/markupCellViewModel.js";
+import { NotebookCellExecutionState } from "../../../common/notebookCommon.js";
+import { NOTEBOOK_CELL_EDITABLE, NOTEBOOK_CELL_EDITOR_FOCUSED, NOTEBOOK_CELL_EXECUTING, NOTEBOOK_CELL_EXECUTION_STATE, NOTEBOOK_CELL_FOCUSED, NOTEBOOK_CELL_HAS_OUTPUTS, NOTEBOOK_CELL_INPUT_COLLAPSED, NOTEBOOK_CELL_LINE_NUMBERS, NOTEBOOK_CELL_MARKDOWN_EDIT_MODE, NOTEBOOK_CELL_OUTPUT_COLLAPSED, NOTEBOOK_CELL_RESOURCE, NOTEBOOK_CELL_TYPE, NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS } from "../../../common/notebookContextKeys.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
+let CellContextKeyPart = class CellContextKeyPart2 extends CellContentPart {
+  static {
+    __name(this, "CellContextKeyPart");
+  }
+  constructor(notebookEditor, instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.cellContextKeyManager = this._register(this.instantiationService.createInstance(CellContextKeyManager, notebookEditor, void 0));
+  }
+  didRenderCell(element) {
+    this.cellContextKeyManager.updateForElement(element);
+  }
+};
+CellContextKeyPart = __decorate([
+  __param(1, IInstantiationService)
+], CellContextKeyPart);
+let CellContextKeyManager = class CellContextKeyManager2 extends Disposable {
+  static {
+    __name(this, "CellContextKeyManager");
+  }
+  constructor(notebookEditor, element, _contextKeyService, _notebookExecutionStateService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.element = element;
+    this._contextKeyService = _contextKeyService;
+    this._notebookExecutionStateService = _notebookExecutionStateService;
+    this.elementDisposables = this._register(new DisposableStore());
+    this._contextKeyService.bufferChangeEvents(() => {
+      this.cellType = NOTEBOOK_CELL_TYPE.bindTo(this._contextKeyService);
+      this.cellEditable = NOTEBOOK_CELL_EDITABLE.bindTo(this._contextKeyService);
+      this.cellFocused = NOTEBOOK_CELL_FOCUSED.bindTo(this._contextKeyService);
+      this.cellEditorFocused = NOTEBOOK_CELL_EDITOR_FOCUSED.bindTo(this._contextKeyService);
+      this.markdownEditMode = NOTEBOOK_CELL_MARKDOWN_EDIT_MODE.bindTo(this._contextKeyService);
+      this.cellRunState = NOTEBOOK_CELL_EXECUTION_STATE.bindTo(this._contextKeyService);
+      this.cellExecuting = NOTEBOOK_CELL_EXECUTING.bindTo(this._contextKeyService);
+      this.cellHasOutputs = NOTEBOOK_CELL_HAS_OUTPUTS.bindTo(this._contextKeyService);
+      this.cellContentCollapsed = NOTEBOOK_CELL_INPUT_COLLAPSED.bindTo(this._contextKeyService);
+      this.cellOutputCollapsed = NOTEBOOK_CELL_OUTPUT_COLLAPSED.bindTo(this._contextKeyService);
+      this.cellLineNumbers = NOTEBOOK_CELL_LINE_NUMBERS.bindTo(this._contextKeyService);
+      this.cellResource = NOTEBOOK_CELL_RESOURCE.bindTo(this._contextKeyService);
+      this.cellHasErrorDiagnostics = NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS.bindTo(this._contextKeyService);
+      if (element) {
+        this.updateForElement(element);
+      }
+    });
+    this._register(this._notebookExecutionStateService.onDidChangeExecution((e) => {
+      if (e.type === NotebookExecutionType.cell && this.element && e.affectsCell(this.element.uri)) {
+        this.updateForExecutionState();
+      }
+    }));
+  }
+  updateForElement(element) {
+    this.elementDisposables.clear();
+    this.element = element;
+    if (!element) {
+      return;
+    }
+    this.elementDisposables.add(element.onDidChangeState((e) => this.onDidChangeState(e)));
+    if (element instanceof CodeCellViewModel) {
+      this.elementDisposables.add(element.onDidChangeOutputs(() => this.updateForOutputs()));
+      this.elementDisposables.add(autorun((reader) => {
+        this.cellHasErrorDiagnostics.set(!!reader.readObservable(element.executionErrorDiagnostic));
+      }));
+    }
+    this.elementDisposables.add(this.notebookEditor.onDidChangeActiveCell(() => this.updateForFocusState()));
+    if (this.element instanceof MarkupCellViewModel) {
+      this.cellType.set("markup");
+    } else if (this.element instanceof CodeCellViewModel) {
+      this.cellType.set("code");
+    }
+    this._contextKeyService.bufferChangeEvents(() => {
+      this.updateForFocusState();
+      this.updateForExecutionState();
+      this.updateForEditState();
+      this.updateForCollapseState();
+      this.updateForOutputs();
+      this.cellLineNumbers.set(this.element.lineNumbers);
+      this.cellResource.set(this.element.uri.toString());
+    });
+  }
+  onDidChangeState(e) {
+    this._contextKeyService.bufferChangeEvents(() => {
+      if (e.internalMetadataChanged) {
+        this.updateForExecutionState();
+      }
+      if (e.editStateChanged) {
+        this.updateForEditState();
+      }
+      if (e.focusModeChanged) {
+        this.updateForFocusState();
+      }
+      if (e.cellLineNumberChanged) {
+        this.cellLineNumbers.set(this.element.lineNumbers);
+      }
+      if (e.inputCollapsedChanged || e.outputCollapsedChanged) {
+        this.updateForCollapseState();
+      }
+    });
+  }
+  updateForFocusState() {
+    if (!this.element) {
+      return;
+    }
+    const activeCell = this.notebookEditor.getActiveCell();
+    this.cellFocused.set(this.notebookEditor.getActiveCell() === this.element);
+    if (activeCell === this.element) {
+      this.cellEditorFocused.set(this.element.focusMode === CellFocusMode.Editor);
+    } else {
+      this.cellEditorFocused.set(false);
+    }
+  }
+  updateForExecutionState() {
+    if (!this.element) {
+      return;
+    }
+    const internalMetadata = this.element.internalMetadata;
+    this.cellEditable.set(!this.notebookEditor.isReadOnly);
+    const exeState = this._notebookExecutionStateService.getCellExecution(this.element.uri);
+    if (this.element instanceof MarkupCellViewModel) {
+      this.cellRunState.reset();
+      this.cellExecuting.reset();
+    } else if (exeState?.state === NotebookCellExecutionState.Executing) {
+      this.cellRunState.set("executing");
+      this.cellExecuting.set(true);
+    } else if (exeState?.state === NotebookCellExecutionState.Pending || exeState?.state === NotebookCellExecutionState.Unconfirmed) {
+      this.cellRunState.set("pending");
+      this.cellExecuting.set(true);
+    } else if (internalMetadata.lastRunSuccess === true) {
+      this.cellRunState.set("succeeded");
+      this.cellExecuting.set(false);
+    } else if (internalMetadata.lastRunSuccess === false) {
+      this.cellRunState.set("failed");
+      this.cellExecuting.set(false);
+    } else {
+      this.cellRunState.set("idle");
+      this.cellExecuting.set(false);
+    }
+  }
+  updateForEditState() {
+    if (!this.element) {
+      return;
+    }
+    if (this.element instanceof MarkupCellViewModel) {
+      this.markdownEditMode.set(this.element.getEditState() === CellEditState.Editing);
+    } else {
+      this.markdownEditMode.set(false);
+    }
+  }
+  updateForCollapseState() {
+    if (!this.element) {
+      return;
+    }
+    this.cellContentCollapsed.set(!!this.element.isInputCollapsed);
+    this.cellOutputCollapsed.set(!!this.element.isOutputCollapsed);
+  }
+  updateForOutputs() {
+    if (this.element instanceof CodeCellViewModel) {
+      this.cellHasOutputs.set(this.element.outputsViewModels.length > 0);
+    } else {
+      this.cellHasOutputs.set(false);
+    }
+  }
+};
+CellContextKeyManager = __decorate([
+  __param(2, IContextKeyService),
+  __param(3, INotebookExecutionStateService)
+], CellContextKeyManager);
+export {
+  CellContextKeyManager,
+  CellContextKeyPart
+};
+//# sourceMappingURL=cellContextKeys.js.map

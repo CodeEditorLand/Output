@@ -1,2 +1,78 @@
-import*as o from"../../../base/browser/cssValue.js";import{$wf as p}from"../../../base/common/event.js";import{$Dd as g}from"../../../base/common/lifecycle.js";import{ThemeIcon as w}from"../../../base/common/themables.js";import{$fu as m}from"../common/iconRegistry.js";function T(c){const e=new g,s=e.add(new p),$=m();return e.add($.onDidChange(()=>s.fire())),c&&e.add(c.onDidProductIconThemeChange(()=>s.fire())),{dispose:()=>e.dispose(),onDidChange:s.event,getCSS(){const d=c?c.getProductIconTheme():new y,u={},f=new o.$_9,h=new o.$_9;for(const t of $.getIcons()){const n=d.getIcon(t);if(!n)continue;const i=n.font,a=o.$$9`--vscode-icon-${o.$09(t.id)}-font-family`,r=o.$$9`--vscode-icon-${o.$09(t.id)}-content`;i?(u[i.id]=i.definition,h.push(o.$$9`${a}: ${o.$89(i.id)};`,o.$$9`${r}: ${o.$89(n.fontCharacter)};`),f.push(o.$$9`.codicon-${o.$09(t.id)}:before { content: ${o.$89(n.fontCharacter)}; font-family: ${o.$89(i.id)}; }`)):(h.push(o.$$9`${r}: ${o.$89(n.fontCharacter)}; ${a}: 'codicon';`),f.push(o.$$9`.codicon-${o.$09(t.id)}:before { content: ${o.$89(n.fontCharacter)}; }`))}for(const t in u){const n=u[t],i=n.weight?o.$$9`font-weight: ${o.$79(n.weight)};`:o.$$9``,a=n.style?o.$$9`font-style: ${o.$79(n.style)};`:o.$$9``,r=new o.$_9;for(const l of n.src)r.push(o.$$9`${o.$99(l.location)} format(${o.$89(l.format)})`);f.push(o.$$9`@font-face { src: ${r.join(", ")}; font-family: ${o.$89(t)};${i}${a} font-display: block; }`)}return f.push(o.$$9`:root { ${h.join(" ")} }`),f.join(`
-`)}}}class y{getIcon(e){const s=m();let $=e.defaults;for(;w.isThemeIcon($);){const d=s.getIcon($.id);if(!d)return;$=d.defaults}return $}}export{T as $e_b,y as $f_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as css from "../../../base/browser/cssValue.js";
+import { Emitter } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { getIconRegistry } from "../common/iconRegistry.js";
+function getIconsStyleSheet(themeService) {
+  const disposable = new DisposableStore();
+  const onDidChangeEmmiter = disposable.add(new Emitter());
+  const iconRegistry = getIconRegistry();
+  disposable.add(iconRegistry.onDidChange(() => onDidChangeEmmiter.fire()));
+  if (themeService) {
+    disposable.add(themeService.onDidProductIconThemeChange(() => onDidChangeEmmiter.fire()));
+  }
+  return {
+    dispose: /* @__PURE__ */ __name(() => disposable.dispose(), "dispose"),
+    onDidChange: onDidChangeEmmiter.event,
+    getCSS() {
+      const productIconTheme = themeService ? themeService.getProductIconTheme() : new UnthemedProductIconTheme();
+      const usedFontIds = {};
+      const rules = new css.Builder();
+      const rootAttribs = new css.Builder();
+      for (const contribution of iconRegistry.getIcons()) {
+        const definition = productIconTheme.getIcon(contribution);
+        if (!definition) {
+          continue;
+        }
+        const fontContribution = definition.font;
+        const fontFamilyVar = css.inline`--vscode-icon-${css.className(contribution.id)}-font-family`;
+        const contentVar = css.inline`--vscode-icon-${css.className(contribution.id)}-content`;
+        if (fontContribution) {
+          usedFontIds[fontContribution.id] = fontContribution.definition;
+          rootAttribs.push(css.inline`${fontFamilyVar}: ${css.stringValue(fontContribution.id)};`, css.inline`${contentVar}: ${css.stringValue(definition.fontCharacter)};`);
+          rules.push(css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; font-family: ${css.stringValue(fontContribution.id)}; }`);
+        } else {
+          rootAttribs.push(css.inline`${contentVar}: ${css.stringValue(definition.fontCharacter)}; ${fontFamilyVar}: 'codicon';`);
+          rules.push(css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; }`);
+        }
+      }
+      for (const id in usedFontIds) {
+        const definition = usedFontIds[id];
+        const fontWeight = definition.weight ? css.inline`font-weight: ${css.identValue(definition.weight)};` : css.inline``;
+        const fontStyle = definition.style ? css.inline`font-style: ${css.identValue(definition.style)};` : css.inline``;
+        const src = new css.Builder();
+        for (const l of definition.src) {
+          src.push(css.inline`${css.asCSSUrl(l.location)} format(${css.stringValue(l.format)})`);
+        }
+        rules.push(css.inline`@font-face { src: ${src.join(", ")}; font-family: ${css.stringValue(id)};${fontWeight}${fontStyle} font-display: block; }`);
+      }
+      rules.push(css.inline`:root { ${rootAttribs.join(" ")} }`);
+      return rules.join("\n");
+    }
+  };
+}
+__name(getIconsStyleSheet, "getIconsStyleSheet");
+class UnthemedProductIconTheme {
+  static {
+    __name(this, "UnthemedProductIconTheme");
+  }
+  getIcon(contribution) {
+    const iconRegistry = getIconRegistry();
+    let definition = contribution.defaults;
+    while (ThemeIcon.isThemeIcon(definition)) {
+      const c = iconRegistry.getIcon(definition.id);
+      if (!c) {
+        return void 0;
+      }
+      definition = c.defaults;
+    }
+    return definition;
+  }
+}
+export {
+  UnthemedProductIconTheme,
+  getIconsStyleSheet
+};
+//# sourceMappingURL=iconsStyleSheet.js.map

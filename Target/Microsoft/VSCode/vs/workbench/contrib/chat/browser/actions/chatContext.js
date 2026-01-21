@@ -1,4 +1,352 @@
-import{CancellationToken as $}from"../../../../../base/common/cancellation.js";import{$ak as d}from"../../../../../base/common/codicons.js";import{$Ed as B,$Dd as E}from"../../../../../base/common/lifecycle.js";import{$r as M}from"../../../../../base/common/platform.js";import{$Gh as D}from"../../../../../base/common/resources.js";import{localize as l}from"../../../../../nls.js";import{$4hb as O}from"../../../../../platform/clipboard/common/clipboardService.js";import{$Lj as v}from"../../../../../platform/instantiation/common/instantiation.js";import{$lH as R}from"../../../../../platform/label/common/label.js";import{$rN as F,SideBySideEditor as L}from"../../../../common/editor.js";import{$fO as g}from"../../../../common/editor/diffEditorInput.js";import{$yL as U}from"../../../../services/editor/common/editorService.js";import{$pbb as N}from"../../../../services/host/browser/host.js";import{$eEb as y}from"../../../../services/untitled/common/untitledTextEditorInput.js";import{$CTb as k}from"../../../files/browser/editors/fileEditorInput.js";import{$JCb as _}from"../../../notebook/common/notebookEditorInput.js";import{$UNb as T}from"../attachments/chatContextPickService.js";import{$$U as Y}from"../../common/editing/chatEditingService.js";import{$FU as V,$EU as S}from"../../common/attachments/chatVariableEntries.js";import{ToolDataSource as P,$nS as j}from"../../common/tools/languageModelToolsService.js";import{$G3b as G,$H3b as z}from"../widget/input/editor/chatPasteProviders.js";import{$2Ob as H}from"../attachments/chatScreenshotContext.js";import{$zYb as q}from"../promptSyntax/attachInstructionsAction.js";import{$RYb as J}from"../../../terminal/browser/terminal.js";var u=function(r,t,e,a){var i=arguments.length,o=i<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,e):a,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,e,a);else for(var n=r.length-1;n>=0;n--)(s=r[n])&&(o=(i<3?s(o):i>3?s(t,e,o):s(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},m=function(r,t){return function(e,a){t(e,a,r)}};let x=class extends B{static{this.ID="chat.contextContributions"}constructor(t,e){super(),this.B.add(e.registerChatContextItem(t.createInstance(w))),this.B.add(e.registerChatContextItem(t.createInstance(q))),this.B.add(e.registerChatContextItem(t.createInstance(p))),this.B.add(e.registerChatContextItem(t.createInstance(f))),this.B.add(e.registerChatContextItem(t.createInstance(b))),this.B.add(e.registerChatContextItem(t.createInstance(C)))}};x=u([m(0,v),m(1,T)],x);class w{constructor(){this.type="pickerPick",this.label=l(5201,null),this.icon=d.tools,this.ordinal=-500}isEnabled(t){return!!t.attachmentCapabilities.supportsToolAttachments}asPicker(t){const e=[];for(const[o,s]of t.input.selectedToolsModel.entriesMap.get())s&&(o instanceof j?e.push({toolInfo:P.classify(o.source),label:o.referenceName,description:o.description,asAttachment:()=>V(o)}):e.push({toolInfo:P.classify(o.source),label:o.toolReferenceName??o.displayName,description:o.userDescription??o.modelDescription,asAttachment:()=>S(o)}));e.sort((o,s)=>{let n=o.toolInfo.ordinal-s.toolInfo.ordinal;return n===0&&(n=o.toolInfo.label.localeCompare(s.toolInfo.label)),n===0&&(n=o.label.localeCompare(s.label)),n});let a;const i=[];for(const o of e)a!==o.toolInfo.label&&(i.push({type:"separator",label:o.toolInfo.label}),a=o.toolInfo.label),i.push(o);return{placeholder:l(5202,null),picks:Promise.resolve(i)}}}let p=class{constructor(t,e){this.c=t,this.d=e,this.type="valuePick",this.label=l(5203,null),this.icon=d.file,this.ordinal=800}isEnabled(){return this.c.editors.filter(t=>t instanceof k||t instanceof g||t instanceof y).length>0}async asAttachment(){const t=[];for(const e of this.c.editors){if(!(e instanceof k||e instanceof g||e instanceof y||e instanceof _))continue;const a=F.getOriginalUri(e,{supportSideBySide:L.PRIMARY});a&&t.push({kind:"file",id:a.toString(),value:a,name:this.d.getUriBasenameLabel(a)})}return t}};p=u([m(0,U),m(1,R)],p);let f=class{constructor(t,e){this.c=t,this.d=e,this.type="pickerPick",this.label=l(5204,null),this.icon=d.sparkle,this.ordinal=300}isEnabled(t){return this.c.hasRelatedFilesProviders()&&(!!t.getInput()||t.attachmentModel.fileAttachments.length>0)}asPicker(t){const e=(async()=>{const a=t.viewModel?.sessionResource;if(!a)return[];if(!await this.c.getRelatedFiles(a,t.getInput(),t.attachmentModel.fileAttachments,$.None))return[];const o=t.attachmentModel.getAttachmentIDs();return this.c.getRelatedFiles(a,t.getInput(),t.attachmentModel.fileAttachments,$.None).then(s=>(s??[]).reduce((n,h)=>{n.push({type:"separator",label:h.group});for(const c of h.files){const I=this.d.getUriBasenameLabel(c.uri);n.push({label:I,description:this.d.getUriLabel(D(c.uri),{relative:!0}),disabled:o.has(c.uri.toString()),asAttachment:()=>({kind:"file",id:c.uri.toString(),value:c.uri,name:I,omittedState:0})})}return n},[]))})();return{placeholder:l(5205,null),picks:e}}};f=u([m(0,Y),m(1,R)],f);let b=class{constructor(t){this.c=t,this.type="valuePick",this.label=l(5206,null),this.icon=d.fileMedia}async isEnabled(t){if(!t.attachmentCapabilities.supportsImageAttachments||!t.input.selectedLanguageModel?.metadata.capabilities?.vision)return!1;const e=await this.c.readImage();return z(e)}async asAttachment(){const t=await this.c.readImage();return{id:await G(t),name:l(5207,null),fullName:l(5208,null),value:t,kind:"image"}}};b=u([m(0,O)],b);let A=class{constructor(t,e){this.c=t,this.d=e,this.type="valuePick",this.icon=d.terminal,this.label=l(5209,null)}isEnabled(t){const e=this.d.getInstanceFromResource(this.c);return!!t.attachmentCapabilities.supportsTerminalAttachments&&e?.isDisposed===!1}async asAttachment(t){const e=this.d.getInstanceFromResource(this.c);if(!e)return;const a=new URLSearchParams(this.c.query),i=e.capabilities.get(2)?.commands.find(c=>c.id===a.get("command"));if(!i)return;const o={kind:"terminalCommand",id:`terminalCommand:${Date.now()}}`,value:this.f(i),name:i.command,command:i.command,output:i.getOutput(),exitCode:i.exitCode,resource:this.c},s=new E;let n=!1;const h=()=>{n||(n=!0,s.dispose())};return s.add(t.attachmentModel.onDidChange(c=>{c.deleted.includes(o.id)&&h()})),s.add(e.onDisposed(()=>{t.attachmentModel.delete(o.id),t.refreshParsedInput(),h()})),o}f(t){let e=`Command: ${t.command}`;const a=t.getOutput();return a&&(e+=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { isElectron } from "../../../../../base/common/platform.js";
+import { dirname } from "../../../../../base/common/resources.js";
+import { localize } from "../../../../../nls.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../../common/editor.js";
+import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { UntitledTextEditorInput } from "../../../../services/untitled/common/untitledTextEditorInput.js";
+import { FileEditorInput } from "../../../files/browser/editors/fileEditorInput.js";
+import { NotebookEditorInput } from "../../../notebook/common/notebookEditorInput.js";
+import { IChatContextPickService } from "../attachments/chatContextPickService.js";
+import { IChatEditingService } from "../../common/editing/chatEditingService.js";
+import { toToolSetVariableEntry, toToolVariableEntry } from "../../common/attachments/chatVariableEntries.js";
+import { ToolDataSource, ToolSet } from "../../common/tools/languageModelToolsService.js";
+import { imageToHash, isImage } from "../widget/input/editor/chatPasteProviders.js";
+import { convertBufferToScreenshotVariable } from "../attachments/chatScreenshotContext.js";
+import { ChatInstructionsPickerPick } from "../promptSyntax/attachInstructionsAction.js";
+import { ITerminalService } from "../../../terminal/browser/terminal.js";
+let ChatContextContributions = class ChatContextContributions2 extends Disposable {
+  static {
+    __name(this, "ChatContextContributions");
+  }
+  static {
+    this.ID = "chat.contextContributions";
+  }
+  constructor(instantiationService, contextPickService) {
+    super();
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(ToolsContextPickerPick)));
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(ChatInstructionsPickerPick)));
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(OpenEditorContextValuePick)));
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(RelatedFilesContextPickerPick)));
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(ClipboardImageContextValuePick)));
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(ScreenshotContextValuePick)));
+  }
+};
+ChatContextContributions = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IChatContextPickService)
+], ChatContextContributions);
+class ToolsContextPickerPick {
+  static {
+    __name(this, "ToolsContextPickerPick");
+  }
+  constructor() {
+    this.type = "pickerPick";
+    this.label = localize("chatContext.tools", "Tools...");
+    this.icon = Codicon.tools;
+    this.ordinal = -500;
+  }
+  isEnabled(widget) {
+    return !!widget.attachmentCapabilities.supportsToolAttachments;
+  }
+  asPicker(widget) {
+    const items = [];
+    for (const [entry, enabled] of widget.input.selectedToolsModel.entriesMap.get()) {
+      if (enabled) {
+        if (entry instanceof ToolSet) {
+          items.push({
+            toolInfo: ToolDataSource.classify(entry.source),
+            label: entry.referenceName,
+            description: entry.description,
+            asAttachment: /* @__PURE__ */ __name(() => toToolSetVariableEntry(entry), "asAttachment")
+          });
+        } else {
+          items.push({
+            toolInfo: ToolDataSource.classify(entry.source),
+            label: entry.toolReferenceName ?? entry.displayName,
+            description: entry.userDescription ?? entry.modelDescription,
+            asAttachment: /* @__PURE__ */ __name(() => toToolVariableEntry(entry), "asAttachment")
+          });
+        }
+      }
+    }
+    items.sort((a, b) => {
+      let res = a.toolInfo.ordinal - b.toolInfo.ordinal;
+      if (res === 0) {
+        res = a.toolInfo.label.localeCompare(b.toolInfo.label);
+      }
+      if (res === 0) {
+        res = a.label.localeCompare(b.label);
+      }
+      return res;
+    });
+    let lastGroupLabel;
+    const picks = [];
+    for (const item of items) {
+      if (lastGroupLabel !== item.toolInfo.label) {
+        picks.push({ type: "separator", label: item.toolInfo.label });
+        lastGroupLabel = item.toolInfo.label;
+      }
+      picks.push(item);
+    }
+    return {
+      placeholder: localize("chatContext.tools.placeholder", "Select a tool"),
+      picks: Promise.resolve(picks)
+    };
+  }
+}
+let OpenEditorContextValuePick = class OpenEditorContextValuePick2 {
+  static {
+    __name(this, "OpenEditorContextValuePick");
+  }
+  constructor(_editorService, _labelService) {
+    this._editorService = _editorService;
+    this._labelService = _labelService;
+    this.type = "valuePick";
+    this.label = localize("chatContext.editors", "Open Editors");
+    this.icon = Codicon.file;
+    this.ordinal = 800;
+  }
+  isEnabled() {
+    return this._editorService.editors.filter((e) => e instanceof FileEditorInput || e instanceof DiffEditorInput || e instanceof UntitledTextEditorInput).length > 0;
+  }
+  async asAttachment() {
+    const result = [];
+    for (const editor of this._editorService.editors) {
+      if (!(editor instanceof FileEditorInput || editor instanceof DiffEditorInput || editor instanceof UntitledTextEditorInput || editor instanceof NotebookEditorInput)) {
+        continue;
+      }
+      const uri = EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.PRIMARY });
+      if (!uri) {
+        continue;
+      }
+      result.push({
+        kind: "file",
+        id: uri.toString(),
+        value: uri,
+        name: this._labelService.getUriBasenameLabel(uri)
+      });
+    }
+    return result;
+  }
+};
+OpenEditorContextValuePick = __decorate([
+  __param(0, IEditorService),
+  __param(1, ILabelService)
+], OpenEditorContextValuePick);
+let RelatedFilesContextPickerPick = class RelatedFilesContextPickerPick2 {
+  static {
+    __name(this, "RelatedFilesContextPickerPick");
+  }
+  constructor(_chatEditingService, _labelService) {
+    this._chatEditingService = _chatEditingService;
+    this._labelService = _labelService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.relatedFiles", "Related Files");
+    this.icon = Codicon.sparkle;
+    this.ordinal = 300;
+  }
+  isEnabled(widget) {
+    return this._chatEditingService.hasRelatedFilesProviders() && (Boolean(widget.getInput()) || widget.attachmentModel.fileAttachments.length > 0);
+  }
+  asPicker(widget) {
+    const picks = (async () => {
+      const chatSessionResource = widget.viewModel?.sessionResource;
+      if (!chatSessionResource) {
+        return [];
+      }
+      const relatedFiles = await this._chatEditingService.getRelatedFiles(chatSessionResource, widget.getInput(), widget.attachmentModel.fileAttachments, CancellationToken.None);
+      if (!relatedFiles) {
+        return [];
+      }
+      const attachments = widget.attachmentModel.getAttachmentIDs();
+      return this._chatEditingService.getRelatedFiles(chatSessionResource, widget.getInput(), widget.attachmentModel.fileAttachments, CancellationToken.None).then((files) => (files ?? []).reduce((acc, cur) => {
+        acc.push({ type: "separator", label: cur.group });
+        for (const file of cur.files) {
+          const label = this._labelService.getUriBasenameLabel(file.uri);
+          acc.push({
+            label,
+            description: this._labelService.getUriLabel(dirname(file.uri), { relative: true }),
+            disabled: attachments.has(file.uri.toString()),
+            asAttachment: /* @__PURE__ */ __name(() => {
+              return {
+                kind: "file",
+                id: file.uri.toString(),
+                value: file.uri,
+                name: label,
+                omittedState: 0
+                /* OmittedState.NotOmitted */
+              };
+            }, "asAttachment")
+          });
+        }
+        return acc;
+      }, []));
+    })();
+    return {
+      placeholder: localize("relatedFiles", "Add related files to your working set"),
+      picks
+    };
+  }
+};
+RelatedFilesContextPickerPick = __decorate([
+  __param(0, IChatEditingService),
+  __param(1, ILabelService)
+], RelatedFilesContextPickerPick);
+let ClipboardImageContextValuePick = class ClipboardImageContextValuePick2 {
+  static {
+    __name(this, "ClipboardImageContextValuePick");
+  }
+  constructor(_clipboardService) {
+    this._clipboardService = _clipboardService;
+    this.type = "valuePick";
+    this.label = localize("imageFromClipboard", "Image from Clipboard");
+    this.icon = Codicon.fileMedia;
+  }
+  async isEnabled(widget) {
+    if (!widget.attachmentCapabilities.supportsImageAttachments) {
+      return false;
+    }
+    if (!widget.input.selectedLanguageModel?.metadata.capabilities?.vision) {
+      return false;
+    }
+    const imageData = await this._clipboardService.readImage();
+    return isImage(imageData);
+  }
+  async asAttachment() {
+    const fileBuffer = await this._clipboardService.readImage();
+    return {
+      id: await imageToHash(fileBuffer),
+      name: localize("pastedImage", "Pasted Image"),
+      fullName: localize("pastedImage", "Pasted Image"),
+      value: fileBuffer,
+      kind: "image"
+    };
+  }
+};
+ClipboardImageContextValuePick = __decorate([
+  __param(0, IClipboardService)
+], ClipboardImageContextValuePick);
+let TerminalContext = class TerminalContext2 {
+  static {
+    __name(this, "TerminalContext");
+  }
+  constructor(_resource, _terminalService) {
+    this._resource = _resource;
+    this._terminalService = _terminalService;
+    this.type = "valuePick";
+    this.icon = Codicon.terminal;
+    this.label = localize("terminal", "Terminal");
+  }
+  isEnabled(widget) {
+    const terminal = this._terminalService.getInstanceFromResource(this._resource);
+    return !!widget.attachmentCapabilities.supportsTerminalAttachments && terminal?.isDisposed === false;
+  }
+  async asAttachment(widget) {
+    const terminal = this._terminalService.getInstanceFromResource(this._resource);
+    if (!terminal) {
+      return;
+    }
+    const params = new URLSearchParams(this._resource.query);
+    const command = terminal.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    )?.commands.find((cmd) => cmd.id === params.get("command"));
+    if (!command) {
+      return;
+    }
+    const attachment = {
+      kind: "terminalCommand",
+      id: `terminalCommand:${Date.now()}}`,
+      value: this.asValue(command),
+      name: command.command,
+      command: command.command,
+      output: command.getOutput(),
+      exitCode: command.exitCode,
+      resource: this._resource
+    };
+    const cleanup = new DisposableStore();
+    let disposed = false;
+    const disposeCleanup = /* @__PURE__ */ __name(() => {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      cleanup.dispose();
+    }, "disposeCleanup");
+    cleanup.add(widget.attachmentModel.onDidChange((e) => {
+      if (e.deleted.includes(attachment.id)) {
+        disposeCleanup();
+      }
+    }));
+    cleanup.add(terminal.onDisposed(() => {
+      widget.attachmentModel.delete(attachment.id);
+      widget.refreshParsedInput();
+      disposeCleanup();
+    }));
+    return attachment;
+  }
+  asValue(command) {
+    let value = `Command: ${command.command}`;
+    const output = command.getOutput();
+    if (output) {
+      value += `
 Output:
-${a}`),typeof t.exitCode=="number"&&(e+=`
-Exit Code: ${t.exitCode}`),e}};A=u([m(1,J)],A);let C=class{constructor(t){this.c=t,this.type="valuePick",this.icon=d.deviceCamera,this.label=M?l(5210,null):l(5211,null)}async isEnabled(t){return!!t.attachmentCapabilities.supportsImageAttachments&&!!t.input.selectedLanguageModel?.metadata.capabilities?.vision}async asAttachment(){const t=await this.c.getScreenshot();return t&&H(t)}};C=u([m(0,N)],C);export{x as $AYb,A as $BYb};
+${output}`;
+    }
+    if (typeof command.exitCode === "number") {
+      value += `
+Exit Code: ${command.exitCode}`;
+    }
+    return value;
+  }
+};
+TerminalContext = __decorate([
+  __param(1, ITerminalService)
+], TerminalContext);
+let ScreenshotContextValuePick = class ScreenshotContextValuePick2 {
+  static {
+    __name(this, "ScreenshotContextValuePick");
+  }
+  constructor(_hostService) {
+    this._hostService = _hostService;
+    this.type = "valuePick";
+    this.icon = Codicon.deviceCamera;
+    this.label = isElectron ? localize("chatContext.attachScreenshot.labelElectron.Window", "Screenshot Window") : localize("chatContext.attachScreenshot.labelWeb", "Screenshot");
+  }
+  async isEnabled(widget) {
+    return !!widget.attachmentCapabilities.supportsImageAttachments && !!widget.input.selectedLanguageModel?.metadata.capabilities?.vision;
+  }
+  async asAttachment() {
+    const blob = await this._hostService.getScreenshot();
+    return blob && convertBufferToScreenshotVariable(blob);
+  }
+};
+ScreenshotContextValuePick = __decorate([
+  __param(0, IHostService)
+], ScreenshotContextValuePick);
+export {
+  ChatContextContributions,
+  TerminalContext
+};
+//# sourceMappingURL=chatContext.js.map

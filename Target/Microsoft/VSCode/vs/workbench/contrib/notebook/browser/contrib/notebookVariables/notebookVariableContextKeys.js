@@ -1,1 +1,6 @@
-import{$po as o}from"../../../../../../platform/contextkey/common/contextkey.js";const a=new o("notebookVariableViewEnabled",!1);export{a as $Rjc};
+import { RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
+const NOTEBOOK_VARIABLE_VIEW_ENABLED = new RawContextKey("notebookVariableViewEnabled", false);
+export {
+  NOTEBOOK_VARIABLE_VIEW_ENABLED
+};
+//# sourceMappingURL=notebookVariableContextKeys.js.map

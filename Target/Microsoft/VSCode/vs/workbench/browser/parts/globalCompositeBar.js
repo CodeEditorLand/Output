@@ -1,1 +1,682 @@
-import{localize as m}from"../../../nls.js";import{$G9 as At}from"../../../base/browser/ui/actionbar/actionbar.js";import{$HOb as G,$GOb as z}from"../../common/activity.js";import{$_Ab as I}from"../../services/activity/common/activity.js";import{$Lj as S}from"../../../platform/instantiation/common/instantiation.js";import{$Dd as tt,$Ed as vt}from"../../../base/common/lifecycle.js";import{$ou as _}from"../../../platform/theme/common/themeService.js";import{$gp as Z}from"../../../platform/storage/common/storage.js";import{$4R as $t}from"../../services/extensions/common/extensions.js";import{$gBb as wt,$fBb as ot}from"./compositeBarActions.js";import{$ak as Ct}from"../../../base/common/codicons.js";import{ThemeIcon as P}from"../../../base/common/themables.js";import{$eu as xt}from"../../../platform/theme/common/iconRegistry.js";import{$Em as E,$Gm as D,$Hm as et,$Jm as A}from"../../../base/common/actions.js";import{$oL as O,$nL as rt}from"../../../platform/actions/common/actions.js";import{$F7 as U,$B8 as q,$I8 as it,$E7 as yt,$P8 as Pt,$O8 as Et,$D8 as H,$ as K,$M7 as Dt,getWindow as ct}from"../../../base/browser/dom.js";import{$C7 as It}from"../../../base/browser/keyboardEvent.js";import{$w7 as St}from"../../../base/browser/mouseEvent.js";import{EventType as _t}from"../../../base/browser/touch.js";import{$Qf as Ot}from"../../../base/common/lazy.js";import{$Sib as Bt}from"../../../platform/actions/browser/menuEntryActionViewItem.js";import{$9l as x}from"../../../platform/configuration/common/configuration.js";import{$qo as B}from"../../../platform/contextkey/common/contextkey.js";import{$6hb as N}from"../../../platform/contextview/browser/contextView.js";import{$cy as M}from"../../../platform/keybinding/common/keybinding.js";import{$xo as at}from"../../../platform/log/common/log.js";import{$Un as ht}from"../../../platform/product/common/productService.js";import{$JR as lt}from"../../../platform/secrets/common/secrets.js";import{$vbb as Nt}from"../../services/authentication/browser/authenticationService.js";import{$vP as ut,$tP as Mt}from"../../services/authentication/common/authentication.js";import{$BP as F}from"../../services/environment/common/environmentService.js";import{$7ib as T}from"../../../platform/hover/browser/hover.js";import{$SN as bt}from"../../services/lifecycle/common/lifecycle.js";import{$MQ as dt}from"../../services/userDataProfile/common/userDataProfile.js";import{$W9b as J}from"../../services/userDataProfile/common/userDataProfileIcons.js";import{$6c as Tt}from"../../../base/common/types.js";import{$1yb as mt,$2yb as ft}from"../../common/theme.js";import{$to as pt}from"../../../platform/commands/common/commands.js";var C=function(u,t,i,s){var o=arguments.length,n=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(u,t,i,s);else for(var h=u.length-1;h>=0;h--)(a=u[h])&&(n=(o<3?a(n):o>3?a(t,i,n):a(t,i))||n);return o>3&&n&&Object.defineProperty(t,i,n),n},e=function(u,t){return function(i,s){t(i,s,u)}},y;let W=class extends vt{static{y=this}static{this.b=0}static{this.ACCOUNTS_ICON=xt("accounts-view-bar-icon",Ct.account,m(3928,null))}constructor(t,i,s,o,n,a,h){super(),this.h=t,this.j=i,this.m=s,this.n=n,this.q=a,this.r=h,this.c=this.D(new E(z)),this.f=this.D(new E(G)),this.element=K("div");const r=()=>({anchorAlignment:o.getValue("workbench.sideBar.location")==="left"?1:0,anchorAxisAlignment:1});this.g=this.D(new At(this.element,{actionViewItemProvider:(l,b)=>{if(l.id===z)return this.n.createInstance(R,this.h,{...b,colors:this.j,hoverOptions:this.m},r);if(l.id===G)return this.n.createInstance(v,this.h,{...b,colors:this.j,hoverOptions:this.m},r,p=>{p.unshift(A({id:"hideAccounts",label:m(3929,null),run:()=>Y(a,!1)}),new D)});throw new Error(`No view item for action '${l.id}'`)},orientation:1,ariaLabel:m(3930,null),preventLoopNavigation:!0})),this.w&&this.g.push(this.f,{index:y.b}),this.g.push(this.c),this.t()}t(){this.r.whenInstalledExtensionsRegistered().then(()=>{this.B.isDisposed||this.D(this.q.onDidChangeValue(0,v.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,this.B)(()=>this.u()))})}create(t){t.appendChild(this.element)}focus(){this.g.focus(!0)}size(){return this.g.viewItems.length}getContextMenuActions(){return[A({id:"toggleAccountsVisibility",label:m(3931,null),checked:this.w,run:()=>this.w=!this.w})]}u(){this.g.length()===2&&this.w||(this.g.length()===2?this.g.pull(y.b):this.g.push(this.f,{index:y.b}))}get w(){return Q(this.q)}set w(t){Y(this.q,t)}};W=y=C([e(3,x),e(4,S),e(5,Z),e(6,$t)],W);let L=class extends wt{constructor(t,i,s,o,n,a,h,r,l,b,p,c,d){super(i,{draggable:!1,icon:!0,hasPopup:!0,...s},()=>!0,a,h,p,c),this.gb=t,this.hb=o,this.ib=n,this.jb=r,this.kb=l,this.lb=b,this.mb=d,this.nb(),this.D(this.mb.onDidChangeActivity(f=>{Tt(f)&&f===this.U.id&&this.nb()}))}nb(){this.action.activities=this.mb.getActivity(this.U.id)}render(t){super.render(t),this.D(U(this.c,q.MOUSE_DOWN,async i=>{H.stop(i,!0),i?.button!==2&&this.pb()})),this.D(U(this.c,q.CONTEXT_MENU,async i=>{i.stopPropagation();const s=new tt,o=await this.ob(s),n=new St(ct(this.c),i);this.kb.showContextMenu({getAnchor:()=>n,getActions:()=>o,onHide:()=>s.dispose()})})),this.D(U(this.c,q.KEY_UP,i=>{const s=new It(i);(s.equals(3)||s.equals(10))&&(H.stop(i,!0),this.pb())})),this.D(U(this.c,_t.Tap,i=>{H.stop(i,!0),this.pb()}))}async ob(t){return this.hb()}async pb(){const t=new tt,i=t.add(this.jb.createMenu(this.gb,this.lb)),s=await this.qb(i,t),{anchorAlignment:o,anchorAxisAlignment:n}=this.ib()??{anchorAlignment:void 0,anchorAxisAlignment:void 0};this.kb.showContextMenu({getAnchor:()=>this.g,anchorAlignment:o,anchorAxisAlignment:n,getActions:()=>s,onHide:()=>t.dispose(),menuActionOptions:{renderShortTitle:!0}})}async qb(t,i){return Bt(t.getActions({renderShortTitle:!0})).secondary}};L=C([e(5,_),e(6,T),e(7,O),e(8,N),e(9,B),e(10,x),e(11,M),e(12,I)],L);let v=class extends L{static{this.ACCOUNTS_VISIBILITY_PREFERENCE_KEY="workbench.activity.showAccounts"}constructor(t,i,s,o,n,a,h,r,l,b,p,c,d,f,g,$,V,j,k,w){const X=k.createInstance(ot,{id:G,name:m(3932,null),classNames:P.asClassNameArray(W.ACCOUNTS_ICON)});super(rt.AccountsContext,X,i,t,s,n,h,l,r,b,f,g,j),this.vb=o,this.wb=a,this.xb=p,this.yb=d,this.zb=$,this.Ab=V,this.Bb=w,this.rb=new Map,this.sb=new Set,this.tb=!1,this.ub=new Ot(()=>Nt(this.zb,this.yb)),this.D(X),this.Cb(),this.Db()}Cb(){this.D(this.xb.onDidRegisterAuthenticationProvider(async t=>{await this.Jb(t.id)})),this.D(this.xb.onDidUnregisterAuthenticationProvider(t=>{this.rb.delete(t.id),this.sb.delete(t.id)})),this.D(this.xb.onDidChangeSessions(async t=>{if(t.event.removed)for(const i of t.event.removed)this.Ib(t.providerId,i.account);for(const i of[...t.event.changed??[],...t.event.added??[]])try{await this.Hb(t.providerId,i.account)}catch(s){this.Ab.error(s)}}))}async Db(){if(await this.wb.when(3),this.B.isDisposed)return;const t=this.D(Dt(ct(this.element),async()=>{await this.Eb(),t.dispose()}))}async Eb(){const t=this.xb.getProviderIds(),i=await Promise.allSettled(t.map(s=>this.Jb(s)));for(const s of i)s.status==="rejected"&&this.Ab.error(s.reason);this.tb=!0}async qb(t,i){await super.qb(t,i);const s=this.xb.getProviderIds().filter(r=>!r.startsWith(Mt)),o=t.getActions();let n=[];const a=s.filter(r=>!this.xb.isDynamicAuthenticationProvider(r)),h=s.filter(r=>this.xb.isDynamicAuthenticationProvider(r));if(this.tb){for(const r of a){const l=this.xb.getProvider(r),b=this.rb.get(r);if(!b){if(this.sb.has(r)){const c=i.add(new E("providerUnavailable",m(3934,null,l.label),void 0,!1));n.push(c);try{await this.Jb(r)}catch(d){this.Ab.error(d)}}continue}const p=!!l.authorizationServers?.length;for(const c of b){const f=[A({id:`configureSessions${c.label}`,label:m(3935,null),enabled:!0,run:()=>this.Bb.executeCommand("_manageTrustedExtensionsForAccount",{providerId:r,accountLabel:c.label})})];if(p){const $=A({id:`configureSessions${c.label}`,label:m(3936,null),enabled:!0,run:()=>this.Bb.executeCommand("_manageTrustedMCPServersForAccount",{providerId:r,accountLabel:c.label})});f.push($)}c.canSignOut&&f.push(A({id:"signOut",label:m(3937,null),enabled:!0,run:()=>this.Bb.executeCommand("_signOutOfAccount",{providerId:r,accountLabel:c.label})}));const g=new et("activitybar.submenu",`${c.label} (${l.label})`,f);n.push(g)}}h.length&&a.length&&n.push(new D);for(const r of h){const l=this.xb.getProvider(r),b=this.rb.get(r),p=A({id:"manageDynamicAuthProviders",label:m(3938,null),enabled:!0,run:()=>this.Bb.executeCommand("workbench.action.removeDynamicAuthenticationProviders")});if(!b){if(this.sb.has(r)){const c=i.add(new E("providerUnavailable",m(3939,null,l.label),void 0,!1));n.push(c);try{await this.Jb(r)}catch(d){this.Ab.error(d)}}n.push(p);continue}for(const c of b){const d=[],f=A({id:`configureSessions${c.label}`,label:m(3940,null),enabled:!0,run:()=>this.Bb.executeCommand("_manageTrustedMCPServersForAccount",{providerId:r,accountLabel:c.label})});d.push(f),d.push(p),c.canSignOut&&d.push(A({id:"signOut",label:m(3941,null),enabled:!0,run:()=>this.Bb.executeCommand("_signOutOfAccount",{providerId:r,accountLabel:c.label})}));const g=new et("activitybar.submenu",`${c.label} (${l.label})`,d);n.push(g)}}}else{const r=i.add(new E("noAccountsAvailable",m(3933,null),void 0,!1));n.push(r)}return n.length&&o.length&&n.push(new D),o.forEach((r,l)=>{const b=r[1];n=n.concat(b),l!==o.length-1&&n.push(new D)}),n}async ob(t){const i=await super.ob(t);return this.vb(i),i}async Hb(t,i){let s=this.rb.get(t);s||(s=[],this.rb.set(t,s));const o=await this.ub.value;let n=!0;o&&!o.canSignOut&&(await this.xb.getSessions(t)).some(h=>h.id===o.id&&h.account.id===i.id)&&(n=!1);const a=s.find(h=>h.label===i.label);a?n||(a.canSignOut=n):s.push({...i,canSignOut:n})}Ib(t,i){const s=this.rb.get(t);if(!s)return;const o=s.findIndex(n=>n.id===i.id);o!==-1&&(s.splice(o,1),s.length===0&&this.rb.delete(t))}async Jb(t){try{const i=await this.xb.getSessions(t);this.sb.delete(t);for(const s of i)try{await this.Hb(t,s.account)}catch(o){this.Ab.error(o)}}catch(i){this.Ab.error(i),this.sb.add(t)}}};v=C([e(4,_),e(5,bt),e(6,T),e(7,N),e(8,O),e(9,B),e(10,ut),e(11,F),e(12,ht),e(13,x),e(14,M),e(15,lt),e(16,at),e(17,I),e(18,S),e(19,pt)],v);let R=class extends L{constructor(t,i,s,o,n,a,h,r,l,b,p,c,d,f){const g=d.createInstance(ot,{id:z,name:m(3942,null),classNames:P.asClassNameArray(o.currentProfile.icon?P.fromId(o.currentProfile.icon):J)});super(rt.GlobalActivity,g,i,t,s,n,a,h,r,l,b,c,f),this.tb=o,this.D(g),this.D(this.tb.onDidChangeCurrentProfile($=>{g.compositeBarActionItem={...g.compositeBarActionItem,classNames:P.asClassNameArray(o.currentProfile.icon?P.fromId(o.currentProfile.icon):J)}}))}render(t){super.render(t),this.rb=it(t,K(".profile-badge")),this.sb=it(this.rb,K(".profile-badge-content")),this.ub()}ub(){!this.rb||!this.sb||(yt(this.sb),Pt(this.rb),!this.tb.currentProfile.isDefault&&(this.tb.currentProfile.icon&&this.tb.currentProfile.icon!==J.id||this.action.activities.length>0||(Et(this.rb),this.sb.classList.add("profile-text-overlay"),this.sb.textContent=this.tb.currentProfile.name.substring(0,2).toUpperCase())))}ab(){super.ab(),this.ub()}eb(){return this.tb.currentProfile.isDefault?super.eb():m(3943,null,this.tb.currentProfile.name)}};R=C([e(3,dt),e(4,_),e(5,T),e(6,O),e(7,N),e(8,B),e(9,x),e(10,F),e(11,M),e(12,S),e(13,I)],R);let st=class extends v{constructor(t,i,s,o,n,a,h,r,l,b,p,c,d,f,g,$,V,j,k){super(()=>gt(g,!0),{...i,colors:w=>({badgeBackground:w.getColor(mt),badgeForeground:w.getColor(ft)}),hoverOptions:t,compact:!0},()=>{},w=>w,s,o,n,a,h,r,l,b,p,c,d,f,$,V,j,k)}};st=C([e(2,_),e(3,bt),e(4,T),e(5,N),e(6,O),e(7,B),e(8,ut),e(9,F),e(10,ht),e(11,x),e(12,M),e(13,lt),e(14,Z),e(15,at),e(16,I),e(17,S),e(18,pt)],st);let nt=class extends R{constructor(t,i,s,o,n,a,h,r,l,b,p,c,d,f){super(()=>gt(f,!1),{...i,colors:g=>({badgeBackground:g.getColor(mt),badgeForeground:g.getColor(ft)}),hoverOptions:t,compact:!0},()=>{},s,o,n,a,h,r,l,b,p,c,d)}};nt=C([e(2,dt),e(3,_),e(4,T),e(5,O),e(6,N),e(7,B),e(8,x),e(9,F),e(10,M),e(11,S),e(12,I),e(13,Z)],nt);function gt(u,t){const i=[];return t&&i.push(A({id:"hideAccounts",label:m(3944,null),run:()=>Y(u,!1)}),new D),[...i,A({id:"toggle.hideAccounts",label:m(3945,null),checked:Q(u),run:()=>Y(u,!Q(u))}),A({id:"toggle.hideManage",label:m(3946,null),checked:!0,enabled:!1,run:()=>{throw new Error('"Manage" can not be hidden')}})]}function Q(u){return u.getBoolean(v.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,0,!0)}function Y(u,t){u.store(v.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,t,0,0)}export{R as $19b,st as $29b,nt as $39b,Q as $49b,W as $Y9b,v as $Z9b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var GlobalCompositeBar_1;
+import { localize } from "../../../nls.js";
+import { ActionBar } from "../../../base/browser/ui/actionbar/actionbar.js";
+import { ACCOUNTS_ACTIVITY_ID, GLOBAL_ACTIVITY_ID } from "../../common/activity.js";
+import { IActivityService } from "../../services/activity/common/activity.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { DisposableStore, Disposable } from "../../../base/common/lifecycle.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IStorageService } from "../../../platform/storage/common/storage.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { CompositeBarActionViewItem, CompositeBarAction } from "./compositeBarActions.js";
+import { Codicon } from "../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { registerIcon } from "../../../platform/theme/common/iconRegistry.js";
+import { Action, Separator, SubmenuAction, toAction } from "../../../base/common/actions.js";
+import { IMenuService, MenuId } from "../../../platform/actions/common/actions.js";
+import { addDisposableListener, EventType, append, clearNode, hide, show, EventHelper, $, runWhenWindowIdle, getWindow } from "../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { EventType as TouchEventType } from "../../../base/browser/touch.js";
+import { Lazy } from "../../../base/common/lazy.js";
+import { getActionBarActions } from "../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+import { ISecretStorageService } from "../../../platform/secrets/common/secrets.js";
+import { getCurrentAuthenticationSessionInfo } from "../../services/authentication/browser/authenticationService.js";
+import { IAuthenticationService, INTERNAL_AUTH_PROVIDER_PREFIX } from "../../services/authentication/common/authentication.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { IHoverService } from "../../../platform/hover/browser/hover.js";
+import { ILifecycleService } from "../../services/lifecycle/common/lifecycle.js";
+import { IUserDataProfileService } from "../../services/userDataProfile/common/userDataProfile.js";
+import { DEFAULT_ICON } from "../../services/userDataProfile/common/userDataProfileIcons.js";
+import { isString } from "../../../base/common/types.js";
+import { ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND } from "../../common/theme.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+let GlobalCompositeBar = class GlobalCompositeBar2 extends Disposable {
+  static {
+    __name(this, "GlobalCompositeBar");
+  }
+  static {
+    GlobalCompositeBar_1 = this;
+  }
+  static {
+    this.ACCOUNTS_ACTION_INDEX = 0;
+  }
+  static {
+    this.ACCOUNTS_ICON = registerIcon("accounts-view-bar-icon", Codicon.account, localize("accountsViewBarIcon", "Accounts icon in the view bar."));
+  }
+  constructor(contextMenuActionsProvider, colors, activityHoverOptions, configurationService, instantiationService, storageService, extensionService) {
+    super();
+    this.contextMenuActionsProvider = contextMenuActionsProvider;
+    this.colors = colors;
+    this.activityHoverOptions = activityHoverOptions;
+    this.instantiationService = instantiationService;
+    this.storageService = storageService;
+    this.extensionService = extensionService;
+    this.globalActivityAction = this._register(new Action(GLOBAL_ACTIVITY_ID));
+    this.accountAction = this._register(new Action(ACCOUNTS_ACTIVITY_ID));
+    this.element = $("div");
+    const contextMenuAlignmentOptions = /* @__PURE__ */ __name(() => ({
+      anchorAlignment: configurationService.getValue("workbench.sideBar.location") === "left" ? 1 : 0,
+      anchorAxisAlignment: 1
+      /* AnchorAxisAlignment.HORIZONTAL */
+    }), "contextMenuAlignmentOptions");
+    this.globalActivityActionBar = this._register(new ActionBar(this.element, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === GLOBAL_ACTIVITY_ID) {
+          return this.instantiationService.createInstance(GlobalActivityActionViewItem, this.contextMenuActionsProvider, { ...options, colors: this.colors, hoverOptions: this.activityHoverOptions }, contextMenuAlignmentOptions);
+        }
+        if (action.id === ACCOUNTS_ACTIVITY_ID) {
+          return this.instantiationService.createInstance(AccountsActivityActionViewItem, this.contextMenuActionsProvider, {
+            ...options,
+            colors: this.colors,
+            hoverOptions: this.activityHoverOptions
+          }, contextMenuAlignmentOptions, (actions) => {
+            actions.unshift(...[
+              toAction({ id: "hideAccounts", label: localize("hideAccounts", "Hide Accounts"), run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, false), "run") }),
+              new Separator()
+            ]);
+          });
+        }
+        throw new Error(`No view item for action '${action.id}'`);
+      }, "actionViewItemProvider"),
+      orientation: 1,
+      ariaLabel: localize("manage", "Manage"),
+      preventLoopNavigation: true
+    }));
+    if (this.accountsVisibilityPreference) {
+      this.globalActivityActionBar.push(this.accountAction, { index: GlobalCompositeBar_1.ACCOUNTS_ACTION_INDEX });
+    }
+    this.globalActivityActionBar.push(this.globalActivityAction);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this.extensionService.whenInstalledExtensionsRegistered().then(() => {
+      if (!this._store.isDisposed) {
+        this._register(this.storageService.onDidChangeValue(0, AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, this._store)(() => this.toggleAccountsActivity()));
+      }
+    });
+  }
+  create(parent) {
+    parent.appendChild(this.element);
+  }
+  focus() {
+    this.globalActivityActionBar.focus(true);
+  }
+  size() {
+    return this.globalActivityActionBar.viewItems.length;
+  }
+  getContextMenuActions() {
+    return [toAction({ id: "toggleAccountsVisibility", label: localize("accounts", "Accounts"), checked: this.accountsVisibilityPreference, run: /* @__PURE__ */ __name(() => this.accountsVisibilityPreference = !this.accountsVisibilityPreference, "run") })];
+  }
+  toggleAccountsActivity() {
+    if (this.globalActivityActionBar.length() === 2 && this.accountsVisibilityPreference) {
+      return;
+    }
+    if (this.globalActivityActionBar.length() === 2) {
+      this.globalActivityActionBar.pull(GlobalCompositeBar_1.ACCOUNTS_ACTION_INDEX);
+    } else {
+      this.globalActivityActionBar.push(this.accountAction, { index: GlobalCompositeBar_1.ACCOUNTS_ACTION_INDEX });
+    }
+  }
+  get accountsVisibilityPreference() {
+    return isAccountsActionVisible(this.storageService);
+  }
+  set accountsVisibilityPreference(value) {
+    setAccountsActionVisible(this.storageService, value);
+  }
+};
+GlobalCompositeBar = GlobalCompositeBar_1 = __decorate([
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IStorageService),
+  __param(6, IExtensionService)
+], GlobalCompositeBar);
+let AbstractGlobalActivityActionViewItem = class AbstractGlobalActivityActionViewItem2 extends CompositeBarActionViewItem {
+  static {
+    __name(this, "AbstractGlobalActivityActionViewItem");
+  }
+  constructor(menuId, action, options, contextMenuActionsProvider, contextMenuAlignmentOptions, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, keybindingService, activityService) {
+    super(action, { draggable: false, icon: true, hasPopup: true, ...options }, () => true, themeService, hoverService, configurationService, keybindingService);
+    this.menuId = menuId;
+    this.contextMenuActionsProvider = contextMenuActionsProvider;
+    this.contextMenuAlignmentOptions = contextMenuAlignmentOptions;
+    this.menuService = menuService;
+    this.contextMenuService = contextMenuService;
+    this.contextKeyService = contextKeyService;
+    this.activityService = activityService;
+    this.updateItemActivity();
+    this._register(this.activityService.onDidChangeActivity((viewContainerOrAction) => {
+      if (isString(viewContainerOrAction) && viewContainerOrAction === this.compositeBarActionItem.id) {
+        this.updateItemActivity();
+      }
+    }));
+  }
+  updateItemActivity() {
+    this.action.activities = this.activityService.getActivity(this.compositeBarActionItem.id);
+  }
+  render(container) {
+    super.render(container);
+    this._register(addDisposableListener(this.container, EventType.MOUSE_DOWN, async (e) => {
+      EventHelper.stop(e, true);
+      const isLeftClick = e?.button !== 2;
+      if (isLeftClick) {
+        this.run();
+      }
+    }));
+    this._register(addDisposableListener(this.container, EventType.CONTEXT_MENU, async (e) => {
+      e.stopPropagation();
+      const disposables = new DisposableStore();
+      const actions = await this.resolveContextMenuActions(disposables);
+      const event = new StandardMouseEvent(getWindow(this.container), e);
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+        onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide")
+      });
+    }));
+    this._register(addDisposableListener(this.container, EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        3
+        /* KeyCode.Enter */
+      ) || event.equals(
+        10
+        /* KeyCode.Space */
+      )) {
+        EventHelper.stop(e, true);
+        this.run();
+      }
+    }));
+    this._register(addDisposableListener(this.container, TouchEventType.Tap, (e) => {
+      EventHelper.stop(e, true);
+      this.run();
+    }));
+  }
+  async resolveContextMenuActions(disposables) {
+    return this.contextMenuActionsProvider();
+  }
+  async run() {
+    const disposables = new DisposableStore();
+    const menu = disposables.add(this.menuService.createMenu(this.menuId, this.contextKeyService));
+    const actions = await this.resolveMainMenuActions(menu, disposables);
+    const { anchorAlignment, anchorAxisAlignment } = this.contextMenuAlignmentOptions() ?? { anchorAlignment: void 0, anchorAxisAlignment: void 0 };
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => this.label, "getAnchor"),
+      anchorAlignment,
+      anchorAxisAlignment,
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+      onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide"),
+      menuActionOptions: { renderShortTitle: true }
+    });
+  }
+  async resolveMainMenuActions(menu, _disposable) {
+    return getActionBarActions(menu.getActions({ renderShortTitle: true })).secondary;
+  }
+};
+AbstractGlobalActivityActionViewItem = __decorate([
+  __param(5, IThemeService),
+  __param(6, IHoverService),
+  __param(7, IMenuService),
+  __param(8, IContextMenuService),
+  __param(9, IContextKeyService),
+  __param(10, IConfigurationService),
+  __param(11, IKeybindingService),
+  __param(12, IActivityService)
+], AbstractGlobalActivityActionViewItem);
+let AccountsActivityActionViewItem = class AccountsActivityActionViewItem2 extends AbstractGlobalActivityActionViewItem {
+  static {
+    __name(this, "AccountsActivityActionViewItem");
+  }
+  static {
+    this.ACCOUNTS_VISIBILITY_PREFERENCE_KEY = "workbench.activity.showAccounts";
+  }
+  constructor(contextMenuActionsProvider, options, contextMenuAlignmentOptions, fillContextMenuActions, themeService, lifecycleService, hoverService, contextMenuService, menuService, contextKeyService, authenticationService, environmentService, productService, configurationService, keybindingService, secretStorageService, logService, activityService, instantiationService, commandService) {
+    const action = instantiationService.createInstance(CompositeBarAction, {
+      id: ACCOUNTS_ACTIVITY_ID,
+      name: localize("accounts", "Accounts"),
+      classNames: ThemeIcon.asClassNameArray(GlobalCompositeBar.ACCOUNTS_ICON)
+    });
+    super(MenuId.AccountsContext, action, options, contextMenuActionsProvider, contextMenuAlignmentOptions, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, keybindingService, activityService);
+    this.fillContextMenuActions = fillContextMenuActions;
+    this.lifecycleService = lifecycleService;
+    this.authenticationService = authenticationService;
+    this.productService = productService;
+    this.secretStorageService = secretStorageService;
+    this.logService = logService;
+    this.commandService = commandService;
+    this.groupedAccounts = /* @__PURE__ */ new Map();
+    this.problematicProviders = /* @__PURE__ */ new Set();
+    this.initialized = false;
+    this.sessionFromEmbedder = new Lazy(() => getCurrentAuthenticationSessionInfo(this.secretStorageService, this.productService));
+    this._register(action);
+    this.registerListeners();
+    this.initialize();
+  }
+  registerListeners() {
+    this._register(this.authenticationService.onDidRegisterAuthenticationProvider(async (e) => {
+      await this.addAccountsFromProvider(e.id);
+    }));
+    this._register(this.authenticationService.onDidUnregisterAuthenticationProvider((e) => {
+      this.groupedAccounts.delete(e.id);
+      this.problematicProviders.delete(e.id);
+    }));
+    this._register(this.authenticationService.onDidChangeSessions(async (e) => {
+      if (e.event.removed) {
+        for (const removed of e.event.removed) {
+          this.removeAccount(e.providerId, removed.account);
+        }
+      }
+      for (const changed of [...e.event.changed ?? [], ...e.event.added ?? []]) {
+        try {
+          await this.addOrUpdateAccount(e.providerId, changed.account);
+        } catch (e2) {
+          this.logService.error(e2);
+        }
+      }
+    }));
+  }
+  // This function exists to ensure that the accounts are added for auth providers that had already been registered
+  // before the menu was created.
+  async initialize() {
+    await this.lifecycleService.when(
+      3
+      /* LifecyclePhase.Restored */
+    );
+    if (this._store.isDisposed) {
+      return;
+    }
+    const disposable = this._register(runWhenWindowIdle(getWindow(this.element), async () => {
+      await this.doInitialize();
+      disposable.dispose();
+    }));
+  }
+  async doInitialize() {
+    const providerIds = this.authenticationService.getProviderIds();
+    const results = await Promise.allSettled(providerIds.map((providerId) => this.addAccountsFromProvider(providerId)));
+    for (const result of results) {
+      if (result.status === "rejected") {
+        this.logService.error(result.reason);
+      }
+    }
+    this.initialized = true;
+  }
+  //#region overrides
+  async resolveMainMenuActions(accountsMenu, disposables) {
+    await super.resolveMainMenuActions(accountsMenu, disposables);
+    const providers = this.authenticationService.getProviderIds().filter((p) => !p.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX));
+    const otherCommands = accountsMenu.getActions();
+    let menus = [];
+    const registeredProviders = providers.filter((providerId) => !this.authenticationService.isDynamicAuthenticationProvider(providerId));
+    const dynamicProviders = providers.filter((providerId) => this.authenticationService.isDynamicAuthenticationProvider(providerId));
+    if (!this.initialized) {
+      const noAccountsAvailableAction = disposables.add(new Action("noAccountsAvailable", localize("loading", "Loading..."), void 0, false));
+      menus.push(noAccountsAvailableAction);
+    } else {
+      for (const providerId of registeredProviders) {
+        const provider = this.authenticationService.getProvider(providerId);
+        const accounts = this.groupedAccounts.get(providerId);
+        if (!accounts) {
+          if (this.problematicProviders.has(providerId)) {
+            const providerUnavailableAction = disposables.add(new Action("providerUnavailable", localize("authProviderUnavailable", "{0} is currently unavailable", provider.label), void 0, false));
+            menus.push(providerUnavailableAction);
+            try {
+              await this.addAccountsFromProvider(providerId);
+            } catch (e) {
+              this.logService.error(e);
+            }
+          }
+          continue;
+        }
+        const canUseMcp = !!provider.authorizationServers?.length;
+        for (const account of accounts) {
+          const manageExtensionsAction = toAction({
+            id: `configureSessions${account.label}`,
+            label: localize("manageTrustedExtensions", "Manage Trusted Extensions"),
+            enabled: true,
+            run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedExtensionsForAccount", { providerId, accountLabel: account.label }), "run")
+          });
+          const providerSubMenuActions = [manageExtensionsAction];
+          if (canUseMcp) {
+            const manageMCPAction = toAction({
+              id: `configureSessions${account.label}`,
+              label: localize("manageTrustedMCPServers", "Manage Trusted MCP Servers"),
+              enabled: true,
+              run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedMCPServersForAccount", { providerId, accountLabel: account.label }), "run")
+            });
+            providerSubMenuActions.push(manageMCPAction);
+          }
+          if (account.canSignOut) {
+            providerSubMenuActions.push(toAction({
+              id: "signOut",
+              label: localize("signOut", "Sign Out"),
+              enabled: true,
+              run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_signOutOfAccount", { providerId, accountLabel: account.label }), "run")
+            }));
+          }
+          const providerSubMenu = new SubmenuAction("activitybar.submenu", `${account.label} (${provider.label})`, providerSubMenuActions);
+          menus.push(providerSubMenu);
+        }
+      }
+      if (dynamicProviders.length && registeredProviders.length) {
+        menus.push(new Separator());
+      }
+      for (const providerId of dynamicProviders) {
+        const provider = this.authenticationService.getProvider(providerId);
+        const accounts = this.groupedAccounts.get(providerId);
+        const manageDynamicAuthProvidersAction = toAction({
+          id: "manageDynamicAuthProviders",
+          label: localize("manageDynamicAuthProviders", "Manage Dynamic Authentication Providers..."),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("workbench.action.removeDynamicAuthenticationProviders"), "run")
+        });
+        if (!accounts) {
+          if (this.problematicProviders.has(providerId)) {
+            const providerUnavailableAction = disposables.add(new Action("providerUnavailable", localize("authProviderUnavailable", "{0} is currently unavailable", provider.label), void 0, false));
+            menus.push(providerUnavailableAction);
+            try {
+              await this.addAccountsFromProvider(providerId);
+            } catch (e) {
+              this.logService.error(e);
+            }
+          }
+          menus.push(manageDynamicAuthProvidersAction);
+          continue;
+        }
+        for (const account of accounts) {
+          const providerSubMenuActions = [];
+          const manageMCPAction = toAction({
+            id: `configureSessions${account.label}`,
+            label: localize("manageTrustedMCPServers", "Manage Trusted MCP Servers"),
+            enabled: true,
+            run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedMCPServersForAccount", { providerId, accountLabel: account.label }), "run")
+          });
+          providerSubMenuActions.push(manageMCPAction);
+          providerSubMenuActions.push(manageDynamicAuthProvidersAction);
+          if (account.canSignOut) {
+            providerSubMenuActions.push(toAction({
+              id: "signOut",
+              label: localize("signOut", "Sign Out"),
+              enabled: true,
+              run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_signOutOfAccount", { providerId, accountLabel: account.label }), "run")
+            }));
+          }
+          const providerSubMenu = new SubmenuAction("activitybar.submenu", `${account.label} (${provider.label})`, providerSubMenuActions);
+          menus.push(providerSubMenu);
+        }
+      }
+    }
+    if (menus.length && otherCommands.length) {
+      menus.push(new Separator());
+    }
+    otherCommands.forEach((group, i) => {
+      const actions = group[1];
+      menus = menus.concat(actions);
+      if (i !== otherCommands.length - 1) {
+        menus.push(new Separator());
+      }
+    });
+    return menus;
+  }
+  async resolveContextMenuActions(disposables) {
+    const actions = await super.resolveContextMenuActions(disposables);
+    this.fillContextMenuActions(actions);
+    return actions;
+  }
+  //#endregion
+  //#region groupedAccounts helpers
+  async addOrUpdateAccount(providerId, account) {
+    let accounts = this.groupedAccounts.get(providerId);
+    if (!accounts) {
+      accounts = [];
+      this.groupedAccounts.set(providerId, accounts);
+    }
+    const sessionFromEmbedder = await this.sessionFromEmbedder.value;
+    let canSignOut = true;
+    if (sessionFromEmbedder && !sessionFromEmbedder.canSignOut && (await this.authenticationService.getSessions(providerId)).some((s) => s.id === sessionFromEmbedder.id && s.account.id === account.id)) {
+      canSignOut = false;
+    }
+    const existingAccount = accounts.find((a) => a.label === account.label);
+    if (existingAccount) {
+      if (!canSignOut) {
+        existingAccount.canSignOut = canSignOut;
+      }
+    } else {
+      accounts.push({ ...account, canSignOut });
+    }
+  }
+  removeAccount(providerId, account) {
+    const accounts = this.groupedAccounts.get(providerId);
+    if (!accounts) {
+      return;
+    }
+    const index = accounts.findIndex((a) => a.id === account.id);
+    if (index === -1) {
+      return;
+    }
+    accounts.splice(index, 1);
+    if (accounts.length === 0) {
+      this.groupedAccounts.delete(providerId);
+    }
+  }
+  async addAccountsFromProvider(providerId) {
+    try {
+      const sessions = await this.authenticationService.getSessions(providerId);
+      this.problematicProviders.delete(providerId);
+      for (const session of sessions) {
+        try {
+          await this.addOrUpdateAccount(providerId, session.account);
+        } catch (e) {
+          this.logService.error(e);
+        }
+      }
+    } catch (e) {
+      this.logService.error(e);
+      this.problematicProviders.add(providerId);
+    }
+  }
+};
+AccountsActivityActionViewItem = __decorate([
+  __param(4, IThemeService),
+  __param(5, ILifecycleService),
+  __param(6, IHoverService),
+  __param(7, IContextMenuService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService),
+  __param(10, IAuthenticationService),
+  __param(11, IWorkbenchEnvironmentService),
+  __param(12, IProductService),
+  __param(13, IConfigurationService),
+  __param(14, IKeybindingService),
+  __param(15, ISecretStorageService),
+  __param(16, ILogService),
+  __param(17, IActivityService),
+  __param(18, IInstantiationService),
+  __param(19, ICommandService)
+], AccountsActivityActionViewItem);
+let GlobalActivityActionViewItem = class GlobalActivityActionViewItem2 extends AbstractGlobalActivityActionViewItem {
+  static {
+    __name(this, "GlobalActivityActionViewItem");
+  }
+  constructor(contextMenuActionsProvider, options, contextMenuAlignmentOptions, userDataProfileService, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, environmentService, keybindingService, instantiationService, activityService) {
+    const action = instantiationService.createInstance(CompositeBarAction, {
+      id: GLOBAL_ACTIVITY_ID,
+      name: localize("manage", "Manage"),
+      classNames: ThemeIcon.asClassNameArray(userDataProfileService.currentProfile.icon ? ThemeIcon.fromId(userDataProfileService.currentProfile.icon) : DEFAULT_ICON)
+    });
+    super(MenuId.GlobalActivity, action, options, contextMenuActionsProvider, contextMenuAlignmentOptions, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, keybindingService, activityService);
+    this.userDataProfileService = userDataProfileService;
+    this._register(action);
+    this._register(this.userDataProfileService.onDidChangeCurrentProfile((e) => {
+      action.compositeBarActionItem = {
+        ...action.compositeBarActionItem,
+        classNames: ThemeIcon.asClassNameArray(userDataProfileService.currentProfile.icon ? ThemeIcon.fromId(userDataProfileService.currentProfile.icon) : DEFAULT_ICON)
+      };
+    }));
+  }
+  render(container) {
+    super.render(container);
+    this.profileBadge = append(container, $(".profile-badge"));
+    this.profileBadgeContent = append(this.profileBadge, $(".profile-badge-content"));
+    this.updateProfileBadge();
+  }
+  updateProfileBadge() {
+    if (!this.profileBadge || !this.profileBadgeContent) {
+      return;
+    }
+    clearNode(this.profileBadgeContent);
+    hide(this.profileBadge);
+    if (this.userDataProfileService.currentProfile.isDefault) {
+      return;
+    }
+    if (this.userDataProfileService.currentProfile.icon && this.userDataProfileService.currentProfile.icon !== DEFAULT_ICON.id) {
+      return;
+    }
+    if (this.action.activities.length > 0) {
+      return;
+    }
+    show(this.profileBadge);
+    this.profileBadgeContent.classList.add("profile-text-overlay");
+    this.profileBadgeContent.textContent = this.userDataProfileService.currentProfile.name.substring(0, 2).toUpperCase();
+  }
+  updateActivity() {
+    super.updateActivity();
+    this.updateProfileBadge();
+  }
+  computeTitle() {
+    return this.userDataProfileService.currentProfile.isDefault ? super.computeTitle() : localize("manage profile", "Manage {0} (Profile)", this.userDataProfileService.currentProfile.name);
+  }
+};
+GlobalActivityActionViewItem = __decorate([
+  __param(3, IUserDataProfileService),
+  __param(4, IThemeService),
+  __param(5, IHoverService),
+  __param(6, IMenuService),
+  __param(7, IContextMenuService),
+  __param(8, IContextKeyService),
+  __param(9, IConfigurationService),
+  __param(10, IWorkbenchEnvironmentService),
+  __param(11, IKeybindingService),
+  __param(12, IInstantiationService),
+  __param(13, IActivityService)
+], GlobalActivityActionViewItem);
+let SimpleAccountActivityActionViewItem = class SimpleAccountActivityActionViewItem2 extends AccountsActivityActionViewItem {
+  static {
+    __name(this, "SimpleAccountActivityActionViewItem");
+  }
+  constructor(hoverOptions, options, themeService, lifecycleService, hoverService, contextMenuService, menuService, contextKeyService, authenticationService, environmentService, productService, configurationService, keybindingService, secretStorageService, storageService, logService, activityService, instantiationService, commandService) {
+    super(() => simpleActivityContextMenuActions(storageService, true), {
+      ...options,
+      colors: /* @__PURE__ */ __name((theme) => ({
+        badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
+        badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND)
+      }), "colors"),
+      hoverOptions,
+      compact: true
+    }, () => void 0, (actions) => actions, themeService, lifecycleService, hoverService, contextMenuService, menuService, contextKeyService, authenticationService, environmentService, productService, configurationService, keybindingService, secretStorageService, logService, activityService, instantiationService, commandService);
+  }
+};
+SimpleAccountActivityActionViewItem = __decorate([
+  __param(2, IThemeService),
+  __param(3, ILifecycleService),
+  __param(4, IHoverService),
+  __param(5, IContextMenuService),
+  __param(6, IMenuService),
+  __param(7, IContextKeyService),
+  __param(8, IAuthenticationService),
+  __param(9, IWorkbenchEnvironmentService),
+  __param(10, IProductService),
+  __param(11, IConfigurationService),
+  __param(12, IKeybindingService),
+  __param(13, ISecretStorageService),
+  __param(14, IStorageService),
+  __param(15, ILogService),
+  __param(16, IActivityService),
+  __param(17, IInstantiationService),
+  __param(18, ICommandService)
+], SimpleAccountActivityActionViewItem);
+let SimpleGlobalActivityActionViewItem = class SimpleGlobalActivityActionViewItem2 extends GlobalActivityActionViewItem {
+  static {
+    __name(this, "SimpleGlobalActivityActionViewItem");
+  }
+  constructor(hoverOptions, options, userDataProfileService, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, environmentService, keybindingService, instantiationService, activityService, storageService) {
+    super(() => simpleActivityContextMenuActions(storageService, false), {
+      ...options,
+      colors: /* @__PURE__ */ __name((theme) => ({
+        badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
+        badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND)
+      }), "colors"),
+      hoverOptions,
+      compact: true
+    }, () => void 0, userDataProfileService, themeService, hoverService, menuService, contextMenuService, contextKeyService, configurationService, environmentService, keybindingService, instantiationService, activityService);
+  }
+};
+SimpleGlobalActivityActionViewItem = __decorate([
+  __param(2, IUserDataProfileService),
+  __param(3, IThemeService),
+  __param(4, IHoverService),
+  __param(5, IMenuService),
+  __param(6, IContextMenuService),
+  __param(7, IContextKeyService),
+  __param(8, IConfigurationService),
+  __param(9, IWorkbenchEnvironmentService),
+  __param(10, IKeybindingService),
+  __param(11, IInstantiationService),
+  __param(12, IActivityService),
+  __param(13, IStorageService)
+], SimpleGlobalActivityActionViewItem);
+function simpleActivityContextMenuActions(storageService, isAccount) {
+  const currentElementContextMenuActions = [];
+  if (isAccount) {
+    currentElementContextMenuActions.push(toAction({ id: "hideAccounts", label: localize("hideAccounts", "Hide Accounts"), run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, false), "run") }), new Separator());
+  }
+  return [
+    ...currentElementContextMenuActions,
+    toAction({ id: "toggle.hideAccounts", label: localize("accounts", "Accounts"), checked: isAccountsActionVisible(storageService), run: /* @__PURE__ */ __name(() => setAccountsActionVisible(storageService, !isAccountsActionVisible(storageService)), "run") }),
+    toAction({ id: "toggle.hideManage", label: localize("manage", "Manage"), checked: true, enabled: false, run: /* @__PURE__ */ __name(() => {
+      throw new Error('"Manage" can not be hidden');
+    }, "run") })
+  ];
+}
+__name(simpleActivityContextMenuActions, "simpleActivityContextMenuActions");
+function isAccountsActionVisible(storageService) {
+  return storageService.getBoolean(AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, 0, true);
+}
+__name(isAccountsActionVisible, "isAccountsActionVisible");
+function setAccountsActionVisible(storageService, visible) {
+  storageService.store(
+    AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,
+    visible,
+    0,
+    0
+    /* StorageTarget.USER */
+  );
+}
+__name(setAccountsActionVisible, "setAccountsActionVisible");
+export {
+  AccountsActivityActionViewItem,
+  GlobalActivityActionViewItem,
+  GlobalCompositeBar,
+  SimpleAccountActivityActionViewItem,
+  SimpleGlobalActivityActionViewItem,
+  isAccountsActionVisible
+};
+//# sourceMappingURL=globalCompositeBar.js.map

@@ -1,1 +1,235 @@
-import{EditContext as l}from"./editContextFactory.js";const p="blue",f="red",g="green";class v{constructor(t,e){this.a=!0,this.b=null,this.c=null,this.e=null,this.g=new o("textupdate",this),this.h=new o("textformatupdate",this),this.i=new o("characterboundsupdate",this),this.j=new o("compositionstart",this),this.k=new o("compositionend",this),this.l=new Map,this.m=[],this.f=l.create(t,e)}get text(){return this.f.text}get selectionStart(){return this.f.selectionStart}get selectionEnd(){return this.f.selectionEnd}get characterBoundsRangeStart(){return this.f.characterBoundsRangeStart}updateText(t,e,s){this.f.updateText(t,e,s),this.renderDebug()}updateSelection(t,e){this.f.updateSelection(t,e),this.renderDebug()}updateControlBounds(t){this.f.updateControlBounds(t),this.b=t,this.renderDebug()}updateSelectionBounds(t){this.f.updateSelectionBounds(t),this.c=t,this.renderDebug()}updateCharacterBounds(t,e){this.f.updateCharacterBounds(t,e),this.e={rangeStart:t,characterBounds:e},this.renderDebug()}attachedElements(){return this.f.attachedElements()}characterBounds(){return this.f.characterBounds()}get ontextupdate(){return this.g.eventHandler}set ontextupdate(t){this.g.eventHandler=t}get ontextformatupdate(){return this.h.eventHandler}set ontextformatupdate(t){this.h.eventHandler=t}get oncharacterboundsupdate(){return this.i.eventHandler}set oncharacterboundsupdate(t){this.i.eventHandler=t}get oncompositionstart(){return this.j.eventHandler}set oncompositionstart(t){this.j.eventHandler=t}get oncompositionend(){return this.k.eventHandler}set oncompositionend(t){this.k.eventHandler=t}addEventListener(t,e,s){if(!e)return;const i=h=>{this.a&&this.renderDebug(),typeof e=="function"?e.call(this,h):typeof e=="object"&&"handleEvent"in e&&e.handleEvent(h)};this.l.set(e,i),this.f.addEventListener(t,i,s),this.renderDebug()}removeEventListener(t,e,s){if(!e)return;const i=this.l.get(e);i&&(this.f.removeEventListener(t,i,s),this.l.delete(e)),this.renderDebug()}dispatchEvent(t){return this.f.dispatchEvent(t)}startDebugging(){this.a=!0,this.renderDebug()}endDebugging(){this.a=!1,this.renderDebug()}renderDebug(){if(this.m.forEach(t=>t.dispose()),this.m=[],!(!this.a||this.l.size===0)){if(this.b&&this.m.push(d(this.b,p)),this.c&&this.m.push(d(this.c,f)),this.e)for(const t of this.e.characterBounds)this.m.push(d(t,g));this.m.push(b(this.f.text,this.f.selectionStart,this.f.selectionEnd))}}}function b(n,t,e){const s=document.createElement("div");s.className="debug-rect-marker",s.style.position="absolute",s.style.zIndex="999999999",s.style.bottom="50px",s.style.left="60px",s.style.backgroundColor="white",s.style.border="1px solid black",s.style.padding="5px",s.style.whiteSpace="pre",s.style.font="12px monospace",s.style.pointerEvents="none";const i=n.substring(0,t),h=n.substring(t,e)||"|",a=n.substring(e)+" ",u=document.createTextNode(i);s.appendChild(u);const r=document.createElement("span");r.style.backgroundColor="yellow",r.appendChild(document.createTextNode(h)),r.style.minWidth="2px",r.style.minHeight="16px",s.appendChild(r);const c=document.createTextNode(a);return s.appendChild(c),document.body.appendChild(s),{dispose:()=>{s.remove()}}}function d(n,t){const e=document.createElement("div");return e.className="debug-rect-marker",e.style.position="absolute",e.style.zIndex="999999999",e.style.outline=`2px solid ${t}`,e.style.pointerEvents="none",e.style.top=n.top+"px",e.style.left=n.left+"px",e.style.width=n.width+"px",e.style.height=n.height+"px",document.body.appendChild(e),{dispose:()=>{e.remove()}}}class o{constructor(t,e){this.b=t,this.c=e,this.a=null}get eventHandler(){return this.a}set eventHandler(t){this.a&&this.c.removeEventListener(this.b,this.a),this.a=t,t&&this.c.addEventListener(this.b,t)}}export{v as $SQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditContext } from "./editContextFactory.js";
+const COLOR_FOR_CONTROL_BOUNDS = "blue";
+const COLOR_FOR_SELECTION_BOUNDS = "red";
+const COLOR_FOR_CHARACTER_BOUNDS = "green";
+class DebugEditContext {
+  static {
+    __name(this, "DebugEditContext");
+  }
+  constructor(window, options) {
+    this._isDebugging = true;
+    this._controlBounds = null;
+    this._selectionBounds = null;
+    this._characterBounds = null;
+    this._ontextupdateWrapper = new EventListenerWrapper("textupdate", this);
+    this._ontextformatupdateWrapper = new EventListenerWrapper("textformatupdate", this);
+    this._oncharacterboundsupdateWrapper = new EventListenerWrapper("characterboundsupdate", this);
+    this._oncompositionstartWrapper = new EventListenerWrapper("compositionstart", this);
+    this._oncompositionendWrapper = new EventListenerWrapper("compositionend", this);
+    this._listenerMap = /* @__PURE__ */ new Map();
+    this._disposables = [];
+    this._editContext = EditContext.create(window, options);
+  }
+  get text() {
+    return this._editContext.text;
+  }
+  get selectionStart() {
+    return this._editContext.selectionStart;
+  }
+  get selectionEnd() {
+    return this._editContext.selectionEnd;
+  }
+  get characterBoundsRangeStart() {
+    return this._editContext.characterBoundsRangeStart;
+  }
+  updateText(rangeStart, rangeEnd, text) {
+    this._editContext.updateText(rangeStart, rangeEnd, text);
+    this.renderDebug();
+  }
+  updateSelection(start, end) {
+    this._editContext.updateSelection(start, end);
+    this.renderDebug();
+  }
+  updateControlBounds(controlBounds) {
+    this._editContext.updateControlBounds(controlBounds);
+    this._controlBounds = controlBounds;
+    this.renderDebug();
+  }
+  updateSelectionBounds(selectionBounds) {
+    this._editContext.updateSelectionBounds(selectionBounds);
+    this._selectionBounds = selectionBounds;
+    this.renderDebug();
+  }
+  updateCharacterBounds(rangeStart, characterBounds) {
+    this._editContext.updateCharacterBounds(rangeStart, characterBounds);
+    this._characterBounds = { rangeStart, characterBounds };
+    this.renderDebug();
+  }
+  attachedElements() {
+    return this._editContext.attachedElements();
+  }
+  characterBounds() {
+    return this._editContext.characterBounds();
+  }
+  get ontextupdate() {
+    return this._ontextupdateWrapper.eventHandler;
+  }
+  set ontextupdate(value) {
+    this._ontextupdateWrapper.eventHandler = value;
+  }
+  get ontextformatupdate() {
+    return this._ontextformatupdateWrapper.eventHandler;
+  }
+  set ontextformatupdate(value) {
+    this._ontextformatupdateWrapper.eventHandler = value;
+  }
+  get oncharacterboundsupdate() {
+    return this._oncharacterboundsupdateWrapper.eventHandler;
+  }
+  set oncharacterboundsupdate(value) {
+    this._oncharacterboundsupdateWrapper.eventHandler = value;
+  }
+  get oncompositionstart() {
+    return this._oncompositionstartWrapper.eventHandler;
+  }
+  set oncompositionstart(value) {
+    this._oncompositionstartWrapper.eventHandler = value;
+  }
+  get oncompositionend() {
+    return this._oncompositionendWrapper.eventHandler;
+  }
+  set oncompositionend(value) {
+    this._oncompositionendWrapper.eventHandler = value;
+  }
+  addEventListener(type, listener, options) {
+    if (!listener) {
+      return;
+    }
+    const debugListener = /* @__PURE__ */ __name((event) => {
+      if (this._isDebugging) {
+        this.renderDebug();
+        console.log(`DebugEditContex.on_${type}`, event);
+      }
+      if (typeof listener === "function") {
+        listener.call(this, event);
+      } else if (typeof listener === "object" && "handleEvent" in listener) {
+        listener.handleEvent(event);
+      }
+    }, "debugListener");
+    this._listenerMap.set(listener, debugListener);
+    this._editContext.addEventListener(type, debugListener, options);
+    this.renderDebug();
+  }
+  removeEventListener(type, listener, options) {
+    if (!listener) {
+      return;
+    }
+    const debugListener = this._listenerMap.get(listener);
+    if (debugListener) {
+      this._editContext.removeEventListener(type, debugListener, options);
+      this._listenerMap.delete(listener);
+    }
+    this.renderDebug();
+  }
+  dispatchEvent(event) {
+    return this._editContext.dispatchEvent(event);
+  }
+  startDebugging() {
+    this._isDebugging = true;
+    this.renderDebug();
+  }
+  endDebugging() {
+    this._isDebugging = false;
+    this.renderDebug();
+  }
+  renderDebug() {
+    this._disposables.forEach((d) => d.dispose());
+    this._disposables = [];
+    if (!this._isDebugging || this._listenerMap.size === 0) {
+      return;
+    }
+    if (this._controlBounds) {
+      this._disposables.push(createRect(this._controlBounds, COLOR_FOR_CONTROL_BOUNDS));
+    }
+    if (this._selectionBounds) {
+      this._disposables.push(createRect(this._selectionBounds, COLOR_FOR_SELECTION_BOUNDS));
+    }
+    if (this._characterBounds) {
+      for (const rect of this._characterBounds.characterBounds) {
+        this._disposables.push(createRect(rect, COLOR_FOR_CHARACTER_BOUNDS));
+      }
+    }
+    this._disposables.push(createDiv(this._editContext.text, this._editContext.selectionStart, this._editContext.selectionEnd));
+  }
+}
+function createDiv(text, selectionStart, selectionEnd) {
+  const ret = document.createElement("div");
+  ret.className = "debug-rect-marker";
+  ret.style.position = "absolute";
+  ret.style.zIndex = "999999999";
+  ret.style.bottom = "50px";
+  ret.style.left = "60px";
+  ret.style.backgroundColor = "white";
+  ret.style.border = "1px solid black";
+  ret.style.padding = "5px";
+  ret.style.whiteSpace = "pre";
+  ret.style.font = "12px monospace";
+  ret.style.pointerEvents = "none";
+  const before = text.substring(0, selectionStart);
+  const selected = text.substring(selectionStart, selectionEnd) || "|";
+  const after = text.substring(selectionEnd) + " ";
+  const beforeNode = document.createTextNode(before);
+  ret.appendChild(beforeNode);
+  const selectedNode = document.createElement("span");
+  selectedNode.style.backgroundColor = "yellow";
+  selectedNode.appendChild(document.createTextNode(selected));
+  selectedNode.style.minWidth = "2px";
+  selectedNode.style.minHeight = "16px";
+  ret.appendChild(selectedNode);
+  const afterNode = document.createTextNode(after);
+  ret.appendChild(afterNode);
+  document.body.appendChild(ret);
+  return {
+    dispose: /* @__PURE__ */ __name(() => {
+      ret.remove();
+    }, "dispose")
+  };
+}
+__name(createDiv, "createDiv");
+function createRect(rect, color) {
+  const ret = document.createElement("div");
+  ret.className = "debug-rect-marker";
+  ret.style.position = "absolute";
+  ret.style.zIndex = "999999999";
+  ret.style.outline = `2px solid ${color}`;
+  ret.style.pointerEvents = "none";
+  ret.style.top = rect.top + "px";
+  ret.style.left = rect.left + "px";
+  ret.style.width = rect.width + "px";
+  ret.style.height = rect.height + "px";
+  document.body.appendChild(ret);
+  return {
+    dispose: /* @__PURE__ */ __name(() => {
+      ret.remove();
+    }, "dispose")
+  };
+}
+__name(createRect, "createRect");
+class EventListenerWrapper {
+  static {
+    __name(this, "EventListenerWrapper");
+  }
+  constructor(_eventType, _target) {
+    this._eventType = _eventType;
+    this._target = _target;
+    this._eventHandler = null;
+  }
+  get eventHandler() {
+    return this._eventHandler;
+  }
+  set eventHandler(value) {
+    if (this._eventHandler) {
+      this._target.removeEventListener(this._eventType, this._eventHandler);
+    }
+    this._eventHandler = value;
+    if (value) {
+      this._target.addEventListener(this._eventType, value);
+    }
+  }
+}
+export {
+  DebugEditContext
+};
+//# sourceMappingURL=debugEditContext.js.map

@@ -1,1 +1,4 @@
-import{$wab as m}from"../../../base/common/worker/webWorkerBootstrap.js";import{$7db as o}from"./editorWebWorker.js";m(()=>new o(null));
+import { bootstrapWebWorker } from "../../../base/common/worker/webWorkerBootstrap.js";
+import { EditorWorker } from "./editorWebWorker.js";
+bootstrapWebWorker(() => new EditorWorker(null));
+//# sourceMappingURL=editorWebWorkerMain.js.map

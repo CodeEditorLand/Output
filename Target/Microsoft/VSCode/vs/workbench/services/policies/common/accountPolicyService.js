@@ -1,1 +1,64 @@
-import{$xo as u}from"../../../../platform/log/common/log.js";import{$Au as a}from"../../../../platform/policy/common/policy.js";import{$oob as p}from"../../../../platform/defaultAccount/common/defaultAccount.js";var l=function(c,e,i,t){var o=arguments.length,n=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(c,e,i,t);else for(var h=c.length-1;h>=0;h--)(s=c[h])&&(n=(o<3?s(n):o>3?s(e,i,n):s(e,i))||n);return o>3&&n&&Object.defineProperty(e,i,n),n},f=function(c,e){return function(i,t){e(i,t,c)}};let r=class extends a{constructor(e,i){super(),this.b=e,this.c=i,this.a=null,this.c.getDefaultAccount().then(t=>{this.a=t,this.h(this.policyDefinitions),this.D(this.c.onDidChangeDefaultAccount(o=>{this.a=o,this.h(this.policyDefinitions)}))})}async h(e){this.b.trace(`AccountPolicyService#_updatePolicyDefinitions: Got ${Object.keys(e).length} policy definitions`);const i=[];for(const t in e){const o=e[t],n=this.a&&o.value?o.value(this.a):void 0;n!==void 0?this.f.get(t)!==n&&(this.f.set(t,n),i.push(t)):this.f.delete(t)&&i.push(t)}i.length&&this.g.fire(i)}};r=l([f(0,u),f(1,p)],r);export{r as $ZKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { AbstractPolicyService } from "../../../../platform/policy/common/policy.js";
+import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
+let AccountPolicyService = class AccountPolicyService2 extends AbstractPolicyService {
+  static {
+    __name(this, "AccountPolicyService");
+  }
+  constructor(logService, defaultAccountService) {
+    super();
+    this.logService = logService;
+    this.defaultAccountService = defaultAccountService;
+    this.account = null;
+    this.defaultAccountService.getDefaultAccount().then((account) => {
+      this.account = account;
+      this._updatePolicyDefinitions(this.policyDefinitions);
+      this._register(this.defaultAccountService.onDidChangeDefaultAccount((account2) => {
+        this.account = account2;
+        this._updatePolicyDefinitions(this.policyDefinitions);
+      }));
+    });
+  }
+  async _updatePolicyDefinitions(policyDefinitions) {
+    this.logService.trace(`AccountPolicyService#_updatePolicyDefinitions: Got ${Object.keys(policyDefinitions).length} policy definitions`);
+    const updated = [];
+    for (const key in policyDefinitions) {
+      const policy = policyDefinitions[key];
+      const policyValue = this.account && policy.value ? policy.value(this.account) : void 0;
+      if (policyValue !== void 0) {
+        if (this.policies.get(key) !== policyValue) {
+          this.policies.set(key, policyValue);
+          updated.push(key);
+        }
+      } else {
+        if (this.policies.delete(key)) {
+          updated.push(key);
+        }
+      }
+    }
+    if (updated.length) {
+      this._onDidChange.fire(updated);
+    }
+  }
+};
+AccountPolicyService = __decorate([
+  __param(0, ILogService),
+  __param(1, IDefaultAccountService)
+], AccountPolicyService);
+export {
+  AccountPolicyService
+};
+//# sourceMappingURL=accountPolicyService.js.map

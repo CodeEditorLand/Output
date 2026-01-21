@@ -1,1 +1,253 @@
-import{$3E as m}from"../../../../base/common/hierarchicalKind.js";import{$Yf as k}from"../../../../base/common/strings.js";import{$Acb as u,$zcb as x}from"../../../browser/editorExtensions.js";import{EditorContextKeys as o}from"../../../common/editorContextKeys.js";import{$Gkb as z,$Ekb as g,$Lkb as y,$Kkb as S,$Fkb as $,$Hkb as A,$Jkb as w}from"./codeAction.js";import*as e from"../../../../nls.js";import{$9n as c}from"../../../../platform/contextkey/common/contextkey.js";import{$Ckb as f,$zkb as l,CodeActionTriggerSource as d}from"../common/types.js";import{$plb as F}from"./codeActionController.js";import{$llb as h}from"./codeActionModel.js";function p(t){return c.regex(h.keys()[0],new RegExp("(\\s|^)"+k(t.value)+"\\b"))}const b={type:"object",defaultSnippets:[{body:{kind:""}}],properties:{kind:{type:"string",description:e.localize(993,null)},apply:{type:"string",description:e.localize(994,null),default:"ifSingle",enum:["first","ifSingle","never"],enumDescriptions:[e.localize(995,null),e.localize(996,null),e.localize(997,null)]},preferred:{type:"boolean",default:!1,description:e.localize(998,null)}}};function s(t,a,n,i,r=d.Default){t.hasModel()&&F.get(t)?.manualTriggerAtCurrentPosition(a,r,n,i)}class M extends u{constructor(){super({id:$,label:e.localize2(1015,"Quick Fix..."),precondition:c.and(o.writable,o.hasCodeActionsProvider),kbOpts:{kbExpr:o.textInputFocus,primary:2137,weight:100}})}run(a,n){return s(n,e.localize(999,null),void 0,void 0,d.QuickFix)}}class T extends x{constructor(){super({id:g,precondition:c.and(o.writable,o.hasCodeActionsProvider),metadata:{description:"Trigger a code action",args:[{name:"args",schema:b}]}})}runEditorCommand(a,n,i){const r=f.fromUser(i,{kind:m.Empty,apply:"ifSingle"});return s(n,typeof i?.kind=="string"?r.preferred?e.localize(1e3,null,i.kind):e.localize(1001,null,i.kind):r.preferred?e.localize(1002,null):e.localize(1003,null),{include:r.kind,includeSourceActions:!0,onlyIncludePreferredActions:r.preferred},r.apply)}}class U extends u{constructor(){super({id:A,label:e.localize2(1016,"Refactor..."),precondition:c.and(o.writable,o.hasCodeActionsProvider),kbOpts:{kbExpr:o.textInputFocus,primary:3120,mac:{primary:1328},weight:100},contextMenuOpts:{group:"1_modification",order:2,when:c.and(o.writable,p(l.Refactor))},metadata:{description:"Refactor...",args:[{name:"args",schema:b}]}})}run(a,n,i){const r=f.fromUser(i,{kind:l.Refactor,apply:"never"});return s(n,typeof i?.kind=="string"?r.preferred?e.localize(1004,null,i.kind):e.localize(1005,null,i.kind):r.preferred?e.localize(1006,null):e.localize(1007,null),{include:l.Refactor.contains(r.kind)?r.kind:m.None,onlyIncludePreferredActions:r.preferred},r.apply,d.Refactor)}}class D extends u{constructor(){super({id:w,label:e.localize2(1017,"Source Action..."),precondition:c.and(o.writable,o.hasCodeActionsProvider),contextMenuOpts:{group:"1_modification",order:2.1,when:c.and(o.writable,p(l.Source))},metadata:{description:"Source Action...",args:[{name:"args",schema:b}]}})}run(a,n,i){const r=f.fromUser(i,{kind:l.Source,apply:"never"});return s(n,typeof i?.kind=="string"?r.preferred?e.localize(1008,null,i.kind):e.localize(1009,null,i.kind):r.preferred?e.localize(1010,null):e.localize(1011,null),{include:l.Source.contains(r.kind)?r.kind:m.None,includeSourceActions:!0,onlyIncludePreferredActions:r.preferred},r.apply,d.SourceAction)}}class N extends u{constructor(){super({id:S,label:e.localize2(1018,"Organize Imports"),precondition:c.and(o.writable,p(l.SourceOrganizeImports)),kbOpts:{kbExpr:o.textInputFocus,primary:1581,weight:100},metadata:{description:e.localize2(1019,"Organize imports in the current file. Also called 'Optimize Imports' by some tools")}})}run(a,n){return s(n,e.localize(1012,null),{include:l.SourceOrganizeImports,includeSourceActions:!0},"ifSingle",d.OrganizeImports)}}class j extends u{constructor(){super({id:y,label:e.localize2(1020,"Fix All"),precondition:c.and(o.writable,p(l.SourceFixAll))})}run(a,n){return s(n,e.localize(1013,null),{include:l.SourceFixAll,includeSourceActions:!0},"ifSingle",d.FixAll)}}class q extends u{constructor(){super({id:z,label:e.localize2(1021,"Auto Fix..."),precondition:c.and(o.writable,p(l.QuickFix)),kbOpts:{kbExpr:o.textInputFocus,primary:1625,mac:{primary:2649},weight:100}})}run(a,n){return s(n,e.localize(1014,null),{include:l.QuickFix,onlyIncludePreferredActions:!0},"ifSingle",d.AutoFix)}}export{M as $qlb,T as $rlb,U as $slb,D as $tlb,N as $ulb,j as $vlb,q as $wlb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { escapeRegExpCharacters } from "../../../../base/common/strings.js";
+import { EditorAction, EditorCommand } from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { autoFixCommandId, codeActionCommandId, fixAllCommandId, organizeImportsCommandId, quickFixCommandId, refactorCommandId, sourceActionCommandId } from "./codeAction.js";
+import * as nls from "../../../../nls.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { CodeActionCommandArgs, CodeActionKind, CodeActionTriggerSource } from "../common/types.js";
+import { CodeActionController } from "./codeActionController.js";
+import { SUPPORTED_CODE_ACTIONS } from "./codeActionModel.js";
+function contextKeyForSupportedActions(kind) {
+  return ContextKeyExpr.regex(SUPPORTED_CODE_ACTIONS.keys()[0], new RegExp("(\\s|^)" + escapeRegExpCharacters(kind.value) + "\\b"));
+}
+__name(contextKeyForSupportedActions, "contextKeyForSupportedActions");
+const argsSchema = {
+  type: "object",
+  defaultSnippets: [{ body: { kind: "" } }],
+  properties: {
+    "kind": {
+      type: "string",
+      description: nls.localize("args.schema.kind", "Kind of the code action to run.")
+    },
+    "apply": {
+      type: "string",
+      description: nls.localize("args.schema.apply", "Controls when the returned actions are applied."),
+      default: "ifSingle",
+      enum: [
+        "first",
+        "ifSingle",
+        "never"
+        /* CodeActionAutoApply.Never */
+      ],
+      enumDescriptions: [
+        nls.localize("args.schema.apply.first", "Always apply the first returned code action."),
+        nls.localize("args.schema.apply.ifSingle", "Apply the first returned code action if it is the only one."),
+        nls.localize("args.schema.apply.never", "Do not apply the returned code actions.")
+      ]
+    },
+    "preferred": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("args.schema.preferred", "Controls if only preferred code actions should be returned.")
+    }
+  }
+};
+function triggerCodeActionsForEditorSelection(editor, notAvailableMessage, filter, autoApply, triggerAction = CodeActionTriggerSource.Default) {
+  if (editor.hasModel()) {
+    const controller = CodeActionController.get(editor);
+    controller?.manualTriggerAtCurrentPosition(notAvailableMessage, triggerAction, filter, autoApply);
+  }
+}
+__name(triggerCodeActionsForEditorSelection, "triggerCodeActionsForEditorSelection");
+class QuickFixAction extends EditorAction {
+  static {
+    __name(this, "QuickFixAction");
+  }
+  constructor() {
+    super({
+      id: quickFixCommandId,
+      label: nls.localize2("quickfix.trigger.label", "Quick Fix..."),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasCodeActionsProvider),
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 2048 | 89,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(_accessor, editor) {
+    return triggerCodeActionsForEditorSelection(editor, nls.localize("editor.action.quickFix.noneMessage", "No code actions available"), void 0, void 0, CodeActionTriggerSource.QuickFix);
+  }
+}
+class CodeActionCommand extends EditorCommand {
+  static {
+    __name(this, "CodeActionCommand");
+  }
+  constructor() {
+    super({
+      id: codeActionCommandId,
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasCodeActionsProvider),
+      metadata: {
+        description: "Trigger a code action",
+        args: [{ name: "args", schema: argsSchema }]
+      }
+    });
+  }
+  runEditorCommand(_accessor, editor, userArgs) {
+    const args = CodeActionCommandArgs.fromUser(userArgs, {
+      kind: HierarchicalKind.Empty,
+      apply: "ifSingle"
+    });
+    return triggerCodeActionsForEditorSelection(editor, typeof userArgs?.kind === "string" ? args.preferred ? nls.localize("editor.action.codeAction.noneMessage.preferred.kind", "No preferred code actions for '{0}' available", userArgs.kind) : nls.localize("editor.action.codeAction.noneMessage.kind", "No code actions for '{0}' available", userArgs.kind) : args.preferred ? nls.localize("editor.action.codeAction.noneMessage.preferred", "No preferred code actions available") : nls.localize("editor.action.codeAction.noneMessage", "No code actions available"), {
+      include: args.kind,
+      includeSourceActions: true,
+      onlyIncludePreferredActions: args.preferred
+    }, args.apply);
+  }
+}
+class RefactorAction extends EditorAction {
+  static {
+    __name(this, "RefactorAction");
+  }
+  constructor() {
+    super({
+      id: refactorCommandId,
+      label: nls.localize2("refactor.label", "Refactor..."),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasCodeActionsProvider),
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 2048 | 1024 | 48,
+        mac: {
+          primary: 256 | 1024 | 48
+          /* KeyCode.KeyR */
+        },
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      contextMenuOpts: {
+        group: "1_modification",
+        order: 2,
+        when: ContextKeyExpr.and(EditorContextKeys.writable, contextKeyForSupportedActions(CodeActionKind.Refactor))
+      },
+      metadata: {
+        description: "Refactor...",
+        args: [{ name: "args", schema: argsSchema }]
+      }
+    });
+  }
+  run(_accessor, editor, userArgs) {
+    const args = CodeActionCommandArgs.fromUser(userArgs, {
+      kind: CodeActionKind.Refactor,
+      apply: "never"
+      /* CodeActionAutoApply.Never */
+    });
+    return triggerCodeActionsForEditorSelection(editor, typeof userArgs?.kind === "string" ? args.preferred ? nls.localize("editor.action.refactor.noneMessage.preferred.kind", "No preferred refactorings for '{0}' available", userArgs.kind) : nls.localize("editor.action.refactor.noneMessage.kind", "No refactorings for '{0}' available", userArgs.kind) : args.preferred ? nls.localize("editor.action.refactor.noneMessage.preferred", "No preferred refactorings available") : nls.localize("editor.action.refactor.noneMessage", "No refactorings available"), {
+      include: CodeActionKind.Refactor.contains(args.kind) ? args.kind : HierarchicalKind.None,
+      onlyIncludePreferredActions: args.preferred
+    }, args.apply, CodeActionTriggerSource.Refactor);
+  }
+}
+class SourceAction extends EditorAction {
+  static {
+    __name(this, "SourceAction");
+  }
+  constructor() {
+    super({
+      id: sourceActionCommandId,
+      label: nls.localize2("source.label", "Source Action..."),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasCodeActionsProvider),
+      contextMenuOpts: {
+        group: "1_modification",
+        order: 2.1,
+        when: ContextKeyExpr.and(EditorContextKeys.writable, contextKeyForSupportedActions(CodeActionKind.Source))
+      },
+      metadata: {
+        description: "Source Action...",
+        args: [{ name: "args", schema: argsSchema }]
+      }
+    });
+  }
+  run(_accessor, editor, userArgs) {
+    const args = CodeActionCommandArgs.fromUser(userArgs, {
+      kind: CodeActionKind.Source,
+      apply: "never"
+      /* CodeActionAutoApply.Never */
+    });
+    return triggerCodeActionsForEditorSelection(editor, typeof userArgs?.kind === "string" ? args.preferred ? nls.localize("editor.action.source.noneMessage.preferred.kind", "No preferred source actions for '{0}' available", userArgs.kind) : nls.localize("editor.action.source.noneMessage.kind", "No source actions for '{0}' available", userArgs.kind) : args.preferred ? nls.localize("editor.action.source.noneMessage.preferred", "No preferred source actions available") : nls.localize("editor.action.source.noneMessage", "No source actions available"), {
+      include: CodeActionKind.Source.contains(args.kind) ? args.kind : HierarchicalKind.None,
+      includeSourceActions: true,
+      onlyIncludePreferredActions: args.preferred
+    }, args.apply, CodeActionTriggerSource.SourceAction);
+  }
+}
+class OrganizeImportsAction extends EditorAction {
+  static {
+    __name(this, "OrganizeImportsAction");
+  }
+  constructor() {
+    super({
+      id: organizeImportsCommandId,
+      label: nls.localize2("organizeImports.label", "Organize Imports"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, contextKeyForSupportedActions(CodeActionKind.SourceOrganizeImports)),
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 1024 | 512 | 45,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      metadata: {
+        description: nls.localize2("organizeImports.description", "Organize imports in the current file. Also called 'Optimize Imports' by some tools")
+      }
+    });
+  }
+  run(_accessor, editor) {
+    return triggerCodeActionsForEditorSelection(editor, nls.localize("editor.action.organize.noneMessage", "No organize imports action available"), { include: CodeActionKind.SourceOrganizeImports, includeSourceActions: true }, "ifSingle", CodeActionTriggerSource.OrganizeImports);
+  }
+}
+class FixAllAction extends EditorAction {
+  static {
+    __name(this, "FixAllAction");
+  }
+  constructor() {
+    super({
+      id: fixAllCommandId,
+      label: nls.localize2("fixAll.label", "Fix All"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, contextKeyForSupportedActions(CodeActionKind.SourceFixAll))
+    });
+  }
+  run(_accessor, editor) {
+    return triggerCodeActionsForEditorSelection(editor, nls.localize("fixAll.noneMessage", "No fix all action available"), { include: CodeActionKind.SourceFixAll, includeSourceActions: true }, "ifSingle", CodeActionTriggerSource.FixAll);
+  }
+}
+class AutoFixAction extends EditorAction {
+  static {
+    __name(this, "AutoFixAction");
+  }
+  constructor() {
+    super({
+      id: autoFixCommandId,
+      label: nls.localize2("autoFix.label", "Auto Fix..."),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, contextKeyForSupportedActions(CodeActionKind.QuickFix)),
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 512 | 1024 | 89,
+        mac: {
+          primary: 2048 | 512 | 89
+          /* KeyCode.Period */
+        },
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(_accessor, editor) {
+    return triggerCodeActionsForEditorSelection(editor, nls.localize("editor.action.autoFix.noneMessage", "No auto fixes available"), {
+      include: CodeActionKind.QuickFix,
+      onlyIncludePreferredActions: true
+    }, "ifSingle", CodeActionTriggerSource.AutoFix);
+  }
+}
+export {
+  AutoFixAction,
+  CodeActionCommand,
+  FixAllAction,
+  OrganizeImportsAction,
+  QuickFixAction,
+  RefactorAction,
+  SourceAction
+};
+//# sourceMappingURL=codeActionCommands.js.map

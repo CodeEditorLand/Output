@@ -1,1 +1,34 @@
-class a{constructor(){this.a=new Map}removeDragOperationTransfer(r){if(r&&this.a.has(r)){const t=this.a.get(r);return this.a.delete(r),t}}addDragOperationTransfer(r,t){this.a.set(r,t)}}class s{constructor(r){this.identifier=r}}export{a as $irb,s as $jrb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class TreeViewsDnDService {
+  static {
+    __name(this, "TreeViewsDnDService");
+  }
+  constructor() {
+    this._dragOperations = /* @__PURE__ */ new Map();
+  }
+  removeDragOperationTransfer(uuid) {
+    if (uuid && this._dragOperations.has(uuid)) {
+      const operation = this._dragOperations.get(uuid);
+      this._dragOperations.delete(uuid);
+      return operation;
+    }
+    return void 0;
+  }
+  addDragOperationTransfer(uuid, transferPromise) {
+    this._dragOperations.set(uuid, transferPromise);
+  }
+}
+class DraggedTreeItemsIdentifier {
+  static {
+    __name(this, "DraggedTreeItemsIdentifier");
+  }
+  constructor(identifier) {
+    this.identifier = identifier;
+  }
+}
+export {
+  DraggedTreeItemsIdentifier,
+  TreeViewsDnDService
+};
+//# sourceMappingURL=treeViewsDnd.js.map

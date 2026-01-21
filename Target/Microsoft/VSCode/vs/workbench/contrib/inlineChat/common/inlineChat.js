@@ -1,1 +1,173 @@
-import{localize as e}from"../../../../nls.js";import{$nL as a}from"../../../../platform/actions/common/actions.js";import{$km as b}from"../../../../platform/configuration/common/configurationRegistry.js";import{$9n as s,$po as n}from"../../../../platform/contextkey/common/contextkey.js";import{$im as d}from"../../../../platform/registry/common/platform.js";import{$Br as l,$Cr as r,$Pq as $,$Rq as c,$Qq as C,$fq as x,$ws as f,$Ds as M,$1p as o,$6p as t,$Qr as g}from"../../../../platform/theme/common/colorRegistry.js";import{$lEb as u}from"../../notebook/common/notebookContextKeys.js";var p;(function(i){i.FinishOnType="inlineChat.finishOnType",i.StartWithOverlayWidget="inlineChat.startWithOverlayWidget",i.HoldToSpeech="inlineChat.holdToSpeech",i.EnableV2="inlineChat.enableV2",i.notebookAgent="inlineChat.notebookAgent",i.PersistModelChoice="inlineChat.persistModelChoice"})(p||(p={}));d.as(b.Configuration).registerConfiguration({id:"editor",properties:{"inlineChat.finishOnType":{description:e(9353,null),default:!1,type:"boolean"},"inlineChat.holdToSpeech":{description:e(9354,null),default:!0,type:"boolean"},"inlineChat.enableV2":{description:e(9355,null),default:!1,type:"boolean",tags:["preview"],experiment:{mode:"auto"}},"inlineChat.notebookAgent":{markdownDescription:e(9356,null),default:!1,type:"boolean",tags:["experimental"],experiment:{mode:"startup"}},"inlineChat.persistModelChoice":{description:e(9357,null),default:!1,type:"boolean",experiment:{mode:"auto"}}}});const I="interactiveEditor",O="interactiveEditorAccessiblityHelp";var h;(function(i){i.None="none",i.Messages="messages",i.MessagesAndEdits="messagesAndEdits"})(h||(h={}));const W=new n("inlineChatPossible",!1,e(9358,null)),m=new n("inlineChatHasEditsAgent",!1,e(9359,null)),w=new n("inlineChatHasNotebookInline",!1,e(9360,null)),k=new n("inlineChatHasNotebookAgent",!1,e(9361,null)),S=new n("inlineChatVisible",!1,e(9362,null)),q=new n("inlineChatFocused",!1,e(9363,null)),F=new n("inlineChatEditing",!0,e(9364,null)),R=new n("inlineChatResponseFocused",!1,e(9365,null)),T=new n("inlineChatEmpty",!1,e(9366,null)),P=new n("inlineChatInnerCursorFirst",!1,e(9367,null)),V=new n("inlineChatInnerCursorLast",!1,e(9368,null)),B=new n("inlineChatOuterCursorPosition","",e(9369,null)),N=new n("inlineChatHasStashedSession",!1,e(9370,null)),z=new n("inlineChatChangeHasDiff",!1,e(9371,null)),Q=new n("inlineChatChangeShowsDiff",!1,e(9372,null)),j=new n("inlineChatRequestInProgress",!1,e(9373,null)),G=new n("inlineChatResponseType","none",e(9374,null)),J=s.or(s.and(u,w)),Z=s.or(m,s.and(u,k)),_="inlineChat.start",U="inlineChat.acceptChanges",X="inlineChat.discardHunkChange",Y="inlineChat.regenerate",K="inlineChat.viewInChat",ee="inlineChat.toggleDiff",ne="inlineChat.reportIssue",te=a.for("inlineChatWidget.status"),oe=a.for("inlineChatWidget.secondary"),ie=a.for("inlineChatWidget.changesZone"),le=a.for("inlineChatWidget.side"),re=o("inlineChat.foreground",C,e(9375,null)),se=o("inlineChat.background",$,e(9376,null)),ae=o("inlineChat.border",c,e(9377,null)),pe=o("inlineChat.shadow",g,e(9378,null)),he=o("inlineChatInput.border",c,e(9379,null)),ce=o("inlineChatInput.focusBorder",x,e(9380,null)),ue=o("inlineChatInput.placeholderForeground",M,e(9381,null)),be=o("inlineChatInput.background",f,e(9382,null)),de=o("inlineChatDiff.inserted",t(l,.5),e(9383,null)),$e=o("editorOverviewRuler.inlineChatInserted",{dark:t(l,.6),light:t(l,.8),hcDark:t(l,.6),hcLight:t(l,.8)},e(9384,null)),Ce=o("editorMinimap.inlineChatInserted",{dark:t(l,.6),light:t(l,.8),hcDark:t(l,.6),hcLight:t(l,.8)},e(9385,null)),xe=o("inlineChatDiff.removed",t(r,.5),e(9386,null)),fe=o("editorOverviewRuler.inlineChatRemoved",{dark:t(r,.6),light:t(r,.8),hcDark:t(r,.6),hcLight:t(r,.8)},e(9387,null));export{q as $$Lb,S as $0Lb,I as $4Lb,O as $5Lb,W as $6Lb,m as $7Lb,w as $8Lb,k as $9Lb,pe as $AMb,he as $BMb,ce as $CMb,ue as $DMb,be as $EMb,de as $FMb,$e as $GMb,Ce as $HMb,xe as $IMb,fe as $JMb,F as $_Lb,R as $aMb,T as $bMb,P as $cMb,V as $dMb,B as $eMb,N as $fMb,z as $gMb,Q as $hMb,j as $iMb,G as $jMb,J as $kMb,Z as $lMb,_ as $mMb,U as $nMb,X as $oMb,Y as $pMb,K as $qMb,ee as $rMb,ne as $sMb,te as $tMb,oe as $uMb,ie as $vMb,le as $wMb,re as $xMb,se as $yMb,ae as $zMb,p as InlineChatConfigKeys,h as InlineChatResponseType};
+import { localize } from "../../../../nls.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { diffInserted, diffRemoved, editorWidgetBackground, editorWidgetBorder, editorWidgetForeground, focusBorder, inputBackground, inputPlaceholderForeground, registerColor, transparent, widgetShadow } from "../../../../platform/theme/common/colorRegistry.js";
+import { NOTEBOOK_IS_ACTIVE_EDITOR } from "../../notebook/common/notebookContextKeys.js";
+var InlineChatConfigKeys;
+(function(InlineChatConfigKeys2) {
+  InlineChatConfigKeys2["FinishOnType"] = "inlineChat.finishOnType";
+  InlineChatConfigKeys2["StartWithOverlayWidget"] = "inlineChat.startWithOverlayWidget";
+  InlineChatConfigKeys2["HoldToSpeech"] = "inlineChat.holdToSpeech";
+  InlineChatConfigKeys2["EnableV2"] = "inlineChat.enableV2";
+  InlineChatConfigKeys2["notebookAgent"] = "inlineChat.notebookAgent";
+  InlineChatConfigKeys2["PersistModelChoice"] = "inlineChat.persistModelChoice";
+})(InlineChatConfigKeys || (InlineChatConfigKeys = {}));
+Registry.as(Extensions.Configuration).registerConfiguration({
+  id: "editor",
+  properties: {
+    [
+      "inlineChat.finishOnType"
+      /* InlineChatConfigKeys.FinishOnType */
+    ]: {
+      description: localize("finishOnType", "Whether to finish an inline chat session when typing outside of changed regions."),
+      default: false,
+      type: "boolean"
+    },
+    [
+      "inlineChat.holdToSpeech"
+      /* InlineChatConfigKeys.HoldToSpeech */
+    ]: {
+      description: localize("holdToSpeech", "Whether holding the inline chat keybinding will automatically enable speech recognition."),
+      default: true,
+      type: "boolean"
+    },
+    [
+      "inlineChat.enableV2"
+      /* InlineChatConfigKeys.EnableV2 */
+    ]: {
+      description: localize("enableV2", "Whether to use the next version of inline chat."),
+      default: false,
+      type: "boolean",
+      tags: ["preview"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [
+      "inlineChat.notebookAgent"
+      /* InlineChatConfigKeys.notebookAgent */
+    ]: {
+      markdownDescription: localize("notebookAgent", "Enable agent-like behavior for inline chat widget in notebooks."),
+      default: false,
+      type: "boolean",
+      tags: ["experimental"],
+      experiment: {
+        mode: "startup"
+      }
+    },
+    [
+      "inlineChat.persistModelChoice"
+      /* InlineChatConfigKeys.PersistModelChoice */
+    ]: {
+      description: localize("persistModelChoice", "Whether to persist the selected language model choice across inline chat sessions. The default is not to persist and to use the vendor's default model for inline chat because that yields the best experience."),
+      default: false,
+      type: "boolean",
+      experiment: {
+        mode: "auto"
+      }
+    }
+  }
+});
+const INLINE_CHAT_ID = "interactiveEditor";
+const INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID = "interactiveEditorAccessiblityHelp";
+var InlineChatResponseType;
+(function(InlineChatResponseType2) {
+  InlineChatResponseType2["None"] = "none";
+  InlineChatResponseType2["Messages"] = "messages";
+  InlineChatResponseType2["MessagesAndEdits"] = "messagesAndEdits";
+})(InlineChatResponseType || (InlineChatResponseType = {}));
+const CTX_INLINE_CHAT_POSSIBLE = new RawContextKey("inlineChatPossible", false, localize("inlineChatHasPossible", "Whether a provider for inline chat exists and whether an editor for inline chat is open"));
+const CTX_INLINE_CHAT_HAS_AGENT2 = new RawContextKey("inlineChatHasEditsAgent", false, localize("inlineChatHasEditsAgent", "Whether an agent for inline for interactive editors exists"));
+const CTX_INLINE_CHAT_HAS_NOTEBOOK_INLINE = new RawContextKey("inlineChatHasNotebookInline", false, localize("inlineChatHasNotebookInline", "Whether an agent for notebook cells exists"));
+const CTX_INLINE_CHAT_HAS_NOTEBOOK_AGENT = new RawContextKey("inlineChatHasNotebookAgent", false, localize("inlineChatHasNotebookAgent", "Whether an agent for notebook cells exists"));
+const CTX_INLINE_CHAT_VISIBLE = new RawContextKey("inlineChatVisible", false, localize("inlineChatVisible", "Whether the interactive editor input is visible"));
+const CTX_INLINE_CHAT_FOCUSED = new RawContextKey("inlineChatFocused", false, localize("inlineChatFocused", "Whether the interactive editor input is focused"));
+const CTX_INLINE_CHAT_EDITING = new RawContextKey("inlineChatEditing", true, localize("inlineChatEditing", "Whether the user is currently editing or generating code in the inline chat"));
+const CTX_INLINE_CHAT_RESPONSE_FOCUSED = new RawContextKey("inlineChatResponseFocused", false, localize("inlineChatResponseFocused", "Whether the interactive widget's response is focused"));
+const CTX_INLINE_CHAT_EMPTY = new RawContextKey("inlineChatEmpty", false, localize("inlineChatEmpty", "Whether the interactive editor input is empty"));
+const CTX_INLINE_CHAT_INNER_CURSOR_FIRST = new RawContextKey("inlineChatInnerCursorFirst", false, localize("inlineChatInnerCursorFirst", "Whether the cursor of the iteractive editor input is on the first line"));
+const CTX_INLINE_CHAT_INNER_CURSOR_LAST = new RawContextKey("inlineChatInnerCursorLast", false, localize("inlineChatInnerCursorLast", "Whether the cursor of the iteractive editor input is on the last line"));
+const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION = new RawContextKey("inlineChatOuterCursorPosition", "", localize("inlineChatOuterCursorPosition", "Whether the cursor of the outer editor is above or below the interactive editor input"));
+const CTX_INLINE_CHAT_HAS_STASHED_SESSION = new RawContextKey("inlineChatHasStashedSession", false, localize("inlineChatHasStashedSession", "Whether interactive editor has kept a session for quick restore"));
+const CTX_INLINE_CHAT_CHANGE_HAS_DIFF = new RawContextKey("inlineChatChangeHasDiff", false, localize("inlineChatChangeHasDiff", "Whether the current change supports showing a diff"));
+const CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF = new RawContextKey("inlineChatChangeShowsDiff", false, localize("inlineChatChangeShowsDiff", "Whether the current change showing a diff"));
+const CTX_INLINE_CHAT_REQUEST_IN_PROGRESS = new RawContextKey("inlineChatRequestInProgress", false, localize("inlineChatRequestInProgress", "Whether an inline chat request is currently in progress"));
+const CTX_INLINE_CHAT_RESPONSE_TYPE = new RawContextKey("inlineChatResponseType", "none", localize("inlineChatResponseTypes", "What type was the responses have been receieved, nothing yet, just messages, or messaged and local edits"));
+const CTX_INLINE_CHAT_V1_ENABLED = ContextKeyExpr.or(ContextKeyExpr.and(NOTEBOOK_IS_ACTIVE_EDITOR, CTX_INLINE_CHAT_HAS_NOTEBOOK_INLINE));
+const CTX_INLINE_CHAT_V2_ENABLED = ContextKeyExpr.or(CTX_INLINE_CHAT_HAS_AGENT2, ContextKeyExpr.and(NOTEBOOK_IS_ACTIVE_EDITOR, CTX_INLINE_CHAT_HAS_NOTEBOOK_AGENT));
+const ACTION_START = "inlineChat.start";
+const ACTION_ACCEPT_CHANGES = "inlineChat.acceptChanges";
+const ACTION_DISCARD_CHANGES = "inlineChat.discardHunkChange";
+const ACTION_REGENERATE_RESPONSE = "inlineChat.regenerate";
+const ACTION_VIEW_IN_CHAT = "inlineChat.viewInChat";
+const ACTION_TOGGLE_DIFF = "inlineChat.toggleDiff";
+const ACTION_REPORT_ISSUE = "inlineChat.reportIssue";
+const MENU_INLINE_CHAT_WIDGET_STATUS = MenuId.for("inlineChatWidget.status");
+const MENU_INLINE_CHAT_WIDGET_SECONDARY = MenuId.for("inlineChatWidget.secondary");
+const MENU_INLINE_CHAT_ZONE = MenuId.for("inlineChatWidget.changesZone");
+const MENU_INLINE_CHAT_SIDE = MenuId.for("inlineChatWidget.side");
+const inlineChatForeground = registerColor("inlineChat.foreground", editorWidgetForeground, localize("inlineChat.foreground", "Foreground color of the interactive editor widget"));
+const inlineChatBackground = registerColor("inlineChat.background", editorWidgetBackground, localize("inlineChat.background", "Background color of the interactive editor widget"));
+const inlineChatBorder = registerColor("inlineChat.border", editorWidgetBorder, localize("inlineChat.border", "Border color of the interactive editor widget"));
+const inlineChatShadow = registerColor("inlineChat.shadow", widgetShadow, localize("inlineChat.shadow", "Shadow color of the interactive editor widget"));
+const inlineChatInputBorder = registerColor("inlineChatInput.border", editorWidgetBorder, localize("inlineChatInput.border", "Border color of the interactive editor input"));
+const inlineChatInputFocusBorder = registerColor("inlineChatInput.focusBorder", focusBorder, localize("inlineChatInput.focusBorder", "Border color of the interactive editor input when focused"));
+const inlineChatInputPlaceholderForeground = registerColor("inlineChatInput.placeholderForeground", inputPlaceholderForeground, localize("inlineChatInput.placeholderForeground", "Foreground color of the interactive editor input placeholder"));
+const inlineChatInputBackground = registerColor("inlineChatInput.background", inputBackground, localize("inlineChatInput.background", "Background color of the interactive editor input"));
+const inlineChatDiffInserted = registerColor("inlineChatDiff.inserted", transparent(diffInserted, 0.5), localize("inlineChatDiff.inserted", "Background color of inserted text in the interactive editor input"));
+const overviewRulerInlineChatDiffInserted = registerColor("editorOverviewRuler.inlineChatInserted", { dark: transparent(diffInserted, 0.6), light: transparent(diffInserted, 0.8), hcDark: transparent(diffInserted, 0.6), hcLight: transparent(diffInserted, 0.8) }, localize("editorOverviewRuler.inlineChatInserted", "Overview ruler marker color for inline chat inserted content."));
+const minimapInlineChatDiffInserted = registerColor("editorMinimap.inlineChatInserted", { dark: transparent(diffInserted, 0.6), light: transparent(diffInserted, 0.8), hcDark: transparent(diffInserted, 0.6), hcLight: transparent(diffInserted, 0.8) }, localize("editorMinimap.inlineChatInserted", "Minimap marker color for inline chat inserted content."));
+const inlineChatDiffRemoved = registerColor("inlineChatDiff.removed", transparent(diffRemoved, 0.5), localize("inlineChatDiff.removed", "Background color of removed text in the interactive editor input"));
+const overviewRulerInlineChatDiffRemoved = registerColor("editorOverviewRuler.inlineChatRemoved", { dark: transparent(diffRemoved, 0.6), light: transparent(diffRemoved, 0.8), hcDark: transparent(diffRemoved, 0.6), hcLight: transparent(diffRemoved, 0.8) }, localize("editorOverviewRuler.inlineChatRemoved", "Overview ruler marker color for inline chat removed content."));
+export {
+  ACTION_ACCEPT_CHANGES,
+  ACTION_DISCARD_CHANGES,
+  ACTION_REGENERATE_RESPONSE,
+  ACTION_REPORT_ISSUE,
+  ACTION_START,
+  ACTION_TOGGLE_DIFF,
+  ACTION_VIEW_IN_CHAT,
+  CTX_INLINE_CHAT_CHANGE_HAS_DIFF,
+  CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF,
+  CTX_INLINE_CHAT_EDITING,
+  CTX_INLINE_CHAT_EMPTY,
+  CTX_INLINE_CHAT_FOCUSED,
+  CTX_INLINE_CHAT_HAS_AGENT2,
+  CTX_INLINE_CHAT_HAS_NOTEBOOK_AGENT,
+  CTX_INLINE_CHAT_HAS_NOTEBOOK_INLINE,
+  CTX_INLINE_CHAT_HAS_STASHED_SESSION,
+  CTX_INLINE_CHAT_INNER_CURSOR_FIRST,
+  CTX_INLINE_CHAT_INNER_CURSOR_LAST,
+  CTX_INLINE_CHAT_OUTER_CURSOR_POSITION,
+  CTX_INLINE_CHAT_POSSIBLE,
+  CTX_INLINE_CHAT_REQUEST_IN_PROGRESS,
+  CTX_INLINE_CHAT_RESPONSE_FOCUSED,
+  CTX_INLINE_CHAT_RESPONSE_TYPE,
+  CTX_INLINE_CHAT_V1_ENABLED,
+  CTX_INLINE_CHAT_V2_ENABLED,
+  CTX_INLINE_CHAT_VISIBLE,
+  INLINE_CHAT_ID,
+  INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID,
+  InlineChatConfigKeys,
+  InlineChatResponseType,
+  MENU_INLINE_CHAT_SIDE,
+  MENU_INLINE_CHAT_WIDGET_SECONDARY,
+  MENU_INLINE_CHAT_WIDGET_STATUS,
+  MENU_INLINE_CHAT_ZONE,
+  inlineChatBackground,
+  inlineChatBorder,
+  inlineChatDiffInserted,
+  inlineChatDiffRemoved,
+  inlineChatForeground,
+  inlineChatInputBackground,
+  inlineChatInputBorder,
+  inlineChatInputFocusBorder,
+  inlineChatInputPlaceholderForeground,
+  inlineChatShadow,
+  minimapInlineChatDiffInserted,
+  overviewRulerInlineChatDiffInserted,
+  overviewRulerInlineChatDiffRemoved
+};
+//# sourceMappingURL=inlineChat.js.map

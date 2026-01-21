@@ -1,1 +1,80 @@
-import{$Md as h}from"../../../../../base/common/lifecycle.js";import{observableValue as u}from"../../../../../base/common/observable.js";import{$Hh as a}from"../../../../../base/common/resources.js";import{URI as l}from"../../../../../base/common/uri.js";import{$9l as d}from"../../../../../platform/configuration/common/configuration.js";import{$uk as $}from"../../../../../platform/files/common/files.js";import{$Ll as j}from"../../../../../platform/workspace/common/workspace.js";import{$ZN as g}from"../../../../services/remote/common/remoteAgentService.js";import{$JS as v}from"../mcpRegistryTypes.js";import{$Jpc as _}from"./nativeMcpDiscoveryAbstract.js";import{$Fpc as b}from"./nativeMcpDiscoveryAdapters.js";var f=function(s,o,r,i){var e=arguments.length,t=e<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,r):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,o,r,i);else for(var m=s.length-1;m>=0;m--)(n=s[m])&&(t=(e<3?n(t):e>3?n(o,r,t):n(o,r))||t);return e>3&&t&&Object.defineProperty(o,r,t),t},c=function(s,o){return function(r,i){o(r,i,s)}};let p=class extends _{constructor(o,r,i,e,t){super(e,o,i),this.j=r,this.m=t,this.h=this.D(new h)}start(){this.D(this.j.onDidChangeWorkspaceFolders(o=>{for(const r of o.removed)this.h.deleteAndDispose(r.uri.toString());for(const r of o.added)this.n(r)}));for(const o of this.j.getWorkspace().folders)this.n(o)}n(o){const r=a(o.uri,".cursor","mcp.json"),i={id:`cursor-workspace.${o.index}`,label:`${o.name}/.cursor/mcp.json`,remoteAuthority:this.m.getConnection()?.remoteAuthority||null,scope:1,trustBehavior:1,serverDefinitions:u(this,[]),configTarget:6,presentation:{origin:r,order:1}};this.h.set(o.uri.toString(),this.g(l.joinPath(o.uri,".cursor","mcp.json"),i,"cursor-workspace",async e=>{const t=await b(i.id,e,o.uri);return t?.forEach(n=>n.roots=[o.uri]),t}))}};p=f([c(0,$),c(1,j),c(2,v),c(3,d),c(4,g)],p);export{p as $Mpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableMap } from "../../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IRemoteAgentService } from "../../../../services/remote/common/remoteAgentService.js";
+import { IMcpRegistry } from "../mcpRegistryTypes.js";
+import { FilesystemMcpDiscovery } from "./nativeMcpDiscoveryAbstract.js";
+import { claudeConfigToServerDefinition } from "./nativeMcpDiscoveryAdapters.js";
+let CursorWorkspaceMcpDiscoveryAdapter = class CursorWorkspaceMcpDiscoveryAdapter2 extends FilesystemMcpDiscovery {
+  static {
+    __name(this, "CursorWorkspaceMcpDiscoveryAdapter");
+  }
+  constructor(fileService, _workspaceContextService, mcpRegistry, configurationService, _remoteAgentService) {
+    super(configurationService, fileService, mcpRegistry);
+    this._workspaceContextService = _workspaceContextService;
+    this._remoteAgentService = _remoteAgentService;
+    this._collections = this._register(new DisposableMap());
+  }
+  start() {
+    this._register(this._workspaceContextService.onDidChangeWorkspaceFolders((e) => {
+      for (const removed of e.removed) {
+        this._collections.deleteAndDispose(removed.uri.toString());
+      }
+      for (const added of e.added) {
+        this.watchFolder(added);
+      }
+    }));
+    for (const folder of this._workspaceContextService.getWorkspace().folders) {
+      this.watchFolder(folder);
+    }
+  }
+  watchFolder(folder) {
+    const configFile = joinPath(folder.uri, ".cursor", "mcp.json");
+    const collection = {
+      id: `cursor-workspace.${folder.index}`,
+      label: `${folder.name}/.cursor/mcp.json`,
+      remoteAuthority: this._remoteAgentService.getConnection()?.remoteAuthority || null,
+      scope: 1,
+      trustBehavior: 1,
+      serverDefinitions: observableValue(this, []),
+      configTarget: 6,
+      presentation: {
+        origin: configFile,
+        order: 0 + 1
+      }
+    };
+    this._collections.set(folder.uri.toString(), this.watchFile(URI.joinPath(folder.uri, ".cursor", "mcp.json"), collection, "cursor-workspace", async (contents) => {
+      const defs = await claudeConfigToServerDefinition(collection.id, contents, folder.uri);
+      defs?.forEach((d) => d.roots = [folder.uri]);
+      return defs;
+    }));
+  }
+};
+CursorWorkspaceMcpDiscoveryAdapter = __decorate([
+  __param(0, IFileService),
+  __param(1, IWorkspaceContextService),
+  __param(2, IMcpRegistry),
+  __param(3, IConfigurationService),
+  __param(4, IRemoteAgentService)
+], CursorWorkspaceMcpDiscoveryAdapter);
+export {
+  CursorWorkspaceMcpDiscoveryAdapter
+};
+//# sourceMappingURL=workspaceMcpDiscoveryAdapter.js.map

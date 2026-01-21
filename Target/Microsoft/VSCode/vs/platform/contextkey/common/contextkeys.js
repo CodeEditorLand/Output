@@ -1,1 +1,28 @@
-import{$v as l,$o as s,$n as e,$w as p,$s as t,$m as r}from"../../../base/common/platform.js";import{localize as n}from"../../../nls.js";import{$po as o}from"./contextkey.js";const N=new o("isMac",e,n(1862,null)),w=new o("isLinux",s,n(1863,null)),x=new o("isWindows",r,n(1864,null)),m=new o("isWeb",t,n(1865,null)),a=new o("isMacNative",e&&!t,n(1866,null)),f=new o("isIOS",l,n(1867,null)),M=new o("isMobile",p,n(1868,null)),v=new o("isDevelopment",!1,!0),b=new o("productQualityType","",n(1869,null)),i="inputFocus",d=new o(i,!1,n(1870,null));export{N as $HN,w as $IN,x as $JN,m as $KN,a as $LN,f as $MN,M as $NN,v as $ON,b as $PN,i as $QN,d as $RN};
+import { isIOS, isLinux, isMacintosh, isMobile, isWeb, isWindows } from "../../../base/common/platform.js";
+import { localize } from "../../../nls.js";
+import { RawContextKey } from "./contextkey.js";
+const IsMacContext = new RawContextKey("isMac", isMacintosh, localize("isMac", "Whether the operating system is macOS"));
+const IsLinuxContext = new RawContextKey("isLinux", isLinux, localize("isLinux", "Whether the operating system is Linux"));
+const IsWindowsContext = new RawContextKey("isWindows", isWindows, localize("isWindows", "Whether the operating system is Windows"));
+const IsWebContext = new RawContextKey("isWeb", isWeb, localize("isWeb", "Whether the platform is a web browser"));
+const IsMacNativeContext = new RawContextKey("isMacNative", isMacintosh && !isWeb, localize("isMacNative", "Whether the operating system is macOS on a non-browser platform"));
+const IsIOSContext = new RawContextKey("isIOS", isIOS, localize("isIOS", "Whether the operating system is iOS"));
+const IsMobileContext = new RawContextKey("isMobile", isMobile, localize("isMobile", "Whether the platform is a mobile web browser"));
+const IsDevelopmentContext = new RawContextKey("isDevelopment", false, true);
+const ProductQualityContext = new RawContextKey("productQualityType", "", localize("productQualityType", "Quality type of VS Code"));
+const InputFocusedContextKey = "inputFocus";
+const InputFocusedContext = new RawContextKey(InputFocusedContextKey, false, localize("inputFocus", "Whether keyboard focus is inside an input box"));
+export {
+  InputFocusedContext,
+  InputFocusedContextKey,
+  IsDevelopmentContext,
+  IsIOSContext,
+  IsLinuxContext,
+  IsMacContext,
+  IsMacNativeContext,
+  IsMobileContext,
+  IsWebContext,
+  IsWindowsContext,
+  ProductQualityContext
+};
+//# sourceMappingURL=contextkeys.js.map

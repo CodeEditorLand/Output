@@ -1,1 +1,91 @@
-import{Event as d}from"../../../../base/common/event.js";import{$Q_ as c}from"../../../../base/common/hotReloadHelpers.js";import{$Ed as l}from"../../../../base/common/lifecycle.js";import{derived as a,observableValue as f,recomputeInitiallyAndOnChange as p}from"../../../../base/common/observable.js";import{$Lj as v}from"../../../../platform/instantiation/common/instantiation.js";import"./colors.js";import{$1Nb as b}from"./diffEditorItemTemplate.js";import{$WNb as C}from"./multiDiffEditorViewModel.js";import{$6Nb as S}from"./multiDiffEditorWidgetImpl.js";var u=function(n,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,r);else for(var h=n.length-1;h>=0;h--)(s=n[h])&&(o=(i<3?s(o):i>3?s(t,e,o):s(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},m=function(n,t){return function(e,r){t(e,r,n)}};let g=class extends l{constructor(t,e,r){super(),this.f=t,this.g=e,this.h=r,this.a=f(this,void 0),this.b=f(this,void 0),this.c=a(this,i=>(c(b,i),i.store.add(this.h.createInstance(c(S,i),this.f,this.a,this.b,this.g)))),this.j=a(this,i=>this.c.read(i).activeControl.read(i)),this.onDidChangeActiveControl=d.fromObservableLight(this.j),this.D(p(this.c))}reveal(t,e){this.c.get().reveal(t,e)}createViewModel(t){return new C(t,this.h)}setViewModel(t){this.b.set(t,void 0)}layout(t){this.a.set(t,void 0)}getActiveControl(){return this.j.get()}getViewState(){return this.c.get().getViewState()}setViewState(t){this.c.get().setViewState(t)}tryGetCodeEditor(t){return this.c.get().tryGetCodeEditor(t)}getRootElement(){return this.c.get().getRootElement()}getContextKeyService(){return this.c.get().getContextKeyService()}getScopedInstantiationService(){return this.c.get().getScopedInstantiationService()}findDocumentDiffItem(t){return this.c.get().findDocumentDiffItem(t)}goToNextChange(){this.c.get().goToNextChange()}goToPreviousChange(){this.c.get().goToPreviousChange()}};g=u([m(2,v)],g);export{g as $5Nb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event } from "../../../../base/common/event.js";
+import { readHotReloadableExport } from "../../../../base/common/hotReloadHelpers.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { derived, observableValue, recomputeInitiallyAndOnChange } from "../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import "./colors.js";
+import { DiffEditorItemTemplate } from "./diffEditorItemTemplate.js";
+import { MultiDiffEditorViewModel } from "./multiDiffEditorViewModel.js";
+import { MultiDiffEditorWidgetImpl } from "./multiDiffEditorWidgetImpl.js";
+let MultiDiffEditorWidget = class MultiDiffEditorWidget2 extends Disposable {
+  static {
+    __name(this, "MultiDiffEditorWidget");
+  }
+  constructor(_element, _workbenchUIElementFactory, _instantiationService) {
+    super();
+    this._element = _element;
+    this._workbenchUIElementFactory = _workbenchUIElementFactory;
+    this._instantiationService = _instantiationService;
+    this._dimension = observableValue(this, void 0);
+    this._viewModel = observableValue(this, void 0);
+    this._widgetImpl = derived(this, (reader) => {
+      readHotReloadableExport(DiffEditorItemTemplate, reader);
+      return reader.store.add(this._instantiationService.createInstance(readHotReloadableExport(MultiDiffEditorWidgetImpl, reader), this._element, this._dimension, this._viewModel, this._workbenchUIElementFactory));
+    });
+    this._activeControl = derived(this, (reader) => this._widgetImpl.read(reader).activeControl.read(reader));
+    this.onDidChangeActiveControl = Event.fromObservableLight(this._activeControl);
+    this._register(recomputeInitiallyAndOnChange(this._widgetImpl));
+  }
+  reveal(resource, options) {
+    this._widgetImpl.get().reveal(resource, options);
+  }
+  createViewModel(model) {
+    return new MultiDiffEditorViewModel(model, this._instantiationService);
+  }
+  setViewModel(viewModel) {
+    this._viewModel.set(viewModel, void 0);
+  }
+  layout(dimension) {
+    this._dimension.set(dimension, void 0);
+  }
+  getActiveControl() {
+    return this._activeControl.get();
+  }
+  getViewState() {
+    return this._widgetImpl.get().getViewState();
+  }
+  setViewState(viewState) {
+    this._widgetImpl.get().setViewState(viewState);
+  }
+  tryGetCodeEditor(resource) {
+    return this._widgetImpl.get().tryGetCodeEditor(resource);
+  }
+  getRootElement() {
+    return this._widgetImpl.get().getRootElement();
+  }
+  getContextKeyService() {
+    return this._widgetImpl.get().getContextKeyService();
+  }
+  getScopedInstantiationService() {
+    return this._widgetImpl.get().getScopedInstantiationService();
+  }
+  findDocumentDiffItem(resource) {
+    return this._widgetImpl.get().findDocumentDiffItem(resource);
+  }
+  goToNextChange() {
+    this._widgetImpl.get().goToNextChange();
+  }
+  goToPreviousChange() {
+    this._widgetImpl.get().goToPreviousChange();
+  }
+};
+MultiDiffEditorWidget = __decorate([
+  __param(2, IInstantiationService)
+], MultiDiffEditorWidget);
+export {
+  MultiDiffEditorWidget
+};
+//# sourceMappingURL=multiDiffEditorWidget.js.map

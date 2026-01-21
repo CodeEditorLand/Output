@@ -1,1 +1,73 @@
-import{$cA as p}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$jqc as f}from"./extensionRecommendations.js";import{localize as u}from"../../../../nls.js";var c=function(r,t,e,n){var o=arguments.length,s=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,n);else for(var a=r.length-1;a>=0;a--)(i=r[a])&&(s=(o<3?i(s):o>3?i(t,e,s):i(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},h=function(r,t){return function(e,n){t(e,n,r)}};let m=class extends f{get otherRecommendations(){return this.a.map(t=>this.q(t))}get importantRecommendations(){return this.b.map(t=>this.q(t))}get recommendations(){return[...this.importantRecommendations,...this.otherRecommendations]}constructor(t){super(),this.g=t,this.a=[],this.b=[]}getRecommendations(t){const e=this.b.filter(o=>o.exeName.toLowerCase()===t.toLowerCase()).map(o=>this.q(o)),n=this.a.filter(o=>o.exeName.toLowerCase()===t.toLowerCase()).map(o=>this.q(o));return{important:e,others:n}}async c(){this.a=await this.g.getOtherExecutableBasedTips(),await this.m()}async m(){return this.j||(this.j=this.n()),this.j}async n(){const t=new Map;return this.b=await this.g.getImportantExecutableBasedTips(),this.b.forEach(e=>t.set(e.extensionId.toLowerCase(),e)),t}q(t){return{extension:t.extensionId.toLowerCase(),reason:{reasonId:2,reasonText:u(8180,null,t.exeFriendlyName)}}}};m=c([h(0,p)],m);export{m as $kqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionRecommendations } from "./extensionRecommendations.js";
+import { localize } from "../../../../nls.js";
+let ExeBasedRecommendations = class ExeBasedRecommendations2 extends ExtensionRecommendations {
+  static {
+    __name(this, "ExeBasedRecommendations");
+  }
+  get otherRecommendations() {
+    return this._otherTips.map((tip) => this.toExtensionRecommendation(tip));
+  }
+  get importantRecommendations() {
+    return this._importantTips.map((tip) => this.toExtensionRecommendation(tip));
+  }
+  get recommendations() {
+    return [...this.importantRecommendations, ...this.otherRecommendations];
+  }
+  constructor(extensionTipsService) {
+    super();
+    this.extensionTipsService = extensionTipsService;
+    this._otherTips = [];
+    this._importantTips = [];
+  }
+  getRecommendations(exe) {
+    const important = this._importantTips.filter((tip) => tip.exeName.toLowerCase() === exe.toLowerCase()).map((tip) => this.toExtensionRecommendation(tip));
+    const others = this._otherTips.filter((tip) => tip.exeName.toLowerCase() === exe.toLowerCase()).map((tip) => this.toExtensionRecommendation(tip));
+    return { important, others };
+  }
+  async doActivate() {
+    this._otherTips = await this.extensionTipsService.getOtherExecutableBasedTips();
+    await this.fetchImportantExeBasedRecommendations();
+  }
+  async fetchImportantExeBasedRecommendations() {
+    if (!this._importantExeBasedRecommendations) {
+      this._importantExeBasedRecommendations = this.doFetchImportantExeBasedRecommendations();
+    }
+    return this._importantExeBasedRecommendations;
+  }
+  async doFetchImportantExeBasedRecommendations() {
+    const importantExeBasedRecommendations = /* @__PURE__ */ new Map();
+    this._importantTips = await this.extensionTipsService.getImportantExecutableBasedTips();
+    this._importantTips.forEach((tip) => importantExeBasedRecommendations.set(tip.extensionId.toLowerCase(), tip));
+    return importantExeBasedRecommendations;
+  }
+  toExtensionRecommendation(tip) {
+    return {
+      extension: tip.extensionId.toLowerCase(),
+      reason: {
+        reasonId: 2,
+        reasonText: localize("exeBasedRecommendation", "This extension is recommended because you have {0} installed.", tip.exeFriendlyName)
+      }
+    };
+  }
+};
+ExeBasedRecommendations = __decorate([
+  __param(0, IExtensionTipsService)
+], ExeBasedRecommendations);
+export {
+  ExeBasedRecommendations
+};
+//# sourceMappingURL=exeBasedRecommendations.js.map

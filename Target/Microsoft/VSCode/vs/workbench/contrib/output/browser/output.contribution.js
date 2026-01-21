@@ -1,1 +1,857 @@
-import*as l from"../../../../nls.js";import{$2w as j}from"../../../../base/common/keyCodes.js";import{$FG as Z}from"../../../../editor/common/languages/modesRegistry.js";import{$im as v}from"../../../../platform/registry/common/platform.js";import{$nL as m,$tL as g,$sL as w,$pL as _}from"../../../../platform/actions/common/actions.js";import{$TC as N}from"../../../../platform/instantiation/common/extensions.js";import{$zzc as K}from"./outputServices.js";import{$iZ as B,$hZ as G,$lZ as p,$BZ as y,$mZ as J,$kZ as X,$jZ as Q,$sZ as U,$tZ as Y,$pZ as ee,$CZ as S,$qZ as te,$rZ as oe,$wZ as ne,$uZ as ie,$vZ as re,$yZ as se,$xZ as le,$zZ as ce,$oZ as ae,$DZ as ue}from"../../../services/output/common/output.js";import{$wzc as pe}from"./outputView.js";import{$Jj as F}from"../../../../platform/instantiation/common/descriptors.js";import{Extensions as he}from"../../../common/contributions.js";import{Extensions as W}from"../../../common/views.js";import{$fAb as ge}from"../../../services/views/common/viewsService.js";import{$5Ab as de}from"../../../browser/parts/views/viewPaneContainer.js";import{$km as fe}from"../../../../platform/configuration/common/configurationRegistry.js";import{$VH as D}from"../../../../platform/quickinput/common/quickInput.js";import{$BL as me,$yL as P}from"../../../services/editor/common/editorService.js";import{$9n as h}from"../../../../platform/contextkey/common/contextkey.js";import{$ak as C}from"../../../../base/common/codicons.js";import{$eu as we}from"../../../../platform/theme/common/iconRegistry.js";import{$so as k}from"../../../../platform/action/common/actionCommonCategories.js";import{$Ed as be,$zd as ye,$Cd as Ce}from"../../../../base/common/lifecycle.js";import{$ohb as ve,$jhb as $e}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$yo as De,LogLevel as b,$Po as T,$Oo as A}from"../../../../platform/log/common/log.js";import{$jL as x}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{EditorContextKeys as z}from"../../../../editor/common/editorContextKeys.js";import{$KD as L}from"../../../../platform/accessibility/common/accessibility.js";import{$JN as O}from"../../../../platform/contextkey/common/contextkeys.js";import{$oP as I}from"../../../common/contextkeys.js";import{localize as ke,localize2 as xe}from"../../../../nls.js";import{$RAb as ze}from"../../../browser/parts/views/viewFilter.js";import{$2Ab as E}from"../../../browser/parts/views/viewPane.js";import{$mH as Le}from"../../../../platform/notification/common/notification.js";import{$Np as Oe}from"../../../../platform/dialogs/common/dialogs.js";import{$Eh as R}from"../../../../base/common/resources.js";import{$rd as Ie}from"../../../../base/common/types.js";import{$sbc as Se}from"../../../services/log/common/defaultLogLevels.js";var M=function($,n,t,s){var r=arguments.length,e=r<3?n:s===null?s=Object.getOwnPropertyDescriptor(n,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate($,n,t,s);else for(var a=$.length-1;a>=0;a--)(o=$[a])&&(e=(r<3?o(e):r>3?o(n,t,e):o(n,t))||e);return r>3&&e&&Object.defineProperty(n,t,e),e},V=function($,n){return function(t,s){n(t,s,$)}};const Ae="importedLog.";N(y,K,1);Z.registerLanguage({id:B,extensions:[],mimetypes:[G]});Z.registerLanguage({id:X,extensions:[],mimetypes:[Q]});const H=we("output-view-icon",C.output,l.localize(10938,null)),qe=v.as(W.ViewContainersRegistry).registerViewContainer({id:p,title:l.localize2(10963,"Output"),icon:H,order:1,ctorDescriptor:new F(de,[p,{mergeViewWithContainerWhenSingleView:!0}]),storageId:p,hideIfEmpty:!0},1,{doNotRegisterOpenCommand:!0});v.as(W.ViewsRegistry).registerViews([{id:p,name:l.localize2(10964,"Output"),containerIcon:H,canMoveView:!0,canToggleVisibility:!0,ctorDescriptor:new F(pe),openCommandActionDescriptor:{id:"workbench.action.output.toggleOutput",mnemonicTitle:l.localize(10939,null),keybindings:{primary:3123,linux:{primary:j(2089,2086)}},order:1}}],qe);let q=class extends be{constructor(n,t){super(),this.f=n,this.g=t,this.h()}h(){this.j(),this.m(),this.n(),this.q(),this.r(),this.s(),this.t(),this.u(),this.w(),this.C(),this.F(),this.z(),this.G(),this.H(),this.I(),this.J()}j(){this.D(g(class extends w{constructor(){super({id:"workbench.output.action.switchBetweenOutputs",title:l.localize(10940,null)})}async run(e,o){o&&e.get(y).showChannel(o,!0)}}));const n=new m("workbench.output.menu.switchOutput");this.D(_.appendMenuItem(m.ViewTitle,{submenu:n,title:l.localize(10941,null),group:"navigation",when:h.equals("view",p),order:1,isSelection:!0}));const t=new Map;this.D(Ce(()=>ye(t.values())));const s=e=>{for(const o of e){const a=o.label,i=o.user?"2_user_outputchannels":o.extensionId?"0_ext_outputchannels":"1_core_outputchannels";t.set(o.id,g(class extends w{constructor(){super({id:`workbench.action.output.show.${o.id}`,title:a,toggled:Y.isEqualTo(o.id),menu:{id:n,group:i}})}async run(u){return u.get(y).showChannel(o.id,!0)}}))}};s(this.f.getChannelDescriptors());const r=v.as(S.OutputChannels);this.D(r.onDidRegisterChannel(e=>{const o=this.f.getChannelDescriptor(e);o&&s([o])})),this.D(r.onDidRemoveChannel(e=>{t.get(e.id)?.dispose(),t.delete(e.id)}))}m(){this.D(g(class extends w{constructor(){super({id:"workbench.action.output.addCompoundLog",title:l.localize2(10965,"Add Compound Log..."),category:l.localize2(10966,"Output"),f1:!0,menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"2_add"}]})}async run(n){const t=n.get(y),s=n.get(D),r=[],e=[];for(const i of t.getChannelDescriptors())i.log&&!i.user&&(i.extensionId?r.push(i):e.push(i));const o=[];for(const i of e.sort((u,c)=>u.label.localeCompare(c.label)))o.push(i);r.length&&e.length&&o.push({type:"separator",label:l.localize(10942,null)});for(const i of r.sort((u,c)=>u.label.localeCompare(c.label)))o.push(i);const a=await s.pick(o,{placeHolder:l.localize(10943,null),canPickMany:!0});a?.length&&t.showChannel(t.registerCompoundLogChannel(a))}}))}n(){this.D(g(class extends w{constructor(){super({id:"workbench.action.output.remove",title:l.localize2(10967,"Remove Output..."),category:l.localize2(10968,"Output"),f1:!0})}async run(n){const t=n.get(y),s=n.get(D),r=n.get(Le),e=t.getChannelDescriptors().filter(i=>i.user);if(e.length===0){r.info(l.localize(10944,null));return}const o=await s.pick(e,{placeHolder:l.localize(10945,null),canPickMany:!0});if(!o?.length)return;const a=v.as(S.OutputChannels);for(const i of o)a.removeChannel(i.id)}}))}q(){this.D(g(class extends w{constructor(){super({id:"workbench.action.showOutputChannels",title:l.localize2(10969,"Show Output Channels..."),category:l.localize2(10970,"Output"),f1:!0})}async run(n){const t=n.get(y),s=n.get(D),r=[],e=[];for(const i of t.getChannelDescriptors())i.extensionId?r.push(i):e.push(i);const o=[];for(const{id:i,label:u}of r)o.push({id:i,label:u});r.length&&e.length&&o.push({type:"separator"});for(const{id:i,label:u}of e)o.push({id:i,label:u});const a=await s.pick(o,{placeHolder:l.localize(10946,null)});if(a)return t.showChannel(a.id)}}))}r(){this.D(g(class extends w{constructor(){super({id:"workbench.output.action.clearOutput",title:l.localize2(10971,"Clear Output"),category:k.View,menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"navigation",order:2},{id:m.CommandPalette},{id:m.EditorContext,when:J}],icon:C.clearAll})}async run(n){const t=n.get(y),s=n.get($e),r=t.getActiveChannel();r&&(r.clear(),s.playSignal(ve.clear))}}))}s(){this.D(g(class extends w{constructor(){super({id:"workbench.output.action.toggleAutoScroll",title:l.localize2(10972,"Toggle Auto Scrolling"),tooltip:l.localize(10947,null),menu:{id:m.ViewTitle,when:h.and(h.equals("view",p)),group:"navigation",order:3},icon:C.lock,toggled:{condition:U,icon:C.unlock,tooltip:l.localize(10948,null)}})}async run(n){const t=n.get(ge).getActiveViewWithId(p);t.scrollLock=!t.scrollLock}}))}t(){const n=this;this.D(g(class extends w{constructor(){super({id:"workbench.action.openActiveLogOutputFile",title:l.localize2(10973,"Open Output in Editor"),menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"navigation",order:4,isHiddenByDefault:!0}],icon:C.goToFile})}async run(){n.y()}}))}u(){const n=this;this.D(g(class extends w{constructor(){super({id:"workbench.action.openActiveLogOutputFileInNewWindow",title:l.localize2(10974,"Open Output in New Window"),menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"navigation",order:5,isHiddenByDefault:!0}],icon:C.emptyWindow})}async run(){n.y(me)}}))}w(){this.D(g(class extends w{constructor(){super({id:"workbench.action.saveActiveLogOutputAs",title:l.localize2(10975,"Save Output As..."),menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"1_export",order:1}]})}async run(n){const t=n.get(y),s=t.getActiveChannel();if(s){const r=t.getChannelDescriptors().find(e=>e.id===s.id);r&&await t.saveOutputAs(void 0,r)}}}))}async y(n){const t=this.f.getActiveChannel();t&&await this.g.openEditor({resource:t.uri,options:{pinned:!0}},n)}z(){const n=new m("workbench.output.menu.logLevel");this.D(_.appendMenuItem(m.ViewTitle,{submenu:n,title:l.localize(10949,null),group:"navigation",when:h.and(h.equals("view",p),ee),icon:C.gear,order:6}));let t=0;const s=r=>{this.D(g(class extends w{constructor(){super({id:`workbench.action.output.activeOutputLogLevel.${r}`,title:T(r).value,toggled:te.isEqualTo(A(r)),menu:{id:n,order:t++,group:"0_level"}})}async run(e){const o=e.get(y),a=o.getActiveChannel();if(a){const i=o.getChannelDescriptor(a.id);i&&o.setLogLevel(i,r)}}}))};s(b.Trace),s(b.Debug),s(b.Info),s(b.Warning),s(b.Error),s(b.Off),this.D(g(class extends w{constructor(){super({id:"workbench.action.output.activeOutputLogLevelDefault",title:l.localize(10950,null),menu:{id:n,order:t,group:"1_default"},precondition:oe.negate()})}async run(r){const e=r.get(y),o=r.get(De),a=r.get(Se),i=e.getActiveChannel();if(i){const u=e.getChannelDescriptor(i.id);if(u&&ue(u)){const c=o.getLogLevel(u.source.resource);return await a.setDefaultLogLevel(c,u.extensionId)}}}}))}C(){this.D(g(class extends w{constructor(){super({id:"workbench.action.showLogs",title:l.localize2(10976,"Show Logs..."),category:k.Developer,menu:{id:m.CommandPalette}})}async run(n){const t=n.get(y),s=n.get(D),r=[],e=[];for(const i of t.getChannelDescriptors())i.log&&(i.extensionId?r.push(i):e.push(i));const o=[];for(const{id:i,label:u}of e)o.push({id:i,label:u});r.length&&e.length&&o.push({type:"separator",label:l.localize(10951,null)});for(const{id:i,label:u}of r)o.push({id:i,label:u});const a=await s.pick(o,{placeHolder:l.localize(10952,null)});if(a)return t.showChannel(a.id)}}))}F(){this.D(g(class extends w{constructor(){super({id:"workbench.action.openLogFile",title:l.localize2(10977,"Open Log..."),category:k.Developer,menu:{id:m.CommandPalette},metadata:{description:"workbench.action.openLogFile",args:[{name:"logFile",schema:{markdownDescription:l.localize(10953,null),type:"string"}}]}})}async run(n,t){const s=n.get(y),r=n.get(D),e=n.get(P);let o;const a=t&&typeof t=="string"?t:void 0,i=[],u=[];for(const c of s.getChannelDescriptors())if(c.log){const d={id:c.id,label:c.label};c.extensionId?i.push(d):u.push(d),d.id===a&&(o=d)}if(!o){const c=[...i.sort((d,f)=>d.label.localeCompare(f.label))];c.length&&u.length&&(c.push({type:"separator"}),c.push(...u.sort((d,f)=>d.label.localeCompare(f.label)))),o=await r.pick(c,{placeHolder:l.localize(10954,null)})}if(o?.id){const c=s.getChannel(o.id);c&&await e.openEditor({resource:c.uri,options:{pinned:!0}})}}}))}G(){let n=0;const t=(s,r)=>{this.D(g(class extends E{constructor(){super({id:`workbench.actions.${p}.toggle.${A(s)}`,title:T(s).value,metadata:{description:xe(10978,"Show or hide {0} messages in the output",A(s))},toggled:r,menu:{id:ze,group:"2_log_filter",when:h.and(h.equals("view",p),ae),order:n++},viewId:p})}async runInView(e,o){this.d(e.get(y),s)}d(e,o){switch(o){case b.Trace:e.filters.trace=!e.filters.trace;break;case b.Debug:e.filters.debug=!e.filters.debug;break;case b.Info:e.filters.info=!e.filters.info;break;case b.Warning:e.filters.warning=!e.filters.warning;break;case b.Error:e.filters.error=!e.filters.error;break}}}))};t(b.Trace,ie),t(b.Debug,re),t(b.Info,ne),t(b.Warning,le),t(b.Error,se)}H(){this.D(g(class extends E{constructor(){super({id:`workbench.actions.${p}.clearFilterText`,title:ke(10955,null),keybinding:{when:ce,weight:200,primary:9},viewId:p})}async runInView(n,t){t.clearFilterText()}}))}I(){this.D(g(class extends w{constructor(){super({id:"workbench.action.exportLogs",title:l.localize2(10979,"Export Logs..."),f1:!0,category:k.Developer,menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"1_export",order:2}]})}async run(n,t){const s=n.get(y),r=n.get(D),e=[],o=[],a=[];for(const c of s.getChannelDescriptors())c.log&&(c.extensionId?e.push(c):c.user?a.push(c):o.push(c));const i=[];for(const c of o.sort((d,f)=>d.label.localeCompare(f.label)))i.push(c);e.length&&o.length&&i.push({type:"separator",label:l.localize(10956,null)});for(const c of e.sort((d,f)=>d.label.localeCompare(f.label)))i.push(c);a.length&&(e.length||o.length)&&i.push({type:"separator",label:l.localize(10957,null)});for(const c of a.sort((d,f)=>d.label.localeCompare(f.label)))i.push(c);let u;if(t?.outputChannelIds){const c=t.outputChannelIds.map(f=>f.trim().toLowerCase()),d=i.filter(f=>!(Ie(f,{type:!0})&&f.type==="separator"));c.includes("*")?u=d:u=d.filter(f=>c.includes(f.id.toLowerCase()))}else u=await r.pick(i,{placeHolder:l.localize(10958,null),canPickMany:!0});u?.length&&await s.saveOutputAs(t?.outputPath,...u)}}))}J(){this.D(g(class extends w{constructor(){super({id:"workbench.action.importLog",title:l.localize2(10980,"Import Log..."),f1:!0,category:k.Developer,menu:[{id:m.ViewTitle,when:h.equals("view",p),group:"2_add",order:2}]})}async run(n){const t=n.get(y),r=await n.get(Oe).showOpenDialog({title:l.localize(10959,null),canSelectFiles:!0,canSelectFolders:!1,canSelectMany:!0,filters:[{name:l.localize(10960,null),extensions:["log"]}]});if(r?.length){const e=R(r[0]),o=`${Ae}${Date.now()}`;v.as(S.OutputChannels).registerChannel({id:o,label:e,log:!0,user:!0,source:r.length===1?{resource:r[0]}:r.map(a=>({resource:a,name:R(a).split(".")[0]}))}),t.showChannel(o)}}}))}};q=M([V(0,y),V(1,P)],q);v.as(he.Workbench).registerWorkbenchContribution(q,3);v.as(fe.Configuration).registerConfiguration({id:"output",order:30,title:l.localize(10961,null),type:"object",properties:{"output.smartScroll.enabled":{type:"boolean",description:l.localize(10962,null),default:!0,scope:4,tags:["output"]}}});x.registerKeybindingRule({id:"cursorWordAccessibilityLeft",when:h.and(z.textInputFocus,L,O,h.equals(I.key,p)),primary:2063,weight:200});x.registerKeybindingRule({id:"cursorWordAccessibilityLeftSelect",when:h.and(z.textInputFocus,L,O,h.equals(I.key,p)),primary:3087,weight:200});x.registerKeybindingRule({id:"cursorWordAccessibilityRight",when:h.and(z.textInputFocus,L,O,h.equals(I.key,p)),primary:2065,weight:200});x.registerKeybindingRule({id:"cursorWordAccessibilityRightSelect",when:h.and(z.textInputFocus,L,O,h.equals(I.key,p)),primary:3089,weight:200});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { ModesRegistry } from "../../../../editor/common/languages/modesRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { MenuId, registerAction2, Action2, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { OutputService } from "./outputServices.js";
+import { OUTPUT_MODE_ID, OUTPUT_MIME, OUTPUT_VIEW_ID, IOutputService, CONTEXT_IN_OUTPUT, LOG_MODE_ID, LOG_MIME, CONTEXT_OUTPUT_SCROLL_LOCK, ACTIVE_OUTPUT_CHANNEL_CONTEXT, CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE, Extensions, CONTEXT_ACTIVE_OUTPUT_LEVEL, CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT, SHOW_INFO_FILTER_CONTEXT, SHOW_TRACE_FILTER_CONTEXT, SHOW_DEBUG_FILTER_CONTEXT, SHOW_ERROR_FILTER_CONTEXT, SHOW_WARNING_FILTER_CONTEXT, OUTPUT_FILTER_FOCUS_CONTEXT, CONTEXT_ACTIVE_LOG_FILE_OUTPUT, isSingleSourceOutputChannelDescriptor } from "../../../services/output/common/output.js";
+import { OutputViewPane } from "./outputView.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { Extensions as ViewContainerExtensions } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Disposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ILoggerService, LogLevel, LogLevelToLocalizedString, LogLevelToString } from "../../../../platform/log/common/log.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../platform/accessibility/common/accessibility.js";
+import { IsWindowsContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { FocusedViewContext } from "../../../common/contextkeys.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { viewFilterSubmenu } from "../../../browser/parts/views/viewFilter.js";
+import { ViewAction } from "../../../browser/parts/views/viewPane.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { basename } from "../../../../base/common/resources.js";
+import { hasKey } from "../../../../base/common/types.js";
+import { IDefaultLogLevelsService } from "../../../services/log/common/defaultLogLevels.js";
+const IMPORTED_LOG_ID_PREFIX = "importedLog.";
+registerSingleton(
+  IOutputService,
+  OutputService,
+  1
+  /* InstantiationType.Delayed */
+);
+ModesRegistry.registerLanguage({
+  id: OUTPUT_MODE_ID,
+  extensions: [],
+  mimetypes: [OUTPUT_MIME]
+});
+ModesRegistry.registerLanguage({
+  id: LOG_MODE_ID,
+  extensions: [],
+  mimetypes: [LOG_MIME]
+});
+const outputViewIcon = registerIcon("output-view-icon", Codicon.output, nls.localize("outputViewIcon", "View icon of the output view."));
+const VIEW_CONTAINER = Registry.as(ViewContainerExtensions.ViewContainersRegistry).registerViewContainer({
+  id: OUTPUT_VIEW_ID,
+  title: nls.localize2("output", "Output"),
+  icon: outputViewIcon,
+  order: 1,
+  ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [OUTPUT_VIEW_ID, { mergeViewWithContainerWhenSingleView: true }]),
+  storageId: OUTPUT_VIEW_ID,
+  hideIfEmpty: true
+}, 1, { doNotRegisterOpenCommand: true });
+Registry.as(ViewContainerExtensions.ViewsRegistry).registerViews([{
+  id: OUTPUT_VIEW_ID,
+  name: nls.localize2("output", "Output"),
+  containerIcon: outputViewIcon,
+  canMoveView: true,
+  canToggleVisibility: true,
+  ctorDescriptor: new SyncDescriptor(OutputViewPane),
+  openCommandActionDescriptor: {
+    id: "workbench.action.output.toggleOutput",
+    mnemonicTitle: nls.localize({ key: "miToggleOutput", comment: ["&& denotes a mnemonic"] }, "&&Output"),
+    keybindings: {
+      primary: 2048 | 1024 | 51,
+      linux: {
+        primary: KeyChord(
+          2048 | 41,
+          2048 | 38
+          /* KeyCode.KeyH */
+        )
+        // On Ubuntu Ctrl+Shift+U is taken by some global OS command
+      }
+    },
+    order: 1
+  }
+}], VIEW_CONTAINER);
+let OutputContribution = class OutputContribution2 extends Disposable {
+  static {
+    __name(this, "OutputContribution");
+  }
+  constructor(outputService, editorService) {
+    super();
+    this.outputService = outputService;
+    this.editorService = editorService;
+    this.registerActions();
+  }
+  registerActions() {
+    this.registerSwitchOutputAction();
+    this.registerAddCompoundLogAction();
+    this.registerRemoveLogAction();
+    this.registerShowOutputChannelsAction();
+    this.registerClearOutputAction();
+    this.registerToggleAutoScrollAction();
+    this.registerOpenActiveOutputFileAction();
+    this.registerOpenActiveOutputFileInAuxWindowAction();
+    this.registerSaveActiveOutputAsAction();
+    this.registerShowLogsAction();
+    this.registerOpenLogFileAction();
+    this.registerConfigureActiveOutputLogLevelAction();
+    this.registerLogLevelFilterActions();
+    this.registerClearFilterActions();
+    this.registerExportLogsAction();
+    this.registerImportLogAction();
+  }
+  registerSwitchOutputAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.output.action.switchBetweenOutputs`,
+          title: nls.localize("switchBetweenOutputs.label", "Switch Output")
+        });
+      }
+      async run(accessor, channelId) {
+        if (channelId) {
+          accessor.get(IOutputService).showChannel(channelId, true);
+        }
+      }
+    }));
+    const switchOutputMenu = new MenuId("workbench.output.menu.switchOutput");
+    this._register(MenuRegistry.appendMenuItem(MenuId.ViewTitle, {
+      submenu: switchOutputMenu,
+      title: nls.localize("switchToOutput.label", "Switch Output"),
+      group: "navigation",
+      when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+      order: 1,
+      isSelection: true
+    }));
+    const registeredChannels = /* @__PURE__ */ new Map();
+    this._register(toDisposable(() => dispose(registeredChannels.values())));
+    const registerOutputChannels = /* @__PURE__ */ __name((channels) => {
+      for (const channel of channels) {
+        const title = channel.label;
+        const group = channel.user ? "2_user_outputchannels" : channel.extensionId ? "0_ext_outputchannels" : "1_core_outputchannels";
+        registeredChannels.set(channel.id, registerAction2(class extends Action2 {
+          constructor() {
+            super({
+              id: `workbench.action.output.show.${channel.id}`,
+              title,
+              toggled: ACTIVE_OUTPUT_CHANNEL_CONTEXT.isEqualTo(channel.id),
+              menu: {
+                id: switchOutputMenu,
+                group
+              }
+            });
+          }
+          async run(accessor) {
+            return accessor.get(IOutputService).showChannel(channel.id, true);
+          }
+        }));
+      }
+    }, "registerOutputChannels");
+    registerOutputChannels(this.outputService.getChannelDescriptors());
+    const outputChannelRegistry = Registry.as(Extensions.OutputChannels);
+    this._register(outputChannelRegistry.onDidRegisterChannel((e) => {
+      const channel = this.outputService.getChannelDescriptor(e);
+      if (channel) {
+        registerOutputChannels([channel]);
+      }
+    }));
+    this._register(outputChannelRegistry.onDidRemoveChannel((e) => {
+      registeredChannels.get(e.id)?.dispose();
+      registeredChannels.delete(e.id);
+    }));
+  }
+  registerAddCompoundLogAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.output.addCompoundLog",
+          title: nls.localize2("addCompoundLog", "Add Compound Log..."),
+          category: nls.localize2("output", "Output"),
+          f1: true,
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "2_add"
+          }]
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const extensionLogs = [], logs = [];
+        for (const channel of outputService.getChannelDescriptors()) {
+          if (channel.log && !channel.user) {
+            if (channel.extensionId) {
+              extensionLogs.push(channel);
+            } else {
+              logs.push(channel);
+            }
+          }
+        }
+        const entries = [];
+        for (const log of logs.sort((a, b) => a.label.localeCompare(b.label))) {
+          entries.push(log);
+        }
+        if (extensionLogs.length && logs.length) {
+          entries.push({ type: "separator", label: nls.localize("extensionLogs", "Extension Logs") });
+        }
+        for (const log of extensionLogs.sort((a, b) => a.label.localeCompare(b.label))) {
+          entries.push(log);
+        }
+        const result = await quickInputService.pick(entries, { placeHolder: nls.localize("selectlog", "Select Log"), canPickMany: true });
+        if (result?.length) {
+          outputService.showChannel(outputService.registerCompoundLogChannel(result));
+        }
+      }
+    }));
+  }
+  registerRemoveLogAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.output.remove",
+          title: nls.localize2("removeLog", "Remove Output..."),
+          category: nls.localize2("output", "Output"),
+          f1: true
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const notificationService = accessor.get(INotificationService);
+        const entries = outputService.getChannelDescriptors().filter((channel) => channel.user);
+        if (entries.length === 0) {
+          notificationService.info(nls.localize("nocustumoutput", "No custom outputs to remove."));
+          return;
+        }
+        const result = await quickInputService.pick(entries, { placeHolder: nls.localize("selectlog", "Select Log"), canPickMany: true });
+        if (!result?.length) {
+          return;
+        }
+        const outputChannelRegistry = Registry.as(Extensions.OutputChannels);
+        for (const channel of result) {
+          outputChannelRegistry.removeChannel(channel.id);
+        }
+      }
+    }));
+  }
+  registerShowOutputChannelsAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.showOutputChannels",
+          title: nls.localize2("showOutputChannels", "Show Output Channels..."),
+          category: nls.localize2("output", "Output"),
+          f1: true
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const extensionChannels = [], coreChannels = [];
+        for (const channel of outputService.getChannelDescriptors()) {
+          if (channel.extensionId) {
+            extensionChannels.push(channel);
+          } else {
+            coreChannels.push(channel);
+          }
+        }
+        const entries = [];
+        for (const { id, label } of extensionChannels) {
+          entries.push({ id, label });
+        }
+        if (extensionChannels.length && coreChannels.length) {
+          entries.push({ type: "separator" });
+        }
+        for (const { id, label } of coreChannels) {
+          entries.push({ id, label });
+        }
+        const entry = await quickInputService.pick(entries, { placeHolder: nls.localize("selectOutput", "Select Output Channel") });
+        if (entry) {
+          return outputService.showChannel(entry.id);
+        }
+      }
+    }));
+  }
+  registerClearOutputAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.output.action.clearOutput`,
+          title: nls.localize2("clearOutput.label", "Clear Output"),
+          category: Categories.View,
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "navigation",
+            order: 2
+          }, {
+            id: MenuId.CommandPalette
+          }, {
+            id: MenuId.EditorContext,
+            when: CONTEXT_IN_OUTPUT
+          }],
+          icon: Codicon.clearAll
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+        const activeChannel = outputService.getActiveChannel();
+        if (activeChannel) {
+          activeChannel.clear();
+          accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+        }
+      }
+    }));
+  }
+  registerToggleAutoScrollAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.output.action.toggleAutoScroll`,
+          title: nls.localize2("toggleAutoScroll", "Toggle Auto Scrolling"),
+          tooltip: nls.localize("outputScrollOff", "Turn Auto Scrolling Off"),
+          menu: {
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.and(ContextKeyExpr.equals("view", OUTPUT_VIEW_ID)),
+            group: "navigation",
+            order: 3
+          },
+          icon: Codicon.lock,
+          toggled: {
+            condition: CONTEXT_OUTPUT_SCROLL_LOCK,
+            icon: Codicon.unlock,
+            tooltip: nls.localize("outputScrollOn", "Turn Auto Scrolling On")
+          }
+        });
+      }
+      async run(accessor) {
+        const outputView = accessor.get(IViewsService).getActiveViewWithId(OUTPUT_VIEW_ID);
+        outputView.scrollLock = !outputView.scrollLock;
+      }
+    }));
+  }
+  registerOpenActiveOutputFileAction() {
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.openActiveLogOutputFile`,
+          title: nls.localize2("openActiveOutputFile", "Open Output in Editor"),
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "navigation",
+            order: 4,
+            isHiddenByDefault: true
+          }],
+          icon: Codicon.goToFile
+        });
+      }
+      async run() {
+        that.openActiveOutput();
+      }
+    }));
+  }
+  registerOpenActiveOutputFileInAuxWindowAction() {
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.openActiveLogOutputFileInNewWindow`,
+          title: nls.localize2("openActiveOutputFileInNewWindow", "Open Output in New Window"),
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "navigation",
+            order: 5,
+            isHiddenByDefault: true
+          }],
+          icon: Codicon.emptyWindow
+        });
+      }
+      async run() {
+        that.openActiveOutput(AUX_WINDOW_GROUP);
+      }
+    }));
+  }
+  registerSaveActiveOutputAsAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.saveActiveLogOutputAs`,
+          title: nls.localize2("saveActiveOutputAs", "Save Output As..."),
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "1_export",
+            order: 1
+          }]
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const channel = outputService.getActiveChannel();
+        if (channel) {
+          const descriptor = outputService.getChannelDescriptors().find((c) => c.id === channel.id);
+          if (descriptor) {
+            await outputService.saveOutputAs(void 0, descriptor);
+          }
+        }
+      }
+    }));
+  }
+  async openActiveOutput(group) {
+    const channel = this.outputService.getActiveChannel();
+    if (channel) {
+      await this.editorService.openEditor({
+        resource: channel.uri,
+        options: {
+          pinned: true
+        }
+      }, group);
+    }
+  }
+  registerConfigureActiveOutputLogLevelAction() {
+    const logLevelMenu = new MenuId("workbench.output.menu.logLevel");
+    this._register(MenuRegistry.appendMenuItem(MenuId.ViewTitle, {
+      submenu: logLevelMenu,
+      title: nls.localize("logLevel.label", "Set Log Level..."),
+      group: "navigation",
+      when: ContextKeyExpr.and(ContextKeyExpr.equals("view", OUTPUT_VIEW_ID), CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE),
+      icon: Codicon.gear,
+      order: 6
+    }));
+    let order = 0;
+    const registerLogLevel = /* @__PURE__ */ __name((logLevel) => {
+      this._register(registerAction2(class extends Action2 {
+        constructor() {
+          super({
+            id: `workbench.action.output.activeOutputLogLevel.${logLevel}`,
+            title: LogLevelToLocalizedString(logLevel).value,
+            toggled: CONTEXT_ACTIVE_OUTPUT_LEVEL.isEqualTo(LogLevelToString(logLevel)),
+            menu: {
+              id: logLevelMenu,
+              order: order++,
+              group: "0_level"
+            }
+          });
+        }
+        async run(accessor) {
+          const outputService = accessor.get(IOutputService);
+          const channel = outputService.getActiveChannel();
+          if (channel) {
+            const channelDescriptor = outputService.getChannelDescriptor(channel.id);
+            if (channelDescriptor) {
+              outputService.setLogLevel(channelDescriptor, logLevel);
+            }
+          }
+        }
+      }));
+    }, "registerLogLevel");
+    registerLogLevel(LogLevel.Trace);
+    registerLogLevel(LogLevel.Debug);
+    registerLogLevel(LogLevel.Info);
+    registerLogLevel(LogLevel.Warning);
+    registerLogLevel(LogLevel.Error);
+    registerLogLevel(LogLevel.Off);
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.output.activeOutputLogLevelDefault`,
+          title: nls.localize("logLevelDefault.label", "Set As Default"),
+          menu: {
+            id: logLevelMenu,
+            order,
+            group: "1_default"
+          },
+          precondition: CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT.negate()
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const loggerService = accessor.get(ILoggerService);
+        const defaultLogLevelsService = accessor.get(IDefaultLogLevelsService);
+        const channel = outputService.getActiveChannel();
+        if (channel) {
+          const channelDescriptor = outputService.getChannelDescriptor(channel.id);
+          if (channelDescriptor && isSingleSourceOutputChannelDescriptor(channelDescriptor)) {
+            const logLevel = loggerService.getLogLevel(channelDescriptor.source.resource);
+            return await defaultLogLevelsService.setDefaultLogLevel(logLevel, channelDescriptor.extensionId);
+          }
+        }
+      }
+    }));
+  }
+  registerShowLogsAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.showLogs",
+          title: nls.localize2("showLogs", "Show Logs..."),
+          category: Categories.Developer,
+          menu: {
+            id: MenuId.CommandPalette
+          }
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const extensionLogs = [], logs = [];
+        for (const channel of outputService.getChannelDescriptors()) {
+          if (channel.log) {
+            if (channel.extensionId) {
+              extensionLogs.push(channel);
+            } else {
+              logs.push(channel);
+            }
+          }
+        }
+        const entries = [];
+        for (const { id, label } of logs) {
+          entries.push({ id, label });
+        }
+        if (extensionLogs.length && logs.length) {
+          entries.push({ type: "separator", label: nls.localize("extensionLogs", "Extension Logs") });
+        }
+        for (const { id, label } of extensionLogs) {
+          entries.push({ id, label });
+        }
+        const entry = await quickInputService.pick(entries, { placeHolder: nls.localize("selectlog", "Select Log") });
+        if (entry) {
+          return outputService.showChannel(entry.id);
+        }
+      }
+    }));
+  }
+  registerOpenLogFileAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.openLogFile",
+          title: nls.localize2("openLogFile", "Open Log..."),
+          category: Categories.Developer,
+          menu: {
+            id: MenuId.CommandPalette
+          },
+          metadata: {
+            description: "workbench.action.openLogFile",
+            args: [{
+              name: "logFile",
+              schema: {
+                markdownDescription: nls.localize("logFile", 'The id of the log file to open, for example `"window"`. Currently the best way to get this is to get the ID by checking the `workbench.action.output.show.<id>` commands'),
+                type: "string"
+              }
+            }]
+          }
+        });
+      }
+      async run(accessor, args) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const editorService = accessor.get(IEditorService);
+        let entry;
+        const argName = args && typeof args === "string" ? args : void 0;
+        const extensionChannels = [];
+        const coreChannels = [];
+        for (const c of outputService.getChannelDescriptors()) {
+          if (c.log) {
+            const e = { id: c.id, label: c.label };
+            if (c.extensionId) {
+              extensionChannels.push(e);
+            } else {
+              coreChannels.push(e);
+            }
+            if (e.id === argName) {
+              entry = e;
+            }
+          }
+        }
+        if (!entry) {
+          const entries = [...extensionChannels.sort((a, b) => a.label.localeCompare(b.label))];
+          if (entries.length && coreChannels.length) {
+            entries.push({ type: "separator" });
+            entries.push(...coreChannels.sort((a, b) => a.label.localeCompare(b.label)));
+          }
+          entry = await quickInputService.pick(entries, { placeHolder: nls.localize("selectlogFile", "Select Log File") });
+        }
+        if (entry?.id) {
+          const channel = outputService.getChannel(entry.id);
+          if (channel) {
+            await editorService.openEditor({
+              resource: channel.uri,
+              options: {
+                pinned: true
+              }
+            });
+          }
+        }
+      }
+    }));
+  }
+  registerLogLevelFilterActions() {
+    let order = 0;
+    const registerLogLevel = /* @__PURE__ */ __name((logLevel, toggled) => {
+      this._register(registerAction2(class extends ViewAction {
+        constructor() {
+          super({
+            id: `workbench.actions.${OUTPUT_VIEW_ID}.toggle.${LogLevelToString(logLevel)}`,
+            title: LogLevelToLocalizedString(logLevel).value,
+            metadata: {
+              description: localize2("toggleTraceDescription", "Show or hide {0} messages in the output", LogLevelToString(logLevel))
+            },
+            toggled,
+            menu: {
+              id: viewFilterSubmenu,
+              group: "2_log_filter",
+              when: ContextKeyExpr.and(ContextKeyExpr.equals("view", OUTPUT_VIEW_ID), CONTEXT_ACTIVE_LOG_FILE_OUTPUT),
+              order: order++
+            },
+            viewId: OUTPUT_VIEW_ID
+          });
+        }
+        async runInView(serviceAccessor, view) {
+          this.toggleLogLevelFilter(serviceAccessor.get(IOutputService), logLevel);
+        }
+        toggleLogLevelFilter(outputService, logLevel2) {
+          switch (logLevel2) {
+            case LogLevel.Trace:
+              outputService.filters.trace = !outputService.filters.trace;
+              break;
+            case LogLevel.Debug:
+              outputService.filters.debug = !outputService.filters.debug;
+              break;
+            case LogLevel.Info:
+              outputService.filters.info = !outputService.filters.info;
+              break;
+            case LogLevel.Warning:
+              outputService.filters.warning = !outputService.filters.warning;
+              break;
+            case LogLevel.Error:
+              outputService.filters.error = !outputService.filters.error;
+              break;
+          }
+        }
+      }));
+    }, "registerLogLevel");
+    registerLogLevel(LogLevel.Trace, SHOW_TRACE_FILTER_CONTEXT);
+    registerLogLevel(LogLevel.Debug, SHOW_DEBUG_FILTER_CONTEXT);
+    registerLogLevel(LogLevel.Info, SHOW_INFO_FILTER_CONTEXT);
+    registerLogLevel(LogLevel.Warning, SHOW_WARNING_FILTER_CONTEXT);
+    registerLogLevel(LogLevel.Error, SHOW_ERROR_FILTER_CONTEXT);
+  }
+  registerClearFilterActions() {
+    this._register(registerAction2(class extends ViewAction {
+      constructor() {
+        super({
+          id: `workbench.actions.${OUTPUT_VIEW_ID}.clearFilterText`,
+          title: localize("clearFiltersText", "Clear filters text"),
+          keybinding: {
+            when: OUTPUT_FILTER_FOCUS_CONTEXT,
+            weight: 200,
+            primary: 9
+            /* KeyCode.Escape */
+          },
+          viewId: OUTPUT_VIEW_ID
+        });
+      }
+      async runInView(serviceAccessor, outputView) {
+        outputView.clearFilterText();
+      }
+    }));
+  }
+  registerExportLogsAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.exportLogs`,
+          title: nls.localize2("exportLogs", "Export Logs..."),
+          f1: true,
+          category: Categories.Developer,
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "1_export",
+            order: 2
+          }]
+        });
+      }
+      async run(accessor, arg) {
+        const outputService = accessor.get(IOutputService);
+        const quickInputService = accessor.get(IQuickInputService);
+        const extensionLogs = [], logs = [], userLogs = [];
+        for (const channel of outputService.getChannelDescriptors()) {
+          if (channel.log) {
+            if (channel.extensionId) {
+              extensionLogs.push(channel);
+            } else if (channel.user) {
+              userLogs.push(channel);
+            } else {
+              logs.push(channel);
+            }
+          }
+        }
+        const entries = [];
+        for (const log of logs.sort((a, b) => a.label.localeCompare(b.label))) {
+          entries.push(log);
+        }
+        if (extensionLogs.length && logs.length) {
+          entries.push({ type: "separator", label: nls.localize("extensionLogs", "Extension Logs") });
+        }
+        for (const log of extensionLogs.sort((a, b) => a.label.localeCompare(b.label))) {
+          entries.push(log);
+        }
+        if (userLogs.length && (extensionLogs.length || logs.length)) {
+          entries.push({ type: "separator", label: nls.localize("userLogs", "User Logs") });
+        }
+        for (const log of userLogs.sort((a, b) => a.label.localeCompare(b.label))) {
+          entries.push(log);
+        }
+        let selectedOutputChannels;
+        if (arg?.outputChannelIds) {
+          const requestedIdsNormalized = arg.outputChannelIds.map((id) => id.trim().toLowerCase());
+          const candidates = entries.filter((e) => {
+            const isSeparator = hasKey(e, { type: true }) && e.type === "separator";
+            return !isSeparator;
+          });
+          if (requestedIdsNormalized.includes("*")) {
+            selectedOutputChannels = candidates;
+          } else {
+            selectedOutputChannels = candidates.filter((candidate) => requestedIdsNormalized.includes(candidate.id.toLowerCase()));
+          }
+        } else {
+          selectedOutputChannels = await quickInputService.pick(entries, { placeHolder: nls.localize("selectlog", "Select Log"), canPickMany: true });
+        }
+        if (selectedOutputChannels?.length) {
+          await outputService.saveOutputAs(arg?.outputPath, ...selectedOutputChannels);
+        }
+      }
+    }));
+  }
+  registerImportLogAction() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.action.importLog`,
+          title: nls.localize2("importLog", "Import Log..."),
+          f1: true,
+          category: Categories.Developer,
+          menu: [{
+            id: MenuId.ViewTitle,
+            when: ContextKeyExpr.equals("view", OUTPUT_VIEW_ID),
+            group: "2_add",
+            order: 2
+          }]
+        });
+      }
+      async run(accessor) {
+        const outputService = accessor.get(IOutputService);
+        const fileDialogService = accessor.get(IFileDialogService);
+        const result = await fileDialogService.showOpenDialog({
+          title: nls.localize("importLogFile", "Import Log File"),
+          canSelectFiles: true,
+          canSelectFolders: false,
+          canSelectMany: true,
+          filters: [{
+            name: nls.localize("logFiles", "Log Files"),
+            extensions: ["log"]
+          }]
+        });
+        if (result?.length) {
+          const channelName = basename(result[0]);
+          const channelId = `${IMPORTED_LOG_ID_PREFIX}${Date.now()}`;
+          Registry.as(Extensions.OutputChannels).registerChannel({
+            id: channelId,
+            label: channelName,
+            log: true,
+            user: true,
+            source: result.length === 1 ? { resource: result[0] } : result.map((resource) => ({ resource, name: basename(resource).split(".")[0] }))
+          });
+          outputService.showChannel(channelId);
+        }
+      }
+    }));
+  }
+};
+OutputContribution = __decorate([
+  __param(0, IOutputService),
+  __param(1, IEditorService)
+], OutputContribution);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  OutputContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  id: "output",
+  order: 30,
+  title: nls.localize("output", "Output"),
+  type: "object",
+  properties: {
+    "output.smartScroll.enabled": {
+      type: "boolean",
+      description: nls.localize("output.smartScroll.enabled", "Enable/disable the ability of smart scrolling in the output view. Smart scrolling allows you to lock scrolling automatically when you click in the output view and unlocks when you click in the last line."),
+      default: true,
+      scope: 4,
+      tags: ["output"]
+    }
+  }
+});
+KeybindingsRegistry.registerKeybindingRule({
+  id: "cursorWordAccessibilityLeft",
+  when: ContextKeyExpr.and(EditorContextKeys.textInputFocus, CONTEXT_ACCESSIBILITY_MODE_ENABLED, IsWindowsContext, ContextKeyExpr.equals(FocusedViewContext.key, OUTPUT_VIEW_ID)),
+  primary: 2048 | 15,
+  weight: 200
+  /* KeybindingWeight.WorkbenchContrib */
+});
+KeybindingsRegistry.registerKeybindingRule({
+  id: "cursorWordAccessibilityLeftSelect",
+  when: ContextKeyExpr.and(EditorContextKeys.textInputFocus, CONTEXT_ACCESSIBILITY_MODE_ENABLED, IsWindowsContext, ContextKeyExpr.equals(FocusedViewContext.key, OUTPUT_VIEW_ID)),
+  primary: 2048 | 1024 | 15,
+  weight: 200
+  /* KeybindingWeight.WorkbenchContrib */
+});
+KeybindingsRegistry.registerKeybindingRule({
+  id: "cursorWordAccessibilityRight",
+  when: ContextKeyExpr.and(EditorContextKeys.textInputFocus, CONTEXT_ACCESSIBILITY_MODE_ENABLED, IsWindowsContext, ContextKeyExpr.equals(FocusedViewContext.key, OUTPUT_VIEW_ID)),
+  primary: 2048 | 17,
+  weight: 200
+  /* KeybindingWeight.WorkbenchContrib */
+});
+KeybindingsRegistry.registerKeybindingRule({
+  id: "cursorWordAccessibilityRightSelect",
+  when: ContextKeyExpr.and(EditorContextKeys.textInputFocus, CONTEXT_ACCESSIBILITY_MODE_ENABLED, IsWindowsContext, ContextKeyExpr.equals(FocusedViewContext.key, OUTPUT_VIEW_ID)),
+  primary: 2048 | 1024 | 17,
+  weight: 200
+  /* KeybindingWeight.WorkbenchContrib */
+});
+//# sourceMappingURL=output.contribution.js.map

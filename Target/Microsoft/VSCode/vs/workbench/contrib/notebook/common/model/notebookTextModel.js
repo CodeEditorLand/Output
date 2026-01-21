@@ -1,1 +1,1132 @@
-import{$cE as B}from"../../../../../base/common/diff/diff.js";import{$wf as I,$zf as z}from"../../../../../base/common/event.js";import{$Fn as _}from"../../../../../base/common/hash.js";import{$Ed as J,$zd as S}from"../../../../../base/common/lifecycle.js";import{Schemas as H}from"../../../../../base/common/network.js";import{$Jp as M}from"../../../../../base/common/objects.js";import{$Ah as F}from"../../../../../base/common/resources.js";import{$rd as v,$dd as W}from"../../../../../base/common/types.js";import{$8D as K}from"../../../../../editor/common/core/position.js";import{$9D as q}from"../../../../../editor/common/core/range.js";import{$WF as Q}from"../../../../../editor/common/languages/language.js";import{$4K as $}from"../../../../../editor/common/model/textModel.js";import{$WJ as T}from"../../../../../editor/common/model/textModelSearch.js";import{$6H as U}from"../../../../../editor/common/services/model.js";import{$8G as Z}from"../../../../../platform/undoRedo/common/undoRedo.js";import{$7H as X}from"../../../../services/languageDetection/common/languageDetectionWorkerService.js";import{CellUri as C,$kQ as Y,NotebookCellExecutionState as A,NotebookCellsChangeType as g}from"../notebookCommon.js";import{$PP as V}from"../notebookExecutionStateService.js";import{$JP as R}from"../notebookLoggingService.js";import{$SP as G,$QP as tt,$RP as et}from"./cellEdit.js";import{$IP as k}from"./notebookCellOutputTextModel.js";import{$KP as P}from"./notebookCellTextModel.js";var N=function(w,t,e,s){var i=arguments.length,r=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(w,t,e,s);else for(var h=w.length-1;h>=0;h--)(n=w[h])&&(r=(i<3?n(r):i>3?n(t,e,r):n(t,e))||r);return i>3&&r&&Object.defineProperty(t,e,r),r},x=function(w,t){return function(e,s){t(e,s,w)}},O;class st{get code(){return this.d.length===1?this.d[0].code:"undoredo.notebooks.stackOperation"}get label(){return this.d.length===1?this.d[0].label:"edit"}constructor(t,e,s,i,r,n){this.textModel=t,this.undoRedoGroup=e,this.l=s,this.m=i,this.tag="notebookUndoRedoElement",this.d=[],this.f=void 0,this.g=void 0,this.type=1,this.f=r,this.h=n,this.j=n}get resources(){return[this.textModel.uri]}get isEmpty(){return this.d.length===0}pushEndState(t,e){this.j=t,this.g=e||this.g}pushEditOperation(t,e,s,i){this.d.length===0&&(this.f=this.f??e),this.d.push(t),this.g=s,this.j=i}async undo(){this.l.pause();try{for(let t=this.d.length-1;t>=0;t--)await this.d[t].undo();this.m(this.h),this.l.fire({rawEvents:[],synchronous:void 0,versionId:this.textModel.versionId,endSelectionState:this.f})}finally{this.l.resume()}}async redo(){this.l.pause();try{for(let t=0;t<this.d.length;t++)await this.d[t].redo();this.m(this.j),this.l.fire({rawEvents:[],synchronous:void 0,versionId:this.textModel.versionId,endSelectionState:this.g})}finally{this.l.resume()}}}class it{constructor(t,e,s,i){this.g=t,this.h=e,this.j=s,this.l=i,this.d=null,this.f=!1}isUndoStackEmpty(){return this.d===null||this.d.isEmpty}pushStackElement(t,e){this.d&&!this.d.isEmpty&&(this.d.pushEndState(t,e),this.f||this.h.pushElement(this.d,this.d.undoRedoGroup)),this.f=!1,this.d=null}m(t,e,s){return this.d??=new st(this.g,e,this.j,this.l,t,s||"")}appendPreviousOperation(){const t=this.h.getLastElement(this.g.uri);return t&&t.tag==="notebookUndoRedoElement"?(this.d=t,this.f=!0,!0):!1}pushEditOperation(t,e,s,i,r){this.m(e,r,i).pushEditOperation(t,e,s,i)}}class nt extends z{get isEmpty(){return this.h.isEmpty()}isDirtyEvent(){for(const t of this.h)for(let e=0;e<t.rawEvents.length;e++)if(!t.rawEvents[e].transient)return!0;return!1}}let D=O=class extends J{get length(){return this.q.length}get cells(){return this.q}get versionId(){return this.s}get alternativeVersionId(){return this.u}get notebookType(){return this.viewType}constructor(t,e,s,i,r,n,h,o,a,u,d){super(),this.viewType=t,this.uri=e,this.z=n,this.C=h,this.F=o,this.G=a,this.H=u,this.I=d,this.f=!1,this.g=this.D(new I),this.h=this.D(new I),this.j=this.D(new I),this.onWillDispose=this.g.event,this.onWillAddRemoveCells=this.h.event,this.onDidChangeContent=this.j.event,this.m=0,this.n=new Map,this.q=[],this.metadata={},this.transientOptions={transientCellMetadata:{},transientDocumentMetadata:{},transientOutputs:!1,cellContentMetadata:{}},this.s=0,this.t=0,this.u="1",this.S=new Set,this.transientOptions=r,this.metadata=i,this._initialize(s);const p=f=>{if(f.uri.scheme===H.vscodeNotebookCell&&f instanceof $){const l=C.parse(f.uri);if(l&&F(l.notebook,this.uri)){const c=this.M(l.handle);if(c>=0){const y=this.cells[c];y&&(y.textModel=f)}}}};this.D(h.onModelAdded(f=>p(f))),this.y=this.D(new nt({merge:f=>{const l=f[0],c=l.rawEvents;let y=l.versionId,m=l.endSelectionState,E=l.synchronous;for(let b=1;b<f.length;b++)c.push(...f[b].rawEvents),y=f[b].versionId,m=f[b].endSelectionState!==void 0?f[b].endSelectionState:m,E=f[b].synchronous!==void 0?f[b].synchronous:E;return{rawEvents:c,versionId:y,endSelectionState:m,synchronous:E}}})),this.D(this.y.event(f=>{f.rawEvents.length&&this.j.fire(f)})),this.w=new it(this,this.z,this.y,f=>{this.Z(!0),this.$(f)}),this.I.trace("notebookTextModel",`Initialized notebook text model for ${e.toString()}`)}setCellCollapseDefault(t){this.r=t}_initialize(t,e){this.q=[],this.s=0,this.t=0;const s=t.map(i=>{const r=this.m++,n=C.generate(this.uri,r);return new P(n,r,i,this.transientOptions,this.F,this.C.getCreationOptions(i.language,n,!1).defaultEOL,this.r,this.G,this.I)});for(let i=0;i<s.length;i++){const r=s[i].onDidChangeContent(n=>{this.J(s[i],n)});this.n.set(s[i].handle,r),this.D(s[i])}this.q.splice(0,0,...s),this.u=this.L(),e&&this.y.fire({rawEvents:[{kind:g.Unknown,transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}J(t,e){switch(this.Z(e==="content"||typeof e=="object"&&e.type==="model"),e){case"content":this.y.fire({rawEvents:[{kind:g.ChangeCellContent,index:this.M(t.handle),transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0});break;case"language":this.y.fire({rawEvents:[{kind:g.ChangeCellLanguage,index:this.M(t.handle),language:t.language,transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0});break;case"mime":this.y.fire({rawEvents:[{kind:g.ChangeCellMime,index:this.M(t.handle),mime:t.mime,transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0});break;default:typeof e=="object"&&e.type==="model"&&this.y.fire({rawEvents:[{kind:g.ChangeCellContent,index:this.M(t.handle),transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0});break}}L(){return`${this.t}_`+this.cells.map(t=>t.handle+","+t.alternativeId).join(";")}dispose(){this.f||(this.f=!0,this.g.fire(),this.z.removeElements(this.uri),S(this.n.values()),this.n.clear(),S(this.q),this.q=[],super.dispose())}pushStackElement(){}M(t){return this.cells.findIndex(e=>e.handle===t)}N(t,e){const s=e.find(i=>v(i,{outputs:!0})&&i.outputs.some(r=>r.outputId===t));if(s){if(v(s,{index:!0}))return s.index;if(v(s,{handle:!0})){const i=this.M(s.handle);return this.qb(i),i}}return-1}O(t){return this.cells.findIndex(e=>!!e.outputs.find(s=>s.outputId===t))}reset(t,e,s){this.transientOptions=s;const r=this.H.getCellExecutionsForNotebook(this.uri).filter(h=>h.state===A.Executing).map(h=>h.cellHandle),n=O.computeEdits(this,t,r);this.applyEdits([...n,{editType:5,metadata:e}],!0,void 0,()=>{},void 0,!1)}createSnapshot(t){const e=t.transientOptions??this.transientOptions,s={metadata:M(this.metadata,r=>!e.transientDocumentMetadata[r]),cells:[]};let i=0;for(const r of this.cells){const n={cellKind:r.cellKind,language:r.language,mime:r.mime,source:r.getValue(),outputs:[],internalMetadata:r.internalMetadata};if(t.context===2&&t.outputSizeLimit>0&&(r.outputs.forEach(h=>{h.outputs.forEach(o=>{i+=o.data.byteLength})}),i>t.outputSizeLimit))throw new Error("Notebook too large to backup");n.outputs=e.transientOutputs?[]:r.outputs,n.metadata=M(r.metadata,h=>!e.transientCellMetadata[h]),s.cells.push(n)}return s}restoreSnapshot(t,e){this.reset(t.cells,t.metadata,e??this.transientOptions)}static computeEdits(t,e,s=[]){const i=[],r=o=>s.includes(o.handle),n=this.Q(t.cells,t.cells.length,0,e,e.length,0,r);if(n>0)for(let o=0;o<n;o++)i.push({editType:3,index:o,metadata:e[o].metadata??{}},...this.P(o,t.cells[o].outputs,e[o].outputs));if(t.cells.length===e.length&&n===t.cells.length)return i;const h=this.R(t.cells,t.cells.length-n,n,e,e.length-n,n,r);if(h>0?i.push({editType:1,index:n,count:t.cells.length-n-h,cells:e.slice(n,e.length-h)}):n>0?i.push({editType:1,index:n,count:t.cells.length-n,cells:e.slice(n)}):i.push({editType:1,index:0,count:t.cells.length,cells:e}),h>0)for(let o=h;o>0;o--)i.push({editType:3,index:t.cells.length-o,metadata:e[e.length-o].metadata??{}},...this.P(t.cells.length-o,t.cells[t.cells.length-o].outputs,e[e.length-o].outputs));return i}static P(t,e,s){return e.length!==s.length?[{editType:2,index:t,outputs:s,append:!1}]:e.length===0?[]:s.map((i,r)=>({editType:7,outputId:e[r].outputId,items:i.outputs,append:!1}))}static Q(t,e,s,i,r,n,h){const o=Math.min(e,r);let a=0;for(let u=0;u<o&&t[s+u].fastEqual(i[n+u],h(t[s+u]));u++)a++;return a}static R(t,e,s,i,r,n,h){const o=Math.min(e,r);let a=0;for(let u=0;u<o&&t[s+e-u-1].fastEqual(i[n+r-u-1],h(t[s+e-u-1]));u++)a++;return a}U(t){for(const e of t)if(e.editType!==9&&(e.editType!==3&&e.editType!==8||v(e,{index:!0})&&!this.S.has(this.cells[e.index].handle)||v(e,{handle:!0})&&!this.S.has(e.handle)))return!1;return!0}applyEdits(t,e,s,i,r,n){this.I.trace("textModelEdits",`Begin applying ${t.length} raw edits`),this.y.pause();try{this.w.pushStackElement(this.u,void 0),n&&this.U(t)?this.w.appendPreviousOperation()||(n=!1):n&&this.S.clear();try{return this.W(t,e,n,s,r),!0}catch(h){throw this.I.error("textModelEdits",`Error while applying edits: ${h}`),h}finally{if(!this.y.isEmpty){const h=i();this.Z(this.w.isUndoStackEmpty()&&!this.y.isDirtyEvent()),this.w.pushStackElement(this.u,h),this.y.fire({rawEvents:[],versionId:this.versionId,synchronous:e,endSelectionState:h}),this.I.trace("textModelEdits",`End applying ${t.length} raw edits`)}}}finally{this.y.resume()}}W(t,e,s,i,r){const n=t.map((a,u)=>{let d=-1;if(v(a,{index:!0}))d=a.index;else if(v(a,{handle:!0}))d=this.M(a.handle),this.qb(d);else if(v(a,{outputId:!0})){if(d=this.O(a.outputId),this.rb(d)&&(d=this.N(a.outputId,t.slice(0,u))),this.rb(d))return null}else if(a.editType!==5)throw new Error("Invalid cell edit: "+JSON.stringify(a));return{edit:a,cellIndex:d,end:a.editType===5?void 0:a.editType===1?a.index+a.count:d,originalIndex:u}}).filter(W),o=this.X(n).sort((a,u)=>a.end===void 0||u.end===void 0?-1:u.end-a.end||u.originalIndex-a.originalIndex).reduce((a,u)=>{if(!a.length)a.push([u]);else{const d=a[a.length-1],p=d[0].cellIndex;u.cellIndex===p?d.push(u):a.push([u])}return a},[]).map(a=>{const u=[],d=[];return a.forEach(p=>{p.edit.editType===1?u.push(p):d.push(p)}),[...d.reverse(),...u]}).flat();for(const{edit:a,cellIndex:u}of o)switch(a.editType){case 1:this.Y(a.index,a.count,a.cells,e,s,i,r);break;case 2:{this.qb(u);const d=this.q[u];a.append?this.mb(d,{start:d.outputs.length,deleteCount:0,newOutputs:a.outputs.map(p=>new k(p))},!0,s):this.lb(d,a.outputs,s);break}case 7:{this.qb(u);const d=this.q[u];a.append?this.nb(d,a.outputId,a.items):this.ob(d,a.outputId,a.items)}break;case 3:this.qb(a.index),this.ib(this.q[a.index],a.metadata,s,i,r);break;case 8:this.qb(u),this.hb(this.q[u],a.metadata,s,i,r);break;case 9:this.qb(u),this.jb(this.q[u],a.internalMetadata);break;case 4:this.qb(a.index),this.kb(this.q[a.index],a.language,s,i,r);break;case 5:this.ab(a.metadata,s,i,r);break;case 6:this.pb(a.index,a.length,a.newIdx,e,s,i,void 0,r);break}}X(t){const e=[];return t.forEach(s=>{if(e.length){const i=e[e.length-1];i.edit.editType===2&&i.edit.append&&s.edit.editType===2&&s.edit.append&&i.cellIndex===s.cellIndex?i.edit.outputs=[...i.edit.outputs,...s.edit.outputs]:i.edit.editType===2&&!i.edit.append&&i.edit.outputs.length===0&&s.edit.editType===2&&s.edit.append&&i.cellIndex===s.cellIndex?(i.edit.append=!1,i.edit.outputs=s.edit.outputs):e.push(s)}else e.push(s)}),e}Y(t,e,s,i,r,n,h){if(e===0&&s.length===0)return;const o=this.q.slice(0),a=new Set;o.forEach(l=>{a.add(l.handle)});for(let l=t;l<Math.min(t+e,this.q.length);l++){const c=this.q[l];this.n.get(c.handle)?.dispose(),this.n.delete(c.handle)}const u=s.map(l=>{const c=this.m++,y=C.generate(this.uri,c);l.outputs||(l.outputs=[]);const m=new P(y,c,l,this.transientOptions,this.F,this.C.getCreationOptions(l.language,y,!1).defaultEOL,this.r,this.G,this.I),E=this.C.getModel(y);E&&E instanceof $&&(m.textModel=E,m.language=l.language,m.textModel.setValue(l.source),m.resetTextBuffer(m.textModel.getTextBuffer()));const b=m.onDidChangeContent(j=>{this.J(m,j)});return this.S.add(m.handle),this.n.set(m.handle,b),this.D(m),m}),d=this.q.slice(0);d.splice(t,e,...u);const p=Y(this.q,d,l=>a.has(l.handle)).map(l=>[l.start,l.deleteCount,l.toInsert]);this.h.fire({rawEvent:{kind:g.ModelChange,changes:p}}),this.q=d;const f=p.map(l=>{const c=o.slice(l[0],l[0]+l[1]);return[l[0],c,l[2]]});r&&this.w.pushEditOperation(new et(this.uri,f,{insertCell:(l,c,y)=>{this.bb(l,[c],!0,y)},deleteCell:(l,c)=>{this.cb(l,1,!0,c)},replaceCell:(l,c,y,m)=>{this.db(l,c,y,!0,m)}},void 0,void 0),n,void 0,this.u,h),this.y.fire({rawEvents:[{kind:g.ModelChange,changes:p,transient:!1}],versionId:this.versionId,synchronous:i,endSelectionState:void 0})}Z(t){this.s=this.s+1,t||(this.t=this.s),this.u=this.L()}$(t){this.u=t,this.t=Number(t.substring(0,t.indexOf("_")))}ab(t,e,s,i){const r=this.metadata,n=this.eb(this.metadata,t);if(n&&e){const h=this;this.w.pushEditOperation(new class{constructor(){this.type=0,this.label="Update Cell Metadata",this.code="undoredo.textBufferEdit"}get resource(){return h.uri}undo(){h.ab(r,!1,s,i)}redo(){h.ab(t,!1,s,i)}},s,void 0,this.u,i)}this.metadata=t,this.y.fire({rawEvents:[{kind:g.ChangeDocumentMetadata,metadata:this.metadata,transient:!n}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}bb(t,e,s,i){for(let n=0;n<e.length;n++){const h=e[n].onDidChangeContent(o=>{this.J(e[n],o)});this.n.set(e[n].handle,h)}const r=[[t,0,e]];this.h.fire({rawEvent:{kind:g.ModelChange,changes:r}}),this.q.splice(t,0,...e),this.y.fire({rawEvents:[{kind:g.ModelChange,changes:r,transient:!1}],versionId:this.versionId,synchronous:s,endSelectionState:i})}cb(t,e,s,i){for(let n=t;n<t+e;n++){const h=this.q[n];this.n.get(h.handle)?.dispose(),this.n.delete(h.handle)}const r=[[t,e,[]]];this.h.fire({rawEvent:{kind:g.ModelChange,changes:r}}),this.q.splice(t,e),this.y.fire({rawEvents:[{kind:g.ModelChange,changes:r,transient:!1}],versionId:this.versionId,synchronous:s,endSelectionState:i})}db(t,e,s,i,r){for(let h=t;h<t+e;h++){const o=this.q[h];this.n.get(o.handle)?.dispose(),this.n.delete(o.handle)}for(let h=0;h<s.length;h++){const o=s[h].onDidChangeContent(a=>{this.J(s[h],a)});this.n.set(s[h].handle,o)}const n=[[t,e,s]];this.h.fire({rawEvent:{kind:g.ModelChange,changes:n}}),this.q.splice(t,e,...s),this.y.fire({rawEvents:[{kind:g.ModelChange,changes:n,transient:!1}],versionId:this.versionId,synchronous:i,endSelectionState:r})}eb(t,e){const s=new Set([...Object.keys(t||{}),...Object.keys(e||{})]);for(const i of s)if(i==="custom"){if(!this.gb(t[i],e[i])&&!this.transientOptions.transientDocumentMetadata[i])return!0}else if(t[i]!==e[i]&&!this.transientOptions.transientDocumentMetadata[i])return!0;return!1}fb(t,e){const s=new Set([...Object.keys(t||{}),...Object.keys(e||{})]);for(const i of s)if(t[i]!==e[i]&&!this.transientOptions.transientCellMetadata[i])return!0;return!1}gb(t,e){if(!t&&!e)return!0;if(!t||!e)return!1;const s=Object.getOwnPropertyNames(t),i=Object.getOwnPropertyNames(e);if(s.length!==i.length)return!1;for(let r=0;r<s.length;r++){const n=s[r];if(t[n]!==e[n])return!1}return!0}hb(t,e,s,i,r){const n={...t.metadata};let h;for(h in e){const o=e[h]??void 0;n[h]=o}return this.ib(t,n,s,i,r)}ib(t,e,s,i,r){const n=this.fb(t.metadata,e);if(n&&s){const h=this.q.indexOf(t);this.w.pushEditOperation(new G(this.uri,h,Object.freeze(t.metadata),Object.freeze(e),{updateCellMetadata:(o,a)=>{const u=this.q[o];u&&this.ib(u,a,!1,i,r)}}),i,void 0,this.u,r)}t.metadata=e,this.y.fire({rawEvents:[{kind:g.ChangeCellMetadata,index:this.q.indexOf(t),metadata:t.metadata,transient:!n}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}jb(t,e){const s={...t.internalMetadata};let i;for(i in e){const r=e[i]??void 0;s[i]=r}t.internalMetadata=s,this.y.fire({rawEvents:[{kind:g.ChangeCellInternalMetadata,index:this.q.indexOf(t),internalMetadata:t.internalMetadata,transient:!0}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}kb(t,e,s,i,r){if(t.language===e)return;const n=t.language;if(t.language=e,s){const h=this;this.w.pushEditOperation(new class{constructor(){this.type=0,this.label="Update Cell Language",this.code="undoredo.textBufferEdit"}get resource(){return h.uri}undo(){h.kb(t,n,!1,i,r)}redo(){h.kb(t,e,!1,i,r)}},i,void 0,this.u,r)}this.y.fire({rawEvents:[{kind:g.ChangeCellLanguage,index:this.q.indexOf(t),language:e,transient:!1}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}lb(t,e,s){if(e.length===0&&t.outputs.length===0)return;if(e.length<=1){this.mb(t,{start:0,deleteCount:t.outputs.length,newOutputs:e.map(h=>new k(h))},!1,s);return}new B(new L(t.outputs),new L(e)).ComputeDiff(!1).changes.map(h=>({start:h.originalStart,deleteCount:h.originalLength,newOutputs:e.slice(h.modifiedStart,h.modifiedStart+h.modifiedLength).map(o=>new k(o))})).reverse().forEach(h=>{this.mb(t,h,!1,s)})}mb(t,e,s,i){t.spliceNotebookCellOutputs(e),this.y.fire({rawEvents:[{kind:g.Output,index:this.q.indexOf(t),outputs:t.outputs.map(r=>r.asDto())??[],append:s,transient:this.transientOptions.transientOutputs}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}nb(t,e,s){t.changeOutputItems(e,!0,s)&&this.y.fire({rawEvents:[{kind:g.OutputItem,index:this.q.indexOf(t),outputId:e,outputItems:s,append:!0,transient:this.transientOptions.transientOutputs}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}ob(t,e,s){t.changeOutputItems(e,!1,s)&&this.y.fire({rawEvents:[{kind:g.OutputItem,index:this.q.indexOf(t),outputId:e,outputItems:s,append:!1,transient:this.transientOptions.transientOutputs}],versionId:this.versionId,synchronous:!0,endSelectionState:void 0})}pb(t,e,s,i,r,n,h,o){r&&this.w.pushEditOperation(new tt(this.uri,t,e,s,{moveCell:(u,d,p,f,l)=>{this.pb(u,d,p,!0,!1,f,l,o)}},n,h),n,h,this.u,o),this.qb(t),this.qb(s);const a=this.q.splice(t,e);return this.q.splice(s,0,...a),this.y.fire({rawEvents:[{kind:g.Move,index:t,length:e,newIdx:s,cells:a,transient:!1}],versionId:this.versionId,synchronous:i,endSelectionState:h}),!0}qb(t){if(this.rb(t))throw new Error(`model index out of range ${t}`)}rb(t){return t<0||t>=this.q.length}findNextMatch(t,e,s,i,r,n){this.qb(e.cellIndex);const o=new T(t,s,i,r).parseSearchRequest();if(!o)return null;let a=e.cellIndex,u=e.position,d=this.q.length;for(;a<d;){const p=this.q[a],f=n&&a===n.cellIndex&&u.isBefore(n.position),l=new q(u.lineNumber,u.column,f?n.position.lineNumber:p.textBuffer.getLineCount(),f?n.position.column:p.textBuffer.getLineMaxColumn(p.textBuffer.getLineCount())),c=p.textBuffer.findMatchesLineByLine(l,o,!1,1);if(c.length>0)return{cell:p,match:c[0]};if(f)break;a++,n&&a>=this.q.length&&(a=0,d=n.cellIndex+1),u=new K(1,1)}return null}findMatches(t,e,s,i){const n=new T(t,e,s,i).parseSearchRequest();if(!n)return[];const h=[];for(const o of this.q){const a=new q(1,1,o.textBuffer.getLineCount(),o.textBuffer.getLineMaxColumn(o.textBuffer.getLineCount())),u=o.textBuffer.findMatchesLineByLine(a,n,!1,1e3);u.length>0&&h.push({cell:o,matches:u})}return h}};D=O=N([x(5,Z),x(6,U),x(7,Q),x(8,X),x(9,V),x(10,R)],D);class L{constructor(t){this.outputs=t}getElements(){return this.outputs.map(t=>_(t.outputs.map(e=>({mime:e.mime,data:e.data}))))}}export{D as $TP};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotebookTextModel_1;
+import { LcsDiff } from "../../../../../base/common/diff/diff.js";
+import { Emitter, PauseableEmitter } from "../../../../../base/common/event.js";
+import { hash } from "../../../../../base/common/hash.js";
+import { Disposable, dispose } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { filter } from "../../../../../base/common/objects.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { hasKey, isDefined } from "../../../../../base/common/types.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import { SearchParams } from "../../../../../editor/common/model/textModelSearch.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { ILanguageDetectionService } from "../../../../services/languageDetection/common/languageDetectionWorkerService.js";
+import { CellUri, diff, NotebookCellExecutionState, NotebookCellsChangeType } from "../notebookCommon.js";
+import { INotebookExecutionStateService } from "../notebookExecutionStateService.js";
+import { INotebookLoggingService } from "../notebookLoggingService.js";
+import { CellMetadataEdit, MoveCellEdit, SpliceCellsEdit } from "./cellEdit.js";
+import { NotebookCellOutputTextModel } from "./notebookCellOutputTextModel.js";
+import { NotebookCellTextModel } from "./notebookCellTextModel.js";
+class StackOperation {
+  static {
+    __name(this, "StackOperation");
+  }
+  get code() {
+    return this._operations.length === 1 ? this._operations[0].code : "undoredo.notebooks.stackOperation";
+  }
+  get label() {
+    return this._operations.length === 1 ? this._operations[0].label : "edit";
+  }
+  constructor(textModel, undoRedoGroup, _pauseableEmitter, _postUndoRedo, selectionState, beginAlternativeVersionId) {
+    this.textModel = textModel;
+    this.undoRedoGroup = undoRedoGroup;
+    this._pauseableEmitter = _pauseableEmitter;
+    this._postUndoRedo = _postUndoRedo;
+    this.tag = "notebookUndoRedoElement";
+    this._operations = [];
+    this._beginSelectionState = void 0;
+    this._resultSelectionState = void 0;
+    this.type = 1;
+    this._beginSelectionState = selectionState;
+    this._beginAlternativeVersionId = beginAlternativeVersionId;
+    this._resultAlternativeVersionId = beginAlternativeVersionId;
+  }
+  get resources() {
+    return [this.textModel.uri];
+  }
+  get isEmpty() {
+    return this._operations.length === 0;
+  }
+  pushEndState(alternativeVersionId, selectionState) {
+    this._resultAlternativeVersionId = alternativeVersionId;
+    this._resultSelectionState = selectionState || this._resultSelectionState;
+  }
+  pushEditOperation(element, beginSelectionState, resultSelectionState, alternativeVersionId) {
+    if (this._operations.length === 0) {
+      this._beginSelectionState = this._beginSelectionState ?? beginSelectionState;
+    }
+    this._operations.push(element);
+    this._resultSelectionState = resultSelectionState;
+    this._resultAlternativeVersionId = alternativeVersionId;
+  }
+  async undo() {
+    this._pauseableEmitter.pause();
+    try {
+      for (let i = this._operations.length - 1; i >= 0; i--) {
+        await this._operations[i].undo();
+      }
+      this._postUndoRedo(this._beginAlternativeVersionId);
+      this._pauseableEmitter.fire({
+        rawEvents: [],
+        synchronous: void 0,
+        versionId: this.textModel.versionId,
+        endSelectionState: this._beginSelectionState
+      });
+    } finally {
+      this._pauseableEmitter.resume();
+    }
+  }
+  async redo() {
+    this._pauseableEmitter.pause();
+    try {
+      for (let i = 0; i < this._operations.length; i++) {
+        await this._operations[i].redo();
+      }
+      this._postUndoRedo(this._resultAlternativeVersionId);
+      this._pauseableEmitter.fire({
+        rawEvents: [],
+        synchronous: void 0,
+        versionId: this.textModel.versionId,
+        endSelectionState: this._resultSelectionState
+      });
+    } finally {
+      this._pauseableEmitter.resume();
+    }
+  }
+}
+class NotebookOperationManager {
+  static {
+    __name(this, "NotebookOperationManager");
+  }
+  constructor(_textModel, _undoService, _pauseableEmitter, _postUndoRedo) {
+    this._textModel = _textModel;
+    this._undoService = _undoService;
+    this._pauseableEmitter = _pauseableEmitter;
+    this._postUndoRedo = _postUndoRedo;
+    this._pendingStackOperation = null;
+    this._isAppending = false;
+  }
+  isUndoStackEmpty() {
+    return this._pendingStackOperation === null || this._pendingStackOperation.isEmpty;
+  }
+  pushStackElement(alternativeVersionId, selectionState) {
+    if (this._pendingStackOperation && !this._pendingStackOperation.isEmpty) {
+      this._pendingStackOperation.pushEndState(alternativeVersionId, selectionState);
+      if (!this._isAppending) {
+        this._undoService.pushElement(this._pendingStackOperation, this._pendingStackOperation.undoRedoGroup);
+      }
+    }
+    this._isAppending = false;
+    this._pendingStackOperation = null;
+  }
+  _getOrCreateEditStackElement(beginSelectionState, undoRedoGroup, alternativeVersionId) {
+    return this._pendingStackOperation ??= new StackOperation(this._textModel, undoRedoGroup, this._pauseableEmitter, this._postUndoRedo, beginSelectionState, alternativeVersionId || "");
+  }
+  appendPreviousOperation() {
+    const previous = this._undoService.getLastElement(this._textModel.uri);
+    if (previous && previous.tag === "notebookUndoRedoElement") {
+      this._pendingStackOperation = previous;
+      this._isAppending = true;
+      return true;
+    }
+    return false;
+  }
+  pushEditOperation(element, beginSelectionState, resultSelectionState, alternativeVersionId, undoRedoGroup) {
+    const pendingStackOperation = this._getOrCreateEditStackElement(beginSelectionState, undoRedoGroup, alternativeVersionId);
+    pendingStackOperation.pushEditOperation(element, beginSelectionState, resultSelectionState, alternativeVersionId);
+  }
+}
+class NotebookEventEmitter extends PauseableEmitter {
+  static {
+    __name(this, "NotebookEventEmitter");
+  }
+  get isEmpty() {
+    return this._eventQueue.isEmpty();
+  }
+  isDirtyEvent() {
+    for (const e of this._eventQueue) {
+      for (let i = 0; i < e.rawEvents.length; i++) {
+        if (!e.rawEvents[i].transient) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
+let NotebookTextModel = NotebookTextModel_1 = class NotebookTextModel2 extends Disposable {
+  static {
+    __name(this, "NotebookTextModel");
+  }
+  get length() {
+    return this._cells.length;
+  }
+  get cells() {
+    return this._cells;
+  }
+  get versionId() {
+    return this._versionId;
+  }
+  get alternativeVersionId() {
+    return this._alternativeVersionId;
+  }
+  get notebookType() {
+    return this.viewType;
+  }
+  constructor(viewType, uri, cells, metadata, options, _undoService, _modelService, _languageService, _languageDetectionService, _notebookExecutionStateService, _notebookLoggingService) {
+    super();
+    this.viewType = viewType;
+    this.uri = uri;
+    this._undoService = _undoService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._languageDetectionService = _languageDetectionService;
+    this._notebookExecutionStateService = _notebookExecutionStateService;
+    this._notebookLoggingService = _notebookLoggingService;
+    this._isDisposed = false;
+    this._onWillDispose = this._register(new Emitter());
+    this._onWillAddRemoveCells = this._register(new Emitter());
+    this._onDidChangeContent = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+    this.onWillAddRemoveCells = this._onWillAddRemoveCells.event;
+    this.onDidChangeContent = this._onDidChangeContent.event;
+    this._cellhandlePool = 0;
+    this._cellListeners = /* @__PURE__ */ new Map();
+    this._cells = [];
+    this.metadata = {};
+    this.transientOptions = { transientCellMetadata: {}, transientDocumentMetadata: {}, transientOutputs: false, cellContentMetadata: {} };
+    this._versionId = 0;
+    this._notebookSpecificAlternativeId = 0;
+    this._alternativeVersionId = "1";
+    this.newCellsFromLastEdit = /* @__PURE__ */ new Set();
+    this.transientOptions = options;
+    this.metadata = metadata;
+    this._initialize(cells);
+    const maybeUpdateCellTextModel = /* @__PURE__ */ __name((textModel) => {
+      if (textModel.uri.scheme === Schemas.vscodeNotebookCell && textModel instanceof TextModel) {
+        const cellUri = CellUri.parse(textModel.uri);
+        if (cellUri && isEqual(cellUri.notebook, this.uri)) {
+          const cellIdx = this._getCellIndexByHandle(cellUri.handle);
+          if (cellIdx >= 0) {
+            const cell = this.cells[cellIdx];
+            if (cell) {
+              cell.textModel = textModel;
+            }
+          }
+        }
+      }
+    }, "maybeUpdateCellTextModel");
+    this._register(_modelService.onModelAdded((e) => maybeUpdateCellTextModel(e)));
+    this._pauseableEmitter = this._register(new NotebookEventEmitter({
+      merge: /* @__PURE__ */ __name((events) => {
+        const first = events[0];
+        const rawEvents = first.rawEvents;
+        let versionId = first.versionId;
+        let endSelectionState = first.endSelectionState;
+        let synchronous = first.synchronous;
+        for (let i = 1; i < events.length; i++) {
+          rawEvents.push(...events[i].rawEvents);
+          versionId = events[i].versionId;
+          endSelectionState = events[i].endSelectionState !== void 0 ? events[i].endSelectionState : endSelectionState;
+          synchronous = events[i].synchronous !== void 0 ? events[i].synchronous : synchronous;
+        }
+        return { rawEvents, versionId, endSelectionState, synchronous };
+      }, "merge")
+    }));
+    this._register(this._pauseableEmitter.event((e) => {
+      if (e.rawEvents.length) {
+        this._onDidChangeContent.fire(e);
+      }
+    }));
+    this._operationManager = new NotebookOperationManager(this, this._undoService, this._pauseableEmitter, (alternativeVersionId) => {
+      this._increaseVersionId(true);
+      this._overwriteAlternativeVersionId(alternativeVersionId);
+    });
+    this._notebookLoggingService.trace("notebookTextModel", `Initialized notebook text model for ${uri.toString()}`);
+  }
+  setCellCollapseDefault(collapseConfig) {
+    this._defaultCollapseConfig = collapseConfig;
+  }
+  _initialize(cells, triggerDirty) {
+    this._cells = [];
+    this._versionId = 0;
+    this._notebookSpecificAlternativeId = 0;
+    const mainCells = cells.map((cell) => {
+      const cellHandle = this._cellhandlePool++;
+      const cellUri = CellUri.generate(this.uri, cellHandle);
+      return new NotebookCellTextModel(cellUri, cellHandle, cell, this.transientOptions, this._languageService, this._modelService.getCreationOptions(cell.language, cellUri, false).defaultEOL, this._defaultCollapseConfig, this._languageDetectionService, this._notebookLoggingService);
+    });
+    for (let i = 0; i < mainCells.length; i++) {
+      const dirtyStateListener = mainCells[i].onDidChangeContent((e) => {
+        this._bindCellContentHandler(mainCells[i], e);
+      });
+      this._cellListeners.set(mainCells[i].handle, dirtyStateListener);
+      this._register(mainCells[i]);
+    }
+    this._cells.splice(0, 0, ...mainCells);
+    this._alternativeVersionId = this._generateAlternativeId();
+    if (triggerDirty) {
+      this._pauseableEmitter.fire({
+        rawEvents: [{ kind: NotebookCellsChangeType.Unknown, transient: false }],
+        versionId: this.versionId,
+        synchronous: true,
+        endSelectionState: void 0
+      });
+    }
+  }
+  _bindCellContentHandler(cell, e) {
+    this._increaseVersionId(e === "content" || typeof e === "object" && e.type === "model");
+    switch (e) {
+      case "content":
+        this._pauseableEmitter.fire({
+          rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellContent, index: this._getCellIndexByHandle(cell.handle), transient: false }],
+          versionId: this.versionId,
+          synchronous: true,
+          endSelectionState: void 0
+        });
+        break;
+      case "language":
+        this._pauseableEmitter.fire({
+          rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellLanguage, index: this._getCellIndexByHandle(cell.handle), language: cell.language, transient: false }],
+          versionId: this.versionId,
+          synchronous: true,
+          endSelectionState: void 0
+        });
+        break;
+      case "mime":
+        this._pauseableEmitter.fire({
+          rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellMime, index: this._getCellIndexByHandle(cell.handle), mime: cell.mime, transient: false }],
+          versionId: this.versionId,
+          synchronous: true,
+          endSelectionState: void 0
+        });
+        break;
+      default:
+        if (typeof e === "object" && e.type === "model") {
+          this._pauseableEmitter.fire({
+            rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellContent, index: this._getCellIndexByHandle(cell.handle), transient: false }],
+            versionId: this.versionId,
+            synchronous: true,
+            endSelectionState: void 0
+          });
+        }
+        break;
+    }
+  }
+  _generateAlternativeId() {
+    return `${this._notebookSpecificAlternativeId}_` + this.cells.map((cell) => cell.handle + "," + cell.alternativeId).join(";");
+  }
+  dispose() {
+    if (this._isDisposed) {
+      return;
+    }
+    this._isDisposed = true;
+    this._onWillDispose.fire();
+    this._undoService.removeElements(this.uri);
+    dispose(this._cellListeners.values());
+    this._cellListeners.clear();
+    dispose(this._cells);
+    this._cells = [];
+    super.dispose();
+  }
+  pushStackElement() {
+  }
+  _getCellIndexByHandle(handle) {
+    return this.cells.findIndex((c) => c.handle === handle);
+  }
+  _getCellIndexWithOutputIdHandleFromEdits(outputId, rawEdits) {
+    const edit = rawEdits.find((e) => hasKey(e, { outputs: true }) && e.outputs.some((o) => o.outputId === outputId));
+    if (edit) {
+      if (hasKey(edit, { index: true })) {
+        return edit.index;
+      } else if (hasKey(edit, { handle: true })) {
+        const cellIndex = this._getCellIndexByHandle(edit.handle);
+        this._assertIndex(cellIndex);
+        return cellIndex;
+      }
+    }
+    return -1;
+  }
+  _getCellIndexWithOutputIdHandle(outputId) {
+    return this.cells.findIndex((c) => !!c.outputs.find((o) => o.outputId === outputId));
+  }
+  reset(cells, metadata, transientOptions) {
+    this.transientOptions = transientOptions;
+    const executions = this._notebookExecutionStateService.getCellExecutionsForNotebook(this.uri);
+    const executingCellHandles = executions.filter((exe) => exe.state === NotebookCellExecutionState.Executing).map((exe) => exe.cellHandle);
+    const edits = NotebookTextModel_1.computeEdits(this, cells, executingCellHandles);
+    this.applyEdits([
+      ...edits,
+      { editType: 5, metadata }
+    ], true, void 0, () => void 0, void 0, false);
+  }
+  createSnapshot(options) {
+    const transientOptions = options.transientOptions ?? this.transientOptions;
+    const data = {
+      metadata: filter(this.metadata, (key) => !transientOptions.transientDocumentMetadata[key]),
+      cells: []
+    };
+    let outputSize = 0;
+    for (const cell of this.cells) {
+      const cellData = {
+        cellKind: cell.cellKind,
+        language: cell.language,
+        mime: cell.mime,
+        source: cell.getValue(),
+        outputs: [],
+        internalMetadata: cell.internalMetadata
+      };
+      if (options.context === 2 && options.outputSizeLimit > 0) {
+        cell.outputs.forEach((output) => {
+          output.outputs.forEach((item) => {
+            outputSize += item.data.byteLength;
+          });
+        });
+        if (outputSize > options.outputSizeLimit) {
+          throw new Error("Notebook too large to backup");
+        }
+      }
+      cellData.outputs = !transientOptions.transientOutputs ? cell.outputs : [];
+      cellData.metadata = filter(cell.metadata, (key) => !transientOptions.transientCellMetadata[key]);
+      data.cells.push(cellData);
+    }
+    return data;
+  }
+  restoreSnapshot(snapshot, transientOptions) {
+    this.reset(snapshot.cells, snapshot.metadata, transientOptions ?? this.transientOptions);
+  }
+  static computeEdits(model, cells, executingHandles = []) {
+    const edits = [];
+    const isExecuting = /* @__PURE__ */ __name((cell) => executingHandles.includes(cell.handle), "isExecuting");
+    const commonPrefix = this._commonPrefix(model.cells, model.cells.length, 0, cells, cells.length, 0, isExecuting);
+    if (commonPrefix > 0) {
+      for (let i = 0; i < commonPrefix; i++) {
+        edits.push({
+          editType: 3,
+          index: i,
+          metadata: cells[i].metadata ?? {}
+        }, ...this._computeOutputEdit(i, model.cells[i].outputs, cells[i].outputs));
+      }
+    }
+    if (model.cells.length === cells.length && commonPrefix === model.cells.length) {
+      return edits;
+    }
+    const commonSuffix = this._commonSuffix(model.cells, model.cells.length - commonPrefix, commonPrefix, cells, cells.length - commonPrefix, commonPrefix, isExecuting);
+    if (commonSuffix > 0) {
+      edits.push({ editType: 1, index: commonPrefix, count: model.cells.length - commonPrefix - commonSuffix, cells: cells.slice(commonPrefix, cells.length - commonSuffix) });
+    } else if (commonPrefix > 0) {
+      edits.push({ editType: 1, index: commonPrefix, count: model.cells.length - commonPrefix, cells: cells.slice(commonPrefix) });
+    } else {
+      edits.push({ editType: 1, index: 0, count: model.cells.length, cells });
+    }
+    if (commonSuffix > 0) {
+      for (let i = commonSuffix; i > 0; i--) {
+        edits.push({
+          editType: 3,
+          index: model.cells.length - i,
+          metadata: cells[cells.length - i].metadata ?? {}
+        }, ...this._computeOutputEdit(model.cells.length - i, model.cells[model.cells.length - i].outputs, cells[cells.length - i].outputs));
+      }
+    }
+    return edits;
+  }
+  static _computeOutputEdit(index, a, b) {
+    if (a.length !== b.length) {
+      return [
+        {
+          editType: 2,
+          index,
+          outputs: b,
+          append: false
+        }
+      ];
+    }
+    if (a.length === 0) {
+      return [];
+    }
+    return b.map((output, i) => {
+      return {
+        editType: 7,
+        outputId: a[i].outputId,
+        items: output.outputs,
+        append: false
+      };
+    });
+  }
+  static _commonPrefix(a, aLen, aDelta, b, bLen, bDelta, isExecuting) {
+    const maxResult = Math.min(aLen, bLen);
+    let result = 0;
+    for (let i = 0; i < maxResult && a[aDelta + i].fastEqual(b[bDelta + i], isExecuting(a[aDelta + i])); i++) {
+      result++;
+    }
+    return result;
+  }
+  static _commonSuffix(a, aLen, aDelta, b, bLen, bDelta, isExecuting) {
+    const maxResult = Math.min(aLen, bLen);
+    let result = 0;
+    for (let i = 0; i < maxResult && a[aDelta + aLen - i - 1].fastEqual(b[bDelta + bLen - i - 1], isExecuting(a[aDelta + aLen - i - 1])); i++) {
+      result++;
+    }
+    return result;
+  }
+  isOnlyEditingMetadataOnNewCells(rawEdits) {
+    for (const edit of rawEdits) {
+      if (edit.editType === 9) {
+        continue;
+      }
+      if (edit.editType !== 3 && edit.editType !== 8) {
+        return false;
+      }
+      if (hasKey(edit, { index: true }) && !this.newCellsFromLastEdit.has(this.cells[edit.index].handle)) {
+        return false;
+      }
+      if (hasKey(edit, { handle: true }) && !this.newCellsFromLastEdit.has(edit.handle)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  applyEdits(rawEdits, synchronous, beginSelectionState, endSelectionsComputer, undoRedoGroup, computeUndoRedo) {
+    this._notebookLoggingService.trace("textModelEdits", `Begin applying ${rawEdits.length} raw edits`);
+    this._pauseableEmitter.pause();
+    try {
+      this._operationManager.pushStackElement(this._alternativeVersionId, void 0);
+      if (computeUndoRedo && this.isOnlyEditingMetadataOnNewCells(rawEdits)) {
+        if (!this._operationManager.appendPreviousOperation()) {
+          computeUndoRedo = false;
+        }
+      } else if (computeUndoRedo) {
+        this.newCellsFromLastEdit.clear();
+      }
+      try {
+        this._doApplyEdits(rawEdits, synchronous, computeUndoRedo, beginSelectionState, undoRedoGroup);
+        return true;
+      } catch (err) {
+        this._notebookLoggingService.error("textModelEdits", `Error while applying edits: ${err}`);
+        throw err;
+      } finally {
+        if (!this._pauseableEmitter.isEmpty) {
+          const endSelections = endSelectionsComputer();
+          this._increaseVersionId(this._operationManager.isUndoStackEmpty() && !this._pauseableEmitter.isDirtyEvent());
+          this._operationManager.pushStackElement(this._alternativeVersionId, endSelections);
+          this._pauseableEmitter.fire({ rawEvents: [], versionId: this.versionId, synchronous, endSelectionState: endSelections });
+          this._notebookLoggingService.trace("textModelEdits", `End applying ${rawEdits.length} raw edits`);
+        }
+      }
+    } finally {
+      this._pauseableEmitter.resume();
+    }
+  }
+  _doApplyEdits(rawEdits, synchronous, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    const editsWithDetails = rawEdits.map((edit, index) => {
+      let cellIndex = -1;
+      if (hasKey(edit, { index: true })) {
+        cellIndex = edit.index;
+      } else if (hasKey(edit, { handle: true })) {
+        cellIndex = this._getCellIndexByHandle(edit.handle);
+        this._assertIndex(cellIndex);
+      } else if (hasKey(edit, { outputId: true })) {
+        cellIndex = this._getCellIndexWithOutputIdHandle(edit.outputId);
+        if (this._indexIsInvalid(cellIndex)) {
+          cellIndex = this._getCellIndexWithOutputIdHandleFromEdits(edit.outputId, rawEdits.slice(0, index));
+        }
+        if (this._indexIsInvalid(cellIndex)) {
+          return null;
+        }
+      } else if (edit.editType !== 5) {
+        throw new Error("Invalid cell edit: " + JSON.stringify(edit));
+      }
+      return {
+        edit,
+        cellIndex,
+        end: edit.editType === 5 ? void 0 : edit.editType === 1 ? edit.index + edit.count : cellIndex,
+        originalIndex: index
+      };
+    }).filter(isDefined);
+    const edits = this._mergeCellEdits(editsWithDetails).sort((a, b) => {
+      if (a.end === void 0) {
+        return -1;
+      }
+      if (b.end === void 0) {
+        return -1;
+      }
+      return b.end - a.end || b.originalIndex - a.originalIndex;
+    }).reduce((prev, curr) => {
+      if (!prev.length) {
+        prev.push([curr]);
+      } else {
+        const last = prev[prev.length - 1];
+        const index = last[0].cellIndex;
+        if (curr.cellIndex === index) {
+          last.push(curr);
+        } else {
+          prev.push([curr]);
+        }
+      }
+      return prev;
+    }, []).map((editsOnSameIndex) => {
+      const replaceEdits = [];
+      const otherEdits = [];
+      editsOnSameIndex.forEach((edit) => {
+        if (edit.edit.editType === 1) {
+          replaceEdits.push(edit);
+        } else {
+          otherEdits.push(edit);
+        }
+      });
+      return [...otherEdits.reverse(), ...replaceEdits];
+    });
+    const flattenEdits = edits.flat();
+    for (const { edit, cellIndex } of flattenEdits) {
+      switch (edit.editType) {
+        case 1:
+          this._replaceCells(edit.index, edit.count, edit.cells, synchronous, computeUndoRedo, beginSelectionState, undoRedoGroup);
+          break;
+        case 2: {
+          this._assertIndex(cellIndex);
+          const cell = this._cells[cellIndex];
+          if (edit.append) {
+            this._spliceNotebookCellOutputs(cell, { start: cell.outputs.length, deleteCount: 0, newOutputs: edit.outputs.map((op) => new NotebookCellOutputTextModel(op)) }, true, computeUndoRedo);
+          } else {
+            this._spliceNotebookCellOutputs2(cell, edit.outputs, computeUndoRedo);
+          }
+          break;
+        }
+        case 7:
+          {
+            this._assertIndex(cellIndex);
+            const cell = this._cells[cellIndex];
+            if (edit.append) {
+              this._appendNotebookCellOutputItems(cell, edit.outputId, edit.items);
+            } else {
+              this._replaceNotebookCellOutputItems(cell, edit.outputId, edit.items);
+            }
+          }
+          break;
+        case 3:
+          this._assertIndex(edit.index);
+          this._changeCellMetadata(this._cells[edit.index], edit.metadata, computeUndoRedo, beginSelectionState, undoRedoGroup);
+          break;
+        case 8:
+          this._assertIndex(cellIndex);
+          this._changeCellMetadataPartial(this._cells[cellIndex], edit.metadata, computeUndoRedo, beginSelectionState, undoRedoGroup);
+          break;
+        case 9:
+          this._assertIndex(cellIndex);
+          this._changeCellInternalMetadataPartial(this._cells[cellIndex], edit.internalMetadata);
+          break;
+        case 4:
+          this._assertIndex(edit.index);
+          this._changeCellLanguage(this._cells[edit.index], edit.language, computeUndoRedo, beginSelectionState, undoRedoGroup);
+          break;
+        case 5:
+          this._updateNotebookCellMetadata(edit.metadata, computeUndoRedo, beginSelectionState, undoRedoGroup);
+          break;
+        case 6:
+          this._moveCellToIdx(edit.index, edit.length, edit.newIdx, synchronous, computeUndoRedo, beginSelectionState, void 0, undoRedoGroup);
+          break;
+      }
+    }
+  }
+  _mergeCellEdits(rawEdits) {
+    const mergedEdits = [];
+    rawEdits.forEach((edit) => {
+      if (mergedEdits.length) {
+        const last = mergedEdits[mergedEdits.length - 1];
+        if (last.edit.editType === 2 && last.edit.append && edit.edit.editType === 2 && edit.edit.append && last.cellIndex === edit.cellIndex) {
+          last.edit.outputs = [...last.edit.outputs, ...edit.edit.outputs];
+        } else if (last.edit.editType === 2 && !last.edit.append && last.edit.outputs.length === 0 && edit.edit.editType === 2 && edit.edit.append && last.cellIndex === edit.cellIndex) {
+          last.edit.append = false;
+          last.edit.outputs = edit.edit.outputs;
+        } else {
+          mergedEdits.push(edit);
+        }
+      } else {
+        mergedEdits.push(edit);
+      }
+    });
+    return mergedEdits;
+  }
+  _replaceCells(index, count, cellDtos, synchronous, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    if (count === 0 && cellDtos.length === 0) {
+      return;
+    }
+    const oldViewCells = this._cells.slice(0);
+    const oldSet = /* @__PURE__ */ new Set();
+    oldViewCells.forEach((cell) => {
+      oldSet.add(cell.handle);
+    });
+    for (let i = index; i < Math.min(index + count, this._cells.length); i++) {
+      const cell = this._cells[i];
+      this._cellListeners.get(cell.handle)?.dispose();
+      this._cellListeners.delete(cell.handle);
+    }
+    const cells = cellDtos.map((cellDto) => {
+      const cellHandle = this._cellhandlePool++;
+      const cellUri = CellUri.generate(this.uri, cellHandle);
+      if (!cellDto.outputs) {
+        cellDto.outputs = [];
+      }
+      const cell = new NotebookCellTextModel(cellUri, cellHandle, cellDto, this.transientOptions, this._languageService, this._modelService.getCreationOptions(cellDto.language, cellUri, false).defaultEOL, this._defaultCollapseConfig, this._languageDetectionService, this._notebookLoggingService);
+      const textModel = this._modelService.getModel(cellUri);
+      if (textModel && textModel instanceof TextModel) {
+        cell.textModel = textModel;
+        cell.language = cellDto.language;
+        cell.textModel.setValue(cellDto.source);
+        cell.resetTextBuffer(cell.textModel.getTextBuffer());
+      }
+      const dirtyStateListener = cell.onDidChangeContent((e) => {
+        this._bindCellContentHandler(cell, e);
+      });
+      this.newCellsFromLastEdit.add(cell.handle);
+      this._cellListeners.set(cell.handle, dirtyStateListener);
+      this._register(cell);
+      return cell;
+    });
+    const cellsCopy = this._cells.slice(0);
+    cellsCopy.splice(index, count, ...cells);
+    const diffs = diff(this._cells, cellsCopy, (cell) => {
+      return oldSet.has(cell.handle);
+    }).map((diff2) => {
+      return [diff2.start, diff2.deleteCount, diff2.toInsert];
+    });
+    this._onWillAddRemoveCells.fire({ rawEvent: { kind: NotebookCellsChangeType.ModelChange, changes: diffs } });
+    this._cells = cellsCopy;
+    const undoDiff = diffs.map((diff2) => {
+      const deletedCells = oldViewCells.slice(diff2[0], diff2[0] + diff2[1]);
+      return [diff2[0], deletedCells, diff2[2]];
+    });
+    if (computeUndoRedo) {
+      this._operationManager.pushEditOperation(new SpliceCellsEdit(this.uri, undoDiff, {
+        insertCell: /* @__PURE__ */ __name((index2, cell, endSelections) => {
+          this._insertNewCell(index2, [cell], true, endSelections);
+        }, "insertCell"),
+        deleteCell: /* @__PURE__ */ __name((index2, endSelections) => {
+          this._removeCell(index2, 1, true, endSelections);
+        }, "deleteCell"),
+        replaceCell: /* @__PURE__ */ __name((index2, count2, cells2, endSelections) => {
+          this._replaceNewCells(index2, count2, cells2, true, endSelections);
+        }, "replaceCell")
+      }, void 0, void 0), beginSelectionState, void 0, this._alternativeVersionId, undoRedoGroup);
+    }
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ModelChange, changes: diffs, transient: false }],
+      versionId: this.versionId,
+      synchronous,
+      endSelectionState: void 0
+    });
+  }
+  _increaseVersionId(transient) {
+    this._versionId = this._versionId + 1;
+    if (!transient) {
+      this._notebookSpecificAlternativeId = this._versionId;
+    }
+    this._alternativeVersionId = this._generateAlternativeId();
+  }
+  _overwriteAlternativeVersionId(newAlternativeVersionId) {
+    this._alternativeVersionId = newAlternativeVersionId;
+    this._notebookSpecificAlternativeId = Number(newAlternativeVersionId.substring(0, newAlternativeVersionId.indexOf("_")));
+  }
+  _updateNotebookCellMetadata(metadata, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    const oldMetadata = this.metadata;
+    const triggerDirtyChange = this._isDocumentMetadataChanged(this.metadata, metadata);
+    if (triggerDirtyChange) {
+      if (computeUndoRedo) {
+        const that = this;
+        this._operationManager.pushEditOperation(new class {
+          constructor() {
+            this.type = 0;
+            this.label = "Update Cell Metadata";
+            this.code = "undoredo.textBufferEdit";
+          }
+          get resource() {
+            return that.uri;
+          }
+          undo() {
+            that._updateNotebookCellMetadata(oldMetadata, false, beginSelectionState, undoRedoGroup);
+          }
+          redo() {
+            that._updateNotebookCellMetadata(metadata, false, beginSelectionState, undoRedoGroup);
+          }
+        }(), beginSelectionState, void 0, this._alternativeVersionId, undoRedoGroup);
+      }
+    }
+    this.metadata = metadata;
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ChangeDocumentMetadata, metadata: this.metadata, transient: !triggerDirtyChange }],
+      versionId: this.versionId,
+      synchronous: true,
+      endSelectionState: void 0
+    });
+  }
+  _insertNewCell(index, cells, synchronous, endSelections) {
+    for (let i = 0; i < cells.length; i++) {
+      const dirtyStateListener = cells[i].onDidChangeContent((e) => {
+        this._bindCellContentHandler(cells[i], e);
+      });
+      this._cellListeners.set(cells[i].handle, dirtyStateListener);
+    }
+    const changes = [[index, 0, cells]];
+    this._onWillAddRemoveCells.fire({ rawEvent: { kind: NotebookCellsChangeType.ModelChange, changes } });
+    this._cells.splice(index, 0, ...cells);
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ModelChange, changes, transient: false }],
+      versionId: this.versionId,
+      synchronous,
+      endSelectionState: endSelections
+    });
+    return;
+  }
+  _removeCell(index, count, synchronous, endSelections) {
+    for (let i = index; i < index + count; i++) {
+      const cell = this._cells[i];
+      this._cellListeners.get(cell.handle)?.dispose();
+      this._cellListeners.delete(cell.handle);
+    }
+    const changes = [[index, count, []]];
+    this._onWillAddRemoveCells.fire({ rawEvent: { kind: NotebookCellsChangeType.ModelChange, changes } });
+    this._cells.splice(index, count);
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ModelChange, changes, transient: false }],
+      versionId: this.versionId,
+      synchronous,
+      endSelectionState: endSelections
+    });
+  }
+  _replaceNewCells(index, count, cells, synchronous, endSelections) {
+    for (let i = index; i < index + count; i++) {
+      const cell = this._cells[i];
+      this._cellListeners.get(cell.handle)?.dispose();
+      this._cellListeners.delete(cell.handle);
+    }
+    for (let i = 0; i < cells.length; i++) {
+      const dirtyStateListener = cells[i].onDidChangeContent((e) => {
+        this._bindCellContentHandler(cells[i], e);
+      });
+      this._cellListeners.set(cells[i].handle, dirtyStateListener);
+    }
+    const changes = [[index, count, cells]];
+    this._onWillAddRemoveCells.fire({ rawEvent: { kind: NotebookCellsChangeType.ModelChange, changes } });
+    this._cells.splice(index, count, ...cells);
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ModelChange, changes, transient: false }],
+      versionId: this.versionId,
+      synchronous,
+      endSelectionState: endSelections
+    });
+  }
+  _isDocumentMetadataChanged(a, b) {
+    const keys = /* @__PURE__ */ new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+    for (const key of keys) {
+      if (key === "custom") {
+        if (!this._customMetadataEqual(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
+          return true;
+        }
+      } else if (a[key] !== b[key] && !this.transientOptions.transientDocumentMetadata[key]) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _isCellMetadataChanged(a, b) {
+    const keys = /* @__PURE__ */ new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+    for (const key of keys) {
+      if (a[key] !== b[key] && !this.transientOptions.transientCellMetadata[key]) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _customMetadataEqual(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    const aProps = Object.getOwnPropertyNames(a);
+    const bProps = Object.getOwnPropertyNames(b);
+    if (aProps.length !== bProps.length) {
+      return false;
+    }
+    for (let i = 0; i < aProps.length; i++) {
+      const propName = aProps[i];
+      if (a[propName] !== b[propName]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  _changeCellMetadataPartial(cell, metadata, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    const newMetadata = {
+      ...cell.metadata
+    };
+    let k;
+    for (k in metadata) {
+      const value = metadata[k] ?? void 0;
+      newMetadata[k] = value;
+    }
+    return this._changeCellMetadata(cell, newMetadata, computeUndoRedo, beginSelectionState, undoRedoGroup);
+  }
+  _changeCellMetadata(cell, metadata, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    const triggerDirtyChange = this._isCellMetadataChanged(cell.metadata, metadata);
+    if (triggerDirtyChange) {
+      if (computeUndoRedo) {
+        const index = this._cells.indexOf(cell);
+        this._operationManager.pushEditOperation(new CellMetadataEdit(this.uri, index, Object.freeze(cell.metadata), Object.freeze(metadata), {
+          updateCellMetadata: /* @__PURE__ */ __name((index2, newMetadata) => {
+            const cell2 = this._cells[index2];
+            if (!cell2) {
+              return;
+            }
+            this._changeCellMetadata(cell2, newMetadata, false, beginSelectionState, undoRedoGroup);
+          }, "updateCellMetadata")
+        }), beginSelectionState, void 0, this._alternativeVersionId, undoRedoGroup);
+      }
+    }
+    cell.metadata = metadata;
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellMetadata, index: this._cells.indexOf(cell), metadata: cell.metadata, transient: !triggerDirtyChange }],
+      versionId: this.versionId,
+      synchronous: true,
+      endSelectionState: void 0
+    });
+  }
+  _changeCellInternalMetadataPartial(cell, internalMetadata) {
+    const newInternalMetadata = {
+      ...cell.internalMetadata
+    };
+    let k;
+    for (k in internalMetadata) {
+      const value = internalMetadata[k] ?? void 0;
+      newInternalMetadata[k] = value;
+    }
+    cell.internalMetadata = newInternalMetadata;
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellInternalMetadata, index: this._cells.indexOf(cell), internalMetadata: cell.internalMetadata, transient: true }],
+      versionId: this.versionId,
+      synchronous: true,
+      endSelectionState: void 0
+    });
+  }
+  _changeCellLanguage(cell, languageId, computeUndoRedo, beginSelectionState, undoRedoGroup) {
+    if (cell.language === languageId) {
+      return;
+    }
+    const oldLanguage = cell.language;
+    cell.language = languageId;
+    if (computeUndoRedo) {
+      const that = this;
+      this._operationManager.pushEditOperation(new class {
+        constructor() {
+          this.type = 0;
+          this.label = "Update Cell Language";
+          this.code = "undoredo.textBufferEdit";
+        }
+        get resource() {
+          return that.uri;
+        }
+        undo() {
+          that._changeCellLanguage(cell, oldLanguage, false, beginSelectionState, undoRedoGroup);
+        }
+        redo() {
+          that._changeCellLanguage(cell, languageId, false, beginSelectionState, undoRedoGroup);
+        }
+      }(), beginSelectionState, void 0, this._alternativeVersionId, undoRedoGroup);
+    }
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.ChangeCellLanguage, index: this._cells.indexOf(cell), language: languageId, transient: false }],
+      versionId: this.versionId,
+      synchronous: true,
+      endSelectionState: void 0
+    });
+  }
+  _spliceNotebookCellOutputs2(cell, outputs, computeUndoRedo) {
+    if (outputs.length === 0 && cell.outputs.length === 0) {
+      return;
+    }
+    if (outputs.length <= 1) {
+      this._spliceNotebookCellOutputs(cell, { start: 0, deleteCount: cell.outputs.length, newOutputs: outputs.map((op) => new NotebookCellOutputTextModel(op)) }, false, computeUndoRedo);
+      return;
+    }
+    const diff2 = new LcsDiff(new OutputSequence(cell.outputs), new OutputSequence(outputs));
+    const diffResult = diff2.ComputeDiff(false);
+    const splices = diffResult.changes.map((change) => ({
+      start: change.originalStart,
+      deleteCount: change.originalLength,
+      // create cell output text model only when it's inserted into the notebook document
+      newOutputs: outputs.slice(change.modifiedStart, change.modifiedStart + change.modifiedLength).map((op) => new NotebookCellOutputTextModel(op))
+    }));
+    splices.reverse().forEach((splice) => {
+      this._spliceNotebookCellOutputs(cell, splice, false, computeUndoRedo);
+    });
+  }
+  _spliceNotebookCellOutputs(cell, splice, append, computeUndoRedo) {
+    cell.spliceNotebookCellOutputs(splice);
+    this._pauseableEmitter.fire({
+      rawEvents: [{
+        kind: NotebookCellsChangeType.Output,
+        index: this._cells.indexOf(cell),
+        outputs: cell.outputs.map((output) => output.asDto()) ?? [],
+        append,
+        transient: this.transientOptions.transientOutputs
+      }],
+      versionId: this.versionId,
+      synchronous: true,
+      endSelectionState: void 0
+    });
+  }
+  _appendNotebookCellOutputItems(cell, outputId, items) {
+    if (cell.changeOutputItems(outputId, true, items)) {
+      this._pauseableEmitter.fire({
+        rawEvents: [{
+          kind: NotebookCellsChangeType.OutputItem,
+          index: this._cells.indexOf(cell),
+          outputId,
+          outputItems: items,
+          append: true,
+          transient: this.transientOptions.transientOutputs
+        }],
+        versionId: this.versionId,
+        synchronous: true,
+        endSelectionState: void 0
+      });
+    }
+  }
+  _replaceNotebookCellOutputItems(cell, outputId, items) {
+    if (cell.changeOutputItems(outputId, false, items)) {
+      this._pauseableEmitter.fire({
+        rawEvents: [{
+          kind: NotebookCellsChangeType.OutputItem,
+          index: this._cells.indexOf(cell),
+          outputId,
+          outputItems: items,
+          append: false,
+          transient: this.transientOptions.transientOutputs
+        }],
+        versionId: this.versionId,
+        synchronous: true,
+        endSelectionState: void 0
+      });
+    }
+  }
+  _moveCellToIdx(index, length, newIdx, synchronous, pushedToUndoStack, beforeSelections, endSelections, undoRedoGroup) {
+    if (pushedToUndoStack) {
+      this._operationManager.pushEditOperation(new MoveCellEdit(this.uri, index, length, newIdx, {
+        moveCell: /* @__PURE__ */ __name((fromIndex, length2, toIndex, beforeSelections2, endSelections2) => {
+          this._moveCellToIdx(fromIndex, length2, toIndex, true, false, beforeSelections2, endSelections2, undoRedoGroup);
+        }, "moveCell")
+      }, beforeSelections, endSelections), beforeSelections, endSelections, this._alternativeVersionId, undoRedoGroup);
+    }
+    this._assertIndex(index);
+    this._assertIndex(newIdx);
+    const cells = this._cells.splice(index, length);
+    this._cells.splice(newIdx, 0, ...cells);
+    this._pauseableEmitter.fire({
+      rawEvents: [{ kind: NotebookCellsChangeType.Move, index, length, newIdx, cells, transient: false }],
+      versionId: this.versionId,
+      synchronous,
+      endSelectionState: endSelections
+    });
+    return true;
+  }
+  _assertIndex(index) {
+    if (this._indexIsInvalid(index)) {
+      throw new Error(`model index out of range ${index}`);
+    }
+  }
+  _indexIsInvalid(index) {
+    return index < 0 || index >= this._cells.length;
+  }
+  //#region Find
+  findNextMatch(searchString, searchStart, isRegex, matchCase, wordSeparators, searchEnd) {
+    this._assertIndex(searchStart.cellIndex);
+    const searchParams = new SearchParams(searchString, isRegex, matchCase, wordSeparators);
+    const searchData = searchParams.parseSearchRequest();
+    if (!searchData) {
+      return null;
+    }
+    let cellIndex = searchStart.cellIndex;
+    let searchStartPosition = searchStart.position;
+    let searchEndCell = this._cells.length;
+    while (cellIndex < searchEndCell) {
+      const cell = this._cells[cellIndex];
+      const wrapFlag = searchEnd && cellIndex === searchEnd.cellIndex && searchStartPosition.isBefore(searchEnd.position);
+      const searchRange = new Range(searchStartPosition.lineNumber, searchStartPosition.column, wrapFlag ? searchEnd.position.lineNumber : cell.textBuffer.getLineCount(), wrapFlag ? searchEnd.position.column : cell.textBuffer.getLineMaxColumn(cell.textBuffer.getLineCount()));
+      const result = cell.textBuffer.findMatchesLineByLine(searchRange, searchData, false, 1);
+      if (result.length > 0) {
+        return { cell, match: result[0] };
+      } else if (wrapFlag) {
+        break;
+      }
+      cellIndex++;
+      if (searchEnd && cellIndex >= this._cells.length) {
+        cellIndex = 0;
+        searchEndCell = searchEnd.cellIndex + 1;
+      }
+      searchStartPosition = new Position(1, 1);
+    }
+    return null;
+  }
+  findMatches(searchString, isRegex, matchCase, wordSeparators) {
+    const searchParams = new SearchParams(searchString, isRegex, matchCase, wordSeparators);
+    const searchData = searchParams.parseSearchRequest();
+    if (!searchData) {
+      return [];
+    }
+    const results = [];
+    for (const cell of this._cells) {
+      const searchRange = new Range(1, 1, cell.textBuffer.getLineCount(), cell.textBuffer.getLineMaxColumn(cell.textBuffer.getLineCount()));
+      const matches = cell.textBuffer.findMatchesLineByLine(searchRange, searchData, false, 1e3);
+      if (matches.length > 0) {
+        results.push({ cell, matches });
+      }
+    }
+    return results;
+  }
+};
+NotebookTextModel = NotebookTextModel_1 = __decorate([
+  __param(5, IUndoRedoService),
+  __param(6, IModelService),
+  __param(7, ILanguageService),
+  __param(8, ILanguageDetectionService),
+  __param(9, INotebookExecutionStateService),
+  __param(10, INotebookLoggingService)
+], NotebookTextModel);
+class OutputSequence {
+  static {
+    __name(this, "OutputSequence");
+  }
+  constructor(outputs) {
+    this.outputs = outputs;
+  }
+  getElements() {
+    return this.outputs.map((output) => {
+      return hash(output.outputs.map((output2) => ({
+        mime: output2.mime,
+        data: output2.data
+      })));
+    });
+  }
+}
+export {
+  NotebookTextModel
+};
+//# sourceMappingURL=notebookTextModel.js.map

@@ -1,1 +1,90 @@
-import{$If as u}from"../../../../base/common/cancellation.js";import{Iterable as v}from"../../../../base/common/iterator.js";import{$Ed as b,$Fd as C}from"../../../../base/common/lifecycle.js";import{observableValue as d,transaction as T}from"../../../../base/common/observable.js";import{$9l as $}from"../../../../platform/configuration/common/configuration.js";import{$qo as D}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as w}from"../../../../platform/instantiation/common/instantiation.js";import{$hhb as l,$ghb as _}from"../../../../platform/observable/common/platformObservableUtils.js";import{$r9b as I}from"./testResultService.js";import{TestingContextKeys as f}from"./testingContextKeys.js";import{$fAb as R}from"../../../services/views/common/viewsService.js";var g=function(a,t,o,r){var i=arguments.length,s=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,o,r);else for(var n=a.length-1;n>=0;n--)(e=a[n])&&(s=(i<3?e(s):i>3?e(t,o,s):e(t,o))||s);return i>3&&s&&Object.defineProperty(t,o,s),s},c=function(a,t){return function(o,r){t(o,r,a)}};const z=w("testCoverageService");let m=class extends b{constructor(t,o,r,i){super(),this.b=i,this.a=this.D(new C),this.selected=d("testCoverage",void 0),this.filterToTest=d("filterToTest",void 0),this.showInline=d("inlineCoverage",!1);const s=_("testing.coverageToolbarEnabled",!0,r);this.D(l(f.coverageToolbarEnabled,t,e=>s.read(e))),this.D(l(f.inlineCoverageEnabled,t,e=>this.showInline.read(e))),this.D(l(f.isTestCoverageOpen,t,e=>!!this.selected.read(e))),this.D(l(f.hasPerTestCoverage,t,e=>!v.isEmpty(this.selected.read(e)?.allPerTestIDs()))),this.D(l(f.isCoverageFilteredToTest,t,e=>!!this.filterToTest.read(e))),this.D(o.onResultsChanged(e=>{if("completed"in e){const n=e.completed.tasks.find(h=>h.coverage.get());n?this.openCoverage(n,!1):this.closeCoverage()}else if("removed"in e&&this.selected.get()){const n=this.selected.get()?.fromTaskId;e.removed.some(h=>h.tasks.some(p=>p.id===n))&&this.closeCoverage()}}))}async openCoverage(t,o=!0){this.a.value?.cancel();const r=this.a.value=new u,i=t.coverage.get();i&&(T(s=>{this.filterToTest.set(void 0,s),this.selected.set(i,s)}),o&&!r.token.isCancellationRequested&&this.b.openView("workbench.view.testCoverage",!0))}closeCoverage(){this.selected.set(void 0,void 0)}};m=g([c(0,D),c(1,I),c(2,$),c(3,R)],m);export{z as $Qsc,m as $Rsc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { observableValue, transaction } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { bindContextKey, observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { ITestResultService } from "./testResultService.js";
+import { TestingContextKeys } from "./testingContextKeys.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+const ITestCoverageService = createDecorator("testCoverageService");
+let TestCoverageService = class TestCoverageService2 extends Disposable {
+  static {
+    __name(this, "TestCoverageService");
+  }
+  constructor(contextKeyService, resultService, configService, viewsService) {
+    super();
+    this.viewsService = viewsService;
+    this.lastOpenCts = this._register(new MutableDisposable());
+    this.selected = observableValue("testCoverage", void 0);
+    this.filterToTest = observableValue("filterToTest", void 0);
+    this.showInline = observableValue("inlineCoverage", false);
+    const toolbarConfig = observableConfigValue("testing.coverageToolbarEnabled", true, configService);
+    this._register(bindContextKey(TestingContextKeys.coverageToolbarEnabled, contextKeyService, (reader) => toolbarConfig.read(reader)));
+    this._register(bindContextKey(TestingContextKeys.inlineCoverageEnabled, contextKeyService, (reader) => this.showInline.read(reader)));
+    this._register(bindContextKey(TestingContextKeys.isTestCoverageOpen, contextKeyService, (reader) => !!this.selected.read(reader)));
+    this._register(bindContextKey(TestingContextKeys.hasPerTestCoverage, contextKeyService, (reader) => !Iterable.isEmpty(this.selected.read(reader)?.allPerTestIDs())));
+    this._register(bindContextKey(TestingContextKeys.isCoverageFilteredToTest, contextKeyService, (reader) => !!this.filterToTest.read(reader)));
+    this._register(resultService.onResultsChanged((evt) => {
+      if ("completed" in evt) {
+        const coverage = evt.completed.tasks.find((t) => t.coverage.get());
+        if (coverage) {
+          this.openCoverage(coverage, false);
+        } else {
+          this.closeCoverage();
+        }
+      } else if ("removed" in evt && this.selected.get()) {
+        const taskId = this.selected.get()?.fromTaskId;
+        if (evt.removed.some((e) => e.tasks.some((t) => t.id === taskId))) {
+          this.closeCoverage();
+        }
+      }
+    }));
+  }
+  /** @inheritdoc */
+  async openCoverage(task, focus = true) {
+    this.lastOpenCts.value?.cancel();
+    const cts = this.lastOpenCts.value = new CancellationTokenSource();
+    const coverage = task.coverage.get();
+    if (!coverage) {
+      return;
+    }
+    transaction((tx) => {
+      this.filterToTest.set(void 0, tx);
+      this.selected.set(coverage, tx);
+    });
+    if (focus && !cts.token.isCancellationRequested) {
+      this.viewsService.openView("workbench.view.testCoverage", true);
+    }
+  }
+  /** @inheritdoc */
+  closeCoverage() {
+    this.selected.set(void 0, void 0);
+  }
+};
+TestCoverageService = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, ITestResultService),
+  __param(2, IConfigurationService),
+  __param(3, IViewsService)
+], TestCoverageService);
+export {
+  ITestCoverageService,
+  TestCoverageService
+};
+//# sourceMappingURL=testCoverageService.js.map

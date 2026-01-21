@@ -1,1 +1,160 @@
-import{$Qf as v}from"../../../../base/common/lazy.js";import{$Ed as $}from"../../../../base/common/lifecycle.js";import{$Acb as w,$zcb as x,$Fcb as y,$Ecb as h,$Icb as H}from"../../../browser/editorExtensions.js";import{EditorContextKeys as a}from"../../../common/editorContextKeys.js";import*as P from"../../../common/languages.js";import{$NV as _}from"../../../common/services/languageFeatures.js";import{$1vb as D}from"./parameterHintsModel.js";import{$Yvb as c}from"./provideSignatureHelp.js";import*as E from"../../../../nls.js";import{$9n as f}from"../../../../platform/contextkey/common/contextkey.js";import{$Lj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$2vb as V}from"./parameterHintsWidget.js";var g=function(t,r,e,i){var n=arguments.length,o=n<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,e):i,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(t,r,e,i);else for(var l=t.length-1;l>=0;l--)(p=t[l])&&(o=(n<3?p(o):n>3?p(r,e,o):p(r,e))||o);return n>3&&o&&Object.defineProperty(r,e,o),o},d=function(t,r){return function(e,i){r(e,i,t)}},m;let s=class extends ${static{m=this}static{this.ID="editor.controller.parameterHints"}static get(r){return r.getContribution(m.ID)}constructor(r,e,i){super(),this.a=r,this.b=this.D(new D(r,i.signatureHelpProvider)),this.D(this.b.onChangedHints(n=>{n?(this.c.value.show(),this.c.value.render(n)):this.c.rawValue?.hide()})),this.c=new v(()=>this.D(e.createInstance(V,this.a,this.b)))}cancel(){this.b.cancel()}previous(){this.c.rawValue?.previous()}next(){this.c.rawValue?.next()}trigger(r){this.b.trigger(r,0)}};s=m=g([d(1,O),d(2,_)],s);class I extends w{constructor(){super({id:"editor.action.triggerParameterHints",label:E.localize2(1482,"Trigger Parameter Hints"),precondition:a.hasSignatureHelpProvider,kbOpts:{kbExpr:a.editorTextFocus,primary:3082,weight:100}})}run(r,e){s.get(e)?.trigger({triggerKind:P.SignatureHelpTriggerKind.Invoke})}}H(s.ID,s,2);y(I);const u=175,b=x.bindToContribution(s.get);h(new b({id:"closeParameterHints",precondition:c.Visible,handler:t=>t.cancel(),kbOpts:{weight:u,kbExpr:a.focus,primary:9,secondary:[1033]}}));h(new b({id:"showPrevParameterHint",precondition:f.and(c.Visible,c.MultipleSignatures),handler:t=>t.previous(),kbOpts:{weight:u,kbExpr:a.focus,primary:16,secondary:[528],mac:{primary:16,secondary:[528,302]}}}));h(new b({id:"showNextParameterHint",precondition:f.and(c.Visible,c.MultipleSignatures),handler:t=>t.next(),kbOpts:{weight:u,kbExpr:a.focus,primary:18,secondary:[530],mac:{primary:18,secondary:[530,300]}}}));export{s as $3vb,I as $4vb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ParameterHintsController_1;
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { EditorAction, EditorCommand, registerEditorAction, registerEditorCommand, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import * as languages from "../../../common/languages.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ParameterHintsModel } from "./parameterHintsModel.js";
+import { Context } from "./provideSignatureHelp.js";
+import * as nls from "../../../../nls.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ParameterHintsWidget } from "./parameterHintsWidget.js";
+let ParameterHintsController = class ParameterHintsController2 extends Disposable {
+  static {
+    __name(this, "ParameterHintsController");
+  }
+  static {
+    ParameterHintsController_1 = this;
+  }
+  static {
+    this.ID = "editor.controller.parameterHints";
+  }
+  static get(editor) {
+    return editor.getContribution(ParameterHintsController_1.ID);
+  }
+  constructor(editor, instantiationService, languageFeaturesService) {
+    super();
+    this.editor = editor;
+    this.model = this._register(new ParameterHintsModel(editor, languageFeaturesService.signatureHelpProvider));
+    this._register(this.model.onChangedHints((newParameterHints) => {
+      if (newParameterHints) {
+        this.widget.value.show();
+        this.widget.value.render(newParameterHints);
+      } else {
+        this.widget.rawValue?.hide();
+      }
+    }));
+    this.widget = new Lazy(() => this._register(instantiationService.createInstance(ParameterHintsWidget, this.editor, this.model)));
+  }
+  cancel() {
+    this.model.cancel();
+  }
+  previous() {
+    this.widget.rawValue?.previous();
+  }
+  next() {
+    this.widget.rawValue?.next();
+  }
+  trigger(context) {
+    this.model.trigger(context, 0);
+  }
+};
+ParameterHintsController = ParameterHintsController_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ILanguageFeaturesService)
+], ParameterHintsController);
+class TriggerParameterHintsAction extends EditorAction {
+  static {
+    __name(this, "TriggerParameterHintsAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.triggerParameterHints",
+      label: nls.localize2("parameterHints.trigger.label", "Trigger Parameter Hints"),
+      precondition: EditorContextKeys.hasSignatureHelpProvider,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 1024 | 10,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, editor) {
+    const controller = ParameterHintsController.get(editor);
+    controller?.trigger({
+      triggerKind: languages.SignatureHelpTriggerKind.Invoke
+    });
+  }
+}
+registerEditorContribution(
+  ParameterHintsController.ID,
+  ParameterHintsController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+registerEditorAction(TriggerParameterHintsAction);
+const weight = 100 + 75;
+const ParameterHintsCommand = EditorCommand.bindToContribution(ParameterHintsController.get);
+registerEditorCommand(new ParameterHintsCommand({
+  id: "closeParameterHints",
+  precondition: Context.Visible,
+  handler: /* @__PURE__ */ __name((x) => x.cancel(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.focus,
+    primary: 9,
+    secondary: [
+      1024 | 9
+      /* KeyCode.Escape */
+    ]
+  }
+}));
+registerEditorCommand(new ParameterHintsCommand({
+  id: "showPrevParameterHint",
+  precondition: ContextKeyExpr.and(Context.Visible, Context.MultipleSignatures),
+  handler: /* @__PURE__ */ __name((x) => x.previous(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.focus,
+    primary: 16,
+    secondary: [
+      512 | 16
+      /* KeyCode.UpArrow */
+    ],
+    mac: { primary: 16, secondary: [
+      512 | 16,
+      256 | 46
+      /* KeyCode.KeyP */
+    ] }
+  }
+}));
+registerEditorCommand(new ParameterHintsCommand({
+  id: "showNextParameterHint",
+  precondition: ContextKeyExpr.and(Context.Visible, Context.MultipleSignatures),
+  handler: /* @__PURE__ */ __name((x) => x.next(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.focus,
+    primary: 18,
+    secondary: [
+      512 | 18
+      /* KeyCode.DownArrow */
+    ],
+    mac: { primary: 18, secondary: [
+      512 | 18,
+      256 | 44
+      /* KeyCode.KeyN */
+    ] }
+  }
+}));
+export {
+  ParameterHintsController,
+  TriggerParameterHintsAction
+};
+//# sourceMappingURL=parameterHints.js.map

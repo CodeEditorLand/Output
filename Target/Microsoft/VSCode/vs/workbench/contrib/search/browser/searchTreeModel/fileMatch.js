@@ -1,1 +1,306 @@
-import{$ii as R}from"../../../../../base/common/async.js";import{$Qf as y}from"../../../../../base/common/lazy.js";import{$Ed as x,$Dd as D}from"../../../../../base/common/lifecycle.js";import{$bk as c}from"../../../../../base/common/themables.js";import{$0K as d}from"../../../../../editor/common/model/textModel.js";import{$6H as G}from"../../../../../editor/common/services/model.js";import{$lH as L}from"../../../../../platform/label/common/label.js";import{$$r as f,$ds as u}from"../../../../../platform/theme/common/colorRegistry.js";import{$oT as p,$mT as m}from"../../../../services/search/common/search.js";import{$Mic as b,$Nic as H}from"../../../../services/search/common/searchHelpers.js";import{$Lic as E}from"../replace.js";import{$Phc as O}from"./searchTreeCommon.js";import{$wf as g}from"../../../../../base/common/event.js";import{$Oic as M}from"./match.js";import{OverviewRulerLane as w}from"../../../../../editor/common/standalone/standaloneEnums.js";var $=function(a,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,i,e);else for(var r=a.length-1;r>=0;r--)(h=a[r])&&(s=(n<3?h(s):n>3?h(t,i,s):h(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},l=function(a,t){return function(i,e){t(i,e,a)}},o;let S=class extends x{static{o=this}static{this.b=d.register({description:"search-current-find-match",stickiness:1,zIndex:13,className:"currentFindMatch",inlineClassName:"currentFindMatchInline",overviewRuler:{color:c(f),position:w.Center},minimap:{color:c(u),position:1}})}static{this.c=d.register({description:"search-find-match",stickiness:1,className:"findMatch",inlineClassName:"findMatchInline",overviewRuler:{color:c(f),position:w.Center},minimap:{color:c(u),position:1}})}static f(t){return t?o.b:o.c}get context(){return new Map(this.F)}constructor(t,i,e,n,s,h,r,v,C){super(),this.G=t,this.H=i,this.I=e,this.J=n,this.L=s,this.M=h,this.N=r,this.O=v,this.h=this.D(new g),this.onChange=this.h.event,this.j=this.D(new g),this.onDispose=this.j.event,this.r=null,this.s=null,this.w=null,this.C=[],this.F=new Map,this.W=Promise.resolve(),this.n=this.L.resource,this.t=new Map,this.u=new Set,this.z=new R(this.R.bind(this),250),this.y=new y(()=>C.getUriBasenameLabel(this.resource))}get closestRoot(){return this.M}hasReadonlyMatches(){return this.matches().some(t=>t.isReadonly)}createMatches(){const t=this.N.getModel(this.n);t?(this.bindModel(t),this.R()):this.L.results&&this.L.results.filter(p).forEach(i=>{M(i,this,!1).forEach(e=>this.add(e))})}bindModel(t){this.r=t,this.s=new D,this.s.add(this.r.onDidChangeContent(()=>{this.z.schedule()})),this.s.add(this.r.onWillDispose(()=>this.P())),this.updateHighlights()}P(){this.R(),this.Q()}Q(){this.r&&(this.z.cancel(),this.r.changeDecorations(t=>{this.C=t.deltaDecorations(this.C,[])}),this.r=null,this.s.dispose())}R(){if(!this.r)return;this.t=new Map;const t=this.G.isWordMatch&&this.G.wordSeparators?this.G.wordSeparators:null,i=this.r.findMatches(this.G.pattern,this.r.getFullModelRange(),!!this.G.isRegExp,!!this.G.isCaseSensitive,t,!1,this.I??m);this.U(i,!0,this.r,!1)}async S(t,i){if(!this.r)return;const e={startLineNumber:t,startColumn:this.r.getLineMinColumn(t),endLineNumber:t,endColumn:this.r.getLineMaxColumn(t)};Array.from(this.t.values()).filter(r=>r.range().startLineNumber===t).forEach(r=>this.t.delete(r.id()));const s=this.G.isWordMatch&&this.G.wordSeparators?this.G.wordSeparators:null,h=this.r.findMatches(this.G.pattern,e,!!this.G.isRegExp,!!this.G.isCaseSensitive,s,!1,this.I??m);this.U(h,i,this.r,!1)}U(t,i,e,n){const s=b(t,e,this.H);s.forEach(h=>{M(h,this,n).forEach(r=>{this.u.has(r.id())||(this.add(r),this.isMatchSelected(r)&&(this.w=r))})}),this.addContext(H(s,e,this.parent().parent().query)),this.h.fire({forceUpdateModel:i}),this.updateHighlights()}updateHighlights(){this.r&&this.r.changeDecorations(t=>{const i=this.parent().showHighlights?this.matches().map(e=>({range:e.range(),options:o.f(this.isMatchSelected(e))})):[];this.C=t.deltaDecorations(this.C,i)})}id(){return O+this.resource.toString()}parent(){return this.J}get hasChildren(){return this.t.size>0}matches(){return[...this.t.values()]}textMatches(){return Array.from(this.t.values())}remove(t){Array.isArray(t)||(t=[t]);for(const i of t)this.X(i),this.u.add(i.id());this.h.fire({didRemove:!0})}async replace(t){return this.W=this.W.finally(async()=>{await this.O.replace(t),await this.S(t.range().startLineNumber,!1)})}setSelectedMatch(t){t&&(!this.t.has(t.id())||this.isMatchSelected(t))||(this.w=t,this.updateHighlights())}getSelectedMatch(){return this.w}isMatchSelected(t){return!!this.w&&this.w.id()===t.id()}count(){return this.matches().length}get resource(){return this.n}name(){return this.y.value}addContext(t){return t?t.filter((e=>!p(e))).forEach(e=>this.F.set(e.lineNumber,e.text)):void 0}add(t,i){this.t.set(t.id(),t),i&&this.h.fire({forceUpdateModel:!0})}X(t){this.t.delete(t.id()),this.isMatchSelected(t)?(this.setSelectedMatch(null),this.g?.clearCurrentFindMatchDecoration()):this.updateHighlights()}async resolveFileStat(t){this.q=await t.stat(this.resource).catch(()=>{})}get fileStat(){return this.q}set fileStat(t){this.q=t}dispose(){this.setSelectedMatch(null),this.Q(),this.j.fire(),super.dispose()}hasOnlyReadOnlyMatches(){return this.matches().every(t=>t.isReadonly)}};S=o=$([l(6,G),l(7,E),l(8,L)],S);export{S as $Qic};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var FileMatchImpl_1;
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { Lazy } from "../../../../../base/common/lazy.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { themeColorFromId } from "../../../../../base/common/themables.js";
+import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { overviewRulerFindMatchForeground, minimapFindMatch } from "../../../../../platform/theme/common/colorRegistry.js";
+import { resultIsMatch, DEFAULT_MAX_SEARCH_RESULTS } from "../../../../services/search/common/search.js";
+import { editorMatchesToTextSearchResults, getTextSearchMatchWithModelContext } from "../../../../services/search/common/searchHelpers.js";
+import { IReplaceService } from "../replace.js";
+import { FILE_MATCH_PREFIX } from "./searchTreeCommon.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { textSearchResultToMatches } from "./match.js";
+import { OverviewRulerLane } from "../../../../../editor/common/standalone/standaloneEnums.js";
+let FileMatchImpl = class FileMatchImpl2 extends Disposable {
+  static {
+    __name(this, "FileMatchImpl");
+  }
+  static {
+    FileMatchImpl_1 = this;
+  }
+  static {
+    this._CURRENT_FIND_MATCH = ModelDecorationOptions.register({
+      description: "search-current-find-match",
+      stickiness: 1,
+      zIndex: 13,
+      className: "currentFindMatch",
+      inlineClassName: "currentFindMatchInline",
+      overviewRuler: {
+        color: themeColorFromId(overviewRulerFindMatchForeground),
+        position: OverviewRulerLane.Center
+      },
+      minimap: {
+        color: themeColorFromId(minimapFindMatch),
+        position: 1
+        /* MinimapPosition.Inline */
+      }
+    });
+  }
+  static {
+    this._FIND_MATCH = ModelDecorationOptions.register({
+      description: "search-find-match",
+      stickiness: 1,
+      className: "findMatch",
+      inlineClassName: "findMatchInline",
+      overviewRuler: {
+        color: themeColorFromId(overviewRulerFindMatchForeground),
+        position: OverviewRulerLane.Center
+      },
+      minimap: {
+        color: themeColorFromId(minimapFindMatch),
+        position: 1
+        /* MinimapPosition.Inline */
+      }
+    });
+  }
+  static getDecorationOption(selected) {
+    return selected ? FileMatchImpl_1._CURRENT_FIND_MATCH : FileMatchImpl_1._FIND_MATCH;
+  }
+  get context() {
+    return new Map(this._context);
+  }
+  constructor(_query, _previewOptions, _maxResults, _parent, rawMatch, _closestRoot, modelService, replaceService, labelService) {
+    super();
+    this._query = _query;
+    this._previewOptions = _previewOptions;
+    this._maxResults = _maxResults;
+    this._parent = _parent;
+    this.rawMatch = rawMatch;
+    this._closestRoot = _closestRoot;
+    this.modelService = modelService;
+    this.replaceService = replaceService;
+    this._onChange = this._register(new Emitter());
+    this.onChange = this._onChange.event;
+    this._onDispose = this._register(new Emitter());
+    this.onDispose = this._onDispose.event;
+    this._model = null;
+    this._modelListener = null;
+    this._selectedMatch = null;
+    this._modelDecorations = [];
+    this._context = /* @__PURE__ */ new Map();
+    this.replaceQ = Promise.resolve();
+    this._resource = this.rawMatch.resource;
+    this._textMatches = /* @__PURE__ */ new Map();
+    this._removedTextMatches = /* @__PURE__ */ new Set();
+    this._updateScheduler = new RunOnceScheduler(this.updateMatchesForModel.bind(this), 250);
+    this._name = new Lazy(() => labelService.getUriBasenameLabel(this.resource));
+  }
+  get closestRoot() {
+    return this._closestRoot;
+  }
+  hasReadonlyMatches() {
+    return this.matches().some((m) => m.isReadonly);
+  }
+  createMatches() {
+    const model = this.modelService.getModel(this._resource);
+    if (model) {
+      this.bindModel(model);
+      this.updateMatchesForModel();
+    } else {
+      if (this.rawMatch.results) {
+        this.rawMatch.results.filter(resultIsMatch).forEach((rawMatch) => {
+          textSearchResultToMatches(rawMatch, this, false).forEach((m) => this.add(m));
+        });
+      }
+    }
+  }
+  bindModel(model) {
+    this._model = model;
+    this._modelListener = new DisposableStore();
+    this._modelListener.add(this._model.onDidChangeContent(() => {
+      this._updateScheduler.schedule();
+    }));
+    this._modelListener.add(this._model.onWillDispose(() => this.onModelWillDispose()));
+    this.updateHighlights();
+  }
+  onModelWillDispose() {
+    this.updateMatchesForModel();
+    this.unbindModel();
+  }
+  unbindModel() {
+    if (this._model) {
+      this._updateScheduler.cancel();
+      this._model.changeDecorations((accessor) => {
+        this._modelDecorations = accessor.deltaDecorations(this._modelDecorations, []);
+      });
+      this._model = null;
+      this._modelListener.dispose();
+    }
+  }
+  updateMatchesForModel() {
+    if (!this._model) {
+      return;
+    }
+    this._textMatches = /* @__PURE__ */ new Map();
+    const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
+    const matches = this._model.findMatches(this._query.pattern, this._model.getFullModelRange(), !!this._query.isRegExp, !!this._query.isCaseSensitive, wordSeparators, false, this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS);
+    this.updateMatches(matches, true, this._model, false);
+  }
+  async updatesMatchesForLineAfterReplace(lineNumber, modelChange) {
+    if (!this._model) {
+      return;
+    }
+    const range = {
+      startLineNumber: lineNumber,
+      startColumn: this._model.getLineMinColumn(lineNumber),
+      endLineNumber: lineNumber,
+      endColumn: this._model.getLineMaxColumn(lineNumber)
+    };
+    const oldMatches = Array.from(this._textMatches.values()).filter((match) => match.range().startLineNumber === lineNumber);
+    oldMatches.forEach((match) => this._textMatches.delete(match.id()));
+    const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
+    const matches = this._model.findMatches(this._query.pattern, range, !!this._query.isRegExp, !!this._query.isCaseSensitive, wordSeparators, false, this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS);
+    this.updateMatches(matches, modelChange, this._model, false);
+  }
+  updateMatches(matches, modelChange, model, isAiContributed) {
+    const textSearchResults = editorMatchesToTextSearchResults(matches, model, this._previewOptions);
+    textSearchResults.forEach((textSearchResult) => {
+      textSearchResultToMatches(textSearchResult, this, isAiContributed).forEach((match) => {
+        if (!this._removedTextMatches.has(match.id())) {
+          this.add(match);
+          if (this.isMatchSelected(match)) {
+            this._selectedMatch = match;
+          }
+        }
+      });
+    });
+    this.addContext(getTextSearchMatchWithModelContext(textSearchResults, model, this.parent().parent().query));
+    this._onChange.fire({ forceUpdateModel: modelChange });
+    this.updateHighlights();
+  }
+  updateHighlights() {
+    if (!this._model) {
+      return;
+    }
+    this._model.changeDecorations((accessor) => {
+      const newDecorations = this.parent().showHighlights ? this.matches().map((match) => ({
+        range: match.range(),
+        options: FileMatchImpl_1.getDecorationOption(this.isMatchSelected(match))
+      })) : [];
+      this._modelDecorations = accessor.deltaDecorations(this._modelDecorations, newDecorations);
+    });
+  }
+  id() {
+    return FILE_MATCH_PREFIX + this.resource.toString();
+  }
+  parent() {
+    return this._parent;
+  }
+  get hasChildren() {
+    return this._textMatches.size > 0;
+  }
+  matches() {
+    return [...this._textMatches.values()];
+  }
+  textMatches() {
+    return Array.from(this._textMatches.values());
+  }
+  remove(matches) {
+    if (!Array.isArray(matches)) {
+      matches = [matches];
+    }
+    for (const match of matches) {
+      this.removeMatch(match);
+      this._removedTextMatches.add(match.id());
+    }
+    this._onChange.fire({ didRemove: true });
+  }
+  async replace(toReplace) {
+    return this.replaceQ = this.replaceQ.finally(async () => {
+      await this.replaceService.replace(toReplace);
+      await this.updatesMatchesForLineAfterReplace(toReplace.range().startLineNumber, false);
+    });
+  }
+  setSelectedMatch(match) {
+    if (match) {
+      if (!this._textMatches.has(match.id())) {
+        return;
+      }
+      if (this.isMatchSelected(match)) {
+        return;
+      }
+    }
+    this._selectedMatch = match;
+    this.updateHighlights();
+  }
+  getSelectedMatch() {
+    return this._selectedMatch;
+  }
+  isMatchSelected(match) {
+    return !!this._selectedMatch && this._selectedMatch.id() === match.id();
+  }
+  count() {
+    return this.matches().length;
+  }
+  get resource() {
+    return this._resource;
+  }
+  name() {
+    return this._name.value;
+  }
+  addContext(results) {
+    if (!results) {
+      return;
+    }
+    const contexts = results.filter(((result) => !resultIsMatch(result)));
+    return contexts.forEach((context) => this._context.set(context.lineNumber, context.text));
+  }
+  add(match, trigger) {
+    this._textMatches.set(match.id(), match);
+    if (trigger) {
+      this._onChange.fire({ forceUpdateModel: true });
+    }
+  }
+  removeMatch(match) {
+    this._textMatches.delete(match.id());
+    if (this.isMatchSelected(match)) {
+      this.setSelectedMatch(null);
+      this._findMatchDecorationModel?.clearCurrentFindMatchDecoration();
+    } else {
+      this.updateHighlights();
+    }
+  }
+  async resolveFileStat(fileService) {
+    this._fileStat = await fileService.stat(this.resource).catch(() => void 0);
+  }
+  get fileStat() {
+    return this._fileStat;
+  }
+  set fileStat(stat) {
+    this._fileStat = stat;
+  }
+  dispose() {
+    this.setSelectedMatch(null);
+    this.unbindModel();
+    this._onDispose.fire();
+    super.dispose();
+  }
+  hasOnlyReadOnlyMatches() {
+    return this.matches().every((match) => match.isReadonly);
+  }
+};
+FileMatchImpl = FileMatchImpl_1 = __decorate([
+  __param(6, IModelService),
+  __param(7, IReplaceService),
+  __param(8, ILabelService)
+], FileMatchImpl);
+export {
+  FileMatchImpl
+};
+//# sourceMappingURL=fileMatch.js.map

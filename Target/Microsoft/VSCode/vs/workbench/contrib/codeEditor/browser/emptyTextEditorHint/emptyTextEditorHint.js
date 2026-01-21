@@ -1,1 +1,321 @@
-import{$ as k,$F7 as H,$l8 as I}from"../../../../../base/browser/dom.js";import{$50 as L}from"../../../../../base/browser/formattedTextRenderer.js";import{$w7 as j}from"../../../../../base/browser/mouseEvent.js";import{$d0 as v}from"../../../../../base/browser/ui/aria/aria.js";import{Event as A}from"../../../../../base/common/event.js";import{$Ed as y}from"../../../../../base/common/lifecycle.js";import{Schemas as T}from"../../../../../base/common/network.js";import{$Icb as S}from"../../../../../editor/browser/editorExtensions.js";import{$8D as M}from"../../../../../editor/common/core/position.js";import{$GG as _}from"../../../../../editor/common/languages/modesRegistry.js";import{localize as l}from"../../../../../nls.js";import{$to as F}from"../../../../../platform/commands/common/commands.js";import{$9l as E}from"../../../../../platform/configuration/common/configuration.js";import{$6hb as V}from"../../../../../platform/contextview/browser/contextView.js";import{$Lj as P}from"../../../../../platform/instantiation/common/instantiation.js";import{$cy as O}from"../../../../../platform/keybinding/common/keybinding.js";import{$op as W}from"../../../../../platform/telemetry/common/telemetry.js";import{$V0b as p}from"../../../../browser/parts/editor/editorStatus.js";import{$kZ as R,$iZ as q}from"../../../../services/output/common/output.js";import{$kT as B}from"../../../../services/search/common/search.js";import{$DV as $}from"../../../chat/common/participants/chatAgents.js";import{ChatAgentLocation as x}from"../../../chat/common/constants.js";import{$ZFb as N}from"../../../inlineChat/browser/inlineChatSessionService.js";import"./emptyTextEditorHint.css";var C=function(c,t,i,e){var r=arguments.length,o=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,t,i,e);else for(var s=c.length-1;s>=0;s--)(n=c[s])&&(o=(r<3?n(o):r>3?n(t,i,o):n(t,i))||o);return r>3&&o&&Object.defineProperty(t,i,o),o},a=function(c,t){return function(i,e){t(i,e,c)}},u;const b="workbench.editor.empty.hint";let f=class extends y{static{this.ID="editor.contrib.emptyTextEditorHint"}constructor(t,i,e,r,o){super(),this.b=t,this.c=i,this.f=e,this.g=r,this.h=o,this.D(this.b.onDidChangeModel(()=>this.m())),this.D(this.b.onDidChangeModelLanguage(()=>this.m())),this.D(this.b.onDidChangeModelContent(()=>this.m())),this.D(this.g.onDidChangeAgents(()=>this.m())),this.D(this.b.onDidChangeModelDecorations(()=>this.m())),this.D(this.b.onDidChangeConfiguration(n=>{n.hasChanged(104)&&this.m()})),this.D(this.c.onDidChangeConfiguration(n=>{n.affectsConfiguration(b)&&this.m()})),this.D(e.onWillStartSession(n=>{this.b===n&&this.a?.dispose()})),this.D(e.onDidChangeSessions(()=>{this.m()}))}j(){if(this.c.getValue(b)==="hidden"||this.b.getOption(104))return!1;const i=this.b.getModel(),e=i?.getLanguageId();if(!i||e===q||e===R||e===B||this.f.getSessionByTextModel(i.uri)||this.b.getModel()?.getValueLength()||!!this.b.getLineDecorations(1)?.find(s=>s.options.beforeContentClassName||s.options.afterContentClassName||s.options.before?.content||s.options.after?.content))return!1;const o=!!this.g.getDefaultAgent(x.EditorInline),n=i?.uri.scheme===T.untitled&&e===_;return o||n}m(){const t=this.j();t&&!this.a?this.a=this.h.createInstance(D,this.b):!t&&this.a&&(this.a.dispose(),this.a=void 0)}dispose(){super.dispose(),this.a?.dispose()}};f=C([a(1,E),a(2,N),a(3,$),a(4,P)],f);let D=class extends y{static{u=this}static{this.a="editor.widget.emptyHint"}constructor(t,i,e,r,o,n,s){super(),this.g=t,this.h=i,this.j=e,this.m=r,this.n=o,this.q=n,this.r=s,this.c=!1,this.f="",this.D(this.g.onDidChangeConfiguration(d=>{this.b&&d.hasChanged(59)&&this.g.applyFontInfo(this.b)}));const m=A.debounce(this.g.onDidFocusEditorText,()=>{},500);this.D(m(()=>{this.g.hasTextFocus()&&this.c&&this.f&&this.j.getValue("accessibility.verbosity.emptyEditorHint")&&v(this.f)})),this.g.addContentWidget(this)}getId(){return u.a}s(t){const i=()=>{this.j.updateValue(b,"hidden"),this.dispose(),this.g.focus()};if(!t){i();return}this.r.showContextMenu({getAnchor:()=>new j(I(),t),getActions:()=>[{id:"workench.action.disableEmptyEditorHint",label:l(6940,null),tooltip:l(6941,null),enabled:!0,class:void 0,run:()=>{i()}}]})}t(){const t=this.n.getActivatedAgents().filter(h=>h.locations.includes(x.EditorInline)).length>0,i={disposables:this.B,callback:(h,g)=>{switch(h){case"0":t?r(g.browserEvent):o(g.browserEvent);break;case"1":t?o(g.browserEvent):this.s();break;case"2":this.s();break}}},e="inlineChat.start",r=async h=>{h.stopPropagation(),this.q.publicLog2("workbenchActionExecuted",{id:e,from:"hint"}),await this.h.executeCommand(e,{from:"hint"})},o=async h=>{h.stopPropagation(),this.g.focus(),this.q.publicLog2("workbenchActionExecuted",{id:p.ID,from:"hint"}),await this.h.executeCommand(p.ID),this.g.focus()},s=[e,p.ID].map(h=>this.m.lookupKeybinding(h)?.getLabel()),m=(t?l(6942,null,s.at(0)??"",s.at(1)??""):l(6943,null,s.at(1)??"")).replaceAll(" ()",""),d=L(m,{actionHandler:i,renderCodeSegments:!1});d.style.fontStyle="italic";const w=t?l(6944,null,...s):l(6945,null,...s);for(const h of d.querySelectorAll("a"))h.style.cursor="pointer";return{hintElement:d,ariaLabel:w}}getDomNode(){if(!this.b){this.b=k(".empty-editor-hint"),this.b.style.width="max-content",this.b.style.paddingLeft="4px";const{hintElement:t,ariaLabel:i}=this.t();this.b.append(t),this.f=i.concat(l(6946,null,"accessibility.verbosity.emptyEditorHint")),this.D(H(this.b,"click",()=>{this.g.focus()})),this.g.applyFontInfo(this.b);const e=this.g.getLineHeightForPosition(new M(1,1));this.b.style.lineHeight=e+"px"}return this.b}getPosition(){return{position:{lineNumber:1,column:1},preference:[0]}}dispose(){super.dispose(),this.g.removeContentWidget(this)}};D=u=C([a(1,F),a(2,E),a(3,O),a(4,$),a(5,W),a(6,V)],D);S(f.ID,f,0);export{b as $Sjc,f as $Tjc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EmptyTextEditorHintContentWidget_1;
+import { $, addDisposableListener, getActiveWindow } from "../../../../../base/browser/dom.js";
+import { renderFormattedText } from "../../../../../base/browser/formattedTextRenderer.js";
+import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import { status } from "../../../../../base/browser/ui/aria/aria.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { registerEditorContribution } from "../../../../../editor/browser/editorExtensions.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../../editor/common/languages/modesRegistry.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChangeLanguageAction } from "../../../../browser/parts/editor/editorStatus.js";
+import { LOG_MODE_ID, OUTPUT_MODE_ID } from "../../../../services/output/common/output.js";
+import { SEARCH_RESULT_LANGUAGE_ID } from "../../../../services/search/common/search.js";
+import { IChatAgentService } from "../../../chat/common/participants/chatAgents.js";
+import { ChatAgentLocation } from "../../../chat/common/constants.js";
+import { IInlineChatSessionService } from "../../../inlineChat/browser/inlineChatSessionService.js";
+import "./emptyTextEditorHint.css";
+const emptyTextEditorHintSetting = "workbench.editor.empty.hint";
+let EmptyTextEditorHintContribution = class EmptyTextEditorHintContribution2 extends Disposable {
+  static {
+    __name(this, "EmptyTextEditorHintContribution");
+  }
+  static {
+    this.ID = "editor.contrib.emptyTextEditorHint";
+  }
+  constructor(editor, configurationService, inlineChatSessionService, chatAgentService, instantiationService) {
+    super();
+    this.editor = editor;
+    this.configurationService = configurationService;
+    this.inlineChatSessionService = inlineChatSessionService;
+    this.chatAgentService = chatAgentService;
+    this.instantiationService = instantiationService;
+    this._register(this.editor.onDidChangeModel(() => this.update()));
+    this._register(this.editor.onDidChangeModelLanguage(() => this.update()));
+    this._register(this.editor.onDidChangeModelContent(() => this.update()));
+    this._register(this.chatAgentService.onDidChangeAgents(() => this.update()));
+    this._register(this.editor.onDidChangeModelDecorations(() => this.update()));
+    this._register(this.editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        104
+        /* EditorOption.readOnly */
+      )) {
+        this.update();
+      }
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(emptyTextEditorHintSetting)) {
+        this.update();
+      }
+    }));
+    this._register(inlineChatSessionService.onWillStartSession((editor2) => {
+      if (this.editor === editor2) {
+        this.textHintContentWidget?.dispose();
+      }
+    }));
+    this._register(inlineChatSessionService.onDidChangeSessions(() => {
+      this.update();
+    }));
+  }
+  shouldRenderHint() {
+    const configValue = this.configurationService.getValue(emptyTextEditorHintSetting);
+    if (configValue === "hidden") {
+      return false;
+    }
+    if (this.editor.getOption(
+      104
+      /* EditorOption.readOnly */
+    )) {
+      return false;
+    }
+    const model = this.editor.getModel();
+    const languageId = model?.getLanguageId();
+    if (!model || languageId === OUTPUT_MODE_ID || languageId === LOG_MODE_ID || languageId === SEARCH_RESULT_LANGUAGE_ID) {
+      return false;
+    }
+    if (this.inlineChatSessionService.getSessionByTextModel(model.uri)) {
+      return false;
+    }
+    if (this.editor.getModel()?.getValueLength()) {
+      return false;
+    }
+    const hasConflictingDecorations = Boolean(this.editor.getLineDecorations(1)?.find((d) => d.options.beforeContentClassName || d.options.afterContentClassName || d.options.before?.content || d.options.after?.content));
+    if (hasConflictingDecorations) {
+      return false;
+    }
+    const hasEditorAgents = Boolean(this.chatAgentService.getDefaultAgent(ChatAgentLocation.EditorInline));
+    const shouldRenderDefaultHint = model?.uri.scheme === Schemas.untitled && languageId === PLAINTEXT_LANGUAGE_ID;
+    return hasEditorAgents || shouldRenderDefaultHint;
+  }
+  update() {
+    const shouldRenderHint = this.shouldRenderHint();
+    if (shouldRenderHint && !this.textHintContentWidget) {
+      this.textHintContentWidget = this.instantiationService.createInstance(EmptyTextEditorHintContentWidget, this.editor);
+    } else if (!shouldRenderHint && this.textHintContentWidget) {
+      this.textHintContentWidget.dispose();
+      this.textHintContentWidget = void 0;
+    }
+  }
+  dispose() {
+    super.dispose();
+    this.textHintContentWidget?.dispose();
+  }
+};
+EmptyTextEditorHintContribution = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IInlineChatSessionService),
+  __param(3, IChatAgentService),
+  __param(4, IInstantiationService)
+], EmptyTextEditorHintContribution);
+let EmptyTextEditorHintContentWidget = class EmptyTextEditorHintContentWidget2 extends Disposable {
+  static {
+    __name(this, "EmptyTextEditorHintContentWidget");
+  }
+  static {
+    EmptyTextEditorHintContentWidget_1 = this;
+  }
+  static {
+    this.ID = "editor.widget.emptyHint";
+  }
+  constructor(editor, commandService, configurationService, keybindingService, chatAgentService, telemetryService, contextMenuService) {
+    super();
+    this.editor = editor;
+    this.commandService = commandService;
+    this.configurationService = configurationService;
+    this.keybindingService = keybindingService;
+    this.chatAgentService = chatAgentService;
+    this.telemetryService = telemetryService;
+    this.contextMenuService = contextMenuService;
+    this.isVisible = false;
+    this.ariaLabel = "";
+    this._register(this.editor.onDidChangeConfiguration((e) => {
+      if (this.domNode && e.hasChanged(
+        59
+        /* EditorOption.fontInfo */
+      )) {
+        this.editor.applyFontInfo(this.domNode);
+      }
+    }));
+    const onDidFocusEditorText = Event.debounce(this.editor.onDidFocusEditorText, () => void 0, 500);
+    this._register(onDidFocusEditorText(() => {
+      if (this.editor.hasTextFocus() && this.isVisible && this.ariaLabel && this.configurationService.getValue(
+        "accessibility.verbosity.emptyEditorHint"
+        /* AccessibilityVerbositySettingId.EmptyEditorHint */
+      )) {
+        status(this.ariaLabel);
+      }
+    }));
+    this.editor.addContentWidget(this);
+  }
+  getId() {
+    return EmptyTextEditorHintContentWidget_1.ID;
+  }
+  disableHint(e) {
+    const disableHint = /* @__PURE__ */ __name(() => {
+      this.configurationService.updateValue(emptyTextEditorHintSetting, "hidden");
+      this.dispose();
+      this.editor.focus();
+    }, "disableHint");
+    if (!e) {
+      disableHint();
+      return;
+    }
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => {
+        return new StandardMouseEvent(getActiveWindow(), e);
+      }, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => {
+        return [
+          {
+            id: "workench.action.disableEmptyEditorHint",
+            label: localize("disableEditorEmptyHint", "Disable Empty Editor Hint"),
+            tooltip: localize("disableEditorEmptyHint", "Disable Empty Editor Hint"),
+            enabled: true,
+            class: void 0,
+            run: /* @__PURE__ */ __name(() => {
+              disableHint();
+            }, "run")
+          }
+        ];
+      }, "getActions")
+    });
+  }
+  getHint() {
+    const hasInlineChatProvider = this.chatAgentService.getActivatedAgents().filter((candidate) => candidate.locations.includes(ChatAgentLocation.EditorInline)).length > 0;
+    const hintHandler = {
+      disposables: this._store,
+      callback: /* @__PURE__ */ __name((index, event) => {
+        switch (index) {
+          case "0":
+            hasInlineChatProvider ? askSomething(event.browserEvent) : languageOnClickOrTap(event.browserEvent);
+            break;
+          case "1":
+            hasInlineChatProvider ? languageOnClickOrTap(event.browserEvent) : this.disableHint();
+            break;
+          case "2":
+            this.disableHint();
+            break;
+        }
+      }, "callback")
+    };
+    const askSomethingCommandId = "inlineChat.start";
+    const askSomething = /* @__PURE__ */ __name(async (e) => {
+      e.stopPropagation();
+      this.telemetryService.publicLog2("workbenchActionExecuted", {
+        id: askSomethingCommandId,
+        from: "hint"
+      });
+      await this.commandService.executeCommand(askSomethingCommandId, { from: "hint" });
+    }, "askSomething");
+    const languageOnClickOrTap = /* @__PURE__ */ __name(async (e) => {
+      e.stopPropagation();
+      this.editor.focus();
+      this.telemetryService.publicLog2("workbenchActionExecuted", {
+        id: ChangeLanguageAction.ID,
+        from: "hint"
+      });
+      await this.commandService.executeCommand(ChangeLanguageAction.ID);
+      this.editor.focus();
+    }, "languageOnClickOrTap");
+    const keybindingsLookup = [askSomethingCommandId, ChangeLanguageAction.ID];
+    const keybindingLabels = keybindingsLookup.map((id) => this.keybindingService.lookupKeybinding(id)?.getLabel());
+    const hintMsg = (hasInlineChatProvider ? localize({
+      key: "emptyTextEditorHintWithInlineChat",
+      comment: [
+        "Preserve double-square brackets and their order",
+        "language refers to a programming language"
+      ]
+    }, "[[Generate code]] ({0}), or [[select a language]] ({1}). Start typing to dismiss or [[don't show]] this again.", keybindingLabels.at(0) ?? "", keybindingLabels.at(1) ?? "") : localize({
+      key: "emptyTextEditorHintWithoutInlineChat",
+      comment: [
+        "Preserve double-square brackets and their order",
+        "language refers to a programming language"
+      ]
+    }, "[[Select a language]] ({0}) to get started. Start typing to dismiss or [[don't show]] this again.", keybindingLabels.at(1) ?? "")).replaceAll(" ()", "");
+    const hintElement = renderFormattedText(hintMsg, {
+      actionHandler: hintHandler,
+      renderCodeSegments: false
+    });
+    hintElement.style.fontStyle = "italic";
+    const ariaLabel = hasInlineChatProvider ? localize("defaultHintAriaLabelWithInlineChat", "Execute {0} to ask a question, execute {1} to select a language and get started. Start typing to dismiss.", ...keybindingLabels) : localize("defaultHintAriaLabelWithoutInlineChat", "Execute {0} to select a language and get started. Start typing to dismiss.", ...keybindingLabels);
+    for (const anchor of hintElement.querySelectorAll("a")) {
+      anchor.style.cursor = "pointer";
+    }
+    return { hintElement, ariaLabel };
+  }
+  getDomNode() {
+    if (!this.domNode) {
+      this.domNode = $(".empty-editor-hint");
+      this.domNode.style.width = "max-content";
+      this.domNode.style.paddingLeft = "4px";
+      const { hintElement, ariaLabel } = this.getHint();
+      this.domNode.append(hintElement);
+      this.ariaLabel = ariaLabel.concat(localize(
+        "disableHint",
+        " Toggle {0} in settings to disable this hint.",
+        "accessibility.verbosity.emptyEditorHint"
+        /* AccessibilityVerbositySettingId.EmptyEditorHint */
+      ));
+      this._register(addDisposableListener(this.domNode, "click", () => {
+        this.editor.focus();
+      }));
+      this.editor.applyFontInfo(this.domNode);
+      const lineHeight = this.editor.getLineHeightForPosition(new Position(1, 1));
+      this.domNode.style.lineHeight = lineHeight + "px";
+    }
+    return this.domNode;
+  }
+  getPosition() {
+    return {
+      position: { lineNumber: 1, column: 1 },
+      preference: [
+        0
+        /* ContentWidgetPositionPreference.EXACT */
+      ]
+    };
+  }
+  dispose() {
+    super.dispose();
+    this.editor.removeContentWidget(this);
+  }
+};
+EmptyTextEditorHintContentWidget = EmptyTextEditorHintContentWidget_1 = __decorate([
+  __param(1, ICommandService),
+  __param(2, IConfigurationService),
+  __param(3, IKeybindingService),
+  __param(4, IChatAgentService),
+  __param(5, ITelemetryService),
+  __param(6, IContextMenuService)
+], EmptyTextEditorHintContentWidget);
+registerEditorContribution(
+  EmptyTextEditorHintContribution.ID,
+  EmptyTextEditorHintContribution,
+  0
+  /* EditorContributionInstantiation.Eager */
+);
+export {
+  EmptyTextEditorHintContribution,
+  emptyTextEditorHintSetting
+};
+//# sourceMappingURL=emptyTextEditorHint.js.map

@@ -1,4 +1,441 @@
-import*as N from"../../../base/common/strings.js";import{$WE as O}from"../core/wordCharacterClassifier.js";import{$8D as L}from"../core/position.js";import{$9D as x}from"../core/range.js";import{$aH as a,$eH as $}from"../model.js";const A=999;class _{constructor(t,e,n,r){this.searchString=t,this.isRegex=e,this.matchCase=n,this.wordSeparators=r}parseSearchRequest(){if(this.searchString==="")return null;let t;this.isRegex?t=S(this.searchString):t=this.searchString.indexOf(`
-`)>=0;let e=null;try{e=N.$7f(this.searchString,this.isRegex,{matchCase:this.matchCase,wholeWord:!1,multiline:t,global:!0,unicode:!0})}catch{return null}if(!e)return null;let n=!this.isRegex&&!t;return n&&this.searchString.toLowerCase()!==this.searchString.toUpperCase()&&(n=this.matchCase),new $(e,this.wordSeparators?O(this.wordSeparators,[]):null,n?this.searchString:null)}}function S(l){if(!l||l.length===0)return!1;for(let t=0,e=l.length;t<e;t++){const n=l.charCodeAt(t);if(n===10)return!0;if(n===92){if(t++,t>=e)break;const r=l.charCodeAt(t);if(r===110||r===114||r===87)return!0}}return!1}function w(l,t,e){if(!e)return new a(l,null);const n=[];for(let r=0,i=t.length;r<i;r++)n[r]=t[r];return new a(l,n)}class m{constructor(t){const e=[];let n=0;for(let r=0,i=t.length;r<i;r++)t.charCodeAt(r)===10&&(e[n++]=r);this.a=e}findLineFeedCountBeforeOffset(t){const e=this.a;let n=0,r=e.length-1;if(r===-1||t<=e[0])return 0;for(;n<r;){const i=n+((r-n)/2>>0);e[i]>=t?r=i-1:e[i+1]>=t?(n=i,r=i):n=i+1}return n+1}}class k{static findMatches(t,e,n,r,i){const s=e.parseSearchRequest();return s?s.regex.multiline?this.b(t,n,new b(s.wordSeparators,s.regex),r,i):this.c(t,n,s,r,i):[]}static a(t,e,n,r,i,s){let o,f=0;r?(f=r.findLineFeedCountBeforeOffset(i),o=e+i+f):o=e+i;let u;if(r){const d=r.findLineFeedCountBeforeOffset(i+s.length)-f;u=o+s.length+d}else u=o+s.length;const c=t.getPositionAt(o),h=t.getPositionAt(u);return new x(c.lineNumber,c.column,h.lineNumber,h.column)}static b(t,e,n,r,i){const s=t.getOffsetAt(e.getStartPosition()),o=t.getValueInRange(e,1),f=t.getEOL()===`\r
-`?new m(o):null,u=[];let c=0,h;for(n.reset(0);h=n.next(o);)if(u[c++]=w(this.a(t,s,o,f,h.index,h[0]),h,r),c>=i)return u;return u}static c(t,e,n,r,i){const s=[];let o=0;if(e.startLineNumber===e.endLineNumber){const u=t.getLineContent(e.startLineNumber).substring(e.startColumn-1,e.endColumn-1);return o=this.d(n,u,e.startLineNumber,e.startColumn-1,o,s,r,i),s}const f=t.getLineContent(e.startLineNumber).substring(e.startColumn-1);o=this.d(n,f,e.startLineNumber,e.startColumn-1,o,s,r,i);for(let u=e.startLineNumber+1;u<e.endLineNumber&&o<i;u++)o=this.d(n,t.getLineContent(u),u,0,o,s,r,i);if(o<i){const u=t.getLineContent(e.endLineNumber).substring(0,e.endColumn-1);o=this.d(n,u,e.endLineNumber,0,o,s,r,i)}return s}static d(t,e,n,r,i,s,o,f){const u=t.wordSeparators;if(!o&&t.simpleSearch){const g=t.simpleSearch,d=g.length,F=e.length;let C=-d;for(;(C=e.indexOf(g,C+d))!==-1;)if((!u||p(u,e,F,C,d))&&(s[i++]=new a(new x(n,C+1+r,n,C+1+d+r),null),i>=f))return i;return i}const c=new b(t.wordSeparators,t.regex);let h;c.reset(0);do if(h=c.next(e),h&&(s[i++]=w(new x(n,h.index+1+r,n,h.index+1+h[0].length+r),h,o),i>=f))return i;while(h);return i}static findNextMatch(t,e,n,r){const i=e.parseSearchRequest();if(!i)return null;const s=new b(i.wordSeparators,i.regex);return i.regex.multiline?this.e(t,n,s,r):this.f(t,n,s,r)}static e(t,e,n,r){const i=new L(e.lineNumber,1),s=t.getOffsetAt(i),o=t.getLineCount(),f=t.getValueInRange(new x(i.lineNumber,i.column,o,t.getLineMaxColumn(o)),1),u=t.getEOL()===`\r
-`?new m(f):null;n.reset(e.column-1);const c=n.next(f);return c?w(this.a(t,s,f,u,c.index,c[0]),c,r):e.lineNumber!==1||e.column!==1?this.e(t,new L(1,1),n,r):null}static f(t,e,n,r){const i=t.getLineCount(),s=e.lineNumber,o=t.getLineContent(s),f=this.g(n,o,s,e.column,r);if(f)return f;for(let u=1;u<=i;u++){const c=(s+u-1)%i,h=t.getLineContent(c+1),g=this.g(n,h,c+1,1,r);if(g)return g}return null}static g(t,e,n,r,i){t.reset(r-1);const s=t.next(e);return s?w(new x(n,s.index+1,n,s.index+1+s[0].length),s,i):null}static findPreviousMatch(t,e,n,r){const i=e.parseSearchRequest();if(!i)return null;const s=new b(i.wordSeparators,i.regex);return i.regex.multiline?this.h(t,n,s,r):this.j(t,n,s,r)}static h(t,e,n,r){const i=this.b(t,new x(1,1,e.lineNumber,e.column),n,r,10*A);if(i.length>0)return i[i.length-1];const s=t.getLineCount();return e.lineNumber!==s||e.column!==t.getLineMaxColumn(s)?this.h(t,new L(s,t.getLineMaxColumn(s)),n,r):null}static j(t,e,n,r){const i=t.getLineCount(),s=e.lineNumber,o=t.getLineContent(s).substring(0,e.column-1),f=this.k(n,o,s,r);if(f)return f;for(let u=1;u<=i;u++){const c=(i+s-u-1)%i,h=t.getLineContent(c+1),g=this.k(n,h,c+1,r);if(g)return g}return null}static k(t,e,n,r){let i=null,s;for(t.reset(0);s=t.next(e);)i=w(new x(n,s.index+1,n,s.index+1+s[0].length),s,r);return i}}function I(l,t,e,n,r){if(n===0)return!0;const i=t.charCodeAt(n-1);if(l.get(i)!==0||i===13||i===10)return!0;if(r>0){const s=t.charCodeAt(n);if(l.get(s)!==0)return!0}return!1}function B(l,t,e,n,r){if(n+r===e)return!0;const i=t.charCodeAt(n+r);if(l.get(i)!==0||i===13||i===10)return!0;if(r>0){const s=t.charCodeAt(n+r-1);if(l.get(s)!==0)return!0}return!1}function p(l,t,e,n,r){return I(l,t,e,n,r)&&B(l,t,e,n,r)}class b{constructor(t,e){this._wordSeparators=t,this.a=e,this.b=-1,this.c=0}reset(t){this.a.lastIndex=t,this.b=-1,this.c=0}next(t){const e=t.length;let n;do{if(this.b+this.c===e||(n=this.a.exec(t),!n))return null;const r=n.index,i=n[0].length;if(r===this.b&&i===this.c){if(i===0){N.$vg(t,e,this.a.lastIndex)>65535?this.a.lastIndex+=2:this.a.lastIndex+=1;continue}return null}if(this.b=r,this.c=i,!this._wordSeparators||p(this._wordSeparators,t,e,r,i))return n}while(n);return null}}export{p as $1J,b as $2J,_ as $WJ,S as $XJ,w as $YJ,k as $ZJ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+import { getMapForWordSeparators } from "../core/wordCharacterClassifier.js";
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { FindMatch, SearchData } from "../model.js";
+const LIMIT_FIND_COUNT = 999;
+class SearchParams {
+  static {
+    __name(this, "SearchParams");
+  }
+  constructor(searchString, isRegex, matchCase, wordSeparators) {
+    this.searchString = searchString;
+    this.isRegex = isRegex;
+    this.matchCase = matchCase;
+    this.wordSeparators = wordSeparators;
+  }
+  parseSearchRequest() {
+    if (this.searchString === "") {
+      return null;
+    }
+    let multiline;
+    if (this.isRegex) {
+      multiline = isMultilineRegexSource(this.searchString);
+    } else {
+      multiline = this.searchString.indexOf("\n") >= 0;
+    }
+    let regex = null;
+    try {
+      regex = strings.createRegExp(this.searchString, this.isRegex, {
+        matchCase: this.matchCase,
+        wholeWord: false,
+        multiline,
+        global: true,
+        unicode: true
+      });
+    } catch (err) {
+      return null;
+    }
+    if (!regex) {
+      return null;
+    }
+    let canUseSimpleSearch = !this.isRegex && !multiline;
+    if (canUseSimpleSearch && this.searchString.toLowerCase() !== this.searchString.toUpperCase()) {
+      canUseSimpleSearch = this.matchCase;
+    }
+    return new SearchData(regex, this.wordSeparators ? getMapForWordSeparators(this.wordSeparators, []) : null, canUseSimpleSearch ? this.searchString : null);
+  }
+}
+function isMultilineRegexSource(searchString) {
+  if (!searchString || searchString.length === 0) {
+    return false;
+  }
+  for (let i = 0, len = searchString.length; i < len; i++) {
+    const chCode = searchString.charCodeAt(i);
+    if (chCode === 10) {
+      return true;
+    }
+    if (chCode === 92) {
+      i++;
+      if (i >= len) {
+        break;
+      }
+      const nextChCode = searchString.charCodeAt(i);
+      if (nextChCode === 110 || nextChCode === 114 || nextChCode === 87) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+__name(isMultilineRegexSource, "isMultilineRegexSource");
+function createFindMatch(range, rawMatches, captureMatches) {
+  if (!captureMatches) {
+    return new FindMatch(range, null);
+  }
+  const matches = [];
+  for (let i = 0, len = rawMatches.length; i < len; i++) {
+    matches[i] = rawMatches[i];
+  }
+  return new FindMatch(range, matches);
+}
+__name(createFindMatch, "createFindMatch");
+class LineFeedCounter {
+  static {
+    __name(this, "LineFeedCounter");
+  }
+  constructor(text) {
+    const lineFeedsOffsets = [];
+    let lineFeedsOffsetsLen = 0;
+    for (let i = 0, textLen = text.length; i < textLen; i++) {
+      if (text.charCodeAt(i) === 10) {
+        lineFeedsOffsets[lineFeedsOffsetsLen++] = i;
+      }
+    }
+    this._lineFeedsOffsets = lineFeedsOffsets;
+  }
+  findLineFeedCountBeforeOffset(offset) {
+    const lineFeedsOffsets = this._lineFeedsOffsets;
+    let min = 0;
+    let max = lineFeedsOffsets.length - 1;
+    if (max === -1) {
+      return 0;
+    }
+    if (offset <= lineFeedsOffsets[0]) {
+      return 0;
+    }
+    while (min < max) {
+      const mid = min + ((max - min) / 2 >> 0);
+      if (lineFeedsOffsets[mid] >= offset) {
+        max = mid - 1;
+      } else {
+        if (lineFeedsOffsets[mid + 1] >= offset) {
+          min = mid;
+          max = mid;
+        } else {
+          min = mid + 1;
+        }
+      }
+    }
+    return min + 1;
+  }
+}
+class TextModelSearch {
+  static {
+    __name(this, "TextModelSearch");
+  }
+  static findMatches(model, searchParams, searchRange, captureMatches, limitResultCount) {
+    const searchData = searchParams.parseSearchRequest();
+    if (!searchData) {
+      return [];
+    }
+    if (searchData.regex.multiline) {
+      return this._doFindMatchesMultiline(model, searchRange, new Searcher(searchData.wordSeparators, searchData.regex), captureMatches, limitResultCount);
+    }
+    return this._doFindMatchesLineByLine(model, searchRange, searchData, captureMatches, limitResultCount);
+  }
+  /**
+   * Multiline search always executes on the lines concatenated with \n.
+   * We must therefore compensate for the count of \n in case the model is CRLF
+   */
+  static _getMultilineMatchRange(model, deltaOffset, text, lfCounter, matchIndex, match0) {
+    let startOffset;
+    let lineFeedCountBeforeMatch = 0;
+    if (lfCounter) {
+      lineFeedCountBeforeMatch = lfCounter.findLineFeedCountBeforeOffset(matchIndex);
+      startOffset = deltaOffset + matchIndex + lineFeedCountBeforeMatch;
+    } else {
+      startOffset = deltaOffset + matchIndex;
+    }
+    let endOffset;
+    if (lfCounter) {
+      const lineFeedCountBeforeEndOfMatch = lfCounter.findLineFeedCountBeforeOffset(matchIndex + match0.length);
+      const lineFeedCountInMatch = lineFeedCountBeforeEndOfMatch - lineFeedCountBeforeMatch;
+      endOffset = startOffset + match0.length + lineFeedCountInMatch;
+    } else {
+      endOffset = startOffset + match0.length;
+    }
+    const startPosition = model.getPositionAt(startOffset);
+    const endPosition = model.getPositionAt(endOffset);
+    return new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
+  }
+  static _doFindMatchesMultiline(model, searchRange, searcher, captureMatches, limitResultCount) {
+    const deltaOffset = model.getOffsetAt(searchRange.getStartPosition());
+    const text = model.getValueInRange(
+      searchRange,
+      1
+      /* EndOfLinePreference.LF */
+    );
+    const lfCounter = model.getEOL() === "\r\n" ? new LineFeedCounter(text) : null;
+    const result = [];
+    let counter = 0;
+    let m;
+    searcher.reset(0);
+    while (m = searcher.next(text)) {
+      result[counter++] = createFindMatch(this._getMultilineMatchRange(model, deltaOffset, text, lfCounter, m.index, m[0]), m, captureMatches);
+      if (counter >= limitResultCount) {
+        return result;
+      }
+    }
+    return result;
+  }
+  static _doFindMatchesLineByLine(model, searchRange, searchData, captureMatches, limitResultCount) {
+    const result = [];
+    let resultLen = 0;
+    if (searchRange.startLineNumber === searchRange.endLineNumber) {
+      const text2 = model.getLineContent(searchRange.startLineNumber).substring(searchRange.startColumn - 1, searchRange.endColumn - 1);
+      resultLen = this._findMatchesInLine(searchData, text2, searchRange.startLineNumber, searchRange.startColumn - 1, resultLen, result, captureMatches, limitResultCount);
+      return result;
+    }
+    const text = model.getLineContent(searchRange.startLineNumber).substring(searchRange.startColumn - 1);
+    resultLen = this._findMatchesInLine(searchData, text, searchRange.startLineNumber, searchRange.startColumn - 1, resultLen, result, captureMatches, limitResultCount);
+    for (let lineNumber = searchRange.startLineNumber + 1; lineNumber < searchRange.endLineNumber && resultLen < limitResultCount; lineNumber++) {
+      resultLen = this._findMatchesInLine(searchData, model.getLineContent(lineNumber), lineNumber, 0, resultLen, result, captureMatches, limitResultCount);
+    }
+    if (resultLen < limitResultCount) {
+      const text2 = model.getLineContent(searchRange.endLineNumber).substring(0, searchRange.endColumn - 1);
+      resultLen = this._findMatchesInLine(searchData, text2, searchRange.endLineNumber, 0, resultLen, result, captureMatches, limitResultCount);
+    }
+    return result;
+  }
+  static _findMatchesInLine(searchData, text, lineNumber, deltaOffset, resultLen, result, captureMatches, limitResultCount) {
+    const wordSeparators = searchData.wordSeparators;
+    if (!captureMatches && searchData.simpleSearch) {
+      const searchString = searchData.simpleSearch;
+      const searchStringLen = searchString.length;
+      const textLength = text.length;
+      let lastMatchIndex = -searchStringLen;
+      while ((lastMatchIndex = text.indexOf(searchString, lastMatchIndex + searchStringLen)) !== -1) {
+        if (!wordSeparators || isValidMatch(wordSeparators, text, textLength, lastMatchIndex, searchStringLen)) {
+          result[resultLen++] = new FindMatch(new Range(lineNumber, lastMatchIndex + 1 + deltaOffset, lineNumber, lastMatchIndex + 1 + searchStringLen + deltaOffset), null);
+          if (resultLen >= limitResultCount) {
+            return resultLen;
+          }
+        }
+      }
+      return resultLen;
+    }
+    const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
+    let m;
+    searcher.reset(0);
+    do {
+      m = searcher.next(text);
+      if (m) {
+        result[resultLen++] = createFindMatch(new Range(lineNumber, m.index + 1 + deltaOffset, lineNumber, m.index + 1 + m[0].length + deltaOffset), m, captureMatches);
+        if (resultLen >= limitResultCount) {
+          return resultLen;
+        }
+      }
+    } while (m);
+    return resultLen;
+  }
+  static findNextMatch(model, searchParams, searchStart, captureMatches) {
+    const searchData = searchParams.parseSearchRequest();
+    if (!searchData) {
+      return null;
+    }
+    const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
+    if (searchData.regex.multiline) {
+      return this._doFindNextMatchMultiline(model, searchStart, searcher, captureMatches);
+    }
+    return this._doFindNextMatchLineByLine(model, searchStart, searcher, captureMatches);
+  }
+  static _doFindNextMatchMultiline(model, searchStart, searcher, captureMatches) {
+    const searchTextStart = new Position(searchStart.lineNumber, 1);
+    const deltaOffset = model.getOffsetAt(searchTextStart);
+    const lineCount = model.getLineCount();
+    const text = model.getValueInRange(
+      new Range(searchTextStart.lineNumber, searchTextStart.column, lineCount, model.getLineMaxColumn(lineCount)),
+      1
+      /* EndOfLinePreference.LF */
+    );
+    const lfCounter = model.getEOL() === "\r\n" ? new LineFeedCounter(text) : null;
+    searcher.reset(searchStart.column - 1);
+    const m = searcher.next(text);
+    if (m) {
+      return createFindMatch(this._getMultilineMatchRange(model, deltaOffset, text, lfCounter, m.index, m[0]), m, captureMatches);
+    }
+    if (searchStart.lineNumber !== 1 || searchStart.column !== 1) {
+      return this._doFindNextMatchMultiline(model, new Position(1, 1), searcher, captureMatches);
+    }
+    return null;
+  }
+  static _doFindNextMatchLineByLine(model, searchStart, searcher, captureMatches) {
+    const lineCount = model.getLineCount();
+    const startLineNumber = searchStart.lineNumber;
+    const text = model.getLineContent(startLineNumber);
+    const r = this._findFirstMatchInLine(searcher, text, startLineNumber, searchStart.column, captureMatches);
+    if (r) {
+      return r;
+    }
+    for (let i = 1; i <= lineCount; i++) {
+      const lineIndex = (startLineNumber + i - 1) % lineCount;
+      const text2 = model.getLineContent(lineIndex + 1);
+      const r2 = this._findFirstMatchInLine(searcher, text2, lineIndex + 1, 1, captureMatches);
+      if (r2) {
+        return r2;
+      }
+    }
+    return null;
+  }
+  static _findFirstMatchInLine(searcher, text, lineNumber, fromColumn, captureMatches) {
+    searcher.reset(fromColumn - 1);
+    const m = searcher.next(text);
+    if (m) {
+      return createFindMatch(new Range(lineNumber, m.index + 1, lineNumber, m.index + 1 + m[0].length), m, captureMatches);
+    }
+    return null;
+  }
+  static findPreviousMatch(model, searchParams, searchStart, captureMatches) {
+    const searchData = searchParams.parseSearchRequest();
+    if (!searchData) {
+      return null;
+    }
+    const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
+    if (searchData.regex.multiline) {
+      return this._doFindPreviousMatchMultiline(model, searchStart, searcher, captureMatches);
+    }
+    return this._doFindPreviousMatchLineByLine(model, searchStart, searcher, captureMatches);
+  }
+  static _doFindPreviousMatchMultiline(model, searchStart, searcher, captureMatches) {
+    const matches = this._doFindMatchesMultiline(model, new Range(1, 1, searchStart.lineNumber, searchStart.column), searcher, captureMatches, 10 * LIMIT_FIND_COUNT);
+    if (matches.length > 0) {
+      return matches[matches.length - 1];
+    }
+    const lineCount = model.getLineCount();
+    if (searchStart.lineNumber !== lineCount || searchStart.column !== model.getLineMaxColumn(lineCount)) {
+      return this._doFindPreviousMatchMultiline(model, new Position(lineCount, model.getLineMaxColumn(lineCount)), searcher, captureMatches);
+    }
+    return null;
+  }
+  static _doFindPreviousMatchLineByLine(model, searchStart, searcher, captureMatches) {
+    const lineCount = model.getLineCount();
+    const startLineNumber = searchStart.lineNumber;
+    const text = model.getLineContent(startLineNumber).substring(0, searchStart.column - 1);
+    const r = this._findLastMatchInLine(searcher, text, startLineNumber, captureMatches);
+    if (r) {
+      return r;
+    }
+    for (let i = 1; i <= lineCount; i++) {
+      const lineIndex = (lineCount + startLineNumber - i - 1) % lineCount;
+      const text2 = model.getLineContent(lineIndex + 1);
+      const r2 = this._findLastMatchInLine(searcher, text2, lineIndex + 1, captureMatches);
+      if (r2) {
+        return r2;
+      }
+    }
+    return null;
+  }
+  static _findLastMatchInLine(searcher, text, lineNumber, captureMatches) {
+    let bestResult = null;
+    let m;
+    searcher.reset(0);
+    while (m = searcher.next(text)) {
+      bestResult = createFindMatch(new Range(lineNumber, m.index + 1, lineNumber, m.index + 1 + m[0].length), m, captureMatches);
+    }
+    return bestResult;
+  }
+}
+function leftIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength) {
+  if (matchStartIndex === 0) {
+    return true;
+  }
+  const charBefore = text.charCodeAt(matchStartIndex - 1);
+  if (wordSeparators.get(charBefore) !== 0) {
+    return true;
+  }
+  if (charBefore === 13 || charBefore === 10) {
+    return true;
+  }
+  if (matchLength > 0) {
+    const firstCharInMatch = text.charCodeAt(matchStartIndex);
+    if (wordSeparators.get(firstCharInMatch) !== 0) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(leftIsWordBounday, "leftIsWordBounday");
+function rightIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength) {
+  if (matchStartIndex + matchLength === textLength) {
+    return true;
+  }
+  const charAfter = text.charCodeAt(matchStartIndex + matchLength);
+  if (wordSeparators.get(charAfter) !== 0) {
+    return true;
+  }
+  if (charAfter === 13 || charAfter === 10) {
+    return true;
+  }
+  if (matchLength > 0) {
+    const lastCharInMatch = text.charCodeAt(matchStartIndex + matchLength - 1);
+    if (wordSeparators.get(lastCharInMatch) !== 0) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(rightIsWordBounday, "rightIsWordBounday");
+function isValidMatch(wordSeparators, text, textLength, matchStartIndex, matchLength) {
+  return leftIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength) && rightIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength);
+}
+__name(isValidMatch, "isValidMatch");
+class Searcher {
+  static {
+    __name(this, "Searcher");
+  }
+  constructor(wordSeparators, searchRegex) {
+    this._wordSeparators = wordSeparators;
+    this._searchRegex = searchRegex;
+    this._prevMatchStartIndex = -1;
+    this._prevMatchLength = 0;
+  }
+  reset(lastIndex) {
+    this._searchRegex.lastIndex = lastIndex;
+    this._prevMatchStartIndex = -1;
+    this._prevMatchLength = 0;
+  }
+  next(text) {
+    const textLength = text.length;
+    let m;
+    do {
+      if (this._prevMatchStartIndex + this._prevMatchLength === textLength) {
+        return null;
+      }
+      m = this._searchRegex.exec(text);
+      if (!m) {
+        return null;
+      }
+      const matchStartIndex = m.index;
+      const matchLength = m[0].length;
+      if (matchStartIndex === this._prevMatchStartIndex && matchLength === this._prevMatchLength) {
+        if (matchLength === 0) {
+          if (strings.getNextCodePoint(text, textLength, this._searchRegex.lastIndex) > 65535) {
+            this._searchRegex.lastIndex += 2;
+          } else {
+            this._searchRegex.lastIndex += 1;
+          }
+          continue;
+        }
+        return null;
+      }
+      this._prevMatchStartIndex = matchStartIndex;
+      this._prevMatchLength = matchLength;
+      if (!this._wordSeparators || isValidMatch(this._wordSeparators, text, textLength, matchStartIndex, matchLength)) {
+        return m;
+      }
+    } while (m);
+    return null;
+  }
+}
+export {
+  SearchParams,
+  Searcher,
+  TextModelSearch,
+  createFindMatch,
+  isMultilineRegexSource,
+  isValidMatch
+};
+//# sourceMappingURL=textModelSearch.js.map

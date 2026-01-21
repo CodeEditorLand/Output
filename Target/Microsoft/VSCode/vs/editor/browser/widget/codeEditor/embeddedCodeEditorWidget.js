@@ -1,1 +1,71 @@
-import*as g from"../../../../base/common/objects.js";import{$ucb as u}from"../../services/codeEditorService.js";import{$dhb as _}from"./codeEditorWidget.js";import{$JG as v}from"../../../common/languages/languageConfigurationRegistry.js";import{$NV as D}from"../../../common/services/languageFeatures.js";import{$JD as j}from"../../../../platform/accessibility/common/accessibility.js";import{$to as w}from"../../../../platform/commands/common/commands.js";import{$qo as R}from"../../../../platform/contextkey/common/contextkey.js";import{$Lj as P}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as x}from"../../../../platform/notification/common/notification.js";import{$ou as C}from"../../../../platform/theme/common/themeService.js";var O=function(n,t,e,p){var r=arguments.length,o=r<3?t:p===null?p=Object.getOwnPropertyDescriptor(t,e):p,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,p);else for(var f=n.length-1;f>=0;f--)(s=n[f])&&(o=(r<3?s(o):r>3?s(t,e,o):s(t,e))||o);return r>3&&o&&Object.defineProperty(t,e,o),o},i=function(n,t){return function(e,p){t(e,p,n)}};let m=class extends _{constructor(t,e,p,r,o,s,f,c,h,a,d,$,b){super(t,{...r.getRawOptions(),overflowWidgetsDomNode:r.getOverflowWidgetsDomNode()},p,o,s,f,c,h,a,d,$,b),this.kb=r,this.nc=e,super.updateOptions(this.nc),this.D(r.onDidChangeConfiguration(l=>this.oc(l)))}getParentEditor(){return this.kb}oc(t){super.updateOptions(this.kb.getRawOptions()),super.updateOptions(this.nc)}updateOptions(t){g.$Ep(this.nc,t,!0),super.updateOptions(this.nc)}};m=O([i(4,P),i(5,u),i(6,w),i(7,R),i(8,C),i(9,x),i(10,j),i(11,v),i(12,D)],m);function z(n){const t=n.get(u).getFocusedCodeEditor();return t instanceof m?t.getParentEditor():t}export{m as $1nb,z as $2nb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as objects from "../../../../base/common/objects.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { CodeEditorWidget } from "./codeEditorWidget.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+let EmbeddedCodeEditorWidget = class EmbeddedCodeEditorWidget2 extends CodeEditorWidget {
+  static {
+    __name(this, "EmbeddedCodeEditorWidget");
+  }
+  constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+    super(domElement, { ...parentEditor.getRawOptions(), overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode() }, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
+    this._parentEditor = parentEditor;
+    this._overwriteOptions = options;
+    super.updateOptions(this._overwriteOptions);
+    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
+  }
+  getParentEditor() {
+    return this._parentEditor;
+  }
+  _onParentConfigurationChanged(e) {
+    super.updateOptions(this._parentEditor.getRawOptions());
+    super.updateOptions(this._overwriteOptions);
+  }
+  updateOptions(newOptions) {
+    objects.mixin(this._overwriteOptions, newOptions, true);
+    super.updateOptions(this._overwriteOptions);
+  }
+};
+EmbeddedCodeEditorWidget = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, ICodeEditorService),
+  __param(6, ICommandService),
+  __param(7, IContextKeyService),
+  __param(8, IThemeService),
+  __param(9, INotificationService),
+  __param(10, IAccessibilityService),
+  __param(11, ILanguageConfigurationService),
+  __param(12, ILanguageFeaturesService)
+], EmbeddedCodeEditorWidget);
+function getOuterEditor(accessor) {
+  const editor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
+  if (editor instanceof EmbeddedCodeEditorWidget) {
+    return editor.getParentEditor();
+  }
+  return editor;
+}
+__name(getOuterEditor, "getOuterEditor");
+export {
+  EmbeddedCodeEditorWidget,
+  getOuterEditor
+};
+//# sourceMappingURL=embeddedCodeEditorWidget.js.map

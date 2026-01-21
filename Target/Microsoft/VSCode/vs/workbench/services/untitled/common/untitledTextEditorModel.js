@@ -1,1 +1,281 @@
-import{$$H as y}from"../../../common/editor/textEditorModel.js";import{$WF as w}from"../../../../editor/common/languages/language.js";import{$6H as E}from"../../../../editor/common/services/model.js";import{$wf as a}from"../../../../base/common/event.js";import{$_H as F}from"../../workingCopy/common/workingCopyBackup.js";import{$aI as R}from"../../../../editor/common/services/textResourceConfiguration.js";import{$ZK as P,$1K as M}from"../../../../editor/common/model/textModel.js";import{$$K as Y}from"../../workingCopy/common/workingCopyService.js";import{$4H as x}from"../../workingCopy/common/workingCopy.js";import{$dM as _}from"../../textfile/common/textfiles.js";import{$gd as j}from"../../../../base/common/types.js";import{$lH as k}from"../../../../platform/label/common/label.js";import{$GD as I}from"../../../../editor/common/core/wordHelper.js";import{$yL as S}from"../../editor/common/editorService.js";import{$Ag as A}from"../../../../base/common/strings.js";import{$GL as u}from"../../textfile/common/encoding.js";import{$hj as H,$kj as N,$9i as c}from"../../../../base/common/buffer.js";import{$7H as O}from"../../languageDetection/common/languageDetectionWorkerService.js";import{$JD as W}from"../../../../platform/accessibility/common/accessibility.js";var C=function(o,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,i,e);else for(var d=o.length-1;d>=0;d--)(h=o[d])&&(s=(r<3?h(s):r>3?h(t,i,s):h(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},n=function(o,t){return function(i,e){t(i,e,o)}},f;let l=class extends y{static{f=this}static{this.c=40}static{this.M=this.c*10}static{this.N="${activeEditorLanguage}"}get name(){return this.W==="content"&&!this.hasAssociatedFilePath&&this.X?this.X:this.eb.getUriBasenameLabel(this.resource)}constructor(t,i,e,r,s,h,d,g,b,m,p,$,D,L,v){super(d,h,L,v),this.resource=t,this.hasAssociatedFilePath=i,this.Y=e,this.Z=r,this.$=s,this.ab=g,this.bb=b,this.cb=m,this.db=p,this.eb=$,this.fb=D,this.O=this.D(new a),this.onDidChangeContent=this.O.event,this.P=this.D(new a),this.onDidChangeName=this.P.event,this.Q=this.D(new a),this.onDidChangeDirty=this.Q.event,this.R=this.D(new a),this.onDidChangeEncoding=this.R.event,this.S=this.D(new a),this.onDidSave=this.S.event,this.U=this.D(new a),this.onDidRevert=this.U.event,this.typeId=x,this.capabilities=2,this.W="content",this.X=void 0,this.lb=!1,this.jb=this.hasAssociatedFilePath||!!this.Y,this.D(this.cb.registerWorkingCopy(this)),r&&this.setLanguageId(r),this.hb(void 0,!1),this.gb()}gb(){this.D(this.bb.onDidChangeConfiguration(t=>this.hb(t,!0)))}hb(t,i){if(!t||t.affectsConfiguration(this.resource,"files.encoding")){const e=this.bb.getValue(this.resource,"files.encoding");this.ib!==e&&typeof e=="string"&&(this.ib=e,i&&!this.$&&this.R.fire())}if(!t||t.affectsConfiguration(this.resource,"workbench.editor.untitled.labelFormat")){const e=this.bb.getValue(this.resource,"workbench.editor.untitled.labelFormat");this.W!==e&&(e==="content"||e==="name")&&(this.W=e,i&&this.P.fire())}}setLanguageId(t,i){const e=t===f.N?this.fb.activeTextEditorLanguageId:t;this.Z=e,e&&super.setLanguageId(e,i)}getLanguageId(){return this.textEditorModel?this.textEditorModel.getLanguageId():this.Z}getEncoding(){return this.$||this.ib}async setEncoding(t){const i=this.getEncoding();this.$=t,i!==this.$&&this.R.fire()}isDirty(){return this.jb}isModified(){return this.isDirty()}kb(t){this.jb!==t&&(this.jb=t,this.Q.fire())}async save(t){const i=await this.db.save(this.resource,t);return i&&this.S.fire({reason:t?.reason,source:t?.source}),!!i}async revert(){this.lb=!0;try{this.updateTextEditorModel(P(""))}finally{this.lb=!1}this.kb(!1),this.U.fire()}async backup(t){let i;return this.isResolved()?i=await this.db.getEncodedReadable(this.resource,this.createSnapshot()??void 0,{encoding:u}):typeof this.Y=="string"&&(i=H(c.fromString(this.Y))),{content:i}}async resolve(){let t=!1,i=!1;if(this.textEditorModel)this.updateTextEditorModel(void 0,this.Z);else{let r;const s=await this.ab.resolve(this);s?(r=s.value,i=!0):r=N(c.fromString(this.Y||""));const h=await M(await this.db.getDecodedStream(this.resource,r,{encoding:u}));this.H(h,this.resource,this.Z),t=!0}const e=j(this.textEditorModel);return this.C(e),t&&((i||this.Y)&&this.ob(e),this.kb(this.hasAssociatedFilePath||!!i||!!this.Y),(i||this.Y)&&this.O.fire()),super.resolve()}isResolved(){return!!this.b}C(t){this.D(t.onDidChangeContent(i=>this.nb(t,i))),this.D(t.onDidChangeLanguage(()=>this.hb(void 0,!0))),super.C(t)}nb(t,i){this.lb||(!this.hasAssociatedFilePath&&t.getLineCount()===1&&t.getLineLength(1)===0?this.kb(!1):this.kb(!0)),i.changes.some(e=>(e.range.startLineNumber===1||e.range.endLineNumber===1)&&e.range.startColumn<=f.M)&&this.ob(t),this.O.fire(),this.F()}ob(t){if(this.hasAssociatedFilePath)return;let i,e=t.getValueInRange({startLineNumber:1,endLineNumber:1,startColumn:1,endColumn:f.M+1}).trim().replace(/\s+/g," ").replace(/\u202E/g,"");e=e.substr(0,A(e,f.c)[0]),e&&I().exec(e)&&(i=e),i!==this.X&&(this.X=i,this.P.fire())}isReadonly(){return!1}};l=f=C([n(5,w),n(6,E),n(7,F),n(8,R),n(9,Y),n(10,_),n(11,k),n(12,S),n(13,O),n(14,W)],l);export{l as $YL};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UntitledTextEditorModel_1;
+import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { createTextBufferFactory, createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
+import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
+import { NO_TYPE_ID } from "../../workingCopy/common/workingCopy.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ensureValidWordDefinition } from "../../../../editor/common/core/wordHelper.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { getCharContainingOffset } from "../../../../base/common/strings.js";
+import { UTF8 } from "../../textfile/common/encoding.js";
+import { bufferToReadable, bufferToStream, VSBuffer } from "../../../../base/common/buffer.js";
+import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+let UntitledTextEditorModel = class UntitledTextEditorModel2 extends BaseTextEditorModel {
+  static {
+    __name(this, "UntitledTextEditorModel");
+  }
+  static {
+    UntitledTextEditorModel_1 = this;
+  }
+  static {
+    this.FIRST_LINE_NAME_MAX_LENGTH = 40;
+  }
+  static {
+    this.FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH = this.FIRST_LINE_NAME_MAX_LENGTH * 10;
+  }
+  static {
+    this.ACTIVE_EDITOR_LANGUAGE_ID = "${activeEditorLanguage}";
+  }
+  get name() {
+    if (this.configuredLabelFormat === "content" && !this.hasAssociatedFilePath && this.cachedModelFirstLineWords) {
+      return this.cachedModelFirstLineWords;
+    }
+    return this.labelService.getUriBasenameLabel(this.resource);
+  }
+  //#endregion
+  constructor(resource, hasAssociatedFilePath, initialValue, preferredLanguageId, preferredEncoding, languageService, modelService, workingCopyBackupService, textResourceConfigurationService, workingCopyService, textFileService, labelService, editorService, languageDetectionService, accessibilityService) {
+    super(modelService, languageService, languageDetectionService, accessibilityService);
+    this.resource = resource;
+    this.hasAssociatedFilePath = hasAssociatedFilePath;
+    this.initialValue = initialValue;
+    this.preferredLanguageId = preferredLanguageId;
+    this.preferredEncoding = preferredEncoding;
+    this.workingCopyBackupService = workingCopyBackupService;
+    this.textResourceConfigurationService = textResourceConfigurationService;
+    this.workingCopyService = workingCopyService;
+    this.textFileService = textFileService;
+    this.labelService = labelService;
+    this.editorService = editorService;
+    this._onDidChangeContent = this._register(new Emitter());
+    this.onDidChangeContent = this._onDidChangeContent.event;
+    this._onDidChangeName = this._register(new Emitter());
+    this.onDidChangeName = this._onDidChangeName.event;
+    this._onDidChangeDirty = this._register(new Emitter());
+    this.onDidChangeDirty = this._onDidChangeDirty.event;
+    this._onDidChangeEncoding = this._register(new Emitter());
+    this.onDidChangeEncoding = this._onDidChangeEncoding.event;
+    this._onDidSave = this._register(new Emitter());
+    this.onDidSave = this._onDidSave.event;
+    this._onDidRevert = this._register(new Emitter());
+    this.onDidRevert = this._onDidRevert.event;
+    this.typeId = NO_TYPE_ID;
+    this.capabilities = 2;
+    this.configuredLabelFormat = "content";
+    this.cachedModelFirstLineWords = void 0;
+    this.ignoreDirtyOnModelContentChange = false;
+    this.dirty = this.hasAssociatedFilePath || !!this.initialValue;
+    this._register(this.workingCopyService.registerWorkingCopy(this));
+    if (preferredLanguageId) {
+      this.setLanguageId(preferredLanguageId);
+    }
+    this.onConfigurationChange(void 0, false);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.textResourceConfigurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e, true)));
+  }
+  onConfigurationChange(e, fromEvent) {
+    if (!e || e.affectsConfiguration(this.resource, "files.encoding")) {
+      const configuredEncoding = this.textResourceConfigurationService.getValue(this.resource, "files.encoding");
+      if (this.configuredEncoding !== configuredEncoding && typeof configuredEncoding === "string") {
+        this.configuredEncoding = configuredEncoding;
+        if (fromEvent && !this.preferredEncoding) {
+          this._onDidChangeEncoding.fire();
+        }
+      }
+    }
+    if (!e || e.affectsConfiguration(this.resource, "workbench.editor.untitled.labelFormat")) {
+      const configuredLabelFormat = this.textResourceConfigurationService.getValue(this.resource, "workbench.editor.untitled.labelFormat");
+      if (this.configuredLabelFormat !== configuredLabelFormat && (configuredLabelFormat === "content" || configuredLabelFormat === "name")) {
+        this.configuredLabelFormat = configuredLabelFormat;
+        if (fromEvent) {
+          this._onDidChangeName.fire();
+        }
+      }
+    }
+  }
+  //#region Language
+  setLanguageId(languageId, source) {
+    const actualLanguage = languageId === UntitledTextEditorModel_1.ACTIVE_EDITOR_LANGUAGE_ID ? this.editorService.activeTextEditorLanguageId : languageId;
+    this.preferredLanguageId = actualLanguage;
+    if (actualLanguage) {
+      super.setLanguageId(actualLanguage, source);
+    }
+  }
+  getLanguageId() {
+    if (this.textEditorModel) {
+      return this.textEditorModel.getLanguageId();
+    }
+    return this.preferredLanguageId;
+  }
+  getEncoding() {
+    return this.preferredEncoding || this.configuredEncoding;
+  }
+  async setEncoding(encoding) {
+    const oldEncoding = this.getEncoding();
+    this.preferredEncoding = encoding;
+    if (oldEncoding !== this.preferredEncoding) {
+      this._onDidChangeEncoding.fire();
+    }
+  }
+  isDirty() {
+    return this.dirty;
+  }
+  isModified() {
+    return this.isDirty();
+  }
+  setDirty(dirty) {
+    if (this.dirty === dirty) {
+      return;
+    }
+    this.dirty = dirty;
+    this._onDidChangeDirty.fire();
+  }
+  //#endregion
+  //#region Save / Revert / Backup
+  async save(options) {
+    const target = await this.textFileService.save(this.resource, options);
+    if (target) {
+      this._onDidSave.fire({ reason: options?.reason, source: options?.source });
+    }
+    return !!target;
+  }
+  async revert() {
+    this.ignoreDirtyOnModelContentChange = true;
+    try {
+      this.updateTextEditorModel(createTextBufferFactory(""));
+    } finally {
+      this.ignoreDirtyOnModelContentChange = false;
+    }
+    this.setDirty(false);
+    this._onDidRevert.fire();
+  }
+  async backup(token) {
+    let content = void 0;
+    if (this.isResolved()) {
+      content = await this.textFileService.getEncodedReadable(this.resource, this.createSnapshot() ?? void 0, { encoding: UTF8 });
+    } else if (typeof this.initialValue === "string") {
+      content = bufferToReadable(VSBuffer.fromString(this.initialValue));
+    }
+    return { content };
+  }
+  async resolve() {
+    let createdUntitledModel = false;
+    let hasBackup = false;
+    if (!this.textEditorModel) {
+      let untitledContents;
+      const backup = await this.workingCopyBackupService.resolve(this);
+      if (backup) {
+        untitledContents = backup.value;
+        hasBackup = true;
+      } else {
+        untitledContents = bufferToStream(VSBuffer.fromString(this.initialValue || ""));
+      }
+      const untitledContentsFactory = await createTextBufferFactoryFromStream(await this.textFileService.getDecodedStream(this.resource, untitledContents, { encoding: UTF8 }));
+      this.createTextEditorModel(untitledContentsFactory, this.resource, this.preferredLanguageId);
+      createdUntitledModel = true;
+    } else {
+      this.updateTextEditorModel(void 0, this.preferredLanguageId);
+    }
+    const textEditorModel = assertReturnsDefined(this.textEditorModel);
+    this.installModelListeners(textEditorModel);
+    if (createdUntitledModel) {
+      if (hasBackup || this.initialValue) {
+        this.updateNameFromFirstLine(textEditorModel);
+      }
+      this.setDirty(this.hasAssociatedFilePath || !!hasBackup || !!this.initialValue);
+      if (hasBackup || this.initialValue) {
+        this._onDidChangeContent.fire();
+      }
+    }
+    return super.resolve();
+  }
+  isResolved() {
+    return !!this.textEditorModelHandle;
+  }
+  installModelListeners(model) {
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(model, e)));
+    this._register(model.onDidChangeLanguage(() => this.onConfigurationChange(void 0, true)));
+    super.installModelListeners(model);
+  }
+  onModelContentChanged(textEditorModel, e) {
+    if (!this.ignoreDirtyOnModelContentChange) {
+      if (!this.hasAssociatedFilePath && textEditorModel.getLineCount() === 1 && textEditorModel.getLineLength(1) === 0) {
+        this.setDirty(false);
+      } else {
+        this.setDirty(true);
+      }
+    }
+    if (e.changes.some((change) => (change.range.startLineNumber === 1 || change.range.endLineNumber === 1) && change.range.startColumn <= UntitledTextEditorModel_1.FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH)) {
+      this.updateNameFromFirstLine(textEditorModel);
+    }
+    this._onDidChangeContent.fire();
+    this.autoDetectLanguage();
+  }
+  updateNameFromFirstLine(textEditorModel) {
+    if (this.hasAssociatedFilePath) {
+      return;
+    }
+    let modelFirstWordsCandidate = void 0;
+    let firstLineText = textEditorModel.getValueInRange({
+      startLineNumber: 1,
+      endLineNumber: 1,
+      startColumn: 1,
+      endColumn: UntitledTextEditorModel_1.FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH + 1
+      // first cap at FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH
+    }).trim().replace(/\s+/g, " ").replace(/\u202E/g, "");
+    firstLineText = firstLineText.substr(0, getCharContainingOffset(
+      // finally cap at FIRST_LINE_NAME_MAX_LENGTH (grapheme aware #111235)
+      firstLineText,
+      UntitledTextEditorModel_1.FIRST_LINE_NAME_MAX_LENGTH
+    )[0]);
+    if (firstLineText && ensureValidWordDefinition().exec(firstLineText)) {
+      modelFirstWordsCandidate = firstLineText;
+    }
+    if (modelFirstWordsCandidate !== this.cachedModelFirstLineWords) {
+      this.cachedModelFirstLineWords = modelFirstWordsCandidate;
+      this._onDidChangeName.fire();
+    }
+  }
+  //#endregion
+  isReadonly() {
+    return false;
+  }
+};
+UntitledTextEditorModel = UntitledTextEditorModel_1 = __decorate([
+  __param(5, ILanguageService),
+  __param(6, IModelService),
+  __param(7, IWorkingCopyBackupService),
+  __param(8, ITextResourceConfigurationService),
+  __param(9, IWorkingCopyService),
+  __param(10, ITextFileService),
+  __param(11, ILabelService),
+  __param(12, IEditorService),
+  __param(13, ILanguageDetectionService),
+  __param(14, IAccessibilityService)
+], UntitledTextEditorModel);
+export {
+  UntitledTextEditorModel
+};
+//# sourceMappingURL=untitledTextEditorModel.js.map

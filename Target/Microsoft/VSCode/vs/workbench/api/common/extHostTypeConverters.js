@@ -1,2 +1,4025 @@
-import{$sc as gt,$$b as R,$cc as vt}from"../../../base/common/arrays.js";import{$9i as b,$qj as yt}from"../../../base/common/buffer.js";import{$2E as Je}from"../../../base/common/dataTransfer.js";import{$Eb as xt}from"../../../base/common/functional.js";import*as N from"../../../base/common/htmlContent.js";import{$Oc as ht,$Pc as Ct}from"../../../base/common/map.js";import*as Ge from"../../../base/common/marked/marked.js";import{$3m as bt,$4m as ce}from"../../../base/common/marshalling.js";import{$ZC as Qe}from"../../../base/common/mime.js";import{$Dp as fe}from"../../../base/common/objects.js";import{$RW as It}from"../../../base/common/prefixTree.js";import{$Eh as wt}from"../../../base/common/resources.js";import{ThemeIcon as se}from"../../../base/common/themables.js";import{$dd as lt,$ld as St,$$c as Tt,$6c as ze,$ed as Xe}from"../../../base/common/types.js";import{URI as l,$Jc as de}from"../../../base/common/uri.js";import{$kn as $t}from"../../../base/common/uuid.js";import*as He from"../../../editor/common/core/range.js";import*as y from"../../../editor/common/languages.js";import{MarkerSeverity as w}from"../../../platform/markers/common/markers.js";import{$6M as kt}from"../../common/editor.js";import{LocalChatSessionUri as Rt}from"../../contrib/chat/common/model/chatUri.js";import{$pU as Et,$uU as Kt,$vU as Dt}from"../../contrib/chat/common/attachments/chatVariableEntries.js";import{ChatAgentLocation as T}from"../../contrib/chat/common/constants.js";import{ToolDataSource as Lt,ToolInvocationPresentation as Ye}from"../../contrib/chat/common/tools/languageModelToolsService.js";import{McpServerLaunch as Mt}from"../../contrib/mcp/common/mcpTypes.js";import*as _ from"../../contrib/notebook/common/notebookCommon.js";import{$SW as F}from"../../contrib/testing/common/testId.js";import{$ZW as At,$YW as Nt}from"../../contrib/testing/common/testTypes.js";import{AiSettingsSearchResultKind as k}from"../../services/aiSettingsSearch/common/aiSettingsSearch.js";import{$zL as Pt,$AL as Ut}from"../../services/editor/common/editorService.js";import{$8R as Ze,$7R as qe}from"../../services/extensions/common/extensions.js";import{$2Y as Ot}from"../../services/extensions/common/proxyIdentifier.js";import{$03 as _t}from"./extHostTestingPrivateApi.js";import*as r from"./extHostTypes.js";import{$K3 as mt}from"./extHostTypes.js";var en;(function(o){function i(e){const{selectionStartLineNumber:t,selectionStartColumn:a,positionLineNumber:c,positionColumn:u}=e,s=new r.Position(t-1,a-1),f=new r.Position(c-1,u-1);return new r.Selection(s,f)}o.to=i;function n(e){const{anchor:t,active:a}=e;return{selectionStartLineNumber:t.line+1,selectionStartColumn:t.character+1,positionLineNumber:a.line+1,positionColumn:a.character+1}}o.from=n})(en||(en={}));var d;(function(o){function i(e){if(!e)return;const{start:t,end:a}=e;return{startLineNumber:t.line+1,startColumn:t.character+1,endLineNumber:a.line+1,endColumn:a.character+1}}o.from=i;function n(e){if(!e)return;const{startLineNumber:t,startColumn:a,endLineNumber:c,endColumn:u}=e;return new r.Range(t-1,a-1,c-1,u-1)}o.to=n})(d||(d={}));var S;(function(o){function i(e){return{uri:e.uri,range:d.from(e.range)}}o.from=i;function n(e){return new r.Location(l.revive(e.uri),d.to(e.range))}o.to=n})(S||(S={}));var nn;(function(o){function i(n){switch(n){case 1:return r.StandardTokenType.Comment;case 0:return r.StandardTokenType.Other;case 3:return r.StandardTokenType.RegEx;case 2:return r.StandardTokenType.String}}o.to=i})(nn||(nn={}));var E;(function(o){function i(e){return new r.Position(e.lineNumber-1,e.column-1)}o.to=i;function n(e){return{lineNumber:e.line+1,column:e.character+1}}o.from=n})(E||(E={}));var tn;(function(o){function i(t,a,c){return R(gt(t).map(u=>n(u,a,c)))}o.from=i;function n(t,a,c){if(typeof t=="string")return{$serialized:!0,language:t,isBuiltin:c?.isBuiltin};if(t)return{$serialized:!0,language:t.language,scheme:e(t.scheme,a),pattern:x.from(t.pattern)??void 0,exclusive:t.exclusive,notebookType:t.notebookType,isBuiltin:c?.isBuiltin}}function e(t,a){return a&&typeof t=="string"?a.transformOutgoingScheme(t):t}})(tn||(tn={}));var B;(function(o){function i(e){switch(e){case r.DiagnosticTag.Unnecessary:return 1;case r.DiagnosticTag.Deprecated:return 2}}o.from=i;function n(e){switch(e){case 1:return r.DiagnosticTag.Unnecessary;case 2:return r.DiagnosticTag.Deprecated;default:return}}o.to=n})(B||(B={}));var on;(function(o){function i(e){let t;return e.code&&(ze(e.code)||Tt(e.code)?t=String(e.code):t={value:String(e.code.value),target:e.code.target}),{...d.from(e.range),message:e.message,source:e.source,code:t,severity:U.from(e.severity),relatedInformation:e.relatedInformation&&e.relatedInformation.map(W.from),tags:Array.isArray(e.tags)?R(e.tags.map(B.from)):void 0}}o.from=i;function n(e){const t=new r.Diagnostic(d.to(e),e.message,U.to(e.severity));return t.source=e.source,t.code=ze(e.code)?e.code:e.code?.value,t.relatedInformation=e.relatedInformation&&e.relatedInformation.map(W.to),t.tags=e.tags&&R(e.tags.map(B.to)),t}o.to=n})(on||(on={}));var W;(function(o){function i(e){return{...d.from(e.location.range),message:e.message,resource:e.location.uri}}o.from=i;function n(e){return new r.DiagnosticRelatedInformation(new r.Location(e.resource,d.to(e)),e.message)}o.to=n})(W||(W={}));var U;(function(o){function i(e){switch(e){case r.DiagnosticSeverity.Error:return w.Error;case r.DiagnosticSeverity.Warning:return w.Warning;case r.DiagnosticSeverity.Information:return w.Info;case r.DiagnosticSeverity.Hint:return w.Hint}return w.Error}o.from=i;function n(e){switch(e){case w.Info:return r.DiagnosticSeverity.Information;case w.Warning:return r.DiagnosticSeverity.Warning;case w.Error:return r.DiagnosticSeverity.Error;case w.Hint:return r.DiagnosticSeverity.Hint;default:return r.DiagnosticSeverity.Error}}o.to=n})(U||(U={}));var rn;(function(o){function i(e){return typeof e=="number"&&e>=r.ViewColumn.One?e-1:e===r.ViewColumn.Beside?Ut:Pt}o.from=i;function n(e){if(typeof e=="number"&&e>=0)return e+1;throw new Error("invalid 'EditorGroupColumn'")}o.to=n})(rn||(rn={}));function Ft(o){return typeof o.range<"u"}function Bt(o){return o.length===0?!0:!!Ft(o[0])}var m;(function(o){function i(u){return u.map(o.from)}o.fromMany=i;function n(u){return u&&typeof u=="object"&&typeof u.language=="string"&&typeof u.value=="string"}function e(u){let s;if(n(u)){const{language:g,value:p}=u;s={value:"```"+g+`
-`+p+"\n```\n"}}else r.MarkdownString.isMarkdownString(u)?s={value:u.value,isTrusted:u.isTrusted,supportThemeIcons:u.supportThemeIcons,supportHtml:u.supportHtml,supportAlertSyntax:u.supportAlertSyntax,baseUri:u.baseUri}:typeof u=="string"?s={value:u}:s={value:""};const f=Object.create(null);s.uris=f;const v=({href:g})=>{try{let p=l.parse(g,!0);p=p.with({query:t(p.query,f)}),f[g]=p}catch{}return""};return Ge.marked.walkTokens(Ge.marked.lexer(s.value),g=>{g.type==="link"?v({href:g.href}):g.type==="image"&&typeof g.href=="string"&&v(N.$qk(g.href))}),s}o.from=e;function t(u,s){if(!u)return u;let f;try{f=bt(u)}catch{}if(!f)return u;let v=!1;return f=fe(f,g=>{if(l.isUri(g)){const p=`__uri_${Math.random().toString(16).slice(2,8)}`;return s[p]=g,v=!0,p}else return}),v?JSON.stringify(f):u}function a(u){const s=new r.MarkdownString(u.value,u.supportThemeIcons);return s.isTrusted=u.isTrusted,s.supportHtml=u.supportHtml,s.supportAlertSyntax=u.supportAlertSyntax,s.baseUri=u.baseUri?l.from(u.baseUri):void 0,s}o.to=a;function c(u){if(u)return typeof u=="string"?u:o.from(u)}o.fromStrict=c})(m||(m={}));function xo(o){return Bt(o)?o.map(i=>({range:d.from(i.range),hoverMessage:Array.isArray(i.hoverMessage)?m.fromMany(i.hoverMessage):i.hoverMessage?m.from(i.hoverMessage):void 0,renderOptions:i.renderOptions})):o.map(i=>({range:d.from(i)}))}function Ve(o){return typeof o>"u"?o:typeof o=="string"?l.file(o):o}var K;(function(o){function i(n){return typeof n>"u"?n:{contentText:n.contentText,contentIconPath:n.contentIconPath?Ve(n.contentIconPath):void 0,border:n.border,borderColor:n.borderColor,fontStyle:n.fontStyle,fontWeight:n.fontWeight,textDecoration:n.textDecoration,color:n.color,backgroundColor:n.backgroundColor,margin:n.margin,width:n.width,height:n.height}}o.from=i})(K||(K={}));var j;(function(o){function i(n){return typeof n>"u"?n:{backgroundColor:n.backgroundColor,outline:n.outline,outlineColor:n.outlineColor,outlineStyle:n.outlineStyle,outlineWidth:n.outlineWidth,border:n.border,borderColor:n.borderColor,borderRadius:n.borderRadius,borderSpacing:n.borderSpacing,borderStyle:n.borderStyle,borderWidth:n.borderWidth,fontStyle:n.fontStyle,fontWeight:n.fontWeight,textDecoration:n.textDecoration,cursor:n.cursor,color:n.color,opacity:n.opacity,letterSpacing:n.letterSpacing,gutterIconPath:n.gutterIconPath?Ve(n.gutterIconPath):void 0,gutterIconSize:n.gutterIconSize,overviewRulerColor:n.overviewRulerColor,before:n.before?K.from(n.before):void 0,after:n.after?K.from(n.after):void 0}}o.from=i})(j||(j={}));var le;(function(o){function i(n){if(typeof n>"u")return n;switch(n){case r.DecorationRangeBehavior.OpenOpen:return 0;case r.DecorationRangeBehavior.ClosedClosed:return 1;case r.DecorationRangeBehavior.OpenClosed:return 2;case r.DecorationRangeBehavior.ClosedOpen:return 3}}o.from=i})(le||(le={}));var an;(function(o){function i(n){return{isWholeLine:n.isWholeLine,rangeBehavior:n.rangeBehavior?le.from(n.rangeBehavior):void 0,overviewRulerLane:n.overviewRulerLane,light:n.light?j.from(n.light):void 0,dark:n.dark?j.from(n.dark):void 0,backgroundColor:n.backgroundColor,outline:n.outline,outlineColor:n.outlineColor,outlineStyle:n.outlineStyle,outlineWidth:n.outlineWidth,border:n.border,borderColor:n.borderColor,borderRadius:n.borderRadius,borderSpacing:n.borderSpacing,borderStyle:n.borderStyle,borderWidth:n.borderWidth,fontStyle:n.fontStyle,fontWeight:n.fontWeight,textDecoration:n.textDecoration,cursor:n.cursor,color:n.color,opacity:n.opacity,letterSpacing:n.letterSpacing,gutterIconPath:n.gutterIconPath?Ve(n.gutterIconPath):void 0,gutterIconSize:n.gutterIconSize,overviewRulerColor:n.overviewRulerColor,before:n.before?K.from(n.before):void 0,after:n.after?K.from(n.after):void 0}}o.from=i})(an||(an={}));var h;(function(o){function i(e){return{text:e.newText,eol:e.newEol&&z.from(e.newEol),range:d.from(e.range)}}o.from=i;function n(e){const t=new r.TextEdit(d.to(e.range),e.text);return t.newEol=typeof e.eol>"u"?void 0:z.to(e.eol),t}o.to=n})(h||(h={}));var un;(function(o){function i(e,t){const a={edits:[]};if(e instanceof r.WorkspaceEdit){const c=new Ct;for(const u of e._allEntries())u._type===1&&l.isUri(u.to)&&u.from===void 0&&c.add(u.to);for(const u of e._allEntries())if(u._type===1){let s;u.options?.contents&&(ArrayBuffer.isView(u.options.contents)?s={type:"base64",value:yt(b.wrap(u.options.contents))}:s={type:"dataTransferItem",id:u.options.contents._itemId}),a.edits.push({oldResource:u.from,newResource:u.to,options:{...u.options,contents:s},metadata:u.metadata})}else u._type===2?a.edits.push({resource:u.uri,textEdit:h.from(u.edit),versionId:c.has(u.uri)?void 0:t?.getTextDocumentVersion(u.uri),metadata:u.metadata}):u._type===6?a.edits.push({resource:u.uri,textEdit:{range:d.from(u.range),text:u.edit.value,insertAsSnippet:!0,keepWhitespace:u.keepWhitespace},versionId:c.has(u.uri)?void 0:t?.getTextDocumentVersion(u.uri),metadata:u.metadata}):u._type===3?a.edits.push({metadata:u.metadata,resource:u.uri,cellEdit:u.edit,notebookVersionId:t?.getNotebookDocumentVersion(u.uri)}):u._type===5&&a.edits.push({metadata:u.metadata,resource:u.uri,notebookVersionId:t?.getNotebookDocumentVersion(u.uri),cellEdit:{editType:1,index:u.index,count:u.count,cells:u.cells.map(L.from)}})}return a}o.from=i;function n(e){const t=new r.WorkspaceEdit,a=new ht;for(const c of e.edits)if(c.textEdit){const u=c,s=l.revive(u.resource),f=d.to(u.textEdit.range),v=u.textEdit.text,g=u.textEdit.insertAsSnippet;let p;g?p=r.SnippetTextEdit.replace(f,new r.SnippetString(v)):p=r.TextEdit.replace(f,v);const C=a.get(s);C?C.push(p):a.set(s,[p])}else t.renameFile(l.revive(c.oldResource),l.revive(c.newResource),c.options);for(const[c,u]of a)t.set(c,u);return t}o.to=n})(un||(un={}));var I;(function(o){const i=Object.create(null);i[r.SymbolKind.File]=0,i[r.SymbolKind.Module]=1,i[r.SymbolKind.Namespace]=2,i[r.SymbolKind.Package]=3,i[r.SymbolKind.Class]=4,i[r.SymbolKind.Method]=5,i[r.SymbolKind.Property]=6,i[r.SymbolKind.Field]=7,i[r.SymbolKind.Constructor]=8,i[r.SymbolKind.Enum]=9,i[r.SymbolKind.Interface]=10,i[r.SymbolKind.Function]=11,i[r.SymbolKind.Variable]=12,i[r.SymbolKind.Constant]=13,i[r.SymbolKind.String]=14,i[r.SymbolKind.Number]=15,i[r.SymbolKind.Boolean]=16,i[r.SymbolKind.Array]=17,i[r.SymbolKind.Object]=18,i[r.SymbolKind.Key]=19,i[r.SymbolKind.Null]=20,i[r.SymbolKind.EnumMember]=21,i[r.SymbolKind.Struct]=22,i[r.SymbolKind.Event]=23,i[r.SymbolKind.Operator]=24,i[r.SymbolKind.TypeParameter]=25;function n(t){return typeof i[t]=="number"?i[t]:6}o.from=n;function e(t){for(const a in i)if(i[a]===t)return Number(a);return r.SymbolKind.Property}o.to=e})(I||(I={}));var $;(function(o){function i(e){if(e===r.SymbolTag.Deprecated)return 1}o.from=i;function n(e){if(e===1)return r.SymbolTag.Deprecated}o.to=n})($||($={}));var H;(function(o){function i(e){return{name:e.name,kind:I.from(e.kind),tags:e.tags&&e.tags.map($.from),containerName:e.containerName,location:D.from(e.location)}}o.from=i;function n(e){const t=new r.SymbolInformation(e.name,I.to(e.kind),e.containerName,D.to(e.location));return t.tags=e.tags&&e.tags.map($.to),t}o.to=n})(H||(H={}));var cn;(function(o){function i(e){const t={name:e.name||"!!MISSING: name!!",detail:e.detail,range:d.from(e.range),selectionRange:d.from(e.selectionRange),kind:I.from(e.kind),tags:e.tags?.map($.from)??[]};return e.children&&(t.children=e.children.map(i)),t}o.from=i;function n(e){const t=new r.$C1(e.name,e.detail,I.to(e.kind),d.to(e.range),d.to(e.selectionRange));return vt(e.tags)&&(t.tags=e.tags.map($.to)),e.children&&(t.children=e.children.map(n)),t}o.to=n})(cn||(cn={}));var V;(function(o){function i(e){const t=new r.$F1(I.to(e.kind),e.name,e.detail||"",l.revive(e.uri),d.to(e.range),d.to(e.selectionRange));return t._sessionId=e._sessionId,t._itemId=e._itemId,t}o.to=i;function n(e,t,a){if(t=t??e._sessionId,a=a??e._itemId,t===void 0||a===void 0)throw new Error("invalid item");return{_sessionId:t,_itemId:a,name:e.name,detail:e.detail,kind:I.from(e.kind),uri:e.uri,range:d.from(e.range),selectionRange:d.from(e.selectionRange),tags:e.tags?.map($.from)}}o.from=n})(V||(V={}));var fn;(function(o){function i(n){return new r.$G1(V.to(n.from),n.fromRanges.map(e=>d.to(e)))}o.to=i})(fn||(fn={}));var sn;(function(o){function i(n){return new r.$H1(V.to(n.to),n.fromRanges.map(e=>d.to(e)))}o.to=i})(sn||(sn={}));var D;(function(o){function i(e){return{range:e.range&&d.from(e.range),uri:e.uri}}o.from=i;function n(e){return new r.Location(l.revive(e.uri),d.to(e.range))}o.to=n})(D||(D={}));var dn;(function(o){function i(e){const t=e,a=e;return{originSelectionRange:t.originSelectionRange?d.from(t.originSelectionRange):void 0,uri:t.targetUri?t.targetUri:a.uri,range:d.from(t.targetRange?t.targetRange:a.range),targetSelectionRange:t.targetSelectionRange?d.from(t.targetSelectionRange):void 0}}o.from=i;function n(e){return{targetUri:l.revive(e.uri),targetRange:d.to(e.range),targetSelectionRange:e.targetSelectionRange?d.to(e.targetSelectionRange):void 0,originSelectionRange:e.originSelectionRange?d.to(e.originSelectionRange):void 0}}o.to=n})(dn||(dn={}));var ln;(function(o){function i(e){return{range:d.from(e.range),contents:m.fromMany(e.contents),canIncreaseVerbosity:e.canIncreaseVerbosity,canDecreaseVerbosity:e.canDecreaseVerbosity}}o.from=i;function n(e){const t=e.contents.map(m.to),a=d.to(e.range),c=e.canIncreaseVerbosity,u=e.canDecreaseVerbosity;return new r.$z1(t,a,c,u)}o.to=n})(ln||(ln={}));var mn;(function(o){function i(e){return{range:d.from(e.range),expression:e.expression}}o.from=i;function n(e){return new r.$t2(d.to(e.range),e.expression)}o.to=n})(mn||(mn={}));var pn;(function(o){function i(e){if(e instanceof r.$u2)return{type:"text",range:d.from(e.range),text:e.text};if(e instanceof r.$v2)return{type:"variable",range:d.from(e.range),variableName:e.variableName,caseSensitiveLookup:e.caseSensitiveLookup};if(e instanceof r.$w2)return{type:"expression",range:d.from(e.range),expression:e.expression};throw new Error("Unknown 'InlineValue' type")}o.from=i;function n(e){switch(e.type){case"text":return{range:d.to(e.range),text:e.text};case"variable":return{range:d.to(e.range),variableName:e.variableName,caseSensitiveLookup:e.caseSensitiveLookup};case"expression":return{range:d.to(e.range),expression:e.expression}}}o.to=n})(pn||(pn={}));var gn;(function(o){function i(e){return{frameId:e.frameId,stoppedLocation:d.from(e.stoppedLocation)}}o.from=i;function n(e){return new r.$x2(e.frameId,d.to(e.stoppedLocation))}o.to=n})(gn||(gn={}));var J;(function(o){function i(e){return{range:d.from(e.range),kind:e.kind}}o.from=i;function n(e){return new r.$A1(d.to(e.range),e.kind)}o.to=n})(J||(J={}));var vn;(function(o){function i(e){return{uri:e.uri,highlights:e.highlights.map(J.from)}}o.from=i;function n(e){return new r.$B1(l.revive(e.uri),e.highlights.map(J.to))}o.to=n})(vn||(vn={}));var me;(function(o){function i(n){switch(n){case 1:return r.CompletionTriggerKind.TriggerCharacter;case 2:return r.CompletionTriggerKind.TriggerForIncompleteCompletions;default:return r.CompletionTriggerKind.Invoke}}o.to=i})(me||(me={}));var yn;(function(o){function i(n){return{triggerKind:me.to(n.triggerKind),triggerCharacter:n.triggerCharacter}}o.to=i})(yn||(yn={}));var pe;(function(o){function i(e){if(e===r.CompletionItemTag.Deprecated)return 1}o.from=i;function n(e){if(e===1)return r.CompletionItemTag.Deprecated}o.to=n})(pe||(pe={}));var xn;(function(o){function i(n,e,t){return"icon"in n&&"command"in n?{command:e.toInternal(n.command,t),icon:je.fromThemeIcon(n.icon)}:{command:e.toInternal(n,t)}}o.from=i})(xn||(xn={}));var ge;(function(o){const i=new Map([[r.CompletionItemKind.Method,0],[r.CompletionItemKind.Function,1],[r.CompletionItemKind.Constructor,2],[r.CompletionItemKind.Field,3],[r.CompletionItemKind.Variable,4],[r.CompletionItemKind.Class,5],[r.CompletionItemKind.Interface,7],[r.CompletionItemKind.Struct,6],[r.CompletionItemKind.Module,8],[r.CompletionItemKind.Property,9],[r.CompletionItemKind.Unit,12],[r.CompletionItemKind.Value,13],[r.CompletionItemKind.Constant,14],[r.CompletionItemKind.Enum,15],[r.CompletionItemKind.EnumMember,16],[r.CompletionItemKind.Keyword,17],[r.CompletionItemKind.Snippet,28],[r.CompletionItemKind.Text,18],[r.CompletionItemKind.Color,19],[r.CompletionItemKind.File,20],[r.CompletionItemKind.Reference,21],[r.CompletionItemKind.Folder,23],[r.CompletionItemKind.Event,10],[r.CompletionItemKind.Operator,11],[r.CompletionItemKind.TypeParameter,24],[r.CompletionItemKind.Issue,26],[r.CompletionItemKind.User,25]]);function n(a){return i.get(a)??9}o.from=n;const e=new Map([[0,r.CompletionItemKind.Method],[1,r.CompletionItemKind.Function],[2,r.CompletionItemKind.Constructor],[3,r.CompletionItemKind.Field],[4,r.CompletionItemKind.Variable],[5,r.CompletionItemKind.Class],[7,r.CompletionItemKind.Interface],[6,r.CompletionItemKind.Struct],[8,r.CompletionItemKind.Module],[9,r.CompletionItemKind.Property],[12,r.CompletionItemKind.Unit],[13,r.CompletionItemKind.Value],[14,r.CompletionItemKind.Constant],[15,r.CompletionItemKind.Enum],[16,r.CompletionItemKind.EnumMember],[17,r.CompletionItemKind.Keyword],[28,r.CompletionItemKind.Snippet],[18,r.CompletionItemKind.Text],[19,r.CompletionItemKind.Color],[20,r.CompletionItemKind.File],[21,r.CompletionItemKind.Reference],[23,r.CompletionItemKind.Folder],[10,r.CompletionItemKind.Event],[11,r.CompletionItemKind.Operator],[24,r.CompletionItemKind.TypeParameter],[25,r.CompletionItemKind.User],[26,r.CompletionItemKind.Issue]]);function t(a){return e.get(a)??r.CompletionItemKind.Property}o.to=t})(ge||(ge={}));var hn;(function(o){function i(n,e){const t=new r.$O1(n.label);return t.insertText=n.insertText,t.kind=ge.to(n.kind),t.tags=n.tags?.map(pe.to),t.detail=n.detail,t.documentation=N.$kk(n.documentation)?m.to(n.documentation):n.documentation,t.sortText=n.sortText,t.filterText=n.filterText,t.preselect=n.preselect,t.commitCharacters=n.commitCharacters,He.$9D.isIRange(n.range)?t.range=d.to(n.range):typeof n.range=="object"&&(t.range={inserting:d.to(n.range.insert),replacing:d.to(n.range.replace)}),t.keepWhitespace=typeof n.insertTextRules>"u"?!1:!!(n.insertTextRules&1),typeof n.insertTextRules<"u"&&n.insertTextRules&4?t.insertText=new r.SnippetString(n.insertText):(t.insertText=n.insertText,t.textEdit=t.range instanceof r.Range?new r.TextEdit(t.range,t.insertText):void 0),n.additionalTextEdits&&n.additionalTextEdits.length>0&&(t.additionalTextEdits=n.additionalTextEdits.map(a=>h.to(a))),t.command=e&&n.command?e.fromInternal(n.command):void 0,t}o.to=i})(hn||(hn={}));var G;(function(o){function i(e){if(typeof e.label!="string"&&!Array.isArray(e.label))throw new TypeError("Invalid label");return{label:e.label,documentation:m.fromStrict(e.documentation)}}o.from=i;function n(e){return{label:e.label,documentation:N.$kk(e.documentation)?m.to(e.documentation):e.documentation}}o.to=n})(G||(G={}));var Q;(function(o){function i(e){return{label:e.label,documentation:m.fromStrict(e.documentation),parameters:Array.isArray(e.parameters)?e.parameters.map(G.from):[],activeParameter:e.activeParameter}}o.from=i;function n(e){return{label:e.label,documentation:N.$kk(e.documentation)?m.to(e.documentation):e.documentation,parameters:Array.isArray(e.parameters)?e.parameters.map(G.to):[],activeParameter:e.activeParameter}}o.to=n})(Q||(Q={}));var Cn;(function(o){function i(e){return{activeSignature:e.activeSignature,activeParameter:e.activeParameter,signatures:Array.isArray(e.signatures)?e.signatures.map(Q.from):[]}}o.from=i;function n(e){return{activeSignature:e.activeSignature,activeParameter:e.activeParameter,signatures:Array.isArray(e.signatures)?e.signatures.map(Q.to):[]}}o.to=n})(Cn||(Cn={}));var bn;(function(o){function i(n,e){const t=new r.$N1(E.to(e.position),typeof e.label=="string"?e.label:e.label.map(ve.to.bind(void 0,n)),e.kind&&ye.to(e.kind));return t.textEdits=e.textEdits&&e.textEdits.map(h.to),t.tooltip=N.$kk(e.tooltip)?m.to(e.tooltip):e.tooltip,t.paddingLeft=e.paddingLeft,t.paddingRight=e.paddingRight,t}o.to=i})(bn||(bn={}));var ve;(function(o){function i(n,e){const t=new r.$M1(e.label);return t.tooltip=N.$kk(e.tooltip)?m.to(e.tooltip):e.tooltip,y.Command.is(e.command)&&(t.command=n.fromInternal(e.command)),e.location&&(t.location=D.to(e.location)),t}o.to=i})(ve||(ve={}));var ye;(function(o){function i(e){return e}o.from=i;function n(e){return e}o.to=n})(ye||(ye={}));var In;(function(o){function i(e){return{range:d.from(e.range),url:e.target,tooltip:e.tooltip}}o.from=i;function n(e){let t;if(e.url)try{t=typeof e.url=="string"?l.parse(e.url,!0):l.revive(e.url)}catch{}const a=new r.$T1(d.to(e.range),t);return a.tooltip=e.tooltip,a}o.to=n})(In||(In={}));var wn;(function(o){function i(e){const t=new r.$W1(e.label);return e.textEdit&&(t.textEdit=h.to(e.textEdit)),e.additionalTextEdits&&(t.additionalTextEdits=e.additionalTextEdits.map(a=>h.to(a))),t}o.to=i;function n(e){return{label:e.label,textEdit:e.textEdit?h.from(e.textEdit):void 0,additionalTextEdits:e.additionalTextEdits?e.additionalTextEdits.map(t=>h.from(t)):void 0}}o.from=n})(wn||(wn={}));var Sn;(function(o){function i(e){return new r.$U1(e[0],e[1],e[2],e[3])}o.to=i;function n(e){return[e.red,e.green,e.blue,e.alpha]}o.from=n})(Sn||(Sn={}));var Tn;(function(o){function i(e){return{range:d.from(e.range)}}o.from=i;function n(e){return new r.$E1(d.to(e.range))}o.to=n})(Tn||(Tn={}));var $n;(function(o){function i(n){switch(n){case 2:return r.TextDocumentSaveReason.AfterDelay;case 1:return r.TextDocumentSaveReason.Manual;case 3:case 4:return r.TextDocumentSaveReason.FocusOut}}o.to=i})($n||($n={}));var kn;(function(o){function i(e){switch(e){case r.TextEditorLineNumbersStyle.Off:return 0;case r.TextEditorLineNumbersStyle.Relative:return 2;case r.TextEditorLineNumbersStyle.Interval:return 3;case r.TextEditorLineNumbersStyle.On:default:return 1}}o.from=i;function n(e){switch(e){case 0:return r.TextEditorLineNumbersStyle.Off;case 2:return r.TextEditorLineNumbersStyle.Relative;case 3:return r.TextEditorLineNumbersStyle.Interval;default:return r.TextEditorLineNumbersStyle.On}}o.to=n})(kn||(kn={}));var z;(function(o){function i(e){if(e===r.EndOfLine.CRLF)return 1;if(e===r.EndOfLine.LF)return 0}o.from=i;function n(e){if(e===1)return r.EndOfLine.CRLF;if(e===0)return r.EndOfLine.LF}o.to=n})(z||(z={}));var Rn;(function(o){function i(n){if(typeof n=="object")return n.viewId;switch(n){case r.ProgressLocation.SourceControl:return 3;case r.ProgressLocation.Window:return 10;case r.ProgressLocation.Notification:return 15}throw new Error("Unknown 'ProgressLocation'")}o.from=i})(Rn||(Rn={}));var En;(function(o){function i(e){const t={start:e.start+1,end:e.end+1};return e.kind&&(t.kind=X.from(e.kind)),t}o.from=i;function n(e){const t={start:e.start-1,end:e.end-1};return e.kind&&(t.kind=X.to(e.kind)),t}o.to=n})(En||(En={}));var X;(function(o){function i(e){if(e)switch(e){case r.FoldingRangeKind.Comment:return y.$TF.Comment;case r.FoldingRangeKind.Imports:return y.$TF.Imports;case r.FoldingRangeKind.Region:return y.$TF.Region}}o.from=i;function n(e){if(e)switch(e.value){case y.$TF.Comment.value:return r.FoldingRangeKind.Comment;case y.$TF.Imports.value:return r.FoldingRangeKind.Imports;case y.$TF.Region.value:return r.FoldingRangeKind.Region}}o.to=n})(X||(X={}));var Kn;(function(o){function i(n){if(n)return{pinned:typeof n.preview=="boolean"?!n.preview:void 0,inactive:n.background,preserveFocus:n.preserveFocus,selection:typeof n.selection=="object"?d.from(n.selection):void 0,override:typeof n.override=="boolean"?kt.id:void 0}}o.from=i})(Kn||(Kn={}));var x;(function(o){function i(a){return a instanceof r.$h2?a.toJSON():typeof a=="string"?a:n(a)||e(a)?new r.$h2(a.baseUri??a.base,a.pattern).toJSON():a}o.from=i;function n(a){const c=a;return c?l.isUri(c.baseUri)&&typeof c.pattern=="string":!1}function e(a){const c=a;return c?typeof c.base=="string"&&typeof c.pattern=="string":!1}function t(a){return typeof a=="string"?a:new r.$h2(l.revive(a.baseUri),a.pattern)}o.to=t})(x||(x={}));var Dn;(function(o){function i(n){if(n){if(Array.isArray(n))return n.map(i);if(typeof n=="string")return n;{const e=n;return{language:e.language,scheme:e.scheme,pattern:x.from(e.pattern)??void 0,exclusive:e.exclusive,notebookType:e.notebookType}}}else return}o.from=i})(Dn||(Dn={}));var Ln;(function(o){function i(e){return{start:e.start,end:e.end}}o.from=i;function n(e){return new r.NotebookRange(e.start,e.end)}o.to=n})(Ln||(Ln={}));var Y;(function(o){function i(e){return{timing:typeof e.runStartTime=="number"&&typeof e.runEndTime=="number"?{startTime:e.runStartTime,endTime:e.runEndTime}:void 0,executionOrder:e.executionOrder,success:e.lastRunSuccess}}o.to=i;function n(e){return{lastRunSuccess:e.success,runStartTime:e.timing?.startTime,runEndTime:e.timing?.endTime,executionOrder:e.executionOrder}}o.from=n})(Y||(Y={}));var Z;(function(o){function i(e){switch(e){case r.NotebookCellKind.Markup:return _.CellKind.Markup;case r.NotebookCellKind.Code:default:return _.CellKind.Code}}o.from=i;function n(e){switch(e){case _.CellKind.Markup:return r.NotebookCellKind.Markup;case _.CellKind.Code:default:return r.NotebookCellKind.Code}}o.to=n})(Z||(Z={}));var Mn;(function(o){function i(e){const t={metadata:e.metadata??Object.create(null),cells:[]};for(const a of e.cells)r.NotebookCellData.validate(a),t.cells.push(L.from(a));return t}o.from=i;function n(e){const t=new r.NotebookData(e.cells.map(L.to));return St(e.metadata)||(t.metadata=e.metadata),t}o.to=n})(Mn||(Mn={}));var L;(function(o){function i(e){return{cellKind:Z.from(e.kind),language:e.languageId,mime:e.mime,source:e.value,metadata:e.metadata,internalMetadata:Y.from(e.executionSummary??{}),outputs:e.outputs?e.outputs.map(ee.from):[]}}o.from=i;function n(e){return new r.NotebookCellData(Z.to(e.cellKind),e.source,e.language,e.mime,e.outputs?e.outputs.map(ee.to):void 0,e.metadata,e.internalMetadata?Y.to(e.internalMetadata):void 0)}o.to=n})(L||(L={}));var q;(function(o){function i(e){return{mime:e.mime,valueBytes:b.wrap(e.data)}}o.from=i;function n(e){return new r.NotebookCellOutputItem(e.valueBytes.buffer,e.mime)}o.to=n})(q||(q={}));var ee;(function(o){function i(e){return{outputId:e.id,items:e.items.map(q.from),metadata:e.metadata}}o.from=i;function n(e){const t=e.items.map(q.to);return new r.NotebookCellOutput(t,e.outputId,e.metadata)}o.to=n})(ee||(ee={}));var An;(function(o){function i(t){return e(t)?{include:x.from(t.include)??void 0,exclude:x.from(t.exclude)??void 0}:x.from(t)??void 0}o.from=i;function n(t){return e(t)?{include:x.to(t.include),exclude:x.to(t.exclude)}:x.to(t)}o.to=n;function e(t){const a=t;return a?!Xe(a.include)&&!Xe(a.exclude):!1}})(An||(An={}));var Nn;(function(o){function i(n,e,t){const a=typeof n.command=="string"?{title:"",command:n.command}:n.command;return{alignment:n.alignment===r.NotebookCellStatusBarAlignment.Left?1:2,command:e.toInternal(a,t),text:n.text,tooltip:n.tooltip,accessibilityInformation:n.accessibilityInformation,priority:n.priority}}o.from=i})(Nn||(Nn={}));var Pn;(function(o){function i(n,e,t){const a=typeof n.command=="string"?{title:"",command:n.command}:n.command;return{command:e.toInternal(a,t),label:n.label,description:n.description,detail:n.detail,documentation:n.documentation}}o.from=i})(Pn||(Pn={}));var Un;(function(o){function i(n){return{transientOutputs:n?.transientOutputs??!1,transientCellMetadata:n?.transientCellMetadata??{},transientDocumentMetadata:n?.transientDocumentMetadata??{},cellContentMetadata:n?.cellContentMetadata??{}}}o.from=i})(Un||(Un={}));var On;(function(o){function i(e){return{uri:e.uri,provides:e.provides}}o.from=i;function n(e){return new r.$M2(l.revive(e.uri),e.provides)}o.to=n})(On||(On={}));var xe;(function(o){function i(e){return{message:m.fromStrict(e.message)||"",type:0,expected:e.expectedOutput,actual:e.actualOutput,contextValue:e.contextValue,location:e.location&&{range:d.from(e.location.range),uri:e.location.uri},stackTrace:e.stackTrace?.map(t=>({label:t.label,position:t.position&&E.from(t.position),uri:t.uri&&l.revive(t.uri).toJSON()}))}}o.from=i;function n(e){const t=new r.$T2(typeof e.message=="string"?e.message:m.to(e.message));return t.actualOutput=e.actual,t.expectedOutput=e.expected,t.contextValue=e.contextValue,t.location=e.location?D.to(e.location):void 0,t}o.to=n})(xe||(xe={}));var M;(function(o){o.namespace=Nt,o.denamespace=At})(M||(M={}));var _n;(function(o){function i(n){return{controllerId:n.controllerId,profileId:n.profileId,group:he.from(n.kind)}}o.from=i})(_n||(_n={}));var he;(function(o){const i={[r.TestRunProfileKind.Coverage]:8,[r.TestRunProfileKind.Debug]:4,[r.TestRunProfileKind.Run]:2};function n(e){return i.hasOwnProperty(e)?i[e]:2}o.from=n})(he||(he={}));var Ce;(function(o){function i(e){const t=_t(e).controllerId;return{extId:F.fromExtHostTestItem(e,t).toString(),label:e.label,uri:l.revive(e.uri),busy:e.busy,tags:e.tags.map(a=>M.namespace(t,a.id)),range:He.$9D.lift(d.from(e.range)),description:e.description||null,sortText:e.sortText||null,error:e.error&&m.fromStrict(e.error)||null}}o.from=i;function n(e){return{parent:void 0,error:void 0,id:F.fromString(e.extId).localId,label:e.label,uri:l.revive(e.uri),tags:(e.tags||[]).map(t=>{const{tagId:a}=M.denamespace(t);return new r.$U2(a)}),children:{add:()=>{},delete:()=>{},forEach:()=>{},*[Symbol.iterator](){},get:()=>{},replace:()=>{},size:0},range:d.to(e.range||void 0),canResolveChildren:!1,busy:e.busy,description:e.description||void 0,sortText:e.sortText||void 0}}o.toPlain=n})(Ce||(Ce={}));(function(o){function i(e){return{id:e.id}}o.from=i;function n(e){return new r.$U2(e.id)}o.to=n})(M||(M={}));var Fn;(function(o){const i=(e,t)=>{const a=e.value;if(!a)return;const c={...Ce.toPlain(a.item),parent:t,taskStates:a.tasks.map(u=>({state:u.state,duration:u.duration,messages:u.messages.filter(s=>s.type===0).map(xe.to)})),children:[]};if(e.children)for(const u of e.children.values()){const s=i(u,c);s&&c.children.push(s)}return c};function n(e){const t=new It;for(const u of e.items)t.insert(F.fromString(u.item.extId).path,u);const a=[t.nodes],c=[];for(;a.length;)for(const u of a.pop())u.value?c.push(u):u.children&&a.push(u.children.values());return{completedAt:e.completedAt,results:c.map(u=>i(u)).filter(lt)}}o.to=n})(Fn||(Fn={}));var Bn;(function(o){function i(u){return{covered:u.covered,total:u.total}}function n(u){return"line"in u?E.from(u):d.from(u)}function e(u){if(u)return"endLineNumber"in u?d.to(u):E.to(u)}function t(u){if(u.type===1){const s=[];if(u.branches)for(const f of u.branches)s.push({executed:f.count,location:e(f.location),label:f.label});return new r.$Z2(u.count,e(u.location),u.branches?.map(f=>new r.$12(f.count,e(f.location),f.label)))}else return new r.$22(u.name,u.count,e(u.location))}o.to=t;function a(u){if(typeof u.executed=="number"&&u.executed<0)throw new Error(`Invalid coverage count ${u.executed}`);return"branches"in u?{count:u.executed,location:n(u.location),type:1,branches:u.branches.length?u.branches.map(s=>({count:s.executed,location:s.location&&n(s.location),label:s.label})):void 0}:{type:0,name:u.name,count:u.executed,location:n(u.location)}}o.fromDetails=a;function c(u,s,f){return r.$X2(f.statementCoverage),r.$X2(f.branchCoverage),r.$X2(f.declarationCoverage),{id:s,uri:f.uri,statement:i(f.statementCoverage),branch:f.branchCoverage&&i(f.branchCoverage),declaration:f.declarationCoverage&&i(f.declarationCoverage),testIds:f instanceof r.$Y2&&f.includesTests.length?f.includesTests.map(v=>F.fromExtHostTestItem(v,u).toString()):void 0}}o.fromFile=c})(Bn||(Bn={}));var Wn;(function(o){function i(n){switch(n){case 1:return r.CodeActionTriggerKind.Invoke;case 2:return r.CodeActionTriggerKind.Automatic}}o.to=i})(Wn||(Wn={}));var jn;(function(o){function i(e){const t=new r.$32(I.to(e.kind),e.name,e.detail||"",l.revive(e.uri),d.to(e.range),d.to(e.selectionRange));return t._sessionId=e._sessionId,t._itemId=e._itemId,t}o.to=i;function n(e,t,a){if(t=t??e._sessionId,a=a??e._itemId,t===void 0||a===void 0)throw new Error("invalid item");return{_sessionId:t,_itemId:a,kind:I.from(e.kind),name:e.name,detail:e.detail??"",uri:e.uri,range:d.from(e.range),selectionRange:d.from(e.selectionRange),tags:e.tags?.map($.from)}}o.from=n})(jn||(jn={}));var Hn;(function(o){function i(n){if(n)return{value:n.value,tooltip:n.tooltip}}o.from=i})(Hn||(Hn={}));var P;(function(o){function i(a,c,u){const s=c.fileData;return s?new r.$_1(new r.$a2(s.name,l.revive(s.uri),s.id,xt(()=>u(s.id)))):a===Qe.uriList&&c.uriListData?new r.$$1(t(c.uriListData)):new r.$$1(c.asString)}o.to=i;async function n(a,c,u=$t()){const s=await c.asString();if(a===Qe.uriList)return{id:u,asString:s,fileData:void 0,uriListData:e(s)};const f=c.asFile();return{id:u,asString:s,fileData:f?{name:f.name,uri:f.uri,id:f._itemId??f.id}:void 0}}o.from=n;function e(a){return Je.split(a).map(c=>{if(c.startsWith("#"))return c;try{return l.parse(c)}catch{}return c})}function t(a){return Je.create(a.map(c=>typeof c=="string"?c:l.revive(c)))}})(P||(P={}));var Vn;(function(o){function i(t,a){const c=t.items.map(([u,s])=>[u,P.to(u,s,a)]);return new r.$b2(c)}o.toDataTransfer=i;async function n(t){return{items:await Promise.all(Array.from(t,async([c,u])=>[c,await P.from(c,u)]))}}o.from=n;async function e(t){return{items:await Promise.all(Array.from(t,async([c,u])=>[c,await P.from(c,u,u.id)]))}}o.fromList=e})(Vn||(Vn={}));var be;(function(o){function i(e,t){return{kind:"reply",agentId:e.participant??t?.agentId??"",subCommand:e.command??t?.command,message:e.prompt,title:e.label}}o.from=i;function n(e){return{prompt:e.message,label:e.title,participant:e.agentId,command:e.subCommand}}o.to=n})(be||(be={}));var A;(function(o){function i(e){switch(e){case 0:return r.LanguageModelChatMessageRole.System;case 1:return r.LanguageModelChatMessageRole.User;case 2:return r.LanguageModelChatMessageRole.Assistant}}o.to=i;function n(e){switch(e){case r.LanguageModelChatMessageRole.System:return 0;case r.LanguageModelChatMessageRole.User:return 1;case r.LanguageModelChatMessageRole.Assistant:return 2}return 1}o.from=n})(A||(A={}));var Jn;(function(o){function i(e){const t=e.content.map(u=>{if(u.type==="text")return new mt(u.value,u.audience);if(u.type==="tool_result"){const s=R(u.value.map(f=>f.type==="text"?new r.$K3(f.value,f.audience):f.type==="data"?new r.$L3(f.data.buffer,f.mimeType):f.type==="prompt_tsx"?new r.$N3(f.value):void 0));return new r.$G3(u.toolCallId,s,u.isError)}else{if(u.type==="image_url")return new r.$L3(u.value.data.buffer,u.value.mimeType);if(u.type==="data")return new r.$L3(u.data.buffer,u.mimeType);if(u.type==="tool_use")return new r.$J3(u.toolCallId,u.name,u.parameters)}}).filter(u=>u!==void 0),a=A.to(e.role);return new r.$H3(a,t,e.name)}o.to=i;function n(e){const t=A.from(e.role),a=e.name;let c=e.content;typeof c=="string"&&(c=[new r.$K3(c)]);const u=c.map(s=>{if(s instanceof r.$G3)return{type:"tool_result",toolCallId:s.callId,value:R(s.content.map(f=>f instanceof r.$K3?{type:"text",value:f.value,audience:f.audience}:f instanceof r.$N3?{type:"prompt_tsx",value:f.value}:f instanceof r.$L3?{type:"data",mimeType:f.mimeType,data:b.wrap(f.data),audience:f.audience}:void 0)),isError:s.isError};if(s instanceof r.$L3)return pt(s)?{type:"image_url",value:{mimeType:s.mimeType,data:b.wrap(s.data)}}:{type:"data",mimeType:s.mimeType,data:b.wrap(s.data),audience:s.audience};if(s instanceof r.$J3)return{type:"tool_use",toolCallId:s.callId,name:s.name,parameters:s.input};if(s instanceof r.$K3)return{type:"text",value:s.value};if(typeof s!="string")throw new Error("Unexpected chat message content type");return{type:"text",value:s}});return{role:t,name:a,content:u}}o.from=n})(Jn||(Jn={}));var Gn;(function(o){function i(e){const t=e.content.map(u=>{if(u.type==="text")return new mt(u.value,u.audience);if(u.type==="tool_result"){const s=u.value.map(f=>f.type==="text"?new r.$K3(f.value,f.audience):f.type==="data"?new r.$L3(f.data.buffer,f.mimeType):new r.$N3(f.value));return new r.$G3(u.toolCallId,s,u.isError)}else return u.type==="image_url"?new r.$L3(u.value.data.buffer,u.value.mimeType):u.type==="data"?new r.$L3(u.data.buffer,u.mimeType):u.type==="thinking"?new r.$M3(u.value,u.id,u.metadata):new r.$J3(u.toolCallId,u.name,u.parameters)}),a=A.to(e.role);return new r.$I3(a,t,e.name)}o.to=i;function n(e){const t=A.from(e.role),a=e.name;let c=e.content;typeof c=="string"&&(c=[new r.$K3(c)]);const u=c.map(s=>{if(s instanceof r.$G3)return{type:"tool_result",toolCallId:s.callId,value:R(s.content.map(f=>f instanceof r.$K3?{type:"text",value:f.value,audience:f.audience}:f instanceof r.$N3?{type:"prompt_tsx",value:f.value}:f instanceof r.$L3?{type:"data",mimeType:f.mimeType,data:b.wrap(f.data),audience:f.audience}:void 0)),isError:s.isError};if(s instanceof r.$L3)return pt(s)?{type:"image_url",value:{mimeType:s.mimeType,data:b.wrap(s.data)}}:{type:"data",mimeType:s.mimeType,data:b.wrap(s.data),audience:s.audience};if(s instanceof r.$J3)return{type:"tool_use",toolCallId:s.callId,name:s.name,parameters:s.input};if(s instanceof r.$K3)return{type:"text",value:s.value};if(s instanceof r.$M3)return{type:"thinking",value:s.value,id:s.id,metadata:s.metadata};if(typeof s!="string")throw new Error("Unexpected chat message content type llm 2");return{type:"text",value:s}});return{role:t,name:a,content:u}}o.from=n})(Gn||(Gn={}));function pt(o){switch(typeof o.mimeType=="string"?o.mimeType.toLowerCase():""){case"image/png":case"image/jpeg":case"image/jpg":case"image/gif":case"image/webp":case"image/bmp":return!0;default:return!1}}var ne;(function(o){function i(e){return{kind:"markdownContent",content:m.from(e.value)}}o.from=i;function n(e){return new r.$d3(m.to(e.content))}o.to=n})(ne||(ne={}));var Ie;(function(o){function i(e){return{kind:"codeblockUri",uri:e.value,isEdit:e.isEdit,undoStopId:e.undoStopId}}o.from=i;function n(e){return new r.$q3(l.revive(e.uri),e.isEdit,e.undoStopId)}o.to=n})(Ie||(Ie={}));var we;(function(o){function i(e){return{kind:"markdownVuln",content:m.from(e.value),vulnerabilities:e.vulnerabilities}}o.from=i;function n(e){return new r.$e3(m.to(e.content),e.vulnerabilities)}o.to=n})(we||(we={}));var Se;(function(o){function i(n){return{kind:"confirmation",title:n.title,message:m.from(n.message),data:n.data,buttons:n.buttons}}o.from=i})(Se||(Se={}));var te;(function(o){function i(e){const{value:t,baseUri:a}=e;function c(u,s){return u.map(f=>{const v=l.joinPath(s,f.name);return{label:f.name,uri:v,children:f.children&&c(f.children,v)}})}return{kind:"treeData",treeData:{label:wt(a),uri:a,children:c(t,a)}}}o.from=i;function n(e){const t=ce(e.treeData);function a(s){return s.map(f=>({name:f.label,children:f.children&&a(f.children)}))}const c=t.uri,u=t.children?a(t.children):[];return new r.$g3(u,c)}o.to=n})(te||(te={}));var Te;(function(o){function i(e){return{kind:"multiDiffData",multiDiffData:{title:e.title,resources:e.value.map(t=>({originalUri:t.originalUri,modifiedUri:t.modifiedUri,goToFileUri:t.goToFileUri,added:t.added,removed:t.removed}))},readOnly:e.readOnly}}o.from=i;function n(e){const t=e.multiDiffData.resources.map(a=>({originalUri:a.originalUri?l.revive(a.originalUri):void 0,modifiedUri:a.modifiedUri?l.revive(a.modifiedUri):void 0,goToFileUri:a.goToFileUri?l.revive(a.goToFileUri):void 0,added:a.added,removed:a.removed}));return new r.$h3(t,e.multiDiffData.title,e.readOnly)}o.to=n})(Te||(Te={}));var oe;(function(o){function i(e){const t=c=>l.isUri(c),a=c=>"name"in c;return{kind:"inlineReference",name:e.title,inlineReference:t(e.value)?e.value:a(e.value)?H.from(e.value):S.from(e.value)}}o.from=i;function n(e){const t=ce(e);return new r.$j3(l.isUri(t.inlineReference)?t.inlineReference:"location"in t.inlineReference?H.to(t.inlineReference):S.to(t.inlineReference),e.name)}o.to=n})(oe||(oe={}));var $e;(function(o){function i(e){return{kind:"progressMessage",content:m.from(e.value)}}o.from=i;function n(e){return new r.$k3(e.content.value)}o.to=n})($e||($e={}));var ke;(function(o){function i(e){return{kind:"thinking",value:e.value,id:e.id,metadata:e.metadata}}o.from=i;function n(e){return new r.$m3(e.value??"",e.id,e.metadata)}o.to=n})(ke||(ke={}));var Re;(function(o){function i(e){return{kind:"warning",content:m.from(e.value)}}o.from=i;function n(e){return new r.$n3(e.content.value)}o.to=n})(Re||(Re={}));var Ee;(function(o){function i(n){return{kind:"extensions",extensions:n.extensions}}o.from=i})(Ee||(Ee={}));var Ke;(function(o){function i(n){return{kind:"pullRequest",author:n.author,title:n.title,description:n.description,uri:n.uri,linkTag:n.linkTag}}o.from=i})(Ke||(Ke={}));var De;(function(o){function i(e){return{kind:"move",uri:e.uri,range:d.from(e.range)}}o.from=i;function n(e){return new r.$s3(l.revive(e.uri),d.to(e.range))}o.to=n})(De||(De={}));var Le;(function(o){function i(a){return{kind:"toolInvocationSerialized",toolCallId:a.toolCallId,toolId:a.toolName,invocationMessage:a.invocationMessage?m.from(a.invocationMessage):a.toolName,originMessage:a.originMessage?m.from(a.originMessage):void 0,pastTenseMessage:a.pastTenseMessage?m.from(a.pastTenseMessage):void 0,isConfirmed:a.isConfirmed,isComplete:a.isComplete??!0,source:Lt.External,toolSpecificData:a.toolSpecificData?n(a.toolSpecificData):void 0,presentation:a.presentation==="hidden"?Ye.Hidden:a.presentation==="hiddenAfterComplete"?Ye.HiddenAfterComplete:void 0,subAgentInvocationId:a.subAgentInvocationId}}o.from=i;function n(a){return"command"in a&&"language"in a?{kind:"terminal",command:a.command,language:a.language}:"commandLine"in a&&"language"in a?{kind:"terminal",commandLine:a.commandLine,language:a.language}:a}function e(a){const c=new r.$x3(a.toolId||a.toolName,a.toolCallId,a.isError);return a.invocationMessage&&(c.invocationMessage=a.invocationMessage),a.originMessage&&(c.originMessage=a.originMessage),a.pastTenseMessage&&(c.pastTenseMessage=a.pastTenseMessage),a.isConfirmed!==void 0&&(c.isConfirmed=a.isConfirmed),a.isComplete!==void 0&&(c.isComplete=a.isComplete),a.toolSpecificData&&(c.toolSpecificData=t(a.toolSpecificData)),c.subAgentInvocationId=a.subAgentInvocationId,c}o.to=e;function t(a){return a.kind==="terminal"?{command:a.command,language:a.language}:a.kind==="terminal2"?{commandLine:a.commandLine,language:a.language}:a}})(Le||(Le={}));var Qn;(function(o){function i(n){return{kind:"progressTask",content:m.from(n.value)}}o.from=i})(Qn||(Qn={}));var zn;(function(o){function i(n){return{kind:"progressTaskResult",content:typeof n=="string"?m.from(n):void 0}}o.from=i})(zn||(zn={}));var re;(function(o){function i(e,t,a){return{kind:"command",command:t.toInternal(e.value,a)??{command:e.value.command,title:e.value.title}}}o.from=i;function n(e,t){return new r.$o3(t.fromInternal(e.command)??{command:e.command.id,title:e.command.title})}o.to=n})(re||(re={}));var Me;(function(o){function i(e){return{kind:"textEdit",uri:e.uri,edits:e.edits.map(t=>h.from(t)),done:e.isDone}}o.from=i;function n(e){const t=new r.$v3(l.revive(e.uri),e.edits.map(a=>h.to(a)));return t.isDone=e.done,t}o.to=n})(Me||(Me={}));var Ae;(function(o){function i(n){return n.newCellMetadata?{editType:3,index:n.range.start,metadata:n.newCellMetadata}:n.newNotebookMetadata?{editType:5,metadata:n.newNotebookMetadata}:{editType:1,index:n.range.start,count:n.range.end-n.range.start,cells:n.newCells.map(L.from)}}o.from=i})(Ae||(Ae={}));var Ne;(function(o){function i(n){return{kind:"notebookEdit",uri:n.uri,edits:n.edits.map(Ae.from),done:n.isDone}}o.from=i})(Ne||(Ne={}));var ie;(function(o){function i(e){const t=se.isThemeIcon(e.iconPath)?e.iconPath:l.isUri(e.iconPath)?{light:l.revive(e.iconPath)}:e.iconPath&&"light"in e.iconPath&&"dark"in e.iconPath&&l.isUri(e.iconPath.light)&&l.isUri(e.iconPath.dark)?{light:l.revive(e.iconPath.light),dark:l.revive(e.iconPath.dark)}:void 0;return typeof e.value=="object"&&"variableName"in e.value?{kind:"reference",reference:{variableName:e.value.variableName,value:l.isUri(e.value.value)||!e.value.value?e.value.value:S.from(e.value.value)},iconPath:t,options:e.options}:{kind:"reference",reference:l.isUri(e.value)||typeof e.value=="string"?e.value:S.from(e.value),iconPath:t,options:e.options}}o.from=i;function n(e){const t=ce(e),a=c=>l.isUri(c)?c:S.to(c);return new r.$p3(typeof t.reference=="string"?t.reference:"variableName"in t.reference?{variableName:t.reference.variableName,value:t.reference.value&&a(t.reference.value)}:a(t.reference))}o.to=n})(ie||(ie={}));var Pe;(function(o){function i(n){return{kind:"codeCitation",value:n.value,license:n.license,snippet:n.snippet}}o.from=i})(Pe||(Pe={}));var Xn;(function(o){function i(t,a,c){return t instanceof r.$d3?ne.from(t):t instanceof r.$j3?oe.from(t):t instanceof r.$p3?ie.from(t):t instanceof r.$k3?$e.from(t):t instanceof r.$m3?ke.from(t):t instanceof r.$g3?te.from(t):t instanceof r.$h3?Te.from(t):t instanceof r.$o3?re.from(t,a,c):t instanceof r.$v3?Me.from(t):t instanceof r.$w3?Ne.from(t):t instanceof r.$e3?we.from(t):t instanceof r.$q3?Ie.from(t):t instanceof r.$n3?Re.from(t):t instanceof r.$f3?Se.from(t):t instanceof r.$r3?Pe.from(t):t instanceof r.$s3?De.from(t):t instanceof r.$t3?Ee.from(t):t instanceof r.$u3?Ke.from(t):t instanceof r.$x3?Le.from(t):{kind:"markdownContent",content:m.from("")}}o.from=i;function n(t,a){switch(t.kind){case"reference":return ie.to(t);case"markdownContent":case"inlineReference":case"progressMessage":case"treeData":case"command":return e(t,a)}}o.to=n;function e(t,a){switch(t.kind){case"markdownContent":return ne.to(t);case"inlineReference":return oe.to(t);case"progressMessage":return;case"treeData":return te.to(t);case"command":return re.to(t,a)}}o.toContent=e})(Xn||(Xn={}));var Yn;(function(o){function i(n,e,t,a,c,u,s){const f=[],v=[];for(const C of n.variables.variables)C.kind==="tool"?f.push(C):C.kind==="toolset"?f.push(...C.value):v.push(C);const g=Rt.parseLocalSessionId(n.sessionResource)??n.sessionResource.toString(),p={id:n.requestId,prompt:n.message,command:n.command,attempt:n.attempt??0,enableCommandDetection:n.enableCommandDetection??!0,isParticipantDetected:n.isParticipantDetected??!1,sessionId:g,references:v.map(C=>Oe.to(C,a,s)).filter(lt),toolReferences:f.map(O.to),location:Ue.to(n.location),acceptedConfirmationData:n.acceptedConfirmationData,rejectedConfirmationData:n.rejectedConfirmationData,location2:e,toolInvocationToken:Object.freeze({sessionId:g,sessionResource:n.sessionResource}),tools:c,model:t,editedFileEvents:n.editedFileEvents,modeInstructions:n.modeInstructions?.content,modeInstructions2:_e.to(n.modeInstructions),subAgentInvocationId:n.subAgentInvocationId};return qe(u,"chatParticipantPrivate")||(delete p.id,delete p.attempt,delete p.enableCommandDetection,delete p.isParticipantDetected,delete p.location,delete p.location2,delete p.editedFileEvents,delete p.sessionId,delete p.subAgentInvocationId),qe(u,"chatParticipantAdditions")||(delete p.acceptedConfirmationData,delete p.rejectedConfirmationData,delete p.tools),p}o.to=i})(Yn||(Yn={}));var Zn;(function(o){function i(n){return{prompt:n.prompt,files:n.files.map(e=>l.revive(e))}}o.to=i})(Zn||(Zn={}));var Ue;(function(o){function i(e){switch(e){case T.Notebook:return r.ChatLocation.Notebook;case T.Terminal:return r.ChatLocation.Terminal;case T.Chat:return r.ChatLocation.Panel;case T.EditorInline:return r.ChatLocation.Editor}}o.to=i;function n(e){switch(e){case r.ChatLocation.Notebook:return T.Notebook;case r.ChatLocation.Terminal:return T.Terminal;case r.ChatLocation.Panel:return T.Chat;case r.ChatLocation.Editor:return T.EditorInline}}o.from=n})(Ue||(Ue={}));var Oe;(function(o){function i(n,e,t){let a=n.value;if(!a){let u;try{u=JSON.stringify(n)}catch{u=`kind=${n.kind}, id=${n.id}, name=${n.name}`}t.error(`[ChatPromptReference] Ignoring invalid reference in variable: ${u}`);return}if(de(a))a=l.revive(a);else if(a&&typeof a=="object"&&"uri"in a&&"range"in a&&de(a.uri))a=S.to(ce(a));else if(Et(n)){const u=n.references?.[0]?.reference;a=new r.$E3(n.mimeType??"image/png",()=>Promise.resolve(new Uint8Array(Object.values(n.value))),u&&l.isUri(u)?u:void 0)}else if(n.kind==="diagnostic"){const u=n.filterSeverity&&U.to(n.filterSeverity),s=n.filterUri&&l.revive(n.filterUri).toString();a=new r.$F3(e.map(([f,v])=>n.filterUri&&f.toString()!==s?[f,[]]:[f,v.filter(g=>!(u&&g.severity>u||n.filterRange&&!He.$9D.areIntersectingOrTouching(n.filterRange,d.from(g.range))))]).filter(([,f])=>f.length>0))}let c;return(Kt(n)||Dt(n))&&n.toolReferences&&(c=ae.to(n.toolReferences)),{id:n.id,name:n.name,range:n.range&&[n.range.start,n.range.endExclusive],toolReferences:c,value:a,modelDescription:n.modelDescription}}o.to=i})(Oe||(Oe={}));var O;(function(o){function i(n){if(n.value)throw new Error("Invalid tool reference");return{name:n.id,range:n.range&&[n.range.start,n.range.endExclusive]}}o.to=i})(O||(O={}));var ae;(function(o){function i(n){const e=[];for(const t of n)if(t.kind==="tool")e.push(O.to(t));else if(t.kind==="toolset")e.push(...t.value.map(O.to));else throw new Error("Invalid tool reference in prompt variables");return e}o.to=i})(ae||(ae={}));var _e;(function(o){function i(n){if(n)return{name:n.name,content:n.content,toolReferences:ae.to(n.toolReferences),metadata:n.metadata}}o.to=i})(_e||(_e={}));var qn;(function(o){function i(n,e,t){return{id:n.id,label:n.label,fullName:n.fullName,icon:n.icon?.id,value:n.values[0].value,insertText:n.insertText,detail:n.detail,documentation:n.documentation,command:e.toInternal(n.command,t)}}o.from=i})(qn||(qn={}));var Fe;(function(o){function i(t){return{errorDetails:t.errorDetails,metadata:e(t.metadata),nextQuestion:t.nextQuestion,details:t.details}}o.to=i;function n(t){return{errorDetails:t.errorDetails,metadata:t.metadata,nextQuestion:t.nextQuestion,details:t.details}}o.from=n;function e(t){return fe(t,a=>{if(a.$mid===20)return new r.$S3(fe(a.content,e));if(a.$mid===21)return new r.$K3(a.value);if(a.$mid===22)return new r.$M3(a.value,a.id,a.metadata);if(a.$mid===23)return new r.$N3(a.value)})}})(Fe||(Fe={}));var et;(function(o){function i(n,e,t){if(e.action.kind==="vote")return;const a=Fe.to(n);if(e.action.kind==="command"){const c=e.action.commandButton.command;return{action:{kind:"command",commandButton:{command:t.fromInternal(c)??{command:c.id,title:c.title}}},result:a}}else return e.action.kind==="followUp"?{action:{kind:"followUp",followup:be.to(e.action.followup)},result:a}:e.action.kind==="inlineChat"?{action:{kind:"editor",accepted:e.action.action==="accepted"},result:a}:e.action.kind==="chatEditingSessionAction"?{action:{kind:"chatEditingSessionAction",outcome:new Map([["accepted",r.ChatEditingSessionActionOutcome.Accepted],["rejected",r.ChatEditingSessionActionOutcome.Rejected],["saved",r.ChatEditingSessionActionOutcome.Saved]]).get(e.action.outcome)??r.ChatEditingSessionActionOutcome.Rejected,uri:l.revive(e.action.uri),hasRemainingEdits:e.action.hasRemainingEdits},result:a}:e.action.kind==="chatEditingHunkAction"?{action:{kind:"chatEditingHunkAction",outcome:new Map([["accepted",r.ChatEditingSessionActionOutcome.Accepted],["rejected",r.ChatEditingSessionActionOutcome.Rejected]]).get(e.action.outcome)??r.ChatEditingSessionActionOutcome.Rejected,uri:l.revive(e.action.uri),hasRemainingEdits:e.action.hasRemainingEdits,lineCount:e.action.lineCount,linesAdded:e.action.linesAdded,linesRemoved:e.action.linesRemoved},result:a}:{action:e.action,result:a}}o.to=i})(et||(et={}));var nt;(function(o){function i(n,e,t){return"terminalCommand"in n?{terminalCommand:n.terminalCommand,shouldExecute:n.shouldExecute}:"uri"in n?{uri:n.uri}:e.toInternal(n,t)}o.from=i})(nt||(nt={}));var ue;(function(o){function i(n){return{...n,documentation:m.fromStrict(n.documentation)}}o.from=i})(ue||(ue={}));var tt;(function(o){function i(n,e){return Array.isArray(n)?{items:n.map(t=>ue.from(t))}:{items:n.items.map(t=>ue.from(t)),resourceOptions:n.resourceOptions?Be.from(n.resourceOptions,e):void 0}}o.from=i})(tt||(tt={}));var Be;(function(o){function i(n,e){return{...n,pathSeparator:e,cwd:n.cwd,globPattern:x.from(n.globPattern)??void 0}}o.from=i})(Be||(Be={}));var ot;(function(o){function i(n){return{kind:We.to(n.kind),acceptedLength:n.acceptedLength}}o.to=i})(ot||(ot={}));var We;(function(o){function i(n){switch(n){case 0:return r.PartialAcceptTriggerKind.Word;case 1:return r.PartialAcceptTriggerKind.Line;case 2:return r.PartialAcceptTriggerKind.Suggest;default:return r.PartialAcceptTriggerKind.Unknown}}o.to=i})(We||(We={}));var rt;(function(o){function i(n,e){if(n.kind===y.InlineCompletionEndOfLifeReasonKind.Ignored){const t=n.supersededBy?e(n.supersededBy):void 0;return{kind:r.InlineCompletionEndOfLifeReasonKind.Ignored,supersededBy:t,userTypingDisagreed:n.userTypingDisagreed}}else if(n.kind===y.InlineCompletionEndOfLifeReasonKind.Accepted)return{kind:r.InlineCompletionEndOfLifeReasonKind.Accepted};return{kind:r.InlineCompletionEndOfLifeReasonKind.Rejected}}o.to=i})(rt||(rt={}));var it;(function(o){function i(e){return e===r.InlineCompletionDisplayLocationKind.Label?y.InlineCompletionHintStyle.Label:y.InlineCompletionHintStyle.Code}o.from=i;function n(e){return e===y.InlineCompletionHintStyle.Label?r.InlineCompletionDisplayLocationKind.Label:r.InlineCompletionDisplayLocationKind.Code}o.to=n})(it||(it={}));var at;(function(o){function i(n,e){return{id:e,label:n.label,description:n.description,canEdit:n.canEdit,collapsibleState:n.collapsibleState||0,contextValue:n.contextValue}}o.from=i})(at||(at={}));var ut;(function(o){function i(n){return n.type==="mcp"?new r.$W3(n.label,n.serverLabel||n.label,n.instructions):n.type==="extension"?new r.$V3(n.extensionId.value,n.label):void 0}o.to=i})(ut||(ut={}));var ct;(function(o){function i(e){return new r.$S3(e.content.map(t=>t.kind==="text"?new r.$K3(t.value,t.audience):t.kind==="data"?new r.$L3(t.value.data.buffer,t.value.mimeType,t.audience):new r.$N3(t.value)))}o.to=i;function n(e,t){e.toolResultMessage&&Ze(t,"chatParticipantPrivate");const a=f=>{f.audience&&Ze(t,"languageModelToolResultAudience")};let c=!1,u;Array.isArray(e.toolResultDetails)?u=e.toolResultDetails?.map(f=>l.isUri(f)?f:S.from(f)):e.toolResultDetails2&&(u={output:{type:"data",mimeType:e.toolResultDetails2.mime,value:b.wrap(e.toolResultDetails2.value)}},c=!0);const s={content:e.content.map(f=>{if(f instanceof r.$K3)return a(f),{kind:"text",value:f.value,audience:f.audience};if(f instanceof r.$N3)return{kind:"promptTsx",value:f.value};if(f instanceof r.$L3)return a(f),c=!0,{kind:"data",value:{mimeType:f.mimeType,data:b.wrap(f.data)},audience:f.audience};throw new Error("Unknown LanguageModelToolResult part type")}),toolResultMessage:m.fromStrict(e.toolResultMessage),toolResultDetails:u,toolMetadata:e.toolMetadata};return c?new Ot(s):s}o.from=n})(ct||(ct={}));var je;(function(o){function i(t){return t}o.fromThemeIcon=i;function n(t){if(t){if(se.isThemeIcon(t))return t;if(l.isUri(t))return t;if(typeof t=="string")return l.file(t);if(typeof t=="object"&&t!==null&&"dark"in t){const a=typeof t.dark=="string"?l.file(t.dark):t.dark,c=typeof t.light=="string"?l.file(t.light):t.light;return a?{dark:a,light:c??a}:void 0}else return}else return}o.from=n;function e(t){if(t){if(se.isThemeIcon(t))return t;if(de(t))return l.revive(t);{const a=t;return{light:l.revive(a.light),dark:l.revive(a.dark)}}}else return}o.to=e})(je||(je={}));var ft;(function(o){function i(e){return{query:e.query,kind:n(e.kind),settings:e.settings}}o.fromSettingsSearchResult=i;function n(e){switch(e){case k.EMBEDDED:return k.EMBEDDED;case k.LLM_RANKED:return k.LLM_RANKED;case k.CANCELED:return k.CANCELED;default:throw new Error("Unknown AiSettingsSearchResultKind")}}})(ft||(ft={}));var st;(function(o){function i(e){return!!e.uri}function n(e){return Mt.toSerialized(i(e)?{type:2,uri:e.uri,headers:Object.entries(e.headers),authentication:e.authentication?{providerId:e.authentication.providerId,scopes:e.authentication.scopes}:void 0}:{type:1,cwd:e.cwd?.fsPath,args:e.args,command:e.command,env:e.env,envFile:void 0})}o.from=n})(st||(st={}));var dt;(function(o){function i(n){switch(n){case r.SourceControlInputBoxValidationType.Error:return 0;case r.SourceControlInputBoxValidationType.Warning:return 1;case r.SourceControlInputBoxValidationType.Information:return 2;default:throw new Error("Unknown SourceControlInputBoxValidationType")}}o.from=i})(dt||(dt={}));export{Bt as $$3,xo as $_3,Ve as $a4,ft as AiSettingsSearch,fn as CallHierarchyIncomingCall,V as CallHierarchyItem,sn as CallHierarchyOutgoingCall,qn as ChatAgentCompletionItem,Yn as ChatAgentRequest,Fe as ChatAgentResult,et as ChatAgentUserActionEvent,be as ChatFollowup,O as ChatLanguageModelToolReference,Ue as ChatLocation,Oe as ChatPromptReference,Zn as ChatRequestDraft,_e as ChatRequestModeInstructions,oe as ChatResponseAnchorPart,Pe as ChatResponseCodeCitationPart,Ie as ChatResponseCodeblockUriPart,re as ChatResponseCommandButtonPart,Se as ChatResponseConfirmationPart,Ee as ChatResponseExtensionsPart,te as ChatResponseFilesPart,ne as ChatResponseMarkdownPart,we as ChatResponseMarkdownWithVulnerabilitiesPart,De as ChatResponseMovePart,Te as ChatResponseMultiDiffPart,Ne as ChatResponseNotebookEditPart,Xn as ChatResponsePart,$e as ChatResponseProgressPart,Ke as ChatResponsePullRequestPart,ie as ChatResponseReferencePart,Me as ChatResponseTextEditPart,ke as ChatResponseThinkingProgressPart,Re as ChatResponseWarningPart,Qn as ChatTask,zn as ChatTaskResult,Le as ChatToolInvocationPart,Wn as CodeActionTriggerKind,Sn as Color,wn as ColorPresentation,xn as CompletionCommand,yn as CompletionContext,hn as CompletionItem,ge as CompletionItemKind,pe as CompletionItemTag,me as CompletionTriggerKind,Vn as DataTransfer,P as DataTransferItem,at as DebugTreeItem,le as DecorationRangeBehavior,an as DecorationRenderOptions,dn as DefinitionLink,on as Diagnostic,W as DiagnosticRelatedInformation,U as DiagnosticSeverity,B as DiagnosticTag,J as DocumentHighlight,In as DocumentLink,tn as DocumentSelector,cn as DocumentSymbol,z as EndOfLine,mn as EvaluatableExpression,En as FoldingRange,X as FoldingRangeKind,x as GlobPattern,ln as Hover,je as IconPath,bn as InlayHint,ye as InlayHintKind,ve as InlayHintLabelPart,rt as InlineCompletionEndOfLifeReason,it as InlineCompletionHintStyle,pn as InlineValue,gn as InlineValueContext,Jn as LanguageModelChatMessage,Gn as LanguageModelChatMessage2,A as LanguageModelChatMessageRole,ct as LanguageModelToolResult,ut as LanguageModelToolSource,Dn as LanguageSelector,S as Location,m as MarkdownString,st as McpServerDefinition,vn as MultiDocumentHighlight,L as NotebookCellData,Y as NotebookCellExecutionSummary,Z as NotebookCellKind,ee as NotebookCellOutput,q as NotebookCellOutputItem,Mn as NotebookData,Un as NotebookDocumentContentOptions,Ae as NotebookEdit,An as NotebookExclusiveDocumentPattern,Pn as NotebookKernelSourceAction,Ln as NotebookRange,On as NotebookRendererScript,Nn as NotebookStatusBarItem,G as ParameterInformation,ot as PartialAcceptInfo,We as PartialAcceptTriggerKind,E as Position,Rn as ProgressLocation,d as Range,en as Selection,Tn as SelectionRange,Cn as SignatureHelp,Q as SignatureInformation,dt as SourceControlInputBoxValidationType,I as SymbolKind,$ as SymbolTag,ue as TerminalCompletionItemDto,tt as TerminalCompletionList,Be as TerminalCompletionResourceOptions,nt as TerminalQuickFix,Bn as TestCoverage,Ce as TestItem,xe as TestMessage,Fn as TestResults,_n as TestRunProfile,he as TestRunProfileKind,M as TestTag,$n as TextDocumentSaveReason,h as TextEdit,kn as TextEditorLineNumbersStyle,Kn as TextEditorOpenOptions,K as ThemableDecorationAttachmentRenderOptions,j as ThemableDecorationRenderOptions,nn as TokenType,jn as TypeHierarchyItem,Hn as ViewBadge,rn as ViewColumn,un as WorkspaceEdit,H as WorkspaceSymbol,D as location};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray, coalesce, isNonEmptyArray } from "../../../base/common/arrays.js";
+import { VSBuffer, encodeBase64 } from "../../../base/common/buffer.js";
+import { UriList } from "../../../base/common/dataTransfer.js";
+import { createSingleCallFunction } from "../../../base/common/functional.js";
+import * as htmlContent from "../../../base/common/htmlContent.js";
+import { ResourceMap, ResourceSet } from "../../../base/common/map.js";
+import * as marked from "../../../base/common/marked/marked.js";
+import { parse, revive } from "../../../base/common/marshalling.js";
+import { Mimes } from "../../../base/common/mime.js";
+import { cloneAndChange } from "../../../base/common/objects.js";
+import { WellDefinedPrefixTree } from "../../../base/common/prefixTree.js";
+import { basename } from "../../../base/common/resources.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { isDefined, isEmptyObject, isNumber, isString, isUndefinedOrNull } from "../../../base/common/types.js";
+import { URI, isUriComponents } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import * as editorRange from "../../../editor/common/core/range.js";
+import * as languages from "../../../editor/common/languages.js";
+import { MarkerSeverity } from "../../../platform/markers/common/markers.js";
+import { DEFAULT_EDITOR_ASSOCIATION } from "../../common/editor.js";
+import { LocalChatSessionUri } from "../../contrib/chat/common/model/chatUri.js";
+import { isImageVariableEntry, isPromptFileVariableEntry, isPromptTextVariableEntry } from "../../contrib/chat/common/attachments/chatVariableEntries.js";
+import { ChatAgentLocation } from "../../contrib/chat/common/constants.js";
+import { ToolDataSource, ToolInvocationPresentation } from "../../contrib/chat/common/tools/languageModelToolsService.js";
+import { McpServerLaunch } from "../../contrib/mcp/common/mcpTypes.js";
+import * as notebooks from "../../contrib/notebook/common/notebookCommon.js";
+import { TestId } from "../../contrib/testing/common/testId.js";
+import { denamespaceTestTag, namespaceTestTag } from "../../contrib/testing/common/testTypes.js";
+import { AiSettingsSearchResultKind } from "../../services/aiSettingsSearch/common/aiSettingsSearch.js";
+import { ACTIVE_GROUP, SIDE_GROUP } from "../../services/editor/common/editorService.js";
+import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { getPrivateApiFor } from "./extHostTestingPrivateApi.js";
+import * as types from "./extHostTypes.js";
+import { LanguageModelTextPart } from "./extHostTypes.js";
+var Selection;
+(function(Selection2) {
+  function to(selection) {
+    const { selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn } = selection;
+    const start = new types.Position(selectionStartLineNumber - 1, selectionStartColumn - 1);
+    const end = new types.Position(positionLineNumber - 1, positionColumn - 1);
+    return new types.Selection(start, end);
+  }
+  __name(to, "to");
+  Selection2.to = to;
+  function from(selection) {
+    const { anchor, active } = selection;
+    return {
+      selectionStartLineNumber: anchor.line + 1,
+      selectionStartColumn: anchor.character + 1,
+      positionLineNumber: active.line + 1,
+      positionColumn: active.character + 1
+    };
+  }
+  __name(from, "from");
+  Selection2.from = from;
+})(Selection || (Selection = {}));
+var Range;
+(function(Range2) {
+  function from(range) {
+    if (!range) {
+      return void 0;
+    }
+    const { start, end } = range;
+    return {
+      startLineNumber: start.line + 1,
+      startColumn: start.character + 1,
+      endLineNumber: end.line + 1,
+      endColumn: end.character + 1
+    };
+  }
+  __name(from, "from");
+  Range2.from = from;
+  function to(range) {
+    if (!range) {
+      return void 0;
+    }
+    const { startLineNumber, startColumn, endLineNumber, endColumn } = range;
+    return new types.Range(startLineNumber - 1, startColumn - 1, endLineNumber - 1, endColumn - 1);
+  }
+  __name(to, "to");
+  Range2.to = to;
+})(Range || (Range = {}));
+var Location;
+(function(Location2) {
+  function from(location2) {
+    return {
+      uri: location2.uri,
+      range: Range.from(location2.range)
+    };
+  }
+  __name(from, "from");
+  Location2.from = from;
+  function to(location2) {
+    return new types.Location(URI.revive(location2.uri), Range.to(location2.range));
+  }
+  __name(to, "to");
+  Location2.to = to;
+})(Location || (Location = {}));
+var TokenType;
+(function(TokenType2) {
+  function to(type) {
+    switch (type) {
+      case 1:
+        return types.StandardTokenType.Comment;
+      case 0:
+        return types.StandardTokenType.Other;
+      case 3:
+        return types.StandardTokenType.RegEx;
+      case 2:
+        return types.StandardTokenType.String;
+    }
+  }
+  __name(to, "to");
+  TokenType2.to = to;
+})(TokenType || (TokenType = {}));
+var Position;
+(function(Position2) {
+  function to(position) {
+    return new types.Position(position.lineNumber - 1, position.column - 1);
+  }
+  __name(to, "to");
+  Position2.to = to;
+  function from(position) {
+    return { lineNumber: position.line + 1, column: position.character + 1 };
+  }
+  __name(from, "from");
+  Position2.from = from;
+})(Position || (Position = {}));
+var DocumentSelector;
+(function(DocumentSelector2) {
+  function from(value, uriTransformer, extension) {
+    return coalesce(asArray(value).map((sel) => _doTransformDocumentSelector(sel, uriTransformer, extension)));
+  }
+  __name(from, "from");
+  DocumentSelector2.from = from;
+  function _doTransformDocumentSelector(selector, uriTransformer, extension) {
+    if (typeof selector === "string") {
+      return {
+        $serialized: true,
+        language: selector,
+        isBuiltin: extension?.isBuiltin
+      };
+    }
+    if (selector) {
+      return {
+        $serialized: true,
+        language: selector.language,
+        scheme: _transformScheme(selector.scheme, uriTransformer),
+        pattern: GlobPattern.from(selector.pattern) ?? void 0,
+        exclusive: selector.exclusive,
+        notebookType: selector.notebookType,
+        isBuiltin: extension?.isBuiltin
+      };
+    }
+    return void 0;
+  }
+  __name(_doTransformDocumentSelector, "_doTransformDocumentSelector");
+  function _transformScheme(scheme, uriTransformer) {
+    if (uriTransformer && typeof scheme === "string") {
+      return uriTransformer.transformOutgoingScheme(scheme);
+    }
+    return scheme;
+  }
+  __name(_transformScheme, "_transformScheme");
+})(DocumentSelector || (DocumentSelector = {}));
+var DiagnosticTag;
+(function(DiagnosticTag2) {
+  function from(value) {
+    switch (value) {
+      case types.DiagnosticTag.Unnecessary:
+        return 1;
+      case types.DiagnosticTag.Deprecated:
+        return 2;
+    }
+    return void 0;
+  }
+  __name(from, "from");
+  DiagnosticTag2.from = from;
+  function to(value) {
+    switch (value) {
+      case 1:
+        return types.DiagnosticTag.Unnecessary;
+      case 2:
+        return types.DiagnosticTag.Deprecated;
+      default:
+        return void 0;
+    }
+  }
+  __name(to, "to");
+  DiagnosticTag2.to = to;
+})(DiagnosticTag || (DiagnosticTag = {}));
+var Diagnostic;
+(function(Diagnostic2) {
+  function from(value) {
+    let code;
+    if (value.code) {
+      if (isString(value.code) || isNumber(value.code)) {
+        code = String(value.code);
+      } else {
+        code = {
+          value: String(value.code.value),
+          target: value.code.target
+        };
+      }
+    }
+    return {
+      ...Range.from(value.range),
+      message: value.message,
+      source: value.source,
+      code,
+      severity: DiagnosticSeverity.from(value.severity),
+      relatedInformation: value.relatedInformation && value.relatedInformation.map(DiagnosticRelatedInformation.from),
+      tags: Array.isArray(value.tags) ? coalesce(value.tags.map(DiagnosticTag.from)) : void 0
+    };
+  }
+  __name(from, "from");
+  Diagnostic2.from = from;
+  function to(value) {
+    const res = new types.Diagnostic(Range.to(value), value.message, DiagnosticSeverity.to(value.severity));
+    res.source = value.source;
+    res.code = isString(value.code) ? value.code : value.code?.value;
+    res.relatedInformation = value.relatedInformation && value.relatedInformation.map(DiagnosticRelatedInformation.to);
+    res.tags = value.tags && coalesce(value.tags.map(DiagnosticTag.to));
+    return res;
+  }
+  __name(to, "to");
+  Diagnostic2.to = to;
+})(Diagnostic || (Diagnostic = {}));
+var DiagnosticRelatedInformation;
+(function(DiagnosticRelatedInformation2) {
+  function from(value) {
+    return {
+      ...Range.from(value.location.range),
+      message: value.message,
+      resource: value.location.uri
+    };
+  }
+  __name(from, "from");
+  DiagnosticRelatedInformation2.from = from;
+  function to(value) {
+    return new types.DiagnosticRelatedInformation(new types.Location(value.resource, Range.to(value)), value.message);
+  }
+  __name(to, "to");
+  DiagnosticRelatedInformation2.to = to;
+})(DiagnosticRelatedInformation || (DiagnosticRelatedInformation = {}));
+var DiagnosticSeverity;
+(function(DiagnosticSeverity2) {
+  function from(value) {
+    switch (value) {
+      case types.DiagnosticSeverity.Error:
+        return MarkerSeverity.Error;
+      case types.DiagnosticSeverity.Warning:
+        return MarkerSeverity.Warning;
+      case types.DiagnosticSeverity.Information:
+        return MarkerSeverity.Info;
+      case types.DiagnosticSeverity.Hint:
+        return MarkerSeverity.Hint;
+    }
+    return MarkerSeverity.Error;
+  }
+  __name(from, "from");
+  DiagnosticSeverity2.from = from;
+  function to(value) {
+    switch (value) {
+      case MarkerSeverity.Info:
+        return types.DiagnosticSeverity.Information;
+      case MarkerSeverity.Warning:
+        return types.DiagnosticSeverity.Warning;
+      case MarkerSeverity.Error:
+        return types.DiagnosticSeverity.Error;
+      case MarkerSeverity.Hint:
+        return types.DiagnosticSeverity.Hint;
+      default:
+        return types.DiagnosticSeverity.Error;
+    }
+  }
+  __name(to, "to");
+  DiagnosticSeverity2.to = to;
+})(DiagnosticSeverity || (DiagnosticSeverity = {}));
+var ViewColumn;
+(function(ViewColumn2) {
+  function from(column) {
+    if (typeof column === "number" && column >= types.ViewColumn.One) {
+      return column - 1;
+    }
+    if (column === types.ViewColumn.Beside) {
+      return SIDE_GROUP;
+    }
+    return ACTIVE_GROUP;
+  }
+  __name(from, "from");
+  ViewColumn2.from = from;
+  function to(position) {
+    if (typeof position === "number" && position >= 0) {
+      return position + 1;
+    }
+    throw new Error(`invalid 'EditorGroupColumn'`);
+  }
+  __name(to, "to");
+  ViewColumn2.to = to;
+})(ViewColumn || (ViewColumn = {}));
+function isDecorationOptions(something) {
+  return typeof something.range !== "undefined";
+}
+__name(isDecorationOptions, "isDecorationOptions");
+function isDecorationOptionsArr(something) {
+  if (something.length === 0) {
+    return true;
+  }
+  return isDecorationOptions(something[0]) ? true : false;
+}
+__name(isDecorationOptionsArr, "isDecorationOptionsArr");
+var MarkdownString;
+(function(MarkdownString2) {
+  function fromMany(markup) {
+    return markup.map(MarkdownString2.from);
+  }
+  __name(fromMany, "fromMany");
+  MarkdownString2.fromMany = fromMany;
+  function isCodeblock(thing) {
+    return thing && typeof thing === "object" && typeof thing.language === "string" && typeof thing.value === "string";
+  }
+  __name(isCodeblock, "isCodeblock");
+  function from(markup) {
+    let res;
+    if (isCodeblock(markup)) {
+      const { language, value } = markup;
+      res = { value: "```" + language + "\n" + value + "\n```\n" };
+    } else if (types.MarkdownString.isMarkdownString(markup)) {
+      res = { value: markup.value, isTrusted: markup.isTrusted, supportThemeIcons: markup.supportThemeIcons, supportHtml: markup.supportHtml, supportAlertSyntax: markup.supportAlertSyntax, baseUri: markup.baseUri };
+    } else if (typeof markup === "string") {
+      res = { value: markup };
+    } else {
+      res = { value: "" };
+    }
+    const resUris = /* @__PURE__ */ Object.create(null);
+    res.uris = resUris;
+    const collectUri = /* @__PURE__ */ __name(({ href }) => {
+      try {
+        let uri = URI.parse(href, true);
+        uri = uri.with({ query: _uriMassage(uri.query, resUris) });
+        resUris[href] = uri;
+      } catch (e) {
+      }
+      return "";
+    }, "collectUri");
+    marked.marked.walkTokens(marked.marked.lexer(res.value), (token) => {
+      if (token.type === "link") {
+        collectUri({ href: token.href });
+      } else if (token.type === "image") {
+        if (typeof token.href === "string") {
+          collectUri(htmlContent.parseHrefAndDimensions(token.href));
+        }
+      }
+    });
+    return res;
+  }
+  __name(from, "from");
+  MarkdownString2.from = from;
+  function _uriMassage(part, bucket) {
+    if (!part) {
+      return part;
+    }
+    let data;
+    try {
+      data = parse(part);
+    } catch (e) {
+    }
+    if (!data) {
+      return part;
+    }
+    let changed = false;
+    data = cloneAndChange(data, (value) => {
+      if (URI.isUri(value)) {
+        const key = `__uri_${Math.random().toString(16).slice(2, 8)}`;
+        bucket[key] = value;
+        changed = true;
+        return key;
+      } else {
+        return void 0;
+      }
+    });
+    if (!changed) {
+      return part;
+    }
+    return JSON.stringify(data);
+  }
+  __name(_uriMassage, "_uriMassage");
+  function to(value) {
+    const result = new types.MarkdownString(value.value, value.supportThemeIcons);
+    result.isTrusted = value.isTrusted;
+    result.supportHtml = value.supportHtml;
+    result.supportAlertSyntax = value.supportAlertSyntax;
+    result.baseUri = value.baseUri ? URI.from(value.baseUri) : void 0;
+    return result;
+  }
+  __name(to, "to");
+  MarkdownString2.to = to;
+  function fromStrict(value) {
+    if (!value) {
+      return void 0;
+    }
+    return typeof value === "string" ? value : MarkdownString2.from(value);
+  }
+  __name(fromStrict, "fromStrict");
+  MarkdownString2.fromStrict = fromStrict;
+})(MarkdownString || (MarkdownString = {}));
+function fromRangeOrRangeWithMessage(ranges) {
+  if (isDecorationOptionsArr(ranges)) {
+    return ranges.map((r) => {
+      return {
+        range: Range.from(r.range),
+        hoverMessage: Array.isArray(r.hoverMessage) ? MarkdownString.fromMany(r.hoverMessage) : r.hoverMessage ? MarkdownString.from(r.hoverMessage) : void 0,
+        // eslint-disable-next-line local/code-no-any-casts
+        renderOptions: (
+          /* URI vs Uri */
+          r.renderOptions
+        )
+      };
+    });
+  } else {
+    return ranges.map((r) => {
+      return {
+        range: Range.from(r)
+      };
+    });
+  }
+}
+__name(fromRangeOrRangeWithMessage, "fromRangeOrRangeWithMessage");
+function pathOrURIToURI(value) {
+  if (typeof value === "undefined") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return URI.file(value);
+  } else {
+    return value;
+  }
+}
+__name(pathOrURIToURI, "pathOrURIToURI");
+var ThemableDecorationAttachmentRenderOptions;
+(function(ThemableDecorationAttachmentRenderOptions2) {
+  function from(options) {
+    if (typeof options === "undefined") {
+      return options;
+    }
+    return {
+      contentText: options.contentText,
+      contentIconPath: options.contentIconPath ? pathOrURIToURI(options.contentIconPath) : void 0,
+      border: options.border,
+      borderColor: options.borderColor,
+      fontStyle: options.fontStyle,
+      fontWeight: options.fontWeight,
+      textDecoration: options.textDecoration,
+      color: options.color,
+      backgroundColor: options.backgroundColor,
+      margin: options.margin,
+      width: options.width,
+      height: options.height
+    };
+  }
+  __name(from, "from");
+  ThemableDecorationAttachmentRenderOptions2.from = from;
+})(ThemableDecorationAttachmentRenderOptions || (ThemableDecorationAttachmentRenderOptions = {}));
+var ThemableDecorationRenderOptions;
+(function(ThemableDecorationRenderOptions2) {
+  function from(options) {
+    if (typeof options === "undefined") {
+      return options;
+    }
+    return {
+      backgroundColor: options.backgroundColor,
+      outline: options.outline,
+      outlineColor: options.outlineColor,
+      outlineStyle: options.outlineStyle,
+      outlineWidth: options.outlineWidth,
+      border: options.border,
+      borderColor: options.borderColor,
+      borderRadius: options.borderRadius,
+      borderSpacing: options.borderSpacing,
+      borderStyle: options.borderStyle,
+      borderWidth: options.borderWidth,
+      fontStyle: options.fontStyle,
+      fontWeight: options.fontWeight,
+      textDecoration: options.textDecoration,
+      cursor: options.cursor,
+      color: options.color,
+      opacity: options.opacity,
+      letterSpacing: options.letterSpacing,
+      gutterIconPath: options.gutterIconPath ? pathOrURIToURI(options.gutterIconPath) : void 0,
+      gutterIconSize: options.gutterIconSize,
+      overviewRulerColor: options.overviewRulerColor,
+      before: options.before ? ThemableDecorationAttachmentRenderOptions.from(options.before) : void 0,
+      after: options.after ? ThemableDecorationAttachmentRenderOptions.from(options.after) : void 0
+    };
+  }
+  __name(from, "from");
+  ThemableDecorationRenderOptions2.from = from;
+})(ThemableDecorationRenderOptions || (ThemableDecorationRenderOptions = {}));
+var DecorationRangeBehavior;
+(function(DecorationRangeBehavior2) {
+  function from(value) {
+    if (typeof value === "undefined") {
+      return value;
+    }
+    switch (value) {
+      case types.DecorationRangeBehavior.OpenOpen:
+        return 0;
+      case types.DecorationRangeBehavior.ClosedClosed:
+        return 1;
+      case types.DecorationRangeBehavior.OpenClosed:
+        return 2;
+      case types.DecorationRangeBehavior.ClosedOpen:
+        return 3;
+    }
+  }
+  __name(from, "from");
+  DecorationRangeBehavior2.from = from;
+})(DecorationRangeBehavior || (DecorationRangeBehavior = {}));
+var DecorationRenderOptions;
+(function(DecorationRenderOptions2) {
+  function from(options) {
+    return {
+      isWholeLine: options.isWholeLine,
+      rangeBehavior: options.rangeBehavior ? DecorationRangeBehavior.from(options.rangeBehavior) : void 0,
+      overviewRulerLane: options.overviewRulerLane,
+      light: options.light ? ThemableDecorationRenderOptions.from(options.light) : void 0,
+      dark: options.dark ? ThemableDecorationRenderOptions.from(options.dark) : void 0,
+      backgroundColor: options.backgroundColor,
+      outline: options.outline,
+      outlineColor: options.outlineColor,
+      outlineStyle: options.outlineStyle,
+      outlineWidth: options.outlineWidth,
+      border: options.border,
+      borderColor: options.borderColor,
+      borderRadius: options.borderRadius,
+      borderSpacing: options.borderSpacing,
+      borderStyle: options.borderStyle,
+      borderWidth: options.borderWidth,
+      fontStyle: options.fontStyle,
+      fontWeight: options.fontWeight,
+      textDecoration: options.textDecoration,
+      cursor: options.cursor,
+      color: options.color,
+      opacity: options.opacity,
+      letterSpacing: options.letterSpacing,
+      gutterIconPath: options.gutterIconPath ? pathOrURIToURI(options.gutterIconPath) : void 0,
+      gutterIconSize: options.gutterIconSize,
+      overviewRulerColor: options.overviewRulerColor,
+      before: options.before ? ThemableDecorationAttachmentRenderOptions.from(options.before) : void 0,
+      after: options.after ? ThemableDecorationAttachmentRenderOptions.from(options.after) : void 0
+    };
+  }
+  __name(from, "from");
+  DecorationRenderOptions2.from = from;
+})(DecorationRenderOptions || (DecorationRenderOptions = {}));
+var TextEdit;
+(function(TextEdit2) {
+  function from(edit) {
+    return {
+      text: edit.newText,
+      eol: edit.newEol && EndOfLine.from(edit.newEol),
+      range: Range.from(edit.range)
+    };
+  }
+  __name(from, "from");
+  TextEdit2.from = from;
+  function to(edit) {
+    const result = new types.TextEdit(Range.to(edit.range), edit.text);
+    result.newEol = typeof edit.eol === "undefined" ? void 0 : EndOfLine.to(edit.eol);
+    return result;
+  }
+  __name(to, "to");
+  TextEdit2.to = to;
+})(TextEdit || (TextEdit = {}));
+var WorkspaceEdit;
+(function(WorkspaceEdit2) {
+  function from(value, versionInfo) {
+    const result = {
+      edits: []
+    };
+    if (value instanceof types.WorkspaceEdit) {
+      const toCreate = new ResourceSet();
+      for (const entry of value._allEntries()) {
+        if (entry._type === 1 && URI.isUri(entry.to) && entry.from === void 0) {
+          toCreate.add(entry.to);
+        }
+      }
+      for (const entry of value._allEntries()) {
+        if (entry._type === 1) {
+          let contents;
+          if (entry.options?.contents) {
+            if (ArrayBuffer.isView(entry.options.contents)) {
+              contents = { type: "base64", value: encodeBase64(VSBuffer.wrap(entry.options.contents)) };
+            } else {
+              contents = { type: "dataTransferItem", id: entry.options.contents._itemId };
+            }
+          }
+          result.edits.push({
+            oldResource: entry.from,
+            newResource: entry.to,
+            options: { ...entry.options, contents },
+            metadata: entry.metadata
+          });
+        } else if (entry._type === 2) {
+          result.edits.push({
+            resource: entry.uri,
+            textEdit: TextEdit.from(entry.edit),
+            versionId: !toCreate.has(entry.uri) ? versionInfo?.getTextDocumentVersion(entry.uri) : void 0,
+            metadata: entry.metadata
+          });
+        } else if (entry._type === 6) {
+          result.edits.push({
+            resource: entry.uri,
+            textEdit: {
+              range: Range.from(entry.range),
+              text: entry.edit.value,
+              insertAsSnippet: true,
+              keepWhitespace: entry.keepWhitespace
+            },
+            versionId: !toCreate.has(entry.uri) ? versionInfo?.getTextDocumentVersion(entry.uri) : void 0,
+            metadata: entry.metadata
+          });
+        } else if (entry._type === 3) {
+          result.edits.push({
+            metadata: entry.metadata,
+            resource: entry.uri,
+            cellEdit: entry.edit,
+            notebookVersionId: versionInfo?.getNotebookDocumentVersion(entry.uri)
+          });
+        } else if (entry._type === 5) {
+          result.edits.push({
+            metadata: entry.metadata,
+            resource: entry.uri,
+            notebookVersionId: versionInfo?.getNotebookDocumentVersion(entry.uri),
+            cellEdit: {
+              editType: 1,
+              index: entry.index,
+              count: entry.count,
+              cells: entry.cells.map(NotebookCellData.from)
+            }
+          });
+        }
+      }
+    }
+    return result;
+  }
+  __name(from, "from");
+  WorkspaceEdit2.from = from;
+  function to(value) {
+    const result = new types.WorkspaceEdit();
+    const edits = new ResourceMap();
+    for (const edit of value.edits) {
+      if (edit.textEdit) {
+        const item = edit;
+        const uri = URI.revive(item.resource);
+        const range = Range.to(item.textEdit.range);
+        const text = item.textEdit.text;
+        const isSnippet = item.textEdit.insertAsSnippet;
+        let editOrSnippetTest;
+        if (isSnippet) {
+          editOrSnippetTest = types.SnippetTextEdit.replace(range, new types.SnippetString(text));
+        } else {
+          editOrSnippetTest = types.TextEdit.replace(range, text);
+        }
+        const array = edits.get(uri);
+        if (!array) {
+          edits.set(uri, [editOrSnippetTest]);
+        } else {
+          array.push(editOrSnippetTest);
+        }
+      } else {
+        result.renameFile(URI.revive(edit.oldResource), URI.revive(edit.newResource), edit.options);
+      }
+    }
+    for (const [uri, array] of edits) {
+      result.set(uri, array);
+    }
+    return result;
+  }
+  __name(to, "to");
+  WorkspaceEdit2.to = to;
+})(WorkspaceEdit || (WorkspaceEdit = {}));
+var SymbolKind;
+(function(SymbolKind2) {
+  const _fromMapping = /* @__PURE__ */ Object.create(null);
+  _fromMapping[types.SymbolKind.File] = 0;
+  _fromMapping[types.SymbolKind.Module] = 1;
+  _fromMapping[types.SymbolKind.Namespace] = 2;
+  _fromMapping[types.SymbolKind.Package] = 3;
+  _fromMapping[types.SymbolKind.Class] = 4;
+  _fromMapping[types.SymbolKind.Method] = 5;
+  _fromMapping[types.SymbolKind.Property] = 6;
+  _fromMapping[types.SymbolKind.Field] = 7;
+  _fromMapping[types.SymbolKind.Constructor] = 8;
+  _fromMapping[types.SymbolKind.Enum] = 9;
+  _fromMapping[types.SymbolKind.Interface] = 10;
+  _fromMapping[types.SymbolKind.Function] = 11;
+  _fromMapping[types.SymbolKind.Variable] = 12;
+  _fromMapping[types.SymbolKind.Constant] = 13;
+  _fromMapping[types.SymbolKind.String] = 14;
+  _fromMapping[types.SymbolKind.Number] = 15;
+  _fromMapping[types.SymbolKind.Boolean] = 16;
+  _fromMapping[types.SymbolKind.Array] = 17;
+  _fromMapping[types.SymbolKind.Object] = 18;
+  _fromMapping[types.SymbolKind.Key] = 19;
+  _fromMapping[types.SymbolKind.Null] = 20;
+  _fromMapping[types.SymbolKind.EnumMember] = 21;
+  _fromMapping[types.SymbolKind.Struct] = 22;
+  _fromMapping[types.SymbolKind.Event] = 23;
+  _fromMapping[types.SymbolKind.Operator] = 24;
+  _fromMapping[types.SymbolKind.TypeParameter] = 25;
+  function from(kind) {
+    return typeof _fromMapping[kind] === "number" ? _fromMapping[kind] : 6;
+  }
+  __name(from, "from");
+  SymbolKind2.from = from;
+  function to(kind) {
+    for (const k in _fromMapping) {
+      if (_fromMapping[k] === kind) {
+        return Number(k);
+      }
+    }
+    return types.SymbolKind.Property;
+  }
+  __name(to, "to");
+  SymbolKind2.to = to;
+})(SymbolKind || (SymbolKind = {}));
+var SymbolTag;
+(function(SymbolTag2) {
+  function from(kind) {
+    switch (kind) {
+      case types.SymbolTag.Deprecated:
+        return 1;
+    }
+  }
+  __name(from, "from");
+  SymbolTag2.from = from;
+  function to(kind) {
+    switch (kind) {
+      case 1:
+        return types.SymbolTag.Deprecated;
+    }
+  }
+  __name(to, "to");
+  SymbolTag2.to = to;
+})(SymbolTag || (SymbolTag = {}));
+var WorkspaceSymbol;
+(function(WorkspaceSymbol2) {
+  function from(info) {
+    return {
+      name: info.name,
+      kind: SymbolKind.from(info.kind),
+      tags: info.tags && info.tags.map(SymbolTag.from),
+      containerName: info.containerName,
+      location: location.from(info.location)
+    };
+  }
+  __name(from, "from");
+  WorkspaceSymbol2.from = from;
+  function to(info) {
+    const result = new types.SymbolInformation(info.name, SymbolKind.to(info.kind), info.containerName, location.to(info.location));
+    result.tags = info.tags && info.tags.map(SymbolTag.to);
+    return result;
+  }
+  __name(to, "to");
+  WorkspaceSymbol2.to = to;
+})(WorkspaceSymbol || (WorkspaceSymbol = {}));
+var DocumentSymbol;
+(function(DocumentSymbol2) {
+  function from(info) {
+    const result = {
+      name: info.name || "!!MISSING: name!!",
+      detail: info.detail,
+      range: Range.from(info.range),
+      selectionRange: Range.from(info.selectionRange),
+      kind: SymbolKind.from(info.kind),
+      tags: info.tags?.map(SymbolTag.from) ?? []
+    };
+    if (info.children) {
+      result.children = info.children.map(from);
+    }
+    return result;
+  }
+  __name(from, "from");
+  DocumentSymbol2.from = from;
+  function to(info) {
+    const result = new types.DocumentSymbol(info.name, info.detail, SymbolKind.to(info.kind), Range.to(info.range), Range.to(info.selectionRange));
+    if (isNonEmptyArray(info.tags)) {
+      result.tags = info.tags.map(SymbolTag.to);
+    }
+    if (info.children) {
+      result.children = info.children.map(to);
+    }
+    return result;
+  }
+  __name(to, "to");
+  DocumentSymbol2.to = to;
+})(DocumentSymbol || (DocumentSymbol = {}));
+var CallHierarchyItem;
+(function(CallHierarchyItem2) {
+  function to(item) {
+    const result = new types.CallHierarchyItem(SymbolKind.to(item.kind), item.name, item.detail || "", URI.revive(item.uri), Range.to(item.range), Range.to(item.selectionRange));
+    result._sessionId = item._sessionId;
+    result._itemId = item._itemId;
+    return result;
+  }
+  __name(to, "to");
+  CallHierarchyItem2.to = to;
+  function from(item, sessionId, itemId) {
+    sessionId = sessionId ?? item._sessionId;
+    itemId = itemId ?? item._itemId;
+    if (sessionId === void 0 || itemId === void 0) {
+      throw new Error("invalid item");
+    }
+    return {
+      _sessionId: sessionId,
+      _itemId: itemId,
+      name: item.name,
+      detail: item.detail,
+      kind: SymbolKind.from(item.kind),
+      uri: item.uri,
+      range: Range.from(item.range),
+      selectionRange: Range.from(item.selectionRange),
+      tags: item.tags?.map(SymbolTag.from)
+    };
+  }
+  __name(from, "from");
+  CallHierarchyItem2.from = from;
+})(CallHierarchyItem || (CallHierarchyItem = {}));
+var CallHierarchyIncomingCall;
+(function(CallHierarchyIncomingCall2) {
+  function to(item) {
+    return new types.CallHierarchyIncomingCall(CallHierarchyItem.to(item.from), item.fromRanges.map((r) => Range.to(r)));
+  }
+  __name(to, "to");
+  CallHierarchyIncomingCall2.to = to;
+})(CallHierarchyIncomingCall || (CallHierarchyIncomingCall = {}));
+var CallHierarchyOutgoingCall;
+(function(CallHierarchyOutgoingCall2) {
+  function to(item) {
+    return new types.CallHierarchyOutgoingCall(CallHierarchyItem.to(item.to), item.fromRanges.map((r) => Range.to(r)));
+  }
+  __name(to, "to");
+  CallHierarchyOutgoingCall2.to = to;
+})(CallHierarchyOutgoingCall || (CallHierarchyOutgoingCall = {}));
+var location;
+(function(location2) {
+  function from(value) {
+    return {
+      range: value.range && Range.from(value.range),
+      uri: value.uri
+    };
+  }
+  __name(from, "from");
+  location2.from = from;
+  function to(value) {
+    return new types.Location(URI.revive(value.uri), Range.to(value.range));
+  }
+  __name(to, "to");
+  location2.to = to;
+})(location || (location = {}));
+var DefinitionLink;
+(function(DefinitionLink2) {
+  function from(value) {
+    const definitionLink = value;
+    const location2 = value;
+    return {
+      originSelectionRange: definitionLink.originSelectionRange ? Range.from(definitionLink.originSelectionRange) : void 0,
+      uri: definitionLink.targetUri ? definitionLink.targetUri : location2.uri,
+      range: Range.from(definitionLink.targetRange ? definitionLink.targetRange : location2.range),
+      targetSelectionRange: definitionLink.targetSelectionRange ? Range.from(definitionLink.targetSelectionRange) : void 0
+    };
+  }
+  __name(from, "from");
+  DefinitionLink2.from = from;
+  function to(value) {
+    return {
+      targetUri: URI.revive(value.uri),
+      targetRange: Range.to(value.range),
+      targetSelectionRange: value.targetSelectionRange ? Range.to(value.targetSelectionRange) : void 0,
+      originSelectionRange: value.originSelectionRange ? Range.to(value.originSelectionRange) : void 0
+    };
+  }
+  __name(to, "to");
+  DefinitionLink2.to = to;
+})(DefinitionLink || (DefinitionLink = {}));
+var Hover;
+(function(Hover2) {
+  function from(hover) {
+    const convertedHover = {
+      range: Range.from(hover.range),
+      contents: MarkdownString.fromMany(hover.contents),
+      canIncreaseVerbosity: hover.canIncreaseVerbosity,
+      canDecreaseVerbosity: hover.canDecreaseVerbosity
+    };
+    return convertedHover;
+  }
+  __name(from, "from");
+  Hover2.from = from;
+  function to(info) {
+    const contents = info.contents.map(MarkdownString.to);
+    const range = Range.to(info.range);
+    const canIncreaseVerbosity = info.canIncreaseVerbosity;
+    const canDecreaseVerbosity = info.canDecreaseVerbosity;
+    return new types.VerboseHover(contents, range, canIncreaseVerbosity, canDecreaseVerbosity);
+  }
+  __name(to, "to");
+  Hover2.to = to;
+})(Hover || (Hover = {}));
+var EvaluatableExpression;
+(function(EvaluatableExpression2) {
+  function from(expression) {
+    return {
+      range: Range.from(expression.range),
+      expression: expression.expression
+    };
+  }
+  __name(from, "from");
+  EvaluatableExpression2.from = from;
+  function to(info) {
+    return new types.EvaluatableExpression(Range.to(info.range), info.expression);
+  }
+  __name(to, "to");
+  EvaluatableExpression2.to = to;
+})(EvaluatableExpression || (EvaluatableExpression = {}));
+var InlineValue;
+(function(InlineValue2) {
+  function from(inlineValue) {
+    if (inlineValue instanceof types.InlineValueText) {
+      return {
+        type: "text",
+        range: Range.from(inlineValue.range),
+        text: inlineValue.text
+      };
+    } else if (inlineValue instanceof types.InlineValueVariableLookup) {
+      return {
+        type: "variable",
+        range: Range.from(inlineValue.range),
+        variableName: inlineValue.variableName,
+        caseSensitiveLookup: inlineValue.caseSensitiveLookup
+      };
+    } else if (inlineValue instanceof types.InlineValueEvaluatableExpression) {
+      return {
+        type: "expression",
+        range: Range.from(inlineValue.range),
+        expression: inlineValue.expression
+      };
+    } else {
+      throw new Error(`Unknown 'InlineValue' type`);
+    }
+  }
+  __name(from, "from");
+  InlineValue2.from = from;
+  function to(inlineValue) {
+    switch (inlineValue.type) {
+      case "text":
+        return {
+          range: Range.to(inlineValue.range),
+          text: inlineValue.text
+        };
+      case "variable":
+        return {
+          range: Range.to(inlineValue.range),
+          variableName: inlineValue.variableName,
+          caseSensitiveLookup: inlineValue.caseSensitiveLookup
+        };
+      case "expression":
+        return {
+          range: Range.to(inlineValue.range),
+          expression: inlineValue.expression
+        };
+    }
+  }
+  __name(to, "to");
+  InlineValue2.to = to;
+})(InlineValue || (InlineValue = {}));
+var InlineValueContext;
+(function(InlineValueContext2) {
+  function from(inlineValueContext) {
+    return {
+      frameId: inlineValueContext.frameId,
+      stoppedLocation: Range.from(inlineValueContext.stoppedLocation)
+    };
+  }
+  __name(from, "from");
+  InlineValueContext2.from = from;
+  function to(inlineValueContext) {
+    return new types.InlineValueContext(inlineValueContext.frameId, Range.to(inlineValueContext.stoppedLocation));
+  }
+  __name(to, "to");
+  InlineValueContext2.to = to;
+})(InlineValueContext || (InlineValueContext = {}));
+var DocumentHighlight;
+(function(DocumentHighlight2) {
+  function from(documentHighlight) {
+    return {
+      range: Range.from(documentHighlight.range),
+      kind: documentHighlight.kind
+    };
+  }
+  __name(from, "from");
+  DocumentHighlight2.from = from;
+  function to(occurrence) {
+    return new types.DocumentHighlight(Range.to(occurrence.range), occurrence.kind);
+  }
+  __name(to, "to");
+  DocumentHighlight2.to = to;
+})(DocumentHighlight || (DocumentHighlight = {}));
+var MultiDocumentHighlight;
+(function(MultiDocumentHighlight2) {
+  function from(multiDocumentHighlight) {
+    return {
+      uri: multiDocumentHighlight.uri,
+      highlights: multiDocumentHighlight.highlights.map(DocumentHighlight.from)
+    };
+  }
+  __name(from, "from");
+  MultiDocumentHighlight2.from = from;
+  function to(multiDocumentHighlight) {
+    return new types.MultiDocumentHighlight(URI.revive(multiDocumentHighlight.uri), multiDocumentHighlight.highlights.map(DocumentHighlight.to));
+  }
+  __name(to, "to");
+  MultiDocumentHighlight2.to = to;
+})(MultiDocumentHighlight || (MultiDocumentHighlight = {}));
+var CompletionTriggerKind;
+(function(CompletionTriggerKind2) {
+  function to(kind) {
+    switch (kind) {
+      case 1:
+        return types.CompletionTriggerKind.TriggerCharacter;
+      case 2:
+        return types.CompletionTriggerKind.TriggerForIncompleteCompletions;
+      case 0:
+      default:
+        return types.CompletionTriggerKind.Invoke;
+    }
+  }
+  __name(to, "to");
+  CompletionTriggerKind2.to = to;
+})(CompletionTriggerKind || (CompletionTriggerKind = {}));
+var CompletionContext;
+(function(CompletionContext2) {
+  function to(context) {
+    return {
+      triggerKind: CompletionTriggerKind.to(context.triggerKind),
+      triggerCharacter: context.triggerCharacter
+    };
+  }
+  __name(to, "to");
+  CompletionContext2.to = to;
+})(CompletionContext || (CompletionContext = {}));
+var CompletionItemTag;
+(function(CompletionItemTag2) {
+  function from(kind) {
+    switch (kind) {
+      case types.CompletionItemTag.Deprecated:
+        return 1;
+    }
+  }
+  __name(from, "from");
+  CompletionItemTag2.from = from;
+  function to(kind) {
+    switch (kind) {
+      case 1:
+        return types.CompletionItemTag.Deprecated;
+    }
+  }
+  __name(to, "to");
+  CompletionItemTag2.to = to;
+})(CompletionItemTag || (CompletionItemTag = {}));
+var CompletionCommand;
+(function(CompletionCommand2) {
+  function from(c, converter, disposables) {
+    if ("icon" in c && "command" in c) {
+      return {
+        command: converter.toInternal(c.command, disposables),
+        icon: IconPath.fromThemeIcon(c.icon)
+      };
+    }
+    return { command: converter.toInternal(c, disposables) };
+  }
+  __name(from, "from");
+  CompletionCommand2.from = from;
+})(CompletionCommand || (CompletionCommand = {}));
+var CompletionItemKind;
+(function(CompletionItemKind2) {
+  const _from = /* @__PURE__ */ new Map([
+    [
+      types.CompletionItemKind.Method,
+      0
+      /* languages.CompletionItemKind.Method */
+    ],
+    [
+      types.CompletionItemKind.Function,
+      1
+      /* languages.CompletionItemKind.Function */
+    ],
+    [
+      types.CompletionItemKind.Constructor,
+      2
+      /* languages.CompletionItemKind.Constructor */
+    ],
+    [
+      types.CompletionItemKind.Field,
+      3
+      /* languages.CompletionItemKind.Field */
+    ],
+    [
+      types.CompletionItemKind.Variable,
+      4
+      /* languages.CompletionItemKind.Variable */
+    ],
+    [
+      types.CompletionItemKind.Class,
+      5
+      /* languages.CompletionItemKind.Class */
+    ],
+    [
+      types.CompletionItemKind.Interface,
+      7
+      /* languages.CompletionItemKind.Interface */
+    ],
+    [
+      types.CompletionItemKind.Struct,
+      6
+      /* languages.CompletionItemKind.Struct */
+    ],
+    [
+      types.CompletionItemKind.Module,
+      8
+      /* languages.CompletionItemKind.Module */
+    ],
+    [
+      types.CompletionItemKind.Property,
+      9
+      /* languages.CompletionItemKind.Property */
+    ],
+    [
+      types.CompletionItemKind.Unit,
+      12
+      /* languages.CompletionItemKind.Unit */
+    ],
+    [
+      types.CompletionItemKind.Value,
+      13
+      /* languages.CompletionItemKind.Value */
+    ],
+    [
+      types.CompletionItemKind.Constant,
+      14
+      /* languages.CompletionItemKind.Constant */
+    ],
+    [
+      types.CompletionItemKind.Enum,
+      15
+      /* languages.CompletionItemKind.Enum */
+    ],
+    [
+      types.CompletionItemKind.EnumMember,
+      16
+      /* languages.CompletionItemKind.EnumMember */
+    ],
+    [
+      types.CompletionItemKind.Keyword,
+      17
+      /* languages.CompletionItemKind.Keyword */
+    ],
+    [
+      types.CompletionItemKind.Snippet,
+      28
+      /* languages.CompletionItemKind.Snippet */
+    ],
+    [
+      types.CompletionItemKind.Text,
+      18
+      /* languages.CompletionItemKind.Text */
+    ],
+    [
+      types.CompletionItemKind.Color,
+      19
+      /* languages.CompletionItemKind.Color */
+    ],
+    [
+      types.CompletionItemKind.File,
+      20
+      /* languages.CompletionItemKind.File */
+    ],
+    [
+      types.CompletionItemKind.Reference,
+      21
+      /* languages.CompletionItemKind.Reference */
+    ],
+    [
+      types.CompletionItemKind.Folder,
+      23
+      /* languages.CompletionItemKind.Folder */
+    ],
+    [
+      types.CompletionItemKind.Event,
+      10
+      /* languages.CompletionItemKind.Event */
+    ],
+    [
+      types.CompletionItemKind.Operator,
+      11
+      /* languages.CompletionItemKind.Operator */
+    ],
+    [
+      types.CompletionItemKind.TypeParameter,
+      24
+      /* languages.CompletionItemKind.TypeParameter */
+    ],
+    [
+      types.CompletionItemKind.Issue,
+      26
+      /* languages.CompletionItemKind.Issue */
+    ],
+    [
+      types.CompletionItemKind.User,
+      25
+      /* languages.CompletionItemKind.User */
+    ]
+  ]);
+  function from(kind) {
+    return _from.get(kind) ?? 9;
+  }
+  __name(from, "from");
+  CompletionItemKind2.from = from;
+  const _to = /* @__PURE__ */ new Map([
+    [0, types.CompletionItemKind.Method],
+    [1, types.CompletionItemKind.Function],
+    [2, types.CompletionItemKind.Constructor],
+    [3, types.CompletionItemKind.Field],
+    [4, types.CompletionItemKind.Variable],
+    [5, types.CompletionItemKind.Class],
+    [7, types.CompletionItemKind.Interface],
+    [6, types.CompletionItemKind.Struct],
+    [8, types.CompletionItemKind.Module],
+    [9, types.CompletionItemKind.Property],
+    [12, types.CompletionItemKind.Unit],
+    [13, types.CompletionItemKind.Value],
+    [14, types.CompletionItemKind.Constant],
+    [15, types.CompletionItemKind.Enum],
+    [16, types.CompletionItemKind.EnumMember],
+    [17, types.CompletionItemKind.Keyword],
+    [28, types.CompletionItemKind.Snippet],
+    [18, types.CompletionItemKind.Text],
+    [19, types.CompletionItemKind.Color],
+    [20, types.CompletionItemKind.File],
+    [21, types.CompletionItemKind.Reference],
+    [23, types.CompletionItemKind.Folder],
+    [10, types.CompletionItemKind.Event],
+    [11, types.CompletionItemKind.Operator],
+    [24, types.CompletionItemKind.TypeParameter],
+    [25, types.CompletionItemKind.User],
+    [26, types.CompletionItemKind.Issue]
+  ]);
+  function to(kind) {
+    return _to.get(kind) ?? types.CompletionItemKind.Property;
+  }
+  __name(to, "to");
+  CompletionItemKind2.to = to;
+})(CompletionItemKind || (CompletionItemKind = {}));
+var CompletionItem;
+(function(CompletionItem2) {
+  function to(suggestion, converter) {
+    const result = new types.CompletionItem(suggestion.label);
+    result.insertText = suggestion.insertText;
+    result.kind = CompletionItemKind.to(suggestion.kind);
+    result.tags = suggestion.tags?.map(CompletionItemTag.to);
+    result.detail = suggestion.detail;
+    result.documentation = htmlContent.isMarkdownString(suggestion.documentation) ? MarkdownString.to(suggestion.documentation) : suggestion.documentation;
+    result.sortText = suggestion.sortText;
+    result.filterText = suggestion.filterText;
+    result.preselect = suggestion.preselect;
+    result.commitCharacters = suggestion.commitCharacters;
+    if (editorRange.Range.isIRange(suggestion.range)) {
+      result.range = Range.to(suggestion.range);
+    } else if (typeof suggestion.range === "object") {
+      result.range = { inserting: Range.to(suggestion.range.insert), replacing: Range.to(suggestion.range.replace) };
+    }
+    result.keepWhitespace = typeof suggestion.insertTextRules === "undefined" ? false : Boolean(
+      suggestion.insertTextRules & 1
+      /* languages.CompletionItemInsertTextRule.KeepWhitespace */
+    );
+    if (typeof suggestion.insertTextRules !== "undefined" && suggestion.insertTextRules & 4) {
+      result.insertText = new types.SnippetString(suggestion.insertText);
+    } else {
+      result.insertText = suggestion.insertText;
+      result.textEdit = result.range instanceof types.Range ? new types.TextEdit(result.range, result.insertText) : void 0;
+    }
+    if (suggestion.additionalTextEdits && suggestion.additionalTextEdits.length > 0) {
+      result.additionalTextEdits = suggestion.additionalTextEdits.map((e) => TextEdit.to(e));
+    }
+    result.command = converter && suggestion.command ? converter.fromInternal(suggestion.command) : void 0;
+    return result;
+  }
+  __name(to, "to");
+  CompletionItem2.to = to;
+})(CompletionItem || (CompletionItem = {}));
+var ParameterInformation;
+(function(ParameterInformation2) {
+  function from(info) {
+    if (typeof info.label !== "string" && !Array.isArray(info.label)) {
+      throw new TypeError("Invalid label");
+    }
+    return {
+      label: info.label,
+      documentation: MarkdownString.fromStrict(info.documentation)
+    };
+  }
+  __name(from, "from");
+  ParameterInformation2.from = from;
+  function to(info) {
+    return {
+      label: info.label,
+      documentation: htmlContent.isMarkdownString(info.documentation) ? MarkdownString.to(info.documentation) : info.documentation
+    };
+  }
+  __name(to, "to");
+  ParameterInformation2.to = to;
+})(ParameterInformation || (ParameterInformation = {}));
+var SignatureInformation;
+(function(SignatureInformation2) {
+  function from(info) {
+    return {
+      label: info.label,
+      documentation: MarkdownString.fromStrict(info.documentation),
+      parameters: Array.isArray(info.parameters) ? info.parameters.map(ParameterInformation.from) : [],
+      activeParameter: info.activeParameter
+    };
+  }
+  __name(from, "from");
+  SignatureInformation2.from = from;
+  function to(info) {
+    return {
+      label: info.label,
+      documentation: htmlContent.isMarkdownString(info.documentation) ? MarkdownString.to(info.documentation) : info.documentation,
+      parameters: Array.isArray(info.parameters) ? info.parameters.map(ParameterInformation.to) : [],
+      activeParameter: info.activeParameter
+    };
+  }
+  __name(to, "to");
+  SignatureInformation2.to = to;
+})(SignatureInformation || (SignatureInformation = {}));
+var SignatureHelp;
+(function(SignatureHelp2) {
+  function from(help) {
+    return {
+      activeSignature: help.activeSignature,
+      activeParameter: help.activeParameter,
+      signatures: Array.isArray(help.signatures) ? help.signatures.map(SignatureInformation.from) : []
+    };
+  }
+  __name(from, "from");
+  SignatureHelp2.from = from;
+  function to(help) {
+    return {
+      activeSignature: help.activeSignature,
+      activeParameter: help.activeParameter,
+      signatures: Array.isArray(help.signatures) ? help.signatures.map(SignatureInformation.to) : []
+    };
+  }
+  __name(to, "to");
+  SignatureHelp2.to = to;
+})(SignatureHelp || (SignatureHelp = {}));
+var InlayHint;
+(function(InlayHint2) {
+  function to(converter, hint) {
+    const res = new types.InlayHint(Position.to(hint.position), typeof hint.label === "string" ? hint.label : hint.label.map(InlayHintLabelPart.to.bind(void 0, converter)), hint.kind && InlayHintKind.to(hint.kind));
+    res.textEdits = hint.textEdits && hint.textEdits.map(TextEdit.to);
+    res.tooltip = htmlContent.isMarkdownString(hint.tooltip) ? MarkdownString.to(hint.tooltip) : hint.tooltip;
+    res.paddingLeft = hint.paddingLeft;
+    res.paddingRight = hint.paddingRight;
+    return res;
+  }
+  __name(to, "to");
+  InlayHint2.to = to;
+})(InlayHint || (InlayHint = {}));
+var InlayHintLabelPart;
+(function(InlayHintLabelPart2) {
+  function to(converter, part) {
+    const result = new types.InlayHintLabelPart(part.label);
+    result.tooltip = htmlContent.isMarkdownString(part.tooltip) ? MarkdownString.to(part.tooltip) : part.tooltip;
+    if (languages.Command.is(part.command)) {
+      result.command = converter.fromInternal(part.command);
+    }
+    if (part.location) {
+      result.location = location.to(part.location);
+    }
+    return result;
+  }
+  __name(to, "to");
+  InlayHintLabelPart2.to = to;
+})(InlayHintLabelPart || (InlayHintLabelPart = {}));
+var InlayHintKind;
+(function(InlayHintKind2) {
+  function from(kind) {
+    return kind;
+  }
+  __name(from, "from");
+  InlayHintKind2.from = from;
+  function to(kind) {
+    return kind;
+  }
+  __name(to, "to");
+  InlayHintKind2.to = to;
+})(InlayHintKind || (InlayHintKind = {}));
+var DocumentLink;
+(function(DocumentLink2) {
+  function from(link) {
+    return {
+      range: Range.from(link.range),
+      url: link.target,
+      tooltip: link.tooltip
+    };
+  }
+  __name(from, "from");
+  DocumentLink2.from = from;
+  function to(link) {
+    let target = void 0;
+    if (link.url) {
+      try {
+        target = typeof link.url === "string" ? URI.parse(link.url, true) : URI.revive(link.url);
+      } catch (err) {
+      }
+    }
+    const result = new types.DocumentLink(Range.to(link.range), target);
+    result.tooltip = link.tooltip;
+    return result;
+  }
+  __name(to, "to");
+  DocumentLink2.to = to;
+})(DocumentLink || (DocumentLink = {}));
+var ColorPresentation;
+(function(ColorPresentation2) {
+  function to(colorPresentation) {
+    const cp = new types.ColorPresentation(colorPresentation.label);
+    if (colorPresentation.textEdit) {
+      cp.textEdit = TextEdit.to(colorPresentation.textEdit);
+    }
+    if (colorPresentation.additionalTextEdits) {
+      cp.additionalTextEdits = colorPresentation.additionalTextEdits.map((value) => TextEdit.to(value));
+    }
+    return cp;
+  }
+  __name(to, "to");
+  ColorPresentation2.to = to;
+  function from(colorPresentation) {
+    return {
+      label: colorPresentation.label,
+      textEdit: colorPresentation.textEdit ? TextEdit.from(colorPresentation.textEdit) : void 0,
+      additionalTextEdits: colorPresentation.additionalTextEdits ? colorPresentation.additionalTextEdits.map((value) => TextEdit.from(value)) : void 0
+    };
+  }
+  __name(from, "from");
+  ColorPresentation2.from = from;
+})(ColorPresentation || (ColorPresentation = {}));
+var Color;
+(function(Color2) {
+  function to(c) {
+    return new types.Color(c[0], c[1], c[2], c[3]);
+  }
+  __name(to, "to");
+  Color2.to = to;
+  function from(color) {
+    return [color.red, color.green, color.blue, color.alpha];
+  }
+  __name(from, "from");
+  Color2.from = from;
+})(Color || (Color = {}));
+var SelectionRange;
+(function(SelectionRange2) {
+  function from(obj) {
+    return { range: Range.from(obj.range) };
+  }
+  __name(from, "from");
+  SelectionRange2.from = from;
+  function to(obj) {
+    return new types.SelectionRange(Range.to(obj.range));
+  }
+  __name(to, "to");
+  SelectionRange2.to = to;
+})(SelectionRange || (SelectionRange = {}));
+var TextDocumentSaveReason;
+(function(TextDocumentSaveReason2) {
+  function to(reason) {
+    switch (reason) {
+      case 2:
+        return types.TextDocumentSaveReason.AfterDelay;
+      case 1:
+        return types.TextDocumentSaveReason.Manual;
+      case 3:
+      case 4:
+        return types.TextDocumentSaveReason.FocusOut;
+    }
+  }
+  __name(to, "to");
+  TextDocumentSaveReason2.to = to;
+})(TextDocumentSaveReason || (TextDocumentSaveReason = {}));
+var TextEditorLineNumbersStyle;
+(function(TextEditorLineNumbersStyle2) {
+  function from(style) {
+    switch (style) {
+      case types.TextEditorLineNumbersStyle.Off:
+        return 0;
+      case types.TextEditorLineNumbersStyle.Relative:
+        return 2;
+      case types.TextEditorLineNumbersStyle.Interval:
+        return 3;
+      case types.TextEditorLineNumbersStyle.On:
+      default:
+        return 1;
+    }
+  }
+  __name(from, "from");
+  TextEditorLineNumbersStyle2.from = from;
+  function to(style) {
+    switch (style) {
+      case 0:
+        return types.TextEditorLineNumbersStyle.Off;
+      case 2:
+        return types.TextEditorLineNumbersStyle.Relative;
+      case 3:
+        return types.TextEditorLineNumbersStyle.Interval;
+      case 1:
+      default:
+        return types.TextEditorLineNumbersStyle.On;
+    }
+  }
+  __name(to, "to");
+  TextEditorLineNumbersStyle2.to = to;
+})(TextEditorLineNumbersStyle || (TextEditorLineNumbersStyle = {}));
+var EndOfLine;
+(function(EndOfLine2) {
+  function from(eol) {
+    if (eol === types.EndOfLine.CRLF) {
+      return 1;
+    } else if (eol === types.EndOfLine.LF) {
+      return 0;
+    }
+    return void 0;
+  }
+  __name(from, "from");
+  EndOfLine2.from = from;
+  function to(eol) {
+    if (eol === 1) {
+      return types.EndOfLine.CRLF;
+    } else if (eol === 0) {
+      return types.EndOfLine.LF;
+    }
+    return void 0;
+  }
+  __name(to, "to");
+  EndOfLine2.to = to;
+})(EndOfLine || (EndOfLine = {}));
+var ProgressLocation;
+(function(ProgressLocation2) {
+  function from(loc) {
+    if (typeof loc === "object") {
+      return loc.viewId;
+    }
+    switch (loc) {
+      case types.ProgressLocation.SourceControl:
+        return 3;
+      case types.ProgressLocation.Window:
+        return 10;
+      case types.ProgressLocation.Notification:
+        return 15;
+    }
+    throw new Error(`Unknown 'ProgressLocation'`);
+  }
+  __name(from, "from");
+  ProgressLocation2.from = from;
+})(ProgressLocation || (ProgressLocation = {}));
+var FoldingRange;
+(function(FoldingRange2) {
+  function from(r) {
+    const range = { start: r.start + 1, end: r.end + 1 };
+    if (r.kind) {
+      range.kind = FoldingRangeKind.from(r.kind);
+    }
+    return range;
+  }
+  __name(from, "from");
+  FoldingRange2.from = from;
+  function to(r) {
+    const range = { start: r.start - 1, end: r.end - 1 };
+    if (r.kind) {
+      range.kind = FoldingRangeKind.to(r.kind);
+    }
+    return range;
+  }
+  __name(to, "to");
+  FoldingRange2.to = to;
+})(FoldingRange || (FoldingRange = {}));
+var FoldingRangeKind;
+(function(FoldingRangeKind2) {
+  function from(kind) {
+    if (kind) {
+      switch (kind) {
+        case types.FoldingRangeKind.Comment:
+          return languages.FoldingRangeKind.Comment;
+        case types.FoldingRangeKind.Imports:
+          return languages.FoldingRangeKind.Imports;
+        case types.FoldingRangeKind.Region:
+          return languages.FoldingRangeKind.Region;
+      }
+    }
+    return void 0;
+  }
+  __name(from, "from");
+  FoldingRangeKind2.from = from;
+  function to(kind) {
+    if (kind) {
+      switch (kind.value) {
+        case languages.FoldingRangeKind.Comment.value:
+          return types.FoldingRangeKind.Comment;
+        case languages.FoldingRangeKind.Imports.value:
+          return types.FoldingRangeKind.Imports;
+        case languages.FoldingRangeKind.Region.value:
+          return types.FoldingRangeKind.Region;
+      }
+    }
+    return void 0;
+  }
+  __name(to, "to");
+  FoldingRangeKind2.to = to;
+})(FoldingRangeKind || (FoldingRangeKind = {}));
+var TextEditorOpenOptions;
+(function(TextEditorOpenOptions2) {
+  function from(options) {
+    if (options) {
+      return {
+        pinned: typeof options.preview === "boolean" ? !options.preview : void 0,
+        inactive: options.background,
+        preserveFocus: options.preserveFocus,
+        selection: typeof options.selection === "object" ? Range.from(options.selection) : void 0,
+        override: typeof options.override === "boolean" ? DEFAULT_EDITOR_ASSOCIATION.id : void 0
+      };
+    }
+    return void 0;
+  }
+  __name(from, "from");
+  TextEditorOpenOptions2.from = from;
+})(TextEditorOpenOptions || (TextEditorOpenOptions = {}));
+var GlobPattern;
+(function(GlobPattern2) {
+  function from(pattern) {
+    if (pattern instanceof types.RelativePattern) {
+      return pattern.toJSON();
+    }
+    if (typeof pattern === "string") {
+      return pattern;
+    }
+    if (isRelativePatternShape(pattern) || isLegacyRelativePatternShape(pattern)) {
+      return new types.RelativePattern(pattern.baseUri ?? pattern.base, pattern.pattern).toJSON();
+    }
+    return pattern;
+  }
+  __name(from, "from");
+  GlobPattern2.from = from;
+  function isRelativePatternShape(obj) {
+    const rp = obj;
+    if (!rp) {
+      return false;
+    }
+    return URI.isUri(rp.baseUri) && typeof rp.pattern === "string";
+  }
+  __name(isRelativePatternShape, "isRelativePatternShape");
+  function isLegacyRelativePatternShape(obj) {
+    const rp = obj;
+    if (!rp) {
+      return false;
+    }
+    return typeof rp.base === "string" && typeof rp.pattern === "string";
+  }
+  __name(isLegacyRelativePatternShape, "isLegacyRelativePatternShape");
+  function to(pattern) {
+    if (typeof pattern === "string") {
+      return pattern;
+    }
+    return new types.RelativePattern(URI.revive(pattern.baseUri), pattern.pattern);
+  }
+  __name(to, "to");
+  GlobPattern2.to = to;
+})(GlobPattern || (GlobPattern = {}));
+var LanguageSelector;
+(function(LanguageSelector2) {
+  function from(selector) {
+    if (!selector) {
+      return void 0;
+    } else if (Array.isArray(selector)) {
+      return selector.map(from);
+    } else if (typeof selector === "string") {
+      return selector;
+    } else {
+      const filter = selector;
+      return {
+        language: filter.language,
+        scheme: filter.scheme,
+        pattern: GlobPattern.from(filter.pattern) ?? void 0,
+        exclusive: filter.exclusive,
+        notebookType: filter.notebookType
+      };
+    }
+  }
+  __name(from, "from");
+  LanguageSelector2.from = from;
+})(LanguageSelector || (LanguageSelector = {}));
+var NotebookRange;
+(function(NotebookRange2) {
+  function from(range) {
+    return { start: range.start, end: range.end };
+  }
+  __name(from, "from");
+  NotebookRange2.from = from;
+  function to(range) {
+    return new types.NotebookRange(range.start, range.end);
+  }
+  __name(to, "to");
+  NotebookRange2.to = to;
+})(NotebookRange || (NotebookRange = {}));
+var NotebookCellExecutionSummary;
+(function(NotebookCellExecutionSummary2) {
+  function to(data) {
+    return {
+      timing: typeof data.runStartTime === "number" && typeof data.runEndTime === "number" ? { startTime: data.runStartTime, endTime: data.runEndTime } : void 0,
+      executionOrder: data.executionOrder,
+      success: data.lastRunSuccess
+    };
+  }
+  __name(to, "to");
+  NotebookCellExecutionSummary2.to = to;
+  function from(data) {
+    return {
+      lastRunSuccess: data.success,
+      runStartTime: data.timing?.startTime,
+      runEndTime: data.timing?.endTime,
+      executionOrder: data.executionOrder
+    };
+  }
+  __name(from, "from");
+  NotebookCellExecutionSummary2.from = from;
+})(NotebookCellExecutionSummary || (NotebookCellExecutionSummary = {}));
+var NotebookCellKind;
+(function(NotebookCellKind2) {
+  function from(data) {
+    switch (data) {
+      case types.NotebookCellKind.Markup:
+        return notebooks.CellKind.Markup;
+      case types.NotebookCellKind.Code:
+      default:
+        return notebooks.CellKind.Code;
+    }
+  }
+  __name(from, "from");
+  NotebookCellKind2.from = from;
+  function to(data) {
+    switch (data) {
+      case notebooks.CellKind.Markup:
+        return types.NotebookCellKind.Markup;
+      case notebooks.CellKind.Code:
+      default:
+        return types.NotebookCellKind.Code;
+    }
+  }
+  __name(to, "to");
+  NotebookCellKind2.to = to;
+})(NotebookCellKind || (NotebookCellKind = {}));
+var NotebookData;
+(function(NotebookData2) {
+  function from(data) {
+    const res = {
+      metadata: data.metadata ?? /* @__PURE__ */ Object.create(null),
+      cells: []
+    };
+    for (const cell of data.cells) {
+      types.NotebookCellData.validate(cell);
+      res.cells.push(NotebookCellData.from(cell));
+    }
+    return res;
+  }
+  __name(from, "from");
+  NotebookData2.from = from;
+  function to(data) {
+    const res = new types.NotebookData(data.cells.map(NotebookCellData.to));
+    if (!isEmptyObject(data.metadata)) {
+      res.metadata = data.metadata;
+    }
+    return res;
+  }
+  __name(to, "to");
+  NotebookData2.to = to;
+})(NotebookData || (NotebookData = {}));
+var NotebookCellData;
+(function(NotebookCellData2) {
+  function from(data) {
+    return {
+      cellKind: NotebookCellKind.from(data.kind),
+      language: data.languageId,
+      mime: data.mime,
+      source: data.value,
+      metadata: data.metadata,
+      internalMetadata: NotebookCellExecutionSummary.from(data.executionSummary ?? {}),
+      outputs: data.outputs ? data.outputs.map(NotebookCellOutput.from) : []
+    };
+  }
+  __name(from, "from");
+  NotebookCellData2.from = from;
+  function to(data) {
+    return new types.NotebookCellData(NotebookCellKind.to(data.cellKind), data.source, data.language, data.mime, data.outputs ? data.outputs.map(NotebookCellOutput.to) : void 0, data.metadata, data.internalMetadata ? NotebookCellExecutionSummary.to(data.internalMetadata) : void 0);
+  }
+  __name(to, "to");
+  NotebookCellData2.to = to;
+})(NotebookCellData || (NotebookCellData = {}));
+var NotebookCellOutputItem;
+(function(NotebookCellOutputItem2) {
+  function from(item) {
+    return {
+      mime: item.mime,
+      valueBytes: VSBuffer.wrap(item.data)
+    };
+  }
+  __name(from, "from");
+  NotebookCellOutputItem2.from = from;
+  function to(item) {
+    return new types.NotebookCellOutputItem(item.valueBytes.buffer, item.mime);
+  }
+  __name(to, "to");
+  NotebookCellOutputItem2.to = to;
+})(NotebookCellOutputItem || (NotebookCellOutputItem = {}));
+var NotebookCellOutput;
+(function(NotebookCellOutput2) {
+  function from(output) {
+    return {
+      outputId: output.id,
+      items: output.items.map(NotebookCellOutputItem.from),
+      metadata: output.metadata
+    };
+  }
+  __name(from, "from");
+  NotebookCellOutput2.from = from;
+  function to(output) {
+    const items = output.items.map(NotebookCellOutputItem.to);
+    return new types.NotebookCellOutput(items, output.outputId, output.metadata);
+  }
+  __name(to, "to");
+  NotebookCellOutput2.to = to;
+})(NotebookCellOutput || (NotebookCellOutput = {}));
+var NotebookExclusiveDocumentPattern;
+(function(NotebookExclusiveDocumentPattern2) {
+  function from(pattern) {
+    if (isExclusivePattern(pattern)) {
+      return {
+        include: GlobPattern.from(pattern.include) ?? void 0,
+        exclude: GlobPattern.from(pattern.exclude) ?? void 0
+      };
+    }
+    return GlobPattern.from(pattern) ?? void 0;
+  }
+  __name(from, "from");
+  NotebookExclusiveDocumentPattern2.from = from;
+  function to(pattern) {
+    if (isExclusivePattern(pattern)) {
+      return {
+        include: GlobPattern.to(pattern.include),
+        exclude: GlobPattern.to(pattern.exclude)
+      };
+    }
+    return GlobPattern.to(pattern);
+  }
+  __name(to, "to");
+  NotebookExclusiveDocumentPattern2.to = to;
+  function isExclusivePattern(obj) {
+    const ep = obj;
+    if (!ep) {
+      return false;
+    }
+    return !isUndefinedOrNull(ep.include) && !isUndefinedOrNull(ep.exclude);
+  }
+  __name(isExclusivePattern, "isExclusivePattern");
+})(NotebookExclusiveDocumentPattern || (NotebookExclusiveDocumentPattern = {}));
+var NotebookStatusBarItem;
+(function(NotebookStatusBarItem2) {
+  function from(item, commandsConverter, disposables) {
+    const command = typeof item.command === "string" ? { title: "", command: item.command } : item.command;
+    return {
+      alignment: item.alignment === types.NotebookCellStatusBarAlignment.Left ? 1 : 2,
+      command: commandsConverter.toInternal(command, disposables),
+      // TODO@roblou
+      text: item.text,
+      tooltip: item.tooltip,
+      accessibilityInformation: item.accessibilityInformation,
+      priority: item.priority
+    };
+  }
+  __name(from, "from");
+  NotebookStatusBarItem2.from = from;
+})(NotebookStatusBarItem || (NotebookStatusBarItem = {}));
+var NotebookKernelSourceAction;
+(function(NotebookKernelSourceAction2) {
+  function from(item, commandsConverter, disposables) {
+    const command = typeof item.command === "string" ? { title: "", command: item.command } : item.command;
+    return {
+      command: commandsConverter.toInternal(command, disposables),
+      label: item.label,
+      description: item.description,
+      detail: item.detail,
+      documentation: item.documentation
+    };
+  }
+  __name(from, "from");
+  NotebookKernelSourceAction2.from = from;
+})(NotebookKernelSourceAction || (NotebookKernelSourceAction = {}));
+var NotebookDocumentContentOptions;
+(function(NotebookDocumentContentOptions2) {
+  function from(options) {
+    return {
+      transientOutputs: options?.transientOutputs ?? false,
+      transientCellMetadata: options?.transientCellMetadata ?? {},
+      transientDocumentMetadata: options?.transientDocumentMetadata ?? {},
+      cellContentMetadata: options?.cellContentMetadata ?? {}
+    };
+  }
+  __name(from, "from");
+  NotebookDocumentContentOptions2.from = from;
+})(NotebookDocumentContentOptions || (NotebookDocumentContentOptions = {}));
+var NotebookRendererScript;
+(function(NotebookRendererScript2) {
+  function from(preload) {
+    return {
+      uri: preload.uri,
+      provides: preload.provides
+    };
+  }
+  __name(from, "from");
+  NotebookRendererScript2.from = from;
+  function to(preload) {
+    return new types.NotebookRendererScript(URI.revive(preload.uri), preload.provides);
+  }
+  __name(to, "to");
+  NotebookRendererScript2.to = to;
+})(NotebookRendererScript || (NotebookRendererScript = {}));
+var TestMessage;
+(function(TestMessage2) {
+  function from(message) {
+    return {
+      message: MarkdownString.fromStrict(message.message) || "",
+      type: 0,
+      expected: message.expectedOutput,
+      actual: message.actualOutput,
+      contextValue: message.contextValue,
+      location: message.location && { range: Range.from(message.location.range), uri: message.location.uri },
+      stackTrace: message.stackTrace?.map((s) => ({
+        label: s.label,
+        position: s.position && Position.from(s.position),
+        uri: s.uri && URI.revive(s.uri).toJSON()
+      }))
+    };
+  }
+  __name(from, "from");
+  TestMessage2.from = from;
+  function to(item) {
+    const message = new types.TestMessage(typeof item.message === "string" ? item.message : MarkdownString.to(item.message));
+    message.actualOutput = item.actual;
+    message.expectedOutput = item.expected;
+    message.contextValue = item.contextValue;
+    message.location = item.location ? location.to(item.location) : void 0;
+    return message;
+  }
+  __name(to, "to");
+  TestMessage2.to = to;
+})(TestMessage || (TestMessage = {}));
+var TestTag;
+(function(TestTag2) {
+  TestTag2.namespace = namespaceTestTag;
+  TestTag2.denamespace = denamespaceTestTag;
+})(TestTag || (TestTag = {}));
+var TestRunProfile;
+(function(TestRunProfile2) {
+  function from(item) {
+    return {
+      controllerId: item.controllerId,
+      profileId: item.profileId,
+      group: TestRunProfileKind.from(item.kind)
+    };
+  }
+  __name(from, "from");
+  TestRunProfile2.from = from;
+})(TestRunProfile || (TestRunProfile = {}));
+var TestRunProfileKind;
+(function(TestRunProfileKind2) {
+  const profileGroupToBitset = {
+    [types.TestRunProfileKind.Coverage]: 8,
+    [types.TestRunProfileKind.Debug]: 4,
+    [types.TestRunProfileKind.Run]: 2
+  };
+  function from(kind) {
+    return profileGroupToBitset.hasOwnProperty(kind) ? profileGroupToBitset[kind] : 2;
+  }
+  __name(from, "from");
+  TestRunProfileKind2.from = from;
+})(TestRunProfileKind || (TestRunProfileKind = {}));
+var TestItem;
+(function(TestItem2) {
+  function from(item) {
+    const ctrlId = getPrivateApiFor(item).controllerId;
+    return {
+      extId: TestId.fromExtHostTestItem(item, ctrlId).toString(),
+      label: item.label,
+      uri: URI.revive(item.uri),
+      busy: item.busy,
+      tags: item.tags.map((t) => TestTag.namespace(ctrlId, t.id)),
+      range: editorRange.Range.lift(Range.from(item.range)),
+      description: item.description || null,
+      sortText: item.sortText || null,
+      error: item.error ? MarkdownString.fromStrict(item.error) || null : null
+    };
+  }
+  __name(from, "from");
+  TestItem2.from = from;
+  function toPlain(item) {
+    return {
+      parent: void 0,
+      error: void 0,
+      id: TestId.fromString(item.extId).localId,
+      label: item.label,
+      uri: URI.revive(item.uri),
+      tags: (item.tags || []).map((t) => {
+        const { tagId } = TestTag.denamespace(t);
+        return new types.TestTag(tagId);
+      }),
+      children: {
+        add: /* @__PURE__ */ __name(() => {
+        }, "add"),
+        delete: /* @__PURE__ */ __name(() => {
+        }, "delete"),
+        forEach: /* @__PURE__ */ __name(() => {
+        }, "forEach"),
+        *[Symbol.iterator]() {
+        },
+        get: /* @__PURE__ */ __name(() => void 0, "get"),
+        replace: /* @__PURE__ */ __name(() => {
+        }, "replace"),
+        size: 0
+      },
+      range: Range.to(item.range || void 0),
+      canResolveChildren: false,
+      busy: item.busy,
+      description: item.description || void 0,
+      sortText: item.sortText || void 0
+    };
+  }
+  __name(toPlain, "toPlain");
+  TestItem2.toPlain = toPlain;
+})(TestItem || (TestItem = {}));
+(function(TestTag2) {
+  function from(tag) {
+    return { id: tag.id };
+  }
+  __name(from, "from");
+  TestTag2.from = from;
+  function to(tag) {
+    return new types.TestTag(tag.id);
+  }
+  __name(to, "to");
+  TestTag2.to = to;
+})(TestTag || (TestTag = {}));
+var TestResults;
+(function(TestResults2) {
+  const convertTestResultItem = /* @__PURE__ */ __name((node, parent) => {
+    const item = node.value;
+    if (!item) {
+      return void 0;
+    }
+    const snapshot = {
+      ...TestItem.toPlain(item.item),
+      parent,
+      taskStates: item.tasks.map((t) => ({
+        state: t.state,
+        duration: t.duration,
+        messages: t.messages.filter(
+          (m) => m.type === 0
+          /* TestMessageType.Error */
+        ).map(TestMessage.to)
+      })),
+      children: []
+    };
+    if (node.children) {
+      for (const child of node.children.values()) {
+        const c = convertTestResultItem(child, snapshot);
+        if (c) {
+          snapshot.children.push(c);
+        }
+      }
+    }
+    return snapshot;
+  }, "convertTestResultItem");
+  function to(serialized) {
+    const tree = new WellDefinedPrefixTree();
+    for (const item of serialized.items) {
+      tree.insert(TestId.fromString(item.item.extId).path, item);
+    }
+    const queue = [tree.nodes];
+    const roots = [];
+    while (queue.length) {
+      for (const node of queue.pop()) {
+        if (node.value) {
+          roots.push(node);
+        } else if (node.children) {
+          queue.push(node.children.values());
+        }
+      }
+    }
+    return {
+      completedAt: serialized.completedAt,
+      results: roots.map((r) => convertTestResultItem(r)).filter(isDefined)
+    };
+  }
+  __name(to, "to");
+  TestResults2.to = to;
+})(TestResults || (TestResults = {}));
+var TestCoverage;
+(function(TestCoverage2) {
+  function fromCoverageCount(count) {
+    return { covered: count.covered, total: count.total };
+  }
+  __name(fromCoverageCount, "fromCoverageCount");
+  function fromLocation(location2) {
+    return "line" in location2 ? Position.from(location2) : Range.from(location2);
+  }
+  __name(fromLocation, "fromLocation");
+  function toLocation(location2) {
+    if (!location2) {
+      return void 0;
+    }
+    return "endLineNumber" in location2 ? Range.to(location2) : Position.to(location2);
+  }
+  __name(toLocation, "toLocation");
+  function to(serialized) {
+    if (serialized.type === 1) {
+      const branches = [];
+      if (serialized.branches) {
+        for (const branch of serialized.branches) {
+          branches.push({
+            executed: branch.count,
+            location: toLocation(branch.location),
+            label: branch.label
+          });
+        }
+      }
+      return new types.StatementCoverage(serialized.count, toLocation(serialized.location), serialized.branches?.map((b) => new types.BranchCoverage(b.count, toLocation(b.location), b.label)));
+    } else {
+      return new types.DeclarationCoverage(serialized.name, serialized.count, toLocation(serialized.location));
+    }
+  }
+  __name(to, "to");
+  TestCoverage2.to = to;
+  function fromDetails(coverage) {
+    if (typeof coverage.executed === "number" && coverage.executed < 0) {
+      throw new Error(`Invalid coverage count ${coverage.executed}`);
+    }
+    if ("branches" in coverage) {
+      return {
+        count: coverage.executed,
+        location: fromLocation(coverage.location),
+        type: 1,
+        branches: coverage.branches.length ? coverage.branches.map((b) => ({ count: b.executed, location: b.location && fromLocation(b.location), label: b.label })) : void 0
+      };
+    } else {
+      return {
+        type: 0,
+        name: coverage.name,
+        count: coverage.executed,
+        location: fromLocation(coverage.location)
+      };
+    }
+  }
+  __name(fromDetails, "fromDetails");
+  TestCoverage2.fromDetails = fromDetails;
+  function fromFile(controllerId, id, coverage) {
+    types.validateTestCoverageCount(coverage.statementCoverage);
+    types.validateTestCoverageCount(coverage.branchCoverage);
+    types.validateTestCoverageCount(coverage.declarationCoverage);
+    return {
+      id,
+      uri: coverage.uri,
+      statement: fromCoverageCount(coverage.statementCoverage),
+      branch: coverage.branchCoverage && fromCoverageCount(coverage.branchCoverage),
+      declaration: coverage.declarationCoverage && fromCoverageCount(coverage.declarationCoverage),
+      testIds: coverage instanceof types.FileCoverage && coverage.includesTests.length ? coverage.includesTests.map((t) => TestId.fromExtHostTestItem(t, controllerId).toString()) : void 0
+    };
+  }
+  __name(fromFile, "fromFile");
+  TestCoverage2.fromFile = fromFile;
+})(TestCoverage || (TestCoverage = {}));
+var CodeActionTriggerKind;
+(function(CodeActionTriggerKind2) {
+  function to(value) {
+    switch (value) {
+      case 1:
+        return types.CodeActionTriggerKind.Invoke;
+      case 2:
+        return types.CodeActionTriggerKind.Automatic;
+    }
+  }
+  __name(to, "to");
+  CodeActionTriggerKind2.to = to;
+})(CodeActionTriggerKind || (CodeActionTriggerKind = {}));
+var TypeHierarchyItem;
+(function(TypeHierarchyItem2) {
+  function to(item) {
+    const result = new types.TypeHierarchyItem(SymbolKind.to(item.kind), item.name, item.detail || "", URI.revive(item.uri), Range.to(item.range), Range.to(item.selectionRange));
+    result._sessionId = item._sessionId;
+    result._itemId = item._itemId;
+    return result;
+  }
+  __name(to, "to");
+  TypeHierarchyItem2.to = to;
+  function from(item, sessionId, itemId) {
+    sessionId = sessionId ?? item._sessionId;
+    itemId = itemId ?? item._itemId;
+    if (sessionId === void 0 || itemId === void 0) {
+      throw new Error("invalid item");
+    }
+    return {
+      _sessionId: sessionId,
+      _itemId: itemId,
+      kind: SymbolKind.from(item.kind),
+      name: item.name,
+      detail: item.detail ?? "",
+      uri: item.uri,
+      range: Range.from(item.range),
+      selectionRange: Range.from(item.selectionRange),
+      tags: item.tags?.map(SymbolTag.from)
+    };
+  }
+  __name(from, "from");
+  TypeHierarchyItem2.from = from;
+})(TypeHierarchyItem || (TypeHierarchyItem = {}));
+var ViewBadge;
+(function(ViewBadge2) {
+  function from(badge) {
+    if (!badge) {
+      return void 0;
+    }
+    return {
+      value: badge.value,
+      tooltip: badge.tooltip
+    };
+  }
+  __name(from, "from");
+  ViewBadge2.from = from;
+})(ViewBadge || (ViewBadge = {}));
+var DataTransferItem;
+(function(DataTransferItem2) {
+  function to(mime, item, resolveFileData) {
+    const file = item.fileData;
+    if (file) {
+      return new types.InternalFileDataTransferItem(new types.DataTransferFile(file.name, URI.revive(file.uri), file.id, createSingleCallFunction(() => resolveFileData(file.id))));
+    }
+    if (mime === Mimes.uriList && item.uriListData) {
+      return new types.InternalDataTransferItem(reviveUriList(item.uriListData));
+    }
+    return new types.InternalDataTransferItem(item.asString);
+  }
+  __name(to, "to");
+  DataTransferItem2.to = to;
+  async function from(mime, item, id = generateUuid()) {
+    const stringValue = await item.asString();
+    if (mime === Mimes.uriList) {
+      return {
+        id,
+        asString: stringValue,
+        fileData: void 0,
+        uriListData: serializeUriList(stringValue)
+      };
+    }
+    const fileValue = item.asFile();
+    return {
+      id,
+      asString: stringValue,
+      fileData: fileValue ? {
+        name: fileValue.name,
+        uri: fileValue.uri,
+        id: fileValue._itemId ?? fileValue.id
+      } : void 0
+    };
+  }
+  __name(from, "from");
+  DataTransferItem2.from = from;
+  function serializeUriList(stringValue) {
+    return UriList.split(stringValue).map((part) => {
+      if (part.startsWith("#")) {
+        return part;
+      }
+      try {
+        return URI.parse(part);
+      } catch {
+      }
+      return part;
+    });
+  }
+  __name(serializeUriList, "serializeUriList");
+  function reviveUriList(parts) {
+    return UriList.create(parts.map((part) => {
+      return typeof part === "string" ? part : URI.revive(part);
+    }));
+  }
+  __name(reviveUriList, "reviveUriList");
+})(DataTransferItem || (DataTransferItem = {}));
+var DataTransfer;
+(function(DataTransfer2) {
+  function toDataTransfer(value, resolveFileData) {
+    const init = value.items.map(([type, item]) => {
+      return [type, DataTransferItem.to(type, item, resolveFileData)];
+    });
+    return new types.DataTransfer(init);
+  }
+  __name(toDataTransfer, "toDataTransfer");
+  DataTransfer2.toDataTransfer = toDataTransfer;
+  async function from(dataTransfer) {
+    const items = await Promise.all(Array.from(dataTransfer, async ([mime, value]) => {
+      return [mime, await DataTransferItem.from(mime, value)];
+    }));
+    return { items };
+  }
+  __name(from, "from");
+  DataTransfer2.from = from;
+  async function fromList(dataTransfer) {
+    const items = await Promise.all(Array.from(dataTransfer, async ([mime, value]) => {
+      return [mime, await DataTransferItem.from(mime, value, value.id)];
+    }));
+    return { items };
+  }
+  __name(fromList, "fromList");
+  DataTransfer2.fromList = fromList;
+})(DataTransfer || (DataTransfer = {}));
+var ChatFollowup;
+(function(ChatFollowup2) {
+  function from(followup, request) {
+    return {
+      kind: "reply",
+      agentId: followup.participant ?? request?.agentId ?? "",
+      subCommand: followup.command ?? request?.command,
+      message: followup.prompt,
+      title: followup.label
+    };
+  }
+  __name(from, "from");
+  ChatFollowup2.from = from;
+  function to(followup) {
+    return {
+      prompt: followup.message,
+      label: followup.title,
+      participant: followup.agentId,
+      command: followup.subCommand
+    };
+  }
+  __name(to, "to");
+  ChatFollowup2.to = to;
+})(ChatFollowup || (ChatFollowup = {}));
+var LanguageModelChatMessageRole;
+(function(LanguageModelChatMessageRole2) {
+  function to(role) {
+    switch (role) {
+      case 0:
+        return types.LanguageModelChatMessageRole.System;
+      case 1:
+        return types.LanguageModelChatMessageRole.User;
+      case 2:
+        return types.LanguageModelChatMessageRole.Assistant;
+    }
+  }
+  __name(to, "to");
+  LanguageModelChatMessageRole2.to = to;
+  function from(role) {
+    switch (role) {
+      case types.LanguageModelChatMessageRole.System:
+        return 0;
+      case types.LanguageModelChatMessageRole.User:
+        return 1;
+      case types.LanguageModelChatMessageRole.Assistant:
+        return 2;
+    }
+    return 1;
+  }
+  __name(from, "from");
+  LanguageModelChatMessageRole2.from = from;
+})(LanguageModelChatMessageRole || (LanguageModelChatMessageRole = {}));
+var LanguageModelChatMessage;
+(function(LanguageModelChatMessage3) {
+  function to(message) {
+    const content = message.content.map((c) => {
+      if (c.type === "text") {
+        return new LanguageModelTextPart(c.value, c.audience);
+      } else if (c.type === "tool_result") {
+        const content2 = coalesce(c.value.map((part) => {
+          if (part.type === "text") {
+            return new types.LanguageModelTextPart(part.value, part.audience);
+          } else if (part.type === "data") {
+            return new types.LanguageModelDataPart(part.data.buffer, part.mimeType);
+          } else if (part.type === "prompt_tsx") {
+            return new types.LanguageModelPromptTsxPart(part.value);
+          } else {
+            return void 0;
+          }
+        }));
+        return new types.LanguageModelToolResultPart(c.toolCallId, content2, c.isError);
+      } else if (c.type === "image_url") {
+        return new types.LanguageModelDataPart(c.value.data.buffer, c.value.mimeType);
+      } else if (c.type === "data") {
+        return new types.LanguageModelDataPart(c.data.buffer, c.mimeType);
+      } else if (c.type === "tool_use") {
+        return new types.LanguageModelToolCallPart(c.toolCallId, c.name, c.parameters);
+      }
+      return void 0;
+    }).filter((c) => c !== void 0);
+    const role = LanguageModelChatMessageRole.to(message.role);
+    const result = new types.LanguageModelChatMessage(role, content, message.name);
+    return result;
+  }
+  __name(to, "to");
+  LanguageModelChatMessage3.to = to;
+  function from(message) {
+    const role = LanguageModelChatMessageRole.from(message.role);
+    const name = message.name;
+    let messageContent = message.content;
+    if (typeof messageContent === "string") {
+      messageContent = [new types.LanguageModelTextPart(messageContent)];
+    }
+    const content = messageContent.map((c) => {
+      if (c instanceof types.LanguageModelToolResultPart) {
+        return {
+          type: "tool_result",
+          toolCallId: c.callId,
+          value: coalesce(c.content.map((part) => {
+            if (part instanceof types.LanguageModelTextPart) {
+              return {
+                type: "text",
+                value: part.value,
+                audience: part.audience
+              };
+            } else if (part instanceof types.LanguageModelPromptTsxPart) {
+              return {
+                type: "prompt_tsx",
+                value: part.value
+              };
+            } else if (part instanceof types.LanguageModelDataPart) {
+              return {
+                type: "data",
+                mimeType: part.mimeType,
+                data: VSBuffer.wrap(part.data),
+                audience: part.audience
+              };
+            } else {
+              return void 0;
+            }
+          })),
+          isError: c.isError
+        };
+      } else if (c instanceof types.LanguageModelDataPart) {
+        if (isImageDataPart(c)) {
+          const value = {
+            mimeType: c.mimeType,
+            data: VSBuffer.wrap(c.data)
+          };
+          return {
+            type: "image_url",
+            value
+          };
+        } else {
+          return {
+            type: "data",
+            mimeType: c.mimeType,
+            data: VSBuffer.wrap(c.data),
+            audience: c.audience
+          };
+        }
+      } else if (c instanceof types.LanguageModelToolCallPart) {
+        return {
+          type: "tool_use",
+          toolCallId: c.callId,
+          name: c.name,
+          parameters: c.input
+        };
+      } else if (c instanceof types.LanguageModelTextPart) {
+        return {
+          type: "text",
+          value: c.value
+        };
+      } else {
+        if (typeof c !== "string") {
+          throw new Error("Unexpected chat message content type");
+        }
+        return {
+          type: "text",
+          value: c
+        };
+      }
+    });
+    return {
+      role,
+      name,
+      content
+    };
+  }
+  __name(from, "from");
+  LanguageModelChatMessage3.from = from;
+})(LanguageModelChatMessage || (LanguageModelChatMessage = {}));
+var LanguageModelChatMessage2;
+(function(LanguageModelChatMessage22) {
+  function to(message) {
+    const content = message.content.map((c) => {
+      if (c.type === "text") {
+        return new LanguageModelTextPart(c.value, c.audience);
+      } else if (c.type === "tool_result") {
+        const content2 = c.value.map((part) => {
+          if (part.type === "text") {
+            return new types.LanguageModelTextPart(part.value, part.audience);
+          } else if (part.type === "data") {
+            return new types.LanguageModelDataPart(part.data.buffer, part.mimeType);
+          } else {
+            return new types.LanguageModelPromptTsxPart(part.value);
+          }
+        });
+        return new types.LanguageModelToolResultPart(c.toolCallId, content2, c.isError);
+      } else if (c.type === "image_url") {
+        return new types.LanguageModelDataPart(c.value.data.buffer, c.value.mimeType);
+      } else if (c.type === "data") {
+        return new types.LanguageModelDataPart(c.data.buffer, c.mimeType);
+      } else if (c.type === "thinking") {
+        return new types.LanguageModelThinkingPart(c.value, c.id, c.metadata);
+      } else {
+        return new types.LanguageModelToolCallPart(c.toolCallId, c.name, c.parameters);
+      }
+    });
+    const role = LanguageModelChatMessageRole.to(message.role);
+    const result = new types.LanguageModelChatMessage2(role, content, message.name);
+    return result;
+  }
+  __name(to, "to");
+  LanguageModelChatMessage22.to = to;
+  function from(message) {
+    const role = LanguageModelChatMessageRole.from(message.role);
+    const name = message.name;
+    let messageContent = message.content;
+    if (typeof messageContent === "string") {
+      messageContent = [new types.LanguageModelTextPart(messageContent)];
+    }
+    const content = messageContent.map((c) => {
+      if (c instanceof types.LanguageModelToolResultPart) {
+        return {
+          type: "tool_result",
+          toolCallId: c.callId,
+          value: coalesce(c.content.map((part) => {
+            if (part instanceof types.LanguageModelTextPart) {
+              return {
+                type: "text",
+                value: part.value,
+                audience: part.audience
+              };
+            } else if (part instanceof types.LanguageModelPromptTsxPart) {
+              return {
+                type: "prompt_tsx",
+                value: part.value
+              };
+            } else if (part instanceof types.LanguageModelDataPart) {
+              return {
+                type: "data",
+                mimeType: part.mimeType,
+                data: VSBuffer.wrap(part.data),
+                audience: part.audience
+              };
+            } else {
+              return void 0;
+            }
+          })),
+          isError: c.isError
+        };
+      } else if (c instanceof types.LanguageModelDataPart) {
+        if (isImageDataPart(c)) {
+          const value = {
+            mimeType: c.mimeType,
+            data: VSBuffer.wrap(c.data)
+          };
+          return {
+            type: "image_url",
+            value
+          };
+        } else {
+          return {
+            type: "data",
+            mimeType: c.mimeType,
+            data: VSBuffer.wrap(c.data),
+            audience: c.audience
+          };
+        }
+      } else if (c instanceof types.LanguageModelToolCallPart) {
+        return {
+          type: "tool_use",
+          toolCallId: c.callId,
+          name: c.name,
+          parameters: c.input
+        };
+      } else if (c instanceof types.LanguageModelTextPart) {
+        return {
+          type: "text",
+          value: c.value
+        };
+      } else if (c instanceof types.LanguageModelThinkingPart) {
+        return {
+          type: "thinking",
+          value: c.value,
+          id: c.id,
+          metadata: c.metadata
+        };
+      } else {
+        if (typeof c !== "string") {
+          throw new Error("Unexpected chat message content type llm 2");
+        }
+        return {
+          type: "text",
+          value: c
+        };
+      }
+    });
+    return {
+      role,
+      name,
+      content
+    };
+  }
+  __name(from, "from");
+  LanguageModelChatMessage22.from = from;
+})(LanguageModelChatMessage2 || (LanguageModelChatMessage2 = {}));
+function isImageDataPart(part) {
+  const mime = typeof part.mimeType === "string" ? part.mimeType.toLowerCase() : "";
+  switch (mime) {
+    case "image/png":
+    case "image/jpeg":
+    case "image/jpg":
+    case "image/gif":
+    case "image/webp":
+    case "image/bmp":
+      return true;
+    default:
+      return false;
+  }
+}
+__name(isImageDataPart, "isImageDataPart");
+var ChatResponseMarkdownPart;
+(function(ChatResponseMarkdownPart2) {
+  function from(part) {
+    return {
+      kind: "markdownContent",
+      content: MarkdownString.from(part.value)
+    };
+  }
+  __name(from, "from");
+  ChatResponseMarkdownPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseMarkdownPart(MarkdownString.to(part.content));
+  }
+  __name(to, "to");
+  ChatResponseMarkdownPart2.to = to;
+})(ChatResponseMarkdownPart || (ChatResponseMarkdownPart = {}));
+var ChatResponseCodeblockUriPart;
+(function(ChatResponseCodeblockUriPart2) {
+  function from(part) {
+    return {
+      kind: "codeblockUri",
+      uri: part.value,
+      isEdit: part.isEdit,
+      undoStopId: part.undoStopId
+    };
+  }
+  __name(from, "from");
+  ChatResponseCodeblockUriPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseCodeblockUriPart(URI.revive(part.uri), part.isEdit, part.undoStopId);
+  }
+  __name(to, "to");
+  ChatResponseCodeblockUriPart2.to = to;
+})(ChatResponseCodeblockUriPart || (ChatResponseCodeblockUriPart = {}));
+var ChatResponseMarkdownWithVulnerabilitiesPart;
+(function(ChatResponseMarkdownWithVulnerabilitiesPart2) {
+  function from(part) {
+    return {
+      kind: "markdownVuln",
+      content: MarkdownString.from(part.value),
+      vulnerabilities: part.vulnerabilities
+    };
+  }
+  __name(from, "from");
+  ChatResponseMarkdownWithVulnerabilitiesPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseMarkdownWithVulnerabilitiesPart(MarkdownString.to(part.content), part.vulnerabilities);
+  }
+  __name(to, "to");
+  ChatResponseMarkdownWithVulnerabilitiesPart2.to = to;
+})(ChatResponseMarkdownWithVulnerabilitiesPart || (ChatResponseMarkdownWithVulnerabilitiesPart = {}));
+var ChatResponseConfirmationPart;
+(function(ChatResponseConfirmationPart2) {
+  function from(part) {
+    return {
+      kind: "confirmation",
+      title: part.title,
+      message: MarkdownString.from(part.message),
+      data: part.data,
+      buttons: part.buttons
+    };
+  }
+  __name(from, "from");
+  ChatResponseConfirmationPart2.from = from;
+})(ChatResponseConfirmationPart || (ChatResponseConfirmationPart = {}));
+var ChatResponseFilesPart;
+(function(ChatResponseFilesPart2) {
+  function from(part) {
+    const { value, baseUri } = part;
+    function convert(items, baseUri2) {
+      return items.map((item) => {
+        const myUri = URI.joinPath(baseUri2, item.name);
+        return {
+          label: item.name,
+          uri: myUri,
+          children: item.children && convert(item.children, myUri)
+        };
+      });
+    }
+    __name(convert, "convert");
+    return {
+      kind: "treeData",
+      treeData: {
+        label: basename(baseUri),
+        uri: baseUri,
+        children: convert(value, baseUri)
+      }
+    };
+  }
+  __name(from, "from");
+  ChatResponseFilesPart2.from = from;
+  function to(part) {
+    const treeData = revive(part.treeData);
+    function convert(items2) {
+      return items2.map((item) => {
+        return {
+          name: item.label,
+          children: item.children && convert(item.children)
+        };
+      });
+    }
+    __name(convert, "convert");
+    const baseUri = treeData.uri;
+    const items = treeData.children ? convert(treeData.children) : [];
+    return new types.ChatResponseFileTreePart(items, baseUri);
+  }
+  __name(to, "to");
+  ChatResponseFilesPart2.to = to;
+})(ChatResponseFilesPart || (ChatResponseFilesPart = {}));
+var ChatResponseMultiDiffPart;
+(function(ChatResponseMultiDiffPart2) {
+  function from(part) {
+    return {
+      kind: "multiDiffData",
+      multiDiffData: {
+        title: part.title,
+        resources: part.value.map((entry) => ({
+          originalUri: entry.originalUri,
+          modifiedUri: entry.modifiedUri,
+          goToFileUri: entry.goToFileUri,
+          added: entry.added,
+          removed: entry.removed
+        }))
+      },
+      readOnly: part.readOnly
+    };
+  }
+  __name(from, "from");
+  ChatResponseMultiDiffPart2.from = from;
+  function to(part) {
+    const resources = part.multiDiffData.resources.map((resource) => ({
+      originalUri: resource.originalUri ? URI.revive(resource.originalUri) : void 0,
+      modifiedUri: resource.modifiedUri ? URI.revive(resource.modifiedUri) : void 0,
+      goToFileUri: resource.goToFileUri ? URI.revive(resource.goToFileUri) : void 0,
+      added: resource.added,
+      removed: resource.removed
+    }));
+    return new types.ChatResponseMultiDiffPart(resources, part.multiDiffData.title, part.readOnly);
+  }
+  __name(to, "to");
+  ChatResponseMultiDiffPart2.to = to;
+})(ChatResponseMultiDiffPart || (ChatResponseMultiDiffPart = {}));
+var ChatResponseAnchorPart;
+(function(ChatResponseAnchorPart2) {
+  function from(part) {
+    const isUri = /* @__PURE__ */ __name((thing) => URI.isUri(thing), "isUri");
+    const isSymbolInformation = /* @__PURE__ */ __name((thing) => "name" in thing, "isSymbolInformation");
+    return {
+      kind: "inlineReference",
+      name: part.title,
+      inlineReference: isUri(part.value) ? part.value : isSymbolInformation(part.value) ? WorkspaceSymbol.from(part.value) : Location.from(part.value)
+    };
+  }
+  __name(from, "from");
+  ChatResponseAnchorPart2.from = from;
+  function to(part) {
+    const value = revive(part);
+    return new types.ChatResponseAnchorPart(URI.isUri(value.inlineReference) ? value.inlineReference : "location" in value.inlineReference ? WorkspaceSymbol.to(value.inlineReference) : Location.to(value.inlineReference), part.name);
+  }
+  __name(to, "to");
+  ChatResponseAnchorPart2.to = to;
+})(ChatResponseAnchorPart || (ChatResponseAnchorPart = {}));
+var ChatResponseProgressPart;
+(function(ChatResponseProgressPart2) {
+  function from(part) {
+    return {
+      kind: "progressMessage",
+      content: MarkdownString.from(part.value)
+    };
+  }
+  __name(from, "from");
+  ChatResponseProgressPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseProgressPart(part.content.value);
+  }
+  __name(to, "to");
+  ChatResponseProgressPart2.to = to;
+})(ChatResponseProgressPart || (ChatResponseProgressPart = {}));
+var ChatResponseThinkingProgressPart;
+(function(ChatResponseThinkingProgressPart2) {
+  function from(part) {
+    return {
+      kind: "thinking",
+      value: part.value,
+      id: part.id,
+      metadata: part.metadata
+    };
+  }
+  __name(from, "from");
+  ChatResponseThinkingProgressPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseThinkingProgressPart(part.value ?? "", part.id, part.metadata);
+  }
+  __name(to, "to");
+  ChatResponseThinkingProgressPart2.to = to;
+})(ChatResponseThinkingProgressPart || (ChatResponseThinkingProgressPart = {}));
+var ChatResponseWarningPart;
+(function(ChatResponseWarningPart2) {
+  function from(part) {
+    return {
+      kind: "warning",
+      content: MarkdownString.from(part.value)
+    };
+  }
+  __name(from, "from");
+  ChatResponseWarningPart2.from = from;
+  function to(part) {
+    return new types.ChatResponseWarningPart(part.content.value);
+  }
+  __name(to, "to");
+  ChatResponseWarningPart2.to = to;
+})(ChatResponseWarningPart || (ChatResponseWarningPart = {}));
+var ChatResponseExtensionsPart;
+(function(ChatResponseExtensionsPart2) {
+  function from(part) {
+    return {
+      kind: "extensions",
+      extensions: part.extensions
+    };
+  }
+  __name(from, "from");
+  ChatResponseExtensionsPart2.from = from;
+})(ChatResponseExtensionsPart || (ChatResponseExtensionsPart = {}));
+var ChatResponsePullRequestPart;
+(function(ChatResponsePullRequestPart2) {
+  function from(part) {
+    return {
+      kind: "pullRequest",
+      author: part.author,
+      title: part.title,
+      description: part.description,
+      uri: part.uri,
+      linkTag: part.linkTag
+    };
+  }
+  __name(from, "from");
+  ChatResponsePullRequestPart2.from = from;
+})(ChatResponsePullRequestPart || (ChatResponsePullRequestPart = {}));
+var ChatResponseMovePart;
+(function(ChatResponseMovePart2) {
+  function from(part) {
+    return {
+      kind: "move",
+      uri: part.uri,
+      range: Range.from(part.range)
+    };
+  }
+  __name(from, "from");
+  ChatResponseMovePart2.from = from;
+  function to(part) {
+    return new types.ChatResponseMovePart(URI.revive(part.uri), Range.to(part.range));
+  }
+  __name(to, "to");
+  ChatResponseMovePart2.to = to;
+})(ChatResponseMovePart || (ChatResponseMovePart = {}));
+var ChatToolInvocationPart;
+(function(ChatToolInvocationPart2) {
+  function from(part) {
+    return {
+      kind: "toolInvocationSerialized",
+      toolCallId: part.toolCallId,
+      toolId: part.toolName,
+      invocationMessage: part.invocationMessage ? MarkdownString.from(part.invocationMessage) : part.toolName,
+      originMessage: part.originMessage ? MarkdownString.from(part.originMessage) : void 0,
+      pastTenseMessage: part.pastTenseMessage ? MarkdownString.from(part.pastTenseMessage) : void 0,
+      isConfirmed: part.isConfirmed,
+      isComplete: part.isComplete ?? true,
+      source: ToolDataSource.External,
+      // isError: part.isError ?? false,
+      toolSpecificData: part.toolSpecificData ? convertToolSpecificData(part.toolSpecificData) : void 0,
+      presentation: part.presentation === "hidden" ? ToolInvocationPresentation.Hidden : part.presentation === "hiddenAfterComplete" ? ToolInvocationPresentation.HiddenAfterComplete : void 0,
+      subAgentInvocationId: part.subAgentInvocationId
+    };
+  }
+  __name(from, "from");
+  ChatToolInvocationPart2.from = from;
+  function convertToolSpecificData(data) {
+    if ("command" in data && "language" in data) {
+      return {
+        kind: "terminal",
+        command: data.command,
+        language: data.language
+      };
+    } else if ("commandLine" in data && "language" in data) {
+      return {
+        kind: "terminal",
+        commandLine: data.commandLine,
+        language: data.language
+      };
+    }
+    return data;
+  }
+  __name(convertToolSpecificData, "convertToolSpecificData");
+  function to(part) {
+    const toolInvocation = new types.ChatToolInvocationPart(part.toolId || part.toolName, part.toolCallId, part.isError);
+    if (part.invocationMessage) {
+      toolInvocation.invocationMessage = part.invocationMessage;
+    }
+    if (part.originMessage) {
+      toolInvocation.originMessage = part.originMessage;
+    }
+    if (part.pastTenseMessage) {
+      toolInvocation.pastTenseMessage = part.pastTenseMessage;
+    }
+    if (part.isConfirmed !== void 0) {
+      toolInvocation.isConfirmed = part.isConfirmed;
+    }
+    if (part.isComplete !== void 0) {
+      toolInvocation.isComplete = part.isComplete;
+    }
+    if (part.toolSpecificData) {
+      toolInvocation.toolSpecificData = convertFromInternalToolSpecificData(part.toolSpecificData);
+    }
+    toolInvocation.subAgentInvocationId = part.subAgentInvocationId;
+    return toolInvocation;
+  }
+  __name(to, "to");
+  ChatToolInvocationPart2.to = to;
+  function convertFromInternalToolSpecificData(data) {
+    if (data.kind === "terminal") {
+      return {
+        command: data.command,
+        language: data.language
+      };
+    } else if (data.kind === "terminal2") {
+      return {
+        commandLine: data.commandLine,
+        language: data.language
+      };
+    }
+    return data;
+  }
+  __name(convertFromInternalToolSpecificData, "convertFromInternalToolSpecificData");
+})(ChatToolInvocationPart || (ChatToolInvocationPart = {}));
+var ChatTask;
+(function(ChatTask2) {
+  function from(part) {
+    return {
+      kind: "progressTask",
+      content: MarkdownString.from(part.value)
+    };
+  }
+  __name(from, "from");
+  ChatTask2.from = from;
+})(ChatTask || (ChatTask = {}));
+var ChatTaskResult;
+(function(ChatTaskResult2) {
+  function from(part) {
+    return {
+      kind: "progressTaskResult",
+      content: typeof part === "string" ? MarkdownString.from(part) : void 0
+    };
+  }
+  __name(from, "from");
+  ChatTaskResult2.from = from;
+})(ChatTaskResult || (ChatTaskResult = {}));
+var ChatResponseCommandButtonPart;
+(function(ChatResponseCommandButtonPart2) {
+  function from(part, commandsConverter, commandDisposables) {
+    const command = commandsConverter.toInternal(part.value, commandDisposables) ?? { command: part.value.command, title: part.value.title };
+    return {
+      kind: "command",
+      command
+    };
+  }
+  __name(from, "from");
+  ChatResponseCommandButtonPart2.from = from;
+  function to(part, commandsConverter) {
+    return new types.ChatResponseCommandButtonPart(commandsConverter.fromInternal(part.command) ?? { command: part.command.id, title: part.command.title });
+  }
+  __name(to, "to");
+  ChatResponseCommandButtonPart2.to = to;
+})(ChatResponseCommandButtonPart || (ChatResponseCommandButtonPart = {}));
+var ChatResponseTextEditPart;
+(function(ChatResponseTextEditPart2) {
+  function from(part) {
+    return {
+      kind: "textEdit",
+      uri: part.uri,
+      edits: part.edits.map((e) => TextEdit.from(e)),
+      done: part.isDone
+    };
+  }
+  __name(from, "from");
+  ChatResponseTextEditPart2.from = from;
+  function to(part) {
+    const result = new types.ChatResponseTextEditPart(URI.revive(part.uri), part.edits.map((e) => TextEdit.to(e)));
+    result.isDone = part.done;
+    return result;
+  }
+  __name(to, "to");
+  ChatResponseTextEditPart2.to = to;
+})(ChatResponseTextEditPart || (ChatResponseTextEditPart = {}));
+var NotebookEdit;
+(function(NotebookEdit2) {
+  function from(edit) {
+    if (edit.newCellMetadata) {
+      return {
+        editType: 3,
+        index: edit.range.start,
+        metadata: edit.newCellMetadata
+      };
+    } else if (edit.newNotebookMetadata) {
+      return {
+        editType: 5,
+        metadata: edit.newNotebookMetadata
+      };
+    } else {
+      return {
+        editType: 1,
+        index: edit.range.start,
+        count: edit.range.end - edit.range.start,
+        cells: edit.newCells.map(NotebookCellData.from)
+      };
+    }
+  }
+  __name(from, "from");
+  NotebookEdit2.from = from;
+})(NotebookEdit || (NotebookEdit = {}));
+var ChatResponseNotebookEditPart;
+(function(ChatResponseNotebookEditPart2) {
+  function from(part) {
+    return {
+      kind: "notebookEdit",
+      uri: part.uri,
+      edits: part.edits.map(NotebookEdit.from),
+      done: part.isDone
+    };
+  }
+  __name(from, "from");
+  ChatResponseNotebookEditPart2.from = from;
+})(ChatResponseNotebookEditPart || (ChatResponseNotebookEditPart = {}));
+var ChatResponseReferencePart;
+(function(ChatResponseReferencePart2) {
+  function from(part) {
+    const iconPath = ThemeIcon.isThemeIcon(part.iconPath) ? part.iconPath : URI.isUri(part.iconPath) ? { light: URI.revive(part.iconPath) } : part.iconPath && "light" in part.iconPath && "dark" in part.iconPath && URI.isUri(part.iconPath.light) && URI.isUri(part.iconPath.dark) ? { light: URI.revive(part.iconPath.light), dark: URI.revive(part.iconPath.dark) } : void 0;
+    if (typeof part.value === "object" && "variableName" in part.value) {
+      return {
+        kind: "reference",
+        reference: {
+          variableName: part.value.variableName,
+          value: URI.isUri(part.value.value) || !part.value.value ? part.value.value : Location.from(part.value.value)
+        },
+        iconPath,
+        options: part.options
+      };
+    }
+    return {
+      kind: "reference",
+      reference: URI.isUri(part.value) || typeof part.value === "string" ? part.value : Location.from(part.value),
+      iconPath,
+      options: part.options
+    };
+  }
+  __name(from, "from");
+  ChatResponseReferencePart2.from = from;
+  function to(part) {
+    const value = revive(part);
+    const mapValue = /* @__PURE__ */ __name((value2) => URI.isUri(value2) ? value2 : Location.to(value2), "mapValue");
+    return new types.ChatResponseReferencePart(typeof value.reference === "string" ? value.reference : "variableName" in value.reference ? {
+      variableName: value.reference.variableName,
+      value: value.reference.value && mapValue(value.reference.value)
+    } : mapValue(value.reference));
+  }
+  __name(to, "to");
+  ChatResponseReferencePart2.to = to;
+})(ChatResponseReferencePart || (ChatResponseReferencePart = {}));
+var ChatResponseCodeCitationPart;
+(function(ChatResponseCodeCitationPart2) {
+  function from(part) {
+    return {
+      kind: "codeCitation",
+      value: part.value,
+      license: part.license,
+      snippet: part.snippet
+    };
+  }
+  __name(from, "from");
+  ChatResponseCodeCitationPart2.from = from;
+})(ChatResponseCodeCitationPart || (ChatResponseCodeCitationPart = {}));
+var ChatResponsePart;
+(function(ChatResponsePart2) {
+  function from(part, commandsConverter, commandDisposables) {
+    if (part instanceof types.ChatResponseMarkdownPart) {
+      return ChatResponseMarkdownPart.from(part);
+    } else if (part instanceof types.ChatResponseAnchorPart) {
+      return ChatResponseAnchorPart.from(part);
+    } else if (part instanceof types.ChatResponseReferencePart) {
+      return ChatResponseReferencePart.from(part);
+    } else if (part instanceof types.ChatResponseProgressPart) {
+      return ChatResponseProgressPart.from(part);
+    } else if (part instanceof types.ChatResponseThinkingProgressPart) {
+      return ChatResponseThinkingProgressPart.from(part);
+    } else if (part instanceof types.ChatResponseFileTreePart) {
+      return ChatResponseFilesPart.from(part);
+    } else if (part instanceof types.ChatResponseMultiDiffPart) {
+      return ChatResponseMultiDiffPart.from(part);
+    } else if (part instanceof types.ChatResponseCommandButtonPart) {
+      return ChatResponseCommandButtonPart.from(part, commandsConverter, commandDisposables);
+    } else if (part instanceof types.ChatResponseTextEditPart) {
+      return ChatResponseTextEditPart.from(part);
+    } else if (part instanceof types.ChatResponseNotebookEditPart) {
+      return ChatResponseNotebookEditPart.from(part);
+    } else if (part instanceof types.ChatResponseMarkdownWithVulnerabilitiesPart) {
+      return ChatResponseMarkdownWithVulnerabilitiesPart.from(part);
+    } else if (part instanceof types.ChatResponseCodeblockUriPart) {
+      return ChatResponseCodeblockUriPart.from(part);
+    } else if (part instanceof types.ChatResponseWarningPart) {
+      return ChatResponseWarningPart.from(part);
+    } else if (part instanceof types.ChatResponseConfirmationPart) {
+      return ChatResponseConfirmationPart.from(part);
+    } else if (part instanceof types.ChatResponseCodeCitationPart) {
+      return ChatResponseCodeCitationPart.from(part);
+    } else if (part instanceof types.ChatResponseMovePart) {
+      return ChatResponseMovePart.from(part);
+    } else if (part instanceof types.ChatResponseExtensionsPart) {
+      return ChatResponseExtensionsPart.from(part);
+    } else if (part instanceof types.ChatResponsePullRequestPart) {
+      return ChatResponsePullRequestPart.from(part);
+    } else if (part instanceof types.ChatToolInvocationPart) {
+      return ChatToolInvocationPart.from(part);
+    }
+    return {
+      kind: "markdownContent",
+      content: MarkdownString.from("")
+    };
+  }
+  __name(from, "from");
+  ChatResponsePart2.from = from;
+  function to(part, commandsConverter) {
+    switch (part.kind) {
+      case "reference":
+        return ChatResponseReferencePart.to(part);
+      case "markdownContent":
+      case "inlineReference":
+      case "progressMessage":
+      case "treeData":
+      case "command":
+        return toContent(part, commandsConverter);
+    }
+    return void 0;
+  }
+  __name(to, "to");
+  ChatResponsePart2.to = to;
+  function toContent(part, commandsConverter) {
+    switch (part.kind) {
+      case "markdownContent":
+        return ChatResponseMarkdownPart.to(part);
+      case "inlineReference":
+        return ChatResponseAnchorPart.to(part);
+      case "progressMessage":
+        return void 0;
+      case "treeData":
+        return ChatResponseFilesPart.to(part);
+      case "command":
+        return ChatResponseCommandButtonPart.to(part, commandsConverter);
+    }
+    return void 0;
+  }
+  __name(toContent, "toContent");
+  ChatResponsePart2.toContent = toContent;
+})(ChatResponsePart || (ChatResponsePart = {}));
+var ChatAgentRequest;
+(function(ChatAgentRequest2) {
+  function to(request, location2, model, diagnostics, tools, extension, logService) {
+    const toolReferences = [];
+    const variableReferences = [];
+    for (const v of request.variables.variables) {
+      if (v.kind === "tool") {
+        toolReferences.push(v);
+      } else if (v.kind === "toolset") {
+        toolReferences.push(...v.value);
+      } else {
+        variableReferences.push(v);
+      }
+    }
+    const sessionId = LocalChatSessionUri.parseLocalSessionId(request.sessionResource) ?? request.sessionResource.toString();
+    const requestWithAllProps = {
+      id: request.requestId,
+      prompt: request.message,
+      command: request.command,
+      attempt: request.attempt ?? 0,
+      enableCommandDetection: request.enableCommandDetection ?? true,
+      isParticipantDetected: request.isParticipantDetected ?? false,
+      sessionId,
+      references: variableReferences.map((v) => ChatPromptReference.to(v, diagnostics, logService)).filter(isDefined),
+      toolReferences: toolReferences.map(ChatLanguageModelToolReference.to),
+      location: ChatLocation.to(request.location),
+      acceptedConfirmationData: request.acceptedConfirmationData,
+      rejectedConfirmationData: request.rejectedConfirmationData,
+      location2,
+      toolInvocationToken: Object.freeze({ sessionId, sessionResource: request.sessionResource }),
+      tools,
+      model,
+      editedFileEvents: request.editedFileEvents,
+      modeInstructions: request.modeInstructions?.content,
+      modeInstructions2: ChatRequestModeInstructions.to(request.modeInstructions),
+      subAgentInvocationId: request.subAgentInvocationId
+    };
+    if (!isProposedApiEnabled(extension, "chatParticipantPrivate")) {
+      delete requestWithAllProps.id;
+      delete requestWithAllProps.attempt;
+      delete requestWithAllProps.enableCommandDetection;
+      delete requestWithAllProps.isParticipantDetected;
+      delete requestWithAllProps.location;
+      delete requestWithAllProps.location2;
+      delete requestWithAllProps.editedFileEvents;
+      delete requestWithAllProps.sessionId;
+      delete requestWithAllProps.subAgentInvocationId;
+    }
+    if (!isProposedApiEnabled(extension, "chatParticipantAdditions")) {
+      delete requestWithAllProps.acceptedConfirmationData;
+      delete requestWithAllProps.rejectedConfirmationData;
+      delete requestWithAllProps.tools;
+    }
+    return requestWithAllProps;
+  }
+  __name(to, "to");
+  ChatAgentRequest2.to = to;
+})(ChatAgentRequest || (ChatAgentRequest = {}));
+var ChatRequestDraft;
+(function(ChatRequestDraft2) {
+  function to(request) {
+    return {
+      prompt: request.prompt,
+      files: request.files.map((uri) => URI.revive(uri))
+    };
+  }
+  __name(to, "to");
+  ChatRequestDraft2.to = to;
+})(ChatRequestDraft || (ChatRequestDraft = {}));
+var ChatLocation;
+(function(ChatLocation2) {
+  function to(loc) {
+    switch (loc) {
+      case ChatAgentLocation.Notebook:
+        return types.ChatLocation.Notebook;
+      case ChatAgentLocation.Terminal:
+        return types.ChatLocation.Terminal;
+      case ChatAgentLocation.Chat:
+        return types.ChatLocation.Panel;
+      case ChatAgentLocation.EditorInline:
+        return types.ChatLocation.Editor;
+    }
+  }
+  __name(to, "to");
+  ChatLocation2.to = to;
+  function from(loc) {
+    switch (loc) {
+      case types.ChatLocation.Notebook:
+        return ChatAgentLocation.Notebook;
+      case types.ChatLocation.Terminal:
+        return ChatAgentLocation.Terminal;
+      case types.ChatLocation.Panel:
+        return ChatAgentLocation.Chat;
+      case types.ChatLocation.Editor:
+        return ChatAgentLocation.EditorInline;
+    }
+  }
+  __name(from, "from");
+  ChatLocation2.from = from;
+})(ChatLocation || (ChatLocation = {}));
+var ChatPromptReference;
+(function(ChatPromptReference2) {
+  function to(variable, diagnostics, logService) {
+    let value = variable.value;
+    if (!value) {
+      let varStr;
+      try {
+        varStr = JSON.stringify(variable);
+      } catch {
+        varStr = `kind=${variable.kind}, id=${variable.id}, name=${variable.name}`;
+      }
+      logService.error(`[ChatPromptReference] Ignoring invalid reference in variable: ${varStr}`);
+      return void 0;
+    }
+    if (isUriComponents(value)) {
+      value = URI.revive(value);
+    } else if (value && typeof value === "object" && "uri" in value && "range" in value && isUriComponents(value.uri)) {
+      value = Location.to(revive(value));
+    } else if (isImageVariableEntry(variable)) {
+      const ref = variable.references?.[0]?.reference;
+      value = new types.ChatReferenceBinaryData(variable.mimeType ?? "image/png", () => Promise.resolve(new Uint8Array(Object.values(variable.value))), ref && URI.isUri(ref) ? ref : void 0);
+    } else if (variable.kind === "diagnostic") {
+      const filterSeverity = variable.filterSeverity && DiagnosticSeverity.to(variable.filterSeverity);
+      const filterUri = variable.filterUri && URI.revive(variable.filterUri).toString();
+      value = new types.ChatReferenceDiagnostic(diagnostics.map(([uri, d]) => {
+        if (variable.filterUri && uri.toString() !== filterUri) {
+          return [uri, []];
+        }
+        return [uri, d.filter((d2) => {
+          if (filterSeverity && d2.severity > filterSeverity) {
+            return false;
+          }
+          if (variable.filterRange && !editorRange.Range.areIntersectingOrTouching(variable.filterRange, Range.from(d2.range))) {
+            return false;
+          }
+          return true;
+        })];
+      }).filter(([, d]) => d.length > 0));
+    }
+    let toolReferences;
+    if (isPromptFileVariableEntry(variable) || isPromptTextVariableEntry(variable)) {
+      if (variable.toolReferences) {
+        toolReferences = ChatLanguageModelToolReferences.to(variable.toolReferences);
+      }
+    }
+    return {
+      id: variable.id,
+      name: variable.name,
+      range: variable.range && [variable.range.start, variable.range.endExclusive],
+      toolReferences,
+      value,
+      modelDescription: variable.modelDescription
+    };
+  }
+  __name(to, "to");
+  ChatPromptReference2.to = to;
+})(ChatPromptReference || (ChatPromptReference = {}));
+var ChatLanguageModelToolReference;
+(function(ChatLanguageModelToolReference2) {
+  function to(variable) {
+    const value = variable.value;
+    if (value) {
+      throw new Error("Invalid tool reference");
+    }
+    return {
+      name: variable.id,
+      range: variable.range && [variable.range.start, variable.range.endExclusive]
+    };
+  }
+  __name(to, "to");
+  ChatLanguageModelToolReference2.to = to;
+})(ChatLanguageModelToolReference || (ChatLanguageModelToolReference = {}));
+var ChatLanguageModelToolReferences;
+(function(ChatLanguageModelToolReferences2) {
+  function to(variables) {
+    const toolReferences = [];
+    for (const v of variables) {
+      if (v.kind === "tool") {
+        toolReferences.push(ChatLanguageModelToolReference.to(v));
+      } else if (v.kind === "toolset") {
+        toolReferences.push(...v.value.map(ChatLanguageModelToolReference.to));
+      } else {
+        throw new Error("Invalid tool reference in prompt variables");
+      }
+    }
+    return toolReferences;
+  }
+  __name(to, "to");
+  ChatLanguageModelToolReferences2.to = to;
+})(ChatLanguageModelToolReferences || (ChatLanguageModelToolReferences = {}));
+var ChatRequestModeInstructions;
+(function(ChatRequestModeInstructions2) {
+  function to(mode) {
+    if (mode) {
+      return {
+        name: mode.name,
+        content: mode.content,
+        toolReferences: ChatLanguageModelToolReferences.to(mode.toolReferences),
+        metadata: mode.metadata
+      };
+    }
+    return void 0;
+  }
+  __name(to, "to");
+  ChatRequestModeInstructions2.to = to;
+})(ChatRequestModeInstructions || (ChatRequestModeInstructions = {}));
+var ChatAgentCompletionItem;
+(function(ChatAgentCompletionItem2) {
+  function from(item, commandsConverter, disposables) {
+    return {
+      id: item.id,
+      label: item.label,
+      fullName: item.fullName,
+      icon: item.icon?.id,
+      value: item.values[0].value,
+      insertText: item.insertText,
+      detail: item.detail,
+      documentation: item.documentation,
+      command: commandsConverter.toInternal(item.command, disposables)
+    };
+  }
+  __name(from, "from");
+  ChatAgentCompletionItem2.from = from;
+})(ChatAgentCompletionItem || (ChatAgentCompletionItem = {}));
+var ChatAgentResult;
+(function(ChatAgentResult2) {
+  function to(result) {
+    return {
+      errorDetails: result.errorDetails,
+      metadata: reviveMetadata(result.metadata),
+      nextQuestion: result.nextQuestion,
+      details: result.details
+    };
+  }
+  __name(to, "to");
+  ChatAgentResult2.to = to;
+  function from(result) {
+    return {
+      errorDetails: result.errorDetails,
+      metadata: result.metadata,
+      nextQuestion: result.nextQuestion,
+      details: result.details
+    };
+  }
+  __name(from, "from");
+  ChatAgentResult2.from = from;
+  function reviveMetadata(metadata) {
+    return cloneAndChange(metadata, (value) => {
+      if (value.$mid === 20) {
+        return new types.LanguageModelToolResult(cloneAndChange(value.content, reviveMetadata));
+      } else if (value.$mid === 21) {
+        return new types.LanguageModelTextPart(value.value);
+      } else if (value.$mid === 22) {
+        return new types.LanguageModelThinkingPart(value.value, value.id, value.metadata);
+      } else if (value.$mid === 23) {
+        return new types.LanguageModelPromptTsxPart(value.value);
+      }
+      return void 0;
+    });
+  }
+  __name(reviveMetadata, "reviveMetadata");
+})(ChatAgentResult || (ChatAgentResult = {}));
+var ChatAgentUserActionEvent;
+(function(ChatAgentUserActionEvent2) {
+  function to(result, event, commandsConverter) {
+    if (event.action.kind === "vote") {
+      return;
+    }
+    const ehResult = ChatAgentResult.to(result);
+    if (event.action.kind === "command") {
+      const command = event.action.commandButton.command;
+      const commandButton = {
+        command: commandsConverter.fromInternal(command) ?? { command: command.id, title: command.title }
+      };
+      const commandAction = { kind: "command", commandButton };
+      return { action: commandAction, result: ehResult };
+    } else if (event.action.kind === "followUp") {
+      const followupAction = { kind: "followUp", followup: ChatFollowup.to(event.action.followup) };
+      return { action: followupAction, result: ehResult };
+    } else if (event.action.kind === "inlineChat") {
+      return { action: { kind: "editor", accepted: event.action.action === "accepted" }, result: ehResult };
+    } else if (event.action.kind === "chatEditingSessionAction") {
+      const outcomes = /* @__PURE__ */ new Map([
+        ["accepted", types.ChatEditingSessionActionOutcome.Accepted],
+        ["rejected", types.ChatEditingSessionActionOutcome.Rejected],
+        ["saved", types.ChatEditingSessionActionOutcome.Saved]
+      ]);
+      return {
+        action: {
+          kind: "chatEditingSessionAction",
+          outcome: outcomes.get(event.action.outcome) ?? types.ChatEditingSessionActionOutcome.Rejected,
+          uri: URI.revive(event.action.uri),
+          hasRemainingEdits: event.action.hasRemainingEdits
+        },
+        result: ehResult
+      };
+    } else if (event.action.kind === "chatEditingHunkAction") {
+      const outcomes = /* @__PURE__ */ new Map([
+        ["accepted", types.ChatEditingSessionActionOutcome.Accepted],
+        ["rejected", types.ChatEditingSessionActionOutcome.Rejected]
+      ]);
+      return {
+        action: {
+          kind: "chatEditingHunkAction",
+          outcome: outcomes.get(event.action.outcome) ?? types.ChatEditingSessionActionOutcome.Rejected,
+          uri: URI.revive(event.action.uri),
+          hasRemainingEdits: event.action.hasRemainingEdits,
+          lineCount: event.action.lineCount,
+          linesAdded: event.action.linesAdded,
+          linesRemoved: event.action.linesRemoved
+        },
+        result: ehResult
+      };
+    } else {
+      return { action: event.action, result: ehResult };
+    }
+  }
+  __name(to, "to");
+  ChatAgentUserActionEvent2.to = to;
+})(ChatAgentUserActionEvent || (ChatAgentUserActionEvent = {}));
+var TerminalQuickFix;
+(function(TerminalQuickFix2) {
+  function from(quickFix, converter, disposables) {
+    if ("terminalCommand" in quickFix) {
+      return { terminalCommand: quickFix.terminalCommand, shouldExecute: quickFix.shouldExecute };
+    }
+    if ("uri" in quickFix) {
+      return { uri: quickFix.uri };
+    }
+    return converter.toInternal(quickFix, disposables);
+  }
+  __name(from, "from");
+  TerminalQuickFix2.from = from;
+})(TerminalQuickFix || (TerminalQuickFix = {}));
+var TerminalCompletionItemDto;
+(function(TerminalCompletionItemDto2) {
+  function from(item) {
+    return {
+      ...item,
+      documentation: MarkdownString.fromStrict(item.documentation)
+    };
+  }
+  __name(from, "from");
+  TerminalCompletionItemDto2.from = from;
+})(TerminalCompletionItemDto || (TerminalCompletionItemDto = {}));
+var TerminalCompletionList;
+(function(TerminalCompletionList2) {
+  function from(completions, pathSeparator) {
+    if (Array.isArray(completions)) {
+      return {
+        items: completions.map((i) => TerminalCompletionItemDto.from(i))
+      };
+    }
+    return {
+      items: completions.items.map((i) => TerminalCompletionItemDto.from(i)),
+      resourceOptions: completions.resourceOptions ? TerminalCompletionResourceOptions.from(completions.resourceOptions, pathSeparator) : void 0
+    };
+  }
+  __name(from, "from");
+  TerminalCompletionList2.from = from;
+})(TerminalCompletionList || (TerminalCompletionList = {}));
+var TerminalCompletionResourceOptions;
+(function(TerminalCompletionResourceOptions2) {
+  function from(resourceOptions, pathSeparator) {
+    return {
+      ...resourceOptions,
+      pathSeparator,
+      cwd: resourceOptions.cwd,
+      globPattern: GlobPattern.from(resourceOptions.globPattern) ?? void 0
+    };
+  }
+  __name(from, "from");
+  TerminalCompletionResourceOptions2.from = from;
+})(TerminalCompletionResourceOptions || (TerminalCompletionResourceOptions = {}));
+var PartialAcceptInfo;
+(function(PartialAcceptInfo2) {
+  function to(info) {
+    return {
+      kind: PartialAcceptTriggerKind.to(info.kind),
+      acceptedLength: info.acceptedLength
+    };
+  }
+  __name(to, "to");
+  PartialAcceptInfo2.to = to;
+})(PartialAcceptInfo || (PartialAcceptInfo = {}));
+var PartialAcceptTriggerKind;
+(function(PartialAcceptTriggerKind2) {
+  function to(kind) {
+    switch (kind) {
+      case 0:
+        return types.PartialAcceptTriggerKind.Word;
+      case 1:
+        return types.PartialAcceptTriggerKind.Line;
+      case 2:
+        return types.PartialAcceptTriggerKind.Suggest;
+      default:
+        return types.PartialAcceptTriggerKind.Unknown;
+    }
+  }
+  __name(to, "to");
+  PartialAcceptTriggerKind2.to = to;
+})(PartialAcceptTriggerKind || (PartialAcceptTriggerKind = {}));
+var InlineCompletionEndOfLifeReason;
+(function(InlineCompletionEndOfLifeReason2) {
+  function to(reason, convertFn) {
+    if (reason.kind === languages.InlineCompletionEndOfLifeReasonKind.Ignored) {
+      const supersededBy = reason.supersededBy ? convertFn(reason.supersededBy) : void 0;
+      return {
+        kind: types.InlineCompletionEndOfLifeReasonKind.Ignored,
+        supersededBy,
+        userTypingDisagreed: reason.userTypingDisagreed
+      };
+    } else if (reason.kind === languages.InlineCompletionEndOfLifeReasonKind.Accepted) {
+      return {
+        kind: types.InlineCompletionEndOfLifeReasonKind.Accepted
+      };
+    }
+    return {
+      kind: types.InlineCompletionEndOfLifeReasonKind.Rejected
+    };
+  }
+  __name(to, "to");
+  InlineCompletionEndOfLifeReason2.to = to;
+})(InlineCompletionEndOfLifeReason || (InlineCompletionEndOfLifeReason = {}));
+var InlineCompletionHintStyle;
+(function(InlineCompletionHintStyle2) {
+  function from(value) {
+    if (value === types.InlineCompletionDisplayLocationKind.Label) {
+      return languages.InlineCompletionHintStyle.Label;
+    } else {
+      return languages.InlineCompletionHintStyle.Code;
+    }
+  }
+  __name(from, "from");
+  InlineCompletionHintStyle2.from = from;
+  function to(kind) {
+    switch (kind) {
+      case languages.InlineCompletionHintStyle.Label:
+        return types.InlineCompletionDisplayLocationKind.Label;
+      default:
+        return types.InlineCompletionDisplayLocationKind.Code;
+    }
+  }
+  __name(to, "to");
+  InlineCompletionHintStyle2.to = to;
+})(InlineCompletionHintStyle || (InlineCompletionHintStyle = {}));
+var DebugTreeItem;
+(function(DebugTreeItem2) {
+  function from(item, id) {
+    return {
+      id,
+      label: item.label,
+      description: item.description,
+      canEdit: item.canEdit,
+      collapsibleState: item.collapsibleState || 0,
+      contextValue: item.contextValue
+    };
+  }
+  __name(from, "from");
+  DebugTreeItem2.from = from;
+})(DebugTreeItem || (DebugTreeItem = {}));
+var LanguageModelToolSource;
+(function(LanguageModelToolSource2) {
+  function to(source) {
+    if (source.type === "mcp") {
+      return new types.LanguageModelToolMCPSource(source.label, source.serverLabel || source.label, source.instructions);
+    } else if (source.type === "extension") {
+      return new types.LanguageModelToolExtensionSource(source.extensionId.value, source.label);
+    } else {
+      return void 0;
+    }
+  }
+  __name(to, "to");
+  LanguageModelToolSource2.to = to;
+})(LanguageModelToolSource || (LanguageModelToolSource = {}));
+var LanguageModelToolResult;
+(function(LanguageModelToolResult2) {
+  function to(result) {
+    return new types.LanguageModelToolResult(result.content.map((item) => {
+      if (item.kind === "text") {
+        return new types.LanguageModelTextPart(item.value, item.audience);
+      } else if (item.kind === "data") {
+        return new types.LanguageModelDataPart(item.value.data.buffer, item.value.mimeType, item.audience);
+      } else {
+        return new types.LanguageModelPromptTsxPart(item.value);
+      }
+    }));
+  }
+  __name(to, "to");
+  LanguageModelToolResult2.to = to;
+  function from(result, extension) {
+    if (result.toolResultMessage) {
+      checkProposedApiEnabled(extension, "chatParticipantPrivate");
+    }
+    const checkAudienceApi = /* @__PURE__ */ __name((item) => {
+      if (item.audience) {
+        checkProposedApiEnabled(extension, "languageModelToolResultAudience");
+      }
+    }, "checkAudienceApi");
+    let hasBuffers = false;
+    let detailsDto = void 0;
+    if (Array.isArray(result.toolResultDetails)) {
+      detailsDto = result.toolResultDetails?.map((detail) => {
+        return URI.isUri(detail) ? detail : Location.from(detail);
+      });
+    } else {
+      if (result.toolResultDetails2) {
+        detailsDto = {
+          output: {
+            type: "data",
+            mimeType: result.toolResultDetails2.mime,
+            value: VSBuffer.wrap(result.toolResultDetails2.value)
+          }
+        };
+        hasBuffers = true;
+      }
+    }
+    const dto = {
+      content: result.content.map((item) => {
+        if (item instanceof types.LanguageModelTextPart) {
+          checkAudienceApi(item);
+          return {
+            kind: "text",
+            value: item.value,
+            audience: item.audience
+          };
+        } else if (item instanceof types.LanguageModelPromptTsxPart) {
+          return {
+            kind: "promptTsx",
+            value: item.value
+          };
+        } else if (item instanceof types.LanguageModelDataPart) {
+          checkAudienceApi(item);
+          hasBuffers = true;
+          return {
+            kind: "data",
+            value: {
+              mimeType: item.mimeType,
+              data: VSBuffer.wrap(item.data)
+            },
+            audience: item.audience
+          };
+        } else {
+          throw new Error("Unknown LanguageModelToolResult part type");
+        }
+      }),
+      toolResultMessage: MarkdownString.fromStrict(result.toolResultMessage),
+      toolResultDetails: detailsDto,
+      toolMetadata: result.toolMetadata
+    };
+    return hasBuffers ? new SerializableObjectWithBuffers(dto) : dto;
+  }
+  __name(from, "from");
+  LanguageModelToolResult2.from = from;
+})(LanguageModelToolResult || (LanguageModelToolResult = {}));
+var IconPath;
+(function(IconPath2) {
+  function fromThemeIcon(iconPath) {
+    return iconPath;
+  }
+  __name(fromThemeIcon, "fromThemeIcon");
+  IconPath2.fromThemeIcon = fromThemeIcon;
+  function from(value) {
+    if (!value) {
+      return void 0;
+    } else if (ThemeIcon.isThemeIcon(value)) {
+      return value;
+    } else if (URI.isUri(value)) {
+      return value;
+    } else if (typeof value === "string") {
+      return URI.file(value);
+    } else if (typeof value === "object" && value !== null && "dark" in value) {
+      const dark = typeof value.dark === "string" ? URI.file(value.dark) : value.dark;
+      const light = typeof value.light === "string" ? URI.file(value.light) : value.light;
+      return !dark ? void 0 : { dark, light: light ?? dark };
+    } else {
+      return void 0;
+    }
+  }
+  __name(from, "from");
+  IconPath2.from = from;
+  function to(value) {
+    if (!value) {
+      return void 0;
+    } else if (ThemeIcon.isThemeIcon(value)) {
+      return value;
+    } else if (isUriComponents(value)) {
+      return URI.revive(value);
+    } else {
+      const icon = value;
+      return {
+        light: URI.revive(icon.light),
+        dark: URI.revive(icon.dark)
+      };
+    }
+  }
+  __name(to, "to");
+  IconPath2.to = to;
+})(IconPath || (IconPath = {}));
+var AiSettingsSearch;
+(function(AiSettingsSearch2) {
+  function fromSettingsSearchResult(result) {
+    return {
+      query: result.query,
+      kind: fromSettingsSearchResultKind(result.kind),
+      settings: result.settings
+    };
+  }
+  __name(fromSettingsSearchResult, "fromSettingsSearchResult");
+  AiSettingsSearch2.fromSettingsSearchResult = fromSettingsSearchResult;
+  function fromSettingsSearchResultKind(kind) {
+    switch (kind) {
+      case AiSettingsSearchResultKind.EMBEDDED:
+        return AiSettingsSearchResultKind.EMBEDDED;
+      case AiSettingsSearchResultKind.LLM_RANKED:
+        return AiSettingsSearchResultKind.LLM_RANKED;
+      case AiSettingsSearchResultKind.CANCELED:
+        return AiSettingsSearchResultKind.CANCELED;
+      default:
+        throw new Error("Unknown AiSettingsSearchResultKind");
+    }
+  }
+  __name(fromSettingsSearchResultKind, "fromSettingsSearchResultKind");
+})(AiSettingsSearch || (AiSettingsSearch = {}));
+var McpServerDefinition;
+(function(McpServerDefinition2) {
+  function isHttpConfig(candidate) {
+    return !!candidate.uri;
+  }
+  __name(isHttpConfig, "isHttpConfig");
+  function from(item) {
+    return McpServerLaunch.toSerialized(isHttpConfig(item) ? {
+      type: 2,
+      uri: item.uri,
+      headers: Object.entries(item.headers),
+      authentication: item.authentication ? {
+        providerId: item.authentication.providerId,
+        scopes: item.authentication.scopes
+      } : void 0
+    } : {
+      type: 1,
+      cwd: item.cwd?.fsPath,
+      args: item.args,
+      command: item.command,
+      env: item.env,
+      envFile: void 0
+    });
+  }
+  __name(from, "from");
+  McpServerDefinition2.from = from;
+})(McpServerDefinition || (McpServerDefinition = {}));
+var SourceControlInputBoxValidationType;
+(function(SourceControlInputBoxValidationType2) {
+  function from(type) {
+    switch (type) {
+      case types.SourceControlInputBoxValidationType.Error:
+        return 0;
+      case types.SourceControlInputBoxValidationType.Warning:
+        return 1;
+      case types.SourceControlInputBoxValidationType.Information:
+        return 2;
+      default:
+        throw new Error("Unknown SourceControlInputBoxValidationType");
+    }
+  }
+  __name(from, "from");
+  SourceControlInputBoxValidationType2.from = from;
+})(SourceControlInputBoxValidationType || (SourceControlInputBoxValidationType = {}));
+export {
+  AiSettingsSearch,
+  CallHierarchyIncomingCall,
+  CallHierarchyItem,
+  CallHierarchyOutgoingCall,
+  ChatAgentCompletionItem,
+  ChatAgentRequest,
+  ChatAgentResult,
+  ChatAgentUserActionEvent,
+  ChatFollowup,
+  ChatLanguageModelToolReference,
+  ChatLocation,
+  ChatPromptReference,
+  ChatRequestDraft,
+  ChatRequestModeInstructions,
+  ChatResponseAnchorPart,
+  ChatResponseCodeCitationPart,
+  ChatResponseCodeblockUriPart,
+  ChatResponseCommandButtonPart,
+  ChatResponseConfirmationPart,
+  ChatResponseExtensionsPart,
+  ChatResponseFilesPart,
+  ChatResponseMarkdownPart,
+  ChatResponseMarkdownWithVulnerabilitiesPart,
+  ChatResponseMovePart,
+  ChatResponseMultiDiffPart,
+  ChatResponseNotebookEditPart,
+  ChatResponsePart,
+  ChatResponseProgressPart,
+  ChatResponsePullRequestPart,
+  ChatResponseReferencePart,
+  ChatResponseTextEditPart,
+  ChatResponseThinkingProgressPart,
+  ChatResponseWarningPart,
+  ChatTask,
+  ChatTaskResult,
+  ChatToolInvocationPart,
+  CodeActionTriggerKind,
+  Color,
+  ColorPresentation,
+  CompletionCommand,
+  CompletionContext,
+  CompletionItem,
+  CompletionItemKind,
+  CompletionItemTag,
+  CompletionTriggerKind,
+  DataTransfer,
+  DataTransferItem,
+  DebugTreeItem,
+  DecorationRangeBehavior,
+  DecorationRenderOptions,
+  DefinitionLink,
+  Diagnostic,
+  DiagnosticRelatedInformation,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  DocumentHighlight,
+  DocumentLink,
+  DocumentSelector,
+  DocumentSymbol,
+  EndOfLine,
+  EvaluatableExpression,
+  FoldingRange,
+  FoldingRangeKind,
+  GlobPattern,
+  Hover,
+  IconPath,
+  InlayHint,
+  InlayHintKind,
+  InlayHintLabelPart,
+  InlineCompletionEndOfLifeReason,
+  InlineCompletionHintStyle,
+  InlineValue,
+  InlineValueContext,
+  LanguageModelChatMessage,
+  LanguageModelChatMessage2,
+  LanguageModelChatMessageRole,
+  LanguageModelToolResult,
+  LanguageModelToolSource,
+  LanguageSelector,
+  Location,
+  MarkdownString,
+  McpServerDefinition,
+  MultiDocumentHighlight,
+  NotebookCellData,
+  NotebookCellExecutionSummary,
+  NotebookCellKind,
+  NotebookCellOutput,
+  NotebookCellOutputItem,
+  NotebookData,
+  NotebookDocumentContentOptions,
+  NotebookEdit,
+  NotebookExclusiveDocumentPattern,
+  NotebookKernelSourceAction,
+  NotebookRange,
+  NotebookRendererScript,
+  NotebookStatusBarItem,
+  ParameterInformation,
+  PartialAcceptInfo,
+  PartialAcceptTriggerKind,
+  Position,
+  ProgressLocation,
+  Range,
+  Selection,
+  SelectionRange,
+  SignatureHelp,
+  SignatureInformation,
+  SourceControlInputBoxValidationType,
+  SymbolKind,
+  SymbolTag,
+  TerminalCompletionItemDto,
+  TerminalCompletionList,
+  TerminalCompletionResourceOptions,
+  TerminalQuickFix,
+  TestCoverage,
+  TestItem,
+  TestMessage,
+  TestResults,
+  TestRunProfile,
+  TestRunProfileKind,
+  TestTag,
+  TextDocumentSaveReason,
+  TextEdit,
+  TextEditorLineNumbersStyle,
+  TextEditorOpenOptions,
+  ThemableDecorationAttachmentRenderOptions,
+  ThemableDecorationRenderOptions,
+  TokenType,
+  TypeHierarchyItem,
+  ViewBadge,
+  ViewColumn,
+  WorkspaceEdit,
+  WorkspaceSymbol,
+  fromRangeOrRangeWithMessage,
+  isDecorationOptionsArr,
+  location,
+  pathOrURIToURI
+};
+//# sourceMappingURL=extHostTypeConverters.js.map

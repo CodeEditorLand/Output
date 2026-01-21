@@ -1,1 +1,70 @@
-import{$cc as s}from"../../../../base/common/arrays.js";import{CancellationToken as p}from"../../../../base/common/cancellation.js";import{$Acb as l,$Fcb as d}from"../../../../editor/browser/editorExtensions.js";import{$9D as g}from"../../../../editor/common/core/range.js";import{EditorContextKeys as f}from"../../../../editor/common/editorContextKeys.js";import{$gH as $}from"../../../../editor/common/model.js";import{$9db as b}from"../../../../editor/common/services/editorWorker.js";import{$2H as v}from"../../../../editor/common/services/resolverService.js";import{$csb as w}from"../../../../editor/contrib/format/browser/format.js";import*as F from"../../../../nls.js";import{$9n as S}from"../../../../platform/contextkey/common/contextkey.js";import{$Lj as y}from"../../../../platform/instantiation/common/instantiation.js";import{$tH as D}from"../../../../platform/progress/common/progress.js";import{$p4b as N}from"../../scm/common/quickDiff.js";import{$Ywc as h}from"../../scm/common/quickDiffService.js";d(class extends l{constructor(){super({id:"editor.action.formatChanges",label:F.localize2(9319,"Format Modified Lines"),precondition:S.and(f.writable,f.hasDocumentSelectionFormattingProvider)})}async run(r,t){const e=r.get(y);if(!t.hasModel())return;const n=await e.invokeFunction(L,t.getModel());if(s(n))return e.invokeFunction(w,t,n,1,D.None,p.None,!0)}});async function L(o,r){const t=o.get(N),e=o.get(b),n=o.get(v),i=await h(t,r.uri,r.getLanguageId(),$(r));if(!i)return null;const m=[],u=await n.createModelReference(i);try{if(!e.canComputeDirtyDiff(i,r.uri))return;const c=await e.computeDirtyDiff(i,r.uri,!1);if(!s(c))return;for(const a of c)m.push(r.validateRange(new g(a.modifiedStartLineNumber,1,a.modifiedEndLineNumber||a.modifiedStartLineNumber,Number.MAX_SAFE_INTEGER)))}finally{u.dispose()}return m}export{L as $fFc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { EditorAction, registerEditorAction } from "../../../../editor/browser/editorExtensions.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { shouldSynchronizeModel } from "../../../../editor/common/model.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { formatDocumentRangesWithSelectedProvider } from "../../../../editor/contrib/format/browser/format.js";
+import * as nls from "../../../../nls.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Progress } from "../../../../platform/progress/common/progress.js";
+import { IQuickDiffService } from "../../scm/common/quickDiff.js";
+import { getOriginalResource } from "../../scm/common/quickDiffService.js";
+registerEditorAction(class FormatModifiedAction extends EditorAction {
+  static {
+    __name(this, "FormatModifiedAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.formatChanges",
+      label: nls.localize2("formatChanges", "Format Modified Lines"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasDocumentSelectionFormattingProvider)
+    });
+  }
+  async run(accessor, editor) {
+    const instaService = accessor.get(IInstantiationService);
+    if (!editor.hasModel()) {
+      return;
+    }
+    const ranges = await instaService.invokeFunction(getModifiedRanges, editor.getModel());
+    if (isNonEmptyArray(ranges)) {
+      return instaService.invokeFunction(formatDocumentRangesWithSelectedProvider, editor, ranges, 1, Progress.None, CancellationToken.None, true);
+    }
+  }
+});
+async function getModifiedRanges(accessor, modified) {
+  const quickDiffService = accessor.get(IQuickDiffService);
+  const workerService = accessor.get(IEditorWorkerService);
+  const modelService = accessor.get(ITextModelService);
+  const original = await getOriginalResource(quickDiffService, modified.uri, modified.getLanguageId(), shouldSynchronizeModel(modified));
+  if (!original) {
+    return null;
+  }
+  const ranges = [];
+  const ref = await modelService.createModelReference(original);
+  try {
+    if (!workerService.canComputeDirtyDiff(original, modified.uri)) {
+      return void 0;
+    }
+    const changes = await workerService.computeDirtyDiff(original, modified.uri, false);
+    if (!isNonEmptyArray(changes)) {
+      return void 0;
+    }
+    for (const change of changes) {
+      ranges.push(modified.validateRange(new Range(change.modifiedStartLineNumber, 1, change.modifiedEndLineNumber || change.modifiedStartLineNumber, Number.MAX_SAFE_INTEGER)));
+    }
+  } finally {
+    ref.dispose();
+  }
+  return ranges;
+}
+__name(getModifiedRanges, "getModifiedRanges");
+export {
+  getModifiedRanges
+};
+//# sourceMappingURL=formatModified.js.map

@@ -1,5 +1,291 @@
-import{$99 as k}from"../../../../../base/browser/cssValue.js";import*as o from"../../../../../base/browser/dom.js";import{$19 as S}from"../../../../../base/browser/domStylesheets.js";import{$C7 as W}from"../../../../../base/browser/keyboardEvent.js";import{$k$ as q}from"../../../../../base/browser/ui/button/button.js";import{$R9 as T}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Em as B}from"../../../../../base/common/actions.js";import{$ak as O}from"../../../../../base/common/codicons.js";import{Event as K}from"../../../../../base/common/event.js";import{$Kn as N}from"../../../../../base/common/hash.js";import{$Ed as E,$Dd as I}from"../../../../../base/common/lifecycle.js";import{observableValue as U}from"../../../../../base/common/observable.js";import{ThemeIcon as x}from"../../../../../base/common/themables.js";import{URI as z}from"../../../../../base/common/uri.js";import{localize as $}from"../../../../../nls.js";import{$qo as V}from"../../../../../platform/contextkey/common/contextkey.js";import{$6hb as X}from"../../../../../platform/contextview/browser/contextView.js";import{$Lj as Y}from"../../../../../platform/instantiation/common/instantiation.js";import{$xo as G}from"../../../../../platform/log/common/log.js";import{$Xjb as H}from"../../../../../platform/markdown/browser/markdownRenderer.js";import{$yP as J}from"../../../../../platform/opener/common/opener.js";import{$op as Q}from"../../../../../platform/telemetry/common/telemetry.js";import{$tib as Z}from"../../../../../platform/theme/browser/defaultStyles.js";import{ChatAgentLocation as tt}from"../../common/constants.js";import{$O3b as et}from"../chat.js";import{$x3b as P}from"./chatViewsWelcome.js";var y=function(g,t,s,e){var i=arguments.length,n=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,s):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(g,t,s,e);else for(var f=g.length-1;f>=0;f--)(h=g[f])&&(n=(i<3?h(n):i>3?h(t,s,n):h(t,s))||n);return i>3&&n&&Object.defineProperty(t,s,n),n},d=function(g,t){return function(s,e){t(s,e,g)}};const m=o.$;let L=class extends E{get isShowingWelcome(){return this.g}constructor(t,s,e,i,n){super(),this.h=t,this.j=s,this.m=e,this.n=i,this.q=n,this.b=!1,this.c=this.D(new I),this.f=this.D(new I),this.g=U(this,!1),this.a=o.$I8(this.h,o.$(".chat-view-welcome")),this.D(K.runAndSubscribe(s.onDidChangeViewWelcomeState,()=>this.r())),this.D(P.onDidChange(()=>this.r(!0)))}r(t){const s=this.j.shouldShowWelcome();if(this.b===s&&!t)return;if(this.b=s,this.c.clear(),!s){this.h.classList.toggle("chat-view-welcome-visible",!1),this.f.clear(),this.g.set(!1,void 0);return}const e=P.get();if(e.length){this.s(e);const i=new Set(e.flatMap(n=>n.when.keys()));this.c.add(this.n.onDidChangeContext(n=>{n.affectsSome(i)&&this.s(e)}))}}s(t){this.f.clear(),o.$E7(this.a);const e=t.filter(i=>this.n.contextMatchesRules(i.when)).at(0);if(e){const i={icon:e.icon,title:e.title,message:e.content},n=this.f.add(this.q.createInstance(b,i,{firstLinkToButton:!0,location:this.m}));this.a.appendChild(n.element),this.h.classList.toggle("chat-view-welcome-visible",!0),this.g.set(!0,void 0)}else this.h.classList.toggle("chat-view-welcome-visible",!1),this.g.set(!1,void 0)}};L=y([d(3,V),d(4,Y)],L);let b=class extends E{constructor(t,s,e,i,n,h,f,M){super(),this.content=t,this.a=e,this.b=i,this.c=n,this.f=h,this.g=f,this.h=M,this.element=o.$(".chat-welcome-view");try{const w=o.$I8(this.element,m(".chat-welcome-view-icon"));if(t.useLargeIcon&&w.classList.add("large-icon"),t.icon){if(x.isThemeIcon(t.icon)){const c=T(t.icon);w.appendChild(c)}else if(z.isUri(t.icon)){const c=k(t.icon),p=new N;p.update(c);const r=`chat-welcome-icon-${p.digest()}`,a=`.chat-welcome-view-icon.${r}`;S(a,`
-					mask: ${c} no-repeat 50% 50%;
-					-webkit-mask: ${c} no-repeat 50% 50%;
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { asCSSUrl } from "../../../../../base/browser/cssValue.js";
+import * as dom from "../../../../../base/browser/dom.js";
+import { createCSSRule } from "../../../../../base/browser/domStylesheets.js";
+import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Action } from "../../../../../base/common/actions.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Event } from "../../../../../base/common/event.js";
+import { StringSHA1 } from "../../../../../base/common/hash.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IMarkdownRendererService } from "../../../../../platform/markdown/browser/markdownRenderer.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { defaultButtonStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { IChatWidgetService } from "../chat.js";
+import { chatViewsWelcomeRegistry } from "./chatViewsWelcome.js";
+const $ = dom.$;
+let ChatViewWelcomeController = class ChatViewWelcomeController2 extends Disposable {
+  static {
+    __name(this, "ChatViewWelcomeController");
+  }
+  get isShowingWelcome() {
+    return this._isShowingWelcome;
+  }
+  constructor(container, delegate, location, contextKeyService, instantiationService) {
+    super();
+    this.container = container;
+    this.delegate = delegate;
+    this.location = location;
+    this.contextKeyService = contextKeyService;
+    this.instantiationService = instantiationService;
+    this.enabled = false;
+    this.enabledDisposables = this._register(new DisposableStore());
+    this.renderDisposables = this._register(new DisposableStore());
+    this._isShowingWelcome = observableValue(this, false);
+    this.element = dom.append(this.container, dom.$(".chat-view-welcome"));
+    this._register(Event.runAndSubscribe(delegate.onDidChangeViewWelcomeState, () => this.update()));
+    this._register(chatViewsWelcomeRegistry.onDidChange(() => this.update(true)));
+  }
+  update(force) {
+    const enabled = this.delegate.shouldShowWelcome();
+    if (this.enabled === enabled && !force) {
+      return;
+    }
+    this.enabled = enabled;
+    this.enabledDisposables.clear();
+    if (!enabled) {
+      this.container.classList.toggle("chat-view-welcome-visible", false);
+      this.renderDisposables.clear();
+      this._isShowingWelcome.set(false, void 0);
+      return;
+    }
+    const descriptors = chatViewsWelcomeRegistry.get();
+    if (descriptors.length) {
+      this.render(descriptors);
+      const descriptorKeys = new Set(descriptors.flatMap((d) => d.when.keys()));
+      this.enabledDisposables.add(this.contextKeyService.onDidChangeContext((e) => {
+        if (e.affectsSome(descriptorKeys)) {
+          this.render(descriptors);
+        }
+      }));
+    }
+  }
+  render(descriptors) {
+    this.renderDisposables.clear();
+    dom.clearNode(this.element);
+    const matchingDescriptors = descriptors.filter((descriptor) => this.contextKeyService.contextMatchesRules(descriptor.when));
+    const enabledDescriptor = matchingDescriptors.at(0);
+    if (enabledDescriptor) {
+      const content = {
+        icon: enabledDescriptor.icon,
+        title: enabledDescriptor.title,
+        message: enabledDescriptor.content
+      };
+      const welcomeView = this.renderDisposables.add(this.instantiationService.createInstance(ChatViewWelcomePart, content, { firstLinkToButton: true, location: this.location }));
+      this.element.appendChild(welcomeView.element);
+      this.container.classList.toggle("chat-view-welcome-visible", true);
+      this._isShowingWelcome.set(true, void 0);
+    } else {
+      this.container.classList.toggle("chat-view-welcome-visible", false);
+      this._isShowingWelcome.set(false, void 0);
+    }
+  }
+};
+ChatViewWelcomeController = __decorate([
+  __param(3, IContextKeyService),
+  __param(4, IInstantiationService)
+], ChatViewWelcomeController);
+let ChatViewWelcomePart = class ChatViewWelcomePart2 extends Disposable {
+  static {
+    __name(this, "ChatViewWelcomePart");
+  }
+  constructor(content, options, openerService, logService, chatWidgetService, telemetryService, markdownRendererService, contextMenuService) {
+    super();
+    this.content = content;
+    this.openerService = openerService;
+    this.logService = logService;
+    this.chatWidgetService = chatWidgetService;
+    this.telemetryService = telemetryService;
+    this.markdownRendererService = markdownRendererService;
+    this.contextMenuService = contextMenuService;
+    this.element = dom.$(".chat-welcome-view");
+    try {
+      const icon = dom.append(this.element, $(".chat-welcome-view-icon"));
+      if (content.useLargeIcon) {
+        icon.classList.add("large-icon");
+      }
+      if (content.icon) {
+        if (ThemeIcon.isThemeIcon(content.icon)) {
+          const iconElement = renderIcon(content.icon);
+          icon.appendChild(iconElement);
+        } else if (URI.isUri(content.icon)) {
+          const cssUrl = asCSSUrl(content.icon);
+          const hash = new StringSHA1();
+          hash.update(cssUrl);
+          const iconId = `chat-welcome-icon-${hash.digest()}`;
+          const iconClass = `.chat-welcome-view-icon.${iconId}`;
+          createCSSRule(iconClass, `
+					mask: ${cssUrl} no-repeat 50% 50%;
+					-webkit-mask: ${cssUrl} no-repeat 50% 50%;
 					background-color: var(--vscode-icon-foreground);
-				`),w.classList.add(r,"custom-icon")}}const A=o.$I8(this.element,m(".chat-welcome-view-title"));A.textContent=t.title;const R=o.$I8(this.element,m(".chat-welcome-view-message")),_=this.m(t.message,s);if(o.$I8(R,_.element),t.additionalMessage){const c=o.$I8(this.element,m(".chat-welcome-view-disclaimer"));if(typeof t.additionalMessage=="string")c.textContent=t.additionalMessage;else{const p=this.m(t.additionalMessage,s);c.appendChild(p.element)}}if(t.suggestedPrompts&&t.suggestedPrompts.length){const c=o.$I8(this.element,m(".chat-welcome-view-suggested-prompts")),p=o.$I8(c,m(".chat-welcome-view-suggested-prompts-title"));p.textContent=$(6253,null);for(const r of t.suggestedPrompts){const a=o.$I8(c,m(".chat-welcome-view-suggested-prompt"));a.setAttribute("role","button"),a.setAttribute("tabindex","0");const j=r.description?$(6254,null,r.label,r.description):$(6255,null,r.label);a.setAttribute("aria-label",j);const v=o.$I8(a,m(".chat-welcome-view-suggested-prompt-title"));v.textContent=r.label;const C=$(6256,null,r.prompt);if(a.title=C,v.title=C,r.description){const l=o.$I8(a,m(".chat-welcome-view-suggested-prompt-description"));l.textContent=r.description,l.title=r.description}const D=()=>{if(this.f.publicLog2("chat.clickedSuggestedPrompt",{suggestedPrompt:r.prompt}),this.c.lastFocusedWidget)this.c.lastFocusedWidget.setInput(r.prompt);else{const l=this.c.getWidgetsByLocations(tt.Chat);l.length&&l[0].setInput(r.prompt)}};this.D(o.$F7(a,o.$B8.CONTEXT_MENU,l=>{l.preventDefault(),l.stopImmediatePropagation();const u=this.j(r);this.h.showContextMenu({getAnchor:()=>({x:l.clientX,y:l.clientY}),getActions:()=>u})})),this.D(o.$F7(a,o.$B8.CLICK,D)),this.D(o.$F7(a,o.$B8.KEY_DOWN,l=>{const u=new W(l);if(u.equals(3)||u.equals(10))l.preventDefault(),l.stopPropagation(),D();else if(u.equals(68)&&u.shiftKey){l.preventDefault(),l.stopPropagation();const F=this.j(r);this.h.showContextMenu({getAnchor:()=>a,getActions:()=>F})}}))}}if(t.tips){const c=o.$I8(this.element,m(".chat-welcome-view-tips")),p=this.D(this.g.render(t.tips));c.appendChild(p.element)}}catch(w){this.b.error("Failed to render chat view welcome content",w)}}j(t){const s=[];if(t.uri){const e=t.uri;s.push(new B("chat.editPromptFile",$(6257,null),x.asClassName(O.goToFile),!0,async()=>{try{await this.a.open(e)}catch(i){this.b.error("Failed to open prompt file:",i)}}))}return s}needsRerender(t){return!!(this.content.title!==t.title||this.content.message.value!==t.message.value||this.content.additionalMessage!==t.additionalMessage||this.content.tips?.value!==t.tips?.value||this.content.suggestedPrompts?.length!==t.suggestedPrompts?.length||this.content.suggestedPrompts?.some((s,e)=>{const i=t.suggestedPrompts?.[e];return i?.label!==s.label||i?.description!==s.description}))}m(t,s){const e=this.D(this.g.render(t)),i=s?.firstLinkToButton?e.element.querySelector("a"):void 0;if(i){const n=i.getAttribute("data-href"),h=this.D(new q(i.parentElement,Z));h.label=i.textContent??"",n&&this.D(h.onDidClick(()=>{this.a.open(n,{allowCommands:!0})})),i.replaceWith(h.element)}return e}};b=y([d(2,J),d(3,G),d(4,et),d(5,Q),d(6,H),d(7,X)],b);export{L as $y3b,b as $z3b};
+				`);
+          icon.classList.add(iconId, "custom-icon");
+        }
+      }
+      const title = dom.append(this.element, $(".chat-welcome-view-title"));
+      title.textContent = content.title;
+      const message = dom.append(this.element, $(".chat-welcome-view-message"));
+      const messageResult = this.renderMarkdownMessageContent(content.message, options);
+      dom.append(message, messageResult.element);
+      if (content.additionalMessage) {
+        const disclaimers = dom.append(this.element, $(".chat-welcome-view-disclaimer"));
+        if (typeof content.additionalMessage === "string") {
+          disclaimers.textContent = content.additionalMessage;
+        } else {
+          const additionalMessageResult = this.renderMarkdownMessageContent(content.additionalMessage, options);
+          disclaimers.appendChild(additionalMessageResult.element);
+        }
+      }
+      if (content.suggestedPrompts && content.suggestedPrompts.length) {
+        const suggestedPromptsContainer = dom.append(this.element, $(".chat-welcome-view-suggested-prompts"));
+        const titleElement = dom.append(suggestedPromptsContainer, $(".chat-welcome-view-suggested-prompts-title"));
+        titleElement.textContent = localize("chatWidget.suggestedActions", "Suggested Actions");
+        for (const prompt of content.suggestedPrompts) {
+          const promptElement = dom.append(suggestedPromptsContainer, $(".chat-welcome-view-suggested-prompt"));
+          promptElement.setAttribute("role", "button");
+          promptElement.setAttribute("tabindex", "0");
+          const promptAriaLabel = prompt.description ? localize("suggestedPromptAriaLabelWithDescription", "Suggested prompt: {0}, {1}", prompt.label, prompt.description) : localize("suggestedPromptAriaLabel", "Suggested prompt: {0}", prompt.label);
+          promptElement.setAttribute("aria-label", promptAriaLabel);
+          const titleElement2 = dom.append(promptElement, $(".chat-welcome-view-suggested-prompt-title"));
+          titleElement2.textContent = prompt.label;
+          const tooltip = localize("runPromptTitle", "Suggested prompt: {0}", prompt.prompt);
+          promptElement.title = tooltip;
+          titleElement2.title = tooltip;
+          if (prompt.description) {
+            const descriptionElement = dom.append(promptElement, $(".chat-welcome-view-suggested-prompt-description"));
+            descriptionElement.textContent = prompt.description;
+            descriptionElement.title = prompt.description;
+          }
+          const executePrompt = /* @__PURE__ */ __name(() => {
+            this.telemetryService.publicLog2("chat.clickedSuggestedPrompt", {
+              suggestedPrompt: prompt.prompt
+            });
+            if (!this.chatWidgetService.lastFocusedWidget) {
+              const widgets = this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat);
+              if (widgets.length) {
+                widgets[0].setInput(prompt.prompt);
+              }
+            } else {
+              this.chatWidgetService.lastFocusedWidget.setInput(prompt.prompt);
+            }
+          }, "executePrompt");
+          this._register(dom.addDisposableListener(promptElement, dom.EventType.CONTEXT_MENU, (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            const actions = this.getPromptContextMenuActions(prompt);
+            this.contextMenuService.showContextMenu({
+              getAnchor: /* @__PURE__ */ __name(() => ({ x: e.clientX, y: e.clientY }), "getAnchor"),
+              getActions: /* @__PURE__ */ __name(() => actions, "getActions")
+            });
+          }));
+          this._register(dom.addDisposableListener(promptElement, dom.EventType.CLICK, executePrompt));
+          this._register(dom.addDisposableListener(promptElement, dom.EventType.KEY_DOWN, (e) => {
+            const event = new StandardKeyboardEvent(e);
+            if (event.equals(
+              3
+              /* KeyCode.Enter */
+            ) || event.equals(
+              10
+              /* KeyCode.Space */
+            )) {
+              e.preventDefault();
+              e.stopPropagation();
+              executePrompt();
+            } else if (event.equals(
+              68
+              /* KeyCode.F10 */
+            ) && event.shiftKey) {
+              e.preventDefault();
+              e.stopPropagation();
+              const actions = this.getPromptContextMenuActions(prompt);
+              this.contextMenuService.showContextMenu({
+                getAnchor: /* @__PURE__ */ __name(() => promptElement, "getAnchor"),
+                getActions: /* @__PURE__ */ __name(() => actions, "getActions")
+              });
+            }
+          }));
+        }
+      }
+      if (content.tips) {
+        const tips = dom.append(this.element, $(".chat-welcome-view-tips"));
+        const tipsResult = this._register(this.markdownRendererService.render(content.tips));
+        tips.appendChild(tipsResult.element);
+      }
+    } catch (err) {
+      this.logService.error("Failed to render chat view welcome content", err);
+    }
+  }
+  getPromptContextMenuActions(prompt) {
+    const actions = [];
+    if (prompt.uri) {
+      const uri = prompt.uri;
+      actions.push(new Action("chat.editPromptFile", localize("editPromptFile", "Edit Prompt File"), ThemeIcon.asClassName(Codicon.goToFile), true, async () => {
+        try {
+          await this.openerService.open(uri);
+        } catch (error) {
+          this.logService.error("Failed to open prompt file:", error);
+        }
+      }));
+    }
+    return actions;
+  }
+  needsRerender(content) {
+    return !!(this.content.title !== content.title || this.content.message.value !== content.message.value || this.content.additionalMessage !== content.additionalMessage || this.content.tips?.value !== content.tips?.value || this.content.suggestedPrompts?.length !== content.suggestedPrompts?.length || this.content.suggestedPrompts?.some((prompt, index) => {
+      const incoming = content.suggestedPrompts?.[index];
+      return incoming?.label !== prompt.label || incoming?.description !== prompt.description;
+    }));
+  }
+  renderMarkdownMessageContent(content, options) {
+    const messageResult = this._register(this.markdownRendererService.render(content));
+    const firstLink = options?.firstLinkToButton ? messageResult.element.querySelector("a") : void 0;
+    if (firstLink) {
+      const target = firstLink.getAttribute("data-href");
+      const button = this._register(new Button(firstLink.parentElement, defaultButtonStyles));
+      button.label = firstLink.textContent ?? "";
+      if (target) {
+        this._register(button.onDidClick(() => {
+          this.openerService.open(target, { allowCommands: true });
+        }));
+      }
+      firstLink.replaceWith(button.element);
+    }
+    return messageResult;
+  }
+};
+ChatViewWelcomePart = __decorate([
+  __param(2, IOpenerService),
+  __param(3, ILogService),
+  __param(4, IChatWidgetService),
+  __param(5, ITelemetryService),
+  __param(6, IMarkdownRendererService),
+  __param(7, IContextMenuService)
+], ChatViewWelcomePart);
+export {
+  ChatViewWelcomeController,
+  ChatViewWelcomePart
+};
+//# sourceMappingURL=chatViewWelcomeController.js.map

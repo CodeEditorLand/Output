@@ -1,1 +1,26 @@
-import*as t from"../../../../nls.js";import{$Tp as l,$Qp as r}from"../../../../base/common/color.js";import{$1p as o,$8p as c}from"../colorUtils.js";import{$Pq as i,$Qq as e}from"./editorColors.js";import{$jt as n,$kt as p,$lt as a}from"./listColors.js";const g=o("quickInput.background",i,t.localize(2619,null)),d=o("quickInput.foreground",e,t.localize(2620,null)),f=o("quickInputTitle.background",{dark:new l(new r(255,255,255,.105)),light:new l(new r(0,0,0,.06)),hcDark:"#000000",hcLight:l.white},t.localize(2621,null)),m=o("pickerGroup.foreground",{dark:"#3794FF",light:"#0066BF",hcDark:l.white,hcLight:"#0F4A85"},t.localize(2622,null)),q=o("pickerGroup.border",{dark:"#3F3F46",light:"#CCCEDB",hcDark:l.white,hcLight:"#0F4A85"},t.localize(2623,null)),u=o("quickInput.list.focusBackground",null,"",void 0,t.localize(2624,null)),x=o("quickInputList.focusForeground",p,t.localize(2625,null)),z=o("quickInputList.focusIconForeground",a,t.localize(2626,null)),F=o("quickInputList.focusBackground",{dark:c(u,n),light:c(u,n),hcDark:null,hcLight:null},t.localize(2627,null));export{q as $1t,u as $2t,x as $3t,z as $4t,F as $5t,g as $Wt,d as $Xt,f as $Yt,m as $Zt};
+import * as nls from "../../../../nls.js";
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { registerColor, oneOf } from "../colorUtils.js";
+import { editorWidgetBackground, editorWidgetForeground } from "./editorColors.js";
+import { listActiveSelectionBackground, listActiveSelectionForeground, listActiveSelectionIconForeground } from "./listColors.js";
+const quickInputBackground = registerColor("quickInput.background", editorWidgetBackground, nls.localize("pickerBackground", "Quick picker background color. The quick picker widget is the container for pickers like the command palette."));
+const quickInputForeground = registerColor("quickInput.foreground", editorWidgetForeground, nls.localize("pickerForeground", "Quick picker foreground color. The quick picker widget is the container for pickers like the command palette."));
+const quickInputTitleBackground = registerColor("quickInputTitle.background", { dark: new Color(new RGBA(255, 255, 255, 0.105)), light: new Color(new RGBA(0, 0, 0, 0.06)), hcDark: "#000000", hcLight: Color.white }, nls.localize("pickerTitleBackground", "Quick picker title background color. The quick picker widget is the container for pickers like the command palette."));
+const pickerGroupForeground = registerColor("pickerGroup.foreground", { dark: "#3794FF", light: "#0066BF", hcDark: Color.white, hcLight: "#0F4A85" }, nls.localize("pickerGroupForeground", "Quick picker color for grouping labels."));
+const pickerGroupBorder = registerColor("pickerGroup.border", { dark: "#3F3F46", light: "#CCCEDB", hcDark: Color.white, hcLight: "#0F4A85" }, nls.localize("pickerGroupBorder", "Quick picker color for grouping borders."));
+const _deprecatedQuickInputListFocusBackground = registerColor("quickInput.list.focusBackground", null, "", void 0, nls.localize("quickInput.list.focusBackground deprecation", "Please use quickInputList.focusBackground instead"));
+const quickInputListFocusForeground = registerColor("quickInputList.focusForeground", listActiveSelectionForeground, nls.localize("quickInput.listFocusForeground", "Quick picker foreground color for the focused item."));
+const quickInputListFocusIconForeground = registerColor("quickInputList.focusIconForeground", listActiveSelectionIconForeground, nls.localize("quickInput.listFocusIconForeground", "Quick picker icon foreground color for the focused item."));
+const quickInputListFocusBackground = registerColor("quickInputList.focusBackground", { dark: oneOf(_deprecatedQuickInputListFocusBackground, listActiveSelectionBackground), light: oneOf(_deprecatedQuickInputListFocusBackground, listActiveSelectionBackground), hcDark: null, hcLight: null }, nls.localize("quickInput.listFocusBackground", "Quick picker background color for the focused item."));
+export {
+  _deprecatedQuickInputListFocusBackground,
+  pickerGroupBorder,
+  pickerGroupForeground,
+  quickInputBackground,
+  quickInputForeground,
+  quickInputListFocusBackground,
+  quickInputListFocusForeground,
+  quickInputListFocusIconForeground,
+  quickInputTitleBackground
+};
+//# sourceMappingURL=quickpickColors.js.map

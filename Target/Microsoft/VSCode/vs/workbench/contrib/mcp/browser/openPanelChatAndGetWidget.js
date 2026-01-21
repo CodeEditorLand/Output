@@ -1,1 +1,25 @@
-import{$Yh as m}from"../../../../base/common/async.js";import{Event as e}from"../../../../base/common/event.js";import{$V3b as c}from"../../chat/browser/chat.js";import{ChatAgentLocation as n}from"../../chat/common/constants.js";async function g(r,t){await r.openView(c,!0);const o=t.getWidgetsByLocations(n.Chat);if(o.length)return o[0];const i=e.toPromise(e.filter(t.onDidAddWidget,a=>a.location===n.Chat));return await m(i,1e4,()=>i.cancel())}export{g as $Xpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { raceTimeout } from "../../../../base/common/async.js";
+import { Event } from "../../../../base/common/event.js";
+import { ChatViewId } from "../../chat/browser/chat.js";
+import { ChatAgentLocation } from "../../chat/common/constants.js";
+async function openPanelChatAndGetWidget(viewsService, chatService) {
+  await viewsService.openView(ChatViewId, true);
+  const widgets = chatService.getWidgetsByLocations(ChatAgentLocation.Chat);
+  if (widgets.length) {
+    return widgets[0];
+  }
+  const eventPromise = Event.toPromise(Event.filter(chatService.onDidAddWidget, (e) => e.location === ChatAgentLocation.Chat));
+  return await raceTimeout(
+    eventPromise,
+    1e4,
+    // should be enough time for chat to initialize...
+    () => eventPromise.cancel()
+  );
+}
+__name(openPanelChatAndGetWidget, "openPanelChatAndGetWidget");
+export {
+  openPanelChatAndGetWidget
+};
+//# sourceMappingURL=openPanelChatAndGetWidget.js.map

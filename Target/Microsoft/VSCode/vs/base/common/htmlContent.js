@@ -1,7 +1,185 @@
-import{$vb as m}from"./errors.js";import{$ck as $}from"./iconLabels.js";import{Schemas as d}from"./network.js";import{$Ah as v}from"./resources.js";import{$Yf as x}from"./strings.js";import{URI as o}from"./uri.js";var c;(function(e){e[e.Paragraph=0]="Paragraph",e[e.Break=1]="Break"})(c||(c={}));class p{static lift(t){const r=new p(t.value,t);return r.uris=t.uris,r.baseUri=t.baseUri?o.revive(t.baseUri):void 0,r}constructor(t="",r=!1){if(this.value=t,typeof this.value!="string")throw m("value");typeof r=="boolean"?(this.isTrusted=r,this.supportThemeIcons=!1,this.supportHtml=!1,this.supportAlertSyntax=!1):(this.isTrusted=r.isTrusted??void 0,this.supportThemeIcons=r.supportThemeIcons??!1,this.supportHtml=r.supportHtml??!1,this.supportAlertSyntax=r.supportAlertSyntax??!1)}appendText(t,r=0){return this.value+=u(this.supportThemeIcons?$(t):t).replace(/([ \t]+)/g,(s,n)=>"&nbsp;".repeat(n.length)).replace(/\>/gm,"\\>").replace(/\n/g,r===1?`\\
-`:`
-
-`),this}appendMarkdown(t){return this.value+=t,this}appendCodeblock(t,r){return this.value+=`
-${y(r,t)}
-`,this}appendLink(t,r,s){return this.value+="[",this.value+=this.c(r,"]"),this.value+="](",this.value+=this.c(String(t),")"),s&&(this.value+=` "${this.c(this.c(s,'"'),")")}"`),this.value+=")",this}c(t,r){const s=new RegExp(x(r),"g");return t.replace(s,(n,i)=>t.charAt(i-1)!=="\\"?`\\${n}`:n)}}function g(e){return k(e)?!e.value:Array.isArray(e)?e.every(g):!0}function k(e){return e instanceof p?!0:e&&typeof e=="object"?typeof e.value=="string"&&(typeof e.isTrusted=="boolean"||typeof e.isTrusted=="object"||e.isTrusted===void 0)&&(typeof e.supportThemeIcons=="boolean"||e.supportThemeIcons===void 0)&&(typeof e.supportAlertSyntax=="boolean"||e.supportAlertSyntax===void 0):!1}function H(e,t){return e===t?!0:!e||!t?!1:e.value===t.value&&e.isTrusted===t.isTrusted&&e.supportThemeIcons===t.supportThemeIcons&&e.supportHtml===t.supportHtml&&e.supportAlertSyntax===t.supportAlertSyntax&&(e.baseUri===t.baseUri||!!e.baseUri&&!!t.baseUri&&v(o.from(e.baseUri),o.from(t.baseUri)))}function u(e){return e.replace(/[\\`*_{}[\]()#+\-!~]/g,"\\$&")}function y(e,t){const r=e.match(/^`+/gm)?.reduce((n,i)=>n.length>i.length?n:i).length??0,s=r>=3?r+1:3;return[`${"`".repeat(s)}${t}`,e,`${"`".repeat(s)}`].join(`
-`)}function j(e){return e.replace(/"/g,"&quot;")}function P(e){return e&&e.replace(/\\([\\`*_{}[\]()#+\-.!~])/g,"$1")}function q(e){const t=[],r=e.split("|").map(n=>n.trim());e=r[0];const s=r[1];if(s){const n=/height=(\d+)/.exec(s),i=/width=(\d+)/.exec(s),a=n?n[1]:"",l=i?i[1]:"",f=isFinite(parseInt(l)),h=isFinite(parseInt(a));f&&t.push(`width="${l}"`),h&&t.push(`height="${a}"`)}return{href:e,dimensions:t}}function I(e,t,r,s=!0){return`[${s?u(e):e}](${t}${r?` "${u(r)}"`:""})`}function L(e,t=!0){const r=U(e.id,...e.arguments||[]).toString();return I(e.title,r,e.tooltip,t)}function U(e,...t){return o.from({scheme:d.command,path:e,query:t.length?encodeURIComponent(JSON.stringify(t)):void 0})}export{p as $ik,g as $jk,k as $kk,H as $lk,u as $mk,y as $nk,j as $ok,P as $pk,q as $qk,I as $rk,L as $sk,U as $tk,c as MarkdownStringTextNewlineStyle};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { illegalArgument } from "./errors.js";
+import { escapeIcons } from "./iconLabels.js";
+import { Schemas } from "./network.js";
+import { isEqual } from "./resources.js";
+import { escapeRegExpCharacters } from "./strings.js";
+import { URI } from "./uri.js";
+var MarkdownStringTextNewlineStyle;
+(function(MarkdownStringTextNewlineStyle2) {
+  MarkdownStringTextNewlineStyle2[MarkdownStringTextNewlineStyle2["Paragraph"] = 0] = "Paragraph";
+  MarkdownStringTextNewlineStyle2[MarkdownStringTextNewlineStyle2["Break"] = 1] = "Break";
+})(MarkdownStringTextNewlineStyle || (MarkdownStringTextNewlineStyle = {}));
+class MarkdownString {
+  static {
+    __name(this, "MarkdownString");
+  }
+  static lift(dto) {
+    const markdownString = new MarkdownString(dto.value, dto);
+    markdownString.uris = dto.uris;
+    markdownString.baseUri = dto.baseUri ? URI.revive(dto.baseUri) : void 0;
+    return markdownString;
+  }
+  constructor(value = "", isTrustedOrOptions = false) {
+    this.value = value;
+    if (typeof this.value !== "string") {
+      throw illegalArgument("value");
+    }
+    if (typeof isTrustedOrOptions === "boolean") {
+      this.isTrusted = isTrustedOrOptions;
+      this.supportThemeIcons = false;
+      this.supportHtml = false;
+      this.supportAlertSyntax = false;
+    } else {
+      this.isTrusted = isTrustedOrOptions.isTrusted ?? void 0;
+      this.supportThemeIcons = isTrustedOrOptions.supportThemeIcons ?? false;
+      this.supportHtml = isTrustedOrOptions.supportHtml ?? false;
+      this.supportAlertSyntax = isTrustedOrOptions.supportAlertSyntax ?? false;
+    }
+  }
+  appendText(value, newlineStyle = 0) {
+    this.value += escapeMarkdownSyntaxTokens(this.supportThemeIcons ? escapeIcons(value) : value).replace(/([ \t]+)/g, (_match, g1) => "&nbsp;".repeat(g1.length)).replace(/\>/gm, "\\>").replace(/\n/g, newlineStyle === 1 ? "\\\n" : "\n\n");
+    return this;
+  }
+  appendMarkdown(value) {
+    this.value += value;
+    return this;
+  }
+  appendCodeblock(langId, code) {
+    this.value += `
+${appendEscapedMarkdownCodeBlockFence(code, langId)}
+`;
+    return this;
+  }
+  appendLink(target, label, title) {
+    this.value += "[";
+    this.value += this._escape(label, "]");
+    this.value += "](";
+    this.value += this._escape(String(target), ")");
+    if (title) {
+      this.value += ` "${this._escape(this._escape(title, '"'), ")")}"`;
+    }
+    this.value += ")";
+    return this;
+  }
+  _escape(value, ch) {
+    const r = new RegExp(escapeRegExpCharacters(ch), "g");
+    return value.replace(r, (match, offset) => {
+      if (value.charAt(offset - 1) !== "\\") {
+        return `\\${match}`;
+      } else {
+        return match;
+      }
+    });
+  }
+}
+function isEmptyMarkdownString(oneOrMany) {
+  if (isMarkdownString(oneOrMany)) {
+    return !oneOrMany.value;
+  } else if (Array.isArray(oneOrMany)) {
+    return oneOrMany.every(isEmptyMarkdownString);
+  } else {
+    return true;
+  }
+}
+__name(isEmptyMarkdownString, "isEmptyMarkdownString");
+function isMarkdownString(thing) {
+  if (thing instanceof MarkdownString) {
+    return true;
+  } else if (thing && typeof thing === "object") {
+    return typeof thing.value === "string" && (typeof thing.isTrusted === "boolean" || typeof thing.isTrusted === "object" || thing.isTrusted === void 0) && (typeof thing.supportThemeIcons === "boolean" || thing.supportThemeIcons === void 0) && (typeof thing.supportAlertSyntax === "boolean" || thing.supportAlertSyntax === void 0);
+  }
+  return false;
+}
+__name(isMarkdownString, "isMarkdownString");
+function markdownStringEqual(a, b) {
+  if (a === b) {
+    return true;
+  } else if (!a || !b) {
+    return false;
+  } else {
+    return a.value === b.value && a.isTrusted === b.isTrusted && a.supportThemeIcons === b.supportThemeIcons && a.supportHtml === b.supportHtml && a.supportAlertSyntax === b.supportAlertSyntax && (a.baseUri === b.baseUri || !!a.baseUri && !!b.baseUri && isEqual(URI.from(a.baseUri), URI.from(b.baseUri)));
+  }
+}
+__name(markdownStringEqual, "markdownStringEqual");
+function escapeMarkdownSyntaxTokens(text) {
+  return text.replace(/[\\`*_{}[\]()#+\-!~]/g, "\\$&");
+}
+__name(escapeMarkdownSyntaxTokens, "escapeMarkdownSyntaxTokens");
+function appendEscapedMarkdownCodeBlockFence(code, langId) {
+  const longestFenceLength = code.match(/^`+/gm)?.reduce((a, b) => a.length > b.length ? a : b).length ?? 0;
+  const desiredFenceLength = longestFenceLength >= 3 ? longestFenceLength + 1 : 3;
+  return [
+    `${"`".repeat(desiredFenceLength)}${langId}`,
+    code,
+    `${"`".repeat(desiredFenceLength)}`
+  ].join("\n");
+}
+__name(appendEscapedMarkdownCodeBlockFence, "appendEscapedMarkdownCodeBlockFence");
+function escapeDoubleQuotes(input) {
+  return input.replace(/"/g, "&quot;");
+}
+__name(escapeDoubleQuotes, "escapeDoubleQuotes");
+function removeMarkdownEscapes(text) {
+  if (!text) {
+    return text;
+  }
+  return text.replace(/\\([\\`*_{}[\]()#+\-.!~])/g, "$1");
+}
+__name(removeMarkdownEscapes, "removeMarkdownEscapes");
+function parseHrefAndDimensions(href) {
+  const dimensions = [];
+  const splitted = href.split("|").map((s) => s.trim());
+  href = splitted[0];
+  const parameters = splitted[1];
+  if (parameters) {
+    const heightFromParams = /height=(\d+)/.exec(parameters);
+    const widthFromParams = /width=(\d+)/.exec(parameters);
+    const height = heightFromParams ? heightFromParams[1] : "";
+    const width = widthFromParams ? widthFromParams[1] : "";
+    const widthIsFinite = isFinite(parseInt(width));
+    const heightIsFinite = isFinite(parseInt(height));
+    if (widthIsFinite) {
+      dimensions.push(`width="${width}"`);
+    }
+    if (heightIsFinite) {
+      dimensions.push(`height="${height}"`);
+    }
+  }
+  return { href, dimensions };
+}
+__name(parseHrefAndDimensions, "parseHrefAndDimensions");
+function createMarkdownLink(text, href, title, escapeTokens = true) {
+  return `[${escapeTokens ? escapeMarkdownSyntaxTokens(text) : text}](${href}${title ? ` "${escapeMarkdownSyntaxTokens(title)}"` : ""})`;
+}
+__name(createMarkdownLink, "createMarkdownLink");
+function createMarkdownCommandLink(command, escapeTokens = true) {
+  const uri = createCommandUri(command.id, ...command.arguments || []).toString();
+  return createMarkdownLink(command.title, uri, command.tooltip, escapeTokens);
+}
+__name(createMarkdownCommandLink, "createMarkdownCommandLink");
+function createCommandUri(commandId, ...commandArgs) {
+  return URI.from({
+    scheme: Schemas.command,
+    path: commandId,
+    query: commandArgs.length ? encodeURIComponent(JSON.stringify(commandArgs)) : void 0
+  });
+}
+__name(createCommandUri, "createCommandUri");
+export {
+  MarkdownString,
+  MarkdownStringTextNewlineStyle,
+  appendEscapedMarkdownCodeBlockFence,
+  createCommandUri,
+  createMarkdownCommandLink,
+  createMarkdownLink,
+  escapeDoubleQuotes,
+  escapeMarkdownSyntaxTokens,
+  isEmptyMarkdownString,
+  isMarkdownString,
+  markdownStringEqual,
+  parseHrefAndDimensions,
+  removeMarkdownEscapes
+};
+//# sourceMappingURL=htmlContent.js.map

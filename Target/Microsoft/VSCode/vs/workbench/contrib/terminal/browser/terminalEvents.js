@@ -1,1 +1,45 @@
-import{$Df as f,Event as o,$Cf as D}from"../../../../base/common/event.js";import{$Md as v,$Dd as g}from"../../../../base/common/lifecycle.js";function u(n,l,s,p,b){const i=new g,c=i.add(new D),a=i.add(new v);function r(e,t){const C=c.add(o.map(b(t),w=>({instance:e,data:w})));let d=a.get(e.instanceId);d||(d=new v,a.set(e.instanceId,d)),d.set(t,C)}for(const e of n){const t=e.capabilities.get(p);t&&r(e,t)}i.add(s(e=>{a.deleteAndDispose(e.instanceId)}));const m=i.add(new f(n,l,s,e=>o.map(e.capabilities.createOnDidAddCapabilityOfTypeEvent(p),t=>({instance:e,changeEvent:t}))));i.add(m.event(e=>{r(e.instance,e.changeEvent)}));const y=i.add(new f(n,l,s,e=>o.map(e.capabilities.createOnDidRemoveCapabilityOfTypeEvent(p),t=>({instance:e,changeEvent:t}))));return i.add(y.event(e=>{a.get(e.instance.instanceId)?.deleteAndDispose(e.changeEvent)})),{dispose:()=>i.dispose(),event:c.event}}export{u as $yAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DynamicListEventMultiplexer, Event, EventMultiplexer } from "../../../../base/common/event.js";
+import { DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+function createInstanceCapabilityEventMultiplexer(currentInstances, onAddInstance, onRemoveInstance, capabilityId, getEvent) {
+  const store = new DisposableStore();
+  const multiplexer = store.add(new EventMultiplexer());
+  const capabilityListeners = store.add(new DisposableMap());
+  function addCapability(instance, capability) {
+    const listener = multiplexer.add(Event.map(getEvent(capability), (data) => ({ instance, data })));
+    let instanceCapabilityListeners = capabilityListeners.get(instance.instanceId);
+    if (!instanceCapabilityListeners) {
+      instanceCapabilityListeners = new DisposableMap();
+      capabilityListeners.set(instance.instanceId, instanceCapabilityListeners);
+    }
+    instanceCapabilityListeners.set(capability, listener);
+  }
+  __name(addCapability, "addCapability");
+  for (const instance of currentInstances) {
+    const capability = instance.capabilities.get(capabilityId);
+    if (capability) {
+      addCapability(instance, capability);
+    }
+  }
+  store.add(onRemoveInstance((instance) => {
+    capabilityListeners.deleteAndDispose(instance.instanceId);
+  }));
+  const addCapabilityMultiplexer = store.add(new DynamicListEventMultiplexer(currentInstances, onAddInstance, onRemoveInstance, (instance) => Event.map(instance.capabilities.createOnDidAddCapabilityOfTypeEvent(capabilityId), (changeEvent) => ({ instance, changeEvent }))));
+  store.add(addCapabilityMultiplexer.event((e) => {
+    addCapability(e.instance, e.changeEvent);
+  }));
+  const removeCapabilityMultiplexer = store.add(new DynamicListEventMultiplexer(currentInstances, onAddInstance, onRemoveInstance, (instance) => Event.map(instance.capabilities.createOnDidRemoveCapabilityOfTypeEvent(capabilityId), (changeEvent) => ({ instance, changeEvent }))));
+  store.add(removeCapabilityMultiplexer.event((e) => {
+    capabilityListeners.get(e.instance.instanceId)?.deleteAndDispose(e.changeEvent);
+  }));
+  return {
+    dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose"),
+    event: multiplexer.event
+  };
+}
+__name(createInstanceCapabilityEventMultiplexer, "createInstanceCapabilityEventMultiplexer");
+export {
+  createInstanceCapabilityEventMultiplexer
+};
+//# sourceMappingURL=terminalEvents.js.map

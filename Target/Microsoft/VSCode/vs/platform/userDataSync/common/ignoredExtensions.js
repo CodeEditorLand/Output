@@ -1,1 +1,85 @@
-import{$dc as d}from"../../../base/common/arrays.js";import{$9l as l}from"../../configuration/common/configuration.js";import{$Mj as g}from"../../instantiation/common/instantiation.js";var u=function(i,e,o,t){var n=arguments.length,r=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,e,o,t);else for(var a=i.length-1;a>=0;a--)(s=i[a])&&(r=(n<3?s(r):n>3?s(e,o,r):s(e,o))||r);return n>3&&r&&Object.defineProperty(e,o,r),r},f=function(i,e){return function(o,t){e(o,t,i)}};const x=g("IIgnoredExtensionsManagementService");let c=class{constructor(e){this.a=e}hasToNeverSyncExtension(e){return this.b().includes(e.toLowerCase())}hasToAlwaysSyncExtension(e){return this.b().includes(`-${e.toLowerCase()}`)}updateIgnoredExtensions(e,o){let t=[...this.a.getValue("settingsSync.ignoredExtensions")].map(n=>n.toLowerCase());return t=t.filter(n=>n!==e&&n!==`-${e}`),o&&t.push(e.toLowerCase()),this.a.updateValue("settingsSync.ignoredExtensions",t.length?t:void 0,2)}updateSynchronizedExtensions(e,o){let t=[...this.a.getValue("settingsSync.ignoredExtensions")].map(n=>n.toLowerCase());return t=t.filter(n=>n!==e&&n!==`-${e}`),o&&t.push(`-${e.toLowerCase()}`),this.a.updateValue("settingsSync.ignoredExtensions",t.length?t:void 0,2)}getIgnoredExtensions(e){const o=e.filter(s=>s.isMachineScoped).map(s=>s.identifier.id.toLowerCase()),t=this.b().map(s=>s.toLowerCase()),n=[],r=[];if(Array.isArray(t))for(const s of t)s.startsWith("-")?r.push(s.substring(1)):n.push(s);return d([...o,...n].filter(s=>!r.includes(s)))}b(){return(this.a.getValue("settingsSync.ignoredExtensions")||[]).map(e=>e.toLowerCase())}};c=u([f(0,l)],c);export{x as $ybc,c as $zbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { distinct } from "../../../base/common/arrays.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IIgnoredExtensionsManagementService = createDecorator("IIgnoredExtensionsManagementService");
+let IgnoredExtensionsManagementService = class IgnoredExtensionsManagementService2 {
+  static {
+    __name(this, "IgnoredExtensionsManagementService");
+  }
+  constructor(configurationService) {
+    this.configurationService = configurationService;
+  }
+  hasToNeverSyncExtension(extensionId) {
+    const configuredIgnoredExtensions = this.getConfiguredIgnoredExtensions();
+    return configuredIgnoredExtensions.includes(extensionId.toLowerCase());
+  }
+  hasToAlwaysSyncExtension(extensionId) {
+    const configuredIgnoredExtensions = this.getConfiguredIgnoredExtensions();
+    return configuredIgnoredExtensions.includes(`-${extensionId.toLowerCase()}`);
+  }
+  updateIgnoredExtensions(ignoredExtensionId, ignore) {
+    let currentValue = [...this.configurationService.getValue("settingsSync.ignoredExtensions")].map((id) => id.toLowerCase());
+    currentValue = currentValue.filter((v) => v !== ignoredExtensionId && v !== `-${ignoredExtensionId}`);
+    if (ignore) {
+      currentValue.push(ignoredExtensionId.toLowerCase());
+    }
+    return this.configurationService.updateValue(
+      "settingsSync.ignoredExtensions",
+      currentValue.length ? currentValue : void 0,
+      2
+      /* ConfigurationTarget.USER */
+    );
+  }
+  updateSynchronizedExtensions(extensionId, sync) {
+    let currentValue = [...this.configurationService.getValue("settingsSync.ignoredExtensions")].map((id) => id.toLowerCase());
+    currentValue = currentValue.filter((v) => v !== extensionId && v !== `-${extensionId}`);
+    if (sync) {
+      currentValue.push(`-${extensionId.toLowerCase()}`);
+    }
+    return this.configurationService.updateValue(
+      "settingsSync.ignoredExtensions",
+      currentValue.length ? currentValue : void 0,
+      2
+      /* ConfigurationTarget.USER */
+    );
+  }
+  getIgnoredExtensions(installed) {
+    const defaultIgnoredExtensions = installed.filter((i) => i.isMachineScoped).map((i) => i.identifier.id.toLowerCase());
+    const value = this.getConfiguredIgnoredExtensions().map((id) => id.toLowerCase());
+    const added = [], removed = [];
+    if (Array.isArray(value)) {
+      for (const key of value) {
+        if (key.startsWith("-")) {
+          removed.push(key.substring(1));
+        } else {
+          added.push(key);
+        }
+      }
+    }
+    return distinct([...defaultIgnoredExtensions, ...added].filter((setting) => !removed.includes(setting)));
+  }
+  getConfiguredIgnoredExtensions() {
+    return (this.configurationService.getValue("settingsSync.ignoredExtensions") || []).map((id) => id.toLowerCase());
+  }
+};
+IgnoredExtensionsManagementService = __decorate([
+  __param(0, IConfigurationService)
+], IgnoredExtensionsManagementService);
+export {
+  IIgnoredExtensionsManagementService,
+  IgnoredExtensionsManagementService
+};
+//# sourceMappingURL=ignoredExtensions.js.map

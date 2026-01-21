@@ -1,1 +1,131 @@
-import{$wf as n}from"../../../../../base/common/event.js";import{$Ed as d}from"../../../../../base/common/lifecycle.js";import{$kn as g}from"../../../../../base/common/uuid.js";import{$nF as m}from"../../../../../editor/common/model/prefixSumComputer.js";import{$ZCb as a}from"../viewModel/cellOutputViewModel.js";import{$CCb as c}from"../../common/notebookService.js";var f=function(r,t,e,s){var u=arguments.length,i=u<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,s);else for(var o=r.length-1;o>=0;o--)(h=r[o])&&(i=(u<3?h(i):u>3?h(t,e,i):h(t,e))||i);return u>3&&i&&Object.defineProperty(t,e,i),i},l=function(r,t){return function(e,s){t(e,s,r)}};let p=class extends d{get id(){return this.a}get outputs(){return this.textModel.outputs}get language(){return this.textModel.language}get metadata(){return this.textModel.metadata}get uri(){return this.textModel.uri}get handle(){return this.textModel.handle}get outputIsHovered(){return this.c}set outputIsHovered(t){this.c=t,this.b.fire({outputIsHoveredChanged:!0})}get outputIsFocused(){return this.f}set outputIsFocused(t){this.f=t,this.b.fire({outputIsFocusedChanged:!0})}get inputInOutputIsFocused(){return this.g}set inputInOutputIsFocused(t){this.g=t}get outputsViewModels(){return this.h}constructor(t,e){super(),this.textModel=t,this.q=e,this.b=this.D(new n),this.c=!1,this.f=!1,this.g=!1,this.j=[],this.m=null,this.n=this.D(new n),this.onDidChangeOutputLayout=this.n.event,this.a=g(),this.h=this.textModel.outputs.map(s=>new a(this,s,this.q)),this.D(this.textModel.onDidChangeOutputs(s=>{this.j.splice(s.start,s.deleteCount,...s.newOutputs.map(()=>0)),this.h.splice(s.start,s.deleteCount,...s.newOutputs.map(i=>new a(this,i,this.q))).forEach(i=>i.dispose()),this.m=null,this.n.fire()})),this.j=new Array(this.textModel.outputs.length)}r(){if(!this.m){const t=new Uint32Array(this.j.length);for(let e=0;e<this.j.length;e++)t[e]=this.j[e];this.m=new m(t)}}getOutputOffset(t){if(this.r(),t>=this.j.length)throw new Error("Output index out of range!");return this.m.getPrefixSum(t-1)}updateOutputHeight(t,e){if(t>=this.j.length)throw new Error("Output index out of range!");this.r(),this.j[t]=e,this.m.setValue(t,e)&&this.n.fire()}getOutputTotalHeight(){return this.r(),this.m?.getTotalSum()??0}dispose(){super.dispose(),this.h.forEach(t=>{t.dispose()})}};p=f([l(1,c)],p);export{p as $1Cb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import { PrefixSumComputer } from "../../../../../editor/common/model/prefixSumComputer.js";
+import { CellOutputViewModel } from "../viewModel/cellOutputViewModel.js";
+import { INotebookService } from "../../common/notebookService.js";
+let DiffNestedCellViewModel = class DiffNestedCellViewModel2 extends Disposable {
+  static {
+    __name(this, "DiffNestedCellViewModel");
+  }
+  get id() {
+    return this._id;
+  }
+  get outputs() {
+    return this.textModel.outputs;
+  }
+  get language() {
+    return this.textModel.language;
+  }
+  get metadata() {
+    return this.textModel.metadata;
+  }
+  get uri() {
+    return this.textModel.uri;
+  }
+  get handle() {
+    return this.textModel.handle;
+  }
+  get outputIsHovered() {
+    return this._hoveringOutput;
+  }
+  set outputIsHovered(v) {
+    this._hoveringOutput = v;
+    this._onDidChangeState.fire({ outputIsHoveredChanged: true });
+  }
+  get outputIsFocused() {
+    return this._focusOnOutput;
+  }
+  set outputIsFocused(v) {
+    this._focusOnOutput = v;
+    this._onDidChangeState.fire({ outputIsFocusedChanged: true });
+  }
+  get inputInOutputIsFocused() {
+    return this._focusInputInOutput;
+  }
+  set inputInOutputIsFocused(v) {
+    this._focusInputInOutput = v;
+  }
+  get outputsViewModels() {
+    return this._outputViewModels;
+  }
+  constructor(textModel, _notebookService) {
+    super();
+    this.textModel = textModel;
+    this._notebookService = _notebookService;
+    this._onDidChangeState = this._register(new Emitter());
+    this._hoveringOutput = false;
+    this._focusOnOutput = false;
+    this._focusInputInOutput = false;
+    this._outputCollection = [];
+    this._outputsTop = null;
+    this._onDidChangeOutputLayout = this._register(new Emitter());
+    this.onDidChangeOutputLayout = this._onDidChangeOutputLayout.event;
+    this._id = generateUuid();
+    this._outputViewModels = this.textModel.outputs.map((output) => new CellOutputViewModel(this, output, this._notebookService));
+    this._register(this.textModel.onDidChangeOutputs((splice) => {
+      this._outputCollection.splice(splice.start, splice.deleteCount, ...splice.newOutputs.map(() => 0));
+      const removed = this._outputViewModels.splice(splice.start, splice.deleteCount, ...splice.newOutputs.map((output) => new CellOutputViewModel(this, output, this._notebookService)));
+      removed.forEach((vm) => vm.dispose());
+      this._outputsTop = null;
+      this._onDidChangeOutputLayout.fire();
+    }));
+    this._outputCollection = new Array(this.textModel.outputs.length);
+  }
+  _ensureOutputsTop() {
+    if (!this._outputsTop) {
+      const values = new Uint32Array(this._outputCollection.length);
+      for (let i = 0; i < this._outputCollection.length; i++) {
+        values[i] = this._outputCollection[i];
+      }
+      this._outputsTop = new PrefixSumComputer(values);
+    }
+  }
+  getOutputOffset(index) {
+    this._ensureOutputsTop();
+    if (index >= this._outputCollection.length) {
+      throw new Error("Output index out of range!");
+    }
+    return this._outputsTop.getPrefixSum(index - 1);
+  }
+  updateOutputHeight(index, height) {
+    if (index >= this._outputCollection.length) {
+      throw new Error("Output index out of range!");
+    }
+    this._ensureOutputsTop();
+    this._outputCollection[index] = height;
+    if (this._outputsTop.setValue(index, height)) {
+      this._onDidChangeOutputLayout.fire();
+    }
+  }
+  getOutputTotalHeight() {
+    this._ensureOutputsTop();
+    return this._outputsTop?.getTotalSum() ?? 0;
+  }
+  dispose() {
+    super.dispose();
+    this._outputViewModels.forEach((output) => {
+      output.dispose();
+    });
+  }
+};
+DiffNestedCellViewModel = __decorate([
+  __param(1, INotebookService)
+], DiffNestedCellViewModel);
+export {
+  DiffNestedCellViewModel
+};
+//# sourceMappingURL=diffNestedCellViewModel.js.map

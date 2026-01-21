@@ -1,1 +1,124 @@
-import{$0o as d}from"./uriIdentity.js";import{URI as p}from"../../../base/common/uri.js";import{$TC as u}from"../../instantiation/common/extensions.js";import{$uk as g}from"../../files/common/files.js";import{$wh as C,$Ih as P}from"../../../base/common/resources.js";import{Event as v}from"../../../base/common/event.js";import{$Dd as _}from"../../../base/common/lifecycle.js";import{$1b as w}from"../../../base/common/arrays.js";var f=function(r,e,s,i){var t=arguments.length,o=t<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,s):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,e,s,i);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(o=(t<3?n(o):t>3?n(e,s,o):n(e,s))||o);return t>3&&o&&Object.defineProperty(e,s,o),o},l=function(r,e){return function(s,i){e(s,i,r)}};class c{static{this._clock=0}constructor(e){this.uri=e,this.time=c._clock++}touch(){return this.time=c._clock++,this}}let a=class{constructor(e){this.g=e,this.c=new _,this.f=2**16;const s=new Map,i=t=>{let o=s.get(t.scheme);return o===void 0&&(o=e.hasProvider(t)&&!this.g.hasCapability(t,1024),s.set(t.scheme,o)),o};this.c.add(v.any(e.onDidChangeFileSystemProviderRegistrations,e.onDidChangeFileSystemProviderCapabilities)(t=>{if(s.get(t.scheme)===void 0)return;s.delete(t.scheme);const n=i(p.from({scheme:t.scheme}));if(n!==n)for(const[h,m]of this.d.entries())m.uri.scheme===t.scheme&&this.d.delete(h)})),this.extUri=new C(i),this.d=new Map}dispose(){this.c.dispose(),this.d.clear()}asCanonicalUri(e){this.g.hasProvider(e)&&(e=P(e));const s=this.extUri.getComparisonKey(e,!0),i=this.d.get(s);return i?i.touch().uri.with({fragment:e.fragment}):(this.d.set(s,new c(e)),this.h(),e)}h(){if(this.d.size<this.f)return;c._clock=1;const e=[...this.d.values()].map(i=>i.time),s=w(Math.floor(e.length/2),e,(i,t)=>i-t);for(const[i,t]of this.d.entries())t.time<=s?this.d.delete(i):t.time=0}};a=f([l(0,g)],a);u(d,a,1);export{a as $VC};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IUriIdentityService } from "./uriIdentity.js";
+import { URI } from "../../../base/common/uri.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { ExtUri, normalizePath } from "../../../base/common/resources.js";
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { quickSelect } from "../../../base/common/arrays.js";
+class Entry {
+  static {
+    __name(this, "Entry");
+  }
+  static {
+    this._clock = 0;
+  }
+  constructor(uri) {
+    this.uri = uri;
+    this.time = Entry._clock++;
+  }
+  touch() {
+    this.time = Entry._clock++;
+    return this;
+  }
+}
+let UriIdentityService = class UriIdentityService2 {
+  static {
+    __name(this, "UriIdentityService");
+  }
+  constructor(_fileService) {
+    this._fileService = _fileService;
+    this._dispooables = new DisposableStore();
+    this._limit = 2 ** 16;
+    const schemeIgnoresPathCasingCache = /* @__PURE__ */ new Map();
+    const ignorePathCasing = /* @__PURE__ */ __name((uri) => {
+      let ignorePathCasing2 = schemeIgnoresPathCasingCache.get(uri.scheme);
+      if (ignorePathCasing2 === void 0) {
+        ignorePathCasing2 = _fileService.hasProvider(uri) && !this._fileService.hasCapability(
+          uri,
+          1024
+          /* FileSystemProviderCapabilities.PathCaseSensitive */
+        );
+        schemeIgnoresPathCasingCache.set(uri.scheme, ignorePathCasing2);
+      }
+      return ignorePathCasing2;
+    }, "ignorePathCasing");
+    this._dispooables.add(Event.any(_fileService.onDidChangeFileSystemProviderRegistrations, _fileService.onDidChangeFileSystemProviderCapabilities)((e) => {
+      const oldIgnorePathCasingValue = schemeIgnoresPathCasingCache.get(e.scheme);
+      if (oldIgnorePathCasingValue === void 0) {
+        return;
+      }
+      schemeIgnoresPathCasingCache.delete(e.scheme);
+      const newIgnorePathCasingValue = ignorePathCasing(URI.from({ scheme: e.scheme }));
+      if (newIgnorePathCasingValue === newIgnorePathCasingValue) {
+        return;
+      }
+      for (const [key, entry] of this._canonicalUris.entries()) {
+        if (entry.uri.scheme !== e.scheme) {
+          continue;
+        }
+        this._canonicalUris.delete(key);
+      }
+    }));
+    this.extUri = new ExtUri(ignorePathCasing);
+    this._canonicalUris = /* @__PURE__ */ new Map();
+  }
+  dispose() {
+    this._dispooables.dispose();
+    this._canonicalUris.clear();
+  }
+  asCanonicalUri(uri) {
+    if (this._fileService.hasProvider(uri)) {
+      uri = normalizePath(uri);
+    }
+    const uriKey = this.extUri.getComparisonKey(uri, true);
+    const item = this._canonicalUris.get(uriKey);
+    if (item) {
+      return item.touch().uri.with({ fragment: uri.fragment });
+    }
+    this._canonicalUris.set(uriKey, new Entry(uri));
+    this._checkTrim();
+    return uri;
+  }
+  _checkTrim() {
+    if (this._canonicalUris.size < this._limit) {
+      return;
+    }
+    Entry._clock = 1;
+    const times = [...this._canonicalUris.values()].map((e) => e.time);
+    const median = quickSelect(Math.floor(times.length / 2), times, (a, b) => a - b);
+    for (const [key, entry] of this._canonicalUris.entries()) {
+      if (entry.time <= median) {
+        this._canonicalUris.delete(key);
+      } else {
+        entry.time = 0;
+      }
+    }
+  }
+};
+UriIdentityService = __decorate([
+  __param(0, IFileService)
+], UriIdentityService);
+registerSingleton(
+  IUriIdentityService,
+  UriIdentityService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  UriIdentityService
+};
+//# sourceMappingURL=uriIdentityService.js.map

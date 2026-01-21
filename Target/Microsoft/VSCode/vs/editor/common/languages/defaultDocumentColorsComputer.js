@@ -1,1 +1,135 @@
-import{$Tp as d,$Rp as h}from"../../../base/common/color.js";function m(n){const r=[];for(const t of n){const o=Number(t);(o||o===0&&t.replace(/\s/g,"")!=="")&&r.push(o)}return r}function g(n,r,t,o){return{red:n/255,blue:t/255,green:r/255,alpha:o}}function f(n,r){const t=r.index,o=r[0].length;if(t===void 0)return;const s=n.positionAt(t);return{startLineNumber:s.lineNumber,startColumn:s.column,endLineNumber:s.lineNumber,endColumn:s.column+o}}function x(n,r){if(!n)return;const t=d.Format.CSS.parseHex(r);if(t)return{range:n,color:g(t.rgba.r,t.rgba.g,t.rgba.b,t.rgba.a)}}function b(n,r,t){if(!n||r.length!==1)return;const s=r[0].values(),e=m(s);return{range:n,color:g(e[0],e[1],e[2],t?e[3]:1)}}function p(n,r,t){if(!n||r.length!==1)return;const s=r[0].values(),e=m(s),a=new d(new h(e[0],e[1]/100,e[2]/100,t?e[3]:1));return{range:n,color:g(a.rgba.r,a.rgba.g,a.rgba.b,a.rgba.a)}}function l(n,r){return typeof n=="string"?[...n.matchAll(r)]:n.findMatches(r)}function A(n){const r=[],o=l(n,/\b(rgb|rgba|hsl|hsla)(\([0-9\s,.\%\/]*\))|^(#)([A-Fa-f0-9]{3})\b|^(#)([A-Fa-f0-9]{4})\b|^(#)([A-Fa-f0-9]{6})\b|^(#)([A-Fa-f0-9]{8})\b|(?<=['"\s])(#)([A-Fa-f0-9]{3})\b|(?<=['"\s])(#)([A-Fa-f0-9]{4})\b|(?<=['"\s])(#)([A-Fa-f0-9]{6})\b|(?<=['"\s])(#)([A-Fa-f0-9]{8})\b/gm);if(o.length>0)for(const s of o){const e=s.filter(i=>i!==void 0),a=e[1],c=e[2];if(!c)continue;let u;if(a==="rgb"){const i=/^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*\)$/gm;u=b(f(n,s),l(c,i),!1)}else if(a==="rgba"){const i=/^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*(?:[\s,]|[\s]*\/)\s*(0[.][0-9]+|[.][0-9]+|[01][.]|[01])\s*\)$/gm;u=b(f(n,s),l(c,i),!0)}else if(a==="hsl"){const i=/^\(\s*((?:360(?:\.0+)?|(?:36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])(?:\.\d+)?))\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*\)$/gm;u=p(f(n,s),l(c,i),!1)}else if(a==="hsla"){const i=/^\(\s*((?:360(?:\.0+)?|(?:36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])(?:\.\d+)?))\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*(?:[\s,]|[\s]*\/)\s*(0[.][0-9]+|[.][0-9]+|[01][.]0*|[01])\s*\)$/gm;u=p(f(n,s),l(c,i),!0)}else a==="#"&&(u=x(f(n,s),a+c));u&&r.push(u)}return r}function F(n){return!n||typeof n.getValue!="function"||typeof n.positionAt!="function"?[]:A(n)}export{F as $Xdb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Color, HSLA } from "../../../base/common/color.js";
+function _parseCaptureGroups(captureGroups) {
+  const values = [];
+  for (const captureGroup of captureGroups) {
+    const parsedNumber = Number(captureGroup);
+    if (parsedNumber || parsedNumber === 0 && captureGroup.replace(/\s/g, "") !== "") {
+      values.push(parsedNumber);
+    }
+  }
+  return values;
+}
+__name(_parseCaptureGroups, "_parseCaptureGroups");
+function _toIColor(r, g, b, a) {
+  return {
+    red: r / 255,
+    blue: b / 255,
+    green: g / 255,
+    alpha: a
+  };
+}
+__name(_toIColor, "_toIColor");
+function _findRange(model, match) {
+  const index = match.index;
+  const length = match[0].length;
+  if (index === void 0) {
+    return;
+  }
+  const startPosition = model.positionAt(index);
+  const range = {
+    startLineNumber: startPosition.lineNumber,
+    startColumn: startPosition.column,
+    endLineNumber: startPosition.lineNumber,
+    endColumn: startPosition.column + length
+  };
+  return range;
+}
+__name(_findRange, "_findRange");
+function _findHexColorInformation(range, hexValue) {
+  if (!range) {
+    return;
+  }
+  const parsedHexColor = Color.Format.CSS.parseHex(hexValue);
+  if (!parsedHexColor) {
+    return;
+  }
+  return {
+    range,
+    color: _toIColor(parsedHexColor.rgba.r, parsedHexColor.rgba.g, parsedHexColor.rgba.b, parsedHexColor.rgba.a)
+  };
+}
+__name(_findHexColorInformation, "_findHexColorInformation");
+function _findRGBColorInformation(range, matches, isAlpha) {
+  if (!range || matches.length !== 1) {
+    return;
+  }
+  const match = matches[0];
+  const captureGroups = match.values();
+  const parsedRegex = _parseCaptureGroups(captureGroups);
+  return {
+    range,
+    color: _toIColor(parsedRegex[0], parsedRegex[1], parsedRegex[2], isAlpha ? parsedRegex[3] : 1)
+  };
+}
+__name(_findRGBColorInformation, "_findRGBColorInformation");
+function _findHSLColorInformation(range, matches, isAlpha) {
+  if (!range || matches.length !== 1) {
+    return;
+  }
+  const match = matches[0];
+  const captureGroups = match.values();
+  const parsedRegex = _parseCaptureGroups(captureGroups);
+  const colorEquivalent = new Color(new HSLA(parsedRegex[0], parsedRegex[1] / 100, parsedRegex[2] / 100, isAlpha ? parsedRegex[3] : 1));
+  return {
+    range,
+    color: _toIColor(colorEquivalent.rgba.r, colorEquivalent.rgba.g, colorEquivalent.rgba.b, colorEquivalent.rgba.a)
+  };
+}
+__name(_findHSLColorInformation, "_findHSLColorInformation");
+function _findMatches(model, regex) {
+  if (typeof model === "string") {
+    return [...model.matchAll(regex)];
+  } else {
+    return model.findMatches(regex);
+  }
+}
+__name(_findMatches, "_findMatches");
+function computeColors(model) {
+  const result = [];
+  const initialValidationRegex = /\b(rgb|rgba|hsl|hsla)(\([0-9\s,.\%\/]*\))|^(#)([A-Fa-f0-9]{3})\b|^(#)([A-Fa-f0-9]{4})\b|^(#)([A-Fa-f0-9]{6})\b|^(#)([A-Fa-f0-9]{8})\b|(?<=['"\s])(#)([A-Fa-f0-9]{3})\b|(?<=['"\s])(#)([A-Fa-f0-9]{4})\b|(?<=['"\s])(#)([A-Fa-f0-9]{6})\b|(?<=['"\s])(#)([A-Fa-f0-9]{8})\b/gm;
+  const initialValidationMatches = _findMatches(model, initialValidationRegex);
+  if (initialValidationMatches.length > 0) {
+    for (const initialMatch of initialValidationMatches) {
+      const initialCaptureGroups = initialMatch.filter((captureGroup) => captureGroup !== void 0);
+      const colorScheme = initialCaptureGroups[1];
+      const colorParameters = initialCaptureGroups[2];
+      if (!colorParameters) {
+        continue;
+      }
+      let colorInformation;
+      if (colorScheme === "rgb") {
+        const regexParameters = /^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*\)$/gm;
+        colorInformation = _findRGBColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), false);
+      } else if (colorScheme === "rgba") {
+        const regexParameters = /^\(\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*[\s,]\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\s*(?:[\s,]|[\s]*\/)\s*(0[.][0-9]+|[.][0-9]+|[01][.]|[01])\s*\)$/gm;
+        colorInformation = _findRGBColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), true);
+      } else if (colorScheme === "hsl") {
+        const regexParameters = /^\(\s*((?:360(?:\.0+)?|(?:36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])(?:\.\d+)?))\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*\)$/gm;
+        colorInformation = _findHSLColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), false);
+      } else if (colorScheme === "hsla") {
+        const regexParameters = /^\(\s*((?:360(?:\.0+)?|(?:36[0]|3[0-5][0-9]|[12][0-9][0-9]|[1-9]?[0-9])(?:\.\d+)?))\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*[\s,]\s*(100(?:\.0+)?|\d{1,2}[.]\d*|\d{1,2})%\s*(?:[\s,]|[\s]*\/)\s*(0[.][0-9]+|[.][0-9]+|[01][.]0*|[01])\s*\)$/gm;
+        colorInformation = _findHSLColorInformation(_findRange(model, initialMatch), _findMatches(colorParameters, regexParameters), true);
+      } else if (colorScheme === "#") {
+        colorInformation = _findHexColorInformation(_findRange(model, initialMatch), colorScheme + colorParameters);
+      }
+      if (colorInformation) {
+        result.push(colorInformation);
+      }
+    }
+  }
+  return result;
+}
+__name(computeColors, "computeColors");
+function computeDefaultDocumentColors(model) {
+  if (!model || typeof model.getValue !== "function" || typeof model.positionAt !== "function") {
+    return [];
+  }
+  return computeColors(model);
+}
+__name(computeDefaultDocumentColors, "computeDefaultDocumentColors");
+export {
+  computeDefaultDocumentColors
+};
+//# sourceMappingURL=defaultDocumentColorsComputer.js.map

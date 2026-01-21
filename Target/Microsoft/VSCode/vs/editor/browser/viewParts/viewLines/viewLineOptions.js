@@ -1,1 +1,62 @@
-class r{constructor(t,s){this.themeType=s;const i=t.options,e=i.get(59);this.renderWhitespace=i.get(113),this.experimentalWhitespaceRendering=i.get(47),this.renderControlCharacters=i.get(108),this.spaceWidth=e.spaceWidth,this.middotWidth=e.middotWidth,this.wsmiddotWidth=e.wsmiddotWidth,this.useMonospaceOptimizations=e.isMonospace&&!i.get(40),this.canUseHalfwidthRightwardsArrow=e.canUseHalfwidthRightwardsArrow,this.lineHeight=i.get(75),this.stopRenderingLineAfter=i.get(133),this.fontLigatures=i.get(60),this.verticalScrollbarSize=i.get(117).verticalScrollbarSize,this.useGpu=i.get(46)==="on"}equals(t){return this.themeType===t.themeType&&this.renderWhitespace===t.renderWhitespace&&this.experimentalWhitespaceRendering===t.experimentalWhitespaceRendering&&this.renderControlCharacters===t.renderControlCharacters&&this.spaceWidth===t.spaceWidth&&this.middotWidth===t.middotWidth&&this.wsmiddotWidth===t.wsmiddotWidth&&this.useMonospaceOptimizations===t.useMonospaceOptimizations&&this.canUseHalfwidthRightwardsArrow===t.canUseHalfwidthRightwardsArrow&&this.lineHeight===t.lineHeight&&this.stopRenderingLineAfter===t.stopRenderingLineAfter&&this.fontLigatures===t.fontLigatures&&this.verticalScrollbarSize===t.verticalScrollbarSize&&this.useGpu===t.useGpu}}export{r as $Teb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ViewLineOptions {
+  static {
+    __name(this, "ViewLineOptions");
+  }
+  constructor(config, themeType) {
+    this.themeType = themeType;
+    const options = config.options;
+    const fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this.renderWhitespace = options.get(
+      113
+      /* EditorOption.renderWhitespace */
+    );
+    this.experimentalWhitespaceRendering = options.get(
+      47
+      /* EditorOption.experimentalWhitespaceRendering */
+    );
+    this.renderControlCharacters = options.get(
+      108
+      /* EditorOption.renderControlCharacters */
+    );
+    this.spaceWidth = fontInfo.spaceWidth;
+    this.middotWidth = fontInfo.middotWidth;
+    this.wsmiddotWidth = fontInfo.wsmiddotWidth;
+    this.useMonospaceOptimizations = fontInfo.isMonospace && !options.get(
+      40
+      /* EditorOption.disableMonospaceOptimizations */
+    );
+    this.canUseHalfwidthRightwardsArrow = fontInfo.canUseHalfwidthRightwardsArrow;
+    this.lineHeight = options.get(
+      75
+      /* EditorOption.lineHeight */
+    );
+    this.stopRenderingLineAfter = options.get(
+      133
+      /* EditorOption.stopRenderingLineAfter */
+    );
+    this.fontLigatures = options.get(
+      60
+      /* EditorOption.fontLigatures */
+    );
+    this.verticalScrollbarSize = options.get(
+      117
+      /* EditorOption.scrollbar */
+    ).verticalScrollbarSize;
+    this.useGpu = options.get(
+      46
+      /* EditorOption.experimentalGpuAcceleration */
+    ) === "on";
+  }
+  equals(other) {
+    return this.themeType === other.themeType && this.renderWhitespace === other.renderWhitespace && this.experimentalWhitespaceRendering === other.experimentalWhitespaceRendering && this.renderControlCharacters === other.renderControlCharacters && this.spaceWidth === other.spaceWidth && this.middotWidth === other.middotWidth && this.wsmiddotWidth === other.wsmiddotWidth && this.useMonospaceOptimizations === other.useMonospaceOptimizations && this.canUseHalfwidthRightwardsArrow === other.canUseHalfwidthRightwardsArrow && this.lineHeight === other.lineHeight && this.stopRenderingLineAfter === other.stopRenderingLineAfter && this.fontLigatures === other.fontLigatures && this.verticalScrollbarSize === other.verticalScrollbarSize && this.useGpu === other.useGpu;
+  }
+}
+export {
+  ViewLineOptions
+};
+//# sourceMappingURL=viewLineOptions.js.map

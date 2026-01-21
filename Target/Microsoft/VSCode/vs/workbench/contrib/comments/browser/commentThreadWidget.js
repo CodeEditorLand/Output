@@ -1,1 +1,293 @@
-import"./media/review.css";import*as o from"../../../../base/browser/dom.js";import{$wf as w}from"../../../../base/common/event.js";import{$Ed as I,$zd as C,$Cd as x}from"../../../../base/common/lifecycle.js";import*as u from"../../../../editor/common/languages.js";import{$hHb as N}from"./commentReply.js";import{$LGb as P}from"./commentService.js";import{$nHb as O}from"./commentThreadBody.js";import{$oHb as S}from"./commentThreadHeader.js";import{$pHb as V}from"./commentThreadAdditionalActions.js";import{CommentContextKeys as c}from"../common/commentContextKeys.js";import{$9D as M}from"../../../../editor/common/core/range.js";import{$qHb as L}from"../../../browser/actions/widgetNavigationCommands.js";import{$9l as z}from"../../../../platform/configuration/common/configuration.js";import{$IGb as U}from"../common/commentsConfiguration.js";import{localize as f}from"../../../../nls.js";import{$cy as j}from"../../../../platform/keybinding/common/keybinding.js";import{$pcb as J}from"../../../../editor/browser/editorBrowser.js";var v=function(r,t,e,i){var h=arguments.length,s=h<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,i);else for(var n=r.length-1;n>=0;n--)(a=r[n])&&(s=(h<3?a(s):h>3?a(t,e,s):a(t,e))||s);return h>3&&s&&Object.defineProperty(t,e,s),s},d=function(r,t){return function(e,i){t(e,i,r)}};const ht="commenteditordecoration";let b=class extends I{get commentThread(){return this.y}constructor(t,e,i,h,s,a,n,y,g,D,E,$,T,R,F){super(),this.container=t,this._parentEditor=e,this.s=i,this.t=h,this.u=s,this.w=a,this.y=n,this.z=y,this.C=g,this.F=D,this.G=E,this.H=$,this.I=T,this.J=R,this.L=F,this.h=[],this.q=new w,this.onDidResize=this.q.event,this.j=c.commentThreadIsEmpty.bindTo(this.u),this.j.set(!n.comments||!n.comments.length),this.n=c.commentFocused.bindTo(this.u),this.g=this.I.getCommentMenus(this.s),this.D(this.a=this.w.createInstance(S,t,{collapse:this.H.collapse.bind(this)},this.g,this.y)),this.a.updateCommentThread(this.y);const m=o.$(".body");t.appendChild(m),this.D(x(()=>m.remove()));const l=this.D(o.$G8(m));this.D(L({name:"commentThreadWidget",focusNotifiers:[l],focusNextWidget:()=>{this.c?.isCommentEditorFocused()||this.c?.expandReplyAreaAndFocusCommentEditor()},focusPreviousWidget:()=>{this.c?.isCommentEditorFocused()&&this.y.comments?.length&&this.b.focus()}})),this.D(l.onDidFocus(()=>this.n.set(!0))),this.D(l.onDidBlur(()=>this.n.reset())),this.D(this.J.onDidChangeConfiguration(H=>{H.affectsConfiguration("accessibility.verbosity.comments")&&this.M()})),this.b=this.w.createInstance(O,this._parentEditor,this.s,this.t,m,this.F,this.y,this.C,this.w,this),this.D(this.b),this.M(),this.m=c.commentThreadContext.bindTo(this.u),this.m.set(n.contextValue);const _=c.commentControllerContext.bindTo(this.u),p=this.I.getCommentController(this.s);p?.contextValue&&_.set(p.contextValue),this.O()}get hasUnsubmittedComments(){return!!this.c?.commentEditor.getValue()||this.b.hasCommentsInEditMode()}M(){let t=f(7210,null),e;const i=this.J.getValue("accessibility.verbosity.comments");i&&(e=this.L.lookupKeybinding("editor.action.accessibilityHelp",this.u)?.getLabel()??void 0),e?t=f(7211,null,t,e):i&&(t=f(7212,null,t)),this.b.container.ariaLabel=t}N(t,e){t||e?this.I.setCurrentCommentThread(this.commentThread):this.I.setCurrentCommentThread(void 0)}O(){let t=!1,e=!1;this.D(o.$F7(this.container,o.$B8.MOUSE_ENTER,i=>{i.relatedTarget===this.container&&(t=!0,this.N(t,e))},!0)),this.D(o.$F7(this.container,o.$B8.MOUSE_LEAVE,i=>{i.relatedTarget===this.container&&(t=!1,this.N(t,e))},!0)),this.D(o.$F7(this.container,o.$B8.FOCUS_IN,()=>{e=!0,this.N(t,e)},!0)),this.D(o.$F7(this.container,o.$B8.FOCUS_OUT,()=>{e=!1,this.N(t,e)},!0))}async updateCommentThread(t){const e=this.y.collapsibleState===u.CommentThreadCollapsibleState.Expanded&&this.r===u.CommentThreadState.Unresolved&&t.state===u.CommentThreadState.Resolved;this.r=t.state,this.y=t,C(this.h),this.h=[],this.Q(),await this.b.updateCommentThread(t,this.c?.isCommentEditorFocused()??!1),this.j.set(!this.b.length),this.a.updateCommentThread(t),this.c?.updateCommentThread(t),this.y.contextValue?this.m.set(this.y.contextValue):this.m.reset(),e&&this.J.getValue(U).collapseOnResolve&&this.collapse()}async display(t,e){const i=Math.max(23,Math.ceil(t*1.2));this.a.updateHeight(i),await this.b.display(),this.y.canReply&&this.R(e),this.S(),this.D(this.b.onDidResize(h=>{this.P(h)})),this.y.canReply&&this.c&&this.c.focusIfNeeded(),this.Q()}P(t){this.b.layout(),this.q.fire(t)}dispose(){super.dispose(),C(this.h),this.N(!1,!1)}Q(){this.h.push(this.y.onDidChangeCanReply(()=>{this.c?this.c.updateCanReply():this.y.canReply&&this.R(!1)})),this.h.push(this.y.onDidChangeComments(async t=>{await this.updateCommentThread(this.y)})),this.h.push(this.y.onDidChangeLabel(t=>{this.a.createThreadLabel()}))}R(t){this.c=this.w.createInstance(N,this.s,this.b.container,this._parentEditor,this.y,this.w,this.u,this.g,this.G,this.z,this,t,this.H.actionRunner),this.D(this.c)}S(){this.f=this.w.createInstance(V,this.b.container,this.y,this.u,this.g,this.H.actionRunner),this.D(this.f)}getCommentCoords(t){return this.b.getCommentCoords(t)}getPendingEdits(){return this.b.getPendingEdits()}getPendingComment(){if(this.c)return this.c.getPendingComment()}setPendingComment(t){this.z=t,this.c?.setPendingComment(t)}getDimensions(){return this.b.getDimensions()}layout(t){this.b.layout(t),t!==void 0&&this.c?.layout(t)}ensureFocusIntoNewEditingComment(){this.b.ensureFocusIntoNewEditingComment()}focusCommentEditor(){this.c?.expandReplyAreaAndFocusCommentEditor()}focus(t){this.b.focus(t)}async submitComment(){const t=this.b.activeComment;if(t)return t.submitComment();if((this.c?.getPendingComment()?.body.length??0)>0)return this.c?.submitComment()}async collapse(){await this.H.collapse()&&M.isIRange(this.commentThread.range)&&J(this._parentEditor)&&this._parentEditor.setSelection(this.commentThread.range)}applyTheme(t){const e="--comment-thread-editor-font-family",i="--comment-thread-editor-font-weight";this.container?.style.setProperty(e,t.fontFamily),this.container?.style.setProperty(i,t.fontWeight),this.c?.setCommentEditorDecorations()}};b=v([d(12,P),d(13,z),d(14,j)],b);export{ht as $IHb,b as $JHb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/review.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { CommentReply } from "./commentReply.js";
+import { ICommentService } from "./commentService.js";
+import { CommentThreadBody } from "./commentThreadBody.js";
+import { CommentThreadHeader } from "./commentThreadHeader.js";
+import { CommentThreadAdditionalActions } from "./commentThreadAdditionalActions.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { registerNavigableContainer } from "../../../browser/actions/widgetNavigationCommands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { COMMENTS_SECTION } from "../common/commentsConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+const COMMENTEDITOR_DECORATION_KEY = "commenteditordecoration";
+let CommentThreadWidget = class CommentThreadWidget2 extends Disposable {
+  static {
+    __name(this, "CommentThreadWidget");
+  }
+  get commentThread() {
+    return this._commentThread;
+  }
+  constructor(container, _parentEditor, _owner, _parentResourceUri, _contextKeyService, _scopedInstantiationService, _commentThread, _pendingComment, _pendingEdits, _markdownOptions, _commentOptions, _containerDelegate, commentService, configurationService, _keybindingService) {
+    super();
+    this.container = container;
+    this._parentEditor = _parentEditor;
+    this._owner = _owner;
+    this._parentResourceUri = _parentResourceUri;
+    this._contextKeyService = _contextKeyService;
+    this._scopedInstantiationService = _scopedInstantiationService;
+    this._commentThread = _commentThread;
+    this._pendingComment = _pendingComment;
+    this._pendingEdits = _pendingEdits;
+    this._markdownOptions = _markdownOptions;
+    this._commentOptions = _commentOptions;
+    this._containerDelegate = _containerDelegate;
+    this.commentService = commentService;
+    this.configurationService = configurationService;
+    this._keybindingService = _keybindingService;
+    this._commentThreadDisposables = [];
+    this._onDidResize = new Emitter();
+    this.onDidResize = this._onDidResize.event;
+    this._threadIsEmpty = CommentContextKeys.commentThreadIsEmpty.bindTo(this._contextKeyService);
+    this._threadIsEmpty.set(!_commentThread.comments || !_commentThread.comments.length);
+    this._focusedContextKey = CommentContextKeys.commentFocused.bindTo(this._contextKeyService);
+    this._commentMenus = this.commentService.getCommentMenus(this._owner);
+    this._register(this._header = this._scopedInstantiationService.createInstance(CommentThreadHeader, container, {
+      collapse: this._containerDelegate.collapse.bind(this)
+    }, this._commentMenus, this._commentThread));
+    this._header.updateCommentThread(this._commentThread);
+    const bodyElement = dom.$(".body");
+    container.appendChild(bodyElement);
+    this._register(toDisposable(() => bodyElement.remove()));
+    const tracker = this._register(dom.trackFocus(bodyElement));
+    this._register(registerNavigableContainer({
+      name: "commentThreadWidget",
+      focusNotifiers: [tracker],
+      focusNextWidget: /* @__PURE__ */ __name(() => {
+        if (!this._commentReply?.isCommentEditorFocused()) {
+          this._commentReply?.expandReplyAreaAndFocusCommentEditor();
+        }
+      }, "focusNextWidget"),
+      focusPreviousWidget: /* @__PURE__ */ __name(() => {
+        if (this._commentReply?.isCommentEditorFocused() && this._commentThread.comments?.length) {
+          this._body.focus();
+        }
+      }, "focusPreviousWidget")
+    }));
+    this._register(tracker.onDidFocus(() => this._focusedContextKey.set(true)));
+    this._register(tracker.onDidBlur(() => this._focusedContextKey.reset()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "accessibility.verbosity.comments"
+        /* AccessibilityVerbositySettingId.Comments */
+      )) {
+        this._setAriaLabel();
+      }
+    }));
+    this._body = this._scopedInstantiationService.createInstance(CommentThreadBody, this._parentEditor, this._owner, this._parentResourceUri, bodyElement, this._markdownOptions, this._commentThread, this._pendingEdits, this._scopedInstantiationService, this);
+    this._register(this._body);
+    this._setAriaLabel();
+    this._commentThreadContextValue = CommentContextKeys.commentThreadContext.bindTo(this._contextKeyService);
+    this._commentThreadContextValue.set(_commentThread.contextValue);
+    const commentControllerKey = CommentContextKeys.commentControllerContext.bindTo(this._contextKeyService);
+    const controller = this.commentService.getCommentController(this._owner);
+    if (controller?.contextValue) {
+      commentControllerKey.set(controller.contextValue);
+    }
+    this.currentThreadListeners();
+  }
+  get hasUnsubmittedComments() {
+    return !!this._commentReply?.commentEditor.getValue() || this._body.hasCommentsInEditMode();
+  }
+  _setAriaLabel() {
+    let ariaLabel = localize("commentLabel", "Comment");
+    let keybinding;
+    const verbose = this.configurationService.getValue(
+      "accessibility.verbosity.comments"
+      /* AccessibilityVerbositySettingId.Comments */
+    );
+    if (verbose) {
+      keybinding = this._keybindingService.lookupKeybinding("editor.action.accessibilityHelp", this._contextKeyService)?.getLabel() ?? void 0;
+    }
+    if (keybinding) {
+      ariaLabel = localize("commentLabelWithKeybinding", "{0}, use ({1}) for accessibility help", ariaLabel, keybinding);
+    } else if (verbose) {
+      ariaLabel = localize("commentLabelWithKeybindingNoKeybinding", "{0}, run the command Open Accessibility Help which is currently not triggerable via keybinding.", ariaLabel);
+    }
+    this._body.container.ariaLabel = ariaLabel;
+  }
+  updateCurrentThread(hasMouse, hasFocus) {
+    if (hasMouse || hasFocus) {
+      this.commentService.setCurrentCommentThread(this.commentThread);
+    } else {
+      this.commentService.setCurrentCommentThread(void 0);
+    }
+  }
+  currentThreadListeners() {
+    let hasMouse = false;
+    let hasFocus = false;
+    this._register(dom.addDisposableListener(this.container, dom.EventType.MOUSE_ENTER, (e) => {
+      if (e.relatedTarget === this.container) {
+        hasMouse = true;
+        this.updateCurrentThread(hasMouse, hasFocus);
+      }
+    }, true));
+    this._register(dom.addDisposableListener(this.container, dom.EventType.MOUSE_LEAVE, (e) => {
+      if (e.relatedTarget === this.container) {
+        hasMouse = false;
+        this.updateCurrentThread(hasMouse, hasFocus);
+      }
+    }, true));
+    this._register(dom.addDisposableListener(this.container, dom.EventType.FOCUS_IN, () => {
+      hasFocus = true;
+      this.updateCurrentThread(hasMouse, hasFocus);
+    }, true));
+    this._register(dom.addDisposableListener(this.container, dom.EventType.FOCUS_OUT, () => {
+      hasFocus = false;
+      this.updateCurrentThread(hasMouse, hasFocus);
+    }, true));
+  }
+  async updateCommentThread(commentThread) {
+    const shouldCollapse = this._commentThread.collapsibleState === languages.CommentThreadCollapsibleState.Expanded && this._commentThreadState === languages.CommentThreadState.Unresolved && commentThread.state === languages.CommentThreadState.Resolved;
+    this._commentThreadState = commentThread.state;
+    this._commentThread = commentThread;
+    dispose(this._commentThreadDisposables);
+    this._commentThreadDisposables = [];
+    this._bindCommentThreadListeners();
+    await this._body.updateCommentThread(commentThread, this._commentReply?.isCommentEditorFocused() ?? false);
+    this._threadIsEmpty.set(!this._body.length);
+    this._header.updateCommentThread(commentThread);
+    this._commentReply?.updateCommentThread(commentThread);
+    if (this._commentThread.contextValue) {
+      this._commentThreadContextValue.set(this._commentThread.contextValue);
+    } else {
+      this._commentThreadContextValue.reset();
+    }
+    if (shouldCollapse && this.configurationService.getValue(COMMENTS_SECTION).collapseOnResolve) {
+      this.collapse();
+    }
+  }
+  async display(lineHeight, focus) {
+    const headHeight = Math.max(23, Math.ceil(lineHeight * 1.2));
+    this._header.updateHeight(headHeight);
+    await this._body.display();
+    if (this._commentThread.canReply) {
+      this._createCommentForm(focus);
+    }
+    this._createAdditionalActions();
+    this._register(this._body.onDidResize((dimension) => {
+      this._refresh(dimension);
+    }));
+    if (this._commentThread.canReply && this._commentReply) {
+      this._commentReply.focusIfNeeded();
+    }
+    this._bindCommentThreadListeners();
+  }
+  _refresh(dimension) {
+    this._body.layout();
+    this._onDidResize.fire(dimension);
+  }
+  dispose() {
+    super.dispose();
+    dispose(this._commentThreadDisposables);
+    this.updateCurrentThread(false, false);
+  }
+  _bindCommentThreadListeners() {
+    this._commentThreadDisposables.push(this._commentThread.onDidChangeCanReply(() => {
+      if (this._commentReply) {
+        this._commentReply.updateCanReply();
+      } else {
+        if (this._commentThread.canReply) {
+          this._createCommentForm(false);
+        }
+      }
+    }));
+    this._commentThreadDisposables.push(this._commentThread.onDidChangeComments(async (_) => {
+      await this.updateCommentThread(this._commentThread);
+    }));
+    this._commentThreadDisposables.push(this._commentThread.onDidChangeLabel((_) => {
+      this._header.createThreadLabel();
+    }));
+  }
+  _createCommentForm(focus) {
+    this._commentReply = this._scopedInstantiationService.createInstance(CommentReply, this._owner, this._body.container, this._parentEditor, this._commentThread, this._scopedInstantiationService, this._contextKeyService, this._commentMenus, this._commentOptions, this._pendingComment, this, focus, this._containerDelegate.actionRunner);
+    this._register(this._commentReply);
+  }
+  _createAdditionalActions() {
+    this._additionalActions = this._scopedInstantiationService.createInstance(CommentThreadAdditionalActions, this._body.container, this._commentThread, this._contextKeyService, this._commentMenus, this._containerDelegate.actionRunner);
+    this._register(this._additionalActions);
+  }
+  getCommentCoords(commentUniqueId) {
+    return this._body.getCommentCoords(commentUniqueId);
+  }
+  getPendingEdits() {
+    return this._body.getPendingEdits();
+  }
+  getPendingComment() {
+    if (this._commentReply) {
+      return this._commentReply.getPendingComment();
+    }
+    return void 0;
+  }
+  setPendingComment(pending) {
+    this._pendingComment = pending;
+    this._commentReply?.setPendingComment(pending);
+  }
+  getDimensions() {
+    return this._body.getDimensions();
+  }
+  layout(widthInPixel) {
+    this._body.layout(widthInPixel);
+    if (widthInPixel !== void 0) {
+      this._commentReply?.layout(widthInPixel);
+    }
+  }
+  ensureFocusIntoNewEditingComment() {
+    this._body.ensureFocusIntoNewEditingComment();
+  }
+  focusCommentEditor() {
+    this._commentReply?.expandReplyAreaAndFocusCommentEditor();
+  }
+  focus(commentUniqueId) {
+    this._body.focus(commentUniqueId);
+  }
+  async submitComment() {
+    const activeComment = this._body.activeComment;
+    if (activeComment) {
+      return activeComment.submitComment();
+    } else if ((this._commentReply?.getPendingComment()?.body.length ?? 0) > 0) {
+      return this._commentReply?.submitComment();
+    }
+  }
+  async collapse() {
+    if (await this._containerDelegate.collapse() && Range.isIRange(this.commentThread.range) && isCodeEditor(this._parentEditor)) {
+      this._parentEditor.setSelection(this.commentThread.range);
+    }
+  }
+  applyTheme(fontInfo) {
+    const fontFamilyVar = "--comment-thread-editor-font-family";
+    const fontWeightVar = "--comment-thread-editor-font-weight";
+    this.container?.style.setProperty(fontFamilyVar, fontInfo.fontFamily);
+    this.container?.style.setProperty(fontWeightVar, fontInfo.fontWeight);
+    this._commentReply?.setCommentEditorDecorations();
+  }
+};
+CommentThreadWidget = __decorate([
+  __param(12, ICommentService),
+  __param(13, IConfigurationService),
+  __param(14, IKeybindingService)
+], CommentThreadWidget);
+export {
+  COMMENTEDITOR_DECORATION_KEY,
+  CommentThreadWidget
+};
+//# sourceMappingURL=commentThreadWidget.js.map

@@ -1,1 +1,322 @@
-import"./outlinePane.css";import*as g from"../../../../base/browser/dom.js";import{$$$ as L}from"../../../../base/browser/ui/progressbar/progressbar.js";import{$gi as E,$9h as S}from"../../../../base/common/async.js";import{$Cd as w,$Dd as C,$Fd as I}from"../../../../base/common/lifecycle.js";import{$Rc as P}from"../../../../base/common/map.js";import{localize as y}from"../../../../nls.js";import{$9l as B}from"../../../../platform/configuration/common/configuration.js";import{$qo as F}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as j}from"../../../../platform/contextview/browser/contextView.js";import{$Lj as A}from"../../../../platform/instantiation/common/instantiation.js";import{$cy as _}from"../../../../platform/keybinding/common/keybinding.js";import{$gqb as R}from"../../../../platform/list/browser/listService.js";import{$gp as M}from"../../../../platform/storage/common/storage.js";import{$ou as x}from"../../../../platform/theme/common/themeService.js";import{$YAb as Y}from"../../../browser/parts/views/viewPane.js";import{$yL as N}from"../../../services/editor/common/editorService.js";import{$Eh as O}from"../../../../base/common/resources.js";import{$BN as V}from"../../../common/views.js";import{$yP as X}from"../../../../platform/opener/common/opener.js";import{$XGc as k}from"./outlineViewState.js";import{$pJb as q}from"../../../services/outline/browser/outline.js";import{$rN as G}from"../../../common/editor.js";import{$If as H}from"../../../../base/common/cancellation.js";import{Event as U}from"../../../../base/common/event.js";import{$p_ as Z,TreeFindMode as p}from"../../../../base/browser/ui/tree/abstractTree.js";import{$TLb as z,$RLb as J,$ULb as Q,$QLb as W,$SLb as K}from"./outline.js";import{$vib as tt}from"../../../../platform/theme/browser/defaultStyles.js";import{$7ib as it}from"../../../../platform/hover/browser/hover.js";var T=function(a,t,e,n){var l=arguments.length,r=l<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,e,n);else for(var c=a.length-1;c>=0;c--)(o=a[c])&&(r=(l<3?o(r):l>3?o(t,e,r):o(t,e))||r);return l>3&&r&&Object.defineProperty(t,e,r),r},h=function(a,t){return function(e,n){t(e,n,a)}};class et{constructor(t,e){this.c=t,this.order=e}compare(t,e){return this.order===2?this.c.compareByType(t,e):this.order===1?this.c.compareByName(t,e):this.c.compareByPosition(t,e)}}let D=class extends Y{static{this.Id="outline"}constructor(t,e,n,l,r,o,c,s,d,$,m,f,u){super(t,s,$,c,d,l,n,m,f,u),this.fc=e,this.gc=n,this.hc=r,this.ic=o,this.c=new C,this.f=new C,this.g=new C,this.h=new k,this.j=new I,this.ab=new P(10),this.nc=Promise.resolve(),this.h.restore(this.hc),this.c.add(this.h),d.bufferChangeEvents(()=>{this.sb=W.bindTo(d),this.cc=J.bindTo(d),this.dc=K.bindTo(d),this.ec=z.bindTo(d)});const i=()=>{this.sb.set(this.h.followCursor),this.cc.set(this.h.filterOnType),this.dc.set(this.h.sortBy)};i(),this.c.add(this.h.onDidChange(i))}dispose(){this.c.dispose(),this.g.dispose(),this.f.dispose(),this.j.dispose(),super.dispose()}focus(){this.nc.then(()=>{super.focus(),this.t?.domFocus()})}X(t){super.X(t),this.m=t,t.classList.add("outline-pane");const e=g.$(".outline-progress");this.n=g.$(".outline-message"),this.r=new L(e,tt),this.s=g.$(".outline-tree"),g.$I8(t,e,this.n,this.s),this.c.add(this.onDidChangeBodyVisibility(n=>{if(!n)this.j.clear(),this.g.clear(),this.f.clear();else if(!this.j.value){const l=U.any(this.ic.onDidActiveEditorChange,this.fc.onDidChange);this.j.value=l(()=>this.oc(this.ic.activeEditorPane)),this.oc(this.ic.activeEditorPane)}}))}Y(t,e){super.Y(t,e),this.t?.layout(t,e),this.L=new g.$X7(e,t)}collapseAll(){this.t?.collapseAll()}expandAll(){this.t?.expandAll()}get outlineViewState(){return this.h}lc(t){this.m.classList.add("message"),this.r.stop().hide(),this.n.textContent=t}mc(t){if(this.t){const e=this.t.getInput();if(t||(t=e?.uri),e&&t)return this.ab.set(`${e.outlineKind}/${t}`,this.t.getViewState()),!0}return!1}oc(t){this.g.clear(),t&&this.g.add(t.onDidChangeControl(()=>{this.nc=this.pc(t)})),this.nc=this.pc(t)}async pc(t){const e=G.getOriginalUri(t?.input),n=this.mc();if(this.f.clear(),!t||!this.fc.canCreateOutline(t)||!e)return this.lc(y(10935,null));let l;n||(l=new E(()=>{this.lc(y(10936,null,O(e)))},100)),this.r.infinite().show(500);const r=new H;this.f.add(w(()=>r.dispose(!0)));const o=await this.fc.createOutline(t,1,r.token);if(l?.dispose(),!o)return;if(r.token.isCancellationRequested){o?.dispose();return}this.f.add(o),this.r.stop().hide();const c=new et(o.config.comparator,this.h.sortBy),s=this.gc.createInstance(R,"OutlinePane",this.s,o.config.delegate,o.config.renderers,o.config.treeDataSource,{...o.config.options,sorter:c,expandOnDoubleClick:!1,expandOnlyOnTwistieClick:!0,multipleSelectionSupport:!1,hideTwistiesOfChildlessElements:!0,defaultFindMode:this.h.filterOnType?p.Filter:p.Highlight,overrideStyles:this.Zb().listOverrideStyles});Q.bindTo(s.contextKeyService);const d=()=>{if(o.isEmpty)this.lc(y(10937,null,O(e))),this.mc(e),s.setInput(void 0);else if(s.getInput())this.m.classList.remove("message"),s.updateChildren();else{this.m.classList.remove("message");const i=this.ab.get(`${o.outlineKind}/${o.uri}`);s.setInput(o,i&&Z.lift(i))}};d(),this.f.add(o.onDidChange(d)),this.f.add(this.Eb.onDidChangeLocation(({views:i})=>{i.some(b=>b.id===this.id)&&s.updateOptions({overrideStyles:this.Zb().listOverrideStyles})})),this.f.add(s.onDidChangeFindMode(i=>this.h.filterOnType=i===p.Filter));let $=0;this.f.add(s.onDidOpen(async i=>{const b=++$,v=i.browserEvent?.type==="dblclick";!v&&(await S(150),b!==$)||await o.reveal(i.element,i.editorOptions,i.sideBySide,v)}));const m=()=>{if(!this.h.followCursor||!o.activeElement)return;let i=o.activeElement;for(;i;){if(s.getRelativeTop(i)===null&&s.reveal(i,.5),s.getRelativeTop(i)!==null){s.setFocus([i]),s.setSelection([i]);break}i=s.getParentElement(i)}};m(),this.f.add(o.onDidChange(m)),this.f.add(this.h.onDidChange(i=>{this.h.persist(this.hc),i.filterOnType&&(s.findMode=this.h.filterOnType?p.Filter:p.Highlight),i.followCursor&&m(),i.sortBy&&(c.order=this.h.sortBy,s.resort())}));let f;this.f.add(s.onDidChangeFindPattern(i=>{s.findMode!==p.Highlight&&(!f&&i?(f=s.getViewState(),s.expandAll()):!i&&f&&(s.setInput(s.getInput(),f),f=void 0))}));const u=()=>{this.ec.set(s.getNode(null).children.every(i=>!i.collapsible||i.collapsed))};this.f.add(s.onDidChangeCollapseState(u)),this.f.add(s.onDidChangeModel(u)),u(),s.layout(this.L?.height,this.L?.width),this.t=s,this.f.add(w(()=>{s.dispose(),this.t=void 0}))}};D=T([h(1,q),h(2,A),h(3,V),h(4,M),h(5,N),h(6,B),h(7,_),h(8,F),h(9,j),h(10,X),h(11,x),h(12,it)],D);export{D as $YGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./outlinePane.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { TimeoutTimer, timeout } from "../../../../base/common/async.js";
+import { toDisposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { LRUCache } from "../../../../base/common/map.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { WorkbenchDataTree } from "../../../../platform/list/browser/listService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { basename } from "../../../../base/common/resources.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { OutlineViewState } from "./outlineViewState.js";
+import { IOutlineService } from "../../../services/outline/browser/outline.js";
+import { EditorResourceAccessor } from "../../../common/editor.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { AbstractTreeViewState, TreeFindMode } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { ctxAllCollapsed, ctxFilterOnType, ctxFocused, ctxFollowsCursor, ctxSortMode } from "./outline.js";
+import { defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+class OutlineTreeSorter {
+  static {
+    __name(this, "OutlineTreeSorter");
+  }
+  constructor(_comparator, order) {
+    this._comparator = _comparator;
+    this.order = order;
+  }
+  compare(a, b) {
+    if (this.order === 2) {
+      return this._comparator.compareByType(a, b);
+    } else if (this.order === 1) {
+      return this._comparator.compareByName(a, b);
+    } else {
+      return this._comparator.compareByPosition(a, b);
+    }
+  }
+}
+let OutlinePane = class OutlinePane2 extends ViewPane {
+  static {
+    __name(this, "OutlinePane");
+  }
+  static {
+    this.Id = "outline";
+  }
+  constructor(options, _outlineService, _instantiationService, viewDescriptorService, _storageService, _editorService, configurationService, keybindingService, contextKeyService, contextMenuService, openerService, themeService, hoverService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, _instantiationService, openerService, themeService, hoverService);
+    this._outlineService = _outlineService;
+    this._instantiationService = _instantiationService;
+    this._storageService = _storageService;
+    this._editorService = _editorService;
+    this._disposables = new DisposableStore();
+    this._editorControlDisposables = new DisposableStore();
+    this._editorPaneDisposables = new DisposableStore();
+    this._outlineViewState = new OutlineViewState();
+    this._editorListener = new MutableDisposable();
+    this._treeStates = new LRUCache(10);
+    this._editorControlChangePromise = Promise.resolve();
+    this._outlineViewState.restore(this._storageService);
+    this._disposables.add(this._outlineViewState);
+    contextKeyService.bufferChangeEvents(() => {
+      this._ctxFollowsCursor = ctxFollowsCursor.bindTo(contextKeyService);
+      this._ctxFilterOnType = ctxFilterOnType.bindTo(contextKeyService);
+      this._ctxSortMode = ctxSortMode.bindTo(contextKeyService);
+      this._ctxAllCollapsed = ctxAllCollapsed.bindTo(contextKeyService);
+    });
+    const updateContext = /* @__PURE__ */ __name(() => {
+      this._ctxFollowsCursor.set(this._outlineViewState.followCursor);
+      this._ctxFilterOnType.set(this._outlineViewState.filterOnType);
+      this._ctxSortMode.set(this._outlineViewState.sortBy);
+    }, "updateContext");
+    updateContext();
+    this._disposables.add(this._outlineViewState.onDidChange(updateContext));
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._editorPaneDisposables.dispose();
+    this._editorControlDisposables.dispose();
+    this._editorListener.dispose();
+    super.dispose();
+  }
+  focus() {
+    this._editorControlChangePromise.then(() => {
+      super.focus();
+      this._tree?.domFocus();
+    });
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this._domNode = container;
+    container.classList.add("outline-pane");
+    const progressContainer = dom.$(".outline-progress");
+    this._message = dom.$(".outline-message");
+    this._progressBar = new ProgressBar(progressContainer, defaultProgressBarStyles);
+    this._treeContainer = dom.$(".outline-tree");
+    dom.append(container, progressContainer, this._message, this._treeContainer);
+    this._disposables.add(this.onDidChangeBodyVisibility((visible) => {
+      if (!visible) {
+        this._editorListener.clear();
+        this._editorPaneDisposables.clear();
+        this._editorControlDisposables.clear();
+      } else if (!this._editorListener.value) {
+        const event = Event.any(this._editorService.onDidActiveEditorChange, this._outlineService.onDidChange);
+        this._editorListener.value = event(() => this._handleEditorChanged(this._editorService.activeEditorPane));
+        this._handleEditorChanged(this._editorService.activeEditorPane);
+      }
+    }));
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this._tree?.layout(height, width);
+    this._treeDimensions = new dom.Dimension(width, height);
+  }
+  collapseAll() {
+    this._tree?.collapseAll();
+  }
+  expandAll() {
+    this._tree?.expandAll();
+  }
+  get outlineViewState() {
+    return this._outlineViewState;
+  }
+  _showMessage(message) {
+    this._domNode.classList.add("message");
+    this._progressBar.stop().hide();
+    this._message.textContent = message;
+  }
+  _captureViewState(uri) {
+    if (this._tree) {
+      const oldOutline = this._tree.getInput();
+      if (!uri) {
+        uri = oldOutline?.uri;
+      }
+      if (oldOutline && uri) {
+        this._treeStates.set(`${oldOutline.outlineKind}/${uri}`, this._tree.getViewState());
+        return true;
+      }
+    }
+    return false;
+  }
+  _handleEditorChanged(pane) {
+    this._editorPaneDisposables.clear();
+    if (pane) {
+      this._editorPaneDisposables.add(pane.onDidChangeControl(() => {
+        this._editorControlChangePromise = this._handleEditorControlChanged(pane);
+      }));
+    }
+    this._editorControlChangePromise = this._handleEditorControlChanged(pane);
+  }
+  async _handleEditorControlChanged(pane) {
+    const resource = EditorResourceAccessor.getOriginalUri(pane?.input);
+    const didCapture = this._captureViewState();
+    this._editorControlDisposables.clear();
+    if (!pane || !this._outlineService.canCreateOutline(pane) || !resource) {
+      return this._showMessage(localize("no-editor", "The active editor cannot provide outline information."));
+    }
+    let loadingMessage;
+    if (!didCapture) {
+      loadingMessage = new TimeoutTimer(() => {
+        this._showMessage(localize("loading", "Loading document symbols for '{0}'...", basename(resource)));
+      }, 100);
+    }
+    this._progressBar.infinite().show(500);
+    const cts = new CancellationTokenSource();
+    this._editorControlDisposables.add(toDisposable(() => cts.dispose(true)));
+    const newOutline = await this._outlineService.createOutline(pane, 1, cts.token);
+    loadingMessage?.dispose();
+    if (!newOutline) {
+      return;
+    }
+    if (cts.token.isCancellationRequested) {
+      newOutline?.dispose();
+      return;
+    }
+    this._editorControlDisposables.add(newOutline);
+    this._progressBar.stop().hide();
+    const sorter = new OutlineTreeSorter(newOutline.config.comparator, this._outlineViewState.sortBy);
+    const tree = this._instantiationService.createInstance(WorkbenchDataTree, "OutlinePane", this._treeContainer, newOutline.config.delegate, newOutline.config.renderers, newOutline.config.treeDataSource, {
+      ...newOutline.config.options,
+      sorter,
+      expandOnDoubleClick: false,
+      expandOnlyOnTwistieClick: true,
+      multipleSelectionSupport: false,
+      hideTwistiesOfChildlessElements: true,
+      defaultFindMode: this._outlineViewState.filterOnType ? TreeFindMode.Filter : TreeFindMode.Highlight,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles
+    });
+    ctxFocused.bindTo(tree.contextKeyService);
+    const updateTree = /* @__PURE__ */ __name(() => {
+      if (newOutline.isEmpty) {
+        this._showMessage(localize("no-symbols", "No symbols found in document '{0}'", basename(resource)));
+        this._captureViewState(resource);
+        tree.setInput(void 0);
+      } else if (!tree.getInput()) {
+        this._domNode.classList.remove("message");
+        const state = this._treeStates.get(`${newOutline.outlineKind}/${newOutline.uri}`);
+        tree.setInput(newOutline, state && AbstractTreeViewState.lift(state));
+      } else {
+        this._domNode.classList.remove("message");
+        tree.updateChildren();
+      }
+    }, "updateTree");
+    updateTree();
+    this._editorControlDisposables.add(newOutline.onDidChange(updateTree));
+    this._editorControlDisposables.add(this.viewDescriptorService.onDidChangeLocation(({ views }) => {
+      if (views.some((v) => v.id === this.id)) {
+        tree.updateOptions({ overrideStyles: this.getLocationBasedColors().listOverrideStyles });
+      }
+    }));
+    this._editorControlDisposables.add(tree.onDidChangeFindMode((mode) => this._outlineViewState.filterOnType = mode === TreeFindMode.Filter));
+    let idPool = 0;
+    this._editorControlDisposables.add(tree.onDidOpen(async (e) => {
+      const myId = ++idPool;
+      const isDoubleClick = e.browserEvent?.type === "dblclick";
+      if (!isDoubleClick) {
+        await timeout(150);
+        if (myId !== idPool) {
+          return;
+        }
+      }
+      await newOutline.reveal(e.element, e.editorOptions, e.sideBySide, isDoubleClick);
+    }));
+    const revealActiveElement = /* @__PURE__ */ __name(() => {
+      if (!this._outlineViewState.followCursor || !newOutline.activeElement) {
+        return;
+      }
+      let item = newOutline.activeElement;
+      while (item) {
+        const top = tree.getRelativeTop(item);
+        if (top === null) {
+          tree.reveal(item, 0.5);
+        }
+        if (tree.getRelativeTop(item) !== null) {
+          tree.setFocus([item]);
+          tree.setSelection([item]);
+          break;
+        }
+        item = tree.getParentElement(item);
+      }
+    }, "revealActiveElement");
+    revealActiveElement();
+    this._editorControlDisposables.add(newOutline.onDidChange(revealActiveElement));
+    this._editorControlDisposables.add(this._outlineViewState.onDidChange((e) => {
+      this._outlineViewState.persist(this._storageService);
+      if (e.filterOnType) {
+        tree.findMode = this._outlineViewState.filterOnType ? TreeFindMode.Filter : TreeFindMode.Highlight;
+      }
+      if (e.followCursor) {
+        revealActiveElement();
+      }
+      if (e.sortBy) {
+        sorter.order = this._outlineViewState.sortBy;
+        tree.resort();
+      }
+    }));
+    let viewState;
+    this._editorControlDisposables.add(tree.onDidChangeFindPattern((pattern) => {
+      if (tree.findMode === TreeFindMode.Highlight) {
+        return;
+      }
+      if (!viewState && pattern) {
+        viewState = tree.getViewState();
+        tree.expandAll();
+      } else if (!pattern && viewState) {
+        tree.setInput(tree.getInput(), viewState);
+        viewState = void 0;
+      }
+    }));
+    const updateAllCollapsedCtx = /* @__PURE__ */ __name(() => {
+      this._ctxAllCollapsed.set(tree.getNode(null).children.every((node) => !node.collapsible || node.collapsed));
+    }, "updateAllCollapsedCtx");
+    this._editorControlDisposables.add(tree.onDidChangeCollapseState(updateAllCollapsedCtx));
+    this._editorControlDisposables.add(tree.onDidChangeModel(updateAllCollapsedCtx));
+    updateAllCollapsedCtx();
+    tree.layout(this._treeDimensions?.height, this._treeDimensions?.width);
+    this._tree = tree;
+    this._editorControlDisposables.add(toDisposable(() => {
+      tree.dispose();
+      this._tree = void 0;
+    }));
+  }
+};
+OutlinePane = __decorate([
+  __param(1, IOutlineService),
+  __param(2, IInstantiationService),
+  __param(3, IViewDescriptorService),
+  __param(4, IStorageService),
+  __param(5, IEditorService),
+  __param(6, IConfigurationService),
+  __param(7, IKeybindingService),
+  __param(8, IContextKeyService),
+  __param(9, IContextMenuService),
+  __param(10, IOpenerService),
+  __param(11, IThemeService),
+  __param(12, IHoverService)
+], OutlinePane);
+export {
+  OutlinePane
+};
+//# sourceMappingURL=outlinePane.js.map

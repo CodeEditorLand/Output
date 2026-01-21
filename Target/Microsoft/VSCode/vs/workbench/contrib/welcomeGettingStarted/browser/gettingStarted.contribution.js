@@ -1,1 +1,322 @@
-import{localize as c,localize2 as u}from"../../../../nls.js";import{$aGc as j,$_Fc as h,$$Fc as O}from"./gettingStarted.js";import{$im as v}from"../../../../platform/registry/common/platform.js";import{$5M as R}from"../../../common/editor.js";import{$nL as _,$tL as f,$sL as g}from"../../../../platform/actions/common/actions.js";import{$9n as L,$qo as M,$po as q}from"../../../../platform/contextkey/common/contextkey.js";import{$yL as y,$AL as C}from"../../../services/editor/common/editorService.js";import{$DRb as H}from"../../../browser/editor.js";import{$Jj as I}from"../../../../platform/instantiation/common/descriptors.js";import{$ZEc as k}from"./gettingStartedService.js";import{$XEc as p}from"./gettingStartedInput.js";import{$XN as E}from"../../../common/contributions.js";import{$km as A}from"../../../../platform/configuration/common/configurationRegistry.js";import{$3N as G}from"../../../common/configuration.js";import{$uo as F,$to as P}from"../../../../platform/commands/common/commands.js";import{$VH as U}from"../../../../platform/quickinput/common/quickInput.js";import{$ZN as z}from"../../../services/remote/common/remoteAgentService.js";import{$o as N,$n as B,$m as Q}from"../../../../base/common/platform.js";import{$_Y as V}from"../../../services/extensionManagement/common/extensionManagement.js";import{$4R as X}from"../../../services/extensions/common/extensions.js";import{$7Fc as x,$8Fc as W}from"./startupPage.js";import{$so as Z}from"../../../../platform/action/common/actionCommonCategories.js";import{$Dd as J}from"../../../../base/common/lifecycle.js";import{$wsb as T}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$bGc as Y}from"./gettingStartedAccessibleView.js";import*as xe from"./gettingStartedIcons.js";var D=function(t,e,o,r){var a=arguments.length,i=a<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,o):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(t,e,o,r);else for(var n=t.length-1;n>=0;n--)(s=t[n])&&(i=(a<3?s(i):a>3?s(e,o,i):s(e,o))||i);return a>3&&i&&Object.defineProperty(e,o,i),i},$=function(t,e){return function(o,r){e(o,r,t)}};f(class extends g{constructor(){super({id:"workbench.action.openWalkthrough",title:u(14636,"Welcome"),category:Z.Help,f1:!0,menu:{id:_.MenubarHelpMenu,group:"1_welcome",order:1},metadata:{description:u(14637,"Opens a Walkthrough to help you get started in VS Code.")}})}run(t,e,o){const r=t.get(y),a=t.get(P),i=typeof o=="object"?o.toSide:o,s=typeof o=="object"?o.inactive:!1,n=r.activeEditor;if(e){const l=typeof e=="string"?e:e.category;let d;if(typeof e=="object"&&"category"in e&&"step"in e?d=`${e.category}#${e.step}`:d=void 0,d&&n instanceof p&&n.selectedCategory===l){n.showWelcome=!1,a.executeCommand("walkthroughs.selectStep",d);return}let S;l?S={selectedCategory:l,selectedStep:d,showWelcome:!1,preserveFocus:i??!1,inactive:s}:S={selectedCategory:l,selectedStep:d,showWelcome:!0,preserveFocus:i??!1,inactive:s},r.openEditor({resource:p.RESOURCE,options:S},i?C:void 0)}else r.openEditor({resource:p.RESOURCE,options:{preserveFocus:i??!1,inactive:s}},i?C:void 0)}});v.as(R.EditorFactory).registerEditorSerializer(p.ID,j);v.as(R.EditorPane).registerEditorPane(H.create(h,h.ID,c(14620,null)),[new I(p)]);const b=u(14638,"Welcome");f(class extends g{constructor(){super({id:"welcome.goBack",title:u(14639,"Go Back"),category:b,keybinding:{weight:100,primary:9,when:O},precondition:L.equals("activeEditor","gettingStartedPage"),f1:!0})}run(t){const o=t.get(y).activeEditorPane;o instanceof h&&o.escape()}});F.registerCommand({id:"walkthroughs.selectStep",handler:(t,e)=>{const r=t.get(y).activeEditorPane;r instanceof h&&r.selectStepLoose(e)}});f(class extends g{constructor(){super({id:"welcome.markStepComplete",title:c(14621,null),category:b})}run(t,e){if(!e)return;t.get(k).progressStep(e)}});f(class extends g{constructor(){super({id:"welcome.markStepIncomplete",title:c(14622,null),category:b})}run(t,e){if(!e)return;t.get(k).deprogressStep(e)}});f(class extends g{constructor(){super({id:"welcome.showAllWalkthroughs",title:u(14640,"Open Walkthrough..."),category:b,f1:!0,menu:{id:_.MenubarHelpMenu,group:"1_welcome",order:3}})}async a(t,e){return(await e.getWalkthroughs()).filter(r=>t.contextMatchesRules(r.when)).map(r=>({id:r.id,label:r.title,detail:r.description,description:r.source}))}async run(t){const e=t.get(P),o=t.get(M),r=t.get(U),a=t.get(k),i=t.get(X),s=new J,n=s.add(r.createQuickPick());n.canSelectMany=!1,n.matchOnDescription=!0,n.matchOnDetail=!0,n.placeholder=c(14623,null),n.items=await this.a(o,a),n.busy=!0,s.add(n.onDidAccept(()=>{const l=n.selectedItems[0];l&&e.executeCommand("workbench.action.openWalkthrough",l.id),n.hide()})),s.add(n.onDidHide(()=>s.dispose())),await i.whenInstalledExtensionsRegistered(),s.add(a.onDidAddWalkthrough(async()=>{n.items=await this.a(o,a)})),n.show(),n.busy=!1}});F.registerCommand({id:"welcome.newWorkspaceChat",handler:(t,e)=>{t.get(P).executeCommand("workbench.action.chat.open",{mode:"agent",query:"#new ",isPartialQuery:!0})}});const m=new q("workspacePlatform",void 0,c(14624,null));let w=class{static{this.ID="workbench.contrib.workspacePlatform"}constructor(e,o,r){this.a=e,this.b=o,this.d=r,this.b.getEnvironment().then(a=>{const i=a?.os,s=i===2?"mac":i===1?"windows":i===3?"linux":void 0;s?m.bindTo(this.d).set(s):this.a.localExtensionManagementServer?B?m.bindTo(this.d).set("mac"):N?m.bindTo(this.d).set("linux"):Q&&m.bindTo(this.d).set("windows"):this.a.webExtensionManagementServer&&m.bindTo(this.d).set("webworker")})}};w=D([$(0,V),$(1,z),$(2,M)],w);const K=v.as(A.Configuration);K.registerConfiguration({...G,properties:{"workbench.welcomePage.walkthroughs.openOnInstall":{scope:2,type:"boolean",default:!0,description:c(14625,null)},"workbench.startupEditor":{scope:5,type:"string",enum:["none","welcomePage","readme","newUntitledFile","welcomePageInEmptyWorkbench","terminal","agentSessionsWelcomePage"],enumDescriptions:[c(14626,null),c(14627,null),c(14628,null),c(14629,null),c(14630,null),c(14631,null),c(14632,null)],default:"welcomePage",description:c(14633,null)},"workbench.welcomePage.preferReducedMotion":{scope:1,type:"boolean",default:!1,deprecationMessage:c(14634,null),description:c(14635,null)}}});E(w.ID,w,3);E(x.ID,x,2);E(W.ID,W,3);T.register(new Y);export{m as $cGc,xe as icons};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize, localize2 } from "../../../../nls.js";
+import { GettingStartedInputSerializer, GettingStartedPage, inWelcomeContext } from "./gettingStarted.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IWalkthroughsService } from "./gettingStartedService.js";
+import { GettingStartedInput } from "./gettingStartedInput.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { isLinux, isMacintosh, isWindows } from "../../../../base/common/platform.js";
+import { IExtensionManagementServerService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { StartupPageEditorResolverContribution, StartupPageRunnerContribution } from "./startupPage.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { GettingStartedAccessibleView } from "./gettingStartedAccessibleView.js";
+import * as icons from "./gettingStartedIcons.js";
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.openWalkthrough",
+      title: localize2("miWelcome", "Welcome"),
+      category: Categories.Help,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "1_welcome",
+        order: 1
+      },
+      metadata: {
+        description: localize2("minWelcomeDescription", "Opens a Walkthrough to help you get started in VS Code.")
+      }
+    });
+  }
+  run(accessor, walkthroughID, optionsOrToSide) {
+    const editorService = accessor.get(IEditorService);
+    const commandService = accessor.get(ICommandService);
+    const toSide = typeof optionsOrToSide === "object" ? optionsOrToSide.toSide : optionsOrToSide;
+    const inactive = typeof optionsOrToSide === "object" ? optionsOrToSide.inactive : false;
+    const activeEditor = editorService.activeEditor;
+    if (walkthroughID) {
+      const selectedCategory = typeof walkthroughID === "string" ? walkthroughID : walkthroughID.category;
+      let selectedStep;
+      if (typeof walkthroughID === "object" && "category" in walkthroughID && "step" in walkthroughID) {
+        selectedStep = `${walkthroughID.category}#${walkthroughID.step}`;
+      } else {
+        selectedStep = void 0;
+      }
+      if (selectedStep && activeEditor instanceof GettingStartedInput && activeEditor.selectedCategory === selectedCategory) {
+        activeEditor.showWelcome = false;
+        commandService.executeCommand("walkthroughs.selectStep", selectedStep);
+        return;
+      }
+      let options;
+      if (selectedCategory) {
+        options = { selectedCategory, selectedStep, showWelcome: false, preserveFocus: toSide ?? false, inactive };
+      } else {
+        options = { selectedCategory, selectedStep, showWelcome: true, preserveFocus: toSide ?? false, inactive };
+      }
+      editorService.openEditor({
+        resource: GettingStartedInput.RESOURCE,
+        options
+      }, toSide ? SIDE_GROUP : void 0);
+    } else {
+      editorService.openEditor({
+        resource: GettingStartedInput.RESOURCE,
+        options: { preserveFocus: toSide ?? false, inactive }
+      }, toSide ? SIDE_GROUP : void 0);
+    }
+  }
+});
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(GettingStartedInput.ID, GettingStartedInputSerializer);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(GettingStartedPage, GettingStartedPage.ID, localize("welcome", "Welcome")), [
+  new SyncDescriptor(GettingStartedInput)
+]);
+const category = localize2("welcome", "Welcome");
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "welcome.goBack",
+      title: localize2("welcome.goBack", "Go Back"),
+      category,
+      keybinding: {
+        weight: 100,
+        primary: 9,
+        when: inWelcomeContext
+      },
+      precondition: ContextKeyExpr.equals("activeEditor", "gettingStartedPage"),
+      f1: true
+    });
+  }
+  run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editorPane = editorService.activeEditorPane;
+    if (editorPane instanceof GettingStartedPage) {
+      editorPane.escape();
+    }
+  }
+});
+CommandsRegistry.registerCommand({
+  id: "walkthroughs.selectStep",
+  handler: /* @__PURE__ */ __name((accessor, stepID) => {
+    const editorService = accessor.get(IEditorService);
+    const editorPane = editorService.activeEditorPane;
+    if (editorPane instanceof GettingStartedPage) {
+      editorPane.selectStepLoose(stepID);
+    } else {
+      console.error("Cannot run walkthroughs.selectStep outside of walkthrough context");
+    }
+  }, "handler")
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "welcome.markStepComplete",
+      title: localize("welcome.markStepComplete", "Mark Step Complete"),
+      category
+    });
+  }
+  run(accessor, arg) {
+    if (!arg) {
+      return;
+    }
+    const gettingStartedService = accessor.get(IWalkthroughsService);
+    gettingStartedService.progressStep(arg);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "welcome.markStepIncomplete",
+      title: localize("welcome.markStepInomplete", "Mark Step Incomplete"),
+      category
+    });
+  }
+  run(accessor, arg) {
+    if (!arg) {
+      return;
+    }
+    const gettingStartedService = accessor.get(IWalkthroughsService);
+    gettingStartedService.deprogressStep(arg);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "welcome.showAllWalkthroughs",
+      title: localize2("welcome.showAllWalkthroughs", "Open Walkthrough..."),
+      category,
+      f1: true,
+      menu: {
+        id: MenuId.MenubarHelpMenu,
+        group: "1_welcome",
+        order: 3
+      }
+    });
+  }
+  async getQuickPickItems(contextService, gettingStartedService) {
+    const categories = await gettingStartedService.getWalkthroughs();
+    return categories.filter((c) => contextService.contextMatchesRules(c.when)).map((x) => ({
+      id: x.id,
+      label: x.title,
+      detail: x.description,
+      description: x.source
+    }));
+  }
+  async run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    const contextService = accessor.get(IContextKeyService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const gettingStartedService = accessor.get(IWalkthroughsService);
+    const extensionService = accessor.get(IExtensionService);
+    const disposables = new DisposableStore();
+    const quickPick = disposables.add(quickInputService.createQuickPick());
+    quickPick.canSelectMany = false;
+    quickPick.matchOnDescription = true;
+    quickPick.matchOnDetail = true;
+    quickPick.placeholder = localize("pickWalkthroughs", "Select a walkthrough to open");
+    quickPick.items = await this.getQuickPickItems(contextService, gettingStartedService);
+    quickPick.busy = true;
+    disposables.add(quickPick.onDidAccept(() => {
+      const selection = quickPick.selectedItems[0];
+      if (selection) {
+        commandService.executeCommand("workbench.action.openWalkthrough", selection.id);
+      }
+      quickPick.hide();
+    }));
+    disposables.add(quickPick.onDidHide(() => disposables.dispose()));
+    await extensionService.whenInstalledExtensionsRegistered();
+    disposables.add(gettingStartedService.onDidAddWalkthrough(async () => {
+      quickPick.items = await this.getQuickPickItems(contextService, gettingStartedService);
+    }));
+    quickPick.show();
+    quickPick.busy = false;
+  }
+});
+CommandsRegistry.registerCommand({
+  id: "welcome.newWorkspaceChat",
+  handler: /* @__PURE__ */ __name((accessor, stepID) => {
+    const commandService = accessor.get(ICommandService);
+    commandService.executeCommand("workbench.action.chat.open", { mode: "agent", query: "#new ", isPartialQuery: true });
+  }, "handler")
+});
+const WorkspacePlatform = new RawContextKey("workspacePlatform", void 0, localize("workspacePlatform", "The platform of the current workspace, which in remote or serverless contexts may be different from the platform of the UI"));
+let WorkspacePlatformContribution = class WorkspacePlatformContribution2 {
+  static {
+    __name(this, "WorkspacePlatformContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.workspacePlatform";
+  }
+  constructor(extensionManagementServerService, remoteAgentService, contextService) {
+    this.extensionManagementServerService = extensionManagementServerService;
+    this.remoteAgentService = remoteAgentService;
+    this.contextService = contextService;
+    this.remoteAgentService.getEnvironment().then((env) => {
+      const remoteOS = env?.os;
+      const remotePlatform = remoteOS === 2 ? "mac" : remoteOS === 1 ? "windows" : remoteOS === 3 ? "linux" : void 0;
+      if (remotePlatform) {
+        WorkspacePlatform.bindTo(this.contextService).set(remotePlatform);
+      } else if (this.extensionManagementServerService.localExtensionManagementServer) {
+        if (isMacintosh) {
+          WorkspacePlatform.bindTo(this.contextService).set("mac");
+        } else if (isLinux) {
+          WorkspacePlatform.bindTo(this.contextService).set("linux");
+        } else if (isWindows) {
+          WorkspacePlatform.bindTo(this.contextService).set("windows");
+        }
+      } else if (this.extensionManagementServerService.webExtensionManagementServer) {
+        WorkspacePlatform.bindTo(this.contextService).set("webworker");
+      } else {
+        console.error("Error: Unable to detect workspace platform");
+      }
+    });
+  }
+};
+WorkspacePlatformContribution = __decorate([
+  __param(0, IExtensionManagementServerService),
+  __param(1, IRemoteAgentService),
+  __param(2, IContextKeyService)
+], WorkspacePlatformContribution);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.welcomePage.walkthroughs.openOnInstall": {
+      scope: 2,
+      type: "boolean",
+      default: true,
+      description: localize("workbench.welcomePage.walkthroughs.openOnInstall", "When enabled, an extension's walkthrough will open upon install of the extension.")
+    },
+    "workbench.startupEditor": {
+      "scope": 5,
+      "type": "string",
+      "enum": ["none", "welcomePage", "readme", "newUntitledFile", "welcomePageInEmptyWorkbench", "terminal", "agentSessionsWelcomePage"],
+      "enumDescriptions": [
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.none" }, "Start without an editor."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.welcomePage" }, "Open the Welcome page, with content to aid in getting started with VS Code and extensions."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.readme" }, "Open the README when opening a folder that contains one, fallback to 'welcomePage' otherwise. Note: This is only observed as a global configuration, it will be ignored if set in a workspace or folder configuration."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.newUntitledFile" }, "Open a new untitled text file (only applies when opening an empty window)."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.welcomePageInEmptyWorkbench" }, "Open the Welcome page when opening an empty workbench."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.terminal" }, "Open a new terminal in the editor area."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "workbench.startupEditor.agentSessionsWelcomePage" }, "Open the Agent Sessions Welcome page.")
+      ],
+      "default": "welcomePage",
+      "description": localize("workbench.startupEditor", "Controls which editor is shown at startup, if none are restored from the previous session.")
+    },
+    "workbench.welcomePage.preferReducedMotion": {
+      scope: 1,
+      type: "boolean",
+      default: false,
+      deprecationMessage: localize("deprecationMessage", "Deprecated, use the global `workbench.reduceMotion`."),
+      description: localize("workbench.welcomePage.preferReducedMotion", "When enabled, reduce motion in welcome page.")
+    }
+  }
+});
+registerWorkbenchContribution2(
+  WorkspacePlatformContribution.ID,
+  WorkspacePlatformContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  StartupPageEditorResolverContribution.ID,
+  StartupPageEditorResolverContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  StartupPageRunnerContribution.ID,
+  StartupPageRunnerContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+AccessibleViewRegistry.register(new GettingStartedAccessibleView());
+export {
+  WorkspacePlatform,
+  icons
+};
+//# sourceMappingURL=gettingStarted.contribution.js.map

@@ -1,13 +1,671 @@
-import{deepStrictEqual as a,strictEqual as r,ok as T}from"assert";import{$9i as H}from"../../../../../../base/common/buffer.js";import{Schemas as h}from"../../../../../../base/common/network.js";import{$9 as P}from"../../../../../../base/common/path.js";import{$m as y}from"../../../../../../base/common/platform.js";import{$2 as e}from"../../../../../../base/common/process.js";import{URI as E}from"../../../../../../base/common/uri.js";import{$Rab as x}from"../../../../../../base/test/common/utils.js";import{$9l as F}from"../../../../../../platform/configuration/common/configuration.js";import{$7Qc as G}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$uk as O}from"../../../../../../platform/files/common/files.js";import{$_Qc as p}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$gp as X}from"../../../../../../platform/storage/common/storage.js";import{$ZN as M}from"../../../../../services/remote/common/remoteAgentService.js";import{$mZc as k}from"../../../../../test/common/workbenchTestServices.js";import{$sCc as v,$wCc as A,$vCc as w,$tCc as D,$xCc as S,$pCc as C}from"../../common/history.js";function _(f){return{terminal:{integrated:{shellIntegration:{history:f}}}}}const d=["single line command",`git commit -m "A wrapped line in pwsh history
-
-Some commit description
-
-Fixes #xyz"`,"git status",`two "
-line"`];suite("Terminal history",()=>{const f=x();suite("TerminalPersistedHistory",()=>{let n,o,l;setup(()=>{l=new G(_(5)),o=f.add(new p),o.set(F,l),o.set(X,f.add(new k)),n=f.add(o.createInstance(C,"test"))}),teardown(()=>{o.dispose()}),test("should support adding items to the cache and respect LRU",()=>{n.add("foo",1),a(Array.from(n.entries),[["foo",1]]),n.add("bar",2),a(Array.from(n.entries),[["foo",1],["bar",2]]),n.add("foo",1),a(Array.from(n.entries),[["bar",2],["foo",1]])}),test("should support removing specific items",()=>{n.add("1",1),n.add("2",2),n.add("3",3),n.add("4",4),n.add("5",5),r(Array.from(n.entries).length,5),n.add("6",6),r(Array.from(n.entries).length,5)}),test("should limit the number of entries based on config",()=>{n.add("1",1),n.add("2",2),n.add("3",3),n.add("4",4),n.add("5",5),r(Array.from(n.entries).length,5),n.add("6",6),r(Array.from(n.entries).length,5),l.setUserConfiguration("terminal",_(2).terminal),l.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0}),r(Array.from(n.entries).length,2),n.add("7",7),r(Array.from(n.entries).length,2),l.setUserConfiguration("terminal",_(3).terminal),l.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0}),r(Array.from(n.entries).length,2),n.add("8",8),r(Array.from(n.entries).length,3),n.add("9",9),r(Array.from(n.entries).length,3)}),test("should reload from storage service after recreation",()=>{n.add("1",1),n.add("2",2),n.add("3",3),r(Array.from(n.entries).length,3);const i=f.add(o.createInstance(C,"test"));r(Array.from(i.entries).length,3)})}),suite("fetchBashHistory",()=>{let n,o;const l=["single line command",'git commit -m "A wrapped line in pwsh history',"","Some commit description","",'Fixes #xyz"',"git status",'two "','line"'].join(`
-`);let i,m=null,s=null;setup(()=>{i=new p,i.stub(O,{async readFile(t){const c=E.from({scheme:n,path:o});return r(t.scheme,c.scheme),r(t.path,c.path),{value:H.fromString(l)}}}),i.stub(M,{async getEnvironment(){return s},getConnection(){return m}})}),teardown(()=>{i.dispose()}),y||suite("local",()=>{let t;setup(()=>{t={HOME:e.HOME},e.HOME="/home/user",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.bash_history"}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME}),test("current OS",async()=>{o="/home/user/.bash_history",a((await i.invokeFunction(v)).commands,d)})}),suite("remote",()=>{let t;setup(()=>{t={HOME:e.HOME},e.HOME="/home/user",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.bash_history"}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME}),test("Windows",async()=>{s={os:1},r(await i.invokeFunction(v),void 0)}),test("macOS",async()=>{s={os:2},a((await i.invokeFunction(v)).commands,d)}),test("Linux",async()=>{s={os:3},a((await i.invokeFunction(v)).commands,d)})})}),suite("fetchZshHistory",()=>{let n,o;const l=[{type:"simple",content:["single line command",'git commit -m "A wrapped line in pwsh history\\',"\\","Some commit description\\","\\",'Fixes #xyz"',"git status",'two "\\','line"'].join(`
-`)},{type:"extended",content:[": 1655252330:0;single line command",': 1655252330:0;git commit -m "A wrapped line in pwsh history\\',"\\","Some commit description\\","\\",'Fixes #xyz"',": 1655252330:0;git status",': 1655252330:0;two "\\','line"'].join(`
-`)}];let i,m=null,s=null;for(const{type:t,content:c}of l)suite(t,()=>{setup(()=>{i=new p,i.stub(O,{async readFile(u){const g=E.from({scheme:n,path:o});return r(u.scheme,g.scheme),r(u.path,g.path),{value:H.fromString(c)}}}),i.stub(M,{async getEnvironment(){return s},getConnection(){return m}})}),teardown(()=>{i.dispose()}),y||suite("local",()=>{let u;setup(()=>{u={HOME:e.HOME},e.HOME="/home/user",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.bash_history"}),teardown(()=>{u.HOME===void 0?delete e.HOME:e.HOME=u.HOME}),test("current OS",async()=>{o="/home/user/.zsh_history",a((await i.invokeFunction(D)).commands,d)})}),suite("remote",()=>{let u;setup(()=>{u={HOME:e.HOME},e.HOME="/home/user",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.zsh_history"}),teardown(()=>{u.HOME===void 0?delete e.HOME:e.HOME=u.HOME}),test("Windows",async()=>{s={os:1},r(await i.invokeFunction(D),void 0)}),test("macOS",async()=>{s={os:2},a((await i.invokeFunction(D)).commands,d)}),test("Linux",async()=>{s={os:3},a((await i.invokeFunction(D)).commands,d)})})})}),suite("fetchPwshHistory",()=>{let n,o;const l=["single line command",'git commit -m "A wrapped line in pwsh history`',"`","Some commit description`","`",'Fixes #xyz"',"git status",'two "`','line"'].join(`
-`);let i,m=null,s=null;setup(()=>{i=new p,i.stub(O,{async readFile(t){const c=E.from({scheme:n,authority:m?.remoteAuthority,path:E.file(o).path});return r(t.toString().replaceAll("%5C","/"),c.toString().replaceAll("%5C","/")),{value:H.fromString(l)}}}),i.stub(M,{async getEnvironment(){return s},getConnection(){return m}})}),teardown(()=>{i.dispose()}),suite("local",()=>{let t;setup(()=>{t={HOME:e.HOME,APPDATA:e.APPDATA},e.HOME="/home/user",e.APPDATA="C:\\AppData",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.zsh_history",t={HOME:e.HOME,APPDATA:e.APPDATA}}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME,t.APPDATA===void 0?delete e.APPDATA:e.APPDATA=t.APPDATA}),test("current OS",async()=>{y?o=P(e.APPDATA,"Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt"):o=P(e.HOME,".local/share/powershell/PSReadline/ConsoleHost_history.txt"),a((await i.invokeFunction(w)).commands,d)})}),suite("remote",()=>{let t;setup(()=>{m={remoteAuthority:"some-remote"},n=h.vscodeRemote,t={HOME:e.HOME,APPDATA:e.APPDATA}}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME,t.APPDATA===void 0?delete e.APPDATA:e.APPDATA=t.APPDATA}),test("Windows",async()=>{s={os:1},e.APPDATA="C:\\AppData",o="C:\\AppData\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt",a((await i.invokeFunction(w)).commands,d)}),test("macOS",async()=>{s={os:2},e.HOME="/home/user",o="/home/user/.local/share/powershell/PSReadline/ConsoleHost_history.txt",a((await i.invokeFunction(w)).commands,d)}),test("Linux",async()=>{s={os:3},e.HOME="/home/user",o="/home/user/.local/share/powershell/PSReadline/ConsoleHost_history.txt",a((await i.invokeFunction(w)).commands,d)})})}),suite("fetchFishHistory",()=>{let n,o;const l=["- cmd: single line command","  when: 1650000000",'- cmd: git commit -m "A wrapped line in pwsh history\\n\\nSome commit description\\n\\nFixes #xyz"',"  when: 1650000010","- cmd: git status","  when: 1650000020",'- cmd: two "\\nline"',"  when: 1650000030"].join(`
-`);let i,m=null,s=null;setup(()=>{i=new p,i.stub(O,{async readFile(t){const c=E.from({scheme:n,path:o});return r(t.scheme,c.scheme),r(t.path,c.path),{value:H.fromString(l)}}}),i.stub(M,{async getEnvironment(){return s},getConnection(){return m}})}),teardown(()=>{i.dispose()}),y||(suite("local",()=>{let t;setup(()=>{t={HOME:e.HOME,XDG_DATA_HOME:e.XDG_DATA_HOME},e.HOME="/home/user",delete e.XDG_DATA_HOME,m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.local/share/fish/fish_history"}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME,t.XDG_DATA_HOME===void 0?delete e.XDG_DATA_HOME:e.XDG_DATA_HOME=t.XDG_DATA_HOME}),test("current OS",async()=>{o="/home/user/.local/share/fish/fish_history",a((await i.invokeFunction(A)).commands,d)})}),suite("local (overriden path)",()=>{let t;setup(()=>{t={XDG_DATA_HOME:e.XDG_DATA_HOME},e.XDG_DATA_HOME="/home/user/data-home",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/data-home/fish/fish_history"}),teardown(()=>{t.XDG_DATA_HOME===void 0?delete e.XDG_DATA_HOME:e.XDG_DATA_HOME=t.XDG_DATA_HOME}),test("current OS",async()=>{o="/home/user/data-home/fish/fish_history",a((await i.invokeFunction(A)).commands,d)})})),suite("remote",()=>{let t;setup(()=>{t={HOME:e.HOME,XDG_DATA_HOME:e.XDG_DATA_HOME},e.HOME="/home/user",delete e.XDG_DATA_HOME,m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/.local/share/fish/fish_history"}),teardown(()=>{t.HOME===void 0?delete e.HOME:e.HOME=t.HOME,t.XDG_DATA_HOME===void 0?delete e.XDG_DATA_HOME:e.XDG_DATA_HOME=t.XDG_DATA_HOME}),test("Windows",async()=>{s={os:1},r(await i.invokeFunction(A),void 0)}),test("macOS",async()=>{s={os:2},a((await i.invokeFunction(A)).commands,d)}),test("Linux",async()=>{s={os:3},a((await i.invokeFunction(A)).commands,d)})}),suite("remote (overriden path)",()=>{let t;setup(()=>{t={XDG_DATA_HOME:e.XDG_DATA_HOME},e.XDG_DATA_HOME="/home/user/data-home",m={remoteAuthority:"some-remote"},n=h.vscodeRemote,o="/home/user/data-home/fish/fish_history"}),teardown(()=>{t.XDG_DATA_HOME===void 0?delete e.XDG_DATA_HOME:e.XDG_DATA_HOME=t.XDG_DATA_HOME}),test("Windows",async()=>{s={os:1},r(await i.invokeFunction(A),void 0)}),test("macOS",async()=>{s={os:2},a((await i.invokeFunction(A)).commands,d)}),test("Linux",async()=>{s={os:3},a((await i.invokeFunction(A)).commands,d)})}),suite("sanitizeFishHistoryCmd",()=>{test("valid new-lines",()=>{const t=["\\n","\\n at start","some \\n in the middle","at the end \\n","\\\\\\n","\\\\\\n valid at start","valid \\\\\\n in the middle","valid in the end \\\\\\n","\\\\\\\\\\n","\\\\\\\\\\n valid at start","valid \\\\\\\\\\n in the middle","valid in the end \\\\\\\\\\n","mixed valid \\r\\n","mixed valid \\\\\\r\\n","mixed valid \\r\\\\\\n"];for(const c of t)T(S(c).includes(`
-`))}),test("invalid new-lines",()=>{const t=["\\\\n","\\\\n invalid at start","invalid \\\\n in the middle","invalid in the end \\\\n","\\\\\\\\n","\\\\\\\\n invalid at start","invalid \\\\\\\\n in the middle","invalid in the end \\\\\\\\n","mixed invalid \\r\\\\n","mixed invalid \\r\\\\\\\\n",'echo "\\\\n"'];for(const c of t)T(!S(c).includes(`
-`))})})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { deepStrictEqual, strictEqual, ok } from "assert";
+import { VSBuffer } from "../../../../../../base/common/buffer.js";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { join } from "../../../../../../base/common/path.js";
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { env } from "../../../../../../base/common/process.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { IRemoteAgentService } from "../../../../../services/remote/common/remoteAgentService.js";
+import { TestStorageService } from "../../../../../test/common/workbenchTestServices.js";
+import { fetchBashHistory, fetchFishHistory, fetchPwshHistory, fetchZshHistory, sanitizeFishHistoryCmd, TerminalPersistedHistory } from "../../common/history.js";
+function getConfig(limit) {
+  return {
+    terminal: {
+      integrated: {
+        shellIntegration: {
+          history: limit
+        }
+      }
+    }
+  };
+}
+__name(getConfig, "getConfig");
+const expectedCommands = [
+  "single line command",
+  'git commit -m "A wrapped line in pwsh history\n\nSome commit description\n\nFixes #xyz"',
+  "git status",
+  'two "\nline"'
+];
+suite("Terminal history", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  suite("TerminalPersistedHistory", () => {
+    let history;
+    let instantiationService;
+    let configurationService;
+    setup(() => {
+      configurationService = new TestConfigurationService(getConfig(5));
+      instantiationService = store.add(new TestInstantiationService());
+      instantiationService.set(IConfigurationService, configurationService);
+      instantiationService.set(IStorageService, store.add(new TestStorageService()));
+      history = store.add(instantiationService.createInstance(TerminalPersistedHistory, "test"));
+    });
+    teardown(() => {
+      instantiationService.dispose();
+    });
+    test("should support adding items to the cache and respect LRU", () => {
+      history.add("foo", 1);
+      deepStrictEqual(Array.from(history.entries), [
+        ["foo", 1]
+      ]);
+      history.add("bar", 2);
+      deepStrictEqual(Array.from(history.entries), [
+        ["foo", 1],
+        ["bar", 2]
+      ]);
+      history.add("foo", 1);
+      deepStrictEqual(Array.from(history.entries), [
+        ["bar", 2],
+        ["foo", 1]
+      ]);
+    });
+    test("should support removing specific items", () => {
+      history.add("1", 1);
+      history.add("2", 2);
+      history.add("3", 3);
+      history.add("4", 4);
+      history.add("5", 5);
+      strictEqual(Array.from(history.entries).length, 5);
+      history.add("6", 6);
+      strictEqual(Array.from(history.entries).length, 5);
+    });
+    test("should limit the number of entries based on config", () => {
+      history.add("1", 1);
+      history.add("2", 2);
+      history.add("3", 3);
+      history.add("4", 4);
+      history.add("5", 5);
+      strictEqual(Array.from(history.entries).length, 5);
+      history.add("6", 6);
+      strictEqual(Array.from(history.entries).length, 5);
+      configurationService.setUserConfiguration("terminal", getConfig(2).terminal);
+      configurationService.onDidChangeConfigurationEmitter.fire({ affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration") });
+      strictEqual(Array.from(history.entries).length, 2);
+      history.add("7", 7);
+      strictEqual(Array.from(history.entries).length, 2);
+      configurationService.setUserConfiguration("terminal", getConfig(3).terminal);
+      configurationService.onDidChangeConfigurationEmitter.fire({ affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration") });
+      strictEqual(Array.from(history.entries).length, 2);
+      history.add("8", 8);
+      strictEqual(Array.from(history.entries).length, 3);
+      history.add("9", 9);
+      strictEqual(Array.from(history.entries).length, 3);
+    });
+    test("should reload from storage service after recreation", () => {
+      history.add("1", 1);
+      history.add("2", 2);
+      history.add("3", 3);
+      strictEqual(Array.from(history.entries).length, 3);
+      const history2 = store.add(instantiationService.createInstance(TerminalPersistedHistory, "test"));
+      strictEqual(Array.from(history2.entries).length, 3);
+    });
+  });
+  suite("fetchBashHistory", () => {
+    let fileScheme;
+    let filePath;
+    const fileContent = [
+      "single line command",
+      'git commit -m "A wrapped line in pwsh history',
+      "",
+      "Some commit description",
+      "",
+      'Fixes #xyz"',
+      "git status",
+      'two "',
+      'line"'
+    ].join("\n");
+    let instantiationService;
+    let remoteConnection = null;
+    let remoteEnvironment = null;
+    setup(() => {
+      instantiationService = new TestInstantiationService();
+      instantiationService.stub(IFileService, {
+        async readFile(resource) {
+          const expected = URI.from({ scheme: fileScheme, path: filePath });
+          strictEqual(resource.scheme, expected.scheme);
+          strictEqual(resource.path, expected.path);
+          return { value: VSBuffer.fromString(fileContent) };
+        }
+      });
+      instantiationService.stub(IRemoteAgentService, {
+        async getEnvironment() {
+          return remoteEnvironment;
+        },
+        getConnection() {
+          return remoteConnection;
+        }
+      });
+    });
+    teardown(() => {
+      instantiationService.dispose();
+    });
+    if (!isWindows) {
+      suite("local", () => {
+        let originalEnvValues;
+        setup(() => {
+          originalEnvValues = { HOME: env["HOME"] };
+          env["HOME"] = "/home/user";
+          remoteConnection = { remoteAuthority: "some-remote" };
+          fileScheme = Schemas.vscodeRemote;
+          filePath = "/home/user/.bash_history";
+        });
+        teardown(() => {
+          if (originalEnvValues["HOME"] === void 0) {
+            delete env["HOME"];
+          } else {
+            env["HOME"] = originalEnvValues["HOME"];
+          }
+        });
+        test("current OS", async () => {
+          filePath = "/home/user/.bash_history";
+          deepStrictEqual((await instantiationService.invokeFunction(fetchBashHistory)).commands, expectedCommands);
+        });
+      });
+    }
+    suite("remote", () => {
+      let originalEnvValues;
+      setup(() => {
+        originalEnvValues = { HOME: env["HOME"] };
+        env["HOME"] = "/home/user";
+        remoteConnection = { remoteAuthority: "some-remote" };
+        fileScheme = Schemas.vscodeRemote;
+        filePath = "/home/user/.bash_history";
+      });
+      teardown(() => {
+        if (originalEnvValues["HOME"] === void 0) {
+          delete env["HOME"];
+        } else {
+          env["HOME"] = originalEnvValues["HOME"];
+        }
+      });
+      test("Windows", async () => {
+        remoteEnvironment = {
+          os: 1
+          /* OperatingSystem.Windows */
+        };
+        strictEqual(await instantiationService.invokeFunction(fetchBashHistory), void 0);
+      });
+      test("macOS", async () => {
+        remoteEnvironment = {
+          os: 2
+          /* OperatingSystem.Macintosh */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchBashHistory)).commands, expectedCommands);
+      });
+      test("Linux", async () => {
+        remoteEnvironment = {
+          os: 3
+          /* OperatingSystem.Linux */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchBashHistory)).commands, expectedCommands);
+      });
+    });
+  });
+  suite("fetchZshHistory", () => {
+    let fileScheme;
+    let filePath;
+    const fileContentType = [
+      {
+        type: "simple",
+        content: [
+          "single line command",
+          'git commit -m "A wrapped line in pwsh history\\',
+          "\\",
+          "Some commit description\\",
+          "\\",
+          'Fixes #xyz"',
+          "git status",
+          'two "\\',
+          'line"'
+        ].join("\n")
+      },
+      {
+        type: "extended",
+        content: [
+          ": 1655252330:0;single line command",
+          ': 1655252330:0;git commit -m "A wrapped line in pwsh history\\',
+          "\\",
+          "Some commit description\\",
+          "\\",
+          'Fixes #xyz"',
+          ": 1655252330:0;git status",
+          ': 1655252330:0;two "\\',
+          'line"'
+        ].join("\n")
+      }
+    ];
+    let instantiationService;
+    let remoteConnection = null;
+    let remoteEnvironment = null;
+    for (const { type, content } of fileContentType) {
+      suite(type, () => {
+        setup(() => {
+          instantiationService = new TestInstantiationService();
+          instantiationService.stub(IFileService, {
+            async readFile(resource) {
+              const expected = URI.from({ scheme: fileScheme, path: filePath });
+              strictEqual(resource.scheme, expected.scheme);
+              strictEqual(resource.path, expected.path);
+              return { value: VSBuffer.fromString(content) };
+            }
+          });
+          instantiationService.stub(IRemoteAgentService, {
+            async getEnvironment() {
+              return remoteEnvironment;
+            },
+            getConnection() {
+              return remoteConnection;
+            }
+          });
+        });
+        teardown(() => {
+          instantiationService.dispose();
+        });
+        if (!isWindows) {
+          suite("local", () => {
+            let originalEnvValues;
+            setup(() => {
+              originalEnvValues = { HOME: env["HOME"] };
+              env["HOME"] = "/home/user";
+              remoteConnection = { remoteAuthority: "some-remote" };
+              fileScheme = Schemas.vscodeRemote;
+              filePath = "/home/user/.bash_history";
+            });
+            teardown(() => {
+              if (originalEnvValues["HOME"] === void 0) {
+                delete env["HOME"];
+              } else {
+                env["HOME"] = originalEnvValues["HOME"];
+              }
+            });
+            test("current OS", async () => {
+              filePath = "/home/user/.zsh_history";
+              deepStrictEqual((await instantiationService.invokeFunction(fetchZshHistory)).commands, expectedCommands);
+            });
+          });
+        }
+        suite("remote", () => {
+          let originalEnvValues;
+          setup(() => {
+            originalEnvValues = { HOME: env["HOME"] };
+            env["HOME"] = "/home/user";
+            remoteConnection = { remoteAuthority: "some-remote" };
+            fileScheme = Schemas.vscodeRemote;
+            filePath = "/home/user/.zsh_history";
+          });
+          teardown(() => {
+            if (originalEnvValues["HOME"] === void 0) {
+              delete env["HOME"];
+            } else {
+              env["HOME"] = originalEnvValues["HOME"];
+            }
+          });
+          test("Windows", async () => {
+            remoteEnvironment = {
+              os: 1
+              /* OperatingSystem.Windows */
+            };
+            strictEqual(await instantiationService.invokeFunction(fetchZshHistory), void 0);
+          });
+          test("macOS", async () => {
+            remoteEnvironment = {
+              os: 2
+              /* OperatingSystem.Macintosh */
+            };
+            deepStrictEqual((await instantiationService.invokeFunction(fetchZshHistory)).commands, expectedCommands);
+          });
+          test("Linux", async () => {
+            remoteEnvironment = {
+              os: 3
+              /* OperatingSystem.Linux */
+            };
+            deepStrictEqual((await instantiationService.invokeFunction(fetchZshHistory)).commands, expectedCommands);
+          });
+        });
+      });
+    }
+  });
+  suite("fetchPwshHistory", () => {
+    let fileScheme;
+    let filePath;
+    const fileContent = [
+      "single line command",
+      'git commit -m "A wrapped line in pwsh history`',
+      "`",
+      "Some commit description`",
+      "`",
+      'Fixes #xyz"',
+      "git status",
+      'two "`',
+      'line"'
+    ].join("\n");
+    let instantiationService;
+    let remoteConnection = null;
+    let remoteEnvironment = null;
+    setup(() => {
+      instantiationService = new TestInstantiationService();
+      instantiationService.stub(IFileService, {
+        async readFile(resource) {
+          const expected = URI.from({
+            scheme: fileScheme,
+            authority: remoteConnection?.remoteAuthority,
+            path: URI.file(filePath).path
+          });
+          strictEqual(resource.toString().replaceAll("%5C", "/"), expected.toString().replaceAll("%5C", "/"));
+          return { value: VSBuffer.fromString(fileContent) };
+        }
+      });
+      instantiationService.stub(IRemoteAgentService, {
+        async getEnvironment() {
+          return remoteEnvironment;
+        },
+        getConnection() {
+          return remoteConnection;
+        }
+      });
+    });
+    teardown(() => {
+      instantiationService.dispose();
+    });
+    suite("local", () => {
+      let originalEnvValues;
+      setup(() => {
+        originalEnvValues = { HOME: env["HOME"], APPDATA: env["APPDATA"] };
+        env["HOME"] = "/home/user";
+        env["APPDATA"] = "C:\\AppData";
+        remoteConnection = { remoteAuthority: "some-remote" };
+        fileScheme = Schemas.vscodeRemote;
+        filePath = "/home/user/.zsh_history";
+        originalEnvValues = { HOME: env["HOME"], APPDATA: env["APPDATA"] };
+      });
+      teardown(() => {
+        if (originalEnvValues["HOME"] === void 0) {
+          delete env["HOME"];
+        } else {
+          env["HOME"] = originalEnvValues["HOME"];
+        }
+        if (originalEnvValues["APPDATA"] === void 0) {
+          delete env["APPDATA"];
+        } else {
+          env["APPDATA"] = originalEnvValues["APPDATA"];
+        }
+      });
+      test("current OS", async () => {
+        if (isWindows) {
+          filePath = join(env["APPDATA"], "Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt");
+        } else {
+          filePath = join(env["HOME"], ".local/share/powershell/PSReadline/ConsoleHost_history.txt");
+        }
+        deepStrictEqual((await instantiationService.invokeFunction(fetchPwshHistory)).commands, expectedCommands);
+      });
+    });
+    suite("remote", () => {
+      let originalEnvValues;
+      setup(() => {
+        remoteConnection = { remoteAuthority: "some-remote" };
+        fileScheme = Schemas.vscodeRemote;
+        originalEnvValues = { HOME: env["HOME"], APPDATA: env["APPDATA"] };
+      });
+      teardown(() => {
+        if (originalEnvValues["HOME"] === void 0) {
+          delete env["HOME"];
+        } else {
+          env["HOME"] = originalEnvValues["HOME"];
+        }
+        if (originalEnvValues["APPDATA"] === void 0) {
+          delete env["APPDATA"];
+        } else {
+          env["APPDATA"] = originalEnvValues["APPDATA"];
+        }
+      });
+      test("Windows", async () => {
+        remoteEnvironment = {
+          os: 1
+          /* OperatingSystem.Windows */
+        };
+        env["APPDATA"] = "C:\\AppData";
+        filePath = "C:\\AppData\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt";
+        deepStrictEqual((await instantiationService.invokeFunction(fetchPwshHistory)).commands, expectedCommands);
+      });
+      test("macOS", async () => {
+        remoteEnvironment = {
+          os: 2
+          /* OperatingSystem.Macintosh */
+        };
+        env["HOME"] = "/home/user";
+        filePath = "/home/user/.local/share/powershell/PSReadline/ConsoleHost_history.txt";
+        deepStrictEqual((await instantiationService.invokeFunction(fetchPwshHistory)).commands, expectedCommands);
+      });
+      test("Linux", async () => {
+        remoteEnvironment = {
+          os: 3
+          /* OperatingSystem.Linux */
+        };
+        env["HOME"] = "/home/user";
+        filePath = "/home/user/.local/share/powershell/PSReadline/ConsoleHost_history.txt";
+        deepStrictEqual((await instantiationService.invokeFunction(fetchPwshHistory)).commands, expectedCommands);
+      });
+    });
+  });
+  suite("fetchFishHistory", () => {
+    let fileScheme;
+    let filePath;
+    const fileContent = [
+      "- cmd: single line command",
+      "  when: 1650000000",
+      '- cmd: git commit -m "A wrapped line in pwsh history\\n\\nSome commit description\\n\\nFixes #xyz"',
+      "  when: 1650000010",
+      "- cmd: git status",
+      "  when: 1650000020",
+      '- cmd: two "\\nline"',
+      "  when: 1650000030"
+    ].join("\n");
+    let instantiationService;
+    let remoteConnection = null;
+    let remoteEnvironment = null;
+    setup(() => {
+      instantiationService = new TestInstantiationService();
+      instantiationService.stub(IFileService, {
+        async readFile(resource) {
+          const expected = URI.from({ scheme: fileScheme, path: filePath });
+          strictEqual(resource.scheme, expected.scheme);
+          strictEqual(resource.path, expected.path);
+          return { value: VSBuffer.fromString(fileContent) };
+        }
+      });
+      instantiationService.stub(IRemoteAgentService, {
+        async getEnvironment() {
+          return remoteEnvironment;
+        },
+        getConnection() {
+          return remoteConnection;
+        }
+      });
+    });
+    teardown(() => {
+      instantiationService.dispose();
+    });
+    if (!isWindows) {
+      suite("local", () => {
+        let originalEnvValues;
+        setup(() => {
+          originalEnvValues = { HOME: env["HOME"], XDG_DATA_HOME: env["XDG_DATA_HOME"] };
+          env["HOME"] = "/home/user";
+          delete env["XDG_DATA_HOME"];
+          remoteConnection = { remoteAuthority: "some-remote" };
+          fileScheme = Schemas.vscodeRemote;
+          filePath = "/home/user/.local/share/fish/fish_history";
+        });
+        teardown(() => {
+          if (originalEnvValues["HOME"] === void 0) {
+            delete env["HOME"];
+          } else {
+            env["HOME"] = originalEnvValues["HOME"];
+          }
+          if (originalEnvValues["XDG_DATA_HOME"] === void 0) {
+            delete env["XDG_DATA_HOME"];
+          } else {
+            env["XDG_DATA_HOME"] = originalEnvValues["XDG_DATA_HOME"];
+          }
+        });
+        test("current OS", async () => {
+          filePath = "/home/user/.local/share/fish/fish_history";
+          deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+        });
+      });
+      suite("local (overriden path)", () => {
+        let originalEnvValues;
+        setup(() => {
+          originalEnvValues = { XDG_DATA_HOME: env["XDG_DATA_HOME"] };
+          env["XDG_DATA_HOME"] = "/home/user/data-home";
+          remoteConnection = { remoteAuthority: "some-remote" };
+          fileScheme = Schemas.vscodeRemote;
+          filePath = "/home/user/data-home/fish/fish_history";
+        });
+        teardown(() => {
+          if (originalEnvValues["XDG_DATA_HOME"] === void 0) {
+            delete env["XDG_DATA_HOME"];
+          } else {
+            env["XDG_DATA_HOME"] = originalEnvValues["XDG_DATA_HOME"];
+          }
+        });
+        test("current OS", async () => {
+          filePath = "/home/user/data-home/fish/fish_history";
+          deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+        });
+      });
+    }
+    suite("remote", () => {
+      let originalEnvValues;
+      setup(() => {
+        originalEnvValues = { HOME: env["HOME"], XDG_DATA_HOME: env["XDG_DATA_HOME"] };
+        env["HOME"] = "/home/user";
+        delete env["XDG_DATA_HOME"];
+        remoteConnection = { remoteAuthority: "some-remote" };
+        fileScheme = Schemas.vscodeRemote;
+        filePath = "/home/user/.local/share/fish/fish_history";
+      });
+      teardown(() => {
+        if (originalEnvValues["HOME"] === void 0) {
+          delete env["HOME"];
+        } else {
+          env["HOME"] = originalEnvValues["HOME"];
+        }
+        if (originalEnvValues["XDG_DATA_HOME"] === void 0) {
+          delete env["XDG_DATA_HOME"];
+        } else {
+          env["XDG_DATA_HOME"] = originalEnvValues["XDG_DATA_HOME"];
+        }
+      });
+      test("Windows", async () => {
+        remoteEnvironment = {
+          os: 1
+          /* OperatingSystem.Windows */
+        };
+        strictEqual(await instantiationService.invokeFunction(fetchFishHistory), void 0);
+      });
+      test("macOS", async () => {
+        remoteEnvironment = {
+          os: 2
+          /* OperatingSystem.Macintosh */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+      });
+      test("Linux", async () => {
+        remoteEnvironment = {
+          os: 3
+          /* OperatingSystem.Linux */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+      });
+    });
+    suite("remote (overriden path)", () => {
+      let originalEnvValues;
+      setup(() => {
+        originalEnvValues = { XDG_DATA_HOME: env["XDG_DATA_HOME"] };
+        env["XDG_DATA_HOME"] = "/home/user/data-home";
+        remoteConnection = { remoteAuthority: "some-remote" };
+        fileScheme = Schemas.vscodeRemote;
+        filePath = "/home/user/data-home/fish/fish_history";
+      });
+      teardown(() => {
+        if (originalEnvValues["XDG_DATA_HOME"] === void 0) {
+          delete env["XDG_DATA_HOME"];
+        } else {
+          env["XDG_DATA_HOME"] = originalEnvValues["XDG_DATA_HOME"];
+        }
+      });
+      test("Windows", async () => {
+        remoteEnvironment = {
+          os: 1
+          /* OperatingSystem.Windows */
+        };
+        strictEqual(await instantiationService.invokeFunction(fetchFishHistory), void 0);
+      });
+      test("macOS", async () => {
+        remoteEnvironment = {
+          os: 2
+          /* OperatingSystem.Macintosh */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+      });
+      test("Linux", async () => {
+        remoteEnvironment = {
+          os: 3
+          /* OperatingSystem.Linux */
+        };
+        deepStrictEqual((await instantiationService.invokeFunction(fetchFishHistory)).commands, expectedCommands);
+      });
+    });
+    suite("sanitizeFishHistoryCmd", () => {
+      test("valid new-lines", () => {
+        const cases = [
+          "\\n",
+          "\\n at start",
+          "some \\n in the middle",
+          "at the end \\n",
+          "\\\\\\n",
+          "\\\\\\n valid at start",
+          "valid \\\\\\n in the middle",
+          "valid in the end \\\\\\n",
+          "\\\\\\\\\\n",
+          "\\\\\\\\\\n valid at start",
+          "valid \\\\\\\\\\n in the middle",
+          "valid in the end \\\\\\\\\\n",
+          "mixed valid \\r\\n",
+          "mixed valid \\\\\\r\\n",
+          "mixed valid \\r\\\\\\n"
+        ];
+        for (const x of cases) {
+          ok(sanitizeFishHistoryCmd(x).includes("\n"));
+        }
+      });
+      test("invalid new-lines", () => {
+        const cases = [
+          "\\\\n",
+          "\\\\n invalid at start",
+          "invalid \\\\n in the middle",
+          "invalid in the end \\\\n",
+          "\\\\\\\\n",
+          "\\\\\\\\n invalid at start",
+          "invalid \\\\\\\\n in the middle",
+          "invalid in the end \\\\\\\\n",
+          "mixed invalid \\r\\\\n",
+          "mixed invalid \\r\\\\\\\\n",
+          'echo "\\\\n"'
+        ];
+        for (const x of cases) {
+          ok(!sanitizeFishHistoryCmd(x).includes("\n"));
+        }
+      });
+    });
+  });
+});
+//# sourceMappingURL=history.test.js.map

@@ -1,15 +1,88 @@
-import{$sc as h}from"../../../../base/common/arrays.js";import{$ik as a}from"../../../../base/common/htmlContent.js";import{$ab as p}from"../../../../base/common/path.js";import{localize as r}from"../../../../nls.js";function b(t,s){const n=parseInt(s.get("terminal.integrated.tabs.showDetailed",-1)??"0");let l="";const i=t.statusList.statuses,o=[];for(const e of i)n?(e.detailedTooltip??e.tooltip)&&(l+=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray } from "../../../../base/common/arrays.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { basename } from "../../../../base/common/path.js";
+import { localize } from "../../../../nls.js";
+function getInstanceHoverInfo(instance, storageService) {
+  const showDetailed = parseInt(storageService.get(
+    "terminal.integrated.tabs.showDetailed",
+    -1
+    /* StorageScope.APPLICATION */
+  ) ?? "0");
+  let statusString = "";
+  const statuses = instance.statusList.statuses;
+  const actions = [];
+  for (const status of statuses) {
+    if (showDetailed) {
+      if (status.detailedTooltip ?? status.tooltip) {
+        statusString += `
 
 ---
 
-${e.icon?`$(${e.icon?.id}) `:""}`+(e.detailedTooltip??e.tooltip??"")):e.tooltip&&(l+=`
+${status.icon ? `$(${status.icon?.id}) ` : ""}` + (status.detailedTooltip ?? status.tooltip ?? "");
+      }
+    } else {
+      if (status.tooltip) {
+        statusString += `
 
 ---
 
-${e.icon?`$(${e.icon?.id}) `:""}`+(e.tooltip??"")),e.hoverActions&&o.push(...e.hoverActions);o.push({commandId:"toggleDetailedInfo",label:n?r(13008,null):r(13009,null),run(){s.store("terminal.integrated.tabs.showDetailed",(n+1)%2,-1,0)}});const c=f(t,!!n);return{content:new a(t.title+c+l,{supportThemeIcons:!0}),actions:o}}function f(t,s){const n=[];if(t.processId&&t.processId>0&&n.push(r(13010,null,"PID",t.processId)+`
-`),t.shellLaunchConfig.executable){let l="";if(!s&&t.shellLaunchConfig.executable.length>32){const o=p(t.shellLaunchConfig.executable),c=t.shellLaunchConfig.executable.length-o.length-1,u=t.shellLaunchConfig.executable.substring(c,c+1);l+=`\u2026${u}${o}`}else l+=t.shellLaunchConfig.executable;const i=h(t.injectedArgs||t.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");i&&(l+=` ${i}`),n.push(r(13011,null,l))}return n.length?`
+${status.icon ? `$(${status.icon?.id}) ` : ""}` + (status.tooltip ?? "");
+      }
+    }
+    if (status.hoverActions) {
+      actions.push(...status.hoverActions);
+    }
+  }
+  actions.push({
+    commandId: "toggleDetailedInfo",
+    label: showDetailed ? localize("hideDetails", "Hide Details") : localize("showDetails", "Show Details"),
+    run() {
+      storageService.store(
+        "terminal.integrated.tabs.showDetailed",
+        (showDetailed + 1) % 2,
+        -1,
+        0
+        /* StorageTarget.USER */
+      );
+    }
+  });
+  const shellProcessString = getShellProcessTooltip(instance, !!showDetailed);
+  const content = new MarkdownString(instance.title + shellProcessString + statusString, { supportThemeIcons: true });
+  return { content, actions };
+}
+__name(getInstanceHoverInfo, "getInstanceHoverInfo");
+function getShellProcessTooltip(instance, showDetailed) {
+  const lines = [];
+  if (instance.processId && instance.processId > 0) {
+    lines.push(localize({ key: "shellProcessTooltip.processId", comment: [`The first arg is "PID" which shouldn't be translated`] }, "Process ID ({0}): {1}", "PID", instance.processId) + "\n");
+  }
+  if (instance.shellLaunchConfig.executable) {
+    let commandLine = "";
+    if (!showDetailed && instance.shellLaunchConfig.executable.length > 32) {
+      const base = basename(instance.shellLaunchConfig.executable);
+      const sepIndex = instance.shellLaunchConfig.executable.length - base.length - 1;
+      const sep = instance.shellLaunchConfig.executable.substring(sepIndex, sepIndex + 1);
+      commandLine += `\u2026${sep}${base}`;
+    } else {
+      commandLine += instance.shellLaunchConfig.executable;
+    }
+    const args = asArray(instance.injectedArgs || instance.shellLaunchConfig.args || []).map((x) => x.match(/\s/) ? `'${x}'` : x).join(" ");
+    if (args) {
+      commandLine += ` ${args}`;
+    }
+    lines.push(localize("shellProcessTooltip.commandLine", "Command line: {0}", commandLine));
+  }
+  return lines.length ? `
 
 ---
 
-${n.join(`
-`)}`:""}export{b as $Gzc,f as $Hzc};
+${lines.join("\n")}` : "";
+}
+__name(getShellProcessTooltip, "getShellProcessTooltip");
+export {
+  getInstanceHoverInfo,
+  getShellProcessTooltip
+};
+//# sourceMappingURL=terminalTooltip.js.map

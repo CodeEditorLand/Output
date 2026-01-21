@@ -1,1 +1,9 @@
-import{$Icb as o}from"../../../browser/editorExtensions.js";import{$Gvb as m}from"./middleScrollController.js";o(m.ID,m,2);
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { MiddleScrollController } from "./middleScrollController.js";
+registerEditorContribution(
+  MiddleScrollController.ID,
+  MiddleScrollController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+//# sourceMappingURL=middleScroll.contribution.js.map

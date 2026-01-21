@@ -1,1 +1,19 @@
-import{$km as i}from"../../../../platform/configuration/common/configurationRegistry.js";import{$im as t}from"../../../../platform/registry/common/platform.js";import{$XN as m}from"../../../common/contributions.js";import{$MIc as o}from"./commands.js";import{$OIc as r,$NIc as f}from"./configurationSchema.js";m(o.ID,o,4);m(r.ID,r,4);t.as(i.Configuration).registerConfiguration(f);
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { DropOrPasteIntoCommands } from "./commands.js";
+import { DropOrPasteSchemaContribution, editorConfiguration } from "./configurationSchema.js";
+registerWorkbenchContribution2(
+  DropOrPasteIntoCommands.ID,
+  DropOrPasteIntoCommands,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  DropOrPasteSchemaContribution.ID,
+  DropOrPasteSchemaContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+Registry.as(Extensions.Configuration).registerConfiguration(editorConfiguration);
+//# sourceMappingURL=dropOrPasteInto.contribution.js.map

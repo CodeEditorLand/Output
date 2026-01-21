@@ -1,1 +1,55 @@
-import{$dA as a,$8z as s}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$9l as h}from"../../../../platform/configuration/common/configuration.js";import{$Un as b}from"../../../../platform/product/common/productService.js";import{$uk as v}from"../../../../platform/files/common/files.js";import{$xo as d}from"../../../../platform/log/common/log.js";import{$gp as j}from"../../../../platform/storage/common/storage.js";import{$op as x}from"../../../../platform/telemetry/common/telemetry.js";import{$Uo as O}from"../../../../platform/request/common/request.js";import{$Jl as R}from"../../../../platform/environment/common/environment.js";import{$34 as z}from"../../../../platform/extensionManagement/common/extensionGalleryService.js";import{$TC as F}from"../../../../platform/instantiation/common/extensions.js";import{$Qz as P}from"../../../../platform/extensionManagement/common/extensionGalleryManifest.js";var _=function(e,r,m,f){var p=arguments.length,o=p<3?r:f===null?f=Object.getOwnPropertyDescriptor(r,m):f,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,r,m,f);else for(var n=e.length-1;n>=0;n--)(i=e[n])&&(o=(p<3?i(o):p>3?i(r,m,o):i(r,m))||o);return p>3&&o&&Object.defineProperty(r,m,o),o},t=function(e,r){return function(m,f){r(m,f,e)}};let $=class extends z{constructor(r,m,f,p,o,i,n,c,l,u){super(r,m,f,p,o,i,n,c,l,u)}};$=_([t(0,j),t(1,O),t(2,d),t(3,R),t(4,x),t(5,v),t(6,b),t(7,h),t(8,a),t(9,P)],$);F(s,$,1);export{$ as $F_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IAllowedExtensionsService, IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { AbstractExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionGalleryService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+let WorkbenchExtensionGalleryService = class WorkbenchExtensionGalleryService2 extends AbstractExtensionGalleryService {
+  static {
+    __name(this, "WorkbenchExtensionGalleryService");
+  }
+  constructor(storageService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
+    super(storageService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService);
+  }
+};
+WorkbenchExtensionGalleryService = __decorate([
+  __param(0, IStorageService),
+  __param(1, IRequestService),
+  __param(2, ILogService),
+  __param(3, IEnvironmentService),
+  __param(4, ITelemetryService),
+  __param(5, IFileService),
+  __param(6, IProductService),
+  __param(7, IConfigurationService),
+  __param(8, IAllowedExtensionsService),
+  __param(9, IExtensionGalleryManifestService)
+], WorkbenchExtensionGalleryService);
+registerSingleton(
+  IExtensionGalleryService,
+  WorkbenchExtensionGalleryService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  WorkbenchExtensionGalleryService
+};
+//# sourceMappingURL=extensionGalleryService.js.map

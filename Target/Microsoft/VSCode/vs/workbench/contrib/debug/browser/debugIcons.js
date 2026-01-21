@@ -1,1 +1,121 @@
-import{$ak as e}from"../../../../base/common/codicons.js";import{localize as n}from"../../../../nls.js";import{$eu as o}from"../../../../platform/theme/common/iconRegistry.js";const p=o("debug-console-view-icon",e.debugConsole,n(7644,null)),s=o("run-view-icon",e.debugAlt,n(7645,null)),c=o("variables-view-icon",e.debugAlt,n(7646,null)),g=o("watch-view-icon",e.debugAlt,n(7647,null)),x=o("callstack-view-icon",e.debugAlt,n(7648,null)),k=o("breakpoints-view-icon",e.debugAlt,n(7649,null)),$=o("loaded-scripts-view-icon",e.debugAlt,n(7650,null)),t={regular:o("debug-breakpoint",e.debugBreakpoint,n(7651,null)),disabled:o("debug-breakpoint-disabled",e.debugBreakpointDisabled,n(7652,null)),unverified:o("debug-breakpoint-unverified",e.debugBreakpointUnverified,n(7653,null)),pending:o("debug-breakpoint-pending",e.debugBreakpointPending,n(7654,null))},l={regular:o("debug-breakpoint-function",e.debugBreakpointFunction,n(7655,null)),disabled:o("debug-breakpoint-function-disabled",e.debugBreakpointFunctionDisabled,n(7656,null)),unverified:o("debug-breakpoint-function-unverified",e.debugBreakpointFunctionUnverified,n(7657,null))},u={regular:o("debug-breakpoint-conditional",e.debugBreakpointConditional,n(7658,null)),disabled:o("debug-breakpoint-conditional-disabled",e.debugBreakpointConditionalDisabled,n(7659,null)),unverified:o("debug-breakpoint-conditional-unverified",e.debugBreakpointConditionalUnverified,n(7660,null))},r={regular:o("debug-breakpoint-data",e.debugBreakpointData,n(7661,null)),disabled:o("debug-breakpoint-data-disabled",e.debugBreakpointDataDisabled,n(7662,null)),unverified:o("debug-breakpoint-data-unverified",e.debugBreakpointDataUnverified,n(7663,null))},b={regular:o("debug-breakpoint-log",e.debugBreakpointLog,n(7664,null)),disabled:o("debug-breakpoint-log-disabled",e.debugBreakpointLogDisabled,n(7665,null)),unverified:o("debug-breakpoint-log-unverified",e.debugBreakpointLogUnverified,n(7666,null))},F=o("debug-hint",e.debugHint,n(7667,null)),v=o("debug-breakpoint-unsupported",e.debugBreakpointUnsupported,n(7668,null)),f=[t,l,u,r,b],m=o("debug-stackframe",e.debugStackframe,n(7669,null)),B=o("debug-stackframe-focused",e.debugStackframeFocused,n(7670,null)),w=o("debug-gripper",e.gripper,n(7671,null)),h=o("debug-restart-frame",e.debugRestartFrame,n(7672,null)),A=o("debug-stop",e.debugStop,n(7673,null)),D=o("debug-disconnect",e.debugDisconnect,n(7674,null)),E=o("debug-restart",e.debugRestart,n(7675,null)),S=o("debug-step-over",e.debugStepOver,n(7676,null)),C=o("debug-step-into",e.debugStepInto,n(7677,null)),U=o("debug-step-out",e.debugStepOut,n(7678,null)),R=o("debug-step-back",e.debugStepBack,n(7679,null)),L=o("debug-pause",e.debugPause,n(7680,null)),y=o("debug-continue",e.debugContinue,n(7681,null)),z=o("debug-reverse-continue",e.debugReverseContinue,n(7682,null)),G=o("debug-run",e.run,n(7683,null)),H=o("debug-start",e.debugStart,n(7684,null)),I=o("debug-configure",e.gear,n(7685,null)),O=o("debug-console",e.gear,n(7686,null)),P=o("debug-remove-config",e.trash,n(7687,null)),j=o("debug-collapse-all",e.collapseAll,n(7688,null)),q=o("callstack-view-session",e.bug,n(7689,null)),J=o("debug-console-clear-all",e.clearAll,n(7690,null)),K=o("watch-expressions-remove-all",e.closeAll,n(7691,null)),_=o("watch-expression-remove",e.removeClose,n(7692,null)),M=o("watch-expressions-add",e.add,n(7693,null)),N=o("watch-expressions-add-function-breakpoint",e.add,n(7694,null)),Q=o("watch-expressions-add-data-breakpoint",e.variableGroup,n(7695,null)),T=o("breakpoints-remove-all",e.closeAll,n(7696,null)),V=o("breakpoints-activate",e.activateBreakpoints,n(7697,null)),W=o("debug-console-evaluation-input",e.arrowSmallRight,n(7698,null)),X=o("debug-console-evaluation-prompt",e.chevronRight,n(7699,null)),Y=o("debug-inspect-memory",e.fileBinary,n(7700,null));export{t as $$Eb,$ as $0Eb,p as $4Eb,s as $5Eb,c as $6Eb,g as $7Eb,x as $8Eb,k as $9Eb,q as $AFb,J as $BFb,K as $CFb,_ as $DFb,M as $EFb,N as $FFb,Q as $GFb,T as $HFb,V as $IFb,W as $JFb,X as $KFb,Y as $LFb,l as $_Eb,u as $aFb,r as $bFb,b as $cFb,F as $dFb,v as $eFb,f as $fFb,m as $gFb,B as $hFb,w as $iFb,h as $jFb,A as $kFb,D as $lFb,E as $mFb,S as $nFb,C as $oFb,U as $pFb,R as $qFb,L as $rFb,y as $sFb,z as $tFb,G as $uFb,H as $vFb,I as $wFb,O as $xFb,P as $yFb,j as $zFb};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const debugConsoleViewIcon = registerIcon("debug-console-view-icon", Codicon.debugConsole, localize("debugConsoleViewIcon", "View icon of the debug console view."));
+const runViewIcon = registerIcon("run-view-icon", Codicon.debugAlt, localize("runViewIcon", "View icon of the run view."));
+const variablesViewIcon = registerIcon("variables-view-icon", Codicon.debugAlt, localize("variablesViewIcon", "View icon of the variables view."));
+const watchViewIcon = registerIcon("watch-view-icon", Codicon.debugAlt, localize("watchViewIcon", "View icon of the watch view."));
+const callStackViewIcon = registerIcon("callstack-view-icon", Codicon.debugAlt, localize("callStackViewIcon", "View icon of the call stack view."));
+const breakpointsViewIcon = registerIcon("breakpoints-view-icon", Codicon.debugAlt, localize("breakpointsViewIcon", "View icon of the breakpoints view."));
+const loadedScriptsViewIcon = registerIcon("loaded-scripts-view-icon", Codicon.debugAlt, localize("loadedScriptsViewIcon", "View icon of the loaded scripts view."));
+const breakpoint = {
+  regular: registerIcon("debug-breakpoint", Codicon.debugBreakpoint, localize("debugBreakpoint", "Icon for breakpoints.")),
+  disabled: registerIcon("debug-breakpoint-disabled", Codicon.debugBreakpointDisabled, localize("debugBreakpointDisabled", "Icon for disabled breakpoints.")),
+  unverified: registerIcon("debug-breakpoint-unverified", Codicon.debugBreakpointUnverified, localize("debugBreakpointUnverified", "Icon for unverified breakpoints.")),
+  pending: registerIcon("debug-breakpoint-pending", Codicon.debugBreakpointPending, localize("debugBreakpointPendingOnTrigger", "Icon for breakpoints waiting on another breakpoint."))
+};
+const functionBreakpoint = {
+  regular: registerIcon("debug-breakpoint-function", Codicon.debugBreakpointFunction, localize("debugBreakpointFunction", "Icon for function breakpoints.")),
+  disabled: registerIcon("debug-breakpoint-function-disabled", Codicon.debugBreakpointFunctionDisabled, localize("debugBreakpointFunctionDisabled", "Icon for disabled function breakpoints.")),
+  unverified: registerIcon("debug-breakpoint-function-unverified", Codicon.debugBreakpointFunctionUnverified, localize("debugBreakpointFunctionUnverified", "Icon for unverified function breakpoints."))
+};
+const conditionalBreakpoint = {
+  regular: registerIcon("debug-breakpoint-conditional", Codicon.debugBreakpointConditional, localize("debugBreakpointConditional", "Icon for conditional breakpoints.")),
+  disabled: registerIcon("debug-breakpoint-conditional-disabled", Codicon.debugBreakpointConditionalDisabled, localize("debugBreakpointConditionalDisabled", "Icon for disabled conditional breakpoints.")),
+  unverified: registerIcon("debug-breakpoint-conditional-unverified", Codicon.debugBreakpointConditionalUnverified, localize("debugBreakpointConditionalUnverified", "Icon for unverified conditional breakpoints."))
+};
+const dataBreakpoint = {
+  regular: registerIcon("debug-breakpoint-data", Codicon.debugBreakpointData, localize("debugBreakpointData", "Icon for data breakpoints.")),
+  disabled: registerIcon("debug-breakpoint-data-disabled", Codicon.debugBreakpointDataDisabled, localize("debugBreakpointDataDisabled", "Icon for disabled data breakpoints.")),
+  unverified: registerIcon("debug-breakpoint-data-unverified", Codicon.debugBreakpointDataUnverified, localize("debugBreakpointDataUnverified", "Icon for unverified data breakpoints."))
+};
+const logBreakpoint = {
+  regular: registerIcon("debug-breakpoint-log", Codicon.debugBreakpointLog, localize("debugBreakpointLog", "Icon for log breakpoints.")),
+  disabled: registerIcon("debug-breakpoint-log-disabled", Codicon.debugBreakpointLogDisabled, localize("debugBreakpointLogDisabled", "Icon for disabled log breakpoint.")),
+  unverified: registerIcon("debug-breakpoint-log-unverified", Codicon.debugBreakpointLogUnverified, localize("debugBreakpointLogUnverified", "Icon for unverified log breakpoints."))
+};
+const debugBreakpointHint = registerIcon("debug-hint", Codicon.debugHint, localize("debugBreakpointHint", "Icon for breakpoint hints shown on hover in editor glyph margin."));
+const debugBreakpointUnsupported = registerIcon("debug-breakpoint-unsupported", Codicon.debugBreakpointUnsupported, localize("debugBreakpointUnsupported", "Icon for unsupported breakpoints."));
+const allBreakpoints = [breakpoint, functionBreakpoint, conditionalBreakpoint, dataBreakpoint, logBreakpoint];
+const debugStackframe = registerIcon("debug-stackframe", Codicon.debugStackframe, localize("debugStackframe", "Icon for a stackframe shown in the editor glyph margin."));
+const debugStackframeFocused = registerIcon("debug-stackframe-focused", Codicon.debugStackframeFocused, localize("debugStackframeFocused", "Icon for a focused stackframe  shown in the editor glyph margin."));
+const debugGripper = registerIcon("debug-gripper", Codicon.gripper, localize("debugGripper", "Icon for the debug bar gripper."));
+const debugRestartFrame = registerIcon("debug-restart-frame", Codicon.debugRestartFrame, localize("debugRestartFrame", "Icon for the debug restart frame action."));
+const debugStop = registerIcon("debug-stop", Codicon.debugStop, localize("debugStop", "Icon for the debug stop action."));
+const debugDisconnect = registerIcon("debug-disconnect", Codicon.debugDisconnect, localize("debugDisconnect", "Icon for the debug disconnect action."));
+const debugRestart = registerIcon("debug-restart", Codicon.debugRestart, localize("debugRestart", "Icon for the debug restart action."));
+const debugStepOver = registerIcon("debug-step-over", Codicon.debugStepOver, localize("debugStepOver", "Icon for the debug step over action."));
+const debugStepInto = registerIcon("debug-step-into", Codicon.debugStepInto, localize("debugStepInto", "Icon for the debug step into action."));
+const debugStepOut = registerIcon("debug-step-out", Codicon.debugStepOut, localize("debugStepOut", "Icon for the debug step out action."));
+const debugStepBack = registerIcon("debug-step-back", Codicon.debugStepBack, localize("debugStepBack", "Icon for the debug step back action."));
+const debugPause = registerIcon("debug-pause", Codicon.debugPause, localize("debugPause", "Icon for the debug pause action."));
+const debugContinue = registerIcon("debug-continue", Codicon.debugContinue, localize("debugContinue", "Icon for the debug continue action."));
+const debugReverseContinue = registerIcon("debug-reverse-continue", Codicon.debugReverseContinue, localize("debugReverseContinue", "Icon for the debug reverse continue action."));
+const debugRun = registerIcon("debug-run", Codicon.run, localize("debugRun", "Icon for the run or debug action."));
+const debugStart = registerIcon("debug-start", Codicon.debugStart, localize("debugStart", "Icon for the debug start action."));
+const debugConfigure = registerIcon("debug-configure", Codicon.gear, localize("debugConfigure", "Icon for the debug configure action."));
+const debugConsole = registerIcon("debug-console", Codicon.gear, localize("debugConsole", "Icon for the debug console open action."));
+const debugRemoveConfig = registerIcon("debug-remove-config", Codicon.trash, localize("debugRemoveConfig", "Icon for removing debug configurations."));
+const debugCollapseAll = registerIcon("debug-collapse-all", Codicon.collapseAll, localize("debugCollapseAll", "Icon for the collapse all action in the debug views."));
+const callstackViewSession = registerIcon("callstack-view-session", Codicon.bug, localize("callstackViewSession", "Icon for the session icon in the call stack view."));
+const debugConsoleClearAll = registerIcon("debug-console-clear-all", Codicon.clearAll, localize("debugConsoleClearAll", "Icon for the clear all action in the debug console."));
+const watchExpressionsRemoveAll = registerIcon("watch-expressions-remove-all", Codicon.closeAll, localize("watchExpressionsRemoveAll", "Icon for the Remove All action in the watch view."));
+const watchExpressionRemove = registerIcon("watch-expression-remove", Codicon.removeClose, localize("watchExpressionRemove", "Icon for the Remove action in the watch view."));
+const watchExpressionsAdd = registerIcon("watch-expressions-add", Codicon.add, localize("watchExpressionsAdd", "Icon for the add action in the watch view."));
+const watchExpressionsAddFuncBreakpoint = registerIcon("watch-expressions-add-function-breakpoint", Codicon.add, localize("watchExpressionsAddFuncBreakpoint", "Icon for the add function breakpoint action in the watch view."));
+const watchExpressionsAddDataBreakpoint = registerIcon("watch-expressions-add-data-breakpoint", Codicon.variableGroup, localize("watchExpressionsAddDataBreakpoint", "Icon for the add data breakpoint action in the breakpoints view."));
+const breakpointsRemoveAll = registerIcon("breakpoints-remove-all", Codicon.closeAll, localize("breakpointsRemoveAll", "Icon for the Remove All action in the breakpoints view."));
+const breakpointsActivate = registerIcon("breakpoints-activate", Codicon.activateBreakpoints, localize("breakpointsActivate", "Icon for the activate action in the breakpoints view."));
+const debugConsoleEvaluationInput = registerIcon("debug-console-evaluation-input", Codicon.arrowSmallRight, localize("debugConsoleEvaluationInput", "Icon for the debug evaluation input marker."));
+const debugConsoleEvaluationPrompt = registerIcon("debug-console-evaluation-prompt", Codicon.chevronRight, localize("debugConsoleEvaluationPrompt", "Icon for the debug evaluation prompt."));
+const debugInspectMemory = registerIcon("debug-inspect-memory", Codicon.fileBinary, localize("debugInspectMemory", "Icon for the inspect memory action."));
+export {
+  allBreakpoints,
+  breakpoint,
+  breakpointsActivate,
+  breakpointsRemoveAll,
+  breakpointsViewIcon,
+  callStackViewIcon,
+  callstackViewSession,
+  conditionalBreakpoint,
+  dataBreakpoint,
+  debugBreakpointHint,
+  debugBreakpointUnsupported,
+  debugCollapseAll,
+  debugConfigure,
+  debugConsole,
+  debugConsoleClearAll,
+  debugConsoleEvaluationInput,
+  debugConsoleEvaluationPrompt,
+  debugConsoleViewIcon,
+  debugContinue,
+  debugDisconnect,
+  debugGripper,
+  debugInspectMemory,
+  debugPause,
+  debugRemoveConfig,
+  debugRestart,
+  debugRestartFrame,
+  debugReverseContinue,
+  debugRun,
+  debugStackframe,
+  debugStackframeFocused,
+  debugStart,
+  debugStepBack,
+  debugStepInto,
+  debugStepOut,
+  debugStepOver,
+  debugStop,
+  functionBreakpoint,
+  loadedScriptsViewIcon,
+  logBreakpoint,
+  runViewIcon,
+  variablesViewIcon,
+  watchExpressionRemove,
+  watchExpressionsAdd,
+  watchExpressionsAddDataBreakpoint,
+  watchExpressionsAddFuncBreakpoint,
+  watchExpressionsRemoveAll,
+  watchViewIcon
+};
+//# sourceMappingURL=debugIcons.js.map

@@ -1,2 +1,370 @@
-import{$wc as L,$6b as V,$Wb as N,$yc as q,$xc as v}from"../../../../../base/common/arrays.js";import{$Db as $}from"../../../../../base/common/errors.js";import{$0f as z}from"../../../../../base/common/strings.js";import{$8D as d}from"../../../../../editor/common/core/position.js";import{$9D as x}from"../../../../../editor/common/core/range.js";import{$Y4b as T,$Z4b as P}from"./editing.js";import{$04b as E,$94b as M}from"./mapping.js";class k{static fromDiffs(t,n,i,s,u){return M.compute(t,n).map(o=>new k(o.inputRange,i,o.output1Range,s,o.output1LineMappings,o.output2Range,u,o.output2LineMappings))}constructor(t,n,i,s,u,f,o,b){if(this.baseRange=t,this.baseTextModel=n,this.input1Range=i,this.input1TextModel=s,this.input1Diffs=u,this.input2Range=f,this.input2TextModel=o,this.input2Diffs=b,this.input1CombinedDiff=E.join(this.input1Diffs),this.input2CombinedDiff=E.join(this.input2Diffs),this.isEqualChange=N(this.input1Diffs,this.input2Diffs,(p,l)=>p.getLineEdit().equals(l.getLineEdit())),this.c=null,this.e=null,this.g=null,this.h=null,this.input1Diffs.length===0&&this.input2Diffs.length===0)throw new $("must have at least one diff")}getInputRange(t){return t===1?this.input1Range:this.input2Range}getInputCombinedDiff(t){return t===1?this.input1CombinedDiff:this.input2CombinedDiff}getInputDiffs(t){return t===1?this.input1Diffs:this.input2Diffs}get isConflicting(){return this.input1Diffs.length>0&&this.input2Diffs.length>0}get canBeCombined(){return this.f(1)!==void 0}get isOrderRelevant(){const t=this.f(1),n=this.f(2);return!t||!n?!1:!t.equals(n)}getEditForBase(t){const n=[];if(t.includesInput1&&this.input1CombinedDiff&&n.push({diff:this.input1CombinedDiff,inputNumber:1}),t.includesInput2&&this.input2CombinedDiff&&n.push({diff:this.input2CombinedDiff,inputNumber:2}),n.length===0)return{edit:void 0,effectiveState:a.base};if(n.length===1)return{edit:n[0].diff.getLineEdit(),effectiveState:a.base.withInputValue(n[0].inputNumber,!0,!1)};if(t.kind!==r.both)throw new $;const i=t.smartCombination?this.f(t.firstInput):this.i(t.firstInput);return i?{edit:i,effectiveState:t}:{edit:n[I(t.firstInput)-1].diff.getLineEdit(),effectiveState:a.base.withInputValue(I(t.firstInput),!0,!1)}}f(t){if(t===1&&this.c!==null)return this.c;if(t===2&&this.e!==null)return this.e;const i=V(this.input1Diffs.flatMap(u=>u.rangeMappings.map(f=>({diff:f,input:1}))),this.input2Diffs.flatMap(u=>u.rangeMappings.map(f=>({diff:f,input:2})))).sort(v(L(u=>u.diff.inputRange,x.compareRangesUsingStarts),L(u=>u.input===t?1:2,q))).map(u=>{const f=u.input===1?this.input1TextModel:this.input2TextModel;return new P(u.diff.inputRange,f.getValueInRange(u.diff.outputRange))}),s=j(this.baseRange,i,this.baseTextModel);return t===1?this.c=s:this.e=s,s}i(t){if(t===1&&this.g!==null)return this.g;if(t===2&&this.h!==null)return this.h;let n=this.input1Range.getLines(this.input1TextModel),i=this.input2Range.getLines(this.input2TextModel);t===2&&([n,i]=[i,n]);const s=new T(this.baseRange,n.concat(i));return t===1?this.g=s:this.h=s,s}}function j(e,t,n){let i="";const s=e.startLineNumber>1;let u=s?new d(e.startLineNumber-1,n.getLineMaxColumn(e.startLineNumber-1)):new d(e.startLineNumber,1);for(const l of t){const w=l.range.getStartPosition();if(!u.isBeforeOrEqual(w))return;let C=n.getValueInRange(x.fromPositions(u,w));w.lineNumber>n.getLineCount()&&(C+=`
-`),i+=C,i+=l.newText,u=l.range.getEndPosition()}const f=e.endLineNumberExclusive<=n.getLineCount(),o=f?new d(e.endLineNumberExclusive,1):new d(e.endLineNumberExclusive-1,1073741824),b=n.getValueInRange(x.fromPositions(u,o));i+=b;const p=z(i);if(s){if(p[0]!=="")return;p.shift()}if(f){if(p[p.length-1]!=="")return;p.pop()}return new T(e,p)}var r;(function(e){e[e.base=0]="base",e[e.input1=1]="input1",e[e.input2=2]="input2",e[e.both=3]="both",e[e.unrecognized=4]="unrecognized"})(r||(r={}));function I(e){return e===1?2:1}class c{constructor(){}get includesInput1(){return!1}get includesInput2(){return!1}includesInput(t){return t===1?this.includesInput1:this.includesInput2}isInputIncluded(t){return t===1?this.includesInput1:this.includesInput2}toggle(t){return this.withInputValue(t,!this.includesInput(t),!0)}getInput(t){return this.isInputIncluded(t)?1:0}}class D extends c{get kind(){return r.base}toString(){return"base"}swap(){return this}withInputValue(t,n,i=!1){return t===1?n?new g:this:n?new h:this}equals(t){return t.kind===r.base}}class g extends c{get kind(){return r.input1}get includesInput1(){return!0}toString(){return"1\u2713"}swap(){return new h}withInputValue(t,n,i=!1){return t===1?n?this:new D:n?new m(1,i):new h}equals(t){return t.kind===r.input1}}class h extends c{get kind(){return r.input2}get includesInput2(){return!0}toString(){return"2\u2713"}swap(){return new g}withInputValue(t,n,i=!1){return t===2?n?this:new D:n?new m(2,i):new h}equals(t){return t.kind===r.input2}}class m extends c{constructor(t,n){super(),this.firstInput=t,this.smartCombination=n}get kind(){return r.both}get includesInput1(){return!0}get includesInput2(){return!0}toString(){return"2\u2713"}swap(){return new m(I(this.firstInput),this.smartCombination)}withInputValue(t,n,i=!1){return n?this:t===1?new h:new g}equals(t){return t.kind===r.both&&this.firstInput===t.firstInput&&this.smartCombination===t.smartCombination}getInput(t){return t===this.firstInput?1:2}}class O extends c{get kind(){return r.unrecognized}toString(){return"unrecognized"}swap(){return this}withInputValue(t,n,i=!1){return n?t===1?new g:new h:this}equals(t){return t.kind===r.unrecognized}}var a;(function(e){e.base=new D,e.unrecognized=new O})(a||(a={}));var R;(function(e){e[e.excluded=0]="excluded",e[e.first=1]="first",e[e.second=2]="second",e[e.unrecognized=3]="unrecognized"})(R||(R={}));export{k as $e5b,I as $f5b,c as $g5b,D as $h5b,g as $i5b,h as $j5b,m as $k5b,O as $l5b,R as InputState,a as ModifiedBaseRangeState,r as ModifiedBaseRangeStateKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { compareBy, concatArrays, equals, numberComparator, tieBreakComparators } from "../../../../../base/common/arrays.js";
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { splitLines } from "../../../../../base/common/strings.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { LineRangeEdit, RangeEdit } from "./editing.js";
+import { DetailedLineRangeMapping, MappingAlignment } from "./mapping.js";
+class ModifiedBaseRange {
+  static {
+    __name(this, "ModifiedBaseRange");
+  }
+  static fromDiffs(diffs1, diffs2, baseTextModel, input1TextModel, input2TextModel) {
+    const alignments = MappingAlignment.compute(diffs1, diffs2);
+    return alignments.map((a) => new ModifiedBaseRange(a.inputRange, baseTextModel, a.output1Range, input1TextModel, a.output1LineMappings, a.output2Range, input2TextModel, a.output2LineMappings));
+  }
+  constructor(baseRange, baseTextModel, input1Range, input1TextModel, input1Diffs, input2Range, input2TextModel, input2Diffs) {
+    this.baseRange = baseRange;
+    this.baseTextModel = baseTextModel;
+    this.input1Range = input1Range;
+    this.input1TextModel = input1TextModel;
+    this.input1Diffs = input1Diffs;
+    this.input2Range = input2Range;
+    this.input2TextModel = input2TextModel;
+    this.input2Diffs = input2Diffs;
+    this.input1CombinedDiff = DetailedLineRangeMapping.join(this.input1Diffs);
+    this.input2CombinedDiff = DetailedLineRangeMapping.join(this.input2Diffs);
+    this.isEqualChange = equals(this.input1Diffs, this.input2Diffs, (a, b) => a.getLineEdit().equals(b.getLineEdit()));
+    this.smartInput1LineRangeEdit = null;
+    this.smartInput2LineRangeEdit = null;
+    this.dumbInput1LineRangeEdit = null;
+    this.dumbInput2LineRangeEdit = null;
+    if (this.input1Diffs.length === 0 && this.input2Diffs.length === 0) {
+      throw new BugIndicatingError("must have at least one diff");
+    }
+  }
+  getInputRange(inputNumber) {
+    return inputNumber === 1 ? this.input1Range : this.input2Range;
+  }
+  getInputCombinedDiff(inputNumber) {
+    return inputNumber === 1 ? this.input1CombinedDiff : this.input2CombinedDiff;
+  }
+  getInputDiffs(inputNumber) {
+    return inputNumber === 1 ? this.input1Diffs : this.input2Diffs;
+  }
+  get isConflicting() {
+    return this.input1Diffs.length > 0 && this.input2Diffs.length > 0;
+  }
+  get canBeCombined() {
+    return this.smartCombineInputs(1) !== void 0;
+  }
+  get isOrderRelevant() {
+    const input1 = this.smartCombineInputs(1);
+    const input2 = this.smartCombineInputs(2);
+    if (!input1 || !input2) {
+      return false;
+    }
+    return !input1.equals(input2);
+  }
+  getEditForBase(state) {
+    const diffs = [];
+    if (state.includesInput1 && this.input1CombinedDiff) {
+      diffs.push({ diff: this.input1CombinedDiff, inputNumber: 1 });
+    }
+    if (state.includesInput2 && this.input2CombinedDiff) {
+      diffs.push({ diff: this.input2CombinedDiff, inputNumber: 2 });
+    }
+    if (diffs.length === 0) {
+      return { edit: void 0, effectiveState: ModifiedBaseRangeState.base };
+    }
+    if (diffs.length === 1) {
+      return { edit: diffs[0].diff.getLineEdit(), effectiveState: ModifiedBaseRangeState.base.withInputValue(diffs[0].inputNumber, true, false) };
+    }
+    if (state.kind !== ModifiedBaseRangeStateKind.both) {
+      throw new BugIndicatingError();
+    }
+    const smartCombinedEdit = state.smartCombination ? this.smartCombineInputs(state.firstInput) : this.dumbCombineInputs(state.firstInput);
+    if (smartCombinedEdit) {
+      return { edit: smartCombinedEdit, effectiveState: state };
+    }
+    return {
+      edit: diffs[getOtherInputNumber(state.firstInput) - 1].diff.getLineEdit(),
+      effectiveState: ModifiedBaseRangeState.base.withInputValue(getOtherInputNumber(state.firstInput), true, false)
+    };
+  }
+  smartCombineInputs(firstInput) {
+    if (firstInput === 1 && this.smartInput1LineRangeEdit !== null) {
+      return this.smartInput1LineRangeEdit;
+    } else if (firstInput === 2 && this.smartInput2LineRangeEdit !== null) {
+      return this.smartInput2LineRangeEdit;
+    }
+    const combinedDiffs = concatArrays(this.input1Diffs.flatMap((diffs) => diffs.rangeMappings.map((diff) => ({ diff, input: 1 }))), this.input2Diffs.flatMap((diffs) => diffs.rangeMappings.map((diff) => ({ diff, input: 2 })))).sort(tieBreakComparators(compareBy((d) => d.diff.inputRange, Range.compareRangesUsingStarts), compareBy((d) => d.input === firstInput ? 1 : 2, numberComparator)));
+    const sortedEdits = combinedDiffs.map((d) => {
+      const sourceTextModel = d.input === 1 ? this.input1TextModel : this.input2TextModel;
+      return new RangeEdit(d.diff.inputRange, sourceTextModel.getValueInRange(d.diff.outputRange));
+    });
+    const result = editsToLineRangeEdit(this.baseRange, sortedEdits, this.baseTextModel);
+    if (firstInput === 1) {
+      this.smartInput1LineRangeEdit = result;
+    } else {
+      this.smartInput2LineRangeEdit = result;
+    }
+    return result;
+  }
+  dumbCombineInputs(firstInput) {
+    if (firstInput === 1 && this.dumbInput1LineRangeEdit !== null) {
+      return this.dumbInput1LineRangeEdit;
+    } else if (firstInput === 2 && this.dumbInput2LineRangeEdit !== null) {
+      return this.dumbInput2LineRangeEdit;
+    }
+    let input1Lines = this.input1Range.getLines(this.input1TextModel);
+    let input2Lines = this.input2Range.getLines(this.input2TextModel);
+    if (firstInput === 2) {
+      [input1Lines, input2Lines] = [input2Lines, input1Lines];
+    }
+    const result = new LineRangeEdit(this.baseRange, input1Lines.concat(input2Lines));
+    if (firstInput === 1) {
+      this.dumbInput1LineRangeEdit = result;
+    } else {
+      this.dumbInput2LineRangeEdit = result;
+    }
+    return result;
+  }
+}
+function editsToLineRangeEdit(range, sortedEdits, textModel) {
+  let text = "";
+  const startsLineBefore = range.startLineNumber > 1;
+  let currentPosition = startsLineBefore ? new Position(range.startLineNumber - 1, textModel.getLineMaxColumn(range.startLineNumber - 1)) : new Position(range.startLineNumber, 1);
+  for (const edit of sortedEdits) {
+    const diffStart = edit.range.getStartPosition();
+    if (!currentPosition.isBeforeOrEqual(diffStart)) {
+      return void 0;
+    }
+    let originalText2 = textModel.getValueInRange(Range.fromPositions(currentPosition, diffStart));
+    if (diffStart.lineNumber > textModel.getLineCount()) {
+      originalText2 += "\n";
+    }
+    text += originalText2;
+    text += edit.newText;
+    currentPosition = edit.range.getEndPosition();
+  }
+  const endsLineAfter = range.endLineNumberExclusive <= textModel.getLineCount();
+  const end = endsLineAfter ? new Position(range.endLineNumberExclusive, 1) : new Position(
+    range.endLineNumberExclusive - 1,
+    1073741824
+    /* Constants.MAX_SAFE_SMALL_INTEGER */
+  );
+  const originalText = textModel.getValueInRange(Range.fromPositions(currentPosition, end));
+  text += originalText;
+  const lines = splitLines(text);
+  if (startsLineBefore) {
+    if (lines[0] !== "") {
+      return void 0;
+    }
+    lines.shift();
+  }
+  if (endsLineAfter) {
+    if (lines[lines.length - 1] !== "") {
+      return void 0;
+    }
+    lines.pop();
+  }
+  return new LineRangeEdit(range, lines);
+}
+__name(editsToLineRangeEdit, "editsToLineRangeEdit");
+var ModifiedBaseRangeStateKind;
+(function(ModifiedBaseRangeStateKind2) {
+  ModifiedBaseRangeStateKind2[ModifiedBaseRangeStateKind2["base"] = 0] = "base";
+  ModifiedBaseRangeStateKind2[ModifiedBaseRangeStateKind2["input1"] = 1] = "input1";
+  ModifiedBaseRangeStateKind2[ModifiedBaseRangeStateKind2["input2"] = 2] = "input2";
+  ModifiedBaseRangeStateKind2[ModifiedBaseRangeStateKind2["both"] = 3] = "both";
+  ModifiedBaseRangeStateKind2[ModifiedBaseRangeStateKind2["unrecognized"] = 4] = "unrecognized";
+})(ModifiedBaseRangeStateKind || (ModifiedBaseRangeStateKind = {}));
+function getOtherInputNumber(inputNumber) {
+  return inputNumber === 1 ? 2 : 1;
+}
+__name(getOtherInputNumber, "getOtherInputNumber");
+class AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "AbstractModifiedBaseRangeState");
+  }
+  constructor() {
+  }
+  get includesInput1() {
+    return false;
+  }
+  get includesInput2() {
+    return false;
+  }
+  includesInput(inputNumber) {
+    return inputNumber === 1 ? this.includesInput1 : this.includesInput2;
+  }
+  isInputIncluded(inputNumber) {
+    return inputNumber === 1 ? this.includesInput1 : this.includesInput2;
+  }
+  toggle(inputNumber) {
+    return this.withInputValue(inputNumber, !this.includesInput(inputNumber), true);
+  }
+  getInput(inputNumber) {
+    if (!this.isInputIncluded(inputNumber)) {
+      return 0;
+    }
+    return 1;
+  }
+}
+class ModifiedBaseRangeStateBase extends AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "ModifiedBaseRangeStateBase");
+  }
+  get kind() {
+    return ModifiedBaseRangeStateKind.base;
+  }
+  toString() {
+    return "base";
+  }
+  swap() {
+    return this;
+  }
+  withInputValue(inputNumber, value, smartCombination = false) {
+    if (inputNumber === 1) {
+      return value ? new ModifiedBaseRangeStateInput1() : this;
+    } else {
+      return value ? new ModifiedBaseRangeStateInput2() : this;
+    }
+  }
+  equals(other) {
+    return other.kind === ModifiedBaseRangeStateKind.base;
+  }
+}
+class ModifiedBaseRangeStateInput1 extends AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "ModifiedBaseRangeStateInput1");
+  }
+  get kind() {
+    return ModifiedBaseRangeStateKind.input1;
+  }
+  get includesInput1() {
+    return true;
+  }
+  toString() {
+    return "1\u2713";
+  }
+  swap() {
+    return new ModifiedBaseRangeStateInput2();
+  }
+  withInputValue(inputNumber, value, smartCombination = false) {
+    if (inputNumber === 1) {
+      return value ? this : new ModifiedBaseRangeStateBase();
+    } else {
+      return value ? new ModifiedBaseRangeStateBoth(1, smartCombination) : new ModifiedBaseRangeStateInput2();
+    }
+  }
+  equals(other) {
+    return other.kind === ModifiedBaseRangeStateKind.input1;
+  }
+}
+class ModifiedBaseRangeStateInput2 extends AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "ModifiedBaseRangeStateInput2");
+  }
+  get kind() {
+    return ModifiedBaseRangeStateKind.input2;
+  }
+  get includesInput2() {
+    return true;
+  }
+  toString() {
+    return "2\u2713";
+  }
+  swap() {
+    return new ModifiedBaseRangeStateInput1();
+  }
+  withInputValue(inputNumber, value, smartCombination = false) {
+    if (inputNumber === 2) {
+      return value ? this : new ModifiedBaseRangeStateBase();
+    } else {
+      return value ? new ModifiedBaseRangeStateBoth(2, smartCombination) : new ModifiedBaseRangeStateInput2();
+    }
+  }
+  equals(other) {
+    return other.kind === ModifiedBaseRangeStateKind.input2;
+  }
+}
+class ModifiedBaseRangeStateBoth extends AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "ModifiedBaseRangeStateBoth");
+  }
+  constructor(firstInput, smartCombination) {
+    super();
+    this.firstInput = firstInput;
+    this.smartCombination = smartCombination;
+  }
+  get kind() {
+    return ModifiedBaseRangeStateKind.both;
+  }
+  get includesInput1() {
+    return true;
+  }
+  get includesInput2() {
+    return true;
+  }
+  toString() {
+    return "2\u2713";
+  }
+  swap() {
+    return new ModifiedBaseRangeStateBoth(getOtherInputNumber(this.firstInput), this.smartCombination);
+  }
+  withInputValue(inputNumber, value, smartCombination = false) {
+    if (value) {
+      return this;
+    }
+    return inputNumber === 1 ? new ModifiedBaseRangeStateInput2() : new ModifiedBaseRangeStateInput1();
+  }
+  equals(other) {
+    return other.kind === ModifiedBaseRangeStateKind.both && this.firstInput === other.firstInput && this.smartCombination === other.smartCombination;
+  }
+  getInput(inputNumber) {
+    return inputNumber === this.firstInput ? 1 : 2;
+  }
+}
+class ModifiedBaseRangeStateUnrecognized extends AbstractModifiedBaseRangeState {
+  static {
+    __name(this, "ModifiedBaseRangeStateUnrecognized");
+  }
+  get kind() {
+    return ModifiedBaseRangeStateKind.unrecognized;
+  }
+  toString() {
+    return "unrecognized";
+  }
+  swap() {
+    return this;
+  }
+  withInputValue(inputNumber, value, smartCombination = false) {
+    if (!value) {
+      return this;
+    }
+    return inputNumber === 1 ? new ModifiedBaseRangeStateInput1() : new ModifiedBaseRangeStateInput2();
+  }
+  equals(other) {
+    return other.kind === ModifiedBaseRangeStateKind.unrecognized;
+  }
+}
+var ModifiedBaseRangeState;
+(function(ModifiedBaseRangeState2) {
+  ModifiedBaseRangeState2.base = new ModifiedBaseRangeStateBase();
+  ModifiedBaseRangeState2.unrecognized = new ModifiedBaseRangeStateUnrecognized();
+})(ModifiedBaseRangeState || (ModifiedBaseRangeState = {}));
+var InputState;
+(function(InputState2) {
+  InputState2[InputState2["excluded"] = 0] = "excluded";
+  InputState2[InputState2["first"] = 1] = "first";
+  InputState2[InputState2["second"] = 2] = "second";
+  InputState2[InputState2["unrecognized"] = 3] = "unrecognized";
+})(InputState || (InputState = {}));
+export {
+  AbstractModifiedBaseRangeState,
+  InputState,
+  ModifiedBaseRange,
+  ModifiedBaseRangeState,
+  ModifiedBaseRangeStateBase,
+  ModifiedBaseRangeStateBoth,
+  ModifiedBaseRangeStateInput1,
+  ModifiedBaseRangeStateInput2,
+  ModifiedBaseRangeStateKind,
+  ModifiedBaseRangeStateUnrecognized,
+  getOtherInputNumber
+};
+//# sourceMappingURL=modifiedBaseRange.js.map

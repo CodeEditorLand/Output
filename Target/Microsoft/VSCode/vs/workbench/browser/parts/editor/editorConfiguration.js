@@ -1,1 +1,187 @@
-import{localize as n}from"../../../../nls.js";import{$im as w}from"../../../../platform/registry/common/platform.js";import{$Ed as v}from"../../../../base/common/lifecycle.js";import{$km as g}from"../../../../platform/configuration/common/configurationRegistry.js";import{$3N as u}from"../../../common/configuration.js";import{$_N as y,RegisteredEditorPriority as p}from"../../../services/editor/common/editorResolverService.js";import{$4R as E}from"../../../services/extensions/common/extensions.js";import{$$b as k}from"../../../../base/common/arrays.js";import{Event as C}from"../../../../base/common/event.js";import{$BP as $}from"../../../services/environment/common/environmentService.js";import{$5k as _,$6k as j}from"../../../../platform/files/common/files.js";var b=function(a,i,t,o){var s=arguments.length,r=s<3?i:o===null?o=Object.getOwnPropertyDescriptor(i,t):o,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,i,t,o);else for(var c=a.length-1;c>=0;c--)(d=a[c])&&(r=(s<3?d(r):s>3?d(i,t,r):d(i,t))||r);return s>3&&r&&Object.defineProperty(i,t,r),r},h=function(a,i){return function(t,o){i(t,o,a)}},l;let m=class extends v{static{l=this}static{this.ID="workbench.contrib.dynamicEditorConfigurations"}static{this.a=new Set(["terminalEditor","mainThreadWebview-simpleBrowser.view","mainThreadWebview-browserPreview","workbench.editor.processExplorer"])}static{this.b=[{id:"workbench.input.interactive",label:n(3806,null),priority:p.builtin},{id:"mainThreadWebview-markdown.preview",label:n(3807,null),priority:p.builtin},{id:"mainThreadWebview-simpleBrowser.view",label:n(3808,null),priority:p.builtin},{id:"mainThreadWebview-browserPreview",label:n(3809,null),priority:p.builtin}]}static{this.c=new Set(["vscode-interactive-input","interactive","vscode.markdown.preview.editor"])}constructor(i,t,o){super(),this.n=i,this.q=o,this.f=w.as(g.Configuration),(async()=>(await t.whenInstalledExtensionsRegistered(),this.s(),this.r()))()}r(){this.D(C.debounce(this.n.onDidChangeEditorRegistrations,(i,t)=>t)(()=>this.s()))}s(){const i=[...this.n.getEditors(),...l.b].filter(e=>!l.c.has(e.id)),t=this.n.getEditors().filter(e=>e.priority!==p.exclusive).map(e=>e.id),o=Object.create(null);for(const e of i)o[e.id]={type:"boolean",default:l.a.has(e.id),description:e.label};const s=Object.create(null);for(const e of i)s[e.id]=l.a.has(e.id);const r=this.g;this.g={...u,properties:{"workbench.editor.autoLockGroups":{type:"object",description:n(3810,null),properties:o,default:s,additionalProperties:!1}}};const d=this.h;this.h={...u,properties:{"workbench.editor.defaultBinaryEditor":{type:"string",default:"",enum:[...t,""],description:n(3811,null)}}};const c=this.j;this.j={...u,properties:{"workbench.editorAssociations":{type:"object",markdownDescription:n(3812,null),patternProperties:{".*":{type:"string",enum:t}}}}};const f=this.m;this.m={...u,properties:{"workbench.editorLargeFileConfirmation":{type:"number",default:j(this.q.remoteAuthority)/_.MB,minimum:1,scope:5,markdownDescription:n(3813,null)}}},this.f.updateConfigurations({add:[this.g,this.h,this.j,this.m],remove:k([r,d,c,f])})}};m=l=b([h(0,y),h(1,E),h(2,$)],m);export{m as $40b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var DynamicEditorConfigurations_1;
+import { localize } from "../../../../nls.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { Event } from "../../../../base/common/event.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ByteSize, getLargeFileConfirmationLimit } from "../../../../platform/files/common/files.js";
+let DynamicEditorConfigurations = class DynamicEditorConfigurations2 extends Disposable {
+  static {
+    __name(this, "DynamicEditorConfigurations");
+  }
+  static {
+    DynamicEditorConfigurations_1 = this;
+  }
+  static {
+    this.ID = "workbench.contrib.dynamicEditorConfigurations";
+  }
+  static {
+    this.AUTO_LOCK_DEFAULT_ENABLED = /* @__PURE__ */ new Set([
+      "terminalEditor",
+      "mainThreadWebview-simpleBrowser.view",
+      "mainThreadWebview-browserPreview",
+      "workbench.editor.processExplorer"
+    ]);
+  }
+  static {
+    this.AUTO_LOCK_EXTRA_EDITORS = [
+      // List some editor input identifiers that are not
+      // registered yet via the editor resolver infrastructure
+      {
+        id: "workbench.input.interactive",
+        label: localize("interactiveWindow", "Interactive Window"),
+        priority: RegisteredEditorPriority.builtin
+      },
+      {
+        id: "mainThreadWebview-markdown.preview",
+        label: localize("markdownPreview", "Markdown Preview"),
+        priority: RegisteredEditorPriority.builtin
+      },
+      {
+        id: "mainThreadWebview-simpleBrowser.view",
+        label: localize("simpleBrowser", "Simple Browser"),
+        priority: RegisteredEditorPriority.builtin
+      },
+      {
+        id: "mainThreadWebview-browserPreview",
+        label: localize("livePreview", "Live Preview"),
+        priority: RegisteredEditorPriority.builtin
+      }
+    ];
+  }
+  static {
+    this.AUTO_LOCK_REMOVE_EDITORS = /* @__PURE__ */ new Set([
+      // List some editor types that the above `AUTO_LOCK_EXTRA_EDITORS`
+      // already covers to avoid duplicates.
+      "vscode-interactive-input",
+      "interactive",
+      "vscode.markdown.preview.editor"
+    ]);
+  }
+  constructor(editorResolverService, extensionService, environmentService) {
+    super();
+    this.editorResolverService = editorResolverService;
+    this.environmentService = environmentService;
+    this.configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+    (async () => {
+      await extensionService.whenInstalledExtensionsRegistered();
+      this.updateDynamicEditorConfigurations();
+      this.registerListeners();
+    })();
+  }
+  registerListeners() {
+    this._register(Event.debounce(this.editorResolverService.onDidChangeEditorRegistrations, (_, e) => e)(() => this.updateDynamicEditorConfigurations()));
+  }
+  updateDynamicEditorConfigurations() {
+    const lockableEditors = [...this.editorResolverService.getEditors(), ...DynamicEditorConfigurations_1.AUTO_LOCK_EXTRA_EDITORS].filter((e) => !DynamicEditorConfigurations_1.AUTO_LOCK_REMOVE_EDITORS.has(e.id));
+    const binaryEditorCandidates = this.editorResolverService.getEditors().filter((e) => e.priority !== RegisteredEditorPriority.exclusive).map((e) => e.id);
+    const autoLockGroupConfiguration = /* @__PURE__ */ Object.create(null);
+    for (const editor of lockableEditors) {
+      autoLockGroupConfiguration[editor.id] = {
+        type: "boolean",
+        default: DynamicEditorConfigurations_1.AUTO_LOCK_DEFAULT_ENABLED.has(editor.id),
+        description: editor.label
+      };
+    }
+    const defaultAutoLockGroupConfiguration = /* @__PURE__ */ Object.create(null);
+    for (const editor of lockableEditors) {
+      defaultAutoLockGroupConfiguration[editor.id] = DynamicEditorConfigurations_1.AUTO_LOCK_DEFAULT_ENABLED.has(editor.id);
+    }
+    const oldAutoLockConfigurationNode = this.autoLockConfigurationNode;
+    this.autoLockConfigurationNode = {
+      ...workbenchConfigurationNodeBase,
+      properties: {
+        "workbench.editor.autoLockGroups": {
+          type: "object",
+          description: localize("workbench.editor.autoLockGroups", "If an editor matching one of the listed types is opened as the first in an editor group and more than one group is open, the group is automatically locked. Locked groups will only be used for opening editors when explicitly chosen by a user gesture (for example drag and drop), but not by default. Consequently, the active editor in a locked group is less likely to be replaced accidentally with a different editor."),
+          properties: autoLockGroupConfiguration,
+          default: defaultAutoLockGroupConfiguration,
+          additionalProperties: false
+        }
+      }
+    };
+    const oldDefaultBinaryEditorConfigurationNode = this.defaultBinaryEditorConfigurationNode;
+    this.defaultBinaryEditorConfigurationNode = {
+      ...workbenchConfigurationNodeBase,
+      properties: {
+        "workbench.editor.defaultBinaryEditor": {
+          type: "string",
+          default: "",
+          // This allows for intellisense autocompletion
+          enum: [...binaryEditorCandidates, ""],
+          description: localize("workbench.editor.defaultBinaryEditor", "The default editor for files detected as binary. If undefined, the user will be presented with a picker.")
+        }
+      }
+    };
+    const oldEditorAssociationsConfigurationNode = this.editorAssociationsConfigurationNode;
+    this.editorAssociationsConfigurationNode = {
+      ...workbenchConfigurationNodeBase,
+      properties: {
+        "workbench.editorAssociations": {
+          type: "object",
+          markdownDescription: localize("editor.editorAssociations", 'Configure [glob patterns](https://aka.ms/vscode-glob-patterns) to editors (for example `"*.hex": "hexEditor.hexedit"`). These have precedence over the default behavior.'),
+          patternProperties: {
+            ".*": {
+              type: "string",
+              enum: binaryEditorCandidates
+            }
+          }
+        }
+      }
+    };
+    const oldEditorLargeFileConfirmationConfigurationNode = this.editorLargeFileConfirmationConfigurationNode;
+    this.editorLargeFileConfirmationConfigurationNode = {
+      ...workbenchConfigurationNodeBase,
+      properties: {
+        "workbench.editorLargeFileConfirmation": {
+          type: "number",
+          default: getLargeFileConfirmationLimit(this.environmentService.remoteAuthority) / ByteSize.MB,
+          minimum: 1,
+          scope: 5,
+          markdownDescription: localize("editorLargeFileSizeConfirmation", "Controls the minimum size of a file in MB before asking for confirmation when opening in the editor. Note that this setting may not apply to all editor types and environments.")
+        }
+      }
+    };
+    this.configurationRegistry.updateConfigurations({
+      add: [
+        this.autoLockConfigurationNode,
+        this.defaultBinaryEditorConfigurationNode,
+        this.editorAssociationsConfigurationNode,
+        this.editorLargeFileConfirmationConfigurationNode
+      ],
+      remove: coalesce([
+        oldAutoLockConfigurationNode,
+        oldDefaultBinaryEditorConfigurationNode,
+        oldEditorAssociationsConfigurationNode,
+        oldEditorLargeFileConfirmationConfigurationNode
+      ])
+    });
+  }
+};
+DynamicEditorConfigurations = DynamicEditorConfigurations_1 = __decorate([
+  __param(0, IEditorResolverService),
+  __param(1, IExtensionService),
+  __param(2, IWorkbenchEnvironmentService)
+], DynamicEditorConfigurations);
+export {
+  DynamicEditorConfigurations
+};
+//# sourceMappingURL=editorConfiguration.js.map

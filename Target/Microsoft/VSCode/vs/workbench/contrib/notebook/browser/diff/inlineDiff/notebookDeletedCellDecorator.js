@@ -1,1 +1,247 @@
-import{$90 as P}from"../../../../../../base/browser/trustedTypes.js";import{$Ed as y,$Dd as D,$zd as S,$Cd as x}from"../../../../../../base/common/lifecycle.js";import{$0f as E}from"../../../../../../base/common/strings.js";import{$WF as C}from"../../../../../../editor/common/languages/language.js";import{$2gb as L}from"../../../../../../editor/common/languages/textToHtmlTokenizer.js";import{$9Cb as V}from"../diffElementViewModel.js";import{NotebookOverviewRulerLane as R}from"../../notebookBrowser.js";import*as c from"../../../../../../base/browser/dom.js";import{$6ib as T}from"../../../../../../platform/actions/browser/toolbar.js";import{$Lj as w}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Kj as _}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$qo as z}from"../../../../../../platform/contextkey/common/contextkey.js";import{$v4b as M}from"../../../../scm/common/quickDiff.js";var $=function(d,o,t,i){var e=arguments.length,n=e<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,t):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(d,o,t,i);else for(var s=d.length-1;s>=0;s--)(r=d[s])&&(n=(e<3?r(n):e>3?r(o,t,n):r(o,t))||n);return e>3&&n&&Object.defineProperty(o,t,n),n},g=function(d,o){return function(t,i){o(t,i,d)}};const W=P("notebookRenderer",{createHTML:d=>d});let I=class extends y{constructor(o,t,i,e){super(),this.j=o,this.m=t,this.n=i,this.q=e,this.f=this.D(new D),this.g=new Map,this.h=new Map}getTop(o){const t=this.h.get(o);if(!t)return;if(t.previousIndex===-1)return 0;const i=this.j.getCellsInRange({start:t.previousIndex,end:t.previousIndex+1});if(!i.length)return this.j.getLayoutInfo().height+t.offset;const e=i[0],n=this.j.getHeightOfElement(e);return this.j.getAbsoluteTopOfElement(e)+n+t.offset}reveal(o){const t=this.getTop(o);if(typeof t=="number"){this.j.focusContainer(),this.j.revealOffsetInCenterIfOutsideViewport(t);const i=this.h.get(o);if(i){const e=i.previousIndex===-1?0:i.previousIndex;this.j.setFocus({start:e,end:e}),this.j.setSelections([{start:e,end:e}])}}}apply(o,t){this.clear();let i=-1;const e={cells:[],index:0};o.forEach(n=>{if(n.type==="delete"){const r=t.cells[n.originalCellIndex];r&&(e.cells.push({cell:r,originalIndex:n.originalCellIndex,previousIndex:i}),e.index=i)}else e.cells.length&&(this.r(e.index+1,e.cells),e.cells.length=0),i=n.modifiedCellIndex}),e.cells.length&&this.r(e.index+1,e.cells)}clear(){this.h.clear(),this.f.clear()}r(o,t){this.s(o,t)}async s(o,t){const i=document.createElement("div"),e=[],n=await Promise.all(t.map(async s=>{const l=new v(this.j,this.m,s.cell.getValue(),s.cell.language,i,s.originalIndex,this.n,this.q);e.push(l);const h=await l.render();return this.h.set(s.originalIndex,{height:h,previousIndex:s.previousIndex,offset:0}),h}));Array.from(this.h.keys()).sort((s,l)=>s-l).forEach(s=>{const l=this.h.get(s-1);if(l){const h=this.h.get(s);h&&(h.offset=l.height+l.offset)}});const r=n.reduce((s,l)=>s+l,0);this.j.changeViewZones(s=>{const l={afterModelPosition:o,heightInPx:r+4,domNode:i},h=s.addZone(l);s.layoutZone(h),this.g.set(o,h);const m=this.j.deltaCellDecorations([],[{viewZoneId:h,options:{overviewRuler:{color:M,position:R.Center}}}]);this.f.add(x(()=>{this.g.get(o)===h&&this.g.delete(o),this.j.isDisposed||(this.j.changeViewZones(p=>{p.removeZone(h),S(e)}),this.j.deltaCellDecorations(m,[]))}))})}};I=$([g(2,C),g(3,w)],I);let v=class extends y{constructor(o,t,i,e,n,r,s,l){super(),this.g=o,this.h=t,this.j=i,this.m=e,this.n=r,this.q=s,this.r=l,this.f=c.$I8(n,document.createElement("div")),this.D(x(()=>{n.removeChild(this.f)}))}async render(){const o=this.j,t=this.m,i=await L(this.q,o,t),e=this.g.getBaseCellEditorOptions(t).value,n="--notebook-editor-font-family",r="--notebook-editor-font-size",s="--notebook-editor-font-weight",h=this.g.codeEditors.map(a=>a[1]).find(a=>a)?.getOptions().get(165),m=`font-family: var(${n});font-weight: var(${s});font-size: var(${r});`+e.lineHeight?`line-height: ${e.lineHeight}px;`:""+h?.contentLeft?`margin-left: ${h}px;`:"white-space: pre;",p=this.f;if(p.classList.add("code-cell-row"),this.h){const a=document.createElement("div");a.className=this.h.className,p.appendChild(a);const H=this.D(this.r.createChild(new _([z,this.g.scopedContextKeyService]))).createInstance(T,a,this.h.menuId,{telemetrySource:this.h.telemetrySource,hiddenItemStrategy:-1,toolbarOptions:{primaryGroup:()=>!0},menuOptions:{renderShortTitle:!0,arg:this.h.argFactory(this.n)},actionViewItemProvider:this.h.actionViewItemProvider});this.B.add(H),a.style.position="absolute",a.style.right="40px",a.style.zIndex="10",a.classList.add("hover")}const u=c.$I8(p,c.$(".cell-inner-container"));u.style.position="relative";const j=c.$I8(u,c.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left")),b=c.$I8(u,c.$(".cell.code"));c.$I8(j,c.$("div.execution-count-label"));const O=c.$I8(b,c.$(".cell-editor-part"));let f=c.$I8(O,c.$(".cell-editor-container"));return f=c.$I8(f,c.$(".code",{style:m})),e.fontFamily&&f.style.setProperty(n,e.fontFamily),e.fontSize&&f.style.setProperty(r,`${e.fontSize}px`),e.fontWeight&&f.style.setProperty(s,e.fontWeight),f.innerHTML=W?.createHTML(i)||i,E(o).length*(e.lineHeight||V)+12+12+16+16}};v=$([g(6,C),g(7,w)],v);export{I as $Wec,v as $Xec};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createTrustedTypesPolicy } from "../../../../../../base/browser/trustedTypes.js";
+import { Disposable, DisposableStore, dispose, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { splitLines } from "../../../../../../base/common/strings.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { tokenizeToString } from "../../../../../../editor/common/languages/textToHtmlTokenizer.js";
+import { DefaultLineHeight } from "../diffElementViewModel.js";
+import { NotebookOverviewRulerLane } from "../../notebookBrowser.js";
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { overviewRulerDeletedForeground } from "../../../../scm/common/quickDiff.js";
+const ttPolicy = createTrustedTypesPolicy("notebookRenderer", { createHTML: /* @__PURE__ */ __name((value) => value, "createHTML") });
+let NotebookDeletedCellDecorator = class NotebookDeletedCellDecorator2 extends Disposable {
+  static {
+    __name(this, "NotebookDeletedCellDecorator");
+  }
+  constructor(_notebookEditor, toolbar, languageService, instantiationService) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this.toolbar = toolbar;
+    this.languageService = languageService;
+    this.instantiationService = instantiationService;
+    this.zoneRemover = this._register(new DisposableStore());
+    this.createdViewZones = /* @__PURE__ */ new Map();
+    this.deletedCellInfos = /* @__PURE__ */ new Map();
+  }
+  getTop(deletedIndex) {
+    const info = this.deletedCellInfos.get(deletedIndex);
+    if (!info) {
+      return;
+    }
+    if (info.previousIndex === -1) {
+      return 0;
+    }
+    const cells = this._notebookEditor.getCellsInRange({ start: info.previousIndex, end: info.previousIndex + 1 });
+    if (!cells.length) {
+      return this._notebookEditor.getLayoutInfo().height + info.offset;
+    }
+    const cell = cells[0];
+    const cellHeight = this._notebookEditor.getHeightOfElement(cell);
+    const top = this._notebookEditor.getAbsoluteTopOfElement(cell);
+    return top + cellHeight + info.offset;
+  }
+  reveal(deletedIndex) {
+    const top = this.getTop(deletedIndex);
+    if (typeof top === "number") {
+      this._notebookEditor.focusContainer();
+      this._notebookEditor.revealOffsetInCenterIfOutsideViewport(top);
+      const info = this.deletedCellInfos.get(deletedIndex);
+      if (info) {
+        const prevIndex = info.previousIndex === -1 ? 0 : info.previousIndex;
+        this._notebookEditor.setFocus({ start: prevIndex, end: prevIndex });
+        this._notebookEditor.setSelections([{ start: prevIndex, end: prevIndex }]);
+      }
+    }
+  }
+  apply(diffInfo, original) {
+    this.clear();
+    let currentIndex = -1;
+    const deletedCellsToRender = { cells: [], index: 0 };
+    diffInfo.forEach((diff) => {
+      if (diff.type === "delete") {
+        const deletedCell = original.cells[diff.originalCellIndex];
+        if (deletedCell) {
+          deletedCellsToRender.cells.push({ cell: deletedCell, originalIndex: diff.originalCellIndex, previousIndex: currentIndex });
+          deletedCellsToRender.index = currentIndex;
+        }
+      } else {
+        if (deletedCellsToRender.cells.length) {
+          this._createWidget(deletedCellsToRender.index + 1, deletedCellsToRender.cells);
+          deletedCellsToRender.cells.length = 0;
+        }
+        currentIndex = diff.modifiedCellIndex;
+      }
+    });
+    if (deletedCellsToRender.cells.length) {
+      this._createWidget(deletedCellsToRender.index + 1, deletedCellsToRender.cells);
+    }
+  }
+  clear() {
+    this.deletedCellInfos.clear();
+    this.zoneRemover.clear();
+  }
+  _createWidget(index, cells) {
+    this._createWidgetImpl(index, cells);
+  }
+  async _createWidgetImpl(index, cells) {
+    const rootContainer = document.createElement("div");
+    const widgets = [];
+    const heights = await Promise.all(cells.map(async (cell) => {
+      const widget = new NotebookDeletedCellWidget(this._notebookEditor, this.toolbar, cell.cell.getValue(), cell.cell.language, rootContainer, cell.originalIndex, this.languageService, this.instantiationService);
+      widgets.push(widget);
+      const height = await widget.render();
+      this.deletedCellInfos.set(cell.originalIndex, { height, previousIndex: cell.previousIndex, offset: 0 });
+      return height;
+    }));
+    Array.from(this.deletedCellInfos.keys()).sort((a, b) => a - b).forEach((originalIndex) => {
+      const previousDeletedCell = this.deletedCellInfos.get(originalIndex - 1);
+      if (previousDeletedCell) {
+        const deletedCell = this.deletedCellInfos.get(originalIndex);
+        if (deletedCell) {
+          deletedCell.offset = previousDeletedCell.height + previousDeletedCell.offset;
+        }
+      }
+    });
+    const totalHeight = heights.reduce((prev, curr) => prev + curr, 0);
+    this._notebookEditor.changeViewZones((accessor) => {
+      const notebookViewZone = {
+        afterModelPosition: index,
+        heightInPx: totalHeight + 4,
+        domNode: rootContainer
+      };
+      const id = accessor.addZone(notebookViewZone);
+      accessor.layoutZone(id);
+      this.createdViewZones.set(index, id);
+      const deletedCellOverviewRulereDecorationIds = this._notebookEditor.deltaCellDecorations([], [{
+        viewZoneId: id,
+        options: {
+          overviewRuler: {
+            color: overviewRulerDeletedForeground,
+            position: NotebookOverviewRulerLane.Center
+          }
+        }
+      }]);
+      this.zoneRemover.add(toDisposable(() => {
+        if (this.createdViewZones.get(index) === id) {
+          this.createdViewZones.delete(index);
+        }
+        if (!this._notebookEditor.isDisposed) {
+          this._notebookEditor.changeViewZones((accessor2) => {
+            accessor2.removeZone(id);
+            dispose(widgets);
+          });
+          this._notebookEditor.deltaCellDecorations(deletedCellOverviewRulereDecorationIds, []);
+        }
+      }));
+    });
+  }
+};
+NotebookDeletedCellDecorator = __decorate([
+  __param(2, ILanguageService),
+  __param(3, IInstantiationService)
+], NotebookDeletedCellDecorator);
+let NotebookDeletedCellWidget = class NotebookDeletedCellWidget2 extends Disposable {
+  static {
+    __name(this, "NotebookDeletedCellWidget");
+  }
+  // private readonly toolbar: HTMLElement;
+  constructor(_notebookEditor, _toolbarOptions, code, language, container, _originalIndex, languageService, instantiationService) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._toolbarOptions = _toolbarOptions;
+    this.code = code;
+    this.language = language;
+    this._originalIndex = _originalIndex;
+    this.languageService = languageService;
+    this.instantiationService = instantiationService;
+    this.container = DOM.append(container, document.createElement("div"));
+    this._register(toDisposable(() => {
+      container.removeChild(this.container);
+    }));
+  }
+  async render() {
+    const code = this.code;
+    const languageId = this.language;
+    const codeHtml = await tokenizeToString(this.languageService, code, languageId);
+    const fontInfo = this._notebookEditor.getBaseCellEditorOptions(languageId).value;
+    const fontFamilyVar = "--notebook-editor-font-family";
+    const fontSizeVar = "--notebook-editor-font-size";
+    const fontWeightVar = "--notebook-editor-font-weight";
+    const editor = this._notebookEditor.codeEditors.map((c) => c[1]).find((c) => c);
+    const layoutInfo = editor?.getOptions().get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    const style = `font-family: var(${fontFamilyVar});font-weight: var(${fontWeightVar});font-size: var(${fontSizeVar});` + fontInfo.lineHeight ? `line-height: ${fontInfo.lineHeight}px;` : "" + layoutInfo?.contentLeft ? `margin-left: ${layoutInfo}px;` : `white-space: pre;`;
+    const rootContainer = this.container;
+    rootContainer.classList.add("code-cell-row");
+    if (this._toolbarOptions) {
+      const toolbar = document.createElement("div");
+      toolbar.className = this._toolbarOptions.className;
+      rootContainer.appendChild(toolbar);
+      const scopedInstaService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this._notebookEditor.scopedContextKeyService])));
+      const toolbarWidget = scopedInstaService.createInstance(MenuWorkbenchToolBar, toolbar, this._toolbarOptions.menuId, {
+        telemetrySource: this._toolbarOptions.telemetrySource,
+        hiddenItemStrategy: -1,
+        toolbarOptions: { primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup") },
+        menuOptions: {
+          renderShortTitle: true,
+          arg: this._toolbarOptions.argFactory(this._originalIndex)
+        },
+        actionViewItemProvider: this._toolbarOptions.actionViewItemProvider
+      });
+      this._store.add(toolbarWidget);
+      toolbar.style.position = "absolute";
+      toolbar.style.right = "40px";
+      toolbar.style.zIndex = "10";
+      toolbar.classList.add("hover");
+    }
+    const container = DOM.append(rootContainer, DOM.$(".cell-inner-container"));
+    container.style.position = "relative";
+    const focusIndicatorLeft = DOM.append(container, DOM.$(".cell-focus-indicator.cell-focus-indicator-side.cell-focus-indicator-left"));
+    const cellContainer = DOM.append(container, DOM.$(".cell.code"));
+    DOM.append(focusIndicatorLeft, DOM.$("div.execution-count-label"));
+    const editorPart = DOM.append(cellContainer, DOM.$(".cell-editor-part"));
+    let editorContainer = DOM.append(editorPart, DOM.$(".cell-editor-container"));
+    editorContainer = DOM.append(editorContainer, DOM.$(".code", { style }));
+    if (fontInfo.fontFamily) {
+      editorContainer.style.setProperty(fontFamilyVar, fontInfo.fontFamily);
+    }
+    if (fontInfo.fontSize) {
+      editorContainer.style.setProperty(fontSizeVar, `${fontInfo.fontSize}px`);
+    }
+    if (fontInfo.fontWeight) {
+      editorContainer.style.setProperty(fontWeightVar, fontInfo.fontWeight);
+    }
+    editorContainer.innerHTML = ttPolicy?.createHTML(codeHtml) || codeHtml;
+    const lineCount = splitLines(code).length;
+    const height = lineCount * (fontInfo.lineHeight || DefaultLineHeight) + 12 + 12;
+    const totalHeight = height + 16 + 16;
+    return totalHeight;
+  }
+};
+NotebookDeletedCellWidget = __decorate([
+  __param(6, ILanguageService),
+  __param(7, IInstantiationService)
+], NotebookDeletedCellWidget);
+export {
+  NotebookDeletedCellDecorator,
+  NotebookDeletedCellWidget
+};
+//# sourceMappingURL=notebookDeletedCellDecorator.js.map

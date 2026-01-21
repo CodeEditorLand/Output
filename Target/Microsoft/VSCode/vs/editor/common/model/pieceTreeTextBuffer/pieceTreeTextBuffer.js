@@ -1,4 +1,480 @@
-import{$wf as w}from"../../../../base/common/event.js";import*as b from"../../../../base/common/strings.js";import{$9D as C}from"../../core/range.js";import{$fH as M}from"../../model.js";import{$7J as A}from"./pieceTreeBase.js";import{$8E as R}from"../../core/misc/eolCounter.js";import{$RE as $}from"../../core/textChange.js";import{$Ed as k}from"../../../../base/common/lifecycle.js";class p extends k{get onDidChangeContent(){return this.m.event}constructor(e,t,n,r,a,g,h){super(),this.m=this.D(new w),this.f=t,this.j=!g,this.g=r,this.h=a,this.c=new A(e,n,h)}equals(e){return!(e instanceof p)||this.f!==e.f||this.getEOL()!==e.getEOL()?!1:this.c.equal(e.c)}mightContainRTL(){return this.g}mightContainUnusualLineTerminators(){return this.h}resetMightContainUnusualLineTerminators(){this.h=!1}mightContainNonBasicASCII(){return this.j}getBOM(){return this.f}getEOL(){return this.c.getEOL()}createSnapshot(e){return this.c.createSnapshot(e?this.f:"")}getOffsetAt(e,t){return this.c.getOffsetAt(e,t)}getPositionAt(e){return this.c.getPositionAt(e)}getRangeAt(e,t){const n=e+t,r=this.getPositionAt(e),a=this.getPositionAt(n);return new C(r.lineNumber,r.column,a.lineNumber,a.column)}getValueInRange(e,t=0){if(e.isEmpty())return"";const n=this.n(t);return this.c.getValueInRange(e,n)}getValueLengthInRange(e,t=0){if(e.isEmpty())return 0;if(e.startLineNumber===e.endLineNumber)return e.endColumn-e.startColumn;const n=this.getOffsetAt(e.startLineNumber,e.startColumn),r=this.getOffsetAt(e.endLineNumber,e.endColumn);let a=0;const g=this.n(t),h=this.getEOL();if(g.length!==h.length){const s=g.length-h.length,l=e.endLineNumber-e.startLineNumber;a=s*l}return r-n+a}getCharacterCountInRange(e,t=0){if(this.j){let n=0;const r=e.startLineNumber,a=e.endLineNumber;for(let g=r;g<=a;g++){const h=this.getLineContent(g),s=g===r?e.startColumn-1:0,l=g===a?e.endColumn-1:h.length;for(let f=s;f<l;f++)b.$sg(h.charCodeAt(f))?(n=n+1,f=f+1):n=n+1}return n+=this.n(t).length*(a-r),n}return this.getValueLengthInRange(e,t)}getNearestChunk(e){return this.c.getNearestChunk(e)}getLength(){return this.c.getLength()}getLineCount(){return this.c.getLineCount()}getLinesContent(){return this.c.getLinesContent()}getLineContent(e){return this.c.getLineContent(e)}getLineCharCode(e,t){return this.c.getLineCharCode(e,t)}getCharCode(e){return this.c.getCharCode(e)}getLineLength(e){return this.c.getLineLength(e)}getLineMinColumn(e){return 1}getLineMaxColumn(e){return this.getLineLength(e)+1}getLineFirstNonWhitespaceColumn(e){const t=b.$ag(this.getLineContent(e));return t===-1?0:t+1}getLineLastNonWhitespaceColumn(e){const t=b.$cg(this.getLineContent(e));return t===-1?0:t+2}n(e){switch(e){case 1:return`
-`;case 2:return`\r
-`;case 0:return this.getEOL();default:throw new Error("Unknown EOL preference")}}setEOL(e){this.c.setEOL(e)}applyEdits(e,t,n){let r=this.g,a=this.h,g=this.j,h=!0,s=[];for(let o=0;o<e.length;o++){const i=e[o];h&&i._isTracked&&(h=!1);const u=i.range;if(i.text){let N=!0;g||(N=!b.$Dg(i.text),g=N),!r&&N&&(r=b.$Cg(i.text)),!a&&N&&(a=b.$Fg(i.text))}let L="",m=0,x=0,I=0;if(i.text){let N;[m,x,I,N]=R(i.text);const v=this.getEOL();N===0||N===(v===`\r
-`?2:1)?L=i.text:L=i.text.replace(/\r\n|\r|\n/g,v)}s[o]={sortIndex:o,identifier:i.identifier||null,range:u,rangeOffset:this.getOffsetAt(u.startLineNumber,u.startColumn),rangeLength:this.getValueLengthInRange(u),text:L,eolCount:m,firstLineLength:x,lastLineLength:I,forceMoveMarkers:!!i.forceMoveMarkers,isAutoWhitespaceEdit:i.isAutoWhitespaceEdit||!1}}s.sort(p.t);let l=!1;for(let o=0,i=s.length-1;o<i;o++){const u=s[o].range.getEndPosition(),L=s[o+1].range.getStartPosition();if(L.isBeforeOrEqual(u)){if(L.isBefore(u))throw new Error("Overlapping ranges are not allowed!");l=!0}}h&&(s=this.q(s));const f=n||t?p._getInverseEditRanges(s):[],c=[];if(t)for(let o=0;o<s.length;o++){const i=s[o],u=f[o];if(i.isAutoWhitespaceEdit&&i.range.isEmpty())for(let L=u.startLineNumber;L<=u.endLineNumber;L++){let m="";L===u.startLineNumber&&(m=this.getLineContent(i.range.startLineNumber),b.$ag(m)!==-1)||c.push({lineNumber:L,oldContent:m})}}let d=null;if(n){let o=0;d=[];for(let i=0;i<s.length;i++){const u=s[i],L=f[i],m=this.getValueInRange(u.range),x=u.rangeOffset+o;o+=u.text.length-m.length,d[i]={sortIndex:u.sortIndex,identifier:u.identifier,range:L,text:m,textChange:new $(u.rangeOffset,m,x,u.text)}}l||d.sort((i,u)=>i.sortIndex-u.sortIndex)}this.g=r,this.h=a,this.j=g;const O=this.s(s);let E=null;if(t&&c.length>0){c.sort((o,i)=>i.lineNumber-o.lineNumber),E=[];for(let o=0,i=c.length;o<i;o++){const u=c[o].lineNumber;if(o>0&&c[o-1].lineNumber===u)continue;const L=c[o].oldContent,m=this.getLineContent(u);m.length===0||m===L||b.$ag(m)!==-1||E.push(u)}}return this.m.fire(),new M(d,O,E)}q(e){return e.length<1e3?e:[this._toSingleEditOperation(e)]}_toSingleEditOperation(e){let t=!1;const n=e[0].range,r=e[e.length-1].range,a=new C(n.startLineNumber,n.startColumn,r.endLineNumber,r.endColumn);let g=n.startLineNumber,h=n.startColumn;const s=[];for(let O=0,E=e.length;O<E;O++){const o=e[O],i=o.range;t=t||o.forceMoveMarkers,s.push(this.getValueInRange(new C(g,h,i.startLineNumber,i.startColumn))),o.text.length>0&&s.push(o.text),g=i.endLineNumber,h=i.endColumn}const l=s.join(""),[f,c,d]=R(l);return{sortIndex:0,identifier:e[0].identifier,range:a,rangeOffset:this.getOffsetAt(a.startLineNumber,a.startColumn),rangeLength:this.getValueLengthInRange(a,0),text:l,eolCount:f,firstLineLength:c,lastLineLength:d,forceMoveMarkers:t,isAutoWhitespaceEdit:!1}}s(e){e.sort(p.u);const t=[];for(let n=0;n<e.length;n++){const r=e[n],a=r.range.startLineNumber,g=r.range.startColumn,h=r.range.endLineNumber,s=r.range.endColumn;if(a===h&&g===s&&r.text.length===0)continue;r.text?(this.c.delete(r.rangeOffset,r.rangeLength),this.c.insert(r.rangeOffset,r.text,!0)):this.c.delete(r.rangeOffset,r.rangeLength);const l=new C(a,g,h,s);t.push({range:l,rangeLength:r.rangeLength,text:r.text,rangeOffset:r.rangeOffset,forceMoveMarkers:r.forceMoveMarkers})}return t}findMatchesLineByLine(e,t,n,r){return this.c.findMatchesLineByLine(e,t,n,r)}getPieceTree(){return this.c}static _getInverseEditRange(e,t){const n=e.startLineNumber,r=e.startColumn,[a,g,h]=R(t);let s;if(t.length>0){const l=a+1;l===1?s=new C(n,r,n,r+g):s=new C(n,r,n+l-1,h+1)}else s=new C(n,r,n,r);return s}static _getInverseEditRanges(e){const t=[];let n=0,r=0,a=null;for(let g=0,h=e.length;g<h;g++){const s=e[g];let l,f;a?a.range.endLineNumber===s.range.startLineNumber?(l=n,f=r+(s.range.startColumn-a.range.endColumn)):(l=n+(s.range.startLineNumber-a.range.endLineNumber),f=s.range.startColumn):(l=s.range.startLineNumber,f=s.range.startColumn);let c;if(s.text.length>0){const d=s.eolCount+1;d===1?c=new C(l,f,l,f+s.firstLineLength):c=new C(l,f,l+d-1,s.lastLineLength+1)}else c=new C(l,f,l,f);n=c.endLineNumber,r=c.endColumn,t.push(c),a=s}return t}static t(e,t){const n=C.compareRangesUsingEnds(e.range,t.range);return n===0?e.sortIndex-t.sortIndex:n}static u(e,t){const n=C.compareRangesUsingEnds(e.range,t.range);return n===0?t.sortIndex-e.sortIndex:-n}}export{p as $8J};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import * as strings from "../../../../base/common/strings.js";
+import { Range } from "../../core/range.js";
+import { ApplyEditsResult } from "../../model.js";
+import { PieceTreeBase } from "./pieceTreeBase.js";
+import { countEOL } from "../../core/misc/eolCounter.js";
+import { TextChange } from "../../core/textChange.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+class PieceTreeTextBuffer extends Disposable {
+  static {
+    __name(this, "PieceTreeTextBuffer");
+  }
+  get onDidChangeContent() {
+    return this._onDidChangeContent.event;
+  }
+  constructor(chunks, BOM, eol, containsRTL, containsUnusualLineTerminators, isBasicASCII, eolNormalized) {
+    super();
+    this._onDidChangeContent = this._register(new Emitter());
+    this._BOM = BOM;
+    this._mightContainNonBasicASCII = !isBasicASCII;
+    this._mightContainRTL = containsRTL;
+    this._mightContainUnusualLineTerminators = containsUnusualLineTerminators;
+    this._pieceTree = new PieceTreeBase(chunks, eol, eolNormalized);
+  }
+  // #region TextBuffer
+  equals(other) {
+    if (!(other instanceof PieceTreeTextBuffer)) {
+      return false;
+    }
+    if (this._BOM !== other._BOM) {
+      return false;
+    }
+    if (this.getEOL() !== other.getEOL()) {
+      return false;
+    }
+    return this._pieceTree.equal(other._pieceTree);
+  }
+  mightContainRTL() {
+    return this._mightContainRTL;
+  }
+  mightContainUnusualLineTerminators() {
+    return this._mightContainUnusualLineTerminators;
+  }
+  resetMightContainUnusualLineTerminators() {
+    this._mightContainUnusualLineTerminators = false;
+  }
+  mightContainNonBasicASCII() {
+    return this._mightContainNonBasicASCII;
+  }
+  getBOM() {
+    return this._BOM;
+  }
+  getEOL() {
+    return this._pieceTree.getEOL();
+  }
+  createSnapshot(preserveBOM) {
+    return this._pieceTree.createSnapshot(preserveBOM ? this._BOM : "");
+  }
+  getOffsetAt(lineNumber, column) {
+    return this._pieceTree.getOffsetAt(lineNumber, column);
+  }
+  getPositionAt(offset) {
+    return this._pieceTree.getPositionAt(offset);
+  }
+  getRangeAt(start, length) {
+    const end = start + length;
+    const startPosition = this.getPositionAt(start);
+    const endPosition = this.getPositionAt(end);
+    return new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
+  }
+  getValueInRange(range, eol = 0) {
+    if (range.isEmpty()) {
+      return "";
+    }
+    const lineEnding = this._getEndOfLine(eol);
+    return this._pieceTree.getValueInRange(range, lineEnding);
+  }
+  getValueLengthInRange(range, eol = 0) {
+    if (range.isEmpty()) {
+      return 0;
+    }
+    if (range.startLineNumber === range.endLineNumber) {
+      return range.endColumn - range.startColumn;
+    }
+    const startOffset = this.getOffsetAt(range.startLineNumber, range.startColumn);
+    const endOffset = this.getOffsetAt(range.endLineNumber, range.endColumn);
+    let eolOffsetCompensation = 0;
+    const desiredEOL = this._getEndOfLine(eol);
+    const actualEOL = this.getEOL();
+    if (desiredEOL.length !== actualEOL.length) {
+      const delta = desiredEOL.length - actualEOL.length;
+      const eolCount = range.endLineNumber - range.startLineNumber;
+      eolOffsetCompensation = delta * eolCount;
+    }
+    return endOffset - startOffset + eolOffsetCompensation;
+  }
+  getCharacterCountInRange(range, eol = 0) {
+    if (this._mightContainNonBasicASCII) {
+      let result = 0;
+      const fromLineNumber = range.startLineNumber;
+      const toLineNumber = range.endLineNumber;
+      for (let lineNumber = fromLineNumber; lineNumber <= toLineNumber; lineNumber++) {
+        const lineContent = this.getLineContent(lineNumber);
+        const fromOffset = lineNumber === fromLineNumber ? range.startColumn - 1 : 0;
+        const toOffset = lineNumber === toLineNumber ? range.endColumn - 1 : lineContent.length;
+        for (let offset = fromOffset; offset < toOffset; offset++) {
+          if (strings.isHighSurrogate(lineContent.charCodeAt(offset))) {
+            result = result + 1;
+            offset = offset + 1;
+          } else {
+            result = result + 1;
+          }
+        }
+      }
+      result += this._getEndOfLine(eol).length * (toLineNumber - fromLineNumber);
+      return result;
+    }
+    return this.getValueLengthInRange(range, eol);
+  }
+  getNearestChunk(offset) {
+    return this._pieceTree.getNearestChunk(offset);
+  }
+  getLength() {
+    return this._pieceTree.getLength();
+  }
+  getLineCount() {
+    return this._pieceTree.getLineCount();
+  }
+  getLinesContent() {
+    return this._pieceTree.getLinesContent();
+  }
+  getLineContent(lineNumber) {
+    return this._pieceTree.getLineContent(lineNumber);
+  }
+  getLineCharCode(lineNumber, index) {
+    return this._pieceTree.getLineCharCode(lineNumber, index);
+  }
+  getCharCode(offset) {
+    return this._pieceTree.getCharCode(offset);
+  }
+  getLineLength(lineNumber) {
+    return this._pieceTree.getLineLength(lineNumber);
+  }
+  getLineMinColumn(lineNumber) {
+    return 1;
+  }
+  getLineMaxColumn(lineNumber) {
+    return this.getLineLength(lineNumber) + 1;
+  }
+  getLineFirstNonWhitespaceColumn(lineNumber) {
+    const result = strings.firstNonWhitespaceIndex(this.getLineContent(lineNumber));
+    if (result === -1) {
+      return 0;
+    }
+    return result + 1;
+  }
+  getLineLastNonWhitespaceColumn(lineNumber) {
+    const result = strings.lastNonWhitespaceIndex(this.getLineContent(lineNumber));
+    if (result === -1) {
+      return 0;
+    }
+    return result + 2;
+  }
+  _getEndOfLine(eol) {
+    switch (eol) {
+      case 1:
+        return "\n";
+      case 2:
+        return "\r\n";
+      case 0:
+        return this.getEOL();
+      default:
+        throw new Error("Unknown EOL preference");
+    }
+  }
+  setEOL(newEOL) {
+    this._pieceTree.setEOL(newEOL);
+  }
+  applyEdits(rawOperations, recordTrimAutoWhitespace, computeUndoEdits) {
+    let mightContainRTL = this._mightContainRTL;
+    let mightContainUnusualLineTerminators = this._mightContainUnusualLineTerminators;
+    let mightContainNonBasicASCII = this._mightContainNonBasicASCII;
+    let canReduceOperations = true;
+    let operations = [];
+    for (let i = 0; i < rawOperations.length; i++) {
+      const op = rawOperations[i];
+      if (canReduceOperations && op._isTracked) {
+        canReduceOperations = false;
+      }
+      const validatedRange = op.range;
+      if (op.text) {
+        let textMightContainNonBasicASCII = true;
+        if (!mightContainNonBasicASCII) {
+          textMightContainNonBasicASCII = !strings.isBasicASCII(op.text);
+          mightContainNonBasicASCII = textMightContainNonBasicASCII;
+        }
+        if (!mightContainRTL && textMightContainNonBasicASCII) {
+          mightContainRTL = strings.containsRTL(op.text);
+        }
+        if (!mightContainUnusualLineTerminators && textMightContainNonBasicASCII) {
+          mightContainUnusualLineTerminators = strings.containsUnusualLineTerminators(op.text);
+        }
+      }
+      let validText = "";
+      let eolCount = 0;
+      let firstLineLength = 0;
+      let lastLineLength = 0;
+      if (op.text) {
+        let strEOL;
+        [eolCount, firstLineLength, lastLineLength, strEOL] = countEOL(op.text);
+        const bufferEOL = this.getEOL();
+        const expectedStrEOL = bufferEOL === "\r\n" ? 2 : 1;
+        if (strEOL === 0 || strEOL === expectedStrEOL) {
+          validText = op.text;
+        } else {
+          validText = op.text.replace(/\r\n|\r|\n/g, bufferEOL);
+        }
+      }
+      operations[i] = {
+        sortIndex: i,
+        identifier: op.identifier || null,
+        range: validatedRange,
+        rangeOffset: this.getOffsetAt(validatedRange.startLineNumber, validatedRange.startColumn),
+        rangeLength: this.getValueLengthInRange(validatedRange),
+        text: validText,
+        eolCount,
+        firstLineLength,
+        lastLineLength,
+        forceMoveMarkers: Boolean(op.forceMoveMarkers),
+        isAutoWhitespaceEdit: op.isAutoWhitespaceEdit || false
+      };
+    }
+    operations.sort(PieceTreeTextBuffer._sortOpsAscending);
+    let hasTouchingRanges = false;
+    for (let i = 0, count = operations.length - 1; i < count; i++) {
+      const rangeEnd = operations[i].range.getEndPosition();
+      const nextRangeStart = operations[i + 1].range.getStartPosition();
+      if (nextRangeStart.isBeforeOrEqual(rangeEnd)) {
+        if (nextRangeStart.isBefore(rangeEnd)) {
+          throw new Error("Overlapping ranges are not allowed!");
+        }
+        hasTouchingRanges = true;
+      }
+    }
+    if (canReduceOperations) {
+      operations = this._reduceOperations(operations);
+    }
+    const reverseRanges = computeUndoEdits || recordTrimAutoWhitespace ? PieceTreeTextBuffer._getInverseEditRanges(operations) : [];
+    const newTrimAutoWhitespaceCandidates = [];
+    if (recordTrimAutoWhitespace) {
+      for (let i = 0; i < operations.length; i++) {
+        const op = operations[i];
+        const reverseRange = reverseRanges[i];
+        if (op.isAutoWhitespaceEdit && op.range.isEmpty()) {
+          for (let lineNumber = reverseRange.startLineNumber; lineNumber <= reverseRange.endLineNumber; lineNumber++) {
+            let currentLineContent = "";
+            if (lineNumber === reverseRange.startLineNumber) {
+              currentLineContent = this.getLineContent(op.range.startLineNumber);
+              if (strings.firstNonWhitespaceIndex(currentLineContent) !== -1) {
+                continue;
+              }
+            }
+            newTrimAutoWhitespaceCandidates.push({ lineNumber, oldContent: currentLineContent });
+          }
+        }
+      }
+    }
+    let reverseOperations = null;
+    if (computeUndoEdits) {
+      let reverseRangeDeltaOffset = 0;
+      reverseOperations = [];
+      for (let i = 0; i < operations.length; i++) {
+        const op = operations[i];
+        const reverseRange = reverseRanges[i];
+        const bufferText = this.getValueInRange(op.range);
+        const reverseRangeOffset = op.rangeOffset + reverseRangeDeltaOffset;
+        reverseRangeDeltaOffset += op.text.length - bufferText.length;
+        reverseOperations[i] = {
+          sortIndex: op.sortIndex,
+          identifier: op.identifier,
+          range: reverseRange,
+          text: bufferText,
+          textChange: new TextChange(op.rangeOffset, bufferText, reverseRangeOffset, op.text)
+        };
+      }
+      if (!hasTouchingRanges) {
+        reverseOperations.sort((a, b) => a.sortIndex - b.sortIndex);
+      }
+    }
+    this._mightContainRTL = mightContainRTL;
+    this._mightContainUnusualLineTerminators = mightContainUnusualLineTerminators;
+    this._mightContainNonBasicASCII = mightContainNonBasicASCII;
+    const contentChanges = this._doApplyEdits(operations);
+    let trimAutoWhitespaceLineNumbers = null;
+    if (recordTrimAutoWhitespace && newTrimAutoWhitespaceCandidates.length > 0) {
+      newTrimAutoWhitespaceCandidates.sort((a, b) => b.lineNumber - a.lineNumber);
+      trimAutoWhitespaceLineNumbers = [];
+      for (let i = 0, len = newTrimAutoWhitespaceCandidates.length; i < len; i++) {
+        const lineNumber = newTrimAutoWhitespaceCandidates[i].lineNumber;
+        if (i > 0 && newTrimAutoWhitespaceCandidates[i - 1].lineNumber === lineNumber) {
+          continue;
+        }
+        const prevContent = newTrimAutoWhitespaceCandidates[i].oldContent;
+        const lineContent = this.getLineContent(lineNumber);
+        if (lineContent.length === 0 || lineContent === prevContent || strings.firstNonWhitespaceIndex(lineContent) !== -1) {
+          continue;
+        }
+        trimAutoWhitespaceLineNumbers.push(lineNumber);
+      }
+    }
+    this._onDidChangeContent.fire();
+    return new ApplyEditsResult(reverseOperations, contentChanges, trimAutoWhitespaceLineNumbers);
+  }
+  /**
+   * Transform operations such that they represent the same logic edit,
+   * but that they also do not cause OOM crashes.
+   */
+  _reduceOperations(operations) {
+    if (operations.length < 1e3) {
+      return operations;
+    }
+    return [this._toSingleEditOperation(operations)];
+  }
+  _toSingleEditOperation(operations) {
+    let forceMoveMarkers = false;
+    const firstEditRange = operations[0].range;
+    const lastEditRange = operations[operations.length - 1].range;
+    const entireEditRange = new Range(firstEditRange.startLineNumber, firstEditRange.startColumn, lastEditRange.endLineNumber, lastEditRange.endColumn);
+    let lastEndLineNumber = firstEditRange.startLineNumber;
+    let lastEndColumn = firstEditRange.startColumn;
+    const result = [];
+    for (let i = 0, len = operations.length; i < len; i++) {
+      const operation = operations[i];
+      const range = operation.range;
+      forceMoveMarkers = forceMoveMarkers || operation.forceMoveMarkers;
+      result.push(this.getValueInRange(new Range(lastEndLineNumber, lastEndColumn, range.startLineNumber, range.startColumn)));
+      if (operation.text.length > 0) {
+        result.push(operation.text);
+      }
+      lastEndLineNumber = range.endLineNumber;
+      lastEndColumn = range.endColumn;
+    }
+    const text = result.join("");
+    const [eolCount, firstLineLength, lastLineLength] = countEOL(text);
+    return {
+      sortIndex: 0,
+      identifier: operations[0].identifier,
+      range: entireEditRange,
+      rangeOffset: this.getOffsetAt(entireEditRange.startLineNumber, entireEditRange.startColumn),
+      rangeLength: this.getValueLengthInRange(
+        entireEditRange,
+        0
+        /* EndOfLinePreference.TextDefined */
+      ),
+      text,
+      eolCount,
+      firstLineLength,
+      lastLineLength,
+      forceMoveMarkers,
+      isAutoWhitespaceEdit: false
+    };
+  }
+  _doApplyEdits(operations) {
+    operations.sort(PieceTreeTextBuffer._sortOpsDescending);
+    const contentChanges = [];
+    for (let i = 0; i < operations.length; i++) {
+      const op = operations[i];
+      const startLineNumber = op.range.startLineNumber;
+      const startColumn = op.range.startColumn;
+      const endLineNumber = op.range.endLineNumber;
+      const endColumn = op.range.endColumn;
+      if (startLineNumber === endLineNumber && startColumn === endColumn && op.text.length === 0) {
+        continue;
+      }
+      if (op.text) {
+        this._pieceTree.delete(op.rangeOffset, op.rangeLength);
+        this._pieceTree.insert(op.rangeOffset, op.text, true);
+      } else {
+        this._pieceTree.delete(op.rangeOffset, op.rangeLength);
+      }
+      const contentChangeRange = new Range(startLineNumber, startColumn, endLineNumber, endColumn);
+      contentChanges.push({
+        range: contentChangeRange,
+        rangeLength: op.rangeLength,
+        text: op.text,
+        rangeOffset: op.rangeOffset,
+        forceMoveMarkers: op.forceMoveMarkers
+      });
+    }
+    return contentChanges;
+  }
+  findMatchesLineByLine(searchRange, searchData, captureMatches, limitResultCount) {
+    return this._pieceTree.findMatchesLineByLine(searchRange, searchData, captureMatches, limitResultCount);
+  }
+  // #endregion
+  // #region helper
+  // testing purpose.
+  getPieceTree() {
+    return this._pieceTree;
+  }
+  static _getInverseEditRange(range, text) {
+    const startLineNumber = range.startLineNumber;
+    const startColumn = range.startColumn;
+    const [eolCount, firstLineLength, lastLineLength] = countEOL(text);
+    let resultRange;
+    if (text.length > 0) {
+      const lineCount = eolCount + 1;
+      if (lineCount === 1) {
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn + firstLineLength);
+      } else {
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber + lineCount - 1, lastLineLength + 1);
+      }
+    } else {
+      resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn);
+    }
+    return resultRange;
+  }
+  /**
+   * Assumes `operations` are validated and sorted ascending
+   */
+  static _getInverseEditRanges(operations) {
+    const result = [];
+    let prevOpEndLineNumber = 0;
+    let prevOpEndColumn = 0;
+    let prevOp = null;
+    for (let i = 0, len = operations.length; i < len; i++) {
+      const op = operations[i];
+      let startLineNumber;
+      let startColumn;
+      if (prevOp) {
+        if (prevOp.range.endLineNumber === op.range.startLineNumber) {
+          startLineNumber = prevOpEndLineNumber;
+          startColumn = prevOpEndColumn + (op.range.startColumn - prevOp.range.endColumn);
+        } else {
+          startLineNumber = prevOpEndLineNumber + (op.range.startLineNumber - prevOp.range.endLineNumber);
+          startColumn = op.range.startColumn;
+        }
+      } else {
+        startLineNumber = op.range.startLineNumber;
+        startColumn = op.range.startColumn;
+      }
+      let resultRange;
+      if (op.text.length > 0) {
+        const lineCount = op.eolCount + 1;
+        if (lineCount === 1) {
+          resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn + op.firstLineLength);
+        } else {
+          resultRange = new Range(startLineNumber, startColumn, startLineNumber + lineCount - 1, op.lastLineLength + 1);
+        }
+      } else {
+        resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn);
+      }
+      prevOpEndLineNumber = resultRange.endLineNumber;
+      prevOpEndColumn = resultRange.endColumn;
+      result.push(resultRange);
+      prevOp = op;
+    }
+    return result;
+  }
+  static _sortOpsAscending(a, b) {
+    const r = Range.compareRangesUsingEnds(a.range, b.range);
+    if (r === 0) {
+      return a.sortIndex - b.sortIndex;
+    }
+    return r;
+  }
+  static _sortOpsDescending(a, b) {
+    const r = Range.compareRangesUsingEnds(a.range, b.range);
+    if (r === 0) {
+      return b.sortIndex - a.sortIndex;
+    }
+    return -r;
+  }
+}
+export {
+  PieceTreeTextBuffer
+};
+//# sourceMappingURL=pieceTreeTextBuffer.js.map

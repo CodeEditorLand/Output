@@ -1,1 +1,6 @@
-import{$Mj as r}from"../../../../platform/instantiation/common/instantiation.js";const t=r("treeSitterLibraryService");export{t as $AK};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITreeSitterLibraryService = createDecorator("treeSitterLibraryService");
+export {
+  ITreeSitterLibraryService
+};
+//# sourceMappingURL=treeSitterLibraryService.js.map

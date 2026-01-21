@@ -1,1 +1,89 @@
-import*as a from"../../../../nls.js";import{$BP as u}from"../../environment/common/environmentService.js";import{$ZN as $}from"../common/remoteAgentService.js";import{$bC as b,$eC as h}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$0Jc as d}from"../common/abstractRemoteAgentService.js";import{$Un as C}from"../../../../platform/product/common/productService.js";import{$Uy as _}from"../../../../platform/sign/common/sign.js";import{$xo as R}from"../../../../platform/log/common/log.js";import{Severity as v}from"../../../../platform/notification/common/notification.js";import{$Lp as w}from"../../../../platform/dialogs/common/dialogs.js";import{$XN as N}from"../../../common/contributions.js";import{$pbb as y}from"../../host/browser/host.js";import{$MQ as g}from"../../userDataProfile/common/userDataProfile.js";import{$gC as j}from"../../../../platform/remote/common/remoteSocketFactoryService.js";var s=function(m,o,t,i){var n=arguments.length,r=n<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,t):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(m,o,t,i);else for(var l=m.length-1;l>=0;l--)(c=m[l])&&(r=(n<3?c(r):n>3?c(o,t,r):c(o,t))||r);return n>3&&r&&Object.defineProperty(o,t,r),r},e=function(m,o){return function(t,i){o(t,i,m)}};let p=class extends d{constructor(o,t,i,n,r,c,l){super(o,t,i,n,r,c,l)}};p=s([e(0,j),e(1,g),e(2,u),e(3,C),e(4,b),e(5,_),e(6,R)],p);let f=class{static{this.ID="workbench.contrib.browserRemoteConnectionFailureNotification"}constructor(o,t,i){this.a=t,this.b=i,o.getRawEnvironment().then(void 0,n=>{h.isHandled(n)||this.c(n)})}async c(o){await this.a.prompt({type:v.Error,message:a.localize(15991,null),detail:a.localize(15992,null,o?o.message:""),buttons:[{label:a.localize(15993,null),run:()=>this.b.reload()}]})}};f=s([e(0,$),e(1,w),e(2,y)],f);N(f.ID,f,2);export{p as $$Jc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IRemoteAgentService } from "../common/remoteAgentService.js";
+import { IRemoteAuthorityResolverService, RemoteAuthorityResolverError } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { AbstractRemoteAgentService } from "../common/abstractRemoteAgentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISignService } from "../../../../platform/sign/common/sign.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Severity } from "../../../../platform/notification/common/notification.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
+let RemoteAgentService = class RemoteAgentService2 extends AbstractRemoteAgentService {
+  static {
+    __name(this, "RemoteAgentService");
+  }
+  constructor(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService) {
+    super(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService);
+  }
+};
+RemoteAgentService = __decorate([
+  __param(0, IRemoteSocketFactoryService),
+  __param(1, IUserDataProfileService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IProductService),
+  __param(4, IRemoteAuthorityResolverService),
+  __param(5, ISignService),
+  __param(6, ILogService)
+], RemoteAgentService);
+let RemoteConnectionFailureNotificationContribution = class RemoteConnectionFailureNotificationContribution2 {
+  static {
+    __name(this, "RemoteConnectionFailureNotificationContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.browserRemoteConnectionFailureNotification";
+  }
+  constructor(remoteAgentService, _dialogService, _hostService) {
+    this._dialogService = _dialogService;
+    this._hostService = _hostService;
+    remoteAgentService.getRawEnvironment().then(void 0, (err) => {
+      if (!RemoteAuthorityResolverError.isHandled(err)) {
+        this._presentConnectionError(err);
+      }
+    });
+  }
+  async _presentConnectionError(err) {
+    await this._dialogService.prompt({
+      type: Severity.Error,
+      message: nls.localize("connectionError", "An unexpected error occurred that requires a reload of this page."),
+      detail: nls.localize("connectionErrorDetail", "The workbench failed to connect to the server (Error: {0})", err ? err.message : ""),
+      buttons: [
+        {
+          label: nls.localize({ key: "reload", comment: ["&& denotes a mnemonic"] }, "&&Reload"),
+          run: /* @__PURE__ */ __name(() => this._hostService.reload(), "run")
+        }
+      ]
+    });
+  }
+};
+RemoteConnectionFailureNotificationContribution = __decorate([
+  __param(0, IRemoteAgentService),
+  __param(1, IDialogService),
+  __param(2, IHostService)
+], RemoteConnectionFailureNotificationContribution);
+registerWorkbenchContribution2(
+  RemoteConnectionFailureNotificationContribution.ID,
+  RemoteConnectionFailureNotificationContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+export {
+  RemoteAgentService
+};
+//# sourceMappingURL=remoteAgentService.js.map

@@ -1,2 +1,84 @@
-import{$Dd as p}from"../../../../../../base/common/lifecycle.js";import{$pec as d}from"../../../../notebook/common/notebookDiff.js";import{$ECb as m}from"../../../../notebook/common/notebookEditorModelResolverService.js";import{$JP as u}from"../../../../notebook/common/notebookLoggingService.js";import{$oec as b}from"../../../../notebook/common/services/notebookWorkerService.js";var h=function(r,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,e,i);else for(var n=r.length-1;n>=0;n--)(a=r[n])&&(o=(s<3?a(o):s>3?a(t,e,o):a(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},f=function(r,t){return function(e,i){t(e,i,r)}};let c=class{static{this.NewModelCounter=0}constructor(t,e,i,s,o){this.a=t,this.b=e,this.c=i,this.d=s,this.f=o}async computeDiff(){let t=0,e=0;const i=new p;try{const[s,o]=await Promise.all([this.f.resolve(this.b.snapshotUri),this.f.resolve(this.a.snapshotUri)]);i.add(s),i.add(o);const a=await this.c.computeDiff(this.a.snapshotUri,this.b.snapshotUri);d(o.object.notebook,s.object.notebook,a).cellDiffInfo.forEach(l=>{switch(l.type){case"modified":case"insert":t++;break;case"delete":e++;break;default:break}})}catch(s){this.d.error("Notebook Chat",`Error computing diff:
-`+s)}finally{i.dispose()}return{added:t,removed:e,identical:t===0&&e===0,quitEarly:!1,isFinal:!0,modifiedURI:this.b.snapshotUri,originalURI:this.a.snapshotUri,isBusy:!1}}};c=h([f(2,b),f(3,u),f(4,m)],c);export{c as $P1c};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { computeDiff } from "../../../../notebook/common/notebookDiff.js";
+import { INotebookEditorModelResolverService } from "../../../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookLoggingService } from "../../../../notebook/common/notebookLoggingService.js";
+import { INotebookEditorWorkerService } from "../../../../notebook/common/services/notebookWorkerService.js";
+let ChatEditingModifiedNotebookDiff = class ChatEditingModifiedNotebookDiff2 {
+  static {
+    __name(this, "ChatEditingModifiedNotebookDiff");
+  }
+  static {
+    this.NewModelCounter = 0;
+  }
+  constructor(original, modified, notebookEditorWorkerService, notebookLoggingService, notebookEditorModelService) {
+    this.original = original;
+    this.modified = modified;
+    this.notebookEditorWorkerService = notebookEditorWorkerService;
+    this.notebookLoggingService = notebookLoggingService;
+    this.notebookEditorModelService = notebookEditorModelService;
+  }
+  async computeDiff() {
+    let added = 0;
+    let removed = 0;
+    const disposables = new DisposableStore();
+    try {
+      const [modifiedRef, originalRef] = await Promise.all([
+        this.notebookEditorModelService.resolve(this.modified.snapshotUri),
+        this.notebookEditorModelService.resolve(this.original.snapshotUri)
+      ]);
+      disposables.add(modifiedRef);
+      disposables.add(originalRef);
+      const notebookDiff = await this.notebookEditorWorkerService.computeDiff(this.original.snapshotUri, this.modified.snapshotUri);
+      const result = computeDiff(originalRef.object.notebook, modifiedRef.object.notebook, notebookDiff);
+      result.cellDiffInfo.forEach((diff) => {
+        switch (diff.type) {
+          case "modified":
+          case "insert":
+            added++;
+            break;
+          case "delete":
+            removed++;
+            break;
+          default:
+            break;
+        }
+      });
+    } catch (e) {
+      this.notebookLoggingService.error("Notebook Chat", "Error computing diff:\n" + e);
+    } finally {
+      disposables.dispose();
+    }
+    return {
+      added,
+      removed,
+      identical: added === 0 && removed === 0,
+      quitEarly: false,
+      isFinal: true,
+      modifiedURI: this.modified.snapshotUri,
+      originalURI: this.original.snapshotUri,
+      isBusy: false
+    };
+  }
+};
+ChatEditingModifiedNotebookDiff = __decorate([
+  __param(2, INotebookEditorWorkerService),
+  __param(3, INotebookLoggingService),
+  __param(4, INotebookEditorModelResolverService)
+], ChatEditingModifiedNotebookDiff);
+export {
+  ChatEditingModifiedNotebookDiff
+};
+//# sourceMappingURL=chatEditingModifiedNotebookDiff.js.map

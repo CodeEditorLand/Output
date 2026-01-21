@@ -1,1 +1,295 @@
-import{$9l as b}from"../../../../platform/configuration/common/configuration.js";import{$Cz as g,$Hz as c}from"../../../../platform/extensions/common/extensions.js";import{$1R as k}from"./extensionsRegistry.js";import{$qA as o}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{$cc as l}from"../../../../base/common/arrays.js";import{$Un as K}from"../../../../platform/product/common/productService.js";import{$Mj as w}from"../../../../platform/instantiation/common/instantiation.js";import{$TC as E}from"../../../../platform/instantiation/common/extensions.js";import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$JKb as W}from"../../workspaces/common/workspaceTrust.js";import{$bd as a}from"../../../../base/common/types.js";import{$XH as $}from"../../../../platform/workspace/common/workspaceTrust.js";import{$xo as y}from"../../../../platform/log/common/log.js";import{$s as p}from"../../../../base/common/platform.js";var x=function(u,e,n,t){var i=arguments.length,s=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,e,n,t);else for(var f=u.length-1;f>=0;f--)(r=u[f])&&(s=(i<3?r(s):i>3?r(e,n,s):r(e,n))||s);return i>3&&s&&Object.defineProperty(e,n,s),s},d=function(u,e){return function(n,t){e(n,t,u)}};const O=w("extensionManifestPropertiesService");let h=class extends m{constructor(e,n,t,i){super(),this.m=e,this.n=n,this.q=t,this.s=i,this.a=null,this.b=null,this.c=null,this.f=null,this.g=null,this.h=new c;const s=n.inspect(W).userValue||{};for(const r of Object.keys(s))this.h.set(r,s[r]);if(this.j=new Map,e.extensionUntrustedWorkspaceSupport)for(const r of Object.keys(e.extensionUntrustedWorkspaceSupport))this.j.set(r,e.extensionUntrustedWorkspaceSupport[r])}prefersExecuteOnUI(e){const n=this.getExtensionKind(e);return n.length>0&&n[0]==="ui"}prefersExecuteOnWorkspace(e){const n=this.getExtensionKind(e);return n.length>0&&n[0]==="workspace"}prefersExecuteOnWeb(e){const n=this.getExtensionKind(e);return n.length>0&&n[0]==="web"}canExecuteOnUI(e){return this.getExtensionKind(e).some(t=>t==="ui")}canExecuteOnWorkspace(e){return this.getExtensionKind(e).some(t=>t==="workspace")}canExecuteOnWeb(e){return this.getExtensionKind(e).some(t=>t==="web")}getExtensionKind(e){const n=this.t(e),t=this.w(e);if(t&&t.length>0){const i=[];for(const s of t)s!=="-web"&&i.push(s);return t.includes("-web")&&!i.length&&(i.push("ui"),i.push("workspace")),p&&!t.includes("-web")&&!t.includes("web")&&n.includes("web")&&i.push("web"),i}return n}getUserConfiguredExtensionKind(e){if(this.c===null){const t=new c,i=this.n.getValue("remote.extensionKind")||{};for(const s of Object.keys(i))t.set(s,i[s]);this.c=t}const n=this.c.get(e.id);return n?this.H(n):void 0}getExtensionUntrustedWorkspaceSupportType(e){if(!this.q.isWorkspaceTrustEnabled()||!e.main)return!0;const n=this.F(e),t=this.G(e);return n!==void 0?n:t?.override!==void 0?t.override:e.capabilities?.untrustedWorkspaces?.supported!==void 0?e.capabilities.untrustedWorkspaces.supported:t?.default!==void 0?t.default:!1}getExtensionVirtualWorkspaceSupportType(e){const n=this.C(e);if(n!==void 0)return n;const t=this.z(e);if(t?.override!==void 0)return t.override;const i=e.capabilities?.virtualWorkspaces;if(a(i))return i;if(i){const s=i.supported;if(a(s)||s==="limited")return s}return t?.default!==void 0?t.default:!0}t(e){if(e.main)return e.browser?p?["workspace","web"]:["workspace"]:["workspace"];if(e.browser)return["web"];let n=[...g];if((l(e.extensionPack)||l(e.extensionDependencies))&&(n=p?["workspace","web"]:["workspace"]),e.contributes)for(const t of Object.keys(e.contributes)){const i=this.u(t);i.length&&(n=n.filter(s=>i.includes(s)))}return n.length||this.s.warn("Cannot deduce extensionKind for extension",o(e.publisher,e.name)),n}u(e){if(this.a===null){const t=new Map;k.getExtensionPoints().forEach(i=>t.set(i.name,i.defaultExtensionKind||[])),this.a=t}let n=this.a.get(e);return n||(n=this.m.extensionPointExtensionKind?this.m.extensionPointExtensionKind[e]:void 0,n)?n:p?["workspace","web"]:["workspace"]}w(e){const n={id:o(e.publisher,e.name)};let t=this.getUserConfiguredExtensionKind(n);return typeof t<"u"?this.H(t):(t=this.y(e),typeof t<"u"?t:(t=e.extensionKind,typeof t<"u"?(t=this.H(t),t.filter(i=>["ui","workspace"].includes(i))):null))}y(e){if(this.b===null){const t=new c;if(this.m.extensionKind)for(const i of Object.keys(this.m.extensionKind))t.set(i,this.m.extensionKind[i]);this.b=t}const n=o(e.publisher,e.name);return this.b.get(n)}z(e){if(this.f===null){const t=new c;if(this.m.extensionVirtualWorkspacesSupport)for(const i of Object.keys(this.m.extensionVirtualWorkspacesSupport))t.set(i,this.m.extensionVirtualWorkspacesSupport[i]);this.f=t}const n=o(e.publisher,e.name);return this.f.get(n)}C(e){if(this.g===null){const t=new c,i=this.n.getValue("extensions.supportVirtualWorkspaces")||{};for(const s of Object.keys(i))i[s]!==void 0&&t.set(s,i[s]);this.g=t}const n=o(e.publisher,e.name);return this.g.get(n)}F(e){const n=o(e.publisher,e.name),t=this.h.get(n);if(t&&(t.version===void 0||t.version===e.version))return t.supported}G(e){const n=o(e.publisher,e.name);return this.j.get(n)}H(e){return Array.isArray(e)?e:e==="ui"?["ui","workspace"]:[e]}};h=x([d(0,K),d(1,b),d(2,$),d(3,y)],h);E(O,h,1);export{O as $PKb,h as $QKb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ALL_EXTENSION_KINDS, ExtensionIdentifierMap } from "../../../../platform/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "./extensionsRegistry.js";
+import { getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { WORKSPACE_TRUST_EXTENSION_SUPPORT } from "../../workspaces/common/workspaceTrust.js";
+import { isBoolean } from "../../../../base/common/types.js";
+import { IWorkspaceTrustEnablementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { isWeb } from "../../../../base/common/platform.js";
+const IExtensionManifestPropertiesService = createDecorator("extensionManifestPropertiesService");
+let ExtensionManifestPropertiesService = class ExtensionManifestPropertiesService2 extends Disposable {
+  static {
+    __name(this, "ExtensionManifestPropertiesService");
+  }
+  constructor(productService, configurationService, workspaceTrustEnablementService, logService) {
+    super();
+    this.productService = productService;
+    this.configurationService = configurationService;
+    this.workspaceTrustEnablementService = workspaceTrustEnablementService;
+    this.logService = logService;
+    this._extensionPointExtensionKindsMap = null;
+    this._productExtensionKindsMap = null;
+    this._configuredExtensionKindsMap = null;
+    this._productVirtualWorkspaceSupportMap = null;
+    this._configuredVirtualWorkspaceSupportMap = null;
+    this._configuredExtensionWorkspaceTrustRequestMap = new ExtensionIdentifierMap();
+    const configuredExtensionWorkspaceTrustRequests = configurationService.inspect(WORKSPACE_TRUST_EXTENSION_SUPPORT).userValue || {};
+    for (const id of Object.keys(configuredExtensionWorkspaceTrustRequests)) {
+      this._configuredExtensionWorkspaceTrustRequestMap.set(id, configuredExtensionWorkspaceTrustRequests[id]);
+    }
+    this._productExtensionWorkspaceTrustRequestMap = /* @__PURE__ */ new Map();
+    if (productService.extensionUntrustedWorkspaceSupport) {
+      for (const id of Object.keys(productService.extensionUntrustedWorkspaceSupport)) {
+        this._productExtensionWorkspaceTrustRequestMap.set(id, productService.extensionUntrustedWorkspaceSupport[id]);
+      }
+    }
+  }
+  prefersExecuteOnUI(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.length > 0 && extensionKind[0] === "ui";
+  }
+  prefersExecuteOnWorkspace(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.length > 0 && extensionKind[0] === "workspace";
+  }
+  prefersExecuteOnWeb(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.length > 0 && extensionKind[0] === "web";
+  }
+  canExecuteOnUI(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.some((kind) => kind === "ui");
+  }
+  canExecuteOnWorkspace(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.some((kind) => kind === "workspace");
+  }
+  canExecuteOnWeb(manifest) {
+    const extensionKind = this.getExtensionKind(manifest);
+    return extensionKind.some((kind) => kind === "web");
+  }
+  getExtensionKind(manifest) {
+    const deducedExtensionKind = this.deduceExtensionKind(manifest);
+    const configuredExtensionKind = this.getConfiguredExtensionKind(manifest);
+    if (configuredExtensionKind && configuredExtensionKind.length > 0) {
+      const result = [];
+      for (const extensionKind of configuredExtensionKind) {
+        if (extensionKind !== "-web") {
+          result.push(extensionKind);
+        }
+      }
+      if (configuredExtensionKind.includes("-web") && !result.length) {
+        result.push("ui");
+        result.push("workspace");
+      }
+      if (isWeb && !configuredExtensionKind.includes("-web") && !configuredExtensionKind.includes("web") && deducedExtensionKind.includes("web")) {
+        result.push("web");
+      }
+      return result;
+    }
+    return deducedExtensionKind;
+  }
+  getUserConfiguredExtensionKind(extensionIdentifier) {
+    if (this._configuredExtensionKindsMap === null) {
+      const configuredExtensionKindsMap = new ExtensionIdentifierMap();
+      const configuredExtensionKinds = this.configurationService.getValue("remote.extensionKind") || {};
+      for (const id of Object.keys(configuredExtensionKinds)) {
+        configuredExtensionKindsMap.set(id, configuredExtensionKinds[id]);
+      }
+      this._configuredExtensionKindsMap = configuredExtensionKindsMap;
+    }
+    const userConfiguredExtensionKind = this._configuredExtensionKindsMap.get(extensionIdentifier.id);
+    return userConfiguredExtensionKind ? this.toArray(userConfiguredExtensionKind) : void 0;
+  }
+  getExtensionUntrustedWorkspaceSupportType(manifest) {
+    if (!this.workspaceTrustEnablementService.isWorkspaceTrustEnabled() || !manifest.main) {
+      return true;
+    }
+    const configuredWorkspaceTrustRequest = this.getConfiguredExtensionWorkspaceTrustRequest(manifest);
+    const productWorkspaceTrustRequest = this.getProductExtensionWorkspaceTrustRequest(manifest);
+    if (configuredWorkspaceTrustRequest !== void 0) {
+      return configuredWorkspaceTrustRequest;
+    }
+    if (productWorkspaceTrustRequest?.override !== void 0) {
+      return productWorkspaceTrustRequest.override;
+    }
+    if (manifest.capabilities?.untrustedWorkspaces?.supported !== void 0) {
+      return manifest.capabilities.untrustedWorkspaces.supported;
+    }
+    if (productWorkspaceTrustRequest?.default !== void 0) {
+      return productWorkspaceTrustRequest.default;
+    }
+    return false;
+  }
+  getExtensionVirtualWorkspaceSupportType(manifest) {
+    const userConfiguredVirtualWorkspaceSupport = this.getConfiguredVirtualWorkspaceSupport(manifest);
+    if (userConfiguredVirtualWorkspaceSupport !== void 0) {
+      return userConfiguredVirtualWorkspaceSupport;
+    }
+    const productConfiguredWorkspaceSchemes = this.getProductVirtualWorkspaceSupport(manifest);
+    if (productConfiguredWorkspaceSchemes?.override !== void 0) {
+      return productConfiguredWorkspaceSchemes.override;
+    }
+    const virtualWorkspaces = manifest.capabilities?.virtualWorkspaces;
+    if (isBoolean(virtualWorkspaces)) {
+      return virtualWorkspaces;
+    } else if (virtualWorkspaces) {
+      const supported = virtualWorkspaces.supported;
+      if (isBoolean(supported) || supported === "limited") {
+        return supported;
+      }
+    }
+    if (productConfiguredWorkspaceSchemes?.default !== void 0) {
+      return productConfiguredWorkspaceSchemes.default;
+    }
+    return true;
+  }
+  deduceExtensionKind(manifest) {
+    if (manifest.main) {
+      if (manifest.browser) {
+        return isWeb ? ["workspace", "web"] : ["workspace"];
+      }
+      return ["workspace"];
+    }
+    if (manifest.browser) {
+      return ["web"];
+    }
+    let result = [...ALL_EXTENSION_KINDS];
+    if (isNonEmptyArray(manifest.extensionPack) || isNonEmptyArray(manifest.extensionDependencies)) {
+      result = isWeb ? ["workspace", "web"] : ["workspace"];
+    }
+    if (manifest.contributes) {
+      for (const contribution of Object.keys(manifest.contributes)) {
+        const supportedExtensionKinds = this.getSupportedExtensionKindsForExtensionPoint(contribution);
+        if (supportedExtensionKinds.length) {
+          result = result.filter((extensionKind) => supportedExtensionKinds.includes(extensionKind));
+        }
+      }
+    }
+    if (!result.length) {
+      this.logService.warn("Cannot deduce extensionKind for extension", getGalleryExtensionId(manifest.publisher, manifest.name));
+    }
+    return result;
+  }
+  getSupportedExtensionKindsForExtensionPoint(extensionPoint) {
+    if (this._extensionPointExtensionKindsMap === null) {
+      const extensionPointExtensionKindsMap = /* @__PURE__ */ new Map();
+      ExtensionsRegistry.getExtensionPoints().forEach((e) => extensionPointExtensionKindsMap.set(
+        e.name,
+        e.defaultExtensionKind || []
+        /* supports all */
+      ));
+      this._extensionPointExtensionKindsMap = extensionPointExtensionKindsMap;
+    }
+    let extensionPointExtensionKind = this._extensionPointExtensionKindsMap.get(extensionPoint);
+    if (extensionPointExtensionKind) {
+      return extensionPointExtensionKind;
+    }
+    extensionPointExtensionKind = this.productService.extensionPointExtensionKind ? this.productService.extensionPointExtensionKind[extensionPoint] : void 0;
+    if (extensionPointExtensionKind) {
+      return extensionPointExtensionKind;
+    }
+    return isWeb ? ["workspace", "web"] : ["workspace"];
+  }
+  getConfiguredExtensionKind(manifest) {
+    const extensionIdentifier = { id: getGalleryExtensionId(manifest.publisher, manifest.name) };
+    let result = this.getUserConfiguredExtensionKind(extensionIdentifier);
+    if (typeof result !== "undefined") {
+      return this.toArray(result);
+    }
+    result = this.getProductExtensionKind(manifest);
+    if (typeof result !== "undefined") {
+      return result;
+    }
+    result = manifest.extensionKind;
+    if (typeof result !== "undefined") {
+      result = this.toArray(result);
+      return result.filter((r) => ["ui", "workspace"].includes(r));
+    }
+    return null;
+  }
+  getProductExtensionKind(manifest) {
+    if (this._productExtensionKindsMap === null) {
+      const productExtensionKindsMap = new ExtensionIdentifierMap();
+      if (this.productService.extensionKind) {
+        for (const id of Object.keys(this.productService.extensionKind)) {
+          productExtensionKindsMap.set(id, this.productService.extensionKind[id]);
+        }
+      }
+      this._productExtensionKindsMap = productExtensionKindsMap;
+    }
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
+    return this._productExtensionKindsMap.get(extensionId);
+  }
+  getProductVirtualWorkspaceSupport(manifest) {
+    if (this._productVirtualWorkspaceSupportMap === null) {
+      const productWorkspaceSchemesMap = new ExtensionIdentifierMap();
+      if (this.productService.extensionVirtualWorkspacesSupport) {
+        for (const id of Object.keys(this.productService.extensionVirtualWorkspacesSupport)) {
+          productWorkspaceSchemesMap.set(id, this.productService.extensionVirtualWorkspacesSupport[id]);
+        }
+      }
+      this._productVirtualWorkspaceSupportMap = productWorkspaceSchemesMap;
+    }
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
+    return this._productVirtualWorkspaceSupportMap.get(extensionId);
+  }
+  getConfiguredVirtualWorkspaceSupport(manifest) {
+    if (this._configuredVirtualWorkspaceSupportMap === null) {
+      const configuredWorkspaceSchemesMap = new ExtensionIdentifierMap();
+      const configuredWorkspaceSchemes = this.configurationService.getValue("extensions.supportVirtualWorkspaces") || {};
+      for (const id of Object.keys(configuredWorkspaceSchemes)) {
+        if (configuredWorkspaceSchemes[id] !== void 0) {
+          configuredWorkspaceSchemesMap.set(id, configuredWorkspaceSchemes[id]);
+        }
+      }
+      this._configuredVirtualWorkspaceSupportMap = configuredWorkspaceSchemesMap;
+    }
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
+    return this._configuredVirtualWorkspaceSupportMap.get(extensionId);
+  }
+  getConfiguredExtensionWorkspaceTrustRequest(manifest) {
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
+    const extensionWorkspaceTrustRequest = this._configuredExtensionWorkspaceTrustRequestMap.get(extensionId);
+    if (extensionWorkspaceTrustRequest && (extensionWorkspaceTrustRequest.version === void 0 || extensionWorkspaceTrustRequest.version === manifest.version)) {
+      return extensionWorkspaceTrustRequest.supported;
+    }
+    return void 0;
+  }
+  getProductExtensionWorkspaceTrustRequest(manifest) {
+    const extensionId = getGalleryExtensionId(manifest.publisher, manifest.name);
+    return this._productExtensionWorkspaceTrustRequestMap.get(extensionId);
+  }
+  toArray(extensionKind) {
+    if (Array.isArray(extensionKind)) {
+      return extensionKind;
+    }
+    return extensionKind === "ui" ? ["ui", "workspace"] : [extensionKind];
+  }
+};
+ExtensionManifestPropertiesService = __decorate([
+  __param(0, IProductService),
+  __param(1, IConfigurationService),
+  __param(2, IWorkspaceTrustEnablementService),
+  __param(3, ILogService)
+], ExtensionManifestPropertiesService);
+registerSingleton(
+  IExtensionManifestPropertiesService,
+  ExtensionManifestPropertiesService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionManifestPropertiesService,
+  IExtensionManifestPropertiesService
+};
+//# sourceMappingURL=extensionManifestPropertiesService.js.map

@@ -1,1 +1,87 @@
-import*as d from"../../../base/common/strings.js";import{$0D as k}from"../core/editOperation.js";import{$9D as C}from"../core/range.js";class b{constructor(n,t,i){this.c=n,this.e=t,this.d=null,this.f=i}getEditOperations(n,t){const i=N(n,this.e,this.f);for(let c=0,o=i.length;c<o;c++){const u=i[c];t.addEditOperation(u.range,u.text)}this.d=t.trackSelection(this.c)}computeCursorState(n,t){return t.getTrackedSelection(this.d)}}function N(r,n,t){n.sort((e,s)=>e.lineNumber===s.lineNumber?e.column-s.column:e.lineNumber-s.lineNumber);for(let e=n.length-2;e>=0;e--)n[e].lineNumber===n[e+1].lineNumber&&n.splice(e,1);const i=[];let c=0,o=0;const u=n.length;for(let e=1,s=r.getLineCount();e<=s;e++){const m=r.getLineContent(e),h=m.length+1;let f=0;if(o<u&&n[o].lineNumber===e&&(f=n[o].column,o++,f===h)||m.length===0)continue;const a=d.$cg(m);let l=0;if(a===-1)l=1;else if(a!==m.length-1)l=a+2;else continue;if(!t){if(!r.tokenization.hasAccurateTokensForLine(e))continue;const g=r.tokenization.getLineTokens(e),p=g.getStandardTokenType(g.findTokenIndexAtOffset(l));if(p===2||p===3)continue}l=Math.max(f,l),i[c++]=k.delete(new C(e,l,e,h))}return i}export{b as $Asb,N as $Bsb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+import { EditOperation } from "../core/editOperation.js";
+import { Range } from "../core/range.js";
+class TrimTrailingWhitespaceCommand {
+  static {
+    __name(this, "TrimTrailingWhitespaceCommand");
+  }
+  constructor(selection, cursors, trimInRegexesAndStrings) {
+    this._selection = selection;
+    this._cursors = cursors;
+    this._selectionId = null;
+    this._trimInRegexesAndStrings = trimInRegexesAndStrings;
+  }
+  getEditOperations(model, builder) {
+    const ops = trimTrailingWhitespace(model, this._cursors, this._trimInRegexesAndStrings);
+    for (let i = 0, len = ops.length; i < len; i++) {
+      const op = ops[i];
+      builder.addEditOperation(op.range, op.text);
+    }
+    this._selectionId = builder.trackSelection(this._selection);
+  }
+  computeCursorState(model, helper) {
+    return helper.getTrackedSelection(this._selectionId);
+  }
+}
+function trimTrailingWhitespace(model, cursors, trimInRegexesAndStrings) {
+  cursors.sort((a, b) => {
+    if (a.lineNumber === b.lineNumber) {
+      return a.column - b.column;
+    }
+    return a.lineNumber - b.lineNumber;
+  });
+  for (let i = cursors.length - 2; i >= 0; i--) {
+    if (cursors[i].lineNumber === cursors[i + 1].lineNumber) {
+      cursors.splice(i, 1);
+    }
+  }
+  const r = [];
+  let rLen = 0;
+  let cursorIndex = 0;
+  const cursorLen = cursors.length;
+  for (let lineNumber = 1, lineCount = model.getLineCount(); lineNumber <= lineCount; lineNumber++) {
+    const lineContent = model.getLineContent(lineNumber);
+    const maxLineColumn = lineContent.length + 1;
+    let minEditColumn = 0;
+    if (cursorIndex < cursorLen && cursors[cursorIndex].lineNumber === lineNumber) {
+      minEditColumn = cursors[cursorIndex].column;
+      cursorIndex++;
+      if (minEditColumn === maxLineColumn) {
+        continue;
+      }
+    }
+    if (lineContent.length === 0) {
+      continue;
+    }
+    const lastNonWhitespaceIndex = strings.lastNonWhitespaceIndex(lineContent);
+    let fromColumn = 0;
+    if (lastNonWhitespaceIndex === -1) {
+      fromColumn = 1;
+    } else if (lastNonWhitespaceIndex !== lineContent.length - 1) {
+      fromColumn = lastNonWhitespaceIndex + 2;
+    } else {
+      continue;
+    }
+    if (!trimInRegexesAndStrings) {
+      if (!model.tokenization.hasAccurateTokensForLine(lineNumber)) {
+        continue;
+      }
+      const lineTokens = model.tokenization.getLineTokens(lineNumber);
+      const fromColumnType = lineTokens.getStandardTokenType(lineTokens.findTokenIndexAtOffset(fromColumn));
+      if (fromColumnType === 2 || fromColumnType === 3) {
+        continue;
+      }
+    }
+    fromColumn = Math.max(minEditColumn, fromColumn);
+    r[rLen++] = EditOperation.delete(new Range(lineNumber, fromColumn, lineNumber, maxLineColumn));
+  }
+  return r;
+}
+__name(trimTrailingWhitespace, "trimTrailingWhitespace");
+export {
+  TrimTrailingWhitespaceCommand,
+  trimTrailingWhitespace
+};
+//# sourceMappingURL=trimTrailingWhitespaceCommand.js.map

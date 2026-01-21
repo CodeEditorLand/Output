@@ -1,1 +1,737 @@
-import"./media/titlebarpart.css";import{localize as ft,localize2 as dt}from"../../../../nls.js";import{$Lxb as ut,Part as pt}from"../../part.js";import{$r7 as gt,$d7 as x,$q7 as J}from"../../../../base/browser/browser.js";import{$Mu as $t,$Ju as yt,$Ku as C,$Lu as S,$Ou as vt,$Nu as wt,$Iu as N}from"../../../../platform/window/common/window.js";import{$6hb as z}from"../../../../platform/contextview/browser/contextView.js";import{$w7 as Ct}from"../../../../base/browser/mouseEvent.js";import{$9l as M}from"../../../../platform/configuration/common/configuration.js";import{$Dd as f,$Fd as xt}from"../../../../base/common/lifecycle.js";import{$mbb as K}from"../../../services/environment/browser/environmentService.js";import{$ou as T}from"../../../../platform/theme/common/themeService.js";import{$Qzb as Dt,$Ozb as At,$Pzb as Tt,$Rzb as It,$Szb as Pt,$Mxb as Ft}from"../../../common/theme.js";import{$n as c,$m as q,$o as G,$s as p,$q as V,$C as Lt}from"../../../../base/common/platform.js";import{$Tp as St}from"../../../../base/common/color.js";import{$B8 as U,$D8 as Y,$X7 as Q,$I8 as l,$ as n,$F7 as X,$J8 as tt,$K8 as B,getWindow as d,getWindowId as Vt,$$7 as Bt,$k8 as Et,$p8 as Ot}from"../../../../base/browser/dom.js";import{$T9b as kt}from"./menubarControl.js";import{$Lj as I}from"../../../../platform/instantiation/common/instantiation.js";import{$wf as it,Event as et}from"../../../../base/common/event.js";import{$gp as P}from"../../../../platform/storage/common/storage.js";import{$Dxb as j}from"../../../services/layout/browser/layoutService.js";import{$Zib as zt,$Uib as st}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$sL as Mt,$oL as _,$nL as m,$tL as Kt}from"../../../../platform/actions/common/actions.js";import{$qo as H}from"../../../../platform/contextkey/common/contextkey.js";import{$pbb as R}from"../../../services/host/browser/host.js";import{$$9b as jt}from"./windowTitle.js";import{$U9b as _t}from"./commandCenterControl.js";import{$V9b as ot}from"./commandCenterControlRegistry.js";import{$so as Ht}from"../../../../platform/action/common/actionCommonCategories.js";import{$5ib as Rt}from"../../../../platform/actions/browser/toolbar.js";import{$HOb as rt,$GOb as ht}from"../../../common/activity.js";import{$Z9b as Wt,$49b as Zt,$29b as Jt,$39b as Nt}from"../globalCompositeBar.js";import{$uL as bt}from"../../../services/editor/common/editorGroupsService.js";import{$Fm as qt}from"../../../../base/common/actions.js";import{$yL as W}from"../../../services/editor/common/editorService.js";import{$H9 as nt}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$LSb as Gt}from"../editor/editorCommands.js";import{$tJb as Ut}from"../editor/editorPane.js";import{$cy as Z}from"../../../../platform/keybinding/common/keybinding.js";import{$6Vb as Yt}from"../editor/editorTabsControl.js";import{$96 as ct}from"../../../../base/browser/window.js";import{$JOb as Qt,$KOb as Xt}from"./titlebarActions.js";import{$F9 as ti}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$uo as ii}from"../../../../platform/commands/common/commands.js";import{$Tn as ei}from"../../../../base/common/date.js";import{$_O as si,$$O as oi}from"../../../common/contextkeys.js";var A=function(b,t,i,e){var o=arguments.length,r=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(b,t,i,e);else for(var a=b.length-1;a>=0;a--)(h=b[a])&&(r=(o<3?h(r):o>3?h(t,i,r):h(t,i))||r);return o>3&&r&&Object.defineProperty(t,i,r),r},s=function(b,t){return function(i,e){t(i,e,b)}},E;let at=class extends ut{constructor(t,i,e){super("workbench.titleService",e,i),this.a=t,this.s=void 0,this.t=new Map,this.mainPart=this.D(this.b()),this.onMenubarVisibilityChange=this.mainPart.onMenubarVisibilityChange,this.D(this.registerPart(this.mainPart)),this.c(),this.j()}b(){return this.a.createInstance(O)}c(){const t=this;this.D(Kt(class extends Mt{constructor(){super({id:"workbench.action.focusTitleBar",title:dt(4117,"Focus Title Bar"),category:Ht.View,f1:!0,precondition:oi})}run(){t.h(Et())?.focus()}}))}j(){this.D(ii.registerCommand({id:"registerWindowTitleVariable",handler:(t,i,e)=>{this.registerVariables([{name:i,contextKey:e}])},metadata:{description:"Registers a new title variable",args:[{name:"name",schema:{type:"string"},description:"The name of the variable to register"},{name:"contextKey",schema:{type:"string"},description:"The context key to use for the value of the variable"}]}}))}createAuxiliaryTitlebarPart(t,i,e){const o=n(".part.titlebar",{role:"none"});o.style.position="relative",t.insertBefore(o,t.firstChild);const r=new f,h=this.m(o,i,e);return r.add(this.registerPart(h)),r.add(et.runAndSubscribe(h.onDidChange,()=>o.style.height=`${h.height}px`)),h.create(o),this.s&&h.updateProperties(this.s),this.t.size&&h.registerVariables(Array.from(this.t.values())),et.once(h.onWillDispose)(()=>r.dispose()),h}m(t,i,e){return e.createInstance(k,t,i,this.mainPart)}updateProperties(t){this.s=t;for(const i of this.parts)i.updateProperties(t)}registerVariables(t){const i=[];for(const e of t)this.t.has(e.name)||(this.t.set(e.name,e),i.push(e));for(const e of this.parts)e.registerVariables(i)}};at=A([s(0,I),s(1,P),s(2,T)],at);let D=class extends pt{get minimumHeight(){const t=p&&J();let i=this.fc||t?vt:30;return t&&(i=Math.max(i,gt(d(this.element))?.height??0)),i/(this.preventZoom?x(d(this.element)):1)}get maximumHeight(){return this.minimumHeight}constructor(t,i,e,o,r,h,a,g,u,$,y,v,w,F,L){super(t,{hasTitle:!1},g,u,$),this.Db=e,this.Eb=o,this.Fb=r,this.Gb=h,this.Hb=a,this.Ib=u,this.Jb=y,this.Kb=v,this.Lb=w,this.Mb=F,this.Nb=L,this.minimumWidth=0,this.maximumWidth=Number.POSITIVE_INFINITY,this.a=this.D(new it),this.onMenubarVisibilityChange=this.a.event,this.b=this.D(new it),this.onWillDispose=this.b.event,this.gb=this.D(new xt),this.mb=this.D(new f),this.nb=this.D(new f),this.rb=this.D(new f),this.sb=this.D(new f),this.tb=this.D(new f),this.ub=this.D(new f),this.wb=this.D(new f),this.yb=!1,this.Ab=!1,this.zb=i.vscodeWindowId!==ct.vscodeWindowId,this.Bb=si.bindTo(this.Jb),this.xb=$t(this.Fb),this.Cb=this.D(a.createInstance(jt,i)),this.vb=this.D(ti()),this.Ob(Vt(i))}Ob(t){this.D(this.Kb.onDidChangeFocus(i=>i?this.Qb():this.Pb())),this.D(this.Kb.onDidChangeActiveWindow(i=>i===t?this.Qb():this.Pb())),this.D(this.Fb.onDidChangeConfiguration(i=>this.Sb(i))),this.D(this.Db.onDidChangeEditorPartOptions(i=>this.Rb(i))),this.D(this.Jb.onDidChangeContext(i=>{const e=new Set(ot.getRegistrations().map(o=>o.contextKey));e.size>0&&i.affectsSome(e)&&this.Yb()}))}Pb(){this.yb=!0,this.updateStyles()}Qb(){this.yb=!1,this.updateStyles()}Rb({oldPartOptions:t,newPartOptions:i}){(t.editorActionsLocation!==i.editorActionsLocation||t.showTabs!==i.showTabs)&&C(this.Fb,this.xb)&&this.lb&&(this.ac(),this.bc({editorActions:!0}),this.Z.fire(void 0))}Sb(t){if(!this.zb&&!N(this.Fb,this.xb)&&(!c||p)&&t.affectsConfiguration("window.menuBarVisibility")&&(this.dc==="compact"?this.Vb():this.Ub()),C(this.Fb,this.xb)&&this.lb){const i=t.affectsConfiguration("workbench.layoutControl.enabled"),e=t.affectsConfiguration("workbench.activityBar.location");(i||e)&&(this.bc({layoutActions:i,activityActions:e}),this.Z.fire(void 0))}t.affectsConfiguration("window.commandCenter")&&this.Tb()}Tb(){this.Yb(),this.Z.fire(void 0)}updateOptions(t){const i=this.Ab;this.Ab=t.compact,this.Bb.set(this.Ab),i!==this.Ab&&(this.Tb(),this.bc(!0))}Ub(){this.jb||(this.gb.value=this.Hb.createInstance(kt),this.jb=l(this.db,n("div.menubar")),this.jb.setAttribute("role","menubar"),this.D(this.gb.value.onVisibilityChange(t=>this.Wb(t))),this.gb.value.create(this.jb))}Vb(){this.gb.value=void 0,this.jb?.remove(),this.jb=void 0,this.Wb(!1)}Wb(t){(p||q||G)&&(this.kb&&this.layout(this.kb.width,this.kb.height),this.a.fire(t))}updateProperties(t){this.Cb.updateProperties(t)}registerVariables(t){this.Cb.registerVariables(t)}Q(t){if(this.element=t,this.c=l(t,n(".titlebar-container")),this.db=l(this.c,n(".titlebar-left")),this.eb=l(this.c,n(".titlebar-center")),this.fb=l(this.c,n(".titlebar-right")),(q||G)&&!S(this.Fb,this.xb)&&(this.hb=tt(this.db,n("a.window-appicon"))),this.bb=tt(this.c,n("div.titlebar-drag-region")),!this.zb&&!N(this.Fb,this.xb)&&(!c||p)&&this.dc!=="compact"&&this.Ub(),this.cb=l(this.eb,n("div.window-title")),this.Yb(),C(this.Fb,this.xb)&&(this.ob=l(this.fb,n("div.action-toolbar-container")),this.ac(),this.bc()),!S(this.Fb,this.xb)){let i=c?"left":"right";if(c&&V){const o=ei.Locale(Lt).value.textInfo;o&&typeof o=="object"&&"direction"in o&&o.direction==="rtl"&&(i="right")}c&&V&&i==="left"||wt(this.Fb)==="hidden"||(this.ab=l(i==="left"?this.db:this.fb,n("div.window-controls-container")),p&&l(i==="left"?this.fb:this.db,n("div.window-controls-container")),J()&&this.ab.classList.add("wco-enabled"))}return this.D(X(this.c,U.CONTEXT_MENU,i=>{Y.stop(i);let e;c&&Ot(i.target)&&Bt(i.target,this.cb)?e=m.TitleBarTitleContext:e=m.TitleBarContext,this.cc(i,e)})),c&&this.D(X(this.cb,U.MOUSE_DOWN,i=>{i.metaKey&&(Y.stop(i,!0),this.cc(i,m.TitleBarTitleContext))},!0)),this.updateStyles(),this.element}Yb(){this.wb.clear();const t=S(this.Fb,this.xb);if(!this.fc)t?B(this.cb):(this.cb.textContent=this.Cb.value,this.wb.add(this.Cb.onDidChange(()=>{this.cb.textContent=this.Cb.value,this.kb&&this.jc(this.kb)})));else{let i=!1;for(const e of ot.getRegistrations())if(this.Jb.getContextKeyValue(e.contextKey)){const o=e.create(this.Hb);B(this.cb,o.element),this.wb.add(o),i=!0;break}if(!i){const e=this.Hb.createInstance(_t,this.Cb,this.vb);B(this.cb,e.element),this.wb.add(e)}}}Zb(t,i){if(!this.zb){if(t.id===ht)return this.Hb.createInstance(Nt,{position:()=>2},i);if(t.id===rt)return this.Hb.createInstance(Jt,{position:()=>2},i)}const e=this.Db.activeGroup?.activeEditorPane;if(e&&e instanceof Ut){const o=e.getActionViewItem(t,i);if(o)return o}return zt(this.Hb,t,{...i,menuAsChild:!1})}$b(t){const i=this.Db.activeGroup?.activeEditorPane?.scopedContextKeyService??this.Jb;return this.Nb.lookupKeybinding(t.id,i)}ac(){this.mb.clear(),this.lb=this.mb.add(this.Hb.createInstance(Rt,this.ob,{contextMenu:m.TitleBarContext,orientation:0,ariaLabel:ft(4116,null),getKeyBinding:t=>this.$b(t),overflowBehavior:{maxItems:9,exempted:[rt,ht,...Gt]},anchorAlignmentProvider:()=>1,telemetrySource:"titlePart",highlightToggledItems:this.gc||this.zb,actionViewItemProvider:(t,i)=>this.Zb(t,i),hoverDelegate:this.vb})),this.gc&&this.mb.add(this.Db.onDidChangeActiveGroup(()=>this.bc({editorActions:!0})))}bc(t=!0){t===!0&&(t={editorActions:!0,layoutActions:!0,globalActions:!0,activityActions:!0});const i=()=>{const e={primary:[],secondary:[]};if(this.gc){this.nb.clear();const o=this.Db.activeGroup;if(o){const r=o.createEditorActions(this.nb,this.zb&&this.Ab?m.CompactWindowEditorTitle:m.EditorTitle);e.primary.push(...r.actions.primary),e.secondary.push(...r.actions.secondary),this.nb.add(r.onDidChange(()=>i()))}}this.pb&&st(this.pb.getActions(),e),this.qb&&st(this.qb.getActions(),e,()=>!this.gc||this.Ab),this.hc&&(Zt(this.Ib)&&e.primary.push(Qt),e.primary.push(Xt)),this.lb.setActions(nt(e.primary),nt(e.secondary))};if(t.editorActions)if(this.sb.clear(),this.gc&&this.Lb.activeEditor!==void 0){const e={groupId:this.Db.activeGroup.id};this.lb.actionRunner=this.sb.add(new Yt(e)),this.lb.context=e}else this.lb.actionRunner=this.sb.add(new qt),this.lb.context=void 0;t.layoutActions&&(this.tb.clear(),this.ec?(this.qb=this.Mb.createMenu(m.LayoutControlMenu,this.Jb),this.tb.add(this.qb),this.tb.add(this.qb.onDidChange(()=>i()))):this.qb=void 0),t.globalActions&&(this.rb.clear(),this.ic?(this.pb=this.Mb.createMenu(m.TitleBar,this.Jb),this.rb.add(this.pb),this.rb.add(this.pb.onDidChange(()=>i()))):this.pb=void 0),t.activityActions&&(this.ub.clear(),this.hc&&this.ub.add(this.Ib.onDidChangeValue(0,Wt.ACCOUNTS_VISIBILITY_PREFERENCE_KEY,this.B)(()=>i()))),i()}updateStyles(){if(super.updateStyles(),this.element){this.yb?this.element.classList.add("inactive"):this.element.classList.remove("inactive");const t=this.C(this.yb?It:Dt,(o,r)=>o.isOpaque()?o:o.makeOpaque(Ft(r)))||"";this.element.style.backgroundColor=t,this.ib&&(this.ib.style.backgroundColor=t),t&&St.fromHex(t).isLighter()?this.element.classList.add("light"):this.element.classList.remove("light");const i=this.C(this.yb?Tt:At);this.element.style.color=i||"";const e=this.C(Pt);this.element.style.borderBottom=e?`1px solid ${e}`:""}}cc(t,i){const e=new Ct(d(this.element),t);this.Eb.showContextMenu({getAnchor:()=>e,menuId:i,contextKeyService:this.Jb,domForShadowRoot:c&&V?e.target:void 0})}get dc(){return this.zb?"hidden":yt(this.Fb)}get ec(){return this.Fb.getValue("workbench.layoutControl.enabled")!==!1}get fc(){return!this.Ab&&this.Fb.getValue("window.commandCenter")!==!1}get gc(){return this.Db.partOptions.editorActionsLocation==="titleBar"||this.Db.partOptions.editorActionsLocation==="default"&&this.Db.partOptions.showTabs==="none"}get hc(){const t=this.Fb.getValue("workbench.activityBar.location");return!this.Ab&&!this.zb&&(t==="top"||t==="bottom")}get ic(){return!this.Ab}get hasZoomableElements(){const t=!(this.dc==="hidden"||this.dc==="compact"||!p&&c),i=this.fc,e=this.ic||this.ec||this.gc||this.hc;return t||i||e}get preventZoom(){return x(d(this.element))<1||!this.hasZoomableElements}layout(t,i){this.jc(new Q(t,i)),super.Y(t,i)}jc(t){if(this.kb=t,!C(this.Fb,this.xb))return;const i=x(d(this.element));if(this.element.style.setProperty("--zoom-factor",i.toString()),this.c.classList.toggle("counter-zoom",this.preventZoom),this.gb.value){const o=new Q(0,t.height);this.gb.value.layout(o)}const e=this.fc||this.cb.textContent!=="";this.c.classList.toggle("has-center",e)}focus(){this.gb.value?this.gb.value.toggleFocus():this.element.querySelector('[tabindex]:not([tabindex="-1"])')?.focus()}toJSON(){return{type:"workbench.parts.titlebar"}}dispose(){this.b.fire(),super.dispose()}};D=A([s(3,z),s(4,M),s(5,K),s(6,I),s(7,T),s(8,P),s(9,j),s(10,H),s(11,R),s(12,W),s(13,_),s(14,Z)],D);let O=class extends D{constructor(t,i,e,o,r,h,a,g,u,$,y,v,w){super("workbench.parts.titlebar",ct,$.mainPart,t,i,e,o,r,h,a,g,u,y,v,w)}};O=A([s(0,z),s(1,M),s(2,K),s(3,I),s(4,T),s(5,P),s(6,j),s(7,H),s(8,R),s(9,bt),s(10,W),s(11,_),s(12,Z)],O);let k=class extends D{static{E=this}static{this.y=1}get height(){return this.minimumHeight}constructor(t,i,e,o,r,h,a,g,u,$,y,v,w,F,L,lt){const mt=E.y++;super(`workbench.parts.auxiliaryTitle.${mt}`,d(t),i,o,r,h,a,g,u,$,y,v,F,L,lt),this.container=t,this.kc=e}get preventZoom(){return x(d(this.element))<1||!this.kc.hasZoomableElements}};k=E=A([s(3,z),s(4,M),s(5,K),s(6,I),s(7,T),s(8,P),s(9,j),s(10,H),s(11,R),s(12,bt),s(13,W),s(14,_),s(15,Z)],k);export{at as $59b,D as $69b,O as $79b,k as $89b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var AuxiliaryBrowserTitlebarPart_1;
+import "./media/titlebarpart.css";
+import { localize, localize2 } from "../../../../nls.js";
+import { MultiWindowParts, Part } from "../../part.js";
+import { getWCOTitlebarAreaRect, getZoomFactor, isWCOEnabled } from "../../../../base/browser/browser.js";
+import { getTitleBarStyle, getMenuBarVisibility, hasCustomTitlebar, hasNativeTitlebar, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, getWindowControlsStyle, hasNativeMenu } from "../../../../platform/window/common/window.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { TITLE_BAR_ACTIVE_BACKGROUND, TITLE_BAR_ACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_BACKGROUND, TITLE_BAR_BORDER, WORKBENCH_BACKGROUND } from "../../../common/theme.js";
+import { isMacintosh, isWindows, isLinux, isWeb, isNative, platformLocale } from "../../../../base/common/platform.js";
+import { Color } from "../../../../base/common/color.js";
+import { EventType, EventHelper, Dimension, append, $, addDisposableListener, prepend, reset, getWindow, getWindowId, isAncestor, getActiveDocument, isHTMLElement } from "../../../../base/browser/dom.js";
+import { CustomMenubarControl } from "./menubarControl.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { createActionViewItem, fillInActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { WindowTitle } from "./windowTitle.js";
+import { CommandCenterControl } from "./commandCenterControl.js";
+import { CommandCenterControlRegistry } from "./commandCenterControlRegistry.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { ACCOUNTS_ACTIVITY_ID, GLOBAL_ACTIVITY_ID } from "../../../common/activity.js";
+import { AccountsActivityActionViewItem, isAccountsActionVisible, SimpleAccountActivityActionViewItem, SimpleGlobalActivityActionViewItem } from "../globalCompositeBar.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { prepareActions } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { EDITOR_CORE_NAVIGATION_COMMANDS } from "../editor/editorCommands.js";
+import { EditorPane } from "../editor/editorPane.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { EditorCommandsContextActionRunner } from "../editor/editorTabsControl.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { ACCOUNTS_ACTIVITY_TILE_ACTION, GLOBAL_ACTIVITY_TITLE_ACTION } from "./titlebarActions.js";
+import { createInstantHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { safeIntl } from "../../../../base/common/date.js";
+import { IsCompactTitleBarContext, TitleBarVisibleContext } from "../../../common/contextkeys.js";
+let BrowserTitleService = class BrowserTitleService2 extends MultiWindowParts {
+  static {
+    __name(this, "BrowserTitleService");
+  }
+  constructor(instantiationService, storageService, themeService) {
+    super("workbench.titleService", themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.properties = void 0;
+    this.variables = /* @__PURE__ */ new Map();
+    this.mainPart = this._register(this.createMainTitlebarPart());
+    this.onMenubarVisibilityChange = this.mainPart.onMenubarVisibilityChange;
+    this._register(this.registerPart(this.mainPart));
+    this.registerActions();
+    this.registerAPICommands();
+  }
+  createMainTitlebarPart() {
+    return this.instantiationService.createInstance(MainBrowserTitlebarPart);
+  }
+  registerActions() {
+    const that = this;
+    this._register(registerAction2(class FocusTitleBar extends Action2 {
+      static {
+        __name(this, "FocusTitleBar");
+      }
+      constructor() {
+        super({
+          id: `workbench.action.focusTitleBar`,
+          title: localize2("focusTitleBar", "Focus Title Bar"),
+          category: Categories.View,
+          f1: true,
+          precondition: TitleBarVisibleContext
+        });
+      }
+      run() {
+        that.getPartByDocument(getActiveDocument())?.focus();
+      }
+    }));
+  }
+  registerAPICommands() {
+    this._register(CommandsRegistry.registerCommand({
+      id: "registerWindowTitleVariable",
+      handler: /* @__PURE__ */ __name((accessor, name, contextKey) => {
+        this.registerVariables([{ name, contextKey }]);
+      }, "handler"),
+      metadata: {
+        description: "Registers a new title variable",
+        args: [
+          { name: "name", schema: { type: "string" }, description: "The name of the variable to register" },
+          { name: "contextKey", schema: { type: "string" }, description: "The context key to use for the value of the variable" }
+        ]
+      }
+    }));
+  }
+  //#region Auxiliary Titlebar Parts
+  createAuxiliaryTitlebarPart(container, editorGroupsContainer, instantiationService) {
+    const titlebarPartContainer = $(".part.titlebar", { role: "none" });
+    titlebarPartContainer.style.position = "relative";
+    container.insertBefore(titlebarPartContainer, container.firstChild);
+    const disposables = new DisposableStore();
+    const titlebarPart = this.doCreateAuxiliaryTitlebarPart(titlebarPartContainer, editorGroupsContainer, instantiationService);
+    disposables.add(this.registerPart(titlebarPart));
+    disposables.add(Event.runAndSubscribe(titlebarPart.onDidChange, () => titlebarPartContainer.style.height = `${titlebarPart.height}px`));
+    titlebarPart.create(titlebarPartContainer);
+    if (this.properties) {
+      titlebarPart.updateProperties(this.properties);
+    }
+    if (this.variables.size) {
+      titlebarPart.registerVariables(Array.from(this.variables.values()));
+    }
+    Event.once(titlebarPart.onWillDispose)(() => disposables.dispose());
+    return titlebarPart;
+  }
+  doCreateAuxiliaryTitlebarPart(container, editorGroupsContainer, instantiationService) {
+    return instantiationService.createInstance(AuxiliaryBrowserTitlebarPart, container, editorGroupsContainer, this.mainPart);
+  }
+  updateProperties(properties) {
+    this.properties = properties;
+    for (const part of this.parts) {
+      part.updateProperties(properties);
+    }
+  }
+  registerVariables(variables) {
+    const newVariables = [];
+    for (const variable of variables) {
+      if (!this.variables.has(variable.name)) {
+        this.variables.set(variable.name, variable);
+        newVariables.push(variable);
+      }
+    }
+    for (const part of this.parts) {
+      part.registerVariables(newVariables);
+    }
+  }
+};
+BrowserTitleService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IStorageService),
+  __param(2, IThemeService)
+], BrowserTitleService);
+let BrowserTitlebarPart = class BrowserTitlebarPart2 extends Part {
+  static {
+    __name(this, "BrowserTitlebarPart");
+  }
+  get minimumHeight() {
+    const wcoEnabled = isWeb && isWCOEnabled();
+    let value = this.isCommandCenterVisible || wcoEnabled ? DEFAULT_CUSTOM_TITLEBAR_HEIGHT : 30;
+    if (wcoEnabled) {
+      value = Math.max(value, getWCOTitlebarAreaRect(getWindow(this.element))?.height ?? 0);
+    }
+    return value / (this.preventZoom ? getZoomFactor(getWindow(this.element)) : 1);
+  }
+  get maximumHeight() {
+    return this.minimumHeight;
+  }
+  constructor(id, targetWindow, editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorService, menuService, keybindingService) {
+    super(id, { hasTitle: false }, themeService, storageService, layoutService);
+    this.editorGroupsContainer = editorGroupsContainer;
+    this.contextMenuService = contextMenuService;
+    this.configurationService = configurationService;
+    this.environmentService = environmentService;
+    this.instantiationService = instantiationService;
+    this.storageService = storageService;
+    this.contextKeyService = contextKeyService;
+    this.hostService = hostService;
+    this.editorService = editorService;
+    this.menuService = menuService;
+    this.keybindingService = keybindingService;
+    this.minimumWidth = 0;
+    this.maximumWidth = Number.POSITIVE_INFINITY;
+    this._onMenubarVisibilityChange = this._register(new Emitter());
+    this.onMenubarVisibilityChange = this._onMenubarVisibilityChange.event;
+    this._onWillDispose = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+    this.customMenubar = this._register(new MutableDisposable());
+    this.actionToolBarDisposable = this._register(new DisposableStore());
+    this.editorActionsChangeDisposable = this._register(new DisposableStore());
+    this.globalToolbarMenuDisposables = this._register(new DisposableStore());
+    this.editorToolbarMenuDisposables = this._register(new DisposableStore());
+    this.layoutToolbarMenuDisposables = this._register(new DisposableStore());
+    this.activityToolbarDisposables = this._register(new DisposableStore());
+    this.titleDisposables = this._register(new DisposableStore());
+    this.isInactive = false;
+    this.isCompact = false;
+    this.isAuxiliary = targetWindow.vscodeWindowId !== mainWindow.vscodeWindowId;
+    this.isCompactContextKey = IsCompactTitleBarContext.bindTo(this.contextKeyService);
+    this.titleBarStyle = getTitleBarStyle(this.configurationService);
+    this.windowTitle = this._register(instantiationService.createInstance(WindowTitle, targetWindow));
+    this.hoverDelegate = this._register(createInstantHoverDelegate());
+    this.registerListeners(getWindowId(targetWindow));
+  }
+  registerListeners(targetWindowId) {
+    this._register(this.hostService.onDidChangeFocus((focused) => focused ? this.onFocus() : this.onBlur()));
+    this._register(this.hostService.onDidChangeActiveWindow((windowId) => windowId === targetWindowId ? this.onFocus() : this.onBlur()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChanged(e)));
+    this._register(this.editorGroupsContainer.onDidChangeEditorPartOptions((e) => this.onEditorPartConfigurationChange(e)));
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      const registeredContextKeys = new Set(CommandCenterControlRegistry.getRegistrations().map((r) => r.contextKey));
+      if (registeredContextKeys.size > 0 && e.affectsSome(registeredContextKeys)) {
+        this.createTitle();
+      }
+    }));
+  }
+  onBlur() {
+    this.isInactive = true;
+    this.updateStyles();
+  }
+  onFocus() {
+    this.isInactive = false;
+    this.updateStyles();
+  }
+  onEditorPartConfigurationChange({ oldPartOptions, newPartOptions }) {
+    if (oldPartOptions.editorActionsLocation !== newPartOptions.editorActionsLocation || oldPartOptions.showTabs !== newPartOptions.showTabs) {
+      if (hasCustomTitlebar(this.configurationService, this.titleBarStyle) && this.actionToolBar) {
+        this.createActionToolBar();
+        this.createActionToolBarMenus({ editorActions: true });
+        this._onDidChange.fire(void 0);
+      }
+    }
+  }
+  onConfigurationChanged(event) {
+    if (!this.isAuxiliary && !hasNativeMenu(this.configurationService, this.titleBarStyle) && (!isMacintosh || isWeb)) {
+      if (event.affectsConfiguration(
+        "window.menuBarVisibility"
+        /* MenuSettings.MenuBarVisibility */
+      )) {
+        if (this.currentMenubarVisibility === "compact") {
+          this.uninstallMenubar();
+        } else {
+          this.installMenubar();
+        }
+      }
+    }
+    if (hasCustomTitlebar(this.configurationService, this.titleBarStyle) && this.actionToolBar) {
+      const affectsLayoutControl = event.affectsConfiguration(
+        "workbench.layoutControl.enabled"
+        /* LayoutSettings.LAYOUT_ACTIONS */
+      );
+      const affectsActivityControl = event.affectsConfiguration(
+        "workbench.activityBar.location"
+        /* LayoutSettings.ACTIVITY_BAR_LOCATION */
+      );
+      if (affectsLayoutControl || affectsActivityControl) {
+        this.createActionToolBarMenus({ layoutActions: affectsLayoutControl, activityActions: affectsActivityControl });
+        this._onDidChange.fire(void 0);
+      }
+    }
+    if (event.affectsConfiguration(
+      "window.commandCenter"
+      /* LayoutSettings.COMMAND_CENTER */
+    )) {
+      this.recreateTitle();
+    }
+  }
+  recreateTitle() {
+    this.createTitle();
+    this._onDidChange.fire(void 0);
+  }
+  updateOptions(options) {
+    const oldIsCompact = this.isCompact;
+    this.isCompact = options.compact;
+    this.isCompactContextKey.set(this.isCompact);
+    if (oldIsCompact !== this.isCompact) {
+      this.recreateTitle();
+      this.createActionToolBarMenus(true);
+    }
+  }
+  installMenubar() {
+    if (this.menubar) {
+      return;
+    }
+    this.customMenubar.value = this.instantiationService.createInstance(CustomMenubarControl);
+    this.menubar = append(this.leftContent, $("div.menubar"));
+    this.menubar.setAttribute("role", "menubar");
+    this._register(this.customMenubar.value.onVisibilityChange((e) => this.onMenubarVisibilityChanged(e)));
+    this.customMenubar.value.create(this.menubar);
+  }
+  uninstallMenubar() {
+    this.customMenubar.value = void 0;
+    this.menubar?.remove();
+    this.menubar = void 0;
+    this.onMenubarVisibilityChanged(false);
+  }
+  onMenubarVisibilityChanged(visible) {
+    if (isWeb || isWindows || isLinux) {
+      if (this.lastLayoutDimensions) {
+        this.layout(this.lastLayoutDimensions.width, this.lastLayoutDimensions.height);
+      }
+      this._onMenubarVisibilityChange.fire(visible);
+    }
+  }
+  updateProperties(properties) {
+    this.windowTitle.updateProperties(properties);
+  }
+  registerVariables(variables) {
+    this.windowTitle.registerVariables(variables);
+  }
+  createContentArea(parent) {
+    this.element = parent;
+    this.rootContainer = append(parent, $(".titlebar-container"));
+    this.leftContent = append(this.rootContainer, $(".titlebar-left"));
+    this.centerContent = append(this.rootContainer, $(".titlebar-center"));
+    this.rightContent = append(this.rootContainer, $(".titlebar-right"));
+    if ((isWindows || isLinux) && !hasNativeTitlebar(this.configurationService, this.titleBarStyle)) {
+      this.appIcon = prepend(this.leftContent, $("a.window-appicon"));
+    }
+    this.dragRegion = prepend(this.rootContainer, $("div.titlebar-drag-region"));
+    if (!this.isAuxiliary && !hasNativeMenu(this.configurationService, this.titleBarStyle) && (!isMacintosh || isWeb) && this.currentMenubarVisibility !== "compact") {
+      this.installMenubar();
+    }
+    this.title = append(this.centerContent, $("div.window-title"));
+    this.createTitle();
+    if (hasCustomTitlebar(this.configurationService, this.titleBarStyle)) {
+      this.actionToolBarElement = append(this.rightContent, $("div.action-toolbar-container"));
+      this.createActionToolBar();
+      this.createActionToolBarMenus();
+    }
+    if (!hasNativeTitlebar(this.configurationService, this.titleBarStyle)) {
+      let primaryWindowControlsLocation = isMacintosh ? "left" : "right";
+      if (isMacintosh && isNative) {
+        const localeInfo = safeIntl.Locale(platformLocale).value;
+        const textInfo = localeInfo.textInfo;
+        if (textInfo && typeof textInfo === "object" && "direction" in textInfo && textInfo.direction === "rtl") {
+          primaryWindowControlsLocation = "right";
+        }
+      }
+      if (isMacintosh && isNative && primaryWindowControlsLocation === "left") {
+      } else if (getWindowControlsStyle(this.configurationService) === "hidden") {
+      } else {
+        this.windowControlsContainer = append(primaryWindowControlsLocation === "left" ? this.leftContent : this.rightContent, $("div.window-controls-container"));
+        if (isWeb) {
+          append(primaryWindowControlsLocation === "left" ? this.rightContent : this.leftContent, $("div.window-controls-container"));
+        }
+        if (isWCOEnabled()) {
+          this.windowControlsContainer.classList.add("wco-enabled");
+        }
+      }
+    }
+    {
+      this._register(addDisposableListener(this.rootContainer, EventType.CONTEXT_MENU, (e) => {
+        EventHelper.stop(e);
+        let targetMenu;
+        if (isMacintosh && isHTMLElement(e.target) && isAncestor(e.target, this.title)) {
+          targetMenu = MenuId.TitleBarTitleContext;
+        } else {
+          targetMenu = MenuId.TitleBarContext;
+        }
+        this.onContextMenu(e, targetMenu);
+      }));
+      if (isMacintosh) {
+        this._register(addDisposableListener(
+          this.title,
+          EventType.MOUSE_DOWN,
+          (e) => {
+            if (e.metaKey) {
+              EventHelper.stop(
+                e,
+                true
+                /* stop bubbling to prevent command center from opening */
+              );
+              this.onContextMenu(e, MenuId.TitleBarTitleContext);
+            }
+          },
+          true
+          /* capture phase to prevent command center from opening */
+        ));
+      }
+    }
+    this.updateStyles();
+    return this.element;
+  }
+  createTitle() {
+    this.titleDisposables.clear();
+    const isShowingTitleInNativeTitlebar = hasNativeTitlebar(this.configurationService, this.titleBarStyle);
+    if (!this.isCommandCenterVisible) {
+      if (!isShowingTitleInNativeTitlebar) {
+        this.title.textContent = this.windowTitle.value;
+        this.titleDisposables.add(this.windowTitle.onDidChange(() => {
+          this.title.textContent = this.windowTitle.value;
+          if (this.lastLayoutDimensions) {
+            this.updateLayout(this.lastLayoutDimensions);
+          }
+        }));
+      } else {
+        reset(this.title);
+      }
+    } else {
+      let customControlShown = false;
+      for (const registration of CommandCenterControlRegistry.getRegistrations()) {
+        if (this.contextKeyService.getContextKeyValue(registration.contextKey)) {
+          const control = registration.create(this.instantiationService);
+          reset(this.title, control.element);
+          this.titleDisposables.add(control);
+          customControlShown = true;
+          break;
+        }
+      }
+      if (!customControlShown) {
+        const commandCenter = this.instantiationService.createInstance(CommandCenterControl, this.windowTitle, this.hoverDelegate);
+        reset(this.title, commandCenter.element);
+        this.titleDisposables.add(commandCenter);
+      }
+    }
+  }
+  actionViewItemProvider(action, options) {
+    if (!this.isAuxiliary) {
+      if (action.id === GLOBAL_ACTIVITY_ID) {
+        return this.instantiationService.createInstance(SimpleGlobalActivityActionViewItem, {
+          position: /* @__PURE__ */ __name(() => 2, "position")
+          /* HoverPosition.BELOW */
+        }, options);
+      }
+      if (action.id === ACCOUNTS_ACTIVITY_ID) {
+        return this.instantiationService.createInstance(SimpleAccountActivityActionViewItem, {
+          position: /* @__PURE__ */ __name(() => 2, "position")
+          /* HoverPosition.BELOW */
+        }, options);
+      }
+    }
+    const activeEditorPane = this.editorGroupsContainer.activeGroup?.activeEditorPane;
+    if (activeEditorPane && activeEditorPane instanceof EditorPane) {
+      const result = activeEditorPane.getActionViewItem(action, options);
+      if (result) {
+        return result;
+      }
+    }
+    return createActionViewItem(this.instantiationService, action, { ...options, menuAsChild: false });
+  }
+  getKeybinding(action) {
+    const editorPaneAwareContextKeyService = this.editorGroupsContainer.activeGroup?.activeEditorPane?.scopedContextKeyService ?? this.contextKeyService;
+    return this.keybindingService.lookupKeybinding(action.id, editorPaneAwareContextKeyService);
+  }
+  createActionToolBar() {
+    this.actionToolBarDisposable.clear();
+    this.actionToolBar = this.actionToolBarDisposable.add(this.instantiationService.createInstance(WorkbenchToolBar, this.actionToolBarElement, {
+      contextMenu: MenuId.TitleBarContext,
+      orientation: 0,
+      ariaLabel: localize("ariaLabelTitleActions", "Title actions"),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.getKeybinding(action), "getKeyBinding"),
+      overflowBehavior: { maxItems: 9, exempted: [ACCOUNTS_ACTIVITY_ID, GLOBAL_ACTIVITY_ID, ...EDITOR_CORE_NAVIGATION_COMMANDS] },
+      anchorAlignmentProvider: /* @__PURE__ */ __name(() => 1, "anchorAlignmentProvider"),
+      telemetrySource: "titlePart",
+      highlightToggledItems: this.editorActionsEnabled || this.isAuxiliary,
+      // Only show toggled state for editor actions or auxiliary title bars
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
+      hoverDelegate: this.hoverDelegate
+    }));
+    if (this.editorActionsEnabled) {
+      this.actionToolBarDisposable.add(this.editorGroupsContainer.onDidChangeActiveGroup(() => this.createActionToolBarMenus({ editorActions: true })));
+    }
+  }
+  createActionToolBarMenus(update = true) {
+    if (update === true) {
+      update = { editorActions: true, layoutActions: true, globalActions: true, activityActions: true };
+    }
+    const updateToolBarActions = /* @__PURE__ */ __name(() => {
+      const actions = { primary: [], secondary: [] };
+      if (this.editorActionsEnabled) {
+        this.editorActionsChangeDisposable.clear();
+        const activeGroup = this.editorGroupsContainer.activeGroup;
+        if (activeGroup) {
+          const editorActions = activeGroup.createEditorActions(this.editorActionsChangeDisposable, this.isAuxiliary && this.isCompact ? MenuId.CompactWindowEditorTitle : MenuId.EditorTitle);
+          actions.primary.push(...editorActions.actions.primary);
+          actions.secondary.push(...editorActions.actions.secondary);
+          this.editorActionsChangeDisposable.add(editorActions.onDidChange(() => updateToolBarActions()));
+        }
+      }
+      if (this.globalToolbarMenu) {
+        fillInActionBarActions(this.globalToolbarMenu.getActions(), actions);
+      }
+      if (this.layoutToolbarMenu) {
+        fillInActionBarActions(
+          this.layoutToolbarMenu.getActions(),
+          actions,
+          () => !this.editorActionsEnabled || this.isCompact
+          // layout actions move to "..." if editor actions are enabled unless compact
+        );
+      }
+      if (this.activityActionsEnabled) {
+        if (isAccountsActionVisible(this.storageService)) {
+          actions.primary.push(ACCOUNTS_ACTIVITY_TILE_ACTION);
+        }
+        actions.primary.push(GLOBAL_ACTIVITY_TITLE_ACTION);
+      }
+      this.actionToolBar.setActions(prepareActions(actions.primary), prepareActions(actions.secondary));
+    }, "updateToolBarActions");
+    if (update.editorActions) {
+      this.editorToolbarMenuDisposables.clear();
+      if (this.editorActionsEnabled && this.editorService.activeEditor !== void 0) {
+        const context = { groupId: this.editorGroupsContainer.activeGroup.id };
+        this.actionToolBar.actionRunner = this.editorToolbarMenuDisposables.add(new EditorCommandsContextActionRunner(context));
+        this.actionToolBar.context = context;
+      } else {
+        this.actionToolBar.actionRunner = this.editorToolbarMenuDisposables.add(new ActionRunner());
+        this.actionToolBar.context = void 0;
+      }
+    }
+    if (update.layoutActions) {
+      this.layoutToolbarMenuDisposables.clear();
+      if (this.layoutControlEnabled) {
+        this.layoutToolbarMenu = this.menuService.createMenu(MenuId.LayoutControlMenu, this.contextKeyService);
+        this.layoutToolbarMenuDisposables.add(this.layoutToolbarMenu);
+        this.layoutToolbarMenuDisposables.add(this.layoutToolbarMenu.onDidChange(() => updateToolBarActions()));
+      } else {
+        this.layoutToolbarMenu = void 0;
+      }
+    }
+    if (update.globalActions) {
+      this.globalToolbarMenuDisposables.clear();
+      if (this.globalActionsEnabled) {
+        this.globalToolbarMenu = this.menuService.createMenu(MenuId.TitleBar, this.contextKeyService);
+        this.globalToolbarMenuDisposables.add(this.globalToolbarMenu);
+        this.globalToolbarMenuDisposables.add(this.globalToolbarMenu.onDidChange(() => updateToolBarActions()));
+      } else {
+        this.globalToolbarMenu = void 0;
+      }
+    }
+    if (update.activityActions) {
+      this.activityToolbarDisposables.clear();
+      if (this.activityActionsEnabled) {
+        this.activityToolbarDisposables.add(this.storageService.onDidChangeValue(0, AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, this._store)(() => updateToolBarActions()));
+      }
+    }
+    updateToolBarActions();
+  }
+  updateStyles() {
+    super.updateStyles();
+    if (this.element) {
+      if (this.isInactive) {
+        this.element.classList.add("inactive");
+      } else {
+        this.element.classList.remove("inactive");
+      }
+      const titleBackground = this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_BACKGROUND : TITLE_BAR_ACTIVE_BACKGROUND, (color, theme) => {
+        return color.isOpaque() ? color : color.makeOpaque(WORKBENCH_BACKGROUND(theme));
+      }) || "";
+      this.element.style.backgroundColor = titleBackground;
+      if (this.appIconBadge) {
+        this.appIconBadge.style.backgroundColor = titleBackground;
+      }
+      if (titleBackground && Color.fromHex(titleBackground).isLighter()) {
+        this.element.classList.add("light");
+      } else {
+        this.element.classList.remove("light");
+      }
+      const titleForeground = this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_FOREGROUND : TITLE_BAR_ACTIVE_FOREGROUND);
+      this.element.style.color = titleForeground || "";
+      const titleBorder = this.getColor(TITLE_BAR_BORDER);
+      this.element.style.borderBottom = titleBorder ? `1px solid ${titleBorder}` : "";
+    }
+  }
+  onContextMenu(e, menuId) {
+    const event = new StandardMouseEvent(getWindow(this.element), e);
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+      menuId,
+      contextKeyService: this.contextKeyService,
+      domForShadowRoot: isMacintosh && isNative ? event.target : void 0
+    });
+  }
+  get currentMenubarVisibility() {
+    if (this.isAuxiliary) {
+      return "hidden";
+    }
+    return getMenuBarVisibility(this.configurationService);
+  }
+  get layoutControlEnabled() {
+    return this.configurationService.getValue(
+      "workbench.layoutControl.enabled"
+      /* LayoutSettings.LAYOUT_ACTIONS */
+    ) !== false;
+  }
+  get isCommandCenterVisible() {
+    return !this.isCompact && this.configurationService.getValue(
+      "window.commandCenter"
+      /* LayoutSettings.COMMAND_CENTER */
+    ) !== false;
+  }
+  get editorActionsEnabled() {
+    return this.editorGroupsContainer.partOptions.editorActionsLocation === "titleBar" || this.editorGroupsContainer.partOptions.editorActionsLocation === "default" && this.editorGroupsContainer.partOptions.showTabs === "none";
+  }
+  get activityActionsEnabled() {
+    const activityBarPosition = this.configurationService.getValue(
+      "workbench.activityBar.location"
+      /* LayoutSettings.ACTIVITY_BAR_LOCATION */
+    );
+    return !this.isCompact && !this.isAuxiliary && (activityBarPosition === "top" || activityBarPosition === "bottom");
+  }
+  get globalActionsEnabled() {
+    return !this.isCompact;
+  }
+  get hasZoomableElements() {
+    const hasMenubar = !(this.currentMenubarVisibility === "hidden" || this.currentMenubarVisibility === "compact" || !isWeb && isMacintosh);
+    const hasCommandCenter = this.isCommandCenterVisible;
+    const hasToolBarActions = this.globalActionsEnabled || this.layoutControlEnabled || this.editorActionsEnabled || this.activityActionsEnabled;
+    return hasMenubar || hasCommandCenter || hasToolBarActions;
+  }
+  get preventZoom() {
+    return getZoomFactor(getWindow(this.element)) < 1 || !this.hasZoomableElements;
+  }
+  layout(width, height) {
+    this.updateLayout(new Dimension(width, height));
+    super.layoutContents(width, height);
+  }
+  updateLayout(dimension) {
+    this.lastLayoutDimensions = dimension;
+    if (!hasCustomTitlebar(this.configurationService, this.titleBarStyle)) {
+      return;
+    }
+    const zoomFactor = getZoomFactor(getWindow(this.element));
+    this.element.style.setProperty("--zoom-factor", zoomFactor.toString());
+    this.rootContainer.classList.toggle("counter-zoom", this.preventZoom);
+    if (this.customMenubar.value) {
+      const menubarDimension = new Dimension(0, dimension.height);
+      this.customMenubar.value.layout(menubarDimension);
+    }
+    const hasCenter = this.isCommandCenterVisible || this.title.textContent !== "";
+    this.rootContainer.classList.toggle("has-center", hasCenter);
+  }
+  focus() {
+    if (this.customMenubar.value) {
+      this.customMenubar.value.toggleFocus();
+    } else {
+      this.element.querySelector('[tabindex]:not([tabindex="-1"])')?.focus();
+    }
+  }
+  toJSON() {
+    return {
+      type: "workbench.parts.titlebar"
+      /* Parts.TITLEBAR_PART */
+    };
+  }
+  dispose() {
+    this._onWillDispose.fire();
+    super.dispose();
+  }
+};
+BrowserTitlebarPart = __decorate([
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService),
+  __param(5, IBrowserWorkbenchEnvironmentService),
+  __param(6, IInstantiationService),
+  __param(7, IThemeService),
+  __param(8, IStorageService),
+  __param(9, IWorkbenchLayoutService),
+  __param(10, IContextKeyService),
+  __param(11, IHostService),
+  __param(12, IEditorService),
+  __param(13, IMenuService),
+  __param(14, IKeybindingService)
+], BrowserTitlebarPart);
+let MainBrowserTitlebarPart = class MainBrowserTitlebarPart2 extends BrowserTitlebarPart {
+  static {
+    __name(this, "MainBrowserTitlebarPart");
+  }
+  constructor(contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorGroupService, editorService, menuService, keybindingService) {
+    super("workbench.parts.titlebar", mainWindow, editorGroupService.mainPart, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorService, menuService, keybindingService);
+  }
+};
+MainBrowserTitlebarPart = __decorate([
+  __param(0, IContextMenuService),
+  __param(1, IConfigurationService),
+  __param(2, IBrowserWorkbenchEnvironmentService),
+  __param(3, IInstantiationService),
+  __param(4, IThemeService),
+  __param(5, IStorageService),
+  __param(6, IWorkbenchLayoutService),
+  __param(7, IContextKeyService),
+  __param(8, IHostService),
+  __param(9, IEditorGroupsService),
+  __param(10, IEditorService),
+  __param(11, IMenuService),
+  __param(12, IKeybindingService)
+], MainBrowserTitlebarPart);
+let AuxiliaryBrowserTitlebarPart = class AuxiliaryBrowserTitlebarPart2 extends BrowserTitlebarPart {
+  static {
+    __name(this, "AuxiliaryBrowserTitlebarPart");
+  }
+  static {
+    AuxiliaryBrowserTitlebarPart_1 = this;
+  }
+  static {
+    this.COUNTER = 1;
+  }
+  get height() {
+    return this.minimumHeight;
+  }
+  constructor(container, editorGroupsContainer, mainTitlebar, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorGroupService, editorService, menuService, keybindingService) {
+    const id = AuxiliaryBrowserTitlebarPart_1.COUNTER++;
+    super(`workbench.parts.auxiliaryTitle.${id}`, getWindow(container), editorGroupsContainer, contextMenuService, configurationService, environmentService, instantiationService, themeService, storageService, layoutService, contextKeyService, hostService, editorService, menuService, keybindingService);
+    this.container = container;
+    this.mainTitlebar = mainTitlebar;
+  }
+  get preventZoom() {
+    return getZoomFactor(getWindow(this.element)) < 1 || !this.mainTitlebar.hasZoomableElements;
+  }
+};
+AuxiliaryBrowserTitlebarPart = AuxiliaryBrowserTitlebarPart_1 = __decorate([
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService),
+  __param(5, IBrowserWorkbenchEnvironmentService),
+  __param(6, IInstantiationService),
+  __param(7, IThemeService),
+  __param(8, IStorageService),
+  __param(9, IWorkbenchLayoutService),
+  __param(10, IContextKeyService),
+  __param(11, IHostService),
+  __param(12, IEditorGroupsService),
+  __param(13, IEditorService),
+  __param(14, IMenuService),
+  __param(15, IKeybindingService)
+], AuxiliaryBrowserTitlebarPart);
+export {
+  AuxiliaryBrowserTitlebarPart,
+  BrowserTitleService,
+  BrowserTitlebarPart,
+  MainBrowserTitlebarPart
+};
+//# sourceMappingURL=titlebarPart.js.map

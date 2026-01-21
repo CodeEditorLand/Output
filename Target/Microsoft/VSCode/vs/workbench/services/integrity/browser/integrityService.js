@@ -1,1 +1,22 @@
-import{$2Kc as r}from"../common/integrity.js";import{$TC as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $3Kc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IIntegrityService } from "../common/integrity.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+class IntegrityService {
+  static {
+    __name(this, "IntegrityService");
+  }
+  async isPure() {
+    return { isPure: true, proof: [] };
+  }
+}
+registerSingleton(
+  IIntegrityService,
+  IntegrityService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IntegrityService
+};
+//# sourceMappingURL=integrityService.js.map

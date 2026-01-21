@@ -1,1 +1,70 @@
-import{URI as h}from"../../../../../base/common/uri.js";import{$2H as $}from"../../../../../editor/common/services/resolverService.js";import{$aI as b}from"../../../../../editor/common/services/textResourceConfiguration.js";import{$Lj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$tZb as _}from"../../../multiDiffEditor/browser/multiDiffEditorInput.js";import{$7Nb as D}from"../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";import{$kec as I}from"../../common/notebookDiffEditorInput.js";import{$JCb as m}from"../../common/notebookEditorInput.js";import{$dM as x}from"../../../../services/textfile/common/textfiles.js";var d=function(f,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,e,r);else for(var c=f.length-1;c>=0;c--)(n=f[c])&&(o=(i<3?n(o):i>3?n(t,e,o):n(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},s=function(f,t){return function(e,r){t(e,r,f)}},u;const O="multi-cell-notebook-diff-editor";class p extends I{static{this.ID="workbench.input.multiDiffNotebookInput"}static create(t,e,r,i,o,n){const c=m.getOrCreate(t,o,void 0,n),l=m.getOrCreate(t,e,void 0,n);return t.createInstance(p,r,i,c,l,n)}}let a=u=class extends _{static createInput(t,e){const r=h.parse(`${O}:${new Date().getMilliseconds().toString()+Math.random().toString()}`);return e.createInstance(u,r,t)}constructor(t,e,r,i,o,n,c){super(t,void 0,void 0,!0,r,i,o,n,c),this.H=e,this.D(n.registerResolver(this))}canHandleUri(t){return t.toString()===this.multiDiffSource.toString()}async resolveDiffSource(t){return{resources:this.H}}};a=u=d([s(2,$),s(3,b),s(4,g),s(5,D),s(6,x)],a);export{O as $tec,p as $uec,a as $vec};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotebookMultiDiffEditorWidgetInput_1;
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { IMultiDiffSourceResolverService } from "../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
+import { NotebookDiffEditorInput } from "../../common/notebookDiffEditorInput.js";
+import { NotebookEditorInput } from "../../common/notebookEditorInput.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+const NotebookMultiDiffEditorScheme = "multi-cell-notebook-diff-editor";
+class NotebookMultiDiffEditorInput extends NotebookDiffEditorInput {
+  static {
+    __name(this, "NotebookMultiDiffEditorInput");
+  }
+  static {
+    this.ID = "workbench.input.multiDiffNotebookInput";
+  }
+  static create(instantiationService, resource, name, description, originalResource, viewType) {
+    const original = NotebookEditorInput.getOrCreate(instantiationService, originalResource, void 0, viewType);
+    const modified = NotebookEditorInput.getOrCreate(instantiationService, resource, void 0, viewType);
+    return instantiationService.createInstance(NotebookMultiDiffEditorInput, name, description, original, modified, viewType);
+  }
+}
+let NotebookMultiDiffEditorWidgetInput = NotebookMultiDiffEditorWidgetInput_1 = class NotebookMultiDiffEditorWidgetInput2 extends MultiDiffEditorInput {
+  static {
+    __name(this, "NotebookMultiDiffEditorWidgetInput");
+  }
+  static createInput(notebookDiffViewModel, instantiationService) {
+    const multiDiffSource = URI.parse(`${NotebookMultiDiffEditorScheme}:${(/* @__PURE__ */ new Date()).getMilliseconds().toString() + Math.random().toString()}`);
+    return instantiationService.createInstance(NotebookMultiDiffEditorWidgetInput_1, multiDiffSource, notebookDiffViewModel);
+  }
+  constructor(multiDiffSource, notebookDiffViewModel, _textModelService, _textResourceConfigurationService, _instantiationService, _multiDiffSourceResolverService, _textFileService) {
+    super(multiDiffSource, void 0, void 0, true, _textModelService, _textResourceConfigurationService, _instantiationService, _multiDiffSourceResolverService, _textFileService);
+    this.notebookDiffViewModel = notebookDiffViewModel;
+    this._register(_multiDiffSourceResolverService.registerResolver(this));
+  }
+  canHandleUri(uri) {
+    return uri.toString() === this.multiDiffSource.toString();
+  }
+  async resolveDiffSource(_) {
+    return { resources: this.notebookDiffViewModel };
+  }
+};
+NotebookMultiDiffEditorWidgetInput = NotebookMultiDiffEditorWidgetInput_1 = __decorate([
+  __param(2, ITextModelService),
+  __param(3, ITextResourceConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IMultiDiffSourceResolverService),
+  __param(6, ITextFileService)
+], NotebookMultiDiffEditorWidgetInput);
+export {
+  NotebookMultiDiffEditorInput,
+  NotebookMultiDiffEditorScheme,
+  NotebookMultiDiffEditorWidgetInput
+};
+//# sourceMappingURL=notebookMultiDiffEditorInput.js.map

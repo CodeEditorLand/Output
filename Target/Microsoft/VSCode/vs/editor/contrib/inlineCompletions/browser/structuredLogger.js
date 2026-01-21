@@ -1,1 +1,59 @@
-import{$Ed as h}from"../../../../base/common/lifecycle.js";import{observableFromEvent as d}from"../../../../base/common/observable.js";import{$qo as b}from"../../../../platform/contextkey/common/contextkey.js";import{$knb as m}from"../../../../platform/dataChannel/common/dataChannel.js";var l=function(e,t,r,n){var i=arguments.length,o=i<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,r):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,t,r,n);else for(var a=e.length-1;a>=0;a--)(s=e[a])&&(o=(i<3?s(o):i>3?s(t,r,o):s(t,r))||o);return i>3&&o&&Object.defineProperty(t,r,o),o},u=function(e,t){return function(r,n){t(r,n,e)}},c;function C(e){return e.sourceId+" @@ "+JSON.stringify({...e,modelUri:e.modelUri?.toString(),sourceId:void 0})}let f=c=class extends h{static cast(){return this}constructor(t,r,n){super(),this.b=t,this.c=r,this.f=n,this.a=p("structuredLogger.enabled:"+this.b,this.c).recomputeInitiallyAndOnChange(this.B),this.isEnabled=this.a.map(i=>i!==void 0)}log(t){return this.a.get()?(this.f.getDataChannel("structuredLogger:"+this.b).sendData(t),!0):!1}};f=c=l([u(1,b),u(2,m)],f);function p(e,t){return d(t.onDidChangeContext,()=>t.getContextKeyValue(e))}export{C as $qnb,f as $rnb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var StructuredLogger_1;
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { observableFromEvent } from "../../../../base/common/observable.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDataChannelService } from "../../../../platform/dataChannel/common/dataChannel.js";
+function formatRecordableLogEntry(entry) {
+  return entry.sourceId + " @@ " + JSON.stringify({ ...entry, modelUri: entry.modelUri?.toString(), sourceId: void 0 });
+}
+__name(formatRecordableLogEntry, "formatRecordableLogEntry");
+let StructuredLogger = StructuredLogger_1 = class StructuredLogger2 extends Disposable {
+  static {
+    __name(this, "StructuredLogger");
+  }
+  static cast() {
+    return this;
+  }
+  constructor(_key, _contextKeyService, _dataChannelService) {
+    super();
+    this._key = _key;
+    this._contextKeyService = _contextKeyService;
+    this._dataChannelService = _dataChannelService;
+    this._isEnabledContextKeyValue = observableContextKey("structuredLogger.enabled:" + this._key, this._contextKeyService).recomputeInitiallyAndOnChange(this._store);
+    this.isEnabled = this._isEnabledContextKeyValue.map((v) => v !== void 0);
+  }
+  log(data) {
+    const enabled = this._isEnabledContextKeyValue.get();
+    if (!enabled) {
+      return false;
+    }
+    this._dataChannelService.getDataChannel("structuredLogger:" + this._key).sendData(data);
+    return true;
+  }
+};
+StructuredLogger = StructuredLogger_1 = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, IDataChannelService)
+], StructuredLogger);
+function observableContextKey(key, contextKeyService) {
+  return observableFromEvent(contextKeyService.onDidChangeContext, () => contextKeyService.getContextKeyValue(key));
+}
+__name(observableContextKey, "observableContextKey");
+export {
+  StructuredLogger,
+  formatRecordableLogEntry
+};
+//# sourceMappingURL=structuredLogger.js.map

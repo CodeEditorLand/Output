@@ -1,1 +1,6 @@
-import{$Mj as o}from"../../../platform/instantiation/common/instantiation.js";const c=o("codeEditorService");export{c as $ucb};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const ICodeEditorService = createDecorator("codeEditorService");
+export {
+  ICodeEditorService
+};
+//# sourceMappingURL=codeEditorService.js.map

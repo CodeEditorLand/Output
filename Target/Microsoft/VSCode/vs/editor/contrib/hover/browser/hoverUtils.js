@@ -1,1 +1,34 @@
-import*as n from"../../../../base/browser/dom.js";function u(e,t,f){const r=n.$27(e);return!(t<r.left||t>r.left+r.width||f<r.top||f>r.top+r.height)}function i(e,t,f){return e==="on"?!0:e==="off"?!1:o(t,f.event)}function o(e,t){return e==="altKey"?t.ctrlKey||t.metaKey:t.altKey}export{u as $vob,i as $wob,o as $xob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+function isMousePositionWithinElement(element, posx, posy) {
+  const elementRect = dom.getDomNodePagePosition(element);
+  if (posx < elementRect.left || posx > elementRect.left + elementRect.width || posy < elementRect.top || posy > elementRect.top + elementRect.height) {
+    return false;
+  }
+  return true;
+}
+__name(isMousePositionWithinElement, "isMousePositionWithinElement");
+function shouldShowHover(hoverEnabled, multiCursorModifier, mouseEvent) {
+  if (hoverEnabled === "on") {
+    return true;
+  }
+  if (hoverEnabled === "off") {
+    return false;
+  }
+  return isTriggerModifierPressed(multiCursorModifier, mouseEvent.event);
+}
+__name(shouldShowHover, "shouldShowHover");
+function isTriggerModifierPressed(multiCursorModifier, event) {
+  if (multiCursorModifier === "altKey") {
+    return event.ctrlKey || event.metaKey;
+  }
+  return event.altKey;
+}
+__name(isTriggerModifierPressed, "isTriggerModifierPressed");
+export {
+  isMousePositionWithinElement,
+  isTriggerModifierPressed,
+  shouldShowHover
+};
+//# sourceMappingURL=hoverUtils.js.map

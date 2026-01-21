@@ -1,1 +1,558 @@
-import*as D from"../../../../base/browser/dom.js";import{$Jm as k}from"../../../../base/common/actions.js";import{$9h as q}from"../../../../base/common/async.js";import{$wf as y}from"../../../../base/common/event.js";import{$Dd as M,$Fd as z}from"../../../../base/common/lifecycle.js";import{$Fh as K,$Ah as H}from"../../../../base/common/resources.js";import{$kn as B}from"../../../../base/common/uuid.js";import{$aI as G}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as p}from"../../../../nls.js";import{$qo as J}from"../../../../platform/contextkey/common/contextkey.js";import{$5k as U,$uk as X,$Sk as Y}from"../../../../platform/files/common/files.js";import{$Lj as Q}from"../../../../platform/instantiation/common/instantiation.js";import{$gp as Z}from"../../../../platform/storage/common/storage.js";import{$op as tt}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as et}from"../../../../platform/theme/common/themeService.js";import{$tJb as it}from"../../../browser/parts/editor/editorPane.js";import{$6M as P,$rN as ot,$vN as _,$lN as st,$uN as rt}from"../../../common/editor.js";import{$xNb as nt}from"./controller/coreActions.js";import{$wNb as at}from"./services/notebookEditorService.js";import{$_Ib as ht}from"./viewParts/notebookKernelView.js";import{CellKind as dt,$$P as lt,$qQ as ut}from"../common/notebookCommon.js";import{$JCb as L}from"../common/notebookEditorInput.js";import{$ICb as ft}from"../common/notebookPerformance.js";import{$uL as ct}from"../../../services/editor/common/editorGroupsService.js";import{$yL as mt}from"../../../services/editor/common/editorService.js";import{$wH as pt}from"../../../../platform/progress/common/progress.js";import{$zLb as bt}from"../../extensions/browser/extensionsActions.js";import{$CCb as vt}from"../common/notebookService.js";import{$uIb as gt}from"../../extensions/common/extensions.js";import{$_H as wt}from"../../../services/workingCopy/common/workingCopyBackup.js";import{$ij as $t}from"../../../../base/common/buffer.js";import{$xo as Ct}from"../../../../platform/log/common/log.js";import{$XM as Dt}from"../../../services/preferences/common/preferences.js";import{$qf as yt}from"../../../../base/common/stopwatch.js";var V=function(m,t,e,o){var s=arguments.length,n=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,t,e,o);else for(var h=m.length-1;h>=0;h--)(i=m[h])&&(n=(s<3?i(n):s>3?i(t,e,n):i(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},a=function(m,t){return function(e,o){t(e,o,m)}},S;const Et="NotebookEditorViewState";let x=class extends it{static{S=this}static{this.ID=lt}get onDidFocus(){return this.m.event}get onDidBlur(){return this.r.event}constructor(t,e,o,s,n,i,h,r,d,w,b,l,v,u,f,c,$){super(S.ID,t,e,o,n),this.y=s,this.fb=i,this.gb=h,this.hb=r,this.ib=d,this.jb=w,this.kb=l,this.lb=v,this.mb=u,this.nb=f,this.ob=c,this.pb=$,this.b=this.D(new M),this.c=this.D(new M),this.f={value:void 0},this.j=this.D(new z),this.m=this.D(new y),this.r=this.D(new y),this.s=this.D(new y),this.onDidChangeModel=this.s.event,this.u=this.D(new y),this.onDidChangeSelection=this.u.event,this.w=this.D(new y),this.onDidChangeScroll=this.w.event,this.a=this.db(h,b,Et),this.D(this.jb.onDidChangeFileSystemProviderCapabilities(g=>this.qb(g.scheme))),this.D(this.jb.onDidChangeFileSystemProviderRegistrations(g=>this.qb(g.scheme)))}qb(t){this.input instanceof L&&this.input.resource?.scheme===t&&this.sb(this.input)}rb(t){this.input===t&&this.sb(t)}sb(t){this.f.value?.setOptions({isReadOnly:!!t.isReadonly()})}get textModel(){return this.f.value?.textModel}get minimumWidth(){return 220}get maximumWidth(){return Number.POSITIVE_INFINITY}set minimumWidth(t){}set maximumWidth(t){}get scopedContextKeyService(){return this.f.value?.scopedContextKeyService}bb(t){this.g=D.$I8(t,D.$(".notebook-editor")),this.g.id=`notebook-editor-element-${B()}`}getActionViewItem(t,e){if(t.id===nt)return this.D(this.y.createInstance(ht,t,this,e))}getControl(){return this.f.value}setVisible(t){super.setVisible(t),t||this.f.value?.onWillHide()}cb(t){super.cb(t),this.b.clear(),this.b.add(this.group.onWillCloseEditor(e=>this.xb(e.editor))),this.b.add(this.group.onDidModelChange(()=>{this.gb.activeGroup!==this.group&&this.f?.value?.updateEditorFocus()})),t||(this.xb(this.input),this.input&&this.f.value&&this.f.value.onWillHide())}focus(){super.focus(),this.f.value?.focus()}hasFocus(){const t=this.f.value;return t?!!t&&D.$i8(t.getDomNode()||D.$i8(t.getOverflowContainerDomNode())):!1}async setInput(t,e,o,s,n){try{let i=!1;const h=q(1e4);h.then(()=>{i=!0,this.vb(r,t)});const r=new ft;r.mark("startTime"),this.j.value=t.onDidChangeCapabilities(()=>this.rb(t)),this.c.clear(),this.f.value?.onWillHide(),this.f=this.y.invokeFunction(this.hb.retrieveWidget,this.group.id,t,void 0,this.h?.dimension,this.window),this.g&&this.f.value.getDomNode()&&(this.g.setAttribute("aria-flowto",this.f.value.getDomNode().id||""),D.$_7(this.f.value.getDomNode(),this.g)),this.c.add(this.f.value.onDidChangeModel(()=>this.s.fire())),this.c.add(this.f.value.onDidChangeActiveCell(()=>this.u.fire({reason:2}))),this.h&&this.f.value.layout(this.h.dimension,this.g,this.h.position),await super.setInput(t,e,o,s);const d=await t.resolve(e,r);if(r.mark("inputLoaded"),s.isCancellationRequested)return;if(!this.f.value)return n?void 0:this.setInput(t,e,o,s,!0);if(d===null){const l=this.lb.getViewTypeProvider(t.viewType);if(!l)throw new Error(p(10733,null,t.viewType));await this.mb.whenInitialized;const v=this.mb.local.find(u=>u.identifier.id===l);throw _(new Error(p(10734,null,t.viewType)),[k({id:"workbench.notebook.action.installOrEnableMissing",label:v?p(10735,null,t.viewType):p(10736,null,t.viewType),run:async()=>{const u=this.lb.onAddViewType(c=>{c===t.viewType&&(this.fb.openEditor({resource:t.resource}),u.dispose())}),f=this.mb.local.find(c=>c.identifier.id===l);try{f?await this.mb.setEnablement(f,f.enablementState===11?13:12):await this.y.createInstance(bt,l).run()}catch(c){this.ob.error(`Failed to install or enable extension ${l}`,c),u.dispose()}}}),k({id:"workbench.notebook.action.openAsText",label:p(10737,null),run:async()=>{const u=await this.nb.resolve({resource:t.resource,typeId:ut.create(t.viewType)});if(u){const f=await $t(u.value);this.fb.openEditor({resource:void 0,contents:f.toString()})}else this.fb.openEditor({resource:t.resource,options:{override:P.id,pinned:!0}})}})],{allowDialog:!0})}this.c.add(d.notebook.onDidChangeContent(()=>this.u.fire({reason:3})));const w=e?.viewState??this.yb(t);this.f.value.setParentContextKeyService(this.ib),this.f.value.setEditorProgressService(this.kb),await this.f.value.setModel(d.notebook,w,r);const b=!!t.isReadonly();if(await this.f.value.setOptions({...e,isReadOnly:b}),this.c.add(this.f.value.onDidFocusWidget(()=>this.m.fire())),this.c.add(this.f.value.onDidBlurWidget(()=>this.r.fire())),this.c.add(this.gb.createEditorDropTarget(this.f.value.getDomNode(),{containsGroup:l=>this.group.id===l.id})),this.c.add(this.f.value.onDidScroll(()=>{this.w.fire()})),r.mark("editorLoaded"),h.cancel(),i)return;this.vb(r,t,d.notebook),this.X.fire()}catch(i){if(this.ob.warn("NotebookEditorWidget#setInput failed",i),rt(i))throw i;if(i.fileOperationResult===7){let r;throw i instanceof Y?r=p(10738,null,U.formatSize(i.size)):r=p(10739,null),st(this.group,t,e,r,this.pb)}throw _(i instanceof Error?i:new Error(i?i.message:""),[k({id:"workbench.notebook.action.openInTextEditor",label:p(10740,null),run:async()=>{const r=this.fb.activeEditorPane;if(!r)return;const d=ot.getCanonicalUri(r.input);if(d&&d.toString()===t.resource?.toString())return this.fb.openEditor({resource:d,options:{override:P.id,pinned:!0}})}})],{allowDialog:!0})}}vb(t,e,o){const s=t.value,n=s.startTime,i=s.extensionActivated,h=s.inputLoaded,r=s.webviewCommLoaded,d=s.customMarkdownLoaded,w=s.editorLoaded;let b=-1,l=-1,v=-1,u=-1,f=-1;n!==void 0&&i!==void 0&&(b=i-n,h!==void 0&&(l=h-i),r!==void 0&&(v=r-i),d!==void 0&&(u=d-n),w!==void 0&&(f=w-n));let c,$,g,T,E,O,N;if(o){const W=new yt;for(const C of o.cells)C.cellKind===dt.Code?(c=(c||0)+1,E=(E||0)+C.getTextLength(),g=(g||0)+C.outputs.length,T=(T||0)+C.outputs.reduce((R,A)=>R+A.outputs.reduce((j,F)=>j+F.data.byteLength,0),0)):($=($||0)+1,O=(E||0)+C.getTextLength());N=W.elapsed()}this.ob.trace(`[NotebookEditor] open notebook perf ${o?.uri.toString()??""} - extensionActivation: ${b}, inputLoad: ${l}, webviewComm: ${v}, customMarkdown: ${u}, editorLoad: ${f}`),this.U.publicLog2("notebook/editorOpenPerf",{scheme:e.resource.scheme,ext:K(e.resource),viewType:e.viewType,extensionActivated:b,inputLoaded:l,webviewCommLoaded:v,customMarkdownLoaded:u,editorLoaded:f,codeCellCount:c,mdCellCount:$,outputCount:g,outputBytes:T,codeLength:E,markdownLength:O,notebookStatsLoaded:N})}clearInput(){this.j.clear(),this.f.value&&(this.xb(this.input),this.f.value.onWillHide()),super.clearInput()}setOptions(t){this.f.value?.setOptions(t),super.setOptions(t)}L(){this.xb(this.input),super.L()}getViewState(){const t=this.input;if(t instanceof L)return this.xb(t),this.yb(t)}getSelection(){if(this.f.value){const t=this.f.value.getActiveCell();if(t){const e=t.uri;return new I(e,t.getSelections())}}}getScrollPosition(){const t=this.getControl();if(!t)throw new Error("Notebook widget has not yet been initialized");return{scrollTop:t.scrollTop,scrollLeft:0}}setScrollPosition(t){const e=this.getControl();if(!e)throw new Error("Control has not yet been initialized");e.setScrollTop(t.scrollTop)}xb(t){if(this.f.value&&t instanceof L){if(this.f.value.isDisposed)return;const e=this.f.value.getEditorViewState();this.a.saveEditorState(this.group,t.resource,e)}}yb(t){const e=this.a.loadEditorState(this.group,t.resource);if(e)return e;for(const o of this.gb.getGroups(1))if(o.activeEditorPane!==this&&o.activeEditorPane instanceof S&&o.activeEditor?.matches(t))return o.activeEditorPane.f.value?.getEditorViewState()}layout(t,e){this.g.classList.toggle("mid-width",t.width<1e3&&t.width>=600),this.g.classList.toggle("narrow-width",t.width<600),this.h={dimension:t,position:e},!(!this.f.value||!(this.input instanceof L))&&(this.input.resource.toString()!==this.textModel?.uri.toString()&&this.f.value?.hasModel()||this.isVisible()&&this.f.value.layout(t,this.g,e))}};x=S=V([a(1,tt),a(2,et),a(3,Q),a(4,Z),a(5,mt),a(6,ct),a(7,at),a(8,J),a(9,X),a(10,G),a(11,pt),a(12,vt),a(13,gt),a(14,wt),a(15,Ct),a(16,Dt)],x);class I{constructor(t,e){this.a=t,this.b=e}compare(t){return t instanceof I&&H(this.a,t.a)?1:3}restore(t){const e={cellOptions:{resource:this.a,options:{selection:this.b[0]}}};return Object.assign(e,t),e}log(){return this.a.fragment}}function re(m,t){if(m?.getId()===x.ID){const e=m.getControl();if(e){for(const[o,s]of e.codeEditors)if(s===t)return!0}}return!1}export{x as $OLb,re as $PLb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotebookEditor_1;
+import * as DOM from "../../../../base/browser/dom.js";
+import { toAction } from "../../../../base/common/actions.js";
+import { timeout } from "../../../../base/common/async.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { extname, isEqual } from "../../../../base/common/resources.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ByteSize, IFileService, TooLargeFileOperationError } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { DEFAULT_EDITOR_ASSOCIATION, EditorResourceAccessor, createEditorOpenError, createTooLargeFileError, isEditorOpenError } from "../../../common/editor.js";
+import { SELECT_KERNEL_ID } from "./controller/coreActions.js";
+import { INotebookEditorService } from "./services/notebookEditorService.js";
+import { NotebooKernelActionViewItem } from "./viewParts/notebookKernelView.js";
+import { CellKind, NOTEBOOK_EDITOR_ID, NotebookWorkingCopyTypeIdentifier } from "../common/notebookCommon.js";
+import { NotebookEditorInput } from "../common/notebookEditorInput.js";
+import { NotebookPerfMarks } from "../common/notebookPerformance.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { InstallRecommendedExtensionAction } from "../../extensions/browser/extensionsActions.js";
+import { INotebookService } from "../common/notebookService.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
+import { streamToBuffer } from "../../../../base/common/buffer.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+const NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY = "NotebookEditorViewState";
+let NotebookEditor = class NotebookEditor2 extends EditorPane {
+  static {
+    __name(this, "NotebookEditor");
+  }
+  static {
+    NotebookEditor_1 = this;
+  }
+  static {
+    this.ID = NOTEBOOK_EDITOR_ID;
+  }
+  get onDidFocus() {
+    return this._onDidFocusWidget.event;
+  }
+  get onDidBlur() {
+    return this._onDidBlurWidget.event;
+  }
+  constructor(group, telemetryService, themeService, _instantiationService, storageService, _editorService, _editorGroupService, _notebookWidgetService, _contextKeyService, _fileService, configurationService, _editorProgressService, _notebookService, _extensionsWorkbenchService, _workingCopyBackupService, logService, _preferencesService) {
+    super(NotebookEditor_1.ID, group, telemetryService, themeService, storageService);
+    this._instantiationService = _instantiationService;
+    this._editorService = _editorService;
+    this._editorGroupService = _editorGroupService;
+    this._notebookWidgetService = _notebookWidgetService;
+    this._contextKeyService = _contextKeyService;
+    this._fileService = _fileService;
+    this._editorProgressService = _editorProgressService;
+    this._notebookService = _notebookService;
+    this._extensionsWorkbenchService = _extensionsWorkbenchService;
+    this._workingCopyBackupService = _workingCopyBackupService;
+    this.logService = logService;
+    this._preferencesService = _preferencesService;
+    this._groupListener = this._register(new DisposableStore());
+    this._widgetDisposableStore = this._register(new DisposableStore());
+    this._widget = { value: void 0 };
+    this._inputListener = this._register(new MutableDisposable());
+    this._onDidFocusWidget = this._register(new Emitter());
+    this._onDidBlurWidget = this._register(new Emitter());
+    this._onDidChangeModel = this._register(new Emitter());
+    this.onDidChangeModel = this._onDidChangeModel.event;
+    this._onDidChangeSelection = this._register(new Emitter());
+    this.onDidChangeSelection = this._onDidChangeSelection.event;
+    this._onDidChangeScroll = this._register(new Emitter());
+    this.onDidChangeScroll = this._onDidChangeScroll.event;
+    this._editorMemento = this.getEditorMemento(_editorGroupService, configurationService, NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY);
+    this._register(this._fileService.onDidChangeFileSystemProviderCapabilities((e) => this._onDidChangeFileSystemProvider(e.scheme)));
+    this._register(this._fileService.onDidChangeFileSystemProviderRegistrations((e) => this._onDidChangeFileSystemProvider(e.scheme)));
+  }
+  _onDidChangeFileSystemProvider(scheme) {
+    if (this.input instanceof NotebookEditorInput && this.input.resource?.scheme === scheme) {
+      this._updateReadonly(this.input);
+    }
+  }
+  _onDidChangeInputCapabilities(input) {
+    if (this.input === input) {
+      this._updateReadonly(input);
+    }
+  }
+  _updateReadonly(input) {
+    this._widget.value?.setOptions({ isReadOnly: !!input.isReadonly() });
+  }
+  get textModel() {
+    return this._widget.value?.textModel;
+  }
+  get minimumWidth() {
+    return 220;
+  }
+  get maximumWidth() {
+    return Number.POSITIVE_INFINITY;
+  }
+  // these setters need to exist because this extends from EditorPane
+  set minimumWidth(value) {
+  }
+  set maximumWidth(value) {
+  }
+  //#region Editor Core
+  get scopedContextKeyService() {
+    return this._widget.value?.scopedContextKeyService;
+  }
+  createEditor(parent) {
+    this._rootElement = DOM.append(parent, DOM.$(".notebook-editor"));
+    this._rootElement.id = `notebook-editor-element-${generateUuid()}`;
+  }
+  getActionViewItem(action, options) {
+    if (action.id === SELECT_KERNEL_ID) {
+      return this._register(this._instantiationService.createInstance(NotebooKernelActionViewItem, action, this, options));
+    }
+    return void 0;
+  }
+  getControl() {
+    return this._widget.value;
+  }
+  setVisible(visible) {
+    super.setVisible(visible);
+    if (!visible) {
+      this._widget.value?.onWillHide();
+    }
+  }
+  setEditorVisible(visible) {
+    super.setEditorVisible(visible);
+    this._groupListener.clear();
+    this._groupListener.add(this.group.onWillCloseEditor((e) => this._saveEditorViewState(e.editor)));
+    this._groupListener.add(this.group.onDidModelChange(() => {
+      if (this._editorGroupService.activeGroup !== this.group) {
+        this._widget?.value?.updateEditorFocus();
+      }
+    }));
+    if (!visible) {
+      this._saveEditorViewState(this.input);
+      if (this.input && this._widget.value) {
+        this._widget.value.onWillHide();
+      }
+    }
+  }
+  focus() {
+    super.focus();
+    this._widget.value?.focus();
+  }
+  hasFocus() {
+    const value = this._widget.value;
+    if (!value) {
+      return false;
+    }
+    return !!value && DOM.isAncestorOfActiveElement(value.getDomNode() || DOM.isAncestorOfActiveElement(value.getOverflowContainerDomNode()));
+  }
+  async setInput(input, options, context, token, noRetry) {
+    try {
+      let perfMarksCaptured = false;
+      const fileOpenMonitor = timeout(1e4);
+      fileOpenMonitor.then(() => {
+        perfMarksCaptured = true;
+        this._handlePerfMark(perf, input);
+      });
+      const perf = new NotebookPerfMarks();
+      perf.mark("startTime");
+      this._inputListener.value = input.onDidChangeCapabilities(() => this._onDidChangeInputCapabilities(input));
+      this._widgetDisposableStore.clear();
+      this._widget.value?.onWillHide();
+      this._widget = this._instantiationService.invokeFunction(this._notebookWidgetService.retrieveWidget, this.group.id, input, void 0, this._pagePosition?.dimension, this.window);
+      if (this._rootElement && this._widget.value.getDomNode()) {
+        this._rootElement.setAttribute("aria-flowto", this._widget.value.getDomNode().id || "");
+        DOM.setParentFlowTo(this._widget.value.getDomNode(), this._rootElement);
+      }
+      this._widgetDisposableStore.add(this._widget.value.onDidChangeModel(() => this._onDidChangeModel.fire()));
+      this._widgetDisposableStore.add(this._widget.value.onDidChangeActiveCell(() => this._onDidChangeSelection.fire({
+        reason: 2
+        /* EditorPaneSelectionChangeReason.USER */
+      })));
+      if (this._pagePosition) {
+        this._widget.value.layout(this._pagePosition.dimension, this._rootElement, this._pagePosition.position);
+      }
+      await super.setInput(input, options, context, token);
+      const model = await input.resolve(options, perf);
+      perf.mark("inputLoaded");
+      if (token.isCancellationRequested) {
+        return void 0;
+      }
+      if (!this._widget.value) {
+        if (noRetry) {
+          return void 0;
+        }
+        return this.setInput(input, options, context, token, true);
+      }
+      if (model === null) {
+        const knownProvider = this._notebookService.getViewTypeProvider(input.viewType);
+        if (!knownProvider) {
+          throw new Error(localize("fail.noEditor", "Cannot open resource with notebook editor type '{0}', please check if you have the right extension installed and enabled.", input.viewType));
+        }
+        await this._extensionsWorkbenchService.whenInitialized;
+        const extensionInfo = this._extensionsWorkbenchService.local.find((e) => e.identifier.id === knownProvider);
+        throw createEditorOpenError(new Error(localize("fail.noEditor.extensionMissing", "Cannot open resource with notebook editor type '{0}', please check if you have the right extension installed and enabled.", input.viewType)), [
+          toAction({
+            id: "workbench.notebook.action.installOrEnableMissing",
+            label: extensionInfo ? localize("notebookOpenEnableMissingViewType", "Enable extension for '{0}'", input.viewType) : localize("notebookOpenInstallMissingViewType", "Install extension for '{0}'", input.viewType),
+            run: /* @__PURE__ */ __name(async () => {
+              const d = this._notebookService.onAddViewType((viewType) => {
+                if (viewType === input.viewType) {
+                  this._editorService.openEditor({ resource: input.resource });
+                  d.dispose();
+                }
+              });
+              const extensionInfo2 = this._extensionsWorkbenchService.local.find((e) => e.identifier.id === knownProvider);
+              try {
+                if (extensionInfo2) {
+                  await this._extensionsWorkbenchService.setEnablement(
+                    extensionInfo2,
+                    extensionInfo2.enablementState === 11 ? 13 : 12
+                    /* EnablementState.EnabledGlobally */
+                  );
+                } else {
+                  await this._instantiationService.createInstance(InstallRecommendedExtensionAction, knownProvider).run();
+                }
+              } catch (ex) {
+                this.logService.error(`Failed to install or enable extension ${knownProvider}`, ex);
+                d.dispose();
+              }
+            }, "run")
+          }),
+          toAction({
+            id: "workbench.notebook.action.openAsText",
+            label: localize("notebookOpenAsText", "Open As Text"),
+            run: /* @__PURE__ */ __name(async () => {
+              const backup = await this._workingCopyBackupService.resolve({ resource: input.resource, typeId: NotebookWorkingCopyTypeIdentifier.create(input.viewType) });
+              if (backup) {
+                const contents = await streamToBuffer(backup.value);
+                this._editorService.openEditor({ resource: void 0, contents: contents.toString() });
+              } else {
+                this._editorService.openEditor({ resource: input.resource, options: { override: DEFAULT_EDITOR_ASSOCIATION.id, pinned: true } });
+              }
+            }, "run")
+          })
+        ], { allowDialog: true });
+      }
+      this._widgetDisposableStore.add(model.notebook.onDidChangeContent(() => this._onDidChangeSelection.fire({
+        reason: 3
+        /* EditorPaneSelectionChangeReason.EDIT */
+      })));
+      const viewState = options?.viewState ?? this._loadNotebookEditorViewState(input);
+      this._widget.value.setParentContextKeyService(this._contextKeyService);
+      this._widget.value.setEditorProgressService(this._editorProgressService);
+      await this._widget.value.setModel(model.notebook, viewState, perf);
+      const isReadOnly = !!input.isReadonly();
+      await this._widget.value.setOptions({ ...options, isReadOnly });
+      this._widgetDisposableStore.add(this._widget.value.onDidFocusWidget(() => this._onDidFocusWidget.fire()));
+      this._widgetDisposableStore.add(this._widget.value.onDidBlurWidget(() => this._onDidBlurWidget.fire()));
+      this._widgetDisposableStore.add(this._editorGroupService.createEditorDropTarget(this._widget.value.getDomNode(), {
+        containsGroup: /* @__PURE__ */ __name((group) => this.group.id === group.id, "containsGroup")
+      }));
+      this._widgetDisposableStore.add(this._widget.value.onDidScroll(() => {
+        this._onDidChangeScroll.fire();
+      }));
+      perf.mark("editorLoaded");
+      fileOpenMonitor.cancel();
+      if (perfMarksCaptured) {
+        return;
+      }
+      this._handlePerfMark(perf, input, model.notebook);
+      this._onDidChangeControl.fire();
+    } catch (e) {
+      this.logService.warn("NotebookEditorWidget#setInput failed", e);
+      if (isEditorOpenError(e)) {
+        throw e;
+      }
+      if (e.fileOperationResult === 7) {
+        let message;
+        if (e instanceof TooLargeFileOperationError) {
+          message = localize("notebookTooLargeForHeapErrorWithSize", "The notebook is not displayed in the notebook editor because it is very large ({0}).", ByteSize.formatSize(e.size));
+        } else {
+          message = localize("notebookTooLargeForHeapErrorWithoutSize", "The notebook is not displayed in the notebook editor because it is very large.");
+        }
+        throw createTooLargeFileError(this.group, input, options, message, this._preferencesService);
+      }
+      const error = createEditorOpenError(e instanceof Error ? e : new Error(e ? e.message : ""), [
+        toAction({
+          id: "workbench.notebook.action.openInTextEditor",
+          label: localize("notebookOpenInTextEditor", "Open in Text Editor"),
+          run: /* @__PURE__ */ __name(async () => {
+            const activeEditorPane = this._editorService.activeEditorPane;
+            if (!activeEditorPane) {
+              return;
+            }
+            const activeEditorResource = EditorResourceAccessor.getCanonicalUri(activeEditorPane.input);
+            if (!activeEditorResource) {
+              return;
+            }
+            if (activeEditorResource.toString() === input.resource?.toString()) {
+              return this._editorService.openEditor({
+                resource: activeEditorResource,
+                options: {
+                  override: DEFAULT_EDITOR_ASSOCIATION.id,
+                  pinned: true
+                  // new file gets pinned by default
+                }
+              });
+            }
+            return;
+          }, "run")
+        })
+      ], { allowDialog: true });
+      throw error;
+    }
+  }
+  _handlePerfMark(perf, input, notebook) {
+    const perfMarks = perf.value;
+    const startTime = perfMarks["startTime"];
+    const extensionActivated = perfMarks["extensionActivated"];
+    const inputLoaded = perfMarks["inputLoaded"];
+    const webviewCommLoaded = perfMarks["webviewCommLoaded"];
+    const customMarkdownLoaded = perfMarks["customMarkdownLoaded"];
+    const editorLoaded = perfMarks["editorLoaded"];
+    let extensionActivationTimespan = -1;
+    let inputLoadingTimespan = -1;
+    let webviewCommLoadingTimespan = -1;
+    let customMarkdownLoadingTimespan = -1;
+    let editorLoadingTimespan = -1;
+    if (startTime !== void 0 && extensionActivated !== void 0) {
+      extensionActivationTimespan = extensionActivated - startTime;
+      if (inputLoaded !== void 0) {
+        inputLoadingTimespan = inputLoaded - extensionActivated;
+      }
+      if (webviewCommLoaded !== void 0) {
+        webviewCommLoadingTimespan = webviewCommLoaded - extensionActivated;
+      }
+      if (customMarkdownLoaded !== void 0) {
+        customMarkdownLoadingTimespan = customMarkdownLoaded - startTime;
+      }
+      if (editorLoaded !== void 0) {
+        editorLoadingTimespan = editorLoaded - startTime;
+      }
+    }
+    let codeCellCount = void 0;
+    let mdCellCount = void 0;
+    let outputCount = void 0;
+    let outputBytes = void 0;
+    let codeLength = void 0;
+    let markdownLength = void 0;
+    let notebookStatsLoaded = void 0;
+    if (notebook) {
+      const stopWatch = new StopWatch();
+      for (const cell of notebook.cells) {
+        if (cell.cellKind === CellKind.Code) {
+          codeCellCount = (codeCellCount || 0) + 1;
+          codeLength = (codeLength || 0) + cell.getTextLength();
+          outputCount = (outputCount || 0) + cell.outputs.length;
+          outputBytes = (outputBytes || 0) + cell.outputs.reduce((prev, cur) => prev + cur.outputs.reduce((size, item) => size + item.data.byteLength, 0), 0);
+        } else {
+          mdCellCount = (mdCellCount || 0) + 1;
+          markdownLength = (codeLength || 0) + cell.getTextLength();
+        }
+      }
+      notebookStatsLoaded = stopWatch.elapsed();
+    }
+    this.logService.trace(`[NotebookEditor] open notebook perf ${notebook?.uri.toString() ?? ""} - extensionActivation: ${extensionActivationTimespan}, inputLoad: ${inputLoadingTimespan}, webviewComm: ${webviewCommLoadingTimespan}, customMarkdown: ${customMarkdownLoadingTimespan}, editorLoad: ${editorLoadingTimespan}`);
+    this.telemetryService.publicLog2("notebook/editorOpenPerf", {
+      scheme: input.resource.scheme,
+      ext: extname(input.resource),
+      viewType: input.viewType,
+      extensionActivated: extensionActivationTimespan,
+      inputLoaded: inputLoadingTimespan,
+      webviewCommLoaded: webviewCommLoadingTimespan,
+      customMarkdownLoaded: customMarkdownLoadingTimespan,
+      editorLoaded: editorLoadingTimespan,
+      codeCellCount,
+      mdCellCount,
+      outputCount,
+      outputBytes,
+      codeLength,
+      markdownLength,
+      notebookStatsLoaded
+    });
+  }
+  clearInput() {
+    this._inputListener.clear();
+    if (this._widget.value) {
+      this._saveEditorViewState(this.input);
+      this._widget.value.onWillHide();
+    }
+    super.clearInput();
+  }
+  setOptions(options) {
+    this._widget.value?.setOptions(options);
+    super.setOptions(options);
+  }
+  saveState() {
+    this._saveEditorViewState(this.input);
+    super.saveState();
+  }
+  getViewState() {
+    const input = this.input;
+    if (!(input instanceof NotebookEditorInput)) {
+      return void 0;
+    }
+    this._saveEditorViewState(input);
+    return this._loadNotebookEditorViewState(input);
+  }
+  getSelection() {
+    if (this._widget.value) {
+      const activeCell = this._widget.value.getActiveCell();
+      if (activeCell) {
+        const cellUri = activeCell.uri;
+        return new NotebookEditorSelection(cellUri, activeCell.getSelections());
+      }
+    }
+    return void 0;
+  }
+  getScrollPosition() {
+    const widget = this.getControl();
+    if (!widget) {
+      throw new Error("Notebook widget has not yet been initialized");
+    }
+    return {
+      scrollTop: widget.scrollTop,
+      scrollLeft: 0
+    };
+  }
+  setScrollPosition(scrollPosition) {
+    const editor = this.getControl();
+    if (!editor) {
+      throw new Error("Control has not yet been initialized");
+    }
+    editor.setScrollTop(scrollPosition.scrollTop);
+  }
+  _saveEditorViewState(input) {
+    if (this._widget.value && input instanceof NotebookEditorInput) {
+      if (this._widget.value.isDisposed) {
+        return;
+      }
+      const state = this._widget.value.getEditorViewState();
+      this._editorMemento.saveEditorState(this.group, input.resource, state);
+    }
+  }
+  _loadNotebookEditorViewState(input) {
+    const result = this._editorMemento.loadEditorState(this.group, input.resource);
+    if (result) {
+      return result;
+    }
+    for (const group of this._editorGroupService.getGroups(
+      1
+      /* GroupsOrder.MOST_RECENTLY_ACTIVE */
+    )) {
+      if (group.activeEditorPane !== this && group.activeEditorPane instanceof NotebookEditor_1 && group.activeEditor?.matches(input)) {
+        return group.activeEditorPane._widget.value?.getEditorViewState();
+      }
+    }
+    return;
+  }
+  layout(dimension, position) {
+    this._rootElement.classList.toggle("mid-width", dimension.width < 1e3 && dimension.width >= 600);
+    this._rootElement.classList.toggle("narrow-width", dimension.width < 600);
+    this._pagePosition = { dimension, position };
+    if (!this._widget.value || !(this.input instanceof NotebookEditorInput)) {
+      return;
+    }
+    if (this.input.resource.toString() !== this.textModel?.uri.toString() && this._widget.value?.hasModel()) {
+      return;
+    }
+    if (this.isVisible()) {
+      this._widget.value.layout(dimension, this._rootElement, position);
+    }
+  }
+};
+NotebookEditor = NotebookEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IInstantiationService),
+  __param(4, IStorageService),
+  __param(5, IEditorService),
+  __param(6, IEditorGroupsService),
+  __param(7, INotebookEditorService),
+  __param(8, IContextKeyService),
+  __param(9, IFileService),
+  __param(10, ITextResourceConfigurationService),
+  __param(11, IEditorProgressService),
+  __param(12, INotebookService),
+  __param(13, IExtensionsWorkbenchService),
+  __param(14, IWorkingCopyBackupService),
+  __param(15, ILogService),
+  __param(16, IPreferencesService)
+], NotebookEditor);
+class NotebookEditorSelection {
+  static {
+    __name(this, "NotebookEditorSelection");
+  }
+  constructor(cellUri, selections) {
+    this.cellUri = cellUri;
+    this.selections = selections;
+  }
+  compare(other) {
+    if (!(other instanceof NotebookEditorSelection)) {
+      return 3;
+    }
+    if (isEqual(this.cellUri, other.cellUri)) {
+      return 1;
+    }
+    return 3;
+  }
+  restore(options) {
+    const notebookOptions = {
+      cellOptions: {
+        resource: this.cellUri,
+        options: {
+          selection: this.selections[0]
+        }
+      }
+    };
+    Object.assign(notebookOptions, options);
+    return notebookOptions;
+  }
+  log() {
+    return this.cellUri.fragment;
+  }
+}
+function isNotebookContainingCellEditor(editor, codeEditor) {
+  if (editor?.getId() === NotebookEditor.ID) {
+    const notebookWidget = editor.getControl();
+    if (notebookWidget) {
+      for (const [_, editor2] of notebookWidget.codeEditors) {
+        if (editor2 === codeEditor) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+__name(isNotebookContainingCellEditor, "isNotebookContainingCellEditor");
+export {
+  NotebookEditor,
+  isNotebookContainingCellEditor
+};
+//# sourceMappingURL=notebookEditor.js.map

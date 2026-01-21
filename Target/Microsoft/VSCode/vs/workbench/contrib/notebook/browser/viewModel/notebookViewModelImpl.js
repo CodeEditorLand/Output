@@ -1,1 +1,884 @@
-import{$a as j}from"../../../../../base/common/collections.js";import{$mb as G}from"../../../../../base/common/errors.js";import{$wf as D}from"../../../../../base/common/event.js";import{$Ed as K,$Dd as Q}from"../../../../../base/common/lifecycle.js";import{$dx as F}from"../../../../../base/common/numbers.js";import*as q from"../../../../../base/common/strings.js";import{$Ojb as U,$Qjb as W}from"../../../../../editor/browser/services/bulkEditService.js";import{$9D as R}from"../../../../../editor/common/core/range.js";import{$wJ as T,$vJ as N}from"../../../../../editor/common/model/editStack.js";import{$GJ as Y,$IJ as X}from"../../../../../editor/common/model/intervalTree.js";import{$0K as y}from"../../../../../editor/common/model/textModel.js";import{$2H as Z}from"../../../../../editor/common/services/resolverService.js";import{$Lj as ee}from"../../../../../platform/instantiation/common/instantiation.js";import{$8G as te}from"../../../../../platform/undoRedo/common/undoRedo.js";import{$$Fb as ne}from"../contrib/find/findModel.js";import{CellEditState as $,$DDb as se}from"../notebookBrowser.js";import{$zCb as ie}from"../notebookViewEvents.js";import{$aGb as re}from"./cellSelectionCollection.js";import{$5Fb as L}from"./codeCellViewModel.js";import{$6Fb as oe}from"./markupCellViewModel.js";import{CellKind as b,NotebookCellsChangeType as O,NotebookFindScopeType as J,SelectionStateType as le}from"../../common/notebookCommon.js";import{$PP as ae,NotebookExecutionType as he}from"../../common/notebookExecutionStateService.js";import{$YP as k,$ZP as P,$1P as z}from"../../common/notebookRange.js";var B=function(p,e,t,n){var s=arguments.length,i=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(p,e,t,n);else for(var o=p.length-1;o>=0;o--)(r=p[o])&&(i=(s<3?r(i):s>3?r(e,t,i):r(e,t))||i);return s>3&&i&&Object.defineProperty(e,t,i),i},v=function(p,e){return function(t,n){e(t,n,p)}};const de=()=>{throw new Error("Invalid change accessor")};class ce{constructor(){this.a=new X}intervalSearch(e,t,n,s,i,r,o=!1){return this.a.intervalSearch(e,t,n,s,i,r,o)}search(e,t,n,s,i,r){return this.a.search(e,t,n,i,r)}collectNodesFromOwner(e){return this.a.collectNodesFromOwner(e)}collectNodesPostOrder(){return this.a.collectNodesPostOrder()}insert(e){this.a.insert(e)}delete(e){this.a.delete(e)}resolveNode(e,t){this.a.resolveNode(e,t)}acceptReplace(e,t,n,s){this.a.acceptReplace(e,t,n,s)}}const A=[y.register({description:"notebook-view-model-tracked-range-always-grows-when-typing-at-edges",stickiness:0}),y.register({description:"notebook-view-model-tracked-range-never-grows-when-typing-at-edges",stickiness:1}),y.register({description:"notebook-view-model-tracked-range-grows-only-when-typing-before",stickiness:2}),y.register({description:"notebook-view-model-tracked-range-grows-only-when-typing-after",stickiness:3})];function ue(p){return p instanceof y?p:y.createDynamic(p)}let x=0,V=class extends K{get options(){return this.N}get onDidChangeOptions(){return this.c.event}get viewCells(){return this.f}get length(){return this.f.length}get notebookDocument(){return this.J}get uri(){return this.J.uri}get metadata(){return this.J.metadata}get g(){return this.viewType==="repl"}get onDidChangeViewCells(){return this.h.event}get lastNotebookEditResource(){return this.j.length?this.j[this.j.length-1]:null}get layoutInfo(){return this.M}get onDidChangeSelection(){return this.m.event}get q(){const e=new Set,t=[];return P(this.n.selections).map(n=>n<this.length?this.cellAt(n):void 0).forEach(n=>{n&&!e.has(n.handle)&&t.push(n.handle)}),t}set q(e){const t=e.map(n=>this.f.findIndex(s=>s.handle===n));this.n.setSelections(k(t),!0,"model")}get focused(){return this.C}constructor(e,t,n,s,i,r,o,a,d,c){super(),this.viewType=e,this.J=t,this.L=n,this.M=s,this.N=i,this.O=r,this.P=o,this.Q=a,this.R=d,this.S=c,this.a=this.D(new Q),this.b=new Map,this.c=this.D(new D),this.f=[],this.h=this.D(new D),this.j=[],this.m=this.D(new D),this.n=this.D(new re),this.r=new ce,this.s=Object.create(null),this.t=0,this.w=null,this.y=new D,this.onDidFoldingStateChanged=this.y.event,this.z=[],this.C=!0,this.F=new Map,this.G=new Map,this.H=0,this.I=new Map,x++,this.id="$notebookViewModel"+x,this.u=q.$Ug(x);const I=(l,h)=>{const u=l.map(f=>[f[0],f[1],f[2].map(g=>_(this.O,this,g,this.L))]);u.reverse().forEach(f=>{const g=this.f.splice(f[0],f[1],...f[2]);this.r.acceptReplace(f[0],f[1],f[2].length,!0),g.forEach(m=>{this.b.delete(m.handle),m.dispose()}),f[2].forEach(m=>{this.b.set(m.handle,m),this.a.add(m)})});const S=this.q;this.h.fire({synchronous:h,splices:u});let C=[];if(S.length){const f=S[0],g=this.f.indexOf(this.getCellByHandle(f));C=[f];let m=0;for(let M=0;M<u.length;M++){const w=u[0];if(w[0]+w[1]<=g){m+=w[2].length-w[1];continue}if(w[0]>g){C=[f];break}if(w[0]+w[1]>g){C=[this.f[w[0]+m].handle];break}}}const H=C.map(f=>this.f.findIndex(g=>g.handle===f));this.n.setState(k([H[0]])[0],k(H),!0,"model")};this.D(this.J.onDidChangeContent(l=>{for(let h=0;h<l.rawEvents.length;h++){const u=l.rawEvents[h];let S=[];const C=l.synchronous??!0;if(u.kind===O.ModelChange||u.kind===O.Initialize){S=u.changes,I(S,C);continue}else if(u.kind===O.Move)I([[u.index,u.length,[]]],C),I([[u.newIdx,0,u.cells]],C);else continue}})),this.D(this.J.onDidChangeContent(l=>{l.rawEvents.forEach(h=>{h.kind===O.ChangeDocumentMetadata&&this.L.eventDispatcher.emit([new ie(this.J.metadata)])}),l.endSelectionState&&this.updateSelectionsState(l.endSelectionState)})),this.D(this.L.eventDispatcher.onDidChangeLayout(l=>{this.M=l.value,this.f.forEach(h=>{h.cellKind===b.Markup?(l.source.width||l.source.fontInfo)&&h.layoutChange({outerWidth:l.value.width,font:l.value.fontInfo}):l.source.width!==void 0&&h.layoutChange({outerWidth:l.value.width,font:l.value.fontInfo})})})),this.D(this.L.notebookOptions.onDidChangeOptions(l=>{for(let h=0;h<this.length;h++)this.f[h].updateOptions(l)})),this.D(c.onDidChangeExecution(l=>{if(l.type!==he.cell)return;const h=this.getCellByHandle(l.cellHandle);h instanceof L&&h.updateExecutionState(l)})),this.D(this.n.onDidChangeSelection(l=>{this.m.fire(l)}));const E=this.g?this.J.cells.length-1:this.J.cells.length;for(let l=0;l<E;l++)this.f.push(_(this.O,this,this.J.cells[l],this.L));this.f.forEach(l=>{this.b.set(l.handle,l)})}updateOptions(e){this.N={...this.N,...e},this.f.forEach(t=>t.updateOptions({readonly:this.N.isReadOnly})),this.c.fire()}getFocus(){return this.n.focus}getSelections(){return this.n.selections}getMostRecentlyExecutedCell(){const e=this.S.getLastCompletedCellForNotebook(this.J.uri);return e!==void 0?this.getCellByHandle(e):void 0}setEditorFocus(e){this.C=e}validateRange(e){if(!e)return null;const t=F(e.start,0,this.length),n=F(e.end,0,this.length);return t<=n?{start:t,end:n}:{start:n,end:t}}updateSelectionsState(e,t="model"){if(this.C||t==="model")if(e.kind===le.Handle){const n=e.primary!==null?this.getCellIndexByHandle(e.primary):null,s=n!==null?this.validateRange({start:n,end:n+1}):null,i=k(e.selections.map(r=>this.getCellIndexByHandle(r))).map(r=>this.validateRange(r)).filter(r=>r!==null);this.n.setState(s,z(i),!0,t)}else{const n=this.validateRange(e.focus),s=e.selections.map(i=>this.validateRange(i)).filter(i=>i!==null);this.n.setState(n,z(s),!0,t)}}getFoldingStartIndex(e){if(!this.w)return-1;const t=this.w.findRange(e+1);return this.w.getStartLineNumber(t)-1}getFoldingState(e){if(!this.w)return 0;const t=this.w.findRange(e+1);return this.w.getStartLineNumber(t)-1!==e?0:this.w.isCollapsed(t)?2:1}getFoldedLength(e){if(!this.w)return 0;const t=this.w.findRange(e+1),n=this.w.getStartLineNumber(t)-1;return this.w.getEndLineNumber(t)-1-n}updateFoldingRanges(e){this.w=e;let t=!1;const n=[];let s=0,i=0,r=Number.MAX_VALUE,o=-1;for(;s<e.length;s++){if(!e.isCollapsed(s))continue;const a=e.getStartLineNumber(s)+1,d=e.getEndLineNumber(s);r<=a&&d<=o||(!t&&i<this.z.length&&this.z[i].start+1===a&&this.z[i].end+1===d?(n.push(this.z[i]),i++):(t=!0,n.push({start:a-1,end:d-1})),r=a,o=d)}(t||i<this.z.length)&&(this.z=n,this.y.fire()),this.f.forEach(a=>{a.cellKind===b.Markup&&a.triggerFoldingStateChange()})}getHiddenRanges(){return this.z}getOverviewRulerDecorations(){return Array.from(this.I.values())}getCellByHandle(e){return this.b.get(e)}getCellIndexByHandle(e){return this.f.findIndex(t=>t.handle===e)}getCellIndex(e){return this.f.indexOf(e)}cellAt(e){return this.f[e]}getCellsInRange(e){if(!e)return this.f.slice(0);const t=this.validateRange(e);if(t){const n=[];for(let s=t.start;s<t.end;s++)n.push(this.f[s]);return n}return[]}getNearestVisibleCellIndexUpwards(e){for(let t=this.z.length-1;t>=0;t--){const n=this.z[t],s=n.start-1,i=n.end;if(!(s>e)){if(s<=e&&i>=e)return e;break}}return e}getNextVisibleCellIndex(e){for(let t=0;t<this.z.length;t++){const n=this.z[t],s=n.start-1,i=n.end;if(!(i<e)){if(s<=e)return i+1;break}}return e+1}getPreviousVisibleCellIndex(e){for(let t=this.z.length-1;t>=0;t--){const n=this.z[t],s=n.start-1;if(n.end<e)return e;if(s<=e)return s}return e}hasCell(e){return this.b.has(e.handle)}getVersionId(){return this.J.versionId}getAlternativeId(){return this.J.alternativeVersionId}getTrackedRange(e){return this.U(e)}U(e){const t=this.s[e];if(!t)return null;const n=this.getVersionId();return t.cachedVersionId!==n&&this.r.resolveNode(t,n),t.range===null?{start:t.cachedAbsoluteStart-1,end:t.cachedAbsoluteEnd-1}:{start:t.range.startLineNumber-1,end:t.range.endLineNumber-1}}setTrackedRange(e,t,n){const s=e?this.s[e]:null;return s?t?(this.r.delete(s),s.reset(this.getVersionId(),t.start,t.end+1,new R(t.start+1,1,t.end+1,1)),s.setOptions(A[n]),this.r.insert(s),s.id):(this.r.delete(s),delete this.s[s.id],null):t?this.W(0,[],[{range:new R(t.start+1,1,t.end+1,1),options:A[n]}])[0]:null}W(e,t,n){const s=this.getVersionId(),i=t.length;let r=0;const o=n.length;let a=0;const d=new Array(o);for(;r<i||a<o;){let c=null;if(r<i){do c=this.s[t[r++]];while(!c&&r<i);c&&this.r.delete(c)}if(a<o){if(!c){const h=++this.t,u=`${this.u};${h}`;c=new Y(u,0,0),this.s[u]=c}const I=n[a],E=I.range,l=ue(I.options);c.ownerId=e,c.reset(s,E.startLineNumber,E.endLineNumber,R.lift(E)),c.setOptions(l),this.r.insert(c),d[a]=c.id,a++}else c&&delete this.s[c.id]}return d}deltaCellDecorations(e,t){e.forEach(s=>{const i=this.F.get(s);i!==void 0&&(this.getCellByHandle(i)?.deltaCellDecorations([s],[]),this.F.delete(s)),this.I.delete(s)});const n=[];return t.forEach(s=>{if(se(s)){const r=this.getCellByHandle(s.handle)?.deltaCellDecorations([],[s.options])||[];r.forEach(o=>{this.F.set(o,s.handle)}),n.push(...r)}else{const i=++this.H,r=`_overview_${this.id};${i}`;this.I.set(r,s),n.push(r)}}),n}deltaCellStatusBarItems(e,t){const n=j(e,i=>this.G.get(i)??-1),s=[];t.forEach(i=>{const r=this.getCellByHandle(i.handle),o=n[i.handle]??[];delete n[i.handle],o.forEach(d=>this.G.delete(d));const a=r?.deltaCellStatusBarItems(o,i.items)||[];a.forEach(d=>{this.G.set(d,i.handle)}),s.push(...a)});for(const i in n){const r=parseInt(i),o=n[r];this.getCellByHandle(r)?.deltaCellStatusBarItems(o,[]),o.forEach(d=>this.G.delete(d))}return s}nearestCodeCellIndex(e){const t=this.viewCells.slice(0,e).reverse().findIndex(n=>n.cellKind===b.Code);if(t>-1)return e-t-1;{const n=this.viewCells.slice(e+1).findIndex(s=>s.cellKind===b.Code);return n>-1?e+1+n:-1}}getEditorViewState(){const e={},t={},n={},s={};this.f.forEach((r,o)=>{r.getEditState()===$.Editing&&(e[o]=!0),r.isInputCollapsed&&(t[o]=!0),r instanceof L&&r.isOutputCollapsed&&(n[o]=!0),r.lineNumbers!=="inherit"&&(s[o]=r.lineNumbers)});const i={};return this.f.map(r=>({handle:r.model.handle,state:r.saveEditorViewState()})).forEach((r,o)=>{r.state&&(i[o]=r.state)}),{editingCells:e,editorViewStates:i,cellLineNumberStates:s,collapsedInputCells:t,collapsedOutputCells:n}}restoreEditorViewState(e){e&&this.f.forEach((t,n)=>{const s=e.editingCells&&e.editingCells[n],i=e.editorViewStates&&e.editorViewStates[n];t.updateEditState(s?$.Editing:$.Preview,"viewState");const r=e.cellTotalHeights?e.cellTotalHeights[n]:void 0;t.restoreEditorViewState(i,r),e.collapsedInputCells&&e.collapsedInputCells[n]&&(t.isInputCollapsed=!0),e.collapsedOutputCells&&e.collapsedOutputCells[n]&&t instanceof L&&(t.isOutputCollapsed=!0),e.cellLineNumberStates&&e.cellLineNumberStates[n]&&(t.lineNumbers=e.cellLineNumberStates[n])})}changeModelDecorations(e){const t={deltaDecorations:(s,i)=>this.X(s,i)};let n=null;try{n=e(t)}catch(s){G(s)}return t.deltaDecorations=de,n}X(e,t){const n=new Map;e.forEach(i=>{const r=i.ownerId;if(!n.has(r)){const a=this.f.find(d=>d.handle===r);a&&n.set(r,{cell:a,oldDecorations:[],newDecorations:[]})}const o=n.get(r);o&&(o.oldDecorations=i.decorations)}),t.forEach(i=>{const r=i.ownerId;if(!n.has(r)){const a=this.f.find(d=>d.handle===r);a&&n.set(r,{cell:a,oldDecorations:[],newDecorations:[]})}const o=n.get(r);o&&(o.newDecorations=i.decorations)});const s=[];return n.forEach((i,r)=>{const o=i.cell.deltaModelDecorations(i.oldDecorations,i.newDecorations);s.push({ownerId:r,decorations:o})}),s}find(e,t){const n=[];let s=[];if(t.findScope&&(t.findScope.findScopeType===J.Cells||t.findScope.findScopeType===J.Text)){const i=t.findScope.selectedCellRanges?.map(o=>this.validateRange(o)).filter(o=>!!o)??[];s=P(i).map(o=>this.f[o])}else s=this.f;return s.forEach((i,r)=>{const o=i.startFind(e,t);o&&n.push(new ne(o.cell,r,o.contentMatches,[]))}),n.filter(i=>i.cell.cellKind===b.Code?t.includeCodeInput:(i.cell.getEditState()===$.Editing||!t.includeMarkupPreview)&&t.includeMarkupInput)}replaceOne(e,t,n){const s=e;return this.j.push(s.uri),s.resolveTextModel().then(()=>{this.P.apply([new W(e.uri,{range:t,text:n})],{quotableLabel:"Notebook Replace"})})}async replaceAll(e,t){if(!e.length)return;const n=[];return this.j.push(e[0].cell.uri),e.forEach(s=>{s.contentMatches.forEach((i,r)=>{n.push({versionId:void 0,textEdit:{range:i.range,text:t[r]},resource:s.cell.uri})})}),Promise.all(e.map(s=>s.cell.resolveTextModel())).then(async()=>{this.P.apply({edits:n},{quotableLabel:"Notebook Replace All"})})}async Y(e,t){const n=this.f.filter(i=>e.matchesResource(i.uri)),s=await Promise.all(n.map(i=>this.R.createModelReference(i.uri)));await t(),s.forEach(i=>i.dispose())}async undo(){const e=this.Q.getElements(this.uri),t=e.past.length?e.past[e.past.length-1]:void 0;return t&&t instanceof N||t instanceof T?(await this.Y(t,async()=>{await this.Q.undo(this.uri)}),t instanceof N?[t.resource]:t.resources):(await this.Q.undo(this.uri),[])}async redo(){const t=this.Q.getElements(this.uri).future[0];return t&&t instanceof N||t instanceof T?(await this.Y(t,async()=>{await this.Q.redo(this.uri)}),t instanceof N?[t.resource]:t.resources):(await this.Q.redo(this.uri),[])}equal(e){return this.J===e}dispose(){this.a.clear(),this.f.forEach(e=>{e.dispose()}),super.dispose()}};V=B([v(5,ee),v(6,U),v(7,te),v(8,Z),v(9,ae)],V);function _(p,e,t,n){return t.cellKind===b.Code?p.createInstance(L,e.viewType,t,e.layoutInfo,n):p.createInstance(oe,e.viewType,t,e.layoutInfo,e,n)}export{V as $bGb,_ as $cGb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { groupBy } from "../../../../../base/common/collections.js";
+import { onUnexpectedError } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../../base/common/numbers.js";
+import * as strings from "../../../../../base/common/strings.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { MultiModelEditStackElement, SingleModelEditStackElement } from "../../../../../editor/common/model/editStack.js";
+import { IntervalNode, IntervalTree } from "../../../../../editor/common/model/intervalTree.js";
+import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { CellFindMatchModel } from "../contrib/find/findModel.js";
+import { CellEditState, isNotebookCellDecoration } from "../notebookBrowser.js";
+import { NotebookMetadataChangedEvent } from "../notebookViewEvents.js";
+import { NotebookCellSelectionCollection } from "./cellSelectionCollection.js";
+import { CodeCellViewModel } from "./codeCellViewModel.js";
+import { MarkupCellViewModel } from "./markupCellViewModel.js";
+import { CellKind, NotebookCellsChangeType, NotebookFindScopeType, SelectionStateType } from "../../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../common/notebookExecutionStateService.js";
+import { cellIndexesToRanges, cellRangesToIndexes, reduceCellRanges } from "../../common/notebookRange.js";
+const invalidFunc = /* @__PURE__ */ __name(() => {
+  throw new Error(`Invalid change accessor`);
+}, "invalidFunc");
+class DecorationsTree {
+  static {
+    __name(this, "DecorationsTree");
+  }
+  constructor() {
+    this._decorationsTree = new IntervalTree();
+  }
+  intervalSearch(start, end, filterOwnerId, filterOutValidation, filterFontDecorations, cachedVersionId, onlyMarginDecorations = false) {
+    const r1 = this._decorationsTree.intervalSearch(start, end, filterOwnerId, filterOutValidation, filterFontDecorations, cachedVersionId, onlyMarginDecorations);
+    return r1;
+  }
+  search(filterOwnerId, filterOutValidation, filterFontDecorations, overviewRulerOnly, cachedVersionId, onlyMarginDecorations) {
+    return this._decorationsTree.search(filterOwnerId, filterOutValidation, filterFontDecorations, cachedVersionId, onlyMarginDecorations);
+  }
+  collectNodesFromOwner(ownerId) {
+    const r1 = this._decorationsTree.collectNodesFromOwner(ownerId);
+    return r1;
+  }
+  collectNodesPostOrder() {
+    const r1 = this._decorationsTree.collectNodesPostOrder();
+    return r1;
+  }
+  insert(node) {
+    this._decorationsTree.insert(node);
+  }
+  delete(node) {
+    this._decorationsTree.delete(node);
+  }
+  resolveNode(node, cachedVersionId) {
+    this._decorationsTree.resolveNode(node, cachedVersionId);
+  }
+  acceptReplace(offset, length, textLength, forceMoveMarkers) {
+    this._decorationsTree.acceptReplace(offset, length, textLength, forceMoveMarkers);
+  }
+}
+const TRACKED_RANGE_OPTIONS = [
+  ModelDecorationOptions.register({
+    description: "notebook-view-model-tracked-range-always-grows-when-typing-at-edges",
+    stickiness: 0
+    /* TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges */
+  }),
+  ModelDecorationOptions.register({
+    description: "notebook-view-model-tracked-range-never-grows-when-typing-at-edges",
+    stickiness: 1
+    /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */
+  }),
+  ModelDecorationOptions.register({
+    description: "notebook-view-model-tracked-range-grows-only-when-typing-before",
+    stickiness: 2
+    /* TrackedRangeStickiness.GrowsOnlyWhenTypingBefore */
+  }),
+  ModelDecorationOptions.register({
+    description: "notebook-view-model-tracked-range-grows-only-when-typing-after",
+    stickiness: 3
+    /* TrackedRangeStickiness.GrowsOnlyWhenTypingAfter */
+  })
+];
+function _normalizeOptions(options) {
+  if (options instanceof ModelDecorationOptions) {
+    return options;
+  }
+  return ModelDecorationOptions.createDynamic(options);
+}
+__name(_normalizeOptions, "_normalizeOptions");
+let MODEL_ID = 0;
+let NotebookViewModel = class NotebookViewModel2 extends Disposable {
+  static {
+    __name(this, "NotebookViewModel");
+  }
+  get options() {
+    return this._options;
+  }
+  get onDidChangeOptions() {
+    return this._onDidChangeOptions.event;
+  }
+  get viewCells() {
+    return this._viewCells;
+  }
+  get length() {
+    return this._viewCells.length;
+  }
+  get notebookDocument() {
+    return this._notebook;
+  }
+  get uri() {
+    return this._notebook.uri;
+  }
+  get metadata() {
+    return this._notebook.metadata;
+  }
+  get isRepl() {
+    return this.viewType === "repl";
+  }
+  get onDidChangeViewCells() {
+    return this._onDidChangeViewCells.event;
+  }
+  get lastNotebookEditResource() {
+    if (this._lastNotebookEditResource.length) {
+      return this._lastNotebookEditResource[this._lastNotebookEditResource.length - 1];
+    }
+    return null;
+  }
+  get layoutInfo() {
+    return this._layoutInfo;
+  }
+  get onDidChangeSelection() {
+    return this._onDidChangeSelection.event;
+  }
+  get selectionHandles() {
+    const handlesSet = /* @__PURE__ */ new Set();
+    const handles = [];
+    cellRangesToIndexes(this._selectionCollection.selections).map((index) => index < this.length ? this.cellAt(index) : void 0).forEach((cell) => {
+      if (cell && !handlesSet.has(cell.handle)) {
+        handles.push(cell.handle);
+      }
+    });
+    return handles;
+  }
+  set selectionHandles(selectionHandles) {
+    const indexes = selectionHandles.map((handle) => this._viewCells.findIndex((cell) => cell.handle === handle));
+    this._selectionCollection.setSelections(cellIndexesToRanges(indexes), true, "model");
+  }
+  get focused() {
+    return this._focused;
+  }
+  constructor(viewType, _notebook, _viewContext, _layoutInfo, _options, _instantiationService, _bulkEditService, _undoService, _textModelService, notebookExecutionStateService) {
+    super();
+    this.viewType = viewType;
+    this._notebook = _notebook;
+    this._viewContext = _viewContext;
+    this._layoutInfo = _layoutInfo;
+    this._options = _options;
+    this._instantiationService = _instantiationService;
+    this._bulkEditService = _bulkEditService;
+    this._undoService = _undoService;
+    this._textModelService = _textModelService;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this._localStore = this._register(new DisposableStore());
+    this._handleToViewCellMapping = /* @__PURE__ */ new Map();
+    this._onDidChangeOptions = this._register(new Emitter());
+    this._viewCells = [];
+    this._onDidChangeViewCells = this._register(new Emitter());
+    this._lastNotebookEditResource = [];
+    this._onDidChangeSelection = this._register(new Emitter());
+    this._selectionCollection = this._register(new NotebookCellSelectionCollection());
+    this._decorationsTree = new DecorationsTree();
+    this._decorations = /* @__PURE__ */ Object.create(null);
+    this._lastDecorationId = 0;
+    this._foldingRanges = null;
+    this._onDidFoldingStateChanged = new Emitter();
+    this.onDidFoldingStateChanged = this._onDidFoldingStateChanged.event;
+    this._hiddenRanges = [];
+    this._focused = true;
+    this._decorationIdToCellMap = /* @__PURE__ */ new Map();
+    this._statusBarItemIdToCellMap = /* @__PURE__ */ new Map();
+    this._lastOverviewRulerDecorationId = 0;
+    this._overviewRulerDecorations = /* @__PURE__ */ new Map();
+    MODEL_ID++;
+    this.id = "$notebookViewModel" + MODEL_ID;
+    this._instanceId = strings.singleLetterHash(MODEL_ID);
+    const compute = /* @__PURE__ */ __name((changes, synchronous) => {
+      const diffs = changes.map((splice) => {
+        return [splice[0], splice[1], splice[2].map((cell) => {
+          return createCellViewModel(this._instantiationService, this, cell, this._viewContext);
+        })];
+      });
+      diffs.reverse().forEach((diff) => {
+        const deletedCells = this._viewCells.splice(diff[0], diff[1], ...diff[2]);
+        this._decorationsTree.acceptReplace(diff[0], diff[1], diff[2].length, true);
+        deletedCells.forEach((cell) => {
+          this._handleToViewCellMapping.delete(cell.handle);
+          cell.dispose();
+        });
+        diff[2].forEach((cell) => {
+          this._handleToViewCellMapping.set(cell.handle, cell);
+          this._localStore.add(cell);
+        });
+      });
+      const selectionHandles = this.selectionHandles;
+      this._onDidChangeViewCells.fire({
+        synchronous,
+        splices: diffs
+      });
+      let endSelectionHandles = [];
+      if (selectionHandles.length) {
+        const primaryHandle = selectionHandles[0];
+        const primarySelectionIndex = this._viewCells.indexOf(this.getCellByHandle(primaryHandle));
+        endSelectionHandles = [primaryHandle];
+        let delta = 0;
+        for (let i = 0; i < diffs.length; i++) {
+          const diff = diffs[0];
+          if (diff[0] + diff[1] <= primarySelectionIndex) {
+            delta += diff[2].length - diff[1];
+            continue;
+          }
+          if (diff[0] > primarySelectionIndex) {
+            endSelectionHandles = [primaryHandle];
+            break;
+          }
+          if (diff[0] + diff[1] > primarySelectionIndex) {
+            endSelectionHandles = [this._viewCells[diff[0] + delta].handle];
+            break;
+          }
+        }
+      }
+      const selectionIndexes = endSelectionHandles.map((handle) => this._viewCells.findIndex((cell) => cell.handle === handle));
+      this._selectionCollection.setState(cellIndexesToRanges([selectionIndexes[0]])[0], cellIndexesToRanges(selectionIndexes), true, "model");
+    }, "compute");
+    this._register(this._notebook.onDidChangeContent((e) => {
+      for (let i = 0; i < e.rawEvents.length; i++) {
+        const change = e.rawEvents[i];
+        let changes = [];
+        const synchronous = e.synchronous ?? true;
+        if (change.kind === NotebookCellsChangeType.ModelChange || change.kind === NotebookCellsChangeType.Initialize) {
+          changes = change.changes;
+          compute(changes, synchronous);
+          continue;
+        } else if (change.kind === NotebookCellsChangeType.Move) {
+          compute([[change.index, change.length, []]], synchronous);
+          compute([[change.newIdx, 0, change.cells]], synchronous);
+        } else {
+          continue;
+        }
+      }
+    }));
+    this._register(this._notebook.onDidChangeContent((contentChanges) => {
+      contentChanges.rawEvents.forEach((e) => {
+        if (e.kind === NotebookCellsChangeType.ChangeDocumentMetadata) {
+          this._viewContext.eventDispatcher.emit([new NotebookMetadataChangedEvent(this._notebook.metadata)]);
+        }
+      });
+      if (contentChanges.endSelectionState) {
+        this.updateSelectionsState(contentChanges.endSelectionState);
+      }
+    }));
+    this._register(this._viewContext.eventDispatcher.onDidChangeLayout((e) => {
+      this._layoutInfo = e.value;
+      this._viewCells.forEach((cell) => {
+        if (cell.cellKind === CellKind.Markup) {
+          if (e.source.width || e.source.fontInfo) {
+            cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
+          }
+        } else {
+          if (e.source.width !== void 0) {
+            cell.layoutChange({ outerWidth: e.value.width, font: e.value.fontInfo });
+          }
+        }
+      });
+    }));
+    this._register(this._viewContext.notebookOptions.onDidChangeOptions((e) => {
+      for (let i = 0; i < this.length; i++) {
+        const cell = this._viewCells[i];
+        cell.updateOptions(e);
+      }
+    }));
+    this._register(notebookExecutionStateService.onDidChangeExecution((e) => {
+      if (e.type !== NotebookExecutionType.cell) {
+        return;
+      }
+      const cell = this.getCellByHandle(e.cellHandle);
+      if (cell instanceof CodeCellViewModel) {
+        cell.updateExecutionState(e);
+      }
+    }));
+    this._register(this._selectionCollection.onDidChangeSelection((e) => {
+      this._onDidChangeSelection.fire(e);
+    }));
+    const viewCellCount = this.isRepl ? this._notebook.cells.length - 1 : this._notebook.cells.length;
+    for (let i = 0; i < viewCellCount; i++) {
+      this._viewCells.push(createCellViewModel(this._instantiationService, this, this._notebook.cells[i], this._viewContext));
+    }
+    this._viewCells.forEach((cell) => {
+      this._handleToViewCellMapping.set(cell.handle, cell);
+    });
+  }
+  updateOptions(newOptions) {
+    this._options = { ...this._options, ...newOptions };
+    this._viewCells.forEach((cell) => cell.updateOptions({ readonly: this._options.isReadOnly }));
+    this._onDidChangeOptions.fire();
+  }
+  getFocus() {
+    return this._selectionCollection.focus;
+  }
+  getSelections() {
+    return this._selectionCollection.selections;
+  }
+  getMostRecentlyExecutedCell() {
+    const handle = this.notebookExecutionStateService.getLastCompletedCellForNotebook(this._notebook.uri);
+    return handle !== void 0 ? this.getCellByHandle(handle) : void 0;
+  }
+  setEditorFocus(focused) {
+    this._focused = focused;
+  }
+  validateRange(cellRange) {
+    if (!cellRange) {
+      return null;
+    }
+    const start = clamp(cellRange.start, 0, this.length);
+    const end = clamp(cellRange.end, 0, this.length);
+    if (start <= end) {
+      return { start, end };
+    } else {
+      return { start: end, end: start };
+    }
+  }
+  // selection change from list view's `setFocus` and `setSelection` should always use `source: view` to prevent events breaking the list view focus/selection change transaction
+  updateSelectionsState(state, source = "model") {
+    if (this._focused || source === "model") {
+      if (state.kind === SelectionStateType.Handle) {
+        const primaryIndex = state.primary !== null ? this.getCellIndexByHandle(state.primary) : null;
+        const primarySelection = primaryIndex !== null ? this.validateRange({ start: primaryIndex, end: primaryIndex + 1 }) : null;
+        const selections = cellIndexesToRanges(state.selections.map((sel) => this.getCellIndexByHandle(sel))).map((range) => this.validateRange(range)).filter((range) => range !== null);
+        this._selectionCollection.setState(primarySelection, reduceCellRanges(selections), true, source);
+      } else {
+        const primarySelection = this.validateRange(state.focus);
+        const selections = state.selections.map((range) => this.validateRange(range)).filter((range) => range !== null);
+        this._selectionCollection.setState(primarySelection, reduceCellRanges(selections), true, source);
+      }
+    }
+  }
+  getFoldingStartIndex(index) {
+    if (!this._foldingRanges) {
+      return -1;
+    }
+    const range = this._foldingRanges.findRange(index + 1);
+    const startIndex = this._foldingRanges.getStartLineNumber(range) - 1;
+    return startIndex;
+  }
+  getFoldingState(index) {
+    if (!this._foldingRanges) {
+      return 0;
+    }
+    const range = this._foldingRanges.findRange(index + 1);
+    const startIndex = this._foldingRanges.getStartLineNumber(range) - 1;
+    if (startIndex !== index) {
+      return 0;
+    }
+    return this._foldingRanges.isCollapsed(range) ? 2 : 1;
+  }
+  getFoldedLength(index) {
+    if (!this._foldingRanges) {
+      return 0;
+    }
+    const range = this._foldingRanges.findRange(index + 1);
+    const startIndex = this._foldingRanges.getStartLineNumber(range) - 1;
+    const endIndex = this._foldingRanges.getEndLineNumber(range) - 1;
+    return endIndex - startIndex;
+  }
+  updateFoldingRanges(ranges) {
+    this._foldingRanges = ranges;
+    let updateHiddenAreas = false;
+    const newHiddenAreas = [];
+    let i = 0;
+    let k = 0;
+    let lastCollapsedStart = Number.MAX_VALUE;
+    let lastCollapsedEnd = -1;
+    for (; i < ranges.length; i++) {
+      if (!ranges.isCollapsed(i)) {
+        continue;
+      }
+      const startLineNumber = ranges.getStartLineNumber(i) + 1;
+      const endLineNumber = ranges.getEndLineNumber(i);
+      if (lastCollapsedStart <= startLineNumber && endLineNumber <= lastCollapsedEnd) {
+        continue;
+      }
+      if (!updateHiddenAreas && k < this._hiddenRanges.length && this._hiddenRanges[k].start + 1 === startLineNumber && this._hiddenRanges[k].end + 1 === endLineNumber) {
+        newHiddenAreas.push(this._hiddenRanges[k]);
+        k++;
+      } else {
+        updateHiddenAreas = true;
+        newHiddenAreas.push({ start: startLineNumber - 1, end: endLineNumber - 1 });
+      }
+      lastCollapsedStart = startLineNumber;
+      lastCollapsedEnd = endLineNumber;
+    }
+    if (updateHiddenAreas || k < this._hiddenRanges.length) {
+      this._hiddenRanges = newHiddenAreas;
+      this._onDidFoldingStateChanged.fire();
+    }
+    this._viewCells.forEach((cell) => {
+      if (cell.cellKind === CellKind.Markup) {
+        cell.triggerFoldingStateChange();
+      }
+    });
+  }
+  getHiddenRanges() {
+    return this._hiddenRanges;
+  }
+  getOverviewRulerDecorations() {
+    return Array.from(this._overviewRulerDecorations.values());
+  }
+  getCellByHandle(handle) {
+    return this._handleToViewCellMapping.get(handle);
+  }
+  getCellIndexByHandle(handle) {
+    return this._viewCells.findIndex((cell) => cell.handle === handle);
+  }
+  getCellIndex(cell) {
+    return this._viewCells.indexOf(cell);
+  }
+  cellAt(index) {
+    return this._viewCells[index];
+  }
+  getCellsInRange(range) {
+    if (!range) {
+      return this._viewCells.slice(0);
+    }
+    const validatedRange = this.validateRange(range);
+    if (validatedRange) {
+      const result = [];
+      for (let i = validatedRange.start; i < validatedRange.end; i++) {
+        result.push(this._viewCells[i]);
+      }
+      return result;
+    }
+    return [];
+  }
+  /**
+   * If this._viewCells[index] is visible then return index
+   */
+  getNearestVisibleCellIndexUpwards(index) {
+    for (let i = this._hiddenRanges.length - 1; i >= 0; i--) {
+      const cellRange = this._hiddenRanges[i];
+      const foldStart = cellRange.start - 1;
+      const foldEnd = cellRange.end;
+      if (foldStart > index) {
+        continue;
+      }
+      if (foldStart <= index && foldEnd >= index) {
+        return index;
+      }
+      break;
+    }
+    return index;
+  }
+  getNextVisibleCellIndex(index) {
+    for (let i = 0; i < this._hiddenRanges.length; i++) {
+      const cellRange = this._hiddenRanges[i];
+      const foldStart = cellRange.start - 1;
+      const foldEnd = cellRange.end;
+      if (foldEnd < index) {
+        continue;
+      }
+      if (foldStart <= index) {
+        return foldEnd + 1;
+      }
+      break;
+    }
+    return index + 1;
+  }
+  getPreviousVisibleCellIndex(index) {
+    for (let i = this._hiddenRanges.length - 1; i >= 0; i--) {
+      const cellRange = this._hiddenRanges[i];
+      const foldStart = cellRange.start - 1;
+      const foldEnd = cellRange.end;
+      if (foldEnd < index) {
+        return index;
+      }
+      if (foldStart <= index) {
+        return foldStart;
+      }
+    }
+    return index;
+  }
+  hasCell(cell) {
+    return this._handleToViewCellMapping.has(cell.handle);
+  }
+  getVersionId() {
+    return this._notebook.versionId;
+  }
+  getAlternativeId() {
+    return this._notebook.alternativeVersionId;
+  }
+  getTrackedRange(id) {
+    return this._getDecorationRange(id);
+  }
+  _getDecorationRange(decorationId) {
+    const node = this._decorations[decorationId];
+    if (!node) {
+      return null;
+    }
+    const versionId = this.getVersionId();
+    if (node.cachedVersionId !== versionId) {
+      this._decorationsTree.resolveNode(node, versionId);
+    }
+    if (node.range === null) {
+      return { start: node.cachedAbsoluteStart - 1, end: node.cachedAbsoluteEnd - 1 };
+    }
+    return { start: node.range.startLineNumber - 1, end: node.range.endLineNumber - 1 };
+  }
+  setTrackedRange(id, newRange, newStickiness) {
+    const node = id ? this._decorations[id] : null;
+    if (!node) {
+      if (!newRange) {
+        return null;
+      }
+      return this._deltaCellDecorationsImpl(0, [], [{ range: new Range(newRange.start + 1, 1, newRange.end + 1, 1), options: TRACKED_RANGE_OPTIONS[newStickiness] }])[0];
+    }
+    if (!newRange) {
+      this._decorationsTree.delete(node);
+      delete this._decorations[node.id];
+      return null;
+    }
+    this._decorationsTree.delete(node);
+    node.reset(this.getVersionId(), newRange.start, newRange.end + 1, new Range(newRange.start + 1, 1, newRange.end + 1, 1));
+    node.setOptions(TRACKED_RANGE_OPTIONS[newStickiness]);
+    this._decorationsTree.insert(node);
+    return node.id;
+  }
+  _deltaCellDecorationsImpl(ownerId, oldDecorationsIds, newDecorations) {
+    const versionId = this.getVersionId();
+    const oldDecorationsLen = oldDecorationsIds.length;
+    let oldDecorationIndex = 0;
+    const newDecorationsLen = newDecorations.length;
+    let newDecorationIndex = 0;
+    const result = new Array(newDecorationsLen);
+    while (oldDecorationIndex < oldDecorationsLen || newDecorationIndex < newDecorationsLen) {
+      let node = null;
+      if (oldDecorationIndex < oldDecorationsLen) {
+        do {
+          node = this._decorations[oldDecorationsIds[oldDecorationIndex++]];
+        } while (!node && oldDecorationIndex < oldDecorationsLen);
+        if (node) {
+          this._decorationsTree.delete(node);
+        }
+      }
+      if (newDecorationIndex < newDecorationsLen) {
+        if (!node) {
+          const internalDecorationId = ++this._lastDecorationId;
+          const decorationId = `${this._instanceId};${internalDecorationId}`;
+          node = new IntervalNode(decorationId, 0, 0);
+          this._decorations[decorationId] = node;
+        }
+        const newDecoration = newDecorations[newDecorationIndex];
+        const range = newDecoration.range;
+        const options = _normalizeOptions(newDecoration.options);
+        node.ownerId = ownerId;
+        node.reset(versionId, range.startLineNumber, range.endLineNumber, Range.lift(range));
+        node.setOptions(options);
+        this._decorationsTree.insert(node);
+        result[newDecorationIndex] = node.id;
+        newDecorationIndex++;
+      } else {
+        if (node) {
+          delete this._decorations[node.id];
+        }
+      }
+    }
+    return result;
+  }
+  deltaCellDecorations(oldDecorations, newDecorations) {
+    oldDecorations.forEach((id) => {
+      const handle = this._decorationIdToCellMap.get(id);
+      if (handle !== void 0) {
+        const cell = this.getCellByHandle(handle);
+        cell?.deltaCellDecorations([id], []);
+        this._decorationIdToCellMap.delete(id);
+      }
+      this._overviewRulerDecorations.delete(id);
+    });
+    const result = [];
+    newDecorations.forEach((decoration) => {
+      if (isNotebookCellDecoration(decoration)) {
+        const cell = this.getCellByHandle(decoration.handle);
+        const ret = cell?.deltaCellDecorations([], [decoration.options]) || [];
+        ret.forEach((id) => {
+          this._decorationIdToCellMap.set(id, decoration.handle);
+        });
+        result.push(...ret);
+      } else {
+        const id = ++this._lastOverviewRulerDecorationId;
+        const decorationId = `_overview_${this.id};${id}`;
+        this._overviewRulerDecorations.set(decorationId, decoration);
+        result.push(decorationId);
+      }
+    });
+    return result;
+  }
+  deltaCellStatusBarItems(oldItems, newItems) {
+    const deletesByHandle = groupBy(oldItems, (id) => this._statusBarItemIdToCellMap.get(id) ?? -1);
+    const result = [];
+    newItems.forEach((itemDelta) => {
+      const cell = this.getCellByHandle(itemDelta.handle);
+      const deleted = deletesByHandle[itemDelta.handle] ?? [];
+      delete deletesByHandle[itemDelta.handle];
+      deleted.forEach((id) => this._statusBarItemIdToCellMap.delete(id));
+      const ret = cell?.deltaCellStatusBarItems(deleted, itemDelta.items) || [];
+      ret.forEach((id) => {
+        this._statusBarItemIdToCellMap.set(id, itemDelta.handle);
+      });
+      result.push(...ret);
+    });
+    for (const _handle in deletesByHandle) {
+      const handle = parseInt(_handle);
+      const ids = deletesByHandle[handle];
+      const cell = this.getCellByHandle(handle);
+      cell?.deltaCellStatusBarItems(ids, []);
+      ids.forEach((id) => this._statusBarItemIdToCellMap.delete(id));
+    }
+    return result;
+  }
+  nearestCodeCellIndex(index) {
+    const nearest = this.viewCells.slice(0, index).reverse().findIndex((cell) => cell.cellKind === CellKind.Code);
+    if (nearest > -1) {
+      return index - nearest - 1;
+    } else {
+      const nearestCellTheOtherDirection = this.viewCells.slice(index + 1).findIndex((cell) => cell.cellKind === CellKind.Code);
+      if (nearestCellTheOtherDirection > -1) {
+        return index + 1 + nearestCellTheOtherDirection;
+      }
+      return -1;
+    }
+  }
+  getEditorViewState() {
+    const editingCells = {};
+    const collapsedInputCells = {};
+    const collapsedOutputCells = {};
+    const cellLineNumberStates = {};
+    this._viewCells.forEach((cell, i) => {
+      if (cell.getEditState() === CellEditState.Editing) {
+        editingCells[i] = true;
+      }
+      if (cell.isInputCollapsed) {
+        collapsedInputCells[i] = true;
+      }
+      if (cell instanceof CodeCellViewModel && cell.isOutputCollapsed) {
+        collapsedOutputCells[i] = true;
+      }
+      if (cell.lineNumbers !== "inherit") {
+        cellLineNumberStates[i] = cell.lineNumbers;
+      }
+    });
+    const editorViewStates = {};
+    this._viewCells.map((cell) => ({ handle: cell.model.handle, state: cell.saveEditorViewState() })).forEach((viewState, i) => {
+      if (viewState.state) {
+        editorViewStates[i] = viewState.state;
+      }
+    });
+    return {
+      editingCells,
+      editorViewStates,
+      cellLineNumberStates,
+      collapsedInputCells,
+      collapsedOutputCells
+    };
+  }
+  restoreEditorViewState(viewState) {
+    if (!viewState) {
+      return;
+    }
+    this._viewCells.forEach((cell, index) => {
+      const isEditing = viewState.editingCells && viewState.editingCells[index];
+      const editorViewState = viewState.editorViewStates && viewState.editorViewStates[index];
+      cell.updateEditState(isEditing ? CellEditState.Editing : CellEditState.Preview, "viewState");
+      const cellHeight = viewState.cellTotalHeights ? viewState.cellTotalHeights[index] : void 0;
+      cell.restoreEditorViewState(editorViewState, cellHeight);
+      if (viewState.collapsedInputCells && viewState.collapsedInputCells[index]) {
+        cell.isInputCollapsed = true;
+      }
+      if (viewState.collapsedOutputCells && viewState.collapsedOutputCells[index] && cell instanceof CodeCellViewModel) {
+        cell.isOutputCollapsed = true;
+      }
+      if (viewState.cellLineNumberStates && viewState.cellLineNumberStates[index]) {
+        cell.lineNumbers = viewState.cellLineNumberStates[index];
+      }
+    });
+  }
+  /**
+   * Editor decorations across cells. For example, find decorations for multiple code cells
+   * The reason that we can't completely delegate this to CodeEditorWidget is most of the time, the editors for cells are not created yet but we already have decorations for them.
+   */
+  changeModelDecorations(callback) {
+    const changeAccessor = {
+      deltaDecorations: /* @__PURE__ */ __name((oldDecorations, newDecorations) => {
+        return this._deltaModelDecorationsImpl(oldDecorations, newDecorations);
+      }, "deltaDecorations")
+    };
+    let result = null;
+    try {
+      result = callback(changeAccessor);
+    } catch (e) {
+      onUnexpectedError(e);
+    }
+    changeAccessor.deltaDecorations = invalidFunc;
+    return result;
+  }
+  _deltaModelDecorationsImpl(oldDecorations, newDecorations) {
+    const mapping = /* @__PURE__ */ new Map();
+    oldDecorations.forEach((oldDecoration) => {
+      const ownerId = oldDecoration.ownerId;
+      if (!mapping.has(ownerId)) {
+        const cell = this._viewCells.find((cell2) => cell2.handle === ownerId);
+        if (cell) {
+          mapping.set(ownerId, { cell, oldDecorations: [], newDecorations: [] });
+        }
+      }
+      const data = mapping.get(ownerId);
+      if (data) {
+        data.oldDecorations = oldDecoration.decorations;
+      }
+    });
+    newDecorations.forEach((newDecoration) => {
+      const ownerId = newDecoration.ownerId;
+      if (!mapping.has(ownerId)) {
+        const cell = this._viewCells.find((cell2) => cell2.handle === ownerId);
+        if (cell) {
+          mapping.set(ownerId, { cell, oldDecorations: [], newDecorations: [] });
+        }
+      }
+      const data = mapping.get(ownerId);
+      if (data) {
+        data.newDecorations = newDecoration.decorations;
+      }
+    });
+    const ret = [];
+    mapping.forEach((value, ownerId) => {
+      const cellRet = value.cell.deltaModelDecorations(value.oldDecorations, value.newDecorations);
+      ret.push({
+        ownerId,
+        decorations: cellRet
+      });
+    });
+    return ret;
+  }
+  //#region Find
+  find(value, options) {
+    const matches = [];
+    let findCells = [];
+    if (options.findScope && (options.findScope.findScopeType === NotebookFindScopeType.Cells || options.findScope.findScopeType === NotebookFindScopeType.Text)) {
+      const selectedRanges = options.findScope.selectedCellRanges?.map((range) => this.validateRange(range)).filter((range) => !!range) ?? [];
+      const selectedIndexes = cellRangesToIndexes(selectedRanges);
+      findCells = selectedIndexes.map((index) => this._viewCells[index]);
+    } else {
+      findCells = this._viewCells;
+    }
+    findCells.forEach((cell, index) => {
+      const cellMatches = cell.startFind(value, options);
+      if (cellMatches) {
+        matches.push(new CellFindMatchModel(cellMatches.cell, index, cellMatches.contentMatches, []));
+      }
+    });
+    return matches.filter((match) => {
+      if (match.cell.cellKind === CellKind.Code) {
+        return options.includeCodeInput;
+      }
+      if (match.cell.getEditState() === CellEditState.Editing) {
+        return options.includeMarkupInput;
+      } else {
+        return !options.includeMarkupPreview && options.includeMarkupInput;
+      }
+    });
+  }
+  replaceOne(cell, range, text) {
+    const viewCell = cell;
+    this._lastNotebookEditResource.push(viewCell.uri);
+    return viewCell.resolveTextModel().then(() => {
+      this._bulkEditService.apply([new ResourceTextEdit(cell.uri, { range, text })], { quotableLabel: "Notebook Replace" });
+    });
+  }
+  async replaceAll(matches, texts) {
+    if (!matches.length) {
+      return;
+    }
+    const textEdits = [];
+    this._lastNotebookEditResource.push(matches[0].cell.uri);
+    matches.forEach((match) => {
+      match.contentMatches.forEach((singleMatch, index) => {
+        textEdits.push({
+          versionId: void 0,
+          textEdit: { range: singleMatch.range, text: texts[index] },
+          resource: match.cell.uri
+        });
+      });
+    });
+    return Promise.all(matches.map((match) => {
+      return match.cell.resolveTextModel();
+    })).then(async () => {
+      this._bulkEditService.apply({ edits: textEdits }, { quotableLabel: "Notebook Replace All" });
+      return;
+    });
+  }
+  //#endregion
+  //#region Undo/Redo
+  async _withElement(element, callback) {
+    const viewCells = this._viewCells.filter((cell) => element.matchesResource(cell.uri));
+    const refs = await Promise.all(viewCells.map((cell) => this._textModelService.createModelReference(cell.uri)));
+    await callback();
+    refs.forEach((ref) => ref.dispose());
+  }
+  async undo() {
+    const editStack = this._undoService.getElements(this.uri);
+    const element = editStack.past.length ? editStack.past[editStack.past.length - 1] : void 0;
+    if (element && element instanceof SingleModelEditStackElement || element instanceof MultiModelEditStackElement) {
+      await this._withElement(element, async () => {
+        await this._undoService.undo(this.uri);
+      });
+      return element instanceof SingleModelEditStackElement ? [element.resource] : element.resources;
+    }
+    await this._undoService.undo(this.uri);
+    return [];
+  }
+  async redo() {
+    const editStack = this._undoService.getElements(this.uri);
+    const element = editStack.future[0];
+    if (element && element instanceof SingleModelEditStackElement || element instanceof MultiModelEditStackElement) {
+      await this._withElement(element, async () => {
+        await this._undoService.redo(this.uri);
+      });
+      return element instanceof SingleModelEditStackElement ? [element.resource] : element.resources;
+    }
+    await this._undoService.redo(this.uri);
+    return [];
+  }
+  //#endregion
+  equal(notebook) {
+    return this._notebook === notebook;
+  }
+  dispose() {
+    this._localStore.clear();
+    this._viewCells.forEach((cell) => {
+      cell.dispose();
+    });
+    super.dispose();
+  }
+};
+NotebookViewModel = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IBulkEditService),
+  __param(7, IUndoRedoService),
+  __param(8, ITextModelService),
+  __param(9, INotebookExecutionStateService)
+], NotebookViewModel);
+function createCellViewModel(instantiationService, notebookViewModel, cell, viewContext) {
+  if (cell.cellKind === CellKind.Code) {
+    return instantiationService.createInstance(CodeCellViewModel, notebookViewModel.viewType, cell, notebookViewModel.layoutInfo, viewContext);
+  } else {
+    return instantiationService.createInstance(MarkupCellViewModel, notebookViewModel.viewType, cell, notebookViewModel.layoutInfo, notebookViewModel, viewContext);
+  }
+}
+__name(createCellViewModel, "createCellViewModel");
+export {
+  NotebookViewModel,
+  createCellViewModel
+};
+//# sourceMappingURL=notebookViewModelImpl.js.map

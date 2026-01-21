@@ -1,1 +1,217 @@
-import*as v from"../../../../base/browser/dom.js";import{$Ed as $,$Dd as b,$Fd as w,$Cd as I}from"../../../../base/common/lifecycle.js";import{$5Nb as C}from"../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidget.js";import{$aI as y}from"../../../../editor/common/services/textResourceConfiguration.js";import{$kJb as E}from"../../../../platform/actions/browser/floatingMenu.js";import{$oL as M,$nL as d}from"../../../../platform/actions/common/actions.js";import{$Lj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$gp as S}from"../../../../platform/storage/common/storage.js";import{$op as A}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as R}from"../../../../platform/theme/common/themeService.js";import{$sQb as _}from"../../../browser/labels.js";import{$HRb as F}from"../../../browser/parts/editor/editorWithViewState.js";import{$tZb as x}from"./multiDiffEditorInput.js";import{$uL as L}from"../../../services/editor/common/editorGroupsService.js";import{$yL as O}from"../../../services/editor/common/editorService.js";import{$9D as H}from"../../../../editor/common/core/range.js";import{$wH as P}from"../../../../platform/progress/common/progress.js";import{$qP as T}from"../../../common/contextkeys.js";var g=function(a,t,e,i){var o=arguments.length,r=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,e,i);else for(var c=a.length-1;c>=0;c--)(n=a[c])&&(r=(o<3?n(r):o>3?n(t,e,r):n(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},s=function(a,t){return function(e,i){t(e,i,a)}},l;let p=class extends F{static{l=this}static{this.ID="multiDiffEditor"}get viewModel(){return this.c}constructor(t,e,i,o,r,n,c,h,u,f){super(l.ID,t,"multiDiffEditor",i,e,r,h,o,n,c),this.$=u,this.rb=f,this.a=void 0}bb(t){this.a=this.D(this.m.createInstance(C,t,this.m.createInstance(m))),this.D(this.a.onDidChangeActiveControl(()=>{this.X.fire()}));const e=this.a.getContextKeyService(),i=this.a.getScopedInstantiationService();this.f=this.D(i.createInstance(T)),this.r=this.D(new V(this.a.getRootElement(),this.f,e,this.rb,i))}async setInput(t,e,i,o){await super.setInput(t,e,i,o),this.c=await t.getViewModel(),this.f?.set(t.resource),this.r?.updateResource(t.resource),this.a.setViewModel(this.c);const r=this.kb(t,i);r&&this.a.setViewState(r),this.tb(e)}setOptions(t){this.tb(t)}tb(t){const e=t?.viewState;!e||!e.revealData||this.a?.reveal(e.revealData.resource,{range:e.revealData.range?H.lift(e.revealData.range):void 0,highlight:!0})}async clearInput(){await super.clearInput(),this.f?.set(null),this.r?.updateResource(void 0),this.a.setViewModel(void 0)}layout(t){this.a.layout(t)}getControl(){return this.a.getActiveControl()}focus(){super.focus(),this.a?.getActiveControl()?.focus()}hasFocus(){return this.a?.getActiveControl()?.hasTextFocus()||super.hasFocus()}nb(t){return this.a.getViewState()}ob(t){return t instanceof x}qb(t){return t.resource}tryGetCodeEditor(t){return this.a.tryGetCodeEditor(t)}findDocumentDiffItem(t){const e=this.a.findDocumentDiffItem(t);return e?e.multiDiffEditorItem:void 0}goToNextChange(){this.a?.goToNextChange()}goToPreviousChange(){this.a?.goToPreviousChange()}async showWhile(t){return this.$.showWhile(t)}};p=l=g([s(1,D),s(2,A),s(3,R),s(4,S),s(5,O),s(6,L),s(7,y),s(8,P),s(9,M)],p);class V extends ${constructor(t,e,i,o,r){super(),this.a=this.D(new w),this.b=e;const n=this.D(o.createMenu(d.MultiDiffEditorContent,i));this.f=()=>{if(this.a.clear(),!(n.getActions().length>0))return;const h=v.h("div.floating-menu-overlay-widget.multi-diff-root-floating-menu");t.appendChild(h.root);const u=r.createInstance(E,{container:h.root,menuId:d.MultiDiffEditorContent,getActionArg:()=>this.c}),f=new b;f.add(u),f.add(I(()=>h.root.remove())),this.a.value=f},this.f(),this.D(n.onDidChange(()=>{this.a.clear(),this.f()})),this.D(e)}updateResource(t){this.c=t,this.b.set(t??null),this.a.clear(),this.f()}}let m=class{constructor(t){this.a=t}createResourceLabel(t){const e=this.a.createInstance(_,t,{});return{setUri(i,o={}){i?e.element.setFile(i,{strikethrough:o.strikethrough}):e.element.clear()},dispose(){e.dispose()}}}};m=g([s(0,D)],m);export{p as $Hnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MultiDiffEditor_1;
+import * as DOM from "../../../../base/browser/dom.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { MultiDiffEditorWidget } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { FloatingClickMenu } from "../../../../platform/actions/browser/floatingMenu.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ResourceLabel } from "../../../browser/labels.js";
+import { AbstractEditorWithViewState } from "../../../browser/parts/editor/editorWithViewState.js";
+import { MultiDiffEditorInput } from "./multiDiffEditorInput.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { ResourceContextKey } from "../../../common/contextkeys.js";
+let MultiDiffEditor = class MultiDiffEditor2 extends AbstractEditorWithViewState {
+  static {
+    __name(this, "MultiDiffEditor");
+  }
+  static {
+    MultiDiffEditor_1 = this;
+  }
+  static {
+    this.ID = "multiDiffEditor";
+  }
+  get viewModel() {
+    return this._viewModel;
+  }
+  constructor(group, instantiationService, telemetryService, themeService, storageService, editorService, editorGroupService, textResourceConfigurationService, editorProgressService, menuService) {
+    super(MultiDiffEditor_1.ID, group, "multiDiffEditor", telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
+    this.editorProgressService = editorProgressService;
+    this.menuService = menuService;
+    this._multiDiffEditorWidget = void 0;
+  }
+  createEditor(parent) {
+    this._multiDiffEditorWidget = this._register(this.instantiationService.createInstance(MultiDiffEditorWidget, parent, this.instantiationService.createInstance(WorkbenchUIElementFactory)));
+    this._register(this._multiDiffEditorWidget.onDidChangeActiveControl(() => {
+      this._onDidChangeControl.fire();
+    }));
+    const scopedContextKeyService = this._multiDiffEditorWidget.getContextKeyService();
+    const scopedInstantiationService = this._multiDiffEditorWidget.getScopedInstantiationService();
+    this._sessionResourceContextKey = this._register(scopedInstantiationService.createInstance(ResourceContextKey));
+    this._contentOverlay = this._register(new MultiDiffEditorContentMenuOverlay(this._multiDiffEditorWidget.getRootElement(), this._sessionResourceContextKey, scopedContextKeyService, this.menuService, scopedInstantiationService));
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    this._viewModel = await input.getViewModel();
+    this._sessionResourceContextKey?.set(input.resource);
+    this._contentOverlay?.updateResource(input.resource);
+    this._multiDiffEditorWidget.setViewModel(this._viewModel);
+    const viewState = this.loadEditorViewState(input, context);
+    if (viewState) {
+      this._multiDiffEditorWidget.setViewState(viewState);
+    }
+    this._applyOptions(options);
+  }
+  setOptions(options) {
+    this._applyOptions(options);
+  }
+  _applyOptions(options) {
+    const viewState = options?.viewState;
+    if (!viewState || !viewState.revealData) {
+      return;
+    }
+    this._multiDiffEditorWidget?.reveal(viewState.revealData.resource, {
+      range: viewState.revealData.range ? Range.lift(viewState.revealData.range) : void 0,
+      highlight: true
+    });
+  }
+  async clearInput() {
+    await super.clearInput();
+    this._sessionResourceContextKey?.set(null);
+    this._contentOverlay?.updateResource(void 0);
+    this._multiDiffEditorWidget.setViewModel(void 0);
+  }
+  layout(dimension) {
+    this._multiDiffEditorWidget.layout(dimension);
+  }
+  getControl() {
+    return this._multiDiffEditorWidget.getActiveControl();
+  }
+  focus() {
+    super.focus();
+    this._multiDiffEditorWidget?.getActiveControl()?.focus();
+  }
+  hasFocus() {
+    return this._multiDiffEditorWidget?.getActiveControl()?.hasTextFocus() || super.hasFocus();
+  }
+  computeEditorViewState(resource) {
+    return this._multiDiffEditorWidget.getViewState();
+  }
+  tracksEditorViewState(input) {
+    return input instanceof MultiDiffEditorInput;
+  }
+  toEditorViewStateResource(input) {
+    return input.resource;
+  }
+  tryGetCodeEditor(resource) {
+    return this._multiDiffEditorWidget.tryGetCodeEditor(resource);
+  }
+  findDocumentDiffItem(resource) {
+    const i = this._multiDiffEditorWidget.findDocumentDiffItem(resource);
+    if (!i) {
+      return void 0;
+    }
+    const i2 = i;
+    return i2.multiDiffEditorItem;
+  }
+  goToNextChange() {
+    this._multiDiffEditorWidget?.goToNextChange();
+  }
+  goToPreviousChange() {
+    this._multiDiffEditorWidget?.goToPreviousChange();
+  }
+  async showWhile(promise) {
+    return this.editorProgressService.showWhile(promise);
+  }
+};
+MultiDiffEditor = MultiDiffEditor_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ITelemetryService),
+  __param(3, IThemeService),
+  __param(4, IStorageService),
+  __param(5, IEditorService),
+  __param(6, IEditorGroupsService),
+  __param(7, ITextResourceConfigurationService),
+  __param(8, IEditorProgressService),
+  __param(9, IMenuService)
+], MultiDiffEditor);
+class MultiDiffEditorContentMenuOverlay extends Disposable {
+  static {
+    __name(this, "MultiDiffEditorContentMenuOverlay");
+  }
+  constructor(root, resourceContextKey, contextKeyService, menuService, instantiationService) {
+    super();
+    this.overlayStore = this._register(new MutableDisposable());
+    this.resourceContextKey = resourceContextKey;
+    const menu = this._register(menuService.createMenu(MenuId.MultiDiffEditorContent, contextKeyService));
+    this.rebuild = () => {
+      this.overlayStore.clear();
+      const hasActions = menu.getActions().length > 0;
+      if (!hasActions) {
+        return;
+      }
+      const container = DOM.h("div.floating-menu-overlay-widget.multi-diff-root-floating-menu");
+      root.appendChild(container.root);
+      const floatingMenu = instantiationService.createInstance(FloatingClickMenu, {
+        container: container.root,
+        menuId: MenuId.MultiDiffEditorContent,
+        getActionArg: /* @__PURE__ */ __name(() => this.currentResource, "getActionArg")
+      });
+      const store = new DisposableStore();
+      store.add(floatingMenu);
+      store.add(toDisposable(() => container.root.remove()));
+      this.overlayStore.value = store;
+    };
+    this.rebuild();
+    this._register(menu.onDidChange(() => {
+      this.overlayStore.clear();
+      this.rebuild();
+    }));
+    this._register(resourceContextKey);
+  }
+  updateResource(resource) {
+    this.currentResource = resource;
+    this.resourceContextKey.set(resource ?? null);
+    this.overlayStore.clear();
+    this.rebuild();
+  }
+}
+let WorkbenchUIElementFactory = class WorkbenchUIElementFactory2 {
+  static {
+    __name(this, "WorkbenchUIElementFactory");
+  }
+  constructor(_instantiationService) {
+    this._instantiationService = _instantiationService;
+  }
+  createResourceLabel(element) {
+    const label = this._instantiationService.createInstance(ResourceLabel, element, {});
+    return {
+      setUri(uri, options = {}) {
+        if (!uri) {
+          label.element.clear();
+        } else {
+          label.element.setFile(uri, { strikethrough: options.strikethrough });
+        }
+      },
+      dispose() {
+        label.dispose();
+      }
+    };
+  }
+};
+WorkbenchUIElementFactory = __decorate([
+  __param(0, IInstantiationService)
+], WorkbenchUIElementFactory);
+export {
+  MultiDiffEditor
+};
+//# sourceMappingURL=multiDiffEditor.js.map

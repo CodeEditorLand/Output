@@ -1,1 +1,72 @@
-import{$pj as c,$9i as d}from"../../../../base/common/buffer.js";import{$ak as p}from"../../../../base/common/codicons.js";import{localize as $,localize2 as i}from"../../../../nls.js";import{$po as t}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as r}from"../../../../platform/instantiation/common/instantiation.js";import{$eu as x}from"../../../../platform/theme/common/iconRegistry.js";import{$Kn as a}from"../../../../base/common/hash.js";const h=i(8139,"Cloud Changes"),D=r("IEditSessionsStorageService"),E=r("IEditSessionsLogService");var s;(function(o){o[o.Addition=1]="Addition",o[o.Deletion=2]="Deletion"})(s||(s={}));var n;(function(o){o[o.File=1]="File"})(n||(n={}));const I=3,l="editSessionsSignedIn",k=new t(l,!1),H="editSessionsPending",z=new t(H,!1),A="workbench.view.editSessions",C="workbench.views.editSessions.data",F=i(8140,"Cloud Changes"),b=x("edit-sessions-view-icon",p.cloudDownload,$(8138,null)),j=new t("editSessionsShowView",!1),K="vscode-edit-sessions";function L(o,e){switch(o){case 1:return d.fromString(e);case 2:return c(e);default:throw new Error("Upgrade to a newer version to decode this content.")}}function B(o){const e=new a;return e.update(o),e.digest()}const G="editSessions";export{k as $AHc,H as $BHc,z as $CHc,A as $DHc,C as $EHc,F as $FHc,b as $GHc,j as $HHc,K as $IHc,L as $JHc,B as $KHc,G as $LHc,h as $vHc,D as $wHc,E as $xHc,I as $yHc,l as $zHc,s as ChangeType,n as FileType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { decodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { StringSHA1 } from "../../../../base/common/hash.js";
+const EDIT_SESSION_SYNC_CATEGORY = localize2("cloud changes", "Cloud Changes");
+const IEditSessionsStorageService = createDecorator("IEditSessionsStorageService");
+const IEditSessionsLogService = createDecorator("IEditSessionsLogService");
+var ChangeType;
+(function(ChangeType2) {
+  ChangeType2[ChangeType2["Addition"] = 1] = "Addition";
+  ChangeType2[ChangeType2["Deletion"] = 2] = "Deletion";
+})(ChangeType || (ChangeType = {}));
+var FileType;
+(function(FileType2) {
+  FileType2[FileType2["File"] = 1] = "File";
+})(FileType || (FileType = {}));
+const EditSessionSchemaVersion = 3;
+const EDIT_SESSIONS_SIGNED_IN_KEY = "editSessionsSignedIn";
+const EDIT_SESSIONS_SIGNED_IN = new RawContextKey(EDIT_SESSIONS_SIGNED_IN_KEY, false);
+const EDIT_SESSIONS_PENDING_KEY = "editSessionsPending";
+const EDIT_SESSIONS_PENDING = new RawContextKey(EDIT_SESSIONS_PENDING_KEY, false);
+const EDIT_SESSIONS_CONTAINER_ID = "workbench.view.editSessions";
+const EDIT_SESSIONS_DATA_VIEW_ID = "workbench.views.editSessions.data";
+const EDIT_SESSIONS_TITLE = localize2("cloud changes", "Cloud Changes");
+const EDIT_SESSIONS_VIEW_ICON = registerIcon("edit-sessions-view-icon", Codicon.cloudDownload, localize("editSessionViewIcon", "View icon of the cloud changes view."));
+const EDIT_SESSIONS_SHOW_VIEW = new RawContextKey("editSessionsShowView", false);
+const EDIT_SESSIONS_SCHEME = "vscode-edit-sessions";
+function decodeEditSessionFileContent(version, content) {
+  switch (version) {
+    case 1:
+      return VSBuffer.fromString(content);
+    case 2:
+      return decodeBase64(content);
+    default:
+      throw new Error("Upgrade to a newer version to decode this content.");
+  }
+}
+__name(decodeEditSessionFileContent, "decodeEditSessionFileContent");
+function hashedEditSessionId(editSessionId) {
+  const sha1 = new StringSHA1();
+  sha1.update(editSessionId);
+  return sha1.digest();
+}
+__name(hashedEditSessionId, "hashedEditSessionId");
+const editSessionsLogId = "editSessions";
+export {
+  ChangeType,
+  EDIT_SESSIONS_CONTAINER_ID,
+  EDIT_SESSIONS_DATA_VIEW_ID,
+  EDIT_SESSIONS_PENDING,
+  EDIT_SESSIONS_PENDING_KEY,
+  EDIT_SESSIONS_SCHEME,
+  EDIT_SESSIONS_SHOW_VIEW,
+  EDIT_SESSIONS_SIGNED_IN,
+  EDIT_SESSIONS_SIGNED_IN_KEY,
+  EDIT_SESSIONS_TITLE,
+  EDIT_SESSIONS_VIEW_ICON,
+  EDIT_SESSION_SYNC_CATEGORY,
+  EditSessionSchemaVersion,
+  FileType,
+  IEditSessionsLogService,
+  IEditSessionsStorageService,
+  decodeEditSessionFileContent,
+  editSessionsLogId,
+  hashedEditSessionId
+};
+//# sourceMappingURL=editSessions.js.map

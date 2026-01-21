@@ -1,1 +1,351 @@
-import{$_lb as H,$9lb as y,$Xlb as D}from"./hoverActionIds.js";import{$Ed as w,$Dd as M}from"../../../../base/common/lifecycle.js";import{$Lj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$tob as W}from"../../inlineCompletions/browser/hintsWidget/inlineCompletionsHintsWidget.js";import{$cy as V}from"../../../../platform/keybinding/common/keybinding.js";import{$ii as P}from"../../../../base/common/async.js";import{$vob as $,$wob as I,$xob as K}from"./hoverUtils.js";import{$1qb as k}from"./contentHoverWidgetWrapper.js";import"./hover.css";import{$wf as x}from"../../../../base/common/event.js";import{$2qb as A}from"../../colorPicker/browser/hoverColorPicker/hoverColorPicker.js";import{$3w as S}from"../../../../base/common/keyCodes.js";import{$6hb as L}from"../../../../platform/contextview/browser/contextView.js";var m=function(r,t,i,e){var s=arguments.length,o=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,i,e);else for(var c=r.length-1;c>=0;c--)(h=r[c])&&(o=(s<3?h(o):s>3?h(t,i,o):h(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},u=function(r,t){return function(i,e){t(i,e,r)}},f;const a=!1;let g=class extends w{static{f=this}static{this.ID="editor.contrib.contentHover"}constructor(t,i,e,s){super(),this.n=t,this.q=e,this.r=s,this.a=this.D(new x),this.onHoverContentsChanged=this.a.event,this.shouldKeepOpenOnEditorMouseMoveOrLeave=!1,this.b=new M,this.j=!1,this.m=!1,this.g=this.D(new P(()=>{this.f&&this.M(this.f)},0)),this.D(i.onDidShowContextMenu(()=>{this.hideContentHover(),this.m=!0})),this.D(i.onDidHideContextMenu(()=>{this.m=!1})),this.s(),this.D(this.n.onDidChangeConfiguration(o=>{o.hasChanged(69)&&(this.t(),this.s())}))}static get(t){return t.getContribution(f.ID)}s(){const t=this.n.getOption(69);this.h={enabled:t.enabled,sticky:t.sticky,hidingDelay:t.hidingDelay},t.enabled==="off"&&this.u(),this.b.add(this.n.onMouseDown(i=>this.z(i))),this.b.add(this.n.onMouseUp(()=>this.G())),this.b.add(this.n.onMouseMove(i=>this.J(i))),this.b.add(this.n.onKeyDown(i=>this.N(i))),this.b.add(this.n.onMouseLeave(i=>this.H(i))),this.b.add(this.n.onDidChangeModel(()=>this.u())),this.b.add(this.n.onDidChangeModelContent(()=>this.w())),this.b.add(this.n.onDidScrollChange(i=>this.y(i)))}t(){this.b.clear()}u(){this.w(),this.hideContentHover()}w(){this.f=void 0,this.g.cancel()}y(t){this.m||(t.scrollTopChanged||t.scrollLeftChanged)&&this.hideContentHover()}z(t){this.m||(this.j=!0,this.C(t))||this.hideContentHover()}C(t){return this.F(t)||this.Q()||A(t)}F(t){return this.c?$(this.c.getDomNode(),t.event.posx,t.event.posy):!1}G(){this.m||(this.j=!1)}H(t){this.m||this.shouldKeepOpenOnEditorMouseMoveOrLeave||(this.w(),this.C(t))||a||this.hideContentHover()}I(t){const i=this.c;if(!i)return!1;const e=this.h.sticky,s=(l,d)=>{const n=this.F(l);return d&&n},o=l=>{const d=i.isColorPickerVisible,n=this.F(l),C=d&&n,v=d&&this.j;return C||v},h=(l,d)=>{const n=l.event.browserEvent.view;return n?d&&i.containsNode(n.document.activeElement)&&!n.getSelection()?.isCollapsed:!1},c=i.isFocused,b=i.isResizing,p=this.h.sticky&&i.isVisibleFromKeyboard;return this.shouldKeepOpenOnEditorMouseMoveOrLeave||c||b||p||s(t,e)||o(t)||h(t,e)}J(t){if(this.m)return;if(this.f=t,this.I(t)){this.g.cancel();return}if(this.L()){this.g.isScheduled()||this.g.schedule(this.h.hidingDelay);return}this.M(t)}L(){const t=this.h.hidingDelay;return(this.c?.isVisible??!1)&&this.h.sticky&&t>0}M(t){I(this.h.enabled,this.n.getOption(86),t)&&this.P().showsOrWillShow(t)||a||this.hideContentHover()}N(t){if(this.m||!this.c)return;if(this.h.enabled==="onKeyboardModifier"&&K(this.n.getOption(86),t)&&this.f){this.c.isVisible||this.c.showsOrWillShow(this.f);return}const i=this.O(t),e=S(t.keyCode);i||e||this.c.isFocused&&t.keyCode===2||this.hideContentHover()}O(t){if(!this.n.hasModel()||!this.c)return!1;const i=this.r.softDispatch(t,this.n.getDomNode()),e=i.kind===1,s=i.kind===2&&(i.commandId===D||i.commandId===y||i.commandId===H)&&this.c.isVisible;return e||s}hideContentHover(){a||W.dropDownVisible||this.c?.hide()}P(){return this.c||(this.c=this.q.createInstance(k,this.n),this.b.add(this.c.onContentsChanged(()=>this.a.fire()))),this.c}showContentHover(t,i,e,s){this.P().startShowingAtRange(t,i,e,s)}Q(){return this.c?.widget.isResizing||!1}focusedHoverPartIndex(){return this.P().focusedHoverPartIndex()}doesHoverAtIndexSupportVerbosityAction(t,i){return this.P().doesHoverAtIndexSupportVerbosityAction(t,i)}updateHoverVerbosityLevel(t,i,e){this.P().updateHoverVerbosityLevel(t,i,e)}focus(){this.c?.focus()}focusHoverPartWithIndex(t){this.c?.focusHoverPartWithIndex(t)}scrollUp(){this.c?.scrollUp()}scrollDown(){this.c?.scrollDown()}scrollLeft(){this.c?.scrollLeft()}scrollRight(){this.c?.scrollRight()}pageUp(){this.c?.pageUp()}pageDown(){this.c?.pageDown()}goToTop(){this.c?.goToTop()}goToBottom(){this.c?.goToBottom()}getWidgetContent(){return this.c?.getWidgetContent()}getAccessibleWidgetContent(){return this.c?.getAccessibleWidgetContent()}getAccessibleWidgetContentAtIndex(t){return this.c?.getAccessibleWidgetContentAtIndex(t)}get isColorPickerVisible(){return this.c?.isColorPickerVisible}get isHoverVisible(){return this.c?.isVisible}dispose(){super.dispose(),this.t(),this.b.dispose(),this.c?.dispose()}};g=f=m([u(1,L),u(2,O),u(3,V)],g);export{g as $3qb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ContentHoverController_1;
+import { DECREASE_HOVER_VERBOSITY_ACTION_ID, INCREASE_HOVER_VERBOSITY_ACTION_ID, SHOW_OR_FOCUS_HOVER_ACTION_ID } from "./hoverActionIds.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { InlineSuggestionHintsContentWidget } from "../../inlineCompletions/browser/hintsWidget/inlineCompletionsHintsWidget.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { isMousePositionWithinElement, shouldShowHover, isTriggerModifierPressed } from "./hoverUtils.js";
+import { ContentHoverWidgetWrapper } from "./contentHoverWidgetWrapper.js";
+import "./hover.css";
+import { Emitter } from "../../../../base/common/event.js";
+import { isOnColorDecorator } from "../../colorPicker/browser/hoverColorPicker/hoverColorPicker.js";
+import { isModifierKey } from "../../../../base/common/keyCodes.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+const _sticky = false;
+let ContentHoverController = class ContentHoverController2 extends Disposable {
+  static {
+    __name(this, "ContentHoverController");
+  }
+  static {
+    ContentHoverController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.contentHover";
+  }
+  constructor(_editor, _contextMenuService, _instantiationService, _keybindingService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._keybindingService = _keybindingService;
+    this._onHoverContentsChanged = this._register(new Emitter());
+    this.onHoverContentsChanged = this._onHoverContentsChanged.event;
+    this.shouldKeepOpenOnEditorMouseMoveOrLeave = false;
+    this._listenersStore = new DisposableStore();
+    this._isMouseDown = false;
+    this._ignoreMouseEvents = false;
+    this._reactToEditorMouseMoveRunner = this._register(new RunOnceScheduler(() => {
+      if (this._mouseMoveEvent) {
+        this._reactToEditorMouseMove(this._mouseMoveEvent);
+      }
+    }, 0));
+    this._register(_contextMenuService.onDidShowContextMenu(() => {
+      this.hideContentHover();
+      this._ignoreMouseEvents = true;
+    }));
+    this._register(_contextMenuService.onDidHideContextMenu(() => {
+      this._ignoreMouseEvents = false;
+    }));
+    this._hookListeners();
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        69
+        /* EditorOption.hover */
+      )) {
+        this._unhookListeners();
+        this._hookListeners();
+      }
+    }));
+  }
+  static get(editor) {
+    return editor.getContribution(ContentHoverController_1.ID);
+  }
+  _hookListeners() {
+    const hoverOpts = this._editor.getOption(
+      69
+      /* EditorOption.hover */
+    );
+    this._hoverSettings = {
+      enabled: hoverOpts.enabled,
+      sticky: hoverOpts.sticky,
+      hidingDelay: hoverOpts.hidingDelay
+    };
+    if (hoverOpts.enabled === "off") {
+      this._cancelSchedulerAndHide();
+    }
+    this._listenersStore.add(this._editor.onMouseDown((e) => this._onEditorMouseDown(e)));
+    this._listenersStore.add(this._editor.onMouseUp(() => this._onEditorMouseUp()));
+    this._listenersStore.add(this._editor.onMouseMove((e) => this._onEditorMouseMove(e)));
+    this._listenersStore.add(this._editor.onKeyDown((e) => this._onKeyDown(e)));
+    this._listenersStore.add(this._editor.onMouseLeave((e) => this._onEditorMouseLeave(e)));
+    this._listenersStore.add(this._editor.onDidChangeModel(() => this._cancelSchedulerAndHide()));
+    this._listenersStore.add(this._editor.onDidChangeModelContent(() => this._cancelScheduler()));
+    this._listenersStore.add(this._editor.onDidScrollChange((e) => this._onEditorScrollChanged(e)));
+  }
+  _unhookListeners() {
+    this._listenersStore.clear();
+  }
+  _cancelSchedulerAndHide() {
+    this._cancelScheduler();
+    this.hideContentHover();
+  }
+  _cancelScheduler() {
+    this._mouseMoveEvent = void 0;
+    this._reactToEditorMouseMoveRunner.cancel();
+  }
+  _onEditorScrollChanged(e) {
+    if (this._ignoreMouseEvents) {
+      return;
+    }
+    if (e.scrollTopChanged || e.scrollLeftChanged) {
+      this.hideContentHover();
+    }
+  }
+  _onEditorMouseDown(mouseEvent) {
+    if (this._ignoreMouseEvents) {
+      return;
+    }
+    this._isMouseDown = true;
+    const shouldKeepHoverWidgetVisible = this._shouldKeepHoverWidgetVisible(mouseEvent);
+    if (shouldKeepHoverWidgetVisible) {
+      return;
+    }
+    this.hideContentHover();
+  }
+  _shouldKeepHoverWidgetVisible(mouseEvent) {
+    return this._isMouseOnContentHoverWidget(mouseEvent) || this._isContentWidgetResizing() || isOnColorDecorator(mouseEvent);
+  }
+  _isMouseOnContentHoverWidget(mouseEvent) {
+    if (!this._contentWidget) {
+      return false;
+    }
+    return isMousePositionWithinElement(this._contentWidget.getDomNode(), mouseEvent.event.posx, mouseEvent.event.posy);
+  }
+  _onEditorMouseUp() {
+    if (this._ignoreMouseEvents) {
+      return;
+    }
+    this._isMouseDown = false;
+  }
+  _onEditorMouseLeave(mouseEvent) {
+    if (this._ignoreMouseEvents) {
+      return;
+    }
+    if (this.shouldKeepOpenOnEditorMouseMoveOrLeave) {
+      return;
+    }
+    this._cancelScheduler();
+    const shouldKeepHoverWidgetVisible = this._shouldKeepHoverWidgetVisible(mouseEvent);
+    if (shouldKeepHoverWidgetVisible) {
+      return;
+    }
+    if (_sticky) {
+      return;
+    }
+    this.hideContentHover();
+  }
+  _shouldKeepCurrentHover(mouseEvent) {
+    const contentWidget = this._contentWidget;
+    if (!contentWidget) {
+      return false;
+    }
+    const isHoverSticky = this._hoverSettings.sticky;
+    const isMouseOnStickyContentHoverWidget = /* @__PURE__ */ __name((mouseEvent2, isHoverSticky2) => {
+      const isMouseOnContentHoverWidget = this._isMouseOnContentHoverWidget(mouseEvent2);
+      return isHoverSticky2 && isMouseOnContentHoverWidget;
+    }, "isMouseOnStickyContentHoverWidget");
+    const isMouseOnColorPickerOrChoosingColor = /* @__PURE__ */ __name((mouseEvent2) => {
+      const isColorPickerVisible = contentWidget.isColorPickerVisible;
+      const isMouseOnContentHoverWidget = this._isMouseOnContentHoverWidget(mouseEvent2);
+      const isMouseOnHoverWithColorPicker = isColorPickerVisible && isMouseOnContentHoverWidget;
+      const isMaybeChoosingColor = isColorPickerVisible && this._isMouseDown;
+      return isMouseOnHoverWithColorPicker || isMaybeChoosingColor;
+    }, "isMouseOnColorPickerOrChoosingColor");
+    const isTextSelectedWithinContentHoverWidget = /* @__PURE__ */ __name((mouseEvent2, sticky) => {
+      const view = mouseEvent2.event.browserEvent.view;
+      if (!view) {
+        return false;
+      }
+      return sticky && contentWidget.containsNode(view.document.activeElement) && !view.getSelection()?.isCollapsed;
+    }, "isTextSelectedWithinContentHoverWidget");
+    const isFocused = contentWidget.isFocused;
+    const isResizing = contentWidget.isResizing;
+    const isStickyAndVisibleFromKeyboard = this._hoverSettings.sticky && contentWidget.isVisibleFromKeyboard;
+    return this.shouldKeepOpenOnEditorMouseMoveOrLeave || isFocused || isResizing || isStickyAndVisibleFromKeyboard || isMouseOnStickyContentHoverWidget(mouseEvent, isHoverSticky) || isMouseOnColorPickerOrChoosingColor(mouseEvent) || isTextSelectedWithinContentHoverWidget(mouseEvent, isHoverSticky);
+  }
+  _onEditorMouseMove(mouseEvent) {
+    if (this._ignoreMouseEvents) {
+      return;
+    }
+    this._mouseMoveEvent = mouseEvent;
+    const shouldKeepCurrentHover = this._shouldKeepCurrentHover(mouseEvent);
+    if (shouldKeepCurrentHover) {
+      this._reactToEditorMouseMoveRunner.cancel();
+      return;
+    }
+    const shouldRescheduleHoverComputation = this._shouldRescheduleHoverComputation();
+    if (shouldRescheduleHoverComputation) {
+      if (!this._reactToEditorMouseMoveRunner.isScheduled()) {
+        this._reactToEditorMouseMoveRunner.schedule(this._hoverSettings.hidingDelay);
+      }
+      return;
+    }
+    this._reactToEditorMouseMove(mouseEvent);
+  }
+  _shouldRescheduleHoverComputation() {
+    const hidingDelay = this._hoverSettings.hidingDelay;
+    const isContentHoverWidgetVisible = this._contentWidget?.isVisible ?? false;
+    return isContentHoverWidgetVisible && this._hoverSettings.sticky && hidingDelay > 0;
+  }
+  _reactToEditorMouseMove(mouseEvent) {
+    if (shouldShowHover(this._hoverSettings.enabled, this._editor.getOption(
+      86
+      /* EditorOption.multiCursorModifier */
+    ), mouseEvent)) {
+      const contentWidget = this._getOrCreateContentWidget();
+      if (contentWidget.showsOrWillShow(mouseEvent)) {
+        return;
+      }
+    }
+    if (_sticky) {
+      return;
+    }
+    this.hideContentHover();
+  }
+  _onKeyDown(e) {
+    if (this._ignoreMouseEvents || !this._contentWidget) {
+      return;
+    }
+    if (this._hoverSettings.enabled === "onKeyboardModifier" && isTriggerModifierPressed(this._editor.getOption(
+      86
+      /* EditorOption.multiCursorModifier */
+    ), e) && this._mouseMoveEvent) {
+      if (!this._contentWidget.isVisible) {
+        this._contentWidget.showsOrWillShow(this._mouseMoveEvent);
+      }
+      return;
+    }
+    const isPotentialKeyboardShortcut = this._isPotentialKeyboardShortcut(e);
+    const isModifierKeyPressed = isModifierKey(e.keyCode);
+    if (isPotentialKeyboardShortcut || isModifierKeyPressed) {
+      return;
+    }
+    if (this._contentWidget.isFocused && e.keyCode === 2) {
+      return;
+    }
+    this.hideContentHover();
+  }
+  _isPotentialKeyboardShortcut(e) {
+    if (!this._editor.hasModel() || !this._contentWidget) {
+      return false;
+    }
+    const resolvedKeyboardEvent = this._keybindingService.softDispatch(e, this._editor.getDomNode());
+    const moreChordsAreNeeded = resolvedKeyboardEvent.kind === 1;
+    const isHoverAction = resolvedKeyboardEvent.kind === 2 && (resolvedKeyboardEvent.commandId === SHOW_OR_FOCUS_HOVER_ACTION_ID || resolvedKeyboardEvent.commandId === INCREASE_HOVER_VERBOSITY_ACTION_ID || resolvedKeyboardEvent.commandId === DECREASE_HOVER_VERBOSITY_ACTION_ID) && this._contentWidget.isVisible;
+    return moreChordsAreNeeded || isHoverAction;
+  }
+  hideContentHover() {
+    if (_sticky) {
+      return;
+    }
+    if (InlineSuggestionHintsContentWidget.dropDownVisible) {
+      return;
+    }
+    this._contentWidget?.hide();
+  }
+  _getOrCreateContentWidget() {
+    if (!this._contentWidget) {
+      this._contentWidget = this._instantiationService.createInstance(ContentHoverWidgetWrapper, this._editor);
+      this._listenersStore.add(this._contentWidget.onContentsChanged(() => this._onHoverContentsChanged.fire()));
+    }
+    return this._contentWidget;
+  }
+  showContentHover(range, mode, source, focus) {
+    this._getOrCreateContentWidget().startShowingAtRange(range, mode, source, focus);
+  }
+  _isContentWidgetResizing() {
+    return this._contentWidget?.widget.isResizing || false;
+  }
+  focusedHoverPartIndex() {
+    return this._getOrCreateContentWidget().focusedHoverPartIndex();
+  }
+  doesHoverAtIndexSupportVerbosityAction(index, action) {
+    return this._getOrCreateContentWidget().doesHoverAtIndexSupportVerbosityAction(index, action);
+  }
+  updateHoverVerbosityLevel(action, index, focus) {
+    this._getOrCreateContentWidget().updateHoverVerbosityLevel(action, index, focus);
+  }
+  focus() {
+    this._contentWidget?.focus();
+  }
+  focusHoverPartWithIndex(index) {
+    this._contentWidget?.focusHoverPartWithIndex(index);
+  }
+  scrollUp() {
+    this._contentWidget?.scrollUp();
+  }
+  scrollDown() {
+    this._contentWidget?.scrollDown();
+  }
+  scrollLeft() {
+    this._contentWidget?.scrollLeft();
+  }
+  scrollRight() {
+    this._contentWidget?.scrollRight();
+  }
+  pageUp() {
+    this._contentWidget?.pageUp();
+  }
+  pageDown() {
+    this._contentWidget?.pageDown();
+  }
+  goToTop() {
+    this._contentWidget?.goToTop();
+  }
+  goToBottom() {
+    this._contentWidget?.goToBottom();
+  }
+  getWidgetContent() {
+    return this._contentWidget?.getWidgetContent();
+  }
+  getAccessibleWidgetContent() {
+    return this._contentWidget?.getAccessibleWidgetContent();
+  }
+  getAccessibleWidgetContentAtIndex(index) {
+    return this._contentWidget?.getAccessibleWidgetContentAtIndex(index);
+  }
+  get isColorPickerVisible() {
+    return this._contentWidget?.isColorPickerVisible;
+  }
+  get isHoverVisible() {
+    return this._contentWidget?.isVisible;
+  }
+  dispose() {
+    super.dispose();
+    this._unhookListeners();
+    this._listenersStore.dispose();
+    this._contentWidget?.dispose();
+  }
+};
+ContentHoverController = ContentHoverController_1 = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IInstantiationService),
+  __param(3, IKeybindingService)
+], ContentHoverController);
+export {
+  ContentHoverController
+};
+//# sourceMappingURL=contentHoverController.js.map

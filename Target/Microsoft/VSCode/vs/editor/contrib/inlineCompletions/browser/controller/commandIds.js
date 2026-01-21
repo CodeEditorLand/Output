@@ -1,1 +1,19 @@
-const t="editor.action.inlineSuggest.commit",e="editor.action.inlineSuggest.commitAlternativeAction",o="editor.action.inlineSuggest.showPrevious",i="editor.action.inlineSuggest.showNext",n="editor.action.inlineSuggest.jump",c="editor.action.inlineSuggest.hide",s="editor.action.inlineSuggest.toggleShowCollapsed",g="editor.action.inlineSuggest.renameSymbol";export{t as $cmb,e as $dmb,o as $emb,i as $fmb,n as $gmb,c as $hmb,s as $imb,g as $jmb};
+const inlineSuggestCommitId = "editor.action.inlineSuggest.commit";
+const inlineSuggestCommitAlternativeActionId = "editor.action.inlineSuggest.commitAlternativeAction";
+const showPreviousInlineSuggestionActionId = "editor.action.inlineSuggest.showPrevious";
+const showNextInlineSuggestionActionId = "editor.action.inlineSuggest.showNext";
+const jumpToNextInlineEditId = "editor.action.inlineSuggest.jump";
+const hideInlineCompletionId = "editor.action.inlineSuggest.hide";
+const toggleShowCollapsedId = "editor.action.inlineSuggest.toggleShowCollapsed";
+const renameSymbolCommandId = "editor.action.inlineSuggest.renameSymbol";
+export {
+  hideInlineCompletionId,
+  inlineSuggestCommitAlternativeActionId,
+  inlineSuggestCommitId,
+  jumpToNextInlineEditId,
+  renameSymbolCommandId,
+  showNextInlineSuggestionActionId,
+  showPreviousInlineSuggestionActionId,
+  toggleShowCollapsedId
+};
+//# sourceMappingURL=commandIds.js.map

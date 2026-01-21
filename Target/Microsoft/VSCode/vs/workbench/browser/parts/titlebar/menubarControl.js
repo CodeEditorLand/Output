@@ -1,1 +1,734 @@
-import"./media/menubarControl.css";import{localize as h,localize2 as W}from"../../../../nls.js";import{$oL as P,$nL as a,$qL as S,$tL as X,$sL as j,$rL as R,$pL as m}from"../../../../platform/actions/common/actions.js";import{$Ju as x,$Iu as K}from"../../../../platform/window/common/window.js";import{$qo as z}from"../../../../platform/contextkey/common/contextkey.js";import{$Em as J,$Hm as _,$Gm as M,$Fm as E,$Jm as b}from"../../../../base/common/actions.js";import{$F7 as I,$X7 as U,$B8 as L}from"../../../../base/browser/dom.js";import{$cy as G}from"../../../../platform/keybinding/common/keybinding.js";import{$n as g,$s as p,$v as Z,$q as Q}from"../../../../base/common/platform.js";import{$9l as Y}from"../../../../platform/configuration/common/configuration.js";import{$wf as N}from"../../../../base/common/event.js";import{$Ed as tt,$Dd as w}from"../../../../base/common/lifecycle.js";import{$5v as et,$4v as it,$3v as nt}from"../../../../platform/workspaces/common/workspaces.js";import{$ii as st}from"../../../../base/common/async.js";import{$lH as ot}from"../../../../platform/label/common/label.js";import{$Jy as rt}from"../../../../platform/update/common/update.js";import{$gp as at}from"../../../../platform/storage/common/storage.js";import{$mH as lt,Severity as ht}from"../../../../platform/notification/common/notification.js";import{$XM as ut}from"../../../services/preferences/common/preferences.js";import{$BP as ct}from"../../../services/environment/common/environmentService.js";import{$6$ as bt}from"../../../../base/browser/ui/menu/menubar.js";import{HorizontalDirection as T,VerticalDirection as O}from"../../../../base/browser/ui/menu/menu.js";import{$Tm as d,$Vm as dt}from"../../../../base/common/labels.js";import{$JD as mt}from"../../../../platform/accessibility/common/accessibility.js";import{$g7 as ft,$h7 as pt}from"../../../../base/browser/browser.js";import{$pbb as gt}from"../../../services/host/browser/host.js";import{$t7 as wt}from"../../../../base/browser/canIUse.js";import{$LN as Mt,$KN as $t}from"../../../../platform/contextkey/common/contextkeys.js";import{$to as yt}from"../../../../platform/commands/common/commands.js";import{$op as Dt}from"../../../../platform/telemetry/common/telemetry.js";import{$sWb as vt}from"../../actions/windowActions.js";import{$wo as Ct}from"../../../../platform/action/common/action.js";import{$Rib as At}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$Oib as Ft}from"../../../../platform/theme/browser/defaultStyles.js";import{$96 as B}from"../../../../base/browser/window.js";var H=function(f,t,i,e){var n=arguments.length,o=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,i,e);else for(var s=f.length-1;s>=0;s--)(r=f[s])&&(o=(n<3?r(o):n>3?r(t,i,o):r(t,i))||o);return n>3&&o&&Object.defineProperty(t,i,o),o},u=function(f,t){return function(i,e){t(i,e,f)}};m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarFileMenu,title:{value:"File",original:"File",mnemonicTitle:h(4081,null)},order:1});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarEditMenu,title:{value:"Edit",original:"Edit",mnemonicTitle:h(4082,null)},order:2});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarSelectionMenu,title:{value:"Selection",original:"Selection",mnemonicTitle:h(4083,null)},order:3});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarViewMenu,title:{value:"View",original:"View",mnemonicTitle:h(4084,null)},order:4});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarGoMenu,title:{value:"Go",original:"Go",mnemonicTitle:h(4085,null)},order:5});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarTerminalMenu,title:{value:"Terminal",original:"Terminal",mnemonicTitle:h(4086,null)},order:7});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarHelpMenu,title:{value:"Help",original:"Help",mnemonicTitle:h(4087,null)},order:8});m.appendMenuItem(a.MenubarMainMenu,{submenu:a.MenubarPreferencesMenu,title:{value:"Preferences",original:"Preferences",mnemonicTitle:h(4088,null)},when:Mt,order:9});class y extends tt{static{this.m=10}constructor(t,i,e,n,o,r,s,l,c,D,v,C,A,F){super(),this.n=t,this.q=i,this.r=e,this.s=n,this.t=o,this.u=r,this.w=s,this.y=l,this.z=c,this.C=D,this.F=v,this.G=C,this.H=A,this.I=F,this.a=["window.menuBarVisibility","window.enableMenuBarMnemonics","window.customMenuBarAltFocus","workbench.sideBar.location","window.nativeTabs"],this.c={},this.f={},this.h={files:[],workspaces:[]},this.b=this.D(this.n.createMenu(a.MenubarMainMenu,this.r)),this.g=this.D(new w),this.M(),this.j=this.D(new st(()=>this.J(!1),200)),this.Z()}L(){this.D(this.H.onDidChangeFocus(t=>this.S(t))),this.D(this.t.onDidChangeConfiguration(t=>this.U(t))),this.D(this.w.onStateChange(()=>this.P())),this.D(this.q.onDidChangeRecentlyOpened(()=>{this.X()})),this.D(this.s.onDidUpdateKeybindings(()=>this.N())),this.D(this.u.onDidChangeFormatters(()=>{this.X()})),this.D(this.b.onDidChange(()=>{this.M(),this.J(!0)}))}M(){this.g.clear(),this.c={},this.f={};const[,t]=this.b.getActions()[0];for(const i of t)i instanceof S&&typeof i.item.title!="string"&&(this.c[i.item.title.original]=this.g.add(this.n.createMenu(i.item.submenu,this.r,{emitEventsForSubmenuChanges:!0})),this.f[i.item.title.original]=i.item.title.mnemonicTitle??i.item.title.value)}N(){this.j.schedule()}O(t){const i=t.label;switch(t.id){default:break}return i}P(){this.N()}Q(){this.N()}R(){if(!this.h)return[];const{workspaces:t,files:i}=this.h,e=[];if(t.length>0){for(let n=0;n<y.m&&n<t.length;n++)e.push(this.Y(t[n]));e.push(new M)}if(i.length>0){for(let n=0;n<y.m&&n<i.length;n++)e.push(this.Y(i[n]));e.push(new M)}return e}S(t){t&&this.X()}U(t){this.a.some(i=>t.affectsConfiguration(i))&&this.N(),t.affectsConfiguration("editor.accessibilitySupport")&&this.Z(),t.affectsConfiguration("window.menuBarVisibility")&&this.X()}get W(){return g&&Q?!1:x(this.t)==="hidden"}X(){this.W||this.q.getRecentlyOpened().then(t=>{this.h=t,this.N()})}Y(t){let i,e,n,o;const r=t.remoteAuthority;et(t)?(e=t.folderUri,i=t.label||this.u.getWorkspaceLabel(e,{verbose:2}),n="openRecentFolder",o={folderUri:e}):it(t)?(e=t.workspace.configPath,i=t.label||this.u.getWorkspaceLabel(t.workspace,{verbose:2}),n="openRecentWorkspace",o={workspaceUri:e}):(e=t.fileUri,i=t.label||this.u.getUriLabel(e,{appendWorkspaceSuffix:!0}),n="openRecentFile",o={fileUri:e});const s=b({id:n,label:dt(i),run:l=>{const c=l&&(!g&&(l.ctrlKey||l.shiftKey)||g&&(l.metaKey||l.altKey));return this.H.openWindow([o],{forceNewWindow:!!c,remoteAuthority:r||null})}});return Object.assign(s,{uri:e,remoteAuthority:r})}Z(){if(p||g)return;const t=this.y.getBoolean("menubar/accessibleMenubarNotified",-1,!1),i=!K(this.t);if(t||i||!this.G.isScreenReaderOptimized())return;const e=h(4089,null);this.z.prompt(ht.Info,e,[{label:h(4090,null),run:()=>this.C.openUserSettings({query:"window.menuStyle"})}]),this.y.store("menubar/accessibleMenubarNotified",!0,-1,0)}}let $;function kt(){return $||($=new N,X(class extends j{constructor(){super({id:"workbench.actions.menubar.focus",title:W(4098,"Focus Application Menu"),keybinding:{primary:580,weight:200,when:$t},f1:!0})}async run(){$?.fire()}})),$}let V=class extends y{constructor(t,i,e,n,o,r,s,l,c,D,v,C,A,F,q){super(t,i,e,n,o,r,s,l,c,D,v,C,F,q),this.jb=A,this.bb=!1,this.cb=!1,this.db=!1,this.eb=!0,this.gb=this.D(this.n.createMenu(a.MenubarHomeMenu,this.r)),this.tb=this.D(new w),this.ub=this.D(new w),this.hb=this.D(new N),this.ib=this.D(new N),this.fb=this.D(new E),this.fb.onDidRun(k=>{this.jb.publicLog2("workbenchActionExecuted",{id:k.action.id,from:"menu"})}),this.q.getRecentlyOpened().then(k=>{this.h=k}),this.L()}J(t){this.cb||this.vb(t),t&&(this.db=!0)}lb(){switch(this.w.state.type){case"idle":return b({id:"update.check",label:h(4091,null),enabled:!0,run:()=>this.w.checkForUpdates(!0)});case"checking for updates":return b({id:"update.checking",label:h(4092,null),enabled:!1,run:()=>{}});case"available for download":return b({id:"update.downloadNow",label:h(4093,null),enabled:!0,run:()=>this.w.downloadUpdate()});case"downloading":return b({id:"update.downloading",label:h(4094,null),enabled:!1,run:()=>{}});case"downloaded":return g?null:b({id:"update.install",label:h(4095,null),enabled:!0,run:()=>this.w.applyUpdate()});case"updating":return b({id:"update.updating",label:h(4096,null),enabled:!1,run:()=>{}});case"ready":return b({id:"update.restart",label:h(4097,null),enabled:!0,run:()=>this.w.quitAndInstall()});default:return null}}get mb(){return x(this.t)}get nb(){const t=this.t.getValue("window.customMenuBarAltFocus");let i=!1;return typeof t=="boolean"&&(i=!t),i}ob(t,i){switch(t.id){case vt.ID:i.push(...this.R());break;case"workbench.action.showAboutDialog":if(!g&&!p){const e=this.lb();e&&(e.label=d(e.label),i.push(e),i.push(new M))}break;default:break}}get pb(){let t=this.t.getValue("window.enableMenuBarMnemonics");return typeof t!="boolean"&&(t=!0),t&&(!p||ft(B))}get qb(){if(this.mb!=="compact")return;const i=this.t.getValue("workbench.sideBar.location")==="right"?T.Left:T.Right,n=this.t.getValue("workbench.activityBar.location")==="bottom"?O.Above:O.Below;return{horizontal:i,vertical:n}}rb(t){this.eb=t,this.X(),this.hb.fire(t)}sb(t){return At(t.getActions({shouldForwardArgs:!0}))}vb(t){if(!this.ab)return;t?(this.$&&this.tb.clear(),this.$=this.tb.add(new bt(this.ab,this.xb(),Ft)),this.G.alwaysUnderlineAccessKeys().then(e=>{this.bb=e,this.$?.update(this.xb())}),this.tb.add(this.$.onFocusStateChange(e=>{this.ib.fire(e),e||(this.db?(this.vb(!0),this.db=!1):this.N(),this.cb=!1)})),this.tb.add(this.$.onVisibilityChange(e=>this.rb(e))),this.tb.add(I(this.ab,L.FOCUS_IN,()=>{this.cb=!0})),this.tb.add(I(this.ab,L.FOCUS_OUT,()=>{this.cb=!1})),this.$.isVisible&&this.rb(!0)):this.$?.update(this.xb());const i=(e,n,o,r)=>{n.splice(0);for(const s of e)if(this.ob(s,n),s instanceof M)n.push(s);else if(s instanceof S||s instanceof R){let l=typeof s.item.title=="string"?s.item.title:s.item.title.mnemonicTitle??s.item.title.value;if(s instanceof S){const c=[];i(s.actions,c,o,r),c.length>0&&n.push(new _(s.id,d(l),c))}else{Ct(s.item.toggled)&&(l=s.item.toggled.mnemonicTitle??s.item.toggled.title??l);const c=r.add(new J(s.id,d(l),s.class,s.enabled,()=>this.I.executeCommand(s.id)));c.tooltip=s.tooltip,c.checked=s.checked,n.push(c)}}if(o==="File"&&this.qb===void 0){const s=this.wb();s.length&&n.push(...s)}};for(const e of Object.keys(this.f)){const n=this.c[e];if(t&&n){const r=this.tb.add(new w);if(this.tb.add(n.onDidChange(()=>{if(!this.cb){const s=[];r.clear(),i(this.sb(n),s,e,r),this.$?.updateMenu({actions:s,label:d(this.f[e])})}})),n===this.c.File){const s=this.tb.add(new w);this.tb.add(this.gb.onDidChange(()=>{if(!this.cb){const l=[];s.clear(),i(this.sb(n),l,e,s),this.$?.updateMenu({actions:l,label:d(this.f[e])})}}))}}const o=[];n&&(this.ub.clear(),i(this.sb(n),o,e,this.ub)),this.$&&(t?this.$.push({actions:o,label:d(this.f[e])}):this.$.updateMenu({actions:o,label:d(this.f[e])}))}}wb(){if(!p)return[];const t=[];for(const i of this.gb.getActions()){const[,e]=i;for(const n of e)if(n instanceof R){const o=typeof n.item.title=="string"?n.item.title:n.item.title.mnemonicTitle??n.item.title.value;t.push(b({id:n.id,label:d(o),class:n.class,enabled:n.enabled,run:async r=>{this.I.executeCommand(n.id,r)}}))}t.push(new M)}return t.length&&t.pop(),t}xb(){return{enableMnemonics:this.pb,disableAltFocus:this.nb,visibility:this.mb,actionRunner:this.fb,getKeybinding:t=>this.s.lookupKeybinding(t.id),alwaysOnMnemonics:this.bb,compactMode:this.qb,getCompactMenuActions:()=>p?this.wb():[]}}S(t){this.eb&&(super.S(t),this.ab&&(t?this.ab.classList.remove("inactive"):(this.ab.classList.add("inactive"),this.$?.blur())))}P(){this.eb&&super.P()}X(){this.eb&&super.X()}Q(){this.eb&&super.Q()}L(){super.L(),this.D(I(B,L.RESIZE,()=>{this.$&&!(Z&&wt.pointerEvents)&&this.$.blur()})),p&&(this.D(pt(t=>{t===B.vscodeWindowId&&this.N()})),this.D(this.gb.onDidChange(()=>this.N())),this.D(kt().event(()=>this.$?.toggleFocus())))}get onVisibilityChange(){return this.hb.event}get onFocusStateChange(){return this.ib.event}getMenubarItemsDimensions(){return this.$?new U(this.$.getWidth(),this.$.getHeight()):new U(0,0)}create(t){return this.ab=t,this.ab&&this.J(!0),this.ab}layout(t){this.$?.update(this.xb())}toggleFocus(){this.$?.toggleFocus()}};V=H([u(0,P),u(1,nt),u(2,z),u(3,G),u(4,Y),u(5,ot),u(6,rt),u(7,at),u(8,lt),u(9,ut),u(10,ct),u(11,mt),u(12,Dt),u(13,gt),u(14,yt)],V);export{y as $S9b,V as $T9b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/menubarControl.css";
+import { localize, localize2 } from "../../../../nls.js";
+import { IMenuService, MenuId, SubmenuItemAction, registerAction2, Action2, MenuItemAction, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { getMenuBarVisibility, hasNativeMenu } from "../../../../platform/window/common/window.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action, SubmenuAction, Separator, ActionRunner, toAction } from "../../../../base/common/actions.js";
+import { addDisposableListener, Dimension, EventType } from "../../../../base/browser/dom.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { isMacintosh, isWeb, isIOS, isNative } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isRecentFolder, isRecentWorkspace, IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { MenuBar } from "../../../../base/browser/ui/menu/menubar.js";
+import { HorizontalDirection, VerticalDirection } from "../../../../base/browser/ui/menu/menu.js";
+import { mnemonicMenuLabel, unmnemonicLabel } from "../../../../base/common/labels.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { isFullscreen, onDidChangeFullscreen } from "../../../../base/browser/browser.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { BrowserFeatures } from "../../../../base/browser/canIUse.js";
+import { IsMacNativeContext, IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { OpenRecentAction } from "../../actions/windowActions.js";
+import { isICommandActionToggleInfo } from "../../../../platform/action/common/action.js";
+import { getFlatContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { defaultMenuStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarFileMenu,
+  title: {
+    value: "File",
+    original: "File",
+    mnemonicTitle: localize({ key: "mFile", comment: ["&& denotes a mnemonic"] }, "&&File")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarEditMenu,
+  title: {
+    value: "Edit",
+    original: "Edit",
+    mnemonicTitle: localize({ key: "mEdit", comment: ["&& denotes a mnemonic"] }, "&&Edit")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarSelectionMenu,
+  title: {
+    value: "Selection",
+    original: "Selection",
+    mnemonicTitle: localize({ key: "mSelection", comment: ["&& denotes a mnemonic"] }, "&&Selection")
+  },
+  order: 3
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarViewMenu,
+  title: {
+    value: "View",
+    original: "View",
+    mnemonicTitle: localize({ key: "mView", comment: ["&& denotes a mnemonic"] }, "&&View")
+  },
+  order: 4
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarGoMenu,
+  title: {
+    value: "Go",
+    original: "Go",
+    mnemonicTitle: localize({ key: "mGoto", comment: ["&& denotes a mnemonic"] }, "&&Go")
+  },
+  order: 5
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarTerminalMenu,
+  title: {
+    value: "Terminal",
+    original: "Terminal",
+    mnemonicTitle: localize({ key: "mTerminal", comment: ["&& denotes a mnemonic"] }, "&&Terminal")
+  },
+  order: 7
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarHelpMenu,
+  title: {
+    value: "Help",
+    original: "Help",
+    mnemonicTitle: localize({ key: "mHelp", comment: ["&& denotes a mnemonic"] }, "&&Help")
+  },
+  order: 8
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarPreferencesMenu,
+  title: {
+    value: "Preferences",
+    original: "Preferences",
+    mnemonicTitle: localize({ key: "mPreferences", comment: ["&& denotes a mnemonic"] }, "Preferences")
+  },
+  when: IsMacNativeContext,
+  order: 9
+});
+class MenubarControl extends Disposable {
+  static {
+    __name(this, "MenubarControl");
+  }
+  static {
+    this.MAX_MENU_RECENT_ENTRIES = 10;
+  }
+  constructor(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, hostService, commandService) {
+    super();
+    this.menuService = menuService;
+    this.workspacesService = workspacesService;
+    this.contextKeyService = contextKeyService;
+    this.keybindingService = keybindingService;
+    this.configurationService = configurationService;
+    this.labelService = labelService;
+    this.updateService = updateService;
+    this.storageService = storageService;
+    this.notificationService = notificationService;
+    this.preferencesService = preferencesService;
+    this.environmentService = environmentService;
+    this.accessibilityService = accessibilityService;
+    this.hostService = hostService;
+    this.commandService = commandService;
+    this.keys = [
+      "window.menuBarVisibility",
+      "window.enableMenuBarMnemonics",
+      "window.customMenuBarAltFocus",
+      "workbench.sideBar.location",
+      "window.nativeTabs"
+    ];
+    this.menus = {};
+    this.topLevelTitles = {};
+    this.recentlyOpened = { files: [], workspaces: [] };
+    this.mainMenu = this._register(this.menuService.createMenu(MenuId.MenubarMainMenu, this.contextKeyService));
+    this.mainMenuDisposables = this._register(new DisposableStore());
+    this.setupMainMenu();
+    this.menuUpdater = this._register(new RunOnceScheduler(() => this.doUpdateMenubar(false), 200));
+    this.notifyUserOfCustomMenubarAccessibility();
+  }
+  registerListeners() {
+    this._register(this.hostService.onDidChangeFocus((e) => this.onDidChangeWindowFocus(e)));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(this.updateService.onStateChange(() => this.onUpdateStateChange()));
+    this._register(this.workspacesService.onDidChangeRecentlyOpened(() => {
+      this.onDidChangeRecentlyOpened();
+    }));
+    this._register(this.keybindingService.onDidUpdateKeybindings(() => this.updateMenubar()));
+    this._register(this.labelService.onDidChangeFormatters(() => {
+      this.onDidChangeRecentlyOpened();
+    }));
+    this._register(this.mainMenu.onDidChange(() => {
+      this.setupMainMenu();
+      this.doUpdateMenubar(true);
+    }));
+  }
+  setupMainMenu() {
+    this.mainMenuDisposables.clear();
+    this.menus = {};
+    this.topLevelTitles = {};
+    const [, mainMenuActions] = this.mainMenu.getActions()[0];
+    for (const mainMenuAction of mainMenuActions) {
+      if (mainMenuAction instanceof SubmenuItemAction && typeof mainMenuAction.item.title !== "string") {
+        this.menus[mainMenuAction.item.title.original] = this.mainMenuDisposables.add(this.menuService.createMenu(mainMenuAction.item.submenu, this.contextKeyService, { emitEventsForSubmenuChanges: true }));
+        this.topLevelTitles[mainMenuAction.item.title.original] = mainMenuAction.item.title.mnemonicTitle ?? mainMenuAction.item.title.value;
+      }
+    }
+  }
+  updateMenubar() {
+    this.menuUpdater.schedule();
+  }
+  calculateActionLabel(action) {
+    const label = action.label;
+    switch (action.id) {
+      default:
+        break;
+    }
+    return label;
+  }
+  onUpdateStateChange() {
+    this.updateMenubar();
+  }
+  onUpdateKeybindings() {
+    this.updateMenubar();
+  }
+  getOpenRecentActions() {
+    if (!this.recentlyOpened) {
+      return [];
+    }
+    const { workspaces, files } = this.recentlyOpened;
+    const result = [];
+    if (workspaces.length > 0) {
+      for (let i = 0; i < MenubarControl.MAX_MENU_RECENT_ENTRIES && i < workspaces.length; i++) {
+        result.push(this.createOpenRecentMenuAction(workspaces[i]));
+      }
+      result.push(new Separator());
+    }
+    if (files.length > 0) {
+      for (let i = 0; i < MenubarControl.MAX_MENU_RECENT_ENTRIES && i < files.length; i++) {
+        result.push(this.createOpenRecentMenuAction(files[i]));
+      }
+      result.push(new Separator());
+    }
+    return result;
+  }
+  onDidChangeWindowFocus(hasFocus) {
+    if (hasFocus) {
+      this.onDidChangeRecentlyOpened();
+    }
+  }
+  onConfigurationUpdated(event) {
+    if (this.keys.some((key) => event.affectsConfiguration(key))) {
+      this.updateMenubar();
+    }
+    if (event.affectsConfiguration("editor.accessibilitySupport")) {
+      this.notifyUserOfCustomMenubarAccessibility();
+    }
+    if (event.affectsConfiguration(
+      "window.menuBarVisibility"
+      /* MenuSettings.MenuBarVisibility */
+    )) {
+      this.onDidChangeRecentlyOpened();
+    }
+  }
+  get menubarHidden() {
+    return isMacintosh && isNative ? false : getMenuBarVisibility(this.configurationService) === "hidden";
+  }
+  onDidChangeRecentlyOpened() {
+    if (!this.menubarHidden) {
+      this.workspacesService.getRecentlyOpened().then((recentlyOpened) => {
+        this.recentlyOpened = recentlyOpened;
+        this.updateMenubar();
+      });
+    }
+  }
+  createOpenRecentMenuAction(recent) {
+    let label;
+    let uri;
+    let commandId;
+    let openable;
+    const remoteAuthority = recent.remoteAuthority;
+    if (isRecentFolder(recent)) {
+      uri = recent.folderUri;
+      label = recent.label || this.labelService.getWorkspaceLabel(uri, {
+        verbose: 2
+        /* Verbosity.LONG */
+      });
+      commandId = "openRecentFolder";
+      openable = { folderUri: uri };
+    } else if (isRecentWorkspace(recent)) {
+      uri = recent.workspace.configPath;
+      label = recent.label || this.labelService.getWorkspaceLabel(recent.workspace, {
+        verbose: 2
+        /* Verbosity.LONG */
+      });
+      commandId = "openRecentWorkspace";
+      openable = { workspaceUri: uri };
+    } else {
+      uri = recent.fileUri;
+      label = recent.label || this.labelService.getUriLabel(uri, { appendWorkspaceSuffix: true });
+      commandId = "openRecentFile";
+      openable = { fileUri: uri };
+    }
+    const ret = toAction({
+      id: commandId,
+      label: unmnemonicLabel(label),
+      run: /* @__PURE__ */ __name((browserEvent) => {
+        const openInNewWindow = browserEvent && (!isMacintosh && (browserEvent.ctrlKey || browserEvent.shiftKey) || isMacintosh && (browserEvent.metaKey || browserEvent.altKey));
+        return this.hostService.openWindow([openable], {
+          forceNewWindow: !!openInNewWindow,
+          remoteAuthority: remoteAuthority || null
+          // local window if remoteAuthority is not set or can not be deducted from the openable
+        });
+      }, "run")
+    });
+    return Object.assign(ret, { uri, remoteAuthority });
+  }
+  notifyUserOfCustomMenubarAccessibility() {
+    if (isWeb || isMacintosh) {
+      return;
+    }
+    const hasBeenNotified = this.storageService.getBoolean("menubar/accessibleMenubarNotified", -1, false);
+    const usingCustomMenubar = !hasNativeMenu(this.configurationService);
+    if (hasBeenNotified || usingCustomMenubar || !this.accessibilityService.isScreenReaderOptimized()) {
+      return;
+    }
+    const message = localize("menubar.customTitlebarAccessibilityNotification", "Accessibility support is enabled for you. For the most accessible experience, we recommend the custom menu style.");
+    this.notificationService.prompt(Severity.Info, message, [
+      {
+        label: localize("goToSetting", "Open Settings"),
+        run: /* @__PURE__ */ __name(() => {
+          return this.preferencesService.openUserSettings({
+            query: "window.menuStyle"
+            /* MenuSettings.MenuStyle */
+          });
+        }, "run")
+      }
+    ]);
+    this.storageService.store(
+      "menubar/accessibleMenubarNotified",
+      true,
+      -1,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+}
+let focusMenuBarEmitter = void 0;
+function enableFocusMenuBarAction() {
+  if (!focusMenuBarEmitter) {
+    focusMenuBarEmitter = new Emitter();
+    registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: `workbench.actions.menubar.focus`,
+          title: localize2("focusMenu", "Focus Application Menu"),
+          keybinding: {
+            primary: 512 | 68,
+            weight: 200,
+            when: IsWebContext
+          },
+          f1: true
+        });
+      }
+      async run() {
+        focusMenuBarEmitter?.fire();
+      }
+    });
+  }
+  return focusMenuBarEmitter;
+}
+__name(enableFocusMenuBarAction, "enableFocusMenuBarAction");
+let CustomMenubarControl = class CustomMenubarControl2 extends MenubarControl {
+  static {
+    __name(this, "CustomMenubarControl");
+  }
+  constructor(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, telemetryService, hostService, commandService) {
+    super(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, hostService, commandService);
+    this.telemetryService = telemetryService;
+    this.alwaysOnMnemonics = false;
+    this.focusInsideMenubar = false;
+    this.pendingFirstTimeUpdate = false;
+    this.visible = true;
+    this.webNavigationMenu = this._register(this.menuService.createMenu(MenuId.MenubarHomeMenu, this.contextKeyService));
+    this.reinstallDisposables = this._register(new DisposableStore());
+    this.updateActionsDisposables = this._register(new DisposableStore());
+    this._onVisibilityChange = this._register(new Emitter());
+    this._onFocusStateChange = this._register(new Emitter());
+    this.actionRunner = this._register(new ActionRunner());
+    this.actionRunner.onDidRun((e) => {
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id: e.action.id, from: "menu" });
+    });
+    this.workspacesService.getRecentlyOpened().then((recentlyOpened) => {
+      this.recentlyOpened = recentlyOpened;
+    });
+    this.registerListeners();
+  }
+  doUpdateMenubar(firstTime) {
+    if (!this.focusInsideMenubar) {
+      this.setupCustomMenubar(firstTime);
+    }
+    if (firstTime) {
+      this.pendingFirstTimeUpdate = true;
+    }
+  }
+  getUpdateAction() {
+    const state = this.updateService.state;
+    switch (state.type) {
+      case "idle":
+        return toAction({
+          id: "update.check",
+          label: localize({ key: "checkForUpdates", comment: ["&& denotes a mnemonic"] }, "Check for &&Updates..."),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.updateService.checkForUpdates(true), "run")
+        });
+      case "checking for updates":
+        return toAction({ id: "update.checking", label: localize("checkingForUpdates", "Checking for Updates..."), enabled: false, run: /* @__PURE__ */ __name(() => {
+        }, "run") });
+      case "available for download":
+        return toAction({
+          id: "update.downloadNow",
+          label: localize({ key: "download now", comment: ["&& denotes a mnemonic"] }, "D&&ownload Update"),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(), "run")
+        });
+      case "downloading":
+        return toAction({ id: "update.downloading", label: localize("DownloadingUpdate", "Downloading Update..."), enabled: false, run: /* @__PURE__ */ __name(() => {
+        }, "run") });
+      case "downloaded":
+        return isMacintosh ? null : toAction({
+          id: "update.install",
+          label: localize({ key: "installUpdate...", comment: ["&& denotes a mnemonic"] }, "Install &&Update..."),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.updateService.applyUpdate(), "run")
+        });
+      case "updating":
+        return toAction({ id: "update.updating", label: localize("installingUpdate", "Installing Update..."), enabled: false, run: /* @__PURE__ */ __name(() => {
+        }, "run") });
+      case "ready":
+        return toAction({
+          id: "update.restart",
+          label: localize({ key: "restartToUpdate", comment: ["&& denotes a mnemonic"] }, "Restart to &&Update"),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.updateService.quitAndInstall(), "run")
+        });
+      default:
+        return null;
+    }
+  }
+  get currentMenubarVisibility() {
+    return getMenuBarVisibility(this.configurationService);
+  }
+  get currentDisableMenuBarAltFocus() {
+    const settingValue = this.configurationService.getValue("window.customMenuBarAltFocus");
+    let disableMenuBarAltBehavior = false;
+    if (typeof settingValue === "boolean") {
+      disableMenuBarAltBehavior = !settingValue;
+    }
+    return disableMenuBarAltBehavior;
+  }
+  insertActionsBefore(nextAction, target) {
+    switch (nextAction.id) {
+      case OpenRecentAction.ID:
+        target.push(...this.getOpenRecentActions());
+        break;
+      case "workbench.action.showAboutDialog":
+        if (!isMacintosh && !isWeb) {
+          const updateAction = this.getUpdateAction();
+          if (updateAction) {
+            updateAction.label = mnemonicMenuLabel(updateAction.label);
+            target.push(updateAction);
+            target.push(new Separator());
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  get currentEnableMenuBarMnemonics() {
+    let enableMenuBarMnemonics = this.configurationService.getValue("window.enableMenuBarMnemonics");
+    if (typeof enableMenuBarMnemonics !== "boolean") {
+      enableMenuBarMnemonics = true;
+    }
+    return enableMenuBarMnemonics && (!isWeb || isFullscreen(mainWindow));
+  }
+  get currentCompactMenuMode() {
+    if (this.currentMenubarVisibility !== "compact") {
+      return void 0;
+    }
+    const currentSidebarLocation = this.configurationService.getValue("workbench.sideBar.location");
+    const horizontalDirection = currentSidebarLocation === "right" ? HorizontalDirection.Left : HorizontalDirection.Right;
+    const activityBarLocation = this.configurationService.getValue("workbench.activityBar.location");
+    const verticalDirection = activityBarLocation === "bottom" ? VerticalDirection.Above : VerticalDirection.Below;
+    return { horizontal: horizontalDirection, vertical: verticalDirection };
+  }
+  onDidVisibilityChange(visible) {
+    this.visible = visible;
+    this.onDidChangeRecentlyOpened();
+    this._onVisibilityChange.fire(visible);
+  }
+  toActionsArray(menu) {
+    return getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));
+  }
+  setupCustomMenubar(firstTime) {
+    if (!this.container) {
+      return;
+    }
+    if (firstTime) {
+      if (this.menubar) {
+        this.reinstallDisposables.clear();
+      }
+      this.menubar = this.reinstallDisposables.add(new MenuBar(this.container, this.getMenuBarOptions(), defaultMenuStyles));
+      this.accessibilityService.alwaysUnderlineAccessKeys().then((val) => {
+        this.alwaysOnMnemonics = val;
+        this.menubar?.update(this.getMenuBarOptions());
+      });
+      this.reinstallDisposables.add(this.menubar.onFocusStateChange((focused) => {
+        this._onFocusStateChange.fire(focused);
+        if (!focused) {
+          if (this.pendingFirstTimeUpdate) {
+            this.setupCustomMenubar(true);
+            this.pendingFirstTimeUpdate = false;
+          } else {
+            this.updateMenubar();
+          }
+          this.focusInsideMenubar = false;
+        }
+      }));
+      this.reinstallDisposables.add(this.menubar.onVisibilityChange((e) => this.onDidVisibilityChange(e)));
+      this.reinstallDisposables.add(addDisposableListener(this.container, EventType.FOCUS_IN, () => {
+        this.focusInsideMenubar = true;
+      }));
+      this.reinstallDisposables.add(addDisposableListener(this.container, EventType.FOCUS_OUT, () => {
+        this.focusInsideMenubar = false;
+      }));
+      if (this.menubar.isVisible) {
+        this.onDidVisibilityChange(true);
+      }
+    } else {
+      this.menubar?.update(this.getMenuBarOptions());
+    }
+    const updateActions = /* @__PURE__ */ __name((menuActions, target, topLevelTitle, store) => {
+      target.splice(0);
+      for (const menuItem of menuActions) {
+        this.insertActionsBefore(menuItem, target);
+        if (menuItem instanceof Separator) {
+          target.push(menuItem);
+        } else if (menuItem instanceof SubmenuItemAction || menuItem instanceof MenuItemAction) {
+          let title = typeof menuItem.item.title === "string" ? menuItem.item.title : menuItem.item.title.mnemonicTitle ?? menuItem.item.title.value;
+          if (menuItem instanceof SubmenuItemAction) {
+            const submenuActions = [];
+            updateActions(menuItem.actions, submenuActions, topLevelTitle, store);
+            if (submenuActions.length > 0) {
+              target.push(new SubmenuAction(menuItem.id, mnemonicMenuLabel(title), submenuActions));
+            }
+          } else {
+            if (isICommandActionToggleInfo(menuItem.item.toggled)) {
+              title = menuItem.item.toggled.mnemonicTitle ?? menuItem.item.toggled.title ?? title;
+            }
+            const newAction = store.add(new Action(menuItem.id, mnemonicMenuLabel(title), menuItem.class, menuItem.enabled, () => this.commandService.executeCommand(menuItem.id)));
+            newAction.tooltip = menuItem.tooltip;
+            newAction.checked = menuItem.checked;
+            target.push(newAction);
+          }
+        }
+      }
+      if (topLevelTitle === "File" && this.currentCompactMenuMode === void 0) {
+        const webActions = this.getWebNavigationActions();
+        if (webActions.length) {
+          target.push(...webActions);
+        }
+      }
+    }, "updateActions");
+    for (const title of Object.keys(this.topLevelTitles)) {
+      const menu = this.menus[title];
+      if (firstTime && menu) {
+        const menuChangedDisposable = this.reinstallDisposables.add(new DisposableStore());
+        this.reinstallDisposables.add(menu.onDidChange(() => {
+          if (!this.focusInsideMenubar) {
+            const actions2 = [];
+            menuChangedDisposable.clear();
+            updateActions(this.toActionsArray(menu), actions2, title, menuChangedDisposable);
+            this.menubar?.updateMenu({ actions: actions2, label: mnemonicMenuLabel(this.topLevelTitles[title]) });
+          }
+        }));
+        if (menu === this.menus.File) {
+          const webMenuChangedDisposable = this.reinstallDisposables.add(new DisposableStore());
+          this.reinstallDisposables.add(this.webNavigationMenu.onDidChange(() => {
+            if (!this.focusInsideMenubar) {
+              const actions2 = [];
+              webMenuChangedDisposable.clear();
+              updateActions(this.toActionsArray(menu), actions2, title, webMenuChangedDisposable);
+              this.menubar?.updateMenu({ actions: actions2, label: mnemonicMenuLabel(this.topLevelTitles[title]) });
+            }
+          }));
+        }
+      }
+      const actions = [];
+      if (menu) {
+        this.updateActionsDisposables.clear();
+        updateActions(this.toActionsArray(menu), actions, title, this.updateActionsDisposables);
+      }
+      if (this.menubar) {
+        if (!firstTime) {
+          this.menubar.updateMenu({ actions, label: mnemonicMenuLabel(this.topLevelTitles[title]) });
+        } else {
+          this.menubar.push({ actions, label: mnemonicMenuLabel(this.topLevelTitles[title]) });
+        }
+      }
+    }
+  }
+  getWebNavigationActions() {
+    if (!isWeb) {
+      return [];
+    }
+    const webNavigationActions = [];
+    for (const groups of this.webNavigationMenu.getActions()) {
+      const [, actions] = groups;
+      for (const action of actions) {
+        if (action instanceof MenuItemAction) {
+          const title = typeof action.item.title === "string" ? action.item.title : action.item.title.mnemonicTitle ?? action.item.title.value;
+          webNavigationActions.push(toAction({
+            id: action.id,
+            label: mnemonicMenuLabel(title),
+            class: action.class,
+            enabled: action.enabled,
+            run: /* @__PURE__ */ __name(async (event) => {
+              this.commandService.executeCommand(action.id, event);
+            }, "run")
+          }));
+        }
+      }
+      webNavigationActions.push(new Separator());
+    }
+    if (webNavigationActions.length) {
+      webNavigationActions.pop();
+    }
+    return webNavigationActions;
+  }
+  getMenuBarOptions() {
+    return {
+      enableMnemonics: this.currentEnableMenuBarMnemonics,
+      disableAltFocus: this.currentDisableMenuBarAltFocus,
+      visibility: this.currentMenubarVisibility,
+      actionRunner: this.actionRunner,
+      getKeybinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeybinding"),
+      alwaysOnMnemonics: this.alwaysOnMnemonics,
+      compactMode: this.currentCompactMenuMode,
+      getCompactMenuActions: /* @__PURE__ */ __name(() => {
+        if (!isWeb) {
+          return [];
+        }
+        return this.getWebNavigationActions();
+      }, "getCompactMenuActions")
+    };
+  }
+  onDidChangeWindowFocus(hasFocus) {
+    if (!this.visible) {
+      return;
+    }
+    super.onDidChangeWindowFocus(hasFocus);
+    if (this.container) {
+      if (hasFocus) {
+        this.container.classList.remove("inactive");
+      } else {
+        this.container.classList.add("inactive");
+        this.menubar?.blur();
+      }
+    }
+  }
+  onUpdateStateChange() {
+    if (!this.visible) {
+      return;
+    }
+    super.onUpdateStateChange();
+  }
+  onDidChangeRecentlyOpened() {
+    if (!this.visible) {
+      return;
+    }
+    super.onDidChangeRecentlyOpened();
+  }
+  onUpdateKeybindings() {
+    if (!this.visible) {
+      return;
+    }
+    super.onUpdateKeybindings();
+  }
+  registerListeners() {
+    super.registerListeners();
+    this._register(addDisposableListener(mainWindow, EventType.RESIZE, () => {
+      if (this.menubar && !(isIOS && BrowserFeatures.pointerEvents)) {
+        this.menubar.blur();
+      }
+    }));
+    if (isWeb) {
+      this._register(onDidChangeFullscreen((windowId) => {
+        if (windowId === mainWindow.vscodeWindowId) {
+          this.updateMenubar();
+        }
+      }));
+      this._register(this.webNavigationMenu.onDidChange(() => this.updateMenubar()));
+      this._register(enableFocusMenuBarAction().event(() => this.menubar?.toggleFocus()));
+    }
+  }
+  get onVisibilityChange() {
+    return this._onVisibilityChange.event;
+  }
+  get onFocusStateChange() {
+    return this._onFocusStateChange.event;
+  }
+  getMenubarItemsDimensions() {
+    if (this.menubar) {
+      return new Dimension(this.menubar.getWidth(), this.menubar.getHeight());
+    }
+    return new Dimension(0, 0);
+  }
+  create(parent) {
+    this.container = parent;
+    if (this.container) {
+      this.doUpdateMenubar(true);
+    }
+    return this.container;
+  }
+  layout(dimension) {
+    this.menubar?.update(this.getMenuBarOptions());
+  }
+  toggleFocus() {
+    this.menubar?.toggleFocus();
+  }
+};
+CustomMenubarControl = __decorate([
+  __param(0, IMenuService),
+  __param(1, IWorkspacesService),
+  __param(2, IContextKeyService),
+  __param(3, IKeybindingService),
+  __param(4, IConfigurationService),
+  __param(5, ILabelService),
+  __param(6, IUpdateService),
+  __param(7, IStorageService),
+  __param(8, INotificationService),
+  __param(9, IPreferencesService),
+  __param(10, IWorkbenchEnvironmentService),
+  __param(11, IAccessibilityService),
+  __param(12, ITelemetryService),
+  __param(13, IHostService),
+  __param(14, ICommandService)
+], CustomMenubarControl);
+export {
+  CustomMenubarControl,
+  MenubarControl
+};
+//# sourceMappingURL=menubarControl.js.map

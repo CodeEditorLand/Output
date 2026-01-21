@@ -1,1 +1,244 @@
-import{$wf as v}from"../../../base/common/event.js";import{$Ed as u}from"../../../base/common/lifecycle.js";import{URI as p}from"../../../base/common/uri.js";import{$kn as b}from"../../../base/common/uuid.js";import*as a from"./extHostTypeConverters.js";import{$pWc as g,$oWc as m,$mWc as w}from"./extHostWebview.js";import*as W from"./extHost.protocol.js";import*as P from"./extHostTypes.js";class $ extends u{#e;#i;#v;#n;#w;#r;#o;#t;#h;#c;#s;#l;#a;constructor(e,i,t,s){super(),this.#t=void 0,this.#h=!0,this.#s=!1,this.#l=this.D(new v),this.onDidDispose=this.#l.event,this.#a=this.D(new v),this.onDidChangeViewState=this.#a.event,this.#e=e,this.#i=i,this.#n=t,this.#v=s.viewType,this.#w=s.panelOptions,this.#t=s.viewColumn,this.#r=s.title,this.#c=s.active}dispose(){this.#s||(this.#s=!0,this.#l.fire(),this.#i.$disposeWebview(this.#e),this.#n.dispose(),super.dispose())}get webview(){return this.c(),this.#n}get viewType(){return this.c(),this.#v}get title(){return this.c(),this.#r}set title(e){this.c(),this.#r!==e&&(this.#r=e,this.#i.$setTitle(this.#e,e))}get iconPath(){return this.c(),this.#o}set iconPath(e){this.c(),this.#o!==e&&(this.#o=e,p.isUri(e)?this.#i.$setIconPath(this.#e,{light:e,dark:e}):this.#i.$setIconPath(this.#e,e))}get options(){return this.#w}get viewColumn(){if(this.c(),!(typeof this.#t=="number"&&this.#t<0))return this.#t}get active(){return this.c(),this.#c}get visible(){return this.c(),this.#h}_updateViewState(e){this.#s||(this.active!==e.active||this.visible!==e.visible||this.viewColumn!==e.viewColumn)&&(this.#c=e.active,this.#h=e.visible,this.#t=e.viewColumn,this.#a.fire({webviewPanel:this}))}reveal(e,i){this.c(),this.#i.$reveal(this.#e,{viewColumn:typeof e>"u"?void 0:a.ViewColumn.from(e),preserveFocus:!!i})}c(){if(this.#s)throw new Error("Webview is disposed")}}class f extends u{static c(){return b()}constructor(e,i,t){super(),this.j=i,this.m=t,this.g=new Map,this.h=new Map,this.f=e.getProxy(W.$b1.MainThreadWebviewPanels)}dispose(){super.dispose(),this.g.forEach(e=>e.dispose()),this.g.clear()}createWebviewPanel(e,i,t,s,r={}){const n=typeof s=="object"?s.viewColumn:s,h={viewColumn:a.ViewColumn.from(n),preserveFocus:typeof s=="object"&&!!s.preserveFocus},o=w(e),c=f.c();this.f.$createWebviewPanel(m(e),c,i,{title:t,panelOptions:C(r),webviewOptions:g(e,this.m,r),serializeBuffersForPostMessage:o},h);const d=this.j.createNewWebview(c,r,e);return this.createNewWebviewPanel(c,i,t,n,r,d,!0)}$onDidChangeWebviewPanelViewStates(e){const i=Object.keys(e);i.sort((t,s)=>{const r=e[t],n=e[s];return r.active?1:n.active?-1:+r.visible-+n.visible});for(const t of i){const s=this.getWebviewPanel(t);if(!s)continue;const r=e[t];s._updateViewState({active:r.active,visible:r.visible,viewColumn:a.ViewColumn.to(r.position)})}}async $onDidDisposeWebviewPanel(e){this.getWebviewPanel(e)?.dispose(),this.g.delete(e),this.j.deleteWebview(e)}registerWebviewPanelSerializer(e,i,t){if(this.h.has(i))throw new Error(`Serializer for '${i}' already registered`);return this.h.set(i,{serializer:t,extension:e}),this.f.$registerSerializer(i,{serializeBuffersForPostMessage:w(e)}),new P.$u1(()=>{this.h.delete(i),this.f.$unregisterSerializer(i)})}async $deserializeWebviewPanel(e,i,t,s){const r=this.h.get(i);if(!r)throw new Error(`No serializer found for '${i}'`);const{serializer:n,extension:h}=r,o=this.j.createNewWebview(e,t.webviewOptions,h),c=this.createNewWebviewPanel(e,i,t.title,s,t.panelOptions,o,t.active);await n.deserializeWebviewPanel(c,t.state)}createNewWebviewPanel(e,i,t,s,r,n,h){const o=new $(e,this.f,n,{viewType:i,title:t,viewColumn:s,panelOptions:r,active:h});return this.g.set(e,o),o}getWebviewPanel(e){return this.g.get(e)}}function C(l){return{enableFindWidget:l.enableFindWidget,retainContextWhenHidden:l.retainContextWhenHidden}}export{f as $FWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import * as typeConverters from "./extHostTypeConverters.js";
+import { serializeWebviewOptions, toExtensionData, shouldSerializeBuffersForPostMessage } from "./extHostWebview.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import * as extHostTypes from "./extHostTypes.js";
+class ExtHostWebviewPanel extends Disposable {
+  static {
+    __name(this, "ExtHostWebviewPanel");
+  }
+  #handle;
+  #proxy;
+  #viewType;
+  #webview;
+  #options;
+  #title;
+  #iconPath;
+  #viewColumn;
+  #visible;
+  #active;
+  #isDisposed;
+  #onDidDispose;
+  #onDidChangeViewState;
+  constructor(handle, proxy, webview, params) {
+    super();
+    this.#viewColumn = void 0;
+    this.#visible = true;
+    this.#isDisposed = false;
+    this.#onDidDispose = this._register(new Emitter());
+    this.onDidDispose = this.#onDidDispose.event;
+    this.#onDidChangeViewState = this._register(new Emitter());
+    this.onDidChangeViewState = this.#onDidChangeViewState.event;
+    this.#handle = handle;
+    this.#proxy = proxy;
+    this.#webview = webview;
+    this.#viewType = params.viewType;
+    this.#options = params.panelOptions;
+    this.#viewColumn = params.viewColumn;
+    this.#title = params.title;
+    this.#active = params.active;
+  }
+  dispose() {
+    if (this.#isDisposed) {
+      return;
+    }
+    this.#isDisposed = true;
+    this.#onDidDispose.fire();
+    this.#proxy.$disposeWebview(this.#handle);
+    this.#webview.dispose();
+    super.dispose();
+  }
+  get webview() {
+    this.assertNotDisposed();
+    return this.#webview;
+  }
+  get viewType() {
+    this.assertNotDisposed();
+    return this.#viewType;
+  }
+  get title() {
+    this.assertNotDisposed();
+    return this.#title;
+  }
+  set title(value) {
+    this.assertNotDisposed();
+    if (this.#title !== value) {
+      this.#title = value;
+      this.#proxy.$setTitle(this.#handle, value);
+    }
+  }
+  get iconPath() {
+    this.assertNotDisposed();
+    return this.#iconPath;
+  }
+  set iconPath(value) {
+    this.assertNotDisposed();
+    if (this.#iconPath !== value) {
+      this.#iconPath = value;
+      if (URI.isUri(value)) {
+        this.#proxy.$setIconPath(this.#handle, { light: value, dark: value });
+      } else {
+        this.#proxy.$setIconPath(this.#handle, value);
+      }
+    }
+  }
+  get options() {
+    return this.#options;
+  }
+  get viewColumn() {
+    this.assertNotDisposed();
+    if (typeof this.#viewColumn === "number" && this.#viewColumn < 0) {
+      return void 0;
+    }
+    return this.#viewColumn;
+  }
+  get active() {
+    this.assertNotDisposed();
+    return this.#active;
+  }
+  get visible() {
+    this.assertNotDisposed();
+    return this.#visible;
+  }
+  _updateViewState(newState) {
+    if (this.#isDisposed) {
+      return;
+    }
+    if (this.active !== newState.active || this.visible !== newState.visible || this.viewColumn !== newState.viewColumn) {
+      this.#active = newState.active;
+      this.#visible = newState.visible;
+      this.#viewColumn = newState.viewColumn;
+      this.#onDidChangeViewState.fire({ webviewPanel: this });
+    }
+  }
+  reveal(viewColumn, preserveFocus) {
+    this.assertNotDisposed();
+    this.#proxy.$reveal(this.#handle, {
+      viewColumn: typeof viewColumn === "undefined" ? void 0 : typeConverters.ViewColumn.from(viewColumn),
+      preserveFocus: !!preserveFocus
+    });
+  }
+  assertNotDisposed() {
+    if (this.#isDisposed) {
+      throw new Error("Webview is disposed");
+    }
+  }
+}
+class ExtHostWebviewPanels extends Disposable {
+  static {
+    __name(this, "ExtHostWebviewPanels");
+  }
+  static newHandle() {
+    return generateUuid();
+  }
+  constructor(mainContext, webviews, workspace) {
+    super();
+    this.webviews = webviews;
+    this.workspace = workspace;
+    this._webviewPanels = /* @__PURE__ */ new Map();
+    this._serializers = /* @__PURE__ */ new Map();
+    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviewPanels);
+  }
+  dispose() {
+    super.dispose();
+    this._webviewPanels.forEach((value) => value.dispose());
+    this._webviewPanels.clear();
+  }
+  createWebviewPanel(extension, viewType, title, showOptions, options = {}) {
+    const viewColumn = typeof showOptions === "object" ? showOptions.viewColumn : showOptions;
+    const webviewShowOptions = {
+      viewColumn: typeConverters.ViewColumn.from(viewColumn),
+      preserveFocus: typeof showOptions === "object" && !!showOptions.preserveFocus
+    };
+    const serializeBuffersForPostMessage = shouldSerializeBuffersForPostMessage(extension);
+    const handle = ExtHostWebviewPanels.newHandle();
+    this._proxy.$createWebviewPanel(toExtensionData(extension), handle, viewType, {
+      title,
+      panelOptions: serializeWebviewPanelOptions(options),
+      webviewOptions: serializeWebviewOptions(extension, this.workspace, options),
+      serializeBuffersForPostMessage
+    }, webviewShowOptions);
+    const webview = this.webviews.createNewWebview(handle, options, extension);
+    const panel = this.createNewWebviewPanel(handle, viewType, title, viewColumn, options, webview, true);
+    return panel;
+  }
+  $onDidChangeWebviewPanelViewStates(newStates) {
+    const handles = Object.keys(newStates);
+    handles.sort((a, b) => {
+      const stateA = newStates[a];
+      const stateB = newStates[b];
+      if (stateA.active) {
+        return 1;
+      }
+      if (stateB.active) {
+        return -1;
+      }
+      return +stateA.visible - +stateB.visible;
+    });
+    for (const handle of handles) {
+      const panel = this.getWebviewPanel(handle);
+      if (!panel) {
+        continue;
+      }
+      const newState = newStates[handle];
+      panel._updateViewState({
+        active: newState.active,
+        visible: newState.visible,
+        viewColumn: typeConverters.ViewColumn.to(newState.position)
+      });
+    }
+  }
+  async $onDidDisposeWebviewPanel(handle) {
+    const panel = this.getWebviewPanel(handle);
+    panel?.dispose();
+    this._webviewPanels.delete(handle);
+    this.webviews.deleteWebview(handle);
+  }
+  registerWebviewPanelSerializer(extension, viewType, serializer) {
+    if (this._serializers.has(viewType)) {
+      throw new Error(`Serializer for '${viewType}' already registered`);
+    }
+    this._serializers.set(viewType, { serializer, extension });
+    this._proxy.$registerSerializer(viewType, {
+      serializeBuffersForPostMessage: shouldSerializeBuffersForPostMessage(extension)
+    });
+    return new extHostTypes.Disposable(() => {
+      this._serializers.delete(viewType);
+      this._proxy.$unregisterSerializer(viewType);
+    });
+  }
+  async $deserializeWebviewPanel(webviewHandle, viewType, initData, position) {
+    const entry = this._serializers.get(viewType);
+    if (!entry) {
+      throw new Error(`No serializer found for '${viewType}'`);
+    }
+    const { serializer, extension } = entry;
+    const webview = this.webviews.createNewWebview(webviewHandle, initData.webviewOptions, extension);
+    const revivedPanel = this.createNewWebviewPanel(webviewHandle, viewType, initData.title, position, initData.panelOptions, webview, initData.active);
+    await serializer.deserializeWebviewPanel(revivedPanel, initData.state);
+  }
+  createNewWebviewPanel(webviewHandle, viewType, title, position, options, webview, active) {
+    const panel = new ExtHostWebviewPanel(webviewHandle, this._proxy, webview, { viewType, title, viewColumn: position, panelOptions: options, active });
+    this._webviewPanels.set(webviewHandle, panel);
+    return panel;
+  }
+  getWebviewPanel(handle) {
+    return this._webviewPanels.get(handle);
+  }
+}
+function serializeWebviewPanelOptions(options) {
+  return {
+    enableFindWidget: options.enableFindWidget,
+    retainContextWhenHidden: options.retainContextWhenHidden
+  };
+}
+__name(serializeWebviewPanelOptions, "serializeWebviewPanelOptions");
+export {
+  ExtHostWebviewPanels
+};
+//# sourceMappingURL=extHostWebviewPanels.js.map

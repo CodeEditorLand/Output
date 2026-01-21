@@ -1,3 +1,293 @@
-import*as i from"../../base/browser/dom.js";import*as l from"../../base/browser/domStylesheets.js";import{$i9 as p}from"../../base/browser/globalPointerMoveMonitor.js";import{$w7 as f}from"../../base/browser/mouseEvent.js";import{$ii as $}from"../../base/common/async.js";import{$Ed as b,$Md as m,$Dd as x}from"../../base/common/lifecycle.js";import{$Vp as C}from"../../platform/theme/common/colorRegistry.js";class a{constructor(t,e){this.x=t,this.y=e,this._pageCoordinatesBrand=void 0}toClientCoordinates(t){return new w(this.x-t.scrollX,this.y-t.scrollY)}}class w{constructor(t,e){this.clientX=t,this.clientY=e,this._clientCoordinatesBrand=void 0}toPageCoordinates(t){return new a(this.clientX+t.scrollX,this.clientY+t.scrollY)}}class M{constructor(t,e,s,r){this.x=t,this.y=e,this.width=s,this.height=r,this._editorPagePositionBrand=void 0}}class g{constructor(t,e){this.x=t,this.y=e,this._positionRelativeToEditorBrand=void 0}}function y(o){const t=i.$27(o);return new M(t.left,t.top,t.width,t.height)}function E(o,t,e){const s=t.width/o.offsetWidth,r=t.height/o.offsetHeight,h=(e.x-t.x)/s,n=(e.y-t.y)/r;return new g(h,n)}class c extends f{constructor(t,e,s){super(i.getWindow(s),t),this._editorMouseEventBrand=void 0,this.isFromPointerCapture=e,this.pos=new a(this.posx,this.posy),this.editorPos=y(s),this.relativePos=E(s,this.editorPos,this.pos)}}class F{constructor(t){this.a=t}b(t){return new c(t,!1,this.a)}onContextMenu(t,e){return i.$F7(t,i.$B8.CONTEXT_MENU,s=>{e(this.b(s))})}onMouseUp(t,e){return i.$F7(t,i.$B8.MOUSE_UP,s=>{e(this.b(s))})}onMouseDown(t,e){return i.$F7(t,i.$B8.MOUSE_DOWN,s=>{e(this.b(s))})}onPointerDown(t,e){return i.$F7(t,i.$B8.POINTER_DOWN,s=>{e(this.b(s),s.pointerId)})}onMouseLeave(t,e){return i.$F7(t,i.$B8.MOUSE_LEAVE,s=>{e(this.b(s))})}onMouseMove(t,e){return i.$F7(t,i.$B8.MOUSE_MOVE,s=>e(this.b(s)))}}class D{constructor(t){this.a=t}b(t){return new c(t,!1,this.a)}onPointerUp(t,e){return i.$F7(t,"pointerup",s=>{e(this.b(s))})}onPointerDown(t,e){return i.$F7(t,i.$B8.POINTER_DOWN,s=>{e(this.b(s),s.pointerId)})}onPointerLeave(t,e){return i.$F7(t,i.$B8.POINTER_LEAVE,s=>{e(this.b(s))})}onPointerMove(t,e){return i.$F7(t,"pointermove",s=>e(this.b(s)))}}class U extends b{constructor(t){super(),this.a=t,this.b=this.D(new p),this.c=null}startMonitoring(t,e,s,r,h){this.c=i.$G7(t.ownerDocument,"keydown",n=>{n.toKeyCodeChord().isModifierKey()||this.b.stopMonitoring(!0,n.browserEvent)},!0),this.b.startMonitoring(t,e,s,n=>{r(new c(n,!0,this.a))},n=>{this.c.dispose(),h(n)})}stopMonitoring(){this.b.stopMonitoring(!0)}}class d{static{this.a=0}constructor(t){this.g=t,this.b=++d.a,this.c=0,this.d=new m,this.f=new $(()=>this.j(),1e3)}dispose(){this.d.dispose(),this.f.dispose()}createClassNameRef(t){const e=this.h(t);return e.increaseRefCount(),{className:e.className,dispose:()=>{e.decreaseRefCount(),this.f.schedule()}}}h(t){const e=this.i(t);let s=this.d.get(e);if(!s){const r=this.c++;s=new N(e,`dyn-rule-${this.b}-${r}`,i.$e8(this.g.getContainerDomNode())?this.g.getContainerDomNode():void 0,t),this.d.set(e,s)}return s}i(t){return JSON.stringify(t)}j(){for(const t of this.d.values())t.hasReferences()||this.d.deleteAndDispose(t.key)}}class N{constructor(t,e,s,r){this.key=t,this.className=e,this.properties=r,this.a=0,this.c=new x,this.b=l.$Y9(s,void 0,this.c),this.b.textContent=this.d(this.className,this.properties)}d(t,e){let s=`.${t} {`;for(const r in e){const h=e[r];let n;typeof h=="object"?n=C(h.id):n=h;const u=R(r);s+=`
-	${u}: ${n};`}return s+=`
-}`,s}dispose(){this.c.dispose(),this.b=void 0}increaseRefCount(){this.a++}decreaseRefCount(){this.a--}hasReferences(){return this.a>0}}function R(o){return o.replace(/(^[A-Z])/,([t])=>t.toLowerCase()).replace(/([A-Z])/g,([t])=>`-${t.toLowerCase()}`)}export{a as $eeb,w as $feb,M as $geb,g as $heb,y as $ieb,E as $jeb,c as $keb,F as $leb,D as $meb,U as $neb,d as $oeb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../base/browser/dom.js";
+import * as domStylesheetsJs from "../../base/browser/domStylesheets.js";
+import { GlobalPointerMoveMonitor } from "../../base/browser/globalPointerMoveMonitor.js";
+import { StandardMouseEvent } from "../../base/browser/mouseEvent.js";
+import { RunOnceScheduler } from "../../base/common/async.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../base/common/lifecycle.js";
+import { asCssVariable } from "../../platform/theme/common/colorRegistry.js";
+class PageCoordinates {
+  static {
+    __name(this, "PageCoordinates");
+  }
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this._pageCoordinatesBrand = void 0;
+  }
+  toClientCoordinates(targetWindow) {
+    return new ClientCoordinates(this.x - targetWindow.scrollX, this.y - targetWindow.scrollY);
+  }
+}
+class ClientCoordinates {
+  static {
+    __name(this, "ClientCoordinates");
+  }
+  constructor(clientX, clientY) {
+    this.clientX = clientX;
+    this.clientY = clientY;
+    this._clientCoordinatesBrand = void 0;
+  }
+  toPageCoordinates(targetWindow) {
+    return new PageCoordinates(this.clientX + targetWindow.scrollX, this.clientY + targetWindow.scrollY);
+  }
+}
+class EditorPagePosition {
+  static {
+    __name(this, "EditorPagePosition");
+  }
+  constructor(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this._editorPagePositionBrand = void 0;
+  }
+}
+class CoordinatesRelativeToEditor {
+  static {
+    __name(this, "CoordinatesRelativeToEditor");
+  }
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this._positionRelativeToEditorBrand = void 0;
+  }
+}
+function createEditorPagePosition(editorViewDomNode) {
+  const editorPos = dom.getDomNodePagePosition(editorViewDomNode);
+  return new EditorPagePosition(editorPos.left, editorPos.top, editorPos.width, editorPos.height);
+}
+__name(createEditorPagePosition, "createEditorPagePosition");
+function createCoordinatesRelativeToEditor(editorViewDomNode, editorPagePosition, pos) {
+  const scaleX = editorPagePosition.width / editorViewDomNode.offsetWidth;
+  const scaleY = editorPagePosition.height / editorViewDomNode.offsetHeight;
+  const relativeX = (pos.x - editorPagePosition.x) / scaleX;
+  const relativeY = (pos.y - editorPagePosition.y) / scaleY;
+  return new CoordinatesRelativeToEditor(relativeX, relativeY);
+}
+__name(createCoordinatesRelativeToEditor, "createCoordinatesRelativeToEditor");
+class EditorMouseEvent extends StandardMouseEvent {
+  static {
+    __name(this, "EditorMouseEvent");
+  }
+  constructor(e, isFromPointerCapture, editorViewDomNode) {
+    super(dom.getWindow(editorViewDomNode), e);
+    this._editorMouseEventBrand = void 0;
+    this.isFromPointerCapture = isFromPointerCapture;
+    this.pos = new PageCoordinates(this.posx, this.posy);
+    this.editorPos = createEditorPagePosition(editorViewDomNode);
+    this.relativePos = createCoordinatesRelativeToEditor(editorViewDomNode, this.editorPos, this.pos);
+  }
+}
+class EditorMouseEventFactory {
+  static {
+    __name(this, "EditorMouseEventFactory");
+  }
+  constructor(editorViewDomNode) {
+    this._editorViewDomNode = editorViewDomNode;
+  }
+  _create(e) {
+    return new EditorMouseEvent(e, false, this._editorViewDomNode);
+  }
+  onContextMenu(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.CONTEXT_MENU, (e) => {
+      callback(this._create(e));
+    });
+  }
+  onMouseUp(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.MOUSE_UP, (e) => {
+      callback(this._create(e));
+    });
+  }
+  onMouseDown(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.MOUSE_DOWN, (e) => {
+      callback(this._create(e));
+    });
+  }
+  onPointerDown(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.POINTER_DOWN, (e) => {
+      callback(this._create(e), e.pointerId);
+    });
+  }
+  onMouseLeave(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.MOUSE_LEAVE, (e) => {
+      callback(this._create(e));
+    });
+  }
+  onMouseMove(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.MOUSE_MOVE, (e) => callback(this._create(e)));
+  }
+}
+class EditorPointerEventFactory {
+  static {
+    __name(this, "EditorPointerEventFactory");
+  }
+  constructor(editorViewDomNode) {
+    this._editorViewDomNode = editorViewDomNode;
+  }
+  _create(e) {
+    return new EditorMouseEvent(e, false, this._editorViewDomNode);
+  }
+  onPointerUp(target, callback) {
+    return dom.addDisposableListener(target, "pointerup", (e) => {
+      callback(this._create(e));
+    });
+  }
+  onPointerDown(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.POINTER_DOWN, (e) => {
+      callback(this._create(e), e.pointerId);
+    });
+  }
+  onPointerLeave(target, callback) {
+    return dom.addDisposableListener(target, dom.EventType.POINTER_LEAVE, (e) => {
+      callback(this._create(e));
+    });
+  }
+  onPointerMove(target, callback) {
+    return dom.addDisposableListener(target, "pointermove", (e) => callback(this._create(e)));
+  }
+}
+class GlobalEditorPointerMoveMonitor extends Disposable {
+  static {
+    __name(this, "GlobalEditorPointerMoveMonitor");
+  }
+  constructor(editorViewDomNode) {
+    super();
+    this._editorViewDomNode = editorViewDomNode;
+    this._globalPointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
+    this._keydownListener = null;
+  }
+  startMonitoring(initialElement, pointerId, initialButtons, pointerMoveCallback, onStopCallback) {
+    this._keydownListener = dom.addStandardDisposableListener(initialElement.ownerDocument, "keydown", (e) => {
+      const chord = e.toKeyCodeChord();
+      if (chord.isModifierKey()) {
+        return;
+      }
+      this._globalPointerMoveMonitor.stopMonitoring(true, e.browserEvent);
+    }, true);
+    this._globalPointerMoveMonitor.startMonitoring(initialElement, pointerId, initialButtons, (e) => {
+      pointerMoveCallback(new EditorMouseEvent(e, true, this._editorViewDomNode));
+    }, (e) => {
+      this._keydownListener.dispose();
+      onStopCallback(e);
+    });
+  }
+  stopMonitoring() {
+    this._globalPointerMoveMonitor.stopMonitoring(true);
+  }
+}
+class DynamicCssRules {
+  static {
+    __name(this, "DynamicCssRules");
+  }
+  static {
+    this._idPool = 0;
+  }
+  constructor(_editor) {
+    this._editor = _editor;
+    this._instanceId = ++DynamicCssRules._idPool;
+    this._counter = 0;
+    this._rules = new DisposableMap();
+    this._garbageCollectionScheduler = new RunOnceScheduler(() => this.garbageCollect(), 1e3);
+  }
+  dispose() {
+    this._rules.dispose();
+    this._garbageCollectionScheduler.dispose();
+  }
+  createClassNameRef(options) {
+    const rule = this.getOrCreateRule(options);
+    rule.increaseRefCount();
+    return {
+      className: rule.className,
+      dispose: /* @__PURE__ */ __name(() => {
+        rule.decreaseRefCount();
+        this._garbageCollectionScheduler.schedule();
+      }, "dispose")
+    };
+  }
+  getOrCreateRule(properties) {
+    const key = this.computeUniqueKey(properties);
+    let existingRule = this._rules.get(key);
+    if (!existingRule) {
+      const counter = this._counter++;
+      existingRule = new RefCountedCssRule(key, `dyn-rule-${this._instanceId}-${counter}`, dom.isInShadowDOM(this._editor.getContainerDomNode()) ? this._editor.getContainerDomNode() : void 0, properties);
+      this._rules.set(key, existingRule);
+    }
+    return existingRule;
+  }
+  computeUniqueKey(properties) {
+    return JSON.stringify(properties);
+  }
+  garbageCollect() {
+    for (const rule of this._rules.values()) {
+      if (!rule.hasReferences()) {
+        this._rules.deleteAndDispose(rule.key);
+      }
+    }
+  }
+}
+class RefCountedCssRule {
+  static {
+    __name(this, "RefCountedCssRule");
+  }
+  constructor(key, className, _containerElement, properties) {
+    this.key = key;
+    this.className = className;
+    this.properties = properties;
+    this._referenceCount = 0;
+    this._styleElementDisposables = new DisposableStore();
+    this._styleElement = domStylesheetsJs.createStyleSheet(_containerElement, void 0, this._styleElementDisposables);
+    this._styleElement.textContent = this.getCssText(this.className, this.properties);
+  }
+  getCssText(className, properties) {
+    let str = `.${className} {`;
+    for (const prop in properties) {
+      const value = properties[prop];
+      let cssValue;
+      if (typeof value === "object") {
+        cssValue = asCssVariable(value.id);
+      } else {
+        cssValue = value;
+      }
+      const cssPropName = camelToDashes(prop);
+      str += `
+	${cssPropName}: ${cssValue};`;
+    }
+    str += `
+}`;
+    return str;
+  }
+  dispose() {
+    this._styleElementDisposables.dispose();
+    this._styleElement = void 0;
+  }
+  increaseRefCount() {
+    this._referenceCount++;
+  }
+  decreaseRefCount() {
+    this._referenceCount--;
+  }
+  hasReferences() {
+    return this._referenceCount > 0;
+  }
+}
+function camelToDashes(str) {
+  return str.replace(/(^[A-Z])/, ([first]) => first.toLowerCase()).replace(/([A-Z])/g, ([letter]) => `-${letter.toLowerCase()}`);
+}
+__name(camelToDashes, "camelToDashes");
+export {
+  ClientCoordinates,
+  CoordinatesRelativeToEditor,
+  DynamicCssRules,
+  EditorMouseEvent,
+  EditorMouseEventFactory,
+  EditorPagePosition,
+  EditorPointerEventFactory,
+  GlobalEditorPointerMoveMonitor,
+  PageCoordinates,
+  createCoordinatesRelativeToEditor,
+  createEditorPagePosition
+};
+//# sourceMappingURL=editorDom.js.map

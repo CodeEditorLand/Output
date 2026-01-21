@@ -1,1 +1,87 @@
-import{$4h as c}from"../../../../base/common/async.js";import{$Ln as m}from"../../../../platform/encryption/common/encryptionService.js";import{$TC as a}from"../../../../platform/instantiation/common/extensions.js";import{$xo as y}from"../../../../platform/log/common/log.js";import{$JR as l,$KR as d}from"../../../../platform/secrets/common/secrets.js";import{$gp as $}from"../../../../platform/storage/common/storage.js";import{$mbb as _}from"../../environment/browser/environmentService.js";var h=function(s,t,r,e){var o=arguments.length,i=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,r,e);else for(var p=s.length-1;p>=0;p--)(n=s[p])&&(i=(o<3?n(i):o>3?n(t,r,i):n(t,r))||i);return o>3&&i&&Object.defineProperty(t,r,i),i},u=function(s,t){return function(r,e){t(r,e,s)}};let f=class extends d{constructor(t,r,e,o){super(!0,t,r,o),e.options?.secretStorageProvider&&(this.y=e.options.secretStorageProvider,this.z=new c)}get(t){return this.y?this.z.queue(t,()=>this.y.get(t)):super.get(t)}set(t,r){return this.y?this.z.queue(t,async()=>{await this.y.set(t,r),this.b.fire(t)}):super.set(t,r)}delete(t){return this.y?this.z.queue(t,async()=>{await this.y.delete(t),this.b.fire(t)}):super.delete(t)}get type(){return this.y?this.y.type:super.type}keys(){if(this.y){if(!this.y.keys)throw new Error("Secret storage provider does not support keys() method");return this.y.keys()}return super.keys()}};f=h([u(0,$),u(1,m),u(2,_),u(3,y)],f);a(l,f,1);export{f as $XKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { SequencerByKey } from "../../../../base/common/async.js";
+import { IEncryptionService } from "../../../../platform/encryption/common/encryptionService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ISecretStorageService, BaseSecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+let BrowserSecretStorageService = class BrowserSecretStorageService2 extends BaseSecretStorageService {
+  static {
+    __name(this, "BrowserSecretStorageService");
+  }
+  constructor(storageService, encryptionService, environmentService, logService) {
+    super(true, storageService, encryptionService, logService);
+    if (environmentService.options?.secretStorageProvider) {
+      this._secretStorageProvider = environmentService.options.secretStorageProvider;
+      this._embedderSequencer = new SequencerByKey();
+    }
+  }
+  get(key) {
+    if (this._secretStorageProvider) {
+      return this._embedderSequencer.queue(key, () => this._secretStorageProvider.get(key));
+    }
+    return super.get(key);
+  }
+  set(key, value) {
+    if (this._secretStorageProvider) {
+      return this._embedderSequencer.queue(key, async () => {
+        await this._secretStorageProvider.set(key, value);
+        this.onDidChangeSecretEmitter.fire(key);
+      });
+    }
+    return super.set(key, value);
+  }
+  delete(key) {
+    if (this._secretStorageProvider) {
+      return this._embedderSequencer.queue(key, async () => {
+        await this._secretStorageProvider.delete(key);
+        this.onDidChangeSecretEmitter.fire(key);
+      });
+    }
+    return super.delete(key);
+  }
+  get type() {
+    if (this._secretStorageProvider) {
+      return this._secretStorageProvider.type;
+    }
+    return super.type;
+  }
+  keys() {
+    if (this._secretStorageProvider) {
+      if (!this._secretStorageProvider.keys) {
+        throw new Error("Secret storage provider does not support keys() method");
+      }
+      return this._secretStorageProvider.keys();
+    }
+    return super.keys();
+  }
+};
+BrowserSecretStorageService = __decorate([
+  __param(0, IStorageService),
+  __param(1, IEncryptionService),
+  __param(2, IBrowserWorkbenchEnvironmentService),
+  __param(3, ILogService)
+], BrowserSecretStorageService);
+registerSingleton(
+  ISecretStorageService,
+  BrowserSecretStorageService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserSecretStorageService
+};
+//# sourceMappingURL=secretStorageService.js.map

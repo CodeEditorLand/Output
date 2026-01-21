@@ -1,1 +1,23 @@
-import{$b1 as o}from"./extHost.protocol.js";class c{constructor(r){const e=r.getProxy(o.MainThreadClipboard);this.value=Object.freeze({readText(){return e.$readText()},writeText(t){return e.$writeText(t)}})}}export{c as $tWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MainContext } from "./extHost.protocol.js";
+class ExtHostClipboard {
+  static {
+    __name(this, "ExtHostClipboard");
+  }
+  constructor(mainContext) {
+    const proxy = mainContext.getProxy(MainContext.MainThreadClipboard);
+    this.value = Object.freeze({
+      readText() {
+        return proxy.$readText();
+      },
+      writeText(value) {
+        return proxy.$writeText(value);
+      }
+    });
+  }
+}
+export {
+  ExtHostClipboard
+};
+//# sourceMappingURL=extHostClipboard.js.map

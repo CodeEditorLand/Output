@@ -1,1 +1,64 @@
-import{$Dd as m}from"../../../../base/common/lifecycle.js";import{$Ah as u}from"../../../../base/common/resources.js";import{$ifc as h}from"./inlineChatController.js";import{$ZFb as b}from"./inlineChatSessionService.js";import{$wNb as _}from"../../notebook/browser/services/notebookEditorService.js";import{CellUri as $}from"../../notebook/common/notebookCommon.js";import{$yL as v}from"../../../services/editor/common/editorService.js";var d=function(n,t,r,e){var i=arguments.length,o=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,r,e);else for(var c=n.length-1;c>=0;c--)(f=n[c])&&(o=(i<3?f(o):i>3?f(t,r,o):f(t,r))||o);return i>3&&o&&Object.defineProperty(t,r,o),o},p=function(n,t){return function(r,e){t(r,e,n)}};let a=class{constructor(t,r,e){this.a=new m,this.a.add(t.onWillStartSession(i=>{const o=$.parse(i.getModel().uri);if(o){for(const f of e.listNotebookEditors())if(u(f.textModel?.uri,o.notebook)){let c=!1;const l=[];for(const[,s]of f.codeEditors)l.push(s),c=s===i||c;if(c){for(const s of l)s!==i&&h.get(s)?.acceptSession();break}}}}))}dispose(){this.a.dispose()}};a=d([p(0,b),p(1,v),p(2,_)],a);export{a as $vpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { InlineChatController } from "./inlineChatController.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
+import { CellUri } from "../../notebook/common/notebookCommon.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+let InlineChatNotebookContribution = class InlineChatNotebookContribution2 {
+  static {
+    __name(this, "InlineChatNotebookContribution");
+  }
+  constructor(sessionService, editorService, notebookEditorService) {
+    this._store = new DisposableStore();
+    this._store.add(sessionService.onWillStartSession((newSessionEditor) => {
+      const candidate = CellUri.parse(newSessionEditor.getModel().uri);
+      if (!candidate) {
+        return;
+      }
+      for (const notebookEditor of notebookEditorService.listNotebookEditors()) {
+        if (isEqual(notebookEditor.textModel?.uri, candidate.notebook)) {
+          let found = false;
+          const editors = [];
+          for (const [, codeEditor] of notebookEditor.codeEditors) {
+            editors.push(codeEditor);
+            found = codeEditor === newSessionEditor || found;
+          }
+          if (found) {
+            for (const editor of editors) {
+              if (editor !== newSessionEditor) {
+                InlineChatController.get(editor)?.acceptSession();
+              }
+            }
+            break;
+          }
+        }
+      }
+    }));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+InlineChatNotebookContribution = __decorate([
+  __param(0, IInlineChatSessionService),
+  __param(1, IEditorService),
+  __param(2, INotebookEditorService)
+], InlineChatNotebookContribution);
+export {
+  InlineChatNotebookContribution
+};
+//# sourceMappingURL=inlineChatNotebook.js.map

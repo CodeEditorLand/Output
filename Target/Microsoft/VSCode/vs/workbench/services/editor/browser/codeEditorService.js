@@ -1,1 +1,110 @@
-import{$pcb as c,$qcb as f,$rcb as p,$scb as u}from"../../../../editor/browser/editorBrowser.js";import{$y$b as v}from"../../../../editor/browser/services/abstractCodeEditorService.js";import{$ou as C}from"../../../../platform/theme/common/themeService.js";import{$zL as b,$yL as E,$AL as g}from"../common/editorService.js";import{$ucb as $}from"../../../../editor/browser/services/codeEditorService.js";import{$TC as M}from"../../../../platform/instantiation/common/extensions.js";import{$Ah as m}from"../../../../base/common/resources.js";import{$9l as P}from"../../../../platform/configuration/common/configuration.js";import{applyTextEditorOptions as _}from"../../../common/editor/editorOptions.js";var h=function(d,t,o,r){var n=arguments.length,e=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(d,t,o,r);else for(var s=d.length-1;s>=0;s--)(i=d[s])&&(e=(n<3?i(e):n>3?i(t,o,e):i(t,o))||e);return n>3&&e&&Object.defineProperty(t,o,e),e},a=function(d,t){return function(o,r){t(o,r,d)}};let l=class extends v{constructor(t,o,r){super(o),this.I=t,this.J=r,this.D(this.registerCodeEditorOpenHandler(this.M.bind(this))),this.D(this.registerCodeEditorOpenHandler(this.L.bind(this)))}getActiveCodeEditor(){const t=this.I.activeTextEditorControl;if(c(t))return t;if(f(t))return t.getModifiedEditor();const o=this.I.activeEditorPane?.getControl();return p(o)&&c(o.activeCodeEditor)?o.activeCodeEditor:null}async L(t,o,r){const n=this.I.activeTextEditorControl;if(!r&&f(n)&&t.options&&t.resource&&o===n.getModifiedEditor()&&n.getModel()&&m(t.resource,n.getModel()?.modified.uri)){const e=n.getModifiedEditor();return _(t.options,e,0),e}return null}async M(t,o,r){if(!this.J.getValue().workbench?.editor?.enablePreviewFromCodeNavigation&&o&&!t.options?.pinned&&!r&&!m(o.getModel()?.uri,t.resource)){for(const i of this.I.visibleEditorPanes)if(u(i.getControl())===o){i.group.pinEditor();break}}const e=await this.I.openEditor(t,r?g:b);if(e){const i=e.getControl();if(c(i))return i;if(p(i)&&c(i.activeCodeEditor))return i.activeCodeEditor}return null}};l=h([a(0,E),a(1,C),a(2,P)],l);M($,l,1);export{l as $C$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { isCodeEditor, isDiffEditor, isCompositeEditor, getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { AbstractCodeEditorService } from "../../../../editor/browser/services/abstractCodeEditorService.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../common/editorService.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
+let CodeEditorService = class CodeEditorService2 extends AbstractCodeEditorService {
+  static {
+    __name(this, "CodeEditorService");
+  }
+  constructor(editorService, themeService, configurationService) {
+    super(themeService);
+    this.editorService = editorService;
+    this.configurationService = configurationService;
+    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditor.bind(this)));
+    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditorFromDiff.bind(this)));
+  }
+  getActiveCodeEditor() {
+    const activeTextEditorControl = this.editorService.activeTextEditorControl;
+    if (isCodeEditor(activeTextEditorControl)) {
+      return activeTextEditorControl;
+    }
+    if (isDiffEditor(activeTextEditorControl)) {
+      return activeTextEditorControl.getModifiedEditor();
+    }
+    const activeControl = this.editorService.activeEditorPane?.getControl();
+    if (isCompositeEditor(activeControl) && isCodeEditor(activeControl.activeCodeEditor)) {
+      return activeControl.activeCodeEditor;
+    }
+    return null;
+  }
+  async doOpenCodeEditorFromDiff(input, source, sideBySide) {
+    const activeTextEditorControl = this.editorService.activeTextEditorControl;
+    if (!sideBySide && // we need the current active group to be the target
+    isDiffEditor(activeTextEditorControl) && // we only support this for active text diff editors
+    input.options && // we need options to apply
+    input.resource && // we need a request resource to compare with
+    source === activeTextEditorControl.getModifiedEditor() && // we need the source of this request to be the modified side of the diff editor
+    activeTextEditorControl.getModel() && // we need a target model to compare with
+    isEqual(input.resource, activeTextEditorControl.getModel()?.modified.uri)) {
+      const targetEditor = activeTextEditorControl.getModifiedEditor();
+      applyTextEditorOptions(
+        input.options,
+        targetEditor,
+        0
+        /* ScrollType.Smooth */
+      );
+      return targetEditor;
+    }
+    return null;
+  }
+  // Open using our normal editor service
+  async doOpenCodeEditor(input, source, sideBySide) {
+    const enablePreviewFromCodeNavigation = this.configurationService.getValue().workbench?.editor?.enablePreviewFromCodeNavigation;
+    if (!enablePreviewFromCodeNavigation && // we only need to do this if the configuration requires it
+    source && // we need to know the origin of the navigation
+    !input.options?.pinned && // we only need to look at preview editors that open
+    !sideBySide && // we only need to care if editor opens in same group
+    !isEqual(source.getModel()?.uri, input.resource)) {
+      for (const visiblePane of this.editorService.visibleEditorPanes) {
+        if (getCodeEditor(visiblePane.getControl()) === source) {
+          visiblePane.group.pinEditor();
+          break;
+        }
+      }
+    }
+    const control = await this.editorService.openEditor(input, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+    if (control) {
+      const widget = control.getControl();
+      if (isCodeEditor(widget)) {
+        return widget;
+      }
+      if (isCompositeEditor(widget) && isCodeEditor(widget.activeCodeEditor)) {
+        return widget.activeCodeEditor;
+      }
+    }
+    return null;
+  }
+};
+CodeEditorService = __decorate([
+  __param(0, IEditorService),
+  __param(1, IThemeService),
+  __param(2, IConfigurationService)
+], CodeEditorService);
+registerSingleton(
+  ICodeEditorService,
+  CodeEditorService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  CodeEditorService
+};
+//# sourceMappingURL=codeEditorService.js.map

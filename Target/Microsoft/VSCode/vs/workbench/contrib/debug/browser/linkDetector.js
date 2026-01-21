@@ -1,3 +1,343 @@
-import{$F7 as E,getWindow as T,$p8 as P,$K8 as R}from"../../../../base/browser/dom.js";import{$C7 as A}from"../../../../base/browser/keyboardEvent.js";import{$E9 as O}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{Schemas as k}from"../../../../base/common/network.js";import*as $ from"../../../../base/common/path.js";import*as g from"../../../../base/common/platform.js";import{URI as L}from"../../../../base/common/uri.js";import{localize as h}from"../../../../nls.js";import{$9l as K}from"../../../../platform/configuration/common/configuration.js";import{$uk as M}from"../../../../platform/files/common/files.js";import{$7ib as U}from"../../../../platform/hover/browser/hover.js";import{$yP as x}from"../../../../platform/opener/common/opener.js";import{$tC as S}from"../../../../platform/tunnel/common/tunnel.js";import{$yL as W}from"../../../services/editor/common/editorService.js";import{$BP as j}from"../../../services/environment/common/environmentService.js";import{$WZ as H}from"../../../services/path/common/pathService.js";import{Iterable as y}from"../../../../base/common/iterator.js";var b=function(f,t,e,a){var r=arguments.length,s=r<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,e):a,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(f,t,e,a);else for(var o=f.length-1;o>=0;o--)(n=f[o])&&(s=(r<3?n(s):r>3?n(t,e,s):n(t,e))||s);return r>3&&s&&Object.defineProperty(t,e,s),s},m=function(f,t){return function(e,a){t(e,a,f)}};const N="\\u0000-\\u0020\\u007f-\\u009f",X=new RegExp("(?:[a-zA-Z][a-zA-Z0-9+.-]{2,}:\\/\\/|data:|www\\.)[^\\s"+N+'"]{2,}[^\\s'+N+`"')}\\],:;.!?]`,"ug"),q=/(?:[a-zA-Z]:(?:(?:\\|\/)[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/,z=/(?:(?:\~|\.+)(?:(?:\\|\/)[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/,G=new RegExp(`(${q.source}|${z.source})`),I=/((?:\~|\.+)?(?:\/[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/,Z=/(?::(?:line\s+)?([\d]+))?(?::([\d]+))?/,D=new RegExp(`${g.$m?G.source:I.source}${Z.source}`,"g"),V=/:(?:line\s+)?([\d]+)(?::([\d]+))?$/,J=2e3;var C;(function(f){f[f.Rich=0]="Rich",f[f.Basic=1]="Basic",f[f.None=2]="None"})(C||(C={}));let _=class{constructor(t,e,a,r,s,n,o,c){this.a=t,this.b=e,this.c=a,this.d=r,this.f=s,this.g=n,this.h=o,this.j=c}linkify(t,e,a,r,s,n){return this.k(t,e,a,r,s,n)}k(t,e,a,r,s,n,o){if(a){const i=t.split(`
-`);for(let p=0;p<i.length-1;p++)i[p]=i[p]+`
-`;i[i.length-1]||i.pop();const l=i.map(p=>this.k(p,e,!1,r,s,n,o));if(l.length===1)return l[0];const u=document.createElement("span");return l.forEach(p=>u.appendChild(p)),u}const c=document.createElement("span");for(const i of this.q(t))try{let l;switch(i.kind){case"text":l=o?this.linkifyLocation(i.value,o.locationReference,o.session,e):document.createTextNode(i.value);break;case"web":l=this.m(s?t:void 0,i.value,e);break;case"path":{const u=i.captures[0],p=i.captures[1]?Number(i.captures[1]):0,d=i.captures[2]?Number(i.captures[2]):0;l=this.n(s?t:void 0,i.value,u,p,d,r,e);break}default:l=document.createTextNode(i.value)}c.append(...this.l(l,i.index,i.value.length,n))}catch{c.appendChild(document.createTextNode(i.value))}return c}l(t,e,a,r){const s=[];let n=e;const o=e+a;for(const c of r||[]){if(c.end<=n||c.start>=o)continue;c.start>n&&(s.push(t.textContent.substring(n-e,c.start-e)),n=c.start);const i=Math.min(c.end,o),l=t.textContent.substring(n-e,i-e),u=document.createElement("span");u.classList.add("highlight"),c.extraClasses&&u.classList.add(...c.extraClasses),u.textContent=l,s.push(u),n=i}return n===e?y.single(t):(n<o&&s.push(t.textContent.substring(n-e)),P(t)?(R(t,...s),y.single(t)):s)}linkifyLocation(t,e,a,r){const s=this.o(t);return this.p(s,void 0,t,r,async n=>{const o=await a.resolveLocationReference(e);await o.source.openInEditor(this.a,{startLineNumber:o.line,startColumn:o.column,endLineNumber:o.endLine??o.line,endColumn:o.endColumn??o.column},n)}),s}makeReferencedLinkDetector(t,e){return{linkify:(a,r,s,n,o,c)=>this.k(a,r,s,n,o,c,{locationReference:t,session:e}),linkifyLocation:this.linkifyLocation.bind(this)}}m(t,e,a){const r=this.o(e);let s=L.parse(e);const n=V.exec(s.path);return n&&(s=s.with({path:s.path.slice(0,n.index),fragment:`L${n[0].slice(1)}`})),this.p(r,s,t,a,async()=>{if(s.scheme===k.file){const o=s.fsPath,c=await this.d.path,i=$.$7(c.sep===$.$6.sep&&g.$m?o.replace(/\\/g,$.$6.sep):o),l=L.parse(i);if(!await this.b.exists(l))return;await this.a.openEditor({resource:l,options:{pinned:!0,selection:n?{startLineNumber:+n[1],startColumn:n[2]?+n[2]:1}:void 0}});return}this.c.open(e,{allowTunneling:!!this.g.remoteAuthority&&this.h.getValue("remote.forwardOnOpen")})}),r}n(t,e,a,r,s,n,o){if(a[0]==="/"&&a[1]==="/")return document.createTextNode(e);const c=r>0?{selection:{startLineNumber:r,startColumn:s>0?s:1}}:{};if(a[0]==="."){if(!n)return document.createTextNode(e);const u=n.toResource(a),p=this.o(e);return this.p(p,u,t,o,d=>this.a.openEditor({resource:u,options:{...c,preserveFocus:d}})),p}if(a[0]==="~"){const u=this.d.resolvedUserHome;u&&(a=$.$9(u.fsPath,a.substring(1)))}const i=this.o(e);i.tabIndex=0;const l=L.file($.$7(a));return this.b.stat(l).then(u=>{u.isDirectory||this.p(i,l,t,o,p=>this.a.openEditor({resource:l,options:{...c,preserveFocus:p}}))}).catch(()=>{}),i}o(t){const e=document.createElement("a");return e.textContent=t,e}p(t,e,a,r,s){if(r.store.isDisposed)return;t.classList.add("link");const n=e&&this.f.canTunnel(e)?h(7818,null):h(7819,null),o=t.ariaLabel=a?g.$n?h(7820,null,n,a):h(7821,null,n,a):g.$n?h(7822,null,n):h(7823,null,n);r.type===0?r.store.add(this.j.setupManagedHover(O("element"),t,o)):r.type!==2&&(t.title=o),r.store.add(E(t,"mousemove",c=>{t.classList.toggle("pointer",g.$n?c.metaKey:c.ctrlKey)})),r.store.add(E(t,"mouseleave",()=>{t.classList.remove("pointer")})),r.store.add(E(t,"click",c=>{const i=T(t).getSelection();!i||i.type==="Range"||(g.$n?c.metaKey:c.ctrlKey)&&(c.preventDefault(),c.stopImmediatePropagation(),s(!1))})),r.store.add(E(t,"keydown",c=>{const i=new A(c);(i.keyCode===3||i.keyCode===10)&&(i.preventDefault(),i.stopPropagation(),s(i.keyCode===10))}))}q(t){if(t.length>J)return[{kind:"text",value:t,captures:[],index:0}];const e=[X,D],a=["web","path"],r=[],s=(n,o,c)=>{if(o>=e.length){r.push({value:n,kind:"text",captures:[],index:c});return}const i=e[o];let l=0,u;for(i.lastIndex=0;(u=i.exec(n))!==null;){const d=n.substring(l,u.index);d&&s(d,o+1,c+l);const w=u[0];r.push({value:w,kind:a[o],captures:u.slice(1),index:c+u.index}),l=u.index+w.length}const p=n.substring(l);p&&s(p,o+1,c+l)};return s(t,0,0),r}};_=b([m(0,W),m(1,M),m(2,x),m(3,H),m(4,S),m(5,j),m(6,K),m(7,U)],_);export{_ as $qfc,C as DebugLinkHoverBehavior};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener, getWindow, isHTMLElement, reset } from "../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Schemas } from "../../../../base/common/network.js";
+import * as osPath from "../../../../base/common/path.js";
+import * as platform from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+const CONTROL_CODES = "\\u0000-\\u0020\\u007f-\\u009f";
+const WEB_LINK_REGEX = new RegExp("(?:[a-zA-Z][a-zA-Z0-9+.-]{2,}:\\/\\/|data:|www\\.)[^\\s" + CONTROL_CODES + '"]{2,}[^\\s' + CONTROL_CODES + `"')}\\],:;.!?]`, "ug");
+const WIN_ABSOLUTE_PATH = /(?:[a-zA-Z]:(?:(?:\\|\/)[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/;
+const WIN_RELATIVE_PATH = /(?:(?:\~|\.+)(?:(?:\\|\/)[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/;
+const WIN_PATH = new RegExp(`(${WIN_ABSOLUTE_PATH.source}|${WIN_RELATIVE_PATH.source})`);
+const POSIX_PATH = /((?:\~|\.+)?(?:\/[\w\s\.@\-\(\)\[\]{}!#$%^&'`~+=]+)+)/;
+const LINE_COLUMN = /(?::(?:line\s+)?([\d]+))?(?::([\d]+))?/;
+const PATH_LINK_REGEX = new RegExp(`${platform.isWindows ? WIN_PATH.source : POSIX_PATH.source}${LINE_COLUMN.source}`, "g");
+const LINE_COLUMN_REGEX = /:(?:line\s+)?([\d]+)(?::([\d]+))?$/;
+const MAX_LENGTH = 2e3;
+var DebugLinkHoverBehavior;
+(function(DebugLinkHoverBehavior2) {
+  DebugLinkHoverBehavior2[DebugLinkHoverBehavior2["Rich"] = 0] = "Rich";
+  DebugLinkHoverBehavior2[DebugLinkHoverBehavior2["Basic"] = 1] = "Basic";
+  DebugLinkHoverBehavior2[DebugLinkHoverBehavior2["None"] = 2] = "None";
+})(DebugLinkHoverBehavior || (DebugLinkHoverBehavior = {}));
+let LinkDetector = class LinkDetector2 {
+  static {
+    __name(this, "LinkDetector");
+  }
+  constructor(editorService, fileService, openerService, pathService, tunnelService, environmentService, configurationService, hoverService) {
+    this.editorService = editorService;
+    this.fileService = fileService;
+    this.openerService = openerService;
+    this.pathService = pathService;
+    this.tunnelService = tunnelService;
+    this.environmentService = environmentService;
+    this.configurationService = configurationService;
+    this.hoverService = hoverService;
+  }
+  /**
+   * Matches and handles web urls, absolute and relative file links in the string provided.
+   * Returns <span/> element that wraps the processed string, where matched links are replaced by <a/>.
+   * 'onclick' event is attached to all anchored links that opens them in the editor.
+   * When splitLines is true, each line of the text, even if it contains no links, is wrapped in a <span>
+   * and added as a child of the returned <span>.
+   * The `hoverBehavior` is required and manages the lifecycle of event listeners.
+   */
+  linkify(text, hoverBehavior, splitLines, workspaceFolder, includeFulltext, highlights) {
+    return this._linkify(text, hoverBehavior, splitLines, workspaceFolder, includeFulltext, highlights);
+  }
+  _linkify(text, hoverBehavior, splitLines, workspaceFolder, includeFulltext, highlights, defaultRef) {
+    if (splitLines) {
+      const lines = text.split("\n");
+      for (let i = 0; i < lines.length - 1; i++) {
+        lines[i] = lines[i] + "\n";
+      }
+      if (!lines[lines.length - 1]) {
+        lines.pop();
+      }
+      const elements = lines.map((line) => this._linkify(line, hoverBehavior, false, workspaceFolder, includeFulltext, highlights, defaultRef));
+      if (elements.length === 1) {
+        return elements[0];
+      }
+      const container2 = document.createElement("span");
+      elements.forEach((e) => container2.appendChild(e));
+      return container2;
+    }
+    const container = document.createElement("span");
+    for (const part of this.detectLinks(text)) {
+      try {
+        let node;
+        switch (part.kind) {
+          case "text":
+            node = defaultRef ? this.linkifyLocation(part.value, defaultRef.locationReference, defaultRef.session, hoverBehavior) : document.createTextNode(part.value);
+            break;
+          case "web":
+            node = this.createWebLink(includeFulltext ? text : void 0, part.value, hoverBehavior);
+            break;
+          case "path": {
+            const path = part.captures[0];
+            const lineNumber = part.captures[1] ? Number(part.captures[1]) : 0;
+            const columnNumber = part.captures[2] ? Number(part.captures[2]) : 0;
+            node = this.createPathLink(includeFulltext ? text : void 0, part.value, path, lineNumber, columnNumber, workspaceFolder, hoverBehavior);
+            break;
+          }
+          default:
+            node = document.createTextNode(part.value);
+        }
+        container.append(...this.applyHighlights(node, part.index, part.value.length, highlights));
+      } catch (e) {
+        container.appendChild(document.createTextNode(part.value));
+      }
+    }
+    return container;
+  }
+  applyHighlights(node, startIndex, length, highlights) {
+    const children = [];
+    let currentIndex = startIndex;
+    const endIndex = startIndex + length;
+    for (const highlight of highlights || []) {
+      if (highlight.end <= currentIndex || highlight.start >= endIndex) {
+        continue;
+      }
+      if (highlight.start > currentIndex) {
+        children.push(node.textContent.substring(currentIndex - startIndex, highlight.start - startIndex));
+        currentIndex = highlight.start;
+      }
+      const highlightEnd = Math.min(highlight.end, endIndex);
+      const highlightedText = node.textContent.substring(currentIndex - startIndex, highlightEnd - startIndex);
+      const highlightSpan = document.createElement("span");
+      highlightSpan.classList.add("highlight");
+      if (highlight.extraClasses) {
+        highlightSpan.classList.add(...highlight.extraClasses);
+      }
+      highlightSpan.textContent = highlightedText;
+      children.push(highlightSpan);
+      currentIndex = highlightEnd;
+    }
+    if (currentIndex === startIndex) {
+      return Iterable.single(node);
+    }
+    if (currentIndex < endIndex) {
+      children.push(node.textContent.substring(currentIndex - startIndex));
+    }
+    if (isHTMLElement(node)) {
+      reset(node, ...children);
+      return Iterable.single(node);
+    }
+    return children;
+  }
+  /**
+   * Linkifies a location reference.
+   */
+  linkifyLocation(text, locationReference, session, hoverBehavior) {
+    const link = this.createLink(text);
+    this.decorateLink(link, void 0, text, hoverBehavior, async (preserveFocus) => {
+      const location = await session.resolveLocationReference(locationReference);
+      await location.source.openInEditor(this.editorService, {
+        startLineNumber: location.line,
+        startColumn: location.column,
+        endLineNumber: location.endLine ?? location.line,
+        endColumn: location.endColumn ?? location.column
+      }, preserveFocus);
+    });
+    return link;
+  }
+  /**
+   * Makes an {@link ILinkDetector} that links everything in the output to the
+   * reference if they don't have other explicit links.
+   */
+  makeReferencedLinkDetector(locationReference, session) {
+    return {
+      linkify: /* @__PURE__ */ __name((text, hoverBehavior, splitLines, workspaceFolder, includeFulltext, highlights) => this._linkify(text, hoverBehavior, splitLines, workspaceFolder, includeFulltext, highlights, { locationReference, session }), "linkify"),
+      linkifyLocation: this.linkifyLocation.bind(this)
+    };
+  }
+  createWebLink(fulltext, url, hoverBehavior) {
+    const link = this.createLink(url);
+    let uri = URI.parse(url);
+    const lineCol = LINE_COLUMN_REGEX.exec(uri.path);
+    if (lineCol) {
+      uri = uri.with({
+        path: uri.path.slice(0, lineCol.index),
+        fragment: `L${lineCol[0].slice(1)}`
+      });
+    }
+    this.decorateLink(link, uri, fulltext, hoverBehavior, async () => {
+      if (uri.scheme === Schemas.file) {
+        const fsPath = uri.fsPath;
+        const path = await this.pathService.path;
+        const fileUrl = osPath.normalize(path.sep === osPath.posix.sep && platform.isWindows ? fsPath.replace(/\\/g, osPath.posix.sep) : fsPath);
+        const fileUri = URI.parse(fileUrl);
+        const exists = await this.fileService.exists(fileUri);
+        if (!exists) {
+          return;
+        }
+        await this.editorService.openEditor({
+          resource: fileUri,
+          options: {
+            pinned: true,
+            selection: lineCol ? { startLineNumber: +lineCol[1], startColumn: lineCol[2] ? +lineCol[2] : 1 } : void 0
+          }
+        });
+        return;
+      }
+      this.openerService.open(url, { allowTunneling: !!this.environmentService.remoteAuthority && this.configurationService.getValue("remote.forwardOnOpen") });
+    });
+    return link;
+  }
+  createPathLink(fulltext, text, path, lineNumber, columnNumber, workspaceFolder, hoverBehavior) {
+    if (path[0] === "/" && path[1] === "/") {
+      return document.createTextNode(text);
+    }
+    const options = lineNumber > 0 ? { selection: { startLineNumber: lineNumber, startColumn: columnNumber > 0 ? columnNumber : 1 } } : {};
+    if (path[0] === ".") {
+      if (!workspaceFolder) {
+        return document.createTextNode(text);
+      }
+      const uri2 = workspaceFolder.toResource(path);
+      const link2 = this.createLink(text);
+      this.decorateLink(link2, uri2, fulltext, hoverBehavior, (preserveFocus) => this.editorService.openEditor({ resource: uri2, options: { ...options, preserveFocus } }));
+      return link2;
+    }
+    if (path[0] === "~") {
+      const userHome = this.pathService.resolvedUserHome;
+      if (userHome) {
+        path = osPath.join(userHome.fsPath, path.substring(1));
+      }
+    }
+    const link = this.createLink(text);
+    link.tabIndex = 0;
+    const uri = URI.file(osPath.normalize(path));
+    this.fileService.stat(uri).then((stat) => {
+      if (stat.isDirectory) {
+        return;
+      }
+      this.decorateLink(link, uri, fulltext, hoverBehavior, (preserveFocus) => this.editorService.openEditor({ resource: uri, options: { ...options, preserveFocus } }));
+    }).catch(() => {
+    });
+    return link;
+  }
+  createLink(text) {
+    const link = document.createElement("a");
+    link.textContent = text;
+    return link;
+  }
+  decorateLink(link, uri, fulltext, hoverBehavior, onClick) {
+    if (hoverBehavior.store.isDisposed) {
+      return;
+    }
+    link.classList.add("link");
+    const followLink = uri && this.tunnelService.canTunnel(uri) ? localize("followForwardedLink", "follow link using forwarded port") : localize("followLink", "follow link");
+    const title = link.ariaLabel = fulltext ? platform.isMacintosh ? localize("fileLinkWithPathMac", "Cmd + click to {0}\n{1}", followLink, fulltext) : localize("fileLinkWithPath", "Ctrl + click to {0}\n{1}", followLink, fulltext) : platform.isMacintosh ? localize("fileLinkMac", "Cmd + click to {0}", followLink) : localize("fileLink", "Ctrl + click to {0}", followLink);
+    if (hoverBehavior.type === 0) {
+      hoverBehavior.store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), link, title));
+    } else if (hoverBehavior.type !== 2) {
+      link.title = title;
+    }
+    hoverBehavior.store.add(addDisposableListener(link, "mousemove", (event) => {
+      link.classList.toggle("pointer", platform.isMacintosh ? event.metaKey : event.ctrlKey);
+    }));
+    hoverBehavior.store.add(addDisposableListener(link, "mouseleave", () => {
+      link.classList.remove("pointer");
+    }));
+    hoverBehavior.store.add(addDisposableListener(link, "click", (event) => {
+      const selection = getWindow(link).getSelection();
+      if (!selection || selection.type === "Range") {
+        return;
+      }
+      if (!(platform.isMacintosh ? event.metaKey : event.ctrlKey)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      onClick(false);
+    }));
+    hoverBehavior.store.add(addDisposableListener(link, "keydown", (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.keyCode === 3 || event.keyCode === 10) {
+        event.preventDefault();
+        event.stopPropagation();
+        onClick(
+          event.keyCode === 10
+          /* KeyCode.Space */
+        );
+      }
+    }));
+  }
+  detectLinks(text) {
+    if (text.length > MAX_LENGTH) {
+      return [{ kind: "text", value: text, captures: [], index: 0 }];
+    }
+    const regexes = [WEB_LINK_REGEX, PATH_LINK_REGEX];
+    const kinds = ["web", "path"];
+    const result = [];
+    const splitOne = /* @__PURE__ */ __name((text2, regexIndex, baseIndex) => {
+      if (regexIndex >= regexes.length) {
+        result.push({ value: text2, kind: "text", captures: [], index: baseIndex });
+        return;
+      }
+      const regex = regexes[regexIndex];
+      let currentIndex = 0;
+      let match;
+      regex.lastIndex = 0;
+      while ((match = regex.exec(text2)) !== null) {
+        const stringBeforeMatch = text2.substring(currentIndex, match.index);
+        if (stringBeforeMatch) {
+          splitOne(stringBeforeMatch, regexIndex + 1, baseIndex + currentIndex);
+        }
+        const value = match[0];
+        result.push({
+          value,
+          kind: kinds[regexIndex],
+          captures: match.slice(1),
+          index: baseIndex + match.index
+        });
+        currentIndex = match.index + value.length;
+      }
+      const stringAfterMatches = text2.substring(currentIndex);
+      if (stringAfterMatches) {
+        splitOne(stringAfterMatches, regexIndex + 1, baseIndex + currentIndex);
+      }
+    }, "splitOne");
+    splitOne(text, 0, 0);
+    return result;
+  }
+};
+LinkDetector = __decorate([
+  __param(0, IEditorService),
+  __param(1, IFileService),
+  __param(2, IOpenerService),
+  __param(3, IPathService),
+  __param(4, ITunnelService),
+  __param(5, IWorkbenchEnvironmentService),
+  __param(6, IConfigurationService),
+  __param(7, IHoverService)
+], LinkDetector);
+export {
+  DebugLinkHoverBehavior,
+  LinkDetector
+};
+//# sourceMappingURL=linkDetector.js.map

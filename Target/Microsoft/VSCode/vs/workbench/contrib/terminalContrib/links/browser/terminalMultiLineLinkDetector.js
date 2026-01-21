@@ -1,1 +1,187 @@
-import{$0o as D}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$Ll as R}from"../../../../../platform/workspace/common/workspace.js";import{$CCc as k,$ECc as x}from"./terminalLinkHelpers.js";import{$MCc as g}from"./terminalLocalLinkDetector.js";import{$vx as N}from"../../../../../platform/terminal/common/terminal.js";var M=function(r,n,e,o){var c=arguments.length,t=c<3?n:o===null?o=Object.getOwnPropertyDescriptor(n,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(r,n,e,o);else for(var p=r.length-1;p>=0;p--)(s=r[p])&&(t=(c<3?s(t):c>3?s(n,e,t):s(n,e))||t);return c>3&&t&&Object.defineProperty(n,e,t),t},b=function(r,n){return function(e,o){n(e,o,r)}},v;(function(r){r[r.MaxLineLength=2e3]="MaxLineLength",r[r.MaxResolvedLinkLength=1024]="MaxResolvedLinkLength"})(v||(v={}));const _=[/^ *(?<link>(?<line>\d+):(?<col>\d+)?)/],$=[/^(?<link>@@ .+ \+(?<toFileLine>\d+),(?<toFileCount>\d+) @@)/];let C=class{static{this.id="multiline"}constructor(n,e,o,c,t,s){this.xterm=n,this.a=e,this.b=o,this.c=c,this.d=t,this.e=s,this.maxLinkLength=500}async detect(n,e,o){const c=[],t=x(this.xterm.buffer.active,e,o,this.xterm.cols);if(t===""||t.length>2e3)return[];this.c.trace("terminalMultiLineLinkDetector#detect text",t);for(const s of _){const a=t.match(s)?.groups;if(!a)continue;const l=a?.link,d=a?.line,L=a?.col;if(!l||d===void 0||l.length>1024)continue;this.c.trace("terminalMultiLineLinkDetector#detect candidate",l);let f;for(let i=e-1;i>=0;i--){if(this.xterm.buffer.active.getLine(i).isWrapped)continue;const m=x(this.xterm.buffer.active,i,i,this.xterm.cols);if(!m.match(/^\s*\d/)){f=m;break}}if(!f)continue;const u=await this.b.resolveLink(this.a,f);if(u){const i=g(u.uri,u.isDirectory,this.d,this.e),m=k(n,this.xterm.cols,{startColumn:1,startLineNumber:1,endColumn:1+t.length,endLineNumber:1},e),h={text:l,uri:u.uri,selection:{startLineNumber:parseInt(d),startColumn:L?parseInt(L):1},disableTrimColon:!0,bufferRange:m,type:i};this.c.trace("terminalMultiLineLinkDetector#detect verified link",h),c.push(h);break}}if(c.length===0)for(const s of $){const a=t.match(s)?.groups;if(!a)continue;const l=a?.link,d=a?.toFileLine,L=a?.toFileCount;if(!l||d===void 0||l.length>1024)continue;this.c.trace("terminalMultiLineLinkDetector#detect candidate",l);let f;for(let i=e-1;i>=0;i--){if(this.xterm.buffer.active.getLine(i).isWrapped)continue;const h=x(this.xterm.buffer.active,i,i,this.xterm.cols).match(/\+\+\+ b\/(?<path>.+)/);if(h){f=h.groups?.path;break}}if(!f)continue;const u=await this.b.resolveLink(this.a,f);if(u){const i=g(u.uri,u.isDirectory,this.d,this.e),m=k(n,this.xterm.cols,{startColumn:1,startLineNumber:1,endColumn:1+l.length,endLineNumber:1},e),h={text:l,uri:u.uri,selection:{startLineNumber:parseInt(d),startColumn:1,endLineNumber:parseInt(d)+parseInt(L)},bufferRange:m,type:i};this.c.trace("terminalMultiLineLinkDetector#detect verified link",h),c.push(h);break}}return c}};C=M([b(3,N),b(4,D),b(5,R)],C);export{C as $VCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { convertLinkRangeToBuffer, getXtermLineContent } from "./terminalLinkHelpers.js";
+import { getTerminalLinkType } from "./terminalLocalLinkDetector.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["MaxLineLength"] = 2e3] = "MaxLineLength";
+  Constants2[Constants2["MaxResolvedLinkLength"] = 1024] = "MaxResolvedLinkLength";
+})(Constants || (Constants = {}));
+const lineNumberPrefixMatchers = [
+  // Ripgrep:
+  //   /some/file
+  //   16:searchresult
+  //   16:    searchresult
+  // Eslint:
+  //   /some/file
+  //     16:5  error ...
+  /^ *(?<link>(?<line>\d+):(?<col>\d+)?)/
+];
+const gitDiffMatchers = [
+  // --- a/some/file
+  // +++ b/some/file
+  // @@ -8,11 +8,11 @@ file content...
+  /^(?<link>@@ .+ \+(?<toFileLine>\d+),(?<toFileCount>\d+) @@)/
+];
+let TerminalMultiLineLinkDetector = class TerminalMultiLineLinkDetector2 {
+  static {
+    __name(this, "TerminalMultiLineLinkDetector");
+  }
+  static {
+    this.id = "multiline";
+  }
+  constructor(xterm, _processManager, _linkResolver, _logService, _uriIdentityService, _workspaceContextService) {
+    this.xterm = xterm;
+    this._processManager = _processManager;
+    this._linkResolver = _linkResolver;
+    this._logService = _logService;
+    this._uriIdentityService = _uriIdentityService;
+    this._workspaceContextService = _workspaceContextService;
+    this.maxLinkLength = 500;
+  }
+  async detect(lines, startLine, endLine) {
+    const links = [];
+    const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
+    if (text === "" || text.length > 2e3) {
+      return [];
+    }
+    this._logService.trace("terminalMultiLineLinkDetector#detect text", text);
+    for (const matcher of lineNumberPrefixMatchers) {
+      const match = text.match(matcher);
+      const group = match?.groups;
+      if (!group) {
+        continue;
+      }
+      const link = group?.link;
+      const line = group?.line;
+      const col = group?.col;
+      if (!link || line === void 0) {
+        continue;
+      }
+      if (link.length > 1024) {
+        continue;
+      }
+      this._logService.trace("terminalMultiLineLinkDetector#detect candidate", link);
+      let possiblePath;
+      for (let index = startLine - 1; index >= 0; index--) {
+        if (this.xterm.buffer.active.getLine(index).isWrapped) {
+          continue;
+        }
+        const text2 = getXtermLineContent(this.xterm.buffer.active, index, index, this.xterm.cols);
+        if (!text2.match(/^\s*\d/)) {
+          possiblePath = text2;
+          break;
+        }
+      }
+      if (!possiblePath) {
+        continue;
+      }
+      const linkStat = await this._linkResolver.resolveLink(this._processManager, possiblePath);
+      if (linkStat) {
+        const type = getTerminalLinkType(linkStat.uri, linkStat.isDirectory, this._uriIdentityService, this._workspaceContextService);
+        const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+          startColumn: 1,
+          startLineNumber: 1,
+          endColumn: 1 + text.length,
+          endLineNumber: 1
+        }, startLine);
+        const simpleLink = {
+          text: link,
+          uri: linkStat.uri,
+          selection: {
+            startLineNumber: parseInt(line),
+            startColumn: col ? parseInt(col) : 1
+          },
+          disableTrimColon: true,
+          bufferRange,
+          type
+        };
+        this._logService.trace("terminalMultiLineLinkDetector#detect verified link", simpleLink);
+        links.push(simpleLink);
+        break;
+      }
+    }
+    if (links.length === 0) {
+      for (const matcher of gitDiffMatchers) {
+        const match = text.match(matcher);
+        const group = match?.groups;
+        if (!group) {
+          continue;
+        }
+        const link = group?.link;
+        const toFileLine = group?.toFileLine;
+        const toFileCount = group?.toFileCount;
+        if (!link || toFileLine === void 0) {
+          continue;
+        }
+        if (link.length > 1024) {
+          continue;
+        }
+        this._logService.trace("terminalMultiLineLinkDetector#detect candidate", link);
+        let possiblePath;
+        for (let index = startLine - 1; index >= 0; index--) {
+          if (this.xterm.buffer.active.getLine(index).isWrapped) {
+            continue;
+          }
+          const text2 = getXtermLineContent(this.xterm.buffer.active, index, index, this.xterm.cols);
+          const match2 = text2.match(/\+\+\+ b\/(?<path>.+)/);
+          if (match2) {
+            possiblePath = match2.groups?.path;
+            break;
+          }
+        }
+        if (!possiblePath) {
+          continue;
+        }
+        const linkStat = await this._linkResolver.resolveLink(this._processManager, possiblePath);
+        if (linkStat) {
+          const type = getTerminalLinkType(linkStat.uri, linkStat.isDirectory, this._uriIdentityService, this._workspaceContextService);
+          const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+            startColumn: 1,
+            startLineNumber: 1,
+            endColumn: 1 + link.length,
+            endLineNumber: 1
+          }, startLine);
+          const simpleLink = {
+            text: link,
+            uri: linkStat.uri,
+            selection: {
+              startLineNumber: parseInt(toFileLine),
+              startColumn: 1,
+              endLineNumber: parseInt(toFileLine) + parseInt(toFileCount)
+            },
+            bufferRange,
+            type
+          };
+          this._logService.trace("terminalMultiLineLinkDetector#detect verified link", simpleLink);
+          links.push(simpleLink);
+          break;
+        }
+      }
+    }
+    return links;
+  }
+};
+TerminalMultiLineLinkDetector = __decorate([
+  __param(3, ITerminalLogService),
+  __param(4, IUriIdentityService),
+  __param(5, IWorkspaceContextService)
+], TerminalMultiLineLinkDetector);
+export {
+  TerminalMultiLineLinkDetector
+};
+//# sourceMappingURL=terminalMultiLineLinkDetector.js.map

@@ -1,1 +1,368 @@
-var F;(function(g){g[g.provider=0]="provider",g[g.userDefined=1]="userDefined",g[g.recovered=2]="recovered"})(F||(F={}));const x={0:" ",1:"u",2:"r"},y=65535,L=16777215,C=4278190080;class m{constructor(e){const t=Math.ceil(e/32);this.a=new Uint32Array(t)}get(e){const t=e/32|0,n=e%32;return(this.a[t]&1<<n)!==0}set(e,t){const n=e/32|0,s=e%32,i=this.a[n];t?this.a[n]=i|1<<s:this.a[n]=i&~(1<<s)}}class I{constructor(e,t,n){if(e.length!==t.length||e.length>y)throw new Error("invalid startIndexes or endIndexes size");this.a=e,this.b=t,this.c=new m(e.length),this.d=new m(e.length),this.e=new m(e.length),this.g=n,this.f=!1}h(){if(!this.f){this.f=!0;const e=[],t=(n,s)=>{const i=e[e.length-1];return this.getStartLineNumber(i)<=n&&this.getEndLineNumber(i)>=s};for(let n=0,s=this.a.length;n<s;n++){const i=this.a[n],l=this.b[n];if(i>L||l>L)throw new Error("startLineNumber or endLineNumber must not exceed "+L);for(;e.length>0&&!t(i,l);)e.pop();const d=e.length>0?e[e.length-1]:-1;e.push(n),this.a[n]=i+((d&255)<<24),this.b[n]=l+((d&65280)<<16)}}}get length(){return this.a.length}getStartLineNumber(e){return this.a[e]&L}getEndLineNumber(e){return this.b[e]&L}getType(e){return this.g?this.g[e]:void 0}hasTypes(){return!!this.g}isCollapsed(e){return this.c.get(e)}setCollapsed(e,t){this.c.set(e,t)}j(e){return this.d.get(e)}k(e,t){return this.d.set(e,t)}l(e){return this.e.get(e)}m(e,t){return this.e.set(e,t)}getSource(e){return this.j(e)?1:this.l(e)?2:0}setSource(e,t){t===1?(this.k(e,!0),this.m(e,!1)):t===2?(this.k(e,!1),this.m(e,!0)):(this.k(e,!1),this.m(e,!1))}setCollapsedAllOfType(e,t){let n=!1;if(this.g)for(let s=0;s<this.g.length;s++)this.g[s]===e&&(this.setCollapsed(s,t),n=!0);return n}toRegion(e){return new A(this,e)}getParentIndex(e){this.h();const t=((this.a[e]&C)>>>24)+((this.b[e]&C)>>>16);return t===y?-1:t}contains(e,t){return this.getStartLineNumber(e)<=t&&this.getEndLineNumber(e)>=t}n(e){let t=0,n=this.a.length;if(n===0)return-1;for(;t<n;){const s=Math.floor((t+n)/2);e<this.getStartLineNumber(s)?n=s:t=s+1}return t-1}findRange(e){let t=this.n(e);if(t>=0){if(this.getEndLineNumber(t)>=e)return t;for(t=this.getParentIndex(t);t!==-1;){if(this.contains(t,e))return t;t=this.getParentIndex(t)}}return-1}toString(){const e=[];for(let t=0;t<this.length;t++)e[t]=`[${x[this.getSource(t)]}${this.isCollapsed(t)?"+":"-"}] ${this.getStartLineNumber(t)}/${this.getEndLineNumber(t)}`;return e.join(", ")}toFoldRange(e){return{startLineNumber:this.a[e]&L,endLineNumber:this.b[e]&L,type:this.g?this.g[e]:void 0,isCollapsed:this.isCollapsed(e),source:this.getSource(e)}}static fromFoldRanges(e){const t=e.length,n=new Uint32Array(t),s=new Uint32Array(t);let i=[],l=!1;for(let h=0;h<t;h++){const c=e[h];n[h]=c.startLineNumber,s[h]=c.endLineNumber,i.push(c.type),c.type&&(l=!0)}l||(i=void 0);const d=new I(n,s,i);for(let h=0;h<t;h++)e[h].isCollapsed&&d.setCollapsed(h,!0),d.setSource(h,e[h].source);return d}static sanitizeAndMerge(e,t,n,s){n=n??Number.MAX_VALUE;const i=(r,f)=>Array.isArray(r)?(o=>o<f?r[o]:void 0):(o=>o<f?r.toFoldRange(o):void 0),l=i(e,e.length),d=i(t,t.length);let h=0,c=0,u=l(0),a=d(0);const N=[];let b,p=0;const w=[];for(;u||a;){let r;if(a&&(!u||u.startLineNumber>=a.startLineNumber))u&&u.startLineNumber===a.startLineNumber?(a.source===1?r=a:(r=u,r.isCollapsed=a.isCollapsed&&(u.endLineNumber===a.endLineNumber||!s?.startsInside(u.startLineNumber+1,u.endLineNumber+1)),r.source=0),u=l(++h)):(r=a,a.isCollapsed&&a.source===0&&(r.source=2)),a=d(++c);else{let f=c,o=a;for(;;){if(!o||o.startLineNumber>u.endLineNumber){r=u;break}if(o.source===1&&o.endLineNumber>u.endLineNumber)break;o=d(++f)}u=l(++h)}if(r){for(;b&&b.endLineNumber<r.startLineNumber;)b=N.pop();r.endLineNumber>r.startLineNumber&&r.startLineNumber>p&&r.endLineNumber<=n&&(!b||b.endLineNumber>=r.endLineNumber)&&(w.push(r),p=r.startLineNumber,b&&N.push(b),b=r)}}return w}}class A{constructor(e,t){this.a=e,this.b=t}get startLineNumber(){return this.a.getStartLineNumber(this.b)}get endLineNumber(){return this.a.getEndLineNumber(this.b)}get regionIndex(){return this.b}get parentIndex(){return this.a.getParentIndex(this.b)}get isCollapsed(){return this.a.isCollapsed(this.b)}containedBy(e){return e.startLineNumber<=this.startLineNumber&&e.endLineNumber>=this.endLineNumber}containsLine(e){return this.startLineNumber<=e&&e<=this.endLineNumber}hidesLine(e){return this.startLineNumber<e&&e<=this.endLineNumber}}export{x as $Grb,y as $Hrb,L as $Irb,I as $Jrb,A as $Krb,F as FoldSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var FoldSource;
+(function(FoldSource2) {
+  FoldSource2[FoldSource2["provider"] = 0] = "provider";
+  FoldSource2[FoldSource2["userDefined"] = 1] = "userDefined";
+  FoldSource2[FoldSource2["recovered"] = 2] = "recovered";
+})(FoldSource || (FoldSource = {}));
+const foldSourceAbbr = {
+  [
+    0
+    /* FoldSource.provider */
+  ]: " ",
+  [
+    1
+    /* FoldSource.userDefined */
+  ]: "u",
+  [
+    2
+    /* FoldSource.recovered */
+  ]: "r"
+};
+const MAX_FOLDING_REGIONS = 65535;
+const MAX_LINE_NUMBER = 16777215;
+const MASK_INDENT = 4278190080;
+class BitField {
+  static {
+    __name(this, "BitField");
+  }
+  constructor(size) {
+    const numWords = Math.ceil(size / 32);
+    this._states = new Uint32Array(numWords);
+  }
+  get(index) {
+    const arrayIndex = index / 32 | 0;
+    const bit = index % 32;
+    return (this._states[arrayIndex] & 1 << bit) !== 0;
+  }
+  set(index, newState) {
+    const arrayIndex = index / 32 | 0;
+    const bit = index % 32;
+    const value = this._states[arrayIndex];
+    if (newState) {
+      this._states[arrayIndex] = value | 1 << bit;
+    } else {
+      this._states[arrayIndex] = value & ~(1 << bit);
+    }
+  }
+}
+class FoldingRegions {
+  static {
+    __name(this, "FoldingRegions");
+  }
+  constructor(startIndexes, endIndexes, types) {
+    if (startIndexes.length !== endIndexes.length || startIndexes.length > MAX_FOLDING_REGIONS) {
+      throw new Error("invalid startIndexes or endIndexes size");
+    }
+    this._startIndexes = startIndexes;
+    this._endIndexes = endIndexes;
+    this._collapseStates = new BitField(startIndexes.length);
+    this._userDefinedStates = new BitField(startIndexes.length);
+    this._recoveredStates = new BitField(startIndexes.length);
+    this._types = types;
+    this._parentsComputed = false;
+  }
+  ensureParentIndices() {
+    if (!this._parentsComputed) {
+      this._parentsComputed = true;
+      const parentIndexes = [];
+      const isInsideLast = /* @__PURE__ */ __name((startLineNumber, endLineNumber) => {
+        const index = parentIndexes[parentIndexes.length - 1];
+        return this.getStartLineNumber(index) <= startLineNumber && this.getEndLineNumber(index) >= endLineNumber;
+      }, "isInsideLast");
+      for (let i = 0, len = this._startIndexes.length; i < len; i++) {
+        const startLineNumber = this._startIndexes[i];
+        const endLineNumber = this._endIndexes[i];
+        if (startLineNumber > MAX_LINE_NUMBER || endLineNumber > MAX_LINE_NUMBER) {
+          throw new Error("startLineNumber or endLineNumber must not exceed " + MAX_LINE_NUMBER);
+        }
+        while (parentIndexes.length > 0 && !isInsideLast(startLineNumber, endLineNumber)) {
+          parentIndexes.pop();
+        }
+        const parentIndex = parentIndexes.length > 0 ? parentIndexes[parentIndexes.length - 1] : -1;
+        parentIndexes.push(i);
+        this._startIndexes[i] = startLineNumber + ((parentIndex & 255) << 24);
+        this._endIndexes[i] = endLineNumber + ((parentIndex & 65280) << 16);
+      }
+    }
+  }
+  get length() {
+    return this._startIndexes.length;
+  }
+  getStartLineNumber(index) {
+    return this._startIndexes[index] & MAX_LINE_NUMBER;
+  }
+  getEndLineNumber(index) {
+    return this._endIndexes[index] & MAX_LINE_NUMBER;
+  }
+  getType(index) {
+    return this._types ? this._types[index] : void 0;
+  }
+  hasTypes() {
+    return !!this._types;
+  }
+  isCollapsed(index) {
+    return this._collapseStates.get(index);
+  }
+  setCollapsed(index, newState) {
+    this._collapseStates.set(index, newState);
+  }
+  isUserDefined(index) {
+    return this._userDefinedStates.get(index);
+  }
+  setUserDefined(index, newState) {
+    return this._userDefinedStates.set(index, newState);
+  }
+  isRecovered(index) {
+    return this._recoveredStates.get(index);
+  }
+  setRecovered(index, newState) {
+    return this._recoveredStates.set(index, newState);
+  }
+  getSource(index) {
+    if (this.isUserDefined(index)) {
+      return 1;
+    } else if (this.isRecovered(index)) {
+      return 2;
+    }
+    return 0;
+  }
+  setSource(index, source) {
+    if (source === 1) {
+      this.setUserDefined(index, true);
+      this.setRecovered(index, false);
+    } else if (source === 2) {
+      this.setUserDefined(index, false);
+      this.setRecovered(index, true);
+    } else {
+      this.setUserDefined(index, false);
+      this.setRecovered(index, false);
+    }
+  }
+  setCollapsedAllOfType(type, newState) {
+    let hasChanged = false;
+    if (this._types) {
+      for (let i = 0; i < this._types.length; i++) {
+        if (this._types[i] === type) {
+          this.setCollapsed(i, newState);
+          hasChanged = true;
+        }
+      }
+    }
+    return hasChanged;
+  }
+  toRegion(index) {
+    return new FoldingRegion(this, index);
+  }
+  getParentIndex(index) {
+    this.ensureParentIndices();
+    const parent = ((this._startIndexes[index] & MASK_INDENT) >>> 24) + ((this._endIndexes[index] & MASK_INDENT) >>> 16);
+    if (parent === MAX_FOLDING_REGIONS) {
+      return -1;
+    }
+    return parent;
+  }
+  contains(index, line) {
+    return this.getStartLineNumber(index) <= line && this.getEndLineNumber(index) >= line;
+  }
+  findIndex(line) {
+    let low = 0, high = this._startIndexes.length;
+    if (high === 0) {
+      return -1;
+    }
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      if (line < this.getStartLineNumber(mid)) {
+        high = mid;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return low - 1;
+  }
+  findRange(line) {
+    let index = this.findIndex(line);
+    if (index >= 0) {
+      const endLineNumber = this.getEndLineNumber(index);
+      if (endLineNumber >= line) {
+        return index;
+      }
+      index = this.getParentIndex(index);
+      while (index !== -1) {
+        if (this.contains(index, line)) {
+          return index;
+        }
+        index = this.getParentIndex(index);
+      }
+    }
+    return -1;
+  }
+  toString() {
+    const res = [];
+    for (let i = 0; i < this.length; i++) {
+      res[i] = `[${foldSourceAbbr[this.getSource(i)]}${this.isCollapsed(i) ? "+" : "-"}] ${this.getStartLineNumber(i)}/${this.getEndLineNumber(i)}`;
+    }
+    return res.join(", ");
+  }
+  toFoldRange(index) {
+    return {
+      startLineNumber: this._startIndexes[index] & MAX_LINE_NUMBER,
+      endLineNumber: this._endIndexes[index] & MAX_LINE_NUMBER,
+      type: this._types ? this._types[index] : void 0,
+      isCollapsed: this.isCollapsed(index),
+      source: this.getSource(index)
+    };
+  }
+  static fromFoldRanges(ranges) {
+    const rangesLength = ranges.length;
+    const startIndexes = new Uint32Array(rangesLength);
+    const endIndexes = new Uint32Array(rangesLength);
+    let types = [];
+    let gotTypes = false;
+    for (let i = 0; i < rangesLength; i++) {
+      const range = ranges[i];
+      startIndexes[i] = range.startLineNumber;
+      endIndexes[i] = range.endLineNumber;
+      types.push(range.type);
+      if (range.type) {
+        gotTypes = true;
+      }
+    }
+    if (!gotTypes) {
+      types = void 0;
+    }
+    const regions = new FoldingRegions(startIndexes, endIndexes, types);
+    for (let i = 0; i < rangesLength; i++) {
+      if (ranges[i].isCollapsed) {
+        regions.setCollapsed(i, true);
+      }
+      regions.setSource(i, ranges[i].source);
+    }
+    return regions;
+  }
+  /**
+   * Two inputs, each a FoldingRegions or a FoldRange[], are merged.
+   * Each input must be pre-sorted on startLineNumber.
+   * The first list is assumed to always include all regions currently defined by range providers.
+   * The second list only contains the previously collapsed and all manual ranges.
+   * If the line position matches, the range of the new range is taken, and the range is no longer manual
+   * When an entry in one list overlaps an entry in the other, the second list's entry "wins" and
+   * overlapping entries in the first list are discarded.
+   * Invalid entries are discarded. An entry is invalid if:
+   * 		the start and end line numbers aren't a valid range of line numbers,
+   * 		it is out of sequence or has the same start line as a preceding entry,
+   * 		it overlaps a preceding entry and is not fully contained by that entry.
+   */
+  static sanitizeAndMerge(rangesA, rangesB, maxLineNumber, selection) {
+    maxLineNumber = maxLineNumber ?? Number.MAX_VALUE;
+    const getIndexedFunction = /* @__PURE__ */ __name((r, limit) => {
+      return Array.isArray(r) ? ((i) => {
+        return i < limit ? r[i] : void 0;
+      }) : ((i) => {
+        return i < limit ? r.toFoldRange(i) : void 0;
+      });
+    }, "getIndexedFunction");
+    const getA = getIndexedFunction(rangesA, rangesA.length);
+    const getB = getIndexedFunction(rangesB, rangesB.length);
+    let indexA = 0;
+    let indexB = 0;
+    let nextA = getA(0);
+    let nextB = getB(0);
+    const stackedRanges = [];
+    let topStackedRange;
+    let prevLineNumber = 0;
+    const resultRanges = [];
+    while (nextA || nextB) {
+      let useRange = void 0;
+      if (nextB && (!nextA || nextA.startLineNumber >= nextB.startLineNumber)) {
+        if (nextA && nextA.startLineNumber === nextB.startLineNumber) {
+          if (nextB.source === 1) {
+            useRange = nextB;
+          } else {
+            useRange = nextA;
+            useRange.isCollapsed = nextB.isCollapsed && (nextA.endLineNumber === nextB.endLineNumber || !selection?.startsInside(nextA.startLineNumber + 1, nextA.endLineNumber + 1));
+            useRange.source = 0;
+          }
+          nextA = getA(++indexA);
+        } else {
+          useRange = nextB;
+          if (nextB.isCollapsed && nextB.source === 0) {
+            useRange.source = 2;
+          }
+        }
+        nextB = getB(++indexB);
+      } else {
+        let scanIndex = indexB;
+        let prescanB = nextB;
+        while (true) {
+          if (!prescanB || prescanB.startLineNumber > nextA.endLineNumber) {
+            useRange = nextA;
+            break;
+          }
+          if (prescanB.source === 1 && prescanB.endLineNumber > nextA.endLineNumber) {
+            break;
+          }
+          prescanB = getB(++scanIndex);
+        }
+        nextA = getA(++indexA);
+      }
+      if (useRange) {
+        while (topStackedRange && topStackedRange.endLineNumber < useRange.startLineNumber) {
+          topStackedRange = stackedRanges.pop();
+        }
+        if (useRange.endLineNumber > useRange.startLineNumber && useRange.startLineNumber > prevLineNumber && useRange.endLineNumber <= maxLineNumber && (!topStackedRange || topStackedRange.endLineNumber >= useRange.endLineNumber)) {
+          resultRanges.push(useRange);
+          prevLineNumber = useRange.startLineNumber;
+          if (topStackedRange) {
+            stackedRanges.push(topStackedRange);
+          }
+          topStackedRange = useRange;
+        }
+      }
+    }
+    return resultRanges;
+  }
+}
+class FoldingRegion {
+  static {
+    __name(this, "FoldingRegion");
+  }
+  constructor(ranges, index) {
+    this.ranges = ranges;
+    this.index = index;
+  }
+  get startLineNumber() {
+    return this.ranges.getStartLineNumber(this.index);
+  }
+  get endLineNumber() {
+    return this.ranges.getEndLineNumber(this.index);
+  }
+  get regionIndex() {
+    return this.index;
+  }
+  get parentIndex() {
+    return this.ranges.getParentIndex(this.index);
+  }
+  get isCollapsed() {
+    return this.ranges.isCollapsed(this.index);
+  }
+  containedBy(range) {
+    return range.startLineNumber <= this.startLineNumber && range.endLineNumber >= this.endLineNumber;
+  }
+  containsLine(lineNumber) {
+    return this.startLineNumber <= lineNumber && lineNumber <= this.endLineNumber;
+  }
+  hidesLine(lineNumber) {
+    return this.startLineNumber < lineNumber && lineNumber <= this.endLineNumber;
+  }
+}
+export {
+  FoldSource,
+  FoldingRegion,
+  FoldingRegions,
+  MAX_FOLDING_REGIONS,
+  MAX_LINE_NUMBER,
+  foldSourceAbbr
+};
+//# sourceMappingURL=foldingRanges.js.map

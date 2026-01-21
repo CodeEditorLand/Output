@@ -1,1 +1,181 @@
-import{$1H as m}from"./editorInput.js";import{$5k as c,$uk as l,$6k as g}from"../../../platform/files/common/files.js";import{$lH as p}from"../../../platform/label/common/label.js";import{$Gh as o,$Ah as b}from"../../../base/common/resources.js";import{$5L as y}from"../../services/filesConfiguration/common/filesConfigurationService.js";import{$bm as L}from"../../../platform/configuration/common/configuration.js";import{$aI as C}from"../../../editor/common/services/textResourceConfiguration.js";import{$GCb as $}from"../../services/editor/common/customEditorLabelService.js";var d=function(h,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var a=h.length-1;a>=0;a--)(n=h[a])&&(s=(r<3?n(s):r>3?n(t,i,s):n(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},f=function(h,t){return function(i,e){t(i,e,h)}};let u=class extends m{get capabilities(){let t=32;return this.h.hasProvider(this.resource)?this.m.isReadonly(this.resource)&&(t|=2):t|=4,t&2||(t|=128),t}get preferredResource(){return this.a}constructor(t,i,e,r,s,n,a){super(),this.resource=t,this.b=e,this.h=r,this.m=s,this.q=n,this.r=a,this.w=void 0,this.y=void 0,this.C=void 0,this.G=void 0,this.I=void 0,this.L=void 0,this.N=void 0,this.a=i||t,this.s()}s(){this.D(this.b.onDidChangeFormatters(t=>this.t(t.scheme))),this.D(this.h.onDidChangeFileSystemProviderRegistrations(t=>this.t(t.scheme))),this.D(this.h.onDidChangeFileSystemProviderCapabilities(t=>this.t(t.scheme))),this.D(this.r.onDidChange(()=>this.u())),this.D(this.m.onDidChangeReadonly(()=>this.j.fire()))}t(t){t===this.a.scheme&&this.u()}u(){this.w=void 0,this.y=void 0,this.C=void 0,this.G=void 0,this.I=void 0,this.L=void 0,this.N=void 0,this.g.fire()}setPreferredResource(t){b(t,this.a)||(this.a=t,this.u())}getName(){return typeof this.w!="string"&&(this.w=this.r.getName(this.a)??this.b.getUriBasenameLabel(this.a)),this.w}getDescription(t=1){switch(t){case 0:return this.z;case 2:return this.H;default:return this.F}}get z(){return typeof this.y!="string"&&(this.y=this.b.getUriBasenameLabel(o(this.a))),this.y}get F(){return typeof this.C!="string"&&(this.C=this.b.getUriLabel(o(this.a),{relative:!0})),this.C}get H(){return typeof this.G!="string"&&(this.G=this.b.getUriLabel(o(this.a))),this.G}get J(){return typeof this.I!="string"&&(this.I=this.getName()),this.I}get M(){return typeof this.L!="string"&&(this.L=this.b.getUriLabel(this.a,{relative:!0})),this.L}get O(){return typeof this.N!="string"&&(this.N=this.b.getUriLabel(this.a)),this.N}getTitle(t){switch(t){case 0:return this.J;case 2:return this.O;default:case 1:return this.M}}isReadonly(){return this.m.isReadonly(this.resource)}P(t){if(t?.limits)return t.limits;const i=g(this.resource);let e;const r=this.q.inspect(this.resource,null,"workbench.editorLargeFileConfirmation");return L(r)&&(e=r.value*c.MB),{size:e??i}}};u=d([f(2,p),f(3,l),f(4,y),f(5,C),f(6,$)],u);export{u as $HCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { EditorInput } from "./editorInput.js";
+import { ByteSize, IFileService, getLargeFileConfirmationLimit } from "../../../platform/files/common/files.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { dirname, isEqual } from "../../../base/common/resources.js";
+import { IFilesConfigurationService } from "../../services/filesConfiguration/common/filesConfigurationService.js";
+import { isConfigured } from "../../../platform/configuration/common/configuration.js";
+import { ITextResourceConfigurationService } from "../../../editor/common/services/textResourceConfiguration.js";
+import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
+let AbstractResourceEditorInput = class AbstractResourceEditorInput2 extends EditorInput {
+  static {
+    __name(this, "AbstractResourceEditorInput");
+  }
+  get capabilities() {
+    let capabilities = 32;
+    if (this.fileService.hasProvider(this.resource)) {
+      if (this.filesConfigurationService.isReadonly(this.resource)) {
+        capabilities |= 2;
+      }
+    } else {
+      capabilities |= 4;
+    }
+    if (!(capabilities & 2)) {
+      capabilities |= 128;
+    }
+    return capabilities;
+  }
+  get preferredResource() {
+    return this._preferredResource;
+  }
+  constructor(resource, preferredResource, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService) {
+    super();
+    this.resource = resource;
+    this.labelService = labelService;
+    this.fileService = fileService;
+    this.filesConfigurationService = filesConfigurationService;
+    this.textResourceConfigurationService = textResourceConfigurationService;
+    this.customEditorLabelService = customEditorLabelService;
+    this._name = void 0;
+    this._shortDescription = void 0;
+    this._mediumDescription = void 0;
+    this._longDescription = void 0;
+    this._shortTitle = void 0;
+    this._mediumTitle = void 0;
+    this._longTitle = void 0;
+    this._preferredResource = preferredResource || resource;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.labelService.onDidChangeFormatters((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.fileService.onDidChangeFileSystemProviderRegistrations((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.fileService.onDidChangeFileSystemProviderCapabilities((e) => this.onLabelEvent(e.scheme)));
+    this._register(this.customEditorLabelService.onDidChange(() => this.updateLabel()));
+    this._register(this.filesConfigurationService.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
+  }
+  onLabelEvent(scheme) {
+    if (scheme === this._preferredResource.scheme) {
+      this.updateLabel();
+    }
+  }
+  updateLabel() {
+    this._name = void 0;
+    this._shortDescription = void 0;
+    this._mediumDescription = void 0;
+    this._longDescription = void 0;
+    this._shortTitle = void 0;
+    this._mediumTitle = void 0;
+    this._longTitle = void 0;
+    this._onDidChangeLabel.fire();
+  }
+  setPreferredResource(preferredResource) {
+    if (!isEqual(preferredResource, this._preferredResource)) {
+      this._preferredResource = preferredResource;
+      this.updateLabel();
+    }
+  }
+  getName() {
+    if (typeof this._name !== "string") {
+      this._name = this.customEditorLabelService.getName(this._preferredResource) ?? this.labelService.getUriBasenameLabel(this._preferredResource);
+    }
+    return this._name;
+  }
+  getDescription(verbosity = 1) {
+    switch (verbosity) {
+      case 0:
+        return this.shortDescription;
+      case 2:
+        return this.longDescription;
+      case 1:
+      default:
+        return this.mediumDescription;
+    }
+  }
+  get shortDescription() {
+    if (typeof this._shortDescription !== "string") {
+      this._shortDescription = this.labelService.getUriBasenameLabel(dirname(this._preferredResource));
+    }
+    return this._shortDescription;
+  }
+  get mediumDescription() {
+    if (typeof this._mediumDescription !== "string") {
+      this._mediumDescription = this.labelService.getUriLabel(dirname(this._preferredResource), { relative: true });
+    }
+    return this._mediumDescription;
+  }
+  get longDescription() {
+    if (typeof this._longDescription !== "string") {
+      this._longDescription = this.labelService.getUriLabel(dirname(this._preferredResource));
+    }
+    return this._longDescription;
+  }
+  get shortTitle() {
+    if (typeof this._shortTitle !== "string") {
+      this._shortTitle = this.getName();
+    }
+    return this._shortTitle;
+  }
+  get mediumTitle() {
+    if (typeof this._mediumTitle !== "string") {
+      this._mediumTitle = this.labelService.getUriLabel(this._preferredResource, { relative: true });
+    }
+    return this._mediumTitle;
+  }
+  get longTitle() {
+    if (typeof this._longTitle !== "string") {
+      this._longTitle = this.labelService.getUriLabel(this._preferredResource);
+    }
+    return this._longTitle;
+  }
+  getTitle(verbosity) {
+    switch (verbosity) {
+      case 0:
+        return this.shortTitle;
+      case 2:
+        return this.longTitle;
+      default:
+      case 1:
+        return this.mediumTitle;
+    }
+  }
+  isReadonly() {
+    return this.filesConfigurationService.isReadonly(this.resource);
+  }
+  ensureLimits(options) {
+    if (options?.limits) {
+      return options.limits;
+    }
+    const defaultSizeLimit = getLargeFileConfirmationLimit(this.resource);
+    let configuredSizeLimit;
+    const configuredSizeLimitMb = this.textResourceConfigurationService.inspect(this.resource, null, "workbench.editorLargeFileConfirmation");
+    if (isConfigured(configuredSizeLimitMb)) {
+      configuredSizeLimit = configuredSizeLimitMb.value * ByteSize.MB;
+    }
+    return {
+      size: configuredSizeLimit ?? defaultSizeLimit
+    };
+  }
+};
+AbstractResourceEditorInput = __decorate([
+  __param(2, ILabelService),
+  __param(3, IFileService),
+  __param(4, IFilesConfigurationService),
+  __param(5, ITextResourceConfigurationService),
+  __param(6, ICustomEditorLabelService)
+], AbstractResourceEditorInput);
+export {
+  AbstractResourceEditorInput
+};
+//# sourceMappingURL=resourceEditorInput.js.map

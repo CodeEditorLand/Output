@@ -1,1 +1,153 @@
-import{$wf as i}from"../../../../base/common/event.js";import{$Ed as d}from"../../../../base/common/lifecycle.js";import{$RYb as w}from"./terminal.js";var c=function(h,t,e,s){var r=arguments.length,n=r<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,s);else for(var a=h.length-1;a>=0;a--)(o=h[a])&&(n=(r<3?o(n):r>3?o(t,e,n):o(t,e))||n);return r>3&&n&&Object.defineProperty(t,e,n),n},f=function(h,t){return function(e,s){t(e,s,h)}};let l=class extends d{get onProcessReady(){return this.b.event}constructor(t,e,s,r){super(),this.instanceId=t,this.w=e,this.y=s,this.z=r,this.id=0,this.shouldPersist=!1,this.a=this.D(new i),this.onProcessData=this.a.event,this.b=this.D(new i),this.c=this.D(new i),this.onStart=this.c.event,this.f=this.D(new i),this.onInput=this.f.event,this.g=this.D(new i),this.onBinary=this.g.event,this.h=this.D(new i),this.onResize=this.h.event,this.j=this.D(new i),this.onAcknowledgeDataEvent=this.j.event,this.m=this.D(new i),this.onShutdown=this.m.event,this.n=this.D(new i),this.onRequestInitialCwd=this.n.event,this.q=this.D(new i),this.onRequestCwd=this.q.event,this.r=this.D(new i),this.onDidChangeProperty=this.r.event,this.s=this.D(new i),this.onProcessExit=this.s.event,this.t=[],this.u=[]}emitData(t){this.a.fire(t)}emitTitle(t){this.r.fire({type:"title",value:t})}emitReady(t,e){this.b.fire({pid:t,cwd:e,windowsPty:void 0})}emitProcessProperty({type:t,value:e}){switch(t){case"cwd":this.emitCwd(e);break;case"initialCwd":this.emitInitialCwd(e);break;case"title":this.emitTitle(e);break;case"overrideDimensions":this.emitOverrideDimensions(e);break;case"resolvedShellLaunchConfig":this.emitResolvedShellLaunchConfig(e);break}}emitExit(t){this.s.fire(t),this.dispose()}emitOverrideDimensions(t){this.r.fire({type:"overrideDimensions",value:t})}emitResolvedShellLaunchConfig(t){this.r.fire({type:"resolvedShellLaunchConfig",value:t})}emitInitialCwd(t){for(;this.t.length>0;)this.t.pop()(t)}emitCwd(t){for(;this.u.length>0;)this.u.pop()(t)}async start(){return this.z.requestStartExtensionTerminal(this,this.w,this.y)}shutdown(t){this.m.fire(t)}input(t){this.f.fire(t)}sendSignal(t){}resize(t,e){this.h.fire({cols:t,rows:e})}clearBuffer(){}acknowledgeDataEvent(){}async setUnicodeVersion(t){}async processBinary(t){this.g.fire(t)}getInitialCwd(){return new Promise(t=>{this.n.fire(),this.t.push(t)})}getCwd(){return new Promise(t=>{this.q.fire(),this.u.push(t)})}async refreshProperty(t){throw new Error("refreshProperty not implemented on extension host")}async updateProperty(t,e){}};l=c([f(3,w)],l);export{l as $K6b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITerminalService } from "./terminal.js";
+let TerminalProcessExtHostProxy = class TerminalProcessExtHostProxy2 extends Disposable {
+  static {
+    __name(this, "TerminalProcessExtHostProxy");
+  }
+  get onProcessReady() {
+    return this._onProcessReady.event;
+  }
+  constructor(instanceId, _cols, _rows, _terminalService) {
+    super();
+    this.instanceId = instanceId;
+    this._cols = _cols;
+    this._rows = _rows;
+    this._terminalService = _terminalService;
+    this.id = 0;
+    this.shouldPersist = false;
+    this._onProcessData = this._register(new Emitter());
+    this.onProcessData = this._onProcessData.event;
+    this._onProcessReady = this._register(new Emitter());
+    this._onStart = this._register(new Emitter());
+    this.onStart = this._onStart.event;
+    this._onInput = this._register(new Emitter());
+    this.onInput = this._onInput.event;
+    this._onBinary = this._register(new Emitter());
+    this.onBinary = this._onBinary.event;
+    this._onResize = this._register(new Emitter());
+    this.onResize = this._onResize.event;
+    this._onAcknowledgeDataEvent = this._register(new Emitter());
+    this.onAcknowledgeDataEvent = this._onAcknowledgeDataEvent.event;
+    this._onShutdown = this._register(new Emitter());
+    this.onShutdown = this._onShutdown.event;
+    this._onRequestInitialCwd = this._register(new Emitter());
+    this.onRequestInitialCwd = this._onRequestInitialCwd.event;
+    this._onRequestCwd = this._register(new Emitter());
+    this.onRequestCwd = this._onRequestCwd.event;
+    this._onDidChangeProperty = this._register(new Emitter());
+    this.onDidChangeProperty = this._onDidChangeProperty.event;
+    this._onProcessExit = this._register(new Emitter());
+    this.onProcessExit = this._onProcessExit.event;
+    this._pendingInitialCwdRequests = [];
+    this._pendingCwdRequests = [];
+  }
+  emitData(data) {
+    this._onProcessData.fire(data);
+  }
+  emitTitle(title) {
+    this._onDidChangeProperty.fire({ type: "title", value: title });
+  }
+  emitReady(pid, cwd) {
+    this._onProcessReady.fire({ pid, cwd, windowsPty: void 0 });
+  }
+  emitProcessProperty({ type, value }) {
+    switch (type) {
+      case "cwd":
+        this.emitCwd(value);
+        break;
+      case "initialCwd":
+        this.emitInitialCwd(value);
+        break;
+      case "title":
+        this.emitTitle(value);
+        break;
+      case "overrideDimensions":
+        this.emitOverrideDimensions(value);
+        break;
+      case "resolvedShellLaunchConfig":
+        this.emitResolvedShellLaunchConfig(value);
+        break;
+    }
+  }
+  emitExit(exitCode) {
+    this._onProcessExit.fire(exitCode);
+    this.dispose();
+  }
+  emitOverrideDimensions(dimensions) {
+    this._onDidChangeProperty.fire({ type: "overrideDimensions", value: dimensions });
+  }
+  emitResolvedShellLaunchConfig(shellLaunchConfig) {
+    this._onDidChangeProperty.fire({ type: "resolvedShellLaunchConfig", value: shellLaunchConfig });
+  }
+  emitInitialCwd(initialCwd) {
+    while (this._pendingInitialCwdRequests.length > 0) {
+      this._pendingInitialCwdRequests.pop()(initialCwd);
+    }
+  }
+  emitCwd(cwd) {
+    while (this._pendingCwdRequests.length > 0) {
+      this._pendingCwdRequests.pop()(cwd);
+    }
+  }
+  async start() {
+    return this._terminalService.requestStartExtensionTerminal(this, this._cols, this._rows);
+  }
+  shutdown(immediate) {
+    this._onShutdown.fire(immediate);
+  }
+  input(data) {
+    this._onInput.fire(data);
+  }
+  sendSignal(signal) {
+  }
+  resize(cols, rows) {
+    this._onResize.fire({ cols, rows });
+  }
+  clearBuffer() {
+  }
+  acknowledgeDataEvent() {
+  }
+  async setUnicodeVersion(version) {
+  }
+  async processBinary(data) {
+    this._onBinary.fire(data);
+  }
+  getInitialCwd() {
+    return new Promise((resolve) => {
+      this._onRequestInitialCwd.fire();
+      this._pendingInitialCwdRequests.push(resolve);
+    });
+  }
+  getCwd() {
+    return new Promise((resolve) => {
+      this._onRequestCwd.fire();
+      this._pendingCwdRequests.push(resolve);
+    });
+  }
+  async refreshProperty(type) {
+    throw new Error("refreshProperty not implemented on extension host");
+  }
+  async updateProperty(type, value) {
+  }
+};
+TerminalProcessExtHostProxy = __decorate([
+  __param(3, ITerminalService)
+], TerminalProcessExtHostProxy);
+export {
+  TerminalProcessExtHostProxy
+};
+//# sourceMappingURL=terminalProcessExtHostProxy.js.map

@@ -1,5 +1,761 @@
-import*as a from"../../../../nls.js";import{$ZN as O,$1N as g}from"../../../services/remote/common/remoteAgentService.js";import{$ii as j,$qi as H}from"../../../../base/common/async.js";import{$wf as B,Event as E}from"../../../../base/common/event.js";import{$Ed as G,$Dd as Q}from"../../../../base/common/lifecycle.js";import{$nL as k,$oL as U,$rL as X,$pL as Y,$tL as D,$sL as z}from"../../../../platform/actions/common/actions.js";import{$fCb as Z}from"../../../services/statusbar/browser/statusbar.js";import{$lH as V}from"../../../../platform/label/common/label.js";import{$9n as K,$qo as tt,$po as et}from"../../../../platform/contextkey/common/contextkey.js";import{$to as it}from"../../../../platform/commands/common/commands.js";import{Schemas as L}from"../../../../base/common/network.js";import{$4R as st}from"../../../services/extensions/common/extensions.js";import{$VH as ot}from"../../../../platform/quickinput/common/quickInput.js";import{$mbb as nt}from"../../../services/environment/browser/environmentService.js";import{$bC as rt}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$pbb as at}from"../../../services/host/browser/host.js";import{$l as ht,$s as R,$y as lt}from"../../../../base/common/platform.js";import{$1f as w}from"../../../../base/common/strings.js";import{$Ll as ct}from"../../../../platform/workspace/common/workspace.js";import{$0u as _}from"../../../../platform/remote/common/remoteHosts.js";import{$SZ as mt}from"../../../../platform/workspace/common/virtualWorkspace.js";import{$fk as dt}from"../../../../base/common/iconLabels.js";import{$xo as ft}from"../../../../platform/log/common/log.js";import{$tWb as ut}from"../../../browser/actions/windowActions.js";import{$Wz as pt,$8z as bt,$$z as yt}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$uIb as P,$GIb as $t}from"../../extensions/common/extensions.js";import{$ik as x}from"../../../../base/common/htmlContent.js";import{$nO as gt,$oO as wt}from"../../../common/contextkeys.js";import{$op as It}from"../../../../platform/telemetry/common/telemetry.js";import{$Un as xt}from"../../../../platform/product/common/productService.js";import{$a0 as v}from"../../../../base/browser/event.js";import{$Fz as I}from"../../../../platform/extensions/common/extensions.js";import{ThemeIcon as Ct}from"../../../../base/common/themables.js";import{$BKb as Et}from"../../extensions/browser/extensionsIcons.js";import{$yP as kt}from"../../../../platform/opener/common/opener.js";import{URI as Dt}from"../../../../base/common/uri.js";import{$96 as M}from"../../../../base/browser/window.js";import{$im as zt}from"../../../../platform/registry/common/platform.js";import{$km as Rt}from"../../../../platform/configuration/common/configurationRegistry.js";import{$3N as Lt}from"../../../common/configuration.js";import{$9l as _t}from"../../../../platform/configuration/common/configuration.js";import{$Lp as vt}from"../../../../platform/dialogs/common/dialogs.js";import Mt from"../../../../base/common/severity.js";import{$rb as Tt}from"../../../../base/common/errors.js";import{$Km as Pt}from"../../../../base/common/errorMessage.js";import{$SN as Nt}from"../../../services/lifecycle/common/lifecycle.js";var J=function(b,e,t,i){var o=arguments.length,s=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(b,e,t,i);else for(var n=b.length-1;n>=0;n--)(r=b[n])&&(s=(o<3?r(s):o>3?r(e,t,s):r(e,t))||s);return o>3&&s&&Object.defineProperty(e,t,s),s},h=function(b,e){return function(t,i){e(t,i,b)}},l;let T=class extends G{static{l=this}static{this.ID="workbench.contrib.remoteStatusIndicator"}static{this.b="workbench.action.remote.showMenu"}static{this.c="workbench.action.remote.close"}static{this.f=!R}static{this.g="workbench.action.remote.extensions"}static{this.h="$(remote)"}static{this.j=40}static{this.m=60*1e3}static{this.n=10*1e3}get I(){if(!this.H){const e={...this.eb.remoteExtensionTips,...this.eb.virtualWorkspaceExtensionTips};this.H=Object.values(e).filter(t=>t.startEntry!==void 0).map(t=>({id:t.extensionId,installed:!1,friendlyName:t.friendlyName,isPlatformCompatible:!1,dependencies:[],helpLink:t.startEntry?.helpLink??"",startConnectLabel:t.startEntry?.startConnectLabel??"",startCommand:t.startEntry?.startCommand??"",priority:t.startEntry?.priority??10,supportedPlatforms:t.supportedPlatforms})),this.I.sort((t,i)=>t.priority-i.priority)}return this.H}get J(){return this.P.remoteAuthority}constructor(e,t,i,o,s,r,n,c,u,y,C,f,m,d,p,$,N,S,q,A,F,W){super(),this.O=e,this.P=t,this.Q=i,this.R=o,this.S=s,this.U=r,this.W=n,this.X=c,this.Y=u,this.Z=y,this.$=C,this.ab=f,this.bb=m,this.cb=d,this.db=p,this.eb=$,this.fb=N,this.gb=S,this.hb=q,this.ib=A,this.jb=F,this.kb=W,this.u=void 0,this.w=void 0,this.y=void 0,this.C=void 0,this.F=void 0,this.G=Object.create(null),this.H=void 0,this.L=!1,this.M=this.D(new B),this.N=this.M.event,this.s=this.D(this.S.createMenu(k.StatusBarWindowIndicatorMenu,this.R)),this.r=this.D(this.S.createMenu(k.StatusBarRemoteIndicatorMenu,this.R)),this.z=new et("remoteConnectionState","").bindTo(this.R),this.J?(this.w="initializing",this.z.set(this.w)):this.ob(),this.lb(),this.mb(),this.pb(),this.xb()}lb(){const e=a.localize2(11518,"Remote"),t=this;this.D(D(class extends z{constructor(){super({id:l.b,category:e,title:a.localize2(11519,"Show Remote Menu"),f1:!0,keybinding:{weight:200,primary:2605}}),this.run=()=>t.Db()}})),l.f&&(this.D(D(class extends z{constructor(){super({id:l.c,category:e,title:a.localize2(11520,"Close Remote Connection"),f1:!0,precondition:K.or(gt,wt)}),this.run=()=>t.$.openWindow({forceReuseWindow:!0,remoteAuthority:null})}})),this.J&&Y.appendMenuItem(k.MenubarFileMenu,{group:"6_close",command:{id:l.c,title:a.localize(11496,null)},order:3.5})),this.cb.isEnabled()&&this.D(D(class extends z{constructor(){super({id:l.g,category:e,title:a.localize2(11521,"Install Remote Development Extensions"),f1:!0}),this.run=(i,o)=>i.get(P).openSearch("@recommended:remotes")}}))}mb(){const e=()=>{this.t=void 0,this.xb()};this.D(this.s.onDidChange(e)),this.D(this.r.onDidChange(e)),this.D(this.Q.onDidChangeFormatters(()=>this.xb()));const t=this.P.options?.windowIndicator;if(t&&t.onDidChange&&this.D(t.onDidChange(()=>this.xb())),this.J){const i=this.Y.getConnection();i&&this.D(i.onDidStateChange(o=>{switch(o.type){case 0:case 2:case 1:this.qb("reconnecting");break;case 3:this.qb("disconnected");break;case 4:this.qb("connected");break}}))}else this.D(this.ab.onDidChangeWorkbenchState(()=>{this.ob(),this.xb()}));R&&this.D(E.any(this.D(new v(M,"online")).event,this.D(new v(M,"offline")).event)(()=>this.tb(navigator.onLine?"online":"offline"))),this.D(this.X.onDidChangeExtensions(async i=>{for(const o of i.added){const s=this.I.findIndex(r=>I.equals(r.id,o.identifier));s>-1&&(this.I[s].installed=!0)}})),this.D(this.fb.onDidUninstallExtension(async i=>{const o=this.I.findIndex(s=>I.equals(s.id,i.identifier.id));o>-1&&(this.I[o].installed=!1)}))}async nb(){if(this.L)return;const e=ht(lt);for(let t=0;t<this.I.length;t++){const i=this.I[t].id,o=this.I[t].supportedPlatforms,s=!!(await this.fb.getInstalled()).find(r=>I.equals(r.identifier.id,i));this.I[t].installed=s,s?this.I[t].isPlatformCompatible=!0:o&&!o.includes(e)?this.I[t].isPlatformCompatible=!1:this.I[t].isPlatformCompatible=!0}this.L=!0,this.M.fire(),this.xb()}ob(){this.u=mt(this.ab.getWorkspace())}async pb(){await this.X.whenInstalledExtensionsRegistered();const e=this.J;e&&(async()=>{try{const{authority:t}=await this.Z.resolveAuthority(e);this.y=t.connectionToken,this.qb("connected")}catch{this.qb("disconnected")}})(),this.xb(),this.nb()}qb(e){this.w!==e&&(this.w=e,this.w==="reconnecting"?this.z.set("disconnected"):this.z.set(this.w),this.xb(),e==="connected"&&this.rb())}rb(){!this.J||this.F||(this.F=this.D(new j(()=>this.sb(),l.m)),this.F.schedule(l.n))}async sb(){if(this.$.hasFocus&&this.C!=="offline"){const e=await g.measure(this.Y);e&&(e.high?this.tb("high-latency"):this.C==="high-latency"&&this.tb("online"))}this.F?.schedule()}tb(e){if(this.C!==e){const t=this.C;this.C=e,e==="high-latency"&&this.bb.warn(`Remote network connection appears to have high latency (${g.latency?.current?.toFixed(2)}ms last, ${g.latency?.average?.toFixed(2)}ms average)`),this.y&&(e==="online"&&t==="high-latency"?this.ub(this.y,"good"):e==="high-latency"&&t==="online"&&this.ub(this.y,"poor")),this.xb()}}ub(e,t){this.db.publicLog2("remoteConnectionHealth",{remoteName:_(this.J),reconnectionToken:e,connectionHealth:t})}vb(e){return e.match(/^(remote|virtualfs)_(\d\d)_(([a-z][a-z0-9+.-]*)_(.*))$/)?!0:(this.G[e]||(this.G[e]=!0,this.bb.warn(`Invalid group name used in "statusBar/remoteIndicator" menu contribution: ${e}. Entries ignored. Expected format: 'remote_$ORDER_$REMOTENAME_$GROUPING or 'virtualfs_$ORDER_$FILESCHEME_$GROUPING.`)),!1)}wb(e){return(!this.t||e)&&(this.t=this.r.getActions().filter(t=>this.vb(t[0])).concat(this.s.getActions())),this.t}xb(){const e=this.P.options?.windowIndicator;if(e){let t=e.label.trim();t.startsWith("$(")||(t=`$(remote) ${t}`),this.yb(w(t,l.j),e.tooltip,e.command);return}if(this.J){const t=this.Q.getHostLabel(L.vscodeRemote,this.J)||this.J;switch(this.w){case"initializing":this.yb(a.localize(11497,null),a.localize(11498,null),void 0,!0);break;case"reconnecting":this.yb(`${a.localize(11499,null,w(t,l.j))}`,void 0,void 0,!0);break;case"disconnected":this.yb(`$(alert) ${a.localize(11500,null,w(t,l.j))}`);break;default:{const i=new x("",{isTrusted:!0,supportThemeIcons:!0}),o=this.Q.getHostTooltip(L.vscodeRemote,this.J);o?i.appendMarkdown(o):i.appendText(a.localize(11501,null,t)),this.yb(`$(remote) ${w(t,l.j)}`,i)}}return}if(this.u){const t=this.Q.getHostLabel(this.u.scheme,this.u.authority);if(t){const i=new x("",{isTrusted:!0,supportThemeIcons:!0}),o=this.Q.getHostTooltip(this.u.scheme,this.u.authority);o?i.appendMarkdown(o):i.appendText(a.localize(11502,null,t)),(!R||this.J)&&(i.appendMarkdown(`
-
-`),i.appendMarkdown(a.localize(11503,null,`command:${$t}`))),this.yb(`$(remote) ${w(t,l.j)}`,i);return}}this.yb(l.h,a.localize(11504,null))}yb(e,t,i,o){const{text:s,tooltip:r,ariaLabel:n}=this.zb(e,t,o),c={name:a.localize(11505,null),kind:this.C==="offline"?"offline":s!==l.h?"remote":void 0,ariaLabel:n,text:s,showProgress:o,tooltip:r,command:i??l.b};this.q?this.q.update(c):this.q=this.O.addEntry(c,"status.host",0,Number.POSITIVE_INFINITY)}zb(e,t,i){let o=e,s=t,r=dt(o);function n(){return!i&&e.startsWith(l.h)?e.replace(l.h,"$(alert)"):e}switch(this.C){case"offline":{const c=a.localize(11506,null);o=n(),s=this.Ab(s,c),r=`${r}, ${c}`;break}case"high-latency":o=n(),s=this.Ab(s,a.localize(11507,null,g.latency?.current?.toFixed(2),g.latency?.average?.toFixed(2)));break}return{text:o,tooltip:s,ariaLabel:r}}Ab(e,t){let i;return typeof e=="string"?i=new x(e,{isTrusted:!0,supportThemeIcons:!0}):i=e??new x("",{isTrusted:!0,supportThemeIcons:!0}),i.value.length>0&&i.appendMarkdown(`
-
-`),i.appendMarkdown(t),i}async Bb(e,t){try{await this.gb.install(e,{isMachineScoped:!1,donotIncludePackAndDependencies:!1,context:{[pt]:!0}})}catch(i){if(!this.ib.willShutdown){const{confirmed:o}=await this.hb.confirm({type:Mt.Error,message:a.localize(11508,null,t),detail:i&&!Tt(i)?Pt(i):void 0,primaryButton:a.localize(11509,null)});if(o)return this.Bb(e,t)}throw i}}async Cb(e,t){await H(async()=>{const i=await this.X.getExtension(e);if(!i)throw Error("Failed to find installed remote extension");return i},300,10),this.W.executeCommand(t),this.db.publicLog2("workbenchActionExecuted",{id:"remoteInstallAndRun",detail:e,from:"remote indicator"})}Db(){const e=r=>{if(r.item.category)return typeof r.item.category=="string"?r.item.category:r.item.category.value},t=()=>{if(this.J)return new RegExp(`^remote_\\d\\d_${_(this.J)}_`);if(this.u)return new RegExp(`^virtualfs_\\d\\d_${this.u.scheme}_`)},i=()=>{let r=this.wb(!0);const n=[],c=t();c&&(r=r.sort((f,m)=>{const d=c.test(f[0]),p=c.test(m[0]);return d!==p?d?-1:1:f[0]!==""&&m[0]===""?-1:f[0]===""&&m[0]!==""?1:f[0].localeCompare(m[0])}));let u;for(const f of r){let m=!1;for(const d of f[1])if(d instanceof X){if(!m){const $=e(d);$!==u&&(n.push({type:"separator",label:$}),u=$),m=!0}const p=typeof d.item.title=="string"?d.item.title:d.item.title.value;n.push({type:"item",id:d.item.id,label:p})}}if(this.kb.getValue("workbench.remoteIndicator.showExtensionRecommendations")&&this.cb.isEnabled()&&this.L){const f=[];for(const m of this.I)if(!m.installed&&m.isPlatformCompatible){const d=m.startConnectLabel,p=[{iconClass:Ct.asClassName(Et),tooltip:a.localize(11510,null)}];f.push({type:"item",id:m.id,label:d,buttons:p})}n.push({type:"separator",label:a.localize(11511,null)}),n.push(...f)}n.push({type:"separator"});const C=n.length;return l.f&&(this.J?(n.push({type:"item",id:l.c,label:a.localize(11512,null)}),this.w==="disconnected"&&n.push({type:"item",id:ut.ID,label:a.localize(11513,null)})):this.u&&n.push({type:"item",id:l.c,label:a.localize(11514,null)})),n.length===C&&n.pop(),n},o=new Q,s=o.add(this.U.createQuickPick({useSeparators:!0}));s.placeholder=a.localize(11515,null),s.items=i(),s.sortByLabel=!1,s.canSelectMany=!1,o.add(E.once(s.onDidAccept)((async r=>{const n=s.selectedItems;if(n.length===1){const c=n[0].id,u=this.I.find(y=>I.equals(y.id,c));if(u){s.items=[],s.busy=!0,s.placeholder=a.localize(11516,null);try{await this.Bb(u.id,n[0].label)}catch{return}finally{s.hide()}await this.Cb(u.id,u.startCommand)}else this.db.publicLog2("workbenchActionExecuted",{id:c,from:"remote indicator"}),this.W.executeCommand(c),s.hide()}}))),o.add(E.once(s.onDidTriggerItemButton)(async r=>{const n=this.I.find(c=>I.equals(c.id,r.item.id));n&&await this.jb.open(Dt.parse(n.helpLink))})),o.add(this.s.onDidChange(()=>s.items=i())),o.add(this.r.onDidChange(()=>s.items=i())),o.add(s.onDidHide(()=>o.dispose())),this.L||(s.busy=!0,this.D(this.N(()=>{s.busy=!1,s.items=i()}))),s.show()}};T=l=J([h(0,Z),h(1,nt),h(2,V),h(3,tt),h(4,U),h(5,ot),h(6,it),h(7,st),h(8,O),h(9,rt),h(10,at),h(11,ct),h(12,ft),h(13,bt),h(14,It),h(15,xt),h(16,yt),h(17,P),h(18,vt),h(19,Nt),h(20,kt),h(21,_t)],T);zt.as(Rt.Configuration).registerConfiguration({...Lt,properties:{"workbench.remoteIndicator.showExtensionRecommendations":{type:"boolean",markdownDescription:a.localize(11517,null),default:!0}}});export{T as $8Ec};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RemoteStatusIndicator_1;
+import * as nls from "../../../../nls.js";
+import { IRemoteAgentService, remoteConnectionLatencyMeasurer } from "../../../services/remote/common/remoteAgentService.js";
+import { RunOnceScheduler, retry } from "../../../../base/common/async.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MenuId, IMenuService, MenuItemAction, MenuRegistry, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { PlatformToString, isWeb, platform } from "../../../../base/common/platform.js";
+import { truncate } from "../../../../base/common/strings.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { getRemoteName } from "../../../../platform/remote/common/remoteHosts.js";
+import { getVirtualWorkspaceLocation } from "../../../../platform/workspace/common/virtualWorkspace.js";
+import { getCodiconAriaLabel } from "../../../../base/common/iconLabels.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ReloadWindowAction } from "../../../browser/actions/windowActions.js";
+import { EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT, IExtensionGalleryService, IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionsWorkbenchService, LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID } from "../../extensions/common/extensions.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { RemoteNameContext, VirtualWorkspaceContext } from "../../../common/contextkeys.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { DomEmitter } from "../../../../base/browser/event.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { infoIcon } from "../../extensions/browser/extensionsIcons.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { URI } from "../../../../base/common/uri.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import Severity from "../../../../base/common/severity.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+let RemoteStatusIndicator = class RemoteStatusIndicator2 extends Disposable {
+  static {
+    __name(this, "RemoteStatusIndicator");
+  }
+  static {
+    RemoteStatusIndicator_1 = this;
+  }
+  static {
+    this.ID = "workbench.contrib.remoteStatusIndicator";
+  }
+  static {
+    this.REMOTE_ACTIONS_COMMAND_ID = "workbench.action.remote.showMenu";
+  }
+  static {
+    this.CLOSE_REMOTE_COMMAND_ID = "workbench.action.remote.close";
+  }
+  static {
+    this.SHOW_CLOSE_REMOTE_COMMAND_ID = !isWeb;
+  }
+  static {
+    this.INSTALL_REMOTE_EXTENSIONS_ID = "workbench.action.remote.extensions";
+  }
+  static {
+    this.DEFAULT_REMOTE_STATUS_LABEL = "$(remote)";
+  }
+  static {
+    this.REMOTE_STATUS_LABEL_MAX_LENGTH = 40;
+  }
+  static {
+    this.REMOTE_CONNECTION_LATENCY_SCHEDULER_DELAY = 60 * 1e3;
+  }
+  static {
+    this.REMOTE_CONNECTION_LATENCY_SCHEDULER_FIRST_RUN_DELAY = 10 * 1e3;
+  }
+  get remoteExtensionMetadata() {
+    if (!this._remoteExtensionMetadata) {
+      const remoteExtensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
+      this._remoteExtensionMetadata = Object.values(remoteExtensionTips).filter((value) => value.startEntry !== void 0).map((value) => {
+        return {
+          id: value.extensionId,
+          installed: false,
+          friendlyName: value.friendlyName,
+          isPlatformCompatible: false,
+          dependencies: [],
+          helpLink: value.startEntry?.helpLink ?? "",
+          startConnectLabel: value.startEntry?.startConnectLabel ?? "",
+          startCommand: value.startEntry?.startCommand ?? "",
+          priority: value.startEntry?.priority ?? 10,
+          supportedPlatforms: value.supportedPlatforms
+        };
+      });
+      this.remoteExtensionMetadata.sort((ext1, ext2) => ext1.priority - ext2.priority);
+    }
+    return this._remoteExtensionMetadata;
+  }
+  get remoteAuthority() {
+    return this.environmentService.remoteAuthority;
+  }
+  constructor(statusbarService, environmentService, labelService, contextKeyService, menuService, quickInputService, commandService, extensionService, remoteAgentService, remoteAuthorityResolverService, hostService, workspaceContextService, logService, extensionGalleryService, telemetryService, productService, extensionManagementService, extensionsWorkbenchService, dialogService, lifecycleService, openerService, configurationService) {
+    super();
+    this.statusbarService = statusbarService;
+    this.environmentService = environmentService;
+    this.labelService = labelService;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this.quickInputService = quickInputService;
+    this.commandService = commandService;
+    this.extensionService = extensionService;
+    this.remoteAgentService = remoteAgentService;
+    this.remoteAuthorityResolverService = remoteAuthorityResolverService;
+    this.hostService = hostService;
+    this.workspaceContextService = workspaceContextService;
+    this.logService = logService;
+    this.extensionGalleryService = extensionGalleryService;
+    this.telemetryService = telemetryService;
+    this.productService = productService;
+    this.extensionManagementService = extensionManagementService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.dialogService = dialogService;
+    this.lifecycleService = lifecycleService;
+    this.openerService = openerService;
+    this.configurationService = configurationService;
+    this.virtualWorkspaceLocation = void 0;
+    this.connectionState = void 0;
+    this.connectionToken = void 0;
+    this.networkState = void 0;
+    this.measureNetworkConnectionLatencyScheduler = void 0;
+    this.loggedInvalidGroupNames = /* @__PURE__ */ Object.create(null);
+    this._remoteExtensionMetadata = void 0;
+    this.remoteMetadataInitialized = false;
+    this._onDidChangeEntries = this._register(new Emitter());
+    this.onDidChangeEntries = this._onDidChangeEntries.event;
+    this.unrestrictedRemoteIndicatorMenu = this._register(this.menuService.createMenu(MenuId.StatusBarWindowIndicatorMenu, this.contextKeyService));
+    this.remoteIndicatorMenu = this._register(this.menuService.createMenu(MenuId.StatusBarRemoteIndicatorMenu, this.contextKeyService));
+    this.connectionStateContextKey = new RawContextKey("remoteConnectionState", "").bindTo(this.contextKeyService);
+    if (this.remoteAuthority) {
+      this.connectionState = "initializing";
+      this.connectionStateContextKey.set(this.connectionState);
+    } else {
+      this.updateVirtualWorkspaceLocation();
+    }
+    this.registerActions();
+    this.registerListeners();
+    this.updateWhenInstalledExtensionsRegistered();
+    this.updateRemoteStatusIndicator();
+  }
+  registerActions() {
+    const category = nls.localize2("remote.category", "Remote");
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: RemoteStatusIndicator_1.REMOTE_ACTIONS_COMMAND_ID,
+          category,
+          title: nls.localize2("remote.showMenu", "Show Remote Menu"),
+          f1: true,
+          keybinding: {
+            weight: 200,
+            primary: 2048 | 512 | 45
+          }
+        });
+        this.run = () => that.showRemoteMenu();
+      }
+    }));
+    if (RemoteStatusIndicator_1.SHOW_CLOSE_REMOTE_COMMAND_ID) {
+      this._register(registerAction2(class extends Action2 {
+        constructor() {
+          super({
+            id: RemoteStatusIndicator_1.CLOSE_REMOTE_COMMAND_ID,
+            category,
+            title: nls.localize2("remote.close", "Close Remote Connection"),
+            f1: true,
+            precondition: ContextKeyExpr.or(RemoteNameContext, VirtualWorkspaceContext)
+          });
+          this.run = () => that.hostService.openWindow({ forceReuseWindow: true, remoteAuthority: null });
+        }
+      }));
+      if (this.remoteAuthority) {
+        MenuRegistry.appendMenuItem(MenuId.MenubarFileMenu, {
+          group: "6_close",
+          command: {
+            id: RemoteStatusIndicator_1.CLOSE_REMOTE_COMMAND_ID,
+            title: nls.localize({ key: "miCloseRemote", comment: ["&& denotes a mnemonic"] }, "Close Re&&mote Connection")
+          },
+          order: 3.5
+        });
+      }
+    }
+    if (this.extensionGalleryService.isEnabled()) {
+      this._register(registerAction2(class extends Action2 {
+        constructor() {
+          super({
+            id: RemoteStatusIndicator_1.INSTALL_REMOTE_EXTENSIONS_ID,
+            category,
+            title: nls.localize2("remote.install", "Install Remote Development Extensions"),
+            f1: true
+          });
+          this.run = (accessor, input) => {
+            const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+            return extensionsWorkbenchService.openSearch(`@recommended:remotes`);
+          };
+        }
+      }));
+    }
+  }
+  registerListeners() {
+    const updateRemoteActions = /* @__PURE__ */ __name(() => {
+      this.remoteMenuActionsGroups = void 0;
+      this.updateRemoteStatusIndicator();
+    }, "updateRemoteActions");
+    this._register(this.unrestrictedRemoteIndicatorMenu.onDidChange(updateRemoteActions));
+    this._register(this.remoteIndicatorMenu.onDidChange(updateRemoteActions));
+    this._register(this.labelService.onDidChangeFormatters(() => this.updateRemoteStatusIndicator()));
+    const remoteIndicator = this.environmentService.options?.windowIndicator;
+    if (remoteIndicator && remoteIndicator.onDidChange) {
+      this._register(remoteIndicator.onDidChange(() => this.updateRemoteStatusIndicator()));
+    }
+    if (this.remoteAuthority) {
+      const connection = this.remoteAgentService.getConnection();
+      if (connection) {
+        this._register(connection.onDidStateChange((e) => {
+          switch (e.type) {
+            case 0:
+            case 2:
+            case 1:
+              this.setConnectionState("reconnecting");
+              break;
+            case 3:
+              this.setConnectionState("disconnected");
+              break;
+            case 4:
+              this.setConnectionState("connected");
+              break;
+          }
+        }));
+      }
+    } else {
+      this._register(this.workspaceContextService.onDidChangeWorkbenchState(() => {
+        this.updateVirtualWorkspaceLocation();
+        this.updateRemoteStatusIndicator();
+      }));
+    }
+    if (isWeb) {
+      this._register(Event.any(this._register(new DomEmitter(mainWindow, "online")).event, this._register(new DomEmitter(mainWindow, "offline")).event)(() => this.setNetworkState(navigator.onLine ? "online" : "offline")));
+    }
+    this._register(this.extensionService.onDidChangeExtensions(async (result) => {
+      for (const ext of result.added) {
+        const index = this.remoteExtensionMetadata.findIndex((value) => ExtensionIdentifier.equals(value.id, ext.identifier));
+        if (index > -1) {
+          this.remoteExtensionMetadata[index].installed = true;
+        }
+      }
+    }));
+    this._register(this.extensionManagementService.onDidUninstallExtension(async (result) => {
+      const index = this.remoteExtensionMetadata.findIndex((value) => ExtensionIdentifier.equals(value.id, result.identifier.id));
+      if (index > -1) {
+        this.remoteExtensionMetadata[index].installed = false;
+      }
+    }));
+  }
+  async initializeRemoteMetadata() {
+    if (this.remoteMetadataInitialized) {
+      return;
+    }
+    const currentPlatform = PlatformToString(platform);
+    for (let i = 0; i < this.remoteExtensionMetadata.length; i++) {
+      const extensionId = this.remoteExtensionMetadata[i].id;
+      const supportedPlatforms = this.remoteExtensionMetadata[i].supportedPlatforms;
+      const isInstalled = (await this.extensionManagementService.getInstalled()).find((value) => ExtensionIdentifier.equals(value.identifier.id, extensionId)) ? true : false;
+      this.remoteExtensionMetadata[i].installed = isInstalled;
+      if (isInstalled) {
+        this.remoteExtensionMetadata[i].isPlatformCompatible = true;
+      } else if (supportedPlatforms && !supportedPlatforms.includes(currentPlatform)) {
+        this.remoteExtensionMetadata[i].isPlatformCompatible = false;
+      } else {
+        this.remoteExtensionMetadata[i].isPlatformCompatible = true;
+      }
+    }
+    this.remoteMetadataInitialized = true;
+    this._onDidChangeEntries.fire();
+    this.updateRemoteStatusIndicator();
+  }
+  updateVirtualWorkspaceLocation() {
+    this.virtualWorkspaceLocation = getVirtualWorkspaceLocation(this.workspaceContextService.getWorkspace());
+  }
+  async updateWhenInstalledExtensionsRegistered() {
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    const remoteAuthority = this.remoteAuthority;
+    if (remoteAuthority) {
+      (async () => {
+        try {
+          const { authority } = await this.remoteAuthorityResolverService.resolveAuthority(remoteAuthority);
+          this.connectionToken = authority.connectionToken;
+          this.setConnectionState("connected");
+        } catch (error) {
+          this.setConnectionState("disconnected");
+        }
+      })();
+    }
+    this.updateRemoteStatusIndicator();
+    this.initializeRemoteMetadata();
+  }
+  setConnectionState(newState) {
+    if (this.connectionState !== newState) {
+      this.connectionState = newState;
+      if (this.connectionState === "reconnecting") {
+        this.connectionStateContextKey.set("disconnected");
+      } else {
+        this.connectionStateContextKey.set(this.connectionState);
+      }
+      this.updateRemoteStatusIndicator();
+      if (newState === "connected") {
+        this.scheduleMeasureNetworkConnectionLatency();
+      }
+    }
+  }
+  scheduleMeasureNetworkConnectionLatency() {
+    if (!this.remoteAuthority || // only when having a remote connection
+    this.measureNetworkConnectionLatencyScheduler) {
+      return;
+    }
+    this.measureNetworkConnectionLatencyScheduler = this._register(new RunOnceScheduler(() => this.measureNetworkConnectionLatency(), RemoteStatusIndicator_1.REMOTE_CONNECTION_LATENCY_SCHEDULER_DELAY));
+    this.measureNetworkConnectionLatencyScheduler.schedule(RemoteStatusIndicator_1.REMOTE_CONNECTION_LATENCY_SCHEDULER_FIRST_RUN_DELAY);
+  }
+  async measureNetworkConnectionLatency() {
+    if (this.hostService.hasFocus && this.networkState !== "offline") {
+      const measurement = await remoteConnectionLatencyMeasurer.measure(this.remoteAgentService);
+      if (measurement) {
+        if (measurement.high) {
+          this.setNetworkState("high-latency");
+        } else if (this.networkState === "high-latency") {
+          this.setNetworkState("online");
+        }
+      }
+    }
+    this.measureNetworkConnectionLatencyScheduler?.schedule();
+  }
+  setNetworkState(newState) {
+    if (this.networkState !== newState) {
+      const oldState = this.networkState;
+      this.networkState = newState;
+      if (newState === "high-latency") {
+        this.logService.warn(`Remote network connection appears to have high latency (${remoteConnectionLatencyMeasurer.latency?.current?.toFixed(2)}ms last, ${remoteConnectionLatencyMeasurer.latency?.average?.toFixed(2)}ms average)`);
+      }
+      if (this.connectionToken) {
+        if (newState === "online" && oldState === "high-latency") {
+          this.logNetworkConnectionHealthTelemetry(this.connectionToken, "good");
+        } else if (newState === "high-latency" && oldState === "online") {
+          this.logNetworkConnectionHealthTelemetry(this.connectionToken, "poor");
+        }
+      }
+      this.updateRemoteStatusIndicator();
+    }
+  }
+  logNetworkConnectionHealthTelemetry(connectionToken, connectionHealth) {
+    this.telemetryService.publicLog2("remoteConnectionHealth", {
+      remoteName: getRemoteName(this.remoteAuthority),
+      reconnectionToken: connectionToken,
+      connectionHealth
+    });
+  }
+  validatedGroup(group) {
+    if (!group.match(/^(remote|virtualfs)_(\d\d)_(([a-z][a-z0-9+.-]*)_(.*))$/)) {
+      if (!this.loggedInvalidGroupNames[group]) {
+        this.loggedInvalidGroupNames[group] = true;
+        this.logService.warn(`Invalid group name used in "statusBar/remoteIndicator" menu contribution: ${group}. Entries ignored. Expected format: 'remote_$ORDER_$REMOTENAME_$GROUPING or 'virtualfs_$ORDER_$FILESCHEME_$GROUPING.`);
+      }
+      return false;
+    }
+    return true;
+  }
+  getRemoteMenuActions(doNotUseCache) {
+    if (!this.remoteMenuActionsGroups || doNotUseCache) {
+      this.remoteMenuActionsGroups = this.remoteIndicatorMenu.getActions().filter((a) => this.validatedGroup(a[0])).concat(this.unrestrictedRemoteIndicatorMenu.getActions());
+    }
+    return this.remoteMenuActionsGroups;
+  }
+  updateRemoteStatusIndicator() {
+    const remoteIndicator = this.environmentService.options?.windowIndicator;
+    if (remoteIndicator) {
+      let remoteIndicatorLabel = remoteIndicator.label.trim();
+      if (!remoteIndicatorLabel.startsWith("$(")) {
+        remoteIndicatorLabel = `$(remote) ${remoteIndicatorLabel}`;
+      }
+      this.renderRemoteStatusIndicator(truncate(remoteIndicatorLabel, RemoteStatusIndicator_1.REMOTE_STATUS_LABEL_MAX_LENGTH), remoteIndicator.tooltip, remoteIndicator.command);
+      return;
+    }
+    if (this.remoteAuthority) {
+      const hostLabel = this.labelService.getHostLabel(Schemas.vscodeRemote, this.remoteAuthority) || this.remoteAuthority;
+      switch (this.connectionState) {
+        case "initializing":
+          this.renderRemoteStatusIndicator(
+            nls.localize("host.open", "Opening Remote..."),
+            nls.localize("host.open", "Opening Remote..."),
+            void 0,
+            true
+            /* progress */
+          );
+          break;
+        case "reconnecting":
+          this.renderRemoteStatusIndicator(
+            `${nls.localize("host.reconnecting", "Reconnecting to {0}...", truncate(hostLabel, RemoteStatusIndicator_1.REMOTE_STATUS_LABEL_MAX_LENGTH))}`,
+            void 0,
+            void 0,
+            true
+            /* progress */
+          );
+          break;
+        case "disconnected":
+          this.renderRemoteStatusIndicator(`$(alert) ${nls.localize("disconnectedFrom", "Disconnected from {0}", truncate(hostLabel, RemoteStatusIndicator_1.REMOTE_STATUS_LABEL_MAX_LENGTH))}`);
+          break;
+        default: {
+          const tooltip = new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
+          const hostNameTooltip = this.labelService.getHostTooltip(Schemas.vscodeRemote, this.remoteAuthority);
+          if (hostNameTooltip) {
+            tooltip.appendMarkdown(hostNameTooltip);
+          } else {
+            tooltip.appendText(nls.localize({ key: "host.tooltip", comment: ["{0} is a remote host name, e.g. Dev Container"] }, "Editing on {0}", hostLabel));
+          }
+          this.renderRemoteStatusIndicator(`$(remote) ${truncate(hostLabel, RemoteStatusIndicator_1.REMOTE_STATUS_LABEL_MAX_LENGTH)}`, tooltip);
+        }
+      }
+      return;
+    }
+    if (this.virtualWorkspaceLocation) {
+      const workspaceLabel = this.labelService.getHostLabel(this.virtualWorkspaceLocation.scheme, this.virtualWorkspaceLocation.authority);
+      if (workspaceLabel) {
+        const tooltip = new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
+        const hostNameTooltip = this.labelService.getHostTooltip(this.virtualWorkspaceLocation.scheme, this.virtualWorkspaceLocation.authority);
+        if (hostNameTooltip) {
+          tooltip.appendMarkdown(hostNameTooltip);
+        } else {
+          tooltip.appendText(nls.localize({ key: "workspace.tooltip", comment: ["{0} is a remote workspace name, e.g. GitHub"] }, "Editing on {0}", workspaceLabel));
+        }
+        if (!isWeb || this.remoteAuthority) {
+          tooltip.appendMarkdown("\n\n");
+          tooltip.appendMarkdown(nls.localize({ key: "workspace.tooltip2", comment: ["[features are not available]({1}) is a link. Only translate `features are not available`. Do not change brackets and parentheses or {0}"] }, "Some [features are not available]({0}) for resources located on a virtual file system.", `command:${LIST_WORKSPACE_UNSUPPORTED_EXTENSIONS_COMMAND_ID}`));
+        }
+        this.renderRemoteStatusIndicator(`$(remote) ${truncate(workspaceLabel, RemoteStatusIndicator_1.REMOTE_STATUS_LABEL_MAX_LENGTH)}`, tooltip);
+        return;
+      }
+    }
+    this.renderRemoteStatusIndicator(RemoteStatusIndicator_1.DEFAULT_REMOTE_STATUS_LABEL, nls.localize("noHost.tooltip", "Open a Remote Window"));
+    return;
+  }
+  renderRemoteStatusIndicator(initialText, initialTooltip, command, showProgress) {
+    const { text, tooltip, ariaLabel } = this.withNetworkStatus(initialText, initialTooltip, showProgress);
+    const properties = {
+      name: nls.localize("remoteHost", "Remote Host"),
+      kind: this.networkState === "offline" ? "offline" : text !== RemoteStatusIndicator_1.DEFAULT_REMOTE_STATUS_LABEL ? "remote" : void 0,
+      // only emphasize when applicable
+      ariaLabel,
+      text,
+      showProgress,
+      tooltip,
+      command: command ?? RemoteStatusIndicator_1.REMOTE_ACTIONS_COMMAND_ID
+    };
+    if (this.remoteStatusEntry) {
+      this.remoteStatusEntry.update(properties);
+    } else {
+      this.remoteStatusEntry = this.statusbarService.addEntry(
+        properties,
+        "status.host",
+        0,
+        Number.POSITIVE_INFINITY
+        /* first entry */
+      );
+    }
+  }
+  withNetworkStatus(initialText, initialTooltip, showProgress) {
+    let text = initialText;
+    let tooltip = initialTooltip;
+    let ariaLabel = getCodiconAriaLabel(text);
+    function textWithAlert() {
+      if (!showProgress && initialText.startsWith(RemoteStatusIndicator_1.DEFAULT_REMOTE_STATUS_LABEL)) {
+        return initialText.replace(RemoteStatusIndicator_1.DEFAULT_REMOTE_STATUS_LABEL, "$(alert)");
+      }
+      return initialText;
+    }
+    __name(textWithAlert, "textWithAlert");
+    switch (this.networkState) {
+      case "offline": {
+        const offlineMessage = nls.localize("networkStatusOfflineTooltip", "Network appears to be offline, certain features might be unavailable.");
+        text = textWithAlert();
+        tooltip = this.appendTooltipLine(tooltip, offlineMessage);
+        ariaLabel = `${ariaLabel}, ${offlineMessage}`;
+        break;
+      }
+      case "high-latency":
+        text = textWithAlert();
+        tooltip = this.appendTooltipLine(tooltip, nls.localize("networkStatusHighLatencyTooltip", "Network appears to have high latency ({0}ms last, {1}ms average), certain features may be slow to respond.", remoteConnectionLatencyMeasurer.latency?.current?.toFixed(2), remoteConnectionLatencyMeasurer.latency?.average?.toFixed(2)));
+        break;
+    }
+    return { text, tooltip, ariaLabel };
+  }
+  appendTooltipLine(tooltip, line) {
+    let markdownTooltip;
+    if (typeof tooltip === "string") {
+      markdownTooltip = new MarkdownString(tooltip, { isTrusted: true, supportThemeIcons: true });
+    } else {
+      markdownTooltip = tooltip ?? new MarkdownString("", { isTrusted: true, supportThemeIcons: true });
+    }
+    if (markdownTooltip.value.length > 0) {
+      markdownTooltip.appendMarkdown("\n\n");
+    }
+    markdownTooltip.appendMarkdown(line);
+    return markdownTooltip;
+  }
+  async installExtension(extensionId, remoteLabel) {
+    try {
+      await this.extensionsWorkbenchService.install(extensionId, {
+        isMachineScoped: false,
+        donotIncludePackAndDependencies: false,
+        context: { [EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT]: true }
+      });
+    } catch (error) {
+      if (!this.lifecycleService.willShutdown) {
+        const { confirmed } = await this.dialogService.confirm({
+          type: Severity.Error,
+          message: nls.localize("unknownSetupError", "An error occurred while setting up {0}. Would you like to try again?", remoteLabel),
+          detail: error && !isCancellationError(error) ? toErrorMessage(error) : void 0,
+          primaryButton: nls.localize("retry", "Retry")
+        });
+        if (confirmed) {
+          return this.installExtension(extensionId, remoteLabel);
+        }
+      }
+      throw error;
+    }
+  }
+  async runRemoteStartCommand(extensionId, startCommand) {
+    await retry(async () => {
+      const ext = await this.extensionService.getExtension(extensionId);
+      if (!ext) {
+        throw Error("Failed to find installed remote extension");
+      }
+      return ext;
+    }, 300, 10);
+    this.commandService.executeCommand(startCommand);
+    this.telemetryService.publicLog2("workbenchActionExecuted", {
+      id: "remoteInstallAndRun",
+      detail: extensionId,
+      from: "remote indicator"
+    });
+  }
+  showRemoteMenu() {
+    const getCategoryLabel = /* @__PURE__ */ __name((action) => {
+      if (action.item.category) {
+        return typeof action.item.category === "string" ? action.item.category : action.item.category.value;
+      }
+      return void 0;
+    }, "getCategoryLabel");
+    const matchCurrentRemote = /* @__PURE__ */ __name(() => {
+      if (this.remoteAuthority) {
+        return new RegExp(`^remote_\\d\\d_${getRemoteName(this.remoteAuthority)}_`);
+      } else if (this.virtualWorkspaceLocation) {
+        return new RegExp(`^virtualfs_\\d\\d_${this.virtualWorkspaceLocation.scheme}_`);
+      }
+      return void 0;
+    }, "matchCurrentRemote");
+    const computeItems = /* @__PURE__ */ __name(() => {
+      let actionGroups = this.getRemoteMenuActions(true);
+      const items = [];
+      const currentRemoteMatcher = matchCurrentRemote();
+      if (currentRemoteMatcher) {
+        actionGroups = actionGroups.sort((g1, g2) => {
+          const isCurrentRemote1 = currentRemoteMatcher.test(g1[0]);
+          const isCurrentRemote2 = currentRemoteMatcher.test(g2[0]);
+          if (isCurrentRemote1 !== isCurrentRemote2) {
+            return isCurrentRemote1 ? -1 : 1;
+          }
+          if (g1[0] !== "" && g2[0] === "") {
+            return -1;
+          } else if (g1[0] === "" && g2[0] !== "") {
+            return 1;
+          }
+          return g1[0].localeCompare(g2[0]);
+        });
+      }
+      let lastCategoryName = void 0;
+      for (const actionGroup of actionGroups) {
+        let hasGroupCategory = false;
+        for (const action of actionGroup[1]) {
+          if (action instanceof MenuItemAction) {
+            if (!hasGroupCategory) {
+              const category = getCategoryLabel(action);
+              if (category !== lastCategoryName) {
+                items.push({ type: "separator", label: category });
+                lastCategoryName = category;
+              }
+              hasGroupCategory = true;
+            }
+            const label = typeof action.item.title === "string" ? action.item.title : action.item.title.value;
+            items.push({
+              type: "item",
+              id: action.item.id,
+              label
+            });
+          }
+        }
+      }
+      const showExtensionRecommendations = this.configurationService.getValue("workbench.remoteIndicator.showExtensionRecommendations");
+      if (showExtensionRecommendations && this.extensionGalleryService.isEnabled() && this.remoteMetadataInitialized) {
+        const notInstalledItems = [];
+        for (const metadata of this.remoteExtensionMetadata) {
+          if (!metadata.installed && metadata.isPlatformCompatible) {
+            const label = metadata.startConnectLabel;
+            const buttons = [{
+              iconClass: ThemeIcon.asClassName(infoIcon),
+              tooltip: nls.localize("remote.startActions.help", "Learn More")
+            }];
+            notInstalledItems.push({ type: "item", id: metadata.id, label, buttons });
+          }
+        }
+        items.push({
+          type: "separator",
+          label: nls.localize("remote.startActions.install", "Install")
+        });
+        items.push(...notInstalledItems);
+      }
+      items.push({
+        type: "separator"
+      });
+      const entriesBeforeConfig = items.length;
+      if (RemoteStatusIndicator_1.SHOW_CLOSE_REMOTE_COMMAND_ID) {
+        if (this.remoteAuthority) {
+          items.push({
+            type: "item",
+            id: RemoteStatusIndicator_1.CLOSE_REMOTE_COMMAND_ID,
+            label: nls.localize("closeRemoteConnection.title", "Close Remote Connection")
+          });
+          if (this.connectionState === "disconnected") {
+            items.push({
+              type: "item",
+              id: ReloadWindowAction.ID,
+              label: nls.localize("reloadWindow", "Reload Window")
+            });
+          }
+        } else if (this.virtualWorkspaceLocation) {
+          items.push({
+            type: "item",
+            id: RemoteStatusIndicator_1.CLOSE_REMOTE_COMMAND_ID,
+            label: nls.localize("closeVirtualWorkspace.title", "Close Remote Workspace")
+          });
+        }
+      }
+      if (items.length === entriesBeforeConfig) {
+        items.pop();
+      }
+      return items;
+    }, "computeItems");
+    const disposables = new DisposableStore();
+    const quickPick = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
+    quickPick.placeholder = nls.localize("remoteActions", "Select an option to open a Remote Window");
+    quickPick.items = computeItems();
+    quickPick.sortByLabel = false;
+    quickPick.canSelectMany = false;
+    disposables.add(Event.once(quickPick.onDidAccept)((async (_) => {
+      const selectedItems = quickPick.selectedItems;
+      if (selectedItems.length === 1) {
+        const commandId = selectedItems[0].id;
+        const remoteExtension = this.remoteExtensionMetadata.find((value) => ExtensionIdentifier.equals(value.id, commandId));
+        if (remoteExtension) {
+          quickPick.items = [];
+          quickPick.busy = true;
+          quickPick.placeholder = nls.localize("remote.startActions.installingExtension", "Installing extension... ");
+          try {
+            await this.installExtension(remoteExtension.id, selectedItems[0].label);
+          } catch (error) {
+            return;
+          } finally {
+            quickPick.hide();
+          }
+          await this.runRemoteStartCommand(remoteExtension.id, remoteExtension.startCommand);
+        } else {
+          this.telemetryService.publicLog2("workbenchActionExecuted", {
+            id: commandId,
+            from: "remote indicator"
+          });
+          this.commandService.executeCommand(commandId);
+          quickPick.hide();
+        }
+      }
+    })));
+    disposables.add(Event.once(quickPick.onDidTriggerItemButton)(async (e) => {
+      const remoteExtension = this.remoteExtensionMetadata.find((value) => ExtensionIdentifier.equals(value.id, e.item.id));
+      if (remoteExtension) {
+        await this.openerService.open(URI.parse(remoteExtension.helpLink));
+      }
+    }));
+    disposables.add(this.unrestrictedRemoteIndicatorMenu.onDidChange(() => quickPick.items = computeItems()));
+    disposables.add(this.remoteIndicatorMenu.onDidChange(() => quickPick.items = computeItems()));
+    disposables.add(quickPick.onDidHide(() => disposables.dispose()));
+    if (!this.remoteMetadataInitialized) {
+      quickPick.busy = true;
+      this._register(this.onDidChangeEntries(() => {
+        quickPick.busy = false;
+        quickPick.items = computeItems();
+      }));
+    }
+    quickPick.show();
+  }
+};
+RemoteStatusIndicator = RemoteStatusIndicator_1 = __decorate([
+  __param(0, IStatusbarService),
+  __param(1, IBrowserWorkbenchEnvironmentService),
+  __param(2, ILabelService),
+  __param(3, IContextKeyService),
+  __param(4, IMenuService),
+  __param(5, IQuickInputService),
+  __param(6, ICommandService),
+  __param(7, IExtensionService),
+  __param(8, IRemoteAgentService),
+  __param(9, IRemoteAuthorityResolverService),
+  __param(10, IHostService),
+  __param(11, IWorkspaceContextService),
+  __param(12, ILogService),
+  __param(13, IExtensionGalleryService),
+  __param(14, ITelemetryService),
+  __param(15, IProductService),
+  __param(16, IExtensionManagementService),
+  __param(17, IExtensionsWorkbenchService),
+  __param(18, IDialogService),
+  __param(19, ILifecycleService),
+  __param(20, IOpenerService),
+  __param(21, IConfigurationService)
+], RemoteStatusIndicator);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.remoteIndicator.showExtensionRecommendations": {
+      type: "boolean",
+      markdownDescription: nls.localize("remote.showExtensionRecommendations", "When enabled, remote extensions recommendations will be shown in the Remote Indicator menu."),
+      default: true
+    }
+  }
+});
+export {
+  RemoteStatusIndicator
+};
+//# sourceMappingURL=remoteIndicator.js.map

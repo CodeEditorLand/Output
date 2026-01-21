@@ -1,1 +1,36 @@
-import{$3Y as i}from"./memento.js";import{$wu as r}from"../../platform/theme/common/themeService.js";class m extends r{constructor(t,e,s){super(e),this.G=t,this.F=new i(this.G,s),this.D(s.onWillSaveState(()=>{this.L(),this.F.saveMemento()}))}getId(){return this.G}H(t,e){return this.F.getMemento(t,e)}I(t){this.F.reloadMemento(t)}J(t,e){return this.F.onDidChangeValue(t,e)}L(){}}export{m as $Cxb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Memento } from "./memento.js";
+import { Themable } from "../../platform/theme/common/themeService.js";
+class Component extends Themable {
+  static {
+    __name(this, "Component");
+  }
+  constructor(id, themeService, storageService) {
+    super(themeService);
+    this.id = id;
+    this.memento = new Memento(this.id, storageService);
+    this._register(storageService.onWillSaveState(() => {
+      this.saveState();
+      this.memento.saveMemento();
+    }));
+  }
+  getId() {
+    return this.id;
+  }
+  getMemento(scope, target) {
+    return this.memento.getMemento(scope, target);
+  }
+  reloadMemento(scope) {
+    this.memento.reloadMemento(scope);
+  }
+  onDidChangeMementoValue(scope, disposables) {
+    return this.memento.onDidChangeValue(scope, disposables);
+  }
+  saveState() {
+  }
+}
+export {
+  Component
+};
+//# sourceMappingURL=component.js.map

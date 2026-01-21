@@ -1,1 +1,36 @@
-import"../colorPicker.css";import*as t from"../../../../../base/browser/dom.js";import{$Ed as e}from"../../../../../base/common/lifecycle.js";import{localize as i}from"../../../../../nls.js";import{$wf as c}from"../../../../../base/common/event.js";import{$eu as r}from"../../../../../platform/theme/common/iconRegistry.js";import{ThemeIcon as n}from"../../../../../base/common/themables.js";import{$ak as m}from"../../../../../base/common/codicons.js";const l=t.$;class I extends e{constructor(s){super(),this.b=this.D(new c),this.onClicked=this.b.event,this.a=document.createElement("div"),this.a.classList.add("close-button"),t.$I8(s,this.a);const o=document.createElement("div");o.classList.add("close-button-inner-div"),t.$I8(this.a,o),t.$I8(o,l(".button"+n.asCSSSelector(r("color-picker-close",m.close,i(1047,null))))).classList.add("close-icon"),this.D(t.$F7(this.a,t.$B8.CLICK,()=>{this.b.fire()}))}}export{I as $mpb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "../colorPicker.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { registerIcon } from "../../../../../platform/theme/common/iconRegistry.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+const $ = dom.$;
+class CloseButton extends Disposable {
+  static {
+    __name(this, "CloseButton");
+  }
+  constructor(container) {
+    super();
+    this._onClicked = this._register(new Emitter());
+    this.onClicked = this._onClicked.event;
+    this._button = document.createElement("div");
+    this._button.classList.add("close-button");
+    dom.append(container, this._button);
+    const innerDiv = document.createElement("div");
+    innerDiv.classList.add("close-button-inner-div");
+    dom.append(this._button, innerDiv);
+    const closeButton = dom.append(innerDiv, $(".button" + ThemeIcon.asCSSSelector(registerIcon("color-picker-close", Codicon.close, localize("closeIcon", "Icon to close the color picker")))));
+    closeButton.classList.add("close-icon");
+    this._register(dom.addDisposableListener(this._button, dom.EventType.CLICK, () => {
+      this._onClicked.fire();
+    }));
+  }
+}
+export {
+  CloseButton
+};
+//# sourceMappingURL=colorPickerCloseButton.js.map

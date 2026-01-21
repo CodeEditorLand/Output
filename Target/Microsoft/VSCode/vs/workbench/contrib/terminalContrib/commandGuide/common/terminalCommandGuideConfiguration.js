@@ -1,1 +1,23 @@
-import{localize as n}from"../../../../../nls.js";var e;(function(t){t.ShowCommandGuide="terminal.integrated.shellIntegration.showCommandGuide"})(e||(e={}));const r="terminal.integrated.shellIntegration",i={"terminal.integrated.shellIntegration.showCommandGuide":{restricted:!0,markdownDescription:n(13533,null),type:"boolean",default:!0}};export{r as $K5,i as $L5,e as TerminalCommandGuideSettingId};
+import { localize } from "../../../../../nls.js";
+var TerminalCommandGuideSettingId;
+(function(TerminalCommandGuideSettingId2) {
+  TerminalCommandGuideSettingId2["ShowCommandGuide"] = "terminal.integrated.shellIntegration.showCommandGuide";
+})(TerminalCommandGuideSettingId || (TerminalCommandGuideSettingId = {}));
+const terminalCommandGuideConfigSection = "terminal.integrated.shellIntegration";
+const terminalCommandGuideConfiguration = {
+  [
+    "terminal.integrated.shellIntegration.showCommandGuide"
+    /* TerminalCommandGuideSettingId.ShowCommandGuide */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("showCommandGuide", "Whether to show the command guide when hovering over a command in the terminal."),
+    type: "boolean",
+    default: true
+  }
+};
+export {
+  TerminalCommandGuideSettingId,
+  terminalCommandGuideConfigSection,
+  terminalCommandGuideConfiguration
+};
+//# sourceMappingURL=terminalCommandGuideConfiguration.js.map

@@ -1,1 +1,31 @@
-import{$Sh as l,Promises as u}from"../../../base/common/async.js";function n(o,i){if(o.length===0)return Promise.resolve(!1);const s=[];let e=!1;for(const r of o){if(r===!0)return Promise.resolve(!0);l(r)&&s.push(r.then(t=>{t&&(e=!0)},t=>{i(t),e=!0}))}return u.settled(s).then(()=>e)}export{n as $lLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isThenable, Promises } from "../../../base/common/async.js";
+function handleVetos(vetos, onError) {
+  if (vetos.length === 0) {
+    return Promise.resolve(false);
+  }
+  const promises = [];
+  let lazyValue = false;
+  for (const valueOrPromise of vetos) {
+    if (valueOrPromise === true) {
+      return Promise.resolve(true);
+    }
+    if (isThenable(valueOrPromise)) {
+      promises.push(valueOrPromise.then((value) => {
+        if (value) {
+          lazyValue = true;
+        }
+      }, (err) => {
+        onError(err);
+        lazyValue = true;
+      }));
+    }
+  }
+  return Promises.settled(promises).then(() => lazyValue);
+}
+__name(handleVetos, "handleVetos");
+export {
+  handleVetos
+};
+//# sourceMappingURL=lifecycle.js.map

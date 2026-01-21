@@ -1,3 +1,1235 @@
-import*as d from"../../../../base/browser/dom.js";import{$c0 as U}from"../../../../base/browser/ui/aria/aria.js";import{$P0 as z}from"../../../../base/browser/ui/toggle/toggle.js";import{$r$ as q}from"../../../../base/browser/ui/sash/sash.js";import{$j9 as B}from"../../../../base/browser/ui/widget.js";import{$5h as k}from"../../../../base/common/async.js";import{$ak as m}from"../../../../base/common/codicons.js";import{$mb as D}from"../../../../base/common/errors.js";import{$Cd as V}from"../../../../base/common/lifecycle.js";import*as M from"../../../../base/common/platform.js";import*as Z from"../../../../base/common/strings.js";import"./findWidget.css";import{$9D as G}from"../../../common/core/range.js";import{$Iob as K,$Job as X,$Pob as g,$Qob as E}from"./findModel.js";import*as o from"../../../../nls.js";import{$nmb as J,$omb as Q}from"../../../../platform/history/browser/contextScopedHistoryWidget.js";import{$Sob as v}from"../../../../platform/history/browser/historyWidgetKeybindingHint.js";import{$Vp as N,$gq as j,$ar as Y,$fr as tt,$cr as it,$gr as et,$Bs as st,$zs as ht,$Cs as nt}from"../../../../platform/theme/common/colorRegistry.js";import{$eu as C,$hu as ot}from"../../../../platform/theme/common/iconRegistry.js";import{$vu as at}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as S}from"../../../../base/common/themables.js";import{$mu as T}from"../../../../platform/theme/common/theme.js";import{$gd as H}from"../../../../base/common/types.js";import{$Dib as $,$xib as y}from"../../../../platform/theme/browser/defaultStyles.js";const O=C("find-collapsed",m.chevronRight,o.localize(1118,null)),A=C("find-expanded",m.chevronDown,o.localize(1119,null)),lt=C("find-selection",m.selection,o.localize(1120,null)),rt=C("find-replace",m.replace,o.localize(1121,null)),ct=C("find-replace-all",m.replaceAll,o.localize(1122,null)),dt=C("find-previous-match",m.arrowUp,o.localize(1123,null)),ut=C("find-next-match",m.arrowDown,o.localize(1124,null)),ft=o.localize(1125,null),gt=o.localize(1126,null),pt=o.localize(1127,null),bt=o.localize(1128,null),mt=o.localize(1129,null),Ct=o.localize(1130,null),wt=o.localize(1131,null),St=o.localize(1132,null),Lt=o.localize(1133,null),xt=o.localize(1134,null),Dt=o.localize(1135,null),Nt=o.localize(1136,null),It=o.localize(1137,null,E),Et=o.localize(1138,null),P=o.localize(1139,null),p=419,vt=275,Tt=vt-54;let L=69;const Ht=33,_=M.$n?256:2048;class I{constructor(t){this.afterLineNumber=t,this.heightInPx=Ht,this.suppressMouseDown=!1,this.domNode=document.createElement("div"),this.domNode.className="dock-find-viewzone"}}function R(u,t,i){const e=!!t.match(/\n/);if(i&&e&&i.selectionStart>0){u.stopPropagation();return}}function W(u,t,i){const e=!!t.match(/\n/);if(i&&e&&i.selectionEnd<i.value.length){u.stopPropagation();return}}class F extends B{static{this.a="editor.contrib.findWidget"}constructor(t,i,e,n,h,l,c,f,b){super(),this.fb=c,this.gb=f,this.hb=b,this.y=null,this.pb=[],this.c=t,this.h=i,this.g=e,this.n=n,this.r=h,this.t=l,this.S=!1,this.U=!1,this.W=!1,this.eb=new k(500),this.D(V(()=>this.eb.cancel())),this.D(this.g.onFindReplaceStateChange(r=>this.ib(r))),this.Db(),this.ob(),this.vb(),this.H.inputBox.layout(),this.D(this.c.onDidChangeConfiguration(r=>{if(r.hasChanged(104)&&(this.c.getOption(104)&&this.g.change({isReplaceRevealed:!1},!1),this.ob()),r.hasChanged(165)&&this.vb(),r.hasChanged(2)&&this.Eb(),r.hasChanged(50)){const s=this.c.getOption(50).loop;this.g.change({loop:s},!1);const a=this.c.getOption(50).addExtraSpaceOnTop;a&&!this.ab&&(this.ab=new I(0),this.tb()),!a&&this.ab&&this.ub()}})),this.Eb(),this.D(this.c.onDidChangeCursorSelection(()=>{this.S&&this.nb()})),this.D(this.c.onDidFocusEditorWidget(async()=>{if(this.S){const r=await this.h.getGlobalBufferTerm();r&&r!==this.g.searchString&&(this.g.change({searchString:r},!1),this.H.select())}})),this.Y=K.bindTo(l),this.X=this.D(d.$G8(this.H.inputBox.inputElement)),this.D(this.X.onDidFocus(()=>{this.Y.set(!0),this.yb()})),this.D(this.X.onDidBlur(()=>{this.Y.set(!1)})),this.$=X.bindTo(l),this.Z=this.D(d.$G8(this.I.inputBox.inputElement)),this.D(this.Z.onDidFocus(()=>{this.$.set(!0),this.yb()})),this.D(this.Z.onDidBlur(()=>{this.$.set(!1)})),this.c.addOverlayWidget(this),this.c.getOption(50).addExtraSpaceOnTop&&(this.ab=new I(0)),this.D(this.c.onDidChangeModel(()=>{this.S&&(this.bb=void 0)})),this.D(this.c.onDidScrollChange(r=>{if(r.scrollTopChanged){this.sb();return}setTimeout(()=>{this.sb()},0)}))}getId(){return F.a}getDomNode(){return this.w}getPosition(){return this.S?{preference:0}:null}ib(t){if(t.searchString){try{this.W=!0,this.H.setValue(this.g.searchString)}finally{this.W=!1}this.ob()}if(t.replaceString&&(this.I.inputBox.value=this.g.replaceString),t.isRevealed&&(this.g.isRevealed?this.qb():this.rb(!0)),t.isReplaceRevealed&&(this.g.isReplaceRevealed?!this.c.getOption(104)&&!this.U&&(this.U=!0,this.I.width=d.$57(this.H.domNode),this.ob(),this.I.inputBox.layout()):this.U&&(this.U=!1,this.ob())),(t.isRevealed||t.isReplaceRevealed)&&(this.g.isRevealed||this.g.isReplaceRevealed)&&this.xb()&&this.tb(),t.isRegex&&this.H.setRegex(this.g.isRegex),t.wholeWord&&this.H.setWholeWords(this.g.wholeWord),t.matchCase&&this.H.setCaseSensitive(this.g.matchCase),t.preserveCase&&this.I.setPreserveCase(this.g.preserveCase),t.searchScope&&(this.g.searchScope?this.O.checked=!0:this.O.checked=!1,this.nb()),t.searchString||t.matchesCount||t.matchesPosition){const i=this.g.searchString.length>0&&this.g.matchesCount===0;this.w.classList.toggle("no-results",i),this.lb(),this.ob()}(t.searchString||t.currentMatch)&&this.sb(),t.updateHistory&&this.jb(),t.loop&&this.ob()}jb(){this.eb.trigger(this.kb.bind(this)).then(void 0,D)}kb(){this.g.searchString&&this.H.inputBox.addToHistory(),this.g.replaceString&&this.I.inputBox.addToHistory()}lb(){this.L.style.minWidth=L+"px",this.g.matchesCount>=E?this.L.title=It:this.L.title="",this.L.firstChild?.remove();let t;if(this.g.matchesCount>0){let i=String(this.g.matchesCount);this.g.matchesCount>=E&&(i+="+");let e=String(this.g.matchesPosition);e==="0"&&(e="?"),t=Z.$Uf(Et,e,i)}else t=P;this.L.appendChild(document.createTextNode(t)),U(this.mb(t,this.g.currentMatch,this.g.searchString)),L=Math.max(L,this.L.clientWidth)}mb(t,i,e){if(t===P)return e===""?o.localize(1140,null,t):o.localize(1141,null,t,e);if(i){const n=o.localize(1142,null,t,e,i.startLineNumber+":"+i.startColumn),h=this.c.getModel();return h&&i.startLineNumber<=h.getLineCount()&&i.startLineNumber>=1?`${h.getLineContent(i.startLineNumber)}, ${n}`:n}return o.localize(1143,null,t,e)}nb(){const t=this.c.getSelection(),i=t?t.startLineNumber!==t.endLineNumber||t.startColumn!==t.endColumn:!1,e=this.O.checked;this.S&&(e||i)?this.O.enable():this.O.disable()}ob(){this.H.setEnabled(this.S),this.I.setEnabled(this.S&&this.U),this.nb(),this.P.setEnabled(this.S);const t=this.g.searchString.length>0,i=!!this.g.matchesCount;this.M.setEnabled(this.S&&t&&i&&this.g.canNavigateBack()),this.N.setEnabled(this.S&&t&&i&&this.g.canNavigateForward()),this.Q.setEnabled(this.S&&this.U&&t),this.R.setEnabled(this.S&&this.U&&t),this.w.classList.toggle("replaceToggled",this.U),this.J.setExpanded(this.U);const e=!this.c.getOption(104);this.J.setEnabled(this.S&&e)}qb(){if(this.pb.forEach(t=>{clearTimeout(t)}),this.pb=[],!this.S){this.S=!0;const t=this.c.getSelection();switch(this.c.getOption(50).autoFindInSelection){case"always":this.O.checked=!0;break;case"never":this.O.checked=!1;break;case"multiline":{const e=!!t&&t.startLineNumber!==t.endLineNumber;this.O.checked=e;break}default:break}this.vb(),this.ob(),this.pb.push(setTimeout(()=>{this.w.classList.add("visible"),this.w.setAttribute("aria-hidden","false")},0)),this.pb.push(setTimeout(()=>{this.H.validate()},200)),this.c.layoutOverlayWidget(this);let i=!0;if(this.c.getOption(50).seedSearchStringFromSelection&&t){const e=this.c.getDomNode();if(e){const n=d.$27(e),h=this.c.getScrolledVisiblePosition(t.getStartPosition()),l=n.left+(h?h.left:0),c=h?h.top:0;if(this.ab&&c<this.ab.heightInPx){t.endLineNumber>t.startLineNumber&&(i=!1);const f=d.$Y7(this.w).left;l>f&&(i=!1);const b=this.c.getScrolledVisiblePosition(t.getEndPosition());n.left+(b?b.left:0)>f&&(i=!1)}}}this.tb(i)}}rb(t){this.pb.forEach(i=>{clearTimeout(i)}),this.pb=[],this.S&&(this.S=!1,this.ob(),this.w.classList.remove("visible"),this.w.setAttribute("aria-hidden","true"),this.H.clearMessage(),t&&this.c.focus(),this.c.layoutOverlayWidget(this),this.ub())}sb(t){if(!this.c.getOption(50).addExtraSpaceOnTop){this.ub();return}if(!this.S)return;const e=this.ab;this.bb!==void 0||!e||this.c.changeViewZones(n=>{e.heightInPx=this.wb(),this.bb=n.addZone(e),this.c.setScrollTop(t||this.c.getScrollTop()+e.heightInPx)})}tb(t=!0){if(!this.S||!this.c.getOption(50).addExtraSpaceOnTop)return;this.ab===void 0&&(this.ab=new I(0));const e=this.ab;this.c.changeViewZones(n=>{if(this.bb!==void 0){const h=this.wb();if(h===e.heightInPx)return;const l=h-e.heightInPx;e.heightInPx=h,n.layoutZone(this.bb),t&&this.c.setScrollTop(this.c.getScrollTop()+l);return}else{let h=this.wb();if(h-=this.c.getOption(96).top,h<=0)return;e.heightInPx=h,this.bb=n.addZone(e),t&&this.c.setScrollTop(this.c.getScrollTop()+h)}})}ub(){this.c.changeViewZones(t=>{this.bb!==void 0&&(t.removeZone(this.bb),this.bb=void 0,this.ab&&(this.c.setScrollTop(this.c.getScrollTop()-this.ab.heightInPx),this.ab=void 0))})}vb(){if(!this.S||!this.w.isConnected)return;const t=this.c.getLayoutInfo();if(t.contentWidth<=0){this.w.classList.add("hiddenEditor");return}else this.w.classList.contains("hiddenEditor")&&this.w.classList.remove("hiddenEditor");const e=t.width,n=t.minimap.minimapWidth;let h=!1,l=!1,c=!1;if(this.db&&d.$57(this.w)>p){this.w.style.maxWidth=`${e-28-n-15}px`,this.I.width=d.$57(this.H.domNode);return}if(p+28+n>=e&&(l=!0),p+28+n-L>=e&&(c=!0),p+28+n-L>=e+50&&(h=!0),this.w.classList.toggle("collapsed-find-widget",h),this.w.classList.toggle("narrow-find-widget",c),this.w.classList.toggle("reduced-find-widget",l),!c&&!h&&(this.w.style.maxWidth=`${e-28-n-15}px`),this.H.layout({collapsedFindWidget:h,narrowFindWidget:c,reducedFindWidget:l}),this.db){const f=this.H.inputBox.element.clientWidth;f>0&&(this.I.width=f)}else this.U&&(this.I.width=d.$57(this.H.domNode))}wb(){let t=0;return t+=4,t+=this.H.inputBox.height+2,this.U&&(t+=4,t+=this.I.inputBox.height+2),t+=4,t}xb(){const t=this.wb();return this.y!==null&&this.y===t?!1:(this.y=t,this.w.style.height=`${t}px`,!0)}focusFindInput(){this.H.select(),this.H.focus()}focusReplaceInput(){this.I.select(),this.I.focus()}highlightFindOptions(){this.H.highlightFindOptions()}yb(){if(this.c.hasModel()&&this.O.checked){const t=this.c.getSelections();t.map(i=>{i.endColumn===1&&i.endLineNumber>i.startLineNumber&&(i=i.setEndPosition(i.endLineNumber-1,this.c.getModel().getLineMaxColumn(i.endLineNumber-1)));const e=this.g.currentMatch;return i.startLineNumber!==i.endLineNumber&&!G.equalsRange(i,e)?i:null}).filter(i=>!!i),t.length&&this.g.change({searchScope:t},!0)}}zb(t){t.middleButton&&t.stopPropagation()}Ab(t){if(t.equals(_|3))if(this.r.dispatchEvent(t,t.target)){t.preventDefault();return}else{this.H.inputBox.insertAtCursor(`
-`),t.preventDefault();return}if(t.equals(2)){this.U?this.I.focus():this.H.focusOnCaseSensitive(),t.preventDefault();return}if(t.equals(2066)){this.c.focus(),t.preventDefault();return}if(t.equals(16))return R(t,this.H.getValue(),this.H.domNode.querySelector("textarea"));if(t.equals(18))return W(t,this.H.getValue(),this.H.domNode.querySelector("textarea"))}Bb(t){if(t.equals(_|3))if(this.r.dispatchEvent(t,t.target)){t.preventDefault();return}else{this.I.inputBox.insertAtCursor(`
-`),t.preventDefault();return}if(t.equals(2)){this.H.focusOnCaseSensitive(),t.preventDefault();return}if(t.equals(1026)){this.H.focus(),t.preventDefault();return}if(t.equals(2066)){this.c.focus(),t.preventDefault();return}if(t.equals(16))return R(t,this.I.inputBox.value,this.I.inputBox.element.querySelector("textarea"));if(t.equals(18))return W(t,this.I.inputBox.value,this.I.inputBox.element.querySelector("textarea"))}getVerticalSashLeft(t){return 0}Cb(t){return this.r.appendKeybinding("",t)}Db(){const e=this.c.getOption(50).history,n=this.c.getOption(50).replaceHistory;this.H=this.D(new J(null,this.n,{width:Tt,label:gt,placeholder:pt,appendCaseSensitiveLabel:this.Cb(g.ToggleCaseSensitiveCommand),appendWholeWordsLabel:this.Cb(g.ToggleWholeWordCommand),appendRegexLabel:this.Cb(g.ToggleRegexCommand),validation:s=>{if(s.length===0||!this.H.getRegex())return null;try{return new RegExp(s,"gu"),null}catch(a){return{content:a.message}}},flexibleHeight:!0,flexibleWidth:!0,flexibleMaxHeight:118,showCommonFindToggles:!0,showHistoryHint:()=>v(this.r),inputBoxStyles:$,toggleStyles:y,history:e==="workspace"?this.gb:new Set([])},this.t)),this.H.setRegex(!!this.g.isRegex),this.H.setCaseSensitive(!!this.g.matchCase),this.H.setWholeWords(!!this.g.wholeWord),this.D(this.H.onKeyDown(s=>{s.equals(3)&&!this.c.getOption(50).findOnType&&this.g.change({searchString:this.H.getValue()},!0),this.Ab(s)})),this.D(this.H.inputBox.onDidChange(()=>{this.W||!this.c.getOption(50).findOnType||this.g.change({searchString:this.H.getValue()},!0)})),this.D(this.H.onDidOptionChange(()=>{this.g.change({isRegex:this.H.getRegex(),wholeWord:this.H.getWholeWords(),matchCase:this.H.getCaseSensitive()},!0)})),this.D(this.H.onCaseSensitiveKeyDown(s=>{s.equals(1026)&&this.U&&(this.I.focus(),s.preventDefault())})),this.D(this.H.onRegexKeyDown(s=>{s.equals(2)&&this.U&&(this.I.focusOnPreserve(),s.preventDefault())})),this.D(this.H.inputBox.onDidHeightChange(s=>{this.xb()&&this.tb()})),M.$o&&this.D(this.H.onMouseDown(s=>this.zb(s))),this.L=document.createElement("div"),this.L.className="matchesCount",this.lb();const h={groupId:"find-widget"};this.M=this.D(new w({label:bt+this.Cb(g.PreviousMatchFindAction),icon:dt,hoverLifecycleOptions:h,onTrigger:()=>{H(this.c.getAction(g.PreviousMatchFindAction)).run().then(void 0,D)}},this.fb)),this.N=this.D(new w({label:mt+this.Cb(g.NextMatchFindAction),icon:ut,hoverLifecycleOptions:h,onTrigger:()=>{H(this.c.getAction(g.NextMatchFindAction)).run().then(void 0,D)}},this.fb));const l=document.createElement("div");l.className="find-part",l.appendChild(this.H.domNode);const c=document.createElement("div");c.className="find-actions",l.appendChild(c),c.appendChild(this.L),c.appendChild(this.M.domNode),c.appendChild(this.N.domNode),this.O=this.D(new z({icon:lt,title:Ct+this.Cb(g.ToggleSearchScopeCommand),isChecked:!1,hoverLifecycleOptions:h,inputActiveOptionBackground:N(st),inputActiveOptionBorder:N(ht),inputActiveOptionForeground:N(nt)})),this.D(this.O.onChange(()=>{if(this.O.checked){if(this.c.hasModel()){let s=this.c.getSelections();s=s.map(a=>(a.endColumn===1&&a.endLineNumber>a.startLineNumber&&(a=a.setEndPosition(a.endLineNumber-1,this.c.getModel().getLineMaxColumn(a.endLineNumber-1))),a.isEmpty()?null:a)).filter(a=>!!a),s.length&&this.g.change({searchScope:s},!0)}}else this.g.change({searchScope:null},!0)})),c.appendChild(this.O.domNode),this.P=this.D(new w({label:wt+this.Cb(g.CloseFindWidgetCommand),icon:ot,hoverLifecycleOptions:h,onTrigger:()=>{this.g.change({isRevealed:!1,searchScope:null},!1)},onKeyDown:s=>{s.equals(2)&&this.U&&(this.Q.isEnabled()?this.Q.focus():this.c.focus(),s.preventDefault())}},this.fb)),this.I=this.D(new Q(null,void 0,{label:St,placeholder:Lt,appendPreserveCaseLabel:this.Cb(g.TogglePreserveCaseCommand),history:n==="workspace"?this.hb:new Set([]),flexibleHeight:!0,flexibleWidth:!0,flexibleMaxHeight:118,showHistoryHint:()=>v(this.r),inputBoxStyles:$,toggleStyles:y,hoverLifecycleOptions:h},this.t,!0)),this.I.setPreserveCase(!!this.g.preserveCase),this.D(this.I.onKeyDown(s=>this.Bb(s))),this.D(this.I.inputBox.onDidChange(()=>{this.g.change({replaceString:this.I.inputBox.value},!1)})),this.D(this.I.inputBox.onDidHeightChange(s=>{this.U&&this.xb()&&this.tb()})),this.D(this.I.onDidOptionChange(()=>{this.g.change({preserveCase:this.I.getPreserveCase()},!0)})),this.D(this.I.onPreserveCaseKeyDown(s=>{s.equals(2)&&(this.M.isEnabled()?this.M.focus():this.N.isEnabled()?this.N.focus():this.O.enabled?this.O.focus():this.P.isEnabled()&&this.P.focus(),s.preventDefault())})),this.Q=this.D(new w({label:xt+this.Cb(g.ReplaceOneAction),icon:rt,hoverLifecycleOptions:h,onTrigger:()=>{this.h.replace()},onKeyDown:s=>{s.equals(1026)&&(this.P.focus(),s.preventDefault())}},this.fb)),this.R=this.D(new w({label:Dt+this.Cb(g.ReplaceAllAction),icon:ct,hoverLifecycleOptions:h,onTrigger:()=>{this.h.replaceAll()}},this.fb));const f=document.createElement("div");f.className="replace-part",f.appendChild(this.I.domNode);const b=document.createElement("div");b.className="replace-actions",f.appendChild(b),b.appendChild(this.Q.domNode),b.appendChild(this.R.domNode),this.J=this.D(new w({label:Nt,className:"codicon toggle left",onTrigger:()=>{this.g.change({isReplaceRevealed:!this.U},!1),this.U&&(this.I.width=d.$57(this.H.domNode),this.I.inputBox.layout()),this.tb()}},this.fb)),this.J.setExpanded(this.U),this.w=document.createElement("div"),this.w.className="editor-widget find-widget",this.w.setAttribute("aria-hidden","true"),this.w.ariaLabel=ft,this.w.role="dialog",this.w.style.width=`${p}px`,this.w.appendChild(this.J.domNode),this.w.appendChild(l),this.w.appendChild(this.P.domNode),this.w.appendChild(f),this.cb=this.D(new q(this.w,this,{orientation:0,size:2})),this.db=!1;let r=p;this.D(this.cb.onDidStart(()=>{r=d.$57(this.w)})),this.D(this.cb.onDidChange(s=>{this.db=!0;const a=r+s.startX-s.currentX;if(a<p)return;const x=parseFloat(d.$V7(this.w).maxWidth)||0;a>x||(this.w.style.width=`${a}px`,this.U&&(this.I.width=d.$57(this.H.domNode)),this.H.inputBox.layout(),this.xb())})),this.D(this.cb.onDidReset(()=>{const s=d.$57(this.w);if(s<p)return;let a=p;if(!this.db||s===p){const x=this.c.getLayoutInfo();a=x.width-28-x.minimap.minimapWidth-15,this.db=!0}this.w.style.width=`${a}px`,this.U&&(this.I.width=d.$57(this.H.domNode)),this.H.inputBox.layout()}))}Eb(){const t=this.c.getOption(2);this.H.setFocusInputOnOptionClick(t!==2)}getViewState(){let t=!1;return this.ab&&this.bb&&(t=this.ab.heightInPx>this.c.getScrollTop()),{widgetViewZoneVisible:t,scrollTop:this.c.getScrollTop()}}setViewState(t){t&&t.widgetViewZoneVisible&&this.sb(t.scrollTop)}}class w extends B{constructor(t,i){super(),this.a=t;let e="button";this.a.className&&(e=e+" "+this.a.className),this.a.icon&&(e=e+" "+S.asClassName(this.a.icon)),this.c=document.createElement("div"),this.c.tabIndex=0,this.c.className=e,this.c.setAttribute("role","button"),this.c.setAttribute("aria-label",this.a.label),this.D(i.setupDelayedHover(this.c,{content:this.a.label,style:1},t.hoverLifecycleOptions)),this.b(this.c,n=>{this.a.onTrigger(),n.preventDefault()}),this.q(this.c,n=>{if(n.equals(10)||n.equals(3)){this.a.onTrigger(),n.preventDefault();return}this.a.onKeyDown?.(n)})}get domNode(){return this.c}isEnabled(){return this.c.tabIndex>=0}focus(){this.c.focus()}setEnabled(t){this.c.classList.toggle("disabled",!t),this.c.setAttribute("aria-disabled",String(!t)),this.c.tabIndex=t?0:-1}setExpanded(t){this.c.setAttribute("aria-expanded",String(!!t)),t?(this.c.classList.remove(...S.asClassNameArray(O)),this.c.classList.add(...S.asClassNameArray(A))):(this.c.classList.remove(...S.asClassNameArray(A)),this.c.classList.add(...S.asClassNameArray(O)))}}at((u,t)=>{const i=u.getColor(tt);i&&t.addRule(`.monaco-editor .findMatch { border: 1px ${T(u.type)?"dotted":"solid"} ${i}; box-sizing: border-box; }`);const e=u.getColor(et);e&&t.addRule(`.monaco-editor .findScope { border: 1px ${T(u.type)?"dashed":"solid"} ${e}; }`);const n=u.getColor(j);n&&t.addRule(`.monaco-editor .find-widget { border: 1px solid ${n}; }`);const h=u.getColor(Y);h&&t.addRule(`.monaco-editor .findMatchInline { color: ${h}; }`);const l=u.getColor(it);l&&t.addRule(`.monaco-editor .currentFindMatchInline { color: ${l}; }`)});export{I as $1ob,F as $2ob,w as $3ob,lt as $Tob,rt as $Uob,ct as $Vob,dt as $Wob,ut as $Xob,Et as $Yob,P as $Zob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { alert as alertFn } from "../../../../base/browser/ui/aria/aria.js";
+import { Toggle } from "../../../../base/browser/ui/toggle/toggle.js";
+import { Sash } from "../../../../base/browser/ui/sash/sash.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Delayer } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import * as platform from "../../../../base/common/platform.js";
+import * as strings from "../../../../base/common/strings.js";
+import "./findWidget.css";
+import { Range } from "../../../common/core/range.js";
+import { CONTEXT_FIND_INPUT_FOCUSED, CONTEXT_REPLACE_INPUT_FOCUSED, FIND_IDS, MATCHES_LIMIT } from "./findModel.js";
+import * as nls from "../../../../nls.js";
+import { ContextScopedFindInput, ContextScopedReplaceInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { showHistoryKeybindingHint } from "../../../../platform/history/browser/historyWidgetKeybindingHint.js";
+import { asCssVariable, contrastBorder, editorFindMatchForeground, editorFindMatchHighlightBorder, editorFindMatchHighlightForeground, editorFindRangeHighlightBorder, inputActiveOptionBackground, inputActiveOptionBorder, inputActiveOptionForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerIcon, widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { isHighContrast } from "../../../../platform/theme/common/theme.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { defaultInputBoxStyles, defaultToggleStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+const findCollapsedIcon = registerIcon("find-collapsed", Codicon.chevronRight, nls.localize("findCollapsedIcon", "Icon to indicate that the editor find widget is collapsed."));
+const findExpandedIcon = registerIcon("find-expanded", Codicon.chevronDown, nls.localize("findExpandedIcon", "Icon to indicate that the editor find widget is expanded."));
+const findSelectionIcon = registerIcon("find-selection", Codicon.selection, nls.localize("findSelectionIcon", "Icon for 'Find in Selection' in the editor find widget."));
+const findReplaceIcon = registerIcon("find-replace", Codicon.replace, nls.localize("findReplaceIcon", "Icon for 'Replace' in the editor find widget."));
+const findReplaceAllIcon = registerIcon("find-replace-all", Codicon.replaceAll, nls.localize("findReplaceAllIcon", "Icon for 'Replace All' in the editor find widget."));
+const findPreviousMatchIcon = registerIcon("find-previous-match", Codicon.arrowUp, nls.localize("findPreviousMatchIcon", "Icon for 'Find Previous' in the editor find widget."));
+const findNextMatchIcon = registerIcon("find-next-match", Codicon.arrowDown, nls.localize("findNextMatchIcon", "Icon for 'Find Next' in the editor find widget."));
+const NLS_FIND_DIALOG_LABEL = nls.localize("label.findDialog", "Find / Replace");
+const NLS_FIND_INPUT_LABEL = nls.localize("label.find", "Find");
+const NLS_FIND_INPUT_PLACEHOLDER = nls.localize("placeholder.find", "Find");
+const NLS_PREVIOUS_MATCH_BTN_LABEL = nls.localize("label.previousMatchButton", "Previous Match");
+const NLS_NEXT_MATCH_BTN_LABEL = nls.localize("label.nextMatchButton", "Next Match");
+const NLS_TOGGLE_SELECTION_FIND_TITLE = nls.localize("label.toggleSelectionFind", "Find in Selection");
+const NLS_CLOSE_BTN_LABEL = nls.localize("label.closeButton", "Close");
+const NLS_REPLACE_INPUT_LABEL = nls.localize("label.replace", "Replace");
+const NLS_REPLACE_INPUT_PLACEHOLDER = nls.localize("placeholder.replace", "Replace");
+const NLS_REPLACE_BTN_LABEL = nls.localize("label.replaceButton", "Replace");
+const NLS_REPLACE_ALL_BTN_LABEL = nls.localize("label.replaceAllButton", "Replace All");
+const NLS_TOGGLE_REPLACE_MODE_BTN_LABEL = nls.localize("label.toggleReplaceButton", "Toggle Replace");
+const NLS_MATCHES_COUNT_LIMIT_TITLE = nls.localize("title.matchesCountLimit", "Only the first {0} results are highlighted, but all find operations work on the entire text.", MATCHES_LIMIT);
+const NLS_MATCHES_LOCATION = nls.localize("label.matchesLocation", "{0} of {1}");
+const NLS_NO_RESULTS = nls.localize("label.noResults", "No results");
+const FIND_WIDGET_INITIAL_WIDTH = 419;
+const PART_WIDTH = 275;
+const FIND_INPUT_AREA_WIDTH = PART_WIDTH - 54;
+let MAX_MATCHES_COUNT_WIDTH = 69;
+const FIND_INPUT_AREA_HEIGHT = 33;
+const ctrlKeyMod = platform.isMacintosh ? 256 : 2048;
+class FindWidgetViewZone {
+  static {
+    __name(this, "FindWidgetViewZone");
+  }
+  constructor(afterLineNumber) {
+    this.afterLineNumber = afterLineNumber;
+    this.heightInPx = FIND_INPUT_AREA_HEIGHT;
+    this.suppressMouseDown = false;
+    this.domNode = document.createElement("div");
+    this.domNode.className = "dock-find-viewzone";
+  }
+}
+function stopPropagationForMultiLineUpwards(event, value, textarea) {
+  const isMultiline = !!value.match(/\n/);
+  if (textarea && isMultiline && textarea.selectionStart > 0) {
+    event.stopPropagation();
+    return;
+  }
+}
+__name(stopPropagationForMultiLineUpwards, "stopPropagationForMultiLineUpwards");
+function stopPropagationForMultiLineDownwards(event, value, textarea) {
+  const isMultiline = !!value.match(/\n/);
+  if (textarea && isMultiline && textarea.selectionEnd < textarea.value.length) {
+    event.stopPropagation();
+    return;
+  }
+}
+__name(stopPropagationForMultiLineDownwards, "stopPropagationForMultiLineDownwards");
+class FindWidget extends Widget {
+  static {
+    __name(this, "FindWidget");
+  }
+  static {
+    this.ID = "editor.contrib.findWidget";
+  }
+  constructor(codeEditor, controller, state, contextViewProvider, keybindingService, contextKeyService, _hoverService, _findWidgetSearchHistory, _replaceWidgetHistory) {
+    super();
+    this._hoverService = _hoverService;
+    this._findWidgetSearchHistory = _findWidgetSearchHistory;
+    this._replaceWidgetHistory = _replaceWidgetHistory;
+    this._cachedHeight = null;
+    this._revealTimeouts = [];
+    this._codeEditor = codeEditor;
+    this._controller = controller;
+    this._state = state;
+    this._contextViewProvider = contextViewProvider;
+    this._keybindingService = keybindingService;
+    this._contextKeyService = contextKeyService;
+    this._isVisible = false;
+    this._isReplaceVisible = false;
+    this._ignoreChangeEvent = false;
+    this._updateHistoryDelayer = new Delayer(500);
+    this._register(toDisposable(() => this._updateHistoryDelayer.cancel()));
+    this._register(this._state.onFindReplaceStateChange((e) => this._onStateChanged(e)));
+    this._buildDomNode();
+    this._updateButtons();
+    this._tryUpdateWidgetWidth();
+    this._findInput.inputBox.layout();
+    this._register(this._codeEditor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        104
+        /* EditorOption.readOnly */
+      )) {
+        if (this._codeEditor.getOption(
+          104
+          /* EditorOption.readOnly */
+        )) {
+          this._state.change({ isReplaceRevealed: false }, false);
+        }
+        this._updateButtons();
+      }
+      if (e.hasChanged(
+        165
+        /* EditorOption.layoutInfo */
+      )) {
+        this._tryUpdateWidgetWidth();
+      }
+      if (e.hasChanged(
+        2
+        /* EditorOption.accessibilitySupport */
+      )) {
+        this.updateAccessibilitySupport();
+      }
+      if (e.hasChanged(
+        50
+        /* EditorOption.find */
+      )) {
+        const supportLoop = this._codeEditor.getOption(
+          50
+          /* EditorOption.find */
+        ).loop;
+        this._state.change({ loop: supportLoop }, false);
+        const addExtraSpaceOnTop = this._codeEditor.getOption(
+          50
+          /* EditorOption.find */
+        ).addExtraSpaceOnTop;
+        if (addExtraSpaceOnTop && !this._viewZone) {
+          this._viewZone = new FindWidgetViewZone(0);
+          this._showViewZone();
+        }
+        if (!addExtraSpaceOnTop && this._viewZone) {
+          this._removeViewZone();
+        }
+      }
+    }));
+    this.updateAccessibilitySupport();
+    this._register(this._codeEditor.onDidChangeCursorSelection(() => {
+      if (this._isVisible) {
+        this._updateToggleSelectionFindButton();
+      }
+    }));
+    this._register(this._codeEditor.onDidFocusEditorWidget(async () => {
+      if (this._isVisible) {
+        const globalBufferTerm = await this._controller.getGlobalBufferTerm();
+        if (globalBufferTerm && globalBufferTerm !== this._state.searchString) {
+          this._state.change({ searchString: globalBufferTerm }, false);
+          this._findInput.select();
+        }
+      }
+    }));
+    this._findInputFocused = CONTEXT_FIND_INPUT_FOCUSED.bindTo(contextKeyService);
+    this._findFocusTracker = this._register(dom.trackFocus(this._findInput.inputBox.inputElement));
+    this._register(this._findFocusTracker.onDidFocus(() => {
+      this._findInputFocused.set(true);
+      this._updateSearchScope();
+    }));
+    this._register(this._findFocusTracker.onDidBlur(() => {
+      this._findInputFocused.set(false);
+    }));
+    this._replaceInputFocused = CONTEXT_REPLACE_INPUT_FOCUSED.bindTo(contextKeyService);
+    this._replaceFocusTracker = this._register(dom.trackFocus(this._replaceInput.inputBox.inputElement));
+    this._register(this._replaceFocusTracker.onDidFocus(() => {
+      this._replaceInputFocused.set(true);
+      this._updateSearchScope();
+    }));
+    this._register(this._replaceFocusTracker.onDidBlur(() => {
+      this._replaceInputFocused.set(false);
+    }));
+    this._codeEditor.addOverlayWidget(this);
+    if (this._codeEditor.getOption(
+      50
+      /* EditorOption.find */
+    ).addExtraSpaceOnTop) {
+      this._viewZone = new FindWidgetViewZone(0);
+    }
+    this._register(this._codeEditor.onDidChangeModel(() => {
+      if (!this._isVisible) {
+        return;
+      }
+      this._viewZoneId = void 0;
+    }));
+    this._register(this._codeEditor.onDidScrollChange((e) => {
+      if (e.scrollTopChanged) {
+        this._layoutViewZone();
+        return;
+      }
+      setTimeout(() => {
+        this._layoutViewZone();
+      }, 0);
+    }));
+  }
+  // ----- IOverlayWidget API
+  getId() {
+    return FindWidget.ID;
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    if (this._isVisible) {
+      return {
+        preference: 0
+        /* OverlayWidgetPositionPreference.TOP_RIGHT_CORNER */
+      };
+    }
+    return null;
+  }
+  // ----- React to state changes
+  _onStateChanged(e) {
+    if (e.searchString) {
+      try {
+        this._ignoreChangeEvent = true;
+        this._findInput.setValue(this._state.searchString);
+      } finally {
+        this._ignoreChangeEvent = false;
+      }
+      this._updateButtons();
+    }
+    if (e.replaceString) {
+      this._replaceInput.inputBox.value = this._state.replaceString;
+    }
+    if (e.isRevealed) {
+      if (this._state.isRevealed) {
+        this._reveal();
+      } else {
+        this._hide(true);
+      }
+    }
+    if (e.isReplaceRevealed) {
+      if (this._state.isReplaceRevealed) {
+        if (!this._codeEditor.getOption(
+          104
+          /* EditorOption.readOnly */
+        ) && !this._isReplaceVisible) {
+          this._isReplaceVisible = true;
+          this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+          this._updateButtons();
+          this._replaceInput.inputBox.layout();
+        }
+      } else {
+        if (this._isReplaceVisible) {
+          this._isReplaceVisible = false;
+          this._updateButtons();
+        }
+      }
+    }
+    if ((e.isRevealed || e.isReplaceRevealed) && (this._state.isRevealed || this._state.isReplaceRevealed)) {
+      if (this._tryUpdateHeight()) {
+        this._showViewZone();
+      }
+    }
+    if (e.isRegex) {
+      this._findInput.setRegex(this._state.isRegex);
+    }
+    if (e.wholeWord) {
+      this._findInput.setWholeWords(this._state.wholeWord);
+    }
+    if (e.matchCase) {
+      this._findInput.setCaseSensitive(this._state.matchCase);
+    }
+    if (e.preserveCase) {
+      this._replaceInput.setPreserveCase(this._state.preserveCase);
+    }
+    if (e.searchScope) {
+      if (this._state.searchScope) {
+        this._toggleSelectionFind.checked = true;
+      } else {
+        this._toggleSelectionFind.checked = false;
+      }
+      this._updateToggleSelectionFindButton();
+    }
+    if (e.searchString || e.matchesCount || e.matchesPosition) {
+      const showRedOutline = this._state.searchString.length > 0 && this._state.matchesCount === 0;
+      this._domNode.classList.toggle("no-results", showRedOutline);
+      this._updateMatchesCount();
+      this._updateButtons();
+    }
+    if (e.searchString || e.currentMatch) {
+      this._layoutViewZone();
+    }
+    if (e.updateHistory) {
+      this._delayedUpdateHistory();
+    }
+    if (e.loop) {
+      this._updateButtons();
+    }
+  }
+  _delayedUpdateHistory() {
+    this._updateHistoryDelayer.trigger(this._updateHistory.bind(this)).then(void 0, onUnexpectedError);
+  }
+  _updateHistory() {
+    if (this._state.searchString) {
+      this._findInput.inputBox.addToHistory();
+    }
+    if (this._state.replaceString) {
+      this._replaceInput.inputBox.addToHistory();
+    }
+  }
+  _updateMatchesCount() {
+    this._matchesCount.style.minWidth = MAX_MATCHES_COUNT_WIDTH + "px";
+    if (this._state.matchesCount >= MATCHES_LIMIT) {
+      this._matchesCount.title = NLS_MATCHES_COUNT_LIMIT_TITLE;
+    } else {
+      this._matchesCount.title = "";
+    }
+    this._matchesCount.firstChild?.remove();
+    let label;
+    if (this._state.matchesCount > 0) {
+      let matchesCount = String(this._state.matchesCount);
+      if (this._state.matchesCount >= MATCHES_LIMIT) {
+        matchesCount += "+";
+      }
+      let matchesPosition = String(this._state.matchesPosition);
+      if (matchesPosition === "0") {
+        matchesPosition = "?";
+      }
+      label = strings.format(NLS_MATCHES_LOCATION, matchesPosition, matchesCount);
+    } else {
+      label = NLS_NO_RESULTS;
+    }
+    this._matchesCount.appendChild(document.createTextNode(label));
+    alertFn(this._getAriaLabel(label, this._state.currentMatch, this._state.searchString));
+    MAX_MATCHES_COUNT_WIDTH = Math.max(MAX_MATCHES_COUNT_WIDTH, this._matchesCount.clientWidth);
+  }
+  // ----- actions
+  _getAriaLabel(label, currentMatch, searchString) {
+    if (label === NLS_NO_RESULTS) {
+      return searchString === "" ? nls.localize("ariaSearchNoResultEmpty", "{0} found", label) : nls.localize("ariaSearchNoResult", "{0} found for '{1}'", label, searchString);
+    }
+    if (currentMatch) {
+      const ariaLabel = nls.localize("ariaSearchNoResultWithLineNum", "{0} found for '{1}', at {2}", label, searchString, currentMatch.startLineNumber + ":" + currentMatch.startColumn);
+      const model = this._codeEditor.getModel();
+      if (model && currentMatch.startLineNumber <= model.getLineCount() && currentMatch.startLineNumber >= 1) {
+        const lineContent = model.getLineContent(currentMatch.startLineNumber);
+        return `${lineContent}, ${ariaLabel}`;
+      }
+      return ariaLabel;
+    }
+    return nls.localize("ariaSearchNoResultWithLineNumNoCurrentMatch", "{0} found for '{1}'", label, searchString);
+  }
+  /**
+   * If 'selection find' is ON we should not disable the button (its function is to cancel 'selection find').
+   * If 'selection find' is OFF we enable the button only if there is a selection.
+   */
+  _updateToggleSelectionFindButton() {
+    const selection = this._codeEditor.getSelection();
+    const isSelection = selection ? selection.startLineNumber !== selection.endLineNumber || selection.startColumn !== selection.endColumn : false;
+    const isChecked = this._toggleSelectionFind.checked;
+    if (this._isVisible && (isChecked || isSelection)) {
+      this._toggleSelectionFind.enable();
+    } else {
+      this._toggleSelectionFind.disable();
+    }
+  }
+  _updateButtons() {
+    this._findInput.setEnabled(this._isVisible);
+    this._replaceInput.setEnabled(this._isVisible && this._isReplaceVisible);
+    this._updateToggleSelectionFindButton();
+    this._closeBtn.setEnabled(this._isVisible);
+    const findInputIsNonEmpty = this._state.searchString.length > 0;
+    const matchesCount = this._state.matchesCount ? true : false;
+    this._prevBtn.setEnabled(this._isVisible && findInputIsNonEmpty && matchesCount && this._state.canNavigateBack());
+    this._nextBtn.setEnabled(this._isVisible && findInputIsNonEmpty && matchesCount && this._state.canNavigateForward());
+    this._replaceBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
+    this._replaceAllBtn.setEnabled(this._isVisible && this._isReplaceVisible && findInputIsNonEmpty);
+    this._domNode.classList.toggle("replaceToggled", this._isReplaceVisible);
+    this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
+    const canReplace = !this._codeEditor.getOption(
+      104
+      /* EditorOption.readOnly */
+    );
+    this._toggleReplaceBtn.setEnabled(this._isVisible && canReplace);
+  }
+  _reveal() {
+    this._revealTimeouts.forEach((e) => {
+      clearTimeout(e);
+    });
+    this._revealTimeouts = [];
+    if (!this._isVisible) {
+      this._isVisible = true;
+      const selection = this._codeEditor.getSelection();
+      switch (this._codeEditor.getOption(
+        50
+        /* EditorOption.find */
+      ).autoFindInSelection) {
+        case "always":
+          this._toggleSelectionFind.checked = true;
+          break;
+        case "never":
+          this._toggleSelectionFind.checked = false;
+          break;
+        case "multiline": {
+          const isSelectionMultipleLine = !!selection && selection.startLineNumber !== selection.endLineNumber;
+          this._toggleSelectionFind.checked = isSelectionMultipleLine;
+          break;
+        }
+        default:
+          break;
+      }
+      this._tryUpdateWidgetWidth();
+      this._updateButtons();
+      this._revealTimeouts.push(setTimeout(() => {
+        this._domNode.classList.add("visible");
+        this._domNode.setAttribute("aria-hidden", "false");
+      }, 0));
+      this._revealTimeouts.push(setTimeout(() => {
+        this._findInput.validate();
+      }, 200));
+      this._codeEditor.layoutOverlayWidget(this);
+      let adjustEditorScrollTop = true;
+      if (this._codeEditor.getOption(
+        50
+        /* EditorOption.find */
+      ).seedSearchStringFromSelection && selection) {
+        const domNode = this._codeEditor.getDomNode();
+        if (domNode) {
+          const editorCoords = dom.getDomNodePagePosition(domNode);
+          const startCoords = this._codeEditor.getScrolledVisiblePosition(selection.getStartPosition());
+          const startLeft = editorCoords.left + (startCoords ? startCoords.left : 0);
+          const startTop = startCoords ? startCoords.top : 0;
+          if (this._viewZone && startTop < this._viewZone.heightInPx) {
+            if (selection.endLineNumber > selection.startLineNumber) {
+              adjustEditorScrollTop = false;
+            }
+            const leftOfFindWidget = dom.getTopLeftOffset(this._domNode).left;
+            if (startLeft > leftOfFindWidget) {
+              adjustEditorScrollTop = false;
+            }
+            const endCoords = this._codeEditor.getScrolledVisiblePosition(selection.getEndPosition());
+            const endLeft = editorCoords.left + (endCoords ? endCoords.left : 0);
+            if (endLeft > leftOfFindWidget) {
+              adjustEditorScrollTop = false;
+            }
+          }
+        }
+      }
+      this._showViewZone(adjustEditorScrollTop);
+    }
+  }
+  _hide(focusTheEditor) {
+    this._revealTimeouts.forEach((e) => {
+      clearTimeout(e);
+    });
+    this._revealTimeouts = [];
+    if (this._isVisible) {
+      this._isVisible = false;
+      this._updateButtons();
+      this._domNode.classList.remove("visible");
+      this._domNode.setAttribute("aria-hidden", "true");
+      this._findInput.clearMessage();
+      if (focusTheEditor) {
+        this._codeEditor.focus();
+      }
+      this._codeEditor.layoutOverlayWidget(this);
+      this._removeViewZone();
+    }
+  }
+  _layoutViewZone(targetScrollTop) {
+    const addExtraSpaceOnTop = this._codeEditor.getOption(
+      50
+      /* EditorOption.find */
+    ).addExtraSpaceOnTop;
+    if (!addExtraSpaceOnTop) {
+      this._removeViewZone();
+      return;
+    }
+    if (!this._isVisible) {
+      return;
+    }
+    const viewZone = this._viewZone;
+    if (this._viewZoneId !== void 0 || !viewZone) {
+      return;
+    }
+    this._codeEditor.changeViewZones((accessor) => {
+      viewZone.heightInPx = this._getHeight();
+      this._viewZoneId = accessor.addZone(viewZone);
+      this._codeEditor.setScrollTop(targetScrollTop || this._codeEditor.getScrollTop() + viewZone.heightInPx);
+    });
+  }
+  _showViewZone(adjustScroll = true) {
+    if (!this._isVisible) {
+      return;
+    }
+    const addExtraSpaceOnTop = this._codeEditor.getOption(
+      50
+      /* EditorOption.find */
+    ).addExtraSpaceOnTop;
+    if (!addExtraSpaceOnTop) {
+      return;
+    }
+    if (this._viewZone === void 0) {
+      this._viewZone = new FindWidgetViewZone(0);
+    }
+    const viewZone = this._viewZone;
+    this._codeEditor.changeViewZones((accessor) => {
+      if (this._viewZoneId !== void 0) {
+        const newHeight = this._getHeight();
+        if (newHeight === viewZone.heightInPx) {
+          return;
+        }
+        const scrollAdjustment = newHeight - viewZone.heightInPx;
+        viewZone.heightInPx = newHeight;
+        accessor.layoutZone(this._viewZoneId);
+        if (adjustScroll) {
+          this._codeEditor.setScrollTop(this._codeEditor.getScrollTop() + scrollAdjustment);
+        }
+        return;
+      } else {
+        let scrollAdjustment = this._getHeight();
+        scrollAdjustment -= this._codeEditor.getOption(
+          96
+          /* EditorOption.padding */
+        ).top;
+        if (scrollAdjustment <= 0) {
+          return;
+        }
+        viewZone.heightInPx = scrollAdjustment;
+        this._viewZoneId = accessor.addZone(viewZone);
+        if (adjustScroll) {
+          this._codeEditor.setScrollTop(this._codeEditor.getScrollTop() + scrollAdjustment);
+        }
+      }
+    });
+  }
+  _removeViewZone() {
+    this._codeEditor.changeViewZones((accessor) => {
+      if (this._viewZoneId !== void 0) {
+        accessor.removeZone(this._viewZoneId);
+        this._viewZoneId = void 0;
+        if (this._viewZone) {
+          this._codeEditor.setScrollTop(this._codeEditor.getScrollTop() - this._viewZone.heightInPx);
+          this._viewZone = void 0;
+        }
+      }
+    });
+  }
+  _tryUpdateWidgetWidth() {
+    if (!this._isVisible) {
+      return;
+    }
+    if (!this._domNode.isConnected) {
+      return;
+    }
+    const layoutInfo = this._codeEditor.getLayoutInfo();
+    const editorContentWidth = layoutInfo.contentWidth;
+    if (editorContentWidth <= 0) {
+      this._domNode.classList.add("hiddenEditor");
+      return;
+    } else if (this._domNode.classList.contains("hiddenEditor")) {
+      this._domNode.classList.remove("hiddenEditor");
+    }
+    const editorWidth = layoutInfo.width;
+    const minimapWidth = layoutInfo.minimap.minimapWidth;
+    let collapsedFindWidget = false;
+    let reducedFindWidget = false;
+    let narrowFindWidget = false;
+    if (this._resized) {
+      const widgetWidth = dom.getTotalWidth(this._domNode);
+      if (widgetWidth > FIND_WIDGET_INITIAL_WIDTH) {
+        this._domNode.style.maxWidth = `${editorWidth - 28 - minimapWidth - 15}px`;
+        this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+        return;
+      }
+    }
+    if (FIND_WIDGET_INITIAL_WIDTH + 28 + minimapWidth >= editorWidth) {
+      reducedFindWidget = true;
+    }
+    if (FIND_WIDGET_INITIAL_WIDTH + 28 + minimapWidth - MAX_MATCHES_COUNT_WIDTH >= editorWidth) {
+      narrowFindWidget = true;
+    }
+    if (FIND_WIDGET_INITIAL_WIDTH + 28 + minimapWidth - MAX_MATCHES_COUNT_WIDTH >= editorWidth + 50) {
+      collapsedFindWidget = true;
+    }
+    this._domNode.classList.toggle("collapsed-find-widget", collapsedFindWidget);
+    this._domNode.classList.toggle("narrow-find-widget", narrowFindWidget);
+    this._domNode.classList.toggle("reduced-find-widget", reducedFindWidget);
+    if (!narrowFindWidget && !collapsedFindWidget) {
+      this._domNode.style.maxWidth = `${editorWidth - 28 - minimapWidth - 15}px`;
+    }
+    this._findInput.layout({ collapsedFindWidget, narrowFindWidget, reducedFindWidget });
+    if (this._resized) {
+      const findInputWidth = this._findInput.inputBox.element.clientWidth;
+      if (findInputWidth > 0) {
+        this._replaceInput.width = findInputWidth;
+      }
+    } else if (this._isReplaceVisible) {
+      this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+    }
+  }
+  _getHeight() {
+    let totalheight = 0;
+    totalheight += 4;
+    totalheight += this._findInput.inputBox.height + 2;
+    if (this._isReplaceVisible) {
+      totalheight += 4;
+      totalheight += this._replaceInput.inputBox.height + 2;
+    }
+    totalheight += 4;
+    return totalheight;
+  }
+  _tryUpdateHeight() {
+    const totalHeight = this._getHeight();
+    if (this._cachedHeight !== null && this._cachedHeight === totalHeight) {
+      return false;
+    }
+    this._cachedHeight = totalHeight;
+    this._domNode.style.height = `${totalHeight}px`;
+    return true;
+  }
+  // ----- Public
+  focusFindInput() {
+    this._findInput.select();
+    this._findInput.focus();
+  }
+  focusReplaceInput() {
+    this._replaceInput.select();
+    this._replaceInput.focus();
+  }
+  highlightFindOptions() {
+    this._findInput.highlightFindOptions();
+  }
+  _updateSearchScope() {
+    if (!this._codeEditor.hasModel()) {
+      return;
+    }
+    if (this._toggleSelectionFind.checked) {
+      const selections = this._codeEditor.getSelections();
+      selections.map((selection) => {
+        if (selection.endColumn === 1 && selection.endLineNumber > selection.startLineNumber) {
+          selection = selection.setEndPosition(selection.endLineNumber - 1, this._codeEditor.getModel().getLineMaxColumn(selection.endLineNumber - 1));
+        }
+        const currentMatch = this._state.currentMatch;
+        if (selection.startLineNumber !== selection.endLineNumber) {
+          if (!Range.equalsRange(selection, currentMatch)) {
+            return selection;
+          }
+        }
+        return null;
+      }).filter((element) => !!element);
+      if (selections.length) {
+        this._state.change({ searchScope: selections }, true);
+      }
+    }
+  }
+  _onFindInputMouseDown(e) {
+    if (e.middleButton) {
+      e.stopPropagation();
+    }
+  }
+  _onFindInputKeyDown(e) {
+    if (e.equals(
+      ctrlKeyMod | 3
+      /* KeyCode.Enter */
+    )) {
+      if (this._keybindingService.dispatchEvent(e, e.target)) {
+        e.preventDefault();
+        return;
+      } else {
+        this._findInput.inputBox.insertAtCursor("\n");
+        e.preventDefault();
+        return;
+      }
+    }
+    if (e.equals(
+      2
+      /* KeyCode.Tab */
+    )) {
+      if (this._isReplaceVisible) {
+        this._replaceInput.focus();
+      } else {
+        this._findInput.focusOnCaseSensitive();
+      }
+      e.preventDefault();
+      return;
+    }
+    if (e.equals(
+      2048 | 18
+      /* KeyCode.DownArrow */
+    )) {
+      this._codeEditor.focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.equals(
+      16
+      /* KeyCode.UpArrow */
+    )) {
+      return stopPropagationForMultiLineUpwards(e, this._findInput.getValue(), this._findInput.domNode.querySelector("textarea"));
+    }
+    if (e.equals(
+      18
+      /* KeyCode.DownArrow */
+    )) {
+      return stopPropagationForMultiLineDownwards(e, this._findInput.getValue(), this._findInput.domNode.querySelector("textarea"));
+    }
+  }
+  _onReplaceInputKeyDown(e) {
+    if (e.equals(
+      ctrlKeyMod | 3
+      /* KeyCode.Enter */
+    )) {
+      if (this._keybindingService.dispatchEvent(e, e.target)) {
+        e.preventDefault();
+        return;
+      } else {
+        this._replaceInput.inputBox.insertAtCursor("\n");
+        e.preventDefault();
+        return;
+      }
+    }
+    if (e.equals(
+      2
+      /* KeyCode.Tab */
+    )) {
+      this._findInput.focusOnCaseSensitive();
+      e.preventDefault();
+      return;
+    }
+    if (e.equals(
+      1024 | 2
+      /* KeyCode.Tab */
+    )) {
+      this._findInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.equals(
+      2048 | 18
+      /* KeyCode.DownArrow */
+    )) {
+      this._codeEditor.focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.equals(
+      16
+      /* KeyCode.UpArrow */
+    )) {
+      return stopPropagationForMultiLineUpwards(e, this._replaceInput.inputBox.value, this._replaceInput.inputBox.element.querySelector("textarea"));
+    }
+    if (e.equals(
+      18
+      /* KeyCode.DownArrow */
+    )) {
+      return stopPropagationForMultiLineDownwards(e, this._replaceInput.inputBox.value, this._replaceInput.inputBox.element.querySelector("textarea"));
+    }
+  }
+  // ----- sash
+  getVerticalSashLeft(_sash) {
+    return 0;
+  }
+  // ----- initialization
+  _keybindingLabelFor(actionId) {
+    return this._keybindingService.appendKeybinding("", actionId);
+  }
+  _buildDomNode() {
+    const flexibleHeight = true;
+    const flexibleWidth = true;
+    const findSearchHistoryConfig = this._codeEditor.getOption(
+      50
+      /* EditorOption.find */
+    ).history;
+    const replaceHistoryConfig = this._codeEditor.getOption(
+      50
+      /* EditorOption.find */
+    ).replaceHistory;
+    this._findInput = this._register(new ContextScopedFindInput(null, this._contextViewProvider, {
+      width: FIND_INPUT_AREA_WIDTH,
+      label: NLS_FIND_INPUT_LABEL,
+      placeholder: NLS_FIND_INPUT_PLACEHOLDER,
+      appendCaseSensitiveLabel: this._keybindingLabelFor(FIND_IDS.ToggleCaseSensitiveCommand),
+      appendWholeWordsLabel: this._keybindingLabelFor(FIND_IDS.ToggleWholeWordCommand),
+      appendRegexLabel: this._keybindingLabelFor(FIND_IDS.ToggleRegexCommand),
+      validation: /* @__PURE__ */ __name((value) => {
+        if (value.length === 0 || !this._findInput.getRegex()) {
+          return null;
+        }
+        try {
+          new RegExp(value, "gu");
+          return null;
+        } catch (e) {
+          return { content: e.message };
+        }
+      }, "validation"),
+      flexibleHeight,
+      flexibleWidth,
+      flexibleMaxHeight: 118,
+      showCommonFindToggles: true,
+      showHistoryHint: /* @__PURE__ */ __name(() => showHistoryKeybindingHint(this._keybindingService), "showHistoryHint"),
+      inputBoxStyles: defaultInputBoxStyles,
+      toggleStyles: defaultToggleStyles,
+      history: findSearchHistoryConfig === "workspace" ? this._findWidgetSearchHistory : /* @__PURE__ */ new Set([])
+    }, this._contextKeyService));
+    this._findInput.setRegex(!!this._state.isRegex);
+    this._findInput.setCaseSensitive(!!this._state.matchCase);
+    this._findInput.setWholeWords(!!this._state.wholeWord);
+    this._register(this._findInput.onKeyDown((e) => {
+      if (e.equals(
+        3
+        /* KeyCode.Enter */
+      ) && !this._codeEditor.getOption(
+        50
+        /* EditorOption.find */
+      ).findOnType) {
+        this._state.change({ searchString: this._findInput.getValue() }, true);
+      }
+      this._onFindInputKeyDown(e);
+    }));
+    this._register(this._findInput.inputBox.onDidChange(() => {
+      if (this._ignoreChangeEvent || !this._codeEditor.getOption(
+        50
+        /* EditorOption.find */
+      ).findOnType) {
+        return;
+      }
+      this._state.change({ searchString: this._findInput.getValue() }, true);
+    }));
+    this._register(this._findInput.onDidOptionChange(() => {
+      this._state.change({
+        isRegex: this._findInput.getRegex(),
+        wholeWord: this._findInput.getWholeWords(),
+        matchCase: this._findInput.getCaseSensitive()
+      }, true);
+    }));
+    this._register(this._findInput.onCaseSensitiveKeyDown((e) => {
+      if (e.equals(
+        1024 | 2
+        /* KeyCode.Tab */
+      )) {
+        if (this._isReplaceVisible) {
+          this._replaceInput.focus();
+          e.preventDefault();
+        }
+      }
+    }));
+    this._register(this._findInput.onRegexKeyDown((e) => {
+      if (e.equals(
+        2
+        /* KeyCode.Tab */
+      )) {
+        if (this._isReplaceVisible) {
+          this._replaceInput.focusOnPreserve();
+          e.preventDefault();
+        }
+      }
+    }));
+    this._register(this._findInput.inputBox.onDidHeightChange((e) => {
+      if (this._tryUpdateHeight()) {
+        this._showViewZone();
+      }
+    }));
+    if (platform.isLinux) {
+      this._register(this._findInput.onMouseDown((e) => this._onFindInputMouseDown(e)));
+    }
+    this._matchesCount = document.createElement("div");
+    this._matchesCount.className = "matchesCount";
+    this._updateMatchesCount();
+    const hoverLifecycleOptions = { groupId: "find-widget" };
+    this._prevBtn = this._register(new SimpleButton({
+      label: NLS_PREVIOUS_MATCH_BTN_LABEL + this._keybindingLabelFor(FIND_IDS.PreviousMatchFindAction),
+      icon: findPreviousMatchIcon,
+      hoverLifecycleOptions,
+      onTrigger: /* @__PURE__ */ __name(() => {
+        assertReturnsDefined(this._codeEditor.getAction(FIND_IDS.PreviousMatchFindAction)).run().then(void 0, onUnexpectedError);
+      }, "onTrigger")
+    }, this._hoverService));
+    this._nextBtn = this._register(new SimpleButton({
+      label: NLS_NEXT_MATCH_BTN_LABEL + this._keybindingLabelFor(FIND_IDS.NextMatchFindAction),
+      icon: findNextMatchIcon,
+      hoverLifecycleOptions,
+      onTrigger: /* @__PURE__ */ __name(() => {
+        assertReturnsDefined(this._codeEditor.getAction(FIND_IDS.NextMatchFindAction)).run().then(void 0, onUnexpectedError);
+      }, "onTrigger")
+    }, this._hoverService));
+    const findPart = document.createElement("div");
+    findPart.className = "find-part";
+    findPart.appendChild(this._findInput.domNode);
+    const actionsContainer = document.createElement("div");
+    actionsContainer.className = "find-actions";
+    findPart.appendChild(actionsContainer);
+    actionsContainer.appendChild(this._matchesCount);
+    actionsContainer.appendChild(this._prevBtn.domNode);
+    actionsContainer.appendChild(this._nextBtn.domNode);
+    this._toggleSelectionFind = this._register(new Toggle({
+      icon: findSelectionIcon,
+      title: NLS_TOGGLE_SELECTION_FIND_TITLE + this._keybindingLabelFor(FIND_IDS.ToggleSearchScopeCommand),
+      isChecked: false,
+      hoverLifecycleOptions,
+      inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground),
+      inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+      inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground)
+    }));
+    this._register(this._toggleSelectionFind.onChange(() => {
+      if (this._toggleSelectionFind.checked) {
+        if (this._codeEditor.hasModel()) {
+          let selections = this._codeEditor.getSelections();
+          selections = selections.map((selection) => {
+            if (selection.endColumn === 1 && selection.endLineNumber > selection.startLineNumber) {
+              selection = selection.setEndPosition(selection.endLineNumber - 1, this._codeEditor.getModel().getLineMaxColumn(selection.endLineNumber - 1));
+            }
+            if (!selection.isEmpty()) {
+              return selection;
+            }
+            return null;
+          }).filter((element) => !!element);
+          if (selections.length) {
+            this._state.change({ searchScope: selections }, true);
+          }
+        }
+      } else {
+        this._state.change({ searchScope: null }, true);
+      }
+    }));
+    actionsContainer.appendChild(this._toggleSelectionFind.domNode);
+    this._closeBtn = this._register(new SimpleButton({
+      label: NLS_CLOSE_BTN_LABEL + this._keybindingLabelFor(FIND_IDS.CloseFindWidgetCommand),
+      icon: widgetClose,
+      hoverLifecycleOptions,
+      onTrigger: /* @__PURE__ */ __name(() => {
+        this._state.change({ isRevealed: false, searchScope: null }, false);
+      }, "onTrigger"),
+      onKeyDown: /* @__PURE__ */ __name((e) => {
+        if (e.equals(
+          2
+          /* KeyCode.Tab */
+        )) {
+          if (this._isReplaceVisible) {
+            if (this._replaceBtn.isEnabled()) {
+              this._replaceBtn.focus();
+            } else {
+              this._codeEditor.focus();
+            }
+            e.preventDefault();
+          }
+        }
+      }, "onKeyDown")
+    }, this._hoverService));
+    this._replaceInput = this._register(new ContextScopedReplaceInput(null, void 0, {
+      label: NLS_REPLACE_INPUT_LABEL,
+      placeholder: NLS_REPLACE_INPUT_PLACEHOLDER,
+      appendPreserveCaseLabel: this._keybindingLabelFor(FIND_IDS.TogglePreserveCaseCommand),
+      history: replaceHistoryConfig === "workspace" ? this._replaceWidgetHistory : /* @__PURE__ */ new Set([]),
+      flexibleHeight,
+      flexibleWidth,
+      flexibleMaxHeight: 118,
+      showHistoryHint: /* @__PURE__ */ __name(() => showHistoryKeybindingHint(this._keybindingService), "showHistoryHint"),
+      inputBoxStyles: defaultInputBoxStyles,
+      toggleStyles: defaultToggleStyles,
+      hoverLifecycleOptions
+    }, this._contextKeyService, true));
+    this._replaceInput.setPreserveCase(!!this._state.preserveCase);
+    this._register(this._replaceInput.onKeyDown((e) => this._onReplaceInputKeyDown(e)));
+    this._register(this._replaceInput.inputBox.onDidChange(() => {
+      this._state.change({ replaceString: this._replaceInput.inputBox.value }, false);
+    }));
+    this._register(this._replaceInput.inputBox.onDidHeightChange((e) => {
+      if (this._isReplaceVisible && this._tryUpdateHeight()) {
+        this._showViewZone();
+      }
+    }));
+    this._register(this._replaceInput.onDidOptionChange(() => {
+      this._state.change({
+        preserveCase: this._replaceInput.getPreserveCase()
+      }, true);
+    }));
+    this._register(this._replaceInput.onPreserveCaseKeyDown((e) => {
+      if (e.equals(
+        2
+        /* KeyCode.Tab */
+      )) {
+        if (this._prevBtn.isEnabled()) {
+          this._prevBtn.focus();
+        } else if (this._nextBtn.isEnabled()) {
+          this._nextBtn.focus();
+        } else if (this._toggleSelectionFind.enabled) {
+          this._toggleSelectionFind.focus();
+        } else if (this._closeBtn.isEnabled()) {
+          this._closeBtn.focus();
+        }
+        e.preventDefault();
+      }
+    }));
+    this._replaceBtn = this._register(new SimpleButton({
+      label: NLS_REPLACE_BTN_LABEL + this._keybindingLabelFor(FIND_IDS.ReplaceOneAction),
+      icon: findReplaceIcon,
+      hoverLifecycleOptions,
+      onTrigger: /* @__PURE__ */ __name(() => {
+        this._controller.replace();
+      }, "onTrigger"),
+      onKeyDown: /* @__PURE__ */ __name((e) => {
+        if (e.equals(
+          1024 | 2
+          /* KeyCode.Tab */
+        )) {
+          this._closeBtn.focus();
+          e.preventDefault();
+        }
+      }, "onKeyDown")
+    }, this._hoverService));
+    this._replaceAllBtn = this._register(new SimpleButton({
+      label: NLS_REPLACE_ALL_BTN_LABEL + this._keybindingLabelFor(FIND_IDS.ReplaceAllAction),
+      icon: findReplaceAllIcon,
+      hoverLifecycleOptions,
+      onTrigger: /* @__PURE__ */ __name(() => {
+        this._controller.replaceAll();
+      }, "onTrigger")
+    }, this._hoverService));
+    const replacePart = document.createElement("div");
+    replacePart.className = "replace-part";
+    replacePart.appendChild(this._replaceInput.domNode);
+    const replaceActionsContainer = document.createElement("div");
+    replaceActionsContainer.className = "replace-actions";
+    replacePart.appendChild(replaceActionsContainer);
+    replaceActionsContainer.appendChild(this._replaceBtn.domNode);
+    replaceActionsContainer.appendChild(this._replaceAllBtn.domNode);
+    this._toggleReplaceBtn = this._register(new SimpleButton({
+      label: NLS_TOGGLE_REPLACE_MODE_BTN_LABEL,
+      className: "codicon toggle left",
+      onTrigger: /* @__PURE__ */ __name(() => {
+        this._state.change({ isReplaceRevealed: !this._isReplaceVisible }, false);
+        if (this._isReplaceVisible) {
+          this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+          this._replaceInput.inputBox.layout();
+        }
+        this._showViewZone();
+      }, "onTrigger")
+    }, this._hoverService));
+    this._toggleReplaceBtn.setExpanded(this._isReplaceVisible);
+    this._domNode = document.createElement("div");
+    this._domNode.className = "editor-widget find-widget";
+    this._domNode.setAttribute("aria-hidden", "true");
+    this._domNode.ariaLabel = NLS_FIND_DIALOG_LABEL;
+    this._domNode.role = "dialog";
+    this._domNode.style.width = `${FIND_WIDGET_INITIAL_WIDTH}px`;
+    this._domNode.appendChild(this._toggleReplaceBtn.domNode);
+    this._domNode.appendChild(findPart);
+    this._domNode.appendChild(this._closeBtn.domNode);
+    this._domNode.appendChild(replacePart);
+    this._resizeSash = this._register(new Sash(this._domNode, this, { orientation: 0, size: 2 }));
+    this._resized = false;
+    let originalWidth = FIND_WIDGET_INITIAL_WIDTH;
+    this._register(this._resizeSash.onDidStart(() => {
+      originalWidth = dom.getTotalWidth(this._domNode);
+    }));
+    this._register(this._resizeSash.onDidChange((evt) => {
+      this._resized = true;
+      const width = originalWidth + evt.startX - evt.currentX;
+      if (width < FIND_WIDGET_INITIAL_WIDTH) {
+        return;
+      }
+      const maxWidth = parseFloat(dom.getComputedStyle(this._domNode).maxWidth) || 0;
+      if (width > maxWidth) {
+        return;
+      }
+      this._domNode.style.width = `${width}px`;
+      if (this._isReplaceVisible) {
+        this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+      }
+      this._findInput.inputBox.layout();
+      this._tryUpdateHeight();
+    }));
+    this._register(this._resizeSash.onDidReset(() => {
+      const currentWidth = dom.getTotalWidth(this._domNode);
+      if (currentWidth < FIND_WIDGET_INITIAL_WIDTH) {
+        return;
+      }
+      let width = FIND_WIDGET_INITIAL_WIDTH;
+      if (!this._resized || currentWidth === FIND_WIDGET_INITIAL_WIDTH) {
+        const layoutInfo = this._codeEditor.getLayoutInfo();
+        width = layoutInfo.width - 28 - layoutInfo.minimap.minimapWidth - 15;
+        this._resized = true;
+      } else {
+      }
+      this._domNode.style.width = `${width}px`;
+      if (this._isReplaceVisible) {
+        this._replaceInput.width = dom.getTotalWidth(this._findInput.domNode);
+      }
+      this._findInput.inputBox.layout();
+    }));
+  }
+  updateAccessibilitySupport() {
+    const value = this._codeEditor.getOption(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    this._findInput.setFocusInputOnOptionClick(
+      value !== 2
+      /* AccessibilitySupport.Enabled */
+    );
+  }
+  getViewState() {
+    let widgetViewZoneVisible = false;
+    if (this._viewZone && this._viewZoneId) {
+      widgetViewZoneVisible = this._viewZone.heightInPx > this._codeEditor.getScrollTop();
+    }
+    return {
+      widgetViewZoneVisible,
+      scrollTop: this._codeEditor.getScrollTop()
+    };
+  }
+  setViewState(state) {
+    if (!state) {
+      return;
+    }
+    if (state.widgetViewZoneVisible) {
+      this._layoutViewZone(state.scrollTop);
+    }
+  }
+}
+class SimpleButton extends Widget {
+  static {
+    __name(this, "SimpleButton");
+  }
+  constructor(opts, hoverService) {
+    super();
+    this._opts = opts;
+    let className = "button";
+    if (this._opts.className) {
+      className = className + " " + this._opts.className;
+    }
+    if (this._opts.icon) {
+      className = className + " " + ThemeIcon.asClassName(this._opts.icon);
+    }
+    this._domNode = document.createElement("div");
+    this._domNode.tabIndex = 0;
+    this._domNode.className = className;
+    this._domNode.setAttribute("role", "button");
+    this._domNode.setAttribute("aria-label", this._opts.label);
+    this._register(hoverService.setupDelayedHover(this._domNode, {
+      content: this._opts.label,
+      style: 1
+    }, opts.hoverLifecycleOptions));
+    this.onclick(this._domNode, (e) => {
+      this._opts.onTrigger();
+      e.preventDefault();
+    });
+    this.onkeydown(this._domNode, (e) => {
+      if (e.equals(
+        10
+        /* KeyCode.Space */
+      ) || e.equals(
+        3
+        /* KeyCode.Enter */
+      )) {
+        this._opts.onTrigger();
+        e.preventDefault();
+        return;
+      }
+      this._opts.onKeyDown?.(e);
+    });
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  isEnabled() {
+    return this._domNode.tabIndex >= 0;
+  }
+  focus() {
+    this._domNode.focus();
+  }
+  setEnabled(enabled) {
+    this._domNode.classList.toggle("disabled", !enabled);
+    this._domNode.setAttribute("aria-disabled", String(!enabled));
+    this._domNode.tabIndex = enabled ? 0 : -1;
+  }
+  setExpanded(expanded) {
+    this._domNode.setAttribute("aria-expanded", String(!!expanded));
+    if (expanded) {
+      this._domNode.classList.remove(...ThemeIcon.asClassNameArray(findCollapsedIcon));
+      this._domNode.classList.add(...ThemeIcon.asClassNameArray(findExpandedIcon));
+    } else {
+      this._domNode.classList.remove(...ThemeIcon.asClassNameArray(findExpandedIcon));
+      this._domNode.classList.add(...ThemeIcon.asClassNameArray(findCollapsedIcon));
+    }
+  }
+}
+registerThemingParticipant((theme, collector) => {
+  const findMatchHighlightBorder = theme.getColor(editorFindMatchHighlightBorder);
+  if (findMatchHighlightBorder) {
+    collector.addRule(`.monaco-editor .findMatch { border: 1px ${isHighContrast(theme.type) ? "dotted" : "solid"} ${findMatchHighlightBorder}; box-sizing: border-box; }`);
+  }
+  const findRangeHighlightBorder = theme.getColor(editorFindRangeHighlightBorder);
+  if (findRangeHighlightBorder) {
+    collector.addRule(`.monaco-editor .findScope { border: 1px ${isHighContrast(theme.type) ? "dashed" : "solid"} ${findRangeHighlightBorder}; }`);
+  }
+  const hcBorder = theme.getColor(contrastBorder);
+  if (hcBorder) {
+    collector.addRule(`.monaco-editor .find-widget { border: 1px solid ${hcBorder}; }`);
+  }
+  const findMatchForeground = theme.getColor(editorFindMatchForeground);
+  if (findMatchForeground) {
+    collector.addRule(`.monaco-editor .findMatchInline { color: ${findMatchForeground}; }`);
+  }
+  const findMatchHighlightForeground = theme.getColor(editorFindMatchHighlightForeground);
+  if (findMatchHighlightForeground) {
+    collector.addRule(`.monaco-editor .currentFindMatchInline { color: ${findMatchHighlightForeground}; }`);
+  }
+});
+export {
+  FindWidget,
+  FindWidgetViewZone,
+  NLS_MATCHES_LOCATION,
+  NLS_NO_RESULTS,
+  SimpleButton,
+  findNextMatchIcon,
+  findPreviousMatchIcon,
+  findReplaceAllIcon,
+  findReplaceIcon,
+  findSelectionIcon
+};
+//# sourceMappingURL=findWidget.js.map

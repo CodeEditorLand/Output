@@ -1,1 +1,6 @@
-import{$Mj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("testingPeekOpener");export{o as $8sc};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITestingPeekOpener = createDecorator("testingPeekOpener");
+export {
+  ITestingPeekOpener
+};
+//# sourceMappingURL=testingPeekOpener.js.map

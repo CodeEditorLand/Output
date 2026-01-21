@@ -1,1 +1,201 @@
-import{localize as p}from"../../../../nls.js";import{$tL as r}from"../../../../platform/actions/common/actions.js";import{$Jj as i}from"../../../../platform/instantiation/common/descriptors.js";import{$TC as m}from"../../../../platform/instantiation/common/extensions.js";import*as d from"../../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$HQ as n}from"../../../../platform/mcp/common/mcpManagement.js";import{$xH as C}from"../../../../platform/quickinput/common/quickAccess.js";import{$im as t}from"../../../../platform/registry/common/platform.js";import{$DRb as h}from"../../../browser/editor.js";import{$7N as b}from"../../../common/configuration.js";import{$XN as o}from"../../../common/contributions.js";import{$5M as w}from"../../../common/editor.js";import{$uM as x}from"../../../services/configuration/common/configuration.js";import{ChatContextKeys as S}from"../../chat/common/actions/chatContextKeys.js";import{$Cpc as y}from"../common/discovery/extensionMcpDiscovery.js";import{$Epc as D}from"../common/discovery/installedMcpServersDiscovery.js";import{$Bpc as c}from"../common/discovery/mcpDiscovery.js";import{$Lpc as E}from"../common/discovery/nativeMcpRemoteDiscovery.js";import{$Mpc as I}from"../common/discovery/workspaceMcpDiscoveryAdapter.js";import{$CS as k}from"../common/mcpConfiguration.js";import{$Npc as A}from"../common/mcpContextKeys.js";import{$A2b as M,$B2b as R}from"../common/mcpDevMode.js";import{$Ppc as s}from"../common/mcpLanguageModelToolContribution.js";import{$Spc as j}from"../common/mcpRegistry.js";import{$JS as v}from"../common/mcpRegistryTypes.js";import{$Tpc as P}from"../common/mcpResourceFilesystem.js";import{$Vpc as F}from"../common/mcpSamplingService.js";import{$Wpc as N}from"../common/mcpService.js";import{$aT as Q,$$S as B,$WS as J,$6S as L}from"../common/mcpTypes.js";import{$3pc as T}from"./mcpAddContextContribution.js";import{$frc as q,$hrc as z,$_qc as H,$nrc as K,$trc as W,$urc as X,$arc as O,$crc as V,$brc as _,$wrc as G,$vrc as U,$qrc as Y,$prc as Z,$rrc as rr,$src as or,$grc as mr,$erc as ir,$drc as tr,$krc as cr,$irc as er,$orc as pr,$jrc as $r,$lrc as nr,$mrc as sr}from"./mcpCommands.js";import{$xrc as fr}from"./mcpDiscovery.js";import{$zrc as ar}from"./mcpElicitationService.js";import{$Arc as ur}from"./mcpLanguageFeatures.js";import{$Brc as f}from"./mcpMigration.js";import{$2pc as a}from"./mcpResourceQuickAccess.js";import{$dsc as u}from"./mcpServerEditor.js";import{$csc as gr}from"./mcpServerEditorInput.js";import{$gsc as g}from"./mcpServersView.js";import{$isc as l,$hsc as lr}from"./mcpWorkbenchService.js";m(v,j,1);m(J,N,1);m(L,lr,0);m(M,R,1);m(B,F,1);m(Q,ar,1);c.register(new i(E));c.register(new i(D));c.register(new i(y));c.register(new i(I));o("mcpDiscovery",fr,3);o("mcpContextKeys",A,2);o("mcpLanguageFeatures",ur,4);o("mcpResourceFilesystem",P,2);o(s.ID,s,3);r(H);r(_);r(O);r(tr);r(ir);r(q);r(mr);r(z);r(nr);r(sr);r($r);r(cr);r(er);r(K);r(Z);r(Y);r(or);r(rr);r(pr);r(W);r(X);r(U);r(G);o("mcpActionRendering",V,2);o("mcpAddContext",T,4);o(l.ID,l,3);o(f.ID,f,4);o(g.ID,g,3);const dr=t.as(d.$jm.JSONContribution);dr.registerSchema(x,k);t.as(w.EditorPane).registerEditorPane(h.create(u,u.ID,p(9774,null)),[new i(gr)]);t.as(C.Quickaccess).registerQuickAccessProvider({ctor:a,prefix:a.PREFIX,when:S.enabled,placeholder:p(9775,null),helpEntries:[{description:p(9776,null),commandId:"workbench.mcp.addConfiguration"}]});t.as(b.ConfigurationMigration).registerConfigurationMigrations([{key:"chat.mcp.enabled",migrateFn:($,Cr)=>{const e=[["chat.mcp.enabled",{value:void 0}]];return $===!0&&e.push([n,{value:"all"}]),$===!1&&e.push([n,{value:"none"}]),e}}]);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import * as jsonContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { mcpAccessConfig } from "../../../../platform/mcp/common/mcpManagement.js";
+import { Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { Extensions as ConfigurationMigrationExtensions } from "../../../common/configuration.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { mcpSchemaId } from "../../../services/configuration/common/configuration.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { ExtensionMcpDiscovery } from "../common/discovery/extensionMcpDiscovery.js";
+import { InstalledMcpServersDiscovery } from "../common/discovery/installedMcpServersDiscovery.js";
+import { mcpDiscoveryRegistry } from "../common/discovery/mcpDiscovery.js";
+import { RemoteNativeMpcDiscovery } from "../common/discovery/nativeMcpRemoteDiscovery.js";
+import { CursorWorkspaceMcpDiscoveryAdapter } from "../common/discovery/workspaceMcpDiscoveryAdapter.js";
+import { mcpServerSchema } from "../common/mcpConfiguration.js";
+import { McpContextKeysController } from "../common/mcpContextKeys.js";
+import { IMcpDevModeDebugging, McpDevModeDebugging } from "../common/mcpDevMode.js";
+import { McpLanguageModelToolContribution } from "../common/mcpLanguageModelToolContribution.js";
+import { McpRegistry } from "../common/mcpRegistry.js";
+import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
+import { McpResourceFilesystem } from "../common/mcpResourceFilesystem.js";
+import { McpSamplingService } from "../common/mcpSamplingService.js";
+import { McpService } from "../common/mcpService.js";
+import { IMcpElicitationService, IMcpSamplingService, IMcpService, IMcpWorkbenchService } from "../common/mcpTypes.js";
+import { McpAddContextContribution } from "./mcpAddContextContribution.js";
+import { AddConfigurationAction, EditStoredInput, ListMcpServerCommand, McpBrowseCommand, McpBrowseResourcesCommand, McpConfigureSamplingModels, McpConfirmationServerOptionsCommand, MCPServerActionRendering, McpServerOptionsCommand, McpSkipCurrentAutostartCommand, McpStartPromptingServerCommand, OpenRemoteUserMcpResourceCommand, OpenUserMcpResourceCommand, OpenWorkspaceFolderMcpResourceCommand, OpenWorkspaceMcpResourceCommand, RemoveStoredInput, ResetMcpCachedTools, ResetMcpTrustCommand, RestartServer, ShowConfiguration, ShowInstalledMcpServersCommand, ShowOutput, StartServer, StopServer } from "./mcpCommands.js";
+import { McpDiscovery } from "./mcpDiscovery.js";
+import { McpElicitationService } from "./mcpElicitationService.js";
+import { McpLanguageFeatures } from "./mcpLanguageFeatures.js";
+import { McpConfigMigrationContribution } from "./mcpMigration.js";
+import { McpResourceQuickAccess } from "./mcpResourceQuickAccess.js";
+import { McpServerEditor } from "./mcpServerEditor.js";
+import { McpServerEditorInput } from "./mcpServerEditorInput.js";
+import { McpServersViewsContribution } from "./mcpServersView.js";
+import { MCPContextsInitialisation, McpWorkbenchService } from "./mcpWorkbenchService.js";
+registerSingleton(
+  IMcpRegistry,
+  McpRegistry,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IMcpService,
+  McpService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IMcpWorkbenchService,
+  McpWorkbenchService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  IMcpDevModeDebugging,
+  McpDevModeDebugging,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IMcpSamplingService,
+  McpSamplingService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IMcpElicitationService,
+  McpElicitationService,
+  1
+  /* InstantiationType.Delayed */
+);
+mcpDiscoveryRegistry.register(new SyncDescriptor(RemoteNativeMpcDiscovery));
+mcpDiscoveryRegistry.register(new SyncDescriptor(InstalledMcpServersDiscovery));
+mcpDiscoveryRegistry.register(new SyncDescriptor(ExtensionMcpDiscovery));
+mcpDiscoveryRegistry.register(new SyncDescriptor(CursorWorkspaceMcpDiscoveryAdapter));
+registerWorkbenchContribution2(
+  "mcpDiscovery",
+  McpDiscovery,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  "mcpContextKeys",
+  McpContextKeysController,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  "mcpLanguageFeatures",
+  McpLanguageFeatures,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  "mcpResourceFilesystem",
+  McpResourceFilesystem,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  McpLanguageModelToolContribution.ID,
+  McpLanguageModelToolContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerAction2(ListMcpServerCommand);
+registerAction2(McpServerOptionsCommand);
+registerAction2(McpConfirmationServerOptionsCommand);
+registerAction2(ResetMcpTrustCommand);
+registerAction2(ResetMcpCachedTools);
+registerAction2(AddConfigurationAction);
+registerAction2(RemoveStoredInput);
+registerAction2(EditStoredInput);
+registerAction2(StartServer);
+registerAction2(StopServer);
+registerAction2(ShowOutput);
+registerAction2(RestartServer);
+registerAction2(ShowConfiguration);
+registerAction2(McpBrowseCommand);
+registerAction2(OpenUserMcpResourceCommand);
+registerAction2(OpenRemoteUserMcpResourceCommand);
+registerAction2(OpenWorkspaceMcpResourceCommand);
+registerAction2(OpenWorkspaceFolderMcpResourceCommand);
+registerAction2(ShowInstalledMcpServersCommand);
+registerAction2(McpBrowseResourcesCommand);
+registerAction2(McpConfigureSamplingModels);
+registerAction2(McpStartPromptingServerCommand);
+registerAction2(McpSkipCurrentAutostartCommand);
+registerWorkbenchContribution2(
+  "mcpActionRendering",
+  MCPServerActionRendering,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  "mcpAddContext",
+  McpAddContextContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  MCPContextsInitialisation.ID,
+  MCPContextsInitialisation,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  McpConfigMigrationContribution.ID,
+  McpConfigMigrationContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  McpServersViewsContribution.ID,
+  McpServersViewsContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+const jsonRegistry = Registry.as(jsonContributionRegistry.Extensions.JSONContribution);
+jsonRegistry.registerSchema(mcpSchemaId, mcpServerSchema);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(McpServerEditor, McpServerEditor.ID, localize("mcpServer", "MCP Server")), [
+  new SyncDescriptor(McpServerEditorInput)
+]);
+Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+  ctor: McpResourceQuickAccess,
+  prefix: McpResourceQuickAccess.PREFIX,
+  when: ChatContextKeys.enabled,
+  placeholder: localize("mcp.quickaccess.placeholder", "Filter to an MCP resource"),
+  helpEntries: [{
+    description: localize("mcp.quickaccess.add", "MCP Server Resources"),
+    commandId: "workbench.mcp.addConfiguration"
+    /* McpCommandIds.AddConfiguration */
+  }]
+});
+Registry.as(ConfigurationMigrationExtensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "chat.mcp.enabled",
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    const result = [["chat.mcp.enabled", { value: void 0 }]];
+    if (value === true) {
+      result.push([mcpAccessConfig, {
+        value: "all"
+        /* McpAccessValue.All */
+      }]);
+    }
+    if (value === false) {
+      result.push([mcpAccessConfig, {
+        value: "none"
+        /* McpAccessValue.None */
+      }]);
+    }
+    return result;
+  }, "migrateFn")
+}]);
+//# sourceMappingURL=mcp.contribution.js.map

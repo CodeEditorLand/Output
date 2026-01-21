@@ -1,1 +1,32 @@
-import{$ak as e}from"../../../../base/common/codicons.js";import{localize as o}from"../../../../nls.js";import{$eu as l}from"../../../../platform/theme/common/iconRegistry.js";const i=l("terminal-view-icon",e.terminal,o(12892,null)),c=l("terminal-rename",e.edit,o(12893,null)),m=l("terminal-kill",e.trash,o(12894,null)),a=l("terminal-new",e.add,o(12895,null)),s=l("terminal-configure-profile",e.gear,o(12896,null)),u=l("terminal-decoration-mark",e.circleSmallFilled,o(12897,null)),p=l("terminal-decoration-incomplete",e.circle,o(12898,null)),$=l("terminal-decoration-error",e.errorSmall,o(12899,null)),b=l("terminal-decoration-success",e.circleFilled,o(12900,null)),X=l("terminal-command-history-remove",e.close,o(12901,null)),d=l("terminal-command-history-output",e.output,o(12902,null)),x=l("terminal-command-history-fuzzy-search",e.searchFuzzy,o(12903,null)),f=l("terminal-command-history-open-file",e.symbolReference,o(12904,null));export{s as $1Xb,u as $2Xb,p as $3Xb,$ as $4Xb,b as $5Xb,X as $6Xb,d as $7Xb,x as $8Xb,f as $9Xb,i as $WXb,c as $XXb,m as $YXb,a as $ZXb};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const terminalViewIcon = registerIcon("terminal-view-icon", Codicon.terminal, localize("terminalViewIcon", "View icon of the terminal view."));
+const renameTerminalIcon = registerIcon("terminal-rename", Codicon.edit, localize("renameTerminalIcon", "Icon for rename in the terminal quick menu."));
+const killTerminalIcon = registerIcon("terminal-kill", Codicon.trash, localize("killTerminalIcon", "Icon for killing a terminal instance."));
+const newTerminalIcon = registerIcon("terminal-new", Codicon.add, localize("newTerminalIcon", "Icon for creating a new terminal instance."));
+const configureTerminalProfileIcon = registerIcon("terminal-configure-profile", Codicon.gear, localize("configureTerminalProfileIcon", "Icon for creating a new terminal profile."));
+const terminalDecorationMark = registerIcon("terminal-decoration-mark", Codicon.circleSmallFilled, localize("terminalDecorationMark", "Icon for a terminal decoration mark."));
+const terminalDecorationIncomplete = registerIcon("terminal-decoration-incomplete", Codicon.circle, localize("terminalDecorationIncomplete", "Icon for a terminal decoration of a command that was incomplete."));
+const terminalDecorationError = registerIcon("terminal-decoration-error", Codicon.errorSmall, localize("terminalDecorationError", "Icon for a terminal decoration of a command that errored."));
+const terminalDecorationSuccess = registerIcon("terminal-decoration-success", Codicon.circleFilled, localize("terminalDecorationSuccess", "Icon for a terminal decoration of a command that was successful."));
+const commandHistoryRemoveIcon = registerIcon("terminal-command-history-remove", Codicon.close, localize("terminalCommandHistoryRemove", "Icon for removing a terminal command from command history."));
+const commandHistoryOutputIcon = registerIcon("terminal-command-history-output", Codicon.output, localize("terminalCommandHistoryOutput", "Icon for viewing output of a terminal command."));
+const commandHistoryFuzzySearchIcon = registerIcon("terminal-command-history-fuzzy-search", Codicon.searchFuzzy, localize("terminalCommandHistoryFuzzySearch", "Icon for toggling fuzzy search of command history."));
+const commandHistoryOpenFileIcon = registerIcon("terminal-command-history-open-file", Codicon.symbolReference, localize("terminalCommandHistoryOpenFile", "Icon for opening a shell history file."));
+export {
+  commandHistoryFuzzySearchIcon,
+  commandHistoryOpenFileIcon,
+  commandHistoryOutputIcon,
+  commandHistoryRemoveIcon,
+  configureTerminalProfileIcon,
+  killTerminalIcon,
+  newTerminalIcon,
+  renameTerminalIcon,
+  terminalDecorationError,
+  terminalDecorationIncomplete,
+  terminalDecorationMark,
+  terminalDecorationSuccess,
+  terminalViewIcon
+};
+//# sourceMappingURL=terminalIcons.js.map

@@ -1,1 +1,426 @@
-import{$Mb as g}from"../../../../../../base/common/arraysFind.js";import{$Th as x,$5h as v}from"../../../../../../base/common/async.js";import{$Ed as I,$Dd as R}from"../../../../../../base/common/lifecycle.js";import{$9D as b}from"../../../../../../editor/common/core/range.js";import{$nF as q}from"../../../../../../editor/common/model/prefixSumComputer.js";import{$9l as y}from"../../../../../../platform/configuration/common/configuration.js";import{$0Fb as E}from"./findMatchDecorationModel.js";import{CellEditState as c}from"../../notebookBrowser.js";import{CellKind as p,NotebookCellsChangeType as M}from"../../../common/notebookCommon.js";import{$rd as C}from"../../../../../../base/common/types.js";var S=function(o,t,i,n){var e=arguments.length,s=e<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,i,n);else for(var r=o.length-1;r>=0;r--)(a=o[r])&&(s=(e<3?a(s):e>3?a(t,i,s):a(t,i))||s);return e>3&&s&&Object.defineProperty(t,i,s),s},w=function(o,t){return function(i,n){t(i,n,o)}};class W{get length(){return this.a.length+this.b.length}get contentMatches(){return this.a}get webviewMatches(){return this.b}constructor(t,i,n,e){this.cell=t,this.index=i,this.a=n,this.b=e}getMatch(t){if(t>=this.length)throw new Error("NotebookCellFindMatch: index out of range");return t<this.a.length?this.a[t]:this.b[t-this.a.length]}}let m=class extends I{get findMatches(){return this.a}get currentMatch(){return this.f}constructor(t,i,n){super(),this.q=t,this.r=i,this.s=n,this.a=[],this.b=null,this.f=-1,this.h=null,this.j=this.D(new R),this.g=new v(20),this.h=null,this.D(i.onFindReplaceStateChange(e=>{this.t(e),(e.searchString||e.isRegex||e.matchCase||e.searchScope||e.wholeWord||e.isRevealed&&this.r.isRevealed||e.filters||e.isReplaceRevealed)&&this.research(),e.isRevealed&&!this.r.isRevealed&&this.clear()})),this.D(this.q.onDidChangeModel(e=>{this.w(e)})),this.D(this.q.onDidChangeCellState(e=>{e.cell.cellKind===p.Markup&&e.source.editStateChanged&&this.research()})),this.q.hasModel()&&this.w(this.q.textModel),this.n=new E(this.q,this.q.getId())}t(t){if(!this.r.filters?.markupInput||!this.r.filters?.markupPreview||!this.r.filters?.findScope)return;const i=()=>{const n=this.q.getViewModel();if(!n)return;const e=this.s.inspect("editor.wordSeparators").value,s={regex:this.r.isRegex,wholeWord:this.r.wholeWord,caseSensitive:this.r.matchCase,wordSeparators:e,includeMarkupInput:!0,includeCodeInput:!1,includeMarkupPreview:!1,includeOutput:!1,findScope:this.r.filters?.findScope},a=n.find(this.r.searchString,s);for(let r=0;r<n.length;r++){const h=n.cellAt(r);if(h&&h.cellKind===p.Markup){const d=a.find(u=>u.cell.handle===h.handle&&u.contentMatches.length>0)?c.Editing:c.Preview,f=h.getEditState();if(f===c.Editing&&h.editStateSource!=="find")continue;f!==d&&h.updateEditState(d,"find")}}};if(t.isReplaceRevealed&&!this.r.isReplaceRevealed){const n=this.q.getViewModel();if(!n)return;for(let e=0;e<n.length;e++){const s=n.cellAt(e);s&&s.cellKind===p.Markup&&s.getEditState()===c.Editing&&s.editStateSource==="find"&&s.updateEditState(c.Preview,"find")}return}(t.isReplaceRevealed||(t.filters||t.isRevealed||t.searchString||t.replaceString)&&this.r.isRevealed&&this.r.isReplaceRevealed)&&i()}ensureFindMatches(){this.b||this.y(this.a,!0)}getCurrentMatch(){const t=this.b.getIndexOf(this.f),i=this.a[t.index].cell,n=this.a[t.index].getMatch(t.remainder);return{cell:i,match:n,isModelMatch:t.remainder<this.a[t.index].contentMatches.length}}refreshCurrentMatch(t){const i=this.findMatches.findIndex(a=>a.cell===t.cell);if(i===-1)return;const e=this.findMatches[i].contentMatches.findIndex(a=>a.range.intersectRanges(t.range)!==null);if(e===void 0)return;const s=i===0?0:this.b?.getPrefixSum(i-1)??0;this.f=s+e,this.H(i,e).then(async a=>{await this.u(i,e,a),this.r.changeMatchInfo(this.f,this.a.reduce((r,h)=>r+h.length,0),void 0)})}find(t){if(!this.findMatches.length)return;if(!this.b)this.y(this.a,!0),C(t,{index:!0})&&(this.f=t.index);else{const n=this.b.getTotalSum();if(C(t,{index:!0}))this.f=t.index;else if(this.f===-1)this.f=t.previous?n-1:0;else{const e=(this.f+(t.previous?-1:1)+n)%n;this.f=e}}const i=this.b.getIndexOf(this.f);this.H(i.index,i.remainder).then(async n=>{await this.u(i.index,i.remainder,n),this.r.changeMatchInfo(this.f,this.a.reduce((e,s)=>e+s.length,0),void 0)})}async u(t,i,n){const e=this.a[t];if(i>=e.contentMatches.length)this.q.focusElement(e.cell),this.q.getCellIndex(e.cell)!==void 0&&this.q.revealCellOffsetInCenter(e.cell,n??0);else{const s=e.getMatch(i);e.cell.getEditState()!==c.Editing&&e.cell.updateEditState(c.Editing,"find"),e.cell.isInputCollapsed=!1,this.q.focusElement(e.cell),this.q.setCellEditorSelection(e.cell,s.range),await this.q.revealInView(e.cell),this.q.revealRangeInCenterIfOutsideViewportAsync(e.cell,s.range)}}w(t){this.j.clear(),t&&this.j.add(t.onDidChangeContent(i=>{i.rawEvents.some(n=>n.kind===M.ChangeCellContent||n.kind===M.ModelChange)&&this.research()})),this.research()}async research(){return this.g.trigger(async()=>{this.r.change({isSearching:!0},!1),await this._research(),this.r.change({isSearching:!1},!1)})}async _research(){if(this.h?.cancel(),!this.r.isRevealed||!this.q.hasModel()){this.y([],!1);return}this.h=x(r=>this.z(r));const t=await this.h;if(!t){this.y([],!1);return}if(t.length===0){this.y([],!1);return}const i=r=>{const h=g(t.map(l=>l.index),l=>l>=r);this.C(t,this.F(t,h))};if(this.f===-1)if(this.q.getLength()===0){this.y(t,!1);return}else{const r=this.q.getFocus().start;i(r),this.y(t,!1);return}const n=this.b.getIndexOf(this.f),e=this.a[n.index].cell,s=this.q.getCellIndex(e);if(s<0){if(this.q.getLength()===0){this.y(t,!1);return}i(s);return}const a=this.q.cellAt(s);if(a.cellKind===p.Markup&&a.getEditState()===c.Preview){i(s);return}if(!this.n.currentMatchDecorations){i(s);return}if(this.n.currentMatchDecorations.kind==="input"){const r=this.n.currentMatchDecorations.decorations.find(l=>l.ownerId===a.handle);if(!r){i(s);return}const h=g(t,l=>l.index>=s)%t.length;if(t[h].index>s){this.C(t,this.F(t,h));return}else{let l=a.editorAttached&&r.decorations[0]?a.getCellDecorationRange(r.decorations[0]):null;if(l===null&&n.remainder<this.a[n.index].contentMatches.length&&(l=this.a[n.index].getMatch(n.remainder).range),l!==null){const d=t[h],f=g(d.contentMatches,u=>b.compareRangesUsingStarts(u.range,l)>=0);this.C(t,this.F(t,h)+f)}else{this.C(t,this.F(t,h));return}}}else{const r=g(t.map(h=>h.index),h=>h>=s)%t.length;this.C(t,this.F(t,r))}}y(t,i){if(!t||!t.length){this.a=[],this.n.setAllFindMatchesDecorations([]),this.G(),this.f=-1,this.n.clearCurrentFindMatchDecoration(),this.r.changeMatchInfo(this.f,this.a.reduce((n,e)=>n+e.length,0),void 0);return}this.a=t,this.n.setAllFindMatchesDecorations(t||[]),this.G(),i&&(this.f=0,this.H(0,0)),this.r.changeMatchInfo(this.f,this.a.reduce((n,e)=>n+e.length,0),void 0)}async z(t){if(!this.q.hasModel())return null;let i=null;const n=this.r.searchString,e=this.s.inspect("editor.wordSeparators").value,s={regex:this.r.isRegex,wholeWord:this.r.wholeWord,caseSensitive:this.r.matchCase,wordSeparators:e,includeMarkupInput:this.r.filters?.markupInput??!0,includeCodeInput:this.r.filters?.codeInput??!0,includeMarkupPreview:!!this.r.filters?.markupPreview,includeOutput:!!this.r.filters?.codeOutput,findScope:this.r.filters?.findScope};return i=await this.q.find(n,s,t),t.isCancellationRequested?null:i}C(t,i){this.f=i%t.length,this.y(t,!1);const n=this.b.getIndexOf(this.f);this.H(n.index,n.remainder),this.r.changeMatchInfo(this.f,this.a.reduce((e,s)=>e+s.length,0),void 0)}F(t,i){let n=0;for(let e=0;e<i;e++)n+=t[e].length;return n}G(){if(this.a&&this.a.length){const t=new Uint32Array(this.a.length);for(let i=0;i<this.a.length;i++)t[i]=this.a[i].length;this.b=new q(t)}else this.b=null}async H(t,i){const n=this.a[t].cell,e=this.a[t].getMatch(i);return i<this.a[t].contentMatches.length?this.n.highlightCurrentFindMatchDecorationInCell(n,e.range):this.n.highlightCurrentFindMatchDecorationInWebview(n,e.index)}clear(){this.h?.cancel(),this.g.cancel(),this.y([],!1)}dispose(){this.n.dispose(),super.dispose()}};m=S([w(2,y)],m);export{W as $$Fb,m as $_Fb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { findFirstIdxMonotonousOrArrLen } from "../../../../../../base/common/arraysFind.js";
+import { createCancelablePromise, Delayer } from "../../../../../../base/common/async.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { PrefixSumComputer } from "../../../../../../editor/common/model/prefixSumComputer.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { FindMatchDecorationModel } from "./findMatchDecorationModel.js";
+import { CellEditState } from "../../notebookBrowser.js";
+import { CellKind, NotebookCellsChangeType } from "../../../common/notebookCommon.js";
+import { hasKey } from "../../../../../../base/common/types.js";
+class CellFindMatchModel {
+  static {
+    __name(this, "CellFindMatchModel");
+  }
+  get length() {
+    return this._contentMatches.length + this._webviewMatches.length;
+  }
+  get contentMatches() {
+    return this._contentMatches;
+  }
+  get webviewMatches() {
+    return this._webviewMatches;
+  }
+  constructor(cell, index, contentMatches, webviewMatches) {
+    this.cell = cell;
+    this.index = index;
+    this._contentMatches = contentMatches;
+    this._webviewMatches = webviewMatches;
+  }
+  getMatch(index) {
+    if (index >= this.length) {
+      throw new Error("NotebookCellFindMatch: index out of range");
+    }
+    if (index < this._contentMatches.length) {
+      return this._contentMatches[index];
+    }
+    return this._webviewMatches[index - this._contentMatches.length];
+  }
+}
+let FindModel = class FindModel2 extends Disposable {
+  static {
+    __name(this, "FindModel");
+  }
+  get findMatches() {
+    return this._findMatches;
+  }
+  get currentMatch() {
+    return this._currentMatch;
+  }
+  constructor(_notebookEditor, _state, _configurationService) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._state = _state;
+    this._configurationService = _configurationService;
+    this._findMatches = [];
+    this._findMatchesStarts = null;
+    this._currentMatch = -1;
+    this._computePromise = null;
+    this._modelDisposable = this._register(new DisposableStore());
+    this._throttledDelayer = new Delayer(20);
+    this._computePromise = null;
+    this._register(_state.onFindReplaceStateChange((e) => {
+      this._updateCellStates(e);
+      if (e.searchString || e.isRegex || e.matchCase || e.searchScope || e.wholeWord || e.isRevealed && this._state.isRevealed || e.filters || e.isReplaceRevealed) {
+        this.research();
+      }
+      if (e.isRevealed && !this._state.isRevealed) {
+        this.clear();
+      }
+    }));
+    this._register(this._notebookEditor.onDidChangeModel((e) => {
+      this._registerModelListener(e);
+    }));
+    this._register(this._notebookEditor.onDidChangeCellState((e) => {
+      if (e.cell.cellKind === CellKind.Markup && e.source.editStateChanged) {
+        this.research();
+      }
+    }));
+    if (this._notebookEditor.hasModel()) {
+      this._registerModelListener(this._notebookEditor.textModel);
+    }
+    this._findMatchDecorationModel = new FindMatchDecorationModel(this._notebookEditor, this._notebookEditor.getId());
+  }
+  _updateCellStates(e) {
+    if (!this._state.filters?.markupInput || !this._state.filters?.markupPreview || !this._state.filters?.findScope) {
+      return;
+    }
+    const updateEditingState = /* @__PURE__ */ __name(() => {
+      const viewModel = this._notebookEditor.getViewModel();
+      if (!viewModel) {
+        return;
+      }
+      const wordSeparators = this._configurationService.inspect("editor.wordSeparators").value;
+      const options = {
+        regex: this._state.isRegex,
+        wholeWord: this._state.wholeWord,
+        caseSensitive: this._state.matchCase,
+        wordSeparators,
+        includeMarkupInput: true,
+        includeCodeInput: false,
+        includeMarkupPreview: false,
+        includeOutput: false,
+        findScope: this._state.filters?.findScope
+      };
+      const contentMatches = viewModel.find(this._state.searchString, options);
+      for (let i = 0; i < viewModel.length; i++) {
+        const cell = viewModel.cellAt(i);
+        if (cell && cell.cellKind === CellKind.Markup) {
+          const foundContentMatch = contentMatches.find((m) => m.cell.handle === cell.handle && m.contentMatches.length > 0);
+          const targetState = foundContentMatch ? CellEditState.Editing : CellEditState.Preview;
+          const currentEditingState = cell.getEditState();
+          if (currentEditingState === CellEditState.Editing && cell.editStateSource !== "find") {
+            continue;
+          }
+          if (currentEditingState !== targetState) {
+            cell.updateEditState(targetState, "find");
+          }
+        }
+      }
+    }, "updateEditingState");
+    if (e.isReplaceRevealed && !this._state.isReplaceRevealed) {
+      const viewModel = this._notebookEditor.getViewModel();
+      if (!viewModel) {
+        return;
+      }
+      for (let i = 0; i < viewModel.length; i++) {
+        const cell = viewModel.cellAt(i);
+        if (cell && cell.cellKind === CellKind.Markup) {
+          if (cell.getEditState() === CellEditState.Editing && cell.editStateSource === "find") {
+            cell.updateEditState(CellEditState.Preview, "find");
+          }
+        }
+      }
+      return;
+    }
+    if (e.isReplaceRevealed) {
+      updateEditingState();
+    } else if ((e.filters || e.isRevealed || e.searchString || e.replaceString) && this._state.isRevealed && this._state.isReplaceRevealed) {
+      updateEditingState();
+    }
+  }
+  ensureFindMatches() {
+    if (!this._findMatchesStarts) {
+      this.set(this._findMatches, true);
+    }
+  }
+  getCurrentMatch() {
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    const cell = this._findMatches[nextIndex.index].cell;
+    const match = this._findMatches[nextIndex.index].getMatch(nextIndex.remainder);
+    return {
+      cell,
+      match,
+      isModelMatch: nextIndex.remainder < this._findMatches[nextIndex.index].contentMatches.length
+    };
+  }
+  refreshCurrentMatch(focus) {
+    const findMatchIndex = this.findMatches.findIndex((match) => match.cell === focus.cell);
+    if (findMatchIndex === -1) {
+      return;
+    }
+    const findMatch = this.findMatches[findMatchIndex];
+    const index = findMatch.contentMatches.findIndex((match) => match.range.intersectRanges(focus.range) !== null);
+    if (index === void 0) {
+      return;
+    }
+    const matchesBefore = findMatchIndex === 0 ? 0 : this._findMatchesStarts?.getPrefixSum(findMatchIndex - 1) ?? 0;
+    this._currentMatch = matchesBefore + index;
+    this.highlightCurrentFindMatchDecoration(findMatchIndex, index).then(async (offset) => {
+      await this.revealCellRange(findMatchIndex, index, offset);
+      this._state.changeMatchInfo(this._currentMatch, this._findMatches.reduce((p, c) => p + c.length, 0), void 0);
+    });
+  }
+  find(option) {
+    if (!this.findMatches.length) {
+      return;
+    }
+    if (!this._findMatchesStarts) {
+      this.set(this._findMatches, true);
+      if (hasKey(option, { index: true })) {
+        this._currentMatch = option.index;
+      }
+    } else {
+      const totalVal = this._findMatchesStarts.getTotalSum();
+      if (hasKey(option, { index: true })) {
+        this._currentMatch = option.index;
+      } else if (this._currentMatch === -1) {
+        this._currentMatch = option.previous ? totalVal - 1 : 0;
+      } else {
+        const nextVal = (this._currentMatch + (option.previous ? -1 : 1) + totalVal) % totalVal;
+        this._currentMatch = nextVal;
+      }
+    }
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    this.highlightCurrentFindMatchDecoration(nextIndex.index, nextIndex.remainder).then(async (offset) => {
+      await this.revealCellRange(nextIndex.index, nextIndex.remainder, offset);
+      this._state.changeMatchInfo(this._currentMatch, this._findMatches.reduce((p, c) => p + c.length, 0), void 0);
+    });
+  }
+  async revealCellRange(cellIndex, matchIndex, outputOffset) {
+    const findMatch = this._findMatches[cellIndex];
+    if (matchIndex >= findMatch.contentMatches.length) {
+      this._notebookEditor.focusElement(findMatch.cell);
+      const index = this._notebookEditor.getCellIndex(findMatch.cell);
+      if (index !== void 0) {
+        this._notebookEditor.revealCellOffsetInCenter(findMatch.cell, outputOffset ?? 0);
+      }
+    } else {
+      const match = findMatch.getMatch(matchIndex);
+      if (findMatch.cell.getEditState() !== CellEditState.Editing) {
+        findMatch.cell.updateEditState(CellEditState.Editing, "find");
+      }
+      findMatch.cell.isInputCollapsed = false;
+      this._notebookEditor.focusElement(findMatch.cell);
+      this._notebookEditor.setCellEditorSelection(findMatch.cell, match.range);
+      await this._notebookEditor.revealInView(findMatch.cell);
+      this._notebookEditor.revealRangeInCenterIfOutsideViewportAsync(findMatch.cell, match.range);
+    }
+  }
+  _registerModelListener(notebookTextModel) {
+    this._modelDisposable.clear();
+    if (notebookTextModel) {
+      this._modelDisposable.add(notebookTextModel.onDidChangeContent((e) => {
+        if (!e.rawEvents.some((event) => event.kind === NotebookCellsChangeType.ChangeCellContent || event.kind === NotebookCellsChangeType.ModelChange)) {
+          return;
+        }
+        this.research();
+      }));
+    }
+    this.research();
+  }
+  async research() {
+    return this._throttledDelayer.trigger(async () => {
+      this._state.change({ isSearching: true }, false);
+      await this._research();
+      this._state.change({ isSearching: false }, false);
+    });
+  }
+  async _research() {
+    this._computePromise?.cancel();
+    if (!this._state.isRevealed || !this._notebookEditor.hasModel()) {
+      this.set([], false);
+      return;
+    }
+    this._computePromise = createCancelablePromise((token) => this._compute(token));
+    const findMatches = await this._computePromise;
+    if (!findMatches) {
+      this.set([], false);
+      return;
+    }
+    if (findMatches.length === 0) {
+      this.set([], false);
+      return;
+    }
+    const findFirstMatchAfterCellIndex = /* @__PURE__ */ __name((cellIndex) => {
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches.map((match) => match.index), (index) => index >= cellIndex);
+      this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
+    }, "findFirstMatchAfterCellIndex");
+    if (this._currentMatch === -1) {
+      if (this._notebookEditor.getLength() === 0) {
+        this.set(findMatches, false);
+        return;
+      } else {
+        const focus = this._notebookEditor.getFocus().start;
+        findFirstMatchAfterCellIndex(focus);
+        this.set(findMatches, false);
+        return;
+      }
+    }
+    const oldCurrIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    const oldCurrCell = this._findMatches[oldCurrIndex.index].cell;
+    const oldCurrMatchCellIndex = this._notebookEditor.getCellIndex(oldCurrCell);
+    if (oldCurrMatchCellIndex < 0) {
+      if (this._notebookEditor.getLength() === 0) {
+        this.set(findMatches, false);
+        return;
+      }
+      findFirstMatchAfterCellIndex(oldCurrMatchCellIndex);
+      return;
+    }
+    const cell = this._notebookEditor.cellAt(oldCurrMatchCellIndex);
+    if (cell.cellKind === CellKind.Markup && cell.getEditState() === CellEditState.Preview) {
+      findFirstMatchAfterCellIndex(oldCurrMatchCellIndex);
+      return;
+    }
+    if (!this._findMatchDecorationModel.currentMatchDecorations) {
+      findFirstMatchAfterCellIndex(oldCurrMatchCellIndex);
+      return;
+    }
+    if (this._findMatchDecorationModel.currentMatchDecorations.kind === "input") {
+      const currentMatchDecorationId = this._findMatchDecorationModel.currentMatchDecorations.decorations.find((decoration) => decoration.ownerId === cell.handle);
+      if (!currentMatchDecorationId) {
+        findFirstMatchAfterCellIndex(oldCurrMatchCellIndex);
+        return;
+      }
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches, (match) => match.index >= oldCurrMatchCellIndex) % findMatches.length;
+      if (findMatches[matchAfterSelection].index > oldCurrMatchCellIndex) {
+        this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
+        return;
+      } else {
+        let currMatchRangeInEditor = cell.editorAttached && currentMatchDecorationId.decorations[0] ? cell.getCellDecorationRange(currentMatchDecorationId.decorations[0]) : null;
+        if (currMatchRangeInEditor === null && oldCurrIndex.remainder < this._findMatches[oldCurrIndex.index].contentMatches.length) {
+          currMatchRangeInEditor = this._findMatches[oldCurrIndex.index].getMatch(oldCurrIndex.remainder).range;
+        }
+        if (currMatchRangeInEditor !== null) {
+          const cellMatch = findMatches[matchAfterSelection];
+          const matchAfterOldSelection = findFirstIdxMonotonousOrArrLen(cellMatch.contentMatches, (match) => Range.compareRangesUsingStarts(match.range, currMatchRangeInEditor) >= 0);
+          this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection) + matchAfterOldSelection);
+        } else {
+          this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
+          return;
+        }
+      }
+    } else {
+      const matchAfterSelection = findFirstIdxMonotonousOrArrLen(findMatches.map((match) => match.index), (index) => index >= oldCurrMatchCellIndex) % findMatches.length;
+      this._updateCurrentMatch(findMatches, this._matchesCountBeforeIndex(findMatches, matchAfterSelection));
+    }
+  }
+  set(cellFindMatches, autoStart) {
+    if (!cellFindMatches || !cellFindMatches.length) {
+      this._findMatches = [];
+      this._findMatchDecorationModel.setAllFindMatchesDecorations([]);
+      this.constructFindMatchesStarts();
+      this._currentMatch = -1;
+      this._findMatchDecorationModel.clearCurrentFindMatchDecoration();
+      this._state.changeMatchInfo(this._currentMatch, this._findMatches.reduce((p, c) => p + c.length, 0), void 0);
+      return;
+    }
+    this._findMatches = cellFindMatches;
+    this._findMatchDecorationModel.setAllFindMatchesDecorations(cellFindMatches || []);
+    this.constructFindMatchesStarts();
+    if (autoStart) {
+      this._currentMatch = 0;
+      this.highlightCurrentFindMatchDecoration(0, 0);
+    }
+    this._state.changeMatchInfo(this._currentMatch, this._findMatches.reduce((p, c) => p + c.length, 0), void 0);
+  }
+  async _compute(token) {
+    if (!this._notebookEditor.hasModel()) {
+      return null;
+    }
+    let ret = null;
+    const val = this._state.searchString;
+    const wordSeparators = this._configurationService.inspect("editor.wordSeparators").value;
+    const options = {
+      regex: this._state.isRegex,
+      wholeWord: this._state.wholeWord,
+      caseSensitive: this._state.matchCase,
+      wordSeparators,
+      includeMarkupInput: this._state.filters?.markupInput ?? true,
+      includeCodeInput: this._state.filters?.codeInput ?? true,
+      includeMarkupPreview: !!this._state.filters?.markupPreview,
+      includeOutput: !!this._state.filters?.codeOutput,
+      findScope: this._state.filters?.findScope
+    };
+    ret = await this._notebookEditor.find(val, options, token);
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    return ret;
+  }
+  _updateCurrentMatch(findMatches, currentMatchesPosition) {
+    this._currentMatch = currentMatchesPosition % findMatches.length;
+    this.set(findMatches, false);
+    const nextIndex = this._findMatchesStarts.getIndexOf(this._currentMatch);
+    this.highlightCurrentFindMatchDecoration(nextIndex.index, nextIndex.remainder);
+    this._state.changeMatchInfo(this._currentMatch, this._findMatches.reduce((p, c) => p + c.length, 0), void 0);
+  }
+  _matchesCountBeforeIndex(findMatches, index) {
+    let prevMatchesCount = 0;
+    for (let i = 0; i < index; i++) {
+      prevMatchesCount += findMatches[i].length;
+    }
+    return prevMatchesCount;
+  }
+  constructFindMatchesStarts() {
+    if (this._findMatches && this._findMatches.length) {
+      const values = new Uint32Array(this._findMatches.length);
+      for (let i = 0; i < this._findMatches.length; i++) {
+        values[i] = this._findMatches[i].length;
+      }
+      this._findMatchesStarts = new PrefixSumComputer(values);
+    } else {
+      this._findMatchesStarts = null;
+    }
+  }
+  async highlightCurrentFindMatchDecoration(cellIndex, matchIndex) {
+    const cell = this._findMatches[cellIndex].cell;
+    const match = this._findMatches[cellIndex].getMatch(matchIndex);
+    if (matchIndex < this._findMatches[cellIndex].contentMatches.length) {
+      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInCell(cell, match.range);
+    } else {
+      return this._findMatchDecorationModel.highlightCurrentFindMatchDecorationInWebview(cell, match.index);
+    }
+  }
+  clear() {
+    this._computePromise?.cancel();
+    this._throttledDelayer.cancel();
+    this.set([], false);
+  }
+  dispose() {
+    this._findMatchDecorationModel.dispose();
+    super.dispose();
+  }
+};
+FindModel = __decorate([
+  __param(2, IConfigurationService)
+], FindModel);
+export {
+  CellFindMatchModel,
+  FindModel
+};
+//# sourceMappingURL=findModel.js.map

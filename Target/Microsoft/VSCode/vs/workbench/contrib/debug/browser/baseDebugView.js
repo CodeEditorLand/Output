@@ -1,1 +1,207 @@
-import*as a from"../../../../base/browser/dom.js";import{$G9 as v}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$T$ as x}from"../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";import{$E9 as E}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$J$ as B}from"../../../../base/browser/ui/inputbox/inputBox.js";import{$ak as w}from"../../../../base/common/codicons.js";import{$2j as D}from"../../../../base/common/filters.js";import{$Eb as I}from"../../../../base/common/functional.js";import{$Dd as $,$zd as z,$Cd as C}from"../../../../base/common/lifecycle.js";import{$Lg as V}from"../../../../base/common/strings.js";import{ThemeIcon as _}from"../../../../base/common/themables.js";import{localize as L}from"../../../../nls.js";import{$5hb as M}from"../../../../platform/contextview/browser/contextView.js";import{$7ib as S}from"../../../../platform/hover/browser/hover.js";import{$Dib as A}from"../../../../platform/theme/browser/defaultStyles.js";import{$EY as g}from"../common/debug.js";import{$cW as F}from"../common/debugModel.js";import{$8V as N}from"../common/debugVisualizers.js";var y=function(r,t,n,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,n,e);else for(var c=r.length-1;c>=0;c--)(i=r[c])&&(s=(o<3?i(s):o>3?i(t,n,s):i(t,n))||s);return o>3&&s&&Object.defineProperty(t,n,s),s},u=function(r,t){return function(n,e){t(n,e,r)}};const p=a.$;function ee(r){const t=p(".");return t.classList.add("debug-view-content","file-icon-themable-tree"),r.appendChild(t),t}const te=(r,t)=>{const n=r.name.length,e=r.name.length+2,o=[],s=[];for(const i of t)i.start<n&&o.push({start:i.start,end:Math.min(i.end,n)}),i.end>e&&s.push({start:Math.max(i.start-e,0),end:i.end-e});return{name:o,value:s}},se={getKeyboardNavigationLabel(r){const t=r.getSession()?.rememberedCapabilities?.supportsANSIStyling;return`${r.name}: ${t?V(r.value):r.value}`}};let h=class{constructor(t,n){this.a=t,this.b=n}async getChildren(t){const n=this.a.getViewModel(),e=await this.c(t);return Promise.all(e.map(async o=>{const s=n.getVisualizedExpression(o);if(typeof s=="string"){const i=await this.b.getVisualizedNodeFor(s,o);if(i)return n.setVisualizedExpression(o,i),i}else if(s)return s;return o}))}};h=y([u(0,g),u(1,N)],h);let b=class{constructor(t,n,e){this.a=t,this.b=n,this.c=e}renderTemplate(t){const n=new $,e=a.$I8(t,p(".expression")),o=a.$I8(e,p("span.name")),s=a.$I8(e,p("span.lazy-button"));s.classList.add(..._.asClassNameArray(w.eye)),n.add(this.c.setupManagedHover(E("mouse"),s,L(7252,null)));const i=a.$I8(e,p("span.type")),c=a.$I8(e,p("span.value")),l=n.add(new x(o)),f=a.$I8(e,p(".inputBoxContainer"));let m;this.h&&(a.$I8(e,p(".span.actionbar-spacer")),m=n.add(new v(e)));const d={expression:e,name:o,type:i,value:c,label:l,inputBoxContainer:f,actionBar:m,elementDisposable:new $,templateDisposable:n,lazyButton:s,currentElement:void 0};return n.add(a.$F7(s,a.$B8.CLICK,()=>{d.currentElement&&this.a.getViewModel().evaluateLazyExpression(d.currentElement)})),d}d(t,n,e){e.currentElement=t,this.f(n.element,e,D(n.filterData)),e.actionBar&&this.h(e.actionBar,t,e);const o=this.a.getViewModel().getSelectedExpression();if(t===o?.expression||t instanceof F&&t.errorMessage){const s=this.g(t,!!o?.settingWatch);s&&e.elementDisposable.add(this.renderInputBox(e.name,e.value,e.inputBoxContainer,s))}}renderInputBox(t,n,e,o){t.style.display="none",n.style.display="none",e.style.display="initial",a.$E7(e);const s=new B(e,this.b,{...o,inputBoxStyles:A});s.value=o.initialValue,s.focus(),s.select();const i=I((l,f)=>{t.style.display="",n.style.display="",e.style.display="none";const m=s.value;z(c),f&&(this.a.getViewModel().setSelectedExpression(void 0,!1),o.onFinish(m,l))}),c=[s,a.$G7(s.inputElement,a.$B8.KEY_DOWN,l=>{const f=l.equals(9),m=l.equals(3);(f||m)&&(l.preventDefault(),l.stopPropagation(),i(m,!0))}),a.$F7(s.inputElement,a.$B8.BLUR,()=>{i(!0,!0)}),a.$F7(s.inputElement,a.$B8.CLICK,l=>{l.preventDefault(),l.stopPropagation()})];return C(()=>{i(!1,!1)})}disposeElement(t,n,e){e.elementDisposable.clear()}disposeTemplate(t){t.elementDisposable.dispose(),t.templateDisposable.dispose()}};b=y([u(0,g),u(1,M),u(2,S)],b);export{ee as $rfc,te as $sfc,se as $tfc,h as $ufc,b as $vfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { InputBox } from "../../../../base/browser/ui/inputbox/inputBox.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { createMatches } from "../../../../base/common/filters.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import { DisposableStore, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { removeAnsiEscapeCodes } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { defaultInputBoxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IDebugService } from "../common/debug.js";
+import { Variable } from "../common/debugModel.js";
+import { IDebugVisualizerService } from "../common/debugVisualizers.js";
+const $ = dom.$;
+function renderViewTree(container) {
+  const treeContainer = $(".");
+  treeContainer.classList.add("debug-view-content", "file-icon-themable-tree");
+  container.appendChild(treeContainer);
+  return treeContainer;
+}
+__name(renderViewTree, "renderViewTree");
+const splitExpressionOrScopeHighlights = /* @__PURE__ */ __name((e, highlights) => {
+  const nameEndsAt = e.name.length;
+  const labelBeginsAt = e.name.length + 2;
+  const name = [];
+  const value = [];
+  for (const hl of highlights) {
+    if (hl.start < nameEndsAt) {
+      name.push({ start: hl.start, end: Math.min(hl.end, nameEndsAt) });
+    }
+    if (hl.end > labelBeginsAt) {
+      value.push({ start: Math.max(hl.start - labelBeginsAt, 0), end: hl.end - labelBeginsAt });
+    }
+  }
+  return { name, value };
+}, "splitExpressionOrScopeHighlights");
+const expressionAndScopeLabelProvider = {
+  getKeyboardNavigationLabel(e) {
+    const stripAnsi = e.getSession()?.rememberedCapabilities?.supportsANSIStyling;
+    return `${e.name}: ${stripAnsi ? removeAnsiEscapeCodes(e.value) : e.value}`;
+  }
+};
+let AbstractExpressionDataSource = class AbstractExpressionDataSource2 {
+  static {
+    __name(this, "AbstractExpressionDataSource");
+  }
+  constructor(debugService, debugVisualizer) {
+    this.debugService = debugService;
+    this.debugVisualizer = debugVisualizer;
+  }
+  async getChildren(element) {
+    const vm = this.debugService.getViewModel();
+    const children = await this.doGetChildren(element);
+    return Promise.all(children.map(async (r) => {
+      const vizOrTree = vm.getVisualizedExpression(r);
+      if (typeof vizOrTree === "string") {
+        const viz = await this.debugVisualizer.getVisualizedNodeFor(vizOrTree, r);
+        if (viz) {
+          vm.setVisualizedExpression(r, viz);
+          return viz;
+        }
+      } else if (vizOrTree) {
+        return vizOrTree;
+      }
+      return r;
+    }));
+  }
+};
+AbstractExpressionDataSource = __decorate([
+  __param(0, IDebugService),
+  __param(1, IDebugVisualizerService)
+], AbstractExpressionDataSource);
+let AbstractExpressionsRenderer = class AbstractExpressionsRenderer2 {
+  static {
+    __name(this, "AbstractExpressionsRenderer");
+  }
+  constructor(debugService, contextViewService, hoverService) {
+    this.debugService = debugService;
+    this.contextViewService = contextViewService;
+    this.hoverService = hoverService;
+  }
+  renderTemplate(container) {
+    const templateDisposable = new DisposableStore();
+    const expression = dom.append(container, $(".expression"));
+    const name = dom.append(expression, $("span.name"));
+    const lazyButton = dom.append(expression, $("span.lazy-button"));
+    lazyButton.classList.add(...ThemeIcon.asClassNameArray(Codicon.eye));
+    templateDisposable.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), lazyButton, localize("debug.lazyButton.tooltip", "Click to expand")));
+    const type = dom.append(expression, $("span.type"));
+    const value = dom.append(expression, $("span.value"));
+    const label = templateDisposable.add(new HighlightedLabel(name));
+    const inputBoxContainer = dom.append(expression, $(".inputBoxContainer"));
+    let actionBar;
+    if (this.renderActionBar) {
+      dom.append(expression, $(".span.actionbar-spacer"));
+      actionBar = templateDisposable.add(new ActionBar(expression));
+    }
+    const template = { expression, name, type, value, label, inputBoxContainer, actionBar, elementDisposable: new DisposableStore(), templateDisposable, lazyButton, currentElement: void 0 };
+    templateDisposable.add(dom.addDisposableListener(lazyButton, dom.EventType.CLICK, () => {
+      if (template.currentElement) {
+        this.debugService.getViewModel().evaluateLazyExpression(template.currentElement);
+      }
+    }));
+    return template;
+  }
+  renderExpressionElement(element, node, data) {
+    data.currentElement = element;
+    this.renderExpression(node.element, data, createMatches(node.filterData));
+    if (data.actionBar) {
+      this.renderActionBar(data.actionBar, element, data);
+    }
+    const selectedExpression = this.debugService.getViewModel().getSelectedExpression();
+    if (element === selectedExpression?.expression || element instanceof Variable && element.errorMessage) {
+      const options = this.getInputBoxOptions(element, !!selectedExpression?.settingWatch);
+      if (options) {
+        data.elementDisposable.add(this.renderInputBox(data.name, data.value, data.inputBoxContainer, options));
+      }
+    }
+  }
+  renderInputBox(nameElement, valueElement, inputBoxContainer, options) {
+    nameElement.style.display = "none";
+    valueElement.style.display = "none";
+    inputBoxContainer.style.display = "initial";
+    dom.clearNode(inputBoxContainer);
+    const inputBox = new InputBox(inputBoxContainer, this.contextViewService, { ...options, inputBoxStyles: defaultInputBoxStyles });
+    inputBox.value = options.initialValue;
+    inputBox.focus();
+    inputBox.select();
+    const done = createSingleCallFunction((success, finishEditing) => {
+      nameElement.style.display = "";
+      valueElement.style.display = "";
+      inputBoxContainer.style.display = "none";
+      const value = inputBox.value;
+      dispose(toDispose);
+      if (finishEditing) {
+        this.debugService.getViewModel().setSelectedExpression(void 0, false);
+        options.onFinish(value, success);
+      }
+    });
+    const toDispose = [
+      inputBox,
+      dom.addStandardDisposableListener(inputBox.inputElement, dom.EventType.KEY_DOWN, (e) => {
+        const isEscape = e.equals(
+          9
+          /* KeyCode.Escape */
+        );
+        const isEnter = e.equals(
+          3
+          /* KeyCode.Enter */
+        );
+        if (isEscape || isEnter) {
+          e.preventDefault();
+          e.stopPropagation();
+          done(isEnter, true);
+        }
+      }),
+      dom.addDisposableListener(inputBox.inputElement, dom.EventType.BLUR, () => {
+        done(true, true);
+      }),
+      dom.addDisposableListener(inputBox.inputElement, dom.EventType.CLICK, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+    ];
+    return toDisposable(() => {
+      done(false, false);
+    });
+  }
+  disposeElement(node, index, templateData) {
+    templateData.elementDisposable.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposable.dispose();
+    templateData.templateDisposable.dispose();
+  }
+};
+AbstractExpressionsRenderer = __decorate([
+  __param(0, IDebugService),
+  __param(1, IContextViewService),
+  __param(2, IHoverService)
+], AbstractExpressionsRenderer);
+export {
+  AbstractExpressionDataSource,
+  AbstractExpressionsRenderer,
+  expressionAndScopeLabelProvider,
+  renderViewTree,
+  splitExpressionOrScopeHighlights
+};
+//# sourceMappingURL=baseDebugView.js.map

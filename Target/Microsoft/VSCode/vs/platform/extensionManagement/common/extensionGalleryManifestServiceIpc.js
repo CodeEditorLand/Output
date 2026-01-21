@@ -1,1 +1,61 @@
-import{$7h as u}from"../../../base/common/async.js";import{$wf as o,Event as p}from"../../../base/common/event.js";import{$Un as m}from"../../product/common/productService.js";import{$Q6 as v}from"./extensionGalleryManifestService.js";var f=function(s,t,n,i){var r=arguments.length,e=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,n):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,n,i);else for(var l=s.length-1;l>=0;l--)(a=s[l])&&(e=(r<3?a(e):r>3?a(t,n,e):a(t,n))||e);return r>3&&e&&Object.defineProperty(t,n,e),e},c=function(s,t){return function(n,i){t(n,i,s)}};let h=class extends v{get extensionGalleryManifestStatus(){return this.f?"available":"unavailable"}constructor(t,n){super(n),this.b=this.D(new o),this.onDidChangeExtensionGalleryManifest=this.b.event,this.c=this.D(new o),this.onDidChangeExtensionGalleryManifestStatus=this.c.event,this.g=new u,t.registerChannel("extensionGalleryManifest",{listen:()=>p.None,call:async(i,r,e)=>{if(r==="setExtensionGalleryManifest")return Promise.resolve(this.h(e[0]));throw new Error("Invalid call")}})}async getExtensionGalleryManifest(){return await this.g.wait(),this.f??null}h(t){this.f=t,this.b.fire(t),this.c.fire(this.extensionGalleryManifestStatus),this.g.open()}};h=f([c(1,m)],h);export{h as $R6};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Barrier } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IProductService } from "../../product/common/productService.js";
+import { ExtensionGalleryManifestService } from "./extensionGalleryManifestService.js";
+let ExtensionGalleryManifestIPCService = class ExtensionGalleryManifestIPCService2 extends ExtensionGalleryManifestService {
+  static {
+    __name(this, "ExtensionGalleryManifestIPCService");
+  }
+  get extensionGalleryManifestStatus() {
+    return this._extensionGalleryManifest ? "available" : "unavailable";
+  }
+  constructor(server, productService) {
+    super(productService);
+    this._onDidChangeExtensionGalleryManifest = this._register(new Emitter());
+    this.onDidChangeExtensionGalleryManifest = this._onDidChangeExtensionGalleryManifest.event;
+    this._onDidChangeExtensionGalleryManifestStatus = this._register(new Emitter());
+    this.onDidChangeExtensionGalleryManifestStatus = this._onDidChangeExtensionGalleryManifestStatus.event;
+    this.barrier = new Barrier();
+    server.registerChannel("extensionGalleryManifest", {
+      listen: /* @__PURE__ */ __name(() => Event.None, "listen"),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      call: /* @__PURE__ */ __name(async (context, command, args) => {
+        switch (command) {
+          case "setExtensionGalleryManifest":
+            return Promise.resolve(this.setExtensionGalleryManifest(args[0]));
+        }
+        throw new Error("Invalid call");
+      }, "call")
+    });
+  }
+  async getExtensionGalleryManifest() {
+    await this.barrier.wait();
+    return this._extensionGalleryManifest ?? null;
+  }
+  setExtensionGalleryManifest(manifest) {
+    this._extensionGalleryManifest = manifest;
+    this._onDidChangeExtensionGalleryManifest.fire(manifest);
+    this._onDidChangeExtensionGalleryManifestStatus.fire(this.extensionGalleryManifestStatus);
+    this.barrier.open();
+  }
+};
+ExtensionGalleryManifestIPCService = __decorate([
+  __param(1, IProductService)
+], ExtensionGalleryManifestIPCService);
+export {
+  ExtensionGalleryManifestIPCService
+};
+//# sourceMappingURL=extensionGalleryManifestServiceIpc.js.map

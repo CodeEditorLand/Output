@@ -1,1 +1,23 @@
-import{$wE as t,$xE as r}from"../edits/stringEdit.js";import{$CE as o,$DE as e}from"../edits/textEdit.js";import{$kE as i}from"./positionToOffsetImpl.js";import{$iE as m}from"./textLength.js";import{$jE as x,$lE as T}from"./positionToOffsetImpl.js";i({StringEdit:t,StringReplacement:r,TextReplacement:e,TextEdit:o,TextLength:m});function $(){}export{$ as $6db,T as PositionOffsetTransformer,x as PositionOffsetTransformerBase};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { StringEdit, StringReplacement } from "../edits/stringEdit.js";
+import { TextEdit, TextReplacement } from "../edits/textEdit.js";
+import { _setPositionOffsetTransformerDependencies } from "./positionToOffsetImpl.js";
+import { TextLength } from "./textLength.js";
+import { PositionOffsetTransformerBase, PositionOffsetTransformer } from "./positionToOffsetImpl.js";
+_setPositionOffsetTransformerDependencies({
+  StringEdit,
+  StringReplacement,
+  TextReplacement,
+  TextEdit,
+  TextLength
+});
+function ensureDependenciesAreSet() {
+}
+__name(ensureDependenciesAreSet, "ensureDependenciesAreSet");
+export {
+  PositionOffsetTransformer,
+  PositionOffsetTransformerBase,
+  ensureDependenciesAreSet
+};
+//# sourceMappingURL=positionToOffset.js.map

@@ -1,1 +1,45 @@
-import*as s from"../../../../base/browser/dom.js";import{$Ed as r}from"../../../../base/common/lifecycle.js";class n extends r{constructor(D,o){super();const i=()=>{o()?.windowDidDragStart()},$=()=>{o()?.windowDidDragEnd()};this.D(s.$F7(D,s.$B8.DRAG_START,()=>{i()})),this.D(s.$F7(D,s.$B8.DRAG_END,$)),this.D(s.$F7(D,s.$B8.MOUSE_MOVE,t=>{t.buttons===0&&$()})),this.D(s.$F7(D,s.$B8.DRAG,t=>{t.shiftKey?$():i()})),this.D(s.$F7(D,s.$B8.DRAG_OVER,t=>{t.shiftKey?$():i()}))}}export{n as $sGb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+class WebviewWindowDragMonitor extends Disposable {
+  static {
+    __name(this, "WebviewWindowDragMonitor");
+  }
+  constructor(targetWindow, getWebview) {
+    super();
+    const onDragStart = /* @__PURE__ */ __name(() => {
+      getWebview()?.windowDidDragStart();
+    }, "onDragStart");
+    const onDragEnd = /* @__PURE__ */ __name(() => {
+      getWebview()?.windowDidDragEnd();
+    }, "onDragEnd");
+    this._register(DOM.addDisposableListener(targetWindow, DOM.EventType.DRAG_START, () => {
+      onDragStart();
+    }));
+    this._register(DOM.addDisposableListener(targetWindow, DOM.EventType.DRAG_END, onDragEnd));
+    this._register(DOM.addDisposableListener(targetWindow, DOM.EventType.MOUSE_MOVE, (currentEvent) => {
+      if (currentEvent.buttons === 0) {
+        onDragEnd();
+      }
+    }));
+    this._register(DOM.addDisposableListener(targetWindow, DOM.EventType.DRAG, (event) => {
+      if (event.shiftKey) {
+        onDragEnd();
+      } else {
+        onDragStart();
+      }
+    }));
+    this._register(DOM.addDisposableListener(targetWindow, DOM.EventType.DRAG_OVER, (event) => {
+      if (event.shiftKey) {
+        onDragEnd();
+      } else {
+        onDragStart();
+      }
+    }));
+  }
+}
+export {
+  WebviewWindowDragMonitor
+};
+//# sourceMappingURL=webviewWindowDragMonitor.js.map

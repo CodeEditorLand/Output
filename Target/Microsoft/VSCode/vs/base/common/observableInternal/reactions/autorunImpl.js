@@ -1,1 +1,242 @@
-import{assertFn as o,BugIndicatingError as a,DisposableStore as d,markAsDisposed as f,onBugIndicatingError as r,trackDisposable as c}from"../commonFacade/deps.js";import{$Qe as n}from"../logging/logging.js";var u;(function(i){i[i.dependenciesMightHaveChanged=1]="dependenciesMightHaveChanged",i[i.stale=2]="stale",i[i.upToDate=3]="upToDate"})(u||(u={}));function g(i){switch(i){case 1:return"dependenciesMightHaveChanged";case 2:return"stale";case 3:return"upToDate";default:return"<unknown>"}}class m{get debugName(){return this._debugNameData.getDebugName(this)??"(anonymous)"}constructor(t,e,s,h){this._debugNameData=t,this._runFn=e,this.k=s,this.a=2,this.b=0,this.c=!1,this.f=new Set,this.g=new Set,this.i=!1,this.j=0,this.p=void 0,this.q=void 0,this.h=this.k?.createChangeSummary(void 0),n()?.handleAutorunCreated(this,h),this.l(),c(this)}dispose(){if(!this.c){this.c=!0;for(const t of this.f)t.removeObserver(this);this.f.clear(),this.p!==void 0&&this.p.dispose(),this.q!==void 0&&this.q.dispose(),n()?.handleAutorunDisposed(this),f(this)}}l(){const t=this.g;this.g=this.f,this.f=t,this.a=3;try{if(!this.c){n()?.handleAutorunStarted(this);const e=this.h,s=this.q;s!==void 0&&(this.q=void 0);try{this.i=!0,this.k&&(this.k.beforeUpdate?.(this,e),this.h=this.k.createChangeSummary(e)),this.p!==void 0&&(this.p.dispose(),this.p=void 0),this._runFn(this,e)}catch(h){r(h)}finally{this.i=!1,s!==void 0&&s.dispose()}}}finally{this.c||n()?.handleAutorunFinished(this);for(const e of this.g)e.removeObserver(this);this.g.clear()}}toString(){return`Autorun<${this.debugName}>`}beginUpdate(t){this.a===3&&(this.r(),this.a=1),this.b++}endUpdate(t){try{if(this.b===1){this.j=1;do{if(this.r())return;if(this.a===1){this.a=3;for(const e of this.f)if(e.reportChanges(),this.a===2)break}this.j++,this.a!==3&&this.l()}while(this.a!==3)}}finally{this.b--}o(()=>this.b>=0)}handlePossibleChange(t){this.a===3&&this.m(t)&&(this.r(),this.a=1)}handleChange(t,e){if(this.m(t)){n()?.handleAutorunDependencyChanged(this,t,e);try{(!this.k||this.k.handleChange({changedObservable:t,change:e,didChange:h=>h===t},this.h))&&(this.r(),this.a=2)}catch(s){r(s)}}}m(t){return this.f.has(t)&&!this.g.has(t)}n(){if(!this.i)throw new a("The reader object cannot be used outside its compute function!")}readObservable(t){if(this.n(),this.c)return t.get();t.addObserver(this);const e=t.get();return this.f.add(t),this.g.delete(t),e}get store(){if(this.n(),this.c)throw new a("Cannot access store after dispose");return this.p===void 0&&(this.p=new d),this.p}get delayedStore(){if(this.n(),this.c)throw new a("Cannot access store after dispose");return this.q===void 0&&(this.q=new d),this.q}debugGetState(){return{isRunning:this.i,updateCount:this.b,dependencies:this.f,state:this.a,stateStr:g(this.a)}}debugRerun(){this.i?this.a=2:this.l()}r(){return this.j>100?(r(new a(`Autorun '${this.debugName}' is stuck in an infinite update loop.`)),!0):!1}}export{m as $$d,u as AutorunState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertFn, BugIndicatingError, DisposableStore, markAsDisposed, onBugIndicatingError, trackDisposable } from "../commonFacade/deps.js";
+import { getLogger } from "../logging/logging.js";
+var AutorunState;
+(function(AutorunState2) {
+  AutorunState2[AutorunState2["dependenciesMightHaveChanged"] = 1] = "dependenciesMightHaveChanged";
+  AutorunState2[AutorunState2["stale"] = 2] = "stale";
+  AutorunState2[AutorunState2["upToDate"] = 3] = "upToDate";
+})(AutorunState || (AutorunState = {}));
+function autorunStateToString(state) {
+  switch (state) {
+    case 1:
+      return "dependenciesMightHaveChanged";
+    case 2:
+      return "stale";
+    case 3:
+      return "upToDate";
+    default:
+      return "<unknown>";
+  }
+}
+__name(autorunStateToString, "autorunStateToString");
+class AutorunObserver {
+  static {
+    __name(this, "AutorunObserver");
+  }
+  get debugName() {
+    return this._debugNameData.getDebugName(this) ?? "(anonymous)";
+  }
+  constructor(_debugNameData, _runFn, _changeTracker, debugLocation) {
+    this._debugNameData = _debugNameData;
+    this._runFn = _runFn;
+    this._changeTracker = _changeTracker;
+    this._state = 2;
+    this._updateCount = 0;
+    this._disposed = false;
+    this._dependencies = /* @__PURE__ */ new Set();
+    this._dependenciesToBeRemoved = /* @__PURE__ */ new Set();
+    this._isRunning = false;
+    this._iteration = 0;
+    this._store = void 0;
+    this._delayedStore = void 0;
+    this._changeSummary = this._changeTracker?.createChangeSummary(void 0);
+    getLogger()?.handleAutorunCreated(this, debugLocation);
+    this._run();
+    trackDisposable(this);
+  }
+  dispose() {
+    if (this._disposed) {
+      return;
+    }
+    this._disposed = true;
+    for (const o of this._dependencies) {
+      o.removeObserver(this);
+    }
+    this._dependencies.clear();
+    if (this._store !== void 0) {
+      this._store.dispose();
+    }
+    if (this._delayedStore !== void 0) {
+      this._delayedStore.dispose();
+    }
+    getLogger()?.handleAutorunDisposed(this);
+    markAsDisposed(this);
+  }
+  _run() {
+    const emptySet = this._dependenciesToBeRemoved;
+    this._dependenciesToBeRemoved = this._dependencies;
+    this._dependencies = emptySet;
+    this._state = 3;
+    try {
+      if (!this._disposed) {
+        getLogger()?.handleAutorunStarted(this);
+        const changeSummary = this._changeSummary;
+        const delayedStore = this._delayedStore;
+        if (delayedStore !== void 0) {
+          this._delayedStore = void 0;
+        }
+        try {
+          this._isRunning = true;
+          if (this._changeTracker) {
+            this._changeTracker.beforeUpdate?.(this, changeSummary);
+            this._changeSummary = this._changeTracker.createChangeSummary(changeSummary);
+          }
+          if (this._store !== void 0) {
+            this._store.dispose();
+            this._store = void 0;
+          }
+          this._runFn(this, changeSummary);
+        } catch (e) {
+          onBugIndicatingError(e);
+        } finally {
+          this._isRunning = false;
+          if (delayedStore !== void 0) {
+            delayedStore.dispose();
+          }
+        }
+      }
+    } finally {
+      if (!this._disposed) {
+        getLogger()?.handleAutorunFinished(this);
+      }
+      for (const o of this._dependenciesToBeRemoved) {
+        o.removeObserver(this);
+      }
+      this._dependenciesToBeRemoved.clear();
+    }
+  }
+  toString() {
+    return `Autorun<${this.debugName}>`;
+  }
+  // IObserver implementation
+  beginUpdate(_observable) {
+    if (this._state === 3) {
+      this._checkIterations();
+      this._state = 1;
+    }
+    this._updateCount++;
+  }
+  endUpdate(_observable) {
+    try {
+      if (this._updateCount === 1) {
+        this._iteration = 1;
+        do {
+          if (this._checkIterations()) {
+            return;
+          }
+          if (this._state === 1) {
+            this._state = 3;
+            for (const d of this._dependencies) {
+              d.reportChanges();
+              if (this._state === 2) {
+                break;
+              }
+            }
+          }
+          this._iteration++;
+          if (this._state !== 3) {
+            this._run();
+          }
+        } while (this._state !== 3);
+      }
+    } finally {
+      this._updateCount--;
+    }
+    assertFn(() => this._updateCount >= 0);
+  }
+  handlePossibleChange(observable) {
+    if (this._state === 3 && this._isDependency(observable)) {
+      this._checkIterations();
+      this._state = 1;
+    }
+  }
+  handleChange(observable, change) {
+    if (this._isDependency(observable)) {
+      getLogger()?.handleAutorunDependencyChanged(this, observable, change);
+      try {
+        const shouldReact = this._changeTracker ? this._changeTracker.handleChange({
+          changedObservable: observable,
+          change,
+          // eslint-disable-next-line local/code-no-any-casts
+          didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
+        }, this._changeSummary) : true;
+        if (shouldReact) {
+          this._checkIterations();
+          this._state = 2;
+        }
+      } catch (e) {
+        onBugIndicatingError(e);
+      }
+    }
+  }
+  _isDependency(observable) {
+    return this._dependencies.has(observable) && !this._dependenciesToBeRemoved.has(observable);
+  }
+  // IReader implementation
+  _ensureNoRunning() {
+    if (!this._isRunning) {
+      throw new BugIndicatingError("The reader object cannot be used outside its compute function!");
+    }
+  }
+  readObservable(observable) {
+    this._ensureNoRunning();
+    if (this._disposed) {
+      return observable.get();
+    }
+    observable.addObserver(this);
+    const value = observable.get();
+    this._dependencies.add(observable);
+    this._dependenciesToBeRemoved.delete(observable);
+    return value;
+  }
+  get store() {
+    this._ensureNoRunning();
+    if (this._disposed) {
+      throw new BugIndicatingError("Cannot access store after dispose");
+    }
+    if (this._store === void 0) {
+      this._store = new DisposableStore();
+    }
+    return this._store;
+  }
+  get delayedStore() {
+    this._ensureNoRunning();
+    if (this._disposed) {
+      throw new BugIndicatingError("Cannot access store after dispose");
+    }
+    if (this._delayedStore === void 0) {
+      this._delayedStore = new DisposableStore();
+    }
+    return this._delayedStore;
+  }
+  debugGetState() {
+    return {
+      isRunning: this._isRunning,
+      updateCount: this._updateCount,
+      dependencies: this._dependencies,
+      state: this._state,
+      stateStr: autorunStateToString(this._state)
+    };
+  }
+  debugRerun() {
+    if (!this._isRunning) {
+      this._run();
+    } else {
+      this._state = 2;
+    }
+  }
+  _checkIterations() {
+    if (this._iteration > 100) {
+      onBugIndicatingError(new BugIndicatingError(`Autorun '${this.debugName}' is stuck in an infinite update loop.`));
+      return true;
+    }
+    return false;
+  }
+}
+export {
+  AutorunObserver,
+  AutorunState
+};
+//# sourceMappingURL=autorunImpl.js.map

@@ -1,1 +1,26 @@
-function t(e,n){const o=e;typeof o.vscodeWindowId!="number"&&Object.defineProperty(o,"vscodeWindowId",{get:()=>n})}const d=window;function c(e){return e===d?!1:typeof e?.vscodeWindowId=="number"}export{c as $06,t as $86,d as $96};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function ensureCodeWindow(targetWindow, fallbackWindowId) {
+  const codeWindow = targetWindow;
+  if (typeof codeWindow.vscodeWindowId !== "number") {
+    Object.defineProperty(codeWindow, "vscodeWindowId", {
+      get: /* @__PURE__ */ __name(() => fallbackWindowId, "get")
+    });
+  }
+}
+__name(ensureCodeWindow, "ensureCodeWindow");
+const mainWindow = window;
+function isAuxiliaryWindow(obj) {
+  if (obj === mainWindow) {
+    return false;
+  }
+  const candidate = obj;
+  return typeof candidate?.vscodeWindowId === "number";
+}
+__name(isAuxiliaryWindow, "isAuxiliaryWindow");
+export {
+  ensureCodeWindow,
+  isAuxiliaryWindow,
+  mainWindow
+};
+//# sourceMappingURL=window.js.map

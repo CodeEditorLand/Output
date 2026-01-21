@@ -1,1 +1,51 @@
-import{$4hb as l}from"../../../../platform/clipboard/common/clipboardService.js";import{$to as u}from"../../../../platform/commands/common/commands.js";import{$6hb as $}from"../../../../platform/contextview/browser/contextView.js";import{$Lj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$Vu as a}from"../../../../platform/native/common/native.js";import{$2x as b}from"../../../../platform/process/common/process.js";import{$Un as v}from"../../../../platform/product/common/productService.js";import{$tNc as j}from"../browser/processExplorerControl.js";var h=function(f,r,t,e){var n=arguments.length,o=n<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,t):e,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,r,t,e);else for(var m=f.length-1;m>=0;m--)(c=f[m])&&(o=(n<3?c(o):n>3?c(r,t,o):c(r,t))||o);return n>3&&o&&Object.defineProperty(r,t,o),o},i=function(f,r){return function(t,e){r(t,e,f)}};let s=class extends j{constructor(r,t,e,n,o,c,m,p){super(t,e,n,c,p),this.H=o,this.I=m,this.s(r)}q(r,t){return this.H.killProcess(r,t)}r(){return this.I.resolveProcesses()}};s=h([i(1,_),i(2,v),i(3,$),i(4,a),i(5,u),i(6,b),i(7,l)],s);export{s as $HUc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProcessService } from "../../../../platform/process/common/process.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ProcessExplorerControl } from "../browser/processExplorerControl.js";
+let NativeProcessExplorerControl = class NativeProcessExplorerControl2 extends ProcessExplorerControl {
+  static {
+    __name(this, "NativeProcessExplorerControl");
+  }
+  constructor(container, instantiationService, productService, contextMenuService, nativeHostService, commandService, processService, clipboardService) {
+    super(instantiationService, productService, contextMenuService, commandService, clipboardService);
+    this.nativeHostService = nativeHostService;
+    this.processService = processService;
+    this.create(container);
+  }
+  killProcess(pid, signal) {
+    return this.nativeHostService.killProcess(pid, signal);
+  }
+  resolveProcesses() {
+    return this.processService.resolveProcesses();
+  }
+};
+NativeProcessExplorerControl = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IProductService),
+  __param(3, IContextMenuService),
+  __param(4, INativeHostService),
+  __param(5, ICommandService),
+  __param(6, IProcessService),
+  __param(7, IClipboardService)
+], NativeProcessExplorerControl);
+export {
+  NativeProcessExplorerControl
+};
+//# sourceMappingURL=processExplorerControl.js.map

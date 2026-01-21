@@ -1,1 +1,142 @@
-import{$9l as y}from"../../../../platform/configuration/common/configuration.js";import{EditorActivation as v}from"../../../../platform/editor/common/editor.js";import{$mN as A,$iN as g}from"../../../common/editor.js";import{$xL as p,$uL as h}from"./editorGroupsService.js";import{$BL as $,$AL as d}from"./editorService.js";function w(i,t,n){const s=i.get(h),o=i.get(y),f=x(t,n,s,o);return f instanceof Promise?f.then(c=>m(c,t,n,s)):m(f,t,n,s)}function m(i,t,n,s){let o;return s.activeGroup!==i&&t.options&&!t.options.inactive&&t.options.preserveFocus&&typeof t.options.activation!="number"&&n!==d&&(o=v.ACTIVATE),[i,o]}function x(i,t,n,s){let o;const f=A(i)?i.editor:i,c=i.options;if(t&&typeof t!="number")o=t;else if(typeof t=="number"&&t>=0)o=n.getGroup(t);else if(t===d){const a=p(s);let e=n.findGroup({direction:a});(!e||r(e,f))&&(e=n.addGroup(n.activeGroup,a)),o=e}else if(t===$)o=n.createAuxiliaryEditorPart({bounds:c?.auxiliary?.bounds,compact:c?.auxiliary?.compact,alwaysOnTop:c?.auxiliary?.alwaysOnTop}).then(a=>a.activeGroup);else if(!c||typeof c.index!="number"){const a=n.getGroups(1);if(c?.revealIfVisible){for(const e of a)if(E(e,f)){o=e;break}}if(!o&&(c?.revealIfOpened||s.getValue("workbench.editor.revealIfOpen")||g(f)&&f.hasCapability(8))){let e,u;for(const l of a)if(b(l,f)&&(u||(u=l),!e&&l.isActive(f)&&(e=l)),u&&e)break;o=e||u}}if(!o){let a=n.activeGroup;if(r(a,f)){for(const e of n.getGroups(1))if(!r(e,f)){a=e;break}r(a,f)?o=n.addGroup(a,p(s)):o=a}else o=a}return o}function r(i,t){return!(!i.isLocked||b(i,t))}function E(i,t){return i.activeEditor?i.activeEditor.matches(t):!1}function b(i,t){for(const n of i.editors)if(n.matches(t))return!0;return!1}export{w as $60b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { EditorActivation } from "../../../../platform/editor/common/editor.js";
+import { isEditorInputWithOptions, isEditorInput } from "../../../common/editor.js";
+import { preferredSideBySideGroupDirection, IEditorGroupsService } from "./editorGroupsService.js";
+import { AUX_WINDOW_GROUP, SIDE_GROUP } from "./editorService.js";
+function findGroup(accessor, editor, preferredGroup) {
+  const editorGroupService = accessor.get(IEditorGroupsService);
+  const configurationService = accessor.get(IConfigurationService);
+  const group = doFindGroup(editor, preferredGroup, editorGroupService, configurationService);
+  if (group instanceof Promise) {
+    return group.then((group2) => handleGroupActivation(group2, editor, preferredGroup, editorGroupService));
+  }
+  return handleGroupActivation(group, editor, preferredGroup, editorGroupService);
+}
+__name(findGroup, "findGroup");
+function handleGroupActivation(group, editor, preferredGroup, editorGroupService) {
+  let activation = void 0;
+  if (editorGroupService.activeGroup !== group && // only if target group is not already active
+  editor.options && !editor.options.inactive && // never for inactive editors
+  editor.options.preserveFocus && // only if preserveFocus
+  typeof editor.options.activation !== "number" && // only if activation is not already defined (either true or false)
+  preferredGroup !== SIDE_GROUP) {
+    activation = EditorActivation.ACTIVATE;
+  }
+  return [group, activation];
+}
+__name(handleGroupActivation, "handleGroupActivation");
+function doFindGroup(input, preferredGroup, editorGroupService, configurationService) {
+  let group;
+  const editor = isEditorInputWithOptions(input) ? input.editor : input;
+  const options = input.options;
+  if (preferredGroup && typeof preferredGroup !== "number") {
+    group = preferredGroup;
+  } else if (typeof preferredGroup === "number" && preferredGroup >= 0) {
+    group = editorGroupService.getGroup(preferredGroup);
+  } else if (preferredGroup === SIDE_GROUP) {
+    const direction = preferredSideBySideGroupDirection(configurationService);
+    let candidateGroup = editorGroupService.findGroup({ direction });
+    if (!candidateGroup || isGroupLockedForEditor(candidateGroup, editor)) {
+      candidateGroup = editorGroupService.addGroup(editorGroupService.activeGroup, direction);
+    }
+    group = candidateGroup;
+  } else if (preferredGroup === AUX_WINDOW_GROUP) {
+    group = editorGroupService.createAuxiliaryEditorPart({
+      bounds: options?.auxiliary?.bounds,
+      compact: options?.auxiliary?.compact,
+      alwaysOnTop: options?.auxiliary?.alwaysOnTop
+    }).then((group2) => group2.activeGroup);
+  } else if (!options || typeof options.index !== "number") {
+    const groupsByLastActive = editorGroupService.getGroups(
+      1
+      /* GroupsOrder.MOST_RECENTLY_ACTIVE */
+    );
+    if (options?.revealIfVisible) {
+      for (const lastActiveGroup of groupsByLastActive) {
+        if (isActive(lastActiveGroup, editor)) {
+          group = lastActiveGroup;
+          break;
+        }
+      }
+    }
+    if (!group) {
+      if (options?.revealIfOpened || configurationService.getValue("workbench.editor.revealIfOpen") || isEditorInput(editor) && editor.hasCapability(
+        8
+        /* EditorInputCapabilities.Singleton */
+      )) {
+        let groupWithInputActive = void 0;
+        let groupWithInputOpened = void 0;
+        for (const group2 of groupsByLastActive) {
+          if (isOpened(group2, editor)) {
+            if (!groupWithInputOpened) {
+              groupWithInputOpened = group2;
+            }
+            if (!groupWithInputActive && group2.isActive(editor)) {
+              groupWithInputActive = group2;
+            }
+          }
+          if (groupWithInputOpened && groupWithInputActive) {
+            break;
+          }
+        }
+        group = groupWithInputActive || groupWithInputOpened;
+      }
+    }
+  }
+  if (!group) {
+    let candidateGroup = editorGroupService.activeGroup;
+    if (isGroupLockedForEditor(candidateGroup, editor)) {
+      for (const group2 of editorGroupService.getGroups(
+        1
+        /* GroupsOrder.MOST_RECENTLY_ACTIVE */
+      )) {
+        if (isGroupLockedForEditor(group2, editor)) {
+          continue;
+        }
+        candidateGroup = group2;
+        break;
+      }
+      if (isGroupLockedForEditor(candidateGroup, editor)) {
+        group = editorGroupService.addGroup(candidateGroup, preferredSideBySideGroupDirection(configurationService));
+      } else {
+        group = candidateGroup;
+      }
+    } else {
+      group = candidateGroup;
+    }
+  }
+  return group;
+}
+__name(doFindGroup, "doFindGroup");
+function isGroupLockedForEditor(group, editor) {
+  if (!group.isLocked) {
+    return false;
+  }
+  if (isOpened(group, editor)) {
+    return false;
+  }
+  return true;
+}
+__name(isGroupLockedForEditor, "isGroupLockedForEditor");
+function isActive(group, editor) {
+  if (!group.activeEditor) {
+    return false;
+  }
+  return group.activeEditor.matches(editor);
+}
+__name(isActive, "isActive");
+function isOpened(group, editor) {
+  for (const typedEditor of group.editors) {
+    if (typedEditor.matches(editor)) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(isOpened, "isOpened");
+export {
+  findGroup
+};
+//# sourceMappingURL=editorGroupFinder.js.map

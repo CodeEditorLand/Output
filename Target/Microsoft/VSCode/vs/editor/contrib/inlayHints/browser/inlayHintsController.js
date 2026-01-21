@@ -1,1 +1,687 @@
-import{$p8 as Y,$38 as Z}from"../../../../base/browser/dom.js";import{$cc as q}from"../../../../base/common/arrays.js";import{$0h as tt,$ii as et}from"../../../../base/common/async.js";import{CancellationToken as z,$If as A}from"../../../../base/common/cancellation.js";import{$mb as it}from"../../../../base/common/errors.js";import{$Dd as k,$Fd as G,$Cd as P}from"../../../../base/common/lifecycle.js";import{$Rc as nt}from"../../../../base/common/map.js";import{$fd as B}from"../../../../base/common/types.js";import{URI as ot}from"../../../../base/common/uri.js";import{$oeb as st}from"../../../browser/editorDom.js";import{$phb as at}from"../../../browser/stableEditorScroll.js";import{$CD as rt}from"../../../common/config/fontInfo.js";import{$0D as ct}from"../../../common/core/editOperation.js";import{$9D as C}from"../../../common/core/range.js";import*as T from"../../../common/languages.js";import{InjectedTextCursorStops as F}from"../../../common/model.js";import{$9K as ht}from"../../../common/model/textModel.js";import{$Dlb as lt}from"../../../common/services/languageFeatureDebounce.js";import{$NV as V}from"../../../common/services/languageFeatures.js";import{$2H as dt}from"../../../common/services/resolverService.js";import{$upb as ft}from"../../gotoSymbol/browser/link/clickLinkGesture.js";import{$vpb as mt,$xpb as W}from"./inlayHints.js";import{$Jqb as gt,$Iqb as ut}from"./inlayHintsLocations.js";import{$uo as pt,$to as bt}from"../../../../platform/commands/common/commands.js";import{$TC as yt}from"../../../../platform/instantiation/common/extensions.js";import{$Mj as xt,$Lj as $t}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as wt,Severity as vt}from"../../../../platform/notification/common/notification.js";import*as R from"../../../../platform/theme/common/colorRegistry.js";import{$pu as L}from"../../../../platform/theme/common/themeService.js";var X=function(l,t,e,n){var o=arguments.length,i=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,t,e,n);else for(var s=l.length-1;s>=0;s--)(a=l[s])&&(i=(o<3?a(i):o>3?a(t,e,i):a(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},M=function(l,t){return function(e,n){t(e,n,l)}},N;class E{constructor(){this.a=new nt(50)}get(t){const e=E.b(t);return this.a.get(e)}set(t,e){const n=E.b(t);this.a.set(n,e)}static b(t){return`${t.uri.toString()}/${t.getVersionId()}`}}const J=xt("IInlayHintsCache");yt(J,E,1);class K{constructor(t,e){this.item=t,this.index=e}get part(){const t=this.item.hint.label;return typeof t=="string"?{label:t}:t[this.index]}}class Ct{constructor(t,e){this.part=t,this.hasTriggerModifier=e}}var U;(function(l){l[l.Normal=0]="Normal",l[l.Invisible=1]="Invisible"})(U||(U={}));class Dt{constructor(){this.a=new G,this.b=new A}dispose(){this.a.dispose(),this.b.dispose(!0)}reset(){return this.b.dispose(!0),this.b=new A,this.a.value=new k,{store:this.a.value,token:this.b.token}}}let _=class{static{N=this}static{this.ID="editor.contrib.InlayHints"}static{this.a=1500}static{this.b={}}static get(t){return t.getContribution(N.ID)??void 0}constructor(t,e,n,o,i,a,s){this.o=t,this.q=e,this.s=o,this.t=i,this.u=a,this.v=s,this.f=new k,this.g=new k,this.h=new Map,this.m=0,this.k=this.f.add(new st(this.o)),this.j=n.for(e.inlayHintsProvider,"InlayHint",{min:25}),this.f.add(e.inlayHintsProvider.onDidChange(()=>this.w())),this.f.add(t.onDidChangeModel(()=>this.w())),this.f.add(t.onDidChangeModelLanguage(()=>this.w())),this.f.add(t.onDidChangeConfiguration(w=>{w.hasChanged(159)&&this.w()})),this.w()}dispose(){this.g.dispose(),this.J(),this.f.dispose()}w(){this.g.clear(),this.J();const t=this.o.getOption(159);if(t.enabled==="off")return;const e=this.o.getModel();if(!e||!this.q.inlayHintsProvider.has(e))return;if(t.enabled==="on")this.m=0;else{let f,m;t.enabled==="onUnlessPressed"?(f=0,m=1):(f=1,m=0),this.m=f,this.g.add(Z.getInstance().event(g=>{if(!this.o.hasModel())return;const b=g.altKey&&g.ctrlKey&&!(g.shiftKey||g.metaKey)?m:f;if(b!==this.m){this.m=b;const y=this.o.getModel(),S=this.E(y);this.G([y.getFullModelRange()],S),s.schedule(0)}}))}const n=this.s.get(e);n&&this.G([e.getFullModelRange()],n),this.g.add(P(()=>{e.isDisposed()||this.D(e)}));let o;const i=new Set;this.g.add(e.onWillDispose(()=>o?.cancel()));const a=this.g.add(new Dt),s=new et(async()=>{const f=Date.now(),{store:m,token:g}=a.reset();try{const b=await W.create(this.q.inlayHintsProvider,e,this.F(),g);if(s.delay=this.j.update(e,Date.now()-f),g.isCancellationRequested){b.dispose();return}for(const y of b.provider)typeof y.onDidChangeInlayHints=="function"&&!i.has(y)&&(i.add(y),m.add(y.onDidChangeInlayHints(()=>{s.isScheduled()||s.schedule()})));m.add(b),m.add(P(()=>i.clear())),this.G(b.ranges,b.items),this.D(e)}catch(b){it(b)}},this.j.get(e));this.g.add(s),s.schedule(0),this.g.add(this.o.onDidScrollChange(f=>{(f.scrollTopChanged||!s.isScheduled())&&s.schedule()}));const w=this.g.add(new G);this.g.add(this.o.onDidChangeModelContent(f=>{o?.cancel();const m=Math.max(s.delay,800);this.l={position:this.o.getPosition(),notEarlierThan:Date.now()+m},w.value=tt(()=>s.schedule(0),m),s.schedule()})),this.g.add(this.o.onDidChangeConfiguration(f=>{f.hasChanged(159)&&s.schedule()})),this.g.add(this.z(()=>s.schedule(0))),this.g.add(this.x()),this.g.add(this.A())}x(){const t=new k,e=t.add(new ft(this.o)),n=new k;return t.add(n),t.add(e.onMouseMoveOrRelevantKeyDown(o=>{const[i]=o,a=this.B(i),s=this.o.getModel();if(!a||!s){n.clear();return}const w=new A;n.add(P(()=>w.dispose(!0))),a.item.resolve(w.token),this.n=a.part.command||a.part.location?new Ct(a,i.hasTriggerModifier):void 0;const f=s.validatePosition(a.item.hint.position).lineNumber,m=new C(f,1,f,s.getLineMaxColumn(f)),g=this.y(m);this.G([m],g),n.add(P(()=>{this.n=void 0,this.G([m],g)}))})),t.add(e.onCancel(()=>n.clear())),t.add(e.onExecute(async o=>{const i=this.B(o);if(i){const a=i.part;a.location?this.v.invokeFunction(gt,o,this.o,a.location):T.Command.is(a.command)&&await this.C(a.command,i.item)}})),t}y(t){const e=new Set;for(const n of this.h.values())t.containsRange(n.item.anchor.range)&&e.add(n.item);return Array.from(e)}z(t){return this.o.onMouseUp(async e=>{if(e.event.detail!==2)return;const n=this.B(e);if(n&&(e.event.preventDefault(),await n.item.resolve(z.None),q(n.item.hint.textEdits))){const o=n.item.hint.textEdits.map(i=>ct.replace(C.lift(i.range),i.text));this.o.executeEdits("inlayHint.default",o),t()}})}A(){return this.o.onContextMenu(async t=>{if(!Y(t.event.target))return;const e=this.B(t);e&&await this.v.invokeFunction(ut,this.o,t.event.target,e)})}B(t){if(t.target.type!==6)return;const e=t.target.detail.injectedText?.options;if(e instanceof ht&&e?.attachedData instanceof K)return e.attachedData}async C(t,e){try{await this.t.executeCommand(t.id,...t.arguments??[])}catch(n){this.u.notify({severity:vt.Error,source:e.provider.displayName,message:n})}}D(t){const e=this.E(t);this.s.set(t,e)}E(t){const e=new Map;for(const[n,o]of this.h){if(e.has(o.item))continue;const i=t.getDecorationRange(n);if(i){const a=new mt(i,o.item.anchor.direction),s=o.item.with({anchor:a});e.set(o.item,s)}}return Array.from(e.values())}F(){const e=this.o.getModel(),n=this.o.getVisibleRangesPlusViewportAboveBelow(),o=[];for(const i of n.sort(C.compareRangesUsingStarts)){const a=e.validateRange(new C(i.startLineNumber-30,i.startColumn,i.endLineNumber+30,i.endColumn));o.length===0||!C.areIntersectingOrTouching(o[o.length-1],a)?o.push(a):o[o.length-1]=C.plusRange(o[o.length-1],a)}return o}G(t,e){const n=new Map;if(this.l&&this.l.notEarlierThan>Date.now()&&t.some(c=>c.containsPosition(this.l.position))){const{position:c}=this.l;this.l=void 0;const r=new Map;for(const h of this.o.getLineDecorations(c.lineNumber)??[]){const x=this.h.get(h.id);if(h.range.startColumn>c.column)continue;const v=x?.decoration.options[x.item.anchor.direction];if(v&&v.attachedData!==N.b){const D=r.get(x.item)??0;r.set(x.item,D+v.content.length)}}const d=e.filter(h=>h.anchor.range.startLineNumber===c.lineNumber&&h.anchor.range.endColumn<=c.column),u=Array.from(r.values());let $;for(;;){const h=d.shift(),x=u.shift();if(!x&&!h)break;if(h)n.set(h,x??0),$=h;else if($&&x){let v=n.get($);v+=x,v+=u.reduce((D,p)=>D+p,0),u.length=0;break}}}const o=[],i=(c,r,d,u,$)=>{const h={content:d,inlineClassNameAffectsLetterSpacing:!0,inlineClassName:r.className,cursorStops:u,attachedData:$};o.push({item:c,classNameRef:r,decoration:{range:c.anchor.range,options:{description:"InlayHint",showIfCollapsed:c.anchor.range.isEmpty(),collapseOnReplaceEdit:!c.anchor.range.isEmpty(),stickiness:0,[c.anchor.direction]:this.m===0?h:void 0}}})},a=(c,r)=>{const d=this.k.createClassNameRef({width:`${s/3|0}px`,display:"inline-block"});i(c,d,"\u200A",r?F.Right:F.None,N.b)},{fontSize:s,fontFamily:w,padding:f,isUniform:m}=this.I(),g=this.o.getOption(159).maximumLength,b="--code-editorInlayHintsFontFamily";this.o.getContainerDomNode().style.setProperty(b,w);let y={line:0,totalLen:0};for(let c=0;c<e.length;c++){const r=e[c];if(y.line!==r.anchor.range.startLineNumber&&(y={line:r.anchor.range.startLineNumber,totalLen:0}),g&&y.totalLen>g)continue;r.hint.paddingLeft&&a(r,!1);const d=typeof r.hint.label=="string"?[{label:r.hint.label}]:r.hint.label,u=n.get(r);let $=0;for(let h=0;h<d.length;h++){const x=d[h],v=h===0,D=h===d.length-1,p={fontSize:`${s}px`,fontFamily:`var(${b}), ${rt.fontFamily}`,verticalAlign:m?"baseline":"middle",unicodeBidi:"isolate"};q(r.hint.textEdits)&&(p.cursor="default"),this.H(p,r.hint),(x.command||x.location)&&this.n?.part.item===r&&this.n.part.index===h&&(p.textDecoration="underline",this.n.hasTriggerModifier&&(p.color=L(R.$5q),p.cursor="pointer"));let I=x.label;y.totalLen+=I.length;let H=!1;const O=g!==0?y.totalLen-g:0;if(O>0&&(I=I.slice(0,-O)+"\u2026",H=!0),$+=I.length,u!==void 0){const j=$-u;j>=0&&($-=j,I=I.slice(0,-(1+j))+"\u2026",H=!0)}if(f&&(v&&(D||H)?(p.padding=`1px ${Math.max(1,s/4)|0}px`,p.borderRadius=`${s/4|0}px`):v?(p.padding=`1px 0 1px ${Math.max(1,s/4)|0}px`,p.borderRadius=`${s/4|0}px 0 0 ${s/4|0}px`):D||H?(p.padding=`1px ${Math.max(1,s/4)|0}px 1px 0`,p.borderRadius=`0 ${s/4|0}px ${s/4|0}px 0`):p.padding="1px 0 1px 0"),i(r,this.k.createClassNameRef(p),It(I),D&&!r.hint.paddingRight?F.Right:F.None,new K(r,h)),H)break}if(u!==void 0&&$<u){const h=u-$;i(r,this.k.createClassNameRef({}),"\u200A".repeat(h),F.None)}if(r.hint.paddingRight&&a(r,!0),o.length>N.a)break}const S=[];for(const[c,r]of this.h){const d=this.o.getModel()?.getDecorationRange(c);d&&t.some(u=>u.containsRange(d))&&(S.push(c),r.classNameRef.dispose(),this.h.delete(c))}const Q=at.capture(this.o);this.o.changeDecorations(c=>{const r=c.deltaDecorations(S,o.map(d=>d.decoration));for(let d=0;d<r.length;d++){const u=o[d];this.h.set(r[d],u)}}),Q.restore(this.o)}H(t,e){e.kind===T.InlayHintKind.Parameter?(t.backgroundColor=L(R.$rr),t.color=L(R.$qr)):e.kind===T.InlayHintKind.Type?(t.backgroundColor=L(R.$pr),t.color=L(R.$or)):(t.backgroundColor=L(R.$nr),t.color=L(R.$mr))}I(){const t=this.o.getOption(159),e=t.padding,n=this.o.getOption(61),o=this.o.getOption(58);let i=t.fontSize;(!i||i<5||i>n)&&(i=n);const a=t.fontFamily||o;return{fontSize:i,fontFamily:a,padding:e,isUniform:!e&&a===o&&i===n}}J(){this.o.removeDecorations(Array.from(this.h.keys()));for(const t of this.h.values())t.classNameRef.dispose();this.h.clear()}getInlayHintsForLine(t){if(!this.o.hasModel())return[];const e=new Set,n=[];for(const o of this.o.getLineDecorations(t)){const i=this.h.get(o.id);i&&!e.has(i.item.hint)&&(e.add(i.item.hint),n.push(i.item))}return n}};_=N=X([M(1,V),M(2,lt),M(3,J),M(4,bt),M(5,wt),M(6,$t)],_);function It(l){return l.replace(/[ \t]/g,"\xA0")}pt.registerCommand("_executeInlayHintProvider",async(l,...t)=>{const[e,n]=t;B(ot.isUri(e)),B(C.isIRange(n));const{inlayHintsProvider:o}=l.get(V),i=await l.get(dt).createModelReference(e);try{const a=await W.create(o,i.object.textEditorModel,[C.lift(n)],z.None),s=a.items.map(w=>w.hint);return setTimeout(()=>a.dispose(),0),s}finally{i.dispose()}});export{K as $Kqb,_ as $Lqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlayHintsController_1;
+import { isHTMLElement, ModifierKeyEmitter } from "../../../../base/browser/dom.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { disposableTimeout, RunOnceScheduler } from "../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { LRUCache } from "../../../../base/common/map.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { DynamicCssRules } from "../../../browser/editorDom.js";
+import { StableEditorScrollState } from "../../../browser/stableEditorScroll.js";
+import { EDITOR_FONT_DEFAULTS } from "../../../common/config/fontInfo.js";
+import { EditOperation } from "../../../common/core/editOperation.js";
+import { Range } from "../../../common/core/range.js";
+import * as languages from "../../../common/languages.js";
+import { InjectedTextCursorStops } from "../../../common/model.js";
+import { ModelDecorationInjectedTextOptions } from "../../../common/model/textModel.js";
+import { ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import { ClickLinkGesture } from "../../gotoSymbol/browser/link/clickLinkGesture.js";
+import { InlayHintAnchor, InlayHintsFragments } from "./inlayHints.js";
+import { goToDefinitionWithLocation, showGoToContextMenu } from "./inlayHintsLocations.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import * as colors from "../../../../platform/theme/common/colorRegistry.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+class InlayHintsCache {
+  static {
+    __name(this, "InlayHintsCache");
+  }
+  constructor() {
+    this._entries = new LRUCache(50);
+  }
+  get(model) {
+    const key = InlayHintsCache._key(model);
+    return this._entries.get(key);
+  }
+  set(model, value) {
+    const key = InlayHintsCache._key(model);
+    this._entries.set(key, value);
+  }
+  static _key(model) {
+    return `${model.uri.toString()}/${model.getVersionId()}`;
+  }
+}
+const IInlayHintsCache = createDecorator("IInlayHintsCache");
+registerSingleton(
+  IInlayHintsCache,
+  InlayHintsCache,
+  1
+  /* InstantiationType.Delayed */
+);
+class RenderedInlayHintLabelPart {
+  static {
+    __name(this, "RenderedInlayHintLabelPart");
+  }
+  constructor(item, index) {
+    this.item = item;
+    this.index = index;
+  }
+  get part() {
+    const label = this.item.hint.label;
+    if (typeof label === "string") {
+      return { label };
+    } else {
+      return label[this.index];
+    }
+  }
+}
+class ActiveInlayHintInfo {
+  static {
+    __name(this, "ActiveInlayHintInfo");
+  }
+  constructor(part, hasTriggerModifier) {
+    this.part = part;
+    this.hasTriggerModifier = hasTriggerModifier;
+  }
+}
+var RenderMode;
+(function(RenderMode2) {
+  RenderMode2[RenderMode2["Normal"] = 0] = "Normal";
+  RenderMode2[RenderMode2["Invisible"] = 1] = "Invisible";
+})(RenderMode || (RenderMode = {}));
+class CancellationStore {
+  static {
+    __name(this, "CancellationStore");
+  }
+  constructor() {
+    this._store = new MutableDisposable();
+    this._tokenSource = new CancellationTokenSource();
+  }
+  dispose() {
+    this._store.dispose();
+    this._tokenSource.dispose(true);
+  }
+  reset() {
+    this._tokenSource.dispose(true);
+    this._tokenSource = new CancellationTokenSource();
+    this._store.value = new DisposableStore();
+    return {
+      store: this._store.value,
+      token: this._tokenSource.token
+    };
+  }
+}
+let InlayHintsController = class InlayHintsController2 {
+  static {
+    __name(this, "InlayHintsController");
+  }
+  static {
+    InlayHintsController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.InlayHints";
+  }
+  static {
+    this._MAX_DECORATORS = 1500;
+  }
+  static {
+    this._whitespaceData = {};
+  }
+  static get(editor) {
+    return editor.getContribution(InlayHintsController_1.ID) ?? void 0;
+  }
+  constructor(_editor, _languageFeaturesService, _featureDebounce, _inlayHintsCache, _commandService, _notificationService, _instaService) {
+    this._editor = _editor;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._inlayHintsCache = _inlayHintsCache;
+    this._commandService = _commandService;
+    this._notificationService = _notificationService;
+    this._instaService = _instaService;
+    this._disposables = new DisposableStore();
+    this._sessionDisposables = new DisposableStore();
+    this._decorationsMetadata = /* @__PURE__ */ new Map();
+    this._activeRenderMode = 0;
+    this._ruleFactory = this._disposables.add(new DynamicCssRules(this._editor));
+    this._debounceInfo = _featureDebounce.for(_languageFeaturesService.inlayHintsProvider, "InlayHint", { min: 25 });
+    this._disposables.add(_languageFeaturesService.inlayHintsProvider.onDidChange(() => this._update()));
+    this._disposables.add(_editor.onDidChangeModel(() => this._update()));
+    this._disposables.add(_editor.onDidChangeModelLanguage(() => this._update()));
+    this._disposables.add(_editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        159
+        /* EditorOption.inlayHints */
+      )) {
+        this._update();
+      }
+    }));
+    this._update();
+  }
+  dispose() {
+    this._sessionDisposables.dispose();
+    this._removeAllDecorations();
+    this._disposables.dispose();
+  }
+  _update() {
+    this._sessionDisposables.clear();
+    this._removeAllDecorations();
+    const options = this._editor.getOption(
+      159
+      /* EditorOption.inlayHints */
+    );
+    if (options.enabled === "off") {
+      return;
+    }
+    const model = this._editor.getModel();
+    if (!model || !this._languageFeaturesService.inlayHintsProvider.has(model)) {
+      return;
+    }
+    if (options.enabled === "on") {
+      this._activeRenderMode = 0;
+    } else {
+      let defaultMode;
+      let altMode;
+      if (options.enabled === "onUnlessPressed") {
+        defaultMode = 0;
+        altMode = 1;
+      } else {
+        defaultMode = 1;
+        altMode = 0;
+      }
+      this._activeRenderMode = defaultMode;
+      this._sessionDisposables.add(ModifierKeyEmitter.getInstance().event((e) => {
+        if (!this._editor.hasModel()) {
+          return;
+        }
+        const newRenderMode = e.altKey && e.ctrlKey && !(e.shiftKey || e.metaKey) ? altMode : defaultMode;
+        if (newRenderMode !== this._activeRenderMode) {
+          this._activeRenderMode = newRenderMode;
+          const model2 = this._editor.getModel();
+          const copies = this._copyInlayHintsWithCurrentAnchor(model2);
+          this._updateHintsDecorators([model2.getFullModelRange()], copies);
+          scheduler.schedule(0);
+        }
+      }));
+    }
+    const cached = this._inlayHintsCache.get(model);
+    if (cached) {
+      this._updateHintsDecorators([model.getFullModelRange()], cached);
+    }
+    this._sessionDisposables.add(toDisposable(() => {
+      if (!model.isDisposed()) {
+        this._cacheHintsForFastRestore(model);
+      }
+    }));
+    let cts;
+    const watchedProviders = /* @__PURE__ */ new Set();
+    this._sessionDisposables.add(model.onWillDispose(() => cts?.cancel()));
+    const cancellationStore = this._sessionDisposables.add(new CancellationStore());
+    const scheduler = new RunOnceScheduler(async () => {
+      const t1 = Date.now();
+      const { store, token } = cancellationStore.reset();
+      try {
+        const inlayHints = await InlayHintsFragments.create(this._languageFeaturesService.inlayHintsProvider, model, this._getHintsRanges(), token);
+        scheduler.delay = this._debounceInfo.update(model, Date.now() - t1);
+        if (token.isCancellationRequested) {
+          inlayHints.dispose();
+          return;
+        }
+        for (const provider of inlayHints.provider) {
+          if (typeof provider.onDidChangeInlayHints === "function" && !watchedProviders.has(provider)) {
+            watchedProviders.add(provider);
+            store.add(provider.onDidChangeInlayHints(() => {
+              if (!scheduler.isScheduled()) {
+                scheduler.schedule();
+              }
+            }));
+          }
+        }
+        store.add(inlayHints);
+        store.add(toDisposable(() => watchedProviders.clear()));
+        this._updateHintsDecorators(inlayHints.ranges, inlayHints.items);
+        this._cacheHintsForFastRestore(model);
+      } catch (err) {
+        onUnexpectedError(err);
+      }
+    }, this._debounceInfo.get(model));
+    this._sessionDisposables.add(scheduler);
+    scheduler.schedule(0);
+    this._sessionDisposables.add(this._editor.onDidScrollChange((e) => {
+      if (e.scrollTopChanged || !scheduler.isScheduled()) {
+        scheduler.schedule();
+      }
+    }));
+    const cursor = this._sessionDisposables.add(new MutableDisposable());
+    this._sessionDisposables.add(this._editor.onDidChangeModelContent((e) => {
+      cts?.cancel();
+      const delay = Math.max(scheduler.delay, 800);
+      this._cursorInfo = { position: this._editor.getPosition(), notEarlierThan: Date.now() + delay };
+      cursor.value = disposableTimeout(() => scheduler.schedule(0), delay);
+      scheduler.schedule();
+    }));
+    this._sessionDisposables.add(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        159
+        /* EditorOption.inlayHints */
+      )) {
+        scheduler.schedule();
+      }
+    }));
+    this._sessionDisposables.add(this._installDblClickGesture(() => scheduler.schedule(0)));
+    this._sessionDisposables.add(this._installLinkGesture());
+    this._sessionDisposables.add(this._installContextMenu());
+  }
+  _installLinkGesture() {
+    const store = new DisposableStore();
+    const gesture = store.add(new ClickLinkGesture(this._editor));
+    const sessionStore = new DisposableStore();
+    store.add(sessionStore);
+    store.add(gesture.onMouseMoveOrRelevantKeyDown((e) => {
+      const [mouseEvent] = e;
+      const labelPart = this._getInlayHintLabelPart(mouseEvent);
+      const model = this._editor.getModel();
+      if (!labelPart || !model) {
+        sessionStore.clear();
+        return;
+      }
+      const cts = new CancellationTokenSource();
+      sessionStore.add(toDisposable(() => cts.dispose(true)));
+      labelPart.item.resolve(cts.token);
+      this._activeInlayHintPart = labelPart.part.command || labelPart.part.location ? new ActiveInlayHintInfo(labelPart, mouseEvent.hasTriggerModifier) : void 0;
+      const lineNumber = model.validatePosition(labelPart.item.hint.position).lineNumber;
+      const range = new Range(lineNumber, 1, lineNumber, model.getLineMaxColumn(lineNumber));
+      const lineHints = this._getInlineHintsForRange(range);
+      this._updateHintsDecorators([range], lineHints);
+      sessionStore.add(toDisposable(() => {
+        this._activeInlayHintPart = void 0;
+        this._updateHintsDecorators([range], lineHints);
+      }));
+    }));
+    store.add(gesture.onCancel(() => sessionStore.clear()));
+    store.add(gesture.onExecute(async (e) => {
+      const label = this._getInlayHintLabelPart(e);
+      if (label) {
+        const part = label.part;
+        if (part.location) {
+          this._instaService.invokeFunction(goToDefinitionWithLocation, e, this._editor, part.location);
+        } else if (languages.Command.is(part.command)) {
+          await this._invokeCommand(part.command, label.item);
+        }
+      }
+    }));
+    return store;
+  }
+  _getInlineHintsForRange(range) {
+    const lineHints = /* @__PURE__ */ new Set();
+    for (const data of this._decorationsMetadata.values()) {
+      if (range.containsRange(data.item.anchor.range)) {
+        lineHints.add(data.item);
+      }
+    }
+    return Array.from(lineHints);
+  }
+  _installDblClickGesture(updateInlayHints) {
+    return this._editor.onMouseUp(async (e) => {
+      if (e.event.detail !== 2) {
+        return;
+      }
+      const part = this._getInlayHintLabelPart(e);
+      if (!part) {
+        return;
+      }
+      e.event.preventDefault();
+      await part.item.resolve(CancellationToken.None);
+      if (isNonEmptyArray(part.item.hint.textEdits)) {
+        const edits = part.item.hint.textEdits.map((edit) => EditOperation.replace(Range.lift(edit.range), edit.text));
+        this._editor.executeEdits("inlayHint.default", edits);
+        updateInlayHints();
+      }
+    });
+  }
+  _installContextMenu() {
+    return this._editor.onContextMenu(async (e) => {
+      if (!isHTMLElement(e.event.target)) {
+        return;
+      }
+      const part = this._getInlayHintLabelPart(e);
+      if (part) {
+        await this._instaService.invokeFunction(showGoToContextMenu, this._editor, e.event.target, part);
+      }
+    });
+  }
+  _getInlayHintLabelPart(e) {
+    if (e.target.type !== 6) {
+      return void 0;
+    }
+    const options = e.target.detail.injectedText?.options;
+    if (options instanceof ModelDecorationInjectedTextOptions && options?.attachedData instanceof RenderedInlayHintLabelPart) {
+      return options.attachedData;
+    }
+    return void 0;
+  }
+  async _invokeCommand(command, item) {
+    try {
+      await this._commandService.executeCommand(command.id, ...command.arguments ?? []);
+    } catch (err) {
+      this._notificationService.notify({
+        severity: Severity.Error,
+        source: item.provider.displayName,
+        message: err
+      });
+    }
+  }
+  _cacheHintsForFastRestore(model) {
+    const hints = this._copyInlayHintsWithCurrentAnchor(model);
+    this._inlayHintsCache.set(model, hints);
+  }
+  // return inlay hints but with an anchor that reflects "updates"
+  // that happened after receiving them, e.g adding new lines before a hint
+  _copyInlayHintsWithCurrentAnchor(model) {
+    const items = /* @__PURE__ */ new Map();
+    for (const [id, obj] of this._decorationsMetadata) {
+      if (items.has(obj.item)) {
+        continue;
+      }
+      const range = model.getDecorationRange(id);
+      if (range) {
+        const anchor = new InlayHintAnchor(range, obj.item.anchor.direction);
+        const copy = obj.item.with({ anchor });
+        items.set(obj.item, copy);
+      }
+    }
+    return Array.from(items.values());
+  }
+  _getHintsRanges() {
+    const extra = 30;
+    const model = this._editor.getModel();
+    const visibleRanges = this._editor.getVisibleRangesPlusViewportAboveBelow();
+    const result = [];
+    for (const range of visibleRanges.sort(Range.compareRangesUsingStarts)) {
+      const extendedRange = model.validateRange(new Range(range.startLineNumber - extra, range.startColumn, range.endLineNumber + extra, range.endColumn));
+      if (result.length === 0 || !Range.areIntersectingOrTouching(result[result.length - 1], extendedRange)) {
+        result.push(extendedRange);
+      } else {
+        result[result.length - 1] = Range.plusRange(result[result.length - 1], extendedRange);
+      }
+    }
+    return result;
+  }
+  _updateHintsDecorators(ranges, items) {
+    const itemFixedLengths = /* @__PURE__ */ new Map();
+    if (this._cursorInfo && this._cursorInfo.notEarlierThan > Date.now() && ranges.some((range) => range.containsPosition(this._cursorInfo.position))) {
+      const { position } = this._cursorInfo;
+      this._cursorInfo = void 0;
+      const lengths = /* @__PURE__ */ new Map();
+      for (const deco of this._editor.getLineDecorations(position.lineNumber) ?? []) {
+        const data = this._decorationsMetadata.get(deco.id);
+        if (deco.range.startColumn > position.column) {
+          continue;
+        }
+        const opts = data?.decoration.options[data.item.anchor.direction];
+        if (opts && opts.attachedData !== InlayHintsController_1._whitespaceData) {
+          const len = lengths.get(data.item) ?? 0;
+          lengths.set(data.item, len + opts.content.length);
+        }
+      }
+      const newItemsWithFixedLength = items.filter((item) => item.anchor.range.startLineNumber === position.lineNumber && item.anchor.range.endColumn <= position.column);
+      const fixedLengths = Array.from(lengths.values());
+      let lastItem;
+      while (true) {
+        const targetItem = newItemsWithFixedLength.shift();
+        const fixedLength = fixedLengths.shift();
+        if (!fixedLength && !targetItem) {
+          break;
+        }
+        if (targetItem) {
+          itemFixedLengths.set(targetItem, fixedLength ?? 0);
+          lastItem = targetItem;
+        } else if (lastItem && fixedLength) {
+          let len = itemFixedLengths.get(lastItem);
+          len += fixedLength;
+          len += fixedLengths.reduce((p, c) => p + c, 0);
+          fixedLengths.length = 0;
+          break;
+        }
+      }
+    }
+    const newDecorationsData = [];
+    const addInjectedText = /* @__PURE__ */ __name((item, ref, content, cursorStops, attachedData) => {
+      const opts = {
+        content,
+        inlineClassNameAffectsLetterSpacing: true,
+        inlineClassName: ref.className,
+        cursorStops,
+        attachedData
+      };
+      newDecorationsData.push({
+        item,
+        classNameRef: ref,
+        decoration: {
+          range: item.anchor.range,
+          options: {
+            // className: "rangeHighlight", // DEBUG highlight to see to what range a hint is attached
+            description: "InlayHint",
+            showIfCollapsed: item.anchor.range.isEmpty(),
+            // "original" range is empty
+            collapseOnReplaceEdit: !item.anchor.range.isEmpty(),
+            stickiness: 0,
+            [item.anchor.direction]: this._activeRenderMode === 0 ? opts : void 0
+          }
+        }
+      });
+    }, "addInjectedText");
+    const addInjectedWhitespace = /* @__PURE__ */ __name((item, isLast) => {
+      const marginRule = this._ruleFactory.createClassNameRef({
+        width: `${fontSize / 3 | 0}px`,
+        display: "inline-block"
+      });
+      addInjectedText(item, marginRule, "\u200A", isLast ? InjectedTextCursorStops.Right : InjectedTextCursorStops.None, InlayHintsController_1._whitespaceData);
+    }, "addInjectedWhitespace");
+    const { fontSize, fontFamily, padding, isUniform } = this._getLayoutInfo();
+    const maxLength = this._editor.getOption(
+      159
+      /* EditorOption.inlayHints */
+    ).maximumLength;
+    const fontFamilyVar = "--code-editorInlayHintsFontFamily";
+    this._editor.getContainerDomNode().style.setProperty(fontFamilyVar, fontFamily);
+    let currentLineInfo = { line: 0, totalLen: 0 };
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (currentLineInfo.line !== item.anchor.range.startLineNumber) {
+        currentLineInfo = { line: item.anchor.range.startLineNumber, totalLen: 0 };
+      }
+      if (maxLength && currentLineInfo.totalLen > maxLength) {
+        continue;
+      }
+      if (item.hint.paddingLeft) {
+        addInjectedWhitespace(item, false);
+      }
+      const parts = typeof item.hint.label === "string" ? [{ label: item.hint.label }] : item.hint.label;
+      const itemFixedLength = itemFixedLengths.get(item);
+      let itemActualLength = 0;
+      for (let i2 = 0; i2 < parts.length; i2++) {
+        const part = parts[i2];
+        const isFirst = i2 === 0;
+        const isLast = i2 === parts.length - 1;
+        const cssProperties = {
+          fontSize: `${fontSize}px`,
+          fontFamily: `var(${fontFamilyVar}), ${EDITOR_FONT_DEFAULTS.fontFamily}`,
+          verticalAlign: isUniform ? "baseline" : "middle",
+          unicodeBidi: "isolate"
+        };
+        if (isNonEmptyArray(item.hint.textEdits)) {
+          cssProperties.cursor = "default";
+        }
+        this._fillInColors(cssProperties, item.hint);
+        if ((part.command || part.location) && this._activeInlayHintPart?.part.item === item && this._activeInlayHintPart.part.index === i2) {
+          cssProperties.textDecoration = "underline";
+          if (this._activeInlayHintPart.hasTriggerModifier) {
+            cssProperties.color = themeColorFromId(colors.editorActiveLinkForeground);
+            cssProperties.cursor = "pointer";
+          }
+        }
+        let textlabel = part.label;
+        currentLineInfo.totalLen += textlabel.length;
+        let tooLong = false;
+        const over = maxLength !== 0 ? currentLineInfo.totalLen - maxLength : 0;
+        if (over > 0) {
+          textlabel = textlabel.slice(0, -over) + "\u2026";
+          tooLong = true;
+        }
+        itemActualLength += textlabel.length;
+        if (itemFixedLength !== void 0) {
+          const overFixedLength = itemActualLength - itemFixedLength;
+          if (overFixedLength >= 0) {
+            itemActualLength -= overFixedLength;
+            textlabel = textlabel.slice(0, -(1 + overFixedLength)) + "\u2026";
+            tooLong = true;
+          }
+        }
+        if (padding) {
+          if (isFirst && (isLast || tooLong)) {
+            cssProperties.padding = `1px ${Math.max(1, fontSize / 4) | 0}px`;
+            cssProperties.borderRadius = `${fontSize / 4 | 0}px`;
+          } else if (isFirst) {
+            cssProperties.padding = `1px 0 1px ${Math.max(1, fontSize / 4) | 0}px`;
+            cssProperties.borderRadius = `${fontSize / 4 | 0}px 0 0 ${fontSize / 4 | 0}px`;
+          } else if (isLast || tooLong) {
+            cssProperties.padding = `1px ${Math.max(1, fontSize / 4) | 0}px 1px 0`;
+            cssProperties.borderRadius = `0 ${fontSize / 4 | 0}px ${fontSize / 4 | 0}px 0`;
+          } else {
+            cssProperties.padding = `1px 0 1px 0`;
+          }
+        }
+        addInjectedText(item, this._ruleFactory.createClassNameRef(cssProperties), fixSpace(textlabel), isLast && !item.hint.paddingRight ? InjectedTextCursorStops.Right : InjectedTextCursorStops.None, new RenderedInlayHintLabelPart(item, i2));
+        if (tooLong) {
+          break;
+        }
+      }
+      if (itemFixedLength !== void 0 && itemActualLength < itemFixedLength) {
+        const pad = itemFixedLength - itemActualLength;
+        addInjectedText(item, this._ruleFactory.createClassNameRef({}), "\u200A".repeat(pad), InjectedTextCursorStops.None);
+      }
+      if (item.hint.paddingRight) {
+        addInjectedWhitespace(item, true);
+      }
+      if (newDecorationsData.length > InlayHintsController_1._MAX_DECORATORS) {
+        break;
+      }
+    }
+    const decorationIdsToReplace = [];
+    for (const [id, metadata] of this._decorationsMetadata) {
+      const range = this._editor.getModel()?.getDecorationRange(id);
+      if (range && ranges.some((r) => r.containsRange(range))) {
+        decorationIdsToReplace.push(id);
+        metadata.classNameRef.dispose();
+        this._decorationsMetadata.delete(id);
+      }
+    }
+    const scrollState = StableEditorScrollState.capture(this._editor);
+    this._editor.changeDecorations((accessor) => {
+      const newDecorationIds = accessor.deltaDecorations(decorationIdsToReplace, newDecorationsData.map((d) => d.decoration));
+      for (let i = 0; i < newDecorationIds.length; i++) {
+        const data = newDecorationsData[i];
+        this._decorationsMetadata.set(newDecorationIds[i], data);
+      }
+    });
+    scrollState.restore(this._editor);
+  }
+  _fillInColors(props, hint) {
+    if (hint.kind === languages.InlayHintKind.Parameter) {
+      props.backgroundColor = themeColorFromId(colors.editorInlayHintParameterBackground);
+      props.color = themeColorFromId(colors.editorInlayHintParameterForeground);
+    } else if (hint.kind === languages.InlayHintKind.Type) {
+      props.backgroundColor = themeColorFromId(colors.editorInlayHintTypeBackground);
+      props.color = themeColorFromId(colors.editorInlayHintTypeForeground);
+    } else {
+      props.backgroundColor = themeColorFromId(colors.editorInlayHintBackground);
+      props.color = themeColorFromId(colors.editorInlayHintForeground);
+    }
+  }
+  _getLayoutInfo() {
+    const options = this._editor.getOption(
+      159
+      /* EditorOption.inlayHints */
+    );
+    const padding = options.padding;
+    const editorFontSize = this._editor.getOption(
+      61
+      /* EditorOption.fontSize */
+    );
+    const editorFontFamily = this._editor.getOption(
+      58
+      /* EditorOption.fontFamily */
+    );
+    let fontSize = options.fontSize;
+    if (!fontSize || fontSize < 5 || fontSize > editorFontSize) {
+      fontSize = editorFontSize;
+    }
+    const fontFamily = options.fontFamily || editorFontFamily;
+    const isUniform = !padding && fontFamily === editorFontFamily && fontSize === editorFontSize;
+    return { fontSize, fontFamily, padding, isUniform };
+  }
+  _removeAllDecorations() {
+    this._editor.removeDecorations(Array.from(this._decorationsMetadata.keys()));
+    for (const obj of this._decorationsMetadata.values()) {
+      obj.classNameRef.dispose();
+    }
+    this._decorationsMetadata.clear();
+  }
+  // --- accessibility
+  getInlayHintsForLine(line) {
+    if (!this._editor.hasModel()) {
+      return [];
+    }
+    const set = /* @__PURE__ */ new Set();
+    const result = [];
+    for (const deco of this._editor.getLineDecorations(line)) {
+      const data = this._decorationsMetadata.get(deco.id);
+      if (data && !set.has(data.item.hint)) {
+        set.add(data.item.hint);
+        result.push(data.item);
+      }
+    }
+    return result;
+  }
+};
+InlayHintsController = InlayHintsController_1 = __decorate([
+  __param(1, ILanguageFeaturesService),
+  __param(2, ILanguageFeatureDebounceService),
+  __param(3, IInlayHintsCache),
+  __param(4, ICommandService),
+  __param(5, INotificationService),
+  __param(6, IInstantiationService)
+], InlayHintsController);
+function fixSpace(str) {
+  const noBreakWhitespace = "\xA0";
+  return str.replace(/[ \t]/g, noBreakWhitespace);
+}
+__name(fixSpace, "fixSpace");
+CommandsRegistry.registerCommand("_executeInlayHintProvider", async (accessor, ...args) => {
+  const [uri, range] = args;
+  assertType(URI.isUri(uri));
+  assertType(Range.isIRange(range));
+  const { inlayHintsProvider } = accessor.get(ILanguageFeaturesService);
+  const ref = await accessor.get(ITextModelService).createModelReference(uri);
+  try {
+    const model = await InlayHintsFragments.create(inlayHintsProvider, ref.object.textEditorModel, [Range.lift(range)], CancellationToken.None);
+    const result = model.items.map((i) => i.hint);
+    setTimeout(() => model.dispose(), 0);
+    return result;
+  } finally {
+    ref.dispose();
+  }
+});
+export {
+  InlayHintsController,
+  RenderedInlayHintLabelPart
+};
+//# sourceMappingURL=inlayHintsController.js.map

@@ -1,1 +1,422 @@
-import{$If as D}from"../../../../base/common/cancellation.js";import{$3E as v}from"../../../../base/common/hierarchicalKind.js";import{$tk as F}from"../../../../base/common/htmlContent.js";import{$Ed as C}from"../../../../base/common/lifecycle.js";import*as j from"../../../../base/common/strings.js";import{$pcb as k}from"../../../../editor/browser/editorBrowser.js";import{$ucb as p}from"../../../../editor/browser/services/codeEditorService.js";import{$Bsb as V}from"../../../../editor/common/commands/trimTrailingWhitespaceCommand.js";import{$0D as N}from"../../../../editor/common/core/editOperation.js";import{$8D as P}from"../../../../editor/common/core/position.js";import{$9D as T}from"../../../../editor/common/core/range.js";import{$NV as _}from"../../../../editor/common/services/languageFeatures.js";import{ApplyCodeActionReason as W,$Nkb as q,$Mkb as z}from"../../../../editor/contrib/codeAction/browser/codeAction.js";import{$zkb as S,CodeActionTriggerSource as B}from"../../../../editor/contrib/codeAction/common/types.js";import{$csb as H,$esb as I}from"../../../../editor/contrib/format/browser/format.js";import{$Tmb as K}from"../../../../editor/contrib/snippet/browser/snippetController2.js";import{localize as y}from"../../../../nls.js";import{$9l as m}from"../../../../platform/configuration/common/configuration.js";import{$Lj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$tH as R}from"../../../../platform/progress/common/progress.js";import{$im as G}from"../../../../platform/registry/common/platform.js";import{Extensions as J}from"../../../common/contributions.js";import{$yL as Q}from"../../../services/editor/common/editorService.js";import{$pbb as U}from"../../../services/host/browser/host.js";import{$dM as X}from"../../../services/textfile/common/textfiles.js";import{$fFc as Y}from"../../format/browser/formatModified.js";var g=function(d,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(d,t,e,i);else for(var n=d.length-1;n>=0;n--)(o=d[n])&&(r=(s<3?o(r):s>3?o(t,e,r):o(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},a=function(d,t){return function(e,i){t(e,i,d)}};let b=class{constructor(t,e){this.c=t,this.d=e}async participate(t,e){if(!t.textEditorModel)return;const i=this.c.getValue("files.trimTrailingWhitespace",{overrideIdentifier:t.textEditorModel.getLanguageId(),resource:t.resource}),s=this.c.getValue("files.trimTrailingWhitespaceInRegexAndStrings",{overrideIdentifier:t.textEditorModel.getLanguageId(),resource:t.resource});i&&this.e(t.textEditorModel,e.reason===2,s)}e(t,e,i){let s=[],r=[];const o=A(t,this.d);if(o&&(s=o.getSelections(),e)){r=s.map(c=>c.getPosition());const f=K.get(o)?.getSessionEnclosingRange();if(f)for(let c=f.startLineNumber;c<=f.endLineNumber;c++)r.push(new P(c,t.getLineMaxColumn(c)))}const n=V(t,r,i);n.length&&t.pushEditOperations(s,n,f=>s)}};b=g([a(0,m),a(1,p)],b);function A(d,t){let e=null;if(d.isAttachedToEditor()){for(const i of t.listCodeEditors())if(i.hasModel()&&i.getModel()===d){if(i.hasTextFocus())return i;e=i}}return e}let $=class{constructor(t,e){this.c=t,this.d=e}async participate(t,e){t.textEditorModel&&this.c.getValue("files.insertFinalNewline",{overrideIdentifier:t.textEditorModel.getLanguageId(),resource:t.resource})&&this.e(t.textEditorModel)}e(t){const e=t.getLineCount(),i=t.getLineContent(e),s=j.$cg(i)===-1;if(!e||s)return;const r=[N.insert(new P(e,t.getLineMaxColumn(e)),t.getEOL())],o=A(t,this.d);o?o.executeEdits("insertFinalNewLine",r,o.getSelections()):t.pushEditOperations([],r,()=>null)}};$=g([a(0,m),a(1,p)],$);let x=class{constructor(t,e){this.c=t,this.d=e}async participate(t,e){t.textEditorModel&&this.c.getValue("files.trimFinalNewlines",{overrideIdentifier:t.textEditorModel.getLanguageId(),resource:t.resource})&&this.f(t.textEditorModel,e.reason===2)}e(t){for(let e=t.getLineCount();e>=1;e--)if(t.getLineLength(e)>0)return e;return 0}f(t,e){const i=t.getLineCount();if(i===1)return;let s=[],r=0;const o=A(t,this.d);if(o&&(s=o.getSelections(),e))for(let h=0,l=s.length;h<l;h++){const u=s[h].positionLineNumber;u>r&&(r=u)}const n=this.e(t),f=Math.max(n+1,r+1),c=t.validateRange(new T(f,1,i,t.getLineMaxColumn(i)));c.isEmpty()||(t.pushEditOperations(s,[N.delete(c)],h=>s),o?.setSelections(s))}};x=g([a(0,m),a(1,p)],x);let E=class{constructor(t,e,i){this.c=t,this.d=e,this.e=i}async participate(t,e,i,s){if(!t.textEditorModel||e.reason===2)return;const r=t.textEditorModel,o={overrideIdentifier:r.getLanguageId(),resource:r.uri},n=new R(l=>{i.report({message:y(6981,null,l.displayName||l.extensionId&&l.extensionId.value||"???",F("workbench.action.openSettings","editor.formatOnSave").toString())})});if(!this.c.getValue("editor.formatOnSave",o))return;const c=A(r,this.d)||r,h=this.c.getValue("editor.formatOnSaveMode",o);if(h==="file")await this.e.invokeFunction(I,c,2,n,s);else{const l=await this.e.invokeFunction(Y,k(c)?c.getModel():c);l===null&&h==="modificationsIfAvailable"?await this.e.invokeFunction(I,c,2,n,s):l&&await this.e.invokeFunction(H,c,l,2,n,s,!1)}}};E=g([a(0,m),a(1,p),a(2,O)],E);let L=class extends C{constructor(t,e,i,s,r,o){super(),this.c=t,this.f=e,this.g=i,this.h=s,this.j=r,this.m=o,this.D(this.h.onDidChangeFocus(()=>{this.n()})),this.D(this.j.onDidActiveEditorChange(()=>{this.n()}))}async n(){if(this.c.getValue("editor.codeActions.triggerOnFocusChange")&&this.c.getValue("files.autoSave")==="afterDelay"){const t=this.m.getActiveCodeEditor()?.getModel();if(!t)return;const e={overrideIdentifier:t.getLanguageId(),resource:t.uri},i=this.c.getValue("editor.codeActionsOnSave",e);if(!i||Array.isArray(i))return;const s=Object.keys(i).filter(n=>i[n]&&i[n]==="always"&&S.Source.contains(new v(n))),r=new D,o=[];for(const n of s)o.push(new v(n));await this.r(t,o,[],R.None,r.token)}}async participate(t,e,i,s){if(!t.textEditorModel)return;const r=t.textEditorModel,o={overrideIdentifier:r.getLanguageId(),resource:r.uri},n=this.c.getValue("editor.codeActionsOnSave",o);if(!n||e.reason===2||e.reason!==1&&Array.isArray(n))return;const f=Array.isArray(n)?n:Object.keys(n).filter(u=>n[u]&&n[u]!=="never"),c=this.q(f);if(Array.isArray(n)||c.sort((u,w)=>S.SourceFixAll.contains(u)?S.SourceFixAll.contains(w)?0:-1:S.SourceFixAll.contains(w)?1:0),!c.length)return;const h=Array.isArray(n)?[]:Object.keys(n).filter(u=>n[u]==="never"||!1).map(u=>new v(u));i.report({message:y(6982,null)});const l=Array.isArray(n)?c:c.filter(u=>n[u.value]==="always"||(n[u.value]==="explicit"||n[u.value]===!0)&&e.reason===1);await this.r(r,l,h,i,s)}q(t){const e=t.map(i=>new v(i));return e.filter(i=>e.every(s=>s.equals(i)||!s.contains(i)))}async r(t,e,i,s,r){const o=new class{constructor(){this.c=new Set}d(){s.report({message:y(6983,null,[...this.c].map(n=>`'${n}'`).join(", "),F("workbench.action.openSettings","editor.codeActionsOnSave").toString())})}report(n){n.displayName&&!this.c.has(n.displayName)&&(this.c.add(n.displayName),this.d())}};for(const n of e){const f=await this.t(t,n,i,o,r);if(r.isCancellationRequested){f.dispose();return}try{for(const c of f.validActions)if(s.report({message:y(6984,null,c.action.title)}),await this.f.invokeFunction(q,c,W.OnSave,{},r),r.isCancellationRequested)return}catch{}finally{f.dispose()}}}t(t,e,i,s,r){return z(this.g.codeActionProvider,t,t.getFullModelRange(),{type:2,triggerAction:B.OnSave,filter:{include:e,excludes:i,includeSourceActions:!0}},s,r)}};L=g([a(0,m),a(1,O),a(2,_),a(3,U),a(4,Q),a(5,p)],L);let M=class extends C{constructor(t,e){super(),this.c=t,this.f=e,this.g()}g(){this.D(this.f.files.addSaveParticipant(this.c.createInstance(b))),this.D(this.f.files.addSaveParticipant(this.c.createInstance(L))),this.D(this.f.files.addSaveParticipant(this.c.createInstance(E))),this.D(this.f.files.addSaveParticipant(this.c.createInstance($))),this.D(this.f.files.addSaveParticipant(this.c.createInstance(x)))}};M=g([a(0,O),a(1,X)],M);const Z=G.as(J.Workbench);Z.registerWorkbenchContribution(M,3);export{b as $gFc,$ as $hFc,x as $iFc,M as $jFc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { createCommandUri } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as strings from "../../../../base/common/strings.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { trimTrailingWhitespace } from "../../../../editor/common/commands/trimTrailingWhitespaceCommand.js";
+import { EditOperation } from "../../../../editor/common/core/editOperation.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { ApplyCodeActionReason, applyCodeAction, getCodeActions } from "../../../../editor/contrib/codeAction/browser/codeAction.js";
+import { CodeActionKind, CodeActionTriggerSource } from "../../../../editor/contrib/codeAction/common/types.js";
+import { formatDocumentRangesWithSelectedProvider, formatDocumentWithSelectedProvider } from "../../../../editor/contrib/format/browser/format.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Progress } from "../../../../platform/progress/common/progress.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchContributionsExtensions } from "../../../common/contributions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { getModifiedRanges } from "../../format/browser/formatModified.js";
+let TrimWhitespaceParticipant = class TrimWhitespaceParticipant2 {
+  static {
+    __name(this, "TrimWhitespaceParticipant");
+  }
+  constructor(configurationService, codeEditorService) {
+    this.configurationService = configurationService;
+    this.codeEditorService = codeEditorService;
+  }
+  async participate(model, context) {
+    if (!model.textEditorModel) {
+      return;
+    }
+    const trimTrailingWhitespaceOption = this.configurationService.getValue("files.trimTrailingWhitespace", { overrideIdentifier: model.textEditorModel.getLanguageId(), resource: model.resource });
+    const trimInRegexAndStrings = this.configurationService.getValue("files.trimTrailingWhitespaceInRegexAndStrings", { overrideIdentifier: model.textEditorModel.getLanguageId(), resource: model.resource });
+    if (trimTrailingWhitespaceOption) {
+      this.doTrimTrailingWhitespace(model.textEditorModel, context.reason === 2, trimInRegexAndStrings);
+    }
+  }
+  doTrimTrailingWhitespace(model, isAutoSaved, trimInRegexesAndStrings) {
+    let prevSelection = [];
+    let cursors = [];
+    const editor = findEditor(model, this.codeEditorService);
+    if (editor) {
+      prevSelection = editor.getSelections();
+      if (isAutoSaved) {
+        cursors = prevSelection.map((s) => s.getPosition());
+        const snippetsRange = SnippetController2.get(editor)?.getSessionEnclosingRange();
+        if (snippetsRange) {
+          for (let lineNumber = snippetsRange.startLineNumber; lineNumber <= snippetsRange.endLineNumber; lineNumber++) {
+            cursors.push(new Position(lineNumber, model.getLineMaxColumn(lineNumber)));
+          }
+        }
+      }
+    }
+    const ops = trimTrailingWhitespace(model, cursors, trimInRegexesAndStrings);
+    if (!ops.length) {
+      return;
+    }
+    model.pushEditOperations(prevSelection, ops, (_edits) => prevSelection);
+  }
+};
+TrimWhitespaceParticipant = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ICodeEditorService)
+], TrimWhitespaceParticipant);
+function findEditor(model, codeEditorService) {
+  let candidate = null;
+  if (model.isAttachedToEditor()) {
+    for (const editor of codeEditorService.listCodeEditors()) {
+      if (editor.hasModel() && editor.getModel() === model) {
+        if (editor.hasTextFocus()) {
+          return editor;
+        }
+        candidate = editor;
+      }
+    }
+  }
+  return candidate;
+}
+__name(findEditor, "findEditor");
+let FinalNewLineParticipant = class FinalNewLineParticipant2 {
+  static {
+    __name(this, "FinalNewLineParticipant");
+  }
+  constructor(configurationService, codeEditorService) {
+    this.configurationService = configurationService;
+    this.codeEditorService = codeEditorService;
+  }
+  async participate(model, context) {
+    if (!model.textEditorModel) {
+      return;
+    }
+    if (this.configurationService.getValue("files.insertFinalNewline", { overrideIdentifier: model.textEditorModel.getLanguageId(), resource: model.resource })) {
+      this.doInsertFinalNewLine(model.textEditorModel);
+    }
+  }
+  doInsertFinalNewLine(model) {
+    const lineCount = model.getLineCount();
+    const lastLine = model.getLineContent(lineCount);
+    const lastLineIsEmptyOrWhitespace = strings.lastNonWhitespaceIndex(lastLine) === -1;
+    if (!lineCount || lastLineIsEmptyOrWhitespace) {
+      return;
+    }
+    const edits = [EditOperation.insert(new Position(lineCount, model.getLineMaxColumn(lineCount)), model.getEOL())];
+    const editor = findEditor(model, this.codeEditorService);
+    if (editor) {
+      editor.executeEdits("insertFinalNewLine", edits, editor.getSelections());
+    } else {
+      model.pushEditOperations([], edits, () => null);
+    }
+  }
+};
+FinalNewLineParticipant = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ICodeEditorService)
+], FinalNewLineParticipant);
+let TrimFinalNewLinesParticipant = class TrimFinalNewLinesParticipant2 {
+  static {
+    __name(this, "TrimFinalNewLinesParticipant");
+  }
+  constructor(configurationService, codeEditorService) {
+    this.configurationService = configurationService;
+    this.codeEditorService = codeEditorService;
+  }
+  async participate(model, context) {
+    if (!model.textEditorModel) {
+      return;
+    }
+    if (this.configurationService.getValue("files.trimFinalNewlines", { overrideIdentifier: model.textEditorModel.getLanguageId(), resource: model.resource })) {
+      this.doTrimFinalNewLines(
+        model.textEditorModel,
+        context.reason === 2
+        /* SaveReason.AUTO */
+      );
+    }
+  }
+  /**
+   * returns 0 if the entire file is empty
+   */
+  findLastNonEmptyLine(model) {
+    for (let lineNumber = model.getLineCount(); lineNumber >= 1; lineNumber--) {
+      const lineLength = model.getLineLength(lineNumber);
+      if (lineLength > 0) {
+        return lineNumber;
+      }
+    }
+    return 0;
+  }
+  doTrimFinalNewLines(model, isAutoSaved) {
+    const lineCount = model.getLineCount();
+    if (lineCount === 1) {
+      return;
+    }
+    let prevSelection = [];
+    let cannotTouchLineNumber = 0;
+    const editor = findEditor(model, this.codeEditorService);
+    if (editor) {
+      prevSelection = editor.getSelections();
+      if (isAutoSaved) {
+        for (let i = 0, len = prevSelection.length; i < len; i++) {
+          const positionLineNumber = prevSelection[i].positionLineNumber;
+          if (positionLineNumber > cannotTouchLineNumber) {
+            cannotTouchLineNumber = positionLineNumber;
+          }
+        }
+      }
+    }
+    const lastNonEmptyLine = this.findLastNonEmptyLine(model);
+    const deleteFromLineNumber = Math.max(lastNonEmptyLine + 1, cannotTouchLineNumber + 1);
+    const deletionRange = model.validateRange(new Range(deleteFromLineNumber, 1, lineCount, model.getLineMaxColumn(lineCount)));
+    if (deletionRange.isEmpty()) {
+      return;
+    }
+    model.pushEditOperations(prevSelection, [EditOperation.delete(deletionRange)], (_edits) => prevSelection);
+    editor?.setSelections(prevSelection);
+  }
+};
+TrimFinalNewLinesParticipant = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ICodeEditorService)
+], TrimFinalNewLinesParticipant);
+let FormatOnSaveParticipant = class FormatOnSaveParticipant2 {
+  static {
+    __name(this, "FormatOnSaveParticipant");
+  }
+  constructor(configurationService, codeEditorService, instantiationService) {
+    this.configurationService = configurationService;
+    this.codeEditorService = codeEditorService;
+    this.instantiationService = instantiationService;
+  }
+  async participate(model, context, progress, token) {
+    if (!model.textEditorModel) {
+      return;
+    }
+    if (context.reason === 2) {
+      return void 0;
+    }
+    const textEditorModel = model.textEditorModel;
+    const overrides = { overrideIdentifier: textEditorModel.getLanguageId(), resource: textEditorModel.uri };
+    const nestedProgress = new Progress((provider) => {
+      progress.report({
+        message: localize({ key: "formatting2", comment: ["[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"] }, "Running '{0}' Formatter ([configure]({1})).", provider.displayName || provider.extensionId && provider.extensionId.value || "???", createCommandUri("workbench.action.openSettings", "editor.formatOnSave").toString())
+      });
+    });
+    const enabled = this.configurationService.getValue("editor.formatOnSave", overrides);
+    if (!enabled) {
+      return void 0;
+    }
+    const editorOrModel = findEditor(textEditorModel, this.codeEditorService) || textEditorModel;
+    const mode = this.configurationService.getValue("editor.formatOnSaveMode", overrides);
+    if (mode === "file") {
+      await this.instantiationService.invokeFunction(formatDocumentWithSelectedProvider, editorOrModel, 2, nestedProgress, token);
+    } else {
+      const ranges = await this.instantiationService.invokeFunction(getModifiedRanges, isCodeEditor(editorOrModel) ? editorOrModel.getModel() : editorOrModel);
+      if (ranges === null && mode === "modificationsIfAvailable") {
+        await this.instantiationService.invokeFunction(formatDocumentWithSelectedProvider, editorOrModel, 2, nestedProgress, token);
+      } else if (ranges) {
+        await this.instantiationService.invokeFunction(formatDocumentRangesWithSelectedProvider, editorOrModel, ranges, 2, nestedProgress, token, false);
+      }
+    }
+  }
+};
+FormatOnSaveParticipant = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ICodeEditorService),
+  __param(2, IInstantiationService)
+], FormatOnSaveParticipant);
+let CodeActionOnSaveParticipant = class CodeActionOnSaveParticipant2 extends Disposable {
+  static {
+    __name(this, "CodeActionOnSaveParticipant");
+  }
+  constructor(configurationService, instantiationService, languageFeaturesService, hostService, editorService, codeEditorService) {
+    super();
+    this.configurationService = configurationService;
+    this.instantiationService = instantiationService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.hostService = hostService;
+    this.editorService = editorService;
+    this.codeEditorService = codeEditorService;
+    this._register(this.hostService.onDidChangeFocus(() => {
+      this.triggerCodeActionsCommand();
+    }));
+    this._register(this.editorService.onDidActiveEditorChange(() => {
+      this.triggerCodeActionsCommand();
+    }));
+  }
+  async triggerCodeActionsCommand() {
+    if (this.configurationService.getValue("editor.codeActions.triggerOnFocusChange") && this.configurationService.getValue("files.autoSave") === "afterDelay") {
+      const model = this.codeEditorService.getActiveCodeEditor()?.getModel();
+      if (!model) {
+        return void 0;
+      }
+      const settingsOverrides = { overrideIdentifier: model.getLanguageId(), resource: model.uri };
+      const setting = this.configurationService.getValue("editor.codeActionsOnSave", settingsOverrides);
+      if (!setting) {
+        return void 0;
+      }
+      if (Array.isArray(setting)) {
+        return void 0;
+      }
+      const settingItems = Object.keys(setting).filter((x) => setting[x] && setting[x] === "always" && CodeActionKind.Source.contains(new HierarchicalKind(x)));
+      const cancellationTokenSource = new CancellationTokenSource();
+      const codeActionKindList = [];
+      for (const item of settingItems) {
+        codeActionKindList.push(new HierarchicalKind(item));
+      }
+      await this.applyOnSaveActions(model, codeActionKindList, [], Progress.None, cancellationTokenSource.token);
+    }
+  }
+  async participate(model, context, progress, token) {
+    if (!model.textEditorModel) {
+      return;
+    }
+    const textEditorModel = model.textEditorModel;
+    const settingsOverrides = { overrideIdentifier: textEditorModel.getLanguageId(), resource: textEditorModel.uri };
+    const setting = this.configurationService.getValue("editor.codeActionsOnSave", settingsOverrides);
+    if (!setting) {
+      return void 0;
+    }
+    if (context.reason === 2) {
+      return void 0;
+    }
+    if (context.reason !== 1 && Array.isArray(setting)) {
+      return void 0;
+    }
+    const settingItems = Array.isArray(setting) ? setting : Object.keys(setting).filter((x) => setting[x] && setting[x] !== "never");
+    const codeActionsOnSave = this.createCodeActionsOnSave(settingItems);
+    if (!Array.isArray(setting)) {
+      codeActionsOnSave.sort((a, b) => {
+        if (CodeActionKind.SourceFixAll.contains(a)) {
+          if (CodeActionKind.SourceFixAll.contains(b)) {
+            return 0;
+          }
+          return -1;
+        }
+        if (CodeActionKind.SourceFixAll.contains(b)) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    if (!codeActionsOnSave.length) {
+      return void 0;
+    }
+    const excludedActions = Array.isArray(setting) ? [] : Object.keys(setting).filter((x) => setting[x] === "never" || false).map((x) => new HierarchicalKind(x));
+    progress.report({ message: localize("codeaction", "Quick Fixes") });
+    const filteredSaveList = Array.isArray(setting) ? codeActionsOnSave : codeActionsOnSave.filter((x) => setting[x.value] === "always" || (setting[x.value] === "explicit" || setting[x.value] === true) && context.reason === 1);
+    await this.applyOnSaveActions(textEditorModel, filteredSaveList, excludedActions, progress, token);
+  }
+  createCodeActionsOnSave(settingItems) {
+    const kinds = settingItems.map((x) => new HierarchicalKind(x));
+    return kinds.filter((kind) => {
+      return kinds.every((otherKind) => otherKind.equals(kind) || !otherKind.contains(kind));
+    });
+  }
+  async applyOnSaveActions(model, codeActionsOnSave, excludes, progress, token) {
+    const getActionProgress = new class {
+      constructor() {
+        this._names = /* @__PURE__ */ new Set();
+      }
+      _report() {
+        progress.report({
+          message: localize({ key: "codeaction.get2", comment: ["[configure]({1}) is a link. Only translate `configure`. Do not change brackets and parentheses or {1}"] }, "Getting code actions from {0} ([configure]({1})).", [...this._names].map((name) => `'${name}'`).join(", "), createCommandUri("workbench.action.openSettings", "editor.codeActionsOnSave").toString())
+        });
+      }
+      report(provider) {
+        if (provider.displayName && !this._names.has(provider.displayName)) {
+          this._names.add(provider.displayName);
+          this._report();
+        }
+      }
+    }();
+    for (const codeActionKind of codeActionsOnSave) {
+      const actionsToRun = await this.getActionsToRun(model, codeActionKind, excludes, getActionProgress, token);
+      if (token.isCancellationRequested) {
+        actionsToRun.dispose();
+        return;
+      }
+      try {
+        for (const action of actionsToRun.validActions) {
+          progress.report({ message: localize("codeAction.apply", "Applying code action '{0}'.", action.action.title) });
+          await this.instantiationService.invokeFunction(applyCodeAction, action, ApplyCodeActionReason.OnSave, {}, token);
+          if (token.isCancellationRequested) {
+            return;
+          }
+        }
+      } catch {
+      } finally {
+        actionsToRun.dispose();
+      }
+    }
+  }
+  getActionsToRun(model, codeActionKind, excludes, progress, token) {
+    return getCodeActions(this.languageFeaturesService.codeActionProvider, model, model.getFullModelRange(), {
+      type: 2,
+      triggerAction: CodeActionTriggerSource.OnSave,
+      filter: { include: codeActionKind, excludes, includeSourceActions: true }
+    }, progress, token);
+  }
+};
+CodeActionOnSaveParticipant = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IInstantiationService),
+  __param(2, ILanguageFeaturesService),
+  __param(3, IHostService),
+  __param(4, IEditorService),
+  __param(5, ICodeEditorService)
+], CodeActionOnSaveParticipant);
+let SaveParticipantsContribution = class SaveParticipantsContribution2 extends Disposable {
+  static {
+    __name(this, "SaveParticipantsContribution");
+  }
+  constructor(instantiationService, textFileService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.textFileService = textFileService;
+    this.registerSaveParticipants();
+  }
+  registerSaveParticipants() {
+    this._register(this.textFileService.files.addSaveParticipant(this.instantiationService.createInstance(TrimWhitespaceParticipant)));
+    this._register(this.textFileService.files.addSaveParticipant(this.instantiationService.createInstance(CodeActionOnSaveParticipant)));
+    this._register(this.textFileService.files.addSaveParticipant(this.instantiationService.createInstance(FormatOnSaveParticipant)));
+    this._register(this.textFileService.files.addSaveParticipant(this.instantiationService.createInstance(FinalNewLineParticipant)));
+    this._register(this.textFileService.files.addSaveParticipant(this.instantiationService.createInstance(TrimFinalNewLinesParticipant)));
+  }
+};
+SaveParticipantsContribution = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, ITextFileService)
+], SaveParticipantsContribution);
+const workbenchContributionsRegistry = Registry.as(WorkbenchContributionsExtensions.Workbench);
+workbenchContributionsRegistry.registerWorkbenchContribution(
+  SaveParticipantsContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+export {
+  FinalNewLineParticipant,
+  SaveParticipantsContribution,
+  TrimFinalNewLinesParticipant,
+  TrimWhitespaceParticipant
+};
+//# sourceMappingURL=saveParticipants.js.map

@@ -1,1 +1,137 @@
-import{$9i as g}from"../../../../base/common/buffer.js";import{$Rk as p,$uk as y}from"../../../../platform/files/common/files.js";import{$xo as d}from"../../../../platform/log/common/log.js";import{$MQ as m}from"../common/userDataProfile.js";import{$y as k}from"../../../../base/common/platform.js";import{TreeItemCollapsibleState as u}from"../../../common/views.js";import{$ISb as $}from"../../../browser/parts/editor/editorCommands.js";import{$Lj as R}from"../../../../platform/instantiation/common/instantiation.js";import{localize as C}from"../../../../nls.js";import{$0o as _}from"../../../../platform/uriIdentity/common/uriIdentity.js";var b=function(i,e,t,n){var o=arguments.length,s=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,e,t,n);else for(var l=i.length-1;l>=0;l--)(a=i[l])&&(s=(o<3?a(s):o>3?a(e,t,s):a(e,t))||s);return o>3&&s&&Object.defineProperty(e,t,s),s},r=function(i,e){return function(t,n){e(t,n,i)}};let h=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n}async initialize(e){const t=JSON.parse(e);if(t.keybindings===null){this.c.info("Initializing Profile: No keybindings to apply...");return}await this.b.writeFile(this.a.currentProfile.keybindingsResource,g.fromString(t.keybindings))}};h=b([r(0,m),r(1,y),r(2,d)],h);let c=class{constructor(e,t){this.a=e,this.b=t}async getContent(e){const t=await this.getKeybindingsResourceContent(e);return JSON.stringify(t)}async getKeybindingsResourceContent(e){return{keybindings:await this.c(e),platform:k}}async apply(e,t){const n=JSON.parse(e);if(n.keybindings===null){this.b.info(`Importing Profile (${t.name}): No keybindings to apply...`);return}await this.a.writeFile(t.keybindingsResource,g.fromString(n.keybindings))}async c(e){try{return(await this.a.readFile(e.keybindingsResource)).value.toString()}catch(t){if(t instanceof p&&t.fileOperationResult===1)return null;throw t}}};c=b([r(0,y),r(1,d)],c);let f=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n,this.type="keybindings",this.handle="keybindings",this.label={label:C(16292,null)},this.collapsibleState=u.Expanded}isFromDefaultProfile(){return!this.a.isDefault&&!!this.a.useDefaultFlags?.keybindings}async getChildren(){return[{handle:this.a.keybindingsResource.toString(),resourceUri:this.a.keybindingsResource,collapsibleState:u.None,parent:this,accessibilityInformation:{label:this.b.extUri.basename(this.a.settingsResource)},command:{id:$,title:"",arguments:[this.a.keybindingsResource,void 0,void 0]}}]}async hasContent(){return(await this.c.createInstance(c).getKeybindingsResourceContent(this.a)).keybindings!==null}async getContent(){return this.c.createInstance(c).getContent(this.a)}};f=b([r(1,_),r(2,R)],f);export{f as $0_b,h as $8_b,c as $9_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { FileOperationError, IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUserDataProfileService } from "../common/userDataProfile.js";
+import { platform } from "../../../../base/common/platform.js";
+import { TreeItemCollapsibleState } from "../../../common/views.js";
+import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+let KeybindingsResourceInitializer = class KeybindingsResourceInitializer2 {
+  static {
+    __name(this, "KeybindingsResourceInitializer");
+  }
+  constructor(userDataProfileService, fileService, logService) {
+    this.userDataProfileService = userDataProfileService;
+    this.fileService = fileService;
+    this.logService = logService;
+  }
+  async initialize(content) {
+    const keybindingsContent = JSON.parse(content);
+    if (keybindingsContent.keybindings === null) {
+      this.logService.info(`Initializing Profile: No keybindings to apply...`);
+      return;
+    }
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.keybindingsResource, VSBuffer.fromString(keybindingsContent.keybindings));
+  }
+};
+KeybindingsResourceInitializer = __decorate([
+  __param(0, IUserDataProfileService),
+  __param(1, IFileService),
+  __param(2, ILogService)
+], KeybindingsResourceInitializer);
+let KeybindingsResource = class KeybindingsResource2 {
+  static {
+    __name(this, "KeybindingsResource");
+  }
+  constructor(fileService, logService) {
+    this.fileService = fileService;
+    this.logService = logService;
+  }
+  async getContent(profile) {
+    const keybindingsContent = await this.getKeybindingsResourceContent(profile);
+    return JSON.stringify(keybindingsContent);
+  }
+  async getKeybindingsResourceContent(profile) {
+    const keybindings = await this.getKeybindingsContent(profile);
+    return { keybindings, platform };
+  }
+  async apply(content, profile) {
+    const keybindingsContent = JSON.parse(content);
+    if (keybindingsContent.keybindings === null) {
+      this.logService.info(`Importing Profile (${profile.name}): No keybindings to apply...`);
+      return;
+    }
+    await this.fileService.writeFile(profile.keybindingsResource, VSBuffer.fromString(keybindingsContent.keybindings));
+  }
+  async getKeybindingsContent(profile) {
+    try {
+      const content = await this.fileService.readFile(profile.keybindingsResource);
+      return content.value.toString();
+    } catch (error) {
+      if (error instanceof FileOperationError && error.fileOperationResult === 1) {
+        return null;
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+KeybindingsResource = __decorate([
+  __param(0, IFileService),
+  __param(1, ILogService)
+], KeybindingsResource);
+let KeybindingsResourceTreeItem = class KeybindingsResourceTreeItem2 {
+  static {
+    __name(this, "KeybindingsResourceTreeItem");
+  }
+  constructor(profile, uriIdentityService, instantiationService) {
+    this.profile = profile;
+    this.uriIdentityService = uriIdentityService;
+    this.instantiationService = instantiationService;
+    this.type = "keybindings";
+    this.handle = "keybindings";
+    this.label = { label: localize("keybindings", "Keyboard Shortcuts") };
+    this.collapsibleState = TreeItemCollapsibleState.Expanded;
+  }
+  isFromDefaultProfile() {
+    return !this.profile.isDefault && !!this.profile.useDefaultFlags?.keybindings;
+  }
+  async getChildren() {
+    return [{
+      handle: this.profile.keybindingsResource.toString(),
+      resourceUri: this.profile.keybindingsResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.settingsResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.keybindingsResource, void 0, void 0]
+      }
+    }];
+  }
+  async hasContent() {
+    const keybindingsContent = await this.instantiationService.createInstance(KeybindingsResource).getKeybindingsResourceContent(this.profile);
+    return keybindingsContent.keybindings !== null;
+  }
+  async getContent() {
+    return this.instantiationService.createInstance(KeybindingsResource).getContent(this.profile);
+  }
+};
+KeybindingsResourceTreeItem = __decorate([
+  __param(1, IUriIdentityService),
+  __param(2, IInstantiationService)
+], KeybindingsResourceTreeItem);
+export {
+  KeybindingsResource,
+  KeybindingsResourceInitializer,
+  KeybindingsResourceTreeItem
+};
+//# sourceMappingURL=keybindingsResource.js.map

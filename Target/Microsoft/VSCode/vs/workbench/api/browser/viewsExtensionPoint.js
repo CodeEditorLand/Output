@@ -1,1 +1,718 @@
-import{$ik as N}from"../../../base/common/htmlContent.js";import{$Ed as F}from"../../../base/common/lifecycle.js";import*as P from"../../../base/common/resources.js";import{$Tf as _}from"../../../base/common/strings.js";import{ThemeIcon as A}from"../../../base/common/themables.js";import{localize as i}from"../../../nls.js";import{$9n as G}from"../../../platform/contextkey/common/contextkey.js";import{$Fz as X,$Gz as z}from"../../../platform/extensions/common/extensions.js";import{$Jj as b}from"../../../platform/instantiation/common/descriptors.js";import{$Lj as J}from"../../../platform/instantiation/common/instantiation.js";import{$xo as Q}from"../../../platform/log/common/log.js";import{$im as w}from"../../../platform/registry/common/platform.js";import{$9Ab as U}from"../../browser/panecomposite.js";import{$k0b as Z,$i0b as K}from"../../browser/parts/views/treeView.js";import{$5Ab as Y}from"../../browser/parts/views/viewPaneContainer.js";import{$XN as ee}from"../../common/contributions.js";import{Extensions as x}from"../../common/views.js";import{$nX as k}from"../../contrib/debug/common/debug.js";import{$BQb as $}from"../../contrib/files/common/files.js";import{$J0b as E}from"../../contrib/remote/browser/remoteExplorer.js";import{$uQ as L}from"../../contrib/scm/common/scm.js";import{$N0b as ie}from"../../contrib/webviewView/browser/webviewViewPane.js";import{Extensions as W}from"../../services/extensionManagement/common/extensionFeatures.js";import{$7R as R}from"../../services/extensions/common/extensions.js";import{$1R as q}from"../../services/extensions/common/extensionsRegistry.js";var M=function(d,t,n,e){var s=arguments.length,l=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(d,t,n,e);else for(var o=d.length-1;o>=0;o--)(r=d[o])&&(l=(s<3?r(l):s>3?r(t,n,l):r(t,n))||l);return s>3&&l&&Object.defineProperty(t,n,l),l},H=function(d,t){return function(n,e){t(n,e,d)}};const j={type:"object",properties:{id:{description:i(2911,null),type:"string",pattern:"^[a-zA-Z0-9_-]+$"},title:{description:i(2912,null),type:"string"},icon:{description:i(2913,null),type:"string"}},required:["id","title","icon"]},te={description:i(2914,null),type:"object",properties:{activitybar:{description:i(2915,null),type:"array",items:j},panel:{description:i(2916,null),type:"array",items:j},secondarySidebar:{description:i(2917,null),type:"array",items:j}},additionalProperties:!1};var h;(function(d){d.Tree="tree",d.Webview="webview"})(h||(h={}));var g;(function(d){d.Visible="visible",d.Hidden="hidden",d.Collapsed="collapsed"})(g||(g={}));const y={type:"object",required:["id","name","icon"],defaultSnippets:[{body:{id:"${1:id}",name:"${2:name}",icon:"${3:icon}"}}],properties:{type:{markdownDescription:i(2918,null),type:"string",enum:["tree","webview"],markdownEnumDescriptions:[i(2919,null),i(2920,null)]},id:{markdownDescription:i(2921,null),type:"string"},name:{description:i(2922,null),type:"string"},when:{description:i(2923,null),type:"string"},icon:{description:i(2924,null),type:"string"},contextualTitle:{description:i(2925,null),type:"string"},visibility:{description:i(2926,null),type:"string",enum:["visible","hidden","collapsed"],default:"visible",enumDescriptions:[i(2927,null),i(2928,null),i(2929,null)]},initialSize:{type:"number",description:i(2930,null)},accessibilityHelpContent:{type:"string",markdownDescription:i(2931,null)}}},ne={type:"object",required:["id","name"],properties:{id:{description:i(2932,null),type:"string"},name:{description:i(2933,null),type:"string"},when:{description:i(2934,null),type:"string"},group:{description:i(2935,null),type:"string"},remoteName:{description:i(2936,null),type:["string","array"],items:{type:"string"}}}},re={description:i(2937,null),type:"object",properties:{explorer:{description:i(2938,null),type:"array",items:y,default:[]},debug:{description:i(2939,null),type:"array",items:y,default:[]},scm:{description:i(2940,null),type:"array",items:y,default:[]},test:{description:i(2941,null),type:"array",items:y,default:[]},remote:{description:i(2942,null),type:"array",items:ne,default:[]}},additionalProperties:{description:i(2943,null),type:"array",items:y,default:[]}},B=q.registerExtensionPoint({extensionPoint:"viewsContainers",jsonSchema:te}),se=q.registerExtensionPoint({extensionPoint:"views",deps:[B],jsonSchema:re,activationEventsGenerator:function*(d){for(const t of d)for(const n of Object.values(t))for(const e of n)e.id&&(yield`onView:${e.id}`)}}),oe=7;let V=class{static{this.ID="workbench.contrib.viewsExtensionHandler"}constructor(t,n){this.f=t,this.g=n,this.c=w.as(x.ViewContainersRegistry),this.d=w.as(x.ViewsRegistry),this.h(),this.o()}h(){B.setHandler((t,{added:n,removed:e})=>{e.length&&this.j(e),n.length&&this.i(n,this.c.all)})}i(t,n){const e=w.as(x.ViewContainersRegistry);let s=oe+e.all.filter(o=>!!o.extensionId&&e.getViewContainerLocation(o)===0).length,l=5+e.all.filter(o=>!!o.extensionId&&e.getViewContainerLocation(o)===1).length+1,r=100+e.all.filter(o=>!!o.extensionId&&e.getViewContainerLocation(o)===2).length+1;for(const{value:o,collector:u,description:c}of t)Object.entries(o).forEach(([p,f])=>{if(this.k(f,u))switch(p){case"activitybar":s=this.l(f,c,s,n,0);break;case"panel":l=this.l(f,c,l,n,1);break;case"secondarySidebar":r=this.l(f,c,r,n,2);break}})}j(t){const n=w.as(x.ViewContainersRegistry),e=t.reduce((s,l)=>(s.add(l.description.identifier),s),new z);for(const s of n.all)if(s.extensionId&&e.has(s.extensionId)){const l=this.d.getViews(s);l.length&&this.d.moveViews(l,this.r()),this.n(s)}}k(t,n){if(!Array.isArray(t))return n.error(i(2944,null)),!1;for(const e of t){if(typeof e.id!="string"&&_(e.id))return n.error(i(2945,null,"id")),!1;if(!/^[a-z0-9_-]+$/i.test(e.id))return n.error(i(2946,null,"id")),!1;if(typeof e.title!="string")return n.error(i(2947,null,"title")),!1;if(typeof e.icon!="string")return n.error(i(2948,null,"icon")),!1;if(_(e.title))return n.warn(i(2949,null,"title")),!0}return!0}l(t,n,e,s,l){return t.forEach(r=>{const u=A.fromString(r.icon)||P.$Hh(n.extensionLocation,r.icon),c=`workbench.view.extension.${r.id}`,p=r.title||c,f=this.m(c,p,u,e++,n.identifier,l);if(s.length){const m=[];for(const a of s)f!==a&&m.push(...this.d.getViews(a).filter(C=>C.originalContainerId===r.id));m.length&&this.d.moveViews(m,f)}}),e}m(t,n,e,s,l,r){let o=this.c.get(t);return o||(o=this.c.registerViewContainer({id:t,title:{value:n,original:n},extensionId:l,ctorDescriptor:new b(Y,[t,{mergeViewWithContainerWhenSingleView:!0}]),hideIfEmpty:!0,order:s,icon:e},r)),o}n(t){this.c.deregisterViewContainer(t),w.as(U.Viewlets).deregisterPaneComposite(t.id)}o(){se.setHandler((t,{added:n,removed:e})=>{e.length&&this.s(e),n.length&&this.p(n)})}p(t){const n=new Set,e=[];for(const s of t){const{value:l,collector:r}=s;Object.entries(l).forEach(([o,u])=>{if(!this.u(u,r))return;if(o==="remote"&&!R(s.description,"contribViewsRemote")){r.warn(i(2950,null,o));return}if(o==="agentSessions"&&!R(s.description,"chatSessionsProvider")){r.warn(i(2951,null,o));return}const c=this.w(o);c||r.warn(i(2952,null,o));const p=c||this.r(),f=[];for(let m=0;m<u.length;m++){const a=u[m];if(n.has(a.id)){r.error(i(2953,null,a.id));continue}if(this.d.getView(a.id)!==null){r.error(i(2954,null,a.id));continue}const C=X.equals(s.description.identifier,p.extensionId)?m+1:p.viewOrderDelegate?p.viewOrderDelegate.getOrder(a.group):void 0;let D;typeof a.icon=="string"&&(D=A.fromString(a.icon)||P.$Hh(s.description.extensionLocation,a.icon));const T=this.t(a.visibility),v=this.q(a.type);if(!v){r.error(i(2955,null,a.type));continue}let I;typeof a.initialSize=="number"&&(p.extensionId?.value===s.description.identifier.value?I=a.initialSize:this.g.warn(`${s.description.identifier.value} tried to set the view size of ${a.id} but it was ignored because the view container does not belong to it.`));let O;R(s.description,"contribAccessibilityHelpContent")&&a.accessibilityHelpContent&&(O=new N(a.accessibilityHelpContent));const S={type:v,ctorDescriptor:v===h.Tree?new b(K):new b(ie),id:a.id,name:{value:a.name,original:a.name},when:G.deserialize(a.when),containerIcon:D||c?.icon,containerTitle:a.contextualTitle||c&&(typeof c.title=="string"?c.title:c.title.value),canToggleVisibility:!0,canMoveView:c?.id!==E,treeView:v===h.Tree?this.f.createInstance(Z,a.id,a.name,s.description.identifier.value):void 0,collapsed:this.x(p)||T===g.Collapsed,order:C,extensionId:s.description.identifier,originalContainerId:o,group:a.group,remoteAuthority:a.remoteName||a.remoteAuthority,virtualWorkspace:a.virtualWorkspace,hideByDefault:T===g.Hidden,workspace:c?.id===E?!0:void 0,weight:I,accessibilityHelpContent:O};n.add(S.id),f.push(S)}e.push({viewContainer:p,views:f})})}this.d.registerViews2(e)}q(t){if(t===h.Webview)return h.Webview;if(!t||t===h.Tree)return h.Tree}r(){return this.c.get($)}s(t){const n=t.reduce((e,s)=>(e.add(s.description.identifier),e),new z);for(const e of this.c.all){const s=this.d.getViews(e).filter(l=>l.extensionId&&n.has(l.extensionId));if(s.length){this.d.deregisterViews(s,e);for(const l of s){const r=l;r.treeView&&r.treeView.dispose()}}}}t(t){if(Object.values(g).includes(t))return t}u(t,n){if(!Array.isArray(t))return n.error(i(2956,null)),!1;for(const e of t){if(typeof e.id!="string")return n.error(i(2957,null,"id")),!1;if(typeof e.name!="string")return n.error(i(2958,null,"name")),!1;if(e.when&&typeof e.when!="string")return n.error(i(2959,null,"when")),!1;if(e.icon&&typeof e.icon!="string")return n.error(i(2960,null,"icon")),!1;if(e.contextualTitle&&typeof e.contextualTitle!="string")return n.error(i(2961,null,"contextualTitle")),!1;if(e.visibility&&!this.t(e.visibility))return n.error(i(2962,null,"visibility",Object.values(g).join(", "))),!1}return!0}w(t){switch(t){case"explorer":return this.c.get($);case"debug":return this.c.get(k);case"scm":return this.c.get(L);case"remote":return this.c.get(E);default:return this.c.get(`workbench.view.extension.${t}`)}}x(t){switch(t.id){case $:case L:case k:return!0}return!1}};V=M([H(0,J),H(1,Q)],V);class le extends F{constructor(){super(...arguments),this.type="table"}shouldRender(t){return!!t.contributes?.viewsContainers}render(t){const n=t.contributes?.viewsContainers||{},e=Object.keys(n).reduce((r,o)=>{const u=n[o];return r.push(...u.map(c=>({...c,location:o}))),r},[]);if(!e.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const s=[i(2963,null),i(2964,null),i(2965,null)],l=e.sort((r,o)=>r.id.localeCompare(o.id)).map(r=>[r.id,r.title,r.location]);return{data:{headers:s,rows:l},dispose:()=>{}}}}class ae extends F{constructor(){super(...arguments),this.type="table"}shouldRender(t){return!!t.contributes?.views}render(t){const n=t.contributes?.views||{},e=Object.keys(n).reduce((r,o)=>{const u=n[o];return r.push(...u.map(c=>({...c,location:o}))),r},[]);if(!e.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const s=[i(2966,null),i(2967,null),i(2968,null)],l=e.sort((r,o)=>r.id.localeCompare(o.id)).map(r=>[r.id,r.name,r.location]);return{data:{headers:s,rows:l},dispose:()=>{}}}}w.as(W.ExtensionFeaturesRegistry).registerExtensionFeature({id:"viewsContainers",label:i(2969,null),access:{canToggle:!1},renderer:new b(le)});w.as(W.ExtensionFeaturesRegistry).registerExtensionFeature({id:"views",label:i(2970,null),access:{canToggle:!1},renderer:new b(ae)});ee(V.ID,V,1);export{te as $O0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { MarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import * as resources from "../../../base/common/resources.js";
+import { isFalsyOrWhitespace } from "../../../base/common/strings.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { localize } from "../../../nls.js";
+import { ContextKeyExpr } from "../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier, ExtensionIdentifierSet } from "../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { Extensions as ViewletExtensions } from "../../browser/panecomposite.js";
+import { CustomTreeView, TreeViewPane } from "../../browser/parts/views/treeView.js";
+import { ViewPaneContainer } from "../../browser/parts/views/viewPaneContainer.js";
+import { registerWorkbenchContribution2 } from "../../common/contributions.js";
+import { Extensions as ViewContainerExtensions } from "../../common/views.js";
+import { VIEWLET_ID as DEBUG } from "../../contrib/debug/common/debug.js";
+import { VIEWLET_ID as EXPLORER } from "../../contrib/files/common/files.js";
+import { VIEWLET_ID as REMOTE } from "../../contrib/remote/browser/remoteExplorer.js";
+import { VIEWLET_ID as SCM } from "../../contrib/scm/common/scm.js";
+import { WebviewViewPane } from "../../contrib/webviewView/browser/webviewViewPane.js";
+import { Extensions as ExtensionFeaturesRegistryExtensions } from "../../services/extensionManagement/common/extensionFeatures.js";
+import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../services/extensions/common/extensionsRegistry.js";
+const viewsContainerSchema = {
+  type: "object",
+  properties: {
+    id: {
+      description: localize({ key: "vscode.extension.contributes.views.containers.id", comment: ["Contribution refers to those that an extension contributes to VS Code through an extension/contribution point. "] }, "Unique id used to identify the container in which views can be contributed using 'views' contribution point"),
+      type: "string",
+      pattern: "^[a-zA-Z0-9_-]+$"
+    },
+    title: {
+      description: localize("vscode.extension.contributes.views.containers.title", "Human readable string used to render the container"),
+      type: "string"
+    },
+    icon: {
+      description: localize("vscode.extension.contributes.views.containers.icon", "Path to the container icon. Icons are 24x24 centered on a 50x40 block and have a fill color of 'rgb(215, 218, 224)' or '#d7dae0'. It is recommended that icons be in SVG, though any image file type is accepted."),
+      type: "string"
+    }
+  },
+  required: ["id", "title", "icon"]
+};
+const viewsContainersContribution = {
+  description: localize("vscode.extension.contributes.viewsContainers", "Contributes views containers to the editor"),
+  type: "object",
+  properties: {
+    "activitybar": {
+      description: localize("views.container.activitybar", "Contribute views containers to Activity Bar"),
+      type: "array",
+      items: viewsContainerSchema
+    },
+    "panel": {
+      description: localize("views.container.panel", "Contribute views containers to Panel"),
+      type: "array",
+      items: viewsContainerSchema
+    },
+    "secondarySidebar": {
+      description: localize("views.container.secondarySidebar", "Contribute views containers to Secondary Side Bar"),
+      type: "array",
+      items: viewsContainerSchema
+    }
+  },
+  additionalProperties: false
+};
+var ViewType;
+(function(ViewType2) {
+  ViewType2["Tree"] = "tree";
+  ViewType2["Webview"] = "webview";
+})(ViewType || (ViewType = {}));
+var InitialVisibility;
+(function(InitialVisibility2) {
+  InitialVisibility2["Visible"] = "visible";
+  InitialVisibility2["Hidden"] = "hidden";
+  InitialVisibility2["Collapsed"] = "collapsed";
+})(InitialVisibility || (InitialVisibility = {}));
+const viewDescriptor = {
+  type: "object",
+  required: ["id", "name", "icon"],
+  defaultSnippets: [{ body: { id: "${1:id}", name: "${2:name}", icon: "${3:icon}" } }],
+  properties: {
+    type: {
+      markdownDescription: localize("vscode.extension.contributes.view.type", "Type of the view. This can either be `tree` for a tree view based view or `webview` for a webview based view. The default is `tree`."),
+      type: "string",
+      enum: [
+        "tree",
+        "webview"
+      ],
+      markdownEnumDescriptions: [
+        localize("vscode.extension.contributes.view.tree", "The view is backed by a `TreeView` created by `createTreeView`."),
+        localize("vscode.extension.contributes.view.webview", "The view is backed by a `WebviewView` registered by `registerWebviewViewProvider`.")
+      ]
+    },
+    id: {
+      markdownDescription: localize("vscode.extension.contributes.view.id", "Identifier of the view. This should be unique across all views. It is recommended to include your extension id as part of the view id. Use this to register a data provider through `vscode.window.registerTreeDataProviderForView` API. Also to trigger activating your extension by registering `onView:${id}` event to `activationEvents`."),
+      type: "string"
+    },
+    name: {
+      description: localize("vscode.extension.contributes.view.name", "The human-readable name of the view. Will be shown"),
+      type: "string"
+    },
+    when: {
+      description: localize("vscode.extension.contributes.view.when", "Condition which must be true to show this view"),
+      type: "string"
+    },
+    icon: {
+      description: localize("vscode.extension.contributes.view.icon", "Path to the view icon. View icons are displayed when the name of the view cannot be shown. It is recommended that icons be in SVG, though any image file type is accepted."),
+      type: "string"
+    },
+    contextualTitle: {
+      description: localize("vscode.extension.contributes.view.contextualTitle", "Human-readable context for when the view is moved out of its original location. By default, the view's container name will be used."),
+      type: "string"
+    },
+    visibility: {
+      description: localize("vscode.extension.contributes.view.initialState", "Initial state of the view when the extension is first installed. Once the user has changed the view state by collapsing, moving, or hiding the view, the initial state will not be used again."),
+      type: "string",
+      enum: [
+        "visible",
+        "hidden",
+        "collapsed"
+      ],
+      default: "visible",
+      enumDescriptions: [
+        localize("vscode.extension.contributes.view.initialState.visible", "The default initial state for the view. In most containers the view will be expanded, however; some built-in containers (explorer, scm, and debug) show all contributed views collapsed regardless of the `visibility`."),
+        localize("vscode.extension.contributes.view.initialState.hidden", "The view will not be shown in the view container, but will be discoverable through the views menu and other view entry points and can be un-hidden by the user."),
+        localize("vscode.extension.contributes.view.initialState.collapsed", "The view will show in the view container, but will be collapsed.")
+      ]
+    },
+    initialSize: {
+      type: "number",
+      description: localize("vscode.extension.contributs.view.size", "The initial size of the view. The size will behave like the css 'flex' property, and will set the initial size when the view is first shown. In the side bar, this is the height of the view. This value is only respected when the same extension owns both the view and the view container.")
+    },
+    accessibilityHelpContent: {
+      type: "string",
+      markdownDescription: localize("vscode.extension.contributes.view.accessibilityHelpContent", "When the accessibility help dialog is invoked in this view, this content will be presented to the user as a markdown string. Keybindings will be resolved when provided in the format of <keybinding:commandId>. If there is no keybinding, that will be indicated and this command will be included in a quickpick for easy configuration.")
+    }
+  }
+};
+const remoteViewDescriptor = {
+  type: "object",
+  required: ["id", "name"],
+  properties: {
+    id: {
+      description: localize("vscode.extension.contributes.view.id", "Identifier of the view. This should be unique across all views. It is recommended to include your extension id as part of the view id. Use this to register a data provider through `vscode.window.registerTreeDataProviderForView` API. Also to trigger activating your extension by registering `onView:${id}` event to `activationEvents`."),
+      type: "string"
+    },
+    name: {
+      description: localize("vscode.extension.contributes.view.name", "The human-readable name of the view. Will be shown"),
+      type: "string"
+    },
+    when: {
+      description: localize("vscode.extension.contributes.view.when", "Condition which must be true to show this view"),
+      type: "string"
+    },
+    group: {
+      description: localize("vscode.extension.contributes.view.group", "Nested group in the viewlet"),
+      type: "string"
+    },
+    remoteName: {
+      description: localize("vscode.extension.contributes.view.remoteName", "The name of the remote type associated with this view"),
+      type: ["string", "array"],
+      items: {
+        type: "string"
+      }
+    }
+  }
+};
+const viewsContribution = {
+  description: localize("vscode.extension.contributes.views", "Contributes views to the editor"),
+  type: "object",
+  properties: {
+    "explorer": {
+      description: localize("views.explorer", "Contributes views to Explorer container in the Activity bar"),
+      type: "array",
+      items: viewDescriptor,
+      default: []
+    },
+    "debug": {
+      description: localize("views.debug", "Contributes views to Debug container in the Activity bar"),
+      type: "array",
+      items: viewDescriptor,
+      default: []
+    },
+    "scm": {
+      description: localize("views.scm", "Contributes views to SCM container in the Activity bar"),
+      type: "array",
+      items: viewDescriptor,
+      default: []
+    },
+    "test": {
+      description: localize("views.test", "Contributes views to Test container in the Activity bar"),
+      type: "array",
+      items: viewDescriptor,
+      default: []
+    },
+    "remote": {
+      description: localize("views.remote", "Contributes views to Remote container in the Activity bar. To contribute to this container, the 'contribViewsRemote' API proposal must be enabled."),
+      type: "array",
+      items: remoteViewDescriptor,
+      default: []
+    }
+  },
+  additionalProperties: {
+    description: localize("views.contributed", "Contributes views to contributed views container"),
+    type: "array",
+    items: viewDescriptor,
+    default: []
+  }
+};
+const viewsContainersExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "viewsContainers",
+  jsonSchema: viewsContainersContribution
+});
+const viewsExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "views",
+  deps: [viewsContainersExtensionPoint],
+  jsonSchema: viewsContribution,
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (viewExtensionPointTypeArray) {
+    for (const viewExtensionPointType of viewExtensionPointTypeArray) {
+      for (const viewDescriptors of Object.values(viewExtensionPointType)) {
+        for (const viewDescriptor2 of viewDescriptors) {
+          if (viewDescriptor2.id) {
+            yield `onView:${viewDescriptor2.id}`;
+          }
+        }
+      }
+    }
+  }, "activationEventsGenerator")
+});
+const CUSTOM_VIEWS_START_ORDER = 7;
+let ViewsExtensionHandler = class ViewsExtensionHandler2 {
+  static {
+    __name(this, "ViewsExtensionHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.viewsExtensionHandler";
+  }
+  constructor(instantiationService, logService) {
+    this.instantiationService = instantiationService;
+    this.logService = logService;
+    this.viewContainersRegistry = Registry.as(ViewContainerExtensions.ViewContainersRegistry);
+    this.viewsRegistry = Registry.as(ViewContainerExtensions.ViewsRegistry);
+    this.handleAndRegisterCustomViewContainers();
+    this.handleAndRegisterCustomViews();
+  }
+  handleAndRegisterCustomViewContainers() {
+    viewsContainersExtensionPoint.setHandler((extensions, { added, removed }) => {
+      if (removed.length) {
+        this.removeCustomViewContainers(removed);
+      }
+      if (added.length) {
+        this.addCustomViewContainers(added, this.viewContainersRegistry.all);
+      }
+    });
+  }
+  addCustomViewContainers(extensionPoints, existingViewContainers) {
+    const viewContainersRegistry = Registry.as(ViewContainerExtensions.ViewContainersRegistry);
+    let activityBarOrder = CUSTOM_VIEWS_START_ORDER + viewContainersRegistry.all.filter(
+      (v) => !!v.extensionId && viewContainersRegistry.getViewContainerLocation(v) === 0
+      /* ViewContainerLocation.Sidebar */
+    ).length;
+    let panelOrder = 5 + viewContainersRegistry.all.filter(
+      (v) => !!v.extensionId && viewContainersRegistry.getViewContainerLocation(v) === 1
+      /* ViewContainerLocation.Panel */
+    ).length + 1;
+    let auxiliaryBarOrder = 100 + viewContainersRegistry.all.filter(
+      (v) => !!v.extensionId && viewContainersRegistry.getViewContainerLocation(v) === 2
+      /* ViewContainerLocation.AuxiliaryBar */
+    ).length + 1;
+    for (const { value, collector, description } of extensionPoints) {
+      Object.entries(value).forEach(([key, value2]) => {
+        if (!this.isValidViewsContainer(value2, collector)) {
+          return;
+        }
+        switch (key) {
+          case "activitybar":
+            activityBarOrder = this.registerCustomViewContainers(
+              value2,
+              description,
+              activityBarOrder,
+              existingViewContainers,
+              0
+              /* ViewContainerLocation.Sidebar */
+            );
+            break;
+          case "panel":
+            panelOrder = this.registerCustomViewContainers(
+              value2,
+              description,
+              panelOrder,
+              existingViewContainers,
+              1
+              /* ViewContainerLocation.Panel */
+            );
+            break;
+          case "secondarySidebar":
+            auxiliaryBarOrder = this.registerCustomViewContainers(
+              value2,
+              description,
+              auxiliaryBarOrder,
+              existingViewContainers,
+              2
+              /* ViewContainerLocation.AuxiliaryBar */
+            );
+            break;
+        }
+      });
+    }
+  }
+  removeCustomViewContainers(extensionPoints) {
+    const viewContainersRegistry = Registry.as(ViewContainerExtensions.ViewContainersRegistry);
+    const removedExtensions = extensionPoints.reduce((result, e) => {
+      result.add(e.description.identifier);
+      return result;
+    }, new ExtensionIdentifierSet());
+    for (const viewContainer of viewContainersRegistry.all) {
+      if (viewContainer.extensionId && removedExtensions.has(viewContainer.extensionId)) {
+        const views = this.viewsRegistry.getViews(viewContainer);
+        if (views.length) {
+          this.viewsRegistry.moveViews(views, this.getDefaultViewContainer());
+        }
+        this.deregisterCustomViewContainer(viewContainer);
+      }
+    }
+  }
+  isValidViewsContainer(viewsContainersDescriptors, collector) {
+    if (!Array.isArray(viewsContainersDescriptors)) {
+      collector.error(localize("viewcontainer requirearray", "views containers must be an array"));
+      return false;
+    }
+    for (const descriptor of viewsContainersDescriptors) {
+      if (typeof descriptor.id !== "string" && isFalsyOrWhitespace(descriptor.id)) {
+        collector.error(localize("requireidstring", "property `{0}` is mandatory and must be of type `string` with non-empty value. Only alphanumeric characters, '_', and '-' are allowed.", "id"));
+        return false;
+      }
+      if (!/^[a-z0-9_-]+$/i.test(descriptor.id)) {
+        collector.error(localize("requireidstring", "property `{0}` is mandatory and must be of type `string` with non-empty value. Only alphanumeric characters, '_', and '-' are allowed.", "id"));
+        return false;
+      }
+      if (typeof descriptor.title !== "string") {
+        collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "title"));
+        return false;
+      }
+      if (typeof descriptor.icon !== "string") {
+        collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "icon"));
+        return false;
+      }
+      if (isFalsyOrWhitespace(descriptor.title)) {
+        collector.warn(localize("requirenonemptystring", "property `{0}` is mandatory and must be of type `string` with non-empty value", "title"));
+        return true;
+      }
+    }
+    return true;
+  }
+  registerCustomViewContainers(containers, extension, order, existingViewContainers, location) {
+    containers.forEach((descriptor) => {
+      const themeIcon = ThemeIcon.fromString(descriptor.icon);
+      const icon = themeIcon || resources.joinPath(extension.extensionLocation, descriptor.icon);
+      const id = `workbench.view.extension.${descriptor.id}`;
+      const title = descriptor.title || id;
+      const viewContainer = this.registerCustomViewContainer(id, title, icon, order++, extension.identifier, location);
+      if (existingViewContainers.length) {
+        const viewsToMove = [];
+        for (const existingViewContainer of existingViewContainers) {
+          if (viewContainer !== existingViewContainer) {
+            viewsToMove.push(...this.viewsRegistry.getViews(existingViewContainer).filter((view) => view.originalContainerId === descriptor.id));
+          }
+        }
+        if (viewsToMove.length) {
+          this.viewsRegistry.moveViews(viewsToMove, viewContainer);
+        }
+      }
+    });
+    return order;
+  }
+  registerCustomViewContainer(id, title, icon, order, extensionId, location) {
+    let viewContainer = this.viewContainersRegistry.get(id);
+    if (!viewContainer) {
+      viewContainer = this.viewContainersRegistry.registerViewContainer({
+        id,
+        title: { value: title, original: title },
+        extensionId,
+        ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [id, { mergeViewWithContainerWhenSingleView: true }]),
+        hideIfEmpty: true,
+        order,
+        icon
+      }, location);
+    }
+    return viewContainer;
+  }
+  deregisterCustomViewContainer(viewContainer) {
+    this.viewContainersRegistry.deregisterViewContainer(viewContainer);
+    Registry.as(ViewletExtensions.Viewlets).deregisterPaneComposite(viewContainer.id);
+  }
+  handleAndRegisterCustomViews() {
+    viewsExtensionPoint.setHandler((extensions, { added, removed }) => {
+      if (removed.length) {
+        this.removeViews(removed);
+      }
+      if (added.length) {
+        this.addViews(added);
+      }
+    });
+  }
+  addViews(extensions) {
+    const viewIds = /* @__PURE__ */ new Set();
+    const allViewDescriptors = [];
+    for (const extension of extensions) {
+      const { value, collector } = extension;
+      Object.entries(value).forEach(([key, value2]) => {
+        if (!this.isValidViewDescriptors(value2, collector)) {
+          return;
+        }
+        if (key === "remote" && !isProposedApiEnabled(extension.description, "contribViewsRemote")) {
+          collector.warn(localize("ViewContainerRequiresProposedAPI", `View container '{0}' requires 'enabledApiProposals: ["contribViewsRemote"]' to be added to 'Remote'.`, key));
+          return;
+        }
+        if (key === "agentSessions" && !isProposedApiEnabled(extension.description, "chatSessionsProvider")) {
+          collector.warn(localize("RequiresChatSessionsProposedAPI", `View container '{0}' requires 'enabledApiProposals: ["chatSessionsProvider"]'.`, key));
+          return;
+        }
+        const viewContainer = this.getViewContainer(key);
+        if (!viewContainer) {
+          collector.warn(localize("ViewContainerDoesnotExist", "View container '{0}' does not exist and all views registered to it will be added to 'Explorer'.", key));
+        }
+        const container = viewContainer || this.getDefaultViewContainer();
+        const viewDescriptors = [];
+        for (let index = 0; index < value2.length; index++) {
+          const item = value2[index];
+          if (viewIds.has(item.id)) {
+            collector.error(localize("duplicateView1", "Cannot register multiple views with same id `{0}`", item.id));
+            continue;
+          }
+          if (this.viewsRegistry.getView(item.id) !== null) {
+            collector.error(localize("duplicateView2", "A view with id `{0}` is already registered.", item.id));
+            continue;
+          }
+          const order = ExtensionIdentifier.equals(extension.description.identifier, container.extensionId) ? index + 1 : container.viewOrderDelegate ? container.viewOrderDelegate.getOrder(item.group) : void 0;
+          let icon;
+          if (typeof item.icon === "string") {
+            icon = ThemeIcon.fromString(item.icon) || resources.joinPath(extension.description.extensionLocation, item.icon);
+          }
+          const initialVisibility = this.convertInitialVisibility(item.visibility);
+          const type = this.getViewType(item.type);
+          if (!type) {
+            collector.error(localize("unknownViewType", "Unknown view type `{0}`.", item.type));
+            continue;
+          }
+          let weight = void 0;
+          if (typeof item.initialSize === "number") {
+            if (container.extensionId?.value === extension.description.identifier.value) {
+              weight = item.initialSize;
+            } else {
+              this.logService.warn(`${extension.description.identifier.value} tried to set the view size of ${item.id} but it was ignored because the view container does not belong to it.`);
+            }
+          }
+          let accessibilityHelpContent;
+          if (isProposedApiEnabled(extension.description, "contribAccessibilityHelpContent") && item.accessibilityHelpContent) {
+            accessibilityHelpContent = new MarkdownString(item.accessibilityHelpContent);
+          }
+          const viewDescriptor2 = {
+            type,
+            ctorDescriptor: type === ViewType.Tree ? new SyncDescriptor(TreeViewPane) : new SyncDescriptor(WebviewViewPane),
+            id: item.id,
+            name: { value: item.name, original: item.name },
+            when: ContextKeyExpr.deserialize(item.when),
+            containerIcon: icon || viewContainer?.icon,
+            containerTitle: item.contextualTitle || viewContainer && (typeof viewContainer.title === "string" ? viewContainer.title : viewContainer.title.value),
+            canToggleVisibility: true,
+            canMoveView: viewContainer?.id !== REMOTE,
+            treeView: type === ViewType.Tree ? this.instantiationService.createInstance(CustomTreeView, item.id, item.name, extension.description.identifier.value) : void 0,
+            collapsed: this.showCollapsed(container) || initialVisibility === InitialVisibility.Collapsed,
+            order,
+            extensionId: extension.description.identifier,
+            originalContainerId: key,
+            group: item.group,
+            // eslint-disable-next-line local/code-no-any-casts, @typescript-eslint/no-explicit-any
+            remoteAuthority: item.remoteName || item.remoteAuthority,
+            // TODO@roblou - delete after remote extensions are updated
+            virtualWorkspace: item.virtualWorkspace,
+            hideByDefault: initialVisibility === InitialVisibility.Hidden,
+            workspace: viewContainer?.id === REMOTE ? true : void 0,
+            weight,
+            accessibilityHelpContent
+          };
+          viewIds.add(viewDescriptor2.id);
+          viewDescriptors.push(viewDescriptor2);
+        }
+        allViewDescriptors.push({ viewContainer: container, views: viewDescriptors });
+      });
+    }
+    this.viewsRegistry.registerViews2(allViewDescriptors);
+  }
+  getViewType(type) {
+    if (type === ViewType.Webview) {
+      return ViewType.Webview;
+    }
+    if (!type || type === ViewType.Tree) {
+      return ViewType.Tree;
+    }
+    return void 0;
+  }
+  getDefaultViewContainer() {
+    return this.viewContainersRegistry.get(EXPLORER);
+  }
+  removeViews(extensions) {
+    const removedExtensions = extensions.reduce((result, e) => {
+      result.add(e.description.identifier);
+      return result;
+    }, new ExtensionIdentifierSet());
+    for (const viewContainer of this.viewContainersRegistry.all) {
+      const removedViews = this.viewsRegistry.getViews(viewContainer).filter((v) => v.extensionId && removedExtensions.has(v.extensionId));
+      if (removedViews.length) {
+        this.viewsRegistry.deregisterViews(removedViews, viewContainer);
+        for (const view of removedViews) {
+          const anyView = view;
+          if (anyView.treeView) {
+            anyView.treeView.dispose();
+          }
+        }
+      }
+    }
+  }
+  convertInitialVisibility(value) {
+    if (Object.values(InitialVisibility).includes(value)) {
+      return value;
+    }
+    return void 0;
+  }
+  isValidViewDescriptors(viewDescriptors, collector) {
+    if (!Array.isArray(viewDescriptors)) {
+      collector.error(localize("requirearray", "views must be an array"));
+      return false;
+    }
+    for (const descriptor of viewDescriptors) {
+      if (typeof descriptor.id !== "string") {
+        collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "id"));
+        return false;
+      }
+      if (typeof descriptor.name !== "string") {
+        collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "name"));
+        return false;
+      }
+      if (descriptor.when && typeof descriptor.when !== "string") {
+        collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "when"));
+        return false;
+      }
+      if (descriptor.icon && typeof descriptor.icon !== "string") {
+        collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "icon"));
+        return false;
+      }
+      if (descriptor.contextualTitle && typeof descriptor.contextualTitle !== "string") {
+        collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "contextualTitle"));
+        return false;
+      }
+      if (descriptor.visibility && !this.convertInitialVisibility(descriptor.visibility)) {
+        collector.error(localize("optenum", "property `{0}` can be omitted or must be one of {1}", "visibility", Object.values(InitialVisibility).join(", ")));
+        return false;
+      }
+    }
+    return true;
+  }
+  getViewContainer(value) {
+    switch (value) {
+      case "explorer":
+        return this.viewContainersRegistry.get(EXPLORER);
+      case "debug":
+        return this.viewContainersRegistry.get(DEBUG);
+      case "scm":
+        return this.viewContainersRegistry.get(SCM);
+      case "remote":
+        return this.viewContainersRegistry.get(REMOTE);
+      default:
+        return this.viewContainersRegistry.get(`workbench.view.extension.${value}`);
+    }
+  }
+  showCollapsed(container) {
+    switch (container.id) {
+      case EXPLORER:
+      case SCM:
+      case DEBUG:
+        return true;
+    }
+    return false;
+  }
+};
+ViewsExtensionHandler = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, ILogService)
+], ViewsExtensionHandler);
+class ViewContainersDataRenderer extends Disposable {
+  static {
+    __name(this, "ViewContainersDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.viewsContainers;
+  }
+  render(manifest) {
+    const contrib = manifest.contributes?.viewsContainers || {};
+    const viewContainers = Object.keys(contrib).reduce((result, location) => {
+      const viewContainersForLocation = contrib[location];
+      result.push(...viewContainersForLocation.map((viewContainer) => ({ ...viewContainer, location })));
+      return result;
+    }, []);
+    if (!viewContainers.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("view container id", "ID"),
+      localize("view container title", "Title"),
+      localize("view container location", "Where")
+    ];
+    const rows = viewContainers.sort((a, b) => a.id.localeCompare(b.id)).map((viewContainer) => {
+      return [
+        viewContainer.id,
+        viewContainer.title,
+        viewContainer.location
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+class ViewsDataRenderer extends Disposable {
+  static {
+    __name(this, "ViewsDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.views;
+  }
+  render(manifest) {
+    const contrib = manifest.contributes?.views || {};
+    const views = Object.keys(contrib).reduce((result, location) => {
+      const viewsForLocation = contrib[location];
+      result.push(...viewsForLocation.map((view) => ({ ...view, location })));
+      return result;
+    }, []);
+    if (!views.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("view id", "ID"),
+      localize("view name title", "Name"),
+      localize("view container location", "Where")
+    ];
+    const rows = views.sort((a, b) => a.id.localeCompare(b.id)).map((view) => {
+      return [
+        view.id,
+        view.name,
+        view.location
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(ExtensionFeaturesRegistryExtensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "viewsContainers",
+  label: localize("viewsContainers", "View Containers"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ViewContainersDataRenderer)
+});
+Registry.as(ExtensionFeaturesRegistryExtensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "views",
+  label: localize("views", "Views"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ViewsDataRenderer)
+});
+registerWorkbenchContribution2(
+  ViewsExtensionHandler.ID,
+  ViewsExtensionHandler,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+export {
+  viewsContainersContribution
+};
+//# sourceMappingURL=viewsExtensionPoint.js.map

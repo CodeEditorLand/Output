@@ -1,1 +1,67 @@
-import{EditorOptions as t}from"./common/config/editorOptions.js";import{$Cdb as n}from"./common/services/editorBaseApi.js";import{createMonacoEditorAPI as c}from"./standalone/browser/standaloneEditor.js";import{createMonacoLanguagesAPI as s}from"./standalone/browser/standaloneLanguages.js";import{$bsb as a}from"./contrib/format/browser/format.js";import{$s7 as i}from"../base/browser/browser.js";t.wrappingIndent.defaultValue=0;t.glyphMargin.defaultValue=!1;t.autoIndent.defaultValue=3;t.overviewRulerLanes.defaultValue=2;a.setFormatterSelector((r,l,d)=>Promise.resolve(r[0]));const e=n();e.editor=c();e.languages=s();const $=e.CancellationTokenSource,Q=e.Emitter,y=e.KeyCode,M=e.KeyMod,b=e.Position,I=e.Range,A=e.Selection,E=e.SelectionDirection,P=e.MarkerSeverity,S=e.MarkerTag,k=e.Uri,C=e.Token,D=e.editor,T=e.languages,p=i(),o=globalThis;(p?.globalAPI||typeof o.define=="function"&&o.define.amd)&&(o.monaco=e);typeof o.require<"u"&&typeof o.require.config=="function"&&o.require.config({ignoreDuplicateModules:["vscode-languageserver-types","vscode-languageserver-types/main","vscode-languageserver-textdocument","vscode-languageserver-textdocument/main","vscode-nls","vscode-nls/vscode-nls","jsonc-parser","jsonc-parser/main","vscode-uri","vscode-uri/index","vs/basic-languages/typescript/typescript"]});export{I as $AQc,A as $BQc,E as $CQc,P as $DQc,S as $EQc,C as $GQc,D as $HQc,T as $IQc,$ as $vQc,Q as $wQc,y as $xQc,M as $yQc,b as $zQc,k as Uri};
+import { EditorOptions } from "./common/config/editorOptions.js";
+import { createMonacoBaseAPI } from "./common/services/editorBaseApi.js";
+import { createMonacoEditorAPI } from "./standalone/browser/standaloneEditor.js";
+import { createMonacoLanguagesAPI } from "./standalone/browser/standaloneLanguages.js";
+import { FormattingConflicts } from "./contrib/format/browser/format.js";
+import { getMonacoEnvironment } from "../base/browser/browser.js";
+EditorOptions.wrappingIndent.defaultValue = 0;
+EditorOptions.glyphMargin.defaultValue = false;
+EditorOptions.autoIndent.defaultValue = 3;
+EditorOptions.overviewRulerLanes.defaultValue = 2;
+FormattingConflicts.setFormatterSelector((formatter, document, mode) => Promise.resolve(formatter[0]));
+const api = createMonacoBaseAPI();
+api.editor = createMonacoEditorAPI();
+api.languages = createMonacoLanguagesAPI();
+const CancellationTokenSource = api.CancellationTokenSource;
+const Emitter = api.Emitter;
+const KeyCode = api.KeyCode;
+const KeyMod = api.KeyMod;
+const Position = api.Position;
+const Range = api.Range;
+const Selection = api.Selection;
+const SelectionDirection = api.SelectionDirection;
+const MarkerSeverity = api.MarkerSeverity;
+const MarkerTag = api.MarkerTag;
+const Uri = api.Uri;
+const Token = api.Token;
+const editor = api.editor;
+const languages = api.languages;
+const monacoEnvironment = getMonacoEnvironment();
+const globalWithAMD = globalThis;
+if (monacoEnvironment?.globalAPI || typeof globalWithAMD.define === "function" && globalWithAMD.define.amd) {
+  globalWithAMD.monaco = api;
+}
+if (typeof globalWithAMD.require !== "undefined" && typeof globalWithAMD.require.config === "function") {
+  globalWithAMD.require.config({
+    ignoreDuplicateModules: [
+      "vscode-languageserver-types",
+      "vscode-languageserver-types/main",
+      "vscode-languageserver-textdocument",
+      "vscode-languageserver-textdocument/main",
+      "vscode-nls",
+      "vscode-nls/vscode-nls",
+      "jsonc-parser",
+      "jsonc-parser/main",
+      "vscode-uri",
+      "vscode-uri/index",
+      "vs/basic-languages/typescript/typescript"
+    ]
+  });
+}
+export {
+  CancellationTokenSource,
+  Emitter,
+  KeyCode,
+  KeyMod,
+  MarkerSeverity,
+  MarkerTag,
+  Position,
+  Range,
+  Selection,
+  SelectionDirection,
+  Token,
+  Uri,
+  editor,
+  languages
+};
+//# sourceMappingURL=editor.api.js.map

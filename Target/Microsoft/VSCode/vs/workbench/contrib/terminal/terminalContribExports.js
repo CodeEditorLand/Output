@@ -1,1 +1,64 @@
-import{$C5 as r}from"../terminalContrib/accessibility/common/terminal.accessibility.js";import{$D5 as c}from"../terminalContrib/accessibility/common/terminalAccessibilityConfiguration.js";import{$E5 as n}from"../terminalContrib/autoReplies/common/terminalAutoRepliesConfiguration.js";import{$I5 as i}from"../terminalContrib/inlineHint/common/terminalInitialHintConfiguration.js";import{$J5 as s}from"../terminalContrib/chatAgentTools/common/terminalChatAgentToolsConfiguration.js";import{$L5 as l}from"../terminalContrib/commandGuide/common/terminalCommandGuideConfiguration.js";import{$M5 as p}from"../terminalContrib/find/common/terminal.find.js";import{$N5 as u,$O5 as h}from"../terminalContrib/history/common/terminal.history.js";import{$P5 as m}from"../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";import{$Q5 as f}from"../terminalContrib/suggest/common/terminal.suggest.js";import{$U5 as $}from"../terminalContrib/suggest/common/terminalSuggestConfiguration.js";import{$X5 as A}from"../terminalContrib/typeAhead/common/terminalTypeAheadConfiguration.js";import{$Y5 as k}from"../terminalContrib/zoom/common/terminal.zoom.js";var o;(function(t){t.A11yFocusAccessibleBuffer="workbench.action.terminal.focusAccessibleBuffer",t.DeveloperRestartPtyHost="workbench.action.terminal.restartPtyHost",t.OpenTerminalSettingsLink="workbench.action.terminal.chat.openTerminalSettingsLink",t.DisableSessionAutoApproval="workbench.action.terminal.chat.disableSessionAutoApproval",t.FocusMostRecentChatTerminalOutput="workbench.action.terminal.chat.focusMostRecentChatTerminalOutput",t.FocusMostRecentChatTerminal="workbench.action.terminal.chat.focusMostRecentChatTerminal",t.ToggleChatTerminalOutput="workbench.action.terminal.chat.toggleChatTerminalOutput",t.FocusChatInstanceAction="workbench.action.terminal.chat.focusChatInstance"})(o||(o={}));var e;(function(t){t.StickyScrollEnabled="terminal.integrated.stickyScroll.enabled",t.SuggestEnabled="terminal.integrated.suggest.enabled",t.AutoApprove="chat.tools.terminal.autoApprove",t.EnableAutoApprove="chat.tools.terminal.enableAutoApprove",t.ShellIntegrationTimeout="chat.tools.terminal.shellIntegrationTimeout",t.OutputLocation="chat.tools.terminal.outputLocation"})(e||(e={}));var a;(function(t){t.ChatHasTerminals="hasChatTerminals",t.ChatHasHiddenTerminals="hasHiddenChatTerminals"})(a||(a={}));const E={...c,...n,...s,...i,...l,...h,...m,...$,...A,...k},F=[...r,...p,...u,...f];export{F as $15,E as $Z5,o as TerminalContribCommandId,a as TerminalContribContextKeyStrings,e as TerminalContribSettingId};
+import { defaultTerminalAccessibilityCommandsToSkipShell } from "../terminalContrib/accessibility/common/terminal.accessibility.js";
+import { terminalAccessibilityConfiguration } from "../terminalContrib/accessibility/common/terminalAccessibilityConfiguration.js";
+import { terminalAutoRepliesConfiguration } from "../terminalContrib/autoReplies/common/terminalAutoRepliesConfiguration.js";
+import { terminalInitialHintConfiguration } from "../terminalContrib/inlineHint/common/terminalInitialHintConfiguration.js";
+import { terminalChatAgentToolsConfiguration } from "../terminalContrib/chatAgentTools/common/terminalChatAgentToolsConfiguration.js";
+import { terminalCommandGuideConfiguration } from "../terminalContrib/commandGuide/common/terminalCommandGuideConfiguration.js";
+import { defaultTerminalFindCommandToSkipShell } from "../terminalContrib/find/common/terminal.find.js";
+import { defaultTerminalHistoryCommandsToSkipShell, terminalHistoryConfiguration } from "../terminalContrib/history/common/terminal.history.js";
+import { terminalStickyScrollConfiguration } from "../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js";
+import { defaultTerminalSuggestCommandsToSkipShell } from "../terminalContrib/suggest/common/terminal.suggest.js";
+import { terminalSuggestConfiguration } from "../terminalContrib/suggest/common/terminalSuggestConfiguration.js";
+import { terminalTypeAheadConfiguration } from "../terminalContrib/typeAhead/common/terminalTypeAheadConfiguration.js";
+import { terminalZoomConfiguration } from "../terminalContrib/zoom/common/terminal.zoom.js";
+var TerminalContribCommandId;
+(function(TerminalContribCommandId2) {
+  TerminalContribCommandId2["A11yFocusAccessibleBuffer"] = "workbench.action.terminal.focusAccessibleBuffer";
+  TerminalContribCommandId2["DeveloperRestartPtyHost"] = "workbench.action.terminal.restartPtyHost";
+  TerminalContribCommandId2["OpenTerminalSettingsLink"] = "workbench.action.terminal.chat.openTerminalSettingsLink";
+  TerminalContribCommandId2["DisableSessionAutoApproval"] = "workbench.action.terminal.chat.disableSessionAutoApproval";
+  TerminalContribCommandId2["FocusMostRecentChatTerminalOutput"] = "workbench.action.terminal.chat.focusMostRecentChatTerminalOutput";
+  TerminalContribCommandId2["FocusMostRecentChatTerminal"] = "workbench.action.terminal.chat.focusMostRecentChatTerminal";
+  TerminalContribCommandId2["ToggleChatTerminalOutput"] = "workbench.action.terminal.chat.toggleChatTerminalOutput";
+  TerminalContribCommandId2["FocusChatInstanceAction"] = "workbench.action.terminal.chat.focusChatInstance";
+})(TerminalContribCommandId || (TerminalContribCommandId = {}));
+var TerminalContribSettingId;
+(function(TerminalContribSettingId2) {
+  TerminalContribSettingId2["StickyScrollEnabled"] = "terminal.integrated.stickyScroll.enabled";
+  TerminalContribSettingId2["SuggestEnabled"] = "terminal.integrated.suggest.enabled";
+  TerminalContribSettingId2["AutoApprove"] = "chat.tools.terminal.autoApprove";
+  TerminalContribSettingId2["EnableAutoApprove"] = "chat.tools.terminal.enableAutoApprove";
+  TerminalContribSettingId2["ShellIntegrationTimeout"] = "chat.tools.terminal.shellIntegrationTimeout";
+  TerminalContribSettingId2["OutputLocation"] = "chat.tools.terminal.outputLocation";
+})(TerminalContribSettingId || (TerminalContribSettingId = {}));
+var TerminalContribContextKeyStrings;
+(function(TerminalContribContextKeyStrings2) {
+  TerminalContribContextKeyStrings2["ChatHasTerminals"] = "hasChatTerminals";
+  TerminalContribContextKeyStrings2["ChatHasHiddenTerminals"] = "hasHiddenChatTerminals";
+})(TerminalContribContextKeyStrings || (TerminalContribContextKeyStrings = {}));
+const terminalContribConfiguration = {
+  ...terminalAccessibilityConfiguration,
+  ...terminalAutoRepliesConfiguration,
+  ...terminalChatAgentToolsConfiguration,
+  ...terminalInitialHintConfiguration,
+  ...terminalCommandGuideConfiguration,
+  ...terminalHistoryConfiguration,
+  ...terminalStickyScrollConfiguration,
+  ...terminalSuggestConfiguration,
+  ...terminalTypeAheadConfiguration,
+  ...terminalZoomConfiguration
+};
+const defaultTerminalContribCommandsToSkipShell = [
+  ...defaultTerminalAccessibilityCommandsToSkipShell,
+  ...defaultTerminalFindCommandToSkipShell,
+  ...defaultTerminalHistoryCommandsToSkipShell,
+  ...defaultTerminalSuggestCommandsToSkipShell
+];
+export {
+  TerminalContribCommandId,
+  TerminalContribContextKeyStrings,
+  TerminalContribSettingId,
+  defaultTerminalContribCommandsToSkipShell,
+  terminalContribConfiguration
+};
+//# sourceMappingURL=terminalContribExports.js.map

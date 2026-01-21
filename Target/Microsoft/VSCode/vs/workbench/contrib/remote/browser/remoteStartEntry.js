@@ -1,1 +1,109 @@
-import*as m from"../../../../nls.js";import{$Ed as u}from"../../../../base/common/lifecycle.js";import{$to as b}from"../../../../platform/commands/common/commands.js";import{$Un as $}from"../../../../platform/product/common/productService.js";import{$sL as E,$tL as y}from"../../../../platform/actions/common/actions.js";import{$$z as w}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$op as x}from"../../../../platform/telemetry/common/telemetry.js";import{$Fz as l}from"../../../../platform/extensions/common/extensions.js";import{$bZ as _}from"../../../services/extensionManagement/common/extensionManagement.js";import{$qo as j,$po as R}from"../../../../platform/contextkey/common/contextkey.js";var d=function(o,t,e,s){var n=arguments.length,i=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,s);else for(var c=o.length-1;c>=0;c--)(r=o[c])&&(i=(n<3?r(i):n>3?r(t,e,i):r(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},a=function(o,t){return function(e,s){t(e,s,o)}},f;const h=new R("showRemoteStartEntryInWeb",!1);let p=class extends u{static{f=this}static{this.a="workbench.action.remote.showWebStartEntryActions"}constructor(t,e,s,n,i,r){super(),this.f=t,this.g=e,this.h=s,this.j=n,this.m=i,this.n=r;const c=this.g.remoteExtensionTips?.tunnel;this.c=c?.startEntry?.startCommand??"",this.b=c?.extensionId??"",this.s(),this.q(),this.r()}q(){const t=m.localize2(11522,"Remote"),e=this;this.D(y(class extends E{constructor(){super({id:f.a,category:t,title:m.localize2(11523,"Show Remote Start Entry for web"),f1:!1})}async run(){await e.t()}}))}r(){this.D(this.j.onEnablementChanged(async t=>{for(const e of t)l.equals(this.b,e.identifier.id)&&(this.j.isEnabled(e)?h.bindTo(this.n).set(!0):h.bindTo(this.n).set(!1))}))}async s(){const t=(await this.h.getInstalled()).find(e=>l.equals(e.identifier.id,this.b));t&&this.j.isEnabled(t)&&h.bindTo(this.n).set(!0)}async t(){this.f.executeCommand(this.c),this.m.publicLog2("workbenchActionExecuted",{id:this.c,from:"remote start entry"})}};p=f=d([a(0,b),a(1,$),a(2,w),a(3,_),a(4,x),a(5,j)],p);export{h as $rNc,p as $sNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RemoteStartEntry_1;
+import * as nls from "../../../../nls.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+const showStartEntryInWeb = new RawContextKey("showRemoteStartEntryInWeb", false);
+let RemoteStartEntry = class RemoteStartEntry2 extends Disposable {
+  static {
+    __name(this, "RemoteStartEntry");
+  }
+  static {
+    RemoteStartEntry_1 = this;
+  }
+  static {
+    this.REMOTE_WEB_START_ENTRY_ACTIONS_COMMAND_ID = "workbench.action.remote.showWebStartEntryActions";
+  }
+  constructor(commandService, productService, extensionManagementService, extensionEnablementService, telemetryService, contextKeyService) {
+    super();
+    this.commandService = commandService;
+    this.productService = productService;
+    this.extensionManagementService = extensionManagementService;
+    this.extensionEnablementService = extensionEnablementService;
+    this.telemetryService = telemetryService;
+    this.contextKeyService = contextKeyService;
+    const remoteExtensionTips = this.productService.remoteExtensionTips?.["tunnel"];
+    this.startCommand = remoteExtensionTips?.startEntry?.startCommand ?? "";
+    this.remoteExtensionId = remoteExtensionTips?.extensionId ?? "";
+    this._init();
+    this.registerActions();
+    this.registerListeners();
+  }
+  registerActions() {
+    const category = nls.localize2("remote.category", "Remote");
+    const startEntry = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: RemoteStartEntry_1.REMOTE_WEB_START_ENTRY_ACTIONS_COMMAND_ID,
+          category,
+          title: nls.localize2("remote.showWebStartEntryActions", "Show Remote Start Entry for web"),
+          f1: false
+        });
+      }
+      async run() {
+        await startEntry.showWebRemoteStartActions();
+      }
+    }));
+  }
+  registerListeners() {
+    this._register(this.extensionEnablementService.onEnablementChanged(async (result) => {
+      for (const ext of result) {
+        if (ExtensionIdentifier.equals(this.remoteExtensionId, ext.identifier.id)) {
+          if (this.extensionEnablementService.isEnabled(ext)) {
+            showStartEntryInWeb.bindTo(this.contextKeyService).set(true);
+          } else {
+            showStartEntryInWeb.bindTo(this.contextKeyService).set(false);
+          }
+        }
+      }
+    }));
+  }
+  async _init() {
+    const installed = (await this.extensionManagementService.getInstalled()).find((value) => ExtensionIdentifier.equals(value.identifier.id, this.remoteExtensionId));
+    if (installed) {
+      if (this.extensionEnablementService.isEnabled(installed)) {
+        showStartEntryInWeb.bindTo(this.contextKeyService).set(true);
+      }
+    }
+  }
+  async showWebRemoteStartActions() {
+    this.commandService.executeCommand(this.startCommand);
+    this.telemetryService.publicLog2("workbenchActionExecuted", {
+      id: this.startCommand,
+      from: "remote start entry"
+    });
+  }
+};
+RemoteStartEntry = RemoteStartEntry_1 = __decorate([
+  __param(0, ICommandService),
+  __param(1, IProductService),
+  __param(2, IExtensionManagementService),
+  __param(3, IWorkbenchExtensionEnablementService),
+  __param(4, ITelemetryService),
+  __param(5, IContextKeyService)
+], RemoteStartEntry);
+export {
+  RemoteStartEntry,
+  showStartEntryInWeb
+};
+//# sourceMappingURL=remoteStartEntry.js.map

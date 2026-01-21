@@ -1,1 +1,59 @@
-import{$Pc as t}from"../../../../base/common/map.js";import{$_U as f}from"./editing/chatEditingService.js";import{$dU as o}from"./chatService/chatService.js";function g(e,d){if(d!==void 0)return typeof d=="function"?d(e):d}function l(e){return o(e)&&(e={kind:"terminal",commandLine:{original:e.command,toolEdited:void 0,userEdited:void 0},language:e.language}),e}async function a(e){if(!e.editingSession)return;await f(e.editingSession),await Promise.all(e.editingSession.entries.get().map(n=>n.getDiffInfo?.()));const i=e.editingSession.entries.get().reduce((n,r)=>(n.fileUris.add(r.originalURI),n.added+=r.linesAdded?.get()??0,n.removed+=r.linesRemoved?.get()??0,n),{fileUris:new t,added:0,removed:0});if(i.fileUris.size>0&&(i.added>0||i.removed>0))return{fileCount:i.fileUris.size,added:i.added,removed:i.removed}}export{g as $HU,l as $IU,a as $JU};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ResourceSet } from "../../../../base/common/map.js";
+import { chatEditingSessionIsReady } from "./editing/chatEditingService.js";
+import { isLegacyChatTerminalToolInvocationData } from "./chatService/chatService.js";
+function checkModeOption(mode, option) {
+  if (option === void 0) {
+    return void 0;
+  }
+  if (typeof option === "function") {
+    return option(mode);
+  }
+  return option;
+}
+__name(checkModeOption, "checkModeOption");
+function migrateLegacyTerminalToolSpecificData(data) {
+  if (isLegacyChatTerminalToolInvocationData(data)) {
+    data = {
+      kind: "terminal",
+      commandLine: {
+        original: data.command,
+        toolEdited: void 0,
+        userEdited: void 0
+      },
+      language: data.language
+    };
+  }
+  return data;
+}
+__name(migrateLegacyTerminalToolSpecificData, "migrateLegacyTerminalToolSpecificData");
+async function awaitStatsForSession(model) {
+  if (!model.editingSession) {
+    return void 0;
+  }
+  await chatEditingSessionIsReady(model.editingSession);
+  await Promise.all(model.editingSession.entries.get().map((entry) => entry.getDiffInfo?.()));
+  const diffs = model.editingSession.entries.get();
+  const reduceResult = diffs.reduce((acc, diff) => {
+    acc.fileUris.add(diff.originalURI);
+    acc.added += diff.linesAdded?.get() ?? 0;
+    acc.removed += diff.linesRemoved?.get() ?? 0;
+    return acc;
+  }, { fileUris: new ResourceSet(), added: 0, removed: 0 });
+  if (reduceResult.fileUris.size > 0 && (reduceResult.added > 0 || reduceResult.removed > 0)) {
+    return {
+      fileCount: reduceResult.fileUris.size,
+      added: reduceResult.added,
+      removed: reduceResult.removed
+    };
+  }
+  return void 0;
+}
+__name(awaitStatsForSession, "awaitStatsForSession");
+export {
+  awaitStatsForSession,
+  checkModeOption,
+  migrateLegacyTerminalToolSpecificData
+};
+//# sourceMappingURL=chat.js.map

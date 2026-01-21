@@ -1,1 +1,42 @@
-import{$b1 as d}from"./extHost.protocol.js";import{$u1 as n}from"./extHostTypes.js";class g{constructor(e){this.a=new Map,this.b=0,this.c=e.getProxy(d.MainThreadAiEmbeddingVector)}async $provideAiEmbeddingVector(e,i,t){if(this.a.size===0)throw new Error("No embedding vector providers registered");const r=this.a.get(e);if(!r)throw new Error("Embedding vector provider not found");const o=await r.provideEmbeddingVector(i,t);if(!o)throw new Error("Embedding vector provider returned undefined");return o}registerEmbeddingVectorProvider(e,i,t){const r=this.b;return this.b++,this.a.set(r,t),this.c.$registerAiEmbeddingVectorProvider(i,r),new n(()=>{this.c.$unregisterAiEmbeddingVectorProvider(r),this.a.delete(r)})}}export{g as $rXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MainContext } from "./extHost.protocol.js";
+import { Disposable } from "./extHostTypes.js";
+class ExtHostAiEmbeddingVector {
+  static {
+    __name(this, "ExtHostAiEmbeddingVector");
+  }
+  constructor(mainContext) {
+    this._AiEmbeddingVectorProviders = /* @__PURE__ */ new Map();
+    this._nextHandle = 0;
+    this._proxy = mainContext.getProxy(MainContext.MainThreadAiEmbeddingVector);
+  }
+  async $provideAiEmbeddingVector(handle, strings, token) {
+    if (this._AiEmbeddingVectorProviders.size === 0) {
+      throw new Error("No embedding vector providers registered");
+    }
+    const provider = this._AiEmbeddingVectorProviders.get(handle);
+    if (!provider) {
+      throw new Error("Embedding vector provider not found");
+    }
+    const result = await provider.provideEmbeddingVector(strings, token);
+    if (!result) {
+      throw new Error("Embedding vector provider returned undefined");
+    }
+    return result;
+  }
+  registerEmbeddingVectorProvider(extension, model, provider) {
+    const handle = this._nextHandle;
+    this._nextHandle++;
+    this._AiEmbeddingVectorProviders.set(handle, provider);
+    this._proxy.$registerAiEmbeddingVectorProvider(model, handle);
+    return new Disposable(() => {
+      this._proxy.$unregisterAiEmbeddingVectorProvider(handle);
+      this._AiEmbeddingVectorProviders.delete(handle);
+    });
+  }
+}
+export {
+  ExtHostAiEmbeddingVector
+};
+//# sourceMappingURL=extHostEmbeddingVector.js.map

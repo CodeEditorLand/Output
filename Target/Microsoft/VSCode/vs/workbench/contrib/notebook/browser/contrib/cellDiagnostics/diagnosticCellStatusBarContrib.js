@@ -1,1 +1,85 @@
-import{$Ed as m}from"../../../../../../base/common/lifecycle.js";import{autorun as u}from"../../../../../../base/common/observable.js";import{localize as d}from"../../../../../../nls.js";import{$Lj as b}from"../../../../../../platform/instantiation/common/instantiation.js";import{$cy as g}from"../../../../../../platform/keybinding/common/keybinding.js";import{$okc as p}from"./cellDiagnosticsActions.js";import{$_jc as _}from"../cellStatusBar/executionStatusBarItemController.js";import{$QFb as $}from"../../notebookEditorExtensions.js";import{$5Fb as j}from"../../viewModel/codeCellViewModel.js";import{$DV as D}from"../../../../chat/common/participants/chatAgents.js";import{ChatAgentLocation as I}from"../../../../chat/common/constants.js";var f=function(s,e,t,o){var i=arguments.length,r=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,e,t,o);else for(var c=s.length-1;c>=0;c--)(n=s[c])&&(r=(i<3?n(r):i>3?n(e,t,r):n(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},l=function(s,e){return function(t,o){e(t,o,s)}};let a=class extends m{static{this.id="workbench.notebook.statusBar.diagtnostic"}constructor(e,t){super(),this.D(new _(e,(o,i)=>i instanceof j?t.createInstance(h,o,i):m.None))}};a=f([l(1,b)],a);$(a.id,a);let h=class extends m{constructor(e,t,o,i){super(),this.b=e,this.c=t,this.f=o,this.g=i,this.a=[],this.D(u(r=>this.j(r.readObservable(t.executionErrorDiagnostic))))}h(){return!!this.g.getAgents().find(t=>t.locations.includes(I.Notebook))}async j(e){let t;e?.location&&this.h()&&(t={text:"$(sparkle)",tooltip:this.f.appendKeybinding(d(10356,null),p),alignment:1,command:p,priority:Number.MAX_SAFE_INTEGER-1});const o=t?[t]:[];this.a=this.b.deltaCellStatusBarItems(this.a,[{handle:this.c.handle,items:o}])}dispose(){super.dispose(),this.b.deltaCellStatusBarItems(this.a,[{handle:this.c.handle,items:[]}])}};h=f([l(2,g),l(3,D)],h);export{a as $rkc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { localize } from "../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID } from "./cellDiagnosticsActions.js";
+import { NotebookStatusBarController } from "../cellStatusBar/executionStatusBarItemController.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
+import { IChatAgentService } from "../../../../chat/common/participants/chatAgents.js";
+import { ChatAgentLocation } from "../../../../chat/common/constants.js";
+let DiagnosticCellStatusBarContrib = class DiagnosticCellStatusBarContrib2 extends Disposable {
+  static {
+    __name(this, "DiagnosticCellStatusBarContrib");
+  }
+  static {
+    this.id = "workbench.notebook.statusBar.diagtnostic";
+  }
+  constructor(notebookEditor, instantiationService) {
+    super();
+    this._register(new NotebookStatusBarController(notebookEditor, (vm, cell) => cell instanceof CodeCellViewModel ? instantiationService.createInstance(DiagnosticCellStatusBarItem, vm, cell) : Disposable.None));
+  }
+};
+DiagnosticCellStatusBarContrib = __decorate([
+  __param(1, IInstantiationService)
+], DiagnosticCellStatusBarContrib);
+registerNotebookContribution(DiagnosticCellStatusBarContrib.id, DiagnosticCellStatusBarContrib);
+let DiagnosticCellStatusBarItem = class DiagnosticCellStatusBarItem2 extends Disposable {
+  static {
+    __name(this, "DiagnosticCellStatusBarItem");
+  }
+  constructor(_notebookViewModel, cell, keybindingService, chatAgentService) {
+    super();
+    this._notebookViewModel = _notebookViewModel;
+    this.cell = cell;
+    this.keybindingService = keybindingService;
+    this.chatAgentService = chatAgentService;
+    this._currentItemIds = [];
+    this._register(autorun((reader) => this.updateSparkleItem(reader.readObservable(cell.executionErrorDiagnostic))));
+  }
+  hasNotebookAgent() {
+    const agents = this.chatAgentService.getAgents();
+    return !!agents.find((agent) => agent.locations.includes(ChatAgentLocation.Notebook));
+  }
+  async updateSparkleItem(error) {
+    let item;
+    if (error?.location && this.hasNotebookAgent()) {
+      const tooltip = this.keybindingService.appendKeybinding(localize("notebook.cell.status.diagnostic", "Quick Actions"), OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID);
+      item = {
+        text: `$(sparkle)`,
+        tooltip,
+        alignment: 1,
+        command: OPEN_CELL_FAILURE_ACTIONS_COMMAND_ID,
+        priority: Number.MAX_SAFE_INTEGER - 1
+      };
+    }
+    const items = item ? [item] : [];
+    this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this.cell.handle, items }]);
+  }
+  dispose() {
+    super.dispose();
+    this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this.cell.handle, items: [] }]);
+  }
+};
+DiagnosticCellStatusBarItem = __decorate([
+  __param(2, IKeybindingService),
+  __param(3, IChatAgentService)
+], DiagnosticCellStatusBarItem);
+export {
+  DiagnosticCellStatusBarContrib
+};
+//# sourceMappingURL=diagnosticCellStatusBarContrib.js.map

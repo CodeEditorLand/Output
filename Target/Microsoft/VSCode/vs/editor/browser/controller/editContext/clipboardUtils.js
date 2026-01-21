@@ -1,3 +1,135 @@
-import{$m as m}from"../../../../base/common/platform.js";import{$ZC as p}from"../../../../base/common/mime.js";import{LogLevel as y}from"../../../../platform/log/common/log.js";import{$kn as d}from"../../../../base/common/uuid.js";function $(t,e,o,a){const r=e.viewModel,i=e.configuration.options;let s;o.getLevel()===y.Trace&&(s=d());const{dataToCopy:n,storedMetadata:l}=x(r,i,s,a);h.electronBugWorkaroundCopyEventHasFired=!0,t.preventDefault(),t.clipboardData&&C.setTextData(t.clipboardData,n.text,n.html,l),o.trace("ensureClipboardGetsEditorSelection with id : ",s," with text.length: ",n.text.length)}function x(t,e,o,a){const r=e.get(45),i=e.get(31),s=t.getCursorStates().map(c=>c.modelState.selection),n=T(t,s,r,i),l={version:1,id:o,isFromEmptySelection:n.isFromEmptySelection,multicursorText:n.multicursorText,mode:n.mode};return f.INSTANCE.set(a?n.text.replace(/\r\n/g,`
-`):n.text,l),{dataToCopy:n,storedMetadata:l}}function T(t,e,o,a){const r=t.getPlainTextToCopy(e,o,m),i=t.model.getEOL(),s=o&&e.length===1&&e[0].isEmpty(),n=Array.isArray(r)?r:null,l=Array.isArray(r)?r.join(i):r;let c,g=null;if(h.forceCopyWithSyntaxHighlighting||a&&l.length<65536){const u=t.getRichTextToCopy(e,o);u&&(c=u.html,g=u.mode)}return{isFromEmptySelection:s,multicursorText:n,text:l,html:c,mode:g}}class f{static{this.INSTANCE=new f}constructor(){this.a=null}set(e,o){this.a={lastCopiedValue:e,data:o}}get(e){return this.a&&this.a.lastCopiedValue===e?this.a.data:(this.a=null,null)}}const h={forceCopyWithSyntaxHighlighting:!1,electronBugWorkaroundCopyEventHasFired:!1},C={getTextData(t){const e=t.getData(p.text);let o=null;const a=t.getData("vscode-editor-data");if(typeof a=="string")try{o=JSON.parse(a),o.version!==1&&(o=null)}catch{}return e.length===0&&o===null&&t.files.length>0?[Array.prototype.slice.call(t.files,0).map(i=>i.name).join(`
-`),null]:[e,o]},setTextData(t,e,o,a){t.setData(p.text,e),typeof o=="string"&&t.setData("text/html",o),t.setData("vscode-editor-data",JSON.stringify(a))}};export{C as $Afb,$ as $wfb,x as $xfb,f as $yfb,h as $zfb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isWindows } from "../../../../base/common/platform.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import { LogLevel } from "../../../../platform/log/common/log.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+function ensureClipboardGetsEditorSelection(e, context, logService, isFirefox) {
+  const viewModel = context.viewModel;
+  const options = context.configuration.options;
+  let id = void 0;
+  if (logService.getLevel() === LogLevel.Trace) {
+    id = generateUuid();
+  }
+  const { dataToCopy, storedMetadata } = generateDataToCopyAndStoreInMemory(viewModel, options, id, isFirefox);
+  CopyOptions.electronBugWorkaroundCopyEventHasFired = true;
+  e.preventDefault();
+  if (e.clipboardData) {
+    ClipboardEventUtils.setTextData(e.clipboardData, dataToCopy.text, dataToCopy.html, storedMetadata);
+  }
+  logService.trace("ensureClipboardGetsEditorSelection with id : ", id, " with text.length: ", dataToCopy.text.length);
+}
+__name(ensureClipboardGetsEditorSelection, "ensureClipboardGetsEditorSelection");
+function generateDataToCopyAndStoreInMemory(viewModel, options, id, isFirefox) {
+  const emptySelectionClipboard = options.get(
+    45
+    /* EditorOption.emptySelectionClipboard */
+  );
+  const copyWithSyntaxHighlighting = options.get(
+    31
+    /* EditorOption.copyWithSyntaxHighlighting */
+  );
+  const selections = viewModel.getCursorStates().map((cursorState) => cursorState.modelState.selection);
+  const dataToCopy = getDataToCopy(viewModel, selections, emptySelectionClipboard, copyWithSyntaxHighlighting);
+  const storedMetadata = {
+    version: 1,
+    id,
+    isFromEmptySelection: dataToCopy.isFromEmptySelection,
+    multicursorText: dataToCopy.multicursorText,
+    mode: dataToCopy.mode
+  };
+  InMemoryClipboardMetadataManager.INSTANCE.set(
+    // When writing "LINE\r\n" to the clipboard and then pasting,
+    // Firefox pastes "LINE\n", so let's work around this quirk
+    isFirefox ? dataToCopy.text.replace(/\r\n/g, "\n") : dataToCopy.text,
+    storedMetadata
+  );
+  return { dataToCopy, storedMetadata };
+}
+__name(generateDataToCopyAndStoreInMemory, "generateDataToCopyAndStoreInMemory");
+function getDataToCopy(viewModel, modelSelections, emptySelectionClipboard, copyWithSyntaxHighlighting) {
+  const rawTextToCopy = viewModel.getPlainTextToCopy(modelSelections, emptySelectionClipboard, isWindows);
+  const newLineCharacter = viewModel.model.getEOL();
+  const isFromEmptySelection = emptySelectionClipboard && modelSelections.length === 1 && modelSelections[0].isEmpty();
+  const multicursorText = Array.isArray(rawTextToCopy) ? rawTextToCopy : null;
+  const text = Array.isArray(rawTextToCopy) ? rawTextToCopy.join(newLineCharacter) : rawTextToCopy;
+  let html = void 0;
+  let mode = null;
+  if (CopyOptions.forceCopyWithSyntaxHighlighting || copyWithSyntaxHighlighting && text.length < 65536) {
+    const richText = viewModel.getRichTextToCopy(modelSelections, emptySelectionClipboard);
+    if (richText) {
+      html = richText.html;
+      mode = richText.mode;
+    }
+  }
+  const dataToCopy = {
+    isFromEmptySelection,
+    multicursorText,
+    text,
+    html,
+    mode
+  };
+  return dataToCopy;
+}
+__name(getDataToCopy, "getDataToCopy");
+class InMemoryClipboardMetadataManager {
+  static {
+    __name(this, "InMemoryClipboardMetadataManager");
+  }
+  static {
+    this.INSTANCE = new InMemoryClipboardMetadataManager();
+  }
+  constructor() {
+    this._lastState = null;
+  }
+  set(lastCopiedValue, data) {
+    this._lastState = { lastCopiedValue, data };
+  }
+  get(pastedText) {
+    if (this._lastState && this._lastState.lastCopiedValue === pastedText) {
+      return this._lastState.data;
+    }
+    this._lastState = null;
+    return null;
+  }
+}
+const CopyOptions = {
+  forceCopyWithSyntaxHighlighting: false,
+  electronBugWorkaroundCopyEventHasFired: false
+};
+const ClipboardEventUtils = {
+  getTextData(clipboardData) {
+    const text = clipboardData.getData(Mimes.text);
+    let metadata = null;
+    const rawmetadata = clipboardData.getData("vscode-editor-data");
+    if (typeof rawmetadata === "string") {
+      try {
+        metadata = JSON.parse(rawmetadata);
+        if (metadata.version !== 1) {
+          metadata = null;
+        }
+      } catch (err) {
+      }
+    }
+    if (text.length === 0 && metadata === null && clipboardData.files.length > 0) {
+      const files = Array.prototype.slice.call(clipboardData.files, 0);
+      return [files.map((file) => file.name).join("\n"), null];
+    }
+    return [text, metadata];
+  },
+  setTextData(clipboardData, text, html, metadata) {
+    clipboardData.setData(Mimes.text, text);
+    if (typeof html === "string") {
+      clipboardData.setData("text/html", html);
+    }
+    clipboardData.setData("vscode-editor-data", JSON.stringify(metadata));
+  }
+};
+export {
+  ClipboardEventUtils,
+  CopyOptions,
+  InMemoryClipboardMetadataManager,
+  ensureClipboardGetsEditorSelection,
+  generateDataToCopyAndStoreInMemory
+};
+//# sourceMappingURL=clipboardUtils.js.map

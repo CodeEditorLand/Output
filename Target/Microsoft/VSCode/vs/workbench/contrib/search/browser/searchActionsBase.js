@@ -1,1 +1,54 @@
-import*as f from"../../../../base/browser/dom.js";import*as p from"../../../../nls.js";import{$jT as a}from"../../../services/search/common/search.js";import{$2hc as o,$1hc as c,$Whc as s}from"./searchTreeModel/searchTreeCommon.js";import{$bic as u}from"./searchCompare.js";const x=p.localize2(12038,"Search");function m(t){const r=$(t);return!!(r&&f.$i8(r.getContainer()))}function $(t){return t.getActiveViewWithId(a)}function D(t,r,e){let i=t.getSelection().filter(n=>n!==null).sort((n,h)=>u(n,h,e.sortOrder));return r&&!(i.length>1&&i.includes(r))&&(i=[r]),i}function M(t,r){return r?!r||t.includes(r)||d(t,r):!1}function d(t,r){for(const e of t)if(c(e)&&o(r)&&e.matches().includes(r)||s(e)&&(c(r)&&e.getDownstreamFileMatch(r.resource)||o(r)&&e.getDownstreamFileMatch(r.parent().resource)))return!0;return!1}function V(t,r){return t.openView(a,r).then(e=>e??void 0)}export{x as $cic,m as $dic,$ as $eic,D as $fic,M as $gic,V as $hic};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../base/browser/dom.js";
+import * as nls from "../../../../nls.js";
+import { VIEW_ID } from "../../../services/search/common/search.js";
+import { isSearchTreeMatch, isSearchTreeFileMatch, isSearchTreeFolderMatch } from "./searchTreeModel/searchTreeCommon.js";
+import { searchComparer } from "./searchCompare.js";
+const category = nls.localize2("search", "Search");
+function isSearchViewFocused(viewsService) {
+  const searchView = getSearchView(viewsService);
+  return !!(searchView && DOM.isAncestorOfActiveElement(searchView.getContainer()));
+}
+__name(isSearchViewFocused, "isSearchViewFocused");
+function getSearchView(viewsService) {
+  return viewsService.getActiveViewWithId(VIEW_ID);
+}
+__name(getSearchView, "getSearchView");
+function getElementsToOperateOn(viewer, currElement, sortConfig) {
+  let elements = viewer.getSelection().filter((x) => x !== null).sort((a, b) => searchComparer(a, b, sortConfig.sortOrder));
+  if (currElement && !(elements.length > 1 && elements.includes(currElement))) {
+    elements = [currElement];
+  }
+  return elements;
+}
+__name(getElementsToOperateOn, "getElementsToOperateOn");
+function shouldRefocus(elements, focusElement) {
+  if (!focusElement) {
+    return false;
+  }
+  return !focusElement || elements.includes(focusElement) || hasDownstreamMatch(elements, focusElement);
+}
+__name(shouldRefocus, "shouldRefocus");
+function hasDownstreamMatch(elements, focusElement) {
+  for (const elem of elements) {
+    if (isSearchTreeFileMatch(elem) && isSearchTreeMatch(focusElement) && elem.matches().includes(focusElement) || isSearchTreeFolderMatch(elem) && (isSearchTreeFileMatch(focusElement) && elem.getDownstreamFileMatch(focusElement.resource) || isSearchTreeMatch(focusElement) && elem.getDownstreamFileMatch(focusElement.parent().resource))) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(hasDownstreamMatch, "hasDownstreamMatch");
+function openSearchView(viewsService, focus) {
+  return viewsService.openView(VIEW_ID, focus).then((view) => view ?? void 0);
+}
+__name(openSearchView, "openSearchView");
+export {
+  category,
+  getElementsToOperateOn,
+  getSearchView,
+  isSearchViewFocused,
+  openSearchView,
+  shouldRefocus
+};
+//# sourceMappingURL=searchActionsBase.js.map

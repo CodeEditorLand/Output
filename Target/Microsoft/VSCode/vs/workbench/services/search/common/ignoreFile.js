@@ -1,2 +1,123 @@
-import*as I from"../../../../base/common/glob.js";import{$og as m}from"../../../../base/common/strings.js";class p{constructor(e,s,i,r=!1){if(this.b=s,this.c=i,this.d=r,s[s.length-1]==="\\")throw Error("Unexpected path format, do not use trailing backslashes");s[s.length-1]!=="/"&&(s+="/"),this.a=this.f(e,this.b,this.c)}updateContents(e){this.a=this.f(e,this.b,this.c)}isPathIncludedInTraversal(e,s){if(e[0]!=="/"||e[e.length-1]==="/")throw Error("Unexpected path format, expected to begin with slash and end without. got:"+e);return!this.a(e,s)}isArbitraryPathIgnored(e,s){if(e[0]!=="/"||e[e.length-1]==="/")throw Error("Unexpected path format, expected to begin with slash and end without. got:"+e);const i=e.split("/").filter(n=>n);let r=!1,o="";for(let n=0;n<i.length;n++){const c=n===i.length-1,l=i[n];if(o=o+"/"+l,!this.isPathIncludedInTraversal(o,c?s:!0)){r=!0;break}}return r}e(e,s,i){const r=e.map(n=>this.g(n,s)),o=Object.create(null);for(const n of r)o[n]=!0;return I.$zj(o,{trimForExclusions:i,ignoreCase:this.d})}f(e,s,i){const r=e.split(`
-`).map(t=>t.trim()).filter(t=>t&&t[0]!=="#"),o=r.filter(t=>!t.endsWith("/")),n=o.filter(t=>!t.includes("!")),c=this.e(n,s,!0),l=o.filter(t=>t.includes("!")).map(t=>t.replace(/!/g,"")),d=this.e(l,s,!1),u=r.filter(t=>!t.includes("!")),g=this.e(u,s,!0),a=r.filter(t=>t.includes("!")).map(t=>t.replace(/!/g,"")),h=this.e(a,s,!1);return(t,f)=>(this.d?m(t,s):t.startsWith(s))?f&&g(t)&&!h(t)||c(t)&&!d(t)?!0:i?i.a(t,f):!1:!1}g(e,s){const i=e.indexOf("/");return i===-1||i===e.length-1?e="**/"+e:(i===0?s.slice(-1)==="/"&&(e=e.slice(1)):s.slice(-1)!=="/"&&(e="/"+e),e=s+e),e}}export{p as $ITb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as glob from "../../../../base/common/glob.js";
+import { startsWithIgnoreCase } from "../../../../base/common/strings.js";
+class IgnoreFile {
+  static {
+    __name(this, "IgnoreFile");
+  }
+  constructor(contents, location, parent, ignoreCase = false) {
+    this.location = location;
+    this.parent = parent;
+    this.ignoreCase = ignoreCase;
+    if (location[location.length - 1] === "\\") {
+      throw Error("Unexpected path format, do not use trailing backslashes");
+    }
+    if (location[location.length - 1] !== "/") {
+      location += "/";
+    }
+    this.isPathIgnored = this.parseIgnoreFile(contents, this.location, this.parent);
+  }
+  /**
+   * Updates the contents of the ignore file. Preserving the location and parent
+   * @param contents The new contents of the gitignore file
+   */
+  updateContents(contents) {
+    this.isPathIgnored = this.parseIgnoreFile(contents, this.location, this.parent);
+  }
+  /**
+   * Returns true if a path in a traversable directory has not been ignored.
+   *
+   * Note: For performance reasons this does not check if the parent directories have been ignored,
+   * so it should always be used in tandem with `shouldTraverseDir` when walking a directory.
+   *
+   * In cases where a path must be tested in isolation, `isArbitraryPathIncluded` should be used.
+   */
+  isPathIncludedInTraversal(path, isDir) {
+    if (path[0] !== "/" || path[path.length - 1] === "/") {
+      throw Error("Unexpected path format, expected to begin with slash and end without. got:" + path);
+    }
+    const ignored = this.isPathIgnored(path, isDir);
+    return !ignored;
+  }
+  /**
+   * Returns true if an arbitrary path has not been ignored.
+   * This is an expensive operation and should only be used outside of traversals.
+   */
+  isArbitraryPathIgnored(path, isDir) {
+    if (path[0] !== "/" || path[path.length - 1] === "/") {
+      throw Error("Unexpected path format, expected to begin with slash and end without. got:" + path);
+    }
+    const segments = path.split("/").filter((x) => x);
+    let ignored = false;
+    let walkingPath = "";
+    for (let i = 0; i < segments.length; i++) {
+      const isLast = i === segments.length - 1;
+      const segment = segments[i];
+      walkingPath = walkingPath + "/" + segment;
+      if (!this.isPathIncludedInTraversal(walkingPath, isLast ? isDir : true)) {
+        ignored = true;
+        break;
+      }
+    }
+    return ignored;
+  }
+  gitignoreLinesToExpression(lines, dirPath, trimForExclusions) {
+    const includeLines = lines.map((line) => this.gitignoreLineToGlob(line, dirPath));
+    const includeExpression = /* @__PURE__ */ Object.create(null);
+    for (const line of includeLines) {
+      includeExpression[line] = true;
+    }
+    return glob.parse(includeExpression, { trimForExclusions, ignoreCase: this.ignoreCase });
+  }
+  parseIgnoreFile(ignoreContents, dirPath, parent) {
+    const contentLines = ignoreContents.split("\n").map((line) => line.trim()).filter((line) => line && line[0] !== "#");
+    const fileLines = contentLines.filter((line) => !line.endsWith("/"));
+    const fileIgnoreLines = fileLines.filter((line) => !line.includes("!"));
+    const isFileIgnored = this.gitignoreLinesToExpression(fileIgnoreLines, dirPath, true);
+    const fileIncludeLines = fileLines.filter((line) => line.includes("!")).map((line) => line.replace(/!/g, ""));
+    const isFileIncluded = this.gitignoreLinesToExpression(fileIncludeLines, dirPath, false);
+    const dirIgnoreLines = contentLines.filter((line) => !line.includes("!"));
+    const isDirIgnored = this.gitignoreLinesToExpression(dirIgnoreLines, dirPath, true);
+    const dirIncludeLines = contentLines.filter((line) => line.includes("!")).map((line) => line.replace(/!/g, ""));
+    const isDirIncluded = this.gitignoreLinesToExpression(dirIncludeLines, dirPath, false);
+    const isPathIgnored = /* @__PURE__ */ __name((path, isDir) => {
+      if (!(this.ignoreCase ? startsWithIgnoreCase(path, dirPath) : path.startsWith(dirPath))) {
+        return false;
+      }
+      if (isDir && isDirIgnored(path) && !isDirIncluded(path)) {
+        return true;
+      }
+      if (isFileIgnored(path) && !isFileIncluded(path)) {
+        return true;
+      }
+      if (parent) {
+        return parent.isPathIgnored(path, isDir);
+      }
+      return false;
+    }, "isPathIgnored");
+    return isPathIgnored;
+  }
+  gitignoreLineToGlob(line, dirPath) {
+    const firstSep = line.indexOf("/");
+    if (firstSep === -1 || firstSep === line.length - 1) {
+      line = "**/" + line;
+    } else {
+      if (firstSep === 0) {
+        if (dirPath.slice(-1) === "/") {
+          line = line.slice(1);
+        }
+      } else {
+        if (dirPath.slice(-1) !== "/") {
+          line = "/" + line;
+        }
+      }
+      line = dirPath + line;
+    }
+    return line;
+  }
+}
+export {
+  IgnoreFile
+};
+//# sourceMappingURL=ignoreFile.js.map

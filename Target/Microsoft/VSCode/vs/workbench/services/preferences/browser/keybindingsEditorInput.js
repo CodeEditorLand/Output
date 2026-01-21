@@ -1,1 +1,65 @@
-import{$ak as d}from"../../../../base/common/codicons.js";import{OS as m}from"../../../../base/common/platform.js";import*as p from"../../../../nls.js";import{$Lj as b}from"../../../../platform/instantiation/common/instantiation.js";import{$eu as h}from"../../../../platform/theme/common/iconRegistry.js";import{$1H as $}from"../../../common/editor/editorInput.js";import{$G$b as y}from"./keybindingsEditorModel.js";var u=function(r,e,n,i){var o=arguments.length,t=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(r,e,n,i);else for(var l=r.length-1;l>=0;l--)(s=r[l])&&(t=(o<3?s(t):o>3?s(e,n,t):s(e,n))||t);return o>3&&t&&Object.defineProperty(e,n,t),t},f=function(r,e){return function(n,i){e(n,i,r)}},c;const _=h("keybindings-editor-label-icon",d.keyboard,p.localize(15934,null));let a=class extends ${static{c=this}static{this.ID="workbench.input.keybindings"}constructor(e){super(),this.searchOptions=null,this.resource=void 0,this.keybindingsModel=e.createInstance(y,m)}get typeId(){return c.ID}getName(){return p.localize(15935,null)}getIcon(){return _}async resolve(){return this.keybindingsModel}matches(e){return e instanceof c}dispose(){this.keybindingsModel.dispose(),super.dispose()}};a=c=u([f(0,b)],a);export{a as $H$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var KeybindingsEditorInput_1;
+import { Codicon } from "../../../../base/common/codicons.js";
+import { OS } from "../../../../base/common/platform.js";
+import * as nls from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { KeybindingsEditorModel } from "./keybindingsEditorModel.js";
+const KeybindingsEditorIcon = registerIcon("keybindings-editor-label-icon", Codicon.keyboard, nls.localize("keybindingsEditorLabelIcon", "Icon of the keybindings editor label."));
+let KeybindingsEditorInput = class KeybindingsEditorInput2 extends EditorInput {
+  static {
+    __name(this, "KeybindingsEditorInput");
+  }
+  static {
+    KeybindingsEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.input.keybindings";
+  }
+  constructor(instantiationService) {
+    super();
+    this.searchOptions = null;
+    this.resource = void 0;
+    this.keybindingsModel = instantiationService.createInstance(KeybindingsEditorModel, OS);
+  }
+  get typeId() {
+    return KeybindingsEditorInput_1.ID;
+  }
+  getName() {
+    return nls.localize("keybindingsInputName", "Keyboard Shortcuts");
+  }
+  getIcon() {
+    return KeybindingsEditorIcon;
+  }
+  async resolve() {
+    return this.keybindingsModel;
+  }
+  matches(otherInput) {
+    return otherInput instanceof KeybindingsEditorInput_1;
+  }
+  dispose() {
+    this.keybindingsModel.dispose();
+    super.dispose();
+  }
+};
+KeybindingsEditorInput = KeybindingsEditorInput_1 = __decorate([
+  __param(0, IInstantiationService)
+], KeybindingsEditorInput);
+export {
+  KeybindingsEditorInput
+};
+//# sourceMappingURL=keybindingsEditorInput.js.map

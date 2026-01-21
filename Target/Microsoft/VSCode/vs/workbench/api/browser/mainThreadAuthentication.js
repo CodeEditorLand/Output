@@ -1,2 +1,503 @@
-import{$Ed as j,$Md as H}from"../../../base/common/lifecycle.js";import*as a from"../../../nls.js";import{$vCb as U}from"../../services/extensions/common/extHostCustomers.js";import{$vP as I,$xP as R,$uP as B}from"../../services/authentication/common/authentication.js";import{$c1 as W,$b1 as k}from"../common/extHost.protocol.js";import{$Lp as G}from"../../../platform/dialogs/common/dialogs.js";import S from"../../../base/common/severity.js";import{$mH as J}from"../../../platform/notification/common/notification.js";import{$4R as V}from"../../services/extensions/common/extensions.js";import{$op as K}from"../../../platform/telemetry/common/telemetry.js";import{$wf as D}from"../../../base/common/event.js";import{$sbb as Y}from"../../services/authentication/browser/authenticationAccessService.js";import{$WKb as Q}from"../../services/authentication/browser/authenticationUsageService.js";import{$ubb as X}from"../../services/authentication/browser/authenticationService.js";import{URI as w}from"../../../base/common/uri.js";import{$yP as Z}from"../../../platform/opener/common/opener.js";import{$sb as q}from"../../../base/common/errors.js";import{$xo as L}from"../../../platform/log/common/log.js";import{$my as O}from"../../../platform/url/common/url.js";import{$ti as C,$Yh as x}from"../../../base/common/async.js";import{$48b as tt}from"../../services/authentication/common/dynamicAuthenticationProviderStorage.js";import{$4hb as et}from"../../../platform/clipboard/common/clipboardService.js";import{$VH as it}from"../../../platform/quickinput/common/quickInput.js";import{$Un as nt}from"../../../platform/product/common/productService.js";var T=function(m,t,e,n){var r=arguments.length,i=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(m,t,e,n);else for(var s=m.length-1;s>=0;s--)(o=m[s])&&(i=(r<3?o(i):r>3?o(t,e,i):o(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},c=function(m,t){return function(e,n){t(e,n,m)}};class F extends j{constructor(t,e,n,r,i,o,s){super(),this.a=t,this.id=e,this.label=n,this.supportsMultipleAccounts=r,this.authorizationServers=i,this.resourceServer=o,this.onDidChangeSessions=s.event}async getSessions(t,e){return this.a.$getSessions(this.id,t,e)}createSession(t,e){return this.a.$createSession(this.id,t,e)}async removeSession(t){await this.a.$removeSession(this.id,t)}}class rt extends F{constructor(t,e,n,r,i,o,s){super(t,e,n,r,i,o,s)}getSessionsFromChallenges(t,e){return this.a.$getSessionsFromChallenges(this.id,t,e)}createSessionFromChallenges(t,e){return this.a.$createSessionFromChallenges(this.id,t,e)}}let N=class extends j{constructor(t,e,n,r,i,o,s,f,u,h,p,y,d,g,M,_){super(),this.g=e,this.h=n,this.j=r,this.m=i,this.n=o,this.q=s,this.r=f,this.s=u,this.t=h,this.u=p,this.w=y,this.y=d,this.z=g,this.C=M,this.F=_,this.b=this.D(new H),this.c=new Set,this.f=!1,this.J=new Set,this.a=t.getProxy(W.ExtHostAuthentication),this.D(this.h.onDidChangeSessions(l=>this.a.$onDidChangeAuthenticationSessions(l.providerId,l.label))),this.D(this.h.onDidUnregisterAuthenticationProvider(l=>{this.f||this.a.$onDidUnregisterAuthenticationProvider(l.id)})),this.D(this.j.onDidChangeAccountPreference(l=>{const $=this.h.getProvider(l.providerId);this.a.$onDidChangeAuthenticationSessions($.id,$.label,l.extensionIds)})),this.D(this.z.onDidChangeTokens(l=>{this.a.$onDidChangeDynamicAuthProviderTokens(l.authProviderId,l.clientId,l.tokens)})),this.D(n.registerAuthenticationProviderHostDelegate({priority:t.extensionHostKind===2?0:1,create:async(l,$,v)=>{const P=v?`${l.toString(!0)} ${v.resource}`:l.toString(!0),A=await this.z.getClientRegistration(P);let b=A?.clientId;const E=A?.clientSecret;let z;return b?z=await this.z.getSessionsForDynamicAuthProvider(P,b):$.client_id_metadata_document_supported&&(b=this.g.authClientIdMetadataUrl),await this.a.$registerDynamicAuthProvider(l,$,v,b,E,z)}}))}async $registerAuthenticationProvider({id:t,label:e,supportsMultipleAccounts:n,resourceServer:r,supportedAuthorizationServers:i,supportsChallenges:o}){this.h.declaredProviders.find(h=>h.id===t)||(this.w.warn(`Authentication provider ${t} was not declared in the Extension Manifest.`),this.t.publicLog2("authentication.providerNotDeclared",{id:t}));const s=new D;this.b.set(t,s);const f=(i??[]).map(h=>w.revive(h)),u=o?new rt(this.a,t,e,n,f,r?w.revive(r):void 0,s):new F(this.a,t,e,n,f,r?w.revive(r):void 0,s);this.h.registerAuthenticationProvider(t,u)}async $unregisterAuthenticationProvider(t){this.b.deleteAndDispose(t),this.f=!0;try{this.h.unregisterAuthenticationProvider(t)}finally{this.f=!1}}async $ensureProvider(t){if(!this.h.isAuthenticationProviderRegistered(t))return await this.s.activateByEvent(X(t),1)}async $sendDidChangeSessions(t,e){const n=this.b.get(t);n instanceof D&&n.fire(e)}$removeSession(t,e){return this.h.removeSession(t,e)}async $waitForUriHandler(t){const e=new C,n=this.y.registerHandler({handleURL:async i=>i.scheme!==t.scheme||i.authority!==t.authority||i.path!==t.path?!1:(e.complete(i),n.dispose(),!0)});if(!await x(e.p,300*1e3))throw new Error("Timed out waiting for URI handler");return await e.p}$showContinueNotification(t){const e=a.localize(2805,null),n=a.localize(2806,null),r=new C;let i=!1;const s=this.r.prompt(S.Warning,t,[{label:e,run:()=>i=!0},{label:n,run:()=>i=!1}]).onDidClose(()=>{r.complete(i),s.dispose()});return r.p}async $registerDynamicAuthenticationProvider(t){await this.$registerAuthenticationProvider({id:t.id,label:t.label,supportsMultipleAccounts:!0,supportedAuthorizationServers:[t.authorizationServer],resourceServer:t.resourceServer}),await this.z.storeClientRegistration(t.id,w.revive(t.authorizationServer).toString(!0),t.clientId,t.clientSecret,t.label)}async $setSessionsForDynamicAuthProvider(t,e,n){await this.z.setSessionsForDynamicAuthProvider(t,e,n)}async $sendDidChangeDynamicProviderInfo({providerId:t,clientId:e,authorizationServer:n,label:r,clientSecret:i}){this.w.info(`Client ID for authentication provider ${t} changed to ${e}`);const o=this.z.getInteractedProviders().find(s=>s.providerId===t);if(!o)throw new Error(`Dynamic authentication provider ${t} not found. Has it been registered?`);await this.z.storeClientRegistration(t||o.providerId,n?w.revive(n).toString(!0):o.authorizationServer,e||o.clientId,i,r||o.label)}async G(t,e,n,r){let i;const o=t.confirmation?.(e,n);o?i=o:i=n?a.localize(2807,null,e,t.label):a.localize(2808,null,e,t.label);const s=[{label:a.localize(2809,null),run(){return!0}}];r?.learnMore&&s.push({label:a.localize(2810,null),run:async()=>{const u=this.G(t,e,n,r);return await this.u.open(w.revive(r.learnMore),{allowCommands:!0}),await u}});const{result:f}=await this.q.prompt({type:S.Info,message:i,buttons:s,detail:r?.detail,cancelButton:!0});return f??!1}async H(t,e){const n=await this.q.prompt({message:a.localize(2811,null),detail:a.localize(2812,null,t,e),type:S.Warning,cancelButton:!0,buttons:[{label:a.localize(2813,null,t),run:()=>t},{label:a.localize(2814,null,e),run:()=>e}]});if(!n.result)throw new q;return n.result===t}async I(t,e,n,r,i){const o=w.revive(i.authorizationServer),s=await this.h.getSessions(t,e,{account:i.account,authorizationServer:o},!0),f=this.h.getProvider(t);if(i.forceNewSession&&i.createIfNone)throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, createIfNone");if(i.forceNewSession&&i.silent)throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, silent");if(i.createIfNone&&i.silent)throw new Error("Invalid combination of options. Please remove one of the following: createIfNone, silent");i.clearSessionPreference&&this.j.removeAccountPreference(n,t);const u=i.account?s[0]:this.N(n,t,s);if(!i.forceNewSession&&s.length){if(u&&this.m.isAccessAllowed(t,u.account.label,n))return u;if(!f.supportsMultipleAccounts&&this.m.isAccessAllowed(t,s[0].account.label,n))return s[0]}if(i.createIfNone||i.forceNewSession){let h;typeof i.forceNewSession=="object"?h=i.forceNewSession:typeof i.createIfNone=="object"&&(h=i.createIfNone);const p=!!(i.forceNewSession&&s.length);if(!await this.G(f,r,p,h))throw new Error("User did not consent to login.");let d;if(s?.length&&!i.forceNewSession)d=f.supportsMultipleAccounts&&!i.account?await this.j.selectSession(t,n,r,e,s):s[0];else{const g=i.account??u?.account;do d=await this.h.createSession(t,e,{activateImmediate:!0,account:g,authorizationServer:o});while(g&&g.label!==d.account.label&&!await this.H(d.account.label,g.label))}return this.m.updateAllowedExtensions(t,d.account.label,[{id:n,name:r,allowed:!0}]),this.j.updateNewSessionRequests(t,[d]),this.j.updateAccountPreference(n,t,d.account),d}if(!u){const h=s.filter(p=>this.m.isAccessAllowed(t,p.account.label,n));if(h.length===1)return h[0]}i.silent||(s.length?this.j.requestSessionAccess(t,n,r,e,s):await this.j.requestNewSession(t,e,n,r))}async $getSession(t,e,n,r,i){const o=B(e)?e.fallbackScopes:e;o&&this.L(n,t,o);const s=await this.I(t,e,n,r,i);return s&&(this.M(n,t),this.n.addAccountUsage(t,s.account.label,s.scopes,n,r)),s}async $getAccounts(t){return await this.h.getAccounts(t)}L(t,e,n){const r=n.some(o=>o.startsWith("VSCODE_CLIENT_ID:")),i=`${t}|${e}|${r}`;this.J.has(i)||(this.J.add(i),r&&this.t.publicLog2("authentication.clientIdUsage",{extensionId:t}))}M(t,e){const n=`${t}|${e}`;this.c.has(n)||(this.c.add(n),this.t.publicLog2("authentication.providerUsage",{providerId:e,extensionId:t}))}N(t,e,n){if(n.length===0)return;const r=this.j.getAccountPreference(t,e);if(r)return n.find(o=>o.account.label===r)}async $showDeviceCodeModal(t,e){const{result:n}=await this.q.prompt({type:S.Info,message:a.localize(2815,null),detail:a.localize(2816,null,t,e),buttons:[{label:a.localize(2817,null),run:()=>!0}],cancelButton:!0});if(n)try{return await this.C.writeText(t),await this.u.open(w.parse(e))}catch{this.r.error(a.localize(2818,null,e))}return!1}async $promptForClientRegistration(t){const e=`http://127.0.0.1:33418
-https://vscode.dev/redirect`;if(!await this.q.prompt({type:S.Info,message:a.localize(2819,null),detail:a.localize(2820,null,t,e),buttons:[{label:a.localize(2821,null),run:async()=>{try{await this.C.writeText(e)}catch{this.r.error(a.localize(2822,null))}return!0}}],cancelButton:{label:a.localize(2823,null),run:()=>!1}}))return;const r=a.localize(2824,null),i=await this.F.input({title:r,prompt:a.localize(2825,null),placeHolder:a.localize(2826,null),ignoreFocusLost:!0,validateInput:async s=>{if(!s||s.trim().length===0)return a.localize(2827,null)}});if(!i||i.trim().length===0)return;const o=await this.F.input({title:r,prompt:a.localize(2828,null,i),placeHolder:a.localize(2829,null),password:!0,ignoreFocusLost:!0});return{clientId:i.trim(),clientSecret:o?.trim()||void 0}}};N=T([U(k.MainThreadAuthentication),c(1,nt),c(2,I),c(3,R),c(4,Y),c(5,Q),c(6,G),c(7,J),c(8,V),c(9,K),c(10,Z),c(11,L),c(12,O),c(13,tt),c(14,et),c(15,it)],N);export{N as $58b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import * as nls from "../../../nls.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IAuthenticationService, IAuthenticationExtensionsService, isAuthenticationWwwAuthenticateRequest } from "../../services/authentication/common/authentication.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import Severity from "../../../base/common/severity.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { Emitter } from "../../../base/common/event.js";
+import { IAuthenticationAccessService } from "../../services/authentication/browser/authenticationAccessService.js";
+import { IAuthenticationUsageService } from "../../services/authentication/browser/authenticationUsageService.js";
+import { getAuthenticationProviderActivationEvent } from "../../services/authentication/browser/authenticationService.js";
+import { URI } from "../../../base/common/uri.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IURLService } from "../../../platform/url/common/url.js";
+import { DeferredPromise, raceTimeout } from "../../../base/common/async.js";
+import { IDynamicAuthenticationProviderStorageService } from "../../services/authentication/common/dynamicAuthenticationProviderStorage.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IQuickInputService } from "../../../platform/quickinput/common/quickInput.js";
+import { IProductService } from "../../../platform/product/common/productService.js";
+class MainThreadAuthenticationProvider extends Disposable {
+  static {
+    __name(this, "MainThreadAuthenticationProvider");
+  }
+  constructor(_proxy, id, label, supportsMultipleAccounts, authorizationServers, resourceServer, onDidChangeSessionsEmitter) {
+    super();
+    this._proxy = _proxy;
+    this.id = id;
+    this.label = label;
+    this.supportsMultipleAccounts = supportsMultipleAccounts;
+    this.authorizationServers = authorizationServers;
+    this.resourceServer = resourceServer;
+    this.onDidChangeSessions = onDidChangeSessionsEmitter.event;
+  }
+  async getSessions(scopes, options) {
+    return this._proxy.$getSessions(this.id, scopes, options);
+  }
+  createSession(scopes, options) {
+    return this._proxy.$createSession(this.id, scopes, options);
+  }
+  async removeSession(sessionId) {
+    await this._proxy.$removeSession(this.id, sessionId);
+  }
+}
+class MainThreadAuthenticationProviderWithChallenges extends MainThreadAuthenticationProvider {
+  static {
+    __name(this, "MainThreadAuthenticationProviderWithChallenges");
+  }
+  constructor(proxy, id, label, supportsMultipleAccounts, authorizationServers, resourceServer, onDidChangeSessionsEmitter) {
+    super(proxy, id, label, supportsMultipleAccounts, authorizationServers, resourceServer, onDidChangeSessionsEmitter);
+  }
+  getSessionsFromChallenges(constraint, options) {
+    return this._proxy.$getSessionsFromChallenges(this.id, constraint, options);
+  }
+  createSessionFromChallenges(constraint, options) {
+    return this._proxy.$createSessionFromChallenges(this.id, constraint, options);
+  }
+}
+let MainThreadAuthentication = class MainThreadAuthentication2 extends Disposable {
+  static {
+    __name(this, "MainThreadAuthentication");
+  }
+  constructor(extHostContext, productService, authenticationService, authenticationExtensionsService, authenticationAccessService, authenticationUsageService, dialogService, notificationService, extensionService, telemetryService, openerService, logService, urlService, dynamicAuthProviderStorageService, clipboardService, quickInputService) {
+    super();
+    this.productService = productService;
+    this.authenticationService = authenticationService;
+    this.authenticationExtensionsService = authenticationExtensionsService;
+    this.authenticationAccessService = authenticationAccessService;
+    this.authenticationUsageService = authenticationUsageService;
+    this.dialogService = dialogService;
+    this.notificationService = notificationService;
+    this.extensionService = extensionService;
+    this.telemetryService = telemetryService;
+    this.openerService = openerService;
+    this.logService = logService;
+    this.urlService = urlService;
+    this.dynamicAuthProviderStorageService = dynamicAuthProviderStorageService;
+    this.clipboardService = clipboardService;
+    this.quickInputService = quickInputService;
+    this._registrations = this._register(new DisposableMap());
+    this._sentProviderUsageEvents = /* @__PURE__ */ new Set();
+    this._suppressUnregisterEvent = false;
+    this._sentClientIdUsageEvents = /* @__PURE__ */ new Set();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostAuthentication);
+    this._register(this.authenticationService.onDidChangeSessions((e) => this._proxy.$onDidChangeAuthenticationSessions(e.providerId, e.label)));
+    this._register(this.authenticationService.onDidUnregisterAuthenticationProvider((e) => {
+      if (!this._suppressUnregisterEvent) {
+        this._proxy.$onDidUnregisterAuthenticationProvider(e.id);
+      }
+    }));
+    this._register(this.authenticationExtensionsService.onDidChangeAccountPreference((e) => {
+      const providerInfo = this.authenticationService.getProvider(e.providerId);
+      this._proxy.$onDidChangeAuthenticationSessions(providerInfo.id, providerInfo.label, e.extensionIds);
+    }));
+    this._register(this.dynamicAuthProviderStorageService.onDidChangeTokens((e) => {
+      this._proxy.$onDidChangeDynamicAuthProviderTokens(e.authProviderId, e.clientId, e.tokens);
+    }));
+    this._register(authenticationService.registerAuthenticationProviderHostDelegate({
+      // Prefer Node.js extension hosts when they're available. No CORS issues etc.
+      priority: extHostContext.extensionHostKind === 2 ? 0 : 1,
+      create: /* @__PURE__ */ __name(async (authorizationServer, serverMetadata, resource) => {
+        const authProviderId = resource ? `${authorizationServer.toString(true)} ${resource.resource}` : authorizationServer.toString(true);
+        const clientDetails = await this.dynamicAuthProviderStorageService.getClientRegistration(authProviderId);
+        let clientId = clientDetails?.clientId;
+        const clientSecret = clientDetails?.clientSecret;
+        let initialTokens = void 0;
+        if (clientId) {
+          initialTokens = await this.dynamicAuthProviderStorageService.getSessionsForDynamicAuthProvider(authProviderId, clientId);
+        } else if (serverMetadata.client_id_metadata_document_supported) {
+          clientId = this.productService.authClientIdMetadataUrl;
+        }
+        return await this._proxy.$registerDynamicAuthProvider(authorizationServer, serverMetadata, resource, clientId, clientSecret, initialTokens);
+      }, "create")
+    }));
+  }
+  async $registerAuthenticationProvider({ id, label, supportsMultipleAccounts, resourceServer, supportedAuthorizationServers, supportsChallenges }) {
+    if (!this.authenticationService.declaredProviders.find((p) => p.id === id)) {
+      this.logService.warn(`Authentication provider ${id} was not declared in the Extension Manifest.`);
+      this.telemetryService.publicLog2("authentication.providerNotDeclared", { id });
+    }
+    const emitter = new Emitter();
+    this._registrations.set(id, emitter);
+    const supportedAuthorizationServerUris = (supportedAuthorizationServers ?? []).map((i) => URI.revive(i));
+    const provider = supportsChallenges ? new MainThreadAuthenticationProviderWithChallenges(this._proxy, id, label, supportsMultipleAccounts, supportedAuthorizationServerUris, resourceServer ? URI.revive(resourceServer) : void 0, emitter) : new MainThreadAuthenticationProvider(this._proxy, id, label, supportsMultipleAccounts, supportedAuthorizationServerUris, resourceServer ? URI.revive(resourceServer) : void 0, emitter);
+    this.authenticationService.registerAuthenticationProvider(id, provider);
+  }
+  async $unregisterAuthenticationProvider(id) {
+    this._registrations.deleteAndDispose(id);
+    this._suppressUnregisterEvent = true;
+    try {
+      this.authenticationService.unregisterAuthenticationProvider(id);
+    } finally {
+      this._suppressUnregisterEvent = false;
+    }
+  }
+  async $ensureProvider(id) {
+    if (!this.authenticationService.isAuthenticationProviderRegistered(id)) {
+      return await this.extensionService.activateByEvent(
+        getAuthenticationProviderActivationEvent(id),
+        1
+        /* ActivationKind.Immediate */
+      );
+    }
+  }
+  async $sendDidChangeSessions(providerId, event) {
+    const obj = this._registrations.get(providerId);
+    if (obj instanceof Emitter) {
+      obj.fire(event);
+    }
+  }
+  $removeSession(providerId, sessionId) {
+    return this.authenticationService.removeSession(providerId, sessionId);
+  }
+  async $waitForUriHandler(expectedUri) {
+    const deferredPromise = new DeferredPromise();
+    const disposable = this.urlService.registerHandler({
+      handleURL: /* @__PURE__ */ __name(async (uri) => {
+        if (uri.scheme !== expectedUri.scheme || uri.authority !== expectedUri.authority || uri.path !== expectedUri.path) {
+          return false;
+        }
+        deferredPromise.complete(uri);
+        disposable.dispose();
+        return true;
+      }, "handleURL")
+    });
+    const result = await raceTimeout(deferredPromise.p, 5 * 60 * 1e3);
+    if (!result) {
+      throw new Error("Timed out waiting for URI handler");
+    }
+    return await deferredPromise.p;
+  }
+  $showContinueNotification(message) {
+    const yes = nls.localize("yes", "Yes");
+    const no = nls.localize("no", "No");
+    const deferredPromise = new DeferredPromise();
+    let result = false;
+    const handle = this.notificationService.prompt(Severity.Warning, message, [{
+      label: yes,
+      run: /* @__PURE__ */ __name(() => result = true, "run")
+    }, {
+      label: no,
+      run: /* @__PURE__ */ __name(() => result = false, "run")
+    }]);
+    const disposable = handle.onDidClose(() => {
+      deferredPromise.complete(result);
+      disposable.dispose();
+    });
+    return deferredPromise.p;
+  }
+  async $registerDynamicAuthenticationProvider(details) {
+    await this.$registerAuthenticationProvider({
+      id: details.id,
+      label: details.label,
+      supportsMultipleAccounts: true,
+      supportedAuthorizationServers: [details.authorizationServer],
+      resourceServer: details.resourceServer
+    });
+    await this.dynamicAuthProviderStorageService.storeClientRegistration(details.id, URI.revive(details.authorizationServer).toString(true), details.clientId, details.clientSecret, details.label);
+  }
+  async $setSessionsForDynamicAuthProvider(authProviderId, clientId, sessions) {
+    await this.dynamicAuthProviderStorageService.setSessionsForDynamicAuthProvider(authProviderId, clientId, sessions);
+  }
+  async $sendDidChangeDynamicProviderInfo({ providerId, clientId, authorizationServer, label, clientSecret }) {
+    this.logService.info(`Client ID for authentication provider ${providerId} changed to ${clientId}`);
+    const existing = this.dynamicAuthProviderStorageService.getInteractedProviders().find((p) => p.providerId === providerId);
+    if (!existing) {
+      throw new Error(`Dynamic authentication provider ${providerId} not found. Has it been registered?`);
+    }
+    await this.dynamicAuthProviderStorageService.storeClientRegistration(providerId || existing.providerId, authorizationServer ? URI.revive(authorizationServer).toString(true) : existing.authorizationServer, clientId || existing.clientId, clientSecret, label || existing.label);
+  }
+  async loginPrompt(provider, extensionName, recreatingSession, options) {
+    let message;
+    const customMessage = provider.confirmation?.(extensionName, recreatingSession);
+    if (customMessage) {
+      message = customMessage;
+    } else {
+      message = recreatingSession ? nls.localize("confirmRelogin", "The extension '{0}' wants you to sign in again using {1}.", extensionName, provider.label) : nls.localize("confirmLogin", "The extension '{0}' wants to sign in using {1}.", extensionName, provider.label);
+    }
+    const buttons = [
+      {
+        label: nls.localize({ key: "allow", comment: ["&& denotes a mnemonic"] }, "&&Allow"),
+        run() {
+          return true;
+        }
+      }
+    ];
+    if (options?.learnMore) {
+      buttons.push({
+        label: nls.localize("learnMore", "Learn more"),
+        run: /* @__PURE__ */ __name(async () => {
+          const result2 = this.loginPrompt(provider, extensionName, recreatingSession, options);
+          await this.openerService.open(URI.revive(options.learnMore), { allowCommands: true });
+          return await result2;
+        }, "run")
+      });
+    }
+    const { result } = await this.dialogService.prompt({
+      type: Severity.Info,
+      message,
+      buttons,
+      detail: options?.detail,
+      cancelButton: true
+    });
+    return result ?? false;
+  }
+  async continueWithIncorrectAccountPrompt(chosenAccountLabel, requestedAccountLabel) {
+    const result = await this.dialogService.prompt({
+      message: nls.localize("incorrectAccount", "Incorrect account detected"),
+      detail: nls.localize("incorrectAccountDetail", "The chosen account, {0}, does not match the requested account, {1}.", chosenAccountLabel, requestedAccountLabel),
+      type: Severity.Warning,
+      cancelButton: true,
+      buttons: [
+        {
+          label: nls.localize("keep", "Keep {0}", chosenAccountLabel),
+          run: /* @__PURE__ */ __name(() => chosenAccountLabel, "run")
+        },
+        {
+          label: nls.localize("loginWith", "Login with {0}", requestedAccountLabel),
+          run: /* @__PURE__ */ __name(() => requestedAccountLabel, "run")
+        }
+      ]
+    });
+    if (!result.result) {
+      throw new CancellationError();
+    }
+    return result.result === chosenAccountLabel;
+  }
+  async doGetSession(providerId, scopeListOrRequest, extensionId, extensionName, options) {
+    const authorizationServer = URI.revive(options.authorizationServer);
+    const sessions = await this.authenticationService.getSessions(providerId, scopeListOrRequest, { account: options.account, authorizationServer }, true);
+    const provider = this.authenticationService.getProvider(providerId);
+    if (options.forceNewSession && options.createIfNone) {
+      throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, createIfNone");
+    }
+    if (options.forceNewSession && options.silent) {
+      throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, silent");
+    }
+    if (options.createIfNone && options.silent) {
+      throw new Error("Invalid combination of options. Please remove one of the following: createIfNone, silent");
+    }
+    if (options.clearSessionPreference) {
+      this.authenticationExtensionsService.removeAccountPreference(extensionId, providerId);
+    }
+    const matchingAccountPreferenceSession = (
+      // If an account was passed in, that takes precedence over the account preference
+      options.account ? sessions[0] : this._getAccountPreference(extensionId, providerId, sessions)
+    );
+    if (!options.forceNewSession && sessions.length) {
+      if (matchingAccountPreferenceSession && this.authenticationAccessService.isAccessAllowed(providerId, matchingAccountPreferenceSession.account.label, extensionId)) {
+        return matchingAccountPreferenceSession;
+      }
+      if (!provider.supportsMultipleAccounts && this.authenticationAccessService.isAccessAllowed(providerId, sessions[0].account.label, extensionId)) {
+        return sessions[0];
+      }
+    }
+    if (options.createIfNone || options.forceNewSession) {
+      let uiOptions;
+      if (typeof options.forceNewSession === "object") {
+        uiOptions = options.forceNewSession;
+      } else if (typeof options.createIfNone === "object") {
+        uiOptions = options.createIfNone;
+      }
+      const recreatingSession = !!(options.forceNewSession && sessions.length);
+      const isAllowed = await this.loginPrompt(provider, extensionName, recreatingSession, uiOptions);
+      if (!isAllowed) {
+        throw new Error("User did not consent to login.");
+      }
+      let session;
+      if (sessions?.length && !options.forceNewSession) {
+        session = provider.supportsMultipleAccounts && !options.account ? await this.authenticationExtensionsService.selectSession(providerId, extensionId, extensionName, scopeListOrRequest, sessions) : sessions[0];
+      } else {
+        const accountToCreate = options.account ?? matchingAccountPreferenceSession?.account;
+        do {
+          session = await this.authenticationService.createSession(providerId, scopeListOrRequest, {
+            activateImmediate: true,
+            account: accountToCreate,
+            authorizationServer
+          });
+        } while (accountToCreate && accountToCreate.label !== session.account.label && !await this.continueWithIncorrectAccountPrompt(session.account.label, accountToCreate.label));
+      }
+      this.authenticationAccessService.updateAllowedExtensions(providerId, session.account.label, [{ id: extensionId, name: extensionName, allowed: true }]);
+      this.authenticationExtensionsService.updateNewSessionRequests(providerId, [session]);
+      this.authenticationExtensionsService.updateAccountPreference(extensionId, providerId, session.account);
+      return session;
+    }
+    if (!matchingAccountPreferenceSession) {
+      const validSessions = sessions.filter((session) => this.authenticationAccessService.isAccessAllowed(providerId, session.account.label, extensionId));
+      if (validSessions.length === 1) {
+        return validSessions[0];
+      }
+    }
+    if (!options.silent) {
+      sessions.length ? this.authenticationExtensionsService.requestSessionAccess(providerId, extensionId, extensionName, scopeListOrRequest, sessions) : await this.authenticationExtensionsService.requestNewSession(providerId, scopeListOrRequest, extensionId, extensionName);
+    }
+    return void 0;
+  }
+  async $getSession(providerId, scopeListOrRequest, extensionId, extensionName, options) {
+    const scopes = isAuthenticationWwwAuthenticateRequest(scopeListOrRequest) ? scopeListOrRequest.fallbackScopes : scopeListOrRequest;
+    if (scopes) {
+      this.sendClientIdUsageTelemetry(extensionId, providerId, scopes);
+    }
+    const session = await this.doGetSession(providerId, scopeListOrRequest, extensionId, extensionName, options);
+    if (session) {
+      this.sendProviderUsageTelemetry(extensionId, providerId);
+      this.authenticationUsageService.addAccountUsage(providerId, session.account.label, session.scopes, extensionId, extensionName);
+    }
+    return session;
+  }
+  async $getAccounts(providerId) {
+    const accounts = await this.authenticationService.getAccounts(providerId);
+    return accounts;
+  }
+  sendClientIdUsageTelemetry(extensionId, providerId, scopes) {
+    const containsVSCodeClientIdScope = scopes.some((scope) => scope.startsWith("VSCODE_CLIENT_ID:"));
+    const key = `${extensionId}|${providerId}|${containsVSCodeClientIdScope}`;
+    if (this._sentClientIdUsageEvents.has(key)) {
+      return;
+    }
+    this._sentClientIdUsageEvents.add(key);
+    if (containsVSCodeClientIdScope) {
+      this.telemetryService.publicLog2("authentication.clientIdUsage", { extensionId });
+    }
+  }
+  sendProviderUsageTelemetry(extensionId, providerId) {
+    const key = `${extensionId}|${providerId}`;
+    if (this._sentProviderUsageEvents.has(key)) {
+      return;
+    }
+    this._sentProviderUsageEvents.add(key);
+    this.telemetryService.publicLog2("authentication.providerUsage", { providerId, extensionId });
+  }
+  //#region Account Preferences
+  // TODO@TylerLeonhardt: Update this after a few iterations to no longer fallback to the session preference
+  _getAccountPreference(extensionId, providerId, sessions) {
+    if (sessions.length === 0) {
+      return void 0;
+    }
+    const accountNamePreference = this.authenticationExtensionsService.getAccountPreference(extensionId, providerId);
+    if (accountNamePreference) {
+      const session = sessions.find((session2) => session2.account.label === accountNamePreference);
+      return session;
+    }
+    return void 0;
+  }
+  //#endregion
+  async $showDeviceCodeModal(userCode, verificationUri) {
+    const { result } = await this.dialogService.prompt({
+      type: Severity.Info,
+      message: nls.localize("deviceCodeTitle", "Device Code Authentication"),
+      detail: nls.localize("deviceCodeDetail", "Your code: {0}\n\nTo complete authentication, navigate to {1} and enter the code above.", userCode, verificationUri),
+      buttons: [
+        {
+          label: nls.localize("copyAndContinue", "Copy & Continue"),
+          run: /* @__PURE__ */ __name(() => true, "run")
+        }
+      ],
+      cancelButton: true
+    });
+    if (result) {
+      try {
+        await this.clipboardService.writeText(userCode);
+        return await this.openerService.open(URI.parse(verificationUri));
+      } catch (error) {
+        this.notificationService.error(nls.localize("failedToOpenUri", "Failed to open {0}", verificationUri));
+      }
+    }
+    return false;
+  }
+  async $promptForClientRegistration(authorizationServerUrl) {
+    const redirectUrls = "http://127.0.0.1:33418\nhttps://vscode.dev/redirect";
+    const result = await this.dialogService.prompt({
+      type: Severity.Info,
+      message: nls.localize("dcrNotSupported", "Dynamic Client Registration not supported"),
+      detail: nls.localize("dcrNotSupportedDetail", "The authorization server '{0}' does not support automatic client registration. Do you want to proceed by manually providing a client registration (client ID)?\n\nNote: When registering your OAuth application, make sure to include these redirect URIs:\n{1}", authorizationServerUrl, redirectUrls),
+      buttons: [
+        {
+          label: nls.localize("dcrCopyUrlsAndProceed", "Copy URIs & Proceed"),
+          run: /* @__PURE__ */ __name(async () => {
+            try {
+              await this.clipboardService.writeText(redirectUrls);
+            } catch (error) {
+              this.notificationService.error(nls.localize("dcrFailedToCopy", "Failed to copy redirect URIs to clipboard."));
+            }
+            return true;
+          }, "run")
+        }
+      ],
+      cancelButton: {
+        label: nls.localize("cancel", "Cancel"),
+        run: /* @__PURE__ */ __name(() => false, "run")
+      }
+    });
+    if (!result) {
+      return void 0;
+    }
+    const sharedTitle = nls.localize("addClientRegistrationDetails", "Add Client Registration Details");
+    const clientId = await this.quickInputService.input({
+      title: sharedTitle,
+      prompt: nls.localize("clientIdPrompt", "Enter an existing client ID that has been registered with the following redirect URIs: http://127.0.0.1:33418, https://vscode.dev/redirect"),
+      placeHolder: nls.localize("clientIdPlaceholder", "OAuth client ID (azye39d...)"),
+      ignoreFocusLost: true,
+      validateInput: /* @__PURE__ */ __name(async (value) => {
+        if (!value || value.trim().length === 0) {
+          return nls.localize("clientIdRequired", "Client ID is required");
+        }
+        return void 0;
+      }, "validateInput")
+    });
+    if (!clientId || clientId.trim().length === 0) {
+      return void 0;
+    }
+    const clientSecret = await this.quickInputService.input({
+      title: sharedTitle,
+      prompt: nls.localize("clientSecretPrompt", "(optional) Enter an existing client secret associated with the client id '{0}' or leave this field blank", clientId),
+      placeHolder: nls.localize("clientSecretPlaceholder", "OAuth client secret (wer32o50f...) or leave it blank"),
+      password: true,
+      ignoreFocusLost: true
+    });
+    return {
+      clientId: clientId.trim(),
+      clientSecret: clientSecret?.trim() || void 0
+    };
+  }
+};
+MainThreadAuthentication = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadAuthentication),
+  __param(1, IProductService),
+  __param(2, IAuthenticationService),
+  __param(3, IAuthenticationExtensionsService),
+  __param(4, IAuthenticationAccessService),
+  __param(5, IAuthenticationUsageService),
+  __param(6, IDialogService),
+  __param(7, INotificationService),
+  __param(8, IExtensionService),
+  __param(9, ITelemetryService),
+  __param(10, IOpenerService),
+  __param(11, ILogService),
+  __param(12, IURLService),
+  __param(13, IDynamicAuthenticationProviderStorageService),
+  __param(14, IClipboardService),
+  __param(15, IQuickInputService)
+], MainThreadAuthentication);
+export {
+  MainThreadAuthentication
+};
+//# sourceMappingURL=mainThreadAuthentication.js.map

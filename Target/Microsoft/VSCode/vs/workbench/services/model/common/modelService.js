@@ -1,1 +1,50 @@
-import{$6H as u}from"../../../../editor/common/services/model.js";import{$FZb as $}from"../../../../editor/common/services/modelService.js";import{$bI as h}from"../../../../editor/common/services/textResourceConfiguration.js";import{$9l as s}from"../../../../platform/configuration/common/configuration.js";import{$TC as a}from"../../../../platform/instantiation/common/extensions.js";import{$8G as _}from"../../../../platform/undoRedo/common/undoRedo.js";import{$WZ as b}from"../../path/common/pathService.js";import{$Lj as j}from"../../../../platform/instantiation/common/instantiation.js";var l=function(f,r,o,e){var i=arguments.length,t=i<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,o):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,r,o,e);else for(var p=f.length-1;p>=0;p--)(n=f[p])&&(t=(i<3?n(t):i>3?n(r,o,t):n(r,o))||t);return i>3&&t&&Object.defineProperty(r,o,t),t},m=function(f,r){return function(o,e){r(o,e,f)}};let c=class extends ${constructor(r,o,e,i,t){super(r,o,e,t),this.Q=i}M(r){return super.M(r)||r.scheme===this.Q.defaultUriScheme}};c=l([m(0,s),m(1,h),m(2,_),m(3,b),m(4,j)],c);a(u,c,1);export{c as $3$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ModelService } from "../../../../editor/common/services/modelService.js";
+import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+let WorkbenchModelService = class WorkbenchModelService2 extends ModelService {
+  static {
+    __name(this, "WorkbenchModelService");
+  }
+  constructor(configurationService, resourcePropertiesService, undoRedoService, _pathService, instantiationService) {
+    super(configurationService, resourcePropertiesService, undoRedoService, instantiationService);
+    this._pathService = _pathService;
+  }
+  _schemaShouldMaintainUndoRedoElements(resource) {
+    return super._schemaShouldMaintainUndoRedoElements(resource) || resource.scheme === this._pathService.defaultUriScheme;
+  }
+};
+WorkbenchModelService = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ITextResourcePropertiesService),
+  __param(2, IUndoRedoService),
+  __param(3, IPathService),
+  __param(4, IInstantiationService)
+], WorkbenchModelService);
+registerSingleton(
+  IModelService,
+  WorkbenchModelService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  WorkbenchModelService
+};
+//# sourceMappingURL=modelService.js.map

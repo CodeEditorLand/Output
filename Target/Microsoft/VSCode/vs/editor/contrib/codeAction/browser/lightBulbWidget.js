@@ -1,1 +1,436 @@
-import*as b from"../../../../base/browser/dom.js";import{$f9 as K}from"../../../../base/browser/touch.js";import{$ak as a}from"../../../../base/common/codicons.js";import{$wf as X,Event as q}from"../../../../base/common/event.js";import{$Ed as J}from"../../../../base/common/lifecycle.js";import{ThemeIcon as z}from"../../../../base/common/themables.js";import"./lightBulbWidget.css";import{GlyphMarginLane as x}from"../../../common/model.js";import{$0K as T}from"../../../common/model/textModel.js";import{$AJ as Q}from"../../../common/model/utils.js";import{$Gkb as V,$Fkb as Y}from"./codeAction.js";import*as u from"../../../../nls.js";import{$cy as Z}from"../../../../platform/keybinding/common/keybinding.js";import{$eu as w}from"../../../../platform/theme/common/iconRegistry.js";import{$9D as v}from"../../../common/core/range.js";var W=function(r,t,e,i){var o=arguments.length,h=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")h=Reflect.decorate(r,t,e,i);else for(var s=r.length-1;s>=0;s--)(n=r[s])&&(h=(o<3?n(h):o>3?n(t,e,h):n(t,e))||h);return o>3&&h&&Object.defineProperty(t,e,h),h},j=function(r,t){return function(e,i){t(e,i,r)}},p;const F=w("gutter-lightbulb",a.lightBulb,u.localize(1036,null)),N=w("gutter-lightbulb-auto-fix",a.lightbulbAutofix,u.localize(1037,null)),O=w("gutter-lightbulb-sparkle",a.lightbulbSparkle,u.localize(1038,null)),$=w("gutter-lightbulb-aifix-auto-fix",a.lightbulbSparkleAutofix,u.localize(1039,null)),M=w("gutter-lightbulb-sparkle-filled",a.sparkleFilled,u.localize(1040,null));var c;(function(r){let t;(function(i){i[i.Hidden=0]="Hidden",i[i.Showing=1]="Showing"})(t=r.Type||(r.Type={})),r.Hidden={type:0};class e{constructor(o,h,n,s){this.actions=o,this.trigger=h,this.editorPosition=n,this.widgetPosition=s,this.type=1}}r.Showing=e})(c||(c={}));let E=class extends J{static{p=this}static{this.b=T.register({description:"codicon-gutter-lightbulb-decoration",glyphMarginClassName:z.asClassName(a.lightBulb),glyphMargin:{position:x.Left},stickiness:1})}static{this.ID="editor.contrib.lightbulbWidget"}static{this.c=[0]}constructor(t,e){super(),this.t=t,this.u=e,this.g=this.D(new X),this.onClick=this.g.event,this.h=c.Hidden,this.j=c.Hidden,this.m=[],this.n=["codicon-"+F.id,"codicon-"+$.id,"codicon-"+N.id,"codicon-"+O.id,"codicon-"+M.id],this.s=p.b,this.f=b.$("div.lightBulbWidget"),this.f.role="listbox",this.D(K.ignoreTarget(this.f)),this.t.addContentWidget(this),this.D(this.t.onDidChangeModelContent(i=>{const o=this.t.getModel();(this.w.type!==1||!o||this.w.editorPosition.lineNumber>=o.getLineCount())&&this.hide(),(this.z.type!==1||!o||this.z.editorPosition.lineNumber>=o.getLineCount())&&this.gutterHide()})),this.D(b.$H7(this.f,i=>{if(this.w.type!==1)return;this.t.focus(),i.preventDefault();const{top:o,height:h}=b.$27(this.f),n=this.t.getOption(75);let s=Math.floor(n/3);this.w.widgetPosition.position!==null&&this.w.widgetPosition.position.lineNumber<this.w.editorPosition.lineNumber&&(s+=n),this.g.fire({x:i.posx,y:o+h+s,actions:this.w.actions,trigger:this.w.trigger})})),this.D(b.$F7(this.f,"mouseenter",i=>{(i.buttons&1)===1&&this.hide()})),this.D(q.runAndSubscribe(this.u.onDidUpdateKeybindings,()=>{this.q=this.u.lookupKeybinding(V)?.getLabel()??void 0,this.r=this.u.lookupKeybinding(Y)?.getLabel()??void 0,this.C()})),this.D(this.t.onMouseDown(async i=>{if(!i.target.element||!this.n.some(C=>i.target.element&&i.target.element.classList.contains(C))||this.z.type!==1)return;this.t.focus();const{top:o,height:h}=b.$27(i.target.element),n=this.t.getOption(75);let s=Math.floor(n/3);this.z.widgetPosition.position!==null&&this.z.widgetPosition.position.lineNumber<this.z.editorPosition.lineNumber&&(s+=n),this.g.fire({x:i.event.posx,y:o+h+s,actions:this.z.actions,trigger:this.z.trigger})}))}dispose(){super.dispose(),this.t.removeContentWidget(this),this.a&&this.I(this.a)}getId(){return"LightBulbWidget"}getDomNode(){return this.f}getPosition(){return this.h.type===1?this.h.widgetPosition:null}update(t,e,i){if(t.validActions.length<=0)return this.gutterHide(),this.hide();if(!this.t.hasTextFocus())return this.gutterHide(),this.hide();if(!this.t.getOptions().get(73).enabled)return this.gutterHide(),this.hide();const n=this.t.getModel();if(!n)return this.gutterHide(),this.hide();const{lineNumber:s,column:C}=n.validatePosition(i),S=n.getOptions().tabSize,A=this.t.getOptions().get(59),G=n.getLineContent(s),k=Q(G,S),P=A.spaceWidth*k>22,_=l=>l>2&&this.t.getTopForLineNumber(l)===this.t.getTopForLineNumber(l-1),D=this.t.getLineDecorations(s);let I=!1;if(D)for(const l of D){const f=l.options.glyphMarginClassName;if(f&&!this.n.some(g=>f.includes(g))){I=!0;break}}let d=s,m=1;if(!P){const l=f=>{const g=n.getLineContent(f);return/^\s*$|^\s+/.test(g)||g.length<=m};if(s>1&&!_(s-1)){const f=n.getLineCount(),g=s===f,L=s>1&&l(s-1),y=!g&&l(s+1),H=l(s),B=!y&&!L;if(!y&&!L&&!I)return this.z=new c.Showing(t,e,i,{position:{lineNumber:d,column:m},preference:p.c}),this.G(),this.hide();L||g||L&&!H?d-=1:(y||B&&H)&&(d+=1)}else if(s===1&&(s===n.getLineCount()||!l(s+1)&&!l(s)))if(this.z=new c.Showing(t,e,i,{position:{lineNumber:d,column:m},preference:p.c}),I)this.gutterHide();else return this.G(),this.hide();else if(s<n.getLineCount()&&!_(s+1))d+=1;else if(C*A.spaceWidth<22)return this.hide();m=/^\S\s*$/.test(n.getLineContent(d))?2:1}this.w=new c.Showing(t,e,i,{position:{lineNumber:d,column:m},preference:p.c}),this.a&&(this.I(this.a),this.gutterHide());const R=t.validActions,U=t.validActions[0].action.kind;if(R.length!==1||!U){this.t.layoutContentWidget(this);return}this.t.layoutContentWidget(this)}hide(){this.w!==c.Hidden&&(this.w=c.Hidden,this.t.layoutContentWidget(this))}gutterHide(){this.z!==c.Hidden&&(this.a&&this.I(this.a),this.z=c.Hidden)}get w(){return this.h}set w(t){this.h=t,this.C()}get z(){return this.j}set z(t){this.j=t,this.F()}C(){if(this.f.classList.remove(...this.m),this.m=[],this.w.type!==1)return;let t,e=!1;this.w.actions.allAIFixes?(t=a.sparkleFilled,this.w.actions.validActions.length===1&&(e=!0)):this.w.actions.hasAutoFix?this.w.actions.hasAIFix?t=a.lightbulbSparkleAutofix:t=a.lightbulbAutofix:this.w.actions.hasAIFix?t=a.lightbulbSparkle:t=a.lightBulb,this.L(this.w.actions.hasAutoFix,e),this.m=z.asClassNameArray(t),this.f.classList.add(...this.m)}F(){if(this.z.type!==1)return;let t,e=!1;this.z.actions.allAIFixes?(t=M,this.z.actions.validActions.length===1&&(e=!0)):this.z.actions.hasAutoFix?this.z.actions.hasAIFix?t=$:t=N:this.z.actions.hasAIFix?t=O:t=F,this.L(this.z.actions.hasAutoFix,e);const i=T.register({description:"codicon-gutter-lightbulb-decoration",glyphMarginClassName:z.asClassName(t),glyphMargin:{position:x.Left},stickiness:1});this.s=i}G(){const t=this.t.getSelection();t&&(this.a===void 0?this.H(t.startLineNumber):this.J(this.a,t.startLineNumber))}H(t){this.t.changeDecorations(e=>{this.a=e.addDecoration(new v(t,0,t,0),this.s)})}I(t){this.t.changeDecorations(e=>{e.removeDecoration(t),this.a=void 0})}J(t,e){this.t.changeDecorations(i=>{i.changeDecoration(t,new v(e,0,e,0)),i.changeDecorationOptions(t,this.s)})}L(t,e){this.w.type===1&&(e?this.M=u.localize(1041,null,this.w.actions.validActions[0].action.title):t&&this.q?this.M=u.localize(1042,null,this.q):!t&&this.r?this.M=u.localize(1043,null,this.r):t||(this.M=u.localize(1044,null)))}set M(t){this.f.title=t}};E=p=W([j(1,Z)],E);export{E as $olb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var LightBulbWidget_1;
+import * as dom from "../../../../base/browser/dom.js";
+import { Gesture } from "../../../../base/browser/touch.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import "./lightBulbWidget.css";
+import { GlyphMarginLane } from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { computeIndentLevel } from "../../../common/model/utils.js";
+import { autoFixCommandId, quickFixCommandId } from "./codeAction.js";
+import * as nls from "../../../../nls.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Range } from "../../../common/core/range.js";
+const GUTTER_LIGHTBULB_ICON = registerIcon("gutter-lightbulb", Codicon.lightBulb, nls.localize("gutterLightbulbWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor."));
+const GUTTER_LIGHTBULB_AUTO_FIX_ICON = registerIcon("gutter-lightbulb-auto-fix", Codicon.lightbulbAutofix, nls.localize("gutterLightbulbAutoFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and a quick fix is available."));
+const GUTTER_LIGHTBULB_AIFIX_ICON = registerIcon("gutter-lightbulb-sparkle", Codicon.lightbulbSparkle, nls.localize("gutterLightbulbAIFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix is available."));
+const GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON = registerIcon("gutter-lightbulb-aifix-auto-fix", Codicon.lightbulbSparkleAutofix, nls.localize("gutterLightbulbAIFixAutoFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available."));
+const GUTTER_SPARKLE_FILLED_ICON = registerIcon("gutter-lightbulb-sparkle-filled", Codicon.sparkleFilled, nls.localize("gutterLightbulbSparkleFilledWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available."));
+var LightBulbState;
+(function(LightBulbState2) {
+  let Type;
+  (function(Type2) {
+    Type2[Type2["Hidden"] = 0] = "Hidden";
+    Type2[Type2["Showing"] = 1] = "Showing";
+  })(Type = LightBulbState2.Type || (LightBulbState2.Type = {}));
+  LightBulbState2.Hidden = {
+    type: 0
+    /* Type.Hidden */
+  };
+  class Showing {
+    static {
+      __name(this, "Showing");
+    }
+    constructor(actions, trigger, editorPosition, widgetPosition) {
+      this.actions = actions;
+      this.trigger = trigger;
+      this.editorPosition = editorPosition;
+      this.widgetPosition = widgetPosition;
+      this.type = 1;
+    }
+  }
+  LightBulbState2.Showing = Showing;
+})(LightBulbState || (LightBulbState = {}));
+let LightBulbWidget = class LightBulbWidget2 extends Disposable {
+  static {
+    __name(this, "LightBulbWidget");
+  }
+  static {
+    LightBulbWidget_1 = this;
+  }
+  static {
+    this.GUTTER_DECORATION = ModelDecorationOptions.register({
+      description: "codicon-gutter-lightbulb-decoration",
+      glyphMarginClassName: ThemeIcon.asClassName(Codicon.lightBulb),
+      glyphMargin: { position: GlyphMarginLane.Left },
+      stickiness: 1
+    });
+  }
+  static {
+    this.ID = "editor.contrib.lightbulbWidget";
+  }
+  static {
+    this._posPref = [
+      0
+      /* ContentWidgetPositionPreference.EXACT */
+    ];
+  }
+  constructor(_editor, _keybindingService) {
+    super();
+    this._editor = _editor;
+    this._keybindingService = _keybindingService;
+    this._onClick = this._register(new Emitter());
+    this.onClick = this._onClick.event;
+    this._state = LightBulbState.Hidden;
+    this._gutterState = LightBulbState.Hidden;
+    this._iconClasses = [];
+    this.lightbulbClasses = [
+      "codicon-" + GUTTER_LIGHTBULB_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AUTO_FIX_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AIFIX_ICON.id,
+      "codicon-" + GUTTER_SPARKLE_FILLED_ICON.id
+    ];
+    this.gutterDecoration = LightBulbWidget_1.GUTTER_DECORATION;
+    this._domNode = dom.$("div.lightBulbWidget");
+    this._domNode.role = "listbox";
+    this._register(Gesture.ignoreTarget(this._domNode));
+    this._editor.addContentWidget(this);
+    this._register(this._editor.onDidChangeModelContent((_) => {
+      const editorModel = this._editor.getModel();
+      if (this.state.type !== 1 || !editorModel || this.state.editorPosition.lineNumber >= editorModel.getLineCount()) {
+        this.hide();
+      }
+      if (this.gutterState.type !== 1 || !editorModel || this.gutterState.editorPosition.lineNumber >= editorModel.getLineCount()) {
+        this.gutterHide();
+      }
+    }));
+    this._register(dom.addStandardDisposableGenericMouseDownListener(this._domNode, (e) => {
+      if (this.state.type !== 1) {
+        return;
+      }
+      this._editor.focus();
+      e.preventDefault();
+      const { top, height } = dom.getDomNodePagePosition(this._domNode);
+      const lineHeight = this._editor.getOption(
+        75
+        /* EditorOption.lineHeight */
+      );
+      let pad = Math.floor(lineHeight / 3);
+      if (this.state.widgetPosition.position !== null && this.state.widgetPosition.position.lineNumber < this.state.editorPosition.lineNumber) {
+        pad += lineHeight;
+      }
+      this._onClick.fire({
+        x: e.posx,
+        y: top + height + pad,
+        actions: this.state.actions,
+        trigger: this.state.trigger
+      });
+    }));
+    this._register(dom.addDisposableListener(this._domNode, "mouseenter", (e) => {
+      if ((e.buttons & 1) !== 1) {
+        return;
+      }
+      this.hide();
+    }));
+    this._register(Event.runAndSubscribe(this._keybindingService.onDidUpdateKeybindings, () => {
+      this._preferredKbLabel = this._keybindingService.lookupKeybinding(autoFixCommandId)?.getLabel() ?? void 0;
+      this._quickFixKbLabel = this._keybindingService.lookupKeybinding(quickFixCommandId)?.getLabel() ?? void 0;
+      this._updateLightBulbTitleAndIcon();
+    }));
+    this._register(this._editor.onMouseDown(async (e) => {
+      if (!e.target.element || !this.lightbulbClasses.some((cls) => e.target.element && e.target.element.classList.contains(cls))) {
+        return;
+      }
+      if (this.gutterState.type !== 1) {
+        return;
+      }
+      this._editor.focus();
+      const { top, height } = dom.getDomNodePagePosition(e.target.element);
+      const lineHeight = this._editor.getOption(
+        75
+        /* EditorOption.lineHeight */
+      );
+      let pad = Math.floor(lineHeight / 3);
+      if (this.gutterState.widgetPosition.position !== null && this.gutterState.widgetPosition.position.lineNumber < this.gutterState.editorPosition.lineNumber) {
+        pad += lineHeight;
+      }
+      this._onClick.fire({
+        x: e.event.posx,
+        y: top + height + pad,
+        actions: this.gutterState.actions,
+        trigger: this.gutterState.trigger
+      });
+    }));
+  }
+  dispose() {
+    super.dispose();
+    this._editor.removeContentWidget(this);
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+    }
+  }
+  getId() {
+    return "LightBulbWidget";
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return this._state.type === 1 ? this._state.widgetPosition : null;
+  }
+  update(actions, trigger, atPosition) {
+    if (actions.validActions.length <= 0) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const hasTextFocus = this._editor.hasTextFocus();
+    if (!hasTextFocus) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const options = this._editor.getOptions();
+    if (!options.get(
+      73
+      /* EditorOption.lightbulb */
+    ).enabled) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const model = this._editor.getModel();
+    if (!model) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const { lineNumber, column } = model.validatePosition(atPosition);
+    const tabSize = model.getOptions().tabSize;
+    const fontInfo = this._editor.getOptions().get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const lineContent = model.getLineContent(lineNumber);
+    const indent = computeIndentLevel(lineContent, tabSize);
+    const lineHasSpace = fontInfo.spaceWidth * indent > 22;
+    const isFolded = /* @__PURE__ */ __name((lineNumber2) => {
+      return lineNumber2 > 2 && this._editor.getTopForLineNumber(lineNumber2) === this._editor.getTopForLineNumber(lineNumber2 - 1);
+    }, "isFolded");
+    const currLineDecorations = this._editor.getLineDecorations(lineNumber);
+    let hasDecoration = false;
+    if (currLineDecorations) {
+      for (const decoration of currLineDecorations) {
+        const glyphClass = decoration.options.glyphMarginClassName;
+        if (glyphClass && !this.lightbulbClasses.some((className) => glyphClass.includes(className))) {
+          hasDecoration = true;
+          break;
+        }
+      }
+    }
+    let effectiveLineNumber = lineNumber;
+    let effectiveColumnNumber = 1;
+    if (!lineHasSpace) {
+      const isLineEmptyOrIndented = /* @__PURE__ */ __name((lineNumber2) => {
+        const lineContent2 = model.getLineContent(lineNumber2);
+        return /^\s*$|^\s+/.test(lineContent2) || lineContent2.length <= effectiveColumnNumber;
+      }, "isLineEmptyOrIndented");
+      if (lineNumber > 1 && !isFolded(lineNumber - 1)) {
+        const lineCount = model.getLineCount();
+        const endLine = lineNumber === lineCount;
+        const prevLineEmptyOrIndented = lineNumber > 1 && isLineEmptyOrIndented(lineNumber - 1);
+        const nextLineEmptyOrIndented = !endLine && isLineEmptyOrIndented(lineNumber + 1);
+        const currLineEmptyOrIndented = isLineEmptyOrIndented(lineNumber);
+        const notEmpty = !nextLineEmptyOrIndented && !prevLineEmptyOrIndented;
+        if (!nextLineEmptyOrIndented && !prevLineEmptyOrIndented && !hasDecoration) {
+          this.gutterState = new LightBulbState.Showing(actions, trigger, atPosition, {
+            position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+            preference: LightBulbWidget_1._posPref
+          });
+          this.renderGutterLightbub();
+          return this.hide();
+        } else if (prevLineEmptyOrIndented || endLine || prevLineEmptyOrIndented && !currLineEmptyOrIndented) {
+          effectiveLineNumber -= 1;
+        } else if (nextLineEmptyOrIndented || notEmpty && currLineEmptyOrIndented) {
+          effectiveLineNumber += 1;
+        }
+      } else if (lineNumber === 1 && (lineNumber === model.getLineCount() || !isLineEmptyOrIndented(lineNumber + 1) && !isLineEmptyOrIndented(lineNumber))) {
+        this.gutterState = new LightBulbState.Showing(actions, trigger, atPosition, {
+          position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+          preference: LightBulbWidget_1._posPref
+        });
+        if (hasDecoration) {
+          this.gutterHide();
+        } else {
+          this.renderGutterLightbub();
+          return this.hide();
+        }
+      } else if (lineNumber < model.getLineCount() && !isFolded(lineNumber + 1)) {
+        effectiveLineNumber += 1;
+      } else if (column * fontInfo.spaceWidth < 22) {
+        return this.hide();
+      }
+      effectiveColumnNumber = /^\S\s*$/.test(model.getLineContent(effectiveLineNumber)) ? 2 : 1;
+    }
+    this.state = new LightBulbState.Showing(actions, trigger, atPosition, {
+      position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+      preference: LightBulbWidget_1._posPref
+    });
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+      this.gutterHide();
+    }
+    const validActions = actions.validActions;
+    const actionKind = actions.validActions[0].action.kind;
+    if (validActions.length !== 1 || !actionKind) {
+      this._editor.layoutContentWidget(this);
+      return;
+    }
+    this._editor.layoutContentWidget(this);
+  }
+  hide() {
+    if (this.state === LightBulbState.Hidden) {
+      return;
+    }
+    this.state = LightBulbState.Hidden;
+    this._editor.layoutContentWidget(this);
+  }
+  gutterHide() {
+    if (this.gutterState === LightBulbState.Hidden) {
+      return;
+    }
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+    }
+    this.gutterState = LightBulbState.Hidden;
+  }
+  get state() {
+    return this._state;
+  }
+  set state(value) {
+    this._state = value;
+    this._updateLightBulbTitleAndIcon();
+  }
+  get gutterState() {
+    return this._gutterState;
+  }
+  set gutterState(value) {
+    this._gutterState = value;
+    this._updateGutterLightBulbTitleAndIcon();
+  }
+  _updateLightBulbTitleAndIcon() {
+    this._domNode.classList.remove(...this._iconClasses);
+    this._iconClasses = [];
+    if (this.state.type !== 1) {
+      return;
+    }
+    let icon;
+    let autoRun = false;
+    if (this.state.actions.allAIFixes) {
+      icon = Codicon.sparkleFilled;
+      if (this.state.actions.validActions.length === 1) {
+        autoRun = true;
+      }
+    } else if (this.state.actions.hasAutoFix) {
+      if (this.state.actions.hasAIFix) {
+        icon = Codicon.lightbulbSparkleAutofix;
+      } else {
+        icon = Codicon.lightbulbAutofix;
+      }
+    } else if (this.state.actions.hasAIFix) {
+      icon = Codicon.lightbulbSparkle;
+    } else {
+      icon = Codicon.lightBulb;
+    }
+    this._updateLightbulbTitle(this.state.actions.hasAutoFix, autoRun);
+    this._iconClasses = ThemeIcon.asClassNameArray(icon);
+    this._domNode.classList.add(...this._iconClasses);
+  }
+  _updateGutterLightBulbTitleAndIcon() {
+    if (this.gutterState.type !== 1) {
+      return;
+    }
+    let icon;
+    let autoRun = false;
+    if (this.gutterState.actions.allAIFixes) {
+      icon = GUTTER_SPARKLE_FILLED_ICON;
+      if (this.gutterState.actions.validActions.length === 1) {
+        autoRun = true;
+      }
+    } else if (this.gutterState.actions.hasAutoFix) {
+      if (this.gutterState.actions.hasAIFix) {
+        icon = GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON;
+      } else {
+        icon = GUTTER_LIGHTBULB_AUTO_FIX_ICON;
+      }
+    } else if (this.gutterState.actions.hasAIFix) {
+      icon = GUTTER_LIGHTBULB_AIFIX_ICON;
+    } else {
+      icon = GUTTER_LIGHTBULB_ICON;
+    }
+    this._updateLightbulbTitle(this.gutterState.actions.hasAutoFix, autoRun);
+    const GUTTER_DECORATION = ModelDecorationOptions.register({
+      description: "codicon-gutter-lightbulb-decoration",
+      glyphMarginClassName: ThemeIcon.asClassName(icon),
+      glyphMargin: { position: GlyphMarginLane.Left },
+      stickiness: 1
+    });
+    this.gutterDecoration = GUTTER_DECORATION;
+  }
+  /* Gutter Helper Functions */
+  renderGutterLightbub() {
+    const selection = this._editor.getSelection();
+    if (!selection) {
+      return;
+    }
+    if (this._gutterDecorationID === void 0) {
+      this._addGutterDecoration(selection.startLineNumber);
+    } else {
+      this._updateGutterDecoration(this._gutterDecorationID, selection.startLineNumber);
+    }
+  }
+  _addGutterDecoration(lineNumber) {
+    this._editor.changeDecorations((accessor) => {
+      this._gutterDecorationID = accessor.addDecoration(new Range(lineNumber, 0, lineNumber, 0), this.gutterDecoration);
+    });
+  }
+  _removeGutterDecoration(decorationId) {
+    this._editor.changeDecorations((accessor) => {
+      accessor.removeDecoration(decorationId);
+      this._gutterDecorationID = void 0;
+    });
+  }
+  _updateGutterDecoration(decorationId, lineNumber) {
+    this._editor.changeDecorations((accessor) => {
+      accessor.changeDecoration(decorationId, new Range(lineNumber, 0, lineNumber, 0));
+      accessor.changeDecorationOptions(decorationId, this.gutterDecoration);
+    });
+  }
+  _updateLightbulbTitle(autoFix, autoRun) {
+    if (this.state.type !== 1) {
+      return;
+    }
+    if (autoRun) {
+      this.title = nls.localize("codeActionAutoRun", "Run: {0}", this.state.actions.validActions[0].action.title);
+    } else if (autoFix && this._preferredKbLabel) {
+      this.title = nls.localize("preferredcodeActionWithKb", "Show Code Actions. Preferred Quick Fix Available ({0})", this._preferredKbLabel);
+    } else if (!autoFix && this._quickFixKbLabel) {
+      this.title = nls.localize("codeActionWithKb", "Show Code Actions ({0})", this._quickFixKbLabel);
+    } else if (!autoFix) {
+      this.title = nls.localize("codeAction", "Show Code Actions");
+    }
+  }
+  set title(value) {
+    this._domNode.title = value;
+  }
+};
+LightBulbWidget = LightBulbWidget_1 = __decorate([
+  __param(1, IKeybindingService)
+], LightBulbWidget);
+export {
+  LightBulbWidget
+};
+//# sourceMappingURL=lightBulbWidget.js.map

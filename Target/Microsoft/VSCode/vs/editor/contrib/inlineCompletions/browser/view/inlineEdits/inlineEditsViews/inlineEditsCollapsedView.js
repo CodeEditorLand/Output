@@ -1,1 +1,129 @@
-import{n as c}from"../../../../../../../base/browser/dom.js";import{Event as w}from"../../../../../../../base/common/event.js";import{$Ed as x}from"../../../../../../../base/common/lifecycle.js";import{constObservable as m,derived as $}from"../../../../../../../base/common/observable.js";import{$JD as P}from"../../../../../../../platform/accessibility/common/accessibility.js";import{$Vp as Y}from"../../../../../../../platform/theme/common/colorUtils.js";import{$Ihb as T}from"../../../../../../browser/observableCodeEditor.js";import{$Hhb as y}from"../../../../../../common/core/2d/point.js";import{$gnb as E}from"../../../model/singleTextEditHelpers.js";import{$Atb as H}from"../theme.js";import{$Utb as L,$1tb as d,$5tb as _}from"../utils/utils.js";var v=function(f,e,n,s){var a=arguments.length,t=a<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,n):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,e,n,s);else for(var r=f.length-1;r>=0;r--)(o=f[r])&&(t=(a<3?o(t):a>3?o(e,n,t):o(e,n))||t);return a>3&&t&&Object.defineProperty(e,n,t),t},g=function(f,e){return function(n,s){e(n,s,f)}};let p=class extends x{constructor(e,n,s){super(),this.c=e,this.f=n,this.g=s,this.onDidClick=w.None,this.b=c.ref(),this.isHovered=m(!1),this.a=T(this.c);const t=this.f.map(i=>i?.edit?.replacements[0]??null).map(i=>i?E(i,this.c.getModel()).range.getStartPosition():null),o=this.a.observePosition(t,this.B),r=$(i=>{const l=o.read(i);if(!l)return null;const b=this.a.layoutInfoContentLeft.read(i),u=this.a.scrollLeft.read(i);return new y(b+l.x-u,l.y)}),h=c.div({class:"inline-edits-collapsed-view",style:{position:"absolute",overflow:"visible",top:"0px",left:"0px",display:"block"}},[[this.h(r)]]).keepUpdated(this.B).element;this.D(this.a.createOverlayWidget({domNode:h,position:m(null),allowEditorOverflow:!1,minContentWidthInPx:m(0)})),this.isVisible=this.f.map((i,l)=>!!i&&r.read(l)!==null)}triggerAnimation(){return this.g.isMotionReduced()?new Animation(null,null).finished:this.b.element.animate([{offset:0,transform:"translateY(-3px)"},{offset:.2,transform:"translateY(1px)"},{offset:.36,transform:"translateY(-1px)"},{offset:.52,transform:"translateY(1px)"},{offset:.68,transform:"translateY(-1px)"},{offset:.84,transform:"translateY(1px)"},{offset:1,transform:"translateY(0px)"}],{duration:2e3}).finished}h(e){const n=this.a.layoutInfoContentLeft,s=e.map((t,o)=>t?t.deltaX(-n.read(o)):null),a=this.j(s);return c.svg({class:"collapsedView",ref:this.b,style:{position:"absolute",..._(t=>L(this.a).read(t)),overflow:"hidden",pointerEvents:"none"}},[c.svgElem("path",{class:"collapsedViewPath",d:a,fill:Y(H)})])}j(e){return e.map(t=>{if(!t)return new d().build();const o=t.deltaX(-6/2).deltaY(-1),r=o.deltaX(6),h=o.deltaY(1),i=r.deltaY(1),l=h.deltaX(6/2).deltaY(3);return new d().moveTo(o).lineTo(r).lineTo(i).lineTo(l).lineTo(h).lineTo(o).build()})}};p=v([g(2,P)],p);export{p as $bub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { n } from "../../../../../../../base/browser/dom.js";
+import { Event } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { constObservable, derived } from "../../../../../../../base/common/observable.js";
+import { IAccessibilityService } from "../../../../../../../platform/accessibility/common/accessibility.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { observableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
+import { Point } from "../../../../../../common/core/2d/point.js";
+import { singleTextRemoveCommonPrefix } from "../../../model/singleTextEditHelpers.js";
+import { inlineEditIndicatorPrimaryBorder } from "../theme.js";
+import { getEditorValidOverlayRect, PathBuilder, rectToProps } from "../utils/utils.js";
+let InlineEditsCollapsedView = class InlineEditsCollapsedView2 extends Disposable {
+  static {
+    __name(this, "InlineEditsCollapsedView");
+  }
+  constructor(_editor, _edit, _accessibilityService) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._accessibilityService = _accessibilityService;
+    this.onDidClick = Event.None;
+    this._iconRef = n.ref();
+    this.isHovered = constObservable(false);
+    this._editorObs = observableCodeEditor(this._editor);
+    const firstEdit = this._edit.map((inlineEdit) => inlineEdit?.edit?.replacements[0] ?? null);
+    const startPosition = firstEdit.map((edit) => edit ? singleTextRemoveCommonPrefix(edit, this._editor.getModel()).range.getStartPosition() : null);
+    const observedStartPoint = this._editorObs.observePosition(startPosition, this._store);
+    const startPoint = derived((reader) => {
+      const point = observedStartPoint.read(reader);
+      if (!point) {
+        return null;
+      }
+      const contentLeft = this._editorObs.layoutInfoContentLeft.read(reader);
+      const scrollLeft = this._editorObs.scrollLeft.read(reader);
+      return new Point(contentLeft + point.x - scrollLeft, point.y);
+    });
+    const overlayElement = n.div({
+      class: "inline-edits-collapsed-view",
+      style: {
+        position: "absolute",
+        overflow: "visible",
+        top: "0px",
+        left: "0px",
+        display: "block"
+      }
+    }, [
+      [this.getCollapsedIndicator(startPoint)]
+    ]).keepUpdated(this._store).element;
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: overlayElement,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this.isVisible = this._edit.map((inlineEdit, reader) => !!inlineEdit && startPoint.read(reader) !== null);
+  }
+  triggerAnimation() {
+    if (this._accessibilityService.isMotionReduced()) {
+      return new Animation(null, null).finished;
+    }
+    const animation = this._iconRef.element.animate([
+      { offset: 0, transform: "translateY(-3px)" },
+      { offset: 0.2, transform: "translateY(1px)" },
+      { offset: 0.36, transform: "translateY(-1px)" },
+      { offset: 0.52, transform: "translateY(1px)" },
+      { offset: 0.68, transform: "translateY(-1px)" },
+      { offset: 0.84, transform: "translateY(1px)" },
+      { offset: 1, transform: "translateY(0px)" }
+    ], { duration: 2e3 });
+    return animation.finished;
+  }
+  getCollapsedIndicator(startPoint) {
+    const contentLeft = this._editorObs.layoutInfoContentLeft;
+    const startPointTranslated = startPoint.map((p, reader) => p ? p.deltaX(-contentLeft.read(reader)) : null);
+    const iconPath = this.createIconPath(startPointTranslated);
+    return n.svg({
+      class: "collapsedView",
+      ref: this._iconRef,
+      style: {
+        position: "absolute",
+        ...rectToProps((r) => getEditorValidOverlayRect(this._editorObs).read(r)),
+        overflow: "hidden",
+        pointerEvents: "none"
+      }
+    }, [
+      n.svgElem("path", {
+        class: "collapsedViewPath",
+        d: iconPath,
+        fill: asCssVariable(inlineEditIndicatorPrimaryBorder)
+      })
+    ]);
+  }
+  createIconPath(indicatorPoint) {
+    const width = 6;
+    const triangleHeight = 3;
+    const baseHeight = 1;
+    return indicatorPoint.map((point) => {
+      if (!point) {
+        return new PathBuilder().build();
+      }
+      const baseTopLeft = point.deltaX(-width / 2).deltaY(-baseHeight);
+      const baseTopRight = baseTopLeft.deltaX(width);
+      const baseBottomLeft = baseTopLeft.deltaY(baseHeight);
+      const baseBottomRight = baseTopRight.deltaY(baseHeight);
+      const triangleBottomCenter = baseBottomLeft.deltaX(width / 2).deltaY(triangleHeight);
+      return new PathBuilder().moveTo(baseTopLeft).lineTo(baseTopRight).lineTo(baseBottomRight).lineTo(triangleBottomCenter).lineTo(baseBottomLeft).lineTo(baseTopLeft).build();
+    });
+  }
+};
+InlineEditsCollapsedView = __decorate([
+  __param(2, IAccessibilityService)
+], InlineEditsCollapsedView);
+export {
+  InlineEditsCollapsedView
+};
+//# sourceMappingURL=inlineEditsCollapsedView.js.map

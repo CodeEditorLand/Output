@@ -1,1 +1,33 @@
-import{$Dd as l}from"../../../base/common/lifecycle.js";import{DebugLocation as u,derivedOpts as b,observableFromEvent as d,observableFromEventOpts as C}from"../../../base/common/observable.js";function m(e,n,o,r=u.ofCaller()){return C({debugName:()=>`Configuration Key "${e}"`},a=>o.onDidChangeConfiguration(t=>{t.affectsConfiguration(e)&&a(t)}),()=>o.getValue(e)??n,r)}function p(e,n,o,r=u.ofCaller()){const a=e.bindTo(n),t=new l;return b({debugName:()=>`Set Context Key "${e.key}"`},f=>{const i=o(f);return a.set(i),i},r).recomputeInitiallyAndOnChange(t),t}function h(e,n,o=u.ofCaller()){return d(void 0,n.onDidChangeContext,()=>n.getContextKeyValue(e),o)}export{m as $ghb,p as $hhb,h as $ihb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { DebugLocation, derivedOpts, observableFromEvent, observableFromEventOpts } from "../../../base/common/observable.js";
+function observableConfigValue(key, defaultValue, configurationService, debugLocation = DebugLocation.ofCaller()) {
+  return observableFromEventOpts({ debugName: /* @__PURE__ */ __name(() => `Configuration Key "${key}"`, "debugName") }, (handleChange) => configurationService.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration(key)) {
+      handleChange(e);
+    }
+  }), () => configurationService.getValue(key) ?? defaultValue, debugLocation);
+}
+__name(observableConfigValue, "observableConfigValue");
+function bindContextKey(key, service, computeValue, debugLocation = DebugLocation.ofCaller()) {
+  const boundKey = key.bindTo(service);
+  const store = new DisposableStore();
+  derivedOpts({ debugName: /* @__PURE__ */ __name(() => `Set Context Key "${key.key}"`, "debugName") }, (reader) => {
+    const value = computeValue(reader);
+    boundKey.set(value);
+    return value;
+  }, debugLocation).recomputeInitiallyAndOnChange(store);
+  return store;
+}
+__name(bindContextKey, "bindContextKey");
+function observableContextKey(key, contextKeyService, debugLocation = DebugLocation.ofCaller()) {
+  return observableFromEvent(void 0, contextKeyService.onDidChangeContext, () => contextKeyService.getContextKeyValue(key), debugLocation);
+}
+__name(observableContextKey, "observableContextKey");
+export {
+  bindContextKey,
+  observableConfigValue,
+  observableContextKey
+};
+//# sourceMappingURL=platformObservableUtils.js.map

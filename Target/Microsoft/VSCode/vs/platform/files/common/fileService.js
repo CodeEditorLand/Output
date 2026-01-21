@@ -1,1 +1,1034 @@
-import{$$b as X}from"../../../base/common/arrays.js";import{Promises as $,$ei as J}from"../../../base/common/async.js";import{$jj as K,$hj as V,$mj as P,$gj as B,$ij as x,$9i as o}from"../../../base/common/buffer.js";import{CancellationToken as O,$If as tt}from"../../../base/common/cancellation.js";import{$wf as y}from"../../../base/common/event.js";import{$Fn as it}from"../../../base/common/hash.js";import{Iterable as et}from"../../../base/common/iterator.js";import{$Ed as nt,$Dd as M,$zd as F,$Cd as S}from"../../../base/common/lifecycle.js";import{$Ij as st}from"../../../base/common/ternarySearchTree.js";import{Schemas as at}from"../../../base/common/network.js";import{$V as ht}from"../../../base/common/performance.js";import{$xh as rt,$zh as lt,$Lh as ct}from"../../../base/common/resources.js";import{$Zi as ot,$Vi as C,$Ui as j,$1i as ft,$Wi as wt,$Yi as bt,$2i as yt,$6i as mt}from"../../../base/common/stream.js";import{localize as c}from"../../../nls.js";import{$Kk as d,$3k as T,$2k as U,$Pk as ut,$Rk as w,$Ok as p,FilePermission as k,FileSystemProviderErrorCode as q,FileType as E,$yk as dt,$Ek as W,$zk as g,$Dk as z,$Ck as m,$xk as b,$Tk as L,$Nk as _,$Mk as R,$Ak as pt,$Sk as A,$Gk as $t,$Fk as H,$Bk as Ft}from"./files.js";import{$Ex as Et}from"./io.js";import{$xo as Dt}from"../../log/common/log.js";import{$Cb as kt}from"../../../base/common/errors.js";var Z=function(u,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,t,i,e);else for(var h=u.length-1;h>=0;h--)(a=u[h])&&(s=(n<3?a(s):n>3?a(t,i,s):a(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},Q=function(u,t){return function(i,e){t(i,e,u)}},I;let N=class extends nt{static{I=this}constructor(t){super(),this.b=t,this.a=256*1024,this.c=this.D(new y),this.onDidChangeFileSystemProviderRegistrations=this.c.event,this.f=this.D(new y),this.onWillActivateFileSystemProvider=this.f.event,this.g=this.D(new y),this.onDidChangeFileSystemProviderCapabilities=this.g.event,this.h=new Map,this.q=this.D(new y),this.onDidRunOperation=this.q.event,this.Y=this.D(new y),this.Z=this.D(new y),this.onDidFilesChange=this.Z.event,this.$=this.D(new y),this.onDidWatchError=this.$.event,this.ab=new Map,this.db=this.D(new J)}registerProvider(t,i){if(this.h.has(t))throw new Error(`A filesystem provider for the scheme '${t}' is already registered.`);ht(`code/registerFilesystem/${t}`);const e=new M;return this.h.set(t,i),this.c.fire({added:!0,scheme:t,provider:i}),e.add(i.onDidChangeFile(n=>{const s=new ut(n,!this.U(i));this.Y.fire(s),s.hasCorrelation()||this.Z.fire(s)})),typeof i.onDidWatchError=="function"&&e.add(i.onDidWatchError(n=>this.$.fire(new Error(n)))),e.add(i.onDidChangeCapabilities(()=>this.g.fire({provider:i,scheme:t}))),S(()=>{this.c.fire({added:!1,scheme:t,provider:i}),this.h.delete(t),F(e)})}getProvider(t){return this.h.get(t)}async activateProvider(t){const i=[];this.f.fire({scheme:t,join(e){i.push(e)}}),!this.h.has(t)&&await $.settled(i)}async canHandleResource(t){return await this.activateProvider(t.scheme),this.hasProvider(t)}hasProvider(t){return this.h.has(t.scheme)}hasCapability(t,i){const e=this.h.get(t.scheme);return!!(e&&e.capabilities&i)}listCapabilities(){return et.map(this.h,([t,i])=>({scheme:t,capabilities:i.capabilities}))}async j(t){if(!ct(t))throw new w(c(2092,null,this.tb(t)),8);await this.activateProvider(t.scheme);const i=this.h.get(t.scheme);if(!i){const e=new kt;throw e.message=c(2093,null,t.toString()),e}return i}async m(t){const i=await this.j(t);if(m(i)||b(i)||z(i))return i;throw new Error(`Filesystem provider for scheme '${t.scheme}' neither has FileReadWrite, FileReadStream nor FileOpenReadWriteClose capability which is needed for the read operation.`)}async n(t){const i=await this.j(t);if(m(i)||b(i))return i;throw new Error(`Filesystem provider for scheme '${t.scheme}' neither has FileReadWrite nor FileOpenReadWriteClose capability which is needed for the write operation.`)}async resolve(t,i){try{return await this.r(t,i)}catch(e){throw R(e)===q.FileNotFound?new w(c(2094,null,this.tb(t)),1):d(e)}}async r(t,i){const e=await this.j(t),n=this.U(e),s=i?.resolveTo,a=i?.resolveSingleChildDescendants,h=i?.resolveMetadata,r=await e.stat(t);let l;return this.s(e,t,r,void 0,!!h,(f,v)=>(l||(l=st.forUris(()=>!n),l.set(t,!0),s&&l.fill(!0,s)),l.get(f.resource)||l.findSuperstr(f.resource.with({query:null,fragment:null}))?!0:f.isDirectory&&a?v===1:!1))}async s(t,i,e,n,s,a){const{providerExtUri:h}=this.S(t),r={resource:i,name:h.basename(i),isFile:(e.type&E.File)!==0,isDirectory:(e.type&E.Directory)!==0,isSymbolicLink:(e.type&E.SymbolicLink)!==0,mtime:e.mtime,ctime:e.ctime,size:e.size,readonly:!!((e.permissions??0)&k.Readonly)||!!(t.capabilities&2048),locked:!!((e.permissions??0)&k.Locked),executable:!!((e.permissions??0)&k.Executable),etag:T({mtime:e.mtime,size:e.size}),children:void 0};if(r.isDirectory&&a(r,n)){try{const l=await t.readdir(i),f=await $.settled(l.map(async([v,G])=>{try{const D=h.joinPath(i,v),Y=s?await t.stat(D):{type:G};return await this.s(t,D,Y,l.length,s,a)}catch(D){return this.b.trace(D),null}}));r.children=X(f)}catch(l){this.b.trace(l),r.children=[]}return r}return r}async resolveAll(t){return $.settled(t.map(async i=>{try{return{stat:await this.r(i.resource,i.options),success:!0}}catch(e){return this.b.trace(e),{stat:void 0,success:!1}}}))}async stat(t){const i=await this.j(t),e=await i.stat(t);return this.s(i,t,e,void 0,!0,()=>!1)}async realpath(t){const i=await this.j(t);if(Ft(i)){const e=await i.realpath(t);return t.with({path:e})}}async exists(t){const i=await this.j(t);try{return!!await i.stat(t)}catch{return!1}}async canCreateFile(t,i){try{await this.t(t,i)}catch(e){return e}return!0}async t(t,i){if(!i?.overwrite&&await this.exists(t))throw new w(c(2095,null,this.tb(t)),3,i)}async createFile(t,i=o.fromString(""),e){await this.t(t,e);const n=await this.writeFile(t,i);return this.q.fire(new p(t,0,n)),n}async writeFile(t,i,e){const n=this.rb(await this.n(t),t),{providerExtUri:s}=this.S(n);let a=e;if(H(n)&&!a?.atomic){const h=n.enforceAtomicWriteFile?.(t);h&&(a={...e,atomic:h})}try{let{stat:h,buffer:r}=await this.w(n,t,i,a);h||await this.W(n,s.dirname(t)),r||(r=await this.u(n,i)),!m(n)||b(n)&&r instanceof o||b(n)&&H(n)&&a?.atomic?await this.ib(n,t,a,r):await this.eb(n,t,a,r instanceof o?V(r):r),this.q.fire(new p(t,4))}catch(h){throw new w(c(2096,null,this.tb(t),d(h).toString()),_(h),a)}return this.resolve(t,{resolveMetadata:!0})}async u(t,i){let e;if(b(t)&&!(i instanceof o))if(j(i)){const n=await yt(i,3);n.ended?e=o.concat(n.buffer):e=n}else e=bt(i,n=>o.concat(n),3);else e=i;return e}async w(t,i,e,n){const s=!!n?.unlock;if(s&&!(t.capabilities&8192))throw new Error(c(2097,null,this.tb(i)));if(n?.append&&!dt(t))throw new w(c(2098,null,this.tb(i)),6);if(!!n?.atomic){if(!(t.capabilities&32768))throw new Error(c(2099,null,this.tb(i)));if(!(t.capabilities&2))throw new Error(c(2100,null,this.tb(i)));if(s)throw new Error(c(2101,null,this.tb(i)))}let h;try{h=await t.stat(i)}catch{return Object.create(null)}if((h.type&E.Directory)!==0)throw new w(c(2102,null,this.tb(i)),0,n);this.sb(i,h);let r;if(typeof n?.mtime=="number"&&typeof n.etag=="string"&&n.etag!==U&&typeof h.mtime=="number"&&typeof h.size=="number"&&n.mtime<h.mtime&&n.etag!==T({mtime:n.mtime,size:h.size})){if(r=await this.u(t,e),r instanceof o&&r.byteLength===h.size)try{const{value:l}=await this.readFile(i,{limits:{size:h.size}});if(r.equals(l))return{stat:h,buffer:r}}catch{}throw new w(c(2103,null),3,n)}return{stat:h,buffer:r}}async readFile(t,i,e){const n=await this.m(t);return i?.atomic?this.z(n,t,i,e):this.C(n,t,i,e)}async z(t,i,e,n){return new Promise((s,a)=>{this.db.queueFor(i,async()=>{try{const h=await this.C(t,i,e,n);s(h)}catch(h){a(h)}},this.S(t).providerExtUri)})}async C(t,i,e,n){const s=await this.F(t,i,{...e,preferUnbuffered:!0},n);return{...s,value:await x(s.value)}}async readFileStream(t,i,e){const n=await this.m(t);return this.F(n,t,i,e)}async F(t,i,e,n){const s=new tt(n);let a=e;W(t)&&t.enforceAtomicReadFile?.(i)&&(a={...e,atomic:!0});const h=this.L(i,a).then(l=>l,l=>{throw s.dispose(!0),l});let r;try{return typeof a?.etag=="string"&&a.etag!==U&&await h,a?.atomic&&W(t)||!(m(t)||z(t))||b(t)&&a?.preferUnbuffered?r=this.J(t,i,a):z(t)?r=this.H(t,i,s.token,a):r=this.I(t,i,s.token,a),r.on("end",()=>s.dispose()),r.on("error",()=>s.dispose()),{...await h,value:r}}catch(l){throw r&&await ot(r),this.G(l,i,a)}}G(t,i,e){const n=c(2104,null,this.tb(i),d(t).toString());return t instanceof L?new L(n,t.stat,e):t instanceof A?new A(n,t.fileOperationResult,t.size,t.options):new w(n,_(t),e)}H(t,i,e,n=Object.create(null)){const s=t.readFileStream(i,n,e);return mt(s,{data:a=>a instanceof o?a:o.wrap(a),error:a=>this.G(a,i,n)},a=>o.concat(a))}I(t,i,e,n=Object.create(null)){const s=P();return Et(t,i,s,a=>a,{...n,bufferSize:this.a,errorTransformer:a=>this.G(a,i,n)},e),s}J(t,i,e){const n=wt(s=>o.concat(s));return(async()=>{try{let s;e?.atomic&&W(t)?s=await t.readFile(i,{atomic:!0}):s=await t.readFile(i),typeof e?.position=="number"&&(s=s.slice(e.position)),typeof e?.length=="number"&&(s=s.slice(0,e.length)),this.M(i,s.byteLength,e),n.end(o.wrap(s))}catch(s){n.error(s),n.end()}})(),n}async L(t,i){const e=await this.resolve(t,{resolveMetadata:!0});if(e.isDirectory)throw new w(c(2105,null,this.tb(t)),0,i);if(typeof i?.etag=="string"&&i.etag!==U&&i.etag===e.etag)throw new L(c(2106,null),e,i);return this.M(t,e.size,i),e}M(t,i,e){if(typeof e?.limits?.size=="number"&&i>e.limits.size)throw new A(c(2107,null,this.tb(t)),7,i,e)}async canMove(t,i,e){return this.N(t,i,"move",e)}async canCopy(t,i,e){return this.N(t,i,"copy",e)}async N(t,i,e,n){if(t.toString()!==i.toString())try{const s=e==="move"?this.rb(await this.n(t),t):await this.m(t),a=this.rb(await this.n(i),i);await this.R(s,t,a,i,e,n)}catch(s){return s}return!0}async move(t,i,e){const n=this.rb(await this.n(t),t),s=this.rb(await this.n(i),i),a=await this.O(n,t,s,i,"move",!!e),h=await this.resolve(i,{resolveMetadata:!0});return this.q.fire(new p(t,a==="move"?2:3,h)),h}async copy(t,i,e){const n=await this.m(t),s=this.rb(await this.n(i),i),a=await this.O(n,t,s,i,"copy",!!e),h=await this.resolve(i,{resolveMetadata:!0});return this.q.fire(new p(t,a==="copy"?3:2,h)),h}async O(t,i,e,n,s,a){if(i.toString()===n.toString())return s;const{exists:h,isSameResourceWithDifferentPathCase:r}=await this.R(t,i,e,n,s,a);if(h&&!r&&a&&await this.del(n,{recursive:!0}),await this.W(e,this.S(e).providerExtUri.dirname(n)),s==="copy"){if(t===e&&g(t))await t.copy(i,n,{overwrite:a});else{const l=await this.resolve(i);l.isDirectory?await this.Q(t,l,e,n):await this.P(t,i,e,n)}return s}else return t===e?(await t.rename(i,n,{overwrite:a}),s):(await this.O(t,i,e,n,"copy",a),await this.del(i,{recursive:!0}),"copy")}async P(t,i,e,n){if(m(t)&&m(e))return this.kb(t,i,e,n);if(m(t)&&b(e))return this.qb(t,i,e,n);if(b(t)&&m(e))return this.ob(t,i,e,n);if(b(t)&&b(e))return this.mb(t,i,e,n)}async Q(t,i,e,n){await e.mkdir(n),Array.isArray(i.children)&&await $.settled(i.children.map(async s=>{const a=this.S(e).providerExtUri.joinPath(n,s.name);return s.isDirectory?this.Q(t,await this.resolve(s.resource),e,a):this.P(t,s.resource,e,a)}))}async R(t,i,e,n,s,a){let h=!1;if(t===e){const{providerExtUri:l,isPathCaseSensitive:f}=this.S(t);if(f||(h=l.isEqual(i,n)),h&&s==="copy")throw new Error(c(2108,null,this.tb(i),this.tb(n)));if(!h&&l.isEqualOrParent(n,i))throw new Error(c(2109,null,this.tb(i),this.tb(n)))}const r=await this.exists(n);if(r&&!h){if(!a)throw new w(c(2110,null,this.tb(i),this.tb(n)),4);if(t===e){const{providerExtUri:l}=this.S(t);if(l.isEqualOrParent(i,n))throw new Error(c(2111,null,this.tb(i),this.tb(n)))}}return{exists:r,isSameResourceWithDifferentPathCase:h}}S(t){const i=this.U(t);return{providerExtUri:i?rt:lt,isPathCaseSensitive:i}}U(t){return!!(t.capabilities&1024)}async createFolder(t){const i=this.rb(await this.j(t),t);await this.W(i,t);const e=await this.resolve(t,{resolveMetadata:!0});return this.q.fire(new p(t,0,e)),e}async W(t,i){const e=[],{providerExtUri:n}=this.S(t);for(;!n.isEqual(i,n.dirname(i));)try{if(((await t.stat(i)).type&E.Directory)===0)throw new Error(c(2112,null,this.tb(i)));break}catch(s){if(R(s)!==q.FileNotFound)throw s;e.push(n.basename(i)),i=n.dirname(i)}for(let s=e.length-1;s>=0;s--){i=n.joinPath(i,e[s]);try{await t.mkdir(i)}catch(a){if(R(a)!==q.FileExists)throw a}}}async canDelete(t,i){try{await this.X(t,i)}catch(e){return e}return!0}async X(t,i){const e=this.rb(await this.j(t),t),n=!!i?.useTrash;if(n&&!(e.capabilities&4096))throw new Error(c(2113,null,this.tb(t)));const s=i?.atomic;if(s&&!(e.capabilities&65536))throw new Error(c(2114,null,this.tb(t)));if(n&&s)throw new Error(c(2115,null,this.tb(t)));let a;try{a=await e.stat(t)}catch{}if(a)this.sb(t,a);else throw new w(c(2116,null,this.tb(t)),1);if(!!!i?.recursive){const r=await this.resolve(t);if(r.isDirectory&&Array.isArray(r.children)&&r.children.length>0)throw new Error(c(2117,null,this.tb(t)))}return e}async del(t,i){const e=await this.X(t,i);let n=i;if($t(e)&&!n?.atomic){const r=e.enforceAtomicDelete?.(t);r&&(n={...i,atomic:r})}const s=!!n?.useTrash,a=!!n?.recursive,h=n?.atomic??!1;await e.delete(t,{recursive:a,useTrash:s,atomic:h}),this.q.fire(new p(t,1))}async cloneFile(t,i){const e=await this.j(t),n=this.rb(await this.n(i),i);if(!(e===n&&this.S(e).providerExtUri.isEqual(t,i)))return e===n&&pt(e)?e.cloneFile(t,i):(await this.W(n,this.S(n).providerExtUri.dirname(i)),e===n&&g(e)?this.db.queueFor(t,()=>e.copy(t,i,{overwrite:!0}),this.S(e).providerExtUri):this.db.queueFor(t,()=>this.P(e,t,n,i),this.S(e).providerExtUri))}static{this.bb=0}createWatcher(t,i){return this.watch(t,{...i,correlationId:I.bb++})}watch(t,i={recursive:!1,excludes:[]}){const e=new M;let n=!1,s=()=>{n=!0};e.add(S(()=>s())),(async()=>{try{const h=await this.cb(t,i);n?F(h):s=()=>F(h)}catch(h){this.b.error(h)}})();const a=i.correlationId;if(typeof a=="number"){const h=e.add(new y);return e.add(this.Y.event(l=>{l.correlates(a)&&h.fire(l)})),{onDidChange:h.event,dispose:()=>e.dispose()}}return e}async cb(t,i){const e=await this.j(t),n=it([this.S(e).providerExtUri.getComparisonKey(t),i]);let s=this.ab.get(n);return s||(s={count:0,disposable:e.watch(t,i)},this.ab.set(n,s)),s.count+=1,S(()=>{s&&(s.count--,s.count===0&&(F(s.disposable),this.ab.delete(n)))})}dispose(){super.dispose();for(const[,t]of this.ab)F(t.disposable);this.ab.clear()}async eb(t,i,e,n){return this.db.queueFor(i,async()=>{const s=await t.open(i,{create:!0,unlock:e?.unlock??!1,append:e?.append??!1});try{j(n)||C(n)?await this.fb(t,s,n):await this.gb(t,s,n)}catch(a){throw d(a)}finally{await t.close(s)}},this.S(t).providerExtUri)}async fb(t,i,e){let n=0,s;if(C(e)){if(e.buffer.length>0){const a=o.concat(e.buffer);await this.hb(t,i,a,a.byteLength,n,0),n+=a.byteLength}if(e.ended)return;s=e.stream}else s=e;return new Promise((a,h)=>{ft(s,{onData:async r=>{s.pause();try{await this.hb(t,i,r,r.byteLength,n,0)}catch(l){return h(l)}n+=r.byteLength,setTimeout(()=>s.resume())},onError:r=>h(r),onEnd:()=>a()})})}async gb(t,i,e){let n=0,s;for(;(s=e.read())!==null;)await this.hb(t,i,s,s.byteLength,n,0),n+=s.byteLength}async hb(t,i,e,n,s,a){let h=0;for(;h<n;){const r=await t.write(i,s+h,e.buffer,a+h,n-h);h+=r}}async ib(t,i,e,n){return this.db.queueFor(i,()=>this.jb(t,i,e,n),this.S(t).providerExtUri)}async jb(t,i,e,n){let s;n instanceof o?s=n:j(n)?s=await x(n):C(n)?s=await K(n):s=B(n),await t.writeFile(i,s.buffer,{create:!0,overwrite:!0,unlock:e?.unlock??!1,atomic:e?.atomic??!1,append:e?.append??!1})}async kb(t,i,e,n){return this.db.queueFor(n,()=>this.lb(t,i,e,n),this.S(e).providerExtUri)}async lb(t,i,e,n){let s,a;try{s=await t.open(i,{create:!1}),a=await e.open(n,{create:!0,unlock:!1});const h=o.alloc(this.a);let r=0,l=0,f=0;do f=await t.read(s,r,h.buffer,l,h.byteLength-l),await this.hb(e,a,h,f,r,l),r+=f,l+=f,l===h.byteLength&&(l=0);while(f>0)}catch(h){throw d(h)}finally{await $.settled([typeof s=="number"?t.close(s):Promise.resolve(),typeof a=="number"?e.close(a):Promise.resolve()])}}async mb(t,i,e,n){return this.db.queueFor(n,()=>this.nb(t,i,e,n),this.S(e).providerExtUri)}async nb(t,i,e,n){return e.writeFile(n,await t.readFile(i),{create:!0,overwrite:!0,unlock:!1,atomic:!1})}async ob(t,i,e,n){return this.db.queueFor(n,()=>this.pb(t,i,e,n),this.S(e).providerExtUri)}async pb(t,i,e,n){const s=await e.open(n,{create:!0,unlock:!1});try{const a=await t.readFile(i);await this.hb(e,s,o.wrap(a),a.byteLength,0,0)}catch(a){throw d(a)}finally{await e.close(s)}}async qb(t,i,e,n){const s=await x(this.I(t,i,O.None));await this.ib(e,n,void 0,s)}rb(t,i){if(t.capabilities&2048)throw new w(c(2118,null,this.tb(i)),6);return t}sb(t,i){if((i.permissions??0)&k.Readonly)throw new w(c(2119,null,this.tb(t)),6)}tb(t){return t.scheme===at.file?t.fsPath:t.toString(!0)}};N=I=Z([Q(0,Dt)],N);export{N as $7B};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var FileService_1;
+import { coalesce } from "../../../base/common/arrays.js";
+import { Promises, ResourceQueue } from "../../../base/common/async.js";
+import { bufferedStreamToBuffer, bufferToReadable, newWriteableBufferStream, readableToBuffer, streamToBuffer, VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { Emitter } from "../../../base/common/event.js";
+import { hash } from "../../../base/common/hash.js";
+import { Iterable } from "../../../base/common/iterator.js";
+import { Disposable, DisposableStore, dispose, toDisposable } from "../../../base/common/lifecycle.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import { Schemas } from "../../../base/common/network.js";
+import { mark } from "../../../base/common/performance.js";
+import { extUri, extUriIgnorePathCase, isAbsolutePath } from "../../../base/common/resources.js";
+import { consumeStream, isReadableBufferedStream, isReadableStream, listenStream, newWriteableStream, peekReadable, peekStream, transform } from "../../../base/common/stream.js";
+import { localize } from "../../../nls.js";
+import { ensureFileSystemProviderError, etag, ETAG_DISABLED, FileChangesEvent, FileOperationError, FileOperationEvent, FilePermission, FileSystemProviderErrorCode, FileType, hasFileAppendCapability, hasFileAtomicReadCapability, hasFileFolderCopyCapability, hasFileReadStreamCapability, hasOpenReadWriteCloseCapability, hasReadWriteCapability, NotModifiedSinceFileOperationError, toFileOperationResult, toFileSystemProviderErrorCode, hasFileCloneCapability, TooLargeFileOperationError, hasFileAtomicDeleteCapability, hasFileAtomicWriteCapability, hasFileRealpathCapability } from "./files.js";
+import { readFileIntoStream } from "./io.js";
+import { ILogService } from "../../log/common/log.js";
+import { ErrorNoTelemetry } from "../../../base/common/errors.js";
+let FileService = class FileService2 extends Disposable {
+  static {
+    __name(this, "FileService");
+  }
+  static {
+    FileService_1 = this;
+  }
+  constructor(logService) {
+    super();
+    this.logService = logService;
+    this.BUFFER_SIZE = 256 * 1024;
+    this._onDidChangeFileSystemProviderRegistrations = this._register(new Emitter());
+    this.onDidChangeFileSystemProviderRegistrations = this._onDidChangeFileSystemProviderRegistrations.event;
+    this._onWillActivateFileSystemProvider = this._register(new Emitter());
+    this.onWillActivateFileSystemProvider = this._onWillActivateFileSystemProvider.event;
+    this._onDidChangeFileSystemProviderCapabilities = this._register(new Emitter());
+    this.onDidChangeFileSystemProviderCapabilities = this._onDidChangeFileSystemProviderCapabilities.event;
+    this.provider = /* @__PURE__ */ new Map();
+    this._onDidRunOperation = this._register(new Emitter());
+    this.onDidRunOperation = this._onDidRunOperation.event;
+    this.internalOnDidFilesChange = this._register(new Emitter());
+    this._onDidUncorrelatedFilesChange = this._register(new Emitter());
+    this.onDidFilesChange = this._onDidUncorrelatedFilesChange.event;
+    this._onDidWatchError = this._register(new Emitter());
+    this.onDidWatchError = this._onDidWatchError.event;
+    this.activeWatchers = /* @__PURE__ */ new Map();
+    this.writeQueue = this._register(new ResourceQueue());
+  }
+  registerProvider(scheme, provider) {
+    if (this.provider.has(scheme)) {
+      throw new Error(`A filesystem provider for the scheme '${scheme}' is already registered.`);
+    }
+    mark(`code/registerFilesystem/${scheme}`);
+    const providerDisposables = new DisposableStore();
+    this.provider.set(scheme, provider);
+    this._onDidChangeFileSystemProviderRegistrations.fire({ added: true, scheme, provider });
+    providerDisposables.add(provider.onDidChangeFile((changes) => {
+      const event = new FileChangesEvent(changes, !this.isPathCaseSensitive(provider));
+      this.internalOnDidFilesChange.fire(event);
+      if (!event.hasCorrelation()) {
+        this._onDidUncorrelatedFilesChange.fire(event);
+      }
+    }));
+    if (typeof provider.onDidWatchError === "function") {
+      providerDisposables.add(provider.onDidWatchError((error) => this._onDidWatchError.fire(new Error(error))));
+    }
+    providerDisposables.add(provider.onDidChangeCapabilities(() => this._onDidChangeFileSystemProviderCapabilities.fire({ provider, scheme })));
+    return toDisposable(() => {
+      this._onDidChangeFileSystemProviderRegistrations.fire({ added: false, scheme, provider });
+      this.provider.delete(scheme);
+      dispose(providerDisposables);
+    });
+  }
+  getProvider(scheme) {
+    return this.provider.get(scheme);
+  }
+  async activateProvider(scheme) {
+    const joiners = [];
+    this._onWillActivateFileSystemProvider.fire({
+      scheme,
+      join(promise) {
+        joiners.push(promise);
+      }
+    });
+    if (this.provider.has(scheme)) {
+      return;
+    }
+    await Promises.settled(joiners);
+  }
+  async canHandleResource(resource) {
+    await this.activateProvider(resource.scheme);
+    return this.hasProvider(resource);
+  }
+  hasProvider(resource) {
+    return this.provider.has(resource.scheme);
+  }
+  hasCapability(resource, capability) {
+    const provider = this.provider.get(resource.scheme);
+    return !!(provider && provider.capabilities & capability);
+  }
+  listCapabilities() {
+    return Iterable.map(this.provider, ([scheme, provider]) => ({ scheme, capabilities: provider.capabilities }));
+  }
+  async withProvider(resource) {
+    if (!isAbsolutePath(resource)) {
+      throw new FileOperationError(
+        localize("invalidPath", "Unable to resolve filesystem provider with relative file path '{0}'", this.resourceForError(resource)),
+        8
+        /* FileOperationResult.FILE_INVALID_PATH */
+      );
+    }
+    await this.activateProvider(resource.scheme);
+    const provider = this.provider.get(resource.scheme);
+    if (!provider) {
+      const error = new ErrorNoTelemetry();
+      error.message = localize("noProviderFound", "ENOPRO: No file system provider found for resource '{0}'", resource.toString());
+      throw error;
+    }
+    return provider;
+  }
+  async withReadProvider(resource) {
+    const provider = await this.withProvider(resource);
+    if (hasOpenReadWriteCloseCapability(provider) || hasReadWriteCapability(provider) || hasFileReadStreamCapability(provider)) {
+      return provider;
+    }
+    throw new Error(`Filesystem provider for scheme '${resource.scheme}' neither has FileReadWrite, FileReadStream nor FileOpenReadWriteClose capability which is needed for the read operation.`);
+  }
+  async withWriteProvider(resource) {
+    const provider = await this.withProvider(resource);
+    if (hasOpenReadWriteCloseCapability(provider) || hasReadWriteCapability(provider)) {
+      return provider;
+    }
+    throw new Error(`Filesystem provider for scheme '${resource.scheme}' neither has FileReadWrite nor FileOpenReadWriteClose capability which is needed for the write operation.`);
+  }
+  async resolve(resource, options) {
+    try {
+      return await this.doResolveFile(resource, options);
+    } catch (error) {
+      if (toFileSystemProviderErrorCode(error) === FileSystemProviderErrorCode.FileNotFound) {
+        throw new FileOperationError(
+          localize("fileNotFoundError", "Unable to resolve nonexistent file '{0}'", this.resourceForError(resource)),
+          1
+          /* FileOperationResult.FILE_NOT_FOUND */
+        );
+      }
+      throw ensureFileSystemProviderError(error);
+    }
+  }
+  async doResolveFile(resource, options) {
+    const provider = await this.withProvider(resource);
+    const isPathCaseSensitive = this.isPathCaseSensitive(provider);
+    const resolveTo = options?.resolveTo;
+    const resolveSingleChildDescendants = options?.resolveSingleChildDescendants;
+    const resolveMetadata = options?.resolveMetadata;
+    const stat = await provider.stat(resource);
+    let trie;
+    return this.toFileStat(provider, resource, stat, void 0, !!resolveMetadata, (stat2, siblings) => {
+      if (!trie) {
+        trie = TernarySearchTree.forUris(() => !isPathCaseSensitive);
+        trie.set(resource, true);
+        if (resolveTo) {
+          trie.fill(true, resolveTo);
+        }
+      }
+      if (trie.get(stat2.resource) || trie.findSuperstr(stat2.resource.with(
+        { query: null, fragment: null }
+        /* required for https://github.com/microsoft/vscode/issues/128151 */
+      ))) {
+        return true;
+      }
+      if (stat2.isDirectory && resolveSingleChildDescendants) {
+        return siblings === 1;
+      }
+      return false;
+    });
+  }
+  async toFileStat(provider, resource, stat, siblings, resolveMetadata, recurse) {
+    const { providerExtUri } = this.getExtUri(provider);
+    const fileStat = {
+      resource,
+      name: providerExtUri.basename(resource),
+      isFile: (stat.type & FileType.File) !== 0,
+      isDirectory: (stat.type & FileType.Directory) !== 0,
+      isSymbolicLink: (stat.type & FileType.SymbolicLink) !== 0,
+      mtime: stat.mtime,
+      ctime: stat.ctime,
+      size: stat.size,
+      readonly: Boolean((stat.permissions ?? 0) & FilePermission.Readonly) || Boolean(
+        provider.capabilities & 2048
+        /* FileSystemProviderCapabilities.Readonly */
+      ),
+      locked: Boolean((stat.permissions ?? 0) & FilePermission.Locked),
+      executable: Boolean((stat.permissions ?? 0) & FilePermission.Executable),
+      etag: etag({ mtime: stat.mtime, size: stat.size }),
+      children: void 0
+    };
+    if (fileStat.isDirectory && recurse(fileStat, siblings)) {
+      try {
+        const entries = await provider.readdir(resource);
+        const resolvedEntries = await Promises.settled(entries.map(async ([name, type]) => {
+          try {
+            const childResource = providerExtUri.joinPath(resource, name);
+            const childStat = resolveMetadata ? await provider.stat(childResource) : { type };
+            return await this.toFileStat(provider, childResource, childStat, entries.length, resolveMetadata, recurse);
+          } catch (error) {
+            this.logService.trace(error);
+            return null;
+          }
+        }));
+        fileStat.children = coalesce(resolvedEntries);
+      } catch (error) {
+        this.logService.trace(error);
+        fileStat.children = [];
+      }
+      return fileStat;
+    }
+    return fileStat;
+  }
+  async resolveAll(toResolve) {
+    return Promises.settled(toResolve.map(async (entry) => {
+      try {
+        return { stat: await this.doResolveFile(entry.resource, entry.options), success: true };
+      } catch (error) {
+        this.logService.trace(error);
+        return { stat: void 0, success: false };
+      }
+    }));
+  }
+  async stat(resource) {
+    const provider = await this.withProvider(resource);
+    const stat = await provider.stat(resource);
+    return this.toFileStat(
+      provider,
+      resource,
+      stat,
+      void 0,
+      true,
+      () => false
+      /* Do not resolve any children */
+    );
+  }
+  async realpath(resource) {
+    const provider = await this.withProvider(resource);
+    if (hasFileRealpathCapability(provider)) {
+      const realpath = await provider.realpath(resource);
+      return resource.with({ path: realpath });
+    }
+    return void 0;
+  }
+  async exists(resource) {
+    const provider = await this.withProvider(resource);
+    try {
+      const stat = await provider.stat(resource);
+      return !!stat;
+    } catch (error) {
+      return false;
+    }
+  }
+  //#endregion
+  //#region File Reading/Writing
+  async canCreateFile(resource, options) {
+    try {
+      await this.doValidateCreateFile(resource, options);
+    } catch (error) {
+      return error;
+    }
+    return true;
+  }
+  async doValidateCreateFile(resource, options) {
+    if (!options?.overwrite && await this.exists(resource)) {
+      throw new FileOperationError(localize("fileExists", "Unable to create file '{0}' that already exists when overwrite flag is not set", this.resourceForError(resource)), 3, options);
+    }
+  }
+  async createFile(resource, bufferOrReadableOrStream = VSBuffer.fromString(""), options) {
+    await this.doValidateCreateFile(resource, options);
+    const fileStat = await this.writeFile(resource, bufferOrReadableOrStream);
+    this._onDidRunOperation.fire(new FileOperationEvent(resource, 0, fileStat));
+    return fileStat;
+  }
+  async writeFile(resource, bufferOrReadableOrStream, options) {
+    const provider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(resource), resource);
+    const { providerExtUri } = this.getExtUri(provider);
+    let writeFileOptions = options;
+    if (hasFileAtomicWriteCapability(provider) && !writeFileOptions?.atomic) {
+      const enforcedAtomicWrite = provider.enforceAtomicWriteFile?.(resource);
+      if (enforcedAtomicWrite) {
+        writeFileOptions = { ...options, atomic: enforcedAtomicWrite };
+      }
+    }
+    try {
+      let { stat, buffer: bufferOrReadableOrStreamOrBufferedStream } = await this.validateWriteFile(provider, resource, bufferOrReadableOrStream, writeFileOptions);
+      if (!stat) {
+        await this.mkdirp(provider, providerExtUri.dirname(resource));
+      }
+      if (!bufferOrReadableOrStreamOrBufferedStream) {
+        bufferOrReadableOrStreamOrBufferedStream = await this.peekBufferForWriting(provider, bufferOrReadableOrStream);
+      }
+      if (!hasOpenReadWriteCloseCapability(provider) || // buffered writing is unsupported
+      hasReadWriteCapability(provider) && bufferOrReadableOrStreamOrBufferedStream instanceof VSBuffer || // data is a full buffer already
+      hasReadWriteCapability(provider) && hasFileAtomicWriteCapability(provider) && writeFileOptions?.atomic) {
+        await this.doWriteUnbuffered(provider, resource, writeFileOptions, bufferOrReadableOrStreamOrBufferedStream);
+      } else {
+        await this.doWriteBuffered(provider, resource, writeFileOptions, bufferOrReadableOrStreamOrBufferedStream instanceof VSBuffer ? bufferToReadable(bufferOrReadableOrStreamOrBufferedStream) : bufferOrReadableOrStreamOrBufferedStream);
+      }
+      this._onDidRunOperation.fire(new FileOperationEvent(
+        resource,
+        4
+        /* FileOperation.WRITE */
+      ));
+    } catch (error) {
+      throw new FileOperationError(localize("err.write", "Unable to write file '{0}' ({1})", this.resourceForError(resource), ensureFileSystemProviderError(error).toString()), toFileOperationResult(error), writeFileOptions);
+    }
+    return this.resolve(resource, { resolveMetadata: true });
+  }
+  async peekBufferForWriting(provider, bufferOrReadableOrStream) {
+    let peekResult;
+    if (hasReadWriteCapability(provider) && !(bufferOrReadableOrStream instanceof VSBuffer)) {
+      if (isReadableStream(bufferOrReadableOrStream)) {
+        const bufferedStream = await peekStream(bufferOrReadableOrStream, 3);
+        if (bufferedStream.ended) {
+          peekResult = VSBuffer.concat(bufferedStream.buffer);
+        } else {
+          peekResult = bufferedStream;
+        }
+      } else {
+        peekResult = peekReadable(bufferOrReadableOrStream, (data) => VSBuffer.concat(data), 3);
+      }
+    } else {
+      peekResult = bufferOrReadableOrStream;
+    }
+    return peekResult;
+  }
+  async validateWriteFile(provider, resource, bufferOrReadableOrStream, options) {
+    const unlock = !!options?.unlock;
+    if (unlock && !(provider.capabilities & 8192)) {
+      throw new Error(localize("writeFailedUnlockUnsupported", "Unable to unlock file '{0}' because provider does not support it.", this.resourceForError(resource)));
+    }
+    if (options?.append && !hasFileAppendCapability(provider)) {
+      throw new FileOperationError(
+        localize("err.noAppend", "Filesystem provider for scheme '{0}' does not does not support append", this.resourceForError(resource)),
+        6
+        /* FileOperationResult.FILE_PERMISSION_DENIED */
+      );
+    }
+    const atomic = !!options?.atomic;
+    if (atomic) {
+      if (!(provider.capabilities & 32768)) {
+        throw new Error(localize("writeFailedAtomicUnsupported1", "Unable to atomically write file '{0}' because provider does not support it.", this.resourceForError(resource)));
+      }
+      if (!(provider.capabilities & 2)) {
+        throw new Error(localize("writeFailedAtomicUnsupported2", "Unable to atomically write file '{0}' because provider does not support unbuffered writes.", this.resourceForError(resource)));
+      }
+      if (unlock) {
+        throw new Error(localize("writeFailedAtomicUnlock", "Unable to unlock file '{0}' because atomic write is enabled.", this.resourceForError(resource)));
+      }
+    }
+    let stat = void 0;
+    try {
+      stat = await provider.stat(resource);
+    } catch (error) {
+      return /* @__PURE__ */ Object.create(null);
+    }
+    if ((stat.type & FileType.Directory) !== 0) {
+      throw new FileOperationError(localize("fileIsDirectoryWriteError", "Unable to write file '{0}' that is actually a directory", this.resourceForError(resource)), 0, options);
+    }
+    this.throwIfFileIsReadonly(resource, stat);
+    let buffer;
+    if (typeof options?.mtime === "number" && typeof options.etag === "string" && options.etag !== ETAG_DISABLED && typeof stat.mtime === "number" && typeof stat.size === "number" && options.mtime < stat.mtime && options.etag !== etag({ mtime: options.mtime, size: stat.size })) {
+      buffer = await this.peekBufferForWriting(provider, bufferOrReadableOrStream);
+      if (buffer instanceof VSBuffer && buffer.byteLength === stat.size) {
+        try {
+          const { value } = await this.readFile(resource, { limits: { size: stat.size } });
+          if (buffer.equals(value)) {
+            return { stat, buffer };
+          }
+        } catch (error) {
+        }
+      }
+      throw new FileOperationError(localize("fileModifiedError", "File Modified Since"), 3, options);
+    }
+    return { stat, buffer };
+  }
+  async readFile(resource, options, token) {
+    const provider = await this.withReadProvider(resource);
+    if (options?.atomic) {
+      return this.doReadFileAtomic(provider, resource, options, token);
+    }
+    return this.doReadFile(provider, resource, options, token);
+  }
+  async doReadFileAtomic(provider, resource, options, token) {
+    return new Promise((resolve, reject) => {
+      this.writeQueue.queueFor(resource, async () => {
+        try {
+          const content = await this.doReadFile(provider, resource, options, token);
+          resolve(content);
+        } catch (error) {
+          reject(error);
+        }
+      }, this.getExtUri(provider).providerExtUri);
+    });
+  }
+  async doReadFile(provider, resource, options, token) {
+    const stream = await this.doReadFileStream(provider, resource, {
+      ...options,
+      // optimization: since we know that the caller does not
+      // care about buffering, we indicate this to the reader.
+      // this reduces all the overhead the buffered reading
+      // has (open, read, close) if the provider supports
+      // unbuffered reading.
+      preferUnbuffered: true
+    }, token);
+    return {
+      ...stream,
+      value: await streamToBuffer(stream.value)
+    };
+  }
+  async readFileStream(resource, options, token) {
+    const provider = await this.withReadProvider(resource);
+    return this.doReadFileStream(provider, resource, options, token);
+  }
+  async doReadFileStream(provider, resource, options, token) {
+    const cancellableSource = new CancellationTokenSource(token);
+    let readFileOptions = options;
+    if (hasFileAtomicReadCapability(provider) && provider.enforceAtomicReadFile?.(resource)) {
+      readFileOptions = { ...options, atomic: true };
+    }
+    const statPromise = this.validateReadFile(resource, readFileOptions).then((stat) => stat, (error) => {
+      cancellableSource.dispose(true);
+      throw error;
+    });
+    let fileStream = void 0;
+    try {
+      if (typeof readFileOptions?.etag === "string" && readFileOptions.etag !== ETAG_DISABLED) {
+        await statPromise;
+      }
+      if (readFileOptions?.atomic && hasFileAtomicReadCapability(provider) || // atomic reads are always unbuffered
+      !(hasOpenReadWriteCloseCapability(provider) || hasFileReadStreamCapability(provider)) || // provider has no buffered capability
+      hasReadWriteCapability(provider) && readFileOptions?.preferUnbuffered) {
+        fileStream = this.readFileUnbuffered(provider, resource, readFileOptions);
+      } else if (hasFileReadStreamCapability(provider)) {
+        fileStream = this.readFileStreamed(provider, resource, cancellableSource.token, readFileOptions);
+      } else {
+        fileStream = this.readFileBuffered(provider, resource, cancellableSource.token, readFileOptions);
+      }
+      fileStream.on("end", () => cancellableSource.dispose());
+      fileStream.on("error", () => cancellableSource.dispose());
+      const fileStat = await statPromise;
+      return {
+        ...fileStat,
+        value: fileStream
+      };
+    } catch (error) {
+      if (fileStream) {
+        await consumeStream(fileStream);
+      }
+      throw this.restoreReadError(error, resource, readFileOptions);
+    }
+  }
+  restoreReadError(error, resource, options) {
+    const message = localize("err.read", "Unable to read file '{0}' ({1})", this.resourceForError(resource), ensureFileSystemProviderError(error).toString());
+    if (error instanceof NotModifiedSinceFileOperationError) {
+      return new NotModifiedSinceFileOperationError(message, error.stat, options);
+    }
+    if (error instanceof TooLargeFileOperationError) {
+      return new TooLargeFileOperationError(message, error.fileOperationResult, error.size, error.options);
+    }
+    return new FileOperationError(message, toFileOperationResult(error), options);
+  }
+  readFileStreamed(provider, resource, token, options = /* @__PURE__ */ Object.create(null)) {
+    const fileStream = provider.readFileStream(resource, options, token);
+    return transform(fileStream, {
+      data: /* @__PURE__ */ __name((data) => data instanceof VSBuffer ? data : VSBuffer.wrap(data), "data"),
+      error: /* @__PURE__ */ __name((error) => this.restoreReadError(error, resource, options), "error")
+    }, (data) => VSBuffer.concat(data));
+  }
+  readFileBuffered(provider, resource, token, options = /* @__PURE__ */ Object.create(null)) {
+    const stream = newWriteableBufferStream();
+    readFileIntoStream(provider, resource, stream, (data) => data, {
+      ...options,
+      bufferSize: this.BUFFER_SIZE,
+      errorTransformer: /* @__PURE__ */ __name((error) => this.restoreReadError(error, resource, options), "errorTransformer")
+    }, token);
+    return stream;
+  }
+  readFileUnbuffered(provider, resource, options) {
+    const stream = newWriteableStream((data) => VSBuffer.concat(data));
+    (async () => {
+      try {
+        let buffer;
+        if (options?.atomic && hasFileAtomicReadCapability(provider)) {
+          buffer = await provider.readFile(resource, { atomic: true });
+        } else {
+          buffer = await provider.readFile(resource);
+        }
+        if (typeof options?.position === "number") {
+          buffer = buffer.slice(options.position);
+        }
+        if (typeof options?.length === "number") {
+          buffer = buffer.slice(0, options.length);
+        }
+        this.validateReadFileLimits(resource, buffer.byteLength, options);
+        stream.end(VSBuffer.wrap(buffer));
+      } catch (err) {
+        stream.error(err);
+        stream.end();
+      }
+    })();
+    return stream;
+  }
+  async validateReadFile(resource, options) {
+    const stat = await this.resolve(resource, { resolveMetadata: true });
+    if (stat.isDirectory) {
+      throw new FileOperationError(localize("fileIsDirectoryReadError", "Unable to read file '{0}' that is actually a directory", this.resourceForError(resource)), 0, options);
+    }
+    if (typeof options?.etag === "string" && options.etag !== ETAG_DISABLED && options.etag === stat.etag) {
+      throw new NotModifiedSinceFileOperationError(localize("fileNotModifiedError", "File not modified since"), stat, options);
+    }
+    this.validateReadFileLimits(resource, stat.size, options);
+    return stat;
+  }
+  validateReadFileLimits(resource, size, options) {
+    if (typeof options?.limits?.size === "number" && size > options.limits.size) {
+      throw new TooLargeFileOperationError(localize("fileTooLargeError", "Unable to read file '{0}' that is too large to open", this.resourceForError(resource)), 7, size, options);
+    }
+  }
+  //#endregion
+  //#region Move/Copy/Delete/Create Folder
+  async canMove(source, target, overwrite) {
+    return this.doCanMoveCopy(source, target, "move", overwrite);
+  }
+  async canCopy(source, target, overwrite) {
+    return this.doCanMoveCopy(source, target, "copy", overwrite);
+  }
+  async doCanMoveCopy(source, target, mode, overwrite) {
+    if (source.toString() !== target.toString()) {
+      try {
+        const sourceProvider = mode === "move" ? this.throwIfFileSystemIsReadonly(await this.withWriteProvider(source), source) : await this.withReadProvider(source);
+        const targetProvider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(target), target);
+        await this.doValidateMoveCopy(sourceProvider, source, targetProvider, target, mode, overwrite);
+      } catch (error) {
+        return error;
+      }
+    }
+    return true;
+  }
+  async move(source, target, overwrite) {
+    const sourceProvider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(source), source);
+    const targetProvider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(target), target);
+    const mode = await this.doMoveCopy(sourceProvider, source, targetProvider, target, "move", !!overwrite);
+    const fileStat = await this.resolve(target, { resolveMetadata: true });
+    this._onDidRunOperation.fire(new FileOperationEvent(source, mode === "move" ? 2 : 3, fileStat));
+    return fileStat;
+  }
+  async copy(source, target, overwrite) {
+    const sourceProvider = await this.withReadProvider(source);
+    const targetProvider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(target), target);
+    const mode = await this.doMoveCopy(sourceProvider, source, targetProvider, target, "copy", !!overwrite);
+    const fileStat = await this.resolve(target, { resolveMetadata: true });
+    this._onDidRunOperation.fire(new FileOperationEvent(source, mode === "copy" ? 3 : 2, fileStat));
+    return fileStat;
+  }
+  async doMoveCopy(sourceProvider, source, targetProvider, target, mode, overwrite) {
+    if (source.toString() === target.toString()) {
+      return mode;
+    }
+    const { exists, isSameResourceWithDifferentPathCase } = await this.doValidateMoveCopy(sourceProvider, source, targetProvider, target, mode, overwrite);
+    if (exists && !isSameResourceWithDifferentPathCase && overwrite) {
+      await this.del(target, { recursive: true });
+    }
+    await this.mkdirp(targetProvider, this.getExtUri(targetProvider).providerExtUri.dirname(target));
+    if (mode === "copy") {
+      if (sourceProvider === targetProvider && hasFileFolderCopyCapability(sourceProvider)) {
+        await sourceProvider.copy(source, target, { overwrite });
+      } else {
+        const sourceFile = await this.resolve(source);
+        if (sourceFile.isDirectory) {
+          await this.doCopyFolder(sourceProvider, sourceFile, targetProvider, target);
+        } else {
+          await this.doCopyFile(sourceProvider, source, targetProvider, target);
+        }
+      }
+      return mode;
+    } else {
+      if (sourceProvider === targetProvider) {
+        await sourceProvider.rename(source, target, { overwrite });
+        return mode;
+      } else {
+        await this.doMoveCopy(sourceProvider, source, targetProvider, target, "copy", overwrite);
+        await this.del(source, { recursive: true });
+        return "copy";
+      }
+    }
+  }
+  async doCopyFile(sourceProvider, source, targetProvider, target) {
+    if (hasOpenReadWriteCloseCapability(sourceProvider) && hasOpenReadWriteCloseCapability(targetProvider)) {
+      return this.doPipeBuffered(sourceProvider, source, targetProvider, target);
+    }
+    if (hasOpenReadWriteCloseCapability(sourceProvider) && hasReadWriteCapability(targetProvider)) {
+      return this.doPipeBufferedToUnbuffered(sourceProvider, source, targetProvider, target);
+    }
+    if (hasReadWriteCapability(sourceProvider) && hasOpenReadWriteCloseCapability(targetProvider)) {
+      return this.doPipeUnbufferedToBuffered(sourceProvider, source, targetProvider, target);
+    }
+    if (hasReadWriteCapability(sourceProvider) && hasReadWriteCapability(targetProvider)) {
+      return this.doPipeUnbuffered(sourceProvider, source, targetProvider, target);
+    }
+  }
+  async doCopyFolder(sourceProvider, sourceFolder, targetProvider, targetFolder) {
+    await targetProvider.mkdir(targetFolder);
+    if (Array.isArray(sourceFolder.children)) {
+      await Promises.settled(sourceFolder.children.map(async (sourceChild) => {
+        const targetChild = this.getExtUri(targetProvider).providerExtUri.joinPath(targetFolder, sourceChild.name);
+        if (sourceChild.isDirectory) {
+          return this.doCopyFolder(sourceProvider, await this.resolve(sourceChild.resource), targetProvider, targetChild);
+        } else {
+          return this.doCopyFile(sourceProvider, sourceChild.resource, targetProvider, targetChild);
+        }
+      }));
+    }
+  }
+  async doValidateMoveCopy(sourceProvider, source, targetProvider, target, mode, overwrite) {
+    let isSameResourceWithDifferentPathCase = false;
+    if (sourceProvider === targetProvider) {
+      const { providerExtUri, isPathCaseSensitive } = this.getExtUri(sourceProvider);
+      if (!isPathCaseSensitive) {
+        isSameResourceWithDifferentPathCase = providerExtUri.isEqual(source, target);
+      }
+      if (isSameResourceWithDifferentPathCase && mode === "copy") {
+        throw new Error(localize("unableToMoveCopyError1", "Unable to copy when source '{0}' is same as target '{1}' with different path case on a case insensitive file system", this.resourceForError(source), this.resourceForError(target)));
+      }
+      if (!isSameResourceWithDifferentPathCase && providerExtUri.isEqualOrParent(target, source)) {
+        throw new Error(localize("unableToMoveCopyError2", "Unable to move/copy when source '{0}' is parent of target '{1}'.", this.resourceForError(source), this.resourceForError(target)));
+      }
+    }
+    const exists = await this.exists(target);
+    if (exists && !isSameResourceWithDifferentPathCase) {
+      if (!overwrite) {
+        throw new FileOperationError(
+          localize("unableToMoveCopyError3", "Unable to move/copy '{0}' because target '{1}' already exists at destination.", this.resourceForError(source), this.resourceForError(target)),
+          4
+          /* FileOperationResult.FILE_MOVE_CONFLICT */
+        );
+      }
+      if (sourceProvider === targetProvider) {
+        const { providerExtUri } = this.getExtUri(sourceProvider);
+        if (providerExtUri.isEqualOrParent(source, target)) {
+          throw new Error(localize("unableToMoveCopyError4", "Unable to move/copy '{0}' into '{1}' since a file would replace the folder it is contained in.", this.resourceForError(source), this.resourceForError(target)));
+        }
+      }
+    }
+    return { exists, isSameResourceWithDifferentPathCase };
+  }
+  getExtUri(provider) {
+    const isPathCaseSensitive = this.isPathCaseSensitive(provider);
+    return {
+      providerExtUri: isPathCaseSensitive ? extUri : extUriIgnorePathCase,
+      isPathCaseSensitive
+    };
+  }
+  isPathCaseSensitive(provider) {
+    return !!(provider.capabilities & 1024);
+  }
+  async createFolder(resource) {
+    const provider = this.throwIfFileSystemIsReadonly(await this.withProvider(resource), resource);
+    await this.mkdirp(provider, resource);
+    const fileStat = await this.resolve(resource, { resolveMetadata: true });
+    this._onDidRunOperation.fire(new FileOperationEvent(resource, 0, fileStat));
+    return fileStat;
+  }
+  async mkdirp(provider, directory) {
+    const directoriesToCreate = [];
+    const { providerExtUri } = this.getExtUri(provider);
+    while (!providerExtUri.isEqual(directory, providerExtUri.dirname(directory))) {
+      try {
+        const stat = await provider.stat(directory);
+        if ((stat.type & FileType.Directory) === 0) {
+          throw new Error(localize("mkdirExistsError", "Unable to create folder '{0}' that already exists but is not a directory", this.resourceForError(directory)));
+        }
+        break;
+      } catch (error) {
+        if (toFileSystemProviderErrorCode(error) !== FileSystemProviderErrorCode.FileNotFound) {
+          throw error;
+        }
+        directoriesToCreate.push(providerExtUri.basename(directory));
+        directory = providerExtUri.dirname(directory);
+      }
+    }
+    for (let i = directoriesToCreate.length - 1; i >= 0; i--) {
+      directory = providerExtUri.joinPath(directory, directoriesToCreate[i]);
+      try {
+        await provider.mkdir(directory);
+      } catch (error) {
+        if (toFileSystemProviderErrorCode(error) !== FileSystemProviderErrorCode.FileExists) {
+          throw error;
+        }
+      }
+    }
+  }
+  async canDelete(resource, options) {
+    try {
+      await this.doValidateDelete(resource, options);
+    } catch (error) {
+      return error;
+    }
+    return true;
+  }
+  async doValidateDelete(resource, options) {
+    const provider = this.throwIfFileSystemIsReadonly(await this.withProvider(resource), resource);
+    const useTrash = !!options?.useTrash;
+    if (useTrash && !(provider.capabilities & 4096)) {
+      throw new Error(localize("deleteFailedTrashUnsupported", "Unable to delete file '{0}' via trash because provider does not support it.", this.resourceForError(resource)));
+    }
+    const atomic = options?.atomic;
+    if (atomic && !(provider.capabilities & 65536)) {
+      throw new Error(localize("deleteFailedAtomicUnsupported", "Unable to delete file '{0}' atomically because provider does not support it.", this.resourceForError(resource)));
+    }
+    if (useTrash && atomic) {
+      throw new Error(localize("deleteFailedTrashAndAtomicUnsupported", "Unable to atomically delete file '{0}' because using trash is enabled.", this.resourceForError(resource)));
+    }
+    let stat = void 0;
+    try {
+      stat = await provider.stat(resource);
+    } catch (error) {
+    }
+    if (stat) {
+      this.throwIfFileIsReadonly(resource, stat);
+    } else {
+      throw new FileOperationError(
+        localize("deleteFailedNotFound", "Unable to delete nonexistent file '{0}'", this.resourceForError(resource)),
+        1
+        /* FileOperationResult.FILE_NOT_FOUND */
+      );
+    }
+    const recursive = !!options?.recursive;
+    if (!recursive) {
+      const stat2 = await this.resolve(resource);
+      if (stat2.isDirectory && Array.isArray(stat2.children) && stat2.children.length > 0) {
+        throw new Error(localize("deleteFailedNonEmptyFolder", "Unable to delete non-empty folder '{0}'.", this.resourceForError(resource)));
+      }
+    }
+    return provider;
+  }
+  async del(resource, options) {
+    const provider = await this.doValidateDelete(resource, options);
+    let deleteFileOptions = options;
+    if (hasFileAtomicDeleteCapability(provider) && !deleteFileOptions?.atomic) {
+      const enforcedAtomicDelete = provider.enforceAtomicDelete?.(resource);
+      if (enforcedAtomicDelete) {
+        deleteFileOptions = { ...options, atomic: enforcedAtomicDelete };
+      }
+    }
+    const useTrash = !!deleteFileOptions?.useTrash;
+    const recursive = !!deleteFileOptions?.recursive;
+    const atomic = deleteFileOptions?.atomic ?? false;
+    await provider.delete(resource, { recursive, useTrash, atomic });
+    this._onDidRunOperation.fire(new FileOperationEvent(
+      resource,
+      1
+      /* FileOperation.DELETE */
+    ));
+  }
+  //#endregion
+  //#region Clone File
+  async cloneFile(source, target) {
+    const sourceProvider = await this.withProvider(source);
+    const targetProvider = this.throwIfFileSystemIsReadonly(await this.withWriteProvider(target), target);
+    if (sourceProvider === targetProvider && this.getExtUri(sourceProvider).providerExtUri.isEqual(source, target)) {
+      return;
+    }
+    if (sourceProvider === targetProvider && hasFileCloneCapability(sourceProvider)) {
+      return sourceProvider.cloneFile(source, target);
+    }
+    await this.mkdirp(targetProvider, this.getExtUri(targetProvider).providerExtUri.dirname(target));
+    if (sourceProvider === targetProvider && hasFileFolderCopyCapability(sourceProvider)) {
+      return this.writeQueue.queueFor(source, () => sourceProvider.copy(source, target, { overwrite: true }), this.getExtUri(sourceProvider).providerExtUri);
+    }
+    return this.writeQueue.queueFor(source, () => this.doCopyFile(sourceProvider, source, targetProvider, target), this.getExtUri(sourceProvider).providerExtUri);
+  }
+  static {
+    this.WATCHER_CORRELATION_IDS = 0;
+  }
+  createWatcher(resource, options) {
+    return this.watch(resource, {
+      ...options,
+      // Explicitly set a correlation id so that file events that originate
+      // from requests from extensions are exclusively routed back to the
+      // extension host and not into the workbench.
+      correlationId: FileService_1.WATCHER_CORRELATION_IDS++
+    });
+  }
+  watch(resource, options = { recursive: false, excludes: [] }) {
+    const disposables = new DisposableStore();
+    let watchDisposed = false;
+    let disposeWatch = /* @__PURE__ */ __name(() => {
+      watchDisposed = true;
+    }, "disposeWatch");
+    disposables.add(toDisposable(() => disposeWatch()));
+    (async () => {
+      try {
+        const disposable = await this.doWatch(resource, options);
+        if (watchDisposed) {
+          dispose(disposable);
+        } else {
+          disposeWatch = /* @__PURE__ */ __name(() => dispose(disposable), "disposeWatch");
+        }
+      } catch (error) {
+        this.logService.error(error);
+      }
+    })();
+    const correlationId = options.correlationId;
+    if (typeof correlationId === "number") {
+      const fileChangeEmitter = disposables.add(new Emitter());
+      disposables.add(this.internalOnDidFilesChange.event((e) => {
+        if (e.correlates(correlationId)) {
+          fileChangeEmitter.fire(e);
+        }
+      }));
+      const watcher = {
+        onDidChange: fileChangeEmitter.event,
+        dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+      };
+      return watcher;
+    }
+    return disposables;
+  }
+  async doWatch(resource, options) {
+    const provider = await this.withProvider(resource);
+    const watchHash = hash([this.getExtUri(provider).providerExtUri.getComparisonKey(resource), options]);
+    let watcher = this.activeWatchers.get(watchHash);
+    if (!watcher) {
+      watcher = {
+        count: 0,
+        disposable: provider.watch(resource, options)
+      };
+      this.activeWatchers.set(watchHash, watcher);
+    }
+    watcher.count += 1;
+    return toDisposable(() => {
+      if (watcher) {
+        watcher.count--;
+        if (watcher.count === 0) {
+          dispose(watcher.disposable);
+          this.activeWatchers.delete(watchHash);
+        }
+      }
+    });
+  }
+  dispose() {
+    super.dispose();
+    for (const [, watcher] of this.activeWatchers) {
+      dispose(watcher.disposable);
+    }
+    this.activeWatchers.clear();
+  }
+  async doWriteBuffered(provider, resource, options, readableOrStreamOrBufferedStream) {
+    return this.writeQueue.queueFor(resource, async () => {
+      const handle = await provider.open(resource, { create: true, unlock: options?.unlock ?? false, append: options?.append ?? false });
+      try {
+        if (isReadableStream(readableOrStreamOrBufferedStream) || isReadableBufferedStream(readableOrStreamOrBufferedStream)) {
+          await this.doWriteStreamBufferedQueued(provider, handle, readableOrStreamOrBufferedStream);
+        } else {
+          await this.doWriteReadableBufferedQueued(provider, handle, readableOrStreamOrBufferedStream);
+        }
+      } catch (error) {
+        throw ensureFileSystemProviderError(error);
+      } finally {
+        await provider.close(handle);
+      }
+    }, this.getExtUri(provider).providerExtUri);
+  }
+  async doWriteStreamBufferedQueued(provider, handle, streamOrBufferedStream) {
+    let posInFile = 0;
+    let stream;
+    if (isReadableBufferedStream(streamOrBufferedStream)) {
+      if (streamOrBufferedStream.buffer.length > 0) {
+        const chunk = VSBuffer.concat(streamOrBufferedStream.buffer);
+        await this.doWriteBuffer(provider, handle, chunk, chunk.byteLength, posInFile, 0);
+        posInFile += chunk.byteLength;
+      }
+      if (streamOrBufferedStream.ended) {
+        return;
+      }
+      stream = streamOrBufferedStream.stream;
+    } else {
+      stream = streamOrBufferedStream;
+    }
+    return new Promise((resolve, reject) => {
+      listenStream(stream, {
+        onData: /* @__PURE__ */ __name(async (chunk) => {
+          stream.pause();
+          try {
+            await this.doWriteBuffer(provider, handle, chunk, chunk.byteLength, posInFile, 0);
+          } catch (error) {
+            return reject(error);
+          }
+          posInFile += chunk.byteLength;
+          setTimeout(() => stream.resume());
+        }, "onData"),
+        onError: /* @__PURE__ */ __name((error) => reject(error), "onError"),
+        onEnd: /* @__PURE__ */ __name(() => resolve(), "onEnd")
+      });
+    });
+  }
+  async doWriteReadableBufferedQueued(provider, handle, readable) {
+    let posInFile = 0;
+    let chunk;
+    while ((chunk = readable.read()) !== null) {
+      await this.doWriteBuffer(provider, handle, chunk, chunk.byteLength, posInFile, 0);
+      posInFile += chunk.byteLength;
+    }
+  }
+  async doWriteBuffer(provider, handle, buffer, length, posInFile, posInBuffer) {
+    let totalBytesWritten = 0;
+    while (totalBytesWritten < length) {
+      const bytesWritten = await provider.write(handle, posInFile + totalBytesWritten, buffer.buffer, posInBuffer + totalBytesWritten, length - totalBytesWritten);
+      totalBytesWritten += bytesWritten;
+    }
+  }
+  async doWriteUnbuffered(provider, resource, options, bufferOrReadableOrStreamOrBufferedStream) {
+    return this.writeQueue.queueFor(resource, () => this.doWriteUnbufferedQueued(provider, resource, options, bufferOrReadableOrStreamOrBufferedStream), this.getExtUri(provider).providerExtUri);
+  }
+  async doWriteUnbufferedQueued(provider, resource, options, bufferOrReadableOrStreamOrBufferedStream) {
+    let buffer;
+    if (bufferOrReadableOrStreamOrBufferedStream instanceof VSBuffer) {
+      buffer = bufferOrReadableOrStreamOrBufferedStream;
+    } else if (isReadableStream(bufferOrReadableOrStreamOrBufferedStream)) {
+      buffer = await streamToBuffer(bufferOrReadableOrStreamOrBufferedStream);
+    } else if (isReadableBufferedStream(bufferOrReadableOrStreamOrBufferedStream)) {
+      buffer = await bufferedStreamToBuffer(bufferOrReadableOrStreamOrBufferedStream);
+    } else {
+      buffer = readableToBuffer(bufferOrReadableOrStreamOrBufferedStream);
+    }
+    await provider.writeFile(resource, buffer.buffer, { create: true, overwrite: true, unlock: options?.unlock ?? false, atomic: options?.atomic ?? false, append: options?.append ?? false });
+  }
+  async doPipeBuffered(sourceProvider, source, targetProvider, target) {
+    return this.writeQueue.queueFor(target, () => this.doPipeBufferedQueued(sourceProvider, source, targetProvider, target), this.getExtUri(targetProvider).providerExtUri);
+  }
+  async doPipeBufferedQueued(sourceProvider, source, targetProvider, target) {
+    let sourceHandle = void 0;
+    let targetHandle = void 0;
+    try {
+      sourceHandle = await sourceProvider.open(source, { create: false });
+      targetHandle = await targetProvider.open(target, { create: true, unlock: false });
+      const buffer = VSBuffer.alloc(this.BUFFER_SIZE);
+      let posInFile = 0;
+      let posInBuffer = 0;
+      let bytesRead = 0;
+      do {
+        bytesRead = await sourceProvider.read(sourceHandle, posInFile, buffer.buffer, posInBuffer, buffer.byteLength - posInBuffer);
+        await this.doWriteBuffer(targetProvider, targetHandle, buffer, bytesRead, posInFile, posInBuffer);
+        posInFile += bytesRead;
+        posInBuffer += bytesRead;
+        if (posInBuffer === buffer.byteLength) {
+          posInBuffer = 0;
+        }
+      } while (bytesRead > 0);
+    } catch (error) {
+      throw ensureFileSystemProviderError(error);
+    } finally {
+      await Promises.settled([
+        typeof sourceHandle === "number" ? sourceProvider.close(sourceHandle) : Promise.resolve(),
+        typeof targetHandle === "number" ? targetProvider.close(targetHandle) : Promise.resolve()
+      ]);
+    }
+  }
+  async doPipeUnbuffered(sourceProvider, source, targetProvider, target) {
+    return this.writeQueue.queueFor(target, () => this.doPipeUnbufferedQueued(sourceProvider, source, targetProvider, target), this.getExtUri(targetProvider).providerExtUri);
+  }
+  async doPipeUnbufferedQueued(sourceProvider, source, targetProvider, target) {
+    return targetProvider.writeFile(target, await sourceProvider.readFile(source), { create: true, overwrite: true, unlock: false, atomic: false });
+  }
+  async doPipeUnbufferedToBuffered(sourceProvider, source, targetProvider, target) {
+    return this.writeQueue.queueFor(target, () => this.doPipeUnbufferedToBufferedQueued(sourceProvider, source, targetProvider, target), this.getExtUri(targetProvider).providerExtUri);
+  }
+  async doPipeUnbufferedToBufferedQueued(sourceProvider, source, targetProvider, target) {
+    const targetHandle = await targetProvider.open(target, { create: true, unlock: false });
+    try {
+      const buffer = await sourceProvider.readFile(source);
+      await this.doWriteBuffer(targetProvider, targetHandle, VSBuffer.wrap(buffer), buffer.byteLength, 0, 0);
+    } catch (error) {
+      throw ensureFileSystemProviderError(error);
+    } finally {
+      await targetProvider.close(targetHandle);
+    }
+  }
+  async doPipeBufferedToUnbuffered(sourceProvider, source, targetProvider, target) {
+    const buffer = await streamToBuffer(this.readFileBuffered(sourceProvider, source, CancellationToken.None));
+    await this.doWriteUnbuffered(targetProvider, target, void 0, buffer);
+  }
+  throwIfFileSystemIsReadonly(provider, resource) {
+    if (provider.capabilities & 2048) {
+      throw new FileOperationError(
+        localize("err.readonly", "Unable to modify read-only file '{0}'", this.resourceForError(resource)),
+        6
+        /* FileOperationResult.FILE_PERMISSION_DENIED */
+      );
+    }
+    return provider;
+  }
+  throwIfFileIsReadonly(resource, stat) {
+    if ((stat.permissions ?? 0) & FilePermission.Readonly) {
+      throw new FileOperationError(
+        localize("err.readonly", "Unable to modify read-only file '{0}'", this.resourceForError(resource)),
+        6
+        /* FileOperationResult.FILE_PERMISSION_DENIED */
+      );
+    }
+  }
+  resourceForError(resource) {
+    if (resource.scheme === Schemas.file) {
+      return resource.fsPath;
+    }
+    return resource.toString(true);
+  }
+};
+FileService = FileService_1 = __decorate([
+  __param(0, ILogService)
+], FileService);
+export {
+  FileService
+};
+//# sourceMappingURL=fileService.js.map

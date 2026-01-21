@@ -1,1 +1,570 @@
-import{$V9 as K}from"../../../../base/browser/markdownRenderer.js";import{$c0 as Y}from"../../../../base/browser/ui/aria/aria.js";import{$Uh as T}from"../../../../base/common/async.js";import{CancellationToken as ee}from"../../../../base/common/cancellation.js";import{$mb as te}from"../../../../base/common/errors.js";import{Event as ie}from"../../../../base/common/event.js";import{$Qf as oe}from"../../../../base/common/lazy.js";import{$Dd as x}from"../../../../base/common/lifecycle.js";import{Schemas as W}from"../../../../base/common/network.js";import{autorun as y,derived as D,observableFromEvent as V,observableSignalFromEvent as se,observableValue as j,waitForState as A}from"../../../../base/common/observable.js";import{$Ah as B}from"../../../../base/common/resources.js";import{$fd as $}from"../../../../base/common/types.js";import{URI as H}from"../../../../base/common/uri.js";import{$Ihb as ne}from"../../../../editor/browser/observableCodeEditor.js";import{$ucb as re}from"../../../../editor/browser/services/codeEditorService.js";import{$8D as z}from"../../../../editor/common/core/position.js";import{$9D as ae}from"../../../../editor/common/core/range.js";import{$$D as G}from"../../../../editor/common/core/selection.js";import{$ceb as de}from"../../../../editor/common/services/markerDecorations.js";import{localize as L}from"../../../../nls.js";import{$nL as F}from"../../../../platform/actions/common/actions.js";import{$9l as le}from"../../../../platform/configuration/common/configuration.js";import{$qo as ce}from"../../../../platform/contextkey/common/contextkey.js";import{$uk as fe}from"../../../../platform/files/common/files.js";import{$Lj as ue}from"../../../../platform/instantiation/common/instantiation.js";import{$ghb as he}from"../../../../platform/observable/common/platformObservableUtils.js";import{$EB as pe}from"../../../../platform/webContentExtractor/common/webContentExtractor.js";import{$yL as me,$AL as ge}from"../../../services/editor/common/editorService.js";import{$L3b as be}from"../../chat/browser/attachments/chatAttachmentResolveService.js";import{ChatMode as we}from"../../chat/common/chatModes.js";import{$hU as J}from"../../chat/common/chatService/chatService.js";import{IDiagnosticVariableEntryFilterData as U}from"../../chat/common/attachments/chatVariableEntries.js";import{$8Db as ve}from"../../chat/common/model/chatViewModel.js";import{ChatAgentLocation as k}from"../../chat/common/constants.js";import{$dS as Se,$cS as Ce}from"../../chat/common/languageModels.js";import{$PLb as ye}from"../../notebook/browser/notebookEditor.js";import{$wNb as Ie}from"../../notebook/browser/services/notebookEditorService.js";import{CellUri as Ee}from"../../notebook/common/notebookCommon.js";import{$CCb as Me}from"../../notebook/common/notebookService.js";import{$0Lb as $e}from"../common/inlineChat.js";import{$ZFb as ke}from"./inlineChatSessionService.js";import{$gfc as Re}from"./inlineChatZoneWidget.js";var Z=function(h,e,a,s){var d=arguments.length,c=d<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,a):s,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(h,e,a,s);else for(var u=h.length-1;u>=0;u--)(f=h[u])&&(c=(d<3?f(c):d>3?f(e,a,c):f(e,a))||c);return d>3&&c&&Object.defineProperty(e,a,c),c},b=function(h,e){return function(a,s){e(a,s,h)}},M;class Le{static isInlineChatRunOptions(e){if(typeof e!="object"||e===null)return!1;const{initialSelection:a,initialRange:s,message:d,autoSend:c,position:f,attachments:u,modelSelector:p,resolveOnResponse:n}=e;return!(typeof d<"u"&&typeof d!="string"||typeof c<"u"&&typeof c!="boolean"||typeof s<"u"&&!ae.isIRange(s)||typeof a<"u"&&!G.isISelection(a)||typeof f<"u"&&!z.isIPosition(f)||typeof u<"u"&&(!Array.isArray(u)||!u.every(o=>o instanceof H))||typeof p<"u"&&!Ce(p)||typeof n<"u"&&typeof n!="boolean")}}function xe(h,e){return`${h.getId()},${e.id}`}let _=class{static{M=this}static{this.ID="editor.contrib.inlineChatController"}static get(e){return e.getContribution(M.ID)??void 0}static{this.a=!0}get widget(){return this.d.value.widget}get isActive(){return!!this.e.get()}constructor(e,a,s,d,c,f,u,p,n,o,g,R,m){this.f=e,this.g=a,this.h=s,this.i=d,this.j=u,this.k=p,this.l=n,this.m=o,this.n=g,this.o=R,this.p=m,this.b=new x,this.c=j(this,!1);const w=$e.bindTo(f),C=he("inlineChat.notebookAgent",!1,this.j);this.d=new oe(()=>{$(this.f.hasModel(),"[Illegal State] widget should only be created when the editor has a model");const t={location:k.EditorInline,resolveData:()=>{$(this.f.hasModel());const l=this.f.getSelection(),S=this.f.getModel().uri;return{type:k.EditorInline,id:xe(this.f,this.f.getModel()),selection:this.f.getSelection(),document:S,wholeRange:l}}},i=this.h.getNotebookForPossibleCell(this.f);i&&(t.location=k.Notebook,C.get()&&(t.resolveData=()=>($(this.f.hasModel()),{type:k.Notebook,sessionInputUri:this.f.getModel().uri})));const r=this.g.createInstance(Re,t,{enableWorkingSet:"implicit",enableImplicitContext:!1,renderInputOnTop:!1,renderInputToolbarBelowInput:!0,filter:l=>ve(l)?!!l.model.isPendingConfirmation.get():!1,menus:{telemetrySource:"inlineChatWidget",executeToolbar:F.ChatEditorInlineExecute,inputSideToolbar:F.ChatEditorInlineInputSide},defaultMode:we.Ask},{editor:this.f,notebookEditor:i},()=>Promise.resolve());return this.b.add(r),r.domNode.classList.add("inline-chat-2"),r});const P=ne(e),Q=se(this,d.onDidChangeSessions);this.e=D(t=>{Q.read(t);const i=P.model.read(t);return(i&&d.getSessionByTextModel(i.uri))??void 0});let I;this.b.add(y(t=>{const i=this.e.read(t);if(!i){if(this.c.set(!1,void 0),I&&!I.chatModel.hasRequests){const l=I.chatModel.inputModel.state.read(void 0);(!l||!l.inputText&&l.attachments.length===0)&&(I.dispose(),I=void 0)}return}I=i;let r=!1;for(const l of c.listCodeEditors())if(M.get(l)?.c.read(void 0)){r=!0;break}!r&&P.isFocused.read(t)&&this.c.set(!0,void 0)}));const v=j(this,void 0);this.b.add(y(t=>{const i=P.model.read(t),r=this.e.read(t),l=this.c.read(t);!r||!l||!i?v.set(void 0,void 0):v.set(r,void 0)}));const N=v.map((t,i)=>t?.initialSelection.isEmpty()?L(9334,null):L(9335,null));this.b.add(y(t=>{const i=v.read(t);i?(w.set(!0),this.d.value.widget.chatWidget.setModel(i.chatModel),this.d.value.position||(this.d.value.widget.chatWidget.setInputPlaceholder(N.read(t)),this.d.value.widget.chatWidget.input.renderAttachedContext(),this.d.value.show(i.initialPosition)),this.d.value.reveal(this.d.value.position),this.d.value.widget.focus()):(this.d.rawValue?.hide(),this.d.rawValue?.widget.chatWidget.setModel(void 0),e.focus(),w.reset())})),this.b.add(y(t=>{const i=v.read(t);if(i){const r=i.editingSession.entries.read(t),l=Ee.parse(i.uri),S=r.filter(E=>!(B(E.modifiedURI,i.uri)||l&&B(l.notebook,E.modifiedURI)));for(const E of S)this.n.openEditor({resource:E.modifiedURI},ge).catch(te)}}));const O=v.map((t,i)=>t?V(this,t.chatModel.onDidChange,()=>t.chatModel.getRequests().at(-1)).read(i)?.response:void 0),X=O.map((t,i)=>{if(t)return V(this,t.onDidChange,()=>t.response.value.findLast(r=>r.kind==="progressMessage")).read(i)});this.b.add(y(t=>{const i=O.read(t);if(this.d.rawValue?.widget.updateInfo(""),!i?.isInProgress.read(t))i?.result?.errorDetails&&(this.d.rawValue?.widget.updateInfo(`$(error) ${i.result.errorDetails.message}`),Y(i.result.errorDetails.message)),this.d.rawValue?.widget.domNode.classList.toggle("request-in-progress",!1),this.d.rawValue?.widget.chatWidget.setInputPlaceholder(N.read(t));else{this.d.rawValue?.widget.domNode.classList.toggle("request-in-progress",!0);let r=i.request?.message.text;const l=X.read(t);l&&(r=K(l.content)),this.d.rawValue?.widget.chatWidget.setInputPlaceholder(r||L(9336,null))}})),this.b.add(y(t=>{const i=v.read(t);if(!i)return;const r=i.editingSession.readEntry(i.uri,t);r?.state.read(t)===0&&r?.enableReviewModeUntilSettled()})),this.b.add(y(t=>{const i=v.read(t),r=i?.editingSession.readEntry(i.uri,t),l=this.n.visibleEditorPanes.find(S=>S.getControl()===this.f||ye(S,this.f));if(l&&r&&r?.getEditorIntegration(l),r?.diffInfo&&this.d.value.position){const{position:S}=this.d.value,E=r.diffInfo.read(t);for(const q of E.changes)if(q.modified.contains(S.lineNumber)){this.d.value.updatePositionAndHeight(new z(q.modified.startLineNumber-1,1));break}}}))}dispose(){this.b.dispose()}getWidgetPosition(){return this.d.rawValue?.position}focus(){this.d.rawValue?.widget.focus()}async run(e){$(this.f.hasModel());const a=this.f.getModel().uri,s=this.i.getSessionByTextModel(a);s&&(await s.editingSession.accept(),s.dispose()),this.c.set(!0,void 0);const d=this.i.createSession(this.f),c=new x,f=this.j.getValue("inlineChat.persistModelChoice"),u=this.d.value.widget.chatWidget.input.selectedLanguageModel;if(!f&&M.a&&u&&!u.metadata.isDefaultForLocation[d.chatModel.initialLocation]){const n=await this.p.selectLanguageModels({vendor:u.metadata.vendor});for(const o of n){const g=this.p.lookupLanguageModel(o);if(g?.isDefaultForLocation[d.chatModel.initialLocation]){this.d.value.widget.chatWidget.input.setCurrentLanguageModel({metadata:g,identifier:o});break}}}c.add(this.d.value.widget.chatWidget.input.onDidChangeCurrentLanguageModel(n=>{M.a=!!n.metadata.isDefaultForLocation[d.chatModel.initialLocation]}));const p=[];for(const[n,o]of this.o.getLiveMarkers(a))if(n.intersectRanges(this.f.getSelection())){const g=U.fromMarker(o);p.push(U.toEntry(g))}if(p.length>0&&(this.d.value.widget.chatWidget.attachmentModel.addContext(...p),this.d.value.widget.chatWidget.input.setValue(p.length>1?L(9337,null):L(9338,null),!0),this.d.value.widget.chatWidget.inputEditor.setSelection(new G(1,1,Number.MAX_SAFE_INTEGER,1))),e&&Le.isInlineChatRunOptions(e)){if(e.initialRange&&this.f.revealRange(e.initialRange),e.initialSelection&&this.f.setSelection(e.initialSelection),e.attachments&&(await Promise.all(e.attachments.map(async n=>{await this.d.value.widget.chatWidget.attachmentModel.addFile(n)})),delete e.attachments),e.modelSelector){const n=(await this.p.selectLanguageModels(e.modelSelector)).sort().at(0);if(!n)throw new Error(`No language models found matching selector: ${JSON.stringify(e.modelSelector)}.`);const o=this.p.lookupLanguageModel(n);if(!o)throw new Error(`Language model not loaded: ${n}.`);this.d.value.widget.chatWidget.input.setCurrentLanguageModel({metadata:o,identifier:n})}e.message&&(this.d.value.widget.chatWidget.setInput(e.message),e.autoSend&&await this.d.value.widget.chatWidget.acceptInput())}try{if(e?.resolveOnResponse){const n=D(o=>{const g=d.editingSession.readEntry(a,o);return g?.state.read(o)===0&&!g?.isCurrentlyBeingModifiedBy.read(o)});return await A(n,o=>o===!0),!0}else return await ie.toPromise(d.editingSession.onDidDispose),!(d.editingSession.getEntry(a)?.state.get()===2)}finally{c.dispose()}}async acceptSession(){const e=this.e.get();e&&(await e.editingSession.accept(),e.dispose())}async rejectSession(){const e=this.e.get();e&&(await e.editingSession.reject(),e.dispose())}async createImageAttachment(e){if(this.e.get()){if(e.scheme===W.file){if(await this.l.canHandleResource(e))return await this.m.resolveImageEditorAttachContext(e)}else if(e.scheme===W.http||e.scheme===W.https){const s=await this.k.readImage(e,ee.None);if(s)return await this.m.resolveImageEditorAttachContext(e,s)}}}};_=M=Z([b(1,ue),b(2,Ie),b(3,ke),b(4,re),b(5,ce),b(6,le),b(7,pe),b(8,fe),b(9,be),b(10,me),b(11,de),b(12,Se)],_);async function Ct(h,e,a,s,d){if(!e.hasModel())return!1;const c=h.get(J),f=e.getModel().uri,u=c.startSession(k.EditorInline),p=u.object;p.startEditingSession(!0);const n=new x;n.add(u);const o=p?.addRequest({text:"",parts:[]},{variables:[]},0,{kind:void 0,modeId:"applyCodeBlock",modeInstructions:void 0,isBuiltin:!0,applyCodeBlockSuggestionId:d});$(o.response),o.response.updateContent({kind:"textEdit",uri:f,edits:[],done:!1});for await(const m of a){if(s.isCancellationRequested){o.response.cancel();break}o.response.updateContent({kind:"textEdit",uri:f,edits:m,done:!1})}o.response.updateContent({kind:"textEdit",uri:f,edits:[],done:!0}),s.isCancellationRequested||o.response.complete();const g=D(m=>{const w=p.editingSession?.readEntry(f,m);if(!w)return!1;const C=w.state.read(m);return C===1||C===2}),R=A(g,Boolean);return await T(R,s),n.dispose(),!0}async function yt(h,e,a,s){const d=h.get(J),f=h.get(Me).hasSupportedNotebooks(e),u=d.startSession(k.EditorInline),p=u.object;p.startEditingSession(!0);const n=new x;n.add(u);const o=p?.addRequest({text:"",parts:[]},{variables:[]},0);$(o.response),f?o.response.updateContent({kind:"notebookEdit",uri:e,edits:[],done:!1}):o.response.updateContent({kind:"textEdit",uri:e,edits:[],done:!1});for await(const m of a){if(s.isCancellationRequested){o.response.cancel();break}m.every(De)?o.response.updateContent({kind:"notebookEdit",uri:e,edits:m,done:!1}):o.response.updateContent({kind:"textEdit",uri:m[0],edits:m[1],done:!1})}f?o.response.updateContent({kind:"notebookEdit",uri:e,edits:[],done:!0}):o.response.updateContent({kind:"textEdit",uri:e,edits:[],done:!0}),s.isCancellationRequested||o.response.complete();const g=D(m=>{const w=p.editingSession?.readEntry(e,m);if(!w)return!1;const C=w.state.read(m);return C===1||C===2}),R=A(g,Boolean);return await T(R,s),n.dispose(),!0}function De(h){return!(H.isUri(h)||Array.isArray(h))}export{Le as $hfc,_ as $ifc,Ct as $jfc,yt as $kfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlineChatController_1;
+import { renderAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { raceCancellation } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Event } from "../../../../base/common/event.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { autorun, derived, observableFromEvent, observableSignalFromEvent, observableValue, waitForState } from "../../../../base/common/observable.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { observableCodeEditor } from "../../../../editor/browser/observableCodeEditor.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { IMarkerDecorationsService } from "../../../../editor/common/services/markerDecorations.js";
+import { localize } from "../../../../nls.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { ISharedWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IChatAttachmentResolveService } from "../../chat/browser/attachments/chatAttachmentResolveService.js";
+import { ChatMode } from "../../chat/common/chatModes.js";
+import { IChatService } from "../../chat/common/chatService/chatService.js";
+import { IDiagnosticVariableEntryFilterData } from "../../chat/common/attachments/chatVariableEntries.js";
+import { isResponseVM } from "../../chat/common/model/chatViewModel.js";
+import { ChatAgentLocation } from "../../chat/common/constants.js";
+import { ILanguageModelsService, isILanguageModelChatSelector } from "../../chat/common/languageModels.js";
+import { isNotebookContainingCellEditor as isNotebookWithCellEditor } from "../../notebook/browser/notebookEditor.js";
+import { INotebookEditorService } from "../../notebook/browser/services/notebookEditorService.js";
+import { CellUri } from "../../notebook/common/notebookCommon.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
+import { CTX_INLINE_CHAT_VISIBLE } from "../common/inlineChat.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { InlineChatZoneWidget } from "./inlineChatZoneWidget.js";
+class InlineChatRunOptions {
+  static {
+    __name(this, "InlineChatRunOptions");
+  }
+  static isInlineChatRunOptions(options) {
+    if (typeof options !== "object" || options === null) {
+      return false;
+    }
+    const { initialSelection, initialRange, message, autoSend, position, attachments, modelSelector, resolveOnResponse } = options;
+    if (typeof message !== "undefined" && typeof message !== "string" || typeof autoSend !== "undefined" && typeof autoSend !== "boolean" || typeof initialRange !== "undefined" && !Range.isIRange(initialRange) || typeof initialSelection !== "undefined" && !Selection.isISelection(initialSelection) || typeof position !== "undefined" && !Position.isIPosition(position) || typeof attachments !== "undefined" && (!Array.isArray(attachments) || !attachments.every((item) => item instanceof URI)) || typeof modelSelector !== "undefined" && !isILanguageModelChatSelector(modelSelector) || typeof resolveOnResponse !== "undefined" && typeof resolveOnResponse !== "boolean") {
+      return false;
+    }
+    return true;
+  }
+}
+function getEditorId(editor, model) {
+  return `${editor.getId()},${model.id}`;
+}
+__name(getEditorId, "getEditorId");
+let InlineChatController = class InlineChatController2 {
+  static {
+    __name(this, "InlineChatController");
+  }
+  static {
+    InlineChatController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.inlineChatController";
+  }
+  static get(editor) {
+    return editor.getContribution(InlineChatController_1.ID) ?? void 0;
+  }
+  static {
+    this._selectVendorDefaultLanguageModel = true;
+  }
+  get widget() {
+    return this._zone.value.widget;
+  }
+  get isActive() {
+    return Boolean(this._currentSession.get());
+  }
+  constructor(_editor, _instaService, _notebookEditorService, _inlineChatSessionService, codeEditorService, contextKeyService, _configurationService, _webContentExtractorService, _fileService, _chatAttachmentResolveService, _editorService, _markerDecorationsService, _languageModelService) {
+    this._editor = _editor;
+    this._instaService = _instaService;
+    this._notebookEditorService = _notebookEditorService;
+    this._inlineChatSessionService = _inlineChatSessionService;
+    this._configurationService = _configurationService;
+    this._webContentExtractorService = _webContentExtractorService;
+    this._fileService = _fileService;
+    this._chatAttachmentResolveService = _chatAttachmentResolveService;
+    this._editorService = _editorService;
+    this._markerDecorationsService = _markerDecorationsService;
+    this._languageModelService = _languageModelService;
+    this._store = new DisposableStore();
+    this._isActiveController = observableValue(this, false);
+    const ctxInlineChatVisible = CTX_INLINE_CHAT_VISIBLE.bindTo(contextKeyService);
+    const notebookAgentConfig = observableConfigValue("inlineChat.notebookAgent", false, this._configurationService);
+    this._zone = new Lazy(() => {
+      assertType(this._editor.hasModel(), "[Illegal State] widget should only be created when the editor has a model");
+      const location = {
+        location: ChatAgentLocation.EditorInline,
+        resolveData: /* @__PURE__ */ __name(() => {
+          assertType(this._editor.hasModel());
+          const wholeRange = this._editor.getSelection();
+          const document = this._editor.getModel().uri;
+          return {
+            type: ChatAgentLocation.EditorInline,
+            id: getEditorId(this._editor, this._editor.getModel()),
+            selection: this._editor.getSelection(),
+            document,
+            wholeRange
+          };
+        }, "resolveData")
+      };
+      const notebookEditor = this._notebookEditorService.getNotebookForPossibleCell(this._editor);
+      if (!!notebookEditor) {
+        location.location = ChatAgentLocation.Notebook;
+        if (notebookAgentConfig.get()) {
+          location.resolveData = () => {
+            assertType(this._editor.hasModel());
+            return {
+              type: ChatAgentLocation.Notebook,
+              sessionInputUri: this._editor.getModel().uri
+            };
+          };
+        }
+      }
+      const result = this._instaService.createInstance(InlineChatZoneWidget, location, {
+        enableWorkingSet: "implicit",
+        enableImplicitContext: false,
+        renderInputOnTop: false,
+        renderInputToolbarBelowInput: true,
+        filter: /* @__PURE__ */ __name((item) => {
+          if (!isResponseVM(item)) {
+            return false;
+          }
+          return !!item.model.isPendingConfirmation.get();
+        }, "filter"),
+        menus: {
+          telemetrySource: "inlineChatWidget",
+          executeToolbar: MenuId.ChatEditorInlineExecute,
+          inputSideToolbar: MenuId.ChatEditorInlineInputSide
+        },
+        defaultMode: ChatMode.Ask
+      }, { editor: this._editor, notebookEditor }, () => Promise.resolve());
+      this._store.add(result);
+      result.domNode.classList.add("inline-chat-2");
+      return result;
+    });
+    const editorObs = observableCodeEditor(_editor);
+    const sessionsSignal = observableSignalFromEvent(this, _inlineChatSessionService.onDidChangeSessions);
+    this._currentSession = derived((r) => {
+      sessionsSignal.read(r);
+      const model = editorObs.model.read(r);
+      const session = model && _inlineChatSessionService.getSessionByTextModel(model.uri);
+      return session ?? void 0;
+    });
+    let lastSession = void 0;
+    this._store.add(autorun((r) => {
+      const session = this._currentSession.read(r);
+      if (!session) {
+        this._isActiveController.set(false, void 0);
+        if (lastSession && !lastSession.chatModel.hasRequests) {
+          const state = lastSession.chatModel.inputModel.state.read(void 0);
+          if (!state || !state.inputText && state.attachments.length === 0) {
+            lastSession.dispose();
+            lastSession = void 0;
+          }
+        }
+        return;
+      }
+      lastSession = session;
+      let foundOne = false;
+      for (const editor of codeEditorService.listCodeEditors()) {
+        if (Boolean(InlineChatController_1.get(editor)?._isActiveController.read(void 0))) {
+          foundOne = true;
+          break;
+        }
+      }
+      if (!foundOne && editorObs.isFocused.read(r)) {
+        this._isActiveController.set(true, void 0);
+      }
+    }));
+    const visibleSessionObs = observableValue(this, void 0);
+    this._store.add(autorun((r) => {
+      const model = editorObs.model.read(r);
+      const session = this._currentSession.read(r);
+      const isActive = this._isActiveController.read(r);
+      if (!session || !isActive || !model) {
+        visibleSessionObs.set(void 0, void 0);
+      } else {
+        visibleSessionObs.set(session, void 0);
+      }
+    }));
+    const defaultPlaceholderObs = visibleSessionObs.map((session, r) => {
+      return session?.initialSelection.isEmpty() ? localize("placeholder", "Generate code") : localize("placeholderWithSelection", "Modify selected code");
+    });
+    this._store.add(autorun((r) => {
+      const session = visibleSessionObs.read(r);
+      if (!session) {
+        this._zone.rawValue?.hide();
+        this._zone.rawValue?.widget.chatWidget.setModel(void 0);
+        _editor.focus();
+        ctxInlineChatVisible.reset();
+      } else {
+        ctxInlineChatVisible.set(true);
+        this._zone.value.widget.chatWidget.setModel(session.chatModel);
+        if (!this._zone.value.position) {
+          this._zone.value.widget.chatWidget.setInputPlaceholder(defaultPlaceholderObs.read(r));
+          this._zone.value.widget.chatWidget.input.renderAttachedContext();
+          this._zone.value.show(session.initialPosition);
+        }
+        this._zone.value.reveal(this._zone.value.position);
+        this._zone.value.widget.focus();
+      }
+    }));
+    this._store.add(autorun((r) => {
+      const session = visibleSessionObs.read(r);
+      if (session) {
+        const entries = session.editingSession.entries.read(r);
+        const sessionCellUri = CellUri.parse(session.uri);
+        const otherEntries = entries.filter((entry) => {
+          if (isEqual(entry.modifiedURI, session.uri)) {
+            return false;
+          }
+          if (!!sessionCellUri && isEqual(sessionCellUri.notebook, entry.modifiedURI)) {
+            return false;
+          }
+          return true;
+        });
+        for (const entry of otherEntries) {
+          this._editorService.openEditor({ resource: entry.modifiedURI }, SIDE_GROUP).catch(onUnexpectedError);
+        }
+      }
+    }));
+    const lastResponseObs = visibleSessionObs.map((session, r) => {
+      if (!session) {
+        return;
+      }
+      const lastRequest = observableFromEvent(this, session.chatModel.onDidChange, () => session.chatModel.getRequests().at(-1)).read(r);
+      return lastRequest?.response;
+    });
+    const lastResponseProgressObs = lastResponseObs.map((response, r) => {
+      if (!response) {
+        return;
+      }
+      return observableFromEvent(this, response.onDidChange, () => response.response.value.findLast((part) => part.kind === "progressMessage")).read(r);
+    });
+    this._store.add(autorun((r) => {
+      const response = lastResponseObs.read(r);
+      this._zone.rawValue?.widget.updateInfo("");
+      if (!response?.isInProgress.read(r)) {
+        if (response?.result?.errorDetails) {
+          this._zone.rawValue?.widget.updateInfo(`$(error) ${response.result.errorDetails.message}`);
+          alert(response.result.errorDetails.message);
+        }
+        this._zone.rawValue?.widget.domNode.classList.toggle("request-in-progress", false);
+        this._zone.rawValue?.widget.chatWidget.setInputPlaceholder(defaultPlaceholderObs.read(r));
+      } else {
+        this._zone.rawValue?.widget.domNode.classList.toggle("request-in-progress", true);
+        let placeholder = response.request?.message.text;
+        const lastProgress = lastResponseProgressObs.read(r);
+        if (lastProgress) {
+          placeholder = renderAsPlaintext(lastProgress.content);
+        }
+        this._zone.rawValue?.widget.chatWidget.setInputPlaceholder(placeholder || localize("loading", "Working..."));
+      }
+    }));
+    this._store.add(autorun((r) => {
+      const session = visibleSessionObs.read(r);
+      if (!session) {
+        return;
+      }
+      const entry = session.editingSession.readEntry(session.uri, r);
+      if (entry?.state.read(r) === 0) {
+        entry?.enableReviewModeUntilSettled();
+      }
+    }));
+    this._store.add(autorun((r) => {
+      const session = visibleSessionObs.read(r);
+      const entry = session?.editingSession.readEntry(session.uri, r);
+      const pane = this._editorService.visibleEditorPanes.find((candidate) => candidate.getControl() === this._editor || isNotebookWithCellEditor(candidate, this._editor));
+      if (pane && entry) {
+        entry?.getEditorIntegration(pane);
+      }
+      if (entry?.diffInfo && this._zone.value.position) {
+        const { position } = this._zone.value;
+        const diff = entry.diffInfo.read(r);
+        for (const change of diff.changes) {
+          if (change.modified.contains(position.lineNumber)) {
+            this._zone.value.updatePositionAndHeight(new Position(change.modified.startLineNumber - 1, 1));
+            break;
+          }
+        }
+      }
+    }));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+  getWidgetPosition() {
+    return this._zone.rawValue?.position;
+  }
+  focus() {
+    this._zone.rawValue?.widget.focus();
+  }
+  async run(arg) {
+    assertType(this._editor.hasModel());
+    const uri = this._editor.getModel().uri;
+    const existingSession = this._inlineChatSessionService.getSessionByTextModel(uri);
+    if (existingSession) {
+      await existingSession.editingSession.accept();
+      existingSession.dispose();
+    }
+    this._isActiveController.set(true, void 0);
+    const session = this._inlineChatSessionService.createSession(this._editor);
+    const store = new DisposableStore();
+    const persistModelChoice = this._configurationService.getValue(
+      "inlineChat.persistModelChoice"
+      /* InlineChatConfigKeys.PersistModelChoice */
+    );
+    const model = this._zone.value.widget.chatWidget.input.selectedLanguageModel;
+    if (!persistModelChoice && InlineChatController_1._selectVendorDefaultLanguageModel && model && !model.metadata.isDefaultForLocation[session.chatModel.initialLocation]) {
+      const ids = await this._languageModelService.selectLanguageModels({ vendor: model.metadata.vendor });
+      for (const identifier of ids) {
+        const candidate = this._languageModelService.lookupLanguageModel(identifier);
+        if (candidate?.isDefaultForLocation[session.chatModel.initialLocation]) {
+          this._zone.value.widget.chatWidget.input.setCurrentLanguageModel({ metadata: candidate, identifier });
+          break;
+        }
+      }
+    }
+    store.add(this._zone.value.widget.chatWidget.input.onDidChangeCurrentLanguageModel((newModel) => {
+      InlineChatController_1._selectVendorDefaultLanguageModel = Boolean(newModel.metadata.isDefaultForLocation[session.chatModel.initialLocation]);
+    }));
+    const entries = [];
+    for (const [range, marker] of this._markerDecorationsService.getLiveMarkers(uri)) {
+      if (range.intersectRanges(this._editor.getSelection())) {
+        const filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
+        entries.push(IDiagnosticVariableEntryFilterData.toEntry(filter));
+      }
+    }
+    if (entries.length > 0) {
+      this._zone.value.widget.chatWidget.attachmentModel.addContext(...entries);
+      this._zone.value.widget.chatWidget.input.setValue(entries.length > 1 ? localize("fixN", "Fix the attached problems") : localize("fix1", "Fix the attached problem"), true);
+      this._zone.value.widget.chatWidget.inputEditor.setSelection(new Selection(1, 1, Number.MAX_SAFE_INTEGER, 1));
+    }
+    if (arg && InlineChatRunOptions.isInlineChatRunOptions(arg)) {
+      if (arg.initialRange) {
+        this._editor.revealRange(arg.initialRange);
+      }
+      if (arg.initialSelection) {
+        this._editor.setSelection(arg.initialSelection);
+      }
+      if (arg.attachments) {
+        await Promise.all(arg.attachments.map(async (attachment) => {
+          await this._zone.value.widget.chatWidget.attachmentModel.addFile(attachment);
+        }));
+        delete arg.attachments;
+      }
+      if (arg.modelSelector) {
+        const id = (await this._languageModelService.selectLanguageModels(arg.modelSelector)).sort().at(0);
+        if (!id) {
+          throw new Error(`No language models found matching selector: ${JSON.stringify(arg.modelSelector)}.`);
+        }
+        const model2 = this._languageModelService.lookupLanguageModel(id);
+        if (!model2) {
+          throw new Error(`Language model not loaded: ${id}.`);
+        }
+        this._zone.value.widget.chatWidget.input.setCurrentLanguageModel({ metadata: model2, identifier: id });
+      }
+      if (arg.message) {
+        this._zone.value.widget.chatWidget.setInput(arg.message);
+        if (arg.autoSend) {
+          await this._zone.value.widget.chatWidget.acceptInput();
+        }
+      }
+    }
+    try {
+      if (!arg?.resolveOnResponse) {
+        await Event.toPromise(session.editingSession.onDidDispose);
+        const rejected = session.editingSession.getEntry(uri)?.state.get() === 2;
+        return !rejected;
+      } else {
+        const modifiedObs = derived((r) => {
+          const entry = session.editingSession.readEntry(uri, r);
+          return entry?.state.read(r) === 0 && !entry?.isCurrentlyBeingModifiedBy.read(r);
+        });
+        await waitForState(modifiedObs, (state) => state === true);
+        return true;
+      }
+    } finally {
+      store.dispose();
+    }
+  }
+  async acceptSession() {
+    const session = this._currentSession.get();
+    if (!session) {
+      return;
+    }
+    await session.editingSession.accept();
+    session.dispose();
+  }
+  async rejectSession() {
+    const session = this._currentSession.get();
+    if (!session) {
+      return;
+    }
+    await session.editingSession.reject();
+    session.dispose();
+  }
+  async createImageAttachment(attachment) {
+    const value = this._currentSession.get();
+    if (!value) {
+      return void 0;
+    }
+    if (attachment.scheme === Schemas.file) {
+      if (await this._fileService.canHandleResource(attachment)) {
+        return await this._chatAttachmentResolveService.resolveImageEditorAttachContext(attachment);
+      }
+    } else if (attachment.scheme === Schemas.http || attachment.scheme === Schemas.https) {
+      const extractedImages = await this._webContentExtractorService.readImage(attachment, CancellationToken.None);
+      if (extractedImages) {
+        return await this._chatAttachmentResolveService.resolveImageEditorAttachContext(attachment, extractedImages);
+      }
+    }
+    return void 0;
+  }
+};
+InlineChatController = InlineChatController_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, INotebookEditorService),
+  __param(3, IInlineChatSessionService),
+  __param(4, ICodeEditorService),
+  __param(5, IContextKeyService),
+  __param(6, IConfigurationService),
+  __param(7, ISharedWebContentExtractorService),
+  __param(8, IFileService),
+  __param(9, IChatAttachmentResolveService),
+  __param(10, IEditorService),
+  __param(11, IMarkerDecorationsService),
+  __param(12, ILanguageModelsService)
+], InlineChatController);
+async function reviewEdits(accessor, editor, stream, token, applyCodeBlockSuggestionId) {
+  if (!editor.hasModel()) {
+    return false;
+  }
+  const chatService = accessor.get(IChatService);
+  const uri = editor.getModel().uri;
+  const chatModelRef = chatService.startSession(ChatAgentLocation.EditorInline);
+  const chatModel = chatModelRef.object;
+  chatModel.startEditingSession(true);
+  const store = new DisposableStore();
+  store.add(chatModelRef);
+  const chatRequest = chatModel?.addRequest({ text: "", parts: [] }, { variables: [] }, 0, {
+    kind: void 0,
+    modeId: "applyCodeBlock",
+    modeInstructions: void 0,
+    isBuiltin: true,
+    applyCodeBlockSuggestionId
+  });
+  assertType(chatRequest.response);
+  chatRequest.response.updateContent({ kind: "textEdit", uri, edits: [], done: false });
+  for await (const chunk of stream) {
+    if (token.isCancellationRequested) {
+      chatRequest.response.cancel();
+      break;
+    }
+    chatRequest.response.updateContent({ kind: "textEdit", uri, edits: chunk, done: false });
+  }
+  chatRequest.response.updateContent({ kind: "textEdit", uri, edits: [], done: true });
+  if (!token.isCancellationRequested) {
+    chatRequest.response.complete();
+  }
+  const isSettled = derived((r) => {
+    const entry = chatModel.editingSession?.readEntry(uri, r);
+    if (!entry) {
+      return false;
+    }
+    const state = entry.state.read(r);
+    return state === 1 || state === 2;
+  });
+  const whenDecided = waitForState(isSettled, Boolean);
+  await raceCancellation(whenDecided, token);
+  store.dispose();
+  return true;
+}
+__name(reviewEdits, "reviewEdits");
+async function reviewNotebookEdits(accessor, uri, stream, token) {
+  const chatService = accessor.get(IChatService);
+  const notebookService = accessor.get(INotebookService);
+  const isNotebook = notebookService.hasSupportedNotebooks(uri);
+  const chatModelRef = chatService.startSession(ChatAgentLocation.EditorInline);
+  const chatModel = chatModelRef.object;
+  chatModel.startEditingSession(true);
+  const store = new DisposableStore();
+  store.add(chatModelRef);
+  const chatRequest = chatModel?.addRequest({ text: "", parts: [] }, { variables: [] }, 0);
+  assertType(chatRequest.response);
+  if (isNotebook) {
+    chatRequest.response.updateContent({ kind: "notebookEdit", uri, edits: [], done: false });
+  } else {
+    chatRequest.response.updateContent({ kind: "textEdit", uri, edits: [], done: false });
+  }
+  for await (const chunk of stream) {
+    if (token.isCancellationRequested) {
+      chatRequest.response.cancel();
+      break;
+    }
+    if (chunk.every(isCellEditOperation)) {
+      chatRequest.response.updateContent({ kind: "notebookEdit", uri, edits: chunk, done: false });
+    } else {
+      chatRequest.response.updateContent({ kind: "textEdit", uri: chunk[0], edits: chunk[1], done: false });
+    }
+  }
+  if (isNotebook) {
+    chatRequest.response.updateContent({ kind: "notebookEdit", uri, edits: [], done: true });
+  } else {
+    chatRequest.response.updateContent({ kind: "textEdit", uri, edits: [], done: true });
+  }
+  if (!token.isCancellationRequested) {
+    chatRequest.response.complete();
+  }
+  const isSettled = derived((r) => {
+    const entry = chatModel.editingSession?.readEntry(uri, r);
+    if (!entry) {
+      return false;
+    }
+    const state = entry.state.read(r);
+    return state === 1 || state === 2;
+  });
+  const whenDecided = waitForState(isSettled, Boolean);
+  await raceCancellation(whenDecided, token);
+  store.dispose();
+  return true;
+}
+__name(reviewNotebookEdits, "reviewNotebookEdits");
+function isCellEditOperation(edit) {
+  if (URI.isUri(edit)) {
+    return false;
+  }
+  if (Array.isArray(edit)) {
+    return false;
+  }
+  return true;
+}
+__name(isCellEditOperation, "isCellEditOperation");
+export {
+  InlineChatController,
+  InlineChatRunOptions,
+  reviewEdits,
+  reviewNotebookEdits
+};
+//# sourceMappingURL=inlineChatController.js.map

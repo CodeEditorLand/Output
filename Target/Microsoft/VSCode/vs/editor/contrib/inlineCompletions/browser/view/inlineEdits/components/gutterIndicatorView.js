@@ -1,1 +1,517 @@
-import{$38 as J,n as R,$G8 as ft}from"../../../../../../../base/browser/dom.js";import{$R9 as mt}from"../../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$ak as N}from"../../../../../../../base/common/codicons.js";import{$Db as H}from"../../../../../../../base/common/errors.js";import{$Ed as pt,$Dd as bt,$Cd as gt}from"../../../../../../../base/common/lifecycle.js";import{autorun as vt,constObservable as F,debouncedObservable as Q,derived as $,observableFromEvent as U,observableValue as X,runOnChange as wt}from"../../../../../../../base/common/observable.js";import{$JD as yt}from"../../../../../../../platform/accessibility/common/accessibility.js";import{$7ib as Nt}from"../../../../../../../platform/hover/browser/hover.js";import{$Lj as Rt}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$ou as $t}from"../../../../../../../platform/theme/common/themeService.js";import{$Hhb as Lt}from"../../../../../../common/core/2d/point.js";import{Rect as j}from"../../../../../../common/core/2d/rect.js";import{$eE as It}from"../../../../../../common/core/ranges/offsetRange.js";import{$stb as Dt}from"../../../../../stickyScroll/browser/stickyScrollController.js";import{InlineEditTabAction as L}from"../inlineEditsViewInterface.js";import{$Ltb as p,$Otb as q,$Itb as St,$Btb as Ot,$Atb as xt,$ztb as Pt,$Etb as Wt,$Dtb as kt,$Ctb as Ct,$Htb as Mt,$Gtb as Tt,$Ftb as At}from"../theme.js";import{$3tb as Z,$5tb as K}from"../utils/utils.js";import{$7tb as Ht}from"./gutterIndicatorMenu.js";import{$Zc as Ft}from"../../../../../../../base/common/assert.js";import{localize as jt}from"../../../../../../../nls.js";import{$Vp as Et}from"../../../../../../../platform/theme/common/colorUtils.js";var ut=function(h,e,n,c){var d=arguments.length,a=d<3?e:c===null?c=Object.getOwnPropertyDescriptor(e,n):c,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(h,e,n,c);else for(var I=h.length-1;I>=0;I--)(m=h[I])&&(a=(d<3?m(a):d>3?m(e,n,a):m(e,n))||a);return d>3&&a&&Object.defineProperty(e,n,a),a},P=function(h,e){return function(n,c){e(n,c,h)}};class ui{constructor(e,n,c,d){this.gutterMenuData=e,this.originalRange=n,this.model=c,this.altAction=d}}class it{static fromInlineSuggestion(e){const n=e.action?.kind==="edit"?e.action.alternativeAction:void 0;return new it(e.gutterMenuLinkAction,e.source.provider.displayName??jt(1387,null),e.source.inlineSuggestions.commands??[],n,e.source.provider.modelInfo,e.source.provider.setModelId?.bind(e.source.provider))}constructor(e,n,c,d,a,m){this.action=e,this.displayName=n,this.extensionCommands=c,this.alternativeAction=d,this.modelInfo=a,this.setModelId=m}}class et{static fromInlineCompletionModel(e){return new et(()=>e.accept(),()=>e.jump())}constructor(e,n){this.accept=e,this.jump=n}}const E=16,Y=2;let tt=class extends pt{constructor(e,n,c,d,a,m,I,nt,ot,rt){super(),this.a=e,this.b=n,this.c=c,this.f=d,this.g=a,this.j=m,this.q=I,this.t=nt,this.u=ot,this.y=rt,this.C=U(this,J.getInstance().event,()=>J.getInstance().keyStatus.shiftKey),this.F=$(this,i=>{let t=this.c.read(i);const r=this.b.read(i)?.altAction,o=this.C.read(i);switch(r&&o&&(t=L.Inactive),t){case L.Inactive:return{background:p(Wt,this.y).read(i).toString(),foreground:p(Ct,this.y).read(i).toString(),border:p(kt,this.y).read(i).toString()};case L.Jump:return{background:p(Ot,this.y).read(i).toString(),foreground:p(Pt,this.y).read(i).toString(),border:p(xt,this.y).read(i).toString()};case L.Accept:return{background:p(Mt,this.y).read(i).toString(),foreground:p(At,this.y).read(i).toString(),border:p(Tt,this.y).read(i).toString()};default:Ft(t)}}),this.H=$(this,i=>{const t=this.G.read(i);if(t)return{range:t,lineOffsetRange:this.a.observeLineOffsetRange(t,i.store)}}),this.L=$(this,i=>{if(this.f.read(i)!==0)return"";const t=this.b.read(i)?.originalRange.startLineNumber,r=this.a.getOption(76).read(i);if(t===void 0||r.renderType===0)return"";if(r.renderType===3){const o=this.a.cursorPosition.read(i);return t%10===0||o&&o.lineNumber===t?t.toString():""}if(r.renderType===2){const o=this.a.cursorPosition.read(i);if(!o)return"";const l=Math.abs(t-o.lineNumber);return l===0?t.toString():l.toString()}return r.renderType===4?r.renderFn?r.renderFn(t):"":t.toString()}),this.M=$(this,i=>{const t=this.a.editor.getModel(),r=this.a.editor,o=this.a.layoutInfo.read(i),l=o.decorationsLeft+o.decorationsWidth-o.glyphMarginLeft;if(!t||l<=0)return()=>0;if(o.lineNumbersLeft===0)return()=>l;const b=this.a.getOption(76).read(i);if(b.renderType===2||b.renderType===0)return()=>l;const W=r.getOption(59).typicalHalfwidthCharacterWidth,k=o.lineNumbersLeft+o.lineNumbersWidth,S=(t.getLineCount()+1).toString().length,g=[];for(let v=1;v<=S;v++){const u=10**(v-1),O=r.getTopForLineNumber(u),C=v*W,y=Math.min(l,Math.max(0,k-C-o.glyphMarginLeft));g.push({firstLineNumberWithDigitCount:u,topOfLineNumber:O,usableWidthLeftOfLineNumber:y})}return v=>{for(let u=g.length-1;u>=0;u--)if(v>=g[u].topOfLineNumber)return g[u].usableWidthLeftOfLineNumber;throw new H("Could not find avilable width for icon")}}),this.N=$(this,i=>{const t=this.H.read(i);if(!t)return;const r=this.a.layoutInfo.read(i),o=this.a.observeLineHeightForLine(t.range.map(s=>s.startLineNumber)).read(i),l=1,b=2,W=r.decorationsLeft+r.decorationsWidth-r.glyphMarginLeft-2*l,k=r.height-2*b,w=j.fromLeftTopWidthHeight(l,b,W,k),S=w.withTop(this.J.read(i)),g=w.withTop(S.top+b),v=t.lineOffsetRange.read(i),u=j.fromRanges(It.fromTo(g.left,g.right),v),O=o,C=this.f.read(i),y=u.withHeight(O).translateY(C),st=S.containsRect(y),at=this.c.map(s=>s===L.Accept?N.keyboardTab:N.arrowRight),V=$(this,s=>{if(this.R.read(s)||this.z.read(s))return N.check;if(this.c.read(s)===L.Accept)return N.keyboardTab;const f=this.a.cursorLineNumber.read(s)??0,x=t.range.read(s).startLineNumber;return f<=x?N.keyboardTabAbove:N.keyboardTabBelow}),M=22,_=s=>{const f=this.M.read(void 0)(s.bottom+this.a.editor.getScrollTop())-l;return Math.max(Math.min(f,M),E)};if(st){const s=y;let f;r.lineNumbersWidth===0?f=Math.min(Math.max(r.lineNumbersLeft-w.left,0),s.width-M):f=Math.max(r.lineNumbersLeft+r.lineNumbersWidth-w.left,0);const x=s.withWidth(f),B=E+Y,G=Math.min(s.width-f,M),dt=s.withWidth(Math.max(G,B)).translateX(f),lt=G>=B;return{gutterEditArea:u,icon:V,iconDirection:"right",iconRect:dt,iconVisible:lt,pillRect:s,lineNumberRect:x}}const T=w.intersect(u);if(T&&T.height>=O){const s=y.moveToBeContainedIn(g).moveToBeContainedIn(T),f=s.withWidth(_(s));return{gutterEditArea:u,icon:V,iconDirection:"right",iconRect:f,pillRect:f,iconVisible:!0}}const z=y.moveToBeContainedIn(w),A=z.withWidth(_(z)),ct=A,ht=A.top<y.top?"top":"bottom";return{gutterEditArea:u,icon:at,iconDirection:ht,iconRect:ct,pillRect:A,iconVisible:!0}}),this.O=R.ref(),this.isVisible=this.N.map(i=>!!i),this.P=X(this,!1),this.isHoverVisible=this.P,this.Q=X(this,!1),this.R=Q(this.Q,100),this.isHoveredOverIcon=this.R,this.U=R.div({class:"inline-edits-view-gutter-indicator",style:{position:"absolute",overflow:"visible"}},Z(this.N).map(i=>i?[R.div({style:{position:"absolute",background:Et(St),borderRadius:`${q}px`,...K(t=>i.read(t).gutterEditArea)}}),R.div({class:"icon",ref:this.O,tabIndex:0,onclick:()=>{const r=this.N.get()?.icon.get()===N.check,o=this.b.get();if(!o)throw new H("Gutter indicator data not available");this.a.editor.focus(),r?o.model.accept():o.model.jump()},onmouseenter:()=>{this.S()},style:{cursor:"pointer",zIndex:"20",position:"absolute",backgroundColor:this.F.map(t=>t.background),"--vscodeIconForeground":this.F.map(t=>t.foreground),border:this.F.map(t=>`1px solid ${t.border}`),boxSizing:"border-box",borderRadius:`${q}px`,display:"flex",justifyContent:i.map(t=>t.iconDirection==="bottom"?"flex-start":"flex-end"),transition:this.C.map(t=>t?"":"background-color 0.2s ease-in-out, width 0.2s ease-in-out"),...K(t=>i.read(t).pillRect)}},[R.div({className:"line-number",style:{lineHeight:i.map(t=>t.lineNumberRect?t.lineNumberRect.height:0),display:i.map(t=>t.lineNumberRect?"flex":"none"),alignItems:"center",justifyContent:"flex-end",width:i.map(t=>t.lineNumberRect?t.lineNumberRect.width:0),height:"100%",color:this.F.map(t=>t.foreground)}},this.L),R.div({style:{transform:i.map(t=>`rotate(${Vt(t.iconDirection)}deg)`),transition:"rotate 0.2s ease-in-out, opacity 0.2s ease-in-out",display:"flex",alignItems:"center",justifyContent:"center",height:"100%",opacity:i.map(t=>t.iconVisible?"1":"0"),marginRight:i.map(t=>t.pillRect.width-t.iconRect.width-(t.lineNumberRect?.width??0)),width:i.map(t=>t.iconRect.width),position:"relative",right:i.map(t=>t.iconDirection==="top"?"1px":"0")}},[i.map((t,r)=>_t(mt(t.icon.read(r)),{fontSize:zt(Math.min(t.iconRect.width-Y,E))}))])])]:[])),this.G=Z(this.b.map(i=>i?.originalRange)),this.I=Dt.get(this.a.editor),this.J=this.I?U(this.I.onDidChangeStickyScrollHeight,()=>this.I.stickyScrollWidgetHeight):F(0);const D=this.U.keepUpdated(this.B);this.D(this.a.createOverlayWidget({domNode:D.element,position:F(null),allowEditorOverflow:!1,minContentWidthInPx:F(0)})),this.D(this.a.editor.onMouseMove(i=>{if(this.H.get()===void 0)return;const o=this.O.element.getBoundingClientRect(),l=j.fromLeftTopWidthHeight(o.left,o.top,o.width,o.height),b=new Lt(i.event.posx,i.event.posy);this.Q.set(l.containsPoint(b),void 0)})),this.D(this.a.editor.onDidScrollChange(()=>{this.Q.set(!1,void 0)})),this.z=Q(this.g,100),this.D(wt(this.z,i=>{i&&this.triggerAnimation()})),this.D(vt(i=>{D.readEffect(i),D.element&&this.a.editor.applyFontInfo(D.element)}))}triggerAnimation(){return this.u.isMotionReduced()?new Animation(null,null).finished:this.O.element.animate([{outline:`2px solid ${this.F.map(n=>n.border).get()}`,outlineOffset:"-1px",offset:0},{outline:"2px solid transparent",outlineOffset:"10px",offset:1}],{duration:500}).finished}S(){if(this.P.get())return;const e=this.b.get();if(!e)throw new H("Gutter indicator data not available");const n=new bt,c=n.add(this.t.createInstance(Ht,this.a,e.gutterMenuData,m=>{m&&this.a.editor.focus(),a?.dispose()}).toDisposableLiveElement()),d=n.add(ft(c.element));n.add(d.onDidBlur(()=>this.j.set(!1,void 0))),n.add(d.onDidFocus(()=>this.j.set(!0,void 0))),n.add(gt(()=>this.j.set(!1,void 0)));const a=this.q.showInstantHover({target:this.O.element,content:c.element});a?(this.P.set(!0,void 0),n.add(this.a.editor.onDidScrollChange(()=>a.dispose())),n.add(a.onDispose(()=>{this.P.set(!1,void 0),n.dispose()}))):n.dispose()}};tt=ut([P(6,Nt),P(7,Rt),P(8,yt),P(9,$t)],tt);function Vt(h){switch(h){case"top":return 90;case"bottom":return-90;case"right":return 0}}function _t(h,e){for(const n in e)h.style[n]=e[n];return h}function zt(h){return`${h}px`}export{tt as $$tb,et as $0tb,ui as $8tb,it as $9tb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ModifierKeyEmitter, n, trackFocus } from "../../../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { BugIndicatingError } from "../../../../../../../base/common/errors.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, debouncedObservable, derived, observableFromEvent, observableValue, runOnChange } from "../../../../../../../base/common/observable.js";
+import { IAccessibilityService } from "../../../../../../../platform/accessibility/common/accessibility.js";
+import { IHoverService } from "../../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { Point } from "../../../../../../common/core/2d/point.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { StickyScrollController } from "../../../../../stickyScroll/browser/stickyScrollController.js";
+import { InlineEditTabAction } from "../inlineEditsViewInterface.js";
+import { getEditorBlendedColor, INLINE_EDITS_BORDER_RADIUS, inlineEditIndicatorBackground, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorPrimaryBorder, inlineEditIndicatorPrimaryForeground, inlineEditIndicatorSecondaryBackground, inlineEditIndicatorSecondaryBorder, inlineEditIndicatorSecondaryForeground, inlineEditIndicatorSuccessfulBackground, inlineEditIndicatorSuccessfulBorder, inlineEditIndicatorSuccessfulForeground } from "../theme.js";
+import { mapOutFalsy, rectToProps } from "../utils/utils.js";
+import { GutterIndicatorMenuContent } from "./gutterIndicatorMenu.js";
+import { assertNever } from "../../../../../../../base/common/assert.js";
+import { localize } from "../../../../../../../nls.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+class InlineEditsGutterIndicatorData {
+  static {
+    __name(this, "InlineEditsGutterIndicatorData");
+  }
+  constructor(gutterMenuData, originalRange, model, altAction) {
+    this.gutterMenuData = gutterMenuData;
+    this.originalRange = originalRange;
+    this.model = model;
+    this.altAction = altAction;
+  }
+}
+class InlineSuggestionGutterMenuData {
+  static {
+    __name(this, "InlineSuggestionGutterMenuData");
+  }
+  static fromInlineSuggestion(suggestion) {
+    const alternativeAction = suggestion.action?.kind === "edit" ? suggestion.action.alternativeAction : void 0;
+    return new InlineSuggestionGutterMenuData(suggestion.gutterMenuLinkAction, suggestion.source.provider.displayName ?? localize("inlineSuggestion", "Inline Suggestion"), suggestion.source.inlineSuggestions.commands ?? [], alternativeAction, suggestion.source.provider.modelInfo, suggestion.source.provider.setModelId?.bind(suggestion.source.provider));
+  }
+  constructor(action, displayName, extensionCommands, alternativeAction, modelInfo, setModelId) {
+    this.action = action;
+    this.displayName = displayName;
+    this.extensionCommands = extensionCommands;
+    this.alternativeAction = alternativeAction;
+    this.modelInfo = modelInfo;
+    this.setModelId = setModelId;
+  }
+}
+class SimpleInlineSuggestModel {
+  static {
+    __name(this, "SimpleInlineSuggestModel");
+  }
+  static fromInlineCompletionModel(model) {
+    return new SimpleInlineSuggestModel(() => model.accept(), () => model.jump());
+  }
+  constructor(accept, jump) {
+    this.accept = accept;
+    this.jump = jump;
+  }
+}
+const CODICON_SIZE_PX = 16;
+const CODICON_PADDING_PX = 2;
+let InlineEditsGutterIndicator = class InlineEditsGutterIndicator2 extends Disposable {
+  static {
+    __name(this, "InlineEditsGutterIndicator");
+  }
+  constructor(_editorObs, _data, _tabAction, _verticalOffset, _isHoveringOverInlineEdit, _focusIsInMenu, _hoverService, _instantiationService, _accessibilityService, _themeService) {
+    super();
+    this._editorObs = _editorObs;
+    this._data = _data;
+    this._tabAction = _tabAction;
+    this._verticalOffset = _verticalOffset;
+    this._isHoveringOverInlineEdit = _isHoveringOverInlineEdit;
+    this._focusIsInMenu = _focusIsInMenu;
+    this._hoverService = _hoverService;
+    this._instantiationService = _instantiationService;
+    this._accessibilityService = _accessibilityService;
+    this._themeService = _themeService;
+    this._modifierPressed = observableFromEvent(this, ModifierKeyEmitter.getInstance().event, () => ModifierKeyEmitter.getInstance().keyStatus.shiftKey);
+    this._gutterIndicatorStyles = derived(this, (reader) => {
+      let v = this._tabAction.read(reader);
+      const altAction = this._data.read(reader)?.altAction;
+      const modifiedPressed = this._modifierPressed.read(reader);
+      if (altAction && modifiedPressed) {
+        v = InlineEditTabAction.Inactive;
+      }
+      switch (v) {
+        case InlineEditTabAction.Inactive:
+          return {
+            background: getEditorBlendedColor(inlineEditIndicatorSecondaryBackground, this._themeService).read(reader).toString(),
+            foreground: getEditorBlendedColor(inlineEditIndicatorSecondaryForeground, this._themeService).read(reader).toString(),
+            border: getEditorBlendedColor(inlineEditIndicatorSecondaryBorder, this._themeService).read(reader).toString()
+          };
+        case InlineEditTabAction.Jump:
+          return {
+            background: getEditorBlendedColor(inlineEditIndicatorPrimaryBackground, this._themeService).read(reader).toString(),
+            foreground: getEditorBlendedColor(inlineEditIndicatorPrimaryForeground, this._themeService).read(reader).toString(),
+            border: getEditorBlendedColor(inlineEditIndicatorPrimaryBorder, this._themeService).read(reader).toString()
+          };
+        case InlineEditTabAction.Accept:
+          return {
+            background: getEditorBlendedColor(inlineEditIndicatorSuccessfulBackground, this._themeService).read(reader).toString(),
+            foreground: getEditorBlendedColor(inlineEditIndicatorSuccessfulForeground, this._themeService).read(reader).toString(),
+            border: getEditorBlendedColor(inlineEditIndicatorSuccessfulBorder, this._themeService).read(reader).toString()
+          };
+        default:
+          assertNever(v);
+      }
+    });
+    this._state = derived(this, (reader) => {
+      const range = this._originalRangeObs.read(reader);
+      if (!range) {
+        return void 0;
+      }
+      return {
+        range,
+        lineOffsetRange: this._editorObs.observeLineOffsetRange(range, reader.store)
+      };
+    });
+    this._lineNumberToRender = derived(this, (reader) => {
+      if (this._verticalOffset.read(reader) !== 0) {
+        return "";
+      }
+      const lineNumber = this._data.read(reader)?.originalRange.startLineNumber;
+      const lineNumberOptions = this._editorObs.getOption(
+        76
+        /* EditorOption.lineNumbers */
+      ).read(reader);
+      if (lineNumber === void 0 || lineNumberOptions.renderType === 0) {
+        return "";
+      }
+      if (lineNumberOptions.renderType === 3) {
+        const cursorPosition = this._editorObs.cursorPosition.read(reader);
+        if (lineNumber % 10 === 0 || cursorPosition && cursorPosition.lineNumber === lineNumber) {
+          return lineNumber.toString();
+        }
+        return "";
+      }
+      if (lineNumberOptions.renderType === 2) {
+        const cursorPosition = this._editorObs.cursorPosition.read(reader);
+        if (!cursorPosition) {
+          return "";
+        }
+        const relativeLineNumber = Math.abs(lineNumber - cursorPosition.lineNumber);
+        if (relativeLineNumber === 0) {
+          return lineNumber.toString();
+        }
+        return relativeLineNumber.toString();
+      }
+      if (lineNumberOptions.renderType === 4) {
+        if (lineNumberOptions.renderFn) {
+          return lineNumberOptions.renderFn(lineNumber);
+        }
+        return "";
+      }
+      return lineNumber.toString();
+    });
+    this._availableWidthForIcon = derived(this, (reader) => {
+      const textModel = this._editorObs.editor.getModel();
+      const editor = this._editorObs.editor;
+      const layout = this._editorObs.layoutInfo.read(reader);
+      const gutterWidth = layout.decorationsLeft + layout.decorationsWidth - layout.glyphMarginLeft;
+      if (!textModel || gutterWidth <= 0) {
+        return () => 0;
+      }
+      if (layout.lineNumbersLeft === 0) {
+        return () => gutterWidth;
+      }
+      const lineNumberOptions = this._editorObs.getOption(
+        76
+        /* EditorOption.lineNumbers */
+      ).read(reader);
+      if (lineNumberOptions.renderType === 2 || /* likely to flicker */
+      lineNumberOptions.renderType === 0) {
+        return () => gutterWidth;
+      }
+      const w = editor.getOption(
+        59
+        /* EditorOption.fontInfo */
+      ).typicalHalfwidthCharacterWidth;
+      const rightOfLineNumber = layout.lineNumbersLeft + layout.lineNumbersWidth;
+      const totalLines = textModel.getLineCount();
+      const totalLinesDigits = (totalLines + 1).toString().length;
+      const offsetDigits = [];
+      for (let digits = 1; digits <= totalLinesDigits; digits++) {
+        const firstLineNumberWithDigitCount = 10 ** (digits - 1);
+        const topOfLineNumber = editor.getTopForLineNumber(firstLineNumberWithDigitCount);
+        const digitsWidth = digits * w;
+        const usableWidthLeftOfLineNumber = Math.min(gutterWidth, Math.max(0, rightOfLineNumber - digitsWidth - layout.glyphMarginLeft));
+        offsetDigits.push({ firstLineNumberWithDigitCount, topOfLineNumber, usableWidthLeftOfLineNumber });
+      }
+      return (topOffset) => {
+        for (let i = offsetDigits.length - 1; i >= 0; i--) {
+          if (topOffset >= offsetDigits[i].topOfLineNumber) {
+            return offsetDigits[i].usableWidthLeftOfLineNumber;
+          }
+        }
+        throw new BugIndicatingError("Could not find avilable width for icon");
+      };
+    });
+    this._layout = derived(this, (reader) => {
+      const s = this._state.read(reader);
+      if (!s) {
+        return void 0;
+      }
+      const layout = this._editorObs.layoutInfo.read(reader);
+      const lineHeight = this._editorObs.observeLineHeightForLine(s.range.map((r) => r.startLineNumber)).read(reader);
+      const gutterViewPortPaddingLeft = 1;
+      const gutterViewPortPaddingTop = 2;
+      const gutterWidthWithoutPadding = layout.decorationsLeft + layout.decorationsWidth - layout.glyphMarginLeft - 2 * gutterViewPortPaddingLeft;
+      const gutterHeightWithoutPadding = layout.height - 2 * gutterViewPortPaddingTop;
+      const gutterViewPortWithStickyScroll = Rect.fromLeftTopWidthHeight(gutterViewPortPaddingLeft, gutterViewPortPaddingTop, gutterWidthWithoutPadding, gutterHeightWithoutPadding);
+      const gutterViewPortWithoutStickyScrollWithoutPaddingTop = gutterViewPortWithStickyScroll.withTop(this._stickyScrollHeight.read(reader));
+      const gutterViewPortWithoutStickyScroll = gutterViewPortWithStickyScroll.withTop(gutterViewPortWithoutStickyScrollWithoutPaddingTop.top + gutterViewPortPaddingTop);
+      const verticalEditRange = s.lineOffsetRange.read(reader);
+      const gutterEditArea = Rect.fromRanges(OffsetRange.fromTo(gutterViewPortWithoutStickyScroll.left, gutterViewPortWithoutStickyScroll.right), verticalEditRange);
+      const pillHeight = lineHeight;
+      const pillOffset = this._verticalOffset.read(reader);
+      const pillFullyDockedRect = gutterEditArea.withHeight(pillHeight).translateY(pillOffset);
+      const pillIsFullyDocked = gutterViewPortWithoutStickyScrollWithoutPaddingTop.containsRect(pillFullyDockedRect);
+      const iconNoneDocked = this._tabAction.map((action) => action === InlineEditTabAction.Accept ? Codicon.keyboardTab : Codicon.arrowRight);
+      const iconDocked = derived(this, (reader2) => {
+        if (this._isHoveredOverIconDebounced.read(reader2) || this._isHoveredOverInlineEditDebounced.read(reader2)) {
+          return Codicon.check;
+        }
+        if (this._tabAction.read(reader2) === InlineEditTabAction.Accept) {
+          return Codicon.keyboardTab;
+        }
+        const cursorLineNumber = this._editorObs.cursorLineNumber.read(reader2) ?? 0;
+        const editStartLineNumber = s.range.read(reader2).startLineNumber;
+        return cursorLineNumber <= editStartLineNumber ? Codicon.keyboardTabAbove : Codicon.keyboardTabBelow;
+      });
+      const idealIconAreaWidth = 22;
+      const iconWidth = /* @__PURE__ */ __name((pillRect2) => {
+        const availableIconAreaWidth = this._availableWidthForIcon.read(void 0)(pillRect2.bottom + this._editorObs.editor.getScrollTop()) - gutterViewPortPaddingLeft;
+        return Math.max(Math.min(availableIconAreaWidth, idealIconAreaWidth), CODICON_SIZE_PX);
+      }, "iconWidth");
+      if (pillIsFullyDocked) {
+        const pillRect2 = pillFullyDockedRect;
+        let widthUntilLineNumberEnd;
+        if (layout.lineNumbersWidth === 0) {
+          widthUntilLineNumberEnd = Math.min(Math.max(layout.lineNumbersLeft - gutterViewPortWithStickyScroll.left, 0), pillRect2.width - idealIconAreaWidth);
+        } else {
+          widthUntilLineNumberEnd = Math.max(layout.lineNumbersLeft + layout.lineNumbersWidth - gutterViewPortWithStickyScroll.left, 0);
+        }
+        const lineNumberRect = pillRect2.withWidth(widthUntilLineNumberEnd);
+        const minimalIconWidthWithPadding = CODICON_SIZE_PX + CODICON_PADDING_PX;
+        const iconWidth2 = Math.min(pillRect2.width - widthUntilLineNumberEnd, idealIconAreaWidth);
+        const iconRect2 = pillRect2.withWidth(Math.max(iconWidth2, minimalIconWidthWithPadding)).translateX(widthUntilLineNumberEnd);
+        const iconVisible = iconWidth2 >= minimalIconWidthWithPadding;
+        return {
+          gutterEditArea,
+          icon: iconDocked,
+          iconDirection: "right",
+          iconRect: iconRect2,
+          iconVisible,
+          pillRect: pillRect2,
+          lineNumberRect
+        };
+      }
+      const pillPartiallyDockedPossibleArea = gutterViewPortWithStickyScroll.intersect(gutterEditArea);
+      const pillIsPartiallyDocked = pillPartiallyDockedPossibleArea && pillPartiallyDockedPossibleArea.height >= pillHeight;
+      if (pillIsPartiallyDocked) {
+        const pillRectMoved2 = pillFullyDockedRect.moveToBeContainedIn(gutterViewPortWithoutStickyScroll).moveToBeContainedIn(pillPartiallyDockedPossibleArea);
+        const pillRect2 = pillRectMoved2.withWidth(iconWidth(pillRectMoved2));
+        const iconRect2 = pillRect2;
+        return {
+          gutterEditArea,
+          icon: iconDocked,
+          iconDirection: "right",
+          iconRect: iconRect2,
+          pillRect: pillRect2,
+          iconVisible: true
+        };
+      }
+      const pillRectMoved = pillFullyDockedRect.moveToBeContainedIn(gutterViewPortWithStickyScroll);
+      const pillRect = pillRectMoved.withWidth(iconWidth(pillRectMoved));
+      const iconRect = pillRect;
+      const iconDirection = pillRect.top < pillFullyDockedRect.top ? "top" : "bottom";
+      return {
+        gutterEditArea,
+        icon: iconNoneDocked,
+        iconDirection,
+        iconRect,
+        pillRect,
+        iconVisible: true
+      };
+    });
+    this._iconRef = n.ref();
+    this.isVisible = this._layout.map((l) => !!l);
+    this._hoverVisible = observableValue(this, false);
+    this.isHoverVisible = this._hoverVisible;
+    this._isHoveredOverIcon = observableValue(this, false);
+    this._isHoveredOverIconDebounced = debouncedObservable(this._isHoveredOverIcon, 100);
+    this.isHoveredOverIcon = this._isHoveredOverIconDebounced;
+    this._indicator = n.div({
+      class: "inline-edits-view-gutter-indicator",
+      style: {
+        position: "absolute",
+        overflow: "visible"
+      }
+    }, mapOutFalsy(this._layout).map((layout) => !layout ? [] : [
+      n.div({
+        style: {
+          position: "absolute",
+          background: asCssVariable(inlineEditIndicatorBackground),
+          borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+          ...rectToProps((reader) => layout.read(reader).gutterEditArea)
+        }
+      }),
+      n.div({
+        class: "icon",
+        ref: this._iconRef,
+        tabIndex: 0,
+        onclick: /* @__PURE__ */ __name(() => {
+          const layout2 = this._layout.get();
+          const acceptOnClick = layout2?.icon.get() === Codicon.check;
+          const data = this._data.get();
+          if (!data) {
+            throw new BugIndicatingError("Gutter indicator data not available");
+          }
+          this._editorObs.editor.focus();
+          if (acceptOnClick) {
+            data.model.accept();
+          } else {
+            data.model.jump();
+          }
+        }, "onclick"),
+        onmouseenter: /* @__PURE__ */ __name(() => {
+          this._showHover();
+        }, "onmouseenter"),
+        style: {
+          cursor: "pointer",
+          zIndex: "20",
+          position: "absolute",
+          backgroundColor: this._gutterIndicatorStyles.map((v) => v.background),
+          // eslint-disable-next-line local/code-no-any-casts
+          ["--vscodeIconForeground"]: this._gutterIndicatorStyles.map((v) => v.foreground),
+          border: this._gutterIndicatorStyles.map((v) => `1px solid ${v.border}`),
+          boxSizing: "border-box",
+          borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+          display: "flex",
+          justifyContent: layout.map((l) => l.iconDirection === "bottom" ? "flex-start" : "flex-end"),
+          transition: this._modifierPressed.map((m) => m ? "" : "background-color 0.2s ease-in-out, width 0.2s ease-in-out"),
+          ...rectToProps((reader) => layout.read(reader).pillRect)
+        }
+      }, [
+        n.div({
+          className: "line-number",
+          style: {
+            lineHeight: layout.map((l) => l.lineNumberRect ? l.lineNumberRect.height : 0),
+            display: layout.map((l) => l.lineNumberRect ? "flex" : "none"),
+            alignItems: "center",
+            justifyContent: "flex-end",
+            width: layout.map((l) => l.lineNumberRect ? l.lineNumberRect.width : 0),
+            height: "100%",
+            color: this._gutterIndicatorStyles.map((v) => v.foreground)
+          }
+        }, this._lineNumberToRender),
+        n.div({
+          style: {
+            transform: layout.map((l) => `rotate(${getRotationFromDirection(l.iconDirection)}deg)`),
+            transition: "rotate 0.2s ease-in-out, opacity 0.2s ease-in-out",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            opacity: layout.map((l) => l.iconVisible ? "1" : "0"),
+            marginRight: layout.map((l) => l.pillRect.width - l.iconRect.width - (l.lineNumberRect?.width ?? 0)),
+            width: layout.map((l) => l.iconRect.width),
+            position: "relative",
+            right: layout.map((l) => l.iconDirection === "top" ? "1px" : "0")
+          }
+        }, [
+          layout.map((l, reader) => withStyles(renderIcon(l.icon.read(reader)), { fontSize: toPx(Math.min(l.iconRect.width - CODICON_PADDING_PX, CODICON_SIZE_PX)) }))
+        ])
+      ])
+    ]));
+    this._originalRangeObs = mapOutFalsy(this._data.map((d) => d?.originalRange));
+    this._stickyScrollController = StickyScrollController.get(this._editorObs.editor);
+    this._stickyScrollHeight = this._stickyScrollController ? observableFromEvent(this._stickyScrollController.onDidChangeStickyScrollHeight, () => this._stickyScrollController.stickyScrollWidgetHeight) : constObservable(0);
+    const indicator = this._indicator.keepUpdated(this._store);
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: indicator.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this._register(this._editorObs.editor.onMouseMove((e) => {
+      const state = this._state.get();
+      if (state === void 0) {
+        return;
+      }
+      const el = this._iconRef.element;
+      const rect = el.getBoundingClientRect();
+      const rectangularArea = Rect.fromLeftTopWidthHeight(rect.left, rect.top, rect.width, rect.height);
+      const point = new Point(e.event.posx, e.event.posy);
+      this._isHoveredOverIcon.set(rectangularArea.containsPoint(point), void 0);
+    }));
+    this._register(this._editorObs.editor.onDidScrollChange(() => {
+      this._isHoveredOverIcon.set(false, void 0);
+    }));
+    this._isHoveredOverInlineEditDebounced = debouncedObservable(this._isHoveringOverInlineEdit, 100);
+    this._register(runOnChange(this._isHoveredOverInlineEditDebounced, (isHovering) => {
+      if (isHovering) {
+        this.triggerAnimation();
+      }
+    }));
+    this._register(autorun((reader) => {
+      indicator.readEffect(reader);
+      if (indicator.element) {
+        this._editorObs.editor.applyFontInfo(indicator.element);
+      }
+    }));
+  }
+  triggerAnimation() {
+    if (this._accessibilityService.isMotionReduced()) {
+      return new Animation(null, null).finished;
+    }
+    const animation = this._iconRef.element.animate([
+      {
+        outline: `2px solid ${this._gutterIndicatorStyles.map((v) => v.border).get()}`,
+        outlineOffset: "-1px",
+        offset: 0
+      },
+      {
+        outline: `2px solid transparent`,
+        outlineOffset: "10px",
+        offset: 1
+      }
+    ], { duration: 500 });
+    return animation.finished;
+  }
+  _showHover() {
+    if (this._hoverVisible.get()) {
+      return;
+    }
+    const data = this._data.get();
+    if (!data) {
+      throw new BugIndicatingError("Gutter indicator data not available");
+    }
+    const disposableStore = new DisposableStore();
+    const content = disposableStore.add(this._instantiationService.createInstance(GutterIndicatorMenuContent, this._editorObs, data.gutterMenuData, (focusEditor) => {
+      if (focusEditor) {
+        this._editorObs.editor.focus();
+      }
+      h?.dispose();
+    }).toDisposableLiveElement());
+    const focusTracker = disposableStore.add(trackFocus(content.element));
+    disposableStore.add(focusTracker.onDidBlur(() => this._focusIsInMenu.set(false, void 0)));
+    disposableStore.add(focusTracker.onDidFocus(() => this._focusIsInMenu.set(true, void 0)));
+    disposableStore.add(toDisposable(() => this._focusIsInMenu.set(false, void 0)));
+    const h = this._hoverService.showInstantHover({
+      target: this._iconRef.element,
+      content: content.element
+    });
+    if (h) {
+      this._hoverVisible.set(true, void 0);
+      disposableStore.add(this._editorObs.editor.onDidScrollChange(() => h.dispose()));
+      disposableStore.add(h.onDispose(() => {
+        this._hoverVisible.set(false, void 0);
+        disposableStore.dispose();
+      }));
+    } else {
+      disposableStore.dispose();
+    }
+  }
+};
+InlineEditsGutterIndicator = __decorate([
+  __param(6, IHoverService),
+  __param(7, IInstantiationService),
+  __param(8, IAccessibilityService),
+  __param(9, IThemeService)
+], InlineEditsGutterIndicator);
+function getRotationFromDirection(direction) {
+  switch (direction) {
+    case "top":
+      return 90;
+    case "bottom":
+      return -90;
+    case "right":
+      return 0;
+  }
+}
+__name(getRotationFromDirection, "getRotationFromDirection");
+function withStyles(element, styles) {
+  for (const key in styles) {
+    element.style[key] = styles[key];
+  }
+  return element;
+}
+__name(withStyles, "withStyles");
+function toPx(n2) {
+  return `${n2}px`;
+}
+__name(toPx, "toPx");
+export {
+  InlineEditsGutterIndicator,
+  InlineEditsGutterIndicatorData,
+  InlineSuggestionGutterMenuData,
+  SimpleInlineSuggestModel
+};
+//# sourceMappingURL=gutterIndicatorView.js.map

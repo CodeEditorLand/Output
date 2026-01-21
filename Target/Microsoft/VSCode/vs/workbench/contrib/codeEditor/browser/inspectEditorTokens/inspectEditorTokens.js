@@ -1,1 +1,598 @@
-import"./inspectEditorTokens.css";import*as j from"../../../../../nls.js";import*as l from"../../../../../base/browser/dom.js";import{$Tp as M}from"../../../../../base/common/color.js";import{$Ed as O}from"../../../../../base/common/lifecycle.js";import{$Acb as F,$Fcb as E,$Icb as H}from"../../../../../editor/browser/editorExtensions.js";import{$9D as R}from"../../../../../editor/common/core/range.js";import{$4E as L}from"../../../../../editor/common/encodedTokenAttributes.js";import{$WF as _}from"../../../../../editor/common/languages/language.js";import{$mH as B}from"../../../../../platform/notification/common/notification.js";import{$HZb as W}from"../../../../services/textMate/common/TMHelper.js";import{$JZb as J}from"../../../../services/textMate/browser/textMateTokenizationFeature.js";import{$nCb as Z}from"../../../../services/themes/common/workbenchThemeService.js";import{$If as K}from"../../../../../base/common/cancellation.js";import{SemanticTokenRule as G}from"../../../../../platform/theme/common/tokenClassificationRegistry.js";import{$9l as U}from"../../../../../platform/configuration/common/configuration.js";import{$iwb as Q}from"../../../../../editor/contrib/semanticTokens/common/semanticTokensConfig.js";import{Schemas as X}from"../../../../../base/common/network.js";import{$NV as Y}from"../../../../../editor/common/services/languageFeatures.js";import{$BK as ee}from"../../../../../editor/common/model/tokens/treeSitter/treeSitterSyntaxTokenBackend.js";var V=function(g,e,s,i){var o=arguments.length,n=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,s):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(g,e,s,i);else for(var a=g.length-1;a>=0;a--)(r=g[a])&&(n=(o<3?r(n):o>3?r(e,s,n):r(e,s))||n);return o>3&&n&&Object.defineProperty(e,s,n),n},S=function(g,e){return function(s,i){e(s,i,g)}},P;const t=l.$;let x=class extends O{static{P=this}static{this.ID="editor.contrib.inspectEditorTokens"}static get(e){return e.getContribution(P.ID)}constructor(e,s,i,o,n,r,a){super(),this.a=e,this.b=s,this.c=o,this.f=i,this.g=n,this.h=r,this.j=a,this.m=null,this.D(this.a.onDidChangeModel(u=>this.stop())),this.D(this.a.onDidChangeModelLanguage(u=>this.stop())),this.D(this.a.onKeyUp(u=>u.keyCode===9&&this.stop()))}dispose(){this.stop(),super.dispose()}launch(){this.m||this.a.hasModel()&&this.a.getModel().uri.scheme!==X.vscodeNotebookCell&&(this.m=new z(this.a,this.b,this.f,this.c,this.g,this.h,this.j))}stop(){this.m&&(this.m.dispose(),this.m=null)}toggle(){this.m?this.stop():this.launch()}};x=P=V([S(1,J),S(2,_),S(3,Z),S(4,B),S(5,U),S(6,Y)],x);class te extends F{constructor(){super({id:"editor.action.inspectTMScopes",label:j.localize2(6958,"Developer: Inspect Editor Tokens and Scopes"),precondition:void 0})}run(e,s){x.get(s)?.toggle()}}function A(g){g.length>40&&(g=g.substr(0,20)+"\u2026"+g.substr(g.length-20));let e="";for(let s=0,i=g.length;s<i;s++){const o=g.charCodeAt(s);switch(o){case 9:e+="\u2192";break;case 32:e+="\xB7";break;default:e+=String.fromCharCode(o)}}return e}class z extends O{static{this.a="editor.contrib.inspectEditorTokensWidget"}constructor(e,s,i,o,n,r,a){super(),this.allowEditorOverflow=!0,this.b=!1,this.c=e,this.f=i,this.g=o,this.h=s,this.j=n,this.m=r,this.n=a,this.q=this.c.getModel(),this.r=document.createElement("div"),this.r.className="token-inspect-widget",this.s=new K,this.u(this.c.getPosition()),this.D(this.c.onDidChangeCursorPosition(u=>this.u(this.c.getPosition()))),this.D(o.onDidColorThemeChange(u=>this.u(this.c.getPosition()))),this.D(r.onDidChangeConfiguration(u=>u.affectsConfiguration("editor.semanticHighlighting.enabled")&&this.u(this.c.getPosition()))),this.c.addContentWidget(this)}dispose(){this.b=!0,this.c.removeContentWidget(this),this.s.cancel(),super.dispose()}getId(){return z.a}u(e){const s=this.h.createTokenizer(this.q.getLanguageId()),i=this.J(e),o=this.q.tokenization.tokens.get(),n=o instanceof ee?o:void 0;l.$E7(this.r),this.r.appendChild(document.createTextNode(j.localize(6957,null))),Promise.all([s,i]).then(([r,a])=>{if(this.b)return;const u=n?.tree.get();this.y(r,a,u,e),this.r.style.maxWidth=`${Math.max(this.c.getLayoutInfo().width*.66,500)}px`,this.c.layoutContentWidget(this)},r=>{this.j.warn(r),setTimeout(()=>{x.get(this.c)?.stop()})})}w(){const e=this.m.getValue(Q,{overrideIdentifier:this.q.getLanguageId(),resource:this.q.uri})?.enabled;return typeof e=="boolean"?e:this.g.getColorTheme().semanticHighlighting}y(e,s,i,o){const n=e&&this.G(e,o),r=s&&this.L(s,o),a=i&&this.N(i,o);if(!n&&!r&&!a){l.$K8(this.r,"No grammar or semantic tokens available.");return}const u=n?.metadata,d=r?.metadata,h=r&&A(this.q.getValueInRange(r.range)),I=n&&A(this.q.getLineContent(o.lineNumber).substring(n.token.startIndex,n.token.endIndex)),D=r&&this.q.getValueLengthInRange(r.range),q=n&&n.token.endIndex-n.token.startIndex,N=h||I||"",$=D||q||0;if(l.$K8(this.r,t("h2.tiw-token",void 0,N,t("span.tiw-token-length",void 0,`${$} ${$===1?"char":"chars"}`))),l.$I8(this.r,t("hr.tiw-metadata-separator",{style:"clear:both"})),l.$I8(this.r,t("table.tiw-metadata-table",void 0,t("tbody",void 0,t("tr",void 0,t("td.tiw-metadata-key",void 0,"language"),t("td.tiw-metadata-value",void 0,u?.languageId||"")),t("tr",void 0,t("td.tiw-metadata-key",void 0,"standard token type"),t("td.tiw-metadata-value",void 0,this.F(u?.tokenType||0))),...this.z(d,u)))),r){l.$I8(this.r,t("hr.tiw-metadata-separator"));const k=l.$I8(this.r,t("table.tiw-metadata-table",void 0)),y=l.$I8(k,t("tbody",void 0,t("tr",void 0,t("td.tiw-metadata-key",void 0,"semantic token type"),t("td.tiw-metadata-value",void 0,r.type))));if(r.modifiers.length&&l.$I8(y,t("tr",void 0,t("td.tiw-metadata-key",void 0,"modifiers"),t("td.tiw-metadata-value",void 0,r.modifiers.join(" ")))),r.metadata){const m=["foreground","bold","italic","underline","strikethrough"],f={},b=new Array;for(const c of m)if(r.metadata[c]!==void 0){const p=r.definitions[c],C=this.O(p,c),w=C.map(v=>l.$p8(v)?v.outerHTML:v).join();let T=f[w];T||(f[w]=T=[],b.push([C,w])),T.push(c)}for(const[c,p]of b)l.$I8(y,t("tr",void 0,t("td.tiw-metadata-key",void 0,f[p].join(", ")),t("td.tiw-metadata-value",void 0,...c)))}}if(n){const k=this.g.getColorTheme();l.$I8(this.r,t("hr.tiw-metadata-separator"));const y=l.$I8(this.r,t("table.tiw-metadata-table")),m=l.$I8(y,t("tbody"));I&&I!==N&&l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"textmate token"),t("td.tiw-metadata-value",void 0,`${I} (${I.length})`)));const f=new Array;for(let p=n.token.scopes.length-1;p>=0;p--)f.push(n.token.scopes[p]),p>0&&f.push(t("br"));l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"textmate scopes"),t("td.tiw-metadata-value.tiw-metadata-scopes",void 0,...f)));const b=W(k,n.token.scopes,!1),c=r?.metadata?.foreground;if(b){if(c!==n.metadata.foreground){let p=t("code.tiw-theme-selector",void 0,b.rawSelector,t("br"),JSON.stringify(b.settings,null,"	"));c&&(p=t("s",void 0,p)),l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"foreground"),t("td.tiw-metadata-value",void 0,p)))}}else c||l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"foreground"),t("td.tiw-metadata-value",void 0,"No theme selector")))}if(a){const k=a[a.length-1];l.$I8(this.r,t("hr.tiw-metadata-separator"));const y=l.$I8(this.r,t("table.tiw-metadata-table")),m=l.$I8(y,t("tbody"));l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,`tree-sitter token ${k.id}`),t("td.tiw-metadata-value",void 0,`${k.text}`)));const f=new Array;let b=a.length-1,c=a[b];for(;c.parent||b>0;)f.push(c.type),c=c.parent??a[--b],c&&f.push(t("br"));l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"tree-sitter tree"),t("td.tiw-metadata-value.tiw-metadata-scopes",void 0,...f)));const C=this.q.tokenization.tokens.get().tokenizationImpl.get()?.captureAtPosition(o.lineNumber,o.column);C&&C.length>0&&l.$I8(m,t("tr",void 0,t("td.tiw-metadata-key",void 0,"foreground"),t("td.tiw-metadata-value",void 0,C.map(w=>w.name).join(" "))))}}z(e,s){const i=new Array;function o(d){const h=e?.[d]||s?.[d];if(h!==void 0){const I=e?.[d]?"tiw-metadata-semantic":"";i.push(t("tr",void 0,t("td.tiw-metadata-key",void 0,d),t(`td.tiw-metadata-value.${I}`,void 0,h)))}return h}const n=o("foreground"),r=o("background");if(n&&r){const d=M.fromHex(r),h=M.fromHex(n);d.isOpaque()?i.push(t("tr",void 0,t("td.tiw-metadata-key",void 0,"contrast ratio"),t("td.tiw-metadata-value",void 0,d.getContrastRatio(h.makeOpaque(d)).toFixed(2)))):i.push(t("tr",void 0,t("td.tiw-metadata-key",void 0,"Contrast ratio cannot be precise for background colors that use transparency"),t("td.tiw-metadata-value")))}const a=new Array;function u(d){let h;e&&e[d]?h=t("span.tiw-metadata-semantic",void 0,d):s&&s[d]&&(h=d),h&&(a.length&&a.push(" "),a.push(h))}return u("bold"),u("italic"),u("underline"),u("strikethrough"),a.length&&i.push(t("tr",void 0,t("td.tiw-metadata-key",void 0,"font style"),t("td.tiw-metadata-value",void 0,...a))),i}C(e){const s=this.g.getColorTheme().tokenColorMap,i=L.getLanguageId(e),o=L.getTokenType(e),n=L.getFontStyle(e),r=L.getForeground(e),a=L.getBackground(e);return{languageId:this.f.languageIdCodec.decodeLanguageId(i),tokenType:o,bold:n&2?!0:void 0,italic:n&1?!0:void 0,underline:n&4?!0:void 0,strikethrough:n&8?!0:void 0,foreground:s[r],background:s[a]}}F(e){switch(e){case 0:return"Other";case 1:return"Comment";case 2:return"String";case 3:return"RegEx";default:return"??"}}G(e,s){const i=s.lineNumber,o=this.H(e,i),n=e.tokenizeLine(this.q.getLineContent(i),o),r=e.tokenizeLine2(this.q.getLineContent(i),o);let a=0;for(let d=n.tokens.length-1;d>=0;d--){const h=n.tokens[d];if(s.column-1>=h.startIndex){a=d;break}}let u=0;for(let d=r.tokens.length>>>1;d>=0;d--)if(s.column-1>=r.tokens[d<<1]){u=d;break}return{token:n.tokens[a],metadata:this.C(r.tokens[(u<<1)+1])}}H(e,s){let i=null;for(let o=1;o<s;o++)i=e.tokenizeLine(this.q.getLineContent(o),i).ruleStack;return i}I(e){return e&&e.data}async J(e){if(!this.w())return null;const s=this.n.documentSemanticTokensProvider.ordered(this.q);if(s.length){const o=s[0],n=await Promise.resolve(o.provideDocumentSemanticTokens(this.q,null,this.s.token));if(this.I(n))return{tokens:n,legend:o.getLegend()}}const i=this.n.documentRangeSemanticTokensProvider.ordered(this.q);if(i.length){const o=i[0],n=e.lineNumber,r=new R(n,1,n,this.q.getLineMaxColumn(n)),a=await Promise.resolve(o.provideDocumentRangeSemanticTokens(this.q,r,this.s.token));if(this.I(a))return{tokens:a,legend:o.getLegend()}}return null}L(e,s){const i=e.tokens.data,o=this.q.getLanguageId();let n=0,r=0;const a=s.lineNumber-1,u=s.column-1;for(let d=0;d<i.length;d+=5){const h=i[d],I=i[d+1],D=i[d+2],q=i[d+3],N=i[d+4],$=n+h,k=h===0?r+I:I;if(a===$&&k<=u&&u<k+D){const y=e.legend.tokenTypes[q]||"not in legend (ignored)",m=[];let f=N;for(let v=0;f>0&&v<e.legend.tokenModifiers.length;v++)f&1&&m.push(e.legend.tokenModifiers[v]),f=f>>1;f>0&&m.push("not in legend (ignored)");const b=new R($+1,k+1,$+1,k+1+D),c={},p=this.g.getColorTheme().tokenColorMap,w=this.g.getColorTheme().getTokenStyleMetadata(y,m,o,!0,c);let T;return w&&(T={languageId:void 0,tokenType:0,bold:w?.bold,italic:w?.italic,underline:w?.underline,strikethrough:w?.strikethrough,foreground:p[w?.foreground||0],background:void 0}),{type:y,modifiers:m,range:b,metadata:T,definitions:c}}n=$,r=k}return null}M(e,s){const i=this.q.getOffsetAt(s);e.gotoFirstChild();let o=!1,n=null;do e.currentNode.startIndex<=i&&i<e.currentNode.endIndex?(o=!0,n=e.currentNode):o=!1;while(o?e.gotoFirstChild():e.gotoNextSibling());return n}N(e,s){const i=[];let o=e?.tree.get();for(;o;){const n=o.walk(),r=this.M(n,s);n.delete(),r?(i.push(r),e=e?.getInjectionTrees(r.startIndex,e.languageId),o=e?.tree.get()):o=void 0}return i.length>0?i:null}O(e,s){const i=new Array;if(e===void 0)return i;const o=this.g.getColorTheme();if(Array.isArray(e)){const n={};o.resolveScopes(e,n);const r=n[s];if(r&&n.scope){const a=t("ul.tiw-metadata-values"),u=Array.isArray(r.scope)?r.scope:[String(r.scope)];for(const d of u)a.appendChild(t("li.tiw-metadata-value.tiw-metadata-scopes",void 0,d));return i.push(n.scope.join(" "),a,t("code.tiw-theme-selector",void 0,JSON.stringify(r.settings,null,"	"))),i}return i}else if(G.is(e)){const n=o.getTokenStylingRuleScope(e);return n==="setting"?(i.push(`User settings: ${e.selector.id} - ${this.P(e.style,s)}`),i):(n==="theme"&&i.push(`Color theme: ${e.selector.id} - ${this.P(e.style,s)}`),i)}else{const n=o.resolveTokenStyleValue(e);return i.push(`Default: ${n?this.P(n,s):""}`),i}}P(e,s){return s==="foreground"?e.foreground?M.Format.CSS.formatHexA(e.foreground,!0):"":e[s]!==void 0?String(e[s]):""}getDomNode(){return this.r}getPosition(){return{position:this.c.getPosition(),preference:[2,1]}}}H(x.ID,x,4);E(te);export{x as $1Zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InspectEditorTokensController_1;
+import "./inspectEditorTokens.css";
+import * as nls from "../../../../../nls.js";
+import * as dom from "../../../../../base/browser/dom.js";
+import { Color } from "../../../../../base/common/color.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { EditorAction, registerEditorAction, registerEditorContribution } from "../../../../../editor/browser/editorExtensions.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { TokenMetadata } from "../../../../../editor/common/encodedTokenAttributes.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { findMatchingThemeRule } from "../../../../services/textMate/common/TMHelper.js";
+import { ITextMateTokenizationService } from "../../../../services/textMate/browser/textMateTokenizationFeature.js";
+import { IWorkbenchThemeService } from "../../../../services/themes/common/workbenchThemeService.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { SemanticTokenRule } from "../../../../../platform/theme/common/tokenClassificationRegistry.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { SEMANTIC_HIGHLIGHTING_SETTING_ID } from "../../../../../editor/contrib/semanticTokens/common/semanticTokensConfig.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { TreeSitterSyntaxTokenBackend } from "../../../../../editor/common/model/tokens/treeSitter/treeSitterSyntaxTokenBackend.js";
+const $ = dom.$;
+let InspectEditorTokensController = class InspectEditorTokensController2 extends Disposable {
+  static {
+    __name(this, "InspectEditorTokensController");
+  }
+  static {
+    InspectEditorTokensController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.inspectEditorTokens";
+  }
+  static get(editor) {
+    return editor.getContribution(InspectEditorTokensController_1.ID);
+  }
+  constructor(editor, textMateService, languageService, themeService, notificationService, configurationService, languageFeaturesService) {
+    super();
+    this._editor = editor;
+    this._textMateService = textMateService;
+    this._themeService = themeService;
+    this._languageService = languageService;
+    this._notificationService = notificationService;
+    this._configurationService = configurationService;
+    this._languageFeaturesService = languageFeaturesService;
+    this._widget = null;
+    this._register(this._editor.onDidChangeModel((e) => this.stop()));
+    this._register(this._editor.onDidChangeModelLanguage((e) => this.stop()));
+    this._register(this._editor.onKeyUp((e) => e.keyCode === 9 && this.stop()));
+  }
+  dispose() {
+    this.stop();
+    super.dispose();
+  }
+  launch() {
+    if (this._widget) {
+      return;
+    }
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    if (this._editor.getModel().uri.scheme === Schemas.vscodeNotebookCell) {
+      return;
+    }
+    this._widget = new InspectEditorTokensWidget(this._editor, this._textMateService, this._languageService, this._themeService, this._notificationService, this._configurationService, this._languageFeaturesService);
+  }
+  stop() {
+    if (this._widget) {
+      this._widget.dispose();
+      this._widget = null;
+    }
+  }
+  toggle() {
+    if (!this._widget) {
+      this.launch();
+    } else {
+      this.stop();
+    }
+  }
+};
+InspectEditorTokensController = InspectEditorTokensController_1 = __decorate([
+  __param(1, ITextMateTokenizationService),
+  __param(2, ILanguageService),
+  __param(3, IWorkbenchThemeService),
+  __param(4, INotificationService),
+  __param(5, IConfigurationService),
+  __param(6, ILanguageFeaturesService)
+], InspectEditorTokensController);
+class InspectEditorTokens extends EditorAction {
+  static {
+    __name(this, "InspectEditorTokens");
+  }
+  constructor() {
+    super({
+      id: "editor.action.inspectTMScopes",
+      label: nls.localize2("inspectEditorTokens", "Developer: Inspect Editor Tokens and Scopes"),
+      precondition: void 0
+    });
+  }
+  run(accessor, editor) {
+    const controller = InspectEditorTokensController.get(editor);
+    controller?.toggle();
+  }
+}
+function renderTokenText(tokenText) {
+  if (tokenText.length > 40) {
+    tokenText = tokenText.substr(0, 20) + "\u2026" + tokenText.substr(tokenText.length - 20);
+  }
+  let result = "";
+  for (let charIndex = 0, len = tokenText.length; charIndex < len; charIndex++) {
+    const charCode = tokenText.charCodeAt(charIndex);
+    switch (charCode) {
+      case 9:
+        result += "\u2192";
+        break;
+      case 32:
+        result += "\xB7";
+        break;
+      default:
+        result += String.fromCharCode(charCode);
+    }
+  }
+  return result;
+}
+__name(renderTokenText, "renderTokenText");
+class InspectEditorTokensWidget extends Disposable {
+  static {
+    __name(this, "InspectEditorTokensWidget");
+  }
+  static {
+    this._ID = "editor.contrib.inspectEditorTokensWidget";
+  }
+  constructor(editor, textMateService, languageService, themeService, notificationService, configurationService, languageFeaturesService) {
+    super();
+    this.allowEditorOverflow = true;
+    this._isDisposed = false;
+    this._editor = editor;
+    this._languageService = languageService;
+    this._themeService = themeService;
+    this._textMateService = textMateService;
+    this._notificationService = notificationService;
+    this._configurationService = configurationService;
+    this._languageFeaturesService = languageFeaturesService;
+    this._model = this._editor.getModel();
+    this._domNode = document.createElement("div");
+    this._domNode.className = "token-inspect-widget";
+    this._currentRequestCancellationTokenSource = new CancellationTokenSource();
+    this._beginCompute(this._editor.getPosition());
+    this._register(this._editor.onDidChangeCursorPosition((e) => this._beginCompute(this._editor.getPosition())));
+    this._register(themeService.onDidColorThemeChange((_) => this._beginCompute(this._editor.getPosition())));
+    this._register(configurationService.onDidChangeConfiguration((e) => e.affectsConfiguration("editor.semanticHighlighting.enabled") && this._beginCompute(this._editor.getPosition())));
+    this._editor.addContentWidget(this);
+  }
+  dispose() {
+    this._isDisposed = true;
+    this._editor.removeContentWidget(this);
+    this._currentRequestCancellationTokenSource.cancel();
+    super.dispose();
+  }
+  getId() {
+    return InspectEditorTokensWidget._ID;
+  }
+  _beginCompute(position) {
+    const grammar = this._textMateService.createTokenizer(this._model.getLanguageId());
+    const semanticTokens = this._computeSemanticTokens(position);
+    const backend = this._model.tokenization.tokens.get();
+    const asTreeSitterBackend = backend instanceof TreeSitterSyntaxTokenBackend ? backend : void 0;
+    dom.clearNode(this._domNode);
+    this._domNode.appendChild(document.createTextNode(nls.localize("inspectTMScopesWidget.loading", "Loading...")));
+    Promise.all([grammar, semanticTokens]).then(([grammar2, semanticTokens2]) => {
+      if (this._isDisposed) {
+        return;
+      }
+      const treeSitterTree = asTreeSitterBackend?.tree.get();
+      this._compute(grammar2, semanticTokens2, treeSitterTree, position);
+      this._domNode.style.maxWidth = `${Math.max(this._editor.getLayoutInfo().width * 0.66, 500)}px`;
+      this._editor.layoutContentWidget(this);
+    }, (err) => {
+      this._notificationService.warn(err);
+      setTimeout(() => {
+        InspectEditorTokensController.get(this._editor)?.stop();
+      });
+    });
+  }
+  _isSemanticColoringEnabled() {
+    const setting = this._configurationService.getValue(SEMANTIC_HIGHLIGHTING_SETTING_ID, { overrideIdentifier: this._model.getLanguageId(), resource: this._model.uri })?.enabled;
+    if (typeof setting === "boolean") {
+      return setting;
+    }
+    return this._themeService.getColorTheme().semanticHighlighting;
+  }
+  _compute(grammar, semanticTokens, tree, position) {
+    const textMateTokenInfo = grammar && this._getTokensAtPosition(grammar, position);
+    const semanticTokenInfo = semanticTokens && this._getSemanticTokenAtPosition(semanticTokens, position);
+    const treeSitterTokenInfo = tree && this._getTreeSitterTokenAtPosition(tree, position);
+    if (!textMateTokenInfo && !semanticTokenInfo && !treeSitterTokenInfo) {
+      dom.reset(this._domNode, "No grammar or semantic tokens available.");
+      return;
+    }
+    const tmMetadata = textMateTokenInfo?.metadata;
+    const semMetadata = semanticTokenInfo?.metadata;
+    const semTokenText = semanticTokenInfo && renderTokenText(this._model.getValueInRange(semanticTokenInfo.range));
+    const tmTokenText = textMateTokenInfo && renderTokenText(this._model.getLineContent(position.lineNumber).substring(textMateTokenInfo.token.startIndex, textMateTokenInfo.token.endIndex));
+    const semTokenLength = semanticTokenInfo && this._model.getValueLengthInRange(semanticTokenInfo.range);
+    const tmTokenLength = textMateTokenInfo && textMateTokenInfo.token.endIndex - textMateTokenInfo.token.startIndex;
+    const tokenText = semTokenText || tmTokenText || "";
+    const tokenLength = semTokenLength || tmTokenLength || 0;
+    dom.reset(this._domNode, $("h2.tiw-token", void 0, tokenText, $("span.tiw-token-length", void 0, `${tokenLength} ${tokenLength === 1 ? "char" : "chars"}`)));
+    dom.append(this._domNode, $("hr.tiw-metadata-separator", { "style": "clear:both" }));
+    dom.append(this._domNode, $("table.tiw-metadata-table", void 0, $("tbody", void 0, $("tr", void 0, $("td.tiw-metadata-key", void 0, "language"), $("td.tiw-metadata-value", void 0, tmMetadata?.languageId || "")), $("tr", void 0, $("td.tiw-metadata-key", void 0, "standard token type"), $("td.tiw-metadata-value", void 0, this._tokenTypeToString(
+      tmMetadata?.tokenType || 0
+      /* StandardTokenType.Other */
+    ))), ...this._formatMetadata(semMetadata, tmMetadata))));
+    if (semanticTokenInfo) {
+      dom.append(this._domNode, $("hr.tiw-metadata-separator"));
+      const table = dom.append(this._domNode, $("table.tiw-metadata-table", void 0));
+      const tbody = dom.append(table, $("tbody", void 0, $("tr", void 0, $("td.tiw-metadata-key", void 0, "semantic token type"), $("td.tiw-metadata-value", void 0, semanticTokenInfo.type))));
+      if (semanticTokenInfo.modifiers.length) {
+        dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "modifiers"), $("td.tiw-metadata-value", void 0, semanticTokenInfo.modifiers.join(" "))));
+      }
+      if (semanticTokenInfo.metadata) {
+        const properties = ["foreground", "bold", "italic", "underline", "strikethrough"];
+        const propertiesByDefValue = {};
+        const allDefValues = new Array();
+        for (const property of properties) {
+          if (semanticTokenInfo.metadata[property] !== void 0) {
+            const definition = semanticTokenInfo.definitions[property];
+            const defValue = this._renderTokenStyleDefinition(definition, property);
+            const defValueStr = defValue.map((el) => dom.isHTMLElement(el) ? el.outerHTML : el).join();
+            let properties2 = propertiesByDefValue[defValueStr];
+            if (!properties2) {
+              propertiesByDefValue[defValueStr] = properties2 = [];
+              allDefValues.push([defValue, defValueStr]);
+            }
+            properties2.push(property);
+          }
+        }
+        for (const [defValue, defValueStr] of allDefValues) {
+          dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, propertiesByDefValue[defValueStr].join(", ")), $("td.tiw-metadata-value", void 0, ...defValue)));
+        }
+      }
+    }
+    if (textMateTokenInfo) {
+      const theme = this._themeService.getColorTheme();
+      dom.append(this._domNode, $("hr.tiw-metadata-separator"));
+      const table = dom.append(this._domNode, $("table.tiw-metadata-table"));
+      const tbody = dom.append(table, $("tbody"));
+      if (tmTokenText && tmTokenText !== tokenText) {
+        dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "textmate token"), $("td.tiw-metadata-value", void 0, `${tmTokenText} (${tmTokenText.length})`)));
+      }
+      const scopes = new Array();
+      for (let i = textMateTokenInfo.token.scopes.length - 1; i >= 0; i--) {
+        scopes.push(textMateTokenInfo.token.scopes[i]);
+        if (i > 0) {
+          scopes.push($("br"));
+        }
+      }
+      dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "textmate scopes"), $("td.tiw-metadata-value.tiw-metadata-scopes", void 0, ...scopes)));
+      const matchingRule = findMatchingThemeRule(theme, textMateTokenInfo.token.scopes, false);
+      const semForeground = semanticTokenInfo?.metadata?.foreground;
+      if (matchingRule) {
+        if (semForeground !== textMateTokenInfo.metadata.foreground) {
+          let defValue = $("code.tiw-theme-selector", void 0, matchingRule.rawSelector, $("br"), JSON.stringify(matchingRule.settings, null, "	"));
+          if (semForeground) {
+            defValue = $("s", void 0, defValue);
+          }
+          dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "foreground"), $("td.tiw-metadata-value", void 0, defValue)));
+        }
+      } else if (!semForeground) {
+        dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "foreground"), $("td.tiw-metadata-value", void 0, "No theme selector")));
+      }
+    }
+    if (treeSitterTokenInfo) {
+      const lastTokenInfo = treeSitterTokenInfo[treeSitterTokenInfo.length - 1];
+      dom.append(this._domNode, $("hr.tiw-metadata-separator"));
+      const table = dom.append(this._domNode, $("table.tiw-metadata-table"));
+      const tbody = dom.append(table, $("tbody"));
+      dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, `tree-sitter token ${lastTokenInfo.id}`), $("td.tiw-metadata-value", void 0, `${lastTokenInfo.text}`)));
+      const scopes = new Array();
+      let i = treeSitterTokenInfo.length - 1;
+      let node = treeSitterTokenInfo[i];
+      while (node.parent || i > 0) {
+        scopes.push(node.type);
+        node = node.parent ?? treeSitterTokenInfo[--i];
+        if (node) {
+          scopes.push($("br"));
+        }
+      }
+      dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "tree-sitter tree"), $("td.tiw-metadata-value.tiw-metadata-scopes", void 0, ...scopes)));
+      const tokenizationSupport = this._model.tokenization.tokens.get().tokenizationImpl.get();
+      const captures = tokenizationSupport?.captureAtPosition(position.lineNumber, position.column);
+      if (captures && captures.length > 0) {
+        dom.append(tbody, $("tr", void 0, $("td.tiw-metadata-key", void 0, "foreground"), $("td.tiw-metadata-value", void 0, captures.map((cap) => cap.name).join(" "))));
+      }
+    }
+  }
+  _formatMetadata(semantic, tm) {
+    const elements = new Array();
+    function render(property) {
+      const value = semantic?.[property] || tm?.[property];
+      if (value !== void 0) {
+        const semanticStyle = semantic?.[property] ? "tiw-metadata-semantic" : "";
+        elements.push($("tr", void 0, $("td.tiw-metadata-key", void 0, property), $(`td.tiw-metadata-value.${semanticStyle}`, void 0, value)));
+      }
+      return value;
+    }
+    __name(render, "render");
+    const foreground = render("foreground");
+    const background = render("background");
+    if (foreground && background) {
+      const backgroundColor = Color.fromHex(background), foregroundColor = Color.fromHex(foreground);
+      if (backgroundColor.isOpaque()) {
+        elements.push($("tr", void 0, $("td.tiw-metadata-key", void 0, "contrast ratio"), $("td.tiw-metadata-value", void 0, backgroundColor.getContrastRatio(foregroundColor.makeOpaque(backgroundColor)).toFixed(2))));
+      } else {
+        elements.push($("tr", void 0, $("td.tiw-metadata-key", void 0, "Contrast ratio cannot be precise for background colors that use transparency"), $("td.tiw-metadata-value")));
+      }
+    }
+    const fontStyleLabels = new Array();
+    function addStyle(key) {
+      let label;
+      if (semantic && semantic[key]) {
+        label = $("span.tiw-metadata-semantic", void 0, key);
+      } else if (tm && tm[key]) {
+        label = key;
+      }
+      if (label) {
+        if (fontStyleLabels.length) {
+          fontStyleLabels.push(" ");
+        }
+        fontStyleLabels.push(label);
+      }
+    }
+    __name(addStyle, "addStyle");
+    addStyle("bold");
+    addStyle("italic");
+    addStyle("underline");
+    addStyle("strikethrough");
+    if (fontStyleLabels.length) {
+      elements.push($("tr", void 0, $("td.tiw-metadata-key", void 0, "font style"), $("td.tiw-metadata-value", void 0, ...fontStyleLabels)));
+    }
+    return elements;
+  }
+  _decodeMetadata(metadata) {
+    const colorMap = this._themeService.getColorTheme().tokenColorMap;
+    const languageId = TokenMetadata.getLanguageId(metadata);
+    const tokenType = TokenMetadata.getTokenType(metadata);
+    const fontStyle = TokenMetadata.getFontStyle(metadata);
+    const foreground = TokenMetadata.getForeground(metadata);
+    const background = TokenMetadata.getBackground(metadata);
+    return {
+      languageId: this._languageService.languageIdCodec.decodeLanguageId(languageId),
+      tokenType,
+      bold: fontStyle & 2 ? true : void 0,
+      italic: fontStyle & 1 ? true : void 0,
+      underline: fontStyle & 4 ? true : void 0,
+      strikethrough: fontStyle & 8 ? true : void 0,
+      foreground: colorMap[foreground],
+      background: colorMap[background]
+    };
+  }
+  _tokenTypeToString(tokenType) {
+    switch (tokenType) {
+      case 0:
+        return "Other";
+      case 1:
+        return "Comment";
+      case 2:
+        return "String";
+      case 3:
+        return "RegEx";
+      default:
+        return "??";
+    }
+  }
+  _getTokensAtPosition(grammar, position) {
+    const lineNumber = position.lineNumber;
+    const stateBeforeLine = this._getStateBeforeLine(grammar, lineNumber);
+    const tokenizationResult1 = grammar.tokenizeLine(this._model.getLineContent(lineNumber), stateBeforeLine);
+    const tokenizationResult2 = grammar.tokenizeLine2(this._model.getLineContent(lineNumber), stateBeforeLine);
+    let token1Index = 0;
+    for (let i = tokenizationResult1.tokens.length - 1; i >= 0; i--) {
+      const t = tokenizationResult1.tokens[i];
+      if (position.column - 1 >= t.startIndex) {
+        token1Index = i;
+        break;
+      }
+    }
+    let token2Index = 0;
+    for (let i = tokenizationResult2.tokens.length >>> 1; i >= 0; i--) {
+      if (position.column - 1 >= tokenizationResult2.tokens[i << 1]) {
+        token2Index = i;
+        break;
+      }
+    }
+    return {
+      token: tokenizationResult1.tokens[token1Index],
+      metadata: this._decodeMetadata(tokenizationResult2.tokens[(token2Index << 1) + 1])
+    };
+  }
+  _getStateBeforeLine(grammar, lineNumber) {
+    let state = null;
+    for (let i = 1; i < lineNumber; i++) {
+      const tokenizationResult = grammar.tokenizeLine(this._model.getLineContent(i), state);
+      state = tokenizationResult.ruleStack;
+    }
+    return state;
+  }
+  isSemanticTokens(token) {
+    return token && token.data;
+  }
+  async _computeSemanticTokens(position) {
+    if (!this._isSemanticColoringEnabled()) {
+      return null;
+    }
+    const tokenProviders = this._languageFeaturesService.documentSemanticTokensProvider.ordered(this._model);
+    if (tokenProviders.length) {
+      const provider = tokenProviders[0];
+      const tokens = await Promise.resolve(provider.provideDocumentSemanticTokens(this._model, null, this._currentRequestCancellationTokenSource.token));
+      if (this.isSemanticTokens(tokens)) {
+        return { tokens, legend: provider.getLegend() };
+      }
+    }
+    const rangeTokenProviders = this._languageFeaturesService.documentRangeSemanticTokensProvider.ordered(this._model);
+    if (rangeTokenProviders.length) {
+      const provider = rangeTokenProviders[0];
+      const lineNumber = position.lineNumber;
+      const range = new Range(lineNumber, 1, lineNumber, this._model.getLineMaxColumn(lineNumber));
+      const tokens = await Promise.resolve(provider.provideDocumentRangeSemanticTokens(this._model, range, this._currentRequestCancellationTokenSource.token));
+      if (this.isSemanticTokens(tokens)) {
+        return { tokens, legend: provider.getLegend() };
+      }
+    }
+    return null;
+  }
+  _getSemanticTokenAtPosition(semanticTokens, pos) {
+    const tokenData = semanticTokens.tokens.data;
+    const defaultLanguage = this._model.getLanguageId();
+    let lastLine = 0;
+    let lastCharacter = 0;
+    const posLine = pos.lineNumber - 1, posCharacter = pos.column - 1;
+    for (let i = 0; i < tokenData.length; i += 5) {
+      const lineDelta = tokenData[i], charDelta = tokenData[i + 1], len = tokenData[i + 2], typeIdx = tokenData[i + 3], modSet = tokenData[i + 4];
+      const line = lastLine + lineDelta;
+      const character = lineDelta === 0 ? lastCharacter + charDelta : charDelta;
+      if (posLine === line && character <= posCharacter && posCharacter < character + len) {
+        const type = semanticTokens.legend.tokenTypes[typeIdx] || "not in legend (ignored)";
+        const modifiers = [];
+        let modifierSet = modSet;
+        for (let modifierIndex = 0; modifierSet > 0 && modifierIndex < semanticTokens.legend.tokenModifiers.length; modifierIndex++) {
+          if (modifierSet & 1) {
+            modifiers.push(semanticTokens.legend.tokenModifiers[modifierIndex]);
+          }
+          modifierSet = modifierSet >> 1;
+        }
+        if (modifierSet > 0) {
+          modifiers.push("not in legend (ignored)");
+        }
+        const range = new Range(line + 1, character + 1, line + 1, character + 1 + len);
+        const definitions = {};
+        const colorMap = this._themeService.getColorTheme().tokenColorMap;
+        const theme = this._themeService.getColorTheme();
+        const tokenStyle = theme.getTokenStyleMetadata(type, modifiers, defaultLanguage, true, definitions);
+        let metadata = void 0;
+        if (tokenStyle) {
+          metadata = {
+            languageId: void 0,
+            tokenType: 0,
+            bold: tokenStyle?.bold,
+            italic: tokenStyle?.italic,
+            underline: tokenStyle?.underline,
+            strikethrough: tokenStyle?.strikethrough,
+            foreground: colorMap[
+              tokenStyle?.foreground || 0
+              /* ColorId.None */
+            ],
+            background: void 0
+          };
+        }
+        return { type, modifiers, range, metadata, definitions };
+      }
+      lastLine = line;
+      lastCharacter = character;
+    }
+    return null;
+  }
+  _walkTreeforPosition(cursor, pos) {
+    const offset = this._model.getOffsetAt(pos);
+    cursor.gotoFirstChild();
+    let goChild = false;
+    let lastGoodNode = null;
+    do {
+      if (cursor.currentNode.startIndex <= offset && offset < cursor.currentNode.endIndex) {
+        goChild = true;
+        lastGoodNode = cursor.currentNode;
+      } else {
+        goChild = false;
+      }
+    } while (goChild ? cursor.gotoFirstChild() : cursor.gotoNextSibling());
+    return lastGoodNode;
+  }
+  _getTreeSitterTokenAtPosition(treeSitterTree, pos) {
+    const nodes = [];
+    let tree = treeSitterTree?.tree.get();
+    while (tree) {
+      const cursor = tree.walk();
+      const node = this._walkTreeforPosition(cursor, pos);
+      cursor.delete();
+      if (node) {
+        nodes.push(node);
+        treeSitterTree = treeSitterTree?.getInjectionTrees(node.startIndex, treeSitterTree.languageId);
+        tree = treeSitterTree?.tree.get();
+      } else {
+        tree = void 0;
+      }
+    }
+    return nodes.length > 0 ? nodes : null;
+  }
+  _renderTokenStyleDefinition(definition, property) {
+    const elements = new Array();
+    if (definition === void 0) {
+      return elements;
+    }
+    const theme = this._themeService.getColorTheme();
+    if (Array.isArray(definition)) {
+      const scopesDefinition = {};
+      theme.resolveScopes(definition, scopesDefinition);
+      const matchingRule = scopesDefinition[property];
+      if (matchingRule && scopesDefinition.scope) {
+        const scopes = $("ul.tiw-metadata-values");
+        const strScopes = Array.isArray(matchingRule.scope) ? matchingRule.scope : [String(matchingRule.scope)];
+        for (const strScope of strScopes) {
+          scopes.appendChild($("li.tiw-metadata-value.tiw-metadata-scopes", void 0, strScope));
+        }
+        elements.push(scopesDefinition.scope.join(" "), scopes, $("code.tiw-theme-selector", void 0, JSON.stringify(matchingRule.settings, null, "	")));
+        return elements;
+      }
+      return elements;
+    } else if (SemanticTokenRule.is(definition)) {
+      const scope = theme.getTokenStylingRuleScope(definition);
+      if (scope === "setting") {
+        elements.push(`User settings: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`);
+        return elements;
+      } else if (scope === "theme") {
+        elements.push(`Color theme: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`);
+        return elements;
+      }
+      return elements;
+    } else {
+      const style = theme.resolveTokenStyleValue(definition);
+      elements.push(`Default: ${style ? this._renderStyleProperty(style, property) : ""}`);
+      return elements;
+    }
+  }
+  _renderStyleProperty(style, property) {
+    switch (property) {
+      case "foreground":
+        return style.foreground ? Color.Format.CSS.formatHexA(style.foreground, true) : "";
+      default:
+        return style[property] !== void 0 ? String(style[property]) : "";
+    }
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return {
+      position: this._editor.getPosition(),
+      preference: [
+        2,
+        1
+        /* ContentWidgetPositionPreference.ABOVE */
+      ]
+    };
+  }
+}
+registerEditorContribution(
+  InspectEditorTokensController.ID,
+  InspectEditorTokensController,
+  4
+  /* EditorContributionInstantiation.Lazy */
+);
+registerEditorAction(InspectEditorTokens);
+export {
+  InspectEditorTokensController
+};
+//# sourceMappingURL=inspectEditorTokens.js.map

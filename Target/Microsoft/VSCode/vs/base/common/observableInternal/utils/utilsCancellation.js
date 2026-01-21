@@ -1,1 +1,82 @@
-import{$5d as w}from"../debugName.js";import{CancellationError as p,CancellationTokenSource as C}from"../commonFacade/cancellation.js";import{strictEquals as $}from"../commonFacade/deps.js";import{$ge as h}from"../reactions/autorun.js";import{$Ne as q}from"../observables/derivedImpl.js";import{DebugLocation as R}from"../debugLocation.js";function E(t,s,o,n){return s||(s=e=>e!=null),new Promise((e,r)=>{let u=!0,l=!1;const a=t.map(i=>({isFinished:s(i),error:o?o(i):!1,state:i})),d=h(i=>{const{isFinished:c,error:f,state:m}=a.read(i);(c||f)&&(u?l=!0:d.dispose(),f?r(f===!0?m:f):e(m))});if(n){const i=n.onCancellationRequested(()=>{d.dispose(),i.dispose(),r(new p)});if(n.isCancellationRequested){d.dispose(),i.dispose(),r(new p);return}}u=!1,l&&d.dispose()})}function F(t,s){let o,n;s===void 0?(o=t,n=void 0):(n=t,o=s);let e;return new q(new w(n,void 0,o),r=>(e&&e.dispose(!0),e=new C,o(r,e.token)),void 0,()=>e?.dispose(),$,R.ofCaller())}export{F as $0e,E as $9e};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DebugNameData } from "../debugName.js";
+import { CancellationError, CancellationTokenSource } from "../commonFacade/cancellation.js";
+import { strictEquals } from "../commonFacade/deps.js";
+import { autorun } from "../reactions/autorun.js";
+import { Derived } from "../observables/derivedImpl.js";
+import { DebugLocation } from "../debugLocation.js";
+function waitForState(observable, predicate, isError, cancellationToken) {
+  if (!predicate) {
+    predicate = /* @__PURE__ */ __name((state) => state !== null && state !== void 0, "predicate");
+  }
+  return new Promise((resolve, reject) => {
+    let isImmediateRun = true;
+    let shouldDispose = false;
+    const stateObs = observable.map((state) => {
+      return {
+        isFinished: predicate(state),
+        error: isError ? isError(state) : false,
+        state
+      };
+    });
+    const d = autorun((reader) => {
+      const { isFinished, error, state } = stateObs.read(reader);
+      if (isFinished || error) {
+        if (isImmediateRun) {
+          shouldDispose = true;
+        } else {
+          d.dispose();
+        }
+        if (error) {
+          reject(error === true ? state : error);
+        } else {
+          resolve(state);
+        }
+      }
+    });
+    if (cancellationToken) {
+      const dc = cancellationToken.onCancellationRequested(() => {
+        d.dispose();
+        dc.dispose();
+        reject(new CancellationError());
+      });
+      if (cancellationToken.isCancellationRequested) {
+        d.dispose();
+        dc.dispose();
+        reject(new CancellationError());
+        return;
+      }
+    }
+    isImmediateRun = false;
+    if (shouldDispose) {
+      d.dispose();
+    }
+  });
+}
+__name(waitForState, "waitForState");
+function derivedWithCancellationToken(computeFnOrOwner, computeFnOrUndefined) {
+  let computeFn;
+  let owner;
+  if (computeFnOrUndefined === void 0) {
+    computeFn = computeFnOrOwner;
+    owner = void 0;
+  } else {
+    owner = computeFnOrOwner;
+    computeFn = computeFnOrUndefined;
+  }
+  let cancellationTokenSource = void 0;
+  return new Derived(new DebugNameData(owner, void 0, computeFn), (r) => {
+    if (cancellationTokenSource) {
+      cancellationTokenSource.dispose(true);
+    }
+    cancellationTokenSource = new CancellationTokenSource();
+    return computeFn(r, cancellationTokenSource.token);
+  }, void 0, () => cancellationTokenSource?.dispose(), strictEquals, DebugLocation.ofCaller());
+}
+__name(derivedWithCancellationToken, "derivedWithCancellationToken");
+export {
+  derivedWithCancellationToken,
+  waitForState
+};
+//# sourceMappingURL=utilsCancellation.js.map

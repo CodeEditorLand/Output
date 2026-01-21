@@ -1,1 +1,361 @@
-import{$F7 as G,$B8 as K,h as M,$K8 as k}from"../../../../../../base/browser/dom.js";import{$Q9 as R}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$P0 as Q}from"../../../../../../base/browser/ui/toggle/toggle.js";import{$Em as B,$Gm as U}from"../../../../../../base/common/actions.js";import{$ak as N}from"../../../../../../base/common/codicons.js";import{$Ed as z}from"../../../../../../base/common/lifecycle.js";import{$dx as O}from"../../../../../../base/common/numbers.js";import{autorun as H,autorunOpts as J,derived as A,derivedOpts as L,observableValue as P,transaction as m}from"../../../../../../base/common/observable.js";import{$Xg as X}from"../../../../../../base/common/strings.js";import{$dd as q}from"../../../../../../base/common/types.js";import{OverviewRulerLane as Y}from"../../../../../../editor/common/model.js";import{localize as c}from"../../../../../../nls.js";import{$nL as _}from"../../../../../../platform/actions/common/actions.js";import{$9l as Z}from"../../../../../../platform/configuration/common/configuration.js";import{$6hb as tt}from"../../../../../../platform/contextview/browser/contextView.js";import{$Lj as et}from"../../../../../../platform/instantiation/common/instantiation.js";import{$xib as it}from"../../../../../../platform/theme/browser/defaultStyles.js";import{$o5b as nt,$s5b as D}from"../../utils.js";import{$E5b as y,$F5b as T}from"../colors.js";import{$J5b as st}from"../editorGutter.js";import{$K5b as ot,$L5b as rt,$M5b as at}from"./codeEditorView.js";var F=function(p,n,s,a){var o=arguments.length,i=o<3?n:a===null?a=Object.getOwnPropertyDescriptor(n,s):a,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(p,n,s,a);else for(var e=p.length-1;e>=0;e--)(t=p[e])&&(i=(o<3?t(i):o>3?t(n,s,i):t(n,s))||i);return o>3&&i&&Object.defineProperty(n,s,i),i},I=function(p,n){return function(s,a){n(s,a,p)}};let j=class extends ot{constructor(n,s,a,o,i){super(a,s,i),this.inputNumber=n,this.otherInputNumber=this.inputNumber===1?2:1,this.u=L({debugName:`input${this.inputNumber}.modifiedBaseRangeGutterItemInfos`},t=>{const e=this.viewModel.read(t);if(!e)return[];const r=e.model,d=this.inputNumber,u=e.showNonConflictingChanges.read(t);return r.modifiedBaseRanges.read(t).filter(l=>l.getInputDiffs(this.inputNumber).length>0&&(u||l.isConflicting||!r.isHandled(l).read(t))).map((l,w)=>new dt(w.toString(),l,d,e))}),this.w=L({debugName:`input${this.inputNumber}.decorations`},t=>{const e=this.viewModel.read(t);if(!e)return[];const r=e.model,d=(this.inputNumber===1?r.input1:r.input2).textModel,u=e.activeModifiedBaseRange.read(t),l=new Array,w=e.showNonConflictingChanges.read(t),V=this.j.read(t),x=!(e.baseCodeEditorView.read(t)!==void 0&&e.baseShowDiffAgainst.read(t)===this.inputNumber)&&this.n.read(t);for(const h of r.modifiedBaseRanges.read(t)){const $=h.getInputRange(this.inputNumber);if(!$)continue;const f=["merge-editor-block"];let E=[0,0,0,0];const g=r.isInputHandled(h,this.inputNumber).read(t);g&&f.push("handled"),h===u&&(f.push("focused"),E=[0,2,0,2]),h.isConflicting&&f.push("conflicting");const b=this.inputNumber===1?"input i1":"input i2";if(f.push(b),!(!h.isConflicting&&!w&&g)&&(x&&!g&&f.push("use-simplified-decorations"),l.push({range:$.toInclusiveRangeOrEmpty(),options:{showIfCollapsed:!0,blockClassName:f.join(" "),blockPadding:E,blockIsAfterEnd:$.startLineNumber>d.getLineCount(),description:"Merge Editor",minimap:{position:2,color:{id:g?y:T}},overviewRuler:h.isConflicting?{position:Y.Center,color:{id:g?y:T}}:void 0}}),!x&&(h.isConflicting||!r.isHandled(h).read(t)))){const W=h.getInputDiffs(this.inputNumber);for(const v of W){const S=v.outputRange.toInclusiveRange();if(S&&l.push({range:S,options:{className:`merge-editor-diff ${b}`,description:"Merge Editor",isWholeLine:!0}}),v.rangeMappings)for(const C of v.rangeMappings)(V||!C.outputRange.isEmpty())&&l.push({range:C.outputRange,options:{className:C.outputRange.isEmpty()?`merge-editor-diff-empty-word ${b}`:`merge-editor-diff-word ${b}`,description:"Merge Editor",showIfCollapsed:!0}})}}}return l}),this.a.root.classList.add("input"),this.D(new st(this.editor,this.a.gutterDiv,{getIntersectingGutterItems:(t,e)=>this.f.read(e)?this.u.read(e):[],createView:(t,e)=>new ut(t,e,o)})),this.D(rt(this,(t,e)=>e.model.translateBaseRangeToInput(this.inputNumber,t))),this.D(a.createInstance(at,n===1?_.MergeInput1Toolbar:_.MergeInput2Toolbar,this.a.toolbar)),this.D(J({debugName:`input${this.inputNumber}: update labels & text model`},t=>{const e=this.viewModel.read(t);if(!e)return;this.editor.setModel(this.inputNumber===1?e.model.input1.textModel:e.model.input2.textModel);const r=this.inputNumber===1?e.model.input1.title||c(10290,null):e.model.input2.title||c(10291,null),d=this.inputNumber===1?e.model.input1.description:e.model.input2.description,u=this.inputNumber===1?e.model.input1.detail:e.model.input2.detail;k(this.a.title,...R(r)),k(this.a.description,...d?R(d):[]),k(this.a.detail,...u?R(u):[])})),this.D(nt(this.editor,this.w))}};j=F([I(2,et),I(3,tt),I(4,Z)],j);class dt{constructor(n,s,a,o){this.id=n,this.b=s,this.f=a,this.g=o,this.a=this.g.model,this.range=this.b.getInputRange(this.f),this.enabled=this.a.isUpToDate,this.toggleState=A(this,i=>{const t=this.a.getState(this.b).read(i).getInput(this.f);return t===2&&!this.b.isOrderRelevant?1:t}),this.state=A(this,i=>{const t=this.g.activeModifiedBaseRange.read(i);return this.a.hasBaseRange(this.b)?{handled:this.a.isHandled(this.b).read(i),focused:this.b===t}:{handled:!1,focused:!1}})}setState(n,s){this.g.setState(this.b,this.a.getState(this.b).get().withInputValue(this.f,n),s,this.f)}toggleBothSides(){m(n=>{const s=this.a.getState(this.b).get();this.a.setState(this.b,s.toggle(this.f).toggle(this.f===1?2:1),!0,n)})}getContextMenuActions(){const n=this.a.getState(this.b).get(),s=this.a.isHandled(this.b).get(),a=t=>{m(e=>this.g.setState(this.b,t,e,this.f))};function o(t,e,r,d){const u=new B(t,e,void 0,!0,()=>{a(r)});return u.checked=d,u}const i=n.includesInput1&&n.includesInput2;return[this.b.input1Diffs.length>0?o("mergeEditor.acceptInput1",c(10292,null,this.a.input1.title),n.toggle(1),n.includesInput1):void 0,this.b.input2Diffs.length>0?o("mergeEditor.acceptInput2",c(10293,null,this.a.input2.title),n.toggle(2),n.includesInput2):void 0,this.b.isConflicting?D(o("mergeEditor.acceptBoth",c(10294,null),n.withInputValue(1,!i).withInputValue(2,!i),i),{enabled:this.b.canBeCombined}):void 0,new U,this.b.isConflicting?D(o("mergeEditor.swap",c(10295,null),n.swap(),!1),{enabled:!n.kind&&(!i||this.b.isOrderRelevant)}):void 0,D(new B("mergeEditor.markAsHandled",c(10296,null),void 0,!0,()=>{m(t=>{this.a.setHandled(this.b,!s,t)})}),{checked:s})].filter(q)}}class ut extends z{constructor(n,s,a){super(),this.f=P(this,!1),this.a=P(this,n);const o=new Q({isChecked:!1,title:"",icon:N.check,...it});o.domNode.classList.add("accept-conflict-group"),this.D(G(o.domNode,K.MOUSE_DOWN,i=>{const t=this.a.get();t&&(i.button===2?(i.stopPropagation(),i.preventDefault(),a.showContextMenu({getAnchor:()=>o.domNode,getActions:()=>t.getContextMenuActions()})):i.button===1&&(i.stopPropagation(),i.preventDefault(),t.toggleBothSides()))})),this.D(H(i=>{const t=this.a.read(i),e=t.toggleState.read(i),d={0:{icon:void 0,checked:!1,title:c(10297,null)},3:{icon:N.circleFilled,checked:!1,title:c(10298,null)},1:{icon:N.check,checked:!0,title:c(10299,null)},2:{icon:N.checkAll,checked:!0,title:c(10300,null)}}[e];o.setIcon(d.icon),o.checked=d.checked,o.setTitle(d.title),t.enabled.read(i)?o.enable():o.disable()})),this.D(H(i=>{const t=this.a.read(i).state.read(i),e=["merge-accept-gutter-marker",t.handled&&"handled",t.focused&&"focused",this.f.read(i)?"multi-line":"single-line"];s.className=e.filter(r=>typeof r=="string").join(" ")})),this.D(o.onChange(()=>{m(i=>{this.a.get().setState(o.checked,i)})})),s.appendChild(M("div.background",[X]).root),s.appendChild(this.b=M("div.checkbox",[M("div.checkbox-background",[o.domNode])]).root)}layout(n,s,a,o){const i=this.b.clientHeight,t=s/2-i/2,e=i;let r=n+t;const d=[e,a+o-e-i],u=[n+e,n+s-i-e];u[0]<u[1]&&(r=O(r,d[0],d[1]),r=O(r,u[0],u[1])),this.b.style.top=`${r-n}px`,m(l=>{this.f.set(s>30,l)})}update(n){m(s=>{this.a.set(n,s)})}}export{j as $O5b,dt as $P5b,ut as $Q5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener, EventType, h, reset } from "../../../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Toggle } from "../../../../../../base/browser/ui/toggle/toggle.js";
+import { Action, Separator } from "../../../../../../base/common/actions.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../../../base/common/numbers.js";
+import { autorun, autorunOpts, derived, derivedOpts, observableValue, transaction } from "../../../../../../base/common/observable.js";
+import { noBreakWhitespace } from "../../../../../../base/common/strings.js";
+import { isDefined } from "../../../../../../base/common/types.js";
+import { OverviewRulerLane } from "../../../../../../editor/common/model.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { defaultToggleStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { applyObservableDecorations, setFields } from "../../utils.js";
+import { handledConflictMinimapOverViewRulerColor, unhandledConflictMinimapOverViewRulerColor } from "../colors.js";
+import { EditorGutter } from "../editorGutter.js";
+import { CodeEditorView, createSelectionsAutorun, TitleMenu } from "./codeEditorView.js";
+let InputCodeEditorView = class InputCodeEditorView2 extends CodeEditorView {
+  static {
+    __name(this, "InputCodeEditorView");
+  }
+  constructor(inputNumber, viewModel, instantiationService, contextMenuService, configurationService) {
+    super(instantiationService, viewModel, configurationService);
+    this.inputNumber = inputNumber;
+    this.otherInputNumber = this.inputNumber === 1 ? 2 : 1;
+    this.modifiedBaseRangeGutterItemInfos = derivedOpts({ debugName: `input${this.inputNumber}.modifiedBaseRangeGutterItemInfos` }, (reader) => {
+      const viewModel2 = this.viewModel.read(reader);
+      if (!viewModel2) {
+        return [];
+      }
+      const model = viewModel2.model;
+      const inputNumber2 = this.inputNumber;
+      const showNonConflictingChanges = viewModel2.showNonConflictingChanges.read(reader);
+      return model.modifiedBaseRanges.read(reader).filter((r) => r.getInputDiffs(this.inputNumber).length > 0 && (showNonConflictingChanges || r.isConflicting || !model.isHandled(r).read(reader))).map((baseRange, idx) => new ModifiedBaseRangeGutterItemModel(idx.toString(), baseRange, inputNumber2, viewModel2));
+    });
+    this.decorations = derivedOpts({ debugName: `input${this.inputNumber}.decorations` }, (reader) => {
+      const viewModel2 = this.viewModel.read(reader);
+      if (!viewModel2) {
+        return [];
+      }
+      const model = viewModel2.model;
+      const textModel = (this.inputNumber === 1 ? model.input1 : model.input2).textModel;
+      const activeModifiedBaseRange = viewModel2.activeModifiedBaseRange.read(reader);
+      const result = new Array();
+      const showNonConflictingChanges = viewModel2.showNonConflictingChanges.read(reader);
+      const showDeletionMarkers = this.showDeletionMarkers.read(reader);
+      const diffWithThis = viewModel2.baseCodeEditorView.read(reader) !== void 0 && viewModel2.baseShowDiffAgainst.read(reader) === this.inputNumber;
+      const useSimplifiedDecorations = !diffWithThis && this.useSimplifiedDecorations.read(reader);
+      for (const modifiedBaseRange of model.modifiedBaseRanges.read(reader)) {
+        const range = modifiedBaseRange.getInputRange(this.inputNumber);
+        if (!range) {
+          continue;
+        }
+        const blockClassNames = ["merge-editor-block"];
+        let blockPadding = [0, 0, 0, 0];
+        const isHandled = model.isInputHandled(modifiedBaseRange, this.inputNumber).read(reader);
+        if (isHandled) {
+          blockClassNames.push("handled");
+        }
+        if (modifiedBaseRange === activeModifiedBaseRange) {
+          blockClassNames.push("focused");
+          blockPadding = [0, 2, 0, 2];
+        }
+        if (modifiedBaseRange.isConflicting) {
+          blockClassNames.push("conflicting");
+        }
+        const inputClassName = this.inputNumber === 1 ? "input i1" : "input i2";
+        blockClassNames.push(inputClassName);
+        if (!modifiedBaseRange.isConflicting && !showNonConflictingChanges && isHandled) {
+          continue;
+        }
+        if (useSimplifiedDecorations && !isHandled) {
+          blockClassNames.push("use-simplified-decorations");
+        }
+        result.push({
+          range: range.toInclusiveRangeOrEmpty(),
+          options: {
+            showIfCollapsed: true,
+            blockClassName: blockClassNames.join(" "),
+            blockPadding,
+            blockIsAfterEnd: range.startLineNumber > textModel.getLineCount(),
+            description: "Merge Editor",
+            minimap: {
+              position: 2,
+              color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
+            },
+            overviewRuler: modifiedBaseRange.isConflicting ? {
+              position: OverviewRulerLane.Center,
+              color: { id: isHandled ? handledConflictMinimapOverViewRulerColor : unhandledConflictMinimapOverViewRulerColor }
+            } : void 0
+          }
+        });
+        if (!useSimplifiedDecorations && (modifiedBaseRange.isConflicting || !model.isHandled(modifiedBaseRange).read(reader))) {
+          const inputDiffs = modifiedBaseRange.getInputDiffs(this.inputNumber);
+          for (const diff of inputDiffs) {
+            const range2 = diff.outputRange.toInclusiveRange();
+            if (range2) {
+              result.push({
+                range: range2,
+                options: {
+                  className: `merge-editor-diff ${inputClassName}`,
+                  description: "Merge Editor",
+                  isWholeLine: true
+                }
+              });
+            }
+            if (diff.rangeMappings) {
+              for (const d of diff.rangeMappings) {
+                if (showDeletionMarkers || !d.outputRange.isEmpty()) {
+                  result.push({
+                    range: d.outputRange,
+                    options: {
+                      className: d.outputRange.isEmpty() ? `merge-editor-diff-empty-word ${inputClassName}` : `merge-editor-diff-word ${inputClassName}`,
+                      description: "Merge Editor",
+                      showIfCollapsed: true
+                    }
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+      return result;
+    });
+    this.htmlElements.root.classList.add(`input`);
+    this._register(new EditorGutter(this.editor, this.htmlElements.gutterDiv, {
+      getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader) => {
+        if (this.checkboxesVisible.read(reader)) {
+          return this.modifiedBaseRangeGutterItemInfos.read(reader);
+        } else {
+          return [];
+        }
+      }, "getIntersectingGutterItems"),
+      createView: /* @__PURE__ */ __name((item, target) => new MergeConflictGutterItemView(item, target, contextMenuService), "createView")
+    }));
+    this._register(createSelectionsAutorun(this, (baseRange, viewModel2) => viewModel2.model.translateBaseRangeToInput(this.inputNumber, baseRange)));
+    this._register(instantiationService.createInstance(TitleMenu, inputNumber === 1 ? MenuId.MergeInput1Toolbar : MenuId.MergeInput2Toolbar, this.htmlElements.toolbar));
+    this._register(autorunOpts({ debugName: `input${this.inputNumber}: update labels & text model` }, (reader) => {
+      const vm = this.viewModel.read(reader);
+      if (!vm) {
+        return;
+      }
+      this.editor.setModel(this.inputNumber === 1 ? vm.model.input1.textModel : vm.model.input2.textModel);
+      const title = this.inputNumber === 1 ? vm.model.input1.title || localize("input1", "Input 1") : vm.model.input2.title || localize("input2", "Input 2");
+      const description = this.inputNumber === 1 ? vm.model.input1.description : vm.model.input2.description;
+      const detail = this.inputNumber === 1 ? vm.model.input1.detail : vm.model.input2.detail;
+      reset(this.htmlElements.title, ...renderLabelWithIcons(title));
+      reset(this.htmlElements.description, ...description ? renderLabelWithIcons(description) : []);
+      reset(this.htmlElements.detail, ...detail ? renderLabelWithIcons(detail) : []);
+    }));
+    this._register(applyObservableDecorations(this.editor, this.decorations));
+  }
+};
+InputCodeEditorView = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService)
+], InputCodeEditorView);
+class ModifiedBaseRangeGutterItemModel {
+  static {
+    __name(this, "ModifiedBaseRangeGutterItemModel");
+  }
+  constructor(id, baseRange, inputNumber, viewModel) {
+    this.id = id;
+    this.baseRange = baseRange;
+    this.inputNumber = inputNumber;
+    this.viewModel = viewModel;
+    this.model = this.viewModel.model;
+    this.range = this.baseRange.getInputRange(this.inputNumber);
+    this.enabled = this.model.isUpToDate;
+    this.toggleState = derived(this, (reader) => {
+      const input = this.model.getState(this.baseRange).read(reader).getInput(this.inputNumber);
+      return input === 2 && !this.baseRange.isOrderRelevant ? 1 : input;
+    });
+    this.state = derived(this, (reader) => {
+      const active = this.viewModel.activeModifiedBaseRange.read(reader);
+      if (!this.model.hasBaseRange(this.baseRange)) {
+        return { handled: false, focused: false };
+      }
+      return {
+        handled: this.model.isHandled(this.baseRange).read(reader),
+        focused: this.baseRange === active
+      };
+    });
+  }
+  setState(value, tx) {
+    this.viewModel.setState(this.baseRange, this.model.getState(this.baseRange).get().withInputValue(this.inputNumber, value), tx, this.inputNumber);
+  }
+  toggleBothSides() {
+    transaction((tx) => {
+      const state = this.model.getState(this.baseRange).get();
+      this.model.setState(this.baseRange, state.toggle(this.inputNumber).toggle(this.inputNumber === 1 ? 2 : 1), true, tx);
+    });
+  }
+  getContextMenuActions() {
+    const state = this.model.getState(this.baseRange).get();
+    const handled = this.model.isHandled(this.baseRange).get();
+    const update = /* @__PURE__ */ __name((newState) => {
+      transaction((tx) => {
+        return this.viewModel.setState(this.baseRange, newState, tx, this.inputNumber);
+      });
+    }, "update");
+    function action(id, label, targetState, checked) {
+      const action2 = new Action(id, label, void 0, true, () => {
+        update(targetState);
+      });
+      action2.checked = checked;
+      return action2;
+    }
+    __name(action, "action");
+    const both = state.includesInput1 && state.includesInput2;
+    return [
+      this.baseRange.input1Diffs.length > 0 ? action("mergeEditor.acceptInput1", localize("mergeEditor.accept", "Accept {0}", this.model.input1.title), state.toggle(1), state.includesInput1) : void 0,
+      this.baseRange.input2Diffs.length > 0 ? action("mergeEditor.acceptInput2", localize("mergeEditor.accept", "Accept {0}", this.model.input2.title), state.toggle(2), state.includesInput2) : void 0,
+      this.baseRange.isConflicting ? setFields(action("mergeEditor.acceptBoth", localize("mergeEditor.acceptBoth", "Accept Both"), state.withInputValue(1, !both).withInputValue(2, !both), both), { enabled: this.baseRange.canBeCombined }) : void 0,
+      new Separator(),
+      this.baseRange.isConflicting ? setFields(action("mergeEditor.swap", localize("mergeEditor.swap", "Swap"), state.swap(), false), { enabled: !state.kind && (!both || this.baseRange.isOrderRelevant) }) : void 0,
+      setFields(new Action("mergeEditor.markAsHandled", localize("mergeEditor.markAsHandled", "Mark as Handled"), void 0, true, () => {
+        transaction((tx) => {
+          this.model.setHandled(this.baseRange, !handled, tx);
+        });
+      }), { checked: handled })
+    ].filter(isDefined);
+  }
+}
+class MergeConflictGutterItemView extends Disposable {
+  static {
+    __name(this, "MergeConflictGutterItemView");
+  }
+  constructor(item, target, contextMenuService) {
+    super();
+    this.isMultiLine = observableValue(this, false);
+    this.item = observableValue(this, item);
+    const checkBox = new Toggle({
+      isChecked: false,
+      title: "",
+      icon: Codicon.check,
+      ...defaultToggleStyles
+    });
+    checkBox.domNode.classList.add("accept-conflict-group");
+    this._register(addDisposableListener(checkBox.domNode, EventType.MOUSE_DOWN, (e) => {
+      const item2 = this.item.get();
+      if (!item2) {
+        return;
+      }
+      if (e.button === /* Right */
+      2) {
+        e.stopPropagation();
+        e.preventDefault();
+        contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => checkBox.domNode, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => item2.getContextMenuActions(), "getActions")
+        });
+      } else if (e.button === /* Middle */
+      1) {
+        e.stopPropagation();
+        e.preventDefault();
+        item2.toggleBothSides();
+      }
+    }));
+    this._register(autorun((reader) => {
+      const item2 = this.item.read(reader);
+      const value = item2.toggleState.read(reader);
+      const iconMap = {
+        [
+          0
+          /* InputState.excluded */
+        ]: { icon: void 0, checked: false, title: localize("accept.excluded", "Accept") },
+        [
+          3
+          /* InputState.unrecognized */
+        ]: { icon: Codicon.circleFilled, checked: false, title: localize("accept.conflicting", "Accept (result is dirty)") },
+        [
+          1
+          /* InputState.first */
+        ]: { icon: Codicon.check, checked: true, title: localize("accept.first", "Undo accept") },
+        [
+          2
+          /* InputState.second */
+        ]: { icon: Codicon.checkAll, checked: true, title: localize("accept.second", "Undo accept (currently second)") }
+      };
+      const state = iconMap[value];
+      checkBox.setIcon(state.icon);
+      checkBox.checked = state.checked;
+      checkBox.setTitle(state.title);
+      if (!item2.enabled.read(reader)) {
+        checkBox.disable();
+      } else {
+        checkBox.enable();
+      }
+    }));
+    this._register(autorun((reader) => {
+      const state = this.item.read(reader).state.read(reader);
+      const classNames = [
+        "merge-accept-gutter-marker",
+        state.handled && "handled",
+        state.focused && "focused",
+        this.isMultiLine.read(reader) ? "multi-line" : "single-line"
+      ];
+      target.className = classNames.filter((c) => typeof c === "string").join(" ");
+    }));
+    this._register(checkBox.onChange(() => {
+      transaction((tx) => {
+        this.item.get().setState(checkBox.checked, tx);
+      });
+    }));
+    target.appendChild(h("div.background", [noBreakWhitespace]).root);
+    target.appendChild(this.checkboxDiv = h("div.checkbox", [h("div.checkbox-background", [checkBox.domNode])]).root);
+  }
+  layout(top, height, viewTop, viewHeight) {
+    const checkboxHeight = this.checkboxDiv.clientHeight;
+    const middleHeight = height / 2 - checkboxHeight / 2;
+    const margin = checkboxHeight;
+    let effectiveCheckboxTop = top + middleHeight;
+    const preferredViewPortRange = [
+      margin,
+      viewTop + viewHeight - margin - checkboxHeight
+    ];
+    const preferredParentRange = [
+      top + margin,
+      top + height - checkboxHeight - margin
+    ];
+    if (preferredParentRange[0] < preferredParentRange[1]) {
+      effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredViewPortRange[0], preferredViewPortRange[1]);
+      effectiveCheckboxTop = clamp(effectiveCheckboxTop, preferredParentRange[0], preferredParentRange[1]);
+    }
+    this.checkboxDiv.style.top = `${effectiveCheckboxTop - top}px`;
+    transaction((tx) => {
+      this.isMultiLine.set(height > 30, tx);
+    });
+  }
+  update(baseRange) {
+    transaction((tx) => {
+      this.item.set(baseRange, tx);
+    });
+  }
+}
+export {
+  InputCodeEditorView,
+  MergeConflictGutterItemView,
+  ModifiedBaseRangeGutterItemModel
+};
+//# sourceMappingURL=inputCodeEditorView.js.map

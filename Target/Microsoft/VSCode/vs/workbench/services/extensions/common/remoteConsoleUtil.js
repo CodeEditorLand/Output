@@ -1,1 +1,55 @@
-import{$Hx as o}from"../../../../base/common/console.js";function c(f,s,r=null){const i=o(s).args;let t=i.shift();if(typeof t=="string")switch(s.severity||(s.severity="info"),r&&(/^\[/.test(r)||(r=`[${r}]`),/ $/.test(r)||(r=`${r} `),t=r+t),s.severity){case"log":case"info":f.info(t,...i);break;case"warn":f.warn(t,...i);break;case"error":f.error(t,...i);break}}function e(f,s,r){const i=o(s).args,t=i.shift();typeof t!="string"||s.severity!=="error"||(/^\[/.test(r)||(r=`[${r}]`),/ $/.test(r)||(r=`${r} `),f.error(r+t,...i))}export{c as $b4b,e as $c4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { parse } from "../../../../base/common/console.js";
+function logRemoteEntry(logService, entry, label = null) {
+  const args = parse(entry).args;
+  let firstArg = args.shift();
+  if (typeof firstArg !== "string") {
+    return;
+  }
+  if (!entry.severity) {
+    entry.severity = "info";
+  }
+  if (label) {
+    if (!/^\[/.test(label)) {
+      label = `[${label}]`;
+    }
+    if (!/ $/.test(label)) {
+      label = `${label} `;
+    }
+    firstArg = label + firstArg;
+  }
+  switch (entry.severity) {
+    case "log":
+    case "info":
+      logService.info(firstArg, ...args);
+      break;
+    case "warn":
+      logService.warn(firstArg, ...args);
+      break;
+    case "error":
+      logService.error(firstArg, ...args);
+      break;
+  }
+}
+__name(logRemoteEntry, "logRemoteEntry");
+function logRemoteEntryIfError(logService, entry, label) {
+  const args = parse(entry).args;
+  const firstArg = args.shift();
+  if (typeof firstArg !== "string" || entry.severity !== "error") {
+    return;
+  }
+  if (!/^\[/.test(label)) {
+    label = `[${label}]`;
+  }
+  if (!/ $/.test(label)) {
+    label = `${label} `;
+  }
+  logService.error(label + firstArg, ...args);
+}
+__name(logRemoteEntryIfError, "logRemoteEntryIfError");
+export {
+  logRemoteEntry,
+  logRemoteEntryIfError
+};
+//# sourceMappingURL=remoteConsoleUtil.js.map

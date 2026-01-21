@@ -1,1 +1,34 @@
-import{$Ed as p}from"../../../../../base/common/lifecycle.js";import{$6kc as u}from"../../common/model/chatTransferService.js";var a=function(n,r,e,c){var o=arguments.length,t=o<3?r:c===null?c=Object.getOwnPropertyDescriptor(r,e):c,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,r,e,c);else for(var i=n.length-1;i>=0;i--)(f=n[i])&&(t=(o<3?f(t):o>3?f(r,e,t):f(r,e))||t);return o>3&&t&&Object.defineProperty(r,e,t),t},h=function(n,r){return function(e,c){r(e,c,n)}};let s=class extends p{static{this.ID="workbench.contrib.chatTransfer"}constructor(r){super(),r.checkAndSetTransferredWorkspaceTrust()}};s=a([h(0,u)],s);export{s as $hnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IChatTransferService } from "../../common/model/chatTransferService.js";
+let ChatTransferContribution = class ChatTransferContribution2 extends Disposable {
+  static {
+    __name(this, "ChatTransferContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatTransfer";
+  }
+  constructor(chatTransferService) {
+    super();
+    chatTransferService.checkAndSetTransferredWorkspaceTrust();
+  }
+};
+ChatTransferContribution = __decorate([
+  __param(0, IChatTransferService)
+], ChatTransferContribution);
+export {
+  ChatTransferContribution
+};
+//# sourceMappingURL=chatTransfer.js.map

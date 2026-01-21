@@ -1,1 +1,184 @@
-import{$Ym as a}from"../../../../base/common/decorators.js";import{$wf as m,Event as e}from"../../../../base/common/event.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";var n=function(r,t,i,o){var l=arguments.length,d=l<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")d=Reflect.decorate(r,t,i,o);else for(var D=r.length-1;D>=0;D--)(h=r[D])&&(d=(l<3?h(d):l>3?h(t,i,d):h(t,i))||d);return l>3&&d&&Object.defineProperty(t,i,d),d};class s extends b{constructor(){super(...arguments),this.a=new Map,this.b=this.D(new m),this.f=this.D(new m)}get onDidAddCapability(){return this.b.event}get onDidRemoveCapability(){return this.f.event}get onDidChangeCapabilities(){return e.map(e.any(this.b.event,this.f.event),()=>{},this.B)}get onDidAddCommandDetectionCapability(){return e.map(e.filter(this.onDidAddCapability,t=>t.id===2,this.B),t=>t.capability,this.B)}get onDidRemoveCommandDetectionCapability(){return e.map(e.filter(this.onDidRemoveCapability,t=>t.id===2,this.B),()=>{},this.B)}get onDidAddCwdDetectionCapability(){return e.map(e.filter(this.onDidAddCapability,t=>t.id===0,this.B),t=>t.capability,this.B)}get onDidRemoveCwdDetectionCapability(){return e.map(e.filter(this.onDidRemoveCapability,t=>t.id===0,this.B),()=>{},this.B)}get items(){return this.a.keys()}createOnDidRemoveCapabilityOfTypeEvent(t){return e.map(e.filter(this.onDidRemoveCapability,i=>i.id===t),i=>i.capability)}createOnDidAddCapabilityOfTypeEvent(t){return e.map(e.filter(this.onDidAddCapability,i=>i.id===t),i=>i.capability)}add(t,i){this.a.set(t,i),this.b.fire(y(t,i))}get(t){return this.a.get(t)}remove(t){const i=this.a.get(t);i&&(this.a.delete(t),this.f.fire(y(t,i)))}has(t){return this.a.has(t)}}n([a],s.prototype,"onDidChangeCapabilities",null);n([a],s.prototype,"onDidAddCommandDetectionCapability",null);n([a],s.prototype,"onDidRemoveCommandDetectionCapability",null);n([a],s.prototype,"onDidAddCwdDetectionCapability",null);n([a],s.prototype,"onDidRemoveCwdDetectionCapability",null);class p extends b{constructor(){super(...arguments),this._stores=[],this.a=this.D(new m),this.b=this.D(new m)}get onDidAddCapability(){return this.a.event}get onDidRemoveCapability(){return this.b.event}get onDidChangeCapabilities(){return e.map(e.any(this.a.event,this.b.event),()=>{},this.B)}get onDidAddCommandDetectionCapability(){return e.map(e.filter(this.onDidAddCapability,t=>t.id===2,this.B),t=>t.capability,this.B)}get onDidRemoveCommandDetectionCapability(){return e.map(e.filter(this.onDidRemoveCapability,t=>t.id===2,this.B),()=>{},this.B)}get onDidAddCwdDetectionCapability(){return e.map(e.filter(this.onDidAddCapability,t=>t.id===0,this.B),t=>t.capability,this.B)}get onDidRemoveCwdDetectionCapability(){return e.map(e.filter(this.onDidRemoveCapability,t=>t.id===0,this.B),()=>{},this.B)}get items(){return this.f()}createOnDidRemoveCapabilityOfTypeEvent(t){return e.map(e.filter(this.onDidRemoveCapability,i=>i.id===t),i=>i.capability)}createOnDidAddCapabilityOfTypeEvent(t){return e.map(e.filter(this.onDidAddCapability,i=>i.id===t),i=>i.capability)}*f(){for(const t of this._stores)for(const i of t.items)yield i}has(t){for(const i of this._stores)for(const o of i.items)if(o===t)return!0;return!1}get(t){for(const i of this._stores){const o=i.get(t);if(o)return o}}add(t){this._stores.push(t);for(const i of t.items)this.a.fire(y(i,t.get(i)));this.D(t.onDidAddCapability(i=>this.a.fire(i))),this.D(t.onDidRemoveCapability(i=>this.b.fire(i)))}}n([a],p.prototype,"onDidChangeCapabilities",null);n([a],p.prototype,"onDidAddCommandDetectionCapability",null);n([a],p.prototype,"onDidRemoveCommandDetectionCapability",null);n([a],p.prototype,"onDidAddCwdDetectionCapability",null);n([a],p.prototype,"onDidRemoveCwdDetectionCapability",null);function y(r,t){return{id:r,capability:t}}export{s as $IXb,p as $JXb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { memoize } from "../../../../base/common/decorators.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+class TerminalCapabilityStore extends Disposable {
+  static {
+    __name(this, "TerminalCapabilityStore");
+  }
+  constructor() {
+    super(...arguments);
+    this._map = /* @__PURE__ */ new Map();
+    this._onDidAddCapability = this._register(new Emitter());
+    this._onDidRemoveCapability = this._register(new Emitter());
+  }
+  get onDidAddCapability() {
+    return this._onDidAddCapability.event;
+  }
+  get onDidRemoveCapability() {
+    return this._onDidRemoveCapability.event;
+  }
+  get onDidChangeCapabilities() {
+    return Event.map(Event.any(this._onDidAddCapability.event, this._onDidRemoveCapability.event), () => void 0, this._store);
+  }
+  get onDidAddCommandDetectionCapability() {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === 2, this._store), (e) => e.capability, this._store);
+  }
+  get onDidRemoveCommandDetectionCapability() {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === 2, this._store), () => void 0, this._store);
+  }
+  get onDidAddCwdDetectionCapability() {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === 0, this._store), (e) => e.capability, this._store);
+  }
+  get onDidRemoveCwdDetectionCapability() {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === 0, this._store), () => void 0, this._store);
+  }
+  get items() {
+    return this._map.keys();
+  }
+  createOnDidRemoveCapabilityOfTypeEvent(type) {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === type), (e) => e.capability);
+  }
+  createOnDidAddCapabilityOfTypeEvent(type) {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === type), (e) => e.capability);
+  }
+  add(capability, impl) {
+    this._map.set(capability, impl);
+    this._onDidAddCapability.fire(createCapabilityEvent(capability, impl));
+  }
+  get(capability) {
+    return this._map.get(capability);
+  }
+  remove(capability) {
+    const impl = this._map.get(capability);
+    if (!impl) {
+      return;
+    }
+    this._map.delete(capability);
+    this._onDidRemoveCapability.fire(createCapabilityEvent(capability, impl));
+  }
+  has(capability) {
+    return this._map.has(capability);
+  }
+}
+__decorate([
+  memoize
+], TerminalCapabilityStore.prototype, "onDidChangeCapabilities", null);
+__decorate([
+  memoize
+], TerminalCapabilityStore.prototype, "onDidAddCommandDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStore.prototype, "onDidRemoveCommandDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStore.prototype, "onDidAddCwdDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStore.prototype, "onDidRemoveCwdDetectionCapability", null);
+class TerminalCapabilityStoreMultiplexer extends Disposable {
+  static {
+    __name(this, "TerminalCapabilityStoreMultiplexer");
+  }
+  constructor() {
+    super(...arguments);
+    this._stores = [];
+    this._onDidAddCapability = this._register(new Emitter());
+    this._onDidRemoveCapability = this._register(new Emitter());
+  }
+  get onDidAddCapability() {
+    return this._onDidAddCapability.event;
+  }
+  get onDidRemoveCapability() {
+    return this._onDidRemoveCapability.event;
+  }
+  get onDidChangeCapabilities() {
+    return Event.map(Event.any(this._onDidAddCapability.event, this._onDidRemoveCapability.event), () => void 0, this._store);
+  }
+  get onDidAddCommandDetectionCapability() {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === 2, this._store), (e) => e.capability, this._store);
+  }
+  get onDidRemoveCommandDetectionCapability() {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === 2, this._store), () => void 0, this._store);
+  }
+  get onDidAddCwdDetectionCapability() {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === 0, this._store), (e) => e.capability, this._store);
+  }
+  get onDidRemoveCwdDetectionCapability() {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === 0, this._store), () => void 0, this._store);
+  }
+  get items() {
+    return this._items();
+  }
+  createOnDidRemoveCapabilityOfTypeEvent(type) {
+    return Event.map(Event.filter(this.onDidRemoveCapability, (e) => e.id === type), (e) => e.capability);
+  }
+  createOnDidAddCapabilityOfTypeEvent(type) {
+    return Event.map(Event.filter(this.onDidAddCapability, (e) => e.id === type), (e) => e.capability);
+  }
+  *_items() {
+    for (const store of this._stores) {
+      for (const c of store.items) {
+        yield c;
+      }
+    }
+  }
+  has(capability) {
+    for (const store of this._stores) {
+      for (const c of store.items) {
+        if (c === capability) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  get(capability) {
+    for (const store of this._stores) {
+      const c = store.get(capability);
+      if (c) {
+        return c;
+      }
+    }
+    return void 0;
+  }
+  add(store) {
+    this._stores.push(store);
+    for (const capability of store.items) {
+      this._onDidAddCapability.fire(createCapabilityEvent(capability, store.get(capability)));
+    }
+    this._register(store.onDidAddCapability((e) => this._onDidAddCapability.fire(e)));
+    this._register(store.onDidRemoveCapability((e) => this._onDidRemoveCapability.fire(e)));
+  }
+}
+__decorate([
+  memoize
+], TerminalCapabilityStoreMultiplexer.prototype, "onDidChangeCapabilities", null);
+__decorate([
+  memoize
+], TerminalCapabilityStoreMultiplexer.prototype, "onDidAddCommandDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStoreMultiplexer.prototype, "onDidRemoveCommandDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStoreMultiplexer.prototype, "onDidAddCwdDetectionCapability", null);
+__decorate([
+  memoize
+], TerminalCapabilityStoreMultiplexer.prototype, "onDidRemoveCwdDetectionCapability", null);
+function createCapabilityEvent(capability, impl) {
+  return { id: capability, capability: impl };
+}
+__name(createCapabilityEvent, "createCapabilityEvent");
+export {
+  TerminalCapabilityStore,
+  TerminalCapabilityStoreMultiplexer
+};
+//# sourceMappingURL=terminalCapabilityStore.js.map

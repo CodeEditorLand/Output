@@ -1,1 +1,78 @@
-import*as a from"../../dom.js";import"./aria.css";const d=2e4;let i,r,s,o,c;function C(t){i=document.createElement("div"),i.className="monaco-aria-container";const n=()=>{const e=document.createElement("div");return e.className="monaco-alert",e.setAttribute("role","alert"),e.setAttribute("aria-atomic","true"),i.appendChild(e),e};r=n(),s=n();const u=()=>{const e=document.createElement("div");return e.className="monaco-status",e.setAttribute("aria-live","polite"),e.setAttribute("aria-atomic","true"),i.appendChild(e),e};o=u(),c=u(),t.appendChild(i)}function p(t){i&&(r.textContent!==t?(a.$E7(s),l(r,t)):(a.$E7(r),l(s,t)))}function E(t){i&&(o.textContent!==t?(a.$E7(c),l(o,t)):(a.$E7(o),l(c,t)))}function l(t,n){a.$E7(t),n.length>d&&(n=n.substr(0,d)),t.textContent=n,t.style.visibility="hidden",t.style.visibility="visible"}export{C as $b0,p as $c0,E as $d0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../dom.js";
+import "./aria.css";
+const MAX_MESSAGE_LENGTH = 2e4;
+let ariaContainer;
+let alertContainer;
+let alertContainer2;
+let statusContainer;
+let statusContainer2;
+function setARIAContainer(parent) {
+  ariaContainer = document.createElement("div");
+  ariaContainer.className = "monaco-aria-container";
+  const createAlertContainer = /* @__PURE__ */ __name(() => {
+    const element = document.createElement("div");
+    element.className = "monaco-alert";
+    element.setAttribute("role", "alert");
+    element.setAttribute("aria-atomic", "true");
+    ariaContainer.appendChild(element);
+    return element;
+  }, "createAlertContainer");
+  alertContainer = createAlertContainer();
+  alertContainer2 = createAlertContainer();
+  const createStatusContainer = /* @__PURE__ */ __name(() => {
+    const element = document.createElement("div");
+    element.className = "monaco-status";
+    element.setAttribute("aria-live", "polite");
+    element.setAttribute("aria-atomic", "true");
+    ariaContainer.appendChild(element);
+    return element;
+  }, "createStatusContainer");
+  statusContainer = createStatusContainer();
+  statusContainer2 = createStatusContainer();
+  parent.appendChild(ariaContainer);
+}
+__name(setARIAContainer, "setARIAContainer");
+function alert(msg) {
+  if (!ariaContainer) {
+    return;
+  }
+  if (alertContainer.textContent !== msg) {
+    dom.clearNode(alertContainer2);
+    insertMessage(alertContainer, msg);
+  } else {
+    dom.clearNode(alertContainer);
+    insertMessage(alertContainer2, msg);
+  }
+}
+__name(alert, "alert");
+function status(msg) {
+  if (!ariaContainer) {
+    return;
+  }
+  if (statusContainer.textContent !== msg) {
+    dom.clearNode(statusContainer2);
+    insertMessage(statusContainer, msg);
+  } else {
+    dom.clearNode(statusContainer);
+    insertMessage(statusContainer2, msg);
+  }
+}
+__name(status, "status");
+function insertMessage(target, msg) {
+  dom.clearNode(target);
+  if (msg.length > MAX_MESSAGE_LENGTH) {
+    msg = msg.substr(0, MAX_MESSAGE_LENGTH);
+  }
+  target.textContent = msg;
+  target.style.visibility = "hidden";
+  target.style.visibility = "visible";
+}
+__name(insertMessage, "insertMessage");
+export {
+  alert,
+  setARIAContainer,
+  status
+};
+//# sourceMappingURL=aria.js.map

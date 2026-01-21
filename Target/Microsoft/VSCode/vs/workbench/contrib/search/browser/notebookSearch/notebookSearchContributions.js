@@ -1,1 +1,18 @@
-import{$TC as o}from"../../../../../platform/instantiation/common/extensions.js";import{$Kic as r}from"../../common/notebookSearch.js";import{$rwc as m}from"./notebookSearchService.js";function f(){o(r,m,1)}export{f as $swc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { INotebookSearchService } from "../../common/notebookSearch.js";
+import { NotebookSearchService } from "./notebookSearchService.js";
+function registerContributions() {
+  registerSingleton(
+    INotebookSearchService,
+    NotebookSearchService,
+    1
+    /* InstantiationType.Delayed */
+  );
+}
+__name(registerContributions, "registerContributions");
+export {
+  registerContributions
+};
+//# sourceMappingURL=notebookSearchContributions.js.map

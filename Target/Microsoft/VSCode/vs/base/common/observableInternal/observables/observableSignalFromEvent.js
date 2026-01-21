@@ -1,1 +1,41 @@
-import{$Te as r}from"../transaction.js";import{$5d as h}from"../debugName.js";import{$Me as f}from"./baseObservable.js";import{DebugLocation as d}from"../debugLocation.js";function c(t,e,i=d.ofCaller()){return new u(typeof t=="string"?t:new h(t,void 0,void 0),e,i)}class u extends f{constructor(e,i,n){super(n),this.c=i,this.e=()=>{r(o=>{for(const s of this.f)o.updateObserver(s,this),s.handleChange(this,void 0)},()=>this.debugName)},this.debugName=typeof e=="string"?e:e.getDebugName(this)??"Observable Signal From Event"}g(){this.a=this.c(this.e)}h(){this.a.dispose(),this.a=void 0}get(){}}export{c as $_e};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { transaction } from "../transaction.js";
+import { DebugNameData } from "../debugName.js";
+import { BaseObservable } from "./baseObservable.js";
+import { DebugLocation } from "../debugLocation.js";
+function observableSignalFromEvent(owner, event, debugLocation = DebugLocation.ofCaller()) {
+  return new FromEventObservableSignal(typeof owner === "string" ? owner : new DebugNameData(owner, void 0, void 0), event, debugLocation);
+}
+__name(observableSignalFromEvent, "observableSignalFromEvent");
+class FromEventObservableSignal extends BaseObservable {
+  static {
+    __name(this, "FromEventObservableSignal");
+  }
+  constructor(debugNameDataOrName, event, debugLocation) {
+    super(debugLocation);
+    this.event = event;
+    this.handleEvent = () => {
+      transaction((tx) => {
+        for (const o of this._observers) {
+          tx.updateObserver(o, this);
+          o.handleChange(this, void 0);
+        }
+      }, () => this.debugName);
+    };
+    this.debugName = typeof debugNameDataOrName === "string" ? debugNameDataOrName : debugNameDataOrName.getDebugName(this) ?? "Observable Signal From Event";
+  }
+  onFirstObserverAdded() {
+    this.subscription = this.event(this.handleEvent);
+  }
+  onLastObserverRemoved() {
+    this.subscription.dispose();
+    this.subscription = void 0;
+  }
+  get() {
+  }
+}
+export {
+  observableSignalFromEvent
+};
+//# sourceMappingURL=observableSignalFromEvent.js.map

@@ -1,1 +1,206 @@
-import{$rL as d}from"../../../../platform/actions/common/actions.js";import{$Em as l}from"../../../../base/common/actions.js";import{$Zib as x,$Sib as m,$Qib as h}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$Wb as f}from"../../../../base/common/arrays.js";import{$V0 as g}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Q9 as W}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$K8 as y}from"../../../../base/browser/dom.js";import{$tQ as s}from"../../../../base/common/resourceTree.js";import{ThemeIcon as A}from"../../../../base/common/themables.js";import{$ak as u}from"../../../../base/common/codicons.js";function Q(t){return Array.isArray(t.repositories)&&Array.isArray(t.visibleRepositories)}function R(t){return!!t.provider&&!!t.input}function q(t){return!!t.validateInput&&typeof t.value=="string"}function B(t){return t.type==="actionButton"}function b(t){return!!t.provider&&!!t.resources}function E(t){return!!t.sourceUri&&b(t.resourceGroup)}function G(t){return s.isResourceNode(t)&&b(t.context)}function I(t){return t.type==="historyItemViewModel"}function Z(t){return t.type==="historyItemLoadMore"}function j(t){return t.type==="historyItemChangeViewModel"}function k(t){return s.isResourceNode(t)&&I(t.context)}function w(t){return t.type==="artifactGroup"}function D(t){return s.isResourceNode(t)&&w(t.context)}function K(t){return t.type==="artifact"}const $=(t,r)=>t instanceof d&&r instanceof d?t.id===r.id&&t.enabled===r.enabled&&t.hideActions?.isHidden===r.hideActions?.isHidden:t.id===r.id&&t.enabled===r.enabled;function O(t,r,e,n){let c=[],p=[];const a=()=>{const{primary:o,secondary:i}=m(t.getActions({arg:n,shouldForwardArgs:!0}),e);f(c,o,$)&&f(p,i,$)||(c=o,p=i,r(o,i))};return a(),t.onDidChange(a)}function Y(t,r){return h(t.getActions({arg:r,shouldForwardArgs:!0}),"inline").secondary}class v extends l{constructor(r,e){super(`statusbaraction{${r.id}}`,P(r),"",!0),this.c=r,this.f=e,this.commandTitle=r.title,this.tooltip=r.tooltip||""}run(){return this.f.executeCommand(this.c.id,...this.c.arguments||[])}}class C extends g{constructor(r,e){super(null,r,{...e,icon:!1,label:!0}),this.c=r.commandTitle}render(r){r.classList.add("scm-status-bar-action"),super.render(r)}F(){if(this.u.label&&this.q){const r=W(this.c??this.action.label).map(e=>{if(typeof e=="string"){const n=document.createElement("span");return n.textContent=e,n}return e});y(this.q,...r)}}}function _(t){return(r,e)=>r instanceof v?new C(r,e):x(t,r,e)}function z(t){return`${t.providerId}:${t.label}${t.rootUri?`:${t.rootUri.toString()}`:""}`}function J(t){return t.groups.reduce((r,e)=>r+e.resources.length,0)}function tt(t){return`${t.displayId??t.id} - ${t.subject}`}function rt(t,r){return A.isThemeIcon(r.provider.iconPath)?t?.pinned===!0&&t?.repository.id===r.id&&r.provider.iconPath.id===u.repo.id?u.repoPinned:r.provider.iconPath:u.repo}function P(t){let r;if(typeof t.arguments?.[0]=="string"){const e=t.arguments[0].lastIndexOf("/");if(r=e!==-1?t.arguments[0].substring(0,e):t.arguments[0],r=r.replace(/^(?:git\.|remoteHub\.)/,"").trim(),r.length===0)return;r=r[0].toLocaleUpperCase()+r.slice(1)}return r}export{_ as $$Wb,v as $0Wb,I as $1Wb,Z as $2Wb,j as $3Wb,k as $4Wb,w as $5Wb,D as $6Wb,K as $7Wb,O as $8Wb,Y as $9Wb,Q as $TWb,R as $UWb,q as $VWb,B as $WWb,b as $XWb,E as $YWb,G as $ZWb,z as $_Wb,J as $aXb,tt as $bXb,rt as $cXb,P as $dXb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { Action } from "../../../../base/common/actions.js";
+import { createActionViewItem, getActionBarActions, getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { equals } from "../../../../base/common/arrays.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { reset } from "../../../../base/browser/dom.js";
+import { ResourceTree } from "../../../../base/common/resourceTree.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+function isSCMViewService(element) {
+  return Array.isArray(element.repositories) && Array.isArray(element.visibleRepositories);
+}
+__name(isSCMViewService, "isSCMViewService");
+function isSCMRepository(element) {
+  return !!element.provider && !!element.input;
+}
+__name(isSCMRepository, "isSCMRepository");
+function isSCMInput(element) {
+  return !!element.validateInput && typeof element.value === "string";
+}
+__name(isSCMInput, "isSCMInput");
+function isSCMActionButton(element) {
+  return element.type === "actionButton";
+}
+__name(isSCMActionButton, "isSCMActionButton");
+function isSCMResourceGroup(element) {
+  return !!element.provider && !!element.resources;
+}
+__name(isSCMResourceGroup, "isSCMResourceGroup");
+function isSCMResource(element) {
+  return !!element.sourceUri && isSCMResourceGroup(element.resourceGroup);
+}
+__name(isSCMResource, "isSCMResource");
+function isSCMResourceNode(element) {
+  return ResourceTree.isResourceNode(element) && isSCMResourceGroup(element.context);
+}
+__name(isSCMResourceNode, "isSCMResourceNode");
+function isSCMHistoryItemViewModelTreeElement(element) {
+  return element.type === "historyItemViewModel";
+}
+__name(isSCMHistoryItemViewModelTreeElement, "isSCMHistoryItemViewModelTreeElement");
+function isSCMHistoryItemLoadMoreTreeElement(element) {
+  return element.type === "historyItemLoadMore";
+}
+__name(isSCMHistoryItemLoadMoreTreeElement, "isSCMHistoryItemLoadMoreTreeElement");
+function isSCMHistoryItemChangeViewModelTreeElement(element) {
+  return element.type === "historyItemChangeViewModel";
+}
+__name(isSCMHistoryItemChangeViewModelTreeElement, "isSCMHistoryItemChangeViewModelTreeElement");
+function isSCMHistoryItemChangeNode(element) {
+  return ResourceTree.isResourceNode(element) && isSCMHistoryItemViewModelTreeElement(element.context);
+}
+__name(isSCMHistoryItemChangeNode, "isSCMHistoryItemChangeNode");
+function isSCMArtifactGroupTreeElement(element) {
+  return element.type === "artifactGroup";
+}
+__name(isSCMArtifactGroupTreeElement, "isSCMArtifactGroupTreeElement");
+function isSCMArtifactNode(element) {
+  return ResourceTree.isResourceNode(element) && isSCMArtifactGroupTreeElement(element.context);
+}
+__name(isSCMArtifactNode, "isSCMArtifactNode");
+function isSCMArtifactTreeElement(element) {
+  return element.type === "artifact";
+}
+__name(isSCMArtifactTreeElement, "isSCMArtifactTreeElement");
+const compareActions = /* @__PURE__ */ __name((a, b) => {
+  if (a instanceof MenuItemAction && b instanceof MenuItemAction) {
+    return a.id === b.id && a.enabled === b.enabled && a.hideActions?.isHidden === b.hideActions?.isHidden;
+  }
+  return a.id === b.id && a.enabled === b.enabled;
+}, "compareActions");
+function connectPrimaryMenu(menu, callback, primaryGroup, arg) {
+  let cachedPrimary = [];
+  let cachedSecondary = [];
+  const updateActions = /* @__PURE__ */ __name(() => {
+    const { primary, secondary } = getActionBarActions(menu.getActions({ arg, shouldForwardArgs: true }), primaryGroup);
+    if (equals(cachedPrimary, primary, compareActions) && equals(cachedSecondary, secondary, compareActions)) {
+      return;
+    }
+    cachedPrimary = primary;
+    cachedSecondary = secondary;
+    callback(primary, secondary);
+  }, "updateActions");
+  updateActions();
+  return menu.onDidChange(updateActions);
+}
+__name(connectPrimaryMenu, "connectPrimaryMenu");
+function collectContextMenuActions(menu, arg) {
+  return getContextMenuActions(menu.getActions({ arg, shouldForwardArgs: true }), "inline").secondary;
+}
+__name(collectContextMenuActions, "collectContextMenuActions");
+class StatusBarAction extends Action {
+  static {
+    __name(this, "StatusBarAction");
+  }
+  constructor(command, commandService) {
+    super(`statusbaraction{${command.id}}`, getStatusBarCommandGenericName(command), "", true);
+    this.command = command;
+    this.commandService = commandService;
+    this.commandTitle = command.title;
+    this.tooltip = command.tooltip || "";
+  }
+  run() {
+    return this.commandService.executeCommand(this.command.id, ...this.command.arguments || []);
+  }
+}
+class StatusBarActionViewItem extends ActionViewItem {
+  static {
+    __name(this, "StatusBarActionViewItem");
+  }
+  constructor(action, options) {
+    super(null, action, { ...options, icon: false, label: true });
+    this._commandTitle = action.commandTitle;
+  }
+  render(container) {
+    container.classList.add("scm-status-bar-action");
+    super.render(container);
+  }
+  updateLabel() {
+    if (this.options.label && this.label) {
+      const elements = renderLabelWithIcons(this._commandTitle ?? this.action.label).map((element) => {
+        if (typeof element === "string") {
+          const span = document.createElement("span");
+          span.textContent = element;
+          return span;
+        }
+        return element;
+      });
+      reset(this.label, ...elements);
+    }
+  }
+}
+function getActionViewItemProvider(instaService) {
+  return (action, options) => {
+    if (action instanceof StatusBarAction) {
+      return new StatusBarActionViewItem(action, options);
+    }
+    return createActionViewItem(instaService, action, options);
+  };
+}
+__name(getActionViewItemProvider, "getActionViewItemProvider");
+function getProviderKey(provider) {
+  return `${provider.providerId}:${provider.label}${provider.rootUri ? `:${provider.rootUri.toString()}` : ""}`;
+}
+__name(getProviderKey, "getProviderKey");
+function getRepositoryResourceCount(provider) {
+  return provider.groups.reduce((r, g) => r + g.resources.length, 0);
+}
+__name(getRepositoryResourceCount, "getRepositoryResourceCount");
+function getHistoryItemEditorTitle(historyItem) {
+  return `${historyItem.displayId ?? historyItem.id} - ${historyItem.subject}`;
+}
+__name(getHistoryItemEditorTitle, "getHistoryItemEditorTitle");
+function getSCMRepositoryIcon(activeRepository, repository) {
+  if (!ThemeIcon.isThemeIcon(repository.provider.iconPath)) {
+    return Codicon.repo;
+  }
+  if (activeRepository?.pinned === true && activeRepository?.repository.id === repository.id && repository.provider.iconPath.id === Codicon.repo.id) {
+    return Codicon.repoPinned;
+  }
+  return repository.provider.iconPath;
+}
+__name(getSCMRepositoryIcon, "getSCMRepositoryIcon");
+function getStatusBarCommandGenericName(command) {
+  let genericName = void 0;
+  if (typeof command.arguments?.[0] === "string") {
+    const lastIndex = command.arguments[0].lastIndexOf("/");
+    genericName = lastIndex !== -1 ? command.arguments[0].substring(0, lastIndex) : command.arguments[0];
+    genericName = genericName.replace(/^(?:git\.|remoteHub\.)/, "").trim();
+    if (genericName.length === 0) {
+      return void 0;
+    }
+    genericName = genericName[0].toLocaleUpperCase() + genericName.slice(1);
+  }
+  return genericName;
+}
+__name(getStatusBarCommandGenericName, "getStatusBarCommandGenericName");
+export {
+  StatusBarAction,
+  collectContextMenuActions,
+  connectPrimaryMenu,
+  getActionViewItemProvider,
+  getHistoryItemEditorTitle,
+  getProviderKey,
+  getRepositoryResourceCount,
+  getSCMRepositoryIcon,
+  getStatusBarCommandGenericName,
+  isSCMActionButton,
+  isSCMArtifactGroupTreeElement,
+  isSCMArtifactNode,
+  isSCMArtifactTreeElement,
+  isSCMHistoryItemChangeNode,
+  isSCMHistoryItemChangeViewModelTreeElement,
+  isSCMHistoryItemLoadMoreTreeElement,
+  isSCMHistoryItemViewModelTreeElement,
+  isSCMInput,
+  isSCMRepository,
+  isSCMResource,
+  isSCMResourceGroup,
+  isSCMResourceNode,
+  isSCMViewService
+};
+//# sourceMappingURL=util.js.map

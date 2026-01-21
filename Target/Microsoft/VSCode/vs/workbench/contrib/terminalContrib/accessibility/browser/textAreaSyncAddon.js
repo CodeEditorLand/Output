@@ -1,1 +1,86 @@
-import{$Zm as u}from"../../../../../base/common/decorators.js";import{Event as h}from"../../../../../base/common/event.js";import{$Ed as d,$Fd as m}from"../../../../../base/common/lifecycle.js";import{$JD as f}from"../../../../../platform/accessibility/common/accessibility.js";import{$9l as b}from"../../../../../platform/configuration/common/configuration.js";import{$vx as v}from"../../../../../platform/terminal/common/terminal.js";var l=function(r,t,e,i){var o=arguments.length,n=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,i);else for(var c=r.length-1;c>=0;c--)(s=r[c])&&(n=(o<3?s(n):o>3?s(t,e,n):s(t,e))||n);return o>3&&n&&Object.defineProperty(t,e,n),n},a=function(r,t){return function(e,i){t(e,i,r)}};let p=class extends d{activate(t){this.a=t,this.j()}constructor(t,e,i,o){super(),this.c=t,this.f=e,this.g=i,this.h=o,this.b=this.D(new m),this.D(h.runAndSubscribe(h.any(this.c.onDidChangeCapabilities,this.f.onDidChangeScreenReaderOptimized),()=>{this.j()}))}j(){const t=this.c.get(2);if(this.m()&&t){if(!this.b.value){const e=this.a?.textarea;e&&(this.b.value=h.runAndSubscribe(t.promptInputModel.onDidChangeInput,()=>this.n(e)))}}else this.b.clear()}m(){return this.f.isScreenReaderOptimized()||this.g.getValue("terminal.integrated.developer.devMode")}n(t){const e=this.c.get(2);e&&(t.value=e.promptInputModel.value,t.selectionStart=e.promptInputModel.cursorIndex,t.selectionEnd=e.promptInputModel.cursorIndex,this.h.debug(`TextAreaSyncAddon#sync: text changed to "${t.value}"`))}};l([u(50)],p.prototype,"n",null);p=l([a(1,f),a(2,b),a(3,v)],p);export{p as $FAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { debounce } from "../../../../../base/common/decorators.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITerminalLogService } from "../../../../../platform/terminal/common/terminal.js";
+let TextAreaSyncAddon = class TextAreaSyncAddon2 extends Disposable {
+  static {
+    __name(this, "TextAreaSyncAddon");
+  }
+  activate(terminal) {
+    this._terminal = terminal;
+    this._refreshListeners();
+  }
+  constructor(_capabilities, _accessibilityService, _configurationService, _logService) {
+    super();
+    this._capabilities = _capabilities;
+    this._accessibilityService = _accessibilityService;
+    this._configurationService = _configurationService;
+    this._logService = _logService;
+    this._listeners = this._register(new MutableDisposable());
+    this._register(Event.runAndSubscribe(Event.any(this._capabilities.onDidChangeCapabilities, this._accessibilityService.onDidChangeScreenReaderOptimized), () => {
+      this._refreshListeners();
+    }));
+  }
+  _refreshListeners() {
+    const commandDetection = this._capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    if (this._shouldBeActive() && commandDetection) {
+      if (!this._listeners.value) {
+        const textarea = this._terminal?.textarea;
+        if (textarea) {
+          this._listeners.value = Event.runAndSubscribe(commandDetection.promptInputModel.onDidChangeInput, () => this._sync(textarea));
+        }
+      }
+    } else {
+      this._listeners.clear();
+    }
+  }
+  _shouldBeActive() {
+    return this._accessibilityService.isScreenReaderOptimized() || this._configurationService.getValue(
+      "terminal.integrated.developer.devMode"
+      /* TerminalSettingId.DevMode */
+    );
+  }
+  _sync(textArea) {
+    const commandCapability = this._capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    if (!commandCapability) {
+      return;
+    }
+    textArea.value = commandCapability.promptInputModel.value;
+    textArea.selectionStart = commandCapability.promptInputModel.cursorIndex;
+    textArea.selectionEnd = commandCapability.promptInputModel.cursorIndex;
+    this._logService.debug(`TextAreaSyncAddon#sync: text changed to "${textArea.value}"`);
+  }
+};
+__decorate([
+  debounce(50)
+], TextAreaSyncAddon.prototype, "_sync", null);
+TextAreaSyncAddon = __decorate([
+  __param(1, IAccessibilityService),
+  __param(2, IConfigurationService),
+  __param(3, ITerminalLogService)
+], TextAreaSyncAddon);
+export {
+  TextAreaSyncAddon
+};
+//# sourceMappingURL=textAreaSyncAddon.js.map

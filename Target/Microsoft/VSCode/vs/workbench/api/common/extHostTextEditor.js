@@ -1,1 +1,551 @@
-import{ok as S}from"../../../base/common/assert.js";import{$xb as y,$vb as E}from"../../../base/common/errors.js";import{$d4 as N}from"../../../base/common/idGenerator.js";import*as u from"./extHostTypeConverters.js";import{EndOfLine as k,Position as v,Range as m,Selection as b,TextEditorRevealType as R}from"./extHostTypes.js";class x{static{this.c=new N("TextEditorDecorationType")}constructor(e,t,n){const i=x.c.nextId();e.$registerTextEditorDecorationType(t.identifier,i,u.DecorationRenderOptions.from(n)),this.value=Object.freeze({key:i,dispose(){e.$removeTextEditorDecorationType(i)}})}}class w{constructor(e,t){this.g=[],this.h=void 0,this.j=!1,this.c=e,this.d=e.version,this.e=t.undoStopBefore,this.f=t.undoStopAfter}finalize(){return this.j=!0,{documentVersionId:this.d,edits:this.g,setEndOfLine:this.h,undoStopBefore:this.e,undoStopAfter:this.f}}k(){if(this.j)throw new Error("Edit is only valid while callback runs")}replace(e,t){this.k();let n=null;if(e instanceof v)n=new m(e,e);else if(e instanceof m)n=e;else throw new Error("Unrecognized location");this.l(n,t,!1)}insert(e,t){this.k(),this.l(new m(e,e),t,!0)}delete(e){this.k();let t=null;if(e instanceof m)t=e;else throw new Error("Unrecognized location");this.l(t,null,!0)}l(e,t,n){const i=this.c.validateRange(e);this.g.push({range:i,text:t,forceMoveMarkers:n})}setEndOfLine(e){if(this.k(),e!==k.LF&&e!==k.CRLF)throw E("endOfLine");this.h=e}}class L{constructor(e,t,n,i){this.c=e,this.d=t,this._accept(n),this.e=i;const r=this;this.value={get tabSize(){return r.f},set tabSize(f){r.n(f)},get indentSize(){return r.g},set indentSize(f){r.p(f)},get insertSpaces(){return r.j},set insertSpaces(f){r.s(f)},get cursorStyle(){return r.k},set cursorStyle(f){r.t(f)},get lineNumbers(){return r.l},set lineNumbers(f){r.u(f)}}}_accept(e){this.f=e.tabSize,this.g=e.indentSize,this.h=e.originalIndentSize,this.j=e.insertSpaces,this.k=e.cursorStyle,this.l=u.TextEditorLineNumbersStyle.to(e.lineNumbers)}m(e){if(e==="auto")return"auto";if(typeof e=="number"){const t=Math.floor(e);return t>0?t:null}if(typeof e=="string"){const t=parseInt(e,10);return isNaN(t)?null:t>0?t:null}return null}n(e){const t=this.m(e);if(t!==null){if(typeof t=="number"){if(this.f===t)return;this.f=t}this.v("setTabSize",this.c.$trySetOptions(this.d,{tabSize:t}))}}o(e){if(e==="tabSize")return"tabSize";if(typeof e=="number"){const t=Math.floor(e);return t>0?t:null}if(typeof e=="string"){const t=parseInt(e,10);return isNaN(t)?null:t>0?t:null}return null}p(e){const t=this.o(e);if(t!==null){if(typeof t=="number"){if(this.h===t)return;this.g=t,this.h=t}this.v("setIndentSize",this.c.$trySetOptions(this.d,{indentSize:t}))}}q(e){return e==="auto"?"auto":e==="false"?!1:!!e}s(e){const t=this.q(e);if(typeof t=="boolean"){if(this.j===t)return;this.j=t}this.v("setInsertSpaces",this.c.$trySetOptions(this.d,{insertSpaces:t}))}t(e){this.k!==e&&(this.k=e,this.v("setCursorStyle",this.c.$trySetOptions(this.d,{cursorStyle:e})))}u(e){this.l!==e&&(this.l=e,this.v("setLineNumbers",this.c.$trySetOptions(this.d,{lineNumbers:u.TextEditorLineNumbersStyle.from(e)})))}assign(e){const t={};let n=!1;if(typeof e.tabSize<"u"){const i=this.m(e.tabSize);i==="auto"?(n=!0,t.tabSize=i):typeof i=="number"&&this.f!==i&&(this.f=i,n=!0,t.tabSize=i)}if(typeof e.indentSize<"u"){const i=this.o(e.indentSize);i==="tabSize"?(n=!0,t.indentSize=i):typeof i=="number"&&this.h!==i&&(this.g=i,this.h=i,n=!0,t.indentSize=i)}if(typeof e.insertSpaces<"u"){const i=this.q(e.insertSpaces);i==="auto"?(n=!0,t.insertSpaces=i):this.j!==i&&(this.j=i,n=!0,t.insertSpaces=i)}typeof e.cursorStyle<"u"&&this.k!==e.cursorStyle&&(this.k=e.cursorStyle,n=!0,t.cursorStyle=e.cursorStyle),typeof e.lineNumbers<"u"&&this.l!==e.lineNumbers&&(this.l=e.lineNumbers,n=!0,t.lineNumbers=u.TextEditorLineNumbersStyle.from(e.lineNumbers)),n&&this.v("setOptions",this.c.$trySetOptions(this.d,t))}v(e,t){t.catch(n=>{this.e.warn(`ExtHostTextEditorOptions '${e}' failed:'`),this.e.warn(n)})}}class D{constructor(e,t,n,i,r,f,g,$){this.id=e,this.k=t,this.l=n,this.g=!1,this.h=new Set,this.c=r,this.d=new L(this.k,this.id,f,n),this.e=g,this.f=$;const o=this;this.value=Object.freeze({get document(){return i.value},set document(s){throw new y("document")},get selection(){return o.c&&o.c[0]},set selection(s){if(!(s instanceof b))throw E("selection");o.c=[s],o.m()},get selections(){return o.c},set selections(s){if(!Array.isArray(s)||s.some(h=>!(h instanceof b)))throw E("selections");s.length===0&&(s=[new b(0,0,0,0)]),o.c=s,o.m()},get visibleRanges(){return o.e},set visibleRanges(s){throw new y("visibleRanges")},get diffInformation(){return o.j},get options(){return o.d.value},set options(s){o.g||o.d.assign(s)},get viewColumn(){return o.f},set viewColumn(s){throw new y("viewColumn")},edit(s,h={undoStopBefore:!0,undoStopAfter:!0}){if(o.g)return Promise.reject(new Error("TextEditor#edit not possible on closed editors"));const c=new w(i.value,h);return s(c),o.n(c)},insertSnippet(s,h,c={undoStopBefore:!0,undoStopAfter:!0}){if(o.g)return Promise.reject(new Error("TextEditor#insertSnippet not possible on closed editors"));let l;if(!h||Array.isArray(h)&&h.length===0)l=o.c.map(a=>u.Range.from(a));else if(h instanceof v){const{lineNumber:a,column:d}=u.Position.from(h);l=[{startLineNumber:a,startColumn:d,endLineNumber:a,endColumn:d}]}else if(h instanceof m)l=[u.Range.from(h)];else{l=[];for(const a of h)if(a instanceof m)l.push(u.Range.from(a));else{const{lineNumber:d,column:p}=u.Position.from(a);l.push({startLineNumber:d,startColumn:p,endLineNumber:d,endColumn:p})}}return c.keepWhitespace===void 0&&(c.keepWhitespace=!1),t.$tryInsertSnippet(e,i.value.version,s.value,l,c)},setDecorations(s,h){const c=h.length===0;c&&!o.h.has(s.key)||(c?o.h.delete(s.key):o.h.add(s.key),o.o(()=>{if(u.$$3(h))return t.$trySetDecorations(e,s.key,u.$_3(h));{const l=new Array(4*h.length);for(let a=0,d=h.length;a<d;a++){const p=h[a];l[4*a]=p.start.line+1,l[4*a+1]=p.start.character+1,l[4*a+2]=p.end.line+1,l[4*a+3]=p.end.character+1}return t.$trySetDecorationsFast(e,s.key,l)}}))},revealRange(s,h){o.o(()=>t.$tryRevealRange(e,u.Range.from(s),h||R.Default))},show(s){t.$tryShowEditor(e,u.ViewColumn.from(s))},hide(){t.$tryHideEditor(e)},[Symbol.for("debug.description")](){return`TextEditor(${this.document.uri.toString()})`}})}dispose(){S(!this.g),this.g=!0}_acceptOptions(e){S(!this.g),this.d._accept(e)}_acceptVisibleRanges(e){S(!this.g),this.e=e}_acceptViewColumn(e){S(!this.g),this.f=e}_acceptSelections(e){S(!this.g),this.c=e}_acceptDiffInformation(e){S(!this.g),this.j=e}async m(){const e=this.c.map(u.Selection.from);return await this.o(()=>this.k.$trySetSelections(this.id,e)),this.value}n(e){const t=e.finalize();if(t.edits.length===0&&!t.setEndOfLine)return Promise.resolve(!0);const n=t.edits.map(r=>r.range);n.sort((r,f)=>r.end.line===f.end.line?r.end.character===f.end.character?r.start.line===f.start.line?r.start.character-f.start.character:r.start.line-f.start.line:r.end.character-f.end.character:r.end.line-f.end.line);for(let r=0,f=n.length-1;r<f;r++){const g=n[r].end;if(n[r+1].start.isBefore(g))return Promise.reject(new Error("Overlapping ranges are not allowed!"))}const i=t.edits.map(r=>({range:u.Range.from(r.range),text:r.text,forceMoveMarkers:r.forceMoveMarkers}));return this.k.$tryApplyEdits(this.id,t.documentVersionId,i,{setEndOfLine:typeof t.setEndOfLine=="number"?u.EndOfLine.from(t.setEndOfLine):void 0,undoStopBefore:t.undoStopBefore,undoStopAfter:t.undoStopAfter})}o(e){return this.g?(this.l.warn("TextEditor is closed/disposed"),Promise.resolve(void 0)):e().then(()=>this,t=>(t instanceof Error&&t.name==="DISPOSED"||this.l.warn(t),null))}}export{x as $f4,L as $g4,D as $h4};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ok } from "../../../base/common/assert.js";
+import { ReadonlyError, illegalArgument } from "../../../base/common/errors.js";
+import { IdGenerator } from "../../../base/common/idGenerator.js";
+import * as TypeConverters from "./extHostTypeConverters.js";
+import { EndOfLine, Position, Range, Selection, TextEditorRevealType } from "./extHostTypes.js";
+class TextEditorDecorationType {
+  static {
+    __name(this, "TextEditorDecorationType");
+  }
+  static {
+    this._Keys = new IdGenerator("TextEditorDecorationType");
+  }
+  constructor(proxy, extension, options) {
+    const key = TextEditorDecorationType._Keys.nextId();
+    proxy.$registerTextEditorDecorationType(extension.identifier, key, TypeConverters.DecorationRenderOptions.from(options));
+    this.value = Object.freeze({
+      key,
+      dispose() {
+        proxy.$removeTextEditorDecorationType(key);
+      }
+    });
+  }
+}
+class TextEditorEdit {
+  static {
+    __name(this, "TextEditorEdit");
+  }
+  constructor(document, options) {
+    this._collectedEdits = [];
+    this._setEndOfLine = void 0;
+    this._finalized = false;
+    this._document = document;
+    this._documentVersionId = document.version;
+    this._undoStopBefore = options.undoStopBefore;
+    this._undoStopAfter = options.undoStopAfter;
+  }
+  finalize() {
+    this._finalized = true;
+    return {
+      documentVersionId: this._documentVersionId,
+      edits: this._collectedEdits,
+      setEndOfLine: this._setEndOfLine,
+      undoStopBefore: this._undoStopBefore,
+      undoStopAfter: this._undoStopAfter
+    };
+  }
+  _throwIfFinalized() {
+    if (this._finalized) {
+      throw new Error("Edit is only valid while callback runs");
+    }
+  }
+  replace(location, value) {
+    this._throwIfFinalized();
+    let range = null;
+    if (location instanceof Position) {
+      range = new Range(location, location);
+    } else if (location instanceof Range) {
+      range = location;
+    } else {
+      throw new Error("Unrecognized location");
+    }
+    this._pushEdit(range, value, false);
+  }
+  insert(location, value) {
+    this._throwIfFinalized();
+    this._pushEdit(new Range(location, location), value, true);
+  }
+  delete(location) {
+    this._throwIfFinalized();
+    let range = null;
+    if (location instanceof Range) {
+      range = location;
+    } else {
+      throw new Error("Unrecognized location");
+    }
+    this._pushEdit(range, null, true);
+  }
+  _pushEdit(range, text, forceMoveMarkers) {
+    const validRange = this._document.validateRange(range);
+    this._collectedEdits.push({
+      range: validRange,
+      text,
+      forceMoveMarkers
+    });
+  }
+  setEndOfLine(endOfLine) {
+    this._throwIfFinalized();
+    if (endOfLine !== EndOfLine.LF && endOfLine !== EndOfLine.CRLF) {
+      throw illegalArgument("endOfLine");
+    }
+    this._setEndOfLine = endOfLine;
+  }
+}
+class ExtHostTextEditorOptions {
+  static {
+    __name(this, "ExtHostTextEditorOptions");
+  }
+  constructor(proxy, id, source, logService) {
+    this._proxy = proxy;
+    this._id = id;
+    this._accept(source);
+    this._logService = logService;
+    const that = this;
+    this.value = {
+      get tabSize() {
+        return that._tabSize;
+      },
+      set tabSize(value) {
+        that._setTabSize(value);
+      },
+      get indentSize() {
+        return that._indentSize;
+      },
+      set indentSize(value) {
+        that._setIndentSize(value);
+      },
+      get insertSpaces() {
+        return that._insertSpaces;
+      },
+      set insertSpaces(value) {
+        that._setInsertSpaces(value);
+      },
+      get cursorStyle() {
+        return that._cursorStyle;
+      },
+      set cursorStyle(value) {
+        that._setCursorStyle(value);
+      },
+      get lineNumbers() {
+        return that._lineNumbers;
+      },
+      set lineNumbers(value) {
+        that._setLineNumbers(value);
+      }
+    };
+  }
+  _accept(source) {
+    this._tabSize = source.tabSize;
+    this._indentSize = source.indentSize;
+    this._originalIndentSize = source.originalIndentSize;
+    this._insertSpaces = source.insertSpaces;
+    this._cursorStyle = source.cursorStyle;
+    this._lineNumbers = TypeConverters.TextEditorLineNumbersStyle.to(source.lineNumbers);
+  }
+  // --- internal: tabSize
+  _validateTabSize(value) {
+    if (value === "auto") {
+      return "auto";
+    }
+    if (typeof value === "number") {
+      const r = Math.floor(value);
+      return r > 0 ? r : null;
+    }
+    if (typeof value === "string") {
+      const r = parseInt(value, 10);
+      if (isNaN(r)) {
+        return null;
+      }
+      return r > 0 ? r : null;
+    }
+    return null;
+  }
+  _setTabSize(value) {
+    const tabSize = this._validateTabSize(value);
+    if (tabSize === null) {
+      return;
+    }
+    if (typeof tabSize === "number") {
+      if (this._tabSize === tabSize) {
+        return;
+      }
+      this._tabSize = tabSize;
+    }
+    this._warnOnError("setTabSize", this._proxy.$trySetOptions(this._id, {
+      tabSize
+    }));
+  }
+  // --- internal: indentSize
+  _validateIndentSize(value) {
+    if (value === "tabSize") {
+      return "tabSize";
+    }
+    if (typeof value === "number") {
+      const r = Math.floor(value);
+      return r > 0 ? r : null;
+    }
+    if (typeof value === "string") {
+      const r = parseInt(value, 10);
+      if (isNaN(r)) {
+        return null;
+      }
+      return r > 0 ? r : null;
+    }
+    return null;
+  }
+  _setIndentSize(value) {
+    const indentSize = this._validateIndentSize(value);
+    if (indentSize === null) {
+      return;
+    }
+    if (typeof indentSize === "number") {
+      if (this._originalIndentSize === indentSize) {
+        return;
+      }
+      this._indentSize = indentSize;
+      this._originalIndentSize = indentSize;
+    }
+    this._warnOnError("setIndentSize", this._proxy.$trySetOptions(this._id, {
+      indentSize
+    }));
+  }
+  // --- internal: insert spaces
+  _validateInsertSpaces(value) {
+    if (value === "auto") {
+      return "auto";
+    }
+    return value === "false" ? false : Boolean(value);
+  }
+  _setInsertSpaces(value) {
+    const insertSpaces = this._validateInsertSpaces(value);
+    if (typeof insertSpaces === "boolean") {
+      if (this._insertSpaces === insertSpaces) {
+        return;
+      }
+      this._insertSpaces = insertSpaces;
+    }
+    this._warnOnError("setInsertSpaces", this._proxy.$trySetOptions(this._id, {
+      insertSpaces
+    }));
+  }
+  // --- internal: cursor style
+  _setCursorStyle(value) {
+    if (this._cursorStyle === value) {
+      return;
+    }
+    this._cursorStyle = value;
+    this._warnOnError("setCursorStyle", this._proxy.$trySetOptions(this._id, {
+      cursorStyle: value
+    }));
+  }
+  // --- internal: line number
+  _setLineNumbers(value) {
+    if (this._lineNumbers === value) {
+      return;
+    }
+    this._lineNumbers = value;
+    this._warnOnError("setLineNumbers", this._proxy.$trySetOptions(this._id, {
+      lineNumbers: TypeConverters.TextEditorLineNumbersStyle.from(value)
+    }));
+  }
+  assign(newOptions) {
+    const bulkConfigurationUpdate = {};
+    let hasUpdate = false;
+    if (typeof newOptions.tabSize !== "undefined") {
+      const tabSize = this._validateTabSize(newOptions.tabSize);
+      if (tabSize === "auto") {
+        hasUpdate = true;
+        bulkConfigurationUpdate.tabSize = tabSize;
+      } else if (typeof tabSize === "number" && this._tabSize !== tabSize) {
+        this._tabSize = tabSize;
+        hasUpdate = true;
+        bulkConfigurationUpdate.tabSize = tabSize;
+      }
+    }
+    if (typeof newOptions.indentSize !== "undefined") {
+      const indentSize = this._validateIndentSize(newOptions.indentSize);
+      if (indentSize === "tabSize") {
+        hasUpdate = true;
+        bulkConfigurationUpdate.indentSize = indentSize;
+      } else if (typeof indentSize === "number" && this._originalIndentSize !== indentSize) {
+        this._indentSize = indentSize;
+        this._originalIndentSize = indentSize;
+        hasUpdate = true;
+        bulkConfigurationUpdate.indentSize = indentSize;
+      }
+    }
+    if (typeof newOptions.insertSpaces !== "undefined") {
+      const insertSpaces = this._validateInsertSpaces(newOptions.insertSpaces);
+      if (insertSpaces === "auto") {
+        hasUpdate = true;
+        bulkConfigurationUpdate.insertSpaces = insertSpaces;
+      } else if (this._insertSpaces !== insertSpaces) {
+        this._insertSpaces = insertSpaces;
+        hasUpdate = true;
+        bulkConfigurationUpdate.insertSpaces = insertSpaces;
+      }
+    }
+    if (typeof newOptions.cursorStyle !== "undefined") {
+      if (this._cursorStyle !== newOptions.cursorStyle) {
+        this._cursorStyle = newOptions.cursorStyle;
+        hasUpdate = true;
+        bulkConfigurationUpdate.cursorStyle = newOptions.cursorStyle;
+      }
+    }
+    if (typeof newOptions.lineNumbers !== "undefined") {
+      if (this._lineNumbers !== newOptions.lineNumbers) {
+        this._lineNumbers = newOptions.lineNumbers;
+        hasUpdate = true;
+        bulkConfigurationUpdate.lineNumbers = TypeConverters.TextEditorLineNumbersStyle.from(newOptions.lineNumbers);
+      }
+    }
+    if (hasUpdate) {
+      this._warnOnError("setOptions", this._proxy.$trySetOptions(this._id, bulkConfigurationUpdate));
+    }
+  }
+  _warnOnError(action, promise) {
+    promise.catch((err) => {
+      this._logService.warn(`ExtHostTextEditorOptions '${action}' failed:'`);
+      this._logService.warn(err);
+    });
+  }
+}
+class ExtHostTextEditor {
+  static {
+    __name(this, "ExtHostTextEditor");
+  }
+  constructor(id, _proxy, _logService, document, selections, options, visibleRanges, viewColumn) {
+    this.id = id;
+    this._proxy = _proxy;
+    this._logService = _logService;
+    this._disposed = false;
+    this._hasDecorationsForKey = /* @__PURE__ */ new Set();
+    this._selections = selections;
+    this._options = new ExtHostTextEditorOptions(this._proxy, this.id, options, _logService);
+    this._visibleRanges = visibleRanges;
+    this._viewColumn = viewColumn;
+    const that = this;
+    this.value = Object.freeze({
+      get document() {
+        return document.value;
+      },
+      set document(_value) {
+        throw new ReadonlyError("document");
+      },
+      // --- selection
+      get selection() {
+        return that._selections && that._selections[0];
+      },
+      set selection(value) {
+        if (!(value instanceof Selection)) {
+          throw illegalArgument("selection");
+        }
+        that._selections = [value];
+        that._trySetSelection();
+      },
+      get selections() {
+        return that._selections;
+      },
+      set selections(value) {
+        if (!Array.isArray(value) || value.some((a) => !(a instanceof Selection))) {
+          throw illegalArgument("selections");
+        }
+        if (value.length === 0) {
+          value = [new Selection(0, 0, 0, 0)];
+        }
+        that._selections = value;
+        that._trySetSelection();
+      },
+      // --- visible ranges
+      get visibleRanges() {
+        return that._visibleRanges;
+      },
+      set visibleRanges(_value) {
+        throw new ReadonlyError("visibleRanges");
+      },
+      get diffInformation() {
+        return that._diffInformation;
+      },
+      // --- options
+      get options() {
+        return that._options.value;
+      },
+      set options(value) {
+        if (!that._disposed) {
+          that._options.assign(value);
+        }
+      },
+      // --- view column
+      get viewColumn() {
+        return that._viewColumn;
+      },
+      set viewColumn(_value) {
+        throw new ReadonlyError("viewColumn");
+      },
+      // --- edit
+      edit(callback, options2 = { undoStopBefore: true, undoStopAfter: true }) {
+        if (that._disposed) {
+          return Promise.reject(new Error("TextEditor#edit not possible on closed editors"));
+        }
+        const edit = new TextEditorEdit(document.value, options2);
+        callback(edit);
+        return that._applyEdit(edit);
+      },
+      // --- snippet edit
+      insertSnippet(snippet, where, options2 = { undoStopBefore: true, undoStopAfter: true }) {
+        if (that._disposed) {
+          return Promise.reject(new Error("TextEditor#insertSnippet not possible on closed editors"));
+        }
+        let ranges;
+        if (!where || Array.isArray(where) && where.length === 0) {
+          ranges = that._selections.map((range) => TypeConverters.Range.from(range));
+        } else if (where instanceof Position) {
+          const { lineNumber, column } = TypeConverters.Position.from(where);
+          ranges = [{ startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn: column }];
+        } else if (where instanceof Range) {
+          ranges = [TypeConverters.Range.from(where)];
+        } else {
+          ranges = [];
+          for (const posOrRange of where) {
+            if (posOrRange instanceof Range) {
+              ranges.push(TypeConverters.Range.from(posOrRange));
+            } else {
+              const { lineNumber, column } = TypeConverters.Position.from(posOrRange);
+              ranges.push({ startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn: column });
+            }
+          }
+        }
+        if (options2.keepWhitespace === void 0) {
+          options2.keepWhitespace = false;
+        }
+        return _proxy.$tryInsertSnippet(id, document.value.version, snippet.value, ranges, options2);
+      },
+      setDecorations(decorationType, ranges) {
+        const willBeEmpty = ranges.length === 0;
+        if (willBeEmpty && !that._hasDecorationsForKey.has(decorationType.key)) {
+          return;
+        }
+        if (willBeEmpty) {
+          that._hasDecorationsForKey.delete(decorationType.key);
+        } else {
+          that._hasDecorationsForKey.add(decorationType.key);
+        }
+        that._runOnProxy(() => {
+          if (TypeConverters.isDecorationOptionsArr(ranges)) {
+            return _proxy.$trySetDecorations(id, decorationType.key, TypeConverters.fromRangeOrRangeWithMessage(ranges));
+          } else {
+            const _ranges = new Array(4 * ranges.length);
+            for (let i = 0, len = ranges.length; i < len; i++) {
+              const range = ranges[i];
+              _ranges[4 * i] = range.start.line + 1;
+              _ranges[4 * i + 1] = range.start.character + 1;
+              _ranges[4 * i + 2] = range.end.line + 1;
+              _ranges[4 * i + 3] = range.end.character + 1;
+            }
+            return _proxy.$trySetDecorationsFast(id, decorationType.key, _ranges);
+          }
+        });
+      },
+      revealRange(range, revealType) {
+        that._runOnProxy(() => _proxy.$tryRevealRange(id, TypeConverters.Range.from(range), revealType || TextEditorRevealType.Default));
+      },
+      show(column) {
+        _proxy.$tryShowEditor(id, TypeConverters.ViewColumn.from(column));
+      },
+      hide() {
+        _proxy.$tryHideEditor(id);
+      },
+      [/* @__PURE__ */ Symbol.for("debug.description")]() {
+        return `TextEditor(${this.document.uri.toString()})`;
+      }
+    });
+  }
+  dispose() {
+    ok(!this._disposed);
+    this._disposed = true;
+  }
+  // --- incoming: extension host MUST accept what the renderer says
+  _acceptOptions(options) {
+    ok(!this._disposed);
+    this._options._accept(options);
+  }
+  _acceptVisibleRanges(value) {
+    ok(!this._disposed);
+    this._visibleRanges = value;
+  }
+  _acceptViewColumn(value) {
+    ok(!this._disposed);
+    this._viewColumn = value;
+  }
+  _acceptSelections(selections) {
+    ok(!this._disposed);
+    this._selections = selections;
+  }
+  _acceptDiffInformation(diffInformation) {
+    ok(!this._disposed);
+    this._diffInformation = diffInformation;
+  }
+  async _trySetSelection() {
+    const selection = this._selections.map(TypeConverters.Selection.from);
+    await this._runOnProxy(() => this._proxy.$trySetSelections(this.id, selection));
+    return this.value;
+  }
+  _applyEdit(editBuilder) {
+    const editData = editBuilder.finalize();
+    if (editData.edits.length === 0 && !editData.setEndOfLine) {
+      return Promise.resolve(true);
+    }
+    const editRanges = editData.edits.map((edit) => edit.range);
+    editRanges.sort((a, b) => {
+      if (a.end.line === b.end.line) {
+        if (a.end.character === b.end.character) {
+          if (a.start.line === b.start.line) {
+            return a.start.character - b.start.character;
+          }
+          return a.start.line - b.start.line;
+        }
+        return a.end.character - b.end.character;
+      }
+      return a.end.line - b.end.line;
+    });
+    for (let i = 0, count = editRanges.length - 1; i < count; i++) {
+      const rangeEnd = editRanges[i].end;
+      const nextRangeStart = editRanges[i + 1].start;
+      if (nextRangeStart.isBefore(rangeEnd)) {
+        return Promise.reject(new Error("Overlapping ranges are not allowed!"));
+      }
+    }
+    const edits = editData.edits.map((edit) => {
+      return {
+        range: TypeConverters.Range.from(edit.range),
+        text: edit.text,
+        forceMoveMarkers: edit.forceMoveMarkers
+      };
+    });
+    return this._proxy.$tryApplyEdits(this.id, editData.documentVersionId, edits, {
+      setEndOfLine: typeof editData.setEndOfLine === "number" ? TypeConverters.EndOfLine.from(editData.setEndOfLine) : void 0,
+      undoStopBefore: editData.undoStopBefore,
+      undoStopAfter: editData.undoStopAfter
+    });
+  }
+  _runOnProxy(callback) {
+    if (this._disposed) {
+      this._logService.warn("TextEditor is closed/disposed");
+      return Promise.resolve(void 0);
+    }
+    return callback().then(() => this, (err) => {
+      if (!(err instanceof Error && err.name === "DISPOSED")) {
+        this._logService.warn(err);
+      }
+      return null;
+    });
+  }
+}
+export {
+  ExtHostTextEditor,
+  ExtHostTextEditorOptions,
+  TextEditorDecorationType
+};
+//# sourceMappingURL=extHostTextEditor.js.map

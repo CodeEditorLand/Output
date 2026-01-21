@@ -1,2 +1,473 @@
-import{$Zc as M}from"../../../../base/common/assert.js";import{$ak as b}from"../../../../base/common/codicons.js";import{$wf as R}from"../../../../base/common/event.js";import{$ik as $}from"../../../../base/common/htmlContent.js";import{Iterable as H}from"../../../../base/common/iterator.js";import{$Qf as S}from"../../../../base/common/lazy.js";import{$Ed as _,$Dd as A}from"../../../../base/common/lifecycle.js";import{derived as C,observableValue as v,autorunSelfDisposable as O}from"../../../../base/common/observable.js";import{$dd as E}from"../../../../base/common/types.js";import{URI as L}from"../../../../base/common/uri.js";import{localize as f}from"../../../../nls.js";import{$9l as x}from"../../../../platform/configuration/common/configuration.js";import{$Lp as N}from"../../../../platform/dialogs/common/dialogs.js";import{$Fz as I}from"../../../../platform/extensions/common/extensions.js";import{$Lj as G}from"../../../../platform/instantiation/common/instantiation.js";import{$lH as j}from"../../../../platform/label/common/label.js";import{$xo as F}from"../../../../platform/log/common/log.js";import{$HQ as U}from"../../../../platform/mcp/common/mcpManagement.js";import{$mH as q,Severity as Q}from"../../../../platform/notification/common/notification.js";import{$ghb as T}from"../../../../platform/observable/common/platformObservableUtils.js";import{$VH as B}from"../../../../platform/quickinput/common/quickInput.js";import{$ES as V}from"../../../services/configurationResolver/common/configurationResolver.js";import{$HS as w}from"../../../services/configurationResolver/common/configurationResolverExpression.js";import{$BL as z,$yL as W}from"../../../services/editor/common/editorService.js";import{$A2b as J}from"./mcpDevMode.js";import{$Qpc as D}from"./mcpRegistryInputStorage.js";import{$Rpc as X}from"./mcpServerConnection.js";import{$XS as Z,$5S as g}from"./mcpTypes.js";var k=function(p,e,r,n){var i=arguments.length,s=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(p,e,r,n);else for(var o=p.length-1;o>=0;o--)(a=p[o])&&(s=(i<3?a(s):i>3?a(e,r,s):a(e,r))||s);return i>3&&s&&Object.defineProperty(e,r,s),s},h=function(p,e){return function(r,n){e(r,n,p)}};const y="__vscode_not_trusted";let P=class extends _{get delegates(){return this.g}constructor(e,r,n,i,s,a,o,t,l){super(),this.t=e,this.u=r,this.w=n,this.y=i,this.z=s,this.C=o,this.F=t,this.G=l,this.f=v("collections",[]),this.g=v("delegates",[]),this.collections=C(u=>this.h.read(u)==="none"?[]:this.f.read(u)),this.j=new S(()=>this.D(this.t.createInstance(D,1,0))),this.m=new S(()=>this.D(this.t.createInstance(D,0,0))),this.n=v(this,0),this.lazyCollectionState=C(u=>{if(this.h.read(u)==="none")return{state:2,collections:[]};if(this.n.read(u)>0)return{state:1,collections:[]};const c=this.f.read(u);return c.some(m=>m.lazy&&m.lazy.isCached===!1)?{state:0,collections:c.filter(m=>m.lazy&&m.lazy.isCached===!1)}:{state:2,collections:[]}}),this.q=this.D(new R),this.onDidChangeInputs=this.q.event,this.h=T(U,"all",a)}registerDelegate(e){const r=this.g.get().slice();return r.push(e),r.sort((n,i)=>i.priority-n.priority),this.g.set(r,void 0),{dispose:()=>{const n=this.g.get().filter(i=>i!==e);this.g.set(n,void 0)}}}registerCollection(e){const r=this.f.get(),n=r.find(i=>i.lazy&&i.id===e.id);return n?this.f.set(r.map(i=>i===n?e:i),void 0):this.f.set([...r,e].sort((i,s)=>(i.presentation?.order||0)-(s.presentation?.order||0)),void 0),{dispose:()=>{const i=this.f.get();this.f.set(i.filter(s=>s!==e),void 0)}}}getServerDefinition(e,r){return this.f.map(i=>i.find(s=>s.id===e.id)).map((i,s)=>{const a=i?.serverDefinitions.read(s).find(o=>o.id===r.id);return{collection:i,server:a}})}async discoverCollections(){const e=this.f.get().filter(i=>i.lazy&&!i.lazy.isCached);this.n.set(this.n.get()+1,void 0),await Promise.all(e.map(i=>i.lazy?.load())).finally(()=>{this.n.set(this.n.get()-1,void 0)});const r=[],n=this.f.get();for(const i of e){const s=n.find(a=>a.id===i.id);s&&(s.lazy?s.lazy.removed?.():r.push(s))}return r}H(e){return e===1?this.j.value:this.m.value}I(e){return this.H(e===5||e===6?1:0)}async clearSavedInputs(e,r){const n=this.H(e);r?await n.clear(r):n.clearAll(),this.q.fire()}async editSavedInput(e,r,n,i){const s=this.I(i),a=w.parse(e),t=(await s.getMap())[e].value;await this.u.resolveWithInteraction(r,a,n,t?{[e.slice(2,-1)]:t}:{},i),await this.N(s,a)}async setSavedInput(e,r,n){const i=this.I(r),s=w.parse(e);for(const a of s.unresolved()){s.resolve(a,n);break}await this.N(i,s)}getSavedInputs(e){return this.H(e).getMap()}async J(e,r,{trustNonceBearer:n,interaction:i,promptType:s="only-new",autoTrustChanges:a=!1,errorOnUserInteraction:o=!1}){if(e.trustBehavior===0)return this.G.trace(`MCP server ${r.id} is trusted, no trust prompt needed`),!0;if(e.trustBehavior===1){if(r.cacheNonce===n.trustedAtNonce)return this.G.trace(`MCP server ${r.id} is unchanged, no trust prompt needed`),!0;if(a)return this.G.trace(`MCP server ${r.id} is was changed but user explicitly executed`),n.trustedAtNonce=r.cacheNonce,!0;if(n.trustedAtNonce===y)if(s==="all-untrusted"){if(o)throw new g("serverTrust");return this.L(r,e,i,n)}else return this.G.trace(`MCP server ${r.id} is untrusted, denying trust prompt`),!1;if(s==="never")return this.G.trace(`MCP server ${r.id} trust state is unknown, skipping prompt`),!1;if(o)throw new g("serverTrust");const t=await this.L(r,e,i,n);return t?!0:t===void 0?void 0:(n.trustedAtNonce=y,!1)}else M(e.trustBehavior)}async L(e,r,n,i){n??=new Z,n.participants.set(e.id,{s:"waiting",definition:e,collection:r});const s=await new Promise(a=>{O(o=>{const t=n.participants.observable.read(o);H.some(t.values(),l=>l.s==="unknown")||(o.dispose(),n.choice??=this.M([...t.values()].map(l=>l.s==="waiting"?l:void 0).filter(E)),a(n.choice))})});return this.G.trace("MCP trusted servers:",s),s&&(i.trustedAtNonce=s.includes(e.id)?e.cacheNonce:y),!!s?.includes(e.id)}async M(e){function r(t){const l=t.definition.presentation?.origin?.uri||t.collection.presentation?.origin;let u=l?`[\`${t.definition.label}\`](${l})`:"`"+t.definition.label+"`";return t.collection.source instanceof I&&(u+=` (${f(10125,null,t.collection.source.value)})`),u}if(e.length===1){const t=e[0],l=t.definition.presentation?.origin?.uri,{result:u}=await this.w.prompt({message:f(10126,null,t.definition.label),custom:{icon:b.shield,markdownDetails:[{markdown:new $(f(10127,null,r(t))),actionHandler:()=>this.z.openEditor({resource:l},z).then(Boolean)}]},buttons:[{label:f(10128,null),run:()=>!0},{label:f(10129,null),run:()=>!1}]});return u===void 0?void 0:u?[t.definition.id]:[]}const n=e.map(t=>`- ${r(t)}`).join(`
-`),{result:i}=await this.w.prompt({message:f(10130,null,e.length),custom:{icon:b.shield,markdownDetails:[{markdown:new $(f(10131,null,n)),actionHandler:t=>this.z.openEditor({resource:L.parse(t)},z).then(Boolean)}]},buttons:[{label:f(10132,null),run:()=>"all"},{label:f(10133,null),run:()=>"pick"},{label:f(10134,null),run:()=>"none"}]});if(i===void 0)return;if(i==="all")return e.map(t=>t.definition.id);if(i==="none")return[];function s(t){return typeof t.action=="function"}const a=new A,o=a.add(this.C.createQuickPick({useSeparators:!1}));return o.canSelectMany=!0,o.items=e.map(({definition:t,collection:l})=>{const u=[];if(t.presentation?.origin){const c=t.presentation.origin;u.push({iconClass:"codicon-go-to-file",tooltip:"Go to Definition",action:()=>this.z.openEditor({resource:c.uri,options:{selection:c.range}})})}return{type:"item",label:t.label,definitonId:t.id,description:l.source instanceof I?l.source.value:t.presentation?.origin?this.F.getUriLabel(t.presentation.origin.uri):void 0,picked:!1,buttons:u}}),o.placeholder="Select MCP servers to trust",o.ignoreFocusOut=!0,a.add(o.onDidTriggerItemButton(t=>{s(t.button)&&t.button.action()})),new Promise(t=>{o.onDidAccept(()=>{t(o.selectedItems.map(l=>l.definitonId)),o.hide()}),o.onDidHide(()=>{t(void 0)}),o.show()}).finally(()=>a.dispose())}async N(e,r){const n={},i={};for(const[s,a]of r.resolved())a.input?.type==="promptString"&&a.input.password?n[s.id]=a:i[s.id]=a;e.setPlainText(i),await e.setSecrets(n),this.q.fire()}async O(e,r,n,i){if(!r.variableReplacement)return n;const{section:s,target:a,folder:o}=r.variableReplacement,t=this.I(a),[l,u]=await Promise.all([t.getMap(),e.substituteVariables(r,n)]),c=w.parse(u);for(const d of c.unresolved())l.hasOwnProperty(d.id)&&c.resolve(d,l[d.id]);if(i&&Array.from(c.unresolved()).length>0)throw new g("variables");return await this.u.resolveWithInteraction(o,c,s,void 0,a),await this.N(t,c),await this.u.resolveAsync(o,c)}async resolveConnection(e){const{collectionRef:r,definitionRef:n,interaction:i,logger:s,debug:a}=e;let o=this.f.get().find(d=>d.id===r.id);o?.lazy&&(await o.lazy.load(),o=this.f.get().find(d=>d.id===r.id));const t=o?.serverDefinitions.get().find(d=>d.id===n.id);if(!o||!t)throw new Error(`Collection or definition not found for ${r.id} and ${n.id}`);const l=this.g.get().find(d=>d.canStart(o,t));if(!l)throw new Error("No delegate found that can handle the connection");const u=await this.J(o,t,e);if(i?.participants.set(t.id,{s:"resolved"}),!u)return;let c=t.launch;if(!(o.resolveServerLanch&&(c=await o.resolveServerLanch(t),!c))){try{c=await this.O(l,t,c,e.errorOnUserInteraction),t.devMode&&a&&(c=await this.t.invokeFunction(d=>d.get(J).transform(t,c)))}catch(d){if(d instanceof g)throw d;this.y.notify({severity:Q.Error,message:f(10135,null,t.label,String(d)),actions:{primary:o.presentation?.origin&&[{id:"mcp.launchError.openConfig",class:void 0,enabled:!0,tooltip:"",label:f(10136,null),run:()=>this.z.openEditor({resource:o.presentation.origin,options:{selection:t.presentation?.origin?.range}})}]}});return}return this.t.createInstance(X,o,t,l,c,s,e.errorOnUserInteraction,e.taskManager)}}};P=k([h(0,G),h(1,V),h(2,N),h(3,q),h(4,W),h(5,x),h(6,B),h(7,j),h(8,F)],P);export{P as $Spc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { assertNever } from "../../../../base/common/assert.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { derived, observableValue, autorunSelfDisposable } from "../../../../base/common/observable.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { mcpAccessConfig } from "../../../../platform/mcp/common/mcpManagement.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { ConfigurationResolverExpression } from "../../../services/configurationResolver/common/configurationResolverExpression.js";
+import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import { IMcpDevModeDebugging } from "./mcpDevMode.js";
+import { McpRegistryInputStorage } from "./mcpRegistryInputStorage.js";
+import { McpServerConnection } from "./mcpServerConnection.js";
+import { McpStartServerInteraction, UserInteractionRequiredError } from "./mcpTypes.js";
+const notTrustedNonce = "__vscode_not_trusted";
+let McpRegistry = class McpRegistry2 extends Disposable {
+  static {
+    __name(this, "McpRegistry");
+  }
+  get delegates() {
+    return this._delegates;
+  }
+  constructor(_instantiationService, _configurationResolverService, _dialogService, _notificationService, _editorService, configurationService, _quickInputService, _labelService, _logService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._configurationResolverService = _configurationResolverService;
+    this._dialogService = _dialogService;
+    this._notificationService = _notificationService;
+    this._editorService = _editorService;
+    this._quickInputService = _quickInputService;
+    this._labelService = _labelService;
+    this._logService = _logService;
+    this._collections = observableValue("collections", []);
+    this._delegates = observableValue("delegates", []);
+    this.collections = derived((reader) => {
+      if (this._mcpAccessValue.read(reader) === "none") {
+        return [];
+      }
+      return this._collections.read(reader);
+    });
+    this._workspaceStorage = new Lazy(() => this._register(this._instantiationService.createInstance(
+      McpRegistryInputStorage,
+      1,
+      0
+      /* StorageTarget.USER */
+    )));
+    this._profileStorage = new Lazy(() => this._register(this._instantiationService.createInstance(
+      McpRegistryInputStorage,
+      0,
+      0
+      /* StorageTarget.USER */
+    )));
+    this._ongoingLazyActivations = observableValue(this, 0);
+    this.lazyCollectionState = derived((reader) => {
+      if (this._mcpAccessValue.read(reader) === "none") {
+        return { state: 2, collections: [] };
+      }
+      if (this._ongoingLazyActivations.read(reader) > 0) {
+        return { state: 1, collections: [] };
+      }
+      const collections = this._collections.read(reader);
+      const hasUnknown = collections.some((c) => c.lazy && c.lazy.isCached === false);
+      return hasUnknown ? { state: 0, collections: collections.filter((c) => c.lazy && c.lazy.isCached === false) } : { state: 2, collections: [] };
+    });
+    this._onDidChangeInputs = this._register(new Emitter());
+    this.onDidChangeInputs = this._onDidChangeInputs.event;
+    this._mcpAccessValue = observableConfigValue(mcpAccessConfig, "all", configurationService);
+  }
+  registerDelegate(delegate) {
+    const delegates = this._delegates.get().slice();
+    delegates.push(delegate);
+    delegates.sort((a, b) => b.priority - a.priority);
+    this._delegates.set(delegates, void 0);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const delegates2 = this._delegates.get().filter((d) => d !== delegate);
+        this._delegates.set(delegates2, void 0);
+      }, "dispose")
+    };
+  }
+  registerCollection(collection) {
+    const currentCollections = this._collections.get();
+    const toReplace = currentCollections.find((c) => c.lazy && c.id === collection.id);
+    if (toReplace) {
+      this._collections.set(currentCollections.map((c) => c === toReplace ? collection : c), void 0);
+    } else {
+      this._collections.set([...currentCollections, collection].sort((a, b) => (a.presentation?.order || 0) - (b.presentation?.order || 0)), void 0);
+    }
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const currentCollections2 = this._collections.get();
+        this._collections.set(currentCollections2.filter((c) => c !== collection), void 0);
+      }, "dispose")
+    };
+  }
+  getServerDefinition(collectionRef, definitionRef) {
+    const collectionObs = this._collections.map((cols) => cols.find((c) => c.id === collectionRef.id));
+    return collectionObs.map((collection, reader) => {
+      const server = collection?.serverDefinitions.read(reader).find((s) => s.id === definitionRef.id);
+      return { collection, server };
+    });
+  }
+  async discoverCollections() {
+    const toDiscover = this._collections.get().filter((c) => c.lazy && !c.lazy.isCached);
+    this._ongoingLazyActivations.set(this._ongoingLazyActivations.get() + 1, void 0);
+    await Promise.all(toDiscover.map((c) => c.lazy?.load())).finally(() => {
+      this._ongoingLazyActivations.set(this._ongoingLazyActivations.get() - 1, void 0);
+    });
+    const found = [];
+    const current = this._collections.get();
+    for (const collection of toDiscover) {
+      const rec = current.find((c) => c.id === collection.id);
+      if (!rec) {
+      } else if (rec.lazy) {
+        rec.lazy.removed?.();
+      } else {
+        found.push(rec);
+      }
+    }
+    return found;
+  }
+  _getInputStorage(scope) {
+    return scope === 1 ? this._workspaceStorage.value : this._profileStorage.value;
+  }
+  _getInputStorageInConfigTarget(configTarget) {
+    return this._getInputStorage(
+      configTarget === 5 || configTarget === 6 ? 1 : 0
+      /* StorageScope.PROFILE */
+    );
+  }
+  async clearSavedInputs(scope, inputId) {
+    const storage = this._getInputStorage(scope);
+    if (inputId) {
+      await storage.clear(inputId);
+    } else {
+      storage.clearAll();
+    }
+    this._onDidChangeInputs.fire();
+  }
+  async editSavedInput(inputId, folderData, configSection, target) {
+    const storage = this._getInputStorageInConfigTarget(target);
+    const expr = ConfigurationResolverExpression.parse(inputId);
+    const stored = await storage.getMap();
+    const previous = stored[inputId].value;
+    await this._configurationResolverService.resolveWithInteraction(folderData, expr, configSection, previous ? { [inputId.slice(2, -1)]: previous } : {}, target);
+    await this._updateStorageWithExpressionInputs(storage, expr);
+  }
+  async setSavedInput(inputId, target, value) {
+    const storage = this._getInputStorageInConfigTarget(target);
+    const expr = ConfigurationResolverExpression.parse(inputId);
+    for (const unresolved of expr.unresolved()) {
+      expr.resolve(unresolved, value);
+      break;
+    }
+    await this._updateStorageWithExpressionInputs(storage, expr);
+  }
+  getSavedInputs(scope) {
+    return this._getInputStorage(scope).getMap();
+  }
+  async _checkTrust(collection, definition, { trustNonceBearer, interaction, promptType = "only-new", autoTrustChanges = false, errorOnUserInteraction = false }) {
+    if (collection.trustBehavior === 0) {
+      this._logService.trace(`MCP server ${definition.id} is trusted, no trust prompt needed`);
+      return true;
+    } else if (collection.trustBehavior === 1) {
+      if (definition.cacheNonce === trustNonceBearer.trustedAtNonce) {
+        this._logService.trace(`MCP server ${definition.id} is unchanged, no trust prompt needed`);
+        return true;
+      }
+      if (autoTrustChanges) {
+        this._logService.trace(`MCP server ${definition.id} is was changed but user explicitly executed`);
+        trustNonceBearer.trustedAtNonce = definition.cacheNonce;
+        return true;
+      }
+      if (trustNonceBearer.trustedAtNonce === notTrustedNonce) {
+        if (promptType === "all-untrusted") {
+          if (errorOnUserInteraction) {
+            throw new UserInteractionRequiredError("serverTrust");
+          }
+          return this._promptForTrust(definition, collection, interaction, trustNonceBearer);
+        } else {
+          this._logService.trace(`MCP server ${definition.id} is untrusted, denying trust prompt`);
+          return false;
+        }
+      }
+      if (promptType === "never") {
+        this._logService.trace(`MCP server ${definition.id} trust state is unknown, skipping prompt`);
+        return false;
+      }
+      if (errorOnUserInteraction) {
+        throw new UserInteractionRequiredError("serverTrust");
+      }
+      const didTrust = await this._promptForTrust(definition, collection, interaction, trustNonceBearer);
+      if (didTrust) {
+        return true;
+      }
+      if (didTrust === void 0) {
+        return void 0;
+      }
+      trustNonceBearer.trustedAtNonce = notTrustedNonce;
+      return false;
+    } else {
+      assertNever(collection.trustBehavior);
+    }
+  }
+  async _promptForTrust(definition, collection, interaction, trustNonceBearer) {
+    interaction ??= new McpStartServerInteraction();
+    interaction.participants.set(definition.id, { s: "waiting", definition, collection });
+    const trustedDefinitionIds = await new Promise((resolve) => {
+      autorunSelfDisposable((reader) => {
+        const map = interaction.participants.observable.read(reader);
+        if (Iterable.some(map.values(), (p) => p.s === "unknown")) {
+          return;
+        }
+        reader.dispose();
+        interaction.choice ??= this._promptForTrustOpenDialog([...map.values()].map((v) => v.s === "waiting" ? v : void 0).filter(isDefined));
+        resolve(interaction.choice);
+      });
+    });
+    this._logService.trace(`MCP trusted servers:`, trustedDefinitionIds);
+    if (trustedDefinitionIds) {
+      trustNonceBearer.trustedAtNonce = trustedDefinitionIds.includes(definition.id) ? definition.cacheNonce : notTrustedNonce;
+    }
+    return !!trustedDefinitionIds?.includes(definition.id);
+  }
+  /**
+   * Confirms with the user which of the provided definitions should be trusted.
+   * Returns undefined if the user cancelled the flow, or the list of trusted
+   * definition IDs otherwise.
+   */
+  async _promptForTrustOpenDialog(definitions) {
+    function labelFor(r) {
+      const originURI = r.definition.presentation?.origin?.uri || r.collection.presentation?.origin;
+      let labelWithOrigin = originURI ? `[\`${r.definition.label}\`](${originURI})` : "`" + r.definition.label + "`";
+      if (r.collection.source instanceof ExtensionIdentifier) {
+        labelWithOrigin += ` (${localize("trustFromExt", "from {0}", r.collection.source.value)})`;
+      }
+      return labelWithOrigin;
+    }
+    __name(labelFor, "labelFor");
+    if (definitions.length === 1) {
+      const def = definitions[0];
+      const originURI = def.definition.presentation?.origin?.uri;
+      const { result: result2 } = await this._dialogService.prompt({
+        message: localize("trustTitleWithOrigin", "Trust and run MCP server {0}?", def.definition.label),
+        custom: {
+          icon: Codicon.shield,
+          markdownDetails: [{
+            markdown: new MarkdownString(localize("mcp.trust.details", "The MCP server {0} was updated. MCP servers may add context to your chat session and lead to unexpected behavior. Do you want to trust and run this server?", labelFor(def))),
+            actionHandler: /* @__PURE__ */ __name(() => {
+              const editor = this._editorService.openEditor({ resource: originURI }, AUX_WINDOW_GROUP);
+              return editor.then(Boolean);
+            }, "actionHandler")
+          }]
+        },
+        buttons: [
+          { label: localize("mcp.trust.yes", "Trust"), run: /* @__PURE__ */ __name(() => true, "run") },
+          { label: localize("mcp.trust.no", "Do not trust"), run: /* @__PURE__ */ __name(() => false, "run") }
+        ]
+      });
+      return result2 === void 0 ? void 0 : result2 ? [def.definition.id] : [];
+    }
+    const list = definitions.map((d) => `- ${labelFor(d)}`).join("\n");
+    const { result } = await this._dialogService.prompt({
+      message: localize("trustTitleWithOriginMulti", "Trust and run {0} MCP servers?", definitions.length),
+      custom: {
+        icon: Codicon.shield,
+        markdownDetails: [{
+          markdown: new MarkdownString(localize("mcp.trust.detailsMulti", "Several updated MCP servers were discovered:\n\n{0}\n\n MCP servers may add context to your chat session and lead to unexpected behavior. Do you want to trust and run these server?", list)),
+          actionHandler: /* @__PURE__ */ __name((uri) => {
+            const editor = this._editorService.openEditor({ resource: URI.parse(uri) }, AUX_WINDOW_GROUP);
+            return editor.then(Boolean);
+          }, "actionHandler")
+        }]
+      },
+      buttons: [
+        { label: localize("mcp.trust.yes", "Trust"), run: /* @__PURE__ */ __name(() => "all", "run") },
+        { label: localize("mcp.trust.pick", "Pick Trusted"), run: /* @__PURE__ */ __name(() => "pick", "run") },
+        { label: localize("mcp.trust.no", "Do not trust"), run: /* @__PURE__ */ __name(() => "none", "run") }
+      ]
+    });
+    if (result === void 0) {
+      return void 0;
+    } else if (result === "all") {
+      return definitions.map((d) => d.definition.id);
+    } else if (result === "none") {
+      return [];
+    }
+    function isActionableButton(obj) {
+      return typeof obj.action === "function";
+    }
+    __name(isActionableButton, "isActionableButton");
+    const store = new DisposableStore();
+    const picker = store.add(this._quickInputService.createQuickPick({ useSeparators: false }));
+    picker.canSelectMany = true;
+    picker.items = definitions.map(({ definition, collection }) => {
+      const buttons = [];
+      if (definition.presentation?.origin) {
+        const origin = definition.presentation.origin;
+        buttons.push({
+          iconClass: "codicon-go-to-file",
+          tooltip: "Go to Definition",
+          action: /* @__PURE__ */ __name(() => this._editorService.openEditor({ resource: origin.uri, options: { selection: origin.range } }), "action")
+        });
+      }
+      return {
+        type: "item",
+        label: definition.label,
+        definitonId: definition.id,
+        description: collection.source instanceof ExtensionIdentifier ? collection.source.value : definition.presentation?.origin ? this._labelService.getUriLabel(definition.presentation.origin.uri) : void 0,
+        picked: false,
+        buttons
+      };
+    });
+    picker.placeholder = "Select MCP servers to trust";
+    picker.ignoreFocusOut = true;
+    store.add(picker.onDidTriggerItemButton((e) => {
+      if (isActionableButton(e.button)) {
+        e.button.action();
+      }
+    }));
+    return new Promise((resolve) => {
+      picker.onDidAccept(() => {
+        resolve(picker.selectedItems.map((item) => item.definitonId));
+        picker.hide();
+      });
+      picker.onDidHide(() => {
+        resolve(void 0);
+      });
+      picker.show();
+    }).finally(() => store.dispose());
+  }
+  async _updateStorageWithExpressionInputs(inputStorage, expr) {
+    const secrets = {};
+    const inputs = {};
+    for (const [replacement, resolved] of expr.resolved()) {
+      if (resolved.input?.type === "promptString" && resolved.input.password) {
+        secrets[replacement.id] = resolved;
+      } else {
+        inputs[replacement.id] = resolved;
+      }
+    }
+    inputStorage.setPlainText(inputs);
+    await inputStorage.setSecrets(secrets);
+    this._onDidChangeInputs.fire();
+  }
+  async _replaceVariablesInLaunch(delegate, definition, launch, errorOnUserInteraction) {
+    if (!definition.variableReplacement) {
+      return launch;
+    }
+    const { section, target, folder } = definition.variableReplacement;
+    const inputStorage = this._getInputStorageInConfigTarget(target);
+    const [previouslyStored, withRemoteFilled] = await Promise.all([
+      inputStorage.getMap(),
+      delegate.substituteVariables(definition, launch)
+    ]);
+    const expr = ConfigurationResolverExpression.parse(withRemoteFilled);
+    for (const replacement of expr.unresolved()) {
+      if (previouslyStored.hasOwnProperty(replacement.id)) {
+        expr.resolve(replacement, previouslyStored[replacement.id]);
+      }
+    }
+    if (errorOnUserInteraction) {
+      const unresolved = Array.from(expr.unresolved());
+      if (unresolved.length > 0) {
+        throw new UserInteractionRequiredError("variables");
+      }
+    }
+    await this._configurationResolverService.resolveWithInteraction(folder, expr, section, void 0, target);
+    await this._updateStorageWithExpressionInputs(inputStorage, expr);
+    return await this._configurationResolverService.resolveAsync(folder, expr);
+  }
+  async resolveConnection(opts) {
+    const { collectionRef, definitionRef, interaction, logger, debug } = opts;
+    let collection = this._collections.get().find((c) => c.id === collectionRef.id);
+    if (collection?.lazy) {
+      await collection.lazy.load();
+      collection = this._collections.get().find((c) => c.id === collectionRef.id);
+    }
+    const definition = collection?.serverDefinitions.get().find((s) => s.id === definitionRef.id);
+    if (!collection || !definition) {
+      throw new Error(`Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`);
+    }
+    const delegate = this._delegates.get().find((d) => d.canStart(collection, definition));
+    if (!delegate) {
+      throw new Error("No delegate found that can handle the connection");
+    }
+    const trusted = await this._checkTrust(collection, definition, opts);
+    interaction?.participants.set(definition.id, { s: "resolved" });
+    if (!trusted) {
+      return void 0;
+    }
+    let launch = definition.launch;
+    if (collection.resolveServerLanch) {
+      launch = await collection.resolveServerLanch(definition);
+      if (!launch) {
+        return void 0;
+      }
+    }
+    try {
+      launch = await this._replaceVariablesInLaunch(delegate, definition, launch, opts.errorOnUserInteraction);
+      if (definition.devMode && debug) {
+        launch = await this._instantiationService.invokeFunction((accessor) => accessor.get(IMcpDevModeDebugging).transform(definition, launch));
+      }
+    } catch (e) {
+      if (e instanceof UserInteractionRequiredError) {
+        throw e;
+      }
+      this._notificationService.notify({
+        severity: Severity.Error,
+        message: localize("mcp.launchError", "Error starting {0}: {1}", definition.label, String(e)),
+        actions: {
+          primary: collection.presentation?.origin && [
+            {
+              id: "mcp.launchError.openConfig",
+              class: void 0,
+              enabled: true,
+              tooltip: "",
+              label: localize("mcp.launchError.openConfig", "Open Configuration"),
+              run: /* @__PURE__ */ __name(() => this._editorService.openEditor({
+                resource: collection.presentation.origin,
+                options: { selection: definition.presentation?.origin?.range }
+              }), "run")
+            }
+          ]
+        }
+      });
+      return;
+    }
+    return this._instantiationService.createInstance(McpServerConnection, collection, definition, delegate, launch, logger, opts.errorOnUserInteraction, opts.taskManager);
+  }
+};
+McpRegistry = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IConfigurationResolverService),
+  __param(2, IDialogService),
+  __param(3, INotificationService),
+  __param(4, IEditorService),
+  __param(5, IConfigurationService),
+  __param(6, IQuickInputService),
+  __param(7, ILabelService),
+  __param(8, ILogService)
+], McpRegistry);
+export {
+  McpRegistry
+};
+//# sourceMappingURL=mcpRegistry.js.map

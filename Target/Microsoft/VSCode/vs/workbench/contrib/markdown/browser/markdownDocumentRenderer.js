@@ -1,4 +1,15 @@
-import{$N9 as w}from"../../../../base/browser/domSanitize.js";import{$U9 as x,$T9 as v}from"../../../../base/browser/markdownRenderer.js";import{$Vh as y}from"../../../../base/common/async.js";import{CancellationToken as u}from"../../../../base/common/cancellation.js";import*as k from"../../../../base/common/marked/marked.js";import{Schemas as f}from"../../../../base/common/network.js";import{$Xf as M}from"../../../../base/common/strings.js";import{$2gb as $}from"../../../../editor/common/languages/textToHtmlTokenizer.js";import{$bqc as R}from"./markedGfmHeadingIdPlugin.js";const B=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { sanitizeHtml } from "../../../../base/browser/domSanitize.js";
+import { allowedMarkdownHtmlAttributes, allowedMarkdownHtmlTags } from "../../../../base/browser/markdownRenderer.js";
+import { raceCancellationError } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import * as marked from "../../../../base/common/marked/marked.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { escape } from "../../../../base/common/strings.js";
+import { tokenizeToString } from "../../../../editor/common/languages/textToHtmlTokenizer.js";
+import { markedGfmHeadingIdPlugin } from "./markedGfmHeadingIdPlugin.js";
+const DEFAULT_MARKDOWN_STYLES = `
 body {
 	padding: 10px 20px;
 	line-height: 22px;
@@ -138,5 +149,132 @@ pre code {
 		forced-color-adjust: none;
 	}
 }
-`,P=Object.freeze([f.http,f.https]);function L(i,t){return w(i,{allowedLinkProtocols:{override:t?.allowedLinkProtocols?.override??P},allowRelativeLinkPaths:t?.allowRelativeLinkPaths,allowedMediaProtocols:t?.allowedMediaProtocols,allowRelativeMediaPaths:t?.allowRelativeMediaPaths,allowedTags:{override:v,augment:t?.allowedTags?.augment},allowedAttributes:{override:[...x,"name","id","class","role","tabindex","placeholder"],augment:t?.allowedAttributes?.augment??[]}})}async function z(i,t,r,d,c=u.None){const l=new k.Marked(p.markedHighlight({async:!0,async highlight(s,a){if(typeof a!="string")return M(s);if(await t.whenInstalledExtensionsRegistered(),c?.isCancellationRequested)return"";const h=r.getLanguageIdByLanguageName(a)??r.getLanguageIdByLanguageName(a.split(/\s+|:|,|(?!^)\{|\?]/,1)[0]);return $(r,s,h)}}),R(),...d?.markedExtensions??[]),g=await y(l.parse(i,{async:!0}),c??u.None);return L(g,d?.sanitizerConfig)}var p;(function(i){function t(e){if(typeof e=="function"&&(e={highlight:e}),!e||typeof e.highlight!="function")throw new Error("Must provide highlight function");return{async:!!e.async,walkTokens(o){if(o.type!=="code")return;if(e.async)return Promise.resolve(e.highlight(o.text,o.lang)).then(r(o));const n=e.highlight(o.text,o.lang);if(n instanceof Promise)throw new Error("markedHighlight is not set to async but the highlight function is async. Set the async option to true on markedHighlight to await the async highlight function.");r(o)(n)},renderer:{code({text:o,lang:n,escaped:m}){const b=n?` class="language-${h(n)}"`:"";return o=o.replace(/\n$/,""),`<pre><code${b}>${m?o:h(o,!0)}
-</code></pre>`}}}}i.markedHighlight=t;function r(e){return o=>{typeof o=="string"&&o!==e.text&&(e.escaped=!0,e.text=o)}}const d=/[&<>"']/,c=new RegExp(d.source,"g"),l=/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,g=new RegExp(l.source,"g"),s={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},a=e=>s[e];function h(e,o){if(o){if(d.test(e))return e.replace(c,a)}else if(l.test(e))return e.replace(g,a);return e}})(p||(p={}));export{B as $cqc,z as $dqc};
+`;
+const defaultAllowedLinkProtocols = Object.freeze([
+  Schemas.http,
+  Schemas.https
+]);
+function sanitize(documentContent, sanitizerConfig) {
+  return sanitizeHtml(documentContent, {
+    allowedLinkProtocols: {
+      override: sanitizerConfig?.allowedLinkProtocols?.override ?? defaultAllowedLinkProtocols
+    },
+    allowRelativeLinkPaths: sanitizerConfig?.allowRelativeLinkPaths,
+    allowedMediaProtocols: sanitizerConfig?.allowedMediaProtocols,
+    allowRelativeMediaPaths: sanitizerConfig?.allowRelativeMediaPaths,
+    allowedTags: {
+      override: allowedMarkdownHtmlTags,
+      augment: sanitizerConfig?.allowedTags?.augment
+    },
+    allowedAttributes: {
+      override: [
+        ...allowedMarkdownHtmlAttributes,
+        "name",
+        "id",
+        "class",
+        "role",
+        "tabindex",
+        "placeholder"
+      ],
+      augment: sanitizerConfig?.allowedAttributes?.augment ?? []
+    }
+  });
+}
+__name(sanitize, "sanitize");
+async function renderMarkdownDocument(text, extensionService, languageService, options, token = CancellationToken.None) {
+  const m = new marked.Marked(MarkedHighlight.markedHighlight({
+    async: true,
+    async highlight(code, lang) {
+      if (typeof lang !== "string") {
+        return escape(code);
+      }
+      await extensionService.whenInstalledExtensionsRegistered();
+      if (token?.isCancellationRequested) {
+        return "";
+      }
+      const languageId = languageService.getLanguageIdByLanguageName(lang) ?? languageService.getLanguageIdByLanguageName(lang.split(/\s+|:|,|(?!^)\{|\?]/, 1)[0]);
+      return tokenizeToString(languageService, code, languageId);
+    }
+  }), markedGfmHeadingIdPlugin(), ...options?.markedExtensions ?? []);
+  const raw = await raceCancellationError(m.parse(text, { async: true }), token ?? CancellationToken.None);
+  return sanitize(raw, options?.sanitizerConfig);
+}
+__name(renderMarkdownDocument, "renderMarkdownDocument");
+var MarkedHighlight;
+(function(MarkedHighlight2) {
+  function markedHighlight(options) {
+    if (typeof options === "function") {
+      options = {
+        highlight: options
+      };
+    }
+    if (!options || typeof options.highlight !== "function") {
+      throw new Error("Must provide highlight function");
+    }
+    return {
+      async: !!options.async,
+      walkTokens(token) {
+        if (token.type !== "code") {
+          return;
+        }
+        if (options.async) {
+          return Promise.resolve(options.highlight(token.text, token.lang)).then(updateToken(token));
+        }
+        const code = options.highlight(token.text, token.lang);
+        if (code instanceof Promise) {
+          throw new Error("markedHighlight is not set to async but the highlight function is async. Set the async option to true on markedHighlight to await the async highlight function.");
+        }
+        updateToken(token)(code);
+      },
+      renderer: {
+        code({ text, lang, escaped }) {
+          const classAttr = lang ? ` class="language-${escape2(lang)}"` : "";
+          text = text.replace(/\n$/, "");
+          return `<pre><code${classAttr}>${escaped ? text : escape2(text, true)}
+</code></pre>`;
+        }
+      }
+    };
+  }
+  __name(markedHighlight, "markedHighlight");
+  MarkedHighlight2.markedHighlight = markedHighlight;
+  function updateToken(token) {
+    return (code) => {
+      if (typeof code === "string" && code !== token.text) {
+        token.escaped = true;
+        token.text = code;
+      }
+    };
+  }
+  __name(updateToken, "updateToken");
+  const escapeTest = /[&<>"']/;
+  const escapeReplace = new RegExp(escapeTest.source, "g");
+  const escapeTestNoEncode = /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/;
+  const escapeReplaceNoEncode = new RegExp(escapeTestNoEncode.source, "g");
+  const escapeReplacement = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    [`'`]: "&#39;"
+  };
+  const getEscapeReplacement = /* @__PURE__ */ __name((ch) => escapeReplacement[ch], "getEscapeReplacement");
+  function escape2(html, encode) {
+    if (encode) {
+      if (escapeTest.test(html)) {
+        return html.replace(escapeReplace, getEscapeReplacement);
+      }
+    } else {
+      if (escapeTestNoEncode.test(html)) {
+        return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+      }
+    }
+    return html;
+  }
+  __name(escape2, "escape");
+})(MarkedHighlight || (MarkedHighlight = {}));
+export {
+  DEFAULT_MARKDOWN_STYLES,
+  renderMarkdownDocument
+};
+//# sourceMappingURL=markdownDocumentRenderer.js.map

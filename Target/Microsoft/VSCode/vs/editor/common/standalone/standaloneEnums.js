@@ -1,1 +1,702 @@
-var c;(function(a){a[a.Unknown=0]="Unknown",a[a.Disabled=1]="Disabled",a[a.Enabled=2]="Enabled"})(c||(c={}));var s;(function(a){a[a.Invoke=1]="Invoke",a[a.Auto=2]="Auto"})(s||(s={}));var u;(function(a){a[a.None=0]="None",a[a.KeepWhitespace=1]="KeepWhitespace",a[a.InsertAsSnippet=4]="InsertAsSnippet"})(u||(u={}));var l;(function(a){a[a.Method=0]="Method",a[a.Function=1]="Function",a[a.Constructor=2]="Constructor",a[a.Field=3]="Field",a[a.Variable=4]="Variable",a[a.Class=5]="Class",a[a.Struct=6]="Struct",a[a.Interface=7]="Interface",a[a.Module=8]="Module",a[a.Property=9]="Property",a[a.Event=10]="Event",a[a.Operator=11]="Operator",a[a.Unit=12]="Unit",a[a.Value=13]="Value",a[a.Constant=14]="Constant",a[a.Enum=15]="Enum",a[a.EnumMember=16]="EnumMember",a[a.Keyword=17]="Keyword",a[a.Text=18]="Text",a[a.Color=19]="Color",a[a.File=20]="File",a[a.Reference=21]="Reference",a[a.Customcolor=22]="Customcolor",a[a.Folder=23]="Folder",a[a.TypeParameter=24]="TypeParameter",a[a.User=25]="User",a[a.Issue=26]="Issue",a[a.Tool=27]="Tool",a[a.Snippet=28]="Snippet"})(l||(l={}));var h;(function(a){a[a.Deprecated=1]="Deprecated"})(h||(h={}));var g;(function(a){a[a.Invoke=0]="Invoke",a[a.TriggerCharacter=1]="TriggerCharacter",a[a.TriggerForIncompleteCompletions=2]="TriggerForIncompleteCompletions"})(g||(g={}));var f;(function(a){a[a.EXACT=0]="EXACT",a[a.ABOVE=1]="ABOVE",a[a.BELOW=2]="BELOW"})(f||(f={}));var F;(function(a){a[a.NotSet=0]="NotSet",a[a.ContentFlush=1]="ContentFlush",a[a.RecoverFromMarkers=2]="RecoverFromMarkers",a[a.Explicit=3]="Explicit",a[a.Paste=4]="Paste",a[a.Undo=5]="Undo",a[a.Redo=6]="Redo"})(F||(F={}));var N;(function(a){a[a.LF=1]="LF",a[a.CRLF=2]="CRLF"})(N||(N={}));var L;(function(a){a[a.Text=0]="Text",a[a.Read=1]="Read",a[a.Write=2]="Write"})(L||(L={}));var v;(function(a){a[a.None=0]="None",a[a.Keep=1]="Keep",a[a.Brackets=2]="Brackets",a[a.Advanced=3]="Advanced",a[a.Full=4]="Full"})(v||(v={}));var r;(function(a){a[a.acceptSuggestionOnCommitCharacter=0]="acceptSuggestionOnCommitCharacter",a[a.acceptSuggestionOnEnter=1]="acceptSuggestionOnEnter",a[a.accessibilitySupport=2]="accessibilitySupport",a[a.accessibilityPageSize=3]="accessibilityPageSize",a[a.allowOverflow=4]="allowOverflow",a[a.allowVariableLineHeights=5]="allowVariableLineHeights",a[a.allowVariableFonts=6]="allowVariableFonts",a[a.allowVariableFontsInAccessibilityMode=7]="allowVariableFontsInAccessibilityMode",a[a.ariaLabel=8]="ariaLabel",a[a.ariaRequired=9]="ariaRequired",a[a.autoClosingBrackets=10]="autoClosingBrackets",a[a.autoClosingComments=11]="autoClosingComments",a[a.screenReaderAnnounceInlineSuggestion=12]="screenReaderAnnounceInlineSuggestion",a[a.autoClosingDelete=13]="autoClosingDelete",a[a.autoClosingOvertype=14]="autoClosingOvertype",a[a.autoClosingQuotes=15]="autoClosingQuotes",a[a.autoIndent=16]="autoIndent",a[a.autoIndentOnPaste=17]="autoIndentOnPaste",a[a.autoIndentOnPasteWithinString=18]="autoIndentOnPasteWithinString",a[a.automaticLayout=19]="automaticLayout",a[a.autoSurround=20]="autoSurround",a[a.bracketPairColorization=21]="bracketPairColorization",a[a.guides=22]="guides",a[a.codeLens=23]="codeLens",a[a.codeLensFontFamily=24]="codeLensFontFamily",a[a.codeLensFontSize=25]="codeLensFontSize",a[a.colorDecorators=26]="colorDecorators",a[a.colorDecoratorsLimit=27]="colorDecoratorsLimit",a[a.columnSelection=28]="columnSelection",a[a.comments=29]="comments",a[a.contextmenu=30]="contextmenu",a[a.copyWithSyntaxHighlighting=31]="copyWithSyntaxHighlighting",a[a.cursorBlinking=32]="cursorBlinking",a[a.cursorSmoothCaretAnimation=33]="cursorSmoothCaretAnimation",a[a.cursorStyle=34]="cursorStyle",a[a.cursorSurroundingLines=35]="cursorSurroundingLines",a[a.cursorSurroundingLinesStyle=36]="cursorSurroundingLinesStyle",a[a.cursorWidth=37]="cursorWidth",a[a.cursorHeight=38]="cursorHeight",a[a.disableLayerHinting=39]="disableLayerHinting",a[a.disableMonospaceOptimizations=40]="disableMonospaceOptimizations",a[a.domReadOnly=41]="domReadOnly",a[a.dragAndDrop=42]="dragAndDrop",a[a.dropIntoEditor=43]="dropIntoEditor",a[a.editContext=44]="editContext",a[a.emptySelectionClipboard=45]="emptySelectionClipboard",a[a.experimentalGpuAcceleration=46]="experimentalGpuAcceleration",a[a.experimentalWhitespaceRendering=47]="experimentalWhitespaceRendering",a[a.extraEditorClassName=48]="extraEditorClassName",a[a.fastScrollSensitivity=49]="fastScrollSensitivity",a[a.find=50]="find",a[a.fixedOverflowWidgets=51]="fixedOverflowWidgets",a[a.folding=52]="folding",a[a.foldingStrategy=53]="foldingStrategy",a[a.foldingHighlight=54]="foldingHighlight",a[a.foldingImportsByDefault=55]="foldingImportsByDefault",a[a.foldingMaximumRegions=56]="foldingMaximumRegions",a[a.unfoldOnClickAfterEndOfLine=57]="unfoldOnClickAfterEndOfLine",a[a.fontFamily=58]="fontFamily",a[a.fontInfo=59]="fontInfo",a[a.fontLigatures=60]="fontLigatures",a[a.fontSize=61]="fontSize",a[a.fontWeight=62]="fontWeight",a[a.fontVariations=63]="fontVariations",a[a.formatOnPaste=64]="formatOnPaste",a[a.formatOnType=65]="formatOnType",a[a.glyphMargin=66]="glyphMargin",a[a.gotoLocation=67]="gotoLocation",a[a.hideCursorInOverviewRuler=68]="hideCursorInOverviewRuler",a[a.hover=69]="hover",a[a.inDiffEditor=70]="inDiffEditor",a[a.inlineSuggest=71]="inlineSuggest",a[a.letterSpacing=72]="letterSpacing",a[a.lightbulb=73]="lightbulb",a[a.lineDecorationsWidth=74]="lineDecorationsWidth",a[a.lineHeight=75]="lineHeight",a[a.lineNumbers=76]="lineNumbers",a[a.lineNumbersMinChars=77]="lineNumbersMinChars",a[a.linkedEditing=78]="linkedEditing",a[a.links=79]="links",a[a.matchBrackets=80]="matchBrackets",a[a.minimap=81]="minimap",a[a.mouseStyle=82]="mouseStyle",a[a.mouseWheelScrollSensitivity=83]="mouseWheelScrollSensitivity",a[a.mouseWheelZoom=84]="mouseWheelZoom",a[a.multiCursorMergeOverlapping=85]="multiCursorMergeOverlapping",a[a.multiCursorModifier=86]="multiCursorModifier",a[a.mouseMiddleClickAction=87]="mouseMiddleClickAction",a[a.multiCursorPaste=88]="multiCursorPaste",a[a.multiCursorLimit=89]="multiCursorLimit",a[a.occurrencesHighlight=90]="occurrencesHighlight",a[a.occurrencesHighlightDelay=91]="occurrencesHighlightDelay",a[a.overtypeCursorStyle=92]="overtypeCursorStyle",a[a.overtypeOnPaste=93]="overtypeOnPaste",a[a.overviewRulerBorder=94]="overviewRulerBorder",a[a.overviewRulerLanes=95]="overviewRulerLanes",a[a.padding=96]="padding",a[a.pasteAs=97]="pasteAs",a[a.parameterHints=98]="parameterHints",a[a.peekWidgetDefaultFocus=99]="peekWidgetDefaultFocus",a[a.placeholder=100]="placeholder",a[a.definitionLinkOpensInPeek=101]="definitionLinkOpensInPeek",a[a.quickSuggestions=102]="quickSuggestions",a[a.quickSuggestionsDelay=103]="quickSuggestionsDelay",a[a.readOnly=104]="readOnly",a[a.readOnlyMessage=105]="readOnlyMessage",a[a.renameOnType=106]="renameOnType",a[a.renderRichScreenReaderContent=107]="renderRichScreenReaderContent",a[a.renderControlCharacters=108]="renderControlCharacters",a[a.renderFinalNewline=109]="renderFinalNewline",a[a.renderLineHighlight=110]="renderLineHighlight",a[a.renderLineHighlightOnlyWhenFocus=111]="renderLineHighlightOnlyWhenFocus",a[a.renderValidationDecorations=112]="renderValidationDecorations",a[a.renderWhitespace=113]="renderWhitespace",a[a.revealHorizontalRightPadding=114]="revealHorizontalRightPadding",a[a.roundedSelection=115]="roundedSelection",a[a.rulers=116]="rulers",a[a.scrollbar=117]="scrollbar",a[a.scrollBeyondLastColumn=118]="scrollBeyondLastColumn",a[a.scrollBeyondLastLine=119]="scrollBeyondLastLine",a[a.scrollPredominantAxis=120]="scrollPredominantAxis",a[a.selectionClipboard=121]="selectionClipboard",a[a.selectionHighlight=122]="selectionHighlight",a[a.selectionHighlightMaxLength=123]="selectionHighlightMaxLength",a[a.selectionHighlightMultiline=124]="selectionHighlightMultiline",a[a.selectOnLineNumbers=125]="selectOnLineNumbers",a[a.showFoldingControls=126]="showFoldingControls",a[a.showUnused=127]="showUnused",a[a.snippetSuggestions=128]="snippetSuggestions",a[a.smartSelect=129]="smartSelect",a[a.smoothScrolling=130]="smoothScrolling",a[a.stickyScroll=131]="stickyScroll",a[a.stickyTabStops=132]="stickyTabStops",a[a.stopRenderingLineAfter=133]="stopRenderingLineAfter",a[a.suggest=134]="suggest",a[a.suggestFontSize=135]="suggestFontSize",a[a.suggestLineHeight=136]="suggestLineHeight",a[a.suggestOnTriggerCharacters=137]="suggestOnTriggerCharacters",a[a.suggestSelection=138]="suggestSelection",a[a.tabCompletion=139]="tabCompletion",a[a.tabIndex=140]="tabIndex",a[a.trimWhitespaceOnDelete=141]="trimWhitespaceOnDelete",a[a.unicodeHighlighting=142]="unicodeHighlighting",a[a.unusualLineTerminators=143]="unusualLineTerminators",a[a.useShadowDOM=144]="useShadowDOM",a[a.useTabStops=145]="useTabStops",a[a.wordBreak=146]="wordBreak",a[a.wordSegmenterLocales=147]="wordSegmenterLocales",a[a.wordSeparators=148]="wordSeparators",a[a.wordWrap=149]="wordWrap",a[a.wordWrapBreakAfterCharacters=150]="wordWrapBreakAfterCharacters",a[a.wordWrapBreakBeforeCharacters=151]="wordWrapBreakBeforeCharacters",a[a.wordWrapColumn=152]="wordWrapColumn",a[a.wordWrapOverride1=153]="wordWrapOverride1",a[a.wordWrapOverride2=154]="wordWrapOverride2",a[a.wrappingIndent=155]="wrappingIndent",a[a.wrappingStrategy=156]="wrappingStrategy",a[a.showDeprecated=157]="showDeprecated",a[a.inertialScroll=158]="inertialScroll",a[a.inlayHints=159]="inlayHints",a[a.wrapOnEscapedLineFeeds=160]="wrapOnEscapedLineFeeds",a[a.effectiveCursorStyle=161]="effectiveCursorStyle",a[a.editorClassName=162]="editorClassName",a[a.pixelRatio=163]="pixelRatio",a[a.tabFocusMode=164]="tabFocusMode",a[a.layoutInfo=165]="layoutInfo",a[a.wrappingInfo=166]="wrappingInfo",a[a.defaultColorDecorators=167]="defaultColorDecorators",a[a.colorDecoratorsActivatedOn=168]="colorDecoratorsActivatedOn",a[a.inlineCompletionsAccessibilityVerbose=169]="inlineCompletionsAccessibilityVerbose",a[a.effectiveEditContext=170]="effectiveEditContext",a[a.scrollOnMiddleClick=171]="scrollOnMiddleClick",a[a.effectiveAllowVariableFonts=172]="effectiveAllowVariableFonts"})(r||(r={}));var w;(function(a){a[a.TextDefined=0]="TextDefined",a[a.LF=1]="LF",a[a.CRLF=2]="CRLF"})(w||(w={}));var D;(function(a){a[a.LF=0]="LF",a[a.CRLF=1]="CRLF"})(D||(D={}));var A;(function(a){a[a.Left=1]="Left",a[a.Center=2]="Center",a[a.Right=3]="Right"})(A||(A={}));var R;(function(a){a[a.Increase=0]="Increase",a[a.Decrease=1]="Decrease"})(R||(R={}));var B;(function(a){a[a.None=0]="None",a[a.Indent=1]="Indent",a[a.IndentOutdent=2]="IndentOutdent",a[a.Outdent=3]="Outdent"})(B||(B={}));var x;(function(a){a[a.Both=0]="Both",a[a.Right=1]="Right",a[a.Left=2]="Left",a[a.None=3]="None"})(x||(x={}));var k;(function(a){a[a.Type=1]="Type",a[a.Parameter=2]="Parameter"})(k||(k={}));var W;(function(a){a[a.Accepted=0]="Accepted",a[a.Rejected=1]="Rejected",a[a.Ignored=2]="Ignored"})(W||(W={}));var _;(function(a){a[a.Code=1]="Code",a[a.Label=2]="Label"})(_||(_={}));var U;(function(a){a[a.Automatic=0]="Automatic",a[a.Explicit=1]="Explicit"})(U||(U={}));var e;(function(a){a[a.DependsOnKbLayout=-1]="DependsOnKbLayout",a[a.Unknown=0]="Unknown",a[a.Backspace=1]="Backspace",a[a.Tab=2]="Tab",a[a.Enter=3]="Enter",a[a.Shift=4]="Shift",a[a.Ctrl=5]="Ctrl",a[a.Alt=6]="Alt",a[a.PauseBreak=7]="PauseBreak",a[a.CapsLock=8]="CapsLock",a[a.Escape=9]="Escape",a[a.Space=10]="Space",a[a.PageUp=11]="PageUp",a[a.PageDown=12]="PageDown",a[a.End=13]="End",a[a.Home=14]="Home",a[a.LeftArrow=15]="LeftArrow",a[a.UpArrow=16]="UpArrow",a[a.RightArrow=17]="RightArrow",a[a.DownArrow=18]="DownArrow",a[a.Insert=19]="Insert",a[a.Delete=20]="Delete",a[a.Digit0=21]="Digit0",a[a.Digit1=22]="Digit1",a[a.Digit2=23]="Digit2",a[a.Digit3=24]="Digit3",a[a.Digit4=25]="Digit4",a[a.Digit5=26]="Digit5",a[a.Digit6=27]="Digit6",a[a.Digit7=28]="Digit7",a[a.Digit8=29]="Digit8",a[a.Digit9=30]="Digit9",a[a.KeyA=31]="KeyA",a[a.KeyB=32]="KeyB",a[a.KeyC=33]="KeyC",a[a.KeyD=34]="KeyD",a[a.KeyE=35]="KeyE",a[a.KeyF=36]="KeyF",a[a.KeyG=37]="KeyG",a[a.KeyH=38]="KeyH",a[a.KeyI=39]="KeyI",a[a.KeyJ=40]="KeyJ",a[a.KeyK=41]="KeyK",a[a.KeyL=42]="KeyL",a[a.KeyM=43]="KeyM",a[a.KeyN=44]="KeyN",a[a.KeyO=45]="KeyO",a[a.KeyP=46]="KeyP",a[a.KeyQ=47]="KeyQ",a[a.KeyR=48]="KeyR",a[a.KeyS=49]="KeyS",a[a.KeyT=50]="KeyT",a[a.KeyU=51]="KeyU",a[a.KeyV=52]="KeyV",a[a.KeyW=53]="KeyW",a[a.KeyX=54]="KeyX",a[a.KeyY=55]="KeyY",a[a.KeyZ=56]="KeyZ",a[a.Meta=57]="Meta",a[a.ContextMenu=58]="ContextMenu",a[a.F1=59]="F1",a[a.F2=60]="F2",a[a.F3=61]="F3",a[a.F4=62]="F4",a[a.F5=63]="F5",a[a.F6=64]="F6",a[a.F7=65]="F7",a[a.F8=66]="F8",a[a.F9=67]="F9",a[a.F10=68]="F10",a[a.F11=69]="F11",a[a.F12=70]="F12",a[a.F13=71]="F13",a[a.F14=72]="F14",a[a.F15=73]="F15",a[a.F16=74]="F16",a[a.F17=75]="F17",a[a.F18=76]="F18",a[a.F19=77]="F19",a[a.F20=78]="F20",a[a.F21=79]="F21",a[a.F22=80]="F22",a[a.F23=81]="F23",a[a.F24=82]="F24",a[a.NumLock=83]="NumLock",a[a.ScrollLock=84]="ScrollLock",a[a.Semicolon=85]="Semicolon",a[a.Equal=86]="Equal",a[a.Comma=87]="Comma",a[a.Minus=88]="Minus",a[a.Period=89]="Period",a[a.Slash=90]="Slash",a[a.Backquote=91]="Backquote",a[a.BracketLeft=92]="BracketLeft",a[a.Backslash=93]="Backslash",a[a.BracketRight=94]="BracketRight",a[a.Quote=95]="Quote",a[a.OEM_8=96]="OEM_8",a[a.IntlBackslash=97]="IntlBackslash",a[a.Numpad0=98]="Numpad0",a[a.Numpad1=99]="Numpad1",a[a.Numpad2=100]="Numpad2",a[a.Numpad3=101]="Numpad3",a[a.Numpad4=102]="Numpad4",a[a.Numpad5=103]="Numpad5",a[a.Numpad6=104]="Numpad6",a[a.Numpad7=105]="Numpad7",a[a.Numpad8=106]="Numpad8",a[a.Numpad9=107]="Numpad9",a[a.NumpadMultiply=108]="NumpadMultiply",a[a.NumpadAdd=109]="NumpadAdd",a[a.NUMPAD_SEPARATOR=110]="NUMPAD_SEPARATOR",a[a.NumpadSubtract=111]="NumpadSubtract",a[a.NumpadDecimal=112]="NumpadDecimal",a[a.NumpadDivide=113]="NumpadDivide",a[a.KEY_IN_COMPOSITION=114]="KEY_IN_COMPOSITION",a[a.ABNT_C1=115]="ABNT_C1",a[a.ABNT_C2=116]="ABNT_C2",a[a.AudioVolumeMute=117]="AudioVolumeMute",a[a.AudioVolumeUp=118]="AudioVolumeUp",a[a.AudioVolumeDown=119]="AudioVolumeDown",a[a.BrowserSearch=120]="BrowserSearch",a[a.BrowserHome=121]="BrowserHome",a[a.BrowserBack=122]="BrowserBack",a[a.BrowserForward=123]="BrowserForward",a[a.MediaTrackNext=124]="MediaTrackNext",a[a.MediaTrackPrevious=125]="MediaTrackPrevious",a[a.MediaStop=126]="MediaStop",a[a.MediaPlayPause=127]="MediaPlayPause",a[a.LaunchMediaPlayer=128]="LaunchMediaPlayer",a[a.LaunchMail=129]="LaunchMail",a[a.LaunchApp2=130]="LaunchApp2",a[a.Clear=131]="Clear",a[a.MAX_VALUE=132]="MAX_VALUE"})(e||(e={}));var H;(function(a){a[a.Hint=1]="Hint",a[a.Info=2]="Info",a[a.Warning=4]="Warning",a[a.Error=8]="Error"})(H||(H={}));var V;(function(a){a[a.Unnecessary=1]="Unnecessary",a[a.Deprecated=2]="Deprecated"})(V||(V={}));var M;(function(a){a[a.Inline=1]="Inline",a[a.Gutter=2]="Gutter"})(M||(M={}));var P;(function(a){a[a.Normal=1]="Normal",a[a.Underlined=2]="Underlined"})(P||(P={}));var G;(function(a){a[a.UNKNOWN=0]="UNKNOWN",a[a.TEXTAREA=1]="TEXTAREA",a[a.GUTTER_GLYPH_MARGIN=2]="GUTTER_GLYPH_MARGIN",a[a.GUTTER_LINE_NUMBERS=3]="GUTTER_LINE_NUMBERS",a[a.GUTTER_LINE_DECORATIONS=4]="GUTTER_LINE_DECORATIONS",a[a.GUTTER_VIEW_ZONE=5]="GUTTER_VIEW_ZONE",a[a.CONTENT_TEXT=6]="CONTENT_TEXT",a[a.CONTENT_EMPTY=7]="CONTENT_EMPTY",a[a.CONTENT_VIEW_ZONE=8]="CONTENT_VIEW_ZONE",a[a.CONTENT_WIDGET=9]="CONTENT_WIDGET",a[a.OVERVIEW_RULER=10]="OVERVIEW_RULER",a[a.SCROLLBAR=11]="SCROLLBAR",a[a.OVERLAY_WIDGET=12]="OVERLAY_WIDGET",a[a.OUTSIDE_EDITOR=13]="OUTSIDE_EDITOR"})(G||(G={}));var T;(function(a){a[a.AIGenerated=1]="AIGenerated"})(T||(T={}));var S;(function(a){a[a.Invoke=0]="Invoke",a[a.Automatic=1]="Automatic"})(S||(S={}));var z;(function(a){a[a.TOP_RIGHT_CORNER=0]="TOP_RIGHT_CORNER",a[a.BOTTOM_RIGHT_CORNER=1]="BOTTOM_RIGHT_CORNER",a[a.TOP_CENTER=2]="TOP_CENTER"})(z||(z={}));var X;(function(a){a[a.Left=1]="Left",a[a.Center=2]="Center",a[a.Right=4]="Right",a[a.Full=7]="Full"})(X||(X={}));var Y;(function(a){a[a.Word=0]="Word",a[a.Line=1]="Line",a[a.Suggest=2]="Suggest"})(Y||(Y={}));var I;(function(a){a[a.Left=0]="Left",a[a.Right=1]="Right",a[a.None=2]="None",a[a.LeftOfInjectedText=3]="LeftOfInjectedText",a[a.RightOfInjectedText=4]="RightOfInjectedText"})(I||(I={}));var q;(function(a){a[a.Off=0]="Off",a[a.On=1]="On",a[a.Relative=2]="Relative",a[a.Interval=3]="Interval",a[a.Custom=4]="Custom"})(q||(q={}));var Z;(function(a){a[a.None=0]="None",a[a.Text=1]="Text",a[a.Blocks=2]="Blocks"})(Z||(Z={}));var Q;(function(a){a[a.Smooth=0]="Smooth",a[a.Immediate=1]="Immediate"})(Q||(Q={}));var b;(function(a){a[a.Auto=1]="Auto",a[a.Hidden=2]="Hidden",a[a.Visible=3]="Visible"})(b||(b={}));var j;(function(a){a[a.LTR=0]="LTR",a[a.RTL=1]="RTL"})(j||(j={}));var J;(function(a){a.Off="off",a.OnCode="onCode",a.On="on"})(J||(J={}));var m;(function(a){a[a.Invoke=1]="Invoke",a[a.TriggerCharacter=2]="TriggerCharacter",a[a.ContentChange=3]="ContentChange"})(m||(m={}));var $;(function(a){a[a.File=0]="File",a[a.Module=1]="Module",a[a.Namespace=2]="Namespace",a[a.Package=3]="Package",a[a.Class=4]="Class",a[a.Method=5]="Method",a[a.Property=6]="Property",a[a.Field=7]="Field",a[a.Constructor=8]="Constructor",a[a.Enum=9]="Enum",a[a.Interface=10]="Interface",a[a.Function=11]="Function",a[a.Variable=12]="Variable",a[a.Constant=13]="Constant",a[a.String=14]="String",a[a.Number=15]="Number",a[a.Boolean=16]="Boolean",a[a.Array=17]="Array",a[a.Object=18]="Object",a[a.Key=19]="Key",a[a.Null=20]="Null",a[a.EnumMember=21]="EnumMember",a[a.Struct=22]="Struct",a[a.Event=23]="Event",a[a.Operator=24]="Operator",a[a.TypeParameter=25]="TypeParameter"})($||($={}));var n;(function(a){a[a.Deprecated=1]="Deprecated"})(n||(n={}));var O;(function(a){a[a.LTR=0]="LTR",a[a.RTL=1]="RTL"})(O||(O={}));var p;(function(a){a[a.Hidden=0]="Hidden",a[a.Blink=1]="Blink",a[a.Smooth=2]="Smooth",a[a.Phase=3]="Phase",a[a.Expand=4]="Expand",a[a.Solid=5]="Solid"})(p||(p={}));var C;(function(a){a[a.Line=1]="Line",a[a.Block=2]="Block",a[a.Underline=3]="Underline",a[a.LineThin=4]="LineThin",a[a.BlockOutline=5]="BlockOutline",a[a.UnderlineThin=6]="UnderlineThin"})(C||(C={}));var y;(function(a){a[a.AlwaysGrowsWhenTypingAtEdges=0]="AlwaysGrowsWhenTypingAtEdges",a[a.NeverGrowsWhenTypingAtEdges=1]="NeverGrowsWhenTypingAtEdges",a[a.GrowsOnlyWhenTypingBefore=2]="GrowsOnlyWhenTypingBefore",a[a.GrowsOnlyWhenTypingAfter=3]="GrowsOnlyWhenTypingAfter"})(y||(y={}));var E;(function(a){a[a.None=0]="None",a[a.Same=1]="Same",a[a.Indent=2]="Indent",a[a.DeepIndent=3]="DeepIndent"})(E||(E={}));export{c as AccessibilitySupport,s as CodeActionTriggerType,u as CompletionItemInsertTextRule,l as CompletionItemKind,h as CompletionItemTag,g as CompletionTriggerKind,f as ContentWidgetPositionPreference,F as CursorChangeReason,N as DefaultEndOfLine,L as DocumentHighlightKind,v as EditorAutoIndentStrategy,r as EditorOption,w as EndOfLinePreference,D as EndOfLineSequence,A as GlyphMarginLane,R as HoverVerbosityAction,B as IndentAction,x as InjectedTextCursorStops,k as InlayHintKind,W as InlineCompletionEndOfLifeReasonKind,_ as InlineCompletionHintStyle,U as InlineCompletionTriggerKind,e as KeyCode,H as MarkerSeverity,V as MarkerTag,M as MinimapPosition,P as MinimapSectionHeaderStyle,G as MouseTargetType,T as NewSymbolNameTag,S as NewSymbolNameTriggerKind,z as OverlayWidgetPositionPreference,X as OverviewRulerLane,Y as PartialAcceptTriggerKind,I as PositionAffinity,q as RenderLineNumbersType,Z as RenderMinimap,Q as ScrollType,b as ScrollbarVisibility,j as SelectionDirection,J as ShowLightbulbIconMode,m as SignatureHelpTriggerKind,$ as SymbolKind,n as SymbolTag,O as TextDirection,p as TextEditorCursorBlinkingStyle,C as TextEditorCursorStyle,y as TrackedRangeStickiness,E as WrappingIndent};
+var AccessibilitySupport;
+(function(AccessibilitySupport2) {
+  AccessibilitySupport2[AccessibilitySupport2["Unknown"] = 0] = "Unknown";
+  AccessibilitySupport2[AccessibilitySupport2["Disabled"] = 1] = "Disabled";
+  AccessibilitySupport2[AccessibilitySupport2["Enabled"] = 2] = "Enabled";
+})(AccessibilitySupport || (AccessibilitySupport = {}));
+var CodeActionTriggerType;
+(function(CodeActionTriggerType2) {
+  CodeActionTriggerType2[CodeActionTriggerType2["Invoke"] = 1] = "Invoke";
+  CodeActionTriggerType2[CodeActionTriggerType2["Auto"] = 2] = "Auto";
+})(CodeActionTriggerType || (CodeActionTriggerType = {}));
+var CompletionItemInsertTextRule;
+(function(CompletionItemInsertTextRule2) {
+  CompletionItemInsertTextRule2[CompletionItemInsertTextRule2["None"] = 0] = "None";
+  CompletionItemInsertTextRule2[CompletionItemInsertTextRule2["KeepWhitespace"] = 1] = "KeepWhitespace";
+  CompletionItemInsertTextRule2[CompletionItemInsertTextRule2["InsertAsSnippet"] = 4] = "InsertAsSnippet";
+})(CompletionItemInsertTextRule || (CompletionItemInsertTextRule = {}));
+var CompletionItemKind;
+(function(CompletionItemKind2) {
+  CompletionItemKind2[CompletionItemKind2["Method"] = 0] = "Method";
+  CompletionItemKind2[CompletionItemKind2["Function"] = 1] = "Function";
+  CompletionItemKind2[CompletionItemKind2["Constructor"] = 2] = "Constructor";
+  CompletionItemKind2[CompletionItemKind2["Field"] = 3] = "Field";
+  CompletionItemKind2[CompletionItemKind2["Variable"] = 4] = "Variable";
+  CompletionItemKind2[CompletionItemKind2["Class"] = 5] = "Class";
+  CompletionItemKind2[CompletionItemKind2["Struct"] = 6] = "Struct";
+  CompletionItemKind2[CompletionItemKind2["Interface"] = 7] = "Interface";
+  CompletionItemKind2[CompletionItemKind2["Module"] = 8] = "Module";
+  CompletionItemKind2[CompletionItemKind2["Property"] = 9] = "Property";
+  CompletionItemKind2[CompletionItemKind2["Event"] = 10] = "Event";
+  CompletionItemKind2[CompletionItemKind2["Operator"] = 11] = "Operator";
+  CompletionItemKind2[CompletionItemKind2["Unit"] = 12] = "Unit";
+  CompletionItemKind2[CompletionItemKind2["Value"] = 13] = "Value";
+  CompletionItemKind2[CompletionItemKind2["Constant"] = 14] = "Constant";
+  CompletionItemKind2[CompletionItemKind2["Enum"] = 15] = "Enum";
+  CompletionItemKind2[CompletionItemKind2["EnumMember"] = 16] = "EnumMember";
+  CompletionItemKind2[CompletionItemKind2["Keyword"] = 17] = "Keyword";
+  CompletionItemKind2[CompletionItemKind2["Text"] = 18] = "Text";
+  CompletionItemKind2[CompletionItemKind2["Color"] = 19] = "Color";
+  CompletionItemKind2[CompletionItemKind2["File"] = 20] = "File";
+  CompletionItemKind2[CompletionItemKind2["Reference"] = 21] = "Reference";
+  CompletionItemKind2[CompletionItemKind2["Customcolor"] = 22] = "Customcolor";
+  CompletionItemKind2[CompletionItemKind2["Folder"] = 23] = "Folder";
+  CompletionItemKind2[CompletionItemKind2["TypeParameter"] = 24] = "TypeParameter";
+  CompletionItemKind2[CompletionItemKind2["User"] = 25] = "User";
+  CompletionItemKind2[CompletionItemKind2["Issue"] = 26] = "Issue";
+  CompletionItemKind2[CompletionItemKind2["Tool"] = 27] = "Tool";
+  CompletionItemKind2[CompletionItemKind2["Snippet"] = 28] = "Snippet";
+})(CompletionItemKind || (CompletionItemKind = {}));
+var CompletionItemTag;
+(function(CompletionItemTag2) {
+  CompletionItemTag2[CompletionItemTag2["Deprecated"] = 1] = "Deprecated";
+})(CompletionItemTag || (CompletionItemTag = {}));
+var CompletionTriggerKind;
+(function(CompletionTriggerKind2) {
+  CompletionTriggerKind2[CompletionTriggerKind2["Invoke"] = 0] = "Invoke";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerCharacter"] = 1] = "TriggerCharacter";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
+})(CompletionTriggerKind || (CompletionTriggerKind = {}));
+var ContentWidgetPositionPreference;
+(function(ContentWidgetPositionPreference2) {
+  ContentWidgetPositionPreference2[ContentWidgetPositionPreference2["EXACT"] = 0] = "EXACT";
+  ContentWidgetPositionPreference2[ContentWidgetPositionPreference2["ABOVE"] = 1] = "ABOVE";
+  ContentWidgetPositionPreference2[ContentWidgetPositionPreference2["BELOW"] = 2] = "BELOW";
+})(ContentWidgetPositionPreference || (ContentWidgetPositionPreference = {}));
+var CursorChangeReason;
+(function(CursorChangeReason2) {
+  CursorChangeReason2[CursorChangeReason2["NotSet"] = 0] = "NotSet";
+  CursorChangeReason2[CursorChangeReason2["ContentFlush"] = 1] = "ContentFlush";
+  CursorChangeReason2[CursorChangeReason2["RecoverFromMarkers"] = 2] = "RecoverFromMarkers";
+  CursorChangeReason2[CursorChangeReason2["Explicit"] = 3] = "Explicit";
+  CursorChangeReason2[CursorChangeReason2["Paste"] = 4] = "Paste";
+  CursorChangeReason2[CursorChangeReason2["Undo"] = 5] = "Undo";
+  CursorChangeReason2[CursorChangeReason2["Redo"] = 6] = "Redo";
+})(CursorChangeReason || (CursorChangeReason = {}));
+var DefaultEndOfLine;
+(function(DefaultEndOfLine2) {
+  DefaultEndOfLine2[DefaultEndOfLine2["LF"] = 1] = "LF";
+  DefaultEndOfLine2[DefaultEndOfLine2["CRLF"] = 2] = "CRLF";
+})(DefaultEndOfLine || (DefaultEndOfLine = {}));
+var DocumentHighlightKind;
+(function(DocumentHighlightKind2) {
+  DocumentHighlightKind2[DocumentHighlightKind2["Text"] = 0] = "Text";
+  DocumentHighlightKind2[DocumentHighlightKind2["Read"] = 1] = "Read";
+  DocumentHighlightKind2[DocumentHighlightKind2["Write"] = 2] = "Write";
+})(DocumentHighlightKind || (DocumentHighlightKind = {}));
+var EditorAutoIndentStrategy;
+(function(EditorAutoIndentStrategy2) {
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["None"] = 0] = "None";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Keep"] = 1] = "Keep";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Brackets"] = 2] = "Brackets";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Advanced"] = 3] = "Advanced";
+  EditorAutoIndentStrategy2[EditorAutoIndentStrategy2["Full"] = 4] = "Full";
+})(EditorAutoIndentStrategy || (EditorAutoIndentStrategy = {}));
+var EditorOption;
+(function(EditorOption2) {
+  EditorOption2[EditorOption2["acceptSuggestionOnCommitCharacter"] = 0] = "acceptSuggestionOnCommitCharacter";
+  EditorOption2[EditorOption2["acceptSuggestionOnEnter"] = 1] = "acceptSuggestionOnEnter";
+  EditorOption2[EditorOption2["accessibilitySupport"] = 2] = "accessibilitySupport";
+  EditorOption2[EditorOption2["accessibilityPageSize"] = 3] = "accessibilityPageSize";
+  EditorOption2[EditorOption2["allowOverflow"] = 4] = "allowOverflow";
+  EditorOption2[EditorOption2["allowVariableLineHeights"] = 5] = "allowVariableLineHeights";
+  EditorOption2[EditorOption2["allowVariableFonts"] = 6] = "allowVariableFonts";
+  EditorOption2[EditorOption2["allowVariableFontsInAccessibilityMode"] = 7] = "allowVariableFontsInAccessibilityMode";
+  EditorOption2[EditorOption2["ariaLabel"] = 8] = "ariaLabel";
+  EditorOption2[EditorOption2["ariaRequired"] = 9] = "ariaRequired";
+  EditorOption2[EditorOption2["autoClosingBrackets"] = 10] = "autoClosingBrackets";
+  EditorOption2[EditorOption2["autoClosingComments"] = 11] = "autoClosingComments";
+  EditorOption2[EditorOption2["screenReaderAnnounceInlineSuggestion"] = 12] = "screenReaderAnnounceInlineSuggestion";
+  EditorOption2[EditorOption2["autoClosingDelete"] = 13] = "autoClosingDelete";
+  EditorOption2[EditorOption2["autoClosingOvertype"] = 14] = "autoClosingOvertype";
+  EditorOption2[EditorOption2["autoClosingQuotes"] = 15] = "autoClosingQuotes";
+  EditorOption2[EditorOption2["autoIndent"] = 16] = "autoIndent";
+  EditorOption2[EditorOption2["autoIndentOnPaste"] = 17] = "autoIndentOnPaste";
+  EditorOption2[EditorOption2["autoIndentOnPasteWithinString"] = 18] = "autoIndentOnPasteWithinString";
+  EditorOption2[EditorOption2["automaticLayout"] = 19] = "automaticLayout";
+  EditorOption2[EditorOption2["autoSurround"] = 20] = "autoSurround";
+  EditorOption2[EditorOption2["bracketPairColorization"] = 21] = "bracketPairColorization";
+  EditorOption2[EditorOption2["guides"] = 22] = "guides";
+  EditorOption2[EditorOption2["codeLens"] = 23] = "codeLens";
+  EditorOption2[EditorOption2["codeLensFontFamily"] = 24] = "codeLensFontFamily";
+  EditorOption2[EditorOption2["codeLensFontSize"] = 25] = "codeLensFontSize";
+  EditorOption2[EditorOption2["colorDecorators"] = 26] = "colorDecorators";
+  EditorOption2[EditorOption2["colorDecoratorsLimit"] = 27] = "colorDecoratorsLimit";
+  EditorOption2[EditorOption2["columnSelection"] = 28] = "columnSelection";
+  EditorOption2[EditorOption2["comments"] = 29] = "comments";
+  EditorOption2[EditorOption2["contextmenu"] = 30] = "contextmenu";
+  EditorOption2[EditorOption2["copyWithSyntaxHighlighting"] = 31] = "copyWithSyntaxHighlighting";
+  EditorOption2[EditorOption2["cursorBlinking"] = 32] = "cursorBlinking";
+  EditorOption2[EditorOption2["cursorSmoothCaretAnimation"] = 33] = "cursorSmoothCaretAnimation";
+  EditorOption2[EditorOption2["cursorStyle"] = 34] = "cursorStyle";
+  EditorOption2[EditorOption2["cursorSurroundingLines"] = 35] = "cursorSurroundingLines";
+  EditorOption2[EditorOption2["cursorSurroundingLinesStyle"] = 36] = "cursorSurroundingLinesStyle";
+  EditorOption2[EditorOption2["cursorWidth"] = 37] = "cursorWidth";
+  EditorOption2[EditorOption2["cursorHeight"] = 38] = "cursorHeight";
+  EditorOption2[EditorOption2["disableLayerHinting"] = 39] = "disableLayerHinting";
+  EditorOption2[EditorOption2["disableMonospaceOptimizations"] = 40] = "disableMonospaceOptimizations";
+  EditorOption2[EditorOption2["domReadOnly"] = 41] = "domReadOnly";
+  EditorOption2[EditorOption2["dragAndDrop"] = 42] = "dragAndDrop";
+  EditorOption2[EditorOption2["dropIntoEditor"] = 43] = "dropIntoEditor";
+  EditorOption2[EditorOption2["editContext"] = 44] = "editContext";
+  EditorOption2[EditorOption2["emptySelectionClipboard"] = 45] = "emptySelectionClipboard";
+  EditorOption2[EditorOption2["experimentalGpuAcceleration"] = 46] = "experimentalGpuAcceleration";
+  EditorOption2[EditorOption2["experimentalWhitespaceRendering"] = 47] = "experimentalWhitespaceRendering";
+  EditorOption2[EditorOption2["extraEditorClassName"] = 48] = "extraEditorClassName";
+  EditorOption2[EditorOption2["fastScrollSensitivity"] = 49] = "fastScrollSensitivity";
+  EditorOption2[EditorOption2["find"] = 50] = "find";
+  EditorOption2[EditorOption2["fixedOverflowWidgets"] = 51] = "fixedOverflowWidgets";
+  EditorOption2[EditorOption2["folding"] = 52] = "folding";
+  EditorOption2[EditorOption2["foldingStrategy"] = 53] = "foldingStrategy";
+  EditorOption2[EditorOption2["foldingHighlight"] = 54] = "foldingHighlight";
+  EditorOption2[EditorOption2["foldingImportsByDefault"] = 55] = "foldingImportsByDefault";
+  EditorOption2[EditorOption2["foldingMaximumRegions"] = 56] = "foldingMaximumRegions";
+  EditorOption2[EditorOption2["unfoldOnClickAfterEndOfLine"] = 57] = "unfoldOnClickAfterEndOfLine";
+  EditorOption2[EditorOption2["fontFamily"] = 58] = "fontFamily";
+  EditorOption2[EditorOption2["fontInfo"] = 59] = "fontInfo";
+  EditorOption2[EditorOption2["fontLigatures"] = 60] = "fontLigatures";
+  EditorOption2[EditorOption2["fontSize"] = 61] = "fontSize";
+  EditorOption2[EditorOption2["fontWeight"] = 62] = "fontWeight";
+  EditorOption2[EditorOption2["fontVariations"] = 63] = "fontVariations";
+  EditorOption2[EditorOption2["formatOnPaste"] = 64] = "formatOnPaste";
+  EditorOption2[EditorOption2["formatOnType"] = 65] = "formatOnType";
+  EditorOption2[EditorOption2["glyphMargin"] = 66] = "glyphMargin";
+  EditorOption2[EditorOption2["gotoLocation"] = 67] = "gotoLocation";
+  EditorOption2[EditorOption2["hideCursorInOverviewRuler"] = 68] = "hideCursorInOverviewRuler";
+  EditorOption2[EditorOption2["hover"] = 69] = "hover";
+  EditorOption2[EditorOption2["inDiffEditor"] = 70] = "inDiffEditor";
+  EditorOption2[EditorOption2["inlineSuggest"] = 71] = "inlineSuggest";
+  EditorOption2[EditorOption2["letterSpacing"] = 72] = "letterSpacing";
+  EditorOption2[EditorOption2["lightbulb"] = 73] = "lightbulb";
+  EditorOption2[EditorOption2["lineDecorationsWidth"] = 74] = "lineDecorationsWidth";
+  EditorOption2[EditorOption2["lineHeight"] = 75] = "lineHeight";
+  EditorOption2[EditorOption2["lineNumbers"] = 76] = "lineNumbers";
+  EditorOption2[EditorOption2["lineNumbersMinChars"] = 77] = "lineNumbersMinChars";
+  EditorOption2[EditorOption2["linkedEditing"] = 78] = "linkedEditing";
+  EditorOption2[EditorOption2["links"] = 79] = "links";
+  EditorOption2[EditorOption2["matchBrackets"] = 80] = "matchBrackets";
+  EditorOption2[EditorOption2["minimap"] = 81] = "minimap";
+  EditorOption2[EditorOption2["mouseStyle"] = 82] = "mouseStyle";
+  EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 83] = "mouseWheelScrollSensitivity";
+  EditorOption2[EditorOption2["mouseWheelZoom"] = 84] = "mouseWheelZoom";
+  EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 85] = "multiCursorMergeOverlapping";
+  EditorOption2[EditorOption2["multiCursorModifier"] = 86] = "multiCursorModifier";
+  EditorOption2[EditorOption2["mouseMiddleClickAction"] = 87] = "mouseMiddleClickAction";
+  EditorOption2[EditorOption2["multiCursorPaste"] = 88] = "multiCursorPaste";
+  EditorOption2[EditorOption2["multiCursorLimit"] = 89] = "multiCursorLimit";
+  EditorOption2[EditorOption2["occurrencesHighlight"] = 90] = "occurrencesHighlight";
+  EditorOption2[EditorOption2["occurrencesHighlightDelay"] = 91] = "occurrencesHighlightDelay";
+  EditorOption2[EditorOption2["overtypeCursorStyle"] = 92] = "overtypeCursorStyle";
+  EditorOption2[EditorOption2["overtypeOnPaste"] = 93] = "overtypeOnPaste";
+  EditorOption2[EditorOption2["overviewRulerBorder"] = 94] = "overviewRulerBorder";
+  EditorOption2[EditorOption2["overviewRulerLanes"] = 95] = "overviewRulerLanes";
+  EditorOption2[EditorOption2["padding"] = 96] = "padding";
+  EditorOption2[EditorOption2["pasteAs"] = 97] = "pasteAs";
+  EditorOption2[EditorOption2["parameterHints"] = 98] = "parameterHints";
+  EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 99] = "peekWidgetDefaultFocus";
+  EditorOption2[EditorOption2["placeholder"] = 100] = "placeholder";
+  EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 101] = "definitionLinkOpensInPeek";
+  EditorOption2[EditorOption2["quickSuggestions"] = 102] = "quickSuggestions";
+  EditorOption2[EditorOption2["quickSuggestionsDelay"] = 103] = "quickSuggestionsDelay";
+  EditorOption2[EditorOption2["readOnly"] = 104] = "readOnly";
+  EditorOption2[EditorOption2["readOnlyMessage"] = 105] = "readOnlyMessage";
+  EditorOption2[EditorOption2["renameOnType"] = 106] = "renameOnType";
+  EditorOption2[EditorOption2["renderRichScreenReaderContent"] = 107] = "renderRichScreenReaderContent";
+  EditorOption2[EditorOption2["renderControlCharacters"] = 108] = "renderControlCharacters";
+  EditorOption2[EditorOption2["renderFinalNewline"] = 109] = "renderFinalNewline";
+  EditorOption2[EditorOption2["renderLineHighlight"] = 110] = "renderLineHighlight";
+  EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 111] = "renderLineHighlightOnlyWhenFocus";
+  EditorOption2[EditorOption2["renderValidationDecorations"] = 112] = "renderValidationDecorations";
+  EditorOption2[EditorOption2["renderWhitespace"] = 113] = "renderWhitespace";
+  EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 114] = "revealHorizontalRightPadding";
+  EditorOption2[EditorOption2["roundedSelection"] = 115] = "roundedSelection";
+  EditorOption2[EditorOption2["rulers"] = 116] = "rulers";
+  EditorOption2[EditorOption2["scrollbar"] = 117] = "scrollbar";
+  EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 118] = "scrollBeyondLastColumn";
+  EditorOption2[EditorOption2["scrollBeyondLastLine"] = 119] = "scrollBeyondLastLine";
+  EditorOption2[EditorOption2["scrollPredominantAxis"] = 120] = "scrollPredominantAxis";
+  EditorOption2[EditorOption2["selectionClipboard"] = 121] = "selectionClipboard";
+  EditorOption2[EditorOption2["selectionHighlight"] = 122] = "selectionHighlight";
+  EditorOption2[EditorOption2["selectionHighlightMaxLength"] = 123] = "selectionHighlightMaxLength";
+  EditorOption2[EditorOption2["selectionHighlightMultiline"] = 124] = "selectionHighlightMultiline";
+  EditorOption2[EditorOption2["selectOnLineNumbers"] = 125] = "selectOnLineNumbers";
+  EditorOption2[EditorOption2["showFoldingControls"] = 126] = "showFoldingControls";
+  EditorOption2[EditorOption2["showUnused"] = 127] = "showUnused";
+  EditorOption2[EditorOption2["snippetSuggestions"] = 128] = "snippetSuggestions";
+  EditorOption2[EditorOption2["smartSelect"] = 129] = "smartSelect";
+  EditorOption2[EditorOption2["smoothScrolling"] = 130] = "smoothScrolling";
+  EditorOption2[EditorOption2["stickyScroll"] = 131] = "stickyScroll";
+  EditorOption2[EditorOption2["stickyTabStops"] = 132] = "stickyTabStops";
+  EditorOption2[EditorOption2["stopRenderingLineAfter"] = 133] = "stopRenderingLineAfter";
+  EditorOption2[EditorOption2["suggest"] = 134] = "suggest";
+  EditorOption2[EditorOption2["suggestFontSize"] = 135] = "suggestFontSize";
+  EditorOption2[EditorOption2["suggestLineHeight"] = 136] = "suggestLineHeight";
+  EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 137] = "suggestOnTriggerCharacters";
+  EditorOption2[EditorOption2["suggestSelection"] = 138] = "suggestSelection";
+  EditorOption2[EditorOption2["tabCompletion"] = 139] = "tabCompletion";
+  EditorOption2[EditorOption2["tabIndex"] = 140] = "tabIndex";
+  EditorOption2[EditorOption2["trimWhitespaceOnDelete"] = 141] = "trimWhitespaceOnDelete";
+  EditorOption2[EditorOption2["unicodeHighlighting"] = 142] = "unicodeHighlighting";
+  EditorOption2[EditorOption2["unusualLineTerminators"] = 143] = "unusualLineTerminators";
+  EditorOption2[EditorOption2["useShadowDOM"] = 144] = "useShadowDOM";
+  EditorOption2[EditorOption2["useTabStops"] = 145] = "useTabStops";
+  EditorOption2[EditorOption2["wordBreak"] = 146] = "wordBreak";
+  EditorOption2[EditorOption2["wordSegmenterLocales"] = 147] = "wordSegmenterLocales";
+  EditorOption2[EditorOption2["wordSeparators"] = 148] = "wordSeparators";
+  EditorOption2[EditorOption2["wordWrap"] = 149] = "wordWrap";
+  EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 150] = "wordWrapBreakAfterCharacters";
+  EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 151] = "wordWrapBreakBeforeCharacters";
+  EditorOption2[EditorOption2["wordWrapColumn"] = 152] = "wordWrapColumn";
+  EditorOption2[EditorOption2["wordWrapOverride1"] = 153] = "wordWrapOverride1";
+  EditorOption2[EditorOption2["wordWrapOverride2"] = 154] = "wordWrapOverride2";
+  EditorOption2[EditorOption2["wrappingIndent"] = 155] = "wrappingIndent";
+  EditorOption2[EditorOption2["wrappingStrategy"] = 156] = "wrappingStrategy";
+  EditorOption2[EditorOption2["showDeprecated"] = 157] = "showDeprecated";
+  EditorOption2[EditorOption2["inertialScroll"] = 158] = "inertialScroll";
+  EditorOption2[EditorOption2["inlayHints"] = 159] = "inlayHints";
+  EditorOption2[EditorOption2["wrapOnEscapedLineFeeds"] = 160] = "wrapOnEscapedLineFeeds";
+  EditorOption2[EditorOption2["effectiveCursorStyle"] = 161] = "effectiveCursorStyle";
+  EditorOption2[EditorOption2["editorClassName"] = 162] = "editorClassName";
+  EditorOption2[EditorOption2["pixelRatio"] = 163] = "pixelRatio";
+  EditorOption2[EditorOption2["tabFocusMode"] = 164] = "tabFocusMode";
+  EditorOption2[EditorOption2["layoutInfo"] = 165] = "layoutInfo";
+  EditorOption2[EditorOption2["wrappingInfo"] = 166] = "wrappingInfo";
+  EditorOption2[EditorOption2["defaultColorDecorators"] = 167] = "defaultColorDecorators";
+  EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 168] = "colorDecoratorsActivatedOn";
+  EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 169] = "inlineCompletionsAccessibilityVerbose";
+  EditorOption2[EditorOption2["effectiveEditContext"] = 170] = "effectiveEditContext";
+  EditorOption2[EditorOption2["scrollOnMiddleClick"] = 171] = "scrollOnMiddleClick";
+  EditorOption2[EditorOption2["effectiveAllowVariableFonts"] = 172] = "effectiveAllowVariableFonts";
+})(EditorOption || (EditorOption = {}));
+var EndOfLinePreference;
+(function(EndOfLinePreference2) {
+  EndOfLinePreference2[EndOfLinePreference2["TextDefined"] = 0] = "TextDefined";
+  EndOfLinePreference2[EndOfLinePreference2["LF"] = 1] = "LF";
+  EndOfLinePreference2[EndOfLinePreference2["CRLF"] = 2] = "CRLF";
+})(EndOfLinePreference || (EndOfLinePreference = {}));
+var EndOfLineSequence;
+(function(EndOfLineSequence2) {
+  EndOfLineSequence2[EndOfLineSequence2["LF"] = 0] = "LF";
+  EndOfLineSequence2[EndOfLineSequence2["CRLF"] = 1] = "CRLF";
+})(EndOfLineSequence || (EndOfLineSequence = {}));
+var GlyphMarginLane;
+(function(GlyphMarginLane2) {
+  GlyphMarginLane2[GlyphMarginLane2["Left"] = 1] = "Left";
+  GlyphMarginLane2[GlyphMarginLane2["Center"] = 2] = "Center";
+  GlyphMarginLane2[GlyphMarginLane2["Right"] = 3] = "Right";
+})(GlyphMarginLane || (GlyphMarginLane = {}));
+var HoverVerbosityAction;
+(function(HoverVerbosityAction2) {
+  HoverVerbosityAction2[HoverVerbosityAction2["Increase"] = 0] = "Increase";
+  HoverVerbosityAction2[HoverVerbosityAction2["Decrease"] = 1] = "Decrease";
+})(HoverVerbosityAction || (HoverVerbosityAction = {}));
+var IndentAction;
+(function(IndentAction2) {
+  IndentAction2[IndentAction2["None"] = 0] = "None";
+  IndentAction2[IndentAction2["Indent"] = 1] = "Indent";
+  IndentAction2[IndentAction2["IndentOutdent"] = 2] = "IndentOutdent";
+  IndentAction2[IndentAction2["Outdent"] = 3] = "Outdent";
+})(IndentAction || (IndentAction = {}));
+var InjectedTextCursorStops;
+(function(InjectedTextCursorStops2) {
+  InjectedTextCursorStops2[InjectedTextCursorStops2["Both"] = 0] = "Both";
+  InjectedTextCursorStops2[InjectedTextCursorStops2["Right"] = 1] = "Right";
+  InjectedTextCursorStops2[InjectedTextCursorStops2["Left"] = 2] = "Left";
+  InjectedTextCursorStops2[InjectedTextCursorStops2["None"] = 3] = "None";
+})(InjectedTextCursorStops || (InjectedTextCursorStops = {}));
+var InlayHintKind;
+(function(InlayHintKind2) {
+  InlayHintKind2[InlayHintKind2["Type"] = 1] = "Type";
+  InlayHintKind2[InlayHintKind2["Parameter"] = 2] = "Parameter";
+})(InlayHintKind || (InlayHintKind = {}));
+var InlineCompletionEndOfLifeReasonKind;
+(function(InlineCompletionEndOfLifeReasonKind2) {
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Accepted"] = 0] = "Accepted";
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Rejected"] = 1] = "Rejected";
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Ignored"] = 2] = "Ignored";
+})(InlineCompletionEndOfLifeReasonKind || (InlineCompletionEndOfLifeReasonKind = {}));
+var InlineCompletionHintStyle;
+(function(InlineCompletionHintStyle2) {
+  InlineCompletionHintStyle2[InlineCompletionHintStyle2["Code"] = 1] = "Code";
+  InlineCompletionHintStyle2[InlineCompletionHintStyle2["Label"] = 2] = "Label";
+})(InlineCompletionHintStyle || (InlineCompletionHintStyle = {}));
+var InlineCompletionTriggerKind;
+(function(InlineCompletionTriggerKind2) {
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Automatic"] = 0] = "Automatic";
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Explicit"] = 1] = "Explicit";
+})(InlineCompletionTriggerKind || (InlineCompletionTriggerKind = {}));
+var KeyCode;
+(function(KeyCode2) {
+  KeyCode2[KeyCode2["DependsOnKbLayout"] = -1] = "DependsOnKbLayout";
+  KeyCode2[KeyCode2["Unknown"] = 0] = "Unknown";
+  KeyCode2[KeyCode2["Backspace"] = 1] = "Backspace";
+  KeyCode2[KeyCode2["Tab"] = 2] = "Tab";
+  KeyCode2[KeyCode2["Enter"] = 3] = "Enter";
+  KeyCode2[KeyCode2["Shift"] = 4] = "Shift";
+  KeyCode2[KeyCode2["Ctrl"] = 5] = "Ctrl";
+  KeyCode2[KeyCode2["Alt"] = 6] = "Alt";
+  KeyCode2[KeyCode2["PauseBreak"] = 7] = "PauseBreak";
+  KeyCode2[KeyCode2["CapsLock"] = 8] = "CapsLock";
+  KeyCode2[KeyCode2["Escape"] = 9] = "Escape";
+  KeyCode2[KeyCode2["Space"] = 10] = "Space";
+  KeyCode2[KeyCode2["PageUp"] = 11] = "PageUp";
+  KeyCode2[KeyCode2["PageDown"] = 12] = "PageDown";
+  KeyCode2[KeyCode2["End"] = 13] = "End";
+  KeyCode2[KeyCode2["Home"] = 14] = "Home";
+  KeyCode2[KeyCode2["LeftArrow"] = 15] = "LeftArrow";
+  KeyCode2[KeyCode2["UpArrow"] = 16] = "UpArrow";
+  KeyCode2[KeyCode2["RightArrow"] = 17] = "RightArrow";
+  KeyCode2[KeyCode2["DownArrow"] = 18] = "DownArrow";
+  KeyCode2[KeyCode2["Insert"] = 19] = "Insert";
+  KeyCode2[KeyCode2["Delete"] = 20] = "Delete";
+  KeyCode2[KeyCode2["Digit0"] = 21] = "Digit0";
+  KeyCode2[KeyCode2["Digit1"] = 22] = "Digit1";
+  KeyCode2[KeyCode2["Digit2"] = 23] = "Digit2";
+  KeyCode2[KeyCode2["Digit3"] = 24] = "Digit3";
+  KeyCode2[KeyCode2["Digit4"] = 25] = "Digit4";
+  KeyCode2[KeyCode2["Digit5"] = 26] = "Digit5";
+  KeyCode2[KeyCode2["Digit6"] = 27] = "Digit6";
+  KeyCode2[KeyCode2["Digit7"] = 28] = "Digit7";
+  KeyCode2[KeyCode2["Digit8"] = 29] = "Digit8";
+  KeyCode2[KeyCode2["Digit9"] = 30] = "Digit9";
+  KeyCode2[KeyCode2["KeyA"] = 31] = "KeyA";
+  KeyCode2[KeyCode2["KeyB"] = 32] = "KeyB";
+  KeyCode2[KeyCode2["KeyC"] = 33] = "KeyC";
+  KeyCode2[KeyCode2["KeyD"] = 34] = "KeyD";
+  KeyCode2[KeyCode2["KeyE"] = 35] = "KeyE";
+  KeyCode2[KeyCode2["KeyF"] = 36] = "KeyF";
+  KeyCode2[KeyCode2["KeyG"] = 37] = "KeyG";
+  KeyCode2[KeyCode2["KeyH"] = 38] = "KeyH";
+  KeyCode2[KeyCode2["KeyI"] = 39] = "KeyI";
+  KeyCode2[KeyCode2["KeyJ"] = 40] = "KeyJ";
+  KeyCode2[KeyCode2["KeyK"] = 41] = "KeyK";
+  KeyCode2[KeyCode2["KeyL"] = 42] = "KeyL";
+  KeyCode2[KeyCode2["KeyM"] = 43] = "KeyM";
+  KeyCode2[KeyCode2["KeyN"] = 44] = "KeyN";
+  KeyCode2[KeyCode2["KeyO"] = 45] = "KeyO";
+  KeyCode2[KeyCode2["KeyP"] = 46] = "KeyP";
+  KeyCode2[KeyCode2["KeyQ"] = 47] = "KeyQ";
+  KeyCode2[KeyCode2["KeyR"] = 48] = "KeyR";
+  KeyCode2[KeyCode2["KeyS"] = 49] = "KeyS";
+  KeyCode2[KeyCode2["KeyT"] = 50] = "KeyT";
+  KeyCode2[KeyCode2["KeyU"] = 51] = "KeyU";
+  KeyCode2[KeyCode2["KeyV"] = 52] = "KeyV";
+  KeyCode2[KeyCode2["KeyW"] = 53] = "KeyW";
+  KeyCode2[KeyCode2["KeyX"] = 54] = "KeyX";
+  KeyCode2[KeyCode2["KeyY"] = 55] = "KeyY";
+  KeyCode2[KeyCode2["KeyZ"] = 56] = "KeyZ";
+  KeyCode2[KeyCode2["Meta"] = 57] = "Meta";
+  KeyCode2[KeyCode2["ContextMenu"] = 58] = "ContextMenu";
+  KeyCode2[KeyCode2["F1"] = 59] = "F1";
+  KeyCode2[KeyCode2["F2"] = 60] = "F2";
+  KeyCode2[KeyCode2["F3"] = 61] = "F3";
+  KeyCode2[KeyCode2["F4"] = 62] = "F4";
+  KeyCode2[KeyCode2["F5"] = 63] = "F5";
+  KeyCode2[KeyCode2["F6"] = 64] = "F6";
+  KeyCode2[KeyCode2["F7"] = 65] = "F7";
+  KeyCode2[KeyCode2["F8"] = 66] = "F8";
+  KeyCode2[KeyCode2["F9"] = 67] = "F9";
+  KeyCode2[KeyCode2["F10"] = 68] = "F10";
+  KeyCode2[KeyCode2["F11"] = 69] = "F11";
+  KeyCode2[KeyCode2["F12"] = 70] = "F12";
+  KeyCode2[KeyCode2["F13"] = 71] = "F13";
+  KeyCode2[KeyCode2["F14"] = 72] = "F14";
+  KeyCode2[KeyCode2["F15"] = 73] = "F15";
+  KeyCode2[KeyCode2["F16"] = 74] = "F16";
+  KeyCode2[KeyCode2["F17"] = 75] = "F17";
+  KeyCode2[KeyCode2["F18"] = 76] = "F18";
+  KeyCode2[KeyCode2["F19"] = 77] = "F19";
+  KeyCode2[KeyCode2["F20"] = 78] = "F20";
+  KeyCode2[KeyCode2["F21"] = 79] = "F21";
+  KeyCode2[KeyCode2["F22"] = 80] = "F22";
+  KeyCode2[KeyCode2["F23"] = 81] = "F23";
+  KeyCode2[KeyCode2["F24"] = 82] = "F24";
+  KeyCode2[KeyCode2["NumLock"] = 83] = "NumLock";
+  KeyCode2[KeyCode2["ScrollLock"] = 84] = "ScrollLock";
+  KeyCode2[KeyCode2["Semicolon"] = 85] = "Semicolon";
+  KeyCode2[KeyCode2["Equal"] = 86] = "Equal";
+  KeyCode2[KeyCode2["Comma"] = 87] = "Comma";
+  KeyCode2[KeyCode2["Minus"] = 88] = "Minus";
+  KeyCode2[KeyCode2["Period"] = 89] = "Period";
+  KeyCode2[KeyCode2["Slash"] = 90] = "Slash";
+  KeyCode2[KeyCode2["Backquote"] = 91] = "Backquote";
+  KeyCode2[KeyCode2["BracketLeft"] = 92] = "BracketLeft";
+  KeyCode2[KeyCode2["Backslash"] = 93] = "Backslash";
+  KeyCode2[KeyCode2["BracketRight"] = 94] = "BracketRight";
+  KeyCode2[KeyCode2["Quote"] = 95] = "Quote";
+  KeyCode2[KeyCode2["OEM_8"] = 96] = "OEM_8";
+  KeyCode2[KeyCode2["IntlBackslash"] = 97] = "IntlBackslash";
+  KeyCode2[KeyCode2["Numpad0"] = 98] = "Numpad0";
+  KeyCode2[KeyCode2["Numpad1"] = 99] = "Numpad1";
+  KeyCode2[KeyCode2["Numpad2"] = 100] = "Numpad2";
+  KeyCode2[KeyCode2["Numpad3"] = 101] = "Numpad3";
+  KeyCode2[KeyCode2["Numpad4"] = 102] = "Numpad4";
+  KeyCode2[KeyCode2["Numpad5"] = 103] = "Numpad5";
+  KeyCode2[KeyCode2["Numpad6"] = 104] = "Numpad6";
+  KeyCode2[KeyCode2["Numpad7"] = 105] = "Numpad7";
+  KeyCode2[KeyCode2["Numpad8"] = 106] = "Numpad8";
+  KeyCode2[KeyCode2["Numpad9"] = 107] = "Numpad9";
+  KeyCode2[KeyCode2["NumpadMultiply"] = 108] = "NumpadMultiply";
+  KeyCode2[KeyCode2["NumpadAdd"] = 109] = "NumpadAdd";
+  KeyCode2[KeyCode2["NUMPAD_SEPARATOR"] = 110] = "NUMPAD_SEPARATOR";
+  KeyCode2[KeyCode2["NumpadSubtract"] = 111] = "NumpadSubtract";
+  KeyCode2[KeyCode2["NumpadDecimal"] = 112] = "NumpadDecimal";
+  KeyCode2[KeyCode2["NumpadDivide"] = 113] = "NumpadDivide";
+  KeyCode2[KeyCode2["KEY_IN_COMPOSITION"] = 114] = "KEY_IN_COMPOSITION";
+  KeyCode2[KeyCode2["ABNT_C1"] = 115] = "ABNT_C1";
+  KeyCode2[KeyCode2["ABNT_C2"] = 116] = "ABNT_C2";
+  KeyCode2[KeyCode2["AudioVolumeMute"] = 117] = "AudioVolumeMute";
+  KeyCode2[KeyCode2["AudioVolumeUp"] = 118] = "AudioVolumeUp";
+  KeyCode2[KeyCode2["AudioVolumeDown"] = 119] = "AudioVolumeDown";
+  KeyCode2[KeyCode2["BrowserSearch"] = 120] = "BrowserSearch";
+  KeyCode2[KeyCode2["BrowserHome"] = 121] = "BrowserHome";
+  KeyCode2[KeyCode2["BrowserBack"] = 122] = "BrowserBack";
+  KeyCode2[KeyCode2["BrowserForward"] = 123] = "BrowserForward";
+  KeyCode2[KeyCode2["MediaTrackNext"] = 124] = "MediaTrackNext";
+  KeyCode2[KeyCode2["MediaTrackPrevious"] = 125] = "MediaTrackPrevious";
+  KeyCode2[KeyCode2["MediaStop"] = 126] = "MediaStop";
+  KeyCode2[KeyCode2["MediaPlayPause"] = 127] = "MediaPlayPause";
+  KeyCode2[KeyCode2["LaunchMediaPlayer"] = 128] = "LaunchMediaPlayer";
+  KeyCode2[KeyCode2["LaunchMail"] = 129] = "LaunchMail";
+  KeyCode2[KeyCode2["LaunchApp2"] = 130] = "LaunchApp2";
+  KeyCode2[KeyCode2["Clear"] = 131] = "Clear";
+  KeyCode2[KeyCode2["MAX_VALUE"] = 132] = "MAX_VALUE";
+})(KeyCode || (KeyCode = {}));
+var MarkerSeverity;
+(function(MarkerSeverity2) {
+  MarkerSeverity2[MarkerSeverity2["Hint"] = 1] = "Hint";
+  MarkerSeverity2[MarkerSeverity2["Info"] = 2] = "Info";
+  MarkerSeverity2[MarkerSeverity2["Warning"] = 4] = "Warning";
+  MarkerSeverity2[MarkerSeverity2["Error"] = 8] = "Error";
+})(MarkerSeverity || (MarkerSeverity = {}));
+var MarkerTag;
+(function(MarkerTag2) {
+  MarkerTag2[MarkerTag2["Unnecessary"] = 1] = "Unnecessary";
+  MarkerTag2[MarkerTag2["Deprecated"] = 2] = "Deprecated";
+})(MarkerTag || (MarkerTag = {}));
+var MinimapPosition;
+(function(MinimapPosition2) {
+  MinimapPosition2[MinimapPosition2["Inline"] = 1] = "Inline";
+  MinimapPosition2[MinimapPosition2["Gutter"] = 2] = "Gutter";
+})(MinimapPosition || (MinimapPosition = {}));
+var MinimapSectionHeaderStyle;
+(function(MinimapSectionHeaderStyle2) {
+  MinimapSectionHeaderStyle2[MinimapSectionHeaderStyle2["Normal"] = 1] = "Normal";
+  MinimapSectionHeaderStyle2[MinimapSectionHeaderStyle2["Underlined"] = 2] = "Underlined";
+})(MinimapSectionHeaderStyle || (MinimapSectionHeaderStyle = {}));
+var MouseTargetType;
+(function(MouseTargetType2) {
+  MouseTargetType2[MouseTargetType2["UNKNOWN"] = 0] = "UNKNOWN";
+  MouseTargetType2[MouseTargetType2["TEXTAREA"] = 1] = "TEXTAREA";
+  MouseTargetType2[MouseTargetType2["GUTTER_GLYPH_MARGIN"] = 2] = "GUTTER_GLYPH_MARGIN";
+  MouseTargetType2[MouseTargetType2["GUTTER_LINE_NUMBERS"] = 3] = "GUTTER_LINE_NUMBERS";
+  MouseTargetType2[MouseTargetType2["GUTTER_LINE_DECORATIONS"] = 4] = "GUTTER_LINE_DECORATIONS";
+  MouseTargetType2[MouseTargetType2["GUTTER_VIEW_ZONE"] = 5] = "GUTTER_VIEW_ZONE";
+  MouseTargetType2[MouseTargetType2["CONTENT_TEXT"] = 6] = "CONTENT_TEXT";
+  MouseTargetType2[MouseTargetType2["CONTENT_EMPTY"] = 7] = "CONTENT_EMPTY";
+  MouseTargetType2[MouseTargetType2["CONTENT_VIEW_ZONE"] = 8] = "CONTENT_VIEW_ZONE";
+  MouseTargetType2[MouseTargetType2["CONTENT_WIDGET"] = 9] = "CONTENT_WIDGET";
+  MouseTargetType2[MouseTargetType2["OVERVIEW_RULER"] = 10] = "OVERVIEW_RULER";
+  MouseTargetType2[MouseTargetType2["SCROLLBAR"] = 11] = "SCROLLBAR";
+  MouseTargetType2[MouseTargetType2["OVERLAY_WIDGET"] = 12] = "OVERLAY_WIDGET";
+  MouseTargetType2[MouseTargetType2["OUTSIDE_EDITOR"] = 13] = "OUTSIDE_EDITOR";
+})(MouseTargetType || (MouseTargetType = {}));
+var NewSymbolNameTag;
+(function(NewSymbolNameTag2) {
+  NewSymbolNameTag2[NewSymbolNameTag2["AIGenerated"] = 1] = "AIGenerated";
+})(NewSymbolNameTag || (NewSymbolNameTag = {}));
+var NewSymbolNameTriggerKind;
+(function(NewSymbolNameTriggerKind2) {
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Invoke"] = 0] = "Invoke";
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Automatic"] = 1] = "Automatic";
+})(NewSymbolNameTriggerKind || (NewSymbolNameTriggerKind = {}));
+var OverlayWidgetPositionPreference;
+(function(OverlayWidgetPositionPreference2) {
+  OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["TOP_RIGHT_CORNER"] = 0] = "TOP_RIGHT_CORNER";
+  OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["BOTTOM_RIGHT_CORNER"] = 1] = "BOTTOM_RIGHT_CORNER";
+  OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["TOP_CENTER"] = 2] = "TOP_CENTER";
+})(OverlayWidgetPositionPreference || (OverlayWidgetPositionPreference = {}));
+var OverviewRulerLane;
+(function(OverviewRulerLane2) {
+  OverviewRulerLane2[OverviewRulerLane2["Left"] = 1] = "Left";
+  OverviewRulerLane2[OverviewRulerLane2["Center"] = 2] = "Center";
+  OverviewRulerLane2[OverviewRulerLane2["Right"] = 4] = "Right";
+  OverviewRulerLane2[OverviewRulerLane2["Full"] = 7] = "Full";
+})(OverviewRulerLane || (OverviewRulerLane = {}));
+var PartialAcceptTriggerKind;
+(function(PartialAcceptTriggerKind2) {
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Word"] = 0] = "Word";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Line"] = 1] = "Line";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Suggest"] = 2] = "Suggest";
+})(PartialAcceptTriggerKind || (PartialAcceptTriggerKind = {}));
+var PositionAffinity;
+(function(PositionAffinity2) {
+  PositionAffinity2[PositionAffinity2["Left"] = 0] = "Left";
+  PositionAffinity2[PositionAffinity2["Right"] = 1] = "Right";
+  PositionAffinity2[PositionAffinity2["None"] = 2] = "None";
+  PositionAffinity2[PositionAffinity2["LeftOfInjectedText"] = 3] = "LeftOfInjectedText";
+  PositionAffinity2[PositionAffinity2["RightOfInjectedText"] = 4] = "RightOfInjectedText";
+})(PositionAffinity || (PositionAffinity = {}));
+var RenderLineNumbersType;
+(function(RenderLineNumbersType2) {
+  RenderLineNumbersType2[RenderLineNumbersType2["Off"] = 0] = "Off";
+  RenderLineNumbersType2[RenderLineNumbersType2["On"] = 1] = "On";
+  RenderLineNumbersType2[RenderLineNumbersType2["Relative"] = 2] = "Relative";
+  RenderLineNumbersType2[RenderLineNumbersType2["Interval"] = 3] = "Interval";
+  RenderLineNumbersType2[RenderLineNumbersType2["Custom"] = 4] = "Custom";
+})(RenderLineNumbersType || (RenderLineNumbersType = {}));
+var RenderMinimap;
+(function(RenderMinimap2) {
+  RenderMinimap2[RenderMinimap2["None"] = 0] = "None";
+  RenderMinimap2[RenderMinimap2["Text"] = 1] = "Text";
+  RenderMinimap2[RenderMinimap2["Blocks"] = 2] = "Blocks";
+})(RenderMinimap || (RenderMinimap = {}));
+var ScrollType;
+(function(ScrollType2) {
+  ScrollType2[ScrollType2["Smooth"] = 0] = "Smooth";
+  ScrollType2[ScrollType2["Immediate"] = 1] = "Immediate";
+})(ScrollType || (ScrollType = {}));
+var ScrollbarVisibility;
+(function(ScrollbarVisibility2) {
+  ScrollbarVisibility2[ScrollbarVisibility2["Auto"] = 1] = "Auto";
+  ScrollbarVisibility2[ScrollbarVisibility2["Hidden"] = 2] = "Hidden";
+  ScrollbarVisibility2[ScrollbarVisibility2["Visible"] = 3] = "Visible";
+})(ScrollbarVisibility || (ScrollbarVisibility = {}));
+var SelectionDirection;
+(function(SelectionDirection2) {
+  SelectionDirection2[SelectionDirection2["LTR"] = 0] = "LTR";
+  SelectionDirection2[SelectionDirection2["RTL"] = 1] = "RTL";
+})(SelectionDirection || (SelectionDirection = {}));
+var ShowLightbulbIconMode;
+(function(ShowLightbulbIconMode2) {
+  ShowLightbulbIconMode2["Off"] = "off";
+  ShowLightbulbIconMode2["OnCode"] = "onCode";
+  ShowLightbulbIconMode2["On"] = "on";
+})(ShowLightbulbIconMode || (ShowLightbulbIconMode = {}));
+var SignatureHelpTriggerKind;
+(function(SignatureHelpTriggerKind2) {
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["Invoke"] = 1] = "Invoke";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["TriggerCharacter"] = 2] = "TriggerCharacter";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["ContentChange"] = 3] = "ContentChange";
+})(SignatureHelpTriggerKind || (SignatureHelpTriggerKind = {}));
+var SymbolKind;
+(function(SymbolKind2) {
+  SymbolKind2[SymbolKind2["File"] = 0] = "File";
+  SymbolKind2[SymbolKind2["Module"] = 1] = "Module";
+  SymbolKind2[SymbolKind2["Namespace"] = 2] = "Namespace";
+  SymbolKind2[SymbolKind2["Package"] = 3] = "Package";
+  SymbolKind2[SymbolKind2["Class"] = 4] = "Class";
+  SymbolKind2[SymbolKind2["Method"] = 5] = "Method";
+  SymbolKind2[SymbolKind2["Property"] = 6] = "Property";
+  SymbolKind2[SymbolKind2["Field"] = 7] = "Field";
+  SymbolKind2[SymbolKind2["Constructor"] = 8] = "Constructor";
+  SymbolKind2[SymbolKind2["Enum"] = 9] = "Enum";
+  SymbolKind2[SymbolKind2["Interface"] = 10] = "Interface";
+  SymbolKind2[SymbolKind2["Function"] = 11] = "Function";
+  SymbolKind2[SymbolKind2["Variable"] = 12] = "Variable";
+  SymbolKind2[SymbolKind2["Constant"] = 13] = "Constant";
+  SymbolKind2[SymbolKind2["String"] = 14] = "String";
+  SymbolKind2[SymbolKind2["Number"] = 15] = "Number";
+  SymbolKind2[SymbolKind2["Boolean"] = 16] = "Boolean";
+  SymbolKind2[SymbolKind2["Array"] = 17] = "Array";
+  SymbolKind2[SymbolKind2["Object"] = 18] = "Object";
+  SymbolKind2[SymbolKind2["Key"] = 19] = "Key";
+  SymbolKind2[SymbolKind2["Null"] = 20] = "Null";
+  SymbolKind2[SymbolKind2["EnumMember"] = 21] = "EnumMember";
+  SymbolKind2[SymbolKind2["Struct"] = 22] = "Struct";
+  SymbolKind2[SymbolKind2["Event"] = 23] = "Event";
+  SymbolKind2[SymbolKind2["Operator"] = 24] = "Operator";
+  SymbolKind2[SymbolKind2["TypeParameter"] = 25] = "TypeParameter";
+})(SymbolKind || (SymbolKind = {}));
+var SymbolTag;
+(function(SymbolTag2) {
+  SymbolTag2[SymbolTag2["Deprecated"] = 1] = "Deprecated";
+})(SymbolTag || (SymbolTag = {}));
+var TextDirection;
+(function(TextDirection2) {
+  TextDirection2[TextDirection2["LTR"] = 0] = "LTR";
+  TextDirection2[TextDirection2["RTL"] = 1] = "RTL";
+})(TextDirection || (TextDirection = {}));
+var TextEditorCursorBlinkingStyle;
+(function(TextEditorCursorBlinkingStyle2) {
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Hidden"] = 0] = "Hidden";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Blink"] = 1] = "Blink";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Smooth"] = 2] = "Smooth";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Phase"] = 3] = "Phase";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Expand"] = 4] = "Expand";
+  TextEditorCursorBlinkingStyle2[TextEditorCursorBlinkingStyle2["Solid"] = 5] = "Solid";
+})(TextEditorCursorBlinkingStyle || (TextEditorCursorBlinkingStyle = {}));
+var TextEditorCursorStyle;
+(function(TextEditorCursorStyle2) {
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Line"] = 1] = "Line";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Block"] = 2] = "Block";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["Underline"] = 3] = "Underline";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["LineThin"] = 4] = "LineThin";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["BlockOutline"] = 5] = "BlockOutline";
+  TextEditorCursorStyle2[TextEditorCursorStyle2["UnderlineThin"] = 6] = "UnderlineThin";
+})(TextEditorCursorStyle || (TextEditorCursorStyle = {}));
+var TrackedRangeStickiness;
+(function(TrackedRangeStickiness2) {
+  TrackedRangeStickiness2[TrackedRangeStickiness2["AlwaysGrowsWhenTypingAtEdges"] = 0] = "AlwaysGrowsWhenTypingAtEdges";
+  TrackedRangeStickiness2[TrackedRangeStickiness2["NeverGrowsWhenTypingAtEdges"] = 1] = "NeverGrowsWhenTypingAtEdges";
+  TrackedRangeStickiness2[TrackedRangeStickiness2["GrowsOnlyWhenTypingBefore"] = 2] = "GrowsOnlyWhenTypingBefore";
+  TrackedRangeStickiness2[TrackedRangeStickiness2["GrowsOnlyWhenTypingAfter"] = 3] = "GrowsOnlyWhenTypingAfter";
+})(TrackedRangeStickiness || (TrackedRangeStickiness = {}));
+var WrappingIndent;
+(function(WrappingIndent2) {
+  WrappingIndent2[WrappingIndent2["None"] = 0] = "None";
+  WrappingIndent2[WrappingIndent2["Same"] = 1] = "Same";
+  WrappingIndent2[WrappingIndent2["Indent"] = 2] = "Indent";
+  WrappingIndent2[WrappingIndent2["DeepIndent"] = 3] = "DeepIndent";
+})(WrappingIndent || (WrappingIndent = {}));
+export {
+  AccessibilitySupport,
+  CodeActionTriggerType,
+  CompletionItemInsertTextRule,
+  CompletionItemKind,
+  CompletionItemTag,
+  CompletionTriggerKind,
+  ContentWidgetPositionPreference,
+  CursorChangeReason,
+  DefaultEndOfLine,
+  DocumentHighlightKind,
+  EditorAutoIndentStrategy,
+  EditorOption,
+  EndOfLinePreference,
+  EndOfLineSequence,
+  GlyphMarginLane,
+  HoverVerbosityAction,
+  IndentAction,
+  InjectedTextCursorStops,
+  InlayHintKind,
+  InlineCompletionEndOfLifeReasonKind,
+  InlineCompletionHintStyle,
+  InlineCompletionTriggerKind,
+  KeyCode,
+  MarkerSeverity,
+  MarkerTag,
+  MinimapPosition,
+  MinimapSectionHeaderStyle,
+  MouseTargetType,
+  NewSymbolNameTag,
+  NewSymbolNameTriggerKind,
+  OverlayWidgetPositionPreference,
+  OverviewRulerLane,
+  PartialAcceptTriggerKind,
+  PositionAffinity,
+  RenderLineNumbersType,
+  RenderMinimap,
+  ScrollType,
+  ScrollbarVisibility,
+  SelectionDirection,
+  ShowLightbulbIconMode,
+  SignatureHelpTriggerKind,
+  SymbolKind,
+  SymbolTag,
+  TextDirection,
+  TextEditorCursorBlinkingStyle,
+  TextEditorCursorStyle,
+  TrackedRangeStickiness,
+  WrappingIndent
+};
+//# sourceMappingURL=standaloneEnums.js.map

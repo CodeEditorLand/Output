@@ -1,1 +1,95 @@
-import{CancellationToken as T}from"../../../base/common/cancellation.js";import{$Ed as d,$Md as $}from"../../../base/common/lifecycle.js";import{$4m as l}from"../../../base/common/marshalling.js";import{$oS as g,$lS as v}from"../../contrib/chat/common/tools/languageModelToolsService.js";import{$vCb as b}from"../../services/extensions/common/extHostCustomers.js";import{$2Y as h}from"../../services/extensions/common/proxyIdentifier.js";import{$c1 as y,$b1 as D}from"../common/extHost.protocol.js";var u=function(i,e,t,r){var o=arguments.length,n=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,e,t,r);else for(var a=i.length-1;a>=0;a--)(s=i[a])&&(n=(o<3?s(n):o>3?s(e,t,n):s(e,t))||n);return o>3&&n&&Object.defineProperty(e,t,n),n},m=function(i,e){return function(t,r){e(t,r,i)}};let f=class extends d{constructor(e,t){super(),this.f=t,this.b=this.D(new $),this.c=new Map,this.a=e.getProxy(y.ExtHostLanguageModelTools),this.D(this.f.onDidChangeTools(r=>this.a.$onDidChangeTools(this.g())))}g(){return Array.from(this.f.getTools()).map(e=>({id:e.id,displayName:e.displayName,toolReferenceName:e.toolReferenceName,legacyToolReferenceFullNames:e.legacyToolReferenceFullNames,tags:e.tags,userDescription:e.userDescription,modelDescription:e.modelDescription,inputSchema:e.inputSchema,source:e.source}))}async $getTools(){return this.g()}async $invokeTool(e,t){const r=await this.f.invokeTool(l(e),(n,s)=>this.a.$countTokensForInvocation(e.callId,n,s),t??T.None),o={content:r.content,toolMetadata:r.toolMetadata};return v(r)?new h(o):o}$acceptToolProgress(e,t){this.c.get(e)?.progress.report(t)}$countTokensForInvocation(e,t,r){const o=this.c.get(e);if(!o)throw new Error(`Tool invocation call ${e} not found`);return o.countTokens(t,r)}$registerTool(e,t){const r=this.f.registerToolImplementation(e,{invoke:async(o,n,s,a)=>{try{this.c.set(o.callId,{countTokens:n,progress:s});const c=await this.a.$invokeTool(o,a),p=c instanceof h?c.value:c;return l(p)}finally{this.c.delete(o.callId)}},prepareToolInvocation:(o,n)=>this.a.$prepareToolInvocation(e,o,n),handleToolStream:t?(o,n)=>this.a.$handleToolStream(e,o,n):void 0});this.b.set(e,r)}$unregisterTool(e){this.b.deleteAndDispose(e)}};f=u([b(D.MainThreadLanguageModelTools),m(1,g)],f);export{f as $33b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { ILanguageModelToolsService, toolResultHasBuffers } from "../../contrib/chat/common/tools/languageModelToolsService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+let MainThreadLanguageModelTools = class MainThreadLanguageModelTools2 extends Disposable {
+  static {
+    __name(this, "MainThreadLanguageModelTools");
+  }
+  constructor(extHostContext, _languageModelToolsService) {
+    super();
+    this._languageModelToolsService = _languageModelToolsService;
+    this._tools = this._register(new DisposableMap());
+    this._runningToolCalls = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
+    this._register(this._languageModelToolsService.onDidChangeTools((e) => this._proxy.$onDidChangeTools(this.getToolDtos())));
+  }
+  getToolDtos() {
+    return Array.from(this._languageModelToolsService.getTools()).map((tool) => ({
+      id: tool.id,
+      displayName: tool.displayName,
+      toolReferenceName: tool.toolReferenceName,
+      legacyToolReferenceFullNames: tool.legacyToolReferenceFullNames,
+      tags: tool.tags,
+      userDescription: tool.userDescription,
+      modelDescription: tool.modelDescription,
+      inputSchema: tool.inputSchema,
+      source: tool.source
+    }));
+  }
+  async $getTools() {
+    return this.getToolDtos();
+  }
+  async $invokeTool(dto, token) {
+    const result = await this._languageModelToolsService.invokeTool(revive(dto), (input, token2) => this._proxy.$countTokensForInvocation(dto.callId, input, token2), token ?? CancellationToken.None);
+    const out = {
+      content: result.content,
+      toolMetadata: result.toolMetadata
+    };
+    return toolResultHasBuffers(result) ? new SerializableObjectWithBuffers(out) : out;
+  }
+  $acceptToolProgress(callId, progress) {
+    this._runningToolCalls.get(callId)?.progress.report(progress);
+  }
+  $countTokensForInvocation(callId, input, token) {
+    const fn = this._runningToolCalls.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return fn.countTokens(input, token);
+  }
+  $registerTool(id, hasHandleToolStream) {
+    const disposable = this._languageModelToolsService.registerToolImplementation(id, {
+      invoke: /* @__PURE__ */ __name(async (dto, countTokens, progress, token) => {
+        try {
+          this._runningToolCalls.set(dto.callId, { countTokens, progress });
+          const resultSerialized = await this._proxy.$invokeTool(dto, token);
+          const resultDto = resultSerialized instanceof SerializableObjectWithBuffers ? resultSerialized.value : resultSerialized;
+          return revive(resultDto);
+        } finally {
+          this._runningToolCalls.delete(dto.callId);
+        }
+      }, "invoke"),
+      prepareToolInvocation: /* @__PURE__ */ __name((context, token) => this._proxy.$prepareToolInvocation(id, context, token), "prepareToolInvocation"),
+      handleToolStream: hasHandleToolStream ? (context, token) => this._proxy.$handleToolStream(id, context, token) : void 0
+    });
+    this._tools.set(id, disposable);
+  }
+  $unregisterTool(name) {
+    this._tools.deleteAndDispose(name);
+  }
+};
+MainThreadLanguageModelTools = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
+  __param(1, ILanguageModelToolsService)
+], MainThreadLanguageModelTools);
+export {
+  MainThreadLanguageModelTools
+};
+//# sourceMappingURL=mainThreadLanguageModelTools.js.map

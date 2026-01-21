@@ -1,3 +1,462 @@
-import{$ as z,$F7 as S,$G7 as d,getWindow as j}from"../../../../../base/browser/dom.js";import{$Zm as P,$1m as T}from"../../../../../base/common/decorators.js";import{Event as C}from"../../../../../base/common/event.js";import{$Ed as W,$Fd as $,$Bd as A,$Cd as H}from"../../../../../base/common/lifecycle.js";import{$Lg as I}from"../../../../../base/common/strings.js";import"./media/stickyScroll.css";import{localize as v}from"../../../../../nls.js";import{$oL as E,$nL as F}from"../../../../../platform/actions/common/actions.js";import{$9l as X}from"../../../../../platform/configuration/common/configuration.js";import{$qo as _}from"../../../../../platform/contextkey/common/contextkey.js";import{$6hb as G}from"../../../../../platform/contextview/browser/contextView.js";import{$cy as N}from"../../../../../platform/keybinding/common/keybinding.js";import{$rx as x}from"../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";import{$ou as q}from"../../../../../platform/theme/common/themeService.js";import{$SYb as K}from"../../../terminal/browser/terminal.js";import{$Ezc as Z}from"../../../terminal/browser/terminalContextMenu.js";import{$45 as J}from"../../../terminal/common/terminal.js";import{$Bzc as L}from"../../../terminal/common/terminalStrings.js";import{$bCc as U,$cCc as V}from"./terminalStickyScrollColorRegistry.js";import{$HYb as Q}from"../../../terminal/browser/xterm/xtermAddonImporter.js";var g=function(o,t,i,s){var r=arguments.length,n=r<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,t,i,s);else for(var e=o.length-1;e>=0;e--)(h=o[e])&&(n=(r<3?h(n):r>3?h(t,i,n):h(t,i))||n);return r>3&&n&&Object.defineProperty(t,i,n),n},f=function(o,t){return function(i,s){t(i,s,o)}},B;(function(o){o[o.Off=0]="Off",o[o.On=1]="On"})(B||(B={}));var M;(function(o){o.Visible="visible"})(M||(M={}));var O;(function(o){o[o.StickyScrollPercentageCap=.4]="StickyScrollPercentageCap"})(O||(O={}));let p=class extends W{constructor(t,i,s,r,n,h,e,m,u,w,c,b){super(),this.y=t,this.z=i,this.C=s,this.F=r,this.G=m,this.H=u,this.I=c,this.J=b,this.b=new Q,this.f=this.D(new $),this.r=this.D(new $),this.s=0,this.t=!1,this.u=5,this.w=!1,this.q=this.D(w.createMenu(F.TerminalStickyScrollContext,e)),this.D(C.runAndSubscribe(this.z.raw.buffer.onBufferChange,a=>{this.L((a??this.z.raw.buffer.active).type==="normal"?1:0)})),this.D(C.runAndSubscribe(h.onDidChangeConfiguration,a=>{(!a||a.affectsConfiguration("terminal.integrated.stickyScroll.maxLineCount"))&&(this.u=h.getValue("terminal.integrated.stickyScroll.maxLineCount"))})),this.D(this.y.onDidChangeTarget(()=>this.X())),n.then(a=>{this.B.isDisposed||(this.a=this.D(new a({rows:1,cols:this.z.raw.cols,allowProposedApi:!0,...this.Y()})),this.Z(),this.D(h.onDidChangeConfiguration(l=>{l.affectsConfiguration(J)&&this.X()})),this.D(this.J.onDidColorThemeChange(()=>{this.X()})),this.D(this.z.raw.onResize(()=>{this.X(),this.R()})),this.D(this.y.onDidChangeVisibility(l=>{l&&this.R()})),this.b.importAddon("serialize").then(l=>{this.B.isDisposed||(this.c=this.D(new l),this.z.raw.loadAddon(this.c),this.R())}))})}lockHide(){this.j?.classList.add("lock-hide")}unlockHide(){this.j?.classList.remove("lock-hide")}L(t){if(this.s!==t)switch(t){case 0:{this.O(!1),this.N();break}case 1:{this.R(),this.M();break}}}M(){this.r.value||(this.r.value=A(C.any(this.z.raw.onScroll,this.z.raw.onLineFeed,this.z.raw.onCursorMove)(()=>this.R()),d(this.z.raw.element.querySelector(".xterm-viewport"),"scroll",()=>this.R())))}N(){this.r.clear()}O(t){t?(this.w=!0,this.P()):this.Q()}P(){this.w&&(this.W(),this.j?.classList.toggle("visible",!0)),this.w=!1}Q(){this.w=!1,this.j?.classList.toggle("visible",!1)}R(){this.t||(this.t=!0,queueMicrotask(()=>{this.S(),this.t=!1}))}S(){const t=this.F.getCommandForLine(this.z.raw.buffer.active.viewportY);if(this.m=void 0,!t||this.cb(t)){this.O(!1);return}if(!x(t)){const s=this.F.currentCommand;if(s?.commandStartMarker&&s.commandExecutedMarker){this.U(s,s.commandStartMarker);return}this.O(!1);return}const i=t.marker;if(!i||i.line===-1){this.O(!1);return}this.U(t,i)}U(t,i){const s=this.z.raw;if(!s.element?.parentElement||!this.a||!this.c)return;if(t.promptStartMarker?.line===-1){this.O(!1);return}const r=s.buffer.active,n=t.getPromptRowCount(),h=t.getCommandRowCount(),e=i.line-(n-1),m=!x(t),u=!m&&t.endMarker?Math.max(r.viewportY-t.endMarker.line+1,0):0,w=Math.min(this.u,Math.floor(s.rows*.4)),c=Math.min(n+h-1,w)-u,b=c<n+h-1;if(r.viewportY<=e){this.O(!1);return}if(m&&r.viewportY===r.baseY&&r.cursorY===s.rows-1){const l=r.getLine(r.baseY+s.rows-1);if(r.cursorX===1&&R(l,":")||r.cursorX===5&&R(l,"(END)")){this.O(!1);return}}const a=this.c.serialize({range:{start:e+u,end:e+u+Math.max(c-1,0)}})+(b?"\x1B[0m \u2026":"");if(m&&I(a).length===0){this.O(!1);return}if((a&&this.n!==a||this.a.cols!==s.cols||this.a.rows!==c)&&(this.a.resize(this.a.cols,c),this.a.write("\x1B[0m\x1B[H\x1B[2J"),this.a.write(a),this.n=a),a){if(this.m=t,this.O(!0),this.j){const l=s.element.getBoundingClientRect();if(l.height>0){const y=l.height/s.rows,Y=c*y;let k=0;if(!m&&t.endMarker&&t.endMarker.line!==-1){const D=Math.min(t.endMarker.line,r.baseY+r.cursorY);r.viewportY+c>D&&(k=(r.viewportY+c-D)*y)}this.j.style.bottom=`${l.height-Y+1+k}px`}}}else this.O(!1)}W(){if(this.j||!this.a||!this.z?.raw.element?.parentElement)return;const t=this.a,i=z(".hover-overlay");this.j=z(".terminal-sticky-scroll",void 0,i),this.z.raw.element.parentElement.append(this.j),this.D(H(()=>this.j?.remove()));let s=v(13647,null);const r=this.H.lookupKeybinding("workbench.action.terminal.scrollToPreviousCommand");if(r){const e=r.getLabel();e&&(s+=`
-`+v(13648,null,L.scrollToPreviousCommand.value,e))}const n=this.H.lookupKeybinding("workbench.action.terminal.scrollToNextCommand");if(n){const e=n.getLabel();e&&(s+=`
-`+v(13649,null,L.scrollToNextCommand.value,e))}i.title=s;const h=this.z.raw._core.viewport?.scrollBarWidth;h!==void 0&&(this.j.style.right=`${h}px`),this.a.open(this.j),this.a.attachCustomKeyEventHandler(e=>e.key!=="Tab"),this.b.importAddon("ligatures").then(e=>{this.B.isDisposed||!this.a||(this.h=new e,this.a.loadAddon(this.h))}),this.D(d(i,"click",()=>{this.z&&this.m&&(this.z.markTracker.revealCommand(this.m),this.y.focus())})),this.D(d(i,"wheel",e=>this.z?.raw.element?.dispatchEvent(new WheelEvent(e.type,e)))),this.D(S(i,"mousedown",e=>{e.stopImmediatePropagation(),e.preventDefault()})),this.D(S(i,"contextmenu",e=>{e.stopImmediatePropagation(),e.preventDefault(),Z(j(i),e,this.y,this.q,this.G)})),this.D(d(i,"mouseover",()=>t.options.theme=this.bb(!0))),this.D(d(i,"mouseleave",()=>t.options.theme=this.bb(!1)))}X(){this.a&&(this.a.resize(this.z.raw.cols,this.a.rows),this.a.options=this.Y(),this.Z())}Y(){const t=this.z.raw.options;return{cursorInactiveStyle:"none",scrollback:0,logLevel:"off",theme:this.bb(!1),documentOverride:t.documentOverride,fontFamily:t.fontFamily,fontWeight:t.fontWeight,fontWeightBold:t.fontWeightBold,fontSize:t.fontSize,letterSpacing:t.letterSpacing,lineHeight:t.lineHeight,drawBoldTextInBrightColors:t.drawBoldTextInBrightColors,minimumContrastRatio:t.minimumContrastRatio,tabStopWidth:t.tabStopWidth}}async Z(){if(this.ab()&&(!this.f.value||this.g!==this.I.config.customGlyphs)){const t=await this.b.importAddon("webgl");if(this.B.isDisposed)return;this.f.value=new t({customGlyphs:this.I.config.customGlyphs}),this.g=this.I.config.customGlyphs,this.a?.loadAddon(this.f.value)}else!this.ab()&&this.f.value&&this.f.clear()}ab(){return this.I.config.gpuAcceleration==="auto"||this.I.config.gpuAcceleration==="on"}bb(t){const i=this.J.getColorTheme();return{...this.z.getXtermTheme(),background:t?i.getColor(V)?.toString()??this.C.getBackgroundColor(i)?.toString():i.getColor(U)?.toString()??this.C.getBackgroundColor(i)?.toString(),selectionBackground:void 0,selectionInactiveBackground:void 0}}cb(t){if(!t.command)return!1;const i=t.command.trim().toLowerCase();return["clear","cls","clear-host"].includes(i)}};g([P(100)],p.prototype,"P",null);g([T(0)],p.prototype,"X",null);g([T(0)],p.prototype,"Z",null);p=g([f(5,X),f(6,_),f(7,G),f(8,N),f(9,E),f(10,K),f(11,q)],p);function R(o,t){if(!o)return!1;for(let i=0;i<t.length;i++)if(o.getCell(i)?.getChars()!==t[i])return!1;return!0}export{p as $dCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, addDisposableListener, addStandardDisposableListener, getWindow } from "../../../../../base/browser/dom.js";
+import { debounce, throttle } from "../../../../../base/common/decorators.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, MutableDisposable, combinedDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { removeAnsiEscapeCodes } from "../../../../../base/common/strings.js";
+import "./media/stickyScroll.css";
+import { localize } from "../../../../../nls.js";
+import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { isFullTerminalCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ITerminalConfigurationService } from "../../../terminal/browser/terminal.js";
+import { openContextMenu } from "../../../terminal/browser/terminalContextMenu.js";
+import { TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
+import { terminalStrings } from "../../../terminal/common/terminalStrings.js";
+import { terminalStickyScrollBackground, terminalStickyScrollHoverBackground } from "./terminalStickyScrollColorRegistry.js";
+import { XtermAddonImporter } from "../../../terminal/browser/xterm/xtermAddonImporter.js";
+var OverlayState;
+(function(OverlayState2) {
+  OverlayState2[OverlayState2["Off"] = 0] = "Off";
+  OverlayState2[OverlayState2["On"] = 1] = "On";
+})(OverlayState || (OverlayState = {}));
+var CssClasses;
+(function(CssClasses2) {
+  CssClasses2["Visible"] = "visible";
+})(CssClasses || (CssClasses = {}));
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["StickyScrollPercentageCap"] = 0.4] = "StickyScrollPercentageCap";
+})(Constants || (Constants = {}));
+let TerminalStickyScrollOverlay = class TerminalStickyScrollOverlay2 extends Disposable {
+  static {
+    __name(this, "TerminalStickyScrollOverlay");
+  }
+  constructor(_instance, _xterm, _xtermColorProvider, _commandDetection, xtermCtor, configurationService, contextKeyService, _contextMenuService, _keybindingService, menuService, _terminalConfigurationService, _themeService) {
+    super();
+    this._instance = _instance;
+    this._xterm = _xterm;
+    this._xtermColorProvider = _xtermColorProvider;
+    this._commandDetection = _commandDetection;
+    this._contextMenuService = _contextMenuService;
+    this._keybindingService = _keybindingService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+    this._themeService = _themeService;
+    this._xtermAddonLoader = new XtermAddonImporter();
+    this._webglAddon = this._register(new MutableDisposable());
+    this._refreshListeners = this._register(new MutableDisposable());
+    this._state = 0;
+    this._isRefreshQueued = false;
+    this._rawMaxLineCount = 5;
+    this._pendingShowOperation = false;
+    this._contextMenu = this._register(menuService.createMenu(MenuId.TerminalStickyScrollContext, contextKeyService));
+    this._register(Event.runAndSubscribe(this._xterm.raw.buffer.onBufferChange, (buffer) => {
+      this._setState(
+        (buffer ?? this._xterm.raw.buffer.active).type === "normal" ? 1 : 0
+        /* OverlayState.Off */
+      );
+    }));
+    this._register(Event.runAndSubscribe(configurationService.onDidChangeConfiguration, (e) => {
+      if (!e || e.affectsConfiguration(
+        "terminal.integrated.stickyScroll.maxLineCount"
+        /* TerminalStickyScrollSettingId.MaxLineCount */
+      )) {
+        this._rawMaxLineCount = configurationService.getValue(
+          "terminal.integrated.stickyScroll.maxLineCount"
+          /* TerminalStickyScrollSettingId.MaxLineCount */
+        );
+      }
+    }));
+    this._register(this._instance.onDidChangeTarget(() => this._syncOptions()));
+    xtermCtor.then((ctor) => {
+      if (this._store.isDisposed) {
+        return;
+      }
+      this._stickyScrollOverlay = this._register(new ctor({
+        rows: 1,
+        cols: this._xterm.raw.cols,
+        allowProposedApi: true,
+        ...this._getOptions()
+      }));
+      this._refreshGpuAcceleration();
+      this._register(configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+          this._syncOptions();
+        }
+      }));
+      this._register(this._themeService.onDidColorThemeChange(() => {
+        this._syncOptions();
+      }));
+      this._register(this._xterm.raw.onResize(() => {
+        this._syncOptions();
+        this._refresh();
+      }));
+      this._register(this._instance.onDidChangeVisibility((isVisible) => {
+        if (isVisible) {
+          this._refresh();
+        }
+      }));
+      this._xtermAddonLoader.importAddon("serialize").then((SerializeAddon) => {
+        if (this._store.isDisposed) {
+          return;
+        }
+        this._serializeAddon = this._register(new SerializeAddon());
+        this._xterm.raw.loadAddon(this._serializeAddon);
+        this._refresh();
+      });
+    });
+  }
+  lockHide() {
+    this._element?.classList.add("lock-hide");
+  }
+  unlockHide() {
+    this._element?.classList.remove("lock-hide");
+  }
+  _setState(state) {
+    if (this._state === state) {
+      return;
+    }
+    switch (state) {
+      case 0: {
+        this._setVisible(false);
+        this._uninstallRefreshListeners();
+        break;
+      }
+      case 1: {
+        this._refresh();
+        this._installRefreshListeners();
+        break;
+      }
+    }
+  }
+  _installRefreshListeners() {
+    if (!this._refreshListeners.value) {
+      this._refreshListeners.value = combinedDisposable(
+        Event.any(
+          this._xterm.raw.onScroll,
+          this._xterm.raw.onLineFeed,
+          // Rarely an update may be required after just a cursor move, like when
+          // scrolling horizontally in a pager
+          this._xterm.raw.onCursorMove
+        )(() => this._refresh()),
+        // eslint-disable-next-line no-restricted-syntax
+        addStandardDisposableListener(this._xterm.raw.element.querySelector(".xterm-viewport"), "scroll", () => this._refresh())
+      );
+    }
+  }
+  _uninstallRefreshListeners() {
+    this._refreshListeners.clear();
+  }
+  _setVisible(isVisible) {
+    if (isVisible) {
+      this._pendingShowOperation = true;
+      this._show();
+    } else {
+      this._hide();
+    }
+  }
+  _show() {
+    if (this._pendingShowOperation) {
+      this._ensureElement();
+      this._element?.classList.toggle("visible", true);
+    }
+    this._pendingShowOperation = false;
+  }
+  _hide() {
+    this._pendingShowOperation = false;
+    this._element?.classList.toggle("visible", false);
+  }
+  _refresh() {
+    if (this._isRefreshQueued) {
+      return;
+    }
+    this._isRefreshQueued = true;
+    queueMicrotask(() => {
+      this._refreshNow();
+      this._isRefreshQueued = false;
+    });
+  }
+  _refreshNow() {
+    const command = this._commandDetection.getCommandForLine(this._xterm.raw.buffer.active.viewportY);
+    this._currentStickyCommand = void 0;
+    if (!command || this._isClearCommand(command)) {
+      this._setVisible(false);
+      return;
+    }
+    if (!isFullTerminalCommand(command)) {
+      const partialCommand = this._commandDetection.currentCommand;
+      if (partialCommand?.commandStartMarker && partialCommand.commandExecutedMarker) {
+        this._updateContent(partialCommand, partialCommand.commandStartMarker);
+        return;
+      }
+      this._setVisible(false);
+      return;
+    }
+    const marker = command.marker;
+    if (!marker || marker.line === -1) {
+      this._setVisible(false);
+      return;
+    }
+    this._updateContent(command, marker);
+  }
+  _updateContent(command, startMarker) {
+    const xterm = this._xterm.raw;
+    if (!xterm.element?.parentElement || !this._stickyScrollOverlay || !this._serializeAddon) {
+      return;
+    }
+    if (command.promptStartMarker?.line === -1) {
+      this._setVisible(false);
+      return;
+    }
+    const buffer = xterm.buffer.active;
+    const promptRowCount = command.getPromptRowCount();
+    const commandRowCount = command.getCommandRowCount();
+    const stickyScrollLineStart = startMarker.line - (promptRowCount - 1);
+    const isPartialCommand = !isFullTerminalCommand(command);
+    const rowOffset = !isPartialCommand && command.endMarker ? Math.max(buffer.viewportY - command.endMarker.line + 1, 0) : 0;
+    const maxLineCount = Math.min(this._rawMaxLineCount, Math.floor(
+      xterm.rows * 0.4
+      /* Constants.StickyScrollPercentageCap */
+    ));
+    const stickyScrollLineCount = Math.min(promptRowCount + commandRowCount - 1, maxLineCount) - rowOffset;
+    const isTruncated = stickyScrollLineCount < promptRowCount + commandRowCount - 1;
+    if (buffer.viewportY <= stickyScrollLineStart) {
+      this._setVisible(false);
+      return;
+    }
+    if (isPartialCommand && buffer.viewportY === buffer.baseY && buffer.cursorY === xterm.rows - 1) {
+      const line = buffer.getLine(buffer.baseY + xterm.rows - 1);
+      if (buffer.cursorX === 1 && lineStartsWith(line, ":") || buffer.cursorX === 5 && lineStartsWith(line, "(END)")) {
+        this._setVisible(false);
+        return;
+      }
+    }
+    const content = this._serializeAddon.serialize({
+      range: {
+        start: stickyScrollLineStart + rowOffset,
+        end: stickyScrollLineStart + rowOffset + Math.max(stickyScrollLineCount - 1, 0)
+      }
+    }) + (isTruncated ? "\x1B[0m \u2026" : "");
+    if (isPartialCommand && removeAnsiEscapeCodes(content).length === 0) {
+      this._setVisible(false);
+      return;
+    }
+    if (content && this._currentContent !== content || this._stickyScrollOverlay.cols !== xterm.cols || this._stickyScrollOverlay.rows !== stickyScrollLineCount) {
+      this._stickyScrollOverlay.resize(this._stickyScrollOverlay.cols, stickyScrollLineCount);
+      this._stickyScrollOverlay.write("\x1B[0m\x1B[H\x1B[2J");
+      this._stickyScrollOverlay.write(content);
+      this._currentContent = content;
+    }
+    if (content) {
+      this._currentStickyCommand = command;
+      this._setVisible(true);
+      if (this._element) {
+        const termBox = xterm.element.getBoundingClientRect();
+        if (termBox.height > 0) {
+          const rowHeight = termBox.height / xterm.rows;
+          const overlayHeight = stickyScrollLineCount * rowHeight;
+          let endMarkerOffset = 0;
+          if (!isPartialCommand && command.endMarker && command.endMarker.line !== -1) {
+            const lastLine = Math.min(command.endMarker.line, buffer.baseY + buffer.cursorY);
+            if (buffer.viewportY + stickyScrollLineCount > lastLine) {
+              const diff = buffer.viewportY + stickyScrollLineCount - lastLine;
+              endMarkerOffset = diff * rowHeight;
+            }
+          }
+          this._element.style.bottom = `${termBox.height - overlayHeight + 1 + endMarkerOffset}px`;
+        }
+      }
+    } else {
+      this._setVisible(false);
+    }
+  }
+  _ensureElement() {
+    if (
+      // The element is already created
+      this._element || // If the overlay is yet to be created, the terminal cannot be opened so defer to next call
+      !this._stickyScrollOverlay || // The xterm.js instance isn't opened yet
+      !this._xterm?.raw.element?.parentElement
+    ) {
+      return;
+    }
+    const overlay = this._stickyScrollOverlay;
+    const hoverOverlay = $(".hover-overlay");
+    this._element = $(".terminal-sticky-scroll", void 0, hoverOverlay);
+    this._xterm.raw.element.parentElement.append(this._element);
+    this._register(toDisposable(() => this._element?.remove()));
+    let hoverTitle = localize("stickyScrollHoverTitle", "Navigate to Command");
+    const scrollToPreviousCommandKeybinding = this._keybindingService.lookupKeybinding(
+      "workbench.action.terminal.scrollToPreviousCommand"
+      /* TerminalCommandId.ScrollToPreviousCommand */
+    );
+    if (scrollToPreviousCommandKeybinding) {
+      const label = scrollToPreviousCommandKeybinding.getLabel();
+      if (label) {
+        hoverTitle += "\n" + localize("labelWithKeybinding", "{0} ({1})", terminalStrings.scrollToPreviousCommand.value, label);
+      }
+    }
+    const scrollToNextCommandKeybinding = this._keybindingService.lookupKeybinding(
+      "workbench.action.terminal.scrollToNextCommand"
+      /* TerminalCommandId.ScrollToNextCommand */
+    );
+    if (scrollToNextCommandKeybinding) {
+      const label = scrollToNextCommandKeybinding.getLabel();
+      if (label) {
+        hoverTitle += "\n" + localize("labelWithKeybinding", "{0} ({1})", terminalStrings.scrollToNextCommand.value, label);
+      }
+    }
+    hoverOverlay.title = hoverTitle;
+    const scrollBarWidth = this._xterm.raw._core.viewport?.scrollBarWidth;
+    if (scrollBarWidth !== void 0) {
+      this._element.style.right = `${scrollBarWidth}px`;
+    }
+    this._stickyScrollOverlay.open(this._element);
+    this._stickyScrollOverlay.attachCustomKeyEventHandler((event) => {
+      if (event.key === "Tab") {
+        return false;
+      }
+      return true;
+    });
+    this._xtermAddonLoader.importAddon("ligatures").then((LigaturesAddon) => {
+      if (this._store.isDisposed || !this._stickyScrollOverlay) {
+        return;
+      }
+      this._ligaturesAddon = new LigaturesAddon();
+      this._stickyScrollOverlay.loadAddon(this._ligaturesAddon);
+    });
+    this._register(addStandardDisposableListener(hoverOverlay, "click", () => {
+      if (this._xterm && this._currentStickyCommand) {
+        this._xterm.markTracker.revealCommand(this._currentStickyCommand);
+        this._instance.focus();
+      }
+    }));
+    this._register(addStandardDisposableListener(hoverOverlay, "wheel", (e) => this._xterm?.raw.element?.dispatchEvent(new WheelEvent(e.type, e))));
+    this._register(addDisposableListener(hoverOverlay, "mousedown", (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }));
+    this._register(addDisposableListener(hoverOverlay, "contextmenu", (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      openContextMenu(getWindow(hoverOverlay), e, this._instance, this._contextMenu, this._contextMenuService);
+    }));
+    this._register(addStandardDisposableListener(hoverOverlay, "mouseover", () => overlay.options.theme = this._getTheme(true)));
+    this._register(addStandardDisposableListener(hoverOverlay, "mouseleave", () => overlay.options.theme = this._getTheme(false)));
+  }
+  _syncOptions() {
+    if (!this._stickyScrollOverlay) {
+      return;
+    }
+    this._stickyScrollOverlay.resize(this._xterm.raw.cols, this._stickyScrollOverlay.rows);
+    this._stickyScrollOverlay.options = this._getOptions();
+    this._refreshGpuAcceleration();
+  }
+  _getOptions() {
+    const o = this._xterm.raw.options;
+    return {
+      cursorInactiveStyle: "none",
+      scrollback: 0,
+      logLevel: "off",
+      theme: this._getTheme(false),
+      documentOverride: o.documentOverride,
+      fontFamily: o.fontFamily,
+      fontWeight: o.fontWeight,
+      fontWeightBold: o.fontWeightBold,
+      fontSize: o.fontSize,
+      letterSpacing: o.letterSpacing,
+      lineHeight: o.lineHeight,
+      drawBoldTextInBrightColors: o.drawBoldTextInBrightColors,
+      minimumContrastRatio: o.minimumContrastRatio,
+      tabStopWidth: o.tabStopWidth
+    };
+  }
+  async _refreshGpuAcceleration() {
+    if (this._shouldLoadWebgl() && (!this._webglAddon.value || this._webglAddonCustomGlyphs !== this._terminalConfigurationService.config.customGlyphs)) {
+      const WebglAddon = await this._xtermAddonLoader.importAddon("webgl");
+      if (this._store.isDisposed) {
+        return;
+      }
+      this._webglAddon.value = new WebglAddon({
+        customGlyphs: this._terminalConfigurationService.config.customGlyphs
+      });
+      this._webglAddonCustomGlyphs = this._terminalConfigurationService.config.customGlyphs;
+      this._stickyScrollOverlay?.loadAddon(this._webglAddon.value);
+    } else if (!this._shouldLoadWebgl() && this._webglAddon.value) {
+      this._webglAddon.clear();
+    }
+  }
+  _shouldLoadWebgl() {
+    return this._terminalConfigurationService.config.gpuAcceleration === "auto" || this._terminalConfigurationService.config.gpuAcceleration === "on";
+  }
+  _getTheme(isHovering) {
+    const theme = this._themeService.getColorTheme();
+    return {
+      ...this._xterm.getXtermTheme(),
+      background: isHovering ? theme.getColor(terminalStickyScrollHoverBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString() : theme.getColor(terminalStickyScrollBackground)?.toString() ?? this._xtermColorProvider.getBackgroundColor(theme)?.toString(),
+      selectionBackground: void 0,
+      selectionInactiveBackground: void 0
+    };
+  }
+  _isClearCommand(command) {
+    if (!command.command) {
+      return false;
+    }
+    const trimmedCommand = command.command.trim().toLowerCase();
+    const clearCommands = [
+      "clear",
+      "cls",
+      "clear-host"
+    ];
+    return clearCommands.includes(trimmedCommand);
+  }
+};
+__decorate([
+  debounce(100)
+], TerminalStickyScrollOverlay.prototype, "_show", null);
+__decorate([
+  throttle(0)
+], TerminalStickyScrollOverlay.prototype, "_syncOptions", null);
+__decorate([
+  throttle(0)
+], TerminalStickyScrollOverlay.prototype, "_refreshGpuAcceleration", null);
+TerminalStickyScrollOverlay = __decorate([
+  __param(5, IConfigurationService),
+  __param(6, IContextKeyService),
+  __param(7, IContextMenuService),
+  __param(8, IKeybindingService),
+  __param(9, IMenuService),
+  __param(10, ITerminalConfigurationService),
+  __param(11, IThemeService)
+], TerminalStickyScrollOverlay);
+function lineStartsWith(line, text) {
+  if (!line) {
+    return false;
+  }
+  for (let i = 0; i < text.length; i++) {
+    if (line.getCell(i)?.getChars() !== text[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(lineStartsWith, "lineStartsWith");
+export {
+  TerminalStickyScrollOverlay
+};
+//# sourceMappingURL=terminalStickyScrollOverlay.js.map

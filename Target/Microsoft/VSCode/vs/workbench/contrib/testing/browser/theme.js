@@ -1,21 +1,217 @@
-import{localize as t}from"../../../../nls.js";import{$yq as C,$xq as w,$tq as F,$uq as P,$us as x,$qs as B,$gq as n,$Br as l,$Cr as c,$Iq as d,$Uq as g,$Jq as E,$1q as i,$7p as v,$1p as e,$6p as r}from"../../../../platform/theme/common/colorRegistry.js";import{$vu as U}from"../../../../platform/theme/common/themeService.js";const m=e("testing.iconFailed",{dark:"#f14c4c",light:"#f14c4c",hcDark:"#f14c4c",hcLight:"#B5200D"},t(14033,null)),D=e("testing.iconErrored",{dark:"#f14c4c",light:"#f14c4c",hcDark:"#f14c4c",hcLight:"#B5200D"},t(14034,null)),h=e("testing.iconPassed",{dark:"#73c991",light:"#73c991",hcDark:"#73c991",hcLight:"#007100"},t(14035,null)),J=e("testing.runAction",h,t(14036,null)),f=e("testing.iconQueued","#cca700",t(14037,null)),L=e("testing.iconUnset","#848484",t(14038,null)),q=e("testing.iconSkipped","#848484",t(14039,null)),K=e("testing.peekBorder",{dark:g,light:g,hcDark:n,hcLight:n},t(14040,null)),M=e("testing.messagePeekBorder",{dark:i,light:i,hcDark:n,hcLight:n},t(14041,null)),N=e("testing.peekHeaderBackground",{dark:r(g,.1),light:r(g,.1),hcDark:null,hcLight:null},t(14042,null)),T=e("testing.messagePeekHeaderBackground",{dark:r(i,.1),light:r(i,.1),hcDark:null,hcLight:null},t(14043,null)),u=e("testing.coveredBackground",{dark:l,light:l,hcDark:null,hcLight:null},t(14044,null)),y=e("testing.coveredBorder",{dark:r(u,.75),light:r(u,.75),hcDark:n,hcLight:n},t(14045,null)),V=e("testing.coveredGutterBackground",{dark:r(l,.6),light:r(l,.6),hcDark:x,hcLight:x},t(14046,null)),W=e("testing.uncoveredBranchBackground",{dark:v(r(c,2),d),light:v(r(c,2),d),hcDark:null,hcLight:null},t(14047,null)),s=e("testing.uncoveredBackground",{dark:c,light:c,hcDark:null,hcLight:null},t(14048,null)),z=e("testing.uncoveredBorder",{dark:r(s,.75),light:r(s,.75),hcDark:n,hcLight:n},t(14049,null)),X=e("testing.uncoveredGutterBackground",{dark:r(c,1.5),light:r(c,1.5),hcDark:B,hcLight:B},t(14050,null)),Y=e("testing.coverCountBadgeBackground",F,t(14051,null)),Z=e("testing.coverCountBadgeForeground",P,t(14052,null)),b=e("testing.message.error.badgeBackground",C,t(14053,null));e("testing.message.error.badgeBorder",b,t(14054,null));e("testing.message.error.badgeForeground",w,t(14055,null));e("testing.message.error.lineBackground",null,t(14056,null));e("testing.message.info.decorationForeground",r(E,.5),t(14057,null));e("testing.message.info.lineBackground",null,t(14058,null));const _={6:D,4:m,3:h,1:f,0:L,5:q},A=e("testing.iconErrored.retired",r(D,.7),t(14059,null)),G=e("testing.iconFailed.retired",r(m,.7),t(14060,null)),H=e("testing.iconPassed.retired",r(h,.7),t(14061,null)),O=e("testing.iconQueued.retired",r(f,.7),t(14062,null)),Q=e("testing.iconUnset.retired",r(L,.7),t(14063,null)),R=e("testing.iconSkipped.retired",r(q,.7),t(14064,null)),tt={6:A,4:G,3:H,1:O,0:Q,5:R};U((o,k)=>{const a=o.getColor(d);if(k.addRule(`
+import { localize } from "../../../../nls.js";
+import { activityErrorBadgeBackground, activityErrorBadgeForeground, badgeBackground, badgeForeground, chartsGreen, chartsRed, contrastBorder, diffInserted, diffRemoved, editorBackground, editorErrorForeground, editorForeground, editorInfoForeground, opaque, registerColor, transparent } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+const testingColorIconFailed = registerColor("testing.iconFailed", {
+  dark: "#f14c4c",
+  light: "#f14c4c",
+  hcDark: "#f14c4c",
+  hcLight: "#B5200D"
+}, localize("testing.iconFailed", "Color for the 'failed' icon in the test explorer."));
+const testingColorIconErrored = registerColor("testing.iconErrored", {
+  dark: "#f14c4c",
+  light: "#f14c4c",
+  hcDark: "#f14c4c",
+  hcLight: "#B5200D"
+}, localize("testing.iconErrored", "Color for the 'Errored' icon in the test explorer."));
+const testingColorIconPassed = registerColor("testing.iconPassed", {
+  dark: "#73c991",
+  light: "#73c991",
+  hcDark: "#73c991",
+  hcLight: "#007100"
+}, localize("testing.iconPassed", "Color for the 'passed' icon in the test explorer."));
+const testingColorRunAction = registerColor("testing.runAction", testingColorIconPassed, localize("testing.runAction", "Color for 'run' icons in the editor."));
+const testingColorIconQueued = registerColor("testing.iconQueued", "#cca700", localize("testing.iconQueued", "Color for the 'Queued' icon in the test explorer."));
+const testingColorIconUnset = registerColor("testing.iconUnset", "#848484", localize("testing.iconUnset", "Color for the 'Unset' icon in the test explorer."));
+const testingColorIconSkipped = registerColor("testing.iconSkipped", "#848484", localize("testing.iconSkipped", "Color for the 'Skipped' icon in the test explorer."));
+const testingPeekBorder = registerColor("testing.peekBorder", {
+  dark: editorErrorForeground,
+  light: editorErrorForeground,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("testing.peekBorder", "Color of the peek view borders and arrow."));
+const testingMessagePeekBorder = registerColor("testing.messagePeekBorder", {
+  dark: editorInfoForeground,
+  light: editorInfoForeground,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("testing.messagePeekBorder", "Color of the peek view borders and arrow when peeking a logged message."));
+const testingPeekHeaderBackground = registerColor("testing.peekHeaderBackground", {
+  dark: transparent(editorErrorForeground, 0.1),
+  light: transparent(editorErrorForeground, 0.1),
+  hcDark: null,
+  hcLight: null
+}, localize("testing.peekBorder", "Color of the peek view borders and arrow."));
+const testingPeekMessageHeaderBackground = registerColor("testing.messagePeekHeaderBackground", {
+  dark: transparent(editorInfoForeground, 0.1),
+  light: transparent(editorInfoForeground, 0.1),
+  hcDark: null,
+  hcLight: null
+}, localize("testing.messagePeekHeaderBackground", "Color of the peek view borders and arrow when peeking a logged message."));
+const testingCoveredBackground = registerColor("testing.coveredBackground", {
+  dark: diffInserted,
+  light: diffInserted,
+  hcDark: null,
+  hcLight: null
+}, localize("testing.coveredBackground", "Background color of text that was covered."));
+const testingCoveredBorder = registerColor("testing.coveredBorder", {
+  dark: transparent(testingCoveredBackground, 0.75),
+  light: transparent(testingCoveredBackground, 0.75),
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("testing.coveredBorder", "Border color of text that was covered."));
+const testingCoveredGutterBackground = registerColor("testing.coveredGutterBackground", {
+  dark: transparent(diffInserted, 0.6),
+  light: transparent(diffInserted, 0.6),
+  hcDark: chartsGreen,
+  hcLight: chartsGreen
+}, localize("testing.coveredGutterBackground", "Gutter color of regions where code was covered."));
+const testingUncoveredBranchBackground = registerColor("testing.uncoveredBranchBackground", {
+  dark: opaque(transparent(diffRemoved, 2), editorBackground),
+  light: opaque(transparent(diffRemoved, 2), editorBackground),
+  hcDark: null,
+  hcLight: null
+}, localize("testing.uncoveredBranchBackground", "Background of the widget shown for an uncovered branch."));
+const testingUncoveredBackground = registerColor("testing.uncoveredBackground", {
+  dark: diffRemoved,
+  light: diffRemoved,
+  hcDark: null,
+  hcLight: null
+}, localize("testing.uncoveredBackground", "Background color of text that was not covered."));
+const testingUncoveredBorder = registerColor("testing.uncoveredBorder", {
+  dark: transparent(testingUncoveredBackground, 0.75),
+  light: transparent(testingUncoveredBackground, 0.75),
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("testing.uncoveredBorder", "Border color of text that was not covered."));
+const testingUncoveredGutterBackground = registerColor("testing.uncoveredGutterBackground", {
+  dark: transparent(diffRemoved, 1.5),
+  light: transparent(diffRemoved, 1.5),
+  hcDark: chartsRed,
+  hcLight: chartsRed
+}, localize("testing.uncoveredGutterBackground", "Gutter color of regions where code not covered."));
+const testingCoverCountBadgeBackground = registerColor("testing.coverCountBadgeBackground", badgeBackground, localize("testing.coverCountBadgeBackground", "Background for the badge indicating execution count"));
+const testingCoverCountBadgeForeground = registerColor("testing.coverCountBadgeForeground", badgeForeground, localize("testing.coverCountBadgeForeground", "Foreground for the badge indicating execution count"));
+const messageBadgeBackground = registerColor("testing.message.error.badgeBackground", activityErrorBadgeBackground, localize("testing.message.error.badgeBackground", "Background color of test error messages shown inline in the editor."));
+registerColor("testing.message.error.badgeBorder", messageBadgeBackground, localize("testing.message.error.badgeBorder", "Border color of test error messages shown inline in the editor."));
+registerColor("testing.message.error.badgeForeground", activityErrorBadgeForeground, localize("testing.message.error.badgeForeground", "Text color of test error messages shown inline in the editor."));
+registerColor("testing.message.error.lineBackground", null, localize("testing.message.error.marginBackground", "Margin color beside error messages shown inline in the editor."));
+registerColor("testing.message.info.decorationForeground", transparent(editorForeground, 0.5), localize("testing.message.info.decorationForeground", "Text color of test info messages shown inline in the editor."));
+registerColor("testing.message.info.lineBackground", null, localize("testing.message.info.marginBackground", "Margin color beside info messages shown inline in the editor."));
+const testStatesToIconColors = {
+  [
+    6
+    /* TestResultState.Errored */
+  ]: testingColorIconErrored,
+  [
+    4
+    /* TestResultState.Failed */
+  ]: testingColorIconFailed,
+  [
+    3
+    /* TestResultState.Passed */
+  ]: testingColorIconPassed,
+  [
+    1
+    /* TestResultState.Queued */
+  ]: testingColorIconQueued,
+  [
+    0
+    /* TestResultState.Unset */
+  ]: testingColorIconUnset,
+  [
+    5
+    /* TestResultState.Skipped */
+  ]: testingColorIconSkipped
+};
+const testingRetiredColorIconErrored = registerColor("testing.iconErrored.retired", transparent(testingColorIconErrored, 0.7), localize("testing.iconErrored.retired", "Retired color for the 'Errored' icon in the test explorer."));
+const testingRetiredColorIconFailed = registerColor("testing.iconFailed.retired", transparent(testingColorIconFailed, 0.7), localize("testing.iconFailed.retired", "Retired color for the 'failed' icon in the test explorer."));
+const testingRetiredColorIconPassed = registerColor("testing.iconPassed.retired", transparent(testingColorIconPassed, 0.7), localize("testing.iconPassed.retired", "Retired color for the 'passed' icon in the test explorer."));
+const testingRetiredColorIconQueued = registerColor("testing.iconQueued.retired", transparent(testingColorIconQueued, 0.7), localize("testing.iconQueued.retired", "Retired color for the 'Queued' icon in the test explorer."));
+const testingRetiredColorIconUnset = registerColor("testing.iconUnset.retired", transparent(testingColorIconUnset, 0.7), localize("testing.iconUnset.retired", "Retired color for the 'Unset' icon in the test explorer."));
+const testingRetiredColorIconSkipped = registerColor("testing.iconSkipped.retired", transparent(testingColorIconSkipped, 0.7), localize("testing.iconSkipped.retired", "Retired color for the 'Skipped' icon in the test explorer."));
+const testStatesToRetiredIconColors = {
+  [
+    6
+    /* TestResultState.Errored */
+  ]: testingRetiredColorIconErrored,
+  [
+    4
+    /* TestResultState.Failed */
+  ]: testingRetiredColorIconFailed,
+  [
+    3
+    /* TestResultState.Passed */
+  ]: testingRetiredColorIconPassed,
+  [
+    1
+    /* TestResultState.Queued */
+  ]: testingRetiredColorIconQueued,
+  [
+    0
+    /* TestResultState.Unset */
+  ]: testingRetiredColorIconUnset,
+  [
+    5
+    /* TestResultState.Skipped */
+  ]: testingRetiredColorIconSkipped
+};
+registerThemingParticipant((theme, collector) => {
+  const editorBg = theme.getColor(editorBackground);
+  collector.addRule(`
 	.coverage-deco-inline.coverage-deco-hit.coverage-deco-hovered {
-		background: ${o.getColor(u)?.transparent(1.3)};
-		outline-color: ${o.getColor(y)?.transparent(2)};
+		background: ${theme.getColor(testingCoveredBackground)?.transparent(1.3)};
+		outline-color: ${theme.getColor(testingCoveredBorder)?.transparent(2)};
 	}
 	.coverage-deco-inline.coverage-deco-miss.coverage-deco-hovered {
-		background: ${o.getColor(s)?.transparent(1.3)};
-		outline-color: ${o.getColor(z)?.transparent(2)};
+		background: ${theme.getColor(testingUncoveredBackground)?.transparent(1.3)};
+		outline-color: ${theme.getColor(testingUncoveredBorder)?.transparent(2)};
 	}
-		`),a){const $=o.getColor(s)?.transparent(2).makeOpaque(a),p=o.getColor(b)?.makeOpaque(a);k.addRule(`
+		`);
+  if (editorBg) {
+    const missBadgeBackground = theme.getColor(testingUncoveredBackground)?.transparent(2).makeOpaque(editorBg);
+    const errorBadgeBackground = theme.getColor(messageBadgeBackground)?.makeOpaque(editorBg);
+    collector.addRule(`
 			.coverage-deco-branch-miss-indicator::before {
-				border-color: ${$?.transparent(1.3)};
-				background-color: ${$};
+				border-color: ${missBadgeBackground?.transparent(1.3)};
+				background-color: ${missBadgeBackground};
 			}
 			.monaco-workbench .test-error-content-widget .inner{
-				background: ${p};
+				background: ${errorBadgeBackground};
 			}
 			.monaco-workbench .test-error-content-widget .inner .arrow svg {
-				fill: ${p};
+				fill: ${errorBadgeBackground};
 			}
-		`)}});export{H as $Atc,O as $Btc,Q as $Ctc,R as $Dtc,tt as $Etc,m as $dtc,D as $etc,h as $ftc,J as $gtc,f as $htc,L as $itc,q as $jtc,K as $ktc,M as $ltc,N as $mtc,T as $ntc,u as $otc,y as $ptc,V as $qtc,W as $rtc,s as $stc,z as $ttc,X as $utc,Y as $vtc,Z as $wtc,_ as $xtc,A as $ytc,G as $ztc};
+		`);
+  }
+});
+export {
+  testStatesToIconColors,
+  testStatesToRetiredIconColors,
+  testingColorIconErrored,
+  testingColorIconFailed,
+  testingColorIconPassed,
+  testingColorIconQueued,
+  testingColorIconSkipped,
+  testingColorIconUnset,
+  testingColorRunAction,
+  testingCoverCountBadgeBackground,
+  testingCoverCountBadgeForeground,
+  testingCoveredBackground,
+  testingCoveredBorder,
+  testingCoveredGutterBackground,
+  testingMessagePeekBorder,
+  testingPeekBorder,
+  testingPeekHeaderBackground,
+  testingPeekMessageHeaderBackground,
+  testingRetiredColorIconErrored,
+  testingRetiredColorIconFailed,
+  testingRetiredColorIconPassed,
+  testingRetiredColorIconQueued,
+  testingRetiredColorIconSkipped,
+  testingRetiredColorIconUnset,
+  testingUncoveredBackground,
+  testingUncoveredBorder,
+  testingUncoveredBranchBackground,
+  testingUncoveredGutterBackground
+};
+//# sourceMappingURL=theme.js.map

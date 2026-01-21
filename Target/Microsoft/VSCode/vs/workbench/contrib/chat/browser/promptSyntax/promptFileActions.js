@@ -1,1 +1,24 @@
-import{$yYb as o}from"./attachInstructionsAction.js";import{$Wmc as r}from"./chatModeActions.js";import{$Xmc as t}from"./runPromptAction.js";import{$wYb as $}from"./newPromptFileActions.js";import{$Ymc as c}from"./skillActions.js";import{$tL as m}from"../../../../../platform/actions/common/actions.js";import{$3mc as f,$5mc as i,$1mc as p}from"./saveAsPromptFileActions.js";function y(){t(),o(),c(),m(p),m(i),m(f),r(),$()}export{y as $6mc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { registerAttachPromptActions } from "./attachInstructionsAction.js";
+import { registerAgentActions } from "./chatModeActions.js";
+import { registerRunPromptActions } from "./runPromptAction.js";
+import { registerNewPromptFileActions } from "./newPromptFileActions.js";
+import { registerSkillActions } from "./skillActions.js";
+import { registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { SaveAsAgentFileAction, SaveAsInstructionsFileAction, SaveAsPromptFileAction } from "./saveAsPromptFileActions.js";
+function registerPromptActions() {
+  registerRunPromptActions();
+  registerAttachPromptActions();
+  registerSkillActions();
+  registerAction2(SaveAsPromptFileAction);
+  registerAction2(SaveAsInstructionsFileAction);
+  registerAction2(SaveAsAgentFileAction);
+  registerAgentActions();
+  registerNewPromptFileActions();
+}
+__name(registerPromptActions, "registerPromptActions");
+export {
+  registerPromptActions
+};
+//# sourceMappingURL=promptFileActions.js.map

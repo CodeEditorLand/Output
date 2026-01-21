@@ -1,1 +1,576 @@
-import{CancellationToken as k}from"../../../base/common/cancellation.js";import{$wf as c}from"../../../base/common/event.js";import{$zd as H}from"../../../base/common/lifecycle.js";import{$b1 as T}from"./extHost.protocol.js";import{$H2 as I,QuickPickItemKind as v,InputBoxValidationSeverity as D}from"./extHostTypes.js";import{$rb as P}from"../../../base/common/errors.js";import{$$b as b}from"../../../base/common/arrays.js";import h from"../../../base/common/severity.js";import{$8R as S}from"../../services/extensions/common/extensions.js";import{IconPath as g,MarkdownString as _}from"./extHostTypeConverters.js";function L($,C,E){const a=$.getProxy(T.MainThreadQuickOpen);class x{constructor(t,e){this.e=new Map,this.f=0,this.a=t,this.b=e}showQuickPick(t,e,i,s=k.None){this.c=void 0;const o=Promise.resolve(e),l=++this.f,y=a.$show(l,{title:i?.title,placeHolder:i?.placeHolder,prompt:i?.prompt,matchOnDescription:i?.matchOnDescription,matchOnDetail:i?.matchOnDetail,ignoreFocusLost:i?.ignoreFocusOut,canPickMany:i?.canPickMany},s),A={},O=y.then(()=>A);return Promise.race([O,o]).then(d=>{if(d!==A)return o.then(f=>{const p=[];for(let n=0;n<f.length;n++){const r=f[n];typeof r=="string"?p.push({label:r,handle:n}):r.kind===v.Separator?p.push({type:"separator",label:r.label}):(r.tooltip&&S(t,"quickPickItemTooltip"),p.push({label:r.label,iconPathDto:g.from(r.iconPath),description:r.description,detail:r.detail,picked:r.picked,alwaysShow:r.alwaysShow,tooltip:_.fromStrict(r.tooltip),resourceUri:r.resourceUri,handle:n}))}return i&&typeof i.onDidSelectItem=="function"&&(this.c=n=>{i.onDidSelectItem(f[n])}),a.$setItems(l,p),y.then(n=>{if(typeof n=="number")return f[n];if(Array.isArray(n))return n.map(r=>f[r])})})}).then(void 0,d=>{if(!P(d))return a.$setError(l,d),Promise.reject(d)})}$onItemSelected(t){this.c?.(t)}showInput(t,e=k.None){return this.d=t?.validateInput,a.$input(t,typeof this.d=="function",e).then(void 0,i=>{if(!P(i))return Promise.reject(i)})}async $validateInput(t){if(!this.d)return;const e=await this.d(t);if(!e||typeof e=="string")return e;let i;switch(e.severity){case D.Info:i=h.Info;break;case D.Warning:i=h.Warning;break;case D.Error:i=h.Error;break;default:i=e.message?h.Error:h.Ignore;break}return{content:e.message,severity:i}}async showWorkspaceFolderPick(t,e=k.None){const i=await this.b.executeCommand("_workbench.pickWorkspaceFolder",[t]);if(!i)return;const s=await this.a.getWorkspaceFolders2();if(s)return s.find(o=>o.uri.toString()===i.uri.toString())}createQuickPick(t){const e=new u(t,()=>this.e.delete(e._id));return this.e.set(e._id,e),e}createInputBox(t){const e=new B(t,()=>this.e.delete(e._id));return this.e.set(e._id,e),e}$onDidChangeValue(t,e){this.e.get(t)?._fireDidChangeValue(e)}$onDidAccept(t){this.e.get(t)?._fireDidAccept()}$onDidChangeActive(t,e){const i=this.e.get(t);i instanceof u&&i._fireDidChangeActive(e)}$onDidChangeSelection(t,e){const i=this.e.get(t);i instanceof u&&i._fireDidChangeSelection(e)}$onDidTriggerButton(t,e,i){this.e.get(t)?._fireDidTriggerButton(e,i)}$onDidTriggerItemButton(t,e,i){const s=this.e.get(t);s instanceof u&&s._fireDidTriggerItemButton(e,i)}$onDidHide(t){this.e.get(t)?._fireDidHide()}}class w{static{this.a=1}constructor(t,e){this.y=t,this.z=e,this._id=u.a++,this.e=!1,this.f=!1,this.g=!0,this.j=!1,this.k=!0,this.l="",this.m=void 0,this.o=[],this.p=new Map,this.q=new c,this.r=new c,this.s=new c,this.t=new c,this.v={id:this._id},this.w=!1,this.x=[this.s,this.t,this.q,this.r],this.onDidChangeValue=this.r.event,this.onDidAccept=this.q.event,this.onDidTriggerButton=this.s.event,this.onDidHide=this.t.event}get title(){return this.b}set title(t){this.b=t,this.A({title:t})}get step(){return this.c}set step(t){this.c=t,this.A({step:t})}get totalSteps(){return this.d}set totalSteps(t){this.d=t,this.A({totalSteps:t})}get enabled(){return this.g}set enabled(t){this.g=t,this.A({enabled:t})}get busy(){return this.j}set busy(t){this.j=t,this.A({busy:t})}get ignoreFocusOut(){return this.k}set ignoreFocusOut(t){this.k=t,this.A({ignoreFocusOut:t})}get value(){return this.l}set value(t){this.l=t,this.A({value:t})}get valueSelection(){return this.m}set valueSelection(t){this.m=t,this.A({valueSelection:t})}get placeholder(){return this.n}set placeholder(t){this.n=t,this.A({placeholder:t})}get buttons(){return this.o}set buttons(t){this.o=t.slice(),this.p.clear(),t.forEach((e,i)=>{const s=e===I.Back?-1:i;this.p.set(s,e)}),this.A({buttons:t.map((e,i)=>({iconPathDto:g.from(e.iconPath),tooltip:e.tooltip,handle:e===I.Back?-1:i,location:typeof e.location=="number"?e.location:void 0,toggle:typeof e.toggle=="object"&&typeof e.toggle.checked=="boolean"?{checked:e.toggle.checked}:void 0}))})}show(){this.e=!0,this.f=!0,this.A({visible:!0})}hide(){this.e=!1,this.A({visible:!1})}_fireDidAccept(){this.q.fire()}_fireDidChangeValue(t){this.l=t,this.r.fire(t)}_fireDidTriggerButton(t,e){const i=this.p.get(t);i&&(e!==void 0&&i.toggle&&(i.toggle.checked=e),this.s.fire(i))}_fireDidHide(){this.f&&(this.f=this.e,this.t.fire())}dispose(){this.w||(this.w=!0,this._fireDidHide(),this.x=H(this.x),this.u&&(clearTimeout(this.u),this.u=void 0),this.z(),a.$dispose(this._id))}A(t){if(!this.w){for(const e of Object.keys(t)){const i=t[e];this.v[e]=i===void 0?null:i}"visible"in this.v?(this.u&&(clearTimeout(this.u),this.u=void 0),this.B()):this.e&&!this.u&&(this.u=setTimeout(()=>{this.u=void 0,this.B()},0))}}B(){a.$createOrUpdate(this.v),this.v={id:this._id}}}class u extends w{constructor(t,e){super(t,e),this.C=[],this.D=new Map,this.E=new Map,this.F=!1,this.G=!0,this.H=!0,this.I=!0,this.J=!1,this.K=[],this.M=new c,this.N=[],this.O=new c,this.P=new c,this.onDidChangeActive=this.M.event,this.onDidChangeSelection=this.O.event,this.onDidTriggerItemButton=this.P.event,this.x.push(this.M,this.O,this.P),this.A({type:"quickPick"})}get items(){return this.C}set items(t){this.C=t.slice(),this.D.clear(),this.E.clear(),t.forEach((i,s)=>{this.D.set(s,i),this.E.set(i,s)});const e=[];for(let i=0;i<t.length;i++){const s=t[i];s.kind===v.Separator?e.push({type:"separator",label:s.label}):(s.tooltip&&S(this.y,"quickPickItemTooltip"),e.push({handle:i,label:s.label,iconPathDto:g.from(s.iconPath),description:s.description,detail:s.detail,picked:s.picked,alwaysShow:s.alwaysShow,tooltip:_.fromStrict(s.tooltip),resourceUri:s.resourceUri,buttons:s.buttons?.map((o,l)=>({iconPathDto:g.from(o.iconPath),tooltip:o.tooltip,handle:l}))}))}this.A({items:e})}get canSelectMany(){return this.F}set canSelectMany(t){this.F=t,this.A({canSelectMany:t})}get matchOnDescription(){return this.G}set matchOnDescription(t){this.G=t,this.A({matchOnDescription:t})}get matchOnDetail(){return this.H}set matchOnDetail(t){this.H=t,this.A({matchOnDetail:t})}get sortByLabel(){return this.I}set sortByLabel(t){this.I=t,this.A({sortByLabel:t})}get keepScrollPosition(){return this.J}set keepScrollPosition(t){this.J=t,this.A({keepScrollPosition:t})}get prompt(){return this.L}set prompt(t){this.L=t,this.A({prompt:t})}get activeItems(){return this.K}set activeItems(t){this.K=t.filter(e=>this.E.has(e)),this.A({activeItems:this.K.map(e=>this.E.get(e))})}get selectedItems(){return this.N}set selectedItems(t){this.N=t.filter(e=>this.E.has(e)),this.A({selectedItems:this.N.map(e=>this.E.get(e))})}_fireDidChangeActive(t){const e=b(t.map(i=>this.D.get(i)));this.K=e,this.M.fire(e)}_fireDidChangeSelection(t){const e=b(t.map(i=>this.D.get(i)));this.N=e,this.O.fire(e)}_fireDidTriggerItemButton(t,e){const i=this.D.get(t);if(!i||!i.buttons||!i.buttons.length)return;const s=i.buttons[e];s&&this.P.fire({button:s,item:i})}}class B extends w{constructor(t,e){super(t,e),this.C=!1,this.A({type:"inputBox"})}get password(){return this.C}set password(t){this.C=t,this.A({password:t})}get prompt(){return this.D}set prompt(t){this.D=t,this.A({prompt:t})}get validationMessage(){return this.E}set validationMessage(t){this.E=t,t?typeof t=="string"?this.A({validationMessage:t,severity:h.Error}):this.A({validationMessage:t.message,severity:t.severity??h.Error}):this.A({validationMessage:void 0,severity:h.Ignore})}}return new x(C,E)}export{L as $5Xc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter } from "../../../base/common/event.js";
+import { dispose } from "../../../base/common/lifecycle.js";
+import { MainContext } from "./extHost.protocol.js";
+import { QuickInputButtons, QuickPickItemKind, InputBoxValidationSeverity } from "./extHostTypes.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { coalesce } from "../../../base/common/arrays.js";
+import Severity from "../../../base/common/severity.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { IconPath, MarkdownString } from "./extHostTypeConverters.js";
+function createExtHostQuickOpen(mainContext, workspace, commands) {
+  const proxy = mainContext.getProxy(MainContext.MainThreadQuickOpen);
+  class ExtHostQuickOpenImpl {
+    static {
+      __name(this, "ExtHostQuickOpenImpl");
+    }
+    constructor(workspace2, commands2) {
+      this._sessions = /* @__PURE__ */ new Map();
+      this._instances = 0;
+      this._workspace = workspace2;
+      this._commands = commands2;
+    }
+    showQuickPick(extension, itemsOrItemsPromise, options, token = CancellationToken.None) {
+      this._onDidSelectItem = void 0;
+      const itemsPromise = Promise.resolve(itemsOrItemsPromise);
+      const instance = ++this._instances;
+      const quickPickWidget = proxy.$show(instance, {
+        title: options?.title,
+        placeHolder: options?.placeHolder,
+        prompt: options?.prompt,
+        matchOnDescription: options?.matchOnDescription,
+        matchOnDetail: options?.matchOnDetail,
+        ignoreFocusLost: options?.ignoreFocusOut,
+        canPickMany: options?.canPickMany
+      }, token);
+      const widgetClosedMarker = {};
+      const widgetClosedPromise = quickPickWidget.then(() => widgetClosedMarker);
+      return Promise.race([widgetClosedPromise, itemsPromise]).then((result) => {
+        if (result === widgetClosedMarker) {
+          return void 0;
+        }
+        return itemsPromise.then((items) => {
+          const pickItems = [];
+          for (let handle = 0; handle < items.length; handle++) {
+            const item = items[handle];
+            if (typeof item === "string") {
+              pickItems.push({ label: item, handle });
+            } else if (item.kind === QuickPickItemKind.Separator) {
+              pickItems.push({ type: "separator", label: item.label });
+            } else {
+              if (item.tooltip) {
+                checkProposedApiEnabled(extension, "quickPickItemTooltip");
+              }
+              pickItems.push({
+                label: item.label,
+                iconPathDto: IconPath.from(item.iconPath),
+                description: item.description,
+                detail: item.detail,
+                picked: item.picked,
+                alwaysShow: item.alwaysShow,
+                tooltip: MarkdownString.fromStrict(item.tooltip),
+                resourceUri: item.resourceUri,
+                handle
+              });
+            }
+          }
+          if (options && typeof options.onDidSelectItem === "function") {
+            this._onDidSelectItem = (handle) => {
+              options.onDidSelectItem(items[handle]);
+            };
+          }
+          proxy.$setItems(instance, pickItems);
+          return quickPickWidget.then((handle) => {
+            if (typeof handle === "number") {
+              return items[handle];
+            } else if (Array.isArray(handle)) {
+              return handle.map((h) => items[h]);
+            }
+            return void 0;
+          });
+        });
+      }).then(void 0, (err) => {
+        if (isCancellationError(err)) {
+          return void 0;
+        }
+        proxy.$setError(instance, err);
+        return Promise.reject(err);
+      });
+    }
+    $onItemSelected(handle) {
+      this._onDidSelectItem?.(handle);
+    }
+    // ---- input
+    showInput(options, token = CancellationToken.None) {
+      this._validateInput = options?.validateInput;
+      return proxy.$input(options, typeof this._validateInput === "function", token).then(void 0, (err) => {
+        if (isCancellationError(err)) {
+          return void 0;
+        }
+        return Promise.reject(err);
+      });
+    }
+    async $validateInput(input) {
+      if (!this._validateInput) {
+        return;
+      }
+      const result = await this._validateInput(input);
+      if (!result || typeof result === "string") {
+        return result;
+      }
+      let severity;
+      switch (result.severity) {
+        case InputBoxValidationSeverity.Info:
+          severity = Severity.Info;
+          break;
+        case InputBoxValidationSeverity.Warning:
+          severity = Severity.Warning;
+          break;
+        case InputBoxValidationSeverity.Error:
+          severity = Severity.Error;
+          break;
+        default:
+          severity = result.message ? Severity.Error : Severity.Ignore;
+          break;
+      }
+      return {
+        content: result.message,
+        severity
+      };
+    }
+    // ---- workspace folder picker
+    async showWorkspaceFolderPick(options, token = CancellationToken.None) {
+      const selectedFolder = await this._commands.executeCommand("_workbench.pickWorkspaceFolder", [options]);
+      if (!selectedFolder) {
+        return void 0;
+      }
+      const workspaceFolders = await this._workspace.getWorkspaceFolders2();
+      if (!workspaceFolders) {
+        return void 0;
+      }
+      return workspaceFolders.find((folder) => folder.uri.toString() === selectedFolder.uri.toString());
+    }
+    // ---- QuickInput
+    createQuickPick(extension) {
+      const session = new ExtHostQuickPick(extension, () => this._sessions.delete(session._id));
+      this._sessions.set(session._id, session);
+      return session;
+    }
+    createInputBox(extension) {
+      const session = new ExtHostInputBox(extension, () => this._sessions.delete(session._id));
+      this._sessions.set(session._id, session);
+      return session;
+    }
+    $onDidChangeValue(sessionId, value) {
+      const session = this._sessions.get(sessionId);
+      session?._fireDidChangeValue(value);
+    }
+    $onDidAccept(sessionId) {
+      const session = this._sessions.get(sessionId);
+      session?._fireDidAccept();
+    }
+    $onDidChangeActive(sessionId, handles) {
+      const session = this._sessions.get(sessionId);
+      if (session instanceof ExtHostQuickPick) {
+        session._fireDidChangeActive(handles);
+      }
+    }
+    $onDidChangeSelection(sessionId, handles) {
+      const session = this._sessions.get(sessionId);
+      if (session instanceof ExtHostQuickPick) {
+        session._fireDidChangeSelection(handles);
+      }
+    }
+    $onDidTriggerButton(sessionId, handle, checked) {
+      const session = this._sessions.get(sessionId);
+      session?._fireDidTriggerButton(handle, checked);
+    }
+    $onDidTriggerItemButton(sessionId, itemHandle, buttonHandle) {
+      const session = this._sessions.get(sessionId);
+      if (session instanceof ExtHostQuickPick) {
+        session._fireDidTriggerItemButton(itemHandle, buttonHandle);
+      }
+    }
+    $onDidHide(sessionId) {
+      const session = this._sessions.get(sessionId);
+      session?._fireDidHide();
+    }
+  }
+  class ExtHostQuickInput {
+    static {
+      __name(this, "ExtHostQuickInput");
+    }
+    static {
+      this._nextId = 1;
+    }
+    constructor(_extension, _onDidDispose) {
+      this._extension = _extension;
+      this._onDidDispose = _onDidDispose;
+      this._id = ExtHostQuickPick._nextId++;
+      this._visible = false;
+      this._expectingHide = false;
+      this._enabled = true;
+      this._busy = false;
+      this._ignoreFocusOut = true;
+      this._value = "";
+      this._valueSelection = void 0;
+      this._buttons = [];
+      this._handlesToButtons = /* @__PURE__ */ new Map();
+      this._onDidAcceptEmitter = new Emitter();
+      this._onDidChangeValueEmitter = new Emitter();
+      this._onDidTriggerButtonEmitter = new Emitter();
+      this._onDidHideEmitter = new Emitter();
+      this._pendingUpdate = { id: this._id };
+      this._disposed = false;
+      this._disposables = [
+        this._onDidTriggerButtonEmitter,
+        this._onDidHideEmitter,
+        this._onDidAcceptEmitter,
+        this._onDidChangeValueEmitter
+      ];
+      this.onDidChangeValue = this._onDidChangeValueEmitter.event;
+      this.onDidAccept = this._onDidAcceptEmitter.event;
+      this.onDidTriggerButton = this._onDidTriggerButtonEmitter.event;
+      this.onDidHide = this._onDidHideEmitter.event;
+    }
+    get title() {
+      return this._title;
+    }
+    set title(title) {
+      this._title = title;
+      this.update({ title });
+    }
+    get step() {
+      return this._steps;
+    }
+    set step(step) {
+      this._steps = step;
+      this.update({ step });
+    }
+    get totalSteps() {
+      return this._totalSteps;
+    }
+    set totalSteps(totalSteps) {
+      this._totalSteps = totalSteps;
+      this.update({ totalSteps });
+    }
+    get enabled() {
+      return this._enabled;
+    }
+    set enabled(enabled) {
+      this._enabled = enabled;
+      this.update({ enabled });
+    }
+    get busy() {
+      return this._busy;
+    }
+    set busy(busy) {
+      this._busy = busy;
+      this.update({ busy });
+    }
+    get ignoreFocusOut() {
+      return this._ignoreFocusOut;
+    }
+    set ignoreFocusOut(ignoreFocusOut) {
+      this._ignoreFocusOut = ignoreFocusOut;
+      this.update({ ignoreFocusOut });
+    }
+    get value() {
+      return this._value;
+    }
+    set value(value) {
+      this._value = value;
+      this.update({ value });
+    }
+    get valueSelection() {
+      return this._valueSelection;
+    }
+    set valueSelection(valueSelection) {
+      this._valueSelection = valueSelection;
+      this.update({ valueSelection });
+    }
+    get placeholder() {
+      return this._placeholder;
+    }
+    set placeholder(placeholder) {
+      this._placeholder = placeholder;
+      this.update({ placeholder });
+    }
+    get buttons() {
+      return this._buttons;
+    }
+    set buttons(buttons) {
+      this._buttons = buttons.slice();
+      this._handlesToButtons.clear();
+      buttons.forEach((button, i) => {
+        const handle = button === QuickInputButtons.Back ? -1 : i;
+        this._handlesToButtons.set(handle, button);
+      });
+      this.update({
+        buttons: buttons.map((button, i) => {
+          return {
+            iconPathDto: IconPath.from(button.iconPath),
+            tooltip: button.tooltip,
+            handle: button === QuickInputButtons.Back ? -1 : i,
+            location: typeof button.location === "number" ? button.location : void 0,
+            toggle: typeof button.toggle === "object" && typeof button.toggle.checked === "boolean" ? { checked: button.toggle.checked } : void 0
+          };
+        })
+      });
+    }
+    show() {
+      this._visible = true;
+      this._expectingHide = true;
+      this.update({ visible: true });
+    }
+    hide() {
+      this._visible = false;
+      this.update({ visible: false });
+    }
+    _fireDidAccept() {
+      this._onDidAcceptEmitter.fire();
+    }
+    _fireDidChangeValue(value) {
+      this._value = value;
+      this._onDidChangeValueEmitter.fire(value);
+    }
+    _fireDidTriggerButton(handle, checked) {
+      const button = this._handlesToButtons.get(handle);
+      if (button) {
+        if (checked !== void 0 && button.toggle) {
+          button.toggle.checked = checked;
+        }
+        this._onDidTriggerButtonEmitter.fire(button);
+      }
+    }
+    _fireDidHide() {
+      if (this._expectingHide) {
+        this._expectingHide = this._visible;
+        this._onDidHideEmitter.fire();
+      }
+    }
+    dispose() {
+      if (this._disposed) {
+        return;
+      }
+      this._disposed = true;
+      this._fireDidHide();
+      this._disposables = dispose(this._disposables);
+      if (this._updateTimeout) {
+        clearTimeout(this._updateTimeout);
+        this._updateTimeout = void 0;
+      }
+      this._onDidDispose();
+      proxy.$dispose(this._id);
+    }
+    update(properties) {
+      if (this._disposed) {
+        return;
+      }
+      for (const key of Object.keys(properties)) {
+        const value = properties[key];
+        this._pendingUpdate[key] = value === void 0 ? null : value;
+      }
+      if ("visible" in this._pendingUpdate) {
+        if (this._updateTimeout) {
+          clearTimeout(this._updateTimeout);
+          this._updateTimeout = void 0;
+        }
+        this.dispatchUpdate();
+      } else if (this._visible && !this._updateTimeout) {
+        this._updateTimeout = setTimeout(() => {
+          this._updateTimeout = void 0;
+          this.dispatchUpdate();
+        }, 0);
+      }
+    }
+    dispatchUpdate() {
+      proxy.$createOrUpdate(this._pendingUpdate);
+      this._pendingUpdate = { id: this._id };
+    }
+  }
+  class ExtHostQuickPick extends ExtHostQuickInput {
+    static {
+      __name(this, "ExtHostQuickPick");
+    }
+    constructor(extension, onDispose) {
+      super(extension, onDispose);
+      this._items = [];
+      this._handlesToItems = /* @__PURE__ */ new Map();
+      this._itemsToHandles = /* @__PURE__ */ new Map();
+      this._canSelectMany = false;
+      this._matchOnDescription = true;
+      this._matchOnDetail = true;
+      this._sortByLabel = true;
+      this._keepScrollPosition = false;
+      this._activeItems = [];
+      this._onDidChangeActiveEmitter = new Emitter();
+      this._selectedItems = [];
+      this._onDidChangeSelectionEmitter = new Emitter();
+      this._onDidTriggerItemButtonEmitter = new Emitter();
+      this.onDidChangeActive = this._onDidChangeActiveEmitter.event;
+      this.onDidChangeSelection = this._onDidChangeSelectionEmitter.event;
+      this.onDidTriggerItemButton = this._onDidTriggerItemButtonEmitter.event;
+      this._disposables.push(this._onDidChangeActiveEmitter, this._onDidChangeSelectionEmitter, this._onDidTriggerItemButtonEmitter);
+      this.update({ type: "quickPick" });
+    }
+    get items() {
+      return this._items;
+    }
+    set items(items) {
+      this._items = items.slice();
+      this._handlesToItems.clear();
+      this._itemsToHandles.clear();
+      items.forEach((item, i) => {
+        this._handlesToItems.set(i, item);
+        this._itemsToHandles.set(item, i);
+      });
+      const pickItems = [];
+      for (let handle = 0; handle < items.length; handle++) {
+        const item = items[handle];
+        if (item.kind === QuickPickItemKind.Separator) {
+          pickItems.push({ type: "separator", label: item.label });
+        } else {
+          if (item.tooltip) {
+            checkProposedApiEnabled(this._extension, "quickPickItemTooltip");
+          }
+          pickItems.push({
+            handle,
+            label: item.label,
+            iconPathDto: IconPath.from(item.iconPath),
+            description: item.description,
+            detail: item.detail,
+            picked: item.picked,
+            alwaysShow: item.alwaysShow,
+            tooltip: MarkdownString.fromStrict(item.tooltip),
+            resourceUri: item.resourceUri,
+            buttons: item.buttons?.map((button, i) => {
+              return {
+                iconPathDto: IconPath.from(button.iconPath),
+                tooltip: button.tooltip,
+                handle: i
+              };
+            })
+          });
+        }
+      }
+      this.update({
+        items: pickItems
+      });
+    }
+    get canSelectMany() {
+      return this._canSelectMany;
+    }
+    set canSelectMany(canSelectMany) {
+      this._canSelectMany = canSelectMany;
+      this.update({ canSelectMany });
+    }
+    get matchOnDescription() {
+      return this._matchOnDescription;
+    }
+    set matchOnDescription(matchOnDescription) {
+      this._matchOnDescription = matchOnDescription;
+      this.update({ matchOnDescription });
+    }
+    get matchOnDetail() {
+      return this._matchOnDetail;
+    }
+    set matchOnDetail(matchOnDetail) {
+      this._matchOnDetail = matchOnDetail;
+      this.update({ matchOnDetail });
+    }
+    get sortByLabel() {
+      return this._sortByLabel;
+    }
+    set sortByLabel(sortByLabel) {
+      this._sortByLabel = sortByLabel;
+      this.update({ sortByLabel });
+    }
+    get keepScrollPosition() {
+      return this._keepScrollPosition;
+    }
+    set keepScrollPosition(keepScrollPosition) {
+      this._keepScrollPosition = keepScrollPosition;
+      this.update({ keepScrollPosition });
+    }
+    get prompt() {
+      return this._prompt;
+    }
+    set prompt(prompt) {
+      this._prompt = prompt;
+      this.update({ prompt });
+    }
+    get activeItems() {
+      return this._activeItems;
+    }
+    set activeItems(activeItems) {
+      this._activeItems = activeItems.filter((item) => this._itemsToHandles.has(item));
+      this.update({ activeItems: this._activeItems.map((item) => this._itemsToHandles.get(item)) });
+    }
+    get selectedItems() {
+      return this._selectedItems;
+    }
+    set selectedItems(selectedItems) {
+      this._selectedItems = selectedItems.filter((item) => this._itemsToHandles.has(item));
+      this.update({ selectedItems: this._selectedItems.map((item) => this._itemsToHandles.get(item)) });
+    }
+    _fireDidChangeActive(handles) {
+      const items = coalesce(handles.map((handle) => this._handlesToItems.get(handle)));
+      this._activeItems = items;
+      this._onDidChangeActiveEmitter.fire(items);
+    }
+    _fireDidChangeSelection(handles) {
+      const items = coalesce(handles.map((handle) => this._handlesToItems.get(handle)));
+      this._selectedItems = items;
+      this._onDidChangeSelectionEmitter.fire(items);
+    }
+    _fireDidTriggerItemButton(itemHandle, buttonHandle) {
+      const item = this._handlesToItems.get(itemHandle);
+      if (!item || !item.buttons || !item.buttons.length) {
+        return;
+      }
+      const button = item.buttons[buttonHandle];
+      if (button) {
+        this._onDidTriggerItemButtonEmitter.fire({
+          button,
+          item
+        });
+      }
+    }
+  }
+  class ExtHostInputBox extends ExtHostQuickInput {
+    static {
+      __name(this, "ExtHostInputBox");
+    }
+    constructor(extension, onDispose) {
+      super(extension, onDispose);
+      this._password = false;
+      this.update({ type: "inputBox" });
+    }
+    get password() {
+      return this._password;
+    }
+    set password(password) {
+      this._password = password;
+      this.update({ password });
+    }
+    get prompt() {
+      return this._prompt;
+    }
+    set prompt(prompt) {
+      this._prompt = prompt;
+      this.update({ prompt });
+    }
+    get validationMessage() {
+      return this._validationMessage;
+    }
+    set validationMessage(validationMessage) {
+      this._validationMessage = validationMessage;
+      if (!validationMessage) {
+        this.update({ validationMessage: void 0, severity: Severity.Ignore });
+      } else if (typeof validationMessage === "string") {
+        this.update({ validationMessage, severity: Severity.Error });
+      } else {
+        this.update({ validationMessage: validationMessage.message, severity: validationMessage.severity ?? Severity.Error });
+      }
+    }
+  }
+  return new ExtHostQuickOpenImpl(workspace, commands);
+}
+__name(createExtHostQuickOpen, "createExtHostQuickOpen");
+export {
+  createExtHostQuickOpen
+};
+//# sourceMappingURL=extHostQuickOpen.js.map

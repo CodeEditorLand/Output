@@ -1,1 +1,158 @@
-import*as a from"../../../../base/browser/dom.js";import{$0h as g}from"../../../../base/common/async.js";import{$ak as u}from"../../../../base/common/codicons.js";import{$Ed as d,$Fd as l}from"../../../../base/common/lifecycle.js";import{$Xg as b}from"../../../../base/common/strings.js";import{ThemeIcon as $}from"../../../../base/common/themables.js";import"./inlineProgressWidget.css";import{$9D as C}from"../../../common/core/range.js";import{$0K as w}from"../../../common/model/textModel.js";import{$Lj as j}from"../../../../platform/instantiation/common/instantiation.js";var f=function(r,i,t,e){var s=arguments.length,o=s<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,t):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,i,t,e);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(o=(s<3?n(o):s>3?n(i,t,o):n(i,t))||o);return s>3&&o&&Object.defineProperty(i,t,o),o},m=function(r,i){return function(t,e){i(t,e,r)}};const D=w.register({description:"inline-progress-widget",stickiness:1,showIfCollapsed:!0,after:{content:b,inlineClassName:"inline-editor-progress-decoration",inlineClassNameAffectsLetterSpacing:!0}});class c extends d{static{this.a="editor.widget.inlineProgressWidget"}constructor(i,t,e,s,o){super(),this.f=i,this.g=t,this.h=e,this.j=o,this.allowEditorOverflow=!1,this.suppressMouseDown=!0,this.m(s),this.g.addContentWidget(this),this.g.layoutContentWidget(this)}m(i){this.b=a.$(".inline-progress-widget"),this.b.role="button",this.b.title=i;const t=a.$("span.icon");this.b.append(t),t.classList.add(...$.asClassNameArray(u.loading),"codicon-modifier-spin");const e=()=>{const s=this.g.getOption(75);this.b.style.height=`${s}px`,this.b.style.width=`${Math.ceil(.8*s)}px`};e(),this.D(this.g.onDidChangeConfiguration(s=>{(s.hasChanged(61)||s.hasChanged(75))&&e()})),this.D(a.$F7(this.b,a.$B8.CLICK,s=>{this.j.cancel()}))}getId(){return c.a+"."+this.f}getDomNode(){return this.b}getPosition(){return{position:{lineNumber:this.h.startLineNumber,column:this.h.startColumn},preference:[0]}}dispose(){super.dispose(),this.g.removeContentWidget(this)}}let p=class extends d{constructor(i,t,e){super(),this.m=i,this.n=t,this.q=e,this.a=500,this.b=this.D(new l),this.g=this.D(new l),this.h=0,this.f=t.createDecorationsCollection()}dispose(){super.dispose(),this.f.clear()}async showWhile(i,t,e,s,o){const n=this.h++;this.j=n,this.r(),this.b.value=g(()=>{const h=C.fromPositions(i);this.f.set([{range:h,options:D}]).length>0&&(this.g.value=this.q.createInstance(c,this.m,this.n,h,t,s))},o??this.a);try{return await e}finally{this.j===n&&(this.r(),this.j=void 0)}}r(){this.b.clear(),this.f.clear(),this.g.clear()}};p=f([m(2,j)],p);export{p as $Wjb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { disposableTimeout } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { noBreakWhitespace } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import "./inlineProgressWidget.css";
+import { Range } from "../../../common/core/range.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+const inlineProgressDecoration = ModelDecorationOptions.register({
+  description: "inline-progress-widget",
+  stickiness: 1,
+  showIfCollapsed: true,
+  after: {
+    content: noBreakWhitespace,
+    inlineClassName: "inline-editor-progress-decoration",
+    inlineClassNameAffectsLetterSpacing: true
+  }
+});
+class InlineProgressWidget extends Disposable {
+  static {
+    __name(this, "InlineProgressWidget");
+  }
+  static {
+    this.baseId = "editor.widget.inlineProgressWidget";
+  }
+  constructor(typeId, editor, range, title, delegate) {
+    super();
+    this.typeId = typeId;
+    this.editor = editor;
+    this.range = range;
+    this.delegate = delegate;
+    this.allowEditorOverflow = false;
+    this.suppressMouseDown = true;
+    this.create(title);
+    this.editor.addContentWidget(this);
+    this.editor.layoutContentWidget(this);
+  }
+  create(title) {
+    this.domNode = dom.$(".inline-progress-widget");
+    this.domNode.role = "button";
+    this.domNode.title = title;
+    const iconElement = dom.$("span.icon");
+    this.domNode.append(iconElement);
+    iconElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.loading), "codicon-modifier-spin");
+    const updateSize = /* @__PURE__ */ __name(() => {
+      const lineHeight = this.editor.getOption(
+        75
+        /* EditorOption.lineHeight */
+      );
+      this.domNode.style.height = `${lineHeight}px`;
+      this.domNode.style.width = `${Math.ceil(0.8 * lineHeight)}px`;
+    }, "updateSize");
+    updateSize();
+    this._register(this.editor.onDidChangeConfiguration((c) => {
+      if (c.hasChanged(
+        61
+        /* EditorOption.fontSize */
+      ) || c.hasChanged(
+        75
+        /* EditorOption.lineHeight */
+      )) {
+        updateSize();
+      }
+    }));
+    this._register(dom.addDisposableListener(this.domNode, dom.EventType.CLICK, (e) => {
+      this.delegate.cancel();
+    }));
+  }
+  getId() {
+    return InlineProgressWidget.baseId + "." + this.typeId;
+  }
+  getDomNode() {
+    return this.domNode;
+  }
+  getPosition() {
+    return {
+      position: { lineNumber: this.range.startLineNumber, column: this.range.startColumn },
+      preference: [
+        0
+        /* ContentWidgetPositionPreference.EXACT */
+      ]
+    };
+  }
+  dispose() {
+    super.dispose();
+    this.editor.removeContentWidget(this);
+  }
+}
+let InlineProgressManager = class InlineProgressManager2 extends Disposable {
+  static {
+    __name(this, "InlineProgressManager");
+  }
+  constructor(id, _editor, _instantiationService) {
+    super();
+    this.id = id;
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._showDelay = 500;
+    this._showPromise = this._register(new MutableDisposable());
+    this._currentWidget = this._register(new MutableDisposable());
+    this._operationIdPool = 0;
+    this._currentDecorations = _editor.createDecorationsCollection();
+  }
+  dispose() {
+    super.dispose();
+    this._currentDecorations.clear();
+  }
+  async showWhile(position, title, promise, delegate, delayOverride) {
+    const operationId = this._operationIdPool++;
+    this._currentOperation = operationId;
+    this.clear();
+    this._showPromise.value = disposableTimeout(() => {
+      const range = Range.fromPositions(position);
+      const decorationIds = this._currentDecorations.set([{
+        range,
+        options: inlineProgressDecoration
+      }]);
+      if (decorationIds.length > 0) {
+        this._currentWidget.value = this._instantiationService.createInstance(InlineProgressWidget, this.id, this._editor, range, title, delegate);
+      }
+    }, delayOverride ?? this._showDelay);
+    try {
+      return await promise;
+    } finally {
+      if (this._currentOperation === operationId) {
+        this.clear();
+        this._currentOperation = void 0;
+      }
+    }
+  }
+  clear() {
+    this._showPromise.clear();
+    this._currentDecorations.clear();
+    this._currentWidget.clear();
+  }
+};
+InlineProgressManager = __decorate([
+  __param(2, IInstantiationService)
+], InlineProgressManager);
+export {
+  InlineProgressManager
+};
+//# sourceMappingURL=inlineProgress.js.map

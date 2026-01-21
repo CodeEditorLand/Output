@@ -1,1 +1,50 @@
-import*as c from"../../../../nls.js";import*as o from"../../../../base/browser/dom.js";import{$X_ as x}from"../../../../base/common/linkedText.js";import p from"../../../../base/common/severity.js";import{SeverityIcon as y}from"../../../../base/browser/ui/severityIcon/severityIcon.js";import{TextSearchCompleteMessageType as $}from"../../../services/search/common/searchExtTypes.js";import{Schemas as s}from"../../../../base/common/network.js";import{Link as v}from"../../../../platform/opener/browser/link.js";import{URI as S}from"../../../../base/common/uri.js";const w=(e,a,i,l,d,f,u)=>{const t=o.$("div.providerMessage"),I=x(e.text);o.$I8(t,o.$("."+y.className(e.type===$.Information?p.Info:p.Warning).split(" ").join(".")));for(const n of I.nodes)if(typeof n=="string")o.$I8(t,document.createTextNode(n));else{const h=a.createInstance(v,t,n,{opener:async m=>{if(!e.trusted)return;const r=S.parse(m,!0);r.scheme===s.command&&e.trusted?(await d.executeCommand(r.path))?.triggerSearch&&u():r.scheme===s.https?l.open(r):r.scheme===s.command&&!e.trusted?i.error(c.localize(12115,null,m)):i.error(c.localize(12116,null,m))}});f.add(h)}return t};export{w as $jjc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { parseLinkedText } from "../../../../base/common/linkedText.js";
+import Severity from "../../../../base/common/severity.js";
+import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
+import { TextSearchCompleteMessageType } from "../../../services/search/common/searchExtTypes.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { URI } from "../../../../base/common/uri.js";
+const renderSearchMessage = /* @__PURE__ */ __name((message, instantiationService, notificationService, openerService, commandService, disposableStore, triggerSearch) => {
+  const div = dom.$("div.providerMessage");
+  const linkedText = parseLinkedText(message.text);
+  dom.append(div, dom.$("." + SeverityIcon.className(message.type === TextSearchCompleteMessageType.Information ? Severity.Info : Severity.Warning).split(" ").join(".")));
+  for (const node of linkedText.nodes) {
+    if (typeof node === "string") {
+      dom.append(div, document.createTextNode(node));
+    } else {
+      const link = instantiationService.createInstance(Link, div, node, {
+        opener: /* @__PURE__ */ __name(async (href) => {
+          if (!message.trusted) {
+            return;
+          }
+          const parsed = URI.parse(href, true);
+          if (parsed.scheme === Schemas.command && message.trusted) {
+            const result = await commandService.executeCommand(parsed.path);
+            if (result?.triggerSearch) {
+              triggerSearch();
+            }
+          } else if (parsed.scheme === Schemas.https) {
+            openerService.open(parsed);
+          } else {
+            if (parsed.scheme === Schemas.command && !message.trusted) {
+              notificationService.error(nls.localize("unable to open trust", "Unable to open command link from untrusted source: {0}", href));
+            } else {
+              notificationService.error(nls.localize("unable to open", "Unable to open unknown link: {0}", href));
+            }
+          }
+        }, "opener")
+      });
+      disposableStore.add(link);
+    }
+  }
+  return div;
+}, "renderSearchMessage");
+export {
+  renderSearchMessage
+};
+//# sourceMappingURL=searchMessage.js.map

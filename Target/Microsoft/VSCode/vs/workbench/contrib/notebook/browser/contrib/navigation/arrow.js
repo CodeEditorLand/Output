@@ -1,1 +1,393 @@
-import{$9h as U}from"../../../../../../base/common/async.js";import{EditorExtensionsRegistry as O}from"../../../../../../editor/browser/editorExtensions.js";import{EditorContextKeys as l}from"../../../../../../editor/common/editorContextKeys.js";import{localize as s,localize2 as M}from"../../../../../../nls.js";import{$KD as E}from"../../../../../../platform/accessibility/common/accessibility.js";import{$sL as F,$tL as a}from"../../../../../../platform/actions/common/actions.js";import{$km as q}from"../../../../../../platform/configuration/common/configurationRegistry.js";import{$9n as e}from"../../../../../../platform/contextkey/common/contextkey.js";import{$QN as c,$JN as L}from"../../../../../../platform/contextkey/common/contextkeys.js";import{$im as W}from"../../../../../../platform/registry/common/platform.js";import{$ifc as b}from"../../../../inlineChat/browser/inlineChatController.js";import{$GNb as x,$INb as d,$BNb as C,$FNb as _}from"../../controller/coreActions.js";import{CellEditState as S}from"../../notebookBrowser.js";import{CellKind as D,$lQ as w,$mQ as y}from"../../../common/notebookCommon.js";import{$LEb as B,$HEb as $,$DEb as P,$AEb as v,$qEb as r,$tEb as N,$sEb as k,$GEb as A,$pEb as K,$oEb as R}from"../../../common/notebookContextKeys.js";const z="notebook.focusTop",G="notebook.focusBottom",V="notebook.focusPreviousEditor",H="notebook.focusNextEditor",Q="notebook.cell.focusInOutput",j="notebook.cell.focusOutOutput",J="notebook.centerActiveCell",X="notebook.cell.cursorPageUp",Y="notebook.cell.cursorPageUpSelect",Z="notebook.cell.cursorPageDown",ee="notebook.cell.cursorPageDownSelect";a(class extends F{constructor(){super({id:"notebook.cell.nullAction",title:s(10419,null),keybinding:[{when:N,primary:18,weight:201},{when:N,primary:16,weight:201}],f1:!1})}run(){}});a(class extends d{constructor(){super({id:H,title:s(10420,null),keybinding:[{when:e.and(r,E.negate(),e.equals("config.notebook.navigation.allowNavigateToSurroundingCells",!0),e.and(e.has(c),l.editorTextFocus,w.notEqualsTo("top"),w.notEqualsTo("none"),e.or(y.isEqualTo("end"),y.isEqualTo("both"))),l.isEmbeddedDiffEditor.negate()),primary:18,weight:C},{when:e.and(r,E.negate(),e.equals("config.notebook.navigation.allowNavigateToSurroundingCells",!0),e.and(P.isEqualTo("markup"),$.isEqualTo(!1),v),l.isEmbeddedDiffEditor.negate()),primary:18,weight:200},{when:e.and(r,k),primary:2066,mac:{primary:2322},weight:200},{when:e.and(A,E),primary:2060,mac:{primary:267},weight:201}]})}async runWithContext(o,t){const n=t.notebookEditor,g=t.cell,u=n.getCellIndex(g);if(typeof u!="number"||u>=n.getLength()-1)return;const m=g.textBuffer.getLineCount(),h=t.cell??t.selectedCells?.[0],p=h?_(t,h):void 0;if(p&&p.hasTextFocus()&&b.get(p)?.getWidgetPosition()?.lineNumber===m)b.get(p)?.focus();else{const f=n.cellAt(u+1),I=f.cellKind===D.Markup&&f.getEditState()===S.Preview?"container":"editor";await n.focusNotebookCell(f,I,{focusEditorLine:1})}}});a(class extends d{constructor(){super({id:V,title:s(10421,null),keybinding:[{when:e.and(r,E.negate(),e.equals("config.notebook.navigation.allowNavigateToSurroundingCells",!0),e.and(e.has(c),l.editorTextFocus,w.notEqualsTo("bottom"),w.notEqualsTo("none"),e.or(y.isEqualTo("start"),y.isEqualTo("both"))),l.isEmbeddedDiffEditor.negate()),primary:16,weight:C},{when:e.and(r,E.negate(),e.equals("config.notebook.navigation.allowNavigateToSurroundingCells",!0),e.and(P.isEqualTo("markup"),$.isEqualTo(!1),v),l.isEmbeddedDiffEditor.negate()),primary:16,weight:200},{when:e.and(A,E),primary:2059,mac:{primary:267},weight:201}]})}async runWithContext(o,t){const n=t.notebookEditor,g=t.cell,u=n.getCellIndex(g);if(typeof u!="number"||u<1||n.getLength()===0)return;const m=n.cellAt(u-1),h=m.cellKind===D.Markup&&m.getEditState()===S.Preview?"container":"editor",p=m.textBuffer.getLineCount();await n.focusNotebookCell(m,h,{focusEditorLine:p});const f=_(t,m);f&&b.get(f)?.getWidgetPosition()?.lineNumber===p&&b.get(f)?.focus()}});a(class extends x{constructor(){super({id:z,title:s(10422,null),keybinding:[{when:e.and(r,e.not(c)),primary:2062,weight:200},{when:e.and(r,e.not(c)),mac:{primary:2064},weight:200}]})}async runWithContext(i,o){const t=o.notebookEditor;if(t.getLength()===0)return;const n=t.cellAt(0);await t.focusNotebookCell(n,"container")}});a(class extends x{constructor(){super({id:G,title:s(10423,null),keybinding:[{when:e.and(r,e.not(c)),primary:2061,mac:void 0,weight:200},{when:e.and(r,e.not(c)),mac:{primary:2066},weight:200}]})}async runWithContext(i,o){const t=o.notebookEditor;if(!t.hasModel()||t.getLength()===0)return;const n=t.getLength()-1,g=t.getPreviousVisibleCellIndex(n);if(g){const u=t.cellAt(g);await t.focusNotebookCell(u,"container")}}});a(class extends d{constructor(){super({id:Q,title:M(10431,"Focus In Active Cell Output"),f1:!0,keybinding:[{when:e.and(K.negate(),L,B),primary:2066,weight:200},{primary:3090,mac:{primary:2322},weight:200}],precondition:R})}async runWithContext(i,o){const t=o.notebookEditor,n=o.cell;return U(0).then(()=>t.focusNotebookCell(n,"output"))}});a(class extends d{constructor(){super({id:j,title:s(10424,null),keybinding:{primary:3088,mac:{primary:2320},weight:200},precondition:e.and(r,k)})}async runWithContext(i,o){const t=o.notebookEditor,n=o.cell;await t.focusNotebookCell(n,"editor")}});a(class extends d{constructor(){super({id:J,title:s(10425,null),keybinding:{when:r,primary:2090,mac:{primary:298},weight:200}})}async runWithContext(o,t){return t.notebookEditor.revealInCenter(t.cell)}});a(class extends d{constructor(){super({id:X,title:s(10426,null),keybinding:[{when:e.and(r,e.has(c),l.editorTextFocus),primary:11,weight:C}]})}async runWithContext(i,o){O.getEditorCommand("cursorPageUp").runCommand(i,{pageSize:T(o)})}});a(class extends d{constructor(){super({id:Y,title:s(10427,null),keybinding:[{when:e.and(r,e.has(c),l.editorTextFocus,k.negate()),primary:1035,weight:C}]})}async runWithContext(i,o){O.getEditorCommand("cursorPageUpSelect").runCommand(i,{pageSize:T(o)})}});a(class extends d{constructor(){super({id:Z,title:s(10428,null),keybinding:[{when:e.and(r,e.has(c),l.editorTextFocus),primary:12,weight:C}]})}async runWithContext(i,o){O.getEditorCommand("cursorPageDown").runCommand(i,{pageSize:T(o)})}});a(class extends d{constructor(){super({id:ee,title:s(10429,null),keybinding:[{when:e.and(r,e.has(c),l.editorTextFocus,k.negate()),primary:1036,weight:C}]})}async runWithContext(i,o){O.getEditorCommand("cursorPageDownSelect").runCommand(i,{pageSize:T(o)})}});function T(i){const t=i.notebookEditor.getViewModel().layoutInfo,n=t?.fontInfo.lineHeight||17;return Math.max(1,Math.floor((t?.height||0)/n)-2)}W.as(q.Configuration).registerConfiguration({id:"notebook",order:100,type:"object",properties:{"notebook.navigation.allowNavigateToSurroundingCells":{type:"boolean",default:!0,markdownDescription:s(10430,null)}}});export{J as $8jc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { timeout } from "../../../../../../base/common/async.js";
+import { EditorExtensionsRegistry } from "../../../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { Extensions as ConfigurationExtensions } from "../../../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { InputFocusedContextKey, IsWindowsContext } from "../../../../../../platform/contextkey/common/contextkeys.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import { InlineChatController } from "../../../../inlineChat/browser/inlineChatController.js";
+import { NotebookAction, NotebookCellAction, NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT, findTargetCellEditor } from "../../controller/coreActions.js";
+import { CellEditState } from "../../notebookBrowser.js";
+import { CellKind, NOTEBOOK_EDITOR_CURSOR_BOUNDARY, NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY } from "../../../common/notebookCommon.js";
+import { NOTEBOOK_CELL_HAS_OUTPUTS, NOTEBOOK_CELL_MARKDOWN_EDIT_MODE, NOTEBOOK_CELL_TYPE, NOTEBOOK_CURSOR_NAVIGATION_MODE, NOTEBOOK_EDITOR_FOCUSED, NOTEBOOK_OUTPUT_INPUT_FOCUSED, NOTEBOOK_OUTPUT_FOCUSED, NOTEBOOK_CELL_EDITOR_FOCUSED, IS_COMPOSITE_NOTEBOOK, NOTEBOOK_OR_COMPOSITE_IS_ACTIVE_EDITOR } from "../../../common/notebookContextKeys.js";
+const NOTEBOOK_FOCUS_TOP = "notebook.focusTop";
+const NOTEBOOK_FOCUS_BOTTOM = "notebook.focusBottom";
+const NOTEBOOK_FOCUS_PREVIOUS_EDITOR = "notebook.focusPreviousEditor";
+const NOTEBOOK_FOCUS_NEXT_EDITOR = "notebook.focusNextEditor";
+const FOCUS_IN_OUTPUT_COMMAND_ID = "notebook.cell.focusInOutput";
+const FOCUS_OUT_OUTPUT_COMMAND_ID = "notebook.cell.focusOutOutput";
+const CENTER_ACTIVE_CELL = "notebook.centerActiveCell";
+const NOTEBOOK_CURSOR_PAGEUP_COMMAND_ID = "notebook.cell.cursorPageUp";
+const NOTEBOOK_CURSOR_PAGEUP_SELECT_COMMAND_ID = "notebook.cell.cursorPageUpSelect";
+const NOTEBOOK_CURSOR_PAGEDOWN_COMMAND_ID = "notebook.cell.cursorPageDown";
+const NOTEBOOK_CURSOR_PAGEDOWN_SELECT_COMMAND_ID = "notebook.cell.cursorPageDownSelect";
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.cell.nullAction",
+      title: localize("notebook.cell.webviewHandledEvents", "Keypresses that should be handled by the focused element in the cell output."),
+      keybinding: [{
+        when: NOTEBOOK_OUTPUT_INPUT_FOCUSED,
+        primary: 18,
+        weight: 200 + 1
+      }, {
+        when: NOTEBOOK_OUTPUT_INPUT_FOCUSED,
+        primary: 16,
+        weight: 200 + 1
+      }],
+      f1: false
+    });
+  }
+  run() {
+    return;
+  }
+});
+registerAction2(class FocusNextCellAction extends NotebookCellAction {
+  static {
+    __name(this, "FocusNextCellAction");
+  }
+  constructor() {
+    super({
+      id: NOTEBOOK_FOCUS_NEXT_EDITOR,
+      title: localize("cursorMoveDown", "Focus Next Cell Editor"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate(), ContextKeyExpr.equals("config.notebook.navigation.allowNavigateToSurroundingCells", true), ContextKeyExpr.and(ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus, NOTEBOOK_EDITOR_CURSOR_BOUNDARY.notEqualsTo("top"), NOTEBOOK_EDITOR_CURSOR_BOUNDARY.notEqualsTo("none"), ContextKeyExpr.or(NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY.isEqualTo("end"), NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY.isEqualTo("both"))), EditorContextKeys.isEmbeddedDiffEditor.negate()),
+          primary: 18,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+          // code cell keybinding, focus inside editor: lower weight to not override suggest widget
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate(), ContextKeyExpr.equals("config.notebook.navigation.allowNavigateToSurroundingCells", true), ContextKeyExpr.and(NOTEBOOK_CELL_TYPE.isEqualTo("markup"), NOTEBOOK_CELL_MARKDOWN_EDIT_MODE.isEqualTo(false), NOTEBOOK_CURSOR_NAVIGATION_MODE), EditorContextKeys.isEmbeddedDiffEditor.negate()),
+          primary: 18,
+          weight: 200
+          // markdown keybinding, focus on list: higher weight to override list.focusDown
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, NOTEBOOK_OUTPUT_FOCUSED),
+          primary: 2048 | 18,
+          mac: { primary: 256 | 2048 | 18 },
+          weight: 200
+          /* KeybindingWeight.WorkbenchContrib */
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_CELL_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED),
+          primary: 2048 | 12,
+          mac: { primary: 256 | 11 },
+          weight: 200 + 1
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    const activeCell = context.cell;
+    const idx = editor.getCellIndex(activeCell);
+    if (typeof idx !== "number") {
+      return;
+    }
+    if (idx >= editor.getLength() - 1) {
+      return;
+    }
+    const focusEditorLine = activeCell.textBuffer.getLineCount();
+    const targetCell = context.cell ?? context.selectedCells?.[0];
+    const foundEditor = targetCell ? findTargetCellEditor(context, targetCell) : void 0;
+    if (foundEditor && foundEditor.hasTextFocus() && InlineChatController.get(foundEditor)?.getWidgetPosition()?.lineNumber === focusEditorLine) {
+      InlineChatController.get(foundEditor)?.focus();
+    } else {
+      const newCell = editor.cellAt(idx + 1);
+      const newFocusMode = newCell.cellKind === CellKind.Markup && newCell.getEditState() === CellEditState.Preview ? "container" : "editor";
+      await editor.focusNotebookCell(newCell, newFocusMode, { focusEditorLine: 1 });
+    }
+  }
+});
+registerAction2(class FocusPreviousCellAction extends NotebookCellAction {
+  static {
+    __name(this, "FocusPreviousCellAction");
+  }
+  constructor() {
+    super({
+      id: NOTEBOOK_FOCUS_PREVIOUS_EDITOR,
+      title: localize("cursorMoveUp", "Focus Previous Cell Editor"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate(), ContextKeyExpr.equals("config.notebook.navigation.allowNavigateToSurroundingCells", true), ContextKeyExpr.and(ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus, NOTEBOOK_EDITOR_CURSOR_BOUNDARY.notEqualsTo("bottom"), NOTEBOOK_EDITOR_CURSOR_BOUNDARY.notEqualsTo("none"), ContextKeyExpr.or(NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY.isEqualTo("start"), NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY.isEqualTo("both"))), EditorContextKeys.isEmbeddedDiffEditor.negate()),
+          primary: 16,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+          // code cell keybinding, focus inside editor: lower weight to not override suggest widget
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate(), ContextKeyExpr.equals("config.notebook.navigation.allowNavigateToSurroundingCells", true), ContextKeyExpr.and(NOTEBOOK_CELL_TYPE.isEqualTo("markup"), NOTEBOOK_CELL_MARKDOWN_EDIT_MODE.isEqualTo(false), NOTEBOOK_CURSOR_NAVIGATION_MODE), EditorContextKeys.isEmbeddedDiffEditor.negate()),
+          primary: 16,
+          weight: 200
+          // markdown keybinding, focus on list: higher weight to override list.focusDown
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_CELL_EDITOR_FOCUSED, CONTEXT_ACCESSIBILITY_MODE_ENABLED),
+          primary: 2048 | 11,
+          mac: { primary: 256 | 11 },
+          weight: 200 + 1
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    const activeCell = context.cell;
+    const idx = editor.getCellIndex(activeCell);
+    if (typeof idx !== "number") {
+      return;
+    }
+    if (idx < 1 || editor.getLength() === 0) {
+      return;
+    }
+    const newCell = editor.cellAt(idx - 1);
+    const newFocusMode = newCell.cellKind === CellKind.Markup && newCell.getEditState() === CellEditState.Preview ? "container" : "editor";
+    const focusEditorLine = newCell.textBuffer.getLineCount();
+    await editor.focusNotebookCell(newCell, newFocusMode, { focusEditorLine });
+    const foundEditor = findTargetCellEditor(context, newCell);
+    if (foundEditor && InlineChatController.get(foundEditor)?.getWidgetPosition()?.lineNumber === focusEditorLine) {
+      InlineChatController.get(foundEditor)?.focus();
+    }
+  }
+});
+registerAction2(class extends NotebookAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_FOCUS_TOP,
+      title: localize("focusFirstCell", "Focus First Cell"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.not(InputFocusedContextKey)),
+          primary: 2048 | 14,
+          weight: 200
+          /* KeybindingWeight.WorkbenchContrib */
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.not(InputFocusedContextKey)),
+          mac: {
+            primary: 2048 | 16
+            /* KeyCode.UpArrow */
+          },
+          weight: 200
+          /* KeybindingWeight.WorkbenchContrib */
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    if (editor.getLength() === 0) {
+      return;
+    }
+    const firstCell = editor.cellAt(0);
+    await editor.focusNotebookCell(firstCell, "container");
+  }
+});
+registerAction2(class extends NotebookAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_FOCUS_BOTTOM,
+      title: localize("focusLastCell", "Focus Last Cell"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.not(InputFocusedContextKey)),
+          primary: 2048 | 13,
+          mac: void 0,
+          weight: 200
+          /* KeybindingWeight.WorkbenchContrib */
+        },
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.not(InputFocusedContextKey)),
+          mac: {
+            primary: 2048 | 18
+            /* KeyCode.DownArrow */
+          },
+          weight: 200
+          /* KeybindingWeight.WorkbenchContrib */
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    if (!editor.hasModel() || editor.getLength() === 0) {
+      return;
+    }
+    const lastIdx = editor.getLength() - 1;
+    const lastVisibleIdx = editor.getPreviousVisibleCellIndex(lastIdx);
+    if (lastVisibleIdx) {
+      const cell = editor.cellAt(lastVisibleIdx);
+      await editor.focusNotebookCell(cell, "container");
+    }
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: FOCUS_IN_OUTPUT_COMMAND_ID,
+      title: localize2("focusOutput", "Focus In Active Cell Output"),
+      f1: true,
+      keybinding: [{
+        when: ContextKeyExpr.and(IS_COMPOSITE_NOTEBOOK.negate(), IsWindowsContext, NOTEBOOK_CELL_HAS_OUTPUTS),
+        primary: 2048 | 18,
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }, {
+        primary: 2048 | 1024 | 18,
+        mac: { primary: 256 | 2048 | 18 },
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }],
+      precondition: NOTEBOOK_OR_COMPOSITE_IS_ACTIVE_EDITOR
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    const activeCell = context.cell;
+    return timeout(0).then(() => editor.focusNotebookCell(activeCell, "output"));
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: FOCUS_OUT_OUTPUT_COMMAND_ID,
+      title: localize("focusOutputOut", "Focus Out Active Cell Output"),
+      keybinding: {
+        primary: 2048 | 1024 | 16,
+        mac: { primary: 256 | 2048 | 16 },
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      precondition: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, NOTEBOOK_OUTPUT_FOCUSED)
+    });
+  }
+  async runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    const activeCell = context.cell;
+    await editor.focusNotebookCell(activeCell, "editor");
+  }
+});
+registerAction2(class CenterActiveCellAction extends NotebookCellAction {
+  static {
+    __name(this, "CenterActiveCellAction");
+  }
+  constructor() {
+    super({
+      id: CENTER_ACTIVE_CELL,
+      title: localize("notebookActions.centerActiveCell", "Center Active Cell"),
+      keybinding: {
+        when: NOTEBOOK_EDITOR_FOCUSED,
+        primary: 2048 | 42,
+        mac: {
+          primary: 256 | 42
+        },
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async runWithContext(accessor, context) {
+    return context.notebookEditor.revealInCenter(context.cell);
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_CURSOR_PAGEUP_COMMAND_ID,
+      title: localize("cursorPageUp", "Cell Cursor Page Up"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus),
+          primary: 11,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    EditorExtensionsRegistry.getEditorCommand("cursorPageUp").runCommand(accessor, { pageSize: getPageSize(context) });
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_CURSOR_PAGEUP_SELECT_COMMAND_ID,
+      title: localize("cursorPageUpSelect", "Cell Cursor Page Up Select"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus, NOTEBOOK_OUTPUT_FOCUSED.negate()),
+          primary: 1024 | 11,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    EditorExtensionsRegistry.getEditorCommand("cursorPageUpSelect").runCommand(accessor, { pageSize: getPageSize(context) });
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_CURSOR_PAGEDOWN_COMMAND_ID,
+      title: localize("cursorPageDown", "Cell Cursor Page Down"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus),
+          primary: 12,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    EditorExtensionsRegistry.getEditorCommand("cursorPageDown").runCommand(accessor, { pageSize: getPageSize(context) });
+  }
+});
+registerAction2(class extends NotebookCellAction {
+  constructor() {
+    super({
+      id: NOTEBOOK_CURSOR_PAGEDOWN_SELECT_COMMAND_ID,
+      title: localize("cursorPageDownSelect", "Cell Cursor Page Down Select"),
+      keybinding: [
+        {
+          when: ContextKeyExpr.and(NOTEBOOK_EDITOR_FOCUSED, ContextKeyExpr.has(InputFocusedContextKey), EditorContextKeys.editorTextFocus, NOTEBOOK_OUTPUT_FOCUSED.negate()),
+          primary: 1024 | 12,
+          weight: NOTEBOOK_EDITOR_WIDGET_ACTION_WEIGHT
+        }
+      ]
+    });
+  }
+  async runWithContext(accessor, context) {
+    EditorExtensionsRegistry.getEditorCommand("cursorPageDownSelect").runCommand(accessor, { pageSize: getPageSize(context) });
+  }
+});
+function getPageSize(context) {
+  const editor = context.notebookEditor;
+  const layoutInfo = editor.getViewModel().layoutInfo;
+  const lineHeight = layoutInfo?.fontInfo.lineHeight || 17;
+  return Math.max(1, Math.floor((layoutInfo?.height || 0) / lineHeight) - 2);
+}
+__name(getPageSize, "getPageSize");
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  id: "notebook",
+  order: 100,
+  type: "object",
+  "properties": {
+    "notebook.navigation.allowNavigateToSurroundingCells": {
+      type: "boolean",
+      default: true,
+      markdownDescription: localize("notebook.navigation.allowNavigateToSurroundingCells", "When enabled cursor can navigate to the next/previous cell when the current cursor in the cell editor is at the first/last line.")
+    }
+  }
+});
+export {
+  CENTER_ACTIVE_CELL
+};
+//# sourceMappingURL=arrow.js.map

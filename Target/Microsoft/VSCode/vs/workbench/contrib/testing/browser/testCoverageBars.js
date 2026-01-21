@@ -1,3 +1,227 @@
-import{h as l}from"../../../../base/browser/dom.js";import{$E9 as T}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$ik as B}from"../../../../base/common/htmlContent.js";import{$Qf as D}from"../../../../base/common/lazy.js";import{$Ed as I,$Dd as P,$Cd as q}from"../../../../base/common/lifecycle.js";import{autorun as E,observableValue as O}from"../../../../base/common/observable.js";import{$dd as R}from"../../../../base/common/types.js";import{localize as u}from"../../../../nls.js";import{$9l as x}from"../../../../platform/configuration/common/configuration.js";import{$7ib as g}from"../../../../platform/hover/browser/hover.js";import{$im as F}from"../../../../platform/registry/common/platform.js";import*as n from"./codeCoverageDisplayUtils.js";import{$Osc as v,$Psc as k}from"../common/configuration.js";import{$Qsc as H}from"../common/testCoverageService.js";import{$Tn as M}from"../../../../base/common/date.js";var y=function(e,t,s,o){var r=arguments.length,i=r<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,s):o,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(e,t,s,o);else for(var c=e.length-1;c>=0;c--)(a=e[c])&&(i=(r<3?a(i):r>3?a(t,s,i):a(t,s))||i);return r>3&&i&&Object.defineProperty(t,s,i),i},f=function(e,t){return function(s,o){t(s,o,e)}},p;let d=class extends I{get visible(){return!!this.a}constructor(t,s,o){super(),this.j=t,this.m=s,this.n=o,this.b=new D(()=>{if(this.j.compact){const r=l(".test-coverage-bars.compact",[l(".tpc@overall"),l(".bar@tpcBar")]);return this.q(r.tpcBar,Q),r}else{const r=l(".test-coverage-bars",[l(".tpc@overall"),l(".bar@statement"),l(".bar@function"),l(".bar@branch")]);return this.q(r.statement,w),this.q(r.function,j),this.q(r.branch,_),r}}),this.f=this.D(new P),this.g=[]}q(t,s){this.D(this.n.setupManagedHover(T("element"),t,()=>this.a&&s(this.a)))}setCoverageInfo(t){const s=this.f;if(!t){this.a&&(this.a=void 0,this.g.forEach(o=>o.hide()),s.clear());return}if(!this.a){const o=this.b.value.root;s.add(q(()=>o.remove())),this.j.container.appendChild(o),s.add(this.m.onDidChangeConfiguration(r=>{this.a&&(r.affectsConfiguration("testing.displayedCoveragePercent")||r.affectsConfiguration("testing.coverageBarThresholds"))&&this.r(this.a)}))}this.a=t,this.r(t)}r(t){const s=this.b.value,o=this.j.compact?0:2,r=v(this.m,"testing.coverageBarThresholds"),i=n.$btc(t,v(this.m,"testing.displayedCoveragePercent"));this.j.overall!==!1?s.overall.textContent=n.$atc(i,o):s.overall.style.display="none","tpcBar"in s?m(s.tpcBar,i,!1,r):(m(s.statement,n.$$sc(t.statement),t.statement.total===0,r),m(s.function,t.declaration&&n.$$sc(t.declaration),t.declaration?.total===0,r),m(s.branch,t.branch&&n.$$sc(t.branch),t.branch?.total===0,r))}};d=y([f(1,x),f(2,g)],d);const N=16,m=(e,t,s,o)=>{if(t===void 0){e.style.display="none";return}if(e.style.display="block",e.style.width=`${N}px`,e.style.setProperty("--test-bar-width",`${Math.floor(t*16)}px`),s){e.style.color="currentColor",e.style.opacity="0.5";return}e.style.color=n.$_sc(t,o),e.style.opacity="1"},h=M.NumberFormat(),w=e=>u(13845,null,h.value.format(e.statement.covered),h.value.format(e.statement.total),n.$atc(n.$$sc(e.statement))),j=e=>e.declaration&&u(13846,null,h.value.format(e.declaration.covered),h.value.format(e.declaration.total),n.$atc(n.$$sc(e.declaration))),_=e=>e.branch&&u(13847,null,h.value.format(e.branch.covered),h.value.format(e.branch.total),n.$atc(n.$$sc(e.branch))),Q=e=>{const t=[w(e),j(e),_(e)].filter(R).join(`
-
-`);return{markdown:new B().appendText(t),markdownNotSupportedFallback:t}};let C=class extends d{static{p=this}static{this.t=!1}static register(){this.t||(this.t=!0,F.as("workbench.registry.explorer.fileContributions").register({create(t,s){return t.createInstance(p,{compact:!0,container:s})}}))}constructor(t,s,o,r){super(t,s,o),this.s=O(this,void 0);const i=k(s,"testing.showCoverageInExplorer");this.D(E(async a=>{let c;const $=r.selected.read(a);if($&&i.read(a)){const b=this.s.read(a);b&&(c=$.getComputedForUri(b))}this.setCoverageInfo(c)}))}setResource(t,s){this.s.set(t,s)}setCoverageInfo(t){super.setCoverageInfo(t),this.j.container?.classList.toggle("explorer-item-with-test-coverage",this.visible)}};C=p=y([f(1,x),f(2,g),f(3,H)],C);export{C as $0sc,d as $9sc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ExplorerTestCoverageBars_1;
+import { h } from "../../../../base/browser/dom.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, observableValue } from "../../../../base/common/observable.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import * as coverUtils from "./codeCoverageDisplayUtils.js";
+import { getTestingConfiguration, observeTestingConfiguration } from "../common/configuration.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
+import { safeIntl } from "../../../../base/common/date.js";
+let ManagedTestCoverageBars = class ManagedTestCoverageBars2 extends Disposable {
+  static {
+    __name(this, "ManagedTestCoverageBars");
+  }
+  /** Gets whether coverage is currently visible for the resource. */
+  get visible() {
+    return !!this._coverage;
+  }
+  constructor(options, configurationService, hoverService) {
+    super();
+    this.options = options;
+    this.configurationService = configurationService;
+    this.hoverService = hoverService;
+    this.el = new Lazy(() => {
+      if (this.options.compact) {
+        const el = h(".test-coverage-bars.compact", [
+          h(".tpc@overall"),
+          h(".bar@tpcBar")
+        ]);
+        this.attachHover(el.tpcBar, getOverallHoverText);
+        return el;
+      } else {
+        const el = h(".test-coverage-bars", [
+          h(".tpc@overall"),
+          h(".bar@statement"),
+          h(".bar@function"),
+          h(".bar@branch")
+        ]);
+        this.attachHover(el.statement, stmtCoverageText);
+        this.attachHover(el.function, fnCoverageText);
+        this.attachHover(el.branch, branchCoverageText);
+        return el;
+      }
+    });
+    this.visibleStore = this._register(new DisposableStore());
+    this.customHovers = [];
+  }
+  attachHover(target, factory) {
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), target, () => this._coverage && factory(this._coverage)));
+  }
+  setCoverageInfo(coverage) {
+    const ds = this.visibleStore;
+    if (!coverage) {
+      if (this._coverage) {
+        this._coverage = void 0;
+        this.customHovers.forEach((c) => c.hide());
+        ds.clear();
+      }
+      return;
+    }
+    if (!this._coverage) {
+      const root = this.el.value.root;
+      ds.add(toDisposable(() => root.remove()));
+      this.options.container.appendChild(root);
+      ds.add(this.configurationService.onDidChangeConfiguration((c) => {
+        if (!this._coverage) {
+          return;
+        }
+        if (c.affectsConfiguration(
+          "testing.displayedCoveragePercent"
+          /* TestingConfigKeys.CoveragePercent */
+        ) || c.affectsConfiguration(
+          "testing.coverageBarThresholds"
+          /* TestingConfigKeys.CoverageBarThresholds */
+        )) {
+          this.doRender(this._coverage);
+        }
+      }));
+    }
+    this._coverage = coverage;
+    this.doRender(coverage);
+  }
+  doRender(coverage) {
+    const el = this.el.value;
+    const precision = this.options.compact ? 0 : 2;
+    const thresholds = getTestingConfiguration(
+      this.configurationService,
+      "testing.coverageBarThresholds"
+      /* TestingConfigKeys.CoverageBarThresholds */
+    );
+    const overallStat = coverUtils.calculateDisplayedStat(coverage, getTestingConfiguration(
+      this.configurationService,
+      "testing.displayedCoveragePercent"
+      /* TestingConfigKeys.CoveragePercent */
+    ));
+    if (this.options.overall !== false) {
+      el.overall.textContent = coverUtils.displayPercent(overallStat, precision);
+    } else {
+      el.overall.style.display = "none";
+    }
+    if ("tpcBar" in el) {
+      renderBar(el.tpcBar, overallStat, false, thresholds);
+    } else {
+      renderBar(el.statement, coverUtils.percent(coverage.statement), coverage.statement.total === 0, thresholds);
+      renderBar(el.function, coverage.declaration && coverUtils.percent(coverage.declaration), coverage.declaration?.total === 0, thresholds);
+      renderBar(el.branch, coverage.branch && coverUtils.percent(coverage.branch), coverage.branch?.total === 0, thresholds);
+    }
+  }
+};
+ManagedTestCoverageBars = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IHoverService)
+], ManagedTestCoverageBars);
+const barWidth = 16;
+const renderBar = /* @__PURE__ */ __name((bar, pct, isZero, thresholds) => {
+  if (pct === void 0) {
+    bar.style.display = "none";
+    return;
+  }
+  bar.style.display = "block";
+  bar.style.width = `${barWidth}px`;
+  bar.style.setProperty("--test-bar-width", `${Math.floor(pct * 16)}px`);
+  if (isZero) {
+    bar.style.color = "currentColor";
+    bar.style.opacity = "0.5";
+    return;
+  }
+  bar.style.color = coverUtils.getCoverageColor(pct, thresholds);
+  bar.style.opacity = "1";
+}, "renderBar");
+const nf = safeIntl.NumberFormat();
+const stmtCoverageText = /* @__PURE__ */ __name((coverage) => localize("statementCoverage", "{0}/{1} statements covered ({2})", nf.value.format(coverage.statement.covered), nf.value.format(coverage.statement.total), coverUtils.displayPercent(coverUtils.percent(coverage.statement))), "stmtCoverageText");
+const fnCoverageText = /* @__PURE__ */ __name((coverage) => coverage.declaration && localize("functionCoverage", "{0}/{1} functions covered ({2})", nf.value.format(coverage.declaration.covered), nf.value.format(coverage.declaration.total), coverUtils.displayPercent(coverUtils.percent(coverage.declaration))), "fnCoverageText");
+const branchCoverageText = /* @__PURE__ */ __name((coverage) => coverage.branch && localize("branchCoverage", "{0}/{1} branches covered ({2})", nf.value.format(coverage.branch.covered), nf.value.format(coverage.branch.total), coverUtils.displayPercent(coverUtils.percent(coverage.branch))), "branchCoverageText");
+const getOverallHoverText = /* @__PURE__ */ __name((coverage) => {
+  const str = [
+    stmtCoverageText(coverage),
+    fnCoverageText(coverage),
+    branchCoverageText(coverage)
+  ].filter(isDefined).join("\n\n");
+  return {
+    markdown: new MarkdownString().appendText(str),
+    markdownNotSupportedFallback: str
+  };
+}, "getOverallHoverText");
+let ExplorerTestCoverageBars = class ExplorerTestCoverageBars2 extends ManagedTestCoverageBars {
+  static {
+    __name(this, "ExplorerTestCoverageBars");
+  }
+  static {
+    ExplorerTestCoverageBars_1 = this;
+  }
+  static {
+    this.hasRegistered = false;
+  }
+  static register() {
+    if (this.hasRegistered) {
+      return;
+    }
+    this.hasRegistered = true;
+    Registry.as(
+      "workbench.registry.explorer.fileContributions"
+      /* ExplorerExtensions.FileContributionRegistry */
+    ).register({
+      create(insta, container) {
+        return insta.createInstance(ExplorerTestCoverageBars_1, { compact: true, container });
+      }
+    });
+  }
+  constructor(options, configurationService, hoverService, testCoverageService) {
+    super(options, configurationService, hoverService);
+    this.resource = observableValue(this, void 0);
+    const isEnabled = observeTestingConfiguration(
+      configurationService,
+      "testing.showCoverageInExplorer"
+      /* TestingConfigKeys.ShowCoverageInExplorer */
+    );
+    this._register(autorun(async (reader) => {
+      let info;
+      const coverage = testCoverageService.selected.read(reader);
+      if (coverage && isEnabled.read(reader)) {
+        const resource = this.resource.read(reader);
+        if (resource) {
+          info = coverage.getComputedForUri(resource);
+        }
+      }
+      this.setCoverageInfo(info);
+    }));
+  }
+  /** @inheritdoc */
+  setResource(resource, transaction) {
+    this.resource.set(resource, transaction);
+  }
+  setCoverageInfo(coverage) {
+    super.setCoverageInfo(coverage);
+    this.options.container?.classList.toggle("explorer-item-with-test-coverage", this.visible);
+  }
+};
+ExplorerTestCoverageBars = ExplorerTestCoverageBars_1 = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IHoverService),
+  __param(3, ITestCoverageService)
+], ExplorerTestCoverageBars);
+export {
+  ExplorerTestCoverageBars,
+  ManagedTestCoverageBars
+};
+//# sourceMappingURL=testCoverageBars.js.map

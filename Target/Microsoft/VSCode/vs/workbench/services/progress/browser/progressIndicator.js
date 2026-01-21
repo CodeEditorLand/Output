@@ -1,1 +1,265 @@
-import{$wf as l}from"../../../../base/common/event.js";import{$Ed as f}from"../../../../base/common/lifecycle.js";import{$sH as c}from"../../../../platform/progress/common/progress.js";class y extends f{constructor(i,t){super(),this.a=i,this.b=t,this.c()}c(){this.D(this.b.onDidModelChange(i=>{(i.kind===8||i.kind===6&&this.b.isEmpty)&&this.a.stop().hide()}))}show(i,t){return this.b.isEmpty?c:i===!0?this.f(!0,t):this.f(i,t)}f(i,t){return typeof i=="boolean"?this.a.infinite().show(t):this.a.total(i).show(t),{total:s=>{this.a.total(s)},worked:s=>{this.a.hasTotal()?this.a.worked(s):this.a.infinite().show()},done:()=>{this.a.stop().hide()}}}async showWhile(i,t){if(this.b.isEmpty)try{await i}catch{}return this.g(i,t)}async g(i,t){try{this.a.infinite().show(t),await i}catch{}finally{this.a.stop().hide()}}}var e;(function(o){let i;(function(h){h[h.None=0]="None",h[h.Done=1]="Done",h[h.Infinite=2]="Infinite",h[h.While=3]="While",h[h.Work=4]="Work"})(i=o.Type||(o.Type={})),o.None={type:0},o.Done={type:1},o.Infinite={type:2};class t{constructor(a,n,r){this.whilePromise=a,this.whileStart=n,this.whileDelay=r,this.type=3}}o.While=t;class s{constructor(a,n){this.total=a,this.worked=n,this.type=4}}o.Work=s})(e||(e={}));class d extends f{constructor(i,t){super(),this.b=i,this.c=t,this.a=e.None,this.registerListeners()}registerListeners(){this.D(this.c.onDidChangeActive(()=>{this.c.isActive?this.f():this.g()}))}f(){if(this.a.type!==e.Done.type)if(this.a.type===3){let i;if(this.a.whileDelay>0){const t=this.a.whileDelay-(Date.now()-this.a.whileStart);t>0&&(i=t)}this.h(i)}else this.a.type===2?this.b.infinite().show():this.a.type===4&&(this.a.total&&this.b.total(this.a.total).show(),this.a.worked&&this.b.worked(this.a.worked).show())}g(){this.b.stop().hide()}show(i,t){return typeof i=="boolean"?this.a=e.Infinite:this.a=new e.Work(i,void 0),this.c.isActive&&(this.a.type===2?this.b.infinite().show(t):this.a.type===4&&typeof this.a.total=="number"&&this.b.total(this.a.total).show(t)),{total:s=>{this.a=new e.Work(s,this.a.type===4?this.a.worked:void 0),this.c.isActive&&this.b.total(s)},worked:s=>{!this.c.isActive||this.b.hasTotal()?(this.a=new e.Work(this.a.type===4?this.a.total:void 0,this.a.type===4&&typeof this.a.worked=="number"?this.a.worked+s:s),this.c.isActive&&this.b.worked(s)):(this.a=e.Infinite,this.b.infinite().show())},done:()=>{this.a=e.Done,this.c.isActive&&this.b.stop().hide()}}}async showWhile(i,t){this.a.type===3&&(i=Promise.allSettled([i,this.a.whilePromise])),this.a=new e.While(i,t||0,Date.now());try{this.h(t),await i}catch{}finally{(this.a.type!==3||this.a.whilePromise===i)&&(this.a=e.None,this.c.isActive&&this.b.stop().hide())}}h(i){this.c.isActive&&this.b.infinite().show(i)}}class u extends f{get isActive(){return this.c}constructor(i,t){super(),this.b=i,this.c=t,this.a=this.D(new l),this.onDidChangeActive=this.a.event}f(i){i===this.b&&(this.c||(this.c=!0,this.a.fire()))}g(i){i===this.b&&this.c&&(this.c=!1,this.a.fire())}}export{y as $OAb,d as $PAb,u as $QAb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { emptyProgressRunner } from "../../../../platform/progress/common/progress.js";
+class EditorProgressIndicator extends Disposable {
+  static {
+    __name(this, "EditorProgressIndicator");
+  }
+  constructor(progressBar, group) {
+    super();
+    this.progressBar = progressBar;
+    this.group = group;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.group.onDidModelChange((e) => {
+      if (e.kind === 8 || e.kind === 6 && this.group.isEmpty) {
+        this.progressBar.stop().hide();
+      }
+    }));
+  }
+  show(infiniteOrTotal, delay) {
+    if (this.group.isEmpty) {
+      return emptyProgressRunner;
+    }
+    if (infiniteOrTotal === true) {
+      return this.doShow(true, delay);
+    }
+    return this.doShow(infiniteOrTotal, delay);
+  }
+  doShow(infiniteOrTotal, delay) {
+    if (typeof infiniteOrTotal === "boolean") {
+      this.progressBar.infinite().show(delay);
+    } else {
+      this.progressBar.total(infiniteOrTotal).show(delay);
+    }
+    return {
+      total: /* @__PURE__ */ __name((total) => {
+        this.progressBar.total(total);
+      }, "total"),
+      worked: /* @__PURE__ */ __name((worked) => {
+        if (this.progressBar.hasTotal()) {
+          this.progressBar.worked(worked);
+        } else {
+          this.progressBar.infinite().show();
+        }
+      }, "worked"),
+      done: /* @__PURE__ */ __name(() => {
+        this.progressBar.stop().hide();
+      }, "done")
+    };
+  }
+  async showWhile(promise, delay) {
+    if (this.group.isEmpty) {
+      try {
+        await promise;
+      } catch (error) {
+      }
+    }
+    return this.doShowWhile(promise, delay);
+  }
+  async doShowWhile(promise, delay) {
+    try {
+      this.progressBar.infinite().show(delay);
+      await promise;
+    } catch (error) {
+    } finally {
+      this.progressBar.stop().hide();
+    }
+  }
+}
+var ProgressIndicatorState;
+(function(ProgressIndicatorState2) {
+  let Type;
+  (function(Type2) {
+    Type2[Type2["None"] = 0] = "None";
+    Type2[Type2["Done"] = 1] = "Done";
+    Type2[Type2["Infinite"] = 2] = "Infinite";
+    Type2[Type2["While"] = 3] = "While";
+    Type2[Type2["Work"] = 4] = "Work";
+  })(Type = ProgressIndicatorState2.Type || (ProgressIndicatorState2.Type = {}));
+  ProgressIndicatorState2.None = {
+    type: 0
+    /* Type.None */
+  };
+  ProgressIndicatorState2.Done = {
+    type: 1
+    /* Type.Done */
+  };
+  ProgressIndicatorState2.Infinite = {
+    type: 2
+    /* Type.Infinite */
+  };
+  class While {
+    static {
+      __name(this, "While");
+    }
+    constructor(whilePromise, whileStart, whileDelay) {
+      this.whilePromise = whilePromise;
+      this.whileStart = whileStart;
+      this.whileDelay = whileDelay;
+      this.type = 3;
+    }
+  }
+  ProgressIndicatorState2.While = While;
+  class Work {
+    static {
+      __name(this, "Work");
+    }
+    constructor(total, worked) {
+      this.total = total;
+      this.worked = worked;
+      this.type = 4;
+    }
+  }
+  ProgressIndicatorState2.Work = Work;
+})(ProgressIndicatorState || (ProgressIndicatorState = {}));
+class ScopedProgressIndicator extends Disposable {
+  static {
+    __name(this, "ScopedProgressIndicator");
+  }
+  constructor(progressBar, scope) {
+    super();
+    this.progressBar = progressBar;
+    this.scope = scope;
+    this.progressState = ProgressIndicatorState.None;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.scope.onDidChangeActive(() => {
+      if (this.scope.isActive) {
+        this.onDidScopeActivate();
+      } else {
+        this.onDidScopeDeactivate();
+      }
+    }));
+  }
+  onDidScopeActivate() {
+    if (this.progressState.type === ProgressIndicatorState.Done.type) {
+      return;
+    }
+    if (this.progressState.type === 3) {
+      let delay;
+      if (this.progressState.whileDelay > 0) {
+        const remainingDelay = this.progressState.whileDelay - (Date.now() - this.progressState.whileStart);
+        if (remainingDelay > 0) {
+          delay = remainingDelay;
+        }
+      }
+      this.doShowWhile(delay);
+    } else if (this.progressState.type === 2) {
+      this.progressBar.infinite().show();
+    } else if (this.progressState.type === 4) {
+      if (this.progressState.total) {
+        this.progressBar.total(this.progressState.total).show();
+      }
+      if (this.progressState.worked) {
+        this.progressBar.worked(this.progressState.worked).show();
+      }
+    }
+  }
+  onDidScopeDeactivate() {
+    this.progressBar.stop().hide();
+  }
+  show(infiniteOrTotal, delay) {
+    if (typeof infiniteOrTotal === "boolean") {
+      this.progressState = ProgressIndicatorState.Infinite;
+    } else {
+      this.progressState = new ProgressIndicatorState.Work(infiniteOrTotal, void 0);
+    }
+    if (this.scope.isActive) {
+      if (this.progressState.type === 2) {
+        this.progressBar.infinite().show(delay);
+      } else if (this.progressState.type === 4 && typeof this.progressState.total === "number") {
+        this.progressBar.total(this.progressState.total).show(delay);
+      }
+    }
+    return {
+      total: /* @__PURE__ */ __name((total) => {
+        this.progressState = new ProgressIndicatorState.Work(total, this.progressState.type === 4 ? this.progressState.worked : void 0);
+        if (this.scope.isActive) {
+          this.progressBar.total(total);
+        }
+      }, "total"),
+      worked: /* @__PURE__ */ __name((worked) => {
+        if (!this.scope.isActive || this.progressBar.hasTotal()) {
+          this.progressState = new ProgressIndicatorState.Work(this.progressState.type === 4 ? this.progressState.total : void 0, this.progressState.type === 4 && typeof this.progressState.worked === "number" ? this.progressState.worked + worked : worked);
+          if (this.scope.isActive) {
+            this.progressBar.worked(worked);
+          }
+        } else {
+          this.progressState = ProgressIndicatorState.Infinite;
+          this.progressBar.infinite().show();
+        }
+      }, "worked"),
+      done: /* @__PURE__ */ __name(() => {
+        this.progressState = ProgressIndicatorState.Done;
+        if (this.scope.isActive) {
+          this.progressBar.stop().hide();
+        }
+      }, "done")
+    };
+  }
+  async showWhile(promise, delay) {
+    if (this.progressState.type === 3) {
+      promise = Promise.allSettled([promise, this.progressState.whilePromise]);
+    }
+    this.progressState = new ProgressIndicatorState.While(promise, delay || 0, Date.now());
+    try {
+      this.doShowWhile(delay);
+      await promise;
+    } catch (error) {
+    } finally {
+      if (this.progressState.type !== 3 || this.progressState.whilePromise === promise) {
+        this.progressState = ProgressIndicatorState.None;
+        if (this.scope.isActive) {
+          this.progressBar.stop().hide();
+        }
+      }
+    }
+  }
+  doShowWhile(delay) {
+    if (this.scope.isActive) {
+      this.progressBar.infinite().show(delay);
+    }
+  }
+}
+class AbstractProgressScope extends Disposable {
+  static {
+    __name(this, "AbstractProgressScope");
+  }
+  get isActive() {
+    return this._isActive;
+  }
+  constructor(scopeId, _isActive) {
+    super();
+    this.scopeId = scopeId;
+    this._isActive = _isActive;
+    this._onDidChangeActive = this._register(new Emitter());
+    this.onDidChangeActive = this._onDidChangeActive.event;
+  }
+  onScopeOpened(scopeId) {
+    if (scopeId === this.scopeId) {
+      if (!this._isActive) {
+        this._isActive = true;
+        this._onDidChangeActive.fire();
+      }
+    }
+  }
+  onScopeClosed(scopeId) {
+    if (scopeId === this.scopeId) {
+      if (this._isActive) {
+        this._isActive = false;
+        this._onDidChangeActive.fire();
+      }
+    }
+  }
+}
+export {
+  AbstractProgressScope,
+  EditorProgressIndicator,
+  ScopedProgressIndicator
+};
+//# sourceMappingURL=progressIndicator.js.map

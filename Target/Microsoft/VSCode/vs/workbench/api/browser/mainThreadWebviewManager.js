@@ -1,1 +1,48 @@
-import{$Ed as c}from"../../../base/common/lifecycle.js";import{$Lj as h}from"../../../platform/instantiation/common/instantiation.js";import{$D7b as u}from"./mainThreadCustomEditors.js";import{$u7b as $}from"./mainThreadWebviewPanels.js";import{$73b as l}from"./mainThreadWebviews.js";import{$G7b as w}from"./mainThreadWebviewViews.js";import*as b from"../common/extHost.protocol.js";import{$wCb as d}from"../../services/extensions/common/extHostCustomers.js";import{$H7b as _}from"./mainThreadChatOutputRenderer.js";var n=function(a,e,r,t){var o=arguments.length,s=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,e,r,t);else for(var m=a.length-1;m>=0;m--)(i=a[m])&&(s=(o<3?i(s):o>3?i(e,r,s):i(e,r))||s);return o>3&&s&&Object.defineProperty(e,r,s),s},p=function(a,e){return function(r,t){e(r,t,a)}};let f=class extends c{constructor(e,r){super();const t=this.D(r.createInstance(l,e));e.set(b.$b1.MainThreadWebviews,t);const o=this.D(r.createInstance($,e,t));e.set(b.$b1.MainThreadWebviewPanels,o);const s=this.D(r.createInstance(u,e,t,o));e.set(b.$b1.MainThreadCustomEditors,s);const i=this.D(r.createInstance(w,e,t));e.set(b.$b1.MainThreadWebviewViews,i);const m=this.D(r.createInstance(_,e,t));e.set(b.$b1.MainThreadChatOutputRenderer,m)}};f=n([d,p(1,h)],f);export{f as $I7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { MainThreadCustomEditors } from "./mainThreadCustomEditors.js";
+import { MainThreadWebviewPanels } from "./mainThreadWebviewPanels.js";
+import { MainThreadWebviews } from "./mainThreadWebviews.js";
+import { MainThreadWebviewsViews } from "./mainThreadWebviewViews.js";
+import * as extHostProtocol from "../common/extHost.protocol.js";
+import { extHostCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { MainThreadChatOutputRenderer } from "./mainThreadChatOutputRenderer.js";
+let MainThreadWebviewManager = class MainThreadWebviewManager2 extends Disposable {
+  static {
+    __name(this, "MainThreadWebviewManager");
+  }
+  constructor(context, instantiationService) {
+    super();
+    const webviews = this._register(instantiationService.createInstance(MainThreadWebviews, context));
+    context.set(extHostProtocol.MainContext.MainThreadWebviews, webviews);
+    const webviewPanels = this._register(instantiationService.createInstance(MainThreadWebviewPanels, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewPanels, webviewPanels);
+    const customEditors = this._register(instantiationService.createInstance(MainThreadCustomEditors, context, webviews, webviewPanels));
+    context.set(extHostProtocol.MainContext.MainThreadCustomEditors, customEditors);
+    const webviewViews = this._register(instantiationService.createInstance(MainThreadWebviewsViews, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadWebviewViews, webviewViews);
+    const chatOutputRenderers = this._register(instantiationService.createInstance(MainThreadChatOutputRenderer, context, webviews));
+    context.set(extHostProtocol.MainContext.MainThreadChatOutputRenderer, chatOutputRenderers);
+  }
+};
+MainThreadWebviewManager = __decorate([
+  extHostCustomer,
+  __param(1, IInstantiationService)
+], MainThreadWebviewManager);
+export {
+  MainThreadWebviewManager
+};
+//# sourceMappingURL=mainThreadWebviewManager.js.map

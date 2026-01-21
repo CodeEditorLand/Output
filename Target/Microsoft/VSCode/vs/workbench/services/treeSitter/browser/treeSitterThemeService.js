@@ -1,1 +1,39 @@
-import{derived as s,observableFromEvent as b}from"../../../../base/common/observable.js";import{$ZZb as m}from"../../themes/common/colorThemeData.js";import{$nCb as p}from"../../themes/common/workbenchThemeService.js";var c=function(n,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,r);else for(var a=n.length-1;a>=0;a--)(h=n[a])&&(o=(i<3?h(o):i>3?h(t,e,o):h(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},l=function(n,t){return function(e,r){t(e,r,n)}};let f=class{constructor(t){this.b=t,this.a=b(this.b.onDidColorThemeChange,()=>this.b.getColorTheme()),this.onChange=s(this,e=>{this.a.read(e),e.reportChange(void 0)})}findMetadata(t,e,r,i){return m(this.a.read(i),t,e,r)}};f=c([l(0,p)],f);export{f as $lbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { derived, observableFromEvent } from "../../../../base/common/observable.js";
+import { findMetadata } from "../../themes/common/colorThemeData.js";
+import { IWorkbenchThemeService } from "../../themes/common/workbenchThemeService.js";
+let TreeSitterThemeService = class TreeSitterThemeService2 {
+  static {
+    __name(this, "TreeSitterThemeService");
+  }
+  constructor(_themeService) {
+    this._themeService = _themeService;
+    this._colorTheme = observableFromEvent(this._themeService.onDidColorThemeChange, () => this._themeService.getColorTheme());
+    this.onChange = derived(this, (reader) => {
+      this._colorTheme.read(reader);
+      reader.reportChange(void 0);
+    });
+  }
+  findMetadata(captureNames, languageId, bracket, reader) {
+    return findMetadata(this._colorTheme.read(reader), captureNames, languageId, bracket);
+  }
+};
+TreeSitterThemeService = __decorate([
+  __param(0, IWorkbenchThemeService)
+], TreeSitterThemeService);
+export {
+  TreeSitterThemeService
+};
+//# sourceMappingURL=treeSitterThemeService.js.map

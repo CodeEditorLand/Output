@@ -1,1 +1,58 @@
-import{localize as $}from"../../../../nls.js";import{$9M as d}from"../../../common/editor.js";import{$op as h}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as _}from"../../../../platform/theme/common/themeService.js";import{$IRb as b}from"./sideBySideEditor.js";import{$Lj as g}from"../../../../platform/instantiation/common/instantiation.js";import{$S0b as p}from"./binaryEditor.js";import{$gp as y}from"../../../../platform/storage/common/storage.js";import{$9l as P}from"../../../../platform/configuration/common/configuration.js";import{$aI as j}from"../../../../editor/common/services/textResourceConfiguration.js";import{$uL as v}from"../../../services/editor/common/editorGroupsService.js";import{$yL as M}from"../../../services/editor/common/editorService.js";var l=function(n,t,r,e){var f=arguments.length,o=f<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,r,e);else for(var a=n.length-1;a>=0;a--)(m=n[a])&&(o=(f<3?m(o):f>3?m(t,r,o):m(t,r))||o);return f>3&&o&&Object.defineProperty(t,r,o),o},i=function(n,t){return function(r,e){t(r,e,n)}};let c=class extends b{static{this.ID=d}constructor(t,r,e,f,o,m,a,s,u){super(t,r,e,f,o,m,a,s,u)}getMetadata(){const t=this.getPrimaryEditorPane(),r=this.getSecondaryEditorPane();if(t instanceof p&&r instanceof p)return $(3421,null,r.getMetadata(),t.getMetadata())}};c=l([i(1,h),i(2,g),i(3,_),i(4,y),i(5,P),i(6,j),i(7,M),i(8,v)],c);export{c as $T0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { BINARY_DIFF_EDITOR_ID } from "../../../common/editor.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { SideBySideEditor } from "./sideBySideEditor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { BaseBinaryResourceEditor } from "./binaryEditor.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+let BinaryResourceDiffEditor = class BinaryResourceDiffEditor2 extends SideBySideEditor {
+  static {
+    __name(this, "BinaryResourceDiffEditor");
+  }
+  static {
+    this.ID = BINARY_DIFF_EDITOR_ID;
+  }
+  constructor(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService) {
+    super(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService);
+  }
+  getMetadata() {
+    const primary = this.getPrimaryEditorPane();
+    const secondary = this.getSecondaryEditorPane();
+    if (primary instanceof BaseBinaryResourceEditor && secondary instanceof BaseBinaryResourceEditor) {
+      return localize("metadataDiff", "{0} \u2194 {1}", secondary.getMetadata(), primary.getMetadata());
+    }
+    return void 0;
+  }
+};
+BinaryResourceDiffEditor = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IInstantiationService),
+  __param(3, IThemeService),
+  __param(4, IStorageService),
+  __param(5, IConfigurationService),
+  __param(6, ITextResourceConfigurationService),
+  __param(7, IEditorService),
+  __param(8, IEditorGroupsService)
+], BinaryResourceDiffEditor);
+export {
+  BinaryResourceDiffEditor
+};
+//# sourceMappingURL=binaryDiffEditor.js.map

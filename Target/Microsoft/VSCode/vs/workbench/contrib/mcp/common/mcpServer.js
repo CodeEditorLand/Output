@@ -1,5 +1,942 @@
-import{$Ai as rt,$Vh as nt,$3h as ot}from"../../../../base/common/async.js";import{CancellationToken as M,$If as L}from"../../../../base/common/cancellation.js";import{Iterable as at}from"../../../../base/common/iterator.js";import*as q from"../../../../base/common/json.js";import{$Om as lt}from"../../../../base/common/labels.js";import{$Ed as H,$Dd as ct,$Cd as J}from"../../../../base/common/lifecycle.js";import{$Rc as ht}from"../../../../base/common/map.js";import{Schemas as ut}from"../../../../base/common/network.js";import{$Kp as mt}from"../../../../base/common/objects.js";import{autorun as R,autorunSelfDisposable as ft,derived as I,disposableObservableValue as dt,observableFromEvent as pt,ObservablePromise as P,observableValue as V,transaction as F}from"../../../../base/common/observable.js";import{$Eh as vt}from"../../../../base/common/resources.js";import{URI as T}from"../../../../base/common/uri.js";import{$t5 as gt}from"../../../../base/common/uriTransformer.js";import{$kn as bt}from"../../../../base/common/uuid.js";import{localize as S}from"../../../../nls.js";import{$to as yt}from"../../../../platform/commands/common/commands.js";import{$Lj as St}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as wt}from"../../../../platform/log/common/log.js";import{$mH as K,Severity as A}from"../../../../platform/notification/common/notification.js";import{$yP as $t}from"../../../../platform/opener/common/opener.js";import{$gp as Pt}from"../../../../platform/storage/common/storage.js";import{$op as Tt}from"../../../../platform/telemetry/common/telemetry.js";import{$Ll as It}from"../../../../platform/workspace/common/workspace.js";import{$yL as Ct}from"../../../services/editor/common/editorService.js";import{$BP as Rt}from"../../../services/environment/common/environmentService.js";import{$4R as Dt}from"../../../services/extensions/common/extensions.js";import{$BZ as Nt}from"../../../services/output/common/output.js";import{$tS as jt}from"./mcpConfiguration.js";import{$z2b as Ot}from"./mcpDevMode.js";import{$D2b as C,$C2b as _t}from"./mcpIcons.js";import{$JS as qt}from"./mcpRegistryTypes.js";import{$IS as Mt}from"./mcpTaskManager.js";import{$US as At,$aT as Q,$$S as kt,$4S as W,McpConnectionState as D,$1S as Et,McpResourceURI as Z,$3S as Ut,$5S as Lt}from"./mcpTypes.js";import{MCP as Jt}from"./modelContextProtocol.js";import{$TS as Ft}from"./uriTemplate.js";var E=function(h,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,i);else for(var r=h.length-1;r>=0;r--)(a=h[r])&&(n=(s<3?a(n):s>3?a(t,e,n):a(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},v=function(h,t){return function(e,i){t(e,i,h)}},j;const Wt={serverName:void 0,serverIcons:[],serverInstructions:void 0,trustedAtNonce:void 0,nonce:void 0,tools:[],prompts:void 0,capabilities:void 0},B=/[^a-z0-9_-]/gi;let G=class extends H{constructor(t,e){super(),this.f=!1,this.g=new ht(128),this.j=new Map;const i="mcpToolCache";this.D(e.onWillSaveState(()=>{this.f&&(e.store(i,{extensionServers:[...this.j],serverTools:this.g.toJSON()},t,1),this.f=!1)}));try{const s=e.getObject(i,t);this.j=new Map(s?.extensionServers??[]),s?.serverTools?.forEach(([n,a])=>this.g.set(n,a))}catch{}}reset(){this.g.clear(),this.j.clear(),this.f=!0}get(t){return this.g.get(t)}store(t,e){const i=this.get(t)||Wt;this.g.set(t,{...i,...e}),this.f=!0}getServers(t){return this.j.get(t)}storeServers(t,e){e?this.j.set(t,e):this.j.delete(t),this.f=!0}};G=E([v(1,Pt)],G);class N{constructor(t,e,i,s,n,a){this.f=t,this.g=e,this.j=i,this.l=s,this.n=n,this.p=a,this.fromServerPromise=V(this,void 0),this.q=I(r=>this.fromServerPromise.read(r)?.promiseResult.read(r)?.data),this.value=I(r=>{const l=this.q.read(r)?.data??this.j?.read(r)??this.fromCache?.data??this.p;return this.n(l,r)})}get fromCache(){const t=this.g.get(this.f);return t?{data:this.l(t),nonce:t.nonce}:void 0}hasStaticDefinition(t){return!!this.j?.read(t)}}let $=j=class extends H{static async callOn(t,e,i=M.None){await t.start({promptType:"all-untrusted"});let s=!1,n;const a=new Promise((r,f)=>{n=R(l=>{const c=t.connection.read(l);if(!c||s)return;const m=c.handler.read(l);if(!m){const g=c.state.read(l);if(g.state===3){f(new W(`MCP server could not be started: ${g.message}`));return}else if(g.state===0){f(new W("MCP server has stopped"));return}else return}r(e(m)),s=!0})});return nt(a,i).finally(()=>n.dispose())}get capabilities(){return this.n.value}get tools(){return this.q.value}get prompts(){return this.u.value}get serverMetadata(){return this.y.value}get trustedAtNonce(){return this.J.get(this.definition.id)?.trustedAtNonce}set trustedAtNonce(t){this.J.store(this.definition.id,{trustedAtNonce:t})}get logger(){return this.G}constructor(t,e,i,s,n,a,r,f,l,c,m,g,b,p,y,X,Y,x,U){super(),this.definition=e,this.I=s,this.J=n,this.L=r,this.M=l,this.N=c,this.O=m,this.P=g,this.Q=b,this.S=p,this.U=y,this.W=X,this.X=Y,this.Y=x,this.f=this.D(new Mt),this.g=new ot,this.j=this.D(dt(this,void 0)),this.connection=this.j,this.connectionState=I(o=>this.j.read(o)?.state.read(o)??{state:0}),this.cacheState=I(o=>{const u=()=>this.z.read(o)?.server?.cacheNonce,d=()=>this.q.hasStaticDefinition(o)?1:this.q.fromCache?u()===this.q.fromCache.nonce?1:2:0,w=this.q.fromServerPromise.read(o),it=this.connectionState.read(o);if(D.canBeStarted(it.state)||!w)return d();const _=w?.promiseResult.read(o);return _?_.error?d():_.data?.nonce===u()?5:2:this.q.fromCache?4:3}),this.H=!1,this.runningToolCalls=new Set,this.collection=t,this.z=this.L.getServerDefinition(this.collection,this.definition),this.F=`mcpServer.${e.id}`,this.G=this.D(c.createLogger(this.F,{hidden:!0,name:`MCP: ${e.label}`}));const tt=this;this.D(this.S.createInstance(Ot,this,{get lastModeDebugged(){return tt.H}})),this.D(J(()=>c.deregisterLogger(this.F)));const et=i?V(this,i.map(o=>({uri:o,name:vt(o)}))):pt(this,f.onDidChangeWorkspaceFolders,()=>f.getWorkspace().folders),st=U.remoteAuthority?gt(U.remoteAuthority):void 0;this.D(R(o=>{const u=this.j.read(o)?.handler.read(o);u&&(u.roots=et.read(o).filter(d=>d.uri.authority===(t.remoteAuthority||"")).map(d=>{let w=T.from(st?.transformIncoming(d.uri)??d.uri);return w.scheme===ut.file&&(w=T.file(lt(w.fsPath,!0))),{name:d.name,uri:w.toString()}}))})),this.D(R(o=>{const u=this.j.read(o),d=u?.handler.read(o);d?this.hb(d,u?.definition.cacheNonce,o.store):this.q&&this.$()}));const O=I(o=>{const u=this.z.read(o).server;return u&&u.cacheNonce!==this.q.fromCache?.nonce?u.staticMetadata:void 0});this.q=new N(this.definition.id,this.J,O.map(o=>{const u=o?.tools?.filter(d=>d.availability===0).map(d=>d.definition);return u?.length?new P(this.bb(u)):void 0}).map((o,u)=>o?.promiseResult.read(u)?.data),o=>o.tools,o=>o.map(u=>this.S.createInstance(k,this,a,u)).sort((u,d)=>u.compare(d)),[]),this.u=new N(this.definition.id,this.J,void 0,o=>o.prompts||[],o=>o.map(u=>new Bt(this,u)),[]),this.y=new N(this.definition.id,this.J,O.map(o=>o?this.fb(o?.serverInfo,o?.instructions):void 0),o=>({serverName:o.serverName,serverInstructions:o.serverInstructions,serverIcons:o.serverIcons}),o=>({serverName:o?.serverName,serverInstructions:o?.serverInstructions,icons:C.fromStored(o?.serverIcons)}),void 0),this.n=new N(this.definition.id,this.J,O.map(o=>o?.capabilities!==void 0?z(o.capabilities):void 0),o=>o.capabilities,o=>o,void 0)}readDefinitions(){return this.z}showOutput(t){return this.N.setVisibility(this.F,!0),this.O.showChannel(this.F,t)}resources(t){const e=new L(t);return new rt(async i=>{await j.callOn(this,async s=>{for await(const n of s.listResourcesIterable({},e.token))if(i.emitOne(n.map(a=>new zt(this,a,C.fromParsed(this.cb(a))))),e.token.isCancellationRequested)return})},()=>e.dispose(!0))}resourceTemplates(t){return j.callOn(this,async e=>(await e.listResourceTemplates({},t)).map(s=>new Ht(this,s,C.fromParsed(this.cb(s)))),t)}start({interaction:t,autoTrustChanges:e,promptType:i,debug:s,errorOnUserInteraction:n}={}){return t?.participants.set(this.definition.id,{s:"unknown"}),this.g.queue(async()=>{const a=jt(this.collection.id.slice(At.length));if(this.I&&!this.M.activationEventIsDone(a)&&(await this.M.activateByEvent(a),await Promise.all(this.L.delegates.get().map(c=>c.waitForInitialProviderPromises())),this.B.isDisposed))return{state:0};let r=this.j.get();if(r&&D.canBeStarted(r.state.get().state)&&(r.dispose(),r=void 0,this.j.set(r,void 0)),!r){this.H=!!s;const c=this;if(r=await this.L.resolveConnection({interaction:t,autoTrustChanges:e,promptType:i,trustNonceBearer:{get trustedAtNonce(){return c.trustedAtNonce},set trustedAtNonce(m){c.trustedAtNonce=m}},logger:this.G,collectionRef:this.collection,definitionRef:this.definition,debug:s,errorOnUserInteraction:n,taskManager:this.f}),!r)return{state:0};if(this.B.isDisposed)return r.dispose(),{state:0};this.j.set(r,void 0),r.definition.devMode&&this.showOutput()}const f=Date.now();let l=await r.start({createMessageRequestHandler:(c,m)=>this.X.sample({isDuringToolCall:this.runningToolCalls.size>0,server:this,params:c},m).then(g=>g.sample),elicitationRequestHandler:async(c,m)=>{const g=r.handler.get()?.serverInfo;g&&this.P.publicLog2("mcp.elicitationRequested",{serverName:g.name,serverVersion:g.version});const b=await this.Y.elicit(this,at.first(this.runningToolCalls),c,m||M.None);return b.dispose(),b.value}});if(this.P.publicLog2("mcp/serverBootState",{state:D.toKindString(l.state),time:Date.now()-f}),l.state===3&&this.Z(r,l,s),n&&l.state===2){let c;l=await new Promise((m,g)=>{c=R(b=>{r.handler.read(b)&&m(l);const y=r.state.read(b);y.state===0&&y.reason==="needs-user-interaction"&&g(new Lt("auth")),D.isRunning(y)||m(y)})}).finally(()=>c.dispose())}return l}).finally(()=>{t?.participants.set(this.definition.id,{s:"resolved"})})}Z(t,e,i){if(e.code==="ENOENT"&&t.launchDefinition.type===1){let s;switch(t.launchDefinition.command){case"uvx":s="https://aka.ms/vscode-mcp-install/uvx";break;case"npx":s="https://aka.ms/vscode-mcp-install/npx";break;case"dnx":s="https://aka.ms/vscode-mcp-install/dnx";break;case"dotnet":s="https://aka.ms/vscode-mcp-install/dotnet";break}const n=[{label:S(10149,null),run:()=>this.showOutput()}];if(t.definition.devMode?.debug?.type==="debugpy"&&i){this.U.prompt(A.Error,S(10150,null,t.launchDefinition.command,t.definition.label),[...n,{label:S(10151,null),run:()=>this.W.open(T.parse("https://aka.ms/vscode-mcp-install/debugpy"))}]);return}s&&n.push({label:S(10152,null,t.launchDefinition.command),run:()=>this.W.open(T.parse(s))}),this.U.prompt(A.Error,S(10153,null,t.launchDefinition.command,t.definition.label),n)}else this.U.warn(S(10154,null,t.definition.label,e.message))}stop(){return this.j.get()?.stop()||Promise.resolve()}awaitToolRefresh(){return new Promise(t=>{ft(e=>{this.q.fromServerPromise.read(e)?.promiseResult.read(e)&&t()})})}$(){F(t=>{this.q.fromServerPromise.set(void 0,t),this.u.fromServerPromise.set(void 0,t)})}async ab(t){const e=t._meta?.ui;let i=3;e?.visibility&&Array.isArray(e.visibility)&&(i&=0,e.visibility.includes("model")&&(i|=1),e.visibility.includes("app")&&(i|=2));const s={...t,serverToolName:t.name,_icons:this.cb(t),visibility:i,uiResourceUri:e?.resourceUri};s.description||(this.G.warn(`Tool ${s.name} does not have a description. Tools must be accurately described to be called`),s.description="<empty>"),B.test(s.name)&&(this.G.warn(`Tool ${JSON.stringify(s.name)} is invalid. Tools names may only contain [a-z0-9_-]`),s.name=s.name.replace(B,"_"));let n=[];const a=JSON.stringify(s.inputSchema);try{const l=T.parse("https://json-schema.org/draft-07/schema");n=await this.Q.executeCommand("json.validate",l,a)||[]}catch{}if(!n.length)return s;const r=q.$Av(a);return{error:n.map(l=>{const c=q.$Fv(r,l.range[0].character),m=c&&`/${q.$Cv(c).join("/")}`;return l.message+(m?` (at ${m})`:"")})}}async bb(t){let e="";const i=await Promise.all(t.map(n=>this.ab(n))),s=[];for(const[n,a]of i.entries())if("error"in a){e+=S(10155,null,t[n].name)+`
-`;for(const r of a.error)e+=`	- ${r}
-`;e+=`	- Schema: ${JSON.stringify(t[n].inputSchema)}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var McpServer_1;
+import { AsyncIterableProducer, raceCancellationError, Sequencer } from "../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import * as json from "../../../../base/common/json.js";
+import { normalizeDriveLetter } from "../../../../base/common/labels.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { LRUCache } from "../../../../base/common/map.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { mapValues } from "../../../../base/common/objects.js";
+import { autorun, autorunSelfDisposable, derived, disposableObservableValue, observableFromEvent, ObservablePromise, observableValue, transaction } from "../../../../base/common/observable.js";
+import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { createURITransformer } from "../../../../base/common/uriTransformer.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { mcpActivationEvent } from "./mcpConfiguration.js";
+import { McpDevModeServerAttache } from "./mcpDevMode.js";
+import { McpIcons, parseAndValidateMcpIcon } from "./mcpIcons.js";
+import { IMcpRegistry } from "./mcpRegistryTypes.js";
+import { McpTaskManager } from "./mcpTaskManager.js";
+import { extensionMcpCollectionPrefix, IMcpElicitationService, IMcpSamplingService, McpConnectionFailedError, McpConnectionState, mcpPromptReplaceSpecialChars, McpResourceURI, MpcResponseError, UserInteractionRequiredError } from "./mcpTypes.js";
+import { MCP } from "./modelContextProtocol.js";
+import { UriTemplate } from "./uriTemplate.js";
+const emptyToolEntry = {
+  serverName: void 0,
+  serverIcons: [],
+  serverInstructions: void 0,
+  trustedAtNonce: void 0,
+  nonce: void 0,
+  tools: [],
+  prompts: void 0,
+  capabilities: void 0
+};
+const toolInvalidCharRe = /[^a-z0-9_-]/gi;
+let McpServerMetadataCache = class McpServerMetadataCache2 extends Disposable {
+  static {
+    __name(this, "McpServerMetadataCache");
+  }
+  constructor(scope, storageService) {
+    super();
+    this.didChange = false;
+    this.cache = new LRUCache(128);
+    this.extensionServers = /* @__PURE__ */ new Map();
+    const storageKey = "mcpToolCache";
+    this._register(storageService.onWillSaveState(() => {
+      if (this.didChange) {
+        storageService.store(
+          storageKey,
+          {
+            extensionServers: [...this.extensionServers],
+            serverTools: this.cache.toJSON()
+          },
+          scope,
+          1
+          /* StorageTarget.MACHINE */
+        );
+        this.didChange = false;
+      }
+    }));
+    try {
+      const cached = storageService.getObject(storageKey, scope);
+      this.extensionServers = new Map(cached?.extensionServers ?? []);
+      cached?.serverTools?.forEach(([k, v]) => this.cache.set(k, v));
+    } catch {
+    }
+  }
+  /** Resets the cache for primitives and extension servers */
+  reset() {
+    this.cache.clear();
+    this.extensionServers.clear();
+    this.didChange = true;
+  }
+  /** Gets cached primitives for a server (used before a server is running) */
+  get(definitionId) {
+    return this.cache.get(definitionId);
+  }
+  /** Sets cached primitives for a server */
+  store(definitionId, entry) {
+    const prev = this.get(definitionId) || emptyToolEntry;
+    this.cache.set(definitionId, { ...prev, ...entry });
+    this.didChange = true;
+  }
+  /** Gets cached servers for a collection (used for extensions, before the extension activates) */
+  getServers(collectionId) {
+    return this.extensionServers.get(collectionId);
+  }
+  /** Sets cached servers for a collection */
+  storeServers(collectionId, entry) {
+    if (entry) {
+      this.extensionServers.set(collectionId, entry);
+    } else {
+      this.extensionServers.delete(collectionId);
+    }
+    this.didChange = true;
+  }
+};
+McpServerMetadataCache = __decorate([
+  __param(1, IStorageService)
+], McpServerMetadataCache);
+class CachedPrimitive {
+  static {
+    __name(this, "CachedPrimitive");
+  }
+  /**
+   * @param _definitionId Server definition ID
+   * @param _cache Metadata cache instance
+   * @param _fromStaticDefinition Static definition that came with the server.
+   * This should ONLY have a value if it should be used instead of whatever
+   * is currently in the cache.
+   * @param _fromCache Pull the value from the cache entry.
+   * @param _toT Transform the value to the observable type.
+   * @param defaultValue Default value if no cache entry.
+   */
+  constructor(_definitionId, _cache, _fromStaticDefinition, _fromCache, _toT, defaultValue) {
+    this._definitionId = _definitionId;
+    this._cache = _cache;
+    this._fromStaticDefinition = _fromStaticDefinition;
+    this._fromCache = _fromCache;
+    this._toT = _toT;
+    this.defaultValue = defaultValue;
+    this.fromServerPromise = observableValue(this, void 0);
+    this.fromServer = derived((reader) => this.fromServerPromise.read(reader)?.promiseResult.read(reader)?.data);
+    this.value = derived((reader) => {
+      const serverTools = this.fromServer.read(reader);
+      const definitions = serverTools?.data ?? this._fromStaticDefinition?.read(reader) ?? this.fromCache?.data ?? this.defaultValue;
+      return this._toT(definitions, reader);
+    });
+  }
+  get fromCache() {
+    const c = this._cache.get(this._definitionId);
+    return c ? { data: this._fromCache(c), nonce: c.nonce } : void 0;
+  }
+  hasStaticDefinition(reader) {
+    return !!this._fromStaticDefinition?.read(reader);
+  }
+}
+let McpServer = McpServer_1 = class McpServer2 extends Disposable {
+  static {
+    __name(this, "McpServer");
+  }
+  /**
+   * Helper function to call the function on the handler once it's online. The
+   * connection started if it is not already.
+   */
+  static async callOn(server, fn, token = CancellationToken.None) {
+    await server.start({ promptType: "all-untrusted" });
+    let ranOnce = false;
+    let d;
+    const callPromise = new Promise((resolve, reject) => {
+      d = autorun((reader) => {
+        const connection = server.connection.read(reader);
+        if (!connection || ranOnce) {
+          return;
+        }
+        const handler = connection.handler.read(reader);
+        if (!handler) {
+          const state = connection.state.read(reader);
+          if (state.state === 3) {
+            reject(new McpConnectionFailedError(`MCP server could not be started: ${state.message}`));
+            return;
+          } else if (state.state === 0) {
+            reject(new McpConnectionFailedError("MCP server has stopped"));
+            return;
+          } else {
+            return;
+          }
+        }
+        resolve(fn(handler));
+        ranOnce = true;
+      });
+    });
+    return raceCancellationError(callPromise, token).finally(() => d.dispose());
+  }
+  get capabilities() {
+    return this._capabilities.value;
+  }
+  get tools() {
+    return this._tools.value;
+  }
+  get prompts() {
+    return this._prompts.value;
+  }
+  get serverMetadata() {
+    return this._serverMetadata.value;
+  }
+  get trustedAtNonce() {
+    return this._primitiveCache.get(this.definition.id)?.trustedAtNonce;
+  }
+  set trustedAtNonce(nonce) {
+    this._primitiveCache.store(this.definition.id, { trustedAtNonce: nonce });
+  }
+  get logger() {
+    return this._logger;
+  }
+  constructor(initialCollection, definition, explicitRoots, _requiresExtensionActivation, _primitiveCache, toolPrefix, _mcpRegistry, workspacesService, _extensionService, _loggerService, _outputService, _telemetryService, _commandService, _instantiationService, _notificationService, _openerService, _samplingService, _elicitationService, environmentService) {
+    super();
+    this.definition = definition;
+    this._requiresExtensionActivation = _requiresExtensionActivation;
+    this._primitiveCache = _primitiveCache;
+    this._mcpRegistry = _mcpRegistry;
+    this._extensionService = _extensionService;
+    this._loggerService = _loggerService;
+    this._outputService = _outputService;
+    this._telemetryService = _telemetryService;
+    this._commandService = _commandService;
+    this._instantiationService = _instantiationService;
+    this._notificationService = _notificationService;
+    this._openerService = _openerService;
+    this._samplingService = _samplingService;
+    this._elicitationService = _elicitationService;
+    this._taskManager = this._register(new McpTaskManager());
+    this._connectionSequencer = new Sequencer();
+    this._connection = this._register(disposableObservableValue(this, void 0));
+    this.connection = this._connection;
+    this.connectionState = derived((reader) => this._connection.read(reader)?.state.read(reader) ?? {
+      state: 0
+      /* McpConnectionState.Kind.Stopped */
+    });
+    this.cacheState = derived((reader) => {
+      const currentNonce = /* @__PURE__ */ __name(() => this._fullDefinitions.read(reader)?.server?.cacheNonce, "currentNonce");
+      const stateWhenServingFromCache = /* @__PURE__ */ __name(() => {
+        if (this._tools.hasStaticDefinition(reader)) {
+          return 1;
+        }
+        if (!this._tools.fromCache) {
+          return 0;
+        }
+        return currentNonce() === this._tools.fromCache.nonce ? 1 : 2;
+      }, "stateWhenServingFromCache");
+      const fromServer = this._tools.fromServerPromise.read(reader);
+      const connectionState = this.connectionState.read(reader);
+      const isIdle = McpConnectionState.canBeStarted(connectionState.state) || !fromServer;
+      if (isIdle) {
+        return stateWhenServingFromCache();
+      }
+      const fromServerResult = fromServer?.promiseResult.read(reader);
+      if (!fromServerResult) {
+        return this._tools.fromCache ? 4 : 3;
+      }
+      if (fromServerResult.error) {
+        return stateWhenServingFromCache();
+      }
+      return fromServerResult.data?.nonce === currentNonce() ? 5 : 2;
+    });
+    this._lastModeDebugged = false;
+    this.runningToolCalls = /* @__PURE__ */ new Set();
+    this.collection = initialCollection;
+    this._fullDefinitions = this._mcpRegistry.getServerDefinition(this.collection, this.definition);
+    this._loggerId = `mcpServer.${definition.id}`;
+    this._logger = this._register(_loggerService.createLogger(this._loggerId, { hidden: true, name: `MCP: ${definition.label}` }));
+    const that = this;
+    this._register(this._instantiationService.createInstance(McpDevModeServerAttache, this, { get lastModeDebugged() {
+      return that._lastModeDebugged;
+    } }));
+    this._register(toDisposable(() => _loggerService.deregisterLogger(this._loggerId)));
+    const workspaces = explicitRoots ? observableValue(this, explicitRoots.map((uri) => ({ uri, name: basename(uri) }))) : observableFromEvent(this, workspacesService.onDidChangeWorkspaceFolders, () => workspacesService.getWorkspace().folders);
+    const uriTransformer = environmentService.remoteAuthority ? createURITransformer(environmentService.remoteAuthority) : void 0;
+    this._register(autorun((reader) => {
+      const cnx = this._connection.read(reader)?.handler.read(reader);
+      if (!cnx) {
+        return;
+      }
+      cnx.roots = workspaces.read(reader).filter((w) => w.uri.authority === (initialCollection.remoteAuthority || "")).map((w) => {
+        let uri = URI.from(uriTransformer?.transformIncoming(w.uri) ?? w.uri);
+        if (uri.scheme === Schemas.file) {
+          uri = URI.file(normalizeDriveLetter(uri.fsPath, true));
+        }
+        return { name: w.name, uri: uri.toString() };
+      });
+    }));
+    this._register(autorun((reader) => {
+      const cnx = this._connection.read(reader);
+      const handler = cnx?.handler.read(reader);
+      if (handler) {
+        this._populateLiveData(handler, cnx?.definition.cacheNonce, reader.store);
+      } else if (this._tools) {
+        this.resetLiveData();
+      }
+    }));
+    const staticMetadata = derived((reader) => {
+      const def = this._fullDefinitions.read(reader).server;
+      return def && def.cacheNonce !== this._tools.fromCache?.nonce ? def.staticMetadata : void 0;
+    });
+    this._tools = new CachedPrimitive(this.definition.id, this._primitiveCache, staticMetadata.map((m) => {
+      const tools = m?.tools?.filter(
+        (t) => t.availability === 0
+        /* McpServerStaticToolAvailability.Initial */
+      ).map((t) => t.definition);
+      return tools?.length ? new ObservablePromise(this._getValidatedTools(tools)) : void 0;
+    }).map((o, reader) => o?.promiseResult.read(reader)?.data), (entry) => entry.tools, (entry) => entry.map((def) => this._instantiationService.createInstance(McpTool, this, toolPrefix, def)).sort((a, b) => a.compare(b)), []);
+    this._prompts = new CachedPrimitive(this.definition.id, this._primitiveCache, void 0, (entry) => entry.prompts || [], (entry) => entry.map((e) => new McpPrompt(this, e)), []);
+    this._serverMetadata = new CachedPrimitive(this.definition.id, this._primitiveCache, staticMetadata.map((m) => m ? this._toStoredMetadata(m?.serverInfo, m?.instructions) : void 0), (entry) => ({ serverName: entry.serverName, serverInstructions: entry.serverInstructions, serverIcons: entry.serverIcons }), (entry) => ({ serverName: entry?.serverName, serverInstructions: entry?.serverInstructions, icons: McpIcons.fromStored(entry?.serverIcons) }), void 0);
+    this._capabilities = new CachedPrimitive(this.definition.id, this._primitiveCache, staticMetadata.map((m) => m?.capabilities !== void 0 ? encodeCapabilities(m.capabilities) : void 0), (entry) => entry.capabilities, (entry) => entry, void 0);
+  }
+  readDefinitions() {
+    return this._fullDefinitions;
+  }
+  showOutput(preserveFocus) {
+    this._loggerService.setVisibility(this._loggerId, true);
+    return this._outputService.showChannel(this._loggerId, preserveFocus);
+  }
+  resources(token) {
+    const cts = new CancellationTokenSource(token);
+    return new AsyncIterableProducer(async (emitter) => {
+      await McpServer_1.callOn(this, async (handler) => {
+        for await (const resource of handler.listResourcesIterable({}, cts.token)) {
+          emitter.emitOne(resource.map((r) => new McpResource(this, r, McpIcons.fromParsed(this._parseIcons(r)))));
+          if (cts.token.isCancellationRequested) {
+            return;
+          }
+        }
+      });
+    }, () => cts.dispose(true));
+  }
+  resourceTemplates(token) {
+    return McpServer_1.callOn(this, async (handler) => {
+      const templates = await handler.listResourceTemplates({}, token);
+      return templates.map((t) => new McpResourceTemplate(this, t, McpIcons.fromParsed(this._parseIcons(t))));
+    }, token);
+  }
+  start({ interaction, autoTrustChanges, promptType, debug, errorOnUserInteraction } = {}) {
+    interaction?.participants.set(this.definition.id, { s: "unknown" });
+    return this._connectionSequencer.queue(async () => {
+      const activationEvent = mcpActivationEvent(this.collection.id.slice(extensionMcpCollectionPrefix.length));
+      if (this._requiresExtensionActivation && !this._extensionService.activationEventIsDone(activationEvent)) {
+        await this._extensionService.activateByEvent(activationEvent);
+        await Promise.all(this._mcpRegistry.delegates.get().map((r) => r.waitForInitialProviderPromises()));
+        if (this._store.isDisposed) {
+          return {
+            state: 0
+            /* McpConnectionState.Kind.Stopped */
+          };
+        }
+      }
+      let connection = this._connection.get();
+      if (connection && McpConnectionState.canBeStarted(connection.state.get().state)) {
+        connection.dispose();
+        connection = void 0;
+        this._connection.set(connection, void 0);
+      }
+      if (!connection) {
+        this._lastModeDebugged = !!debug;
+        const that = this;
+        connection = await this._mcpRegistry.resolveConnection({
+          interaction,
+          autoTrustChanges,
+          promptType,
+          trustNonceBearer: {
+            get trustedAtNonce() {
+              return that.trustedAtNonce;
+            },
+            set trustedAtNonce(nonce) {
+              that.trustedAtNonce = nonce;
+            }
+          },
+          logger: this._logger,
+          collectionRef: this.collection,
+          definitionRef: this.definition,
+          debug,
+          errorOnUserInteraction,
+          taskManager: this._taskManager
+        });
+        if (!connection) {
+          return {
+            state: 0
+            /* McpConnectionState.Kind.Stopped */
+          };
+        }
+        if (this._store.isDisposed) {
+          connection.dispose();
+          return {
+            state: 0
+            /* McpConnectionState.Kind.Stopped */
+          };
+        }
+        this._connection.set(connection, void 0);
+        if (connection.definition.devMode) {
+          this.showOutput();
+        }
+      }
+      const start = Date.now();
+      let state = await connection.start({
+        createMessageRequestHandler: /* @__PURE__ */ __name((params, token) => this._samplingService.sample({
+          isDuringToolCall: this.runningToolCalls.size > 0,
+          server: this,
+          params
+        }, token).then((r) => r.sample), "createMessageRequestHandler"),
+        elicitationRequestHandler: /* @__PURE__ */ __name(async (req, token) => {
+          const serverInfo = connection.handler.get()?.serverInfo;
+          if (serverInfo) {
+            this._telemetryService.publicLog2("mcp.elicitationRequested", {
+              serverName: serverInfo.name,
+              serverVersion: serverInfo.version
+            });
+          }
+          const r = await this._elicitationService.elicit(this, Iterable.first(this.runningToolCalls), req, token || CancellationToken.None);
+          r.dispose();
+          return r.value;
+        }, "elicitationRequestHandler")
+      });
+      this._telemetryService.publicLog2("mcp/serverBootState", {
+        state: McpConnectionState.toKindString(state.state),
+        time: Date.now() - start
+      });
+      if (state.state === 3) {
+        this.showInteractiveError(connection, state, debug);
+      }
+      if (errorOnUserInteraction && state.state === 2) {
+        let disposable;
+        state = await new Promise((resolve, reject) => {
+          disposable = autorun((reader) => {
+            const handler = connection.handler.read(reader);
+            if (handler) {
+              resolve(state);
+            }
+            const s = connection.state.read(reader);
+            if (s.state === 0 && s.reason === "needs-user-interaction") {
+              reject(new UserInteractionRequiredError("auth"));
+            }
+            if (!McpConnectionState.isRunning(s)) {
+              resolve(s);
+            }
+          });
+        }).finally(() => disposable.dispose());
+      }
+      return state;
+    }).finally(() => {
+      interaction?.participants.set(this.definition.id, { s: "resolved" });
+    });
+  }
+  showInteractiveError(cnx, error, debug) {
+    if (error.code === "ENOENT" && cnx.launchDefinition.type === 1) {
+      let docsLink;
+      switch (cnx.launchDefinition.command) {
+        case "uvx":
+          docsLink = `https://aka.ms/vscode-mcp-install/uvx`;
+          break;
+        case "npx":
+          docsLink = `https://aka.ms/vscode-mcp-install/npx`;
+          break;
+        case "dnx":
+          docsLink = `https://aka.ms/vscode-mcp-install/dnx`;
+          break;
+        case "dotnet":
+          docsLink = `https://aka.ms/vscode-mcp-install/dotnet`;
+          break;
+      }
+      const options = [{
+        label: localize("mcp.command.showOutput", "Show Output"),
+        run: /* @__PURE__ */ __name(() => this.showOutput(), "run")
+      }];
+      if (cnx.definition.devMode?.debug?.type === "debugpy" && debug) {
+        this._notificationService.prompt(Severity.Error, localize("mcpDebugPyHelp", 'The command "{0}" was not found. You can specify the path to debugpy in the `dev.debug.debugpyPath` option.', cnx.launchDefinition.command, cnx.definition.label), [...options, {
+          label: localize("mcpViewDocs", "View Docs"),
+          run: /* @__PURE__ */ __name(() => this._openerService.open(URI.parse("https://aka.ms/vscode-mcp-install/debugpy")), "run")
+        }]);
+        return;
+      }
+      if (docsLink) {
+        options.push({
+          label: localize("mcpServerInstall", "Install {0}", cnx.launchDefinition.command),
+          run: /* @__PURE__ */ __name(() => this._openerService.open(URI.parse(docsLink)), "run")
+        });
+      }
+      this._notificationService.prompt(Severity.Error, localize("mcpServerNotFound", 'The command "{0}" needed to run {1} was not found.', cnx.launchDefinition.command, cnx.definition.label), options);
+    } else {
+      this._notificationService.warn(localize("mcpServerError", "The MCP server {0} could not be started: {1}", cnx.definition.label, error.message));
+    }
+  }
+  stop() {
+    return this._connection.get()?.stop() || Promise.resolve();
+  }
+  /** Waits for any ongoing tools to be refreshed before resolving. */
+  awaitToolRefresh() {
+    return new Promise((resolve) => {
+      autorunSelfDisposable((reader) => {
+        const promise = this._tools.fromServerPromise.read(reader);
+        const result = promise?.promiseResult.read(reader);
+        if (result) {
+          resolve();
+        }
+      });
+    });
+  }
+  resetLiveData() {
+    transaction((tx) => {
+      this._tools.fromServerPromise.set(void 0, tx);
+      this._prompts.fromServerPromise.set(void 0, tx);
+    });
+  }
+  async _normalizeTool(originalTool) {
+    const uiMeta = originalTool._meta?.ui;
+    let visibility = 1 | 2;
+    if (uiMeta?.visibility && Array.isArray(uiMeta.visibility)) {
+      visibility &= 0;
+      if (uiMeta.visibility.includes("model")) {
+        visibility |= 1;
+      }
+      if (uiMeta.visibility.includes("app")) {
+        visibility |= 2;
+      }
+    }
+    const tool = {
+      ...originalTool,
+      serverToolName: originalTool.name,
+      _icons: this._parseIcons(originalTool),
+      visibility,
+      uiResourceUri: uiMeta?.resourceUri
+    };
+    if (!tool.description) {
+      this._logger.warn(`Tool ${tool.name} does not have a description. Tools must be accurately described to be called`);
+      tool.description = "<empty>";
+    }
+    if (toolInvalidCharRe.test(tool.name)) {
+      this._logger.warn(`Tool ${JSON.stringify(tool.name)} is invalid. Tools names may only contain [a-z0-9_-]`);
+      tool.name = tool.name.replace(toolInvalidCharRe, "_");
+    }
+    let diagnostics = [];
+    const toolJson = JSON.stringify(tool.inputSchema);
+    try {
+      const schemaUri = URI.parse("https://json-schema.org/draft-07/schema");
+      diagnostics = await this._commandService.executeCommand("json.validate", schemaUri, toolJson) || [];
+    } catch (e) {
+    }
+    if (!diagnostics.length) {
+      return tool;
+    }
+    const tree = json.parseTree(toolJson);
+    const messages = diagnostics.map((d) => {
+      const node = json.findNodeAtOffset(tree, d.range[0].character);
+      const path = node && `/${json.getNodePath(node).join("/")}`;
+      return d.message + (path ? ` (at ${path})` : "");
+    });
+    return { error: messages };
+  }
+  async _getValidatedTools(tools) {
+    let error = "";
+    const validations = await Promise.all(tools.map((t) => this._normalizeTool(t)));
+    const validated = [];
+    for (const [i, result] of validations.entries()) {
+      if ("error" in result) {
+        error += localize("mcpBadSchema.tool", "Tool `{0}` has invalid JSON parameters:", tools[i].name) + "\n";
+        for (const message of result.error) {
+          error += `	- ${message}
+`;
+        }
+        error += `	- Schema: ${JSON.stringify(tools[i].inputSchema)}
 
-`}else s.push(a);return e&&(this.G.warn(`${t.length-s.length} tools have invalid JSON schemas and will be omitted`),Gt(this.S,this.definition.label,e)),s}cb(t){const e=this.j.get();return e?_t(t,e.launchDefinition,this.G):[]}db(t,e,i){const s=e.then(async n=>{this.G.info(`Discovered ${n.length} tools`);const a=await this.bb(n);return this.J.store(this.definition.id,{tools:a,nonce:t}),{data:a,nonce:t}});return this.q.fromServerPromise.set(new P(s),i),s}eb(t,e,i){const s=e.then(n=>{const a=n.map(r=>({...r,_icons:this.cb(r)}));return this.J.store(this.definition.id,{prompts:a,nonce:t}),{data:a,nonce:t}});return this.u.fromServerPromise.set(new P(s),i),s}fb(t,e){return{serverName:t?t.title||t.name:void 0,serverInstructions:e,serverIcons:t?this.cb(t):void 0}}gb(t,{serverInfo:e,instructions:i,capabilities:s},n){const a=this.fb(e,i);this.y.fromServerPromise.set(P.resolved({nonce:t,data:a}),n);const r=z(s);this.n.fromServerPromise.set(P.resolved({data:r,nonce:t}),n),this.J.store(this.definition.id,{...a,nonce:t,capabilities:r})}hb(t,e,i){const s=new L;i.add(J(()=>s.dispose(!0)));const n=r=>{const f=t.capabilities.tools?t.listTools({},s.token):Promise.resolve([]);return this.db(e,f,r)},a=r=>{const f=t.capabilities.prompts?t.listPrompts({},s.token):Promise.resolve([]);return this.eb(e,f,r)};i.add(t.onDidChangeToolList(()=>{this.G.info("Tool list changed, refreshing tools..."),n(void 0)})),i.add(t.onDidChangePromptList(()=>{this.G.info("Prompts list changed, refreshing prompts..."),a(void 0)})),F(r=>{this.gb(e,{serverInfo:t.serverInfo,instructions:t.serverInstructions,capabilities:t.capabilities},r),a(r),n(r).then(l=>{this.P.publicLog2("mcp/serverBoot",{supportsLogging:!!t.capabilities.logging,supportsPrompts:!!t.capabilities.prompts,supportsResources:!!t.capabilities.resources,toolCount:l.data.length,serverName:t.serverInfo.name,serverVersion:t.serverInfo.version})})})}};$=j=E([v(6,qt),v(7,It),v(8,Dt),v(9,wt),v(10,Nt),v(11,Tt),v(12,yt),v(13,St),v(14,K),v(15,$t),v(16,kt),v(17,Q),v(18,Rt)],$);class Bt{constructor(t,e){this.f=t,this.g=e,this.id=Et(this.f.definition.label+"."+e.name),this.name=e.name,this.title=e.title,this.description=e.description,this.arguments=e.arguments||[],this.icons=C.fromStored(this.g._icons)}async resolve(t,e){return(await $.callOn(this.f,s=>s.getPrompt({name:this.g.name,arguments:t},e),e)).messages}async complete(t,e,i,s){return(await $.callOn(this.f,a=>a.complete({ref:{type:"ref/prompt",name:this.g.name},argument:{name:t,value:e},context:{arguments:i}},s),s)).completion.values}}function z(h){let t=0;return h.logging&&(t|=1),h.completions&&(t|=2),h.prompts&&(t|=4,h.prompts.listChanged&&(t|=8)),h.resources&&(t|=16,h.resources.subscribe&&(t|=32),h.resources.listChanged&&(t|=64)),h.tools&&(t|=128,h.tools.listChanged&&(t|=256)),t}let k=class{get definition(){return this.g}get uiResourceUri(){return this.g.uiResourceUri}constructor(t,e,i,s){this.f=t,this.g=i,this.j=s,this.referenceName=i.name.replaceAll(".","_"),this.id=(e+i.name).replaceAll(".","_").slice(0,64),this.icons=C.fromStored(this.g._icons),this.visibility=i.visibility??3}async call(t,e,i){e&&this.f.runningToolCalls.add(e);try{return await this._callWithProgress(t,void 0,e,i)}finally{e&&this.f.runningToolCalls.delete(e)}}async callWithProgress(t,e,i,s){i&&this.f.runningToolCalls.add(i);try{return await this._callWithProgress(t,e,i,s)}finally{i&&this.f.runningToolCalls.delete(i)}}_callWithProgress(t,e,i,s=M.None,n=!0){const a=this.g.serverToolName??this.g.name,r=e?bt():void 0,f=new ct;return $.callOn(this.f,async l=>{e&&f.add(l.onDidReceiveProgressNotification(p=>{p.params.progressToken===r&&e.report({message:p.params.message,progress:p.params.total!==void 0&&p.params.progress!==void 0?p.params.progress/p.params.total:void 0})}));const c={progressToken:r};i?.chatSessionId&&(c["vscode.conversationId"]=i.chatSessionId),i?.chatRequestId&&(c["vscode.requestId"]=i.chatRequestId);const m=this.g.execution?.taskSupport,b=l.capabilities.tasks?.requests?.tools?.call!==void 0&&(m==="required"||m==="optional");try{const p=await l.callTool({name:a,arguments:t,task:b?{}:void 0,_meta:c},s);return await this.f.awaitToolRefresh(),p}catch(p){if(p instanceof Ut&&p.code===Jt.URL_ELICITATION_REQUIRED&&n)return await this.l(p,i,s),this._callWithProgress(t,e,i,s,!1);const y=this.f.connectionState.get();if(n&&y.state===3&&y.shouldRetry)return this._callWithProgress(t,e,i,s,!1);throw p}finally{f.dispose()}},s)}async l(t,e,i){const s=t.data?.elicitations;if(Array.isArray(s)&&s.length>0)for(const n of s){const a=await this.j.elicit(this.f,e,n,i);try{if(a.value.action!=="accept")throw t;a.kind===1&&await a.wait}finally{a.dispose()}}}compare(t){return this.g.name.localeCompare(t.definition.name)}};k=E([v(3,Q)],k);function Gt(h,t,e){h.invokeFunction(i=>{const s=i.get(K),n=i.get(Ct);s.notify({severity:A.Warning,message:S(10156,null,t),actions:{primary:[{class:void 0,enabled:!0,id:"mcpBadSchema.show",tooltip:"",label:S(10157,null),run:()=>{n.openEditor({resource:void 0,contents:e})}}]}})})}class zt{constructor(t,e,i){this.icons=i,this.mcpUri=e.uri,this.title=e.title,this.uri=Z.fromServer(t.definition,e.uri),this.name=e.name,this.description=e.description,this.mimeType=e.mimeType,this.sizeInBytes=e.size}}class Ht{constructor(t,e,i){this.f=t,this.g=e,this.icons=i,this.name=e.name,this.description=e.description,this.mimeType=e.mimeType,this.title=e.title,this.template=Ft.parse(e.uriTemplate)}resolveURI(t){const e=this.template.resolve(t);return Z.fromServer(this.f.definition,e)}async complete(t,e,i,s){return(await $.callOn(this.f,a=>a.complete({ref:{type:"ref/resource",uri:this.g.uriTemplate},argument:{name:t,value:e},context:{arguments:mt(i,r=>Array.isArray(r)?r.join("/"):r)}},s),s)).completion.values}}export{G as $E2b,$ as $F2b,k as $G2b};
+`;
+      } else {
+        validated.push(result);
+      }
+    }
+    if (error) {
+      this._logger.warn(`${tools.length - validated.length} tools have invalid JSON schemas and will be omitted`);
+      warnInvalidTools(this._instantiationService, this.definition.label, error);
+    }
+    return validated;
+  }
+  /**
+   * Parses incoming MCP icons and returns the resulting 'stored' record. Note
+   * that this requires an active MCP server connection since we validate
+   * against some of that connection's data. The icons may however be stored
+   * and rehydrated later.
+   */
+  _parseIcons(icons) {
+    const cnx = this._connection.get();
+    if (!cnx) {
+      return [];
+    }
+    return parseAndValidateMcpIcon(icons, cnx.launchDefinition, this._logger);
+  }
+  _setServerTools(nonce, toolsPromise, tx) {
+    const toolPromiseSafe = toolsPromise.then(async (tools) => {
+      this._logger.info(`Discovered ${tools.length} tools`);
+      const data = await this._getValidatedTools(tools);
+      this._primitiveCache.store(this.definition.id, { tools: data, nonce });
+      return { data, nonce };
+    });
+    this._tools.fromServerPromise.set(new ObservablePromise(toolPromiseSafe), tx);
+    return toolPromiseSafe;
+  }
+  _setServerPrompts(nonce, promptsPromise, tx) {
+    const promptsPromiseSafe = promptsPromise.then((result) => {
+      const data = result.map((prompt) => ({
+        ...prompt,
+        _icons: this._parseIcons(prompt)
+      }));
+      this._primitiveCache.store(this.definition.id, { prompts: data, nonce });
+      return { data, nonce };
+    });
+    this._prompts.fromServerPromise.set(new ObservablePromise(promptsPromiseSafe), tx);
+    return promptsPromiseSafe;
+  }
+  _toStoredMetadata(serverInfo, instructions) {
+    return {
+      serverName: serverInfo ? serverInfo.title || serverInfo.name : void 0,
+      serverInstructions: instructions,
+      serverIcons: serverInfo ? this._parseIcons(serverInfo) : void 0
+    };
+  }
+  _setServerMetadata(nonce, { serverInfo, instructions, capabilities }, tx) {
+    const serverMetadata = this._toStoredMetadata(serverInfo, instructions);
+    this._serverMetadata.fromServerPromise.set(ObservablePromise.resolved({ nonce, data: serverMetadata }), tx);
+    const capabilitiesEncoded = encodeCapabilities(capabilities);
+    this._capabilities.fromServerPromise.set(ObservablePromise.resolved({ data: capabilitiesEncoded, nonce }), tx);
+    this._primitiveCache.store(this.definition.id, { ...serverMetadata, nonce, capabilities: capabilitiesEncoded });
+  }
+  _populateLiveData(handler, cacheNonce, store) {
+    const cts = new CancellationTokenSource();
+    store.add(toDisposable(() => cts.dispose(true)));
+    const updateTools = /* @__PURE__ */ __name((tx) => {
+      const toolPromise = handler.capabilities.tools ? handler.listTools({}, cts.token) : Promise.resolve([]);
+      return this._setServerTools(cacheNonce, toolPromise, tx);
+    }, "updateTools");
+    const updatePrompts = /* @__PURE__ */ __name((tx) => {
+      const promptsPromise = handler.capabilities.prompts ? handler.listPrompts({}, cts.token) : Promise.resolve([]);
+      return this._setServerPrompts(cacheNonce, promptsPromise, tx);
+    }, "updatePrompts");
+    store.add(handler.onDidChangeToolList(() => {
+      this._logger.info("Tool list changed, refreshing tools...");
+      updateTools(void 0);
+    }));
+    store.add(handler.onDidChangePromptList(() => {
+      this._logger.info("Prompts list changed, refreshing prompts...");
+      updatePrompts(void 0);
+    }));
+    transaction((tx) => {
+      this._setServerMetadata(cacheNonce, { serverInfo: handler.serverInfo, instructions: handler.serverInstructions, capabilities: handler.capabilities }, tx);
+      updatePrompts(tx);
+      const toolUpdate = updateTools(tx);
+      toolUpdate.then((tools) => {
+        this._telemetryService.publicLog2("mcp/serverBoot", {
+          supportsLogging: !!handler.capabilities.logging,
+          supportsPrompts: !!handler.capabilities.prompts,
+          supportsResources: !!handler.capabilities.resources,
+          toolCount: tools.data.length,
+          serverName: handler.serverInfo.name,
+          serverVersion: handler.serverInfo.version
+        });
+      });
+    });
+  }
+};
+McpServer = McpServer_1 = __decorate([
+  __param(6, IMcpRegistry),
+  __param(7, IWorkspaceContextService),
+  __param(8, IExtensionService),
+  __param(9, ILoggerService),
+  __param(10, IOutputService),
+  __param(11, ITelemetryService),
+  __param(12, ICommandService),
+  __param(13, IInstantiationService),
+  __param(14, INotificationService),
+  __param(15, IOpenerService),
+  __param(16, IMcpSamplingService),
+  __param(17, IMcpElicitationService),
+  __param(18, IWorkbenchEnvironmentService)
+], McpServer);
+class McpPrompt {
+  static {
+    __name(this, "McpPrompt");
+  }
+  constructor(_server, _definition) {
+    this._server = _server;
+    this._definition = _definition;
+    this.id = mcpPromptReplaceSpecialChars(this._server.definition.label + "." + _definition.name);
+    this.name = _definition.name;
+    this.title = _definition.title;
+    this.description = _definition.description;
+    this.arguments = _definition.arguments || [];
+    this.icons = McpIcons.fromStored(this._definition._icons);
+  }
+  async resolve(args, token) {
+    const result = await McpServer.callOn(this._server, (h) => h.getPrompt({ name: this._definition.name, arguments: args }, token), token);
+    return result.messages;
+  }
+  async complete(argument, prefix, alreadyResolved, token) {
+    const result = await McpServer.callOn(this._server, (h) => h.complete({
+      ref: { type: "ref/prompt", name: this._definition.name },
+      argument: { name: argument, value: prefix },
+      context: { arguments: alreadyResolved }
+    }, token), token);
+    return result.completion.values;
+  }
+}
+function encodeCapabilities(cap) {
+  let out = 0;
+  if (cap.logging) {
+    out |= 1;
+  }
+  if (cap.completions) {
+    out |= 2;
+  }
+  if (cap.prompts) {
+    out |= 4;
+    if (cap.prompts.listChanged) {
+      out |= 8;
+    }
+  }
+  if (cap.resources) {
+    out |= 16;
+    if (cap.resources.subscribe) {
+      out |= 32;
+    }
+    if (cap.resources.listChanged) {
+      out |= 64;
+    }
+  }
+  if (cap.tools) {
+    out |= 128;
+    if (cap.tools.listChanged) {
+      out |= 256;
+    }
+  }
+  return out;
+}
+__name(encodeCapabilities, "encodeCapabilities");
+let McpTool = class McpTool2 {
+  static {
+    __name(this, "McpTool");
+  }
+  get definition() {
+    return this._definition;
+  }
+  get uiResourceUri() {
+    return this._definition.uiResourceUri;
+  }
+  constructor(_server, idPrefix, _definition, _elicitationService) {
+    this._server = _server;
+    this._definition = _definition;
+    this._elicitationService = _elicitationService;
+    this.referenceName = _definition.name.replaceAll(".", "_");
+    this.id = (idPrefix + _definition.name).replaceAll(".", "_").slice(
+      0,
+      64
+      /* McpToolName.MaxLength */
+    );
+    this.icons = McpIcons.fromStored(this._definition._icons);
+    this.visibility = _definition.visibility ?? 1 | 2;
+  }
+  async call(params, context, token) {
+    if (context) {
+      this._server.runningToolCalls.add(context);
+    }
+    try {
+      return await this._callWithProgress(params, void 0, context, token);
+    } finally {
+      if (context) {
+        this._server.runningToolCalls.delete(context);
+      }
+    }
+  }
+  async callWithProgress(params, progress, context, token) {
+    if (context) {
+      this._server.runningToolCalls.add(context);
+    }
+    try {
+      return await this._callWithProgress(params, progress, context, token);
+    } finally {
+      if (context) {
+        this._server.runningToolCalls.delete(context);
+      }
+    }
+  }
+  _callWithProgress(params, progress, context, token = CancellationToken.None, allowRetry = true) {
+    const name = this._definition.serverToolName ?? this._definition.name;
+    const progressToken = progress ? generateUuid() : void 0;
+    const store = new DisposableStore();
+    return McpServer.callOn(this._server, async (h) => {
+      if (progress) {
+        store.add(h.onDidReceiveProgressNotification((e) => {
+          if (e.params.progressToken === progressToken) {
+            progress.report({
+              message: e.params.message,
+              progress: e.params.total !== void 0 && e.params.progress !== void 0 ? e.params.progress / e.params.total : void 0
+            });
+          }
+        }));
+      }
+      const meta = { progressToken };
+      if (context?.chatSessionId) {
+        meta["vscode.conversationId"] = context.chatSessionId;
+      }
+      if (context?.chatRequestId) {
+        meta["vscode.requestId"] = context.chatRequestId;
+      }
+      const taskHint = this._definition.execution?.taskSupport;
+      const serverSupportsTasksForTools = h.capabilities.tasks?.requests?.tools?.call !== void 0;
+      const shouldUseTask = serverSupportsTasksForTools && (taskHint === "required" || taskHint === "optional");
+      try {
+        const result = await h.callTool({
+          name,
+          arguments: params,
+          task: shouldUseTask ? {} : void 0,
+          _meta: meta
+        }, token);
+        await this._server.awaitToolRefresh();
+        return result;
+      } catch (err) {
+        if (err instanceof MpcResponseError && err.code === MCP.URL_ELICITATION_REQUIRED && allowRetry) {
+          await this._handleElicitationErr(err, context, token);
+          return this._callWithProgress(params, progress, context, token, false);
+        }
+        const state = this._server.connectionState.get();
+        if (allowRetry && state.state === 3 && state.shouldRetry) {
+          return this._callWithProgress(params, progress, context, token, false);
+        } else {
+          throw err;
+        }
+      } finally {
+        store.dispose();
+      }
+    }, token);
+  }
+  async _handleElicitationErr(err, context, token) {
+    const elicitations = err.data?.elicitations;
+    if (Array.isArray(elicitations) && elicitations.length > 0) {
+      for (const elicitation of elicitations) {
+        const elicitResult = await this._elicitationService.elicit(this._server, context, elicitation, token);
+        try {
+          if (elicitResult.value.action !== "accept") {
+            throw err;
+          }
+          if (elicitResult.kind === 1) {
+            await elicitResult.wait;
+          }
+        } finally {
+          elicitResult.dispose();
+        }
+      }
+    }
+  }
+  compare(other) {
+    return this._definition.name.localeCompare(other.definition.name);
+  }
+};
+McpTool = __decorate([
+  __param(3, IMcpElicitationService)
+], McpTool);
+function warnInvalidTools(instaService, serverName, errorText) {
+  instaService.invokeFunction((accessor) => {
+    const notificationService = accessor.get(INotificationService);
+    const editorService = accessor.get(IEditorService);
+    notificationService.notify({
+      severity: Severity.Warning,
+      message: localize("mcpBadSchema", "MCP server `{0}` has tools with invalid parameters which will be omitted.", serverName),
+      actions: {
+        primary: [{
+          class: void 0,
+          enabled: true,
+          id: "mcpBadSchema.show",
+          tooltip: "",
+          label: localize("mcpBadSchema.show", "Show"),
+          run: /* @__PURE__ */ __name(() => {
+            editorService.openEditor({
+              resource: void 0,
+              contents: errorText
+            });
+          }, "run")
+        }]
+      }
+    });
+  });
+}
+__name(warnInvalidTools, "warnInvalidTools");
+class McpResource {
+  static {
+    __name(this, "McpResource");
+  }
+  constructor(server, original, icons) {
+    this.icons = icons;
+    this.mcpUri = original.uri;
+    this.title = original.title;
+    this.uri = McpResourceURI.fromServer(server.definition, original.uri);
+    this.name = original.name;
+    this.description = original.description;
+    this.mimeType = original.mimeType;
+    this.sizeInBytes = original.size;
+  }
+}
+class McpResourceTemplate {
+  static {
+    __name(this, "McpResourceTemplate");
+  }
+  constructor(_server, _definition, icons) {
+    this._server = _server;
+    this._definition = _definition;
+    this.icons = icons;
+    this.name = _definition.name;
+    this.description = _definition.description;
+    this.mimeType = _definition.mimeType;
+    this.title = _definition.title;
+    this.template = UriTemplate.parse(_definition.uriTemplate);
+  }
+  resolveURI(vars) {
+    const serverUri = this.template.resolve(vars);
+    return McpResourceURI.fromServer(this._server.definition, serverUri);
+  }
+  async complete(templatePart, prefix, alreadyResolved, token) {
+    const result = await McpServer.callOn(this._server, (h) => h.complete({
+      ref: { type: "ref/resource", uri: this._definition.uriTemplate },
+      argument: { name: templatePart, value: prefix },
+      context: {
+        arguments: mapValues(alreadyResolved, (v) => Array.isArray(v) ? v.join("/") : v)
+      }
+    }, token), token);
+    return result.completion.values;
+  }
+}
+export {
+  McpServer,
+  McpServerMetadataCache,
+  McpTool
+};
+//# sourceMappingURL=mcpServer.js.map

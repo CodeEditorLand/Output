@@ -1,1 +1,255 @@
-import{$sc as $}from"../../../../base/common/arrays.js";import{$Tb as v}from"../../../../base/common/arraysFind.js";import{$3h as D}from"../../../../base/common/async.js";import{$pj as b}from"../../../../base/common/buffer.js";import{CancellationToken as x}from"../../../../base/common/cancellation.js";import{Event as A}from"../../../../base/common/event.js";import{$Ed as j}from"../../../../base/common/lifecycle.js";import{$dd as h}from"../../../../base/common/types.js";import{localize as u}from"../../../../nls.js";import{$to as O}from"../../../../platform/commands/common/commands.js";import{$am as p,$9l as L}from"../../../../platform/configuration/common/configuration.js";import{$Lp as T}from"../../../../platform/dialogs/common/dialogs.js";import{$Fz as P}from"../../../../platform/extensions/common/extensions.js";import{$Lj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as S,Severity as z}from"../../../../platform/notification/common/notification.js";import{ChatAgentLocation as I}from"../../chat/common/constants.js";import{$dS as q}from"../../chat/common/languageModels.js";import{$zS as g}from"./mcpConfiguration.js";import{$Upc as M}from"./mcpSamplingLog.js";import{$_S as m}from"./mcpTypes.js";var C=function(s,e,t,n){var i=arguments.length,o=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,e,t,n);else for(var l=s.length-1;l>=0;l--)(r=s[l])&&(o=(i<3?r(o):i>3?r(e,t,o):r(e,t))||o);return i>3&&o&&Object.defineProperty(e,t,o),o},c=function(s,e){return function(t,n){e(t,n,s)}},w;(function(s){s[s.UnsureAllowedDuringChat=0]="UnsureAllowedDuringChat",s[s.UnsureAllowedOutsideChat=1]="UnsureAllowedOutsideChat",s[s.NotAllowed=2]="NotAllowed",s[s.NoMatchingModel=3]="NoMatchingModel"})(w||(w={}));let y=class extends j{constructor(e,t,n,i,o,r){super(),this.j=e,this.n=t,this.q=n,this.s=i,this.t=o,this.f={allowedDuringChat:new Map,allowedOutsideChat:new Map},this.h=new D,this.g=this.D(r.createInstance(M))}async sample(e,t=x.None){const n=e.params.messages.map(a=>{const f=$(a.content).map(d=>d.type==="text"?{type:"text",value:d.text}:d.type==="image"||d.type==="audio"?{type:"image_url",value:{mimeType:d.mimeType,data:b(d.data)}}:void 0).filter(h);if(f.length)return{role:a.role==="assistant"?2:1,content:f}}).filter(h);e.params.systemPrompt&&n.unshift({role:0,content:[{type:"text",value:e.params.systemPrompt}]});const i=await this.h.queue(()=>this.u(e)),o=await this.j.sendChatRequest(i,new P("core"),n,{},t);let r="";const l=(async()=>{for await(const a of o.stream)if(Array.isArray(a))for(const f of a)f.type==="text"&&(r+=f.value);else a.type==="text"&&(r+=a.value)})();try{return await Promise.all([o.result,l]),this.g.add(e.server,e.params.messages,r,i),{sample:{model:i,content:{type:"text",text:r},role:"assistant"}}}catch(a){throw m.unknown(a)}}hasLogs(e){return this.g.has(e)}getLogText(e){return this.g.getAsText(e)}async u(e){const t=await this.C(e.server,e.isDuringToolCall,e.params.modelPreferences);if(t===0){if(await this.y(e.isDuringToolCall,u(10138,null,e.server.definition.label),u(10139,null,e.server.definition.label),this.w(e.server,"allowedDuringChat")))return this.u(e);throw m.notAllowed()}else if(t===1){if(await this.y(e.isDuringToolCall,u(10140,null,e.server.definition.label),u(10141,null,e.server.definition.label),this.w(e.server,"allowedOutsideChat")))return this.u(e);throw m.notAllowed()}else{if(t===2)throw m.notAllowed();if(t===3){if(e.isDuringToolCall?await this.t.executeCommand("workbench.mcp.configureSamplingModels",e.server):await this.z(u(10142,null,e.server.definition.label),{[u(10143,null)]:()=>this.t.executeCommand("workbench.mcp.configureSamplingModels",e.server),[u(10144,null)]:()=>Promise.resolve(void 0)}))return this.u(e);throw m.notAllowed()}}return t}w(e,t){return{[u(10145,null)]:async()=>(this.f[t].set(e.definition.id,!0),!0),[u(10146,null)]:async()=>(await this.updateConfig(e,n=>n[t]=!0),!0),[u(10147,null)]:async()=>(this.f[t].set(e.definition.id,!1),!1),[u(10148,null)]:async()=>(await this.updateConfig(e,n=>n[t]=!1),!1)}}async y(e,t,n,i){return e?await(await this.q.prompt({type:"question",title:t,message:n,buttons:Object.entries(i).map(([r,l])=>({label:r,run:l}))})).result:await this.z(n,i)}async z(e,t){return await new Promise(n=>{const i=this.s.prompt(z.Info,e,Object.entries(t).map(([o,r])=>({label:o,run:()=>n(r())})));A.once(i.onDidClose)(()=>n(void 0))})}async C(e,t,n){const i=this.getConfig(e);if(t&&!i.allowedDuringChat&&!this.f.allowedDuringChat.has(e.definition.id))return i.allowedDuringChat===void 0?0:2;if(!t&&!i.allowedOutsideChat&&!this.f.allowedOutsideChat.has(e.definition.id))return i.allowedOutsideChat===void 0?1:2;const r=(i.allowedModels?.filter(l=>!!this.j.lookupLanguageModel(l))||this.j.getLanguageModelIds().filter(l=>this.j.lookupLanguageModel(l)?.isDefaultForLocation[I.Chat])).flat().sort((l,a)=>a.length-l.length);if(!r.length)return 3;if(n?.hints){const l=v(n.hints,a=>r.find(f=>f.toLowerCase().includes(a.name.toLowerCase())));if(l)return l}return r[0]}F(e){return`${e.collection.label}: ${e.definition.label}`}getConfig(e){return this.G(e).value||{}}G(e){const t=e.readDefinitions().get(),n=8,i=t.collection?.configTarget||2,o=this.F(e),r=t.collection?.presentation?.origin,l=this.n.inspect(g,{resource:r});for(let a=n;a>=i;a--){const f=p(l,a),d=f?.[o];if(d)return{value:d,key:o,mapping:f,target:a,resource:r}}return{value:void 0,mapping:p(l,i),key:o,target:i,resource:r}}async updateConfig(e,t){const{value:n,mapping:i,key:o,target:r,resource:l}=this.G(e),a={...n};return t(a),await this.n.updateValue(g,{...i,[o]:a},{resource:l},r),a}};y=C([c(0,q),c(1,L),c(2,T),c(3,S),c(4,O),c(5,_)],y);export{y as $Vpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { asArray } from "../../../../base/common/arrays.js";
+import { mapFindFirst } from "../../../../base/common/arraysFind.js";
+import { Sequencer } from "../../../../base/common/async.js";
+import { decodeBase64 } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { getConfigValueInTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { ChatAgentLocation } from "../../chat/common/constants.js";
+import { ILanguageModelsService } from "../../chat/common/languageModels.js";
+import { mcpServerSamplingSection } from "./mcpConfiguration.js";
+import { McpSamplingLog } from "./mcpSamplingLog.js";
+import { McpError } from "./mcpTypes.js";
+var ModelMatch;
+(function(ModelMatch2) {
+  ModelMatch2[ModelMatch2["UnsureAllowedDuringChat"] = 0] = "UnsureAllowedDuringChat";
+  ModelMatch2[ModelMatch2["UnsureAllowedOutsideChat"] = 1] = "UnsureAllowedOutsideChat";
+  ModelMatch2[ModelMatch2["NotAllowed"] = 2] = "NotAllowed";
+  ModelMatch2[ModelMatch2["NoMatchingModel"] = 3] = "NoMatchingModel";
+})(ModelMatch || (ModelMatch = {}));
+let McpSamplingService = class McpSamplingService2 extends Disposable {
+  static {
+    __name(this, "McpSamplingService");
+  }
+  constructor(_languageModelsService, _configurationService, _dialogService, _notificationService, _commandService, instaService) {
+    super();
+    this._languageModelsService = _languageModelsService;
+    this._configurationService = _configurationService;
+    this._dialogService = _dialogService;
+    this._notificationService = _notificationService;
+    this._commandService = _commandService;
+    this._sessionSets = {
+      allowedDuringChat: /* @__PURE__ */ new Map(),
+      allowedOutsideChat: /* @__PURE__ */ new Map()
+    };
+    this._modelSequencer = new Sequencer();
+    this._logs = this._register(instaService.createInstance(McpSamplingLog));
+  }
+  async sample(opts, token = CancellationToken.None) {
+    const messages = opts.params.messages.map((message) => {
+      const content = asArray(message.content).map((part) => part.type === "text" ? { type: "text", value: part.text } : part.type === "image" || part.type === "audio" ? { type: "image_url", value: { mimeType: part.mimeType, data: decodeBase64(part.data) } } : void 0).filter(isDefined);
+      if (!content.length) {
+        return void 0;
+      }
+      return {
+        role: message.role === "assistant" ? 2 : 1,
+        content
+      };
+    }).filter(isDefined);
+    if (opts.params.systemPrompt) {
+      messages.unshift({ role: 0, content: [{ type: "text", value: opts.params.systemPrompt }] });
+    }
+    const model = await this._modelSequencer.queue(() => this._getMatchingModel(opts));
+    const response = await this._languageModelsService.sendChatRequest(model, new ExtensionIdentifier("core"), messages, {}, token);
+    let responseText = "";
+    const streaming = (async () => {
+      for await (const part of response.stream) {
+        if (Array.isArray(part)) {
+          for (const p of part) {
+            if (p.type === "text") {
+              responseText += p.value;
+            }
+          }
+        } else if (part.type === "text") {
+          responseText += part.value;
+        }
+      }
+    })();
+    try {
+      await Promise.all([response.result, streaming]);
+      this._logs.add(opts.server, opts.params.messages, responseText, model);
+      return {
+        sample: {
+          model,
+          content: { type: "text", text: responseText },
+          role: "assistant"
+          // it came from the model!
+        }
+      };
+    } catch (err) {
+      throw McpError.unknown(err);
+    }
+  }
+  hasLogs(server) {
+    return this._logs.has(server);
+  }
+  getLogText(server) {
+    return this._logs.getAsText(server);
+  }
+  async _getMatchingModel(opts) {
+    const model = await this._getMatchingModelInner(opts.server, opts.isDuringToolCall, opts.params.modelPreferences);
+    if (model === 0) {
+      const retry = await this._showContextual(opts.isDuringToolCall, localize("mcp.sampling.allowDuringChat.title", 'Allow MCP tools from "{0}" to make LLM requests?', opts.server.definition.label), localize("mcp.sampling.allowDuringChat.desc", 'The MCP server "{0}" has issued a request to make a language model call. Do you want to allow it to make requests during chat?', opts.server.definition.label), this.allowButtons(opts.server, "allowedDuringChat"));
+      if (retry) {
+        return this._getMatchingModel(opts);
+      }
+      throw McpError.notAllowed();
+    } else if (model === 1) {
+      const retry = await this._showContextual(opts.isDuringToolCall, localize("mcp.sampling.allowOutsideChat.title", 'Allow MCP server "{0}" to make LLM requests?', opts.server.definition.label), localize("mcp.sampling.allowOutsideChat.desc", 'The MCP server "{0}" has issued a request to make a language model call. Do you want to allow it to make requests, outside of tool calls during chat?', opts.server.definition.label), this.allowButtons(opts.server, "allowedOutsideChat"));
+      if (retry) {
+        return this._getMatchingModel(opts);
+      }
+      throw McpError.notAllowed();
+    } else if (model === 2) {
+      throw McpError.notAllowed();
+    } else if (model === 3) {
+      const newlyPickedModels = opts.isDuringToolCall ? await this._commandService.executeCommand("workbench.mcp.configureSamplingModels", opts.server) : await this._notify(localize("mcp.sampling.needsModels", 'MCP server "{0}" triggered a language model request, but it has no allowlisted models.', opts.server.definition.label), {
+        [localize("configure", "Configure")]: () => this._commandService.executeCommand("workbench.mcp.configureSamplingModels", opts.server),
+        [localize("cancel", "Cancel")]: () => Promise.resolve(void 0)
+      });
+      if (newlyPickedModels) {
+        return this._getMatchingModel(opts);
+      }
+      throw McpError.notAllowed();
+    }
+    return model;
+  }
+  allowButtons(server, key) {
+    return {
+      [localize("mcp.sampling.allow.inSession", "Allow in this Session")]: async () => {
+        this._sessionSets[key].set(server.definition.id, true);
+        return true;
+      },
+      [localize("mcp.sampling.allow.always", "Always")]: async () => {
+        await this.updateConfig(server, (c) => c[key] = true);
+        return true;
+      },
+      [localize("mcp.sampling.allow.notNow", "Not Now")]: async () => {
+        this._sessionSets[key].set(server.definition.id, false);
+        return false;
+      },
+      [localize("mcp.sampling.allow.never", "Never")]: async () => {
+        await this.updateConfig(server, (c) => c[key] = false);
+        return false;
+      }
+    };
+  }
+  async _showContextual(isDuringToolCall, title, message, buttons) {
+    if (isDuringToolCall) {
+      const result = await this._dialogService.prompt({
+        type: "question",
+        title,
+        message,
+        buttons: Object.entries(buttons).map(([label, run]) => ({ label, run }))
+      });
+      return await result.result;
+    } else {
+      return await this._notify(message, buttons);
+    }
+  }
+  async _notify(message, buttons) {
+    return await new Promise((resolve) => {
+      const handle = this._notificationService.prompt(Severity.Info, message, Object.entries(buttons).map(([label, action]) => ({
+        label,
+        run: /* @__PURE__ */ __name(() => resolve(action()), "run")
+      })));
+      Event.once(handle.onDidClose)(() => resolve(void 0));
+    });
+  }
+  /**
+   * Gets the matching model for the MCP server in this context, or
+   * a reason why no model could be selected.
+   */
+  async _getMatchingModelInner(server, isDuringToolCall, preferences) {
+    const config = this.getConfig(server);
+    if (isDuringToolCall && !config.allowedDuringChat && !this._sessionSets.allowedDuringChat.has(server.definition.id)) {
+      return config.allowedDuringChat === void 0 ? 0 : 2;
+    } else if (!isDuringToolCall && !config.allowedOutsideChat && !this._sessionSets.allowedOutsideChat.has(server.definition.id)) {
+      return config.allowedOutsideChat === void 0 ? 1 : 2;
+    }
+    const foundModelIdsDeep = config.allowedModels?.filter((m) => !!this._languageModelsService.lookupLanguageModel(m)) || this._languageModelsService.getLanguageModelIds().filter((m) => this._languageModelsService.lookupLanguageModel(m)?.isDefaultForLocation[ChatAgentLocation.Chat]);
+    const foundModelIds = foundModelIdsDeep.flat().sort((a, b) => b.length - a.length);
+    if (!foundModelIds.length) {
+      return 3;
+    }
+    if (preferences?.hints) {
+      const found = mapFindFirst(preferences.hints, (hint) => foundModelIds.find((model) => model.toLowerCase().includes(hint.name.toLowerCase())));
+      if (found) {
+        return found;
+      }
+    }
+    return foundModelIds[0];
+  }
+  _configKey(server) {
+    return `${server.collection.label}: ${server.definition.label}`;
+  }
+  getConfig(server) {
+    return this._getConfig(server).value || {};
+  }
+  /**
+   * _getConfig reads the sampling config reads the `{ server: data }` mapping
+   * from the appropriate config. We read from the most specific possible
+   * config up to the default configuration location that the MCP server itself
+   * is defined in. We don't go further because then workspace-specific servers
+   * would get in the user settings which is not meaningful and could lead
+   * to confusion.
+   *
+   * todo@connor4312: generalize this for other esttings when we have them
+   */
+  _getConfig(server) {
+    const def = server.readDefinitions().get();
+    const mostSpecificConfig = 8;
+    const leastSpecificConfig = def.collection?.configTarget || 2;
+    const key = this._configKey(server);
+    const resource = def.collection?.presentation?.origin;
+    const configValue = this._configurationService.inspect(mcpServerSamplingSection, { resource });
+    for (let target = mostSpecificConfig; target >= leastSpecificConfig; target--) {
+      const mapping = getConfigValueInTarget(configValue, target);
+      const config = mapping?.[key];
+      if (config) {
+        return { value: config, key, mapping, target, resource };
+      }
+    }
+    return { value: void 0, mapping: getConfigValueInTarget(configValue, leastSpecificConfig), key, target: leastSpecificConfig, resource };
+  }
+  async updateConfig(server, mutate) {
+    const { value, mapping, key, target, resource } = this._getConfig(server);
+    const newConfig = { ...value };
+    mutate(newConfig);
+    await this._configurationService.updateValue(mcpServerSamplingSection, { ...mapping, [key]: newConfig }, { resource }, target);
+    return newConfig;
+  }
+};
+McpSamplingService = __decorate([
+  __param(0, ILanguageModelsService),
+  __param(1, IConfigurationService),
+  __param(2, IDialogService),
+  __param(3, INotificationService),
+  __param(4, ICommandService),
+  __param(5, IInstantiationService)
+], McpSamplingService);
+export {
+  McpSamplingService
+};
+//# sourceMappingURL=mcpSamplingService.js.map

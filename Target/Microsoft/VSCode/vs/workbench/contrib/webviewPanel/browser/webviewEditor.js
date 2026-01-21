@@ -1,1 +1,197 @@
-import*as u from"../../../../base/browser/dom.js";import{$wf as v,Event as D}from"../../../../base/common/event.js";import{$Dd as p,$Fd as m}from"../../../../base/common/lifecycle.js";import{$s as g}from"../../../../base/common/platform.js";import{$kn as y}from"../../../../base/common/uuid.js";import*as _ from"../../../../nls.js";import{$qo as j,$po as C}from"../../../../platform/contextkey/common/contextkey.js";import{$gp as E}from"../../../../platform/storage/common/storage.js";import{$op as F}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as G}from"../../../../platform/theme/common/themeService.js";import{$tJb as I}from"../../../browser/parts/editor/editorPane.js";import{$sGb as x}from"../../webview/browser/webviewWindowDragMonitor.js";import{$5Mb as f}from"./webviewEditorInput.js";import{$uL as O}from"../../../services/editor/common/editorGroupsService.js";import{$yL as P}from"../../../services/editor/common/editorService.js";import{$pbb as R}from"../../../services/host/browser/host.js";import{$Dxb as S}from"../../../services/layout/browser/layoutService.js";var $=function(h,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var a=h.length-1;a>=0;a--)(n=h[a])&&(s=(o<3?n(s):o>3?n(t,i,s):n(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},r=function(h,t){return function(i,e){t(i,e,h)}},d;const V=new C("activeWebviewPanelId","",{type:"string",description:_.localize(14607,null)});let l=class extends I{static{d=this}static{this.ID="WebviewEditor"}get onDidFocus(){return this.j.event}constructor(t,i,e,o,s,n,a,w,b){super(d.ID,t,i,e,o),this.r=s,this.s=n,this.u=a,this.w=w,this.y=b,this.c=!1,this.f=!1,this.g=this.D(new p),this.h=this.D(new m),this.j=this.D(new v),this.m=this.D(new m);const c=s.getPart(t);this.D(D.any(c.onDidScroll,c.onDidAddGroup,c.onDidRemoveGroup,c.onDidMoveGroup)(()=>{this.$&&this.c&&this.ib(this.$)}))}get $(){return this.input instanceof f?this.input.webview:void 0}get scopedContextKeyService(){return this.m.value}bb(t){const i=document.createElement("div");this.a=i,this.a.id=`webview-editor-element-${y()}`,t.appendChild(i),this.m.value=this.D(this.y.createScoped(i))}dispose(){this.f=!0,this.a?.remove(),this.a=void 0,super.dispose()}layout(t){this.b=t,this.$&&this.c&&this.ib(this.$,t)}focus(){super.focus(),!this.h.value&&!g&&(this.h.value=this.w.onDidChangeFocus(t=>{t&&this.s.activeEditorPane===this&&this.u.hasFocus("workbench.parts.editor")&&this.focus()})),this.$?.focus()}cb(t){this.c=t,this.input instanceof f&&this.$&&(t?this.hb(this.input):this.$.release(this)),super.cb(t)}clearInput(){this.$&&(this.$.release(this),this.g.clear()),super.clearInput()}async setInput(t,i,e,o){if(this.input&&t.matches(this.input))return;const s=t instanceof f&&t.webview===this.$;this.$&&!s&&this.$.release(this),await super.setInput(t,i,e,o),await t.resolve(),!(o.isCancellationRequested||this.f)&&t instanceof f&&(t.updateGroup(this.group.id),s||this.hb(t),this.b&&this.layout(this.b))}hb(t){t.claim(this,this.window,this.scopedContextKeyService),this.a&&(this.a.setAttribute("aria-flowto",t.webview.container.id),u.$_7(t.webview.container,this.a)),this.g.clear(),this.g.add(this.r.createEditorDropTarget(t.webview.container,{containsGroup:i=>this.group.id===i.id})),this.g.add(new x(this.window,()=>this.$)),this.ib(t.webview),this.g.add(this.jb(t.webview))}ib(t,i){if(!this.a?.isConnected)return;const e=this.u.getContainer(this.window,"workbench.parts.editor");t.layoutWebviewOverElement(this.a.parentElement,i,e)}jb(t){const i=new p,e=u.$G8(t.container);return i.add(e),i.add(e.onDidFocus(()=>this.j.fire())),i.add(t.onDidFocus(()=>this.j.fire())),i}};l=d=$([r(1,F),r(2,G),r(3,E),r(4,O),r(5,P),r(6,S),r(7,R),r(8,j)],l);export{V as $k3b,l as $l3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WebviewEditor_1;
+import * as DOM from "../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import * as nls from "../../../../nls.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { WebviewWindowDragMonitor } from "../../webview/browser/webviewWindowDragMonitor.js";
+import { WebviewInput } from "./webviewEditorInput.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+const CONTEXT_ACTIVE_WEBVIEW_PANEL_ID = new RawContextKey("activeWebviewPanelId", "", {
+  type: "string",
+  description: nls.localize("context.activeWebviewId", "The viewType of the currently active webview panel.")
+});
+let WebviewEditor = class WebviewEditor2 extends EditorPane {
+  static {
+    __name(this, "WebviewEditor");
+  }
+  static {
+    WebviewEditor_1 = this;
+  }
+  static {
+    this.ID = "WebviewEditor";
+  }
+  get onDidFocus() {
+    return this._onDidFocusWebview.event;
+  }
+  constructor(group, telemetryService, themeService, storageService, _editorGroupsService, _editorService, _workbenchLayoutService, _hostService, _contextKeyService) {
+    super(WebviewEditor_1.ID, group, telemetryService, themeService, storageService);
+    this._editorGroupsService = _editorGroupsService;
+    this._editorService = _editorService;
+    this._workbenchLayoutService = _workbenchLayoutService;
+    this._hostService = _hostService;
+    this._contextKeyService = _contextKeyService;
+    this._visible = false;
+    this._isDisposed = false;
+    this._webviewVisibleDisposables = this._register(new DisposableStore());
+    this._onFocusWindowHandler = this._register(new MutableDisposable());
+    this._onDidFocusWebview = this._register(new Emitter());
+    this._scopedContextKeyService = this._register(new MutableDisposable());
+    const part = _editorGroupsService.getPart(group);
+    this._register(Event.any(part.onDidScroll, part.onDidAddGroup, part.onDidRemoveGroup, part.onDidMoveGroup)(() => {
+      if (this.webview && this._visible) {
+        this.synchronizeWebviewContainerDimensions(this.webview);
+      }
+    }));
+  }
+  get webview() {
+    return this.input instanceof WebviewInput ? this.input.webview : void 0;
+  }
+  get scopedContextKeyService() {
+    return this._scopedContextKeyService.value;
+  }
+  createEditor(parent) {
+    const element = document.createElement("div");
+    this._element = element;
+    this._element.id = `webview-editor-element-${generateUuid()}`;
+    parent.appendChild(element);
+    this._scopedContextKeyService.value = this._register(this._contextKeyService.createScoped(element));
+  }
+  dispose() {
+    this._isDisposed = true;
+    this._element?.remove();
+    this._element = void 0;
+    super.dispose();
+  }
+  layout(dimension) {
+    this._dimension = dimension;
+    if (this.webview && this._visible) {
+      this.synchronizeWebviewContainerDimensions(this.webview, dimension);
+    }
+  }
+  focus() {
+    super.focus();
+    if (!this._onFocusWindowHandler.value && !isWeb) {
+      this._onFocusWindowHandler.value = this._hostService.onDidChangeFocus((focused) => {
+        if (focused && this._editorService.activeEditorPane === this && this._workbenchLayoutService.hasFocus(
+          "workbench.parts.editor"
+          /* Parts.EDITOR_PART */
+        )) {
+          this.focus();
+        }
+      });
+    }
+    this.webview?.focus();
+  }
+  setEditorVisible(visible) {
+    this._visible = visible;
+    if (this.input instanceof WebviewInput && this.webview) {
+      if (visible) {
+        this.claimWebview(this.input);
+      } else {
+        this.webview.release(this);
+      }
+    }
+    super.setEditorVisible(visible);
+  }
+  clearInput() {
+    if (this.webview) {
+      this.webview.release(this);
+      this._webviewVisibleDisposables.clear();
+    }
+    super.clearInput();
+  }
+  async setInput(input, options, context, token) {
+    if (this.input && input.matches(this.input)) {
+      return;
+    }
+    const alreadyOwnsWebview = input instanceof WebviewInput && input.webview === this.webview;
+    if (this.webview && !alreadyOwnsWebview) {
+      this.webview.release(this);
+    }
+    await super.setInput(input, options, context, token);
+    await input.resolve();
+    if (token.isCancellationRequested || this._isDisposed) {
+      return;
+    }
+    if (input instanceof WebviewInput) {
+      input.updateGroup(this.group.id);
+      if (!alreadyOwnsWebview) {
+        this.claimWebview(input);
+      }
+      if (this._dimension) {
+        this.layout(this._dimension);
+      }
+    }
+  }
+  claimWebview(input) {
+    input.claim(this, this.window, this.scopedContextKeyService);
+    if (this._element) {
+      this._element.setAttribute("aria-flowto", input.webview.container.id);
+      DOM.setParentFlowTo(input.webview.container, this._element);
+    }
+    this._webviewVisibleDisposables.clear();
+    this._webviewVisibleDisposables.add(this._editorGroupsService.createEditorDropTarget(input.webview.container, {
+      containsGroup: /* @__PURE__ */ __name((group) => this.group.id === group.id, "containsGroup")
+    }));
+    this._webviewVisibleDisposables.add(new WebviewWindowDragMonitor(this.window, () => this.webview));
+    this.synchronizeWebviewContainerDimensions(input.webview);
+    this._webviewVisibleDisposables.add(this.trackFocus(input.webview));
+  }
+  synchronizeWebviewContainerDimensions(webview, dimension) {
+    if (!this._element?.isConnected) {
+      return;
+    }
+    const rootContainer = this._workbenchLayoutService.getContainer(
+      this.window,
+      "workbench.parts.editor"
+      /* Parts.EDITOR_PART */
+    );
+    webview.layoutWebviewOverElement(this._element.parentElement, dimension, rootContainer);
+  }
+  trackFocus(webview) {
+    const store = new DisposableStore();
+    const webviewContentFocusTracker = DOM.trackFocus(webview.container);
+    store.add(webviewContentFocusTracker);
+    store.add(webviewContentFocusTracker.onDidFocus(() => this._onDidFocusWebview.fire()));
+    store.add(webview.onDidFocus(() => this._onDidFocusWebview.fire()));
+    return store;
+  }
+};
+WebviewEditor = WebviewEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IEditorGroupsService),
+  __param(5, IEditorService),
+  __param(6, IWorkbenchLayoutService),
+  __param(7, IHostService),
+  __param(8, IContextKeyService)
+], WebviewEditor);
+export {
+  CONTEXT_ACTIVE_WEBVIEW_PANEL_ID,
+  WebviewEditor
+};
+//# sourceMappingURL=webviewEditor.js.map

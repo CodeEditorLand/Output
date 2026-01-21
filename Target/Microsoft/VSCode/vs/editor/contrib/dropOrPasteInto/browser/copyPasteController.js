@@ -1,1 +1,564 @@
-import{$F7 as M}from"../../../../base/browser/dom.js";import{$$b as H}from"../../../../base/common/arrays.js";import{$Th as v,$ti as K,$Uh as A}from"../../../../base/common/async.js";import{$If as V}from"../../../../base/common/cancellation.js";import{$XE as z,$1E as S,$2E as J}from"../../../../base/common/dataTransfer.js";import{$rb as G}from"../../../../base/common/errors.js";import{$3E as Q}from"../../../../base/common/hierarchicalKind.js";import{$Ed as U,$Dd as E}from"../../../../base/common/lifecycle.js";import{$ZC as $}from"../../../../base/common/mime.js";import*as B from"../../../../base/common/platform.js";import{$qd as X}from"../../../../base/common/types.js";import{$kn as Z}from"../../../../base/common/uuid.js";import{localize as C}from"../../../../nls.js";import{$4hb as Y}from"../../../../platform/clipboard/common/clipboardService.js";import{$to as tt}from"../../../../platform/commands/common/commands.js";import{$9l as et}from"../../../../platform/configuration/common/configuration.js";import{$po as it}from"../../../../platform/contextkey/common/contextkey.js";import{$Lj as ot}from"../../../../platform/instantiation/common/instantiation.js";import{$xo as st}from"../../../../platform/log/common/log.js";import{$rH as rt}from"../../../../platform/progress/common/progress.js";import{$VH as nt}from"../../../../platform/quickinput/common/quickInput.js";import{$Afb as k,$yfb as L}from"../../../browser/controller/editContext/clipboardUtils.js";import{$Njb as at,$Mjb as lt}from"../../../browser/dataTransfer.js";import{$Ojb as ct}from"../../../browser/services/bulkEditService.js";import{$9D as dt}from"../../../common/core/range.js";import{DocumentPasteTriggerKind as O}from"../../../common/languages.js";import{$NV as pt}from"../../../common/services/languageFeatures.js";import{$Ujb as j}from"../../editorState/browser/editorState.js";import{$Wjb as ht}from"../../inlineProgress/browser/inlineProgress.js";import{$1jb as R}from"../../message/browser/messageController.js";import{$4jb as q}from"./defaultProviders.js";import{$gkb as ut,$hkb as ft}from"./edit.js";import{$nkb as mt}from"./postEditWidget.js";var W=function(w,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(w,t,e,i);else for(var r=w.length-1;r>=0;r--)(n=w[r])&&(s=(o<3?n(s):o>3?n(t,e,s):n(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},b=function(w,t){return function(e,i){t(e,i,w)}},m;const yt="editor.changePasteType",gt="editor.pasteAs.preferences",Pt=new it("pasteWidgetVisible",!1,C(1079,null)),I="application/vnd.code.copymetadata";let _=class extends U{static{m=this}static{this.ID="editor.contrib.copyPasteActionController"}static get(t){return t.getContribution(m.ID)}static setConfigureDefaultAction(t){m.a=t}constructor(t,e,i,o,s,n,r,l,d,c){super(),this.m=i,this.n=o,this.q=s,this.r=n,this.s=r,this.t=l,this.u=d,this.w=c,this.c=t;const a=t.getContainerDomNode();this.D(M(a,"copy",h=>this.z(h))),this.D(M(a,"cut",h=>this.z(h))),this.D(M(a,"paste",h=>this.C(h),!0)),this.h=this.D(new ht("pasteIntoEditor",t,e)),this.j=this.D(e.createInstance(mt,"pasteIntoEditor",t,Pt,{id:yt,label:C(1080,null)},()=>m.a?[m.a]:[]))}changePasteType(){this.j.tryShowSelector()}async pasteAs(t){this.m.trace("CopyPasteController.pasteAs"),this.c.focus();try{this.m.trace("Before calling editor.action.clipboardPasteAction"),this.g={preferred:t},await this.r.executeCommand("editor.action.clipboardPasteAction")}finally{this.g=void 0}}clearWidgets(){this.j.clear()}y(){return this.c.getOption(97).enabled}async finishedPaste(){await this.f}z(t){let e=null;if(t.clipboardData){const[f,p]=k.getTextData(t.clipboardData);e=(p||L.INSTANCE.get(f))?.id||null,this.m.trace("CopyPasteController#handleCopy for id : ",e," with text.length : ",f.length)}else this.m.trace("CopyPasteController#handleCopy");if(!this.c.hasTextFocus()||(this.q.clearInternalState?.(),!t.clipboardData||!this.y()))return;const i=this.c.getModel(),o=this.c.getSelections();if(!i||!o?.length)return;const s=this.c.getOption(45);let n=o;const r=o.length===1&&o[0].isEmpty();if(r){if(!s)return;n=[new dt(n[0].startLineNumber,1,n[0].startLineNumber,1+i.getLineLength(n[0].startLineNumber))]}const l=this.c._getViewModel()?.getPlainTextToCopy(o,s,B.$m),c={multicursorText:Array.isArray(l)?l:null,pasteOnNewLine:r,mode:null},a=this.t.documentPasteEditProvider.ordered(i).filter(f=>!!f.prepareDocumentPaste);if(!a.length){this.I(t.clipboardData,{defaultPastePayload:c});return}const h=lt(t.clipboardData),D=a.flatMap(f=>f.copyMimeTypes??[]),u=e??Z();this.I(t.clipboardData,{id:u,providerCopyMimeTypes:D,defaultPastePayload:c});const g=a.map(f=>({providerMimeTypes:f.copyMimeTypes,operation:v(p=>f.prepareDocumentPaste(i,n,h,p).catch(P=>{}))}));m.b?.operations.forEach(f=>f.operation.cancel()),m.b={handle:u,operations:g}}async C(t){if(t.clipboardData){const[d,c]=k.getTextData(t.clipboardData),a=c||L.INSTANCE.get(d);this.m.trace("CopyPasteController#handlePaste for id : ",a?.id)}else this.m.trace("CopyPasteController#handlePaste");if(!t.clipboardData||!this.c.hasTextFocus())return;R.get(this.c)?.closeMessage(),this.f?.cancel(),this.f=void 0;const e=this.c.getModel(),i=this.c.getSelections();if(!i?.length||!e||this.c.getOption(104)||!this.y()&&!this.g)return;const o=this.J(t);this.m.trace("CopyPasteController#handlePaste with metadata : ",o?.id," and text.length : ",t.clipboardData.getData("text/plain").length);const s=at(t.clipboardData);s.delete(I);const n=Array.from(t.clipboardData.files).map(d=>d.type),r=[...t.clipboardData.types,...n,...o?.providerCopyMimeTypes??[],$.uriList],l=this.t.documentPasteEditProvider.ordered(e).filter(d=>{const c=this.g?.preferred;return c&&!this.P(d,c)?!1:d.pasteMimeTypes?.some(a=>S(a,r))});if(!l.length){this.g?.preferred&&(this.F(i,this.g.preferred),t.preventDefault(),t.stopImmediatePropagation());return}t.preventDefault(),t.stopImmediatePropagation(),this.g?this.H(this.g.preferred,l,i,s,o):this.G(l,i,s,o,t)}F(t,e){const i="only"in e?e.only.value:"preferences"in e?e.preferences.length?e.preferences.map(o=>o.value).join(", "):C(1081,null):e.providerId;R.get(this.c)?.showMessage(C(1082,null,i),t[0].getStartPosition())}G(t,e,i,o,s){this.m.trace("CopyPasteController#doPasteInline");const n=this.c;if(!n.hasModel())return;const r=new j(n,3,void 0),l=v(async d=>{const c=this.c;if(!c.hasModel())return;const a=c.getModel(),h=new E,D=h.add(new V(d));h.add(r.token.onCancellationRequested(()=>D.cancel()));const u=D.token;try{if(await this.L(t,i,o,u),u.isCancellationRequested)return;const g=t.filter(P=>this.O(P,i));if(!g.length||g.length===1&&g[0]instanceof q)return this.N(i,o,u,s);const f={triggerKind:O.Automatic},p=await this.M(g,i,a,e,f,u);if(h.add(p),u.isCancellationRequested)return;if(p.edits.length===1&&p.edits[0].provider instanceof q)return this.N(i,o,u,s);if(p.edits.length){const P=c.getOption(97).showPasteSelector==="afterPaste";return this.j.applyEditAndShowIfNeeded(e,{activeEditIndex:this.Q(a,p.edits),allEdits:p.edits},P,async(y,T)=>{if(!y.provider.resolveDocumentPasteEdit)return y;const F=y.provider.resolveDocumentPasteEdit(y,T),N=new K,x=await this.h.showWhile(e[0].getEndPosition(),C(1083,null,y.title),A(Promise.race([N.p,F]),T),{cancel:()=>N.cancel()},0);return x&&(y.insertText=x.insertText,y.additionalEdit=x.additionalEdit),y},u)}await this.N(i,o,u,s)}finally{h.dispose(),this.f===l&&(this.f=void 0)}});this.h.showWhile(e[0].getEndPosition(),C(1084,null),l,{cancel:async()=>{l.cancel(),!r.token.isCancellationRequested&&await this.N(i,o,r.token,s)}}).finally(()=>{r.dispose()}),this.f=l}H(t,e,i,o,s){this.m.trace("CopyPasteController#showPasteAsPick");const n=v(async r=>{const l=this.c;if(!l.hasModel())return;const d=l.getModel(),c=new E,a=c.add(new j(l,3,void 0,r));try{if(await this.L(e,o,s,a.token),a.token.isCancellationRequested)return;let h=e.filter(p=>this.O(p,o,t));t&&(h=h.filter(p=>this.P(p,t)));const D={triggerKind:O.PasteAs,only:t&&"only"in t?t.only:void 0};let u=c.add(await this.M(h,o,d,i,D,a.token));if(a.token.isCancellationRequested)return;if(t&&(u={edits:u.edits.filter(p=>"only"in t?t.only.contains(p.kind):"preferences"in t?t.preferences.some(P=>P.contains(p.kind)):t.providerId===p.provider.id),dispose:u.dispose}),!u.edits.length){t&&this.F(i,t);return}let g;if(t)g=u.edits.at(0);else{const p={id:"editor.pasteAs.default",label:C(1085,null),edit:void 0},P=await this.u.pick([...u.edits.map(y=>({label:y.title,description:y.kind?.value,edit:y})),...m.a?[X({type:"separator"}),{label:m.a.label,edit:void 0}]:[]],{placeHolder:C(1086,null)});if(P===p){m.a?.run();return}g=P?.edit}if(!g)return;const f=ut(d.uri,i,g);await this.n.apply(f,{editor:this.c})}finally{c.dispose(),this.f===n&&(this.f=void 0)}});this.w.withProgress({location:10,title:C(1087,null)},()=>n)}I(t,e){this.m.trace("CopyPasteController#setCopyMetadata new id : ",e.id),t.setData(I,JSON.stringify(e))}J(t){if(this.m.trace("CopyPasteController#fetchCopyMetadata"),!t.clipboardData)return;const e=t.clipboardData.getData(I);if(e)try{return JSON.parse(e)}catch{return}const[i,o]=k.getTextData(t.clipboardData);if(o)return{defaultPastePayload:{mode:o.mode,multicursorText:o.multicursorText??null,pasteOnNewLine:!!o.isFromEmptySelection}}}async L(t,e,i,o){if(this.m.trace("CopyPasteController#mergeInDataFromCopy with metadata : ",i?.id),i?.id&&m.b?.handle===i.id){const s=m.b.operations.filter(r=>t.some(l=>l.pasteMimeTypes.some(d=>S(d,r.providerMimeTypes)))).map(r=>r.operation),n=await Promise.all(s);if(o.isCancellationRequested)return;for(const r of n.reverse())if(r)for(const[l,d]of r)e.replace(l,d)}if(!e.has($.uriList)){const s=await this.q.readResources();if(o.isCancellationRequested)return;s.length&&e.append($.uriList,z(J.create(s)))}}async M(t,e,i,o,s,n){const r=new E,l=await A(Promise.all(t.map(async c=>{try{const a=await c.provideDocumentPasteEdits?.(i,o,e,s,n);return a&&r.add(a),a?.edits?.map(h=>({...h,provider:c}))}catch(a){G(a);return}})),n),d=H(l??[]).flat().filter(c=>!s.only||s.only.contains(c.kind));return{edits:ft(d),dispose:()=>r.dispose()}}async N(t,e,i,o){const n=await(t.get($.text)??t.get("text"))?.asString()??"";if(i.isCancellationRequested)return;const r={clipboardEvent:o,text:n,pasteOnNewLine:e?.defaultPastePayload.pasteOnNewLine??!1,multicursorText:e?.defaultPastePayload.multicursorText??null,mode:null};this.m.trace("CopyPasteController#applyDefaultPasteHandler for id : ",e?.id),this.c.trigger("keyboard","paste",r)}O(t,e,i){return t.pasteMimeTypes?.some(o=>e.matches(o))?!i||this.P(t,i):!1}P(t,e){return"only"in e?t.providedPasteEditKinds.some(i=>e.only.contains(i)):"preferences"in e?e.preferences.some(i=>e.preferences.some(o=>o.contains(i))):t.id===e.providerId}Q(t,e){const i=this.s.getValue(gt,{resource:t.uri});for(const o of Array.isArray(i)?i:[]){const s=new Q(o),n=e.findIndex(r=>s.contains(r.kind));if(n>=0)return n}return 0}};_=m=W([b(1,ot),b(2,st),b(3,ct),b(4,Y),b(5,tt),b(6,et),b(7,pt),b(8,nt),b(9,rt)],_);export{yt as $okb,gt as $pkb,Pt as $qkb,_ as $rkb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CopyPasteController_1;
+import { addDisposableListener } from "../../../../base/browser/dom.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { createCancelablePromise, DeferredPromise, raceCancellation } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { createStringDataTransferItem, matchesMimeType, UriList } from "../../../../base/common/dataTransfer.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import * as platform from "../../../../base/common/platform.js";
+import { upcast } from "../../../../base/common/types.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { localize } from "../../../../nls.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ClipboardEventUtils, InMemoryClipboardMetadataManager } from "../../../browser/controller/editContext/clipboardUtils.js";
+import { toExternalVSDataTransfer, toVSDataTransfer } from "../../../browser/dataTransfer.js";
+import { IBulkEditService } from "../../../browser/services/bulkEditService.js";
+import { Range } from "../../../common/core/range.js";
+import { DocumentPasteTriggerKind } from "../../../common/languages.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { EditorStateCancellationTokenSource } from "../../editorState/browser/editorState.js";
+import { InlineProgressManager } from "../../inlineProgress/browser/inlineProgress.js";
+import { MessageController } from "../../message/browser/messageController.js";
+import { DefaultTextPasteOrDropEditProvider } from "./defaultProviders.js";
+import { createCombinedWorkspaceEdit, sortEditsByYieldTo } from "./edit.js";
+import { PostEditWidgetManager } from "./postEditWidget.js";
+const changePasteTypeCommandId = "editor.changePasteType";
+const pasteAsPreferenceConfig = "editor.pasteAs.preferences";
+const pasteWidgetVisibleCtx = new RawContextKey("pasteWidgetVisible", false, localize("pasteWidgetVisible", "Whether the paste widget is showing"));
+const vscodeClipboardMime = "application/vnd.code.copymetadata";
+let CopyPasteController = class CopyPasteController2 extends Disposable {
+  static {
+    __name(this, "CopyPasteController");
+  }
+  static {
+    CopyPasteController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.copyPasteActionController";
+  }
+  static get(editor) {
+    return editor.getContribution(CopyPasteController_1.ID);
+  }
+  static setConfigureDefaultAction(action) {
+    CopyPasteController_1._configureDefaultAction = action;
+  }
+  constructor(editor, instantiationService, _logService, _bulkEditService, _clipboardService, _commandService, _configService, _languageFeaturesService, _quickInputService, _progressService) {
+    super();
+    this._logService = _logService;
+    this._bulkEditService = _bulkEditService;
+    this._clipboardService = _clipboardService;
+    this._commandService = _commandService;
+    this._configService = _configService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._quickInputService = _quickInputService;
+    this._progressService = _progressService;
+    this._editor = editor;
+    const container = editor.getContainerDomNode();
+    this._register(addDisposableListener(container, "copy", (e) => this.handleCopy(e)));
+    this._register(addDisposableListener(container, "cut", (e) => this.handleCopy(e)));
+    this._register(addDisposableListener(container, "paste", (e) => this.handlePaste(e), true));
+    this._pasteProgressManager = this._register(new InlineProgressManager("pasteIntoEditor", editor, instantiationService));
+    this._postPasteWidgetManager = this._register(instantiationService.createInstance(PostEditWidgetManager, "pasteIntoEditor", editor, pasteWidgetVisibleCtx, { id: changePasteTypeCommandId, label: localize("postPasteWidgetTitle", "Show paste options...") }, () => CopyPasteController_1._configureDefaultAction ? [CopyPasteController_1._configureDefaultAction] : []));
+  }
+  changePasteType() {
+    this._postPasteWidgetManager.tryShowSelector();
+  }
+  async pasteAs(preferred) {
+    this._logService.trace("CopyPasteController.pasteAs");
+    this._editor.focus();
+    try {
+      this._logService.trace("Before calling editor.action.clipboardPasteAction");
+      this._pasteAsActionContext = { preferred };
+      await this._commandService.executeCommand("editor.action.clipboardPasteAction");
+    } finally {
+      this._pasteAsActionContext = void 0;
+    }
+  }
+  clearWidgets() {
+    this._postPasteWidgetManager.clear();
+  }
+  isPasteAsEnabled() {
+    return this._editor.getOption(
+      97
+      /* EditorOption.pasteAs */
+    ).enabled;
+  }
+  async finishedPaste() {
+    await this._currentPasteOperation;
+  }
+  handleCopy(e) {
+    let id = null;
+    if (e.clipboardData) {
+      const [text, metadata] = ClipboardEventUtils.getTextData(e.clipboardData);
+      const storedMetadata = metadata || InMemoryClipboardMetadataManager.INSTANCE.get(text);
+      id = storedMetadata?.id || null;
+      this._logService.trace("CopyPasteController#handleCopy for id : ", id, " with text.length : ", text.length);
+    } else {
+      this._logService.trace("CopyPasteController#handleCopy");
+    }
+    if (!this._editor.hasTextFocus()) {
+      return;
+    }
+    this._clipboardService.clearInternalState?.();
+    if (!e.clipboardData || !this.isPasteAsEnabled()) {
+      return;
+    }
+    const model = this._editor.getModel();
+    const selections = this._editor.getSelections();
+    if (!model || !selections?.length) {
+      return;
+    }
+    const enableEmptySelectionClipboard = this._editor.getOption(
+      45
+      /* EditorOption.emptySelectionClipboard */
+    );
+    let ranges = selections;
+    const wasFromEmptySelection = selections.length === 1 && selections[0].isEmpty();
+    if (wasFromEmptySelection) {
+      if (!enableEmptySelectionClipboard) {
+        return;
+      }
+      ranges = [new Range(ranges[0].startLineNumber, 1, ranges[0].startLineNumber, 1 + model.getLineLength(ranges[0].startLineNumber))];
+    }
+    const toCopy = this._editor._getViewModel()?.getPlainTextToCopy(selections, enableEmptySelectionClipboard, platform.isWindows);
+    const multicursorText = Array.isArray(toCopy) ? toCopy : null;
+    const defaultPastePayload = {
+      multicursorText,
+      pasteOnNewLine: wasFromEmptySelection,
+      mode: null
+    };
+    const providers = this._languageFeaturesService.documentPasteEditProvider.ordered(model).filter((x) => !!x.prepareDocumentPaste);
+    if (!providers.length) {
+      this.setCopyMetadata(e.clipboardData, { defaultPastePayload });
+      return;
+    }
+    const dataTransfer = toVSDataTransfer(e.clipboardData);
+    const providerCopyMimeTypes = providers.flatMap((x) => x.copyMimeTypes ?? []);
+    const handle = id ?? generateUuid();
+    this.setCopyMetadata(e.clipboardData, {
+      id: handle,
+      providerCopyMimeTypes,
+      defaultPastePayload
+    });
+    const operations = providers.map((provider) => {
+      return {
+        providerMimeTypes: provider.copyMimeTypes,
+        operation: createCancelablePromise((token) => provider.prepareDocumentPaste(model, ranges, dataTransfer, token).catch((err) => {
+          console.error(err);
+          return void 0;
+        }))
+      };
+    });
+    CopyPasteController_1._currentCopyOperation?.operations.forEach((entry) => entry.operation.cancel());
+    CopyPasteController_1._currentCopyOperation = { handle, operations };
+  }
+  async handlePaste(e) {
+    if (e.clipboardData) {
+      const [text, metadata2] = ClipboardEventUtils.getTextData(e.clipboardData);
+      const metadataComputed = metadata2 || InMemoryClipboardMetadataManager.INSTANCE.get(text);
+      this._logService.trace("CopyPasteController#handlePaste for id : ", metadataComputed?.id);
+    } else {
+      this._logService.trace("CopyPasteController#handlePaste");
+    }
+    if (!e.clipboardData || !this._editor.hasTextFocus()) {
+      return;
+    }
+    MessageController.get(this._editor)?.closeMessage();
+    this._currentPasteOperation?.cancel();
+    this._currentPasteOperation = void 0;
+    const model = this._editor.getModel();
+    const selections = this._editor.getSelections();
+    if (!selections?.length || !model) {
+      return;
+    }
+    if (this._editor.getOption(
+      104
+      /* EditorOption.readOnly */
+    ) || !this.isPasteAsEnabled() && !this._pasteAsActionContext) {
+      return;
+    }
+    const metadata = this.fetchCopyMetadata(e);
+    this._logService.trace("CopyPasteController#handlePaste with metadata : ", metadata?.id, " and text.length : ", e.clipboardData.getData("text/plain").length);
+    const dataTransfer = toExternalVSDataTransfer(e.clipboardData);
+    dataTransfer.delete(vscodeClipboardMime);
+    const fileTypes = Array.from(e.clipboardData.files).map((file) => file.type);
+    const allPotentialMimeTypes = [
+      ...e.clipboardData.types,
+      ...fileTypes,
+      ...metadata?.providerCopyMimeTypes ?? [],
+      // TODO: always adds `uri-list` because this get set if there are resources in the system clipboard.
+      // However we can only check the system clipboard async. For this early check, just add it in.
+      // We filter providers again once we have the final dataTransfer we will use.
+      Mimes.uriList
+    ];
+    const allProviders = this._languageFeaturesService.documentPasteEditProvider.ordered(model).filter((provider) => {
+      const preference = this._pasteAsActionContext?.preferred;
+      if (preference) {
+        if (!this.providerMatchesPreference(provider, preference)) {
+          return false;
+        }
+      }
+      return provider.pasteMimeTypes?.some((type) => matchesMimeType(type, allPotentialMimeTypes));
+    });
+    if (!allProviders.length) {
+      if (this._pasteAsActionContext?.preferred) {
+        this.showPasteAsNoEditMessage(selections, this._pasteAsActionContext.preferred);
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+      return;
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (this._pasteAsActionContext) {
+      this.showPasteAsPick(this._pasteAsActionContext.preferred, allProviders, selections, dataTransfer, metadata);
+    } else {
+      this.doPasteInline(allProviders, selections, dataTransfer, metadata, e);
+    }
+  }
+  showPasteAsNoEditMessage(selections, preference) {
+    const kindLabel = "only" in preference ? preference.only.value : "preferences" in preference ? preference.preferences.length ? preference.preferences.map((preference2) => preference2.value).join(", ") : localize("noPreferences", "empty") : preference.providerId;
+    MessageController.get(this._editor)?.showMessage(localize("pasteAsError", "No paste edits for '{0}' found", kindLabel), selections[0].getStartPosition());
+  }
+  doPasteInline(allProviders, selections, dataTransfer, metadata, clipboardEvent) {
+    this._logService.trace("CopyPasteController#doPasteInline");
+    const editor = this._editor;
+    if (!editor.hasModel()) {
+      return;
+    }
+    const editorStateCts = new EditorStateCancellationTokenSource(editor, 1 | 2, void 0);
+    const p = createCancelablePromise(async (pToken) => {
+      const editor2 = this._editor;
+      if (!editor2.hasModel()) {
+        return;
+      }
+      const model = editor2.getModel();
+      const disposables = new DisposableStore();
+      const cts = disposables.add(new CancellationTokenSource(pToken));
+      disposables.add(editorStateCts.token.onCancellationRequested(() => cts.cancel()));
+      const token = cts.token;
+      try {
+        await this.mergeInDataFromCopy(allProviders, dataTransfer, metadata, token);
+        if (token.isCancellationRequested) {
+          return;
+        }
+        const supportedProviders = allProviders.filter((provider) => this.isSupportedPasteProvider(provider, dataTransfer));
+        if (!supportedProviders.length || supportedProviders.length === 1 && supportedProviders[0] instanceof DefaultTextPasteOrDropEditProvider) {
+          return this.applyDefaultPasteHandler(dataTransfer, metadata, token, clipboardEvent);
+        }
+        const context = {
+          triggerKind: DocumentPasteTriggerKind.Automatic
+        };
+        const editSession = await this.getPasteEdits(supportedProviders, dataTransfer, model, selections, context, token);
+        disposables.add(editSession);
+        if (token.isCancellationRequested) {
+          return;
+        }
+        if (editSession.edits.length === 1 && editSession.edits[0].provider instanceof DefaultTextPasteOrDropEditProvider) {
+          return this.applyDefaultPasteHandler(dataTransfer, metadata, token, clipboardEvent);
+        }
+        if (editSession.edits.length) {
+          const canShowWidget = editor2.getOption(
+            97
+            /* EditorOption.pasteAs */
+          ).showPasteSelector === "afterPaste";
+          return this._postPasteWidgetManager.applyEditAndShowIfNeeded(selections, { activeEditIndex: this.getInitialActiveEditIndex(model, editSession.edits), allEdits: editSession.edits }, canShowWidget, async (edit, resolveToken) => {
+            if (!edit.provider.resolveDocumentPasteEdit) {
+              return edit;
+            }
+            const resolveP = edit.provider.resolveDocumentPasteEdit(edit, resolveToken);
+            const showP = new DeferredPromise();
+            const resolved = await this._pasteProgressManager.showWhile(selections[0].getEndPosition(), localize("resolveProcess", "Resolving paste edit for '{0}'. Click to cancel", edit.title), raceCancellation(Promise.race([showP.p, resolveP]), resolveToken), {
+              cancel: /* @__PURE__ */ __name(() => showP.cancel(), "cancel")
+            }, 0);
+            if (resolved) {
+              edit.insertText = resolved.insertText;
+              edit.additionalEdit = resolved.additionalEdit;
+            }
+            return edit;
+          }, token);
+        }
+        await this.applyDefaultPasteHandler(dataTransfer, metadata, token, clipboardEvent);
+      } finally {
+        disposables.dispose();
+        if (this._currentPasteOperation === p) {
+          this._currentPasteOperation = void 0;
+        }
+      }
+    });
+    this._pasteProgressManager.showWhile(selections[0].getEndPosition(), localize("pasteIntoEditorProgress", "Running paste handlers. Click to cancel and do basic paste"), p, {
+      cancel: /* @__PURE__ */ __name(async () => {
+        p.cancel();
+        if (editorStateCts.token.isCancellationRequested) {
+          return;
+        }
+        await this.applyDefaultPasteHandler(dataTransfer, metadata, editorStateCts.token, clipboardEvent);
+      }, "cancel")
+    }).finally(() => {
+      editorStateCts.dispose();
+    });
+    this._currentPasteOperation = p;
+  }
+  showPasteAsPick(preference, allProviders, selections, dataTransfer, metadata) {
+    this._logService.trace("CopyPasteController#showPasteAsPick");
+    const p = createCancelablePromise(async (token) => {
+      const editor = this._editor;
+      if (!editor.hasModel()) {
+        return;
+      }
+      const model = editor.getModel();
+      const disposables = new DisposableStore();
+      const tokenSource = disposables.add(new EditorStateCancellationTokenSource(editor, 1 | 2, void 0, token));
+      try {
+        await this.mergeInDataFromCopy(allProviders, dataTransfer, metadata, tokenSource.token);
+        if (tokenSource.token.isCancellationRequested) {
+          return;
+        }
+        let supportedProviders = allProviders.filter((provider) => this.isSupportedPasteProvider(provider, dataTransfer, preference));
+        if (preference) {
+          supportedProviders = supportedProviders.filter((provider) => this.providerMatchesPreference(provider, preference));
+        }
+        const context = {
+          triggerKind: DocumentPasteTriggerKind.PasteAs,
+          only: preference && "only" in preference ? preference.only : void 0
+        };
+        let editSession = disposables.add(await this.getPasteEdits(supportedProviders, dataTransfer, model, selections, context, tokenSource.token));
+        if (tokenSource.token.isCancellationRequested) {
+          return;
+        }
+        if (preference) {
+          editSession = {
+            edits: editSession.edits.filter((edit) => {
+              if ("only" in preference) {
+                return preference.only.contains(edit.kind);
+              } else if ("preferences" in preference) {
+                return preference.preferences.some((preference2) => preference2.contains(edit.kind));
+              } else {
+                return preference.providerId === edit.provider.id;
+              }
+            }),
+            dispose: editSession.dispose
+          };
+        }
+        if (!editSession.edits.length) {
+          if (preference) {
+            this.showPasteAsNoEditMessage(selections, preference);
+          }
+          return;
+        }
+        let pickedEdit;
+        if (preference) {
+          pickedEdit = editSession.edits.at(0);
+        } else {
+          const configureDefaultItem = {
+            id: "editor.pasteAs.default",
+            label: localize("pasteAsDefault", "Configure default paste action"),
+            edit: void 0
+          };
+          const selected = await this._quickInputService.pick([
+            ...editSession.edits.map((edit) => ({
+              label: edit.title,
+              description: edit.kind?.value,
+              edit
+            })),
+            ...CopyPasteController_1._configureDefaultAction ? [
+              upcast({ type: "separator" }),
+              {
+                label: CopyPasteController_1._configureDefaultAction.label,
+                edit: void 0
+              }
+            ] : []
+          ], {
+            placeHolder: localize("pasteAsPickerPlaceholder", "Select Paste Action")
+          });
+          if (selected === configureDefaultItem) {
+            CopyPasteController_1._configureDefaultAction?.run();
+            return;
+          }
+          pickedEdit = selected?.edit;
+        }
+        if (!pickedEdit) {
+          return;
+        }
+        const combinedWorkspaceEdit = createCombinedWorkspaceEdit(model.uri, selections, pickedEdit);
+        await this._bulkEditService.apply(combinedWorkspaceEdit, { editor: this._editor });
+      } finally {
+        disposables.dispose();
+        if (this._currentPasteOperation === p) {
+          this._currentPasteOperation = void 0;
+        }
+      }
+    });
+    this._progressService.withProgress({
+      location: 10,
+      title: localize("pasteAsProgress", "Running paste handlers")
+    }, () => p);
+  }
+  setCopyMetadata(dataTransfer, metadata) {
+    this._logService.trace("CopyPasteController#setCopyMetadata new id : ", metadata.id);
+    dataTransfer.setData(vscodeClipboardMime, JSON.stringify(metadata));
+  }
+  fetchCopyMetadata(e) {
+    this._logService.trace("CopyPasteController#fetchCopyMetadata");
+    if (!e.clipboardData) {
+      return;
+    }
+    const rawMetadata = e.clipboardData.getData(vscodeClipboardMime);
+    if (rawMetadata) {
+      try {
+        return JSON.parse(rawMetadata);
+      } catch {
+        return void 0;
+      }
+    }
+    const [_, metadata] = ClipboardEventUtils.getTextData(e.clipboardData);
+    if (metadata) {
+      return {
+        defaultPastePayload: {
+          mode: metadata.mode,
+          multicursorText: metadata.multicursorText ?? null,
+          pasteOnNewLine: !!metadata.isFromEmptySelection
+        }
+      };
+    }
+    return void 0;
+  }
+  async mergeInDataFromCopy(allProviders, dataTransfer, metadata, token) {
+    this._logService.trace("CopyPasteController#mergeInDataFromCopy with metadata : ", metadata?.id);
+    if (metadata?.id && CopyPasteController_1._currentCopyOperation?.handle === metadata.id) {
+      const toResolve = CopyPasteController_1._currentCopyOperation.operations.filter((op) => allProviders.some((provider) => provider.pasteMimeTypes.some((type) => matchesMimeType(type, op.providerMimeTypes)))).map((op) => op.operation);
+      const toMergeResults = await Promise.all(toResolve);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      for (const toMergeData of toMergeResults.reverse()) {
+        if (toMergeData) {
+          for (const [key, value] of toMergeData) {
+            dataTransfer.replace(key, value);
+          }
+        }
+      }
+    }
+    if (!dataTransfer.has(Mimes.uriList)) {
+      const resources = await this._clipboardService.readResources();
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if (resources.length) {
+        dataTransfer.append(Mimes.uriList, createStringDataTransferItem(UriList.create(resources)));
+      }
+    }
+  }
+  async getPasteEdits(providers, dataTransfer, model, selections, context, token) {
+    const disposables = new DisposableStore();
+    const results = await raceCancellation(Promise.all(providers.map(async (provider) => {
+      try {
+        const edits2 = await provider.provideDocumentPasteEdits?.(model, selections, dataTransfer, context, token);
+        if (edits2) {
+          disposables.add(edits2);
+        }
+        return edits2?.edits?.map((edit) => ({ ...edit, provider }));
+      } catch (err) {
+        if (!isCancellationError(err)) {
+          console.error(err);
+        }
+        return void 0;
+      }
+    })), token);
+    const edits = coalesce(results ?? []).flat().filter((edit) => {
+      return !context.only || context.only.contains(edit.kind);
+    });
+    return {
+      edits: sortEditsByYieldTo(edits),
+      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+    };
+  }
+  async applyDefaultPasteHandler(dataTransfer, metadata, token, clipboardEvent) {
+    const textDataTransfer = dataTransfer.get(Mimes.text) ?? dataTransfer.get("text");
+    const text = await textDataTransfer?.asString() ?? "";
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const payload = {
+      clipboardEvent,
+      text,
+      pasteOnNewLine: metadata?.defaultPastePayload.pasteOnNewLine ?? false,
+      multicursorText: metadata?.defaultPastePayload.multicursorText ?? null,
+      mode: null
+    };
+    this._logService.trace("CopyPasteController#applyDefaultPasteHandler for id : ", metadata?.id);
+    this._editor.trigger("keyboard", "paste", payload);
+  }
+  /**
+   * Filter out providers if they:
+   * - Don't handle any of the data transfer types we have
+   * - Don't match the preferred paste kind
+   */
+  isSupportedPasteProvider(provider, dataTransfer, preference) {
+    if (!provider.pasteMimeTypes?.some((type) => dataTransfer.matches(type))) {
+      return false;
+    }
+    return !preference || this.providerMatchesPreference(provider, preference);
+  }
+  providerMatchesPreference(provider, preference) {
+    if ("only" in preference) {
+      return provider.providedPasteEditKinds.some((providedKind) => preference.only.contains(providedKind));
+    } else if ("preferences" in preference) {
+      return preference.preferences.some((providedKind) => preference.preferences.some((preferredKind) => preferredKind.contains(providedKind)));
+    } else {
+      return provider.id === preference.providerId;
+    }
+  }
+  getInitialActiveEditIndex(model, edits) {
+    const preferredProviders = this._configService.getValue(pasteAsPreferenceConfig, { resource: model.uri });
+    for (const config of Array.isArray(preferredProviders) ? preferredProviders : []) {
+      const desiredKind = new HierarchicalKind(config);
+      const editIndex = edits.findIndex((edit) => desiredKind.contains(edit.kind));
+      if (editIndex >= 0) {
+        return editIndex;
+      }
+    }
+    return 0;
+  }
+};
+CopyPasteController = CopyPasteController_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ILogService),
+  __param(3, IBulkEditService),
+  __param(4, IClipboardService),
+  __param(5, ICommandService),
+  __param(6, IConfigurationService),
+  __param(7, ILanguageFeaturesService),
+  __param(8, IQuickInputService),
+  __param(9, IProgressService)
+], CopyPasteController);
+export {
+  CopyPasteController,
+  changePasteTypeCommandId,
+  pasteAsPreferenceConfig,
+  pasteWidgetVisibleCtx
+};
+//# sourceMappingURL=copyPasteController.js.map

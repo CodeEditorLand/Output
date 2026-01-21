@@ -1,1 +1,796 @@
-import{localize as k}from"../../../../../../nls.js";import*as h from"../../../../../../base/browser/dom.js";import{$Uh as v}from"../../../../../../base/common/async.js";import{$If as M}from"../../../../../../base/common/cancellation.js";import{$ak as F}from"../../../../../../base/common/codicons.js";import{Event as S}from"../../../../../../base/common/event.js";import{$Ed as U,$Cd as x}from"../../../../../../base/common/lifecycle.js";import{$dx as H}from"../../../../../../base/common/numbers.js";import*as q from"../../../../../../base/common/strings.js";import{ThemeIcon as R}from"../../../../../../base/common/themables.js";import{$WF as V}from"../../../../../../editor/common/languages/language.js";import{$1gb as A}from"../../../../../../editor/common/languages/textToHtmlTokenizer.js";import{$plb as j}from"../../../../../../editor/contrib/codeAction/browser/codeActionController.js";import{$9l as G}from"../../../../../../platform/configuration/common/configuration.js";import{$Lj as J}from"../../../../../../platform/instantiation/common/instantiation.js";import{$cy as X}from"../../../../../../platform/keybinding/common/keybinding.js";import{$PP as Q}from"../../../common/notebookExecutionStateService.js";import{CellFocusMode as E,$tDb as Y}from"../../notebookBrowser.js";import{$4Fb as Z}from"../../viewModel/codeCellViewModel.js";import{$dGb as W}from"../notebookRenderingCommon.js";import{$NHb as K}from"./cellEditorOptions.js";import{$SIb as tt}from"./cellOutput.js";import{$TIb as it}from"./codeCellExecutionIcon.js";import{$JP as et}from"../../../common/notebookLoggingService.js";var B=function(y,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(y,t,i,e);else for(var r=y.length-1;r>=0;r--)(n=y[r])&&(s=(o<3?n(s):o>3?n(t,i,s):n(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},w=function(y,t){return function(i,e){t(i,e,y)}};let P=class extends U{constructor(t,i,e,o,s,n,r,u,c,C){super(),this.w=t,this.y=i,this.z=e,this.C=o,this.F=s,this.G=n,this.H=r,this.I=u,this.g=!1,this.q=!0,this.r=!1,this.s=!1;const g=`[Cell ${this.w.getCellIndex(this.y)}]`,D=this.u=a=>{C.debug("CellLayout",`${g} ${a}`)};this.n=this.D(new K(this.w.getBaseCellEditorOptions(i.language),this.w.notebookOptions,this.I)),this.a=this.F.createInstance(tt,t,i,e,{limit:Z}),this.h=this.D(e.cellParts.concatContentPart([this.n,this.a],h.getWindow(t.getDomNode())));const L={height:this.P(),width:this.y.layoutInfo.editorWidth};this.t=new ot(this.q,t,i,e,{debug:D},L),this.Q(L),this.c=!1,this.U(),this.X(),this.Y(),this.ab(),this.D(S.any(this.y.onDidStartExecution,this.y.onDidStopExecution)(a=>{this.h.updateForExecutionState(this.y,a)})),this.D(this.y.onDidChangeState(a=>{if(this.h.updateState(this.y,a),a.outputIsHoveredChanged&&this.N(),a.outputIsFocusedChanged&&this.O(),(a.metadataChanged||a.internalMetadataChanged)&&this.S(),a.inputCollapsedChanged||a.outputCollapsedChanged){this.y.pauseLayout();const I=this.db();this.y.resumeLayout(),I&&this.relayoutCell()}a.focusModeChanged&&this.cb(!0)})),this.S(),this.cb(!1),this.N(),this.O(),this.h.scheduleRenderCell(this.y),this.D(x(()=>{this.h.unrenderCell(this.y)})),this.y.editorHeight=L.height,this.a.render(),this.f=!1,this.nb(),this.D(this.y.onLayoutInfoRead(()=>{this.h.prepareLayout()}));const l=h.$I8(this.z.cellInputCollapsedContainer,h.$(".collapsed-execution-icon"));this.D(x(()=>{l.remove()})),this.m=this.D(this.F.createInstance(it,this.w,this.y,l)),this.db(),this.D(S.runAndSubscribe(i.onDidChangeOutputs,this.R.bind(this))),this.D(S.runAndSubscribe(i.onDidChangeLayout,this.M.bind(this))),this.n.setLineNumbers(this.y.lineNumbers),e.editor.updateOptions(this.n.getUpdatedValue(this.y.internalMetadata,this.y.uri))}J(t){t.editor.updateOptions(this.n.getUpdatedValue(this.y.internalMetadata,this.y.uri));const i=new M;this.D({dispose(){i.dispose(!0)}}),v(this.y.resolveTextModel(),i.token).then(e=>{this.g||e&&e.updateOptions({indentSize:this.n.indentSize,tabSize:this.n.tabSize,insertSpaces:this.n.insertSpaces})})}M(){this.L?.dispose(),this.L=h.$T7(h.getWindow(this.w.getDomNode()),()=>{this.h.updateInternalLayoutNow(this.y)})}N(){this.z.container.classList.toggle("cell-output-hover",this.y.outputIsHovered)}O(){this.z.container.classList.toggle("cell-output-focus",this.y.outputIsFocused)}P(){const t=this.y.lineCount,i=this.y.layoutInfo.fontInfo?.lineHeight||17,e=this.w.notebookOptions.computeEditorPadding(this.y.internalMetadata,this.y.uri);return this.y.layoutInfo.editorHeight===0?t*i+e.top+e.bottom:this.y.layoutInfo.editorHeight}Q(t){this.u(`Initialize Editor ${t.height} x ${t.width}, Scroll Top = ${this.w.scrollTop}`),this.t.layoutEditor("init"),this.ob(t);const i=new M;this.D({dispose(){i.dispose(!0)}}),v(this.y.resolveTextModel(),i.token).then(e=>{if(!(this.g||e?.isDisposed())){if(e&&this.z.editor){if(this.Z(e),this.z.editor.setModel(e),this.g)return;e.updateOptions({indentSize:this.n.indentSize,tabSize:this.n.tabSize,insertSpaces:this.n.insertSpaces}),this.y.attachTextEditor(this.z.editor,this.y.layoutInfo.estimatedHasHorizontalScrolling);const o=()=>{this.w.getActiveCell()===this.y&&this.y.focusMode===E.Editor&&(this.w.hasEditorFocus()||this.w.getDomNode().ownerDocument.activeElement===this.w.getDomNode().ownerDocument.body)&&this.z.editor.focus()};if(o(),this.z.editor.getContentHeight()!==t.height&&this.qb("onDidResolveTextModel"),this.g)return;o()}this.D(this.n.onDidChange(()=>this.J(this.z)))}})}R(){h.$N8(this.y.outputsViewModels.length>0,this.z.focusSinkElement)}S(){const t=this.z.editor;if(!t)return;const i=this.w.isReadOnly,e=this.w.notebookOptions.computeEditorPadding(this.y.internalMetadata,this.y.uri),o=t.getOptions();(o.get(104)!==i||o.get(96)!==e)&&t.updateOptions({readOnly:this.w.isReadOnly,padding:this.w.notebookOptions.computeEditorPadding(this.y.internalMetadata,this.y.uri)})}U(){this.D(this.w.onDidScroll(()=>{this.W(),this.t.layoutEditor("nbDidScroll")})),this.D(this.w.onDidChangeLayout(()=>{this.W(),this.pb("nbLayoutChange")}))}W(){if(this.q)return;const t=-7,i=0,e=this.w.scrollTop,o=this.w.getAbsoluteTopOfElement(this.y),s=e-o+t,n=this.w.getLayoutInfo(),r=n.height-n.stickyHeight-26,u=this.y.layoutInfo.editorHeight-r,c=u>20?H(i,s,u):i;this.z.editorPart.style.top=`${c}px`,this.z.editor.setScrollTop(c)}X(){this.D(this.y.onDidChangeLayout(t=>{t.outerWidth!==void 0&&this.z.editor.getLayoutInfo().width!==this.y.layoutInfo.editorWidth&&(this.pb("viewCellLayoutChange"),this.W())}))}Y(){this.D(this.z.editor.onDidContentSizeChange(t=>{t.contentHeightChanged&&this.y.layoutInfo.editorHeight!==t.contentHeight&&(this.qb("onDidContentSizeChange"),this.W())})),this.q&&this.D(this.z.editor.onDidScrollChange(t=>{if(this.r||this.s||this.t.editorVisibility==="Invisible"||!this.z.editor.hasTextFocus()||this.t._lastChangedEditorScrolltop===t.scrollTop||this.t.isUpdatingLayout)return;const i=this.w.scrollTop,e=t.scrollTop-(this.t._lastChangedEditorScrolltop??0);if(this.t.editorVisibility==="Full (Small Viewport)"&&typeof this.t._lastChangedEditorScrolltop=="number")this.u(`Scroll Change (1) = ${t.scrollTop} changed by ${e} (notebook scrollTop: ${i}, setEditorScrollTop: ${t.scrollTop})`);else if(this.t.editorVisibility==="Bottom Clipped"&&typeof this.t._lastChangedEditorScrolltop=="number")this.u(`Scroll Change (2) = ${t.scrollTop} changed by ${e} (notebook scrollTop: ${i}, setNotebookScrollTop: ${i+t.scrollTop})`),this.w.setScrollTop(i+t.scrollTop);else if(this.t.editorVisibility==="Top Clipped"&&typeof this.t._lastChangedEditorScrolltop=="number"){const o=i+e-1;this.u(`Scroll Change (3) = ${t.scrollTop} changed by ${e} (notebook scrollTop: ${i}, setNotebookScrollTop?: ${o})`),i!==o&&this.w.setScrollTop(o)}else this.u(`Scroll Change (4) = ${t.scrollTop} changed by ${e} (notebook scrollTop: ${i})`),this.t._lastChangedEditorScrolltop=void 0})),this.D(this.z.editor.onDidChangeCursorSelection(t=>{if(t.source==="restoreState"||t.oldModelVersionId===0||!this.z.editor.hasTextFocus()||(this.r||this.s)&&this.q)return;const i=this.z.editor.getSelections();if(i?.length){const e=this.z.editor.getContentHeight(),o=this.y.layoutInfo.editorHeight;if(e!==o&&(this.q||(this.u("onDidChangeCursorSelection"),this.qb("onDidChangeCursorSelection")),this.g))return;const s=i[i.length-1];this.w.revealRangeInViewAsync(this.y,s)}})),this.D(this.z.editor.onDidBlurEditorWidget(()=>{j.get(this.z.editor)?.hideLightBulbWidget()}))}Z(t){this.D(t.onDidChangeTokens(()=>{if(this.y.isInputCollapsed&&this.b){const i=this.ib(t);this.b.innerHTML=W?.createHTML(i)??i,this.fb(this.b)}}))}ab(){const t=()=>{this.r=!1,this.s=!1,this.t.setPointerDown(!1)};if(this.D(this.z.editor.onMouseDown(i=>{i.event.rightButton&&i.event.preventDefault(),this.q&&i.event.leftButton&&(this.r=!0,this.s=!1,this.t.setPointerDown(!1))})),this.q&&this.D(this.z.editor.onMouseMove(i=>{if(this.r){if(!i.event.leftButton){t();return}this.s||(this.s=!0,this.t.setPointerDown(!0))}})),this.q){const i=h.getWindow(this.w.getDomNode());this.D(h.$F7(i,"mouseup",t)),this.D(h.$F7(i,"pointerup",t)),this.D(h.$F7(i,"pointercancel",t)),this.D(h.$F7(i,"blur",t)),this.D(h.$F7(i,"keydown",e=>{e.key==="Escape"&&(this.r||this.s)&&t()}))}}bb(){return this.w.getActiveCell()===this.y&&this.y.focusMode===E.Editor&&(this.w.hasEditorFocus()||this.w.getDomNode().ownerDocument.activeElement===this.w.getDomNode().ownerDocument.body)}cb(t){this.bb()&&(t?this.z.editor.focus():this.D(h.$O7(h.getWindow(this.z.container),()=>{this.z.editor.focus()}))),this.z.container.classList.toggle("cell-editor-focus",this.y.focusMode===E.Editor),this.z.container.classList.toggle("cell-output-focus",this.y.focusMode===E.Output)}db(){return this.y.isOutputCollapsed===this.f&&this.y.isInputCollapsed===this.c?!1:(this.y.layoutChange({editorHeight:!0}),this.y.isInputCollapsed?this.eb():this.gb(),this.y.isOutputCollapsed?this.lb():this.mb(!1),this.relayoutCell(),this.f=this.y.isOutputCollapsed,this.c=this.y.isInputCollapsed,!0)}eb(){h.$P8(this.z.editorPart),this.z.container.classList.toggle("input-collapsed",!0),this.jb(),this.m.setVisibility(!0);const t=this.z.editor.hasModel()?this.ib(this.z.editor.getModel()):this.hb(this.y.textBuffer,this.y.language),i=h.$("div.cell-collapse-preview");i.innerHTML=W?.createHTML(t)??t,this.b=i,this.z.cellInputCollapsedContainer.appendChild(i),this.fb(i),h.$O8(this.z.cellInputCollapsedContainer)}fb(t){const i=h.$("span.expandInputIcon"),e=this.G.lookupKeybinding(Y);e&&(t.title=k(10851,null,e.getLabel()),i.title=k(10852,null,e.getLabel())),i.classList.add(...R.asClassNameArray(F.more)),t.appendChild(i)}gb(){this.m.setVisibility(!1),h.$O8(this.z.editorPart),h.$P8(this.z.cellInputCollapsedContainer)}hb(t,i){return A(this.H,t.getLineContent(1),i)}ib(t){let i='<div class="monaco-tokenized-source">';const o=t.tokenization.getLineTokens(1).inflate(),s=t.getLineContent(1);let n=0;for(let r=0,u=o.getCount();r<u;r++){const c=o.getClassName(r),C=o.getEndOffset(r);i+=`<span class="${c}">${q.$Xf(s.substring(n,C))}</span>`,n=C}return i+="</div>",i}jb(){const t=this.z.cellInputCollapsedContainer.children,i=[];for(let e=0;e<t.length;e++)t[e].classList.contains("cell-collapse-preview")&&i.push(t[e]);i.forEach(e=>{e.remove()})}kb(t){const i=this.z.outputContainer.domNode.children;for(let e=0;e<i.length;e++)i[e].classList.contains("output-inner-container")&&h.$N8(!t,i[e])}lb(){this.z.container.classList.toggle("output-collapsed",!0),h.$O8(this.z.cellOutputCollapsedContainer),this.kb(!0),this.a.viewUpdateHideOuputs()}mb(t){this.z.container.classList.toggle("output-collapsed",!1),h.$P8(this.z.cellOutputCollapsedContainer),this.kb(!1),this.a.viewUpdateShowOutputs(t)}nb(){this.z.container.classList.toggle("input-collapsed",!1),h.$O8(this.z.editorPart),h.$P8(this.z.cellInputCollapsedContainer),this.z.container.classList.toggle("output-collapsed",!1),this.mb(!0)}ob(t){if(this.q)return;const i=this.w.getLayoutInfo(),e=Math.min(i.height-i.stickyHeight-26,t.height);this.u(`Layout Editor: Width = ${t.width}, Height = ${e} (Requested: ${t.height}, Editor Layout Height: ${i.height}, Sticky: ${i.stickyHeight})`),this.z.editor.layout({width:t.width,height:e},!0)}pb(t){this.u(`Cell Editor Width Change, ${t}, Content Height = ${this.z.editor.getContentHeight()}`);const i=this.z.editor.getContentHeight();this.z.editor.hasModel()?(this.u(`**** Updating Cell Editor Height (1), ContentHeight: ${i}, CodeCellLayoutInfo.EditorWidth ${this.y.layoutInfo.editorWidth}, EditorLayoutInfo ${this.z.editor.getLayoutInfo().height} ****`),this.y.editorHeight=i,this.relayoutCell(),this.ob({width:this.y.layoutInfo.editorWidth,height:i})):this.u(`Cell Editor Width Change without model, return (1), ContentHeight: ${i}, CodeCellLayoutInfo.EditorWidth ${this.y.layoutInfo.editorWidth}, EditorLayoutInfo ${this.z.editor.getLayoutInfo().height}`),this.t.layoutEditor(t)}qb(t){const i=this.z.editor.getContentHeight();this.z.editor.hasModel()||this.u(`Cell Editor Height Change without model, return (2), ContentHeight: ${i}, CodeCellLayoutInfo.EditorWidth ${this.y.layoutInfo.editorWidth}, EditorLayoutInfo ${this.z.editor.getLayoutInfo()}`),this.u(`Cell Editor Height Change (${t}): ${i}`),this.u(`**** Updating Cell Editor Height (2), ContentHeight: ${i}, CodeCellLayoutInfo.EditorWidth ${this.y.layoutInfo.editorWidth}, EditorLayoutInfo ${this.z.editor.getLayoutInfo().height} ****`);const e=this.z.editor.getLayoutInfo();this.y.editorHeight=i,this.relayoutCell(),this.ob({width:e.width,height:i}),this.t.layoutEditor(t)}relayoutCell(){this.w.layoutNotebookCell(this.y,this.y.layoutInfo.totalHeight)}dispose(){this.g=!0,this.bb()&&this.C.preserveFocusedEditor(this.y),this.y.detachTextEditor(),this.jb(),this.a.dispose(),this.L?.dispose(),super.dispose()}};P=B([w(4,J),w(5,X),w(6,V),w(7,G),w(8,Q),w(9,et)],P);class ot{get editorVisibility(){return this.a}get isUpdatingLayout(){return this.b}constructor(t,i,e,o,s,n){this.g=t,this.h=i,this.k=e,this.l=o,this.m=s,this.n=n,this.c=!1,this.d=!1}setPointerDown(t){this.d=t}layoutEditor(t){if(!this.g)return;const i=this.l.editorPart;if(this.k.isInputCollapsed){i.style.top="";return}const e=this.h.getLayoutInfo().fontInfo.lineHeight,o=this.k.layoutInfo.topMargin,s=this.k.layoutInfo.outlineWidth,n=this.k.layoutInfo.statusBarHeight,r=this.l.editor,u=this.l.editor.getLayoutInfo(),c=this.c&&(t==="nbLayoutChange"||t==="viewCellLayoutChange")?this.k.layoutInfo.editorWidth:u.width,C=this.k.layoutInfo.editorHeight,p=this.h.scrollTop,g=this.h.getAbsoluteTopOfElement(this.k),D=this.h.getAbsoluteBottomOfElement(this.k),L=this.h.getHeightOfElement(this.k);let l;if(!this.c&&t==="init")l=this.n.height,this.f=l;else{const d=r.getContentHeight(),O=d===-1?Math.max(r.getLayoutInfo().height,this.n.height):d;!this.c||t==="onDidContentSizeChange"||t==="viewCellLayoutChange"||t==="nbLayoutChange"?(l=O,this.f=l):l=this.f??O}const I=g+this.k.layoutInfo.outputContainerOffset,f=this.h.scrollBottom,z=f-p===0?this.h.getLayoutInfo().height:f-p,N=this.k.layoutInfo.outputContainerOffset,_=typeof this._previousScrollBottom=="number"&&f<this._previousScrollBottom?"up":"down";this._previousScrollBottom=f;let b=Math.max(0,p-g-o-s);const T=C-b;T<e&&(b=b-(e-T)-s);let m=l,$=0;if(p<=g+o){const d=e+this.h.notebookOptions.getLayoutConfiguration().editorTopPadding;f>=I?(m=H(l,d,l),this.a="Full"):(m=H(f-(g+o)-n,d,l)+2*s,this.a="Bottom Clipped",$=0)}else if(z<=l&&f<=I){const d=e+this.h.notebookOptions.getLayoutConfiguration().editorTopPadding;m=H(z-n,d,l-n)+2*s,this.a="Full (Small Viewport)",$=b}else{const d=e;m=H(l-(p-(g+o)),d,l),p>I?this.a="Invisible":this.a="Top Clipped",$=l-m}this.m.debug(`${t} (${this.a}, ${this.c})`),this.m.debug(`=> Editor Top = ${b}px (editHeight = ${C}, editContentHeight: ${l})`),this.m.debug(`=> eleTop = ${g}, eleBottom = ${D}, eleHeight = ${L}`),this.m.debug(`=> scrollTop = ${p}, top = ${b}`),this.m.debug(`=> cellTopMargin = ${o}, cellBottomMargin = ${this.k.layoutInfo.topMargin}, cellOutline = ${s}`),this.m.debug(`=> scrollBottom: ${f}, editBottom: ${I}, viewport: ${z}, scroll: ${_}, contOffset: ${N})`),this.m.debug(`=> Editor Height = ${m}px, Width: ${c}px, Initial Width: ${this.n.width}, EditorScrollTop = ${$}px, StatusbarHeight = ${n}, lineHeight = ${this.h.getLayoutInfo().fontInfo.lineHeight}`);try{this.b=!0,i.style.top=`${b}px`,r.layout({width:this.c?c:this.n.width,height:m},!0),!this.d&&$>=0&&(this._lastChangedEditorScrolltop=$,r.setScrollTop($))}finally{this.c=!0,this.b=!1,this.m.debug("Updated Editor Layout")}}}export{P as $UIb,ot as $VIb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../../../nls.js";
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { raceCancellation } from "../../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../../../base/common/numbers.js";
+import * as strings from "../../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { tokenizeToStringSync } from "../../../../../../editor/common/languages/textToHtmlTokenizer.js";
+import { CodeActionController } from "../../../../../../editor/contrib/codeAction/browser/codeActionController.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import { CellFocusMode, EXPAND_CELL_INPUT_COMMAND_ID } from "../../notebookBrowser.js";
+import { outputDisplayLimit } from "../../viewModel/codeCellViewModel.js";
+import { collapsedCellTTPolicy } from "../notebookRenderingCommon.js";
+import { CellEditorOptions } from "./cellEditorOptions.js";
+import { CellOutputContainer } from "./cellOutput.js";
+import { CollapsedCodeCellExecutionIcon } from "./codeCellExecutionIcon.js";
+import { INotebookLoggingService } from "../../../common/notebookLoggingService.js";
+let CodeCell = class CodeCell2 extends Disposable {
+  static {
+    __name(this, "CodeCell");
+  }
+  constructor(notebookEditor, viewCell, templateData, editorPool, instantiationService, keybindingService, languageService, configurationService, notebookExecutionStateService, notebookLogService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.viewCell = viewCell;
+    this.templateData = templateData;
+    this.editorPool = editorPool;
+    this.instantiationService = instantiationService;
+    this.keybindingService = keybindingService;
+    this.languageService = languageService;
+    this.configurationService = configurationService;
+    this._isDisposed = false;
+    this._useNewApproachForEditorLayout = true;
+    this._pointerDownInEditor = false;
+    this._pointerDraggingInEditor = false;
+    const cellIndex = this.notebookEditor.getCellIndex(this.viewCell);
+    const debugPrefix = `[Cell ${cellIndex}]`;
+    const debug = this._debug = (output) => {
+      notebookLogService.debug("CellLayout", `${debugPrefix} ${output}`);
+    };
+    this._cellEditorOptions = this._register(new CellEditorOptions(this.notebookEditor.getBaseCellEditorOptions(viewCell.language), this.notebookEditor.notebookOptions, this.configurationService));
+    this._outputContainerRenderer = this.instantiationService.createInstance(CellOutputContainer, notebookEditor, viewCell, templateData, { limit: outputDisplayLimit });
+    this.cellParts = this._register(templateData.cellParts.concatContentPart([this._cellEditorOptions, this._outputContainerRenderer], DOM.getWindow(notebookEditor.getDomNode())));
+    const initialEditorDimension = { height: this.calculateInitEditorHeight(), width: this.viewCell.layoutInfo.editorWidth };
+    this._cellLayout = new CodeCellLayout(this._useNewApproachForEditorLayout, notebookEditor, viewCell, templateData, { debug }, initialEditorDimension);
+    this.initializeEditor(initialEditorDimension);
+    this._renderedInputCollapseState = false;
+    this.registerNotebookEditorListeners();
+    this.registerViewCellLayoutChange();
+    this.registerCellEditorEventListeners();
+    this.registerMouseListener();
+    this._register(Event.any(this.viewCell.onDidStartExecution, this.viewCell.onDidStopExecution)((e) => {
+      this.cellParts.updateForExecutionState(this.viewCell, e);
+    }));
+    this._register(this.viewCell.onDidChangeState((e) => {
+      this.cellParts.updateState(this.viewCell, e);
+      if (e.outputIsHoveredChanged) {
+        this.updateForOutputHover();
+      }
+      if (e.outputIsFocusedChanged) {
+        this.updateForOutputFocus();
+      }
+      if (e.metadataChanged || e.internalMetadataChanged) {
+        this.updateEditorOptions();
+      }
+      if (e.inputCollapsedChanged || e.outputCollapsedChanged) {
+        this.viewCell.pauseLayout();
+        const updated = this.updateForCollapseState();
+        this.viewCell.resumeLayout();
+        if (updated) {
+          this.relayoutCell();
+        }
+      }
+      if (e.focusModeChanged) {
+        this.updateEditorForFocusModeChange(true);
+      }
+    }));
+    this.updateEditorOptions();
+    this.updateEditorForFocusModeChange(false);
+    this.updateForOutputHover();
+    this.updateForOutputFocus();
+    this.cellParts.scheduleRenderCell(this.viewCell);
+    this._register(toDisposable(() => {
+      this.cellParts.unrenderCell(this.viewCell);
+    }));
+    this.viewCell.editorHeight = initialEditorDimension.height;
+    this._outputContainerRenderer.render();
+    this._renderedOutputCollapseState = false;
+    this.initialViewUpdateExpanded();
+    this._register(this.viewCell.onLayoutInfoRead(() => {
+      this.cellParts.prepareLayout();
+    }));
+    const executionItemElement = DOM.append(this.templateData.cellInputCollapsedContainer, DOM.$(".collapsed-execution-icon"));
+    this._register(toDisposable(() => {
+      executionItemElement.remove();
+    }));
+    this._collapsedExecutionIcon = this._register(this.instantiationService.createInstance(CollapsedCodeCellExecutionIcon, this.notebookEditor, this.viewCell, executionItemElement));
+    this.updateForCollapseState();
+    this._register(Event.runAndSubscribe(viewCell.onDidChangeOutputs, this.updateForOutputs.bind(this)));
+    this._register(Event.runAndSubscribe(viewCell.onDidChangeLayout, this.updateForLayout.bind(this)));
+    this._cellEditorOptions.setLineNumbers(this.viewCell.lineNumbers);
+    templateData.editor.updateOptions(this._cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
+  }
+  updateCodeCellOptions(templateData) {
+    templateData.editor.updateOptions(this._cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
+    const cts = new CancellationTokenSource();
+    this._register({ dispose() {
+      cts.dispose(true);
+    } });
+    raceCancellation(this.viewCell.resolveTextModel(), cts.token).then((model) => {
+      if (this._isDisposed) {
+        return;
+      }
+      if (model) {
+        model.updateOptions({
+          indentSize: this._cellEditorOptions.indentSize,
+          tabSize: this._cellEditorOptions.tabSize,
+          insertSpaces: this._cellEditorOptions.insertSpaces
+        });
+      }
+    });
+  }
+  updateForLayout() {
+    this._pendingLayout?.dispose();
+    this._pendingLayout = DOM.modify(DOM.getWindow(this.notebookEditor.getDomNode()), () => {
+      this.cellParts.updateInternalLayoutNow(this.viewCell);
+    });
+  }
+  updateForOutputHover() {
+    this.templateData.container.classList.toggle("cell-output-hover", this.viewCell.outputIsHovered);
+  }
+  updateForOutputFocus() {
+    this.templateData.container.classList.toggle("cell-output-focus", this.viewCell.outputIsFocused);
+  }
+  calculateInitEditorHeight() {
+    const lineNum = this.viewCell.lineCount;
+    const lineHeight = this.viewCell.layoutInfo.fontInfo?.lineHeight || 17;
+    const editorPadding = this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri);
+    const editorHeight = this.viewCell.layoutInfo.editorHeight === 0 ? lineNum * lineHeight + editorPadding.top + editorPadding.bottom : this.viewCell.layoutInfo.editorHeight;
+    return editorHeight;
+  }
+  initializeEditor(dimension) {
+    this._debug(`Initialize Editor ${dimension.height} x ${dimension.width}, Scroll Top = ${this.notebookEditor.scrollTop}`);
+    this._cellLayout.layoutEditor("init");
+    this.layoutEditor(dimension);
+    const cts = new CancellationTokenSource();
+    this._register({ dispose() {
+      cts.dispose(true);
+    } });
+    raceCancellation(this.viewCell.resolveTextModel(), cts.token).then((model) => {
+      if (this._isDisposed || model?.isDisposed()) {
+        return;
+      }
+      if (model && this.templateData.editor) {
+        this._reigsterModelListeners(model);
+        this.templateData.editor.setModel(model);
+        if (this._isDisposed) {
+          return;
+        }
+        model.updateOptions({
+          indentSize: this._cellEditorOptions.indentSize,
+          tabSize: this._cellEditorOptions.tabSize,
+          insertSpaces: this._cellEditorOptions.insertSpaces
+        });
+        this.viewCell.attachTextEditor(this.templateData.editor, this.viewCell.layoutInfo.estimatedHasHorizontalScrolling);
+        const focusEditorIfNeeded = /* @__PURE__ */ __name(() => {
+          if (this.notebookEditor.getActiveCell() === this.viewCell && this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)) {
+            this.templateData.editor.focus();
+          }
+        }, "focusEditorIfNeeded");
+        focusEditorIfNeeded();
+        const realContentHeight = this.templateData.editor.getContentHeight();
+        if (realContentHeight !== dimension.height) {
+          this.onCellEditorHeightChange("onDidResolveTextModel");
+        }
+        if (this._isDisposed) {
+          return;
+        }
+        focusEditorIfNeeded();
+      }
+      this._register(this._cellEditorOptions.onDidChange(() => this.updateCodeCellOptions(this.templateData)));
+    });
+  }
+  updateForOutputs() {
+    DOM.setVisibility(this.viewCell.outputsViewModels.length > 0, this.templateData.focusSinkElement);
+  }
+  updateEditorOptions() {
+    const editor = this.templateData.editor;
+    if (!editor) {
+      return;
+    }
+    const isReadonly = this.notebookEditor.isReadOnly;
+    const padding = this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri);
+    const options = editor.getOptions();
+    if (options.get(
+      104
+      /* EditorOption.readOnly */
+    ) !== isReadonly || options.get(
+      96
+      /* EditorOption.padding */
+    ) !== padding) {
+      editor.updateOptions({
+        readOnly: this.notebookEditor.isReadOnly,
+        padding: this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri)
+      });
+    }
+  }
+  registerNotebookEditorListeners() {
+    this._register(this.notebookEditor.onDidScroll(() => {
+      this.adjustEditorPosition();
+      this._cellLayout.layoutEditor("nbDidScroll");
+    }));
+    this._register(this.notebookEditor.onDidChangeLayout(() => {
+      this.adjustEditorPosition();
+      this.onCellWidthChange("nbLayoutChange");
+    }));
+  }
+  adjustEditorPosition() {
+    if (this._useNewApproachForEditorLayout) {
+      return;
+    }
+    const extraOffset = -6 - 1;
+    const min = 0;
+    const scrollTop = this.notebookEditor.scrollTop;
+    const elementTop = this.notebookEditor.getAbsoluteTopOfElement(this.viewCell);
+    const diff = scrollTop - elementTop + extraOffset;
+    const notebookEditorLayout = this.notebookEditor.getLayoutInfo();
+    const editorMaxHeight = notebookEditorLayout.height - notebookEditorLayout.stickyHeight - 26;
+    const maxTop = this.viewCell.layoutInfo.editorHeight - editorMaxHeight;
+    const top = maxTop > 20 ? clamp(min, diff, maxTop) : min;
+    this.templateData.editorPart.style.top = `${top}px`;
+    this.templateData.editor.setScrollTop(top);
+  }
+  registerViewCellLayoutChange() {
+    this._register(this.viewCell.onDidChangeLayout((e) => {
+      if (e.outerWidth !== void 0) {
+        const layoutInfo = this.templateData.editor.getLayoutInfo();
+        if (layoutInfo.width !== this.viewCell.layoutInfo.editorWidth) {
+          this.onCellWidthChange("viewCellLayoutChange");
+          this.adjustEditorPosition();
+        }
+      }
+    }));
+  }
+  registerCellEditorEventListeners() {
+    this._register(this.templateData.editor.onDidContentSizeChange((e) => {
+      if (e.contentHeightChanged) {
+        if (this.viewCell.layoutInfo.editorHeight !== e.contentHeight) {
+          this.onCellEditorHeightChange(`onDidContentSizeChange`);
+          this.adjustEditorPosition();
+        }
+      }
+    }));
+    if (this._useNewApproachForEditorLayout) {
+      this._register(this.templateData.editor.onDidScrollChange((e) => {
+        if (this._pointerDownInEditor || this._pointerDraggingInEditor) {
+          return;
+        }
+        if (this._cellLayout.editorVisibility === "Invisible" || !this.templateData.editor.hasTextFocus()) {
+          return;
+        }
+        if (this._cellLayout._lastChangedEditorScrolltop === e.scrollTop || this._cellLayout.isUpdatingLayout) {
+          return;
+        }
+        const scrollTop = this.notebookEditor.scrollTop;
+        const diff = e.scrollTop - (this._cellLayout._lastChangedEditorScrolltop ?? 0);
+        if (this._cellLayout.editorVisibility === "Full (Small Viewport)" && typeof this._cellLayout._lastChangedEditorScrolltop === "number") {
+          this._debug(`Scroll Change (1) = ${e.scrollTop} changed by ${diff} (notebook scrollTop: ${scrollTop}, setEditorScrollTop: ${e.scrollTop})`);
+        } else if (this._cellLayout.editorVisibility === "Bottom Clipped" && typeof this._cellLayout._lastChangedEditorScrolltop === "number") {
+          this._debug(`Scroll Change (2) = ${e.scrollTop} changed by ${diff} (notebook scrollTop: ${scrollTop}, setNotebookScrollTop: ${scrollTop + e.scrollTop})`);
+          this.notebookEditor.setScrollTop(scrollTop + e.scrollTop);
+        } else if (this._cellLayout.editorVisibility === "Top Clipped" && typeof this._cellLayout._lastChangedEditorScrolltop === "number") {
+          const newScrollTop = scrollTop + diff - 1;
+          this._debug(`Scroll Change (3) = ${e.scrollTop} changed by ${diff} (notebook scrollTop: ${scrollTop}, setNotebookScrollTop?: ${newScrollTop})`);
+          if (scrollTop !== newScrollTop) {
+            this.notebookEditor.setScrollTop(newScrollTop);
+          }
+        } else {
+          this._debug(`Scroll Change (4) = ${e.scrollTop} changed by ${diff} (notebook scrollTop: ${scrollTop})`);
+          this._cellLayout._lastChangedEditorScrolltop = void 0;
+        }
+      }));
+    }
+    this._register(this.templateData.editor.onDidChangeCursorSelection((e) => {
+      if (
+        // do not reveal the cell into view if this selection change was caused by restoring editors
+        e.source === "restoreState" || e.oldModelVersionId === 0 || !this.templateData.editor.hasTextFocus()
+      ) {
+        return;
+      }
+      if ((this._pointerDownInEditor || this._pointerDraggingInEditor) && this._useNewApproachForEditorLayout) {
+        return;
+      }
+      const selections = this.templateData.editor.getSelections();
+      if (selections?.length) {
+        const contentHeight = this.templateData.editor.getContentHeight();
+        const layoutContentHeight = this.viewCell.layoutInfo.editorHeight;
+        if (contentHeight !== layoutContentHeight) {
+          if (!this._useNewApproachForEditorLayout) {
+            this._debug(`onDidChangeCursorSelection`);
+            this.onCellEditorHeightChange("onDidChangeCursorSelection");
+          }
+          if (this._isDisposed) {
+            return;
+          }
+        }
+        const lastSelection = selections[selections.length - 1];
+        this.notebookEditor.revealRangeInViewAsync(this.viewCell, lastSelection);
+      }
+    }));
+    this._register(this.templateData.editor.onDidBlurEditorWidget(() => {
+      CodeActionController.get(this.templateData.editor)?.hideLightBulbWidget();
+    }));
+  }
+  _reigsterModelListeners(model) {
+    this._register(model.onDidChangeTokens(() => {
+      if (this.viewCell.isInputCollapsed && this._inputCollapseElement) {
+        const content = this._getRichTextFromLineTokens(model);
+        this._inputCollapseElement.innerHTML = collapsedCellTTPolicy?.createHTML(content) ?? content;
+        this._attachInputExpandButton(this._inputCollapseElement);
+      }
+    }));
+  }
+  registerMouseListener() {
+    const resetPointerState = /* @__PURE__ */ __name(() => {
+      this._pointerDownInEditor = false;
+      this._pointerDraggingInEditor = false;
+      this._cellLayout.setPointerDown(false);
+    }, "resetPointerState");
+    this._register(this.templateData.editor.onMouseDown((e) => {
+      if (e.event.rightButton) {
+        e.event.preventDefault();
+      }
+      if (this._useNewApproachForEditorLayout) {
+        if (e.event.leftButton) {
+          this._pointerDownInEditor = true;
+          this._pointerDraggingInEditor = false;
+          this._cellLayout.setPointerDown(false);
+        }
+      }
+    }));
+    if (this._useNewApproachForEditorLayout) {
+      this._register(this.templateData.editor.onMouseMove((e) => {
+        if (!this._pointerDownInEditor) {
+          return;
+        }
+        if (!e.event.leftButton) {
+          resetPointerState();
+          return;
+        }
+        if (!this._pointerDraggingInEditor) {
+          this._pointerDraggingInEditor = true;
+          this._cellLayout.setPointerDown(true);
+        }
+      }));
+    }
+    if (this._useNewApproachForEditorLayout) {
+      const win = DOM.getWindow(this.notebookEditor.getDomNode());
+      this._register(DOM.addDisposableListener(win, "mouseup", resetPointerState));
+      this._register(DOM.addDisposableListener(win, "pointerup", resetPointerState));
+      this._register(DOM.addDisposableListener(win, "pointercancel", resetPointerState));
+      this._register(DOM.addDisposableListener(win, "blur", resetPointerState));
+      this._register(DOM.addDisposableListener(win, "keydown", (e) => {
+        if (e.key === "Escape" && (this._pointerDownInEditor || this._pointerDraggingInEditor)) {
+          resetPointerState();
+        }
+      }));
+    }
+  }
+  shouldPreserveEditor() {
+    return this.notebookEditor.getActiveCell() === this.viewCell && this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body);
+  }
+  updateEditorForFocusModeChange(sync) {
+    if (this.shouldPreserveEditor()) {
+      if (sync) {
+        this.templateData.editor.focus();
+      } else {
+        this._register(DOM.runAtThisOrScheduleAtNextAnimationFrame(DOM.getWindow(this.templateData.container), () => {
+          this.templateData.editor.focus();
+        }));
+      }
+    }
+    this.templateData.container.classList.toggle("cell-editor-focus", this.viewCell.focusMode === CellFocusMode.Editor);
+    this.templateData.container.classList.toggle("cell-output-focus", this.viewCell.focusMode === CellFocusMode.Output);
+  }
+  updateForCollapseState() {
+    if (this.viewCell.isOutputCollapsed === this._renderedOutputCollapseState && this.viewCell.isInputCollapsed === this._renderedInputCollapseState) {
+      return false;
+    }
+    this.viewCell.layoutChange({ editorHeight: true });
+    if (this.viewCell.isInputCollapsed) {
+      this._collapseInput();
+    } else {
+      this._showInput();
+    }
+    if (this.viewCell.isOutputCollapsed) {
+      this._collapseOutput();
+    } else {
+      this._showOutput(false);
+    }
+    this.relayoutCell();
+    this._renderedOutputCollapseState = this.viewCell.isOutputCollapsed;
+    this._renderedInputCollapseState = this.viewCell.isInputCollapsed;
+    return true;
+  }
+  _collapseInput() {
+    DOM.hide(this.templateData.editorPart);
+    this.templateData.container.classList.toggle("input-collapsed", true);
+    this._removeInputCollapsePreview();
+    this._collapsedExecutionIcon.setVisibility(true);
+    const richEditorText = this.templateData.editor.hasModel() ? this._getRichTextFromLineTokens(this.templateData.editor.getModel()) : this._getRichText(this.viewCell.textBuffer, this.viewCell.language);
+    const element = DOM.$("div.cell-collapse-preview");
+    element.innerHTML = collapsedCellTTPolicy?.createHTML(richEditorText) ?? richEditorText;
+    this._inputCollapseElement = element;
+    this.templateData.cellInputCollapsedContainer.appendChild(element);
+    this._attachInputExpandButton(element);
+    DOM.show(this.templateData.cellInputCollapsedContainer);
+  }
+  _attachInputExpandButton(element) {
+    const expandIcon = DOM.$("span.expandInputIcon");
+    const keybinding = this.keybindingService.lookupKeybinding(EXPAND_CELL_INPUT_COMMAND_ID);
+    if (keybinding) {
+      element.title = localize("cellExpandInputButtonLabelWithDoubleClick", "Double-click to expand cell input ({0})", keybinding.getLabel());
+      expandIcon.title = localize("cellExpandInputButtonLabel", "Expand Cell Input ({0})", keybinding.getLabel());
+    }
+    expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
+    element.appendChild(expandIcon);
+  }
+  _showInput() {
+    this._collapsedExecutionIcon.setVisibility(false);
+    DOM.show(this.templateData.editorPart);
+    DOM.hide(this.templateData.cellInputCollapsedContainer);
+  }
+  _getRichText(buffer, language) {
+    return tokenizeToStringSync(this.languageService, buffer.getLineContent(1), language);
+  }
+  _getRichTextFromLineTokens(model) {
+    let result = `<div class="monaco-tokenized-source">`;
+    const firstLineTokens = model.tokenization.getLineTokens(1);
+    const viewLineTokens = firstLineTokens.inflate();
+    const line = model.getLineContent(1);
+    let startOffset = 0;
+    for (let j = 0, lenJ = viewLineTokens.getCount(); j < lenJ; j++) {
+      const type = viewLineTokens.getClassName(j);
+      const endIndex = viewLineTokens.getEndOffset(j);
+      result += `<span class="${type}">${strings.escape(line.substring(startOffset, endIndex))}</span>`;
+      startOffset = endIndex;
+    }
+    result += `</div>`;
+    return result;
+  }
+  _removeInputCollapsePreview() {
+    const children = this.templateData.cellInputCollapsedContainer.children;
+    const elements = [];
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].classList.contains("cell-collapse-preview")) {
+        elements.push(children[i]);
+      }
+    }
+    elements.forEach((element) => {
+      element.remove();
+    });
+  }
+  _updateOutputInnerContainer(hide) {
+    const children = this.templateData.outputContainer.domNode.children;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].classList.contains("output-inner-container")) {
+        DOM.setVisibility(!hide, children[i]);
+      }
+    }
+  }
+  _collapseOutput() {
+    this.templateData.container.classList.toggle("output-collapsed", true);
+    DOM.show(this.templateData.cellOutputCollapsedContainer);
+    this._updateOutputInnerContainer(true);
+    this._outputContainerRenderer.viewUpdateHideOuputs();
+  }
+  _showOutput(initRendering) {
+    this.templateData.container.classList.toggle("output-collapsed", false);
+    DOM.hide(this.templateData.cellOutputCollapsedContainer);
+    this._updateOutputInnerContainer(false);
+    this._outputContainerRenderer.viewUpdateShowOutputs(initRendering);
+  }
+  initialViewUpdateExpanded() {
+    this.templateData.container.classList.toggle("input-collapsed", false);
+    DOM.show(this.templateData.editorPart);
+    DOM.hide(this.templateData.cellInputCollapsedContainer);
+    this.templateData.container.classList.toggle("output-collapsed", false);
+    this._showOutput(true);
+  }
+  layoutEditor(dimension) {
+    if (this._useNewApproachForEditorLayout) {
+      return;
+    }
+    const editorLayout = this.notebookEditor.getLayoutInfo();
+    const maxHeight = Math.min(editorLayout.height - editorLayout.stickyHeight - 26, dimension.height);
+    this._debug(`Layout Editor: Width = ${dimension.width}, Height = ${maxHeight} (Requested: ${dimension.height}, Editor Layout Height: ${editorLayout.height}, Sticky: ${editorLayout.stickyHeight})`);
+    this.templateData.editor.layout({
+      width: dimension.width,
+      height: maxHeight
+    }, true);
+  }
+  onCellWidthChange(dbgReasonForChange) {
+    this._debug(`Cell Editor Width Change, ${dbgReasonForChange}, Content Height = ${this.templateData.editor.getContentHeight()}`);
+    const height = this.templateData.editor.getContentHeight();
+    if (this.templateData.editor.hasModel()) {
+      this._debug(`**** Updating Cell Editor Height (1), ContentHeight: ${height}, CodeCellLayoutInfo.EditorWidth ${this.viewCell.layoutInfo.editorWidth}, EditorLayoutInfo ${this.templateData.editor.getLayoutInfo().height} ****`);
+      this.viewCell.editorHeight = height;
+      this.relayoutCell();
+      this.layoutEditor({
+        width: this.viewCell.layoutInfo.editorWidth,
+        height
+      });
+    } else {
+      this._debug(`Cell Editor Width Change without model, return (1), ContentHeight: ${height}, CodeCellLayoutInfo.EditorWidth ${this.viewCell.layoutInfo.editorWidth}, EditorLayoutInfo ${this.templateData.editor.getLayoutInfo().height}`);
+    }
+    this._cellLayout.layoutEditor(dbgReasonForChange);
+  }
+  onCellEditorHeightChange(dbgReasonForChange) {
+    const height = this.templateData.editor.getContentHeight();
+    if (!this.templateData.editor.hasModel()) {
+      this._debug(`Cell Editor Height Change without model, return (2), ContentHeight: ${height}, CodeCellLayoutInfo.EditorWidth ${this.viewCell.layoutInfo.editorWidth}, EditorLayoutInfo ${this.templateData.editor.getLayoutInfo()}`);
+    }
+    this._debug(`Cell Editor Height Change (${dbgReasonForChange}): ${height}`);
+    this._debug(`**** Updating Cell Editor Height (2), ContentHeight: ${height}, CodeCellLayoutInfo.EditorWidth ${this.viewCell.layoutInfo.editorWidth}, EditorLayoutInfo ${this.templateData.editor.getLayoutInfo().height} ****`);
+    const viewLayout = this.templateData.editor.getLayoutInfo();
+    this.viewCell.editorHeight = height;
+    this.relayoutCell();
+    this.layoutEditor({
+      width: viewLayout.width,
+      height
+    });
+    this._cellLayout.layoutEditor(dbgReasonForChange);
+  }
+  relayoutCell() {
+    this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
+  }
+  dispose() {
+    this._isDisposed = true;
+    if (this.shouldPreserveEditor()) {
+      this.editorPool.preserveFocusedEditor(this.viewCell);
+    }
+    this.viewCell.detachTextEditor();
+    this._removeInputCollapsePreview();
+    this._outputContainerRenderer.dispose();
+    this._pendingLayout?.dispose();
+    super.dispose();
+  }
+};
+CodeCell = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IKeybindingService),
+  __param(6, ILanguageService),
+  __param(7, IConfigurationService),
+  __param(8, INotebookExecutionStateService),
+  __param(9, INotebookLoggingService)
+], CodeCell);
+class CodeCellLayout {
+  static {
+    __name(this, "CodeCellLayout");
+  }
+  get editorVisibility() {
+    return this._editorVisibility;
+  }
+  get isUpdatingLayout() {
+    return this._isUpdatingLayout;
+  }
+  constructor(_enabled, notebookEditor, viewCell, templateData, _logService, _initialEditorDimension) {
+    this._enabled = _enabled;
+    this.notebookEditor = notebookEditor;
+    this.viewCell = viewCell;
+    this.templateData = templateData;
+    this._logService = _logService;
+    this._initialEditorDimension = _initialEditorDimension;
+    this._initialized = false;
+    this._pointerDown = false;
+  }
+  setPointerDown(isDown) {
+    this._pointerDown = isDown;
+  }
+  /**
+   * Dynamically lays out the code cell's Monaco editor to simulate a "sticky" run/exec area while
+   * constraining the visible editor height to the notebook viewport. It adjusts two things:
+   *  - The absolute `top` offset of the editor part inside the cell (so the run / execution order
+   *    area remains visible for a limited vertical travel band ~45px).
+   *  - The editor's layout height plus the editor's internal scroll position (`editorScrollTop`) to
+   *    crop content when the cell is partially visible (top or bottom clipped) or when content is
+   *    taller than the viewport.
+   *
+   * Additional invariants:
+   *  - Content height stability: once the layout has been initialized, scroll-driven re-layouts can
+   *    observe transient Monaco content heights that reflect the current clipped layout (rather than
+   *    the full input height). To keep the notebook list layout stable (avoiding overlapping cells
+   *    while navigating/scrolling), we store the actual content height in `_establishedContentHeight`
+   *    and reuse it for scroll-driven relayouts. This prevents the editor from shrinking back to its
+   *    initial height after content has been added (e.g., pasting text) or when Monaco reports a
+   *    transient smaller content height while the cell is clipped.
+   *
+   *    We refresh `_establishedContentHeight` when the editor's content size changes
+   *    (`onDidContentSizeChange`) and also when width/layout changes can affect wrapping-driven height
+   *    (`viewCellLayoutChange`/`nbLayoutChange`).
+   *  - Pointer-drag gating: while the user is holding the mouse button down in the editor (drag
+   *    selection or potential drag selection), we avoid programmatic `editor.setScrollTop(...)` updates
+   *    to prevent selection/scroll feedback loops and "stuck selection" behavior.
+   *
+   * ---------------------------------------------------------------------------
+   * SECTION 1. OVERALL NOTEBOOK VIEW (EACH CELL HAS AN 18px GAP ABOVE IT)
+   * Legend:
+   *   GAP (between cells & before first cell) ............. 18px
+   *   CELL PADDING (top & bottom inside cell) ............. 6px
+   *   STATUS BAR HEIGHT (typical) ......................... 22px
+   *   LINE HEIGHT (logic clamp) ........................... 21px
+   *   BORDER/OUTLINE HEIGHT (visual conceal adjustment) ... 1px
+   *   EDITOR_HEIGHT (example visible editor) .............. 200px (capped by viewport)
+   *   EDITOR_CONTENT_HEIGHT (example full content) ........ 380px (e.g. 50 lines)
+   *   extraOffset = -(CELL_PADDING + BORDER_HEIGHT) ....... -7
+   *
+   *   (The list ensures the editor's laid out height never exceeds viewport height.)
+   *
+   *   ┌────────────────────────────── Notebook Viewport (scrolling container) ────────────────────────────┐
+   *   │ (scrollTop)                                                                                       │
+   *   │                                                                                                   │
+   *   │  18px GAP (top spacing before first cell)                                                         │
+   *   │  ▼                                                                                                │
+   *   │  ┌──────── Cell A Outer Container ────────────────────────────────────────────────────────────┐   │
+   *   │  │ ▲ 6px top padding                                                                          │   │
+   *   │  │ │                                                                                          │   │
+   *   │  │ │  ┌─ Execution Order / Run Column (~45px vertical travel band)─┐  ┌─ Editor Part ───────┐ │   │
+   *   │  │ │  │ (Run button, execution # label)                            │  │ Visible Lines ...   │ │   │
+   *   │  │ │  │                                                            │  │                     │ │   │
+   *   │  │ │  │                                                            │  │ EDITOR_HEIGHT=200px │ │   │
+   *   │  │ │  │                                                            │  │ (Content=380px)     │ │   │
+   *   │  │ │  └────────────────────────────────────────────────────────────┘  └─────────────────────┘ │   │
+   *   │  │ │                                                                                          │   │
+   *   │  │ │  ┌─ Status Bar (22px) ─────────────────────────────────────────────────────────────────┐ │   │
+   *   │  │ │  │ language | indent | selection info | kernel/status bits ...                         │ │   │
+   *   │  │ │  └─────────────────────────────────────────────────────────────────────────────────────┘ │   │
+   *   │  │ │                                                                                          │   │
+   *   │  │ ▼ 6px bottom padding                                                                       │   │
+   *   │  └────────────────────────────────────────────────────────────────────────────────────────────┘   │
+   *   │  18px GAP                                                                                         │
+   *   │  ┌──────── Cell B Outer Container ────────────────────────────────────────────────────────────┐   │
+   *   │  │ (same structure as Cell A)                                                                 │   │
+   *   │  └────────────────────────────────────────────────────────────────────────────────────────────┘   │
+   *   │                                                                                                   │
+   *   │ (scrollBottom)                                                                                    │
+   *   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+   *
+   * SECTION 2. SINGLE CELL STRUCTURE (VERTICAL LAYERS)
+   *
+   *   Inter-Cell GAP (18px)
+   *   ┌─────────────────────────────── Cell Wrapper (<li>) ──────────────────────────────┐
+   *   │ ┌──────────────────────────── .cell-inner-container ───────────────────────────┐ │
+   *   │ │ 6px top padding                                                              │ │
+   *   │ │                                                                              │ │
+   *   │ │ ┌─ Left Gutter (Run / Exec / Focus Border) ─┬──────── Editor Part ─────────┐ │ │
+   *   │ │ │  Sticky vertical travel (~45px allowance) │  (Monaco surface)            │ │ │
+   *   │ │ │                                         │  Visible height 200px          │ │ │
+   *   │ │ │                                         │  Content height 380px          │ │ │
+   *   │ │ └─────────────────────────────────────────┴────────────────────────────────┘ │ │
+   *   │ │                                                                              │ │
+   *   │ │ ┌─ Status Bar (22px) ──────────────────────────────────────────────────────┐ │ │
+   *   │ │ │ language | indent | selection | kernel | state                           │ │ │
+   *   │ │ └──────────────────────────────────────────────────────────────────────────┘ │ │
+   *   │ │ 6px bottom padding                                                           │ │
+   *   │ └──────────────────────────────────────────────────────────────────────────────┘ │
+   *   │ (Outputs region begins at outputContainerOffset below input area)                │
+   *   └──────────────────────────────────────────────────────────────────────────────────┘
+   */
+  layoutEditor(reason) {
+    if (!this._enabled) {
+      return;
+    }
+    const element = this.templateData.editorPart;
+    if (this.viewCell.isInputCollapsed) {
+      element.style.top = "";
+      return;
+    }
+    const LINE_HEIGHT = this.notebookEditor.getLayoutInfo().fontInfo.lineHeight;
+    const CELL_TOP_MARGIN = this.viewCell.layoutInfo.topMargin;
+    const CELL_OUTLINE_WIDTH = this.viewCell.layoutInfo.outlineWidth;
+    const STATUSBAR_HEIGHT = this.viewCell.layoutInfo.statusBarHeight;
+    const editor = this.templateData.editor;
+    const editorLayout = this.templateData.editor.getLayoutInfo();
+    const editorWidth = this._initialized && (reason === "nbLayoutChange" || reason === "viewCellLayoutChange") ? this.viewCell.layoutInfo.editorWidth : editorLayout.width;
+    const editorHeight = this.viewCell.layoutInfo.editorHeight;
+    const scrollTop = this.notebookEditor.scrollTop;
+    const elementTop = this.notebookEditor.getAbsoluteTopOfElement(this.viewCell);
+    const elementBottom = this.notebookEditor.getAbsoluteBottomOfElement(this.viewCell);
+    const elementHeight = this.notebookEditor.getHeightOfElement(this.viewCell);
+    let editorContentHeight;
+    const isInit = !this._initialized && reason === "init";
+    if (isInit) {
+      editorContentHeight = this._initialEditorDimension.height;
+      this._establishedContentHeight = editorContentHeight;
+    } else {
+      const gotContentHeight = editor.getContentHeight();
+      const fallbackEditorContentHeight = gotContentHeight === -1 ? Math.max(editor.getLayoutInfo().height, this._initialEditorDimension.height) : gotContentHeight;
+      const shouldRefreshContentHeight = !this._initialized || reason === "onDidContentSizeChange" || reason === "viewCellLayoutChange" || reason === "nbLayoutChange";
+      if (shouldRefreshContentHeight) {
+        editorContentHeight = fallbackEditorContentHeight;
+        this._establishedContentHeight = editorContentHeight;
+      } else {
+        editorContentHeight = this._establishedContentHeight ?? fallbackEditorContentHeight;
+      }
+    }
+    const editorBottom = elementTop + this.viewCell.layoutInfo.outputContainerOffset;
+    const scrollBottom = this.notebookEditor.scrollBottom;
+    const viewportHeight = scrollBottom - scrollTop === 0 ? this.notebookEditor.getLayoutInfo().height : scrollBottom - scrollTop;
+    const outputContainerOffset = this.viewCell.layoutInfo.outputContainerOffset;
+    const scrollDirection = typeof this._previousScrollBottom === "number" ? scrollBottom < this._previousScrollBottom ? "up" : "down" : "down";
+    this._previousScrollBottom = scrollBottom;
+    let top = Math.max(0, scrollTop - elementTop - CELL_TOP_MARGIN - CELL_OUTLINE_WIDTH);
+    const possibleEditorHeight = editorHeight - top;
+    if (possibleEditorHeight < LINE_HEIGHT) {
+      top = top - (LINE_HEIGHT - possibleEditorHeight) - CELL_OUTLINE_WIDTH;
+    }
+    let height = editorContentHeight;
+    let editorScrollTop = 0;
+    if (scrollTop <= elementTop + CELL_TOP_MARGIN) {
+      const minimumEditorHeight = LINE_HEIGHT + this.notebookEditor.notebookOptions.getLayoutConfiguration().editorTopPadding;
+      if (scrollBottom >= editorBottom) {
+        height = clamp(editorContentHeight, minimumEditorHeight, editorContentHeight);
+        this._editorVisibility = "Full";
+      } else {
+        height = clamp(scrollBottom - (elementTop + CELL_TOP_MARGIN) - STATUSBAR_HEIGHT, minimumEditorHeight, editorContentHeight) + 2 * CELL_OUTLINE_WIDTH;
+        this._editorVisibility = "Bottom Clipped";
+        editorScrollTop = 0;
+      }
+    } else {
+      if (viewportHeight <= editorContentHeight && scrollBottom <= editorBottom) {
+        const minimumEditorHeight = LINE_HEIGHT + this.notebookEditor.notebookOptions.getLayoutConfiguration().editorTopPadding;
+        height = clamp(viewportHeight - STATUSBAR_HEIGHT, minimumEditorHeight, editorContentHeight - STATUSBAR_HEIGHT) + 2 * CELL_OUTLINE_WIDTH;
+        this._editorVisibility = "Full (Small Viewport)";
+        editorScrollTop = top;
+      } else {
+        const minimumEditorHeight = LINE_HEIGHT;
+        height = clamp(editorContentHeight - (scrollTop - (elementTop + CELL_TOP_MARGIN)), minimumEditorHeight, editorContentHeight);
+        if (scrollTop > editorBottom) {
+          this._editorVisibility = "Invisible";
+        } else {
+          this._editorVisibility = "Top Clipped";
+        }
+        editorScrollTop = editorContentHeight - height;
+      }
+    }
+    this._logService.debug(`${reason} (${this._editorVisibility}, ${this._initialized})`);
+    this._logService.debug(`=> Editor Top = ${top}px (editHeight = ${editorHeight}, editContentHeight: ${editorContentHeight})`);
+    this._logService.debug(`=> eleTop = ${elementTop}, eleBottom = ${elementBottom}, eleHeight = ${elementHeight}`);
+    this._logService.debug(`=> scrollTop = ${scrollTop}, top = ${top}`);
+    this._logService.debug(`=> cellTopMargin = ${CELL_TOP_MARGIN}, cellBottomMargin = ${this.viewCell.layoutInfo.topMargin}, cellOutline = ${CELL_OUTLINE_WIDTH}`);
+    this._logService.debug(`=> scrollBottom: ${scrollBottom}, editBottom: ${editorBottom}, viewport: ${viewportHeight}, scroll: ${scrollDirection}, contOffset: ${outputContainerOffset})`);
+    this._logService.debug(`=> Editor Height = ${height}px, Width: ${editorWidth}px, Initial Width: ${this._initialEditorDimension.width}, EditorScrollTop = ${editorScrollTop}px, StatusbarHeight = ${STATUSBAR_HEIGHT}, lineHeight = ${this.notebookEditor.getLayoutInfo().fontInfo.lineHeight}`);
+    try {
+      this._isUpdatingLayout = true;
+      element.style.top = `${top}px`;
+      editor.layout({
+        width: this._initialized ? editorWidth : this._initialEditorDimension.width,
+        height
+      }, true);
+      if (!this._pointerDown && editorScrollTop >= 0) {
+        this._lastChangedEditorScrolltop = editorScrollTop;
+        editor.setScrollTop(editorScrollTop);
+      }
+    } finally {
+      this._initialized = true;
+      this._isUpdatingLayout = false;
+      this._logService.debug("Updated Editor Layout");
+    }
+  }
+}
+export {
+  CodeCell,
+  CodeCellLayout
+};
+//# sourceMappingURL=codeCell.js.map

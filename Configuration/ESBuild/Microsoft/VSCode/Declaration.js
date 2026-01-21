@@ -1,1 +1,30 @@
-const i=(await import("../../Output.js")).On,n=(await import("../../Output.js")).Bundle,e=(await import("../../../ESBuild.js")).Dependency,o=(await import("deepmerge-ts")).deepmergeCustom({mergeArrays:!1});var r=async t=>o(await(await import("../VSCode.js")).default(t),{bundle:!1,outbase:"../../Dependency/Microsoft/Dependency/Editor/src",tsconfig:`Configuration/tsconfig/${e}/Declaration.json`,plugins:[],allowOverwrite:!0,entryPoints:t.entryPoints??[],loader:{".d.ts":"copy"}});export{n as Bundle,e as Dependency,o as Merge,i as On,r as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const On = (await import("../../Output.js")).On;
+const Bundle = (await import("../../Output.js")).Bundle;
+const Dependency = (await import("../../../ESBuild.js")).Dependency;
+const Merge = (await import("deepmerge-ts")).deepmergeCustom({
+  mergeArrays: false
+});
+var Declaration_default = /* @__PURE__ */ __name(async (Current) => Merge(
+  await (await import("../VSCode.js")).default(Current),
+  {
+    bundle: false,
+    outbase: "../../Dependency/Microsoft/Dependency/Editor/src",
+    tsconfig: `Configuration/tsconfig/${Dependency}/Declaration.json`,
+    plugins: [],
+    allowOverwrite: true,
+    entryPoints: Current.entryPoints ?? [],
+    loader: {
+      ".d.ts": "copy"
+    }
+  }
+), "default");
+export {
+  Bundle,
+  Dependency,
+  Merge,
+  On,
+  Declaration_default as default
+};
+//# sourceMappingURL=Declaration.js.map

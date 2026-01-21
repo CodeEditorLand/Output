@@ -1,1 +1,6 @@
-import{$Mj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("IAuthenticationQueryService");export{o as $Xac};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IAuthenticationQueryService = createDecorator("IAuthenticationQueryService");
+export {
+  IAuthenticationQueryService
+};
+//# sourceMappingURL=authenticationQuery.js.map

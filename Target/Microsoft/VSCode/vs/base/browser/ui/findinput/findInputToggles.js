@@ -1,1 +1,62 @@
-import{$P0 as i}from"../toggle/toggle.js";import{$ak as n}from"../../../common/codicons.js";import*as t from"../../../../nls.js";const c=t.localize(10,null),r=t.localize(11,null),p=t.localize(12,null);class O extends i{constructor(e){super({icon:n.caseSensitive,title:c+e.appendTitle,isChecked:e.isChecked,hoverLifecycleOptions:e.hoverLifecycleOptions,inputActiveOptionBorder:e.inputActiveOptionBorder,inputActiveOptionForeground:e.inputActiveOptionForeground,inputActiveOptionBackground:e.inputActiveOptionBackground})}}class l extends i{constructor(e){super({icon:n.wholeWord,title:r+e.appendTitle,isChecked:e.isChecked,hoverLifecycleOptions:e.hoverLifecycleOptions,inputActiveOptionBorder:e.inputActiveOptionBorder,inputActiveOptionForeground:e.inputActiveOptionForeground,inputActiveOptionBackground:e.inputActiveOptionBackground})}}class v extends i{constructor(e){super({icon:n.regex,title:p+e.appendTitle,isChecked:e.isChecked,hoverLifecycleOptions:e.hoverLifecycleOptions,inputActiveOptionBorder:e.inputActiveOptionBorder,inputActiveOptionForeground:e.inputActiveOptionForeground,inputActiveOptionBackground:e.inputActiveOptionBackground})}}export{O as $O$,l as $P$,v as $Q$};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Toggle } from "../toggle/toggle.js";
+import { Codicon } from "../../../common/codicons.js";
+import * as nls from "../../../../nls.js";
+const NLS_CASE_SENSITIVE_TOGGLE_LABEL = nls.localize("caseDescription", "Match Case");
+const NLS_WHOLE_WORD_TOGGLE_LABEL = nls.localize("wordsDescription", "Match Whole Word");
+const NLS_REGEX_TOGGLE_LABEL = nls.localize("regexDescription", "Use Regular Expression");
+class CaseSensitiveToggle extends Toggle {
+  static {
+    __name(this, "CaseSensitiveToggle");
+  }
+  constructor(opts) {
+    super({
+      icon: Codicon.caseSensitive,
+      title: NLS_CASE_SENSITIVE_TOGGLE_LABEL + opts.appendTitle,
+      isChecked: opts.isChecked,
+      hoverLifecycleOptions: opts.hoverLifecycleOptions,
+      inputActiveOptionBorder: opts.inputActiveOptionBorder,
+      inputActiveOptionForeground: opts.inputActiveOptionForeground,
+      inputActiveOptionBackground: opts.inputActiveOptionBackground
+    });
+  }
+}
+class WholeWordsToggle extends Toggle {
+  static {
+    __name(this, "WholeWordsToggle");
+  }
+  constructor(opts) {
+    super({
+      icon: Codicon.wholeWord,
+      title: NLS_WHOLE_WORD_TOGGLE_LABEL + opts.appendTitle,
+      isChecked: opts.isChecked,
+      hoverLifecycleOptions: opts.hoverLifecycleOptions,
+      inputActiveOptionBorder: opts.inputActiveOptionBorder,
+      inputActiveOptionForeground: opts.inputActiveOptionForeground,
+      inputActiveOptionBackground: opts.inputActiveOptionBackground
+    });
+  }
+}
+class RegexToggle extends Toggle {
+  static {
+    __name(this, "RegexToggle");
+  }
+  constructor(opts) {
+    super({
+      icon: Codicon.regex,
+      title: NLS_REGEX_TOGGLE_LABEL + opts.appendTitle,
+      isChecked: opts.isChecked,
+      hoverLifecycleOptions: opts.hoverLifecycleOptions,
+      inputActiveOptionBorder: opts.inputActiveOptionBorder,
+      inputActiveOptionForeground: opts.inputActiveOptionForeground,
+      inputActiveOptionBackground: opts.inputActiveOptionBackground
+    });
+  }
+}
+export {
+  CaseSensitiveToggle,
+  RegexToggle,
+  WholeWordsToggle
+};
+//# sourceMappingURL=findInputToggles.js.map

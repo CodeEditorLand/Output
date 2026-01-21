@@ -1,1 +1,242 @@
-var r;(function(s){s[s.ViewCompositionStart=0]="ViewCompositionStart",s[s.ViewCompositionEnd=1]="ViewCompositionEnd",s[s.ViewConfigurationChanged=2]="ViewConfigurationChanged",s[s.ViewCursorStateChanged=3]="ViewCursorStateChanged",s[s.ViewDecorationsChanged=4]="ViewDecorationsChanged",s[s.ViewFlushed=5]="ViewFlushed",s[s.ViewFocusChanged=6]="ViewFocusChanged",s[s.ViewLanguageConfigurationChanged=7]="ViewLanguageConfigurationChanged",s[s.ViewLineMappingChanged=8]="ViewLineMappingChanged",s[s.ViewLinesChanged=9]="ViewLinesChanged",s[s.ViewLinesDeleted=10]="ViewLinesDeleted",s[s.ViewLinesInserted=11]="ViewLinesInserted",s[s.ViewRevealRangeRequest=12]="ViewRevealRangeRequest",s[s.ViewScrollChanged=13]="ViewScrollChanged",s[s.ViewThemeChanged=14]="ViewThemeChanged",s[s.ViewTokensChanged=15]="ViewTokensChanged",s[s.ViewTokensColorsChanged=16]="ViewTokensColorsChanged",s[s.ViewZonesChanged=17]="ViewZonesChanged"})(r||(r={}));class l{constructor(){this.type=0}}class g{constructor(){this.type=1}}class d{constructor(t){this.type=2,this._source=t}hasChanged(t){return this._source.hasChanged(t)}}class C{constructor(t,o,i){this.selections=t,this.modelSelections=o,this.reason=i,this.type=3}}class u{constructor(t){this.type=4,t?(this.affectsMinimap=t.affectsMinimap,this.affectsOverviewRuler=t.affectsOverviewRuler,this.affectsGlyphMargin=t.affectsGlyphMargin,this.affectsLineNumber=t.affectsLineNumber):(this.affectsMinimap=!0,this.affectsOverviewRuler=!0,this.affectsGlyphMargin=!0,this.affectsLineNumber=!0)}}class b{constructor(){this.type=5}}class f{constructor(t){this.type=6,this.isFocused=t}}class m{constructor(){this.type=7}}class p{constructor(){this.type=8}}class L{constructor(t,o){this.fromLineNumber=t,this.count=o,this.type=9}}class x{constructor(t,o){this.type=10,this.fromLineNumber=t,this.toLineNumber=o}}class ${constructor(t,o){this.type=11,this.fromLineNumber=t,this.toLineNumber=o}}var h;(function(s){s[s.Simple=0]="Simple",s[s.Center=1]="Center",s[s.CenterIfOutsideViewport=2]="CenterIfOutsideViewport",s[s.Top=3]="Top",s[s.Bottom=4]="Bottom",s[s.NearTop=5]="NearTop",s[s.NearTopIfOutsideViewport=6]="NearTopIfOutsideViewport"})(h||(h={}));class N{constructor(t,o,i,e,n,a,c){this.source=t,this.minimalReveal=o,this.range=i,this.selections=e,this.verticalType=n,this.revealHorizontal=a,this.scrollType=c,this.type=12}}class S{constructor(t){this.type=13,this.scrollWidth=t.scrollWidth,this.scrollLeft=t.scrollLeft,this.scrollHeight=t.scrollHeight,this.scrollTop=t.scrollTop,this.scrollWidthChanged=t.scrollWidthChanged,this.scrollLeftChanged=t.scrollLeftChanged,this.scrollHeightChanged=t.scrollHeightChanged,this.scrollTopChanged=t.scrollTopChanged}}class w{constructor(t){this.theme=t,this.type=14}}class M{constructor(t){this.type=15,this.ranges=t}}class O{constructor(){this.type=16}}class I{constructor(){this.type=17}}export{O as $1bb,I as $2bb,l as $Kbb,g as $Lbb,d as $Mbb,C as $Nbb,u as $Obb,b as $Pbb,f as $Qbb,m as $Rbb,p as $Sbb,L as $Tbb,x as $Ubb,$ as $Vbb,N as $Wbb,S as $Xbb,w as $Ybb,M as $Zbb,h as VerticalRevealType,r as ViewEventType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var ViewEventType;
+(function(ViewEventType2) {
+  ViewEventType2[ViewEventType2["ViewCompositionStart"] = 0] = "ViewCompositionStart";
+  ViewEventType2[ViewEventType2["ViewCompositionEnd"] = 1] = "ViewCompositionEnd";
+  ViewEventType2[ViewEventType2["ViewConfigurationChanged"] = 2] = "ViewConfigurationChanged";
+  ViewEventType2[ViewEventType2["ViewCursorStateChanged"] = 3] = "ViewCursorStateChanged";
+  ViewEventType2[ViewEventType2["ViewDecorationsChanged"] = 4] = "ViewDecorationsChanged";
+  ViewEventType2[ViewEventType2["ViewFlushed"] = 5] = "ViewFlushed";
+  ViewEventType2[ViewEventType2["ViewFocusChanged"] = 6] = "ViewFocusChanged";
+  ViewEventType2[ViewEventType2["ViewLanguageConfigurationChanged"] = 7] = "ViewLanguageConfigurationChanged";
+  ViewEventType2[ViewEventType2["ViewLineMappingChanged"] = 8] = "ViewLineMappingChanged";
+  ViewEventType2[ViewEventType2["ViewLinesChanged"] = 9] = "ViewLinesChanged";
+  ViewEventType2[ViewEventType2["ViewLinesDeleted"] = 10] = "ViewLinesDeleted";
+  ViewEventType2[ViewEventType2["ViewLinesInserted"] = 11] = "ViewLinesInserted";
+  ViewEventType2[ViewEventType2["ViewRevealRangeRequest"] = 12] = "ViewRevealRangeRequest";
+  ViewEventType2[ViewEventType2["ViewScrollChanged"] = 13] = "ViewScrollChanged";
+  ViewEventType2[ViewEventType2["ViewThemeChanged"] = 14] = "ViewThemeChanged";
+  ViewEventType2[ViewEventType2["ViewTokensChanged"] = 15] = "ViewTokensChanged";
+  ViewEventType2[ViewEventType2["ViewTokensColorsChanged"] = 16] = "ViewTokensColorsChanged";
+  ViewEventType2[ViewEventType2["ViewZonesChanged"] = 17] = "ViewZonesChanged";
+})(ViewEventType || (ViewEventType = {}));
+class ViewCompositionStartEvent {
+  static {
+    __name(this, "ViewCompositionStartEvent");
+  }
+  constructor() {
+    this.type = 0;
+  }
+}
+class ViewCompositionEndEvent {
+  static {
+    __name(this, "ViewCompositionEndEvent");
+  }
+  constructor() {
+    this.type = 1;
+  }
+}
+class ViewConfigurationChangedEvent {
+  static {
+    __name(this, "ViewConfigurationChangedEvent");
+  }
+  constructor(source) {
+    this.type = 2;
+    this._source = source;
+  }
+  hasChanged(id) {
+    return this._source.hasChanged(id);
+  }
+}
+class ViewCursorStateChangedEvent {
+  static {
+    __name(this, "ViewCursorStateChangedEvent");
+  }
+  constructor(selections, modelSelections, reason) {
+    this.selections = selections;
+    this.modelSelections = modelSelections;
+    this.reason = reason;
+    this.type = 3;
+  }
+}
+class ViewDecorationsChangedEvent {
+  static {
+    __name(this, "ViewDecorationsChangedEvent");
+  }
+  constructor(source) {
+    this.type = 4;
+    if (source) {
+      this.affectsMinimap = source.affectsMinimap;
+      this.affectsOverviewRuler = source.affectsOverviewRuler;
+      this.affectsGlyphMargin = source.affectsGlyphMargin;
+      this.affectsLineNumber = source.affectsLineNumber;
+    } else {
+      this.affectsMinimap = true;
+      this.affectsOverviewRuler = true;
+      this.affectsGlyphMargin = true;
+      this.affectsLineNumber = true;
+    }
+  }
+}
+class ViewFlushedEvent {
+  static {
+    __name(this, "ViewFlushedEvent");
+  }
+  constructor() {
+    this.type = 5;
+  }
+}
+class ViewFocusChangedEvent {
+  static {
+    __name(this, "ViewFocusChangedEvent");
+  }
+  constructor(isFocused) {
+    this.type = 6;
+    this.isFocused = isFocused;
+  }
+}
+class ViewLanguageConfigurationEvent {
+  static {
+    __name(this, "ViewLanguageConfigurationEvent");
+  }
+  constructor() {
+    this.type = 7;
+  }
+}
+class ViewLineMappingChangedEvent {
+  static {
+    __name(this, "ViewLineMappingChangedEvent");
+  }
+  constructor() {
+    this.type = 8;
+  }
+}
+class ViewLinesChangedEvent {
+  static {
+    __name(this, "ViewLinesChangedEvent");
+  }
+  constructor(fromLineNumber, count) {
+    this.fromLineNumber = fromLineNumber;
+    this.count = count;
+    this.type = 9;
+  }
+}
+class ViewLinesDeletedEvent {
+  static {
+    __name(this, "ViewLinesDeletedEvent");
+  }
+  constructor(fromLineNumber, toLineNumber) {
+    this.type = 10;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+  }
+}
+class ViewLinesInsertedEvent {
+  static {
+    __name(this, "ViewLinesInsertedEvent");
+  }
+  constructor(fromLineNumber, toLineNumber) {
+    this.type = 11;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+  }
+}
+var VerticalRevealType;
+(function(VerticalRevealType2) {
+  VerticalRevealType2[VerticalRevealType2["Simple"] = 0] = "Simple";
+  VerticalRevealType2[VerticalRevealType2["Center"] = 1] = "Center";
+  VerticalRevealType2[VerticalRevealType2["CenterIfOutsideViewport"] = 2] = "CenterIfOutsideViewport";
+  VerticalRevealType2[VerticalRevealType2["Top"] = 3] = "Top";
+  VerticalRevealType2[VerticalRevealType2["Bottom"] = 4] = "Bottom";
+  VerticalRevealType2[VerticalRevealType2["NearTop"] = 5] = "NearTop";
+  VerticalRevealType2[VerticalRevealType2["NearTopIfOutsideViewport"] = 6] = "NearTopIfOutsideViewport";
+})(VerticalRevealType || (VerticalRevealType = {}));
+class ViewRevealRangeRequestEvent {
+  static {
+    __name(this, "ViewRevealRangeRequestEvent");
+  }
+  constructor(source, minimalReveal, range, selections, verticalType, revealHorizontal, scrollType) {
+    this.source = source;
+    this.minimalReveal = minimalReveal;
+    this.range = range;
+    this.selections = selections;
+    this.verticalType = verticalType;
+    this.revealHorizontal = revealHorizontal;
+    this.scrollType = scrollType;
+    this.type = 12;
+  }
+}
+class ViewScrollChangedEvent {
+  static {
+    __name(this, "ViewScrollChangedEvent");
+  }
+  constructor(source) {
+    this.type = 13;
+    this.scrollWidth = source.scrollWidth;
+    this.scrollLeft = source.scrollLeft;
+    this.scrollHeight = source.scrollHeight;
+    this.scrollTop = source.scrollTop;
+    this.scrollWidthChanged = source.scrollWidthChanged;
+    this.scrollLeftChanged = source.scrollLeftChanged;
+    this.scrollHeightChanged = source.scrollHeightChanged;
+    this.scrollTopChanged = source.scrollTopChanged;
+  }
+}
+class ViewThemeChangedEvent {
+  static {
+    __name(this, "ViewThemeChangedEvent");
+  }
+  constructor(theme) {
+    this.theme = theme;
+    this.type = 14;
+  }
+}
+class ViewTokensChangedEvent {
+  static {
+    __name(this, "ViewTokensChangedEvent");
+  }
+  constructor(ranges) {
+    this.type = 15;
+    this.ranges = ranges;
+  }
+}
+class ViewTokensColorsChangedEvent {
+  static {
+    __name(this, "ViewTokensColorsChangedEvent");
+  }
+  constructor() {
+    this.type = 16;
+  }
+}
+class ViewZonesChangedEvent {
+  static {
+    __name(this, "ViewZonesChangedEvent");
+  }
+  constructor() {
+    this.type = 17;
+  }
+}
+export {
+  VerticalRevealType,
+  ViewCompositionEndEvent,
+  ViewCompositionStartEvent,
+  ViewConfigurationChangedEvent,
+  ViewCursorStateChangedEvent,
+  ViewDecorationsChangedEvent,
+  ViewEventType,
+  ViewFlushedEvent,
+  ViewFocusChangedEvent,
+  ViewLanguageConfigurationEvent,
+  ViewLineMappingChangedEvent,
+  ViewLinesChangedEvent,
+  ViewLinesDeletedEvent,
+  ViewLinesInsertedEvent,
+  ViewRevealRangeRequestEvent,
+  ViewScrollChangedEvent,
+  ViewThemeChangedEvent,
+  ViewTokensChangedEvent,
+  ViewTokensColorsChangedEvent,
+  ViewZonesChangedEvent
+};
+//# sourceMappingURL=viewEvents.js.map

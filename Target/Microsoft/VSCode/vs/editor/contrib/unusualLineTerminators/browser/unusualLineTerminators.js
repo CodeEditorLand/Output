@@ -1,1 +1,130 @@
-import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$Eh as g}from"../../../../base/common/resources.js";import{$Icb as p}from"../../../browser/editorExtensions.js";import{$ucb as d}from"../../../browser/services/codeEditorService.js";import*as s from"../../../../nls.js";import{$Lp as b}from"../../../../platform/dialogs/common/dialogs.js";var f=function(n,t,i,e){var r=arguments.length,o=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,i,e);else for(var u=n.length-1;u>=0;u--)(l=n[u])&&(o=(r<3?l(o):r>3?l(t,i,o):l(t,i))||o);return r>3&&o&&Object.defineProperty(t,i,o),o},h=function(n,t){return function(i,e){t(i,e,n)}};const c="ignoreUnusualLineTerminators";function D(n,t,i){n.setModelProperty(t.uri,c,i)}function _(n,t){return n.getModelProperty(t.uri,c)}let a=class extends m{static{this.ID="editor.contrib.unusualLineTerminatorsDetector"}constructor(t,i,e){super(),this.c=t,this.f=i,this.g=e,this.b=!1,this.a=this.c.getOption(143),this.D(this.c.onDidChangeConfiguration(r=>{r.hasChanged(143)&&(this.a=this.c.getOption(143),this.h())})),this.D(this.c.onDidChangeModel(()=>{this.h()})),this.D(this.c.onDidChangeModelContent(r=>{r.isUndoing||this.h()})),this.h()}async h(){if(this.a==="off"||!this.c.hasModel())return;const t=this.c.getModel();if(!t.mightContainUnusualLineTerminators()||_(this.g,t)===!0||this.c.getOption(104))return;if(this.a==="auto"){t.removeUnusualLineTerminators(this.c.getSelections());return}if(this.b)return;let e;try{this.b=!0,e=await this.f.confirm({title:s.localize(1731,null),message:s.localize(1732,null),detail:s.localize(1733,null,g(t.uri)),primaryButton:s.localize(1734,null),cancelButton:s.localize(1735,null)})}finally{this.b=!1}if(!e.confirmed){D(this.g,t,!0);return}t.removeUnusualLineTerminators(this.c.getSelections())}};a=f([h(1,b),h(2,d)],a);p(a.ID,a,1);export{a as $Jwb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { basename } from "../../../../base/common/resources.js";
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import * as nls from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+const ignoreUnusualLineTerminators = "ignoreUnusualLineTerminators";
+function writeIgnoreState(codeEditorService, model, state) {
+  codeEditorService.setModelProperty(model.uri, ignoreUnusualLineTerminators, state);
+}
+__name(writeIgnoreState, "writeIgnoreState");
+function readIgnoreState(codeEditorService, model) {
+  return codeEditorService.getModelProperty(model.uri, ignoreUnusualLineTerminators);
+}
+__name(readIgnoreState, "readIgnoreState");
+let UnusualLineTerminatorsDetector = class UnusualLineTerminatorsDetector2 extends Disposable {
+  static {
+    __name(this, "UnusualLineTerminatorsDetector");
+  }
+  static {
+    this.ID = "editor.contrib.unusualLineTerminatorsDetector";
+  }
+  constructor(_editor, _dialogService, _codeEditorService) {
+    super();
+    this._editor = _editor;
+    this._dialogService = _dialogService;
+    this._codeEditorService = _codeEditorService;
+    this._isPresentingDialog = false;
+    this._config = this._editor.getOption(
+      143
+      /* EditorOption.unusualLineTerminators */
+    );
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        143
+        /* EditorOption.unusualLineTerminators */
+      )) {
+        this._config = this._editor.getOption(
+          143
+          /* EditorOption.unusualLineTerminators */
+        );
+        this._checkForUnusualLineTerminators();
+      }
+    }));
+    this._register(this._editor.onDidChangeModel(() => {
+      this._checkForUnusualLineTerminators();
+    }));
+    this._register(this._editor.onDidChangeModelContent((e) => {
+      if (e.isUndoing) {
+        return;
+      }
+      this._checkForUnusualLineTerminators();
+    }));
+    this._checkForUnusualLineTerminators();
+  }
+  async _checkForUnusualLineTerminators() {
+    if (this._config === "off") {
+      return;
+    }
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    const model = this._editor.getModel();
+    if (!model.mightContainUnusualLineTerminators()) {
+      return;
+    }
+    const ignoreState = readIgnoreState(this._codeEditorService, model);
+    if (ignoreState === true) {
+      return;
+    }
+    if (this._editor.getOption(
+      104
+      /* EditorOption.readOnly */
+    )) {
+      return;
+    }
+    if (this._config === "auto") {
+      model.removeUnusualLineTerminators(this._editor.getSelections());
+      return;
+    }
+    if (this._isPresentingDialog) {
+      return;
+    }
+    let result;
+    try {
+      this._isPresentingDialog = true;
+      result = await this._dialogService.confirm({
+        title: nls.localize("unusualLineTerminators.title", "Unusual Line Terminators"),
+        message: nls.localize("unusualLineTerminators.message", "Detected unusual line terminators"),
+        detail: nls.localize("unusualLineTerminators.detail", "The file '{0}' contains one or more unusual line terminator characters, like Line Separator (LS) or Paragraph Separator (PS).\n\nIt is recommended to remove them from the file. This can be configured via `editor.unusualLineTerminators`.", basename(model.uri)),
+        primaryButton: nls.localize({ key: "unusualLineTerminators.fix", comment: ["&& denotes a mnemonic"] }, "&&Remove Unusual Line Terminators"),
+        cancelButton: nls.localize("unusualLineTerminators.ignore", "Ignore")
+      });
+    } finally {
+      this._isPresentingDialog = false;
+    }
+    if (!result.confirmed) {
+      writeIgnoreState(this._codeEditorService, model, true);
+      return;
+    }
+    model.removeUnusualLineTerminators(this._editor.getSelections());
+  }
+};
+UnusualLineTerminatorsDetector = __decorate([
+  __param(1, IDialogService),
+  __param(2, ICodeEditorService)
+], UnusualLineTerminatorsDetector);
+registerEditorContribution(
+  UnusualLineTerminatorsDetector.ID,
+  UnusualLineTerminatorsDetector,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+export {
+  UnusualLineTerminatorsDetector
+};
+//# sourceMappingURL=unusualLineTerminators.js.map

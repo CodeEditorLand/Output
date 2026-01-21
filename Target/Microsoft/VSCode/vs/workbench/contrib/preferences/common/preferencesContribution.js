@@ -1,1 +1,129 @@
-import{$Ed as S,$zd as p}from"../../../../base/common/lifecycle.js";import{$Ah as a}from"../../../../base/common/resources.js";import*as l from"../../../../nls.js";import{$9l as _}from"../../../../platform/configuration/common/configuration.js";import{$km as v}from"../../../../platform/configuration/common/configurationRegistry.js";import{$im as D}from"../../../../platform/registry/common/platform.js";import{$Ll as j}from"../../../../platform/workspace/common/workspace.js";import{$3N as C}from"../../../common/configuration.js";import{$aL as R}from"../../../common/editor/sideBySideEditorInput.js";import{RegisteredEditorPriority as y,$_N as z}from"../../../services/editor/common/editorResolverService.js";import{$Z0b as M}from"../../../services/textfile/common/textEditorService.js";import{$1M as m,$ZM as u,$XM as P,$2M as d}from"../../../services/preferences/common/preferences.js";import{$MQ as k}from"../../../services/userDataProfile/common/userDataProfile.js";import{$uk as w}from"../../../../platform/files/common/files.js";import{$Hcc as g}from"./settingsFilesystemProvider.js";import{$Lj as L}from"../../../../platform/instantiation/common/instantiation.js";var I=function(n,t,i,r){var o=arguments.length,e=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,i,r);else for(var c=n.length-1;c>=0;c--)(f=n[c])&&(e=(o<3?f(e):o>3?f(t,i,e):f(t,i))||e);return o>3&&e&&Object.defineProperty(t,i,e),e},s=function(n,t){return function(i,r){t(i,r,n)}};let $=class extends S{static{this.ID="workbench.contrib.preferences"}constructor(t,i,r,o,e,f,c,b){super(),this.b=i,this.c=r,this.f=o,this.g=e,this.h=f,this.j=c,this.m=b,this.D(this.h.onDidChangeConfiguration(h=>{(h.affectsConfiguration(d)||h.affectsConfiguration(m))&&this.n()})),this.n();const E=this.D(this.b.createInstance(g));this.D(t.registerProvider(g.SCHEMA,E))}n(){p(this.a),(this.h.getValue(d)||this.h.getValue(m))&&(this.a=this.j.registerEditor("**/settings.json",{id:R.ID,label:l.localize(11356,null),priority:y.builtin},{},{createEditorInput:({resource:t,options:i})=>{if(a(t,this.f.currentProfile.settingsResource))return{editor:this.c.createSplitJsonEditorInput(3,t),options:i};const r=this.g.getWorkbenchState();if(r===2){const o=this.g.getWorkspace().folders;if(a(t,o[0].toResource(u)))return{editor:this.c.createSplitJsonEditorInput(5,t),options:i}}else if(r===3){const o=this.g.getWorkspace().folders;for(const e of o)if(a(t,e.toResource(u)))return{editor:this.c.createSplitJsonEditorInput(6,t),options:i}}return{editor:this.m.createTextEditor({resource:t}),options:i}}}))}dispose(){p(this.a),super.dispose()}};$=I([s(0,w),s(1,L),s(2,P),s(3,k),s(4,j),s(5,_),s(6,z),s(7,M)],$);const O=D.as(v.Configuration);O.registerConfiguration({...C,properties:{"workbench.settings.enableNaturalLanguageSearch":{type:"boolean",description:l.localize(11357,null),default:!0,scope:4,tags:["usesOnlineServices"]},"workbench.settings.settingsSearchTocBehavior":{type:"string",enum:["hide","filter"],enumDescriptions:[l.localize(11358,null),l.localize(11359,null)],description:l.localize(11360,null),default:"filter",scope:4}}});export{$ as $Icc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, dispose } from "../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import { RegisteredEditorPriority, IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { ITextEditorService } from "../../../services/textfile/common/textEditorService.js";
+import { DEFAULT_SETTINGS_EDITOR_SETTING, FOLDER_SETTINGS_PATH, IPreferencesService, USE_SPLIT_JSON_SETTING } from "../../../services/preferences/common/preferences.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { SettingsFileSystemProvider } from "./settingsFilesystemProvider.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+let PreferencesContribution = class PreferencesContribution2 extends Disposable {
+  static {
+    __name(this, "PreferencesContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.preferences";
+  }
+  constructor(fileService, instantiationService, preferencesService, userDataProfileService, workspaceService, configurationService, editorResolverService, textEditorService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.preferencesService = preferencesService;
+    this.userDataProfileService = userDataProfileService;
+    this.workspaceService = workspaceService;
+    this.configurationService = configurationService;
+    this.editorResolverService = editorResolverService;
+    this.textEditorService = textEditorService;
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(USE_SPLIT_JSON_SETTING) || e.affectsConfiguration(DEFAULT_SETTINGS_EDITOR_SETTING)) {
+        this.handleSettingsEditorRegistration();
+      }
+    }));
+    this.handleSettingsEditorRegistration();
+    const fileSystemProvider = this._register(this.instantiationService.createInstance(SettingsFileSystemProvider));
+    this._register(fileService.registerProvider(SettingsFileSystemProvider.SCHEMA, fileSystemProvider));
+  }
+  handleSettingsEditorRegistration() {
+    dispose(this.editorOpeningListener);
+    if (!!this.configurationService.getValue(USE_SPLIT_JSON_SETTING) || !!this.configurationService.getValue(DEFAULT_SETTINGS_EDITOR_SETTING)) {
+      this.editorOpeningListener = this.editorResolverService.registerEditor("**/settings.json", {
+        id: SideBySideEditorInput.ID,
+        label: nls.localize("splitSettingsEditorLabel", "Split Settings Editor"),
+        priority: RegisteredEditorPriority.builtin
+      }, {}, {
+        createEditorInput: /* @__PURE__ */ __name(({ resource, options }) => {
+          if (isEqual(resource, this.userDataProfileService.currentProfile.settingsResource)) {
+            return { editor: this.preferencesService.createSplitJsonEditorInput(3, resource), options };
+          }
+          const state = this.workspaceService.getWorkbenchState();
+          if (state === 2) {
+            const folders = this.workspaceService.getWorkspace().folders;
+            if (isEqual(resource, folders[0].toResource(FOLDER_SETTINGS_PATH))) {
+              return { editor: this.preferencesService.createSplitJsonEditorInput(5, resource), options };
+            }
+          } else if (state === 3) {
+            const folders = this.workspaceService.getWorkspace().folders;
+            for (const folder of folders) {
+              if (isEqual(resource, folder.toResource(FOLDER_SETTINGS_PATH))) {
+                return { editor: this.preferencesService.createSplitJsonEditorInput(6, resource), options };
+              }
+            }
+          }
+          return { editor: this.textEditorService.createTextEditor({ resource }), options };
+        }, "createEditorInput")
+      });
+    }
+  }
+  dispose() {
+    dispose(this.editorOpeningListener);
+    super.dispose();
+  }
+};
+PreferencesContribution = __decorate([
+  __param(0, IFileService),
+  __param(1, IInstantiationService),
+  __param(2, IPreferencesService),
+  __param(3, IUserDataProfileService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IConfigurationService),
+  __param(6, IEditorResolverService),
+  __param(7, ITextEditorService)
+], PreferencesContribution);
+const registry = Registry.as(Extensions.Configuration);
+registry.registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  "properties": {
+    "workbench.settings.enableNaturalLanguageSearch": {
+      "type": "boolean",
+      "description": nls.localize("enableNaturalLanguageSettingsSearch", "Controls whether to enable the natural language search mode for settings. The natural language search is provided by a Microsoft online service."),
+      "default": true,
+      "scope": 4,
+      "tags": ["usesOnlineServices"]
+    },
+    "workbench.settings.settingsSearchTocBehavior": {
+      "type": "string",
+      "enum": ["hide", "filter"],
+      "enumDescriptions": [
+        nls.localize("settingsSearchTocBehavior.hide", "Hide the Table of Contents while searching."),
+        nls.localize("settingsSearchTocBehavior.filter", "Filter the Table of Contents to just categories that have matching settings. Clicking on a category will filter the results to that category.")
+      ],
+      "description": nls.localize("settingsSearchTocBehavior", "Controls the behavior of the Settings editor Table of Contents while searching. If this setting is being changed in the Settings editor, the setting will take effect after the search query is modified."),
+      "default": "filter",
+      "scope": 4
+      /* ConfigurationScope.WINDOW */
+    }
+  }
+});
+export {
+  PreferencesContribution
+};
+//# sourceMappingURL=preferencesContribution.js.map

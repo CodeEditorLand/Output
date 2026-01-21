@@ -1,1 +1,171 @@
-import{$pj as g,$qj as S,$9i as y}from"../../../../../../base/common/buffer.js";import{$Jp as c}from"../../../../../../base/common/objects.js";import{URI as O}from"../../../../../../base/common/uri.js";import{$KP as M}from"../../../../notebook/common/model/notebookCellTextModel.js";import{$pQ as N}from"../../../../notebook/common/notebookCommon.js";const l="ArrayBuffer-4f56482b-5a03-49ba-8356-210d3b0c1c3d",J="chat-editing-notebook-snapshot-model";function E(t,e,a,r,s){return O.from({scheme:J,path:r,query:JSON.stringify({session:t,requestId:e??"",undoStop:a??"",viewType:s})})}function K(t){const e=JSON.parse(t.query);return{session:e.session,requestId:e.requestId??"",undoStop:e.undoStop??"",viewType:e.viewType}}function k(t,e,a){const r=(typeof a=="number"?a:a.getValue(N.outputBackupSizeLimit))*1024;return $(t.createSnapshot({context:2,outputSizeLimit:r,transientOptions:e}),e)}function D(t,e){try{const{transientOptions:a,data:r}=p(e);t.restoreSnapshot(r,a);const s=[];r.cells.forEach((o,n)=>{const i=o.internalMetadata?.internalId;i&&s.push({editType:9,index:n,internalMetadata:{internalId:i}})}),t.applyEdits(s,!0,void 0,()=>{},void 0,!1)}catch{}}class B{constructor(e){const{transientOptions:a,data:r}=p(e);this.b=a,this.a=r}isEqual(e){if(e.cells.length!==this.a.cells.length)return!1;const a=this.b?.transientDocumentMetadata||{},r=c(e.metadata||{},n=>!a[n]),s=c(this.a.metadata||{},n=>!a[n]);if(JSON.stringify(r)!==JSON.stringify(s))return!1;const o=this.b?.transientCellMetadata||{};for(let n=0;n<e.cells.length;n++){const i=e.cells[n],u=this.a.cells[n];if(i instanceof M){if(!i.fastEqual(u,!0))return!1}else{if(i.cellKind!==u.cellKind||i.language!==u.language||i.mime!==u.mime||i.source!==u.source||!this.b?.transientOutputs&&i.outputs.length!==u.outputs.length)return!1;const m=c(i.metadata||{},d=>!o[d]),h=c(u.metadata||{},d=>!o[d]);if(JSON.stringify(m)!==JSON.stringify(h)||JSON.stringify(f(i,!0,this.b))!==JSON.stringify(f(u,!0,this.b)))return!1}}return!0}}function f(t,e,a){const r=a?.transientCellMetadata||{},s=a?.transientOutputs?[]:t.outputs.map(o=>({outputId:o.outputId,metadata:o.metadata,outputs:o.outputs.map(n=>({data:n.data,mime:n.mime}))}));return{cellKind:t.cellKind,language:t.language,metadata:t.metadata?c(t.metadata,o=>!r[o]):t.metadata,outputs:s,mime:t.mime,source:t.source,collapseState:t.collapseState,internalMetadata:e?void 0:t.internalMetadata}}function $(t,e){const a={cells:t.cells.map(r=>f(r)),metadata:t.metadata};return JSON.stringify([JSON.stringify(e),JSON.stringify(a,(r,s)=>s instanceof y?{type:l,data:S(s)}:s)])}function p(t){const[e,a]=JSON.parse(t),r=e?JSON.parse(e):void 0,s=JSON.parse(a,(o,n)=>n&&n.type===l?g(n.data):n);return{transientOptions:r,data:s}}export{J as $Lnc,E as $Mnc,K as $Nnc,k as $Onc,D as $Pnc,B as $Qnc,p as $Rnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { decodeBase64, encodeBase64, VSBuffer } from "../../../../../../base/common/buffer.js";
+import { filter } from "../../../../../../base/common/objects.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { NotebookCellTextModel } from "../../../../notebook/common/model/notebookCellTextModel.js";
+import { NotebookSetting } from "../../../../notebook/common/notebookCommon.js";
+const BufferMarker = "ArrayBuffer-4f56482b-5a03-49ba-8356-210d3b0c1c3d";
+const ChatEditingNotebookSnapshotScheme = "chat-editing-notebook-snapshot-model";
+function getNotebookSnapshotFileURI(chatSessionResource, requestId, undoStop, path, viewType) {
+  return URI.from({
+    scheme: ChatEditingNotebookSnapshotScheme,
+    path,
+    query: JSON.stringify({ session: chatSessionResource, requestId: requestId ?? "", undoStop: undoStop ?? "", viewType })
+  });
+}
+__name(getNotebookSnapshotFileURI, "getNotebookSnapshotFileURI");
+function parseNotebookSnapshotFileURI(resource) {
+  const data = JSON.parse(resource.query);
+  return { session: data.session, requestId: data.requestId ?? "", undoStop: data.undoStop ?? "", viewType: data.viewType };
+}
+__name(parseNotebookSnapshotFileURI, "parseNotebookSnapshotFileURI");
+function createSnapshot(notebook, transientOptions, outputSizeConfig) {
+  const outputSizeLimit = (typeof outputSizeConfig === "number" ? outputSizeConfig : outputSizeConfig.getValue(NotebookSetting.outputBackupSizeLimit)) * 1024;
+  return serializeSnapshot(notebook.createSnapshot({ context: 2, outputSizeLimit, transientOptions }), transientOptions);
+}
+__name(createSnapshot, "createSnapshot");
+function restoreSnapshot(notebook, snapshot) {
+  try {
+    const { transientOptions, data } = deserializeSnapshot(snapshot);
+    notebook.restoreSnapshot(data, transientOptions);
+    const edits = [];
+    data.cells.forEach((cell, index) => {
+      const internalId = cell.internalMetadata?.internalId;
+      if (internalId) {
+        edits.push({ editType: 9, index, internalMetadata: { internalId } });
+      }
+    });
+    notebook.applyEdits(edits, true, void 0, () => void 0, void 0, false);
+  } catch (ex) {
+    console.error("Error restoring Notebook snapshot", ex);
+  }
+}
+__name(restoreSnapshot, "restoreSnapshot");
+class SnapshotComparer {
+  static {
+    __name(this, "SnapshotComparer");
+  }
+  constructor(initialCotent) {
+    const { transientOptions, data } = deserializeSnapshot(initialCotent);
+    this.transientOptions = transientOptions;
+    this.data = data;
+  }
+  isEqual(notebook) {
+    if (notebook.cells.length !== this.data.cells.length) {
+      return false;
+    }
+    const transientDocumentMetadata = this.transientOptions?.transientDocumentMetadata || {};
+    const notebookMetadata = filter(notebook.metadata || {}, (key) => !transientDocumentMetadata[key]);
+    const comparerMetadata = filter(this.data.metadata || {}, (key) => !transientDocumentMetadata[key]);
+    if (JSON.stringify(notebookMetadata) !== JSON.stringify(comparerMetadata)) {
+      return false;
+    }
+    const transientCellMetadata = this.transientOptions?.transientCellMetadata || {};
+    for (let i = 0; i < notebook.cells.length; i++) {
+      const notebookCell = notebook.cells[i];
+      const comparerCell = this.data.cells[i];
+      if (notebookCell instanceof NotebookCellTextModel) {
+        if (!notebookCell.fastEqual(comparerCell, true)) {
+          return false;
+        }
+      } else {
+        if (notebookCell.cellKind !== comparerCell.cellKind) {
+          return false;
+        }
+        if (notebookCell.language !== comparerCell.language) {
+          return false;
+        }
+        if (notebookCell.mime !== comparerCell.mime) {
+          return false;
+        }
+        if (notebookCell.source !== comparerCell.source) {
+          return false;
+        }
+        if (!this.transientOptions?.transientOutputs && notebookCell.outputs.length !== comparerCell.outputs.length) {
+          return false;
+        }
+        const cellMetadata = filter(notebookCell.metadata || {}, (key) => !transientCellMetadata[key]);
+        const comparerCellMetadata = filter(comparerCell.metadata || {}, (key) => !transientCellMetadata[key]);
+        if (JSON.stringify(cellMetadata) !== JSON.stringify(comparerCellMetadata)) {
+          return false;
+        }
+        if (JSON.stringify(sanitizeCellDto2(notebookCell, true, this.transientOptions)) !== JSON.stringify(sanitizeCellDto2(comparerCell, true, this.transientOptions))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+}
+function sanitizeCellDto2(cell, ignoreInternalMetadata, transientOptions) {
+  const transientCellMetadata = transientOptions?.transientCellMetadata || {};
+  const outputs = transientOptions?.transientOutputs ? [] : cell.outputs.map((output) => {
+    return {
+      outputId: output.outputId,
+      metadata: output.metadata,
+      outputs: output.outputs.map((item) => {
+        return {
+          data: item.data,
+          mime: item.mime
+        };
+      })
+    };
+  });
+  return {
+    cellKind: cell.cellKind,
+    language: cell.language,
+    metadata: cell.metadata ? filter(cell.metadata, (key) => !transientCellMetadata[key]) : cell.metadata,
+    outputs,
+    mime: cell.mime,
+    source: cell.source,
+    collapseState: cell.collapseState,
+    internalMetadata: ignoreInternalMetadata ? void 0 : cell.internalMetadata
+  };
+}
+__name(sanitizeCellDto2, "sanitizeCellDto2");
+function serializeSnapshot(data, transientOptions) {
+  const dataDto = {
+    // Never pass transient options, as we're after a backup here.
+    // Else we end up stripping outputs from backups.
+    // Whether its persisted or not is up to the serializer.
+    // However when reloading/restoring we need to preserve outputs.
+    cells: data.cells.map((cell) => sanitizeCellDto2(cell)),
+    metadata: data.metadata
+  };
+  return JSON.stringify([
+    JSON.stringify(transientOptions),
+    JSON.stringify(dataDto, (_key, value) => {
+      if (value instanceof VSBuffer) {
+        return {
+          type: BufferMarker,
+          data: encodeBase64(value)
+        };
+      }
+      return value;
+    })
+  ]);
+}
+__name(serializeSnapshot, "serializeSnapshot");
+function deserializeSnapshot(snapshot) {
+  const [transientOptionsStr, dataStr] = JSON.parse(snapshot);
+  const transientOptions = transientOptionsStr ? JSON.parse(transientOptionsStr) : void 0;
+  const data = JSON.parse(dataStr, (_key, value) => {
+    if (value && value.type === BufferMarker) {
+      return decodeBase64(value.data);
+    }
+    return value;
+  });
+  return { transientOptions, data };
+}
+__name(deserializeSnapshot, "deserializeSnapshot");
+export {
+  ChatEditingNotebookSnapshotScheme,
+  SnapshotComparer,
+  createSnapshot,
+  deserializeSnapshot,
+  getNotebookSnapshotFileURI,
+  parseNotebookSnapshotFileURI,
+  restoreSnapshot
+};
+//# sourceMappingURL=chatEditingModifiedNotebookSnapshot.js.map

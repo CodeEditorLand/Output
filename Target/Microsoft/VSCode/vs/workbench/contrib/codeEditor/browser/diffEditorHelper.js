@@ -1,1 +1,86 @@
-import{$Ed as h}from"../../../../base/common/lifecycle.js";import{autorunWithStore as g,observableFromEvent as b}from"../../../../base/common/observable.js";import{$Jcb as E}from"../../../../editor/browser/editorExtensions.js";import{$npc as D}from"../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";import{$aI as C}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as l}from"../../../../nls.js";import{$wsb as R}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$Lj as $}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as v,Severity as _}from"../../../../platform/notification/common/notification.js";import{$im as x}from"../../../../platform/registry/common/platform.js";import{$mJb as M}from"../../../browser/codeeditor.js";import{$7N as U}from"../../../common/configuration.js";import{$cFc as W}from"./diffEditorAccessibilityHelp.js";var u=function(r,i,e,n){var a=arguments.length,o=a<3?i:n===null?n=Object.getOwnPropertyDescriptor(i,e):n,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,i,e,n);else for(var s=r.length-1;s>=0;s--)(f=r[s])&&(o=(a<3?f(o):a>3?f(i,e,o):f(i,e))||o);return a>3&&o&&Object.defineProperty(i,e,o),o},m=function(r,i){return function(e,n){i(e,n,r)}};let d=class extends h{static{this.ID="editor.contrib.diffEditorHelper"}constructor(i,e,n,a){if(super(),this.a=i,this.b=e,this.c=n,this.f=a,!(this.a instanceof D)){const s=b(this,t=>this.a.onDidUpdateDiff(t),()=>this.a.getDiffComputationResult()).map(t=>t&&!t.identical&&t.changes2.length===0);this.D(g((t,c)=>{if(s.read(t)){const p=c.add(this.b.createInstance(M,this.a.getModifiedEditor(),l(6937,null),null));c.add(p.onClick(()=>{this.c.updateValue(this.a.getModel().modified.uri,"diffEditor.ignoreTrimWhitespace",!1)})),p.render()}})),this.D(this.a.onDidUpdateDiff(()=>{const t=this.a.getDiffComputationResult();t&&t.quitEarly&&this.f.prompt(_.Warning,l(6938,null,this.a.maxComputationTime),[{label:l(6939,null),run:()=>{this.c.updateValue(this.a.getModel().modified.uri,"diffEditor.maxComputationTime",0)}}],{})}))}}};d=u([m(1,$),m(2,C),m(3,v)],d);E(d.ID,d);x.as(U.ConfigurationMigration).registerConfigurationMigrations([{key:"diffEditor.experimental.collapseUnchangedRegions",migrateFn:(r,i)=>[["diffEditor.hideUnchangedRegions.enabled",{value:r}],["diffEditor.experimental.collapseUnchangedRegions",{value:void 0}]]}]);R.register(new W);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { autorunWithStore, observableFromEvent } from "../../../../base/common/observable.js";
+import { registerDiffEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { EmbeddedDiffEditorWidget } from "../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { FloatingEditorClickWidget } from "../../../browser/codeeditor.js";
+import { Extensions } from "../../../common/configuration.js";
+import { DiffEditorAccessibilityHelp } from "./diffEditorAccessibilityHelp.js";
+let DiffEditorHelperContribution = class DiffEditorHelperContribution2 extends Disposable {
+  static {
+    __name(this, "DiffEditorHelperContribution");
+  }
+  static {
+    this.ID = "editor.contrib.diffEditorHelper";
+  }
+  constructor(_diffEditor, _instantiationService, _textResourceConfigurationService, _notificationService) {
+    super();
+    this._diffEditor = _diffEditor;
+    this._instantiationService = _instantiationService;
+    this._textResourceConfigurationService = _textResourceConfigurationService;
+    this._notificationService = _notificationService;
+    const isEmbeddedDiffEditor = this._diffEditor instanceof EmbeddedDiffEditorWidget;
+    if (!isEmbeddedDiffEditor) {
+      const computationResult = observableFromEvent(this, (e) => this._diffEditor.onDidUpdateDiff(e), () => (
+        /** @description diffEditor.diffComputationResult */
+        this._diffEditor.getDiffComputationResult()
+      ));
+      const onlyWhiteSpaceChange = computationResult.map((r) => r && !r.identical && r.changes2.length === 0);
+      this._register(autorunWithStore((reader, store) => {
+        if (onlyWhiteSpaceChange.read(reader)) {
+          const helperWidget = store.add(this._instantiationService.createInstance(FloatingEditorClickWidget, this._diffEditor.getModifiedEditor(), localize("hintWhitespace", "Show Whitespace Differences"), null));
+          store.add(helperWidget.onClick(() => {
+            this._textResourceConfigurationService.updateValue(this._diffEditor.getModel().modified.uri, "diffEditor.ignoreTrimWhitespace", false);
+          }));
+          helperWidget.render();
+        }
+      }));
+      this._register(this._diffEditor.onDidUpdateDiff(() => {
+        const diffComputationResult = this._diffEditor.getDiffComputationResult();
+        if (diffComputationResult && diffComputationResult.quitEarly) {
+          this._notificationService.prompt(Severity.Warning, localize("hintTimeout", "The diff algorithm was stopped early (after {0} ms.)", this._diffEditor.maxComputationTime), [{
+            label: localize("removeTimeout", "Remove Limit"),
+            run: /* @__PURE__ */ __name(() => {
+              this._textResourceConfigurationService.updateValue(this._diffEditor.getModel().modified.uri, "diffEditor.maxComputationTime", 0);
+            }, "run")
+          }], {});
+        }
+      }));
+    }
+  }
+};
+DiffEditorHelperContribution = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ITextResourceConfigurationService),
+  __param(3, INotificationService)
+], DiffEditorHelperContribution);
+registerDiffEditorContribution(DiffEditorHelperContribution.ID, DiffEditorHelperContribution);
+Registry.as(Extensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "diffEditor.experimental.collapseUnchangedRegions",
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    return [
+      ["diffEditor.hideUnchangedRegions.enabled", { value }],
+      ["diffEditor.experimental.collapseUnchangedRegions", { value: void 0 }]
+    ];
+  }, "migrateFn")
+}]);
+AccessibleViewRegistry.register(new DiffEditorAccessibilityHelp());
+//# sourceMappingURL=diffEditorHelper.js.map

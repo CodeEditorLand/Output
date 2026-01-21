@@ -1,1 +1,138 @@
-import{$Ec as f,$wc as g}from"../../../../base/common/arrays.js";import{observableValue as u,autorun as p,transaction as b}from"../../../../base/common/observable.js";import{$hhb as d}from"../../../../platform/observable/common/platformObservableUtils.js";import{$8D as c}from"../../../common/core/position.js";import{PositionOffsetTransformer as h}from"../../../common/core/text/positionToOffset.js";import{$9D as $}from"../../../common/core/range.js";import{$CE as R}from"../../../common/core/edits/textEdit.js";import{$Umb as x}from"../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";const w=[];function T(){return w}function D(r,e){return new c(r.lineNumber+e.lineNumber-1,e.lineNumber===1?r.column+e.column-1:e.column)}function U(r,e){return new c(r.lineNumber-e.lineNumber+1,r.lineNumber-e.lineNumber===0?r.column-e.column+1:r.column)}function q(r,e){const t=new h(r).getOffset(e);return r.substring(t)}function A(r){return N(r).map(n=>n.getEndPosition())}function N(r){const e=f.createSortPermutation(r,g(s=>s.range,$.compareRangesUsingStarts)),t=new R(e.apply(r)).getNewRanges();return e.inverse().apply(t)}function F(r,e){const n=x(e),t=e.getValue();return r.map(o=>n.getStringReplacement(o)).map(o=>o.removeCommonSuffixPrefix(t)).map(o=>n.getTextReplacement(o))}function W(r,e){const n=u("result",[]),t=[];return e.add(p(s=>{const m=r.read(s);b(o=>{if(m.length!==t.length){t.length=m.length;for(let i=0;i<t.length;i++)t[i]||(t[i]=u("item",m[i]));n.set([...t],o)}t.forEach((i,l)=>i.set(m[l],o))})})),n}class X{constructor(e){this.a=e}bind(e,n){return d(e,this.a,n instanceof Function?n:t=>n.read(t))}}function Y(r,e){return new Promise(n=>{let t;const s=setTimeout(()=>{t&&t.dispose(),n()},r);e&&(t=e.onCancellationRequested(()=>{clearTimeout(s),t&&t.dispose(),n()}))})}class a{static message(e){return new a(void 0,e)}constructor(e,n=void 0){this.error=e,this.message=n}static is(e){return e instanceof a}logError(){this.message}}export{N as $1mb,F as $2mb,W as $3mb,X as $4mb,a as $6mb,T as $Vmb,D as $Wmb,U as $Xmb,q as $Ymb,A as $Zmb,Y as wait};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Permutation, compareBy } from "../../../../base/common/arrays.js";
+import { observableValue, autorun, transaction } from "../../../../base/common/observable.js";
+import { bindContextKey } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { Position } from "../../../common/core/position.js";
+import { PositionOffsetTransformer } from "../../../common/core/text/positionToOffset.js";
+import { Range } from "../../../common/core/range.js";
+import { TextEdit } from "../../../common/core/edits/textEdit.js";
+import { getPositionOffsetTransformerFromTextModel } from "../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";
+const array = [];
+function getReadonlyEmptyArray() {
+  return array;
+}
+__name(getReadonlyEmptyArray, "getReadonlyEmptyArray");
+function addPositions(pos1, pos2) {
+  return new Position(pos1.lineNumber + pos2.lineNumber - 1, pos2.lineNumber === 1 ? pos1.column + pos2.column - 1 : pos2.column);
+}
+__name(addPositions, "addPositions");
+function subtractPositions(pos1, pos2) {
+  return new Position(pos1.lineNumber - pos2.lineNumber + 1, pos1.lineNumber - pos2.lineNumber === 0 ? pos1.column - pos2.column + 1 : pos1.column);
+}
+__name(subtractPositions, "subtractPositions");
+function substringPos(text, pos) {
+  const transformer = new PositionOffsetTransformer(text);
+  const offset = transformer.getOffset(pos);
+  return text.substring(offset);
+}
+__name(substringPos, "substringPos");
+function getEndPositionsAfterApplying(edits) {
+  const newRanges = getModifiedRangesAfterApplying(edits);
+  return newRanges.map((range) => range.getEndPosition());
+}
+__name(getEndPositionsAfterApplying, "getEndPositionsAfterApplying");
+function getModifiedRangesAfterApplying(edits) {
+  const sortPerm = Permutation.createSortPermutation(edits, compareBy((e) => e.range, Range.compareRangesUsingStarts));
+  const edit = new TextEdit(sortPerm.apply(edits));
+  const sortedNewRanges = edit.getNewRanges();
+  return sortPerm.inverse().apply(sortedNewRanges);
+}
+__name(getModifiedRangesAfterApplying, "getModifiedRangesAfterApplying");
+function removeTextReplacementCommonSuffixPrefix(edits, textModel) {
+  const transformer = getPositionOffsetTransformerFromTextModel(textModel);
+  const text = textModel.getValue();
+  const stringReplacements = edits.map((edit) => transformer.getStringReplacement(edit));
+  const minimalStringReplacements = stringReplacements.map((replacement) => replacement.removeCommonSuffixPrefix(text));
+  return minimalStringReplacements.map((replacement) => transformer.getTextReplacement(replacement));
+}
+__name(removeTextReplacementCommonSuffixPrefix, "removeTextReplacementCommonSuffixPrefix");
+function convertItemsToStableObservables(items, store) {
+  const result = observableValue("result", []);
+  const innerObservables = [];
+  store.add(autorun((reader) => {
+    const itemsValue = items.read(reader);
+    transaction((tx) => {
+      if (itemsValue.length !== innerObservables.length) {
+        innerObservables.length = itemsValue.length;
+        for (let i = 0; i < innerObservables.length; i++) {
+          if (!innerObservables[i]) {
+            innerObservables[i] = observableValue("item", itemsValue[i]);
+          }
+        }
+        result.set([...innerObservables], tx);
+      }
+      innerObservables.forEach((o, i) => o.set(itemsValue[i], tx));
+    });
+  }));
+  return result;
+}
+__name(convertItemsToStableObservables, "convertItemsToStableObservables");
+class ObservableContextKeyService {
+  static {
+    __name(this, "ObservableContextKeyService");
+  }
+  constructor(_contextKeyService) {
+    this._contextKeyService = _contextKeyService;
+  }
+  bind(key, obs) {
+    return bindContextKey(key, this._contextKeyService, obs instanceof Function ? obs : (reader) => obs.read(reader));
+  }
+}
+function wait(ms, cancellationToken) {
+  return new Promise((resolve) => {
+    let d = void 0;
+    const handle = setTimeout(() => {
+      if (d) {
+        d.dispose();
+      }
+      resolve();
+    }, ms);
+    if (cancellationToken) {
+      d = cancellationToken.onCancellationRequested(() => {
+        clearTimeout(handle);
+        if (d) {
+          d.dispose();
+        }
+        resolve();
+      });
+    }
+  });
+}
+__name(wait, "wait");
+class ErrorResult {
+  static {
+    __name(this, "ErrorResult");
+  }
+  static message(message) {
+    return new ErrorResult(void 0, message);
+  }
+  constructor(error, message = void 0) {
+    this.error = error;
+    this.message = message;
+  }
+  static is(obj) {
+    return obj instanceof ErrorResult;
+  }
+  logError() {
+    if (this.message) {
+      console.error(`ErrorResult: ${this.message}`, this.error);
+    } else {
+      console.error(`ErrorResult: An unexpected error-case occurred, usually caused by invalid input.`, this.error);
+    }
+  }
+}
+export {
+  ErrorResult,
+  ObservableContextKeyService,
+  addPositions,
+  convertItemsToStableObservables,
+  getEndPositionsAfterApplying,
+  getModifiedRangesAfterApplying,
+  getReadonlyEmptyArray,
+  removeTextReplacementCommonSuffixPrefix,
+  substringPos,
+  subtractPositions,
+  wait
+};
+//# sourceMappingURL=utils.js.map

@@ -1,1 +1,33 @@
-import{$ceb as p}from"../../common/services/markerDecorations.js";var s=function(o,e,t,c){var i=arguments.length,r=i<3?e:c===null?c=Object.getOwnPropertyDescriptor(e,t):c,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,c);else for(var f=o.length-1;f>=0;f--)(n=o[f])&&(r=(i<3?n(r):i>3?n(e,t,r):n(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},l=function(o,e){return function(t,c){e(t,c,o)}};let a=class{static{this.ID="editor.contrib.markerDecorations"}constructor(e,t){}dispose(){}};a=s([l(1,p)],a);export{a as $deb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
+let MarkerDecorationsContribution = class MarkerDecorationsContribution2 {
+  static {
+    __name(this, "MarkerDecorationsContribution");
+  }
+  static {
+    this.ID = "editor.contrib.markerDecorations";
+  }
+  constructor(_editor, _markerDecorationsService) {
+  }
+  dispose() {
+  }
+};
+MarkerDecorationsContribution = __decorate([
+  __param(1, IMarkerDecorationsService)
+], MarkerDecorationsContribution);
+export {
+  MarkerDecorationsContribution
+};
+//# sourceMappingURL=markerDecorations.js.map

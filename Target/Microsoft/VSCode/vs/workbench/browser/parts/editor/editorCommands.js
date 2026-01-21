@@ -1,7 +1,1381 @@
-import{$2w as A}from"../../../../base/common/keyCodes.js";import{Schemas as _,$hh as j}from"../../../../base/common/network.js";import{$Fh as ie,$Ah as ne}from"../../../../base/common/resources.js";import{$$c as de,$9c as ce,$6c as B,$cd as z}from"../../../../base/common/types.js";import{URI as v}from"../../../../base/common/uri.js";import{EditorContextKeys as M}from"../../../../editor/common/editorContextKeys.js";import{localize as C,localize2 as x}from"../../../../nls.js";import{$so as k}from"../../../../platform/action/common/actionCommonCategories.js";import{$sL as $,$tL as G}from"../../../../platform/actions/common/actions.js";import{$uo as m,$to as P}from"../../../../platform/commands/common/commands.js";import{$9l as I}from"../../../../platform/configuration/common/configuration.js";import{$9n as L}from"../../../../platform/contextkey/common/contextkey.js";import{EditorResolution as q}from"../../../../platform/editor/common/editor.js";import{$Lj as se}from"../../../../platform/instantiation/common/instantiation.js";import{$jL as w}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$Tpb as h}from"../../../../platform/list/browser/listService.js";import{$yP as ae}from"../../../../platform/opener/common/opener.js";import{$VH as ue}from"../../../../platform/quickinput/common/quickInput.js";import{$op as pe}from"../../../../platform/telemetry/common/telemetry.js";import{$ARb as fe}from"./editorQuickAccess.js";import{$IRb as T}from"./sideBySideEditor.js";import{$MRb as K}from"./textDiffEditor.js";import{$GO as W,$NO as le,$QO as H,$BO as Y,$RO as ge,$LO as R,$KO as U}from"../../../common/contextkeys.js";import{$nN as me}from"../../../common/editor.js";import{$aL as N}from"../../../common/editor/sideBySideEditorInput.js";import{$WY as V}from"../../../services/editor/common/editorGroupColumn.js";import{$uL as p,$xL as D}from"../../../services/editor/common/editorGroupsService.js";import{$_N as he}from"../../../services/editor/common/editorResolverService.js";import{$yL as f,$AL as Ee}from"../../../services/editor/common/editorService.js";import{$WZ as be}from"../../../services/path/common/pathService.js";import{$ZL as we}from"../../../services/untitled/common/untitledTextEditorService.js";import{$SRb as ve,$QRb as ye,$RRb as Se,$WRb as xe}from"./diffEditorCommands.js";import{$XRb as E}from"./editorCommandsContext.js";import{$NAb as ke}from"./editor.js";const $e="workbench.action.closeUnmodifiedEditors",Ge="workbench.action.closeEditorsInGroup",Ce="workbench.action.closeEditorsAndGroup",Re="workbench.action.closeEditorsToTheRight",ee="workbench.action.closeActiveEditor",Ae="workbench.action.closeActivePinnedEditor",Ie="workbench.action.closeGroup",Pe="workbench.action.closeOtherEditors",Te="moveActiveEditor",Le="copyActiveEditor",Oe="layoutEditorGroups",Fe="workbench.action.keepEditor",Ke="workbench.action.toggleKeepEditors",We="workbench.action.toggleEditorGroupLock",Ue="workbench.action.lockEditorGroup",te="workbench.action.unlockEditorGroup",Ne="workbench.action.showEditorsInGroup",Ve="workbench.action.reopenWithEditor",_e="reopenActiveEditorWith",De="workbench.action.pinEditor",oe="workbench.action.unpinEditor",je="workbench.action.splitEditor",Be="workbench.action.splitEditorUp",ze="workbench.action.splitEditorDown",Me="workbench.action.splitEditorLeft",qe="workbench.action.splitEditorRight",He="workbench.action.moveEditorToAboveGroup",Ye="workbench.action.moveEditorToBelowGroup",Je="workbench.action.moveEditorToLeftGroup",Ze="workbench.action.moveEditorToRightGroup",Qe="workbench.action.toggleMaximizeEditorGroup",Xe="workbench.action.splitEditorInGroup",et="workbench.action.toggleSplitEditorInGroup",tt="workbench.action.joinEditorInGroup",ot="workbench.action.toggleSplitEditorInGroupLayout",rt="workbench.action.focusFirstSideEditor",it="workbench.action.focusSecondSideEditor",nt="workbench.action.focusOtherSideEditor",dt="workbench.action.focusLeftGroupWithoutWrap",ct="workbench.action.focusRightGroupWithoutWrap",st="workbench.action.focusAboveGroupWithoutWrap",at="workbench.action.focusBelowGroupWithoutWrap",J="workbench.action.openEditorAtIndex",ro="workbench.action.moveEditorToNewWindow",io="workbench.action.copyEditorToNewWindow",no="workbench.action.moveEditorGroupToNewWindow",co="workbench.action.copyEditorGroupToNewWindow",so="workbench.action.newEmptyEditorWindow",Z="_workbench.open",Q="_workbench.diff",ut="_workbench.openWith",ao=[je,ee,oe,te,Qe],X=function(a){return!(!ce(a)||!B(a.to)||!z(a.by)&&!B(a.by)||!z(a.value)&&!de(a.value))};function pt(){const a={type:"object",required:["to"],properties:{to:{type:"string",enum:["left","right"]},by:{type:"string",enum:["tab","group"]},value:{type:"number"}}};w.registerCommandAndKeybindingRule({id:Te,weight:200,when:M.editorTextFocus,primary:0,handler:(o,n)=>r(!0,n,o),metadata:{description:C(3788,null),args:[{name:C(3789,null),description:C(3790,null),constraint:X,schema:a}]}}),w.registerCommandAndKeybindingRule({id:Le,weight:200,when:M.editorTextFocus,primary:0,handler:(o,n)=>r(!1,n,o),metadata:{description:C(3791,null),args:[{name:C(3792,null),description:C(3793,null),constraint:X,schema:a}]}}),[{id:He,to:"up"},{id:Ye,to:"down"},{id:Je,to:"left"},{id:Ze,to:"right"}].forEach(({id:o,to:n})=>{m.registerCommand(o,function(d,...c){const l=E(c,d.get(f),d.get(p),d.get(h));l.groupedEditors.length&&i(!0,{to:n,by:"group"},l.groupedEditors[0].group,l.groupedEditors[0].editors,d)})});function r(o,n=Object.create(null),d){n.to=n.to||"right",n.by=n.by||"tab",n.value=typeof n.value=="number"?n.value:1;const c=d.get(p).activeGroup,l=c.selectedEditors;if(l.length>0)switch(n.by){case"tab":if(o)return e(n,c,l);break;case"group":return i(o,n,c,l,d)}}function e(o,n,d){const c=o.to;c==="first"||c==="right"?d=[...d].reverse():c==="position"&&(o.value??1)<n.getIndexOfEditor(d[0])&&(d=[...d].reverse());for(const l of d)t(o,n,l)}function t(o,n,d){let c=n.getIndexOfEditor(d);switch(o.to){case"first":c=0;break;case"last":c=n.count-1;break;case"left":c=c-(o.value??1);break;case"right":c=c+(o.value??1);break;case"center":c=Math.round(n.count/2)-1;break;case"position":c=(o.value??1)-1;break}c=c<0?0:c>=n.count?n.count-1:c,n.moveEditor(d,n,{index:c})}function i(o,n,d,c,l){const u=l.get(p),b=l.get(I);let s;switch(n.to){case"left":s=u.findGroup({direction:2},d),s||(s=u.addGroup(d,2));break;case"right":s=u.findGroup({direction:3},d),s||(s=u.addGroup(d,3));break;case"up":s=u.findGroup({direction:0},d),s||(s=u.addGroup(d,0));break;case"down":s=u.findGroup({direction:1},d),s||(s=u.addGroup(d,1));break;case"first":s=u.findGroup({location:0},d);break;case"last":s=u.findGroup({location:1},d);break;case"previous":if(s=u.findGroup({location:3},d),!s){const g=D(b)===3?2:0;s=u.addGroup(d,g)}break;case"next":s=u.findGroup({location:2},d),s||(s=u.addGroup(d,D(b)));break;case"center":s=u.getGroups(2)[u.count/2-1];break;case"position":s=u.getGroups(2)[(n.value??1)-1];break}if(s){const g=ke(d,c);o?d.moveEditors(g,s):d.id!==s.id&&d.copyEditors(g,s),s.focus()}}}function ft(){function a(r,e){if(!e||typeof e!="object")return;r.get(p).applyLayout(e)}m.registerCommand(Oe,(r,e)=>{a(r,e)}),m.registerCommand({id:"vscode.setEditorLayout",handler:(r,e)=>a(r,e),metadata:{description:`Set the editor layout. Editor layout is represented as a tree of groups in which the first group is the root group of the layout.
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { extname, isEqual } from "../../../../base/common/resources.js";
+import { isNumber, isObject, isString, isUndefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorResolution } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ActiveGroupEditorsByMostRecentlyUsedQuickAccess } from "./editorQuickAccess.js";
+import { SideBySideEditor } from "./sideBySideEditor.js";
+import { TextDiffEditor } from "./textDiffEditor.js";
+import { ActiveEditorCanSplitInGroupContext, ActiveEditorGroupEmptyContext, ActiveEditorGroupLockedContext, ActiveEditorStickyContext, MultipleEditorGroupsContext, SideBySideEditorActiveContext, TextCompareEditorActiveContext } from "../../../common/contextkeys.js";
+import { isEditorInputWithOptionsAndGroup } from "../../../common/editor.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import { columnToEditorGroup } from "../../../services/editor/common/editorGroupColumn.js";
+import { IEditorGroupsService, preferredSideBySideGroupDirection } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { IUntitledTextEditorService } from "../../../services/untitled/common/untitledTextEditorService.js";
+import { DIFF_FOCUS_OTHER_SIDE, DIFF_FOCUS_PRIMARY_SIDE, DIFF_FOCUS_SECONDARY_SIDE, registerDiffEditorCommands } from "./diffEditorCommands.js";
+import { resolveCommandsContext } from "./editorCommandsContext.js";
+import { prepareMoveCopyEditors } from "./editor.js";
+const CLOSE_SAVED_EDITORS_COMMAND_ID = "workbench.action.closeUnmodifiedEditors";
+const CLOSE_EDITORS_IN_GROUP_COMMAND_ID = "workbench.action.closeEditorsInGroup";
+const CLOSE_EDITORS_AND_GROUP_COMMAND_ID = "workbench.action.closeEditorsAndGroup";
+const CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID = "workbench.action.closeEditorsToTheRight";
+const CLOSE_EDITOR_COMMAND_ID = "workbench.action.closeActiveEditor";
+const CLOSE_PINNED_EDITOR_COMMAND_ID = "workbench.action.closeActivePinnedEditor";
+const CLOSE_EDITOR_GROUP_COMMAND_ID = "workbench.action.closeGroup";
+const CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID = "workbench.action.closeOtherEditors";
+const MOVE_ACTIVE_EDITOR_COMMAND_ID = "moveActiveEditor";
+const COPY_ACTIVE_EDITOR_COMMAND_ID = "copyActiveEditor";
+const LAYOUT_EDITOR_GROUPS_COMMAND_ID = "layoutEditorGroups";
+const KEEP_EDITOR_COMMAND_ID = "workbench.action.keepEditor";
+const TOGGLE_KEEP_EDITORS_COMMAND_ID = "workbench.action.toggleKeepEditors";
+const TOGGLE_LOCK_GROUP_COMMAND_ID = "workbench.action.toggleEditorGroupLock";
+const LOCK_GROUP_COMMAND_ID = "workbench.action.lockEditorGroup";
+const UNLOCK_GROUP_COMMAND_ID = "workbench.action.unlockEditorGroup";
+const SHOW_EDITORS_IN_GROUP = "workbench.action.showEditorsInGroup";
+const REOPEN_WITH_COMMAND_ID = "workbench.action.reopenWithEditor";
+const REOPEN_ACTIVE_EDITOR_WITH_COMMAND_ID = "reopenActiveEditorWith";
+const PIN_EDITOR_COMMAND_ID = "workbench.action.pinEditor";
+const UNPIN_EDITOR_COMMAND_ID = "workbench.action.unpinEditor";
+const SPLIT_EDITOR = "workbench.action.splitEditor";
+const SPLIT_EDITOR_UP = "workbench.action.splitEditorUp";
+const SPLIT_EDITOR_DOWN = "workbench.action.splitEditorDown";
+const SPLIT_EDITOR_LEFT = "workbench.action.splitEditorLeft";
+const SPLIT_EDITOR_RIGHT = "workbench.action.splitEditorRight";
+const MOVE_EDITOR_INTO_ABOVE_GROUP = "workbench.action.moveEditorToAboveGroup";
+const MOVE_EDITOR_INTO_BELOW_GROUP = "workbench.action.moveEditorToBelowGroup";
+const MOVE_EDITOR_INTO_LEFT_GROUP = "workbench.action.moveEditorToLeftGroup";
+const MOVE_EDITOR_INTO_RIGHT_GROUP = "workbench.action.moveEditorToRightGroup";
+const TOGGLE_MAXIMIZE_EDITOR_GROUP = "workbench.action.toggleMaximizeEditorGroup";
+const SPLIT_EDITOR_IN_GROUP = "workbench.action.splitEditorInGroup";
+const TOGGLE_SPLIT_EDITOR_IN_GROUP = "workbench.action.toggleSplitEditorInGroup";
+const JOIN_EDITOR_IN_GROUP = "workbench.action.joinEditorInGroup";
+const TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT = "workbench.action.toggleSplitEditorInGroupLayout";
+const FOCUS_FIRST_SIDE_EDITOR = "workbench.action.focusFirstSideEditor";
+const FOCUS_SECOND_SIDE_EDITOR = "workbench.action.focusSecondSideEditor";
+const FOCUS_OTHER_SIDE_EDITOR = "workbench.action.focusOtherSideEditor";
+const FOCUS_LEFT_GROUP_WITHOUT_WRAP_COMMAND_ID = "workbench.action.focusLeftGroupWithoutWrap";
+const FOCUS_RIGHT_GROUP_WITHOUT_WRAP_COMMAND_ID = "workbench.action.focusRightGroupWithoutWrap";
+const FOCUS_ABOVE_GROUP_WITHOUT_WRAP_COMMAND_ID = "workbench.action.focusAboveGroupWithoutWrap";
+const FOCUS_BELOW_GROUP_WITHOUT_WRAP_COMMAND_ID = "workbench.action.focusBelowGroupWithoutWrap";
+const OPEN_EDITOR_AT_INDEX_COMMAND_ID = "workbench.action.openEditorAtIndex";
+const MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.moveEditorToNewWindow";
+const COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.copyEditorToNewWindow";
+const MOVE_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.moveEditorGroupToNewWindow";
+const COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID = "workbench.action.copyEditorGroupToNewWindow";
+const NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID = "workbench.action.newEmptyEditorWindow";
+const API_OPEN_EDITOR_COMMAND_ID = "_workbench.open";
+const API_OPEN_DIFF_EDITOR_COMMAND_ID = "_workbench.diff";
+const API_OPEN_WITH_EDITOR_COMMAND_ID = "_workbench.openWith";
+const EDITOR_CORE_NAVIGATION_COMMANDS = [
+  SPLIT_EDITOR,
+  CLOSE_EDITOR_COMMAND_ID,
+  UNPIN_EDITOR_COMMAND_ID,
+  UNLOCK_GROUP_COMMAND_ID,
+  TOGGLE_MAXIMIZE_EDITOR_GROUP
+];
+const isSelectedEditorsMoveCopyArg = /* @__PURE__ */ __name(function(arg) {
+  if (!isObject(arg)) {
+    return false;
+  }
+  if (!isString(arg.to)) {
+    return false;
+  }
+  if (!isUndefined(arg.by) && !isString(arg.by)) {
+    return false;
+  }
+  if (!isUndefined(arg.value) && !isNumber(arg.value)) {
+    return false;
+  }
+  return true;
+}, "isSelectedEditorsMoveCopyArg");
+function registerEditorMoveCopyCommand() {
+  const moveCopyJSONSchema = {
+    "type": "object",
+    "required": ["to"],
+    "properties": {
+      "to": {
+        "type": "string",
+        "enum": ["left", "right"]
+      },
+      "by": {
+        "type": "string",
+        "enum": ["tab", "group"]
+      },
+      "value": {
+        "type": "number"
+      }
+    }
+  };
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: MOVE_ACTIVE_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: EditorContextKeys.editorTextFocus,
+    primary: 0,
+    handler: /* @__PURE__ */ __name((accessor, args) => moveCopySelectedEditors(true, args, accessor), "handler"),
+    metadata: {
+      description: localize("editorCommand.activeEditorMove.description", "Move the active editor by tabs or groups"),
+      args: [
+        {
+          name: localize("editorCommand.activeEditorMove.arg.name", "Active editor move argument"),
+          description: localize("editorCommand.activeEditorMove.arg.description", "Argument Properties:\n	* 'to': String value providing where to move.\n	* 'by': String value providing the unit for move (by tab or by group).\n	* 'value': Number value providing how many positions or an absolute position to move."),
+          constraint: isSelectedEditorsMoveCopyArg,
+          schema: moveCopyJSONSchema
+        }
+      ]
+    }
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: COPY_ACTIVE_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: EditorContextKeys.editorTextFocus,
+    primary: 0,
+    handler: /* @__PURE__ */ __name((accessor, args) => moveCopySelectedEditors(false, args, accessor), "handler"),
+    metadata: {
+      description: localize("editorCommand.activeEditorCopy.description", "Copy the active editor by groups"),
+      args: [
+        {
+          name: localize("editorCommand.activeEditorCopy.arg.name", "Active editor copy argument"),
+          description: localize("editorCommand.activeEditorCopy.arg.description", "Argument Properties:\n	* 'to': String value providing where to copy.\n	* 'value': Number value providing how many positions or an absolute position to copy."),
+          constraint: isSelectedEditorsMoveCopyArg,
+          schema: moveCopyJSONSchema
+        }
+      ]
+    }
+  });
+  [
+    { id: MOVE_EDITOR_INTO_ABOVE_GROUP, to: "up" },
+    { id: MOVE_EDITOR_INTO_BELOW_GROUP, to: "down" },
+    { id: MOVE_EDITOR_INTO_LEFT_GROUP, to: "left" },
+    { id: MOVE_EDITOR_INTO_RIGHT_GROUP, to: "right" }
+  ].forEach(({ id, to }) => {
+    CommandsRegistry.registerCommand(id, function(accessor, ...args) {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      if (resolvedContext.groupedEditors.length) {
+        moveCopyEditorsToGroup(true, { to, by: "group" }, resolvedContext.groupedEditors[0].group, resolvedContext.groupedEditors[0].editors, accessor);
+      }
+    });
+  });
+  function moveCopySelectedEditors(isMove, args = /* @__PURE__ */ Object.create(null), accessor) {
+    args.to = args.to || "right";
+    args.by = args.by || "tab";
+    args.value = typeof args.value === "number" ? args.value : 1;
+    const activeGroup = accessor.get(IEditorGroupsService).activeGroup;
+    const selectedEditors = activeGroup.selectedEditors;
+    if (selectedEditors.length > 0) {
+      switch (args.by) {
+        case "tab":
+          if (isMove) {
+            return moveTabs(args, activeGroup, selectedEditors);
+          }
+          break;
+        case "group":
+          return moveCopyEditorsToGroup(isMove, args, activeGroup, selectedEditors, accessor);
+      }
+    }
+  }
+  __name(moveCopySelectedEditors, "moveCopySelectedEditors");
+  function moveTabs(args, group, editors) {
+    const to = args.to;
+    if (to === "first" || to === "right") {
+      editors = [...editors].reverse();
+    } else if (to === "position" && (args.value ?? 1) < group.getIndexOfEditor(editors[0])) {
+      editors = [...editors].reverse();
+    }
+    for (const editor of editors) {
+      moveTab(args, group, editor);
+    }
+  }
+  __name(moveTabs, "moveTabs");
+  function moveTab(args, group, editor) {
+    let index = group.getIndexOfEditor(editor);
+    switch (args.to) {
+      case "first":
+        index = 0;
+        break;
+      case "last":
+        index = group.count - 1;
+        break;
+      case "left":
+        index = index - (args.value ?? 1);
+        break;
+      case "right":
+        index = index + (args.value ?? 1);
+        break;
+      case "center":
+        index = Math.round(group.count / 2) - 1;
+        break;
+      case "position":
+        index = (args.value ?? 1) - 1;
+        break;
+    }
+    index = index < 0 ? 0 : index >= group.count ? group.count - 1 : index;
+    group.moveEditor(editor, group, { index });
+  }
+  __name(moveTab, "moveTab");
+  function moveCopyEditorsToGroup(isMove, args, sourceGroup, editors, accessor) {
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const configurationService = accessor.get(IConfigurationService);
+    let targetGroup;
+    switch (args.to) {
+      case "left":
+        targetGroup = editorGroupsService.findGroup({
+          direction: 2
+          /* GroupDirection.LEFT */
+        }, sourceGroup);
+        if (!targetGroup) {
+          targetGroup = editorGroupsService.addGroup(
+            sourceGroup,
+            2
+            /* GroupDirection.LEFT */
+          );
+        }
+        break;
+      case "right":
+        targetGroup = editorGroupsService.findGroup({
+          direction: 3
+          /* GroupDirection.RIGHT */
+        }, sourceGroup);
+        if (!targetGroup) {
+          targetGroup = editorGroupsService.addGroup(
+            sourceGroup,
+            3
+            /* GroupDirection.RIGHT */
+          );
+        }
+        break;
+      case "up":
+        targetGroup = editorGroupsService.findGroup({
+          direction: 0
+          /* GroupDirection.UP */
+        }, sourceGroup);
+        if (!targetGroup) {
+          targetGroup = editorGroupsService.addGroup(
+            sourceGroup,
+            0
+            /* GroupDirection.UP */
+          );
+        }
+        break;
+      case "down":
+        targetGroup = editorGroupsService.findGroup({
+          direction: 1
+          /* GroupDirection.DOWN */
+        }, sourceGroup);
+        if (!targetGroup) {
+          targetGroup = editorGroupsService.addGroup(
+            sourceGroup,
+            1
+            /* GroupDirection.DOWN */
+          );
+        }
+        break;
+      case "first":
+        targetGroup = editorGroupsService.findGroup({
+          location: 0
+          /* GroupLocation.FIRST */
+        }, sourceGroup);
+        break;
+      case "last":
+        targetGroup = editorGroupsService.findGroup({
+          location: 1
+          /* GroupLocation.LAST */
+        }, sourceGroup);
+        break;
+      case "previous":
+        targetGroup = editorGroupsService.findGroup({
+          location: 3
+          /* GroupLocation.PREVIOUS */
+        }, sourceGroup);
+        if (!targetGroup) {
+          const oppositeDirection = preferredSideBySideGroupDirection(configurationService) === 3 ? 2 : 0;
+          targetGroup = editorGroupsService.addGroup(sourceGroup, oppositeDirection);
+        }
+        break;
+      case "next":
+        targetGroup = editorGroupsService.findGroup({
+          location: 2
+          /* GroupLocation.NEXT */
+        }, sourceGroup);
+        if (!targetGroup) {
+          targetGroup = editorGroupsService.addGroup(sourceGroup, preferredSideBySideGroupDirection(configurationService));
+        }
+        break;
+      case "center":
+        targetGroup = editorGroupsService.getGroups(
+          2
+          /* GroupsOrder.GRID_APPEARANCE */
+        )[editorGroupsService.count / 2 - 1];
+        break;
+      case "position":
+        targetGroup = editorGroupsService.getGroups(
+          2
+          /* GroupsOrder.GRID_APPEARANCE */
+        )[(args.value ?? 1) - 1];
+        break;
+    }
+    if (targetGroup) {
+      const editorsWithOptions = prepareMoveCopyEditors(sourceGroup, editors);
+      if (isMove) {
+        sourceGroup.moveEditors(editorsWithOptions, targetGroup);
+      } else if (sourceGroup.id !== targetGroup.id) {
+        sourceGroup.copyEditors(editorsWithOptions, targetGroup);
+      }
+      targetGroup.focus();
+    }
+  }
+  __name(moveCopyEditorsToGroup, "moveCopyEditorsToGroup");
+}
+__name(registerEditorMoveCopyCommand, "registerEditorMoveCopyCommand");
+function registerEditorGroupsLayoutCommands() {
+  function applyEditorLayout(accessor, layout) {
+    if (!layout || typeof layout !== "object") {
+      return;
+    }
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    editorGroupsService.applyLayout(layout);
+  }
+  __name(applyEditorLayout, "applyEditorLayout");
+  CommandsRegistry.registerCommand(LAYOUT_EDITOR_GROUPS_COMMAND_ID, (accessor, args) => {
+    applyEditorLayout(accessor, args);
+  });
+  CommandsRegistry.registerCommand({
+    id: "vscode.setEditorLayout",
+    handler: /* @__PURE__ */ __name((accessor, args) => applyEditorLayout(accessor, args), "handler"),
+    metadata: {
+      "description": `Set the editor layout. Editor layout is represented as a tree of groups in which the first group is the root group of the layout.
 					The orientation of the first group is 0 (horizontal) by default unless specified otherwise. The other orientations are 1 (vertical).
 					The orientation of subsequent groups is the opposite of the orientation of the group that contains it.
 					Here are some examples: A layout representing 1 row and 2 columns: { orientation: 0, groups: [{}, {}] }.
 					A layout representing 3 rows and 1 column: { orientation: 1, groups: [{}, {}, {}] }.
 					A layout representing 3 rows and 1 column in which the second row has 2 columns: { orientation: 1, groups: [{}, { groups: [{}, {}] }, {}] }
-					`,args:[{name:"args",schema:{type:"object",required:["groups"],properties:{orientation:{type:"number",default:0,description:"The orientation of the root group in the layout. 0 for horizontal, 1 for vertical.",enum:[0,1],enumDescriptions:[C(3794,null),C(3795,null)]},groups:{$ref:"#/definitions/editorGroupsSchema",default:[{},{}]}}}}]}}),m.registerCommand({id:"vscode.getEditorLayout",handler:r=>r.get(p).getLayout(),metadata:{description:"Get Editor Layout",args:[],returns:"An editor layout object, in the same format as vscode.setEditorLayout"}})}function lt(){function a(r,e,t){return r?[{...r.editorOptions,...e??Object.create(null)},r.sideBySide?Ee:t]:[e,t]}m.registerCommand({id:"vscode.open",handler:(r,e)=>{r.get(P).executeCommand(Z,e)},metadata:{description:"Opens the provided resource in the editor.",args:[{name:"Uri"}]}}),m.registerCommand(Z,async function(r,e,t,i,o){const n=r.get(f),d=r.get(p),c=r.get(ae),l=r.get(be),u=r.get(I),b=r.get(we),s=typeof e=="string"?e:v.from(e,!0),[g,y]=t??[];if(y||typeof g=="number"||j(s,_.untitled)){const[S,re]=a(o,y,g),O=v.isUri(s)?s:v.parse(s);let F;b.isUntitledWithAssociatedResource(O)?F={resource:O.with({scheme:l.defaultUriScheme}),forceUntitled:!0,options:S,label:i}:F={resource:O,options:S,label:i},await n.openEditor(F,V(d,u,re))}else{if(j(s,_.command))return;await c.open(s,{openToSide:o?.sideBySide,editorOptions:o?.editorOptions})}}),m.registerCommand({id:"vscode.diff",handler:(r,e,t,i)=>{r.get(P).executeCommand(Q,e,t,i)},metadata:{description:"Opens the provided resources in the diff editor to compare their contents.",args:[{name:"left",description:"Left-hand side resource of the diff editor"},{name:"right",description:"Right-hand side resource of the diff editor"},{name:"title",description:"Human readable title for the diff editor"}]}}),m.registerCommand(Q,async function(r,e,t,i,o,n){const d=r.get(f),c=r.get(p),l=r.get(I),[u,b]=o??[],[s,g]=a(n,b,u);let y,S;typeof i=="string"?y=i:i&&(y=i.label,S=i.description),await d.openEditor({original:{resource:v.from(e,!0)},modified:{resource:v.from(t,!0)},label:y,description:S,options:s},V(c,l,g))}),m.registerCommand(ut,async(r,e,t,i)=>{const o=r.get(f),n=r.get(p),d=r.get(I),[c,l]=i??[];await o.openEditor({resource:v.from(e,!0),options:{pinned:!0,...l,override:t}},V(n,d,c))}),m.registerCommand({id:"vscode.changes",handler:(r,e,t)=>{r.get(P).executeCommand("_workbench.changes",e,t)},metadata:{description:"Opens a list of resources in the changes editor to compare their contents.",args:[{name:"title",description:"Human readable title for the diff editor"},{name:"resources",description:"List of resources to open in the changes editor"}]}}),m.registerCommand("_workbench.changes",async(r,e,t)=>{const i=r.get(f),o=[];for(const[n,d,c]of t)o.push({resource:v.revive(n),original:{resource:v.revive(d)},modified:{resource:v.revive(c)}});await i.openEditor({resources:o,label:e})}),m.registerCommand("_workbench.openMultiDiffEditor",async(r,e)=>{const t=r.get(f),i=e.resources?.map(c=>({original:{resource:v.revive(c.originalUri)},modified:{resource:v.revive(c.modifiedUri)}})),o=e.reveal?.modifiedUri?v.revive(e.reveal.modifiedUri):void 0,n=o&&i?i.find(c=>ne(c.modified.resource,o)):void 0;e.reveal;const d={viewState:n?{revealData:{resource:{original:n.original.resource,modified:n.modified.resource},range:e.reveal?.range}}:void 0};await t.openEditor({multiDiffSource:e.multiDiffSourceUri?v.revive(e.multiDiffSourceUri):void 0,resources:i,label:e.title,options:d})})}function gt(){const a=(e,t)=>{const i=e.get(f),o=i.activeEditorPane;if(o&&typeof t=="number"){const n=o.group.getEditorByIndex(t);n&&i.openEditor(n)}};m.registerCommand({id:J,handler:a});for(let e=0;e<9;e++){const t=e,i=e+1;w.registerCommandAndKeybindingRule({id:J+i,weight:200,when:void 0,primary:512|r(i),mac:{primary:256|r(i)},handler:o=>a(o,t)})}function r(e){switch(e){case 0:return 21;case 1:return 22;case 2:return 23;case 3:return 24;case 4:return 25;case 5:return 26;case 6:return 27;case 7:return 28;case 8:return 29;case 9:return 30}throw new Error("invalid index")}}function mt(){for(let e=1;e<8;e++)w.registerCommandAndKeybindingRule({id:a(e),weight:200,when:void 0,primary:2048|r(e),handler:t=>{const i=t.get(p),o=t.get(I);if(e>i.count)return;const n=i.getGroups(2);if(n[e])return n[e].focus();const d=D(o),c=i.findGroup({location:1});if(!c)return;i.addGroup(c,d).focus()}});function a(e){switch(e){case 1:return"workbench.action.focusSecondEditorGroup";case 2:return"workbench.action.focusThirdEditorGroup";case 3:return"workbench.action.focusFourthEditorGroup";case 4:return"workbench.action.focusFifthEditorGroup";case 5:return"workbench.action.focusSixthEditorGroup";case 6:return"workbench.action.focusSeventhEditorGroup";case 7:return"workbench.action.focusEighthEditorGroup"}throw new Error("Invalid index")}function r(e){switch(e){case 1:return 23;case 2:return 24;case 3:return 25;case 4:return 26;case 5:return 27;case 6:return 28;case 7:return 29}throw new Error("Invalid index")}}function ht(a,r,e){if(!e.groupedEditors.length)return;const{group:t,editors:i}=e.groupedEditors[0],o=e.preserveFocus,n=a.addGroup(t,r);for(const d of i)d&&!d.hasCapability(8)&&t.copyEditor(d,n,{preserveFocus:o});n.focus()}function Et(){[{id:Be,direction:0},{id:ze,direction:1},{id:Me,direction:2},{id:qe,direction:3}].forEach(({id:a,direction:r})=>{m.registerCommand(a,function(e,...t){const i=E(t,e.get(f),e.get(p),e.get(h));ht(e.get(p),r,i)})})}function bt(){function a(e,t,...i){const o=e.get(p),n=e.get(f);let d;if(t||i.length?d=!1:d=o.partOptions.preventPinnedEditorClose==="keyboard"||o.partOptions.preventPinnedEditorClose==="keyboardAndMouse",d){const u=o.activeGroup,b=u.activeEditor;if(b&&u.isSticky(b)){const s=u.getEditors(0,{excludeSticky:!0})[0];if(s)return u.openEditor(s);const g=n.getEditors(0,{excludeSticky:!0})[0];if(g)return Promise.resolve(o.getGroup(g.groupId)?.openEditor(g.editor))}}const c=E(i,e.get(f),e.get(p),e.get(h)),l=c.preserveFocus;return Promise.all(c.groupedEditors.map(async({group:u,editors:b})=>{const s=b.filter(g=>!d||!u.isSticky(g));await u.closeEditors(s,{preserveFocus:l})}))}w.registerCommandAndKeybindingRule({id:ee,weight:200,when:void 0,primary:2101,win:{primary:2110,secondary:[2101]},handler:(e,...t)=>a(e,!1,...t)}),m.registerCommand(Ae,(e,...t)=>a(e,!0,...t)),w.registerCommandAndKeybindingRule({id:Ge,weight:200,when:void 0,primary:A(2089,53),handler:(e,...t)=>{const i=E(t,e.get(f),e.get(p),e.get(h));return Promise.all(i.groupedEditors.map(async({group:o})=>{await o.closeAllEditors({excludeSticky:!0})}))}}),w.registerCommandAndKeybindingRule({id:Ie,weight:200,when:L.and(le,ge),primary:2101,win:{primary:2110,secondary:[2101]},handler:(e,...t)=>{const i=e.get(p),o=E(t,e.get(f),i,e.get(h));o.groupedEditors.length&&i.removeGroup(o.groupedEditors[0].group)}}),w.registerCommandAndKeybindingRule({id:$e,weight:200,when:void 0,primary:A(2089,51),handler:(e,...t)=>{const i=E(t,e.get(f),e.get(p),e.get(h));return Promise.all(i.groupedEditors.map(async({group:o})=>{await o.closeEditors({savedOnly:!0,excludeSticky:!0},{preserveFocus:i.preserveFocus})}))}}),w.registerCommandAndKeybindingRule({id:Pe,weight:200,when:void 0,primary:void 0,mac:{primary:2610},handler:(e,...t)=>{const i=E(t,e.get(f),e.get(p),e.get(h));return Promise.all(i.groupedEditors.map(async({group:o,editors:n})=>{const d=o.getEditors(1,{excludeSticky:!0}).filter(c=>!n.includes(c));for(const c of n)c&&o.pinEditor(c);await o.closeEditors(d,{preserveFocus:i.preserveFocus})}))}}),w.registerCommandAndKeybindingRule({id:Re,weight:200,when:void 0,primary:void 0,handler:async(e,...t)=>{const i=E(t,e.get(f),e.get(p),e.get(h));if(i.groupedEditors.length){const{group:o,editors:n}=i.groupedEditors[0];o.activeEditor&&o.pinEditor(o.activeEditor),await o.closeEditors({direction:1,except:n[0],excludeSticky:!0},{preserveFocus:i.preserveFocus})}}}),w.registerCommandAndKeybindingRule({id:Ve,weight:200,when:void 0,primary:void 0,handler:(e,...t)=>r(e,q.PICK,...t)}),w.registerCommandAndKeybindingRule({id:_e,weight:200,when:void 0,primary:void 0,handler:(e,t,...i)=>r(e,t??q.PICK,...i)});async function r(e,t,...i){const o=e.get(f),n=e.get(he),d=e.get(pe),c=E(i,o,e.get(p),e.get(h)),l=new Map;for(const{group:u,editors:b}of c.groupedEditors)for(const s of b){const g=s.toUntyped();if(!g)return;g.options={...o.activeEditorPane?.options,override:t};const y=await n.resolveEditor(g,u);if(!me(y))return;let S=l.get(u);S||(S=[],l.set(u,S)),S.push({editor:s,replacement:y.editor,forceReplaceDirty:s.resource?.scheme===_.untitled,options:y.options}),d.publicLog2("workbenchEditorReopen",{scheme:s.resource?.scheme??"",ext:s.resource?ie(s.resource):"",from:s.editorId??"",to:y.editor.editorId??""})}for(const[u,b]of l)await u.replaceEditors(b),await u.openEditor(b[0].replacement)}m.registerCommand(Ce,async(e,...t)=>{const i=e.get(p),o=E(t,e.get(f),i,e.get(h));if(o.groupedEditors.length){const{group:n}=o.groupedEditors[0];await n.closeAllEditors(),n.count===0&&i.getGroup(n.id)&&i.removeGroup(n)}})}function wt(){const a=[{id:dt,direction:2},{id:ct,direction:3},{id:st,direction:0},{id:at,direction:1}];for(const r of a)m.registerCommand(r.id,async e=>{const t=e.get(p);(t.findGroup({direction:r.direction},t.activeGroup,!1)??t.activeGroup).focus()})}function vt(){async function a(e,t){const i=e.get(se);if(!t.groupedEditors.length)return;const{group:o,editors:n}=t.groupedEditors[0],d=n[0];d&&await o.replaceEditors([{editor:d,replacement:i.createInstance(N,void 0,void 0,d,d),forceReplaceDirty:!0}])}G(class extends ${constructor(){super({id:Xe,title:x(3796,"Split Editor in Group"),category:k.View,precondition:W,f1:!0,keybinding:{weight:200,when:W,primary:A(2089,3165)}})}run(e,...t){return a(e,E(t,e.get(f),e.get(p),e.get(h)))}});async function r(e){if(!e.groupedEditors.length)return;const{group:t,editors:i}=e.groupedEditors[0],o=i[0];if(!o||!(o instanceof N))return;let n;const d=t.activeEditorPane;if(d instanceof T&&t.activeEditor===o){for(const c of[d.getPrimaryEditorPane(),d.getSecondaryEditorPane()])if(c?.hasFocus()){n={viewState:c.getViewState()};break}}await t.replaceEditors([{editor:o,replacement:o.primary,options:n}])}G(class extends ${constructor(){super({id:tt,title:x(3797,"Join Editor in Group"),category:k.View,precondition:R,f1:!0,keybinding:{weight:200,when:R,primary:A(2089,3165)}})}run(e,...t){return r(E(t,e.get(f),e.get(p),e.get(h)))}}),G(class extends ${constructor(){super({id:et,title:x(3798,"Toggle Split Editor in Group"),category:k.View,precondition:L.or(W,R),f1:!0})}async run(e,...t){const i=E(t,e.get(f),e.get(p),e.get(h));if(!i.groupedEditors.length)return;const{editors:o}=i.groupedEditors[0];o[0]instanceof N?await r(i):o[0]&&await a(e,i)}}),G(class extends ${constructor(){super({id:ot,title:x(3799,"Toggle Layout of Split Editor in Group"),category:k.View,precondition:R,f1:!0})}async run(e){const t=e.get(I),i=t.getValue(T.SIDE_BY_SIDE_LAYOUT_SETTING);let o;return i!=="horizontal"?o="horizontal":o="vertical",t.updateValue(T.SIDE_BY_SIDE_LAYOUT_SETTING,o)}})}function yt(){G(class extends ${constructor(){super({id:rt,title:x(3800,"Focus First Side in Active Editor"),category:k.View,precondition:L.or(R,U),f1:!0})}async run(a){const r=a.get(f),e=a.get(P),t=r.activeEditorPane;t instanceof T?t.getSecondaryEditorPane()?.focus():t instanceof K&&await e.executeCommand(Se)}}),G(class extends ${constructor(){super({id:it,title:x(3801,"Focus Second Side in Active Editor"),category:k.View,precondition:L.or(R,U),f1:!0})}async run(a){const r=a.get(f),e=a.get(P),t=r.activeEditorPane;t instanceof T?t.getPrimaryEditorPane()?.focus():t instanceof K&&await e.executeCommand(ye)}}),G(class extends ${constructor(){super({id:nt,title:x(3802,"Focus Other Side in Active Editor"),category:k.View,precondition:L.or(R,U),f1:!0})}async run(a){const r=a.get(f),e=a.get(P),t=r.activeEditorPane;t instanceof T?t.getPrimaryEditorPane()?.hasFocus()?t.getSecondaryEditorPane()?.focus():t.getPrimaryEditorPane()?.focus():t instanceof K&&await e.executeCommand(ve)}})}function St(){w.registerCommandAndKeybindingRule({id:Fe,weight:200,when:void 0,primary:A(2089,3),handler:async(r,...e)=>{const t=E(e,r.get(f),r.get(p),r.get(h));for(const{group:i,editors:o}of t.groupedEditors)for(const n of o)i.pinEditor(n)}}),m.registerCommand({id:Ke,handler:r=>{const e=r.get(I),i=e.getValue("workbench.editor.enablePreview")!==!0;e.updateValue("workbench.editor.enablePreview",i)}});function a(r,e,...t){const o=E(t,r.get(f),r.get(p),r.get(h)).groupedEditors[0]?.group;o?.lock(e??!o.isLocked)}G(class extends ${constructor(){super({id:We,title:x(3803,"Toggle Editor Group Lock"),category:k.View,f1:!0})}async run(r,...e){a(r,void 0,...e)}}),G(class extends ${constructor(){super({id:Ue,title:x(3804,"Lock Editor Group"),category:k.View,precondition:H.toNegated(),f1:!0})}async run(r,...e){a(r,!0,...e)}}),G(class extends ${constructor(){super({id:te,title:x(3805,"Unlock Editor Group"),precondition:H,category:k.View,f1:!0})}async run(r,...e){a(r,!1,...e)}}),w.registerCommandAndKeybindingRule({id:De,weight:200,when:Y.toNegated(),primary:A(2089,1027),handler:async(r,...e)=>{const t=E(e,r.get(f),r.get(p),r.get(h));for(const{group:i,editors:o}of t.groupedEditors)for(const n of o)i.stickEditor(n)}}),w.registerCommandAndKeybindingRule({id:oe,weight:200,when:Y,primary:A(2089,1027),handler:async(r,...e)=>{const t=E(e,r.get(f),r.get(p),r.get(h));for(const{group:i,editors:o}of t.groupedEditors)for(const n of o)i.unstickEditor(n)}}),w.registerCommandAndKeybindingRule({id:Ne,weight:200,when:void 0,primary:void 0,handler:(r,...e)=>{const t=r.get(p),i=r.get(ue),n=E(e,r.get(f),t,r.get(h)).groupedEditors[0]?.group;return n&&t.activateGroup(n),i.quickAccess.show(fe.PREFIX)}})}function uo(){pt(),ft(),xe(),lt(),gt(),bt(),St(),vt(),yt(),mt(),Et(),wt()}export{Ke as $$Rb,Fe as $0Rb,Ce as $1Rb,Re as $2Rb,ee as $3Rb,Ae as $4Rb,Ie as $5Rb,Pe as $6Rb,Te as $7Rb,Le as $8Rb,Oe as $9Rb,st as $ASb,at as $BSb,J as $CSb,ro as $DSb,io as $ESb,no as $FSb,co as $GSb,so as $HSb,Z as $ISb,Q as $JSb,ut as $KSb,ao as $LSb,ht as $MSb,uo as $NSb,$e as $YRb,Ge as $ZRb,We as $_Rb,Ue as $aSb,te as $bSb,Ne as $cSb,Ve as $dSb,_e as $eSb,De as $fSb,oe as $gSb,je as $hSb,Be as $iSb,ze as $jSb,Me as $kSb,qe as $lSb,He as $mSb,Ye as $nSb,Je as $oSb,Ze as $pSb,Qe as $qSb,Xe as $rSb,et as $sSb,tt as $tSb,ot as $uSb,rt as $vSb,it as $wSb,nt as $xSb,dt as $ySb,ct as $zSb};
+					`,
+      args: [{
+        name: "args",
+        schema: {
+          "type": "object",
+          "required": ["groups"],
+          "properties": {
+            "orientation": {
+              "type": "number",
+              "default": 0,
+              "description": `The orientation of the root group in the layout. 0 for horizontal, 1 for vertical.`,
+              "enum": [0, 1],
+              "enumDescriptions": [
+                localize("editorGroupLayout.horizontal", "Horizontal"),
+                localize("editorGroupLayout.vertical", "Vertical")
+              ]
+            },
+            "groups": {
+              "$ref": "#/definitions/editorGroupsSchema",
+              "default": [{}, {}]
+            }
+          }
+        }
+      }]
+    }
+  });
+  CommandsRegistry.registerCommand({
+    id: "vscode.getEditorLayout",
+    handler: /* @__PURE__ */ __name((accessor) => {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      return editorGroupsService.getLayout();
+    }, "handler"),
+    metadata: {
+      description: "Get Editor Layout",
+      args: [],
+      returns: "An editor layout object, in the same format as vscode.setEditorLayout"
+    }
+  });
+}
+__name(registerEditorGroupsLayoutCommands, "registerEditorGroupsLayoutCommands");
+function registerOpenEditorAPICommands() {
+  function mixinContext(context, options, column) {
+    if (!context) {
+      return [options, column];
+    }
+    return [
+      { ...context.editorOptions, ...options ?? /* @__PURE__ */ Object.create(null) },
+      context.sideBySide ? SIDE_GROUP : column
+    ];
+  }
+  __name(mixinContext, "mixinContext");
+  CommandsRegistry.registerCommand({
+    id: "vscode.open",
+    handler: /* @__PURE__ */ __name((accessor, arg) => {
+      accessor.get(ICommandService).executeCommand(API_OPEN_EDITOR_COMMAND_ID, arg);
+    }, "handler"),
+    metadata: {
+      description: "Opens the provided resource in the editor.",
+      args: [{ name: "Uri" }]
+    }
+  });
+  CommandsRegistry.registerCommand(API_OPEN_EDITOR_COMMAND_ID, async function(accessor, resourceArg, columnAndOptions, label, context) {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const openerService = accessor.get(IOpenerService);
+    const pathService = accessor.get(IPathService);
+    const configurationService = accessor.get(IConfigurationService);
+    const untitledTextEditorService = accessor.get(IUntitledTextEditorService);
+    const resourceOrString = typeof resourceArg === "string" ? resourceArg : URI.from(resourceArg, true);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    if (optionsArg || typeof columnArg === "number" || matchesScheme(resourceOrString, Schemas.untitled)) {
+      const [options, column] = mixinContext(context, optionsArg, columnArg);
+      const resource = URI.isUri(resourceOrString) ? resourceOrString : URI.parse(resourceOrString);
+      let input;
+      if (untitledTextEditorService.isUntitledWithAssociatedResource(resource)) {
+        input = { resource: resource.with({ scheme: pathService.defaultUriScheme }), forceUntitled: true, options, label };
+      } else {
+        input = { resource, options, label };
+      }
+      await editorService.openEditor(input, columnToEditorGroup(editorGroupsService, configurationService, column));
+    } else if (matchesScheme(resourceOrString, Schemas.command)) {
+      return;
+    } else {
+      await openerService.open(resourceOrString, { openToSide: context?.sideBySide, editorOptions: context?.editorOptions });
+    }
+  });
+  CommandsRegistry.registerCommand({
+    id: "vscode.diff",
+    handler: /* @__PURE__ */ __name((accessor, left, right, label) => {
+      accessor.get(ICommandService).executeCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, left, right, label);
+    }, "handler"),
+    metadata: {
+      description: "Opens the provided resources in the diff editor to compare their contents.",
+      args: [
+        { name: "left", description: "Left-hand side resource of the diff editor" },
+        { name: "right", description: "Right-hand side resource of the diff editor" },
+        { name: "title", description: "Human readable title for the diff editor" }
+      ]
+    }
+  });
+  CommandsRegistry.registerCommand(API_OPEN_DIFF_EDITOR_COMMAND_ID, async function(accessor, originalResource, modifiedResource, labelAndOrDescription, columnAndOptions, context) {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    const [options, column] = mixinContext(context, optionsArg, columnArg);
+    let label = void 0;
+    let description = void 0;
+    if (typeof labelAndOrDescription === "string") {
+      label = labelAndOrDescription;
+    } else if (labelAndOrDescription) {
+      label = labelAndOrDescription.label;
+      description = labelAndOrDescription.description;
+    }
+    await editorService.openEditor({
+      original: { resource: URI.from(originalResource, true) },
+      modified: { resource: URI.from(modifiedResource, true) },
+      label,
+      description,
+      options
+    }, columnToEditorGroup(editorGroupsService, configurationService, column));
+  });
+  CommandsRegistry.registerCommand(API_OPEN_WITH_EDITOR_COMMAND_ID, async (accessor, resource, id, columnAndOptions) => {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const [columnArg, optionsArg] = columnAndOptions ?? [];
+    await editorService.openEditor({ resource: URI.from(resource, true), options: { pinned: true, ...optionsArg, override: id } }, columnToEditorGroup(editorGroupsService, configurationService, columnArg));
+  });
+  CommandsRegistry.registerCommand({
+    id: "vscode.changes",
+    handler: /* @__PURE__ */ __name((accessor, title, resources) => {
+      accessor.get(ICommandService).executeCommand("_workbench.changes", title, resources);
+    }, "handler"),
+    metadata: {
+      description: "Opens a list of resources in the changes editor to compare their contents.",
+      args: [
+        { name: "title", description: "Human readable title for the diff editor" },
+        { name: "resources", description: "List of resources to open in the changes editor" }
+      ]
+    }
+  });
+  CommandsRegistry.registerCommand("_workbench.changes", async (accessor, title, resources) => {
+    const editorService = accessor.get(IEditorService);
+    const editor = [];
+    for (const [label, original, modified] of resources) {
+      editor.push({
+        resource: URI.revive(label),
+        original: { resource: URI.revive(original) },
+        modified: { resource: URI.revive(modified) }
+      });
+    }
+    await editorService.openEditor({ resources: editor, label: title });
+  });
+  CommandsRegistry.registerCommand("_workbench.openMultiDiffEditor", async (accessor, options) => {
+    const editorService = accessor.get(IEditorService);
+    const resources = options.resources?.map((r) => ({ original: { resource: URI.revive(r.originalUri) }, modified: { resource: URI.revive(r.modifiedUri) } }));
+    const revealUri = options.reveal?.modifiedUri ? URI.revive(options.reveal.modifiedUri) : void 0;
+    const revealResource = revealUri && resources ? resources.find((r) => isEqual(r.modified.resource, revealUri)) : void 0;
+    if (options.reveal && !revealResource) {
+      console.error("Reveal resource not found");
+    }
+    const multiDiffEditorOptions = {
+      viewState: revealResource ? {
+        revealData: {
+          resource: {
+            original: revealResource.original.resource,
+            modified: revealResource.modified.resource
+          },
+          range: options.reveal?.range
+        }
+      } : void 0
+    };
+    await editorService.openEditor({
+      multiDiffSource: options.multiDiffSourceUri ? URI.revive(options.multiDiffSourceUri) : void 0,
+      resources,
+      label: options.title,
+      options: multiDiffEditorOptions
+    });
+  });
+}
+__name(registerOpenEditorAPICommands, "registerOpenEditorAPICommands");
+function registerOpenEditorAtIndexCommands() {
+  const openEditorAtIndex = /* @__PURE__ */ __name((accessor, editorIndex) => {
+    const editorService = accessor.get(IEditorService);
+    const activeEditorPane = editorService.activeEditorPane;
+    if (activeEditorPane && typeof editorIndex === "number") {
+      const editor = activeEditorPane.group.getEditorByIndex(editorIndex);
+      if (editor) {
+        editorService.openEditor(editor);
+      }
+    }
+  }, "openEditorAtIndex");
+  CommandsRegistry.registerCommand({
+    id: OPEN_EDITOR_AT_INDEX_COMMAND_ID,
+    handler: openEditorAtIndex
+  });
+  for (let i = 0; i < 9; i++) {
+    const editorIndex = i;
+    const visibleIndex = i + 1;
+    KeybindingsRegistry.registerCommandAndKeybindingRule({
+      id: OPEN_EDITOR_AT_INDEX_COMMAND_ID + visibleIndex,
+      weight: 200,
+      when: void 0,
+      primary: 512 | toKeyCode(visibleIndex),
+      mac: { primary: 256 | toKeyCode(visibleIndex) },
+      handler: /* @__PURE__ */ __name((accessor) => openEditorAtIndex(accessor, editorIndex), "handler")
+    });
+  }
+  function toKeyCode(index) {
+    switch (index) {
+      case 0:
+        return 21;
+      case 1:
+        return 22;
+      case 2:
+        return 23;
+      case 3:
+        return 24;
+      case 4:
+        return 25;
+      case 5:
+        return 26;
+      case 6:
+        return 27;
+      case 7:
+        return 28;
+      case 8:
+        return 29;
+      case 9:
+        return 30;
+    }
+    throw new Error("invalid index");
+  }
+  __name(toKeyCode, "toKeyCode");
+}
+__name(registerOpenEditorAtIndexCommands, "registerOpenEditorAtIndexCommands");
+function registerFocusEditorGroupAtIndexCommands() {
+  for (let groupIndex = 1; groupIndex < 8; groupIndex++) {
+    KeybindingsRegistry.registerCommandAndKeybindingRule({
+      id: toCommandId(groupIndex),
+      weight: 200,
+      when: void 0,
+      primary: 2048 | toKeyCode(groupIndex),
+      handler: /* @__PURE__ */ __name((accessor) => {
+        const editorGroupsService = accessor.get(IEditorGroupsService);
+        const configurationService = accessor.get(IConfigurationService);
+        if (groupIndex > editorGroupsService.count) {
+          return;
+        }
+        const groups = editorGroupsService.getGroups(
+          2
+          /* GroupsOrder.GRID_APPEARANCE */
+        );
+        if (groups[groupIndex]) {
+          return groups[groupIndex].focus();
+        }
+        const direction = preferredSideBySideGroupDirection(configurationService);
+        const lastGroup = editorGroupsService.findGroup({
+          location: 1
+          /* GroupLocation.LAST */
+        });
+        if (!lastGroup) {
+          return;
+        }
+        const newGroup = editorGroupsService.addGroup(lastGroup, direction);
+        newGroup.focus();
+      }, "handler")
+    });
+  }
+  function toCommandId(index) {
+    switch (index) {
+      case 1:
+        return "workbench.action.focusSecondEditorGroup";
+      case 2:
+        return "workbench.action.focusThirdEditorGroup";
+      case 3:
+        return "workbench.action.focusFourthEditorGroup";
+      case 4:
+        return "workbench.action.focusFifthEditorGroup";
+      case 5:
+        return "workbench.action.focusSixthEditorGroup";
+      case 6:
+        return "workbench.action.focusSeventhEditorGroup";
+      case 7:
+        return "workbench.action.focusEighthEditorGroup";
+    }
+    throw new Error("Invalid index");
+  }
+  __name(toCommandId, "toCommandId");
+  function toKeyCode(index) {
+    switch (index) {
+      case 1:
+        return 23;
+      case 2:
+        return 24;
+      case 3:
+        return 25;
+      case 4:
+        return 26;
+      case 5:
+        return 27;
+      case 6:
+        return 28;
+      case 7:
+        return 29;
+    }
+    throw new Error("Invalid index");
+  }
+  __name(toKeyCode, "toKeyCode");
+}
+__name(registerFocusEditorGroupAtIndexCommands, "registerFocusEditorGroupAtIndexCommands");
+function splitEditor(editorGroupsService, direction, resolvedContext) {
+  if (!resolvedContext.groupedEditors.length) {
+    return;
+  }
+  const { group, editors } = resolvedContext.groupedEditors[0];
+  const preserveFocus = resolvedContext.preserveFocus;
+  const newGroup = editorGroupsService.addGroup(group, direction);
+  for (const editorToCopy of editors) {
+    if (editorToCopy && !editorToCopy.hasCapability(
+      8
+      /* EditorInputCapabilities.Singleton */
+    )) {
+      group.copyEditor(editorToCopy, newGroup, { preserveFocus });
+    }
+  }
+  newGroup.focus();
+}
+__name(splitEditor, "splitEditor");
+function registerSplitEditorCommands() {
+  [
+    {
+      id: SPLIT_EDITOR_UP,
+      direction: 0
+      /* GroupDirection.UP */
+    },
+    {
+      id: SPLIT_EDITOR_DOWN,
+      direction: 1
+      /* GroupDirection.DOWN */
+    },
+    {
+      id: SPLIT_EDITOR_LEFT,
+      direction: 2
+      /* GroupDirection.LEFT */
+    },
+    {
+      id: SPLIT_EDITOR_RIGHT,
+      direction: 3
+      /* GroupDirection.RIGHT */
+    }
+  ].forEach(({ id, direction }) => {
+    CommandsRegistry.registerCommand(id, function(accessor, ...args) {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      splitEditor(accessor.get(IEditorGroupsService), direction, resolvedContext);
+    });
+  });
+}
+__name(registerSplitEditorCommands, "registerSplitEditorCommands");
+function registerCloseEditorCommands() {
+  function closeEditorHandler(accessor, forceCloseStickyEditors, ...args) {
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const editorService = accessor.get(IEditorService);
+    let keepStickyEditors = void 0;
+    if (forceCloseStickyEditors) {
+      keepStickyEditors = false;
+    } else if (args.length) {
+      keepStickyEditors = false;
+    } else {
+      keepStickyEditors = editorGroupsService.partOptions.preventPinnedEditorClose === "keyboard" || editorGroupsService.partOptions.preventPinnedEditorClose === "keyboardAndMouse";
+    }
+    if (keepStickyEditors) {
+      const activeGroup = editorGroupsService.activeGroup;
+      const activeEditor = activeGroup.activeEditor;
+      if (activeEditor && activeGroup.isSticky(activeEditor)) {
+        const nextNonStickyEditorInGroup = activeGroup.getEditors(0, { excludeSticky: true })[0];
+        if (nextNonStickyEditorInGroup) {
+          return activeGroup.openEditor(nextNonStickyEditorInGroup);
+        }
+        const nextNonStickyEditorInAllGroups = editorService.getEditors(0, { excludeSticky: true })[0];
+        if (nextNonStickyEditorInAllGroups) {
+          return Promise.resolve(editorGroupsService.getGroup(nextNonStickyEditorInAllGroups.groupId)?.openEditor(nextNonStickyEditorInAllGroups.editor));
+        }
+      }
+    }
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+    const preserveFocus = resolvedContext.preserveFocus;
+    return Promise.all(resolvedContext.groupedEditors.map(async ({ group, editors }) => {
+      const editorsToClose = editors.filter((editor) => !keepStickyEditors || !group.isSticky(editor));
+      await group.closeEditors(editorsToClose, { preserveFocus });
+    }));
+  }
+  __name(closeEditorHandler, "closeEditorHandler");
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: 2048 | 53,
+    win: { primary: 2048 | 62, secondary: [
+      2048 | 53
+      /* KeyCode.KeyW */
+    ] },
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      return closeEditorHandler(accessor, false, ...args);
+    }, "handler")
+  });
+  CommandsRegistry.registerCommand(CLOSE_PINNED_EDITOR_COMMAND_ID, (accessor, ...args) => {
+    return closeEditorHandler(accessor, true, ...args);
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_EDITORS_IN_GROUP_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: KeyChord(
+      2048 | 41,
+      53
+      /* KeyCode.KeyW */
+    ),
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group }) => {
+        await group.closeAllEditors({ excludeSticky: true });
+      }));
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_EDITOR_GROUP_COMMAND_ID,
+    weight: 200,
+    when: ContextKeyExpr.and(ActiveEditorGroupEmptyContext, MultipleEditorGroupsContext),
+    primary: 2048 | 53,
+    win: { primary: 2048 | 62, secondary: [
+      2048 | 53
+      /* KeyCode.KeyW */
+    ] },
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const commandsContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
+      if (commandsContext.groupedEditors.length) {
+        editorGroupsService.removeGroup(commandsContext.groupedEditors[0].group);
+      }
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_SAVED_EDITORS_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: KeyChord(
+      2048 | 41,
+      51
+      /* KeyCode.KeyU */
+    ),
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group }) => {
+        await group.closeEditors({ savedOnly: true, excludeSticky: true }, { preserveFocus: resolvedContext.preserveFocus });
+      }));
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    mac: {
+      primary: 2048 | 512 | 50
+      /* KeyCode.KeyT */
+    },
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      return Promise.all(resolvedContext.groupedEditors.map(async ({ group, editors }) => {
+        const editorsToClose = group.getEditors(1, { excludeSticky: true }).filter((editor) => !editors.includes(editor));
+        for (const editorToKeep of editors) {
+          if (editorToKeep) {
+            group.pinEditor(editorToKeep);
+          }
+        }
+        await group.closeEditors(editorsToClose, { preserveFocus: resolvedContext.preserveFocus });
+      }));
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      if (resolvedContext.groupedEditors.length) {
+        const { group, editors } = resolvedContext.groupedEditors[0];
+        if (group.activeEditor) {
+          group.pinEditor(group.activeEditor);
+        }
+        await group.closeEditors({ direction: 1, except: editors[0], excludeSticky: true }, { preserveFocus: resolvedContext.preserveFocus });
+      }
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: REOPEN_WITH_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      return reopenEditorWith(accessor, EditorResolution.PICK, ...args);
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: REOPEN_ACTIVE_EDITOR_WITH_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, override, ...args) => {
+      return reopenEditorWith(accessor, override ?? EditorResolution.PICK, ...args);
+    }, "handler")
+  });
+  async function reopenEditorWith(accessor, editorOverride, ...args) {
+    const editorService = accessor.get(IEditorService);
+    const editorResolverService = accessor.get(IEditorResolverService);
+    const telemetryService = accessor.get(ITelemetryService);
+    const resolvedContext = resolveCommandsContext(args, editorService, accessor.get(IEditorGroupsService), accessor.get(IListService));
+    const editorReplacements = /* @__PURE__ */ new Map();
+    for (const { group, editors } of resolvedContext.groupedEditors) {
+      for (const editor of editors) {
+        const untypedEditor = editor.toUntyped();
+        if (!untypedEditor) {
+          return;
+        }
+        untypedEditor.options = { ...editorService.activeEditorPane?.options, override: editorOverride };
+        const resolvedEditor = await editorResolverService.resolveEditor(untypedEditor, group);
+        if (!isEditorInputWithOptionsAndGroup(resolvedEditor)) {
+          return;
+        }
+        let editorReplacementsInGroup = editorReplacements.get(group);
+        if (!editorReplacementsInGroup) {
+          editorReplacementsInGroup = [];
+          editorReplacements.set(group, editorReplacementsInGroup);
+        }
+        editorReplacementsInGroup.push({
+          editor,
+          replacement: resolvedEditor.editor,
+          forceReplaceDirty: editor.resource?.scheme === Schemas.untitled,
+          options: resolvedEditor.options
+        });
+        telemetryService.publicLog2("workbenchEditorReopen", {
+          scheme: editor.resource?.scheme ?? "",
+          ext: editor.resource ? extname(editor.resource) : "",
+          from: editor.editorId ?? "",
+          to: resolvedEditor.editor.editorId ?? ""
+        });
+      }
+    }
+    for (const [group, replacements] of editorReplacements) {
+      await group.replaceEditors(replacements);
+      await group.openEditor(replacements[0].replacement);
+    }
+  }
+  __name(reopenEditorWith, "reopenEditorWith");
+  CommandsRegistry.registerCommand(CLOSE_EDITORS_AND_GROUP_COMMAND_ID, async (accessor, ...args) => {
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
+    if (resolvedContext.groupedEditors.length) {
+      const { group } = resolvedContext.groupedEditors[0];
+      await group.closeAllEditors();
+      if (group.count === 0 && editorGroupsService.getGroup(group.id)) {
+        editorGroupsService.removeGroup(group);
+      }
+    }
+  });
+}
+__name(registerCloseEditorCommands, "registerCloseEditorCommands");
+function registerFocusEditorGroupWihoutWrapCommands() {
+  const commands = [
+    {
+      id: FOCUS_LEFT_GROUP_WITHOUT_WRAP_COMMAND_ID,
+      direction: 2
+      /* GroupDirection.LEFT */
+    },
+    {
+      id: FOCUS_RIGHT_GROUP_WITHOUT_WRAP_COMMAND_ID,
+      direction: 3
+      /* GroupDirection.RIGHT */
+    },
+    {
+      id: FOCUS_ABOVE_GROUP_WITHOUT_WRAP_COMMAND_ID,
+      direction: 0
+    },
+    {
+      id: FOCUS_BELOW_GROUP_WITHOUT_WRAP_COMMAND_ID,
+      direction: 1
+      /* GroupDirection.DOWN */
+    }
+  ];
+  for (const command of commands) {
+    CommandsRegistry.registerCommand(command.id, async (accessor) => {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const group = editorGroupsService.findGroup({ direction: command.direction }, editorGroupsService.activeGroup, false) ?? editorGroupsService.activeGroup;
+      group.focus();
+    });
+  }
+}
+__name(registerFocusEditorGroupWihoutWrapCommands, "registerFocusEditorGroupWihoutWrapCommands");
+function registerSplitEditorInGroupCommands() {
+  async function splitEditorInGroup(accessor, resolvedContext) {
+    const instantiationService = accessor.get(IInstantiationService);
+    if (!resolvedContext.groupedEditors.length) {
+      return;
+    }
+    const { group, editors } = resolvedContext.groupedEditors[0];
+    const editor = editors[0];
+    if (!editor) {
+      return;
+    }
+    await group.replaceEditors([{
+      editor,
+      replacement: instantiationService.createInstance(SideBySideEditorInput, void 0, void 0, editor, editor),
+      forceReplaceDirty: true
+    }]);
+  }
+  __name(splitEditorInGroup, "splitEditorInGroup");
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: SPLIT_EDITOR_IN_GROUP,
+        title: localize2("splitEditorInGroup", "Split Editor in Group"),
+        category: Categories.View,
+        precondition: ActiveEditorCanSplitInGroupContext,
+        f1: true,
+        keybinding: {
+          weight: 200,
+          when: ActiveEditorCanSplitInGroupContext,
+          primary: KeyChord(
+            2048 | 41,
+            2048 | 1024 | 93
+            /* KeyCode.Backslash */
+          )
+        }
+      });
+    }
+    run(accessor, ...args) {
+      return splitEditorInGroup(accessor, resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
+    }
+  });
+  async function joinEditorInGroup(resolvedContext) {
+    if (!resolvedContext.groupedEditors.length) {
+      return;
+    }
+    const { group, editors } = resolvedContext.groupedEditors[0];
+    const editor = editors[0];
+    if (!editor) {
+      return;
+    }
+    if (!(editor instanceof SideBySideEditorInput)) {
+      return;
+    }
+    let options = void 0;
+    const activeEditorPane = group.activeEditorPane;
+    if (activeEditorPane instanceof SideBySideEditor && group.activeEditor === editor) {
+      for (const pane of [activeEditorPane.getPrimaryEditorPane(), activeEditorPane.getSecondaryEditorPane()]) {
+        if (pane?.hasFocus()) {
+          options = { viewState: pane.getViewState() };
+          break;
+        }
+      }
+    }
+    await group.replaceEditors([{
+      editor,
+      replacement: editor.primary,
+      options
+    }]);
+  }
+  __name(joinEditorInGroup, "joinEditorInGroup");
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: JOIN_EDITOR_IN_GROUP,
+        title: localize2("joinEditorInGroup", "Join Editor in Group"),
+        category: Categories.View,
+        precondition: SideBySideEditorActiveContext,
+        f1: true,
+        keybinding: {
+          weight: 200,
+          when: SideBySideEditorActiveContext,
+          primary: KeyChord(
+            2048 | 41,
+            2048 | 1024 | 93
+            /* KeyCode.Backslash */
+          )
+        }
+      });
+    }
+    run(accessor, ...args) {
+      return joinEditorInGroup(resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService)));
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_SPLIT_EDITOR_IN_GROUP,
+        title: localize2("toggleJoinEditorInGroup", "Toggle Split Editor in Group"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(ActiveEditorCanSplitInGroupContext, SideBySideEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      if (!resolvedContext.groupedEditors.length) {
+        return;
+      }
+      const { editors } = resolvedContext.groupedEditors[0];
+      if (editors[0] instanceof SideBySideEditorInput) {
+        await joinEditorInGroup(resolvedContext);
+      } else if (editors[0]) {
+        await splitEditorInGroup(accessor, resolvedContext);
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
+        title: localize2("toggleSplitEditorInGroupLayout", "Toggle Layout of Split Editor in Group"),
+        category: Categories.View,
+        precondition: SideBySideEditorActiveContext,
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const configurationService = accessor.get(IConfigurationService);
+      const currentSetting = configurationService.getValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING);
+      let newSetting;
+      if (currentSetting !== "horizontal") {
+        newSetting = "horizontal";
+      } else {
+        newSetting = "vertical";
+      }
+      return configurationService.updateValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING, newSetting);
+    }
+  });
+}
+__name(registerSplitEditorInGroupCommands, "registerSplitEditorInGroupCommands");
+function registerFocusSideEditorsCommands() {
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_FIRST_SIDE_EDITOR,
+        title: localize2("focusLeftSideEditor", "Focus First Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        activeEditorPane.getSecondaryEditorPane()?.focus();
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_SECONDARY_SIDE);
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_SECOND_SIDE_EDITOR,
+        title: localize2("focusRightSideEditor", "Focus Second Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        activeEditorPane.getPrimaryEditorPane()?.focus();
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_PRIMARY_SIDE);
+      }
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: FOCUS_OTHER_SIDE_EDITOR,
+        title: localize2("focusOtherSideEditor", "Focus Other Side in Active Editor"),
+        category: Categories.View,
+        precondition: ContextKeyExpr.or(SideBySideEditorActiveContext, TextCompareEditorActiveContext),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const editorService = accessor.get(IEditorService);
+      const commandService = accessor.get(ICommandService);
+      const activeEditorPane = editorService.activeEditorPane;
+      if (activeEditorPane instanceof SideBySideEditor) {
+        if (activeEditorPane.getPrimaryEditorPane()?.hasFocus()) {
+          activeEditorPane.getSecondaryEditorPane()?.focus();
+        } else {
+          activeEditorPane.getPrimaryEditorPane()?.focus();
+        }
+      } else if (activeEditorPane instanceof TextDiffEditor) {
+        await commandService.executeCommand(DIFF_FOCUS_OTHER_SIDE);
+      }
+    }
+  });
+}
+__name(registerFocusSideEditorsCommands, "registerFocusSideEditorsCommands");
+function registerOtherEditorCommands() {
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: KEEP_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: void 0,
+    primary: KeyChord(
+      2048 | 41,
+      3
+      /* KeyCode.Enter */
+    ),
+    handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      for (const { group, editors } of resolvedContext.groupedEditors) {
+        for (const editor of editors) {
+          group.pinEditor(editor);
+        }
+      }
+    }, "handler")
+  });
+  CommandsRegistry.registerCommand({
+    id: TOGGLE_KEEP_EDITORS_COMMAND_ID,
+    handler: /* @__PURE__ */ __name((accessor) => {
+      const configurationService = accessor.get(IConfigurationService);
+      const currentSetting = configurationService.getValue("workbench.editor.enablePreview");
+      const newSetting = currentSetting !== true;
+      configurationService.updateValue("workbench.editor.enablePreview", newSetting);
+    }, "handler")
+  });
+  function setEditorGroupLock(accessor, locked, ...args) {
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+    const group = resolvedContext.groupedEditors[0]?.group;
+    group?.lock(locked ?? !group.isLocked);
+  }
+  __name(setEditorGroupLock, "setEditorGroupLock");
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: TOGGLE_LOCK_GROUP_COMMAND_ID,
+        title: localize2("toggleEditorGroupLock", "Toggle Editor Group Lock"),
+        category: Categories.View,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, void 0, ...args);
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: LOCK_GROUP_COMMAND_ID,
+        title: localize2("lockEditorGroup", "Lock Editor Group"),
+        category: Categories.View,
+        precondition: ActiveEditorGroupLockedContext.toNegated(),
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, true, ...args);
+    }
+  });
+  registerAction2(class extends Action2 {
+    constructor() {
+      super({
+        id: UNLOCK_GROUP_COMMAND_ID,
+        title: localize2("unlockEditorGroup", "Unlock Editor Group"),
+        precondition: ActiveEditorGroupLockedContext,
+        category: Categories.View,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      setEditorGroupLock(accessor, false, ...args);
+    }
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: PIN_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: ActiveEditorStickyContext.toNegated(),
+    primary: KeyChord(
+      2048 | 41,
+      1024 | 3
+      /* KeyCode.Enter */
+    ),
+    handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      for (const { group, editors } of resolvedContext.groupedEditors) {
+        for (const editor of editors) {
+          group.stickEditor(editor);
+        }
+      }
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: UNPIN_EDITOR_COMMAND_ID,
+    weight: 200,
+    when: ActiveEditorStickyContext,
+    primary: KeyChord(
+      2048 | 41,
+      1024 | 3
+      /* KeyCode.Enter */
+    ),
+    handler: /* @__PURE__ */ __name(async (accessor, ...args) => {
+      const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+      for (const { group, editors } of resolvedContext.groupedEditors) {
+        for (const editor of editors) {
+          group.unstickEditor(editor);
+        }
+      }
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: SHOW_EDITORS_IN_GROUP,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const quickInputService = accessor.get(IQuickInputService);
+      const commandsContext = resolveCommandsContext(args, accessor.get(IEditorService), editorGroupsService, accessor.get(IListService));
+      const group = commandsContext.groupedEditors[0]?.group;
+      if (group) {
+        editorGroupsService.activateGroup(group);
+      }
+      return quickInputService.quickAccess.show(ActiveGroupEditorsByMostRecentlyUsedQuickAccess.PREFIX);
+    }, "handler")
+  });
+}
+__name(registerOtherEditorCommands, "registerOtherEditorCommands");
+function setup() {
+  registerEditorMoveCopyCommand();
+  registerEditorGroupsLayoutCommands();
+  registerDiffEditorCommands();
+  registerOpenEditorAPICommands();
+  registerOpenEditorAtIndexCommands();
+  registerCloseEditorCommands();
+  registerOtherEditorCommands();
+  registerSplitEditorInGroupCommands();
+  registerFocusSideEditorsCommands();
+  registerFocusEditorGroupAtIndexCommands();
+  registerSplitEditorCommands();
+  registerFocusEditorGroupWihoutWrapCommands();
+}
+__name(setup, "setup");
+export {
+  API_OPEN_DIFF_EDITOR_COMMAND_ID,
+  API_OPEN_EDITOR_COMMAND_ID,
+  API_OPEN_WITH_EDITOR_COMMAND_ID,
+  CLOSE_EDITORS_AND_GROUP_COMMAND_ID,
+  CLOSE_EDITORS_IN_GROUP_COMMAND_ID,
+  CLOSE_EDITORS_TO_THE_RIGHT_COMMAND_ID,
+  CLOSE_EDITOR_COMMAND_ID,
+  CLOSE_EDITOR_GROUP_COMMAND_ID,
+  CLOSE_OTHER_EDITORS_IN_GROUP_COMMAND_ID,
+  CLOSE_PINNED_EDITOR_COMMAND_ID,
+  CLOSE_SAVED_EDITORS_COMMAND_ID,
+  COPY_ACTIVE_EDITOR_COMMAND_ID,
+  COPY_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID,
+  COPY_EDITOR_INTO_NEW_WINDOW_COMMAND_ID,
+  EDITOR_CORE_NAVIGATION_COMMANDS,
+  FOCUS_ABOVE_GROUP_WITHOUT_WRAP_COMMAND_ID,
+  FOCUS_BELOW_GROUP_WITHOUT_WRAP_COMMAND_ID,
+  FOCUS_FIRST_SIDE_EDITOR,
+  FOCUS_LEFT_GROUP_WITHOUT_WRAP_COMMAND_ID,
+  FOCUS_OTHER_SIDE_EDITOR,
+  FOCUS_RIGHT_GROUP_WITHOUT_WRAP_COMMAND_ID,
+  FOCUS_SECOND_SIDE_EDITOR,
+  JOIN_EDITOR_IN_GROUP,
+  KEEP_EDITOR_COMMAND_ID,
+  LAYOUT_EDITOR_GROUPS_COMMAND_ID,
+  LOCK_GROUP_COMMAND_ID,
+  MOVE_ACTIVE_EDITOR_COMMAND_ID,
+  MOVE_EDITOR_GROUP_INTO_NEW_WINDOW_COMMAND_ID,
+  MOVE_EDITOR_INTO_ABOVE_GROUP,
+  MOVE_EDITOR_INTO_BELOW_GROUP,
+  MOVE_EDITOR_INTO_LEFT_GROUP,
+  MOVE_EDITOR_INTO_NEW_WINDOW_COMMAND_ID,
+  MOVE_EDITOR_INTO_RIGHT_GROUP,
+  NEW_EMPTY_EDITOR_WINDOW_COMMAND_ID,
+  OPEN_EDITOR_AT_INDEX_COMMAND_ID,
+  PIN_EDITOR_COMMAND_ID,
+  REOPEN_ACTIVE_EDITOR_WITH_COMMAND_ID,
+  REOPEN_WITH_COMMAND_ID,
+  SHOW_EDITORS_IN_GROUP,
+  SPLIT_EDITOR,
+  SPLIT_EDITOR_DOWN,
+  SPLIT_EDITOR_IN_GROUP,
+  SPLIT_EDITOR_LEFT,
+  SPLIT_EDITOR_RIGHT,
+  SPLIT_EDITOR_UP,
+  TOGGLE_KEEP_EDITORS_COMMAND_ID,
+  TOGGLE_LOCK_GROUP_COMMAND_ID,
+  TOGGLE_MAXIMIZE_EDITOR_GROUP,
+  TOGGLE_SPLIT_EDITOR_IN_GROUP,
+  TOGGLE_SPLIT_EDITOR_IN_GROUP_LAYOUT,
+  UNLOCK_GROUP_COMMAND_ID,
+  UNPIN_EDITOR_COMMAND_ID,
+  setup,
+  splitEditor
+};
+//# sourceMappingURL=editorCommands.js.map

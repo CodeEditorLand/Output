@@ -1,1 +1,158 @@
-import{$ak as m}from"../../../../../base/common/codicons.js";import{localize as f,localize2 as g}from"../../../../../nls.js";import{$sL as h,$nL as u,$pL as T,$tL as b}from"../../../../../platform/actions/common/actions.js";import{$9n as v}from"../../../../../platform/contextkey/common/contextkey.js";import{$HO as L}from"../../../../common/contextkeys.js";import{$uL as x}from"../../../../services/editor/common/editorGroupsService.js";import{$zL as S,$BL as E,$yL as C}from"../../../../services/editor/common/editorService.js";import{$fAb as I}from"../../../../services/views/common/viewsService.js";import{$xPb as y}from"../../common/actions/chatActions.js";import{ChatContextKeys as s}from"../../common/actions/chatContextKeys.js";import{ChatAgentLocation as V}from"../../common/constants.js";import{$V3b as l,$O3b as k}from"../chat.js";import{$ZOb as R}from"../widgetHosts/editor/chatEditor.js";import{$TOb as w}from"../widgetHosts/editor/chatEditorInput.js";import{$3Ob as $}from"./chatActions.js";var c;(function(n){n.Editor="Editor",n.Window="Window"})(c||(c={}));function Y(){b(class extends h{constructor(){super({id:"workbench.action.chat.openInEditor",title:g(5283,"Move Chat into Editor Area"),category:$,precondition:s.enabled,f1:!0,menu:{id:u.ViewTitle,when:v.equals("view",l),order:0,group:"1_open"}})}async run(i,...t){const o=t[0];M(i,c.Editor,y(o)?o.sessionResource:void 0)}}),b(class extends h{constructor(){super({id:"workbench.action.chat.openInNewWindow",title:g(5284,"Move Chat into New Window"),category:$,precondition:s.enabled,f1:!0,menu:{id:u.ViewTitle,when:v.equals("view",l),order:0,group:"1_open"}})}async run(i,...t){const o=t[0];M(i,c.Window,y(o)?o.sessionResource:void 0)}}),b(class extends h{constructor(){super({id:"workbench.action.chat.openInSidebar",title:g(5285,"Move Chat into Side Bar"),category:$,precondition:s.enabled,f1:!0})}async run(i,...t){return A(i)}});function n(e,i,t,o){T.appendMenuItem(e,{command:{id:"workbench.action.chat.openInSidebar",title:i,icon:t},when:v.and(L.isEqualTo(w.EditorID),o),group:e===u.CompactWindowEditorTitle?"navigation":void 0,order:0})}[u.EditorTitle,u.CompactWindowEditorTitle].forEach(e=>{n(e,f(5280,null),m.layoutSidebarRightDock,s.panelLocation.isEqualTo(2)),n(e,f(5281,null),m.layoutSidebarLeftDock,s.panelLocation.isEqualTo(0)),n(e,f(5282,null),m.layoutPanelDock,s.panelLocation.isEqualTo(1))})}async function M(n,e,i){const t=n.get(k),o={compact:!0,bounds:{width:800,height:640}},r=(i?t.getWidgetBySessionResource(i):void 0)??t.lastFocusedWidget;if(!r||!r.viewModel||r.location!==V.Chat){await t.openSession(w.getNewEditorUri(),e===c.Window?E:S,{pinned:!0,auxiliary:o});return}const a=t.getWidgetBySessionResource(r.viewModel.sessionResource);if(!a){await t.openSession(w.getNewEditorUri(),e===c.Window?E:S,{pinned:!0,auxiliary:o});return}const p=r.viewModel.sessionResource,d=a.getViewState();await r.clear();const W={pinned:!0,modelInputState:d,auxiliary:o};await t.openSession(p,e===c.Window?E:S,W)}async function A(n){const e=n.get(I),i=n.get(C),t=n.get(x),o=i.activeEditorPane,r=o?.input;let a;if(o instanceof R&&r instanceof w&&r.sessionResource){const p=o.widget.getViewState();await i.closeEditor({editor:o.input,groupId:t.activeGroup.id}),a=await e.openView(l);const d=await a.loadSession(r.sessionResource);p&&d&&!d.inputModel.state.get()&&d.inputModel.setState(p)}else a=await e.openView(l);a.focus()}export{Y as $dnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ActiveEditorContext } from "../../../../common/contextkeys.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, AUX_WINDOW_GROUP, IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { isChatViewTitleActionContext } from "../../common/actions/chatActions.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { ChatViewId, IChatWidgetService } from "../chat.js";
+import { ChatEditor } from "../widgetHosts/editor/chatEditor.js";
+import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+var MoveToNewLocation;
+(function(MoveToNewLocation2) {
+  MoveToNewLocation2["Editor"] = "Editor";
+  MoveToNewLocation2["Window"] = "Window";
+})(MoveToNewLocation || (MoveToNewLocation = {}));
+function registerMoveActions() {
+  registerAction2(class GlobalMoveToEditorAction extends Action2 {
+    static {
+      __name(this, "GlobalMoveToEditorAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.openInEditor",
+        title: localize2("chat.openInEditor.label", "Move Chat into Editor Area"),
+        category: CHAT_CATEGORY,
+        precondition: ChatContextKeys.enabled,
+        f1: true,
+        menu: {
+          id: MenuId.ViewTitle,
+          when: ContextKeyExpr.equals("view", ChatViewId),
+          order: 0,
+          group: "1_open"
+        }
+      });
+    }
+    async run(accessor, ...args) {
+      const context = args[0];
+      executeMoveToAction(accessor, MoveToNewLocation.Editor, isChatViewTitleActionContext(context) ? context.sessionResource : void 0);
+    }
+  });
+  registerAction2(class GlobalMoveToNewWindowAction extends Action2 {
+    static {
+      __name(this, "GlobalMoveToNewWindowAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.openInNewWindow",
+        title: localize2("chat.openInNewWindow.label", "Move Chat into New Window"),
+        category: CHAT_CATEGORY,
+        precondition: ChatContextKeys.enabled,
+        f1: true,
+        menu: {
+          id: MenuId.ViewTitle,
+          when: ContextKeyExpr.equals("view", ChatViewId),
+          order: 0,
+          group: "1_open"
+        }
+      });
+    }
+    async run(accessor, ...args) {
+      const context = args[0];
+      executeMoveToAction(accessor, MoveToNewLocation.Window, isChatViewTitleActionContext(context) ? context.sessionResource : void 0);
+    }
+  });
+  registerAction2(class GlobalMoveToSidebarAction extends Action2 {
+    static {
+      __name(this, "GlobalMoveToSidebarAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.openInSidebar",
+        title: localize2("interactiveSession.openInSidebar.label", "Move Chat into Side Bar"),
+        category: CHAT_CATEGORY,
+        precondition: ChatContextKeys.enabled,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      return moveToSidebar(accessor);
+    }
+  });
+  function appendOpenChatInViewMenuItem(menuId, title, icon, locationContextKey) {
+    MenuRegistry.appendMenuItem(menuId, {
+      command: { id: "workbench.action.chat.openInSidebar", title, icon },
+      when: ContextKeyExpr.and(ActiveEditorContext.isEqualTo(ChatEditorInput.EditorID), locationContextKey),
+      group: menuId === MenuId.CompactWindowEditorTitle ? "navigation" : void 0,
+      order: 0
+    });
+  }
+  __name(appendOpenChatInViewMenuItem, "appendOpenChatInViewMenuItem");
+  [MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].forEach((id) => {
+    appendOpenChatInViewMenuItem(id, localize("interactiveSession.openInSecondarySidebar.label", "Move Chat into Secondary Side Bar"), Codicon.layoutSidebarRightDock, ChatContextKeys.panelLocation.isEqualTo(
+      2
+      /* ViewContainerLocation.AuxiliaryBar */
+    ));
+    appendOpenChatInViewMenuItem(id, localize("interactiveSession.openInPrimarySidebar.label", "Move Chat into Primary Side Bar"), Codicon.layoutSidebarLeftDock, ChatContextKeys.panelLocation.isEqualTo(
+      0
+      /* ViewContainerLocation.Sidebar */
+    ));
+    appendOpenChatInViewMenuItem(id, localize("interactiveSession.openInPanel.label", "Move Chat into Panel"), Codicon.layoutPanelDock, ChatContextKeys.panelLocation.isEqualTo(
+      1
+      /* ViewContainerLocation.Panel */
+    ));
+  });
+}
+__name(registerMoveActions, "registerMoveActions");
+async function executeMoveToAction(accessor, moveTo, sessionResource) {
+  const widgetService = accessor.get(IChatWidgetService);
+  const auxiliary = { compact: true, bounds: { width: 800, height: 640 } };
+  const widget = (sessionResource ? widgetService.getWidgetBySessionResource(sessionResource) : void 0) ?? widgetService.lastFocusedWidget;
+  if (!widget || !widget.viewModel || widget.location !== ChatAgentLocation.Chat) {
+    await widgetService.openSession(ChatEditorInput.getNewEditorUri(), moveTo === MoveToNewLocation.Window ? AUX_WINDOW_GROUP : ACTIVE_GROUP, { pinned: true, auxiliary });
+    return;
+  }
+  const existingWidget = widgetService.getWidgetBySessionResource(widget.viewModel.sessionResource);
+  if (!existingWidget) {
+    await widgetService.openSession(ChatEditorInput.getNewEditorUri(), moveTo === MoveToNewLocation.Window ? AUX_WINDOW_GROUP : ACTIVE_GROUP, { pinned: true, auxiliary });
+    return;
+  }
+  const resourceToOpen = widget.viewModel.sessionResource;
+  const modelInputState = existingWidget.getViewState();
+  await widget.clear();
+  const options = { pinned: true, modelInputState, auxiliary };
+  await widgetService.openSession(resourceToOpen, moveTo === MoveToNewLocation.Window ? AUX_WINDOW_GROUP : ACTIVE_GROUP, options);
+}
+__name(executeMoveToAction, "executeMoveToAction");
+async function moveToSidebar(accessor) {
+  const viewsService = accessor.get(IViewsService);
+  const editorService = accessor.get(IEditorService);
+  const editorGroupService = accessor.get(IEditorGroupsService);
+  const chatEditor = editorService.activeEditorPane;
+  const chatEditorInput = chatEditor?.input;
+  let view;
+  if (chatEditor instanceof ChatEditor && chatEditorInput instanceof ChatEditorInput && chatEditorInput.sessionResource) {
+    const previousViewState = chatEditor.widget.getViewState();
+    await editorService.closeEditor({ editor: chatEditor.input, groupId: editorGroupService.activeGroup.id });
+    view = await viewsService.openView(ChatViewId);
+    const newModel = await view.loadSession(chatEditorInput.sessionResource);
+    if (previousViewState && newModel && !newModel.inputModel.state.get()) {
+      newModel.inputModel.setState(previousViewState);
+    }
+  } else {
+    view = await viewsService.openView(ChatViewId);
+  }
+  view.focus();
+}
+__name(moveToSidebar, "moveToSidebar");
+export {
+  registerMoveActions
+};
+//# sourceMappingURL=chatMoveActions.js.map

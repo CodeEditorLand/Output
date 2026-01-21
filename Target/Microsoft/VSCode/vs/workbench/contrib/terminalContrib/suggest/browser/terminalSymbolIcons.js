@@ -1,1 +1,85 @@
-import"./media/terminalSymbolIcons.css";import{$Vkb as r,$Wkb as s,$6kb as m,$jlb as i,$Zkb as e,$1kb as c}from"../../../../../editor/contrib/symbolIcons/browser/symbolIcons.js";import{$1p as l}from"../../../../../platform/theme/common/colorUtils.js";import{localize as o}from"../../../../../nls.js";import{$eu as n}from"../../../../../platform/theme/common/iconRegistry.js";import{$ak as t}from"../../../../../base/common/codicons.js";const u=l("terminalSymbolIcon.flagForeground",r,o(13694,null)),a=l("terminalSymbolIcon.aliasForeground",m,o(13695,null)),b=l("terminalSymbolIcon.optionValueForeground",s,o(13696,null)),y=l("terminalSymbolIcon.methodForeground",m,o(13697,null)),p=l("terminalSymbolIcon.argumentForeground",i,o(13698,null)),$=l("terminalSymbolIcon.optionForeground",r,o(13699,null)),x=l("terminalSymbolIcon.inlineSuggestionForeground",null,o(13700,null)),D=l("terminalSymbolIcon.fileForeground",e,o(13701,null)),g=l("terminalSymbolIcon.folderForeground",c,o(13702,null)),d=l("terminalSymbolIcon.commitForeground",e,o(13703,null)),F=l("terminalSymbolIcon.branchForeground",e,o(13704,null)),S=l("terminalSymbolIcon.tagForeground",e,o(13705,null)),I=l("terminalSymbolIcon.stashForeground",e,o(13706,null)),f=l("terminalSymbolIcon.remoteForeground",e,o(13707,null)),k=l("terminalSymbolIcon.pullRequestForeground",e,o(13708,null)),h=l("terminalSymbolIcon.pullRequestDoneForeground",e,o(13709,null)),q=l("terminalSymbolIcon.symbolicLinkFileForeground",e,o(13710,null)),E=l("terminalSymbolIcon.symbolicLinkFolderForeground",c,o(13711,null)),R=l("terminalSymbolIcon.symbolText",e,o(13712,null)),W=n("terminal-symbol-flag",t.flag,o(13713,null),u),Z=n("terminal-symbol-alias",t.symbolMethod,o(13714,null),a),j=n("terminal-symbol-option-value",t.symbolEnumMember,o(13715,null),b),v=n("terminal-symbol-method",t.symbolMethod,o(13716,null),y),z=n("terminal-symbol-argument",t.symbolVariable,o(13717,null),p),B=n("terminal-symbol-option",t.symbolEnum,o(13718,null),$),C=n("terminal-symbol-inline-suggestion",t.star,o(13719,null),x),G=n("terminal-symbol-file",t.symbolFile,o(13720,null),D),H=n("terminal-symbol-folder",t.symbolFolder,o(13721,null),g),J=n("terminal-symbol-commit",t.gitCommit,o(13722,null),d),N=n("terminal-symbol-branch",t.gitBranch,o(13723,null),F),O=n("terminal-symbol-tag",t.tag,o(13724,null),S),Q=n("terminal-symbol-stash",t.gitStash,o(13725,null),I),U=n("terminal-symbol-remote",t.remote,o(13726,null),f),X=n("terminal-symbol-pull-request",t.gitPullRequest,o(13727,null),k),Y=n("terminal-symbol-pull-request-done",t.gitPullRequestDone,o(13728,null),h),_=n("terminal-symbol-symbolic-link-file",t.fileSymlinkFile,o(13729,null),q),w=n("terminal-symbol-symbolic-link-folder",t.fileSymlinkDirectory,o(13730,null),E),A=n("terminal-symbol-symbol-text",t.symbolKey,o(13731,null),R);export{X as $$Dc,U as $0Dc,z as $1Dc,B as $2Dc,C as $3Dc,G as $4Dc,H as $5Dc,J as $6Dc,N as $7Dc,O as $8Dc,Q as $9Dc,u as $DDc,a as $EDc,b as $FDc,y as $GDc,p as $HDc,$ as $IDc,x as $JDc,D as $KDc,g as $LDc,d as $MDc,F as $NDc,S as $ODc,I as $PDc,f as $QDc,k as $RDc,h as $SDc,q as $TDc,E as $UDc,R as $VDc,W as $WDc,Z as $XDc,j as $YDc,v as $ZDc,Y as $_Dc,_ as $aEc,w as $bEc,A as $cEc};
+import "./media/terminalSymbolIcons.css";
+import { SYMBOL_ICON_ENUMERATOR_FOREGROUND, SYMBOL_ICON_ENUMERATOR_MEMBER_FOREGROUND, SYMBOL_ICON_METHOD_FOREGROUND, SYMBOL_ICON_VARIABLE_FOREGROUND, SYMBOL_ICON_FILE_FOREGROUND, SYMBOL_ICON_FOLDER_FOREGROUND } from "../../../../../editor/contrib/symbolIcons/browser/symbolIcons.js";
+import { registerColor } from "../../../../../platform/theme/common/colorUtils.js";
+import { localize } from "../../../../../nls.js";
+import { registerIcon } from "../../../../../platform/theme/common/iconRegistry.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+const TERMINAL_SYMBOL_ICON_FLAG_FOREGROUND = registerColor("terminalSymbolIcon.flagForeground", SYMBOL_ICON_ENUMERATOR_FOREGROUND, localize("terminalSymbolIcon.flagForeground", "The foreground color for an flag icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_ALIAS_FOREGROUND = registerColor("terminalSymbolIcon.aliasForeground", SYMBOL_ICON_METHOD_FOREGROUND, localize("terminalSymbolIcon.aliasForeground", "The foreground color for an alias icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_OPTION_VALUE_FOREGROUND = registerColor("terminalSymbolIcon.optionValueForeground", SYMBOL_ICON_ENUMERATOR_MEMBER_FOREGROUND, localize("terminalSymbolIcon.enumMemberForeground", "The foreground color for an enum member icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_METHOD_FOREGROUND = registerColor("terminalSymbolIcon.methodForeground", SYMBOL_ICON_METHOD_FOREGROUND, localize("terminalSymbolIcon.methodForeground", "The foreground color for a method icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_ARGUMENT_FOREGROUND = registerColor("terminalSymbolIcon.argumentForeground", SYMBOL_ICON_VARIABLE_FOREGROUND, localize("terminalSymbolIcon.argumentForeground", "The foreground color for an argument icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_OPTION_FOREGROUND = registerColor("terminalSymbolIcon.optionForeground", SYMBOL_ICON_ENUMERATOR_FOREGROUND, localize("terminalSymbolIcon.optionForeground", "The foreground color for an option icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_INLINE_SUGGESTION_FOREGROUND = registerColor("terminalSymbolIcon.inlineSuggestionForeground", null, localize("terminalSymbolIcon.inlineSuggestionForeground", "The foreground color for an inline suggestion icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_FILE_FOREGROUND = registerColor("terminalSymbolIcon.fileForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.fileForeground", "The foreground color for a file icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_FOLDER_FOREGROUND = registerColor("terminalSymbolIcon.folderForeground", SYMBOL_ICON_FOLDER_FOREGROUND, localize("terminalSymbolIcon.folderForeground", "The foreground color for a folder icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_COMMIT_FOREGROUND = registerColor("terminalSymbolIcon.commitForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.commitForeground", "The foreground color for a commit icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_BRANCH_FOREGROUND = registerColor("terminalSymbolIcon.branchForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.branchForeground", "The foreground color for a branch icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_TAG_FOREGROUND = registerColor("terminalSymbolIcon.tagForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.tagForeground", "The foreground color for a tag icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_STASH_FOREGROUND = registerColor("terminalSymbolIcon.stashForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.stashForeground", "The foreground color for a stash icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_REMOTE_FOREGROUND = registerColor("terminalSymbolIcon.remoteForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.remoteForeground", "The foreground color for a remote icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_PULL_REQUEST_FOREGROUND = registerColor("terminalSymbolIcon.pullRequestForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.pullRequestForeground", "The foreground color for a pull request icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_PULL_REQUEST_DONE_FOREGROUND = registerColor("terminalSymbolIcon.pullRequestDoneForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.pullRequestDoneForeground", "The foreground color for a completed pull request icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FILE_FOREGROUND = registerColor("terminalSymbolIcon.symbolicLinkFileForeground", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.symbolicLinkFileForeground", "The foreground color for a symbolic link file icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FOLDER_FOREGROUND = registerColor("terminalSymbolIcon.symbolicLinkFolderForeground", SYMBOL_ICON_FOLDER_FOREGROUND, localize("terminalSymbolIcon.symbolicLinkFolderForeground", "The foreground color for a symbolic link folder icon. These icons will appear in the terminal suggest widget."));
+const TERMINAL_SYMBOL_ICON_SYMBOL_TEXT_FOREGROUND = registerColor("terminalSymbolIcon.symbolText", SYMBOL_ICON_FILE_FOREGROUND, localize("terminalSymbolIcon.symbolTextForeground", "The foreground color for a plaintext suggestion. These icons will appear in the terminal suggest widget."));
+const terminalSymbolFlagIcon = registerIcon("terminal-symbol-flag", Codicon.flag, localize("terminalSymbolFlagIcon", "Icon for flags in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_FLAG_FOREGROUND);
+const terminalSymbolAliasIcon = registerIcon("terminal-symbol-alias", Codicon.symbolMethod, localize("terminalSymbolAliasIcon", "Icon for aliases in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_ALIAS_FOREGROUND);
+const terminalSymbolEnumMember = registerIcon("terminal-symbol-option-value", Codicon.symbolEnumMember, localize("terminalSymbolOptionValue", "Icon for enum members in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_OPTION_VALUE_FOREGROUND);
+const terminalSymbolMethodIcon = registerIcon("terminal-symbol-method", Codicon.symbolMethod, localize("terminalSymbolMethodIcon", "Icon for methods in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_METHOD_FOREGROUND);
+const terminalSymbolArgumentIcon = registerIcon("terminal-symbol-argument", Codicon.symbolVariable, localize("terminalSymbolArgumentIcon", "Icon for arguments in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_ARGUMENT_FOREGROUND);
+const terminalSymbolOptionIcon = registerIcon("terminal-symbol-option", Codicon.symbolEnum, localize("terminalSymbolOptionIcon", "Icon for options in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_OPTION_FOREGROUND);
+const terminalSymbolInlineSuggestionIcon = registerIcon("terminal-symbol-inline-suggestion", Codicon.star, localize("terminalSymbolInlineSuggestionIcon", "Icon for inline suggestions in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_INLINE_SUGGESTION_FOREGROUND);
+const terminalSymbolFileIcon = registerIcon("terminal-symbol-file", Codicon.symbolFile, localize("terminalSymbolFileIcon", "Icon for files in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_FILE_FOREGROUND);
+const terminalSymbolFolderIcon = registerIcon("terminal-symbol-folder", Codicon.symbolFolder, localize("terminalSymbolFolderIcon", "Icon for folders in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_FOLDER_FOREGROUND);
+const terminalSymbolCommitIcon = registerIcon("terminal-symbol-commit", Codicon.gitCommit, localize("terminalSymbolCommitIcon", "Icon for commits in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_COMMIT_FOREGROUND);
+const terminalSymbolBranchIcon = registerIcon("terminal-symbol-branch", Codicon.gitBranch, localize("terminalSymbolBranchIcon", "Icon for branches in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_BRANCH_FOREGROUND);
+const terminalSymbolTagIcon = registerIcon("terminal-symbol-tag", Codicon.tag, localize("terminalSymbolTagIcon", "Icon for tags in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_TAG_FOREGROUND);
+const terminalSymbolStashIcon = registerIcon("terminal-symbol-stash", Codicon.gitStash, localize("terminalSymbolStashIcon", "Icon for stashes in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_STASH_FOREGROUND);
+const terminalSymbolRemoteIcon = registerIcon("terminal-symbol-remote", Codicon.remote, localize("terminalSymbolRemoteIcon", "Icon for remotes in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_REMOTE_FOREGROUND);
+const terminalSymbolPullRequestIcon = registerIcon("terminal-symbol-pull-request", Codicon.gitPullRequest, localize("terminalSymbolPullRequestIcon", "Icon for pull requests in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_PULL_REQUEST_FOREGROUND);
+const terminalSymbolPullRequestDoneIcon = registerIcon("terminal-symbol-pull-request-done", Codicon.gitPullRequestDone, localize("terminalSymbolPullRequestDoneIcon", "Icon for completed pull requests in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_PULL_REQUEST_DONE_FOREGROUND);
+const terminalSymbolSymbolicLinkFileIcon = registerIcon("terminal-symbol-symbolic-link-file", Codicon.fileSymlinkFile, localize("terminalSymbolSymbolicLinkFileIcon", "Icon for symbolic link files in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FILE_FOREGROUND);
+const terminalSymbolSymbolicLinkFolderIcon = registerIcon("terminal-symbol-symbolic-link-folder", Codicon.fileSymlinkDirectory, localize("terminalSymbolSymbolicLinkFolderIcon", "Icon for symbolic link folders in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FOLDER_FOREGROUND);
+const terminalSymbolSymbolTextIcon = registerIcon("terminal-symbol-symbol-text", Codicon.symbolKey, localize("terminalSymbolSymboTextIcon", "Icon for plain text suggestions in the terminal suggest widget."), TERMINAL_SYMBOL_ICON_SYMBOL_TEXT_FOREGROUND);
+export {
+  TERMINAL_SYMBOL_ICON_ALIAS_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_ARGUMENT_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_BRANCH_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_COMMIT_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_FILE_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_FLAG_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_FOLDER_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_INLINE_SUGGESTION_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_METHOD_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_OPTION_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_OPTION_VALUE_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_PULL_REQUEST_DONE_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_PULL_REQUEST_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_REMOTE_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_STASH_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FILE_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_SYMBOLIC_LINK_FOLDER_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_SYMBOL_TEXT_FOREGROUND,
+  TERMINAL_SYMBOL_ICON_TAG_FOREGROUND,
+  terminalSymbolAliasIcon,
+  terminalSymbolArgumentIcon,
+  terminalSymbolBranchIcon,
+  terminalSymbolCommitIcon,
+  terminalSymbolEnumMember,
+  terminalSymbolFileIcon,
+  terminalSymbolFlagIcon,
+  terminalSymbolFolderIcon,
+  terminalSymbolInlineSuggestionIcon,
+  terminalSymbolMethodIcon,
+  terminalSymbolOptionIcon,
+  terminalSymbolPullRequestDoneIcon,
+  terminalSymbolPullRequestIcon,
+  terminalSymbolRemoteIcon,
+  terminalSymbolStashIcon,
+  terminalSymbolSymbolTextIcon,
+  terminalSymbolSymbolicLinkFileIcon,
+  terminalSymbolSymbolicLinkFolderIcon,
+  terminalSymbolTagIcon
+};
+//# sourceMappingURL=terminalSymbolIcons.js.map

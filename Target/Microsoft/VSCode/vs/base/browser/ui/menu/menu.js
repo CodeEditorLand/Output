@@ -1,12 +1,787 @@
-import{$i7 as Y}from"../../browser.js";import{EventType as L,$f9 as R}from"../../touch.js";import{$ as b,$F7 as h,$I8 as p,$E7 as V,$X7 as U,$D8 as d,$B8 as m,$g8 as $,getWindow as S,$$7 as x,$e8 as O}from"../../dom.js";import{$Y9 as T}from"../../domStylesheets.js";import{$C7 as g}from"../../keyboardEvent.js";import{$w7 as P}from"../../mouseEvent.js";import{$G9 as X}from"../actionbar/actionbar.js";import{$V0 as K,$U0 as Q}from"../actionbar/actionViewItems.js";import{$J9 as W}from"../contextview/contextview.js";import{$v9 as H}from"../scrollbar/scrollableElement.js";import{$Im as Z,$Gm as k,$Hm as j}from"../../../common/actions.js";import{$ii as D}from"../../../common/async.js";import{$ak as C}from"../../../common/codicons.js";import{$9j as J}from"../../../common/codiconsUtil.js";import{ThemeIcon as _}from"../../../common/themables.js";import{$ek as G}from"../../../common/iconLabels.js";import{$Dd as ee}from"../../../common/lifecycle.js";import{$o as N,$n as te}from"../../../common/platform.js";import*as A from"../../../common/strings.js";const B=/\(&([^\s&])\)|(^|[^&])&([^\s&])/,E=/(&amp;)?(&amp;)([^\s&])/g;var y;(function(r){r[r.Right=0]="Right",r[r.Left=1]="Left"})(y||(y={}));var z;(function(r){r[r.Above=0]="Above",r[r.Below=1]="Below"})(z||(z={}));const Se={shadowColor:void 0,borderColor:void 0,foregroundColor:void 0,backgroundColor:void 0,selectionForegroundColor:void 0,selectionBackgroundColor:void 0,selectionBorderColor:void 0,separatorColor:void 0,scrollbarShadow:void 0,scrollbarSliderBackground:void 0,scrollbarSliderHoverBackground:void 0,scrollbarSliderActiveBackground:void 0};class v extends X{constructor(e,t,i,n){e.classList.add("monaco-menu-container"),e.setAttribute("role","presentation");const o=document.createElement("div");o.classList.add("monaco-menu"),o.setAttribute("role","presentation"),super(o,{orientation:1,actionViewItemProvider:a=>this.fb(a,i,c),context:i.context,actionRunner:i.actionRunner,ariaLabel:i.ariaLabel,ariaRole:"menu",focusOnlyEnabledItems:!0,triggerKeys:{keys:[3,...te||N?[10]:[]],keyDown:!0}}),this.Z=n,this.X=o,this.z.tabIndex=0,this.ab(e,n),this.D(R.addTarget(o)),this.D(h(o,m.KEY_DOWN,a=>{new g(a).equals(2)&&a.preventDefault()})),i.enableMnemonics&&this.D(h(o,m.KEY_DOWN,a=>{const s=a.key.toLocaleLowerCase(),l=this.U.get(s);if(l!==void 0&&(d.stop(a,!0),l.length===1&&(l[0]instanceof I&&l[0].container&&this.cb(l[0].container),l[0].onClick(a)),l.length>1)){const w=l.shift();w&&w.container&&(this.cb(w.container),l.push(w)),this.U.set(s,l)}})),N&&this.D(h(o,m.KEY_DOWN,a=>{const s=new g(a);s.equals(14)||s.equals(11)?(this.t=this.viewItems.length-1,this.P(),d.stop(a,!0)):(s.equals(13)||s.equals(12))&&(this.t=0,this.Q(),d.stop(a,!0))})),this.D(h(this.domNode,m.MOUSE_OUT,a=>{const s=a.relatedTarget;x(s,this.domNode)||(this.t=void 0,this.R(),a.stopPropagation())})),this.D(h(this.z,m.MOUSE_OVER,a=>{let s=a.target;if(!(!s||!x(s,this.z)||s===this.z)){for(;s.parentElement!==this.z&&s.parentElement!==null;)s=s.parentElement;if(s.classList.contains("action-item")){const l=this.t;this.db(s),l!==this.t&&this.R()}}})),this.D(R.addTarget(this.z)),this.D(h(this.z,L.Tap,a=>{let s=a.initialTarget;if(!(!s||!x(s,this.z)||s===this.z)){for(;s.parentElement!==this.z&&s.parentElement!==null;)s=s.parentElement;if(s.classList.contains("action-item")){const l=this.t;this.db(s),l!==this.t&&this.R()}}}));const c={parent:this};this.U=new Map,this.W=this.D(new H(o,{alwaysConsumeMouseWheel:!0,horizontal:2,vertical:3,verticalScrollbarSize:7,handleMouseWheel:!0,useShadows:!0}));const u=this.W.getDomNode();u.style.position="",this.bb(u,n),this.D(h(o,L.Change,a=>{d.stop(a,!0);const s=this.W.getScrollPosition().scrollTop;this.W.setScrollPosition({scrollTop:s-a.translationY})})),this.D(h(u,m.MOUSE_UP,a=>{a.preventDefault()}));const f=S(e);o.style.maxHeight=`${Math.max(10,f.innerHeight-e.getBoundingClientRect().top-35)}px`,t=t.filter((a,s)=>!(i.submenuIds?.has(a.id)||a instanceof k&&(s===t.length-1||s===0||t[s-1]instanceof k))),this.push(t,{icon:!0,label:!0,isMenu:!0}),e.appendChild(this.W.getDomNode()),this.W.scanDomNode(),this.viewItems.filter(a=>!(a instanceof q)).forEach((a,s,l)=>{a.updatePositionInSet(s+1,l.length)})}ab(e,t){this.Y||(O(e)?this.Y=T(e):(v.globalStyleSheet||(v.globalStyleSheet=T()),this.Y=v.globalStyleSheet)),this.Y.textContent=oe(t,O(e))}bb(e,t){const i=t.foregroundColor??"",n=t.backgroundColor??"",o=t.borderColor?`1px solid ${t.borderColor}`:"",c="5px",u=t.shadowColor?`0 2px 8px ${t.shadowColor}`:"";e.style.outline=o,e.style.borderRadius=c,e.style.color=i,e.style.backgroundColor=n,e.style.boxShadow=u}getContainer(){return this.W.getDomNode()}get onScroll(){return this.W.onScroll}get scrollOffset(){return this.X.scrollTop}trigger(e){if(e<=this.viewItems.length&&e>=0){const t=this.viewItems[e];if(t instanceof I)super.focus(e),t.open(!0);else if(t instanceof M)super.run(t._action,t._context);else return}}cb(e){const t=this.t;this.db(e),t!==this.t&&this.R()}db(e){for(let t=0;t<this.z.children.length;t++){const i=this.z.children[t];if(e===i){this.t=t;break}}}R(e){super.R(e,!0,!0),typeof this.t<"u"&&this.W.setScrollPosition({scrollTop:Math.round(this.X.scrollTop)})}fb(e,t,i){if(e instanceof k)return new q(t.context,e,{icon:!0},this.Z);if(e instanceof j){const n=new I(e,e.actions,i,{...t,submenuIds:new Set([...t.submenuIds||[],e.id])},this.Z);if(t.enableMnemonics){const o=n.getMnemonic();if(o&&n.isEnabled()){const c=this.U.get(o);c!==void 0?c.push(n):this.U.set(o,[n])}}return n}else{const n=t.getKeyBinding?.(e)?.getLabel(),o={enableMnemonics:t.enableMnemonics,useEventAsContext:t.useEventAsContext,keybinding:n},c=new M(t.context,e,o,this.Z);if(t.enableMnemonics){const u=c.getMnemonic();if(u&&c.isEnabled()){const f=this.U.get(u);f!==void 0?f.push(c):this.U.set(u,[c])}}return c}}}class M extends Q{constructor(e,t,i,n){if(i={...i,isMenu:!0,icon:i.icon!==void 0?i.icon:!1,label:i.label!==void 0?i.label:!0},super(t,t,i),this.s=n,this.u=i,this.r="",this.u.label&&i.enableMnemonics){const o=this.action.label;if(o){const c=B.exec(o);c&&(this.q=(c[1]?c[1]:c[3]).toLocaleLowerCase())}}this.h=new D(()=>{this.element&&(this.D(h(this.element,m.MOUSE_UP,o=>{if(d.stop(o,!0),Y){if(new P(S(this.element),o).rightButton)return;this.onClick(o)}else setTimeout(()=>{this.onClick(o)},0)})),this.D(h(this.element,m.CONTEXT_MENU,o=>{d.stop(o,!0)})))},100),this.D(this.h)}render(e){super.render(e),this.element&&(this.container=e,this.g=p(this.element,b("a.action-menu-item")),this._action.id===k.ID?this.g.setAttribute("role","presentation"):(this.g.setAttribute("role","menuitem"),this.q&&this.g.setAttribute("aria-keyshortcuts",`${this.q}`)),this.n=p(this.g,b("span.menu-item-check"+_.asCSSSelector(C.menuSelection))),this.n.setAttribute("role","none"),this.m=p(this.g,b("span.action-label")),this.u.label&&this.u.keybinding&&(p(this.g,b("span.keybinding")).textContent=this.u.keybinding),this.h.schedule(),this.M(),this.F(),this.J(),this.C(),this.N(),this.Q())}blur(){super.blur(),this.Q()}focus(){super.focus(),this.g?.focus(),this.Q()}updatePositionInSet(e,t){this.g&&(this.g.setAttribute("aria-posinset",`${e}`),this.g.setAttribute("aria-setsize",`${t}`))}F(){if(this.m&&this.u.label){V(this.m);let e=G(this.action.label);if(e){const t=ie(e);this.u.enableMnemonics||(e=t),this.m.setAttribute("aria-label",t.replace(/&&/g,"&"));const i=B.exec(e);if(i){e=A.$Xf(e),E.lastIndex=0;let n=E.exec(e);for(;n&&n[1];)n=E.exec(e);const o=c=>c.replace(/&amp;&amp;/g,"&amp;");n?this.m.append(A.$4f(o(e.substr(0,n.index))," "),b("u",{"aria-hidden":"true"},n[3]),A.$5f(o(e.substr(n.index+n[0].length))," ")):this.m.textContent=o(e).trim(),this.g?.setAttribute("aria-keyshortcuts",(i[1]?i[1]:i[3]).toLocaleLowerCase())}else this.m.textContent=e.replace(/&&/g,"&").trim()}}}J(){}M(){this.r&&this.g&&this.g.classList.remove(...this.r.split(" ")),this.u.icon&&this.m?(this.r=this.action.class||"",this.m.classList.add("icon"),this.r&&this.m.classList.add(...this.r.split(" ")),this.C()):this.m&&this.m.classList.remove("icon")}C(){this.action.enabled?(this.element&&(this.element.classList.remove("disabled"),this.element.removeAttribute("aria-disabled")),this.g&&(this.g.classList.remove("disabled"),this.g.removeAttribute("aria-disabled"),this.g.tabIndex=0)):(this.element&&(this.element.classList.add("disabled"),this.element.setAttribute("aria-disabled","true")),this.g&&(this.g.classList.add("disabled"),this.g.setAttribute("aria-disabled","true")))}N(){if(!this.g)return;const e=this.action.checked;this.g.classList.toggle("checked",!!e),e!==void 0?(this.g.setAttribute("role","menuitemcheckbox"),this.g.setAttribute("aria-checked",e?"true":"false")):(this.g.setAttribute("role","menuitem"),this.g.setAttribute("aria-checked",""))}getMnemonic(){return this.q}Q(){const e=this.element&&this.element.classList.contains("focused"),t=e&&this.s.selectionForegroundColor?this.s.selectionForegroundColor:this.s.foregroundColor,i=e&&this.s.selectionBackgroundColor?this.s.selectionBackgroundColor:void 0,n=e&&this.s.selectionBorderColor?`1px solid ${this.s.selectionBorderColor}`:"",o=e&&this.s.selectionBorderColor?"-1px":"";this.g&&(this.g.style.color=t??"",this.g.style.backgroundColor=i??"",this.g.style.outline=n,this.g.style.outlineOffset=o),this.n&&(this.n.style.color=t??"")}}class I extends M{constructor(e,t,i,n,o){super(e,e,n,o),this.bb=t,this.cb=i,this.db=n,this.R=null,this.W=this.D(new ee),this.X=!1,this.ab=n&&n.expandDirection!==void 0?n.expandDirection:{horizontal:y.Right,vertical:z.Below},this.Y=new D(()=>{this.X&&(this.fb(!1),this.hb(!1))},250),this.Z=new D(()=>{this.element&&!x($(),this.element)&&this.cb.submenu===this.R&&(this.cb.parent.focus(!1),this.fb(!0))},750)}render(e){super.render(e),this.element&&(this.g&&(this.g.classList.add("monaco-submenu-item"),this.g.tabIndex=0,this.g.setAttribute("aria-haspopup","true"),this.ib("false"),this.U=p(this.g,b("span.submenu-indicator"+_.asCSSSelector(C.menuSubmenu))),this.U.setAttribute("aria-hidden","true")),this.D(h(this.element,m.KEY_UP,t=>{const i=new g(t);(i.equals(17)||i.equals(3))&&(d.stop(t,!0),this.hb(!0))})),this.D(h(this.element,m.KEY_DOWN,t=>{const i=new g(t);$()===this.g&&(i.equals(17)||i.equals(3))&&d.stop(t,!0)})),this.D(h(this.element,m.MOUSE_OVER,t=>{this.X||(this.X=!0,this.Y.schedule())})),this.D(h(this.element,m.MOUSE_LEAVE,t=>{this.X=!1})),this.D(h(this.element,m.FOCUS_OUT,t=>{this.element&&!x($(),this.element)&&this.Z.schedule()})),this.D(this.cb.parent.onScroll(()=>{this.cb.submenu===this.R&&(this.cb.parent.focus(!1),this.fb(!0))})))}C(){}open(e){this.fb(!1),this.hb(e)}onClick(e){d.stop(e,!0),this.fb(!1),this.hb(!0)}fb(e){if(this.cb.submenu&&(e||this.cb.submenu!==this.R)){try{this.cb.submenu.dispose()}catch{}this.cb.submenu=void 0,this.ib("false"),this.S&&(this.W.clear(),this.S=void 0)}}gb(e,t,i,n){const o={top:0,left:0};return o.left=W(e.width,t.width,{position:n.horizontal===y.Right?0:1,offset:i.left,size:i.width}),o.left>=i.left&&o.left<i.left+i.width&&(i.left+10+t.width<=e.width&&(o.left=i.left+10),i.top+=10,i.height=0),o.top=W(e.height,t.height,{position:0,offset:i.top,size:0}),o.top+t.height===i.top&&o.top+i.height+t.height<=e.height&&(o.top+=i.height),o}hb(e=!0){if(this.element)if(this.cb.submenu)this.cb.submenu.focus(!1);else{this.ib("true"),this.S=p(this.element,b("div.monaco-submenu")),this.S.classList.add("menubar-menu-items-holder","context-view");const t=S(this.cb.parent.domNode).getComputedStyle(this.cb.parent.domNode),i=parseFloat(t.paddingTop||"0")||0;this.S.style.position="fixed",this.S.style.top="0",this.S.style.left="0",this.S.style.zIndex="1",this.cb.submenu=new v(this.S,this.bb.length?this.bb:[new Z],this.db,this.s);const n=this.element.getBoundingClientRect(),o={top:n.top-i,left:n.left,height:n.height+2*i,width:n.width},c=this.S.getBoundingClientRect(),u=S(this.element),{top:f,left:a}=this.gb(new U(u.innerWidth,u.innerHeight),U.lift(c),o,this.ab);this.S.style.left=`${a-c.left}px`,this.S.style.top=`${f-c.top}px`,this.W.add(h(this.S,m.KEY_UP,s=>{new g(s).equals(15)&&(d.stop(s,!0),this.cb.parent.focus(),this.fb(!0))})),this.W.add(h(this.S,m.KEY_DOWN,s=>{new g(s).equals(15)&&d.stop(s,!0)})),this.W.add(this.cb.submenu.onDidCancel(()=>{this.cb.parent.focus(),this.fb(!0)})),this.cb.submenu.focus(e),this.R=this.cb.submenu}}ib(e){this.g&&this.g?.setAttribute("aria-expanded",e)}Q(){super.Q();const t=this.element&&this.element.classList.contains("focused")&&this.s.selectionForegroundColor?this.s.selectionForegroundColor:this.s.foregroundColor;this.U&&(this.U.style.color=t??"")}dispose(){super.dispose(),this.Z.dispose(),this.R&&(this.R.dispose(),this.R=null),this.S&&(this.S=void 0)}}class q extends K{constructor(e,t,i,n){super(e,t,i),this.b=n}render(e){super.render(e),this.q&&(this.q.style.borderBottomColor=this.b.separatorColor?`${this.b.separatorColor}`:"")}}function ie(r){const e=B,t=e.exec(r);if(!t)return r;const i=!t[1];return r.replace(e,i?"$2$3":"").trim()}function F(r){const e=J()[r.id];return`.codicon-${r.id}:before { content: '\\${e.toString(16)}'; }`}function oe(r,e){let t=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isFirefox } from "../../browser.js";
+import { EventType as TouchEventType, Gesture } from "../../touch.js";
+import { $, addDisposableListener, append, clearNode, Dimension, EventHelper, EventType, getActiveElement, getWindow, isAncestor, isInShadowDOM } from "../../dom.js";
+import { createStyleSheet } from "../../domStylesheets.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { StandardMouseEvent } from "../../mouseEvent.js";
+import { ActionBar } from "../actionbar/actionbar.js";
+import { ActionViewItem, BaseActionViewItem } from "../actionbar/actionViewItems.js";
+import { layout } from "../contextview/contextview.js";
+import { DomScrollableElement } from "../scrollbar/scrollableElement.js";
+import { EmptySubmenuAction, Separator, SubmenuAction } from "../../../common/actions.js";
+import { RunOnceScheduler } from "../../../common/async.js";
+import { Codicon } from "../../../common/codicons.js";
+import { getCodiconFontCharacters } from "../../../common/codiconsUtil.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { stripIcons } from "../../../common/iconLabels.js";
+import { DisposableStore } from "../../../common/lifecycle.js";
+import { isLinux, isMacintosh } from "../../../common/platform.js";
+import * as strings from "../../../common/strings.js";
+const MENU_MNEMONIC_REGEX = /\(&([^\s&])\)|(^|[^&])&([^\s&])/;
+const MENU_ESCAPED_MNEMONIC_REGEX = /(&amp;)?(&amp;)([^\s&])/g;
+var HorizontalDirection;
+(function(HorizontalDirection2) {
+  HorizontalDirection2[HorizontalDirection2["Right"] = 0] = "Right";
+  HorizontalDirection2[HorizontalDirection2["Left"] = 1] = "Left";
+})(HorizontalDirection || (HorizontalDirection = {}));
+var VerticalDirection;
+(function(VerticalDirection2) {
+  VerticalDirection2[VerticalDirection2["Above"] = 0] = "Above";
+  VerticalDirection2[VerticalDirection2["Below"] = 1] = "Below";
+})(VerticalDirection || (VerticalDirection = {}));
+const unthemedMenuStyles = {
+  shadowColor: void 0,
+  borderColor: void 0,
+  foregroundColor: void 0,
+  backgroundColor: void 0,
+  selectionForegroundColor: void 0,
+  selectionBackgroundColor: void 0,
+  selectionBorderColor: void 0,
+  separatorColor: void 0,
+  scrollbarShadow: void 0,
+  scrollbarSliderBackground: void 0,
+  scrollbarSliderHoverBackground: void 0,
+  scrollbarSliderActiveBackground: void 0
+};
+class Menu extends ActionBar {
+  static {
+    __name(this, "Menu");
+  }
+  constructor(container, actions, options, menuStyles) {
+    container.classList.add("monaco-menu-container");
+    container.setAttribute("role", "presentation");
+    const menuElement = document.createElement("div");
+    menuElement.classList.add("monaco-menu");
+    menuElement.setAttribute("role", "presentation");
+    super(menuElement, {
+      orientation: 1,
+      actionViewItemProvider: /* @__PURE__ */ __name((action) => this.doGetActionViewItem(action, options, parentData), "actionViewItemProvider"),
+      context: options.context,
+      actionRunner: options.actionRunner,
+      ariaLabel: options.ariaLabel,
+      ariaRole: "menu",
+      focusOnlyEnabledItems: true,
+      triggerKeys: { keys: [3, ...isMacintosh || isLinux ? [
+        10
+        /* KeyCode.Space */
+      ] : []], keyDown: true }
+    });
+    this.menuStyles = menuStyles;
+    this.menuElement = menuElement;
+    this.actionsList.tabIndex = 0;
+    this.initializeOrUpdateStyleSheet(container, menuStyles);
+    this._register(Gesture.addTarget(menuElement));
+    this._register(addDisposableListener(menuElement, EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        2
+        /* KeyCode.Tab */
+      )) {
+        e.preventDefault();
+      }
+    }));
+    if (options.enableMnemonics) {
+      this._register(addDisposableListener(menuElement, EventType.KEY_DOWN, (e) => {
+        const key = e.key.toLocaleLowerCase();
+        const actions2 = this.mnemonics.get(key);
+        if (actions2 !== void 0) {
+          EventHelper.stop(e, true);
+          if (actions2.length === 1) {
+            if (actions2[0] instanceof SubmenuMenuActionViewItem && actions2[0].container) {
+              this.focusItemByElement(actions2[0].container);
+            }
+            actions2[0].onClick(e);
+          }
+          if (actions2.length > 1) {
+            const action = actions2.shift();
+            if (action && action.container) {
+              this.focusItemByElement(action.container);
+              actions2.push(action);
+            }
+            this.mnemonics.set(key, actions2);
+          }
+        }
+      }));
+    }
+    if (isLinux) {
+      this._register(addDisposableListener(menuElement, EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(
+          14
+          /* KeyCode.Home */
+        ) || event.equals(
+          11
+          /* KeyCode.PageUp */
+        )) {
+          this.focusedItem = this.viewItems.length - 1;
+          this.focusNext();
+          EventHelper.stop(e, true);
+        } else if (event.equals(
+          13
+          /* KeyCode.End */
+        ) || event.equals(
+          12
+          /* KeyCode.PageDown */
+        )) {
+          this.focusedItem = 0;
+          this.focusPrevious();
+          EventHelper.stop(e, true);
+        }
+      }));
+    }
+    this._register(addDisposableListener(this.domNode, EventType.MOUSE_OUT, (e) => {
+      const relatedTarget = e.relatedTarget;
+      if (!isAncestor(relatedTarget, this.domNode)) {
+        this.focusedItem = void 0;
+        this.updateFocus();
+        e.stopPropagation();
+      }
+    }));
+    this._register(addDisposableListener(this.actionsList, EventType.MOUSE_OVER, (e) => {
+      let target = e.target;
+      if (!target || !isAncestor(target, this.actionsList) || target === this.actionsList) {
+        return;
+      }
+      while (target.parentElement !== this.actionsList && target.parentElement !== null) {
+        target = target.parentElement;
+      }
+      if (target.classList.contains("action-item")) {
+        const lastFocusedItem = this.focusedItem;
+        this.setFocusedItem(target);
+        if (lastFocusedItem !== this.focusedItem) {
+          this.updateFocus();
+        }
+      }
+    }));
+    this._register(Gesture.addTarget(this.actionsList));
+    this._register(addDisposableListener(this.actionsList, TouchEventType.Tap, (e) => {
+      let target = e.initialTarget;
+      if (!target || !isAncestor(target, this.actionsList) || target === this.actionsList) {
+        return;
+      }
+      while (target.parentElement !== this.actionsList && target.parentElement !== null) {
+        target = target.parentElement;
+      }
+      if (target.classList.contains("action-item")) {
+        const lastFocusedItem = this.focusedItem;
+        this.setFocusedItem(target);
+        if (lastFocusedItem !== this.focusedItem) {
+          this.updateFocus();
+        }
+      }
+    }));
+    const parentData = {
+      parent: this
+    };
+    this.mnemonics = /* @__PURE__ */ new Map();
+    this.scrollableElement = this._register(new DomScrollableElement(menuElement, {
+      alwaysConsumeMouseWheel: true,
+      horizontal: 2,
+      vertical: 3,
+      verticalScrollbarSize: 7,
+      handleMouseWheel: true,
+      useShadows: true
+    }));
+    const scrollElement = this.scrollableElement.getDomNode();
+    scrollElement.style.position = "";
+    this.styleScrollElement(scrollElement, menuStyles);
+    this._register(addDisposableListener(menuElement, TouchEventType.Change, (e) => {
+      EventHelper.stop(e, true);
+      const scrollTop = this.scrollableElement.getScrollPosition().scrollTop;
+      this.scrollableElement.setScrollPosition({ scrollTop: scrollTop - e.translationY });
+    }));
+    this._register(addDisposableListener(scrollElement, EventType.MOUSE_UP, (e) => {
+      e.preventDefault();
+    }));
+    const window = getWindow(container);
+    menuElement.style.maxHeight = `${Math.max(10, window.innerHeight - container.getBoundingClientRect().top - 35)}px`;
+    actions = actions.filter((a, idx) => {
+      if (options.submenuIds?.has(a.id)) {
+        console.warn(`Found submenu cycle: ${a.id}`);
+        return false;
+      }
+      if (a instanceof Separator) {
+        if (idx === actions.length - 1 || idx === 0) {
+          return false;
+        }
+        const prevAction = actions[idx - 1];
+        if (prevAction instanceof Separator) {
+          return false;
+        }
+      }
+      return true;
+    });
+    this.push(actions, { icon: true, label: true, isMenu: true });
+    container.appendChild(this.scrollableElement.getDomNode());
+    this.scrollableElement.scanDomNode();
+    this.viewItems.filter((item) => !(item instanceof MenuSeparatorActionViewItem)).forEach((item, index, array) => {
+      item.updatePositionInSet(index + 1, array.length);
+    });
+  }
+  initializeOrUpdateStyleSheet(container, style) {
+    if (!this.styleSheet) {
+      if (isInShadowDOM(container)) {
+        this.styleSheet = createStyleSheet(container);
+      } else {
+        if (!Menu.globalStyleSheet) {
+          Menu.globalStyleSheet = createStyleSheet();
+        }
+        this.styleSheet = Menu.globalStyleSheet;
+      }
+    }
+    this.styleSheet.textContent = getMenuWidgetCSS(style, isInShadowDOM(container));
+  }
+  styleScrollElement(scrollElement, style) {
+    const fgColor = style.foregroundColor ?? "";
+    const bgColor = style.backgroundColor ?? "";
+    const border = style.borderColor ? `1px solid ${style.borderColor}` : "";
+    const borderRadius = "5px";
+    const shadow = style.shadowColor ? `0 2px 8px ${style.shadowColor}` : "";
+    scrollElement.style.outline = border;
+    scrollElement.style.borderRadius = borderRadius;
+    scrollElement.style.color = fgColor;
+    scrollElement.style.backgroundColor = bgColor;
+    scrollElement.style.boxShadow = shadow;
+  }
+  getContainer() {
+    return this.scrollableElement.getDomNode();
+  }
+  get onScroll() {
+    return this.scrollableElement.onScroll;
+  }
+  get scrollOffset() {
+    return this.menuElement.scrollTop;
+  }
+  trigger(index) {
+    if (index <= this.viewItems.length && index >= 0) {
+      const item = this.viewItems[index];
+      if (item instanceof SubmenuMenuActionViewItem) {
+        super.focus(index);
+        item.open(true);
+      } else if (item instanceof BaseMenuActionViewItem) {
+        super.run(item._action, item._context);
+      } else {
+        return;
+      }
+    }
+  }
+  focusItemByElement(element) {
+    const lastFocusedItem = this.focusedItem;
+    this.setFocusedItem(element);
+    if (lastFocusedItem !== this.focusedItem) {
+      this.updateFocus();
+    }
+  }
+  setFocusedItem(element) {
+    for (let i = 0; i < this.actionsList.children.length; i++) {
+      const elem = this.actionsList.children[i];
+      if (element === elem) {
+        this.focusedItem = i;
+        break;
+      }
+    }
+  }
+  updateFocus(fromRight) {
+    super.updateFocus(fromRight, true, true);
+    if (typeof this.focusedItem !== "undefined") {
+      this.scrollableElement.setScrollPosition({
+        scrollTop: Math.round(this.menuElement.scrollTop)
+      });
+    }
+  }
+  doGetActionViewItem(action, options, parentData) {
+    if (action instanceof Separator) {
+      return new MenuSeparatorActionViewItem(options.context, action, { icon: true }, this.menuStyles);
+    } else if (action instanceof SubmenuAction) {
+      const menuActionViewItem = new SubmenuMenuActionViewItem(action, action.actions, parentData, { ...options, submenuIds: /* @__PURE__ */ new Set([...options.submenuIds || [], action.id]) }, this.menuStyles);
+      if (options.enableMnemonics) {
+        const mnemonic = menuActionViewItem.getMnemonic();
+        if (mnemonic && menuActionViewItem.isEnabled()) {
+          const actionViewItems = this.mnemonics.get(mnemonic);
+          if (actionViewItems !== void 0) {
+            actionViewItems.push(menuActionViewItem);
+          } else {
+            this.mnemonics.set(mnemonic, [menuActionViewItem]);
+          }
+        }
+      }
+      return menuActionViewItem;
+    } else {
+      const keybindingLabel = options.getKeyBinding?.(action)?.getLabel();
+      const menuItemOptions = {
+        enableMnemonics: options.enableMnemonics,
+        useEventAsContext: options.useEventAsContext,
+        keybinding: keybindingLabel
+      };
+      const menuActionViewItem = new BaseMenuActionViewItem(options.context, action, menuItemOptions, this.menuStyles);
+      if (options.enableMnemonics) {
+        const mnemonic = menuActionViewItem.getMnemonic();
+        if (mnemonic && menuActionViewItem.isEnabled()) {
+          const actionViewItems = this.mnemonics.get(mnemonic);
+          if (actionViewItems !== void 0) {
+            actionViewItems.push(menuActionViewItem);
+          } else {
+            this.mnemonics.set(mnemonic, [menuActionViewItem]);
+          }
+        }
+      }
+      return menuActionViewItem;
+    }
+  }
+}
+class BaseMenuActionViewItem extends BaseActionViewItem {
+  static {
+    __name(this, "BaseMenuActionViewItem");
+  }
+  constructor(ctx, action, options, menuStyle) {
+    options = {
+      ...options,
+      isMenu: true,
+      icon: options.icon !== void 0 ? options.icon : false,
+      label: options.label !== void 0 ? options.label : true
+    };
+    super(action, action, options);
+    this.menuStyle = menuStyle;
+    this.options = options;
+    this.cssClass = "";
+    if (this.options.label && options.enableMnemonics) {
+      const label = this.action.label;
+      if (label) {
+        const matches = MENU_MNEMONIC_REGEX.exec(label);
+        if (matches) {
+          this.mnemonic = (!!matches[1] ? matches[1] : matches[3]).toLocaleLowerCase();
+        }
+      }
+    }
+    this.runOnceToEnableMouseUp = new RunOnceScheduler(() => {
+      if (!this.element) {
+        return;
+      }
+      this._register(addDisposableListener(this.element, EventType.MOUSE_UP, (e) => {
+        EventHelper.stop(e, true);
+        if (isFirefox) {
+          const mouseEvent = new StandardMouseEvent(getWindow(this.element), e);
+          if (mouseEvent.rightButton) {
+            return;
+          }
+          this.onClick(e);
+        } else {
+          setTimeout(() => {
+            this.onClick(e);
+          }, 0);
+        }
+      }));
+      this._register(addDisposableListener(this.element, EventType.CONTEXT_MENU, (e) => {
+        EventHelper.stop(e, true);
+      }));
+    }, 100);
+    this._register(this.runOnceToEnableMouseUp);
+  }
+  render(container) {
+    super.render(container);
+    if (!this.element) {
+      return;
+    }
+    this.container = container;
+    this.item = append(this.element, $("a.action-menu-item"));
+    if (this._action.id === Separator.ID) {
+      this.item.setAttribute("role", "presentation");
+    } else {
+      this.item.setAttribute("role", "menuitem");
+      if (this.mnemonic) {
+        this.item.setAttribute("aria-keyshortcuts", `${this.mnemonic}`);
+      }
+    }
+    this.check = append(this.item, $("span.menu-item-check" + ThemeIcon.asCSSSelector(Codicon.menuSelection)));
+    this.check.setAttribute("role", "none");
+    this.label = append(this.item, $("span.action-label"));
+    if (this.options.label && this.options.keybinding) {
+      append(this.item, $("span.keybinding")).textContent = this.options.keybinding;
+    }
+    this.runOnceToEnableMouseUp.schedule();
+    this.updateClass();
+    this.updateLabel();
+    this.updateTooltip();
+    this.updateEnabled();
+    this.updateChecked();
+    this.applyStyle();
+  }
+  blur() {
+    super.blur();
+    this.applyStyle();
+  }
+  focus() {
+    super.focus();
+    this.item?.focus();
+    this.applyStyle();
+  }
+  updatePositionInSet(pos, setSize) {
+    if (this.item) {
+      this.item.setAttribute("aria-posinset", `${pos}`);
+      this.item.setAttribute("aria-setsize", `${setSize}`);
+    }
+  }
+  updateLabel() {
+    if (!this.label) {
+      return;
+    }
+    if (this.options.label) {
+      clearNode(this.label);
+      let label = stripIcons(this.action.label);
+      if (label) {
+        const cleanLabel = cleanMnemonic(label);
+        if (!this.options.enableMnemonics) {
+          label = cleanLabel;
+        }
+        this.label.setAttribute("aria-label", cleanLabel.replace(/&&/g, "&"));
+        const matches = MENU_MNEMONIC_REGEX.exec(label);
+        if (matches) {
+          label = strings.escape(label);
+          MENU_ESCAPED_MNEMONIC_REGEX.lastIndex = 0;
+          let escMatch = MENU_ESCAPED_MNEMONIC_REGEX.exec(label);
+          while (escMatch && escMatch[1]) {
+            escMatch = MENU_ESCAPED_MNEMONIC_REGEX.exec(label);
+          }
+          const replaceDoubleEscapes = /* @__PURE__ */ __name((str) => str.replace(/&amp;&amp;/g, "&amp;"), "replaceDoubleEscapes");
+          if (escMatch) {
+            this.label.append(strings.ltrim(replaceDoubleEscapes(label.substr(0, escMatch.index)), " "), $("u", { "aria-hidden": "true" }, escMatch[3]), strings.rtrim(replaceDoubleEscapes(label.substr(escMatch.index + escMatch[0].length)), " "));
+          } else {
+            this.label.textContent = replaceDoubleEscapes(label).trim();
+          }
+          this.item?.setAttribute("aria-keyshortcuts", (!!matches[1] ? matches[1] : matches[3]).toLocaleLowerCase());
+        } else {
+          this.label.textContent = label.replace(/&&/g, "&").trim();
+        }
+      }
+    }
+  }
+  updateTooltip() {
+  }
+  updateClass() {
+    if (this.cssClass && this.item) {
+      this.item.classList.remove(...this.cssClass.split(" "));
+    }
+    if (this.options.icon && this.label) {
+      this.cssClass = this.action.class || "";
+      this.label.classList.add("icon");
+      if (this.cssClass) {
+        this.label.classList.add(...this.cssClass.split(" "));
+      }
+      this.updateEnabled();
+    } else if (this.label) {
+      this.label.classList.remove("icon");
+    }
+  }
+  updateEnabled() {
+    if (this.action.enabled) {
+      if (this.element) {
+        this.element.classList.remove("disabled");
+        this.element.removeAttribute("aria-disabled");
+      }
+      if (this.item) {
+        this.item.classList.remove("disabled");
+        this.item.removeAttribute("aria-disabled");
+        this.item.tabIndex = 0;
+      }
+    } else {
+      if (this.element) {
+        this.element.classList.add("disabled");
+        this.element.setAttribute("aria-disabled", "true");
+      }
+      if (this.item) {
+        this.item.classList.add("disabled");
+        this.item.setAttribute("aria-disabled", "true");
+      }
+    }
+  }
+  updateChecked() {
+    if (!this.item) {
+      return;
+    }
+    const checked = this.action.checked;
+    this.item.classList.toggle("checked", !!checked);
+    if (checked !== void 0) {
+      this.item.setAttribute("role", "menuitemcheckbox");
+      this.item.setAttribute("aria-checked", checked ? "true" : "false");
+    } else {
+      this.item.setAttribute("role", "menuitem");
+      this.item.setAttribute("aria-checked", "");
+    }
+  }
+  getMnemonic() {
+    return this.mnemonic;
+  }
+  applyStyle() {
+    const isSelected = this.element && this.element.classList.contains("focused");
+    const fgColor = isSelected && this.menuStyle.selectionForegroundColor ? this.menuStyle.selectionForegroundColor : this.menuStyle.foregroundColor;
+    const bgColor = isSelected && this.menuStyle.selectionBackgroundColor ? this.menuStyle.selectionBackgroundColor : void 0;
+    const outline = isSelected && this.menuStyle.selectionBorderColor ? `1px solid ${this.menuStyle.selectionBorderColor}` : "";
+    const outlineOffset = isSelected && this.menuStyle.selectionBorderColor ? `-1px` : "";
+    if (this.item) {
+      this.item.style.color = fgColor ?? "";
+      this.item.style.backgroundColor = bgColor ?? "";
+      this.item.style.outline = outline;
+      this.item.style.outlineOffset = outlineOffset;
+    }
+    if (this.check) {
+      this.check.style.color = fgColor ?? "";
+    }
+  }
+}
+class SubmenuMenuActionViewItem extends BaseMenuActionViewItem {
+  static {
+    __name(this, "SubmenuMenuActionViewItem");
+  }
+  constructor(action, submenuActions, parentData, submenuOptions, menuStyles) {
+    super(action, action, submenuOptions, menuStyles);
+    this.submenuActions = submenuActions;
+    this.parentData = parentData;
+    this.submenuOptions = submenuOptions;
+    this.mysubmenu = null;
+    this.submenuDisposables = this._register(new DisposableStore());
+    this.mouseOver = false;
+    this.expandDirection = submenuOptions && submenuOptions.expandDirection !== void 0 ? submenuOptions.expandDirection : { horizontal: HorizontalDirection.Right, vertical: VerticalDirection.Below };
+    this.showScheduler = new RunOnceScheduler(() => {
+      if (this.mouseOver) {
+        this.cleanupExistingSubmenu(false);
+        this.createSubmenu(false);
+      }
+    }, 250);
+    this.hideScheduler = new RunOnceScheduler(() => {
+      if (this.element && (!isAncestor(getActiveElement(), this.element) && this.parentData.submenu === this.mysubmenu)) {
+        this.parentData.parent.focus(false);
+        this.cleanupExistingSubmenu(true);
+      }
+    }, 750);
+  }
+  render(container) {
+    super.render(container);
+    if (!this.element) {
+      return;
+    }
+    if (this.item) {
+      this.item.classList.add("monaco-submenu-item");
+      this.item.tabIndex = 0;
+      this.item.setAttribute("aria-haspopup", "true");
+      this.updateAriaExpanded("false");
+      this.submenuIndicator = append(this.item, $("span.submenu-indicator" + ThemeIcon.asCSSSelector(Codicon.menuSubmenu)));
+      this.submenuIndicator.setAttribute("aria-hidden", "true");
+    }
+    this._register(addDisposableListener(this.element, EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        17
+        /* KeyCode.RightArrow */
+      ) || event.equals(
+        3
+        /* KeyCode.Enter */
+      )) {
+        EventHelper.stop(e, true);
+        this.createSubmenu(true);
+      }
+    }));
+    this._register(addDisposableListener(this.element, EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (getActiveElement() === this.item) {
+        if (event.equals(
+          17
+          /* KeyCode.RightArrow */
+        ) || event.equals(
+          3
+          /* KeyCode.Enter */
+        )) {
+          EventHelper.stop(e, true);
+        }
+      }
+    }));
+    this._register(addDisposableListener(this.element, EventType.MOUSE_OVER, (e) => {
+      if (!this.mouseOver) {
+        this.mouseOver = true;
+        this.showScheduler.schedule();
+      }
+    }));
+    this._register(addDisposableListener(this.element, EventType.MOUSE_LEAVE, (e) => {
+      this.mouseOver = false;
+    }));
+    this._register(addDisposableListener(this.element, EventType.FOCUS_OUT, (e) => {
+      if (this.element && !isAncestor(getActiveElement(), this.element)) {
+        this.hideScheduler.schedule();
+      }
+    }));
+    this._register(this.parentData.parent.onScroll(() => {
+      if (this.parentData.submenu === this.mysubmenu) {
+        this.parentData.parent.focus(false);
+        this.cleanupExistingSubmenu(true);
+      }
+    }));
+  }
+  updateEnabled() {
+  }
+  open(selectFirst) {
+    this.cleanupExistingSubmenu(false);
+    this.createSubmenu(selectFirst);
+  }
+  onClick(e) {
+    EventHelper.stop(e, true);
+    this.cleanupExistingSubmenu(false);
+    this.createSubmenu(true);
+  }
+  cleanupExistingSubmenu(force) {
+    if (this.parentData.submenu && (force || this.parentData.submenu !== this.mysubmenu)) {
+      try {
+        this.parentData.submenu.dispose();
+      } catch {
+      }
+      this.parentData.submenu = void 0;
+      this.updateAriaExpanded("false");
+      if (this.submenuContainer) {
+        this.submenuDisposables.clear();
+        this.submenuContainer = void 0;
+      }
+    }
+  }
+  calculateSubmenuMenuLayout(windowDimensions, submenu, entry, expandDirection) {
+    const ret = { top: 0, left: 0 };
+    ret.left = layout(windowDimensions.width, submenu.width, { position: expandDirection.horizontal === HorizontalDirection.Right ? 0 : 1, offset: entry.left, size: entry.width });
+    if (ret.left >= entry.left && ret.left < entry.left + entry.width) {
+      if (entry.left + 10 + submenu.width <= windowDimensions.width) {
+        ret.left = entry.left + 10;
+      }
+      entry.top += 10;
+      entry.height = 0;
+    }
+    ret.top = layout(windowDimensions.height, submenu.height, { position: 0, offset: entry.top, size: 0 });
+    if (ret.top + submenu.height === entry.top && ret.top + entry.height + submenu.height <= windowDimensions.height) {
+      ret.top += entry.height;
+    }
+    return ret;
+  }
+  createSubmenu(selectFirstItem = true) {
+    if (!this.element) {
+      return;
+    }
+    if (!this.parentData.submenu) {
+      this.updateAriaExpanded("true");
+      this.submenuContainer = append(this.element, $("div.monaco-submenu"));
+      this.submenuContainer.classList.add("menubar-menu-items-holder", "context-view");
+      const computedStyles = getWindow(this.parentData.parent.domNode).getComputedStyle(this.parentData.parent.domNode);
+      const paddingTop = parseFloat(computedStyles.paddingTop || "0") || 0;
+      this.submenuContainer.style.position = "fixed";
+      this.submenuContainer.style.top = "0";
+      this.submenuContainer.style.left = "0";
+      this.submenuContainer.style.zIndex = "1";
+      this.parentData.submenu = new Menu(this.submenuContainer, this.submenuActions.length ? this.submenuActions : [new EmptySubmenuAction()], this.submenuOptions, this.menuStyle);
+      const entryBox = this.element.getBoundingClientRect();
+      const entryBoxUpdated = {
+        top: entryBox.top - paddingTop,
+        left: entryBox.left,
+        height: entryBox.height + 2 * paddingTop,
+        width: entryBox.width
+      };
+      const viewBox = this.submenuContainer.getBoundingClientRect();
+      const window = getWindow(this.element);
+      const { top, left } = this.calculateSubmenuMenuLayout(new Dimension(window.innerWidth, window.innerHeight), Dimension.lift(viewBox), entryBoxUpdated, this.expandDirection);
+      this.submenuContainer.style.left = `${left - viewBox.left}px`;
+      this.submenuContainer.style.top = `${top - viewBox.top}px`;
+      this.submenuDisposables.add(addDisposableListener(this.submenuContainer, EventType.KEY_UP, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(
+          15
+          /* KeyCode.LeftArrow */
+        )) {
+          EventHelper.stop(e, true);
+          this.parentData.parent.focus();
+          this.cleanupExistingSubmenu(true);
+        }
+      }));
+      this.submenuDisposables.add(addDisposableListener(this.submenuContainer, EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(
+          15
+          /* KeyCode.LeftArrow */
+        )) {
+          EventHelper.stop(e, true);
+        }
+      }));
+      this.submenuDisposables.add(this.parentData.submenu.onDidCancel(() => {
+        this.parentData.parent.focus();
+        this.cleanupExistingSubmenu(true);
+      }));
+      this.parentData.submenu.focus(selectFirstItem);
+      this.mysubmenu = this.parentData.submenu;
+    } else {
+      this.parentData.submenu.focus(false);
+    }
+  }
+  updateAriaExpanded(value) {
+    if (this.item) {
+      this.item?.setAttribute("aria-expanded", value);
+    }
+  }
+  applyStyle() {
+    super.applyStyle();
+    const isSelected = this.element && this.element.classList.contains("focused");
+    const fgColor = isSelected && this.menuStyle.selectionForegroundColor ? this.menuStyle.selectionForegroundColor : this.menuStyle.foregroundColor;
+    if (this.submenuIndicator) {
+      this.submenuIndicator.style.color = fgColor ?? "";
+    }
+  }
+  dispose() {
+    super.dispose();
+    this.hideScheduler.dispose();
+    if (this.mysubmenu) {
+      this.mysubmenu.dispose();
+      this.mysubmenu = null;
+    }
+    if (this.submenuContainer) {
+      this.submenuContainer = void 0;
+    }
+  }
+}
+class MenuSeparatorActionViewItem extends ActionViewItem {
+  static {
+    __name(this, "MenuSeparatorActionViewItem");
+  }
+  constructor(context, action, options, menuStyles) {
+    super(context, action, options);
+    this.menuStyles = menuStyles;
+  }
+  render(container) {
+    super.render(container);
+    if (this.label) {
+      this.label.style.borderBottomColor = this.menuStyles.separatorColor ? `${this.menuStyles.separatorColor}` : "";
+    }
+  }
+}
+function cleanMnemonic(label) {
+  const regex = MENU_MNEMONIC_REGEX;
+  const matches = regex.exec(label);
+  if (!matches) {
+    return label;
+  }
+  const mnemonicInText = !matches[1];
+  return label.replace(regex, mnemonicInText ? "$2$3" : "").trim();
+}
+__name(cleanMnemonic, "cleanMnemonic");
+function formatRule(c) {
+  const fontCharacter = getCodiconFontCharacters()[c.id];
+  return `.codicon-${c.id}:before { content: '\\${fontCharacter.toString(16)}'; }`;
+}
+__name(formatRule, "formatRule");
+function getMenuWidgetCSS(style, isForShadowDom) {
+  let result = (
+    /* css */
+    `
 .monaco-menu {
 	font-size: 13px;
 	border-radius: 5px;
 	min-width: 160px;
 }
 
-${F(C.menuSelection)}
-${F(C.menuSubmenu)}
+${formatRule(Codicon.menuSelection)}
+${formatRule(Codicon.menuSubmenu)}
 
 .monaco-menu .monaco-action-bar {
 	text-align: right;
@@ -291,7 +1066,10 @@ ${F(C.menuSubmenu)}
 
 .monaco-menu .action-item {
 	cursor: default;
-}`;if(e){t+=`
+}`
+  );
+  if (isForShadowDom) {
+    result += `
 			/* Arrows */
 			.monaco-scrollable-element > .scrollbar > .scra {
 				cursor: pointer;
@@ -344,28 +1122,60 @@ ${F(C.menuSubmenu)}
 			.monaco-menu .action-item .monaco-submenu {
 				z-index: 1;
 			}
-		`;const i=r.scrollbarShadow;i&&(t+=`
+		`;
+    const scrollbarShadowColor = style.scrollbarShadow;
+    if (scrollbarShadowColor) {
+      result += `
 				.monaco-scrollable-element > .shadow.top {
-					box-shadow: ${i} 0 6px 6px -6px inset;
+					box-shadow: ${scrollbarShadowColor} 0 6px 6px -6px inset;
 				}
 
 				.monaco-scrollable-element > .shadow.left {
-					box-shadow: ${i} 6px 0 6px -6px inset;
+					box-shadow: ${scrollbarShadowColor} 6px 0 6px -6px inset;
 				}
 
 				.monaco-scrollable-element > .shadow.top.left {
-					box-shadow: ${i} 6px 6px 6px -6px inset;
+					box-shadow: ${scrollbarShadowColor} 6px 6px 6px -6px inset;
 				}
-			`);const n=r.scrollbarSliderBackground;n&&(t+=`
+			`;
+    }
+    const scrollbarSliderBackgroundColor = style.scrollbarSliderBackground;
+    if (scrollbarSliderBackgroundColor) {
+      result += `
 				.monaco-scrollable-element > .scrollbar > .slider {
-					background: ${n};
+					background: ${scrollbarSliderBackgroundColor};
 				}
-			`);const o=r.scrollbarSliderHoverBackground;o&&(t+=`
+			`;
+    }
+    const scrollbarSliderHoverBackgroundColor = style.scrollbarSliderHoverBackground;
+    if (scrollbarSliderHoverBackgroundColor) {
+      result += `
 				.monaco-scrollable-element > .scrollbar > .slider:hover {
-					background: ${o};
+					background: ${scrollbarSliderHoverBackgroundColor};
 				}
-			`);const c=r.scrollbarSliderActiveBackground;c&&(t+=`
+			`;
+    }
+    const scrollbarSliderActiveBackgroundColor = style.scrollbarSliderActiveBackground;
+    if (scrollbarSliderActiveBackgroundColor) {
+      result += `
 				.monaco-scrollable-element > .scrollbar > .slider.active {
-					background: ${c};
+					background: ${scrollbarSliderActiveBackgroundColor};
 				}
-			`)}return t}export{B as $_0,E as $a$,Se as $b$,v as $c$,ie as $d$,F as $e$,oe as $f$,y as HorizontalDirection,z as VerticalDirection};
+			`;
+    }
+  }
+  return result;
+}
+__name(getMenuWidgetCSS, "getMenuWidgetCSS");
+export {
+  HorizontalDirection,
+  MENU_ESCAPED_MNEMONIC_REGEX,
+  MENU_MNEMONIC_REGEX,
+  Menu,
+  VerticalDirection,
+  cleanMnemonic,
+  formatRule,
+  getMenuWidgetCSS,
+  unthemedMenuStyles
+};
+//# sourceMappingURL=menu.js.map

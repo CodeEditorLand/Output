@@ -1,1 +1,41 @@
-import{$Ed as l}from"../../../../base/common/lifecycle.js";import{$ohb as p,$jhb as u}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$$K as b}from"../../../services/workingCopy/common/workingCopyService.js";var h=function(o,t,e,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,r);else for(var s=o.length-1;s>=0;s--)(c=o[s])&&(i=(n<3?c(i):n>3?c(t,e,i):c(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},a=function(o,t){return function(e,r){t(e,r,o)}};let f=class extends l{static{this.ID="workbench.contrib.saveAccessibilitySignal"}constructor(t,e){super(),this.a=t,this.b=e,this.D(this.b.onDidSave(r=>this.a.playSignal(p.save,{userGesture:r.reason===1})))}};f=h([a(0,u),a(1,b)],f);export{f as $yIc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+let SaveAccessibilitySignalContribution = class SaveAccessibilitySignalContribution2 extends Disposable {
+  static {
+    __name(this, "SaveAccessibilitySignalContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.saveAccessibilitySignal";
+  }
+  constructor(_accessibilitySignalService, _workingCopyService) {
+    super();
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._workingCopyService = _workingCopyService;
+    this._register(this._workingCopyService.onDidSave((e) => this._accessibilitySignalService.playSignal(AccessibilitySignal.save, {
+      userGesture: e.reason === 1
+      /* SaveReason.EXPLICIT */
+    })));
+  }
+};
+SaveAccessibilitySignalContribution = __decorate([
+  __param(0, IAccessibilitySignalService),
+  __param(1, IWorkingCopyService)
+], SaveAccessibilitySignalContribution);
+export {
+  SaveAccessibilitySignalContribution
+};
+//# sourceMappingURL=saveAccessibilitySignal.js.map

@@ -1,1 +1,53 @@
-import{$Ed as f,$Fd as d}from"../../../../base/common/lifecycle.js";import{$JD as h}from"../../../../platform/accessibility/common/accessibility.js";import{$xo as m}from"../../../../platform/log/common/log.js";import{$EY as D}from"./debug.js";var a=function(c,t,i,n){var s=arguments.length,e=s<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,t,i,n);else for(var o=c.length-1;o>=0;o--)(r=c[o])&&(e=(s<3?r(e):s>3?r(t,i,e):r(t,i))||e);return s>3&&e&&Object.defineProperty(t,i,e),e},l=function(c,t){return function(i,n){t(i,n,c)}};let u=class extends f{static{this.ID="debug.replAccessibilityAnnouncer"}constructor(t,i,n){super();const s=t.getViewModel(),e=this.D(new d);this.D(s.onDidFocusSession(r=>{e.clear(),r&&(e.value=r.onDidChangeReplElements(o=>{if(!o||!("originalExpression"in o))return;const p=o.toString();i.status(p),n.trace("ReplAccessibilityAnnouncer#onDidChangeReplElements",o.originalExpression+": "+p)}))}))}};u=a([l(0,D),l(1,h),l(2,m)],u);export{u as $dxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDebugService } from "./debug.js";
+let ReplAccessibilityAnnouncer = class ReplAccessibilityAnnouncer2 extends Disposable {
+  static {
+    __name(this, "ReplAccessibilityAnnouncer");
+  }
+  static {
+    this.ID = "debug.replAccessibilityAnnouncer";
+  }
+  constructor(debugService, accessibilityService, logService) {
+    super();
+    const viewModel = debugService.getViewModel();
+    const mutableDispoable = this._register(new MutableDisposable());
+    this._register(viewModel.onDidFocusSession((session) => {
+      mutableDispoable.clear();
+      if (!session) {
+        return;
+      }
+      mutableDispoable.value = session.onDidChangeReplElements((element) => {
+        if (!element || !("originalExpression" in element)) {
+          return;
+        }
+        const value = element.toString();
+        accessibilityService.status(value);
+        logService.trace("ReplAccessibilityAnnouncer#onDidChangeReplElements", element.originalExpression + ": " + value);
+      });
+    }));
+  }
+};
+ReplAccessibilityAnnouncer = __decorate([
+  __param(0, IDebugService),
+  __param(1, IAccessibilityService),
+  __param(2, ILogService)
+], ReplAccessibilityAnnouncer);
+export {
+  ReplAccessibilityAnnouncer
+};
+//# sourceMappingURL=replAccessibilityAnnouncer.js.map

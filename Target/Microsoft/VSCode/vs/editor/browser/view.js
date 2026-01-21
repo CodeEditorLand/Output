@@ -1,1 +1,750 @@
-import*as f from"../../base/browser/dom.js";import{$h9 as w}from"../../base/browser/fastDomNode.js";import{inputLatency as P}from"../../base/browser/performance.js";import{$Db as m,$mb as W}from"../../base/common/errors.js";import{$Ed as x}from"../../base/common/lifecycle.js";import{$jfb as F}from"./controller/mouseTarget.js";import{$Jfb as S}from"./controller/pointerHandler.js";import{$veb as T}from"./view/renderingContext.js";import{$ofb as H}from"./view/viewController.js";import{$Nfb as E,$Ofb as z}from"./view/viewOverlays.js";import{$Deb as V}from"./view/viewPart.js";import{$nfb as Z}from"./view/viewUserInputEvents.js";import{$Pfb as J}from"./viewParts/blockDecorations/blockDecorations.js";import{$Qfb as I}from"./viewParts/contentWidgets/contentWidgets.js";import{$Sfb as j,$Tfb as A}from"./viewParts/currentLineHighlight/currentLineHighlight.js";import{$Ufb as G}from"./viewParts/decorations/decorations.js";import{$Vfb as B}from"./viewParts/editorScrollbar/editorScrollbar.js";import{$1fb as _}from"./viewParts/glyphMargin/glyphMargin.js";import{$2fb as Y}from"./viewParts/indentGuides/indentGuides.js";import{$3fb as Q}from"./viewParts/lineNumbers/lineNumbers.js";import{$4fb as U}from"./viewParts/viewLines/viewLines.js";import{$5fb as X}from"./viewParts/linesDecorations/linesDecorations.js";import{$6fb as k}from"./viewParts/margin/margin.js";import{$7fb as q}from"./viewParts/marginDecorations/marginDecorations.js";import{$cgb as K}from"./viewParts/minimap/minimap.js";import{$dgb as tt}from"./viewParts/overlayWidgets/overlayWidgets.js";import{$egb as et}from"./viewParts/overviewRuler/decorationsOverviewRuler.js";import{$fgb as it}from"./viewParts/overviewRuler/overviewRuler.js";import{$ggb as st}from"./viewParts/rulers/rulers.js";import{$hgb as ot}from"./viewParts/scrollDecoration/scrollDecoration.js";import{$igb as nt}from"./viewParts/selections/selections.js";import{$jgb as rt}from"./viewParts/viewCursors/viewCursors.js";import{$kgb as ht}from"./viewParts/viewZones/viewZones.js";import{$lgb as dt}from"./viewParts/whitespace/whitespace.js";import{$8D as v}from"../common/core/position.js";import{$9D as at}from"../common/core/range.js";import{$$D as lt}from"../common/core/selection.js";import{GlyphMarginLane as gt}from"../common/model.js";import{$3bb as pt}from"../common/viewEventHandler.js";import{$teb as mt}from"../common/viewLayout/viewLinesViewportData.js";import{$Beb as ft}from"../common/viewModel/viewContext.js";import{$Lj as ct}from"../../platform/instantiation/common/instantiation.js";import{$su as ut}from"../../platform/theme/common/themeService.js";import{$_eb as wt}from"./gpu/viewGpuContext.js";import{$ifb as vt}from"./viewParts/viewLinesGpu/viewLinesGpu.js";import{$ogb as bt}from"./controller/editContext/textArea/textAreaEditContext.js";import{$vgb as $}from"./controller/editContext/native/nativeEditContext.js";import{$wgb as Nt}from"./viewParts/rulersGpu/rulersGpu.js";import{$xgb as Ct}from"./viewParts/gpuMark/gpuMark.js";import{$wf as Dt}from"../../base/common/event.js";var M=function(r,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,i);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(s=(o<3?n(s):o>3?n(t,e,s):n(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},O=function(r,t){return function(e,i){t(e,i,r)}};let R=class extends pt{constructor(t,e,i,o,s,n,h,d,L){super(),this.P=L,this.M=!1,this.O=e,this.c=this.D(new yt(t,d)),this.D(this.c.onChange(()=>{this.g.viewModel.setHasWidgetFocus(this.c.hasFocus())})),this.j=[new lt(1,1,1,1)],this.N=null,this.L=w(document.createElement("div")),V.write(this.L,3),this.L.setClassName("overflow-guard"),this.C=new H(o,n,h,i),this.g=new ft(o,s,n),this.g.addEventHandler(this),this.z=[],this.F=this.g.configuration.options.get(170),this.G=this.g.configuration.options.get(2),this.H=this.Q(),this.z.push(this.H),this.J=w(document.createElement("div")),this.J.setClassName("lines-content monaco-editor-background"),this.J.setPosition("absolute"),this.domNode=w(document.createElement("div")),this.domNode.setClassName(this.Y()),this.domNode.setAttribute("role","code"),this.g.configuration.options.get(46)==="on"&&(this.h=this.P.createInstance(wt,this.g)),this.f=new B(this.g,this.J,this.domNode,this.L),this.z.push(this.f),this.n=new U(this.g,this.h,this.J),this.h&&(this.r=this.P.createInstance(vt,this.g,this.h)),this.s=new ht(this.g),this.z.push(this.s);const c=new et(this.g);this.z.push(c);const N=new ot(this.g);this.z.push(N);const l=new E(this.g);this.z.push(l),l.addDynamicOverlay(new j(this.g)),l.addDynamicOverlay(new nt(this.g)),l.addDynamicOverlay(new Y(this.g)),l.addDynamicOverlay(new G(this.g)),l.addDynamicOverlay(new dt(this.g));const g=new z(this.g);this.z.push(g),g.addDynamicOverlay(new A(this.g)),g.addDynamicOverlay(new q(this.g)),g.addDynamicOverlay(new X(this.g)),g.addDynamicOverlay(new Q(this.g)),this.h&&g.addDynamicOverlay(new Ct(this.g,this.h)),this.w=new _(this.g),this.z.push(this.w);const p=new k(this.g);p.getDomNode().appendChild(this.s.marginDomNode),p.getDomNode().appendChild(g.getDomNode()),p.getDomNode().appendChild(this.w.domNode),this.z.push(p),this.t=new I(this.g,this.domNode),this.z.push(this.t),this.y=new rt(this.g),this.z.push(this.y),this.u=new tt(this.g,this.domNode),this.z.push(this.u);const u=this.h?new Nt(this.g,this.h):new st(this.g);this.z.push(u);const C=new J(this.g);this.z.push(C);const D=new K(this.g);if(this.z.push(D),c){const y=this.f.getOverviewRulerLayoutInfo();y.parent.insertBefore(c.getDomNode(),y.insertBefore)}this.J.appendChild(l.getDomNode()),"domNode"in u&&this.J.appendChild(u.domNode),this.J.appendChild(this.s.domNode),this.J.appendChild(this.n.getDomNode()),this.J.appendChild(this.t.domNode),this.J.appendChild(this.y.getDomNode()),this.L.appendChild(p.getDomNode()),this.L.appendChild(this.f.getDomNode()),this.h&&this.L.appendChild(this.h.canvas),this.L.appendChild(N.getDomNode()),this.L.appendChild(this.u.getDomNode()),this.L.appendChild(D.getDomNode()),this.L.appendChild(C.domNode),this.domNode.appendChild(this.L),d?(d.appendChild(this.t.overflowingContentWidgetsDomNode.domNode),d.appendChild(this.u.overflowingOverlayWidgetsDomNode.domNode)):(this.domNode.appendChild(this.t.overflowingContentWidgetsDomNode),this.domNode.appendChild(this.u.overflowingOverlayWidgetsDomNode)),this.X(),this.I=this.D(new S(this.g,this.C,this.U()))}Q(){return this.g.configuration.options.get(170)?this.P.createInstance($,this.O,this.g,this.L,this.C,this.W()):this.P.createInstance(bt,this.O,this.g,this.L,this.C,this.W())}R(){const t=this.g.configuration.options.get(170),e=this.g.configuration.options.get(2);if(this.F===t&&this.G===e)return;this.F=t,this.G=e;const i=this.H.isFocused(),o=this.z.indexOf(this.H);this.H.dispose(),this.H=this.Q(),i&&this.H.focus(),o!==-1&&this.z.splice(o,1,this.H)}S(){const t=this.g.viewModel.model,e=this.g.viewModel.glyphLanes;let i=[],o=0;i=i.concat(t.getAllMarginDecorations().map(s=>{const n=s.options.glyphMargin?.position??gt.Center;return o=Math.max(o,s.range.endLineNumber),{range:s.range,lane:n,persist:s.options.glyphMargin?.persistLane}})),i=i.concat(this.w.getWidgets().map(s=>{const n=t.validateRange(s.preference.range);return o=Math.max(o,n.endLineNumber),{range:n,lane:s.preference.lane}})),i.sort((s,n)=>at.compareRangesUsingStarts(s.range,n.range)),e.reset(o);for(const s of i)e.push(s.lane,s.range,s.persist);return e}U(){return{viewDomNode:this.domNode.domNode,linesContentDomNode:this.J.domNode,viewLinesDomNode:this.n.getDomNode().domNode,viewLinesGpu:this.r,focusTextArea:()=>{this.focus()},dispatchTextAreaEvent:t=>{this.H.domNode.domNode.dispatchEvent(t)},getLastRenderData:()=>{const t=this.y.getLastRenderData()||[],e=this.H.getLastRenderData();return new F(t,e)},renderNow:()=>{this.render(!0,!1)},shouldSuppressMouseDownOnViewZone:t=>this.s.shouldSuppressMouseDownOnViewZone(t),shouldSuppressMouseDownOnWidget:t=>this.t.shouldSuppressMouseDownOnWidget(t),getPositionFromDOMInfo:(t,e)=>(this.$(),this.n.getPositionFromDOMInfo(t,e)),visibleRangeForPosition:(t,e)=>{this.$();const i=new v(t,e);return this.n.visibleRangeForPosition(i)??this.r?.visibleRangeForPosition(i)??null},getLineWidth:t=>{if(this.$(),this.r){const e=this.r.getLineWidth(t);if(e!==void 0)return e}return this.n.getLineWidth(t)}}}W(){return{visibleRangeForPosition:t=>(this.$(),this.n.visibleRangeForPosition(t)),linesVisibleRangesForRange:(t,e)=>(this.$(),this.n.linesVisibleRangesForRange(t,e))}}X(){const e=this.g.configuration.options.get(165);this.domNode.setWidth(e.width),this.domNode.setHeight(e.height),this.L.setWidth(e.width),this.L.setHeight(e.height),this.J.setWidth(16777216),this.J.setHeight(16777216)}Y(){const t=this.H.isFocused()?" focused":"";return this.g.configuration.options.get(162)+" "+ut(this.g.theme.type)+t}handleEvents(t){super.handleEvents(t),this.Z()}onConfigurationChanged(t){return this.domNode.setClassName(this.Y()),this.R(),this.X(),!1}onCursorStateChanged(t){return this.j=t.selections,!1}onDecorationsChanged(t){return t.affectsGlyphMargin&&(this.M=!0),!1}onFocusChanged(t){return this.domNode.setClassName(this.Y()),!1}onThemeChanged(t){return this.g.theme.update(t.theme),this.domNode.setClassName(this.Y()),!1}dispose(){this.N!==null&&(this.N.dispose(),this.N=null),this.t.overflowingContentWidgetsDomNode.domNode.remove(),this.u.overflowingOverlayWidgetsDomNode.domNode.remove(),this.g.removeEventHandler(this),this.h?.dispose(),this.n.dispose(),this.r?.dispose();for(const t of this.z)t.dispose();super.dispose()}Z(){if(this.B.isDisposed)throw new m;if(this.N===null){this.H instanceof $&&this.H.setEditContextOnDomNode();const t=this.bb();this.N=b.INSTANCE.scheduleCoordinatedRendering({window:f.getWindow(this.domNode?.domNode),prepareRenderText:()=>{if(this.B.isDisposed)throw new m;try{return t.prepareRenderText()}finally{this.N=null}},renderText:()=>{if(this.B.isDisposed)throw new m;return t.renderText()},prepareRender:(e,i)=>{if(this.B.isDisposed)throw new m;return t.prepareRender(e,i)},render:(e,i)=>{if(this.B.isDisposed)throw new m;return t.render(e,i)}})}}$(){const t=this.bb();a(()=>t.prepareRenderText());const e=a(()=>t.renderText());if(e){const[i,o]=e;a(()=>t.prepareRender(i,o)),a(()=>t.render(i,o))}}ab(){const t=[];let e=0;for(const i of this.z)i.shouldRender()&&(t[e++]=i);return t}bb(){return{prepareRenderText:()=>{if(this.M){this.M=!1;const t=this.S();this.g.configuration.setGlyphMarginDecorationLaneCount(t.requiredLanes)}P.onRenderStart()},renderText:()=>{if(!this.domNode.domNode.isConnected)return null;let t=this.ab();if(!this.n.shouldRender()&&t.length===0)return null;const e=this.g.viewLayout.getLinesViewportData();this.g.viewModel.setViewport(e.startLineNumber,e.endLineNumber,e.centeredLineNumber);const i=new mt(this.j,e,this.g.viewLayout.getWhitespaceViewportData(),this.g.viewModel);return this.t.shouldRender()&&this.t.onBeforeRender(i),this.n.shouldRender()&&(this.n.renderText(i),this.n.onDidRender(),t=this.ab()),this.r?.shouldRender()&&(this.r.renderText(i),this.r.onDidRender()),[t,new T(this.g.viewLayout,i,this.n,this.r)]},prepareRender:(t,e)=>{for(const i of t)i.prepareRender(e)},render:(t,e)=>{for(const i of t)i.render(e),i.onDidRender()}}}delegateVerticalScrollbarPointerDown(t){this.f.delegateVerticalScrollbarPointerDown(t)}delegateScrollFromMouseWheelEvent(t){this.f.delegateScrollFromMouseWheelEvent(t)}restoreState(t){this.g.viewModel.viewLayout.setScrollPosition({scrollTop:t.scrollTop,scrollLeft:t.scrollLeft},1),this.g.viewModel.visibleLinesStabilized()}getOffsetForColumn(t,e){const i=this.g.viewModel.model.validatePosition({lineNumber:t,column:e}),o=this.g.viewModel.coordinatesConverter.convertModelPositionToViewPosition(i);this.$();const s=this.n.visibleRangeForPosition(new v(o.lineNumber,o.column));return s?s.left:-1}getLineWidth(t){const e=this.g.viewModel.model,i=this.g.viewModel.coordinatesConverter.convertModelPositionToViewPosition(new v(t,e.getLineMaxColumn(t))).lineNumber;return this.$(),this.n.getLineWidth(i)}getTargetAtClientPoint(t,e){const i=this.I.getTargetAtClientPoint(t,e);return i?Z.convertViewToModelMouseTarget(i,this.g.viewModel.coordinatesConverter):null}createOverviewRuler(t){return new it(this.g,t)}change(t){this.s.changeViewZones(t),this.Z()}render(t,e){if(e){this.n.forceShouldRender();for(const i of this.z)i.forceShouldRender()}t?this.$():this.Z()}writeScreenReaderContent(t){this.H.writeScreenReaderContent(t)}focus(){this.H.focus()}isFocused(){return this.H.isFocused()}isWidgetFocused(){return this.c.hasFocus()}refreshFocusState(){this.H.refreshFocusState(),this.c.refreshState()}setAriaOptions(t){this.H.setAriaOptions(t)}addContentWidget(t){this.t.addWidget(t.widget),this.layoutContentWidget(t),this.Z()}layoutContentWidget(t){this.t.setWidgetPosition(t.widget,t.position?.position??null,t.position?.secondaryPosition??null,t.position?.preference??null,t.position?.positionAffinity??null),this.t.shouldRender()&&this.Z()}removeContentWidget(t){this.t.removeWidget(t.widget),this.Z()}addOverlayWidget(t){this.u.addWidget(t.widget),this.layoutOverlayWidget(t),this.Z()}layoutOverlayWidget(t){this.u.setWidgetPosition(t.widget,t.position)&&this.Z()}removeOverlayWidget(t){this.u.removeWidget(t.widget),this.Z()}addGlyphMarginWidget(t){this.w.addWidget(t.widget),this.M=!0,this.Z()}layoutGlyphMarginWidget(t){const e=t.position;this.w.setWidgetPosition(t.widget,e)&&(this.M=!0,this.Z())}removeGlyphMarginWidget(t){this.w.removeWidget(t.widget),this.M=!0,this.Z()}};R=M([O(8,ct)],R);function a(r){try{return r()}catch(t){return W(t),null}}class b{static{this.INSTANCE=new b}constructor(){this.c=[],this.d=new Map}scheduleCoordinatedRendering(t){return this.c.push(t),this.f(t.window),{dispose:()=>{const e=this.c.indexOf(t);if(e!==-1&&(this.c.splice(e,1),this.c.length===0)){for(const[i,o]of this.d)o.dispose();this.d.clear()}}}}f(t){if(!this.d.has(t)){const e=()=>{this.d.delete(t),this.g()};this.d.set(t,f.$O7(t,e,100))}}g(){const t=this.c.slice(0);this.c=[];for(const i of t)a(()=>i.prepareRenderText());const e=[];for(let i=0,o=t.length;i<o;i++){const s=t[i];e[i]=a(()=>s.renderText())}for(let i=0,o=t.length;i<o;i++){const s=t[i],n=e[i];if(!n)continue;const[h,d]=n;a(()=>s.prepareRender(h,d))}for(let i=0,o=t.length;i<o;i++){const s=t[i],n=e[i];if(!n)continue;const[h,d]=n;a(()=>s.render(h,d))}}}class yt extends x{constructor(t,e){super(),this.h=this.D(new Dt),this.onChange=this.h.event,this.m=void 0,this.c=!1,this.f=this.D(f.$G8(t)),this.j=!1,this.D(this.f.onDidFocus(()=>{this.c=!0,this.n()})),this.D(this.f.onDidBlur(()=>{this.c=!1,this.n()})),e&&(this.g=this.D(f.$G8(e)),this.D(this.g.onDidFocus(()=>{this.j=!0,this.n()})),this.D(this.g.onDidBlur(()=>{this.j=!1,this.n()})))}n(){const t=this.c||this.j;this.m!==t&&(this.m=t,this.h.fire(void 0))}hasFocus(){return this.m??!1}refreshState(){this.f.refreshState(),this.g?.refreshState?.()}}export{R as View};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../base/browser/dom.js";
+import { createFastDomNode } from "../../base/browser/fastDomNode.js";
+import { inputLatency } from "../../base/browser/performance.js";
+import { BugIndicatingError, onUnexpectedError } from "../../base/common/errors.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { PointerHandlerLastRenderData } from "./controller/mouseTarget.js";
+import { PointerHandler } from "./controller/pointerHandler.js";
+import { RenderingContext } from "./view/renderingContext.js";
+import { ViewController } from "./view/viewController.js";
+import { ContentViewOverlays, MarginViewOverlays } from "./view/viewOverlays.js";
+import { PartFingerprints } from "./view/viewPart.js";
+import { ViewUserInputEvents } from "./view/viewUserInputEvents.js";
+import { BlockDecorations } from "./viewParts/blockDecorations/blockDecorations.js";
+import { ViewContentWidgets } from "./viewParts/contentWidgets/contentWidgets.js";
+import { CurrentLineHighlightOverlay, CurrentLineMarginHighlightOverlay } from "./viewParts/currentLineHighlight/currentLineHighlight.js";
+import { DecorationsOverlay } from "./viewParts/decorations/decorations.js";
+import { EditorScrollbar } from "./viewParts/editorScrollbar/editorScrollbar.js";
+import { GlyphMarginWidgets } from "./viewParts/glyphMargin/glyphMargin.js";
+import { IndentGuidesOverlay } from "./viewParts/indentGuides/indentGuides.js";
+import { LineNumbersOverlay } from "./viewParts/lineNumbers/lineNumbers.js";
+import { ViewLines } from "./viewParts/viewLines/viewLines.js";
+import { LinesDecorationsOverlay } from "./viewParts/linesDecorations/linesDecorations.js";
+import { Margin } from "./viewParts/margin/margin.js";
+import { MarginViewLineDecorationsOverlay } from "./viewParts/marginDecorations/marginDecorations.js";
+import { Minimap } from "./viewParts/minimap/minimap.js";
+import { ViewOverlayWidgets } from "./viewParts/overlayWidgets/overlayWidgets.js";
+import { DecorationsOverviewRuler } from "./viewParts/overviewRuler/decorationsOverviewRuler.js";
+import { OverviewRuler } from "./viewParts/overviewRuler/overviewRuler.js";
+import { Rulers } from "./viewParts/rulers/rulers.js";
+import { ScrollDecorationViewPart } from "./viewParts/scrollDecoration/scrollDecoration.js";
+import { SelectionsOverlay } from "./viewParts/selections/selections.js";
+import { ViewCursors } from "./viewParts/viewCursors/viewCursors.js";
+import { ViewZones } from "./viewParts/viewZones/viewZones.js";
+import { WhitespaceOverlay } from "./viewParts/whitespace/whitespace.js";
+import { Position } from "../common/core/position.js";
+import { Range } from "../common/core/range.js";
+import { Selection } from "../common/core/selection.js";
+import { GlyphMarginLane } from "../common/model.js";
+import { ViewEventHandler } from "../common/viewEventHandler.js";
+import { ViewportData } from "../common/viewLayout/viewLinesViewportData.js";
+import { ViewContext } from "../common/viewModel/viewContext.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { getThemeTypeSelector } from "../../platform/theme/common/themeService.js";
+import { ViewGpuContext } from "./gpu/viewGpuContext.js";
+import { ViewLinesGpu } from "./viewParts/viewLinesGpu/viewLinesGpu.js";
+import { TextAreaEditContext } from "./controller/editContext/textArea/textAreaEditContext.js";
+import { NativeEditContext } from "./controller/editContext/native/nativeEditContext.js";
+import { RulersGpu } from "./viewParts/rulersGpu/rulersGpu.js";
+import { GpuMarkOverlay } from "./viewParts/gpuMark/gpuMark.js";
+import { Emitter } from "../../base/common/event.js";
+let View = class View2 extends ViewEventHandler {
+  static {
+    __name(this, "View");
+  }
+  constructor(editorContainer, ownerID, commandDelegate, configuration, colorTheme, model, userInputEvents, overflowWidgetsDomNode, _instantiationService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._shouldRecomputeGlyphMarginLanes = false;
+    this._ownerID = ownerID;
+    this._widgetFocusTracker = this._register(new CodeEditorWidgetFocusTracker(editorContainer, overflowWidgetsDomNode));
+    this._register(this._widgetFocusTracker.onChange(() => {
+      this._context.viewModel.setHasWidgetFocus(this._widgetFocusTracker.hasFocus());
+    }));
+    this._selections = [new Selection(1, 1, 1, 1)];
+    this._renderAnimationFrame = null;
+    this._overflowGuardContainer = createFastDomNode(document.createElement("div"));
+    PartFingerprints.write(
+      this._overflowGuardContainer,
+      3
+      /* PartFingerprint.OverflowGuard */
+    );
+    this._overflowGuardContainer.setClassName("overflow-guard");
+    this._viewController = new ViewController(configuration, model, userInputEvents, commandDelegate);
+    this._context = new ViewContext(configuration, colorTheme, model);
+    this._context.addEventHandler(this);
+    this._viewParts = [];
+    this._editContextEnabled = this._context.configuration.options.get(
+      170
+      /* EditorOption.effectiveEditContext */
+    );
+    this._accessibilitySupport = this._context.configuration.options.get(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    this._editContext = this._instantiateEditContext();
+    this._viewParts.push(this._editContext);
+    this._linesContent = createFastDomNode(document.createElement("div"));
+    this._linesContent.setClassName("lines-content monaco-editor-background");
+    this._linesContent.setPosition("absolute");
+    this.domNode = createFastDomNode(document.createElement("div"));
+    this.domNode.setClassName(this._getEditorClassName());
+    this.domNode.setAttribute("role", "code");
+    if (this._context.configuration.options.get(
+      46
+      /* EditorOption.experimentalGpuAcceleration */
+    ) === "on") {
+      this._viewGpuContext = this._instantiationService.createInstance(ViewGpuContext, this._context);
+    }
+    this._scrollbar = new EditorScrollbar(this._context, this._linesContent, this.domNode, this._overflowGuardContainer);
+    this._viewParts.push(this._scrollbar);
+    this._viewLines = new ViewLines(this._context, this._viewGpuContext, this._linesContent);
+    if (this._viewGpuContext) {
+      this._viewLinesGpu = this._instantiationService.createInstance(ViewLinesGpu, this._context, this._viewGpuContext);
+    }
+    this._viewZones = new ViewZones(this._context);
+    this._viewParts.push(this._viewZones);
+    const decorationsOverviewRuler = new DecorationsOverviewRuler(this._context);
+    this._viewParts.push(decorationsOverviewRuler);
+    const scrollDecoration = new ScrollDecorationViewPart(this._context);
+    this._viewParts.push(scrollDecoration);
+    const contentViewOverlays = new ContentViewOverlays(this._context);
+    this._viewParts.push(contentViewOverlays);
+    contentViewOverlays.addDynamicOverlay(new CurrentLineHighlightOverlay(this._context));
+    contentViewOverlays.addDynamicOverlay(new SelectionsOverlay(this._context));
+    contentViewOverlays.addDynamicOverlay(new IndentGuidesOverlay(this._context));
+    contentViewOverlays.addDynamicOverlay(new DecorationsOverlay(this._context));
+    contentViewOverlays.addDynamicOverlay(new WhitespaceOverlay(this._context));
+    const marginViewOverlays = new MarginViewOverlays(this._context);
+    this._viewParts.push(marginViewOverlays);
+    marginViewOverlays.addDynamicOverlay(new CurrentLineMarginHighlightOverlay(this._context));
+    marginViewOverlays.addDynamicOverlay(new MarginViewLineDecorationsOverlay(this._context));
+    marginViewOverlays.addDynamicOverlay(new LinesDecorationsOverlay(this._context));
+    marginViewOverlays.addDynamicOverlay(new LineNumbersOverlay(this._context));
+    if (this._viewGpuContext) {
+      marginViewOverlays.addDynamicOverlay(new GpuMarkOverlay(this._context, this._viewGpuContext));
+    }
+    this._glyphMarginWidgets = new GlyphMarginWidgets(this._context);
+    this._viewParts.push(this._glyphMarginWidgets);
+    const margin = new Margin(this._context);
+    margin.getDomNode().appendChild(this._viewZones.marginDomNode);
+    margin.getDomNode().appendChild(marginViewOverlays.getDomNode());
+    margin.getDomNode().appendChild(this._glyphMarginWidgets.domNode);
+    this._viewParts.push(margin);
+    this._contentWidgets = new ViewContentWidgets(this._context, this.domNode);
+    this._viewParts.push(this._contentWidgets);
+    this._viewCursors = new ViewCursors(this._context);
+    this._viewParts.push(this._viewCursors);
+    this._overlayWidgets = new ViewOverlayWidgets(this._context, this.domNode);
+    this._viewParts.push(this._overlayWidgets);
+    const rulers = this._viewGpuContext ? new RulersGpu(this._context, this._viewGpuContext) : new Rulers(this._context);
+    this._viewParts.push(rulers);
+    const blockOutline = new BlockDecorations(this._context);
+    this._viewParts.push(blockOutline);
+    const minimap = new Minimap(this._context);
+    this._viewParts.push(minimap);
+    if (decorationsOverviewRuler) {
+      const overviewRulerData = this._scrollbar.getOverviewRulerLayoutInfo();
+      overviewRulerData.parent.insertBefore(decorationsOverviewRuler.getDomNode(), overviewRulerData.insertBefore);
+    }
+    this._linesContent.appendChild(contentViewOverlays.getDomNode());
+    if ("domNode" in rulers) {
+      this._linesContent.appendChild(rulers.domNode);
+    }
+    this._linesContent.appendChild(this._viewZones.domNode);
+    this._linesContent.appendChild(this._viewLines.getDomNode());
+    this._linesContent.appendChild(this._contentWidgets.domNode);
+    this._linesContent.appendChild(this._viewCursors.getDomNode());
+    this._overflowGuardContainer.appendChild(margin.getDomNode());
+    this._overflowGuardContainer.appendChild(this._scrollbar.getDomNode());
+    if (this._viewGpuContext) {
+      this._overflowGuardContainer.appendChild(this._viewGpuContext.canvas);
+    }
+    this._overflowGuardContainer.appendChild(scrollDecoration.getDomNode());
+    this._overflowGuardContainer.appendChild(this._overlayWidgets.getDomNode());
+    this._overflowGuardContainer.appendChild(minimap.getDomNode());
+    this._overflowGuardContainer.appendChild(blockOutline.domNode);
+    this.domNode.appendChild(this._overflowGuardContainer);
+    if (overflowWidgetsDomNode) {
+      overflowWidgetsDomNode.appendChild(this._contentWidgets.overflowingContentWidgetsDomNode.domNode);
+      overflowWidgetsDomNode.appendChild(this._overlayWidgets.overflowingOverlayWidgetsDomNode.domNode);
+    } else {
+      this.domNode.appendChild(this._contentWidgets.overflowingContentWidgetsDomNode);
+      this.domNode.appendChild(this._overlayWidgets.overflowingOverlayWidgetsDomNode);
+    }
+    this._applyLayout();
+    this._pointerHandler = this._register(new PointerHandler(this._context, this._viewController, this._createPointerHandlerHelper()));
+  }
+  _instantiateEditContext() {
+    const usingExperimentalEditContext = this._context.configuration.options.get(
+      170
+      /* EditorOption.effectiveEditContext */
+    );
+    if (usingExperimentalEditContext) {
+      return this._instantiationService.createInstance(NativeEditContext, this._ownerID, this._context, this._overflowGuardContainer, this._viewController, this._createTextAreaHandlerHelper());
+    } else {
+      return this._instantiationService.createInstance(TextAreaEditContext, this._ownerID, this._context, this._overflowGuardContainer, this._viewController, this._createTextAreaHandlerHelper());
+    }
+  }
+  _updateEditContext() {
+    const editContextEnabled = this._context.configuration.options.get(
+      170
+      /* EditorOption.effectiveEditContext */
+    );
+    const accessibilitySupport = this._context.configuration.options.get(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    if (this._editContextEnabled === editContextEnabled && this._accessibilitySupport === accessibilitySupport) {
+      return;
+    }
+    this._editContextEnabled = editContextEnabled;
+    this._accessibilitySupport = accessibilitySupport;
+    const isEditContextFocused = this._editContext.isFocused();
+    const indexOfEditContext = this._viewParts.indexOf(this._editContext);
+    this._editContext.dispose();
+    this._editContext = this._instantiateEditContext();
+    if (isEditContextFocused) {
+      this._editContext.focus();
+    }
+    if (indexOfEditContext !== -1) {
+      this._viewParts.splice(indexOfEditContext, 1, this._editContext);
+    }
+  }
+  _computeGlyphMarginLanes() {
+    const model = this._context.viewModel.model;
+    const laneModel = this._context.viewModel.glyphLanes;
+    let glyphs = [];
+    let maxLineNumber = 0;
+    glyphs = glyphs.concat(model.getAllMarginDecorations().map((decoration) => {
+      const lane = decoration.options.glyphMargin?.position ?? GlyphMarginLane.Center;
+      maxLineNumber = Math.max(maxLineNumber, decoration.range.endLineNumber);
+      return { range: decoration.range, lane, persist: decoration.options.glyphMargin?.persistLane };
+    }));
+    glyphs = glyphs.concat(this._glyphMarginWidgets.getWidgets().map((widget) => {
+      const range = model.validateRange(widget.preference.range);
+      maxLineNumber = Math.max(maxLineNumber, range.endLineNumber);
+      return { range, lane: widget.preference.lane };
+    }));
+    glyphs.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
+    laneModel.reset(maxLineNumber);
+    for (const glyph of glyphs) {
+      laneModel.push(glyph.lane, glyph.range, glyph.persist);
+    }
+    return laneModel;
+  }
+  _createPointerHandlerHelper() {
+    return {
+      viewDomNode: this.domNode.domNode,
+      linesContentDomNode: this._linesContent.domNode,
+      viewLinesDomNode: this._viewLines.getDomNode().domNode,
+      viewLinesGpu: this._viewLinesGpu,
+      focusTextArea: /* @__PURE__ */ __name(() => {
+        this.focus();
+      }, "focusTextArea"),
+      dispatchTextAreaEvent: /* @__PURE__ */ __name((event) => {
+        this._editContext.domNode.domNode.dispatchEvent(event);
+      }, "dispatchTextAreaEvent"),
+      getLastRenderData: /* @__PURE__ */ __name(() => {
+        const lastViewCursorsRenderData = this._viewCursors.getLastRenderData() || [];
+        const lastTextareaPosition = this._editContext.getLastRenderData();
+        return new PointerHandlerLastRenderData(lastViewCursorsRenderData, lastTextareaPosition);
+      }, "getLastRenderData"),
+      renderNow: /* @__PURE__ */ __name(() => {
+        this.render(true, false);
+      }, "renderNow"),
+      shouldSuppressMouseDownOnViewZone: /* @__PURE__ */ __name((viewZoneId) => {
+        return this._viewZones.shouldSuppressMouseDownOnViewZone(viewZoneId);
+      }, "shouldSuppressMouseDownOnViewZone"),
+      shouldSuppressMouseDownOnWidget: /* @__PURE__ */ __name((widgetId) => {
+        return this._contentWidgets.shouldSuppressMouseDownOnWidget(widgetId);
+      }, "shouldSuppressMouseDownOnWidget"),
+      getPositionFromDOMInfo: /* @__PURE__ */ __name((spanNode, offset) => {
+        this._flushAccumulatedAndRenderNow();
+        return this._viewLines.getPositionFromDOMInfo(spanNode, offset);
+      }, "getPositionFromDOMInfo"),
+      visibleRangeForPosition: /* @__PURE__ */ __name((lineNumber, column) => {
+        this._flushAccumulatedAndRenderNow();
+        const position = new Position(lineNumber, column);
+        return this._viewLines.visibleRangeForPosition(position) ?? this._viewLinesGpu?.visibleRangeForPosition(position) ?? null;
+      }, "visibleRangeForPosition"),
+      getLineWidth: /* @__PURE__ */ __name((lineNumber) => {
+        this._flushAccumulatedAndRenderNow();
+        if (this._viewLinesGpu) {
+          const result = this._viewLinesGpu.getLineWidth(lineNumber);
+          if (result !== void 0) {
+            return result;
+          }
+        }
+        return this._viewLines.getLineWidth(lineNumber);
+      }, "getLineWidth")
+    };
+  }
+  _createTextAreaHandlerHelper() {
+    return {
+      visibleRangeForPosition: /* @__PURE__ */ __name((position) => {
+        this._flushAccumulatedAndRenderNow();
+        return this._viewLines.visibleRangeForPosition(position);
+      }, "visibleRangeForPosition"),
+      linesVisibleRangesForRange: /* @__PURE__ */ __name((range, includeNewLines) => {
+        this._flushAccumulatedAndRenderNow();
+        return this._viewLines.linesVisibleRangesForRange(range, includeNewLines);
+      }, "linesVisibleRangesForRange")
+    };
+  }
+  _applyLayout() {
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    this.domNode.setWidth(layoutInfo.width);
+    this.domNode.setHeight(layoutInfo.height);
+    this._overflowGuardContainer.setWidth(layoutInfo.width);
+    this._overflowGuardContainer.setHeight(layoutInfo.height);
+    this._linesContent.setWidth(16777216);
+    this._linesContent.setHeight(16777216);
+  }
+  _getEditorClassName() {
+    const focused = this._editContext.isFocused() ? " focused" : "";
+    return this._context.configuration.options.get(
+      162
+      /* EditorOption.editorClassName */
+    ) + " " + getThemeTypeSelector(this._context.theme.type) + focused;
+  }
+  // --- begin event handlers
+  handleEvents(events) {
+    super.handleEvents(events);
+    this._scheduleRender();
+  }
+  onConfigurationChanged(e) {
+    this.domNode.setClassName(this._getEditorClassName());
+    this._updateEditContext();
+    this._applyLayout();
+    return false;
+  }
+  onCursorStateChanged(e) {
+    this._selections = e.selections;
+    return false;
+  }
+  onDecorationsChanged(e) {
+    if (e.affectsGlyphMargin) {
+      this._shouldRecomputeGlyphMarginLanes = true;
+    }
+    return false;
+  }
+  onFocusChanged(e) {
+    this.domNode.setClassName(this._getEditorClassName());
+    return false;
+  }
+  onThemeChanged(e) {
+    this._context.theme.update(e.theme);
+    this.domNode.setClassName(this._getEditorClassName());
+    return false;
+  }
+  // --- end event handlers
+  dispose() {
+    if (this._renderAnimationFrame !== null) {
+      this._renderAnimationFrame.dispose();
+      this._renderAnimationFrame = null;
+    }
+    this._contentWidgets.overflowingContentWidgetsDomNode.domNode.remove();
+    this._overlayWidgets.overflowingOverlayWidgetsDomNode.domNode.remove();
+    this._context.removeEventHandler(this);
+    this._viewGpuContext?.dispose();
+    this._viewLines.dispose();
+    this._viewLinesGpu?.dispose();
+    for (const viewPart of this._viewParts) {
+      viewPart.dispose();
+    }
+    super.dispose();
+  }
+  _scheduleRender() {
+    if (this._store.isDisposed) {
+      throw new BugIndicatingError();
+    }
+    if (this._renderAnimationFrame === null) {
+      if (this._editContext instanceof NativeEditContext) {
+        this._editContext.setEditContextOnDomNode();
+      }
+      const rendering = this._createCoordinatedRendering();
+      this._renderAnimationFrame = EditorRenderingCoordinator.INSTANCE.scheduleCoordinatedRendering({
+        window: dom.getWindow(this.domNode?.domNode),
+        prepareRenderText: /* @__PURE__ */ __name(() => {
+          if (this._store.isDisposed) {
+            throw new BugIndicatingError();
+          }
+          try {
+            return rendering.prepareRenderText();
+          } finally {
+            this._renderAnimationFrame = null;
+          }
+        }, "prepareRenderText"),
+        renderText: /* @__PURE__ */ __name(() => {
+          if (this._store.isDisposed) {
+            throw new BugIndicatingError();
+          }
+          return rendering.renderText();
+        }, "renderText"),
+        prepareRender: /* @__PURE__ */ __name((viewParts, ctx) => {
+          if (this._store.isDisposed) {
+            throw new BugIndicatingError();
+          }
+          return rendering.prepareRender(viewParts, ctx);
+        }, "prepareRender"),
+        render: /* @__PURE__ */ __name((viewParts, ctx) => {
+          if (this._store.isDisposed) {
+            throw new BugIndicatingError();
+          }
+          return rendering.render(viewParts, ctx);
+        }, "render")
+      });
+    }
+  }
+  _flushAccumulatedAndRenderNow() {
+    const rendering = this._createCoordinatedRendering();
+    safeInvokeNoArg(() => rendering.prepareRenderText());
+    const data = safeInvokeNoArg(() => rendering.renderText());
+    if (data) {
+      const [viewParts, ctx] = data;
+      safeInvokeNoArg(() => rendering.prepareRender(viewParts, ctx));
+      safeInvokeNoArg(() => rendering.render(viewParts, ctx));
+    }
+  }
+  _getViewPartsToRender() {
+    const result = [];
+    let resultLen = 0;
+    for (const viewPart of this._viewParts) {
+      if (viewPart.shouldRender()) {
+        result[resultLen++] = viewPart;
+      }
+    }
+    return result;
+  }
+  _createCoordinatedRendering() {
+    return {
+      prepareRenderText: /* @__PURE__ */ __name(() => {
+        if (this._shouldRecomputeGlyphMarginLanes) {
+          this._shouldRecomputeGlyphMarginLanes = false;
+          const model = this._computeGlyphMarginLanes();
+          this._context.configuration.setGlyphMarginDecorationLaneCount(model.requiredLanes);
+        }
+        inputLatency.onRenderStart();
+      }, "prepareRenderText"),
+      renderText: /* @__PURE__ */ __name(() => {
+        if (!this.domNode.domNode.isConnected) {
+          return null;
+        }
+        let viewPartsToRender = this._getViewPartsToRender();
+        if (!this._viewLines.shouldRender() && viewPartsToRender.length === 0) {
+          return null;
+        }
+        const partialViewportData = this._context.viewLayout.getLinesViewportData();
+        this._context.viewModel.setViewport(partialViewportData.startLineNumber, partialViewportData.endLineNumber, partialViewportData.centeredLineNumber);
+        const viewportData = new ViewportData(this._selections, partialViewportData, this._context.viewLayout.getWhitespaceViewportData(), this._context.viewModel);
+        if (this._contentWidgets.shouldRender()) {
+          this._contentWidgets.onBeforeRender(viewportData);
+        }
+        if (this._viewLines.shouldRender()) {
+          this._viewLines.renderText(viewportData);
+          this._viewLines.onDidRender();
+          viewPartsToRender = this._getViewPartsToRender();
+        }
+        if (this._viewLinesGpu?.shouldRender()) {
+          this._viewLinesGpu.renderText(viewportData);
+          this._viewLinesGpu.onDidRender();
+        }
+        return [viewPartsToRender, new RenderingContext(this._context.viewLayout, viewportData, this._viewLines, this._viewLinesGpu)];
+      }, "renderText"),
+      prepareRender: /* @__PURE__ */ __name((viewPartsToRender, ctx) => {
+        for (const viewPart of viewPartsToRender) {
+          viewPart.prepareRender(ctx);
+        }
+      }, "prepareRender"),
+      render: /* @__PURE__ */ __name((viewPartsToRender, ctx) => {
+        for (const viewPart of viewPartsToRender) {
+          viewPart.render(ctx);
+          viewPart.onDidRender();
+        }
+      }, "render")
+    };
+  }
+  // --- BEGIN CodeEditor helpers
+  delegateVerticalScrollbarPointerDown(browserEvent) {
+    this._scrollbar.delegateVerticalScrollbarPointerDown(browserEvent);
+  }
+  delegateScrollFromMouseWheelEvent(browserEvent) {
+    this._scrollbar.delegateScrollFromMouseWheelEvent(browserEvent);
+  }
+  restoreState(scrollPosition) {
+    this._context.viewModel.viewLayout.setScrollPosition(
+      {
+        scrollTop: scrollPosition.scrollTop,
+        scrollLeft: scrollPosition.scrollLeft
+      },
+      1
+      /* ScrollType.Immediate */
+    );
+    this._context.viewModel.visibleLinesStabilized();
+  }
+  getOffsetForColumn(modelLineNumber, modelColumn) {
+    const modelPosition = this._context.viewModel.model.validatePosition({
+      lineNumber: modelLineNumber,
+      column: modelColumn
+    });
+    const viewPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
+    this._flushAccumulatedAndRenderNow();
+    const visibleRange = this._viewLines.visibleRangeForPosition(new Position(viewPosition.lineNumber, viewPosition.column));
+    if (!visibleRange) {
+      return -1;
+    }
+    return visibleRange.left;
+  }
+  getLineWidth(modelLineNumber) {
+    const model = this._context.viewModel.model;
+    const viewLine = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(new Position(modelLineNumber, model.getLineMaxColumn(modelLineNumber))).lineNumber;
+    this._flushAccumulatedAndRenderNow();
+    const width = this._viewLines.getLineWidth(viewLine);
+    return width;
+  }
+  getTargetAtClientPoint(clientX, clientY) {
+    const mouseTarget = this._pointerHandler.getTargetAtClientPoint(clientX, clientY);
+    if (!mouseTarget) {
+      return null;
+    }
+    return ViewUserInputEvents.convertViewToModelMouseTarget(mouseTarget, this._context.viewModel.coordinatesConverter);
+  }
+  createOverviewRuler(cssClassName) {
+    return new OverviewRuler(this._context, cssClassName);
+  }
+  change(callback) {
+    this._viewZones.changeViewZones(callback);
+    this._scheduleRender();
+  }
+  render(now, everything) {
+    if (everything) {
+      this._viewLines.forceShouldRender();
+      for (const viewPart of this._viewParts) {
+        viewPart.forceShouldRender();
+      }
+    }
+    if (now) {
+      this._flushAccumulatedAndRenderNow();
+    } else {
+      this._scheduleRender();
+    }
+  }
+  writeScreenReaderContent(reason) {
+    this._editContext.writeScreenReaderContent(reason);
+  }
+  focus() {
+    this._editContext.focus();
+  }
+  isFocused() {
+    return this._editContext.isFocused();
+  }
+  isWidgetFocused() {
+    return this._widgetFocusTracker.hasFocus();
+  }
+  refreshFocusState() {
+    this._editContext.refreshFocusState();
+    this._widgetFocusTracker.refreshState();
+  }
+  setAriaOptions(options) {
+    this._editContext.setAriaOptions(options);
+  }
+  addContentWidget(widgetData) {
+    this._contentWidgets.addWidget(widgetData.widget);
+    this.layoutContentWidget(widgetData);
+    this._scheduleRender();
+  }
+  layoutContentWidget(widgetData) {
+    this._contentWidgets.setWidgetPosition(widgetData.widget, widgetData.position?.position ?? null, widgetData.position?.secondaryPosition ?? null, widgetData.position?.preference ?? null, widgetData.position?.positionAffinity ?? null);
+    if (this._contentWidgets.shouldRender()) {
+      this._scheduleRender();
+    }
+  }
+  removeContentWidget(widgetData) {
+    this._contentWidgets.removeWidget(widgetData.widget);
+    this._scheduleRender();
+  }
+  addOverlayWidget(widgetData) {
+    this._overlayWidgets.addWidget(widgetData.widget);
+    this.layoutOverlayWidget(widgetData);
+    this._scheduleRender();
+  }
+  layoutOverlayWidget(widgetData) {
+    const shouldRender = this._overlayWidgets.setWidgetPosition(widgetData.widget, widgetData.position);
+    if (shouldRender) {
+      this._scheduleRender();
+    }
+  }
+  removeOverlayWidget(widgetData) {
+    this._overlayWidgets.removeWidget(widgetData.widget);
+    this._scheduleRender();
+  }
+  addGlyphMarginWidget(widgetData) {
+    this._glyphMarginWidgets.addWidget(widgetData.widget);
+    this._shouldRecomputeGlyphMarginLanes = true;
+    this._scheduleRender();
+  }
+  layoutGlyphMarginWidget(widgetData) {
+    const newPreference = widgetData.position;
+    const shouldRender = this._glyphMarginWidgets.setWidgetPosition(widgetData.widget, newPreference);
+    if (shouldRender) {
+      this._shouldRecomputeGlyphMarginLanes = true;
+      this._scheduleRender();
+    }
+  }
+  removeGlyphMarginWidget(widgetData) {
+    this._glyphMarginWidgets.removeWidget(widgetData.widget);
+    this._shouldRecomputeGlyphMarginLanes = true;
+    this._scheduleRender();
+  }
+};
+View = __decorate([
+  __param(8, IInstantiationService)
+], View);
+function safeInvokeNoArg(func) {
+  try {
+    return func();
+  } catch (e) {
+    onUnexpectedError(e);
+    return null;
+  }
+}
+__name(safeInvokeNoArg, "safeInvokeNoArg");
+class EditorRenderingCoordinator {
+  static {
+    __name(this, "EditorRenderingCoordinator");
+  }
+  static {
+    this.INSTANCE = new EditorRenderingCoordinator();
+  }
+  constructor() {
+    this._coordinatedRenderings = [];
+    this._animationFrameRunners = /* @__PURE__ */ new Map();
+  }
+  scheduleCoordinatedRendering(rendering) {
+    this._coordinatedRenderings.push(rendering);
+    this._scheduleRender(rendering.window);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const renderingIndex = this._coordinatedRenderings.indexOf(rendering);
+        if (renderingIndex === -1) {
+          return;
+        }
+        this._coordinatedRenderings.splice(renderingIndex, 1);
+        if (this._coordinatedRenderings.length === 0) {
+          for (const [_, disposable] of this._animationFrameRunners) {
+            disposable.dispose();
+          }
+          this._animationFrameRunners.clear();
+        }
+      }, "dispose")
+    };
+  }
+  _scheduleRender(window) {
+    if (!this._animationFrameRunners.has(window)) {
+      const runner = /* @__PURE__ */ __name(() => {
+        this._animationFrameRunners.delete(window);
+        this._onRenderScheduled();
+      }, "runner");
+      this._animationFrameRunners.set(window, dom.runAtThisOrScheduleAtNextAnimationFrame(window, runner, 100));
+    }
+  }
+  _onRenderScheduled() {
+    const coordinatedRenderings = this._coordinatedRenderings.slice(0);
+    this._coordinatedRenderings = [];
+    for (const rendering of coordinatedRenderings) {
+      safeInvokeNoArg(() => rendering.prepareRenderText());
+    }
+    const datas = [];
+    for (let i = 0, len = coordinatedRenderings.length; i < len; i++) {
+      const rendering = coordinatedRenderings[i];
+      datas[i] = safeInvokeNoArg(() => rendering.renderText());
+    }
+    for (let i = 0, len = coordinatedRenderings.length; i < len; i++) {
+      const rendering = coordinatedRenderings[i];
+      const data = datas[i];
+      if (!data) {
+        continue;
+      }
+      const [viewParts, ctx] = data;
+      safeInvokeNoArg(() => rendering.prepareRender(viewParts, ctx));
+    }
+    for (let i = 0, len = coordinatedRenderings.length; i < len; i++) {
+      const rendering = coordinatedRenderings[i];
+      const data = datas[i];
+      if (!data) {
+        continue;
+      }
+      const [viewParts, ctx] = data;
+      safeInvokeNoArg(() => rendering.render(viewParts, ctx));
+    }
+  }
+}
+class CodeEditorWidgetFocusTracker extends Disposable {
+  static {
+    __name(this, "CodeEditorWidgetFocusTracker");
+  }
+  constructor(domElement, overflowWidgetsDomNode) {
+    super();
+    this._onChange = this._register(new Emitter());
+    this.onChange = this._onChange.event;
+    this._hadFocus = void 0;
+    this._hasDomElementFocus = false;
+    this._domFocusTracker = this._register(dom.trackFocus(domElement));
+    this._overflowWidgetsDomNodeHasFocus = false;
+    this._register(this._domFocusTracker.onDidFocus(() => {
+      this._hasDomElementFocus = true;
+      this._update();
+    }));
+    this._register(this._domFocusTracker.onDidBlur(() => {
+      this._hasDomElementFocus = false;
+      this._update();
+    }));
+    if (overflowWidgetsDomNode) {
+      this._overflowWidgetsDomNode = this._register(dom.trackFocus(overflowWidgetsDomNode));
+      this._register(this._overflowWidgetsDomNode.onDidFocus(() => {
+        this._overflowWidgetsDomNodeHasFocus = true;
+        this._update();
+      }));
+      this._register(this._overflowWidgetsDomNode.onDidBlur(() => {
+        this._overflowWidgetsDomNodeHasFocus = false;
+        this._update();
+      }));
+    }
+  }
+  _update() {
+    const focused = this._hasDomElementFocus || this._overflowWidgetsDomNodeHasFocus;
+    if (this._hadFocus !== focused) {
+      this._hadFocus = focused;
+      this._onChange.fire(void 0);
+    }
+  }
+  hasFocus() {
+    return this._hadFocus ?? false;
+  }
+  refreshState() {
+    this._domFocusTracker.refreshState();
+    this._overflowWidgetsDomNode?.refreshState?.();
+  }
+}
+export {
+  View
+};
+//# sourceMappingURL=view.js.map

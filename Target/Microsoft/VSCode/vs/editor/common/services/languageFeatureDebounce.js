@@ -1,1 +1,157 @@
-import{$Gn as m}from"../../../base/common/hash.js";import{$Rc as $}from"../../../base/common/map.js";import{$dx as f,$gx as p,$hx as v}from"../../../base/common/numbers.js";import{$Jl as g}from"../../../platform/environment/common/environment.js";import{$TC as b}from"../../../platform/instantiation/common/extensions.js";import{$Mj as _}from"../../../platform/instantiation/common/instantiation.js";import{$xo as w}from"../../../platform/log/common/log.js";import{$hh as x}from"../../../base/common/network.js";var d=function(o,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,t,e,i);else for(var a=o.length-1;a>=0;a--)(r=o[a])&&(n=(s<3?r(n):s>3?r(t,e,n):r(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},l=function(o,t){return function(e,i){t(e,i,o)}};const D=_("ILanguageFeatureDebounceService");var h;(function(o){const t=new WeakMap;let e=0;function i(s){let n=t.get(s);return n===void 0&&(n=++e,t.set(s,n)),n}o.of=i})(h||(h={}));class E{constructor(t){this.a=t}get(t){return this.a}update(t,e){return this.a}default(){return this.a}}class y{constructor(t,e,i,s,n,r){this.b=t,this.c=e,this.d=i,this.e=s,this.f=n,this.g=r,this.a=new $(50,.7)}h(t){return t.id+this.d.all(t).reduce((e,i)=>m(h.of(i),e),0)}get(t){const e=this.h(t),i=this.a.get(e);return i?f(i.value,this.f,this.g):this.default()}update(t,e){const i=this.h(t);let s=this.a.get(i);s||(s=new v(6),this.a.set(i,s));const n=f(s.update(e),this.f,this.g);return x(t.uri,"output")||this.b.trace(`[DEBOUNCE: ${this.c}] for ${t.uri.toString()} is ${n}ms`),n}i(){const t=new p;for(const[,e]of this.a)t.update(e.value);return t.value}default(){const t=this.i()|0||this.e;return f(t,this.f,this.g)}}let c=class{constructor(t,e){this.c=t,this.a=new Map,this.b=e.isExtensionDevelopment||!e.isBuilt}for(t,e,i){const s=i?.min??50,n=i?.max??s**2,r=i?.key??void 0,a=`${h.of(t)},${s}${r?","+r:""}`;let u=this.a.get(a);return u||(this.b?(this.c.debug(`[DEBOUNCE: ${e}] is disabled in developed mode`),u=new E(s*1.5)):u=new y(this.c,e,t,this.d()|0||s*1.5,s,n),this.a.set(a,u)),u}d(){const t=new p;for(const e of this.a.values())t.update(e.default());return t.value}};c=d([l(0,w),l(1,g)],c);b(D,c,1);export{D as $Dlb,c as $Elb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { doHash } from "../../../base/common/hash.js";
+import { LRUCache } from "../../../base/common/map.js";
+import { clamp, MovingAverage, SlidingWindowAverage } from "../../../base/common/numbers.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { matchesScheme } from "../../../base/common/network.js";
+const ILanguageFeatureDebounceService = createDecorator("ILanguageFeatureDebounceService");
+var IdentityHash;
+(function(IdentityHash2) {
+  const _hashes = /* @__PURE__ */ new WeakMap();
+  let pool = 0;
+  function of(obj) {
+    let value = _hashes.get(obj);
+    if (value === void 0) {
+      value = ++pool;
+      _hashes.set(obj, value);
+    }
+    return value;
+  }
+  __name(of, "of");
+  IdentityHash2.of = of;
+})(IdentityHash || (IdentityHash = {}));
+class NullDebounceInformation {
+  static {
+    __name(this, "NullDebounceInformation");
+  }
+  constructor(_default) {
+    this._default = _default;
+  }
+  get(_model) {
+    return this._default;
+  }
+  update(_model, _value) {
+    return this._default;
+  }
+  default() {
+    return this._default;
+  }
+}
+class FeatureDebounceInformation {
+  static {
+    __name(this, "FeatureDebounceInformation");
+  }
+  constructor(_logService, _name, _registry, _default, _min, _max) {
+    this._logService = _logService;
+    this._name = _name;
+    this._registry = _registry;
+    this._default = _default;
+    this._min = _min;
+    this._max = _max;
+    this._cache = new LRUCache(50, 0.7);
+  }
+  _key(model) {
+    return model.id + this._registry.all(model).reduce((hashVal, obj) => doHash(IdentityHash.of(obj), hashVal), 0);
+  }
+  get(model) {
+    const key = this._key(model);
+    const avg = this._cache.get(key);
+    return avg ? clamp(avg.value, this._min, this._max) : this.default();
+  }
+  update(model, value) {
+    const key = this._key(model);
+    let avg = this._cache.get(key);
+    if (!avg) {
+      avg = new SlidingWindowAverage(6);
+      this._cache.set(key, avg);
+    }
+    const newValue = clamp(avg.update(value), this._min, this._max);
+    if (!matchesScheme(model.uri, "output")) {
+      this._logService.trace(`[DEBOUNCE: ${this._name}] for ${model.uri.toString()} is ${newValue}ms`);
+    }
+    return newValue;
+  }
+  _overall() {
+    const result = new MovingAverage();
+    for (const [, avg] of this._cache) {
+      result.update(avg.value);
+    }
+    return result.value;
+  }
+  default() {
+    const value = this._overall() | 0 || this._default;
+    return clamp(value, this._min, this._max);
+  }
+}
+let LanguageFeatureDebounceService = class LanguageFeatureDebounceService2 {
+  static {
+    __name(this, "LanguageFeatureDebounceService");
+  }
+  constructor(_logService, envService) {
+    this._logService = _logService;
+    this._data = /* @__PURE__ */ new Map();
+    this._isDev = envService.isExtensionDevelopment || !envService.isBuilt;
+  }
+  for(feature, name, config) {
+    const min = config?.min ?? 50;
+    const max = config?.max ?? min ** 2;
+    const extra = config?.key ?? void 0;
+    const key = `${IdentityHash.of(feature)},${min}${extra ? "," + extra : ""}`;
+    let info = this._data.get(key);
+    if (!info) {
+      if (this._isDev) {
+        this._logService.debug(`[DEBOUNCE: ${name}] is disabled in developed mode`);
+        info = new NullDebounceInformation(min * 1.5);
+      } else {
+        info = new FeatureDebounceInformation(
+          this._logService,
+          name,
+          feature,
+          this._overallAverage() | 0 || min * 1.5,
+          // default is overall default or derived from min-value
+          min,
+          max
+        );
+      }
+      this._data.set(key, info);
+    }
+    return info;
+  }
+  _overallAverage() {
+    const result = new MovingAverage();
+    for (const info of this._data.values()) {
+      result.update(info.default());
+    }
+    return result.value;
+  }
+};
+LanguageFeatureDebounceService = __decorate([
+  __param(0, ILogService),
+  __param(1, IEnvironmentService)
+], LanguageFeatureDebounceService);
+registerSingleton(
+  ILanguageFeatureDebounceService,
+  LanguageFeatureDebounceService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ILanguageFeatureDebounceService,
+  LanguageFeatureDebounceService
+};
+//# sourceMappingURL=languageFeatureDebounce.js.map

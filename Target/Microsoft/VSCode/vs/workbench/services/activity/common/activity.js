@@ -1,1 +1,84 @@
-import{$ak as s}from"../../../../base/common/codicons.js";import{$Mj as d}from"../../../../platform/instantiation/common/instantiation.js";import{$yq as i,$xq as u,$wq as a,$vq as g}from"../../../../platform/theme/common/colors/miscColors.js";const x=d("activityService");class o{constructor(r,e){this.a=r,this.b=e}getDescription(){return this.a(null)}getColors(r){return this.b?.(r)}}class $ extends o{constructor(r,e){super(e,void 0),this.number=r,this.number=r}getDescription(){return this.a(this.number)}}class n extends o{constructor(r,e,c){super(e,c),this.icon=r}}class B extends o{constructor(r){super(r,void 0)}}class f extends n{constructor(r){super(s.warning,r,e=>({badgeBackground:e.getColor(a),badgeForeground:e.getColor(g),badgeBorder:void 0}))}}class h extends n{constructor(r){super(s.error,r,e=>({badgeBackground:e.getColor(i),badgeForeground:e.getColor(u),badgeBorder:void 0}))}}export{x as $_Ab,$ as $aBb,n as $bBb,B as $cBb,f as $dBb,h as $eBb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { activityErrorBadgeBackground, activityErrorBadgeForeground, activityWarningBadgeBackground, activityWarningBadgeForeground } from "../../../../platform/theme/common/colors/miscColors.js";
+const IActivityService = createDecorator("activityService");
+class BaseBadge {
+  static {
+    __name(this, "BaseBadge");
+  }
+  constructor(descriptorFn, stylesFn) {
+    this.descriptorFn = descriptorFn;
+    this.stylesFn = stylesFn;
+  }
+  getDescription() {
+    return this.descriptorFn(null);
+  }
+  getColors(theme) {
+    return this.stylesFn?.(theme);
+  }
+}
+class NumberBadge extends BaseBadge {
+  static {
+    __name(this, "NumberBadge");
+  }
+  constructor(number, descriptorFn) {
+    super(descriptorFn, void 0);
+    this.number = number;
+    this.number = number;
+  }
+  getDescription() {
+    return this.descriptorFn(this.number);
+  }
+}
+class IconBadge extends BaseBadge {
+  static {
+    __name(this, "IconBadge");
+  }
+  constructor(icon, descriptorFn, stylesFn) {
+    super(descriptorFn, stylesFn);
+    this.icon = icon;
+  }
+}
+class ProgressBadge extends BaseBadge {
+  static {
+    __name(this, "ProgressBadge");
+  }
+  constructor(descriptorFn) {
+    super(descriptorFn, void 0);
+  }
+}
+class WarningBadge extends IconBadge {
+  static {
+    __name(this, "WarningBadge");
+  }
+  constructor(descriptorFn) {
+    super(Codicon.warning, descriptorFn, (theme) => ({
+      badgeBackground: theme.getColor(activityWarningBadgeBackground),
+      badgeForeground: theme.getColor(activityWarningBadgeForeground),
+      badgeBorder: void 0
+    }));
+  }
+}
+class ErrorBadge extends IconBadge {
+  static {
+    __name(this, "ErrorBadge");
+  }
+  constructor(descriptorFn) {
+    super(Codicon.error, descriptorFn, (theme) => ({
+      badgeBackground: theme.getColor(activityErrorBadgeBackground),
+      badgeForeground: theme.getColor(activityErrorBadgeForeground),
+      badgeBorder: void 0
+    }));
+  }
+}
+export {
+  ErrorBadge,
+  IActivityService,
+  IconBadge,
+  NumberBadge,
+  ProgressBadge,
+  WarningBadge
+};
+//# sourceMappingURL=activity.js.map

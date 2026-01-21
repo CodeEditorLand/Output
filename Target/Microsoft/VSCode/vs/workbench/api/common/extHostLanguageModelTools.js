@@ -1,1 +1,287 @@
-import{$Uh as I}from"../../../base/common/async.js";import{CancellationToken as w}from"../../../base/common/cancellation.js";import{$sb as T}from"../../../base/common/errors.js";import{$Qf as h}from"../../../base/common/lazy.js";import{$Cd as v}from"../../../base/common/lifecycle.js";import{$4m as l}from"../../../base/common/marshalling.js";import{$kn as k}from"../../../base/common/uuid.js";import{$hS as $}from"../../contrib/chat/common/tools/languageModelToolsService.js";import{$xlc as u,$ylc as f}from"../../contrib/chat/common/tools/builtinTools/editFileTool.js";import{$Clc as M}from"../../contrib/chat/common/tools/builtinTools/tools.js";import{$7pc as S}from"../../contrib/extensions/common/searchExtensionsTool.js";import{$8R as g,$7R as i}from"../../services/extensions/common/extensions.js";import{$2Y as P}from"../../services/extensions/common/proxyIdentifier.js";import{$b1 as b}from"./extHost.protocol.js";import*as s from"./extHostTypeConverters.js";class m{constructor(e){this.b=new h(()=>{const n=this;return Object.freeze({get name(){return n.a.id},get description(){return n.a.modelDescription},get inputSchema(){return n.a.inputSchema},get tags(){return n.a.tags??[]},get source(){}})}),this.c=new h(()=>{const n=this,t=s.LanguageModelToolSource.to(n.a.source);return Object.freeze({get name(){return n.a.id},get description(){return n.a.modelDescription},get inputSchema(){return n.a.inputSchema},get tags(){return n.a.tags??[]},get source(){return t}})}),this.a=e}update(e){this.a=e}get data(){return this.a}get apiObject(){return this.b.value}get apiObjectWithChatParticipantAdditions(){return this.c.value}}class W{constructor(e,n){this.e=n,this.a=new Map,this.c=new Map,this.d=new Map,this.b=e.getProxy(b.MainThreadLanguageModelTools),this.b.$getTools().then(t=>{for(const o of t)this.d.set(o.id,new m(l(o)))})}async $countTokensForInvocation(e,n,t){const o=this.c.get(e);if(!o)throw new Error(`Tool invocation call ${e} not found`);return await o(n,t)}async invokeTool(e,n,t,o){const r=k();t.tokenizationOptions&&this.c.set(r,t.tokenizationOptions.countTokens);try{if(t.toolInvocationToken&&!$(t.toolInvocationToken))throw new Error("Invalid tool invocation token");if((n===f||n===u)&&!i(e,"chatParticipantPrivate"))throw new Error(`Invalid tool: ${n}`);const a=await this.b.$invokeTool({toolId:n,callId:r,parameters:t.input,tokenBudget:t.tokenizationOptions?.tokenBudget,context:t.toolInvocationToken,chatRequestId:i(e,"chatParticipantPrivate")?t.chatRequestId:void 0,chatInteractionId:i(e,"chatParticipantPrivate")?t.chatInteractionId:void 0,subAgentInvocationId:i(e,"chatParticipantPrivate")?t.subAgentInvocationId:void 0,chatStreamToolCallId:i(e,"chatParticipantAdditions")?t.chatStreamToolCallId:void 0},o),c=a instanceof P?a.value:a;return s.LanguageModelToolResult.to(l(c))}finally{this.c.delete(r)}}$onDidChangeTools(e){const n=new Set(this.a.keys());for(const t of e){n.delete(t.id);const o=this.d.get(t.id);o?o.update(t):this.d.set(t.id,new m(l(t)))}for(const t of n)this.d.delete(t)}getTools(e){const n=i(e,"chatParticipantPrivate");return Array.from(this.d.values()).map(t=>n?t.apiObjectWithChatParticipantAdditions:t.apiObject).filter(t=>{switch(t.name){case f:case u:case M:case S:return i(e,"chatParticipantPrivate");default:return!0}})}async $invokeTool(e,n){const t=this.a.get(e.toolId);if(!t)throw new Error(`Unknown tool ${e.toolId}`);const o={input:e.parameters,toolInvocationToken:l(e.context)};i(t.extension,"chatParticipantPrivate")&&(o.chatRequestId=e.chatRequestId,o.chatInteractionId=e.chatInteractionId,o.chatSessionId=e.context?.sessionId,o.subAgentInvocationId=e.subAgentInvocationId),i(t.extension,"chatParticipantAdditions")&&e.modelId&&(o.model=await this.f(e.modelId,t.extension)),i(t.extension,"chatParticipantAdditions")&&e.chatStreamToolCallId&&(o.chatStreamToolCallId=e.chatStreamToolCallId),e.tokenBudget!==void 0&&(o.tokenizationOptions={tokenBudget:e.tokenBudget,countTokens:this.c.get(e.callId)||((c,d=w.None)=>this.b.$countTokensForInvocation(e.callId,c,d))});let r;if(i(t.extension,"toolProgress")){let c;r={report:d=>{d.increment!==void 0&&(c=(c??0)+d.increment),this.b.$acceptToolProgress(e.callId,{message:s.MarkdownString.fromStrict(d.message),progress:c===void 0?void 0:c/100})}}}const a=await I(Promise.resolve(t.tool.invoke(o,n,r)),n);if(!a)throw new T;return s.LanguageModelToolResult.from(a,t.extension)}async f(e,n){let t;if(e&&(t=await this.e.getLanguageModelByIdentifier(n,e)),!t&&(t=await this.e.getDefaultLanguageModel(n),!t))throw new Error("Language model unavailable");return t}async $handleToolStream(e,n,t){const o=this.a.get(e);if(!o)throw new Error(`Unknown tool ${e}`);if(!o.tool.handleToolStream)return;g(o.extension,"chatParticipantAdditions");const r={rawInput:n.rawInput,chatRequestId:n.chatRequestId,chatSessionId:n.chatSessionId,chatInteractionId:n.chatInteractionId},a=await o.tool.handleToolStream(r,t);if(a)return{invocationMessage:s.MarkdownString.fromStrict(a.invocationMessage)}}async $prepareToolInvocation(e,n,t){const o=this.a.get(e);if(!o)throw new Error(`Unknown tool ${e}`);const r={input:n.parameters,chatRequestId:n.chatRequestId,chatSessionId:n.chatSessionId,chatInteractionId:n.chatInteractionId};if(o.tool.prepareInvocation){const a=await o.tool.prepareInvocation(r,t);return a?((a.pastTenseMessage||a.presentation)&&g(o.extension,"chatParticipantPrivate"),{confirmationMessages:a.confirmationMessages?{title:typeof a.confirmationMessages.title=="string"?a.confirmationMessages.title:s.MarkdownString.from(a.confirmationMessages.title),message:typeof a.confirmationMessages.message=="string"?a.confirmationMessages.message:s.MarkdownString.from(a.confirmationMessages.message)}:void 0,invocationMessage:s.MarkdownString.fromStrict(a.invocationMessage),pastTenseMessage:s.MarkdownString.fromStrict(a.pastTenseMessage),presentation:a.presentation}):void 0}}registerTool(e,n,t){return this.a.set(n,{extension:e,tool:t}),this.b.$registerTool(n,typeof t.handleToolStream=="function"),v(()=>{this.a.delete(n),this.b.$unregisterTool(n)})}}export{W as $eWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { raceCancellation } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { Lazy } from "../../../base/common/lazy.js";
+import { toDisposable } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { isToolInvocationContext } from "../../contrib/chat/common/tools/languageModelToolsService.js";
+import { ExtensionEditToolId, InternalEditToolId } from "../../contrib/chat/common/tools/builtinTools/editFileTool.js";
+import { InternalFetchWebPageToolId } from "../../contrib/chat/common/tools/builtinTools/tools.js";
+import { SearchExtensionsToolId } from "../../contrib/extensions/common/searchExtensionsTool.js";
+import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { MainContext } from "./extHost.protocol.js";
+import * as typeConvert from "./extHostTypeConverters.js";
+class Tool {
+  static {
+    __name(this, "Tool");
+  }
+  constructor(data) {
+    this._apiObject = new Lazy(() => {
+      const that = this;
+      return Object.freeze({
+        get name() {
+          return that._data.id;
+        },
+        get description() {
+          return that._data.modelDescription;
+        },
+        get inputSchema() {
+          return that._data.inputSchema;
+        },
+        get tags() {
+          return that._data.tags ?? [];
+        },
+        get source() {
+          return void 0;
+        }
+      });
+    });
+    this._apiObjectWithChatParticipantAdditions = new Lazy(() => {
+      const that = this;
+      const source = typeConvert.LanguageModelToolSource.to(that._data.source);
+      return Object.freeze({
+        get name() {
+          return that._data.id;
+        },
+        get description() {
+          return that._data.modelDescription;
+        },
+        get inputSchema() {
+          return that._data.inputSchema;
+        },
+        get tags() {
+          return that._data.tags ?? [];
+        },
+        get source() {
+          return source;
+        }
+      });
+    });
+    this._data = data;
+  }
+  update(newData) {
+    this._data = newData;
+  }
+  get data() {
+    return this._data;
+  }
+  get apiObject() {
+    return this._apiObject.value;
+  }
+  get apiObjectWithChatParticipantAdditions() {
+    return this._apiObjectWithChatParticipantAdditions.value;
+  }
+}
+class ExtHostLanguageModelTools {
+  static {
+    __name(this, "ExtHostLanguageModelTools");
+  }
+  constructor(mainContext, _languageModels) {
+    this._languageModels = _languageModels;
+    this._registeredTools = /* @__PURE__ */ new Map();
+    this._tokenCountFuncs = /* @__PURE__ */ new Map();
+    this._allTools = /* @__PURE__ */ new Map();
+    this._proxy = mainContext.getProxy(MainContext.MainThreadLanguageModelTools);
+    this._proxy.$getTools().then((tools) => {
+      for (const tool of tools) {
+        this._allTools.set(tool.id, new Tool(revive(tool)));
+      }
+    });
+  }
+  async $countTokensForInvocation(callId, input, token) {
+    const fn = this._tokenCountFuncs.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return await fn(input, token);
+  }
+  async invokeTool(extension, toolId, options, token) {
+    const callId = generateUuid();
+    if (options.tokenizationOptions) {
+      this._tokenCountFuncs.set(callId, options.tokenizationOptions.countTokens);
+    }
+    try {
+      if (options.toolInvocationToken && !isToolInvocationContext(options.toolInvocationToken)) {
+        throw new Error(`Invalid tool invocation token`);
+      }
+      if ((toolId === InternalEditToolId || toolId === ExtensionEditToolId) && !isProposedApiEnabled(extension, "chatParticipantPrivate")) {
+        throw new Error(`Invalid tool: ${toolId}`);
+      }
+      const result = await this._proxy.$invokeTool({
+        toolId,
+        callId,
+        parameters: options.input,
+        tokenBudget: options.tokenizationOptions?.tokenBudget,
+        context: options.toolInvocationToken,
+        chatRequestId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatRequestId : void 0,
+        chatInteractionId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatInteractionId : void 0,
+        subAgentInvocationId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.subAgentInvocationId : void 0,
+        chatStreamToolCallId: isProposedApiEnabled(extension, "chatParticipantAdditions") ? options.chatStreamToolCallId : void 0
+      }, token);
+      const dto = result instanceof SerializableObjectWithBuffers ? result.value : result;
+      return typeConvert.LanguageModelToolResult.to(revive(dto));
+    } finally {
+      this._tokenCountFuncs.delete(callId);
+    }
+  }
+  $onDidChangeTools(tools) {
+    const oldTools = new Set(this._registeredTools.keys());
+    for (const tool of tools) {
+      oldTools.delete(tool.id);
+      const existing = this._allTools.get(tool.id);
+      if (existing) {
+        existing.update(tool);
+      } else {
+        this._allTools.set(tool.id, new Tool(revive(tool)));
+      }
+    }
+    for (const id of oldTools) {
+      this._allTools.delete(id);
+    }
+  }
+  getTools(extension) {
+    const hasParticipantAdditions = isProposedApiEnabled(extension, "chatParticipantPrivate");
+    return Array.from(this._allTools.values()).map((tool) => hasParticipantAdditions ? tool.apiObjectWithChatParticipantAdditions : tool.apiObject).filter((tool) => {
+      switch (tool.name) {
+        case InternalEditToolId:
+        case ExtensionEditToolId:
+        case InternalFetchWebPageToolId:
+        case SearchExtensionsToolId:
+          return isProposedApiEnabled(extension, "chatParticipantPrivate");
+        default:
+          return true;
+      }
+    });
+  }
+  async $invokeTool(dto, token) {
+    const item = this._registeredTools.get(dto.toolId);
+    if (!item) {
+      throw new Error(`Unknown tool ${dto.toolId}`);
+    }
+    const options = {
+      input: dto.parameters,
+      toolInvocationToken: revive(dto.context)
+    };
+    if (isProposedApiEnabled(item.extension, "chatParticipantPrivate")) {
+      options.chatRequestId = dto.chatRequestId;
+      options.chatInteractionId = dto.chatInteractionId;
+      options.chatSessionId = dto.context?.sessionId;
+      options.subAgentInvocationId = dto.subAgentInvocationId;
+    }
+    if (isProposedApiEnabled(item.extension, "chatParticipantAdditions") && dto.modelId) {
+      options.model = await this.getModel(dto.modelId, item.extension);
+    }
+    if (isProposedApiEnabled(item.extension, "chatParticipantAdditions") && dto.chatStreamToolCallId) {
+      options.chatStreamToolCallId = dto.chatStreamToolCallId;
+    }
+    if (dto.tokenBudget !== void 0) {
+      options.tokenizationOptions = {
+        tokenBudget: dto.tokenBudget,
+        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(dto.callId, value, token2))
+      };
+    }
+    let progress;
+    if (isProposedApiEnabled(item.extension, "toolProgress")) {
+      let lastProgress;
+      progress = {
+        report: /* @__PURE__ */ __name((value) => {
+          if (value.increment !== void 0) {
+            lastProgress = (lastProgress ?? 0) + value.increment;
+          }
+          this._proxy.$acceptToolProgress(dto.callId, {
+            message: typeConvert.MarkdownString.fromStrict(value.message),
+            progress: lastProgress === void 0 ? void 0 : lastProgress / 100
+          });
+        }, "report")
+      };
+    }
+    const extensionResult = await raceCancellation(Promise.resolve(item.tool.invoke(options, token, progress)), token);
+    if (!extensionResult) {
+      throw new CancellationError();
+    }
+    return typeConvert.LanguageModelToolResult.from(extensionResult, item.extension);
+  }
+  async getModel(modelId, extension) {
+    let model;
+    if (modelId) {
+      model = await this._languageModels.getLanguageModelByIdentifier(extension, modelId);
+    }
+    if (!model) {
+      model = await this._languageModels.getDefaultLanguageModel(extension);
+      if (!model) {
+        throw new Error("Language model unavailable");
+      }
+    }
+    return model;
+  }
+  async $handleToolStream(toolId, context, token) {
+    const item = this._registeredTools.get(toolId);
+    if (!item) {
+      throw new Error(`Unknown tool ${toolId}`);
+    }
+    if (!item.tool.handleToolStream) {
+      return void 0;
+    }
+    checkProposedApiEnabled(item.extension, "chatParticipantAdditions");
+    const options = {
+      rawInput: context.rawInput,
+      chatRequestId: context.chatRequestId,
+      chatSessionId: context.chatSessionId,
+      chatInteractionId: context.chatInteractionId
+    };
+    const result = await item.tool.handleToolStream(options, token);
+    if (!result) {
+      return void 0;
+    }
+    return {
+      invocationMessage: typeConvert.MarkdownString.fromStrict(result.invocationMessage)
+    };
+  }
+  async $prepareToolInvocation(toolId, context, token) {
+    const item = this._registeredTools.get(toolId);
+    if (!item) {
+      throw new Error(`Unknown tool ${toolId}`);
+    }
+    const options = {
+      input: context.parameters,
+      chatRequestId: context.chatRequestId,
+      chatSessionId: context.chatSessionId,
+      chatInteractionId: context.chatInteractionId
+    };
+    if (item.tool.prepareInvocation) {
+      const result = await item.tool.prepareInvocation(options, token);
+      if (!result) {
+        return void 0;
+      }
+      if (result.pastTenseMessage || result.presentation) {
+        checkProposedApiEnabled(item.extension, "chatParticipantPrivate");
+      }
+      return {
+        confirmationMessages: result.confirmationMessages ? {
+          title: typeof result.confirmationMessages.title === "string" ? result.confirmationMessages.title : typeConvert.MarkdownString.from(result.confirmationMessages.title),
+          message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(result.confirmationMessages.message)
+        } : void 0,
+        invocationMessage: typeConvert.MarkdownString.fromStrict(result.invocationMessage),
+        pastTenseMessage: typeConvert.MarkdownString.fromStrict(result.pastTenseMessage),
+        presentation: result.presentation
+      };
+    }
+    return void 0;
+  }
+  registerTool(extension, id, tool) {
+    this._registeredTools.set(id, { extension, tool });
+    this._proxy.$registerTool(id, typeof tool.handleToolStream === "function");
+    return toDisposable(() => {
+      this._registeredTools.delete(id);
+      this._proxy.$unregisterTool(id);
+    });
+  }
+}
+export {
+  ExtHostLanguageModelTools
+};
+//# sourceMappingURL=extHostLanguageModelTools.js.map

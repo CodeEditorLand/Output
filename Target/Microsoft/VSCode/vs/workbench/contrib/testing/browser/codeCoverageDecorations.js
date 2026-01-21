@@ -1,1 +1,949 @@
-import*as y from"../../../../base/browser/dom.js";import{$V0 as oe}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$G9 as ve}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$R9 as Te}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Em as be}from"../../../../base/common/actions.js";import{$Tb as Ce}from"../../../../base/common/arraysFind.js";import{$2c as Ie,$Zc as we}from"../../../../base/common/assert.js";import{$If as ne}from"../../../../base/common/cancellation.js";import{$ak as D}from"../../../../base/common/codicons.js";import{$ik as S}from"../../../../base/common/htmlContent.js";import{$2w as ye}from"../../../../base/common/keyCodes.js";import{$Qf as $e}from"../../../../base/common/lazy.js";import{$Ed as ie,$Dd as H,$Fd as De,$Cd as F}from"../../../../base/common/lifecycle.js";import{autorun as P,derived as Ee,observableFromEvent as Z,observableValue as Ne}from"../../../../base/common/observable.js";import{ThemeIcon as se}from"../../../../base/common/themables.js";import{$Jc as xe,URI as Se}from"../../../../base/common/uri.js";import{$pcb as Me}from"../../../../editor/browser/editorBrowser.js";import{$ucb as V}from"../../../../editor/browser/services/codeEditorService.js";import{$8D as _}from"../../../../editor/common/core/position.js";import{$9D as k}from"../../../../editor/common/core/range.js";import{InjectedTextCursorStops as re}from"../../../../editor/common/model.js";import{localize as v,localize2 as I}from"../../../../nls.js";import{$so as E}from"../../../../platform/action/common/actionCommonCategories.js";import{$sL as N,$nL as b,$tL as x}from"../../../../platform/actions/common/actions.js";import{$to as ae}from"../../../../platform/commands/common/commands.js";import{$9l as R}from"../../../../platform/configuration/common/configuration.js";import{$9n as U,$qo as Le}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as Fe}from"../../../../platform/contextview/browser/contextView.js";import{$Lj as ce}from"../../../../platform/instantiation/common/instantiation.js";import{$cy as Pe}from"../../../../platform/keybinding/common/keybinding.js";import{$xo as Oe}from"../../../../platform/log/common/log.js";import{$hhb as j,$ghb as _e}from"../../../../platform/observable/common/platformObservableUtils.js";import{$VH as ke}from"../../../../platform/quickinput/common/quickInput.js";import{$HO as B}from"../../../common/contextkeys.js";import{$XQb as qe}from"../../files/common/files.js";import{$Osc as le}from"../common/configuration.js";import{$gX as Re}from"../common/testCoverage.js";import{$Qsc as A}from"../common/testCoverageService.js";import{$SW as X}from"../common/testId.js";import{$$8b as Ae}from"../common/testService.js";import{TestingContextKeys as f}from"../common/testingContextKeys.js";import*as O from"./codeCoverageDisplayUtils.js";import{$2tc as je,$Ztc as de,$Ptc as Q,$Itc as Ge}from"./icons.js";import{$9sc as He}from"./testCoverageBars.js";var te=function(l,e,n,t){var o=arguments.length,i=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,g;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,n,t);else for(var s=l.length-1;s>=0;s--)(g=l[s])&&(i=(o<3?g(i):o>3?g(e,n,i):g(e,n))||i);return o>3&&i&&Object.defineProperty(e,n,i),i},T=function(l,e){return function(n,t){e(n,t,l)}};const J="coverage-deco-hit",G="coverage-deco-miss",ze=v(13787,null),ge="testing.toggleInlineCoverage",Ve=4,he=I(13801,"Go to Next Uncovered Line"),ue=I(13802,"Go to Previous Uncovered Line");let q=class extends ie{static{this.ID="editor.contrib.coverageDecorations"}constructor(e,n,t,o,i,g){super(),this.t=e,this.u=t,this.w=i,this.g=this.D(new H),this.j=this.D(new H),this.n=new Map,this.s=Ne("hasInlineCoverageDetails",!1),this.m=new $e(()=>this.D(n.createInstance(z,this.t)));const s=Z(this,e.onDidChangeModel,()=>e.getModel()),r=Z(this,e.onDidChangeConfiguration,c=>c),a=Ee(c=>{const d=t.selected.read(c);if(!d)return;const u=s.read(c);if(!u)return;const p=d.getUri(u.uri);if(p)return d.didAddCoverage.read(c),{file:p,testId:t.filterToTest.read(c)}});this.D(j(f.hasPerTestCoverage,g,c=>!!a.read(c)?.file.perTestData?.size)),this.D(j(f.hasCoverageInFile,g,c=>!!a.read(c)?.file)),this.D(j(f.hasInlineCoverageDetails,g,c=>this.s.read(c))),this.D(P(c=>{const d=a.read(c);d?this.G(e.getModel(),d.file,d.testId,t.showInline.read(c)):this.H()}));const m=_e("testing.coverageToolbarEnabled",!0,o);this.D(P(c=>{const d=a.read(c);d&&m.read(c)?this.m.value.setCoverage(d.file,d.testId):this.m.rawValue?.clearCoverage()})),this.D(P(c=>{a.read(c)&&r.read(c)?.hasChanged(75)!==!1&&this.y()})),this.D(e.onMouseMove(c=>{const d=e.getModel();c.target.type===3&&d?this.C(e.getModel()):t.showInline.get()&&c.target.type===6&&d?this.z(d,c.target.position):this.j.clear()})),this.D(e.onWillChangeModel(()=>{const c=e.getModel();if(!(!this.r||!c))for(const d of c.getAllDecorations()){const u=this.n.get(d.id);u&&(u.detail.range=d.range)}}))}y(){const e=this.t.getOption(75),{style:n}=this.t.getContainerDomNode();n.setProperty("--vscode-testing-coverage-lineHeight",`${e}px`)}z(e,n){const t=e.getDecorationsInRange(k.fromPositions(n)),o=Ce(t,({id:i})=>this.n.has(i)?{id:i,deco:this.n.get(i)}:void 0);o!==this.q&&(this.j.clear(),this.q=o,o&&(e.changeDecorations(i=>{i.changeDecorationOptions(o.id,{...o.deco.options,className:`${o.deco.options.className} coverage-deco-hovered`})}),this.j.add(F(()=>{this.q=void 0,e.changeDecorations(i=>{i.changeDecorationOptions(o.id,o.deco.options)})}))))}C(e){this.q==="lineNo"||!this.r||this.u.showInline.get()||(this.j.clear(),this.q="lineNo",e.changeDecorations(n=>{for(const[t,o]of this.n){const{applyHoverOptions:i,options:g}=o,s={...g};i(s),n.changeDecorationOptions(t,s)}}),this.j.add(this.t.onMouseLeave(()=>{this.j.clear()})),this.j.add(F(()=>{this.q=void 0,e.changeDecorations(n=>{for(const[t,o]of this.n)n.changeDecorationOptions(t,o.options)})})))}goToNextMissedLine(){return this.F(!0)}goToPreviousMissedLine(){return this.F(!1)}F(e){const n=this.t.getModel(),t=this.t.getPosition();if(!n||!t||!this.r)return!1;const o=t.lineNumber;let i,g,s,r;for(const[,{detail:m,options:c}]of this.n)if(c.lineNumberClassName?.includes(G)){const d=m.range;if(d.isEmpty())continue;const u=d.startLineNumber,p={lineNumber:u,range:d};(!s||u<s.lineNumber)&&(s=p),(!r||u>r.lineNumber)&&(r=p),u<o?(!i||u>i.lineNumber)&&(i=p):u>o&&(!g||u<g.lineNumber)&&(g=p)}const a=e?g||s:i||r;return a?(this.t.setPosition(new _(a.lineNumber,1)),this.t.revealLineInCenter(a.lineNumber),!0):!1}async G(e,n,t,o){const i=this.r=await this.I(n,t,e);if(!i)return this.s.set(!1,void 0),this.H();this.s.set(i.ranges.length>0,void 0),this.g.clear(),e.changeDecorations(g=>{for(const s of i.ranges){const{metadata:{detail:r,description:a},range:m,primary:c}=s;if(r.type===2){const d=r.detail.branches[r.branch].count,u=d?J:G,p=!d&&m.isEmpty()&&r.detail.branches.some(h=>h.count),C={showIfCollapsed:p,description:"coverage-gutter",lineNumberClassName:`coverage-deco-gutter ${u}`},$=h=>{h.hoverMessage=a,p?h.after={content:"\xA0".repeat(Ve),inlineClassName:`coverage-deco-branch-miss-indicator ${se.asClassName(je)}`,inlineClassNameAffectsLetterSpacing:!0,cursorStops:re.None}:(h.className=`coverage-deco-inline ${u}`,c&&typeof d=="number"&&(h.before=K(d)))};o&&$(C),this.n.set(g.addDecoration(m,C),{options:C,applyHoverOptions:$,detail:s})}else if(r.type===1){const d=r.count?J:G,u={showIfCollapsed:!1,description:"coverage-inline",lineNumberClassName:`coverage-deco-gutter ${d}`},p=C=>{C.className=`coverage-deco-inline ${d}`,C.hoverMessage=a,c&&typeof r.count=="number"&&(C.before=K(r.count))};o&&p(u),this.n.set(g.addDecoration(m,u),{options:u,applyHoverOptions:p,detail:s})}}}),this.g.add(F(()=>{e.changeDecorations(g=>{for(const s of this.n.keys())g.removeDecoration(s);this.n.clear()})}))}H(){this.f?.cancel(),this.f=void 0,this.g.clear(),this.j.clear(),this.s.set(!1,void 0)}async I(e,n,t){const o=this.f=new ne;this.g.add(this.f);try{const i=n?await e.detailsForTest(n,this.f.token):await e.details(this.f.token);return o.token.isCancellationRequested?void 0:new Ue(i,t)}catch(i){this.w.error("Error loading coverage details",i)}}};q=te([T(1,ce),T(2,A),T(3,R),T(4,Oe),T(5,Le)],q);const K=l=>{if(l!==0)return{content:`${l>99?"99+":l}x`,cursorStops:re.None,inlineClassName:"coverage-deco-inline-count",inlineClassNameAffectsLetterSpacing:!0}};class Ue{constructor(e,n){this.details=e,this.ranges=[];const t=e.map(s=>({range:L(s.location),primary:!0,metadata:{detail:s,description:this.describe(s,n)}}));for(const{range:s,metadata:{detail:r}}of t)if(r.type===1&&r.branches)for(let a=0;a<r.branches.length;a++){const m={type:2,branch:a,detail:r};t.push({range:L(r.branches[a].location||k.fromPositions(s.getEndPosition())),primary:!0,metadata:{detail:m,description:this.describe(m,n)}})}t.sort((s,r)=>k.compareRangesUsingStarts(s.range,r.range)||s.metadata.detail.type-r.metadata.detail.type);const o=[],i=this.ranges=[],g=()=>{const s=o.pop(),r=o[o.length-1];r&&(r.range=r.range.setStartPosition(s.range.endLineNumber,s.range.endColumn)),i.push(s)};for(const s of t){const r=s.range.getStartPosition();for(;o[o.length-1]?.range.containsPosition(r)===!1;)g();if(s.range.isEmpty()){i.push(s);continue}const a=o[o.length-1];if(a){const m=a.primary,c=a.range.setEndPosition(r.lineNumber,r.column);a.range=a.range.setStartPosition(s.range.endLineNumber,s.range.endColumn),a.primary=!1,a.range.isEmpty()&&o.pop(),i.push({range:c,primary:m,metadata:a.metadata})}o.push(s)}for(;o.length;)g()}describe(e,n){if(e.type===0)return Y(e.name,e);if(e.type===1){const t=ee(n.getValueInRange(L(e.location)).trim()||"<empty statement>");if(e.branches?.length){const o=e.branches.filter(i=>!!i.count).length;return new S().appendMarkdown(v(13788,null,o,e.branches.length,t))}else return Y(t,e)}else if(e.type===2){const t=ee(n.getValueInRange(L(e.detail.location)).trim()||"<empty statement>"),{count:o,label:i}=e.detail.branches[e.branch],g=i?fe(i):`#${e.branch+1}`;return o?o===!0?new S().appendMarkdown(v(13790,null,g,t)):new S().appendMarkdown(v(13791,null,g,t,o)):new S().appendMarkdown(v(13789,null,g,t))}we(e)}}function Y(l,e){return new S().appendMarkdown(e.count?typeof e.count=="number"?v(13793,null,l,e.count):v(13794,null,l):v(13792,null,l))}function L(l){return l instanceof _?k.fromPositions(l,new _(l.lineNumber,2147483647)):l}function fe(l){return"`"+l.replace(/[\n\r`]/g,"")+"`"}function ee(l){return l.length>50&&(l=l.slice(0,40)+"..."),fe(l)}let z=class extends ie{constructor(e,n,t,o,i,g,s,r){super(),this.s=e,this.t=n,this.u=t,this.w=o,this.y=i,this.z=g,this.C=s,this.g=!1,this.j=!1,this.m=this.D(new H),this.q=y.h("div.coverage-summary-widget",[y.h("div",[y.h("span.bars@bars"),y.h("span.toolbar@toolbar")])]),this.r=this.D(r.createInstance(He,{compact:!1,overall:!1,container:this.q.bars})),this.n=this.D(r.createInstance(ve,this.q.toolbar,{orientation:0,actionViewItemProvider:(a,m)=>{if(a instanceof w){if(a.iconOnly)return a.class=se.asClassName(a.icon),new oe(void 0,a,{...m,label:!1,icon:!0});const c=new Be(void 0,a,m);return c.themeIcon=a.icon,c}}})),this.D(P(a=>{s.showInline.read(a),this.F()})),this.D(y.$G7(this.q.root,y.$B8.CONTEXT_MENU,a=>{this.u.showContextMenu({menuId:b.StickyScrollContext,getAnchor:()=>a})}))}getId(){return"coverage-summary-widget"}getDomNode(){return this.q.root}getPosition(){return{preference:2,stackOrdinal:9}}clearCoverage(){this.f=void 0,this.r.setCoverageInfo(void 0),this.I()}setCoverage(e,n){this.f={coverage:e,testId:n},this.r.setCoverageInfo(e),e?(this.F(),this.G()):this.I()}F(){this.n.clear();const e=this.f;if(!e)return;const n=new w("toggleInline",this.C.showInline.get()?v(13795,null):v(13796,null),de,void 0,()=>this.C.showInline.set(!this.C.showInline.get(),void 0));n.tooltip=this.y.appendKeybinding(ze,ge);const t=e.coverage.statement.covered<e.coverage.statement.total;if(this.n.push(new w("goToPreviousMissed",ue.value,D.arrowUp,t,()=>this.z.executeCommand("testing.coverage.goToPreviousMissedLine"),!0)),this.n.push(new w("goToNextMissed",he.value,D.arrowDown,t,()=>this.z.executeCommand("testing.coverage.goToNextMissedLine"),!0)),this.n.push(n),e.testId){const o=e.coverage.fromResult.getTestById(e.testId.toString());Ie(!!o,"got coverage for an unreported test"),this.n.push(new w("perTestFilter",O.labels.showingFilterFor(o.label),Q,void 0,()=>this.z.executeCommand("testing.coverageFilterToTestInEditor",this.f,this.s)))}else e.coverage.perTestData?.size&&this.n.push(new w("perTestFilter",v(13797,null,e.coverage.perTestData.size),Q,void 0,()=>this.z.executeCommand("testing.coverageFilterToTestInEditor",this.f,this.s)));this.n.push(new w("rerun",v(13798,null),Ge,!this.j,()=>this.H()))}G(){if(this.g)return;this.g=!0;let e;const n=this.m;this.s.addOverlayWidget(this),this.s.changeViewZones(t=>{e=t.addZone({afterLineNumber:0,afterColumn:0,domNode:document.createElement("div"),heightInPx:30,ordinal:-1})}),n.add(F(()=>{this.g=!1,this.s.removeOverlayWidget(this),this.s.changeViewZones(t=>{t.removeZone(e)})})),n.add(this.t.onDidChangeConfiguration(t=>{this.f&&(t.affectsConfiguration("testing.coverageBarThresholds")||t.affectsConfiguration("testing.displayedCoveragePercent"))&&this.setCoverage(this.f.coverage,this.f.testId)}))}H(){const e=this.f;e&&(this.j=!0,this.F(),this.w.runResolvedTests(e.coverage.fromResult.request).finally(()=>{this.j=!1,this.F()}))}I(){this.m.clear()}};z=te([T(1,R),T(2,Fe),T(3,Ae),T(4,Pe),T(5,ae),T(6,A),T(7,ce)],z);x(class extends N{constructor(){super({id:ge,title:I(13803,"Toggle Inline Coverage"),category:E.Test,keybinding:{weight:200,primary:ye(2133,3111)},toggled:{condition:f.inlineCoverageEnabled,title:v(13799,null)},icon:de,menu:[{id:b.CommandPalette,when:f.isTestCoverageOpen},{id:b.EditorTitle,when:U.and(f.hasInlineCoverageDetails,f.coverageToolbarEnabled.notEqualsTo(!0)),group:"navigation"}]})}run(e){const n=e.get(A);n.showInline.set(!n.showInline.get(),void 0)}});x(class extends N{constructor(){super({id:"testing.coverageToggleToolbar",title:I(13804,"Show Test Coverage Toolbar"),metadata:{description:I(13805,"Toggle the sticky coverage bar in the editor.")},category:E.Test,toggled:{condition:f.coverageToolbarEnabled},menu:[{id:b.CommandPalette,when:f.isTestCoverageOpen},{id:b.StickyScrollContext,when:f.isTestCoverageOpen},{id:b.EditorTitle,when:f.hasCoverageInFile,group:"coverage",order:1}]})}run(e){const n=e.get(R),t=le(n,"testing.coverageToolbarEnabled");n.updateValue("testing.coverageToolbarEnabled",!t)}});x(class extends N{constructor(){super({id:"testing.coverageFilterToTestInEditor",title:I(13806,"Filter Coverage to Test"),category:E.Test,icon:D.filter,toggled:{icon:D.filterFilled,condition:f.isCoverageFilteredToTest},menu:[{id:b.EditorTitle,when:U.and(f.hasCoverageInFile,f.coverageToolbarEnabled.notEqualsTo(!0),f.hasPerTestCoverage,B.isEqualTo(qe)),group:"navigation"}]})}run(e,n,t){const o=e.get(A),i=e.get(ke),g=e.get(ae),s=Me(t)?t:e.get(V).getActiveCodeEditor();let r;if(n instanceof Re)r=n;else if(xe(n))r=o.selected.get()?.getUri(Se.from(n));else{const h=s?.getModel()?.uri;r=h&&o.selected.get()?.getUri(h)}if(!r||!r.perTestData?.size)return;const a=[...r.perTestData].map(X.fromString),m=X.getLengthOfCommonPrefix(a.length,h=>a[h]),c=r.fromResult,d=o.filterToTest.get(),u=[{iconClass:"codicon-go-to-file",tooltip:"Go to Test"}],p=[{label:O.labels.allTests,testId:void 0},{type:"separator"},...a.map(h=>({label:O.$ctc(c,h,m),testId:h,buttons:u}))],C=s?.getScrollTop()||0,$=new De;i.pick(p,{activeItem:p.find(h=>"testId"in h&&h.testId?.toString()===d?.toString()),placeHolder:O.labels.pickShowCoverage,onDidTriggerItemButton:h=>{g.executeCommand("vscode.revealTest",h.item.testId?.toString())},onDidFocus:h=>{if(!h.testId)$.clear(),s?.setScrollTop(C),o.filterToTest.set(void 0,void 0);else{const W=$.value=new ne;r.detailsForTest(h.testId,W.token).then(me=>{const M=me.find(pe=>pe.type===1);!W.token.isCancellationRequested&&M&&s?.revealLineNearTop(M.location instanceof _?M.location.lineNumber:M.location.startLineNumber)},()=>{}),o.filterToTest.set(h.testId,void 0)}}}).then(h=>{h||s?.setScrollTop(C),$.dispose(),o.filterToTest.set(h?h.testId:d,void 0)})}});x(class extends N{constructor(){super({id:"testing.toggleCoverageInExplorer",title:I(13807,"Toggle Coverage in Explorer"),metadata:{description:I(13808,"Toggle the display of test coverage in the File Explorer view.")},category:E.Test,toggled:{condition:U.equals("config.testing.showCoverageInExplorer",!0),title:v(13800,null)},menu:[{id:b.CommandPalette,when:f.isTestCoverageOpen}]})}run(e){const n=e.get(R),t=le(n,"testing.showCoverageInExplorer");n.updateValue("testing.showCoverageInExplorer",!t)}});x(class extends N{constructor(){super({id:"testing.coverage.goToNextMissedLine",title:he,metadata:{description:I(13809,"Navigate to the next line that is not covered by tests.")},category:E.Test,icon:D.arrowDown,precondition:f.hasCoverageInFile,keybinding:{when:B,weight:100,primary:579},menu:[{id:b.CommandPalette,when:f.isTestCoverageOpen},{id:b.EditorTitle,when:f.hasCoverageInFile,group:"coverage",order:2}]})}run(e){const t=e.get(V).getActiveCodeEditor();if(!t)return;t.getContribution(q.ID)?.goToNextMissedLine()}});x(class extends N{constructor(){super({id:"testing.coverage.goToPreviousMissedLine",title:ue,metadata:{description:I(13810,"Navigate to the previous line that is not covered by tests.")},category:E.Test,icon:D.arrowUp,precondition:f.hasCoverageInFile,keybinding:{when:B,weight:100,primary:1603},menu:[{id:b.CommandPalette,when:f.isTestCoverageOpen},{id:b.EditorTitle,when:f.hasCoverageInFile,group:"coverage",order:3}]})}run(e){const t=e.get(V).getActiveCodeEditor();if(!t)return;t.getContribution(q.ID)?.goToPreviousMissedLine()}});class w extends be{constructor(e,n,t,o,i,g=!1){super(e,n,void 0,o,i),this.icon=t,this.iconOnly=g}}class Be extends oe{F(){this.u.label&&this.q&&this.themeIcon&&y.$K8(this.q,Te(this.themeIcon),this.action.label)}}export{q as $4tc,Ue as $5tc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Action } from "../../../../base/common/actions.js";
+import { mapFindFirst } from "../../../../base/common/arraysFind.js";
+import { assert, assertNever } from "../../../../base/common/assert.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { isUriComponents, URI } from "../../../../base/common/uri.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { InjectedTextCursorStops } from "../../../../editor/common/model.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { bindContextKey, observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
+import { TEXT_FILE_EDITOR_ID } from "../../files/common/files.js";
+import { getTestingConfiguration } from "../common/configuration.js";
+import { FileCoverage } from "../common/testCoverage.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
+import { TestId } from "../common/testId.js";
+import { ITestService } from "../common/testService.js";
+import { TestingContextKeys } from "../common/testingContextKeys.js";
+import * as coverUtils from "./codeCoverageDisplayUtils.js";
+import { testingCoverageMissingBranch, testingCoverageReport, testingFilterIcon, testingRerunIcon } from "./icons.js";
+import { ManagedTestCoverageBars } from "./testCoverageBars.js";
+const CLASS_HIT = "coverage-deco-hit";
+const CLASS_MISS = "coverage-deco-miss";
+const TOGGLE_INLINE_COMMAND_TEXT = localize("testing.toggleInlineCoverage", "Toggle Inline");
+const TOGGLE_INLINE_COMMAND_ID = "testing.toggleInlineCoverage";
+const BRANCH_MISS_INDICATOR_CHARS = 4;
+const GO_TO_NEXT_MISSED_LINE_TITLE = localize2("testing.goToNextMissedLine", "Go to Next Uncovered Line");
+const GO_TO_PREVIOUS_MISSED_LINE_TITLE = localize2("testing.goToPreviousMissedLine", "Go to Previous Uncovered Line");
+let CodeCoverageDecorations = class CodeCoverageDecorations2 extends Disposable {
+  static {
+    __name(this, "CodeCoverageDecorations");
+  }
+  static {
+    this.ID = "editor.contrib.coverageDecorations";
+  }
+  constructor(editor, instantiationService, coverage, configurationService, log, contextKeyService) {
+    super();
+    this.editor = editor;
+    this.coverage = coverage;
+    this.log = log;
+    this.displayedStore = this._register(new DisposableStore());
+    this.hoveredStore = this._register(new DisposableStore());
+    this.decorationIds = /* @__PURE__ */ new Map();
+    this.hasInlineCoverageDetails = observableValue("hasInlineCoverageDetails", false);
+    this.summaryWidget = new Lazy(() => this._register(instantiationService.createInstance(CoverageToolbarWidget, this.editor)));
+    const modelObs = observableFromEvent(this, editor.onDidChangeModel, () => editor.getModel());
+    const configObs = observableFromEvent(this, editor.onDidChangeConfiguration, (i) => i);
+    const fileCoverage = derived((reader) => {
+      const report = coverage.selected.read(reader);
+      if (!report) {
+        return;
+      }
+      const model = modelObs.read(reader);
+      if (!model) {
+        return;
+      }
+      const file = report.getUri(model.uri);
+      if (!file) {
+        return;
+      }
+      report.didAddCoverage.read(reader);
+      return { file, testId: coverage.filterToTest.read(reader) };
+    });
+    this._register(bindContextKey(TestingContextKeys.hasPerTestCoverage, contextKeyService, (reader) => !!fileCoverage.read(reader)?.file.perTestData?.size));
+    this._register(bindContextKey(TestingContextKeys.hasCoverageInFile, contextKeyService, (reader) => !!fileCoverage.read(reader)?.file));
+    this._register(bindContextKey(TestingContextKeys.hasInlineCoverageDetails, contextKeyService, (reader) => this.hasInlineCoverageDetails.read(reader)));
+    this._register(autorun((reader) => {
+      const c = fileCoverage.read(reader);
+      if (c) {
+        this.apply(editor.getModel(), c.file, c.testId, coverage.showInline.read(reader));
+      } else {
+        this.clear();
+      }
+    }));
+    const toolbarEnabled = observableConfigValue("testing.coverageToolbarEnabled", true, configurationService);
+    this._register(autorun((reader) => {
+      const c = fileCoverage.read(reader);
+      if (c && toolbarEnabled.read(reader)) {
+        this.summaryWidget.value.setCoverage(c.file, c.testId);
+      } else {
+        this.summaryWidget.rawValue?.clearCoverage();
+      }
+    }));
+    this._register(autorun((reader) => {
+      const c = fileCoverage.read(reader);
+      if (c) {
+        const evt = configObs.read(reader);
+        if (evt?.hasChanged(
+          75
+          /* EditorOption.lineHeight */
+        ) !== false) {
+          this.updateEditorStyles();
+        }
+      }
+    }));
+    this._register(editor.onMouseMove((e) => {
+      const model = editor.getModel();
+      if (e.target.type === 3 && model) {
+        this.hoverLineNumber(editor.getModel());
+      } else if (coverage.showInline.get() && e.target.type === 6 && model) {
+        this.hoverInlineDecoration(model, e.target.position);
+      } else {
+        this.hoveredStore.clear();
+      }
+    }));
+    this._register(editor.onWillChangeModel(() => {
+      const model = editor.getModel();
+      if (!this.details || !model) {
+        return;
+      }
+      for (const decoration of model.getAllDecorations()) {
+        const own = this.decorationIds.get(decoration.id);
+        if (own) {
+          own.detail.range = decoration.range;
+        }
+      }
+    }));
+  }
+  updateEditorStyles() {
+    const lineHeight = this.editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const { style } = this.editor.getContainerDomNode();
+    style.setProperty("--vscode-testing-coverage-lineHeight", `${lineHeight}px`);
+  }
+  hoverInlineDecoration(model, position) {
+    const allDecorations = model.getDecorationsInRange(Range.fromPositions(position));
+    const decoration = mapFindFirst(allDecorations, ({ id }) => this.decorationIds.has(id) ? { id, deco: this.decorationIds.get(id) } : void 0);
+    if (decoration === this.hoveredSubject) {
+      return;
+    }
+    this.hoveredStore.clear();
+    this.hoveredSubject = decoration;
+    if (!decoration) {
+      return;
+    }
+    model.changeDecorations((e) => {
+      e.changeDecorationOptions(decoration.id, {
+        ...decoration.deco.options,
+        className: `${decoration.deco.options.className} coverage-deco-hovered`
+      });
+    });
+    this.hoveredStore.add(toDisposable(() => {
+      this.hoveredSubject = void 0;
+      model.changeDecorations((e) => {
+        e.changeDecorationOptions(decoration.id, decoration.deco.options);
+      });
+    }));
+  }
+  hoverLineNumber(model) {
+    if (this.hoveredSubject === "lineNo" || !this.details || this.coverage.showInline.get()) {
+      return;
+    }
+    this.hoveredStore.clear();
+    this.hoveredSubject = "lineNo";
+    model.changeDecorations((e) => {
+      for (const [id, decoration] of this.decorationIds) {
+        const { applyHoverOptions, options } = decoration;
+        const dup = { ...options };
+        applyHoverOptions(dup);
+        e.changeDecorationOptions(id, dup);
+      }
+    });
+    this.hoveredStore.add(this.editor.onMouseLeave(() => {
+      this.hoveredStore.clear();
+    }));
+    this.hoveredStore.add(toDisposable(() => {
+      this.hoveredSubject = void 0;
+      model.changeDecorations((e) => {
+        for (const [id, decoration] of this.decorationIds) {
+          e.changeDecorationOptions(id, decoration.options);
+        }
+      });
+    }));
+  }
+  /**
+   * Navigate to the next missed (uncovered) line from the current cursor position.
+   * @returns true if navigation occurred, false if no missed line was found
+   */
+  goToNextMissedLine() {
+    return this.navigateToMissedLine(true);
+  }
+  /**
+   * Navigate to the previous missed (uncovered) line from the current cursor position.
+   * @returns true if navigation occurred, false if no missed line was found
+   */
+  goToPreviousMissedLine() {
+    return this.navigateToMissedLine(false);
+  }
+  navigateToMissedLine(next) {
+    const model = this.editor.getModel();
+    const position = this.editor.getPosition();
+    if (!model || !position || !this.details) {
+      return false;
+    }
+    const currentLine = position.lineNumber;
+    let closestBefore;
+    let closestAfter;
+    let firstMissed;
+    let lastMissed;
+    for (const [, { detail, options }] of this.decorationIds) {
+      if (options.lineNumberClassName?.includes(CLASS_MISS)) {
+        const range = detail.range;
+        if (range.isEmpty()) {
+          continue;
+        }
+        const lineNumber = range.startLineNumber;
+        const missedLine = { lineNumber, range };
+        if (!firstMissed || lineNumber < firstMissed.lineNumber) {
+          firstMissed = missedLine;
+        }
+        if (!lastMissed || lineNumber > lastMissed.lineNumber) {
+          lastMissed = missedLine;
+        }
+        if (lineNumber < currentLine) {
+          if (!closestBefore || lineNumber > closestBefore.lineNumber) {
+            closestBefore = missedLine;
+          }
+        } else if (lineNumber > currentLine) {
+          if (!closestAfter || lineNumber < closestAfter.lineNumber) {
+            closestAfter = missedLine;
+          }
+        }
+      }
+    }
+    const targetLine = next ? closestAfter || firstMissed : closestBefore || lastMissed;
+    if (targetLine) {
+      this.editor.setPosition(new Position(targetLine.lineNumber, 1));
+      this.editor.revealLineInCenter(targetLine.lineNumber);
+      return true;
+    }
+    return false;
+  }
+  async apply(model, coverage, testId, showInlineByDefault) {
+    const details = this.details = await this.loadDetails(coverage, testId, model);
+    if (!details) {
+      this.hasInlineCoverageDetails.set(false, void 0);
+      return this.clear();
+    }
+    this.hasInlineCoverageDetails.set(details.ranges.length > 0, void 0);
+    this.displayedStore.clear();
+    model.changeDecorations((e) => {
+      for (const detailRange of details.ranges) {
+        const { metadata: { detail, description }, range, primary } = detailRange;
+        if (detail.type === 2) {
+          const hits = detail.detail.branches[detail.branch].count;
+          const cls = hits ? CLASS_HIT : CLASS_MISS;
+          const showMissIndicator = !hits && range.isEmpty() && detail.detail.branches.some((b) => b.count);
+          const options = {
+            showIfCollapsed: showMissIndicator,
+            // only avoid collapsing if we want to show the miss indicator
+            description: "coverage-gutter",
+            lineNumberClassName: `coverage-deco-gutter ${cls}`
+          };
+          const applyHoverOptions = /* @__PURE__ */ __name((target) => {
+            target.hoverMessage = description;
+            if (showMissIndicator) {
+              target.after = {
+                content: "\xA0".repeat(BRANCH_MISS_INDICATOR_CHARS),
+                // nbsp
+                inlineClassName: `coverage-deco-branch-miss-indicator ${ThemeIcon.asClassName(testingCoverageMissingBranch)}`,
+                inlineClassNameAffectsLetterSpacing: true,
+                cursorStops: InjectedTextCursorStops.None
+              };
+            } else {
+              target.className = `coverage-deco-inline ${cls}`;
+              if (primary && typeof hits === "number") {
+                target.before = countBadge(hits);
+              }
+            }
+          }, "applyHoverOptions");
+          if (showInlineByDefault) {
+            applyHoverOptions(options);
+          }
+          this.decorationIds.set(e.addDecoration(range, options), { options, applyHoverOptions, detail: detailRange });
+        } else if (detail.type === 1) {
+          const cls = detail.count ? CLASS_HIT : CLASS_MISS;
+          const options = {
+            showIfCollapsed: false,
+            description: "coverage-inline",
+            lineNumberClassName: `coverage-deco-gutter ${cls}`
+          };
+          const applyHoverOptions = /* @__PURE__ */ __name((target) => {
+            target.className = `coverage-deco-inline ${cls}`;
+            target.hoverMessage = description;
+            if (primary && typeof detail.count === "number") {
+              target.before = countBadge(detail.count);
+            }
+          }, "applyHoverOptions");
+          if (showInlineByDefault) {
+            applyHoverOptions(options);
+          }
+          this.decorationIds.set(e.addDecoration(range, options), { options, applyHoverOptions, detail: detailRange });
+        }
+      }
+    });
+    this.displayedStore.add(toDisposable(() => {
+      model.changeDecorations((e) => {
+        for (const decoration of this.decorationIds.keys()) {
+          e.removeDecoration(decoration);
+        }
+        this.decorationIds.clear();
+      });
+    }));
+  }
+  clear() {
+    this.loadingCancellation?.cancel();
+    this.loadingCancellation = void 0;
+    this.displayedStore.clear();
+    this.hoveredStore.clear();
+    this.hasInlineCoverageDetails.set(false, void 0);
+  }
+  async loadDetails(coverage, testId, textModel) {
+    const cts = this.loadingCancellation = new CancellationTokenSource();
+    this.displayedStore.add(this.loadingCancellation);
+    try {
+      const details = testId ? await coverage.detailsForTest(testId, this.loadingCancellation.token) : await coverage.details(this.loadingCancellation.token);
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      return new CoverageDetailsModel(details, textModel);
+    } catch (e) {
+      this.log.error("Error loading coverage details", e);
+    }
+    return void 0;
+  }
+};
+CodeCoverageDecorations = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ITestCoverageService),
+  __param(3, IConfigurationService),
+  __param(4, ILogService),
+  __param(5, IContextKeyService)
+], CodeCoverageDecorations);
+const countBadge = /* @__PURE__ */ __name((count) => {
+  if (count === 0) {
+    return void 0;
+  }
+  return {
+    content: `${count > 99 ? "99+" : count}x`,
+    cursorStops: InjectedTextCursorStops.None,
+    inlineClassName: `coverage-deco-inline-count`,
+    inlineClassNameAffectsLetterSpacing: true
+  };
+}, "countBadge");
+class CoverageDetailsModel {
+  static {
+    __name(this, "CoverageDetailsModel");
+  }
+  constructor(details, textModel) {
+    this.details = details;
+    this.ranges = [];
+    const detailRanges = details.map((detail) => ({
+      range: tidyLocation(detail.location),
+      primary: true,
+      metadata: { detail, description: this.describe(detail, textModel) }
+    }));
+    for (const { range, metadata: { detail } } of detailRanges) {
+      if (detail.type === 1 && detail.branches) {
+        for (let i = 0; i < detail.branches.length; i++) {
+          const branch = { type: 2, branch: i, detail };
+          detailRanges.push({
+            range: tidyLocation(detail.branches[i].location || Range.fromPositions(range.getEndPosition())),
+            primary: true,
+            metadata: {
+              detail: branch,
+              description: this.describe(branch, textModel)
+            }
+          });
+        }
+      }
+    }
+    detailRanges.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range) || a.metadata.detail.type - b.metadata.detail.type);
+    const stack = [];
+    const result = this.ranges = [];
+    const pop = /* @__PURE__ */ __name(() => {
+      const next = stack.pop();
+      const prev = stack[stack.length - 1];
+      if (prev) {
+        prev.range = prev.range.setStartPosition(next.range.endLineNumber, next.range.endColumn);
+      }
+      result.push(next);
+    }, "pop");
+    for (const item of detailRanges) {
+      const start = item.range.getStartPosition();
+      while (stack[stack.length - 1]?.range.containsPosition(start) === false) {
+        pop();
+      }
+      if (item.range.isEmpty()) {
+        result.push(item);
+        continue;
+      }
+      const prev = stack[stack.length - 1];
+      if (prev) {
+        const primary = prev.primary;
+        const si = prev.range.setEndPosition(start.lineNumber, start.column);
+        prev.range = prev.range.setStartPosition(item.range.endLineNumber, item.range.endColumn);
+        prev.primary = false;
+        if (prev.range.isEmpty()) {
+          stack.pop();
+        }
+        result.push({ range: si, primary, metadata: prev.metadata });
+      }
+      stack.push(item);
+    }
+    while (stack.length) {
+      pop();
+    }
+  }
+  /** Gets the markdown description for the given detail */
+  describe(detail, model) {
+    if (detail.type === 0) {
+      return namedDetailLabel(detail.name, detail);
+    } else if (detail.type === 1) {
+      const text = wrapName(model.getValueInRange(tidyLocation(detail.location)).trim() || `<empty statement>`);
+      if (detail.branches?.length) {
+        const covered = detail.branches.filter((b) => !!b.count).length;
+        return new MarkdownString().appendMarkdown(localize("coverage.branches", "{0} of {1} of branches in {2} were covered.", covered, detail.branches.length, text));
+      } else {
+        return namedDetailLabel(text, detail);
+      }
+    } else if (detail.type === 2) {
+      const text = wrapName(model.getValueInRange(tidyLocation(detail.detail.location)).trim() || `<empty statement>`);
+      const { count, label } = detail.detail.branches[detail.branch];
+      const label2 = label ? wrapInBackticks(label) : `#${detail.branch + 1}`;
+      if (!count) {
+        return new MarkdownString().appendMarkdown(localize("coverage.branchNotCovered", "Branch {0} in {1} was not covered.", label2, text));
+      } else if (count === true) {
+        return new MarkdownString().appendMarkdown(localize("coverage.branchCoveredYes", "Branch {0} in {1} was executed.", label2, text));
+      } else {
+        return new MarkdownString().appendMarkdown(localize("coverage.branchCovered", "Branch {0} in {1} was executed {2} time(s).", label2, text, count));
+      }
+    }
+    assertNever(detail);
+  }
+}
+function namedDetailLabel(name, detail) {
+  return new MarkdownString().appendMarkdown(!detail.count ? localize("coverage.declExecutedNo", "`{0}` was not executed.", name) : typeof detail.count === "number" ? localize("coverage.declExecutedCount", "`{0}` was executed {1} time(s).", name, detail.count) : localize("coverage.declExecutedYes", "`{0}` was executed.", name));
+}
+__name(namedDetailLabel, "namedDetailLabel");
+function tidyLocation(location) {
+  if (location instanceof Position) {
+    return Range.fromPositions(location, new Position(location.lineNumber, 2147483647));
+  }
+  return location;
+}
+__name(tidyLocation, "tidyLocation");
+function wrapInBackticks(str) {
+  return "`" + str.replace(/[\n\r`]/g, "") + "`";
+}
+__name(wrapInBackticks, "wrapInBackticks");
+function wrapName(functionNameOrCode) {
+  if (functionNameOrCode.length > 50) {
+    functionNameOrCode = functionNameOrCode.slice(0, 40) + "...";
+  }
+  return wrapInBackticks(functionNameOrCode);
+}
+__name(wrapName, "wrapName");
+let CoverageToolbarWidget = class CoverageToolbarWidget2 extends Disposable {
+  static {
+    __name(this, "CoverageToolbarWidget");
+  }
+  constructor(editor, configurationService, contextMenuService, testService, keybindingService, commandService, coverage, instaService) {
+    super();
+    this.editor = editor;
+    this.configurationService = configurationService;
+    this.contextMenuService = contextMenuService;
+    this.testService = testService;
+    this.keybindingService = keybindingService;
+    this.commandService = commandService;
+    this.coverage = coverage;
+    this.registered = false;
+    this.isRunning = false;
+    this.showStore = this._register(new DisposableStore());
+    this._domNode = dom.h("div.coverage-summary-widget", [
+      dom.h("div", [
+        dom.h("span.bars@bars"),
+        dom.h("span.toolbar@toolbar")
+      ])
+    ]);
+    this.bars = this._register(instaService.createInstance(ManagedTestCoverageBars, {
+      compact: false,
+      overall: false,
+      container: this._domNode.bars
+    }));
+    this.actionBar = this._register(instaService.createInstance(ActionBar, this._domNode.toolbar, {
+      orientation: 0,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof ActionWithIcon) {
+          if (action.iconOnly) {
+            action.class = ThemeIcon.asClassName(action.icon);
+            return new ActionViewItem(void 0, action, { ...options, label: false, icon: true });
+          }
+          const vm = new CodiconActionViewItem(void 0, action, options);
+          vm.themeIcon = action.icon;
+          return vm;
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }));
+    this._register(autorun((reader) => {
+      coverage.showInline.read(reader);
+      this.setActions();
+    }));
+    this._register(dom.addStandardDisposableListener(this._domNode.root, dom.EventType.CONTEXT_MENU, (e) => {
+      this.contextMenuService.showContextMenu({
+        menuId: MenuId.StickyScrollContext,
+        getAnchor: /* @__PURE__ */ __name(() => e, "getAnchor")
+      });
+    }));
+  }
+  /** @inheritdoc */
+  getId() {
+    return "coverage-summary-widget";
+  }
+  /** @inheritdoc */
+  getDomNode() {
+    return this._domNode.root;
+  }
+  /** @inheritdoc */
+  getPosition() {
+    return {
+      preference: 2,
+      stackOrdinal: 9
+    };
+  }
+  clearCoverage() {
+    this.current = void 0;
+    this.bars.setCoverageInfo(void 0);
+    this.hide();
+  }
+  setCoverage(coverage, testId) {
+    this.current = { coverage, testId };
+    this.bars.setCoverageInfo(coverage);
+    if (!coverage) {
+      this.hide();
+    } else {
+      this.setActions();
+      this.show();
+    }
+  }
+  setActions() {
+    this.actionBar.clear();
+    const current = this.current;
+    if (!current) {
+      return;
+    }
+    const toggleAction = new ActionWithIcon("toggleInline", this.coverage.showInline.get() ? localize("testing.hideInlineCoverage", "Hide Inline") : localize("testing.showInlineCoverage", "Show Inline"), testingCoverageReport, void 0, () => this.coverage.showInline.set(!this.coverage.showInline.get(), void 0));
+    toggleAction.tooltip = this.keybindingService.appendKeybinding(TOGGLE_INLINE_COMMAND_TEXT, TOGGLE_INLINE_COMMAND_ID);
+    const hasUncoveredStmt = current.coverage.statement.covered < current.coverage.statement.total;
+    this.actionBar.push(new ActionWithIcon("goToPreviousMissed", GO_TO_PREVIOUS_MISSED_LINE_TITLE.value, Codicon.arrowUp, hasUncoveredStmt, () => this.commandService.executeCommand(
+      "testing.coverage.goToPreviousMissedLine"
+      /* TestCommandId.CoverageGoToPreviousMissedLine */
+    ), true));
+    this.actionBar.push(new ActionWithIcon("goToNextMissed", GO_TO_NEXT_MISSED_LINE_TITLE.value, Codicon.arrowDown, hasUncoveredStmt, () => this.commandService.executeCommand(
+      "testing.coverage.goToNextMissedLine"
+      /* TestCommandId.CoverageGoToNextMissedLine */
+    ), true));
+    this.actionBar.push(toggleAction);
+    if (current.testId) {
+      const testItem = current.coverage.fromResult.getTestById(current.testId.toString());
+      assert(!!testItem, "got coverage for an unreported test");
+      this.actionBar.push(new ActionWithIcon("perTestFilter", coverUtils.labels.showingFilterFor(testItem.label), testingFilterIcon, void 0, () => this.commandService.executeCommand("testing.coverageFilterToTestInEditor", this.current, this.editor)));
+    } else if (current.coverage.perTestData?.size) {
+      this.actionBar.push(new ActionWithIcon("perTestFilter", localize("testing.coverageForTestAvailable", "{0} test(s) ran code in this file", current.coverage.perTestData.size), testingFilterIcon, void 0, () => this.commandService.executeCommand("testing.coverageFilterToTestInEditor", this.current, this.editor)));
+    }
+    this.actionBar.push(new ActionWithIcon("rerun", localize("testing.rerun", "Rerun"), testingRerunIcon, !this.isRunning, () => this.rerunTest()));
+  }
+  show() {
+    if (this.registered) {
+      return;
+    }
+    this.registered = true;
+    let viewZoneId;
+    const ds = this.showStore;
+    this.editor.addOverlayWidget(this);
+    this.editor.changeViewZones((accessor) => {
+      viewZoneId = accessor.addZone({
+        afterLineNumber: 0,
+        afterColumn: 0,
+        domNode: document.createElement("div"),
+        heightInPx: 30,
+        ordinal: -1
+        // show before code lenses
+      });
+    });
+    ds.add(toDisposable(() => {
+      this.registered = false;
+      this.editor.removeOverlayWidget(this);
+      this.editor.changeViewZones((accessor) => {
+        accessor.removeZone(viewZoneId);
+      });
+    }));
+    ds.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (this.current && (e.affectsConfiguration(
+        "testing.coverageBarThresholds"
+        /* TestingConfigKeys.CoverageBarThresholds */
+      ) || e.affectsConfiguration(
+        "testing.displayedCoveragePercent"
+        /* TestingConfigKeys.CoveragePercent */
+      ))) {
+        this.setCoverage(this.current.coverage, this.current.testId);
+      }
+    }));
+  }
+  rerunTest() {
+    const current = this.current;
+    if (current) {
+      this.isRunning = true;
+      this.setActions();
+      this.testService.runResolvedTests(current.coverage.fromResult.request).finally(() => {
+        this.isRunning = false;
+        this.setActions();
+      });
+    }
+  }
+  hide() {
+    this.showStore.clear();
+  }
+};
+CoverageToolbarWidget = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IContextMenuService),
+  __param(3, ITestService),
+  __param(4, IKeybindingService),
+  __param(5, ICommandService),
+  __param(6, ITestCoverageService),
+  __param(7, IInstantiationService)
+], CoverageToolbarWidget);
+registerAction2(class ToggleInlineCoverage extends Action2 {
+  static {
+    __name(this, "ToggleInlineCoverage");
+  }
+  constructor() {
+    super({
+      id: TOGGLE_INLINE_COMMAND_ID,
+      // note: ideally this would be "show inline", but the command palette does
+      // not use the 'toggled' titles, so we need to make this generic.
+      title: localize2("coverage.toggleInline", "Toggle Inline Coverage"),
+      category: Categories.Test,
+      keybinding: {
+        weight: 200,
+        primary: KeyChord(
+          2048 | 85,
+          2048 | 1024 | 39
+          /* KeyCode.KeyI */
+        )
+      },
+      toggled: {
+        condition: TestingContextKeys.inlineCoverageEnabled,
+        title: localize("coverage.hideInline", "Hide Inline Coverage")
+      },
+      icon: testingCoverageReport,
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.isTestCoverageOpen },
+        { id: MenuId.EditorTitle, when: ContextKeyExpr.and(TestingContextKeys.hasInlineCoverageDetails, TestingContextKeys.coverageToolbarEnabled.notEqualsTo(true)), group: "navigation" }
+      ]
+    });
+  }
+  run(accessor) {
+    const coverage = accessor.get(ITestCoverageService);
+    coverage.showInline.set(!coverage.showInline.get(), void 0);
+  }
+});
+registerAction2(class ToggleCoverageToolbar extends Action2 {
+  static {
+    __name(this, "ToggleCoverageToolbar");
+  }
+  constructor() {
+    super({
+      id: "testing.coverageToggleToolbar",
+      title: localize2("testing.toggleToolbarTitle", "Show Test Coverage Toolbar"),
+      metadata: {
+        description: localize2("testing.toggleToolbarDesc", "Toggle the sticky coverage bar in the editor.")
+      },
+      category: Categories.Test,
+      toggled: {
+        condition: TestingContextKeys.coverageToolbarEnabled
+      },
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.isTestCoverageOpen },
+        { id: MenuId.StickyScrollContext, when: TestingContextKeys.isTestCoverageOpen },
+        { id: MenuId.EditorTitle, when: TestingContextKeys.hasCoverageInFile, group: "coverage", order: 1 }
+      ]
+    });
+  }
+  run(accessor) {
+    const config = accessor.get(IConfigurationService);
+    const value = getTestingConfiguration(
+      config,
+      "testing.coverageToolbarEnabled"
+      /* TestingConfigKeys.CoverageToolbarEnabled */
+    );
+    config.updateValue("testing.coverageToolbarEnabled", !value);
+  }
+});
+registerAction2(class FilterCoverageToTestInEditor extends Action2 {
+  static {
+    __name(this, "FilterCoverageToTestInEditor");
+  }
+  constructor() {
+    super({
+      id: "testing.coverageFilterToTestInEditor",
+      title: localize2("testing.filterActionLabel", "Filter Coverage to Test"),
+      category: Categories.Test,
+      icon: Codicon.filter,
+      toggled: {
+        icon: Codicon.filterFilled,
+        condition: TestingContextKeys.isCoverageFilteredToTest
+      },
+      menu: [
+        {
+          id: MenuId.EditorTitle,
+          when: ContextKeyExpr.and(TestingContextKeys.hasCoverageInFile, TestingContextKeys.coverageToolbarEnabled.notEqualsTo(true), TestingContextKeys.hasPerTestCoverage, ActiveEditorContext.isEqualTo(TEXT_FILE_EDITOR_ID)),
+          group: "navigation"
+        }
+      ]
+    });
+  }
+  run(accessor, coverageOrUri, editor) {
+    const testCoverageService = accessor.get(ITestCoverageService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const commandService = accessor.get(ICommandService);
+    const activeEditor = isCodeEditor(editor) ? editor : accessor.get(ICodeEditorService).getActiveCodeEditor();
+    let coverage;
+    if (coverageOrUri instanceof FileCoverage) {
+      coverage = coverageOrUri;
+    } else if (isUriComponents(coverageOrUri)) {
+      coverage = testCoverageService.selected.get()?.getUri(URI.from(coverageOrUri));
+    } else {
+      const uri = activeEditor?.getModel()?.uri;
+      coverage = uri && testCoverageService.selected.get()?.getUri(uri);
+    }
+    if (!coverage || !coverage.perTestData?.size) {
+      return;
+    }
+    const tests = [...coverage.perTestData].map(TestId.fromString);
+    const commonPrefix = TestId.getLengthOfCommonPrefix(tests.length, (i) => tests[i]);
+    const result = coverage.fromResult;
+    const previousSelection = testCoverageService.filterToTest.get();
+    const buttons = [{
+      iconClass: "codicon-go-to-file",
+      tooltip: "Go to Test"
+    }];
+    const items = [
+      { label: coverUtils.labels.allTests, testId: void 0 },
+      { type: "separator" },
+      ...tests.map((id) => ({ label: coverUtils.getLabelForItem(result, id, commonPrefix), testId: id, buttons }))
+    ];
+    const scrollTop = activeEditor?.getScrollTop() || 0;
+    const revealScrollCts = new MutableDisposable();
+    quickInputService.pick(items, {
+      activeItem: items.find((item) => "testId" in item && item.testId?.toString() === previousSelection?.toString()),
+      placeHolder: coverUtils.labels.pickShowCoverage,
+      onDidTriggerItemButton: /* @__PURE__ */ __name((context) => {
+        commandService.executeCommand("vscode.revealTest", context.item.testId?.toString());
+      }, "onDidTriggerItemButton"),
+      onDidFocus: /* @__PURE__ */ __name((entry) => {
+        if (!entry.testId) {
+          revealScrollCts.clear();
+          activeEditor?.setScrollTop(scrollTop);
+          testCoverageService.filterToTest.set(void 0, void 0);
+        } else {
+          const cts = revealScrollCts.value = new CancellationTokenSource();
+          coverage.detailsForTest(entry.testId, cts.token).then((details) => {
+            const first = details.find(
+              (d) => d.type === 1
+              /* DetailType.Statement */
+            );
+            if (!cts.token.isCancellationRequested && first) {
+              activeEditor?.revealLineNearTop(first.location instanceof Position ? first.location.lineNumber : first.location.startLineNumber);
+            }
+          }, () => {
+          });
+          testCoverageService.filterToTest.set(entry.testId, void 0);
+        }
+      }, "onDidFocus")
+    }).then((selected) => {
+      if (!selected) {
+        activeEditor?.setScrollTop(scrollTop);
+      }
+      revealScrollCts.dispose();
+      testCoverageService.filterToTest.set(selected ? selected.testId : previousSelection, void 0);
+    });
+  }
+});
+registerAction2(class ToggleCoverageInExplorer extends Action2 {
+  static {
+    __name(this, "ToggleCoverageInExplorer");
+  }
+  constructor() {
+    super({
+      id: "testing.toggleCoverageInExplorer",
+      title: localize2("testing.toggleCoverageInExplorerTitle", "Toggle Coverage in Explorer"),
+      metadata: {
+        description: localize2("testing.toggleCoverageInExplorerDesc", "Toggle the display of test coverage in the File Explorer view.")
+      },
+      category: Categories.Test,
+      toggled: {
+        condition: ContextKeyExpr.equals("config.testing.showCoverageInExplorer", true),
+        title: localize("testing.hideCoverageInExplorer", "Hide Coverage in Explorer")
+      },
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.isTestCoverageOpen }
+      ]
+    });
+  }
+  run(accessor) {
+    const config = accessor.get(IConfigurationService);
+    const value = getTestingConfiguration(
+      config,
+      "testing.showCoverageInExplorer"
+      /* TestingConfigKeys.ShowCoverageInExplorer */
+    );
+    config.updateValue("testing.showCoverageInExplorer", !value);
+  }
+});
+registerAction2(class GoToNextMissedCoverageLine extends Action2 {
+  static {
+    __name(this, "GoToNextMissedCoverageLine");
+  }
+  constructor() {
+    super({
+      id: "testing.coverage.goToNextMissedLine",
+      title: GO_TO_NEXT_MISSED_LINE_TITLE,
+      metadata: {
+        description: localize2("testing.goToNextMissedLineDesc", "Navigate to the next line that is not covered by tests.")
+      },
+      category: Categories.Test,
+      icon: Codicon.arrowDown,
+      precondition: TestingContextKeys.hasCoverageInFile,
+      keybinding: {
+        when: ActiveEditorContext,
+        weight: 100,
+        primary: 512 | 67
+      },
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.isTestCoverageOpen },
+        { id: MenuId.EditorTitle, when: TestingContextKeys.hasCoverageInFile, group: "coverage", order: 2 }
+      ]
+    });
+  }
+  run(accessor) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const activeEditor = codeEditorService.getActiveCodeEditor();
+    if (!activeEditor) {
+      return;
+    }
+    const contribution = activeEditor.getContribution(CodeCoverageDecorations.ID);
+    contribution?.goToNextMissedLine();
+  }
+});
+registerAction2(class GoToPreviousMissedCoverageLine extends Action2 {
+  static {
+    __name(this, "GoToPreviousMissedCoverageLine");
+  }
+  constructor() {
+    super({
+      id: "testing.coverage.goToPreviousMissedLine",
+      title: GO_TO_PREVIOUS_MISSED_LINE_TITLE,
+      metadata: {
+        description: localize2("testing.goToPreviousMissedLineDesc", "Navigate to the previous line that is not covered by tests.")
+      },
+      category: Categories.Test,
+      icon: Codicon.arrowUp,
+      precondition: TestingContextKeys.hasCoverageInFile,
+      keybinding: {
+        when: ActiveEditorContext,
+        weight: 100,
+        primary: 512 | 1024 | 67
+      },
+      menu: [
+        { id: MenuId.CommandPalette, when: TestingContextKeys.isTestCoverageOpen },
+        { id: MenuId.EditorTitle, when: TestingContextKeys.hasCoverageInFile, group: "coverage", order: 3 }
+      ]
+    });
+  }
+  run(accessor) {
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const activeEditor = codeEditorService.getActiveCodeEditor();
+    if (!activeEditor) {
+      return;
+    }
+    const contribution = activeEditor.getContribution(CodeCoverageDecorations.ID);
+    contribution?.goToPreviousMissedLine();
+  }
+});
+class ActionWithIcon extends Action {
+  static {
+    __name(this, "ActionWithIcon");
+  }
+  constructor(id, title, icon, enabled, run, iconOnly = false) {
+    super(id, title, void 0, enabled, run);
+    this.icon = icon;
+    this.iconOnly = iconOnly;
+  }
+}
+class CodiconActionViewItem extends ActionViewItem {
+  static {
+    __name(this, "CodiconActionViewItem");
+  }
+  updateLabel() {
+    if (this.options.label && this.label && this.themeIcon) {
+      dom.reset(this.label, renderIcon(this.themeIcon), this.action.label);
+    }
+  }
+}
+export {
+  CodeCoverageDecorations,
+  CoverageDetailsModel
+};
+//# sourceMappingURL=codeCoverageDecorations.js.map

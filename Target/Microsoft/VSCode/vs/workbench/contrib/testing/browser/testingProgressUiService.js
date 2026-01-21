@@ -1,1 +1,92 @@
-import{$Ed as h,$Dd as m}from"../../../../base/common/lifecycle.js";import{autorun as u}from"../../../../base/common/observable.js";import{$9l as l}from"../../../../platform/configuration/common/configuration.js";import{$fAb as d}from"../../../services/views/common/viewsService.js";import{$Osc as b}from"../common/configuration.js";import{$Qsc as g}from"../common/testCoverageService.js";import{$5W as v}from"../common/testingStates.js";import{$r9b as $}from"../common/testResultService.js";import{$0sc as w}from"./testCoverageBars.js";var p=function(n,t,e,r){var s=arguments.length,o=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,r);else for(var a=n.length-1;a>=0;a--)(i=n[a])&&(o=(s<3?i(o):s>3?i(t,e,o):i(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},f=function(n,t){return function(e,r){t(e,r,n)}};let c=class extends h{static{this.ID="workbench.contrib.testing.progressTrigger"}constructor(t,e,r,s){super(),this.a=r,this.b=s,this.D(t.onResultsChanged(i=>{"started"in i&&this.c(i.started)}));const o=u(i=>{e.selected.read(i)&&(o.dispose(),w.register())});this.D(o)}c(t){if(t.request.preserveFocus===!0)return;const e=b(this.a,"testing.automaticallyOpenTestResults");if(e==="neverOpen")return;if(e==="openExplorerOnTestStart")return this.f();if(e==="openOnTestStart")return this.g();const r=new m;r.add(t.onComplete(()=>r.dispose())),r.add(t.onChange(s=>{s.reason===1&&v(s.item.ownComputedState)&&(this.g(),r.dispose())}))}f(){this.b.openView("workbench.view.testing",!1)}g(){this.b.openView("workbench.panel.testResults.view",!1)}};c=p([f(0,$),f(1,g),f(2,l),f(3,d)],c);export{c as $Cvc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { getTestingConfiguration } from "../common/configuration.js";
+import { ITestCoverageService } from "../common/testCoverageService.js";
+import { isFailedState } from "../common/testingStates.js";
+import { ITestResultService } from "../common/testResultService.js";
+import { ExplorerTestCoverageBars } from "./testCoverageBars.js";
+let TestingProgressTrigger = class TestingProgressTrigger2 extends Disposable {
+  static {
+    __name(this, "TestingProgressTrigger");
+  }
+  static {
+    this.ID = "workbench.contrib.testing.progressTrigger";
+  }
+  constructor(resultService, testCoverageService, configurationService, viewsService) {
+    super();
+    this.configurationService = configurationService;
+    this.viewsService = viewsService;
+    this._register(resultService.onResultsChanged((e) => {
+      if ("started" in e) {
+        this.attachAutoOpenForNewResults(e.started);
+      }
+    }));
+    const barContributionRegistration = autorun((reader) => {
+      const hasCoverage = !!testCoverageService.selected.read(reader);
+      if (!hasCoverage) {
+        return;
+      }
+      barContributionRegistration.dispose();
+      ExplorerTestCoverageBars.register();
+    });
+    this._register(barContributionRegistration);
+  }
+  attachAutoOpenForNewResults(result) {
+    if (result.request.preserveFocus === true) {
+      return;
+    }
+    const cfg = getTestingConfiguration(
+      this.configurationService,
+      "testing.automaticallyOpenTestResults"
+      /* TestingConfigKeys.OpenResults */
+    );
+    if (cfg === "neverOpen") {
+      return;
+    }
+    if (cfg === "openExplorerOnTestStart") {
+      return this.openExplorerView();
+    }
+    if (cfg === "openOnTestStart") {
+      return this.openResultsView();
+    }
+    const disposable = new DisposableStore();
+    disposable.add(result.onComplete(() => disposable.dispose()));
+    disposable.add(result.onChange((e) => {
+      if (e.reason === 1 && isFailedState(e.item.ownComputedState)) {
+        this.openResultsView();
+        disposable.dispose();
+      }
+    }));
+  }
+  openExplorerView() {
+    this.viewsService.openView("workbench.view.testing", false);
+  }
+  openResultsView() {
+    this.viewsService.openView("workbench.panel.testResults.view", false);
+  }
+};
+TestingProgressTrigger = __decorate([
+  __param(0, ITestResultService),
+  __param(1, ITestCoverageService),
+  __param(2, IConfigurationService),
+  __param(3, IViewsService)
+], TestingProgressTrigger);
+export {
+  TestingProgressTrigger
+};
+//# sourceMappingURL=testingProgressUiService.js.map

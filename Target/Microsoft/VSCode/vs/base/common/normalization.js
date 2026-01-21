@@ -1,1 +1,52 @@
-import{$Rc as r}from"./map.js";const f=new r(1e4);function g(n){return i(n,"NFC",f)}const a=new r(1e4);function s(n){return i(n,"NFD",a)}const h=/[^\u0000-\u0080]/;function i(n,o,e){if(!n)return n;const c=e.get(n);if(c)return c;let t;return h.test(n)?t=n.normalize(o):t=n,e.set(n,t),t}const p=(function(){const n=new r(1e4),o=/[\u0300-\u036f]/g;return function(e){const c=n.get(e);if(c)return c;const t=s(e).replace(o,""),u=(t.length===e.length?t:e).toLowerCase();return n.set(e,u),u}})();export{g as $Ei,s as $Fi,p as $Gi};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { LRUCache } from "./map.js";
+const nfcCache = new LRUCache(1e4);
+function normalizeNFC(str) {
+  return normalize(str, "NFC", nfcCache);
+}
+__name(normalizeNFC, "normalizeNFC");
+const nfdCache = new LRUCache(1e4);
+function normalizeNFD(str) {
+  return normalize(str, "NFD", nfdCache);
+}
+__name(normalizeNFD, "normalizeNFD");
+const nonAsciiCharactersPattern = /[^\u0000-\u0080]/;
+function normalize(str, form, normalizedCache) {
+  if (!str) {
+    return str;
+  }
+  const cached = normalizedCache.get(str);
+  if (cached) {
+    return cached;
+  }
+  let res;
+  if (nonAsciiCharactersPattern.test(str)) {
+    res = str.normalize(form);
+  } else {
+    res = str;
+  }
+  normalizedCache.set(str, res);
+  return res;
+}
+__name(normalize, "normalize");
+const tryNormalizeToBase = (function() {
+  const cache = new LRUCache(1e4);
+  const accentsRegex = /[\u0300-\u036f]/g;
+  return function(str) {
+    const cached = cache.get(str);
+    if (cached) {
+      return cached;
+    }
+    const noAccents = normalizeNFD(str).replace(accentsRegex, "");
+    const result = (noAccents.length === str.length ? noAccents : str).toLowerCase();
+    cache.set(str, result);
+    return result;
+  };
+})();
+export {
+  normalizeNFC,
+  normalizeNFD,
+  tryNormalizeToBase
+};
+//# sourceMappingURL=normalization.js.map

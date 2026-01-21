@@ -1,1 +1,326 @@
-import{$im as S}from"../../../../platform/registry/common/platform.js";import{Extensions as q}from"../../../common/contributions.js";import{$SN as I}from"../../../services/lifecycle/common/lifecycle.js";import{$op as W}from"../../../../platform/telemetry/common/telemetry.js";import{$Ll as K}from"../../../../platform/workspace/common/workspace.js";import{$yL as M}from"../../../services/editor/common/editorService.js";import{$cy as z}from"../../../../platform/keybinding/common/keybinding.js";import{$nCb as N}from"../../../services/themes/common/workbenchThemeService.js";import{$BP as U}from"../../../services/environment/common/environmentService.js";import{$A as G}from"../../../../base/common/platform.js";import{Event as v}from"../../../../base/common/event.js";import{$Ed as E}from"../../../../base/common/lifecycle.js";import F from"../../../../platform/telemetry/browser/errorTelemetry.js";import{$jv as J,$hv as u,$gv as g,$cv as Q}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$_l as Z,$9l as X}from"../../../../platform/configuration/common/configuration.js";import{$dM as Y}from"../../../services/textfile/common/textfiles.js";import{$Fh as T,$Eh as C,$Ah as x,$Bh as V}from"../../../../base/common/resources.js";import{Schemas as tt}from"../../../../base/common/network.js";import{$1Gb as et}from"../../../../editor/common/services/languagesAssociations.js";import{$Fn as it}from"../../../../base/common/hash.js";import{$$Ab as ot}from"../../../services/panecomposite/browser/panecomposite.js";import{$MQ as st}from"../../../services/userDataProfile/common/userDataProfile.js";import{$96 as h}from"../../../../base/browser/window.js";import{$km as rt}from"../../../../platform/configuration/common/configurationRegistry.js";import{$bd as D,$$c as P,$6c as k}from"../../../../base/common/types.js";import{$zIb as nt,$wIb as lt}from"../../extensions/common/extensions.js";import{$_o as ct}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Un as ht}from"../../../../platform/product/common/productService.js";import{$sL as at,$tL as ft}from"../../../../platform/actions/common/actions.js";import{localize2 as ut}from"../../../../nls.js";import{$so as gt}from"../../../../platform/action/common/actionCommonCategories.js";import{$BZ as mt}from"../../../services/output/common/output.js";import{$yo as dt,LogLevel as m}from"../../../../platform/log/common/log.js";import{$iA as pt}from"../../../../platform/extensionManagement/common/extensionManagement.js";var R=function(c,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(c,t,i,e);else for(var l=c.length-1;l>=0;l--)(r=c[l])&&(s=(o<3?r(s):o>3?r(t,i,s):r(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},n=function(c,t){return function(i,e){t(i,e,c)}},a;let d=class extends E{static{a=this}static{this.a=["package.json","package-lock.json","tsconfig.json","jsconfig.json","bower.json",".eslintrc.json","tslint.json","composer.json"]}static{this.b=["settings.json","extensions.json","tasks.json","launch.json"]}constructor(t,i,e,o,s,r,l,_,b,B,A,H,$){super(),this.c=t,this.f=i,this.g=_,this.h=A,this.j=H;const{filesToOpenOrCreate:w,filesToDiff:L,filesToMerge:y}=l,j=b.getActivePaneComposite(0);t.publicLog2("workspaceLoad",{windowSize:{innerHeight:h.innerHeight,innerWidth:h.innerWidth,outerHeight:h.outerHeight,outerWidth:h.outerWidth},emptyWorkbench:i.getWorkbenchState()===1,"workbench.filesToOpenOrCreate":w&&w.length||0,"workbench.filesToDiff":L&&L.length||0,"workbench.filesToMerge":y&&y.length||0,customKeybindingsCount:s.customKeybindingsCount(),theme:r.getColorTheme().id,language:G,pinnedViewlets:b.getPinnedPaneCompositeIds(0),restoredViewlet:j?j.getId():void 0,restoredEditors:o.visibleEditors.length,startupKind:e.startupKind}),this.D(new F(t)),this.D($.files.onDidResolve(f=>this.m(f))),this.D($.files.onDidSave(f=>this.n(f))),this.D(e.onDidShutdown(()=>this.dispose())),J(B,l)&&this.s()}m(t){this.q(t.model.resource)||this.c.publicLog2("fileGet",this.r(t.model.resource,t.reason))}n(t){this.q(t.model.resource)||this.c.publicLog2("filePUT",this.r(t.model.resource,t.reason))}q(t){if(T(t)!==".json")return"";if(x(t,this.g.currentProfile.settingsResource))return"global-settings";if(x(t,this.g.currentProfile.keybindingsResource))return"keybindings";if(V(t,this.g.currentProfile.snippetsHome))return"snippets";const i=this.f.getWorkspace().folders;for(const e of i)if(V(t,e.toResource(".vscode"))){const o=C(t);if(a.b.indexOf(o)>-1)return`.vscode/${o}`}return""}r(t,i){let e=T(t);const o=e.indexOf("?");e=o!==-1?e.substr(0,o):e;const s=C(t),r=t.scheme===tt.file?t.fsPath:t.path,l={mimeType:new Q(et(t).join(", ")),ext:e,path:it(r),reason:i,allowlistedjson:void 0};return e===".json"&&a.a.indexOf(s)>-1&&(l.allowlistedjson=s),l}async s(){const t=this;this.D(ft(class extends at{constructor(){super({id:"workbench.action.showTelemetry",title:ut(12813,"Show Telemetry"),category:gt.Developer,f1:!0})}async run(){for(const e of t.h.getRegisteredLoggers())e.group?.id===u.id&&(t.h.setLogLevel(e.resource,m.Trace),t.h.setVisibility(e.resource,!0));t.j.showChannel(u.id)}})),[...this.h.getRegisteredLoggers()].find(e=>e.id===g)||await v.toPromise(v.filter(this.h.onDidChangeLoggers,e=>[...e.added].some(o=>o.id===g)));let i=!1;for(const e of this.h.getRegisteredLoggers())if(e.id===g){i=this.h.getLogLevel()===m.Trace||!e.hidden,i&&this.h.setVisibility(e.id,!0);break}if(i){const e=o=>{for(const s of o)s.group?.id===u.id&&(t.h.setLogLevel(s.resource,m.Trace),this.h.setVisibility(s.id,!0))};e(this.h.getRegisteredLoggers()),this.D(this.h.onDidChangeLoggers(o=>e(o.added)))}}};d=a=R([n(0,W),n(1,K),n(2,I),n(3,M),n(4,z),n(5,N),n(6,U),n(7,st),n(8,ot),n(9,ht),n(10,dt),n(11,mt),n(12,Y)],d);let p=class extends E{constructor(t,i,e){super(),this.b=t,this.c=i,this.f=e,this.a=S.as(rt.Configuration);const{user:o,workspace:s}=t.keys();for(const r of o)this.h(r,3);for(const r of s)this.h(r,5)}g(t,i){const e=this.b.inspect(t),o=i===3?e.user?.value:e.workspace?.value;if(P(o)||D(o))return o.toString();const s=this.a.getConfigurationProperties()[t];if(k(o))return s?.enum?.includes(o)?o:void 0;if(Array.isArray(o)&&o.every(r=>P(r)||D(r)||k(r)&&s?.enum?.includes(r)))return JSON.stringify(o)}h(t,i){const e=Z(i);switch(t){case"workbench.activityBar.location":this.f.publicLog2("workbench.activityBar.location",{settingValue:this.g(t,i),source:e});return;case lt:this.f.publicLog2("extensions.autoUpdate",{settingValue:this.g(t,i),source:e});return;case"editor.stickyScroll.enabled":this.f.publicLog2("editor.stickyScroll.enabled",{settingValue:this.g(t,i),source:e});return;case"typescript.experimental.expandableHover":this.f.publicLog2("typescript.experimental.expandableHover",{settingValue:this.g(t,i),source:e});return;case"window.titleBarStyle":this.f.publicLog2("window.titleBarStyle",{settingValue:this.g(t,i),source:e});return;case"workbench.secondarySideBar.defaultVisibility":this.f.publicLog2("workbench.secondarySideBar.defaultVisibility",{settingValue:this.g(t,i),source:e});return;case pt:this.f.publicLog2("extensions.verifySignature",{settingValue:this.g(t,i),source:e});return;case"window.newWindowProfile":{const o=this.g(t,i),s=o===null?"null":o===this.c.defaultProfile.name?"default":"custom";this.f.publicLog2("window.newWindowProfile",{settingValue:s,source:e});return}case nt:this.f.publicLog2("extensions.autoRestart",{settingValue:this.g(t,i),source:e});return;case"chat.tools.terminal.outputLocation":this.f.publicLog2("terminal.integrated.chatAgentTools.outputLocation",{settingValue:this.g(t,i),source:e});return;case"terminal.integrated.suggest.enabled":this.f.publicLog2("terminal.integrated.suggest.enabled",{settingValue:this.g(t,i),source:e});return}}};p=R([n(0,X),n(1,ct),n(2,W)],p);const O=S.as(q.Workbench);O.registerWorkbenchContribution(d,3);O.registerWorkbenchContribution(p,4);export{d as $Ebc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TelemetryContribution_1;
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { language } from "../../../../base/common/platform.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import ErrorTelemetry from "../../../../platform/telemetry/browser/errorTelemetry.js";
+import { supportsTelemetry, TelemetryLogGroup, telemetryLogId, TelemetryTrustedValue } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { ConfigurationTargetToString, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { extname, basename, isEqual, isEqualOrParent } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { getMimeTypes } from "../../../../editor/common/services/languagesAssociations.js";
+import { hash } from "../../../../base/common/hash.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { isBoolean, isNumber, isString } from "../../../../base/common/types.js";
+import { AutoRestartConfigurationKey, AutoUpdateConfigurationKey } from "../../extensions/common/extensions.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IOutputService } from "../../../services/output/common/output.js";
+import { ILoggerService, LogLevel } from "../../../../platform/log/common/log.js";
+import { VerifyExtensionSignatureConfigKey } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+let TelemetryContribution = class TelemetryContribution2 extends Disposable {
+  static {
+    __name(this, "TelemetryContribution");
+  }
+  static {
+    TelemetryContribution_1 = this;
+  }
+  static {
+    this.ALLOWLIST_JSON = ["package.json", "package-lock.json", "tsconfig.json", "jsconfig.json", "bower.json", ".eslintrc.json", "tslint.json", "composer.json"];
+  }
+  static {
+    this.ALLOWLIST_WORKSPACE_JSON = ["settings.json", "extensions.json", "tasks.json", "launch.json"];
+  }
+  constructor(telemetryService, contextService, lifecycleService, editorService, keybindingsService, themeService, environmentService, userDataProfileService, paneCompositeService, productService, loggerService, outputService, textFileService) {
+    super();
+    this.telemetryService = telemetryService;
+    this.contextService = contextService;
+    this.userDataProfileService = userDataProfileService;
+    this.loggerService = loggerService;
+    this.outputService = outputService;
+    const { filesToOpenOrCreate, filesToDiff, filesToMerge } = environmentService;
+    const activeViewlet = paneCompositeService.getActivePaneComposite(
+      0
+      /* ViewContainerLocation.Sidebar */
+    );
+    telemetryService.publicLog2("workspaceLoad", {
+      windowSize: { innerHeight: mainWindow.innerHeight, innerWidth: mainWindow.innerWidth, outerHeight: mainWindow.outerHeight, outerWidth: mainWindow.outerWidth },
+      emptyWorkbench: contextService.getWorkbenchState() === 1,
+      "workbench.filesToOpenOrCreate": filesToOpenOrCreate && filesToOpenOrCreate.length || 0,
+      "workbench.filesToDiff": filesToDiff && filesToDiff.length || 0,
+      "workbench.filesToMerge": filesToMerge && filesToMerge.length || 0,
+      customKeybindingsCount: keybindingsService.customKeybindingsCount(),
+      theme: themeService.getColorTheme().id,
+      language,
+      pinnedViewlets: paneCompositeService.getPinnedPaneCompositeIds(
+        0
+        /* ViewContainerLocation.Sidebar */
+      ),
+      restoredViewlet: activeViewlet ? activeViewlet.getId() : void 0,
+      restoredEditors: editorService.visibleEditors.length,
+      startupKind: lifecycleService.startupKind
+    });
+    this._register(new ErrorTelemetry(telemetryService));
+    this._register(textFileService.files.onDidResolve((e) => this.onTextFileModelResolved(e)));
+    this._register(textFileService.files.onDidSave((e) => this.onTextFileModelSaved(e)));
+    this._register(lifecycleService.onDidShutdown(() => this.dispose()));
+    if (supportsTelemetry(productService, environmentService)) {
+      this.handleTelemetryOutputVisibility();
+    }
+  }
+  onTextFileModelResolved(e) {
+    const settingsType = this.getTypeIfSettings(e.model.resource);
+    if (!settingsType) {
+      this.telemetryService.publicLog2("fileGet", this.getTelemetryData(e.model.resource, e.reason));
+    }
+  }
+  onTextFileModelSaved(e) {
+    const settingsType = this.getTypeIfSettings(e.model.resource);
+    if (!settingsType) {
+      this.telemetryService.publicLog2("filePUT", this.getTelemetryData(e.model.resource, e.reason));
+    }
+  }
+  getTypeIfSettings(resource) {
+    if (extname(resource) !== ".json") {
+      return "";
+    }
+    if (isEqual(resource, this.userDataProfileService.currentProfile.settingsResource)) {
+      return "global-settings";
+    }
+    if (isEqual(resource, this.userDataProfileService.currentProfile.keybindingsResource)) {
+      return "keybindings";
+    }
+    if (isEqualOrParent(resource, this.userDataProfileService.currentProfile.snippetsHome)) {
+      return "snippets";
+    }
+    const folders = this.contextService.getWorkspace().folders;
+    for (const folder of folders) {
+      if (isEqualOrParent(resource, folder.toResource(".vscode"))) {
+        const filename = basename(resource);
+        if (TelemetryContribution_1.ALLOWLIST_WORKSPACE_JSON.indexOf(filename) > -1) {
+          return `.vscode/${filename}`;
+        }
+      }
+    }
+    return "";
+  }
+  getTelemetryData(resource, reason) {
+    let ext = extname(resource);
+    const queryStringLocation = ext.indexOf("?");
+    ext = queryStringLocation !== -1 ? ext.substr(0, queryStringLocation) : ext;
+    const fileName = basename(resource);
+    const path = resource.scheme === Schemas.file ? resource.fsPath : resource.path;
+    const telemetryData = {
+      mimeType: new TelemetryTrustedValue(getMimeTypes(resource).join(", ")),
+      ext,
+      path: hash(path),
+      reason,
+      allowlistedjson: void 0
+    };
+    if (ext === ".json" && TelemetryContribution_1.ALLOWLIST_JSON.indexOf(fileName) > -1) {
+      telemetryData["allowlistedjson"] = fileName;
+    }
+    return telemetryData;
+  }
+  async handleTelemetryOutputVisibility() {
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.showTelemetry",
+          title: localize2("showTelemetry", "Show Telemetry"),
+          category: Categories.Developer,
+          f1: true
+        });
+      }
+      async run() {
+        for (const logger of that.loggerService.getRegisteredLoggers()) {
+          if (logger.group?.id === TelemetryLogGroup.id) {
+            that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
+            that.loggerService.setVisibility(logger.resource, true);
+          }
+        }
+        that.outputService.showChannel(TelemetryLogGroup.id);
+      }
+    }));
+    if (![...this.loggerService.getRegisteredLoggers()].find((logger) => logger.id === telemetryLogId)) {
+      await Event.toPromise(Event.filter(this.loggerService.onDidChangeLoggers, (e) => [...e.added].some((logger) => logger.id === telemetryLogId)));
+    }
+    let showTelemetry = false;
+    for (const logger of this.loggerService.getRegisteredLoggers()) {
+      if (logger.id === telemetryLogId) {
+        showTelemetry = this.loggerService.getLogLevel() === LogLevel.Trace || !logger.hidden;
+        if (showTelemetry) {
+          this.loggerService.setVisibility(logger.id, true);
+        }
+        break;
+      }
+    }
+    if (showTelemetry) {
+      const showExtensionTelemetry = /* @__PURE__ */ __name((loggers) => {
+        for (const logger of loggers) {
+          if (logger.group?.id === TelemetryLogGroup.id) {
+            that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
+            this.loggerService.setVisibility(logger.id, true);
+          }
+        }
+      }, "showExtensionTelemetry");
+      showExtensionTelemetry(this.loggerService.getRegisteredLoggers());
+      this._register(this.loggerService.onDidChangeLoggers((e) => showExtensionTelemetry(e.added)));
+    }
+  }
+};
+TelemetryContribution = TelemetryContribution_1 = __decorate([
+  __param(0, ITelemetryService),
+  __param(1, IWorkspaceContextService),
+  __param(2, ILifecycleService),
+  __param(3, IEditorService),
+  __param(4, IKeybindingService),
+  __param(5, IWorkbenchThemeService),
+  __param(6, IWorkbenchEnvironmentService),
+  __param(7, IUserDataProfileService),
+  __param(8, IPaneCompositePartService),
+  __param(9, IProductService),
+  __param(10, ILoggerService),
+  __param(11, IOutputService),
+  __param(12, ITextFileService)
+], TelemetryContribution);
+let ConfigurationTelemetryContribution = class ConfigurationTelemetryContribution2 extends Disposable {
+  static {
+    __name(this, "ConfigurationTelemetryContribution");
+  }
+  constructor(configurationService, userDataProfilesService, telemetryService) {
+    super();
+    this.configurationService = configurationService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.telemetryService = telemetryService;
+    this.configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+    const { user, workspace } = configurationService.keys();
+    for (const setting of user) {
+      this.reportTelemetry(
+        setting,
+        3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+    }
+    for (const setting of workspace) {
+      this.reportTelemetry(
+        setting,
+        5
+        /* ConfigurationTarget.WORKSPACE */
+      );
+    }
+  }
+  /**
+   * Report value of a setting only if it is an enum, boolean, or number or an array of those.
+   */
+  getValueToReport(key, target) {
+    const inpsectData = this.configurationService.inspect(key);
+    const value = target === 3 ? inpsectData.user?.value : inpsectData.workspace?.value;
+    if (isNumber(value) || isBoolean(value)) {
+      return value.toString();
+    }
+    const schema = this.configurationRegistry.getConfigurationProperties()[key];
+    if (isString(value)) {
+      if (schema?.enum?.includes(value)) {
+        return value;
+      }
+      return void 0;
+    }
+    if (Array.isArray(value)) {
+      if (value.every((v) => isNumber(v) || isBoolean(v) || isString(v) && schema?.enum?.includes(v))) {
+        return JSON.stringify(value);
+      }
+    }
+    return void 0;
+  }
+  reportTelemetry(key, target) {
+    const source = ConfigurationTargetToString(target);
+    switch (key) {
+      case "workbench.activityBar.location":
+        this.telemetryService.publicLog2("workbench.activityBar.location", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case AutoUpdateConfigurationKey:
+        this.telemetryService.publicLog2("extensions.autoUpdate", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "editor.stickyScroll.enabled":
+        this.telemetryService.publicLog2("editor.stickyScroll.enabled", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "typescript.experimental.expandableHover":
+        this.telemetryService.publicLog2("typescript.experimental.expandableHover", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "window.titleBarStyle":
+        this.telemetryService.publicLog2("window.titleBarStyle", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "workbench.secondarySideBar.defaultVisibility":
+        this.telemetryService.publicLog2("workbench.secondarySideBar.defaultVisibility", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case VerifyExtensionSignatureConfigKey:
+        this.telemetryService.publicLog2("extensions.verifySignature", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "window.newWindowProfile": {
+        const valueToReport = this.getValueToReport(key, target);
+        const settingValue = valueToReport === null ? "null" : valueToReport === this.userDataProfilesService.defaultProfile.name ? "default" : "custom";
+        this.telemetryService.publicLog2("window.newWindowProfile", { settingValue, source });
+        return;
+      }
+      case AutoRestartConfigurationKey:
+        this.telemetryService.publicLog2("extensions.autoRestart", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "chat.tools.terminal.outputLocation":
+        this.telemetryService.publicLog2("terminal.integrated.chatAgentTools.outputLocation", { settingValue: this.getValueToReport(key, target), source });
+        return;
+      case "terminal.integrated.suggest.enabled":
+        this.telemetryService.publicLog2("terminal.integrated.suggest.enabled", { settingValue: this.getValueToReport(key, target), source });
+        return;
+    }
+  }
+};
+ConfigurationTelemetryContribution = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IUserDataProfilesService),
+  __param(2, ITelemetryService)
+], ConfigurationTelemetryContribution);
+const workbenchContributionRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchContributionRegistry.registerWorkbenchContribution(
+  TelemetryContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchContributionRegistry.registerWorkbenchContribution(
+  ConfigurationTelemetryContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+export {
+  TelemetryContribution
+};
+//# sourceMappingURL=telemetry.contribution.js.map

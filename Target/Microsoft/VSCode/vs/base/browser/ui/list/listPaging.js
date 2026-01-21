@@ -1,1 +1,215 @@
-import{$gc as u}from"../../../common/arrays.js";import{$If as c}from"../../../common/cancellation.js";import{Event as o}from"../../../common/event.js";import{$Ed as d,$Dd as g}from"../../../common/lifecycle.js";import"./list.css";import{$F0 as p}from"./listWidget.js";import{$h8 as m}from"../../dom.js";class f{get templateId(){return this.a.templateId}constructor(e,t){this.a=e,this.b=t}renderTemplate(e){return{data:this.a.renderTemplate(e),disposable:d.None}}renderElement(e,t,s,i){if(s.disposable?.dispose(),!s.data)return;const r=this.b();if(r.isResolved(e))return this.a.renderElement(r.get(e),e,s.data,i);const n=new c,h=r.resolve(e,n.token);s.disposable={dispose:()=>n.cancel()},this.a.renderPlaceholder(e,s.data),h.then(l=>this.a.renderElement(l,e,s.data,i))}disposeTemplate(e){e.disposable&&(e.disposable.dispose(),e.disposable=void 0),e.data&&(this.a.disposeTemplate(e.data),e.data=void 0)}}class b{constructor(e,t){this.a=e,this.b=t}getWidgetAriaLabel(){return this.b.getWidgetAriaLabel()}getAriaLabel(e){const t=this.a();return t.isResolved(e)?this.b.getAriaLabel(t.get(e)):null}}function P(a,e){return{...e,accessibilityProvider:e.accessibilityProvider&&new b(a,e.accessibilityProvider)}}class M{constructor(e,t,s,i,r={}){this.c=new g;const n=()=>this.model,h=i.map(l=>new f(l,n));this.a=new p(e,t,s,h,P(n,r))}updateOptions(e){this.a.updateOptions(e)}getHTMLElement(){return this.a.getHTMLElement()}isDOMFocused(){return m(this.getHTMLElement())}domFocus(){this.a.domFocus()}get onDidFocus(){return this.a.onDidFocus}get onDidBlur(){return this.a.onDidBlur}get widget(){return this.a}get onDidDispose(){return this.a.onDidDispose}get onMouseClick(){return o.map(this.a.onMouseClick,({element:e,index:t,browserEvent:s})=>({element:e===void 0?void 0:this.b.get(e),index:t,browserEvent:s}))}get onMouseDblClick(){return o.map(this.a.onMouseDblClick,({element:e,index:t,browserEvent:s})=>({element:e===void 0?void 0:this.b.get(e),index:t,browserEvent:s}))}get onTap(){return o.map(this.a.onTap,({element:e,index:t,browserEvent:s})=>({element:e===void 0?void 0:this.b.get(e),index:t,browserEvent:s}))}get onPointer(){return o.map(this.a.onPointer,({element:e,index:t,browserEvent:s})=>({element:e===void 0?void 0:this.b.get(e),index:t,browserEvent:s}))}get onDidChangeFocus(){return o.map(this.a.onDidChangeFocus,({elements:e,indexes:t,browserEvent:s})=>({elements:e.map(i=>this.b.get(i)),indexes:t,browserEvent:s}))}get onDidChangeSelection(){return o.map(this.a.onDidChangeSelection,({elements:e,indexes:t,browserEvent:s})=>({elements:e.map(i=>this.b.get(i)),indexes:t,browserEvent:s}))}get onContextMenu(){return o.map(this.a.onContextMenu,({element:e,index:t,anchor:s,browserEvent:i})=>typeof e>"u"?{element:e,index:t,anchor:s,browserEvent:i}:{element:this.b.get(e),index:t,anchor:s,browserEvent:i})}get model(){return this.b}set model(e){this.c.clear(),this.b=e,this.a.splice(0,this.a.length,u(e.length)),this.c.add(e.onDidIncrementLength(t=>this.a.splice(this.a.length,0,u(this.a.length,t))))}get length(){return this.a.length}get scrollTop(){return this.a.scrollTop}set scrollTop(e){this.a.scrollTop=e}get scrollLeft(){return this.a.scrollLeft}set scrollLeft(e){this.a.scrollLeft=e}setAnchor(e){this.a.setAnchor(e)}getAnchor(){return this.a.getAnchor()}setFocus(e){this.a.setFocus(e)}focusNext(e,t){this.a.focusNext(e,t)}focusPrevious(e,t){this.a.focusPrevious(e,t)}focusNextPage(){return this.a.focusNextPage()}focusPreviousPage(){return this.a.focusPreviousPage()}focusLast(){this.a.focusLast()}focusFirst(){this.a.focusFirst()}getFocus(){return this.a.getFocus()}setSelection(e,t){this.a.setSelection(e,t)}getSelection(){return this.a.getSelection()}getSelectedElements(){return this.getSelection().map(e=>this.model.get(e))}layout(e,t){this.a.layout(e,t)}triggerTypeNavigation(){this.a.triggerTypeNavigation()}reveal(e,t){this.a.reveal(e,t)}style(e){this.a.style(e)}dispose(){this.a.dispose(),this.c.dispose()}}export{M as $5$};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { range } from "../../../common/arrays.js";
+import { CancellationTokenSource } from "../../../common/cancellation.js";
+import { Event } from "../../../common/event.js";
+import { Disposable, DisposableStore } from "../../../common/lifecycle.js";
+import "./list.css";
+import { List } from "./listWidget.js";
+import { isActiveElement } from "../../dom.js";
+class PagedRenderer {
+  static {
+    __name(this, "PagedRenderer");
+  }
+  get templateId() {
+    return this.renderer.templateId;
+  }
+  constructor(renderer, modelProvider) {
+    this.renderer = renderer;
+    this.modelProvider = modelProvider;
+  }
+  renderTemplate(container) {
+    const data = this.renderer.renderTemplate(container);
+    return { data, disposable: Disposable.None };
+  }
+  renderElement(index, _, data, details) {
+    data.disposable?.dispose();
+    if (!data.data) {
+      return;
+    }
+    const model = this.modelProvider();
+    if (model.isResolved(index)) {
+      return this.renderer.renderElement(model.get(index), index, data.data, details);
+    }
+    const cts = new CancellationTokenSource();
+    const promise = model.resolve(index, cts.token);
+    data.disposable = { dispose: /* @__PURE__ */ __name(() => cts.cancel(), "dispose") };
+    this.renderer.renderPlaceholder(index, data.data);
+    promise.then((entry) => this.renderer.renderElement(entry, index, data.data, details));
+  }
+  disposeTemplate(data) {
+    if (data.disposable) {
+      data.disposable.dispose();
+      data.disposable = void 0;
+    }
+    if (data.data) {
+      this.renderer.disposeTemplate(data.data);
+      data.data = void 0;
+    }
+  }
+}
+class PagedAccessibilityProvider {
+  static {
+    __name(this, "PagedAccessibilityProvider");
+  }
+  constructor(modelProvider, accessibilityProvider) {
+    this.modelProvider = modelProvider;
+    this.accessibilityProvider = accessibilityProvider;
+  }
+  getWidgetAriaLabel() {
+    return this.accessibilityProvider.getWidgetAriaLabel();
+  }
+  getAriaLabel(index) {
+    const model = this.modelProvider();
+    if (!model.isResolved(index)) {
+      return null;
+    }
+    return this.accessibilityProvider.getAriaLabel(model.get(index));
+  }
+}
+function fromPagedListOptions(modelProvider, options) {
+  return {
+    ...options,
+    accessibilityProvider: options.accessibilityProvider && new PagedAccessibilityProvider(modelProvider, options.accessibilityProvider)
+  };
+}
+__name(fromPagedListOptions, "fromPagedListOptions");
+class PagedList {
+  static {
+    __name(this, "PagedList");
+  }
+  constructor(user, container, virtualDelegate, renderers, options = {}) {
+    this.modelDisposables = new DisposableStore();
+    const modelProvider = /* @__PURE__ */ __name(() => this.model, "modelProvider");
+    const pagedRenderers = renderers.map((r) => new PagedRenderer(r, modelProvider));
+    this.list = new List(user, container, virtualDelegate, pagedRenderers, fromPagedListOptions(modelProvider, options));
+  }
+  updateOptions(options) {
+    this.list.updateOptions(options);
+  }
+  getHTMLElement() {
+    return this.list.getHTMLElement();
+  }
+  isDOMFocused() {
+    return isActiveElement(this.getHTMLElement());
+  }
+  domFocus() {
+    this.list.domFocus();
+  }
+  get onDidFocus() {
+    return this.list.onDidFocus;
+  }
+  get onDidBlur() {
+    return this.list.onDidBlur;
+  }
+  get widget() {
+    return this.list;
+  }
+  get onDidDispose() {
+    return this.list.onDidDispose;
+  }
+  get onMouseClick() {
+    return Event.map(this.list.onMouseClick, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
+  }
+  get onMouseDblClick() {
+    return Event.map(this.list.onMouseDblClick, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
+  }
+  get onTap() {
+    return Event.map(this.list.onTap, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
+  }
+  get onPointer() {
+    return Event.map(this.list.onPointer, ({ element, index, browserEvent }) => ({ element: element === void 0 ? void 0 : this._model.get(element), index, browserEvent }));
+  }
+  get onDidChangeFocus() {
+    return Event.map(this.list.onDidChangeFocus, ({ elements, indexes, browserEvent }) => ({ elements: elements.map((e) => this._model.get(e)), indexes, browserEvent }));
+  }
+  get onDidChangeSelection() {
+    return Event.map(this.list.onDidChangeSelection, ({ elements, indexes, browserEvent }) => ({ elements: elements.map((e) => this._model.get(e)), indexes, browserEvent }));
+  }
+  get onContextMenu() {
+    return Event.map(this.list.onContextMenu, ({ element, index, anchor, browserEvent }) => typeof element === "undefined" ? { element, index, anchor, browserEvent } : { element: this._model.get(element), index, anchor, browserEvent });
+  }
+  get model() {
+    return this._model;
+  }
+  set model(model) {
+    this.modelDisposables.clear();
+    this._model = model;
+    this.list.splice(0, this.list.length, range(model.length));
+    this.modelDisposables.add(model.onDidIncrementLength((newLength) => this.list.splice(this.list.length, 0, range(this.list.length, newLength))));
+  }
+  get length() {
+    return this.list.length;
+  }
+  get scrollTop() {
+    return this.list.scrollTop;
+  }
+  set scrollTop(scrollTop) {
+    this.list.scrollTop = scrollTop;
+  }
+  get scrollLeft() {
+    return this.list.scrollLeft;
+  }
+  set scrollLeft(scrollLeft) {
+    this.list.scrollLeft = scrollLeft;
+  }
+  setAnchor(index) {
+    this.list.setAnchor(index);
+  }
+  getAnchor() {
+    return this.list.getAnchor();
+  }
+  setFocus(indexes) {
+    this.list.setFocus(indexes);
+  }
+  focusNext(n, loop) {
+    this.list.focusNext(n, loop);
+  }
+  focusPrevious(n, loop) {
+    this.list.focusPrevious(n, loop);
+  }
+  focusNextPage() {
+    return this.list.focusNextPage();
+  }
+  focusPreviousPage() {
+    return this.list.focusPreviousPage();
+  }
+  focusLast() {
+    this.list.focusLast();
+  }
+  focusFirst() {
+    this.list.focusFirst();
+  }
+  getFocus() {
+    return this.list.getFocus();
+  }
+  setSelection(indexes, browserEvent) {
+    this.list.setSelection(indexes, browserEvent);
+  }
+  getSelection() {
+    return this.list.getSelection();
+  }
+  getSelectedElements() {
+    return this.getSelection().map((i) => this.model.get(i));
+  }
+  layout(height, width) {
+    this.list.layout(height, width);
+  }
+  triggerTypeNavigation() {
+    this.list.triggerTypeNavigation();
+  }
+  reveal(index, relativeTop) {
+    this.list.reveal(index, relativeTop);
+  }
+  style(styles) {
+    this.list.style(styles);
+  }
+  dispose() {
+    this.list.dispose();
+    this.modelDisposables.dispose();
+  }
+}
+export {
+  PagedList
+};
+//# sourceMappingURL=listPaging.js.map

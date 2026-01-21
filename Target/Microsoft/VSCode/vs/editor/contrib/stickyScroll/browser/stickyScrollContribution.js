@@ -1,1 +1,17 @@
-import{$Icb as b}from"../../../browser/editorExtensions.js";import{$pwb as m,$qwb as o,$uwb as t,$swb as w,$rwb as p,$twb as f}from"./stickyScrollActions.js";import{$stb as $}from"./stickyScrollController.js";import{$tL as r}from"../../../../platform/actions/common/actions.js";b($.ID,$,1);r(m);r(o);r(w);r(p);r(f);r(t);
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { ToggleStickyScroll, FocusStickyScroll, SelectEditor, SelectPreviousStickyScrollLine, SelectNextStickyScrollLine, GoToStickyScrollLine } from "./stickyScrollActions.js";
+import { StickyScrollController } from "./stickyScrollController.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+registerEditorContribution(
+  StickyScrollController.ID,
+  StickyScrollController,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerAction2(ToggleStickyScroll);
+registerAction2(FocusStickyScroll);
+registerAction2(SelectPreviousStickyScrollLine);
+registerAction2(SelectNextStickyScrollLine);
+registerAction2(GoToStickyScrollLine);
+registerAction2(SelectEditor);
+//# sourceMappingURL=stickyScrollContribution.js.map

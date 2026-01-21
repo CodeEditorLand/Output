@@ -1,1 +1,678 @@
-import{$V0 as W}from"../../../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Ed as R,$Cd as O}from"../../../../../../base/common/lifecycle.js";import{autorun as x,debouncedObservable as V,observableFromEvent as G,observableValue as w}from"../../../../../../base/common/observable.js";import{$Eh as J}from"../../../../../../base/common/resources.js";import{$fd as Y}from"../../../../../../base/common/types.js";import{$9D as Z}from"../../../../../../editor/common/core/range.js";import{$gE as X}from"../../../../../../editor/common/core/ranges/lineRange.js";import{$HP as ee}from"../../../../../../editor/common/diff/documentDiffProvider.js";import{$nF as L}from"../../../../../../editor/common/model/prefixSumComputer.js";import{localize as te}from"../../../../../../nls.js";import{$ohb as q,$jhb as ie}from"../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$nL as ne}from"../../../../../../platform/actions/common/actions.js";import{$Lj as F}from"../../../../../../platform/instantiation/common/instantiation.js";import{$xo as se}from"../../../../../../platform/log/common/log.js";import{$yL as re}from"../../../../../services/editor/common/editorService.js";import{$Wec as ae}from"../../../../notebook/browser/diff/inlineDiff/notebookDeletedCellDecorator.js";import{$Yec as oe}from"../../../../notebook/browser/diff/inlineDiff/notebookInsertedCellDecorator.js";import{$Znc as de}from"../../../../notebook/browser/diff/inlineDiff/notebookModifiedCellDecorator.js";import{CellEditState as C,$FDb as P}from"../../../../notebook/browser/notebookBrowser.js";import{$wNb as he}from"../../../../notebook/browser/services/notebookEditorService.js";import{CellKind as I}from"../../../../notebook/common/notebookCommon.js";import{$Unc as le}from"../chatEditingCodeEditorIntegration.js";import{$1nc as ce,$2nc as D}from"./notebookCellChanges.js";import{$3nc as fe}from"./overlayToolbarDecorator.js";var H=function(o,e,t,i){var n=arguments.length,s=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,e,t,i);else for(var u=o.length-1;u>=0;u--)(h=o[u])&&(s=(n<3?h(s):n>3?h(e,t,s):h(e,t))||s);return n>3&&s&&Object.defineProperty(e,t,s),s},b=function(o,e){return function(t,i){e(t,i,o)}};let _=class extends R{constructor(e,t,i,n,s,h){super(),this.f=h;const u=P(t);Y(u),this.b=u,this.a=this.f.createInstance(v,e,u,i,n,s),this.D(t.onDidChangeControl(()=>{const p=P(t);p&&p!==this.b&&(this.b=p,this.a.dispose(),this.a=this.f.createInstance(v,e,p,i,n,s))}))}get currentIndex(){return this.a.currentIndex}reveal(e){return this.a.reveal(e)}next(e){return this.a.next(e)}previous(e){return this.a.previous(e)}enableAccessibleDiffView(){this.a.enableAccessibleDiffView()}acceptNearestChange(e){return this.a.acceptNearestChange(e)}rejectNearestChange(e){return this.a.rejectNearestChange(e)}toggleDiff(e,t){return this.a.toggleDiff(e,t)}dispose(){this.a.dispose(),super.dispose()}};_=H([b(5,F)],_);let v=class extends R{constructor(e,t,i,n,s,h,u,p,U,B){super(),this.t=e,this.u=t,this.w=i,this.y=s,this.z=h,this.C=u,this.F=U,this.G=B,this.a=w(this,-1),this.currentIndex=this.a,this.j=new Map,this.m=w(this,""),this.n=new Map,this.q=[],this.s=new L(new Uint32Array(0));const $=V(G(t.onDidChangeVisibleRanges,()=>t.visibleRanges),50);this.D(O(()=>{this.n.forEach(r=>r.dispose())}));let N;const z=e.isCurrentlyBeingModifiedBy.map(r=>!!r);this.D(x(r=>{const f=z.read(r),d=p.retrieveExistingWidgetFromURI(e.modifiedURI)?.value;if(d){if(f)N??=d.isReadOnly,d.setOptions({isReadOnly:!0});else if(N===!1){d.setOptions({isReadOnly:!1});const l=setTimeout(()=>{d.setOptions({isReadOnly:!0}),d.setOptions({isReadOnly:!1}),a.dispose()},100),a=O(()=>clearTimeout(l));r.store.add(a)}}}));let S;this.B.add(x(r=>{!e.isCurrentlyBeingModifiedBy.read(r)&&!e.isProcessingResponse.read(r)&&S!==e.lastModifyingRequestId&&s.read(r).some(f=>f.type!=="unchanged"&&!f.diff.read(r).identical)&&(S=e.lastModifyingRequestId,this.q.find(d=>{if(d.type==="unchanged")return!1;const l=d.modifiedCellIndex??d.originalCellIndex;return this.u.visibleRanges.some(a=>l>=a.start&&l<a.end)})||this.reveal(!0))})),this.D(x(r=>{this.q=D(s.read(r));const f=[];for(const d of this.q)f.push(d.type==="insert"||d.type==="delete"?1:d.type==="modified"?d.diff.read(r).changes.length:0);this.s=new L(new Uint32Array(f)),this.s.getTotalSum()===0&&this.P()})),this.D(x(r=>{if(this.u.textModel!==this.w)return;const d=D(s.read(r)).filter(a=>a.type!=="delete");if($.read(r),!d.length){this.j.forEach(({diff:a})=>{a.set({...a.read(void 0),...ee},void 0)});return}this.m.read(r);const l=new Set;d.forEach(a=>{if(a.modifiedCellIndex===void 0||a.modifiedCellIndex>=i.cells.length)return;const c=i.cells[a.modifiedCellIndex],y=t.codeEditors.find(([g])=>g.handle===i.cells[a.modifiedCellIndex].handle)?.[1],j=a.modifiedModel.promiseResult.read(r)?.data,k=a.originalModel.promiseResult.read(r)?.data;if(!c||!k||!j)return;if(c.cellKind===I.Markup&&!this.n.has(c.handle)){const g=this.u.getViewModel()?.viewCells.find(m=>m.handle===c.handle);if(g){const m=g.onDidChangeState(T=>{T.editStateChanged&&setTimeout(()=>this.m.set(g.handle+"-"+g.getEditState(),void 0),0)});this.n.set(c.handle,m)}}if(!y)return;const E={...a.diff.read(r),modifiedModel:j,originalModel:k,keep:a.keep,undo:a.undo};l.add(c);const M=this.j.get(c);if(M)ue(M.diff.read(void 0),E)||M.diff.set(E,void 0);else{const g=w(`diff${c.handle}`,E),m=this.z.createInstance(le,e,y,g,!0);this.j.set(c,{integration:m,diff:g}),this.D(m),this.D(y.onDidDispose(()=>{this.j.get(c)?.integration.dispose(),this.j.delete(c)})),this.D(y.onDidChangeModel(()=>{y.getModel()!==c.textModel&&(this.j.get(c)?.integration.dispose(),this.j.delete(c))}))}}),this.j.forEach((a,c)=>{l.has(c)||(a.integration.dispose(),this.j.delete(c))})}));const K=$.map(r=>r.length>0),Q=V(s,10);this.D(x(r=>{if(this.u.textModel!==this.w||!K.read(r)||!this.u.getViewModel())return;const f=Q.read(r).filter(l=>l.type==="insert"?!l.diff.read(r).identical:!0),d=f.filter(l=>l.type==="modified");this.J(),f.every(l=>l.type==="insert")?(this.f?.apply([]),this.g?.apply([]),this.b?.apply([],n),this.h?.decorate([])):(this.f?.apply(f),this.g?.apply(d),this.b?.apply(f,n),this.h?.decorate(f.filter(l=>l.type==="insert"||l.type==="modified")))}))}H(){const e=Math.min(this.a.get(),this.s.getTotalSum()-1),t=this.s.getIndexOf(e),i=this.q[t.index];return i?{change:i,index:t.remainder}:void 0}I(e,t=0){const i=this.q.indexOf(e),n=this.s.getPrefixSum(i-1),s=Math.min(n+t,this.s.getTotalSum()-1);this.a.set(s,void 0)}J(){const e=this.y.get(),t=this.F;this.f??=this.D(this.z.createInstance(oe,this.u)),this.g??=this.D(this.z.createInstance(de,this.u)),this.h??=this.D(this.z.createInstance(fe,this.u,this.w)),this.b&&(this.B.delete(this.b),this.b.dispose()),this.b=this.D(this.z.createInstance(ae,this.u,{className:"chat-diff-change-content-widget",telemetrySource:"chatEditingNotebookHunk",menuId:ne.ChatEditingEditorHunk,actionViewItemProvider:(i,n)=>{if(!i.class)return new class extends W{constructor(){super(void 0,i,{...n,keybindingNotRenderedWithLabel:!0,icon:!1,label:!0})}}},argFactory:i=>({accept(){const n=e.find(s=>s.type==="delete"&&s.originalCellIndex===i);return n?n.keep(n.diff.get().changes[0]):(t.playSignal(q.editsKept,{allowManyInParallel:!0}),Promise.resolve(!0))},reject(){const n=e.find(s=>s.type==="delete"&&s.originalCellIndex===i);return n?n.undo(n.diff.get().changes[0]):(t.playSignal(q.editsUndone,{allowManyInParallel:!0}),Promise.resolve(!0))}})}))}getCell(e){const t=this.w.cells[e];return this.j.get(t)?.integration}reveal(e){const t=this.q.filter(n=>n.type!=="unchanged");if(!t.length)return;const i=e?t[0]:t[t.length-1];this.L(i,e)}L(e,t=!0){switch(e.type){case"insert":case"modified":{this.Q(this.H()?.change);const i=t||e.type==="insert"?0:e.diff.get().changes.length-1;return this.M(e,i)}case"delete":return this.Q(this.H()?.change),this.b?.reveal(e.originalCellIndex),this.I(e),!0;default:break}return!1}M(e,t){switch(e.type){case"insert":case"modified":{const i=e.diff.get().changes[t],n=this.N(e);if(n)return this.I(e,t),this.O(n,i?.modified,e).catch(s=>{this.G.warn(`Error revealing change in view: ${s}`)}),!0;break}case"delete":return this.I(e),this.b?.reveal(e.originalCellIndex),!0;default:break}return!1}N(e){if(e.type==="delete"||e.modifiedCellIndex===void 0||e.modifiedCellIndex>=this.w.cells.length)return;const t=this.w.cells[e.modifiedCellIndex];return this.u.getViewModel()?.viewCells.find(n=>n.handle===t.handle)}async O(e,t,i){const n=t??new X(0,0);i.type==="modified"&&e.cellKind===I.Markup&&e.getEditState()===C.Preview&&e.updateEditState(C.Editing,"chatEditNavigation");const s=e.cellKind===I.Code||i.type==="modified"?"editor":"container";await this.u.focusNotebookCell(e,s,{focusEditorLine:n.startLineNumber}),await this.u.revealRangeInCenterAsync(e,new Z(n.startLineNumber,0,n.endLineNumberExclusive,0))}P(){for(const e of this.q){const t=this.N(e);t?.cellKind===I.Markup&&t.getEditState()===C.Editing&&(t.editStateSource==="chatEditNavigation"||t.editStateSource==="chatEdit")&&t.updateEditState(C.Preview,"chatEdit")}}Q(e){if(!e)return;const t=this.N(e);t?.cellKind===I.Markup&&t.getEditState()===C.Editing&&t.editStateSource==="chatEditNavigation"&&t.updateEditState(C.Preview,"chatEditNavigation")}next(e){const t=this.q.filter(n=>n.type!=="unchanged"),i=this.H();if(!i){const n=t[0];return n?this.L(n):!1}switch(i.change.type){case"modified":{const n=this.getCell(i.change.modifiedCellIndex);if(n&&n.next(!1))return this.I(i.change,n.currentIndex.get()),!0;const s=i.index>=A(i.change),h=s?0:i.index+1,u=s?t[t.indexOf(i.change)+1]:i.change;if(u&&(s&&this.Q(i.change),this.M(u,h)))return!0}break;case"insert":case"delete":{this.Q(i.change);const n=t[t.indexOf(i.change)+1];if(n&&this.L(n,!0))return!0}break;default:break}if(e){const n=t[0];if(n)return this.L(n,!0)}return!1}previous(e){const t=this.q.filter(n=>n.type!=="unchanged"),i=this.H();if(!i){const n=t[t.length-1];return n?this.L(n,!1):!1}switch(i.change.type){case"modified":{const n=this.getCell(i.change.modifiedCellIndex);if(n&&n.previous(!1))return this.I(i.change,n.currentIndex.get()),!0;const s=i.index<=0,h=s?t[t.indexOf(i.change)-1]:i.change;if(h){const u=s?A(h):i.index-1;if(s&&this.Q(i.change),this.M(h,u))return!0}}break;case"insert":case"delete":{this.Q(i.change);const n=t[t.indexOf(i.change)-1];if(n&&this.L(n,!1))return!0}break;default:break}if(e){const n=t[t.length-1];if(n)return this.L(n,!1)}return!1}enableAccessibleDiffView(){const e=this.u.getActiveCell()?.model;e&&this.j.get(e)?.integration?.enableAccessibleDiffView()}R(){const e=this.u.getSelectionViewModels()[0];if(e)return this.j.get(e.model)?.integration}async acceptNearestChange(e){if(e)await e.accept();else{const t=this.H(),i=this.R();t&&!i||t?.change.type==="delete"?t.change.keep(t?.change.diff.get().changes[t.index]):i&&await i.acceptNearestChange(),this.a.set(this.a.get()-1,void 0),this.next(!0)}}async rejectNearestChange(e){if(e)await e.reject();else{const t=this.H(),i=this.R();t&&!i||t?.change.type==="delete"?t.change.undo(t.change.diff.get().changes[t.index]):i&&await i.rejectNearestChange(),this.a.set(this.a.get()-1,void 0),this.next(!0)}}async toggleDiff(e,t){const i={original:{resource:this.t.originalURI},modified:{resource:this.t.modifiedURI},label:te(5757,null,J(this.t.modifiedURI))};await this.C.openEditor(i)}};v=H([b(5,F),b(6,re),b(7,he),b(8,ie),b(9,se)],v);class He extends R{constructor(e,t){super(),this.b=e,this.f=t,this.a=w(this,-1),this.currentIndex=this.a,this.B.add(x(i=>{const n=e.currentChangedIndex.read(i),s=t.read(i).filter(h=>!h.diff.read(i).identical);if(s.length&&n>=0&&n<s.length){const h=ce(s.slice(0,n+1));this.a.set(h-1,void 0)}else this.a.set(-1,void 0)}))}reveal(e){D(this.f.get().filter(i=>i.type!=="unchanged")).length&&(e?this.b.firstChange():this.b.lastChange())}next(e){const t=this.f.get().filter(i=>!i.diff.get().identical).length;return this.b.currentChangedIndex.get()===t-1?!1:(this.b.nextChange(),!0)}previous(e){const t=this.f.get().filter(i=>!i.diff.get().identical).length;return this.b.currentChangedIndex.get()===t-1?!1:(this.b.nextChange(),!0)}enableAccessibleDiffView(){}async acceptNearestChange(e){await e.accept(),this.next(!0)}async rejectNearestChange(e){await e.reject(),this.next(!0)}async toggleDiff(e,t){}}function ue(o,e){return!(o.changes!==e.changes||o.identical!==e.identical||o.moves!==e.moves||o.originalModel!==e.originalModel||o.modifiedModel!==e.modifiedModel||o.keep!==e.keep||o.undo!==e.undo||o.quitEarly!==e.quitEarly)}function A(o){return o.type==="modified"?o.diff.get().changes.length-1:0}export{_ as $4nc,He as $5nc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ActionViewItem } from "../../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Disposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, debouncedObservable, observableFromEvent, observableValue } from "../../../../../../base/common/observable.js";
+import { basename } from "../../../../../../base/common/resources.js";
+import { assertType } from "../../../../../../base/common/types.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { LineRange } from "../../../../../../editor/common/core/ranges/lineRange.js";
+import { nullDocumentDiff } from "../../../../../../editor/common/diff/documentDiffProvider.js";
+import { PrefixSumComputer } from "../../../../../../editor/common/model/prefixSumComputer.js";
+import { localize } from "../../../../../../nls.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { NotebookDeletedCellDecorator } from "../../../../notebook/browser/diff/inlineDiff/notebookDeletedCellDecorator.js";
+import { NotebookInsertedCellDecorator } from "../../../../notebook/browser/diff/inlineDiff/notebookInsertedCellDecorator.js";
+import { NotebookModifiedCellDecorator } from "../../../../notebook/browser/diff/inlineDiff/notebookModifiedCellDecorator.js";
+import { CellEditState, getNotebookEditorFromEditorPane } from "../../../../notebook/browser/notebookBrowser.js";
+import { INotebookEditorService } from "../../../../notebook/browser/services/notebookEditorService.js";
+import { CellKind } from "../../../../notebook/common/notebookCommon.js";
+import { ChatEditingCodeEditorIntegration } from "../chatEditingCodeEditorIntegration.js";
+import { countChanges, sortCellChanges } from "./notebookCellChanges.js";
+import { OverlayToolbarDecorator } from "./overlayToolbarDecorator.js";
+let ChatEditingNotebookEditorIntegration = class ChatEditingNotebookEditorIntegration2 extends Disposable {
+  static {
+    __name(this, "ChatEditingNotebookEditorIntegration");
+  }
+  constructor(_entry, editor, notebookModel, originalModel, cellChanges, instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    const notebookEditor = getNotebookEditorFromEditorPane(editor);
+    assertType(notebookEditor);
+    this.notebookEditor = notebookEditor;
+    this.integration = this.instantiationService.createInstance(ChatEditingNotebookEditorWidgetIntegration, _entry, notebookEditor, notebookModel, originalModel, cellChanges);
+    this._register(editor.onDidChangeControl(() => {
+      const notebookEditor2 = getNotebookEditorFromEditorPane(editor);
+      if (notebookEditor2 && notebookEditor2 !== this.notebookEditor) {
+        this.notebookEditor = notebookEditor2;
+        this.integration.dispose();
+        this.integration = this.instantiationService.createInstance(ChatEditingNotebookEditorWidgetIntegration, _entry, notebookEditor2, notebookModel, originalModel, cellChanges);
+      }
+    }));
+  }
+  get currentIndex() {
+    return this.integration.currentIndex;
+  }
+  reveal(firstOrLast) {
+    return this.integration.reveal(firstOrLast);
+  }
+  next(wrap) {
+    return this.integration.next(wrap);
+  }
+  previous(wrap) {
+    return this.integration.previous(wrap);
+  }
+  enableAccessibleDiffView() {
+    this.integration.enableAccessibleDiffView();
+  }
+  acceptNearestChange(change) {
+    return this.integration.acceptNearestChange(change);
+  }
+  rejectNearestChange(change) {
+    return this.integration.rejectNearestChange(change);
+  }
+  toggleDiff(change, show) {
+    return this.integration.toggleDiff(change, show);
+  }
+  dispose() {
+    this.integration.dispose();
+    super.dispose();
+  }
+};
+ChatEditingNotebookEditorIntegration = __decorate([
+  __param(5, IInstantiationService)
+], ChatEditingNotebookEditorIntegration);
+let ChatEditingNotebookEditorWidgetIntegration = class ChatEditingNotebookEditorWidgetIntegration2 extends Disposable {
+  static {
+    __name(this, "ChatEditingNotebookEditorWidgetIntegration");
+  }
+  constructor(_entry, notebookEditor, notebookModel, originalModel, cellChanges, instantiationService, _editorService, notebookEditorService, accessibilitySignalService, logService) {
+    super();
+    this._entry = _entry;
+    this.notebookEditor = notebookEditor;
+    this.notebookModel = notebookModel;
+    this.cellChanges = cellChanges;
+    this.instantiationService = instantiationService;
+    this._editorService = _editorService;
+    this.accessibilitySignalService = accessibilitySignalService;
+    this.logService = logService;
+    this._currentIndex = observableValue(this, -1);
+    this.currentIndex = this._currentIndex;
+    this.cellEditorIntegrations = /* @__PURE__ */ new Map();
+    this.markdownEditState = observableValue(this, "");
+    this.markupCellListeners = /* @__PURE__ */ new Map();
+    this.sortedCellChanges = [];
+    this.changeIndexComputer = new PrefixSumComputer(new Uint32Array(0));
+    const onDidChangeVisibleRanges = debouncedObservable(observableFromEvent(notebookEditor.onDidChangeVisibleRanges, () => notebookEditor.visibleRanges), 50);
+    this._register(toDisposable(() => {
+      this.markupCellListeners.forEach((v) => v.dispose());
+    }));
+    let originalReadonly = void 0;
+    const shouldBeReadonly = _entry.isCurrentlyBeingModifiedBy.map((value) => !!value);
+    this._register(autorun((r) => {
+      const isReadOnly = shouldBeReadonly.read(r);
+      const notebookEditor2 = notebookEditorService.retrieveExistingWidgetFromURI(_entry.modifiedURI)?.value;
+      if (!notebookEditor2) {
+        return;
+      }
+      if (isReadOnly) {
+        originalReadonly ??= notebookEditor2.isReadOnly;
+        notebookEditor2.setOptions({ isReadOnly: true });
+      } else if (originalReadonly === false) {
+        notebookEditor2.setOptions({ isReadOnly: false });
+        const timeout = setTimeout(() => {
+          notebookEditor2.setOptions({ isReadOnly: true });
+          notebookEditor2.setOptions({ isReadOnly: false });
+          disposable.dispose();
+        }, 100);
+        const disposable = toDisposable(() => clearTimeout(timeout));
+        r.store.add(disposable);
+      }
+    }));
+    let lastModifyingRequestId;
+    this._store.add(autorun((r) => {
+      if (!_entry.isCurrentlyBeingModifiedBy.read(r) && !_entry.isProcessingResponse.read(r) && lastModifyingRequestId !== _entry.lastModifyingRequestId && cellChanges.read(r).some((c) => c.type !== "unchanged" && !c.diff.read(r).identical)) {
+        lastModifyingRequestId = _entry.lastModifyingRequestId;
+        const visibleChange = this.sortedCellChanges.find((c) => {
+          if (c.type === "unchanged") {
+            return false;
+          }
+          const index = c.modifiedCellIndex ?? c.originalCellIndex;
+          return this.notebookEditor.visibleRanges.some((range) => index >= range.start && index < range.end);
+        });
+        if (!visibleChange) {
+          this.reveal(true);
+        }
+      }
+    }));
+    this._register(autorun((r) => {
+      this.sortedCellChanges = sortCellChanges(cellChanges.read(r));
+      const indexes = [];
+      for (const change of this.sortedCellChanges) {
+        indexes.push(change.type === "insert" || change.type === "delete" ? 1 : change.type === "modified" ? change.diff.read(r).changes.length : 0);
+      }
+      this.changeIndexComputer = new PrefixSumComputer(new Uint32Array(indexes));
+      if (this.changeIndexComputer.getTotalSum() === 0) {
+        this.revertMarkupCellState();
+      }
+    }));
+    this._register(autorun((r) => {
+      if (this.notebookEditor.textModel !== this.notebookModel) {
+        return;
+      }
+      const sortedCellChanges = sortCellChanges(cellChanges.read(r));
+      const changes = sortedCellChanges.filter((c) => c.type !== "delete");
+      onDidChangeVisibleRanges.read(r);
+      if (!changes.length) {
+        this.cellEditorIntegrations.forEach(({ diff }) => {
+          diff.set({ ...diff.read(void 0), ...nullDocumentDiff }, void 0);
+        });
+        return;
+      }
+      this.markdownEditState.read(r);
+      const validCells = /* @__PURE__ */ new Set();
+      changes.forEach((change) => {
+        if (change.modifiedCellIndex === void 0 || change.modifiedCellIndex >= notebookModel.cells.length) {
+          return;
+        }
+        const cell = notebookModel.cells[change.modifiedCellIndex];
+        const editor = notebookEditor.codeEditors.find(([vm]) => vm.handle === notebookModel.cells[change.modifiedCellIndex].handle)?.[1];
+        const modifiedModel = change.modifiedModel.promiseResult.read(r)?.data;
+        const originalModel2 = change.originalModel.promiseResult.read(r)?.data;
+        if (!cell || !originalModel2 || !modifiedModel) {
+          return;
+        }
+        if (cell.cellKind === CellKind.Markup && !this.markupCellListeners.has(cell.handle)) {
+          const cellModel = this.notebookEditor.getViewModel()?.viewCells.find((c) => c.handle === cell.handle);
+          if (cellModel) {
+            const listener = cellModel.onDidChangeState((e) => {
+              if (e.editStateChanged) {
+                setTimeout(() => this.markdownEditState.set(cellModel.handle + "-" + cellModel.getEditState(), void 0), 0);
+              }
+            });
+            this.markupCellListeners.set(cell.handle, listener);
+          }
+        }
+        if (!editor) {
+          return;
+        }
+        const diff = {
+          ...change.diff.read(r),
+          modifiedModel,
+          originalModel: originalModel2,
+          keep: change.keep,
+          undo: change.undo
+        };
+        validCells.add(cell);
+        const currentDiff = this.cellEditorIntegrations.get(cell);
+        if (currentDiff) {
+          if (!areDocumentDiff2Equal(currentDiff.diff.read(void 0), diff)) {
+            currentDiff.diff.set(diff, void 0);
+          }
+        } else {
+          const diff2 = observableValue(`diff${cell.handle}`, diff);
+          const integration = this.instantiationService.createInstance(ChatEditingCodeEditorIntegration, _entry, editor, diff2, true);
+          this.cellEditorIntegrations.set(cell, { integration, diff: diff2 });
+          this._register(integration);
+          this._register(editor.onDidDispose(() => {
+            this.cellEditorIntegrations.get(cell)?.integration.dispose();
+            this.cellEditorIntegrations.delete(cell);
+          }));
+          this._register(editor.onDidChangeModel(() => {
+            if (editor.getModel() !== cell.textModel) {
+              this.cellEditorIntegrations.get(cell)?.integration.dispose();
+              this.cellEditorIntegrations.delete(cell);
+            }
+          }));
+        }
+      });
+      this.cellEditorIntegrations.forEach((v, cell) => {
+        if (!validCells.has(cell)) {
+          v.integration.dispose();
+          this.cellEditorIntegrations.delete(cell);
+        }
+      });
+    }));
+    const cellsAreVisible = onDidChangeVisibleRanges.map((v) => v.length > 0);
+    const debouncedChanges = debouncedObservable(cellChanges, 10);
+    this._register(autorun((r) => {
+      if (this.notebookEditor.textModel !== this.notebookModel || !cellsAreVisible.read(r) || !this.notebookEditor.getViewModel()) {
+        return;
+      }
+      const changes = debouncedChanges.read(r).filter((c) => c.type === "insert" ? !c.diff.read(r).identical : true);
+      const modifiedChanges = changes.filter((c) => c.type === "modified");
+      this.createDecorators();
+      if (changes.every((c) => c.type === "insert")) {
+        this.insertedCellDecorator?.apply([]);
+        this.modifiedCellDecorator?.apply([]);
+        this.deletedCellDecorator?.apply([], originalModel);
+        this.overlayToolbarDecorator?.decorate([]);
+      } else {
+        this.insertedCellDecorator?.apply(changes);
+        this.modifiedCellDecorator?.apply(modifiedChanges);
+        this.deletedCellDecorator?.apply(changes, originalModel);
+        this.overlayToolbarDecorator?.decorate(changes.filter((c) => c.type === "insert" || c.type === "modified"));
+      }
+    }));
+  }
+  getCurrentChange() {
+    const currentIndex = Math.min(this._currentIndex.get(), this.changeIndexComputer.getTotalSum() - 1);
+    const index = this.changeIndexComputer.getIndexOf(currentIndex);
+    const change = this.sortedCellChanges[index.index];
+    return change ? { change, index: index.remainder } : void 0;
+  }
+  updateCurrentIndex(change, indexInCell = 0) {
+    const index = this.sortedCellChanges.indexOf(change);
+    const changeIndex = this.changeIndexComputer.getPrefixSum(index - 1);
+    const currentIndex = Math.min(changeIndex + indexInCell, this.changeIndexComputer.getTotalSum() - 1);
+    this._currentIndex.set(currentIndex, void 0);
+  }
+  createDecorators() {
+    const cellChanges = this.cellChanges.get();
+    const accessibilitySignalService = this.accessibilitySignalService;
+    this.insertedCellDecorator ??= this._register(this.instantiationService.createInstance(NotebookInsertedCellDecorator, this.notebookEditor));
+    this.modifiedCellDecorator ??= this._register(this.instantiationService.createInstance(NotebookModifiedCellDecorator, this.notebookEditor));
+    this.overlayToolbarDecorator ??= this._register(this.instantiationService.createInstance(OverlayToolbarDecorator, this.notebookEditor, this.notebookModel));
+    if (this.deletedCellDecorator) {
+      this._store.delete(this.deletedCellDecorator);
+      this.deletedCellDecorator.dispose();
+    }
+    this.deletedCellDecorator = this._register(this.instantiationService.createInstance(NotebookDeletedCellDecorator, this.notebookEditor, {
+      className: "chat-diff-change-content-widget",
+      telemetrySource: "chatEditingNotebookHunk",
+      menuId: MenuId.ChatEditingEditorHunk,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (!action.class) {
+          return new class extends ActionViewItem {
+            constructor() {
+              super(void 0, action, { ...options, keybindingNotRenderedWithLabel: true, icon: false, label: true });
+            }
+          }();
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      argFactory: /* @__PURE__ */ __name((deletedCellIndex) => {
+        return {
+          accept() {
+            const entry = cellChanges.find((c) => c.type === "delete" && c.originalCellIndex === deletedCellIndex);
+            if (entry) {
+              return entry.keep(entry.diff.get().changes[0]);
+            }
+            accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+            return Promise.resolve(true);
+          },
+          reject() {
+            const entry = cellChanges.find((c) => c.type === "delete" && c.originalCellIndex === deletedCellIndex);
+            if (entry) {
+              return entry.undo(entry.diff.get().changes[0]);
+            }
+            accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+            return Promise.resolve(true);
+          }
+        };
+      }, "argFactory")
+    }));
+  }
+  getCell(modifiedCellIndex) {
+    const cell = this.notebookModel.cells[modifiedCellIndex];
+    const integration = this.cellEditorIntegrations.get(cell)?.integration;
+    return integration;
+  }
+  reveal(firstOrLast) {
+    const changes = this.sortedCellChanges.filter((c) => c.type !== "unchanged");
+    if (!changes.length) {
+      return;
+    }
+    const change = firstOrLast ? changes[0] : changes[changes.length - 1];
+    this._revealFirstOrLast(change, firstOrLast);
+  }
+  _revealFirstOrLast(change, firstOrLast = true) {
+    switch (change.type) {
+      case "insert":
+      case "modified": {
+        this.blur(this.getCurrentChange()?.change);
+        const index = firstOrLast || change.type === "insert" ? 0 : change.diff.get().changes.length - 1;
+        return this._revealChange(change, index);
+      }
+      case "delete":
+        this.blur(this.getCurrentChange()?.change);
+        this.deletedCellDecorator?.reveal(change.originalCellIndex);
+        this.updateCurrentIndex(change);
+        return true;
+      default:
+        break;
+    }
+    return false;
+  }
+  _revealChange(change, indexInCell) {
+    switch (change.type) {
+      case "insert":
+      case "modified": {
+        const textChange = change.diff.get().changes[indexInCell];
+        const cellViewModel = this.getCellViewModel(change);
+        if (cellViewModel) {
+          this.updateCurrentIndex(change, indexInCell);
+          this.revealChangeInView(cellViewModel, textChange?.modified, change).catch((err) => {
+            this.logService.warn(`Error revealing change in view: ${err}`);
+          });
+          return true;
+        }
+        break;
+      }
+      case "delete":
+        this.updateCurrentIndex(change);
+        this.deletedCellDecorator?.reveal(change.originalCellIndex);
+        return true;
+      default:
+        break;
+    }
+    return false;
+  }
+  getCellViewModel(change) {
+    if (change.type === "delete" || change.modifiedCellIndex === void 0 || change.modifiedCellIndex >= this.notebookModel.cells.length) {
+      return void 0;
+    }
+    const cell = this.notebookModel.cells[change.modifiedCellIndex];
+    const cellViewModel = this.notebookEditor.getViewModel()?.viewCells.find((c) => c.handle === cell.handle);
+    return cellViewModel;
+  }
+  async revealChangeInView(cell, lines, change) {
+    const targetLines = lines ?? new LineRange(0, 0);
+    if (change.type === "modified" && cell.cellKind === CellKind.Markup && cell.getEditState() === CellEditState.Preview) {
+      cell.updateEditState(CellEditState.Editing, "chatEditNavigation");
+    }
+    const focusTarget = cell.cellKind === CellKind.Code || change.type === "modified" ? "editor" : "container";
+    await this.notebookEditor.focusNotebookCell(cell, focusTarget, { focusEditorLine: targetLines.startLineNumber });
+    await this.notebookEditor.revealRangeInCenterAsync(cell, new Range(targetLines.startLineNumber, 0, targetLines.endLineNumberExclusive, 0));
+  }
+  revertMarkupCellState() {
+    for (const change of this.sortedCellChanges) {
+      const cellViewModel = this.getCellViewModel(change);
+      if (cellViewModel?.cellKind === CellKind.Markup && cellViewModel.getEditState() === CellEditState.Editing && (cellViewModel.editStateSource === "chatEditNavigation" || cellViewModel.editStateSource === "chatEdit")) {
+        cellViewModel.updateEditState(CellEditState.Preview, "chatEdit");
+      }
+    }
+  }
+  blur(change) {
+    if (!change) {
+      return;
+    }
+    const cellViewModel = this.getCellViewModel(change);
+    if (cellViewModel?.cellKind === CellKind.Markup && cellViewModel.getEditState() === CellEditState.Editing && cellViewModel.editStateSource === "chatEditNavigation") {
+      cellViewModel.updateEditState(CellEditState.Preview, "chatEditNavigation");
+    }
+  }
+  next(wrap) {
+    const changes = this.sortedCellChanges.filter((c) => c.type !== "unchanged");
+    const currentChange = this.getCurrentChange();
+    if (!currentChange) {
+      const firstChange = changes[0];
+      if (firstChange) {
+        return this._revealFirstOrLast(firstChange);
+      }
+      return false;
+    }
+    switch (currentChange.change.type) {
+      case "modified":
+        {
+          const cellIntegration = this.getCell(currentChange.change.modifiedCellIndex);
+          if (cellIntegration) {
+            if (cellIntegration.next(false)) {
+              this.updateCurrentIndex(currentChange.change, cellIntegration.currentIndex.get());
+              return true;
+            }
+          }
+          const isLastChangeInCell = currentChange.index >= lastChangeIndex(currentChange.change);
+          const index = isLastChangeInCell ? 0 : currentChange.index + 1;
+          const change = isLastChangeInCell ? changes[changes.indexOf(currentChange.change) + 1] : currentChange.change;
+          if (change) {
+            if (isLastChangeInCell) {
+              this.blur(currentChange.change);
+            }
+            if (this._revealChange(change, index)) {
+              return true;
+            }
+          }
+        }
+        break;
+      case "insert":
+      case "delete":
+        {
+          this.blur(currentChange.change);
+          const nextChange = changes[changes.indexOf(currentChange.change) + 1];
+          if (nextChange && this._revealFirstOrLast(nextChange, true)) {
+            return true;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    if (wrap) {
+      const firstChange = changes[0];
+      if (firstChange) {
+        return this._revealFirstOrLast(firstChange, true);
+      }
+    }
+    return false;
+  }
+  previous(wrap) {
+    const changes = this.sortedCellChanges.filter((c) => c.type !== "unchanged");
+    const currentChange = this.getCurrentChange();
+    if (!currentChange) {
+      const lastChange = changes[changes.length - 1];
+      if (lastChange) {
+        return this._revealFirstOrLast(lastChange, false);
+      }
+      return false;
+    }
+    switch (currentChange.change.type) {
+      case "modified":
+        {
+          const cellIntegration = this.getCell(currentChange.change.modifiedCellIndex);
+          if (cellIntegration) {
+            if (cellIntegration.previous(false)) {
+              this.updateCurrentIndex(currentChange.change, cellIntegration.currentIndex.get());
+              return true;
+            }
+          }
+          const isFirstChangeInCell = currentChange.index <= 0;
+          const change = isFirstChangeInCell ? changes[changes.indexOf(currentChange.change) - 1] : currentChange.change;
+          if (change) {
+            const index = isFirstChangeInCell ? lastChangeIndex(change) : currentChange.index - 1;
+            if (isFirstChangeInCell) {
+              this.blur(currentChange.change);
+            }
+            if (this._revealChange(change, index)) {
+              return true;
+            }
+          }
+        }
+        break;
+      case "insert":
+      case "delete":
+        {
+          this.blur(currentChange.change);
+          const prevChange = changes[changes.indexOf(currentChange.change) - 1];
+          if (prevChange && this._revealFirstOrLast(prevChange, false)) {
+            return true;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    if (wrap) {
+      const lastChange = changes[changes.length - 1];
+      if (lastChange) {
+        return this._revealFirstOrLast(lastChange, false);
+      }
+    }
+    return false;
+  }
+  enableAccessibleDiffView() {
+    const cell = this.notebookEditor.getActiveCell()?.model;
+    if (cell) {
+      const integration = this.cellEditorIntegrations.get(cell)?.integration;
+      integration?.enableAccessibleDiffView();
+    }
+  }
+  getfocusedIntegration() {
+    const first = this.notebookEditor.getSelectionViewModels()[0];
+    if (first) {
+      return this.cellEditorIntegrations.get(first.model)?.integration;
+    }
+    return void 0;
+  }
+  async acceptNearestChange(hunk) {
+    if (hunk) {
+      await hunk.accept();
+    } else {
+      const current = this.getCurrentChange();
+      const focused = this.getfocusedIntegration();
+      if (current && !focused || current?.change.type === "delete") {
+        current.change.keep(current?.change.diff.get().changes[current.index]);
+      } else if (focused) {
+        await focused.acceptNearestChange();
+      }
+      this._currentIndex.set(this._currentIndex.get() - 1, void 0);
+      this.next(true);
+    }
+  }
+  async rejectNearestChange(hunk) {
+    if (hunk) {
+      await hunk.reject();
+    } else {
+      const current = this.getCurrentChange();
+      const focused = this.getfocusedIntegration();
+      if (current && !focused || current?.change.type === "delete") {
+        current.change.undo(current.change.diff.get().changes[current.index]);
+      } else if (focused) {
+        await focused.rejectNearestChange();
+      }
+      this._currentIndex.set(this._currentIndex.get() - 1, void 0);
+      this.next(true);
+    }
+  }
+  async toggleDiff(_change, _show) {
+    const diffInput = {
+      original: { resource: this._entry.originalURI },
+      modified: { resource: this._entry.modifiedURI },
+      label: localize("diff.generic", "{0} (changes from chat)", basename(this._entry.modifiedURI))
+    };
+    await this._editorService.openEditor(diffInput);
+  }
+};
+ChatEditingNotebookEditorWidgetIntegration = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IEditorService),
+  __param(7, INotebookEditorService),
+  __param(8, IAccessibilitySignalService),
+  __param(9, ILogService)
+], ChatEditingNotebookEditorWidgetIntegration);
+class ChatEditingNotebookDiffEditorIntegration extends Disposable {
+  static {
+    __name(this, "ChatEditingNotebookDiffEditorIntegration");
+  }
+  constructor(notebookDiffEditor, cellChanges) {
+    super();
+    this.notebookDiffEditor = notebookDiffEditor;
+    this.cellChanges = cellChanges;
+    this._currentIndex = observableValue(this, -1);
+    this.currentIndex = this._currentIndex;
+    this._store.add(autorun((r) => {
+      const index = notebookDiffEditor.currentChangedIndex.read(r);
+      const numberOfCellChanges = cellChanges.read(r).filter((c) => !c.diff.read(r).identical);
+      if (numberOfCellChanges.length && index >= 0 && index < numberOfCellChanges.length) {
+        const changesSoFar = countChanges(numberOfCellChanges.slice(0, index + 1));
+        this._currentIndex.set(changesSoFar - 1, void 0);
+      } else {
+        this._currentIndex.set(-1, void 0);
+      }
+    }));
+  }
+  reveal(firstOrLast) {
+    const changes = sortCellChanges(this.cellChanges.get().filter((c) => c.type !== "unchanged"));
+    if (!changes.length) {
+      return void 0;
+    }
+    if (firstOrLast) {
+      this.notebookDiffEditor.firstChange();
+    } else {
+      this.notebookDiffEditor.lastChange();
+    }
+  }
+  next(_wrap) {
+    const changes = this.cellChanges.get().filter((c) => !c.diff.get().identical).length;
+    if (this.notebookDiffEditor.currentChangedIndex.get() === changes - 1) {
+      return false;
+    }
+    this.notebookDiffEditor.nextChange();
+    return true;
+  }
+  previous(_wrap) {
+    const changes = this.cellChanges.get().filter((c) => !c.diff.get().identical).length;
+    if (this.notebookDiffEditor.currentChangedIndex.get() === changes - 1) {
+      return false;
+    }
+    this.notebookDiffEditor.nextChange();
+    return true;
+  }
+  enableAccessibleDiffView() {
+  }
+  async acceptNearestChange(change) {
+    await change.accept();
+    this.next(true);
+  }
+  async rejectNearestChange(change) {
+    await change.reject();
+    this.next(true);
+  }
+  async toggleDiff(_change, _show) {
+  }
+}
+function areDocumentDiff2Equal(diff1, diff2) {
+  if (diff1.changes !== diff2.changes) {
+    return false;
+  }
+  if (diff1.identical !== diff2.identical) {
+    return false;
+  }
+  if (diff1.moves !== diff2.moves) {
+    return false;
+  }
+  if (diff1.originalModel !== diff2.originalModel) {
+    return false;
+  }
+  if (diff1.modifiedModel !== diff2.modifiedModel) {
+    return false;
+  }
+  if (diff1.keep !== diff2.keep) {
+    return false;
+  }
+  if (diff1.undo !== diff2.undo) {
+    return false;
+  }
+  if (diff1.quitEarly !== diff2.quitEarly) {
+    return false;
+  }
+  return true;
+}
+__name(areDocumentDiff2Equal, "areDocumentDiff2Equal");
+function lastChangeIndex(change) {
+  if (change.type === "modified") {
+    return change.diff.get().changes.length - 1;
+  }
+  return 0;
+}
+__name(lastChangeIndex, "lastChangeIndex");
+export {
+  ChatEditingNotebookDiffEditorIntegration,
+  ChatEditingNotebookEditorIntegration
+};
+//# sourceMappingURL=chatEditingNotebookEditorIntegration.js.map

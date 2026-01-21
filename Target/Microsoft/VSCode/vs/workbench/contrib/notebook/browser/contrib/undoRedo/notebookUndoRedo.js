@@ -1,1 +1,78 @@
-import{$Ed as h}from"../../../../../../base/common/lifecycle.js";import{$XN as b}from"../../../../../common/contributions.js";import{CellKind as c}from"../../../common/notebookCommon.js";import{$yL as g}from"../../../../../services/editor/common/editorService.js";import{CellEditState as s,$FDb as u}from"../../notebookBrowser.js";import{$Lcb as v,$Kcb as E}from"../../../../../../editor/browser/editorExtensions.js";var p=function(l,i,r,t){var d=arguments.length,e=d<3?i:t===null?t=Object.getOwnPropertyDescriptor(i,r):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(l,i,r,t);else for(var n=l.length-1;n>=0;n--)(o=l[n])&&(e=(d<3?o(e):d>3?o(i,r,e):o(i,r))||e);return d>3&&e&&Object.defineProperty(i,r,e),e},m=function(l,i){return function(r,t){i(r,t,l)}};let a=class extends h{static{this.ID="workbench.contrib.notebookUndoRedo"}constructor(i){super(),this.a=i;const r=105;this.D(E.addImplementation(r,"notebook-undo-redo",()=>{const t=u(this.a.activeEditorPane),d=t?.getViewModel();return t&&t.hasEditorFocus()&&t.hasModel()&&d?d.undo().then(e=>{if(e?.length){for(let o=0;o<t.getLength();o++){const n=t.cellAt(o);n.cellKind===c.Markup&&e.find(f=>f.fragment===n.model.uri.fragment)&&n.updateEditState(s.Editing,"undo")}t?.setOptions({cellOptions:{resource:e[0]},preserveFocus:!0})}}):!1})),this.D(v.addImplementation(r,"notebook-undo-redo",()=>{const t=u(this.a.activeEditorPane),d=t?.getViewModel();return t&&t.hasEditorFocus()&&t.hasModel()&&d?d.redo().then(e=>{if(e?.length){for(let o=0;o<t.getLength();o++){const n=t.cellAt(o);n.cellKind===c.Markup&&e.find(f=>f.fragment===n.model.uri.fragment)&&n.updateEditState(s.Editing,"redo")}t?.setOptions({cellOptions:{resource:e[0]},preserveFocus:!0})}}):!1}))}};a=p([m(0,g)],a);b(a.ID,a,2);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { registerWorkbenchContribution2 } from "../../../../../common/contributions.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { CellEditState, getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { RedoCommand, UndoCommand } from "../../../../../../editor/browser/editorExtensions.js";
+let NotebookUndoRedoContribution = class NotebookUndoRedoContribution2 extends Disposable {
+  static {
+    __name(this, "NotebookUndoRedoContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.notebookUndoRedo";
+  }
+  constructor(_editorService) {
+    super();
+    this._editorService = _editorService;
+    const PRIORITY = 105;
+    this._register(UndoCommand.addImplementation(PRIORITY, "notebook-undo-redo", () => {
+      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+      const viewModel = editor?.getViewModel();
+      if (editor && editor.hasEditorFocus() && editor.hasModel() && viewModel) {
+        return viewModel.undo().then((cellResources) => {
+          if (cellResources?.length) {
+            for (let i = 0; i < editor.getLength(); i++) {
+              const cell = editor.cellAt(i);
+              if (cell.cellKind === CellKind.Markup && cellResources.find((resource) => resource.fragment === cell.model.uri.fragment)) {
+                cell.updateEditState(CellEditState.Editing, "undo");
+              }
+            }
+            editor?.setOptions({ cellOptions: { resource: cellResources[0] }, preserveFocus: true });
+          }
+        });
+      }
+      return false;
+    }));
+    this._register(RedoCommand.addImplementation(PRIORITY, "notebook-undo-redo", () => {
+      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+      const viewModel = editor?.getViewModel();
+      if (editor && editor.hasEditorFocus() && editor.hasModel() && viewModel) {
+        return viewModel.redo().then((cellResources) => {
+          if (cellResources?.length) {
+            for (let i = 0; i < editor.getLength(); i++) {
+              const cell = editor.cellAt(i);
+              if (cell.cellKind === CellKind.Markup && cellResources.find((resource) => resource.fragment === cell.model.uri.fragment)) {
+                cell.updateEditState(CellEditState.Editing, "redo");
+              }
+            }
+            editor?.setOptions({ cellOptions: { resource: cellResources[0] }, preserveFocus: true });
+          }
+        });
+      }
+      return false;
+    }));
+  }
+};
+NotebookUndoRedoContribution = __decorate([
+  __param(0, IEditorService)
+], NotebookUndoRedoContribution);
+registerWorkbenchContribution2(
+  NotebookUndoRedoContribution.ID,
+  NotebookUndoRedoContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+//# sourceMappingURL=notebookUndoRedo.js.map

@@ -1,1 +1,63 @@
-class n{constructor(e){this.a=e}b(e){return this.a.validatePosition(e)}c(e){return this.a.validateRange(e)}convertViewPositionToModelPosition(e){return this.b(e)}convertViewRangeToModelRange(e){return this.c(e)}validateViewPosition(e,i){return this.b(i)}validateViewRange(e,i){return this.c(i)}convertModelPositionToViewPosition(e){return this.b(e)}convertModelRangeToViewRange(e){return this.c(e)}modelPositionIsVisible(e){const i=this.a.getLineCount();return!(e.lineNumber<1||e.lineNumber>i)}modelRangeIsVisible(e){const i=this.a.getLineCount();return!(e.startLineNumber<1||e.startLineNumber>i||e.endLineNumber<1||e.endLineNumber>i)}getModelLineViewLineCount(e){return 1}getViewLineNumberOfModelPosition(e,i){return e}}export{n as $Abb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class IdentityCoordinatesConverter {
+  static {
+    __name(this, "IdentityCoordinatesConverter");
+  }
+  constructor(model) {
+    this._model = model;
+  }
+  _validPosition(pos) {
+    return this._model.validatePosition(pos);
+  }
+  _validRange(range) {
+    return this._model.validateRange(range);
+  }
+  // View -> Model conversion and related methods
+  convertViewPositionToModelPosition(viewPosition) {
+    return this._validPosition(viewPosition);
+  }
+  convertViewRangeToModelRange(viewRange) {
+    return this._validRange(viewRange);
+  }
+  validateViewPosition(_viewPosition, expectedModelPosition) {
+    return this._validPosition(expectedModelPosition);
+  }
+  validateViewRange(_viewRange, expectedModelRange) {
+    return this._validRange(expectedModelRange);
+  }
+  // Model -> View conversion and related methods
+  convertModelPositionToViewPosition(modelPosition) {
+    return this._validPosition(modelPosition);
+  }
+  convertModelRangeToViewRange(modelRange) {
+    return this._validRange(modelRange);
+  }
+  modelPositionIsVisible(modelPosition) {
+    const lineCount = this._model.getLineCount();
+    if (modelPosition.lineNumber < 1 || modelPosition.lineNumber > lineCount) {
+      return false;
+    }
+    return true;
+  }
+  modelRangeIsVisible(modelRange) {
+    const lineCount = this._model.getLineCount();
+    if (modelRange.startLineNumber < 1 || modelRange.startLineNumber > lineCount) {
+      return false;
+    }
+    if (modelRange.endLineNumber < 1 || modelRange.endLineNumber > lineCount) {
+      return false;
+    }
+    return true;
+  }
+  getModelLineViewLineCount(modelLineNumber) {
+    return 1;
+  }
+  getViewLineNumberOfModelPosition(modelLineNumber, modelColumn) {
+    return modelLineNumber;
+  }
+}
+export {
+  IdentityCoordinatesConverter
+};
+//# sourceMappingURL=coordinatesConverter.js.map

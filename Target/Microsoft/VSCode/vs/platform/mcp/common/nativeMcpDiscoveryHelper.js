@@ -1,1 +1,8 @@
-import{$Mj as e}from"../../instantiation/common/instantiation.js";const o=e("INativeMcpDiscoveryHelperService"),c="NativeMcpDiscoveryHelper";export{o as $AB,c as $BB};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const INativeMcpDiscoveryHelperService = createDecorator("INativeMcpDiscoveryHelperService");
+const NativeMcpDiscoveryHelperChannelName = "NativeMcpDiscoveryHelper";
+export {
+  INativeMcpDiscoveryHelperService,
+  NativeMcpDiscoveryHelperChannelName
+};
+//# sourceMappingURL=nativeMcpDiscoveryHelper.js.map

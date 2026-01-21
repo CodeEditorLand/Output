@@ -1,1 +1,93 @@
-import{$Ed as m}from"../../../../../base/common/lifecycle.js";import{$Un as p}from"../../../../../platform/product/common/productService.js";import{$4R as d}from"../../../../services/extensions/common/extensions.js";import{$Fz as f}from"../../../../../platform/extensions/common/extensions.js";import{$$z as $}from"../../../../../platform/extensionManagement/common/extensionManagement.js";import{$gp as b}from"../../../../../platform/storage/common/storage.js";import{$O3b as x}from"../chat.js";var u=function(r,e,i,t){var n=arguments.length,s=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,e,i,t);else for(var a=r.length-1;a>=0;a--)(o=r[a])&&(s=(n<3?o(s):n>3?o(e,i,s):o(e,i))||s);return n>3&&s&&Object.defineProperty(e,i,s),s},h=function(r,e){return function(i,t){e(i,t,r)}},c;let l=class extends m{static{c=this}static{this.ID="workbench.contrib.chatGettingStarted"}static{this.b="workbench.chat.hideWelcomeView"}constructor(e,i,t,n,s){super(),this.c=e,this.f=i,this.g=t,this.h=n,this.j=s,this.a=!1;const o=this.c.defaultChatAgent,a=this.h.getBoolean(c.b,-1,!1);!o||a||this.m(o)}m(e){this.D(this.g.onDidInstallExtensions(async i=>{for(const t of i)if(f.equals(e.extensionId,t.identifier.id)&&t.operation===2){this.a=!0;return}})),this.D(this.f.onDidChangeExtensionsStatus(async i=>{for(const t of i)if(f.equals(e.extensionId,t.value)&&this.f.getExtensionsStatus()[t.value].activationTimes&&this.a){this.n();return}}))}async n(){this.j.revealWidget(),this.h.store(c.b,!0,-1,1),this.a=!1}};l=c=u([h(0,p),h(1,d),h(2,$),h(3,b),h(4,x)],l);export{l as $anc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatGettingStartedContribution_1;
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import { IExtensionManagementService } from "../../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IChatWidgetService } from "../chat.js";
+let ChatGettingStartedContribution = class ChatGettingStartedContribution2 extends Disposable {
+  static {
+    __name(this, "ChatGettingStartedContribution");
+  }
+  static {
+    ChatGettingStartedContribution_1 = this;
+  }
+  static {
+    this.ID = "workbench.contrib.chatGettingStarted";
+  }
+  static {
+    this.hideWelcomeView = "workbench.chat.hideWelcomeView";
+  }
+  constructor(productService, extensionService, extensionManagementService, storageService, chatWidgetService) {
+    super();
+    this.productService = productService;
+    this.extensionService = extensionService;
+    this.extensionManagementService = extensionManagementService;
+    this.storageService = storageService;
+    this.chatWidgetService = chatWidgetService;
+    this.recentlyInstalled = false;
+    const defaultChatAgent = this.productService.defaultChatAgent;
+    const hideWelcomeView = this.storageService.getBoolean(ChatGettingStartedContribution_1.hideWelcomeView, -1, false);
+    if (!defaultChatAgent || hideWelcomeView) {
+      return;
+    }
+    this.registerListeners(defaultChatAgent);
+  }
+  registerListeners(defaultChatAgent) {
+    this._register(this.extensionManagementService.onDidInstallExtensions(async (result) => {
+      for (const e of result) {
+        if (ExtensionIdentifier.equals(defaultChatAgent.extensionId, e.identifier.id) && e.operation === 2) {
+          this.recentlyInstalled = true;
+          return;
+        }
+      }
+    }));
+    this._register(this.extensionService.onDidChangeExtensionsStatus(async (event) => {
+      for (const ext of event) {
+        if (ExtensionIdentifier.equals(defaultChatAgent.extensionId, ext.value)) {
+          const extensionStatus = this.extensionService.getExtensionsStatus();
+          if (extensionStatus[ext.value].activationTimes && this.recentlyInstalled) {
+            this.onDidInstallChat();
+            return;
+          }
+        }
+      }
+    }));
+  }
+  async onDidInstallChat() {
+    this.chatWidgetService.revealWidget();
+    this.storageService.store(
+      ChatGettingStartedContribution_1.hideWelcomeView,
+      true,
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this.recentlyInstalled = false;
+  }
+};
+ChatGettingStartedContribution = ChatGettingStartedContribution_1 = __decorate([
+  __param(0, IProductService),
+  __param(1, IExtensionService),
+  __param(2, IExtensionManagementService),
+  __param(3, IStorageService),
+  __param(4, IChatWidgetService)
+], ChatGettingStartedContribution);
+export {
+  ChatGettingStartedContribution
+};
+//# sourceMappingURL=chatGettingStarted.js.map

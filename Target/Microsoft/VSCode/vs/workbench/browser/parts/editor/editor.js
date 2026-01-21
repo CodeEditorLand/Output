@@ -1,1 +1,206 @@
-import{$X7 as p}from"../../../../base/browser/dom.js";import{$9c as g}from"../../../../base/common/types.js";import{$iab as i,$lab as o,$jab as w,$mab as u,$kab as f,$nab as h}from"../../../../base/common/verifier.js";import{$$b as T}from"../../../../base/common/arrays.js";const I=new p(220,70),x=new p(Number.POSITIVE_INFINITY,Number.POSITIVE_INFINITY),e={showTabs:"multiple",highlightModifiedTabs:!1,tabActionLocation:"right",tabActionCloseVisibility:!0,tabActionUnpinVisibility:!0,showTabIndex:!1,alwaysShowEditorActions:!1,tabSizing:"fit",tabSizingFixedMinWidth:50,tabSizingFixedMaxWidth:160,pinnedTabSizing:"normal",pinnedTabsOnSeparateRow:!1,tabHeight:"default",preventPinnedEditorClose:"keyboardAndMouse",titleScrollbarSizing:"default",titleScrollbarVisibility:"auto",focusRecentEditorAfterClose:!0,showIcons:!0,hasIcons:!0,enablePreview:!0,openPositioning:"right",openSideBySideDirection:"right",closeEmptyGroups:!0,labelFormat:"default",splitSizing:"auto",splitOnDragAndDrop:!0,dragToOpenWindow:!0,centeredLayoutFixedWidth:!1,doubleClickTabToToggleEditorGroupSizes:"expand",editorActionsLocation:"default",wrapTabs:!1,enablePreviewFromQuickOpen:!1,scrollToSwitchTabs:!1,enablePreviewFromCodeNavigation:!1,closeOnFileDelete:!1,swipeToNavigate:!1,mouseBackForwardToNavigate:!0,restoreViewState:!0,splitInGroupLayout:"horizontal",revealIfOpen:!1,get limit(){return{enabled:!1,value:10,perEditorGroup:!1,excludeDirty:!1}},get decorations(){return{badges:!0,colors:!0}},get autoLockGroups(){return new Set}};function A(t){return t.affectsConfiguration("workbench.editor")||t.affectsConfiguration("workbench.iconTheme")||t.affectsConfiguration("window.density")}function E(t,l){const n={...e,hasIcons:l.getFileIconTheme().hasFileIcons},r=t.getValue();if(r?.workbench?.editor)if(Object.assign(n,r.workbench.editor),g(r.workbench.editor.autoLockGroups)){n.autoLockGroups=e.autoLockGroups;for(const[d,c]of Object.entries(r.workbench.editor.autoLockGroups))c===!0&&n.autoLockGroups.add(d)}else n.autoLockGroups=e.autoLockGroups;const s=t.getValue();return s?.window?.density?.editorTabHeight&&(n.tabHeight=s.window.density.editorTabHeight),S(n)}function S(t){return typeof t.showTabs=="boolean"&&(t.showTabs=t.showTabs?"multiple":"single"),h({wrapTabs:new i(e.wrapTabs),scrollToSwitchTabs:new i(e.scrollToSwitchTabs),highlightModifiedTabs:new i(e.highlightModifiedTabs),tabActionCloseVisibility:new i(e.tabActionCloseVisibility),tabActionUnpinVisibility:new i(e.tabActionUnpinVisibility),showTabIndex:new i(e.showTabIndex),alwaysShowEditorActions:new i(e.alwaysShowEditorActions),pinnedTabsOnSeparateRow:new i(e.pinnedTabsOnSeparateRow),focusRecentEditorAfterClose:new i(e.focusRecentEditorAfterClose),showIcons:new i(e.showIcons),enablePreview:new i(e.enablePreview),enablePreviewFromQuickOpen:new i(e.enablePreviewFromQuickOpen),enablePreviewFromCodeNavigation:new i(e.enablePreviewFromCodeNavigation),closeOnFileDelete:new i(e.closeOnFileDelete),closeEmptyGroups:new i(e.closeEmptyGroups),revealIfOpen:new i(e.revealIfOpen),swipeToNavigate:new i(e.swipeToNavigate),mouseBackForwardToNavigate:new i(e.mouseBackForwardToNavigate),restoreViewState:new i(e.restoreViewState),splitOnDragAndDrop:new i(e.splitOnDragAndDrop),dragToOpenWindow:new i(e.dragToOpenWindow),centeredLayoutFixedWidth:new i(e.centeredLayoutFixedWidth),hasIcons:new i(e.hasIcons),tabSizingFixedMinWidth:new w(e.tabSizingFixedMinWidth),tabSizingFixedMaxWidth:new w(e.tabSizingFixedMaxWidth),showTabs:new o(e.showTabs,["multiple","single","none"]),tabActionLocation:new o(e.tabActionLocation,["left","right"]),tabSizing:new o(e.tabSizing,["fit","shrink","fixed"]),pinnedTabSizing:new o(e.pinnedTabSizing,["normal","compact","shrink"]),tabHeight:new o(e.tabHeight,["default","compact"]),preventPinnedEditorClose:new o(e.preventPinnedEditorClose,["keyboardAndMouse","keyboard","mouse","never"]),titleScrollbarSizing:new o(e.titleScrollbarSizing,["default","large"]),titleScrollbarVisibility:new o(e.titleScrollbarVisibility,["auto","visible","hidden"]),openPositioning:new o(e.openPositioning,["left","right","first","last"]),openSideBySideDirection:new o(e.openSideBySideDirection,["right","down"]),labelFormat:new o(e.labelFormat,["default","short","medium","long"]),splitInGroupLayout:new o(e.splitInGroupLayout,["vertical","horizontal"]),splitSizing:new o(e.splitSizing,["distribute","split","auto"]),doubleClickTabToToggleEditorGroupSizes:new o(e.doubleClickTabToToggleEditorGroupSizes,["maximize","expand","off"]),editorActionsLocation:new o(e.editorActionsLocation,["default","titleBar","hidden"]),autoLockGroups:new f(e.autoLockGroups),limit:new u(e.limit,{enabled:new i(e.limit.enabled),value:new w(e.limit.value),perEditorGroup:new i(e.limit.perEditorGroup),excludeDirty:new i(e.limit.excludeDirty)}),decorations:new u(e.decorations,{badges:new i(e.decorations.badges),colors:new i(e.decorations.colors)})},t)}function F(t,l,n){return!l||!t.activeEditor||l.matches(t.activeEditor)?{...n,viewState:t.activeEditorPane?.getViewState()}:n||Object.create(null)}function O(t,l,n){if(l.length===0)return[];const r=[];let s;const d=[];for(const a of l)!s&&t.isActive(a)?s=a:d.push(a);s||(s=d.shift()),d.sort((a,b)=>t.getIndexOfEditor(b)-t.getIndexOfEditor(a));const c=T([s,...d]);for(let a=0;a<c.length;a++){const b=c[a];r.push({editor:b,options:{pinned:!0,sticky:t.isSticky(b),inactive:a>0,preserveFocus:n}})}return r}export{I as $HAb,x as $IAb,e as $JAb,A as $KAb,E as $LAb,F as $MAb,O as $NAb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Dimension } from "../../../../base/browser/dom.js";
+import { isObject } from "../../../../base/common/types.js";
+import { BooleanVerifier, EnumVerifier, NumberVerifier, ObjectVerifier, SetVerifier, verifyObject } from "../../../../base/common/verifier.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+const DEFAULT_EDITOR_MIN_DIMENSIONS = new Dimension(220, 70);
+const DEFAULT_EDITOR_MAX_DIMENSIONS = new Dimension(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+const DEFAULT_EDITOR_PART_OPTIONS = {
+  showTabs: "multiple",
+  highlightModifiedTabs: false,
+  tabActionLocation: "right",
+  tabActionCloseVisibility: true,
+  tabActionUnpinVisibility: true,
+  showTabIndex: false,
+  alwaysShowEditorActions: false,
+  tabSizing: "fit",
+  tabSizingFixedMinWidth: 50,
+  tabSizingFixedMaxWidth: 160,
+  pinnedTabSizing: "normal",
+  pinnedTabsOnSeparateRow: false,
+  tabHeight: "default",
+  preventPinnedEditorClose: "keyboardAndMouse",
+  titleScrollbarSizing: "default",
+  titleScrollbarVisibility: "auto",
+  focusRecentEditorAfterClose: true,
+  showIcons: true,
+  hasIcons: true,
+  // 'vs-seti' is our default icon theme
+  enablePreview: true,
+  openPositioning: "right",
+  openSideBySideDirection: "right",
+  closeEmptyGroups: true,
+  labelFormat: "default",
+  splitSizing: "auto",
+  splitOnDragAndDrop: true,
+  dragToOpenWindow: true,
+  centeredLayoutFixedWidth: false,
+  doubleClickTabToToggleEditorGroupSizes: "expand",
+  editorActionsLocation: "default",
+  wrapTabs: false,
+  enablePreviewFromQuickOpen: false,
+  scrollToSwitchTabs: false,
+  enablePreviewFromCodeNavigation: false,
+  closeOnFileDelete: false,
+  swipeToNavigate: false,
+  mouseBackForwardToNavigate: true,
+  restoreViewState: true,
+  splitInGroupLayout: "horizontal",
+  revealIfOpen: false,
+  // Properties that are Objects have to be defined as getters
+  // to ensure no consumer modifies the default values
+  get limit() {
+    return { enabled: false, value: 10, perEditorGroup: false, excludeDirty: false };
+  },
+  get decorations() {
+    return { badges: true, colors: true };
+  },
+  get autoLockGroups() {
+    return /* @__PURE__ */ new Set();
+  }
+};
+function impactsEditorPartOptions(event) {
+  return event.affectsConfiguration("workbench.editor") || event.affectsConfiguration("workbench.iconTheme") || event.affectsConfiguration("window.density");
+}
+__name(impactsEditorPartOptions, "impactsEditorPartOptions");
+function getEditorPartOptions(configurationService, themeService) {
+  const options = {
+    ...DEFAULT_EDITOR_PART_OPTIONS,
+    hasIcons: themeService.getFileIconTheme().hasFileIcons
+  };
+  const config = configurationService.getValue();
+  if (config?.workbench?.editor) {
+    Object.assign(options, config.workbench.editor);
+    if (isObject(config.workbench.editor.autoLockGroups)) {
+      options.autoLockGroups = DEFAULT_EDITOR_PART_OPTIONS.autoLockGroups;
+      for (const [editorId, enablement] of Object.entries(config.workbench.editor.autoLockGroups)) {
+        if (enablement === true) {
+          options.autoLockGroups.add(editorId);
+        }
+      }
+    } else {
+      options.autoLockGroups = DEFAULT_EDITOR_PART_OPTIONS.autoLockGroups;
+    }
+  }
+  const windowConfig = configurationService.getValue();
+  if (windowConfig?.window?.density?.editorTabHeight) {
+    options.tabHeight = windowConfig.window.density.editorTabHeight;
+  }
+  return validateEditorPartOptions(options);
+}
+__name(getEditorPartOptions, "getEditorPartOptions");
+function validateEditorPartOptions(options) {
+  if (typeof options.showTabs === "boolean") {
+    options.showTabs = options.showTabs ? "multiple" : "single";
+  }
+  return verifyObject({
+    "wrapTabs": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["wrapTabs"]),
+    "scrollToSwitchTabs": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["scrollToSwitchTabs"]),
+    "highlightModifiedTabs": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["highlightModifiedTabs"]),
+    "tabActionCloseVisibility": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabActionCloseVisibility"]),
+    "tabActionUnpinVisibility": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabActionUnpinVisibility"]),
+    "showTabIndex": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["showTabIndex"]),
+    "alwaysShowEditorActions": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["alwaysShowEditorActions"]),
+    "pinnedTabsOnSeparateRow": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["pinnedTabsOnSeparateRow"]),
+    "focusRecentEditorAfterClose": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["focusRecentEditorAfterClose"]),
+    "showIcons": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["showIcons"]),
+    "enablePreview": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["enablePreview"]),
+    "enablePreviewFromQuickOpen": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["enablePreviewFromQuickOpen"]),
+    "enablePreviewFromCodeNavigation": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["enablePreviewFromCodeNavigation"]),
+    "closeOnFileDelete": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["closeOnFileDelete"]),
+    "closeEmptyGroups": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["closeEmptyGroups"]),
+    "revealIfOpen": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["revealIfOpen"]),
+    "swipeToNavigate": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["swipeToNavigate"]),
+    "mouseBackForwardToNavigate": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["mouseBackForwardToNavigate"]),
+    "restoreViewState": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["restoreViewState"]),
+    "splitOnDragAndDrop": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["splitOnDragAndDrop"]),
+    "dragToOpenWindow": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["dragToOpenWindow"]),
+    "centeredLayoutFixedWidth": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["centeredLayoutFixedWidth"]),
+    "hasIcons": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["hasIcons"]),
+    "tabSizingFixedMinWidth": new NumberVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabSizingFixedMinWidth"]),
+    "tabSizingFixedMaxWidth": new NumberVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabSizingFixedMaxWidth"]),
+    "showTabs": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["showTabs"], ["multiple", "single", "none"]),
+    "tabActionLocation": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabActionLocation"], ["left", "right"]),
+    "tabSizing": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabSizing"], ["fit", "shrink", "fixed"]),
+    "pinnedTabSizing": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["pinnedTabSizing"], ["normal", "compact", "shrink"]),
+    "tabHeight": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["tabHeight"], ["default", "compact"]),
+    "preventPinnedEditorClose": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["preventPinnedEditorClose"], ["keyboardAndMouse", "keyboard", "mouse", "never"]),
+    "titleScrollbarSizing": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["titleScrollbarSizing"], ["default", "large"]),
+    "titleScrollbarVisibility": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["titleScrollbarVisibility"], ["auto", "visible", "hidden"]),
+    "openPositioning": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["openPositioning"], ["left", "right", "first", "last"]),
+    "openSideBySideDirection": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["openSideBySideDirection"], ["right", "down"]),
+    "labelFormat": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["labelFormat"], ["default", "short", "medium", "long"]),
+    "splitInGroupLayout": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["splitInGroupLayout"], ["vertical", "horizontal"]),
+    "splitSizing": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["splitSizing"], ["distribute", "split", "auto"]),
+    "doubleClickTabToToggleEditorGroupSizes": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["doubleClickTabToToggleEditorGroupSizes"], ["maximize", "expand", "off"]),
+    "editorActionsLocation": new EnumVerifier(DEFAULT_EDITOR_PART_OPTIONS["editorActionsLocation"], ["default", "titleBar", "hidden"]),
+    "autoLockGroups": new SetVerifier(DEFAULT_EDITOR_PART_OPTIONS["autoLockGroups"]),
+    "limit": new ObjectVerifier(DEFAULT_EDITOR_PART_OPTIONS["limit"], {
+      "enabled": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["limit"]["enabled"]),
+      "value": new NumberVerifier(DEFAULT_EDITOR_PART_OPTIONS["limit"]["value"]),
+      "perEditorGroup": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["limit"]["perEditorGroup"]),
+      "excludeDirty": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["limit"]["excludeDirty"])
+    }),
+    "decorations": new ObjectVerifier(DEFAULT_EDITOR_PART_OPTIONS["decorations"], {
+      "badges": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["decorations"]["badges"]),
+      "colors": new BooleanVerifier(DEFAULT_EDITOR_PART_OPTIONS["decorations"]["colors"])
+    })
+  }, options);
+}
+__name(validateEditorPartOptions, "validateEditorPartOptions");
+function fillActiveEditorViewState(group, expectedActiveEditor, presetOptions) {
+  if (!expectedActiveEditor || !group.activeEditor || expectedActiveEditor.matches(group.activeEditor)) {
+    const options = {
+      ...presetOptions,
+      viewState: group.activeEditorPane?.getViewState()
+    };
+    return options;
+  }
+  return presetOptions || /* @__PURE__ */ Object.create(null);
+}
+__name(fillActiveEditorViewState, "fillActiveEditorViewState");
+function prepareMoveCopyEditors(sourceGroup, editors, preserveFocus) {
+  if (editors.length === 0) {
+    return [];
+  }
+  const editorsWithOptions = [];
+  let activeEditor;
+  const inactiveEditors = [];
+  for (const editor of editors) {
+    if (!activeEditor && sourceGroup.isActive(editor)) {
+      activeEditor = editor;
+    } else {
+      inactiveEditors.push(editor);
+    }
+  }
+  if (!activeEditor) {
+    activeEditor = inactiveEditors.shift();
+  }
+  inactiveEditors.sort((a, b) => sourceGroup.getIndexOfEditor(b) - sourceGroup.getIndexOfEditor(a));
+  const sortedEditors = coalesce([activeEditor, ...inactiveEditors]);
+  for (let i = 0; i < sortedEditors.length; i++) {
+    const editor = sortedEditors[i];
+    editorsWithOptions.push({
+      editor,
+      options: {
+        pinned: true,
+        sticky: sourceGroup.isSticky(editor),
+        inactive: i > 0,
+        preserveFocus
+      }
+    });
+  }
+  return editorsWithOptions;
+}
+__name(prepareMoveCopyEditors, "prepareMoveCopyEditors");
+export {
+  DEFAULT_EDITOR_MAX_DIMENSIONS,
+  DEFAULT_EDITOR_MIN_DIMENSIONS,
+  DEFAULT_EDITOR_PART_OPTIONS,
+  fillActiveEditorViewState,
+  getEditorPartOptions,
+  impactsEditorPartOptions,
+  prepareMoveCopyEditors
+};
+//# sourceMappingURL=editor.js.map

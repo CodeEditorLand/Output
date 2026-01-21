@@ -1,1 +1,130 @@
-import{$im as $}from"../../../platform/registry/common/platform.js";import{$CZ as d,$BZ as b,$lZ as h,OutputChannelUpdateMode as v}from"../../services/output/common/output.js";import{$b1 as w,$c1 as C}from"../common/extHost.protocol.js";import{$vCb as y}from"../../services/extensions/common/extHostCustomers.js";import{URI as V}from"../../../base/common/uri.js";import{$Ed as g,$Fd as _,$Cd as j}from"../../../base/common/lifecycle.js";import{Event as f}from"../../../base/common/event.js";import{$fAb as O}from"../../services/views/common/viewsService.js";import{$$c as A}from"../../../base/common/types.js";import{$9l as E}from"../../../platform/configuration/common/configuration.js";import{$fCb as D}from"../../services/statusbar/browser/statusbar.js";import{localize as u}from"../../../nls.js";var m=function(a,t,i,e){var s=arguments.length,n=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,t,i,e);else for(var r=a.length-1;r>=0;r--)(o=a[r])&&(n=(s<3?o(n):s>3?o(t,i,n):o(t,i))||n);return s>3&&n&&Object.defineProperty(t,i,n),n},l=function(a,t){return function(i,e){t(i,e,a)}},c;let p=class extends g{static{c=this}static{this.a=new Map}constructor(t,i,e,s,n){super(),this.j=this.D(new _),this.c=i,this.f=e,this.g=s,this.h=n,this.b=t.getProxy(C.ExtHostOutputService);const o=()=>{const r=this.f.isViewVisible(h)?this.c.getActiveChannel():void 0;this.b.$setVisibleChannel(r?r.id:null),this.j.value=void 0};this.D(f.any(this.c.onActiveOutputChannel,f.filter(this.f.onDidChangeViewVisibility,({id:r})=>r===h))(()=>o())),o()}async $register(t,i,e,s){const n=(c.a.get(s)||0)+1;c.a.set(s,n);const o=`extension-output-${s}-#${n}-${t}`,r=V.revive(i);return $.as(d.OutputChannels).registerChannel({id:o,label:t,source:{resource:r},log:!1,languageId:e,extensionId:s}),this.D(j(()=>this.$dispose(o))),o}async $update(t,i,e){const s=this.n(t);s&&(i===v.Append?s.update(i):A(e)&&s.update(i,e))}async $reveal(t,i){const e=this.n(t);if(!e)return;const s=this.g.getValue("workbench.view.showQuietly")??{};if(!this.f.isViewVisible(h)&&s[h]){this.m(e);return}this.c.showChannel(e.id,i)}m(t){const i={name:u(2883,null),text:"$(output)",ariaLabel:u(2884,null,t.label),command:`workbench.action.output.show.${t.id}`,tooltip:u(2885,null,t.label),kind:"prominent"};this.j.value?this.j.value.update(i):this.j.value=this.h.addEntry(i,"status.view.showQuietly",1,{location:{id:"status.notifications",priority:Number.NEGATIVE_INFINITY},alignment:0})}async $close(t){if(this.f.isViewVisible(h)){const i=this.c.getActiveChannel();i&&t===i.id&&this.f.closeView(h)}}async $dispose(t){this.n(t)?.dispose()}n(t){return this.c.getChannel(t)}};p=c=m([y(w.MainThreadOutputService),l(1,b),l(2,O),l(3,E),l(4,D)],p);export{p as $u6b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadOutputService_1;
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { Extensions, IOutputService, OUTPUT_VIEW_ID, OutputChannelUpdateMode } from "../../services/output/common/output.js";
+import { MainContext, ExtHostContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { URI } from "../../../base/common/uri.js";
+import { Disposable, MutableDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { Event } from "../../../base/common/event.js";
+import { IViewsService } from "../../services/views/common/viewsService.js";
+import { isNumber } from "../../../base/common/types.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IStatusbarService } from "../../services/statusbar/browser/statusbar.js";
+import { localize } from "../../../nls.js";
+let MainThreadOutputService = class MainThreadOutputService2 extends Disposable {
+  static {
+    __name(this, "MainThreadOutputService");
+  }
+  static {
+    MainThreadOutputService_1 = this;
+  }
+  static {
+    this._extensionIdPool = /* @__PURE__ */ new Map();
+  }
+  constructor(extHostContext, outputService, viewsService, configurationService, statusbarService) {
+    super();
+    this._outputStatusItem = this._register(new MutableDisposable());
+    this._outputService = outputService;
+    this._viewsService = viewsService;
+    this._configurationService = configurationService;
+    this._statusbarService = statusbarService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostOutputService);
+    const setVisibleChannel = /* @__PURE__ */ __name(() => {
+      const visibleChannel = this._viewsService.isViewVisible(OUTPUT_VIEW_ID) ? this._outputService.getActiveChannel() : void 0;
+      this._proxy.$setVisibleChannel(visibleChannel ? visibleChannel.id : null);
+      this._outputStatusItem.value = void 0;
+    }, "setVisibleChannel");
+    this._register(Event.any(this._outputService.onActiveOutputChannel, Event.filter(this._viewsService.onDidChangeViewVisibility, ({ id }) => id === OUTPUT_VIEW_ID))(() => setVisibleChannel()));
+    setVisibleChannel();
+  }
+  async $register(label, file, languageId, extensionId) {
+    const idCounter = (MainThreadOutputService_1._extensionIdPool.get(extensionId) || 0) + 1;
+    MainThreadOutputService_1._extensionIdPool.set(extensionId, idCounter);
+    const id = `extension-output-${extensionId}-#${idCounter}-${label}`;
+    const resource = URI.revive(file);
+    Registry.as(Extensions.OutputChannels).registerChannel({ id, label, source: { resource }, log: false, languageId, extensionId });
+    this._register(toDisposable(() => this.$dispose(id)));
+    return id;
+  }
+  async $update(channelId, mode, till) {
+    const channel = this._getChannel(channelId);
+    if (channel) {
+      if (mode === OutputChannelUpdateMode.Append) {
+        channel.update(mode);
+      } else if (isNumber(till)) {
+        channel.update(mode, till);
+      }
+    }
+  }
+  async $reveal(channelId, preserveFocus) {
+    const channel = this._getChannel(channelId);
+    if (!channel) {
+      return;
+    }
+    const viewsToShowQuietly = this._configurationService.getValue("workbench.view.showQuietly") ?? {};
+    if (!this._viewsService.isViewVisible(OUTPUT_VIEW_ID) && viewsToShowQuietly[OUTPUT_VIEW_ID]) {
+      this._showChannelQuietly(channel);
+      return;
+    }
+    this._outputService.showChannel(channel.id, preserveFocus);
+  }
+  // Show status bar indicator
+  _showChannelQuietly(channel) {
+    const statusProperties = {
+      name: localize("status.showOutput", "Show Output"),
+      text: "$(output)",
+      ariaLabel: localize("status.showOutputAria", "Show {0} Output Channel", channel.label),
+      command: `workbench.action.output.show.${channel.id}`,
+      tooltip: localize("status.showOutputTooltip", "Show {0} Output Channel", channel.label),
+      kind: "prominent"
+    };
+    if (!this._outputStatusItem.value) {
+      this._outputStatusItem.value = this._statusbarService.addEntry(statusProperties, "status.view.showQuietly", 1, {
+        location: { id: "status.notifications", priority: Number.NEGATIVE_INFINITY },
+        alignment: 0
+        /* StatusbarAlignment.LEFT */
+      });
+    } else {
+      this._outputStatusItem.value.update(statusProperties);
+    }
+  }
+  async $close(channelId) {
+    if (this._viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
+      const activeChannel = this._outputService.getActiveChannel();
+      if (activeChannel && channelId === activeChannel.id) {
+        this._viewsService.closeView(OUTPUT_VIEW_ID);
+      }
+    }
+  }
+  async $dispose(channelId) {
+    const channel = this._getChannel(channelId);
+    channel?.dispose();
+  }
+  _getChannel(channelId) {
+    return this._outputService.getChannel(channelId);
+  }
+};
+MainThreadOutputService = MainThreadOutputService_1 = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadOutputService),
+  __param(1, IOutputService),
+  __param(2, IViewsService),
+  __param(3, IConfigurationService),
+  __param(4, IStatusbarService)
+], MainThreadOutputService);
+export {
+  MainThreadOutputService
+};
+//# sourceMappingURL=mainThreadOutputService.js.map

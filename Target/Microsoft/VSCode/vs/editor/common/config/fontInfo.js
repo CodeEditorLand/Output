@@ -1,1 +1,142 @@
-import*as n from"../../../base/common/platform.js";import{EditorZoom as m}from"./editorZoom.js";const g=n.$n?1.5:1.35,o=8;class r{static _create(t,a,e,d,s,i,l,c,f){i===0?i=g*e:i<o&&(i=i*e),i=Math.round(i),i<o&&(i=o);const h=1+(f?0:m.getZoomLevel()*.1);return e*=h,i*=h,s===w&&(a==="normal"||a==="bold"?s=u:(s=`'wght' ${parseInt(a,10)}`,a="normal")),new r({pixelRatio:c,fontFamily:t,fontWeight:a,fontSize:e,fontFeatureSettings:d,fontVariationSettings:s,lineHeight:i,letterSpacing:l})}constructor(t){this._bareFontInfoBrand=void 0,this.pixelRatio=t.pixelRatio,this.fontFamily=String(t.fontFamily),this.fontWeight=String(t.fontWeight),this.fontSize=t.fontSize,this.fontFeatureSettings=t.fontFeatureSettings,this.fontVariationSettings=t.fontVariationSettings,this.lineHeight=t.lineHeight|0,this.letterSpacing=t.letterSpacing}getId(){return`${this.pixelRatio}-${this.fontFamily}-${this.fontWeight}-${this.fontSize}-${this.fontFeatureSettings}-${this.fontVariationSettings}-${this.lineHeight}-${this.letterSpacing}`}getMassagedFontFamily(){const t=F.fontFamily,a=r.a(this.fontFamily);return t&&this.fontFamily!==t?`${a}, ${t}`:a}static a(t){return/[,"']/.test(t)?t:/[+ ]/.test(t)?`"${t}"`:t}}const p=2;class C extends r{constructor(t,a){super(t),this._editorStylingBrand=void 0,this.version=p,this.isTrusted=a,this.isMonospace=t.isMonospace,this.typicalHalfwidthCharacterWidth=t.typicalHalfwidthCharacterWidth,this.typicalFullwidthCharacterWidth=t.typicalFullwidthCharacterWidth,this.canUseHalfwidthRightwardsArrow=t.canUseHalfwidthRightwardsArrow,this.spaceWidth=t.spaceWidth,this.middotWidth=t.middotWidth,this.wsmiddotWidth=t.wsmiddotWidth,this.maxDigitWidth=t.maxDigitWidth}equals(t){return this.fontFamily===t.fontFamily&&this.fontWeight===t.fontWeight&&this.fontSize===t.fontSize&&this.fontFeatureSettings===t.fontFeatureSettings&&this.fontVariationSettings===t.fontVariationSettings&&this.lineHeight===t.lineHeight&&this.letterSpacing===t.letterSpacing&&this.typicalHalfwidthCharacterWidth===t.typicalHalfwidthCharacterWidth&&this.typicalFullwidthCharacterWidth===t.typicalFullwidthCharacterWidth&&this.canUseHalfwidthRightwardsArrow===t.canUseHalfwidthRightwardsArrow&&this.spaceWidth===t.spaceWidth&&this.middotWidth===t.middotWidth&&this.wsmiddotWidth===t.wsmiddotWidth&&this.maxDigitWidth===t.maxDigitWidth}}const u="normal",w="translate",W="Consolas, 'Courier New', monospace",$="Menlo, Monaco, 'Courier New', monospace",S="'Droid Sans Mono', monospace",F={fontFamily:n.$n?$:n.$m?W:S,fontWeight:"normal",fontSize:n.$n?12:14,lineHeight:0,letterSpacing:0};export{$ as $AD,S as $BD,F as $CD,g as $sD,o as $tD,r as $uD,p as $vD,C as $wD,u as $xD,w as $yD,W as $zD};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as platform from "../../../base/common/platform.js";
+import { EditorZoom } from "./editorZoom.js";
+const GOLDEN_LINE_HEIGHT_RATIO = platform.isMacintosh ? 1.5 : 1.35;
+const MINIMUM_LINE_HEIGHT = 8;
+class BareFontInfo {
+  static {
+    __name(this, "BareFontInfo");
+  }
+  /**
+   * @internal
+   */
+  static _create(fontFamily, fontWeight, fontSize, fontFeatureSettings, fontVariationSettings, lineHeight, letterSpacing, pixelRatio, ignoreEditorZoom) {
+    if (lineHeight === 0) {
+      lineHeight = GOLDEN_LINE_HEIGHT_RATIO * fontSize;
+    } else if (lineHeight < MINIMUM_LINE_HEIGHT) {
+      lineHeight = lineHeight * fontSize;
+    }
+    lineHeight = Math.round(lineHeight);
+    if (lineHeight < MINIMUM_LINE_HEIGHT) {
+      lineHeight = MINIMUM_LINE_HEIGHT;
+    }
+    const editorZoomLevelMultiplier = 1 + (ignoreEditorZoom ? 0 : EditorZoom.getZoomLevel() * 0.1);
+    fontSize *= editorZoomLevelMultiplier;
+    lineHeight *= editorZoomLevelMultiplier;
+    if (fontVariationSettings === FONT_VARIATION_TRANSLATE) {
+      if (fontWeight === "normal" || fontWeight === "bold") {
+        fontVariationSettings = FONT_VARIATION_OFF;
+      } else {
+        const fontWeightAsNumber = parseInt(fontWeight, 10);
+        fontVariationSettings = `'wght' ${fontWeightAsNumber}`;
+        fontWeight = "normal";
+      }
+    }
+    return new BareFontInfo({
+      pixelRatio,
+      fontFamily,
+      fontWeight,
+      fontSize,
+      fontFeatureSettings,
+      fontVariationSettings,
+      lineHeight,
+      letterSpacing
+    });
+  }
+  /**
+   * @internal
+   */
+  constructor(opts) {
+    this._bareFontInfoBrand = void 0;
+    this.pixelRatio = opts.pixelRatio;
+    this.fontFamily = String(opts.fontFamily);
+    this.fontWeight = String(opts.fontWeight);
+    this.fontSize = opts.fontSize;
+    this.fontFeatureSettings = opts.fontFeatureSettings;
+    this.fontVariationSettings = opts.fontVariationSettings;
+    this.lineHeight = opts.lineHeight | 0;
+    this.letterSpacing = opts.letterSpacing;
+  }
+  /**
+   * @internal
+   */
+  getId() {
+    return `${this.pixelRatio}-${this.fontFamily}-${this.fontWeight}-${this.fontSize}-${this.fontFeatureSettings}-${this.fontVariationSettings}-${this.lineHeight}-${this.letterSpacing}`;
+  }
+  /**
+   * @internal
+   */
+  getMassagedFontFamily() {
+    const fallbackFontFamily = EDITOR_FONT_DEFAULTS.fontFamily;
+    const fontFamily = BareFontInfo._wrapInQuotes(this.fontFamily);
+    if (fallbackFontFamily && this.fontFamily !== fallbackFontFamily) {
+      return `${fontFamily}, ${fallbackFontFamily}`;
+    }
+    return fontFamily;
+  }
+  static _wrapInQuotes(fontFamily) {
+    if (/[,"']/.test(fontFamily)) {
+      return fontFamily;
+    }
+    if (/[+ ]/.test(fontFamily)) {
+      return `"${fontFamily}"`;
+    }
+    return fontFamily;
+  }
+}
+const SERIALIZED_FONT_INFO_VERSION = 2;
+class FontInfo extends BareFontInfo {
+  static {
+    __name(this, "FontInfo");
+  }
+  /**
+   * @internal
+   */
+  constructor(opts, isTrusted) {
+    super(opts);
+    this._editorStylingBrand = void 0;
+    this.version = SERIALIZED_FONT_INFO_VERSION;
+    this.isTrusted = isTrusted;
+    this.isMonospace = opts.isMonospace;
+    this.typicalHalfwidthCharacterWidth = opts.typicalHalfwidthCharacterWidth;
+    this.typicalFullwidthCharacterWidth = opts.typicalFullwidthCharacterWidth;
+    this.canUseHalfwidthRightwardsArrow = opts.canUseHalfwidthRightwardsArrow;
+    this.spaceWidth = opts.spaceWidth;
+    this.middotWidth = opts.middotWidth;
+    this.wsmiddotWidth = opts.wsmiddotWidth;
+    this.maxDigitWidth = opts.maxDigitWidth;
+  }
+  /**
+   * @internal
+   */
+  equals(other) {
+    return this.fontFamily === other.fontFamily && this.fontWeight === other.fontWeight && this.fontSize === other.fontSize && this.fontFeatureSettings === other.fontFeatureSettings && this.fontVariationSettings === other.fontVariationSettings && this.lineHeight === other.lineHeight && this.letterSpacing === other.letterSpacing && this.typicalHalfwidthCharacterWidth === other.typicalHalfwidthCharacterWidth && this.typicalFullwidthCharacterWidth === other.typicalFullwidthCharacterWidth && this.canUseHalfwidthRightwardsArrow === other.canUseHalfwidthRightwardsArrow && this.spaceWidth === other.spaceWidth && this.middotWidth === other.middotWidth && this.wsmiddotWidth === other.wsmiddotWidth && this.maxDigitWidth === other.maxDigitWidth;
+  }
+}
+const FONT_VARIATION_OFF = "normal";
+const FONT_VARIATION_TRANSLATE = "translate";
+const DEFAULT_WINDOWS_FONT_FAMILY = "Consolas, 'Courier New', monospace";
+const DEFAULT_MAC_FONT_FAMILY = "Menlo, Monaco, 'Courier New', monospace";
+const DEFAULT_LINUX_FONT_FAMILY = "'Droid Sans Mono', monospace";
+const EDITOR_FONT_DEFAULTS = {
+  fontFamily: platform.isMacintosh ? DEFAULT_MAC_FONT_FAMILY : platform.isWindows ? DEFAULT_WINDOWS_FONT_FAMILY : DEFAULT_LINUX_FONT_FAMILY,
+  fontWeight: "normal",
+  fontSize: platform.isMacintosh ? 12 : 14,
+  lineHeight: 0,
+  letterSpacing: 0
+};
+export {
+  BareFontInfo,
+  DEFAULT_LINUX_FONT_FAMILY,
+  DEFAULT_MAC_FONT_FAMILY,
+  DEFAULT_WINDOWS_FONT_FAMILY,
+  EDITOR_FONT_DEFAULTS,
+  FONT_VARIATION_OFF,
+  FONT_VARIATION_TRANSLATE,
+  FontInfo,
+  GOLDEN_LINE_HEIGHT_RATIO,
+  MINIMUM_LINE_HEIGHT,
+  SERIALIZED_FONT_INFO_VERSION
+};
+//# sourceMappingURL=fontInfo.js.map

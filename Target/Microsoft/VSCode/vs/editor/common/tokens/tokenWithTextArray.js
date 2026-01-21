@@ -1,1 +1,94 @@
-import{$eE as h}from"../core/ranges/offsetRange.js";import{$9E as x}from"./lineTokens.js";class o{static fromLineTokens(t){const e=[];for(let n=0;n<t.getCount();n++)e.push(new s(t.getTokenText(n),t.getMetadata(n)));return o.create(e)}static create(t){return new o(t)}constructor(t){this.a=t}toLineTokens(t){return x.createFromTextAndMetadata(this.map((e,n)=>({text:n.text,metadata:n.metadata})),t)}forEach(t){let e=0;for(const n of this.a){const a=new h(e,e+n.text.length);t(a,n),e+=n.text.length}}map(t){const e=[];let n=0;for(const a of this.a){const r=new h(n,n+a.text.length);e.push(t(r,a)),n+=a.text.length}return e}slice(t){const e=[];let n=0;for(const a of this.a){const r=n,c=r+a.text.length;if(c>t.start){if(r>=t.endExclusive)break;const u=Math.max(0,t.start-r),i=Math.max(0,c-t.endExclusive);e.push(new s(a.text.slice(u,a.text.length-i),a.metadata))}n+=a.text.length}return o.create(e)}append(t){const e=this.a.concat(t.a);return o.create(e)}}class s{constructor(t,e){this.text=t,this.metadata=e}}class d{constructor(){this.a=[]}add(t,e){this.a.push(new s(t,e))}build(){return o.create(this.a)}}export{d as $0sb,o as $8sb,s as $9sb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { OffsetRange } from "../core/ranges/offsetRange.js";
+import { LineTokens } from "./lineTokens.js";
+class TokenWithTextArray {
+  static {
+    __name(this, "TokenWithTextArray");
+  }
+  static fromLineTokens(lineTokens) {
+    const tokenInfo = [];
+    for (let i = 0; i < lineTokens.getCount(); i++) {
+      tokenInfo.push(new TokenWithTextInfo(lineTokens.getTokenText(i), lineTokens.getMetadata(i)));
+    }
+    return TokenWithTextArray.create(tokenInfo);
+  }
+  static create(tokenInfo) {
+    return new TokenWithTextArray(tokenInfo);
+  }
+  constructor(_tokenInfo) {
+    this._tokenInfo = _tokenInfo;
+  }
+  toLineTokens(decoder) {
+    return LineTokens.createFromTextAndMetadata(this.map((_r, t) => ({ text: t.text, metadata: t.metadata })), decoder);
+  }
+  forEach(cb) {
+    let lengthSum = 0;
+    for (const tokenInfo of this._tokenInfo) {
+      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.text.length);
+      cb(range, tokenInfo);
+      lengthSum += tokenInfo.text.length;
+    }
+  }
+  map(cb) {
+    const result = [];
+    let lengthSum = 0;
+    for (const tokenInfo of this._tokenInfo) {
+      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.text.length);
+      result.push(cb(range, tokenInfo));
+      lengthSum += tokenInfo.text.length;
+    }
+    return result;
+  }
+  slice(range) {
+    const result = [];
+    let lengthSum = 0;
+    for (const tokenInfo of this._tokenInfo) {
+      const tokenStart = lengthSum;
+      const tokenEndEx = tokenStart + tokenInfo.text.length;
+      if (tokenEndEx > range.start) {
+        if (tokenStart >= range.endExclusive) {
+          break;
+        }
+        const deltaBefore = Math.max(0, range.start - tokenStart);
+        const deltaAfter = Math.max(0, tokenEndEx - range.endExclusive);
+        result.push(new TokenWithTextInfo(tokenInfo.text.slice(deltaBefore, tokenInfo.text.length - deltaAfter), tokenInfo.metadata));
+      }
+      lengthSum += tokenInfo.text.length;
+    }
+    return TokenWithTextArray.create(result);
+  }
+  append(other) {
+    const result = this._tokenInfo.concat(other._tokenInfo);
+    return TokenWithTextArray.create(result);
+  }
+}
+class TokenWithTextInfo {
+  static {
+    __name(this, "TokenWithTextInfo");
+  }
+  constructor(text, metadata) {
+    this.text = text;
+    this.metadata = metadata;
+  }
+}
+class TokenWithTextArrayBuilder {
+  static {
+    __name(this, "TokenWithTextArrayBuilder");
+  }
+  constructor() {
+    this._tokens = [];
+  }
+  add(text, metadata) {
+    this._tokens.push(new TokenWithTextInfo(text, metadata));
+  }
+  build() {
+    return TokenWithTextArray.create(this._tokens);
+  }
+}
+export {
+  TokenWithTextArray,
+  TokenWithTextArrayBuilder,
+  TokenWithTextInfo
+};
+//# sourceMappingURL=tokenWithTextArray.js.map

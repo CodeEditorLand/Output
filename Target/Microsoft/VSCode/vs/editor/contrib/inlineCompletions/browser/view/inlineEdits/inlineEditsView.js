@@ -1,1 +1,588 @@
-import{$ as z}from"../../../../../../base/browser/dom.js";import{equals as N}from"../../../../../../base/common/equals.js";import{$Db as x,$mb as X}from"../../../../../../base/common/errors.js";import{Event as Q}from"../../../../../../base/common/event.js";import{$Ed as Y}from"../../../../../../base/common/lifecycle.js";import{autorun as O,derived as b,derivedOpts as K,mapObservableArrayCached as ee,observableValue as ie}from"../../../../../../base/common/observable.js";import{$Lj as te}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Ihb as ne}from"../../../../../browser/observableCodeEditor.js";import{$DE as C}from"../../../../../common/core/edits/textEdit.js";import{$9D as T}from"../../../../../common/core/range.js";import{$gE as re}from"../../../../../common/core/ranges/lineRange.js";import{$pE as D}from"../../../../../common/core/text/abstractText.js";import{$iE as S}from"../../../../../common/core/text/textLength.js";import{$HE as k,$GE as oe}from"../../../../../common/diff/rangeMapping.js";import{$4K as $}from"../../../../../common/model/textModel.js";import{$unb as j,InlineCompletionViewKind as s,InlineEditTabAction as se}from"./inlineEditsViewInterface.js";import{$bub as ae}from"./inlineEditsViews/inlineEditsCollapsedView.js";import{$dub as de}from"./inlineEditsViews/inlineEditsCustomView.js";import{$eub as le}from"./inlineEditsViews/inlineEditsDeletionView.js";import{$fub as ue}from"./inlineEditsViews/inlineEditsInsertionView.js";import{$gub as fe}from"./inlineEditsViews/inlineEditsLineReplacementView.js";import{$tub as he}from"./inlineEditsViews/longDistanceHint/inlineEditsLongDistanceHint.js";import{$wub as V}from"./inlineEditsViews/inlineEditsSideBySideView.js";import{$yub as E,$xub as me}from"./inlineEditsViews/inlineEditsWordReplacementView.js";import{$zub as ge}from"./inlineEditsViews/originalEditorInlineDiffView.js";import{$Xtb as ce,$Ztb as pe}from"./utils/utils.js";import"./view.css";import{$oub as Le}from"./inlineEditsViews/jumpToView.js";import{$wE as Re}from"../../../../../common/core/edits/stringEdit.js";import{$eE as be}from"../../../../../common/core/ranges/offsetRange.js";import{$Umb as we}from"../../../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";import{InlineCompletionEditorType as w}from"../../model/provideInlineCompletions.js";var G=function(u,t,r,a){var d=arguments.length,o=d<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,r):a,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,t,r,a);else for(var f=u.length-1;f>=0;f--)(l=u[f])&&(o=(d<3?l(o):d>3?l(t,r,o):l(t,r))||o);return d>3&&o&&Object.defineProperty(t,r,o),o},q=function(u,t){return function(r,a){t(r,a,u)}},W;let H=W=class extends Y{constructor(t,r,a,d,o,l){super(),this.t=t,this.u=r,this.y=a,this.z=d,this.C=o,this.F=l,this.j=b(e=>this.u.read(e)?.tabAction.read(e)??se.Inactive),this.displayRange=b(this,e=>{const i=this.J.read(e);if(i){if(i.state?.kind==="custom"){const n=i.state.displayLocation?.range;if(!n)throw new x("custom view should have a range");return new re(n.startLineNumber,n.endLineNumber)}return i.state?.kind==="insertionMultiLine"?this.O.originalLines.read(e):i.edit.displayRange}}),this.G=void 0,this.J=b(this,e=>{const i=this.u.read(e),n=this.f.model.read(e);if(!i||!n||!this.I.read(e))return;const m=i.inlineEdit;let R,g,p;m.edit?(g=oe.fromEdit(m.edit),p=new D(m.edit.apply(m.originalText)),R=k(g,m.originalText,p)):(g=[],R=[],p=m.originalText);let h=this.ab(i,e,R,p);if(!h){X(new Error(`unable to determine view: tried to render ${this.n?.view}`));return}const y=this.H(i,e);if(y&&y.isVisible&&h.viewData.setLongDistanceViewData(y.lineNumber,m.lineEdit.lineRange.startLineNumber),h.kind===s.SideBySide){const I=pe(p.getValue(),m.modifiedLineRange,n.getOptions().tabSize);p=new D(I.applyToString(p.getValue())),g=ce(g,I),R=k(g,m.originalText,p)}this.L.setLanguage(n.getLanguageId());const v=this.L.getValue();if(v!==p.getValue()){this.L.setEOL(n.getEndOfLineSequence());const U=Re.replace(new be(0,v.length),p.getValue()).removeCommonSuffixPrefix(v),Z=we(this.L).getTextEdit(U);this.L.edit(Z)}this.C.read(e)&&(h={kind:s.Collapsed,viewData:h.viewData}),i.handleInlineEditShownNextFrame(h.kind,h.viewData);const F=m.action?.kind==="jumpTo"?m.action.position:null;return{state:h,diff:R,edit:m,newText:p.getValue(),newTextLineCount:m.modifiedLineRange.length,editorType:i.editorType,longDistanceHint:y,nextCursorPosition:F}}),this.inlineEditsIsHovered=b(this,e=>this.M.isHovered.read(e)||this.U.read(e).some(i=>i.isHovered.read(e))||this.N.isHovered.read(e)||this.S.isHovered.read(e)||this.W.isHovered.read(e)||this.O.isHovered.read(e)||this.Q.isHovered.read(e)||this.R.map((i,n)=>i?.isHovered.read(n)??!1).read(e)),this.gutterIndicatorOffset=b(this,e=>this.J.read(e)?.state?.kind==="insertionMultiLine"?this.O.startLineOffset.read(e):0),this.f=ne(this.t),this.I=ie(this,!1),this.L=this.D(this.F.createInstance($,"",this.t.getModel().getLanguageId(),{...$.DEFAULT_CREATION_OPTIONS,bracketPairColorizationOptions:{enabled:!0,independentColorPoolPerBracketType:!1}},null)),this.M=this.D(this.F.createInstance(V,this.t,this.u.map(e=>e?.inlineEdit),this.L,this.J.map(e=>e&&e.state?.kind===s.SideBySide?{newTextLineCount:e.newTextLineCount,editorType:e.editorType}:void 0),this.j)),this.N=this.D(this.F.createInstance(le,this.t,this.u.map(e=>e?.inlineEdit),this.J.map(e=>e&&e.state?.kind===s.Deletion?{originalRange:e.state.originalRange,deletions:e.state.deletions,editorType:e.editorType}:void 0),this.j)),this.O=this.D(this.F.createInstance(ue,this.t,this.J.map(e=>e&&e.state?.kind===s.InsertionMultiLine?{lineNumber:e.state.lineNumber,startColumn:e.state.column,text:e.state.text,editorType:e.editorType}:void 0),this.j)),this._inlineCollapsedView=this.D(this.F.createInstance(ae,this.t,this.u.map((e,i)=>this.J.read(i)?.state?.kind===s.Collapsed?e?.inlineEdit:void 0))),this.Q=this.D(this.F.createInstance(de,this.t,this.u.map((e,i)=>this.J.read(i)?.state?.kind===s.Custom?e?.displayLocation:void 0),this.j,this.J.map(e=>e?.editorType??w.TextEditor))),this.q=this.f.getOption(71).map(this,e=>e.edits.showLongDistanceHint),this.R=b(this,e=>{if(this.q.read(e))return e.store.add(this.F.createInstance(he,this.t,this.J.map((i,n)=>i?.longDistanceHint?{hint:i.longDistanceHint,newTextLineCount:i.newTextLineCount,edit:i.edit,diff:i.diff,editorType:i.editorType,model:this.y.read(n),inlineSuggestInfo:this.z.read(n),nextCursorPosition:i.nextCursorPosition}:void 0),this.L,this.j))}).recomputeInitiallyAndOnChange(this.B),this.P=b(this,e=>{const i=this.J.read(e);if(!(!i||!i.state)&&!(i.state.kind==="wordReplacements"||i.state.kind==="insertionMultiLine"||i.state.kind==="collapsed"||i.state.kind==="custom"||i.state.kind==="jumpTo"))return{modifiedText:new D(i.newText),diff:i.diff,mode:i.state.kind,modifiedCodeEditor:this.M.previewEditor,editorType:i.editorType}}),this.S=this.D(new ge(this.t,this.P,this.L)),this.X=this.D(this.F.createInstance(Le,this.f,{style:"label"},b(e=>{const i=this.J.read(e);if(i?.state?.kind===s.JumpTo)return{jumpToPosition:i.state.position}})));const f=K({equalsFn:N.arrayC(N.thisC())},e=>{const i=this.J.read(e);return i?.state?.kind===s.WordReplacements?i.state.replacements.map(n=>new me(n,i.editorType,i.state?.alternativeAction)):[]});this.U=ee(this,f,(e,i)=>i.add(this.F.createInstance(E,this.f,e,this.j))),this.W=this.D(this.F.createInstance(fe,this.f,this.J.map(e=>e?.state?.kind===s.LineReplacement?{originalRange:e.state.originalRange,modifiedRange:e.state.modifiedRange,modifiedLines:e.state.modifiedLines,replacements:e.state.replacements}:void 0),this.J.map(e=>e?.editorType??w.TextEditor),this.j)),this.g=this.f.getOption(71).map(e=>e.edits.allowCodeShifting),this.h=this.f.getOption(71).map(e=>e.edits.renderSideBySide),this.D(O(e=>{const i=this.u.read(e);i&&e.store.add(Q.any(this.M.onDidClick,this.W.onDidClick,this.O.onDidClick,...this.U.read(e).map(n=>n.onDidClick),this.S.onDidClick,this.Q.onDidClick)(n=>{this.cb(350)&&(n.event.preventDefault(),i.accept(n.alternativeAction))}))})),this.U.recomputeInitiallyAndOnChange(this.B);const c=b(this,e=>Math.max(...this.U.read(e).map(i=>i.minEditorScrollHeight.read(e)),this.W.minEditorScrollHeight.read(e),this.Q.minEditorScrollHeight.read(e))).recomputeInitiallyAndOnChange(this.B);let L;this.D(O(e=>{const i=c.read(e),n=this.f.model.read(e);n&&this.t.changeViewZones(m=>{const R=this.t.getScrollHeight(),g=i-R+1;g!==0&&L!==void 0&&(m.removeZone(L),L=void 0),!(g<=0)&&(L=m.addZone({afterLineNumber:n.getLineCount(),heightInPx:g,domNode:z("div.minScrollHeightViewZone")}))})})),this.I.set(!0,void 0)}H(t,r){if(!t.inlineEdit.inlineCompletion.identity.jumpedTo.read(r)&&t.inlineEdit.action!==void 0)return this.G?.inlineSuggestionIdentity!==t.inlineEdit.inlineCompletion.identity&&(this.G={inlineSuggestionIdentity:t.inlineEdit.inlineCompletion.identity,firstCursorLineNumber:t.inlineEdit.cursorPosition.lineNumber}),{lineNumber:this.G.firstCursorLineNumber,isVisible:!t.inViewPort.read(r)}}Y(t){return t.inlineEdit.inlineCompletion.identity.id}Z(t,r,a,d){const o=t.inlineEdit,l=this.n?.id===this.Y(t),f=this.n?.editorWidth!==this.f.layoutInfoWidth.read(r)&&(this.n?.view===s.SideBySide||this.n?.view===s.LineReplacement);if(l&&!f)return this.n.view;const c=t.inlineEdit.inlineCompletion.action;if(c?.kind==="edit"&&c.alternativeAction)return s.WordReplacements;if((c?.kind==="edit"?c.uri:void 0)!==void 0)return s.Custom;if(t.displayLocation&&!t.inlineEdit.inlineCompletion.identity.jumpedTo.read(r))return s.Custom;const e=o.originalLineRange.length,i=o.modifiedLineRange.length,n=a.flatMap(R=>R.innerChanges??[]),m=n.length===1;if(t.editorType!==w.DiffEditor){if(m&&this.g.read(r)!=="never"&&_(a))return Ee(a,o.cursorPosition)?s.InsertionInline:s.LineReplacement;if(M(n,o,d))return s.Deletion;if(A(a)&&this.g.read(r)==="always")return s.InsertionMultiLine;if(n.every(g=>S.ofRange(g.originalRange).columnCount<E.MAX_LENGTH&&S.ofRange(g.modifiedRange).columnCount<E.MAX_LENGTH)&&m&&e===1&&i===1){const g=n.map(h=>d.getValueOfRange(h.modifiedRange)),p=n.map(h=>t.inlineEdit.originalText.getValueOfRange(h.originalRange));if(!g.some(h=>h.includes("	"))&&!p.some(h=>h.includes("	"))&&(!n.some(h=>h.originalRange.isEmpty())||!P(n.map(h=>new C(h.originalRange,"")),o.originalText).some(h=>h.range.isEmpty()&&S.ofRange(h.range).columnCount<E.MAX_LENGTH)))return s.WordReplacements}}if(e>0&&i>0)return e===1&&i===1&&t.editorType!==w.DiffEditor?s.LineReplacement:this.h.read(r)!=="never"&&V.fitsInsideViewport(this.t,this.L,o,r)?s.SideBySide:s.LineReplacement;if(t.editorType===w.DiffEditor){if(M(n,o,d))return s.Deletion;if(A(a)&&this.g.read(r)==="always")return s.InsertionMultiLine}return s.SideBySide}ab(t,r,a,d){if(t.inlineEdit.action?.kind==="jumpTo")return{kind:s.JumpTo,position:t.inlineEdit.action.position,viewData:J};const o=t.inlineEdit;let l=this.Z(t,r,a,d);if(this.bb(r,o,l))switch(l){case s.LineReplacement:case s.WordReplacements:l=s.SideBySide;break}this.n={id:this.Y(t),view:l,editorWidth:this.t.getLayoutInfo().width,timestamp:Date.now()};const f=a.flatMap(n=>n.innerChanges??[]),c=this.t.getModel(),L=f.map(n=>({originalRange:n.originalRange,modifiedRange:n.modifiedRange,original:c.getValueInRange(n.originalRange),modified:d.getValueOfRange(n.modifiedRange)})),e=ye(o,L,c);switch(l){case s.InsertionInline:return{kind:s.InsertionInline,viewData:e};case s.SideBySide:return{kind:s.SideBySide,viewData:e};case s.Collapsed:return{kind:s.Collapsed,viewData:e};case s.Custom:return{kind:s.Custom,displayLocation:t.displayLocation,viewData:e}}if(l===s.Deletion)return{kind:s.Deletion,originalRange:o.originalLineRange,deletions:f.map(n=>n.originalRange),viewData:e};if(l===s.InsertionMultiLine){const n=f[0];return{kind:s.InsertionMultiLine,lineNumber:n.originalRange.startLineNumber,column:n.originalRange.startColumn,text:d.getValueOfRange(n.modifiedRange),viewData:e}}const i=L.map(n=>new C(n.originalRange,n.modified));if(i.length!==0){if(l===s.WordReplacements){let n=Ce(i,o.originalText);return n.some(m=>m.range.isEmpty())&&(n=P(i,o.originalText)),{kind:s.WordReplacements,replacements:n,alternativeAction:t.inlineEdit.action?.alternativeAction,viewData:e}}if(l===s.LineReplacement)return{kind:s.LineReplacement,originalRange:o.originalLineRange,modifiedRange:o.modifiedLineRange,modifiedLines:o.modifiedLineRange.mapToLineArray(n=>d.getLineAt(n)),replacements:f.map(n=>({originalRange:n.originalRange,modifiedRange:n.modifiedRange})),viewData:e}}}bb(t,r,a){if(this.g.read(t)==="always")return!1;for(const o of r.multiCursorPositions)if(a===s.WordReplacements&&o.lineNumber===r.originalLineRange.startLineNumber+1||a===s.LineReplacement&&o.lineNumber>=r.originalLineRange.endLineNumberExclusive&&o.lineNumber<r.modifiedLineRange.endLineNumberExclusive+r.modifiedLineRange.length)return!0;return!1}cb(t){const r=this.n?.timestamp;if(!r)throw new x("viewHasBeenShownLongThan called before a view has been shown");return Date.now()-r>=t}};H=W=G([q(5,te)],H);const J=new j(-1,-1,-1,-1,-1,-1,-1,!0);function ye(u,t,r){if(!u.edit)return J;const a=u.cursorPosition,d=t.length===0?!1:t[0].modified.startsWith(r.getEOL());return new j(u.edit.replacements.length===0?0:u.edit.replacements[0].range.getStartPosition().column-a.column,u.lineEdit.lineRange.startLineNumber-a.lineNumber+(d&&u.lineEdit.lineRange.startLineNumber>=a.lineNumber?1:0),u.lineEdit.lineRange.length,u.lineEdit.newLines.length,t.reduce((l,f)=>l+f.original.length,0),t.reduce((l,f)=>l+f.modified.length,0),t.length,t.every(l=>l.original===t[0].original&&l.modified===t[0].modified))}function _(u){return u.every(r=>r.innerChanges.every(a=>t(a)));function t(r){return!(!r.originalRange.isEmpty()||!(r.modifiedRange.startLineNumber===r.modifiedRange.endLineNumber))}}function Ee(u,t){if(!t||!_(u))return!1;const r=t;return u.every(d=>d.innerChanges.every(o=>a(o)));function a(d){const o=d.originalRange.getStartPosition();return!!(r.isBeforeOrEqual(o)||o.lineNumber<r.lineNumber)}}function A(u){const t=u.flatMap(a=>a.innerChanges??[]);if(t.length!==1)return!1;const r=t[0];return!(!r.originalRange.isEmpty()||r.modifiedRange.startLineNumber===r.modifiedRange.endLineNumber)}function M(u,t,r){return u.map(d=>({original:t.originalText.getValueOfRange(d.originalRange),modified:r.getValueOfRange(d.modifiedRange)})).every(({original:d,modified:o})=>o.trim()===""&&d.length>0&&(d.length>o.length||d.trim()!==""))}function Ce(u,t){return B(u,t,r=>/^[a-zA-Z]$/.test(r))}function P(u,t){return B(u,t,r=>!/^\s$/.test(r))}function B(u,t,r){const a=[];u.sort((o,l)=>T.compareRangesUsingStarts(o.range,l.range));for(const o of u){let l=o.range.startColumn-1,f=o.range.endColumn-2,c="",L="";const e=t.getLineAt(o.range.startLineNumber),i=t.getLineAt(o.range.endLineNumber);if(d(e[l]))for(;d(e[l-1]);)c=e[l-1]+c,l--;if(d(i[f])||f<l)for(;d(i[f+1]);)L+=i[f+1],f++;let n=new C(new T(o.range.startLineNumber,l+1,o.range.endLineNumber,f+2),c+o.text+L);a.length>0&&T.areIntersectingOrTouching(a[a.length-1].range,n.range)&&(n=C.joinReplacements([a.pop(),n],t)),a.push(n)}function d(o){return o===void 0?!1:r(o)}return a}export{H as $Aub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlineEditsView_1;
+import { $ } from "../../../../../../base/browser/dom.js";
+import { equals } from "../../../../../../base/common/equals.js";
+import { BugIndicatingError, onUnexpectedError } from "../../../../../../base/common/errors.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, derived, derivedOpts, mapObservableArrayCached, observableValue } from "../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { observableCodeEditor } from "../../../../../browser/observableCodeEditor.js";
+import { TextReplacement } from "../../../../../common/core/edits/textEdit.js";
+import { Range } from "../../../../../common/core/range.js";
+import { LineRange } from "../../../../../common/core/ranges/lineRange.js";
+import { StringText } from "../../../../../common/core/text/abstractText.js";
+import { TextLength } from "../../../../../common/core/text/textLength.js";
+import { lineRangeMappingFromRangeMappings, RangeMapping } from "../../../../../common/diff/rangeMapping.js";
+import { TextModel } from "../../../../../common/model/textModel.js";
+import { InlineCompletionViewData, InlineCompletionViewKind, InlineEditTabAction } from "./inlineEditsViewInterface.js";
+import { InlineEditsCollapsedView } from "./inlineEditsViews/inlineEditsCollapsedView.js";
+import { InlineEditsCustomView } from "./inlineEditsViews/inlineEditsCustomView.js";
+import { InlineEditsDeletionView } from "./inlineEditsViews/inlineEditsDeletionView.js";
+import { InlineEditsInsertionView } from "./inlineEditsViews/inlineEditsInsertionView.js";
+import { InlineEditsLineReplacementView } from "./inlineEditsViews/inlineEditsLineReplacementView.js";
+import { InlineEditsLongDistanceHint } from "./inlineEditsViews/longDistanceHint/inlineEditsLongDistanceHint.js";
+import { InlineEditsSideBySideView } from "./inlineEditsViews/inlineEditsSideBySideView.js";
+import { InlineEditsWordReplacementView, WordReplacementsViewData } from "./inlineEditsViews/inlineEditsWordReplacementView.js";
+import { OriginalEditorInlineDiffView } from "./inlineEditsViews/originalEditorInlineDiffView.js";
+import { applyEditToModifiedRangeMappings, createReindentEdit } from "./utils/utils.js";
+import "./view.css";
+import { JumpToView } from "./inlineEditsViews/jumpToView.js";
+import { StringEdit } from "../../../../../common/core/edits/stringEdit.js";
+import { OffsetRange } from "../../../../../common/core/ranges/offsetRange.js";
+import { getPositionOffsetTransformerFromTextModel } from "../../../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";
+import { InlineCompletionEditorType } from "../../model/provideInlineCompletions.js";
+let InlineEditsView = InlineEditsView_1 = class InlineEditsView2 extends Disposable {
+  static {
+    __name(this, "InlineEditsView");
+  }
+  constructor(_editor, _model, _simpleModel, _inlineSuggestInfo, _showCollapsed, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._model = _model;
+    this._simpleModel = _simpleModel;
+    this._inlineSuggestInfo = _inlineSuggestInfo;
+    this._showCollapsed = _showCollapsed;
+    this._instantiationService = _instantiationService;
+    this._tabAction = derived((reader) => this._model.read(reader)?.tabAction.read(reader) ?? InlineEditTabAction.Inactive);
+    this.displayRange = derived(this, (reader) => {
+      const state = this._uiState.read(reader);
+      if (!state) {
+        return void 0;
+      }
+      if (state.state?.kind === "custom") {
+        const range = state.state.displayLocation?.range;
+        if (!range) {
+          throw new BugIndicatingError("custom view should have a range");
+        }
+        return new LineRange(range.startLineNumber, range.endLineNumber);
+      }
+      if (state.state?.kind === "insertionMultiLine") {
+        return this._insertion.originalLines.read(reader);
+      }
+      return state.edit.displayRange;
+    });
+    this._currentInlineEditCache = void 0;
+    this._uiState = derived(this, (reader) => {
+      const model = this._model.read(reader);
+      const textModel = this._editorObs.model.read(reader);
+      if (!model || !textModel || !this._constructorDone.read(reader)) {
+        return void 0;
+      }
+      const inlineEdit = model.inlineEdit;
+      let diff;
+      let mappings;
+      let newText = void 0;
+      if (inlineEdit.edit) {
+        mappings = RangeMapping.fromEdit(inlineEdit.edit);
+        newText = new StringText(inlineEdit.edit.apply(inlineEdit.originalText));
+        diff = lineRangeMappingFromRangeMappings(mappings, inlineEdit.originalText, newText);
+      } else {
+        mappings = [];
+        diff = [];
+        newText = inlineEdit.originalText;
+      }
+      let state = this._determineRenderState(model, reader, diff, newText);
+      if (!state) {
+        onUnexpectedError(new Error(`unable to determine view: tried to render ${this._previousView?.view}`));
+        return void 0;
+      }
+      const longDistanceHint = this._getLongDistanceHintState(model, reader);
+      if (longDistanceHint && longDistanceHint.isVisible) {
+        state.viewData.setLongDistanceViewData(longDistanceHint.lineNumber, inlineEdit.lineEdit.lineRange.startLineNumber);
+      }
+      if (state.kind === InlineCompletionViewKind.SideBySide) {
+        const indentationAdjustmentEdit = createReindentEdit(newText.getValue(), inlineEdit.modifiedLineRange, textModel.getOptions().tabSize);
+        newText = new StringText(indentationAdjustmentEdit.applyToString(newText.getValue()));
+        mappings = applyEditToModifiedRangeMappings(mappings, indentationAdjustmentEdit);
+        diff = lineRangeMappingFromRangeMappings(mappings, inlineEdit.originalText, newText);
+      }
+      this._previewTextModel.setLanguage(textModel.getLanguageId());
+      const previousNewText = this._previewTextModel.getValue();
+      if (previousNewText !== newText.getValue()) {
+        this._previewTextModel.setEOL(textModel.getEndOfLineSequence());
+        const updateOldValueEdit = StringEdit.replace(new OffsetRange(0, previousNewText.length), newText.getValue());
+        const updateOldValueEditSmall = updateOldValueEdit.removeCommonSuffixPrefix(previousNewText);
+        const textEdit = getPositionOffsetTransformerFromTextModel(this._previewTextModel).getTextEdit(updateOldValueEditSmall);
+        this._previewTextModel.edit(textEdit);
+      }
+      if (this._showCollapsed.read(reader)) {
+        state = { kind: InlineCompletionViewKind.Collapsed, viewData: state.viewData };
+      }
+      model.handleInlineEditShownNextFrame(state.kind, state.viewData);
+      const nextCursorPosition = inlineEdit.action?.kind === "jumpTo" ? inlineEdit.action.position : null;
+      return {
+        state,
+        diff,
+        edit: inlineEdit,
+        newText: newText.getValue(),
+        newTextLineCount: inlineEdit.modifiedLineRange.length,
+        editorType: model.editorType,
+        longDistanceHint,
+        nextCursorPosition
+      };
+    });
+    this.inlineEditsIsHovered = derived(this, (reader) => {
+      return this._sideBySide.isHovered.read(reader) || this._wordReplacementViews.read(reader).some((v) => v.isHovered.read(reader)) || this._deletion.isHovered.read(reader) || this._inlineDiffView.isHovered.read(reader) || this._lineReplacementView.isHovered.read(reader) || this._insertion.isHovered.read(reader) || this._customView.isHovered.read(reader) || this._longDistanceHint.map((v, r) => v?.isHovered.read(r) ?? false).read(reader);
+    });
+    this.gutterIndicatorOffset = derived(this, (reader) => {
+      if (this._uiState.read(reader)?.state?.kind === "insertionMultiLine") {
+        return this._insertion.startLineOffset.read(reader);
+      }
+      return 0;
+    });
+    this._editorObs = observableCodeEditor(this._editor);
+    this._constructorDone = observableValue(this, false);
+    this._previewTextModel = this._register(this._instantiationService.createInstance(TextModel, "", this._editor.getModel().getLanguageId(), { ...TextModel.DEFAULT_CREATION_OPTIONS, bracketPairColorizationOptions: { enabled: true, independentColorPoolPerBracketType: false } }, null));
+    this._sideBySide = this._register(this._instantiationService.createInstance(InlineEditsSideBySideView, this._editor, this._model.map((m) => m?.inlineEdit), this._previewTextModel, this._uiState.map((s) => s && s.state?.kind === InlineCompletionViewKind.SideBySide ? {
+      newTextLineCount: s.newTextLineCount,
+      editorType: s.editorType
+    } : void 0), this._tabAction));
+    this._deletion = this._register(this._instantiationService.createInstance(InlineEditsDeletionView, this._editor, this._model.map((m) => m?.inlineEdit), this._uiState.map((s) => s && s.state?.kind === InlineCompletionViewKind.Deletion ? {
+      originalRange: s.state.originalRange,
+      deletions: s.state.deletions,
+      editorType: s.editorType
+    } : void 0), this._tabAction));
+    this._insertion = this._register(this._instantiationService.createInstance(InlineEditsInsertionView, this._editor, this._uiState.map((s) => s && s.state?.kind === InlineCompletionViewKind.InsertionMultiLine ? {
+      lineNumber: s.state.lineNumber,
+      startColumn: s.state.column,
+      text: s.state.text,
+      editorType: s.editorType
+    } : void 0), this._tabAction));
+    this._inlineCollapsedView = this._register(this._instantiationService.createInstance(InlineEditsCollapsedView, this._editor, this._model.map((m, reader) => this._uiState.read(reader)?.state?.kind === InlineCompletionViewKind.Collapsed ? m?.inlineEdit : void 0)));
+    this._customView = this._register(this._instantiationService.createInstance(InlineEditsCustomView, this._editor, this._model.map((m, reader) => this._uiState.read(reader)?.state?.kind === InlineCompletionViewKind.Custom ? m?.displayLocation : void 0), this._tabAction, this._uiState.map((s) => s?.editorType ?? InlineCompletionEditorType.TextEditor)));
+    this._showLongDistanceHint = this._editorObs.getOption(
+      71
+      /* EditorOption.inlineSuggest */
+    ).map(this, (s) => s.edits.showLongDistanceHint);
+    this._longDistanceHint = derived(this, (reader) => {
+      if (!this._showLongDistanceHint.read(reader)) {
+        return void 0;
+      }
+      return reader.store.add(this._instantiationService.createInstance(InlineEditsLongDistanceHint, this._editor, this._uiState.map((s, reader2) => s?.longDistanceHint ? {
+        hint: s.longDistanceHint,
+        newTextLineCount: s.newTextLineCount,
+        edit: s.edit,
+        diff: s.diff,
+        editorType: s.editorType,
+        model: this._simpleModel.read(reader2),
+        inlineSuggestInfo: this._inlineSuggestInfo.read(reader2),
+        nextCursorPosition: s.nextCursorPosition
+      } : void 0), this._previewTextModel, this._tabAction));
+    }).recomputeInitiallyAndOnChange(this._store);
+    this._inlineDiffViewState = derived(this, (reader) => {
+      const e = this._uiState.read(reader);
+      if (!e || !e.state) {
+        return void 0;
+      }
+      if (e.state.kind === "wordReplacements" || e.state.kind === "insertionMultiLine" || e.state.kind === "collapsed" || e.state.kind === "custom" || e.state.kind === "jumpTo") {
+        return void 0;
+      }
+      return {
+        modifiedText: new StringText(e.newText),
+        diff: e.diff,
+        mode: e.state.kind,
+        modifiedCodeEditor: this._sideBySide.previewEditor,
+        editorType: e.editorType
+      };
+    });
+    this._inlineDiffView = this._register(new OriginalEditorInlineDiffView(this._editor, this._inlineDiffViewState, this._previewTextModel));
+    this._jumpToView = this._register(this._instantiationService.createInstance(JumpToView, this._editorObs, { style: "label" }, derived((reader) => {
+      const s = this._uiState.read(reader);
+      if (s?.state?.kind === InlineCompletionViewKind.JumpTo) {
+        return { jumpToPosition: s.state.position };
+      }
+      return void 0;
+    })));
+    const wordReplacements = derivedOpts({
+      equalsFn: equals.arrayC(equals.thisC())
+    }, (reader) => {
+      const s = this._uiState.read(reader);
+      return s?.state?.kind === InlineCompletionViewKind.WordReplacements ? s.state.replacements.map((replacement) => new WordReplacementsViewData(replacement, s.editorType, s.state?.alternativeAction)) : [];
+    });
+    this._wordReplacementViews = mapObservableArrayCached(this, wordReplacements, (viewData, store) => {
+      return store.add(this._instantiationService.createInstance(InlineEditsWordReplacementView, this._editorObs, viewData, this._tabAction));
+    });
+    this._lineReplacementView = this._register(this._instantiationService.createInstance(InlineEditsLineReplacementView, this._editorObs, this._uiState.map((s) => s?.state?.kind === InlineCompletionViewKind.LineReplacement ? {
+      originalRange: s.state.originalRange,
+      modifiedRange: s.state.modifiedRange,
+      modifiedLines: s.state.modifiedLines,
+      replacements: s.state.replacements
+    } : void 0), this._uiState.map((s) => s?.editorType ?? InlineCompletionEditorType.TextEditor), this._tabAction));
+    this._useCodeShifting = this._editorObs.getOption(
+      71
+      /* EditorOption.inlineSuggest */
+    ).map((s) => s.edits.allowCodeShifting);
+    this._renderSideBySide = this._editorObs.getOption(
+      71
+      /* EditorOption.inlineSuggest */
+    ).map((s) => s.edits.renderSideBySide);
+    this._register(autorun((reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return;
+      }
+      reader.store.add(Event.any(this._sideBySide.onDidClick, this._lineReplacementView.onDidClick, this._insertion.onDidClick, ...this._wordReplacementViews.read(reader).map((w) => w.onDidClick), this._inlineDiffView.onDidClick, this._customView.onDidClick)((clickEvent) => {
+        if (this._viewHasBeenShownLongerThan(350)) {
+          clickEvent.event.preventDefault();
+          model.accept(clickEvent.alternativeAction);
+        }
+      }));
+    }));
+    this._wordReplacementViews.recomputeInitiallyAndOnChange(this._store);
+    const minEditorScrollHeight = derived(this, (reader) => {
+      return Math.max(...this._wordReplacementViews.read(reader).map((v) => v.minEditorScrollHeight.read(reader)), this._lineReplacementView.minEditorScrollHeight.read(reader), this._customView.minEditorScrollHeight.read(reader));
+    }).recomputeInitiallyAndOnChange(this._store);
+    let viewZoneId;
+    this._register(autorun((reader) => {
+      const minScrollHeight = minEditorScrollHeight.read(reader);
+      const textModel = this._editorObs.model.read(reader);
+      if (!textModel) {
+        return;
+      }
+      this._editor.changeViewZones((accessor) => {
+        const scrollHeight = this._editor.getScrollHeight();
+        const viewZoneHeight = minScrollHeight - scrollHeight + 1;
+        if (viewZoneHeight !== 0 && viewZoneId !== void 0) {
+          accessor.removeZone(viewZoneId);
+          viewZoneId = void 0;
+        }
+        if (viewZoneHeight <= 0) {
+          return;
+        }
+        viewZoneId = accessor.addZone({
+          afterLineNumber: textModel.getLineCount(),
+          heightInPx: viewZoneHeight,
+          domNode: $("div.minScrollHeightViewZone")
+        });
+      });
+    }));
+    this._constructorDone.set(true, void 0);
+  }
+  _getLongDistanceHintState(model, reader) {
+    if (model.inlineEdit.inlineCompletion.identity.jumpedTo.read(reader)) {
+      return void 0;
+    }
+    if (model.inlineEdit.action === void 0) {
+      return void 0;
+    }
+    if (this._currentInlineEditCache?.inlineSuggestionIdentity !== model.inlineEdit.inlineCompletion.identity) {
+      this._currentInlineEditCache = {
+        inlineSuggestionIdentity: model.inlineEdit.inlineCompletion.identity,
+        firstCursorLineNumber: model.inlineEdit.cursorPosition.lineNumber
+      };
+    }
+    return {
+      lineNumber: this._currentInlineEditCache.firstCursorLineNumber,
+      isVisible: !model.inViewPort.read(reader)
+    };
+  }
+  _getCacheId(model) {
+    return model.inlineEdit.inlineCompletion.identity.id;
+  }
+  _determineView(model, reader, diff, newText) {
+    const inlineEdit = model.inlineEdit;
+    const canUseCache = this._previousView?.id === this._getCacheId(model);
+    const reconsiderViewEditorWidthChange = this._previousView?.editorWidth !== this._editorObs.layoutInfoWidth.read(reader) && (this._previousView?.view === InlineCompletionViewKind.SideBySide || this._previousView?.view === InlineCompletionViewKind.LineReplacement);
+    if (canUseCache && !reconsiderViewEditorWidthChange) {
+      return this._previousView.view;
+    }
+    const action = model.inlineEdit.inlineCompletion.action;
+    if (action?.kind === "edit" && action.alternativeAction) {
+      return InlineCompletionViewKind.WordReplacements;
+    }
+    const uri = action?.kind === "edit" ? action.uri : void 0;
+    if (uri !== void 0) {
+      return InlineCompletionViewKind.Custom;
+    }
+    if (model.displayLocation && !model.inlineEdit.inlineCompletion.identity.jumpedTo.read(reader)) {
+      return InlineCompletionViewKind.Custom;
+    }
+    const numOriginalLines = inlineEdit.originalLineRange.length;
+    const numModifiedLines = inlineEdit.modifiedLineRange.length;
+    const inner = diff.flatMap((d) => d.innerChanges ?? []);
+    const isSingleInnerEdit = inner.length === 1;
+    if (model.editorType !== InlineCompletionEditorType.DiffEditor) {
+      if (isSingleInnerEdit && this._useCodeShifting.read(reader) !== "never" && isSingleLineInsertion(diff)) {
+        if (isSingleLineInsertionAfterPosition(diff, inlineEdit.cursorPosition)) {
+          return InlineCompletionViewKind.InsertionInline;
+        }
+        return InlineCompletionViewKind.LineReplacement;
+      }
+      if (isDeletion(inner, inlineEdit, newText)) {
+        return InlineCompletionViewKind.Deletion;
+      }
+      if (isSingleMultiLineInsertion(diff) && this._useCodeShifting.read(reader) === "always") {
+        return InlineCompletionViewKind.InsertionMultiLine;
+      }
+      const allInnerChangesNotTooLong = inner.every((m) => TextLength.ofRange(m.originalRange).columnCount < InlineEditsWordReplacementView.MAX_LENGTH && TextLength.ofRange(m.modifiedRange).columnCount < InlineEditsWordReplacementView.MAX_LENGTH);
+      if (allInnerChangesNotTooLong && isSingleInnerEdit && numOriginalLines === 1 && numModifiedLines === 1) {
+        const modifiedText = inner.map((m) => newText.getValueOfRange(m.modifiedRange));
+        const originalText = inner.map((m) => model.inlineEdit.originalText.getValueOfRange(m.originalRange));
+        if (!modifiedText.some((v) => v.includes("	")) && !originalText.some((v) => v.includes("	"))) {
+          if (!inner.some((m) => m.originalRange.isEmpty()) || !growEditsUntilWhitespace(inner.map((m) => new TextReplacement(m.originalRange, "")), inlineEdit.originalText).some((e) => e.range.isEmpty() && TextLength.ofRange(e.range).columnCount < InlineEditsWordReplacementView.MAX_LENGTH)) {
+            return InlineCompletionViewKind.WordReplacements;
+          }
+        }
+      }
+    }
+    if (numOriginalLines > 0 && numModifiedLines > 0) {
+      if (numOriginalLines === 1 && numModifiedLines === 1 && model.editorType !== InlineCompletionEditorType.DiffEditor) {
+        return InlineCompletionViewKind.LineReplacement;
+      }
+      if (this._renderSideBySide.read(reader) !== "never" && InlineEditsSideBySideView.fitsInsideViewport(this._editor, this._previewTextModel, inlineEdit, reader)) {
+        return InlineCompletionViewKind.SideBySide;
+      }
+      return InlineCompletionViewKind.LineReplacement;
+    }
+    if (model.editorType === InlineCompletionEditorType.DiffEditor) {
+      if (isDeletion(inner, inlineEdit, newText)) {
+        return InlineCompletionViewKind.Deletion;
+      }
+      if (isSingleMultiLineInsertion(diff) && this._useCodeShifting.read(reader) === "always") {
+        return InlineCompletionViewKind.InsertionMultiLine;
+      }
+    }
+    return InlineCompletionViewKind.SideBySide;
+  }
+  _determineRenderState(model, reader, diff, newText) {
+    if (model.inlineEdit.action?.kind === "jumpTo") {
+      return {
+        kind: InlineCompletionViewKind.JumpTo,
+        position: model.inlineEdit.action.position,
+        viewData: emptyViewData
+      };
+    }
+    const inlineEdit = model.inlineEdit;
+    let view = this._determineView(model, reader, diff, newText);
+    if (this._willRenderAboveCursor(reader, inlineEdit, view)) {
+      switch (view) {
+        case InlineCompletionViewKind.LineReplacement:
+        case InlineCompletionViewKind.WordReplacements:
+          view = InlineCompletionViewKind.SideBySide;
+          break;
+      }
+    }
+    this._previousView = { id: this._getCacheId(model), view, editorWidth: this._editor.getLayoutInfo().width, timestamp: Date.now() };
+    const inner = diff.flatMap((d) => d.innerChanges ?? []);
+    const textModel = this._editor.getModel();
+    const stringChanges = inner.map((m) => ({
+      originalRange: m.originalRange,
+      modifiedRange: m.modifiedRange,
+      original: textModel.getValueInRange(m.originalRange),
+      modified: newText.getValueOfRange(m.modifiedRange)
+    }));
+    const viewData = getViewData(inlineEdit, stringChanges, textModel);
+    switch (view) {
+      case InlineCompletionViewKind.InsertionInline:
+        return { kind: InlineCompletionViewKind.InsertionInline, viewData };
+      case InlineCompletionViewKind.SideBySide:
+        return { kind: InlineCompletionViewKind.SideBySide, viewData };
+      case InlineCompletionViewKind.Collapsed:
+        return { kind: InlineCompletionViewKind.Collapsed, viewData };
+      case InlineCompletionViewKind.Custom:
+        return { kind: InlineCompletionViewKind.Custom, displayLocation: model.displayLocation, viewData };
+    }
+    if (view === InlineCompletionViewKind.Deletion) {
+      return {
+        kind: InlineCompletionViewKind.Deletion,
+        originalRange: inlineEdit.originalLineRange,
+        deletions: inner.map((m) => m.originalRange),
+        viewData
+      };
+    }
+    if (view === InlineCompletionViewKind.InsertionMultiLine) {
+      const change = inner[0];
+      return {
+        kind: InlineCompletionViewKind.InsertionMultiLine,
+        lineNumber: change.originalRange.startLineNumber,
+        column: change.originalRange.startColumn,
+        text: newText.getValueOfRange(change.modifiedRange),
+        viewData
+      };
+    }
+    const replacements = stringChanges.map((m) => new TextReplacement(m.originalRange, m.modified));
+    if (replacements.length === 0) {
+      return void 0;
+    }
+    if (view === InlineCompletionViewKind.WordReplacements) {
+      let grownEdits = growEditsToEntireWord(replacements, inlineEdit.originalText);
+      if (grownEdits.some((e) => e.range.isEmpty())) {
+        grownEdits = growEditsUntilWhitespace(replacements, inlineEdit.originalText);
+      }
+      return {
+        kind: InlineCompletionViewKind.WordReplacements,
+        replacements: grownEdits,
+        alternativeAction: model.inlineEdit.action?.alternativeAction,
+        viewData
+      };
+    }
+    if (view === InlineCompletionViewKind.LineReplacement) {
+      return {
+        kind: InlineCompletionViewKind.LineReplacement,
+        originalRange: inlineEdit.originalLineRange,
+        modifiedRange: inlineEdit.modifiedLineRange,
+        modifiedLines: inlineEdit.modifiedLineRange.mapToLineArray((line) => newText.getLineAt(line)),
+        replacements: inner.map((m) => ({ originalRange: m.originalRange, modifiedRange: m.modifiedRange })),
+        viewData
+      };
+    }
+    return void 0;
+  }
+  _willRenderAboveCursor(reader, inlineEdit, view) {
+    const useCodeShifting = this._useCodeShifting.read(reader);
+    if (useCodeShifting === "always") {
+      return false;
+    }
+    for (const cursorPosition of inlineEdit.multiCursorPositions) {
+      if (view === InlineCompletionViewKind.WordReplacements && cursorPosition.lineNumber === inlineEdit.originalLineRange.startLineNumber + 1) {
+        return true;
+      }
+      if (view === InlineCompletionViewKind.LineReplacement && cursorPosition.lineNumber >= inlineEdit.originalLineRange.endLineNumberExclusive && cursorPosition.lineNumber < inlineEdit.modifiedLineRange.endLineNumberExclusive + inlineEdit.modifiedLineRange.length) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _viewHasBeenShownLongerThan(durationMs) {
+    const viewCreationTime = this._previousView?.timestamp;
+    if (!viewCreationTime) {
+      throw new BugIndicatingError("viewHasBeenShownLongThan called before a view has been shown");
+    }
+    const currentTime = Date.now();
+    return currentTime - viewCreationTime >= durationMs;
+  }
+};
+InlineEditsView = InlineEditsView_1 = __decorate([
+  __param(5, IInstantiationService)
+], InlineEditsView);
+const emptyViewData = new InlineCompletionViewData(-1, -1, -1, -1, -1, -1, -1, true);
+function getViewData(inlineEdit, stringChanges, textModel) {
+  if (!inlineEdit.edit) {
+    return emptyViewData;
+  }
+  const cursorPosition = inlineEdit.cursorPosition;
+  const startsWithEOL = stringChanges.length === 0 ? false : stringChanges[0].modified.startsWith(textModel.getEOL());
+  const viewData = new InlineCompletionViewData(inlineEdit.edit.replacements.length === 0 ? 0 : inlineEdit.edit.replacements[0].range.getStartPosition().column - cursorPosition.column, inlineEdit.lineEdit.lineRange.startLineNumber - cursorPosition.lineNumber + (startsWithEOL && inlineEdit.lineEdit.lineRange.startLineNumber >= cursorPosition.lineNumber ? 1 : 0), inlineEdit.lineEdit.lineRange.length, inlineEdit.lineEdit.newLines.length, stringChanges.reduce((acc, r) => acc + r.original.length, 0), stringChanges.reduce((acc, r) => acc + r.modified.length, 0), stringChanges.length, stringChanges.every((r) => r.original === stringChanges[0].original && r.modified === stringChanges[0].modified));
+  return viewData;
+}
+__name(getViewData, "getViewData");
+function isSingleLineInsertion(diff) {
+  return diff.every((m) => m.innerChanges.every((r) => isWordInsertion(r)));
+  function isWordInsertion(r) {
+    if (!r.originalRange.isEmpty()) {
+      return false;
+    }
+    const isInsertionWithinLine = r.modifiedRange.startLineNumber === r.modifiedRange.endLineNumber;
+    if (!isInsertionWithinLine) {
+      return false;
+    }
+    return true;
+  }
+  __name(isWordInsertion, "isWordInsertion");
+}
+__name(isSingleLineInsertion, "isSingleLineInsertion");
+function isSingleLineInsertionAfterPosition(diff, position) {
+  if (!position) {
+    return false;
+  }
+  if (!isSingleLineInsertion(diff)) {
+    return false;
+  }
+  const pos = position;
+  return diff.every((m) => m.innerChanges.every((r) => isStableWordInsertion(r)));
+  function isStableWordInsertion(r) {
+    const insertPosition = r.originalRange.getStartPosition();
+    if (pos.isBeforeOrEqual(insertPosition)) {
+      return true;
+    }
+    if (insertPosition.lineNumber < pos.lineNumber) {
+      return true;
+    }
+    return false;
+  }
+  __name(isStableWordInsertion, "isStableWordInsertion");
+}
+__name(isSingleLineInsertionAfterPosition, "isSingleLineInsertionAfterPosition");
+function isSingleMultiLineInsertion(diff) {
+  const inner = diff.flatMap((d) => d.innerChanges ?? []);
+  if (inner.length !== 1) {
+    return false;
+  }
+  const change = inner[0];
+  if (!change.originalRange.isEmpty()) {
+    return false;
+  }
+  if (change.modifiedRange.startLineNumber === change.modifiedRange.endLineNumber) {
+    return false;
+  }
+  return true;
+}
+__name(isSingleMultiLineInsertion, "isSingleMultiLineInsertion");
+function isDeletion(inner, inlineEdit, newText) {
+  const innerValues = inner.map((m) => ({ original: inlineEdit.originalText.getValueOfRange(m.originalRange), modified: newText.getValueOfRange(m.modifiedRange) }));
+  return innerValues.every(({ original, modified }) => modified.trim() === "" && original.length > 0 && (original.length > modified.length || original.trim() !== ""));
+}
+__name(isDeletion, "isDeletion");
+function growEditsToEntireWord(replacements, originalText) {
+  return _growEdits(replacements, originalText, (char) => /^[a-zA-Z]$/.test(char));
+}
+__name(growEditsToEntireWord, "growEditsToEntireWord");
+function growEditsUntilWhitespace(replacements, originalText) {
+  return _growEdits(replacements, originalText, (char) => !/^\s$/.test(char));
+}
+__name(growEditsUntilWhitespace, "growEditsUntilWhitespace");
+function _growEdits(replacements, originalText, fn) {
+  const result = [];
+  replacements.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
+  for (const edit of replacements) {
+    let startIndex = edit.range.startColumn - 1;
+    let endIndex = edit.range.endColumn - 2;
+    let prefix = "";
+    let suffix = "";
+    const startLineContent = originalText.getLineAt(edit.range.startLineNumber);
+    const endLineContent = originalText.getLineAt(edit.range.endLineNumber);
+    if (isIncluded(startLineContent[startIndex])) {
+      while (isIncluded(startLineContent[startIndex - 1])) {
+        prefix = startLineContent[startIndex - 1] + prefix;
+        startIndex--;
+      }
+    }
+    if (isIncluded(endLineContent[endIndex]) || endIndex < startIndex) {
+      while (isIncluded(endLineContent[endIndex + 1])) {
+        suffix += endLineContent[endIndex + 1];
+        endIndex++;
+      }
+    }
+    let newEdit = new TextReplacement(new Range(edit.range.startLineNumber, startIndex + 1, edit.range.endLineNumber, endIndex + 2), prefix + edit.text + suffix);
+    if (result.length > 0 && Range.areIntersectingOrTouching(result[result.length - 1].range, newEdit.range)) {
+      newEdit = TextReplacement.joinReplacements([result.pop(), newEdit], originalText);
+    }
+    result.push(newEdit);
+  }
+  function isIncluded(c) {
+    if (c === void 0) {
+      return false;
+    }
+    return fn(c);
+  }
+  __name(isIncluded, "isIncluded");
+  return result;
+}
+__name(_growEdits, "_growEdits");
+export {
+  InlineEditsView
+};
+//# sourceMappingURL=inlineEditsView.js.map

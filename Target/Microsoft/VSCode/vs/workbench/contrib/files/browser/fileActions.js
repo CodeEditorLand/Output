@@ -1,3 +1,1250 @@
-import*as i from"../../../../nls.js";import{$m as Q,OS as xe}from"../../../../base/common/platform.js";import{$bb as Oe,$ab as se,$8 as ke}from"../../../../base/common/path.js";import*as z from"../../../../base/common/resources.js";import{URI as ce}from"../../../../base/common/uri.js";import{$Km as P}from"../../../../base/common/errorMessage.js";import{$Em as ve}from"../../../../base/common/actions.js";import{$zd as de}from"../../../../base/common/lifecycle.js";import{$BQb as Ne,$CQb as he}from"../common/files.js";import{$uk as T}from"../../../../platform/files/common/files.js";import{$rN as N,SideBySideEditor as H}from"../../../common/editor.js";import{$VH as Ue,ItemActivation as Me}from"../../../../platform/quickinput/common/quickInput.js";import{$Lj as ue}from"../../../../platform/instantiation/common/instantiation.js";import{$pbb as be}from"../../../services/host/browser/host.js";import{$4Qb as We,$jRb as Pe,$wRb as Te}from"./fileConstants.js";import{$2H as $e}from"../../../../editor/common/services/resolverService.js";import{$9l as U}from"../../../../platform/configuration/common/configuration.js";import{$4hb as Se}from"../../../../platform/clipboard/common/clipboardService.js";import{$WF as He}from"../../../../editor/common/languages/language.js";import{$6H as Ve}from"../../../../editor/common/services/model.js";import{$to as V,$uo as j}from"../../../../platform/commands/common/commands.js";import{$po as je}from"../../../../platform/contextkey/common/contextkey.js";import{Schemas as qe}from"../../../../base/common/network.js";import{$Lp as q,$Op as B}from"../../../../platform/dialogs/common/dialogs.js";import{$mH as k,Severity as I}from"../../../../platform/notification/common/notification.js";import{$yL as D}from"../../../services/editor/common/editorService.js";import{$1Rb as Ye}from"../../../browser/parts/editor/editorCommands.js";import{$$b as Z}from"../../../../base/common/arrays.js";import{$TSb as Qe}from"../common/explorerModel.js";import{$yb as Ze}from"../../../../base/common/errors.js";import{$Z8 as Ge}from"../../../../base/browser/dom.js";import{$5L as M}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{$$K as Ke}from"../../../services/workingCopy/common/workingCopyService.js";import{$9h as Xe}from"../../../../base/common/async.js";import{$bM as ze}from"../../../services/workingCopy/common/workingCopyFileService.js";import{$ak as Ee}from"../../../../base/common/codicons.js";import{ThemeIcon as De}from"../../../../base/common/themables.js";import{$fAb as Je}from"../../../services/views/common/viewsService.js";import{$3f as _e,$5f as ge}from"../../../../base/common/strings.js";import{$0o as et}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$Rjb as O}from"../../../../editor/browser/services/bulkEditService.js";import{$USb as E}from"./files.js";import{$YSb as tt,$1Sb as rt}from"./fileImportExport.js";import{$$Ab as it}from"../../../services/panecomposite/browser/panecomposite.js";import{$ZN as Le}from"../../../services/remote/common/remoteAgentService.js";import{$WZ as Ae}from"../../../services/path/common/pathService.js";import{$sL as L}from"../../../../platform/actions/common/actions.js";import{$EO as ot,$HO as nt,$lO as lt}from"../../../common/contextkeys.js";import{$2w as at}from"../../../../base/common/keyCodes.js";import{$so as A}from"../../../../platform/action/common/actionCommonCategories.js";import{$9i as st}from"../../../../base/common/buffer.js";import{$Ljb as G}from"../../../../platform/dnd/browser/dnd.js";var ae=function(e,t,r,o){var n=arguments.length,f=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")f=Reflect.decorate(e,t,r,o);else for(var c=e.length-1;c>=0;c--)(l=e[c])&&(f=(n<3?l(f):n>3?l(t,r,f):l(t,r))||f);return n>3&&f&&Object.defineProperty(t,r,f),f},R=function(e,t){return function(r,o){t(r,o,e)}};const ct="explorer.newFile",vr=i.localize2(9050,"New File..."),ut="explorer.newFolder",br=i.localize2(9051,"New Folder..."),$r=i.localize(8975,null),Sr=i.localize(8976,null),zr=i.localize(8977,null),Er=i.localize(8978,null),Dr=new je("fileCopied",!1),pt="explorer.download",Lr=i.localize(8979,null),ft="explorer.upload",Ar=i.localize(8980,null),me="explorer.confirmDelete",dt=5e6;async function Ie(e,t){e&&(e.indexOf("/")>=0||e.indexOf("\\")>=0)&&await t.refresh()}async function pe(e,t,r,o,n,f,l,c=!1,x=!1){let w;l?w=Q?i.localize(8981,null):i.localize(8982,null):w=i.localize(8983,null);const h=z.$Qh(f,a=>a.resource),y=new Set;for(const a of h)for(const s of t.getDirty(a.resource))y.add(s);if(y.size){let a;if(h.length>1?a=i.localize(8984,null):h[0].isDirectory?y.size===1?a=i.localize(8985,null,h[0].name):a=i.localize(8986,null,h[0].name,y.size):a=i.localize(8987,null,h[0].name),(await r.confirm({type:"warning",message:a,detail:i.localize(8988,null),primaryButton:w})).confirmed)c=!0;else return}if(!c){const a=h.filter(s=>n.isReadonly(s.resource));if(a.length){let s;if(a.length>1?s=i.localize(8989,null):a[0].isDirectory?s=i.localize(8990,null,h[0].name):s=i.localize(8991,null,h[0].name),!(await r.confirm({type:"warning",message:s,detail:i.localize(8992,null),primaryButton:i.localize(8993,null)})).confirmed)return}}let u;const d=h.some(a=>a.isDirectory)?i.localize(8994,null):h.length>1?i.localize(8995,null):i.localize(8996,null);if(c||o.getValue(me)===!1)u={confirmed:!0};else if(l){let{message:a,detail:s}=ht(h);s+=s?`
-`:"",Q?s+=h.length>1?i.localize(8997,null):i.localize(8998,null):s+=h.length>1?i.localize(8999,null):i.localize(9e3,null),u=await r.confirm({message:a,detail:s,primaryButton:w,checkbox:{label:i.localize(9001,null)}})}else{let{message:a,detail:s}=gt(h);s+=s?`
-`:"",s+=d,u=await r.confirm({type:"warning",message:a,detail:s,primaryButton:w})}if(u.confirmed&&u.checkboxChecked===!0&&await o.updateValue(me,!1),!!u.confirmed)try{const a=h.map(m=>new O(m.resource,void 0,{recursive:!0,folder:m.isDirectory,ignoreIfNotExists:x,skipTrashBin:!l,maxSize:dt})),s={undoLabel:h.length>1?i.localize(9002,null,h.length):i.localize(9003,null,h[0].name),progressLabel:h.length>1?i.localize(9004,null,h.length):i.localize(9005,null,h[0].name)};await e.applyBulkEdit(a,s)}catch(a){let s,m,$;if(l?(s=Q?i.localize(9006,null):i.localize(9007,null),m=d,$=i.localize(9008,null)):(s=P(a,!1),$=i.localize(9009,null)),(await r.confirm({type:"warning",message:s,detail:m,primaryButton:$})).confirmed)return l&&(l=!1),c=!0,x=!0,pe(e,t,r,o,n,f,l,c,x)}}function ht(e){return Ce(e)?{message:i.localize(9010,null,e.length),detail:B(e.map(t=>t.resource))}:e.length>1?e[0].isDirectory?{message:i.localize(9011,null,e.length),detail:B(e.map(t=>t.resource))}:{message:i.localize(9012,null,e.length),detail:B(e.map(t=>t.resource))}:e[0].isDirectory&&!e[0].isSymbolicLink?{message:i.localize(9013,null,e[0].name),detail:""}:{message:i.localize(9014,null,e[0].name),detail:""}}function gt(e){return Ce(e)?{message:i.localize(9015,null,e.length),detail:B(e.map(t=>t.resource))}:e.length>1?e[0].isDirectory?{message:i.localize(9016,null,e.length),detail:B(e.map(t=>t.resource))}:{message:i.localize(9017,null,e.length),detail:B(e.map(t=>t.resource))}:e[0].isDirectory?{message:i.localize(9018,null,e[0].name),detail:""}:{message:i.localize(9019,null,e[0].name),detail:""}}function Ce(e){const t=e.find(o=>o.isDirectory),r=e.find(o=>!o.isDirectory);return!!t&&!!r}async function we(e,t,r,o,n,f){let l=typeof n.resource=="string"?n.resource:z.$Dh(n.resource),c=z.$Hh(o.resource,l);if(!(f==="disabled"&&!await wt(t,r,c))){for(;!n.allowOverwrite&&e.findClosest(c);)f!=="disabled"&&(l=mt(l,!!n.isDirectory,f)),c=z.$Hh(o.resource,l);return c}}function mt(e,t,r){if(r==="simple"){let y=e,u="";t||(u=Oe(e),y=se(e,u));const d=/^(.+ copy)( \d+)?$/;return d.test(y)?y.replace(d,(a,s,m)=>{const $=m?parseInt(m):1;return $===0?`${s}`:$<1073741824?`${s} ${$+1}`:`${s}${m} copy`})+u:`${y} copy${u}`}const o="[\\.\\-_]",n=1073741824,f=RegExp("(.*"+o+")(\\d+)(\\..*)$");if(!t&&e.match(f))return e.replace(f,(y,u,d,a)=>{const s=parseInt(d);return s<n?u+String(s+1).padStart(d.length,"0")+a:`${u}${d}.1${a}`});const l=RegExp("(\\d+)("+o+".*)(\\..*)$");if(!t&&e.match(l))return e.replace(l,(y,u,d,a)=>{const s=parseInt(u);return s<n?String(s+1).padStart(u.length,"0")+d+a:`${u}${d}.1${a}`});const c=RegExp("(\\d+)(\\..*)$");if(!t&&e.match(c))return e.replace(c,(y,u,d)=>{const a=parseInt(u);return a<n?String(a+1).padStart(u.length,"0")+d:`${u}.1${d}`});const x=e.lastIndexOf(".");if(!t&&x>=0)return`${e.substr(0,x)}.1${e.substr(x)}`;const w=RegExp("(\\d+)$");if(!t&&x===-1&&e.match(w))return e.replace(w,(y,u)=>{const d=parseInt(u);return d<n?String(d+1).padStart(u.length,"0"):`${u}.1`});const h=RegExp("(.*)(\\d*)$");return!t&&x===-1&&e.match(h)?e.replace(h,(y,u,d)=>{let a=parseInt(d);return isNaN(a)&&(a=0),a<n?u+String(a+1).padStart(d.length,"0"):`${u}${d}.1`}):t&&e.match(/(\d+)$/)?e.replace(/(\d+)$/,(y,...u)=>{const d=parseInt(u[0]);return d<n?String(d+1).padStart(u[0].length,"0"):`${u[0]}.1`}):t&&e.match(/^(\d+)/)?e.replace(/^(\d+)(.*)$/,(y,...u)=>{const d=parseInt(u[0]);return d<n?String(d+1).padStart(u[0].length,"0")+u[1]:`${u[0]}${u[1]}.1`}):`${e}.1`}async function wt(e,t,r){if(!await e.exists(r))return!0;const{confirmed:n}=await t.confirm({type:I.Warning,message:i.localize(9020,null,se(r.path)),primaryButton:i.localize(9021,null)});return n}class K extends L{static{this.ID="workbench.files.action.compareFileWith"}static{this.LABEL=i.localize2(9052,"Compare Active File With...")}constructor(){super({id:K.ID,title:K.LABEL,f1:!0,category:A.File,precondition:nt,metadata:{description:i.localize2(9053,"Opens a picker to select a file to diff with the active editor.")}})}async run(t){const r=t.get(D),o=t.get($e),n=t.get(Ue),f=r.activeEditor,l=N.getOriginalUri(f);if(l&&o.canHandleResource(l)){const c=await n.quickAccess.pick("",{itemActivation:Me.SECOND});if(c?.length===1){const x=c[0].resource;ce.isUri(x)&&o.canHandleResource(x)&&r.openEditor({original:{resource:l},modified:{resource:x},options:{pinned:!0}})}}}}class Re extends L{static{this.ID="workbench.action.toggleAutoSave"}constructor(){super({id:Re.ID,title:i.localize2(9054,"Toggle Auto Save"),f1:!0,category:A.File,metadata:{description:i.localize2(9055,"Toggle the ability to save files automatically after typing")}})}run(t){return t.get(M).toggleAutoSave()}}let X=class extends ve{constructor(t,r,o,n,f){super(t,r),this.b=o,this.c=n,this.f=f,this.a=this.f.hasDirty,this.enabled=this.a,this.h()}h(){this.D(this.f.onDidChangeDirty(t=>this.q(t)))}q(t){const r=t.isDirty()||this.f.hasDirty;this.a!==r&&(this.enabled=r,this.a=this.enabled)}async run(t){try{await this.g(t)}catch(r){this.c.error(P(r,!1))}}};X=ae([R(2,V),R(3,k),R(4,Ke)],X);class Cr extends X{static{this.ID="workbench.files.action.saveAllInGroup"}static{this.LABEL=i.localize(9022,null)}get class(){return"explorer-action "+De.asClassName(Ee.saveAll)}g(t){return this.b.executeCommand(Pe,{},t)}}let ye=class extends ve{static{this.ID="workbench.files.action.closeGroup"}static{this.LABEL=i.localize(9023,null)}constructor(t,r,o){super(t,r,De.asClassName(Ee.closeAll)),this.a=o}run(t){return this.a.executeCommand(Ye,{},t)}};ye=ae([R(2,V)],ye);class J extends L{static{this.ID="workbench.files.action.focusFilesExplorer"}static{this.LABEL=i.localize2(9056,"Focus on Files Explorer")}constructor(){super({id:J.ID,title:J.LABEL,f1:!0,category:A.File,metadata:{description:i.localize2(9057,"Moves focus to the file explorer view container.")}})}async run(t){await t.get(it).openPaneComposite(Ne,0,!0)}}class _ extends L{static{this.ID="workbench.files.action.showActiveFileInExplorer"}static{this.LABEL=i.localize2(9058,"Reveal Active File in Explorer View")}constructor(){super({id:_.ID,title:_.LABEL,f1:!0,category:A.File,metadata:{description:i.localize2(9059,"Reveals and selects the active file within the explorer view.")}})}async run(t){const r=t.get(V),o=t.get(D),n=N.getOriginalUri(o.activeEditor,{supportSideBySide:H.PRIMARY});n&&r.executeCommand(We,n)}}class ee extends L{static{this.ID="workbench.action.files.showOpenedFileInNewWindow"}static{this.LABEL=i.localize2(9060,"Open Active Editor in New Empty Workspace")}constructor(){super({id:ee.ID,title:ee.LABEL,f1:!0,category:A.File,precondition:lt,metadata:{description:i.localize2(9061,"Opens the active editor in a new window with no folders open.")}})}async run(t){const r=t.get(D),o=t.get(be),n=t.get(q),f=t.get(T),l=N.getOriginalUri(r.activeEditor,{supportSideBySide:H.PRIMARY});l&&f.hasProvider(l)?o.openWindow([{fileUri:l}],{forceNewWindow:!0}):n.error(i.localize(9024,null))}}function Be(e,t,r,o){if(r=xt(r),!r||r.length===0||/^\s+$/.test(r))return{content:i.localize(9025,null),severity:I.Error};if(r[0]==="/"||r[0]==="\\")return{content:i.localize(9026,null),severity:I.Error};const n=Z(r.split(/[\\/]/)),f=t.parent;if(r!==t.name){const l=f?.getChild(r);if(l&&l!==t)return{content:i.localize(9027,null,r),severity:I.Error}}if(n.some(l=>!e.hasValidBasename(t.resource,o,l))){const l=r.replace(/\*/g,"\\*");return{content:i.localize(9028,null,yt(l)),severity:I.Error}}return n.some(l=>/^\s|\s$/.test(l))?{content:i.localize(9029,null),severity:I.Warning}:null}function yt(e){return e?.length>255?`${e.substr(0,255)}...`:e}function xt(e){return e&&(e=_e(e,"	"),e=ge(e,"/"),e=ge(e,"\\"),e)}class te extends L{static{this.ID="workbench.files.action.compareNewUntitledTextFiles"}static{this.LABEL=i.localize2(9062,"Compare New Untitled Text Files")}constructor(){super({id:te.ID,title:te.LABEL,f1:!0,category:A.File,metadata:{description:i.localize2(9063,"Opens a new diff editor with two untitled files.")}})}async run(t){await t.get(D).openEditor({original:{resource:void 0},modified:{resource:void 0},options:{pinned:!0}})}}class W extends L{static{this.ID="workbench.files.action.compareWithClipboard"}static{this.LABEL=i.localize2(9064,"Compare Active File with Clipboard")}static{this.b=0}constructor(){super({id:W.ID,title:W.LABEL,f1:!0,category:A.File,keybinding:{primary:at(2089,33),weight:200},metadata:{description:i.localize2(9065,"Opens a new diff editor to compare the active file with the contents of the clipboard.")}})}async run(t){const r=t.get(D),o=t.get(ue),n=t.get($e),f=t.get(T),l=N.getOriginalUri(r.activeEditor,{supportSideBySide:H.PRIMARY}),c=`clipboardCompare${W.b++}`;if(l&&(f.hasProvider(l)||l.scheme===qe.untitled)){if(!this.a){const h=o.createInstance(re);this.a=n.registerTextModelContentProvider(c,h)}const x=z.$Eh(l),w=i.localize(9030,null,x);await r.openEditor({original:{resource:l.with({scheme:c})},modified:{resource:l},label:w,options:{pinned:!0}}).finally(()=>{de(this.a),this.a=void 0})}}dispose(){de(this.a),this.a=void 0}}let re=class{constructor(t,r,o){this.a=t,this.b=r,this.c=o}async provideTextContent(t){const r=await this.a.readText();return this.c.createModel(r,this.b.createByFilepathOrFirstLine(t),t)}};re=ae([R(0,Se),R(1,He),R(2,Ve)],re);function vt(e,t,r){e.prompt(I.Error,P(t,!1),[{label:i.localize(9031,null),run:()=>r()}])}async function Fe(e,t){const r=e.get(E),o=e.get(T),n=e.get(U),f=e.get(M),l=e.get(D),c=e.get(Je),x=e.get(k),w=e.get(Le),h=e.get(V),y=e.get(Ae),u=!c.isViewVisible(he),d=await c.openView(he,!0);if(u&&await Xe(500),!d){if(t)throw new Error("Open a folder or workspace first.");return h.executeCommand(Te)}const a=r.getContext(!1),s=a.length>0?a[0]:void 0;let m;if(s?m=s.isDirectory?s:s.parent||r.roots[0]:m=r.roots[0],m.isReadonly)throw new Error("Parent folder is readonly.");const $=new Qe(o,n,f,m,t);m.addChild($);const F=async g=>{try{const p=z.$Hh(m.resource,g);g.endsWith("/")&&(t=!0),await r.applyBulkEdit([new O(void 0,p,{folder:t})],{undoLabel:i.localize(9032,null,g),progressLabel:i.localize(9033,null,g),confirmBeforeUndo:!0}),await Ie(g,r),t?await r.select(p,!0):await l.openEditor({resource:p,options:{pinned:!0}})}catch(p){vt(x,p,()=>F(g))}},v=(await w.getEnvironment())?.os??xe;await r.setEditable($,{validationMessage:g=>Be(y,$,g,v),onFinish:async(g,p)=>{m.removeChild($),await r.setEditable($,null),p&&F(g)}})}j.registerCommand({id:ct,handler:async e=>{await Fe(e,!1)}});j.registerCommand({id:ut,handler:async e=>{await Fe(e,!0)}});const Fr=async e=>{const t=e.get(E),r=e.get(k),o=e.get(Le),n=e.get(Ae),f=e.get(U),l=t.getContext(!1),c=l.length>0?l[0]:void 0;if(!c)return;const x=(await o.getEnvironment())?.os??xe;await t.setEditable(c,{validationMessage:w=>Be(n,c,w,x),onFinish:async(w,h)=>{if(h){const y=c.parent.resource,u=z.$Hh(y,w);if(c.resource.toString()!==u.toString())try{await t.applyBulkEdit([new O(c.resource,u)],{confirmBeforeUndo:f.getValue().explorer.confirmUndo==="verbose",undoLabel:i.localize(9034,null,c.name,w),progressLabel:i.localize(9035,null,c.name,w)}),await Ie(w,t)}catch(d){r.error(d)}}await t.setEditable(c,null)}})},Or=async e=>{const r=e.get(E).getContext(!0).filter(o=>!o.isRoot);r.length&&await pe(e.get(E),e.get(ze),e.get(q),e.get(U),e.get(M),r,!0)},kr=async e=>{const r=e.get(E).getContext(!0).filter(o=>!o.isRoot);r.length&&await pe(e.get(E),e.get(ze),e.get(q),e.get(U),e.get(M),r,!1)};let C=!1;const Nr=async e=>{const t=e.get(E),r=t.getContext(!0);r.length>0&&(await t.setToCopy(r,!1),C=!1)},Ur=async e=>{const t=e.get(E),r=t.getContext(!0);r.length>0&&(await t.setToCopy(r,!0),C=!0)},bt=async e=>{const t=e.get(E),r=e.get(k),o=e.get(ue),n=t.getContext(!0),f=n.length?n:t.roots,l=o.createInstance(rt);try{await l.download(f)}catch(c){throw r.error(c),c}};j.registerCommand({id:pt,handler:bt});const $t=async e=>{const t=e.get(E),r=e.get(k),o=e.get(ue),n=t.getContext(!1),f=n.length?n[0]:t.roots[0];try{const l=await Ge();l&&await o.createInstance(tt).upload(f,l)}catch(l){throw r.error(l),l}};j.registerCommand({id:ft,handler:$t});const Mr=async(e,t)=>{const r=e.get(Se),o=e.get(E),n=e.get(T),f=e.get(k),l=e.get(D),c=e.get(U),x=e.get(et),w=e.get(q),h=e.get(be),y=o.getContext(!1),d=t&&t.length>0&&c.getValue("explorer.confirmPasteNative"),a=await St(t,r,h);if(d&&a.files.length>=1){const v=a.files.length>1?i.localize(9036,null,a.files.length):i.localize(9037,null,se(a.type==="paths"?a.files[0].fsPath:a.files[0].name)),g=a.files.length>1?B(a.files.map(b=>{if(ce.isUri(b))return b.fsPath;if(a.type==="paths"){const S=G(b);if(S)return S}return b.name})):void 0,p=await w.confirm({message:v,detail:g,checkbox:{label:i.localize(9038,null)},primaryButton:i.localize(9039,null)});if(!p.confirmed)return;p.checkboxChecked===!0&&await c.updateValue("explorer.confirmPasteNative",!1)}const s=y.length?y[0]:o.roots[0],m=c.getValue().explorer.incrementalNaming;if(o.getEditable())return;try{let v=[];if(a.type==="paths"){const g=Z(await Promise.all(a.files.map(async p=>{if(s.resource.toString()!==p.toString()&&z.$Bh(s.resource,p))throw new Error(i.localize(9040,null));const b=await n.stat(p);let S;x.extUri.isEqual(s.resource,p)?S=s.parent:S=s.isDirectory?s:s.parent;const fe=await we(o,n,w,S,{resource:p,isDirectory:b.isDirectory,allowOverwrite:C||m==="disabled"},m);if(fe)return{source:p,target:fe}})));if(g.length>=1)if(C){const p=g.map(S=>new O(S.source,S.target,{overwrite:m==="disabled"})),b={confirmBeforeUndo:c.getValue().explorer.confirmUndo==="verbose",progressLabel:g.length>1?i.localize(9041,null,g.length):i.localize(9042,null,z.$Dh(g[0].target)),undoLabel:g.length>1?i.localize(9043,null,g.length):i.localize(9044,null,z.$Dh(g[0].target))};await o.applyBulkEdit(p,b)}else{const p=g.map(b=>new O(b.source,b.target,{copy:!0,overwrite:m==="disabled"}));await F(g.map(b=>b.target),p)}v=g.map(p=>p.target)}else{const g=Z(await Promise.all(a.files.map(async p=>{const b=s.isDirectory?s:s.parent,S=await we(o,n,w,b,{resource:p.name,isDirectory:!1,allowOverwrite:C||m==="disabled"},m);if(S)return{target:S,edit:new O(void 0,S,{overwrite:m==="disabled",contents:(async()=>st.wrap(new Uint8Array(await p.arrayBuffer())))()})}})));await F(g.map(p=>p.target),g.map(p=>p.edit)),v=g.map(p=>p.target)}if(v.length){const g=v[0];if(await o.select(g),v.length===1){const p=o.findClosest(g);p&&!p.isDirectory&&await l.openEditor({resource:p.resource,options:{pinned:!0,preserveFocus:!0}})}}}catch(v){f.error(P(new Error(i.localize(9045,null,Ze(v))),!1))}finally{C&&(await o.setToCopy([],!1),C=!1)}async function F(v,g){const p=c.getValue().explorer.confirmUndo,b={confirmBeforeUndo:p==="default"||p==="verbose",progressLabel:v.length>1?i.localize(9046,null,v.length):i.localize(9047,null,z.$Dh(v[0])),undoLabel:v.length>1?i.localize(9048,null,v.length):i.localize(9049,null,z.$Dh(v[0]))};await o.applyBulkEdit(g,b)}};async function St(e,t,r){if(e&&e.length>0){const o=[...e].map(n=>G(n)).filter(n=>!!n&&ke(n)).map(n=>ce.file(n));return o.length?{type:"paths",files:o}:{type:"data",files:[...e].filter(n=>!G(n))}}else return{type:"paths",files:z.$Qh(await t.readResources(),o=>o)}}const Wr=async e=>{const t=e.get(D),o=e.get(E).getContext(!0);await t.openEditors(o.filter(n=>!n.isDirectory).map(n=>({resource:n.resource,options:{preserveFocus:!0}})))};class Y extends L{constructor(t,r,o){super({id:t,title:r,f1:!0,category:A.File,precondition:ot}),this.a=o}async run(t){const r=t.get(D),o=t.get(M),n=N.getOriginalUri(r.activeEditor,{supportSideBySide:H.PRIMARY});n&&await o.updateReadonly(n,this.a)}}class ie extends Y{static{this.ID="workbench.action.files.setActiveEditorReadonlyInSession"}static{this.LABEL=i.localize2(9066,"Set Active Editor Read-only in Session")}constructor(){super(ie.ID,ie.LABEL,!0)}}class oe extends Y{static{this.ID="workbench.action.files.setActiveEditorWriteableInSession"}static{this.LABEL=i.localize2(9067,"Set Active Editor Writeable in Session")}constructor(){super(oe.ID,oe.LABEL,!1)}}class ne extends Y{static{this.ID="workbench.action.files.toggleActiveEditorReadonlyInSession"}static{this.LABEL=i.localize2(9068,"Toggle Active Editor Read-only in Session")}constructor(){super(ne.ID,ne.LABEL,"toggle")}}class le extends Y{static{this.ID="workbench.action.files.resetActiveEditorReadonlyInSession"}static{this.LABEL=i.localize2(9069,"Reset Active Editor Read-only in Session")}constructor(){super(le.ID,le.LABEL,"reset")}}export{Er as $$Sb,zr as $0Sb,ct as $4Sb,vr as $5Sb,ut as $6Sb,br as $7Sb,$r as $8Sb,Sr as $9Sb,le as $ATb,Dr as $_Sb,pt as $aTb,Lr as $bTb,ft as $cTb,Ar as $dTb,we as $eTb,mt as $fTb,K as $gTb,Re as $hTb,Cr as $iTb,ye as $jTb,J as $kTb,_ as $lTb,ee as $mTb,Be as $nTb,te as $oTb,W as $pTb,Fr as $qTb,Or as $rTb,kr as $sTb,Nr as $tTb,Ur as $uTb,Mr as $vTb,Wr as $wTb,ie as $xTb,oe as $yTb,ne as $zTb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { isWindows, OS } from "../../../../base/common/platform.js";
+import { extname, basename, isAbsolute } from "../../../../base/common/path.js";
+import * as resources from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { Action } from "../../../../base/common/actions.js";
+import { dispose } from "../../../../base/common/lifecycle.js";
+import { VIEWLET_ID, VIEW_ID } from "../common/files.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { IQuickInputService, ItemActivation } from "../../../../platform/quickinput/common/quickInput.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { REVEAL_IN_EXPLORER_COMMAND_ID, SAVE_ALL_IN_GROUP_COMMAND_ID, NEW_UNTITLED_FILE_COMMAND_ID } from "./fileConstants.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ICommandService, CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IDialogService, getFileNamesMessage } from "../../../../platform/dialogs/common/dialogs.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { CLOSE_EDITORS_AND_GROUP_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { NewExplorerItem } from "../common/explorerModel.js";
+import { getErrorMessage } from "../../../../base/common/errors.js";
+import { triggerUpload } from "../../../../base/browser/dom.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import { timeout } from "../../../../base/common/async.js";
+import { IWorkingCopyFileService } from "../../../services/workingCopy/common/workingCopyFileService.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { trim, rtrim } from "../../../../base/common/strings.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ResourceFileEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { IExplorerService } from "./files.js";
+import { BrowserFileUpload, FileDownload } from "./fileImportExport.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { ActiveEditorCanToggleReadonlyContext, ActiveEditorContext, EmptyWorkspaceSupportContext } from "../../../common/contextkeys.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { getPathForFile } from "../../../../platform/dnd/browser/dnd.js";
+const NEW_FILE_COMMAND_ID = "explorer.newFile";
+const NEW_FILE_LABEL = nls.localize2("newFile", "New File...");
+const NEW_FOLDER_COMMAND_ID = "explorer.newFolder";
+const NEW_FOLDER_LABEL = nls.localize2("newFolder", "New Folder...");
+const TRIGGER_RENAME_LABEL = nls.localize("rename", "Rename...");
+const MOVE_FILE_TO_TRASH_LABEL = nls.localize("delete", "Delete");
+const COPY_FILE_LABEL = nls.localize("copyFile", "Copy");
+const PASTE_FILE_LABEL = nls.localize("pasteFile", "Paste");
+const FileCopiedContext = new RawContextKey("fileCopied", false);
+const DOWNLOAD_COMMAND_ID = "explorer.download";
+const DOWNLOAD_LABEL = nls.localize("download", "Download...");
+const UPLOAD_COMMAND_ID = "explorer.upload";
+const UPLOAD_LABEL = nls.localize("upload", "Upload...");
+const CONFIRM_DELETE_SETTING_KEY = "explorer.confirmDelete";
+const MAX_UNDO_FILE_SIZE = 5e6;
+async function refreshIfSeparator(value, explorerService) {
+  if (value && (value.indexOf("/") >= 0 || value.indexOf("\\") >= 0)) {
+    await explorerService.refresh();
+  }
+}
+__name(refreshIfSeparator, "refreshIfSeparator");
+async function deleteFiles(explorerService, workingCopyFileService, dialogService, configurationService, filesConfigurationService, elements, useTrash, skipConfirm = false, ignoreIfNotExists = false) {
+  let primaryButton;
+  if (useTrash) {
+    primaryButton = isWindows ? nls.localize("deleteButtonLabelRecycleBin", "&&Move to Recycle Bin") : nls.localize({ key: "deleteButtonLabelTrash", comment: ["&& denotes a mnemonic"] }, "&&Move to Trash");
+  } else {
+    primaryButton = nls.localize({ key: "deleteButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Delete");
+  }
+  const distinctElements = resources.distinctParents(elements, (e) => e.resource);
+  const dirtyWorkingCopies = /* @__PURE__ */ new Set();
+  for (const distinctElement of distinctElements) {
+    for (const dirtyWorkingCopy of workingCopyFileService.getDirty(distinctElement.resource)) {
+      dirtyWorkingCopies.add(dirtyWorkingCopy);
+    }
+  }
+  if (dirtyWorkingCopies.size) {
+    let message;
+    if (distinctElements.length > 1) {
+      message = nls.localize("dirtyMessageFilesDelete", "You are deleting files with unsaved changes. Do you want to continue?");
+    } else if (distinctElements[0].isDirectory) {
+      if (dirtyWorkingCopies.size === 1) {
+        message = nls.localize("dirtyMessageFolderOneDelete", "You are deleting a folder {0} with unsaved changes in 1 file. Do you want to continue?", distinctElements[0].name);
+      } else {
+        message = nls.localize("dirtyMessageFolderDelete", "You are deleting a folder {0} with unsaved changes in {1} files. Do you want to continue?", distinctElements[0].name, dirtyWorkingCopies.size);
+      }
+    } else {
+      message = nls.localize("dirtyMessageFileDelete", "You are deleting {0} with unsaved changes. Do you want to continue?", distinctElements[0].name);
+    }
+    const response = await dialogService.confirm({
+      type: "warning",
+      message,
+      detail: nls.localize("dirtyWarning", "Your changes will be lost if you don't save them."),
+      primaryButton
+    });
+    if (!response.confirmed) {
+      return;
+    } else {
+      skipConfirm = true;
+    }
+  }
+  if (!skipConfirm) {
+    const readonlyResources = distinctElements.filter((e) => filesConfigurationService.isReadonly(e.resource));
+    if (readonlyResources.length) {
+      let message;
+      if (readonlyResources.length > 1) {
+        message = nls.localize("readonlyMessageFilesDelete", "You are deleting files that are configured to be read-only. Do you want to continue?");
+      } else if (readonlyResources[0].isDirectory) {
+        message = nls.localize("readonlyMessageFolderOneDelete", "You are deleting a folder {0} that is configured to be read-only. Do you want to continue?", distinctElements[0].name);
+      } else {
+        message = nls.localize("readonlyMessageFolderDelete", "You are deleting a file {0} that is configured to be read-only. Do you want to continue?", distinctElements[0].name);
+      }
+      const response = await dialogService.confirm({
+        type: "warning",
+        message,
+        detail: nls.localize("continueDetail", "The read-only protection will be overridden if you continue."),
+        primaryButton: nls.localize("continueButtonLabel", "Continue")
+      });
+      if (!response.confirmed) {
+        return;
+      }
+    }
+  }
+  let confirmation;
+  const deleteDetail = distinctElements.some((e) => e.isDirectory) ? nls.localize("irreversible", "This action is irreversible!") : distinctElements.length > 1 ? nls.localize("restorePlural", "You can restore these files using the Undo command.") : nls.localize("restore", "You can restore this file using the Undo command.");
+  if (skipConfirm || configurationService.getValue(CONFIRM_DELETE_SETTING_KEY) === false) {
+    confirmation = { confirmed: true };
+  } else if (useTrash) {
+    let { message, detail } = getMoveToTrashMessage(distinctElements);
+    detail += detail ? "\n" : "";
+    if (isWindows) {
+      detail += distinctElements.length > 1 ? nls.localize("undoBinFiles", "You can restore these files from the Recycle Bin.") : nls.localize("undoBin", "You can restore this file from the Recycle Bin.");
+    } else {
+      detail += distinctElements.length > 1 ? nls.localize("undoTrashFiles", "You can restore these files from the Trash.") : nls.localize("undoTrash", "You can restore this file from the Trash.");
+    }
+    confirmation = await dialogService.confirm({
+      message,
+      detail,
+      primaryButton,
+      checkbox: {
+        label: nls.localize("doNotAskAgain", "Do not ask me again")
+      }
+    });
+  } else {
+    let { message, detail } = getDeleteMessage(distinctElements);
+    detail += detail ? "\n" : "";
+    detail += deleteDetail;
+    confirmation = await dialogService.confirm({
+      type: "warning",
+      message,
+      detail,
+      primaryButton
+    });
+  }
+  if (confirmation.confirmed && confirmation.checkboxChecked === true) {
+    await configurationService.updateValue(CONFIRM_DELETE_SETTING_KEY, false);
+  }
+  if (!confirmation.confirmed) {
+    return;
+  }
+  try {
+    const resourceFileEdits = distinctElements.map((e) => new ResourceFileEdit(e.resource, void 0, { recursive: true, folder: e.isDirectory, ignoreIfNotExists, skipTrashBin: !useTrash, maxSize: MAX_UNDO_FILE_SIZE }));
+    const options = {
+      undoLabel: distinctElements.length > 1 ? nls.localize({ key: "deleteBulkEdit", comment: ["Placeholder will be replaced by the number of files deleted"] }, "Delete {0} files", distinctElements.length) : nls.localize({ key: "deleteFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file deleted"] }, "Delete {0}", distinctElements[0].name),
+      progressLabel: distinctElements.length > 1 ? nls.localize({ key: "deletingBulkEdit", comment: ["Placeholder will be replaced by the number of files deleted"] }, "Deleting {0} files", distinctElements.length) : nls.localize({ key: "deletingFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file deleted"] }, "Deleting {0}", distinctElements[0].name)
+    };
+    await explorerService.applyBulkEdit(resourceFileEdits, options);
+  } catch (error) {
+    let errorMessage;
+    let detailMessage;
+    let primaryButton2;
+    if (useTrash) {
+      errorMessage = isWindows ? nls.localize("binFailed", "Failed to delete using the Recycle Bin. Do you want to permanently delete instead?") : nls.localize("trashFailed", "Failed to delete using the Trash. Do you want to permanently delete instead?");
+      detailMessage = deleteDetail;
+      primaryButton2 = nls.localize({ key: "deletePermanentlyButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Delete Permanently");
+    } else {
+      errorMessage = toErrorMessage(error, false);
+      primaryButton2 = nls.localize({ key: "retryButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Retry");
+    }
+    const res = await dialogService.confirm({
+      type: "warning",
+      message: errorMessage,
+      detail: detailMessage,
+      primaryButton: primaryButton2
+    });
+    if (res.confirmed) {
+      if (useTrash) {
+        useTrash = false;
+      }
+      skipConfirm = true;
+      ignoreIfNotExists = true;
+      return deleteFiles(explorerService, workingCopyFileService, dialogService, configurationService, filesConfigurationService, elements, useTrash, skipConfirm, ignoreIfNotExists);
+    }
+  }
+}
+__name(deleteFiles, "deleteFiles");
+function getMoveToTrashMessage(distinctElements) {
+  if (containsBothDirectoryAndFile(distinctElements)) {
+    return {
+      message: nls.localize("confirmMoveTrashMessageFilesAndDirectories", "Are you sure you want to delete the following {0} files/directories and their contents?", distinctElements.length),
+      detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+    };
+  }
+  if (distinctElements.length > 1) {
+    if (distinctElements[0].isDirectory) {
+      return {
+        message: nls.localize("confirmMoveTrashMessageMultipleDirectories", "Are you sure you want to delete the following {0} directories and their contents?", distinctElements.length),
+        detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+      };
+    }
+    return {
+      message: nls.localize("confirmMoveTrashMessageMultiple", "Are you sure you want to delete the following {0} files?", distinctElements.length),
+      detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+    };
+  }
+  if (distinctElements[0].isDirectory && !distinctElements[0].isSymbolicLink) {
+    return { message: nls.localize("confirmMoveTrashMessageFolder", "Are you sure you want to delete '{0}' and its contents?", distinctElements[0].name), detail: "" };
+  }
+  return { message: nls.localize("confirmMoveTrashMessageFile", "Are you sure you want to delete '{0}'?", distinctElements[0].name), detail: "" };
+}
+__name(getMoveToTrashMessage, "getMoveToTrashMessage");
+function getDeleteMessage(distinctElements) {
+  if (containsBothDirectoryAndFile(distinctElements)) {
+    return {
+      message: nls.localize("confirmDeleteMessageFilesAndDirectories", "Are you sure you want to permanently delete the following {0} files/directories and their contents?", distinctElements.length),
+      detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+    };
+  }
+  if (distinctElements.length > 1) {
+    if (distinctElements[0].isDirectory) {
+      return {
+        message: nls.localize("confirmDeleteMessageMultipleDirectories", "Are you sure you want to permanently delete the following {0} directories and their contents?", distinctElements.length),
+        detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+      };
+    }
+    return {
+      message: nls.localize("confirmDeleteMessageMultiple", "Are you sure you want to permanently delete the following {0} files?", distinctElements.length),
+      detail: getFileNamesMessage(distinctElements.map((e) => e.resource))
+    };
+  }
+  if (distinctElements[0].isDirectory) {
+    return { message: nls.localize("confirmDeleteMessageFolder", "Are you sure you want to permanently delete '{0}' and its contents?", distinctElements[0].name), detail: "" };
+  }
+  return { message: nls.localize("confirmDeleteMessageFile", "Are you sure you want to permanently delete '{0}'?", distinctElements[0].name), detail: "" };
+}
+__name(getDeleteMessage, "getDeleteMessage");
+function containsBothDirectoryAndFile(distinctElements) {
+  const directory = distinctElements.find((element) => element.isDirectory);
+  const file = distinctElements.find((element) => !element.isDirectory);
+  return !!directory && !!file;
+}
+__name(containsBothDirectoryAndFile, "containsBothDirectoryAndFile");
+async function findValidPasteFileTarget(explorerService, fileService, dialogService, targetFolder, fileToPaste, incrementalNaming) {
+  let name = typeof fileToPaste.resource === "string" ? fileToPaste.resource : resources.basenameOrAuthority(fileToPaste.resource);
+  let candidate = resources.joinPath(targetFolder.resource, name);
+  if (incrementalNaming === "disabled") {
+    const canOverwrite = await askForOverwrite(fileService, dialogService, candidate);
+    if (!canOverwrite) {
+      return;
+    }
+  }
+  while (!fileToPaste.allowOverwrite) {
+    if (!explorerService.findClosest(candidate)) {
+      break;
+    }
+    if (incrementalNaming !== "disabled") {
+      name = incrementFileName(name, !!fileToPaste.isDirectory, incrementalNaming);
+    }
+    candidate = resources.joinPath(targetFolder.resource, name);
+  }
+  return candidate;
+}
+__name(findValidPasteFileTarget, "findValidPasteFileTarget");
+function incrementFileName(name, isFolder, incrementalNaming) {
+  if (incrementalNaming === "simple") {
+    let namePrefix = name;
+    let extSuffix = "";
+    if (!isFolder) {
+      extSuffix = extname(name);
+      namePrefix = basename(name, extSuffix);
+    }
+    const suffixRegex = /^(.+ copy)( \d+)?$/;
+    if (suffixRegex.test(namePrefix)) {
+      return namePrefix.replace(suffixRegex, (match, g1, g2) => {
+        const number = g2 ? parseInt(g2) : 1;
+        return number === 0 ? `${g1}` : number < 1073741824 ? `${g1} ${number + 1}` : `${g1}${g2} copy`;
+      }) + extSuffix;
+    }
+    return `${namePrefix} copy${extSuffix}`;
+  }
+  const separators = "[\\.\\-_]";
+  const maxNumber = 1073741824;
+  const suffixFileRegex = RegExp("(.*" + separators + ")(\\d+)(\\..*)$");
+  if (!isFolder && name.match(suffixFileRegex)) {
+    return name.replace(suffixFileRegex, (match, g1, g2, g3) => {
+      const number = parseInt(g2);
+      return number < maxNumber ? g1 + String(number + 1).padStart(g2.length, "0") + g3 : `${g1}${g2}.1${g3}`;
+    });
+  }
+  const prefixFileRegex = RegExp("(\\d+)(" + separators + ".*)(\\..*)$");
+  if (!isFolder && name.match(prefixFileRegex)) {
+    return name.replace(prefixFileRegex, (match, g1, g2, g3) => {
+      const number = parseInt(g1);
+      return number < maxNumber ? String(number + 1).padStart(g1.length, "0") + g2 + g3 : `${g1}${g2}.1${g3}`;
+    });
+  }
+  const prefixFileNoNameRegex = RegExp("(\\d+)(\\..*)$");
+  if (!isFolder && name.match(prefixFileNoNameRegex)) {
+    return name.replace(prefixFileNoNameRegex, (match, g1, g2) => {
+      const number = parseInt(g1);
+      return number < maxNumber ? String(number + 1).padStart(g1.length, "0") + g2 : `${g1}.1${g2}`;
+    });
+  }
+  const lastIndexOfDot = name.lastIndexOf(".");
+  if (!isFolder && lastIndexOfDot >= 0) {
+    return `${name.substr(0, lastIndexOfDot)}.1${name.substr(lastIndexOfDot)}`;
+  }
+  const noNameNoExtensionRegex = RegExp("(\\d+)$");
+  if (!isFolder && lastIndexOfDot === -1 && name.match(noNameNoExtensionRegex)) {
+    return name.replace(noNameNoExtensionRegex, (match, g1) => {
+      const number = parseInt(g1);
+      return number < maxNumber ? String(number + 1).padStart(g1.length, "0") : `${g1}.1`;
+    });
+  }
+  const noExtensionRegex = RegExp("(.*)(\\d*)$");
+  if (!isFolder && lastIndexOfDot === -1 && name.match(noExtensionRegex)) {
+    return name.replace(noExtensionRegex, (match, g1, g2) => {
+      let number = parseInt(g2);
+      if (isNaN(number)) {
+        number = 0;
+      }
+      return number < maxNumber ? g1 + String(number + 1).padStart(g2.length, "0") : `${g1}${g2}.1`;
+    });
+  }
+  if (isFolder && name.match(/(\d+)$/)) {
+    return name.replace(/(\d+)$/, (match, ...groups) => {
+      const number = parseInt(groups[0]);
+      return number < maxNumber ? String(number + 1).padStart(groups[0].length, "0") : `${groups[0]}.1`;
+    });
+  }
+  if (isFolder && name.match(/^(\d+)/)) {
+    return name.replace(/^(\d+)(.*)$/, (match, ...groups) => {
+      const number = parseInt(groups[0]);
+      return number < maxNumber ? String(number + 1).padStart(groups[0].length, "0") + groups[1] : `${groups[0]}${groups[1]}.1`;
+    });
+  }
+  return `${name}.1`;
+}
+__name(incrementFileName, "incrementFileName");
+async function askForOverwrite(fileService, dialogService, targetResource) {
+  const exists = await fileService.exists(targetResource);
+  if (!exists) {
+    return true;
+  }
+  const { confirmed } = await dialogService.confirm({
+    type: Severity.Warning,
+    message: nls.localize("confirmOverwrite", "A file or folder with the name '{0}' already exists in the destination folder. Do you want to replace it?", basename(targetResource.path)),
+    primaryButton: nls.localize("replaceButtonLabel", "&&Replace")
+  });
+  return confirmed;
+}
+__name(askForOverwrite, "askForOverwrite");
+class GlobalCompareResourcesAction extends Action2 {
+  static {
+    __name(this, "GlobalCompareResourcesAction");
+  }
+  static {
+    this.ID = "workbench.files.action.compareFileWith";
+  }
+  static {
+    this.LABEL = nls.localize2("globalCompareFile", "Compare Active File With...");
+  }
+  constructor() {
+    super({
+      id: GlobalCompareResourcesAction.ID,
+      title: GlobalCompareResourcesAction.LABEL,
+      f1: true,
+      category: Categories.File,
+      precondition: ActiveEditorContext,
+      metadata: {
+        description: nls.localize2("compareFileWithMeta", "Opens a picker to select a file to diff with the active editor.")
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const textModelService = accessor.get(ITextModelService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const activeInput = editorService.activeEditor;
+    const activeResource = EditorResourceAccessor.getOriginalUri(activeInput);
+    if (activeResource && textModelService.canHandleResource(activeResource)) {
+      const picks = await quickInputService.quickAccess.pick("", { itemActivation: ItemActivation.SECOND });
+      if (picks?.length === 1) {
+        const resource = picks[0].resource;
+        if (URI.isUri(resource) && textModelService.canHandleResource(resource)) {
+          editorService.openEditor({
+            original: { resource: activeResource },
+            modified: { resource },
+            options: { pinned: true }
+          });
+        }
+      }
+    }
+  }
+}
+class ToggleAutoSaveAction extends Action2 {
+  static {
+    __name(this, "ToggleAutoSaveAction");
+  }
+  static {
+    this.ID = "workbench.action.toggleAutoSave";
+  }
+  constructor() {
+    super({
+      id: ToggleAutoSaveAction.ID,
+      title: nls.localize2("toggleAutoSave", "Toggle Auto Save"),
+      f1: true,
+      category: Categories.File,
+      metadata: { description: nls.localize2("toggleAutoSaveDescription", "Toggle the ability to save files automatically after typing") }
+    });
+  }
+  run(accessor) {
+    const filesConfigurationService = accessor.get(IFilesConfigurationService);
+    return filesConfigurationService.toggleAutoSave();
+  }
+}
+let BaseSaveAllAction = class BaseSaveAllAction2 extends Action {
+  static {
+    __name(this, "BaseSaveAllAction");
+  }
+  constructor(id, label, commandService, notificationService, workingCopyService) {
+    super(id, label);
+    this.commandService = commandService;
+    this.notificationService = notificationService;
+    this.workingCopyService = workingCopyService;
+    this.lastDirtyState = this.workingCopyService.hasDirty;
+    this.enabled = this.lastDirtyState;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.workingCopyService.onDidChangeDirty((workingCopy) => this.updateEnablement(workingCopy)));
+  }
+  updateEnablement(workingCopy) {
+    const hasDirty = workingCopy.isDirty() || this.workingCopyService.hasDirty;
+    if (this.lastDirtyState !== hasDirty) {
+      this.enabled = hasDirty;
+      this.lastDirtyState = this.enabled;
+    }
+  }
+  async run(context) {
+    try {
+      await this.doRun(context);
+    } catch (error) {
+      this.notificationService.error(toErrorMessage(error, false));
+    }
+  }
+};
+BaseSaveAllAction = __decorate([
+  __param(2, ICommandService),
+  __param(3, INotificationService),
+  __param(4, IWorkingCopyService)
+], BaseSaveAllAction);
+class SaveAllInGroupAction extends BaseSaveAllAction {
+  static {
+    __name(this, "SaveAllInGroupAction");
+  }
+  static {
+    this.ID = "workbench.files.action.saveAllInGroup";
+  }
+  static {
+    this.LABEL = nls.localize("saveAllInGroup", "Save All in Group");
+  }
+  get class() {
+    return "explorer-action " + ThemeIcon.asClassName(Codicon.saveAll);
+  }
+  doRun(context) {
+    return this.commandService.executeCommand(SAVE_ALL_IN_GROUP_COMMAND_ID, {}, context);
+  }
+}
+let CloseGroupAction = class CloseGroupAction2 extends Action {
+  static {
+    __name(this, "CloseGroupAction");
+  }
+  static {
+    this.ID = "workbench.files.action.closeGroup";
+  }
+  static {
+    this.LABEL = nls.localize("closeGroup", "Close Group");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(Codicon.closeAll));
+    this.commandService = commandService;
+  }
+  run(context) {
+    return this.commandService.executeCommand(CLOSE_EDITORS_AND_GROUP_COMMAND_ID, {}, context);
+  }
+};
+CloseGroupAction = __decorate([
+  __param(2, ICommandService)
+], CloseGroupAction);
+class FocusFilesExplorer extends Action2 {
+  static {
+    __name(this, "FocusFilesExplorer");
+  }
+  static {
+    this.ID = "workbench.files.action.focusFilesExplorer";
+  }
+  static {
+    this.LABEL = nls.localize2("focusFilesExplorer", "Focus on Files Explorer");
+  }
+  constructor() {
+    super({
+      id: FocusFilesExplorer.ID,
+      title: FocusFilesExplorer.LABEL,
+      f1: true,
+      category: Categories.File,
+      metadata: {
+        description: nls.localize2("focusFilesExplorerMetadata", "Moves focus to the file explorer view container.")
+      }
+    });
+  }
+  async run(accessor) {
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    await paneCompositeService.openPaneComposite(VIEWLET_ID, 0, true);
+  }
+}
+class ShowActiveFileInExplorer extends Action2 {
+  static {
+    __name(this, "ShowActiveFileInExplorer");
+  }
+  static {
+    this.ID = "workbench.files.action.showActiveFileInExplorer";
+  }
+  static {
+    this.LABEL = nls.localize2("showInExplorer", "Reveal Active File in Explorer View");
+  }
+  constructor() {
+    super({
+      id: ShowActiveFileInExplorer.ID,
+      title: ShowActiveFileInExplorer.LABEL,
+      f1: true,
+      category: Categories.File,
+      metadata: {
+        description: nls.localize2("showInExplorerMetadata", "Reveals and selects the active file within the explorer view.")
+      }
+    });
+  }
+  async run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    const editorService = accessor.get(IEditorService);
+    const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    if (resource) {
+      commandService.executeCommand(REVEAL_IN_EXPLORER_COMMAND_ID, resource);
+    }
+  }
+}
+class OpenActiveFileInEmptyWorkspace extends Action2 {
+  static {
+    __name(this, "OpenActiveFileInEmptyWorkspace");
+  }
+  static {
+    this.ID = "workbench.action.files.showOpenedFileInNewWindow";
+  }
+  static {
+    this.LABEL = nls.localize2("openFileInEmptyWorkspace", "Open Active Editor in New Empty Workspace");
+  }
+  constructor() {
+    super({
+      id: OpenActiveFileInEmptyWorkspace.ID,
+      title: OpenActiveFileInEmptyWorkspace.LABEL,
+      f1: true,
+      category: Categories.File,
+      precondition: EmptyWorkspaceSupportContext,
+      metadata: {
+        description: nls.localize2("openFileInEmptyWorkspaceMetadata", "Opens the active editor in a new window with no folders open.")
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const hostService = accessor.get(IHostService);
+    const dialogService = accessor.get(IDialogService);
+    const fileService = accessor.get(IFileService);
+    const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    if (fileResource && fileService.hasProvider(fileResource)) {
+      hostService.openWindow([{ fileUri: fileResource }], { forceNewWindow: true });
+    } else {
+      dialogService.error(nls.localize("openFileToShowInNewWindow.unsupportedschema", "The active editor must contain an openable resource."));
+    }
+  }
+}
+function validateFileName(pathService, item, name, os) {
+  name = getWellFormedFileName(name);
+  if (!name || name.length === 0 || /^\s+$/.test(name)) {
+    return {
+      content: nls.localize("emptyFileNameError", "A file or folder name must be provided."),
+      severity: Severity.Error
+    };
+  }
+  if (name[0] === "/" || name[0] === "\\") {
+    return {
+      content: nls.localize("fileNameStartsWithSlashError", "A file or folder name cannot start with a slash."),
+      severity: Severity.Error
+    };
+  }
+  const names = coalesce(name.split(/[\\/]/));
+  const parent = item.parent;
+  if (name !== item.name) {
+    const child = parent?.getChild(name);
+    if (child && child !== item) {
+      return {
+        content: nls.localize("fileNameExistsError", "A file or folder **{0}** already exists at this location. Please choose a different name.", name),
+        severity: Severity.Error
+      };
+    }
+  }
+  if (names.some((folderName) => !pathService.hasValidBasename(item.resource, os, folderName))) {
+    const escapedName = name.replace(/\*/g, "\\*");
+    return {
+      content: nls.localize("invalidFileNameError", "The name **{0}** is not valid as a file or folder name. Please choose a different name.", trimLongName(escapedName)),
+      severity: Severity.Error
+    };
+  }
+  if (names.some((name2) => /^\s|\s$/.test(name2))) {
+    return {
+      content: nls.localize("fileNameWhitespaceWarning", "Leading or trailing whitespace detected in file or folder name."),
+      severity: Severity.Warning
+    };
+  }
+  return null;
+}
+__name(validateFileName, "validateFileName");
+function trimLongName(name) {
+  if (name?.length > 255) {
+    return `${name.substr(0, 255)}...`;
+  }
+  return name;
+}
+__name(trimLongName, "trimLongName");
+function getWellFormedFileName(filename) {
+  if (!filename) {
+    return filename;
+  }
+  filename = trim(filename, "	");
+  filename = rtrim(filename, "/");
+  filename = rtrim(filename, "\\");
+  return filename;
+}
+__name(getWellFormedFileName, "getWellFormedFileName");
+class CompareNewUntitledTextFilesAction extends Action2 {
+  static {
+    __name(this, "CompareNewUntitledTextFilesAction");
+  }
+  static {
+    this.ID = "workbench.files.action.compareNewUntitledTextFiles";
+  }
+  static {
+    this.LABEL = nls.localize2("compareNewUntitledTextFiles", "Compare New Untitled Text Files");
+  }
+  constructor() {
+    super({
+      id: CompareNewUntitledTextFilesAction.ID,
+      title: CompareNewUntitledTextFilesAction.LABEL,
+      f1: true,
+      category: Categories.File,
+      metadata: {
+        description: nls.localize2("compareNewUntitledTextFilesMeta", "Opens a new diff editor with two untitled files.")
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    await editorService.openEditor({
+      original: { resource: void 0 },
+      modified: { resource: void 0 },
+      options: { pinned: true }
+    });
+  }
+}
+class CompareWithClipboardAction extends Action2 {
+  static {
+    __name(this, "CompareWithClipboardAction");
+  }
+  static {
+    this.ID = "workbench.files.action.compareWithClipboard";
+  }
+  static {
+    this.LABEL = nls.localize2("compareWithClipboard", "Compare Active File with Clipboard");
+  }
+  static {
+    this.SCHEME_COUNTER = 0;
+  }
+  constructor() {
+    super({
+      id: CompareWithClipboardAction.ID,
+      title: CompareWithClipboardAction.LABEL,
+      f1: true,
+      category: Categories.File,
+      keybinding: {
+        primary: KeyChord(
+          2048 | 41,
+          33
+          /* KeyCode.KeyC */
+        ),
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      metadata: {
+        description: nls.localize2("compareWithClipboardMeta", "Opens a new diff editor to compare the active file with the contents of the clipboard.")
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const textModelService = accessor.get(ITextModelService);
+    const fileService = accessor.get(IFileService);
+    const resource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    const scheme = `clipboardCompare${CompareWithClipboardAction.SCHEME_COUNTER++}`;
+    if (resource && (fileService.hasProvider(resource) || resource.scheme === Schemas.untitled)) {
+      if (!this.registrationDisposal) {
+        const provider = instantiationService.createInstance(ClipboardContentProvider);
+        this.registrationDisposal = textModelService.registerTextModelContentProvider(scheme, provider);
+      }
+      const name = resources.basename(resource);
+      const editorLabel = nls.localize("clipboardComparisonLabel", "Clipboard \u2194 {0}", name);
+      await editorService.openEditor({
+        original: { resource: resource.with({ scheme }) },
+        modified: { resource },
+        label: editorLabel,
+        options: { pinned: true }
+      }).finally(() => {
+        dispose(this.registrationDisposal);
+        this.registrationDisposal = void 0;
+      });
+    }
+  }
+  dispose() {
+    dispose(this.registrationDisposal);
+    this.registrationDisposal = void 0;
+  }
+}
+let ClipboardContentProvider = class ClipboardContentProvider2 {
+  static {
+    __name(this, "ClipboardContentProvider");
+  }
+  constructor(clipboardService, languageService, modelService) {
+    this.clipboardService = clipboardService;
+    this.languageService = languageService;
+    this.modelService = modelService;
+  }
+  async provideTextContent(resource) {
+    const text = await this.clipboardService.readText();
+    const model = this.modelService.createModel(text, this.languageService.createByFilepathOrFirstLine(resource), resource);
+    return model;
+  }
+};
+ClipboardContentProvider = __decorate([
+  __param(0, IClipboardService),
+  __param(1, ILanguageService),
+  __param(2, IModelService)
+], ClipboardContentProvider);
+function onErrorWithRetry(notificationService, error, retry) {
+  notificationService.prompt(Severity.Error, toErrorMessage(error, false), [{
+    label: nls.localize("retry", "Retry"),
+    run: /* @__PURE__ */ __name(() => retry(), "run")
+  }]);
+}
+__name(onErrorWithRetry, "onErrorWithRetry");
+async function openExplorerAndCreate(accessor, isFolder) {
+  const explorerService = accessor.get(IExplorerService);
+  const fileService = accessor.get(IFileService);
+  const configService = accessor.get(IConfigurationService);
+  const filesConfigService = accessor.get(IFilesConfigurationService);
+  const editorService = accessor.get(IEditorService);
+  const viewsService = accessor.get(IViewsService);
+  const notificationService = accessor.get(INotificationService);
+  const remoteAgentService = accessor.get(IRemoteAgentService);
+  const commandService = accessor.get(ICommandService);
+  const pathService = accessor.get(IPathService);
+  const wasHidden = !viewsService.isViewVisible(VIEW_ID);
+  const view = await viewsService.openView(VIEW_ID, true);
+  if (wasHidden) {
+    await timeout(500);
+  }
+  if (!view) {
+    if (isFolder) {
+      throw new Error("Open a folder or workspace first.");
+    }
+    return commandService.executeCommand(NEW_UNTITLED_FILE_COMMAND_ID);
+  }
+  const stats = explorerService.getContext(false);
+  const stat = stats.length > 0 ? stats[0] : void 0;
+  let folder;
+  if (stat) {
+    folder = stat.isDirectory ? stat : stat.parent || explorerService.roots[0];
+  } else {
+    folder = explorerService.roots[0];
+  }
+  if (folder.isReadonly) {
+    throw new Error("Parent folder is readonly.");
+  }
+  const newStat = new NewExplorerItem(fileService, configService, filesConfigService, folder, isFolder);
+  folder.addChild(newStat);
+  const onSuccess = /* @__PURE__ */ __name(async (value) => {
+    try {
+      const resourceToCreate = resources.joinPath(folder.resource, value);
+      if (value.endsWith("/")) {
+        isFolder = true;
+      }
+      await explorerService.applyBulkEdit([new ResourceFileEdit(void 0, resourceToCreate, { folder: isFolder })], {
+        undoLabel: nls.localize("createBulkEdit", "Create {0}", value),
+        progressLabel: nls.localize("creatingBulkEdit", "Creating {0}", value),
+        confirmBeforeUndo: true
+      });
+      await refreshIfSeparator(value, explorerService);
+      if (isFolder) {
+        await explorerService.select(resourceToCreate, true);
+      } else {
+        await editorService.openEditor({ resource: resourceToCreate, options: { pinned: true } });
+      }
+    } catch (error) {
+      onErrorWithRetry(notificationService, error, () => onSuccess(value));
+    }
+  }, "onSuccess");
+  const os = (await remoteAgentService.getEnvironment())?.os ?? OS;
+  await explorerService.setEditable(newStat, {
+    validationMessage: /* @__PURE__ */ __name((value) => validateFileName(pathService, newStat, value, os), "validationMessage"),
+    onFinish: /* @__PURE__ */ __name(async (value, success) => {
+      folder.removeChild(newStat);
+      await explorerService.setEditable(newStat, null);
+      if (success) {
+        onSuccess(value);
+      }
+    }, "onFinish")
+  });
+}
+__name(openExplorerAndCreate, "openExplorerAndCreate");
+CommandsRegistry.registerCommand({
+  id: NEW_FILE_COMMAND_ID,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    await openExplorerAndCreate(accessor, false);
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  id: NEW_FOLDER_COMMAND_ID,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    await openExplorerAndCreate(accessor, true);
+  }, "handler")
+});
+const renameHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const notificationService = accessor.get(INotificationService);
+  const remoteAgentService = accessor.get(IRemoteAgentService);
+  const pathService = accessor.get(IPathService);
+  const configurationService = accessor.get(IConfigurationService);
+  const stats = explorerService.getContext(false);
+  const stat = stats.length > 0 ? stats[0] : void 0;
+  if (!stat) {
+    return;
+  }
+  const os = (await remoteAgentService.getEnvironment())?.os ?? OS;
+  await explorerService.setEditable(stat, {
+    validationMessage: /* @__PURE__ */ __name((value) => validateFileName(pathService, stat, value, os), "validationMessage"),
+    onFinish: /* @__PURE__ */ __name(async (value, success) => {
+      if (success) {
+        const parentResource = stat.parent.resource;
+        const targetResource = resources.joinPath(parentResource, value);
+        if (stat.resource.toString() !== targetResource.toString()) {
+          try {
+            await explorerService.applyBulkEdit([new ResourceFileEdit(stat.resource, targetResource)], {
+              confirmBeforeUndo: configurationService.getValue().explorer.confirmUndo === "verbose",
+              undoLabel: nls.localize("renameBulkEdit", "Rename {0} to {1}", stat.name, value),
+              progressLabel: nls.localize("renamingBulkEdit", "Renaming {0} to {1}", stat.name, value)
+            });
+            await refreshIfSeparator(value, explorerService);
+          } catch (e) {
+            notificationService.error(e);
+          }
+        }
+      }
+      await explorerService.setEditable(stat, null);
+    }, "onFinish")
+  });
+}, "renameHandler");
+const moveFileToTrashHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const stats = explorerService.getContext(true).filter((s) => !s.isRoot);
+  if (stats.length) {
+    await deleteFiles(accessor.get(IExplorerService), accessor.get(IWorkingCopyFileService), accessor.get(IDialogService), accessor.get(IConfigurationService), accessor.get(IFilesConfigurationService), stats, true);
+  }
+}, "moveFileToTrashHandler");
+const deleteFileHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const stats = explorerService.getContext(true).filter((s) => !s.isRoot);
+  if (stats.length) {
+    await deleteFiles(accessor.get(IExplorerService), accessor.get(IWorkingCopyFileService), accessor.get(IDialogService), accessor.get(IConfigurationService), accessor.get(IFilesConfigurationService), stats, false);
+  }
+}, "deleteFileHandler");
+let pasteShouldMove = false;
+const copyFileHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const stats = explorerService.getContext(true);
+  if (stats.length > 0) {
+    await explorerService.setToCopy(stats, false);
+    pasteShouldMove = false;
+  }
+}, "copyFileHandler");
+const cutFileHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const stats = explorerService.getContext(true);
+  if (stats.length > 0) {
+    await explorerService.setToCopy(stats, true);
+    pasteShouldMove = true;
+  }
+}, "cutFileHandler");
+const downloadFileHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const notificationService = accessor.get(INotificationService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const context = explorerService.getContext(true);
+  const explorerItems = context.length ? context : explorerService.roots;
+  const downloadHandler = instantiationService.createInstance(FileDownload);
+  try {
+    await downloadHandler.download(explorerItems);
+  } catch (error) {
+    notificationService.error(error);
+    throw error;
+  }
+}, "downloadFileHandler");
+CommandsRegistry.registerCommand({
+  id: DOWNLOAD_COMMAND_ID,
+  handler: downloadFileHandler
+});
+const uploadFileHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const explorerService = accessor.get(IExplorerService);
+  const notificationService = accessor.get(INotificationService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const context = explorerService.getContext(false);
+  const element = context.length ? context[0] : explorerService.roots[0];
+  try {
+    const files = await triggerUpload();
+    if (files) {
+      const browserUpload = instantiationService.createInstance(BrowserFileUpload);
+      await browserUpload.upload(element, files);
+    }
+  } catch (error) {
+    notificationService.error(error);
+    throw error;
+  }
+}, "uploadFileHandler");
+CommandsRegistry.registerCommand({
+  id: UPLOAD_COMMAND_ID,
+  handler: uploadFileHandler
+});
+const pasteFileHandler = /* @__PURE__ */ __name(async (accessor, fileList) => {
+  const clipboardService = accessor.get(IClipboardService);
+  const explorerService = accessor.get(IExplorerService);
+  const fileService = accessor.get(IFileService);
+  const notificationService = accessor.get(INotificationService);
+  const editorService = accessor.get(IEditorService);
+  const configurationService = accessor.get(IConfigurationService);
+  const uriIdentityService = accessor.get(IUriIdentityService);
+  const dialogService = accessor.get(IDialogService);
+  const hostService = accessor.get(IHostService);
+  const context = explorerService.getContext(false);
+  const hasNativeFilesToPaste = fileList && fileList.length > 0;
+  const confirmPasteNative = hasNativeFilesToPaste && configurationService.getValue("explorer.confirmPasteNative");
+  const toPaste = await getFilesToPaste(fileList, clipboardService, hostService);
+  if (confirmPasteNative && toPaste.files.length >= 1) {
+    const message = toPaste.files.length > 1 ? nls.localize("confirmMultiPasteNative", "Are you sure you want to paste the following {0} items?", toPaste.files.length) : nls.localize("confirmPasteNative", "Are you sure you want to paste '{0}'?", basename(toPaste.type === "paths" ? toPaste.files[0].fsPath : toPaste.files[0].name));
+    const detail = toPaste.files.length > 1 ? getFileNamesMessage(toPaste.files.map((item) => {
+      if (URI.isUri(item)) {
+        return item.fsPath;
+      }
+      if (toPaste.type === "paths") {
+        const path = getPathForFile(item);
+        if (path) {
+          return path;
+        }
+      }
+      return item.name;
+    })) : void 0;
+    const confirmation = await dialogService.confirm({
+      message,
+      detail,
+      checkbox: {
+        label: nls.localize("doNotAskAgain", "Do not ask me again")
+      },
+      primaryButton: nls.localize({ key: "pasteButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Paste")
+    });
+    if (!confirmation.confirmed) {
+      return;
+    }
+    if (confirmation.checkboxChecked === true) {
+      await configurationService.updateValue("explorer.confirmPasteNative", false);
+    }
+  }
+  const element = context.length ? context[0] : explorerService.roots[0];
+  const incrementalNaming = configurationService.getValue().explorer.incrementalNaming;
+  const editableItem = explorerService.getEditable();
+  if (editableItem) {
+    return;
+  }
+  try {
+    let targets = [];
+    if (toPaste.type === "paths") {
+      const sourceTargetPairs = coalesce(await Promise.all(toPaste.files.map(async (fileToPaste) => {
+        if (element.resource.toString() !== fileToPaste.toString() && resources.isEqualOrParent(element.resource, fileToPaste)) {
+          throw new Error(nls.localize("fileIsAncestor", "File to paste is an ancestor of the destination folder"));
+        }
+        const fileToPasteStat = await fileService.stat(fileToPaste);
+        let target;
+        if (uriIdentityService.extUri.isEqual(element.resource, fileToPaste)) {
+          target = element.parent;
+        } else {
+          target = element.isDirectory ? element : element.parent;
+        }
+        const targetFile = await findValidPasteFileTarget(explorerService, fileService, dialogService, target, { resource: fileToPaste, isDirectory: fileToPasteStat.isDirectory, allowOverwrite: pasteShouldMove || incrementalNaming === "disabled" }, incrementalNaming);
+        if (!targetFile) {
+          return void 0;
+        }
+        return { source: fileToPaste, target: targetFile };
+      })));
+      if (sourceTargetPairs.length >= 1) {
+        if (pasteShouldMove) {
+          const resourceFileEdits = sourceTargetPairs.map((pair) => new ResourceFileEdit(pair.source, pair.target, { overwrite: incrementalNaming === "disabled" }));
+          const options = {
+            confirmBeforeUndo: configurationService.getValue().explorer.confirmUndo === "verbose",
+            progressLabel: sourceTargetPairs.length > 1 ? nls.localize({ key: "movingBulkEdit", comment: ["Placeholder will be replaced by the number of files being moved"] }, "Moving {0} files", sourceTargetPairs.length) : nls.localize({ key: "movingFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file moved."] }, "Moving {0}", resources.basenameOrAuthority(sourceTargetPairs[0].target)),
+            undoLabel: sourceTargetPairs.length > 1 ? nls.localize({ key: "moveBulkEdit", comment: ["Placeholder will be replaced by the number of files being moved"] }, "Move {0} files", sourceTargetPairs.length) : nls.localize({ key: "moveFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file moved."] }, "Move {0}", resources.basenameOrAuthority(sourceTargetPairs[0].target))
+          };
+          await explorerService.applyBulkEdit(resourceFileEdits, options);
+        } else {
+          const resourceFileEdits = sourceTargetPairs.map((pair) => new ResourceFileEdit(pair.source, pair.target, { copy: true, overwrite: incrementalNaming === "disabled" }));
+          await applyCopyResourceEdit(sourceTargetPairs.map((pair) => pair.target), resourceFileEdits);
+        }
+      }
+      targets = sourceTargetPairs.map((pair) => pair.target);
+    } else {
+      const targetAndEdits = coalesce(await Promise.all(toPaste.files.map(async (file) => {
+        const target = element.isDirectory ? element : element.parent;
+        const targetFile = await findValidPasteFileTarget(explorerService, fileService, dialogService, target, { resource: file.name, isDirectory: false, allowOverwrite: pasteShouldMove || incrementalNaming === "disabled" }, incrementalNaming);
+        if (!targetFile) {
+          return;
+        }
+        return {
+          target: targetFile,
+          edit: new ResourceFileEdit(void 0, targetFile, {
+            overwrite: incrementalNaming === "disabled",
+            contents: (async () => VSBuffer.wrap(new Uint8Array(await file.arrayBuffer())))()
+          })
+        };
+      })));
+      await applyCopyResourceEdit(targetAndEdits.map((pair) => pair.target), targetAndEdits.map((pair) => pair.edit));
+      targets = targetAndEdits.map((pair) => pair.target);
+    }
+    if (targets.length) {
+      const firstTarget = targets[0];
+      await explorerService.select(firstTarget);
+      if (targets.length === 1) {
+        const item = explorerService.findClosest(firstTarget);
+        if (item && !item.isDirectory) {
+          await editorService.openEditor({ resource: item.resource, options: { pinned: true, preserveFocus: true } });
+        }
+      }
+    }
+  } catch (e) {
+    notificationService.error(toErrorMessage(new Error(nls.localize("fileDeleted", "The file(s) to paste have been deleted or moved since you copied them. {0}", getErrorMessage(e))), false));
+  } finally {
+    if (pasteShouldMove) {
+      await explorerService.setToCopy([], false);
+      pasteShouldMove = false;
+    }
+  }
+  async function applyCopyResourceEdit(targets, resourceFileEdits) {
+    const undoLevel = configurationService.getValue().explorer.confirmUndo;
+    const options = {
+      confirmBeforeUndo: undoLevel === "default" || undoLevel === "verbose",
+      progressLabel: targets.length > 1 ? nls.localize({ key: "copyingBulkEdit", comment: ["Placeholder will be replaced by the number of files being copied"] }, "Copying {0} files", targets.length) : nls.localize({ key: "copyingFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file copied."] }, "Copying {0}", resources.basenameOrAuthority(targets[0])),
+      undoLabel: targets.length > 1 ? nls.localize({ key: "copyBulkEdit", comment: ["Placeholder will be replaced by the number of files being copied"] }, "Paste {0} files", targets.length) : nls.localize({ key: "copyFileBulkEdit", comment: ["Placeholder will be replaced by the name of the file copied."] }, "Paste {0}", resources.basenameOrAuthority(targets[0]))
+    };
+    await explorerService.applyBulkEdit(resourceFileEdits, options);
+  }
+  __name(applyCopyResourceEdit, "applyCopyResourceEdit");
+}, "pasteFileHandler");
+async function getFilesToPaste(fileList, clipboardService, hostService) {
+  if (fileList && fileList.length > 0) {
+    const resources2 = [...fileList].map((file) => getPathForFile(file)).filter((filePath) => !!filePath && isAbsolute(filePath)).map((filePath) => URI.file(filePath));
+    if (resources2.length) {
+      return { type: "paths", files: resources2 };
+    }
+    return { type: "data", files: [...fileList].filter((file) => !getPathForFile(file)) };
+  } else {
+    return { type: "paths", files: resources.distinctParents(await clipboardService.readResources(), (resource) => resource) };
+  }
+}
+__name(getFilesToPaste, "getFilesToPaste");
+const openFilePreserveFocusHandler = /* @__PURE__ */ __name(async (accessor) => {
+  const editorService = accessor.get(IEditorService);
+  const explorerService = accessor.get(IExplorerService);
+  const stats = explorerService.getContext(true);
+  await editorService.openEditors(stats.filter((s) => !s.isDirectory).map((s) => ({
+    resource: s.resource,
+    options: { preserveFocus: true }
+  })));
+}, "openFilePreserveFocusHandler");
+class BaseSetActiveEditorReadonlyInSession extends Action2 {
+  static {
+    __name(this, "BaseSetActiveEditorReadonlyInSession");
+  }
+  constructor(id, title, newReadonlyState) {
+    super({
+      id,
+      title,
+      f1: true,
+      category: Categories.File,
+      precondition: ActiveEditorCanToggleReadonlyContext
+    });
+    this.newReadonlyState = newReadonlyState;
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const filesConfigurationService = accessor.get(IFilesConfigurationService);
+    const fileResource = EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    if (!fileResource) {
+      return;
+    }
+    await filesConfigurationService.updateReadonly(fileResource, this.newReadonlyState);
+  }
+}
+class SetActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
+  static {
+    __name(this, "SetActiveEditorReadonlyInSession");
+  }
+  static {
+    this.ID = "workbench.action.files.setActiveEditorReadonlyInSession";
+  }
+  static {
+    this.LABEL = nls.localize2("setActiveEditorReadonlyInSession", "Set Active Editor Read-only in Session");
+  }
+  constructor() {
+    super(SetActiveEditorReadonlyInSession.ID, SetActiveEditorReadonlyInSession.LABEL, true);
+  }
+}
+class SetActiveEditorWriteableInSession extends BaseSetActiveEditorReadonlyInSession {
+  static {
+    __name(this, "SetActiveEditorWriteableInSession");
+  }
+  static {
+    this.ID = "workbench.action.files.setActiveEditorWriteableInSession";
+  }
+  static {
+    this.LABEL = nls.localize2("setActiveEditorWriteableInSession", "Set Active Editor Writeable in Session");
+  }
+  constructor() {
+    super(SetActiveEditorWriteableInSession.ID, SetActiveEditorWriteableInSession.LABEL, false);
+  }
+}
+class ToggleActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
+  static {
+    __name(this, "ToggleActiveEditorReadonlyInSession");
+  }
+  static {
+    this.ID = "workbench.action.files.toggleActiveEditorReadonlyInSession";
+  }
+  static {
+    this.LABEL = nls.localize2("toggleActiveEditorReadonlyInSession", "Toggle Active Editor Read-only in Session");
+  }
+  constructor() {
+    super(ToggleActiveEditorReadonlyInSession.ID, ToggleActiveEditorReadonlyInSession.LABEL, "toggle");
+  }
+}
+class ResetActiveEditorReadonlyInSession extends BaseSetActiveEditorReadonlyInSession {
+  static {
+    __name(this, "ResetActiveEditorReadonlyInSession");
+  }
+  static {
+    this.ID = "workbench.action.files.resetActiveEditorReadonlyInSession";
+  }
+  static {
+    this.LABEL = nls.localize2("resetActiveEditorReadonlyInSession", "Reset Active Editor Read-only in Session");
+  }
+  constructor() {
+    super(ResetActiveEditorReadonlyInSession.ID, ResetActiveEditorReadonlyInSession.LABEL, "reset");
+  }
+}
+export {
+  COPY_FILE_LABEL,
+  CloseGroupAction,
+  CompareNewUntitledTextFilesAction,
+  CompareWithClipboardAction,
+  DOWNLOAD_COMMAND_ID,
+  DOWNLOAD_LABEL,
+  FileCopiedContext,
+  FocusFilesExplorer,
+  GlobalCompareResourcesAction,
+  MOVE_FILE_TO_TRASH_LABEL,
+  NEW_FILE_COMMAND_ID,
+  NEW_FILE_LABEL,
+  NEW_FOLDER_COMMAND_ID,
+  NEW_FOLDER_LABEL,
+  OpenActiveFileInEmptyWorkspace,
+  PASTE_FILE_LABEL,
+  ResetActiveEditorReadonlyInSession,
+  SaveAllInGroupAction,
+  SetActiveEditorReadonlyInSession,
+  SetActiveEditorWriteableInSession,
+  ShowActiveFileInExplorer,
+  TRIGGER_RENAME_LABEL,
+  ToggleActiveEditorReadonlyInSession,
+  ToggleAutoSaveAction,
+  UPLOAD_COMMAND_ID,
+  UPLOAD_LABEL,
+  copyFileHandler,
+  cutFileHandler,
+  deleteFileHandler,
+  findValidPasteFileTarget,
+  incrementFileName,
+  moveFileToTrashHandler,
+  openFilePreserveFocusHandler,
+  pasteFileHandler,
+  renameHandler,
+  validateFileName
+};
+//# sourceMappingURL=fileActions.js.map

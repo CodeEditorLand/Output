@@ -1,1 +1,167 @@
-import{n as l}from"../../../../../../../base/browser/dom.js";import{Event as $}from"../../../../../../../base/common/event.js";import{$Ed as I}from"../../../../../../../base/common/lifecycle.js";import{constObservable as m,derived as o,derivedObservableWithCache as N}from"../../../../../../../base/common/observable.js";import{$Vp as b}from"../../../../../../../platform/theme/common/colorUtils.js";import{$Ihb as S}from"../../../../../../browser/observableCodeEditor.js";import{Rect as g}from"../../../../../../common/core/2d/rect.js";import{$eE as w}from"../../../../../../common/core/ranges/offsetRange.js";import{$8D as R}from"../../../../../../common/core/position.js";import{$Mtb as A,$Ktb as C,$Otb as _,$ttb as B}from"../theme.js";import{$Stb as W,$3tb as P,$Ptb as H}from"../utils/utils.js";import{InlineCompletionEditorType as v}from"../../../model/provideInlineCompletions.js";const k=0,F=0,p=1,G=1,z=3,f=_;class ot extends I{constructor(E,y,L,T){super(),this.h=E,this.j=y,this.m=L,this.q=T,this.onDidClick=$.None,this.t=o(this,t=>this.m.read(t)?"block":"none"),this.u=o(this,t=>{const i=this.g.read(t);return i?(this.a.versionId.read(t),N(this,(r,s)=>{const n=H(this.a,i,r);return Math.max(n,s??0)})):m(0)}).map((t,i)=>t.read(i)),this.z=o(this,t=>{const i=this.m.read(t);return i?W(i.deletions,i.originalRange,[],this.h):{prefixTrim:0,prefixLeftOffset:0}}),this.C=o(this,t=>{const i=this.j.read(t);if(!i||!this.m.read(t))return null;const s=this.a.layoutInfo.read(t),n=this.a.scrollLeft.read(t),h=this.a.getOption(59).map(O=>O.typicalHalfwidthCharacterWidth).read(t),a=s.contentLeft+Math.max(this.u.read(t),h)-n,e=i.originalLineRange,c=this.b.read(t)??this.h.getTopForLineNumber(e.startLineNumber)-this.a.scrollTop.read(t),d=this.c.read(t)??this.h.getTopForLineNumber(e.endLineNumberExclusive)-this.a.scrollTop.read(t),u=s.contentLeft+this.z.read(t).prefixLeftOffset-n;return a<=u?null:{codeRect:g.fromLeftTopRightBottom(u,c,a,d).withMargin(F,k),contentLeft:s.contentLeft}}).recomputeInitiallyAndOnChange(this.B),this.F=l.div({style:{pointerEvents:"none"}},o(this,t=>{const i=P(this.C).read(t);if(!i)return;const r=i.map(e=>g.fromLeftTopRightBottom(e.contentLeft-f-p,e.codeRect.top,e.contentLeft,e.codeRect.bottom)),s=o(this,e=>{const c=i.read(e).codeRect,d=r.read(e);return c.intersectHorizontal(new w(d.left,Number.MAX_SAFE_INTEGER))}),n=this.m.map(e=>e?.editorType===v.DiffEditor?z:G).read(t),h=s.map(e=>e.withMargin(n,n)),a=A(this.m.map(e=>e?.editorType??v.TextEditor).read(t));return[l.div({class:"originalSeparatorDeletion",style:{...h.read(t).toStyles(),borderRadius:`${f}px`,border:`${p+n}px solid ${a}`,boxSizing:"border-box"}}),l.div({class:"originalOverlayDeletion",style:{...s.read(t).toStyles(),borderRadius:`${f}px`,border:C(this.q).map(e=>`${p}px solid ${b(e)}`),boxSizing:"border-box",backgroundColor:b(B)}}),l.div({class:"originalOverlayHiderDeletion",style:{...r.read(t).toStyles(),backgroundColor:a}})]})).keepUpdated(this.B),this.G=l.div({class:"inline-edits-view",style:{position:"absolute",overflow:"visible",top:"0px",left:"0px",display:this.t}},[[this.F]]).keepUpdated(this.B),this.isHovered=m(!1),this.a=S(this.h);const x=o(this,t=>{const i=this.j.read(t);return i?new R(i.originalLineRange.startLineNumber,1):null}),D=o(this,t=>{const i=this.j.read(t);return i?new R(i.originalLineRange.endLineNumberExclusive,1):null});this.g=this.m.map(t=>t?.originalRange),this.b=this.a.observePosition(x,this.B).map(t=>t?.y),this.c=this.a.observePosition(D,this.B).map(t=>t?.y),this.D(this.a.createOverlayWidget({domNode:this.G.element,position:m(null),allowEditorOverflow:!1,minContentWidthInPx:o(this,t=>{const i=this.C.read(t);return i===null?0:i.codeRect.width})}))}}export{ot as $eub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { n } from "../../../../../../../base/browser/dom.js";
+import { Event } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { constObservable, derived, derivedObservableWithCache } from "../../../../../../../base/common/observable.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { observableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { Position } from "../../../../../../common/core/position.js";
+import { getEditorBackgroundColor, getOriginalBorderColor, INLINE_EDITS_BORDER_RADIUS, originalBackgroundColor } from "../theme.js";
+import { getPrefixTrim, mapOutFalsy, maxContentWidthInRange } from "../utils/utils.js";
+import { InlineCompletionEditorType } from "../../../model/provideInlineCompletions.js";
+const HORIZONTAL_PADDING = 0;
+const VERTICAL_PADDING = 0;
+const BORDER_WIDTH = 1;
+const WIDGET_SEPARATOR_WIDTH = 1;
+const WIDGET_SEPARATOR_DIFF_EDITOR_WIDTH = 3;
+const BORDER_RADIUS = INLINE_EDITS_BORDER_RADIUS;
+class InlineEditsDeletionView extends Disposable {
+  static {
+    __name(this, "InlineEditsDeletionView");
+  }
+  constructor(_editor, _edit, _uiState, _tabAction) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._uiState = _uiState;
+    this._tabAction = _tabAction;
+    this.onDidClick = Event.None;
+    this._display = derived(this, (reader) => !!this._uiState.read(reader) ? "block" : "none");
+    this._editorMaxContentWidthInRange = derived(this, (reader) => {
+      const originalDisplayRange = this._originalDisplayRange.read(reader);
+      if (!originalDisplayRange) {
+        return constObservable(0);
+      }
+      this._editorObs.versionId.read(reader);
+      return derivedObservableWithCache(this, (reader2, lastValue) => {
+        const maxWidth = maxContentWidthInRange(this._editorObs, originalDisplayRange, reader2);
+        return Math.max(maxWidth, lastValue ?? 0);
+      });
+    }).map((v, r) => v.read(r));
+    this._maxPrefixTrim = derived(this, (reader) => {
+      const state = this._uiState.read(reader);
+      if (!state) {
+        return { prefixTrim: 0, prefixLeftOffset: 0 };
+      }
+      return getPrefixTrim(state.deletions, state.originalRange, [], this._editor);
+    });
+    this._editorLayoutInfo = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      if (!inlineEdit) {
+        return null;
+      }
+      const state = this._uiState.read(reader);
+      if (!state) {
+        return null;
+      }
+      const editorLayout = this._editorObs.layoutInfo.read(reader);
+      const horizontalScrollOffset = this._editorObs.scrollLeft.read(reader);
+      const w = this._editorObs.getOption(
+        59
+        /* EditorOption.fontInfo */
+      ).map((f) => f.typicalHalfwidthCharacterWidth).read(reader);
+      const right = editorLayout.contentLeft + Math.max(this._editorMaxContentWidthInRange.read(reader), w) - horizontalScrollOffset;
+      const range = inlineEdit.originalLineRange;
+      const selectionTop = this._originalVerticalStartPosition.read(reader) ?? this._editor.getTopForLineNumber(range.startLineNumber) - this._editorObs.scrollTop.read(reader);
+      const selectionBottom = this._originalVerticalEndPosition.read(reader) ?? this._editor.getTopForLineNumber(range.endLineNumberExclusive) - this._editorObs.scrollTop.read(reader);
+      const left = editorLayout.contentLeft + this._maxPrefixTrim.read(reader).prefixLeftOffset - horizontalScrollOffset;
+      if (right <= left) {
+        return null;
+      }
+      const codeRect = Rect.fromLeftTopRightBottom(left, selectionTop, right, selectionBottom).withMargin(VERTICAL_PADDING, HORIZONTAL_PADDING);
+      return {
+        codeRect,
+        contentLeft: editorLayout.contentLeft
+      };
+    }).recomputeInitiallyAndOnChange(this._store);
+    this._originalOverlay = n.div({
+      style: { pointerEvents: "none" }
+    }, derived(this, (reader) => {
+      const layoutInfoObs = mapOutFalsy(this._editorLayoutInfo).read(reader);
+      if (!layoutInfoObs) {
+        return void 0;
+      }
+      const overlayhider = layoutInfoObs.map((layoutInfo) => Rect.fromLeftTopRightBottom(layoutInfo.contentLeft - BORDER_RADIUS - BORDER_WIDTH, layoutInfo.codeRect.top, layoutInfo.contentLeft, layoutInfo.codeRect.bottom));
+      const overlayRect = derived(this, (reader2) => {
+        const rect = layoutInfoObs.read(reader2).codeRect;
+        const overlayHider = overlayhider.read(reader2);
+        return rect.intersectHorizontal(new OffsetRange(overlayHider.left, Number.MAX_SAFE_INTEGER));
+      });
+      const separatorWidth = this._uiState.map((s) => s?.editorType === InlineCompletionEditorType.DiffEditor ? WIDGET_SEPARATOR_DIFF_EDITOR_WIDTH : WIDGET_SEPARATOR_WIDTH).read(reader);
+      const separatorRect = overlayRect.map((rect) => rect.withMargin(separatorWidth, separatorWidth));
+      const editorBackground = getEditorBackgroundColor(this._uiState.map((s) => s?.editorType ?? InlineCompletionEditorType.TextEditor).read(reader));
+      return [
+        n.div({
+          class: "originalSeparatorDeletion",
+          style: {
+            ...separatorRect.read(reader).toStyles(),
+            borderRadius: `${BORDER_RADIUS}px`,
+            border: `${BORDER_WIDTH + separatorWidth}px solid ${editorBackground}`,
+            boxSizing: "border-box"
+          }
+        }),
+        n.div({
+          class: "originalOverlayDeletion",
+          style: {
+            ...overlayRect.read(reader).toStyles(),
+            borderRadius: `${BORDER_RADIUS}px`,
+            border: getOriginalBorderColor(this._tabAction).map((bc) => `${BORDER_WIDTH}px solid ${asCssVariable(bc)}`),
+            boxSizing: "border-box",
+            backgroundColor: asCssVariable(originalBackgroundColor)
+          }
+        }),
+        n.div({
+          class: "originalOverlayHiderDeletion",
+          style: {
+            ...overlayhider.read(reader).toStyles(),
+            backgroundColor: editorBackground
+          }
+        })
+      ];
+    })).keepUpdated(this._store);
+    this._nonOverflowView = n.div({
+      class: "inline-edits-view",
+      style: {
+        position: "absolute",
+        overflow: "visible",
+        top: "0px",
+        left: "0px",
+        display: this._display
+      }
+    }, [
+      [this._originalOverlay]
+    ]).keepUpdated(this._store);
+    this.isHovered = constObservable(false);
+    this._editorObs = observableCodeEditor(this._editor);
+    const originalStartPosition = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      return inlineEdit ? new Position(inlineEdit.originalLineRange.startLineNumber, 1) : null;
+    });
+    const originalEndPosition = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      return inlineEdit ? new Position(inlineEdit.originalLineRange.endLineNumberExclusive, 1) : null;
+    });
+    this._originalDisplayRange = this._uiState.map((s) => s?.originalRange);
+    this._originalVerticalStartPosition = this._editorObs.observePosition(originalStartPosition, this._store).map((p) => p?.y);
+    this._originalVerticalEndPosition = this._editorObs.observePosition(originalEndPosition, this._store).map((p) => p?.y);
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: this._nonOverflowView.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: derived(this, (reader) => {
+        const info = this._editorLayoutInfo.read(reader);
+        if (info === null) {
+          return 0;
+        }
+        return info.codeRect.width;
+      })
+    }));
+  }
+}
+export {
+  InlineEditsDeletionView
+};
+//# sourceMappingURL=inlineEditsDeletionView.js.map

@@ -1,1 +1,67 @@
-import{BugIndicatingError as t}from"./commonFacade/deps.js";function i(a){return{createChangeSummary:e=>({changes:[]}),handleChange(e,r){for(const n in a)e.didChange(a[n])&&r.changes.push({key:n,change:e.change});return!0},beforeUpdate(e,r){for(const n in a){if(n==="changes")throw new t('property name "changes" is reserved for change tracking');r[n]=a[n].read(e)}}}}function c(a){let e;return{createChangeSummary:r=>({changes:[]}),handleChange(r,n){e||(e=a());for(const h in e)r.didChange(e[h])&&n.changes.push({key:h,change:r.change});return!0},beforeUpdate(r,n){e||(e=a());for(const h in e){if(h==="changes")throw new t('property name "changes" is reserved for change tracking');n[h]=e[h].read(r)}}}}export{c as $0d,i as $9d};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BugIndicatingError } from "./commonFacade/deps.js";
+function recordChanges(obs) {
+  return {
+    createChangeSummary: /* @__PURE__ */ __name((_previousChangeSummary) => {
+      return {
+        changes: []
+      };
+    }, "createChangeSummary"),
+    handleChange(ctx, changeSummary) {
+      for (const key in obs) {
+        if (ctx.didChange(obs[key])) {
+          changeSummary.changes.push({ key, change: ctx.change });
+        }
+      }
+      return true;
+    },
+    beforeUpdate(reader, changeSummary) {
+      for (const key in obs) {
+        if (key === "changes") {
+          throw new BugIndicatingError('property name "changes" is reserved for change tracking');
+        }
+        changeSummary[key] = obs[key].read(reader);
+      }
+    }
+  };
+}
+__name(recordChanges, "recordChanges");
+function recordChangesLazy(getObs) {
+  let obs = void 0;
+  return {
+    createChangeSummary: /* @__PURE__ */ __name((_previousChangeSummary) => {
+      return {
+        changes: []
+      };
+    }, "createChangeSummary"),
+    handleChange(ctx, changeSummary) {
+      if (!obs) {
+        obs = getObs();
+      }
+      for (const key in obs) {
+        if (ctx.didChange(obs[key])) {
+          changeSummary.changes.push({ key, change: ctx.change });
+        }
+      }
+      return true;
+    },
+    beforeUpdate(reader, changeSummary) {
+      if (!obs) {
+        obs = getObs();
+      }
+      for (const key in obs) {
+        if (key === "changes") {
+          throw new BugIndicatingError('property name "changes" is reserved for change tracking');
+        }
+        changeSummary[key] = obs[key].read(reader);
+      }
+    }
+  };
+}
+__name(recordChangesLazy, "recordChangesLazy");
+export {
+  recordChanges,
+  recordChangesLazy
+};
+//# sourceMappingURL=changeTracker.js.map

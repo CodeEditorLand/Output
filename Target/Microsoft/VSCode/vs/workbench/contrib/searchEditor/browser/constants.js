@@ -1,1 +1,22 @@
-import{$po as o}from"../../../../platform/contextkey/common/contextkey.js";const r=new o("inSearchEditor",!1),c="search-editor",e="search/editor",n="searchEditorFindMatch",h="workbench.editor.searchEditor",s="search.action.openNewEditor",i="search.action.openEditor",p="toggleSearchEditorContextLines",a="workbench.editorinputs.searchEditorInput";export{h as $Ahc,s as $Bhc,i as $Chc,p as $Dhc,a as $Ehc,r as $whc,c as $xhc,e as $yhc,n as $zhc};
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+const InSearchEditor = new RawContextKey("inSearchEditor", false);
+const SearchEditorScheme = "search-editor";
+const SearchEditorWorkingCopyTypeId = "search/editor";
+const SearchEditorFindMatchClass = "searchEditorFindMatch";
+const SearchEditorID = "workbench.editor.searchEditor";
+const OpenNewEditorCommandId = "search.action.openNewEditor";
+const OpenEditorCommandId = "search.action.openEditor";
+const ToggleSearchEditorContextLinesCommandId = "toggleSearchEditorContextLines";
+const SearchEditorInputTypeId = "workbench.editorinputs.searchEditorInput";
+export {
+  InSearchEditor,
+  OpenEditorCommandId,
+  OpenNewEditorCommandId,
+  SearchEditorFindMatchClass,
+  SearchEditorID,
+  SearchEditorInputTypeId,
+  SearchEditorScheme,
+  SearchEditorWorkingCopyTypeId,
+  ToggleSearchEditorContextLinesCommandId
+};
+//# sourceMappingURL=constants.js.map

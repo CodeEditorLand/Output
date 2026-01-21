@@ -1,1 +1,532 @@
-import{$ as Lt,getWindow as J,n as a}from"../../../../../../../base/browser/dom.js";import{$Tp as Rt}from"../../../../../../../base/common/color.js";import{$wf as yt}from"../../../../../../../base/common/event.js";import{$Ed as wt}from"../../../../../../../base/common/lifecycle.js";import{autorun as K,constObservable as A,derived as l,derivedObservableWithCache as St,observableFromEvent as Q}from"../../../../../../../base/common/observable.js";import{$Lj as Et}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$Vp as O}from"../../../../../../../platform/theme/common/colorUtils.js";import{$ou as Ct}from"../../../../../../../platform/theme/common/themeService.js";import{$Ihb as z}from"../../../../../../browser/observableCodeEditor.js";import{Rect as T}from"../../../../../../common/core/2d/rect.js";import{$1nb as xt}from"../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{$eE as Tt}from"../../../../../../common/core/ranges/offsetRange.js";import{$8D as tt}from"../../../../../../common/core/position.js";import{$9D as et}from"../../../../../../common/core/range.js";import{$stb as It}from"../../../../../stickyScroll/browser/stickyScrollController.js";import{$Emb as Wt}from"../../../controller/inlineCompletionContextKeys.js";import{$tnb as $t}from"../inlineEditsViewInterface.js";import{$Mtb as Dt,$Ltb as it,$Jtb as ot,$Ktb as Nt,$Otb as Bt,$utb as Ot,$ttb as F}from"../theme.js";import{$1tb as Mt,$Ttb as Ht,$Rtb as Pt,$3tb as nt,$Ptb as G,$6tb as _t}from"../utils/utils.js";import{InlineCompletionEditorType as st}from"../../../model/provideInlineCompletions.js";var vt=function(x,c,u,g){var b=arguments.length,h=b<3?c:g===null?g=Object.getOwnPropertyDescriptor(c,u):g,y;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")h=Reflect.decorate(x,c,u,g);else for(var w=x.length-1;w>=0;w--)(y=x[w])&&(h=(b<3?y(h):b>3?y(c,u,h):y(c,u))||h);return b>3&&h&&Object.defineProperty(c,u,h),h},q=function(x,c){return function(u,g){c(u,g,x)}};const I=0,D=0,kt=!1,v=1,At=1,zt=3,R=Bt,U=20,rt=12;let dt=class extends wt{static fitsInsideViewport(c,u,g,b){const h=z(c),y=h.layoutInfoWidth.read(b),w=h.layoutInfoContentLeft.read(b),N=c.getLayoutInfo().verticalScrollbarWidth,M=h.layoutInfoMinimap.read(b).minimapLeft!==0?h.layoutInfoMinimap.read(b).minimapWidth:0,t=G(h,g.displayRange,void 0),e=g.lineEdit.newLines.reduce((i,f)=>Math.max(i,Ht(f,c,u)),0),o=U,s=rt+2*v;return t+e+o+s<y-w-N-M}constructor(c,u,g,b,h,y,w){super(),this.f=c,this.g=u,this.j=g,this.m=b,this.q=h,this.t=y,this.u=w,this.b=this.D(new yt),this.onDidClick=this.b.event,this.a=z(this.f),this.w=l(this,t=>this.m.read(t)?"block":"none"),this.z=a.ref();const N=this.m.map(t=>t?.editorType===st.DiffEditor?zt:At);this.C=a.div({class:["editorContainer"],style:{position:"absolute",overflow:"hidden",cursor:"pointer"},onmousedown:t=>{t.preventDefault()},onclick:t=>{this.b.fire($t.create(t))}},[a.div({class:"preview",style:{pointerEvents:"none"},ref:this.z})]).keepUpdated(this.B),this.isHovered=this.C.didMouseMoveDuringHover,this.previewEditor=this.D(this.t.createInstance(xt,this.z.element,{glyphMargin:!1,lineNumbers:"off",minimap:{enabled:!1},guides:{indentation:!1,bracketPairs:!1,bracketPairsHorizontal:!1,highlightActiveIndentation:!1},editContext:!1,rulers:[],padding:{top:0,bottom:0},folding:!1,selectOnLineNumbers:!1,selectionHighlight:!1,columnSelection:!1,overviewRulerBorder:!1,overviewRulerLanes:0,lineDecorationsWidth:0,lineNumbersMinChars:0,revealHorizontalRightPadding:0,bracketPairColorization:{enabled:!0,independentColorPoolPerBracketType:!1},scrollBeyondLastLine:!1,scrollbar:{vertical:"hidden",horizontal:"hidden",handleMouseWheel:!1},readOnly:!0,wordWrap:"off",wordWrapOverride1:"off",wordWrapOverride2:"off"},{contextKeyValues:{[Wt.inInlineEditsPreviewEditor.key]:!0},contributions:[]},this.f)),this.F=z(this.previewEditor),this.G=[],this.H=l(this,t=>{this.C.readEffect(t),this.F.model.read(t),this.w.read(t),this.cb&&(this.cb.element.style.display=this.w.read(t));const e=this.m.read(t),o=this.g.read(t);if(!e||!o)return;const s=o.originalLineRange,i=[];s.startLineNumber>1&&i.push(new et(1,1,s.startLineNumber-1,1)),s.startLineNumber+e.newTextLineCount<this.j.getLineCount()+1&&i.push(new et(s.startLineNumber+e.newTextLineCount,1,this.j.getLineCount()+1,1)),this.previewEditor.setHiddenAreas(i,void 0,!0);const f=[...this.G];this.G=[];const d=s.endLineNumberExclusive-s.startLineNumber-e.newTextLineCount;this.previewEditor.changeViewZones(m=>{f.forEach(p=>m.removeZone(p)),d>0&&this.G.push(m.addZone({afterLineNumber:s.startLineNumber+e.newTextLineCount-1,heightInLines:d,showInHiddenAreas:!0,domNode:Lt("div.diagonal-fill.inline-edits-view-zone")}))})}),this.I=l(this,t=>{const e=this.g.read(t);return e?(this.H.read(t),G(this.F,e.modifiedLineRange,t)):0}),this.J=l(this,t=>{const e=this.a.cursorPosition.read(t),o=this.g.read(t);if(!(!o||!e))return o.modifiedLineRange.contains(e.lineNumber)?e:void 0}),this.L=l(this,t=>{const e=this.g.read(t);return e?new tt(e.originalLineRange.startLineNumber,1):null}),this.M=l(this,t=>{const e=this.g.read(t);return e?new tt(e.originalLineRange.endLineNumberExclusive,1):null}),this.N=this.a.observePosition(this.L,this.B).map(t=>t?.y),this.O=this.a.observePosition(this.M,this.B).map(t=>t?.y),this.P=this.g.map(t=>t?.displayRange),this.Q=l(this,t=>{const e=this.P.read(t);return e?(this.a.versionId.read(t),St(this,(o,s)=>{const i=G(this.a,e,o);return Math.max(i,s??0)})):A(0)}).map((t,e)=>t.read(e));const M=_t(this.f,this.B);this.R=l(this,t=>{const e=this.g.read(t);if(!e||!this.m.read(t))return null;const s=e.originalLineRange,i=this.a.scrollLeft.read(t),f=this.Q.read(t),d=this.a.layoutInfo.read(t),m=this.I.read(t),p=d.contentWidth-d.verticalScrollbarWidth,S=M.read(t),E=d.contentLeft+d.contentWidth+S.left,r=J(this.f.getContainerDomNode()).innerWidth-E,L=J(this.f.getContainerDomNode()).innerWidth-S.right,C=Math.min(d.contentWidth*.3,m,100),n=0,at=n+r,j=this.J.read(t),V=Math.max(p+i-n-Math.max(0,C-at),Math.min(j?Pt(this.a,j,t)+50:0,p+i)),B=Math.min(f+U,V),ht=f+U+m+70,lt=V-B;let H,P;B>i?(H=0,P=d.contentLeft+B-i):(H=i-B,P=d.contentLeft);const _=this.N.read(t)??this.f.getTopForLineNumber(s.startLineNumber)-this.a.scrollTop.read(t),Z=this.O.read(t)??this.f.getBottomForLineNumber(s.endLineNumberExclusive-1)-this.a.scrollTop.read(t),ct=d.contentLeft-i;let W=T.fromLeftTopRightBottom(ct,_,P,Z);const k=W.height===0;k||(W=W.withMargin(D,I));const ft=this.F.observeLineHeightsForLineRange(e.modifiedLineRange).read(t).reduce((gt,bt)=>gt+bt,0),pt=Z-_,mt=Math.max(pt,ft),ut=lt===0,X=0,Y=Math.min(m+rt,L+d.width-d.contentLeft-X);let $=T.fromLeftTopWidthHeight(W.right+X,_,Y,mt);return k?$=$.withMargin(D,I).translateY(D):$=$.withMargin(D,I).translateX(I+v),{codeRect:W,editRect:$,codeScrollLeft:i,contentLeft:d.contentLeft,isInsertion:k,maxContentWidth:ht,shouldShowShadow:ut,desiredPreviewEditorScrollLeft:H,previewEditorWidth:Y}}),this.S=It.get(this.a.editor),this.U=this.S?Q(this.S.onDidChangeStickyScrollHeight,()=>this.S.stickyScrollWidgetHeight):A(0),this.W=l(this,t=>{if(!kt)return!1;const e=this.g.read(t)?.originalLineRange;if(!e)return!1;const o=this.U.read(t);return!(this.f.getTopForLineNumber(e.startLineNumber)-this.a.scrollTop.read(t)<=o||this.f.getTopForLineNumber(e.endLineNumberExclusive)-this.a.scrollTop.read(t)>=this.a.layoutInfo.read(t).height)}),this.X=Q(this,this.u.onDidColorThemeChange,()=>this.u.getColorTheme().getColor(F)??Rt.transparent),this.Y=this.m.map(t=>Dt(t?.editorType??st.TextEditor)),this.Z=a.svg({transform:"translate(-0.5 -0.5)",style:{overflow:"visible",pointerEvents:"none",position:"absolute"}},[a.svgElem("path",{class:"rightOfModifiedBackgroundCoverUp",d:l(this,t=>{const e=this.R.read(t);if(!(!e||this.X.read(t).isTransparent()))return new Mt().moveTo(e.codeRect.getRightTop()).lineTo(e.codeRect.getRightTop().deltaX(1e3)).lineTo(e.codeRect.getRightBottom().deltaX(1e3)).lineTo(e.codeRect.getRightBottom()).build()}),style:{fill:this.Y}})]).keepUpdated(this.B),this.ab=a.div({style:{pointerEvents:"none",display:this.R.map(t=>t?.isInsertion?"none":"block")}},l(this,t=>{const e=nt(this.R).read(t);if(!e)return;const o=this.Y.read(t),s=N.read(t),i=Nt(this.q).map(n=>`${v}px solid ${O(n)}`),f=`${v+s}px solid ${o}`,d=e.read(t).codeScrollLeft!==0,m=e.map(n=>n.codeRect.bottom<n.editRect.bottom),p=R*2+v*2,S=e.map(n=>T.fromLeftTopRightBottom(n.contentLeft-R-v,n.codeRect.top,n.contentLeft,n.codeRect.bottom+p)).read(t),E=new Tt(S.left,Number.MAX_SAFE_INTEGER),r=e.map(n=>n.codeRect.intersectHorizontal(E)),L=r.map(n=>n.withMargin(s,0,s,s).intersectHorizontal(E)),C=r.map(n=>T.fromLeftTopWidthHeight(n.right-p+v,n.bottom-v,p,p).intersectHorizontal(E));return[a.div({class:"originalSeparatorSideBySide",style:{...L.read(t).toStyles(),boxSizing:"border-box",borderRadius:`${R}px 0 0 ${R}px`,borderTop:f,borderBottom:f,borderLeft:d?"none":f}}),a.div({class:"originalOverlaySideBySide",style:{...r.read(t).toStyles(),boxSizing:"border-box",borderRadius:`${R}px 0 0 ${R}px`,borderTop:i,borderBottom:i,borderLeft:d?"none":i,backgroundColor:O(F)}}),a.div({class:"originalCornerCutoutSideBySide",style:{pointerEvents:"none",display:m.map(n=>n?"block":"none"),...C.read(t).toStyles()}},[a.div({class:"originalCornerCutoutBackground",style:{position:"absolute",top:"0px",left:"0px",width:"100%",height:"100%",backgroundColor:it(F,this.u).map(n=>n.toString())}}),a.div({class:"originalCornerCutoutBorder",style:{position:"absolute",top:"0px",left:"0px",width:"100%",height:"100%",boxSizing:"border-box",borderTop:i,borderRight:i,borderRadius:"0 100% 0 0",backgroundColor:o}})]),a.div({class:"originalOverlaySideBySideHider",style:{...S.toStyles(),backgroundColor:o}})]})).keepUpdated(this.B),this.bb=a.div({style:{pointerEvents:"none"}},l(this,t=>{const e=nt(this.R).read(t);if(!e)return;const o=e.map(r=>r.codeRect.bottom<r.editRect.bottom),s=this.Y.read(t),i=N.read(t),f=o.map(r=>`0 ${R}px ${R}px ${r?R:0}px`),d=it(ot(this.q),this.u).map(r=>`1px solid ${r.toString()}`),m=`${v+i}px solid ${s}`,p=e.map(r=>r.editRect.withMargin(0,v)),S=p.map(r=>r.withMargin(i,i,i,0)),E=l(this,r=>{const L=p.read(r),C=e.read(r);return!C.isInsertion||C.contentLeft>=L.left?T.fromLeftTopWidthHeight(L.left,L.top,0,0):new T(C.contentLeft,L.top,L.left,L.top+v*2)});return[a.div({class:"modifiedInsertionSideBySide",style:{...E.read(t).toStyles(),backgroundColor:ot(this.q).map(r=>O(r))}}),a.div({class:"modifiedSeparatorSideBySide",style:{...S.read(t).toStyles(),borderRadius:f,borderTop:m,borderBottom:m,borderRight:m,boxSizing:"border-box"}}),a.div({class:"modifiedOverlaySideBySide",style:{...p.read(t).toStyles(),borderRadius:f,border:d,boxSizing:"border-box",backgroundColor:O(Ot)}})]})).keepUpdated(this.B),this.cb=a.div({class:"inline-edits-view",style:{position:"absolute",overflow:"visible",top:"0px",left:"0px",display:this.w}},[this.Z,l(this,t=>this.W.read(t)?[]:[this.C,this.ab,this.bb])]).keepUpdated(this.B),this.D(this.a.createOverlayWidget({domNode:this.cb.element,position:A(null),allowEditorOverflow:!1,minContentWidthInPx:l(this,t=>{const e=this.R.read(t)?.maxContentWidth;return e===void 0?0:e})})),this.previewEditor.setModel(this.j),this.D(K(t=>{const e=this.R.read(t);if(!e)return;const o=e.editRect.withMargin(-D,-I);this.previewEditor.layout({height:o.height,width:e.previewEditorWidth+15}),this.C.element.style.top=`${o.top}px`,this.C.element.style.left=`${o.left}px`,this.C.element.style.width=`${e.previewEditorWidth+I}px`})),this.D(K(t=>{const e=this.R.read(t);e&&this.F.editor.setScrollLeft(e.desiredPreviewEditorScrollLeft)})),this.H.recomputeInitiallyAndOnChange(this.B)}};dt=vt([q(5,Et),q(6,Ct)],dt);export{dt as $wub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, getWindow, n } from "../../../../../../../base/browser/dom.js";
+import { Color } from "../../../../../../../base/common/color.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, derived, derivedObservableWithCache, observableFromEvent } from "../../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { observableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { EmbeddedCodeEditorWidget } from "../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { Position } from "../../../../../../common/core/position.js";
+import { Range } from "../../../../../../common/core/range.js";
+import { StickyScrollController } from "../../../../../stickyScroll/browser/stickyScrollController.js";
+import { InlineCompletionContextKeys } from "../../../controller/inlineCompletionContextKeys.js";
+import { InlineEditClickEvent } from "../inlineEditsViewInterface.js";
+import { getEditorBackgroundColor, getEditorBlendedColor, getModifiedBorderColor, getOriginalBorderColor, INLINE_EDITS_BORDER_RADIUS, modifiedBackgroundColor, originalBackgroundColor } from "../theme.js";
+import { PathBuilder, getContentRenderWidth, getOffsetForPos, mapOutFalsy, maxContentWidthInRange, observeEditorBoundingClientRect } from "../utils/utils.js";
+import { InlineCompletionEditorType } from "../../../model/provideInlineCompletions.js";
+const HORIZONTAL_PADDING = 0;
+const VERTICAL_PADDING = 0;
+const ENABLE_OVERFLOW = false;
+const BORDER_WIDTH = 1;
+const WIDGET_SEPARATOR_WIDTH = 1;
+const WIDGET_SEPARATOR_DIFF_EDITOR_WIDTH = 3;
+const BORDER_RADIUS = INLINE_EDITS_BORDER_RADIUS;
+const ORIGINAL_END_PADDING = 20;
+const MODIFIED_END_PADDING = 12;
+let InlineEditsSideBySideView = class InlineEditsSideBySideView2 extends Disposable {
+  static {
+    __name(this, "InlineEditsSideBySideView");
+  }
+  // This is an approximation and should be improved by using the real parameters used bellow
+  static fitsInsideViewport(editor, textModel, edit, reader) {
+    const editorObs = observableCodeEditor(editor);
+    const editorWidth = editorObs.layoutInfoWidth.read(reader);
+    const editorContentLeft = editorObs.layoutInfoContentLeft.read(reader);
+    const editorVerticalScrollbar = editor.getLayoutInfo().verticalScrollbarWidth;
+    const minimapWidth = editorObs.layoutInfoMinimap.read(reader).minimapLeft !== 0 ? editorObs.layoutInfoMinimap.read(reader).minimapWidth : 0;
+    const maxOriginalContent = maxContentWidthInRange(
+      editorObs,
+      edit.displayRange,
+      void 0
+      /* do not reconsider on each layout info change */
+    );
+    const maxModifiedContent = edit.lineEdit.newLines.reduce((max, line) => Math.max(max, getContentRenderWidth(line, editor, textModel)), 0);
+    const originalPadding = ORIGINAL_END_PADDING;
+    const modifiedPadding = MODIFIED_END_PADDING + 2 * BORDER_WIDTH;
+    return maxOriginalContent + maxModifiedContent + originalPadding + modifiedPadding < editorWidth - editorContentLeft - editorVerticalScrollbar - minimapWidth;
+  }
+  constructor(_editor, _edit, _previewTextModel, _uiState, _tabAction, _instantiationService, _themeService) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._previewTextModel = _previewTextModel;
+    this._uiState = _uiState;
+    this._tabAction = _tabAction;
+    this._instantiationService = _instantiationService;
+    this._themeService = _themeService;
+    this._onDidClick = this._register(new Emitter());
+    this.onDidClick = this._onDidClick.event;
+    this._editorObs = observableCodeEditor(this._editor);
+    this._display = derived(this, (reader) => !!this._uiState.read(reader) ? "block" : "none");
+    this.previewRef = n.ref();
+    const separatorWidthObs = this._uiState.map((s) => s?.editorType === InlineCompletionEditorType.DiffEditor ? WIDGET_SEPARATOR_DIFF_EDITOR_WIDTH : WIDGET_SEPARATOR_WIDTH);
+    this._editorContainer = n.div({
+      class: ["editorContainer"],
+      style: { position: "absolute", overflow: "hidden", cursor: "pointer" },
+      onmousedown: /* @__PURE__ */ __name((e) => {
+        e.preventDefault();
+      }, "onmousedown"),
+      onclick: /* @__PURE__ */ __name((e) => {
+        this._onDidClick.fire(InlineEditClickEvent.create(e));
+      }, "onclick")
+    }, [
+      n.div({ class: "preview", style: { pointerEvents: "none" }, ref: this.previewRef })
+    ]).keepUpdated(this._store);
+    this.isHovered = this._editorContainer.didMouseMoveDuringHover;
+    this.previewEditor = this._register(this._instantiationService.createInstance(EmbeddedCodeEditorWidget, this.previewRef.element, {
+      glyphMargin: false,
+      lineNumbers: "off",
+      minimap: { enabled: false },
+      guides: {
+        indentation: false,
+        bracketPairs: false,
+        bracketPairsHorizontal: false,
+        highlightActiveIndentation: false
+      },
+      editContext: false,
+      // is a bit faster
+      rulers: [],
+      padding: { top: 0, bottom: 0 },
+      folding: false,
+      selectOnLineNumbers: false,
+      selectionHighlight: false,
+      columnSelection: false,
+      overviewRulerBorder: false,
+      overviewRulerLanes: 0,
+      lineDecorationsWidth: 0,
+      lineNumbersMinChars: 0,
+      revealHorizontalRightPadding: 0,
+      bracketPairColorization: { enabled: true, independentColorPoolPerBracketType: false },
+      scrollBeyondLastLine: false,
+      scrollbar: {
+        vertical: "hidden",
+        horizontal: "hidden",
+        handleMouseWheel: false
+      },
+      readOnly: true,
+      wordWrap: "off",
+      wordWrapOverride1: "off",
+      wordWrapOverride2: "off"
+    }, {
+      contextKeyValues: {
+        [InlineCompletionContextKeys.inInlineEditsPreviewEditor.key]: true
+      },
+      contributions: []
+    }, this._editor));
+    this._previewEditorObs = observableCodeEditor(this.previewEditor);
+    this._activeViewZones = [];
+    this._updatePreviewEditor = derived(this, (reader) => {
+      this._editorContainer.readEffect(reader);
+      this._previewEditorObs.model.read(reader);
+      this._display.read(reader);
+      if (this._nonOverflowView) {
+        this._nonOverflowView.element.style.display = this._display.read(reader);
+      }
+      const uiState = this._uiState.read(reader);
+      const edit = this._edit.read(reader);
+      if (!uiState || !edit) {
+        return;
+      }
+      const range = edit.originalLineRange;
+      const hiddenAreas = [];
+      if (range.startLineNumber > 1) {
+        hiddenAreas.push(new Range(1, 1, range.startLineNumber - 1, 1));
+      }
+      if (range.startLineNumber + uiState.newTextLineCount < this._previewTextModel.getLineCount() + 1) {
+        hiddenAreas.push(new Range(range.startLineNumber + uiState.newTextLineCount, 1, this._previewTextModel.getLineCount() + 1, 1));
+      }
+      this.previewEditor.setHiddenAreas(hiddenAreas, void 0, true);
+      const previousViewZones = [...this._activeViewZones];
+      this._activeViewZones = [];
+      const reducedLinesCount = range.endLineNumberExclusive - range.startLineNumber - uiState.newTextLineCount;
+      this.previewEditor.changeViewZones((changeAccessor) => {
+        previousViewZones.forEach((id) => changeAccessor.removeZone(id));
+        if (reducedLinesCount > 0) {
+          this._activeViewZones.push(changeAccessor.addZone({
+            afterLineNumber: range.startLineNumber + uiState.newTextLineCount - 1,
+            heightInLines: reducedLinesCount,
+            showInHiddenAreas: true,
+            domNode: $("div.diagonal-fill.inline-edits-view-zone")
+          }));
+        }
+      });
+    });
+    this._previewEditorWidth = derived(this, (reader) => {
+      const edit = this._edit.read(reader);
+      if (!edit) {
+        return 0;
+      }
+      this._updatePreviewEditor.read(reader);
+      return maxContentWidthInRange(this._previewEditorObs, edit.modifiedLineRange, reader);
+    });
+    this._cursorPosIfTouchesEdit = derived(this, (reader) => {
+      const cursorPos = this._editorObs.cursorPosition.read(reader);
+      const edit = this._edit.read(reader);
+      if (!edit || !cursorPos) {
+        return void 0;
+      }
+      return edit.modifiedLineRange.contains(cursorPos.lineNumber) ? cursorPos : void 0;
+    });
+    this._originalStartPosition = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      return inlineEdit ? new Position(inlineEdit.originalLineRange.startLineNumber, 1) : null;
+    });
+    this._originalEndPosition = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      return inlineEdit ? new Position(inlineEdit.originalLineRange.endLineNumberExclusive, 1) : null;
+    });
+    this._originalVerticalStartPosition = this._editorObs.observePosition(this._originalStartPosition, this._store).map((p) => p?.y);
+    this._originalVerticalEndPosition = this._editorObs.observePosition(this._originalEndPosition, this._store).map((p) => p?.y);
+    this._originalDisplayRange = this._edit.map((e) => e?.displayRange);
+    this._editorMaxContentWidthInRange = derived(this, (reader) => {
+      const originalDisplayRange = this._originalDisplayRange.read(reader);
+      if (!originalDisplayRange) {
+        return constObservable(0);
+      }
+      this._editorObs.versionId.read(reader);
+      return derivedObservableWithCache(this, (reader2, lastValue) => {
+        const maxWidth = maxContentWidthInRange(this._editorObs, originalDisplayRange, reader2);
+        return Math.max(maxWidth, lastValue ?? 0);
+      });
+    }).map((v, r) => v.read(r));
+    const editorDomContentRect = observeEditorBoundingClientRect(this._editor, this._store);
+    this._previewEditorLayoutInfo = derived(this, (reader) => {
+      const inlineEdit = this._edit.read(reader);
+      if (!inlineEdit) {
+        return null;
+      }
+      const state = this._uiState.read(reader);
+      if (!state) {
+        return null;
+      }
+      const range = inlineEdit.originalLineRange;
+      const horizontalScrollOffset = this._editorObs.scrollLeft.read(reader);
+      const editorContentMaxWidthInRange = this._editorMaxContentWidthInRange.read(reader);
+      const editorLayout = this._editorObs.layoutInfo.read(reader);
+      const previewContentWidth = this._previewEditorWidth.read(reader);
+      const editorContentAreaWidth = editorLayout.contentWidth - editorLayout.verticalScrollbarWidth;
+      const editorBoundingClientRect = editorDomContentRect.read(reader);
+      const clientContentAreaRight = editorLayout.contentLeft + editorLayout.contentWidth + editorBoundingClientRect.left;
+      const remainingWidthRightOfContent = getWindow(this._editor.getContainerDomNode()).innerWidth - clientContentAreaRight;
+      const remainingWidthRightOfEditor = getWindow(this._editor.getContainerDomNode()).innerWidth - editorBoundingClientRect.right;
+      const desiredMinimumWidth = Math.min(editorLayout.contentWidth * 0.3, previewContentWidth, 100);
+      const IN_EDITOR_DISPLACEMENT = 0;
+      const maximumAvailableWidth = IN_EDITOR_DISPLACEMENT + remainingWidthRightOfContent;
+      const cursorPos = this._cursorPosIfTouchesEdit.read(reader);
+      const maxPreviewEditorLeft = Math.max(
+        // We're starting from the content area right and moving it left by IN_EDITOR_DISPLACEMENT and also by an amount to ensure some minimum desired width
+        editorContentAreaWidth + horizontalScrollOffset - IN_EDITOR_DISPLACEMENT - Math.max(0, desiredMinimumWidth - maximumAvailableWidth),
+        // But we don't want that the moving left ends up covering the cursor, so this will push it to the right again
+        Math.min(cursorPos ? getOffsetForPos(this._editorObs, cursorPos, reader) + 50 : 0, editorContentAreaWidth + horizontalScrollOffset)
+      );
+      const previewEditorLeftInTextArea = Math.min(editorContentMaxWidthInRange + ORIGINAL_END_PADDING, maxPreviewEditorLeft);
+      const maxContentWidth = editorContentMaxWidthInRange + ORIGINAL_END_PADDING + previewContentWidth + 70;
+      const dist = maxPreviewEditorLeft - previewEditorLeftInTextArea;
+      let desiredPreviewEditorScrollLeft;
+      let codeRight;
+      if (previewEditorLeftInTextArea > horizontalScrollOffset) {
+        desiredPreviewEditorScrollLeft = 0;
+        codeRight = editorLayout.contentLeft + previewEditorLeftInTextArea - horizontalScrollOffset;
+      } else {
+        desiredPreviewEditorScrollLeft = horizontalScrollOffset - previewEditorLeftInTextArea;
+        codeRight = editorLayout.contentLeft;
+      }
+      const selectionTop = this._originalVerticalStartPosition.read(reader) ?? this._editor.getTopForLineNumber(range.startLineNumber) - this._editorObs.scrollTop.read(reader);
+      const selectionBottom = this._originalVerticalEndPosition.read(reader) ?? this._editor.getBottomForLineNumber(range.endLineNumberExclusive - 1) - this._editorObs.scrollTop.read(reader);
+      const codeLeft = editorLayout.contentLeft - horizontalScrollOffset;
+      let codeRect = Rect.fromLeftTopRightBottom(codeLeft, selectionTop, codeRight, selectionBottom);
+      const isInsertion = codeRect.height === 0;
+      if (!isInsertion) {
+        codeRect = codeRect.withMargin(VERTICAL_PADDING, HORIZONTAL_PADDING);
+      }
+      const previewLineHeights = this._previewEditorObs.observeLineHeightsForLineRange(inlineEdit.modifiedLineRange).read(reader);
+      const editHeight = previewLineHeights.reduce((acc, h) => acc + h, 0);
+      const codeHeight = selectionBottom - selectionTop;
+      const previewEditorHeight = Math.max(codeHeight, editHeight);
+      const clipped = dist === 0;
+      const codeEditDist = 0;
+      const previewEditorWidth = Math.min(previewContentWidth + MODIFIED_END_PADDING, remainingWidthRightOfEditor + editorLayout.width - editorLayout.contentLeft - codeEditDist);
+      let editRect = Rect.fromLeftTopWidthHeight(codeRect.right + codeEditDist, selectionTop, previewEditorWidth, previewEditorHeight);
+      if (!isInsertion) {
+        editRect = editRect.withMargin(VERTICAL_PADDING, HORIZONTAL_PADDING).translateX(HORIZONTAL_PADDING + BORDER_WIDTH);
+      } else {
+        editRect = editRect.withMargin(VERTICAL_PADDING, HORIZONTAL_PADDING).translateY(VERTICAL_PADDING);
+      }
+      return {
+        codeRect,
+        editRect,
+        codeScrollLeft: horizontalScrollOffset,
+        contentLeft: editorLayout.contentLeft,
+        isInsertion,
+        maxContentWidth,
+        shouldShowShadow: clipped,
+        desiredPreviewEditorScrollLeft,
+        previewEditorWidth
+      };
+    });
+    this._stickyScrollController = StickyScrollController.get(this._editorObs.editor);
+    this._stickyScrollHeight = this._stickyScrollController ? observableFromEvent(this._stickyScrollController.onDidChangeStickyScrollHeight, () => this._stickyScrollController.stickyScrollWidgetHeight) : constObservable(0);
+    this._shouldOverflow = derived(this, (reader) => {
+      if (!ENABLE_OVERFLOW) {
+        return false;
+      }
+      const range = this._edit.read(reader)?.originalLineRange;
+      if (!range) {
+        return false;
+      }
+      const stickyScrollHeight = this._stickyScrollHeight.read(reader);
+      const top = this._editor.getTopForLineNumber(range.startLineNumber) - this._editorObs.scrollTop.read(reader);
+      if (top <= stickyScrollHeight) {
+        return false;
+      }
+      const bottom = this._editor.getTopForLineNumber(range.endLineNumberExclusive) - this._editorObs.scrollTop.read(reader);
+      if (bottom >= this._editorObs.layoutInfo.read(reader).height) {
+        return false;
+      }
+      return true;
+    });
+    this._originalBackgroundColor = observableFromEvent(this, this._themeService.onDidColorThemeChange, () => {
+      return this._themeService.getColorTheme().getColor(originalBackgroundColor) ?? Color.transparent;
+    });
+    this._editorBackgroundColor = this._uiState.map((s) => {
+      return getEditorBackgroundColor(s?.editorType ?? InlineCompletionEditorType.TextEditor);
+    });
+    this._backgroundSvg = n.svg({
+      transform: "translate(-0.5 -0.5)",
+      style: { overflow: "visible", pointerEvents: "none", position: "absolute" }
+    }, [
+      n.svgElem("path", {
+        class: "rightOfModifiedBackgroundCoverUp",
+        d: derived(this, (reader) => {
+          const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+          if (!layoutInfo) {
+            return void 0;
+          }
+          const originalBackgroundColor2 = this._originalBackgroundColor.read(reader);
+          if (originalBackgroundColor2.isTransparent()) {
+            return void 0;
+          }
+          return new PathBuilder().moveTo(layoutInfo.codeRect.getRightTop()).lineTo(layoutInfo.codeRect.getRightTop().deltaX(1e3)).lineTo(layoutInfo.codeRect.getRightBottom().deltaX(1e3)).lineTo(layoutInfo.codeRect.getRightBottom()).build();
+        }),
+        style: {
+          fill: this._editorBackgroundColor
+        }
+      })
+    ]).keepUpdated(this._store);
+    this._originalOverlay = n.div({
+      style: { pointerEvents: "none", display: this._previewEditorLayoutInfo.map((layoutInfo) => layoutInfo?.isInsertion ? "none" : "block") }
+    }, derived(this, (reader) => {
+      const layoutInfoObs = mapOutFalsy(this._previewEditorLayoutInfo).read(reader);
+      if (!layoutInfoObs) {
+        return void 0;
+      }
+      const editorBackground = this._editorBackgroundColor.read(reader);
+      const separatorWidth = separatorWidthObs.read(reader);
+      const borderStyling = getOriginalBorderColor(this._tabAction).map((bc) => `${BORDER_WIDTH}px solid ${asCssVariable(bc)}`);
+      const borderStylingSeparator = `${BORDER_WIDTH + separatorWidth}px solid ${editorBackground}`;
+      const hasBorderLeft = layoutInfoObs.read(reader).codeScrollLeft !== 0;
+      const isModifiedLower = layoutInfoObs.map((layoutInfo) => layoutInfo.codeRect.bottom < layoutInfo.editRect.bottom);
+      const transitionRectSize = BORDER_RADIUS * 2 + BORDER_WIDTH * 2;
+      const overlayHider = layoutInfoObs.map((layoutInfo) => Rect.fromLeftTopRightBottom(layoutInfo.contentLeft - BORDER_RADIUS - BORDER_WIDTH, layoutInfo.codeRect.top, layoutInfo.contentLeft, layoutInfo.codeRect.bottom + transitionRectSize)).read(reader);
+      const intersectionLine = new OffsetRange(overlayHider.left, Number.MAX_SAFE_INTEGER);
+      const overlayRect = layoutInfoObs.map((layoutInfo) => layoutInfo.codeRect.intersectHorizontal(intersectionLine));
+      const separatorRect = overlayRect.map((overlayRect2) => overlayRect2.withMargin(separatorWidth, 0, separatorWidth, separatorWidth).intersectHorizontal(intersectionLine));
+      const transitionRect = overlayRect.map((overlayRect2) => Rect.fromLeftTopWidthHeight(overlayRect2.right - transitionRectSize + BORDER_WIDTH, overlayRect2.bottom - BORDER_WIDTH, transitionRectSize, transitionRectSize).intersectHorizontal(intersectionLine));
+      return [
+        n.div({
+          class: "originalSeparatorSideBySide",
+          style: {
+            ...separatorRect.read(reader).toStyles(),
+            boxSizing: "border-box",
+            borderRadius: `${BORDER_RADIUS}px 0 0 ${BORDER_RADIUS}px`,
+            borderTop: borderStylingSeparator,
+            borderBottom: borderStylingSeparator,
+            borderLeft: hasBorderLeft ? "none" : borderStylingSeparator
+          }
+        }),
+        n.div({
+          class: "originalOverlaySideBySide",
+          style: {
+            ...overlayRect.read(reader).toStyles(),
+            boxSizing: "border-box",
+            borderRadius: `${BORDER_RADIUS}px 0 0 ${BORDER_RADIUS}px`,
+            borderTop: borderStyling,
+            borderBottom: borderStyling,
+            borderLeft: hasBorderLeft ? "none" : borderStyling,
+            backgroundColor: asCssVariable(originalBackgroundColor)
+          }
+        }),
+        n.div({
+          class: "originalCornerCutoutSideBySide",
+          style: {
+            pointerEvents: "none",
+            display: isModifiedLower.map((isLower) => isLower ? "block" : "none"),
+            ...transitionRect.read(reader).toStyles()
+          }
+        }, [
+          n.div({
+            class: "originalCornerCutoutBackground",
+            style: {
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              width: "100%",
+              height: "100%",
+              backgroundColor: getEditorBlendedColor(originalBackgroundColor, this._themeService).map((c) => c.toString())
+            }
+          }),
+          n.div({
+            class: "originalCornerCutoutBorder",
+            style: {
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              width: "100%",
+              height: "100%",
+              boxSizing: "border-box",
+              borderTop: borderStyling,
+              borderRight: borderStyling,
+              borderRadius: `0 100% 0 0`,
+              backgroundColor: editorBackground
+            }
+          })
+        ]),
+        n.div({
+          class: "originalOverlaySideBySideHider",
+          style: {
+            ...overlayHider.toStyles(),
+            backgroundColor: editorBackground
+          }
+        })
+      ];
+    })).keepUpdated(this._store);
+    this._modifiedOverlay = n.div({
+      style: { pointerEvents: "none" }
+    }, derived(this, (reader) => {
+      const layoutInfoObs = mapOutFalsy(this._previewEditorLayoutInfo).read(reader);
+      if (!layoutInfoObs) {
+        return void 0;
+      }
+      const isModifiedLower = layoutInfoObs.map((layoutInfo) => layoutInfo.codeRect.bottom < layoutInfo.editRect.bottom);
+      const editorBackground = this._editorBackgroundColor.read(reader);
+      const separatorWidth = separatorWidthObs.read(reader);
+      const borderRadius = isModifiedLower.map((isLower) => `0 ${BORDER_RADIUS}px ${BORDER_RADIUS}px ${isLower ? BORDER_RADIUS : 0}px`);
+      const borderStyling = getEditorBlendedColor(getModifiedBorderColor(this._tabAction), this._themeService).map((c) => `1px solid ${c.toString()}`);
+      const borderStylingSeparator = `${BORDER_WIDTH + separatorWidth}px solid ${editorBackground}`;
+      const overlayRect = layoutInfoObs.map((layoutInfo) => layoutInfo.editRect.withMargin(0, BORDER_WIDTH));
+      const separatorRect = overlayRect.map((overlayRect2) => overlayRect2.withMargin(separatorWidth, separatorWidth, separatorWidth, 0));
+      const insertionRect = derived(this, (reader2) => {
+        const overlay = overlayRect.read(reader2);
+        const layoutinfo = layoutInfoObs.read(reader2);
+        if (!layoutinfo.isInsertion || layoutinfo.contentLeft >= overlay.left) {
+          return Rect.fromLeftTopWidthHeight(overlay.left, overlay.top, 0, 0);
+        }
+        return new Rect(layoutinfo.contentLeft, overlay.top, overlay.left, overlay.top + BORDER_WIDTH * 2);
+      });
+      return [
+        n.div({
+          class: "modifiedInsertionSideBySide",
+          style: {
+            ...insertionRect.read(reader).toStyles(),
+            backgroundColor: getModifiedBorderColor(this._tabAction).map((c) => asCssVariable(c))
+          }
+        }),
+        n.div({
+          class: "modifiedSeparatorSideBySide",
+          style: {
+            ...separatorRect.read(reader).toStyles(),
+            borderRadius,
+            borderTop: borderStylingSeparator,
+            borderBottom: borderStylingSeparator,
+            borderRight: borderStylingSeparator,
+            boxSizing: "border-box"
+          }
+        }),
+        n.div({
+          class: "modifiedOverlaySideBySide",
+          style: {
+            ...overlayRect.read(reader).toStyles(),
+            borderRadius,
+            border: borderStyling,
+            boxSizing: "border-box",
+            backgroundColor: asCssVariable(modifiedBackgroundColor)
+          }
+        })
+      ];
+    })).keepUpdated(this._store);
+    this._nonOverflowView = n.div({
+      class: "inline-edits-view",
+      style: {
+        position: "absolute",
+        overflow: "visible",
+        top: "0px",
+        left: "0px",
+        display: this._display
+      }
+    }, [
+      this._backgroundSvg,
+      derived(this, (reader) => this._shouldOverflow.read(reader) ? [] : [this._editorContainer, this._originalOverlay, this._modifiedOverlay])
+    ]).keepUpdated(this._store);
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: this._nonOverflowView.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: derived(this, (reader) => {
+        const x = this._previewEditorLayoutInfo.read(reader)?.maxContentWidth;
+        if (x === void 0) {
+          return 0;
+        }
+        return x;
+      })
+    }));
+    this.previewEditor.setModel(this._previewTextModel);
+    this._register(autorun((reader) => {
+      const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+      if (!layoutInfo) {
+        return;
+      }
+      const editorRect = layoutInfo.editRect.withMargin(-VERTICAL_PADDING, -HORIZONTAL_PADDING);
+      this.previewEditor.layout({
+        height: editorRect.height,
+        width: layoutInfo.previewEditorWidth + 15
+        /* Make sure editor does not scroll horizontally */
+      });
+      this._editorContainer.element.style.top = `${editorRect.top}px`;
+      this._editorContainer.element.style.left = `${editorRect.left}px`;
+      this._editorContainer.element.style.width = `${layoutInfo.previewEditorWidth + HORIZONTAL_PADDING}px`;
+    }));
+    this._register(autorun((reader) => {
+      const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+      if (!layoutInfo) {
+        return;
+      }
+      this._previewEditorObs.editor.setScrollLeft(layoutInfo.desiredPreviewEditorScrollLeft);
+    }));
+    this._updatePreviewEditor.recomputeInitiallyAndOnChange(this._store);
+  }
+};
+InlineEditsSideBySideView = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IThemeService)
+], InlineEditsSideBySideView);
+export {
+  InlineEditsSideBySideView
+};
+//# sourceMappingURL=inlineEditsSideBySideView.js.map

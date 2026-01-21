@@ -1,1 +1,631 @@
-import*as e from"../../../../nls.js";import{$Ed as y}from"../../../../base/common/lifecycle.js";import{$im as d}from"../../../../platform/registry/common/platform.js";import{$pL as o,$nL as n,$tL as R,$sL as W}from"../../../../platform/actions/common/actions.js";import{$BW as v}from"../common/problemMatcher.js";import{$rH as A}from"../../../../platform/progress/common/progress.js";import*as L from"../../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$fCb as j}from"../../../services/statusbar/browser/statusbar.js";import{$CZ as S}from"../../../services/output/common/output.js";import{TaskGroup as B,$GW as s,$EW as T,$FW as M,TaskEventKind as u,$OW as q,$PW as G,$QW as K}from"../common/tasks.js";import{$N8b as E,$I8b as Q,$M8b as a}from"../common/taskService.js";import{Extensions as U,$XN as F}from"../../../common/contributions.js";import{$wEc as H,$xEc as g}from"./runAutomaticTasks.js";import{$jL as N}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import O from"../common/jsonSchema_v1.js";import _,{$zEc as X,$yEc as J}from"../common/jsonSchema_v2.js";import{$GEc as $,ConfigureTaskAction as I}from"./abstractTaskService.js";import{$tM as h}from"../../../services/configuration/common/configuration.js";import{$km as V}from"../../../../platform/configuration/common/configurationRegistry.js";import{$hO as Y}from"../../../common/contextkeys.js";import{$xH as Z}from"../../../../platform/quickinput/common/quickAccess.js";import{$HEc as D}from"./tasksQuickAccess.js";import{$9n as ee}from"../../../../platform/contextkey/common/contextkey.js";import{$CW as te}from"../common/taskDefinitionRegistry.js";import{$6c as ne}from"../../../../base/common/types.js";import{$1h as oe}from"../../../../base/common/async.js";import{TerminalContextKeys as ie}from"../../terminal/common/terminalContextKey.js";import{$RYb as ae}from"../../terminal/browser/terminal.js";var x=function(l,t,i,r){var c=arguments.length,m=c<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")m=Reflect.decorate(l,t,i,r);else for(var k=l.length-1;k>=0;k--)(p=l[k])&&(m=(c<3?p(m):c>3?p(t,i,m):p(t,i))||m);return c>3&&m&&Object.defineProperty(t,i,m),m},f=function(l,t){return function(i,r){t(i,r,l)}};const z=d.as(U.Workbench);z.registerWorkbenchContribution(H,4);R(g);o.appendMenuItem(n.CommandPalette,{command:{id:g.ID,title:g.LABEL,category:s},when:a});let b=class extends y{constructor(t,i,r){super(),this.c=t,this.f=i,this.g=r,this.b=0,this.h()}h(){let t,i;this.D(this.c.onDidStateChange(r=>{if(r.kind===u.Changed&&this.j(),!this.m(r))switch(r.kind){case u.Active:this.b++,this.b===1&&(t||({promise:t,resolve:i}=oe()));break;case u.Inactive:this.b>0&&(this.b--,this.b===0&&t&&i&&i());break;case u.Terminated:this.b!==0&&(this.b=0,t&&i&&i());break}t&&r.kind===u.Active&&this.b===1&&this.g.withProgress({location:10,command:"workbench.action.tasks.showTasks"},c=>(c.report({message:e.localize(12470,null)}),t)).then(()=>{t=void 0})}))}async j(){const t=await this.c.getActiveTasks();if(t.length===0)this.a&&(this.a.dispose(),this.a=void 0);else{const i={name:e.localize(12471,null),text:`$(tools) ${t.length}`,ariaLabel:e.localize(12472,null,t.length),tooltip:e.localize(12473,null),command:"workbench.action.tasks.showTasks"};this.a?this.a.update(i):this.a=this.f.addEntry(i,"status.runningTasks",0,{location:{id:"status.problems",priority:50},alignment:1})}}m(t){return!this.c.inTerminal()||t.kind===u.Changed?!1:(ne(t.group)?t.group:t.group?._id)!==B.Build._id?!0:t.__task.configurationProperties.problemMatchers===void 0||t.__task.configurationProperties.problemMatchers.length===0}};b=x([f(0,E),f(1,j),f(2,A)],b);z.registerWorkbenchContribution(b,3);o.appendMenuItem(n.MenubarTerminalMenu,{group:"3_run",command:{id:"workbench.action.tasks.runTask",title:e.localize(12474,null)},order:1,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"3_run",command:{id:"workbench.action.tasks.build",title:e.localize(12475,null)},order:2,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"5_manage",command:{precondition:T,id:"workbench.action.tasks.showTasks",title:e.localize(12476,null)},order:1,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"5_manage",command:{precondition:T,id:"workbench.action.tasks.restartTask",title:e.localize(12477,null)},order:2,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"5_manage",command:{precondition:T,id:"workbench.action.tasks.terminate",title:e.localize(12478,null)},order:3,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"7_configure",command:{id:"workbench.action.tasks.configureTaskRunner",title:e.localize(12479,null)},order:1,when:a});o.appendMenuItem(n.MenubarTerminalMenu,{group:"7_configure",command:{id:"workbench.action.tasks.configureDefaultBuildTask",title:e.localize(12480,null)},order:2,when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.openWorkspaceFileTasks",title:e.localize2(12506,"Open Workspace Tasks"),category:s},when:ee.and(Y.isEqualTo("workspace"),a)});o.appendMenuItem(n.CommandPalette,{command:{id:I.ID,title:I.TEXT,category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.showLog",title:e.localize2(12507,"Show Task Log"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.runTask",title:e.localize2(12508,"Run Task"),category:s}});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.reRunTask",title:e.localize2(12509,"Rerun Last Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.restartTask",title:e.localize2(12510,"Restart Running Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:K,title:e.localize2(12511,"Rerun All Running Tasks"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.showTasks",title:e.localize2(12512,"Show Running Tasks"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.terminate",title:e.localize2(12513,"Terminate Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.build",title:e.localize2(12514,"Run Build Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.test",title:e.localize2(12515,"Run Test Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.configureDefaultBuildTask",title:e.localize2(12516,"Configure Default Build Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.configureDefaultTestTask",title:e.localize2(12517,"Configure Default Test Task"),category:s},when:a});o.appendMenuItem(n.CommandPalette,{command:{id:"workbench.action.tasks.openUserTasks",title:e.localize2(12518,"Open User Tasks"),category:s},when:a});class re extends y{constructor(){super(),this.a()}a(){const t="workbench.action.tasks.openUserTasks",i=e.localize(12481,null);this.D(o.appendMenuItem(n.GlobalActivity,{command:{id:t,title:i},when:a,group:"2_configuration",order:6})),this.D(o.appendMenuItem(n.MenubarPreferencesMenu,{command:{id:t,title:i},when:a,group:"2_configuration",order:6}))}}z.registerWorkbenchContribution(re,3);N.registerKeybindingRule({id:"workbench.action.tasks.build",weight:200,when:Q,primary:3104});const se=d.as(S.OutputChannels);se.registerChannel({id:$.OutputChannelId,label:$.OutputChannelLabel,log:!1});const le=d.as(Z.Quickaccess),ce="inTasksPicker";le.registerQuickAccessProvider({ctor:D,prefix:D.PREFIX,contextKey:ce,placeholder:e.localize(12482,null),helpEntries:[{description:e.localize(12483,null),commandCenterOrder:60}]});const C={id:h,description:"Task definition file",type:"object",allowTrailingCommas:!0,allowComments:!0,default:{version:"2.0.0",tasks:[{label:"My Task",command:"echo hello",type:"shell",args:[],problemMatcher:["$tsc"],presentation:{reveal:"always"},group:"build"}]}};C.definitions={...O.definitions,..._.definitions};C.oneOf=[..._.oneOf||[],...O.oneOf||[]];const w=d.as(L.$jm.JSONContribution);w.registerSchema(h,C);class P extends y{static{this.ID="taskRegistryContribution"}constructor(){super(),this.D(v.onMatcherChanged(()=>{X(),w.notifySchemaChanged(h)})),this.D(te.onDefinitionsChanged(()=>{J(),w.notifySchemaChanged(h)}))}}F(P.ID,P,3);const me=d.as(V.Configuration);me.registerConfiguration({id:"task",order:100,title:e.localize(12484,null),type:"object",properties:{"task.problemMatchers.neverPrompt":{markdownDescription:e.localize(12485,null),oneOf:[{type:"boolean",markdownDescription:e.localize(12486,null)},{type:"object",patternProperties:{".*":{type:"boolean"}},markdownDescription:e.localize(12487,null),default:{shell:!0}}],default:!1},"task.autoDetect":{markdownDescription:e.localize(12488,null),type:"string",enum:["on","off"],default:"on"},"task.slowProviderWarning":{markdownDescription:e.localize(12489,null),oneOf:[{type:"boolean",markdownDescription:e.localize(12490,null)},{type:"array",items:{type:"string",markdownDescription:e.localize(12491,null)}}],default:!0},"task.quickOpen.history":{markdownDescription:e.localize(12492,null),type:"number",default:30,minimum:0,maximum:30},"task.quickOpen.detail":{markdownDescription:e.localize(12493,null),type:"boolean",default:!0},"task.quickOpen.skip":{type:"boolean",description:e.localize(12494,null),default:!1},"task.quickOpen.showAll":{type:"boolean",description:e.localize(12495,null),default:!1},"task.allowAutomaticTasks":{type:"string",enum:["on","off"],enumDescriptions:[e.localize(12496,null),e.localize(12497,null)],description:e.localize(12498,null),default:"on",restricted:!0},"task.reconnection":{type:"boolean",description:e.localize(12499,null),default:!0},"task.saveBeforeRun":{markdownDescription:e.localize(12500,null),type:"string",enum:["always","never","prompt"],enumDescriptions:[e.localize(12501,null),e.localize(12502,null),e.localize(12503,null)],default:"always"},"task.notifyWindowOnTaskCompletion":{type:"integer",markdownDescription:e.localize(12504,null),default:6e4,minimum:-1},"task.verboseLogging":{type:"boolean",description:e.localize(12505,null),default:!1}}});R(class extends W{constructor(){super({id:G,icon:q,title:e.localize2(12519,"Rerun Task"),precondition:M,menu:[{id:n.TerminalInstanceContext,when:M}],keybinding:{when:ie.focus,primary:3120,mac:{primary:1328},weight:200}})}async run(l,t){const i=l.get(ae),r=l.get(E),c=t??i.activeInstance;c&&await r.rerun(c.instanceId)}});export{b as $IEc,P as $JEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { MenuRegistry, MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { ProblemMatcherRegistry } from "../common/problemMatcher.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import * as jsonContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { Extensions as OutputExt } from "../../../services/output/common/output.js";
+import { TaskGroup, TASKS_CATEGORY, TASK_RUNNING_STATE, TASK_TERMINAL_ACTIVE, TaskEventKind, rerunTaskIcon, RerunForActiveTerminalCommandId, RerunAllRunningTasksCommandId } from "../common/tasks.js";
+import { ITaskService, TaskCommandsRegistered, TaskExecutionSupportedContext } from "../common/taskService.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { RunAutomaticTasks, ManageAutomaticTaskRunning } from "./runAutomaticTasks.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import schemaVersion1 from "../common/jsonSchema_v1.js";
+import schemaVersion2, { updateProblemMatchers, updateTaskDefinitions } from "../common/jsonSchema_v2.js";
+import { AbstractTaskService, ConfigureTaskAction } from "./abstractTaskService.js";
+import { tasksSchemaId } from "../../../services/configuration/common/configuration.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { WorkbenchStateContext } from "../../../common/contextkeys.js";
+import { Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { TasksQuickAccessProvider } from "./tasksQuickAccess.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { TaskDefinitionRegistry } from "../common/taskDefinitionRegistry.js";
+import { isString } from "../../../../base/common/types.js";
+import { promiseWithResolvers } from "../../../../base/common/async.js";
+import { TerminalContextKeys } from "../../terminal/common/terminalContextKey.js";
+import { ITerminalService } from "../../terminal/browser/terminal.js";
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchRegistry.registerWorkbenchContribution(
+  RunAutomaticTasks,
+  4
+  /* LifecyclePhase.Eventually */
+);
+registerAction2(ManageAutomaticTaskRunning);
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: ManageAutomaticTaskRunning.ID,
+    title: ManageAutomaticTaskRunning.LABEL,
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+let TaskStatusBarContributions = class TaskStatusBarContributions2 extends Disposable {
+  static {
+    __name(this, "TaskStatusBarContributions");
+  }
+  constructor(_taskService, _statusbarService, _progressService) {
+    super();
+    this._taskService = _taskService;
+    this._statusbarService = _statusbarService;
+    this._progressService = _progressService;
+    this._activeTasksCount = 0;
+    this._registerListeners();
+  }
+  _registerListeners() {
+    let promise = void 0;
+    let resolve;
+    this._register(this._taskService.onDidStateChange((event) => {
+      if (event.kind === TaskEventKind.Changed) {
+        this._updateRunningTasksStatus();
+      }
+      if (!this._ignoreEventForUpdateRunningTasksCount(event)) {
+        switch (event.kind) {
+          case TaskEventKind.Active:
+            this._activeTasksCount++;
+            if (this._activeTasksCount === 1) {
+              if (!promise) {
+                ({ promise, resolve } = promiseWithResolvers());
+              }
+            }
+            break;
+          case TaskEventKind.Inactive:
+            if (this._activeTasksCount > 0) {
+              this._activeTasksCount--;
+              if (this._activeTasksCount === 0) {
+                if (promise && resolve) {
+                  resolve();
+                }
+              }
+            }
+            break;
+          case TaskEventKind.Terminated:
+            if (this._activeTasksCount !== 0) {
+              this._activeTasksCount = 0;
+              if (promise && resolve) {
+                resolve();
+              }
+            }
+            break;
+        }
+      }
+      if (promise && event.kind === TaskEventKind.Active && this._activeTasksCount === 1) {
+        this._progressService.withProgress({ location: 10, command: "workbench.action.tasks.showTasks" }, (progress) => {
+          progress.report({ message: nls.localize("building", "Building...") });
+          return promise;
+        }).then(() => {
+          promise = void 0;
+        });
+      }
+    }));
+  }
+  async _updateRunningTasksStatus() {
+    const tasks = await this._taskService.getActiveTasks();
+    if (tasks.length === 0) {
+      if (this._runningTasksStatusItem) {
+        this._runningTasksStatusItem.dispose();
+        this._runningTasksStatusItem = void 0;
+      }
+    } else {
+      const itemProps = {
+        name: nls.localize("status.runningTasks", "Running Tasks"),
+        text: `$(tools) ${tasks.length}`,
+        ariaLabel: nls.localize("numberOfRunningTasks", "{0} running tasks", tasks.length),
+        tooltip: nls.localize("runningTasks", "Show Running Tasks"),
+        command: "workbench.action.tasks.showTasks"
+      };
+      if (!this._runningTasksStatusItem) {
+        this._runningTasksStatusItem = this._statusbarService.addEntry(itemProps, "status.runningTasks", 0, {
+          location: { id: "status.problems", priority: 50 },
+          alignment: 1
+          /* StatusbarAlignment.RIGHT */
+        });
+      } else {
+        this._runningTasksStatusItem.update(itemProps);
+      }
+    }
+  }
+  _ignoreEventForUpdateRunningTasksCount(event) {
+    if (!this._taskService.inTerminal() || event.kind === TaskEventKind.Changed) {
+      return false;
+    }
+    if ((isString(event.group) ? event.group : event.group?._id) !== TaskGroup.Build._id) {
+      return true;
+    }
+    return event.__task.configurationProperties.problemMatchers === void 0 || event.__task.configurationProperties.problemMatchers.length === 0;
+  }
+};
+TaskStatusBarContributions = __decorate([
+  __param(0, ITaskService),
+  __param(1, IStatusbarService),
+  __param(2, IProgressService)
+], TaskStatusBarContributions);
+workbenchRegistry.registerWorkbenchContribution(
+  TaskStatusBarContributions,
+  3
+  /* LifecyclePhase.Restored */
+);
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "3_run",
+  command: {
+    id: "workbench.action.tasks.runTask",
+    title: nls.localize({ key: "miRunTask", comment: ["&& denotes a mnemonic"] }, "&&Run Task...")
+  },
+  order: 1,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "3_run",
+  command: {
+    id: "workbench.action.tasks.build",
+    title: nls.localize({ key: "miBuildTask", comment: ["&& denotes a mnemonic"] }, "Run &&Build Task...")
+  },
+  order: 2,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "5_manage",
+  command: {
+    precondition: TASK_RUNNING_STATE,
+    id: "workbench.action.tasks.showTasks",
+    title: nls.localize({ key: "miRunningTask", comment: ["&& denotes a mnemonic"] }, "Show Runnin&&g Tasks...")
+  },
+  order: 1,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "5_manage",
+  command: {
+    precondition: TASK_RUNNING_STATE,
+    id: "workbench.action.tasks.restartTask",
+    title: nls.localize({ key: "miRestartTask", comment: ["&& denotes a mnemonic"] }, "R&&estart Running Task...")
+  },
+  order: 2,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "5_manage",
+  command: {
+    precondition: TASK_RUNNING_STATE,
+    id: "workbench.action.tasks.terminate",
+    title: nls.localize({ key: "miTerminateTask", comment: ["&& denotes a mnemonic"] }, "&&Terminate Task...")
+  },
+  order: 3,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "7_configure",
+  command: {
+    id: "workbench.action.tasks.configureTaskRunner",
+    title: nls.localize({ key: "miConfigureTask", comment: ["&& denotes a mnemonic"] }, "&&Configure Tasks...")
+  },
+  order: 1,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarTerminalMenu, {
+  group: "7_configure",
+  command: {
+    id: "workbench.action.tasks.configureDefaultBuildTask",
+    title: nls.localize({ key: "miConfigureBuildTask", comment: ["&& denotes a mnemonic"] }, "Configure De&&fault Build Task...")
+  },
+  order: 2,
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.openWorkspaceFileTasks",
+    title: nls.localize2("workbench.action.tasks.openWorkspaceFileTasks", "Open Workspace Tasks"),
+    category: TASKS_CATEGORY
+  },
+  when: ContextKeyExpr.and(WorkbenchStateContext.isEqualTo("workspace"), TaskExecutionSupportedContext)
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: ConfigureTaskAction.ID,
+    title: ConfigureTaskAction.TEXT,
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.showLog",
+    title: nls.localize2("ShowLogAction.label", "Show Task Log"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.runTask",
+    title: nls.localize2("RunTaskAction.label", "Run Task"),
+    category: TASKS_CATEGORY
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.reRunTask",
+    title: nls.localize2("ReRunTaskAction.label", "Rerun Last Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.restartTask",
+    title: nls.localize2("RestartTaskAction.label", "Restart Running Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: RerunAllRunningTasksCommandId,
+    title: nls.localize2("RerunAllRunningTasksAction.label", "Rerun All Running Tasks"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.showTasks",
+    title: nls.localize2("ShowTasksAction.label", "Show Running Tasks"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.terminate",
+    title: nls.localize2("TerminateAction.label", "Terminate Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.build",
+    title: nls.localize2("BuildAction.label", "Run Build Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.test",
+    title: nls.localize2("TestAction.label", "Run Test Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.configureDefaultBuildTask",
+    title: nls.localize2("ConfigureDefaultBuildTask.label", "Configure Default Build Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.configureDefaultTestTask",
+    title: nls.localize2("ConfigureDefaultTestTask.label", "Configure Default Test Task"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: "workbench.action.tasks.openUserTasks",
+    title: nls.localize2("workbench.action.tasks.openUserTasks", "Open User Tasks"),
+    category: TASKS_CATEGORY
+  },
+  when: TaskExecutionSupportedContext
+});
+class UserTasksGlobalActionContribution extends Disposable {
+  static {
+    __name(this, "UserTasksGlobalActionContribution");
+  }
+  constructor() {
+    super();
+    this.registerActions();
+  }
+  registerActions() {
+    const id = "workbench.action.tasks.openUserTasks";
+    const title = nls.localize("tasks", "Tasks");
+    this._register(MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      command: {
+        id,
+        title
+      },
+      when: TaskExecutionSupportedContext,
+      group: "2_configuration",
+      order: 6
+    }));
+    this._register(MenuRegistry.appendMenuItem(MenuId.MenubarPreferencesMenu, {
+      command: {
+        id,
+        title
+      },
+      when: TaskExecutionSupportedContext,
+      group: "2_configuration",
+      order: 6
+    }));
+  }
+}
+workbenchRegistry.registerWorkbenchContribution(
+  UserTasksGlobalActionContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+KeybindingsRegistry.registerKeybindingRule({
+  id: "workbench.action.tasks.build",
+  weight: 200,
+  when: TaskCommandsRegistered,
+  primary: 2048 | 1024 | 32
+  /* KeyCode.KeyB */
+});
+const outputChannelRegistry = Registry.as(OutputExt.OutputChannels);
+outputChannelRegistry.registerChannel({ id: AbstractTaskService.OutputChannelId, label: AbstractTaskService.OutputChannelLabel, log: false });
+const quickAccessRegistry = Registry.as(QuickAccessExtensions.Quickaccess);
+const tasksPickerContextKey = "inTasksPicker";
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: TasksQuickAccessProvider,
+  prefix: TasksQuickAccessProvider.PREFIX,
+  contextKey: tasksPickerContextKey,
+  placeholder: nls.localize("tasksQuickAccessPlaceholder", "Type the name of a task to run."),
+  helpEntries: [{ description: nls.localize("tasksQuickAccessHelp", "Run Task"), commandCenterOrder: 60 }]
+});
+const schema = {
+  id: tasksSchemaId,
+  description: "Task definition file",
+  type: "object",
+  allowTrailingCommas: true,
+  allowComments: true,
+  default: {
+    version: "2.0.0",
+    tasks: [
+      {
+        label: "My Task",
+        command: "echo hello",
+        type: "shell",
+        args: [],
+        problemMatcher: ["$tsc"],
+        presentation: {
+          reveal: "always"
+        },
+        group: "build"
+      }
+    ]
+  }
+};
+schema.definitions = {
+  ...schemaVersion1.definitions,
+  ...schemaVersion2.definitions
+};
+schema.oneOf = [...schemaVersion2.oneOf || [], ...schemaVersion1.oneOf || []];
+const jsonRegistry = Registry.as(jsonContributionRegistry.Extensions.JSONContribution);
+jsonRegistry.registerSchema(tasksSchemaId, schema);
+class TaskRegistryContribution extends Disposable {
+  static {
+    __name(this, "TaskRegistryContribution");
+  }
+  static {
+    this.ID = "taskRegistryContribution";
+  }
+  constructor() {
+    super();
+    this._register(ProblemMatcherRegistry.onMatcherChanged(() => {
+      updateProblemMatchers();
+      jsonRegistry.notifySchemaChanged(tasksSchemaId);
+    }));
+    this._register(TaskDefinitionRegistry.onDefinitionsChanged(() => {
+      updateTaskDefinitions();
+      jsonRegistry.notifySchemaChanged(tasksSchemaId);
+    }));
+  }
+}
+registerWorkbenchContribution2(
+  TaskRegistryContribution.ID,
+  TaskRegistryContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "task",
+  order: 100,
+  title: nls.localize("tasksConfigurationTitle", "Tasks"),
+  type: "object",
+  properties: {
+    [
+      "task.problemMatchers.neverPrompt"
+      /* TaskSettingId.ProblemMatchersNeverPrompt */
+    ]: {
+      markdownDescription: nls.localize("task.problemMatchers.neverPrompt", "Configures whether to show the problem matcher prompt when running a task. Set to `true` to never prompt, or use a dictionary of task types to turn off prompting only for specific task types."),
+      "oneOf": [
+        {
+          type: "boolean",
+          markdownDescription: nls.localize("task.problemMatchers.neverPrompt.boolean", "Sets problem matcher prompting behavior for all tasks.")
+        },
+        {
+          type: "object",
+          patternProperties: {
+            ".*": {
+              type: "boolean"
+            }
+          },
+          markdownDescription: nls.localize("task.problemMatchers.neverPrompt.array", "An object containing task type-boolean pairs to never prompt for problem matchers on."),
+          default: {
+            "shell": true
+          }
+        }
+      ],
+      default: false
+    },
+    [
+      "task.autoDetect"
+      /* TaskSettingId.AutoDetect */
+    ]: {
+      markdownDescription: nls.localize("task.autoDetect", "Controls enablement of `provideTasks` for all task provider extension. If the Tasks: Run Task command is slow, disabling auto detect for task providers may help. Individual extensions may also provide settings that disable auto detection."),
+      type: "string",
+      enum: ["on", "off"],
+      default: "on"
+    },
+    [
+      "task.slowProviderWarning"
+      /* TaskSettingId.SlowProviderWarning */
+    ]: {
+      markdownDescription: nls.localize("task.slowProviderWarning", "Configures whether a warning is shown when a provider is slow"),
+      "oneOf": [
+        {
+          type: "boolean",
+          markdownDescription: nls.localize("task.slowProviderWarning.boolean", "Sets the slow provider warning for all tasks.")
+        },
+        {
+          type: "array",
+          items: {
+            type: "string",
+            markdownDescription: nls.localize("task.slowProviderWarning.array", "An array of task types to never show the slow provider warning.")
+          }
+        }
+      ],
+      default: true
+    },
+    [
+      "task.quickOpen.history"
+      /* TaskSettingId.QuickOpenHistory */
+    ]: {
+      markdownDescription: nls.localize("task.quickOpen.history", "Controls the number of recent items tracked in task quick open dialog."),
+      type: "number",
+      default: 30,
+      minimum: 0,
+      maximum: 30
+    },
+    [
+      "task.quickOpen.detail"
+      /* TaskSettingId.QuickOpenDetail */
+    ]: {
+      markdownDescription: nls.localize("task.quickOpen.detail", "Controls whether to show the task detail for tasks that have a detail in task quick picks, such as Run Task."),
+      type: "boolean",
+      default: true
+    },
+    [
+      "task.quickOpen.skip"
+      /* TaskSettingId.QuickOpenSkip */
+    ]: {
+      type: "boolean",
+      description: nls.localize("task.quickOpen.skip", "Controls whether the task quick pick is skipped when there is only one task to pick from."),
+      default: false
+    },
+    [
+      "task.quickOpen.showAll"
+      /* TaskSettingId.QuickOpenShowAll */
+    ]: {
+      type: "boolean",
+      description: nls.localize("task.quickOpen.showAll", 'Causes the Tasks: Run Task command to use the slower "show all" behavior instead of the faster two level picker where tasks are grouped by provider.'),
+      default: false
+    },
+    [
+      "task.allowAutomaticTasks"
+      /* TaskSettingId.AllowAutomaticTasks */
+    ]: {
+      type: "string",
+      enum: ["on", "off"],
+      enumDescriptions: [
+        nls.localize("task.allowAutomaticTasks.on", "Always"),
+        nls.localize("task.allowAutomaticTasks.off", "Never")
+      ],
+      description: nls.localize("task.allowAutomaticTasks", "Enable automatic tasks - note that tasks won't run in an untrusted workspace."),
+      default: "on",
+      restricted: true
+    },
+    [
+      "task.reconnection"
+      /* TaskSettingId.Reconnection */
+    ]: {
+      type: "boolean",
+      description: nls.localize("task.reconnection", "On window reload, reconnect to tasks that have problem matchers."),
+      default: true
+    },
+    [
+      "task.saveBeforeRun"
+      /* TaskSettingId.SaveBeforeRun */
+    ]: {
+      markdownDescription: nls.localize("task.saveBeforeRun", "Save all dirty editors before running a task."),
+      type: "string",
+      enum: ["always", "never", "prompt"],
+      enumDescriptions: [
+        nls.localize("task.saveBeforeRun.always", "Always saves all editors before running."),
+        nls.localize("task.saveBeforeRun.never", "Never saves editors before running."),
+        nls.localize("task.SaveBeforeRun.prompt", "Prompts whether to save editors before running.")
+      ],
+      default: "always"
+    },
+    [
+      "task.notifyWindowOnTaskCompletion"
+      /* TaskSettingId.NotifyWindowOnTaskCompletion */
+    ]: {
+      type: "integer",
+      markdownDescription: nls.localize("task.NotifyWindowOnTaskCompletion", "Controls the minimum task runtime in milliseconds before showing an OS notification when the task finishes while the window is not in focus. Set to -1 to disable notifications. Set to 0 to always show notifications. This includes a window badge as well as notification toast."),
+      default: 6e4,
+      minimum: -1
+    },
+    [
+      "task.verboseLogging"
+      /* TaskSettingId.VerboseLogging */
+    ]: {
+      type: "boolean",
+      description: nls.localize("task.verboseLogging", "Enable verbose logging for tasks."),
+      default: false
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: RerunForActiveTerminalCommandId,
+      icon: rerunTaskIcon,
+      title: nls.localize2("workbench.action.tasks.rerunForActiveTerminal", "Rerun Task"),
+      precondition: TASK_TERMINAL_ACTIVE,
+      menu: [{ id: MenuId.TerminalInstanceContext, when: TASK_TERMINAL_ACTIVE }],
+      keybinding: {
+        when: TerminalContextKeys.focus,
+        primary: 2048 | 1024 | 48,
+        mac: {
+          primary: 256 | 1024 | 48
+          /* KeyCode.KeyR */
+        },
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async run(accessor, args) {
+    const terminalService = accessor.get(ITerminalService);
+    const taskSystem = accessor.get(ITaskService);
+    const instance = args ?? terminalService.activeInstance;
+    if (instance) {
+      await taskSystem.rerun(instance.instanceId);
+    }
+  }
+});
+export {
+  TaskRegistryContribution,
+  TaskStatusBarContributions
+};
+//# sourceMappingURL=task.contribution.js.map

@@ -1,1 +1,8 @@
-import{$Mj as o,$Nj as e}from"../../instantiation/common/instantiation.js";const r=o("environmentService"),n=e(r);export{r as $Jl,n as $Kl};
+import { createDecorator, refineServiceDecorator } from "../../instantiation/common/instantiation.js";
+const IEnvironmentService = createDecorator("environmentService");
+const INativeEnvironmentService = refineServiceDecorator(IEnvironmentService);
+export {
+  IEnvironmentService,
+  INativeEnvironmentService
+};
+//# sourceMappingURL=environment.js.map

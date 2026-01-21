@@ -1,1 +1,33 @@
-import{$v as o}from"../../../../base/common/platform.js";import{localize as m}from"../../../../nls.js";import{$km as r}from"../../../../platform/configuration/common/configurationRegistry.js";import{$im as e}from"../../../../platform/registry/common/platform.js";import{$3N as t}from"../../../common/configuration.js";import{$XN as n}from"../../../common/contributions.js";import{$ywc as i}from"./sash.js";n(i.ID,i,3);e.as(r.Configuration).registerConfiguration({...t,properties:{"workbench.sash.size":{type:"number",default:o?20:4,minimum:1,maximum:20,description:m(11706,null)},"workbench.sash.hoverDelay":{type:"number",default:300,minimum:0,maximum:2e3,description:m(11707,null)}}});
+import { isIOS } from "../../../../base/common/platform.js";
+import { localize } from "../../../../nls.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { SashSettingsController } from "./sash.js";
+registerWorkbenchContribution2(
+  SashSettingsController.ID,
+  SashSettingsController,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.sash.size": {
+      type: "number",
+      default: isIOS ? 20 : 4,
+      minimum: 1,
+      maximum: 20,
+      description: localize("sashSize", "Controls the feedback area size in pixels of the dragging area in between views/editors. Set it to a larger value if you feel it's hard to resize views using the mouse.")
+    },
+    "workbench.sash.hoverDelay": {
+      type: "number",
+      default: 300,
+      minimum: 0,
+      maximum: 2e3,
+      description: localize("sashHoverDelay", "Controls the hover feedback delay in milliseconds of the dragging area in between views/editors.")
+    }
+  }
+});
+//# sourceMappingURL=sash.contribution.js.map

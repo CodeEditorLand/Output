@@ -1,1 +1,793 @@
-import{$c0 as oe}from"../../../../base/browser/ui/aria/aria.js";import{$Th as L,$Uh as ie}from"../../../../base/common/async.js";import{$2w as G}from"../../../../base/common/keyCodes.js";import{$fd as P}from"../../../../base/common/types.js";import{URI as b}from"../../../../base/common/uri.js";import{$Ujb as ne}from"../../editorState/browser/editorState.js";import{$pcb as H}from"../../../browser/editorBrowser.js";import{$Ccb as re}from"../../../browser/editorExtensions.js";import{$ucb as $}from"../../../browser/services/codeEditorService.js";import{$1nb as ae}from"../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";import*as D from"../../../common/core/position.js";import{$9D as U}from"../../../common/core/range.js";import{EditorContextKeys as r}from"../../../common/editorContextKeys.js";import{$OF as se}from"../../../common/languages.js";import{$xqb as W}from"./peek/referencesController.js";import{$mqb as k}from"./referencesModel.js";import{$zqb as le}from"./symbolNavigation.js";import{$1jb as de}from"../../message/browser/messageController.js";import{PeekContext as y}from"../../peekView/browser/peekView.js";import*as i from"../../../../nls.js";import{$nL as s,$pL as ce,$tL as f}from"../../../../platform/actions/common/actions.js";import{$uo as T,$to as ue}from"../../../../platform/commands/common/commands.js";import{$9n as p}from"../../../../platform/contextkey/common/contextkey.js";import{$Lj as q}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as me}from"../../../../platform/notification/common/notification.js";import{$wH as pe}from"../../../../platform/progress/common/progress.js";import{$Bqb as fe,$Aqb as ge,$Cqb as he,$Eqb as R,$Dqb as ke}from"./goToSymbol.js";import{$NV as B}from"../../../common/services/languageFeatures.js";import{Iterable as we}from"../../../../base/common/iterator.js";import{$KN as K}from"../../../../platform/contextkey/common/contextkeys.js";ce.appendMenuItem(s.EditorContext,{submenu:s.EditorContextPeek,title:i.localize(1200,null),group:"navigation",order:100});class C{static is(e){return!e||typeof e!="object"?!1:!!(e instanceof C||D.$8D.isIPosition(e.position)&&e.model)}constructor(e,t){this.model=e,this.position=t}}class u extends re{static{this.d=new Map}static{this.f=new Set}static all(){return u.d.values()}static g(e){const t={...e,f1:!0};if(t.menu)for(const o of we.wrap(t.menu))(o.id===s.EditorContext||o.id===s.EditorContextPeek)&&(o.when=p.and(e.precondition,o.when));return t}constructor(e,t){super(u.g(t)),this.configuration=e,u.d.set(t.id,this)}runEditorCommand(e,t,o,n){if(!t.hasModel())return Promise.resolve(void 0);const d=e.get(me),a=e.get($),c=e.get(pe),m=e.get(le),g=e.get(B),v=e.get(q),I=t.getModel(),x=t.getPosition(),N=C.is(o)?o:new C(I,x),E=new ne(t,5),j=ie(this.h(g,N.model,N.position,E.token),E.token).then(async w=>{if(!w||E.token.isCancellationRequested)return;oe(w.ariaMessage);let z;if(w.referenceAt(I.uri,x)){const h=this.k(t);h!==void 0&&!u.f.has(h)&&u.d.has(h)&&(z=u.d.get(h))}const O=w.references.length;if(O===0){if(!this.configuration.muteMessage){const h=I.getWordAtPosition(x);de.get(t)?.showMessage(this.j(h),x)}}else if(O===1&&z)u.f.add(this.desc.id),v.invokeFunction(h=>z.runEditorCommand(h,t,o,n).finally(()=>{u.f.delete(this.desc.id)}));else return this.m(a,m,t,w,n)},w=>{d.error(w)}).finally(()=>{E.dispose()});return c.showWhile(j,250),j}async m(e,t,o,n,d){const a=this.l(o);if(!(o instanceof ae)&&(this.configuration.openInPeek||a==="peek"&&n.references.length>1))this.o(o,n,d);else{const c=n.firstReference(),m=n.references.length>1&&a==="gotoAndPeek",g=await this.n(o,e,c,this.configuration.openToSide,!m);m&&g?this.o(g,n,d):n.dispose(),a==="goto"&&t.put(c)}}async n(e,t,o,n,d){let a;if(se(o)&&(a=o.targetSelectionRange),a||(a=o.range),!a)return;const c=await t.openCodeEditor({resource:o.uri,options:{selection:U.collapseToStart(a),selectionRevealType:3,selectionSource:"code.jump"}},e,n);if(c){if(d){const m=c.getModel(),g=c.createDecorationsCollection([{range:a,options:{description:"symbol-navigate-action-highlight",className:"symbolHighlight"}}]);setTimeout(()=>{c.getModel()===m&&g.clear()},350)}return c}}o(e,t,o){const n=W.get(e);n&&e.hasModel()?n.toggleWidget(o??e.getSelection(),L(d=>Promise.resolve(t)),this.configuration.openInPeek):t.dispose()}}class F extends u{async h(e,t,o,n){return new k(await ge(e.definitionProvider,t,o,!1,n),i.localize(1201,null))}j(e){return e&&e.word?i.localize(1202,null,e.word):i.localize(1203,null)}k(e){return e.getOption(67).alternativeDefinitionCommand}l(e){return e.getOption(67).multipleDefinitions}}f(class A extends F{static{this.id="editor.action.revealDefinition"}constructor(){super({openToSide:!1,openInPeek:!1,muteMessage:!1},{id:A.id,title:{...i.localize2(1227,"Go to Definition"),mnemonicTitle:i.localize(1204,null)},precondition:r.hasDefinitionProvider,keybinding:[{when:r.editorTextFocus,primary:70,weight:100},{when:p.and(r.editorTextFocus,K),primary:2118,weight:100}],menu:[{id:s.EditorContext,group:"navigation",order:1.1},{id:s.MenubarGoMenu,precondition:null,group:"4_symbol_nav",order:2}]}),T.registerCommandAlias("editor.action.goToDeclaration",A.id)}});f(class M extends F{static{this.id="editor.action.revealDefinitionAside"}constructor(){super({openToSide:!0,openInPeek:!1,muteMessage:!1},{id:M.id,title:i.localize2(1228,"Open Definition to the Side"),precondition:p.and(r.hasDefinitionProvider,r.isInEmbeddedEditor.toNegated()),keybinding:[{when:r.editorTextFocus,primary:G(2089,70),weight:100},{when:p.and(r.editorTextFocus,K),primary:G(2089,2118),weight:100}]}),T.registerCommandAlias("editor.action.openDeclarationToTheSide",M.id)}});f(class S extends F{static{this.id="editor.action.peekDefinition"}constructor(){super({openToSide:!1,openInPeek:!0,muteMessage:!1},{id:S.id,title:i.localize2(1229,"Peek Definition"),precondition:p.and(r.hasDefinitionProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),keybinding:{when:r.editorTextFocus,primary:582,linux:{primary:3140},weight:100},menu:{id:s.EditorContextPeek,group:"peek",order:2}}),T.registerCommandAlias("editor.action.previewDeclaration",S.id)}});class V extends u{async h(e,t,o,n){return new k(await fe(e.declarationProvider,t,o,!1,n),i.localize(1205,null))}j(e){return e&&e.word?i.localize(1206,null,e.word):i.localize(1207,null)}k(e){return e.getOption(67).alternativeDeclarationCommand}l(e){return e.getOption(67).multipleDeclarations}}f(class J extends V{static{this.id="editor.action.revealDeclaration"}constructor(){super({openToSide:!1,openInPeek:!1,muteMessage:!1},{id:J.id,title:{...i.localize2(1230,"Go to Declaration"),mnemonicTitle:i.localize(1208,null)},precondition:p.and(r.hasDeclarationProvider,r.isInEmbeddedEditor.toNegated()),menu:[{id:s.EditorContext,group:"navigation",order:1.3},{id:s.MenubarGoMenu,precondition:null,group:"4_symbol_nav",order:3}]})}j(e){return e&&e.word?i.localize(1209,null,e.word):i.localize(1210,null)}});f(class extends V{constructor(){super({openToSide:!1,openInPeek:!0,muteMessage:!1},{id:"editor.action.peekDeclaration",title:i.localize2(1231,"Peek Declaration"),precondition:p.and(r.hasDeclarationProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),menu:{id:s.EditorContextPeek,group:"peek",order:3}})}});class Q extends u{async h(e,t,o,n){return new k(await ke(e.typeDefinitionProvider,t,o,!1,n),i.localize(1211,null))}j(e){return e&&e.word?i.localize(1212,null,e.word):i.localize(1213,null)}k(e){return e.getOption(67).alternativeTypeDefinitionCommand}l(e){return e.getOption(67).multipleTypeDefinitions}}f(class X extends Q{static{this.ID="editor.action.goToTypeDefinition"}constructor(){super({openToSide:!1,openInPeek:!1,muteMessage:!1},{id:X.ID,title:{...i.localize2(1232,"Go to Type Definition"),mnemonicTitle:i.localize(1214,null)},precondition:r.hasTypeDefinitionProvider,keybinding:{when:r.editorTextFocus,primary:0,weight:100},menu:[{id:s.EditorContext,group:"navigation",order:1.4},{id:s.MenubarGoMenu,precondition:null,group:"4_symbol_nav",order:3}]})}});f(class Y extends Q{static{this.ID="editor.action.peekTypeDefinition"}constructor(){super({openToSide:!1,openInPeek:!0,muteMessage:!1},{id:Y.ID,title:i.localize2(1233,"Peek Type Definition"),precondition:p.and(r.hasTypeDefinitionProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),menu:{id:s.EditorContextPeek,group:"peek",order:4}})}});class Z extends u{async h(e,t,o,n){return new k(await he(e.implementationProvider,t,o,!1,n),i.localize(1215,null))}j(e){return e&&e.word?i.localize(1216,null,e.word):i.localize(1217,null)}k(e){return e.getOption(67).alternativeImplementationCommand}l(e){return e.getOption(67).multipleImplementations}}f(class _ extends Z{static{this.ID="editor.action.goToImplementation"}constructor(){super({openToSide:!1,openInPeek:!1,muteMessage:!1},{id:_.ID,title:{...i.localize2(1234,"Go to Implementations"),mnemonicTitle:i.localize(1218,null)},precondition:r.hasImplementationProvider,keybinding:{when:r.editorTextFocus,primary:2118,weight:100},menu:[{id:s.EditorContext,group:"navigation",order:1.45},{id:s.MenubarGoMenu,precondition:null,group:"4_symbol_nav",order:4}]})}});f(class ee extends Z{static{this.ID="editor.action.peekImplementation"}constructor(){super({openToSide:!1,openInPeek:!0,muteMessage:!1},{id:ee.ID,title:i.localize2(1235,"Peek Implementations"),precondition:p.and(r.hasImplementationProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),keybinding:{when:r.editorTextFocus,primary:3142,weight:100},menu:{id:s.EditorContextPeek,group:"peek",order:5}})}});class te extends u{j(e){return e?i.localize(1219,null,e.word):i.localize(1220,null)}k(e){return e.getOption(67).alternativeReferenceCommand}l(e){return e.getOption(67).multipleReferences}}f(class extends te{constructor(){super({openToSide:!1,openInPeek:!1,muteMessage:!1},{id:"editor.action.goToReferences",title:{...i.localize2(1236,"Go to References"),mnemonicTitle:i.localize(1221,null)},precondition:p.and(r.hasReferenceProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),keybinding:{when:r.editorTextFocus,primary:1094,weight:100},menu:[{id:s.EditorContext,group:"navigation",order:1.45},{id:s.MenubarGoMenu,precondition:null,group:"4_symbol_nav",order:5}]})}async h(e,t,o,n){return new k(await R(e.referenceProvider,t,o,!0,!1,n),i.localize(1222,null))}});f(class extends te{constructor(){super({openToSide:!1,openInPeek:!0,muteMessage:!1},{id:"editor.action.referenceSearch.trigger",title:i.localize2(1237,"Peek References"),precondition:p.and(r.hasReferenceProvider,y.notInPeekEditor,r.isInEmbeddedEditor.toNegated()),menu:{id:s.EditorContextPeek,group:"peek",order:6}})}async h(e,t,o,n){return new k(await R(e.referenceProvider,t,o,!1,!1,n),i.localize(1223,null))}});class Pe extends u{constructor(e,t,o){super(e,{id:"editor.action.goToLocation",title:i.localize2(1238,"Go to Any Symbol"),precondition:p.and(y.notInPeekEditor,r.isInEmbeddedEditor.toNegated())}),this.e=t,this.p=o}async h(e,t,o,n){return new k(this.e,i.localize(1224,null))}j(e){return e&&i.localize(1225,null,e.word)||""}l(e){return this.p??e.getOption(67).multipleReferences}k(){}}T.registerCommand({id:"editor.action.goToLocations",metadata:{description:"Go to locations from a position in a file",args:[{name:"uri",description:"The text document in which to start",constraint:b},{name:"position",description:"The position at which to start",constraint:D.$8D.isIPosition},{name:"locations",description:"An array of locations.",constraint:Array},{name:"multiple",description:"Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto`"},{name:"noResultsMessage",description:"Human readable message that shows when locations is empty."}]},handler:async(l,e,t,o,n,d,a)=>{P(b.isUri(e)),P(D.$8D.isIPosition(t)),P(Array.isArray(o)),P(typeof n>"u"||typeof n=="string"),P(typeof a>"u"||typeof a=="boolean");const c=l.get($),m=await c.openCodeEditor({resource:e},c.getFocusedCodeEditor());if(H(m))return m.setPosition(t),m.revealPositionInCenterIfOutsideViewport(t,0),m.invokeWithinContext(g=>{const v=new class extends Pe{j(I){return d||super.j(I)}}({muteMessage:!d,openInPeek:!!a,openToSide:!1},o,n);g.get(q).invokeFunction(v.run.bind(v),m)})}});T.registerCommand({id:"editor.action.peekLocations",metadata:{description:"Peek locations from a position in a file",args:[{name:"uri",description:"The text document in which to start",constraint:b},{name:"position",description:"The position at which to start",constraint:D.$8D.isIPosition},{name:"locations",description:"An array of locations.",constraint:Array},{name:"multiple",description:"Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto`"}]},handler:async(l,e,t,o,n)=>{l.get(ue).executeCommand("editor.action.goToLocations",e,t,o,n,void 0,!0)}});T.registerCommand({id:"editor.action.findReferences",handler:(l,e,t)=>{P(b.isUri(e)),P(D.$8D.isIPosition(t));const o=l.get(B),n=l.get($);return n.openCodeEditor({resource:e},n.getFocusedCodeEditor()).then(d=>{if(!H(d)||!d.hasModel())return;const a=W.get(d);if(!a)return;const c=L(g=>R(o.referenceProvider,d.getModel(),D.$8D.lift(t),!1,!1,g).then(v=>new k(v,i.localize(1226,null)))),m=new U(t.lineNumber,t.column,t.lineNumber,t.column);return Promise.resolve(a.toggleWidget(m,c,!1))})}});T.registerCommandAlias("editor.action.showReferences","editor.action.peekLocations");export{C as $Fqb,u as $Gqb,F as $Hqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { createCancelablePromise, raceCancellation } from "../../../../base/common/async.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { EditorStateCancellationTokenSource } from "../../editorState/browser/editorState.js";
+import { isCodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorAction2 } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { EmbeddedCodeEditorWidget } from "../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import * as corePosition from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { isLocationLink } from "../../../common/languages.js";
+import { ReferencesController } from "./peek/referencesController.js";
+import { ReferencesModel } from "./referencesModel.js";
+import { ISymbolNavigationService } from "./symbolNavigation.js";
+import { MessageController } from "../../message/browser/messageController.js";
+import { PeekContext } from "../../peekView/browser/peekView.js";
+import * as nls from "../../../../nls.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { getDeclarationsAtPosition, getDefinitionsAtPosition, getImplementationsAtPosition, getReferencesAtPosition, getTypeDefinitionsAtPosition } from "./goToSymbol.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+MenuRegistry.appendMenuItem(MenuId.EditorContext, {
+  submenu: MenuId.EditorContextPeek,
+  title: nls.localize("peek.submenu", "Peek"),
+  group: "navigation",
+  order: 100
+});
+class SymbolNavigationAnchor {
+  static {
+    __name(this, "SymbolNavigationAnchor");
+  }
+  static is(thing) {
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    if (thing instanceof SymbolNavigationAnchor) {
+      return true;
+    }
+    if (corePosition.Position.isIPosition(thing.position) && thing.model) {
+      return true;
+    }
+    return false;
+  }
+  constructor(model, position) {
+    this.model = model;
+    this.position = position;
+  }
+}
+class SymbolNavigationAction extends EditorAction2 {
+  static {
+    __name(this, "SymbolNavigationAction");
+  }
+  static {
+    this._allSymbolNavigationCommands = /* @__PURE__ */ new Map();
+  }
+  static {
+    this._activeAlternativeCommands = /* @__PURE__ */ new Set();
+  }
+  static all() {
+    return SymbolNavigationAction._allSymbolNavigationCommands.values();
+  }
+  static _patchConfig(opts) {
+    const result = { ...opts, f1: true };
+    if (result.menu) {
+      for (const item of Iterable.wrap(result.menu)) {
+        if (item.id === MenuId.EditorContext || item.id === MenuId.EditorContextPeek) {
+          item.when = ContextKeyExpr.and(opts.precondition, item.when);
+        }
+      }
+    }
+    return result;
+  }
+  constructor(configuration, opts) {
+    super(SymbolNavigationAction._patchConfig(opts));
+    this.configuration = configuration;
+    SymbolNavigationAction._allSymbolNavigationCommands.set(opts.id, this);
+  }
+  runEditorCommand(accessor, editor, arg, range) {
+    if (!editor.hasModel()) {
+      return Promise.resolve(void 0);
+    }
+    const notificationService = accessor.get(INotificationService);
+    const editorService = accessor.get(ICodeEditorService);
+    const progressService = accessor.get(IEditorProgressService);
+    const symbolNavService = accessor.get(ISymbolNavigationService);
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const instaService = accessor.get(IInstantiationService);
+    const model = editor.getModel();
+    const position = editor.getPosition();
+    const anchor = SymbolNavigationAnchor.is(arg) ? arg : new SymbolNavigationAnchor(model, position);
+    const cts = new EditorStateCancellationTokenSource(
+      editor,
+      1 | 4
+      /* CodeEditorStateFlag.Position */
+    );
+    const promise = raceCancellation(this._getLocationModel(languageFeaturesService, anchor.model, anchor.position, cts.token), cts.token).then(async (references) => {
+      if (!references || cts.token.isCancellationRequested) {
+        return;
+      }
+      alert(references.ariaMessage);
+      let altAction;
+      if (references.referenceAt(model.uri, position)) {
+        const altActionId = this._getAlternativeCommand(editor);
+        if (altActionId !== void 0 && !SymbolNavigationAction._activeAlternativeCommands.has(altActionId) && SymbolNavigationAction._allSymbolNavigationCommands.has(altActionId)) {
+          altAction = SymbolNavigationAction._allSymbolNavigationCommands.get(altActionId);
+        }
+      }
+      const referenceCount = references.references.length;
+      if (referenceCount === 0) {
+        if (!this.configuration.muteMessage) {
+          const info = model.getWordAtPosition(position);
+          MessageController.get(editor)?.showMessage(this._getNoResultFoundMessage(info), position);
+        }
+      } else if (referenceCount === 1 && altAction) {
+        SymbolNavigationAction._activeAlternativeCommands.add(this.desc.id);
+        instaService.invokeFunction((accessor2) => altAction.runEditorCommand(accessor2, editor, arg, range).finally(() => {
+          SymbolNavigationAction._activeAlternativeCommands.delete(this.desc.id);
+        }));
+      } else {
+        return this._onResult(editorService, symbolNavService, editor, references, range);
+      }
+    }, (err) => {
+      notificationService.error(err);
+    }).finally(() => {
+      cts.dispose();
+    });
+    progressService.showWhile(promise, 250);
+    return promise;
+  }
+  async _onResult(editorService, symbolNavService, editor, model, range) {
+    const gotoLocation = this._getGoToPreference(editor);
+    if (!(editor instanceof EmbeddedCodeEditorWidget) && (this.configuration.openInPeek || gotoLocation === "peek" && model.references.length > 1)) {
+      this._openInPeek(editor, model, range);
+    } else {
+      const next = model.firstReference();
+      const peek = model.references.length > 1 && gotoLocation === "gotoAndPeek";
+      const targetEditor = await this._openReference(editor, editorService, next, this.configuration.openToSide, !peek);
+      if (peek && targetEditor) {
+        this._openInPeek(targetEditor, model, range);
+      } else {
+        model.dispose();
+      }
+      if (gotoLocation === "goto") {
+        symbolNavService.put(next);
+      }
+    }
+  }
+  async _openReference(editor, editorService, reference, sideBySide, highlight) {
+    let range = void 0;
+    if (isLocationLink(reference)) {
+      range = reference.targetSelectionRange;
+    }
+    if (!range) {
+      range = reference.range;
+    }
+    if (!range) {
+      return void 0;
+    }
+    const targetEditor = await editorService.openCodeEditor({
+      resource: reference.uri,
+      options: {
+        selection: Range.collapseToStart(range),
+        selectionRevealType: 3,
+        selectionSource: "code.jump"
+        /* TextEditorSelectionSource.JUMP */
+      }
+    }, editor, sideBySide);
+    if (!targetEditor) {
+      return void 0;
+    }
+    if (highlight) {
+      const modelNow = targetEditor.getModel();
+      const decorations = targetEditor.createDecorationsCollection([{ range, options: { description: "symbol-navigate-action-highlight", className: "symbolHighlight" } }]);
+      setTimeout(() => {
+        if (targetEditor.getModel() === modelNow) {
+          decorations.clear();
+        }
+      }, 350);
+    }
+    return targetEditor;
+  }
+  _openInPeek(target, model, range) {
+    const controller = ReferencesController.get(target);
+    if (controller && target.hasModel()) {
+      controller.toggleWidget(range ?? target.getSelection(), createCancelablePromise((_) => Promise.resolve(model)), this.configuration.openInPeek);
+    } else {
+      model.dispose();
+    }
+  }
+}
+class DefinitionAction extends SymbolNavigationAction {
+  static {
+    __name(this, "DefinitionAction");
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getDefinitionsAtPosition(languageFeaturesService.definitionProvider, model, position, false, token), nls.localize("def.title", "Definitions"));
+  }
+  _getNoResultFoundMessage(info) {
+    return info && info.word ? nls.localize("noResultWord", "No definition found for '{0}'", info.word) : nls.localize("generic.noResults", "No definition found");
+  }
+  _getAlternativeCommand(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).alternativeDefinitionCommand;
+  }
+  _getGoToPreference(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleDefinitions;
+  }
+}
+registerAction2(class GoToDefinitionAction extends DefinitionAction {
+  static {
+    __name(this, "GoToDefinitionAction");
+  }
+  static {
+    this.id = "editor.action.revealDefinition";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: GoToDefinitionAction.id,
+      title: {
+        ...nls.localize2("actions.goToDecl.label", "Go to Definition"),
+        mnemonicTitle: nls.localize({ key: "miGotoDefinition", comment: ["&& denotes a mnemonic"] }, "Go to &&Definition")
+      },
+      precondition: EditorContextKeys.hasDefinitionProvider,
+      keybinding: [{
+        when: EditorContextKeys.editorTextFocus,
+        primary: 70,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }, {
+        when: ContextKeyExpr.and(EditorContextKeys.editorTextFocus, IsWebContext),
+        primary: 2048 | 70,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }],
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "navigation",
+        order: 1.1
+      }, {
+        id: MenuId.MenubarGoMenu,
+        precondition: null,
+        group: "4_symbol_nav",
+        order: 2
+      }]
+    });
+    CommandsRegistry.registerCommandAlias("editor.action.goToDeclaration", GoToDefinitionAction.id);
+  }
+});
+registerAction2(class OpenDefinitionToSideAction extends DefinitionAction {
+  static {
+    __name(this, "OpenDefinitionToSideAction");
+  }
+  static {
+    this.id = "editor.action.revealDefinitionAside";
+  }
+  constructor() {
+    super({
+      openToSide: true,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: OpenDefinitionToSideAction.id,
+      title: nls.localize2("actions.goToDeclToSide.label", "Open Definition to the Side"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasDefinitionProvider, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      keybinding: [{
+        when: EditorContextKeys.editorTextFocus,
+        primary: KeyChord(
+          2048 | 41,
+          70
+          /* KeyCode.F12 */
+        ),
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }, {
+        when: ContextKeyExpr.and(EditorContextKeys.editorTextFocus, IsWebContext),
+        primary: KeyChord(
+          2048 | 41,
+          2048 | 70
+          /* KeyCode.F12 */
+        ),
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }]
+    });
+    CommandsRegistry.registerCommandAlias("editor.action.openDeclarationToTheSide", OpenDefinitionToSideAction.id);
+  }
+});
+registerAction2(class PeekDefinitionAction extends DefinitionAction {
+  static {
+    __name(this, "PeekDefinitionAction");
+  }
+  static {
+    this.id = "editor.action.peekDefinition";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: true,
+      muteMessage: false
+    }, {
+      id: PeekDefinitionAction.id,
+      title: nls.localize2("actions.previewDecl.label", "Peek Definition"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasDefinitionProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      keybinding: {
+        when: EditorContextKeys.editorTextFocus,
+        primary: 512 | 70,
+        linux: {
+          primary: 2048 | 1024 | 68
+          /* KeyCode.F10 */
+        },
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: {
+        id: MenuId.EditorContextPeek,
+        group: "peek",
+        order: 2
+      }
+    });
+    CommandsRegistry.registerCommandAlias("editor.action.previewDeclaration", PeekDefinitionAction.id);
+  }
+});
+class DeclarationAction extends SymbolNavigationAction {
+  static {
+    __name(this, "DeclarationAction");
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getDeclarationsAtPosition(languageFeaturesService.declarationProvider, model, position, false, token), nls.localize("decl.title", "Declarations"));
+  }
+  _getNoResultFoundMessage(info) {
+    return info && info.word ? nls.localize("decl.noResultWord", "No declaration found for '{0}'", info.word) : nls.localize("decl.generic.noResults", "No declaration found");
+  }
+  _getAlternativeCommand(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).alternativeDeclarationCommand;
+  }
+  _getGoToPreference(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleDeclarations;
+  }
+}
+registerAction2(class GoToDeclarationAction extends DeclarationAction {
+  static {
+    __name(this, "GoToDeclarationAction");
+  }
+  static {
+    this.id = "editor.action.revealDeclaration";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: GoToDeclarationAction.id,
+      title: {
+        ...nls.localize2("actions.goToDeclaration.label", "Go to Declaration"),
+        mnemonicTitle: nls.localize({ key: "miGotoDeclaration", comment: ["&& denotes a mnemonic"] }, "Go to &&Declaration")
+      },
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasDeclarationProvider, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "navigation",
+        order: 1.3
+      }, {
+        id: MenuId.MenubarGoMenu,
+        precondition: null,
+        group: "4_symbol_nav",
+        order: 3
+      }]
+    });
+  }
+  _getNoResultFoundMessage(info) {
+    return info && info.word ? nls.localize("decl.noResultWord", "No declaration found for '{0}'", info.word) : nls.localize("decl.generic.noResults", "No declaration found");
+  }
+});
+registerAction2(class PeekDeclarationAction extends DeclarationAction {
+  static {
+    __name(this, "PeekDeclarationAction");
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: true,
+      muteMessage: false
+    }, {
+      id: "editor.action.peekDeclaration",
+      title: nls.localize2("actions.peekDecl.label", "Peek Declaration"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasDeclarationProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      menu: {
+        id: MenuId.EditorContextPeek,
+        group: "peek",
+        order: 3
+      }
+    });
+  }
+});
+class TypeDefinitionAction extends SymbolNavigationAction {
+  static {
+    __name(this, "TypeDefinitionAction");
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getTypeDefinitionsAtPosition(languageFeaturesService.typeDefinitionProvider, model, position, false, token), nls.localize("typedef.title", "Type Definitions"));
+  }
+  _getNoResultFoundMessage(info) {
+    return info && info.word ? nls.localize("goToTypeDefinition.noResultWord", "No type definition found for '{0}'", info.word) : nls.localize("goToTypeDefinition.generic.noResults", "No type definition found");
+  }
+  _getAlternativeCommand(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).alternativeTypeDefinitionCommand;
+  }
+  _getGoToPreference(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleTypeDefinitions;
+  }
+}
+registerAction2(class GoToTypeDefinitionAction extends TypeDefinitionAction {
+  static {
+    __name(this, "GoToTypeDefinitionAction");
+  }
+  static {
+    this.ID = "editor.action.goToTypeDefinition";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: GoToTypeDefinitionAction.ID,
+      title: {
+        ...nls.localize2("actions.goToTypeDefinition.label", "Go to Type Definition"),
+        mnemonicTitle: nls.localize({ key: "miGotoTypeDefinition", comment: ["&& denotes a mnemonic"] }, "Go to &&Type Definition")
+      },
+      precondition: EditorContextKeys.hasTypeDefinitionProvider,
+      keybinding: {
+        when: EditorContextKeys.editorTextFocus,
+        primary: 0,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "navigation",
+        order: 1.4
+      }, {
+        id: MenuId.MenubarGoMenu,
+        precondition: null,
+        group: "4_symbol_nav",
+        order: 3
+      }]
+    });
+  }
+});
+registerAction2(class PeekTypeDefinitionAction extends TypeDefinitionAction {
+  static {
+    __name(this, "PeekTypeDefinitionAction");
+  }
+  static {
+    this.ID = "editor.action.peekTypeDefinition";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: true,
+      muteMessage: false
+    }, {
+      id: PeekTypeDefinitionAction.ID,
+      title: nls.localize2("actions.peekTypeDefinition.label", "Peek Type Definition"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasTypeDefinitionProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      menu: {
+        id: MenuId.EditorContextPeek,
+        group: "peek",
+        order: 4
+      }
+    });
+  }
+});
+class ImplementationAction extends SymbolNavigationAction {
+  static {
+    __name(this, "ImplementationAction");
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getImplementationsAtPosition(languageFeaturesService.implementationProvider, model, position, false, token), nls.localize("impl.title", "Implementations"));
+  }
+  _getNoResultFoundMessage(info) {
+    return info && info.word ? nls.localize("goToImplementation.noResultWord", "No implementation found for '{0}'", info.word) : nls.localize("goToImplementation.generic.noResults", "No implementation found");
+  }
+  _getAlternativeCommand(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).alternativeImplementationCommand;
+  }
+  _getGoToPreference(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleImplementations;
+  }
+}
+registerAction2(class GoToImplementationAction extends ImplementationAction {
+  static {
+    __name(this, "GoToImplementationAction");
+  }
+  static {
+    this.ID = "editor.action.goToImplementation";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: GoToImplementationAction.ID,
+      title: {
+        ...nls.localize2("actions.goToImplementation.label", "Go to Implementations"),
+        mnemonicTitle: nls.localize({ key: "miGotoImplementation", comment: ["&& denotes a mnemonic"] }, "Go to &&Implementations")
+      },
+      precondition: EditorContextKeys.hasImplementationProvider,
+      keybinding: {
+        when: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 70,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "navigation",
+        order: 1.45
+      }, {
+        id: MenuId.MenubarGoMenu,
+        precondition: null,
+        group: "4_symbol_nav",
+        order: 4
+      }]
+    });
+  }
+});
+registerAction2(class PeekImplementationAction extends ImplementationAction {
+  static {
+    __name(this, "PeekImplementationAction");
+  }
+  static {
+    this.ID = "editor.action.peekImplementation";
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: true,
+      muteMessage: false
+    }, {
+      id: PeekImplementationAction.ID,
+      title: nls.localize2("actions.peekImplementation.label", "Peek Implementations"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasImplementationProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      keybinding: {
+        when: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 1024 | 70,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: {
+        id: MenuId.EditorContextPeek,
+        group: "peek",
+        order: 5
+      }
+    });
+  }
+});
+class ReferencesAction extends SymbolNavigationAction {
+  static {
+    __name(this, "ReferencesAction");
+  }
+  _getNoResultFoundMessage(info) {
+    return info ? nls.localize("references.no", "No references found for '{0}'", info.word) : nls.localize("references.noGeneric", "No references found");
+  }
+  _getAlternativeCommand(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).alternativeReferenceCommand;
+  }
+  _getGoToPreference(editor) {
+    return editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleReferences;
+  }
+}
+registerAction2(class GoToReferencesAction extends ReferencesAction {
+  static {
+    __name(this, "GoToReferencesAction");
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: false,
+      muteMessage: false
+    }, {
+      id: "editor.action.goToReferences",
+      title: {
+        ...nls.localize2("goToReferences.label", "Go to References"),
+        mnemonicTitle: nls.localize({ key: "miGotoReference", comment: ["&& denotes a mnemonic"] }, "Go to &&References")
+      },
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasReferenceProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      keybinding: {
+        when: EditorContextKeys.editorTextFocus,
+        primary: 1024 | 70,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: [{
+        id: MenuId.EditorContext,
+        group: "navigation",
+        order: 1.45
+      }, {
+        id: MenuId.MenubarGoMenu,
+        precondition: null,
+        group: "4_symbol_nav",
+        order: 5
+      }]
+    });
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getReferencesAtPosition(languageFeaturesService.referenceProvider, model, position, true, false, token), nls.localize("ref.title", "References"));
+  }
+});
+registerAction2(class PeekReferencesAction extends ReferencesAction {
+  static {
+    __name(this, "PeekReferencesAction");
+  }
+  constructor() {
+    super({
+      openToSide: false,
+      openInPeek: true,
+      muteMessage: false
+    }, {
+      id: "editor.action.referenceSearch.trigger",
+      title: nls.localize2("references.action.label", "Peek References"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.hasReferenceProvider, PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated()),
+      menu: {
+        id: MenuId.EditorContextPeek,
+        group: "peek",
+        order: 6
+      }
+    });
+  }
+  async _getLocationModel(languageFeaturesService, model, position, token) {
+    return new ReferencesModel(await getReferencesAtPosition(languageFeaturesService.referenceProvider, model, position, false, false, token), nls.localize("ref.title", "References"));
+  }
+});
+class GenericGoToLocationAction extends SymbolNavigationAction {
+  static {
+    __name(this, "GenericGoToLocationAction");
+  }
+  constructor(config, _references, _gotoMultipleBehaviour) {
+    super(config, {
+      id: "editor.action.goToLocation",
+      title: nls.localize2("label.generic", "Go to Any Symbol"),
+      precondition: ContextKeyExpr.and(PeekContext.notInPeekEditor, EditorContextKeys.isInEmbeddedEditor.toNegated())
+    });
+    this._references = _references;
+    this._gotoMultipleBehaviour = _gotoMultipleBehaviour;
+  }
+  async _getLocationModel(languageFeaturesService, _model, _position, _token) {
+    return new ReferencesModel(this._references, nls.localize("generic.title", "Locations"));
+  }
+  _getNoResultFoundMessage(info) {
+    return info && nls.localize("generic.noResult", "No results for '{0}'", info.word) || "";
+  }
+  _getGoToPreference(editor) {
+    return this._gotoMultipleBehaviour ?? editor.getOption(
+      67
+      /* EditorOption.gotoLocation */
+    ).multipleReferences;
+  }
+  _getAlternativeCommand() {
+    return void 0;
+  }
+}
+CommandsRegistry.registerCommand({
+  id: "editor.action.goToLocations",
+  metadata: {
+    description: "Go to locations from a position in a file",
+    args: [
+      { name: "uri", description: "The text document in which to start", constraint: URI },
+      { name: "position", description: "The position at which to start", constraint: corePosition.Position.isIPosition },
+      { name: "locations", description: "An array of locations.", constraint: Array },
+      { name: "multiple", description: "Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto`" },
+      { name: "noResultsMessage", description: "Human readable message that shows when locations is empty." }
+    ]
+  },
+  handler: /* @__PURE__ */ __name(async (accessor, resource, position, references, multiple, noResultsMessage, openInPeek) => {
+    assertType(URI.isUri(resource));
+    assertType(corePosition.Position.isIPosition(position));
+    assertType(Array.isArray(references));
+    assertType(typeof multiple === "undefined" || typeof multiple === "string");
+    assertType(typeof openInPeek === "undefined" || typeof openInPeek === "boolean");
+    const editorService = accessor.get(ICodeEditorService);
+    const editor = await editorService.openCodeEditor({ resource }, editorService.getFocusedCodeEditor());
+    if (isCodeEditor(editor)) {
+      editor.setPosition(position);
+      editor.revealPositionInCenterIfOutsideViewport(
+        position,
+        0
+        /* ScrollType.Smooth */
+      );
+      return editor.invokeWithinContext((accessor2) => {
+        const command = new class extends GenericGoToLocationAction {
+          _getNoResultFoundMessage(info) {
+            return noResultsMessage || super._getNoResultFoundMessage(info);
+          }
+        }({
+          muteMessage: !Boolean(noResultsMessage),
+          openInPeek: Boolean(openInPeek),
+          openToSide: false
+        }, references, multiple);
+        accessor2.get(IInstantiationService).invokeFunction(command.run.bind(command), editor);
+      });
+    }
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  id: "editor.action.peekLocations",
+  metadata: {
+    description: "Peek locations from a position in a file",
+    args: [
+      { name: "uri", description: "The text document in which to start", constraint: URI },
+      { name: "position", description: "The position at which to start", constraint: corePosition.Position.isIPosition },
+      { name: "locations", description: "An array of locations.", constraint: Array },
+      { name: "multiple", description: "Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto`" }
+    ]
+  },
+  handler: /* @__PURE__ */ __name(async (accessor, resource, position, references, multiple) => {
+    accessor.get(ICommandService).executeCommand("editor.action.goToLocations", resource, position, references, multiple, void 0, true);
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  id: "editor.action.findReferences",
+  handler: /* @__PURE__ */ __name((accessor, resource, position) => {
+    assertType(URI.isUri(resource));
+    assertType(corePosition.Position.isIPosition(position));
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const codeEditorService = accessor.get(ICodeEditorService);
+    return codeEditorService.openCodeEditor({ resource }, codeEditorService.getFocusedCodeEditor()).then((control) => {
+      if (!isCodeEditor(control) || !control.hasModel()) {
+        return void 0;
+      }
+      const controller = ReferencesController.get(control);
+      if (!controller) {
+        return void 0;
+      }
+      const references = createCancelablePromise((token) => getReferencesAtPosition(languageFeaturesService.referenceProvider, control.getModel(), corePosition.Position.lift(position), false, false, token).then((references2) => new ReferencesModel(references2, nls.localize("ref.title", "References"))));
+      const range = new Range(position.lineNumber, position.column, position.lineNumber, position.column);
+      return Promise.resolve(controller.toggleWidget(range, references, false));
+    });
+  }, "handler")
+});
+CommandsRegistry.registerCommandAlias("editor.action.showReferences", "editor.action.peekLocations");
+export {
+  DefinitionAction,
+  SymbolNavigationAction,
+  SymbolNavigationAnchor
+};
+//# sourceMappingURL=goToCommands.js.map

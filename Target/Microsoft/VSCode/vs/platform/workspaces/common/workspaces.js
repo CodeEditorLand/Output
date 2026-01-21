@@ -1,3 +1,234 @@
-import{$7g as S,$4g as A}from"../../../base/common/extpath.js";import*as b from"../../../base/common/json.js";import*as d from"../../../base/common/jsonEdit.js";import{$Om as P}from"../../../base/common/labels.js";import{Schemas as F}from"../../../base/common/network.js";import{$8 as O,$6 as $}from"../../../base/common/path.js";import{$o as z,$n as W,$m as w}from"../../../base/common/platform.js";import{$Mh as x}from"../../../base/common/resources.js";import{URI as p}from"../../../base/common/uri.js";import{$Mj as E}from"../../instantiation/common/instantiation.js";import{$9u as j}from"../../remote/common/remoteHosts.js";import{$Wl as K}from"../../workspace/common/workspace.js";const U=E("workspacesService");function R(e){return e.hasOwnProperty("workspace")}function M(e){return e.hasOwnProperty("folderUri")}function I(e){return e.hasOwnProperty("fileUri")}function q(e){return m(e)||g(e)}function m(e){const t=e;return typeof t?.path=="string"&&(!t.name||typeof t.name=="string")}function g(e){const t=e;return typeof t?.uri=="string"&&(!t.name||typeof t.name=="string")}function G(e,t,i,r,s){if(e.scheme!==r.scheme)return{name:i,uri:e.toString(!0)};let o=t?void 0:s.relativePath(r,e);if(o!==void 0)o.length===0?o=".":w&&(o=y(o));else if(e.scheme===F.file)o=e.fsPath,w&&(o=y(o));else if(s.isEqualAuthority(e.authority,r.authority))o=e.path;else return{name:i,uri:e.toString(!0)};return{name:i,path:o}}function y(e){return e=P(e),S(e)||(e=A(e)),e}function ee(e,t,i){const r=[],s=new Set,o=i.dirname(t);for(const a of e){let n;if(m(a))a.path&&(n=i.resolvePath(o,a.path));else if(g(a))try{n=p.parse(a.uri),n.path[0]!==$.sep&&(n=n.with({path:$.sep+n.path}))}catch{}if(n){const c=i.getComparisonKey(n);if(!s.has(c)){s.add(c);const l=a.name||i.basenameOrAuthority(n);r.push(new K({uri:n,name:l,index:r.length},a))}}}return r}function re(e,t,i,r,s){const o=J(t,e),a=s.dirname(t),n=s.dirname(r),c=[];for(const f of o.folders){const v=m(f)?s.resolvePath(a,f.path):p.parse(f.uri);let h;i?h=!1:h=!m(f)||O(f.path),c.push(G(v,h,f.name,n,s))}const l={insertSpaces:!1,tabSize:4,eol:z||W?`
-`:`\r
-`},k=d.$Yv(e,["folders"],c,l);let u=d.$2v(e,k);return x(o.remoteAuthority,j(r))&&(u=d.$2v(u,d.$Xv(u,["remoteAuthority"],l))),u}function J(e,t){const i=b.$zv(t);if(i&&Array.isArray(i.folders))i.folders=i.folders.filter(r=>q(r));else throw new Error(`${e} looks like an invalid workspace file.`);return i}function L(e){const t=e;return typeof t?.workspace=="object"&&typeof t.workspace.id=="string"&&typeof t.workspace.configPath=="string"}function T(e){return typeof e?.folderUri=="string"}function X(e){return typeof e?.fileUri=="string"}function te(e,t){const i={workspaces:[],files:[]};if(e){const r=function(o,a){for(let n=0;n<o.length;n++)try{a(o[n],n)}catch(c){t.warn(`Error restoring recent entry ${JSON.stringify(o[n])}: ${c.toString()}. Skip entry.`)}},s=e;Array.isArray(s.entries)&&r(s.entries,o=>{const a=o.label,n=o.remoteAuthority;L(o)?i.workspaces.push({label:a,remoteAuthority:n,workspace:{id:o.workspace.id,configPath:p.parse(o.workspace.configPath)}}):T(o)?i.workspaces.push({label:a,remoteAuthority:n,folderUri:p.parse(o.folderUri)}):X(o)&&i.files.push({label:a,remoteAuthority:n,fileUri:p.parse(o.fileUri)})})}return i}function oe(e){const t={entries:[]},i=(r,s)=>r&&r!==s.fsPath&&r!==s.path;for(const r of e.workspaces)M(r)?t.entries.push({folderUri:r.folderUri.toString(),label:i(r.label,r.folderUri)?r.label:void 0,remoteAuthority:r.remoteAuthority}):t.entries.push({workspace:{id:r.workspace.id,configPath:r.workspace.configPath.toString()},label:i(r.label,r.workspace.configPath)?r.label:void 0,remoteAuthority:r.remoteAuthority});for(const r of e.files)t.entries.push({fileUri:r.fileUri.toString(),label:i(r.label,r.fileUri)?r.label:void 0,remoteAuthority:r.remoteAuthority});return t}export{te as $$v,re as $0v,U as $3v,R as $4v,M as $5v,I as $6v,q as $7v,G as $8v,ee as $9v,oe as $_v};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isUNC, toSlashes } from "../../../base/common/extpath.js";
+import * as json from "../../../base/common/json.js";
+import * as jsonEdit from "../../../base/common/jsonEdit.js";
+import { normalizeDriveLetter } from "../../../base/common/labels.js";
+import { Schemas } from "../../../base/common/network.js";
+import { isAbsolute, posix } from "../../../base/common/path.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { isEqualAuthority } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { getRemoteAuthority } from "../../remote/common/remoteHosts.js";
+import { WorkspaceFolder } from "../../workspace/common/workspace.js";
+const IWorkspacesService = createDecorator("workspacesService");
+function isRecentWorkspace(curr) {
+  return curr.hasOwnProperty("workspace");
+}
+__name(isRecentWorkspace, "isRecentWorkspace");
+function isRecentFolder(curr) {
+  return curr.hasOwnProperty("folderUri");
+}
+__name(isRecentFolder, "isRecentFolder");
+function isRecentFile(curr) {
+  return curr.hasOwnProperty("fileUri");
+}
+__name(isRecentFile, "isRecentFile");
+function isStoredWorkspaceFolder(obj) {
+  return isRawFileWorkspaceFolder(obj) || isRawUriWorkspaceFolder(obj);
+}
+__name(isStoredWorkspaceFolder, "isStoredWorkspaceFolder");
+function isRawFileWorkspaceFolder(obj) {
+  const candidate = obj;
+  return typeof candidate?.path === "string" && (!candidate.name || typeof candidate.name === "string");
+}
+__name(isRawFileWorkspaceFolder, "isRawFileWorkspaceFolder");
+function isRawUriWorkspaceFolder(obj) {
+  const candidate = obj;
+  return typeof candidate?.uri === "string" && (!candidate.name || typeof candidate.name === "string");
+}
+__name(isRawUriWorkspaceFolder, "isRawUriWorkspaceFolder");
+function getStoredWorkspaceFolder(folderURI, forceAbsolute, folderName, targetConfigFolderURI, extUri) {
+  if (folderURI.scheme !== targetConfigFolderURI.scheme) {
+    return { name: folderName, uri: folderURI.toString(true) };
+  }
+  let folderPath = !forceAbsolute ? extUri.relativePath(targetConfigFolderURI, folderURI) : void 0;
+  if (folderPath !== void 0) {
+    if (folderPath.length === 0) {
+      folderPath = ".";
+    } else {
+      if (isWindows) {
+        folderPath = massagePathForWindows(folderPath);
+      }
+    }
+  } else {
+    if (folderURI.scheme === Schemas.file) {
+      folderPath = folderURI.fsPath;
+      if (isWindows) {
+        folderPath = massagePathForWindows(folderPath);
+      }
+    } else if (!extUri.isEqualAuthority(folderURI.authority, targetConfigFolderURI.authority)) {
+      return { name: folderName, uri: folderURI.toString(true) };
+    } else {
+      folderPath = folderURI.path;
+    }
+  }
+  return { name: folderName, path: folderPath };
+}
+__name(getStoredWorkspaceFolder, "getStoredWorkspaceFolder");
+function massagePathForWindows(folderPath) {
+  folderPath = normalizeDriveLetter(folderPath);
+  if (!isUNC(folderPath)) {
+    folderPath = toSlashes(folderPath);
+  }
+  return folderPath;
+}
+__name(massagePathForWindows, "massagePathForWindows");
+function toWorkspaceFolders(configuredFolders, workspaceConfigFile, extUri) {
+  const result = [];
+  const seen = /* @__PURE__ */ new Set();
+  const relativeTo = extUri.dirname(workspaceConfigFile);
+  for (const configuredFolder of configuredFolders) {
+    let uri = void 0;
+    if (isRawFileWorkspaceFolder(configuredFolder)) {
+      if (configuredFolder.path) {
+        uri = extUri.resolvePath(relativeTo, configuredFolder.path);
+      }
+    } else if (isRawUriWorkspaceFolder(configuredFolder)) {
+      try {
+        uri = URI.parse(configuredFolder.uri);
+        if (uri.path[0] !== posix.sep) {
+          uri = uri.with({ path: posix.sep + uri.path });
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    if (uri) {
+      const comparisonKey = extUri.getComparisonKey(uri);
+      if (!seen.has(comparisonKey)) {
+        seen.add(comparisonKey);
+        const name = configuredFolder.name || extUri.basenameOrAuthority(uri);
+        result.push(new WorkspaceFolder({ uri, name, index: result.length }, configuredFolder));
+      }
+    }
+  }
+  return result;
+}
+__name(toWorkspaceFolders, "toWorkspaceFolders");
+function rewriteWorkspaceFileForNewLocation(rawWorkspaceContents, configPathURI, isFromUntitledWorkspace, targetConfigPathURI, extUri) {
+  const storedWorkspace = doParseStoredWorkspace(configPathURI, rawWorkspaceContents);
+  const sourceConfigFolder = extUri.dirname(configPathURI);
+  const targetConfigFolder = extUri.dirname(targetConfigPathURI);
+  const rewrittenFolders = [];
+  for (const folder of storedWorkspace.folders) {
+    const folderURI = isRawFileWorkspaceFolder(folder) ? extUri.resolvePath(sourceConfigFolder, folder.path) : URI.parse(folder.uri);
+    let absolute;
+    if (isFromUntitledWorkspace) {
+      absolute = false;
+    } else {
+      absolute = !isRawFileWorkspaceFolder(folder) || isAbsolute(folder.path);
+    }
+    rewrittenFolders.push(getStoredWorkspaceFolder(folderURI, absolute, folder.name, targetConfigFolder, extUri));
+  }
+  const formattingOptions = { insertSpaces: false, tabSize: 4, eol: isLinux || isMacintosh ? "\n" : "\r\n" };
+  const edits = jsonEdit.setProperty(rawWorkspaceContents, ["folders"], rewrittenFolders, formattingOptions);
+  let newContent = jsonEdit.applyEdits(rawWorkspaceContents, edits);
+  if (isEqualAuthority(storedWorkspace.remoteAuthority, getRemoteAuthority(targetConfigPathURI))) {
+    newContent = jsonEdit.applyEdits(newContent, jsonEdit.removeProperty(newContent, ["remoteAuthority"], formattingOptions));
+  }
+  return newContent;
+}
+__name(rewriteWorkspaceFileForNewLocation, "rewriteWorkspaceFileForNewLocation");
+function doParseStoredWorkspace(path, contents) {
+  const storedWorkspace = json.parse(contents);
+  if (storedWorkspace && Array.isArray(storedWorkspace.folders)) {
+    storedWorkspace.folders = storedWorkspace.folders.filter((folder) => isStoredWorkspaceFolder(folder));
+  } else {
+    throw new Error(`${path} looks like an invalid workspace file.`);
+  }
+  return storedWorkspace;
+}
+__name(doParseStoredWorkspace, "doParseStoredWorkspace");
+function isSerializedRecentWorkspace(data) {
+  const candidate = data;
+  return typeof candidate?.workspace === "object" && typeof candidate.workspace.id === "string" && typeof candidate.workspace.configPath === "string";
+}
+__name(isSerializedRecentWorkspace, "isSerializedRecentWorkspace");
+function isSerializedRecentFolder(data) {
+  const candidate = data;
+  return typeof candidate?.folderUri === "string";
+}
+__name(isSerializedRecentFolder, "isSerializedRecentFolder");
+function isSerializedRecentFile(data) {
+  const candidate = data;
+  return typeof candidate?.fileUri === "string";
+}
+__name(isSerializedRecentFile, "isSerializedRecentFile");
+function restoreRecentlyOpened(data, logService) {
+  const result = { workspaces: [], files: [] };
+  if (data) {
+    const restoreGracefully = /* @__PURE__ */ __name(function(entries, onEntry) {
+      for (let i = 0; i < entries.length; i++) {
+        try {
+          onEntry(entries[i], i);
+        } catch (e) {
+          logService.warn(`Error restoring recent entry ${JSON.stringify(entries[i])}: ${e.toString()}. Skip entry.`);
+        }
+      }
+    }, "restoreGracefully");
+    const storedRecents = data;
+    if (Array.isArray(storedRecents.entries)) {
+      restoreGracefully(storedRecents.entries, (entry) => {
+        const label = entry.label;
+        const remoteAuthority = entry.remoteAuthority;
+        if (isSerializedRecentWorkspace(entry)) {
+          result.workspaces.push({ label, remoteAuthority, workspace: { id: entry.workspace.id, configPath: URI.parse(entry.workspace.configPath) } });
+        } else if (isSerializedRecentFolder(entry)) {
+          result.workspaces.push({ label, remoteAuthority, folderUri: URI.parse(entry.folderUri) });
+        } else if (isSerializedRecentFile(entry)) {
+          result.files.push({ label, remoteAuthority, fileUri: URI.parse(entry.fileUri) });
+        }
+      });
+    }
+  }
+  return result;
+}
+__name(restoreRecentlyOpened, "restoreRecentlyOpened");
+function toStoreData(recents) {
+  const serialized = { entries: [] };
+  const storeLabel = /* @__PURE__ */ __name((label, uri) => {
+    return label && label !== uri.fsPath && label !== uri.path;
+  }, "storeLabel");
+  for (const recent of recents.workspaces) {
+    if (isRecentFolder(recent)) {
+      serialized.entries.push({
+        folderUri: recent.folderUri.toString(),
+        label: storeLabel(recent.label, recent.folderUri) ? recent.label : void 0,
+        remoteAuthority: recent.remoteAuthority
+      });
+    } else {
+      serialized.entries.push({
+        workspace: {
+          id: recent.workspace.id,
+          configPath: recent.workspace.configPath.toString()
+        },
+        label: storeLabel(recent.label, recent.workspace.configPath) ? recent.label : void 0,
+        remoteAuthority: recent.remoteAuthority
+      });
+    }
+  }
+  for (const recent of recents.files) {
+    serialized.entries.push({
+      fileUri: recent.fileUri.toString(),
+      label: storeLabel(recent.label, recent.fileUri) ? recent.label : void 0,
+      remoteAuthority: recent.remoteAuthority
+    });
+  }
+  return serialized;
+}
+__name(toStoreData, "toStoreData");
+export {
+  IWorkspacesService,
+  getStoredWorkspaceFolder,
+  isRecentFile,
+  isRecentFolder,
+  isRecentWorkspace,
+  isStoredWorkspaceFolder,
+  restoreRecentlyOpened,
+  rewriteWorkspaceFileForNewLocation,
+  toStoreData,
+  toWorkspaceFolders
+};
+//# sourceMappingURL=workspaces.js.map

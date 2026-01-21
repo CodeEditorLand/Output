@@ -1,1 +1,13 @@
-import{$km as o}from"../../../../platform/configuration/common/configurationRegistry.js";import{$TC as r}from"../../../../platform/instantiation/common/extensions.js";import{$im as i}from"../../../../platform/registry/common/platform.js";import{$k7b as m}from"./configuration.js";import{$o7b as t,$n7b as n}from"./externalUriOpenerService.js";r(n,t,1);i.as(o.Configuration).registerConfiguration(m);
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { externalUriOpenersConfigurationNode } from "./configuration.js";
+import { ExternalUriOpenerService, IExternalUriOpenerService } from "./externalUriOpenerService.js";
+registerSingleton(
+  IExternalUriOpenerService,
+  ExternalUriOpenerService,
+  1
+  /* InstantiationType.Delayed */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration(externalUriOpenersConfigurationNode);
+//# sourceMappingURL=externalUriOpener.contribution.js.map

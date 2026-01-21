@@ -1,1 +1,145 @@
-import{$ii as b}from"../../../../../base/common/async.js";import{$Ed as w,$Dd as x,$Fd as _}from"../../../../../base/common/lifecycle.js";import{Schemas as j}from"../../../../../base/common/network.js";import{autorun as y,observableValue as H}from"../../../../../base/common/observable.js";import{URI as l}from"../../../../../base/common/uri.js";import{localize as R}from"../../../../../nls.js";import{$9l as d}from"../../../../../platform/configuration/common/configuration.js";import{$uk as v}from"../../../../../platform/files/common/files.js";import{$Lj as F}from"../../../../../platform/instantiation/common/instantiation.js";import{$lH as I}from"../../../../../platform/label/common/label.js";import{$ghb as D}from"../../../../../platform/observable/common/platformObservableUtils.js";import{$vS as J,$yS as O}from"../mcpConfiguration.js";import{$JS as $}from"../mcpRegistryTypes.js";import{$Gpc as P,$Ipc as S,$Hpc as A}from"./nativeMcpDiscoveryAdapters.js";var h=function(a,e,r,t){var i=arguments.length,o=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,e,r,t);else for(var f=a.length-1;f>=0;f--)(n=a[f])&&(o=(i<3?n(o):i>3?n(e,r,o):n(e,r))||o);return i>3&&o&&Object.defineProperty(e,r,o),o},c=function(a,e){return function(r,t){e(r,t,a)}};let m=class extends w{constructor(e,r,t){super(),this.b=r,this.c=t,this.fromGallery=!1,this.a=D(O,void 0,e)}f(e,r){const t=this.a.read(e);return typeof t=="boolean"?t:!!(r&&t?.[r]===!0)}g(e,r,t,i){const o=new x,n=o.add(new _),f=async()=>{let s=[];try{const p=await this.b.readFile(e);s=await i(p.value)||[]}catch{}s.length?(r.serverDefinitions.set(s,void 0),n.value||(n.value=this.c.registerCollection(r))):n.clear()};return o.add(y(s=>{if(!this.f(s,t)){n.clear();return}const p=s.store.add(new b(f,500)),g=s.store.add(this.b.createWatcher(e,{recursive:!1,excludes:[]}));s.store.add(g.onDidChange(()=>p.schedule())),f()})),o}};m=h([c(0,d),c(1,v),c(2,$)],m);let u=class extends m{constructor(e,r,t,i,o,n){super(n,t,o),this.j="",e&&(this.j=" "+R(10080,null,r.getHostLabel(j.vscodeRemote,e))),this.h=[i.createInstance(P,e),i.createInstance(S,e),i.createInstance(A,e)]}m(e){if(!e)return;const r={...e,homedir:l.revive(e.homedir),xdgHome:e.xdgHome?l.revive(e.xdgHome):void 0,winAppData:e.winAppData?l.revive(e.winAppData):void 0};for(const t of this.h){const i=t.getFilePath(r);if(!i)continue;const o={id:t.id,label:J[t.discoverySource]+this.j,remoteAuthority:t.remoteAuthority,configTarget:2,scope:0,trustBehavior:1,serverDefinitions:H(this,[]),presentation:{origin:i,order:t.order+(t.remoteAuthority?-50:0)}};this.D(this.g(i,o,t.discoverySource,n=>t.adaptFile(n,r)))}}};u=h([c(1,I),c(2,v),c(3,F),c(4,$),c(5,d)],u);export{m as $Jpc,u as $Kpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { autorun, observableValue } from "../../../../../base/common/observable.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { discoverySourceLabel, mcpDiscoverySection } from "../mcpConfiguration.js";
+import { IMcpRegistry } from "../mcpRegistryTypes.js";
+import { ClaudeDesktopMpcDiscoveryAdapter, CursorDesktopMpcDiscoveryAdapter, WindsurfDesktopMpcDiscoveryAdapter } from "./nativeMcpDiscoveryAdapters.js";
+let FilesystemMcpDiscovery = class FilesystemMcpDiscovery2 extends Disposable {
+  static {
+    __name(this, "FilesystemMcpDiscovery");
+  }
+  constructor(configurationService, _fileService, _mcpRegistry) {
+    super();
+    this._fileService = _fileService;
+    this._mcpRegistry = _mcpRegistry;
+    this.fromGallery = false;
+    this._fsDiscoveryEnabled = observableConfigValue(mcpDiscoverySection, void 0, configurationService);
+  }
+  _isDiscoveryEnabled(reader, discoverySource) {
+    const fsDiscovery = this._fsDiscoveryEnabled.read(reader);
+    if (typeof fsDiscovery === "boolean") {
+      return fsDiscovery;
+    }
+    if (discoverySource && fsDiscovery?.[discoverySource] === true) {
+      return true;
+    }
+    return false;
+  }
+  watchFile(file, collection, discoverySource, adaptFile) {
+    const store = new DisposableStore();
+    const collectionRegistration = store.add(new MutableDisposable());
+    const updateFile = /* @__PURE__ */ __name(async () => {
+      let definitions = [];
+      try {
+        const contents = await this._fileService.readFile(file);
+        definitions = await adaptFile(contents.value) || [];
+      } catch {
+      }
+      if (!definitions.length) {
+        collectionRegistration.clear();
+      } else {
+        collection.serverDefinitions.set(definitions, void 0);
+        if (!collectionRegistration.value) {
+          collectionRegistration.value = this._mcpRegistry.registerCollection(collection);
+        }
+      }
+    }, "updateFile");
+    store.add(autorun((reader) => {
+      if (!this._isDiscoveryEnabled(reader, discoverySource)) {
+        collectionRegistration.clear();
+        return;
+      }
+      const throttler = reader.store.add(new RunOnceScheduler(updateFile, 500));
+      const watcher = reader.store.add(this._fileService.createWatcher(file, { recursive: false, excludes: [] }));
+      reader.store.add(watcher.onDidChange(() => throttler.schedule()));
+      updateFile();
+    }));
+    return store;
+  }
+};
+FilesystemMcpDiscovery = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IFileService),
+  __param(2, IMcpRegistry)
+], FilesystemMcpDiscovery);
+let NativeFilesystemMcpDiscovery = class NativeFilesystemMcpDiscovery2 extends FilesystemMcpDiscovery {
+  static {
+    __name(this, "NativeFilesystemMcpDiscovery");
+  }
+  constructor(remoteAuthority, labelService, fileService, instantiationService, mcpRegistry, configurationService) {
+    super(configurationService, fileService, mcpRegistry);
+    this.suffix = "";
+    if (remoteAuthority) {
+      this.suffix = " " + localize("onRemoteLabel", " on {0}", labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority));
+    }
+    this.adapters = [
+      instantiationService.createInstance(ClaudeDesktopMpcDiscoveryAdapter, remoteAuthority),
+      instantiationService.createInstance(CursorDesktopMpcDiscoveryAdapter, remoteAuthority),
+      instantiationService.createInstance(WindsurfDesktopMpcDiscoveryAdapter, remoteAuthority)
+    ];
+  }
+  setDetails(detailsDto) {
+    if (!detailsDto) {
+      return;
+    }
+    const details = {
+      ...detailsDto,
+      homedir: URI.revive(detailsDto.homedir),
+      xdgHome: detailsDto.xdgHome ? URI.revive(detailsDto.xdgHome) : void 0,
+      winAppData: detailsDto.winAppData ? URI.revive(detailsDto.winAppData) : void 0
+    };
+    for (const adapter of this.adapters) {
+      const file = adapter.getFilePath(details);
+      if (!file) {
+        continue;
+      }
+      const collection = {
+        id: adapter.id,
+        label: discoverySourceLabel[adapter.discoverySource] + this.suffix,
+        remoteAuthority: adapter.remoteAuthority,
+        configTarget: 2,
+        scope: 0,
+        trustBehavior: 1,
+        serverDefinitions: observableValue(this, []),
+        presentation: {
+          origin: file,
+          order: adapter.order + (adapter.remoteAuthority ? -50 : 0)
+        }
+      };
+      this._register(this.watchFile(file, collection, adapter.discoverySource, (contents) => adapter.adaptFile(contents, details)));
+    }
+  }
+};
+NativeFilesystemMcpDiscovery = __decorate([
+  __param(1, ILabelService),
+  __param(2, IFileService),
+  __param(3, IInstantiationService),
+  __param(4, IMcpRegistry),
+  __param(5, IConfigurationService)
+], NativeFilesystemMcpDiscovery);
+export {
+  FilesystemMcpDiscovery,
+  NativeFilesystemMcpDiscovery
+};
+//# sourceMappingURL=nativeMcpDiscoveryAbstract.js.map

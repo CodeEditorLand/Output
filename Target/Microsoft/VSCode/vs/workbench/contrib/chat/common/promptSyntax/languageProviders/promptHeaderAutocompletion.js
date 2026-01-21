@@ -1,3 +1,258 @@
-import{$8D as w}from"../../../../../../editor/common/core/position.js";import{$9D as h}from"../../../../../../editor/common/core/range.js";import{ILanguageModelChatMetadata as x,$dS as M}from"../../languageModels.js";import{$oS as _}from"../../tools/languageModelToolsService.js";import{$ER as k}from"../../chatModes.js";import{$xR as A,PromptsType as o}from"../promptTypes.js";import{$DR as S}from"../service/promptsService.js";import{Iterable as O}from"../../../../../../base/common/iterator.js";import{PromptHeaderAttributes as g}from"../promptFileParser.js";import{$blc as v,$elc as C,$dlc as j}from"./promptValidator.js";import{localize as I}from"../../../../../../nls.js";var R=function(b,t,e,s){var r=arguments.length,n=r<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(b,t,e,s);else for(var c=b.length-1;c>=0;c--)(a=b[c])&&(n=(r<3?a(n):r>3?a(t,e,n):a(t,e))||n);return r>3&&n&&Object.defineProperty(t,e,n),n},N=function(b,t){return function(e,s){t(e,s,b)}};let L=class{constructor(t,e,s,r){this.a=t,this.b=e,this.c=s,this.d=r,this._debugDisplayName="PromptHeaderAutocompletion",this.triggerCharacters=[":"]}async provideCompletionItems(t,e,s,r){const n=A(t.getLanguageId());if(!n)return;if(/^\s*$/.test(t.getValue()))return{suggestions:[{label:I(6689,null),kind:28,insertText:["---","description: $1","---","$0"].join(`
-`),insertTextRules:4,range:t.getFullModelRange()}]};const a=this.a.getParsedPromptFile(t),c=a.header;if(!c)return;const l=a.header.range;if(e.lineNumber<l.startLineNumber||e.lineNumber>=l.endLineNumber)return;const i=t.getLineContent(e.lineNumber).indexOf(":"),u=i!==-1?new w(e.lineNumber,i+1):void 0;if(!u||e.isBeforeOrEqual(u))return this.e(t,e,c,u,n);if(u&&u.isBefore(e))return this.f(t,e,c,u,n)}async e(t,e,s,r,n){const a=[],c=C(n,s.target),l=new Set(v(n,!1,c));for(const i of s.attributes)l.delete(i.key);const m=i=>{if(r)return i;const u=this.g(n,i);return u.length>0?`${i}: \${0:${u[0]}}`:`${i}: $0`};for(const i of l){const u={label:i,kind:9,insertText:m(i),insertTextRules:4,range:new h(e.lineNumber,1,e.lineNumber,r?r.column:t.getLineMaxColumn(e.lineNumber))};a.push(u)}return{suggestions:a}}async f(t,e,s,r,n){const a=[],c=t.getLineContent(e.lineNumber),l=c.substring(0,r.column-1).trim(),m=C(n,s.target);if(!v(n,!0,m).includes(l))return;if(n===o.prompt||n===o.agent){const f=this.i(t,e,s,m);if(f)return f}const i=c.indexOf("[");if(i!==-1&&i<=e.column-1)return;const u=c.substring(r.column).match(/^\s*/)?.[0].length??0,d=this.g(n,l);for(const f of d){const $={label:f,kind:13,insertText:u===0?` ${f}`:f,range:new h(e.lineNumber,r.column+u+1,e.lineNumber,t.getLineMaxColumn(e.lineNumber))};a.push($)}if(l===g.handOffs&&n===o.agent){const f=["","  - label: Start Implementation","    agent: agent","    prompt: Implement the plan","    send: true"].join(`
-`),$={label:I(6690,null),kind:13,insertText:u===0?` ${f}`:f,range:new h(e.lineNumber,r.column+u+1,e.lineNumber,t.getLineMaxColumn(e.lineNumber))};a.push($)}return{suggestions:a}}g(t,e){switch(e){case g.applyTo:if(t===o.instructions)return["'**'","'**/*.ts, **/*.js'","'**/*.php'","'**/*.py'"];break;case g.agent:case g.mode:if(t===o.prompt){const s=this.d.getModes(),r=[];for(const n of O.concat(s.builtin,s.custom))r.push(n.name.get());return r}break;case g.target:if(t===o.agent)return["vscode","github-copilot"];break;case g.tools:if(t===o.prompt||t===o.agent)return["[]","['search', 'edit', 'fetch']"];break;case g.model:if(t===o.prompt||t===o.agent)return this.h(t===o.agent);break;case g.infer:if(t===o.agent)return["true","false"];break}return[]}h(t){const e=[];for(const s of this.b.getLanguageModelIds()){const r=this.b.lookupLanguageModel(s);r&&r.isUserSelectable!==!1&&(!t||x.suitableForAgentMode(r))&&e.push(x.asQualifiedName(r))}return e}i(t,e,s,r){const n=s.getAttribute(g.tools);if(!n||n.value.type!=="array"||!n.range.containsPosition(e))return;const a=l=>{const m=[],i=r?j:this.c.getFullReferenceNames();for(const u of i){let d;if(l.isEmpty())d=`'${u}'`;else{const f=t.getValueInRange(l).charCodeAt(0);d=f===39?`'${u}'`:f===34?`"${u}"`:u}m.push({label:u,kind:13,filterText:d,insertText:d,range:l})}return{suggestions:m}};for(const l of n.value.items)if(l.range.containsPosition(e))return a(l.range);if(t.getValueInRange(new h(e.lineNumber,1,e.lineNumber,e.column)).match(/[,[]\s*$/))return a(new h(e.lineNumber,e.column,e.lineNumber,e.column))}};L=R([N(0,S),N(1,M),N(2,_),N(3,k)],L);export{L as $glc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Position } from "../../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { ILanguageModelChatMetadata, ILanguageModelsService } from "../../languageModels.js";
+import { ILanguageModelToolsService } from "../../tools/languageModelToolsService.js";
+import { IChatModeService } from "../../chatModes.js";
+import { getPromptsTypeForLanguageId, PromptsType } from "../promptTypes.js";
+import { IPromptsService } from "../service/promptsService.js";
+import { Iterable } from "../../../../../../base/common/iterator.js";
+import { PromptHeaderAttributes } from "../promptFileParser.js";
+import { getValidAttributeNames, isGithubTarget, knownGithubCopilotTools } from "./promptValidator.js";
+import { localize } from "../../../../../../nls.js";
+let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
+  static {
+    __name(this, "PromptHeaderAutocompletion");
+  }
+  constructor(promptsService, languageModelsService, languageModelToolsService, chatModeService) {
+    this.promptsService = promptsService;
+    this.languageModelsService = languageModelsService;
+    this.languageModelToolsService = languageModelToolsService;
+    this.chatModeService = chatModeService;
+    this._debugDisplayName = "PromptHeaderAutocompletion";
+    this.triggerCharacters = [":"];
+  }
+  /**
+   * The main function of this provider that calculates
+   * completion items based on the provided arguments.
+   */
+  async provideCompletionItems(model, position, context, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType) {
+      return void 0;
+    }
+    if (/^\s*$/.test(model.getValue())) {
+      return {
+        suggestions: [{
+          label: localize("promptHeaderAutocompletion.addHeader", "Add Prompt Header"),
+          kind: 28,
+          insertText: [
+            `---`,
+            `description: $1`,
+            `---`,
+            `$0`
+          ].join("\n"),
+          insertTextRules: 4,
+          range: model.getFullModelRange()
+        }]
+      };
+    }
+    const parsedAST = this.promptsService.getParsedPromptFile(model);
+    const header = parsedAST.header;
+    if (!header) {
+      return void 0;
+    }
+    const headerRange = parsedAST.header.range;
+    if (position.lineNumber < headerRange.startLineNumber || position.lineNumber >= headerRange.endLineNumber) {
+      return void 0;
+    }
+    const lineText = model.getLineContent(position.lineNumber);
+    const colonIndex = lineText.indexOf(":");
+    const colonPosition = colonIndex !== -1 ? new Position(position.lineNumber, colonIndex + 1) : void 0;
+    if (!colonPosition || position.isBeforeOrEqual(colonPosition)) {
+      return this.provideAttributeNameCompletions(model, position, header, colonPosition, promptType);
+    } else if (colonPosition && colonPosition.isBefore(position)) {
+      return this.provideValueCompletions(model, position, header, colonPosition, promptType);
+    }
+    return void 0;
+  }
+  async provideAttributeNameCompletions(model, position, header, colonPosition, promptType) {
+    const suggestions = [];
+    const isGitHubTarget = isGithubTarget(promptType, header.target);
+    const attributesToPropose = new Set(getValidAttributeNames(promptType, false, isGitHubTarget));
+    for (const attr of header.attributes) {
+      attributesToPropose.delete(attr.key);
+    }
+    const getInsertText = /* @__PURE__ */ __name((key) => {
+      if (colonPosition) {
+        return key;
+      }
+      const valueSuggestions = this.getValueSuggestions(promptType, key);
+      if (valueSuggestions.length > 0) {
+        return `${key}: \${0:${valueSuggestions[0]}}`;
+      } else {
+        return `${key}: $0`;
+      }
+    }, "getInsertText");
+    for (const attribute of attributesToPropose) {
+      const item = {
+        label: attribute,
+        kind: 9,
+        insertText: getInsertText(attribute),
+        insertTextRules: 4,
+        range: new Range(position.lineNumber, 1, position.lineNumber, !colonPosition ? model.getLineMaxColumn(position.lineNumber) : colonPosition.column)
+      };
+      suggestions.push(item);
+    }
+    return { suggestions };
+  }
+  async provideValueCompletions(model, position, header, colonPosition, promptType) {
+    const suggestions = [];
+    const lineContent = model.getLineContent(position.lineNumber);
+    const attribute = lineContent.substring(0, colonPosition.column - 1).trim();
+    const isGitHubTarget = isGithubTarget(promptType, header.target);
+    if (!getValidAttributeNames(promptType, true, isGitHubTarget).includes(attribute)) {
+      return void 0;
+    }
+    if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+      const result = this.provideToolCompletions(model, position, header, isGitHubTarget);
+      if (result) {
+        return result;
+      }
+    }
+    const bracketIndex = lineContent.indexOf("[");
+    if (bracketIndex !== -1 && bracketIndex <= position.column - 1) {
+      return void 0;
+    }
+    const whilespaceAfterColon = lineContent.substring(colonPosition.column).match(/^\s*/)?.[0].length ?? 0;
+    const values = this.getValueSuggestions(promptType, attribute);
+    for (const value of values) {
+      const item = {
+        label: value,
+        kind: 13,
+        insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
+        range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber))
+      };
+      suggestions.push(item);
+    }
+    if (attribute === PromptHeaderAttributes.handOffs && promptType === PromptsType.agent) {
+      const value = [
+        "",
+        "  - label: Start Implementation",
+        "    agent: agent",
+        "    prompt: Implement the plan",
+        "    send: true"
+      ].join("\n");
+      const item = {
+        label: localize("promptHeaderAutocompletion.handoffsExample", "Handoff Example"),
+        kind: 13,
+        insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
+        range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber))
+      };
+      suggestions.push(item);
+    }
+    return { suggestions };
+  }
+  getValueSuggestions(promptType, attribute) {
+    switch (attribute) {
+      case PromptHeaderAttributes.applyTo:
+        if (promptType === PromptsType.instructions) {
+          return [`'**'`, `'**/*.ts, **/*.js'`, `'**/*.php'`, `'**/*.py'`];
+        }
+        break;
+      case PromptHeaderAttributes.agent:
+      case PromptHeaderAttributes.mode:
+        if (promptType === PromptsType.prompt) {
+          const agents = this.chatModeService.getModes();
+          const suggestions = [];
+          for (const agent of Iterable.concat(agents.builtin, agents.custom)) {
+            suggestions.push(agent.name.get());
+          }
+          return suggestions;
+        }
+        break;
+      case PromptHeaderAttributes.target:
+        if (promptType === PromptsType.agent) {
+          return ["vscode", "github-copilot"];
+        }
+        break;
+      case PromptHeaderAttributes.tools:
+        if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+          return ["[]", `['search', 'edit', 'fetch']`];
+        }
+        break;
+      case PromptHeaderAttributes.model:
+        if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+          return this.getModelNames(promptType === PromptsType.agent);
+        }
+        break;
+      case PromptHeaderAttributes.infer:
+        if (promptType === PromptsType.agent) {
+          return ["true", "false"];
+        }
+        break;
+    }
+    return [];
+  }
+  getModelNames(agentModeOnly) {
+    const result = [];
+    for (const model of this.languageModelsService.getLanguageModelIds()) {
+      const metadata = this.languageModelsService.lookupLanguageModel(model);
+      if (metadata && metadata.isUserSelectable !== false) {
+        if (!agentModeOnly || ILanguageModelChatMetadata.suitableForAgentMode(metadata)) {
+          result.push(ILanguageModelChatMetadata.asQualifiedName(metadata));
+        }
+      }
+    }
+    return result;
+  }
+  provideToolCompletions(model, position, header, isGitHubTarget) {
+    const toolsAttr = header.getAttribute(PromptHeaderAttributes.tools);
+    if (!toolsAttr || toolsAttr.value.type !== "array" || !toolsAttr.range.containsPosition(position)) {
+      return void 0;
+    }
+    const getSuggestions = /* @__PURE__ */ __name((toolRange) => {
+      const suggestions = [];
+      const toolNames = isGitHubTarget ? knownGithubCopilotTools : this.languageModelToolsService.getFullReferenceNames();
+      for (const toolName of toolNames) {
+        let insertText;
+        if (!toolRange.isEmpty()) {
+          const firstChar = model.getValueInRange(toolRange).charCodeAt(0);
+          insertText = firstChar === 39 ? `'${toolName}'` : firstChar === 34 ? `"${toolName}"` : toolName;
+        } else {
+          insertText = `'${toolName}'`;
+        }
+        suggestions.push({
+          label: toolName,
+          kind: 13,
+          filterText: insertText,
+          insertText,
+          range: toolRange
+        });
+      }
+      return { suggestions };
+    }, "getSuggestions");
+    for (const toolNameNode of toolsAttr.value.items) {
+      if (toolNameNode.range.containsPosition(position)) {
+        return getSuggestions(toolNameNode.range);
+      }
+    }
+    const prefix = model.getValueInRange(new Range(position.lineNumber, 1, position.lineNumber, position.column));
+    if (prefix.match(/[,[]\s*$/)) {
+      return getSuggestions(new Range(position.lineNumber, position.column, position.lineNumber, position.column));
+    }
+    return void 0;
+  }
+};
+PromptHeaderAutocompletion = __decorate([
+  __param(0, IPromptsService),
+  __param(1, ILanguageModelsService),
+  __param(2, ILanguageModelToolsService),
+  __param(3, IChatModeService)
+], PromptHeaderAutocompletion);
+export {
+  PromptHeaderAutocompletion
+};
+//# sourceMappingURL=promptHeaderAutocompletion.js.map

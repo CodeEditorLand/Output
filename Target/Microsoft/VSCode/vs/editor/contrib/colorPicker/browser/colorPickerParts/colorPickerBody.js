@@ -1,1 +1,79 @@
-import"../colorPicker.css";import*as n from"../../../../../base/browser/dom.js";import{$Tp as o,$Sp as r}from"../../../../../base/common/color.js";import{$Ed as e}from"../../../../../base/common/lifecycle.js";import{$dpb as l}from"./colorPickerSaturationBox.js";import{$epb as a}from"./colorPickerInsertButton.js";import{$kpb as c,$jpb as m}from"./colorPickerStrip.js";const u=n.$;class w extends e{constructor(s,t,i,h){super(),this.m=t,this.n=i,this.j=null,this.b=u(".colorpicker-body"),n.$I8(s,this.b),this.c=new l(this.b,this.m,this.n),this.D(this.c),this.D(this.c.onDidChange(this.r,this)),this.D(this.c.onColorFlushed(this.q,this)),this.g=new m(this.b,this.m,h),this.D(this.g),this.D(this.g.onDidChange(this.t,this)),this.D(this.g.onColorFlushed(this.q,this)),this.f=new c(this.b,this.m,h),this.D(this.f),this.D(this.f.onDidChange(this.u,this)),this.D(this.f.onColorFlushed(this.q,this)),h==="standalone"&&(this.j=this.D(new a(this.b)),this.b.classList.add("standalone-colorpicker"))}q(){this.m.flushColor()}r({s,v:t}){const i=this.m.color.hsva;this.m.color=new o(new r(i.h,s,t,i.a))}t(s){const t=this.m.color.hsva;this.m.color=new o(new r(t.h,t.s,t.v,s))}u(s){const t=this.m.color.hsva,i=(1-s)*360;this.m.color=new o(new r(i===360?0:i,t.s,t.v,t.a))}get domNode(){return this.b}get saturationBox(){return this.c}get opacityStrip(){return this.g}get hueStrip(){return this.f}get enterButton(){return this.j}layout(){this.c.layout(),this.g.layout(),this.f.layout()}}export{w as $lpb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "../colorPicker.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { Color, HSVA } from "../../../../../base/common/color.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { SaturationBox } from "./colorPickerSaturationBox.js";
+import { InsertButton } from "./colorPickerInsertButton.js";
+import { HueStrip, OpacityStrip } from "./colorPickerStrip.js";
+const $ = dom.$;
+class ColorPickerBody extends Disposable {
+  static {
+    __name(this, "ColorPickerBody");
+  }
+  constructor(container, model, pixelRatio, type) {
+    super();
+    this.model = model;
+    this.pixelRatio = pixelRatio;
+    this._insertButton = null;
+    this._domNode = $(".colorpicker-body");
+    dom.append(container, this._domNode);
+    this._saturationBox = new SaturationBox(this._domNode, this.model, this.pixelRatio);
+    this._register(this._saturationBox);
+    this._register(this._saturationBox.onDidChange(this.onDidSaturationValueChange, this));
+    this._register(this._saturationBox.onColorFlushed(this.flushColor, this));
+    this._opacityStrip = new OpacityStrip(this._domNode, this.model, type);
+    this._register(this._opacityStrip);
+    this._register(this._opacityStrip.onDidChange(this.onDidOpacityChange, this));
+    this._register(this._opacityStrip.onColorFlushed(this.flushColor, this));
+    this._hueStrip = new HueStrip(this._domNode, this.model, type);
+    this._register(this._hueStrip);
+    this._register(this._hueStrip.onDidChange(this.onDidHueChange, this));
+    this._register(this._hueStrip.onColorFlushed(this.flushColor, this));
+    if (type === "standalone") {
+      this._insertButton = this._register(new InsertButton(this._domNode));
+      this._domNode.classList.add("standalone-colorpicker");
+    }
+  }
+  flushColor() {
+    this.model.flushColor();
+  }
+  onDidSaturationValueChange({ s, v }) {
+    const hsva = this.model.color.hsva;
+    this.model.color = new Color(new HSVA(hsva.h, s, v, hsva.a));
+  }
+  onDidOpacityChange(a) {
+    const hsva = this.model.color.hsva;
+    this.model.color = new Color(new HSVA(hsva.h, hsva.s, hsva.v, a));
+  }
+  onDidHueChange(value) {
+    const hsva = this.model.color.hsva;
+    const h = (1 - value) * 360;
+    this.model.color = new Color(new HSVA(h === 360 ? 0 : h, hsva.s, hsva.v, hsva.a));
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  get saturationBox() {
+    return this._saturationBox;
+  }
+  get opacityStrip() {
+    return this._opacityStrip;
+  }
+  get hueStrip() {
+    return this._hueStrip;
+  }
+  get enterButton() {
+    return this._insertButton;
+  }
+  layout() {
+    this._saturationBox.layout();
+    this._opacityStrip.layout();
+    this._hueStrip.layout();
+  }
+}
+export {
+  ColorPickerBody
+};
+//# sourceMappingURL=colorPickerBody.js.map

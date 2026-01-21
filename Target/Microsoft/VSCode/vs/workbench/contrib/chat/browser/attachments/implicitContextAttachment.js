@@ -1,2 +1,237 @@
-import*as d from"../../../../../base/browser/dom.js";import{$C7 as x}from"../../../../../base/browser/keyboardEvent.js";import{$w7 as D}from"../../../../../base/browser/mouseEvent.js";import{$k$ as g}from"../../../../../base/browser/ui/button/button.js";import{$E9 as I}from"../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$ak as f}from"../../../../../base/common/codicons.js";import{$Ed as L,$Dd as S}from"../../../../../base/common/lifecycle.js";import{Schemas as N}from"../../../../../base/common/network.js";import{$Eh as P,$Gh as _}from"../../../../../base/common/resources.js";import{URI as b}from"../../../../../base/common/uri.js";import{$PF as B}from"../../../../../editor/common/languages.js";import{$WF as E}from"../../../../../editor/common/languages/language.js";import{$6H as K}from"../../../../../editor/common/services/model.js";import{localize as l}from"../../../../../nls.js";import{$Rib as U}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$oL as M,$nL as k}from"../../../../../platform/actions/common/actions.js";import{$9l as q}from"../../../../../platform/configuration/common/configuration.js";import{$qo as R}from"../../../../../platform/contextkey/common/contextkey.js";import{$6hb as j}from"../../../../../platform/contextview/browser/contextView.js";import{FileKind as A,$uk as H}from"../../../../../platform/files/common/files.js";import{$7ib as O}from"../../../../../platform/hover/browser/hover.js";import{$lH as T}from"../../../../../platform/label/common/label.js";import{$qP as z}from"../../../../common/contextkeys.js";import{$AU as C}from"../../common/attachments/chatVariableEntries.js";import{$wQb as G}from"../contextContrib/chatContextService.js";var F=function(m,t,s,o){var n=arguments.length,e=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,s):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(m,t,s,o);else for(var u=m.length-1;u>=0;u--)(r=m[u])&&(e=(n<3?r(e):n>3?r(t,s,e):r(t,s))||e);return n>3&&e&&Object.defineProperty(t,s,e),e},h=function(m,t){return function(s,o){t(s,o,m)}};let y=class extends L{constructor(t,s,o,n,e,r,u,i,c,a,v,$,w,p){super(),this.b=t,this.c=s,this.f=o,this.g=n,this.h=e,this.j=r,this.m=u,this.n=i,this.q=c,this.r=a,this.s=v,this.t=$,this.u=w,this.w=p,this.a=this.D(new S),this.domNode=d.$(".chat-attached-context-attachment.show-file-icons.implicit"),this.y()}y(){d.$E7(this.domNode),this.a.clear(),this.domNode.classList.toggle("disabled",!this.c.enabled);const t=this.c.uri,s=t?.scheme===N.vscodeNotebookCell?l(5523,null):l(5524,null);if(this.u.getValue("chat.implicitContext.suggestedContext")){if(this.c.isSelection){const i=l(5526,null),c=this.a.add(new g(this.domNode,{supportIcons:!0,title:i}));c.icon=f.pinned,this.a.add(c.onDidClick(async a=>{a.stopPropagation(),a.preventDefault(),await this.G()}))}else{const i=this.c.enabled?l(5525,null,s):"",c=this.a.add(new g(this.domNode,{supportIcons:!0,title:i}));c.icon=this.c.enabled?f.x:f.plus,this.a.add(c.onDidClick(async a=>{a.stopPropagation(),a.preventDefault(),this.c.enabled||await this.F(),this.c.enabled=!1}))}!this.c.enabled&&this.c.isSelection&&this.domNode.classList.remove("disabled"),this.a.add(d.$F7(this.domNode,d.$B8.CLICK,async i=>{!this.c.enabled&&!this.c.isSelection&&await this.F()})),this.a.add(d.$F7(this.domNode,d.$B8.KEY_DOWN,async i=>{const c=new x(i);(c.equals(3)||c.equals(10))&&!this.c.enabled&&!this.c.isSelection&&(i.preventDefault(),i.stopPropagation(),await this.F())}))}else{const i=this.c.enabled?l(5527,null,s):l(5528,null,s),c=this.a.add(new g(this.domNode,{supportIcons:!0,title:i}));c.icon=this.c.enabled?f.eye:f.eyeClosed,this.a.add(c.onDidClick(a=>{a.stopPropagation(),this.c.enabled=!this.c.enabled}))}const n=this.f.create(this.domNode,{supportIcons:!0});let e;C(this.c.value)?e=this.z(n):e=this.C(this.c.value,n),this.D(this.t.setupManagedHover(I("element"),this.domNode,e));const r=this.a.add(this.h.createScoped(this.domNode));this.a.add(new z(r,this.q,this.r,this.s)).set(t),this.a.add(d.$F7(this.domNode,d.$B8.CONTEXT_MENU,async i=>{const c=new D(d.getWindow(i),i);d.$D8.stop(i,!0),this.j.showContextMenu({contextKeyService:r,getAnchor:()=>c,getActions:()=>{const a=this.n.getMenuActions(k.ChatInputResourceAttachmentContext,r,{arg:t});return U(a)}})}))}z(t){const s=this.c.name,o=this.c.icon,n=l(5529,null);return t.setLabel(s,void 0,{iconPath:o,title:n}),n}C(t,s){const o=b.isUri(t)?t:t.uri,n=b.isUri(t)||!this.c.isSelection?void 0:t.range,e=o.scheme===N.vscodeNotebookCell?l(5530,null):l(5531,null),r=P(o),u=_(o),i=`${r} ${u}`,c=n?l(5532,null,e,i,n.startLineNumber,n.endLineNumber):l(5533,null,e,i),a=this.m.getUriLabel(o,{relative:!0}),v=l(5534,null,e),$=l(5535,null,e),p=`${this.c.enabled||this.c.isSelection?v:$}
-${a}`;return s.setFile(o,{fileKind:A.FILE,hidePath:!0,range:n,title:p}),this.domNode.ariaLabel=c,this.domNode.tabIndex=0,p}async F(){if(this.c.value){if(C(this.c.value)){this.c.value.value===void 0&&await this.w.resolveChatContext(this.c.value);const t={kind:"string",value:this.c.value.value,id:this.c.id,name:this.c.name,icon:this.c.value.icon,modelDescription:this.c.value.modelDescription,uri:this.c.value.uri,commandId:this.c.value.commandId,handle:this.c.value.handle};this.g.addContext(t)}else{const t=b.isUri(this.c.value)?this.c.value:this.c.value.uri;t.scheme===N.vscodeNotebookCell&&B(this.c.value)?this.g.addFile(t,this.c.value.range):this.g.addFile(t)}this.b()?.focusInput()}}async G(){if(!(!this.c.value||!this.c.isSelection)){if(!b.isUri(this.c.value)&&!C(this.c.value)){const t=this.c.value;this.g.addFile(t.uri,t.range)}this.b()?.focusInput()}}};y=F([h(4,R),h(5,j),h(6,T),h(7,M),h(8,H),h(9,E),h(10,K),h(11,O),h(12,q),h(13,G)],y);export{y as $yQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { getDefaultHoverDelegate } from "../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { basename, dirname } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { isLocation } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { localize } from "../../../../../nls.js";
+import { getFlatContextMenuActions } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { FileKind, IFileService } from "../../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { isStringImplicitContextValue } from "../../common/attachments/chatVariableEntries.js";
+import { IChatContextService } from "../contextContrib/chatContextService.js";
+let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 extends Disposable {
+  static {
+    __name(this, "ImplicitContextAttachmentWidget");
+  }
+  constructor(widgetRef, attachment, resourceLabels, attachmentModel, contextKeyService, contextMenuService, labelService, menuService, fileService, languageService, modelService, hoverService, configService, chatContextService) {
+    super();
+    this.widgetRef = widgetRef;
+    this.attachment = attachment;
+    this.resourceLabels = resourceLabels;
+    this.attachmentModel = attachmentModel;
+    this.contextKeyService = contextKeyService;
+    this.contextMenuService = contextMenuService;
+    this.labelService = labelService;
+    this.menuService = menuService;
+    this.fileService = fileService;
+    this.languageService = languageService;
+    this.modelService = modelService;
+    this.hoverService = hoverService;
+    this.configService = configService;
+    this.chatContextService = chatContextService;
+    this.renderDisposables = this._register(new DisposableStore());
+    this.domNode = dom.$(".chat-attached-context-attachment.show-file-icons.implicit");
+    this.render();
+  }
+  render() {
+    dom.clearNode(this.domNode);
+    this.renderDisposables.clear();
+    this.domNode.classList.toggle("disabled", !this.attachment.enabled);
+    const file = this.attachment.uri;
+    const attachmentTypeName = file?.scheme === Schemas.vscodeNotebookCell ? localize("cell.lowercase", "cell") : localize("file.lowercase", "file");
+    const isSuggestedEnabled = this.configService.getValue("chat.implicitContext.suggestedContext");
+    if (isSuggestedEnabled) {
+      if (!this.attachment.isSelection) {
+        const buttonMsg = this.attachment.enabled ? localize("disable", "Disable current {0} context", attachmentTypeName) : "";
+        const toggleButton = this.renderDisposables.add(new Button(this.domNode, { supportIcons: true, title: buttonMsg }));
+        toggleButton.icon = this.attachment.enabled ? Codicon.x : Codicon.plus;
+        this.renderDisposables.add(toggleButton.onDidClick(async (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (!this.attachment.enabled) {
+            await this.convertToRegularAttachment();
+          }
+          this.attachment.enabled = false;
+        }));
+      } else {
+        const pinButtonMsg = localize("pinSelection", "Pin selection");
+        const pinButton = this.renderDisposables.add(new Button(this.domNode, { supportIcons: true, title: pinButtonMsg }));
+        pinButton.icon = Codicon.pinned;
+        this.renderDisposables.add(pinButton.onDidClick(async (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          await this.pinSelection();
+        }));
+      }
+      if (!this.attachment.enabled && this.attachment.isSelection) {
+        this.domNode.classList.remove("disabled");
+      }
+      this.renderDisposables.add(dom.addDisposableListener(this.domNode, dom.EventType.CLICK, async (e) => {
+        if (!this.attachment.enabled && !this.attachment.isSelection) {
+          await this.convertToRegularAttachment();
+        }
+      }));
+      this.renderDisposables.add(dom.addDisposableListener(this.domNode, dom.EventType.KEY_DOWN, async (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(
+          3
+          /* KeyCode.Enter */
+        ) || event.equals(
+          10
+          /* KeyCode.Space */
+        )) {
+          if (!this.attachment.enabled && !this.attachment.isSelection) {
+            e.preventDefault();
+            e.stopPropagation();
+            await this.convertToRegularAttachment();
+          }
+        }
+      }));
+    } else {
+      const buttonMsg = this.attachment.enabled ? localize("disable", "Disable current {0} context", attachmentTypeName) : localize("enable", "Enable current {0} context", attachmentTypeName);
+      const toggleButton = this.renderDisposables.add(new Button(this.domNode, { supportIcons: true, title: buttonMsg }));
+      toggleButton.icon = this.attachment.enabled ? Codicon.eye : Codicon.eyeClosed;
+      this.renderDisposables.add(toggleButton.onDidClick((e) => {
+        e.stopPropagation();
+        this.attachment.enabled = !this.attachment.enabled;
+      }));
+    }
+    const label = this.resourceLabels.create(this.domNode, { supportIcons: true });
+    let title;
+    if (isStringImplicitContextValue(this.attachment.value)) {
+      title = this.renderString(label);
+    } else {
+      title = this.renderResource(this.attachment.value, label);
+    }
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), this.domNode, title));
+    const scopedContextKeyService = this.renderDisposables.add(this.contextKeyService.createScoped(this.domNode));
+    const resourceContextKey = this.renderDisposables.add(new ResourceContextKey(scopedContextKeyService, this.fileService, this.languageService, this.modelService));
+    resourceContextKey.set(file);
+    this.renderDisposables.add(dom.addDisposableListener(this.domNode, dom.EventType.CONTEXT_MENU, async (domEvent) => {
+      const event = new StandardMouseEvent(dom.getWindow(domEvent), domEvent);
+      dom.EventHelper.stop(domEvent, true);
+      this.contextMenuService.showContextMenu({
+        contextKeyService: scopedContextKeyService,
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => {
+          const menu = this.menuService.getMenuActions(MenuId.ChatInputResourceAttachmentContext, scopedContextKeyService, { arg: file });
+          return getFlatContextMenuActions(menu);
+        }, "getActions")
+      });
+    }));
+  }
+  renderString(resourceLabel) {
+    const label = this.attachment.name;
+    const icon = this.attachment.icon;
+    const title = localize("openFile", "Current file context");
+    resourceLabel.setLabel(label, void 0, { iconPath: icon, title });
+    return title;
+  }
+  renderResource(attachmentValue, label) {
+    const file = URI.isUri(attachmentValue) ? attachmentValue : attachmentValue.uri;
+    const range = URI.isUri(attachmentValue) || !this.attachment.isSelection ? void 0 : attachmentValue.range;
+    const attachmentTypeName = file.scheme === Schemas.vscodeNotebookCell ? localize("cell.lowercase", "cell") : localize("file.lowercase", "file");
+    const fileBasename = basename(file);
+    const fileDirname = dirname(file);
+    const friendlyName = `${fileBasename} ${fileDirname}`;
+    const ariaLabel = range ? localize("chat.fileAttachmentWithRange", "Attached {0}, {1}, line {2} to line {3}", attachmentTypeName, friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment", "Attached {0}, {1}", attachmentTypeName, friendlyName);
+    const uriLabel = this.labelService.getUriLabel(file, { relative: true });
+    const currentFile = localize("openEditor", "Current {0} context", attachmentTypeName);
+    const inactive = localize("enableHint", "Enable current {0} context", attachmentTypeName);
+    const currentFileHint = this.attachment.enabled || this.attachment.isSelection ? currentFile : inactive;
+    const title = `${currentFileHint}
+${uriLabel}`;
+    label.setFile(file, {
+      fileKind: FileKind.FILE,
+      hidePath: true,
+      range,
+      title
+    });
+    this.domNode.ariaLabel = ariaLabel;
+    this.domNode.tabIndex = 0;
+    return title;
+  }
+  async convertToRegularAttachment() {
+    if (!this.attachment.value) {
+      return;
+    }
+    if (isStringImplicitContextValue(this.attachment.value)) {
+      if (this.attachment.value.value === void 0) {
+        await this.chatContextService.resolveChatContext(this.attachment.value);
+      }
+      const context = {
+        kind: "string",
+        value: this.attachment.value.value,
+        id: this.attachment.id,
+        name: this.attachment.name,
+        icon: this.attachment.value.icon,
+        modelDescription: this.attachment.value.modelDescription,
+        uri: this.attachment.value.uri,
+        commandId: this.attachment.value.commandId,
+        handle: this.attachment.value.handle
+      };
+      this.attachmentModel.addContext(context);
+    } else {
+      const file = URI.isUri(this.attachment.value) ? this.attachment.value : this.attachment.value.uri;
+      if (file.scheme === Schemas.vscodeNotebookCell && isLocation(this.attachment.value)) {
+        this.attachmentModel.addFile(file, this.attachment.value.range);
+      } else {
+        this.attachmentModel.addFile(file);
+      }
+    }
+    this.widgetRef()?.focusInput();
+  }
+  async pinSelection() {
+    if (!this.attachment.value || !this.attachment.isSelection) {
+      return;
+    }
+    if (!URI.isUri(this.attachment.value) && !isStringImplicitContextValue(this.attachment.value)) {
+      const location = this.attachment.value;
+      this.attachmentModel.addFile(location.uri, location.range);
+    }
+    this.widgetRef()?.focusInput();
+  }
+};
+ImplicitContextAttachmentWidget = __decorate([
+  __param(4, IContextKeyService),
+  __param(5, IContextMenuService),
+  __param(6, ILabelService),
+  __param(7, IMenuService),
+  __param(8, IFileService),
+  __param(9, ILanguageService),
+  __param(10, IModelService),
+  __param(11, IHoverService),
+  __param(12, IConfigurationService),
+  __param(13, IChatContextService)
+], ImplicitContextAttachmentWidget);
+export {
+  ImplicitContextAttachmentWidget
+};
+//# sourceMappingURL=implicitContextAttachment.js.map

@@ -1,1 +1,23 @@
-var o;(function(n){n[n.Pointer=1]="Pointer",n[n.Mouse=2]="Mouse"})(o||(o={}));function e(n){const t=n;return typeof t=="object"&&"markdown"in t&&"markdownNotSupportedFallback"in t}function r(n){const t=n;return typeof t=="object"&&"element"in t}export{e as $B9,r as $C9,o as HoverStyle};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var HoverStyle;
+(function(HoverStyle2) {
+  HoverStyle2[HoverStyle2["Pointer"] = 1] = "Pointer";
+  HoverStyle2[HoverStyle2["Mouse"] = 2] = "Mouse";
+})(HoverStyle || (HoverStyle = {}));
+function isManagedHoverTooltipMarkdownString(obj) {
+  const candidate = obj;
+  return typeof candidate === "object" && "markdown" in candidate && "markdownNotSupportedFallback" in candidate;
+}
+__name(isManagedHoverTooltipMarkdownString, "isManagedHoverTooltipMarkdownString");
+function isManagedHoverTooltipHTMLElement(obj) {
+  const candidate = obj;
+  return typeof candidate === "object" && "element" in candidate;
+}
+__name(isManagedHoverTooltipHTMLElement, "isManagedHoverTooltipHTMLElement");
+export {
+  HoverStyle,
+  isManagedHoverTooltipHTMLElement,
+  isManagedHoverTooltipMarkdownString
+};
+//# sourceMappingURL=hover.js.map

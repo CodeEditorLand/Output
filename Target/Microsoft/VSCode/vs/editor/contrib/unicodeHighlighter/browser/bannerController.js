@@ -1,1 +1,122 @@
-import"./bannerController.css";import{localize as C}from"../../../../nls.js";import{$ as o,$I8 as c,$E7 as m}from"../../../../base/browser/dom.js";import{$G9 as v}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$Em as _}from"../../../../base/common/actions.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";import{$Xjb as w}from"../../../../platform/markdown/browser/markdownRenderer.js";import{$Lj as $}from"../../../../platform/instantiation/common/instantiation.js";import{Link as E}from"../../../../platform/opener/browser/link.js";import{$hu as g}from"../../../../platform/theme/common/iconRegistry.js";import{ThemeIcon as u}from"../../../../base/common/themables.js";var d=function(r,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,i);else for(var h=r.length-1;h>=0;h--)(a=r[h])&&(n=(s<3?a(n):s>3?a(e,t,n):a(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},l=function(r,e){return function(t,i){e(t,i,r)}};const I=26;let p=class extends b{constructor(e,t){super(),this.b=e,this.c=t,this.a=this.D(this.c.createInstance(f))}hide(){this.b.setBanner(null,0),this.a.clear()}show(e){this.a.show({...e,onClose:()=>{this.hide(),e.onClose?.()}}),this.b.setBanner(this.a.element,I)}};p=d([l(1,$)],p);let f=class extends b{constructor(e,t){super(),this.c=e,this.f=t,this.element=o("div.editor-banner"),this.element.tabIndex=0}g(e){if(e.ariaLabel)return e.ariaLabel;if(typeof e.message=="string")return e.message}h(e){if(typeof e=="string"){const t=o("span");return t.innerText=e,t}return this.f.render(e).element}clear(){m(this.element)}show(e){m(this.element);const t=this.g(e);t&&this.element.setAttribute("aria-label",t);const i=c(this.element,o("div.icon-container"));i.setAttribute("aria-hidden","true"),e.icon&&i.appendChild(o(`div${u.asCSSSelector(e.icon)}`));const s=c(this.element,o("div.message-container"));if(s.setAttribute("aria-hidden","true"),s.appendChild(this.h(e.message)),this.a=c(this.element,o("div.message-actions-container")),e.actions)for(const a of e.actions)this.D(this.c.createInstance(E,this.a,{...a,tabIndex:-1},{}));const n=c(this.element,o("div.action-container"));this.b=this.D(new v(n)),this.b.push(this.D(new _("banner.close",C(1706,null),u.asClassName(g),!0,()=>{typeof e.onClose=="function"&&e.onClose()})),{icon:!0,label:!1}),this.b.setFocusable(!1)}};f=d([l(0,$),l(1,w)],f);export{p as $ywb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./bannerController.css";
+import { localize } from "../../../../nls.js";
+import { $, append, clearNode } from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Action } from "../../../../base/common/actions.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+const BANNER_ELEMENT_HEIGHT = 26;
+let BannerController = class BannerController2 extends Disposable {
+  static {
+    __name(this, "BannerController");
+  }
+  constructor(_editor, instantiationService) {
+    super();
+    this._editor = _editor;
+    this.instantiationService = instantiationService;
+    this.banner = this._register(this.instantiationService.createInstance(Banner));
+  }
+  hide() {
+    this._editor.setBanner(null, 0);
+    this.banner.clear();
+  }
+  show(item) {
+    this.banner.show({
+      ...item,
+      onClose: /* @__PURE__ */ __name(() => {
+        this.hide();
+        item.onClose?.();
+      }, "onClose")
+    });
+    this._editor.setBanner(this.banner.element, BANNER_ELEMENT_HEIGHT);
+  }
+};
+BannerController = __decorate([
+  __param(1, IInstantiationService)
+], BannerController);
+let Banner = class Banner2 extends Disposable {
+  static {
+    __name(this, "Banner");
+  }
+  constructor(instantiationService, markdownRendererService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.markdownRendererService = markdownRendererService;
+    this.element = $("div.editor-banner");
+    this.element.tabIndex = 0;
+  }
+  getAriaLabel(item) {
+    if (item.ariaLabel) {
+      return item.ariaLabel;
+    }
+    if (typeof item.message === "string") {
+      return item.message;
+    }
+    return void 0;
+  }
+  getBannerMessage(message) {
+    if (typeof message === "string") {
+      const element = $("span");
+      element.innerText = message;
+      return element;
+    }
+    return this.markdownRendererService.render(message).element;
+  }
+  clear() {
+    clearNode(this.element);
+  }
+  show(item) {
+    clearNode(this.element);
+    const ariaLabel = this.getAriaLabel(item);
+    if (ariaLabel) {
+      this.element.setAttribute("aria-label", ariaLabel);
+    }
+    const iconContainer = append(this.element, $("div.icon-container"));
+    iconContainer.setAttribute("aria-hidden", "true");
+    if (item.icon) {
+      iconContainer.appendChild($(`div${ThemeIcon.asCSSSelector(item.icon)}`));
+    }
+    const messageContainer = append(this.element, $("div.message-container"));
+    messageContainer.setAttribute("aria-hidden", "true");
+    messageContainer.appendChild(this.getBannerMessage(item.message));
+    this.messageActionsContainer = append(this.element, $("div.message-actions-container"));
+    if (item.actions) {
+      for (const action of item.actions) {
+        this._register(this.instantiationService.createInstance(Link, this.messageActionsContainer, { ...action, tabIndex: -1 }, {}));
+      }
+    }
+    const actionBarContainer = append(this.element, $("div.action-container"));
+    this.actionBar = this._register(new ActionBar(actionBarContainer));
+    this.actionBar.push(this._register(new Action("banner.close", localize("closeBanner", "Close Banner"), ThemeIcon.asClassName(widgetClose), true, () => {
+      if (typeof item.onClose === "function") {
+        item.onClose();
+      }
+    })), { icon: true, label: false });
+    this.actionBar.setFocusable(false);
+  }
+};
+Banner = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IMarkdownRendererService)
+], Banner);
+export {
+  BannerController
+};
+//# sourceMappingURL=bannerController.js.map

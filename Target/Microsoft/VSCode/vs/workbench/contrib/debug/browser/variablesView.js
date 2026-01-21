@@ -1,3 +1,760 @@
-import*as I from"../../../../base/browser/dom.js";import{$T$ as se}from"../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";import{$Jm as T}from"../../../../base/common/actions.js";import{$$b as ne}from"../../../../base/common/arrays.js";import{$ii as re}from"../../../../base/common/async.js";import{$If as oe}from"../../../../base/common/cancellation.js";import{$ak as R}from"../../../../base/common/codicons.js";import{$2j as ae}from"../../../../base/common/filters.js";import{$Cd as ce}from"../../../../base/common/lifecycle.js";import{ThemeIcon as J}from"../../../../base/common/themables.js";import{localize as p}from"../../../../nls.js";import{$Qib as E}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$oL as _,$nL as $,$tL as le}from"../../../../platform/actions/common/actions.js";import{$4hb as Q}from"../../../../platform/clipboard/common/clipboardService.js";import{$uo as x}from"../../../../platform/commands/common/commands.js";import{$9l as de}from"../../../../platform/configuration/common/configuration.js";import{$9n as ue,$qo as N}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as U,$5hb as Z}from"../../../../platform/contextview/browser/contextView.js";import{$7ib as W}from"../../../../platform/hover/browser/hover.js";import{$Lj as he}from"../../../../platform/instantiation/common/instantiation.js";import{$cy as fe}from"../../../../platform/keybinding/common/keybinding.js";import{$hqb as pe}from"../../../../platform/list/browser/listService.js";import{$mH as me}from"../../../../platform/notification/common/notification.js";import{$yP as ge}from"../../../../platform/opener/common/opener.js";import{$op as be}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as we}from"../../../../platform/theme/common/themeService.js";import{$2Ab as $e,$YAb as ve}from"../../../browser/parts/views/viewPane.js";import{$BN as xe}from"../../../common/views.js";import{$yL as ye,$AL as Ie}from"../../../services/editor/common/editorService.js";import{$4R as Ve}from"../../../services/extensions/common/extensions.js";import{$fAb as Se}from"../../../services/views/common/viewsService.js";import{$uIb as De}from"../../extensions/common/extensions.js";import{$bY as Y,$cY as Me,$dY as Ce,$JX as Ee,$EY as b,$oX as V,$pX as q}from"../common/debug.js";import{$7V as ke}from"../common/debugContext.js";import{$eW as Ae,$bW as j,$dW as P,$fW as Fe,$cW as m,$aW as X,$hW as ze}from"../common/debugModel.js";import{$8V as Te}from"../common/debugVisualizers.js";import{$ufc as je,$vfc as G,$tfc as Le,$rfc as Oe}from"./baseDebugView.js";import{$xgc as Re,$6gc as _e,$ygc as Ne,$3gc as We,$zgc as Pe,$4gc as Xe,$$gc as He}from"./debugCommands.js";import{$_gc as Ye}from"./debugExpressionRenderer.js";var O=function(r,e,t,s){var n=arguments.length,i=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,t,s);else for(var c=r.length-1;c>=0;c--)(o=r[c])&&(i=(n<3?o(i):n>3?o(e,t,i):o(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},a=function(r,e){return function(t,s){e(t,s,r)}},F,z;const L=I.$;let S=!0,D,B=class extends ve{get treeSelection(){return this.c.getSelection()}constructor(e,t,s,n,i,o,c,h,f,g,d,u){super(e,n,t,i,h,c,o,f,g,d),this.h=s,this.j=u,this.b=!1,this.f=new Map,this.g=new Set,this.a=new re(async()=>{const l=this.h.getViewModel().focusedStackFrame;this.b=!1;const w=this.c.getInput();if(w&&this.f.set(w.getId(),this.c.getViewState()),!l){await this.c.setInput(null);return}const te=this.f.get(l.getId());await this.c.setInput(l,te);const y=(await l.getScopes()).find(ie=>!ie.expensive);y&&this.c.hasNode(y)&&(this.g.add(y.getId()),await this.c.expand(y))},400)}X(e){super.X(e),this.element.classList.add("debug-pane"),e.classList.add("debug-variables");const t=Oe(e),s=this.Fb.createInstance(Ye);this.c=this.Fb.createInstance(pe,"VariablesView",t,new Je,[this.Fb.createInstance(C,s),this.Fb.createInstance(v,s),new k,new A],this.Fb.createInstance(Ke),{accessibilityProvider:new Qe,identityProvider:{getId:i=>i.getId()},keyboardNavigationLabelProvider:Le,overrideStyles:this.Zb().listOverrideStyles}),this.D(v.rendererOnVisualizationRange(this.h.getViewModel(),this.c)),this.c.setInput(this.h.getViewModel().focusedStackFrame??null),Ee.bindTo(this.c.contextKeyService),this.D(this.h.getViewModel().onDidFocusStackFrame(i=>{if(!this.isBodyVisible()){this.b=!0;return}const o=i.explicit?0:void 0;this.a.schedule(o)})),this.D(this.h.getViewModel().onWillUpdateViews(()=>{const i=this.h.getViewModel().focusedStackFrame;i&&S&&i.forgetScopes(),S=!0,this.c.updateChildren()})),this.D(this.c),this.D(this.c.onMouseDblClick(i=>this.r(i))),this.D(this.c.onContextMenu(async i=>await this.L(i))),this.D(this.onDidChangeBodyVisibility(i=>{i&&this.b&&this.a.schedule()}));let n;this.D(this.h.getViewModel().onDidSelectExpression(i=>{const o=i?.expression;o&&this.c.hasNode(o)?(n=this.c.options.horizontalScrolling,n&&this.c.updateOptions({horizontalScrolling:!1}),this.c.rerender(o)):!i&&n!==void 0&&(this.c.updateOptions({horizontalScrolling:n}),n=void 0)})),this.D(this.h.getViewModel().onDidEvaluateLazyExpression(async i=>{i instanceof m&&this.c.hasNode(i)&&(await this.c.updateChildren(i,!1,!0),await this.c.expand(i))})),this.D(this.h.onDidEndSession(()=>{this.f.clear(),this.g.clear()}))}Y(e,t){super.Y(t,e),this.c.layout(e,t)}focus(){super.focus(),this.c.domFocus()}collapseAll(){this.c.collapseAll()}r(e){this.t(e.element)&&this.h.getViewModel().setSelectedExpression(e.element,!1)}t(e){const t=this.h.getViewModel().focusedSession;return t?e instanceof X?!!e.treeItem.canEdit:!t.capabilities?.supportsSetVariable&&!t.capabilities?.supportsSetExpression?!1:e instanceof m&&!e.presentationHint?.attributes?.includes("readOnly")&&!e.presentationHint?.lazy:!1}async L(e){const t=e.element;if(t instanceof P)return this.ab(e,t);if(!(!(t instanceof m)||!t.value))return qe(this.Db,this.j,this.Bb,$.DebugVariablesContext,e)}ab(e,t){const s={scope:{name:t.name}},n=this.j.getMenuActions($.DebugScopesContext,this.Db,{arg:s,shouldForwardArgs:!1}),{secondary:i}=E(n,"inline");this.Bb.showContextMenu({getAnchor:()=>e.anchor,getActions:()=>i})}};B=O([a(1,U),a(2,b),a(3,fe),a(4,de),a(5,he),a(6,xe),a(7,N),a(8,ge),a(9,we),a(10,W),a(11,_)],B);async function qe(r,e,t,s,n){const i=n.element;if(!(i instanceof m)||!i.value)return;const o=await Be(r,i),c=H(i),h=e.getMenuActions(s,o,{arg:c,shouldForwardArgs:!1}),{secondary:f}=E(h,"inline");t.showContextMenu({getAnchor:()=>n.anchor,getActions:()=>f})}const H=r=>({sessionId:r.getSession()?.getId(),container:r.parent instanceof j?{expression:r.parent.name}:r.parent.toDebugProtocolObject(),variable:r.toDebugProtocolObject()});async function Be(r,e){const t=e.getSession();if(!t||!t.capabilities.supportsDataBreakpoints)return M(r,e);const s=[],n=await t.dataBreakpointInfo(e.name,e.parent.reference),i=n?.dataId,o=n?.accessTypes;if(He(n),!o)s.push([Y.key,!!i]);else for(const c of o)switch(c){case"read":s.push([Ce.key,!!i]);break;case"write":s.push([Y.key,!!i]);break;case"readWrite":s.push([Me.key,!!i]);break}return M(r,e,s)}function M(r,e,t=[]){return D=e,ke(r,e,t)}function K(r){return r instanceof Fe}class Ke extends je{hasChildren(e){return e?K(e)?!0:e.hasChildren:!1}c(e){return K(e)?e.getScopes():e.getChildren()}}class Je{getHeight(e){return 22}getTemplateId(e){return e instanceof Ae?A.ID:e instanceof P?k.ID:e instanceof X?v.ID:C.ID}}class k{static{this.ID="scope"}get templateId(){return k.ID}renderTemplate(e){const t=I.$I8(e,L(".scope")),s=new se(t);return{name:t,label:s}}renderElement(e,t,s){s.label.set(e.element.name,ae(e.filterData))}disposeTemplate(e){e.label.dispose()}}class A{static{this.ID="scopeError"}get templateId(){return A.ID}renderTemplate(e){const t=I.$I8(e,L(".scope"));return{error:I.$I8(t,L(".error"))}}renderElement(e,t,s){s.error.innerText=e.element.name}disposeTemplate(){}}let v=class extends G{static{F=this}static{this.ID="viz"}static rendererOnVisualizationRange(e,t){return e.onDidChangeVisualization(({original:s})=>{if(!t.hasNode(s))return;const n=t.getParentElement(s);t.updateChildren(n,!1,!1)})}constructor(e,t,s,n,i,o){super(t,s,n),this.i=e,this.j=i,this.k=o}get templateId(){return F.ID}renderElement(e,t,s){s.elementDisposable.clear(),super.d(e.element,e,s)}f(e,t,s){const n=e;let i=n.name;n.value&&typeof n.name=="string"&&(i+=":"),t.label.set(i,s,n.name),t.elementDisposable.add(this.i.renderValue(t.value,n,{showChanged:!1,maxValueLength:1024,colorize:!0,session:e.getSession()}))}g(e){const t=e;return{initialValue:e.value,ariaLabel:p(7887,null),validationOptions:{validation:()=>t.errorMessage?{content:t.errorMessage}:null},onFinish:(s,n)=>{t.errorMessage=void 0,n&&t.edit(s).then(()=>{S=!1,this.a.getViewModel().updateViews()})}}}h(e,t,s){const n=t,i=n.original?M(this.k,n.original):this.k,o=n.original?H(n.original):void 0,c=this.j.getMenuActions($.DebugVariablesContext,i,{arg:o,shouldForwardArgs:!1}),{primary:h}=E(c,"inline");if(n.original){const f=T({id:"debugViz",label:p(7888,null),class:J.asClassName(R.eye),run:()=>this.a.getViewModel().setVisualizedExpression(n.original,void 0)});f.checked=!0,h.push(f),e.domNode.style.display="initial"}e.clear(),e.context=o,e.push(h,{icon:!0,label:!1})}};v=F=O([a(1,b),a(2,Z),a(3,W),a(4,_),a(5,N)],v);let C=class extends G{static{z=this}static{this.ID="variable"}constructor(e,t,s,n,i,o,c,h){super(o,c,h),this.i=e,this.j=t,this.k=s,this.l=n,this.m=i}get templateId(){return z.ID}f(e,t,s){t.elementDisposable.add(this.i.renderVariable(t,e,{highlights:s,showChanged:!0}))}renderElement(e,t,s){s.elementDisposable.clear(),super.d(e.element,e,s)}g(e){const t=e;return{initialValue:e.value,ariaLabel:p(7889,null),validationOptions:{validation:()=>t.errorMessage?{content:t.errorMessage}:null},onFinish:(s,n)=>{t.errorMessage=void 0;const i=this.a.getViewModel().focusedStackFrame;n&&t.value!==s&&i&&t.setVariable(s,i).then(()=>{S=!1,this.a.getViewModel().updateViews()})}}}h(e,t,s){const n=t,i=M(this.k,n),o=H(n),c=this.j.getMenuActions($.DebugVariablesContext,i,{arg:o,shouldForwardArgs:!1}),{primary:h}=E(c,"inline");e.clear(),e.context=o,e.push(h,{icon:!0,label:!1});const f=new oe;s.elementDisposable.add(ce(()=>f.dispose(!0))),this.l.getApplicableFor(t,f.token).then(g=>{s.elementDisposable.add(g);const d=t instanceof X&&t.original||t,u=g.object.map(l=>T({id:"debugViz",label:l.name,class:l.iconClass||"debug-viz-icon",run:this.t(l,d,f.token)}));u.length===0||(u.length===1?e.push(u[0],{icon:!0,label:!1}):e.push(T({id:"debugViz",label:p(7890,null),class:J.asClassName(R.eye),run:()=>this.q(u,d,s)}),{icon:!0,label:!1}))})}q(e,t,s){this.m.showContextMenu({getAnchor:()=>s.actionBar.getContainer(),getActions:()=>e})}t(e,t,s){return async()=>{const n=await e.resolve(s);if(!s.isCancellationRequested)if(n.type===0)e.execute();else{const i=await this.l.getVisualizedNodeFor(n.id,t);i&&this.a.getViewModel().setVisualizedExpression(t,i)}}}};C=z=O([a(1,_),a(2,N),a(3,Te),a(4,U),a(5,b),a(6,Z),a(7,W)],C);class Qe{getWidgetAriaLabel(){return p(7891,null)}getAriaLabel(e){return e instanceof P?p(7892,null,e.name):e instanceof m?p(7893,null,e.name,e.value):null}}const Ue="debug.setVariable";x.registerCommand({id:Ue,handler:r=>{r.get(b).getViewModel().setSelectedExpression(D,!1)}});x.registerCommand({metadata:{description:Xe},id:Pe,handler:async(r,e,t)=>{const s=r.get(b),n=r.get(Q);let i="",o;if(e)e instanceof m||e instanceof j?(i="watch",o=[e]):(i="variables",o=D?[D]:[]);else{const d=r.get(Se),u=d.getFocusedView();let l;if(u?.id===q?(l=d.getActiveViewWithId(q),i="watch"):u?.id===V&&(l=d.getActiveViewWithId(V),i="variables"),!l)return;o=l.treeSelection.filter(w=>w instanceof j||w instanceof m)}const c=s.getViewModel().focusedStackFrame,h=s.getViewModel().focusedSession;if(!c||!h||o.length===0)return;const f=h.capabilities.supportsClipboardContext?"clipboard":i,g=o.map(d=>d instanceof m?d.evaluateName||d.value:d.name);try{const d=await Promise.all(g.map(l=>h.evaluate(l,c.frameId,f))),u=ne(d).map(l=>l.body.result);u.length&&n.writeText(u.join(`
-`))}catch{const u=o.map(l=>l.value);n.writeText(u.join(`
-`))}}});const Ze="workbench.debug.viewlet.action.viewMemory",ee="ms-vscode.hexeditor",Ge="hexEditor.hexedit";x.registerCommand({id:Ze,handler:async(r,e,t)=>{const s=r.get(b);let n,i;if("sessionId"in e){if(!e.sessionId||!e.variable.memoryReference)return;n=e.sessionId,i=e.variable.memoryReference}else{if(!e.memoryReference)return;const u=s.getViewModel().focusedSession;if(!u)return;n=u.getId(),i=e.memoryReference}const o=r.get(De),c=r.get(ye),h=r.get(me),f=r.get(Ve),g=r.get(be);(await f.getExtension(ee)||await et(o,h))&&(g.publicLog("debug/didViewMemory",{debugType:s.getModel().getSession(n)?.configuration.type}),await c.openEditor({resource:ze(n,i),options:{revealIfOpened:!0,override:Ge}},Ie))}});async function et(r,e){try{return await r.install(ee,{justification:p(7894,null),enable:!0},15),!0}catch(t){return e.error(t),!1}}x.registerCommand({metadata:{description:We},id:Ne,handler:async(r,e)=>{const t=r.get(Q);e instanceof m?await t.writeText(e.evaluateName):await t.writeText(e.variable.evaluateName)}});x.registerCommand({metadata:{description:_e},id:Re,handler:async(r,e)=>{r.get(b).addWatchExpression(e.variable.evaluateName)}});le(class extends $e{constructor(){super({id:"variables.collapse",viewId:V,title:p(7895,null),f1:!1,icon:R.collapseAll,menu:{id:$.ViewTitle,group:"navigation",when:ue.equals("view",V)}})}runInView(r,e){e.collapseAll()}});export{B as $ahc,qe as $bhc,v as $chc,C as $dhc,Ue as $ehc,Ze as $fhc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var VisualizedVariableRenderer_1, VariablesRenderer_1;
+import * as dom from "../../../../base/browser/dom.js";
+import { HighlightedLabel } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { toAction } from "../../../../base/common/actions.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { createMatches } from "../../../../base/common/filters.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ViewAction, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+import { CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED, CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED, CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED, CONTEXT_VARIABLES_FOCUSED, IDebugService, VARIABLES_VIEW_ID, WATCH_VIEW_ID } from "../common/debug.js";
+import { getContextForVariable } from "../common/debugContext.js";
+import { ErrorScope, Expression, Scope, StackFrame, Variable, VisualizedExpression, getUriForDebugMemory } from "../common/debugModel.js";
+import { IDebugVisualizerService } from "../common/debugVisualizers.js";
+import { AbstractExpressionDataSource, AbstractExpressionsRenderer, expressionAndScopeLabelProvider, renderViewTree } from "./baseDebugView.js";
+import { ADD_TO_WATCH_ID, ADD_TO_WATCH_LABEL, COPY_EVALUATE_PATH_ID, COPY_EVALUATE_PATH_LABEL, COPY_VALUE_ID, COPY_VALUE_LABEL, setDataBreakpointInfoResponse } from "./debugCommands.js";
+import { DebugExpressionRenderer } from "./debugExpressionRenderer.js";
+const $ = dom.$;
+let forgetScopes = true;
+let variableInternalContext;
+let VariablesView = class VariablesView2 extends ViewPane {
+  static {
+    __name(this, "VariablesView");
+  }
+  get treeSelection() {
+    return this.tree.getSelection();
+  }
+  constructor(options, contextMenuService, debugService, keybindingService, configurationService, instantiationService, viewDescriptorService, contextKeyService, openerService, themeService, hoverService, menuService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.debugService = debugService;
+    this.menuService = menuService;
+    this.needsRefresh = false;
+    this.savedViewState = /* @__PURE__ */ new Map();
+    this.autoExpandedScopes = /* @__PURE__ */ new Set();
+    this.updateTreeScheduler = new RunOnceScheduler(async () => {
+      const stackFrame = this.debugService.getViewModel().focusedStackFrame;
+      this.needsRefresh = false;
+      const input = this.tree.getInput();
+      if (input) {
+        this.savedViewState.set(input.getId(), this.tree.getViewState());
+      }
+      if (!stackFrame) {
+        await this.tree.setInput(null);
+        return;
+      }
+      const viewState = this.savedViewState.get(stackFrame.getId());
+      await this.tree.setInput(stackFrame, viewState);
+      const scopes = await stackFrame.getScopes();
+      const toExpand = scopes.find((s) => !s.expensive);
+      if (toExpand && this.tree.hasNode(toExpand)) {
+        this.autoExpandedScopes.add(toExpand.getId());
+        await this.tree.expand(toExpand);
+      }
+    }, 400);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.element.classList.add("debug-pane");
+    container.classList.add("debug-variables");
+    const treeContainer = renderViewTree(container);
+    const expressionRenderer = this.instantiationService.createInstance(DebugExpressionRenderer);
+    this.tree = this.instantiationService.createInstance(WorkbenchAsyncDataTree, "VariablesView", treeContainer, new VariablesDelegate(), [
+      this.instantiationService.createInstance(VariablesRenderer, expressionRenderer),
+      this.instantiationService.createInstance(VisualizedVariableRenderer, expressionRenderer),
+      new ScopesRenderer(),
+      new ScopeErrorRenderer()
+    ], this.instantiationService.createInstance(VariablesDataSource), {
+      accessibilityProvider: new VariablesAccessibilityProvider(),
+      identityProvider: { getId: /* @__PURE__ */ __name((element) => element.getId(), "getId") },
+      keyboardNavigationLabelProvider: expressionAndScopeLabelProvider,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles
+    });
+    this._register(VisualizedVariableRenderer.rendererOnVisualizationRange(this.debugService.getViewModel(), this.tree));
+    this.tree.setInput(this.debugService.getViewModel().focusedStackFrame ?? null);
+    CONTEXT_VARIABLES_FOCUSED.bindTo(this.tree.contextKeyService);
+    this._register(this.debugService.getViewModel().onDidFocusStackFrame((sf) => {
+      if (!this.isBodyVisible()) {
+        this.needsRefresh = true;
+        return;
+      }
+      const timeout = sf.explicit ? 0 : void 0;
+      this.updateTreeScheduler.schedule(timeout);
+    }));
+    this._register(this.debugService.getViewModel().onWillUpdateViews(() => {
+      const stackFrame = this.debugService.getViewModel().focusedStackFrame;
+      if (stackFrame && forgetScopes) {
+        stackFrame.forgetScopes();
+      }
+      forgetScopes = true;
+      this.tree.updateChildren();
+    }));
+    this._register(this.tree);
+    this._register(this.tree.onMouseDblClick((e) => this.onMouseDblClick(e)));
+    this._register(this.tree.onContextMenu(async (e) => await this.onContextMenu(e)));
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible && this.needsRefresh) {
+        this.updateTreeScheduler.schedule();
+      }
+    }));
+    let horizontalScrolling;
+    this._register(this.debugService.getViewModel().onDidSelectExpression((e) => {
+      const variable = e?.expression;
+      if (variable && this.tree.hasNode(variable)) {
+        horizontalScrolling = this.tree.options.horizontalScrolling;
+        if (horizontalScrolling) {
+          this.tree.updateOptions({ horizontalScrolling: false });
+        }
+        this.tree.rerender(variable);
+      } else if (!e && horizontalScrolling !== void 0) {
+        this.tree.updateOptions({ horizontalScrolling });
+        horizontalScrolling = void 0;
+      }
+    }));
+    this._register(this.debugService.getViewModel().onDidEvaluateLazyExpression(async (e) => {
+      if (e instanceof Variable && this.tree.hasNode(e)) {
+        await this.tree.updateChildren(e, false, true);
+        await this.tree.expand(e);
+      }
+    }));
+    this._register(this.debugService.onDidEndSession(() => {
+      this.savedViewState.clear();
+      this.autoExpandedScopes.clear();
+    }));
+  }
+  layoutBody(width, height) {
+    super.layoutBody(height, width);
+    this.tree.layout(width, height);
+  }
+  focus() {
+    super.focus();
+    this.tree.domFocus();
+  }
+  collapseAll() {
+    this.tree.collapseAll();
+  }
+  onMouseDblClick(e) {
+    if (this.canSetExpressionValue(e.element)) {
+      this.debugService.getViewModel().setSelectedExpression(e.element, false);
+    }
+  }
+  canSetExpressionValue(e) {
+    const session = this.debugService.getViewModel().focusedSession;
+    if (!session) {
+      return false;
+    }
+    if (e instanceof VisualizedExpression) {
+      return !!e.treeItem.canEdit;
+    }
+    if (!session.capabilities?.supportsSetVariable && !session.capabilities?.supportsSetExpression) {
+      return false;
+    }
+    return e instanceof Variable && !e.presentationHint?.attributes?.includes("readOnly") && !e.presentationHint?.lazy;
+  }
+  async onContextMenu(e) {
+    const element = e.element;
+    if (element instanceof Scope) {
+      return this.openContextMenuForScope(e, element);
+    }
+    if (!(element instanceof Variable) || !element.value) {
+      return;
+    }
+    return openContextMenuForVariableTreeElement(this.contextKeyService, this.menuService, this.contextMenuService, MenuId.DebugVariablesContext, e);
+  }
+  openContextMenuForScope(e, scope) {
+    const context = { scope: { name: scope.name } };
+    const menu = this.menuService.getMenuActions(MenuId.DebugScopesContext, this.contextKeyService, { arg: context, shouldForwardArgs: false });
+    const { secondary } = getContextMenuActions(menu, "inline");
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => secondary, "getActions")
+    });
+  }
+};
+VariablesView = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IDebugService),
+  __param(3, IKeybindingService),
+  __param(4, IConfigurationService),
+  __param(5, IInstantiationService),
+  __param(6, IViewDescriptorService),
+  __param(7, IContextKeyService),
+  __param(8, IOpenerService),
+  __param(9, IThemeService),
+  __param(10, IHoverService),
+  __param(11, IMenuService)
+], VariablesView);
+async function openContextMenuForVariableTreeElement(parentContextKeyService, menuService, contextMenuService, menuId, e) {
+  const variable = e.element;
+  if (!(variable instanceof Variable) || !variable.value) {
+    return;
+  }
+  const contextKeyService = await getContextForVariableMenuWithDataAccess(parentContextKeyService, variable);
+  const context = getVariablesContext(variable);
+  const menu = menuService.getMenuActions(menuId, contextKeyService, { arg: context, shouldForwardArgs: false });
+  const { secondary } = getContextMenuActions(menu, "inline");
+  contextMenuService.showContextMenu({
+    getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+    getActions: /* @__PURE__ */ __name(() => secondary, "getActions")
+  });
+}
+__name(openContextMenuForVariableTreeElement, "openContextMenuForVariableTreeElement");
+const getVariablesContext = /* @__PURE__ */ __name((variable) => ({
+  sessionId: variable.getSession()?.getId(),
+  container: variable.parent instanceof Expression ? { expression: variable.parent.name } : variable.parent.toDebugProtocolObject(),
+  variable: variable.toDebugProtocolObject()
+}), "getVariablesContext");
+async function getContextForVariableMenuWithDataAccess(parentContext, variable) {
+  const session = variable.getSession();
+  if (!session || !session.capabilities.supportsDataBreakpoints) {
+    return getContextForVariableMenuBase(parentContext, variable);
+  }
+  const contextKeys = [];
+  const dataBreakpointInfoResponse = await session.dataBreakpointInfo(variable.name, variable.parent.reference);
+  const dataBreakpointId = dataBreakpointInfoResponse?.dataId;
+  const dataBreakpointAccessTypes = dataBreakpointInfoResponse?.accessTypes;
+  setDataBreakpointInfoResponse(dataBreakpointInfoResponse);
+  if (!dataBreakpointAccessTypes) {
+    contextKeys.push([CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED.key, !!dataBreakpointId]);
+  } else {
+    for (const accessType of dataBreakpointAccessTypes) {
+      switch (accessType) {
+        case "read":
+          contextKeys.push([CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED.key, !!dataBreakpointId]);
+          break;
+        case "write":
+          contextKeys.push([CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED.key, !!dataBreakpointId]);
+          break;
+        case "readWrite":
+          contextKeys.push([CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED.key, !!dataBreakpointId]);
+          break;
+      }
+    }
+  }
+  return getContextForVariableMenuBase(parentContext, variable, contextKeys);
+}
+__name(getContextForVariableMenuWithDataAccess, "getContextForVariableMenuWithDataAccess");
+function getContextForVariableMenuBase(parentContext, variable, additionalContext = []) {
+  variableInternalContext = variable;
+  return getContextForVariable(parentContext, variable, additionalContext);
+}
+__name(getContextForVariableMenuBase, "getContextForVariableMenuBase");
+function isStackFrame(obj) {
+  return obj instanceof StackFrame;
+}
+__name(isStackFrame, "isStackFrame");
+class VariablesDataSource extends AbstractExpressionDataSource {
+  static {
+    __name(this, "VariablesDataSource");
+  }
+  hasChildren(element) {
+    if (!element) {
+      return false;
+    }
+    if (isStackFrame(element)) {
+      return true;
+    }
+    return element.hasChildren;
+  }
+  doGetChildren(element) {
+    if (isStackFrame(element)) {
+      return element.getScopes();
+    }
+    return element.getChildren();
+  }
+}
+class VariablesDelegate {
+  static {
+    __name(this, "VariablesDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    if (element instanceof ErrorScope) {
+      return ScopeErrorRenderer.ID;
+    }
+    if (element instanceof Scope) {
+      return ScopesRenderer.ID;
+    }
+    if (element instanceof VisualizedExpression) {
+      return VisualizedVariableRenderer.ID;
+    }
+    return VariablesRenderer.ID;
+  }
+}
+class ScopesRenderer {
+  static {
+    __name(this, "ScopesRenderer");
+  }
+  static {
+    this.ID = "scope";
+  }
+  get templateId() {
+    return ScopesRenderer.ID;
+  }
+  renderTemplate(container) {
+    const name = dom.append(container, $(".scope"));
+    const label = new HighlightedLabel(name);
+    return { name, label };
+  }
+  renderElement(element, index, templateData) {
+    templateData.label.set(element.element.name, createMatches(element.filterData));
+  }
+  disposeTemplate(templateData) {
+    templateData.label.dispose();
+  }
+}
+class ScopeErrorRenderer {
+  static {
+    __name(this, "ScopeErrorRenderer");
+  }
+  static {
+    this.ID = "scopeError";
+  }
+  get templateId() {
+    return ScopeErrorRenderer.ID;
+  }
+  renderTemplate(container) {
+    const wrapper = dom.append(container, $(".scope"));
+    const error = dom.append(wrapper, $(".error"));
+    return { error };
+  }
+  renderElement(element, index, templateData) {
+    templateData.error.innerText = element.element.name;
+  }
+  disposeTemplate() {
+  }
+}
+let VisualizedVariableRenderer = class VisualizedVariableRenderer2 extends AbstractExpressionsRenderer {
+  static {
+    __name(this, "VisualizedVariableRenderer");
+  }
+  static {
+    VisualizedVariableRenderer_1 = this;
+  }
+  static {
+    this.ID = "viz";
+  }
+  /**
+   * Registers a helper that rerenders the tree when visualization is requested
+   * or cancelled./
+   */
+  static rendererOnVisualizationRange(model, tree) {
+    return model.onDidChangeVisualization(({ original }) => {
+      if (!tree.hasNode(original)) {
+        return;
+      }
+      const parent = tree.getParentElement(original);
+      tree.updateChildren(parent, false, false);
+    });
+  }
+  constructor(expressionRenderer, debugService, contextViewService, hoverService, menuService, contextKeyService) {
+    super(debugService, contextViewService, hoverService);
+    this.expressionRenderer = expressionRenderer;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+  }
+  get templateId() {
+    return VisualizedVariableRenderer_1.ID;
+  }
+  renderElement(node, index, data) {
+    data.elementDisposable.clear();
+    super.renderExpressionElement(node.element, node, data);
+  }
+  renderExpression(expression, data, highlights) {
+    const viz = expression;
+    let text = viz.name;
+    if (viz.value && typeof viz.name === "string") {
+      text += ":";
+    }
+    data.label.set(text, highlights, viz.name);
+    data.elementDisposable.add(this.expressionRenderer.renderValue(data.value, viz, {
+      showChanged: false,
+      maxValueLength: 1024,
+      colorize: true,
+      session: expression.getSession()
+    }));
+  }
+  getInputBoxOptions(expression) {
+    const viz = expression;
+    return {
+      initialValue: expression.value,
+      ariaLabel: localize("variableValueAriaLabel", "Type new variable value"),
+      validationOptions: {
+        validation: /* @__PURE__ */ __name(() => viz.errorMessage ? { content: viz.errorMessage } : null, "validation")
+      },
+      onFinish: /* @__PURE__ */ __name((value, success) => {
+        viz.errorMessage = void 0;
+        if (success) {
+          viz.edit(value).then(() => {
+            forgetScopes = false;
+            this.debugService.getViewModel().updateViews();
+          });
+        }
+      }, "onFinish")
+    };
+  }
+  renderActionBar(actionBar, expression, _data) {
+    const viz = expression;
+    const contextKeyService = viz.original ? getContextForVariableMenuBase(this.contextKeyService, viz.original) : this.contextKeyService;
+    const context = viz.original ? getVariablesContext(viz.original) : void 0;
+    const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
+    const { primary } = getContextMenuActions(menu, "inline");
+    if (viz.original) {
+      const action = toAction({
+        id: "debugViz",
+        label: localize("removeVisualizer", "Remove Visualizer"),
+        class: ThemeIcon.asClassName(Codicon.eye),
+        run: /* @__PURE__ */ __name(() => this.debugService.getViewModel().setVisualizedExpression(viz.original, void 0), "run")
+      });
+      action.checked = true;
+      primary.push(action);
+      actionBar.domNode.style.display = "initial";
+    }
+    actionBar.clear();
+    actionBar.context = context;
+    actionBar.push(primary, { icon: true, label: false });
+  }
+};
+VisualizedVariableRenderer = VisualizedVariableRenderer_1 = __decorate([
+  __param(1, IDebugService),
+  __param(2, IContextViewService),
+  __param(3, IHoverService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService)
+], VisualizedVariableRenderer);
+let VariablesRenderer = class VariablesRenderer2 extends AbstractExpressionsRenderer {
+  static {
+    __name(this, "VariablesRenderer");
+  }
+  static {
+    VariablesRenderer_1 = this;
+  }
+  static {
+    this.ID = "variable";
+  }
+  constructor(expressionRenderer, menuService, contextKeyService, visualization, contextMenuService, debugService, contextViewService, hoverService) {
+    super(debugService, contextViewService, hoverService);
+    this.expressionRenderer = expressionRenderer;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.visualization = visualization;
+    this.contextMenuService = contextMenuService;
+  }
+  get templateId() {
+    return VariablesRenderer_1.ID;
+  }
+  renderExpression(expression, data, highlights) {
+    data.elementDisposable.add(this.expressionRenderer.renderVariable(data, expression, {
+      highlights,
+      showChanged: true
+    }));
+  }
+  renderElement(node, index, data) {
+    data.elementDisposable.clear();
+    super.renderExpressionElement(node.element, node, data);
+  }
+  getInputBoxOptions(expression) {
+    const variable = expression;
+    return {
+      initialValue: expression.value,
+      ariaLabel: localize("variableValueAriaLabel", "Type new variable value"),
+      validationOptions: {
+        validation: /* @__PURE__ */ __name(() => variable.errorMessage ? { content: variable.errorMessage } : null, "validation")
+      },
+      onFinish: /* @__PURE__ */ __name((value, success) => {
+        variable.errorMessage = void 0;
+        const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
+        if (success && variable.value !== value && focusedStackFrame) {
+          variable.setVariable(value, focusedStackFrame).then(() => {
+            forgetScopes = false;
+            this.debugService.getViewModel().updateViews();
+          });
+        }
+      }, "onFinish")
+    };
+  }
+  renderActionBar(actionBar, expression, data) {
+    const variable = expression;
+    const contextKeyService = getContextForVariableMenuBase(this.contextKeyService, variable);
+    const context = getVariablesContext(variable);
+    const menu = this.menuService.getMenuActions(MenuId.DebugVariablesContext, contextKeyService, { arg: context, shouldForwardArgs: false });
+    const { primary } = getContextMenuActions(menu, "inline");
+    actionBar.clear();
+    actionBar.context = context;
+    actionBar.push(primary, { icon: true, label: false });
+    const cts = new CancellationTokenSource();
+    data.elementDisposable.add(toDisposable(() => cts.dispose(true)));
+    this.visualization.getApplicableFor(expression, cts.token).then((result) => {
+      data.elementDisposable.add(result);
+      const originalExpression = expression instanceof VisualizedExpression && expression.original || expression;
+      const actions = result.object.map((v) => toAction({ id: "debugViz", label: v.name, class: v.iconClass || "debug-viz-icon", run: this.useVisualizer(v, originalExpression, cts.token) }));
+      if (actions.length === 0) {
+      } else if (actions.length === 1) {
+        actionBar.push(actions[0], { icon: true, label: false });
+      } else {
+        actionBar.push(toAction({ id: "debugViz", label: localize("useVisualizer", "Visualize Variable..."), class: ThemeIcon.asClassName(Codicon.eye), run: /* @__PURE__ */ __name(() => this.pickVisualizer(actions, originalExpression, data), "run") }), { icon: true, label: false });
+      }
+    });
+  }
+  pickVisualizer(actions, expression, data) {
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => data.actionBar.getContainer(), "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions")
+    });
+  }
+  useVisualizer(viz, expression, token) {
+    return async () => {
+      const resolved = await viz.resolve(token);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if (resolved.type === 0) {
+        viz.execute();
+      } else {
+        const replacement = await this.visualization.getVisualizedNodeFor(resolved.id, expression);
+        if (replacement) {
+          this.debugService.getViewModel().setVisualizedExpression(expression, replacement);
+        }
+      }
+    };
+  }
+};
+VariablesRenderer = VariablesRenderer_1 = __decorate([
+  __param(1, IMenuService),
+  __param(2, IContextKeyService),
+  __param(3, IDebugVisualizerService),
+  __param(4, IContextMenuService),
+  __param(5, IDebugService),
+  __param(6, IContextViewService),
+  __param(7, IHoverService)
+], VariablesRenderer);
+class VariablesAccessibilityProvider {
+  static {
+    __name(this, "VariablesAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("variablesAriaTreeLabel", "Debug Variables");
+  }
+  getAriaLabel(element) {
+    if (element instanceof Scope) {
+      return localize("variableScopeAriaLabel", "Scope {0}", element.name);
+    }
+    if (element instanceof Variable) {
+      return localize({ key: "variableAriaLabel", comment: ["Placeholders are variable name and variable value respectivly. They should not be translated."] }, "{0}, value {1}", element.name, element.value);
+    }
+    return null;
+  }
+}
+const SET_VARIABLE_ID = "debug.setVariable";
+CommandsRegistry.registerCommand({
+  id: SET_VARIABLE_ID,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const debugService = accessor.get(IDebugService);
+    debugService.getViewModel().setSelectedExpression(variableInternalContext, false);
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  metadata: {
+    description: COPY_VALUE_LABEL
+  },
+  id: COPY_VALUE_ID,
+  handler: /* @__PURE__ */ __name(async (accessor, arg, ctx) => {
+    const debugService = accessor.get(IDebugService);
+    const clipboardService = accessor.get(IClipboardService);
+    let elementContext = "";
+    let elements;
+    if (!arg) {
+      const viewService = accessor.get(IViewsService);
+      const focusedView = viewService.getFocusedView();
+      let view;
+      if (focusedView?.id === WATCH_VIEW_ID) {
+        view = viewService.getActiveViewWithId(WATCH_VIEW_ID);
+        elementContext = "watch";
+      } else if (focusedView?.id === VARIABLES_VIEW_ID) {
+        view = viewService.getActiveViewWithId(VARIABLES_VIEW_ID);
+        elementContext = "variables";
+      }
+      if (!view) {
+        return;
+      }
+      elements = view.treeSelection.filter((e) => e instanceof Expression || e instanceof Variable);
+    } else if (arg instanceof Variable || arg instanceof Expression) {
+      elementContext = "watch";
+      elements = [arg];
+    } else {
+      elementContext = "variables";
+      elements = variableInternalContext ? [variableInternalContext] : [];
+    }
+    const stackFrame = debugService.getViewModel().focusedStackFrame;
+    const session = debugService.getViewModel().focusedSession;
+    if (!stackFrame || !session || elements.length === 0) {
+      return;
+    }
+    const evalContext = session.capabilities.supportsClipboardContext ? "clipboard" : elementContext;
+    const toEvaluate = elements.map((element) => element instanceof Variable ? element.evaluateName || element.value : element.name);
+    try {
+      const evaluations = await Promise.all(toEvaluate.map((expr) => session.evaluate(expr, stackFrame.frameId, evalContext)));
+      const result = coalesce(evaluations).map((evaluation) => evaluation.body.result);
+      if (result.length) {
+        clipboardService.writeText(result.join("\n"));
+      }
+    } catch (e) {
+      const result = elements.map((element) => element.value);
+      clipboardService.writeText(result.join("\n"));
+    }
+  }, "handler")
+});
+const VIEW_MEMORY_ID = "workbench.debug.viewlet.action.viewMemory";
+const HEX_EDITOR_EXTENSION_ID = "ms-vscode.hexeditor";
+const HEX_EDITOR_EDITOR_ID = "hexEditor.hexedit";
+CommandsRegistry.registerCommand({
+  id: VIEW_MEMORY_ID,
+  handler: /* @__PURE__ */ __name(async (accessor, arg, ctx) => {
+    const debugService = accessor.get(IDebugService);
+    let sessionId;
+    let memoryReference;
+    if ("sessionId" in arg) {
+      if (!arg.sessionId || !arg.variable.memoryReference) {
+        return;
+      }
+      sessionId = arg.sessionId;
+      memoryReference = arg.variable.memoryReference;
+    } else {
+      if (!arg.memoryReference) {
+        return;
+      }
+      const focused = debugService.getViewModel().focusedSession;
+      if (!focused) {
+        return;
+      }
+      sessionId = focused.getId();
+      memoryReference = arg.memoryReference;
+    }
+    const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+    const editorService = accessor.get(IEditorService);
+    const notificationService = accessor.get(INotificationService);
+    const extensionService = accessor.get(IExtensionService);
+    const telemetryService = accessor.get(ITelemetryService);
+    const ext = await extensionService.getExtension(HEX_EDITOR_EXTENSION_ID);
+    if (ext || await tryInstallHexEditor(extensionsWorkbenchService, notificationService)) {
+      telemetryService.publicLog("debug/didViewMemory", {
+        debugType: debugService.getModel().getSession(sessionId)?.configuration.type
+      });
+      await editorService.openEditor({
+        resource: getUriForDebugMemory(sessionId, memoryReference),
+        options: {
+          revealIfOpened: true,
+          override: HEX_EDITOR_EDITOR_ID
+        }
+      }, SIDE_GROUP);
+    }
+  }, "handler")
+});
+async function tryInstallHexEditor(extensionsWorkbenchService, notificationService) {
+  try {
+    await extensionsWorkbenchService.install(
+      HEX_EDITOR_EXTENSION_ID,
+      {
+        justification: localize("viewMemory.prompt", "Inspecting binary data requires this extension."),
+        enable: true
+      },
+      15
+      /* ProgressLocation.Notification */
+    );
+    return true;
+  } catch (error) {
+    notificationService.error(error);
+    return false;
+  }
+}
+__name(tryInstallHexEditor, "tryInstallHexEditor");
+CommandsRegistry.registerCommand({
+  metadata: {
+    description: COPY_EVALUATE_PATH_LABEL
+  },
+  id: COPY_EVALUATE_PATH_ID,
+  handler: /* @__PURE__ */ __name(async (accessor, context) => {
+    const clipboardService = accessor.get(IClipboardService);
+    if (context instanceof Variable) {
+      await clipboardService.writeText(context.evaluateName);
+    } else {
+      await clipboardService.writeText(context.variable.evaluateName);
+    }
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  metadata: {
+    description: ADD_TO_WATCH_LABEL
+  },
+  id: ADD_TO_WATCH_ID,
+  handler: /* @__PURE__ */ __name(async (accessor, context) => {
+    const debugService = accessor.get(IDebugService);
+    debugService.addWatchExpression(context.variable.evaluateName);
+  }, "handler")
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "variables.collapse",
+      viewId: VARIABLES_VIEW_ID,
+      title: localize("collapse", "Collapse All"),
+      f1: false,
+      icon: Codicon.collapseAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", VARIABLES_VIEW_ID)
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.collapseAll();
+  }
+});
+export {
+  SET_VARIABLE_ID,
+  VIEW_MEMORY_ID,
+  VariablesRenderer,
+  VariablesView,
+  VisualizedVariableRenderer,
+  openContextMenuForVariableTreeElement
+};
+//# sourceMappingURL=variablesView.js.map

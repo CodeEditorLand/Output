@@ -1,1 +1,38 @@
-import{$M$ as s}from"../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{$qo as h}from"../../contextkey/common/contextkey.js";import{$cy as u}from"../../keybinding/common/keybinding.js";var a=function(n,t,o,i){var r=arguments.length,e=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,o,i);else for(var f=n.length-1;f>=0;f--)(c=n[f])&&(e=(r<3?c(e):r>3?c(t,o,e):c(t,o))||e);return r>3&&e&&Object.defineProperty(t,o,e),e},l=function(n,t){return function(o,i){t(o,i,n)}};let p=class extends s{constructor(t,o,i,r=Object.create(null),e,c){super(t,o,i,r),this.a=e,this.g=c}H(){const t=this.action.tooltip??this.action.label;return this.a.appendKeybinding(t,this.action.id,this.g)}};p=a([l(4,u),l(5,h)],p);export{p as $qSc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DropdownMenuActionViewItem } from "../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+let DropdownMenuActionViewItemWithKeybinding = class DropdownMenuActionViewItemWithKeybinding2 extends DropdownMenuActionViewItem {
+  static {
+    __name(this, "DropdownMenuActionViewItemWithKeybinding");
+  }
+  constructor(action, menuActionsOrProvider, contextMenuProvider, options = /* @__PURE__ */ Object.create(null), keybindingService, contextKeyService) {
+    super(action, menuActionsOrProvider, contextMenuProvider, options);
+    this.keybindingService = keybindingService;
+    this.contextKeyService = contextKeyService;
+  }
+  getTooltip() {
+    const tooltip = this.action.tooltip ?? this.action.label;
+    return this.keybindingService.appendKeybinding(tooltip, this.action.id, this.contextKeyService);
+  }
+};
+DropdownMenuActionViewItemWithKeybinding = __decorate([
+  __param(4, IKeybindingService),
+  __param(5, IContextKeyService)
+], DropdownMenuActionViewItemWithKeybinding);
+export {
+  DropdownMenuActionViewItemWithKeybinding
+};
+//# sourceMappingURL=dropdownActionViewItemWithKeybinding.js.map

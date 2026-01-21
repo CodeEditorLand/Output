@@ -1,1 +1,678 @@
-import{$lc as m}from"./arrays.js";import{$2c as b}from"./assert.js";import{$fg as p,$hg as w,$gg as y,$ig as L}from"./strings.js";class R{constructor(){this.b="",this.c=0}reset(t){return this.b=t,this.c=0,this}next(){return this.c+=1,this}hasNext(){return this.c<this.b.length-1}cmp(t){const e=t.charCodeAt(0),i=this.b.charCodeAt(this.c);return e-i}value(){return this.b[this.c]}}class C{constructor(t=!0){this.e=t}reset(t){return this.b=t,this.c=0,this.d=0,this.next()}hasNext(){return this.d<this.b.length}next(){this.c=this.d;let t=!0;for(;this.d<this.b.length;this.d++)if(this.b.charCodeAt(this.d)===46)if(t)this.c++;else break;else t=!1;return this}cmp(t){return this.e?y(t,this.b,0,t.length,this.c,this.d):L(t,this.b,0,t.length,this.c,this.d)}value(){return this.b.substring(this.c,this.d)}}class N{constructor(t=!0,e=!0){this.f=t,this.g=e}reset(t){this.d=0,this.e=0,this.b=t,this.c=t.length;for(let e=t.length-1;e>=0;e--,this.c--){const i=this.b.charCodeAt(e);if(!(i===47||this.f&&i===92))break}return this.next()}hasNext(){return this.e<this.c}next(){this.d=this.e;let t=!0;for(;this.e<this.c;this.e++){const e=this.b.charCodeAt(this.e);if(e===47||this.f&&e===92)if(t)this.d++;else break;else t=!1}return this}cmp(t){return this.g?y(t,this.b,0,t.length,this.d,this.e):L(t,this.b,0,t.length,this.d,this.e)}value(){return this.b.substring(this.d,this.e)}}var v;(function(n){n[n.Scheme=1]="Scheme",n[n.Authority=2]="Authority",n[n.Path=3]="Path",n[n.Query=4]="Query",n[n.Fragment=5]="Fragment"})(v||(v={}));class k{constructor(t,e){this.f=t,this.g=e,this.d=[],this.e=0}reset(t){return this.c=t,this.d=[],this.c.scheme&&this.d.push(1),this.c.authority&&this.d.push(2),this.c.path&&(this.b=new N(!1,!this.f(t)),this.b.reset(t.path),this.b.value()&&this.d.push(3)),this.g(t)||(this.c.query&&this.d.push(4),this.c.fragment&&this.d.push(5)),this.e=0,this}next(){return this.d[this.e]===3&&this.b.hasNext()?this.b.next():this.e+=1,this}hasNext(){return this.d[this.e]===3&&this.b.hasNext()||this.e<this.d.length-1}cmp(t){if(this.d[this.e]===1)return w(t,this.c.scheme);if(this.d[this.e]===2)return w(t,this.c.authority);if(this.d[this.e]===3)return this.b.cmp(t);if(this.d[this.e]===4)return p(t,this.c.query);if(this.d[this.e]===5)return p(t,this.c.fragment);throw new Error}value(){if(this.d[this.e]===1)return this.c.scheme;if(this.d[this.e]===2)return this.c.authority;if(this.d[this.e]===3)return this.b.value();if(this.d[this.e]===4)return this.c.query;if(this.d[this.e]===5)return this.c.fragment;throw new Error}}class u{static{this.Val=Symbol("undefined_placeholder")}static wrap(t){return t===void 0?u.Val:t}static unwrap(t){return t===u.Val?void 0:t}}class g{constructor(){this.height=1,this.value=void 0,this.key=void 0,this.left=void 0,this.mid=void 0,this.right=void 0}isEmpty(){return!this.left&&!this.mid&&!this.right&&this.value===void 0}rotateLeft(){const t=this.right;return this.right=t.left,t.left=this,this.updateHeight(),t.updateHeight(),t}rotateRight(){const t=this.left;return this.left=t.right,t.right=this,this.updateHeight(),t.updateHeight(),t}updateHeight(){this.height=1+Math.max(this.heightLeft,this.heightRight)}balanceFactor(){return this.heightRight-this.heightLeft}get heightLeft(){return this.left?.height??0}get heightRight(){return this.right?.height??0}}var x;(function(n){n[n.Left=-1]="Left",n[n.Mid=0]="Mid",n[n.Right=1]="Right"})(x||(x={}));class o{static forUris(t=()=>!1,e=()=>!1){return new o(new k(t,e))}static forPaths(t=!1){return new o(new N(void 0,!t))}static forStrings(){return new o(new R)}static forConfigKeys(){return new o(new C)}constructor(t){this.b=t}clear(){this.c=void 0}fill(t,e){if(e){const i=e.slice(0);m(i);for(const s of i)this.set(s,t)}else{const i=t.slice(0);m(i);for(const s of i)this.set(s[0],s[1])}}set(t,e){const i=this.b.reset(t);let s;this.c||(this.c=new g,this.c.segment=i.value());const h=[];for(s=this.c;;){const r=i.cmp(s.segment);if(r>0)s.left||(s.left=new g,s.left.segment=i.value()),h.push([-1,s]),s=s.left;else if(r<0)s.right||(s.right=new g,s.right.segment=i.value()),h.push([1,s]),s=s.right;else if(i.hasNext())i.next(),s.mid||(s.mid=new g,s.mid.segment=i.value()),h.push([0,s]),s=s.mid;else break}const l=u.unwrap(s.value);s.value=u.wrap(e),s.key=t;for(let r=h.length-1;r>=0;r--){const f=h[r][1];f.updateHeight();const d=f.balanceFactor();if(d<-1||d>1){const a=h[r][0],c=h[r+1][0];if(a===1&&c===1)h[r][1]=f.rotateLeft();else if(a===-1&&c===-1)h[r][1]=f.rotateRight();else if(a===1&&c===-1)f.right=h[r+1][1]=h[r+1][1].rotateRight(),h[r][1]=f.rotateLeft();else if(a===-1&&c===1)f.left=h[r+1][1]=h[r+1][1].rotateLeft(),h[r][1]=f.rotateRight();else throw new Error;if(r>0)switch(h[r-1][0]){case-1:h[r-1][1].left=h[r][1];break;case 1:h[r-1][1].right=h[r][1];break;case 0:h[r-1][1].mid=h[r][1];break}else this.c=h[0][1]}}return l}get(t){return u.unwrap(this.d(t)?.value)}d(t){const e=this.b.reset(t);let i=this.c;for(;i;){const s=e.cmp(i.segment);if(s>0)i=i.left;else if(s<0)i=i.right;else if(e.hasNext())e.next(),i=i.mid;else break}return i}has(t){const e=this.d(t);return!(e?.value===void 0&&e?.mid===void 0)}delete(t){return this.e(t,!1)}deleteSuperstr(t){return this.e(t,!0)}e(t,e){const i=this.b.reset(t),s=[];let h=this.c;for(;h;){const l=i.cmp(h.segment);if(l>0)s.push([-1,h]),h=h.left;else if(l<0)s.push([1,h]),h=h.right;else if(i.hasNext())i.next(),s.push([0,h]),h=h.mid;else break}if(h){if(e?(h.left=void 0,h.mid=void 0,h.right=void 0,h.height=1):(h.key=void 0,h.value=void 0),!h.mid&&!h.value)if(h.left&&h.right){const l=[[1,h]],r=this.f(h.right,l);if(r.key){h.key=r.key,h.value=r.value,h.segment=r.segment;const f=r.right;if(l.length>1){const[a,c]=l[l.length-1];switch(a){case-1:c.left=f;break;case 0:b(!1);case 1:b(!1)}}else h.right=f;const d=this.g(l);if(s.length>0){const[a,c]=s[s.length-1];switch(a){case-1:c.left=d;break;case 0:c.mid=d;break;case 1:c.right=d;break}}else this.c=d}}else{const l=h.left??h.right;if(s.length>0){const[r,f]=s[s.length-1];switch(r){case-1:f.left=l;break;case 0:f.mid=l;break;case 1:f.right=l;break}}else this.c=l}this.c=this.g(s)??this.c}}f(t,e){for(;t.left;)e.push([-1,t]),t=t.left;return t}g(t){for(let e=t.length-1;e>=0;e--){const i=t[e][1];i.updateHeight();const s=i.balanceFactor();if(s>1?(i.right.balanceFactor()>=0||(i.right=i.right.rotateRight()),t[e][1]=i.rotateLeft()):s<-1&&(i.left.balanceFactor()<=0||(i.left=i.left.rotateLeft()),t[e][1]=i.rotateRight()),e>0)switch(t[e-1][0]){case-1:t[e-1][1].left=t[e][1];break;case 1:t[e-1][1].right=t[e][1];break;case 0:t[e-1][1].mid=t[e][1];break}else return t[0][1]}}findSubstr(t){const e=this.b.reset(t);let i=this.c,s;for(;i;){const h=e.cmp(i.segment);if(h>0)i=i.left;else if(h<0)i=i.right;else if(e.hasNext())e.next(),s=u.unwrap(i.value)||s,i=i.mid;else break}return i&&u.unwrap(i.value)||s}findSuperstr(t){return this.h(t,!1)}h(t,e){const i=this.b.reset(t);let s=this.c;for(;s;){const h=i.cmp(s.segment);if(h>0)s=s.left;else if(h<0)s=s.right;else if(i.hasNext())i.next(),s=s.mid;else return s.mid?this.j(s.mid):e?u.unwrap(s.value):void 0}}hasElementOrSubtree(t){return this.h(t,!0)!==void 0}forEach(t){for(const[e,i]of this)t(i,e)}*[Symbol.iterator](){yield*this.j(this.c)}j(t){const e=[];return this.l(t,e),e[Symbol.iterator]()}l(t,e){t&&(t.left&&this.l(t.left,e),t.value!==void 0&&e.push([t.key,u.unwrap(t.value)]),t.mid&&this.l(t.mid,e),t.right&&this.l(t.right,e))}_isBalanced(){const t=e=>{if(!e)return!0;const i=e.balanceFactor();return i<-1||i>1?!1:t(e.left)&&t(e.right)};return t(this.c)}}export{R as $Ej,C as $Fj,N as $Gj,k as $Hj,o as $Ij};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { shuffle } from "./arrays.js";
+import { assert } from "./assert.js";
+import { compare, compareIgnoreCase, compareSubstring, compareSubstringIgnoreCase } from "./strings.js";
+class StringIterator {
+  static {
+    __name(this, "StringIterator");
+  }
+  constructor() {
+    this._value = "";
+    this._pos = 0;
+  }
+  reset(key) {
+    this._value = key;
+    this._pos = 0;
+    return this;
+  }
+  next() {
+    this._pos += 1;
+    return this;
+  }
+  hasNext() {
+    return this._pos < this._value.length - 1;
+  }
+  cmp(a) {
+    const aCode = a.charCodeAt(0);
+    const thisCode = this._value.charCodeAt(this._pos);
+    return aCode - thisCode;
+  }
+  value() {
+    return this._value[this._pos];
+  }
+}
+class ConfigKeysIterator {
+  static {
+    __name(this, "ConfigKeysIterator");
+  }
+  constructor(_caseSensitive = true) {
+    this._caseSensitive = _caseSensitive;
+  }
+  reset(key) {
+    this._value = key;
+    this._from = 0;
+    this._to = 0;
+    return this.next();
+  }
+  hasNext() {
+    return this._to < this._value.length;
+  }
+  next() {
+    this._from = this._to;
+    let justSeps = true;
+    for (; this._to < this._value.length; this._to++) {
+      const ch = this._value.charCodeAt(this._to);
+      if (ch === 46) {
+        if (justSeps) {
+          this._from++;
+        } else {
+          break;
+        }
+      } else {
+        justSeps = false;
+      }
+    }
+    return this;
+  }
+  cmp(a) {
+    return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
+  }
+  value() {
+    return this._value.substring(this._from, this._to);
+  }
+}
+class PathIterator {
+  static {
+    __name(this, "PathIterator");
+  }
+  constructor(_splitOnBackslash = true, _caseSensitive = true) {
+    this._splitOnBackslash = _splitOnBackslash;
+    this._caseSensitive = _caseSensitive;
+  }
+  reset(key) {
+    this._from = 0;
+    this._to = 0;
+    this._value = key;
+    this._valueLen = key.length;
+    for (let pos = key.length - 1; pos >= 0; pos--, this._valueLen--) {
+      const ch = this._value.charCodeAt(pos);
+      if (!(ch === 47 || this._splitOnBackslash && ch === 92)) {
+        break;
+      }
+    }
+    return this.next();
+  }
+  hasNext() {
+    return this._to < this._valueLen;
+  }
+  next() {
+    this._from = this._to;
+    let justSeps = true;
+    for (; this._to < this._valueLen; this._to++) {
+      const ch = this._value.charCodeAt(this._to);
+      if (ch === 47 || this._splitOnBackslash && ch === 92) {
+        if (justSeps) {
+          this._from++;
+        } else {
+          break;
+        }
+      } else {
+        justSeps = false;
+      }
+    }
+    return this;
+  }
+  cmp(a) {
+    return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
+  }
+  value() {
+    return this._value.substring(this._from, this._to);
+  }
+}
+var UriIteratorState;
+(function(UriIteratorState2) {
+  UriIteratorState2[UriIteratorState2["Scheme"] = 1] = "Scheme";
+  UriIteratorState2[UriIteratorState2["Authority"] = 2] = "Authority";
+  UriIteratorState2[UriIteratorState2["Path"] = 3] = "Path";
+  UriIteratorState2[UriIteratorState2["Query"] = 4] = "Query";
+  UriIteratorState2[UriIteratorState2["Fragment"] = 5] = "Fragment";
+})(UriIteratorState || (UriIteratorState = {}));
+class UriIterator {
+  static {
+    __name(this, "UriIterator");
+  }
+  constructor(_ignorePathCasing, _ignoreQueryAndFragment) {
+    this._ignorePathCasing = _ignorePathCasing;
+    this._ignoreQueryAndFragment = _ignoreQueryAndFragment;
+    this._states = [];
+    this._stateIdx = 0;
+  }
+  reset(key) {
+    this._value = key;
+    this._states = [];
+    if (this._value.scheme) {
+      this._states.push(
+        1
+        /* UriIteratorState.Scheme */
+      );
+    }
+    if (this._value.authority) {
+      this._states.push(
+        2
+        /* UriIteratorState.Authority */
+      );
+    }
+    if (this._value.path) {
+      this._pathIterator = new PathIterator(false, !this._ignorePathCasing(key));
+      this._pathIterator.reset(key.path);
+      if (this._pathIterator.value()) {
+        this._states.push(
+          3
+          /* UriIteratorState.Path */
+        );
+      }
+    }
+    if (!this._ignoreQueryAndFragment(key)) {
+      if (this._value.query) {
+        this._states.push(
+          4
+          /* UriIteratorState.Query */
+        );
+      }
+      if (this._value.fragment) {
+        this._states.push(
+          5
+          /* UriIteratorState.Fragment */
+        );
+      }
+    }
+    this._stateIdx = 0;
+    return this;
+  }
+  next() {
+    if (this._states[this._stateIdx] === 3 && this._pathIterator.hasNext()) {
+      this._pathIterator.next();
+    } else {
+      this._stateIdx += 1;
+    }
+    return this;
+  }
+  hasNext() {
+    return this._states[this._stateIdx] === 3 && this._pathIterator.hasNext() || this._stateIdx < this._states.length - 1;
+  }
+  cmp(a) {
+    if (this._states[this._stateIdx] === 1) {
+      return compareIgnoreCase(a, this._value.scheme);
+    } else if (this._states[this._stateIdx] === 2) {
+      return compareIgnoreCase(a, this._value.authority);
+    } else if (this._states[this._stateIdx] === 3) {
+      return this._pathIterator.cmp(a);
+    } else if (this._states[this._stateIdx] === 4) {
+      return compare(a, this._value.query);
+    } else if (this._states[this._stateIdx] === 5) {
+      return compare(a, this._value.fragment);
+    }
+    throw new Error();
+  }
+  value() {
+    if (this._states[this._stateIdx] === 1) {
+      return this._value.scheme;
+    } else if (this._states[this._stateIdx] === 2) {
+      return this._value.authority;
+    } else if (this._states[this._stateIdx] === 3) {
+      return this._pathIterator.value();
+    } else if (this._states[this._stateIdx] === 4) {
+      return this._value.query;
+    } else if (this._states[this._stateIdx] === 5) {
+      return this._value.fragment;
+    }
+    throw new Error();
+  }
+}
+class Undef {
+  static {
+    __name(this, "Undef");
+  }
+  static {
+    this.Val = /* @__PURE__ */ Symbol("undefined_placeholder");
+  }
+  static wrap(value) {
+    return value === void 0 ? Undef.Val : value;
+  }
+  static unwrap(value) {
+    return value === Undef.Val ? void 0 : value;
+  }
+}
+class TernarySearchTreeNode {
+  static {
+    __name(this, "TernarySearchTreeNode");
+  }
+  constructor() {
+    this.height = 1;
+    this.value = void 0;
+    this.key = void 0;
+    this.left = void 0;
+    this.mid = void 0;
+    this.right = void 0;
+  }
+  isEmpty() {
+    return !this.left && !this.mid && !this.right && this.value === void 0;
+  }
+  rotateLeft() {
+    const tmp = this.right;
+    this.right = tmp.left;
+    tmp.left = this;
+    this.updateHeight();
+    tmp.updateHeight();
+    return tmp;
+  }
+  rotateRight() {
+    const tmp = this.left;
+    this.left = tmp.right;
+    tmp.right = this;
+    this.updateHeight();
+    tmp.updateHeight();
+    return tmp;
+  }
+  updateHeight() {
+    this.height = 1 + Math.max(this.heightLeft, this.heightRight);
+  }
+  balanceFactor() {
+    return this.heightRight - this.heightLeft;
+  }
+  get heightLeft() {
+    return this.left?.height ?? 0;
+  }
+  get heightRight() {
+    return this.right?.height ?? 0;
+  }
+}
+var Dir;
+(function(Dir2) {
+  Dir2[Dir2["Left"] = -1] = "Left";
+  Dir2[Dir2["Mid"] = 0] = "Mid";
+  Dir2[Dir2["Right"] = 1] = "Right";
+})(Dir || (Dir = {}));
+class TernarySearchTree {
+  static {
+    __name(this, "TernarySearchTree");
+  }
+  static forUris(ignorePathCasing = () => false, ignoreQueryAndFragment = () => false) {
+    return new TernarySearchTree(new UriIterator(ignorePathCasing, ignoreQueryAndFragment));
+  }
+  static forPaths(ignorePathCasing = false) {
+    return new TernarySearchTree(new PathIterator(void 0, !ignorePathCasing));
+  }
+  static forStrings() {
+    return new TernarySearchTree(new StringIterator());
+  }
+  static forConfigKeys() {
+    return new TernarySearchTree(new ConfigKeysIterator());
+  }
+  constructor(segments) {
+    this._iter = segments;
+  }
+  clear() {
+    this._root = void 0;
+  }
+  fill(values, keys) {
+    if (keys) {
+      const arr = keys.slice(0);
+      shuffle(arr);
+      for (const k of arr) {
+        this.set(k, values);
+      }
+    } else {
+      const arr = values.slice(0);
+      shuffle(arr);
+      for (const entry of arr) {
+        this.set(entry[0], entry[1]);
+      }
+    }
+  }
+  set(key, element) {
+    const iter = this._iter.reset(key);
+    let node;
+    if (!this._root) {
+      this._root = new TernarySearchTreeNode();
+      this._root.segment = iter.value();
+    }
+    const stack = [];
+    node = this._root;
+    while (true) {
+      const val = iter.cmp(node.segment);
+      if (val > 0) {
+        if (!node.left) {
+          node.left = new TernarySearchTreeNode();
+          node.left.segment = iter.value();
+        }
+        stack.push([-1, node]);
+        node = node.left;
+      } else if (val < 0) {
+        if (!node.right) {
+          node.right = new TernarySearchTreeNode();
+          node.right.segment = iter.value();
+        }
+        stack.push([1, node]);
+        node = node.right;
+      } else if (iter.hasNext()) {
+        iter.next();
+        if (!node.mid) {
+          node.mid = new TernarySearchTreeNode();
+          node.mid.segment = iter.value();
+        }
+        stack.push([0, node]);
+        node = node.mid;
+      } else {
+        break;
+      }
+    }
+    const oldElement = Undef.unwrap(node.value);
+    node.value = Undef.wrap(element);
+    node.key = key;
+    for (let i = stack.length - 1; i >= 0; i--) {
+      const node2 = stack[i][1];
+      node2.updateHeight();
+      const bf = node2.balanceFactor();
+      if (bf < -1 || bf > 1) {
+        const d1 = stack[i][0];
+        const d2 = stack[i + 1][0];
+        if (d1 === 1 && d2 === 1) {
+          stack[i][1] = node2.rotateLeft();
+        } else if (d1 === -1 && d2 === -1) {
+          stack[i][1] = node2.rotateRight();
+        } else if (d1 === 1 && d2 === -1) {
+          node2.right = stack[i + 1][1] = stack[i + 1][1].rotateRight();
+          stack[i][1] = node2.rotateLeft();
+        } else if (d1 === -1 && d2 === 1) {
+          node2.left = stack[i + 1][1] = stack[i + 1][1].rotateLeft();
+          stack[i][1] = node2.rotateRight();
+        } else {
+          throw new Error();
+        }
+        if (i > 0) {
+          switch (stack[i - 1][0]) {
+            case -1:
+              stack[i - 1][1].left = stack[i][1];
+              break;
+            case 1:
+              stack[i - 1][1].right = stack[i][1];
+              break;
+            case 0:
+              stack[i - 1][1].mid = stack[i][1];
+              break;
+          }
+        } else {
+          this._root = stack[0][1];
+        }
+      }
+    }
+    return oldElement;
+  }
+  get(key) {
+    return Undef.unwrap(this._getNode(key)?.value);
+  }
+  _getNode(key) {
+    const iter = this._iter.reset(key);
+    let node = this._root;
+    while (node) {
+      const val = iter.cmp(node.segment);
+      if (val > 0) {
+        node = node.left;
+      } else if (val < 0) {
+        node = node.right;
+      } else if (iter.hasNext()) {
+        iter.next();
+        node = node.mid;
+      } else {
+        break;
+      }
+    }
+    return node;
+  }
+  has(key) {
+    const node = this._getNode(key);
+    return !(node?.value === void 0 && node?.mid === void 0);
+  }
+  delete(key) {
+    return this._delete(key, false);
+  }
+  deleteSuperstr(key) {
+    return this._delete(key, true);
+  }
+  _delete(key, superStr) {
+    const iter = this._iter.reset(key);
+    const stack = [];
+    let node = this._root;
+    while (node) {
+      const val = iter.cmp(node.segment);
+      if (val > 0) {
+        stack.push([-1, node]);
+        node = node.left;
+      } else if (val < 0) {
+        stack.push([1, node]);
+        node = node.right;
+      } else if (iter.hasNext()) {
+        iter.next();
+        stack.push([0, node]);
+        node = node.mid;
+      } else {
+        break;
+      }
+    }
+    if (!node) {
+      return;
+    }
+    if (superStr) {
+      node.left = void 0;
+      node.mid = void 0;
+      node.right = void 0;
+      node.height = 1;
+    } else {
+      node.key = void 0;
+      node.value = void 0;
+    }
+    if (!node.mid && !node.value) {
+      if (node.left && node.right) {
+        const stack2 = [[1, node]];
+        const min = this._min(node.right, stack2);
+        if (min.key) {
+          node.key = min.key;
+          node.value = min.value;
+          node.segment = min.segment;
+          const newChild = min.right;
+          if (stack2.length > 1) {
+            const [dir, parent] = stack2[stack2.length - 1];
+            switch (dir) {
+              case -1:
+                parent.left = newChild;
+                break;
+              case 0:
+                assert(false);
+              case 1:
+                assert(false);
+            }
+          } else {
+            node.right = newChild;
+          }
+          const newChild2 = this._balanceByStack(stack2);
+          if (stack.length > 0) {
+            const [dir, parent] = stack[stack.length - 1];
+            switch (dir) {
+              case -1:
+                parent.left = newChild2;
+                break;
+              case 0:
+                parent.mid = newChild2;
+                break;
+              case 1:
+                parent.right = newChild2;
+                break;
+            }
+          } else {
+            this._root = newChild2;
+          }
+        }
+      } else {
+        const newChild = node.left ?? node.right;
+        if (stack.length > 0) {
+          const [dir, parent] = stack[stack.length - 1];
+          switch (dir) {
+            case -1:
+              parent.left = newChild;
+              break;
+            case 0:
+              parent.mid = newChild;
+              break;
+            case 1:
+              parent.right = newChild;
+              break;
+          }
+        } else {
+          this._root = newChild;
+        }
+      }
+    }
+    this._root = this._balanceByStack(stack) ?? this._root;
+  }
+  _min(node, stack) {
+    while (node.left) {
+      stack.push([-1, node]);
+      node = node.left;
+    }
+    return node;
+  }
+  _balanceByStack(stack) {
+    for (let i = stack.length - 1; i >= 0; i--) {
+      const node = stack[i][1];
+      node.updateHeight();
+      const bf = node.balanceFactor();
+      if (bf > 1) {
+        if (node.right.balanceFactor() >= 0) {
+          stack[i][1] = node.rotateLeft();
+        } else {
+          node.right = node.right.rotateRight();
+          stack[i][1] = node.rotateLeft();
+        }
+      } else if (bf < -1) {
+        if (node.left.balanceFactor() <= 0) {
+          stack[i][1] = node.rotateRight();
+        } else {
+          node.left = node.left.rotateLeft();
+          stack[i][1] = node.rotateRight();
+        }
+      }
+      if (i > 0) {
+        switch (stack[i - 1][0]) {
+          case -1:
+            stack[i - 1][1].left = stack[i][1];
+            break;
+          case 1:
+            stack[i - 1][1].right = stack[i][1];
+            break;
+          case 0:
+            stack[i - 1][1].mid = stack[i][1];
+            break;
+        }
+      } else {
+        return stack[0][1];
+      }
+    }
+    return void 0;
+  }
+  findSubstr(key) {
+    const iter = this._iter.reset(key);
+    let node = this._root;
+    let candidate = void 0;
+    while (node) {
+      const val = iter.cmp(node.segment);
+      if (val > 0) {
+        node = node.left;
+      } else if (val < 0) {
+        node = node.right;
+      } else if (iter.hasNext()) {
+        iter.next();
+        candidate = Undef.unwrap(node.value) || candidate;
+        node = node.mid;
+      } else {
+        break;
+      }
+    }
+    return node && Undef.unwrap(node.value) || candidate;
+  }
+  findSuperstr(key) {
+    return this._findSuperstrOrElement(key, false);
+  }
+  _findSuperstrOrElement(key, allowValue) {
+    const iter = this._iter.reset(key);
+    let node = this._root;
+    while (node) {
+      const val = iter.cmp(node.segment);
+      if (val > 0) {
+        node = node.left;
+      } else if (val < 0) {
+        node = node.right;
+      } else if (iter.hasNext()) {
+        iter.next();
+        node = node.mid;
+      } else {
+        if (!node.mid) {
+          if (allowValue) {
+            return Undef.unwrap(node.value);
+          } else {
+            return void 0;
+          }
+        } else {
+          return this._entries(node.mid);
+        }
+      }
+    }
+    return void 0;
+  }
+  hasElementOrSubtree(key) {
+    return this._findSuperstrOrElement(key, true) !== void 0;
+  }
+  forEach(callback) {
+    for (const [key, value] of this) {
+      callback(value, key);
+    }
+  }
+  *[Symbol.iterator]() {
+    yield* this._entries(this._root);
+  }
+  _entries(node) {
+    const result = [];
+    this._dfsEntries(node, result);
+    return result[Symbol.iterator]();
+  }
+  _dfsEntries(node, bucket) {
+    if (!node) {
+      return;
+    }
+    if (node.left) {
+      this._dfsEntries(node.left, bucket);
+    }
+    if (node.value !== void 0) {
+      bucket.push([node.key, Undef.unwrap(node.value)]);
+    }
+    if (node.mid) {
+      this._dfsEntries(node.mid, bucket);
+    }
+    if (node.right) {
+      this._dfsEntries(node.right, bucket);
+    }
+  }
+  // for debug/testing
+  _isBalanced() {
+    const nodeIsBalanced = /* @__PURE__ */ __name((node) => {
+      if (!node) {
+        return true;
+      }
+      const bf = node.balanceFactor();
+      if (bf < -1 || bf > 1) {
+        return false;
+      }
+      return nodeIsBalanced(node.left) && nodeIsBalanced(node.right);
+    }, "nodeIsBalanced");
+    return nodeIsBalanced(this._root);
+  }
+}
+export {
+  ConfigKeysIterator,
+  PathIterator,
+  StringIterator,
+  TernarySearchTree,
+  UriIterator
+};
+//# sourceMappingURL=ternarySearchTree.js.map

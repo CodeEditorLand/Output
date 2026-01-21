@@ -1,8 +1,114 @@
-import{$ak as a}from"../../../base/common/codicons.js";import{$Jc as c,URI as r}from"../../../base/common/uri.js";import{localize as d}from"../../../nls.js";import{ThemeIcon as s}from"../../../base/common/themables.js";import{$9c as m,$6c as o}from"../../../base/common/types.js";function U(e,i){const n=[{name:null,description:d(2374,null)}];return n.push(...e.map(t=>({name:t.profileName,description:u(t)}))),i&&n.push(...i.map(t=>({name:t.title,description:h(t)}))),{values:n.map(t=>t.name),markdownDescriptions:n.map(t=>t.description)}}function u(e){let i=`$(${s.isThemeIcon(e.icon)?e.icon.id:e.icon?e.icon:a.terminal.id}) ${e.profileName}
-- path: ${e.path}`;return e.args&&(o(e.args)?i+=`
-- args: "${e.args}"`:i+=`
-- args: [${e.args.length===0?"":`'${e.args.join("','")}'`}]`),e.overrideName!==void 0&&(i+=`
-- overrideName: ${e.overrideName}`),e.color&&(i+=`
-- color: ${e.color}`),e.env&&(i+=`
-- env: ${JSON.stringify(e.env)}`),i}function h(e){return`$(${s.isThemeIcon(e.icon)?e.icon.id:e.icon?e.icon:a.terminal.id}) ${e.title}
-- extensionIdentifier: ${e.extensionIdentifier}`}function k(e,i){if(!e&&!i)return!0;if(o(e)&&o(i))return e===i;if(Array.isArray(e)&&Array.isArray(i)){if(e.length!==i.length)return!1;for(let n=0;n<e.length;n++)if(e[n]!==i[n])return!1;return!0}return!1}function g(e,i){if(!e&&!i)return!0;if(!e||!i)return!1;if(s.isThemeIcon(e)&&s.isThemeIcon(i))return e.id===i.id&&e.color===i.color;if(m(e)&&!r.isUri(e)&&!s.isThemeIcon(e)&&m(i)&&!r.isUri(i)&&!s.isThemeIcon(i)){const n=e,t=i;if((r.isUri(n.light)||c(n.light))&&(r.isUri(n.dark)||c(n.dark))&&(r.isUri(t.light)||c(t.light))&&(r.isUri(t.dark)||c(t.dark)))return n.light.path===t.light.path&&n.dark.path===t.dark.path}if(r.isUri(e)&&r.isUri(i)||c(e)||c(i)){const n=e,t=i;return n.path===t.path&&n.scheme===t.scheme}return!1}export{U as $dB,k as $eB,g as $fB};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../base/common/codicons.js";
+import { isUriComponents, URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { isObject, isString } from "../../../base/common/types.js";
+function createProfileSchemaEnums(detectedProfiles, extensionProfiles) {
+  const result = [{
+    name: null,
+    description: localize("terminalAutomaticProfile", "Automatically detect the default")
+  }];
+  result.push(...detectedProfiles.map((e) => {
+    return {
+      name: e.profileName,
+      description: createProfileDescription(e)
+    };
+  }));
+  if (extensionProfiles) {
+    result.push(...extensionProfiles.map((extensionProfile) => {
+      return {
+        name: extensionProfile.title,
+        description: createExtensionProfileDescription(extensionProfile)
+      };
+    }));
+  }
+  return {
+    values: result.map((e) => e.name),
+    markdownDescriptions: result.map((e) => e.description)
+  };
+}
+__name(createProfileSchemaEnums, "createProfileSchemaEnums");
+function createProfileDescription(profile) {
+  let description = `$(${ThemeIcon.isThemeIcon(profile.icon) ? profile.icon.id : profile.icon ? profile.icon : Codicon.terminal.id}) ${profile.profileName}
+- path: ${profile.path}`;
+  if (profile.args) {
+    if (isString(profile.args)) {
+      description += `
+- args: "${profile.args}"`;
+    } else {
+      description += `
+- args: [${profile.args.length === 0 ? "" : `'${profile.args.join(`','`)}'`}]`;
+    }
+  }
+  if (profile.overrideName !== void 0) {
+    description += `
+- overrideName: ${profile.overrideName}`;
+  }
+  if (profile.color) {
+    description += `
+- color: ${profile.color}`;
+  }
+  if (profile.env) {
+    description += `
+- env: ${JSON.stringify(profile.env)}`;
+  }
+  return description;
+}
+__name(createProfileDescription, "createProfileDescription");
+function createExtensionProfileDescription(profile) {
+  const description = `$(${ThemeIcon.isThemeIcon(profile.icon) ? profile.icon.id : profile.icon ? profile.icon : Codicon.terminal.id}) ${profile.title}
+- extensionIdentifier: ${profile.extensionIdentifier}`;
+  return description;
+}
+__name(createExtensionProfileDescription, "createExtensionProfileDescription");
+function terminalProfileArgsMatch(args1, args2) {
+  if (!args1 && !args2) {
+    return true;
+  } else if (isString(args1) && isString(args2)) {
+    return args1 === args2;
+  } else if (Array.isArray(args1) && Array.isArray(args2)) {
+    if (args1.length !== args2.length) {
+      return false;
+    }
+    for (let i = 0; i < args1.length; i++) {
+      if (args1[i] !== args2[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}
+__name(terminalProfileArgsMatch, "terminalProfileArgsMatch");
+function terminalIconsEqual(a, b) {
+  if (!a && !b) {
+    return true;
+  } else if (!a || !b) {
+    return false;
+  }
+  if (ThemeIcon.isThemeIcon(a) && ThemeIcon.isThemeIcon(b)) {
+    return a.id === b.id && a.color === b.color;
+  }
+  if (isObject(a) && !URI.isUri(a) && !ThemeIcon.isThemeIcon(a) && isObject(b) && !URI.isUri(b) && !ThemeIcon.isThemeIcon(b)) {
+    const castedA = a;
+    const castedB = b;
+    if ((URI.isUri(castedA.light) || isUriComponents(castedA.light)) && (URI.isUri(castedA.dark) || isUriComponents(castedA.dark)) && (URI.isUri(castedB.light) || isUriComponents(castedB.light)) && (URI.isUri(castedB.dark) || isUriComponents(castedB.dark))) {
+      return castedA.light.path === castedB.light.path && castedA.dark.path === castedB.dark.path;
+    }
+  }
+  if (URI.isUri(a) && URI.isUri(b) || (isUriComponents(a) || isUriComponents(b))) {
+    const castedA = a;
+    const castedB = b;
+    return castedA.path === castedB.path && castedA.scheme === castedB.scheme;
+  }
+  return false;
+}
+__name(terminalIconsEqual, "terminalIconsEqual");
+export {
+  createProfileSchemaEnums,
+  terminalIconsEqual,
+  terminalProfileArgsMatch
+};
+//# sourceMappingURL=terminalProfiles.js.map

@@ -1,1 +1,124 @@
-import{$9i as O}from"../../../../../base/common/buffer.js";import{$Hh as p}from"../../../../../base/common/resources.js";import{localize as E,localize2 as u}from"../../../../../nls.js";import{$sL as g,$tL as h}from"../../../../../platform/actions/common/actions.js";import{$Np as w}from"../../../../../platform/dialogs/common/dialogs.js";import{$uk as S}from"../../../../../platform/files/common/files.js";import{$3Ob as v}from"./chatActions.js";import{$P3b as N,$O3b as $}from"../chat.js";import{$TOb as U}from"../widgetHosts/editor/chatEditorInput.js";import{ChatContextKeys as b}from"../../common/actions/chatContextKeys.js";import{$4U as D}from"../../common/model/chatModel.js";import{$hU as x}from"../../common/chatService/chatService.js";import{$4m as P}from"../../../../../base/common/marshalling.js";const F="chat.json",y=[{name:E(5264,null),extensions:["json"]}];function B(){h(class extends g{constructor(){super({id:"workbench.action.chat.export",category:v,title:u(5265,"Export Chat..."),precondition:b.enabled,f1:!0})}async run(t,r){const l=t.get($),a=t.get(w),f=t.get(S),s=t.get(x),i=l.lastFocusedWidget;if(!i||!i.viewModel)return;if(!r){const o=p(await a.defaultFilePath(),F),n=await a.showSaveDialog({defaultUri:o,filters:y});if(!n)return;r=n}const c=s.getSession(i.viewModel.sessionResource);if(!c)return;const e=O.fromString(JSON.stringify(c.toExport(),void 0,2));await f.writeFile(r,e)}}),h(class extends g{constructor(){super({id:"workbench.action.chat.import",title:u(5266,"Import Chat..."),category:v,precondition:b.enabled,f1:!0})}async run(t,r){const l=t.get(S),a=t.get($),f=t.get(x),s=t.get(w);let i=r?.inputPath;if(!i){const e=p(await s.defaultFilePath(),F),o=await s.showOpenDialog({defaultUri:e,canSelectFiles:!0,filters:y});if(!o)return;i=o[0]}const c=await l.readFile(i);try{const e=P(JSON.parse(c.value.toString()));if(!D(e))throw new Error("Invalid chat session data");let o,n,m;if(r?.target==="chatViewPane"){const d=f.loadSessionFromContent(e);if(!d)return;o=d.object.sessionResource,n=N,m={pinned:!0}}else o=U.getNewEditorUri(),n=void 0,m={target:{data:e},pinned:!0};await a.openSession(o,n,m)}catch(e){throw e}}})}export{B as $bnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IFileDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { ChatViewPaneTarget, IChatWidgetService } from "../chat.js";
+import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { isExportableSessionData } from "../../common/model/chatModel.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { revive } from "../../../../../base/common/marshalling.js";
+const defaultFileName = "chat.json";
+const filters = [{ name: localize("chat.file.label", "Chat Session"), extensions: ["json"] }];
+function registerChatExportActions() {
+  registerAction2(class ExportChatAction extends Action2 {
+    static {
+      __name(this, "ExportChatAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.export",
+        category: CHAT_CATEGORY,
+        title: localize2("chat.export.label", "Export Chat..."),
+        precondition: ChatContextKeys.enabled,
+        f1: true
+      });
+    }
+    async run(accessor, outputPath) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const fileDialogService = accessor.get(IFileDialogService);
+      const fileService = accessor.get(IFileService);
+      const chatService = accessor.get(IChatService);
+      const widget = widgetService.lastFocusedWidget;
+      if (!widget || !widget.viewModel) {
+        return;
+      }
+      if (!outputPath) {
+        const defaultUri = joinPath(await fileDialogService.defaultFilePath(), defaultFileName);
+        const result = await fileDialogService.showSaveDialog({
+          defaultUri,
+          filters
+        });
+        if (!result) {
+          return;
+        }
+        outputPath = result;
+      }
+      const model = chatService.getSession(widget.viewModel.sessionResource);
+      if (!model) {
+        return;
+      }
+      const content = VSBuffer.fromString(JSON.stringify(model.toExport(), void 0, 2));
+      await fileService.writeFile(outputPath, content);
+    }
+  });
+  registerAction2(class ImportChatAction extends Action2 {
+    static {
+      __name(this, "ImportChatAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.import",
+        title: localize2("chat.import.label", "Import Chat..."),
+        category: CHAT_CATEGORY,
+        precondition: ChatContextKeys.enabled,
+        f1: true
+      });
+    }
+    async run(accessor, opts) {
+      const fileService = accessor.get(IFileService);
+      const widgetService = accessor.get(IChatWidgetService);
+      const chatService = accessor.get(IChatService);
+      const fileDialogService = accessor.get(IFileDialogService);
+      let inputPath = opts?.inputPath;
+      if (!inputPath) {
+        const defaultUri = joinPath(await fileDialogService.defaultFilePath(), defaultFileName);
+        const result = await fileDialogService.showOpenDialog({
+          defaultUri,
+          canSelectFiles: true,
+          filters
+        });
+        if (!result) {
+          return;
+        }
+        inputPath = result[0];
+      }
+      const content = await fileService.readFile(inputPath);
+      try {
+        const data = revive(JSON.parse(content.value.toString()));
+        if (!isExportableSessionData(data)) {
+          throw new Error("Invalid chat session data");
+        }
+        let sessionResource;
+        let resolvedTarget;
+        let options;
+        if (opts?.target === "chatViewPane") {
+          const modelRef = chatService.loadSessionFromContent(data);
+          if (!modelRef) {
+            return;
+          }
+          sessionResource = modelRef.object.sessionResource;
+          resolvedTarget = ChatViewPaneTarget;
+          options = { pinned: true };
+        } else {
+          sessionResource = ChatEditorInput.getNewEditorUri();
+          resolvedTarget = void 0;
+          options = { target: { data }, pinned: true };
+        }
+        await widgetService.openSession(sessionResource, resolvedTarget, options);
+      } catch (err) {
+        throw err;
+      }
+    }
+  });
+}
+__name(registerChatExportActions, "registerChatExportActions");
+export {
+  registerChatExportActions
+};
+//# sourceMappingURL=chatImportExport.js.map

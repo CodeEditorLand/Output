@@ -1,1 +1,151 @@
-import{Event as b}from"../../../../../base/common/event.js";import{$Dd as g}from"../../../../../base/common/lifecycle.js";import{localize2 as c}from"../../../../../nls.js";import{$9n as f}from"../../../../../platform/contextkey/common/contextkey.js";import{$TC as w}from"../../../../../platform/instantiation/common/extensions.js";import{$Lj as C}from"../../../../../platform/instantiation/common/instantiation.js";import{$xHb as v,$sHb as $}from"../../../accessibility/browser/accessibilityConfiguration.js";import{$YYb as y}from"../../../terminal/browser/terminal.js";import{$Pzc as l}from"../../../terminal/browser/terminalActions.js";import{$O2b as R}from"../../../terminal/browser/terminalExtensions.js";import{$d6 as P}from"../../../terminal/common/terminal.js";import{TerminalContextKeys as h}from"../../../terminal/common/terminalContextKey.js";import{$Bzc as D}from"../../../terminal/common/terminalStrings.js";import{$S6b as u}from"./links.js";import{$WCc as M}from"./terminalLinkManager.js";import{$XCc as _}from"./terminalLinkProviderService.js";import{$YCc as j}from"./terminalLinkQuickpick.js";import{$ZCc as x}from"./terminalLinkResolver.js";var L=function(n,e,i,t){var a=arguments.length,r=a<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,e,i,t);else for(var m=n.length-1;m>=0;m--)(s=n[m])&&(r=(a<3?s(r):a>3?s(e,i,r):s(e,i))||r);return a>3&&r&&Object.defineProperty(e,i,r),r},k=function(n,e){return function(i,t){e(i,t,n)}},d;w(u,_,1);let o=class extends g{static{d=this}static{this.ID="terminal.link"}static get(e){return e.getContribution(d.ID)}constructor(e,i,t){super(),this.h=e,this.j=i,this.m=t,this.c=this.j.createInstance(x)}xtermReady(e){const i=this.a=this.add(this.j.createInstance(M,e.raw,this.h.processManager,this.h.instance.capabilities,this.c));if(P(this.h.processManager)){const t=i.add(b.once(this.h.processManager.onProcessReady)(()=>{i.setWidgetManager(this.h.widgetManager),this.delete(t)}))}else i.setWidgetManager(this.h.widgetManager);if(!y(this.h.instance)){for(const t of this.m.linkProviders)i.externalProvideLinksCb=t.provideLinks.bind(t,this.h.instance);i.add(this.m.onDidAddLinkProvider(t=>{i.externalProvideLinksCb=t.provideLinks.bind(t,this.h.instance)}))}i.add(this.m.onDidRemoveLinkProvider(()=>i.externalProvideLinksCb=void 0))}async showLinkQuickpick(e){this.b||(this.b=this.add(this.j.createInstance(j)),this.b.onDidRequestMoreLinks(()=>{this.showLinkQuickpick(!0)}));const i=await this.n();return await this.b.show(this.h.instance,i)}async n(){if(!this.a)throw new Error("terminal links are not ready, cannot generate link quick pick");return this.a.getLinks()}async openRecentLink(e){if(!this.a)throw new Error("terminal links are not ready, cannot open a link");this.a.openRecentLink(e)}};o=d=L([k(1,C),k(2,u)],o);R(o.ID,o,!0);const p=D.actionCategory;l({id:"workbench.action.terminal.openDetectedLink",title:c(13578,"Open Detected Link..."),f1:!0,category:p,precondition:h.terminalHasBeenCreated,keybinding:[{primary:3117,weight:201,when:h.focus},{primary:3109,weight:201,when:f.and($,f.equals(v.key,"terminal"))}],run:n=>o.get(n)?.showLinkQuickpick()});l({id:"workbench.action.terminal.openUrlLink",title:c(13579,"Open Last URL Link"),metadata:{description:c(13580,"Opens the last detected URL/URI link in the terminal")},f1:!0,category:p,precondition:h.terminalHasBeenCreated,run:n=>o.get(n)?.openRecentLink("url")});l({id:"workbench.action.terminal.openFileLink",title:c(13581,"Open Last Local File Link"),f1:!0,category:p,precondition:h.terminalHasBeenCreated,run:n=>o.get(n)?.openRecentLink("localFile")});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalLinkContribution_1;
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { accessibleViewCurrentProviderId, accessibleViewIsShown } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { isDetachedTerminalInstance } from "../../../terminal/browser/terminal.js";
+import { registerActiveInstanceAction } from "../../../terminal/browser/terminalActions.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { isTerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { terminalStrings } from "../../../terminal/common/terminalStrings.js";
+import { ITerminalLinkProviderService } from "./links.js";
+import { TerminalLinkManager } from "./terminalLinkManager.js";
+import { TerminalLinkProviderService } from "./terminalLinkProviderService.js";
+import { TerminalLinkQuickpick } from "./terminalLinkQuickpick.js";
+import { TerminalLinkResolver } from "./terminalLinkResolver.js";
+registerSingleton(
+  ITerminalLinkProviderService,
+  TerminalLinkProviderService,
+  1
+  /* InstantiationType.Delayed */
+);
+let TerminalLinkContribution = class TerminalLinkContribution2 extends DisposableStore {
+  static {
+    __name(this, "TerminalLinkContribution");
+  }
+  static {
+    TerminalLinkContribution_1 = this;
+  }
+  static {
+    this.ID = "terminal.link";
+  }
+  static get(instance) {
+    return instance.getContribution(TerminalLinkContribution_1.ID);
+  }
+  constructor(_ctx, _instantiationService, _terminalLinkProviderService) {
+    super();
+    this._ctx = _ctx;
+    this._instantiationService = _instantiationService;
+    this._terminalLinkProviderService = _terminalLinkProviderService;
+    this._linkResolver = this._instantiationService.createInstance(TerminalLinkResolver);
+  }
+  xtermReady(xterm) {
+    const linkManager = this._linkManager = this.add(this._instantiationService.createInstance(TerminalLinkManager, xterm.raw, this._ctx.processManager, this._ctx.instance.capabilities, this._linkResolver));
+    if (isTerminalProcessManager(this._ctx.processManager)) {
+      const disposable = linkManager.add(Event.once(this._ctx.processManager.onProcessReady)(() => {
+        linkManager.setWidgetManager(this._ctx.widgetManager);
+        this.delete(disposable);
+      }));
+    } else {
+      linkManager.setWidgetManager(this._ctx.widgetManager);
+    }
+    if (!isDetachedTerminalInstance(this._ctx.instance)) {
+      for (const linkProvider of this._terminalLinkProviderService.linkProviders) {
+        linkManager.externalProvideLinksCb = linkProvider.provideLinks.bind(linkProvider, this._ctx.instance);
+      }
+      linkManager.add(this._terminalLinkProviderService.onDidAddLinkProvider((e) => {
+        linkManager.externalProvideLinksCb = e.provideLinks.bind(e, this._ctx.instance);
+      }));
+    }
+    linkManager.add(this._terminalLinkProviderService.onDidRemoveLinkProvider(() => linkManager.externalProvideLinksCb = void 0));
+  }
+  async showLinkQuickpick(extended) {
+    if (!this._terminalLinkQuickpick) {
+      this._terminalLinkQuickpick = this.add(this._instantiationService.createInstance(TerminalLinkQuickpick));
+      this._terminalLinkQuickpick.onDidRequestMoreLinks(() => {
+        this.showLinkQuickpick(true);
+      });
+    }
+    const links = await this._getLinks();
+    return await this._terminalLinkQuickpick.show(this._ctx.instance, links);
+  }
+  async _getLinks() {
+    if (!this._linkManager) {
+      throw new Error("terminal links are not ready, cannot generate link quick pick");
+    }
+    return this._linkManager.getLinks();
+  }
+  async openRecentLink(type) {
+    if (!this._linkManager) {
+      throw new Error("terminal links are not ready, cannot open a link");
+    }
+    this._linkManager.openRecentLink(type);
+  }
+};
+TerminalLinkContribution = TerminalLinkContribution_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ITerminalLinkProviderService)
+], TerminalLinkContribution);
+registerTerminalContribution(TerminalLinkContribution.ID, TerminalLinkContribution, true);
+const category = terminalStrings.actionCategory;
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.openDetectedLink",
+  title: localize2("workbench.action.terminal.openDetectedLink", "Open Detected Link..."),
+  f1: true,
+  category,
+  precondition: TerminalContextKeys.terminalHasBeenCreated,
+  keybinding: [
+    {
+      primary: 2048 | 1024 | 45,
+      weight: 200 + 1,
+      when: TerminalContextKeys.focus
+    },
+    {
+      primary: 2048 | 1024 | 37,
+      weight: 200 + 1,
+      when: ContextKeyExpr.and(accessibleViewIsShown, ContextKeyExpr.equals(
+        accessibleViewCurrentProviderId.key,
+        "terminal"
+        /* AccessibleViewProviderId.Terminal */
+      ))
+    }
+  ],
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalLinkContribution.get(activeInstance)?.showLinkQuickpick(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.openUrlLink",
+  title: localize2("workbench.action.terminal.openLastUrlLink", "Open Last URL Link"),
+  metadata: {
+    description: localize2("workbench.action.terminal.openLastUrlLink.description", "Opens the last detected URL/URI link in the terminal")
+  },
+  f1: true,
+  category,
+  precondition: TerminalContextKeys.terminalHasBeenCreated,
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalLinkContribution.get(activeInstance)?.openRecentLink("url"), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.openFileLink",
+  title: localize2("workbench.action.terminal.openLastLocalFileLink", "Open Last Local File Link"),
+  f1: true,
+  category,
+  precondition: TerminalContextKeys.terminalHasBeenCreated,
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalLinkContribution.get(activeInstance)?.openRecentLink("localFile"), "run")
+});
+//# sourceMappingURL=terminal.links.contribution.js.map

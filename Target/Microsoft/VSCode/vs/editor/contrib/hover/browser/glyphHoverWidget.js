@@ -1,1 +1,190 @@
-import*as a from"../../../../base/browser/dom.js";import{$Ed as v,$Dd as y}from"../../../../base/common/lifecycle.js";import{$Xjb as $}from"../../../../platform/markdown/browser/markdownRenderer.js";import{$Hlb as w}from"./hoverOperation.js";import{$w9 as O}from"../../../../base/browser/ui/hover/hoverWidget.js";import{$0ub as x}from"./glyphHoverComputer.js";import{$vob as j}from"./hoverUtils.js";var b=function(r,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,e,i);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(o=(s<3?n(o):s>3?n(t,e,o):n(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},N=function(r,t){return function(e,i){t(e,i,r)}},c;const g=a.$;let u=class extends v{static{c=this}static{this.ID="editor.contrib.modesGlyphHoverWidget"}constructor(t,e){super(),this.m=e,this.allowEditorOverflow=!0,this.h=this.D(new y),this.a=t,this.c=!1,this.f=[],this.b=this.D(new O(!0)),this.b.containerDomNode.classList.toggle("hidden",!this.c),this.g=this.D(new w(this.a,new x(this.a))),this.D(this.g.onResult(i=>this.s(i))),this.D(this.a.onDidChangeModelDecorations(()=>this.q())),this.D(this.a.onDidChangeConfiguration(i=>{i.hasChanged(59)&&this.n()})),this.D(a.$G7(this.b.containerDomNode,"mouseleave",i=>{this.z(i)})),this.a.addOverlayWidget(this)}dispose(){this.j=void 0,this.a.removeOverlayWidget(this),super.dispose()}getId(){return c.ID}getDomNode(){return this.b.containerDomNode}getPosition(){return null}n(){Array.prototype.slice.call(this.b.contentsDomNode.getElementsByClassName("code")).forEach(e=>this.a.applyFontInfo(e))}q(){this.c&&this.j&&(this.g.cancel(),this.g.start(0,this.j))}showsOrWillShow(t){const e=t.target;return e.type===2&&e.detail.glyphMarginLane?(this.r(e.position.lineNumber,e.detail.glyphMarginLane),!0):e.type===3?(this.r(e.position.lineNumber,"lineNo"),!0):!1}r(t,e){this.j&&this.j.lineNumber===t&&this.j.laneOrLine===e||(this.g.cancel(),this.hide(),this.j={lineNumber:t,laneOrLine:e},this.g.start(0,this.j))}hide(){this.j=void 0,this.g.cancel(),this.c&&(this.c=!1,this.b.containerDomNode.classList.toggle("hidden",!this.c))}s(t){this.f=t.value,this.f.length>0?this.t(t.options.lineNumber,t.options.laneOrLine,this.f):this.hide()}t(t,e,i){this.h.clear();const s=document.createDocumentFragment();for(const o of i){const n=g("div.hover-row.markdown-hover"),h=a.$I8(n,g("div.hover-contents")),d=this.h.add(this.m.render(o.value,{context:this.a}));h.appendChild(d.element),s.appendChild(n)}this.u(s),this.w(t,e)}u(t){this.b.contentsDomNode.textContent="",this.b.contentsDomNode.appendChild(t),this.n()}w(t,e){this.c||(this.c=!0,this.b.containerDomNode.classList.toggle("hidden",!this.c));const i=this.a.getLayoutInfo(),s=this.a.getTopForLineNumber(t),o=this.a.getScrollTop(),n=this.a.getOption(75),h=this.b.containerDomNode.clientHeight,d=s-o-(h-n)/2,l=i.glyphMarginLeft+i.glyphMarginWidth+(e==="lineNo"?i.lineNumbersWidth:0),D=i.height-h,m=Math.max(0,Math.min(Math.round(d),D));if(this.a.getOption(51)){const f=this.a.getDomNode();if(f){const p=a.$27(f);this.b.containerDomNode.style.position="fixed",this.b.containerDomNode.style.left=`${p.left+l}px`,this.b.containerDomNode.style.top=`${p.top+m}px`}}else this.b.containerDomNode.style.position="absolute",this.b.containerDomNode.style.left=`${l}px`,this.b.containerDomNode.style.top=`${m}px`;this.b.containerDomNode.style.zIndex="11"}z(t){const e=this.a.getDomNode();(!e||!j(e,t.x,t.y))&&this.hide()}};u=c=b([N(1,$)],u);export{u as $$ub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var GlyphHoverWidget_1;
+import * as dom from "../../../../base/browser/dom.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { HoverOperation } from "./hoverOperation.js";
+import { HoverWidget } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { GlyphHoverComputer } from "./glyphHoverComputer.js";
+import { isMousePositionWithinElement } from "./hoverUtils.js";
+const $ = dom.$;
+let GlyphHoverWidget = class GlyphHoverWidget2 extends Disposable {
+  static {
+    __name(this, "GlyphHoverWidget");
+  }
+  static {
+    GlyphHoverWidget_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.modesGlyphHoverWidget";
+  }
+  constructor(editor, _markdownRendererService) {
+    super();
+    this._markdownRendererService = _markdownRendererService;
+    this.allowEditorOverflow = true;
+    this._renderDisposeables = this._register(new DisposableStore());
+    this._editor = editor;
+    this._isVisible = false;
+    this._messages = [];
+    this._hover = this._register(new HoverWidget(true));
+    this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
+    this._hoverOperation = this._register(new HoverOperation(this._editor, new GlyphHoverComputer(this._editor)));
+    this._register(this._hoverOperation.onResult((result) => this._withResult(result)));
+    this._register(this._editor.onDidChangeModelDecorations(() => this._onModelDecorationsChanged()));
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        59
+        /* EditorOption.fontInfo */
+      )) {
+        this._updateFont();
+      }
+    }));
+    this._register(dom.addStandardDisposableListener(this._hover.containerDomNode, "mouseleave", (e) => {
+      this._onMouseLeave(e);
+    }));
+    this._editor.addOverlayWidget(this);
+  }
+  dispose() {
+    this._hoverComputerOptions = void 0;
+    this._editor.removeOverlayWidget(this);
+    super.dispose();
+  }
+  getId() {
+    return GlyphHoverWidget_1.ID;
+  }
+  getDomNode() {
+    return this._hover.containerDomNode;
+  }
+  getPosition() {
+    return null;
+  }
+  _updateFont() {
+    const codeClasses = Array.prototype.slice.call(this._hover.contentsDomNode.getElementsByClassName("code"));
+    codeClasses.forEach((node) => this._editor.applyFontInfo(node));
+  }
+  _onModelDecorationsChanged() {
+    if (this._isVisible && this._hoverComputerOptions) {
+      this._hoverOperation.cancel();
+      this._hoverOperation.start(0, this._hoverComputerOptions);
+    }
+  }
+  showsOrWillShow(mouseEvent) {
+    const target = mouseEvent.target;
+    if (target.type === 2 && target.detail.glyphMarginLane) {
+      this._startShowingAt(target.position.lineNumber, target.detail.glyphMarginLane);
+      return true;
+    }
+    if (target.type === 3) {
+      this._startShowingAt(target.position.lineNumber, "lineNo");
+      return true;
+    }
+    return false;
+  }
+  _startShowingAt(lineNumber, laneOrLine) {
+    if (this._hoverComputerOptions && this._hoverComputerOptions.lineNumber === lineNumber && this._hoverComputerOptions.laneOrLine === laneOrLine) {
+      return;
+    }
+    this._hoverOperation.cancel();
+    this.hide();
+    this._hoverComputerOptions = { lineNumber, laneOrLine };
+    this._hoverOperation.start(0, this._hoverComputerOptions);
+  }
+  hide() {
+    this._hoverComputerOptions = void 0;
+    this._hoverOperation.cancel();
+    if (!this._isVisible) {
+      return;
+    }
+    this._isVisible = false;
+    this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
+  }
+  _withResult(result) {
+    this._messages = result.value;
+    if (this._messages.length > 0) {
+      this._renderMessages(result.options.lineNumber, result.options.laneOrLine, this._messages);
+    } else {
+      this.hide();
+    }
+  }
+  _renderMessages(lineNumber, laneOrLine, messages) {
+    this._renderDisposeables.clear();
+    const fragment = document.createDocumentFragment();
+    for (const msg of messages) {
+      const markdownHoverElement = $("div.hover-row.markdown-hover");
+      const hoverContentsElement = dom.append(markdownHoverElement, $("div.hover-contents"));
+      const renderedContents = this._renderDisposeables.add(this._markdownRendererService.render(msg.value, { context: this._editor }));
+      hoverContentsElement.appendChild(renderedContents.element);
+      fragment.appendChild(markdownHoverElement);
+    }
+    this._updateContents(fragment);
+    this._showAt(lineNumber, laneOrLine);
+  }
+  _updateContents(node) {
+    this._hover.contentsDomNode.textContent = "";
+    this._hover.contentsDomNode.appendChild(node);
+    this._updateFont();
+  }
+  _showAt(lineNumber, laneOrLine) {
+    if (!this._isVisible) {
+      this._isVisible = true;
+      this._hover.containerDomNode.classList.toggle("hidden", !this._isVisible);
+    }
+    const editorLayout = this._editor.getLayoutInfo();
+    const topForLineNumber = this._editor.getTopForLineNumber(lineNumber);
+    const editorScrollTop = this._editor.getScrollTop();
+    const lineHeight = this._editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const nodeHeight = this._hover.containerDomNode.clientHeight;
+    const top = topForLineNumber - editorScrollTop - (nodeHeight - lineHeight) / 2;
+    const left = editorLayout.glyphMarginLeft + editorLayout.glyphMarginWidth + (laneOrLine === "lineNo" ? editorLayout.lineNumbersWidth : 0);
+    const editorHeight = editorLayout.height;
+    const maxTop = editorHeight - nodeHeight;
+    const constrainedTop = Math.max(0, Math.min(Math.round(top), maxTop));
+    const fixedOverflowWidgets = this._editor.getOption(
+      51
+      /* EditorOption.fixedOverflowWidgets */
+    );
+    if (fixedOverflowWidgets) {
+      const editorDomNode = this._editor.getDomNode();
+      if (editorDomNode) {
+        const editorRect = dom.getDomNodePagePosition(editorDomNode);
+        this._hover.containerDomNode.style.position = "fixed";
+        this._hover.containerDomNode.style.left = `${editorRect.left + left}px`;
+        this._hover.containerDomNode.style.top = `${editorRect.top + constrainedTop}px`;
+      }
+    } else {
+      this._hover.containerDomNode.style.position = "absolute";
+      this._hover.containerDomNode.style.left = `${left}px`;
+      this._hover.containerDomNode.style.top = `${constrainedTop}px`;
+    }
+    this._hover.containerDomNode.style.zIndex = "11";
+  }
+  _onMouseLeave(e) {
+    const editorDomNode = this._editor.getDomNode();
+    const isMousePositionOutsideOfEditor = !editorDomNode || !isMousePositionWithinElement(editorDomNode, e.x, e.y);
+    if (isMousePositionOutsideOfEditor) {
+      this.hide();
+    }
+  }
+};
+GlyphHoverWidget = GlyphHoverWidget_1 = __decorate([
+  __param(1, IMarkdownRendererService)
+], GlyphHoverWidget);
+export {
+  GlyphHoverWidget
+};
+//# sourceMappingURL=glyphHoverWidget.js.map

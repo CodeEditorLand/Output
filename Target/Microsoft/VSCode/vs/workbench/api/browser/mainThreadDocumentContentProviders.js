@@ -1,1 +1,97 @@
-import{$mb as a}from"../../../base/common/errors.js";import{$zd as d,$Md as h}from"../../../base/common/lifecycle.js";import{URI as l}from"../../../base/common/uri.js";import{$0D as u}from"../../../editor/common/core/editOperation.js";import{$9D as g}from"../../../editor/common/core/range.js";import{$9db as $}from"../../../editor/common/services/editorWorker.js";import{$6H as b}from"../../../editor/common/services/model.js";import{$WF as v}from"../../../editor/common/languages/language.js";import{$2H as x}from"../../../editor/common/services/resolverService.js";import{$vCb as C}from"../../services/extensions/common/extHostCustomers.js";import{$c1 as D,$b1 as M}from"../common/extHost.protocol.js";import{$If as P}from"../../../base/common/cancellation.js";var p=function(c,r,i,t){var n=arguments.length,e=n<3?r:t===null?t=Object.getOwnPropertyDescriptor(r,i):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,r,i,t);else for(var s=c.length-1;s>=0;s--)(o=c[s])&&(e=(n<3?o(e):n>3?o(r,i,e):o(r,i))||e);return n>3&&e&&Object.defineProperty(r,i,e),e},f=function(c,r){return function(i,t){r(i,t,c)}};let m=class{constructor(r,i,t,n,e){this.d=i,this.e=t,this.f=n,this.g=e,this.a=new h,this.b=new Map,this.c=r.getProxy(D.ExtHostDocumentContentProviders)}dispose(){this.a.dispose(),d(this.b.values())}$registerTextContentProvider(r,i){const t=this.d.registerTextModelContentProvider(i,{provideTextContent:n=>this.c.$provideTextDocumentContent(r,n).then(e=>{if(typeof e=="string"){const o=e.substr(0,1+e.search(/\r?\n/)),s=this.e.createByFilepathOrFirstLine(n,o);return this.f.createModel(e,s,n)}return null})});this.a.set(r,t)}$unregisterTextContentProvider(r){this.a.deleteAndDispose(r)}async $onVirtualDocumentChange(r,i){const t=this.f.getModel(l.revive(r));if(!t)return;this.b.get(t.id)?.cancel();const e=new P;this.b.set(t.id,e);try{const o=await this.g.computeMoreMinimalEdits(t.uri,[{text:i,range:t.getFullModelRange()}]);if(this.b.delete(t.id),e.token.isCancellationRequested||t.isDisposed())return;o&&o.length>0&&t.applyEdits(o.map(s=>u.replace(g.lift(s.range),s.text)))}catch(o){a(o)}}};m=p([C(M.MainThreadDocumentContentProviders),f(1,x),f(2,v),f(3,b),f(4,$)],m);export{m as $k4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { dispose, DisposableMap } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { EditOperation } from "../../../editor/common/core/editOperation.js";
+import { Range } from "../../../editor/common/core/range.js";
+import { IEditorWorkerService } from "../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { ITextModelService } from "../../../editor/common/services/resolverService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { CancellationTokenSource } from "../../../base/common/cancellation.js";
+let MainThreadDocumentContentProviders = class MainThreadDocumentContentProviders2 {
+  static {
+    __name(this, "MainThreadDocumentContentProviders");
+  }
+  constructor(extHostContext, _textModelResolverService, _languageService, _modelService, _editorWorkerService) {
+    this._textModelResolverService = _textModelResolverService;
+    this._languageService = _languageService;
+    this._modelService = _modelService;
+    this._editorWorkerService = _editorWorkerService;
+    this._resourceContentProvider = new DisposableMap();
+    this._pendingUpdate = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDocumentContentProviders);
+  }
+  dispose() {
+    this._resourceContentProvider.dispose();
+    dispose(this._pendingUpdate.values());
+  }
+  $registerTextContentProvider(handle, scheme) {
+    const registration = this._textModelResolverService.registerTextModelContentProvider(scheme, {
+      provideTextContent: /* @__PURE__ */ __name((uri) => {
+        return this._proxy.$provideTextDocumentContent(handle, uri).then((value) => {
+          if (typeof value === "string") {
+            const firstLineText = value.substr(0, 1 + value.search(/\r?\n/));
+            const languageSelection = this._languageService.createByFilepathOrFirstLine(uri, firstLineText);
+            return this._modelService.createModel(value, languageSelection, uri);
+          }
+          return null;
+        });
+      }, "provideTextContent")
+    });
+    this._resourceContentProvider.set(handle, registration);
+  }
+  $unregisterTextContentProvider(handle) {
+    this._resourceContentProvider.deleteAndDispose(handle);
+  }
+  async $onVirtualDocumentChange(uri, value) {
+    const model = this._modelService.getModel(URI.revive(uri));
+    if (!model) {
+      return;
+    }
+    const pending = this._pendingUpdate.get(model.id);
+    pending?.cancel();
+    const myToken = new CancellationTokenSource();
+    this._pendingUpdate.set(model.id, myToken);
+    try {
+      const edits = await this._editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: value, range: model.getFullModelRange() }]);
+      this._pendingUpdate.delete(model.id);
+      if (myToken.token.isCancellationRequested) {
+        return;
+      }
+      if (model.isDisposed()) {
+        return;
+      }
+      if (edits && edits.length > 0) {
+        model.applyEdits(edits.map((edit) => EditOperation.replace(Range.lift(edit.range), edit.text)));
+      }
+    } catch (error) {
+      onUnexpectedError(error);
+    }
+  }
+};
+MainThreadDocumentContentProviders = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadDocumentContentProviders),
+  __param(1, ITextModelService),
+  __param(2, ILanguageService),
+  __param(3, IModelService),
+  __param(4, IEditorWorkerService)
+], MainThreadDocumentContentProviders);
+export {
+  MainThreadDocumentContentProviders
+};
+//# sourceMappingURL=mainThreadDocumentContentProviders.js.map

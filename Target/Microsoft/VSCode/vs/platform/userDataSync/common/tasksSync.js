@@ -1,1 +1,100 @@
-import{$9i as K}from"../../../base/common/buffer.js";import{$9l as R}from"../../configuration/common/configuration.js";import{$Jl as m}from"../../environment/common/environment.js";import{$uk as l}from"../../files/common/files.js";import{$gp as h}from"../../storage/common/storage.js";import{$op as g}from"../../telemetry/common/telemetry.js";import{$0o as $}from"../../uriIdentity/common/uriIdentity.js";import{$_o as S}from"../../userDataProfile/common/userDataProfile.js";import{$QKc as w}from"./abstractJsonSynchronizer.js";import{$Mac as J}from"./abstractSynchronizer.js";import{$1Jb as O,$cKb as b,$0Jb as v,$ZJb as E}from"./userDataSync.js";var u=function(e,t,r,o){var n=arguments.length,i=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(e,t,r,o);else for(var a=e.length-1;a>=0;a--)(c=e[a])&&(i=(n<3?c(i):n>3?c(t,r,i):c(t,r))||i);return n>3&&i&&Object.defineProperty(t,r,i),i},s=function(e,t){return function(r,o){t(r,o,e)}};function k(e,t){try{return JSON.parse(e).tasks??null}catch(r){return t.error(r),null}}let p=class extends w{constructor(t,r,o,n,i,c,a,_,x,y,d,j){super(t.tasksResource,{syncResource:"tasks",profile:t},r,"tasks.json",_,x,y,o,n,a,d,i,c,j)}Eb(t){return k(t,this.O)}Fb(t){return t?{tasks:t}:{}}};p=u([s(2,E),s(3,O),s(4,b),s(5,R),s(6,v),s(7,l),s(8,m),s(9,h),s(10,g),s(11,$)],p);let f=class extends J{constructor(t,r,o,n,i,c){super("tasks",r,o,n,t,i,c),this.c=this.g.defaultProfile.tasksResource}async o(t){const r=t.syncData?k(t.syncData.content,this.j):null;if(!r){this.j.info("Skipping initializing tasks because remote tasks does not exist.");return}if(!await this.p()){this.j.info("Skipping initializing tasks because local tasks exist.");return}await this.k.writeFile(this.c,K.fromString(r)),await this.n(t)}async p(){return this.k.exists(this.c)}};f=u([s(0,l),s(1,S),s(2,m),s(3,b),s(4,h),s(5,$)],f);export{k as $RKc,p as $SKc,f as $TKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractJsonSynchronizer } from "./abstractJsonSynchronizer.js";
+import { AbstractInitializer } from "./abstractSynchronizer.js";
+import { IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService } from "./userDataSync.js";
+function getTasksContentFromSyncContent(syncContent, logService) {
+  try {
+    const parsed = JSON.parse(syncContent);
+    return parsed.tasks ?? null;
+  } catch (e) {
+    logService.error(e);
+    return null;
+  }
+}
+__name(getTasksContentFromSyncContent, "getTasksContentFromSyncContent");
+let TasksSynchroniser = class TasksSynchroniser2 extends AbstractJsonSynchronizer {
+  static {
+    __name(this, "TasksSynchroniser");
+  }
+  constructor(profile, collection, userDataSyncStoreService, userDataSyncLocalStoreService, logService, configurationService, userDataSyncEnablementService, fileService, environmentService, storageService, telemetryService, uriIdentityService) {
+    super(profile.tasksResource, { syncResource: "tasks", profile }, collection, "tasks.json", fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
+  }
+  getContentFromSyncContent(syncContent) {
+    return getTasksContentFromSyncContent(syncContent, this.logService);
+  }
+  toSyncContent(tasks) {
+    return tasks ? { tasks } : {};
+  }
+};
+TasksSynchroniser = __decorate([
+  __param(2, IUserDataSyncStoreService),
+  __param(3, IUserDataSyncLocalStoreService),
+  __param(4, IUserDataSyncLogService),
+  __param(5, IConfigurationService),
+  __param(6, IUserDataSyncEnablementService),
+  __param(7, IFileService),
+  __param(8, IEnvironmentService),
+  __param(9, IStorageService),
+  __param(10, ITelemetryService),
+  __param(11, IUriIdentityService)
+], TasksSynchroniser);
+let TasksInitializer = class TasksInitializer2 extends AbstractInitializer {
+  static {
+    __name(this, "TasksInitializer");
+  }
+  constructor(fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService) {
+    super("tasks", userDataProfilesService, environmentService, logService, fileService, storageService, uriIdentityService);
+    this.tasksResource = this.userDataProfilesService.defaultProfile.tasksResource;
+  }
+  async doInitialize(remoteUserData) {
+    const tasksContent = remoteUserData.syncData ? getTasksContentFromSyncContent(remoteUserData.syncData.content, this.logService) : null;
+    if (!tasksContent) {
+      this.logService.info("Skipping initializing tasks because remote tasks does not exist.");
+      return;
+    }
+    const isEmpty = await this.isEmpty();
+    if (!isEmpty) {
+      this.logService.info("Skipping initializing tasks because local tasks exist.");
+      return;
+    }
+    await this.fileService.writeFile(this.tasksResource, VSBuffer.fromString(tasksContent));
+    await this.updateLastSyncUserData(remoteUserData);
+  }
+  async isEmpty() {
+    return this.fileService.exists(this.tasksResource);
+  }
+};
+TasksInitializer = __decorate([
+  __param(0, IFileService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IEnvironmentService),
+  __param(3, IUserDataSyncLogService),
+  __param(4, IStorageService),
+  __param(5, IUriIdentityService)
+], TasksInitializer);
+export {
+  TasksInitializer,
+  TasksSynchroniser,
+  getTasksContentFromSyncContent
+};
+//# sourceMappingURL=tasksSync.js.map

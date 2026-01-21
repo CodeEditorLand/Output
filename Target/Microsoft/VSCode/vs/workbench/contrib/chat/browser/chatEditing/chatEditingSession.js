@@ -1,1 +1,802 @@
-import{$ti as y,$3h as G,$4h as R,$9h as W}from"../../../../../base/common/async.js";import{$9i as F}from"../../../../../base/common/buffer.js";import{CancellationToken as V}from"../../../../../base/common/cancellation.js";import{$Db as H}from"../../../../../base/common/errors.js";import{$wf as J}from"../../../../../base/common/event.js";import{$ik as D}from"../../../../../base/common/htmlContent.js";import{Iterable as v}from"../../../../../base/common/iterator.js";import{$Ed as Q,$Dd as X,$zd as Y}from"../../../../../base/common/lifecycle.js";import{$Oc as k}from"../../../../../base/common/map.js";import{derived as z,observableValue as U,transaction as $}from"../../../../../base/common/observable.js";import{$Ah as l}from"../../../../../base/common/resources.js";import{$rd as Z}from"../../../../../base/common/types.js";import{URI as K}from"../../../../../base/common/uri.js";import{$Ojb as M}from"../../../../../editor/browser/services/bulkEditService.js";import{$9D as tt}from"../../../../../editor/common/core/range.js";import{$WF as et}from"../../../../../editor/common/languages/language.js";import{$6H as it}from"../../../../../editor/common/services/model.js";import{$2H as st}from"../../../../../editor/common/services/resolverService.js";import{localize as nt}from"../../../../../nls.js";import{$ohb as O,$jhb as rt}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$9l as ot}from"../../../../../platform/configuration/common/configuration.js";import{EditorActivation as T}from"../../../../../platform/editor/common/editor.js";import{$Lj as at}from"../../../../../platform/instantiation/common/instantiation.js";import{$xo as ht}from"../../../../../platform/log/common/log.js";import{$fO as ct}from"../../../../common/editor/diffEditorInput.js";import{$uL as ft}from"../../../../services/editor/common/editorGroupsService.js";import{$yL as dt}from"../../../../services/editor/common/editorService.js";import{$tZb as x}from"../../../multiDiffEditor/browser/multiDiffEditorInput.js";import{CellUri as w}from"../../../notebook/common/notebookCommon.js";import{$CCb as ut}from"../../../notebook/common/notebookService.js";import{$_U as A,$pV as lt}from"../../common/editing/chatEditingService.js";import{ChatAgentLocation as P}from"../../common/constants.js";import{$Snc as pt}from"./chatEditingCheckpointTimelineImpl.js";import{$Wnc as _}from"./chatEditingModifiedDocumentEntry.js";import{$Gnc as mt}from"./chatEditingModifiedFileEntry.js";import{$eoc as m}from"./chatEditingModifiedNotebookEntry.js";import{FileOperationType as I}from"./chatEditingOperations.js";import{$foc as q}from"./chatEditingSessionStorage.js";import{$Jnc as bt}from"./chatEditingTextModelContentProviders.js";var B=function(f,t,i,e){var s=arguments.length,r=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(f,t,i,e);else for(var o=f.length-1;o>=0;o--)(n=f[o])&&(r=(s<3?n(r):s>3?n(t,i,r):n(t,i))||r);return s>3&&r&&Object.defineProperty(t,i,r),r},d=function(f,t){return function(i,e){t(i,e,f)}},C,L;(function(f){f[f.Create=0]="Create",f[f.Abort=1]="Abort"})(L||(L={}));class gt extends G{constructor(t,i){super(),this.d=t,this.f=i,this.b=0}queue(t){this.b+=1;const i=this.b*this.d>this.f;return super.queue(async()=>{try{const e=t(),s=i?Promise.resolve(void 0):W(this.d,V.None),[r]=await Promise.all([e,s]);return r}finally{this.b-=1}})}}function wt(f,t,i){return[{kind:"markdownContent",content:new D("\n````\n")},{kind:"codeblockUri",uri:f,isEdit:!0,undoStopId:i},{kind:"markdownContent",content:new D("\n````\n")},t?{kind:"notebookEdit",uri:f,edits:[],done:!1,isExternalEdit:!0}:{kind:"textEdit",uri:f,edits:[],done:!1,isExternalEdit:!0}]}let N=C=class extends Q{get state(){return this.a}get requestDisablement(){return this.b.requestDisablement}get onDidDispose(){return this.Q(),this.s.event}constructor(t,i,e,s,r,n,o,a,c,h,u,E,p,S,j){super(),this.chatSessionResource=t,this.isGlobalEditingSession=i,this.t=e,this.w=r,this.y=n,this.z=o,this.C=a,this._bulkEditService=c,this.F=h,this.G=u,this.H=E,this.I=p,this.J=S,this.L=j,this.a=U(this,0),this.f=new k,this.h=new R,this.j=new R,this.m=new Map,this.n=U(this,[]),this.entries=z(b=>{const g=this.a.read(b);return g===3||g===0?[]:this.n.read(b)}),this.s=new J,this.b=this.w.createInstance(pt,t,this.M()),this.canRedo=this.b.canRedo.map((b,g)=>b&&this.a.read(g)===2),this.canUndo=this.b.canUndo.map((b,g)=>b&&this.a.read(g)===2),this.N(s)}M(){return{createFile:(t,i)=>this._bulkEditService.apply({edits:[{newResource:t,options:{overwrite:!0,contents:i?Promise.resolve(F.fromString(i)):void 0}}]}),deleteFile:async t=>{const i=this.n.get().filter(e=>!l(e.modifiedURI,t));this.n.set(i,void 0),await this._bulkEditService.apply({edits:[{oldResource:t,options:{ignoreIfNotExists:!0}}]})},renameFile:async(t,i)=>{const e=this.n.get(),s=e.find(r=>l(r.modifiedURI,t));if(s){const r=await this.db(i,0,s.telemetryInfo,this.Y(s));s.dispose(),this.n.set(e.map(n=>n===s?r:n),void 0)}},setContents:async(t,i,e)=>{const s=await this.db(t,0,e),r=s.state.get();s instanceof m?await s.restoreModifiedModelFromSnapshot(i):await s.acceptAgentEdits(t,[{range:new tt(1,1,Number.MAX_SAFE_INTEGER,Number.MAX_SAFE_INTEGER),text:i}],!0,void 0),r!==0&&await s.accept()}}}async N(t){const i=this.w.createInstance(q,this.chatSessionResource);let e;if(t instanceof C)e=t.P(this.chatSessionResource);else if(e=await i.restoreState().catch(s=>{this.J.error(`Error restoring chat editing session state for ${this.chatSessionResource}`,s)}),this.B.isDisposed)return;if(e){for(const[s,r]of e.initialFileContents)this.f.set(s,r);e.timeline&&$(s=>this.b.restoreFromState(e.timeline,s)),await this.$(e.recentSnapshot)}this.a.set(2,void 0)}O(t){return t=w.parse(t)?.notebook??t,this.n.get().find(i=>l(i.modifiedURI,t))}getEntry(t){return this.O(t)}readEntry(t,i){return t=w.parse(t)?.notebook??t,this.n.read(i).find(e=>l(e.modifiedURI,t))}storeState(){return this.w.createInstance(q,this.chatSessionResource).storeState(this.P())}P(t=this.chatSessionResource){const i=new k;for(const s of this.n.get())i.set(s.modifiedURI,s.createSnapshot(t,void 0,void 0));return{initialFileContents:this.f,timeline:this.b.getStateForPersistence(),recentSnapshot:{entries:i,stopId:void 0}}}getEntryDiffBetweenStops(t,i,e){return this.b.getEntryDiffBetweenStops(t,i,e)}getEntryDiffBetweenRequests(t,i,e){return this.b.getEntryDiffBetweenRequests(t,i,e)}getDiffsForFilesInSession(){return this.b.getDiffsForFilesInSession()}getDiffForSession(){return this.b.getDiffForSession()}getDiffsForFilesInRequest(t){return this.b.getDiffsForFilesInRequest(t)}hasEditsInRequest(t,i){return this.b.hasEditsInRequest(t,i)}createSnapshot(t,i){const e=i?`Request ${t} - Stop ${i}`:`Request ${t}`;this.b.createCheckpoint(t,i,e)}async getSnapshotContents(t,i,e){const s=await this.b.getContentAtStop(t,i,e);return typeof s=="string"?F.fromString(s):s}async getSnapshotModel(t,i,e){await this.h.peek(e.path);const s=await this.b.getContentAtStop(t,e,i);if(s===void 0)return null;const r=typeof s=="string"?s:s.toString(),n=this.y.createModel(r,this.z.createByFilepathOrFirstLine(e),e,!1),o=new X;return o.add(n.onWillDispose(()=>o.dispose())),o.add(this.b.onDidChangeContentsAtStop(t,e,i,a=>n.setValue(a))),n}getSnapshotUri(t,i,e){return this.b.getContentURIAtStop(t,i,e)}async restoreSnapshot(t,i){const e=this.b.getCheckpointIdForRequest(t,i);e&&await this.b.navigateToCheckpoint(e)}Q(){if(this.a.get()===3)throw new H("Cannot access a disposed editing session")}async accept(...t){await this.R("accept",t)&&this.I.playSignal(O.editsKept,{allowManyInParallel:!0})}async reject(...t){await this.R("reject",t)&&this.I.playSignal(O.editsUndone,{allowManyInParallel:!0})}async R(t,i){this.Q();const e=this.n.get().filter(n=>i.length===0||i.some(o=>l(o,n.modifiedURI))).filter(n=>!n.isCurrentlyBeingModifiedBy.get()).filter(n=>n.state.get()===0);if(e.length===0)return 0;const s=t==="accept"?"acceptDeferred":"rejectDeferred",r=await Promise.all(e.map(n=>n[s]().catch(o=>{this.J.error(`Error calling ${s} on entry ${n.modifiedURI}`,o)})));return $(n=>{r.forEach(o=>o?.(n))}),e.length}async show(t){if(this.Q(),this.q){if(this.q.isVisible())return;if(this.q.input){await this.F.activeGroup.openEditor(this.q.input,{pinned:!0,activation:T.ACTIVATE});return}}const i=x.fromResourceMultiDiffEditorInput({multiDiffSource:lt(this,t),label:nt(5756,null)},this.w);this.q=await this.F.activeGroup.openEditor(i,{pinned:!0,activation:T.ACTIVATE})}async stop(t=!1){this.S??=Promise.allSettled([this.U(),this.storeState()]).then(()=>{}),await this.S,t&&await this.w.createInstance(q,this.chatSessionResource).clearState()}async U(){const t=[mt.scheme,bt.scheme];await Promise.allSettled(this.F.groups.flatMap(async i=>i.editors.map(async e=>{(e instanceof x&&e.initialResources?.some(s=>s.originalUri&&t.indexOf(s.originalUri.scheme)!==-1)||e instanceof ct&&e.original.resource&&t.indexOf(e.original.resource.scheme)!==-1)&&await i.closeEditor(e)})))}dispose(){this.Q(),Y(this.n.get()),super.dispose(),this.a.set(3,void 0),this.s.fire(),this.s.dispose()}get W(){return this.a.get()===3}startStreamingEdits(t,i,e){const s=new y,r=new y,n=new gt(15,1e3);n.queue(()=>r.p),this.h.queue(t.path,()=>r.p),this.j.queue(t.toString(),async()=>(await A(this),this.W||await this.Z(i,e,t),r.complete(),s.p));let o=!1;return{pushText:(a,c)=>{n.queue(async()=>{this.W||await this.ab(t,a,c,i)})},pushNotebookCellText:(a,c,h)=>{n.queue(async()=>{this.W||await this.ab(a,c,h,i)})},pushNotebook:(a,c)=>{n.queue(async()=>{this.W||await this.ab(t,a,c,i)})},complete:()=>{o||(o=!0,n.queue(async()=>{this.W||(await this.ab(t,[],!0,i),await this.cb(i.requestId,e,t),s.complete())}))}}}async startExternalEdits(t,i,e,s){const r=new k,n=[],o=[],a=[],c=this.bb(t);await A(this);for(const h of e){const u=new y;o.push(u);const E=new y;n.push(E),this.j.queue(h.toString(),async()=>{if(this.W){E.complete();return}const p=await this.db(h,1,c);p&&await this.Z(t,s,h);const S=w.parse(h)?.notebook||h;return a.push(...wt(h,this.H.hasSupportedNotebooks(S),s)),await p?.save(),r.set(h,p&&this.Y(p)),p?.startExternalEdit(),E.complete(),u.p})}return await Promise.all(n.map(h=>h.p)),this.createSnapshot(t.requestId,s),this.m.set(i,{responseModel:t,snapshots:r,undoStopId:s,releaseLocks:()=>o.forEach(h=>h.complete())}),a}async stopExternalEdits(t,i){const e=this.m.get(i);if(!e)return this.J.warn(`stopExternalEdits called for unknown operation ${i}`),[];this.m.delete(i);const s=[];try{for(const[r,n]of e.snapshots){let o=this.O(r);if(!o&&n===void 0&&(o=await this.db(r,1,this.bb(t),""),o&&(o.startExternalEdit(),o.acceptStreamingEditsStart(t,e.undoStopId,void 0))),!o)continue;await o.revertToDisk();const a=this.Y(o);let c=[];n===void 0?this.b.recordFileOperation({type:I.Create,uri:r,requestId:t.requestId,epoch:this.b.incrementEpoch(),initialContent:a,telemetryInfo:o.telemetryInfo}):(c=await o.computeEditsFromSnapshots(n,a),this.X(o,r,c,t)),s.push(o instanceof m?{kind:"notebookEdit",uri:r,edits:c,done:!0,isExternalEdit:!0}:{kind:"textEdit",uri:r,edits:c,done:!0,isExternalEdit:!0}),await o.acceptStreamingEditsEnd(),o.stopExternalEdit()}}finally{e.releaseLocks(),v.some(this.j.keys(),n=>!e.snapshots.has(K.parse(n)))||this.a.set(2,void 0)}return s}async undoInteraction(){await this.b.undoToLastCheckpoint()}async redoInteraction(){await this.b.redoToNextCheckpoint()}X(t,i,e,s){if(e.length>0&&Z(e[0],{cells:!0})){const n=e;this.b.recordFileOperation({type:I.NotebookEdit,uri:i,requestId:s.requestId,epoch:this.b.incrementEpoch(),cellEdits:n})}else{let n;if(t instanceof m){const a=w.parse(i);if(a){const c=t.getIndexOfCellHandle(a.handle);c!==-1&&(n=c)}}const o=e;this.b.recordFileOperation({type:I.TextEdit,uri:i,requestId:s.requestId,epoch:this.b.incrementEpoch(),edits:o,cellIndex:n})}}Y(t){if(t instanceof m)return t.getCurrentSnapshot();if(t instanceof _)return t.getCurrentContents();throw new Error(`unknown entry type for ${t.modifiedURI}`)}async Z(t,i,e){const s=await this.db(e,0,this.bb(t));return this.b.hasFileBaseline(e,t.requestId)||this.b.recordFileBaseline({uri:e,requestId:t.requestId,content:this.Y(s),epoch:this.b.incrementEpoch(),telemetryInfo:s.telemetryInfo,notebookViewType:s instanceof m?s.viewType:void 0}),$(r=>{this.a.set(1,r),s.acceptStreamingEditsStart(t,i,r)}),s}async $({entries:t}){for(const e of this.n.get())t.get(e.modifiedURI)||(await e.resetToInitialContent(),e.dispose());const i=[];for(const e of t.values()){const s=await this.db(e.resource,1,e.telemetryInfo);if(s){const r=e.state===0;await s.restoreFromSnapshot(e,r),i.push(s)}}this.n.set(i,void 0)}async ab(t,i,e,s){const r=await this.db(t,0,this.bb(s));i.length>0&&this.X(r,t,i,s),await r.acceptAgentEdits(t,i,e,s)}bb(t){return new class{get agentId(){return t.agent?.id}get modelId(){return t.request?.modelId}get modeId(){return t.request?.modeInfo?.modeId}get command(){return t.slashCommand?.name}get sessionResource(){return t.session.sessionResource}get requestId(){return t.requestId}get result(){return t.result}get applyCodeBlockSuggestionId(){return t.request?.modeInfo?.applyCodeBlockSuggestionId}get feature(){if(t.session.initialLocation===P.Chat)return"sideBarChat";if(t.session.initialLocation===P.EditorInline)return"inlineChat"}}}async cb(t,i,e){v.some(this.j.keys(),o=>o!==e.toString())||this.a.set(2,void 0);const r=this.O(e);if(!r)return;const n=i?`Request ${t} - Stop ${i}`:`Request ${t}`;return this.b.createCheckpoint(t,i,n),r.acceptStreamingEditsEnd()}async db(t,i,e,s){t=w.parse(t)?.notebook??t;const r=this.n.get().find(h=>l(h.modifiedURI,t));if(r)return e.requestId!==r.telemetryInfo.requestId&&r.updateTelemetryInfo(e),r;let n;const o=this.t(t);if(o)n=o,e.requestId!==n.telemetryInfo.requestId&&n.updateTelemetryInfo(e);else{const h=s??this.f.get(t),u=await this.eb(t,e,i,h);if(!u)return;n=u,h===void 0&&this.f.set(t,n.initialContent)}const a=n.onDidDelete(()=>{const h=this.n.get().filter(u=>!l(u.modifiedURI,n.modifiedURI));this.n.set(h,void 0),this.G.closeEditors(this.G.findEditors(n.modifiedURI)),o||n.dispose(),this.B.delete(a)});this.B.add(a);const c=[...this.n.get(),n];return this.n.set(c,void 0),n}async eb(t,i,e,s){const r={collapse:a=>this.fb(t,a),recordOperation:a=>{a.epoch=this.b.incrementEpoch(),this.b.recordFileOperation(a)}},n=w.parse(t)?.notebook||t,o=async a=>{if(this.H.hasSupportedNotebooks(n))return await m.create(n,r,i,a,s,this.w);{const c=await this.C.createModelReference(t);return this.w.createInstance(_,c,r,i,a,s)}};try{return await o(1)}catch{return e===1?void 0:(await this._bulkEditService.apply({edits:[{newResource:t}]}),this.L.getValue("accessibility.openChatEditedFiles")&&this.G.openEditor({resource:t,options:{inactive:!0,preserveFocus:!0,pinned:!0}}),this.b.recordFileOperation({type:I.Create,uri:t,requestId:i.requestId,epoch:this.b.incrementEpoch(),initialContent:s||"",telemetryInfo:i}),this.H.hasSupportedNotebooks(n)?await m.create(t,r,i,0,s,this.w):await o(0))}}fb(t,i){const e=this.q?.findDocumentDiffItem(t);e&&this.q?.viewModel?.items.get().find(s=>l(s.originalUri,e.originalUri)&&l(s.modifiedUri,e.modifiedUri))?.collapsed.set(!0,i)}};N=C=B([d(4,at),d(5,it),d(6,et),d(7,st),d(8,M),d(9,ft),d(10,dt),d(11,ut),d(12,rt),d(13,ht),d(14,ot)],N);export{N as $goc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEditingSession_1;
+import { DeferredPromise, Sequencer, SequencerByKey, timeout } from "../../../../../base/common/async.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { Disposable, DisposableStore, dispose } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { derived, observableValue, transaction } from "../../../../../base/common/observable.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { hasKey } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../nls.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { EditorActivation } from "../../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { CellUri } from "../../../notebook/common/notebookCommon.js";
+import { INotebookService } from "../../../notebook/common/notebookService.js";
+import { chatEditingSessionIsReady, getMultiDiffSourceUri } from "../../common/editing/chatEditingService.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { ChatEditingCheckpointTimelineImpl } from "./chatEditingCheckpointTimelineImpl.js";
+import { ChatEditingModifiedDocumentEntry } from "./chatEditingModifiedDocumentEntry.js";
+import { AbstractChatEditingModifiedFileEntry } from "./chatEditingModifiedFileEntry.js";
+import { ChatEditingModifiedNotebookEntry } from "./chatEditingModifiedNotebookEntry.js";
+import { FileOperationType } from "./chatEditingOperations.js";
+import { ChatEditingSessionStorage } from "./chatEditingSessionStorage.js";
+import { ChatEditingTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
+var NotExistBehavior;
+(function(NotExistBehavior2) {
+  NotExistBehavior2[NotExistBehavior2["Create"] = 0] = "Create";
+  NotExistBehavior2[NotExistBehavior2["Abort"] = 1] = "Abort";
+})(NotExistBehavior || (NotExistBehavior = {}));
+class ThrottledSequencer extends Sequencer {
+  static {
+    __name(this, "ThrottledSequencer");
+  }
+  constructor(_minDuration, _maxOverallDelay) {
+    super();
+    this._minDuration = _minDuration;
+    this._maxOverallDelay = _maxOverallDelay;
+    this._size = 0;
+  }
+  queue(promiseTask) {
+    this._size += 1;
+    const noDelay = this._size * this._minDuration > this._maxOverallDelay;
+    return super.queue(async () => {
+      try {
+        const p1 = promiseTask();
+        const p2 = noDelay ? Promise.resolve(void 0) : timeout(this._minDuration, CancellationToken.None);
+        const [result] = await Promise.all([p1, p2]);
+        return result;
+      } finally {
+        this._size -= 1;
+      }
+    });
+  }
+}
+function createOpeningEditCodeBlock(uri, isNotebook, undoStopId) {
+  return [
+    {
+      kind: "markdownContent",
+      content: new MarkdownString("\n````\n")
+    },
+    {
+      kind: "codeblockUri",
+      uri,
+      isEdit: true,
+      undoStopId
+    },
+    {
+      kind: "markdownContent",
+      content: new MarkdownString("\n````\n")
+    },
+    isNotebook ? {
+      kind: "notebookEdit",
+      uri,
+      edits: [],
+      done: false,
+      isExternalEdit: true
+    } : {
+      kind: "textEdit",
+      uri,
+      edits: [],
+      done: false,
+      isExternalEdit: true
+    }
+  ];
+}
+__name(createOpeningEditCodeBlock, "createOpeningEditCodeBlock");
+let ChatEditingSession = ChatEditingSession_1 = class ChatEditingSession2 extends Disposable {
+  static {
+    __name(this, "ChatEditingSession");
+  }
+  get state() {
+    return this._state;
+  }
+  get requestDisablement() {
+    return this._timeline.requestDisablement;
+  }
+  get onDidDispose() {
+    this._assertNotDisposed();
+    return this._onDidDispose.event;
+  }
+  constructor(chatSessionResource, isGlobalEditingSession, _lookupExternalEntry, transferFrom, _instantiationService, _modelService, _languageService, _textModelService, _bulkEditService, _editorGroupsService, _editorService, _notebookService, _accessibilitySignalService, _logService, configurationService) {
+    super();
+    this.chatSessionResource = chatSessionResource;
+    this.isGlobalEditingSession = isGlobalEditingSession;
+    this._lookupExternalEntry = _lookupExternalEntry;
+    this._instantiationService = _instantiationService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._textModelService = _textModelService;
+    this._bulkEditService = _bulkEditService;
+    this._editorGroupsService = _editorGroupsService;
+    this._editorService = _editorService;
+    this._notebookService = _notebookService;
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._logService = _logService;
+    this.configurationService = configurationService;
+    this._state = observableValue(
+      this,
+      0
+      /* ChatEditingSessionState.Initial */
+    );
+    this._initialFileContents = new ResourceMap();
+    this._baselineCreationLocks = new SequencerByKey();
+    this._streamingEditLocks = new SequencerByKey();
+    this._externalEditOperations = /* @__PURE__ */ new Map();
+    this._entriesObs = observableValue(this, []);
+    this.entries = derived((reader) => {
+      const state = this._state.read(reader);
+      if (state === 3 || state === 0) {
+        return [];
+      } else {
+        return this._entriesObs.read(reader);
+      }
+    });
+    this._onDidDispose = new Emitter();
+    this._timeline = this._instantiationService.createInstance(ChatEditingCheckpointTimelineImpl, chatSessionResource, this._getTimelineDelegate());
+    this.canRedo = this._timeline.canRedo.map(
+      (hasHistory, reader) => hasHistory && this._state.read(reader) === 2
+      /* ChatEditingSessionState.Idle */
+    );
+    this.canUndo = this._timeline.canUndo.map(
+      (hasHistory, reader) => hasHistory && this._state.read(reader) === 2
+      /* ChatEditingSessionState.Idle */
+    );
+    this._init(transferFrom);
+  }
+  _getTimelineDelegate() {
+    return {
+      createFile: /* @__PURE__ */ __name((uri, content) => {
+        return this._bulkEditService.apply({
+          edits: [{
+            newResource: uri,
+            options: {
+              overwrite: true,
+              contents: content ? Promise.resolve(VSBuffer.fromString(content)) : void 0
+            }
+          }]
+        });
+      }, "createFile"),
+      deleteFile: /* @__PURE__ */ __name(async (uri) => {
+        const entries = this._entriesObs.get().filter((e) => !isEqual(e.modifiedURI, uri));
+        this._entriesObs.set(entries, void 0);
+        await this._bulkEditService.apply({ edits: [{ oldResource: uri, options: { ignoreIfNotExists: true } }] });
+      }, "deleteFile"),
+      renameFile: /* @__PURE__ */ __name(async (fromUri, toUri) => {
+        const entries = this._entriesObs.get();
+        const previousEntry = entries.find((e) => isEqual(e.modifiedURI, fromUri));
+        if (previousEntry) {
+          const newEntry = await this._getOrCreateModifiedFileEntry(toUri, 0, previousEntry.telemetryInfo, this._getCurrentTextOrNotebookSnapshot(previousEntry));
+          previousEntry.dispose();
+          this._entriesObs.set(entries.map((e) => e === previousEntry ? newEntry : e), void 0);
+        }
+      }, "renameFile"),
+      setContents: /* @__PURE__ */ __name(async (uri, content, telemetryInfo) => {
+        const entry = await this._getOrCreateModifiedFileEntry(uri, 0, telemetryInfo);
+        const state = entry.state.get();
+        if (entry instanceof ChatEditingModifiedNotebookEntry) {
+          await entry.restoreModifiedModelFromSnapshot(content);
+        } else {
+          await entry.acceptAgentEdits(uri, [{ range: new Range(1, 1, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), text: content }], true, void 0);
+        }
+        if (state !== 0) {
+          await entry.accept();
+        }
+      }, "setContents")
+    };
+  }
+  async _init(transferFrom) {
+    const storage = this._instantiationService.createInstance(ChatEditingSessionStorage, this.chatSessionResource);
+    let restoredSessionState;
+    if (transferFrom instanceof ChatEditingSession_1) {
+      restoredSessionState = transferFrom._getStoredState(this.chatSessionResource);
+    } else {
+      restoredSessionState = await storage.restoreState().catch((err) => {
+        this._logService.error(`Error restoring chat editing session state for ${this.chatSessionResource}`, err);
+        return void 0;
+      });
+      if (this._store.isDisposed) {
+        return;
+      }
+    }
+    if (restoredSessionState) {
+      for (const [uri, content] of restoredSessionState.initialFileContents) {
+        this._initialFileContents.set(uri, content);
+      }
+      if (restoredSessionState.timeline) {
+        transaction((tx) => this._timeline.restoreFromState(restoredSessionState.timeline, tx));
+      }
+      await this._initEntries(restoredSessionState.recentSnapshot);
+    }
+    this._state.set(2, void 0);
+  }
+  _getEntry(uri) {
+    uri = CellUri.parse(uri)?.notebook ?? uri;
+    return this._entriesObs.get().find((e) => isEqual(e.modifiedURI, uri));
+  }
+  getEntry(uri) {
+    return this._getEntry(uri);
+  }
+  readEntry(uri, reader) {
+    uri = CellUri.parse(uri)?.notebook ?? uri;
+    return this._entriesObs.read(reader).find((e) => isEqual(e.modifiedURI, uri));
+  }
+  storeState() {
+    const storage = this._instantiationService.createInstance(ChatEditingSessionStorage, this.chatSessionResource);
+    return storage.storeState(this._getStoredState());
+  }
+  _getStoredState(sessionResource = this.chatSessionResource) {
+    const entries = new ResourceMap();
+    for (const entry of this._entriesObs.get()) {
+      entries.set(entry.modifiedURI, entry.createSnapshot(sessionResource, void 0, void 0));
+    }
+    const state = {
+      initialFileContents: this._initialFileContents,
+      timeline: this._timeline.getStateForPersistence(),
+      recentSnapshot: { entries, stopId: void 0 }
+    };
+    return state;
+  }
+  getEntryDiffBetweenStops(uri, requestId, stopId) {
+    return this._timeline.getEntryDiffBetweenStops(uri, requestId, stopId);
+  }
+  getEntryDiffBetweenRequests(uri, startRequestId, stopRequestId) {
+    return this._timeline.getEntryDiffBetweenRequests(uri, startRequestId, stopRequestId);
+  }
+  getDiffsForFilesInSession() {
+    return this._timeline.getDiffsForFilesInSession();
+  }
+  getDiffForSession() {
+    return this._timeline.getDiffForSession();
+  }
+  getDiffsForFilesInRequest(requestId) {
+    return this._timeline.getDiffsForFilesInRequest(requestId);
+  }
+  hasEditsInRequest(requestId, reader) {
+    return this._timeline.hasEditsInRequest(requestId, reader);
+  }
+  createSnapshot(requestId, undoStop) {
+    const label = undoStop ? `Request ${requestId} - Stop ${undoStop}` : `Request ${requestId}`;
+    this._timeline.createCheckpoint(requestId, undoStop, label);
+  }
+  async getSnapshotContents(requestId, uri, stopId) {
+    const content = await this._timeline.getContentAtStop(requestId, uri, stopId);
+    return typeof content === "string" ? VSBuffer.fromString(content) : content;
+  }
+  async getSnapshotModel(requestId, undoStop, snapshotUri) {
+    await this._baselineCreationLocks.peek(snapshotUri.path);
+    const content = await this._timeline.getContentAtStop(requestId, snapshotUri, undoStop);
+    if (content === void 0) {
+      return null;
+    }
+    const contentStr = typeof content === "string" ? content : content.toString();
+    const model = this._modelService.createModel(contentStr, this._languageService.createByFilepathOrFirstLine(snapshotUri), snapshotUri, false);
+    const store = new DisposableStore();
+    store.add(model.onWillDispose(() => store.dispose()));
+    store.add(this._timeline.onDidChangeContentsAtStop(requestId, snapshotUri, undoStop, (c) => model.setValue(c)));
+    return model;
+  }
+  getSnapshotUri(requestId, uri, stopId) {
+    return this._timeline.getContentURIAtStop(requestId, uri, stopId);
+  }
+  async restoreSnapshot(requestId, stopId) {
+    const checkpointId = this._timeline.getCheckpointIdForRequest(requestId, stopId);
+    if (checkpointId) {
+      await this._timeline.navigateToCheckpoint(checkpointId);
+    }
+  }
+  _assertNotDisposed() {
+    if (this._state.get() === 3) {
+      throw new BugIndicatingError(`Cannot access a disposed editing session`);
+    }
+  }
+  async accept(...uris) {
+    if (await this._operateEntry("accept", uris)) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+    }
+  }
+  async reject(...uris) {
+    if (await this._operateEntry("reject", uris)) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+    }
+  }
+  async _operateEntry(action, uris) {
+    this._assertNotDisposed();
+    const applicableEntries = this._entriesObs.get().filter((e) => uris.length === 0 || uris.some((u) => isEqual(u, e.modifiedURI))).filter((e) => !e.isCurrentlyBeingModifiedBy.get()).filter(
+      (e) => e.state.get() === 0
+      /* ModifiedFileEntryState.Modified */
+    );
+    if (applicableEntries.length === 0) {
+      return 0;
+    }
+    const method = action === "accept" ? "acceptDeferred" : "rejectDeferred";
+    const transitionCallbacks = await Promise.all(applicableEntries.map((entry) => entry[method]().catch((err) => {
+      this._logService.error(`Error calling ${method} on entry ${entry.modifiedURI}`, err);
+    })));
+    transaction((tx) => {
+      transitionCallbacks.forEach((callback) => callback?.(tx));
+    });
+    return applicableEntries.length;
+  }
+  async show(previousChanges) {
+    this._assertNotDisposed();
+    if (this._editorPane) {
+      if (this._editorPane.isVisible()) {
+        return;
+      } else if (this._editorPane.input) {
+        await this._editorGroupsService.activeGroup.openEditor(this._editorPane.input, { pinned: true, activation: EditorActivation.ACTIVATE });
+        return;
+      }
+    }
+    const input = MultiDiffEditorInput.fromResourceMultiDiffEditorInput({
+      multiDiffSource: getMultiDiffSourceUri(this, previousChanges),
+      label: localize("multiDiffEditorInput.name", "Suggested Edits")
+    }, this._instantiationService);
+    this._editorPane = await this._editorGroupsService.activeGroup.openEditor(input, { pinned: true, activation: EditorActivation.ACTIVATE });
+  }
+  async stop(clearState = false) {
+    this._stopPromise ??= Promise.allSettled([this._performStop(), this.storeState()]).then(() => {
+    });
+    await this._stopPromise;
+    if (clearState) {
+      await this._instantiationService.createInstance(ChatEditingSessionStorage, this.chatSessionResource).clearState();
+    }
+  }
+  async _performStop() {
+    const schemes = [AbstractChatEditingModifiedFileEntry.scheme, ChatEditingTextModelContentProvider.scheme];
+    await Promise.allSettled(this._editorGroupsService.groups.flatMap(async (g) => {
+      return g.editors.map(async (e) => {
+        if (e instanceof MultiDiffEditorInput && e.initialResources?.some((r) => r.originalUri && schemes.indexOf(r.originalUri.scheme) !== -1) || e instanceof DiffEditorInput && e.original.resource && schemes.indexOf(e.original.resource.scheme) !== -1) {
+          await g.closeEditor(e);
+        }
+      });
+    }));
+  }
+  dispose() {
+    this._assertNotDisposed();
+    dispose(this._entriesObs.get());
+    super.dispose();
+    this._state.set(3, void 0);
+    this._onDidDispose.fire();
+    this._onDidDispose.dispose();
+  }
+  get isDisposed() {
+    return this._state.get() === 3;
+  }
+  startStreamingEdits(resource, responseModel, inUndoStop) {
+    const completePromise = new DeferredPromise();
+    const startPromise = new DeferredPromise();
+    const sequencer = new ThrottledSequencer(15, 1e3);
+    sequencer.queue(() => startPromise.p);
+    this._baselineCreationLocks.queue(resource.path, () => startPromise.p);
+    this._streamingEditLocks.queue(resource.toString(), async () => {
+      await chatEditingSessionIsReady(this);
+      if (!this.isDisposed) {
+        await this._acceptStreamingEditsStart(responseModel, inUndoStop, resource);
+      }
+      startPromise.complete();
+      return completePromise.p;
+    });
+    let didComplete = false;
+    return {
+      pushText: /* @__PURE__ */ __name((edits, isLastEdits) => {
+        sequencer.queue(async () => {
+          if (!this.isDisposed) {
+            await this._acceptEdits(resource, edits, isLastEdits, responseModel);
+          }
+        });
+      }, "pushText"),
+      pushNotebookCellText: /* @__PURE__ */ __name((cell, edits, isLastEdits) => {
+        sequencer.queue(async () => {
+          if (!this.isDisposed) {
+            await this._acceptEdits(cell, edits, isLastEdits, responseModel);
+          }
+        });
+      }, "pushNotebookCellText"),
+      pushNotebook: /* @__PURE__ */ __name((edits, isLastEdits) => {
+        sequencer.queue(async () => {
+          if (!this.isDisposed) {
+            await this._acceptEdits(resource, edits, isLastEdits, responseModel);
+          }
+        });
+      }, "pushNotebook"),
+      complete: /* @__PURE__ */ __name(() => {
+        if (didComplete) {
+          return;
+        }
+        didComplete = true;
+        sequencer.queue(async () => {
+          if (!this.isDisposed) {
+            await this._acceptEdits(resource, [], true, responseModel);
+            await this._resolve(responseModel.requestId, inUndoStop, resource);
+            completePromise.complete();
+          }
+        });
+      }, "complete")
+    };
+  }
+  async startExternalEdits(responseModel, operationId, resources, undoStopId) {
+    const snapshots = new ResourceMap();
+    const acquiredLockPromises = [];
+    const releaseLockPromises = [];
+    const progress = [];
+    const telemetryInfo = this._getTelemetryInfoForModel(responseModel);
+    await chatEditingSessionIsReady(this);
+    for (const resource of resources) {
+      const releaseLock = new DeferredPromise();
+      releaseLockPromises.push(releaseLock);
+      const acquiredLock = new DeferredPromise();
+      acquiredLockPromises.push(acquiredLock);
+      this._streamingEditLocks.queue(resource.toString(), async () => {
+        if (this.isDisposed) {
+          acquiredLock.complete();
+          return;
+        }
+        const entry = await this._getOrCreateModifiedFileEntry(resource, 1, telemetryInfo);
+        if (entry) {
+          await this._acceptStreamingEditsStart(responseModel, undoStopId, resource);
+        }
+        const notebookUri = CellUri.parse(resource)?.notebook || resource;
+        progress.push(...createOpeningEditCodeBlock(resource, this._notebookService.hasSupportedNotebooks(notebookUri), undoStopId));
+        await entry?.save();
+        snapshots.set(resource, entry && this._getCurrentTextOrNotebookSnapshot(entry));
+        entry?.startExternalEdit();
+        acquiredLock.complete();
+        return releaseLock.p;
+      });
+    }
+    await Promise.all(acquiredLockPromises.map((p) => p.p));
+    this.createSnapshot(responseModel.requestId, undoStopId);
+    this._externalEditOperations.set(operationId, {
+      responseModel,
+      snapshots,
+      undoStopId,
+      releaseLocks: /* @__PURE__ */ __name(() => releaseLockPromises.forEach((p) => p.complete()), "releaseLocks")
+    });
+    return progress;
+  }
+  async stopExternalEdits(responseModel, operationId) {
+    const operation = this._externalEditOperations.get(operationId);
+    if (!operation) {
+      this._logService.warn(`stopExternalEdits called for unknown operation ${operationId}`);
+      return [];
+    }
+    this._externalEditOperations.delete(operationId);
+    const progress = [];
+    try {
+      for (const [resource, beforeSnapshot] of operation.snapshots) {
+        let entry = this._getEntry(resource);
+        if (!entry && beforeSnapshot === void 0) {
+          entry = await this._getOrCreateModifiedFileEntry(resource, 1, this._getTelemetryInfoForModel(responseModel), "");
+          if (entry) {
+            entry.startExternalEdit();
+            entry.acceptStreamingEditsStart(responseModel, operation.undoStopId, void 0);
+          }
+        }
+        if (!entry) {
+          continue;
+        }
+        await entry.revertToDisk();
+        const afterSnapshot = this._getCurrentTextOrNotebookSnapshot(entry);
+        let edits = [];
+        if (beforeSnapshot === void 0) {
+          this._timeline.recordFileOperation({
+            type: FileOperationType.Create,
+            uri: resource,
+            requestId: responseModel.requestId,
+            epoch: this._timeline.incrementEpoch(),
+            initialContent: afterSnapshot,
+            telemetryInfo: entry.telemetryInfo
+          });
+        } else {
+          edits = await entry.computeEditsFromSnapshots(beforeSnapshot, afterSnapshot);
+          this._recordEditOperations(entry, resource, edits, responseModel);
+        }
+        progress.push(entry instanceof ChatEditingModifiedNotebookEntry ? {
+          kind: "notebookEdit",
+          uri: resource,
+          edits,
+          done: true,
+          isExternalEdit: true
+        } : {
+          kind: "textEdit",
+          uri: resource,
+          edits,
+          done: true,
+          isExternalEdit: true
+        });
+        await entry.acceptStreamingEditsEnd();
+        entry.stopExternalEdit();
+      }
+    } finally {
+      operation.releaseLocks();
+      const hasOtherTasks = Iterable.some(this._streamingEditLocks.keys(), (k) => !operation.snapshots.has(URI.parse(k)));
+      if (!hasOtherTasks) {
+        this._state.set(2, void 0);
+      }
+    }
+    return progress;
+  }
+  async undoInteraction() {
+    await this._timeline.undoToLastCheckpoint();
+  }
+  async redoInteraction() {
+    await this._timeline.redoToNextCheckpoint();
+  }
+  _recordEditOperations(entry, resource, edits, responseModel) {
+    const isNotebookEdits = edits.length > 0 && hasKey(edits[0], { cells: true });
+    if (isNotebookEdits) {
+      const notebookEdits = edits;
+      this._timeline.recordFileOperation({
+        type: FileOperationType.NotebookEdit,
+        uri: resource,
+        requestId: responseModel.requestId,
+        epoch: this._timeline.incrementEpoch(),
+        cellEdits: notebookEdits
+      });
+    } else {
+      let cellIndex;
+      if (entry instanceof ChatEditingModifiedNotebookEntry) {
+        const cellUri = CellUri.parse(resource);
+        if (cellUri) {
+          const i = entry.getIndexOfCellHandle(cellUri.handle);
+          if (i !== -1) {
+            cellIndex = i;
+          }
+        }
+      }
+      const textEdits = edits;
+      this._timeline.recordFileOperation({
+        type: FileOperationType.TextEdit,
+        uri: resource,
+        requestId: responseModel.requestId,
+        epoch: this._timeline.incrementEpoch(),
+        edits: textEdits,
+        cellIndex
+      });
+    }
+  }
+  _getCurrentTextOrNotebookSnapshot(entry) {
+    if (entry instanceof ChatEditingModifiedNotebookEntry) {
+      return entry.getCurrentSnapshot();
+    } else if (entry instanceof ChatEditingModifiedDocumentEntry) {
+      return entry.getCurrentContents();
+    } else {
+      throw new Error(`unknown entry type for ${entry.modifiedURI}`);
+    }
+  }
+  async _acceptStreamingEditsStart(responseModel, undoStop, resource) {
+    const entry = await this._getOrCreateModifiedFileEntry(resource, 0, this._getTelemetryInfoForModel(responseModel));
+    if (!this._timeline.hasFileBaseline(resource, responseModel.requestId)) {
+      this._timeline.recordFileBaseline({
+        uri: resource,
+        requestId: responseModel.requestId,
+        content: this._getCurrentTextOrNotebookSnapshot(entry),
+        epoch: this._timeline.incrementEpoch(),
+        telemetryInfo: entry.telemetryInfo,
+        notebookViewType: entry instanceof ChatEditingModifiedNotebookEntry ? entry.viewType : void 0
+      });
+    }
+    transaction((tx) => {
+      this._state.set(1, tx);
+      entry.acceptStreamingEditsStart(responseModel, undoStop, tx);
+    });
+    return entry;
+  }
+  async _initEntries({ entries }) {
+    for (const entry of this._entriesObs.get()) {
+      const snapshotEntry = entries.get(entry.modifiedURI);
+      if (!snapshotEntry) {
+        await entry.resetToInitialContent();
+        entry.dispose();
+      }
+    }
+    const entriesArr = [];
+    for (const snapshotEntry of entries.values()) {
+      const entry = await this._getOrCreateModifiedFileEntry(snapshotEntry.resource, 1, snapshotEntry.telemetryInfo);
+      if (entry) {
+        const restoreToDisk = snapshotEntry.state === 0;
+        await entry.restoreFromSnapshot(snapshotEntry, restoreToDisk);
+        entriesArr.push(entry);
+      }
+    }
+    this._entriesObs.set(entriesArr, void 0);
+  }
+  async _acceptEdits(resource, textEdits, isLastEdits, responseModel) {
+    const entry = await this._getOrCreateModifiedFileEntry(resource, 0, this._getTelemetryInfoForModel(responseModel));
+    if (textEdits.length > 0) {
+      this._recordEditOperations(entry, resource, textEdits, responseModel);
+    }
+    await entry.acceptAgentEdits(resource, textEdits, isLastEdits, responseModel);
+  }
+  _getTelemetryInfoForModel(responseModel) {
+    return new class {
+      get agentId() {
+        return responseModel.agent?.id;
+      }
+      get modelId() {
+        return responseModel.request?.modelId;
+      }
+      get modeId() {
+        return responseModel.request?.modeInfo?.modeId;
+      }
+      get command() {
+        return responseModel.slashCommand?.name;
+      }
+      get sessionResource() {
+        return responseModel.session.sessionResource;
+      }
+      get requestId() {
+        return responseModel.requestId;
+      }
+      get result() {
+        return responseModel.result;
+      }
+      get applyCodeBlockSuggestionId() {
+        return responseModel.request?.modeInfo?.applyCodeBlockSuggestionId;
+      }
+      get feature() {
+        if (responseModel.session.initialLocation === ChatAgentLocation.Chat) {
+          return "sideBarChat";
+        } else if (responseModel.session.initialLocation === ChatAgentLocation.EditorInline) {
+          return "inlineChat";
+        }
+        return void 0;
+      }
+    }();
+  }
+  async _resolve(requestId, undoStop, resource) {
+    const hasOtherTasks = Iterable.some(this._streamingEditLocks.keys(), (k) => k !== resource.toString());
+    if (!hasOtherTasks) {
+      this._state.set(2, void 0);
+    }
+    const entry = this._getEntry(resource);
+    if (!entry) {
+      return;
+    }
+    const label = undoStop ? `Request ${requestId} - Stop ${undoStop}` : `Request ${requestId}`;
+    this._timeline.createCheckpoint(requestId, undoStop, label);
+    return entry.acceptStreamingEditsEnd();
+  }
+  async _getOrCreateModifiedFileEntry(resource, ifNotExists, telemetryInfo, _initialContent) {
+    resource = CellUri.parse(resource)?.notebook ?? resource;
+    const existingEntry = this._entriesObs.get().find((e) => isEqual(e.modifiedURI, resource));
+    if (existingEntry) {
+      if (telemetryInfo.requestId !== existingEntry.telemetryInfo.requestId) {
+        existingEntry.updateTelemetryInfo(telemetryInfo);
+      }
+      return existingEntry;
+    }
+    let entry;
+    const existingExternalEntry = this._lookupExternalEntry(resource);
+    if (existingExternalEntry) {
+      entry = existingExternalEntry;
+      if (telemetryInfo.requestId !== entry.telemetryInfo.requestId) {
+        entry.updateTelemetryInfo(telemetryInfo);
+      }
+    } else {
+      const initialContent = _initialContent ?? this._initialFileContents.get(resource);
+      const maybeEntry = await this._createModifiedFileEntry(resource, telemetryInfo, ifNotExists, initialContent);
+      if (!maybeEntry) {
+        return void 0;
+      }
+      entry = maybeEntry;
+      if (initialContent === void 0) {
+        this._initialFileContents.set(resource, entry.initialContent);
+      }
+    }
+    const listener = entry.onDidDelete(() => {
+      const newEntries = this._entriesObs.get().filter((e) => !isEqual(e.modifiedURI, entry.modifiedURI));
+      this._entriesObs.set(newEntries, void 0);
+      this._editorService.closeEditors(this._editorService.findEditors(entry.modifiedURI));
+      if (!existingExternalEntry) {
+        entry.dispose();
+      }
+      this._store.delete(listener);
+    });
+    this._store.add(listener);
+    const entriesArr = [...this._entriesObs.get(), entry];
+    this._entriesObs.set(entriesArr, void 0);
+    return entry;
+  }
+  async _createModifiedFileEntry(resource, telemetryInfo, ifNotExists, initialContent) {
+    const multiDiffEntryDelegate = {
+      collapse: /* @__PURE__ */ __name((transaction2) => this._collapse(resource, transaction2), "collapse"),
+      recordOperation: /* @__PURE__ */ __name((operation) => {
+        operation.epoch = this._timeline.incrementEpoch();
+        this._timeline.recordFileOperation(operation);
+      }, "recordOperation")
+    };
+    const notebookUri = CellUri.parse(resource)?.notebook || resource;
+    const doCreate = /* @__PURE__ */ __name(async (chatKind) => {
+      if (this._notebookService.hasSupportedNotebooks(notebookUri)) {
+        return await ChatEditingModifiedNotebookEntry.create(notebookUri, multiDiffEntryDelegate, telemetryInfo, chatKind, initialContent, this._instantiationService);
+      } else {
+        const ref = await this._textModelService.createModelReference(resource);
+        return this._instantiationService.createInstance(ChatEditingModifiedDocumentEntry, ref, multiDiffEntryDelegate, telemetryInfo, chatKind, initialContent);
+      }
+    }, "doCreate");
+    try {
+      return await doCreate(
+        1
+        /* ChatEditKind.Modified */
+      );
+    } catch (err) {
+      if (ifNotExists === 1) {
+        return void 0;
+      }
+      await this._bulkEditService.apply({ edits: [{ newResource: resource }] });
+      if (this.configurationService.getValue("accessibility.openChatEditedFiles")) {
+        this._editorService.openEditor({ resource, options: { inactive: true, preserveFocus: true, pinned: true } });
+      }
+      this._timeline.recordFileOperation({
+        type: FileOperationType.Create,
+        uri: resource,
+        requestId: telemetryInfo.requestId,
+        epoch: this._timeline.incrementEpoch(),
+        initialContent: initialContent || "",
+        telemetryInfo
+      });
+      if (this._notebookService.hasSupportedNotebooks(notebookUri)) {
+        return await ChatEditingModifiedNotebookEntry.create(resource, multiDiffEntryDelegate, telemetryInfo, 0, initialContent, this._instantiationService);
+      } else {
+        return await doCreate(
+          0
+          /* ChatEditKind.Created */
+        );
+      }
+    }
+  }
+  _collapse(resource, transaction2) {
+    const multiDiffItem = this._editorPane?.findDocumentDiffItem(resource);
+    if (multiDiffItem) {
+      this._editorPane?.viewModel?.items.get().find((documentDiffItem) => isEqual(documentDiffItem.originalUri, multiDiffItem.originalUri) && isEqual(documentDiffItem.modifiedUri, multiDiffItem.modifiedUri))?.collapsed.set(true, transaction2);
+    }
+  }
+};
+ChatEditingSession = ChatEditingSession_1 = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IModelService),
+  __param(6, ILanguageService),
+  __param(7, ITextModelService),
+  __param(8, IBulkEditService),
+  __param(9, IEditorGroupsService),
+  __param(10, IEditorService),
+  __param(11, INotebookService),
+  __param(12, IAccessibilitySignalService),
+  __param(13, ILogService),
+  __param(14, IConfigurationService)
+], ChatEditingSession);
+export {
+  ChatEditingSession
+};
+//# sourceMappingURL=chatEditingSession.js.map

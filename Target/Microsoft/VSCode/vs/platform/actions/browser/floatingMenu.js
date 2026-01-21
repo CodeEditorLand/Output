@@ -1,1 +1,125 @@
-import{$ as u,$I8 as b,$E7 as x}from"../../../base/browser/dom.js";import{$j9 as D}from"../../../base/browser/ui/widget.js";import{$wf as m}from"../../../base/common/event.js";import{$Ed as j,$Dd as w,$Cd as C}from"../../../base/common/lifecycle.js";import{$Tib as _}from"./menuEntryActionViewItem.js";import{$oL as $}from"../common/actions.js";import{$qo as g}from"../../contextkey/common/contextkey.js";import{$Lj as v}from"../../instantiation/common/instantiation.js";import{$Vp as d,$Wp as a,$Ts as y,$Rs as J,$gq as A,$Iq as I,$Jq as R}from"../../theme/common/colorRegistry.js";var f=function(n,t,e,r){var i=arguments.length,s=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,e,r);else for(var h=n.length-1;h>=0;h--)(c=n[h])&&(s=(i<3?c(s):i>3?c(t,e,s):c(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},o=function(n,t){return function(e,r){t(e,r,n)}};class q extends D{constructor(t){super(),this.g=t,this.a=this.D(new m),this.onClick=this.a.event,this.c=u(".floating-click-widget"),this.c.style.padding="6px 11px",this.c.style.borderRadius="2px",this.c.style.cursor="pointer",this.c.style.zIndex="1"}getDomNode(){return this.c}render(){x(this.c),this.c.style.backgroundColor=a(y,d(I)),this.c.style.color=a(J,d(R)),this.c.style.border=`1px solid ${d(A)}`,b(this.c,u("")).textContent=this.g,this.b(this.c,()=>this.a.fire())}}let l=class extends j{get b(){return this.a.event}constructor(t,e,r){super(),this.a=new m,this.c=this.D(e.createMenu(t,r))}f(){const t=this.D(new w),e=()=>{if(t.clear(),!this.j())return;const r=_(this.c.getActions({renderShortTitle:!0,shouldForwardArgs:!0}));if(r.length===0)return;const[i]=r,s=this.g(i,t);t.add(s),t.add(s.onClick(()=>i.run(this.h()))),s.render()};this.D(this.c.onDidChange(e)),e()}h(){}j(){return!0}};l=f([o(1,$),o(2,g)],l);let p=class extends l{constructor(t,e,r,i){super(t.menuId,r,i),this.m=t,this.n=e,this.f()}g(t,e){const r=this.n.createInstance(q,t.label),i=r.getDomNode();return this.m.container.appendChild(i),e.add(C(()=>i.remove())),r}h(){return this.m.getActionArg()}};p=f([o(1,v),o(2,$),o(3,g)],p);export{q as $iJb,l as $jJb,p as $kJb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, append, clearNode } from "../../../base/browser/dom.js";
+import { Widget } from "../../../base/browser/ui/widget.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { getFlatActionBarActions } from "./menuEntryActionViewItem.js";
+import { IMenuService } from "../common/actions.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { asCssVariable, asCssVariableWithDefault, buttonBackground, buttonForeground, contrastBorder, editorBackground, editorForeground } from "../../theme/common/colorRegistry.js";
+class FloatingClickWidget extends Widget {
+  static {
+    __name(this, "FloatingClickWidget");
+  }
+  constructor(label) {
+    super();
+    this.label = label;
+    this._onClick = this._register(new Emitter());
+    this.onClick = this._onClick.event;
+    this._domNode = $(".floating-click-widget");
+    this._domNode.style.padding = "6px 11px";
+    this._domNode.style.borderRadius = "2px";
+    this._domNode.style.cursor = "pointer";
+    this._domNode.style.zIndex = "1";
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  render() {
+    clearNode(this._domNode);
+    this._domNode.style.backgroundColor = asCssVariableWithDefault(buttonBackground, asCssVariable(editorBackground));
+    this._domNode.style.color = asCssVariableWithDefault(buttonForeground, asCssVariable(editorForeground));
+    this._domNode.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
+    append(this._domNode, $("")).textContent = this.label;
+    this.onclick(this._domNode, () => this._onClick.fire());
+  }
+}
+let AbstractFloatingClickMenu = class AbstractFloatingClickMenu2 extends Disposable {
+  static {
+    __name(this, "AbstractFloatingClickMenu");
+  }
+  get onDidRender() {
+    return this.renderEmitter.event;
+  }
+  constructor(menuId, menuService, contextKeyService) {
+    super();
+    this.renderEmitter = new Emitter();
+    this.menu = this._register(menuService.createMenu(menuId, contextKeyService));
+  }
+  /** Should be called in implementation constructors after they initialized */
+  render() {
+    const menuDisposables = this._register(new DisposableStore());
+    const renderMenuAsFloatingClickBtn = /* @__PURE__ */ __name(() => {
+      menuDisposables.clear();
+      if (!this.isVisible()) {
+        return;
+      }
+      const actions = getFlatActionBarActions(this.menu.getActions({ renderShortTitle: true, shouldForwardArgs: true }));
+      if (actions.length === 0) {
+        return;
+      }
+      const [first] = actions;
+      const widget = this.createWidget(first, menuDisposables);
+      menuDisposables.add(widget);
+      menuDisposables.add(widget.onClick(() => first.run(this.getActionArg())));
+      widget.render();
+    }, "renderMenuAsFloatingClickBtn");
+    this._register(this.menu.onDidChange(renderMenuAsFloatingClickBtn));
+    renderMenuAsFloatingClickBtn();
+  }
+  getActionArg() {
+    return void 0;
+  }
+  isVisible() {
+    return true;
+  }
+};
+AbstractFloatingClickMenu = __decorate([
+  __param(1, IMenuService),
+  __param(2, IContextKeyService)
+], AbstractFloatingClickMenu);
+let FloatingClickMenu = class FloatingClickMenu2 extends AbstractFloatingClickMenu {
+  static {
+    __name(this, "FloatingClickMenu");
+  }
+  constructor(options, instantiationService, menuService, contextKeyService) {
+    super(options.menuId, menuService, contextKeyService);
+    this.options = options;
+    this.instantiationService = instantiationService;
+    this.render();
+  }
+  createWidget(action, disposable) {
+    const w = this.instantiationService.createInstance(FloatingClickWidget, action.label);
+    const node = w.getDomNode();
+    this.options.container.appendChild(node);
+    disposable.add(toDisposable(() => node.remove()));
+    return w;
+  }
+  getActionArg() {
+    return this.options.getActionArg();
+  }
+};
+FloatingClickMenu = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IMenuService),
+  __param(3, IContextKeyService)
+], FloatingClickMenu);
+export {
+  AbstractFloatingClickMenu,
+  FloatingClickMenu,
+  FloatingClickWidget
+};
+//# sourceMappingURL=floatingMenu.js.map

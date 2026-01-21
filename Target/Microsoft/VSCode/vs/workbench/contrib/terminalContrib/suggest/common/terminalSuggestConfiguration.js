@@ -1,2 +1,270 @@
-import{localize as e}from"../../../../../nls.js";import{$km as l}from"../../../../../platform/configuration/common/configurationRegistry.js";import{$im as u}from"../../../../../platform/registry/common/platform.js";var o;(function(t){t.Enabled="terminal.integrated.suggest.enabled",t.QuickSuggestions="terminal.integrated.suggest.quickSuggestions",t.SuggestOnTriggerCharacters="terminal.integrated.suggest.suggestOnTriggerCharacters",t.RunOnEnter="terminal.integrated.suggest.runOnEnter",t.WindowsExecutableExtensions="terminal.integrated.suggest.windowsExecutableExtensions",t.Providers="terminal.integrated.suggest.providers",t.ShowStatusBar="terminal.integrated.suggest.showStatusBar",t.CdPath="terminal.integrated.suggest.cdPath",t.InlineSuggestion="terminal.integrated.suggest.inlineSuggestion",t.UpArrowNavigatesHistory="terminal.integrated.suggest.upArrowNavigatesHistory",t.SelectionMode="terminal.integrated.suggest.selectionMode",t.InsertTrailingSpace="terminal.integrated.suggest.insertTrailingSpace"})(o||(o={}));const g=["exe","bat","cmd","com","msi","ps1","vbs","js","jar","py","rb","pl","sh"],w="terminal.integrated.suggest";function y(t){return typeof t=="boolean"?t?{commands:"on",arguments:"on",unknown:"off"}:{commands:"off",arguments:"off",unknown:"off"}:t}const k={"terminal.integrated.suggest.enabled":{restricted:!0,markdownDescription:e(13732,null,"Windows PowerShell, PowerShell v7+, zsh, bash, fish","`#terminal.integrated.shellIntegration.enabled#`"),type:"boolean",default:!0},"terminal.integrated.suggest.providers":{restricted:!0,markdownDescription:e(13733,null),type:"object",properties:{}},"terminal.integrated.suggest.quickSuggestions":{restricted:!0,markdownDescription:e(13734,null,"`#terminal.integrated.suggest.suggestOnTriggerCharacters#`"),type:"object",properties:{commands:{description:e(13735,null),type:"string",enum:["on","off"]},arguments:{description:e(13736,null),type:"string",enum:["on","off"]},unknown:{description:e(13737,null),type:"string",enum:["on","off"]}},additionalProperties:!1,default:{commands:"off",arguments:"off",unknown:"off"}},"terminal.integrated.suggest.suggestOnTriggerCharacters":{restricted:!0,markdownDescription:e(13738,null),type:"boolean",default:!1},"terminal.integrated.suggest.runOnEnter":{restricted:!0,markdownDescription:e(13739,null),enum:["never","exactMatch","exactMatchIgnoreExtension","always"],markdownEnumDescriptions:[e(13740,null),e(13741,null),e(13742,null),e(13743,null)],default:"never"},"terminal.integrated.suggest.selectionMode":{markdownDescription:e(13744,null),type:"string",enum:["partial","always","never"],markdownEnumDescriptions:[e(13745,null),e(13746,null),e(13747,null)],default:"partial"},"terminal.integrated.suggest.windowsExecutableExtensions":{restricted:!0,markdownDescription:e(13748,null,g.sort().map(t=>`- ${t}`).join(`
-`)),type:"object",default:{}},"terminal.integrated.suggest.showStatusBar":{restricted:!0,markdownDescription:e(13749,null),type:"boolean",default:!0},"terminal.integrated.suggest.cdPath":{restricted:!0,markdownDescription:e(13750,null),type:"string",enum:["off","relative","absolute"],markdownEnumDescriptions:[e(13751,null),e(13752,null),e(13753,null)],default:"absolute"},"terminal.integrated.suggest.inlineSuggestion":{restricted:!0,markdownDescription:e(13754,null),type:"string",enum:["off","alwaysOnTopExceptExactMatch","alwaysOnTop"],markdownEnumDescriptions:[e(13755,null),e(13756,null),e(13757,null)],default:"alwaysOnTop"},"terminal.integrated.suggest.upArrowNavigatesHistory":{restricted:!0,markdownDescription:e(13758,null),type:"boolean",default:!0},"terminal.integrated.suggest.insertTrailingSpace":{restricted:!0,markdownDescription:e(13759,null),type:"boolean",default:!1}};let s;function d(t){const i=s;t??=new Map,t.has("lsp")||t.set("lsp",{id:"lsp",description:e(13760,null)});const r={};for(const n of Array.from(t.keys()).sort())r[n]={type:"boolean",default:n!=="lsp",description:t.get(n)?.description??e(13761,null,n)};const a={};for(const n in r)a[n]=r[n].default;s={id:"terminalSuggestProviders",order:100,title:e(13762,null),type:"object",properties:{"terminal.integrated.suggest.providers":{restricted:!0,markdownDescription:e(13763,null),type:"object",properties:r,default:a,tags:["preview"],additionalProperties:!1}}},u.as(l.Configuration).updateConfigurations({add:[s],remove:i?[i]:[]})}d();export{g as $R5,w as $S5,y as $T5,k as $U5,d as $V5,o as TerminalSuggestSettingId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../nls.js";
+import { Extensions as ConfigurationExtensions } from "../../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+var TerminalSuggestSettingId;
+(function(TerminalSuggestSettingId2) {
+  TerminalSuggestSettingId2["Enabled"] = "terminal.integrated.suggest.enabled";
+  TerminalSuggestSettingId2["QuickSuggestions"] = "terminal.integrated.suggest.quickSuggestions";
+  TerminalSuggestSettingId2["SuggestOnTriggerCharacters"] = "terminal.integrated.suggest.suggestOnTriggerCharacters";
+  TerminalSuggestSettingId2["RunOnEnter"] = "terminal.integrated.suggest.runOnEnter";
+  TerminalSuggestSettingId2["WindowsExecutableExtensions"] = "terminal.integrated.suggest.windowsExecutableExtensions";
+  TerminalSuggestSettingId2["Providers"] = "terminal.integrated.suggest.providers";
+  TerminalSuggestSettingId2["ShowStatusBar"] = "terminal.integrated.suggest.showStatusBar";
+  TerminalSuggestSettingId2["CdPath"] = "terminal.integrated.suggest.cdPath";
+  TerminalSuggestSettingId2["InlineSuggestion"] = "terminal.integrated.suggest.inlineSuggestion";
+  TerminalSuggestSettingId2["UpArrowNavigatesHistory"] = "terminal.integrated.suggest.upArrowNavigatesHistory";
+  TerminalSuggestSettingId2["SelectionMode"] = "terminal.integrated.suggest.selectionMode";
+  TerminalSuggestSettingId2["InsertTrailingSpace"] = "terminal.integrated.suggest.insertTrailingSpace";
+})(TerminalSuggestSettingId || (TerminalSuggestSettingId = {}));
+const windowsDefaultExecutableExtensions = [
+  "exe",
+  // Executable file
+  "bat",
+  // Batch file
+  "cmd",
+  // Command script
+  "com",
+  // Command file
+  "msi",
+  // Windows Installer package
+  "ps1",
+  // PowerShell script
+  "vbs",
+  // VBScript file
+  "js",
+  // JScript file
+  "jar",
+  // Java Archive (requires Java runtime)
+  "py",
+  // Python script (requires Python interpreter)
+  "rb",
+  // Ruby script (requires Ruby interpreter)
+  "pl",
+  // Perl script (requires Perl interpreter)
+  "sh"
+  // Shell script (via WSL or third-party tools)
+];
+const terminalSuggestConfigSection = "terminal.integrated.suggest";
+function normalizeQuickSuggestionsConfig(config) {
+  if (typeof config === "boolean") {
+    return config ? { commands: "on", arguments: "on", unknown: "off" } : { commands: "off", arguments: "off", unknown: "off" };
+  }
+  return config;
+}
+__name(normalizeQuickSuggestionsConfig, "normalizeQuickSuggestionsConfig");
+const terminalSuggestConfiguration = {
+  [
+    "terminal.integrated.suggest.enabled"
+    /* TerminalSuggestSettingId.Enabled */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.enabled", "Enables terminal IntelliSense suggestions (also known as autocomplete) for supported shells ({0}). This requires {1} to be enabled and working or [manually installed](https://code.visualstudio.com/docs/terminal/shell-integration#_manual-installation-install).", "Windows PowerShell, PowerShell v7+, zsh, bash, fish", `\`#${"terminal.integrated.shellIntegration.enabled"}#\``),
+    type: "boolean",
+    default: true
+  },
+  [
+    "terminal.integrated.suggest.providers"
+    /* TerminalSuggestSettingId.Providers */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.providers", "Providers are enabled by default. Omit them by setting the id of the provider to `false`."),
+    type: "object",
+    properties: {}
+  },
+  [
+    "terminal.integrated.suggest.quickSuggestions"
+    /* TerminalSuggestSettingId.QuickSuggestions */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.quickSuggestions", "Controls whether suggestions should automatically show up while typing. Also be aware of the {0}-setting which controls if suggestions are triggered by special characters.", `\`#${"terminal.integrated.suggest.suggestOnTriggerCharacters"}#\``),
+    type: "object",
+    properties: {
+      commands: {
+        description: localize("suggest.quickSuggestions.commands", "Enable quick suggestions for commands, the first word in a command line input."),
+        type: "string",
+        enum: ["on", "off"]
+      },
+      arguments: {
+        description: localize("suggest.quickSuggestions.arguments", "Enable quick suggestions for arguments, anything after the first word in a command line input."),
+        type: "string",
+        enum: ["on", "off"]
+      },
+      unknown: {
+        description: localize("suggest.quickSuggestions.unknown", "Enable quick suggestions when it's unclear what the best suggestion is, if this is on files and folders will be suggested as a fallback."),
+        type: "string",
+        enum: ["on", "off"]
+      }
+    },
+    additionalProperties: false,
+    default: {
+      commands: "off",
+      arguments: "off",
+      unknown: "off"
+    }
+  },
+  [
+    "terminal.integrated.suggest.suggestOnTriggerCharacters"
+    /* TerminalSuggestSettingId.SuggestOnTriggerCharacters */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.suggestOnTriggerCharacters", "Controls whether suggestions should automatically show up when typing trigger characters."),
+    type: "boolean",
+    default: false
+  },
+  [
+    "terminal.integrated.suggest.runOnEnter"
+    /* TerminalSuggestSettingId.RunOnEnter */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.runOnEnter", "Controls whether suggestions should run immediately when `Enter` (not `Tab`) is used to accept the result."),
+    enum: ["never", "exactMatch", "exactMatchIgnoreExtension", "always"],
+    markdownEnumDescriptions: [
+      localize("runOnEnter.never", "Never run on `Enter`."),
+      localize("runOnEnter.exactMatch", "Run on `Enter` when the suggestion is typed in its entirety."),
+      localize("runOnEnter.exactMatchIgnoreExtension", "Run on `Enter` when the suggestion is typed in its entirety or when a file is typed without its extension included."),
+      localize("runOnEnter.always", "Always run on `Enter`.")
+    ],
+    default: "never"
+  },
+  [
+    "terminal.integrated.suggest.selectionMode"
+    /* TerminalSuggestSettingId.SelectionMode */
+  ]: {
+    markdownDescription: localize("terminal.integrated.selectionMode", "Controls how suggestion selection works in the integrated terminal."),
+    type: "string",
+    enum: ["partial", "always", "never"],
+    markdownEnumDescriptions: [
+      localize("terminal.integrated.selectionMode.partial", "Partially select a suggestion when automatically triggering IntelliSense. `Tab` can be used to accept the first suggestion, only after navigating the suggestions via `Down` will `Enter` also accept the active suggestion."),
+      localize("terminal.integrated.selectionMode.always", "Always select a suggestion when automatically triggering IntelliSense. `Enter` or `Tab` can be used to accept the first suggestion."),
+      localize("terminal.integrated.selectionMode.never", "Never select a suggestion when automatically triggering IntelliSense. The list must be navigated via `Down` before `Enter` or `Tab` can be used to accept the active suggestion.")
+    ],
+    default: "partial"
+  },
+  [
+    "terminal.integrated.suggest.windowsExecutableExtensions"
+    /* TerminalSuggestSettingId.WindowsExecutableExtensions */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("terminalWindowsExecutableSuggestionSetting", "A set of windows command executable extensions that will be included as suggestions in the terminal.\n\nMany executables are included by default, listed below:\n\n{0}.\n\nTo exclude an extension, set it to `false`\n\n. To include one not in the list, add it and set it to `true`.", windowsDefaultExecutableExtensions.sort().map((extension) => `- ${extension}`).join("\n")),
+    type: "object",
+    default: {}
+  },
+  [
+    "terminal.integrated.suggest.showStatusBar"
+    /* TerminalSuggestSettingId.ShowStatusBar */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.showStatusBar", "Controls whether the terminal suggestions status bar should be shown."),
+    type: "boolean",
+    default: true
+  },
+  [
+    "terminal.integrated.suggest.cdPath"
+    /* TerminalSuggestSettingId.CdPath */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.cdPath", "Controls whether to enable $CDPATH support which exposes children of the folders in the $CDPATH variable regardless of the current working directory. $CDPATH is expected to be semi colon-separated on Windows and colon-separated on other platforms."),
+    type: "string",
+    enum: ["off", "relative", "absolute"],
+    markdownEnumDescriptions: [
+      localize("suggest.cdPath.off", "Disable the feature."),
+      localize("suggest.cdPath.relative", "Enable the feature and use relative paths."),
+      localize("suggest.cdPath.absolute", "Enable the feature and use absolute paths. This is useful when the shell doesn't natively support `$CDPATH`.")
+    ],
+    default: "absolute"
+  },
+  [
+    "terminal.integrated.suggest.inlineSuggestion"
+    /* TerminalSuggestSettingId.InlineSuggestion */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.inlineSuggestion", "Controls whether the shell's inline suggestion should be detected and how it is scored."),
+    type: "string",
+    enum: ["off", "alwaysOnTopExceptExactMatch", "alwaysOnTop"],
+    markdownEnumDescriptions: [
+      localize("suggest.inlineSuggestion.off", "Disable the feature."),
+      localize("suggest.inlineSuggestion.alwaysOnTopExceptExactMatch", "Enable the feature and sort the inline suggestion without forcing it to be on top. This means that exact matches will be above the inline suggestion."),
+      localize("suggest.inlineSuggestion.alwaysOnTop", "Enable the feature and always put the inline suggestion on top.")
+    ],
+    default: "alwaysOnTop"
+  },
+  [
+    "terminal.integrated.suggest.upArrowNavigatesHistory"
+    /* TerminalSuggestSettingId.UpArrowNavigatesHistory */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.upArrowNavigatesHistory", "Determines whether the up arrow key navigates the command history when focus is on the first suggestion and navigation has not yet occurred. When set to false, the up arrow will move focus to the last suggestion instead."),
+    type: "boolean",
+    default: true
+  },
+  [
+    "terminal.integrated.suggest.insertTrailingSpace"
+    /* TerminalSuggestSettingId.InsertTrailingSpace */
+  ]: {
+    restricted: true,
+    markdownDescription: localize("suggest.insertTrailingSpace", "Controls whether a space is automatically inserted after accepting a suggestion and re-trigger suggestions. Folders and symbolic link folders will never have a trailing space added."),
+    type: "boolean",
+    default: false
+  }
+};
+let terminalSuggestProvidersConfiguration;
+function registerTerminalSuggestProvidersConfiguration(providers) {
+  const oldProvidersConfiguration = terminalSuggestProvidersConfiguration;
+  providers ??= /* @__PURE__ */ new Map();
+  if (!providers.has("lsp")) {
+    providers.set("lsp", {
+      id: "lsp",
+      description: localize("suggest.provider.lsp.description", "Show suggestions from language servers.")
+    });
+  }
+  const providersProperties = {};
+  for (const id of Array.from(providers.keys()).sort()) {
+    providersProperties[id] = {
+      type: "boolean",
+      default: id === "lsp" ? false : true,
+      description: providers.get(id)?.description ?? localize("suggest.provider.title", "Show suggestions from {0}.", id)
+    };
+  }
+  const defaultValue = {};
+  for (const key in providersProperties) {
+    defaultValue[key] = providersProperties[key].default;
+  }
+  terminalSuggestProvidersConfiguration = {
+    id: "terminalSuggestProviders",
+    order: 100,
+    title: localize("terminalSuggestProvidersConfigurationTitle", "Terminal Suggest Providers"),
+    type: "object",
+    properties: {
+      [
+        "terminal.integrated.suggest.providers"
+        /* TerminalSuggestSettingId.Providers */
+      ]: {
+        restricted: true,
+        markdownDescription: localize("suggest.providersEnabledByDefault", "Controls which suggestions automatically show up while typing. Suggestion providers are enabled by default."),
+        type: "object",
+        properties: providersProperties,
+        default: defaultValue,
+        tags: ["preview"],
+        additionalProperties: false
+      }
+    }
+  };
+  const registry = Registry.as(ConfigurationExtensions.Configuration);
+  registry.updateConfigurations({
+    add: [terminalSuggestProvidersConfiguration],
+    remove: oldProvidersConfiguration ? [oldProvidersConfiguration] : []
+  });
+}
+__name(registerTerminalSuggestProvidersConfiguration, "registerTerminalSuggestProvidersConfiguration");
+registerTerminalSuggestProvidersConfiguration();
+export {
+  TerminalSuggestSettingId,
+  normalizeQuickSuggestionsConfig,
+  registerTerminalSuggestProvidersConfiguration,
+  terminalSuggestConfigSection,
+  terminalSuggestConfiguration,
+  windowsDefaultExecutableExtensions
+};
+//# sourceMappingURL=terminalSuggestConfiguration.js.map

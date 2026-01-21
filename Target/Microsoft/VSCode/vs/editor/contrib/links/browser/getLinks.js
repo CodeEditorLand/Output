@@ -1,1 +1,156 @@
-import{$$b as f}from"../../../../base/common/arrays.js";import{CancellationToken as m}from"../../../../base/common/cancellation.js";import{$nb as g}from"../../../../base/common/errors.js";import{$Dd as h,$yd as d}from"../../../../base/common/lifecycle.js";import{$fd as w}from"../../../../base/common/types.js";import{URI as k}from"../../../../base/common/uri.js";import{$9D as p}from"../../../common/core/range.js";import{$6H as v}from"../../../common/services/model.js";import{$uo as y}from"../../../../platform/commands/common/commands.js";import{$NV as $}from"../../../common/services/languageFeatures.js";class b{constructor(s,e){this.a=s,this.b=e}toJSON(){return{range:this.range,url:this.url,tooltip:this.tooltip}}get range(){return this.a.range}get url(){return this.a.url}get tooltip(){return this.a.tooltip}async resolve(s){return this.a.url?this.a.url:typeof this.b.resolveLink=="function"?Promise.resolve(this.b.resolveLink(this.a,s)).then(e=>(this.a=e||this.a,this.a.url?this.resolve(s):Promise.reject(new Error("missing")))):Promise.reject(new Error("missing"))}}class u{static{this.Empty=new u([])}constructor(s){this.a=new h;let e=[];for(const[r,i]of s){const n=r.links.map(t=>new b(t,i));e=u.b(e,n),d(r)&&(this.a??=new h,this.a.add(r))}this.links=e}dispose(){this.a?.dispose(),this.links.length=0}static b(s,e){const r=[];let i,n,t,l;for(i=0,t=0,n=s.length,l=e.length;i<n&&t<l;){const o=s[i],c=e[t];if(p.areIntersectingOrTouching(o.range,c.range)){i++;continue}p.compareRangesUsingStarts(o.range,c.range)<0?(r.push(o),i++):(r.push(c),t++)}for(;i<n;i++)r.push(s[i]);for(;t<l;t++)r.push(e[t]);return r}}async function x(a,s,e){const r=[],i=a.ordered(s).reverse().map(async(t,l)=>{try{const o=await t.provideLinks(s,e);o&&(r[l]=[o,t])}catch(o){g(o)}});await Promise.all(i);let n=new u(f(r));return e.isCancellationRequested&&(n.dispose(),n=u.Empty),n}y.registerCommand("_executeLinkProvider",async(a,...s)=>{let[e,r]=s;w(e instanceof k),typeof r!="number"&&(r=0);const{linkProvider:i}=a.get($),n=a.get(v).getModel(e);if(!n)return[];const t=await x(i,n,m.None);if(!t)return[];for(let o=0;o<Math.min(r,t.links.length);o++)await t.links[o].resolve(m.None);const l=t.links.slice(0);return t.dispose(),l});export{u as $Dvb,x as $Evb,b as Link};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { DisposableStore, isDisposable } from "../../../../base/common/lifecycle.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelService } from "../../../common/services/model.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+class Link {
+  static {
+    __name(this, "Link");
+  }
+  constructor(link, provider) {
+    this._link = link;
+    this._provider = provider;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      url: this.url,
+      tooltip: this.tooltip
+    };
+  }
+  get range() {
+    return this._link.range;
+  }
+  get url() {
+    return this._link.url;
+  }
+  get tooltip() {
+    return this._link.tooltip;
+  }
+  async resolve(token) {
+    if (this._link.url) {
+      return this._link.url;
+    }
+    if (typeof this._provider.resolveLink === "function") {
+      return Promise.resolve(this._provider.resolveLink(this._link, token)).then((value) => {
+        this._link = value || this._link;
+        if (this._link.url) {
+          return this.resolve(token);
+        }
+        return Promise.reject(new Error("missing"));
+      });
+    }
+    return Promise.reject(new Error("missing"));
+  }
+}
+class LinksList {
+  static {
+    __name(this, "LinksList");
+  }
+  static {
+    this.Empty = new LinksList([]);
+  }
+  constructor(tuples) {
+    this._disposables = new DisposableStore();
+    let links = [];
+    for (const [list, provider] of tuples) {
+      const newLinks = list.links.map((link) => new Link(link, provider));
+      links = LinksList._union(links, newLinks);
+      if (isDisposable(list)) {
+        this._disposables ??= new DisposableStore();
+        this._disposables.add(list);
+      }
+    }
+    this.links = links;
+  }
+  dispose() {
+    this._disposables?.dispose();
+    this.links.length = 0;
+  }
+  static _union(oldLinks, newLinks) {
+    const result = [];
+    let oldIndex;
+    let oldLen;
+    let newIndex;
+    let newLen;
+    for (oldIndex = 0, newIndex = 0, oldLen = oldLinks.length, newLen = newLinks.length; oldIndex < oldLen && newIndex < newLen; ) {
+      const oldLink = oldLinks[oldIndex];
+      const newLink = newLinks[newIndex];
+      if (Range.areIntersectingOrTouching(oldLink.range, newLink.range)) {
+        oldIndex++;
+        continue;
+      }
+      const comparisonResult = Range.compareRangesUsingStarts(oldLink.range, newLink.range);
+      if (comparisonResult < 0) {
+        result.push(oldLink);
+        oldIndex++;
+      } else {
+        result.push(newLink);
+        newIndex++;
+      }
+    }
+    for (; oldIndex < oldLen; oldIndex++) {
+      result.push(oldLinks[oldIndex]);
+    }
+    for (; newIndex < newLen; newIndex++) {
+      result.push(newLinks[newIndex]);
+    }
+    return result;
+  }
+}
+async function getLinks(providers, model, token) {
+  const lists = [];
+  const promises = providers.ordered(model).reverse().map(async (provider, i) => {
+    try {
+      const result = await provider.provideLinks(model, token);
+      if (result) {
+        lists[i] = [result, provider];
+      }
+    } catch (err) {
+      onUnexpectedExternalError(err);
+    }
+  });
+  await Promise.all(promises);
+  let res = new LinksList(coalesce(lists));
+  if (token.isCancellationRequested) {
+    res.dispose();
+    res = LinksList.Empty;
+  }
+  return res;
+}
+__name(getLinks, "getLinks");
+CommandsRegistry.registerCommand("_executeLinkProvider", async (accessor, ...args) => {
+  let [uri, resolveCount] = args;
+  assertType(uri instanceof URI);
+  if (typeof resolveCount !== "number") {
+    resolveCount = 0;
+  }
+  const { linkProvider } = accessor.get(ILanguageFeaturesService);
+  const model = accessor.get(IModelService).getModel(uri);
+  if (!model) {
+    return [];
+  }
+  const list = await getLinks(linkProvider, model, CancellationToken.None);
+  if (!list) {
+    return [];
+  }
+  for (let i = 0; i < Math.min(resolveCount, list.links.length); i++) {
+    await list.links[i].resolve(CancellationToken.None);
+  }
+  const result = list.links.slice(0);
+  list.dispose();
+  return result;
+});
+export {
+  Link,
+  LinksList,
+  getLinks
+};
+//# sourceMappingURL=getLinks.js.map

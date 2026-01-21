@@ -1,9 +1,1138 @@
-import*as a from"../../../../base/browser/dom.js";import*as ct from"../../../../base/browser/domStylesheets.js";import*as lt from"../../../../base/browser/ui/aria/aria.js";import{$7$ as ht}from"../../../../base/browser/ui/mouseCursor/mouseCursor.js";import{$ii as at,$9h as ut}from"../../../../base/common/async.js";import{$ak as pt}from"../../../../base/common/codicons.js";import{$Ym as dt}from"../../../../base/common/decorators.js";import{$wf as ft}from"../../../../base/common/event.js";import{$G$ as gt}from"../../../../base/common/history.js";import{$Ed as K}from"../../../../base/common/lifecycle.js";import{$Lg as Y}from"../../../../base/common/strings.js";import{ThemeIcon as mt}from"../../../../base/common/themables.js";import{URI as bt}from"../../../../base/common/uri.js";import{$pcb as wt}from"../../../../editor/browser/editorBrowser.js";import{$Acb as G,$Fcb as J}from"../../../../editor/browser/editorExtensions.js";import{$ucb as yt}from"../../../../editor/browser/services/codeEditorService.js";import{$dhb as St}from"../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{$CD as Ct}from"../../../../editor/common/config/fontInfo.js";import{$9D as $t}from"../../../../editor/common/core/range.js";import{EditorContextKeys as Q}from"../../../../editor/common/editorContextKeys.js";import{CompletionItemKinds as vt}from"../../../../editor/common/languages.js";import{$NV as xt}from"../../../../editor/common/services/languageFeatures.js";import{$6H as It}from"../../../../editor/common/services/model.js";import{$bI as Dt}from"../../../../editor/common/services/textResourceConfiguration.js";import{$eob as Ft}from"../../../../editor/contrib/suggest/browser/suggestController.js";import{localize as u,localize2 as E}from"../../../../nls.js";import{$ohb as Vt,$jhb as Rt}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$Rib as Et}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$sL as X,$oL as Tt,$nL as f,$tL as g}from"../../../../platform/actions/common/actions.js";import{$4hb as T}from"../../../../platform/clipboard/common/clipboardService.js";import{$9l as Z}from"../../../../platform/configuration/common/configuration.js";import{$9n as y,$qo as U}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as Lt}from"../../../../platform/contextview/browser/contextView.js";import{$lmb as Ht}from"../../../../platform/history/browser/contextScopedHistoryWidget.js";import{$7ib as At}from"../../../../platform/hover/browser/hover.js";import{$Lj as Ot}from"../../../../platform/instantiation/common/instantiation.js";import{$Kj as Mt}from"../../../../platform/instantiation/common/serviceCollection.js";import{$cy as _t}from"../../../../platform/keybinding/common/keybinding.js";import{$hqb as Nt}from"../../../../platform/list/browser/listService.js";import{$xo as kt}from"../../../../platform/log/common/log.js";import{$yP as zt}from"../../../../platform/opener/common/opener.js";import{$gp as Pt}from"../../../../platform/storage/common/storage.js";import{$Jq as qt,$$p as Wt}from"../../../../platform/theme/common/colorRegistry.js";import{$ou as tt}from"../../../../platform/theme/common/themeService.js";import{$qHb as Bt}from"../../../browser/actions/widgetNavigationCommands.js";import{$ZAb as jt,$2Ab as S}from"../../../browser/parts/views/viewPane.js";import{$BN as et}from"../../../common/views.js";import{$yL as Kt}from"../../../services/editor/common/editorService.js";import{$fAb as z}from"../../../services/views/common/viewsService.js";import{$uQb as Yt,$tQb as Gt}from"../../codeEditor/browser/simpleEditorOptions.js";import{$yX as Jt,$DX as I,$qY as it,$zY as W,$EY as P,$vX as p,$BY as Qt}from"../common/debug.js";import{$cW as Xt}from"../common/debugModel.js";import{$2V as Zt}from"../common/debugUtils.js";import{$Afc as Ut,$Bfc as te}from"../common/replModel.js";import{$vsc as ee}from"./debugActionViewItems.js";import{$Fgc as ie,$dgc as se}from"./debugCommands.js";import{$_gc as oe}from"./debugExpressionRenderer.js";import{$BFb as ne,$KFb as re}from"./debugIcons.js";import"./media/repl.css";import{$wsc as ce}from"./replFilter.js";import{$Fsc as le,$Esc as he,$Dsc as ae,$xsc as ue,$zsc as pe,$ysc as de,$Asc as fe,$Csc as ge,$Bsc as me}from"./replViewer.js";var k=function(n,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,e,i);else for(var r=n.length-1;r>=0;r--)(l=n[r])&&(s=(o<3?l(s):o>3?l(t,e,s):l(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},h=function(n,t){return function(e,i){t(e,i,n)}},D,F;const R=a.$,A="debug.repl.history",O="debug.repl.filterHistory",M="debug.repl.filterValue",B="replinputdecoration";function v(n){n.scrollTop=n.scrollHeight-n.renderHeight}const x=new Set,j={getId:n=>n.getId()};let _=class extends jt{static{D=this}static{this.a=50}static{this.b=bt.parse(`${W}:replinput`)}constructor(t,e,i,o,s,l,r,m,L,C,$,V,c,b,d,w,H,nt,rt){const q=o.get(M,1,"");super({...t,filterOptions:{placeholder:u(7836,null),text:q,history:JSON.parse(o.get(O,1,"[]"))}},b,C,$,r,L,i,d,s,w),this.vc=e,this.wc=o,this.xc=l,this.Cb=$,this.zc=V,this.Ac=c,this.Ab=b,this.Cc=nt,this.Dc=rt,this.sb=0,this.nc=!1,this.pc=K.None,this.uc=!1,this.sc=H.createMenu(f.DebugConsoleContext,r),this.D(this.sc),this.f=this.D(new gt(new Set(JSON.parse(this.wc.get(A,1,"[]"))),100)),this.qc=new ce,this.qc.filterQuery=q,this.rc=it.bindTo(r),this.r=this.D(this.Fb.createInstance(N,this.id,()=>this.Zb().background)),this.D(this.r.onDidChange(()=>this.Hc())),this.D(m.registerDecorationType("repl-decoration",B,{})),this.rc.set(this.Kc),this.Ec()}Ec(){this.vc.getViewModel().focusedSession&&this.Fc(this.vc.getViewModel().focusedSession),this.D(this.vc.getViewModel().onDidFocusSession(t=>{this.Fc(t)})),this.D(this.vc.getViewModel().onDidEvaluateLazyExpression(async t=>{t instanceof Xt&&this.m?.hasNode(t)&&(await this.m.updateChildren(t,!1,!0),await this.m.expand(t))})),this.D(this.vc.onWillNewSession(async t=>{const e=this.m?.getInput();(!e||e.state===0)&&await this.selectSession(t),this.rc.set(this.Kc)})),this.D(this.vc.onDidEndSession(async()=>{await Promise.resolve(),this.rc.set(this.Kc)})),this.D(this.Hb.onDidColorThemeChange(()=>{this.Rc(!1),this.isVisible()&&this.Sc()})),this.D(this.onDidChangeBodyVisibility(t=>{if(!t)return;this.ic||(this.ic=this.xc.getModel(D.b)||this.xc.createModel("",null,D.b,!0));const e=this.vc.getViewModel().focusedSession;this.m&&this.m.getInput()!==e&&this.Fc(e),this.Gc(),this.fc.setModel(this.ic),this.Sc(),this.Rc(!0),this.nc&&(this.nc=!1,this.m?.updateChildren(void 0,!0,!1),this.Hc())})),this.D(this.Cb.onDidChangeConfiguration(t=>{if(t.affectsConfiguration("debug.console.wordWrap")&&this.m&&(this.m.dispose(),this.ec.innerText="",a.$E7(this.ec),this.Nc()),t.affectsConfiguration("debug.console.acceptSuggestionOnEnter")){const e=this.Cb.getValue("debug");this.fc.updateOptions({acceptSuggestionOnEnter:e.console.acceptSuggestionOnEnter==="on"?"on":"off"})}})),this.D(this.Ac.onDidActiveEditorChange(()=>{this.Gc()})),this.D(this.filterWidget.onDidChangeFilterText(()=>{this.qc.filterQuery=this.filterWidget.getFilterText(),this.m&&(this.m.refilter(),v(this.m))}))}async Fc(t){t&&(x.delete(t),this.oc?.dispose(),t.capabilities.supportsCompletionsRequest&&(this.oc=this.Cc.completionProvider.register({scheme:W,pattern:"**/replinput",hasAccessToAllModels:!0},{_debugDisplayName:"debugConsole",triggerCharacters:t.capabilities.completionTriggerCharacters||["."],provideCompletionItems:async(e,i,o,s)=>{this.jc(!1);const l=this.fc.getModel();if(l){const r=l.getValue(),m=this.vc.getViewModel().focusedStackFrame,L=m?m.frameId:void 0,C=await t.completions(L,m?.thread.threadId||0,r,i,s),$=[],V=c=>$t.fromPositions(i.delta(0,-c),i);if(C&&C.body&&C.body.targets&&C.body.targets.forEach(c=>{if(c&&c.label){let b,d=c.text||c.label;if(typeof c.selectionStart=="number"){b=4;const w=typeof c.selectionLength=="number"?c.selectionLength:0,H=w>0?"${1:"+d.substring(c.selectionStart,c.selectionStart+w)+"}$0":"$0";d=d.substring(0,c.selectionStart)+H+d.substring(c.selectionStart+w)}$.push({label:c.label,insertText:d,detail:c.detail,kind:vt.fromString(c.type||"property"),filterText:c.start&&c.length?r.substring(c.start,c.start+c.length).concat(c.label):void 0,range:V(c.length||0),sortText:c.sortText,insertTextRules:b})}}),this.Cb.getValue("debug").console.historySuggestions){const c=this.f.getHistory(),b=String(c.length).length;c.forEach((d,w)=>$.push({label:d,insertText:d,kind:18,range:V(d.length),sortText:"ZZZ"+String(c.length-w).padStart(b,"0")}))}return{suggestions:$}}return Promise.resolve({suggestions:[]})}}))),await this.selectSession()}getFilterStats(){return{total:this.m?.getNode().children.length??0,filtered:this.m?.getNode().children.filter(t=>t.visible).length??0}}get isReadonly(){const t=this.m?.getInput();return!(t&&t.state!==0)}showPreviousValue(){this.isReadonly||this.Ic(!0)}showNextValue(){this.isReadonly||this.Ic(!1)}focusFilter(){this.filterWidget.focus()}openFind(){this.m?.openFind()}Gc(){if(!this.isVisible())return;const t=this.Ac.activeTextEditorControl;wt(t)&&(this.pc.dispose(),this.pc=t.onDidChangeModelLanguage(()=>this.Gc()),this.ic&&t.hasModel()&&this.ic.setLanguage(t.getModel().getLanguageId()))}Hc(){if(!this.isVisible()){this.nc=!0;return}if(this.mc){this.fc.updateOptions({fontSize:this.r.replConfiguration.fontSize,lineHeight:this.r.replConfiguration.lineHeight,fontFamily:this.r.replConfiguration.fontFamily==="default"?Ct.fontFamily:this.r.replConfiguration.fontFamily});const t=this.fc.getOption(75);this.mc.textContent=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var Repl_1, ReplOptions_1;
+import * as dom from "../../../../base/browser/dom.js";
+import * as domStylesheetsJs from "../../../../base/browser/domStylesheets.js";
+import * as aria from "../../../../base/browser/ui/aria/aria.js";
+import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from "../../../../base/browser/ui/mouseCursor/mouseCursor.js";
+import { RunOnceScheduler, timeout } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { memoize } from "../../../../base/common/decorators.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { HistoryNavigator } from "../../../../base/common/history.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { removeAnsiEscapeCodes } from "../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { EditorAction, registerEditorAction } from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { EDITOR_FONT_DEFAULTS } from "../../../../editor/common/config/fontInfo.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { CompletionItemKinds } from "../../../../editor/common/languages.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { getFlatContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { registerAndCreateHistoryNavigationContext } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { editorForeground, resolveColorValue } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { registerNavigableContainer } from "../../../browser/actions/widgetNavigationCommands.js";
+import { FilterViewPane, ViewAction } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { getSimpleCodeEditorWidgetOptions, getSimpleEditorOptions } from "../../codeEditor/browser/simpleEditorOptions.js";
+import { CONTEXT_DEBUG_STATE, CONTEXT_IN_DEBUG_REPL, CONTEXT_MULTI_SESSION_REPL, DEBUG_SCHEME, IDebugService, REPL_VIEW_ID, getStateLabel } from "../common/debug.js";
+import { Variable } from "../common/debugModel.js";
+import { resolveChildSession } from "../common/debugUtils.js";
+import { ReplEvaluationResult, ReplGroup } from "../common/replModel.js";
+import { FocusSessionActionViewItem } from "./debugActionViewItems.js";
+import { DEBUG_COMMAND_CATEGORY, FOCUS_REPL_ID } from "./debugCommands.js";
+import { DebugExpressionRenderer } from "./debugExpressionRenderer.js";
+import { debugConsoleClearAll, debugConsoleEvaluationPrompt } from "./debugIcons.js";
+import "./media/repl.css";
+import { ReplFilter } from "./replFilter.js";
+import { ReplAccessibilityProvider, ReplDataSource, ReplDelegate, ReplEvaluationInputsRenderer, ReplEvaluationResultsRenderer, ReplGroupRenderer, ReplOutputElementRenderer, ReplRawObjectsRenderer, ReplVariablesRenderer } from "./replViewer.js";
+const $ = dom.$;
+const HISTORY_STORAGE_KEY = "debug.repl.history";
+const FILTER_HISTORY_STORAGE_KEY = "debug.repl.filterHistory";
+const FILTER_VALUE_STORAGE_KEY = "debug.repl.filterValue";
+const DECORATION_KEY = "replinputdecoration";
+function revealLastElement(tree) {
+  tree.scrollTop = tree.scrollHeight - tree.renderHeight;
+}
+__name(revealLastElement, "revealLastElement");
+const sessionsToIgnore = /* @__PURE__ */ new Set();
+const identityProvider = { getId: /* @__PURE__ */ __name((element) => element.getId(), "getId") };
+let Repl = class Repl2 extends FilterViewPane {
+  static {
+    __name(this, "Repl");
+  }
+  static {
+    Repl_1 = this;
+  }
+  static {
+    this.REFRESH_DELAY = 50;
+  }
+  static {
+    this.URI = uri.parse(`${DEBUG_SCHEME}:replinput`);
+  }
+  constructor(options, debugService, instantiationService, storageService, themeService, modelService, contextKeyService, codeEditorService, viewDescriptorService, contextMenuService, configurationService, textResourcePropertiesService, editorService, keybindingService, openerService, hoverService, menuService, languageFeaturesService, logService) {
+    const filterText = storageService.get(FILTER_VALUE_STORAGE_KEY, 1, "");
+    super({
+      ...options,
+      filterOptions: {
+        placeholder: localize({ key: "workbench.debug.filter.placeholder", comment: ["Text in the brackets after e.g. is not localizable"] }, "Filter (e.g. text, !exclude, \\escape)"),
+        text: filterText,
+        history: JSON.parse(storageService.get(FILTER_HISTORY_STORAGE_KEY, 1, "[]"))
+      }
+    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.debugService = debugService;
+    this.storageService = storageService;
+    this.modelService = modelService;
+    this.configurationService = configurationService;
+    this.textResourcePropertiesService = textResourcePropertiesService;
+    this.editorService = editorService;
+    this.keybindingService = keybindingService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.logService = logService;
+    this.previousTreeScrollHeight = 0;
+    this.styleChangedWhenInvisible = false;
+    this.modelChangeListener = Disposable.None;
+    this.findIsOpen = false;
+    this.menu = menuService.createMenu(MenuId.DebugConsoleContext, contextKeyService);
+    this._register(this.menu);
+    this.history = this._register(new HistoryNavigator(new Set(JSON.parse(this.storageService.get(HISTORY_STORAGE_KEY, 1, "[]"))), 100));
+    this.filter = new ReplFilter();
+    this.filter.filterQuery = filterText;
+    this.multiSessionRepl = CONTEXT_MULTI_SESSION_REPL.bindTo(contextKeyService);
+    this.replOptions = this._register(this.instantiationService.createInstance(ReplOptions, this.id, () => this.getLocationBasedColors().background));
+    this._register(this.replOptions.onDidChange(() => this.onDidStyleChange()));
+    this._register(codeEditorService.registerDecorationType("repl-decoration", DECORATION_KEY, {}));
+    this.multiSessionRepl.set(this.isMultiSessionView);
+    this.registerListeners();
+  }
+  registerListeners() {
+    if (this.debugService.getViewModel().focusedSession) {
+      this.onDidFocusSession(this.debugService.getViewModel().focusedSession);
+    }
+    this._register(this.debugService.getViewModel().onDidFocusSession((session) => {
+      this.onDidFocusSession(session);
+    }));
+    this._register(this.debugService.getViewModel().onDidEvaluateLazyExpression(async (e) => {
+      if (e instanceof Variable && this.tree?.hasNode(e)) {
+        await this.tree.updateChildren(e, false, true);
+        await this.tree.expand(e);
+      }
+    }));
+    this._register(this.debugService.onWillNewSession(async (newSession) => {
+      const input = this.tree?.getInput();
+      if (!input || input.state === 0) {
+        await this.selectSession(newSession);
+      }
+      this.multiSessionRepl.set(this.isMultiSessionView);
+    }));
+    this._register(this.debugService.onDidEndSession(async () => {
+      await Promise.resolve();
+      this.multiSessionRepl.set(this.isMultiSessionView);
+    }));
+    this._register(this.themeService.onDidColorThemeChange(() => {
+      this.refreshReplElements(false);
+      if (this.isVisible()) {
+        this.updateInputDecoration();
+      }
+    }));
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (!visible) {
+        return;
+      }
+      if (!this.model) {
+        this.model = this.modelService.getModel(Repl_1.URI) || this.modelService.createModel("", null, Repl_1.URI, true);
+      }
+      const focusedSession = this.debugService.getViewModel().focusedSession;
+      if (this.tree && this.tree.getInput() !== focusedSession) {
+        this.onDidFocusSession(focusedSession);
+      }
+      this.setMode();
+      this.replInput.setModel(this.model);
+      this.updateInputDecoration();
+      this.refreshReplElements(true);
+      if (this.styleChangedWhenInvisible) {
+        this.styleChangedWhenInvisible = false;
+        this.tree?.updateChildren(void 0, true, false);
+        this.onDidStyleChange();
+      }
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug.console.wordWrap") && this.tree) {
+        this.tree.dispose();
+        this.treeContainer.innerText = "";
+        dom.clearNode(this.treeContainer);
+        this.createReplTree();
+      }
+      if (e.affectsConfiguration("debug.console.acceptSuggestionOnEnter")) {
+        const config = this.configurationService.getValue("debug");
+        this.replInput.updateOptions({
+          acceptSuggestionOnEnter: config.console.acceptSuggestionOnEnter === "on" ? "on" : "off"
+        });
+      }
+    }));
+    this._register(this.editorService.onDidActiveEditorChange(() => {
+      this.setMode();
+    }));
+    this._register(this.filterWidget.onDidChangeFilterText(() => {
+      this.filter.filterQuery = this.filterWidget.getFilterText();
+      if (this.tree) {
+        this.tree.refilter();
+        revealLastElement(this.tree);
+      }
+    }));
+  }
+  async onDidFocusSession(session) {
+    if (session) {
+      sessionsToIgnore.delete(session);
+      this.completionItemProvider?.dispose();
+      if (session.capabilities.supportsCompletionsRequest) {
+        this.completionItemProvider = this.languageFeaturesService.completionProvider.register({ scheme: DEBUG_SCHEME, pattern: "**/replinput", hasAccessToAllModels: true }, {
+          _debugDisplayName: "debugConsole",
+          triggerCharacters: session.capabilities.completionTriggerCharacters || ["."],
+          provideCompletionItems: /* @__PURE__ */ __name(async (_, position, _context, token) => {
+            this.setHistoryNavigationEnablement(false);
+            const model = this.replInput.getModel();
+            if (model) {
+              const text = model.getValue();
+              const focusedStackFrame = this.debugService.getViewModel().focusedStackFrame;
+              const frameId = focusedStackFrame ? focusedStackFrame.frameId : void 0;
+              const response = await session.completions(frameId, focusedStackFrame?.thread.threadId || 0, text, position, token);
+              const suggestions = [];
+              const computeRange = /* @__PURE__ */ __name((length) => Range.fromPositions(position.delta(0, -length), position), "computeRange");
+              if (response && response.body && response.body.targets) {
+                response.body.targets.forEach((item) => {
+                  if (item && item.label) {
+                    let insertTextRules = void 0;
+                    let insertText = item.text || item.label;
+                    if (typeof item.selectionStart === "number") {
+                      insertTextRules = 4;
+                      const selectionLength = typeof item.selectionLength === "number" ? item.selectionLength : 0;
+                      const placeholder = selectionLength > 0 ? "${1:" + insertText.substring(item.selectionStart, item.selectionStart + selectionLength) + "}$0" : "$0";
+                      insertText = insertText.substring(0, item.selectionStart) + placeholder + insertText.substring(item.selectionStart + selectionLength);
+                    }
+                    suggestions.push({
+                      label: item.label,
+                      insertText,
+                      detail: item.detail,
+                      kind: CompletionItemKinds.fromString(item.type || "property"),
+                      filterText: item.start && item.length ? text.substring(item.start, item.start + item.length).concat(item.label) : void 0,
+                      range: computeRange(item.length || 0),
+                      sortText: item.sortText,
+                      insertTextRules
+                    });
+                  }
+                });
+              }
+              if (this.configurationService.getValue("debug").console.historySuggestions) {
+                const history = this.history.getHistory();
+                const idxLength = String(history.length).length;
+                history.forEach((h, i) => suggestions.push({
+                  label: h,
+                  insertText: h,
+                  kind: 18,
+                  range: computeRange(h.length),
+                  sortText: "ZZZ" + String(history.length - i).padStart(idxLength, "0")
+                }));
+              }
+              return { suggestions };
+            }
+            return Promise.resolve({ suggestions: [] });
+          }, "provideCompletionItems")
+        });
+      }
+    }
+    await this.selectSession();
+  }
+  getFilterStats() {
+    return {
+      total: this.tree?.getNode().children.length ?? 0,
+      filtered: this.tree?.getNode().children.filter((c) => c.visible).length ?? 0
+    };
+  }
+  get isReadonly() {
+    const session = this.tree?.getInput();
+    if (session && session.state !== 0) {
+      return false;
+    }
+    return true;
+  }
+  showPreviousValue() {
+    if (!this.isReadonly) {
+      this.navigateHistory(true);
+    }
+  }
+  showNextValue() {
+    if (!this.isReadonly) {
+      this.navigateHistory(false);
+    }
+  }
+  focusFilter() {
+    this.filterWidget.focus();
+  }
+  openFind() {
+    this.tree?.openFind();
+  }
+  setMode() {
+    if (!this.isVisible()) {
+      return;
+    }
+    const activeEditorControl = this.editorService.activeTextEditorControl;
+    if (isCodeEditor(activeEditorControl)) {
+      this.modelChangeListener.dispose();
+      this.modelChangeListener = activeEditorControl.onDidChangeModelLanguage(() => this.setMode());
+      if (this.model && activeEditorControl.hasModel()) {
+        this.model.setLanguage(activeEditorControl.getModel().getLanguageId());
+      }
+    }
+  }
+  onDidStyleChange() {
+    if (!this.isVisible()) {
+      this.styleChangedWhenInvisible = true;
+      return;
+    }
+    if (this.styleElement) {
+      this.replInput.updateOptions({
+        fontSize: this.replOptions.replConfiguration.fontSize,
+        lineHeight: this.replOptions.replConfiguration.lineHeight,
+        fontFamily: this.replOptions.replConfiguration.fontFamily === "default" ? EDITOR_FONT_DEFAULTS.fontFamily : this.replOptions.replConfiguration.fontFamily
+      });
+      const replInputLineHeight = this.replInput.getOption(
+        75
+        /* EditorOption.lineHeight */
+      );
+      this.styleElement.textContent = `
 				.repl .repl-input-wrapper .repl-input-chevron {
-					line-height: ${t}px
+					line-height: ${replInputLineHeight}px
 				}
 
 				.repl .repl-input-wrapper .monaco-editor .lines-content {
-					background-color: ${this.r.replConfiguration.backgroundColor};
+					background-color: ${this.replOptions.replConfiguration.backgroundColor};
 				}
-			`;const e=this.r.replConfiguration.fontFamily==="default"?"var(--monaco-monospace-font)":this.r.replConfiguration.fontFamily;this.dc.style.setProperty("--vscode-repl-font-family",e),this.dc.style.setProperty("--vscode-repl-font-size",`${this.r.replConfiguration.fontSize}px`),this.dc.style.setProperty("--vscode-repl-font-size-for-twistie",`${this.r.replConfiguration.fontSizeForTwistie}px`),this.dc.style.setProperty("--vscode-repl-line-height",this.r.replConfiguration.cssLineHeight),this.m?.rerender(),this.hc&&this.L(this.hc.height,this.hc.width)}}Ic(t){const e=(t?this.f.previous()??this.f.first():this.f.next())??"";this.fc.setValue(e),lt.$d0(e),this.fc.setPosition({lineNumber:1,column:e.length+1}),this.jc(!0)}async selectSession(t){const e=this.m?.getInput();if(!t){const i=this.vc.getViewModel().focusedSession;i?t=i:(!e||x.has(e))&&(t=this.vc.getModel().getSessions(!0).find(o=>!x.has(o)))}if(t&&(this.lc?.dispose(),this.lc=t.onDidChangeReplElements(()=>{this.Rc(t.getReplElements().length===0)}),this.m&&e!==t)){try{await this.m.setInput(t)}catch(i){this.Dc.error(i)}v(this.m)}this.fc?.updateOptions({readOnly:this.isReadonly}),this.Sc()}async clearRepl(){const t=this.m?.getInput();t&&(t.removeReplExpressions(),t.state===0&&(x.add(t),await this.selectSession(),this.rc.set(this.Kc))),this.fc.focus()}acceptReplInput(){const t=this.m?.getInput();t&&!this.isReadonly&&(t.addReplExpression(this.vc.getViewModel().focusedStackFrame,this.fc.getValue()),v(this.m),this.f.add(this.fc.getValue()),this.fc.setValue(""),this.hc&&this.L(this.hc.height,this.hc.width))}sendReplInput(t){const e=this.m?.getInput();e&&!this.isReadonly&&(e.addReplExpression(this.vc.getViewModel().focusedStackFrame,t),v(this.m),this.f.add(t))}getVisibleContent(){let t="";if(this.ic&&this.m){const e=this.zc.getEOL(this.ic.uri),i=o=>{o.children.forEach(s=>{s.visible&&(t+=s.element.toString().trimRight()+e,!s.collapsed&&s.children.length&&i(s))})};i(this.m.getNode())}return Y(t)}L(t,e){this.hc=new a.$X7(e,t);const i=Math.min(this.fc.getContentHeight(),t);if(this.m){const o=this.m.scrollTop+this.m.renderHeight>=this.m.scrollHeight,s=t-i;this.m.getHTMLElement().style.height=`${s}px`,this.m.layout(s,e),o&&v(this.m)}this.gc.style.height=`${i}px`,this.fc.layout({width:e-30,height:i})}collapseAll(){this.m?.collapseAll()}getDebugSession(){return this.m?.getInput()}getReplInput(){return this.fc}getReplDataSource(){return this.tc}getFocusedElement(){return this.m?.getFocus()?.[0]}focusTree(){this.m?.domFocus()}async focus(){super.focus(),await ut(0),this.fc.focus()}createActionViewItem(t){if(t.id===ot){const e=(this.m?this.m.getInput():void 0)??this.vc.getViewModel().focusedSession;return this.Fb.createInstance(Ce,t,e)}return super.createActionViewItem(t)}get Kc(){return this.vc.getModel().getSessions(!0).filter(t=>t.hasSeparateRepl()&&!x.has(t)).length>1}get Lc(){const t=new Set;return new at(async()=>{if(!this.m||!this.m.getInput()||!this.isVisible())return;await this.m.updateChildren(void 0,!0,!1,{diffIdentityProvider:j});const e=this.m.getInput();if(e){const s=async l=>{for(const r of l)r instanceof te&&(r.autoExpand&&!t.has(r.getId())&&(t.add(r.getId()),await this.m.expand(r)),this.m.isCollapsed(r)||await s(r.getChildren()))};await s(e.getReplElements())}const{total:i,filtered:o}=this.getFilterStats();this.filterWidget.updateBadge(i===o||i===0?void 0:u(7837,null,o,i))},D.a)}render(){super.render(),this.D(Bt({name:"repl",focusNotifiers:[this,this.filterWidget],focusNextWidget:()=>{const t=this.m?.getHTMLElement();this.filterWidget.hasFocus()?this.m?.domFocus():t&&a.$h8(t)&&this.focus()},focusPreviousWidget:()=>{const t=this.m?.getHTMLElement();this.fc.hasTextFocus()?this.m?.domFocus():t&&a.$h8(t)&&this.focusFilter()}}))}X(t){super.X(t),this.dc=a.$I8(t,R(".repl")),this.ec=a.$I8(this.dc,R(`.repl-tree.${ht}`)),this.Oc(this.dc),this.Nc()}Nc(){this.cc=new ae(this.Cb,this.r);const t=this.Cb.getValue("debug").console.wordWrap;this.ec.classList.toggle("word-wrap",t);const e=this.Fb.createInstance(oe);this.tc=new he;const i=this.m=this.Fb.createInstance(Nt,"DebugRepl",this.ec,this.cc,[this.Fb.createInstance(me,e),this.Fb.createInstance(fe,e),new ue,this.Fb.createInstance(de,e),new pe(e),new ge(e)],this.tc,{filter:this.qc,accessibilityProvider:new le,identityProvider:j,userSelection:!0,mouseSupport:!1,findWidgetEnabled:!0,keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:s=>s.toString(!0)},horizontalScrolling:!t,setRowLineHeight:!1,supportDynamicHeights:t,overrideStyles:this.Zb().listOverrideStyles});this.D(i.onDidChangeContentHeight(()=>{i.scrollHeight!==this.sb&&i.scrollTop+i.renderHeight>=this.sb-2&&setTimeout(()=>{v(i)},0),this.sb=i.scrollHeight})),this.D(i.onContextMenu(s=>this.Qc(s))),this.D(i.onDidChangeFindOpenState(s=>this.uc=s));let o;this.D(i.onMouseClick(()=>{if(this.uc)return;const s=a.getWindow(this.ec).getSelection();(!s||s.type!=="Range"||o===s.toString())&&this.fc.focus(),o=s?s.toString():""})),this.selectSession(),this.mc=ct.$Y9(this.dc),this.Hc()}Oc(t){this.gc=a.$I8(t,R(".repl-input-wrapper")),a.$I8(this.gc,R(".repl-input-chevron"+mt.asCSSSelector(re)));const{historyNavigationBackwardsEnablement:e,historyNavigationForwardsEnablement:i}=this.D(Ht(this.zb,this));this.jc=r=>{e.set(r),i.set(r)},I.bindTo(this.zb).set(!0),this.kc=this.D(this.Fb.createChild(new Mt([U,this.zb])));const o=Gt(this.Cb);o.readOnly=!0,o.suggest={showStatusBar:!0};const s=this.Cb.getValue("debug");o.acceptSuggestionOnEnter=s.console.acceptSuggestionOnEnter==="on"?"on":"off",o.ariaLabel=this.Pc(),this.fc=this.kc.createInstance(St,this.gc,o,Yt());let l=-1;this.D(this.fc.onDidChangeModelContent(()=>{const r=this.fc.getModel();this.jc(!!r&&r.getValue()==="");const m=this.fc.getContentHeight();m!==l&&(l=m,this.hc&&this.L(this.hc.height,this.hc.width))})),this.D(this.fc.onDidFocusEditorText(()=>this.Sc())),this.D(this.fc.onDidBlurEditorText(()=>this.Sc())),this.D(a.$G7(this.gc,a.$B8.FOCUS,()=>this.gc.classList.add("synthetic-focus"))),this.D(a.$G7(this.gc,a.$B8.BLUR,()=>this.gc.classList.remove("synthetic-focus")))}Pc(){let t=u(7838,null);if(!this.Cb.getValue("accessibility.verbosity.debug"))return t;const e=this.Ab.lookupKeybinding("editor.action.accessibilityHelp")?.getAriaLabel();return e?t=u(7839,null,t,e):t=u(7840,null,t),t}Qc(t){const e=Et(this.sc.getActions({arg:t.element,shouldForwardArgs:!1}));this.Bb.showContextMenu({getAnchor:()=>t.anchor,getActions:()=>e,getActionsContext:()=>t.element})}Rc(t){if(this.m&&this.isVisible()){if(this.Lc.isScheduled())return;this.Lc.schedule(t?0:void 0)}}Sc(){if(!this.fc)return;const t=[];if(this.isReadonly&&this.fc.hasTextFocus()&&!this.fc.getValue()){const e=Wt(qt,this.Hb.getColorTheme())?.transparent(.4);t.push({range:{startLineNumber:0,endLineNumber:0,startColumn:0,endColumn:1},renderOptions:{after:{contentText:u(7841,null),color:e?e.toString():void 0}}})}this.fc.setDecorationsByType("repl-decoration",B,t)}saveState(){const t=this.f.getHistory();t.length?this.wc.store(A,JSON.stringify(t),1,1):this.wc.remove(A,1);const e=this.filterWidget.getHistory();e.length?this.wc.store(O,JSON.stringify(e),1,1):this.wc.remove(O,1);const i=this.filterWidget.getFilterText();i?this.wc.store(M,i,1,1):this.wc.remove(M,1),super.saveState()}dispose(){this.fc?.dispose(),this.lc?.dispose(),this.Lc.dispose(),this.pc.dispose(),super.dispose()}};k([dt],_.prototype,"Lc",null);_=D=k([h(1,P),h(2,Ot),h(3,Pt),h(4,tt),h(5,It),h(6,U),h(7,yt),h(8,et),h(9,Lt),h(10,Z),h(11,Dt),h(12,Kt),h(13,_t),h(14,zt),h(15,At),h(16,Tt),h(17,xt),h(18,kt)],_);let N=class extends K{static{F=this}static{this.a=1.4}get replConfiguration(){return this.f}constructor(t,e,i,o,s){super(),this.g=e,this.j=i,this.m=o,this.n=s,this.b=this.D(new ft),this.onDidChange=this.b.event,this.D(this.m.onDidColorThemeChange(l=>this.q())),this.D(this.n.onDidChangeLocation(l=>{l.views.some(r=>r.id===t)&&this.q()})),this.D(this.j.onDidChangeConfiguration(l=>{(l.affectsConfiguration("debug.console.lineHeight")||l.affectsConfiguration("debug.console.fontSize")||l.affectsConfiguration("debug.console.fontFamily"))&&this.q()})),this.q()}q(){const t=this.j.getValue("debug").console;this.f={fontSize:t.fontSize,fontFamily:t.fontFamily,lineHeight:t.lineHeight?t.lineHeight:F.a*t.fontSize,cssLineHeight:t.lineHeight?`${t.lineHeight}px`:`${F.a}em`,backgroundColor:this.m.getColorTheme().getColor(this.g()),fontSizeForTwistie:t.fontSize*F.a/2-8},this.b.fire()}};N=F=k([h(2,Z),h(3,tt),h(4,et)],N);class be extends G{constructor(){super({id:"repl.action.acceptInput",label:E(7850,"Debug Console: Accept Input"),precondition:I,kbOpts:{kbExpr:Q.textInputFocus,primary:3,weight:100}})}run(t,e){Ft.get(e)?.cancelSuggestWidget(),st(t.get(z))?.acceptReplInput()}}class we extends S{constructor(){super({viewId:p,id:"repl.action.filter",title:u(7842,null),precondition:I,keybinding:[{when:Q.textInputFocus,primary:2084,weight:100}]})}runInView(t,e){e.focusFilter()}}class ye extends S{constructor(){super({viewId:p,id:"repl.action.find",title:u(7843,null),precondition:I,keybinding:[{when:y.or(I,y.equals("focusedView","workbench.panel.repl.view")),primary:2596,weight:100}],icon:pt.search,menu:[{id:f.ViewTitle,group:"navigation",when:y.equals("view",p),order:15},{id:f.DebugConsoleContext,group:"z_commands",order:25}]})}runInView(t,e){e.openFind()}}class Se extends G{constructor(){super({id:"repl.action.copyAll",label:u(7844,null),alias:"Debug Console Copy All",precondition:I})}run(t,e){const i=t.get(T),o=st(t.get(z));if(o)return i.writeText(o.getVisibleContent())}}J(be);J(Se);g(we);g(ye);class Ce extends ee{y(){return this.a.getModel().getSessions(!0).filter(t=>t.hasSeparateRepl()&&!x.has(t))}O(t){for(;t.parentSession&&!t.hasSeparateRepl();)t=t.parentSession;return t}}function st(n){return n.getActiveViewWithId(p)??void 0}const ot="workbench.action.debug.selectRepl";g(class extends S{constructor(){super({id:ot,viewId:p,title:u(7845,null),f1:!1,menu:{id:f.ViewTitle,group:"navigation",when:y.and(y.equals("view",p),it),order:20}})}async runInView(n,t,e){const i=n.get(P);e&&e.state!==0&&e!==i.getViewModel().focusedSession&&(e=Zt(e,i.getModel().getSessions()),await i.focusStackFrame(void 0,void 0,e,{explicit:!0})),await t.selectSession(e)}});g(class extends S{constructor(){super({id:"workbench.debug.panel.action.clearReplAction",viewId:p,title:E(7851,"Clear Console"),metadata:{description:E(7852,"Clears all program output from your debug REPL")},f1:!0,icon:ne,menu:[{id:f.ViewTitle,group:"navigation",when:y.equals("view",p),order:30},{id:f.DebugConsoleContext,group:"z_commands",order:20}],keybinding:[{primary:0,mac:{primary:2089},weight:201,when:y.equals("focusedView","workbench.panel.repl.view")}]})}runInView(n,t){const e=n.get(Rt);t.clearRepl(),e.playSignal(Vt.clear)}});g(class extends S{constructor(){super({id:"debug.collapseRepl",title:u(7846,null),viewId:p,menu:{id:f.DebugConsoleContext,group:"z_commands",order:10}})}runInView(n,t){t.collapseAll(),t.focus()}});g(class extends S{constructor(){super({id:"debug.replPaste",title:u(7847,null),viewId:p,precondition:Jt.notEqualsTo(Qt(0)),menu:{id:f.DebugConsoleContext,group:"2_cutcopypaste",order:30}})}async runInView(n,t){const i=await n.get(T).readText();if(i){const o=t.getReplInput();o.setValue(o.getValue().concat(i)),t.focus();const s=o.getModel(),l=s?s.getLineCount():0,r=s?.getLineMaxColumn(l);typeof l=="number"&&typeof r=="number"&&o.setPosition({lineNumber:l,column:r})}}});g(class extends S{constructor(){super({id:"workbench.debug.action.copyAll",title:u(7848,null),viewId:p,menu:{id:f.DebugConsoleContext,group:"2_cutcopypaste",order:20}})}async runInView(n,t){await n.get(T).writeText(t.getVisibleContent())}});g(class extends X{constructor(){super({id:"debug.replCopy",title:u(7849,null),menu:{id:f.DebugConsoleContext,group:"2_cutcopypaste",order:10}})}async run(n,t){const e=n.get(T),i=n.get(P),s=a.$l8().getSelection()?.toString();if(s&&s.length>0)return e.writeText(s);if(t){const r=await this.a(i,t)||Y(t.toString());return e.writeText(r)}}async a(n,t){if(!(t instanceof Ut))return;const e=n.getViewModel().focusedStackFrame,i=n.getViewModel().focusedSession;if(!(!e||!i||!i.capabilities.supportsClipboardContext))try{return(await i.evaluate(t.originalExpression,e.frameId,"clipboard"))?.body.result}catch{return}}});g(class extends X{constructor(){super({id:se,category:ie,title:E(7853,"Focus on Debug Console View")})}async run(n){await(await n.get(z).openView(p))?.focus()}});export{st as $Hsc,_ as Repl};
+			`;
+      const cssFontFamily = this.replOptions.replConfiguration.fontFamily === "default" ? "var(--monaco-monospace-font)" : this.replOptions.replConfiguration.fontFamily;
+      this.container.style.setProperty(`--vscode-repl-font-family`, cssFontFamily);
+      this.container.style.setProperty(`--vscode-repl-font-size`, `${this.replOptions.replConfiguration.fontSize}px`);
+      this.container.style.setProperty(`--vscode-repl-font-size-for-twistie`, `${this.replOptions.replConfiguration.fontSizeForTwistie}px`);
+      this.container.style.setProperty(`--vscode-repl-line-height`, this.replOptions.replConfiguration.cssLineHeight);
+      this.tree?.rerender();
+      if (this.bodyContentDimension) {
+        this.layoutBodyContent(this.bodyContentDimension.height, this.bodyContentDimension.width);
+      }
+    }
+  }
+  navigateHistory(previous) {
+    const historyInput = (previous ? this.history.previous() ?? this.history.first() : this.history.next()) ?? "";
+    this.replInput.setValue(historyInput);
+    aria.status(historyInput);
+    this.replInput.setPosition({ lineNumber: 1, column: historyInput.length + 1 });
+    this.setHistoryNavigationEnablement(true);
+  }
+  async selectSession(session) {
+    const treeInput = this.tree?.getInput();
+    if (!session) {
+      const focusedSession = this.debugService.getViewModel().focusedSession;
+      if (focusedSession) {
+        session = focusedSession;
+      } else if (!treeInput || sessionsToIgnore.has(treeInput)) {
+        session = this.debugService.getModel().getSessions(true).find((s) => !sessionsToIgnore.has(s));
+      }
+    }
+    if (session) {
+      this.replElementsChangeListener?.dispose();
+      this.replElementsChangeListener = session.onDidChangeReplElements(() => {
+        this.refreshReplElements(session.getReplElements().length === 0);
+      });
+      if (this.tree && treeInput !== session) {
+        try {
+          await this.tree.setInput(session);
+        } catch (err) {
+          this.logService.error(err);
+        }
+        revealLastElement(this.tree);
+      }
+    }
+    this.replInput?.updateOptions({ readOnly: this.isReadonly });
+    this.updateInputDecoration();
+  }
+  async clearRepl() {
+    const session = this.tree?.getInput();
+    if (session) {
+      session.removeReplExpressions();
+      if (session.state === 0) {
+        sessionsToIgnore.add(session);
+        await this.selectSession();
+        this.multiSessionRepl.set(this.isMultiSessionView);
+      }
+    }
+    this.replInput.focus();
+  }
+  acceptReplInput() {
+    const session = this.tree?.getInput();
+    if (session && !this.isReadonly) {
+      session.addReplExpression(this.debugService.getViewModel().focusedStackFrame, this.replInput.getValue());
+      revealLastElement(this.tree);
+      this.history.add(this.replInput.getValue());
+      this.replInput.setValue("");
+      if (this.bodyContentDimension) {
+        this.layoutBodyContent(this.bodyContentDimension.height, this.bodyContentDimension.width);
+      }
+    }
+  }
+  sendReplInput(input) {
+    const session = this.tree?.getInput();
+    if (session && !this.isReadonly) {
+      session.addReplExpression(this.debugService.getViewModel().focusedStackFrame, input);
+      revealLastElement(this.tree);
+      this.history.add(input);
+    }
+  }
+  getVisibleContent() {
+    let text = "";
+    if (this.model && this.tree) {
+      const lineDelimiter = this.textResourcePropertiesService.getEOL(this.model.uri);
+      const traverseAndAppend = /* @__PURE__ */ __name((node) => {
+        node.children.forEach((child) => {
+          if (child.visible) {
+            text += child.element.toString().trimRight() + lineDelimiter;
+            if (!child.collapsed && child.children.length) {
+              traverseAndAppend(child);
+            }
+          }
+        });
+      }, "traverseAndAppend");
+      traverseAndAppend(this.tree.getNode());
+    }
+    return removeAnsiEscapeCodes(text);
+  }
+  layoutBodyContent(height, width) {
+    this.bodyContentDimension = new dom.Dimension(width, height);
+    const replInputHeight = Math.min(this.replInput.getContentHeight(), height);
+    if (this.tree) {
+      const lastElementVisible = this.tree.scrollTop + this.tree.renderHeight >= this.tree.scrollHeight;
+      const treeHeight = height - replInputHeight;
+      this.tree.getHTMLElement().style.height = `${treeHeight}px`;
+      this.tree.layout(treeHeight, width);
+      if (lastElementVisible) {
+        revealLastElement(this.tree);
+      }
+    }
+    this.replInputContainer.style.height = `${replInputHeight}px`;
+    this.replInput.layout({ width: width - 30, height: replInputHeight });
+  }
+  collapseAll() {
+    this.tree?.collapseAll();
+  }
+  getDebugSession() {
+    return this.tree?.getInput();
+  }
+  getReplInput() {
+    return this.replInput;
+  }
+  getReplDataSource() {
+    return this.replDataSource;
+  }
+  getFocusedElement() {
+    return this.tree?.getFocus()?.[0];
+  }
+  focusTree() {
+    this.tree?.domFocus();
+  }
+  async focus() {
+    super.focus();
+    await timeout(0);
+    this.replInput.focus();
+  }
+  createActionViewItem(action) {
+    if (action.id === selectReplCommandId) {
+      const session = (this.tree ? this.tree.getInput() : void 0) ?? this.debugService.getViewModel().focusedSession;
+      return this.instantiationService.createInstance(SelectReplActionViewItem, action, session);
+    }
+    return super.createActionViewItem(action);
+  }
+  get isMultiSessionView() {
+    return this.debugService.getModel().getSessions(true).filter((s) => s.hasSeparateRepl() && !sessionsToIgnore.has(s)).length > 1;
+  }
+  // --- Cached locals
+  get refreshScheduler() {
+    const autoExpanded = /* @__PURE__ */ new Set();
+    return new RunOnceScheduler(async () => {
+      if (!this.tree || !this.tree.getInput() || !this.isVisible()) {
+        return;
+      }
+      await this.tree.updateChildren(void 0, true, false, { diffIdentityProvider: identityProvider });
+      const session = this.tree.getInput();
+      if (session) {
+        const autoExpandElements = /* @__PURE__ */ __name(async (elements) => {
+          for (const element of elements) {
+            if (element instanceof ReplGroup) {
+              if (element.autoExpand && !autoExpanded.has(element.getId())) {
+                autoExpanded.add(element.getId());
+                await this.tree.expand(element);
+              }
+              if (!this.tree.isCollapsed(element)) {
+                await autoExpandElements(element.getChildren());
+              }
+            }
+          }
+        }, "autoExpandElements");
+        await autoExpandElements(session.getReplElements());
+      }
+      const { total, filtered } = this.getFilterStats();
+      this.filterWidget.updateBadge(total === filtered || total === 0 ? void 0 : localize("showing filtered repl lines", "Showing {0} of {1}", filtered, total));
+    }, Repl_1.REFRESH_DELAY);
+  }
+  // --- Creation
+  render() {
+    super.render();
+    this._register(registerNavigableContainer({
+      name: "repl",
+      focusNotifiers: [this, this.filterWidget],
+      focusNextWidget: /* @__PURE__ */ __name(() => {
+        const element = this.tree?.getHTMLElement();
+        if (this.filterWidget.hasFocus()) {
+          this.tree?.domFocus();
+        } else if (element && dom.isActiveElement(element)) {
+          this.focus();
+        }
+      }, "focusNextWidget"),
+      focusPreviousWidget: /* @__PURE__ */ __name(() => {
+        const element = this.tree?.getHTMLElement();
+        if (this.replInput.hasTextFocus()) {
+          this.tree?.domFocus();
+        } else if (element && dom.isActiveElement(element)) {
+          this.focusFilter();
+        }
+      }, "focusPreviousWidget")
+    }));
+  }
+  renderBody(parent) {
+    super.renderBody(parent);
+    this.container = dom.append(parent, $(".repl"));
+    this.treeContainer = dom.append(this.container, $(`.repl-tree.${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`));
+    this.createReplInput(this.container);
+    this.createReplTree();
+  }
+  createReplTree() {
+    this.replDelegate = new ReplDelegate(this.configurationService, this.replOptions);
+    const wordWrap = this.configurationService.getValue("debug").console.wordWrap;
+    this.treeContainer.classList.toggle("word-wrap", wordWrap);
+    const expressionRenderer = this.instantiationService.createInstance(DebugExpressionRenderer);
+    this.replDataSource = new ReplDataSource();
+    const tree = this.tree = this.instantiationService.createInstance(WorkbenchAsyncDataTree, "DebugRepl", this.treeContainer, this.replDelegate, [
+      this.instantiationService.createInstance(ReplVariablesRenderer, expressionRenderer),
+      this.instantiationService.createInstance(ReplOutputElementRenderer, expressionRenderer),
+      new ReplEvaluationInputsRenderer(),
+      this.instantiationService.createInstance(ReplGroupRenderer, expressionRenderer),
+      new ReplEvaluationResultsRenderer(expressionRenderer),
+      new ReplRawObjectsRenderer(expressionRenderer)
+    ], this.replDataSource, {
+      filter: this.filter,
+      accessibilityProvider: new ReplAccessibilityProvider(),
+      identityProvider,
+      userSelection: true,
+      mouseSupport: false,
+      findWidgetEnabled: true,
+      keyboardNavigationLabelProvider: { getKeyboardNavigationLabel: /* @__PURE__ */ __name((e) => e.toString(true), "getKeyboardNavigationLabel") },
+      horizontalScrolling: !wordWrap,
+      setRowLineHeight: false,
+      supportDynamicHeights: wordWrap,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles
+    });
+    this._register(tree.onDidChangeContentHeight(() => {
+      if (tree.scrollHeight !== this.previousTreeScrollHeight) {
+        const lastElementWasVisible = tree.scrollTop + tree.renderHeight >= this.previousTreeScrollHeight - 2;
+        if (lastElementWasVisible) {
+          setTimeout(() => {
+            revealLastElement(tree);
+          }, 0);
+        }
+      }
+      this.previousTreeScrollHeight = tree.scrollHeight;
+    }));
+    this._register(tree.onContextMenu((e) => this.onContextMenu(e)));
+    this._register(tree.onDidChangeFindOpenState((open) => this.findIsOpen = open));
+    let lastSelectedString;
+    this._register(tree.onMouseClick(() => {
+      if (this.findIsOpen) {
+        return;
+      }
+      const selection = dom.getWindow(this.treeContainer).getSelection();
+      if (!selection || selection.type !== "Range" || lastSelectedString === selection.toString()) {
+        this.replInput.focus();
+      }
+      lastSelectedString = selection ? selection.toString() : "";
+    }));
+    this.selectSession();
+    this.styleElement = domStylesheetsJs.createStyleSheet(this.container);
+    this.onDidStyleChange();
+  }
+  createReplInput(container) {
+    this.replInputContainer = dom.append(container, $(".repl-input-wrapper"));
+    dom.append(this.replInputContainer, $(".repl-input-chevron" + ThemeIcon.asCSSSelector(debugConsoleEvaluationPrompt)));
+    const { historyNavigationBackwardsEnablement, historyNavigationForwardsEnablement } = this._register(registerAndCreateHistoryNavigationContext(this.scopedContextKeyService, this));
+    this.setHistoryNavigationEnablement = (enabled) => {
+      historyNavigationBackwardsEnablement.set(enabled);
+      historyNavigationForwardsEnablement.set(enabled);
+    };
+    CONTEXT_IN_DEBUG_REPL.bindTo(this.scopedContextKeyService).set(true);
+    this.scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    const options = getSimpleEditorOptions(this.configurationService);
+    options.readOnly = true;
+    options.suggest = { showStatusBar: true };
+    const config = this.configurationService.getValue("debug");
+    options.acceptSuggestionOnEnter = config.console.acceptSuggestionOnEnter === "on" ? "on" : "off";
+    options.ariaLabel = this.getAriaLabel();
+    this.replInput = this.scopedInstantiationService.createInstance(CodeEditorWidget, this.replInputContainer, options, getSimpleCodeEditorWidgetOptions());
+    let lastContentHeight = -1;
+    this._register(this.replInput.onDidChangeModelContent(() => {
+      const model = this.replInput.getModel();
+      this.setHistoryNavigationEnablement(!!model && model.getValue() === "");
+      const contentHeight = this.replInput.getContentHeight();
+      if (contentHeight !== lastContentHeight) {
+        lastContentHeight = contentHeight;
+        if (this.bodyContentDimension) {
+          this.layoutBodyContent(this.bodyContentDimension.height, this.bodyContentDimension.width);
+        }
+      }
+    }));
+    this._register(this.replInput.onDidFocusEditorText(() => this.updateInputDecoration()));
+    this._register(this.replInput.onDidBlurEditorText(() => this.updateInputDecoration()));
+    this._register(dom.addStandardDisposableListener(this.replInputContainer, dom.EventType.FOCUS, () => this.replInputContainer.classList.add("synthetic-focus")));
+    this._register(dom.addStandardDisposableListener(this.replInputContainer, dom.EventType.BLUR, () => this.replInputContainer.classList.remove("synthetic-focus")));
+  }
+  getAriaLabel() {
+    let ariaLabel = localize("debugConsole", "Debug Console");
+    if (!this.configurationService.getValue(
+      "accessibility.verbosity.debug"
+      /* AccessibilityVerbositySettingId.Debug */
+    )) {
+      return ariaLabel;
+    }
+    const keybinding = this.keybindingService.lookupKeybinding(
+      "editor.action.accessibilityHelp"
+      /* AccessibilityCommandId.OpenAccessibilityHelp */
+    )?.getAriaLabel();
+    if (keybinding) {
+      ariaLabel = localize("commentLabelWithKeybinding", "{0}, use ({1}) for accessibility help", ariaLabel, keybinding);
+    } else {
+      ariaLabel = localize("commentLabelWithKeybindingNoKeybinding", "{0}, run the command Open Accessibility Help which is currently not triggerable via keybinding.", ariaLabel);
+    }
+    return ariaLabel;
+  }
+  onContextMenu(e) {
+    const actions = getFlatContextMenuActions(this.menu.getActions({ arg: e.element, shouldForwardArgs: false }));
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => e.element, "getActionsContext")
+    });
+  }
+  // --- Update
+  refreshReplElements(noDelay) {
+    if (this.tree && this.isVisible()) {
+      if (this.refreshScheduler.isScheduled()) {
+        return;
+      }
+      this.refreshScheduler.schedule(noDelay ? 0 : void 0);
+    }
+  }
+  updateInputDecoration() {
+    if (!this.replInput) {
+      return;
+    }
+    const decorations = [];
+    if (this.isReadonly && this.replInput.hasTextFocus() && !this.replInput.getValue()) {
+      const transparentForeground = resolveColorValue(editorForeground, this.themeService.getColorTheme())?.transparent(0.4);
+      decorations.push({
+        range: {
+          startLineNumber: 0,
+          endLineNumber: 0,
+          startColumn: 0,
+          endColumn: 1
+        },
+        renderOptions: {
+          after: {
+            contentText: localize("startDebugFirst", "Please start a debug session to evaluate expressions"),
+            color: transparentForeground ? transparentForeground.toString() : void 0
+          }
+        }
+      });
+    }
+    this.replInput.setDecorationsByType("repl-decoration", DECORATION_KEY, decorations);
+  }
+  saveState() {
+    const replHistory = this.history.getHistory();
+    if (replHistory.length) {
+      this.storageService.store(
+        HISTORY_STORAGE_KEY,
+        JSON.stringify(replHistory),
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        HISTORY_STORAGE_KEY,
+        1
+        /* StorageScope.WORKSPACE */
+      );
+    }
+    const filterHistory = this.filterWidget.getHistory();
+    if (filterHistory.length) {
+      this.storageService.store(
+        FILTER_HISTORY_STORAGE_KEY,
+        JSON.stringify(filterHistory),
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        FILTER_HISTORY_STORAGE_KEY,
+        1
+        /* StorageScope.WORKSPACE */
+      );
+    }
+    const filterValue = this.filterWidget.getFilterText();
+    if (filterValue) {
+      this.storageService.store(
+        FILTER_VALUE_STORAGE_KEY,
+        filterValue,
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        FILTER_VALUE_STORAGE_KEY,
+        1
+        /* StorageScope.WORKSPACE */
+      );
+    }
+    super.saveState();
+  }
+  dispose() {
+    this.replInput?.dispose();
+    this.replElementsChangeListener?.dispose();
+    this.refreshScheduler.dispose();
+    this.modelChangeListener.dispose();
+    super.dispose();
+  }
+};
+__decorate([
+  memoize
+], Repl.prototype, "refreshScheduler", null);
+Repl = Repl_1 = __decorate([
+  __param(1, IDebugService),
+  __param(2, IInstantiationService),
+  __param(3, IStorageService),
+  __param(4, IThemeService),
+  __param(5, IModelService),
+  __param(6, IContextKeyService),
+  __param(7, ICodeEditorService),
+  __param(8, IViewDescriptorService),
+  __param(9, IContextMenuService),
+  __param(10, IConfigurationService),
+  __param(11, ITextResourcePropertiesService),
+  __param(12, IEditorService),
+  __param(13, IKeybindingService),
+  __param(14, IOpenerService),
+  __param(15, IHoverService),
+  __param(16, IMenuService),
+  __param(17, ILanguageFeaturesService),
+  __param(18, ILogService)
+], Repl);
+let ReplOptions = class ReplOptions2 extends Disposable {
+  static {
+    __name(this, "ReplOptions");
+  }
+  static {
+    ReplOptions_1 = this;
+  }
+  static {
+    this.lineHeightEm = 1.4;
+  }
+  get replConfiguration() {
+    return this._replConfig;
+  }
+  constructor(viewId, backgroundColorDelegate, configurationService, themeService, viewDescriptorService) {
+    super();
+    this.backgroundColorDelegate = backgroundColorDelegate;
+    this.configurationService = configurationService;
+    this.themeService = themeService;
+    this.viewDescriptorService = viewDescriptorService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._register(this.themeService.onDidColorThemeChange((e) => this.update()));
+    this._register(this.viewDescriptorService.onDidChangeLocation((e) => {
+      if (e.views.some((v) => v.id === viewId)) {
+        this.update();
+      }
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug.console.lineHeight") || e.affectsConfiguration("debug.console.fontSize") || e.affectsConfiguration("debug.console.fontFamily")) {
+        this.update();
+      }
+    }));
+    this.update();
+  }
+  update() {
+    const debugConsole = this.configurationService.getValue("debug").console;
+    this._replConfig = {
+      fontSize: debugConsole.fontSize,
+      fontFamily: debugConsole.fontFamily,
+      lineHeight: debugConsole.lineHeight ? debugConsole.lineHeight : ReplOptions_1.lineHeightEm * debugConsole.fontSize,
+      cssLineHeight: debugConsole.lineHeight ? `${debugConsole.lineHeight}px` : `${ReplOptions_1.lineHeightEm}em`,
+      backgroundColor: this.themeService.getColorTheme().getColor(this.backgroundColorDelegate()),
+      fontSizeForTwistie: debugConsole.fontSize * ReplOptions_1.lineHeightEm / 2 - 8
+    };
+    this._onDidChange.fire();
+  }
+};
+ReplOptions = ReplOptions_1 = __decorate([
+  __param(2, IConfigurationService),
+  __param(3, IThemeService),
+  __param(4, IViewDescriptorService)
+], ReplOptions);
+class AcceptReplInputAction extends EditorAction {
+  static {
+    __name(this, "AcceptReplInputAction");
+  }
+  constructor() {
+    super({
+      id: "repl.action.acceptInput",
+      label: localize2({ key: "actions.repl.acceptInput", comment: ["Apply input from the debug console input box"] }, "Debug Console: Accept Input"),
+      precondition: CONTEXT_IN_DEBUG_REPL,
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, editor) {
+    SuggestController.get(editor)?.cancelSuggestWidget();
+    const repl = getReplView(accessor.get(IViewsService));
+    repl?.acceptReplInput();
+  }
+}
+class FilterReplAction extends ViewAction {
+  static {
+    __name(this, "FilterReplAction");
+  }
+  constructor() {
+    super({
+      viewId: REPL_VIEW_ID,
+      id: "repl.action.filter",
+      title: localize("repl.action.filter", "Debug Console: Focus Filter"),
+      precondition: CONTEXT_IN_DEBUG_REPL,
+      keybinding: [{
+        when: EditorContextKeys.textInputFocus,
+        primary: 2048 | 36,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }]
+    });
+  }
+  runInView(accessor, repl) {
+    repl.focusFilter();
+  }
+}
+class FindReplAction extends ViewAction {
+  static {
+    __name(this, "FindReplAction");
+  }
+  constructor() {
+    super({
+      viewId: REPL_VIEW_ID,
+      id: "repl.action.find",
+      title: localize("repl.action.find", "Debug Console: Focus Find"),
+      precondition: CONTEXT_IN_DEBUG_REPL,
+      keybinding: [{
+        when: ContextKeyExpr.or(CONTEXT_IN_DEBUG_REPL, ContextKeyExpr.equals("focusedView", "workbench.panel.repl.view")),
+        primary: 2048 | 512 | 36,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }],
+      icon: Codicon.search,
+      menu: [{
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", REPL_VIEW_ID),
+        order: 15
+      }, {
+        id: MenuId.DebugConsoleContext,
+        group: "z_commands",
+        order: 25
+      }]
+    });
+  }
+  runInView(accessor, view) {
+    view.openFind();
+  }
+}
+class ReplCopyAllAction extends EditorAction {
+  static {
+    __name(this, "ReplCopyAllAction");
+  }
+  constructor() {
+    super({
+      id: "repl.action.copyAll",
+      label: localize("actions.repl.copyAll", "Debug: Console Copy All"),
+      alias: "Debug Console Copy All",
+      precondition: CONTEXT_IN_DEBUG_REPL
+    });
+  }
+  run(accessor, editor) {
+    const clipboardService = accessor.get(IClipboardService);
+    const repl = getReplView(accessor.get(IViewsService));
+    if (repl) {
+      return clipboardService.writeText(repl.getVisibleContent());
+    }
+  }
+}
+registerEditorAction(AcceptReplInputAction);
+registerEditorAction(ReplCopyAllAction);
+registerAction2(FilterReplAction);
+registerAction2(FindReplAction);
+class SelectReplActionViewItem extends FocusSessionActionViewItem {
+  static {
+    __name(this, "SelectReplActionViewItem");
+  }
+  getSessions() {
+    return this.debugService.getModel().getSessions(true).filter((s) => s.hasSeparateRepl() && !sessionsToIgnore.has(s));
+  }
+  mapFocusedSessionToSelected(focusedSession) {
+    while (focusedSession.parentSession && !focusedSession.hasSeparateRepl()) {
+      focusedSession = focusedSession.parentSession;
+    }
+    return focusedSession;
+  }
+}
+function getReplView(viewsService) {
+  return viewsService.getActiveViewWithId(REPL_VIEW_ID) ?? void 0;
+}
+__name(getReplView, "getReplView");
+const selectReplCommandId = "workbench.action.debug.selectRepl";
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: selectReplCommandId,
+      viewId: REPL_VIEW_ID,
+      title: localize("selectRepl", "Select Debug Console"),
+      f1: false,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("view", REPL_VIEW_ID), CONTEXT_MULTI_SESSION_REPL),
+        order: 20
+      }
+    });
+  }
+  async runInView(accessor, view, session) {
+    const debugService = accessor.get(IDebugService);
+    if (session && session.state !== 0 && session !== debugService.getViewModel().focusedSession) {
+      session = resolveChildSession(session, debugService.getModel().getSessions());
+      await debugService.focusStackFrame(void 0, void 0, session, { explicit: true });
+    }
+    await view.selectSession(session);
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "workbench.debug.panel.action.clearReplAction",
+      viewId: REPL_VIEW_ID,
+      title: localize2("clearRepl", "Clear Console"),
+      metadata: {
+        description: localize2("clearRepl.descriotion", "Clears all program output from your debug REPL")
+      },
+      f1: true,
+      icon: debugConsoleClearAll,
+      menu: [{
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", REPL_VIEW_ID),
+        order: 30
+      }, {
+        id: MenuId.DebugConsoleContext,
+        group: "z_commands",
+        order: 20
+      }],
+      keybinding: [{
+        primary: 0,
+        mac: {
+          primary: 2048 | 41
+          /* KeyCode.KeyK */
+        },
+        // Weight is higher than work workbench contributions so the keybinding remains
+        // highest priority when chords are registered afterwards
+        weight: 200 + 1,
+        when: ContextKeyExpr.equals("focusedView", "workbench.panel.repl.view")
+      }]
+    });
+  }
+  runInView(_accessor, view) {
+    const accessibilitySignalService = _accessor.get(IAccessibilitySignalService);
+    view.clearRepl();
+    accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "debug.collapseRepl",
+      title: localize("collapse", "Collapse All"),
+      viewId: REPL_VIEW_ID,
+      menu: {
+        id: MenuId.DebugConsoleContext,
+        group: "z_commands",
+        order: 10
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.collapseAll();
+    view.focus();
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "debug.replPaste",
+      title: localize("paste", "Paste"),
+      viewId: REPL_VIEW_ID,
+      precondition: CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(
+        0
+        /* State.Inactive */
+      )),
+      menu: {
+        id: MenuId.DebugConsoleContext,
+        group: "2_cutcopypaste",
+        order: 30
+      }
+    });
+  }
+  async runInView(accessor, view) {
+    const clipboardService = accessor.get(IClipboardService);
+    const clipboardText = await clipboardService.readText();
+    if (clipboardText) {
+      const replInput = view.getReplInput();
+      replInput.setValue(replInput.getValue().concat(clipboardText));
+      view.focus();
+      const model = replInput.getModel();
+      const lineNumber = model ? model.getLineCount() : 0;
+      const column = model?.getLineMaxColumn(lineNumber);
+      if (typeof lineNumber === "number" && typeof column === "number") {
+        replInput.setPosition({ lineNumber, column });
+      }
+    }
+  }
+});
+registerAction2(class extends ViewAction {
+  constructor() {
+    super({
+      id: "workbench.debug.action.copyAll",
+      title: localize("copyAll", "Copy All"),
+      viewId: REPL_VIEW_ID,
+      menu: {
+        id: MenuId.DebugConsoleContext,
+        group: "2_cutcopypaste",
+        order: 20
+      }
+    });
+  }
+  async runInView(accessor, view) {
+    const clipboardService = accessor.get(IClipboardService);
+    await clipboardService.writeText(view.getVisibleContent());
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "debug.replCopy",
+      title: localize("copy", "Copy"),
+      menu: {
+        id: MenuId.DebugConsoleContext,
+        group: "2_cutcopypaste",
+        order: 10
+      }
+    });
+  }
+  async run(accessor, element) {
+    const clipboardService = accessor.get(IClipboardService);
+    const debugService = accessor.get(IDebugService);
+    const nativeSelection = dom.getActiveWindow().getSelection();
+    const selectedText = nativeSelection?.toString();
+    if (selectedText && selectedText.length > 0) {
+      return clipboardService.writeText(selectedText);
+    } else if (element) {
+      const retValue = await this.tryEvaluateAndCopy(debugService, element);
+      const textToCopy = retValue || removeAnsiEscapeCodes(element.toString());
+      return clipboardService.writeText(textToCopy);
+    }
+  }
+  async tryEvaluateAndCopy(debugService, element) {
+    if (!(element instanceof ReplEvaluationResult)) {
+      return;
+    }
+    const stackFrame = debugService.getViewModel().focusedStackFrame;
+    const session = debugService.getViewModel().focusedSession;
+    if (!stackFrame || !session || !session.capabilities.supportsClipboardContext) {
+      return;
+    }
+    try {
+      const evaluation = await session.evaluate(element.originalExpression, stackFrame.frameId, "clipboard");
+      return evaluation?.body.result;
+    } catch (e) {
+      return;
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: FOCUS_REPL_ID,
+      category: DEBUG_COMMAND_CATEGORY,
+      title: localize2({ comment: ["Debug is a noun in this context, not a verb."], key: "debugFocusConsole" }, "Focus on Debug Console View")
+    });
+  }
+  async run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const repl = await viewsService.openView(REPL_VIEW_ID);
+    await repl?.focus();
+  }
+});
+export {
+  Repl,
+  getReplView
+};
+//# sourceMappingURL=repl.js.map

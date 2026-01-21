@@ -1,1 +1,99 @@
-import{URI as $}from"../../../../base/common/uri.js";import{localize as p,localize2 as g}from"../../../../nls.js";import{$nL as d,$pL as b,$sL as k,$tL as E}from"../../../../platform/actions/common/actions.js";import{$uo as h}from"../../../../platform/commands/common/commands.js";import{$VH as C}from"../../../../platform/quickinput/common/quickInput.js";import{$im as s}from"../../../../platform/registry/common/platform.js";import{$my as I}from"../../../../platform/url/common/url.js";import{Extensions as R,$XN as c}from"../../../common/contributions.js";import{$czc as n}from"./externalUriResolver.js";import{$b7b as e}from"./trustedDomains.js";import{$dzc as m}from"./trustedDomainsFileSystemProvider.js";import{$ezc as S}from"./trustedDomainsValidator.js";import{$so as v}from"../../../../platform/action/common/actionCommonCategories.js";import{$km as y}from"../../../../platform/configuration/common/configurationRegistry.js";import{$3N as z}from"../../../common/configuration.js";import{$f7b as L,$g7b as T}from"./trustedDomainService.js";import{$TC as x}from"../../../../platform/instantiation/common/extensions.js";import{$gp as D}from"../../../../platform/storage/common/storage.js";class r extends k{static{this.STORAGE_KEY="workbench.action.url.openUrl.lastInput"}constructor(){super({id:"workbench.action.url.openUrl",title:g(14331,"Open URL"),category:v.Developer,f1:!0})}async run(t){const a=t.get(C),f=t.get(I),i=t.get(D),l=i.get(r.STORAGE_KEY,1,"");return a.input({prompt:p(14329,null),value:l}).then(o=>{if(o){const u=$.parse(o);f.open(u,{originalUrl:o}),i.store(r.STORAGE_KEY,o,1,1)}})}}E(r);h.registerCommand(e);b.appendMenuItem(d.CommandPalette,{command:{id:e.id,title:e.description.description}});s.as(R.Workbench).registerWorkbenchContribution(S,3);c(m.ID,m,2);c(n.ID,n,2);const U=s.as(y.Configuration);U.registerConfiguration({...z,properties:{"workbench.trustedDomains.promptInTrustedWorkspace":{scope:1,type:"boolean",default:!1,description:p(14330,null)}}});x(L,T,1);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { MenuId, MenuRegistry, Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IURLService } from "../../../../platform/url/common/url.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { ExternalUriResolverContribution } from "./externalUriResolver.js";
+import { manageTrustedDomainSettingsCommand } from "./trustedDomains.js";
+import { TrustedDomainsFileSystemProvider } from "./trustedDomainsFileSystemProvider.js";
+import { OpenerValidatorContributions } from "./trustedDomainsValidator.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { ITrustedDomainService, TrustedDomainService } from "./trustedDomainService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+class OpenUrlAction extends Action2 {
+  static {
+    __name(this, "OpenUrlAction");
+  }
+  static {
+    this.STORAGE_KEY = "workbench.action.url.openUrl.lastInput";
+  }
+  constructor() {
+    super({
+      id: "workbench.action.url.openUrl",
+      title: localize2("openUrl", "Open URL"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const quickInputService = accessor.get(IQuickInputService);
+    const urlService = accessor.get(IURLService);
+    const storageService = accessor.get(IStorageService);
+    const value = storageService.get(OpenUrlAction.STORAGE_KEY, 1, "");
+    return quickInputService.input({ prompt: localize("urlToOpen", "URL to open"), value }).then((input) => {
+      if (input) {
+        const uri = URI.parse(input);
+        urlService.open(uri, { originalUrl: input });
+        storageService.store(
+          OpenUrlAction.STORAGE_KEY,
+          input,
+          1,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }
+    });
+  }
+}
+registerAction2(OpenUrlAction);
+CommandsRegistry.registerCommand(manageTrustedDomainSettingsCommand);
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: manageTrustedDomainSettingsCommand.id,
+    title: manageTrustedDomainSettingsCommand.description.description
+  }
+});
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  OpenerValidatorContributions,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerWorkbenchContribution2(
+  TrustedDomainsFileSystemProvider.ID,
+  TrustedDomainsFileSystemProvider,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ExternalUriResolverContribution.ID,
+  ExternalUriResolverContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.trustedDomains.promptInTrustedWorkspace": {
+      scope: 1,
+      type: "boolean",
+      default: false,
+      description: localize("workbench.trustedDomains.promptInTrustedWorkspace", "When enabled, trusted domain prompts will appear when opening links in trusted workspaces.")
+    }
+  }
+});
+registerSingleton(
+  ITrustedDomainService,
+  TrustedDomainService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=url.contribution.js.map

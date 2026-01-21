@@ -1,1 +1,52 @@
-import{$D8 as l}from"../../../base/browser/dom.js";import{$Pn as r}from"../../../base/common/date.js";import{localize as s}from"../../../nls.js";import{$tib as c,$Aib as d,$Dib as m,$Bib as b}from"../../theme/browser/defaultStyles.js";const u=["workbench.action.quit","workbench.action.reloadWindow","copy","cut","editor.action.selectAll","editor.action.clipboardCopyAction","editor.action.clipboardCutAction","editor.action.clipboardPasteAction"];function y(o,t,i,e=u){return{keyEventProcessor:n=>{const a=t.softDispatch(n,i.activeContainer);a.kind===2&&a.commandId&&(e.includes(a.commandId)||l.stop(n,!0))},buttonStyles:c,checkboxStyles:d,inputBoxStyles:m,dialogStyles:b,...o}}function k(o){const t=n=>s(1876,null,o.version||"Unknown",o.commit||"Unknown",o.date?`${o.date}${n?" ("+r(new Date(o.date),!0)+")":""}`:"Unknown",navigator.userAgent),i=t(!0),e=t(!1);return{title:o.nameLong,details:i,detailsToCopy:e}}export{y as $v$b,k as $w$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EventHelper } from "../../../base/browser/dom.js";
+import { fromNow } from "../../../base/common/date.js";
+import { localize } from "../../../nls.js";
+import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles, defaultDialogStyles } from "../../theme/browser/defaultStyles.js";
+const defaultDialogAllowableCommands = [
+  "workbench.action.quit",
+  "workbench.action.reloadWindow",
+  "copy",
+  "cut",
+  "editor.action.selectAll",
+  "editor.action.clipboardCopyAction",
+  "editor.action.clipboardCutAction",
+  "editor.action.clipboardPasteAction"
+];
+function createWorkbenchDialogOptions(options, keybindingService, layoutService, allowableCommands = defaultDialogAllowableCommands) {
+  return {
+    keyEventProcessor: /* @__PURE__ */ __name((event) => {
+      const resolved = keybindingService.softDispatch(event, layoutService.activeContainer);
+      if (resolved.kind === 2 && resolved.commandId) {
+        if (!allowableCommands.includes(resolved.commandId)) {
+          EventHelper.stop(event, true);
+        }
+      }
+    }, "keyEventProcessor"),
+    buttonStyles: defaultButtonStyles,
+    checkboxStyles: defaultCheckboxStyles,
+    inputBoxStyles: defaultInputBoxStyles,
+    dialogStyles: defaultDialogStyles,
+    ...options
+  };
+}
+__name(createWorkbenchDialogOptions, "createWorkbenchDialogOptions");
+function createBrowserAboutDialogDetails(productService) {
+  const detailString = /* @__PURE__ */ __name((useAgo) => {
+    return localize("aboutDetail", "Version: {0}\nCommit: {1}\nDate: {2}\nBrowser: {3}", productService.version || "Unknown", productService.commit || "Unknown", productService.date ? `${productService.date}${useAgo ? " (" + fromNow(new Date(productService.date), true) + ")" : ""}` : "Unknown", navigator.userAgent);
+  }, "detailString");
+  const details = detailString(true);
+  const detailsToCopy = detailString(false);
+  return {
+    title: productService.nameLong,
+    details,
+    detailsToCopy
+  };
+}
+__name(createBrowserAboutDialogDetails, "createBrowserAboutDialogDetails");
+export {
+  createBrowserAboutDialogDetails,
+  createWorkbenchDialogOptions
+};
+//# sourceMappingURL=dialog.js.map

@@ -1,1 +1,821 @@
-import{$ti as N,$Vh as X,$3h as G,$9h as A}from"../../../base/common/async.js";import{CancellationToken as _,$If as Q}from"../../../base/common/cancellation.js";import{$sb as E}from"../../../base/common/errors.js";import{$Ed as F,$Md as V,$Dd as K,$Cd as j}from"../../../base/common/lifecycle.js";import{$9C as B,$mD as Z,$lD as Y,$fD as tt,$iD as J,$kD as et}from"../../../base/common/oauth.js";import{$Z_ as I}from"../../../base/common/sseParser.js";import{URI as M}from"../../../base/common/uri.js";import{$bab as P,$5_ as it,vObj as b,$7_ as R,$__ as v,$4_ as D}from"../../../base/common/validation.js";import{$Fz as st}from"../../../platform/extensions/common/extensions.js";import{$Mj as rt}from"../../../platform/instantiation/common/instantiation.js";import{$Bo as L,$xo as at,LogLevel as n}from"../../../platform/log/common/log.js";import q from"../../../platform/product/common/product.js";import{$VS as nt,McpServerLaunch as ot,$5S as x}from"../../contrib/mcp/common/mcpTypes.js";import{MCP as ct}from"../../contrib/mcp/common/modelContextProtocol.js";import{$8R as ht,$7R as dt}from"../../services/extensions/common/extensions.js";import{$b1 as ut}from"./extHost.protocol.js";import{$o4 as ft}from"./extHostInitDataService.js";import{$b4 as lt}from"./extHostRpcService.js";import*as T from"./extHostTypeConverters.js";import{McpToolAvailability as gt}from"./extHostTypes.js";import{$eXc as pt}from"./extHostVariableResolverService.js";import{$kWc as mt}from"./extHostWorkspace.js";var H=function(o,e,i,r){var s=arguments.length,t=s<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,i):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,e,i,r);else for(var c=o.length-1;c>=0;c--)(a=o[c])&&(t=(s<3?a(t):s>3?a(e,i,t):a(e,i))||t);return s>3&&t&&Object.defineProperty(e,i,t),t},S=function(o,e){return function(i,r){e(i,r,o)}};const Jt=rt("IExtHostMpcService"),$t=b({label:D(),version:v(D()),metadata:v(b({capabilities:v(R()),serverInfo:v(R()),tools:v(P(b({availability:it(),definition:R()})))})),authentication:v(b({providerId:D(),scopes:P(D())}))});let U=class extends F{constructor(e,i,r,s,t){super(),this.h=i,this.j=r,this.n=s,this.q=t,this.c=new Set,this.f=this.D(new V),this.g=new Map,this.b=e.getProxy(ut.MainThreadMcp)}$startMcp(e,i){this.r(e,ot.fromSerialized(i.launch),i.defaultCwd&&M.revive(i.defaultCwd),i.errorOnUserInteraction)}r(e,i,r,s){if(i.type===2){this.f.set(e,new St(e,i,this.b,this.h,s));return}throw new Error("not implemented")}async $substituteVariables(e,i){const r=M.revive(e),s=r&&await this.n.resolveWorkspaceFolder(r);return(await this.q.getResolver()).resolveAsync(s&&{uri:s.uri,name:s.name,index:s.index},i)}$stopMcp(e){this.f.get(e)?.close().then(()=>this.u(e))}u(e){this.f.deleteAndDispose(e)}$sendMessage(e,i){this.f.get(e)?.send(i)}async $waitForInitialCollectionProviders(){await Promise.all(this.c)}async $resolveMcpLaunch(e,i){const r=this.g.get(e);if(!r)return;const s=r.servers.find(a=>a.label===i);if(!s)return;if(!r.provider.resolveMcpServerDefinition)return T.McpServerDefinition.from(s);const t=await r.provider.resolveMcpServerDefinition(s,_.None);return t?T.McpServerDefinition.from(t):void 0}registerMcpConfigurationProvider(e,i,r){const s=new K,t=e.contributes?.mcpServerDefinitionProviders?.find(p=>p.id===i);if(!t)throw new Error(`MCP configuration providers must be registered in the contributes.mcpServerDefinitionProviders array within your package.json, but "${i}" was not`);const a={id:nt(e.identifier,i),isTrustedByDefault:!0,label:t?.label??e.displayName??e.name,scope:1,canResolveLaunch:typeof r.resolveMcpServerDefinition=="function",extensionId:e.identifier.value,configTarget:this.j.remote.isRemote?4:2},c=async()=>{const p=await r.provideMcpServerDefinitions(_.None);this.g.set(a.id,{servers:p??[],provider:r});const h=[];for(const d of p??[]){let l=st.toKey(e.identifier)+"/"+d.label;if(h.some(f=>f.id===l)){let f=2;for(;h.some(u=>u.id===l+f);)f++;l=l+f}$t.validateOrThrow(d),d.authentication&&ht(e,"mcpToolDefinitions");let w;const m=d;dt(e,"mcpToolDefinitions")&&m.metadata&&(w={capabilities:m.metadata.capabilities,instructions:m.metadata.instructions,serverInfo:m.metadata.serverInfo,tools:m.metadata.tools?.map(f=>({availability:f.availability===gt.Dynamic?1:0,definition:f.definition}))}),h.push({id:l,label:d.label,cacheNonce:d.version||"$$NONE",staticMetadata:w,launch:T.McpServerDefinition.from(d)})}this.b.$upsertMcpCollection(a,h)};s.add(j(()=>{this.g.delete(a.id),this.b.$deleteMcpCollection(a.id)})),r.onDidChangeMcpServerDefinitions&&s.add(r.onDidChangeMcpServerDefinitions(c)),r.onDidChangeServerDefinitions&&s.add(r.onDidChangeServerDefinitions(c)),r.onDidChange&&s.add(r.onDidChange(c));const g=new Promise(p=>{setTimeout(()=>c().finally(()=>{this.c.delete(g),p()}),0)});return this.c.add(g),s}};U=H([S(0,lt),S(1,at),S(2,ft),S(3,mt),S(4,pt)],U);var k;(function(o){o[o.Unknown=0]="Unknown",o[o.Http=1]="Http",o[o.SSE=2]="SSE"})(k||(k={}));const wt=5,vt=[301,302,303,307,308];class St extends F{constructor(e,i,r,s,t){super(),this.q=e,this.r=i,this.u=r,this.w=s,this.y=t,this.b=new G,this.c=new N,this.f={value:0},this.g=new Q,this.h=new AbortController,this.n=!1,this.D(j(()=>{this.h.abort(),this.g.dispose(!0)})),this.u.$onDidChangeState(this.q,{state:2})}async send(e){try{this.f.value===0?await this.b.queue(()=>this.C(e)):await this.C(e)}catch(i){const r=`Error sending message to ${this.r.uri}: ${String(i)}`;this.u.$onDidChangeState(this.q,{state:3,message:r})}}async close(){if(this.f.value===1&&this.f.sessionId&&!this.n){this.n=!0;try{await this.z(this.f.sessionId)}catch{}}this.u.$onDidChangeState(this.q,{state:0})}async z(e){const i={...Object.fromEntries(this.r.headers),"Mcp-Session-Id":e};try{await this.N(i,{errorOnUserInteraction:!0})}catch{this.O(n.Debug,"Skipping session close: authentication no longer available");return}await this.R(this.r.uri.toString(!0),{method:"DELETE",headers:i})}C(e){return this.f.value===2?this.L(this.f.endpoint,e):this.F(e,this.f.value===1?this.f.sessionId:void 0)}async F(e,i){const r=new TextEncoder().encode(e),s={...Object.fromEntries(this.r.headers),"Content-Type":"application/json","Content-Length":String(r.length),Accept:"text/event-stream, application/json"};i&&(s["Mcp-Session-Id"]=i),await this.N(s);const t=await this.Q(this.r.uri.toString(!0),{method:"POST",headers:s,body:r},s),a=this.f.value===0,c=t.headers.get("Mcp-Session-Id");if(c&&(this.f={value:1,sessionId:c}),this.f.value===0&&t.status>=400&&t.status<500&&!W(t.status)){this.O(n.Info,`${t.status} status sending message to ${this.r.uri}, will attempt to fall back to legacy SSE`),this.G(e);return}if(t.status>=300){const g=this.f.value===1&&!!this.f.sessionId&&(t.status===400||t.status===404);this.u.$onDidChangeState(this.q,{state:3,message:`${t.status} status sending message to ${this.r.uri}: ${await this.P(t)}`+(g?"; will retry with new session ID":""),shouldRetry:g});return}this.f.value===0&&(this.f={value:1,sessionId:void 0}),a&&this.I(),await this.H(t,e)}async G(e){const i=await this.J();i&&(this.f={value:2,endpoint:i},await this.L(i,e))}async H(e,i){if(e.status===202)return;const r=e.headers.get("Content-Type")?.toLowerCase()||"";if(r.startsWith("text/event-stream")){const s=new I(t=>{if(t.type==="message")this.u.$onDidReceiveMessage(this.q,t.data);else if(t.type==="endpoint")throw this.O(n.Warning,`Received SSE endpoint from a POST to ${this.r.uri}, will fall back to legacy SSE`),this.G(i),new E});try{await this.M(s,e)}catch(t){this.O(n.Warning,`Error reading SSE stream: ${String(t)}`)}}else if(r.startsWith("application/json"))this.u.$onDidReceiveMessage(this.q,await e.text());else{const s=await e.text();yt(s)?this.u.$onDidReceiveMessage(this.q,s):this.O(n.Warning,`Unexpected ${e.status} response for request: ${s}`)}}async I(){let e,i;for(let r=0;!this.B.isDisposed;r++){i!==void 0?(await A(Math.max(0,i-Date.now()),this.g.token),i=void 0):await A(Math.min(r*1e3,3e4),this.g.token);let s;try{const a={...Object.fromEntries(this.r.headers),Accept:"text/event-stream"};await this.N(a),this.f.value===1&&this.f.sessionId!==void 0&&(a["Mcp-Session-Id"]=this.f.sessionId),e&&(a["Last-Event-ID"]=e),s=await this.Q(this.r.uri.toString(!0),{method:"GET",headers:a},a)}catch{this.O(n.Info,`Error connecting to ${this.r.uri} for async notifications, will retry`);continue}if(s.status>=400){this.O(n.Debug,`${s.status} status connecting to ${this.r.uri} for async notifications; they will be disabled: ${await this.P(s)}`);return}s.headers.get("content-type")?.toLowerCase().includes("text/event-stream")&&(r=0);const t=new I(a=>{a.retry&&(i=Date.now()+a.retry),a.type==="message"&&a.data&&this.u.$onDidReceiveMessage(this.q,a.data),a.id&&(e=a.id)});try{await this.M(t,s)}catch(a){this.O(n.Info,`Error reading from async stream, we will reconnect: ${a}`)}}}async J(){const e=new N,i={...Object.fromEntries(this.r.headers),Accept:"text/event-stream"};await this.N(i);let r;try{if(r=await this.Q(this.r.uri.toString(!0),{method:"GET",headers:i},i),r.status>=300){this.u.$onDidChangeState(this.q,{state:3,message:`${r.status} status connecting to ${this.r.uri} as SSE: ${await this.P(r)}`});return}}catch(t){this.u.$onDidChangeState(this.q,{state:3,message:`Error connecting to ${this.r.uri} as SSE: ${t}`});return}const s=new I(t=>{t.type==="message"?this.u.$onDidReceiveMessage(this.q,t.data):t.type==="endpoint"&&e.complete(new URL(t.data,this.r.uri.toString(!0)).toString())});return this.D(j(()=>e.cancel())),this.M(s,r).catch(t=>{this.u.$onDidChangeState(this.q,{state:3,message:`Error reading SSE stream: ${String(t)}`})}),e.p}async L(e,i){const r=new TextEncoder().encode(i),s={...Object.fromEntries(this.r.headers),"Content-Type":"application/json","Content-Length":String(r.length)};await this.N(s);const t=await this.R(e,{method:"POST",headers:s,body:r});t.status>=300&&this.O(n.Warning,`${t.status} status sending message to ${this.c}: ${await this.P(t)}`)}async M(e,i){if(!i.body)return;const r=i.body.getReader();let s;do{try{s=await X(r.read(),this.g.token)}catch(t){if(r.cancel(),this.B.isDisposed)return;throw t}s.value&&e.feed(s.value)}while(!s.done)}async N(e,i){const r=i?.errorOnUserInteraction??this.y;if(this.j)try{const s={authorizationServer:this.j.authorizationServer.toJSON(),authorizationServerMetadata:this.j.serverMetadata,resourceMetadata:this.j.resourceMetadata,scopes:this.j.scopes},t=await this.u.$getTokenFromServerMetadata(this.q,s,{errorOnUserInteraction:r,forceNewRegistration:i?.forceNewRegistration});t&&(e.Authorization=`Bearer ${t}`)}catch(s){if(x.is(s))throw this.u.$onDidChangeState(this.q,{state:0,reason:"needs-user-interaction"}),new E;this.O(n.Warning,`Error getting token from server metadata: ${String(s)}`)}if(this.r.authentication)try{this.O(n.Debug,`Using provided authentication config: providerId=${this.r.authentication.providerId}, scopes=${this.r.authentication.scopes.join(", ")}`);const s=await this.u.$getTokenForProviderId(this.q,this.r.authentication.providerId,this.r.authentication.scopes,{errorOnUserInteraction:r,forceNewRegistration:i?.forceNewRegistration});s&&(e.Authorization=`Bearer ${s}`,this.O(n.Info,"Successfully obtained token from provided authentication config"))}catch(s){if(x.is(s))throw this.u.$onDidChangeState(this.q,{state:0,reason:"needs-user-interaction"}),new E;this.O(n.Warning,`Error getting token from provided authentication config: ${String(s)}`)}return e}O(e,i){this.B.isDisposed||this.u.$onDidPublishLog(this.q,e,i)}async P(e){try{return await e.text()}catch{return e.statusText}}async Q(e,i,r){const s=()=>this.R(e,i);let t=await s();if(W(t.status)&&(this.j?this.j.update(t.headers)&&(await this.N(r),r.Authorization&&(i.headers=r,t=await s())):(this.j=await bt(e,t.headers,{sameOriginHeaders:{...Object.fromEntries(this.r.headers),"MCP-Protocol-Version":ct.LATEST_PROTOCOL_VERSION},fetch:(a,c)=>this.R(a,c),log:(a,c)=>this.O(a,c)}),this.u.$logMcpAuthSetup(this.j.telemetry),await this.N(r),r.Authorization&&(i.headers=r,t=await s()))),r.Authorization&&W(t.status)){const a=await this.P(t);this.O(n.Info,`Received ${t.status} status with Authorization header, retrying with new auth registration. Error details: ${a||"no additional details"}`),await this.N(r,{forceNewRegistration:!0}),t=await s()}return t}async R(e,i){if(i.headers["user-agent"]=`${q.nameLong}/${q.version}`,L(this.w.getLevel(),n.Trace)){const t={...i,headers:{...i.headers}};t.body&&(t.body=new TextDecoder().decode(t.body)),t.headers?.Authorization&&(t.headers.Authorization="***"),this.O(n.Trace,`Fetching ${e} with options: ${JSON.stringify(t)}`)}let r=e,s;for(let t=0;t<wt&&(s=await this.S(r,{...i,signal:this.h.signal,redirect:"manual"}),!!vt.includes(s.status));t++){const a=s.headers.get("location");if(!a)break;const c=new URL(a,r).toString();this.O(n.Trace,`Redirect (${s.status}) from ${r} to ${c}`),r=c,(s.status===303||(s.status===301||s.status===302)&&i.method==="POST")&&(i.method="GET",delete i.body)}if(L(this.w.getLevel(),n.Trace)){const t={};s.headers.forEach((a,c)=>{t[c]=a}),this.O(n.Trace,`Fetched ${r}: ${JSON.stringify({status:s.status,headers:t})}`)}return s}S(e,i){return fetch(e,i)}}function yt(o){try{return JSON.parse(o),!0}catch{return!1}}function W(o){return o===401||o===403}class z{constructor(e,i,r,s,t,a){this.authorizationServer=e,this.serverMetadata=i,this.resourceMetadata=r,this.telemetry=t,this.b=a,this.a=s}get scopes(){return this.a}update(e){const i=this.c(e);return et(i,this.a)?!1:(this.b(n.Info,`Scopes changed from ${JSON.stringify(this.a)} to ${JSON.stringify(i)}, updating`),this.a=i,!0)}c(e){const i=e.get("WWW-Authenticate");if(!i)return;const r=J(i);for(const s of r)if(s.scheme==="Bearer"&&s.params.scope){const t=s.params.scope.split(B).filter(a=>a.trim().length);if(t.length)return this.b(n.Info,`Found scope challenge in WWW-Authenticate header: ${s.params.scope}`),t}}}async function bt(o,e,i){const{sameOriginHeaders:r,fetch:s,log:t}=i;let a="none",c;const{resourceMetadataChallenge:g,scopesChallenge:p}=Dt(e.get("WWW-Authenticate")??void 0,t);let h,d,l=p;try{const{metadata:u,discoveryUrl:y,errors:O}=await Y(o,g,{sameOriginHeaders:r,fetch:($,C)=>s($,C)});for(const $ of O)t(n.Warning,`Error fetching resource metadata: ${$}`);t(n.Info,`Discovered resource metadata at ${y}`),a=g?"header":"wellKnown",h=u.authorization_servers?.[0],h?(t(n.Info,`Using auth server metadata url: ${h}`),c="resourceMetadata"):t(n.Warning,`No authorization_servers found in resource metadata ${y} - Is this resource metadata configured correctly?`),l??=u.scopes_supported,d=u}catch(u){t(n.Warning,`Could not fetch resource metadata: ${String(u)}`)}const w=new URL(o).origin;let m={};h||(h=w,r&&(m=r));try{t(n.Debug,`Fetching auth server metadata for: ${h} ...`);const{metadata:u,discoveryUrl:y,errors:O}=await Z(h,{additionalHeaders:m,fetch:($,C)=>s($,C)});for(const $ of O)t(n.Warning,`Error fetching authorization server metadata: ${$}`);return t(n.Info,`Discovered authorization server metadata at ${y}`),c??="wellKnown",new z(M.parse(h),u,d,l,{resourceMetadataSource:a,serverMetadataSource:c},t)}catch(u){t(n.Warning,`Error populating auth server metadata for ${h}: ${String(u)}`)}const f=tt(new URL(w));return t(n.Info,"Using default auth metadata"),new z(M.parse(w),f,d,l,{resourceMetadataSource:a,serverMetadataSource:"default"},t)}function Dt(o,e){if(!o)return{};let i,r;const s=J(o);for(const t of s)if(t.scheme==="Bearer"){if(!i&&t.params.resource_metadata&&(i=t.params.resource_metadata,e(n.Debug,`Found resource_metadata challenge in WWW-Authenticate header: ${i}`)),!r&&t.params.scope){const a=t.params.scope.split(B).filter(c=>c.trim().length);a.length&&(e(n.Debug,`Found scope challenge in WWW-Authenticate header: ${t.params.scope}`),r=a)}if(i&&r)break}return{resourceMetadataChallenge:i,scopesChallenge:r}}export{Jt as $PXc,U as $QXc,St as $RXc,bt as $SXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DeferredPromise, raceCancellationError, Sequencer, timeout } from "../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { Disposable, DisposableMap, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { AUTH_SCOPE_SEPARATOR, fetchAuthorizationServerMetadata, fetchResourceMetadata, getDefaultMetadataForUrl, parseWWWAuthenticateHeader, scopesMatch } from "../../../base/common/oauth.js";
+import { SSEParser } from "../../../base/common/sseParser.js";
+import { URI } from "../../../base/common/uri.js";
+import { vArray, vNumber, vObj, vObjAny, vOptionalProp, vString } from "../../../base/common/validation.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { canLog, ILogService, LogLevel } from "../../../platform/log/common/log.js";
+import product from "../../../platform/product/common/product.js";
+import { extensionPrefixedIdentifier, McpServerLaunch, UserInteractionRequiredError } from "../../contrib/mcp/common/mcpTypes.js";
+import { MCP } from "../../contrib/mcp/common/modelContextProtocol.js";
+import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { MainContext } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import * as Convert from "./extHostTypeConverters.js";
+import { McpToolAvailability } from "./extHostTypes.js";
+import { IExtHostVariableResolverProvider } from "./extHostVariableResolverService.js";
+import { IExtHostWorkspace } from "./extHostWorkspace.js";
+const IExtHostMpcService = createDecorator("IExtHostMpcService");
+const serverDataValidation = vObj({
+  label: vString(),
+  version: vOptionalProp(vString()),
+  metadata: vOptionalProp(vObj({
+    capabilities: vOptionalProp(vObjAny()),
+    serverInfo: vOptionalProp(vObjAny()),
+    tools: vOptionalProp(vArray(vObj({
+      availability: vNumber(),
+      definition: vObjAny()
+    })))
+  })),
+  authentication: vOptionalProp(vObj({
+    providerId: vString(),
+    scopes: vArray(vString())
+  }))
+});
+let ExtHostMcpService = class ExtHostMcpService2 extends Disposable {
+  static {
+    __name(this, "ExtHostMcpService");
+  }
+  constructor(extHostRpc, _logService, _extHostInitData, _workspaceService, _variableResolver) {
+    super();
+    this._logService = _logService;
+    this._extHostInitData = _extHostInitData;
+    this._workspaceService = _workspaceService;
+    this._variableResolver = _variableResolver;
+    this._initialProviderPromises = /* @__PURE__ */ new Set();
+    this._sseEventSources = this._register(new DisposableMap());
+    this._unresolvedMcpServers = /* @__PURE__ */ new Map();
+    this._proxy = extHostRpc.getProxy(MainContext.MainThreadMcp);
+  }
+  $startMcp(id, opts) {
+    this._startMcp(id, McpServerLaunch.fromSerialized(opts.launch), opts.defaultCwd && URI.revive(opts.defaultCwd), opts.errorOnUserInteraction);
+  }
+  _startMcp(id, launch, _defaultCwd, errorOnUserInteraction) {
+    if (launch.type === 2) {
+      this._sseEventSources.set(id, new McpHTTPHandle(id, launch, this._proxy, this._logService, errorOnUserInteraction));
+      return;
+    }
+    throw new Error("not implemented");
+  }
+  async $substituteVariables(_workspaceFolder, value) {
+    const folderURI = URI.revive(_workspaceFolder);
+    const folder = folderURI && await this._workspaceService.resolveWorkspaceFolder(folderURI);
+    const variableResolver = await this._variableResolver.getResolver();
+    return variableResolver.resolveAsync(folder && {
+      uri: folder.uri,
+      name: folder.name,
+      index: folder.index
+    }, value);
+  }
+  $stopMcp(id) {
+    this._sseEventSources.get(id)?.close().then(() => this._didClose(id));
+  }
+  _didClose(id) {
+    this._sseEventSources.deleteAndDispose(id);
+  }
+  $sendMessage(id, message) {
+    this._sseEventSources.get(id)?.send(message);
+  }
+  async $waitForInitialCollectionProviders() {
+    await Promise.all(this._initialProviderPromises);
+  }
+  async $resolveMcpLaunch(collectionId, label) {
+    const rec = this._unresolvedMcpServers.get(collectionId);
+    if (!rec) {
+      return;
+    }
+    const server = rec.servers.find((s) => s.label === label);
+    if (!server) {
+      return;
+    }
+    if (!rec.provider.resolveMcpServerDefinition) {
+      return Convert.McpServerDefinition.from(server);
+    }
+    const resolved = await rec.provider.resolveMcpServerDefinition(server, CancellationToken.None);
+    return resolved ? Convert.McpServerDefinition.from(resolved) : void 0;
+  }
+  /** {@link vscode.lm.registerMcpServerDefinitionProvider} */
+  registerMcpConfigurationProvider(extension, id, provider) {
+    const store = new DisposableStore();
+    const metadata = extension.contributes?.mcpServerDefinitionProviders?.find((m) => m.id === id);
+    if (!metadata) {
+      throw new Error(`MCP configuration providers must be registered in the contributes.mcpServerDefinitionProviders array within your package.json, but "${id}" was not`);
+    }
+    const mcp = {
+      id: extensionPrefixedIdentifier(extension.identifier, id),
+      isTrustedByDefault: true,
+      label: metadata?.label ?? extension.displayName ?? extension.name,
+      scope: 1,
+      canResolveLaunch: typeof provider.resolveMcpServerDefinition === "function",
+      extensionId: extension.identifier.value,
+      configTarget: this._extHostInitData.remote.isRemote ? 4 : 2
+    };
+    const update = /* @__PURE__ */ __name(async () => {
+      const list = await provider.provideMcpServerDefinitions(CancellationToken.None);
+      this._unresolvedMcpServers.set(mcp.id, { servers: list ?? [], provider });
+      const servers = [];
+      for (const item of list ?? []) {
+        let id2 = ExtensionIdentifier.toKey(extension.identifier) + "/" + item.label;
+        if (servers.some((s) => s.id === id2)) {
+          let i = 2;
+          while (servers.some((s) => s.id === id2 + i)) {
+            i++;
+          }
+          id2 = id2 + i;
+        }
+        serverDataValidation.validateOrThrow(item);
+        if (item.authentication) {
+          checkProposedApiEnabled(extension, "mcpToolDefinitions");
+        }
+        let staticMetadata;
+        const castAs2 = item;
+        if (isProposedApiEnabled(extension, "mcpToolDefinitions") && castAs2.metadata) {
+          staticMetadata = {
+            capabilities: castAs2.metadata.capabilities,
+            instructions: castAs2.metadata.instructions,
+            serverInfo: castAs2.metadata.serverInfo,
+            tools: castAs2.metadata.tools?.map((t) => ({
+              availability: t.availability === McpToolAvailability.Dynamic ? 1 : 0,
+              definition: t.definition
+            }))
+          };
+        }
+        servers.push({
+          id: id2,
+          label: item.label,
+          cacheNonce: item.version || "$$NONE",
+          staticMetadata,
+          launch: Convert.McpServerDefinition.from(item)
+        });
+      }
+      this._proxy.$upsertMcpCollection(mcp, servers);
+    }, "update");
+    store.add(toDisposable(() => {
+      this._unresolvedMcpServers.delete(mcp.id);
+      this._proxy.$deleteMcpCollection(mcp.id);
+    }));
+    if (provider.onDidChangeMcpServerDefinitions) {
+      store.add(provider.onDidChangeMcpServerDefinitions(update));
+    }
+    if (provider.onDidChangeServerDefinitions) {
+      store.add(provider.onDidChangeServerDefinitions(update));
+    }
+    if (provider.onDidChange) {
+      store.add(provider.onDidChange(update));
+    }
+    const promise = new Promise((resolve) => {
+      setTimeout(() => update().finally(() => {
+        this._initialProviderPromises.delete(promise);
+        resolve();
+      }), 0);
+    });
+    this._initialProviderPromises.add(promise);
+    return store;
+  }
+};
+ExtHostMcpService = __decorate([
+  __param(0, IExtHostRpcService),
+  __param(1, ILogService),
+  __param(2, IExtHostInitDataService),
+  __param(3, IExtHostWorkspace),
+  __param(4, IExtHostVariableResolverProvider)
+], ExtHostMcpService);
+var HttpMode;
+(function(HttpMode2) {
+  HttpMode2[HttpMode2["Unknown"] = 0] = "Unknown";
+  HttpMode2[HttpMode2["Http"] = 1] = "Http";
+  HttpMode2[HttpMode2["SSE"] = 2] = "SSE";
+})(HttpMode || (HttpMode = {}));
+const MAX_FOLLOW_REDIRECTS = 5;
+const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308];
+class McpHTTPHandle extends Disposable {
+  static {
+    __name(this, "McpHTTPHandle");
+  }
+  constructor(_id, _launch, _proxy, _logService, _errorOnUserInteraction) {
+    super();
+    this._id = _id;
+    this._launch = _launch;
+    this._proxy = _proxy;
+    this._logService = _logService;
+    this._errorOnUserInteraction = _errorOnUserInteraction;
+    this._requestSequencer = new Sequencer();
+    this._postEndpoint = new DeferredPromise();
+    this._mode = {
+      value: 0
+      /* HttpMode.Unknown */
+    };
+    this._cts = new CancellationTokenSource();
+    this._abortCtrl = new AbortController();
+    this._didSendClose = false;
+    this._register(toDisposable(() => {
+      this._abortCtrl.abort();
+      this._cts.dispose(true);
+    }));
+    this._proxy.$onDidChangeState(this._id, {
+      state: 2
+      /* McpConnectionState.Kind.Running */
+    });
+  }
+  async send(message) {
+    try {
+      if (this._mode.value === 0) {
+        await this._requestSequencer.queue(() => this._send(message));
+      } else {
+        await this._send(message);
+      }
+    } catch (err) {
+      const msg = `Error sending message to ${this._launch.uri}: ${String(err)}`;
+      this._proxy.$onDidChangeState(this._id, { state: 3, message: msg });
+    }
+  }
+  async close() {
+    if (this._mode.value === 1 && this._mode.sessionId && !this._didSendClose) {
+      this._didSendClose = true;
+      try {
+        await this._closeSession(this._mode.sessionId);
+      } catch {
+      }
+    }
+    this._proxy.$onDidChangeState(this._id, {
+      state: 0
+      /* McpConnectionState.Kind.Stopped */
+    });
+  }
+  async _closeSession(sessionId) {
+    const headers = {
+      ...Object.fromEntries(this._launch.headers),
+      "Mcp-Session-Id": sessionId
+    };
+    try {
+      await this._addAuthHeader(headers, { errorOnUserInteraction: true });
+    } catch (e) {
+      this._log(LogLevel.Debug, `Skipping session close: authentication no longer available`);
+      return;
+    }
+    await this._fetch(this._launch.uri.toString(true), {
+      method: "DELETE",
+      headers
+    });
+  }
+  _send(message) {
+    if (this._mode.value === 2) {
+      return this._sendLegacySSE(this._mode.endpoint, message);
+    } else {
+      return this._sendStreamableHttp(message, this._mode.value === 1 ? this._mode.sessionId : void 0);
+    }
+  }
+  /**
+   * Sends a streamable-HTTP request.
+   * 1. Posts to the endpoint
+   * 2. Updates internal state as needed. Falls back to SSE if appropriate.
+   * 3. If the response body is empty, JSON, or a JSON stream, handle it appropriately.
+   */
+  async _sendStreamableHttp(message, sessionId) {
+    const asBytes = new TextEncoder().encode(message);
+    const headers = {
+      ...Object.fromEntries(this._launch.headers),
+      "Content-Type": "application/json",
+      "Content-Length": String(asBytes.length),
+      Accept: "text/event-stream, application/json"
+    };
+    if (sessionId) {
+      headers["Mcp-Session-Id"] = sessionId;
+    }
+    await this._addAuthHeader(headers);
+    const res = await this._fetchWithAuthRetry(this._launch.uri.toString(true), {
+      method: "POST",
+      headers,
+      body: asBytes
+    }, headers);
+    const wasUnknown = this._mode.value === 0;
+    const nextSessionId = res.headers.get("Mcp-Session-Id");
+    if (nextSessionId) {
+      this._mode = { value: 1, sessionId: nextSessionId };
+    }
+    if (this._mode.value === 0 && // We care about 4xx errors...
+    res.status >= 400 && res.status < 500 && !isAuthStatusCode(res.status)) {
+      this._log(LogLevel.Info, `${res.status} status sending message to ${this._launch.uri}, will attempt to fall back to legacy SSE`);
+      this._sseFallbackWithMessage(message);
+      return;
+    }
+    if (res.status >= 300) {
+      const retryWithSessionId = this._mode.value === 1 && !!this._mode.sessionId && (res.status === 400 || res.status === 404);
+      this._proxy.$onDidChangeState(this._id, {
+        state: 3,
+        message: `${res.status} status sending message to ${this._launch.uri}: ${await this._getErrText(res)}` + (retryWithSessionId ? `; will retry with new session ID` : ""),
+        shouldRetry: retryWithSessionId
+      });
+      return;
+    }
+    if (this._mode.value === 0) {
+      this._mode = { value: 1, sessionId: void 0 };
+    }
+    if (wasUnknown) {
+      this._attachStreamableBackchannel();
+    }
+    await this._handleSuccessfulStreamableHttp(res, message);
+  }
+  async _sseFallbackWithMessage(message) {
+    const endpoint = await this._attachSSE();
+    if (endpoint) {
+      this._mode = { value: 2, endpoint };
+      await this._sendLegacySSE(endpoint, message);
+    }
+  }
+  async _handleSuccessfulStreamableHttp(res, message) {
+    if (res.status === 202) {
+      return;
+    }
+    const contentType = res.headers.get("Content-Type")?.toLowerCase() || "";
+    if (contentType.startsWith("text/event-stream")) {
+      const parser = new SSEParser((event) => {
+        if (event.type === "message") {
+          this._proxy.$onDidReceiveMessage(this._id, event.data);
+        } else if (event.type === "endpoint") {
+          this._log(LogLevel.Warning, `Received SSE endpoint from a POST to ${this._launch.uri}, will fall back to legacy SSE`);
+          this._sseFallbackWithMessage(message);
+          throw new CancellationError();
+        }
+      });
+      try {
+        await this._doSSE(parser, res);
+      } catch (err) {
+        this._log(LogLevel.Warning, `Error reading SSE stream: ${String(err)}`);
+      }
+    } else if (contentType.startsWith("application/json")) {
+      this._proxy.$onDidReceiveMessage(this._id, await res.text());
+    } else {
+      const responseBody = await res.text();
+      if (isJSON(responseBody)) {
+        this._proxy.$onDidReceiveMessage(this._id, responseBody);
+      } else {
+        this._log(LogLevel.Warning, `Unexpected ${res.status} response for request: ${responseBody}`);
+      }
+    }
+  }
+  /**
+   * Attaches the SSE backchannel that streamable HTTP servers can use
+   * for async notifications. This is a "MAY" support, so if the server gives
+   * us a 4xx code, we'll stop trying to connect..
+   */
+  async _attachStreamableBackchannel() {
+    let lastEventId;
+    let canReconnectAt;
+    for (let retry = 0; !this._store.isDisposed; retry++) {
+      if (canReconnectAt !== void 0) {
+        await timeout(Math.max(0, canReconnectAt - Date.now()), this._cts.token);
+        canReconnectAt = void 0;
+      } else {
+        await timeout(Math.min(retry * 1e3, 3e4), this._cts.token);
+      }
+      let res;
+      try {
+        const headers = {
+          ...Object.fromEntries(this._launch.headers),
+          "Accept": "text/event-stream"
+        };
+        await this._addAuthHeader(headers);
+        if (this._mode.value === 1 && this._mode.sessionId !== void 0) {
+          headers["Mcp-Session-Id"] = this._mode.sessionId;
+        }
+        if (lastEventId) {
+          headers["Last-Event-ID"] = lastEventId;
+        }
+        res = await this._fetchWithAuthRetry(this._launch.uri.toString(true), {
+          method: "GET",
+          headers
+        }, headers);
+      } catch (e) {
+        this._log(LogLevel.Info, `Error connecting to ${this._launch.uri} for async notifications, will retry`);
+        continue;
+      }
+      if (res.status >= 400) {
+        this._log(LogLevel.Debug, `${res.status} status connecting to ${this._launch.uri} for async notifications; they will be disabled: ${await this._getErrText(res)}`);
+        return;
+      }
+      if (res.headers.get("content-type")?.toLowerCase().includes("text/event-stream")) {
+        retry = 0;
+      }
+      const parser = new SSEParser((event) => {
+        if (event.retry) {
+          canReconnectAt = Date.now() + event.retry;
+        }
+        if (event.type === "message" && event.data) {
+          this._proxy.$onDidReceiveMessage(this._id, event.data);
+        }
+        if (event.id) {
+          lastEventId = event.id;
+        }
+      });
+      try {
+        await this._doSSE(parser, res);
+      } catch (e) {
+        this._log(LogLevel.Info, `Error reading from async stream, we will reconnect: ${e}`);
+      }
+    }
+  }
+  /**
+   * Starts a legacy SSE attachment, where the SSE response is the session lifetime.
+   * Unlike `_attachStreamableBackchannel`, this fails the server if it disconnects.
+   */
+  async _attachSSE() {
+    const postEndpoint = new DeferredPromise();
+    const headers = {
+      ...Object.fromEntries(this._launch.headers),
+      "Accept": "text/event-stream"
+    };
+    await this._addAuthHeader(headers);
+    let res;
+    try {
+      res = await this._fetchWithAuthRetry(this._launch.uri.toString(true), {
+        method: "GET",
+        headers
+      }, headers);
+      if (res.status >= 300) {
+        this._proxy.$onDidChangeState(this._id, { state: 3, message: `${res.status} status connecting to ${this._launch.uri} as SSE: ${await this._getErrText(res)}` });
+        return;
+      }
+    } catch (e) {
+      this._proxy.$onDidChangeState(this._id, { state: 3, message: `Error connecting to ${this._launch.uri} as SSE: ${e}` });
+      return;
+    }
+    const parser = new SSEParser((event) => {
+      if (event.type === "message") {
+        this._proxy.$onDidReceiveMessage(this._id, event.data);
+      } else if (event.type === "endpoint") {
+        postEndpoint.complete(new URL(event.data, this._launch.uri.toString(true)).toString());
+      }
+    });
+    this._register(toDisposable(() => postEndpoint.cancel()));
+    this._doSSE(parser, res).catch((err) => {
+      this._proxy.$onDidChangeState(this._id, { state: 3, message: `Error reading SSE stream: ${String(err)}` });
+    });
+    return postEndpoint.p;
+  }
+  /**
+   * Sends a legacy SSE message to the server. The response is always empty and
+   * is otherwise received in {@link _attachSSE}'s loop.
+   */
+  async _sendLegacySSE(url, message) {
+    const asBytes = new TextEncoder().encode(message);
+    const headers = {
+      ...Object.fromEntries(this._launch.headers),
+      "Content-Type": "application/json",
+      "Content-Length": String(asBytes.length)
+    };
+    await this._addAuthHeader(headers);
+    const res = await this._fetch(url, {
+      method: "POST",
+      headers,
+      body: asBytes
+    });
+    if (res.status >= 300) {
+      this._log(LogLevel.Warning, `${res.status} status sending message to ${this._postEndpoint}: ${await this._getErrText(res)}`);
+    }
+  }
+  /** Generic handle to pipe a response into an SSE parser. */
+  async _doSSE(parser, res) {
+    if (!res.body) {
+      return;
+    }
+    const reader = res.body.getReader();
+    let chunk;
+    do {
+      try {
+        chunk = await raceCancellationError(reader.read(), this._cts.token);
+      } catch (err) {
+        reader.cancel();
+        if (this._store.isDisposed) {
+          return;
+        } else {
+          throw err;
+        }
+      }
+      if (chunk.value) {
+        parser.feed(chunk.value);
+      }
+    } while (!chunk.done);
+  }
+  async _addAuthHeader(headers, options) {
+    const errorOnUserInteraction = options?.errorOnUserInteraction ?? this._errorOnUserInteraction;
+    if (this._authMetadata) {
+      try {
+        const authDetails = {
+          authorizationServer: this._authMetadata.authorizationServer.toJSON(),
+          authorizationServerMetadata: this._authMetadata.serverMetadata,
+          resourceMetadata: this._authMetadata.resourceMetadata,
+          scopes: this._authMetadata.scopes
+        };
+        const token = await this._proxy.$getTokenFromServerMetadata(this._id, authDetails, {
+          errorOnUserInteraction,
+          forceNewRegistration: options?.forceNewRegistration
+        });
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      } catch (e) {
+        if (UserInteractionRequiredError.is(e)) {
+          this._proxy.$onDidChangeState(this._id, { state: 0, reason: "needs-user-interaction" });
+          throw new CancellationError();
+        }
+        this._log(LogLevel.Warning, `Error getting token from server metadata: ${String(e)}`);
+      }
+    }
+    if (this._launch.authentication) {
+      try {
+        this._log(LogLevel.Debug, `Using provided authentication config: providerId=${this._launch.authentication.providerId}, scopes=${this._launch.authentication.scopes.join(", ")}`);
+        const token = await this._proxy.$getTokenForProviderId(this._id, this._launch.authentication.providerId, this._launch.authentication.scopes, {
+          errorOnUserInteraction,
+          forceNewRegistration: options?.forceNewRegistration
+        });
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+          this._log(LogLevel.Info, "Successfully obtained token from provided authentication config");
+        }
+      } catch (e) {
+        if (UserInteractionRequiredError.is(e)) {
+          this._proxy.$onDidChangeState(this._id, { state: 0, reason: "needs-user-interaction" });
+          throw new CancellationError();
+        }
+        this._log(LogLevel.Warning, `Error getting token from provided authentication config: ${String(e)}`);
+      }
+    }
+    return headers;
+  }
+  _log(level, message) {
+    if (!this._store.isDisposed) {
+      this._proxy.$onDidPublishLog(this._id, level, message);
+    }
+  }
+  async _getErrText(res) {
+    try {
+      return await res.text();
+    } catch {
+      return res.statusText;
+    }
+  }
+  /**
+   * Helper method to perform fetch with authentication retry logic.
+   * If the initial request returns an auth error and we don't have auth metadata,
+   * it will populate the auth metadata and retry once.
+   * If we already have auth metadata, check if the scopes changed and update them.
+   */
+  async _fetchWithAuthRetry(mcpUrl, init, headers) {
+    const doFetch = /* @__PURE__ */ __name(() => this._fetch(mcpUrl, init), "doFetch");
+    let res = await doFetch();
+    if (isAuthStatusCode(res.status)) {
+      if (!this._authMetadata) {
+        this._authMetadata = await createAuthMetadata(mcpUrl, res.headers, {
+          sameOriginHeaders: {
+            ...Object.fromEntries(this._launch.headers),
+            "MCP-Protocol-Version": MCP.LATEST_PROTOCOL_VERSION
+          },
+          fetch: /* @__PURE__ */ __name((url, init2) => this._fetch(url, init2), "fetch"),
+          log: /* @__PURE__ */ __name((level, message) => this._log(level, message), "log")
+        });
+        this._proxy.$logMcpAuthSetup(this._authMetadata.telemetry);
+        await this._addAuthHeader(headers);
+        if (headers["Authorization"]) {
+          init.headers = headers;
+          res = await doFetch();
+        }
+      } else {
+        if (this._authMetadata.update(res.headers)) {
+          await this._addAuthHeader(headers);
+          if (headers["Authorization"]) {
+            init.headers = headers;
+            res = await doFetch();
+          }
+        }
+      }
+    }
+    if (headers["Authorization"] && isAuthStatusCode(res.status)) {
+      const errorText = await this._getErrText(res);
+      this._log(LogLevel.Info, `Received ${res.status} status with Authorization header, retrying with new auth registration. Error details: ${errorText || "no additional details"}`);
+      await this._addAuthHeader(headers, { forceNewRegistration: true });
+      res = await doFetch();
+    }
+    return res;
+  }
+  async _fetch(url, init) {
+    init.headers["user-agent"] = `${product.nameLong}/${product.version}`;
+    if (canLog(this._logService.getLevel(), LogLevel.Trace)) {
+      const traceObj = { ...init, headers: { ...init.headers } };
+      if (traceObj.body) {
+        traceObj.body = new TextDecoder().decode(traceObj.body);
+      }
+      if (traceObj.headers?.Authorization) {
+        traceObj.headers.Authorization = "***";
+      }
+      this._log(LogLevel.Trace, `Fetching ${url} with options: ${JSON.stringify(traceObj)}`);
+    }
+    let currentUrl = url;
+    let response;
+    for (let redirectCount = 0; redirectCount < MAX_FOLLOW_REDIRECTS; redirectCount++) {
+      response = await this._fetchInternal(currentUrl, {
+        ...init,
+        signal: this._abortCtrl.signal,
+        redirect: "manual"
+      });
+      if (!REDIRECT_STATUS_CODES.includes(response.status)) {
+        break;
+      }
+      const location = response.headers.get("location");
+      if (!location) {
+        break;
+      }
+      const nextUrl = new URL(location, currentUrl).toString();
+      this._log(LogLevel.Trace, `Redirect (${response.status}) from ${currentUrl} to ${nextUrl}`);
+      currentUrl = nextUrl;
+      if (response.status === 303 || (response.status === 301 || response.status === 302) && init.method === "POST") {
+        init.method = "GET";
+        delete init.body;
+      }
+    }
+    if (canLog(this._logService.getLevel(), LogLevel.Trace)) {
+      const headers = {};
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      this._log(LogLevel.Trace, `Fetched ${currentUrl}: ${JSON.stringify({
+        status: response.status,
+        headers
+      })}`);
+    }
+    return response;
+  }
+  _fetchInternal(url, init) {
+    return fetch(url, init);
+  }
+}
+function isJSON(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+__name(isJSON, "isJSON");
+function isAuthStatusCode(status) {
+  return status === 401 || status === 403;
+}
+__name(isAuthStatusCode, "isAuthStatusCode");
+class AuthMetadata {
+  static {
+    __name(this, "AuthMetadata");
+  }
+  constructor(authorizationServer, serverMetadata, resourceMetadata, scopes, telemetry, _log) {
+    this.authorizationServer = authorizationServer;
+    this.serverMetadata = serverMetadata;
+    this.resourceMetadata = resourceMetadata;
+    this.telemetry = telemetry;
+    this._log = _log;
+    this._scopes = scopes;
+  }
+  get scopes() {
+    return this._scopes;
+  }
+  update(responseHeaders) {
+    const scopesChallenge = this._parseScopesFromResponse(responseHeaders);
+    if (!scopesMatch(scopesChallenge, this._scopes)) {
+      this._log(LogLevel.Info, `Scopes changed from ${JSON.stringify(this._scopes)} to ${JSON.stringify(scopesChallenge)}, updating`);
+      this._scopes = scopesChallenge;
+      return true;
+    }
+    return false;
+  }
+  _parseScopesFromResponse(responseHeaders) {
+    const authHeader = responseHeaders.get("WWW-Authenticate");
+    if (!authHeader) {
+      return void 0;
+    }
+    const challenges = parseWWWAuthenticateHeader(authHeader);
+    for (const challenge of challenges) {
+      if (challenge.scheme === "Bearer" && challenge.params["scope"]) {
+        const scopes = challenge.params["scope"].split(AUTH_SCOPE_SEPARATOR).filter((s) => s.trim().length);
+        if (scopes.length) {
+          this._log(LogLevel.Info, `Found scope challenge in WWW-Authenticate header: ${challenge.params["scope"]}`);
+          return scopes;
+        }
+      }
+    }
+    return void 0;
+  }
+}
+async function createAuthMetadata(resourceUrl, initialResponseHeaders, options) {
+  const { sameOriginHeaders, fetch: fetch2, log } = options;
+  let resourceMetadataSource = "none";
+  let serverMetadataSource;
+  const { resourceMetadataChallenge, scopesChallenge: scopesChallengeFromHeader } = parseWWWAuthenticateHeaderForChallenges(initialResponseHeaders.get("WWW-Authenticate") ?? void 0, log);
+  let serverMetadataUrl;
+  let resource;
+  let scopesChallenge = scopesChallengeFromHeader;
+  try {
+    const { metadata, discoveryUrl, errors } = await fetchResourceMetadata(resourceUrl, resourceMetadataChallenge, {
+      sameOriginHeaders,
+      fetch: /* @__PURE__ */ __name((url, init) => fetch2(url, init), "fetch")
+    });
+    for (const err of errors) {
+      log(LogLevel.Warning, `Error fetching resource metadata: ${err}`);
+    }
+    log(LogLevel.Info, `Discovered resource metadata at ${discoveryUrl}`);
+    resourceMetadataSource = resourceMetadataChallenge ? "header" : "wellKnown";
+    serverMetadataUrl = metadata.authorization_servers?.[0];
+    if (!serverMetadataUrl) {
+      log(LogLevel.Warning, `No authorization_servers found in resource metadata ${discoveryUrl} - Is this resource metadata configured correctly?`);
+    } else {
+      log(LogLevel.Info, `Using auth server metadata url: ${serverMetadataUrl}`);
+      serverMetadataSource = "resourceMetadata";
+    }
+    scopesChallenge ??= metadata.scopes_supported;
+    resource = metadata;
+  } catch (e) {
+    log(LogLevel.Warning, `Could not fetch resource metadata: ${String(e)}`);
+  }
+  const baseUrl = new URL(resourceUrl).origin;
+  let additionalHeaders = {};
+  if (!serverMetadataUrl) {
+    serverMetadataUrl = baseUrl;
+    if (sameOriginHeaders) {
+      additionalHeaders = sameOriginHeaders;
+    }
+  }
+  try {
+    log(LogLevel.Debug, `Fetching auth server metadata for: ${serverMetadataUrl} ...`);
+    const { metadata, discoveryUrl, errors } = await fetchAuthorizationServerMetadata(serverMetadataUrl, {
+      additionalHeaders,
+      fetch: /* @__PURE__ */ __name((url, init) => fetch2(url, init), "fetch")
+    });
+    for (const err of errors) {
+      log(LogLevel.Warning, `Error fetching authorization server metadata: ${err}`);
+    }
+    log(LogLevel.Info, `Discovered authorization server metadata at ${discoveryUrl}`);
+    serverMetadataSource ??= "wellKnown";
+    return new AuthMetadata(URI.parse(serverMetadataUrl), metadata, resource, scopesChallenge, { resourceMetadataSource, serverMetadataSource }, log);
+  } catch (e) {
+    log(LogLevel.Warning, `Error populating auth server metadata for ${serverMetadataUrl}: ${String(e)}`);
+  }
+  const defaultMetadata = getDefaultMetadataForUrl(new URL(baseUrl));
+  log(LogLevel.Info, "Using default auth metadata");
+  return new AuthMetadata(URI.parse(baseUrl), defaultMetadata, resource, scopesChallenge, {
+    resourceMetadataSource,
+    serverMetadataSource: "default"
+    /* IAuthServerMetadataSource.Default */
+  }, log);
+}
+__name(createAuthMetadata, "createAuthMetadata");
+function parseWWWAuthenticateHeaderForChallenges(wwwAuthenticateValue, log) {
+  if (!wwwAuthenticateValue) {
+    return {};
+  }
+  let resourceMetadataChallenge;
+  let scopesChallenge;
+  const challenges = parseWWWAuthenticateHeader(wwwAuthenticateValue);
+  for (const challenge of challenges) {
+    if (challenge.scheme === "Bearer") {
+      if (!resourceMetadataChallenge && challenge.params["resource_metadata"]) {
+        resourceMetadataChallenge = challenge.params["resource_metadata"];
+        log(LogLevel.Debug, `Found resource_metadata challenge in WWW-Authenticate header: ${resourceMetadataChallenge}`);
+      }
+      if (!scopesChallenge && challenge.params["scope"]) {
+        const scopes = challenge.params["scope"].split(AUTH_SCOPE_SEPARATOR).filter((s) => s.trim().length);
+        if (scopes.length) {
+          log(LogLevel.Debug, `Found scope challenge in WWW-Authenticate header: ${challenge.params["scope"]}`);
+          scopesChallenge = scopes;
+        }
+      }
+      if (resourceMetadataChallenge && scopesChallenge) {
+        break;
+      }
+    }
+  }
+  return { resourceMetadataChallenge, scopesChallenge };
+}
+__name(parseWWWAuthenticateHeaderForChallenges, "parseWWWAuthenticateHeaderForChallenges");
+export {
+  ExtHostMcpService,
+  IExtHostMpcService,
+  McpHTTPHandle,
+  createAuthMetadata
+};
+//# sourceMappingURL=extHostMcp.js.map

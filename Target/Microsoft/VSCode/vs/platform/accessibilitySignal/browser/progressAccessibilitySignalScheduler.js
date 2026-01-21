@@ -1,1 +1,42 @@
-import{$ii as l}from"../../../base/common/async.js";import{$Ed as a}from"../../../base/common/lifecycle.js";import{$ohb as u,$jhb as _}from"./accessibilitySignalService.js";var h=function(s,t,e,o){var r=arguments.length,i=r<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,o);else for(var c=s.length-1;c>=0;c--)(n=s[c])&&(i=(r<3?n(i):r>3?n(t,e,i):n(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},f=function(s,t){return function(e,o){t(e,o,s)}};const m=5e3;let p=class extends a{constructor(t,e,o){super(),this.c=o,this.a=this.D(new l(()=>{this.b=this.c.playSignalLoop(u.progress,e??m)},t)),this.a.schedule()}dispose(){super.dispose(),this.b?.dispose(),this.a.dispose()}};p=h([f(2,_)],p);export{p as $qnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../base/common/async.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "./accessibilitySignalService.js";
+const PROGRESS_SIGNAL_LOOP_DELAY = 5e3;
+let AccessibilityProgressSignalScheduler = class AccessibilityProgressSignalScheduler2 extends Disposable {
+  static {
+    __name(this, "AccessibilityProgressSignalScheduler");
+  }
+  constructor(msDelayTime, msLoopTime, _accessibilitySignalService) {
+    super();
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._scheduler = this._register(new RunOnceScheduler(() => {
+      this._signalLoop = this._accessibilitySignalService.playSignalLoop(AccessibilitySignal.progress, msLoopTime ?? PROGRESS_SIGNAL_LOOP_DELAY);
+    }, msDelayTime));
+    this._scheduler.schedule();
+  }
+  dispose() {
+    super.dispose();
+    this._signalLoop?.dispose();
+    this._scheduler.dispose();
+  }
+};
+AccessibilityProgressSignalScheduler = __decorate([
+  __param(2, IAccessibilitySignalService)
+], AccessibilityProgressSignalScheduler);
+export {
+  AccessibilityProgressSignalScheduler
+};
+//# sourceMappingURL=progressAccessibilitySignalScheduler.js.map

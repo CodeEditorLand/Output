@@ -1,1 +1,104 @@
-import"./highlightDecorations.css";import{OverviewRulerLane as n}from"../../../common/model.js";import{$0K as t}from"../../../common/model/textModel.js";import{DocumentHighlightKind as c}from"../../../common/languages.js";import*as i from"../../../../nls.js";import{$hq as l,$9q as u,$es as g,$_r as s,$1p as r}from"../../../../platform/theme/common/colorRegistry.js";import{$vu as a,$pu as o}from"../../../../platform/theme/common/themeService.js";const p=r("editor.wordHighlightBackground",{dark:"#575757B8",light:"#57575740",hcDark:null,hcLight:null},i.localize(1736,null),!0);r("editor.wordHighlightStrongBackground",{dark:"#004972B8",light:"#0e639c40",hcDark:null,hcLight:null},i.localize(1737,null),!0);r("editor.wordHighlightTextBackground",p,i.localize(1738,null),!0);const w=r("editor.wordHighlightBorder",{light:null,dark:null,hcDark:l,hcLight:l},i.localize(1739,null));r("editor.wordHighlightStrongBorder",{light:null,dark:null,hcDark:l,hcLight:l},i.localize(1740,null));r("editor.wordHighlightTextBorder",w,i.localize(1741,null));const H=r("editorOverviewRuler.wordHighlightForeground","#A0A0A0CC",i.localize(1742,null),!0),m=r("editorOverviewRuler.wordHighlightStrongForeground","#C0A0C0CC",i.localize(1743,null),!0),v=r("editorOverviewRuler.wordHighlightTextForeground",s,i.localize(1744,null),!0),O=t.register({description:"word-highlight-strong",stickiness:1,className:"wordHighlightStrong",overviewRuler:{color:o(m),position:n.Center},minimap:{color:o(g),position:1}}),T=t.register({description:"word-highlight-text",stickiness:1,className:"wordHighlightText",overviewRuler:{color:o(v),position:n.Center},minimap:{color:o(g),position:1}}),k=t.register({description:"selection-highlight-overview",stickiness:1,className:"selectionHighlight",overviewRuler:{color:o(s),position:n.Center},minimap:{color:o(g),position:1}}),R=t.register({description:"selection-highlight",stickiness:1,className:"selectionHighlight"}),_=t.register({description:"word-highlight",stickiness:1,className:"wordHighlight",overviewRuler:{color:o(H),position:n.Center},minimap:{color:o(g),position:1}});function B(e){return e===c.Write?O:e===c.Text?T:_}function L(e){return e?R:k}a((e,d)=>{const h=e.getColor(u);h&&d.addRule(`.monaco-editor .selectionHighlight { background-color: ${h.transparent(.5)}; }`)});export{B as $Hvb,L as $Ivb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./highlightDecorations.css";
+import { OverviewRulerLane } from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { DocumentHighlightKind } from "../../../common/languages.js";
+import * as nls from "../../../../nls.js";
+import { activeContrastBorder, editorSelectionHighlight, minimapSelectionOccurrenceHighlight, overviewRulerSelectionHighlightForeground, registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant, themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+const wordHighlightBackground = registerColor("editor.wordHighlightBackground", { dark: "#575757B8", light: "#57575740", hcDark: null, hcLight: null }, nls.localize("wordHighlight", "Background color of a symbol during read-access, like reading a variable. The color must not be opaque so as not to hide underlying decorations."), true);
+registerColor("editor.wordHighlightStrongBackground", { dark: "#004972B8", light: "#0e639c40", hcDark: null, hcLight: null }, nls.localize("wordHighlightStrong", "Background color of a symbol during write-access, like writing to a variable. The color must not be opaque so as not to hide underlying decorations."), true);
+registerColor("editor.wordHighlightTextBackground", wordHighlightBackground, nls.localize("wordHighlightText", "Background color of a textual occurrence for a symbol. The color must not be opaque so as not to hide underlying decorations."), true);
+const wordHighlightBorder = registerColor("editor.wordHighlightBorder", { light: null, dark: null, hcDark: activeContrastBorder, hcLight: activeContrastBorder }, nls.localize("wordHighlightBorder", "Border color of a symbol during read-access, like reading a variable."));
+registerColor("editor.wordHighlightStrongBorder", { light: null, dark: null, hcDark: activeContrastBorder, hcLight: activeContrastBorder }, nls.localize("wordHighlightStrongBorder", "Border color of a symbol during write-access, like writing to a variable."));
+registerColor("editor.wordHighlightTextBorder", wordHighlightBorder, nls.localize("wordHighlightTextBorder", "Border color of a textual occurrence for a symbol."));
+const overviewRulerWordHighlightForeground = registerColor("editorOverviewRuler.wordHighlightForeground", "#A0A0A0CC", nls.localize("overviewRulerWordHighlightForeground", "Overview ruler marker color for symbol highlights. The color must not be opaque so as not to hide underlying decorations."), true);
+const overviewRulerWordHighlightStrongForeground = registerColor("editorOverviewRuler.wordHighlightStrongForeground", "#C0A0C0CC", nls.localize("overviewRulerWordHighlightStrongForeground", "Overview ruler marker color for write-access symbol highlights. The color must not be opaque so as not to hide underlying decorations."), true);
+const overviewRulerWordHighlightTextForeground = registerColor("editorOverviewRuler.wordHighlightTextForeground", overviewRulerSelectionHighlightForeground, nls.localize("overviewRulerWordHighlightTextForeground", "Overview ruler marker color of a textual occurrence for a symbol. The color must not be opaque so as not to hide underlying decorations."), true);
+const _WRITE_OPTIONS = ModelDecorationOptions.register({
+  description: "word-highlight-strong",
+  stickiness: 1,
+  className: "wordHighlightStrong",
+  overviewRuler: {
+    color: themeColorFromId(overviewRulerWordHighlightStrongForeground),
+    position: OverviewRulerLane.Center
+  },
+  minimap: {
+    color: themeColorFromId(minimapSelectionOccurrenceHighlight),
+    position: 1
+    /* MinimapPosition.Inline */
+  }
+});
+const _TEXT_OPTIONS = ModelDecorationOptions.register({
+  description: "word-highlight-text",
+  stickiness: 1,
+  className: "wordHighlightText",
+  overviewRuler: {
+    color: themeColorFromId(overviewRulerWordHighlightTextForeground),
+    position: OverviewRulerLane.Center
+  },
+  minimap: {
+    color: themeColorFromId(minimapSelectionOccurrenceHighlight),
+    position: 1
+    /* MinimapPosition.Inline */
+  }
+});
+const _SELECTION_HIGHLIGHT_OPTIONS = ModelDecorationOptions.register({
+  description: "selection-highlight-overview",
+  stickiness: 1,
+  className: "selectionHighlight",
+  overviewRuler: {
+    color: themeColorFromId(overviewRulerSelectionHighlightForeground),
+    position: OverviewRulerLane.Center
+  },
+  minimap: {
+    color: themeColorFromId(minimapSelectionOccurrenceHighlight),
+    position: 1
+    /* MinimapPosition.Inline */
+  }
+});
+const _SELECTION_HIGHLIGHT_OPTIONS_NO_OVERVIEW = ModelDecorationOptions.register({
+  description: "selection-highlight",
+  stickiness: 1,
+  className: "selectionHighlight"
+});
+const _REGULAR_OPTIONS = ModelDecorationOptions.register({
+  description: "word-highlight",
+  stickiness: 1,
+  className: "wordHighlight",
+  overviewRuler: {
+    color: themeColorFromId(overviewRulerWordHighlightForeground),
+    position: OverviewRulerLane.Center
+  },
+  minimap: {
+    color: themeColorFromId(minimapSelectionOccurrenceHighlight),
+    position: 1
+    /* MinimapPosition.Inline */
+  }
+});
+function getHighlightDecorationOptions(kind) {
+  if (kind === DocumentHighlightKind.Write) {
+    return _WRITE_OPTIONS;
+  } else if (kind === DocumentHighlightKind.Text) {
+    return _TEXT_OPTIONS;
+  } else {
+    return _REGULAR_OPTIONS;
+  }
+}
+__name(getHighlightDecorationOptions, "getHighlightDecorationOptions");
+function getSelectionHighlightDecorationOptions(hasSemanticHighlights) {
+  return hasSemanticHighlights ? _SELECTION_HIGHLIGHT_OPTIONS_NO_OVERVIEW : _SELECTION_HIGHLIGHT_OPTIONS;
+}
+__name(getSelectionHighlightDecorationOptions, "getSelectionHighlightDecorationOptions");
+registerThemingParticipant((theme, collector) => {
+  const selectionHighlight = theme.getColor(editorSelectionHighlight);
+  if (selectionHighlight) {
+    collector.addRule(`.monaco-editor .selectionHighlight { background-color: ${selectionHighlight.transparent(0.5)}; }`);
+  }
+});
+export {
+  getHighlightDecorationOptions,
+  getSelectionHighlightDecorationOptions
+};
+//# sourceMappingURL=highlightDecorations.js.map

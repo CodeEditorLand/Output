@@ -1,2 +1,784 @@
-import{localize as D}from"../../../../nls.js";import*as w from"../../../common/arrays.js";import{$wf as $,Event as l}from"../../../common/event.js";import{KeyCodeUtils as C}from"../../../common/keyCodes.js";import{$Ed as k,$Dd as F}from"../../../common/lifecycle.js";import{$n as g}from"../../../common/platform.js";import*as v from"../../cssValue.js";import*as h from"../../dom.js";import*as L from"../../domStylesheets.js";import{$a0 as I}from"../../event.js";import{$C7 as x}from"../../keyboardEvent.js";import{$S9 as H}from"../../markdownRenderer.js";import{$H0 as B}from"../hover/hoverDelegate2.js";import{$E9 as O}from"../hover/hoverDelegateFactory.js";import{$F0 as M}from"../list/listWidget.js";import"./selectBoxCustom.css";const u=h.$,y="selectOption.entry.template";class E{get templateId(){return y}renderTemplate(t){const e=Object.create(null);return e.root=t,e.text=h.$I8(t,u(".option-text")),e.detail=h.$I8(t,u(".option-detail")),e.decoratorRight=h.$I8(t,u(".option-decorator-right")),e}renderElement(t,e,s){const i=s,o=t.text,n=t.detail,r=t.decoratorRight,d=t.isDisabled;i.text.textContent=o,i.detail.textContent=n||"",i.decoratorRight.textContent=r||"",d?i.root.classList.add("option-disabled"):i.root.classList.remove("option-disabled")}disposeTemplate(t){}}class p extends k{static{this.a=32}static{this.b=2}static{this.c=3}constructor(t,e,s,i,o){super(),this.m=[],this.F=0,this.H=!1,this.J=this.D(new F),this.L=!1,this.O=!1,this.f=!1,this.r=i,this.g=o||Object.create(null),typeof this.g.minBottomMargin!="number"?this.g.minBottomMargin=p.a:this.g.minBottomMargin<0&&(this.g.minBottomMargin=0),this.h=document.createElement("select"),this.h.className="monaco-select-box",typeof this.g.ariaLabel=="string"&&this.h.setAttribute("aria-label",this.g.ariaLabel),typeof this.g.ariaDescription=="string"&&this.h.setAttribute("aria-description",this.g.ariaDescription),this.q=new $,this.D(this.q),this.R(),this.Q(s),this.n=e||0,t&&this.setOptions(t,e),this.U()}P(t){!this.N&&t?this.N=this.D(B().setupManagedHover(O("mouse"),this.h,t)):this.N&&this.N.update(t)}getHeight(){return 22}getTemplateId(){return y}Q(t){this.t=t,this.u=h.$(".monaco-select-box-dropdown-container"),this.I=h.$I8(this.u,u(".select-box-details-pane"));const e=h.$I8(this.u,u(".select-box-dropdown-container-width-control")),s=h.$I8(e,u(".width-control-div"));this.C=document.createElement("span"),this.C.className="option-text-width-control",h.$I8(s,this.C),this.G=0,this.w=L.$Y9(this.u),this.u.setAttribute("draggable","true"),this.D(h.$F7(this.u,h.$B8.DRAG_START,i=>{h.$D8.stop(i,!0)}))}R(){this.D(h.$G7(this.h,"change",e=>{this.n=e.target.selectedIndex,this.q.fire({index:e.target.selectedIndex,selected:e.target.value}),this.m[this.n]&&this.m[this.n].text&&this.P(this.m[this.n].text)})),this.D(h.$F7(this.h,h.$B8.CLICK,e=>{h.$D8.stop(e),this.f?this.ab(!0):this.Z()})),this.D(h.$F7(this.h,h.$B8.MOUSE_DOWN,e=>{h.$D8.stop(e)}));let t;this.D(h.$F7(this.h,"touchstart",e=>{t=this.f})),this.D(h.$F7(this.h,"touchend",e=>{h.$D8.stop(e),t?this.ab(!0):this.Z()})),this.D(h.$F7(this.h,h.$B8.KEY_DOWN,e=>{const s=new x(e);let i=!1;g?(s.keyCode===18||s.keyCode===16||s.keyCode===10||s.keyCode===3)&&(i=!0):(s.keyCode===18&&s.altKey||s.keyCode===16&&s.altKey||s.keyCode===10||s.keyCode===3)&&(i=!0),i&&(this.Z(),h.$D8.stop(e,!0))}))}get onDidSelect(){return this.q.event}setOptions(t,e){w.$Wb(this.m,t)||(this.m=t,this.h.options.length=0,this.H=!1,this.M=void 0,this.m.forEach((s,i)=>{this.h.add(this.Y(s.text,i,s.isDisabled)),typeof s.description=="string"&&(this.H=!0)})),e!==void 0&&(this.select(e),this.F=this.n)}setEnabled(t){this.h.disabled=!t}S(){this.y?.splice(0,this.y.length,this.m)}select(t){t>=0&&t<this.m.length?this.n=t:t>this.m.length-1?this.select(this.m.length-1):this.n<0&&(this.n=0),this.h.selectedIndex=this.n,this.m[this.n]&&this.m[this.n].text&&this.P(this.m[this.n].text)}setAriaLabel(t){this.g.ariaLabel=t,this.h.setAttribute("aria-label",this.g.ariaLabel)}focus(){this.h&&(this.h.tabIndex=0,this.h.focus())}blur(){this.h&&(this.h.tabIndex=-1,this.h.blur())}setFocusable(t){this.h.tabIndex=t?0:-1}render(t){this.j=t,t.classList.add("select-container"),t.appendChild(this.h),this.W()}U(){const t=[];this.r.listFocusBackground&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { background-color: ${this.r.listFocusBackground} !important; }`),this.r.listFocusForeground&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { color: ${this.r.listFocusForeground} !important; }`),this.r.decoratorRightForeground&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.focused) .option-decorator-right { color: ${this.r.decoratorRightForeground}; }`),this.r.selectBackground&&this.r.selectBorder&&this.r.selectBorder!==this.r.selectBackground?(t.push(`.monaco-select-box-dropdown-container { border: 1px solid ${this.r.selectBorder} } `),t.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-top { border-top: 1px solid ${this.r.selectBorder} } `),t.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-bottom { border-bottom: 1px solid ${this.r.selectBorder} } `)):this.r.selectListBorder&&(t.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-top { border-top: 1px solid ${this.r.selectListBorder} } `),t.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-bottom { border-bottom: 1px solid ${this.r.selectListBorder} } `)),this.r.listHoverForeground&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { color: ${this.r.listHoverForeground} !important; }`),this.r.listHoverBackground&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { background-color: ${this.r.listHoverBackground} !important; }`),this.r.listFocusOutline&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { outline: 1.6px dotted ${this.r.listFocusOutline} !important; outline-offset: -1.6px !important; }`),this.r.listHoverOutline&&t.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { outline: 1.6px dashed ${this.r.listHoverOutline} !important; outline-offset: -1.6px !important; }`),t.push(".monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.option-disabled.focused { background-color: transparent !important; color: inherit !important; outline: none !important; }"),t.push(".monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.option-disabled:hover { background-color: transparent !important; color: inherit !important; outline: none !important; }"),this.w.textContent=t.join(`
-`)}W(){const t=this.r.selectBackground??"",e=this.r.selectForeground??"",s=this.r.selectBorder??"";this.h.style.backgroundColor=t,this.h.style.color=e,this.h.style.borderColor=s}X(){const t=this.r.selectBackground??"",e=v.$49(this.r.selectListBackground,t);this.z.style.backgroundColor=e,this.I.style.backgroundColor=e;const s=this.r.focusBorder??"";this.u.style.outlineColor=s,this.u.style.outlineOffset="-1px",this.y.style(this.r)}Y(t,e,s){const i=document.createElement("option");return i.value=t,i.text=t,i.disabled=!!s,i}Z(){this.I.textContent="",!(!this.t||this.f)&&(this.fb(this.u),this.S(),this.t.showContextView({getAnchor:()=>this.h,render:t=>this.bb(t,!0),layout:()=>{this.db()},onHide:()=>{this.u.classList.remove("visible")},anchorPosition:this.G},this.g.optionsAsChildren?this.j:void 0),this.f=!0,this.ab(!1),this.t.showContextView({getAnchor:()=>this.h,render:t=>this.bb(t),layout:()=>this.db(),onHide:()=>{this.u.classList.remove("visible")},anchorPosition:this.G},this.g.optionsAsChildren?this.j:void 0),this.F=this.n,this.f=!0,this.h.setAttribute("aria-expanded","true"))}ab(t){!this.t||!this.f||(this.f=!1,this.h.setAttribute("aria-expanded","false"),t&&this.h.focus(),this.t.hideContextView())}bb(t,e){return t.appendChild(this.u),this.db(e),{dispose:()=>{this.u.remove()}}}cb(){let t=0;return this.m.forEach((e,s)=>{this.kb(s),this.I.offsetHeight>t&&(t=this.I.offsetHeight)}),t}db(t){if(this.L)return!1;if(this.y){this.u.classList.add("visible");const e=h.getWindow(this.h),s=h.$27(this.h),i=e.innerHeight-s.top-s.height-(this.g.minBottomMargin||0),o=s.top-p.b,n=this.h.offsetWidth,r=this.eb(this.C),d=`${Math.max(r,Math.round(n))}px`;this.u.style.width=d,this.y.getHTMLElement().style.height="",this.y.layout();let a=this.y.contentHeight;this.H&&this.M===void 0&&(this.M=this.cb());const m=this.H?this.M:0,f=a+m,c=Math.floor((i-m)/this.getHeight()),b=Math.floor((o-m)/this.getHeight());if(t)return s.top+s.height>e.innerHeight-22||s.top<p.b||c<1&&b<1?!1:(c<p.c&&b>c&&this.m.length>c?(this.G=1,this.z.remove(),this.I.remove(),this.u.appendChild(this.I),this.u.appendChild(this.z),this.I.classList.remove("border-top"),this.I.classList.add("border-bottom")):(this.G=0,this.z.remove(),this.I.remove(),this.u.appendChild(this.z),this.u.appendChild(this.I),this.I.classList.remove("border-bottom"),this.I.classList.add("border-top")),!0);if(s.top+s.height>e.innerHeight-22||s.top<p.b||this.G===0&&c<1||this.G===1&&b<1)return this.ab(!0),!1;if(this.G===0){if(this.f&&c+b<1)return this.ab(!0),!1;f>i&&(a=c*this.getHeight())}else f>o&&(a=b*this.getHeight());return this.y.layout(a),this.y.domFocus(),this.y.length>0&&(this.y.setFocus([this.n||0]),this.y.reveal(this.y.getFocus()[0]||0)),this.H?(this.y.getHTMLElement().style.height=`${a}px`,this.u.style.height=""):this.u.style.height=`${a}px`,this.kb(this.n),this.u.style.width=d,this.z.setAttribute("tabindex","0"),!0}else return!1}eb(t){let e=0;if(t){let s=0,i=0;this.m.forEach((o,n)=>{const r=o.detail?o.detail.length:0,d=o.decoratorRight?o.decoratorRight.length:0,a=o.text.length+r+d;a>i&&(s=n,i=a)}),t.textContent=this.m[s].text+(this.m[s].decoratorRight?`${this.m[s].decoratorRight} `:""),e=h.$57(t)}return e}fb(t){if(this.y)return;this.z=h.$I8(t,u(".select-box-dropdown-list-container")),this.s=new E,this.y=this.D(new M("SelectBoxCustom",this.z,this,[this.s],{useShadows:!1,verticalScrollMode:3,keyboardSupport:!1,mouseSupport:!1,accessibilityProvider:{getAriaLabel:i=>{let o=i.text;return i.detail&&(o+=`. ${i.detail}`),i.decoratorRight&&(o+=`. ${i.decoratorRight}`),i.description&&(o+=`. ${i.description}`),o},getWidgetAriaLabel:()=>D(28,null),getRole:()=>g?"":"option",getWidgetRole:()=>"listbox"}})),this.g.ariaLabel&&(this.y.ariaLabel=this.g.ariaLabel);const e=this.D(new I(this.z,"keydown")),s=l.chain(e.event,i=>i.filter(()=>this.y.length>0).map(o=>new x(o)));this.D(l.chain(s,i=>i.filter(o=>o.keyCode===3))(this.mb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===2))(this.mb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===9))(this.lb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===16))(this.ob,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===18))(this.nb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===12))(this.qb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===11))(this.pb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===14))(this.rb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode===13))(this.sb,this)),this.D(l.chain(s,i=>i.filter(o=>o.keyCode>=21&&o.keyCode<=56||o.keyCode>=85&&o.keyCode<=113))(this.tb,this)),this.D(h.$F7(this.y.getHTMLElement(),h.$B8.POINTER_UP,i=>this.gb(i))),this.D(this.y.onMouseOver(i=>typeof i.index<"u"&&this.y.setFocus([i.index]))),this.D(this.y.onDidChangeFocus(i=>this.jb(i))),this.D(h.$F7(this.u,h.$B8.FOCUS_OUT,i=>{!this.f||h.$$7(i.relatedTarget,this.u)||this.hb()})),this.y.getHTMLElement().setAttribute("aria-label",this.g.ariaLabel||""),this.y.getHTMLElement().setAttribute("aria-expanded","true"),this.X()}gb(t){if(!this.y.length)return;h.$D8.stop(t);const e=t.target;if(!e||e.classList.contains("slider"))return;const s=e.closest(".monaco-list-row");if(!s)return;const i=Number(s.getAttribute("data-index")),o=s.classList.contains("option-disabled");i>=0&&i<this.m.length&&!o&&(this.n=i,this.select(this.n),this.y.setFocus([this.n]),this.y.reveal(this.y.getFocus()[0]),this.n!==this.F&&(this.F=this.n,this.q.fire({index:this.h.selectedIndex,selected:this.m[this.n].text}),this.m[this.n]&&this.m[this.n].text&&this.P(this.m[this.n].text)),this.ab(!0))}hb(){this.O||(this.n!==this.F&&this.select(this.F),this.ab(!1))}ib(t,e){const s=o=>{for(let n=0;n<o.childNodes.length;n++){const r=o.childNodes.item(n);(r.tagName&&r.tagName.toLowerCase())==="img"?r.remove():s(r)}},i=H({value:t,supportThemeIcons:!0},{actionHandler:e});return i.element.classList.add("select-box-description-markdown"),s(i.element),i}jb(t){!this.f||!this.H||this.kb(t.indexes[0])}kb(t){this.J.clear(),this.I.textContent="";const e=this.m[t],s=e?.description??"",i=e?.descriptionIsMarkdown??!1;if(s){if(i){const o=e.descriptionMarkdownActionHandler,n=this.J.add(this.ib(s,o));this.I.appendChild(n.element)}else this.I.textContent=s;this.I.style.display="block"}else this.I.style.display="none";this.L=!0,this.t.layout(),this.L=!1}lb(t){h.$D8.stop(t),this.select(this.F),this.ab(!0)}mb(t){h.$D8.stop(t),this.n!==this.F&&(this.F=this.n,this.q.fire({index:this.h.selectedIndex,selected:this.m[this.n].text}),this.m[this.n]&&this.m[this.n].text&&this.P(this.m[this.n].text)),this.ab(!0)}nb(t){if(this.n<this.m.length-1){h.$D8.stop(t,!0);const e=this.m[this.n+1].isDisabled;if(e&&this.m.length>this.n+2)this.n+=2;else{if(e)return;this.n++}this.select(this.n),this.y.setFocus([this.n]),this.y.reveal(this.y.getFocus()[0])}}ob(t){this.n>0&&(h.$D8.stop(t,!0),this.m[this.n-1].isDisabled&&this.n>1?this.n-=2:this.n--,this.select(this.n),this.y.setFocus([this.n]),this.y.reveal(this.y.getFocus()[0]))}pb(t){h.$D8.stop(t),this.y.focusPreviousPage(),setTimeout(()=>{this.n=this.y.getFocus()[0],this.m[this.n].isDisabled&&this.n<this.m.length-1&&(this.n++,this.y.setFocus([this.n])),this.y.reveal(this.n),this.select(this.n)},1)}qb(t){h.$D8.stop(t),this.y.focusNextPage(),setTimeout(()=>{this.n=this.y.getFocus()[0],this.m[this.n].isDisabled&&this.n>0&&(this.n--,this.y.setFocus([this.n])),this.y.reveal(this.n),this.select(this.n)},1)}rb(t){h.$D8.stop(t),!(this.m.length<2)&&(this.n=0,this.m[this.n].isDisabled&&this.n>1&&this.n++,this.y.setFocus([this.n]),this.y.reveal(this.n),this.select(this.n))}sb(t){h.$D8.stop(t),!(this.m.length<2)&&(this.n=this.m.length-1,this.m[this.n].isDisabled&&this.n>1&&this.n--,this.y.setFocus([this.n]),this.y.reveal(this.n),this.select(this.n))}tb(t){const e=C.toString(t.keyCode);let s=-1;for(let i=0;i<this.m.length-1;i++)if(s=(i+this.n+1)%this.m.length,this.m[s].text.charAt(0).toUpperCase()===e&&!this.m[s].isDisabled){this.select(s),this.y.setFocus([s]),this.y.reveal(this.y.getFocus()[0]),h.$D8.stop(t);break}}dispose(){this.ab(!1),super.dispose()}}export{p as $I0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import * as arrays from "../../../common/arrays.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { KeyCodeUtils } from "../../../common/keyCodes.js";
+import { Disposable, DisposableStore } from "../../../common/lifecycle.js";
+import { isMacintosh } from "../../../common/platform.js";
+import * as cssJs from "../../cssValue.js";
+import * as dom from "../../dom.js";
+import * as domStylesheetsJs from "../../domStylesheets.js";
+import { DomEmitter } from "../../event.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { renderMarkdown } from "../../markdownRenderer.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { List } from "../list/listWidget.js";
+import "./selectBoxCustom.css";
+const $ = dom.$;
+const SELECT_OPTION_ENTRY_TEMPLATE_ID = "selectOption.entry.template";
+class SelectListRenderer {
+  static {
+    __name(this, "SelectListRenderer");
+  }
+  get templateId() {
+    return SELECT_OPTION_ENTRY_TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const data = /* @__PURE__ */ Object.create(null);
+    data.root = container;
+    data.text = dom.append(container, $(".option-text"));
+    data.detail = dom.append(container, $(".option-detail"));
+    data.decoratorRight = dom.append(container, $(".option-decorator-right"));
+    return data;
+  }
+  renderElement(element, index, templateData) {
+    const data = templateData;
+    const text = element.text;
+    const detail = element.detail;
+    const decoratorRight = element.decoratorRight;
+    const isDisabled = element.isDisabled;
+    data.text.textContent = text;
+    data.detail.textContent = !!detail ? detail : "";
+    data.decoratorRight.textContent = !!decoratorRight ? decoratorRight : "";
+    if (isDisabled) {
+      data.root.classList.add("option-disabled");
+    } else {
+      data.root.classList.remove("option-disabled");
+    }
+  }
+  disposeTemplate(_templateData) {
+  }
+}
+class SelectBoxList extends Disposable {
+  static {
+    __name(this, "SelectBoxList");
+  }
+  static {
+    this.DEFAULT_DROPDOWN_MINIMUM_BOTTOM_MARGIN = 32;
+  }
+  static {
+    this.DEFAULT_DROPDOWN_MINIMUM_TOP_MARGIN = 2;
+  }
+  static {
+    this.DEFAULT_MINIMUM_VISIBLE_OPTIONS = 3;
+  }
+  constructor(options, selected, contextViewProvider, styles, selectBoxOptions) {
+    super();
+    this.options = [];
+    this._currentSelection = 0;
+    this._hasDetails = false;
+    this._selectionDetailsDisposables = this._register(new DisposableStore());
+    this._skipLayout = false;
+    this._sticky = false;
+    this._isVisible = false;
+    this.styles = styles;
+    this.selectBoxOptions = selectBoxOptions || /* @__PURE__ */ Object.create(null);
+    if (typeof this.selectBoxOptions.minBottomMargin !== "number") {
+      this.selectBoxOptions.minBottomMargin = SelectBoxList.DEFAULT_DROPDOWN_MINIMUM_BOTTOM_MARGIN;
+    } else if (this.selectBoxOptions.minBottomMargin < 0) {
+      this.selectBoxOptions.minBottomMargin = 0;
+    }
+    this.selectElement = document.createElement("select");
+    this.selectElement.className = "monaco-select-box";
+    if (typeof this.selectBoxOptions.ariaLabel === "string") {
+      this.selectElement.setAttribute("aria-label", this.selectBoxOptions.ariaLabel);
+    }
+    if (typeof this.selectBoxOptions.ariaDescription === "string") {
+      this.selectElement.setAttribute("aria-description", this.selectBoxOptions.ariaDescription);
+    }
+    this._onDidSelect = new Emitter();
+    this._register(this._onDidSelect);
+    this.registerListeners();
+    this.constructSelectDropDown(contextViewProvider);
+    this.selected = selected || 0;
+    if (options) {
+      this.setOptions(options, selected);
+    }
+    this.initStyleSheet();
+  }
+  setTitle(title) {
+    if (!this._hover && title) {
+      this._hover = this._register(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), this.selectElement, title));
+    } else if (this._hover) {
+      this._hover.update(title);
+    }
+  }
+  // IDelegate - List renderer
+  getHeight() {
+    return 22;
+  }
+  getTemplateId() {
+    return SELECT_OPTION_ENTRY_TEMPLATE_ID;
+  }
+  constructSelectDropDown(contextViewProvider) {
+    this.contextViewProvider = contextViewProvider;
+    this.selectDropDownContainer = dom.$(".monaco-select-box-dropdown-container");
+    this.selectionDetailsPane = dom.append(this.selectDropDownContainer, $(".select-box-details-pane"));
+    const widthControlOuterDiv = dom.append(this.selectDropDownContainer, $(".select-box-dropdown-container-width-control"));
+    const widthControlInnerDiv = dom.append(widthControlOuterDiv, $(".width-control-div"));
+    this.widthControlElement = document.createElement("span");
+    this.widthControlElement.className = "option-text-width-control";
+    dom.append(widthControlInnerDiv, this.widthControlElement);
+    this._dropDownPosition = 0;
+    this.styleElement = domStylesheetsJs.createStyleSheet(this.selectDropDownContainer);
+    this.selectDropDownContainer.setAttribute("draggable", "true");
+    this._register(dom.addDisposableListener(this.selectDropDownContainer, dom.EventType.DRAG_START, (e) => {
+      dom.EventHelper.stop(e, true);
+    }));
+  }
+  registerListeners() {
+    this._register(dom.addStandardDisposableListener(this.selectElement, "change", (e) => {
+      this.selected = e.target.selectedIndex;
+      this._onDidSelect.fire({
+        index: e.target.selectedIndex,
+        selected: e.target.value
+      });
+      if (!!this.options[this.selected] && !!this.options[this.selected].text) {
+        this.setTitle(this.options[this.selected].text);
+      }
+    }));
+    this._register(dom.addDisposableListener(this.selectElement, dom.EventType.CLICK, (e) => {
+      dom.EventHelper.stop(e);
+      if (this._isVisible) {
+        this.hideSelectDropDown(true);
+      } else {
+        this.showSelectDropDown();
+      }
+    }));
+    this._register(dom.addDisposableListener(this.selectElement, dom.EventType.MOUSE_DOWN, (e) => {
+      dom.EventHelper.stop(e);
+    }));
+    let listIsVisibleOnTouchStart;
+    this._register(dom.addDisposableListener(this.selectElement, "touchstart", (e) => {
+      listIsVisibleOnTouchStart = this._isVisible;
+    }));
+    this._register(dom.addDisposableListener(this.selectElement, "touchend", (e) => {
+      dom.EventHelper.stop(e);
+      if (listIsVisibleOnTouchStart) {
+        this.hideSelectDropDown(true);
+      } else {
+        this.showSelectDropDown();
+      }
+    }));
+    this._register(dom.addDisposableListener(this.selectElement, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      let showDropDown = false;
+      if (isMacintosh) {
+        if (event.keyCode === 18 || event.keyCode === 16 || event.keyCode === 10 || event.keyCode === 3) {
+          showDropDown = true;
+        }
+      } else {
+        if (event.keyCode === 18 && event.altKey || event.keyCode === 16 && event.altKey || event.keyCode === 10 || event.keyCode === 3) {
+          showDropDown = true;
+        }
+      }
+      if (showDropDown) {
+        this.showSelectDropDown();
+        dom.EventHelper.stop(e, true);
+      }
+    }));
+  }
+  get onDidSelect() {
+    return this._onDidSelect.event;
+  }
+  setOptions(options, selected) {
+    if (!arrays.equals(this.options, options)) {
+      this.options = options;
+      this.selectElement.options.length = 0;
+      this._hasDetails = false;
+      this._cachedMaxDetailsHeight = void 0;
+      this.options.forEach((option, index) => {
+        this.selectElement.add(this.createOption(option.text, index, option.isDisabled));
+        if (typeof option.description === "string") {
+          this._hasDetails = true;
+        }
+      });
+    }
+    if (selected !== void 0) {
+      this.select(selected);
+      this._currentSelection = this.selected;
+    }
+  }
+  setEnabled(enable) {
+    this.selectElement.disabled = !enable;
+  }
+  setOptionsList() {
+    this.selectList?.splice(0, this.selectList.length, this.options);
+  }
+  select(index) {
+    if (index >= 0 && index < this.options.length) {
+      this.selected = index;
+    } else if (index > this.options.length - 1) {
+      this.select(this.options.length - 1);
+    } else if (this.selected < 0) {
+      this.selected = 0;
+    }
+    this.selectElement.selectedIndex = this.selected;
+    if (!!this.options[this.selected] && !!this.options[this.selected].text) {
+      this.setTitle(this.options[this.selected].text);
+    }
+  }
+  setAriaLabel(label) {
+    this.selectBoxOptions.ariaLabel = label;
+    this.selectElement.setAttribute("aria-label", this.selectBoxOptions.ariaLabel);
+  }
+  focus() {
+    if (this.selectElement) {
+      this.selectElement.tabIndex = 0;
+      this.selectElement.focus();
+    }
+  }
+  blur() {
+    if (this.selectElement) {
+      this.selectElement.tabIndex = -1;
+      this.selectElement.blur();
+    }
+  }
+  setFocusable(focusable) {
+    this.selectElement.tabIndex = focusable ? 0 : -1;
+  }
+  render(container) {
+    this.container = container;
+    container.classList.add("select-container");
+    container.appendChild(this.selectElement);
+    this.styleSelectElement();
+  }
+  initStyleSheet() {
+    const content = [];
+    if (this.styles.listFocusBackground) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { background-color: ${this.styles.listFocusBackground} !important; }`);
+    }
+    if (this.styles.listFocusForeground) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { color: ${this.styles.listFocusForeground} !important; }`);
+    }
+    if (this.styles.decoratorRightForeground) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.focused) .option-decorator-right { color: ${this.styles.decoratorRightForeground}; }`);
+    }
+    if (this.styles.selectBackground && this.styles.selectBorder && this.styles.selectBorder !== this.styles.selectBackground) {
+      content.push(`.monaco-select-box-dropdown-container { border: 1px solid ${this.styles.selectBorder} } `);
+      content.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-top { border-top: 1px solid ${this.styles.selectBorder} } `);
+      content.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-bottom { border-bottom: 1px solid ${this.styles.selectBorder} } `);
+    } else if (this.styles.selectListBorder) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-top { border-top: 1px solid ${this.styles.selectListBorder} } `);
+      content.push(`.monaco-select-box-dropdown-container > .select-box-details-pane.border-bottom { border-bottom: 1px solid ${this.styles.selectListBorder} } `);
+    }
+    if (this.styles.listHoverForeground) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { color: ${this.styles.listHoverForeground} !important; }`);
+    }
+    if (this.styles.listHoverBackground) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { background-color: ${this.styles.listHoverBackground} !important; }`);
+    }
+    if (this.styles.listFocusOutline) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.focused { outline: 1.6px dotted ${this.styles.listFocusOutline} !important; outline-offset: -1.6px !important; }`);
+    }
+    if (this.styles.listHoverOutline) {
+      content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row:not(.option-disabled):not(.focused):hover { outline: 1.6px dashed ${this.styles.listHoverOutline} !important; outline-offset: -1.6px !important; }`);
+    }
+    content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.option-disabled.focused { background-color: transparent !important; color: inherit !important; outline: none !important; }`);
+    content.push(`.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row.option-disabled:hover { background-color: transparent !important; color: inherit !important; outline: none !important; }`);
+    this.styleElement.textContent = content.join("\n");
+  }
+  styleSelectElement() {
+    const background = this.styles.selectBackground ?? "";
+    const foreground = this.styles.selectForeground ?? "";
+    const border = this.styles.selectBorder ?? "";
+    this.selectElement.style.backgroundColor = background;
+    this.selectElement.style.color = foreground;
+    this.selectElement.style.borderColor = border;
+  }
+  styleList() {
+    const background = this.styles.selectBackground ?? "";
+    const listBackground = cssJs.asCssValueWithDefault(this.styles.selectListBackground, background);
+    this.selectDropDownListContainer.style.backgroundColor = listBackground;
+    this.selectionDetailsPane.style.backgroundColor = listBackground;
+    const optionsBorder = this.styles.focusBorder ?? "";
+    this.selectDropDownContainer.style.outlineColor = optionsBorder;
+    this.selectDropDownContainer.style.outlineOffset = "-1px";
+    this.selectList.style(this.styles);
+  }
+  createOption(value, index, disabled) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.text = value;
+    option.disabled = !!disabled;
+    return option;
+  }
+  // ContextView dropdown methods
+  showSelectDropDown() {
+    this.selectionDetailsPane.textContent = "";
+    if (!this.contextViewProvider || this._isVisible) {
+      return;
+    }
+    this.createSelectList(this.selectDropDownContainer);
+    this.setOptionsList();
+    this.contextViewProvider.showContextView({
+      getAnchor: /* @__PURE__ */ __name(() => this.selectElement, "getAnchor"),
+      render: /* @__PURE__ */ __name((container) => this.renderSelectDropDown(container, true), "render"),
+      layout: /* @__PURE__ */ __name(() => {
+        this.layoutSelectDropDown();
+      }, "layout"),
+      onHide: /* @__PURE__ */ __name(() => {
+        this.selectDropDownContainer.classList.remove("visible");
+      }, "onHide"),
+      anchorPosition: this._dropDownPosition
+    }, this.selectBoxOptions.optionsAsChildren ? this.container : void 0);
+    this._isVisible = true;
+    this.hideSelectDropDown(false);
+    this.contextViewProvider.showContextView({
+      getAnchor: /* @__PURE__ */ __name(() => this.selectElement, "getAnchor"),
+      render: /* @__PURE__ */ __name((container) => this.renderSelectDropDown(container), "render"),
+      layout: /* @__PURE__ */ __name(() => this.layoutSelectDropDown(), "layout"),
+      onHide: /* @__PURE__ */ __name(() => {
+        this.selectDropDownContainer.classList.remove("visible");
+      }, "onHide"),
+      anchorPosition: this._dropDownPosition
+    }, this.selectBoxOptions.optionsAsChildren ? this.container : void 0);
+    this._currentSelection = this.selected;
+    this._isVisible = true;
+    this.selectElement.setAttribute("aria-expanded", "true");
+  }
+  hideSelectDropDown(focusSelect) {
+    if (!this.contextViewProvider || !this._isVisible) {
+      return;
+    }
+    this._isVisible = false;
+    this.selectElement.setAttribute("aria-expanded", "false");
+    if (focusSelect) {
+      this.selectElement.focus();
+    }
+    this.contextViewProvider.hideContextView();
+  }
+  renderSelectDropDown(container, preLayoutPosition) {
+    container.appendChild(this.selectDropDownContainer);
+    this.layoutSelectDropDown(preLayoutPosition);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this.selectDropDownContainer.remove();
+      }, "dispose")
+    };
+  }
+  // Iterate over detailed descriptions, find max height
+  measureMaxDetailsHeight() {
+    let maxDetailsPaneHeight = 0;
+    this.options.forEach((_option, index) => {
+      this.updateDetail(index);
+      if (this.selectionDetailsPane.offsetHeight > maxDetailsPaneHeight) {
+        maxDetailsPaneHeight = this.selectionDetailsPane.offsetHeight;
+      }
+    });
+    return maxDetailsPaneHeight;
+  }
+  layoutSelectDropDown(preLayoutPosition) {
+    if (this._skipLayout) {
+      return false;
+    }
+    if (this.selectList) {
+      this.selectDropDownContainer.classList.add("visible");
+      const window = dom.getWindow(this.selectElement);
+      const selectPosition = dom.getDomNodePagePosition(this.selectElement);
+      const maxSelectDropDownHeightBelow = window.innerHeight - selectPosition.top - selectPosition.height - (this.selectBoxOptions.minBottomMargin || 0);
+      const maxSelectDropDownHeightAbove = selectPosition.top - SelectBoxList.DEFAULT_DROPDOWN_MINIMUM_TOP_MARGIN;
+      const selectWidth = this.selectElement.offsetWidth;
+      const selectMinWidth = this.setWidthControlElement(this.widthControlElement);
+      const selectOptimalWidth = `${Math.max(selectMinWidth, Math.round(selectWidth))}px`;
+      this.selectDropDownContainer.style.width = selectOptimalWidth;
+      this.selectList.getHTMLElement().style.height = "";
+      this.selectList.layout();
+      let listHeight = this.selectList.contentHeight;
+      if (this._hasDetails && this._cachedMaxDetailsHeight === void 0) {
+        this._cachedMaxDetailsHeight = this.measureMaxDetailsHeight();
+      }
+      const maxDetailsPaneHeight = this._hasDetails ? this._cachedMaxDetailsHeight : 0;
+      const minRequiredDropDownHeight = listHeight + maxDetailsPaneHeight;
+      const maxVisibleOptionsBelow = Math.floor((maxSelectDropDownHeightBelow - maxDetailsPaneHeight) / this.getHeight());
+      const maxVisibleOptionsAbove = Math.floor((maxSelectDropDownHeightAbove - maxDetailsPaneHeight) / this.getHeight());
+      if (preLayoutPosition) {
+        if (selectPosition.top + selectPosition.height > window.innerHeight - 22 || selectPosition.top < SelectBoxList.DEFAULT_DROPDOWN_MINIMUM_TOP_MARGIN || maxVisibleOptionsBelow < 1 && maxVisibleOptionsAbove < 1) {
+          return false;
+        }
+        if (maxVisibleOptionsBelow < SelectBoxList.DEFAULT_MINIMUM_VISIBLE_OPTIONS && maxVisibleOptionsAbove > maxVisibleOptionsBelow && this.options.length > maxVisibleOptionsBelow) {
+          this._dropDownPosition = 1;
+          this.selectDropDownListContainer.remove();
+          this.selectionDetailsPane.remove();
+          this.selectDropDownContainer.appendChild(this.selectionDetailsPane);
+          this.selectDropDownContainer.appendChild(this.selectDropDownListContainer);
+          this.selectionDetailsPane.classList.remove("border-top");
+          this.selectionDetailsPane.classList.add("border-bottom");
+        } else {
+          this._dropDownPosition = 0;
+          this.selectDropDownListContainer.remove();
+          this.selectionDetailsPane.remove();
+          this.selectDropDownContainer.appendChild(this.selectDropDownListContainer);
+          this.selectDropDownContainer.appendChild(this.selectionDetailsPane);
+          this.selectionDetailsPane.classList.remove("border-bottom");
+          this.selectionDetailsPane.classList.add("border-top");
+        }
+        return true;
+      }
+      if (selectPosition.top + selectPosition.height > window.innerHeight - 22 || selectPosition.top < SelectBoxList.DEFAULT_DROPDOWN_MINIMUM_TOP_MARGIN || this._dropDownPosition === 0 && maxVisibleOptionsBelow < 1 || this._dropDownPosition === 1 && maxVisibleOptionsAbove < 1) {
+        this.hideSelectDropDown(true);
+        return false;
+      }
+      if (this._dropDownPosition === 0) {
+        if (this._isVisible && maxVisibleOptionsBelow + maxVisibleOptionsAbove < 1) {
+          this.hideSelectDropDown(true);
+          return false;
+        }
+        if (minRequiredDropDownHeight > maxSelectDropDownHeightBelow) {
+          listHeight = maxVisibleOptionsBelow * this.getHeight();
+        }
+      } else {
+        if (minRequiredDropDownHeight > maxSelectDropDownHeightAbove) {
+          listHeight = maxVisibleOptionsAbove * this.getHeight();
+        }
+      }
+      this.selectList.layout(listHeight);
+      this.selectList.domFocus();
+      if (this.selectList.length > 0) {
+        this.selectList.setFocus([this.selected || 0]);
+        this.selectList.reveal(this.selectList.getFocus()[0] || 0);
+      }
+      if (this._hasDetails) {
+        this.selectList.getHTMLElement().style.height = `${listHeight}px`;
+        this.selectDropDownContainer.style.height = "";
+      } else {
+        this.selectDropDownContainer.style.height = `${listHeight}px`;
+      }
+      this.updateDetail(this.selected);
+      this.selectDropDownContainer.style.width = selectOptimalWidth;
+      this.selectDropDownListContainer.setAttribute("tabindex", "0");
+      return true;
+    } else {
+      return false;
+    }
+  }
+  setWidthControlElement(container) {
+    let elementWidth = 0;
+    if (container) {
+      let longest = 0;
+      let longestLength = 0;
+      this.options.forEach((option, index) => {
+        const detailLength = !!option.detail ? option.detail.length : 0;
+        const rightDecoratorLength = !!option.decoratorRight ? option.decoratorRight.length : 0;
+        const len = option.text.length + detailLength + rightDecoratorLength;
+        if (len > longestLength) {
+          longest = index;
+          longestLength = len;
+        }
+      });
+      container.textContent = this.options[longest].text + (!!this.options[longest].decoratorRight ? `${this.options[longest].decoratorRight} ` : "");
+      elementWidth = dom.getTotalWidth(container);
+    }
+    return elementWidth;
+  }
+  createSelectList(parent) {
+    if (this.selectList) {
+      return;
+    }
+    this.selectDropDownListContainer = dom.append(parent, $(".select-box-dropdown-list-container"));
+    this.listRenderer = new SelectListRenderer();
+    this.selectList = this._register(new List("SelectBoxCustom", this.selectDropDownListContainer, this, [this.listRenderer], {
+      useShadows: false,
+      verticalScrollMode: 3,
+      keyboardSupport: false,
+      mouseSupport: false,
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => {
+          let label = element.text;
+          if (element.detail) {
+            label += `. ${element.detail}`;
+          }
+          if (element.decoratorRight) {
+            label += `. ${element.decoratorRight}`;
+          }
+          if (element.description) {
+            label += `. ${element.description}`;
+          }
+          return label;
+        }, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize({ key: "selectBox", comment: ["Behave like native select dropdown element."] }, "Select Box"), "getWidgetAriaLabel"),
+        getRole: /* @__PURE__ */ __name(() => isMacintosh ? "" : "option", "getRole"),
+        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole")
+      }
+    }));
+    if (this.selectBoxOptions.ariaLabel) {
+      this.selectList.ariaLabel = this.selectBoxOptions.ariaLabel;
+    }
+    const onKeyDown = this._register(new DomEmitter(this.selectDropDownListContainer, "keydown"));
+    const onSelectDropDownKeyDown = Event.chain(onKeyDown.event, ($2) => $2.filter(() => this.selectList.length > 0).map((e) => new StandardKeyboardEvent(e)));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 3
+      /* KeyCode.Enter */
+    ))(this.onEnter, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 2
+      /* KeyCode.Tab */
+    ))(this.onEnter, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 9
+      /* KeyCode.Escape */
+    ))(this.onEscape, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 16
+      /* KeyCode.UpArrow */
+    ))(this.onUpArrow, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 18
+      /* KeyCode.DownArrow */
+    ))(this.onDownArrow, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 12
+      /* KeyCode.PageDown */
+    ))(this.onPageDown, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 11
+      /* KeyCode.PageUp */
+    ))(this.onPageUp, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 14
+      /* KeyCode.Home */
+    ))(this.onHome, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter(
+      (e) => e.keyCode === 13
+      /* KeyCode.End */
+    ))(this.onEnd, this));
+    this._register(Event.chain(onSelectDropDownKeyDown, ($2) => $2.filter((e) => e.keyCode >= 21 && e.keyCode <= 56 || e.keyCode >= 85 && e.keyCode <= 113))(this.onCharacter, this));
+    this._register(dom.addDisposableListener(this.selectList.getHTMLElement(), dom.EventType.POINTER_UP, (e) => this.onPointerUp(e)));
+    this._register(this.selectList.onMouseOver((e) => typeof e.index !== "undefined" && this.selectList.setFocus([e.index])));
+    this._register(this.selectList.onDidChangeFocus((e) => this.onListFocus(e)));
+    this._register(dom.addDisposableListener(this.selectDropDownContainer, dom.EventType.FOCUS_OUT, (e) => {
+      if (!this._isVisible || dom.isAncestor(e.relatedTarget, this.selectDropDownContainer)) {
+        return;
+      }
+      this.onListBlur();
+    }));
+    this.selectList.getHTMLElement().setAttribute("aria-label", this.selectBoxOptions.ariaLabel || "");
+    this.selectList.getHTMLElement().setAttribute("aria-expanded", "true");
+    this.styleList();
+  }
+  // List methods
+  // List mouse controller - active exit, select option, fire onDidSelect if change, return focus to parent select
+  // Also takes in touchend events
+  onPointerUp(e) {
+    if (!this.selectList.length) {
+      return;
+    }
+    dom.EventHelper.stop(e);
+    const target = e.target;
+    if (!target) {
+      return;
+    }
+    if (target.classList.contains("slider")) {
+      return;
+    }
+    const listRowElement = target.closest(".monaco-list-row");
+    if (!listRowElement) {
+      return;
+    }
+    const index = Number(listRowElement.getAttribute("data-index"));
+    const disabled = listRowElement.classList.contains("option-disabled");
+    if (index >= 0 && index < this.options.length && !disabled) {
+      this.selected = index;
+      this.select(this.selected);
+      this.selectList.setFocus([this.selected]);
+      this.selectList.reveal(this.selectList.getFocus()[0]);
+      if (this.selected !== this._currentSelection) {
+        this._currentSelection = this.selected;
+        this._onDidSelect.fire({
+          index: this.selectElement.selectedIndex,
+          selected: this.options[this.selected].text
+        });
+        if (!!this.options[this.selected] && !!this.options[this.selected].text) {
+          this.setTitle(this.options[this.selected].text);
+        }
+      }
+      this.hideSelectDropDown(true);
+    }
+  }
+  // List Exit - passive - implicit no selection change, hide drop-down
+  onListBlur() {
+    if (this._sticky) {
+      return;
+    }
+    if (this.selected !== this._currentSelection) {
+      this.select(this._currentSelection);
+    }
+    this.hideSelectDropDown(false);
+  }
+  renderDescriptionMarkdown(text, actionHandler) {
+    const cleanRenderedMarkdown = /* @__PURE__ */ __name((element) => {
+      for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes.item(i);
+        const tagName = child.tagName && child.tagName.toLowerCase();
+        if (tagName === "img") {
+          child.remove();
+        } else {
+          cleanRenderedMarkdown(child);
+        }
+      }
+    }, "cleanRenderedMarkdown");
+    const rendered = renderMarkdown({ value: text, supportThemeIcons: true }, { actionHandler });
+    rendered.element.classList.add("select-box-description-markdown");
+    cleanRenderedMarkdown(rendered.element);
+    return rendered;
+  }
+  // List Focus Change - passive - update details pane with newly focused element's data
+  onListFocus(e) {
+    if (!this._isVisible || !this._hasDetails) {
+      return;
+    }
+    this.updateDetail(e.indexes[0]);
+  }
+  updateDetail(selectedIndex) {
+    this._selectionDetailsDisposables.clear();
+    this.selectionDetailsPane.textContent = "";
+    const option = this.options[selectedIndex];
+    const description = option?.description ?? "";
+    const descriptionIsMarkdown = option?.descriptionIsMarkdown ?? false;
+    if (description) {
+      if (descriptionIsMarkdown) {
+        const actionHandler = option.descriptionMarkdownActionHandler;
+        const result = this._selectionDetailsDisposables.add(this.renderDescriptionMarkdown(description, actionHandler));
+        this.selectionDetailsPane.appendChild(result.element);
+      } else {
+        this.selectionDetailsPane.textContent = description;
+      }
+      this.selectionDetailsPane.style.display = "block";
+    } else {
+      this.selectionDetailsPane.style.display = "none";
+    }
+    this._skipLayout = true;
+    this.contextViewProvider.layout();
+    this._skipLayout = false;
+  }
+  // List keyboard controller
+  // List exit - active - hide ContextView dropdown, reset selection, return focus to parent select
+  onEscape(e) {
+    dom.EventHelper.stop(e);
+    this.select(this._currentSelection);
+    this.hideSelectDropDown(true);
+  }
+  // List exit - active - hide ContextView dropdown, return focus to parent select, fire onDidSelect if change
+  onEnter(e) {
+    dom.EventHelper.stop(e);
+    if (this.selected !== this._currentSelection) {
+      this._currentSelection = this.selected;
+      this._onDidSelect.fire({
+        index: this.selectElement.selectedIndex,
+        selected: this.options[this.selected].text
+      });
+      if (!!this.options[this.selected] && !!this.options[this.selected].text) {
+        this.setTitle(this.options[this.selected].text);
+      }
+    }
+    this.hideSelectDropDown(true);
+  }
+  // List navigation - have to handle a disabled option (jump over)
+  onDownArrow(e) {
+    if (this.selected < this.options.length - 1) {
+      dom.EventHelper.stop(e, true);
+      const nextOptionDisabled = this.options[this.selected + 1].isDisabled;
+      if (nextOptionDisabled && this.options.length > this.selected + 2) {
+        this.selected += 2;
+      } else if (nextOptionDisabled) {
+        return;
+      } else {
+        this.selected++;
+      }
+      this.select(this.selected);
+      this.selectList.setFocus([this.selected]);
+      this.selectList.reveal(this.selectList.getFocus()[0]);
+    }
+  }
+  onUpArrow(e) {
+    if (this.selected > 0) {
+      dom.EventHelper.stop(e, true);
+      const previousOptionDisabled = this.options[this.selected - 1].isDisabled;
+      if (previousOptionDisabled && this.selected > 1) {
+        this.selected -= 2;
+      } else {
+        this.selected--;
+      }
+      this.select(this.selected);
+      this.selectList.setFocus([this.selected]);
+      this.selectList.reveal(this.selectList.getFocus()[0]);
+    }
+  }
+  onPageUp(e) {
+    dom.EventHelper.stop(e);
+    this.selectList.focusPreviousPage();
+    setTimeout(() => {
+      this.selected = this.selectList.getFocus()[0];
+      if (this.options[this.selected].isDisabled && this.selected < this.options.length - 1) {
+        this.selected++;
+        this.selectList.setFocus([this.selected]);
+      }
+      this.selectList.reveal(this.selected);
+      this.select(this.selected);
+    }, 1);
+  }
+  onPageDown(e) {
+    dom.EventHelper.stop(e);
+    this.selectList.focusNextPage();
+    setTimeout(() => {
+      this.selected = this.selectList.getFocus()[0];
+      if (this.options[this.selected].isDisabled && this.selected > 0) {
+        this.selected--;
+        this.selectList.setFocus([this.selected]);
+      }
+      this.selectList.reveal(this.selected);
+      this.select(this.selected);
+    }, 1);
+  }
+  onHome(e) {
+    dom.EventHelper.stop(e);
+    if (this.options.length < 2) {
+      return;
+    }
+    this.selected = 0;
+    if (this.options[this.selected].isDisabled && this.selected > 1) {
+      this.selected++;
+    }
+    this.selectList.setFocus([this.selected]);
+    this.selectList.reveal(this.selected);
+    this.select(this.selected);
+  }
+  onEnd(e) {
+    dom.EventHelper.stop(e);
+    if (this.options.length < 2) {
+      return;
+    }
+    this.selected = this.options.length - 1;
+    if (this.options[this.selected].isDisabled && this.selected > 1) {
+      this.selected--;
+    }
+    this.selectList.setFocus([this.selected]);
+    this.selectList.reveal(this.selected);
+    this.select(this.selected);
+  }
+  // Mimic option first character navigation of native select
+  onCharacter(e) {
+    const ch = KeyCodeUtils.toString(e.keyCode);
+    let optionIndex = -1;
+    for (let i = 0; i < this.options.length - 1; i++) {
+      optionIndex = (i + this.selected + 1) % this.options.length;
+      if (this.options[optionIndex].text.charAt(0).toUpperCase() === ch && !this.options[optionIndex].isDisabled) {
+        this.select(optionIndex);
+        this.selectList.setFocus([optionIndex]);
+        this.selectList.reveal(this.selectList.getFocus()[0]);
+        dom.EventHelper.stop(e);
+        break;
+      }
+    }
+  }
+  dispose() {
+    this.hideSelectDropDown(false);
+    super.dispose();
+  }
+}
+export {
+  SelectBoxList
+};
+//# sourceMappingURL=selectBoxCustom.js.map

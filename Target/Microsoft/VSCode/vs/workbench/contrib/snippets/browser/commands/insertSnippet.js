@@ -1,1 +1,122 @@
-import{EditorContextKeys as S}from"../../../../../editor/common/editorContextKeys.js";import{$WF as $}from"../../../../../editor/common/languages/language.js";import{$Tmb as w}from"../../../../../editor/contrib/snippet/browser/snippetController2.js";import*as x from"../../../../../nls.js";import{$4hb as M}from"../../../../../platform/clipboard/common/clipboardService.js";import{$Lj as F}from"../../../../../platform/instantiation/common/instantiation.js";import{$wFc as L}from"./abstractSnippetsActions.js";import{$zFc as T}from"../snippetPicker.js";import{$VGb as z}from"../snippets.js";import{$TGb as C}from"../snippetsFile.js";class o{static fromUser(t){if(!t||typeof t!="object")return o.a;let{snippet:e,name:n,langId:i}=t;return typeof e!="string"&&(e=void 0),typeof n!="string"&&(n=void 0),typeof i!="string"&&(i=void 0),new o(e,n,i)}static{this.a=new o(void 0,void 0,void 0)}constructor(t,e,n){this.snippet=t,this.name=e,this.langId=n}}class V extends L{constructor(){super({id:"editor.action.insertSnippet",title:x.localize2(12273,"Insert Snippet"),f1:!0,precondition:S.writable,metadata:{description:"Insert Snippet",args:[{name:"args",schema:{type:"object",properties:{snippet:{type:"string"},langId:{type:"string"},name:{type:"string"}}}}]}})}async runEditorCommand(t,e,n){const i=t.get($),d=t.get(z);if(!e.hasModel())return;const c=t.get(M),l=t.get(F),a=await new Promise((p,b)=>{const{lineNumber:m,column:h}=e.getPosition(),{snippet:g,name:u,langId:s}=o.fromUser(n);if(g)return p(new C(!1,[],"","","",g,"",1,`random/${Math.random()}`));let r;if(s){if(!i.isRegisteredLanguageId(s))return p(void 0);r=s}else e.getModel().tokenization.tokenizeIfCheap(m),r=e.getModel().getLanguageIdAtPosition(m,h),i.getLanguageName(r)||(r=e.getModel().getLanguageId());u?d.getSnippets(r,void 0,{includeNoPrefixSnippets:!0}).then(I=>I.find(y=>y.name===u)).then(p,b):p(l.invokeFunction(T,r,e.getModel().uri))});if(!a)return;let f;a.needsClipboard&&(f=await c.readText()),e.focus(),w.get(e)?.insert(a.codeSnippet,{clipboardText:f}),d.updateUsageTimestamp(a)}}export{V as $AFc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
+import * as nls from "../../../../../nls.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { SnippetEditorAction } from "./abstractSnippetsActions.js";
+import { pickSnippet } from "../snippetPicker.js";
+import { ISnippetsService } from "../snippets.js";
+import { Snippet } from "../snippetsFile.js";
+class Args {
+  static {
+    __name(this, "Args");
+  }
+  static fromUser(arg) {
+    if (!arg || typeof arg !== "object") {
+      return Args._empty;
+    }
+    let { snippet, name, langId } = arg;
+    if (typeof snippet !== "string") {
+      snippet = void 0;
+    }
+    if (typeof name !== "string") {
+      name = void 0;
+    }
+    if (typeof langId !== "string") {
+      langId = void 0;
+    }
+    return new Args(snippet, name, langId);
+  }
+  static {
+    this._empty = new Args(void 0, void 0, void 0);
+  }
+  constructor(snippet, name, langId) {
+    this.snippet = snippet;
+    this.name = name;
+    this.langId = langId;
+  }
+}
+class InsertSnippetAction extends SnippetEditorAction {
+  static {
+    __name(this, "InsertSnippetAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.insertSnippet",
+      title: nls.localize2("snippet.suggestions.label", "Insert Snippet"),
+      f1: true,
+      precondition: EditorContextKeys.writable,
+      metadata: {
+        description: `Insert Snippet`,
+        args: [{
+          name: "args",
+          schema: {
+            "type": "object",
+            "properties": {
+              "snippet": {
+                "type": "string"
+              },
+              "langId": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }]
+      }
+    });
+  }
+  async runEditorCommand(accessor, editor, arg) {
+    const languageService = accessor.get(ILanguageService);
+    const snippetService = accessor.get(ISnippetsService);
+    if (!editor.hasModel()) {
+      return;
+    }
+    const clipboardService = accessor.get(IClipboardService);
+    const instaService = accessor.get(IInstantiationService);
+    const snippet = await new Promise((resolve, reject) => {
+      const { lineNumber, column } = editor.getPosition();
+      const { snippet: snippet2, name, langId } = Args.fromUser(arg);
+      if (snippet2) {
+        return resolve(new Snippet(false, [], "", "", "", snippet2, "", 1, `random/${Math.random()}`));
+      }
+      let languageId;
+      if (langId) {
+        if (!languageService.isRegisteredLanguageId(langId)) {
+          return resolve(void 0);
+        }
+        languageId = langId;
+      } else {
+        editor.getModel().tokenization.tokenizeIfCheap(lineNumber);
+        languageId = editor.getModel().getLanguageIdAtPosition(lineNumber, column);
+        if (!languageService.getLanguageName(languageId)) {
+          languageId = editor.getModel().getLanguageId();
+        }
+      }
+      if (name) {
+        snippetService.getSnippets(languageId, void 0, { includeNoPrefixSnippets: true }).then((snippets) => snippets.find((snippet3) => snippet3.name === name)).then(resolve, reject);
+      } else {
+        resolve(instaService.invokeFunction(pickSnippet, languageId, editor.getModel().uri));
+      }
+    });
+    if (!snippet) {
+      return;
+    }
+    let clipboardText;
+    if (snippet.needsClipboard) {
+      clipboardText = await clipboardService.readText();
+    }
+    editor.focus();
+    SnippetController2.get(editor)?.insert(snippet.codeSnippet, { clipboardText });
+    snippetService.updateUsageTimestamp(snippet);
+  }
+}
+export {
+  InsertSnippetAction
+};
+//# sourceMappingURL=insertSnippet.js.map

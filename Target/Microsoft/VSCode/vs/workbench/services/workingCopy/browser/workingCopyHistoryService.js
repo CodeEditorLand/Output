@@ -1,1 +1,56 @@
-import{$uk as l}from"../../../../platform/files/common/files.js";import{$ZN as $}from"../../remote/common/remoteAgentService.js";import{$BP as a}from"../../environment/common/environmentService.js";import{$0o as h}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$lH as s}from"../../../../platform/label/common/label.js";import{$xo as _}from"../../../../platform/log/common/log.js";import{$9l as v}from"../../../../platform/configuration/common/configuration.js";import{$pMc as O}from"../common/workingCopyHistoryService.js";import{$TC as b}from"../../../../platform/instantiation/common/extensions.js";import{$9Hc as j}from"../common/workingCopyHistory.js";var u=function(m,r,t,e){var n=arguments.length,o=n<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,t):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(m,r,t,e);else for(var p=m.length-1;p>=0;p--)(i=m[p])&&(o=(n<3?i(o):n>3?i(r,t,o):i(r,t))||o);return n>3&&o&&Object.defineProperty(r,t,o),o},f=function(m,r){return function(t,e){r(t,e,m)}};let c=class extends O{constructor(r,t,e,n,o,i,p){super(r,t,e,n,o,i,p)}H(){return{flushOnChange:!0}}};c=u([f(0,l),f(1,$),f(2,a),f(3,h),f(4,s),f(5,_),f(6,v)],c);b(j,c,1);export{c as $rMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { WorkingCopyHistoryService } from "../common/workingCopyHistoryService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkingCopyHistoryService } from "../common/workingCopyHistory.js";
+let BrowserWorkingCopyHistoryService = class BrowserWorkingCopyHistoryService2 extends WorkingCopyHistoryService {
+  static {
+    __name(this, "BrowserWorkingCopyHistoryService");
+  }
+  constructor(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService) {
+    super(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService);
+  }
+  getModelOptions() {
+    return {
+      flushOnChange: true
+      /* because browsers support no long running shutdown */
+    };
+  }
+};
+BrowserWorkingCopyHistoryService = __decorate([
+  __param(0, IFileService),
+  __param(1, IRemoteAgentService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IUriIdentityService),
+  __param(4, ILabelService),
+  __param(5, ILogService),
+  __param(6, IConfigurationService)
+], BrowserWorkingCopyHistoryService);
+registerSingleton(
+  IWorkingCopyHistoryService,
+  BrowserWorkingCopyHistoryService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserWorkingCopyHistoryService
+};
+//# sourceMappingURL=workingCopyHistoryService.js.map

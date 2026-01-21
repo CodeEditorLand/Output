@@ -1,1 +1,120 @@
-import{URI as S}from"../../../../base/common/uri.js";import{$Tpb as U}from"../../../../platform/list/browser/listService.js";import{$3Qb as m}from"../common/files.js";import{$rN as F,SideBySideEditor as I}from"../../../common/editor.js";import{$F0 as E}from"../../../../base/browser/ui/list/listWidget.js";import{$SSb as h}from"../common/explorerModel.js";import{$$b as b}from"../../../../base/common/arrays.js";import{$F_ as R}from"../../../../base/browser/ui/tree/asyncDataTree.js";import{$Mj as L}from"../../../../platform/instantiation/common/instantiation.js";import{$h8 as $}from"../../../../base/browser/dom.js";const Q=L("explorerService");function v(i){const e=i.lastFocusedList,r=e?.getHTMLElement();if(r&&$(r)){let n;if(e instanceof E){const o=e.getFocusedElements();o.length&&(n=o[0])}else if(e instanceof R){const o=e.getFocus();o.length&&(n=o[0])}return n}}function M(i,e,r){if(S.isUri(i))return i;const n=v(r);return n instanceof h?n.resource:n instanceof m?n.getResource():F.getOriginalUri(e.activeEditor,{supportSideBySide:I.PRIMARY})}function V(i,e,r,n,o){const c=e.lastFocusedList,u=c?.getHTMLElement();if(u&&$(u)){if(c instanceof R&&c.getFocus().every(t=>t instanceof h)){const t=o.getContext(!0,!0);if(t.length)return t.map(f=>f.resource)}if(c instanceof E){const t=b(c.getSelectedElements().filter(s=>s instanceof m).map(s=>s.getResource())),f=c.getFocusedElements(),d=f.length?f[0]:void 0;let p;if(S.isUri(i))p=i.toString();else if(d instanceof m){const s=d.getResource();p=s?s.toString():void 0}const g=t.findIndex(s=>s.toString()===p);if(g!==-1){const s=t[g];return t.splice(g,1),t.unshift(s),t}}}const l=n.activeGroup.selectedEditors;if(l.length>1&&S.isUri(i)){const t=l.findIndex(f=>f.matches({resource:i}));if(t!==-1){const f=l[t];return l.splice(t,1),l.unshift(f),l.map(d=>F.getOriginalUri(d)).filter(d=>!!d)}}const x=M(i,r,e);return x?[x]:[]}function W(i){const e=i.get(U).lastFocusedList,r=e?.getHTMLElement();if(r&&$(r)&&e instanceof E){const n=b(e.getSelectedElements().filter(a=>a instanceof m)),o=e.getFocusedElements(),c=o.length?o[0]:void 0;let u;return c instanceof m&&(u=c),n.some(a=>a===u)?n:u?[u]:void 0}}export{Q as $USb,M as $VSb,V as $WSb,W as $XSb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { OpenEditor } from "../common/files.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { List } from "../../../../base/browser/ui/list/listWidget.js";
+import { ExplorerItem } from "../common/explorerModel.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { AsyncDataTree } from "../../../../base/browser/ui/tree/asyncDataTree.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { isActiveElement } from "../../../../base/browser/dom.js";
+const IExplorerService = createDecorator("explorerService");
+function getFocus(listService) {
+  const list = listService.lastFocusedList;
+  const element = list?.getHTMLElement();
+  if (element && isActiveElement(element)) {
+    let focus;
+    if (list instanceof List) {
+      const focused = list.getFocusedElements();
+      if (focused.length) {
+        focus = focused[0];
+      }
+    } else if (list instanceof AsyncDataTree) {
+      const focused = list.getFocus();
+      if (focused.length) {
+        focus = focused[0];
+      }
+    }
+    return focus;
+  }
+  return void 0;
+}
+__name(getFocus, "getFocus");
+function getResourceForCommand(commandArg, editorService, listService) {
+  if (URI.isUri(commandArg)) {
+    return commandArg;
+  }
+  const focus = getFocus(listService);
+  if (focus instanceof ExplorerItem) {
+    return focus.resource;
+  } else if (focus instanceof OpenEditor) {
+    return focus.getResource();
+  }
+  return EditorResourceAccessor.getOriginalUri(editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+}
+__name(getResourceForCommand, "getResourceForCommand");
+function getMultiSelectedResources(commandArg, listService, editorSerice, editorGroupService, explorerService) {
+  const list = listService.lastFocusedList;
+  const element = list?.getHTMLElement();
+  if (element && isActiveElement(element)) {
+    if (list instanceof AsyncDataTree && list.getFocus().every((item) => item instanceof ExplorerItem)) {
+      const context = explorerService.getContext(true, true);
+      if (context.length) {
+        return context.map((c) => c.resource);
+      }
+    }
+    if (list instanceof List) {
+      const selection2 = coalesce(list.getSelectedElements().filter((s) => s instanceof OpenEditor).map((oe) => oe.getResource()));
+      const focusedElements = list.getFocusedElements();
+      const focus = focusedElements.length ? focusedElements[0] : void 0;
+      let mainUriStr = void 0;
+      if (URI.isUri(commandArg)) {
+        mainUriStr = commandArg.toString();
+      } else if (focus instanceof OpenEditor) {
+        const focusedResource = focus.getResource();
+        mainUriStr = focusedResource ? focusedResource.toString() : void 0;
+      }
+      const mainIndex = selection2.findIndex((s) => s.toString() === mainUriStr);
+      if (mainIndex !== -1) {
+        const mainResource = selection2[mainIndex];
+        selection2.splice(mainIndex, 1);
+        selection2.unshift(mainResource);
+        return selection2;
+      }
+    }
+  }
+  const activeGroup = editorGroupService.activeGroup;
+  const selection = activeGroup.selectedEditors;
+  if (selection.length > 1 && URI.isUri(commandArg)) {
+    const mainEditorSelectionIndex = selection.findIndex((e) => e.matches({ resource: commandArg }));
+    if (mainEditorSelectionIndex !== -1) {
+      const mainEditor = selection[mainEditorSelectionIndex];
+      selection.splice(mainEditorSelectionIndex, 1);
+      selection.unshift(mainEditor);
+      return selection.map((editor) => EditorResourceAccessor.getOriginalUri(editor)).filter((uri) => !!uri);
+    }
+  }
+  const result = getResourceForCommand(commandArg, editorSerice, listService);
+  return result ? [result] : [];
+}
+__name(getMultiSelectedResources, "getMultiSelectedResources");
+function getOpenEditorsViewMultiSelection(accessor) {
+  const list = accessor.get(IListService).lastFocusedList;
+  const element = list?.getHTMLElement();
+  if (element && isActiveElement(element)) {
+    if (list instanceof List) {
+      const selection = coalesce(list.getSelectedElements().filter((s) => s instanceof OpenEditor));
+      const focusedElements = list.getFocusedElements();
+      const focus = focusedElements.length ? focusedElements[0] : void 0;
+      let mainEditor = void 0;
+      if (focus instanceof OpenEditor) {
+        mainEditor = focus;
+      }
+      if (selection.some((s) => s === mainEditor)) {
+        return selection;
+      }
+      return mainEditor ? [mainEditor] : void 0;
+    }
+  }
+  return void 0;
+}
+__name(getOpenEditorsViewMultiSelection, "getOpenEditorsViewMultiSelection");
+export {
+  IExplorerService,
+  getMultiSelectedResources,
+  getOpenEditorsViewMultiSelection,
+  getResourceForCommand
+};
+//# sourceMappingURL=files.js.map

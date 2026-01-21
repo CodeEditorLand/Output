@@ -1,1 +1,4 @@
-import{$wab as m}from"../../../../base/common/worker/webWorkerBootstrap.js";import{$y3c as o}from"./localFileSearch.js";m(o);
+import { bootstrapWebWorker } from "../../../../base/common/worker/webWorkerBootstrap.js";
+import { create } from "./localFileSearch.js";
+bootstrapWebWorker(create);
+//# sourceMappingURL=localFileSearchMain.js.map

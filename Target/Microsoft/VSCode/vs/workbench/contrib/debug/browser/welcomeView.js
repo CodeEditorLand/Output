@@ -1,1 +1,168 @@
-import{$tk as _}from"../../../../base/common/htmlContent.js";import{$Dd as M}from"../../../../base/common/lifecycle.js";import{$pcb as I,$qcb as T}from"../../../../editor/browser/editorBrowser.js";import{localize as c,localize2 as j}from"../../../../nls.js";import{$9l as B}from"../../../../platform/configuration/common/configuration.js";import{$9n as D,$qo as S,$po as L}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as q}from"../../../../platform/contextview/browser/contextView.js";import{$7ib as K}from"../../../../platform/hover/browser/hover.js";import{$Lj as X}from"../../../../platform/instantiation/common/instantiation.js";import{$cy as P}from"../../../../platform/keybinding/common/keybinding.js";import{$yP as U}from"../../../../platform/opener/common/opener.js";import{$im as z}from"../../../../platform/registry/common/platform.js";import{$gp as Y}from"../../../../platform/storage/common/storage.js";import{$ou as F}from"../../../../platform/theme/common/themeService.js";import{$eWb as H,$fWb as J}from"../../../browser/actions/workspaceActions.js";import{$YAb as Q}from"../../../browser/parts/views/viewPane.js";import{$hO as y}from"../../../common/contextkeys.js";import{Extensions as Z,$BN as k,ViewContentGroups as u}from"../../../common/views.js";import{$yL as tt}from"../../../services/editor/common/editorService.js";import{$8X as h,$9X as et,$EY as ot}from"../common/debug.js";import{$jgc as it,$kgc as A}from"./debugCommands.js";var G=function(m,o,r,n){var a=arguments.length,i=a<3?o:n===null?n=Object.getOwnPropertyDescriptor(o,r):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(m,o,r,n);else for(var d=m.length-1;d>=0;d--)(s=m[d])&&(i=(a<3?s(i):a>3?s(o,r,i):s(o,r))||i);return a>3&&i&&Object.defineProperty(o,r,i),i},e=function(m,o){return function(r,n){o(r,n,m)}};const $="debugStartLanguage",rt=new L($,void 0),R=new L("debuggerInterestedInActiveEditor",!1);let g=class extends Q{static{this.ID="workbench.debug.welcome"}static{this.LABEL=j(7911,"Run")}constructor(o,r,n,a,i,s,d,E,V,O,W,w,v){super(o,n,a,i,s,O,V,W,r,v),this.c=d,this.f=E,this.a=rt.bindTo(s),this.b=R.bindTo(s);const x=w.get($,1);this.a.set(x);const l=()=>{let t=this.f.activeTextEditorControl;if(T(t)&&(t=t.getModifiedEditor()),I(t)){const C=t.getModel(),p=C?C.getLanguageId():void 0;if(p&&this.c.getAdapterManager().someDebuggerInterestedInLanguage(p)){this.a.set(p),this.b.set(!0),w.store($,p,1,1);return}}this.b.set(!1)},b=new M;this.D(b),this.D(E.onDidActiveEditorChange(()=>{b.clear();let t=this.f.activeTextEditorControl;T(t)&&(t=t.getModifiedEditor()),I(t)&&b.add(t.onDidChangeModelLanguage(l)),l()})),this.D(this.c.getAdapterManager().onDidRegisterDebugger(l)),this.D(this.onDidChangeBodyVisibility(t=>{t&&l()})),l(),N=this.Ab.appendKeybinding("",A)}shouldShowWelcome(){return!0}};g=G([e(1,F),e(2,P),e(3,q),e(4,B),e(5,S),e(6,ot),e(7,tt),e(8,X),e(9,k),e(10,U),e(11,Y),e(12,K)],g);const f=z.as(Z.ViewsRegistry);f.registerViewWelcomeContent(g.ID,{content:c(7906,null,H.ID),when:D.and(h,R.toNegated()),group:u.Open});let N="";f.registerViewWelcomeContent(g.ID,{content:`[${c(7907,null)}${N}](command:${A})`,when:h,group:u.Debug,order:1});f.registerViewWelcomeContent(g.ID,{content:c(7908,null,`${_(it,{addNew:!0}).toString()}`),when:D.and(h,y.notEqualsTo("empty")),group:u.Debug});f.registerViewWelcomeContent(g.ID,{content:c(7909,null,_(J.ID).toString()),when:D.and(h,y.isEqualTo("empty")),group:u.Debug});f.registerViewWelcomeContent(g.ID,{content:c(7910,null),when:et.toNegated(),group:u.Debug});export{g as $Kxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createCommandUri } from "../../../../base/common/htmlContent.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { OpenFileAction, OpenFolderAction } from "../../../browser/actions/workspaceActions.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { WorkbenchStateContext } from "../../../common/contextkeys.js";
+import { Extensions, IViewDescriptorService, ViewContentGroups } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_EXTENSION_AVAILABLE, IDebugService } from "../common/debug.js";
+import { DEBUG_CONFIGURE_COMMAND_ID, DEBUG_START_COMMAND_ID } from "./debugCommands.js";
+const debugStartLanguageKey = "debugStartLanguage";
+const CONTEXT_DEBUG_START_LANGUAGE = new RawContextKey(debugStartLanguageKey, void 0);
+const CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR = new RawContextKey("debuggerInterestedInActiveEditor", false);
+let WelcomeView = class WelcomeView2 extends ViewPane {
+  static {
+    __name(this, "WelcomeView");
+  }
+  static {
+    this.ID = "workbench.debug.welcome";
+  }
+  static {
+    this.LABEL = localize2("run", "Run");
+  }
+  constructor(options, themeService, keybindingService, contextMenuService, configurationService, contextKeyService, debugService, editorService, instantiationService, viewDescriptorService, openerService, storageSevice, hoverService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.debugService = debugService;
+    this.editorService = editorService;
+    this.debugStartLanguageContext = CONTEXT_DEBUG_START_LANGUAGE.bindTo(contextKeyService);
+    this.debuggerInterestedContext = CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR.bindTo(contextKeyService);
+    const lastSetLanguage = storageSevice.get(
+      debugStartLanguageKey,
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    this.debugStartLanguageContext.set(lastSetLanguage);
+    const setContextKey = /* @__PURE__ */ __name(() => {
+      let editorControl = this.editorService.activeTextEditorControl;
+      if (isDiffEditor(editorControl)) {
+        editorControl = editorControl.getModifiedEditor();
+      }
+      if (isCodeEditor(editorControl)) {
+        const model = editorControl.getModel();
+        const language = model ? model.getLanguageId() : void 0;
+        if (language && this.debugService.getAdapterManager().someDebuggerInterestedInLanguage(language)) {
+          this.debugStartLanguageContext.set(language);
+          this.debuggerInterestedContext.set(true);
+          storageSevice.store(
+            debugStartLanguageKey,
+            language,
+            1,
+            1
+            /* StorageTarget.MACHINE */
+          );
+          return;
+        }
+      }
+      this.debuggerInterestedContext.set(false);
+    }, "setContextKey");
+    const disposables = new DisposableStore();
+    this._register(disposables);
+    this._register(editorService.onDidActiveEditorChange(() => {
+      disposables.clear();
+      let editorControl = this.editorService.activeTextEditorControl;
+      if (isDiffEditor(editorControl)) {
+        editorControl = editorControl.getModifiedEditor();
+      }
+      if (isCodeEditor(editorControl)) {
+        disposables.add(editorControl.onDidChangeModelLanguage(setContextKey));
+      }
+      setContextKey();
+    }));
+    this._register(this.debugService.getAdapterManager().onDidRegisterDebugger(setContextKey));
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible) {
+        setContextKey();
+      }
+    }));
+    setContextKey();
+    debugKeybindingLabel = this.keybindingService.appendKeybinding("", DEBUG_START_COMMAND_ID);
+  }
+  shouldShowWelcome() {
+    return true;
+  }
+};
+WelcomeView = __decorate([
+  __param(1, IThemeService),
+  __param(2, IKeybindingService),
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService),
+  __param(5, IContextKeyService),
+  __param(6, IDebugService),
+  __param(7, IEditorService),
+  __param(8, IInstantiationService),
+  __param(9, IViewDescriptorService),
+  __param(10, IOpenerService),
+  __param(11, IStorageService),
+  __param(12, IHoverService)
+], WelcomeView);
+const viewsRegistry = Registry.as(Extensions.ViewsRegistry);
+viewsRegistry.registerViewWelcomeContent(WelcomeView.ID, {
+  content: localize({
+    key: "openAFileWhichCanBeDebugged",
+    comment: [
+      'Please do not translate the word "command", it is part of our internal syntax which must not change',
+      '{Locked="](command:{0})"}'
+    ]
+  }, "[Open a file](command:{0}) which can be debugged or run.", OpenFileAction.ID),
+  when: ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUGGER_INTERESTED_IN_ACTIVE_EDITOR.toNegated()),
+  group: ViewContentGroups.Open
+});
+let debugKeybindingLabel = "";
+viewsRegistry.registerViewWelcomeContent(WelcomeView.ID, {
+  content: `[${localize("runAndDebugAction", "Run and Debug")}${debugKeybindingLabel}](command:${DEBUG_START_COMMAND_ID})`,
+  when: CONTEXT_DEBUGGERS_AVAILABLE,
+  group: ViewContentGroups.Debug,
+  // Allow inserting more buttons directly after this one (by setting order to 1).
+  order: 1
+});
+viewsRegistry.registerViewWelcomeContent(WelcomeView.ID, {
+  content: localize({ key: "customizeRunAndDebug2", comment: ['{Locked="launch.json"}', '{Locked="["}', '{Locked="]({0})"}'] }, "To customize Run and Debug [create a launch.json file]({0}).", `${createCommandUri(DEBUG_CONFIGURE_COMMAND_ID, { addNew: true }).toString()}`),
+  when: ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, WorkbenchStateContext.notEqualsTo("empty")),
+  group: ViewContentGroups.Debug
+});
+viewsRegistry.registerViewWelcomeContent(WelcomeView.ID, {
+  content: localize({
+    key: "customizeRunAndDebugOpenFolder2",
+    comment: [
+      '{Locked="launch.json"}',
+      '{Locked="["}',
+      '{Locked="]({0})"}'
+    ]
+  }, "To customize Run and Debug, [open a folder]({0}) and create a launch.json file.", createCommandUri(OpenFolderAction.ID).toString()),
+  when: ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, WorkbenchStateContext.isEqualTo("empty")),
+  group: ViewContentGroups.Debug
+});
+viewsRegistry.registerViewWelcomeContent(WelcomeView.ID, {
+  content: localize("allDebuggersDisabled", "All debug extensions are disabled. Enable a debug extension or install a new one from the Marketplace."),
+  when: CONTEXT_DEBUG_EXTENSION_AVAILABLE.toNegated(),
+  group: ViewContentGroups.Debug
+});
+export {
+  WelcomeView
+};
+//# sourceMappingURL=welcomeView.js.map

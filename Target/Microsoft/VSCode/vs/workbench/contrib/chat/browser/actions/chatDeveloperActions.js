@@ -1,7 +1,111 @@
-import{$ak as s}from"../../../../../base/common/codicons.js";import{localize2 as i}from"../../../../../nls.js";import{$so as c}from"../../../../../platform/action/common/actionCommonCategories.js";import{$sL as a,$tL as r}from"../../../../../platform/actions/common/actions.js";import{$yL as v}from"../../../../services/editor/common/editorService.js";import{ChatContextKeys as l}from"../../common/actions/chatContextKeys.js";import{$hU as C}from"../../common/chatService/chatService.js";import{$O3b as I}from"../chat.js";function W(){r(d),r(p),r(u)}class d extends a{static{this.ID="workbench.action.chat.logInputHistory"}constructor(){super({id:d.ID,title:i(5231,"Log Chat Input History"),icon:s.attach,category:c.Developer,f1:!0,precondition:l.enabled})}async run(t,...g){t.get(I).lastFocusedWidget?.logInputHistory()}}class p extends a{static{this.ID="workbench.action.chat.logChatIndex"}constructor(){super({id:p.ID,title:i(5232,"Log Chat Index"),icon:s.attach,category:c.Developer,f1:!0,precondition:l.enabled})}async run(t,...g){t.get(C).logChatIndex()}}class u extends a{static{this.ID="workbench.action.chat.inspectChatModel"}constructor(){super({id:u.ID,title:i(5233,"Inspect Chat Model"),icon:s.inspect,category:c.Developer,f1:!0,precondition:l.enabled})}async run(t,...g){const n=t.get(I),y=t.get(v),h=n.lastFocusedWidget;if(!h?.viewModel)return;const m=h.viewModel.model.toJSON();let e=`# Chat Model Inspection
-
-`;const o=m.requests;if(o&&o.length>0){const f=o[o.length-1];f.response&&(e+=`## Latest Response
-
-`,e+="```json\n"+JSON.stringify(f.response,null,2)+"\n```\n\n")}e+=`## Full Chat Model
-
-`,e+="```json\n"+JSON.stringify(m,null,2)+"\n```\n",await y.openEditor({resource:void 0,contents:e,languageId:"markdown",options:{pinned:!0}})}}export{W as $$mc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { localize2 } from "../../../../../nls.js";
+import { Categories } from "../../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { IChatWidgetService } from "../chat.js";
+function registerChatDeveloperActions() {
+  registerAction2(LogChatInputHistoryAction);
+  registerAction2(LogChatIndexAction);
+  registerAction2(InspectChatModelAction);
+}
+__name(registerChatDeveloperActions, "registerChatDeveloperActions");
+class LogChatInputHistoryAction extends Action2 {
+  static {
+    __name(this, "LogChatInputHistoryAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.logInputHistory";
+  }
+  constructor() {
+    super({
+      id: LogChatInputHistoryAction.ID,
+      title: localize2("workbench.action.chat.logInputHistory.label", "Log Chat Input History"),
+      icon: Codicon.attach,
+      category: Categories.Developer,
+      f1: true,
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  async run(accessor, ...args) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    chatWidgetService.lastFocusedWidget?.logInputHistory();
+  }
+}
+class LogChatIndexAction extends Action2 {
+  static {
+    __name(this, "LogChatIndexAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.logChatIndex";
+  }
+  constructor() {
+    super({
+      id: LogChatIndexAction.ID,
+      title: localize2("workbench.action.chat.logChatIndex.label", "Log Chat Index"),
+      icon: Codicon.attach,
+      category: Categories.Developer,
+      f1: true,
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  async run(accessor, ...args) {
+    const chatService = accessor.get(IChatService);
+    chatService.logChatIndex();
+  }
+}
+class InspectChatModelAction extends Action2 {
+  static {
+    __name(this, "InspectChatModelAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.inspectChatModel";
+  }
+  constructor() {
+    super({
+      id: InspectChatModelAction.ID,
+      title: localize2("workbench.action.chat.inspectChatModel.label", "Inspect Chat Model"),
+      icon: Codicon.inspect,
+      category: Categories.Developer,
+      f1: true,
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  async run(accessor, ...args) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const editorService = accessor.get(IEditorService);
+    const widget = chatWidgetService.lastFocusedWidget;
+    if (!widget?.viewModel) {
+      return;
+    }
+    const model = widget.viewModel.model;
+    const modelData = model.toJSON();
+    let output = "# Chat Model Inspection\n\n";
+    const requests = modelData.requests;
+    if (requests && requests.length > 0) {
+      const latestRequest = requests[requests.length - 1];
+      if (latestRequest.response) {
+        output += "## Latest Response\n\n";
+        output += "```json\n" + JSON.stringify(latestRequest.response, null, 2) + "\n```\n\n";
+      }
+    }
+    output += "## Full Chat Model\n\n";
+    output += "```json\n" + JSON.stringify(modelData, null, 2) + "\n```\n";
+    await editorService.openEditor({
+      resource: void 0,
+      contents: output,
+      languageId: "markdown",
+      options: {
+        pinned: true
+      }
+    });
+  }
+}
+export {
+  registerChatDeveloperActions
+};
+//# sourceMappingURL=chatDeveloperActions.js.map

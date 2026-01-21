@@ -1,1 +1,62 @@
-import{$rc as u}from"../../../../base/common/arrays.js";import{$Ed as h}from"../../../../base/common/lifecycle.js";import{autorun as d,observableFromEvent as $}from"../../../../base/common/observable.js";import{$NV as b}from"../../../../editor/common/services/languageFeatures.js";import{$Hub as v,$Gub as _}from"../../../../editor/contrib/inlineCompletions/browser/controller/commands.js";import{$jm as C}from"../../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$zsb as I}from"../../../../platform/observable/common/wrapInHotClass.js";import{$im as P}from"../../../../platform/registry/common/platform.js";import{$XN as f}from"../../../common/contributions.js";import{$KIc as p}from"./inlineCompletionLanguageStatusBarContribution.js";var l=function(n,o,r,i){var e=arguments.length,t=e<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,r):i,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,o,r,i);else for(var c=n.length-1;c>=0;c--)(m=n[c])&&(t=(e<3?m(t):e>3?m(o,r,t):m(o,r))||t);return e>3&&t&&Object.defineProperty(o,r,t),t},a=function(n,o){return function(r,i){o(r,i,n)}};f(p.Id,I(p.hot),4);let s=class extends h{static{this.Id="vs.contrib.InlineCompletionSchemaContribution"}constructor(o){super(),this.a=o;const r=P.as(C.JSONContribution),i=$(this,this.a.inlineCompletionsProvider.onDidChange,()=>this.a.inlineCompletionsProvider.allNoModel());this.D(d(e=>{const t=i.read(e);r.registerSchema(_,{enum:u(t.flatMap(m=>v(m)))},e.store)}))}};s=l([a(0,b)],s);f(s.Id,s,4);export{s as $LIc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { withoutDuplicates } from "../../../../base/common/arrays.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { autorun, observableFromEvent } from "../../../../base/common/observable.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { inlineCompletionProviderGetMatcher, providerIdSchemaUri } from "../../../../editor/contrib/inlineCompletions/browser/controller/commands.js";
+import { Extensions } from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { wrapInHotClass1 } from "../../../../platform/observable/common/wrapInHotClass.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { InlineCompletionLanguageStatusBarContribution } from "./inlineCompletionLanguageStatusBarContribution.js";
+registerWorkbenchContribution2(
+  InlineCompletionLanguageStatusBarContribution.Id,
+  wrapInHotClass1(InlineCompletionLanguageStatusBarContribution.hot),
+  4
+  /* WorkbenchPhase.Eventually */
+);
+let InlineCompletionSchemaContribution = class InlineCompletionSchemaContribution2 extends Disposable {
+  static {
+    __name(this, "InlineCompletionSchemaContribution");
+  }
+  static {
+    this.Id = "vs.contrib.InlineCompletionSchemaContribution";
+  }
+  constructor(_languageFeaturesService) {
+    super();
+    this._languageFeaturesService = _languageFeaturesService;
+    const registry = Registry.as(Extensions.JSONContribution);
+    const inlineCompletionsProvider = observableFromEvent(this, this._languageFeaturesService.inlineCompletionsProvider.onDidChange, () => this._languageFeaturesService.inlineCompletionsProvider.allNoModel());
+    this._register(autorun((reader) => {
+      const provider = inlineCompletionsProvider.read(reader);
+      registry.registerSchema(providerIdSchemaUri, {
+        enum: withoutDuplicates(provider.flatMap((p) => inlineCompletionProviderGetMatcher(p)))
+      }, reader.store);
+    }));
+  }
+};
+InlineCompletionSchemaContribution = __decorate([
+  __param(0, ILanguageFeaturesService)
+], InlineCompletionSchemaContribution);
+registerWorkbenchContribution2(
+  InlineCompletionSchemaContribution.Id,
+  InlineCompletionSchemaContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+export {
+  InlineCompletionSchemaContribution
+};
+//# sourceMappingURL=inlineCompletions.contribution.js.map

@@ -1,1 +1,101 @@
-import*as v from"../../../../base/common/resources.js";import{URI as u}from"../../../../base/common/uri.js";import{$If as d}from"../../../../base/common/cancellation.js";import*as l from"../../../../base/common/errors.js";import{$Lj as $}from"../../../../platform/instantiation/common/instantiation.js";import{$1Z as h}from"../../search/common/queryBuilder.js";import{$nT as P}from"../../search/common/search.js";import{$Xl as x}from"../../../../platform/workspace/common/workspace.js";import{$1h as g}from"../../../../base/common/async.js";const k=7e3;function O(e,i){const t=i.activationEvents;if(!t)return Promise.resolve(void 0);const n=[],o=[];for(const c of t)if(/^workspaceContains:/.test(c)){const m=c.substr(18);m.indexOf("*")>=0||m.indexOf("?")>=0||e.forceUsingSearch?o.push(m):n.push(m)}if(n.length===0&&o.length===0)return Promise.resolve(void 0);const{promise:a,resolve:f}=g(),s=c=>f({activationEvent:c}),r=Promise.all(n.map(c=>w(e,c,s))).then(()=>{}),p=S(e,i.identifier,o,s);return Promise.all([r,p]).then(()=>{f(void 0)}),a}async function w(e,i,t){for(const n of e.folders)if(await e.exists(v.$Hh(u.revive(n),i))){t(`workspaceContains:${i}`);return}}async function S(e,i,t,n){if(t.length===0)return Promise.resolve(void 0);const o=new d,a=e.checkExists(e.folders,t,o.token),f=setTimeout(async()=>{o.cancel(),e.logService.info(`Not activating extension '${i.value}': Timed out while searching for 'workspaceContains' pattern ${t.join(",")}`)},k);let s=!1;try{s=await a}catch(r){l.$rb(r)||l.$mb(r)}o.dispose(),clearTimeout(f),s&&n(`workspaceContains:${t.join(",")}`)}function _(e,i,t,n){const o=e.get($),a=e.get(P),s=o.createInstance(h).file(i.map(r=>x(u.revive(r))),{_reason:"checkExists",includePattern:t,exists:!0});return a.fileSearch(s,n).then(r=>!!r.limitHit,r=>l.$rb(r)?!1:Promise.reject(r))}export{O as $J7b,_ as $K7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as resources from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import * as errors from "../../../../base/common/errors.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { QueryBuilder } from "../../search/common/queryBuilder.js";
+import { ISearchService } from "../../search/common/search.js";
+import { toWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { promiseWithResolvers } from "../../../../base/common/async.js";
+const WORKSPACE_CONTAINS_TIMEOUT = 7e3;
+function checkActivateWorkspaceContainsExtension(host, desc) {
+  const activationEvents = desc.activationEvents;
+  if (!activationEvents) {
+    return Promise.resolve(void 0);
+  }
+  const fileNames = [];
+  const globPatterns = [];
+  for (const activationEvent of activationEvents) {
+    if (/^workspaceContains:/.test(activationEvent)) {
+      const fileNameOrGlob = activationEvent.substr("workspaceContains:".length);
+      if (fileNameOrGlob.indexOf("*") >= 0 || fileNameOrGlob.indexOf("?") >= 0 || host.forceUsingSearch) {
+        globPatterns.push(fileNameOrGlob);
+      } else {
+        fileNames.push(fileNameOrGlob);
+      }
+    }
+  }
+  if (fileNames.length === 0 && globPatterns.length === 0) {
+    return Promise.resolve(void 0);
+  }
+  const { promise, resolve } = promiseWithResolvers();
+  const activate = /* @__PURE__ */ __name((activationEvent) => resolve({ activationEvent }), "activate");
+  const fileNamePromise = Promise.all(fileNames.map((fileName) => _activateIfFileName(host, fileName, activate))).then(() => {
+  });
+  const globPatternPromise = _activateIfGlobPatterns(host, desc.identifier, globPatterns, activate);
+  Promise.all([fileNamePromise, globPatternPromise]).then(() => {
+    resolve(void 0);
+  });
+  return promise;
+}
+__name(checkActivateWorkspaceContainsExtension, "checkActivateWorkspaceContainsExtension");
+async function _activateIfFileName(host, fileName, activate) {
+  for (const uri of host.folders) {
+    if (await host.exists(resources.joinPath(URI.revive(uri), fileName))) {
+      activate(`workspaceContains:${fileName}`);
+      return;
+    }
+  }
+}
+__name(_activateIfFileName, "_activateIfFileName");
+async function _activateIfGlobPatterns(host, extensionId, globPatterns, activate) {
+  if (globPatterns.length === 0) {
+    return Promise.resolve(void 0);
+  }
+  const tokenSource = new CancellationTokenSource();
+  const searchP = host.checkExists(host.folders, globPatterns, tokenSource.token);
+  const timer = setTimeout(async () => {
+    tokenSource.cancel();
+    host.logService.info(`Not activating extension '${extensionId.value}': Timed out while searching for 'workspaceContains' pattern ${globPatterns.join(",")}`);
+  }, WORKSPACE_CONTAINS_TIMEOUT);
+  let exists = false;
+  try {
+    exists = await searchP;
+  } catch (err) {
+    if (!errors.isCancellationError(err)) {
+      errors.onUnexpectedError(err);
+    }
+  }
+  tokenSource.dispose();
+  clearTimeout(timer);
+  if (exists) {
+    activate(`workspaceContains:${globPatterns.join(",")}`);
+  }
+}
+__name(_activateIfGlobPatterns, "_activateIfGlobPatterns");
+function checkGlobFileExists(accessor, folders, includes, token) {
+  const instantiationService = accessor.get(IInstantiationService);
+  const searchService = accessor.get(ISearchService);
+  const queryBuilder = instantiationService.createInstance(QueryBuilder);
+  const query = queryBuilder.file(folders.map((folder) => toWorkspaceFolder(URI.revive(folder))), {
+    _reason: "checkExists",
+    includePattern: includes,
+    exists: true
+  });
+  return searchService.fileSearch(query, token).then((result) => {
+    return !!result.limitHit;
+  }, (err) => {
+    if (!errors.isCancellationError(err)) {
+      return Promise.reject(err);
+    }
+    return false;
+  });
+}
+__name(checkGlobFileExists, "checkGlobFileExists");
+export {
+  checkActivateWorkspaceContainsExtension,
+  checkGlobFileExists
+};
+//# sourceMappingURL=workspaceContains.js.map

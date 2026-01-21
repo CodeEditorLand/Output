@@ -1,1 +1,70 @@
-class k{constructor(e,n){this._viewModelDecorationBrand=void 0,this.range=e,this.options=n}}function d(t,e){return!(e.options.hideInCommentTokens&&l(t,e)||e.options.hideInStringTokens&&a(t,e))}function l(t,e){return o(t,e.range,n=>n===1)}function a(t,e){return o(t,e.range,n=>n===2)}function o(t,e,n){for(let s=e.startLineNumber;s<=e.endLineNumber;s++){const r=t.tokenization.getLineTokens(s),u=s===e.startLineNumber,f=s===e.endLineNumber;let i=u?r.findTokenIndexAtOffset(e.startColumn-1):0;for(;i<r.getCount()&&!(f&&r.getStartOffset(i)>e.endColumn-1);){if(!n(r.getStandardTokenType(i)))return!1;i++}}return!0}export{k as $peb,d as $qeb,l as $reb,a as $seb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ViewModelDecoration {
+  static {
+    __name(this, "ViewModelDecoration");
+  }
+  constructor(range, options) {
+    this._viewModelDecorationBrand = void 0;
+    this.range = range;
+    this.options = options;
+  }
+}
+function isModelDecorationVisible(model, decoration) {
+  if (decoration.options.hideInCommentTokens && isModelDecorationInComment(model, decoration)) {
+    return false;
+  }
+  if (decoration.options.hideInStringTokens && isModelDecorationInString(model, decoration)) {
+    return false;
+  }
+  return true;
+}
+__name(isModelDecorationVisible, "isModelDecorationVisible");
+function isModelDecorationInComment(model, decoration) {
+  return testTokensInRange(
+    model,
+    decoration.range,
+    (tokenType) => tokenType === 1
+    /* StandardTokenType.Comment */
+  );
+}
+__name(isModelDecorationInComment, "isModelDecorationInComment");
+function isModelDecorationInString(model, decoration) {
+  return testTokensInRange(
+    model,
+    decoration.range,
+    (tokenType) => tokenType === 2
+    /* StandardTokenType.String */
+  );
+}
+__name(isModelDecorationInString, "isModelDecorationInString");
+function testTokensInRange(model, range, callback) {
+  for (let lineNumber = range.startLineNumber; lineNumber <= range.endLineNumber; lineNumber++) {
+    const lineTokens = model.tokenization.getLineTokens(lineNumber);
+    const isFirstLine = lineNumber === range.startLineNumber;
+    const isEndLine = lineNumber === range.endLineNumber;
+    let tokenIdx = isFirstLine ? lineTokens.findTokenIndexAtOffset(range.startColumn - 1) : 0;
+    while (tokenIdx < lineTokens.getCount()) {
+      if (isEndLine) {
+        const startOffset = lineTokens.getStartOffset(tokenIdx);
+        if (startOffset > range.endColumn - 1) {
+          break;
+        }
+      }
+      const callbackResult = callback(lineTokens.getStandardTokenType(tokenIdx));
+      if (!callbackResult) {
+        return false;
+      }
+      tokenIdx++;
+    }
+  }
+  return true;
+}
+__name(testTokensInRange, "testTokensInRange");
+export {
+  ViewModelDecoration,
+  isModelDecorationInComment,
+  isModelDecorationInString,
+  isModelDecorationVisible
+};
+//# sourceMappingURL=viewModelDecoration.js.map

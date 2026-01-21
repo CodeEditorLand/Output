@@ -1,1 +1,95 @@
-import{$Dd as f,$Fd as l}from"../../../../../base/common/lifecycle.js";import{localize2 as p}from"../../../../../nls.js";import{$TC as $}from"../../../../../platform/instantiation/common/extensions.js";import{$Lj as D}from"../../../../../platform/instantiation/common/instantiation.js";import{$Pzc as b}from"../../../terminal/browser/terminalActions.js";import{$O2b as x}from"../../../terminal/browser/terminalExtensions.js";import{TerminalContextKeys as F}from"../../../terminal/common/terminalContextKey.js";import"./media/terminalQuickFix.css";import{$T6b as w}from"./quickFix.js";import{$3Cc as C}from"./quickFixAddon.js";import{$fDc as k,$hDc as Q,$dDc as _,$gDc as g,$cDc as T,$eDc as v,$iDc as I,$jDc as R}from"./terminalQuickFixBuiltinActions.js";import{$kDc as j}from"./terminalQuickFixService.js";var h=function(n,t,i,e){var r=arguments.length,o=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,i,e);else for(var a=n.length-1;a>=0;a--)(s=n[a])&&(o=(r<3?s(o):r>3?s(t,i,o):s(t,i))||o);return r>3&&o&&Object.defineProperty(t,i,o),o},u=function(n,t){return function(i,e){t(i,e,n)}},m;$(w,j,1);let c=class extends f{static{m=this}static{this.ID="quickFix"}static get(t){return t.getContribution(m.ID)}get addon(){return this.a}constructor(t,i){super(),this.c=t,this.h=i,this.b=this.add(new l)}xtermReady(t){this.a=this.h.createInstance(C,this.c.instance.sessionId,void 0,this.c.instance.capabilities),t.raw.loadAddon(this.a),this.add(this.a.onDidRequestRerunCommand(i=>this.c.instance.runCommand(i.command,i.shouldExecute||!1))),this.add(this.a.onDidUpdateQuickFixes(i=>{this.b.value=i.actions?t.decorationAddon.registerMenuItems(i.command,i.actions):void 0}));for(const i of[v(),_(),k((e,r)=>this.c.instance.freePortKillProcess(e,r)),T(),g(),Q(),R(),I()])this.a.registerCommandFinishedListener(i)}};c=m=h([u(1,D)],c);x(c.ID,c);var d;(function(n){n.ShowQuickFixes="workbench.action.terminal.showQuickFixes"})(d||(d={}));b({id:"workbench.action.terminal.showQuickFixes",title:p(13614,"Show Terminal Quick Fixes"),precondition:F.focus,keybinding:{primary:2137,weight:200},run:n=>c.get(n)?.addon?.showMenu()});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalQuickFixContribution_1;
+import { DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../nls.js";
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { registerActiveInstanceAction } from "../../../terminal/browser/terminalActions.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import "./media/terminalQuickFix.css";
+import { ITerminalQuickFixService } from "./quickFix.js";
+import { TerminalQuickFixAddon } from "./quickFixAddon.js";
+import { freePort, gitCreatePr, gitFastForwardPull, gitPushSetUpstream, gitSimilar, gitTwoDashes, pwshGeneralError, pwshUnixCommandNotFoundError } from "./terminalQuickFixBuiltinActions.js";
+import { TerminalQuickFixService } from "./terminalQuickFixService.js";
+registerSingleton(
+  ITerminalQuickFixService,
+  TerminalQuickFixService,
+  1
+  /* InstantiationType.Delayed */
+);
+let TerminalQuickFixContribution = class TerminalQuickFixContribution2 extends DisposableStore {
+  static {
+    __name(this, "TerminalQuickFixContribution");
+  }
+  static {
+    TerminalQuickFixContribution_1 = this;
+  }
+  static {
+    this.ID = "quickFix";
+  }
+  static get(instance) {
+    return instance.getContribution(TerminalQuickFixContribution_1.ID);
+  }
+  get addon() {
+    return this._addon;
+  }
+  constructor(_ctx, _instantiationService) {
+    super();
+    this._ctx = _ctx;
+    this._instantiationService = _instantiationService;
+    this._quickFixMenuItems = this.add(new MutableDisposable());
+  }
+  xtermReady(xterm) {
+    this._addon = this._instantiationService.createInstance(TerminalQuickFixAddon, this._ctx.instance.sessionId, void 0, this._ctx.instance.capabilities);
+    xterm.raw.loadAddon(this._addon);
+    this.add(this._addon.onDidRequestRerunCommand((e) => this._ctx.instance.runCommand(e.command, e.shouldExecute || false)));
+    this.add(this._addon.onDidUpdateQuickFixes((e) => {
+      this._quickFixMenuItems.value = e.actions ? xterm.decorationAddon.registerMenuItems(e.command, e.actions) : void 0;
+    }));
+    for (const actionOption of [
+      gitTwoDashes(),
+      gitFastForwardPull(),
+      freePort((port, command) => this._ctx.instance.freePortKillProcess(port, command)),
+      gitSimilar(),
+      gitPushSetUpstream(),
+      gitCreatePr(),
+      pwshUnixCommandNotFoundError(),
+      pwshGeneralError()
+    ]) {
+      this._addon.registerCommandFinishedListener(actionOption);
+    }
+  }
+};
+TerminalQuickFixContribution = TerminalQuickFixContribution_1 = __decorate([
+  __param(1, IInstantiationService)
+], TerminalQuickFixContribution);
+registerTerminalContribution(TerminalQuickFixContribution.ID, TerminalQuickFixContribution);
+var TerminalQuickFixCommandId;
+(function(TerminalQuickFixCommandId2) {
+  TerminalQuickFixCommandId2["ShowQuickFixes"] = "workbench.action.terminal.showQuickFixes";
+})(TerminalQuickFixCommandId || (TerminalQuickFixCommandId = {}));
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.showQuickFixes",
+  title: localize2("workbench.action.terminal.showQuickFixes", "Show Terminal Quick Fixes"),
+  precondition: TerminalContextKeys.focus,
+  keybinding: {
+    primary: 2048 | 89,
+    weight: 200
+    /* KeybindingWeight.WorkbenchContrib */
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalQuickFixContribution.get(activeInstance)?.addon?.showMenu(), "run")
+});
+//# sourceMappingURL=terminal.quickFix.contribution.js.map

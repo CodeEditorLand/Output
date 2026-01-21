@@ -1,1 +1,114 @@
-import*as c from"../../../base/common/strings.js";class i{static a(t,e,o){return t===9?i.nextRenderTabStop(e,o):c.$Gg(t)||c.$Hg(t)?e+2:e+1}static visibleColumnFromColumn(t,e,o){const s=Math.min(e-1,t.length),n=t.substring(0,s),r=new c.$xg(n);let a=0;for(;!r.eol();){const f=c.$vg(n,s,r.offset);r.nextGraphemeLength(),a=this.a(f,a,o)}return a}static toStatusbarColumn(t,e,o){const s=t.substring(0,Math.min(e-1,t.length)),n=new c.$wg(s);let r=0;for(;!n.eol();)n.nextCodePoint()===9?r=i.nextRenderTabStop(r,o):r=r+1;return r+1}static columnFromVisibleColumn(t,e,o){if(e<=0)return 1;const s=t.length,n=new c.$xg(t);let r=0,a=1;for(;!n.eol();){const f=c.$vg(t,s,n.offset);n.nextGraphemeLength();const u=this.a(f,r,o),l=n.offset+1;if(u>=e){const g=e-r;return u-e<g?l:a}r=u,a=l}return s+1}static nextRenderTabStop(t,e){return t+e-t%e}static nextIndentTabStop(t,e){return i.nextRenderTabStop(t,e)}static prevRenderTabStop(t,e){return Math.max(0,t-1-(t-1)%e)}static prevIndentTabStop(t,e){return i.prevRenderTabStop(t,e)}}export{i as $$F};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+class CursorColumns {
+  static {
+    __name(this, "CursorColumns");
+  }
+  static _nextVisibleColumn(codePoint, visibleColumn, tabSize) {
+    if (codePoint === 9) {
+      return CursorColumns.nextRenderTabStop(visibleColumn, tabSize);
+    }
+    if (strings.isFullWidthCharacter(codePoint) || strings.isEmojiImprecise(codePoint)) {
+      return visibleColumn + 2;
+    }
+    return visibleColumn + 1;
+  }
+  /**
+   * Returns a visible column from a column.
+   * @see {@link CursorColumns}
+   */
+  static visibleColumnFromColumn(lineContent, column, tabSize) {
+    const textLen = Math.min(column - 1, lineContent.length);
+    const text = lineContent.substring(0, textLen);
+    const iterator = new strings.GraphemeIterator(text);
+    let result = 0;
+    while (!iterator.eol()) {
+      const codePoint = strings.getNextCodePoint(text, textLen, iterator.offset);
+      iterator.nextGraphemeLength();
+      result = this._nextVisibleColumn(codePoint, result, tabSize);
+    }
+    return result;
+  }
+  /**
+   * Returns the value to display as "Col" in the status bar.
+   * @see {@link CursorColumns}
+   */
+  static toStatusbarColumn(lineContent, column, tabSize) {
+    const text = lineContent.substring(0, Math.min(column - 1, lineContent.length));
+    const iterator = new strings.CodePointIterator(text);
+    let result = 0;
+    while (!iterator.eol()) {
+      const codePoint = iterator.nextCodePoint();
+      if (codePoint === 9) {
+        result = CursorColumns.nextRenderTabStop(result, tabSize);
+      } else {
+        result = result + 1;
+      }
+    }
+    return result + 1;
+  }
+  /**
+   * Returns a column from a visible column.
+   * @see {@link CursorColumns}
+   */
+  static columnFromVisibleColumn(lineContent, visibleColumn, tabSize) {
+    if (visibleColumn <= 0) {
+      return 1;
+    }
+    const lineContentLength = lineContent.length;
+    const iterator = new strings.GraphemeIterator(lineContent);
+    let beforeVisibleColumn = 0;
+    let beforeColumn = 1;
+    while (!iterator.eol()) {
+      const codePoint = strings.getNextCodePoint(lineContent, lineContentLength, iterator.offset);
+      iterator.nextGraphemeLength();
+      const afterVisibleColumn = this._nextVisibleColumn(codePoint, beforeVisibleColumn, tabSize);
+      const afterColumn = iterator.offset + 1;
+      if (afterVisibleColumn >= visibleColumn) {
+        const beforeDelta = visibleColumn - beforeVisibleColumn;
+        const afterDelta = afterVisibleColumn - visibleColumn;
+        if (afterDelta < beforeDelta) {
+          return afterColumn;
+        } else {
+          return beforeColumn;
+        }
+      }
+      beforeVisibleColumn = afterVisibleColumn;
+      beforeColumn = afterColumn;
+    }
+    return lineContentLength + 1;
+  }
+  /**
+   * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+   * @see {@link CursorColumns}
+   */
+  static nextRenderTabStop(visibleColumn, tabSize) {
+    return visibleColumn + tabSize - visibleColumn % tabSize;
+  }
+  /**
+   * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+   * @see {@link CursorColumns}
+   */
+  static nextIndentTabStop(visibleColumn, indentSize) {
+    return CursorColumns.nextRenderTabStop(visibleColumn, indentSize);
+  }
+  /**
+   * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+   * @see {@link CursorColumns}
+   */
+  static prevRenderTabStop(column, tabSize) {
+    return Math.max(0, column - 1 - (column - 1) % tabSize);
+  }
+  /**
+   * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+   * @see {@link CursorColumns}
+   */
+  static prevIndentTabStop(column, indentSize) {
+    return CursorColumns.prevRenderTabStop(column, indentSize);
+  }
+}
+export {
+  CursorColumns
+};
+//# sourceMappingURL=cursorColumns.js.map

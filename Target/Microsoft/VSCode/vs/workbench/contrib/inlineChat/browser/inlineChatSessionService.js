@@ -1,1 +1,44 @@
-import{$Mj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$P3b as f,$O3b as a}from"../../chat/browser/chat.js";import{$hU as d}from"../../chat/common/chatService/chatService.js";import{ChatAgentLocation as g}from"../../chat/common/constants.js";const S=p("IInlineChatSessionService");async function v(t,o,c){const s=t.get(d),e=await t.get(a).revealWidget();if(e&&e.viewModel&&o){let i;for(const n of o.getRequests().slice())await s.adoptRequest(e.viewModel.model.sessionResource,n),i=n;i&&c&&s.resendRequest(i,{location:e.location}),e.focusResponseItem()}}async function R(t,o,c){const s=t.get(a),r=t.get(d);if(!o)return;const e=r.startSession(g.Chat);e.object.inputModel.setState({...c});const n=await s.openSession(e.object.sessionResource,f);e.dispose(),n?.acceptInput(o.message.text)}export{v as $1Fb,R as $2Fb,S as $ZFb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ChatViewPaneTarget, IChatWidgetService } from "../../chat/browser/chat.js";
+import { IChatService } from "../../chat/common/chatService/chatService.js";
+import { ChatAgentLocation } from "../../chat/common/constants.js";
+const IInlineChatSessionService = createDecorator("IInlineChatSessionService");
+async function moveToPanelChat(accessor, model, resend) {
+  const chatService = accessor.get(IChatService);
+  const widgetService = accessor.get(IChatWidgetService);
+  const widget = await widgetService.revealWidget();
+  if (widget && widget.viewModel && model) {
+    let lastRequest;
+    for (const request of model.getRequests().slice()) {
+      await chatService.adoptRequest(widget.viewModel.model.sessionResource, request);
+      lastRequest = request;
+    }
+    if (lastRequest && resend) {
+      chatService.resendRequest(lastRequest, { location: widget.location });
+    }
+    widget.focusResponseItem();
+  }
+}
+__name(moveToPanelChat, "moveToPanelChat");
+async function askInPanelChat(accessor, request, state) {
+  const widgetService = accessor.get(IChatWidgetService);
+  const chatService = accessor.get(IChatService);
+  if (!request) {
+    return;
+  }
+  const newModelRef = chatService.startSession(ChatAgentLocation.Chat);
+  const newModel = newModelRef.object;
+  newModel.inputModel.setState({ ...state });
+  const widget = await widgetService.openSession(newModelRef.object.sessionResource, ChatViewPaneTarget);
+  newModelRef.dispose();
+  widget?.acceptInput(request.message.text);
+}
+__name(askInPanelChat, "askInPanelChat");
+export {
+  IInlineChatSessionService,
+  askInPanelChat,
+  moveToPanelChat
+};
+//# sourceMappingURL=inlineChatSessionService.js.map

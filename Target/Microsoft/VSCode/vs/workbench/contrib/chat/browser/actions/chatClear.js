@@ -1,1 +1,26 @@
-import{Schemas as c}from"../../../../../base/common/network.js";import{$kn as f}from"../../../../../base/common/uuid.js";import{$yL as t}from"../../../../services/editor/common/editorService.js";import{$TOb as i}from"../widgetHosts/editor/chatEditorInput.js";async function $(r,e){const s=r.get(t);if(!e){const o=s.activeEditor;e=o instanceof i?o:void 0}if(e instanceof i){const o=e.sessionResource&&e.sessionResource.scheme!==c.vscodeLocalChatSession?e.sessionResource.with({path:`/untitled-${f()}`}):i.getNewEditorUri(),n=s.findEditors(e.resource)[0];await s.replaceEditors([{editor:e,replacement:{resource:o,options:{pinned:!0}}}],n.groupId)}}export{$ as $YOb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../../../base/common/network.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
+async function clearChatEditor(accessor, chatEditorInput) {
+  const editorService = accessor.get(IEditorService);
+  if (!chatEditorInput) {
+    const editorInput = editorService.activeEditor;
+    chatEditorInput = editorInput instanceof ChatEditorInput ? editorInput : void 0;
+  }
+  if (chatEditorInput instanceof ChatEditorInput) {
+    const resource = chatEditorInput.sessionResource && chatEditorInput.sessionResource.scheme !== Schemas.vscodeLocalChatSession ? chatEditorInput.sessionResource.with({ path: `/untitled-${generateUuid()}` }) : ChatEditorInput.getNewEditorUri();
+    const identifier = editorService.findEditors(chatEditorInput.resource)[0];
+    await editorService.replaceEditors([{
+      editor: chatEditorInput,
+      replacement: { resource, options: { pinned: true } }
+    }], identifier.groupId);
+  }
+}
+__name(clearChatEditor, "clearChatEditor");
+export {
+  clearChatEditor
+};
+//# sourceMappingURL=chatClear.js.map

@@ -1,1 +1,105 @@
-import{localize as i}from"../../../../nls.js";import{$Jj as h}from"../../../../platform/instantiation/common/descriptors.js";import{$TC as $}from"../../../../platform/instantiation/common/extensions.js";import{$im as s}from"../../../../platform/registry/common/platform.js";import{Extensions as g}from"../../../common/views.js";import{$wWb as w}from"../../files/browser/explorerViewlet.js";import{$RY as p,$QY as I}from"../common/timeline.js";import{$YHc as u,$ZHc as y}from"../common/timelineService.js";import{$4Hc as l}from"./timelinePane.js";import{$km as b}from"../../../../platform/configuration/common/configurationRegistry.js";import{$9n as C}from"../../../../platform/contextkey/common/contextkey.js";import{$nL as o,$pL as a}from"../../../../platform/actions/common/actions.js";import{$uo as E}from"../../../../platform/commands/common/commands.js";import{$FQb as L}from"../../files/common/files.js";import{$qP as T}from"../../../common/contextkeys.js";import{$ak as r}from"../../../../base/common/codicons.js";import{$eu as n}from"../../../../platform/theme/common/iconRegistry.js";import{URI as x}from"../../../../base/common/uri.js";const D=n("timeline-view-icon",r.history,i(14212,null)),V=n("timeline-open",r.history,i(14213,null));class v{constructor(){this.id=I,this.name=l.TITLE,this.containerIcon=D,this.ctorDescriptor=new h(l),this.order=2,this.weight=30,this.collapsed=!0,this.canToggleVisibility=!0,this.hideByDefault=!1,this.canMoveView=!0,this.when=u,this.focusCommand={id:"timeline.focus"}}}const H=s.as(b.Configuration);H.registerConfiguration({id:"timeline",order:1001,title:i(14214,null),type:"object",properties:{"timeline.pageSize":{type:["number","null"],default:50,markdownDescription:i(14215,null)},"timeline.pageOnScroll":{type:"boolean",default:!0,description:i(14216,null)}}});s.as(g.ViewsRegistry).registerViews([new v],w);var e;(function(t){t.ID="files.openTimeline",t.LABEL=i(14217,null);function c(){return(f,m)=>{const d=f.get(p);if(x.isUri(m))return d.setUri(m)}}t.handler=c})(e||(e={}));E.registerCommand(e.ID,e.handler());a.appendMenuItem(o.ExplorerContext,{group:"4_timeline",order:1,command:{id:e.ID,title:e.LABEL,icon:V},when:C.and(L.toNegated(),T.HasResource,u)});const R=n("timeline-filter",r.filter,i(14218,null));a.appendMenuItem(o.TimelineTitle,{submenu:o.TimelineFilterSubMenu,title:i(14219,null),group:"navigation",order:100,icon:R});$(p,y,1);export{v as $8Hc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as ViewExtensions } from "../../../common/views.js";
+import { VIEW_CONTAINER } from "../../files/browser/explorerViewlet.js";
+import { ITimelineService, TimelinePaneId } from "../common/timeline.js";
+import { TimelineHasProviderContext, TimelineService } from "../common/timelineService.js";
+import { TimelinePane } from "./timelinePane.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ExplorerFolderContext } from "../../files/common/files.js";
+import { ResourceContextKey } from "../../../common/contextkeys.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+const timelineViewIcon = registerIcon("timeline-view-icon", Codicon.history, localize("timelineViewIcon", "View icon of the timeline view."));
+const timelineOpenIcon = registerIcon("timeline-open", Codicon.history, localize("timelineOpenIcon", "Icon for the open timeline action."));
+class TimelinePaneDescriptor {
+  static {
+    __name(this, "TimelinePaneDescriptor");
+  }
+  constructor() {
+    this.id = TimelinePaneId;
+    this.name = TimelinePane.TITLE;
+    this.containerIcon = timelineViewIcon;
+    this.ctorDescriptor = new SyncDescriptor(TimelinePane);
+    this.order = 2;
+    this.weight = 30;
+    this.collapsed = true;
+    this.canToggleVisibility = true;
+    this.hideByDefault = false;
+    this.canMoveView = true;
+    this.when = TimelineHasProviderContext;
+    this.focusCommand = { id: "timeline.focus" };
+  }
+}
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "timeline",
+  order: 1001,
+  title: localize("timelineConfigurationTitle", "Timeline"),
+  type: "object",
+  properties: {
+    "timeline.pageSize": {
+      type: ["number", "null"],
+      default: 50,
+      markdownDescription: localize("timeline.pageSize", "The number of items to show in the Timeline view by default and when loading more items. Setting to `null` will automatically choose a page size based on the visible area of the Timeline view.")
+    },
+    "timeline.pageOnScroll": {
+      type: "boolean",
+      default: true,
+      description: localize("timeline.pageOnScroll", "Controls whether the Timeline view will load the next page of items when you scroll to the end of the list.")
+    }
+  }
+});
+Registry.as(ViewExtensions.ViewsRegistry).registerViews([new TimelinePaneDescriptor()], VIEW_CONTAINER);
+var OpenTimelineAction;
+(function(OpenTimelineAction2) {
+  OpenTimelineAction2.ID = "files.openTimeline";
+  OpenTimelineAction2.LABEL = localize("files.openTimeline", "Open Timeline");
+  function handler() {
+    return (accessor, arg) => {
+      const service = accessor.get(ITimelineService);
+      if (URI.isUri(arg)) {
+        return service.setUri(arg);
+      }
+    };
+  }
+  __name(handler, "handler");
+  OpenTimelineAction2.handler = handler;
+})(OpenTimelineAction || (OpenTimelineAction = {}));
+CommandsRegistry.registerCommand(OpenTimelineAction.ID, OpenTimelineAction.handler());
+MenuRegistry.appendMenuItem(MenuId.ExplorerContext, {
+  group: "4_timeline",
+  order: 1,
+  command: {
+    id: OpenTimelineAction.ID,
+    title: OpenTimelineAction.LABEL,
+    icon: timelineOpenIcon
+  },
+  when: ContextKeyExpr.and(ExplorerFolderContext.toNegated(), ResourceContextKey.HasResource, TimelineHasProviderContext)
+});
+const timelineFilter = registerIcon("timeline-filter", Codicon.filter, localize("timelineFilter", "Icon for the filter timeline action."));
+MenuRegistry.appendMenuItem(MenuId.TimelineTitle, {
+  submenu: MenuId.TimelineFilterSubMenu,
+  title: localize("filterTimeline", "Filter Timeline"),
+  group: "navigation",
+  order: 100,
+  icon: timelineFilter
+});
+registerSingleton(
+  ITimelineService,
+  TimelineService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  TimelinePaneDescriptor
+};
+//# sourceMappingURL=timeline.contribution.js.map

@@ -1,2 +1,669 @@
-import*as m from"../../../../../base/browser/dom.js";import{$Gm as b}from"../../../../../base/common/actions.js";import{$wf as w}from"../../../../../base/common/event.js";import{$Ed as T,$Md as j,$Dd as v,$zd as g,$Cd as $}from"../../../../../base/common/lifecycle.js";import{ThemeIcon as D}from"../../../../../base/common/themables.js";import{localize as a}from"../../../../../nls.js";import{$ohb as y,$jhb as N}from"../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$4hb as z}from"../../../../../platform/clipboard/common/clipboardService.js";import{$to as P}from"../../../../../platform/commands/common/commands.js";import{$9l as _}from"../../../../../platform/configuration/common/configuration.js";import{$6hb as E}from"../../../../../platform/contextview/browser/contextView.js";import{$mH as H,Severity as X}from"../../../../../platform/notification/common/notification.js";import{$yP as Y}from"../../../../../platform/opener/common/opener.js";import{$VH as W}from"../../../../../platform/quickinput/common/quickInput.js";import{$ou as F}from"../../../../../platform/theme/common/themeService.js";import{$2Xb as q}from"../terminalIcons.js";import{$_Xb as B,$0Xb as V,$aYb as C}from"./decorationStyles.js";import{$oXb as G,$qXb as U,$pXb as Q}from"../../common/terminalColorRegistry.js";import{$SN as Z}from"../../../../services/lifecycle/common/lifecycle.js";import{$7ib as J}from"../../../../../platform/hover/browser/hover.js";import{$ik as K}from"../../../../../base/common/htmlContent.js";import{$UNb as tt}from"../../../chat/browser/attachments/chatContextPickService.js";import{$O3b as et}from"../../../chat/browser/chat.js";import{$Lj as it}from"../../../../../platform/instantiation/common/instantiation.js";import{$BYb as st}from"../../../chat/browser/actions/chatContext.js";import{$DYb as ot,$CYb as nt}from"../terminalUri.js";import{ChatAgentLocation as I}from"../../../chat/common/constants.js";import{$6c as R}from"../../../../../base/common/types.js";var M=function(f,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,e,i);else for(var r=f.length-1;r>=0;r--)(n=f[r])&&(o=(s<3?n(o):s>3?n(t,e,o):n(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},l=function(f,t){return function(e,i){t(e,i,f)}};let k=class extends T{constructor(t,e,i,s,o,n,r,d,u,p,h,A,x,O,S,L){super(),this.s=t,this.t=e,this.u=i,this.y=s,this.z=o,this.C=n,this.F=r,this.G=d,this.H=p,this.I=h,this.J=A,this.L=x,this.M=O,this.N=S,this.O=L,this.b=this.D(new j),this.f=new Map,this.m=new Map,this.n=this.D(new w),this.onDidRequestRunCommand=this.n.event,this.q=this.D(new w),this.onDidRequestCopyAsHtml=this.q.event,this.D($(()=>this.Y())),this.D(this.z.onDidChangeConfiguration(c=>{c.affectsConfiguration("terminal.integrated.fontSize")||c.affectsConfiguration("terminal.integrated.lineHeight")?this.refreshLayouts():c.affectsConfiguration("workbench.colorCustomizations")?this.X(!0):c.affectsConfiguration("terminal.integrated.shellIntegration.decorationsEnabled")&&(this.Q(2),this.R())})),this.D(this.C.onDidColorThemeChange(()=>this.X(!0))),this.R(),this.D(this.t.onDidAddCapability(c=>this.P(c.id))),this.D(this.t.onDidRemoveCapability(c=>this.Q(c.id))),this.D(u.onWillShutdown(()=>this.S()))}P(t){const e=this.t.get(t);if(!e||this.b.has(t))return;const i=new v;switch(e.type){case 4:i.add(e.onMarkAdded(s=>this.registerMarkDecoration(s)));break;case 2:{const s=this.ab(e);for(const o of s)i.add(o);break}}this.b.set(t,i)}Q(t){this.b.deleteAndDispose(t)}registerMarkDecoration(t){if(!(!this.a||!this.h&&!this.j)&&!t.hidden)return this.registerCommandDecoration(void 0,void 0,t)}R(){const t=this.z.getValue("terminal.integrated.shellIntegration.decorationsEnabled");this.h=t==="both"||t==="gutter",this.j=t==="both"||t==="overviewRuler",this.S(),(this.h||this.j)&&(this.$(),this.U());const e=this.t.get(2)?.executingCommandObject;e&&this.registerCommandDecoration(e,!0)}S(){this.g?.dispose();for(const t of this.f.values())t.decoration.dispose(),g(t.disposables)}U(){const t=this.a?.element?.querySelectorAll("terminal-command-decoration");if(t)for(const e of t)this.W(e)}W(t){this.h?t.classList.remove("hide"):t.classList.add("hide")}refreshLayouts(){C(this.z,this.g?.element);for(const t of this.f)C(this.z,t[1].decoration.element)}X(t){if(t)for(const e of this.f.values()){const i=this.jb(e.command)?.toString()??"";e.decoration.options?.overviewRulerOptions?e.decoration.options.overviewRulerOptions.color=i:e.decoration.options&&(e.decoration.options.overviewRulerOptions={color:i})}this.db(this.g?.element);for(const e of this.f.values())this.db(e.decoration.element,e.command,e.markProperties)}Y(){for(const t of this.b.values())g(t);this.clearDecorations()}Z(){this.g?.dispose(),this.g=void 0}clearDecorations(){this.g?.marker.dispose(),this.Z(),this.S(),this.f.clear()}$(){if(this.t.has(2)){const t=this.t.get(2),e=this.ab(t),i=new v;for(const s of e)i.add(s);this.b.set(2,i)}}ab(t){this.Q(2);const e=[];t.executingCommandObject?.marker&&this.registerCommandDecoration(t.executingCommandObject,!0),e.push(t.onCommandStarted(i=>this.registerCommandDecoration(i,!0)));for(const i of t.commands)this.registerCommandDecoration(i);return e.push(t.onCommandFinished(i=>{const s=this.a?.buffer?.active,o=i.promptStartMarker;(i.exitCode===void 0||s&&o&&s.baseY+s.cursorY>=o.line)&&this.registerCommandDecoration(i),i.exitCode?this.I.playSignal(y.terminalCommandFailed):this.I.playSignal(y.terminalCommandSucceeded)})),e.push(t.onCommandInvalidated(i=>{for(const s of i){const o=s.marker?.id;if(o){const n=this.f.get(o);n&&(n.decoration.dispose(),g(n.disposables))}}})),e.push(t.onCurrentCommandInvalidated(i=>{i.reason==="noProblemsReported"?Array.from(this.f.entries())[this.f.size-1]?.[1].decoration.dispose():i.reason==="windows"&&this.Z()})),e}activate(t){this.a=t,this.$()}registerCommandDecoration(t,e,i){if(!this.a||e&&!t||!this.h&&!this.j)return;const s=t?.marker||i?.marker;if(!s)throw new Error(`cannot add a decoration for a command ${JSON.stringify(t)} with no marker`);this.Z();const o=this.jb(t)?.toString()??"",n=this.a.registerDecoration({marker:s,overviewRulerOptions:this.j?e?{color:o,position:"left"}:{color:o,position:t?.exitCode?"right":"left"}:void 0});if(n)return e&&(this.g=n),n.onRender(r=>{r.classList.contains(".xterm-decoration-overview-ruler")||(this.f.get(n.marker.id)||(n.onDispose(()=>this.f.delete(n.marker.id)),this.f.set(n.marker.id,{decoration:n,disposables:this.bb(r,t,i),command:t,markProperties:t?.markProperties||i})),(!r.classList.contains("codicon")||t?.marker?.line===0)&&(C(this.z,r),this.db(r,t,t?.markProperties||i)))}),n}registerMenuItems(t,e){const i=this.m.get(t);return i?i.push(...e):this.m.set(t,[...e]),$(()=>{const s=this.m.get(t);if(s)for(const o of e.values()){const n=s.indexOf(o);n!==-1&&s.splice(n,1)}})}bb(t,e,i){return e?.exitCode===void 0&&!e?.markProperties?[]:e?.markProperties||i?[this.cb(t,e||i,i?.hoverMessage)]:[...this.eb(t,e),this.cb(t,e)]}cb(t,e,i){return this.L.setupDelayedHover(t,()=>({content:new K(V(e,i,!0))}))}db(t,e,i){if(t){for(const s of t.classList)t.classList.remove(s);if(t.classList.add("terminal-command-decoration","codicon","xterm-decoration"),i)t.classList.add("default-color",...D.asClassNameArray(q)),i.hoverMessage||t.classList.add("default");else{const s=B(e);this.W(t);for(const o of s.classNames)t.classList.add(o);t.classList.add(...D.asClassNameArray(s.icon))}t.removeAttribute("title"),t.removeAttribute("aria-label")}}eb(t,e){return[m.$F7(t,m.$B8.MOUSE_DOWN,async i=>{i.stopImmediatePropagation()}),m.$F7(t,m.$B8.CLICK,async i=>{i.stopImmediatePropagation();const s=await this.gb(e);this.y.showContextMenu({getAnchor:()=>t,getActions:()=>s})}),m.$F7(t,m.$B8.CONTEXT_MENU,async i=>{i.stopImmediatePropagation();const s=await this.gb(e),o=this.fb();this.y.showContextMenu({getAnchor:()=>t,getActions:()=>[...o,...s]})})]}fb(){const t=a(13016,null);return[{class:void 0,tooltip:t,id:"terminal.toggleVisibility",label:t,enabled:!0,run:async()=>{this.ib()}}]}async gb(t){const e=[],i=this.m.get(t);i?.length&&e.push(...i,new b);const s=this.hb(t);if(s&&e.push(s,new b),t.command!==""){const d=a(13017,null);e.push({class:void 0,tooltip:d,id:"terminal.rerunCommand",label:d,enabled:!0,run:async()=>{t.command!==""&&(!t.isTrusted&&!await new Promise(h=>{this.J.prompt(X.Info,a(13018,null,t.command),[{label:a(13019,null),run:()=>h(!0)},{label:a(13020,null),run:()=>h(!1)}])})||this.n.fire({command:t}))}}),e.push(new b);const u=a(13021,null);e.push({class:void 0,tooltip:u,id:"terminal.copyCommand",label:u,enabled:!0,run:()=>this.u.writeText(t.command)})}if(t.hasOutput()){const d=a(13022,null);e.push({class:void 0,tooltip:d,id:"terminal.copyCommandAndOutput",label:d,enabled:!0,run:()=>{const h=t.getOutput();R(h)&&this.u.writeText(`${t.command!==""?t.command+`
-`:""}${h}`)}});const u=a(13023,null);e.push({class:void 0,tooltip:u,id:"terminal.copyOutput",label:u,enabled:!0,run:()=>{const h=t.getOutput();R(h)&&this.u.writeText(h)}});const p=a(13024,null);e.push({class:void 0,tooltip:p,id:"terminal.copyOutputAsHtml",label:p,enabled:!0,run:()=>this.q.fire({command:t})})}e.length>0&&e.push(new b);const o=a(13025,null);e.push({class:void 0,tooltip:o,id:"workbench.action.terminal.runRecentCommand",label:o,enabled:!0,run:()=>this.H.executeCommand("workbench.action.terminal.runRecentCommand")});const n=a(13026,null);e.push({class:void 0,tooltip:o,id:"workbench.action.terminal.goToRecentDirectory",label:n,enabled:!0,run:()=>this.H.executeCommand("workbench.action.terminal.goToRecentDirectory")}),e.push(new b);const r=a(13027,null);return e.push({class:void 0,tooltip:r,id:"terminal.learnShellIntegration",label:r,enabled:!0,run:()=>this.F.open("https://code.visualstudio.com/docs/terminal/shell-integration")}),e}hb(t){if(!this.N.getWidgetsByLocations(I.Chat).some(s=>s.attachmentCapabilities.supportsTerminalAttachments))return;const i=a(13028,null);return{class:void 0,tooltip:i,id:"terminal.attachToChat",label:i,enabled:!0,run:async()=>{let s=this.N.lastFocusedWidget??this.N.getWidgetsByLocations(I.Chat)?.find(n=>n.attachmentCapabilities.supportsTerminalAttachments);if(s||(s=await this.N.revealWidget()),!s)return;let o;if(this.s){const n=nt(this.s);o=this.O.createInstance(st,ot(n.workspaceId,n.instanceId,void 0,t.id))}if(o&&s.attachmentCapabilities.supportsTerminalAttachments){try{const n=await o.asAttachment(s);if(n){s.attachmentModel.addContext(n),s.focusInput();return}}catch{}this.B.add(this.M.registerChatContextItem(o))}}}}ib(){const t=this.D(this.G.createQuickPick());t.hideInput=!0,t.hideCheckAll=!0,t.canSelectMany=!0,t.title=a(13029,null);const e=this.z.getValue("terminal.integrated.shellIntegration.decorationsEnabled"),i={label:a(13030,null),picked:e!=="never"&&e!=="overviewRuler"},s={label:a(13031,null),picked:e!=="never"&&e!=="gutter"};t.items=[i,s];const o=[];e!=="never"&&(e!=="gutter"&&o.push(i),e!=="overviewRuler"&&o.push(s)),t.selectedItems=o,this.D(t.onDidChangeSelection(async n=>{let r="never";n.includes(i)?n.includes(s)?r="both":r="gutter":n.includes(s)&&(r="overviewRuler"),await this.z.updateValue("terminal.integrated.shellIntegration.decorationsEnabled",r)})),t.ok=!1,t.show()}jb(t){let e;return t?.exitCode===void 0?e=G:e=t.exitCode?U:Q,this.C.getColorTheme().getColor(e)?.toString()}};k=M([l(2,z),l(3,E),l(4,_),l(5,F),l(6,Y),l(7,W),l(8,Z),l(9,P),l(10,N),l(11,H),l(12,J),l(13,tt),l(14,et),l(15,it)],k);export{k as $GYb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../base/browser/dom.js";
+import { Separator } from "../../../../../base/common/actions.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableMap, DisposableStore, dispose, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { terminalDecorationMark } from "../terminalIcons.js";
+import { getTerminalCommandDecorationState, getTerminalDecorationHoverContent, updateLayout } from "./decorationStyles.js";
+import { TERMINAL_COMMAND_DECORATION_DEFAULT_BACKGROUND_COLOR, TERMINAL_COMMAND_DECORATION_ERROR_BACKGROUND_COLOR, TERMINAL_COMMAND_DECORATION_SUCCESS_BACKGROUND_COLOR } from "../../common/terminalColorRegistry.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { IChatContextPickService } from "../../../chat/browser/attachments/chatContextPickService.js";
+import { IChatWidgetService } from "../../../chat/browser/chat.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { TerminalContext } from "../../../chat/browser/actions/chatContext.js";
+import { getTerminalUri, parseTerminalUri } from "../terminalUri.js";
+import { ChatAgentLocation } from "../../../chat/common/constants.js";
+import { isString } from "../../../../../base/common/types.js";
+let DecorationAddon = class DecorationAddon2 extends Disposable {
+  static {
+    __name(this, "DecorationAddon");
+  }
+  constructor(_resource, _capabilities, _clipboardService, _contextMenuService, _configurationService, _themeService, _openerService, _quickInputService, lifecycleService, _commandService, _accessibilitySignalService, _notificationService, _hoverService, _contextPickService, _chatWidgetService, _instantiationService) {
+    super();
+    this._resource = _resource;
+    this._capabilities = _capabilities;
+    this._clipboardService = _clipboardService;
+    this._contextMenuService = _contextMenuService;
+    this._configurationService = _configurationService;
+    this._themeService = _themeService;
+    this._openerService = _openerService;
+    this._quickInputService = _quickInputService;
+    this._commandService = _commandService;
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._notificationService = _notificationService;
+    this._hoverService = _hoverService;
+    this._contextPickService = _contextPickService;
+    this._chatWidgetService = _chatWidgetService;
+    this._instantiationService = _instantiationService;
+    this._capabilityDisposables = this._register(new DisposableMap());
+    this._decorations = /* @__PURE__ */ new Map();
+    this._registeredMenuItems = /* @__PURE__ */ new Map();
+    this._onDidRequestRunCommand = this._register(new Emitter());
+    this.onDidRequestRunCommand = this._onDidRequestRunCommand.event;
+    this._onDidRequestCopyAsHtml = this._register(new Emitter());
+    this.onDidRequestCopyAsHtml = this._onDidRequestCopyAsHtml.event;
+    this._register(toDisposable(() => this._dispose()));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.fontSize"
+        /* TerminalSettingId.FontSize */
+      ) || e.affectsConfiguration(
+        "terminal.integrated.lineHeight"
+        /* TerminalSettingId.LineHeight */
+      )) {
+        this.refreshLayouts();
+      } else if (e.affectsConfiguration("workbench.colorCustomizations")) {
+        this._refreshStyles(true);
+      } else if (e.affectsConfiguration(
+        "terminal.integrated.shellIntegration.decorationsEnabled"
+        /* TerminalSettingId.ShellIntegrationDecorationsEnabled */
+      )) {
+        this._removeCapabilityDisposables(
+          2
+          /* TerminalCapability.CommandDetection */
+        );
+        this._updateDecorationVisibility();
+      }
+    }));
+    this._register(this._themeService.onDidColorThemeChange(() => this._refreshStyles(true)));
+    this._updateDecorationVisibility();
+    this._register(this._capabilities.onDidAddCapability((c) => this._createCapabilityDisposables(c.id)));
+    this._register(this._capabilities.onDidRemoveCapability((c) => this._removeCapabilityDisposables(c.id)));
+    this._register(lifecycleService.onWillShutdown(() => this._disposeAllDecorations()));
+  }
+  _createCapabilityDisposables(c) {
+    const capability = this._capabilities.get(c);
+    if (!capability || this._capabilityDisposables.has(c)) {
+      return;
+    }
+    const store = new DisposableStore();
+    switch (capability.type) {
+      case 4:
+        store.add(capability.onMarkAdded((mark) => this.registerMarkDecoration(mark)));
+        break;
+      case 2: {
+        const disposables = this._getCommandDetectionListeners(capability);
+        for (const d of disposables) {
+          store.add(d);
+        }
+        break;
+      }
+    }
+    this._capabilityDisposables.set(c, store);
+  }
+  _removeCapabilityDisposables(c) {
+    this._capabilityDisposables.deleteAndDispose(c);
+  }
+  registerMarkDecoration(mark) {
+    if (!this._terminal || !this._showGutterDecorations && !this._showOverviewRulerDecorations) {
+      return void 0;
+    }
+    if (mark.hidden) {
+      return void 0;
+    }
+    return this.registerCommandDecoration(void 0, void 0, mark);
+  }
+  _updateDecorationVisibility() {
+    const showDecorations = this._configurationService.getValue(
+      "terminal.integrated.shellIntegration.decorationsEnabled"
+      /* TerminalSettingId.ShellIntegrationDecorationsEnabled */
+    );
+    this._showGutterDecorations = showDecorations === "both" || showDecorations === "gutter";
+    this._showOverviewRulerDecorations = showDecorations === "both" || showDecorations === "overviewRuler";
+    this._disposeAllDecorations();
+    if (this._showGutterDecorations || this._showOverviewRulerDecorations) {
+      this._attachToCommandCapability();
+      this._updateGutterDecorationVisibility();
+    }
+    const currentCommand = this._capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    )?.executingCommandObject;
+    if (currentCommand) {
+      this.registerCommandDecoration(currentCommand, true);
+    }
+  }
+  _disposeAllDecorations() {
+    this._placeholderDecoration?.dispose();
+    for (const value of this._decorations.values()) {
+      value.decoration.dispose();
+      dispose(value.disposables);
+    }
+  }
+  _updateGutterDecorationVisibility() {
+    const commandDecorationElements = this._terminal?.element?.querySelectorAll(
+      "terminal-command-decoration"
+      /* DecorationSelector.CommandDecoration */
+    );
+    if (commandDecorationElements) {
+      for (const commandDecorationElement of commandDecorationElements) {
+        this._updateCommandDecorationVisibility(commandDecorationElement);
+      }
+    }
+  }
+  _updateCommandDecorationVisibility(commandDecorationElement) {
+    if (this._showGutterDecorations) {
+      commandDecorationElement.classList.remove(
+        "hide"
+        /* DecorationSelector.Hide */
+      );
+    } else {
+      commandDecorationElement.classList.add(
+        "hide"
+        /* DecorationSelector.Hide */
+      );
+    }
+  }
+  refreshLayouts() {
+    updateLayout(this._configurationService, this._placeholderDecoration?.element);
+    for (const decoration of this._decorations) {
+      updateLayout(this._configurationService, decoration[1].decoration.element);
+    }
+  }
+  _refreshStyles(refreshOverviewRulerColors) {
+    if (refreshOverviewRulerColors) {
+      for (const decoration of this._decorations.values()) {
+        const color = this._getDecorationCssColor(decoration.command)?.toString() ?? "";
+        if (decoration.decoration.options?.overviewRulerOptions) {
+          decoration.decoration.options.overviewRulerOptions.color = color;
+        } else if (decoration.decoration.options) {
+          decoration.decoration.options.overviewRulerOptions = { color };
+        }
+      }
+    }
+    this._updateClasses(this._placeholderDecoration?.element);
+    for (const decoration of this._decorations.values()) {
+      this._updateClasses(decoration.decoration.element, decoration.command, decoration.markProperties);
+    }
+  }
+  _dispose() {
+    for (const disposable of this._capabilityDisposables.values()) {
+      dispose(disposable);
+    }
+    this.clearDecorations();
+  }
+  _clearPlaceholder() {
+    this._placeholderDecoration?.dispose();
+    this._placeholderDecoration = void 0;
+  }
+  clearDecorations() {
+    this._placeholderDecoration?.marker.dispose();
+    this._clearPlaceholder();
+    this._disposeAllDecorations();
+    this._decorations.clear();
+  }
+  _attachToCommandCapability() {
+    if (this._capabilities.has(
+      2
+      /* TerminalCapability.CommandDetection */
+    )) {
+      const capability = this._capabilities.get(
+        2
+        /* TerminalCapability.CommandDetection */
+      );
+      const disposables = this._getCommandDetectionListeners(capability);
+      const store = new DisposableStore();
+      for (const d of disposables) {
+        store.add(d);
+      }
+      this._capabilityDisposables.set(2, store);
+    }
+  }
+  _getCommandDetectionListeners(capability) {
+    this._removeCapabilityDisposables(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    const commandDetectionListeners = [];
+    if (capability.executingCommandObject?.marker) {
+      this.registerCommandDecoration(capability.executingCommandObject, true);
+    }
+    commandDetectionListeners.push(capability.onCommandStarted((command) => this.registerCommandDecoration(command, true)));
+    for (const command of capability.commands) {
+      this.registerCommandDecoration(command);
+    }
+    commandDetectionListeners.push(capability.onCommandFinished((command) => {
+      const buffer = this._terminal?.buffer?.active;
+      const marker = command.promptStartMarker;
+      const shouldRegisterDecoration = command.exitCode === void 0 || // Only register decoration if the cursor is at or below the promptStart marker.
+      buffer && marker && buffer.baseY + buffer.cursorY >= marker.line;
+      if (shouldRegisterDecoration) {
+        this.registerCommandDecoration(command);
+      }
+      if (command.exitCode) {
+        this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandFailed);
+      } else {
+        this._accessibilitySignalService.playSignal(AccessibilitySignal.terminalCommandSucceeded);
+      }
+    }));
+    commandDetectionListeners.push(capability.onCommandInvalidated((commands) => {
+      for (const command of commands) {
+        const id = command.marker?.id;
+        if (id) {
+          const match = this._decorations.get(id);
+          if (match) {
+            match.decoration.dispose();
+            dispose(match.disposables);
+          }
+        }
+      }
+    }));
+    commandDetectionListeners.push(capability.onCurrentCommandInvalidated((request) => {
+      if (request.reason === "noProblemsReported") {
+        const lastDecoration = Array.from(this._decorations.entries())[this._decorations.size - 1];
+        lastDecoration?.[1].decoration.dispose();
+      } else if (request.reason === "windows") {
+        this._clearPlaceholder();
+      }
+    }));
+    return commandDetectionListeners;
+  }
+  activate(terminal) {
+    this._terminal = terminal;
+    this._attachToCommandCapability();
+  }
+  registerCommandDecoration(command, beforeCommandExecution, markProperties) {
+    if (!this._terminal || beforeCommandExecution && !command || !this._showGutterDecorations && !this._showOverviewRulerDecorations) {
+      return void 0;
+    }
+    const marker = command?.marker || markProperties?.marker;
+    if (!marker) {
+      throw new Error(`cannot add a decoration for a command ${JSON.stringify(command)} with no marker`);
+    }
+    this._clearPlaceholder();
+    const color = this._getDecorationCssColor(command)?.toString() ?? "";
+    const decoration = this._terminal.registerDecoration({
+      marker,
+      overviewRulerOptions: this._showOverviewRulerDecorations ? beforeCommandExecution ? { color, position: "left" } : { color, position: command?.exitCode ? "right" : "left" } : void 0
+    });
+    if (!decoration) {
+      return void 0;
+    }
+    if (beforeCommandExecution) {
+      this._placeholderDecoration = decoration;
+    }
+    decoration.onRender((element) => {
+      if (element.classList.contains(
+        ".xterm-decoration-overview-ruler"
+        /* DecorationSelector.OverviewRuler */
+      )) {
+        return;
+      }
+      if (!this._decorations.get(decoration.marker.id)) {
+        decoration.onDispose(() => this._decorations.delete(decoration.marker.id));
+        this._decorations.set(decoration.marker.id, {
+          decoration,
+          disposables: this._createDisposables(element, command, markProperties),
+          command,
+          markProperties: command?.markProperties || markProperties
+        });
+      }
+      if (!element.classList.contains(
+        "codicon"
+        /* DecorationSelector.Codicon */
+      ) || command?.marker?.line === 0) {
+        updateLayout(this._configurationService, element);
+        this._updateClasses(element, command, command?.markProperties || markProperties);
+      }
+    });
+    return decoration;
+  }
+  registerMenuItems(command, items) {
+    const existingItems = this._registeredMenuItems.get(command);
+    if (existingItems) {
+      existingItems.push(...items);
+    } else {
+      this._registeredMenuItems.set(command, [...items]);
+    }
+    return toDisposable(() => {
+      const commandItems = this._registeredMenuItems.get(command);
+      if (commandItems) {
+        for (const item of items.values()) {
+          const index = commandItems.indexOf(item);
+          if (index !== -1) {
+            commandItems.splice(index, 1);
+          }
+        }
+      }
+    });
+  }
+  _createDisposables(element, command, markProperties) {
+    if (command?.exitCode === void 0 && !command?.markProperties) {
+      return [];
+    } else if (command?.markProperties || markProperties) {
+      return [this._createHover(element, command || markProperties, markProperties?.hoverMessage)];
+    }
+    return [...this._createContextMenu(element, command), this._createHover(element, command)];
+  }
+  _createHover(element, command, hoverMessage) {
+    return this._hoverService.setupDelayedHover(element, () => ({
+      content: new MarkdownString(getTerminalDecorationHoverContent(command, hoverMessage, true))
+    }));
+  }
+  _updateClasses(element, command, markProperties) {
+    if (!element) {
+      return;
+    }
+    for (const classes of element.classList) {
+      element.classList.remove(classes);
+    }
+    element.classList.add(
+      "terminal-command-decoration",
+      "codicon",
+      "xterm-decoration"
+      /* DecorationSelector.XtermDecoration */
+    );
+    if (markProperties) {
+      element.classList.add("default-color", ...ThemeIcon.asClassNameArray(terminalDecorationMark));
+      if (!markProperties.hoverMessage) {
+        element.classList.add(
+          "default"
+          /* DecorationSelector.Default */
+        );
+      }
+    } else {
+      const state = getTerminalCommandDecorationState(command);
+      this._updateCommandDecorationVisibility(element);
+      for (const className of state.classNames) {
+        element.classList.add(className);
+      }
+      element.classList.add(...ThemeIcon.asClassNameArray(state.icon));
+    }
+    element.removeAttribute("title");
+    element.removeAttribute("aria-label");
+  }
+  _createContextMenu(element, command) {
+    return [
+      dom.addDisposableListener(element, dom.EventType.MOUSE_DOWN, async (e) => {
+        e.stopImmediatePropagation();
+      }),
+      dom.addDisposableListener(element, dom.EventType.CLICK, async (e) => {
+        e.stopImmediatePropagation();
+        const actions = await this._getCommandActions(command);
+        this._contextMenuService.showContextMenu({ getAnchor: /* @__PURE__ */ __name(() => element, "getAnchor"), getActions: /* @__PURE__ */ __name(() => actions, "getActions") });
+      }),
+      dom.addDisposableListener(element, dom.EventType.CONTEXT_MENU, async (e) => {
+        e.stopImmediatePropagation();
+        const chatActions = await this._getCommandActions(command);
+        const actions = this._getContextMenuActions();
+        this._contextMenuService.showContextMenu({ getAnchor: /* @__PURE__ */ __name(() => element, "getAnchor"), getActions: /* @__PURE__ */ __name(() => [...actions, ...chatActions], "getActions") });
+      })
+    ];
+  }
+  _getContextMenuActions() {
+    const label = localize("workbench.action.terminal.toggleVisibility", "Toggle Visibility");
+    return [
+      {
+        class: void 0,
+        tooltip: label,
+        id: "terminal.toggleVisibility",
+        label,
+        enabled: true,
+        run: /* @__PURE__ */ __name(async () => {
+          this._showToggleVisibilityQuickPick();
+        }, "run")
+      }
+    ];
+  }
+  async _getCommandActions(command) {
+    const actions = [];
+    const registeredMenuItems = this._registeredMenuItems.get(command);
+    if (registeredMenuItems?.length) {
+      actions.push(...registeredMenuItems, new Separator());
+    }
+    const attachToChatAction = this._createAttachToChatAction(command);
+    if (attachToChatAction) {
+      actions.push(attachToChatAction, new Separator());
+    }
+    if (command.command !== "") {
+      const labelRun = localize("terminal.rerunCommand", "Rerun Command");
+      actions.push({
+        class: void 0,
+        tooltip: labelRun,
+        id: "terminal.rerunCommand",
+        label: labelRun,
+        enabled: true,
+        run: /* @__PURE__ */ __name(async () => {
+          if (command.command === "") {
+            return;
+          }
+          if (!command.isTrusted) {
+            const shouldRun = await new Promise((r) => {
+              this._notificationService.prompt(Severity.Info, localize("rerun", "Do you want to run the command: {0}", command.command), [{
+                label: localize("yes", "Yes"),
+                run: /* @__PURE__ */ __name(() => r(true), "run")
+              }, {
+                label: localize("no", "No"),
+                run: /* @__PURE__ */ __name(() => r(false), "run")
+              }]);
+            });
+            if (!shouldRun) {
+              return;
+            }
+          }
+          this._onDidRequestRunCommand.fire({ command });
+        }, "run")
+      });
+      actions.push(new Separator());
+      const labelCopy = localize("terminal.copyCommand", "Copy Command");
+      actions.push({
+        class: void 0,
+        tooltip: labelCopy,
+        id: "terminal.copyCommand",
+        label: labelCopy,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => this._clipboardService.writeText(command.command), "run")
+      });
+    }
+    if (command.hasOutput()) {
+      const labelCopyCommandAndOutput = localize("terminal.copyCommandAndOutput", "Copy Command and Output");
+      actions.push({
+        class: void 0,
+        tooltip: labelCopyCommandAndOutput,
+        id: "terminal.copyCommandAndOutput",
+        label: labelCopyCommandAndOutput,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => {
+          const output = command.getOutput();
+          if (isString(output)) {
+            this._clipboardService.writeText(`${command.command !== "" ? command.command + "\n" : ""}${output}`);
+          }
+        }, "run")
+      });
+      const labelText = localize("terminal.copyOutput", "Copy Output");
+      actions.push({
+        class: void 0,
+        tooltip: labelText,
+        id: "terminal.copyOutput",
+        label: labelText,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => {
+          const text = command.getOutput();
+          if (isString(text)) {
+            this._clipboardService.writeText(text);
+          }
+        }, "run")
+      });
+      const labelHtml = localize("terminal.copyOutputAsHtml", "Copy Output as HTML");
+      actions.push({
+        class: void 0,
+        tooltip: labelHtml,
+        id: "terminal.copyOutputAsHtml",
+        label: labelHtml,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => this._onDidRequestCopyAsHtml.fire({ command }), "run")
+      });
+    }
+    if (actions.length > 0) {
+      actions.push(new Separator());
+    }
+    const labelRunRecent = localize("workbench.action.terminal.runRecentCommand", "Run Recent Command");
+    actions.push({
+      class: void 0,
+      tooltip: labelRunRecent,
+      id: "workbench.action.terminal.runRecentCommand",
+      label: labelRunRecent,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => this._commandService.executeCommand("workbench.action.terminal.runRecentCommand"), "run")
+    });
+    const labelGoToRecent = localize("workbench.action.terminal.goToRecentDirectory", "Go To Recent Directory");
+    actions.push({
+      class: void 0,
+      tooltip: labelRunRecent,
+      id: "workbench.action.terminal.goToRecentDirectory",
+      label: labelGoToRecent,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => this._commandService.executeCommand("workbench.action.terminal.goToRecentDirectory"), "run")
+    });
+    actions.push(new Separator());
+    const labelAbout = localize("terminal.learnShellIntegration", "Learn About Shell Integration");
+    actions.push({
+      class: void 0,
+      tooltip: labelAbout,
+      id: "terminal.learnShellIntegration",
+      label: labelAbout,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => this._openerService.open("https://code.visualstudio.com/docs/terminal/shell-integration"), "run")
+    });
+    return actions;
+  }
+  _createAttachToChatAction(command) {
+    const chatIsEnabled = this._chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat).some((w) => w.attachmentCapabilities.supportsTerminalAttachments);
+    if (!chatIsEnabled) {
+      return void 0;
+    }
+    const labelAttachToChat = localize("terminal.attachToChat", "Attach To Chat");
+    return {
+      class: void 0,
+      tooltip: labelAttachToChat,
+      id: "terminal.attachToChat",
+      label: labelAttachToChat,
+      enabled: true,
+      run: /* @__PURE__ */ __name(async () => {
+        let widget = this._chatWidgetService.lastFocusedWidget ?? this._chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat)?.find((w) => w.attachmentCapabilities.supportsTerminalAttachments);
+        if (!widget) {
+          widget = await this._chatWidgetService.revealWidget();
+        }
+        if (!widget) {
+          return;
+        }
+        let terminalContext;
+        if (this._resource) {
+          const parsedUri = parseTerminalUri(this._resource);
+          terminalContext = this._instantiationService.createInstance(TerminalContext, getTerminalUri(parsedUri.workspaceId, parsedUri.instanceId, void 0, command.id));
+        }
+        if (terminalContext && widget.attachmentCapabilities.supportsTerminalAttachments) {
+          try {
+            const attachment = await terminalContext.asAttachment(widget);
+            if (attachment) {
+              widget.attachmentModel.addContext(attachment);
+              widget.focusInput();
+              return;
+            }
+          } catch (err) {
+          }
+          this._store.add(this._contextPickService.registerChatContextItem(terminalContext));
+        }
+      }, "run")
+    };
+  }
+  _showToggleVisibilityQuickPick() {
+    const quickPick = this._register(this._quickInputService.createQuickPick());
+    quickPick.hideInput = true;
+    quickPick.hideCheckAll = true;
+    quickPick.canSelectMany = true;
+    quickPick.title = localize("toggleVisibility", "Toggle visibility");
+    const configValue = this._configurationService.getValue(
+      "terminal.integrated.shellIntegration.decorationsEnabled"
+      /* TerminalSettingId.ShellIntegrationDecorationsEnabled */
+    );
+    const gutterIcon = {
+      label: localize("gutter", "Gutter command decorations"),
+      picked: configValue !== "never" && configValue !== "overviewRuler"
+    };
+    const overviewRulerIcon = {
+      label: localize("overviewRuler", "Overview ruler command decorations"),
+      picked: configValue !== "never" && configValue !== "gutter"
+    };
+    quickPick.items = [gutterIcon, overviewRulerIcon];
+    const selectedItems = [];
+    if (configValue !== "never") {
+      if (configValue !== "gutter") {
+        selectedItems.push(gutterIcon);
+      }
+      if (configValue !== "overviewRuler") {
+        selectedItems.push(overviewRulerIcon);
+      }
+    }
+    quickPick.selectedItems = selectedItems;
+    this._register(quickPick.onDidChangeSelection(async (e) => {
+      let newValue = "never";
+      if (e.includes(gutterIcon)) {
+        if (e.includes(overviewRulerIcon)) {
+          newValue = "both";
+        } else {
+          newValue = "gutter";
+        }
+      } else if (e.includes(overviewRulerIcon)) {
+        newValue = "overviewRuler";
+      }
+      await this._configurationService.updateValue("terminal.integrated.shellIntegration.decorationsEnabled", newValue);
+    }));
+    quickPick.ok = false;
+    quickPick.show();
+  }
+  _getDecorationCssColor(command) {
+    let colorId;
+    if (command?.exitCode === void 0) {
+      colorId = TERMINAL_COMMAND_DECORATION_DEFAULT_BACKGROUND_COLOR;
+    } else {
+      colorId = command.exitCode ? TERMINAL_COMMAND_DECORATION_ERROR_BACKGROUND_COLOR : TERMINAL_COMMAND_DECORATION_SUCCESS_BACKGROUND_COLOR;
+    }
+    return this._themeService.getColorTheme().getColor(colorId)?.toString();
+  }
+};
+DecorationAddon = __decorate([
+  __param(2, IClipboardService),
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService),
+  __param(5, IThemeService),
+  __param(6, IOpenerService),
+  __param(7, IQuickInputService),
+  __param(8, ILifecycleService),
+  __param(9, ICommandService),
+  __param(10, IAccessibilitySignalService),
+  __param(11, INotificationService),
+  __param(12, IHoverService),
+  __param(13, IChatContextPickService),
+  __param(14, IChatWidgetService),
+  __param(15, IInstantiationService)
+], DecorationAddon);
+export {
+  DecorationAddon
+};
+//# sourceMappingURL=decorationAddon.js.map

@@ -1,1 +1,214 @@
-import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$an as d}from"../../../../base/parts/ipc/common/ipc.js";import{$BP as g}from"../../environment/common/environmentService.js";import{$iC as p}from"../../../../platform/remote/common/remoteAgentConnection.js";import{$bC as y}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$u5 as a}from"./remoteAgentEnvironmentChannel.js";import{$wf as u}from"../../../../base/common/event.js";import{$Uy as v}from"../../../../platform/sign/common/sign.js";import{$xo as C}from"../../../../platform/log/common/log.js";import{$Un as T}from"../../../../platform/product/common/productService.js";import{$MQ as w}from"../../userDataProfile/common/userDataProfile.js";import{$gC as D}from"../../../../platform/remote/common/remoteSocketFactoryService.js";var f=function(s,e,n,t){var r=arguments.length,i=r<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,e,n,t);else for(var h=s.length-1;h>=0;h--)(o=s[h])&&(i=(r<3?o(i):r>3?o(e,n,i):o(e,n))||i);return r>3&&i&&Object.defineProperty(e,n,i),i},c=function(s,e){return function(n,t){e(n,t,s)}};let l=class extends m{constructor(e,n,t,r,i,o,h){super(),this.f=e,this.g=n,this.h=t,this.j=i,this.m=h,this.h.remoteAuthority?this.a=this.D(new $(this.h.remoteAuthority,r.commit,r.quality,this.f,this.j,o,this.m)):this.a=null,this.b=null}getConnection(){return this.a}getEnvironment(){return this.getRawEnvironment().then(void 0,()=>null)}getRawEnvironment(){return this.b||(this.b=this.n(async(e,n)=>{const t=await a.getEnvironmentData(e,n.remoteAuthority,this.g.currentProfile.isDefault?void 0:this.g.currentProfile.id);return this.j._setAuthorityConnectionToken(n.remoteAuthority,t.connectionToken),typeof t.reconnectionGraceTime=="number"?(this.m.info(`[reconnection-grace-time] Client received grace time from server: ${t.reconnectionGraceTime}ms (${Math.floor(t.reconnectionGraceTime/1e3)}s)`),n.updateGraceTime(t.reconnectionGraceTime)):this.m.info("[reconnection-grace-time] Server did not provide grace time, using default"),t},null)),this.b}getExtensionHostExitInfo(e){return this.n((n,t)=>a.getExtensionHostExitInfo(n,t.remoteAuthority,e),null)}getDiagnosticInfo(e){return this.n(n=>a.getDiagnosticInfo(n,e),void 0)}updateTelemetryLevel(e){return this.q(n=>a.updateTelemetryLevel(n,e),void 0)}logTelemetry(e,n){return this.q(t=>a.logTelemetry(t,e,n),void 0)}flushTelemetry(){return this.q(e=>a.flushTelemetry(e),void 0)}getRoundTripTime(){return this.q(async e=>{const n=Date.now();return await a.ping(e),Date.now()-n},void 0)}async endConnection(){this.a&&(await this.a.end(),this.a.dispose())}n(e,n){const t=this.getConnection();return t?t.withChannel("remoteextensionsenvironment",r=>e(r,t)):Promise.resolve(n)}q(e,n){const t=this.getConnection();return t?t.withChannel("telemetry",r=>e(r,t)):Promise.resolve(n)}};l=f([c(0,D),c(1,w),c(2,g),c(3,T),c(4,y),c(5,v),c(6,C)],l);class $ extends m{constructor(e,n,t,r,i,o,h){super(),this.j=n,this.m=t,this.n=r,this.q=i,this.r=o,this.s=h,this.a=this.D(new u),this.onReconnecting=this.a.event,this.b=this.D(new u),this.onDidStateChange=this.b.event,this.g=null,this.end=()=>Promise.resolve(),this.remoteAuthority=e,this.f=null}getChannel(e){return d(this.t().then(n=>n.getChannel(e)))}withChannel(e,n){const t=this.getChannel(e);return n(t)}registerChannel(e,n){this.t().then(t=>t.registerChannel(e,n))}async getInitialConnectionTimeMs(){try{await this.t()}catch{}return this.h}getManagementConnection(){return this.g}updateGraceTime(e){this.g&&this.g.updateGraceTime(e)}t(){return this.f||(this.f=this.u()),this.f}async u(){let e=!0;const n={commit:this.j,quality:this.m,addressProvider:{getAddress:async()=>{e?e=!1:this.a.fire(void 0);const{authority:i}=await this.q.resolveAuthority(this.remoteAuthority);return{connectTo:i.connectTo,connectionToken:i.connectionToken}}},remoteSocketFactoryService:this.n,signService:this.r,logService:this.s,ipcLogger:null};let t;const r=Date.now();try{t=this.D(await p(n,this.remoteAuthority,"renderer")),this.g=t}finally{this.h=Date.now()-r}return t.protocol.onDidDispose(()=>{t.dispose()}),this.end=()=>(t.protocol.sendDisconnect(),t.protocol.drain()),this.D(t.onDidStateChange(i=>this.b.fire(i))),t.client}}export{l as $0Jc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { getDelayedChannel, IPCLogger } from "../../../../base/parts/ipc/common/ipc.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { connectRemoteAgentManagement } from "../../../../platform/remote/common/remoteAgentConnection.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { RemoteExtensionEnvironmentChannelClient } from "./remoteAgentEnvironmentChannel.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { ISignService } from "../../../../platform/sign/common/sign.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IRemoteSocketFactoryService } from "../../../../platform/remote/common/remoteSocketFactoryService.js";
+let AbstractRemoteAgentService = class AbstractRemoteAgentService2 extends Disposable {
+  static {
+    __name(this, "AbstractRemoteAgentService");
+  }
+  constructor(remoteSocketFactoryService, userDataProfileService, _environmentService, productService, _remoteAuthorityResolverService, signService, _logService) {
+    super();
+    this.remoteSocketFactoryService = remoteSocketFactoryService;
+    this.userDataProfileService = userDataProfileService;
+    this._environmentService = _environmentService;
+    this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
+    this._logService = _logService;
+    if (this._environmentService.remoteAuthority) {
+      this._connection = this._register(new RemoteAgentConnection(this._environmentService.remoteAuthority, productService.commit, productService.quality, this.remoteSocketFactoryService, this._remoteAuthorityResolverService, signService, this._logService));
+    } else {
+      this._connection = null;
+    }
+    this._environment = null;
+  }
+  getConnection() {
+    return this._connection;
+  }
+  getEnvironment() {
+    return this.getRawEnvironment().then(void 0, () => null);
+  }
+  getRawEnvironment() {
+    if (!this._environment) {
+      this._environment = this._withChannel(async (channel, connection) => {
+        const env = await RemoteExtensionEnvironmentChannelClient.getEnvironmentData(channel, connection.remoteAuthority, this.userDataProfileService.currentProfile.isDefault ? void 0 : this.userDataProfileService.currentProfile.id);
+        this._remoteAuthorityResolverService._setAuthorityConnectionToken(connection.remoteAuthority, env.connectionToken);
+        if (typeof env.reconnectionGraceTime === "number") {
+          this._logService.info(`[reconnection-grace-time] Client received grace time from server: ${env.reconnectionGraceTime}ms (${Math.floor(env.reconnectionGraceTime / 1e3)}s)`);
+          connection.updateGraceTime(env.reconnectionGraceTime);
+        } else {
+          this._logService.info(`[reconnection-grace-time] Server did not provide grace time, using default`);
+        }
+        return env;
+      }, null);
+    }
+    return this._environment;
+  }
+  getExtensionHostExitInfo(reconnectionToken) {
+    return this._withChannel((channel, connection) => RemoteExtensionEnvironmentChannelClient.getExtensionHostExitInfo(channel, connection.remoteAuthority, reconnectionToken), null);
+  }
+  getDiagnosticInfo(options) {
+    return this._withChannel((channel) => RemoteExtensionEnvironmentChannelClient.getDiagnosticInfo(channel, options), void 0);
+  }
+  updateTelemetryLevel(telemetryLevel) {
+    return this._withTelemetryChannel((channel) => RemoteExtensionEnvironmentChannelClient.updateTelemetryLevel(channel, telemetryLevel), void 0);
+  }
+  logTelemetry(eventName, data) {
+    return this._withTelemetryChannel((channel) => RemoteExtensionEnvironmentChannelClient.logTelemetry(channel, eventName, data), void 0);
+  }
+  flushTelemetry() {
+    return this._withTelemetryChannel((channel) => RemoteExtensionEnvironmentChannelClient.flushTelemetry(channel), void 0);
+  }
+  getRoundTripTime() {
+    return this._withTelemetryChannel(async (channel) => {
+      const start = Date.now();
+      await RemoteExtensionEnvironmentChannelClient.ping(channel);
+      return Date.now() - start;
+    }, void 0);
+  }
+  async endConnection() {
+    if (this._connection) {
+      await this._connection.end();
+      this._connection.dispose();
+    }
+  }
+  _withChannel(callback, fallback) {
+    const connection = this.getConnection();
+    if (!connection) {
+      return Promise.resolve(fallback);
+    }
+    return connection.withChannel("remoteextensionsenvironment", (channel) => callback(channel, connection));
+  }
+  _withTelemetryChannel(callback, fallback) {
+    const connection = this.getConnection();
+    if (!connection) {
+      return Promise.resolve(fallback);
+    }
+    return connection.withChannel("telemetry", (channel) => callback(channel, connection));
+  }
+};
+AbstractRemoteAgentService = __decorate([
+  __param(0, IRemoteSocketFactoryService),
+  __param(1, IUserDataProfileService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IProductService),
+  __param(4, IRemoteAuthorityResolverService),
+  __param(5, ISignService),
+  __param(6, ILogService)
+], AbstractRemoteAgentService);
+class RemoteAgentConnection extends Disposable {
+  static {
+    __name(this, "RemoteAgentConnection");
+  }
+  constructor(remoteAuthority, _commit, _quality, _remoteSocketFactoryService, _remoteAuthorityResolverService, _signService, _logService) {
+    super();
+    this._commit = _commit;
+    this._quality = _quality;
+    this._remoteSocketFactoryService = _remoteSocketFactoryService;
+    this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
+    this._signService = _signService;
+    this._logService = _logService;
+    this._onReconnecting = this._register(new Emitter());
+    this.onReconnecting = this._onReconnecting.event;
+    this._onDidStateChange = this._register(new Emitter());
+    this.onDidStateChange = this._onDidStateChange.event;
+    this._managementConnection = null;
+    this.end = () => Promise.resolve();
+    this.remoteAuthority = remoteAuthority;
+    this._connection = null;
+  }
+  getChannel(channelName) {
+    return getDelayedChannel(this._getOrCreateConnection().then((c) => c.getChannel(channelName)));
+  }
+  withChannel(channelName, callback) {
+    const channel = this.getChannel(channelName);
+    const result = callback(channel);
+    return result;
+  }
+  registerChannel(channelName, channel) {
+    this._getOrCreateConnection().then((client) => client.registerChannel(channelName, channel));
+  }
+  async getInitialConnectionTimeMs() {
+    try {
+      await this._getOrCreateConnection();
+    } catch {
+    }
+    return this._initialConnectionMs;
+  }
+  getManagementConnection() {
+    return this._managementConnection;
+  }
+  updateGraceTime(graceTime) {
+    if (this._managementConnection) {
+      this._managementConnection.updateGraceTime(graceTime);
+    }
+  }
+  _getOrCreateConnection() {
+    if (!this._connection) {
+      this._connection = this._createConnection();
+    }
+    return this._connection;
+  }
+  async _createConnection() {
+    let firstCall = true;
+    const options = {
+      commit: this._commit,
+      quality: this._quality,
+      addressProvider: {
+        getAddress: /* @__PURE__ */ __name(async () => {
+          if (firstCall) {
+            firstCall = false;
+          } else {
+            this._onReconnecting.fire(void 0);
+          }
+          const { authority } = await this._remoteAuthorityResolverService.resolveAuthority(this.remoteAuthority);
+          return { connectTo: authority.connectTo, connectionToken: authority.connectionToken };
+        }, "getAddress")
+      },
+      remoteSocketFactoryService: this._remoteSocketFactoryService,
+      signService: this._signService,
+      logService: this._logService,
+      ipcLogger: false ? new IPCLogger(`Local \u2192 Remote`, `Remote \u2192 Local`) : null
+    };
+    let connection;
+    const start = Date.now();
+    try {
+      connection = this._register(await connectRemoteAgentManagement(options, this.remoteAuthority, `renderer`));
+      this._managementConnection = connection;
+    } finally {
+      this._initialConnectionMs = Date.now() - start;
+    }
+    connection.protocol.onDidDispose(() => {
+      connection.dispose();
+    });
+    this.end = () => {
+      connection.protocol.sendDisconnect();
+      return connection.protocol.drain();
+    };
+    this._register(connection.onDidStateChange((e) => this._onDidStateChange.fire(e)));
+    return connection.client;
+  }
+}
+export {
+  AbstractRemoteAgentService
+};
+//# sourceMappingURL=abstractRemoteAgentService.js.map

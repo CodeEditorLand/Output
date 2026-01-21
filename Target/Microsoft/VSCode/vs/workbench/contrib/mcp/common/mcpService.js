@@ -1,1 +1,218 @@
-import{$ii as w}from"../../../../base/common/async.js";import{$If as S}from"../../../../base/common/cancellation.js";import{$Ed as v,$Dd as $,$Cd as j}from"../../../../base/common/lifecycle.js";import{autorun as C,observableValue as u,transaction as x}from"../../../../base/common/observable.js";import{$9l as y}from"../../../../platform/configuration/common/configuration.js";import{$Lj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$xo as P}from"../../../../platform/log/common/log.js";import{$KQ as _}from"../../../../platform/mcp/common/mcpManagement.js";import{$JS as q}from"./mcpRegistryTypes.js";import{$F2b as E,$E2b as m}from"./mcpServer.js";import{IAutostartResult as d,McpServerDefinition as I,$XS as R,$5S as M}from"./mcpTypes.js";import{$LS as z}from"./mcpTypesUtils.js";var b=function(l,e,n,o){var r=arguments.length,i=r<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,n,o);else for(var t=l.length-1;t>=0;t--)(c=l[t])&&(i=(r<3?c(i):r>3?c(e,n,i):c(e,n))||i);return r>3&&i&&Object.defineProperty(e,n,i),i},f=function(l,e){return function(n,o){e(n,o,l)}};let g=class extends v{get lazyCollectionState(){return this.j.lazyCollectionState}constructor(e,n,o,r){super(),this.h=e,this.j=n,this.m=o,this.n=r,this.a=new Set,this.b=u(this,[]),this.servers=this.b.map(c=>c.map(t=>t.object)),this.f=this.D(e.createInstance(m,0)),this.g=this.D(e.createInstance(m,1));const i=this.B.add(new w(()=>this.updateCollectedServers(),500));this.D(C(c=>{for(const t of this.j.collections.read(c))t.serverDefinitions.read(c);i.schedule(500)}))}cancelAutostart(){for(const e of this.a)e.cancel()}autostart(e){const n=this.n.getValue(_);if(n==="never")return u(this,d.Empty);const o=u(this,{working:!0,starting:[],serversRequiringInteraction:[]}),r=new $,i=r.add(new S(e));return this.a.add(i),r.add(j(()=>{this.a.delete(i)})),r.add(i.token.onCancellationRequested(()=>{o.set(d.Empty,void 0)})),this.q(n,o,i.token).catch(c=>{this.m.error("Error during MCP autostart:",c),o.set(d.Empty,void 0)}).finally(()=>r.dispose()),o}async q(e,n,o){if(await this.r(),o.isCancellationRequested)return;const r=this.servers.get().filter(s=>s.connectionState.get().state!==3);let i=new Set;if(e==="onlyNew"?i=new Set(r.filter(s=>s.cacheState.get()===0)):e==="newAndOutdated"&&(i=new Set(r.filter(s=>{const h=s.cacheState.get();return h===0||h===2}))),!i.size){n.set(d.Empty,void 0);return}const c=new R,t=[],a=()=>n.set({working:i.size>0,starting:[...i].map(s=>s.definition),serversRequiringInteraction:t},void 0);a(),await Promise.all([...i].map(async(s,h)=>{try{await z(s,{interaction:c,errorOnUserInteraction:!0},o)}catch(p){p instanceof M&&t.push({id:s.definition.id,label:s.definition.label,errorMessage:p.message})}finally{i.delete(s),o.isCancellationRequested||a()}}))}resetCaches(){this.f.reset(),this.g.reset()}resetTrust(){this.resetCaches()}async activateCollections(){await this.r()}async r(){const e=await this.j.discoverCollections();return this.updateCollectedServers(),new Set(e.map(n=>n.id))}updateCollectedServers(){const e=new A,n=this.j.collections.get().flatMap(t=>t.serverDefinitions.get().map(a=>{const s=e.generate(a.label);return{serverDefinition:a,collectionDefinition:t,toolPrefix:s}})),o=new Set(n),r=this.b.get(),i=[],c=(t,a)=>{o.delete(t),i.push(a);const s=a.object.connection.get();s&&!I.equals(s.definition,t.serverDefinition)&&(a.object.stop(),this.m.debug(`MCP server ${a.object.definition.id} stopped because the definition changed`))};for(const t of r){const a=n.find(s=>O(t.object,s)&&t.toolPrefix===s.toolPrefix);a?c(a,t):t.object.dispose()}for(const t of o){const a=this.h.createInstance(E,t.collectionDefinition,t.serverDefinition,t.serverDefinition.roots,!!t.collectionDefinition.lazy,t.collectionDefinition.scope===1?this.g:this.f,t.toolPrefix);i.push({object:a,toolPrefix:t.toolPrefix})}x(t=>{this.b.set(i,t)})}dispose(){this.b.get().forEach(e=>e.object.dispose()),super.dispose()}};g=b([f(0,D),f(1,q),f(2,P),f(3,y)],g);function O(l,e){return l.collection.id===e.collectionDefinition.id&&l.definition.id===e.serverDefinition.id}class A{constructor(){this.a=new Set}generate(e){const n="mcp_"+e.toLowerCase().replace(/[^a-z0-9_.-]+/g,"_").slice(0,13);let o=n+"_";for(let r=2;this.a.has(o);r++)o=n+r+"_";return this.a.add(o),o}}export{g as $Wpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, observableValue, transaction } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { mcpAutoStartConfig } from "../../../../platform/mcp/common/mcpManagement.js";
+import { IMcpRegistry } from "./mcpRegistryTypes.js";
+import { McpServer, McpServerMetadataCache } from "./mcpServer.js";
+import { IAutostartResult, McpServerDefinition, McpStartServerInteraction, UserInteractionRequiredError } from "./mcpTypes.js";
+import { startServerAndWaitForLiveTools } from "./mcpTypesUtils.js";
+let McpService = class McpService2 extends Disposable {
+  static {
+    __name(this, "McpService");
+  }
+  get lazyCollectionState() {
+    return this._mcpRegistry.lazyCollectionState;
+  }
+  constructor(_instantiationService, _mcpRegistry, _logService, configurationService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._mcpRegistry = _mcpRegistry;
+    this._logService = _logService;
+    this.configurationService = configurationService;
+    this._currentAutoStarts = /* @__PURE__ */ new Set();
+    this._servers = observableValue(this, []);
+    this.servers = this._servers.map((servers) => servers.map((s) => s.object));
+    this.userCache = this._register(_instantiationService.createInstance(
+      McpServerMetadataCache,
+      0
+      /* StorageScope.PROFILE */
+    ));
+    this.workspaceCache = this._register(_instantiationService.createInstance(
+      McpServerMetadataCache,
+      1
+      /* StorageScope.WORKSPACE */
+    ));
+    const updateThrottle = this._store.add(new RunOnceScheduler(() => this.updateCollectedServers(), 500));
+    this._register(autorun((reader) => {
+      for (const collection of this._mcpRegistry.collections.read(reader)) {
+        collection.serverDefinitions.read(reader);
+      }
+      updateThrottle.schedule(500);
+    }));
+  }
+  cancelAutostart() {
+    for (const cts of this._currentAutoStarts) {
+      cts.cancel();
+    }
+  }
+  autostart(_token) {
+    const autoStartConfig = this.configurationService.getValue(mcpAutoStartConfig);
+    if (autoStartConfig === "never") {
+      return observableValue(this, IAutostartResult.Empty);
+    }
+    const state = observableValue(this, { working: true, starting: [], serversRequiringInteraction: [] });
+    const store = new DisposableStore();
+    const cts = store.add(new CancellationTokenSource(_token));
+    this._currentAutoStarts.add(cts);
+    store.add(toDisposable(() => {
+      this._currentAutoStarts.delete(cts);
+    }));
+    store.add(cts.token.onCancellationRequested(() => {
+      state.set(IAutostartResult.Empty, void 0);
+    }));
+    this._autostart(autoStartConfig, state, cts.token).catch((err) => {
+      this._logService.error("Error during MCP autostart:", err);
+      state.set(IAutostartResult.Empty, void 0);
+    }).finally(() => store.dispose());
+    return state;
+  }
+  async _autostart(autoStartConfig, state, token) {
+    await this._activateCollections();
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const candidates = this.servers.get().filter(
+      (s) => s.connectionState.get().state !== 3
+      /* McpConnectionState.Kind.Error */
+    );
+    let todo = /* @__PURE__ */ new Set();
+    if (autoStartConfig === "onlyNew") {
+      todo = new Set(candidates.filter(
+        (s) => s.cacheState.get() === 0
+        /* McpServerCacheState.Unknown */
+      ));
+    } else if (autoStartConfig === "newAndOutdated") {
+      todo = new Set(candidates.filter((s) => {
+        const c = s.cacheState.get();
+        return c === 0 || c === 2;
+      }));
+    }
+    if (!todo.size) {
+      state.set(IAutostartResult.Empty, void 0);
+      return;
+    }
+    const interaction = new McpStartServerInteraction();
+    const requiringInteraction = [];
+    const update = /* @__PURE__ */ __name(() => state.set({
+      working: todo.size > 0,
+      starting: [...todo].map((t) => t.definition),
+      serversRequiringInteraction: requiringInteraction
+    }, void 0), "update");
+    update();
+    await Promise.all([...todo].map(async (server, i) => {
+      try {
+        await startServerAndWaitForLiveTools(server, { interaction, errorOnUserInteraction: true }, token);
+      } catch (error) {
+        if (error instanceof UserInteractionRequiredError) {
+          requiringInteraction.push({ id: server.definition.id, label: server.definition.label, errorMessage: error.message });
+        }
+      } finally {
+        todo.delete(server);
+        if (!token.isCancellationRequested) {
+          update();
+        }
+      }
+    }));
+  }
+  resetCaches() {
+    this.userCache.reset();
+    this.workspaceCache.reset();
+  }
+  resetTrust() {
+    this.resetCaches();
+  }
+  async activateCollections() {
+    await this._activateCollections();
+  }
+  async _activateCollections() {
+    const collections = await this._mcpRegistry.discoverCollections();
+    this.updateCollectedServers();
+    return new Set(collections.map((c) => c.id));
+  }
+  updateCollectedServers() {
+    const prefixGenerator = new McpPrefixGenerator();
+    const definitions = this._mcpRegistry.collections.get().flatMap((collectionDefinition) => collectionDefinition.serverDefinitions.get().map((serverDefinition) => {
+      const toolPrefix = prefixGenerator.generate(serverDefinition.label);
+      return { serverDefinition, collectionDefinition, toolPrefix };
+    }));
+    const nextDefinitions = new Set(definitions);
+    const currentServers = this._servers.get();
+    const nextServers = [];
+    const pushMatch = /* @__PURE__ */ __name((match, rec) => {
+      nextDefinitions.delete(match);
+      nextServers.push(rec);
+      const connection = rec.object.connection.get();
+      if (connection && !McpServerDefinition.equals(connection.definition, match.serverDefinition)) {
+        rec.object.stop();
+        this._logService.debug(`MCP server ${rec.object.definition.id} stopped because the definition changed`);
+      }
+    }, "pushMatch");
+    for (const server of currentServers) {
+      const match = definitions.find((d) => defsEqual(server.object, d) && server.toolPrefix === d.toolPrefix);
+      if (match) {
+        pushMatch(match, server);
+      } else {
+        server.object.dispose();
+      }
+    }
+    for (const def of nextDefinitions) {
+      const object = this._instantiationService.createInstance(McpServer, def.collectionDefinition, def.serverDefinition, def.serverDefinition.roots, !!def.collectionDefinition.lazy, def.collectionDefinition.scope === 1 ? this.workspaceCache : this.userCache, def.toolPrefix);
+      nextServers.push({ object, toolPrefix: def.toolPrefix });
+    }
+    transaction((tx) => {
+      this._servers.set(nextServers, tx);
+    });
+  }
+  dispose() {
+    this._servers.get().forEach((s) => s.object.dispose());
+    super.dispose();
+  }
+};
+McpService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IMcpRegistry),
+  __param(2, ILogService),
+  __param(3, IConfigurationService)
+], McpService);
+function defsEqual(server, def) {
+  return server.collection.id === def.collectionDefinition.id && server.definition.id === def.serverDefinition.id;
+}
+__name(defsEqual, "defsEqual");
+class McpPrefixGenerator {
+  static {
+    __name(this, "McpPrefixGenerator");
+  }
+  constructor() {
+    this.seenPrefixes = /* @__PURE__ */ new Set();
+  }
+  generate(label) {
+    const baseToolPrefix = "mcp_" + label.toLowerCase().replace(/[^a-z0-9_.-]+/g, "_").slice(0, 18 - "mcp_".length - 1);
+    let toolPrefix = baseToolPrefix + "_";
+    for (let i = 2; this.seenPrefixes.has(toolPrefix); i++) {
+      toolPrefix = baseToolPrefix + i + "_";
+    }
+    this.seenPrefixes.add(toolPrefix);
+    return toolPrefix;
+  }
+}
+export {
+  McpService
+};
+//# sourceMappingURL=mcpService.js.map

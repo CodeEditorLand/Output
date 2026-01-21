@@ -1,1 +1,110 @@
-import{h as N,$K8 as v}from"../../../../../base/browser/dom.js";import{$Ed as w,$Cd as f}from"../../../../../base/common/lifecycle.js";import{autorun as c,observableFromEvent as g,observableSignal as C,observableSignalFromEvent as l,transaction as L}from"../../../../../base/common/observable.js";import{$X4b as D}from"../model/lineRange.js";class y extends w{constructor(t,o,r){super(),this.m=t,this.n=o,this.q=r,this.a=g(this,this.m.onDidScrollChange,e=>this.m.getScrollTop()),this.b=this.a.map(e=>e===0),this.c=g(this,this.m.onDidChangeModel,e=>this.m.hasModel()),this.f=l("onDidChangeViewZones",this.m.onDidChangeViewZones),this.g=l("onDidContentSizeChange",this.m.onDidContentSizeChange),this.j=C("domNodeSizeChanged"),this.r=new Map,this.n.className="gutter monaco-editor";const h=this.n.appendChild(N("div.scroll-decoration",{role:"presentation",ariaHidden:"true",style:{width:"100%"}}).root),s=new ResizeObserver(()=>{L(e=>{this.j.trigger(e)})});s.observe(this.n),this.D(f(()=>s.disconnect())),this.D(c(e=>{h.className=this.b.read(e)?"":"scroll-decoration"})),this.D(c(e=>this.s(e)))}dispose(){super.dispose(),v(this.n)}s(t){if(!this.c.read(t))return;this.j.read(t),this.f.read(t),this.g.read(t);const o=this.a.read(t),r=this.m.getVisibleRanges(),h=new Set(this.r.keys());if(r.length>0){const s=r[0],e=D.fromLength(s.startLineNumber,s.endLineNumber-s.startLineNumber).deltaEnd(1),b=this.q.getIntersectingGutterItems(e,t);for(const i of b){if(!i.range.intersectsOrTouches(e))continue;h.delete(i.id);let n=this.r.get(i.id);if(n)n.gutterItemView.update(i);else{const m=document.createElement("div");this.n.appendChild(m);const p=this.q.createView(i,m);n=new I(p,m),this.r.set(i.id,n)}const a=i.range.startLineNumber<=this.m.getModel().getLineCount()?this.m.getTopForLineNumber(i.range.startLineNumber,!0)-o:this.m.getBottomForLineNumber(i.range.startLineNumber-1,!1)-o,d=this.m.getBottomForLineNumber(i.range.endLineNumberExclusive-1,!0)-o-a;n.domNode.style.top=`${a}px`,n.domNode.style.height=`${d}px`,n.gutterItemView.layout(a,d,0,this.n.clientHeight)}}for(const s of h){const e=this.r.get(s);e.gutterItemView.dispose(),e.domNode.remove(),this.r.delete(s)}}}class I{constructor(t,o){this.gutterItemView=t,this.domNode=o}}export{y as $J5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { h, reset } from "../../../../../base/browser/dom.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, observableFromEvent, observableSignal, observableSignalFromEvent, transaction } from "../../../../../base/common/observable.js";
+import { MergeEditorLineRange } from "../model/lineRange.js";
+class EditorGutter extends Disposable {
+  static {
+    __name(this, "EditorGutter");
+  }
+  constructor(_editor, _domNode, itemProvider) {
+    super();
+    this._editor = _editor;
+    this._domNode = _domNode;
+    this.itemProvider = itemProvider;
+    this.scrollTop = observableFromEvent(this, this._editor.onDidScrollChange, (e) => (
+      /** @description editor.onDidScrollChange */
+      this._editor.getScrollTop()
+    ));
+    this.isScrollTopZero = this.scrollTop.map((scrollTop) => (
+      /** @description isScrollTopZero */
+      scrollTop === 0
+    ));
+    this.modelAttached = observableFromEvent(this, this._editor.onDidChangeModel, (e) => (
+      /** @description editor.onDidChangeModel */
+      this._editor.hasModel()
+    ));
+    this.editorOnDidChangeViewZones = observableSignalFromEvent("onDidChangeViewZones", this._editor.onDidChangeViewZones);
+    this.editorOnDidContentSizeChange = observableSignalFromEvent("onDidContentSizeChange", this._editor.onDidContentSizeChange);
+    this.domNodeSizeChanged = observableSignal("domNodeSizeChanged");
+    this.views = /* @__PURE__ */ new Map();
+    this._domNode.className = "gutter monaco-editor";
+    const scrollDecoration = this._domNode.appendChild(h("div.scroll-decoration", { role: "presentation", ariaHidden: "true", style: { width: "100%" } }).root);
+    const o = new ResizeObserver(() => {
+      transaction((tx) => {
+        this.domNodeSizeChanged.trigger(tx);
+      });
+    });
+    o.observe(this._domNode);
+    this._register(toDisposable(() => o.disconnect()));
+    this._register(autorun((reader) => {
+      scrollDecoration.className = this.isScrollTopZero.read(reader) ? "" : "scroll-decoration";
+    }));
+    this._register(autorun((reader) => (
+      /** @description EditorGutter.Render */
+      this.render(reader)
+    )));
+  }
+  dispose() {
+    super.dispose();
+    reset(this._domNode);
+  }
+  render(reader) {
+    if (!this.modelAttached.read(reader)) {
+      return;
+    }
+    this.domNodeSizeChanged.read(reader);
+    this.editorOnDidChangeViewZones.read(reader);
+    this.editorOnDidContentSizeChange.read(reader);
+    const scrollTop = this.scrollTop.read(reader);
+    const visibleRanges = this._editor.getVisibleRanges();
+    const unusedIds = new Set(this.views.keys());
+    if (visibleRanges.length > 0) {
+      const visibleRange = visibleRanges[0];
+      const visibleRange2 = MergeEditorLineRange.fromLength(visibleRange.startLineNumber, visibleRange.endLineNumber - visibleRange.startLineNumber).deltaEnd(1);
+      const gutterItems = this.itemProvider.getIntersectingGutterItems(visibleRange2, reader);
+      for (const gutterItem of gutterItems) {
+        if (!gutterItem.range.intersectsOrTouches(visibleRange2)) {
+          continue;
+        }
+        unusedIds.delete(gutterItem.id);
+        let view = this.views.get(gutterItem.id);
+        if (!view) {
+          const viewDomNode = document.createElement("div");
+          this._domNode.appendChild(viewDomNode);
+          const itemView = this.itemProvider.createView(gutterItem, viewDomNode);
+          view = new ManagedGutterItemView(itemView, viewDomNode);
+          this.views.set(gutterItem.id, view);
+        } else {
+          view.gutterItemView.update(gutterItem);
+        }
+        const top = gutterItem.range.startLineNumber <= this._editor.getModel().getLineCount() ? this._editor.getTopForLineNumber(gutterItem.range.startLineNumber, true) - scrollTop : this._editor.getBottomForLineNumber(gutterItem.range.startLineNumber - 1, false) - scrollTop;
+        const bottom = this._editor.getBottomForLineNumber(gutterItem.range.endLineNumberExclusive - 1, true) - scrollTop;
+        const height = bottom - top;
+        view.domNode.style.top = `${top}px`;
+        view.domNode.style.height = `${height}px`;
+        view.gutterItemView.layout(top, height, 0, this._domNode.clientHeight);
+      }
+    }
+    for (const id of unusedIds) {
+      const view = this.views.get(id);
+      view.gutterItemView.dispose();
+      view.domNode.remove();
+      this.views.delete(id);
+    }
+  }
+}
+class ManagedGutterItemView {
+  static {
+    __name(this, "ManagedGutterItemView");
+  }
+  constructor(gutterItemView, domNode) {
+    this.gutterItemView = gutterItemView;
+    this.domNode = domNode;
+  }
+}
+export {
+  EditorGutter
+};
+//# sourceMappingURL=editorGutter.js.map

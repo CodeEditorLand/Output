@@ -1,1 +1,291 @@
-import{$ak as m}from"../../../../../base/common/codicons.js";import{$WF as f}from"../../../../../editor/common/languages/language.js";import{localize as e}from"../../../../../nls.js";import{$nL as l,$pL as s,$tL as a}from"../../../../../platform/actions/common/actions.js";import{$9n as n}from"../../../../../platform/contextkey/common/contextkey.js";import{$RN as M}from"../../../../../platform/contextkey/common/contextkeys.js";import{$SMb as p}from"./cellOperations.js";import{$GNb as g}from"./coreActions.js";import{$rEb as h,$uEb as u}from"../../common/notebookContextKeys.js";import{CellKind as c,$pQ as I}from"../../common/notebookCommon.js";import{$WP as A}from"../../common/notebookKernelService.js";const D="notebook.cell.insertCodeCellAbove",E="notebook.cell.insertCodeCellBelow",v="notebook.cell.insertCodeCellAboveAndFocusContainer",$="notebook.cell.insertCodeCellBelowAndFocusContainer",_="notebook.cell.insertCodeCellAtTop",q="notebook.cell.insertMarkdownCellAbove",N="notebook.cell.insertMarkdownCellBelow",L="notebook.cell.insertMarkdownCellAtTop";function S(i,o,t,r,C){let d=null;o.ui&&o.notebookEditor.focus();const T=i.get(f),w=i.get(A);if(o.cell){const k=o.notebookEditor.getCellIndex(o.cell);d=p(T,o.notebookEditor,k,t,r,void 0,!0,w)}else{const k=o.notebookEditor.getFocus(),O=Math.max(k.end-1,0);d=p(T,o.notebookEditor,O,t,r,void 0,!0,w)}return d}class b extends g{constructor(o,t,r,C){super(o),this.a=t,this.b=r,this.d=C}async runWithContext(o,t){const r=await S(o,t,this.a,this.b,this.d);r&&await t.notebookEditor.focusNotebookCell(r,this.d?"editor":"container")}}a(class extends b{constructor(){super({id:D,title:e(10544,null),keybinding:{primary:3075,when:n.and(h,M.toNegated()),weight:200},menu:{id:l.NotebookCellInsert,order:0}},c.Code,"above",!0)}});a(class extends b{constructor(){super({id:v,title:e(10545,null)},c.Code,"above",!1)}});a(class extends b{constructor(){super({id:E,title:e(10546,null),keybinding:{primary:2051,when:n.and(h,M.toNegated()),weight:200},menu:{id:l.NotebookCellInsert,order:1}},c.Code,"below",!0)}});a(class extends b{constructor(){super({id:$,title:e(10547,null)},c.Code,"below",!1)}});a(class extends b{constructor(){super({id:q,title:e(10548,null),menu:{id:l.NotebookCellInsert,order:2}},c.Markup,"above",!0)}});a(class extends b{constructor(){super({id:N,title:e(10549,null),menu:{id:l.NotebookCellInsert,order:3}},c.Markup,"below",!0)}});a(class extends g{constructor(){super({id:_,title:e(10550,null),f1:!1})}async run(o,t){t=t??this.getEditorContextFromArgsOrActive(o),t&&this.runWithContext(o,t)}async runWithContext(o,t){const r=o.get(f),C=o.get(A),d=p(r,t.notebookEditor,0,c.Code,"above",void 0,!0,C);d&&await t.notebookEditor.focusNotebookCell(d,"editor")}});a(class extends g{constructor(){super({id:L,title:e(10551,null),f1:!1})}async run(o,t){t=t??this.getEditorContextFromArgsOrActive(o),t&&this.runWithContext(o,t)}async runWithContext(o,t){const r=o.get(f),C=o.get(A),d=p(r,t.notebookEditor,0,c.Markup,"above",void 0,!0,C);d&&await t.notebookEditor.focusNotebookCell(d,"editor")}});s.appendMenuItem(l.NotebookCellBetween,{command:{id:E,title:"$(add) "+e(10552,null),tooltip:e(10553,null)},order:0,group:"inline",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.experimental.insertToolbarAlignment","left"))});s.appendMenuItem(l.NotebookCellBetween,{command:{id:E,title:e(10554,null),icon:m.add,tooltip:e(10555,null)},order:0,group:"inline",when:n.and(u.isEqualTo(!0),n.equals("config.notebook.experimental.insertToolbarAlignment","left"))});s.appendMenuItem(l.NotebookToolbar,{command:{id:E,icon:m.add,title:e(10556,null),tooltip:e(10557,null)},order:-5,group:"navigation/add",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.insertToolbarLocation","betweenCells"),n.notEquals("config.notebook.insertToolbarLocation","hidden"))});s.appendMenuItem(l.NotebookCellListTop,{command:{id:_,title:"$(add) "+e(10558,null),tooltip:e(10559,null)},order:0,group:"inline",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.experimental.insertToolbarAlignment","left"))});s.appendMenuItem(l.NotebookCellListTop,{command:{id:_,title:e(10560,null),icon:m.add,tooltip:e(10561,null)},order:0,group:"inline",when:n.and(u.isEqualTo(!0),n.equals("config.notebook.experimental.insertToolbarAlignment","left"))});s.appendMenuItem(l.NotebookCellBetween,{command:{id:N,title:"$(add) "+e(10562,null),tooltip:e(10563,null)},order:1,group:"inline",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.experimental.insertToolbarAlignment","left"))});s.appendMenuItem(l.NotebookToolbar,{command:{id:N,icon:m.add,title:e(10564,null),tooltip:e(10565,null)},order:-5,group:"navigation/add",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.insertToolbarLocation","betweenCells"),n.notEquals("config.notebook.insertToolbarLocation","hidden"),n.notEquals(`config.${I.globalToolbarShowLabel}`,!1),n.notEquals(`config.${I.globalToolbarShowLabel}`,"never"))});s.appendMenuItem(l.NotebookCellListTop,{command:{id:L,title:"$(add) "+e(10566,null),tooltip:e(10567,null)},order:1,group:"inline",when:n.and(u.isEqualTo(!0),n.notEquals("config.notebook.experimental.insertToolbarAlignment","left"))});export{S as $cfc,b as $dfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { localize } from "../../../../../nls.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { InputFocusedContext } from "../../../../../platform/contextkey/common/contextkeys.js";
+import { insertCell } from "./cellOperations.js";
+import { NotebookAction } from "./coreActions.js";
+import { NOTEBOOK_CELL_LIST_FOCUSED, NOTEBOOK_EDITOR_EDITABLE } from "../../common/notebookContextKeys.js";
+import { CellKind, NotebookSetting } from "../../common/notebookCommon.js";
+import { INotebookKernelHistoryService } from "../../common/notebookKernelService.js";
+const INSERT_CODE_CELL_ABOVE_COMMAND_ID = "notebook.cell.insertCodeCellAbove";
+const INSERT_CODE_CELL_BELOW_COMMAND_ID = "notebook.cell.insertCodeCellBelow";
+const INSERT_CODE_CELL_ABOVE_AND_FOCUS_CONTAINER_COMMAND_ID = "notebook.cell.insertCodeCellAboveAndFocusContainer";
+const INSERT_CODE_CELL_BELOW_AND_FOCUS_CONTAINER_COMMAND_ID = "notebook.cell.insertCodeCellBelowAndFocusContainer";
+const INSERT_CODE_CELL_AT_TOP_COMMAND_ID = "notebook.cell.insertCodeCellAtTop";
+const INSERT_MARKDOWN_CELL_ABOVE_COMMAND_ID = "notebook.cell.insertMarkdownCellAbove";
+const INSERT_MARKDOWN_CELL_BELOW_COMMAND_ID = "notebook.cell.insertMarkdownCellBelow";
+const INSERT_MARKDOWN_CELL_AT_TOP_COMMAND_ID = "notebook.cell.insertMarkdownCellAtTop";
+function insertNewCell(accessor, context, kind, direction, focusEditor) {
+  let newCell = null;
+  if (context.ui) {
+    context.notebookEditor.focus();
+  }
+  const languageService = accessor.get(ILanguageService);
+  const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
+  if (context.cell) {
+    const idx = context.notebookEditor.getCellIndex(context.cell);
+    newCell = insertCell(languageService, context.notebookEditor, idx, kind, direction, void 0, true, kernelHistoryService);
+  } else {
+    const focusRange = context.notebookEditor.getFocus();
+    const next = Math.max(focusRange.end - 1, 0);
+    newCell = insertCell(languageService, context.notebookEditor, next, kind, direction, void 0, true, kernelHistoryService);
+  }
+  return newCell;
+}
+__name(insertNewCell, "insertNewCell");
+class InsertCellCommand extends NotebookAction {
+  static {
+    __name(this, "InsertCellCommand");
+  }
+  constructor(desc, kind, direction, focusEditor) {
+    super(desc);
+    this.kind = kind;
+    this.direction = direction;
+    this.focusEditor = focusEditor;
+  }
+  async runWithContext(accessor, context) {
+    const newCell = await insertNewCell(accessor, context, this.kind, this.direction, this.focusEditor);
+    if (newCell) {
+      await context.notebookEditor.focusNotebookCell(newCell, this.focusEditor ? "editor" : "container");
+    }
+  }
+}
+registerAction2(class InsertCodeCellAboveAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertCodeCellAboveAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_CODE_CELL_ABOVE_COMMAND_ID,
+      title: localize("notebookActions.insertCodeCellAbove", "Insert Code Cell Above"),
+      keybinding: {
+        primary: 2048 | 1024 | 3,
+        when: ContextKeyExpr.and(NOTEBOOK_CELL_LIST_FOCUSED, InputFocusedContext.toNegated()),
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.NotebookCellInsert,
+        order: 0
+      }
+    }, CellKind.Code, "above", true);
+  }
+});
+registerAction2(class InsertCodeCellAboveAndFocusContainerAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertCodeCellAboveAndFocusContainerAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_CODE_CELL_ABOVE_AND_FOCUS_CONTAINER_COMMAND_ID,
+      title: localize("notebookActions.insertCodeCellAboveAndFocusContainer", "Insert Code Cell Above and Focus Container")
+    }, CellKind.Code, "above", false);
+  }
+});
+registerAction2(class InsertCodeCellBelowAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertCodeCellBelowAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_CODE_CELL_BELOW_COMMAND_ID,
+      title: localize("notebookActions.insertCodeCellBelow", "Insert Code Cell Below"),
+      keybinding: {
+        primary: 2048 | 3,
+        when: ContextKeyExpr.and(NOTEBOOK_CELL_LIST_FOCUSED, InputFocusedContext.toNegated()),
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.NotebookCellInsert,
+        order: 1
+      }
+    }, CellKind.Code, "below", true);
+  }
+});
+registerAction2(class InsertCodeCellBelowAndFocusContainerAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertCodeCellBelowAndFocusContainerAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_CODE_CELL_BELOW_AND_FOCUS_CONTAINER_COMMAND_ID,
+      title: localize("notebookActions.insertCodeCellBelowAndFocusContainer", "Insert Code Cell Below and Focus Container")
+    }, CellKind.Code, "below", false);
+  }
+});
+registerAction2(class InsertMarkdownCellAboveAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertMarkdownCellAboveAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_MARKDOWN_CELL_ABOVE_COMMAND_ID,
+      title: localize("notebookActions.insertMarkdownCellAbove", "Insert Markdown Cell Above"),
+      menu: {
+        id: MenuId.NotebookCellInsert,
+        order: 2
+      }
+    }, CellKind.Markup, "above", true);
+  }
+});
+registerAction2(class InsertMarkdownCellBelowAction extends InsertCellCommand {
+  static {
+    __name(this, "InsertMarkdownCellBelowAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_MARKDOWN_CELL_BELOW_COMMAND_ID,
+      title: localize("notebookActions.insertMarkdownCellBelow", "Insert Markdown Cell Below"),
+      menu: {
+        id: MenuId.NotebookCellInsert,
+        order: 3
+      }
+    }, CellKind.Markup, "below", true);
+  }
+});
+registerAction2(class InsertCodeCellAtTopAction extends NotebookAction {
+  static {
+    __name(this, "InsertCodeCellAtTopAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_CODE_CELL_AT_TOP_COMMAND_ID,
+      title: localize("notebookActions.insertCodeCellAtTop", "Add Code Cell At Top"),
+      f1: false
+    });
+  }
+  async run(accessor, context) {
+    context = context ?? this.getEditorContextFromArgsOrActive(accessor);
+    if (context) {
+      this.runWithContext(accessor, context);
+    }
+  }
+  async runWithContext(accessor, context) {
+    const languageService = accessor.get(ILanguageService);
+    const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
+    const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Code, "above", void 0, true, kernelHistoryService);
+    if (newCell) {
+      await context.notebookEditor.focusNotebookCell(newCell, "editor");
+    }
+  }
+});
+registerAction2(class InsertMarkdownCellAtTopAction extends NotebookAction {
+  static {
+    __name(this, "InsertMarkdownCellAtTopAction");
+  }
+  constructor() {
+    super({
+      id: INSERT_MARKDOWN_CELL_AT_TOP_COMMAND_ID,
+      title: localize("notebookActions.insertMarkdownCellAtTop", "Add Markdown Cell At Top"),
+      f1: false
+    });
+  }
+  async run(accessor, context) {
+    context = context ?? this.getEditorContextFromArgsOrActive(accessor);
+    if (context) {
+      this.runWithContext(accessor, context);
+    }
+  }
+  async runWithContext(accessor, context) {
+    const languageService = accessor.get(ILanguageService);
+    const kernelHistoryService = accessor.get(INotebookKernelHistoryService);
+    const newCell = insertCell(languageService, context.notebookEditor, 0, CellKind.Markup, "above", void 0, true, kernelHistoryService);
+    if (newCell) {
+      await context.notebookEditor.focusNotebookCell(newCell, "editor");
+    }
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellBetween, {
+  command: {
+    id: INSERT_CODE_CELL_BELOW_COMMAND_ID,
+    title: "$(add) " + localize("notebookActions.menu.insertCode", "Code"),
+    tooltip: localize("notebookActions.menu.insertCode.tooltip", "Add Code Cell")
+  },
+  order: 0,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellBetween, {
+  command: {
+    id: INSERT_CODE_CELL_BELOW_COMMAND_ID,
+    title: localize("notebookActions.menu.insertCode.minimalToolbar", "Add Code"),
+    icon: Codicon.add,
+    tooltip: localize("notebookActions.menu.insertCode.tooltip", "Add Code Cell")
+  },
+  order: 0,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.equals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookToolbar, {
+  command: {
+    id: INSERT_CODE_CELL_BELOW_COMMAND_ID,
+    icon: Codicon.add,
+    title: localize("notebookActions.menu.insertCode.ontoolbar", "Code"),
+    tooltip: localize("notebookActions.menu.insertCode.tooltip", "Add Code Cell")
+  },
+  order: -5,
+  group: "navigation/add",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.insertToolbarLocation", "betweenCells"), ContextKeyExpr.notEquals("config.notebook.insertToolbarLocation", "hidden"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellListTop, {
+  command: {
+    id: INSERT_CODE_CELL_AT_TOP_COMMAND_ID,
+    title: "$(add) " + localize("notebookActions.menu.insertCode", "Code"),
+    tooltip: localize("notebookActions.menu.insertCode.tooltip", "Add Code Cell")
+  },
+  order: 0,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellListTop, {
+  command: {
+    id: INSERT_CODE_CELL_AT_TOP_COMMAND_ID,
+    title: localize("notebookActions.menu.insertCode.minimaltoolbar", "Add Code"),
+    icon: Codicon.add,
+    tooltip: localize("notebookActions.menu.insertCode.tooltip", "Add Code Cell")
+  },
+  order: 0,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.equals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellBetween, {
+  command: {
+    id: INSERT_MARKDOWN_CELL_BELOW_COMMAND_ID,
+    title: "$(add) " + localize("notebookActions.menu.insertMarkdown", "Markdown"),
+    tooltip: localize("notebookActions.menu.insertMarkdown.tooltip", "Add Markdown Cell")
+  },
+  order: 1,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookToolbar, {
+  command: {
+    id: INSERT_MARKDOWN_CELL_BELOW_COMMAND_ID,
+    icon: Codicon.add,
+    title: localize("notebookActions.menu.insertMarkdown.ontoolbar", "Markdown"),
+    tooltip: localize("notebookActions.menu.insertMarkdown.tooltip", "Add Markdown Cell")
+  },
+  order: -5,
+  group: "navigation/add",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.insertToolbarLocation", "betweenCells"), ContextKeyExpr.notEquals("config.notebook.insertToolbarLocation", "hidden"), ContextKeyExpr.notEquals(`config.${NotebookSetting.globalToolbarShowLabel}`, false), ContextKeyExpr.notEquals(`config.${NotebookSetting.globalToolbarShowLabel}`, "never"))
+});
+MenuRegistry.appendMenuItem(MenuId.NotebookCellListTop, {
+  command: {
+    id: INSERT_MARKDOWN_CELL_AT_TOP_COMMAND_ID,
+    title: "$(add) " + localize("notebookActions.menu.insertMarkdown", "Markdown"),
+    tooltip: localize("notebookActions.menu.insertMarkdown.tooltip", "Add Markdown Cell")
+  },
+  order: 1,
+  group: "inline",
+  when: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.isEqualTo(true), ContextKeyExpr.notEquals("config.notebook.experimental.insertToolbarAlignment", "left"))
+});
+export {
+  InsertCellCommand,
+  insertNewCell
+};
+//# sourceMappingURL=insertCellActions.js.map

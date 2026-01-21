@@ -1,1 +1,258 @@
-import{$mb as f}from"../../../../base/common/errors.js";import{$wf as d}from"../../../../base/common/event.js";import{$Fd as a,$Md as k}from"../../../../base/common/lifecycle.js";import{$8E as T}from"../../core/misc/eolCounter.js";import{$8D as m}from"../../core/position.js";import{$gE as p}from"../../core/ranges/lineRange.js";import{$VF as u}from"../../languages.js";import{$nK as l}from"../../tokens/contiguousMultilineTokensBuilder.js";import{$DK as c}from"../../tokens/contiguousTokensStore.js";import{$pK as z,$uK as C,$rK as g}from"../textModelTokens.js";import{$aK as L,$_J as q}from"./abstractSyntaxTokenBackend.js";class A extends L{constructor(t,e,n,o){super(t,e),this.H=n,this.q=null,this.f=1,this.g=this.D(new d),this.onDidChangeBackgroundTokenizationState=this.g.event,this.u=null,this.w=this.D(new a),this.y=new c(this.m),this.F=this.D(new a),this.G=this.D(new k),this.D(u.onDidChange(s=>{const i=this.H();s.changedLanguages.indexOf(i)!==-1&&this.todo_resetTokenization()})),this.todo_resetTokenization(),this.D(o.onDidChangeVisibleRanges(({view:s,state:i})=>{if(i){let h=this.G.get(s);h||(h=new q(()=>this.M(h.lineRanges)),this.G.set(s,h)),h.handleStateChange(i)}else this.G.deleteAndDispose(s)}))}todo_resetTokenization(t=!0){this.y.flush(),this.z?.flush(),this.C&&(this.C=new g(this.n.getLineCount())),t&&this.h.fire({semanticTokensApplied:!1,ranges:[{fromLineNumber:1,toLineNumber:this.n.getLineCount()}]});const e=()=>{if(this.n.isTooLargeForTokenization())return[null,null];const s=u.get(this.H());if(!s)return[null,null];let i;try{i=s.getInitialState()}catch(h){return f(h),[null,null]}return[s,i]},[n,o]=e();if(n&&o?this.q=new z(this.n.getLineCount(),n,this.n,this.m):this.q=null,this.w.clear(),this.u=null,this.q){const s={setTokens:i=>{this.I(i)},setFontInfo:i=>{this.J(i)},backgroundTokenizationFinished:()=>{if(this.f===2)return;const i=2;this.f=i,this.g.fire()},setEndState:(i,h)=>{if(!this.q)return;const r=this.q.store.getFirstInvalidEndStateLineNumber();r!==null&&i>=r&&this.q?.store.setEndState(i,h)}};n&&n.createBackgroundTokenizer&&!n.backgroundTokenizerShouldOnlyVerifyTokens&&(this.w.value=n.createBackgroundTokenizer(this.n,s)),!this.w.value&&!this.n.isTooLargeForTokenization()&&(this.w.value=this.u=new C(this.q,s),this.u.handleChanges()),n?.backgroundTokenizerShouldOnlyVerifyTokens&&n.createBackgroundTokenizer?(this.z=new c(this.m),this.C=new g(this.n.getLineCount()),this.F.clear(),this.F.value=n.createBackgroundTokenizer(this.n,{setTokens:i=>{this.z?.setMultilineTokens(i,this.n)},setFontInfo:i=>{this.J(i)},backgroundTokenizationFinished(){},setEndState:(i,h)=>{this.C?.setEndState(i,h)}})):(this.z=void 0,this.C=void 0,this.F.value=void 0)}this.L()}handleDidChangeAttached(){this.u?.handleChanges()}handleDidChangeContent(t){if(t.isFlush)this.todo_resetTokenization(!1);else if(!t.isEolChange){for(const e of t.changes){const[n,o]=T(e.text);this.y.acceptEdit(e.range,n,o),this.z?.acceptEdit(e.range,n,o)}this.C?.acceptChanges(t.changes),this.q&&this.q.store.acceptChanges(t.changes),this.u?.handleChanges()}}I(t){const{changes:e}=this.y.setMultilineTokens(t,this.n);return e.length>0&&this.h.fire({semanticTokensApplied:!1,ranges:e}),{changes:e}}J(t){this.j.fire({changes:t})}L(){const t=p.joinMany([...this.G].map(([e,n])=>n.lineRanges));this.M(t)}M(t){for(const e of t)this.N(e.startLineNumber,e.endLineNumberExclusive-1)}N(t,e){if(!this.q)return;t=Math.max(1,Math.min(this.n.getLineCount(),t)),e=Math.min(this.n.getLineCount(),e);const n=new l,{heuristicTokens:o}=this.q.tokenizeHeuristically(n,t,e),s=this.I(n.finalize());if(o)for(const i of s.changes)this.w.value?.requestTokens(i.fromLineNumber,i.toLineNumber+1);this.u?.checkFinished()}forceTokenization(t){const e=new l;this.q?.updateTokensUntilLine(e,t),this.I(e.finalize()),this.u?.checkFinished()}hasAccurateTokensForLine(t){return this.q?this.q.hasAccurateTokensForLine(t):!0}isCheapToTokenize(t){return this.q?this.q.isCheapToTokenize(t):!0}getLineTokens(t){const e=this.n.getLineContent(t),n=this.y.getTokens(this.n.getLanguageId(),t-1,e);if(this.z&&this.C&&this.q&&this.C.getFirstInvalidEndStateLineNumberOrMax()>t&&this.q.store.getFirstInvalidEndStateLineNumberOrMax()>t){const o=this.z.getTokens(this.n.getLanguageId(),t-1,e);!n.equals(o)&&this.F.value?.reportMismatchingTokens&&this.F.value.reportMismatchingTokens(t)}return n}getTokenTypeIfInsertingCharacter(t,e,n){if(!this.q)return 0;const o=this.n.validatePosition(new m(t,e));return this.forceTokenization(o.lineNumber),this.q.getTokenTypeIfInsertingCharacter(o,n)}tokenizeLinesAt(t,e){return this.q?(this.forceTokenization(t),this.q.tokenizeLinesAt(t,e)):null}get hasTokens(){return this.y.hasTokens}}export{A as $EK};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { MutableDisposable, DisposableMap } from "../../../../base/common/lifecycle.js";
+import { countEOL } from "../../core/misc/eolCounter.js";
+import { Position } from "../../core/position.js";
+import { LineRange } from "../../core/ranges/lineRange.js";
+import { TokenizationRegistry } from "../../languages.js";
+import { ContiguousMultilineTokensBuilder } from "../../tokens/contiguousMultilineTokensBuilder.js";
+import { ContiguousTokensStore } from "../../tokens/contiguousTokensStore.js";
+import { TokenizerWithStateStoreAndTextModel, DefaultBackgroundTokenizer, TrackingTokenizationStateStore } from "../textModelTokens.js";
+import { AbstractSyntaxTokenBackend, AttachedViewHandler } from "./abstractSyntaxTokenBackend.js";
+class TokenizerSyntaxTokenBackend extends AbstractSyntaxTokenBackend {
+  static {
+    __name(this, "TokenizerSyntaxTokenBackend");
+  }
+  constructor(languageIdCodec, textModel, getLanguageId, attachedViews) {
+    super(languageIdCodec, textModel);
+    this.getLanguageId = getLanguageId;
+    this._tokenizer = null;
+    this._backgroundTokenizationState = 1;
+    this._onDidChangeBackgroundTokenizationState = this._register(new Emitter());
+    this.onDidChangeBackgroundTokenizationState = this._onDidChangeBackgroundTokenizationState.event;
+    this._defaultBackgroundTokenizer = null;
+    this._backgroundTokenizer = this._register(new MutableDisposable());
+    this._tokens = new ContiguousTokensStore(this._languageIdCodec);
+    this._debugBackgroundTokenizer = this._register(new MutableDisposable());
+    this._attachedViewStates = this._register(new DisposableMap());
+    this._register(TokenizationRegistry.onDidChange((e) => {
+      const languageId = this.getLanguageId();
+      if (e.changedLanguages.indexOf(languageId) === -1) {
+        return;
+      }
+      this.todo_resetTokenization();
+    }));
+    this.todo_resetTokenization();
+    this._register(attachedViews.onDidChangeVisibleRanges(({ view, state }) => {
+      if (state) {
+        let existing = this._attachedViewStates.get(view);
+        if (!existing) {
+          existing = new AttachedViewHandler(() => this.refreshRanges(existing.lineRanges));
+          this._attachedViewStates.set(view, existing);
+        }
+        existing.handleStateChange(state);
+      } else {
+        this._attachedViewStates.deleteAndDispose(view);
+      }
+    }));
+  }
+  todo_resetTokenization(fireTokenChangeEvent = true) {
+    this._tokens.flush();
+    this._debugBackgroundTokens?.flush();
+    if (this._debugBackgroundStates) {
+      this._debugBackgroundStates = new TrackingTokenizationStateStore(this._textModel.getLineCount());
+    }
+    if (fireTokenChangeEvent) {
+      this._onDidChangeTokens.fire({
+        semanticTokensApplied: false,
+        ranges: [
+          {
+            fromLineNumber: 1,
+            toLineNumber: this._textModel.getLineCount()
+          }
+        ]
+      });
+    }
+    const initializeTokenization = /* @__PURE__ */ __name(() => {
+      if (this._textModel.isTooLargeForTokenization()) {
+        return [null, null];
+      }
+      const tokenizationSupport2 = TokenizationRegistry.get(this.getLanguageId());
+      if (!tokenizationSupport2) {
+        return [null, null];
+      }
+      let initialState2;
+      try {
+        initialState2 = tokenizationSupport2.getInitialState();
+      } catch (e) {
+        onUnexpectedError(e);
+        return [null, null];
+      }
+      return [tokenizationSupport2, initialState2];
+    }, "initializeTokenization");
+    const [tokenizationSupport, initialState] = initializeTokenization();
+    if (tokenizationSupport && initialState) {
+      this._tokenizer = new TokenizerWithStateStoreAndTextModel(this._textModel.getLineCount(), tokenizationSupport, this._textModel, this._languageIdCodec);
+    } else {
+      this._tokenizer = null;
+    }
+    this._backgroundTokenizer.clear();
+    this._defaultBackgroundTokenizer = null;
+    if (this._tokenizer) {
+      const b = {
+        setTokens: /* @__PURE__ */ __name((tokens) => {
+          this.setTokens(tokens);
+        }, "setTokens"),
+        setFontInfo: /* @__PURE__ */ __name((changes) => {
+          this.setFontInfo(changes);
+        }, "setFontInfo"),
+        backgroundTokenizationFinished: /* @__PURE__ */ __name(() => {
+          if (this._backgroundTokenizationState === 2) {
+            return;
+          }
+          const newState = 2;
+          this._backgroundTokenizationState = newState;
+          this._onDidChangeBackgroundTokenizationState.fire();
+        }, "backgroundTokenizationFinished"),
+        setEndState: /* @__PURE__ */ __name((lineNumber, state) => {
+          if (!this._tokenizer) {
+            return;
+          }
+          const firstInvalidEndStateLineNumber = this._tokenizer.store.getFirstInvalidEndStateLineNumber();
+          if (firstInvalidEndStateLineNumber !== null && lineNumber >= firstInvalidEndStateLineNumber) {
+            this._tokenizer?.store.setEndState(lineNumber, state);
+          }
+        }, "setEndState")
+      };
+      if (tokenizationSupport && tokenizationSupport.createBackgroundTokenizer && !tokenizationSupport.backgroundTokenizerShouldOnlyVerifyTokens) {
+        this._backgroundTokenizer.value = tokenizationSupport.createBackgroundTokenizer(this._textModel, b);
+      }
+      if (!this._backgroundTokenizer.value && !this._textModel.isTooLargeForTokenization()) {
+        this._backgroundTokenizer.value = this._defaultBackgroundTokenizer = new DefaultBackgroundTokenizer(this._tokenizer, b);
+        this._defaultBackgroundTokenizer.handleChanges();
+      }
+      if (tokenizationSupport?.backgroundTokenizerShouldOnlyVerifyTokens && tokenizationSupport.createBackgroundTokenizer) {
+        this._debugBackgroundTokens = new ContiguousTokensStore(this._languageIdCodec);
+        this._debugBackgroundStates = new TrackingTokenizationStateStore(this._textModel.getLineCount());
+        this._debugBackgroundTokenizer.clear();
+        this._debugBackgroundTokenizer.value = tokenizationSupport.createBackgroundTokenizer(this._textModel, {
+          setTokens: /* @__PURE__ */ __name((tokens) => {
+            this._debugBackgroundTokens?.setMultilineTokens(tokens, this._textModel);
+          }, "setTokens"),
+          setFontInfo: /* @__PURE__ */ __name((changes) => {
+            this.setFontInfo(changes);
+          }, "setFontInfo"),
+          backgroundTokenizationFinished() {
+          },
+          setEndState: /* @__PURE__ */ __name((lineNumber, state) => {
+            this._debugBackgroundStates?.setEndState(lineNumber, state);
+          }, "setEndState")
+        });
+      } else {
+        this._debugBackgroundTokens = void 0;
+        this._debugBackgroundStates = void 0;
+        this._debugBackgroundTokenizer.value = void 0;
+      }
+    }
+    this.refreshAllVisibleLineTokens();
+  }
+  handleDidChangeAttached() {
+    this._defaultBackgroundTokenizer?.handleChanges();
+  }
+  handleDidChangeContent(e) {
+    if (e.isFlush) {
+      this.todo_resetTokenization(false);
+    } else if (!e.isEolChange) {
+      for (const c of e.changes) {
+        const [eolCount, firstLineLength] = countEOL(c.text);
+        this._tokens.acceptEdit(c.range, eolCount, firstLineLength);
+        this._debugBackgroundTokens?.acceptEdit(c.range, eolCount, firstLineLength);
+      }
+      this._debugBackgroundStates?.acceptChanges(e.changes);
+      if (this._tokenizer) {
+        this._tokenizer.store.acceptChanges(e.changes);
+      }
+      this._defaultBackgroundTokenizer?.handleChanges();
+    }
+  }
+  setTokens(tokens) {
+    const { changes } = this._tokens.setMultilineTokens(tokens, this._textModel);
+    if (changes.length > 0) {
+      this._onDidChangeTokens.fire({ semanticTokensApplied: false, ranges: changes });
+    }
+    return { changes };
+  }
+  setFontInfo(changes) {
+    this._onDidChangeFontTokens.fire({ changes });
+  }
+  refreshAllVisibleLineTokens() {
+    const ranges = LineRange.joinMany([...this._attachedViewStates].map(([_, s]) => s.lineRanges));
+    this.refreshRanges(ranges);
+  }
+  refreshRanges(ranges) {
+    for (const range of ranges) {
+      this.refreshRange(range.startLineNumber, range.endLineNumberExclusive - 1);
+    }
+  }
+  refreshRange(startLineNumber, endLineNumber) {
+    if (!this._tokenizer) {
+      return;
+    }
+    startLineNumber = Math.max(1, Math.min(this._textModel.getLineCount(), startLineNumber));
+    endLineNumber = Math.min(this._textModel.getLineCount(), endLineNumber);
+    const builder = new ContiguousMultilineTokensBuilder();
+    const { heuristicTokens } = this._tokenizer.tokenizeHeuristically(builder, startLineNumber, endLineNumber);
+    const changedTokens = this.setTokens(builder.finalize());
+    if (heuristicTokens) {
+      for (const c of changedTokens.changes) {
+        this._backgroundTokenizer.value?.requestTokens(c.fromLineNumber, c.toLineNumber + 1);
+      }
+    }
+    this._defaultBackgroundTokenizer?.checkFinished();
+  }
+  forceTokenization(lineNumber) {
+    const builder = new ContiguousMultilineTokensBuilder();
+    this._tokenizer?.updateTokensUntilLine(builder, lineNumber);
+    this.setTokens(builder.finalize());
+    this._defaultBackgroundTokenizer?.checkFinished();
+  }
+  hasAccurateTokensForLine(lineNumber) {
+    if (!this._tokenizer) {
+      return true;
+    }
+    return this._tokenizer.hasAccurateTokensForLine(lineNumber);
+  }
+  isCheapToTokenize(lineNumber) {
+    if (!this._tokenizer) {
+      return true;
+    }
+    return this._tokenizer.isCheapToTokenize(lineNumber);
+  }
+  getLineTokens(lineNumber) {
+    const lineText = this._textModel.getLineContent(lineNumber);
+    const result = this._tokens.getTokens(this._textModel.getLanguageId(), lineNumber - 1, lineText);
+    if (this._debugBackgroundTokens && this._debugBackgroundStates && this._tokenizer) {
+      if (this._debugBackgroundStates.getFirstInvalidEndStateLineNumberOrMax() > lineNumber && this._tokenizer.store.getFirstInvalidEndStateLineNumberOrMax() > lineNumber) {
+        const backgroundResult = this._debugBackgroundTokens.getTokens(this._textModel.getLanguageId(), lineNumber - 1, lineText);
+        if (!result.equals(backgroundResult) && this._debugBackgroundTokenizer.value?.reportMismatchingTokens) {
+          this._debugBackgroundTokenizer.value.reportMismatchingTokens(lineNumber);
+        }
+      }
+    }
+    return result;
+  }
+  getTokenTypeIfInsertingCharacter(lineNumber, column, character) {
+    if (!this._tokenizer) {
+      return 0;
+    }
+    const position = this._textModel.validatePosition(new Position(lineNumber, column));
+    this.forceTokenization(position.lineNumber);
+    return this._tokenizer.getTokenTypeIfInsertingCharacter(position, character);
+  }
+  tokenizeLinesAt(lineNumber, lines) {
+    if (!this._tokenizer) {
+      return null;
+    }
+    this.forceTokenization(lineNumber);
+    return this._tokenizer.tokenizeLinesAt(lineNumber, lines);
+  }
+  get hasTokens() {
+    return this._tokens.hasTokens;
+  }
+}
+export {
+  TokenizerSyntaxTokenBackend
+};
+//# sourceMappingURL=tokenizerSyntaxTokenBackend.js.map

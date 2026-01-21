@@ -1,1 +1,688 @@
-import{$80 as v}from"../../../../base/browser/pixelRatio.js";import{$wf as Y}from"../../../../base/common/event.js";import{$Ed as Z}from"../../../../base/common/lifecycle.js";import{observableValue as K}from"../../../../base/common/observable.js";import{$9c as tt}from"../../../../base/common/types.js";import{$hcb as ot}from"../../../../editor/browser/config/fontMeasurements.js";import{$ucb as it}from"../../../../editor/browser/services/codeEditorService.js";import{$mcb as R}from"../../../../editor/common/config/fontInfoFromSettings.js";import{$9l as et}from"../../../../platform/configuration/common/configuration.js";import{$pQ as o}from"../common/notebookCommon.js";import{$PP as nt}from"../common/notebookExecutionStateService.js";var X=function(m,t,i,e){var a=arguments.length,r=a<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(m,t,i,e);else for(var s=m.length-1;s>=0;s--)(l=m[s])&&(r=(a<3?l(r):a>3?l(t,i,r):l(t,i))||r);return a>3&&r&&Object.defineProperty(t,i,r),r},D=function(m,t){return function(i,e){t(i,e,m)}};const I=18,mt=4,A=Object.freeze({codeCellLeftMargin:28,cellRunGutter:32,markdownCellTopMargin:8,markdownCellBottomMargin:8,markdownCellLeftMargin:0,markdownCellGutter:32,focusIndicatorLeftMargin:4}),G=Object.freeze({codeCellLeftMargin:8,cellRunGutter:36,markdownCellTopMargin:6,markdownCellBottomMargin:6,markdownCellLeftMargin:8,markdownCellGutter:36,focusIndicatorLeftMargin:4});let x=class extends Z{constructor(t,i,e,a,r,l){super(),this.targetWindow=t,this.f=i,this.g=e,this.h=a,this.j=r,this.m=l,this.b=this.D(new Y),this.onDidChangeOptions=this.b.event,this.c=12,this.previousModelToCompare=K("previousModelToCompare",void 0);const s=this.h.getValue(o.showCellStatusBar),u=e?.globalToolbar??this.h.getValue(o.globalToolbar)??!0,f=e?.stickyScrollEnabled??this.h.getValue(o.stickyScrollEnabled)??!1,L=this.z(),T=this.h.getValue(o.consolidatedOutputButton)??!0,V=this.h.getValue(o.consolidatedRunButton)??!1,w=e?.dragAndDropEnabled??this.h.getValue(o.dragAndDropEnabled)??!0,k=this.h.getValue(o.cellToolbarLocation)??{default:"right"},y=e?.cellToolbarInteraction??this.h.getValue(o.cellToolbarVisibility),c=this.h.getValue(o.compactView)??!0,b=this.y(),z=this.t(this.f),P=this.u(),B=this.w(),C=this.h.getValue("editor.fontSize"),M=this.h.getValue(o.markupFontSize),E=this.h.getValue(o.markdownLineHeight);let h=this.h.getValue(o.cellEditorOptionsCustomizations)??{};h=tt(h)?h:{};const O=this.h.getValue(o.interactiveWindowCollapseCodeCells);let p;const F=this.h.getValue(o.outputLineHeightDeprecated);F!==void 0?(this.q(o.outputLineHeightDeprecated,o.outputLineHeight),p=F):p=this.h.getValue(o.outputLineHeight);let d;const S=this.h.getValue(o.outputFontSizeDeprecated);S!==void 0?(this.q(o.outputFontSizeDeprecated,o.outputFontSize),d=S):d=this.h.getValue(o.outputFontSize)||C;let n;const g=this.h.getValue(o.outputFontFamilyDeprecated);g!==void 0?(this.q(o.outputFontFamilyDeprecated,o.outputFontFamily),n=g):n=this.h.getValue(o.outputFontFamily);let W;const H=this.h.getValue(o.outputScrollingDeprecated);H!==void 0?(this.q(o.outputScrollingDeprecated,o.outputScrolling),W=H):W=this.h.getValue(o.outputScrolling);const $=this.r(p,d),j=this.h.getValue(o.outputWordWrap),N=this.h.getValue(o.textOutputLineLimit)??30,_=this.h.getValue(o.LinkifyOutputFilePaths)??!0,q=this.h.getValue(o.minimalErrorRendering),Q=this.h.getValue(o.markupFontFamily),J=this.n();this.a={...c?G:A,cellTopMargin:6,cellBottomMargin:6,cellRightMargin:16,cellStatusBarHeight:22,cellOutputPadding:8,markdownPreviewPadding:8,editorToolbarHeight:0,editorTopPadding:J,editorBottomPadding:4,editorBottomPaddingWithoutStatusBar:12,collapsedIndicatorHeight:28,showCellStatusBar:s,globalToolbar:u,stickyScrollEnabled:f,stickyScrollMode:L,consolidatedOutputButton:T,consolidatedRunButton:V,dragAndDropEnabled:w,cellToolbarLocation:k,cellToolbarInteraction:y,compactView:c,focusIndicator:b,insertToolbarPosition:z,insertToolbarAlignment:P,showFoldingControls:B,fontSize:C,outputFontSize:d,outputFontFamily:n,outputLineHeight:$,markupFontSize:M,markdownLineHeight:E,editorOptionsCustomizations:h,focusIndicatorGap:3,interactiveWindowCollapseCodeCells:O,markdownFoldHintHeight:22,outputScrolling:W,outputWordWrap:j,outputLineLimit:N,outputLinkifyFilePaths:_,outputMinimalError:q,markupFontFamily:Q,disableRulers:e?.disableRulers},this.D(this.h.onDidChangeConfiguration(U=>{this.s(U)}))}updateOptions(t){this.f!==t&&(this.f=t,this.s({affectsConfiguration(i){return i===o.insertToolbarLocation},source:7,affectedKeys:new Set([o.insertToolbarLocation]),change:{keys:[o.insertToolbarLocation],overrides:[]}}))}n(){let t=!1;const i=r=>{this.c=r;const l=Object.assign({},this.a);l.editorTopPadding=this.c,this.a=l,this.b.fire({editorTopPadding:!0})},e=new Set,a=r=>{if(!t&&!e.has(r))try{const l=this.m.resolveDecorationOptions(r,!0);if(l.afterContentClassName||l.beforeContentClassName){const s=this.m.resolveDecorationCSSRules(r);if(s!==null){for(let u=0;u<s.length;u++)if((s[u].selectorText.endsWith("::after")||s[u].selectorText.endsWith("::after"))&&s[u].cssText.indexOf("top:")>-1){const f=this.h.getValue("editor");i(R(f,v.getInstance(this.targetWindow).value).lineHeight+2),t=!0;break}}}e.add(r)}catch{}};return this.D(this.m.onDecorationTypeRegistered(a)),this.m.listDecorationTypes().forEach(a),this.c}q(t,i){const e=this.h.inspect(t);e.application!==void 0&&(this.h.updateValue(t,void 0,1),this.h.updateValue(i,e.application.value,1)),e.user!==void 0&&(this.h.updateValue(t,void 0,2),this.h.updateValue(i,e.user.value,2)),e.userLocal!==void 0&&(this.h.updateValue(t,void 0,3),this.h.updateValue(i,e.userLocal.value,3)),e.userRemote!==void 0&&(this.h.updateValue(t,void 0,4),this.h.updateValue(i,e.userRemote.value,4)),e.workspace!==void 0&&(this.h.updateValue(t,void 0,5),this.h.updateValue(i,e.workspace.value,5)),e.workspaceFolder!==void 0&&(this.h.updateValue(t,void 0,6),this.h.updateValue(i,e.workspaceFolder.value,6))}r(t,i){if(t===0){const a=this.h.getValue("editor");t=ot.readFontInfo(this.targetWindow,R(a,v.getInstance(this.targetWindow).value)).lineHeight}else if(t<9){let a=i;a===0&&(a=this.h.getValue("editor.fontSize")),t=t*a}return t=Math.round(t),t<9&&(t=9),t}s(t){const i=t.affectsConfiguration(o.showCellStatusBar),e=t.affectsConfiguration(o.cellToolbarLocation),a=t.affectsConfiguration(o.cellToolbarVisibility),r=t.affectsConfiguration(o.compactView),l=t.affectsConfiguration(o.focusIndicator),s=t.affectsConfiguration(o.insertToolbarLocation),u=t.affectsConfiguration(o.experimentalInsertToolbarAlignment),f=t.affectsConfiguration(o.globalToolbar),L=t.affectsConfiguration(o.stickyScrollEnabled),T=t.affectsConfiguration(o.stickyScrollMode),V=t.affectsConfiguration(o.consolidatedOutputButton),w=t.affectsConfiguration(o.consolidatedRunButton),k=t.affectsConfiguration(o.showFoldingControls),y=t.affectsConfiguration(o.dragAndDropEnabled),c=t.affectsConfiguration("editor.fontSize"),b=t.affectsConfiguration(o.outputFontSize),z=t.affectsConfiguration(o.markupFontSize),P=t.affectsConfiguration(o.markdownLineHeight),B=t.affectsConfiguration("editor.fontFamily"),C=t.affectsConfiguration(o.outputFontFamily),M=t.affectsConfiguration(o.cellEditorOptionsCustomizations),E=t.affectsConfiguration(o.interactiveWindowCollapseCodeCells),h=t.affectsConfiguration(o.outputLineHeight),O=t.affectsConfiguration(o.outputScrolling),p=t.affectsConfiguration(o.outputWordWrap),F=t.affectsConfiguration(o.LinkifyOutputFilePaths),d=t.affectsConfiguration(o.minimalErrorRendering),S=t.affectsConfiguration(o.markupFontFamily);if(!i&&!e&&!a&&!r&&!l&&!s&&!u&&!f&&!L&&!T&&!V&&!w&&!k&&!y&&!c&&!b&&!z&&!P&&!B&&!C&&!M&&!E&&!h&&!O&&!p&&!F&&!d&&!S)return;let n=Object.assign({},this.a);if(i&&(n.showCellStatusBar=this.h.getValue(o.showCellStatusBar)),e&&(n.cellToolbarLocation=this.h.getValue(o.cellToolbarLocation)??{default:"right"}),a&&!this.g?.cellToolbarInteraction&&(n.cellToolbarInteraction=this.h.getValue(o.cellToolbarVisibility)),l&&(n.focusIndicator=this.y()),r){const g=this.h.getValue(o.compactView)??!0;n=Object.assign(n,{...g?G:A}),n.compactView=g}if(u&&(n.insertToolbarAlignment=this.u()),s&&(n.insertToolbarPosition=this.t(this.f)),f&&this.g?.globalToolbar===void 0&&(n.globalToolbar=this.h.getValue(o.globalToolbar)??!0),L&&this.g?.stickyScrollEnabled===void 0&&(n.stickyScrollEnabled=this.h.getValue(o.stickyScrollEnabled)??!1),T&&(n.stickyScrollMode=this.h.getValue(o.stickyScrollMode)??"flat"),V&&(n.consolidatedOutputButton=this.h.getValue(o.consolidatedOutputButton)??!0),w&&(n.consolidatedRunButton=this.h.getValue(o.consolidatedRunButton)??!0),k&&(n.showFoldingControls=this.w()),y&&(n.dragAndDropEnabled=this.h.getValue(o.dragAndDropEnabled)??!0),c&&(n.fontSize=this.h.getValue("editor.fontSize")),(b||c)&&(n.outputFontSize=this.h.getValue(o.outputFontSize)||n.fontSize),z&&(n.markupFontSize=this.h.getValue(o.markupFontSize)),P&&(n.markdownLineHeight=this.h.getValue(o.markdownLineHeight)),C&&(n.outputFontFamily=this.h.getValue(o.outputFontFamily)),M&&(n.editorOptionsCustomizations=this.h.getValue(o.cellEditorOptionsCustomizations)),E&&(n.interactiveWindowCollapseCodeCells=this.h.getValue(o.interactiveWindowCollapseCodeCells)),h||c||b){const g=this.h.getValue(o.outputLineHeight);n.outputLineHeight=this.r(g,n.outputFontSize)}p&&(n.outputWordWrap=this.h.getValue(o.outputWordWrap)),O&&(n.outputScrolling=this.h.getValue(o.outputScrolling)),F&&(n.outputLinkifyFilePaths=this.h.getValue(o.LinkifyOutputFilePaths)),d&&(n.outputMinimalError=this.h.getValue(o.minimalErrorRendering)),S&&(n.markupFontFamily=this.h.getValue(o.markupFontFamily)),this.a=Object.freeze(n),this.b.fire({cellStatusBarVisibility:i,cellToolbarLocation:e,cellToolbarInteraction:a,compactView:r,focusIndicator:l,insertToolbarPosition:s,insertToolbarAlignment:u,globalToolbar:f,stickyScrollEnabled:L,stickyScrollMode:T,showFoldingControls:k,consolidatedOutputButton:V,consolidatedRunButton:w,dragAndDropEnabled:y,fontSize:c,outputFontSize:b,markupFontSize:z,markdownLineHeight:P,fontFamily:B,outputFontFamily:C,editorOptionsCustomizations:M,interactiveWindowCollapseCodeCells:E,outputLineHeight:h,outputScrolling:O,outputWordWrap:p,outputLinkifyFilePaths:F,minimalError:d,markupFontFamily:S})}t(t){return t?"hidden":this.h.getValue(o.insertToolbarLocation)??"both"}u(){return this.h.getValue(o.experimentalInsertToolbarAlignment)??"center"}w(){return this.h.getValue(o.showFoldingControls)??"mouseover"}y(){return this.h.getValue(o.focusIndicator)??"gutter"}z(){return this.h.getValue(o.stickyScrollMode)??"flat"}getCellCollapseDefault(){return this.a.interactiveWindowCollapseCodeCells==="never"?{codeCell:{inputCollapsed:!1}}:{codeCell:{inputCollapsed:!0}}}getLayoutConfiguration(){return this.a}getDisplayOptions(){return this.a}getCellEditorContainerLeftMargin(){const{codeCellLeftMargin:t,cellRunGutter:i}=this.a;return t+i}computeCollapsedMarkdownCellHeight(t){const{bottomToolbarGap:i}=this.computeBottomToolbarDimensions(t);return this.a.markdownCellTopMargin+this.a.collapsedIndicatorHeight+i+this.a.markdownCellBottomMargin}computeBottomToolbarOffset(t,i){const{bottomToolbarGap:e,bottomToolbarHeight:a}=this.computeBottomToolbarDimensions(i);return t-e-a/2}computeCodeCellEditorWidth(t){return t-(this.a.codeCellLeftMargin+this.a.cellRunGutter+this.a.cellRightMargin)}computeMarkdownCellEditorWidth(t){return t-this.a.markdownCellGutter-this.a.markdownCellLeftMargin-this.a.cellRightMargin}computeStatusBarHeight(){return this.a.cellStatusBarHeight}C(t,i,e,a){return e==="left"||a!=="hidden"?{bottomToolbarGap:18,bottomToolbarHeight:18}:i==="betweenCells"||i==="both"?t?{bottomToolbarGap:12,bottomToolbarHeight:20}:{bottomToolbarGap:20,bottomToolbarHeight:20}:{bottomToolbarGap:0,bottomToolbarHeight:0}}computeBottomToolbarDimensions(t){const i=this.a,e=this.computeCellToolbarLocation(t),{bottomToolbarGap:a,bottomToolbarHeight:r}=this.C(i.compactView,i.insertToolbarPosition,i.insertToolbarAlignment,e);return{bottomToolbarGap:a,bottomToolbarHeight:r}}computeCellToolbarLocation(t){const i=this.a.cellToolbarLocation;if(typeof i=="string"){if(i==="left"||i==="right"||i==="hidden")return i}else if(t){const e=i[t]??i.default;let a="right";switch(e){case"left":a="left";break;case"right":a="right";break;case"hidden":a="hidden";break;default:a="right";break}return a}return"right"}computeTopInsertToolbarHeight(t){if(this.a.insertToolbarPosition==="betweenCells"||this.a.insertToolbarPosition==="both")return I;const i=this.computeCellToolbarLocation(t);return i==="left"||i==="right"?I:0}computeEditorPadding(t,i){return{top:this.c,bottom:this.F(t,i)?this.a.editorBottomPadding:this.a.editorBottomPaddingWithoutStatusBar}}computeEditorStatusbarHeight(t,i){return this.F(t,i)?this.computeStatusBarHeight():0}F(t,i){const e=this.j.getCellExecution(i);return this.a.showCellStatusBar==="visible"?!0:this.a.showCellStatusBar==="visibleAfterExecute"?typeof t.lastRunSuccess=="boolean"||e!==void 0:!1}computeWebviewOptions(){return{outputNodePadding:this.a.cellOutputPadding,outputNodeLeftPadding:this.a.cellOutputPadding,previewNodePadding:this.a.markdownPreviewPadding,markdownLeftMargin:this.a.markdownCellGutter+this.a.markdownCellLeftMargin,leftMargin:this.a.codeCellLeftMargin,rightMargin:this.a.cellRightMargin,runGutter:this.a.cellRunGutter,dragAndDropEnabled:this.a.dragAndDropEnabled,fontSize:this.a.fontSize,outputFontSize:this.a.outputFontSize,outputFontFamily:this.a.outputFontFamily,markupFontSize:this.a.markupFontSize,markdownLineHeight:this.a.markdownLineHeight,outputLineHeight:this.a.outputLineHeight,outputScrolling:this.a.outputScrolling,outputWordWrap:this.a.outputWordWrap,outputLineLimit:this.a.outputLineLimit,outputLinkifyFilePaths:this.a.outputLinkifyFilePaths,minimalError:this.a.outputMinimalError,markupFontFamily:this.a.markupFontFamily}}computeDiffWebviewOptions(){return{outputNodePadding:this.a.cellOutputPadding,outputNodeLeftPadding:0,previewNodePadding:this.a.markdownPreviewPadding,markdownLeftMargin:0,leftMargin:32,rightMargin:0,runGutter:0,dragAndDropEnabled:!1,fontSize:this.a.fontSize,outputFontSize:this.a.outputFontSize,outputFontFamily:this.a.outputFontFamily,markupFontSize:this.a.markupFontSize,markdownLineHeight:this.a.markdownLineHeight,outputLineHeight:this.a.outputLineHeight,outputScrolling:this.a.outputScrolling,outputWordWrap:this.a.outputWordWrap,outputLineLimit:this.a.outputLineLimit,outputLinkifyFilePaths:!1,minimalError:!1,markupFontFamily:this.a.markupFontFamily}}computeIndicatorPosition(t,i,e){const{bottomToolbarGap:a}=this.computeBottomToolbarDimensions(e);return{bottomIndicatorTop:t-a-this.a.cellBottomMargin-i,verticalIndicatorHeight:t-a-i}}};x=X([D(3,et),D(4,nt),D(5,it)],x);export{mt as $MCb,x as $NCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { PixelRatio } from "../../../../base/browser/pixelRatio.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../base/common/observable.js";
+import { isObject } from "../../../../base/common/types.js";
+import { FontMeasurements } from "../../../../editor/browser/config/fontMeasurements.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { createBareFontInfoFromRawSettings } from "../../../../editor/common/config/fontInfoFromSettings.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { NotebookSetting } from "../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../common/notebookExecutionStateService.js";
+const SCROLLABLE_ELEMENT_PADDING_TOP = 18;
+const OutputInnerContainerTopPadding = 4;
+const defaultConfigConstants = Object.freeze({
+  codeCellLeftMargin: 28,
+  cellRunGutter: 32,
+  markdownCellTopMargin: 8,
+  markdownCellBottomMargin: 8,
+  markdownCellLeftMargin: 0,
+  markdownCellGutter: 32,
+  focusIndicatorLeftMargin: 4
+});
+const compactConfigConstants = Object.freeze({
+  codeCellLeftMargin: 8,
+  cellRunGutter: 36,
+  markdownCellTopMargin: 6,
+  markdownCellBottomMargin: 6,
+  markdownCellLeftMargin: 8,
+  markdownCellGutter: 36,
+  focusIndicatorLeftMargin: 4
+});
+let NotebookOptions = class NotebookOptions2 extends Disposable {
+  static {
+    __name(this, "NotebookOptions");
+  }
+  constructor(targetWindow, isReadonly, overrides, configurationService, notebookExecutionStateService, codeEditorService) {
+    super();
+    this.targetWindow = targetWindow;
+    this.isReadonly = isReadonly;
+    this.overrides = overrides;
+    this.configurationService = configurationService;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this.codeEditorService = codeEditorService;
+    this._onDidChangeOptions = this._register(new Emitter());
+    this.onDidChangeOptions = this._onDidChangeOptions.event;
+    this._editorTopPadding = 12;
+    this.previousModelToCompare = observableValue("previousModelToCompare", void 0);
+    const showCellStatusBar = this.configurationService.getValue(NotebookSetting.showCellStatusBar);
+    const globalToolbar = overrides?.globalToolbar ?? this.configurationService.getValue(NotebookSetting.globalToolbar) ?? true;
+    const stickyScrollEnabled = overrides?.stickyScrollEnabled ?? this.configurationService.getValue(NotebookSetting.stickyScrollEnabled) ?? false;
+    const stickyScrollMode = this._computeStickyScrollModeOption();
+    const consolidatedOutputButton = this.configurationService.getValue(NotebookSetting.consolidatedOutputButton) ?? true;
+    const consolidatedRunButton = this.configurationService.getValue(NotebookSetting.consolidatedRunButton) ?? false;
+    const dragAndDropEnabled = overrides?.dragAndDropEnabled ?? this.configurationService.getValue(NotebookSetting.dragAndDropEnabled) ?? true;
+    const cellToolbarLocation = this.configurationService.getValue(NotebookSetting.cellToolbarLocation) ?? { "default": "right" };
+    const cellToolbarInteraction = overrides?.cellToolbarInteraction ?? this.configurationService.getValue(NotebookSetting.cellToolbarVisibility);
+    const compactView = this.configurationService.getValue(NotebookSetting.compactView) ?? true;
+    const focusIndicator = this._computeFocusIndicatorOption();
+    const insertToolbarPosition = this._computeInsertToolbarPositionOption(this.isReadonly);
+    const insertToolbarAlignment = this._computeInsertToolbarAlignmentOption();
+    const showFoldingControls = this._computeShowFoldingControlsOption();
+    const fontSize = this.configurationService.getValue("editor.fontSize");
+    const markupFontSize = this.configurationService.getValue(NotebookSetting.markupFontSize);
+    const markdownLineHeight = this.configurationService.getValue(NotebookSetting.markdownLineHeight);
+    let editorOptionsCustomizations = this.configurationService.getValue(NotebookSetting.cellEditorOptionsCustomizations) ?? {};
+    editorOptionsCustomizations = isObject(editorOptionsCustomizations) ? editorOptionsCustomizations : {};
+    const interactiveWindowCollapseCodeCells = this.configurationService.getValue(NotebookSetting.interactiveWindowCollapseCodeCells);
+    let outputLineHeightSettingValue;
+    const deprecatedOutputLineHeightSetting = this.configurationService.getValue(NotebookSetting.outputLineHeightDeprecated);
+    if (deprecatedOutputLineHeightSetting !== void 0) {
+      this._migrateDeprecatedSetting(NotebookSetting.outputLineHeightDeprecated, NotebookSetting.outputLineHeight);
+      outputLineHeightSettingValue = deprecatedOutputLineHeightSetting;
+    } else {
+      outputLineHeightSettingValue = this.configurationService.getValue(NotebookSetting.outputLineHeight);
+    }
+    let outputFontSize;
+    const deprecatedOutputFontSizeSetting = this.configurationService.getValue(NotebookSetting.outputFontSizeDeprecated);
+    if (deprecatedOutputFontSizeSetting !== void 0) {
+      this._migrateDeprecatedSetting(NotebookSetting.outputFontSizeDeprecated, NotebookSetting.outputFontSize);
+      outputFontSize = deprecatedOutputFontSizeSetting;
+    } else {
+      outputFontSize = this.configurationService.getValue(NotebookSetting.outputFontSize) || fontSize;
+    }
+    let outputFontFamily;
+    const deprecatedOutputFontFamilySetting = this.configurationService.getValue(NotebookSetting.outputFontFamilyDeprecated);
+    if (deprecatedOutputFontFamilySetting !== void 0) {
+      this._migrateDeprecatedSetting(NotebookSetting.outputFontFamilyDeprecated, NotebookSetting.outputFontFamily);
+      outputFontFamily = deprecatedOutputFontFamilySetting;
+    } else {
+      outputFontFamily = this.configurationService.getValue(NotebookSetting.outputFontFamily);
+    }
+    let outputScrolling;
+    const deprecatedOutputScrollingSetting = this.configurationService.getValue(NotebookSetting.outputScrollingDeprecated);
+    if (deprecatedOutputScrollingSetting !== void 0) {
+      this._migrateDeprecatedSetting(NotebookSetting.outputScrollingDeprecated, NotebookSetting.outputScrolling);
+      outputScrolling = deprecatedOutputScrollingSetting;
+    } else {
+      outputScrolling = this.configurationService.getValue(NotebookSetting.outputScrolling);
+    }
+    const outputLineHeight = this._computeOutputLineHeight(outputLineHeightSettingValue, outputFontSize);
+    const outputWordWrap = this.configurationService.getValue(NotebookSetting.outputWordWrap);
+    const outputLineLimit = this.configurationService.getValue(NotebookSetting.textOutputLineLimit) ?? 30;
+    const linkifyFilePaths = this.configurationService.getValue(NotebookSetting.LinkifyOutputFilePaths) ?? true;
+    const minimalErrors = this.configurationService.getValue(NotebookSetting.minimalErrorRendering);
+    const markupFontFamily = this.configurationService.getValue(NotebookSetting.markupFontFamily);
+    const editorTopPadding = this._computeEditorTopPadding();
+    this._layoutConfiguration = {
+      ...compactView ? compactConfigConstants : defaultConfigConstants,
+      cellTopMargin: 6,
+      cellBottomMargin: 6,
+      cellRightMargin: 16,
+      cellStatusBarHeight: 22,
+      cellOutputPadding: 8,
+      markdownPreviewPadding: 8,
+      // bottomToolbarHeight: bottomToolbarHeight,
+      // bottomToolbarGap: bottomToolbarGap,
+      editorToolbarHeight: 0,
+      editorTopPadding,
+      editorBottomPadding: 4,
+      editorBottomPaddingWithoutStatusBar: 12,
+      collapsedIndicatorHeight: 28,
+      showCellStatusBar,
+      globalToolbar,
+      stickyScrollEnabled,
+      stickyScrollMode,
+      consolidatedOutputButton,
+      consolidatedRunButton,
+      dragAndDropEnabled,
+      cellToolbarLocation,
+      cellToolbarInteraction,
+      compactView,
+      focusIndicator,
+      insertToolbarPosition,
+      insertToolbarAlignment,
+      showFoldingControls,
+      fontSize,
+      outputFontSize,
+      outputFontFamily,
+      outputLineHeight,
+      markupFontSize,
+      markdownLineHeight,
+      editorOptionsCustomizations,
+      focusIndicatorGap: 3,
+      interactiveWindowCollapseCodeCells,
+      markdownFoldHintHeight: 22,
+      outputScrolling,
+      outputWordWrap,
+      outputLineLimit,
+      outputLinkifyFilePaths: linkifyFilePaths,
+      outputMinimalError: minimalErrors,
+      markupFontFamily,
+      disableRulers: overrides?.disableRulers
+    };
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      this._updateConfiguration(e);
+    }));
+  }
+  updateOptions(isReadonly) {
+    if (this.isReadonly !== isReadonly) {
+      this.isReadonly = isReadonly;
+      this._updateConfiguration({
+        affectsConfiguration(configuration) {
+          return configuration === NotebookSetting.insertToolbarLocation;
+        },
+        source: 7,
+        affectedKeys: /* @__PURE__ */ new Set([NotebookSetting.insertToolbarLocation]),
+        change: { keys: [NotebookSetting.insertToolbarLocation], overrides: [] }
+      });
+    }
+  }
+  _computeEditorTopPadding() {
+    let decorationTriggeredAdjustment = false;
+    const updateEditorTopPadding = /* @__PURE__ */ __name((top) => {
+      this._editorTopPadding = top;
+      const configuration = Object.assign({}, this._layoutConfiguration);
+      configuration.editorTopPadding = this._editorTopPadding;
+      this._layoutConfiguration = configuration;
+      this._onDidChangeOptions.fire({ editorTopPadding: true });
+    }, "updateEditorTopPadding");
+    const decorationCheckSet = /* @__PURE__ */ new Set();
+    const onDidAddDecorationType = /* @__PURE__ */ __name((e) => {
+      if (decorationTriggeredAdjustment) {
+        return;
+      }
+      if (decorationCheckSet.has(e)) {
+        return;
+      }
+      try {
+        const options = this.codeEditorService.resolveDecorationOptions(e, true);
+        if (options.afterContentClassName || options.beforeContentClassName) {
+          const cssRules = this.codeEditorService.resolveDecorationCSSRules(e);
+          if (cssRules !== null) {
+            for (let i = 0; i < cssRules.length; i++) {
+              if ((cssRules[i].selectorText.endsWith("::after") || cssRules[i].selectorText.endsWith("::after")) && cssRules[i].cssText.indexOf("top:") > -1) {
+                const editorOptions = this.configurationService.getValue("editor");
+                updateEditorTopPadding(createBareFontInfoFromRawSettings(editorOptions, PixelRatio.getInstance(this.targetWindow).value).lineHeight + 2);
+                decorationTriggeredAdjustment = true;
+                break;
+              }
+            }
+          }
+        }
+        decorationCheckSet.add(e);
+      } catch (_ex) {
+      }
+    }, "onDidAddDecorationType");
+    this._register(this.codeEditorService.onDecorationTypeRegistered(onDidAddDecorationType));
+    this.codeEditorService.listDecorationTypes().forEach(onDidAddDecorationType);
+    return this._editorTopPadding;
+  }
+  _migrateDeprecatedSetting(deprecatedKey, key) {
+    const deprecatedSetting = this.configurationService.inspect(deprecatedKey);
+    if (deprecatedSetting.application !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        1
+        /* ConfigurationTarget.APPLICATION */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.application.value,
+        1
+        /* ConfigurationTarget.APPLICATION */
+      );
+    }
+    if (deprecatedSetting.user !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        2
+        /* ConfigurationTarget.USER */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.user.value,
+        2
+        /* ConfigurationTarget.USER */
+      );
+    }
+    if (deprecatedSetting.userLocal !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.userLocal.value,
+        3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+    }
+    if (deprecatedSetting.userRemote !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        4
+        /* ConfigurationTarget.USER_REMOTE */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.userRemote.value,
+        4
+        /* ConfigurationTarget.USER_REMOTE */
+      );
+    }
+    if (deprecatedSetting.workspace !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        5
+        /* ConfigurationTarget.WORKSPACE */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.workspace.value,
+        5
+        /* ConfigurationTarget.WORKSPACE */
+      );
+    }
+    if (deprecatedSetting.workspaceFolder !== void 0) {
+      this.configurationService.updateValue(
+        deprecatedKey,
+        void 0,
+        6
+        /* ConfigurationTarget.WORKSPACE_FOLDER */
+      );
+      this.configurationService.updateValue(
+        key,
+        deprecatedSetting.workspaceFolder.value,
+        6
+        /* ConfigurationTarget.WORKSPACE_FOLDER */
+      );
+    }
+  }
+  _computeOutputLineHeight(lineHeight, outputFontSize) {
+    const minimumLineHeight = 9;
+    if (lineHeight === 0) {
+      const editorOptions = this.configurationService.getValue("editor");
+      const fontInfo = FontMeasurements.readFontInfo(this.targetWindow, createBareFontInfoFromRawSettings(editorOptions, PixelRatio.getInstance(this.targetWindow).value));
+      lineHeight = fontInfo.lineHeight;
+    } else if (lineHeight < minimumLineHeight) {
+      let fontSize = outputFontSize;
+      if (fontSize === 0) {
+        fontSize = this.configurationService.getValue("editor.fontSize");
+      }
+      lineHeight = lineHeight * fontSize;
+    }
+    lineHeight = Math.round(lineHeight);
+    if (lineHeight < minimumLineHeight) {
+      lineHeight = minimumLineHeight;
+    }
+    return lineHeight;
+  }
+  _updateConfiguration(e) {
+    const cellStatusBarVisibility = e.affectsConfiguration(NotebookSetting.showCellStatusBar);
+    const cellToolbarLocation = e.affectsConfiguration(NotebookSetting.cellToolbarLocation);
+    const cellToolbarInteraction = e.affectsConfiguration(NotebookSetting.cellToolbarVisibility);
+    const compactView = e.affectsConfiguration(NotebookSetting.compactView);
+    const focusIndicator = e.affectsConfiguration(NotebookSetting.focusIndicator);
+    const insertToolbarPosition = e.affectsConfiguration(NotebookSetting.insertToolbarLocation);
+    const insertToolbarAlignment = e.affectsConfiguration(NotebookSetting.experimentalInsertToolbarAlignment);
+    const globalToolbar = e.affectsConfiguration(NotebookSetting.globalToolbar);
+    const stickyScrollEnabled = e.affectsConfiguration(NotebookSetting.stickyScrollEnabled);
+    const stickyScrollMode = e.affectsConfiguration(NotebookSetting.stickyScrollMode);
+    const consolidatedOutputButton = e.affectsConfiguration(NotebookSetting.consolidatedOutputButton);
+    const consolidatedRunButton = e.affectsConfiguration(NotebookSetting.consolidatedRunButton);
+    const showFoldingControls = e.affectsConfiguration(NotebookSetting.showFoldingControls);
+    const dragAndDropEnabled = e.affectsConfiguration(NotebookSetting.dragAndDropEnabled);
+    const fontSize = e.affectsConfiguration("editor.fontSize");
+    const outputFontSize = e.affectsConfiguration(NotebookSetting.outputFontSize);
+    const markupFontSize = e.affectsConfiguration(NotebookSetting.markupFontSize);
+    const markdownLineHeight = e.affectsConfiguration(NotebookSetting.markdownLineHeight);
+    const fontFamily = e.affectsConfiguration("editor.fontFamily");
+    const outputFontFamily = e.affectsConfiguration(NotebookSetting.outputFontFamily);
+    const editorOptionsCustomizations = e.affectsConfiguration(NotebookSetting.cellEditorOptionsCustomizations);
+    const interactiveWindowCollapseCodeCells = e.affectsConfiguration(NotebookSetting.interactiveWindowCollapseCodeCells);
+    const outputLineHeight = e.affectsConfiguration(NotebookSetting.outputLineHeight);
+    const outputScrolling = e.affectsConfiguration(NotebookSetting.outputScrolling);
+    const outputWordWrap = e.affectsConfiguration(NotebookSetting.outputWordWrap);
+    const outputLinkifyFilePaths = e.affectsConfiguration(NotebookSetting.LinkifyOutputFilePaths);
+    const minimalError = e.affectsConfiguration(NotebookSetting.minimalErrorRendering);
+    const markupFontFamily = e.affectsConfiguration(NotebookSetting.markupFontFamily);
+    if (!cellStatusBarVisibility && !cellToolbarLocation && !cellToolbarInteraction && !compactView && !focusIndicator && !insertToolbarPosition && !insertToolbarAlignment && !globalToolbar && !stickyScrollEnabled && !stickyScrollMode && !consolidatedOutputButton && !consolidatedRunButton && !showFoldingControls && !dragAndDropEnabled && !fontSize && !outputFontSize && !markupFontSize && !markdownLineHeight && !fontFamily && !outputFontFamily && !editorOptionsCustomizations && !interactiveWindowCollapseCodeCells && !outputLineHeight && !outputScrolling && !outputWordWrap && !outputLinkifyFilePaths && !minimalError && !markupFontFamily) {
+      return;
+    }
+    let configuration = Object.assign({}, this._layoutConfiguration);
+    if (cellStatusBarVisibility) {
+      configuration.showCellStatusBar = this.configurationService.getValue(NotebookSetting.showCellStatusBar);
+    }
+    if (cellToolbarLocation) {
+      configuration.cellToolbarLocation = this.configurationService.getValue(NotebookSetting.cellToolbarLocation) ?? { "default": "right" };
+    }
+    if (cellToolbarInteraction && !this.overrides?.cellToolbarInteraction) {
+      configuration.cellToolbarInteraction = this.configurationService.getValue(NotebookSetting.cellToolbarVisibility);
+    }
+    if (focusIndicator) {
+      configuration.focusIndicator = this._computeFocusIndicatorOption();
+    }
+    if (compactView) {
+      const compactViewValue = this.configurationService.getValue(NotebookSetting.compactView) ?? true;
+      configuration = Object.assign(configuration, {
+        ...compactViewValue ? compactConfigConstants : defaultConfigConstants
+      });
+      configuration.compactView = compactViewValue;
+    }
+    if (insertToolbarAlignment) {
+      configuration.insertToolbarAlignment = this._computeInsertToolbarAlignmentOption();
+    }
+    if (insertToolbarPosition) {
+      configuration.insertToolbarPosition = this._computeInsertToolbarPositionOption(this.isReadonly);
+    }
+    if (globalToolbar && this.overrides?.globalToolbar === void 0) {
+      configuration.globalToolbar = this.configurationService.getValue(NotebookSetting.globalToolbar) ?? true;
+    }
+    if (stickyScrollEnabled && this.overrides?.stickyScrollEnabled === void 0) {
+      configuration.stickyScrollEnabled = this.configurationService.getValue(NotebookSetting.stickyScrollEnabled) ?? false;
+    }
+    if (stickyScrollMode) {
+      configuration.stickyScrollMode = this.configurationService.getValue(NotebookSetting.stickyScrollMode) ?? "flat";
+    }
+    if (consolidatedOutputButton) {
+      configuration.consolidatedOutputButton = this.configurationService.getValue(NotebookSetting.consolidatedOutputButton) ?? true;
+    }
+    if (consolidatedRunButton) {
+      configuration.consolidatedRunButton = this.configurationService.getValue(NotebookSetting.consolidatedRunButton) ?? true;
+    }
+    if (showFoldingControls) {
+      configuration.showFoldingControls = this._computeShowFoldingControlsOption();
+    }
+    if (dragAndDropEnabled) {
+      configuration.dragAndDropEnabled = this.configurationService.getValue(NotebookSetting.dragAndDropEnabled) ?? true;
+    }
+    if (fontSize) {
+      configuration.fontSize = this.configurationService.getValue("editor.fontSize");
+    }
+    if (outputFontSize || fontSize) {
+      configuration.outputFontSize = this.configurationService.getValue(NotebookSetting.outputFontSize) || configuration.fontSize;
+    }
+    if (markupFontSize) {
+      configuration.markupFontSize = this.configurationService.getValue(NotebookSetting.markupFontSize);
+    }
+    if (markdownLineHeight) {
+      configuration.markdownLineHeight = this.configurationService.getValue(NotebookSetting.markdownLineHeight);
+    }
+    if (outputFontFamily) {
+      configuration.outputFontFamily = this.configurationService.getValue(NotebookSetting.outputFontFamily);
+    }
+    if (editorOptionsCustomizations) {
+      configuration.editorOptionsCustomizations = this.configurationService.getValue(NotebookSetting.cellEditorOptionsCustomizations);
+    }
+    if (interactiveWindowCollapseCodeCells) {
+      configuration.interactiveWindowCollapseCodeCells = this.configurationService.getValue(NotebookSetting.interactiveWindowCollapseCodeCells);
+    }
+    if (outputLineHeight || fontSize || outputFontSize) {
+      const lineHeight = this.configurationService.getValue(NotebookSetting.outputLineHeight);
+      configuration.outputLineHeight = this._computeOutputLineHeight(lineHeight, configuration.outputFontSize);
+    }
+    if (outputWordWrap) {
+      configuration.outputWordWrap = this.configurationService.getValue(NotebookSetting.outputWordWrap);
+    }
+    if (outputScrolling) {
+      configuration.outputScrolling = this.configurationService.getValue(NotebookSetting.outputScrolling);
+    }
+    if (outputLinkifyFilePaths) {
+      configuration.outputLinkifyFilePaths = this.configurationService.getValue(NotebookSetting.LinkifyOutputFilePaths);
+    }
+    if (minimalError) {
+      configuration.outputMinimalError = this.configurationService.getValue(NotebookSetting.minimalErrorRendering);
+    }
+    if (markupFontFamily) {
+      configuration.markupFontFamily = this.configurationService.getValue(NotebookSetting.markupFontFamily);
+    }
+    this._layoutConfiguration = Object.freeze(configuration);
+    this._onDidChangeOptions.fire({
+      cellStatusBarVisibility,
+      cellToolbarLocation,
+      cellToolbarInteraction,
+      compactView,
+      focusIndicator,
+      insertToolbarPosition,
+      insertToolbarAlignment,
+      globalToolbar,
+      stickyScrollEnabled,
+      stickyScrollMode,
+      showFoldingControls,
+      consolidatedOutputButton,
+      consolidatedRunButton,
+      dragAndDropEnabled,
+      fontSize,
+      outputFontSize,
+      markupFontSize,
+      markdownLineHeight,
+      fontFamily,
+      outputFontFamily,
+      editorOptionsCustomizations,
+      interactiveWindowCollapseCodeCells,
+      outputLineHeight,
+      outputScrolling,
+      outputWordWrap,
+      outputLinkifyFilePaths,
+      minimalError,
+      markupFontFamily
+    });
+  }
+  _computeInsertToolbarPositionOption(isReadOnly) {
+    return isReadOnly ? "hidden" : this.configurationService.getValue(NotebookSetting.insertToolbarLocation) ?? "both";
+  }
+  _computeInsertToolbarAlignmentOption() {
+    return this.configurationService.getValue(NotebookSetting.experimentalInsertToolbarAlignment) ?? "center";
+  }
+  _computeShowFoldingControlsOption() {
+    return this.configurationService.getValue(NotebookSetting.showFoldingControls) ?? "mouseover";
+  }
+  _computeFocusIndicatorOption() {
+    return this.configurationService.getValue(NotebookSetting.focusIndicator) ?? "gutter";
+  }
+  _computeStickyScrollModeOption() {
+    return this.configurationService.getValue(NotebookSetting.stickyScrollMode) ?? "flat";
+  }
+  getCellCollapseDefault() {
+    return this._layoutConfiguration.interactiveWindowCollapseCodeCells === "never" ? {
+      codeCell: {
+        inputCollapsed: false
+      }
+    } : {
+      codeCell: {
+        inputCollapsed: true
+      }
+    };
+  }
+  getLayoutConfiguration() {
+    return this._layoutConfiguration;
+  }
+  getDisplayOptions() {
+    return this._layoutConfiguration;
+  }
+  getCellEditorContainerLeftMargin() {
+    const { codeCellLeftMargin, cellRunGutter } = this._layoutConfiguration;
+    return codeCellLeftMargin + cellRunGutter;
+  }
+  computeCollapsedMarkdownCellHeight(viewType) {
+    const { bottomToolbarGap } = this.computeBottomToolbarDimensions(viewType);
+    return this._layoutConfiguration.markdownCellTopMargin + this._layoutConfiguration.collapsedIndicatorHeight + bottomToolbarGap + this._layoutConfiguration.markdownCellBottomMargin;
+  }
+  computeBottomToolbarOffset(totalHeight, viewType) {
+    const { bottomToolbarGap, bottomToolbarHeight } = this.computeBottomToolbarDimensions(viewType);
+    return totalHeight - bottomToolbarGap - bottomToolbarHeight / 2;
+  }
+  computeCodeCellEditorWidth(outerWidth) {
+    return outerWidth - (this._layoutConfiguration.codeCellLeftMargin + this._layoutConfiguration.cellRunGutter + this._layoutConfiguration.cellRightMargin);
+  }
+  computeMarkdownCellEditorWidth(outerWidth) {
+    return outerWidth - this._layoutConfiguration.markdownCellGutter - this._layoutConfiguration.markdownCellLeftMargin - this._layoutConfiguration.cellRightMargin;
+  }
+  computeStatusBarHeight() {
+    return this._layoutConfiguration.cellStatusBarHeight;
+  }
+  _computeBottomToolbarDimensions(compactView, insertToolbarPosition, insertToolbarAlignment, cellToolbar) {
+    if (insertToolbarAlignment === "left" || cellToolbar !== "hidden") {
+      return {
+        bottomToolbarGap: 18,
+        bottomToolbarHeight: 18
+      };
+    }
+    if (insertToolbarPosition === "betweenCells" || insertToolbarPosition === "both") {
+      return compactView ? {
+        bottomToolbarGap: 12,
+        bottomToolbarHeight: 20
+      } : {
+        bottomToolbarGap: 20,
+        bottomToolbarHeight: 20
+      };
+    } else {
+      return {
+        bottomToolbarGap: 0,
+        bottomToolbarHeight: 0
+      };
+    }
+  }
+  computeBottomToolbarDimensions(viewType) {
+    const configuration = this._layoutConfiguration;
+    const cellToolbarPosition = this.computeCellToolbarLocation(viewType);
+    const { bottomToolbarGap, bottomToolbarHeight } = this._computeBottomToolbarDimensions(configuration.compactView, configuration.insertToolbarPosition, configuration.insertToolbarAlignment, cellToolbarPosition);
+    return {
+      bottomToolbarGap,
+      bottomToolbarHeight
+    };
+  }
+  computeCellToolbarLocation(viewType) {
+    const cellToolbarLocation = this._layoutConfiguration.cellToolbarLocation;
+    if (typeof cellToolbarLocation === "string") {
+      if (cellToolbarLocation === "left" || cellToolbarLocation === "right" || cellToolbarLocation === "hidden") {
+        return cellToolbarLocation;
+      }
+    } else {
+      if (viewType) {
+        const notebookSpecificSetting = cellToolbarLocation[viewType] ?? cellToolbarLocation["default"];
+        let cellToolbarLocationForCurrentView = "right";
+        switch (notebookSpecificSetting) {
+          case "left":
+            cellToolbarLocationForCurrentView = "left";
+            break;
+          case "right":
+            cellToolbarLocationForCurrentView = "right";
+            break;
+          case "hidden":
+            cellToolbarLocationForCurrentView = "hidden";
+            break;
+          default:
+            cellToolbarLocationForCurrentView = "right";
+            break;
+        }
+        return cellToolbarLocationForCurrentView;
+      }
+    }
+    return "right";
+  }
+  computeTopInsertToolbarHeight(viewType) {
+    if (this._layoutConfiguration.insertToolbarPosition === "betweenCells" || this._layoutConfiguration.insertToolbarPosition === "both") {
+      return SCROLLABLE_ELEMENT_PADDING_TOP;
+    }
+    const cellToolbarLocation = this.computeCellToolbarLocation(viewType);
+    if (cellToolbarLocation === "left" || cellToolbarLocation === "right") {
+      return SCROLLABLE_ELEMENT_PADDING_TOP;
+    }
+    return 0;
+  }
+  computeEditorPadding(internalMetadata, cellUri) {
+    return {
+      top: this._editorTopPadding,
+      bottom: this.statusBarIsVisible(internalMetadata, cellUri) ? this._layoutConfiguration.editorBottomPadding : this._layoutConfiguration.editorBottomPaddingWithoutStatusBar
+    };
+  }
+  computeEditorStatusbarHeight(internalMetadata, cellUri) {
+    return this.statusBarIsVisible(internalMetadata, cellUri) ? this.computeStatusBarHeight() : 0;
+  }
+  statusBarIsVisible(internalMetadata, cellUri) {
+    const exe = this.notebookExecutionStateService.getCellExecution(cellUri);
+    if (this._layoutConfiguration.showCellStatusBar === "visible") {
+      return true;
+    } else if (this._layoutConfiguration.showCellStatusBar === "visibleAfterExecute") {
+      return typeof internalMetadata.lastRunSuccess === "boolean" || exe !== void 0;
+    } else {
+      return false;
+    }
+  }
+  computeWebviewOptions() {
+    return {
+      outputNodePadding: this._layoutConfiguration.cellOutputPadding,
+      outputNodeLeftPadding: this._layoutConfiguration.cellOutputPadding,
+      previewNodePadding: this._layoutConfiguration.markdownPreviewPadding,
+      markdownLeftMargin: this._layoutConfiguration.markdownCellGutter + this._layoutConfiguration.markdownCellLeftMargin,
+      leftMargin: this._layoutConfiguration.codeCellLeftMargin,
+      rightMargin: this._layoutConfiguration.cellRightMargin,
+      runGutter: this._layoutConfiguration.cellRunGutter,
+      dragAndDropEnabled: this._layoutConfiguration.dragAndDropEnabled,
+      fontSize: this._layoutConfiguration.fontSize,
+      outputFontSize: this._layoutConfiguration.outputFontSize,
+      outputFontFamily: this._layoutConfiguration.outputFontFamily,
+      markupFontSize: this._layoutConfiguration.markupFontSize,
+      markdownLineHeight: this._layoutConfiguration.markdownLineHeight,
+      outputLineHeight: this._layoutConfiguration.outputLineHeight,
+      outputScrolling: this._layoutConfiguration.outputScrolling,
+      outputWordWrap: this._layoutConfiguration.outputWordWrap,
+      outputLineLimit: this._layoutConfiguration.outputLineLimit,
+      outputLinkifyFilePaths: this._layoutConfiguration.outputLinkifyFilePaths,
+      minimalError: this._layoutConfiguration.outputMinimalError,
+      markupFontFamily: this._layoutConfiguration.markupFontFamily
+    };
+  }
+  computeDiffWebviewOptions() {
+    return {
+      outputNodePadding: this._layoutConfiguration.cellOutputPadding,
+      outputNodeLeftPadding: 0,
+      previewNodePadding: this._layoutConfiguration.markdownPreviewPadding,
+      markdownLeftMargin: 0,
+      leftMargin: 32,
+      rightMargin: 0,
+      runGutter: 0,
+      dragAndDropEnabled: false,
+      fontSize: this._layoutConfiguration.fontSize,
+      outputFontSize: this._layoutConfiguration.outputFontSize,
+      outputFontFamily: this._layoutConfiguration.outputFontFamily,
+      markupFontSize: this._layoutConfiguration.markupFontSize,
+      markdownLineHeight: this._layoutConfiguration.markdownLineHeight,
+      outputLineHeight: this._layoutConfiguration.outputLineHeight,
+      outputScrolling: this._layoutConfiguration.outputScrolling,
+      outputWordWrap: this._layoutConfiguration.outputWordWrap,
+      outputLineLimit: this._layoutConfiguration.outputLineLimit,
+      outputLinkifyFilePaths: false,
+      minimalError: false,
+      markupFontFamily: this._layoutConfiguration.markupFontFamily
+    };
+  }
+  computeIndicatorPosition(totalHeight, foldHintHeight, viewType) {
+    const { bottomToolbarGap } = this.computeBottomToolbarDimensions(viewType);
+    return {
+      bottomIndicatorTop: totalHeight - bottomToolbarGap - this._layoutConfiguration.cellBottomMargin - foldHintHeight,
+      verticalIndicatorHeight: totalHeight - bottomToolbarGap - foldHintHeight
+    };
+  }
+};
+NotebookOptions = __decorate([
+  __param(3, IConfigurationService),
+  __param(4, INotebookExecutionStateService),
+  __param(5, ICodeEditorService)
+], NotebookOptions);
+export {
+  NotebookOptions,
+  OutputInnerContainerTopPadding
+};
+//# sourceMappingURL=notebookOptions.js.map

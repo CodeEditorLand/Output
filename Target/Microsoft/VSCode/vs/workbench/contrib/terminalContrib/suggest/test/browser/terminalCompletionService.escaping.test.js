@@ -1,1 +1,44 @@
-import{$36b as c}from"../../browser/terminalCompletionService.js";import{strict as b}from"assert";import{$Rab as p}from"../../../../../../base/test/common/utils.js";suite("escapeTerminalCompletionLabel",()=>{p();const l="bash",a="/",r=[{char:"[",label:"[abc",expected:"\\[abc"},{char:"]",label:"abc]",expected:"abc\\]"},{char:"(",label:"(abc",expected:"\\(abc"},{char:")",label:"abc)",expected:"abc\\)"},{char:"'",label:"'abc",expected:"\\'abc"},{char:'"',label:'"abc',expected:'\\"abc'},{char:"\\",label:"abc\\",expected:"abc\\\\"},{char:"`",label:"`abc",expected:"\\`abc"},{char:"*",label:"*abc",expected:"\\*abc"},{char:"?",label:"?abc",expected:"\\?abc"},{char:";",label:";abc",expected:"\\;abc"},{char:"&",label:"&abc",expected:"\\&abc"},{char:"|",label:"|abc",expected:"\\|abc"},{char:"<",label:"<abc",expected:"\\<abc"},{char:">",label:">abc",expected:"\\>abc"}];for(const{char:e,label:t,expected:s}of r)test(`should escape '${e}' in "${t}"`,()=>{const o=c(t,l,a);b.equal(o,s)});test("should not escape when no special chars",()=>{const e=c("abc",l,a);b.equal(e,"abc")}),test("should not escape for PowerShell",()=>{const e=c("[abc","pwsh",a);b.equal(e,"[abc")}),test("should not escape for CommandPrompt",()=>{const e=c("[abc","cmd",a);b.equal(e,"[abc")})});
+import { escapeTerminalCompletionLabel } from "../../browser/terminalCompletionService.js";
+import { strict as assert } from "assert";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+suite("escapeTerminalCompletionLabel", () => {
+  ensureNoDisposablesAreLeakedInTestSuite();
+  const shellType = "bash";
+  const pathSeparator = "/";
+  const cases = [
+    { char: "[", label: "[abc", expected: "\\[abc" },
+    { char: "]", label: "abc]", expected: "abc\\]" },
+    { char: "(", label: "(abc", expected: "\\(abc" },
+    { char: ")", label: "abc)", expected: "abc\\)" },
+    { char: "'", label: `'abc`, expected: `\\'abc` },
+    { char: '"', label: '"abc', expected: '\\"abc' },
+    { char: "\\", label: "abc\\", expected: "abc\\\\" },
+    { char: "`", label: "`abc", expected: "\\`abc" },
+    { char: "*", label: "*abc", expected: "\\*abc" },
+    { char: "?", label: "?abc", expected: "\\?abc" },
+    { char: ";", label: ";abc", expected: "\\;abc" },
+    { char: "&", label: "&abc", expected: "\\&abc" },
+    { char: "|", label: "|abc", expected: "\\|abc" },
+    { char: "<", label: "<abc", expected: "\\<abc" },
+    { char: ">", label: ">abc", expected: "\\>abc" }
+  ];
+  for (const { char, label, expected } of cases) {
+    test(`should escape '${char}' in "${label}"`, () => {
+      const result = escapeTerminalCompletionLabel(label, shellType, pathSeparator);
+      assert.equal(result, expected);
+    });
+  }
+  test("should not escape when no special chars", () => {
+    const result = escapeTerminalCompletionLabel("abc", shellType, pathSeparator);
+    assert.equal(result, "abc");
+  });
+  test("should not escape for PowerShell", () => {
+    const result = escapeTerminalCompletionLabel("[abc", "pwsh", pathSeparator);
+    assert.equal(result, "[abc");
+  });
+  test("should not escape for CommandPrompt", () => {
+    const result = escapeTerminalCompletionLabel("[abc", "cmd", pathSeparator);
+    assert.equal(result, "[abc");
+  });
+});
+//# sourceMappingURL=terminalCompletionService.escaping.test.js.map

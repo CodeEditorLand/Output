@@ -1,1 +1,648 @@
-import*as i from"../../../../nls.js";import U from"../../../../base/common/severity.js";import{$Ed as B,$Fd as ne}from"../../../../base/common/lifecycle.js";import{URI as Q}from"../../../../base/common/uri.js";import{$_Ab as oe,$aBb as ae,$cBb as _}from"../../../services/activity/common/activity.js";import{$Lj as M}from"../../../../platform/instantiation/common/instantiation.js";import{$yP as j}from"../../../../platform/opener/common/opener.js";import{$gp as C}from"../../../../platform/storage/common/storage.js";import{$Jy as se}from"../../../../platform/update/common/update.js";import{$mH as E,NotificationPriority as T,Severity as L}from"../../../../platform/notification/common/notification.js";import{$Lp as J}from"../../../../platform/dialogs/common/dialogs.js";import{$mbb as H}from"../../../services/environment/browser/environmentService.js";import{$IFc as re}from"./releaseNotesEditor.js";import{$n as le,$s as ce,$m as ue}from"../../../../base/common/platform.js";import{$9l as W}from"../../../../platform/configuration/common/configuration.js";import{$po as F,$qo as Y,$9n as S}from"../../../../platform/contextkey/common/contextkey.js";import{$pL as g,$nL as h,$tL as de,$sL as pe}from"../../../../platform/actions/common/actions.js";import{$uo as d}from"../../../../platform/commands/common/commands.js";import{$pbb as X}from"../../../services/host/browser/host.js";import{$Un as k}from"../../../../platform/product/common/productService.js";import{$0Jb as he,$$Jb as me,$YJb as fe}from"../../../../platform/userDataSync/common/userDataSync.js";import{$KN as x}from"../../../../platform/contextkey/common/contextkeys.js";import{Promises as ge}from"../../../../base/common/async.js";import{$bYb as ye}from"../../../services/userDataSync/common/userDataSync.js";import{Event as O}from"../../../../base/common/event.js";import{$Jm as we}from"../../../../base/common/actions.js";var D=function(s,e,t,n){var r=arguments.length,o=r<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,e,t,n);else for(var l=s.length-1;l>=0;l--)(u=s[l])&&(o=(r<3?u(o):r>3?u(e,t,o):u(e,t))||o);return r>3&&o&&Object.defineProperty(e,t,o),o},a=function(s,e){return function(t,n){e(t,n,s)}},N;const p=new F("updateState","uninitialized"),P=new F("majorMinorUpdateAvailable",!1),be=new F("releaseNotesUrl",""),$e=new F("downloadUrl","");let A;function Z(s,e,t){return A||(A=s.createInstance(re)),A.show(e,t)}async function ze(s){const e=s.get(j),t=s.get(k);if(t.releaseNotesUrl){const n=Q.parse(t.releaseNotesUrl);await e.open(n)}else throw new Error(i.localize(14278,null,t.nameLong))}async function I(s,e){const t=s.get(M);try{await Z(t,e,!1)}catch(n){try{await t.invokeFunction(ze)}catch(r){throw new Error(`${n.message} and ${r.message}`)}}}function V(s){const e=/([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(s);if(e)return{major:parseInt(e[1]),minor:parseInt(e[2]),patch:parseInt(e[3])}}function ee(s,e){return s.major<e.major||s.minor<e.minor}let R=class{static{N=this}static{this.a="releaseNotes/lastVersion"}constructor(e,t,n,r,o,u,l,c,w){c.releaseNotesUrl&&be.bindTo(w).set(c.releaseNotesUrl),c.downloadUrl&&$e.bindTo(w).set(c.downloadUrl),!ce&&l.hadLastFocus().then(async m=>{if(!m)return;const f=V(e.get(N.a,-1,"")),b=V(c.version),$=u.getValue("update.showReleaseNotes"),v=c.releaseNotesUrl;$&&!r.skipReleaseNotes&&v&&f&&b&&ee(f,b)&&Z(t,c.version,!1).then(void 0,()=>{n.prompt(U.Info,i.localize(14279,null,c.nameLong,c.version),[{label:i.localize(14280,null),run:()=>{const y=Q.parse(v);o.open(y)}}],{priority:T.OPTIONAL})}),e.store(N.a,c.version,-1,1)})}};R=N=D([a(0,C),a(1,M),a(2,E),a(3,H),a(4,j),a(5,W),a(6,X),a(7,k),a(8,Y)],R);let G=class extends B{constructor(e,t,n,r,o,u,l,c,w,m,f){super(),this.g=e,this.h=t,this.j=n,this.m=r,this.n=o,this.q=u,this.r=l,this.s=c,this.t=w,this.u=m,this.w=f,this.b=this.D(new ne),this.a=o.state,this.c=p.bindTo(this.r),this.f=P.bindTo(this.r),this.D(o.onStateChange(this.y,this)),this.y(this.n.state);const b=this.s.commit,$=this.g.get("update/lastKnownVersion",-1);b!==$&&(this.g.remove("update/lastKnownVersion",-1),this.g.remove("update/updateNotificationTime",-1)),this.J()}async y(e){switch(this.c.set(e.type),e.type){case"disabled":e.reason===5&&this.j.notify({severity:L.Info,message:i.localize(14281,null,this.s.nameLong),actions:{primary:[we({id:"",label:i.localize(14282,null),run:()=>this.t.open("https://aka.ms/vscode-windows-setup")})]},neverShowAgain:{id:"no-updates-running-as-admin"}});break;case"idle":e.error?this.z(e.error):this.a.type==="checking for updates"&&this.a.explicit&&await this.w.hadLastFocus()&&this.C();break;case"available for download":this.F(e.update);break;case"downloaded":this.G(e.update);break;case"ready":{const n=e.update.productVersion;if(n){const r=V(this.s.version),o=V(n);this.f.set(!!(r&&o&&ee(r,o))),this.H(e.update)}break}}let t;e.type==="available for download"||e.type==="downloaded"||e.type==="ready"?t=new ae(1,()=>i.localize(14283,null,this.s.nameShort)):e.type==="checking for updates"?t=new _(()=>i.localize(14284,null,this.s.nameShort)):e.type==="downloading"?t=new _(()=>i.localize(14285,null,this.s.nameShort)):e.type==="updating"&&(t=new _(()=>i.localize(14286,null,this.s.nameShort))),this.b.clear(),t&&(this.b.value=this.q.showGlobalActivity({badge:t})),this.a=e}z(e){/The request timed out|The network connection was lost/i.test(e)||(e=e.replace(/See https:\/\/github\.com\/Squirrel\/Squirrel\.Mac\/issues\/182 for more information/,"This might mean the application was put on quarantine by macOS. See [this link](https://github.com/microsoft/vscode/issues/7426#issuecomment-425093469) for more information"),this.j.notify({severity:L.Error,message:e,source:i.localize(14287,null)}))}C(){this.m.info(i.localize(14288,null))}F(e){if(!this.I())return;const t=e.productVersion;t&&this.j.prompt(U.Info,i.localize(14289,null),[{label:i.localize(14290,null),run:()=>this.n.downloadUpdate()},{label:i.localize(14291,null),run:()=>{}},{label:i.localize(14292,null),run:()=>{this.h.invokeFunction(n=>I(n,t))}}],{priority:T.OPTIONAL})}G(e){if(le||this.u.getValue("update.enableWindowsBackgroundUpdates")&&this.s.target==="user"||!this.I())return;const t=e.productVersion;t&&this.j.prompt(U.Info,i.localize(14293,null,this.s.nameLong,t),[{label:i.localize(14294,null),run:()=>this.n.applyUpdate()},{label:i.localize(14295,null),run:()=>{}},{label:i.localize(14296,null),run:()=>{this.h.invokeFunction(n=>I(n,t))}}],{priority:T.OPTIONAL})}H(e){if(!(ue&&this.s.target!=="user")&&!this.I())return;const t=[{label:i.localize(14297,null),run:()=>this.n.quitAndInstall()},{label:i.localize(14298,null),run:()=>{}}],n=e.productVersion;n&&t.push({label:i.localize(14299,null),run:()=>{this.h.invokeFunction(r=>I(r,n))}}),this.j.prompt(U.Info,i.localize(14300,null,this.s.nameLong),t,{sticky:!0,priority:T.OPTIONAL})}I(){const e=this.s.commit,t=new Date().getTime(),n=this.g.get("update/lastKnownVersion",-1);e!==n&&(this.g.store("update/lastKnownVersion",e,-1,1),this.g.store("update/updateNotificationTime",t,-1,1));const r=this.g.getNumber("update/updateNotificationTime",-1,t);return(t-r)/(1e3*60*60*24)>5}J(){d.registerCommand("update.check",()=>this.n.checkForUpdates(!0)),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.check",title:i.localize(14301,null)},when:p.isEqualTo("idle")}),d.registerCommand("update.checking",()=>{}),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.checking",title:i.localize(14302,null),precondition:S.false()},when:p.isEqualTo("checking for updates")}),d.registerCommand("update.downloadNow",()=>this.n.downloadUpdate()),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.downloadNow",title:i.localize(14303,null)},when:p.isEqualTo("available for download")}),d.registerCommand("update.downloading",()=>{}),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.downloading",title:i.localize(14304,null),precondition:S.false()},when:p.isEqualTo("downloading")}),d.registerCommand("update.install",()=>this.n.applyUpdate()),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.install",title:i.localize(14305,null)},when:p.isEqualTo("downloaded")}),d.registerCommand("update.updating",()=>{}),g.appendMenuItem(h.GlobalActivity,{group:"7_update",command:{id:"update.updating",title:i.localize(14306,null),precondition:S.false()},when:p.isEqualTo("updating")}),this.s.quality==="stable"&&(d.registerCommand("update.showUpdateReleaseNotes",()=>{if(this.n.state.type!=="ready")return;const e=this.n.state.update.productVersion;e&&this.h.invokeFunction(t=>I(t,e))}),g.appendMenuItem(h.GlobalActivity,{group:"7_update",order:1,command:{id:"update.showUpdateReleaseNotes",title:i.localize(14307,null)},when:S.and(p.isEqualTo("ready"),P)})),d.registerCommand("update.restart",()=>this.n.quitAndInstall()),g.appendMenuItem(h.GlobalActivity,{group:"7_update",order:2,command:{id:"update.restart",title:i.localize(14308,null)},when:p.isEqualTo("ready")}),d.registerCommand("_update.state",()=>this.a)}};G=D([a(0,C),a(1,M),a(2,E),a(3,J),a(4,se),a(5,oe),a(6,Y),a(7,k),a(8,j),a(9,W),a(10,X)],G);let K=class extends B{constructor(e,t){super(),this.a=e,this.b=t,this.c()}c(){const e=this.a.quality,t=this.b.options?.productQualityChangeHandler;if(t&&(e==="stable"||e==="insider")){const n=e==="stable"?"insider":"stable",r=`update.switchQuality.${n}`,o=n==="insider";this.D(de(class extends pe{constructor(){super({id:r,title:o?i.localize(14309,null):i.localize(14310,null),precondition:x,menu:{id:h.GlobalActivity,when:x,group:"7_update"}})}async run(l){const c=l.get(J),w=l.get(he),m=l.get(fe),f=l.get(C),b=l.get(ye),$=l.get(me),v=l.get(E);try{const y="switchQuality.selectSettingsSyncServiceDialogShown",te=m.userDataSyncStore;let z;if(te&&o&&w.isEnabled()&&!f.getBoolean(y,-1,!1)){if(z=await this.a(c),!z)return;f.store(y,!0,-1,0),z==="stable"&&await m.switch(z)}if((await c.confirm({type:"info",message:i.localize(14311,null),detail:n==="insider"?i.localize(14312,null):i.localize(14313,null),primaryButton:i.localize(14314,null)})).confirmed){const q=[];$.status==="syncing"&&q.push(O.toPromise(O.filter($.onDidChangeStatus,ie=>ie!=="syncing"))),o&&z&&q.push(b.synchroniseUserDataSyncStoreType()),await ge.settled(q),t(n)}else z&&f.remove(y,-1)}catch(y){v.error(y)}}async a(l){const{result:c}=await l.prompt({type:L.Info,message:i.localize(14315,null),detail:i.localize(14316,null),buttons:[{label:i.localize(14317,null),run:()=>"insiders"},{label:i.localize(14318,null),run:()=>"stable"}],cancelButton:!0});return c}}))}}};K=D([a(0,k),a(1,H)],K);export{p as $KFc,P as $LFc,be as $MFc,$e as $NFc,Z as $OFc,R as $PFc,G as $QFc,K as $RFc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ProductContribution_1;
+import * as nls from "../../../../nls.js";
+import severity from "../../../../base/common/severity.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IActivityService, NumberBadge, ProgressBadge } from "../../../services/activity/common/activity.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { INotificationService, NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { ReleaseNotesManager } from "./releaseNotesEditor.js";
+import { isMacintosh, isWeb, isWindows } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { RawContextKey, IContextKeyService, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { MenuRegistry, MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IUserDataSyncEnablementService, IUserDataSyncService, IUserDataSyncStoreManagementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { Promises } from "../../../../base/common/async.js";
+import { IUserDataSyncWorkbenchService } from "../../../services/userDataSync/common/userDataSync.js";
+import { Event } from "../../../../base/common/event.js";
+import { toAction } from "../../../../base/common/actions.js";
+const CONTEXT_UPDATE_STATE = new RawContextKey(
+  "updateState",
+  "uninitialized"
+  /* StateType.Uninitialized */
+);
+const MAJOR_MINOR_UPDATE_AVAILABLE = new RawContextKey("majorMinorUpdateAvailable", false);
+const RELEASE_NOTES_URL = new RawContextKey("releaseNotesUrl", "");
+const DOWNLOAD_URL = new RawContextKey("downloadUrl", "");
+let releaseNotesManager = void 0;
+function showReleaseNotesInEditor(instantiationService, version, useCurrentFile) {
+  if (!releaseNotesManager) {
+    releaseNotesManager = instantiationService.createInstance(ReleaseNotesManager);
+  }
+  return releaseNotesManager.show(version, useCurrentFile);
+}
+__name(showReleaseNotesInEditor, "showReleaseNotesInEditor");
+async function openLatestReleaseNotesInBrowser(accessor) {
+  const openerService = accessor.get(IOpenerService);
+  const productService = accessor.get(IProductService);
+  if (productService.releaseNotesUrl) {
+    const uri = URI.parse(productService.releaseNotesUrl);
+    await openerService.open(uri);
+  } else {
+    throw new Error(nls.localize("update.noReleaseNotesOnline", "This version of {0} does not have release notes online", productService.nameLong));
+  }
+}
+__name(openLatestReleaseNotesInBrowser, "openLatestReleaseNotesInBrowser");
+async function showReleaseNotes(accessor, version) {
+  const instantiationService = accessor.get(IInstantiationService);
+  try {
+    await showReleaseNotesInEditor(instantiationService, version, false);
+  } catch (err) {
+    try {
+      await instantiationService.invokeFunction(openLatestReleaseNotesInBrowser);
+    } catch (err2) {
+      throw new Error(`${err.message} and ${err2.message}`);
+    }
+  }
+}
+__name(showReleaseNotes, "showReleaseNotes");
+function parseVersion(version) {
+  const match = /([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(version);
+  if (!match) {
+    return void 0;
+  }
+  return {
+    major: parseInt(match[1]),
+    minor: parseInt(match[2]),
+    patch: parseInt(match[3])
+  };
+}
+__name(parseVersion, "parseVersion");
+function isMajorMinorUpdate(before, after) {
+  return before.major < after.major || before.minor < after.minor;
+}
+__name(isMajorMinorUpdate, "isMajorMinorUpdate");
+let ProductContribution = class ProductContribution2 {
+  static {
+    __name(this, "ProductContribution");
+  }
+  static {
+    ProductContribution_1 = this;
+  }
+  static {
+    this.KEY = "releaseNotes/lastVersion";
+  }
+  constructor(storageService, instantiationService, notificationService, environmentService, openerService, configurationService, hostService, productService, contextKeyService) {
+    if (productService.releaseNotesUrl) {
+      const releaseNotesUrlKey = RELEASE_NOTES_URL.bindTo(contextKeyService);
+      releaseNotesUrlKey.set(productService.releaseNotesUrl);
+    }
+    if (productService.downloadUrl) {
+      const downloadUrlKey = DOWNLOAD_URL.bindTo(contextKeyService);
+      downloadUrlKey.set(productService.downloadUrl);
+    }
+    if (isWeb) {
+      return;
+    }
+    hostService.hadLastFocus().then(async (hadLastFocus) => {
+      if (!hadLastFocus) {
+        return;
+      }
+      const lastVersion = parseVersion(storageService.get(ProductContribution_1.KEY, -1, ""));
+      const currentVersion = parseVersion(productService.version);
+      const shouldShowReleaseNotes = configurationService.getValue("update.showReleaseNotes");
+      const releaseNotesUrl = productService.releaseNotesUrl;
+      if (shouldShowReleaseNotes && !environmentService.skipReleaseNotes && releaseNotesUrl && lastVersion && currentVersion && isMajorMinorUpdate(lastVersion, currentVersion)) {
+        showReleaseNotesInEditor(instantiationService, productService.version, false).then(void 0, () => {
+          notificationService.prompt(severity.Info, nls.localize("read the release notes", "Welcome to {0} v{1}! Would you like to read the Release Notes?", productService.nameLong, productService.version), [{
+            label: nls.localize("releaseNotes", "Release Notes"),
+            run: /* @__PURE__ */ __name(() => {
+              const uri = URI.parse(releaseNotesUrl);
+              openerService.open(uri);
+            }, "run")
+          }], { priority: NotificationPriority.OPTIONAL });
+        });
+      }
+      storageService.store(
+        ProductContribution_1.KEY,
+        productService.version,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    });
+  }
+};
+ProductContribution = ProductContribution_1 = __decorate([
+  __param(0, IStorageService),
+  __param(1, IInstantiationService),
+  __param(2, INotificationService),
+  __param(3, IBrowserWorkbenchEnvironmentService),
+  __param(4, IOpenerService),
+  __param(5, IConfigurationService),
+  __param(6, IHostService),
+  __param(7, IProductService),
+  __param(8, IContextKeyService)
+], ProductContribution);
+let UpdateContribution = class UpdateContribution2 extends Disposable {
+  static {
+    __name(this, "UpdateContribution");
+  }
+  constructor(storageService, instantiationService, notificationService, dialogService, updateService, activityService, contextKeyService, productService, openerService, configurationService, hostService) {
+    super();
+    this.storageService = storageService;
+    this.instantiationService = instantiationService;
+    this.notificationService = notificationService;
+    this.dialogService = dialogService;
+    this.updateService = updateService;
+    this.activityService = activityService;
+    this.contextKeyService = contextKeyService;
+    this.productService = productService;
+    this.openerService = openerService;
+    this.configurationService = configurationService;
+    this.hostService = hostService;
+    this.badgeDisposable = this._register(new MutableDisposable());
+    this.state = updateService.state;
+    this.updateStateContextKey = CONTEXT_UPDATE_STATE.bindTo(this.contextKeyService);
+    this.majorMinorUpdateAvailableContextKey = MAJOR_MINOR_UPDATE_AVAILABLE.bindTo(this.contextKeyService);
+    this._register(updateService.onStateChange(this.onUpdateStateChange, this));
+    this.onUpdateStateChange(this.updateService.state);
+    const currentVersion = this.productService.commit;
+    const lastKnownVersion = this.storageService.get(
+      "update/lastKnownVersion",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (currentVersion !== lastKnownVersion) {
+      this.storageService.remove(
+        "update/lastKnownVersion",
+        -1
+        /* StorageScope.APPLICATION */
+      );
+      this.storageService.remove(
+        "update/updateNotificationTime",
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    this.registerGlobalActivityActions();
+  }
+  async onUpdateStateChange(state) {
+    this.updateStateContextKey.set(state.type);
+    switch (state.type) {
+      case "disabled":
+        if (state.reason === 5) {
+          this.notificationService.notify({
+            severity: Severity.Info,
+            message: nls.localize("update service disabled", "Updates are disabled because you are running the user-scope installation of {0} as Administrator.", this.productService.nameLong),
+            actions: {
+              primary: [
+                toAction({
+                  id: "",
+                  label: nls.localize("learn more", "Learn More"),
+                  run: /* @__PURE__ */ __name(() => this.openerService.open("https://aka.ms/vscode-windows-setup"), "run")
+                })
+              ]
+            },
+            neverShowAgain: { id: "no-updates-running-as-admin" }
+          });
+        }
+        break;
+      case "idle":
+        if (state.error) {
+          this.onError(state.error);
+        } else if (this.state.type === "checking for updates" && this.state.explicit && await this.hostService.hadLastFocus()) {
+          this.onUpdateNotAvailable();
+        }
+        break;
+      case "available for download":
+        this.onUpdateAvailable(state.update);
+        break;
+      case "downloaded":
+        this.onUpdateDownloaded(state.update);
+        break;
+      case "ready": {
+        const productVersion = state.update.productVersion;
+        if (productVersion) {
+          const currentVersion = parseVersion(this.productService.version);
+          const nextVersion = parseVersion(productVersion);
+          this.majorMinorUpdateAvailableContextKey.set(Boolean(currentVersion && nextVersion && isMajorMinorUpdate(currentVersion, nextVersion)));
+          this.onUpdateReady(state.update);
+        }
+        break;
+      }
+    }
+    let badge = void 0;
+    if (state.type === "available for download" || state.type === "downloaded" || state.type === "ready") {
+      badge = new NumberBadge(1, () => nls.localize("updateIsReady", "New {0} update available.", this.productService.nameShort));
+    } else if (state.type === "checking for updates") {
+      badge = new ProgressBadge(() => nls.localize("checkingForUpdates", "Checking for {0} updates...", this.productService.nameShort));
+    } else if (state.type === "downloading") {
+      badge = new ProgressBadge(() => nls.localize("downloading", "Downloading {0} update...", this.productService.nameShort));
+    } else if (state.type === "updating") {
+      badge = new ProgressBadge(() => nls.localize("updating", "Updating {0}...", this.productService.nameShort));
+    }
+    this.badgeDisposable.clear();
+    if (badge) {
+      this.badgeDisposable.value = this.activityService.showGlobalActivity({ badge });
+    }
+    this.state = state;
+  }
+  onError(error) {
+    if (/The request timed out|The network connection was lost/i.test(error)) {
+      return;
+    }
+    error = error.replace(/See https:\/\/github\.com\/Squirrel\/Squirrel\.Mac\/issues\/182 for more information/, "This might mean the application was put on quarantine by macOS. See [this link](https://github.com/microsoft/vscode/issues/7426#issuecomment-425093469) for more information");
+    this.notificationService.notify({
+      severity: Severity.Error,
+      message: error,
+      source: nls.localize("update service", "Update Service")
+    });
+  }
+  onUpdateNotAvailable() {
+    this.dialogService.info(nls.localize("noUpdatesAvailable", "There are currently no updates available."));
+  }
+  // linux
+  onUpdateAvailable(update) {
+    if (!this.shouldShowNotification()) {
+      return;
+    }
+    const productVersion = update.productVersion;
+    if (!productVersion) {
+      return;
+    }
+    this.notificationService.prompt(severity.Info, nls.localize("thereIsUpdateAvailable", "There is an available update."), [{
+      label: nls.localize("download update", "Download Update"),
+      run: /* @__PURE__ */ __name(() => this.updateService.downloadUpdate(), "run")
+    }, {
+      label: nls.localize("later", "Later"),
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    }, {
+      label: nls.localize("releaseNotes", "Release Notes"),
+      run: /* @__PURE__ */ __name(() => {
+        this.instantiationService.invokeFunction((accessor) => showReleaseNotes(accessor, productVersion));
+      }, "run")
+    }], { priority: NotificationPriority.OPTIONAL });
+  }
+  // windows fast updates
+  onUpdateDownloaded(update) {
+    if (isMacintosh) {
+      return;
+    }
+    if (this.configurationService.getValue("update.enableWindowsBackgroundUpdates") && this.productService.target === "user") {
+      return;
+    }
+    if (!this.shouldShowNotification()) {
+      return;
+    }
+    const productVersion = update.productVersion;
+    if (!productVersion) {
+      return;
+    }
+    this.notificationService.prompt(severity.Info, nls.localize("updateAvailable", "There's an update available: {0} {1}", this.productService.nameLong, productVersion), [{
+      label: nls.localize("installUpdate", "Install Update"),
+      run: /* @__PURE__ */ __name(() => this.updateService.applyUpdate(), "run")
+    }, {
+      label: nls.localize("later", "Later"),
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    }, {
+      label: nls.localize("releaseNotes", "Release Notes"),
+      run: /* @__PURE__ */ __name(() => {
+        this.instantiationService.invokeFunction((accessor) => showReleaseNotes(accessor, productVersion));
+      }, "run")
+    }], { priority: NotificationPriority.OPTIONAL });
+  }
+  // windows and mac
+  onUpdateReady(update) {
+    if (!(isWindows && this.productService.target !== "user") && !this.shouldShowNotification()) {
+      return;
+    }
+    const actions = [{
+      label: nls.localize("updateNow", "Update Now"),
+      run: /* @__PURE__ */ __name(() => this.updateService.quitAndInstall(), "run")
+    }, {
+      label: nls.localize("later", "Later"),
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    }];
+    const productVersion = update.productVersion;
+    if (productVersion) {
+      actions.push({
+        label: nls.localize("releaseNotes", "Release Notes"),
+        run: /* @__PURE__ */ __name(() => {
+          this.instantiationService.invokeFunction((accessor) => showReleaseNotes(accessor, productVersion));
+        }, "run")
+      });
+    }
+    this.notificationService.prompt(severity.Info, nls.localize("updateAvailableAfterRestart", "Restart {0} to apply the latest update.", this.productService.nameLong), actions, {
+      sticky: true,
+      priority: NotificationPriority.OPTIONAL
+    });
+  }
+  shouldShowNotification() {
+    const currentVersion = this.productService.commit;
+    const currentMillis = (/* @__PURE__ */ new Date()).getTime();
+    const lastKnownVersion = this.storageService.get(
+      "update/lastKnownVersion",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (currentVersion !== lastKnownVersion) {
+      this.storageService.store(
+        "update/lastKnownVersion",
+        currentVersion,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+      this.storageService.store(
+        "update/updateNotificationTime",
+        currentMillis,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+    const updateNotificationMillis = this.storageService.getNumber("update/updateNotificationTime", -1, currentMillis);
+    const diffDays = (currentMillis - updateNotificationMillis) / (1e3 * 60 * 60 * 24);
+    return diffDays > 5;
+  }
+  registerGlobalActivityActions() {
+    CommandsRegistry.registerCommand("update.check", () => this.updateService.checkForUpdates(true));
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.check",
+        title: nls.localize("checkForUpdates", "Check for Updates...")
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "idle"
+        /* StateType.Idle */
+      )
+    });
+    CommandsRegistry.registerCommand("update.checking", () => {
+    });
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.checking",
+        title: nls.localize("checkingForUpdates2", "Checking for Updates..."),
+        precondition: ContextKeyExpr.false()
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "checking for updates"
+        /* StateType.CheckingForUpdates */
+      )
+    });
+    CommandsRegistry.registerCommand("update.downloadNow", () => this.updateService.downloadUpdate());
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.downloadNow",
+        title: nls.localize("download update_1", "Download Update (1)")
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "available for download"
+        /* StateType.AvailableForDownload */
+      )
+    });
+    CommandsRegistry.registerCommand("update.downloading", () => {
+    });
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.downloading",
+        title: nls.localize("DownloadingUpdate", "Downloading Update..."),
+        precondition: ContextKeyExpr.false()
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "downloading"
+        /* StateType.Downloading */
+      )
+    });
+    CommandsRegistry.registerCommand("update.install", () => this.updateService.applyUpdate());
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.install",
+        title: nls.localize("installUpdate...", "Install Update... (1)")
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "downloaded"
+        /* StateType.Downloaded */
+      )
+    });
+    CommandsRegistry.registerCommand("update.updating", () => {
+    });
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      command: {
+        id: "update.updating",
+        title: nls.localize("installingUpdate", "Installing Update..."),
+        precondition: ContextKeyExpr.false()
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "updating"
+        /* StateType.Updating */
+      )
+    });
+    if (this.productService.quality === "stable") {
+      CommandsRegistry.registerCommand("update.showUpdateReleaseNotes", () => {
+        if (this.updateService.state.type !== "ready") {
+          return;
+        }
+        const productVersion = this.updateService.state.update.productVersion;
+        if (productVersion) {
+          this.instantiationService.invokeFunction((accessor) => showReleaseNotes(accessor, productVersion));
+        }
+      });
+      MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+        group: "7_update",
+        order: 1,
+        command: {
+          id: "update.showUpdateReleaseNotes",
+          title: nls.localize("showUpdateReleaseNotes", "Show Update Release Notes")
+        },
+        when: ContextKeyExpr.and(CONTEXT_UPDATE_STATE.isEqualTo(
+          "ready"
+          /* StateType.Ready */
+        ), MAJOR_MINOR_UPDATE_AVAILABLE)
+      });
+    }
+    CommandsRegistry.registerCommand("update.restart", () => this.updateService.quitAndInstall());
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      group: "7_update",
+      order: 2,
+      command: {
+        id: "update.restart",
+        title: nls.localize("restartToUpdate", "Restart to Update (1)")
+      },
+      when: CONTEXT_UPDATE_STATE.isEqualTo(
+        "ready"
+        /* StateType.Ready */
+      )
+    });
+    CommandsRegistry.registerCommand("_update.state", () => {
+      return this.state;
+    });
+  }
+};
+UpdateContribution = __decorate([
+  __param(0, IStorageService),
+  __param(1, IInstantiationService),
+  __param(2, INotificationService),
+  __param(3, IDialogService),
+  __param(4, IUpdateService),
+  __param(5, IActivityService),
+  __param(6, IContextKeyService),
+  __param(7, IProductService),
+  __param(8, IOpenerService),
+  __param(9, IConfigurationService),
+  __param(10, IHostService)
+], UpdateContribution);
+let SwitchProductQualityContribution = class SwitchProductQualityContribution2 extends Disposable {
+  static {
+    __name(this, "SwitchProductQualityContribution");
+  }
+  constructor(productService, environmentService) {
+    super();
+    this.productService = productService;
+    this.environmentService = environmentService;
+    this.registerGlobalActivityActions();
+  }
+  registerGlobalActivityActions() {
+    const quality = this.productService.quality;
+    const productQualityChangeHandler = this.environmentService.options?.productQualityChangeHandler;
+    if (productQualityChangeHandler && (quality === "stable" || quality === "insider")) {
+      const newQuality = quality === "stable" ? "insider" : "stable";
+      const commandId = `update.switchQuality.${newQuality}`;
+      const isSwitchingToInsiders = newQuality === "insider";
+      this._register(registerAction2(class SwitchQuality extends Action2 {
+        static {
+          __name(this, "SwitchQuality");
+        }
+        constructor() {
+          super({
+            id: commandId,
+            title: isSwitchingToInsiders ? nls.localize("switchToInsiders", "Switch to Insiders Version...") : nls.localize("switchToStable", "Switch to Stable Version..."),
+            precondition: IsWebContext,
+            menu: {
+              id: MenuId.GlobalActivity,
+              when: IsWebContext,
+              group: "7_update"
+            }
+          });
+        }
+        async run(accessor) {
+          const dialogService = accessor.get(IDialogService);
+          const userDataSyncEnablementService = accessor.get(IUserDataSyncEnablementService);
+          const userDataSyncStoreManagementService = accessor.get(IUserDataSyncStoreManagementService);
+          const storageService = accessor.get(IStorageService);
+          const userDataSyncWorkbenchService = accessor.get(IUserDataSyncWorkbenchService);
+          const userDataSyncService = accessor.get(IUserDataSyncService);
+          const notificationService = accessor.get(INotificationService);
+          try {
+            const selectSettingsSyncServiceDialogShownKey = "switchQuality.selectSettingsSyncServiceDialogShown";
+            const userDataSyncStore = userDataSyncStoreManagementService.userDataSyncStore;
+            let userDataSyncStoreType;
+            if (userDataSyncStore && isSwitchingToInsiders && userDataSyncEnablementService.isEnabled() && !storageService.getBoolean(selectSettingsSyncServiceDialogShownKey, -1, false)) {
+              userDataSyncStoreType = await this.selectSettingsSyncService(dialogService);
+              if (!userDataSyncStoreType) {
+                return;
+              }
+              storageService.store(
+                selectSettingsSyncServiceDialogShownKey,
+                true,
+                -1,
+                0
+                /* StorageTarget.USER */
+              );
+              if (userDataSyncStoreType === "stable") {
+                await userDataSyncStoreManagementService.switch(userDataSyncStoreType);
+              }
+            }
+            const res = await dialogService.confirm({
+              type: "info",
+              message: nls.localize("relaunchMessage", "Changing the version requires a reload to take effect"),
+              detail: newQuality === "insider" ? nls.localize("relaunchDetailInsiders", "Press the reload button to switch to the Insiders version of VS Code.") : nls.localize("relaunchDetailStable", "Press the reload button to switch to the Stable version of VS Code."),
+              primaryButton: nls.localize({ key: "reload", comment: ["&& denotes a mnemonic"] }, "&&Reload")
+            });
+            if (res.confirmed) {
+              const promises = [];
+              if (userDataSyncService.status === "syncing") {
+                promises.push(Event.toPromise(Event.filter(
+                  userDataSyncService.onDidChangeStatus,
+                  (status) => status !== "syncing"
+                  /* SyncStatus.Syncing */
+                )));
+              }
+              if (isSwitchingToInsiders && userDataSyncStoreType) {
+                promises.push(userDataSyncWorkbenchService.synchroniseUserDataSyncStoreType());
+              }
+              await Promises.settled(promises);
+              productQualityChangeHandler(newQuality);
+            } else {
+              if (userDataSyncStoreType) {
+                storageService.remove(
+                  selectSettingsSyncServiceDialogShownKey,
+                  -1
+                  /* StorageScope.APPLICATION */
+                );
+              }
+            }
+          } catch (error) {
+            notificationService.error(error);
+          }
+        }
+        async selectSettingsSyncService(dialogService) {
+          const { result } = await dialogService.prompt({
+            type: Severity.Info,
+            message: nls.localize("selectSyncService.message", "Choose the settings sync service to use after changing the version"),
+            detail: nls.localize("selectSyncService.detail", "The Insiders version of VS Code will synchronize your settings, keybindings, extensions, snippets and UI State using separate insiders settings sync service by default."),
+            buttons: [
+              {
+                label: nls.localize({ key: "use insiders", comment: ["&& denotes a mnemonic"] }, "&&Insiders"),
+                run: /* @__PURE__ */ __name(() => "insiders", "run")
+              },
+              {
+                label: nls.localize({ key: "use stable", comment: ["&& denotes a mnemonic"] }, "&&Stable (current)"),
+                run: /* @__PURE__ */ __name(() => "stable", "run")
+              }
+            ],
+            cancelButton: true
+          });
+          return result;
+        }
+      }));
+    }
+  }
+};
+SwitchProductQualityContribution = __decorate([
+  __param(0, IProductService),
+  __param(1, IBrowserWorkbenchEnvironmentService)
+], SwitchProductQualityContribution);
+export {
+  CONTEXT_UPDATE_STATE,
+  DOWNLOAD_URL,
+  MAJOR_MINOR_UPDATE_AVAILABLE,
+  ProductContribution,
+  RELEASE_NOTES_URL,
+  SwitchProductQualityContribution,
+  UpdateContribution,
+  showReleaseNotesInEditor
+};
+//# sourceMappingURL=update.js.map

@@ -1,1 +1,135 @@
-import{Schemas as b,$hh as y}from"../../../../base/common/network.js";import T from"../../../../base/common/severity.js";import{URI as j}from"../../../../base/common/uri.js";import{localize as c}from"../../../../nls.js";import{$4hb as O}from"../../../../platform/clipboard/common/clipboardService.js";import{$9l as w}from"../../../../platform/configuration/common/configuration.js";import{$Lp as x}from"../../../../platform/dialogs/common/dialogs.js";import{$Lj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$yP as D}from"../../../../platform/opener/common/opener.js";import{$Un as I}from"../../../../platform/product/common/productService.js";import{$VH as S}from"../../../../platform/quickinput/common/quickInput.js";import{$gp as V}from"../../../../platform/storage/common/storage.js";import{$op as z}from"../../../../platform/telemetry/common/telemetry.js";import{$YH as M}from"../../../../platform/workspace/common/workspaceTrust.js";import{$f7b as P}from"./trustedDomainService.js";import{$IB as U}from"../../../../platform/url/common/trustedDomains.js";import{$c7b as W,$e7b as B}from"./trustedDomains.js";import{$yL as H}from"../../../services/editor/common/editorService.js";var _=function(h,t,n,i){var r=arguments.length,e=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,n):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(h,t,n,i);else for(var m=h.length-1;m>=0;m--)(s=h[m])&&(e=(r<3?s(e):r>3?s(t,n,e):s(t,n))||e);return r>3&&e&&Object.defineProperty(t,n,e),e},o=function(h,t){return function(n,i){t(n,i,h)}};let k=class{constructor(t,n,i,r,e,s,m,f,p,l,a,$){this.a=t,this.b=n,this.c=i,this.d=r,this.e=e,this.f=s,this.g=m,this.h=f,this.i=p,this.j=l,this.k=a,this.l=$,this.a.registerValidator({shouldOpen:(u,g)=>this.validateLink(u,g)})}async validateLink(t,n){if(!y(t,b.http)&&!y(t,b.https)||n?.fromWorkspace&&this.k.isWorkspaceTrusted()&&!this.j.getValue("workbench.trustedDomains.promptInTrustedWorkspace"))return!0;const i=t;let r;if(typeof t=="string"?r=j.parse(t):r=t,this.l.isValid(r))return!0;{const{scheme:e,authority:s,path:m,query:f,fragment:p}=r;let l=`${e}://${s}${m}`;const a=`${f?"?"+f:""}${p?"#"+p:""}`,$=Math.max(0,60-l.length),u=Math.min(Math.max(5,$),a.length);u===a.length?l+=a:l+=a.charAt(0)+"..."+a.substring(a.length-u+1);const{result:g}=await this.c.prompt({type:T.Info,message:c(14325,null,this.d.nameShort),detail:typeof i=="string"?i:l,buttons:[{label:c(14326,null),run:()=>!0},{label:c(14327,null),run:()=>(this.g.writeText(typeof i=="string"?i:r.toString(!0)),!1)},{label:c(14328,null),run:async()=>{const{trustedDomains:v}=this.i.invokeFunction(B),L=`${e}://${s}`,d=await W(v,L,r,this.e,this.b,this.f,this.h);return!!(d.indexOf("*")!==-1||U(r,d))}}],cancelButton:{run:()=>!1}});return g}}};k=_([o(0,D),o(1,V),o(2,x),o(3,I),o(4,S),o(5,H),o(6,O),o(7,z),o(8,R),o(9,w),o(10,M),o(11,P)],k);export{k as $ezc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import Severity from "../../../../base/common/severity.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ITrustedDomainService } from "./trustedDomainService.js";
+import { isURLDomainTrusted } from "../../../../platform/url/common/trustedDomains.js";
+import { configureOpenerTrustedDomainsHandler, readStaticTrustedDomains } from "./trustedDomains.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+let OpenerValidatorContributions = class OpenerValidatorContributions2 {
+  static {
+    __name(this, "OpenerValidatorContributions");
+  }
+  constructor(_openerService, _storageService, _dialogService, _productService, _quickInputService, _editorService, _clipboardService, _telemetryService, _instantiationService, _configurationService, _workspaceTrustService, _trustedDomainService) {
+    this._openerService = _openerService;
+    this._storageService = _storageService;
+    this._dialogService = _dialogService;
+    this._productService = _productService;
+    this._quickInputService = _quickInputService;
+    this._editorService = _editorService;
+    this._clipboardService = _clipboardService;
+    this._telemetryService = _telemetryService;
+    this._instantiationService = _instantiationService;
+    this._configurationService = _configurationService;
+    this._workspaceTrustService = _workspaceTrustService;
+    this._trustedDomainService = _trustedDomainService;
+    this._openerService.registerValidator({ shouldOpen: /* @__PURE__ */ __name((uri, options) => this.validateLink(uri, options), "shouldOpen") });
+  }
+  async validateLink(resource, openOptions) {
+    if (!matchesScheme(resource, Schemas.http) && !matchesScheme(resource, Schemas.https)) {
+      return true;
+    }
+    if (openOptions?.fromWorkspace && this._workspaceTrustService.isWorkspaceTrusted() && !this._configurationService.getValue("workbench.trustedDomains.promptInTrustedWorkspace")) {
+      return true;
+    }
+    const originalResource = resource;
+    let resourceUri;
+    if (typeof resource === "string") {
+      resourceUri = URI.parse(resource);
+    } else {
+      resourceUri = resource;
+    }
+    if (this._trustedDomainService.isValid(resourceUri)) {
+      return true;
+    } else {
+      const { scheme, authority, path, query, fragment } = resourceUri;
+      let formattedLink = `${scheme}://${authority}${path}`;
+      const linkTail = `${query ? "?" + query : ""}${fragment ? "#" + fragment : ""}`;
+      const remainingLength = Math.max(0, 60 - formattedLink.length);
+      const linkTailLengthToKeep = Math.min(Math.max(5, remainingLength), linkTail.length);
+      if (linkTailLengthToKeep === linkTail.length) {
+        formattedLink += linkTail;
+      } else {
+        formattedLink += linkTail.charAt(0) + "..." + linkTail.substring(linkTail.length - linkTailLengthToKeep + 1);
+      }
+      const { result } = await this._dialogService.prompt({
+        type: Severity.Info,
+        message: localize("openExternalLinkAt", "Do you want {0} to open the external website?", this._productService.nameShort),
+        detail: typeof originalResource === "string" ? originalResource : formattedLink,
+        buttons: [
+          {
+            label: localize({ key: "open", comment: ["&& denotes a mnemonic"] }, "&&Open"),
+            run: /* @__PURE__ */ __name(() => true, "run")
+          },
+          {
+            label: localize({ key: "copy", comment: ["&& denotes a mnemonic"] }, "&&Copy"),
+            run: /* @__PURE__ */ __name(() => {
+              this._clipboardService.writeText(typeof originalResource === "string" ? originalResource : resourceUri.toString(true));
+              return false;
+            }, "run")
+          },
+          {
+            label: localize({ key: "configureTrustedDomains", comment: ["&& denotes a mnemonic"] }, "Configure &&Trusted Domains"),
+            run: /* @__PURE__ */ __name(async () => {
+              const { trustedDomains } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
+              const domainToOpen = `${scheme}://${authority}`;
+              const pickedDomains = await configureOpenerTrustedDomainsHandler(trustedDomains, domainToOpen, resourceUri, this._quickInputService, this._storageService, this._editorService, this._telemetryService);
+              if (pickedDomains.indexOf("*") !== -1) {
+                return true;
+              }
+              if (isURLDomainTrusted(resourceUri, pickedDomains)) {
+                return true;
+              }
+              return false;
+            }, "run")
+          }
+        ],
+        cancelButton: {
+          run: /* @__PURE__ */ __name(() => false, "run")
+        }
+      });
+      return result;
+    }
+  }
+};
+OpenerValidatorContributions = __decorate([
+  __param(0, IOpenerService),
+  __param(1, IStorageService),
+  __param(2, IDialogService),
+  __param(3, IProductService),
+  __param(4, IQuickInputService),
+  __param(5, IEditorService),
+  __param(6, IClipboardService),
+  __param(7, ITelemetryService),
+  __param(8, IInstantiationService),
+  __param(9, IConfigurationService),
+  __param(10, IWorkspaceTrustManagementService),
+  __param(11, ITrustedDomainService)
+], OpenerValidatorContributions);
+export {
+  OpenerValidatorContributions
+};
+//# sourceMappingURL=trustedDomainsValidator.js.map

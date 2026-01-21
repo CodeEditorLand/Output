@@ -1,1 +1,708 @@
-import{$l8 as x}from"../../../../base/browser/dom.js";import{$Db as O}from"../../../../base/common/errors.js";import{autorun as F,runOnChange as C}from"../../../../base/common/observable.js";import{$Lj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$xo as z}from"../../../../platform/log/common/log.js";import{$8D as R}from"../../../common/core/position.js";import{$9D as U}from"../../../common/core/range.js";import{$5eb as p}from"../../gpu/atlas/textureAtlasPage.js";import{GPULifecycle as _}from"../../gpu/gpuDisposable.js";import{$Veb as S}from"../../gpu/gpuUtils.js";import{$_eb as b}from"../../gpu/viewGpuContext.js";import{$yeb as $,$zeb as j,$xeb as W,$web as V,$Aeb as G}from"../../view/renderingContext.js";import{$Ceb as H}from"../../view/viewPart.js";import{$Teb as Y}from"../viewLines/viewLineOptions.js";import{$$F as v}from"../../../common/core/cursorColumns.js";import{$6eb as y}from"../../gpu/atlas/textureAtlas.js";import{$dfb as L}from"../../gpu/contentSegmenter.js";import{$gfb as X}from"../../gpu/renderStrategy/viewportRenderStrategy.js";import{$hfb as P}from"../../gpu/renderStrategy/fullFileRenderStrategy.js";import{$Fd as M}from"../../../../base/common/lifecycle.js";import{$Yeb as N}from"../../gpu/raster/glyphRasterizer.js";var B=function(l,e,t,a){var i=arguments.length,s=i<3?e:a===null?a=Object.getOwnPropertyDescriptor(e,t):a,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(l,e,t,a);else for(var c=l.length-1;c>=0;c--)(r=l[c])&&(s=(i<3?r(s):i>3?r(e,t,s):r(e,t))||s);return i>3&&s&&Object.defineProperty(e,t,s),s},w=function(l,e){return function(t,a){e(t,a,l)}},T;(function(l){l[l.FloatsPerEntry=6]="FloatsPerEntry",l[l.BytesPerEntry=24]="BytesPerEntry",l[l.Offset_TexturePosition=0]="Offset_TexturePosition",l[l.Offset_TextureSize=2]="Offset_TextureSize",l[l.Offset_OriginPosition=4]="Offset_OriginPosition"})(T||(T={}));let E=class extends H{constructor(e,t,a,i){super(e),this.N=t,this.O=a,this.P=i,this.g=0,this.H=[],this.I=!1,this.J=this.D(new M),this.L=this.D(new M),this.a=this.N.canvas.domNode,this.D(F(s=>{this.N.canvasDevicePixelDimensions.read(s);const r=this.c;r&&setTimeout(()=>{r===this.c&&this.renderText(r)})})),this.initWebgpu()}async initWebgpu(){if(this.j=b.deviceSync||await b.device,this.B.isDisposed)return;const e=b.atlas;this.D(e.onDidDeleteGlyphs(()=>{this.H.length=0,this.H[0]=0,this.H[1]=0,this.L.value.reset()}));const t=navigator.gpu.getPreferredCanvasFormat();this.N.ctx.configure({device:this.j,format:t,alphaMode:"premultiplied"}),this.s={view:null,loadOp:"load",storeOp:"store"},this.n={label:"Monaco render pass",colorAttachments:[this.s]};let a;{let h;(function(o){o[o.FloatsPerEntry=6]="FloatsPerEntry",o[o.BytesPerEntry=24]="BytesPerEntry",o[o.Offset_CanvasWidth____=0]="Offset_CanvasWidth____",o[o.Offset_CanvasHeight___=1]="Offset_CanvasHeight___",o[o.Offset_ViewportOffsetX=2]="Offset_ViewportOffsetX",o[o.Offset_ViewportOffsetY=3]="Offset_ViewportOffsetY",o[o.Offset_ViewportWidth__=4]="Offset_ViewportWidth__",o[o.Offset_ViewportHeight_=5]="Offset_ViewportHeight_"})(h||(h={}));const n=new Float32Array(6),u=(o=this.a.width,d=this.a.height)=>(n[0]=o,n[1]=d,n[2]=Math.ceil(this._context.configuration.options.get(165).contentLeft*x().devicePixelRatio),n[3]=0,n[4]=n[0]-n[2],n[5]=n[1]-n[3],n);a=this.D(_.createBuffer(this.j,{label:"Monaco uniform buffer",size:24,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST},()=>u())).object,this.D(C(this.N.canvasDevicePixelDimensions,({width:o,height:d})=>{this.j.queue.writeBuffer(a,0,u(o,d))})),this.D(C(this.N.contentLeft,()=>{this.j.queue.writeBuffer(a,0,u())}))}let i;{let h;(function(n){n[n.FloatsPerEntry=2]="FloatsPerEntry",n[n.BytesPerEntry=8]="BytesPerEntry",n[n.Offset_Width_=0]="Offset_Width_",n[n.Offset_Height=1]="Offset_Height"})(h||(h={})),i=this.D(_.createBuffer(this.j,{label:"Monaco atlas info uniform buffer",size:8,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST},()=>{const n=new Float32Array(2);return n[0]=e.pageSize,n[1]=e.pageSize,n})).object}const s=this._context.configuration.options.get(58),r=this._context.configuration.options.get(61);this.J.value=this.D(new N(r,s,this.N.devicePixelRatio.get(),b.decorationStyleCache)),this.D(C(this.N.devicePixelRatio,()=>{this.U()})),this.L.value=this.O.createInstance(P,this._context,this.N,this.j,this.J),this.F=this.D(_.createBuffer(this.j,{label:"Monaco glyph storage buffer",size:y.maximumPageCount*(p.maximumGlyphCount*24),usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST})).object,this.H[0]=0,this.H[1]=0,this.G=this.D(_.createTexture(this.j,{label:"Monaco atlas texture",format:"rgba8unorm",size:{width:e.pageSize,height:e.pageSize,depthOrArrayLayers:y.maximumPageCount},dimension:"2d",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT})).object,this.S(),this.C=this.D(_.createBuffer(this.j,{label:"Monaco vertex buffer",size:S.byteLength,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST},S)).object;const c=this.j.createShaderModule({label:"Monaco shader module",code:this.L.value.wgsl});if(this.u=this.j.createRenderPipeline({label:"Monaco render pipeline",layout:"auto",vertex:{module:c,buffers:[{arrayStride:2*Float32Array.BYTES_PER_ELEMENT,attributes:[{shaderLocation:0,offset:0,format:"float32x2"}]}]},fragment:{module:c,targets:[{format:t,blend:{color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"}}}]}}),this.M=()=>{this.t=this.j.createBindGroup({label:"Monaco bind group",layout:this.u.getBindGroupLayout(0),entries:[{binding:0,resource:{buffer:this.F}},{binding:2,resource:this.j.createSampler({label:"Monaco atlas sampler",magFilter:"nearest",minFilter:"nearest"})},{binding:3,resource:this.G.createView()},{binding:4,resource:{buffer:a}},{binding:5,resource:{buffer:i}},...this.L.value.bindGroupEntries]})},this.M(),this.I=!0,this.b){for(const h of this.b)this.renderText(h);this.b=void 0}}Q(e){if(this.L.value?.type==="viewport"||e.endLineNumber<P.maxSupportedLines&&this.R(e)<P.maxSupportedColumns)return;this.P.trace(`File is larger than ${P.maxSupportedLines} lines or ${P.maxSupportedColumns} columns, switching to viewport render strategy`);const t=this.O.createInstance(X,this._context,this.N,this.j,this.J);this.L.value=t,this.D(t.onDidChangeBindGroupEntries(()=>this.M?.())),this.M?.()}R(e){let t=0,a;for(let i=e.startLineNumber;i<=e.endLineNumber;i++)a=e.getViewLineRenderingData(i),t=Math.max(t,a.maxColumn);return t}S(){for(const[e,t]of b.atlas.pages.entries()){if(e>=y.maximumPageCount||t.version===this.H[e])continue;this.P.trace("Updating atlas page[",e,"] from version ",this.H[e]," to version ",t.version);const a=6*p.maximumGlyphCount,i=new Float32Array(a);let s=0;for(const r of t.glyphs)i[s+0]=r.x,i[s+0+1]=r.y,i[s+2]=r.w,i[s+2+1]=r.h,i[s+4]=r.originOffsetX,i[s+4+1]=r.originOffsetY,s+=6;if(s/6>p.maximumGlyphCount)throw new Error(`Attempting to write more glyphs (${s/6}) than the GPUBuffer can hold (${p.maximumGlyphCount})`);this.j.queue.writeBuffer(this.F,e*6*p.maximumGlyphCount*Float32Array.BYTES_PER_ELEMENT,i,0,6*p.maximumGlyphCount),t.usedArea.right-t.usedArea.left>0&&t.usedArea.bottom-t.usedArea.top>0&&this.j.queue.copyExternalImageToTexture({source:t.source},{texture:this.G,origin:{x:t.usedArea.left,y:t.usedArea.top,z:e}},{width:t.usedArea.right-t.usedArea.left+1,height:t.usedArea.bottom-t.usedArea.top+1}),this.H[e]=t.version}}prepareRender(e){throw new O("Should not be called")}render(e){throw new O("Should not be called")}onConfigurationChanged(e){return this.U(),this.g=0,!0}onCursorStateChanged(e){return!0}onDecorationsChanged(e){return!0}onFlushed(e){return this.g=0,!0}onLinesChanged(e){return!0}onLinesDeleted(e){return this.g=0,!0}onLinesInserted(e){return!0}onLineMappingChanged(e){return!0}onRevealRangeRequest(e){return!0}onScrollChanged(e){return!0}onThemeChanged(e){return!0}onZonesChanged(e){return!0}U(){const e=this.J.value;if(!e)return;const t=this._context.configuration.options.get(58),a=this._context.configuration.options.get(61),i=this.N.devicePixelRatio.get();(e.fontFamily!==t||e.fontSize!==a||e.devicePixelRatio!==i)&&(this.J.value=new N(a,t,i,b.decorationStyleCache))}renderText(e){if(this.I)return this.Q(e),this.W(e);this.b=this.b??[],this.b.push(e)}W(e){this.N.rectangleRenderer.draw(e);const t=new Y(this._context.configuration,this._context.theme.type);this.L.value.update(e,t),this.S();const a=this.j.createCommandEncoder({label:"Monaco command encoder"});this.s.view=this.N.ctx.getCurrentTexture().createView({label:"Monaco canvas texture view"});const i=a.beginRenderPass(this.n);i.setPipeline(this.u),i.setVertexBuffer(0,this.C);const s=Math.ceil(this.N.contentLeft.get()*this.N.devicePixelRatio.get());i.setScissorRect(s,0,this.a.width-s,this.a.height),i.setBindGroup(0,this.t),this.L.value.draw(i,e),i.end();const r=a.finish();this.j.queue.submit([r]),this.c=e,this.f=t,this.X(e,t)}X(e,t){const a=x().devicePixelRatio;let i=0;for(let r=e.startLineNumber;r<=e.endLineNumber;r++){if(!this.N.canRender(t,e,r))continue;const c=e.getViewLineRenderingData(r),h=this.Y(c,t,a);i=Math.max(i,h)}const s=Math.ceil(i);s>this.g&&(this.g=s,this._context.viewModel.viewLayout.setMaxLineWidth(this.g))}Y(e,t,a){const i=e.content;let s;e.isBasicASCII&&t.useMonospaceOptimizations||(s=L(e,t));let r=0,c=0;for(let h=0;h<i.length;h++){let n;if(e.isBasicASCII&&t.useMonospaceOptimizations)n=i.charAt(h);else{const u=s.getSegmentAtIndex(h);if(u===void 0)continue;n=u}if(n==="	"){const u=h+c;c=v.nextRenderTabStop(h+c,e.tabSize),r+=t.spaceWidth*(c-u),c-=h+1}else e.isBasicASCII&&t.useMonospaceOptimizations?r+=t.spaceWidth:r+=this.L.value.glyphRasterizer.getTextMetrics(n).width/a}return r}linesVisibleRangesForRange(e,t){if(!this.c)return null;const a=e.endLineNumber,i=U.intersectRanges(e,this.c.visibleRange);if(!i)return null;const s=this.c.startLineNumber,r=this.c.endLineNumber,c=this.c,h=this.f;if(!c||!h)return null;const n=[];let u=0;t&&(u=this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new R(i.startLineNumber,1)).lineNumber);for(let o=i.startLineNumber;o<=i.endLineNumber;o++){if(o<s||o>r)continue;const d=o===i.startLineNumber?i.startColumn:1,m=o!==a,g=m?this._context.viewModel.getLineMaxColumn(o):i.endColumn,f=this.Z(o,d,g);if(f){if(t&&o<a){const A=u;u=this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new R(o+1,1)).lineNumber,A!==u&&(f.ranges[f.ranges.length-1].width+=h.spaceWidth)}n.push(new V(f.outsideRenderedLine,o,W.from(f.ranges),m))}}return n.length===0?null:n}Z(e,t,a){if(this.shouldRender())return null;const i=this.c,s=this.f;if(!i||!s||e<i.startLineNumber||e>i.endLineNumber)return null;const r=i.getViewLineRenderingData(e),c=r.content;let h;r.isBasicASCII&&s.useMonospaceOptimizations||(h=L(r,s));let n="",u=0,o=0;for(let f=0;f<t-1;f++){if(r.isBasicASCII&&s.useMonospaceOptimizations)n=c.charAt(f);else{if(n=h.getSegmentAtIndex(f),n===void 0)continue;o+=this.L.value.glyphRasterizer.getTextMetrics(n).width/x().devicePixelRatio-s.spaceWidth}n==="	"?u=v.nextRenderTabStop(u,r.tabSize):u++}let d=u,m=0;for(let f=t-1;f<a-1;f++){if(r.isBasicASCII&&s.useMonospaceOptimizations)n=c.charAt(f);else{if(n=h.getSegmentAtIndex(f),n===void 0)continue;m+=this.L.value.glyphRasterizer.getTextMetrics(n).width/x().devicePixelRatio-s.spaceWidth}n==="	"?d=v.nextRenderTabStop(d,r.tabSize):d++}return new G(!1,[new $(u*s.spaceWidth+o,(d-u)*s.spaceWidth+m)])}visibleRangeForPosition(e){const t=this.Z(e.lineNumber,e.column,e.column);return t?new j(t.outsideRenderedLine,t.ranges[0].left):null}getLineWidth(e){if(!this.c||!this.f||!this.N.canRender(this.f,this.c,e))return;const t=this.c.getViewLineRenderingData(e),i=this.Z(e,1,t.maxColumn)?.ranges.at(-1);if(i)return i.left+i.width}getPositionAtCoordinate(e,t){if(!this.c||!this.f||!this.N.canRender(this.f,this.c,e))return;const a=this.c.getViewLineRenderingData(e),i=a.content,s=x().devicePixelRatio,r=t*s,c=this.f.spaceWidth*s,h=L(a,this.f);let n=0,u=0,o=0,d=0;for(let m=0;m<i.length;m++){const g=h.getSegmentAtIndex(m);if(g===void 0){d++;continue}if(g==="	"){const f=m+o;o=v.nextRenderTabStop(m+o,a.tabSize),u=c*(o-f),o-=m+1}else a.isBasicASCII&&this.f.useMonospaceOptimizations?u=c:u=this.L.value.glyphRasterizer.getTextMetrics(g).width;if(r<n+u/2)break;n+=u,d++}return new R(e,d+1)}};E=B([w(2,D),w(3,z)],E);export{E as $ifb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { BugIndicatingError } from "../../../../base/common/errors.js";
+import { autorun, runOnChange } from "../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { TextureAtlasPage } from "../../gpu/atlas/textureAtlasPage.js";
+import { GPULifecycle } from "../../gpu/gpuDisposable.js";
+import { quadVertices } from "../../gpu/gpuUtils.js";
+import { ViewGpuContext } from "../../gpu/viewGpuContext.js";
+import { FloatHorizontalRange, HorizontalPosition, HorizontalRange, LineVisibleRanges, VisibleRanges } from "../../view/renderingContext.js";
+import { ViewPart } from "../../view/viewPart.js";
+import { ViewLineOptions } from "../viewLines/viewLineOptions.js";
+import { CursorColumns } from "../../../common/core/cursorColumns.js";
+import { TextureAtlas } from "../../gpu/atlas/textureAtlas.js";
+import { createContentSegmenter } from "../../gpu/contentSegmenter.js";
+import { ViewportRenderStrategy } from "../../gpu/renderStrategy/viewportRenderStrategy.js";
+import { FullFileRenderStrategy } from "../../gpu/renderStrategy/fullFileRenderStrategy.js";
+import { MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { GlyphRasterizer } from "../../gpu/raster/glyphRasterizer.js";
+var GlyphStorageBufferInfo;
+(function(GlyphStorageBufferInfo2) {
+  GlyphStorageBufferInfo2[GlyphStorageBufferInfo2["FloatsPerEntry"] = 6] = "FloatsPerEntry";
+  GlyphStorageBufferInfo2[GlyphStorageBufferInfo2["BytesPerEntry"] = 24] = "BytesPerEntry";
+  GlyphStorageBufferInfo2[GlyphStorageBufferInfo2["Offset_TexturePosition"] = 0] = "Offset_TexturePosition";
+  GlyphStorageBufferInfo2[GlyphStorageBufferInfo2["Offset_TextureSize"] = 2] = "Offset_TextureSize";
+  GlyphStorageBufferInfo2[GlyphStorageBufferInfo2["Offset_OriginPosition"] = 4] = "Offset_OriginPosition";
+})(GlyphStorageBufferInfo || (GlyphStorageBufferInfo = {}));
+let ViewLinesGpu = class ViewLinesGpu2 extends ViewPart {
+  static {
+    __name(this, "ViewLinesGpu");
+  }
+  constructor(context, _viewGpuContext, _instantiationService, _logService) {
+    super(context);
+    this._viewGpuContext = _viewGpuContext;
+    this._instantiationService = _instantiationService;
+    this._logService = _logService;
+    this._maxLineWidth = 0;
+    this._atlasGpuTextureVersions = [];
+    this._initialized = false;
+    this._glyphRasterizer = this._register(new MutableDisposable());
+    this._renderStrategy = this._register(new MutableDisposable());
+    this.canvas = this._viewGpuContext.canvas.domNode;
+    this._register(autorun((reader) => {
+      this._viewGpuContext.canvasDevicePixelDimensions.read(reader);
+      const lastViewportData = this._lastViewportData;
+      if (lastViewportData) {
+        setTimeout(() => {
+          if (lastViewportData === this._lastViewportData) {
+            this.renderText(lastViewportData);
+          }
+        });
+      }
+    }));
+    this.initWebgpu();
+  }
+  async initWebgpu() {
+    this._device = ViewGpuContext.deviceSync || await ViewGpuContext.device;
+    if (this._store.isDisposed) {
+      return;
+    }
+    const atlas = ViewGpuContext.atlas;
+    this._register(atlas.onDidDeleteGlyphs(() => {
+      this._atlasGpuTextureVersions.length = 0;
+      this._atlasGpuTextureVersions[0] = 0;
+      this._atlasGpuTextureVersions[1] = 0;
+      this._renderStrategy.value.reset();
+    }));
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    this._viewGpuContext.ctx.configure({
+      device: this._device,
+      format: presentationFormat,
+      alphaMode: "premultiplied"
+    });
+    this._renderPassColorAttachment = {
+      view: null,
+      // Will be filled at render time
+      loadOp: "load",
+      storeOp: "store"
+    };
+    this._renderPassDescriptor = {
+      label: "Monaco render pass",
+      colorAttachments: [this._renderPassColorAttachment]
+    };
+    let layoutInfoUniformBuffer;
+    {
+      let Info;
+      (function(Info2) {
+        Info2[Info2["FloatsPerEntry"] = 6] = "FloatsPerEntry";
+        Info2[Info2["BytesPerEntry"] = 24] = "BytesPerEntry";
+        Info2[Info2["Offset_CanvasWidth____"] = 0] = "Offset_CanvasWidth____";
+        Info2[Info2["Offset_CanvasHeight___"] = 1] = "Offset_CanvasHeight___";
+        Info2[Info2["Offset_ViewportOffsetX"] = 2] = "Offset_ViewportOffsetX";
+        Info2[Info2["Offset_ViewportOffsetY"] = 3] = "Offset_ViewportOffsetY";
+        Info2[Info2["Offset_ViewportWidth__"] = 4] = "Offset_ViewportWidth__";
+        Info2[Info2["Offset_ViewportHeight_"] = 5] = "Offset_ViewportHeight_";
+      })(Info || (Info = {}));
+      const bufferValues = new Float32Array(
+        6
+        /* Info.FloatsPerEntry */
+      );
+      const updateBufferValues = /* @__PURE__ */ __name((canvasDevicePixelWidth = this.canvas.width, canvasDevicePixelHeight = this.canvas.height) => {
+        bufferValues[
+          0
+          /* Info.Offset_CanvasWidth____ */
+        ] = canvasDevicePixelWidth;
+        bufferValues[
+          1
+          /* Info.Offset_CanvasHeight___ */
+        ] = canvasDevicePixelHeight;
+        bufferValues[
+          2
+          /* Info.Offset_ViewportOffsetX */
+        ] = Math.ceil(this._context.configuration.options.get(
+          165
+          /* EditorOption.layoutInfo */
+        ).contentLeft * getActiveWindow().devicePixelRatio);
+        bufferValues[
+          3
+          /* Info.Offset_ViewportOffsetY */
+        ] = 0;
+        bufferValues[
+          4
+          /* Info.Offset_ViewportWidth__ */
+        ] = bufferValues[
+          0
+          /* Info.Offset_CanvasWidth____ */
+        ] - bufferValues[
+          2
+          /* Info.Offset_ViewportOffsetX */
+        ];
+        bufferValues[
+          5
+          /* Info.Offset_ViewportHeight_ */
+        ] = bufferValues[
+          1
+          /* Info.Offset_CanvasHeight___ */
+        ] - bufferValues[
+          3
+          /* Info.Offset_ViewportOffsetY */
+        ];
+        return bufferValues;
+      }, "updateBufferValues");
+      layoutInfoUniformBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+        label: "Monaco uniform buffer",
+        size: 24,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      }, () => updateBufferValues())).object;
+      this._register(runOnChange(this._viewGpuContext.canvasDevicePixelDimensions, ({ width, height }) => {
+        this._device.queue.writeBuffer(layoutInfoUniformBuffer, 0, updateBufferValues(width, height));
+      }));
+      this._register(runOnChange(this._viewGpuContext.contentLeft, () => {
+        this._device.queue.writeBuffer(layoutInfoUniformBuffer, 0, updateBufferValues());
+      }));
+    }
+    let atlasInfoUniformBuffer;
+    {
+      let Info;
+      (function(Info2) {
+        Info2[Info2["FloatsPerEntry"] = 2] = "FloatsPerEntry";
+        Info2[Info2["BytesPerEntry"] = 8] = "BytesPerEntry";
+        Info2[Info2["Offset_Width_"] = 0] = "Offset_Width_";
+        Info2[Info2["Offset_Height"] = 1] = "Offset_Height";
+      })(Info || (Info = {}));
+      atlasInfoUniformBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+        label: "Monaco atlas info uniform buffer",
+        size: 8,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      }, () => {
+        const values = new Float32Array(
+          2
+          /* Info.FloatsPerEntry */
+        );
+        values[
+          0
+          /* Info.Offset_Width_ */
+        ] = atlas.pageSize;
+        values[
+          1
+          /* Info.Offset_Height */
+        ] = atlas.pageSize;
+        return values;
+      })).object;
+    }
+    const fontFamily = this._context.configuration.options.get(
+      58
+      /* EditorOption.fontFamily */
+    );
+    const fontSize = this._context.configuration.options.get(
+      61
+      /* EditorOption.fontSize */
+    );
+    this._glyphRasterizer.value = this._register(new GlyphRasterizer(fontSize, fontFamily, this._viewGpuContext.devicePixelRatio.get(), ViewGpuContext.decorationStyleCache));
+    this._register(runOnChange(this._viewGpuContext.devicePixelRatio, () => {
+      this._refreshGlyphRasterizer();
+    }));
+    this._renderStrategy.value = this._instantiationService.createInstance(FullFileRenderStrategy, this._context, this._viewGpuContext, this._device, this._glyphRasterizer);
+    this._glyphStorageBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco glyph storage buffer",
+      size: TextureAtlas.maximumPageCount * (TextureAtlasPage.maximumGlyphCount * 24),
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    })).object;
+    this._atlasGpuTextureVersions[0] = 0;
+    this._atlasGpuTextureVersions[1] = 0;
+    this._atlasGpuTexture = this._register(GPULifecycle.createTexture(this._device, {
+      label: "Monaco atlas texture",
+      format: "rgba8unorm",
+      size: { width: atlas.pageSize, height: atlas.pageSize, depthOrArrayLayers: TextureAtlas.maximumPageCount },
+      dimension: "2d",
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    })).object;
+    this._updateAtlasStorageBufferAndTexture();
+    this._vertexBuffer = this._register(GPULifecycle.createBuffer(this._device, {
+      label: "Monaco vertex buffer",
+      size: quadVertices.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+    }, quadVertices)).object;
+    const module = this._device.createShaderModule({
+      label: "Monaco shader module",
+      code: this._renderStrategy.value.wgsl
+    });
+    this._pipeline = this._device.createRenderPipeline({
+      label: "Monaco render pipeline",
+      layout: "auto",
+      vertex: {
+        module,
+        buffers: [
+          {
+            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            // 2 floats, 4 bytes each
+            attributes: [
+              { shaderLocation: 0, offset: 0, format: "float32x2" }
+              // position
+            ]
+          }
+        ]
+      },
+      fragment: {
+        module,
+        targets: [
+          {
+            format: presentationFormat,
+            blend: {
+              color: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha"
+              },
+              alpha: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha"
+              }
+            }
+          }
+        ]
+      }
+    });
+    this._rebuildBindGroup = () => {
+      this._bindGroup = this._device.createBindGroup({
+        label: "Monaco bind group",
+        layout: this._pipeline.getBindGroupLayout(0),
+        entries: [
+          // TODO: Pass in generically as array?
+          { binding: 0, resource: { buffer: this._glyphStorageBuffer } },
+          {
+            binding: 2,
+            resource: this._device.createSampler({
+              label: "Monaco atlas sampler",
+              magFilter: "nearest",
+              minFilter: "nearest"
+            })
+          },
+          { binding: 3, resource: this._atlasGpuTexture.createView() },
+          { binding: 4, resource: { buffer: layoutInfoUniformBuffer } },
+          { binding: 5, resource: { buffer: atlasInfoUniformBuffer } },
+          ...this._renderStrategy.value.bindGroupEntries
+        ]
+      });
+    };
+    this._rebuildBindGroup();
+    this._initialized = true;
+    if (this._initViewportData) {
+      for (const viewportData of this._initViewportData) {
+        this.renderText(viewportData);
+      }
+      this._initViewportData = void 0;
+    }
+  }
+  _refreshRenderStrategy(viewportData) {
+    if (this._renderStrategy.value?.type === "viewport") {
+      return;
+    }
+    if (viewportData.endLineNumber < FullFileRenderStrategy.maxSupportedLines && this._viewportMaxColumn(viewportData) < FullFileRenderStrategy.maxSupportedColumns) {
+      return;
+    }
+    this._logService.trace(`File is larger than ${FullFileRenderStrategy.maxSupportedLines} lines or ${FullFileRenderStrategy.maxSupportedColumns} columns, switching to viewport render strategy`);
+    const viewportRenderStrategy = this._instantiationService.createInstance(ViewportRenderStrategy, this._context, this._viewGpuContext, this._device, this._glyphRasterizer);
+    this._renderStrategy.value = viewportRenderStrategy;
+    this._register(viewportRenderStrategy.onDidChangeBindGroupEntries(() => this._rebuildBindGroup?.()));
+    this._rebuildBindGroup?.();
+  }
+  _viewportMaxColumn(viewportData) {
+    let maxColumn = 0;
+    let lineData;
+    for (let i = viewportData.startLineNumber; i <= viewportData.endLineNumber; i++) {
+      lineData = viewportData.getViewLineRenderingData(i);
+      maxColumn = Math.max(maxColumn, lineData.maxColumn);
+    }
+    return maxColumn;
+  }
+  _updateAtlasStorageBufferAndTexture() {
+    for (const [layerIndex, page] of ViewGpuContext.atlas.pages.entries()) {
+      if (layerIndex >= TextureAtlas.maximumPageCount) {
+        console.log(`Attempt to upload atlas page [${layerIndex}], only ${TextureAtlas.maximumPageCount} are supported currently`);
+        continue;
+      }
+      if (page.version === this._atlasGpuTextureVersions[layerIndex]) {
+        continue;
+      }
+      this._logService.trace("Updating atlas page[", layerIndex, "] from version ", this._atlasGpuTextureVersions[layerIndex], " to version ", page.version);
+      const entryCount = 6 * TextureAtlasPage.maximumGlyphCount;
+      const values = new Float32Array(entryCount);
+      let entryOffset = 0;
+      for (const glyph of page.glyphs) {
+        values[
+          entryOffset + 0
+          /* GlyphStorageBufferInfo.Offset_TexturePosition */
+        ] = glyph.x;
+        values[entryOffset + 0 + 1] = glyph.y;
+        values[
+          entryOffset + 2
+          /* GlyphStorageBufferInfo.Offset_TextureSize */
+        ] = glyph.w;
+        values[entryOffset + 2 + 1] = glyph.h;
+        values[
+          entryOffset + 4
+          /* GlyphStorageBufferInfo.Offset_OriginPosition */
+        ] = glyph.originOffsetX;
+        values[entryOffset + 4 + 1] = glyph.originOffsetY;
+        entryOffset += 6;
+      }
+      if (entryOffset / 6 > TextureAtlasPage.maximumGlyphCount) {
+        throw new Error(`Attempting to write more glyphs (${entryOffset / 6}) than the GPUBuffer can hold (${TextureAtlasPage.maximumGlyphCount})`);
+      }
+      this._device.queue.writeBuffer(this._glyphStorageBuffer, layerIndex * 6 * TextureAtlasPage.maximumGlyphCount * Float32Array.BYTES_PER_ELEMENT, values, 0, 6 * TextureAtlasPage.maximumGlyphCount);
+      if (page.usedArea.right - page.usedArea.left > 0 && page.usedArea.bottom - page.usedArea.top > 0) {
+        this._device.queue.copyExternalImageToTexture({ source: page.source }, {
+          texture: this._atlasGpuTexture,
+          origin: {
+            x: page.usedArea.left,
+            y: page.usedArea.top,
+            z: layerIndex
+          }
+        }, {
+          width: page.usedArea.right - page.usedArea.left + 1,
+          height: page.usedArea.bottom - page.usedArea.top + 1
+        });
+      }
+      this._atlasGpuTextureVersions[layerIndex] = page.version;
+    }
+  }
+  prepareRender(ctx) {
+    throw new BugIndicatingError("Should not be called");
+  }
+  render(ctx) {
+    throw new BugIndicatingError("Should not be called");
+  }
+  // #region Event handlers
+  // Since ViewLinesGpu currently coordinates rendering to the canvas, it must listen to all
+  // changed events that any GPU part listens to. This is because any drawing to the canvas will
+  // clear it for that frame, so all parts must be rendered every time.
+  //
+  // Additionally, since this is intrinsically linked to ViewLines, it must also listen to events
+  // from that side. Luckily rendering is cheap, it's only when uploaded data changes does it
+  // start to cost.
+  onConfigurationChanged(e) {
+    this._refreshGlyphRasterizer();
+    this._maxLineWidth = 0;
+    return true;
+  }
+  onCursorStateChanged(e) {
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    this._maxLineWidth = 0;
+    return true;
+  }
+  onLinesChanged(e) {
+    return true;
+  }
+  onLinesDeleted(e) {
+    this._maxLineWidth = 0;
+    return true;
+  }
+  onLinesInserted(e) {
+    return true;
+  }
+  onLineMappingChanged(e) {
+    return true;
+  }
+  onRevealRangeRequest(e) {
+    return true;
+  }
+  onScrollChanged(e) {
+    return true;
+  }
+  onThemeChanged(e) {
+    return true;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // #endregion
+  _refreshGlyphRasterizer() {
+    const glyphRasterizer = this._glyphRasterizer.value;
+    if (!glyphRasterizer) {
+      return;
+    }
+    const fontFamily = this._context.configuration.options.get(
+      58
+      /* EditorOption.fontFamily */
+    );
+    const fontSize = this._context.configuration.options.get(
+      61
+      /* EditorOption.fontSize */
+    );
+    const devicePixelRatio = this._viewGpuContext.devicePixelRatio.get();
+    if (glyphRasterizer.fontFamily !== fontFamily || glyphRasterizer.fontSize !== fontSize || glyphRasterizer.devicePixelRatio !== devicePixelRatio) {
+      this._glyphRasterizer.value = new GlyphRasterizer(fontSize, fontFamily, devicePixelRatio, ViewGpuContext.decorationStyleCache);
+    }
+  }
+  renderText(viewportData) {
+    if (this._initialized) {
+      this._refreshRenderStrategy(viewportData);
+      return this._renderText(viewportData);
+    } else {
+      this._initViewportData = this._initViewportData ?? [];
+      this._initViewportData.push(viewportData);
+    }
+  }
+  _renderText(viewportData) {
+    this._viewGpuContext.rectangleRenderer.draw(viewportData);
+    const options = new ViewLineOptions(this._context.configuration, this._context.theme.type);
+    this._renderStrategy.value.update(viewportData, options);
+    this._updateAtlasStorageBufferAndTexture();
+    const encoder = this._device.createCommandEncoder({ label: "Monaco command encoder" });
+    this._renderPassColorAttachment.view = this._viewGpuContext.ctx.getCurrentTexture().createView({ label: "Monaco canvas texture view" });
+    const pass = encoder.beginRenderPass(this._renderPassDescriptor);
+    pass.setPipeline(this._pipeline);
+    pass.setVertexBuffer(0, this._vertexBuffer);
+    const contentLeft = Math.ceil(this._viewGpuContext.contentLeft.get() * this._viewGpuContext.devicePixelRatio.get());
+    pass.setScissorRect(contentLeft, 0, this.canvas.width - contentLeft, this.canvas.height);
+    pass.setBindGroup(0, this._bindGroup);
+    this._renderStrategy.value.draw(pass, viewportData);
+    pass.end();
+    const commandBuffer = encoder.finish();
+    this._device.queue.submit([commandBuffer]);
+    this._lastViewportData = viewportData;
+    this._lastViewLineOptions = options;
+    this._updateMaxLineWidth(viewportData, options);
+  }
+  /**
+   * Update the max line width based on GPU-rendered lines.
+   * This is needed because GPU-rendered lines don't have DOM nodes to measure.
+   */
+  _updateMaxLineWidth(viewportData, viewLineOptions) {
+    const dpr = getActiveWindow().devicePixelRatio;
+    let localMaxLineWidth = 0;
+    for (let lineNumber = viewportData.startLineNumber; lineNumber <= viewportData.endLineNumber; lineNumber++) {
+      if (!this._viewGpuContext.canRender(viewLineOptions, viewportData, lineNumber)) {
+        continue;
+      }
+      const lineData = viewportData.getViewLineRenderingData(lineNumber);
+      const lineWidth = this._computeLineWidth(lineData, viewLineOptions, dpr);
+      localMaxLineWidth = Math.max(localMaxLineWidth, lineWidth);
+    }
+    const iLineWidth = Math.ceil(localMaxLineWidth);
+    if (iLineWidth > this._maxLineWidth) {
+      this._maxLineWidth = iLineWidth;
+      this._context.viewModel.viewLayout.setMaxLineWidth(this._maxLineWidth);
+    }
+  }
+  /**
+   * Compute the width of a line in CSS pixels.
+   */
+  _computeLineWidth(lineData, viewLineOptions, dpr) {
+    const content = lineData.content;
+    let contentSegmenter;
+    if (!(lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations)) {
+      contentSegmenter = createContentSegmenter(lineData, viewLineOptions);
+    }
+    let width = 0;
+    let tabXOffset = 0;
+    for (let x = 0; x < content.length; x++) {
+      let chars;
+      if (lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations) {
+        chars = content.charAt(x);
+      } else {
+        const segment = contentSegmenter.getSegmentAtIndex(x);
+        if (segment === void 0) {
+          continue;
+        }
+        chars = segment;
+      }
+      if (chars === "	") {
+        const offsetBefore = x + tabXOffset;
+        tabXOffset = CursorColumns.nextRenderTabStop(x + tabXOffset, lineData.tabSize);
+        width += viewLineOptions.spaceWidth * (tabXOffset - offsetBefore);
+        tabXOffset -= x + 1;
+      } else if (lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations) {
+        width += viewLineOptions.spaceWidth;
+      } else {
+        width += this._renderStrategy.value.glyphRasterizer.getTextMetrics(chars).width / dpr;
+      }
+    }
+    return width;
+  }
+  linesVisibleRangesForRange(_range, includeNewLines) {
+    if (!this._lastViewportData) {
+      return null;
+    }
+    const originalEndLineNumber = _range.endLineNumber;
+    const range = Range.intersectRanges(_range, this._lastViewportData.visibleRange);
+    if (!range) {
+      return null;
+    }
+    const rendStartLineNumber = this._lastViewportData.startLineNumber;
+    const rendEndLineNumber = this._lastViewportData.endLineNumber;
+    const viewportData = this._lastViewportData;
+    const viewLineOptions = this._lastViewLineOptions;
+    if (!viewportData || !viewLineOptions) {
+      return null;
+    }
+    const visibleRanges = [];
+    let nextLineModelLineNumber = 0;
+    if (includeNewLines) {
+      nextLineModelLineNumber = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(range.startLineNumber, 1)).lineNumber;
+    }
+    for (let lineNumber = range.startLineNumber; lineNumber <= range.endLineNumber; lineNumber++) {
+      if (lineNumber < rendStartLineNumber || lineNumber > rendEndLineNumber) {
+        continue;
+      }
+      const startColumn = lineNumber === range.startLineNumber ? range.startColumn : 1;
+      const continuesInNextLine = lineNumber !== originalEndLineNumber;
+      const endColumn = continuesInNextLine ? this._context.viewModel.getLineMaxColumn(lineNumber) : range.endColumn;
+      const visibleRangesForLine = this._visibleRangesForLineRange(lineNumber, startColumn, endColumn);
+      if (!visibleRangesForLine) {
+        continue;
+      }
+      if (includeNewLines && lineNumber < originalEndLineNumber) {
+        const currentLineModelLineNumber = nextLineModelLineNumber;
+        nextLineModelLineNumber = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(lineNumber + 1, 1)).lineNumber;
+        if (currentLineModelLineNumber !== nextLineModelLineNumber) {
+          visibleRangesForLine.ranges[visibleRangesForLine.ranges.length - 1].width += viewLineOptions.spaceWidth;
+        }
+      }
+      visibleRanges.push(new LineVisibleRanges(visibleRangesForLine.outsideRenderedLine, lineNumber, HorizontalRange.from(visibleRangesForLine.ranges), continuesInNextLine));
+    }
+    if (visibleRanges.length === 0) {
+      return null;
+    }
+    return visibleRanges;
+  }
+  _visibleRangesForLineRange(lineNumber, startColumn, endColumn) {
+    if (this.shouldRender()) {
+      return null;
+    }
+    const viewportData = this._lastViewportData;
+    const viewLineOptions = this._lastViewLineOptions;
+    if (!viewportData || !viewLineOptions || lineNumber < viewportData.startLineNumber || lineNumber > viewportData.endLineNumber) {
+      return null;
+    }
+    const lineData = viewportData.getViewLineRenderingData(lineNumber);
+    const content = lineData.content;
+    let contentSegmenter;
+    if (!(lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations)) {
+      contentSegmenter = createContentSegmenter(lineData, viewLineOptions);
+    }
+    let chars = "";
+    let resolvedStartColumn = 0;
+    let resolvedStartCssPixelOffset = 0;
+    for (let x = 0; x < startColumn - 1; x++) {
+      if (lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations) {
+        chars = content.charAt(x);
+      } else {
+        chars = contentSegmenter.getSegmentAtIndex(x);
+        if (chars === void 0) {
+          continue;
+        }
+        resolvedStartCssPixelOffset += this._renderStrategy.value.glyphRasterizer.getTextMetrics(chars).width / getActiveWindow().devicePixelRatio - viewLineOptions.spaceWidth;
+      }
+      if (chars === "	") {
+        resolvedStartColumn = CursorColumns.nextRenderTabStop(resolvedStartColumn, lineData.tabSize);
+      } else {
+        resolvedStartColumn++;
+      }
+    }
+    let resolvedEndColumn = resolvedStartColumn;
+    let resolvedEndCssPixelOffset = 0;
+    for (let x = startColumn - 1; x < endColumn - 1; x++) {
+      if (lineData.isBasicASCII && viewLineOptions.useMonospaceOptimizations) {
+        chars = content.charAt(x);
+      } else {
+        chars = contentSegmenter.getSegmentAtIndex(x);
+        if (chars === void 0) {
+          continue;
+        }
+        resolvedEndCssPixelOffset += this._renderStrategy.value.glyphRasterizer.getTextMetrics(chars).width / getActiveWindow().devicePixelRatio - viewLineOptions.spaceWidth;
+      }
+      if (chars === "	") {
+        resolvedEndColumn = CursorColumns.nextRenderTabStop(resolvedEndColumn, lineData.tabSize);
+      } else {
+        resolvedEndColumn++;
+      }
+    }
+    const result = new VisibleRanges(false, [
+      new FloatHorizontalRange(resolvedStartColumn * viewLineOptions.spaceWidth + resolvedStartCssPixelOffset, (resolvedEndColumn - resolvedStartColumn) * viewLineOptions.spaceWidth + resolvedEndCssPixelOffset)
+    ]);
+    return result;
+  }
+  visibleRangeForPosition(position) {
+    const visibleRanges = this._visibleRangesForLineRange(position.lineNumber, position.column, position.column);
+    if (!visibleRanges) {
+      return null;
+    }
+    return new HorizontalPosition(visibleRanges.outsideRenderedLine, visibleRanges.ranges[0].left);
+  }
+  getLineWidth(lineNumber) {
+    if (!this._lastViewportData || !this._lastViewLineOptions) {
+      return void 0;
+    }
+    if (!this._viewGpuContext.canRender(this._lastViewLineOptions, this._lastViewportData, lineNumber)) {
+      return void 0;
+    }
+    const lineData = this._lastViewportData.getViewLineRenderingData(lineNumber);
+    const lineRange = this._visibleRangesForLineRange(lineNumber, 1, lineData.maxColumn);
+    const lastRange = lineRange?.ranges.at(-1);
+    if (lastRange) {
+      return lastRange.left + lastRange.width;
+    }
+    return void 0;
+  }
+  getPositionAtCoordinate(lineNumber, mouseContentHorizontalOffset) {
+    if (!this._lastViewportData || !this._lastViewLineOptions) {
+      return void 0;
+    }
+    if (!this._viewGpuContext.canRender(this._lastViewLineOptions, this._lastViewportData, lineNumber)) {
+      return void 0;
+    }
+    const lineData = this._lastViewportData.getViewLineRenderingData(lineNumber);
+    const content = lineData.content;
+    const dpr = getActiveWindow().devicePixelRatio;
+    const mouseContentHorizontalOffsetDevicePixels = mouseContentHorizontalOffset * dpr;
+    const spaceWidthDevicePixels = this._lastViewLineOptions.spaceWidth * dpr;
+    const contentSegmenter = createContentSegmenter(lineData, this._lastViewLineOptions);
+    let widthSoFar = 0;
+    let charWidth = 0;
+    let tabXOffset = 0;
+    let column = 0;
+    for (let x = 0; x < content.length; x++) {
+      const chars = contentSegmenter.getSegmentAtIndex(x);
+      if (chars === void 0) {
+        column++;
+        continue;
+      }
+      if (chars === "	") {
+        const offsetBefore = x + tabXOffset;
+        tabXOffset = CursorColumns.nextRenderTabStop(x + tabXOffset, lineData.tabSize);
+        charWidth = spaceWidthDevicePixels * (tabXOffset - offsetBefore);
+        tabXOffset -= x + 1;
+      } else if (lineData.isBasicASCII && this._lastViewLineOptions.useMonospaceOptimizations) {
+        charWidth = spaceWidthDevicePixels;
+      } else {
+        charWidth = this._renderStrategy.value.glyphRasterizer.getTextMetrics(chars).width;
+      }
+      if (mouseContentHorizontalOffsetDevicePixels < widthSoFar + charWidth / 2) {
+        break;
+      }
+      widthSoFar += charWidth;
+      column++;
+    }
+    return new Position(lineNumber, column + 1);
+  }
+};
+ViewLinesGpu = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, ILogService)
+], ViewLinesGpu);
+export {
+  ViewLinesGpu
+};
+//# sourceMappingURL=viewLinesGpu.js.map

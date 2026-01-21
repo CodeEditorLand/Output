@@ -1,1 +1,115 @@
-import{$Ed as y}from"../../../../base/common/lifecycle.js";import{localize as b,localize2 as R}from"../../../../nls.js";import{$so as $}from"../../../../platform/action/common/actionCommonCategories.js";import{$nL as m,$pL as u}from"../../../../platform/actions/common/actions.js";import{$uo as a}from"../../../../platform/commands/common/commands.js";import{$9l as O}from"../../../../platform/configuration/common/configuration.js";import{$mH as _}from"../../../../platform/notification/common/notification.js";import{$Un as x}from"../../../../platform/product/common/productService.js";import{$ZKb as l}from"./issue.js";var I=function(p,t,r,n){var o=arguments.length,e=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,r):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(p,t,r,n);else for(var s=p.length-1;s>=0;s--)(i=p[s])&&(e=(o<3?i(e):o>3?i(t,r,e):i(t,r))||e);return o>3&&e&&Object.defineProperty(t,r,e),e},c=function(p,t){return function(r,n){t(r,n,p)}};const d="workbench.action.openIssueReporter",g="vscode.openIssueReporter",f={description:"Open the issue reporter and optionally prefill part of the form.",args:[{name:"options",description:"Data to use to prefill the issue reporter with.",isOptional:!0,schema:{oneOf:[{type:"string",description:"The extension id to preselect."},{type:"object",properties:{extensionId:{type:"string"},issueTitle:{type:"string"},issueBody:{type:"string"}}}]}}]};let h=class extends y{constructor(t,r){if(super(),!r.getValue("telemetry.feedback.enabled")){this.D(a.registerCommand({id:"workbench.action.openIssueReporter",handler:function(o){o.get(_).info("Feedback is disabled.")}}));return}if(!t.reportIssueUrl)return;this.D(a.registerCommand({id:d,handler:function(o,e){const i=typeof e=="string"?{extensionId:e}:Array.isArray(e)?{extensionId:e[0]}:e??{};return o.get(l).openReporter(i)},metadata:f})),this.D(a.registerCommand({id:g,handler:function(o,e){const i=typeof e=="string"?{extensionId:e}:Array.isArray(e)?{extensionId:e[0]}:e??{};return o.get(l).openReporter(i)},metadata:f}));const n={id:d,title:R(9524,"Report Issue..."),category:$.Help};this.D(u.appendMenuItem(m.CommandPalette,{command:n})),this.D(u.appendMenuItem(m.MenubarHelpMenu,{group:"3_feedback",command:{id:d,title:b(9523,null)},order:3}))}};h=I([c(0,x),c(1,O)],h);export{h as $oNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IWorkbenchIssueService } from "./issue.js";
+const OpenIssueReporterActionId = "workbench.action.openIssueReporter";
+const OpenIssueReporterApiId = "vscode.openIssueReporter";
+const OpenIssueReporterCommandMetadata = {
+  description: "Open the issue reporter and optionally prefill part of the form.",
+  args: [
+    {
+      name: "options",
+      description: "Data to use to prefill the issue reporter with.",
+      isOptional: true,
+      schema: {
+        oneOf: [
+          {
+            type: "string",
+            description: "The extension id to preselect."
+          },
+          {
+            type: "object",
+            properties: {
+              extensionId: {
+                type: "string"
+              },
+              issueTitle: {
+                type: "string"
+              },
+              issueBody: {
+                type: "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
+let BaseIssueContribution = class BaseIssueContribution2 extends Disposable {
+  static {
+    __name(this, "BaseIssueContribution");
+  }
+  constructor(productService, configurationService) {
+    super();
+    if (!configurationService.getValue("telemetry.feedback.enabled")) {
+      this._register(CommandsRegistry.registerCommand({
+        id: "workbench.action.openIssueReporter",
+        handler: /* @__PURE__ */ __name(function(accessor) {
+          const data = accessor.get(INotificationService);
+          data.info("Feedback is disabled.");
+        }, "handler")
+      }));
+      return;
+    }
+    if (!productService.reportIssueUrl) {
+      return;
+    }
+    this._register(CommandsRegistry.registerCommand({
+      id: OpenIssueReporterActionId,
+      handler: /* @__PURE__ */ __name(function(accessor, args) {
+        const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+        return accessor.get(IWorkbenchIssueService).openReporter(data);
+      }, "handler"),
+      metadata: OpenIssueReporterCommandMetadata
+    }));
+    this._register(CommandsRegistry.registerCommand({
+      id: OpenIssueReporterApiId,
+      handler: /* @__PURE__ */ __name(function(accessor, args) {
+        const data = typeof args === "string" ? { extensionId: args } : Array.isArray(args) ? { extensionId: args[0] } : args ?? {};
+        return accessor.get(IWorkbenchIssueService).openReporter(data);
+      }, "handler"),
+      metadata: OpenIssueReporterCommandMetadata
+    }));
+    const reportIssue = {
+      id: OpenIssueReporterActionId,
+      title: localize2({ key: "reportIssueInEnglish", comment: ['Translate this to "Report Issue in English" in all languages please!'] }, "Report Issue..."),
+      category: Categories.Help
+    };
+    this._register(MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: reportIssue }));
+    this._register(MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+      group: "3_feedback",
+      command: {
+        id: OpenIssueReporterActionId,
+        title: localize({ key: "miReportIssue", comment: ["&& denotes a mnemonic", 'Translate this to "Report Issue in English" in all languages please!'] }, "Report &&Issue")
+      },
+      order: 3
+    }));
+  }
+};
+BaseIssueContribution = __decorate([
+  __param(0, IProductService),
+  __param(1, IConfigurationService)
+], BaseIssueContribution);
+export {
+  BaseIssueContribution
+};
+//# sourceMappingURL=issue.contribution.js.map

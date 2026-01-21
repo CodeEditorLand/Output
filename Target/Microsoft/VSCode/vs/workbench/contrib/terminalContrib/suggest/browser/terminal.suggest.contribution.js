@@ -1,1 +1,570 @@
-import*as w from"../../../../../base/browser/dom.js";import{Event as y}from"../../../../../base/common/event.js";import{$Dd as V,$Fd as D,$Cd as W,$Ed as H,$Md as x}from"../../../../../base/common/lifecycle.js";import{$m as E}from"../../../../../base/common/platform.js";import{localize2 as r}from"../../../../../nls.js";import{$9l as f}from"../../../../../platform/configuration/common/configuration.js";import{$9n as t,$qo as A}from"../../../../../platform/contextkey/common/contextkey.js";import{$Lj as B}from"../../../../../platform/instantiation/common/instantiation.js";import{TerminalLocation as N}from"../../../../../platform/terminal/common/terminal.js";import{$Pzc as u,$Nzc as S}from"../../../terminal/browser/terminalActions.js";import{$O2b as I}from"../../../terminal/browser/terminalExtensions.js";import{TerminalContextKeys as e}from"../../../terminal/common/terminalContextKey.js";import{$S5 as $,$V5 as F}from"../common/terminalSuggestConfiguration.js";import{$Z6b as M,$26b as _}from"./terminalCompletionService.js";import{$vAc as z}from"../../../terminal/common/terminalExtensionPoints.js";import{$TC as j}from"../../../../../platform/instantiation/common/extensions.js";import{$hEc as R}from"./terminalSuggestAddon.js";import{$_Bc as L}from"../../clipboard/browser/terminal.clipboard.contribution.js";import{$zDc as p}from"../../../../services/suggest/browser/simpleSuggestWidget.js";import{$wDc as U}from"../../../../services/suggest/browser/simpleSuggestWidgetDetails.js";import{EditorContextKeys as K}from"../../../../../editor/common/editorContextKeys.js";import{$nL as b}from"../../../../../platform/actions/common/actions.js";import{$XM as X}from"../../../../services/preferences/common/preferences.js";import"./terminalSymbolIcons.js";import{$oEc as Z}from"./lspCompletionProviderAddon.js";import{$nEc as G,$mEc as J}from"./lspTerminalModelContentProvider.js";import{$2H as Q}from"../../../../../editor/common/services/resolverService.js";import{$NV as Y}from"../../../../../editor/common/services/languageFeatures.js";import{$lEc as ee}from"./lspTerminalUtil.js";import{$yP as te}from"../../../../../platform/opener/common/opener.js";import{$ak as v}from"../../../../../base/common/codicons.js";var O=function(n,i,s,a){var o=arguments.length,d=o<3?i:a===null?a=Object.getOwnPropertyDescriptor(i,s):a,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")d=Reflect.decorate(n,i,s,a);else for(var c=n.length-1;c>=0;c--)(m=n[c])&&(d=(o<3?m(d):o>3?m(i,s,d):m(i,s))||d);return o>3&&d&&Object.defineProperty(i,s,d),d},h=function(n,i){return function(s,a){i(s,a,n)}},C,T;j(M,_,1);let g=class extends V{static{C=this}static{this.ID="terminal.suggest"}static get(i){return i.getContribution(C.ID)}get addon(){return this.a.value}get lspAddons(){return Array.from(this.b.values())}constructor(i,s,a,o,d,m,c){super(),this.m=i,this.n=s,this.q=a,this.r=o,this.s=d,this.t=m,this.u=c,this.a=new D,this.b=this.add(new x),this.h=new D,this.add(W(()=>{this.a?.dispose(),this.h?.value?.dispose(),this.h?.dispose()})),this.j=e.suggestWidgetVisible.bindTo(this.n),this.add(this.q.onDidChangeConfiguration(l=>{if(l.affectsConfiguration("terminal.integrated.suggest.enabled")){const q=this.q.getValue($).enabled;q||(this.a.clear(),this.b.clearAndDisposeAll());const P=this.m.instance.xterm?.raw;P&&q&&this.y(P)}})),k.initialize(this.r),this.add(this.m.instance.onDidChangeTarget(l=>{this.B(l)})),this.add(this.m.instance.onDidFocus(()=>{const l=this.m.instance.xterm?.raw;l&&this.C(l)}))}xtermOpen(i){this.q.getValue($).enabled&&(this.y(i.raw),this.add(y.runAndSubscribe(this.m.instance.onDidChangeShellType,async()=>{this.z(),this.h.value?.shellTypeChanged(this.m.instance.shellType)})))}async w(i){let s;if(!this.m.instance.shellType||!(s=ee(this.m.instance.shellType))){this.b.clearAndDisposeAll();return}const a=G(this.m.instance.instanceId,s.extension);this.h.value=this.r.createInstance(J,this.m.instance.capabilities,this.m.instance.instanceId,a,this.m.instance.shellType),this.add(this.h.value);const o=await this.t.createModelReference(a);this.add(o);const m=this.u.completionProvider.all(o.object.textEditorModel).filter(c=>c._debugDisplayName!=="wordbasedCompletions");for(const c of m){const l=this.r.createInstance(Z,c,o,this.h.value);this.b.set(c._debugDisplayName,l),i.loadAddon(l),this.add(this.s.registerTerminalCompletionProvider("lsp",l.id,l,...l.triggerCharacters??[]))}}y(i){if(this.a.value)return;const s=this.a.value=this.r.createInstance(R,this.m.instance.sessionId,this.m.instance.shellType,this.m.instance.capabilities,this.j);i.loadAddon(s),this.w(i),this.C(i),this.add(w.$F7(this.m.instance.domElement,w.$B8.FOCUS_OUT,o=>{o.relatedTarget?.classList.contains(U)||s.hideSuggestWidget(!0)})),this.add(s.onAcceptedCompletion(async o=>{this.m.instance.focus(),this.m.instance.sendText(o,!1)}));const a=L.get(this.m.instance);if(this.add(a.onWillPaste(()=>s.isPasting=!0)),this.add(a.onDidPaste(()=>{setTimeout(()=>s.isPasting=!1,100)})),!E){let o;this.add(s.onDidReceiveCompletions(()=>{o?.open(),o=void 0}))}}z(){const i=this.a.value;i&&(i.shellType=this.m.instance.shellType,this.m.instance.xterm?.raw&&this.w(this.m.instance.xterm.raw))}B(i){!this.a.value||!this.m.instance.xterm?.raw||this.C(this.m.instance.xterm.raw)}async C(i){const s=this.a.value;if(!s||this.isDisposed)return;const a=i.element??await this.D(i);if(!a||this.isDisposed||s!==this.a.value)return;const o=this.F(a);s.setContainerWithOverflow(o);const d=a?.querySelector(".xterm-screen");w.$p8(d)&&s.setScreen(d)}async D(i){if(i.element)return i.element;if(await Promise.race([y.toPromise(y.filter(this.m.instance.onDidChangeVisibility,s=>s)),y.toPromise(this.m.instance.onDisposed)]),!(this.isDisposed||this.m.instance.isDisposed))return i.element??void 0}F(i){return this.m.instance.target===N.Editor?i:w.$b8(i,"panel")??i}};g=C=O([h(1,A),h(2,f),h(3,B),h(4,M),h(5,Q),h(6,Y)],g);I(g.ID,g);S({id:"workbench.action.terminal.changeSelectionModeNever",title:r(13652,"Selection Mode: None"),tooltip:r(13653,"Do not select the top suggestion until down is pressed, at which point Tab or Enter will accept the suggestion. Activate to change."),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible,t.equals("config.terminal.integrated.suggest.selectionMode","never")),menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"left",order:1,when:t.and(t.equals("config.terminal.integrated.suggest.selectionMode","never"),t.or(t.equals("config.terminal.integrated.suggest.quickSuggestions",!0),t.equals("config.terminal.integrated.suggest.suggestOnTriggerCharacters",!0)))},run:(n,i)=>{i.get(f).updateValue("terminal.integrated.suggest.selectionMode","partial")}});S({id:"workbench.action.terminal.changeSelectionModePartial",title:r(13654,"Selection Mode: Partial (Tab)"),tooltip:r(13655,"Partially select the top suggestion, Tab will accept a suggestion when visible. Activate to change."),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible,t.equals("config.terminal.integrated.suggest.selectionMode","partial")),menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"left",order:1,when:t.and(t.equals("config.terminal.integrated.suggest.selectionMode","partial"),t.or(t.equals("config.terminal.integrated.suggest.quickSuggestions",!0),t.equals("config.terminal.integrated.suggest.suggestOnTriggerCharacters",!0)))},run:(n,i)=>{i.get(f).updateValue("terminal.integrated.suggest.selectionMode","always")}});S({id:"workbench.action.terminal.changeSelectionModeAlways",title:r(13656,"Selection Mode: Always (Tab or Enter)"),tooltip:r(13657,"Always select the top suggestion, Tab or Enter will accept a suggestion when visible. Activate to change."),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"left",order:1,when:t.and(t.equals("config.terminal.integrated.suggest.selectionMode","always"),t.or(t.equals("config.terminal.integrated.suggest.quickSuggestions",!0),t.equals("config.terminal.integrated.suggest.suggestOnTriggerCharacters",!0)))},run:(n,i)=>{i.get(f).updateValue("terminal.integrated.suggest.selectionMode","never")}});S({id:"workbench.action.terminal.doNotShowSuggestOnType",title:r(13658,"Don't show IntelliSense unless triggered explicitly. This disables the quick suggestions and suggest on trigger characters settings."),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),icon:v.eye,menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"right",order:1,when:t.and(t.or(t.equals("config.terminal.integrated.suggest.quickSuggestions.commands","on"),t.equals("config.terminal.integrated.suggest.quickSuggestions.arguments","on")),t.equals("config.terminal.integrated.suggest.suggestOnTriggerCharacters",!0))},run:(n,i)=>{i.get(f).updateValue("terminal.integrated.suggest.quickSuggestions",{commands:"off",arguments:"off",unknown:"off"}),i.get(f).updateValue("terminal.integrated.suggest.suggestOnTriggerCharacters",!1)}});S({id:"workbench.action.terminal.showSuggestOnType",title:r(13659,"Show IntelliSense while typing. This enables the quick suggestions for commands and arguments, and suggest on trigger characters settings."),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),icon:v.eyeClosed,menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"right",order:1,when:t.or(t.and(t.equals("config.terminal.integrated.suggest.quickSuggestions.commands","off"),t.equals("config.terminal.integrated.suggest.quickSuggestions.arguments","off")),t.equals("config.terminal.integrated.suggest.suggestOnTriggerCharacters",!1))},run:(n,i)=>{i.get(f).updateValue("terminal.integrated.suggest.quickSuggestions",{commands:"on",arguments:"on",unknown:"off"}),i.get(f).updateValue("terminal.integrated.suggest.suggestOnTriggerCharacters",!0)}});S({id:"workbench.action.terminal.suggestLearnMore",title:r(13660,"Learn More"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),icon:v.question,menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"right",order:2},run:(n,i)=>{i.get(te).open("https://aka.ms/vscode-terminal-intellisense")}});S({id:"workbench.action.terminal.configureSuggestSettings",title:r(13661,"Configure"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),icon:v.gear,menu:{id:b.MenubarTerminalSuggestStatusMenu,group:"right",order:3},run:(n,i)=>i.get(X).openSettings({query:$})});u({id:"workbench.action.terminal.triggerSuggest",title:r(13662,"Trigger Suggest"),f1:!1,keybinding:{primary:2058,mac:{primary:266},weight:201,when:t.and(e.focus,e.suggestWidgetVisible.negate(),t.equals("config.terminal.integrated.suggest.enabled",!0))},run:n=>g.get(n)?.addon?.requestCompletions(!0)});u({id:"workbench.action.terminal.resetSuggestWidgetSize",title:r(13663,"Reset Suggest Widget Size"),run:n=>g.get(n)?.addon?.resetWidgetSize()});u({id:"workbench.action.terminal.selectPrevSuggestion",title:r(13664,"Select the Previous Suggestion"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:16,weight:201,when:t.or(p.HasNavigated,t.equals("config.terminal.integrated.suggest.upArrowNavigatesHistory",!1))},run:n=>g.get(n)?.addon?.selectPreviousSuggestion()});u({id:"workbench.action.terminal.selectPrevPageSuggestion",title:r(13665,"Select the Previous Page Suggestion"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:11,weight:201},run:n=>g.get(n)?.addon?.selectPreviousPageSuggestion()});u({id:"workbench.action.terminal.selectNextSuggestion",title:r(13666,"Select the Next Suggestion"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:18,weight:201},run:n=>g.get(n)?.addon?.selectNextSuggestion()});u({id:"terminalSuggestToggleExplainMode",title:r(13667,"Suggest Toggle Explain Modes"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{weight:201,primary:2138},run:n=>g.get(n)?.addon?.toggleExplainMode()});u({id:"workbench.action.terminal.suggestToggleDetailsFocus",title:r(13668,"Suggest Toggle Suggestion Focus"),f1:!1,precondition:K.textInputFocus.negate(),keybinding:{weight:200,primary:2570,mac:{primary:778}},run:n=>g.get(n)?.addon?.toggleSuggestionFocus()});u({id:"workbench.action.terminal.suggestToggleDetails",title:r(13669,"Suggest Toggle Details"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.isOpen,e.focus,e.suggestWidgetVisible,p.HasFocusedSuggestion),keybinding:{weight:402,primary:2058,secondary:[2087],mac:{primary:266,secondary:[2087]}},run:n=>g.get(n)?.addon?.toggleSuggestionDetails()});u({id:"workbench.action.terminal.selectNextPageSuggestion",title:r(13670,"Select the Next Page Suggestion"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:12,weight:201},run:n=>g.get(n)?.addon?.selectNextPageSuggestion()});u({id:"workbench.action.terminal.acceptSelectedSuggestion",title:r(13671,"Insert"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:[{primary:2,weight:202,when:t.and(p.HasFocusedSuggestion)},{primary:3,when:t.and(p.HasFocusedSuggestion,t.or(p.ExplicitlyInvoked,t.notEquals("config.terminal.integrated.suggest.selectionMode","partial"),p.FirstSuggestionFocused.toNegated(),p.HasNavigated)),weight:201}],run:n=>g.get(n)?.addon?.acceptSelectedSuggestion()});u({id:"workbench.action.terminal.acceptSelectedSuggestionEnter",title:r(13672,"Accept Selected Suggestion (Enter)"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:3,weight:201,when:t.notEquals("config.terminal.integrated.suggest.runOnEnter","never")},run:async n=>g.get(n)?.addon?.acceptSelectedSuggestion(void 0,!0)});u({id:"workbench.action.terminal.hideSuggestWidget",title:r(13673,"Hide Suggest Widget"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:9,weight:201},run:n=>g.get(n)?.addon?.hideSuggestWidget(!0)});u({id:"workbench.action.terminal.hideSuggestWidgetAndNavigateHistory",title:r(13674,"Hide Suggest Widget and Navigate History"),f1:!1,precondition:t.and(t.or(e.processSupported,e.terminalHasBeenCreated),e.focus,e.isOpen,e.suggestWidgetVisible),keybinding:{primary:16,when:t.and(p.HasNavigated.negate(),t.equals("config.terminal.integrated.suggest.upArrowNavigatesHistory",!0)),weight:202},run:n=>{g.get(n)?.addon?.hideSuggestWidget(!0),n.sendText("\x1B[A",!1)}});let k=class extends H{static{T=this}static initialize(i){this.a||(this.a=i.createInstance(T))}constructor(i,s){super(),this.b=i,this.f=s,this.D(this.b.onDidChangeProviders(()=>{this.g()})),this.D(this.f.onDidChangeTerminalCompletionProviders(()=>{this.g()})),this.g()}g(){const i=new Map;this.f.terminalCompletionProviders.forEach(s=>i.set(s.extensionIdentifier,{...s,id:s.extensionIdentifier}));for(const{id:s}of this.b.providers)s&&!i.has(s)&&i.set(s,{id:s});F(i)}};k=T=O([h(0,M),h(1,z)],k);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalSuggestContribution_1, TerminalSuggestProvidersConfigurationManager_1;
+import * as dom from "../../../../../base/browser/dom.js";
+import { Event } from "../../../../../base/common/event.js";
+import { DisposableStore, MutableDisposable, toDisposable, Disposable, DisposableMap } from "../../../../../base/common/lifecycle.js";
+import { isWindows } from "../../../../../base/common/platform.js";
+import { localize2 } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { TerminalLocation } from "../../../../../platform/terminal/common/terminal.js";
+import { registerActiveInstanceAction, registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { terminalSuggestConfigSection, registerTerminalSuggestProvidersConfiguration } from "../common/terminalSuggestConfiguration.js";
+import { ITerminalCompletionService, TerminalCompletionService } from "./terminalCompletionService.js";
+import { ITerminalContributionService } from "../../../terminal/common/terminalExtensionPoints.js";
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { SuggestAddon } from "./terminalSuggestAddon.js";
+import { TerminalClipboardContribution } from "../../clipboard/browser/terminal.clipboard.contribution.js";
+import { SimpleSuggestContext } from "../../../../services/suggest/browser/simpleSuggestWidget.js";
+import { SuggestDetailsClassName } from "../../../../services/suggest/browser/simpleSuggestWidgetDetails.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IPreferencesService } from "../../../../services/preferences/common/preferences.js";
+import "./terminalSymbolIcons.js";
+import { LspCompletionProviderAddon } from "./lspCompletionProviderAddon.js";
+import { createTerminalLanguageVirtualUri, LspTerminalModelContentProvider } from "./lspTerminalModelContentProvider.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { getTerminalLspSupportedLanguageObj } from "./lspTerminalUtil.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+registerSingleton(
+  ITerminalCompletionService,
+  TerminalCompletionService,
+  1
+  /* InstantiationType.Delayed */
+);
+let TerminalSuggestContribution = class TerminalSuggestContribution2 extends DisposableStore {
+  static {
+    __name(this, "TerminalSuggestContribution");
+  }
+  static {
+    TerminalSuggestContribution_1 = this;
+  }
+  static {
+    this.ID = "terminal.suggest";
+  }
+  static get(instance) {
+    return instance.getContribution(TerminalSuggestContribution_1.ID);
+  }
+  get addon() {
+    return this._addon.value;
+  }
+  get lspAddons() {
+    return Array.from(this._lspAddons.values());
+  }
+  constructor(_ctx, _contextKeyService, _configurationService, _instantiationService, _terminalCompletionService, _textModelService, _languageFeaturesService) {
+    super();
+    this._ctx = _ctx;
+    this._contextKeyService = _contextKeyService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._terminalCompletionService = _terminalCompletionService;
+    this._textModelService = _textModelService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._addon = new MutableDisposable();
+    this._lspAddons = this.add(new DisposableMap());
+    this._lspModelProvider = new MutableDisposable();
+    this.add(toDisposable(() => {
+      this._addon?.dispose();
+      this._lspModelProvider?.value?.dispose();
+      this._lspModelProvider?.dispose();
+    }));
+    this._terminalSuggestWidgetVisibleContextKey = TerminalContextKeys.suggestWidgetVisible.bindTo(this._contextKeyService);
+    this.add(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.suggest.enabled"
+        /* TerminalSuggestSettingId.Enabled */
+      )) {
+        const completionsEnabled = this._configurationService.getValue(terminalSuggestConfigSection).enabled;
+        if (!completionsEnabled) {
+          this._addon.clear();
+          this._lspAddons.clearAndDisposeAll();
+        }
+        const xtermRaw = this._ctx.instance.xterm?.raw;
+        if (!!xtermRaw && completionsEnabled) {
+          this._loadAddons(xtermRaw);
+        }
+      }
+    }));
+    TerminalSuggestProvidersConfigurationManager.initialize(this._instantiationService);
+    this.add(this._ctx.instance.onDidChangeTarget((target) => {
+      this._updateContainerForTarget(target);
+    }));
+    this.add(this._ctx.instance.onDidFocus(() => {
+      const xtermRaw = this._ctx.instance.xterm?.raw;
+      if (xtermRaw) {
+        this._prepareAddonLayout(xtermRaw);
+      }
+    }));
+  }
+  xtermOpen(xterm) {
+    const config = this._configurationService.getValue(terminalSuggestConfigSection);
+    const enabled = config.enabled;
+    if (!enabled) {
+      return;
+    }
+    this._loadAddons(xterm.raw);
+    this.add(Event.runAndSubscribe(this._ctx.instance.onDidChangeShellType, async () => {
+      this._refreshAddons();
+      this._lspModelProvider.value?.shellTypeChanged(this._ctx.instance.shellType);
+    }));
+  }
+  async _loadLspCompletionAddon(xterm) {
+    let lspTerminalObj = void 0;
+    if (!this._ctx.instance.shellType || !(lspTerminalObj = getTerminalLspSupportedLanguageObj(this._ctx.instance.shellType))) {
+      this._lspAddons.clearAndDisposeAll();
+      return;
+    }
+    const virtualTerminalDocumentUri = createTerminalLanguageVirtualUri(this._ctx.instance.instanceId, lspTerminalObj.extension);
+    this._lspModelProvider.value = this._instantiationService.createInstance(LspTerminalModelContentProvider, this._ctx.instance.capabilities, this._ctx.instance.instanceId, virtualTerminalDocumentUri, this._ctx.instance.shellType);
+    this.add(this._lspModelProvider.value);
+    const textVirtualModel = await this._textModelService.createModelReference(virtualTerminalDocumentUri);
+    this.add(textVirtualModel);
+    const virtualProviders = this._languageFeaturesService.completionProvider.all(textVirtualModel.object.textEditorModel);
+    const filteredProviders = virtualProviders.filter((p) => p._debugDisplayName !== "wordbasedCompletions");
+    for (const provider of filteredProviders) {
+      const lspCompletionProviderAddon = this._instantiationService.createInstance(LspCompletionProviderAddon, provider, textVirtualModel, this._lspModelProvider.value);
+      this._lspAddons.set(provider._debugDisplayName, lspCompletionProviderAddon);
+      xterm.loadAddon(lspCompletionProviderAddon);
+      this.add(this._terminalCompletionService.registerTerminalCompletionProvider("lsp", lspCompletionProviderAddon.id, lspCompletionProviderAddon, ...lspCompletionProviderAddon.triggerCharacters ?? []));
+    }
+  }
+  _loadAddons(xterm) {
+    if (this._addon.value) {
+      return;
+    }
+    const addon = this._addon.value = this._instantiationService.createInstance(SuggestAddon, this._ctx.instance.sessionId, this._ctx.instance.shellType, this._ctx.instance.capabilities, this._terminalSuggestWidgetVisibleContextKey);
+    xterm.loadAddon(addon);
+    this._loadLspCompletionAddon(xterm);
+    this._prepareAddonLayout(xterm);
+    this.add(dom.addDisposableListener(this._ctx.instance.domElement, dom.EventType.FOCUS_OUT, (e) => {
+      const focusedElement = e.relatedTarget;
+      if (focusedElement?.classList.contains(SuggestDetailsClassName)) {
+        return;
+      }
+      addon.hideSuggestWidget(true);
+    }));
+    this.add(addon.onAcceptedCompletion(async (text) => {
+      this._ctx.instance.focus();
+      this._ctx.instance.sendText(text, false);
+    }));
+    const clipboardContrib = TerminalClipboardContribution.get(this._ctx.instance);
+    this.add(clipboardContrib.onWillPaste(() => addon.isPasting = true));
+    this.add(clipboardContrib.onDidPaste(() => {
+      setTimeout(() => addon.isPasting = false, 100);
+    }));
+    if (!isWindows) {
+      let barrier;
+      this.add(addon.onDidReceiveCompletions(() => {
+        barrier?.open();
+        barrier = void 0;
+      }));
+    }
+  }
+  _refreshAddons() {
+    const addon = this._addon.value;
+    if (!addon) {
+      return;
+    }
+    addon.shellType = this._ctx.instance.shellType;
+    if (!this._ctx.instance.xterm?.raw) {
+      return;
+    }
+    this._loadLspCompletionAddon(this._ctx.instance.xterm.raw);
+  }
+  _updateContainerForTarget(target) {
+    const addon = this._addon.value;
+    if (!addon || !this._ctx.instance.xterm?.raw) {
+      return;
+    }
+    this._prepareAddonLayout(this._ctx.instance.xterm.raw);
+  }
+  async _prepareAddonLayout(xterm) {
+    const addon = this._addon.value;
+    if (!addon || this.isDisposed) {
+      return;
+    }
+    const xtermElement = xterm.element ?? await this._waitForXtermElement(xterm);
+    if (!xtermElement || this.isDisposed || addon !== this._addon.value) {
+      return;
+    }
+    const container = this._resolveAddonContainer(xtermElement);
+    addon.setContainerWithOverflow(container);
+    const screenElement = xtermElement?.querySelector(".xterm-screen");
+    if (dom.isHTMLElement(screenElement)) {
+      addon.setScreen(screenElement);
+    }
+  }
+  async _waitForXtermElement(xterm) {
+    if (xterm.element) {
+      return xterm.element;
+    }
+    await Promise.race([
+      Event.toPromise(Event.filter(this._ctx.instance.onDidChangeVisibility, (visible) => visible)),
+      Event.toPromise(this._ctx.instance.onDisposed)
+    ]);
+    if (this.isDisposed || this._ctx.instance.isDisposed) {
+      return void 0;
+    }
+    return xterm.element ?? void 0;
+  }
+  _resolveAddonContainer(xtermElement) {
+    if (this._ctx.instance.target === TerminalLocation.Editor) {
+      return xtermElement;
+    }
+    return dom.findParentWithClass(xtermElement, "panel") ?? xtermElement;
+  }
+};
+TerminalSuggestContribution = TerminalSuggestContribution_1 = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, IConfigurationService),
+  __param(3, IInstantiationService),
+  __param(4, ITerminalCompletionService),
+  __param(5, ITextModelService),
+  __param(6, ILanguageFeaturesService)
+], TerminalSuggestContribution);
+registerTerminalContribution(TerminalSuggestContribution.ID, TerminalSuggestContribution);
+registerTerminalAction({
+  id: "workbench.action.terminal.changeSelectionModeNever",
+  title: localize2("workbench.action.terminal.changeSelectionMode.never", "Selection Mode: None"),
+  tooltip: localize2("workbench.action.terminal.changeSelectionMode.never.tooltip", "Do not select the top suggestion until down is pressed, at which point Tab or Enter will accept the suggestion. Activate to change."),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible, ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.selectionMode"}`, "never")),
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.selectionMode"}`, "never"), ContextKeyExpr.or(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}`, true), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.suggestOnTriggerCharacters"}`, true)))
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.selectionMode", "partial");
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.changeSelectionModePartial",
+  title: localize2("workbench.action.terminal.changeSelectionMode.partial", "Selection Mode: Partial (Tab)"),
+  tooltip: localize2("workbench.action.terminal.changeSelectionMode.partial.tooltip", "Partially select the top suggestion, Tab will accept a suggestion when visible. Activate to change."),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible, ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.selectionMode"}`, "partial")),
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.selectionMode"}`, "partial"), ContextKeyExpr.or(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}`, true), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.suggestOnTriggerCharacters"}`, true)))
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.selectionMode", "always");
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.changeSelectionModeAlways",
+  title: localize2("workbench.action.terminal.changeSelectionMode.always", "Selection Mode: Always (Tab or Enter)"),
+  tooltip: localize2("workbench.action.terminal.changeSelectionMode.always.tooltip", "Always select the top suggestion, Tab or Enter will accept a suggestion when visible. Activate to change."),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.selectionMode"}`, "always"), ContextKeyExpr.or(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}`, true), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.suggestOnTriggerCharacters"}`, true)))
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.selectionMode", "never");
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.doNotShowSuggestOnType",
+  title: localize2("workbench.action.terminal.doNotShowSuggestOnType", "Don't show IntelliSense unless triggered explicitly. This disables the quick suggestions and suggest on trigger characters settings."),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  icon: Codicon.eye,
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "right",
+    order: 1,
+    when: ContextKeyExpr.and(ContextKeyExpr.or(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}.commands`, "on"), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}.arguments`, "on")), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.suggestOnTriggerCharacters"}`, true))
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.quickSuggestions", { commands: "off", arguments: "off", unknown: "off" });
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.suggestOnTriggerCharacters", false);
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.showSuggestOnType",
+  title: localize2("workbench.action.terminal.showSuggestOnType", "Show IntelliSense while typing. This enables the quick suggestions for commands and arguments, and suggest on trigger characters settings."),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  icon: Codicon.eyeClosed,
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "right",
+    order: 1,
+    when: ContextKeyExpr.or(ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}.commands`, "off"), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.quickSuggestions"}.arguments`, "off")), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.suggestOnTriggerCharacters"}`, false))
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.quickSuggestions", { commands: "on", arguments: "on", unknown: "off" });
+    accessor.get(IConfigurationService).updateValue("terminal.integrated.suggest.suggestOnTriggerCharacters", true);
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.suggestLearnMore",
+  title: localize2("workbench.action.terminal.learnMore", "Learn More"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  icon: Codicon.question,
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "right",
+    order: 2
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => {
+    accessor.get(IOpenerService).open("https://aka.ms/vscode-terminal-intellisense");
+  }, "run")
+});
+registerTerminalAction({
+  id: "workbench.action.terminal.configureSuggestSettings",
+  title: localize2("workbench.action.terminal.configureSuggestSettings", "Configure"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  icon: Codicon.gear,
+  menu: {
+    id: MenuId.MenubarTerminalSuggestStatusMenu,
+    group: "right",
+    order: 3
+  },
+  run: /* @__PURE__ */ __name((c, accessor) => accessor.get(IPreferencesService).openSettings({ query: terminalSuggestConfigSection }), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.triggerSuggest",
+  title: localize2("workbench.action.terminal.triggerSuggest", "Trigger Suggest"),
+  f1: false,
+  keybinding: {
+    primary: 2048 | 10,
+    mac: {
+      primary: 256 | 10
+      /* KeyCode.Space */
+    },
+    weight: 200 + 1,
+    when: ContextKeyExpr.and(TerminalContextKeys.focus, TerminalContextKeys.suggestWidgetVisible.negate(), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.enabled"}`, true))
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.requestCompletions(true), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.resetSuggestWidgetSize",
+  title: localize2("workbench.action.terminal.resetSuggestWidgetSize", "Reset Suggest Widget Size"),
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.resetWidgetSize(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.selectPrevSuggestion",
+  title: localize2("workbench.action.terminal.selectPrevSuggestion", "Select the Previous Suggestion"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    // Up is bound to other workbench keybindings that this needs to beat
+    primary: 16,
+    weight: 200 + 1,
+    when: ContextKeyExpr.or(SimpleSuggestContext.HasNavigated, ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.upArrowNavigatesHistory"}`, false))
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.selectPreviousSuggestion(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.selectPrevPageSuggestion",
+  title: localize2("workbench.action.terminal.selectPrevPageSuggestion", "Select the Previous Page Suggestion"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    // Up is bound to other workbench keybindings that this needs to beat
+    primary: 11,
+    weight: 200 + 1
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.selectPreviousPageSuggestion(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.selectNextSuggestion",
+  title: localize2("workbench.action.terminal.selectNextSuggestion", "Select the Next Suggestion"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    // Down is bound to other workbench keybindings that this needs to beat
+    primary: 18,
+    weight: 200 + 1
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.selectNextSuggestion(), "run")
+});
+registerActiveInstanceAction({
+  id: "terminalSuggestToggleExplainMode",
+  title: localize2("workbench.action.terminal.suggestToggleExplainMode", "Suggest Toggle Explain Modes"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    // Down is bound to other workbench keybindings that this needs to beat
+    weight: 200 + 1,
+    primary: 2048 | 90
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.toggleExplainMode(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.suggestToggleDetailsFocus",
+  title: localize2("workbench.action.terminal.suggestToggleDetailsFocus", "Suggest Toggle Suggestion Focus"),
+  f1: false,
+  // HACK: This does not work with a precondition of `TerminalContextKeys.suggestWidgetVisible`, so make sure to not override the editor's keybinding
+  precondition: EditorContextKeys.textInputFocus.negate(),
+  keybinding: {
+    weight: 200,
+    primary: 2048 | 512 | 10,
+    mac: {
+      primary: 256 | 512 | 10
+      /* KeyCode.Space */
+    }
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.toggleSuggestionFocus(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.suggestToggleDetails",
+  title: localize2("workbench.action.terminal.suggestToggleDetails", "Suggest Toggle Details"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.isOpen, TerminalContextKeys.focus, TerminalContextKeys.suggestWidgetVisible, SimpleSuggestContext.HasFocusedSuggestion),
+  keybinding: {
+    // HACK: Force weight to be higher than that to start terminal chat
+    weight: 400 + 2,
+    primary: 2048 | 10,
+    secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ],
+    mac: { primary: 256 | 10, secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ] }
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.toggleSuggestionDetails(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.selectNextPageSuggestion",
+  title: localize2("workbench.action.terminal.selectNextPageSuggestion", "Select the Next Page Suggestion"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    // Down is bound to other workbench keybindings that this needs to beat
+    primary: 12,
+    weight: 200 + 1
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.selectNextPageSuggestion(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.acceptSelectedSuggestion",
+  title: localize2("workbench.action.terminal.acceptSelectedSuggestion", "Insert"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: [
+    {
+      primary: 2,
+      // Tab is bound to other workbench keybindings that this needs to beat
+      weight: 200 + 2,
+      when: ContextKeyExpr.and(SimpleSuggestContext.HasFocusedSuggestion)
+    },
+    {
+      primary: 3,
+      // Enter accepts when: explicitly invoked (ctrl+space), OR not in partial mode, OR not first suggestion, OR user has navigated
+      when: ContextKeyExpr.and(SimpleSuggestContext.HasFocusedSuggestion, ContextKeyExpr.or(SimpleSuggestContext.ExplicitlyInvoked, ContextKeyExpr.notEquals(`config.${"terminal.integrated.suggest.selectionMode"}`, "partial"), SimpleSuggestContext.FirstSuggestionFocused.toNegated(), SimpleSuggestContext.HasNavigated)),
+      weight: 200 + 1
+    }
+  ],
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.acceptSelectedSuggestion(), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.acceptSelectedSuggestionEnter",
+  title: localize2("workbench.action.terminal.acceptSelectedSuggestionEnter", "Accept Selected Suggestion (Enter)"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    primary: 3,
+    // Enter is bound to other workbench keybindings that this needs to beat
+    weight: 200 + 1,
+    when: ContextKeyExpr.notEquals(`config.${"terminal.integrated.suggest.runOnEnter"}`, "never")
+  },
+  run: /* @__PURE__ */ __name(async (activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.acceptSelectedSuggestion(void 0, true), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.hideSuggestWidget",
+  title: localize2("workbench.action.terminal.hideSuggestWidget", "Hide Suggest Widget"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    primary: 9,
+    // Escape is bound to other workbench keybindings that this needs to beat
+    weight: 200 + 1
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => TerminalSuggestContribution.get(activeInstance)?.addon?.hideSuggestWidget(true), "run")
+});
+registerActiveInstanceAction({
+  id: "workbench.action.terminal.hideSuggestWidgetAndNavigateHistory",
+  title: localize2("workbench.action.terminal.hideSuggestWidgetAndNavigateHistory", "Hide Suggest Widget and Navigate History"),
+  f1: false,
+  precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.focus, TerminalContextKeys.isOpen, TerminalContextKeys.suggestWidgetVisible),
+  keybinding: {
+    primary: 16,
+    when: ContextKeyExpr.and(SimpleSuggestContext.HasNavigated.negate(), ContextKeyExpr.equals(`config.${"terminal.integrated.suggest.upArrowNavigatesHistory"}`, true)),
+    weight: 200 + 2
+  },
+  run: /* @__PURE__ */ __name((activeInstance) => {
+    TerminalSuggestContribution.get(activeInstance)?.addon?.hideSuggestWidget(true);
+    activeInstance.sendText("\x1B[A", false);
+  }, "run")
+});
+let TerminalSuggestProvidersConfigurationManager = class TerminalSuggestProvidersConfigurationManager2 extends Disposable {
+  static {
+    __name(this, "TerminalSuggestProvidersConfigurationManager");
+  }
+  static {
+    TerminalSuggestProvidersConfigurationManager_1 = this;
+  }
+  static initialize(instantiationService) {
+    if (!this._instance) {
+      this._instance = instantiationService.createInstance(TerminalSuggestProvidersConfigurationManager_1);
+    }
+  }
+  constructor(_terminalCompletionService, _terminalContributionService) {
+    super();
+    this._terminalCompletionService = _terminalCompletionService;
+    this._terminalContributionService = _terminalContributionService;
+    this._register(this._terminalCompletionService.onDidChangeProviders(() => {
+      this._updateConfiguration();
+    }));
+    this._register(this._terminalContributionService.onDidChangeTerminalCompletionProviders(() => {
+      this._updateConfiguration();
+    }));
+    this._updateConfiguration();
+  }
+  _updateConfiguration() {
+    const providers = /* @__PURE__ */ new Map();
+    this._terminalContributionService.terminalCompletionProviders.forEach((o) => providers.set(o.extensionIdentifier, { ...o, id: o.extensionIdentifier }));
+    for (const { id } of this._terminalCompletionService.providers) {
+      if (id && !providers.has(id)) {
+        providers.set(id, { id });
+      }
+    }
+    registerTerminalSuggestProvidersConfiguration(providers);
+  }
+};
+TerminalSuggestProvidersConfigurationManager = TerminalSuggestProvidersConfigurationManager_1 = __decorate([
+  __param(0, ITerminalCompletionService),
+  __param(1, ITerminalContributionService)
+], TerminalSuggestProvidersConfigurationManager);
+//# sourceMappingURL=terminal.suggest.contribution.js.map

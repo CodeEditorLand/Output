@@ -1,1 +1,136 @@
-import{PromptsType as d}from"../promptTypes.js";import{$zOb as T,PromptFileSource as p}from"./promptFileLocations.js";import{PromptsStorage as O}from"../service/promptsService.js";var u;(function(e){e.PROMPT_LOCATIONS_KEY="chat.promptFilesLocations",e.INSTRUCTIONS_LOCATION_KEY="chat.instructionsFilesLocations",e.MODE_LOCATION_KEY="chat.modeFilesLocations",e.SKILLS_LOCATION_KEY="chat.agentSkillsLocations",e.PROMPT_FILES_SUGGEST_KEY="chat.promptFilesRecommendations",e.USE_COPILOT_INSTRUCTION_FILES="github.copilot.chat.codeGeneration.useInstructionFiles",e.USE_AGENT_MD="chat.useAgentsMdFile",e.USE_NESTED_AGENT_MD="chat.useNestedAgentsMdFiles",e.USE_AGENT_SKILLS="chat.useAgentSkills";function l(f,i){const o=h(i),n=f.getValue(o);if(!(n==null||Array.isArray(n))&&typeof n=="object"){const s={};for(const[r,t]of Object.entries(n)){const c=r.trim(),a=S(t);a!==void 0&&c&&(s[c]=a)}return s}}e.getLocationsValue=l;function _(f,i){const o=l(f,i),n=T(i);if(o&&typeof o=="object"){const s=[],r=new Set(n.map(t=>t.path));for(const t of n)o[t.path]!==!1&&s.push(t);for(const[t,c]of Object.entries(o)){if(c===!1||r.has(t))continue;const a=L(t)?O.user:O.local;s.push({path:t,source:a===O.local?p.ConfigPersonal:p.ConfigWorkspace,storage:a})}return s}return[]}e.promptSourceFolders=_;function E(f,i){const o=f.getValue(e.PROMPT_FILES_SUGGEST_KEY,{resource:i});if(!o||typeof o!="object"||Array.isArray(o))return;const n={};for(const[s,r]of Object.entries(o)){const t=s.trim();if(!t)continue;if(typeof r=="boolean"){n[t]=r;continue}if(typeof r=="string"){const a=r.trim();a&&(n[t]=a);continue}const c=S(r);c!==void 0&&(n[t]=c)}return Object.keys(n).length>0?n:void 0}e.getPromptFilesRecommendationsValue=E})(u||(u={}));function h(e){switch(e){case d.instructions:return u.INSTRUCTIONS_LOCATION_KEY;case d.prompt:return u.PROMPT_LOCATIONS_KEY;case d.agent:return u.MODE_LOCATION_KEY;case d.skill:return u.SKILLS_LOCATION_KEY;default:throw new Error("Unknown prompt type")}}function S(e){if(typeof e=="boolean")return e;if(typeof e=="string"){const l=e.trim().toLowerCase();return l==="true"?!0:l==="false"?!1:void 0}}function L(e){return e.startsWith("~/")||e.startsWith("~\\")}export{h as $BOb,S as $COb,L as $DOb,u as PromptsConfig};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PromptsType } from "../promptTypes.js";
+import { getPromptFileDefaultLocations, PromptFileSource } from "./promptFileLocations.js";
+import { PromptsStorage } from "../service/promptsService.js";
+var PromptsConfig;
+(function(PromptsConfig2) {
+  PromptsConfig2.PROMPT_LOCATIONS_KEY = "chat.promptFilesLocations";
+  PromptsConfig2.INSTRUCTIONS_LOCATION_KEY = "chat.instructionsFilesLocations";
+  PromptsConfig2.MODE_LOCATION_KEY = "chat.modeFilesLocations";
+  PromptsConfig2.SKILLS_LOCATION_KEY = "chat.agentSkillsLocations";
+  PromptsConfig2.PROMPT_FILES_SUGGEST_KEY = "chat.promptFilesRecommendations";
+  PromptsConfig2.USE_COPILOT_INSTRUCTION_FILES = "github.copilot.chat.codeGeneration.useInstructionFiles";
+  PromptsConfig2.USE_AGENT_MD = "chat.useAgentsMdFile";
+  PromptsConfig2.USE_NESTED_AGENT_MD = "chat.useNestedAgentsMdFiles";
+  PromptsConfig2.USE_AGENT_SKILLS = "chat.useAgentSkills";
+  function getLocationsValue(configService, type) {
+    const key = getPromptFileLocationsConfigKey(type);
+    const configValue = configService.getValue(key);
+    if (configValue === void 0 || configValue === null || Array.isArray(configValue)) {
+      return void 0;
+    }
+    if (typeof configValue === "object") {
+      const paths = {};
+      for (const [path, value] of Object.entries(configValue)) {
+        const cleanPath = path.trim();
+        const booleanValue = asBoolean(value);
+        if (booleanValue !== void 0 && cleanPath) {
+          paths[cleanPath] = booleanValue;
+        }
+      }
+      return paths;
+    }
+    return void 0;
+  }
+  __name(getLocationsValue, "getLocationsValue");
+  PromptsConfig2.getLocationsValue = getLocationsValue;
+  function promptSourceFolders(configService, type) {
+    const value = getLocationsValue(configService, type);
+    const defaultSourceFolders = getPromptFileDefaultLocations(type);
+    if (value && typeof value === "object") {
+      const paths = [];
+      const defaultFolderPathsSet = new Set(defaultSourceFolders.map((f) => f.path));
+      for (const defaultFolder of defaultSourceFolders) {
+        if (value[defaultFolder.path] !== false) {
+          paths.push(defaultFolder);
+        }
+      }
+      for (const [path, enabledValue] of Object.entries(value)) {
+        if (enabledValue === false || defaultFolderPathsSet.has(path)) {
+          continue;
+        }
+        const storage = isTildePath(path) ? PromptsStorage.user : PromptsStorage.local;
+        paths.push({ path, source: storage === PromptsStorage.local ? PromptFileSource.ConfigPersonal : PromptFileSource.ConfigWorkspace, storage });
+      }
+      return paths;
+    }
+    return [];
+  }
+  __name(promptSourceFolders, "promptSourceFolders");
+  PromptsConfig2.promptSourceFolders = promptSourceFolders;
+  function getPromptFilesRecommendationsValue(configService, resource) {
+    const configValue = configService.getValue(PromptsConfig2.PROMPT_FILES_SUGGEST_KEY, { resource });
+    if (!configValue || typeof configValue !== "object" || Array.isArray(configValue)) {
+      return void 0;
+    }
+    const suggestions = {};
+    for (const [promptName, value] of Object.entries(configValue)) {
+      const cleanPromptName = promptName.trim();
+      if (!cleanPromptName) {
+        continue;
+      }
+      if (typeof value === "boolean") {
+        suggestions[cleanPromptName] = value;
+        continue;
+      }
+      if (typeof value === "string") {
+        const cleanValue = value.trim();
+        if (cleanValue) {
+          suggestions[cleanPromptName] = cleanValue;
+        }
+        continue;
+      }
+      const booleanValue = asBoolean(value);
+      if (booleanValue !== void 0) {
+        suggestions[cleanPromptName] = booleanValue;
+      }
+    }
+    return Object.keys(suggestions).length > 0 ? suggestions : void 0;
+  }
+  __name(getPromptFilesRecommendationsValue, "getPromptFilesRecommendationsValue");
+  PromptsConfig2.getPromptFilesRecommendationsValue = getPromptFilesRecommendationsValue;
+})(PromptsConfig || (PromptsConfig = {}));
+function getPromptFileLocationsConfigKey(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return PromptsConfig.INSTRUCTIONS_LOCATION_KEY;
+    case PromptsType.prompt:
+      return PromptsConfig.PROMPT_LOCATIONS_KEY;
+    case PromptsType.agent:
+      return PromptsConfig.MODE_LOCATION_KEY;
+    case PromptsType.skill:
+      return PromptsConfig.SKILLS_LOCATION_KEY;
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getPromptFileLocationsConfigKey, "getPromptFileLocationsConfigKey");
+function asBoolean(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    const cleanValue = value.trim().toLowerCase();
+    if (cleanValue === "true") {
+      return true;
+    }
+    if (cleanValue === "false") {
+      return false;
+    }
+    return void 0;
+  }
+  return void 0;
+}
+__name(asBoolean, "asBoolean");
+function isTildePath(path) {
+  return path.startsWith("~/") || path.startsWith("~\\");
+}
+__name(isTildePath, "isTildePath");
+export {
+  PromptsConfig,
+  asBoolean,
+  getPromptFileLocationsConfigKey,
+  isTildePath
+};
+//# sourceMappingURL=config.js.map

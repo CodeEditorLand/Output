@@ -1,1 +1,15 @@
-import{$im as m}from"../../../../platform/registry/common/platform.js";import{$icb as g}from"../../../../editor/browser/config/migrateOptions.js";import{$7N as s}from"../../../common/configuration.js";m.as(s.ConfigurationMigration).registerConfigurationMigrations(g.items.map(r=>({key:`editor.${r.key}`,migrateFn:(t,e)=>{const o=[],n=(i,a)=>o.push([`editor.${i}`,{value:a}]);return r.migrate(t,i=>e(`editor.${i}`),n),o}})));
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorSettingMigration } from "../../../../editor/browser/config/migrateOptions.js";
+import { Extensions } from "../../../common/configuration.js";
+Registry.as(Extensions.ConfigurationMigration).registerConfigurationMigrations(EditorSettingMigration.items.map((item) => ({
+  key: `editor.${item.key}`,
+  migrateFn: /* @__PURE__ */ __name((value, accessor) => {
+    const configurationKeyValuePairs = [];
+    const writer = /* @__PURE__ */ __name((key, value2) => configurationKeyValuePairs.push([`editor.${key}`, { value: value2 }]), "writer");
+    item.migrate(value, (key) => accessor(`editor.${key}`), writer);
+    return configurationKeyValuePairs;
+  }, "migrateFn")
+})));
+//# sourceMappingURL=editorSettingsMigration.js.map

@@ -1,1 +1,610 @@
-import{URI as p}from"../../../../base/common/uri.js";import{$8D as W}from"../../../../editor/common/core/position.js";import{$9D as z}from"../../../../editor/common/core/range.js";import{localize as k}from"../../../../nls.js";import{$SW as S}from"./testId.js";var C;(function(t){t[t.Unset=0]="Unset",t[t.Queued=1]="Queued",t[t.Running=2]="Running",t[t.Passed=3]="Passed",t[t.Failed=4]="Failed",t[t.Skipped=5]="Skipped",t[t.Errored=6]="Errored"})(C||(C={}));const _={0:"unset",1:"queued",2:"running",3:"passed",4:"failed",5:"skipped",6:"errored"};var J;(function(t){t[t.Run=1]="Run",t[t.Debug=2]="Debug",t[t.Coverage=3]="Coverage"})(J||(J={}));var U;(function(t){t[t.Refresh=2]="Refresh",t[t.CodeRelatedToTest=4]="CodeRelatedToTest",t[t.TestRelatedToCode=8]="TestRelatedToCode"})(U||(U={}));var j;(function(t){t[t.Run=2]="Run",t[t.Debug=4]="Debug",t[t.Coverage=8]="Coverage",t[t.HasNonDefaultProfile=16]="HasNonDefaultProfile",t[t.HasConfigurable=32]="HasConfigurable",t[t.SupportsContinuousRun=64]="SupportsContinuousRun"})(j||(j={}));const D={2:k(14167,null),4:k(14168,null),8:k(14169,null)},R=[2,4,8,16,32,64],K=t=>"runId"in t;var d;(function(t){t.serialize=e=>({range:e.range.toJSON(),uri:e.uri.toJSON()}),t.deserialize=(e,i)=>({range:z.lift(i.range),uri:e.asCanonicalUri(p.revive(i.uri))})})(d||(d={}));var H;(function(t){t[t.Error=0]="Error",t[t.Output=1]="Output"})(H||(H={}));var u;(function(t){t.serialize=e=>({label:e.label,uri:e.uri?.toJSON(),position:e.position?.toJSON()}),t.deserialize=(e,i)=>({label:i.label,uri:i.uri?e.asCanonicalUri(p.revive(i.uri)):void 0,position:i.position?W.lift(i.position):void 0})})(u||(u={}));var x;(function(t){t.serialize=e=>({message:e.message,type:0,expected:e.expected,actual:e.actual,contextValue:e.contextValue,location:e.location&&d.serialize(e.location),stackTrace:e.stackTrace?.map(u.serialize)}),t.deserialize=(e,i)=>({message:i.message,type:0,expected:i.expected,actual:i.actual,contextValue:i.contextValue,location:i.location&&d.deserialize(e,i.location),stackTrace:i.stackTrace&&i.stackTrace.map(n=>u.deserialize(e,n))})})(x||(x={}));const P=(t,e)=>`${e?"s":"e"}${t}`;var f;(function(t){t.serialize=e=>({message:e.message,type:1,offset:e.offset,length:e.length,location:e.location&&d.serialize(e.location)}),t.deserialize=(e,i)=>({message:i.message,type:1,offset:i.offset,length:i.length,location:i.location&&d.deserialize(e,i.location)})})(f||(f={}));var m;(function(t){t.serialize=e=>e.type===0?x.serialize(e):f.serialize(e),t.deserialize=(e,i)=>i.type===0?x.deserialize(e,i):f.deserialize(e,i),t.isDiffable=e=>e.type===0&&e.actual!==void 0&&e.expected!==void 0})(m||(m={}));var c;(function(t){t.serializeWithoutMessages=e=>({state:e.state,duration:e.duration,messages:[]}),t.serialize=e=>({state:e.state,duration:e.duration,messages:e.messages.map(m.serialize)}),t.deserialize=(e,i)=>({state:i.state,duration:i.duration,messages:i.messages.map(n=>m.deserialize(e,n))})})(c||(c={}));const Q="\0",B=(t,e)=>t+Q+e,T=t=>{const e=t.indexOf(Q);return{ctrlId:t.slice(0,e),tagId:t.slice(e+1)}};var h;(function(t){t.serialize=e=>({extId:e.extId,label:e.label,tags:e.tags,busy:e.busy,children:void 0,uri:e.uri?.toJSON(),range:e.range?.toJSON()||null,description:e.description,error:e.error,sortText:e.sortText}),t.deserialize=(e,i)=>({extId:i.extId,label:i.label,tags:i.tags,busy:i.busy,children:void 0,uri:i.uri?e.asCanonicalUri(p.revive(i.uri)):void 0,range:i.range?z.lift(i.range):null,description:i.description,error:i.error,sortText:i.sortText})})(h||(h={}));var V;(function(t){t[t.NotExpandable=0]="NotExpandable",t[t.Expandable=1]="Expandable",t[t.BusyExpanding=2]="BusyExpanding",t[t.Expanded=3]="Expanded"})(V||(V={}));var o;(function(t){t.serialize=e=>({expand:e.expand,item:h.serialize(e.item)}),t.deserialize=(e,i)=>({controllerId:S.root(i.item.extId),expand:i.expand,item:h.deserialize(e,i.item)})})(o||(o={}));var l;(function(t){t.serialize=e=>{let i;return e.item&&(i={},e.item.label!==void 0&&(i.label=e.item.label),e.item.tags!==void 0&&(i.tags=e.item.tags),e.item.busy!==void 0&&(i.busy=e.item.busy),e.item.uri!==void 0&&(i.uri=e.item.uri?.toJSON()),e.item.range!==void 0&&(i.range=e.item.range?.toJSON()),e.item.description!==void 0&&(i.description=e.item.description),e.item.error!==void 0&&(i.error=e.item.error),e.item.sortText!==void 0&&(i.sortText=e.item.sortText)),{extId:e.extId,expand:e.expand,item:i}},t.deserialize=e=>{let i;return e.item&&(i={},e.item.label!==void 0&&(i.label=e.item.label),e.item.tags!==void 0&&(i.tags=e.item.tags),e.item.busy!==void 0&&(i.busy=e.item.busy),e.item.range!==void 0&&(i.range=e.item.range?z.lift(e.item.range):null),e.item.description!==void 0&&(i.description=e.item.description),e.item.error!==void 0&&(i.error=e.item.error),e.item.sortText!==void 0&&(i.sortText=e.item.sortText)),{extId:e.extId,expand:e.expand,item:i}}})(l||(l={}));const F=(t,e)=>{e.expand!==void 0&&(t.expand=e.expand),e.item!==void 0&&(t.item=t.item?Object.assign(t.item,e.item):e.item)};var q;(function(t){t.serializeWithoutMessages=e=>({...o.serialize(e),ownComputedState:e.ownComputedState,computedState:e.computedState,tasks:e.tasks.map(c.serializeWithoutMessages)}),t.serialize=e=>({...o.serialize(e),ownComputedState:e.ownComputedState,computedState:e.computedState,tasks:e.tasks.map(c.serialize)}),t.deserialize=(e,i)=>({...o.deserialize(e,i),ownComputedState:i.ownComputedState,computedState:i.computedState,tasks:i.tasks.map(n=>c.deserialize(e,n)),retired:!0})})(q||(q={}));var $;(function(t){t.empty=()=>({covered:0,total:0}),t.sum=(e,i)=>{e.covered+=i.covered,e.total+=i.total}})($||($={}));var A;(function(t){t.serialize=e=>({id:e.id,statement:e.statement,branch:e.branch,declaration:e.declaration,testIds:e.testIds,uri:e.uri.toJSON()}),t.deserialize=(e,i)=>({id:i.id,statement:i.statement,branch:i.branch,declaration:i.declaration,testIds:i.testIds,uri:e.asCanonicalUri(p.revive(i.uri))}),t.empty=(e,i)=>({id:e,uri:i,statement:$.empty()})})(A||(A={}));function w(t){return{...t,location:t.location?.toJSON()}}function N(t){return t.location=t.location?W.isIPosition(t.location)?W.lift(t.location):z.lift(t.location):void 0,t}const ee=3;var E;(function(t){t[t.Declaration=0]="Declaration",t[t.Statement=1]="Statement",t[t.Branch=2]="Branch"})(E||(E={}));var y;(function(t){t.serialize=e=>e.type===0?v.serialize(e):b.serialize(e),t.deserialize=e=>e.type===0?v.deserialize(e):b.deserialize(e)})(y||(y={}));var g;(function(t){t.serialize=w,t.deserialize=N})(g||(g={}));var v;(function(t){t.serialize=w,t.deserialize=N})(v||(v={}));var b;(function(t){t.serialize=e=>({...w(e),branches:e.branches?.map(g.serialize)}),t.deserialize=e=>({...N(e),branches:e.branches?.map(g.deserialize)})})(b||(b={}));var L;(function(t){t[t.Add=0]="Add",t[t.Update=1]="Update",t[t.DocumentSynced=2]="DocumentSynced",t[t.Remove=3]="Remove",t[t.IncrementPendingExtHosts=4]="IncrementPendingExtHosts",t[t.Retire=5]="Retire",t[t.AddTag=6]="AddTag",t[t.RemoveTag=7]="RemoveTag"})(L||(L={}));var M;(function(t){t.deserialize=(e,i)=>i.op===0?{op:i.op,item:o.deserialize(e,i.item)}:i.op===1?{op:i.op,item:l.deserialize(i.item)}:i.op===2?{op:i.op,uri:e.asCanonicalUri(p.revive(i.uri)),docv:i.docv}:i,t.serialize=e=>e.op===0?{op:e.op,item:o.serialize(e.item)}:e.op===1?{op:e.op,item:l.serialize(e.item)}:e})(M||(M={}));class te{constructor(e){this.l=e,this.f=new Map,this.g=new Map,this.h=new Set,this.j=0,this.k=0,this.tags=this.f}apply(e){const i=this.x();for(const n of e)switch(n.op){case 0:this.p(o.deserialize(this.l,n.item),i);break;case 1:this.q(l.deserialize(n.item),i);break;case 3:this.v(n.itemId,i);break;case 5:this.w(n.itemId);break;case 4:this.updatePendingRoots(n.amount);break;case 6:this.f.set(n.tag.id,n.tag);break;case 7:this.f.delete(n.id);break}i.complete?.()}p(e,i){const n=S.parentId(e.item.extId)?.toString();let r;if(!n)r=this.y(e),this.h.add(r),this.g.set(e.item.extId,r);else if(this.g.has(n)){const a=this.g.get(n);a.children.add(e.item.extId),r=this.y(e,a),this.g.set(e.item.extId,r)}else return;return i.add?.(r),e.expand===2&&this.j++,r}q(e,i){const n=this.g.get(e.extId);if(n)return e.expand!==void 0&&(n.expand===2&&this.j--,e.expand===2&&this.j++),F(n,e),i.update?.(n),n}v(e,i){const n=this.g.get(e);if(!n)return;const r=S.parentId(n.item.extId)?.toString();r?this.g.get(r).children.delete(n.item.extId):this.h.delete(n);const a=[[e]];for(;a.length;)for(const I of a.pop()){const s=this.g.get(I);s&&(a.push(s.children),this.g.delete(I),i.remove?.(s,s!==n),s.expand===2&&this.j--)}}w(e){}updatePendingRoots(e){this.k+=e}x(){return{}}}export{F as $1W,ee as $2W,te as $3W,_ as $TW,D as $UW,R as $VW,K as $WW,P as $XW,B as $YW,T as $ZW,y as CoverageDetails,E as DetailType,J as ExtTestRunProfileKind,g as IBranchCoverage,$ as ICoverageCount,v as IDeclarationCoverage,A as IFileCoverage,d as IRichLocation,b as IStatementCoverage,x as ITestErrorMessage,h as ITestItem,l as ITestItemUpdate,m as ITestMessage,u as ITestMessageStackFrame,f as ITestOutputMessage,c as ITestTaskState,o as InternalTestItem,U as TestControllerCapability,L as TestDiffOpType,V as TestItemExpandState,H as TestMessageType,q as TestResultItem,C as TestResultState,j as TestRunProfileBitset,M as TestsDiffOp};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { localize } from "../../../../nls.js";
+import { TestId } from "./testId.js";
+var TestResultState;
+(function(TestResultState2) {
+  TestResultState2[TestResultState2["Unset"] = 0] = "Unset";
+  TestResultState2[TestResultState2["Queued"] = 1] = "Queued";
+  TestResultState2[TestResultState2["Running"] = 2] = "Running";
+  TestResultState2[TestResultState2["Passed"] = 3] = "Passed";
+  TestResultState2[TestResultState2["Failed"] = 4] = "Failed";
+  TestResultState2[TestResultState2["Skipped"] = 5] = "Skipped";
+  TestResultState2[TestResultState2["Errored"] = 6] = "Errored";
+})(TestResultState || (TestResultState = {}));
+const testResultStateToContextValues = {
+  [
+    0
+    /* TestResultState.Unset */
+  ]: "unset",
+  [
+    1
+    /* TestResultState.Queued */
+  ]: "queued",
+  [
+    2
+    /* TestResultState.Running */
+  ]: "running",
+  [
+    3
+    /* TestResultState.Passed */
+  ]: "passed",
+  [
+    4
+    /* TestResultState.Failed */
+  ]: "failed",
+  [
+    5
+    /* TestResultState.Skipped */
+  ]: "skipped",
+  [
+    6
+    /* TestResultState.Errored */
+  ]: "errored"
+};
+var ExtTestRunProfileKind;
+(function(ExtTestRunProfileKind2) {
+  ExtTestRunProfileKind2[ExtTestRunProfileKind2["Run"] = 1] = "Run";
+  ExtTestRunProfileKind2[ExtTestRunProfileKind2["Debug"] = 2] = "Debug";
+  ExtTestRunProfileKind2[ExtTestRunProfileKind2["Coverage"] = 3] = "Coverage";
+})(ExtTestRunProfileKind || (ExtTestRunProfileKind = {}));
+var TestControllerCapability;
+(function(TestControllerCapability2) {
+  TestControllerCapability2[TestControllerCapability2["Refresh"] = 2] = "Refresh";
+  TestControllerCapability2[TestControllerCapability2["CodeRelatedToTest"] = 4] = "CodeRelatedToTest";
+  TestControllerCapability2[TestControllerCapability2["TestRelatedToCode"] = 8] = "TestRelatedToCode";
+})(TestControllerCapability || (TestControllerCapability = {}));
+var TestRunProfileBitset;
+(function(TestRunProfileBitset2) {
+  TestRunProfileBitset2[TestRunProfileBitset2["Run"] = 2] = "Run";
+  TestRunProfileBitset2[TestRunProfileBitset2["Debug"] = 4] = "Debug";
+  TestRunProfileBitset2[TestRunProfileBitset2["Coverage"] = 8] = "Coverage";
+  TestRunProfileBitset2[TestRunProfileBitset2["HasNonDefaultProfile"] = 16] = "HasNonDefaultProfile";
+  TestRunProfileBitset2[TestRunProfileBitset2["HasConfigurable"] = 32] = "HasConfigurable";
+  TestRunProfileBitset2[TestRunProfileBitset2["SupportsContinuousRun"] = 64] = "SupportsContinuousRun";
+})(TestRunProfileBitset || (TestRunProfileBitset = {}));
+const testProfileBitset = {
+  [
+    2
+    /* TestRunProfileBitset.Run */
+  ]: localize("testing.runProfileBitset.run", "Run"),
+  [
+    4
+    /* TestRunProfileBitset.Debug */
+  ]: localize("testing.runProfileBitset.debug", "Debug"),
+  [
+    8
+    /* TestRunProfileBitset.Coverage */
+  ]: localize("testing.runProfileBitset.coverage", "Coverage")
+};
+const testRunProfileBitsetList = [
+  2,
+  4,
+  8,
+  16,
+  32,
+  64
+];
+const isStartControllerTests = /* @__PURE__ */ __name((t) => "runId" in t, "isStartControllerTests");
+var IRichLocation;
+(function(IRichLocation2) {
+  IRichLocation2.serialize = (location) => ({
+    range: location.range.toJSON(),
+    uri: location.uri.toJSON()
+  });
+  IRichLocation2.deserialize = (uriIdentity, location) => ({
+    range: Range.lift(location.range),
+    uri: uriIdentity.asCanonicalUri(URI.revive(location.uri))
+  });
+})(IRichLocation || (IRichLocation = {}));
+var TestMessageType;
+(function(TestMessageType2) {
+  TestMessageType2[TestMessageType2["Error"] = 0] = "Error";
+  TestMessageType2[TestMessageType2["Output"] = 1] = "Output";
+})(TestMessageType || (TestMessageType = {}));
+var ITestMessageStackFrame;
+(function(ITestMessageStackFrame2) {
+  ITestMessageStackFrame2.serialize = (stack) => ({
+    label: stack.label,
+    uri: stack.uri?.toJSON(),
+    position: stack.position?.toJSON()
+  });
+  ITestMessageStackFrame2.deserialize = (uriIdentity, stack) => ({
+    label: stack.label,
+    uri: stack.uri ? uriIdentity.asCanonicalUri(URI.revive(stack.uri)) : void 0,
+    position: stack.position ? Position.lift(stack.position) : void 0
+  });
+})(ITestMessageStackFrame || (ITestMessageStackFrame = {}));
+var ITestErrorMessage;
+(function(ITestErrorMessage2) {
+  ITestErrorMessage2.serialize = (message) => ({
+    message: message.message,
+    type: 0,
+    expected: message.expected,
+    actual: message.actual,
+    contextValue: message.contextValue,
+    location: message.location && IRichLocation.serialize(message.location),
+    stackTrace: message.stackTrace?.map(ITestMessageStackFrame.serialize)
+  });
+  ITestErrorMessage2.deserialize = (uriIdentity, message) => ({
+    message: message.message,
+    type: 0,
+    expected: message.expected,
+    actual: message.actual,
+    contextValue: message.contextValue,
+    location: message.location && IRichLocation.deserialize(uriIdentity, message.location),
+    stackTrace: message.stackTrace && message.stackTrace.map((s) => ITestMessageStackFrame.deserialize(uriIdentity, s))
+  });
+})(ITestErrorMessage || (ITestErrorMessage = {}));
+const getMarkId = /* @__PURE__ */ __name((marker, start) => `${start ? "s" : "e"}${marker}`, "getMarkId");
+var ITestOutputMessage;
+(function(ITestOutputMessage2) {
+  ITestOutputMessage2.serialize = (message) => ({
+    message: message.message,
+    type: 1,
+    offset: message.offset,
+    length: message.length,
+    location: message.location && IRichLocation.serialize(message.location)
+  });
+  ITestOutputMessage2.deserialize = (uriIdentity, message) => ({
+    message: message.message,
+    type: 1,
+    offset: message.offset,
+    length: message.length,
+    location: message.location && IRichLocation.deserialize(uriIdentity, message.location)
+  });
+})(ITestOutputMessage || (ITestOutputMessage = {}));
+var ITestMessage;
+(function(ITestMessage2) {
+  ITestMessage2.serialize = (message) => message.type === 0 ? ITestErrorMessage.serialize(message) : ITestOutputMessage.serialize(message);
+  ITestMessage2.deserialize = (uriIdentity, message) => message.type === 0 ? ITestErrorMessage.deserialize(uriIdentity, message) : ITestOutputMessage.deserialize(uriIdentity, message);
+  ITestMessage2.isDiffable = (message) => message.type === 0 && message.actual !== void 0 && message.expected !== void 0;
+})(ITestMessage || (ITestMessage = {}));
+var ITestTaskState;
+(function(ITestTaskState2) {
+  ITestTaskState2.serializeWithoutMessages = (state) => ({
+    state: state.state,
+    duration: state.duration,
+    messages: []
+  });
+  ITestTaskState2.serialize = (state) => ({
+    state: state.state,
+    duration: state.duration,
+    messages: state.messages.map(ITestMessage.serialize)
+  });
+  ITestTaskState2.deserialize = (uriIdentity, state) => ({
+    state: state.state,
+    duration: state.duration,
+    messages: state.messages.map((m) => ITestMessage.deserialize(uriIdentity, m))
+  });
+})(ITestTaskState || (ITestTaskState = {}));
+const testTagDelimiter = "\0";
+const namespaceTestTag = /* @__PURE__ */ __name((ctrlId, tagId) => ctrlId + testTagDelimiter + tagId, "namespaceTestTag");
+const denamespaceTestTag = /* @__PURE__ */ __name((namespaced) => {
+  const index = namespaced.indexOf(testTagDelimiter);
+  return { ctrlId: namespaced.slice(0, index), tagId: namespaced.slice(index + 1) };
+}, "denamespaceTestTag");
+var ITestItem;
+(function(ITestItem2) {
+  ITestItem2.serialize = (item) => ({
+    extId: item.extId,
+    label: item.label,
+    tags: item.tags,
+    busy: item.busy,
+    children: void 0,
+    uri: item.uri?.toJSON(),
+    range: item.range?.toJSON() || null,
+    description: item.description,
+    error: item.error,
+    sortText: item.sortText
+  });
+  ITestItem2.deserialize = (uriIdentity, serialized) => ({
+    extId: serialized.extId,
+    label: serialized.label,
+    tags: serialized.tags,
+    busy: serialized.busy,
+    children: void 0,
+    uri: serialized.uri ? uriIdentity.asCanonicalUri(URI.revive(serialized.uri)) : void 0,
+    range: serialized.range ? Range.lift(serialized.range) : null,
+    description: serialized.description,
+    error: serialized.error,
+    sortText: serialized.sortText
+  });
+})(ITestItem || (ITestItem = {}));
+var TestItemExpandState;
+(function(TestItemExpandState2) {
+  TestItemExpandState2[TestItemExpandState2["NotExpandable"] = 0] = "NotExpandable";
+  TestItemExpandState2[TestItemExpandState2["Expandable"] = 1] = "Expandable";
+  TestItemExpandState2[TestItemExpandState2["BusyExpanding"] = 2] = "BusyExpanding";
+  TestItemExpandState2[TestItemExpandState2["Expanded"] = 3] = "Expanded";
+})(TestItemExpandState || (TestItemExpandState = {}));
+var InternalTestItem;
+(function(InternalTestItem2) {
+  InternalTestItem2.serialize = (item) => ({
+    expand: item.expand,
+    item: ITestItem.serialize(item.item)
+  });
+  InternalTestItem2.deserialize = (uriIdentity, serialized) => ({
+    // the `controllerId` is derived from the test.item.extId. It's redundant
+    // in the non-serialized InternalTestItem too, but there just because it's
+    // checked against in many hot paths.
+    controllerId: TestId.root(serialized.item.extId),
+    expand: serialized.expand,
+    item: ITestItem.deserialize(uriIdentity, serialized.item)
+  });
+})(InternalTestItem || (InternalTestItem = {}));
+var ITestItemUpdate;
+(function(ITestItemUpdate2) {
+  ITestItemUpdate2.serialize = (u) => {
+    let item;
+    if (u.item) {
+      item = {};
+      if (u.item.label !== void 0) {
+        item.label = u.item.label;
+      }
+      if (u.item.tags !== void 0) {
+        item.tags = u.item.tags;
+      }
+      if (u.item.busy !== void 0) {
+        item.busy = u.item.busy;
+      }
+      if (u.item.uri !== void 0) {
+        item.uri = u.item.uri?.toJSON();
+      }
+      if (u.item.range !== void 0) {
+        item.range = u.item.range?.toJSON();
+      }
+      if (u.item.description !== void 0) {
+        item.description = u.item.description;
+      }
+      if (u.item.error !== void 0) {
+        item.error = u.item.error;
+      }
+      if (u.item.sortText !== void 0) {
+        item.sortText = u.item.sortText;
+      }
+    }
+    return { extId: u.extId, expand: u.expand, item };
+  };
+  ITestItemUpdate2.deserialize = (u) => {
+    let item;
+    if (u.item) {
+      item = {};
+      if (u.item.label !== void 0) {
+        item.label = u.item.label;
+      }
+      if (u.item.tags !== void 0) {
+        item.tags = u.item.tags;
+      }
+      if (u.item.busy !== void 0) {
+        item.busy = u.item.busy;
+      }
+      if (u.item.range !== void 0) {
+        item.range = u.item.range ? Range.lift(u.item.range) : null;
+      }
+      if (u.item.description !== void 0) {
+        item.description = u.item.description;
+      }
+      if (u.item.error !== void 0) {
+        item.error = u.item.error;
+      }
+      if (u.item.sortText !== void 0) {
+        item.sortText = u.item.sortText;
+      }
+    }
+    return { extId: u.extId, expand: u.expand, item };
+  };
+})(ITestItemUpdate || (ITestItemUpdate = {}));
+const applyTestItemUpdate = /* @__PURE__ */ __name((internal, patch) => {
+  if (patch.expand !== void 0) {
+    internal.expand = patch.expand;
+  }
+  if (patch.item !== void 0) {
+    internal.item = internal.item ? Object.assign(internal.item, patch.item) : patch.item;
+  }
+}, "applyTestItemUpdate");
+var TestResultItem;
+(function(TestResultItem2) {
+  TestResultItem2.serializeWithoutMessages = (original) => ({
+    ...InternalTestItem.serialize(original),
+    ownComputedState: original.ownComputedState,
+    computedState: original.computedState,
+    tasks: original.tasks.map(ITestTaskState.serializeWithoutMessages)
+  });
+  TestResultItem2.serialize = (original) => ({
+    ...InternalTestItem.serialize(original),
+    ownComputedState: original.ownComputedState,
+    computedState: original.computedState,
+    tasks: original.tasks.map(ITestTaskState.serialize)
+  });
+  TestResultItem2.deserialize = (uriIdentity, serialized) => ({
+    ...InternalTestItem.deserialize(uriIdentity, serialized),
+    ownComputedState: serialized.ownComputedState,
+    computedState: serialized.computedState,
+    tasks: serialized.tasks.map((m) => ITestTaskState.deserialize(uriIdentity, m)),
+    retired: true
+  });
+})(TestResultItem || (TestResultItem = {}));
+var ICoverageCount;
+(function(ICoverageCount2) {
+  ICoverageCount2.empty = () => ({ covered: 0, total: 0 });
+  ICoverageCount2.sum = (target, src) => {
+    target.covered += src.covered;
+    target.total += src.total;
+  };
+})(ICoverageCount || (ICoverageCount = {}));
+var IFileCoverage;
+(function(IFileCoverage2) {
+  IFileCoverage2.serialize = (original) => ({
+    id: original.id,
+    statement: original.statement,
+    branch: original.branch,
+    declaration: original.declaration,
+    testIds: original.testIds,
+    uri: original.uri.toJSON()
+  });
+  IFileCoverage2.deserialize = (uriIdentity, serialized) => ({
+    id: serialized.id,
+    statement: serialized.statement,
+    branch: serialized.branch,
+    declaration: serialized.declaration,
+    testIds: serialized.testIds,
+    uri: uriIdentity.asCanonicalUri(URI.revive(serialized.uri))
+  });
+  IFileCoverage2.empty = (id, uri) => ({
+    id,
+    uri,
+    statement: ICoverageCount.empty()
+  });
+})(IFileCoverage || (IFileCoverage = {}));
+function serializeThingWithLocation(serialized) {
+  return {
+    ...serialized,
+    location: serialized.location?.toJSON()
+  };
+}
+__name(serializeThingWithLocation, "serializeThingWithLocation");
+function deserializeThingWithLocation(serialized) {
+  serialized.location = serialized.location ? Position.isIPosition(serialized.location) ? Position.lift(serialized.location) : Range.lift(serialized.location) : void 0;
+  return serialized;
+}
+__name(deserializeThingWithLocation, "deserializeThingWithLocation");
+const KEEP_N_LAST_COVERAGE_REPORTS = 3;
+var DetailType;
+(function(DetailType2) {
+  DetailType2[DetailType2["Declaration"] = 0] = "Declaration";
+  DetailType2[DetailType2["Statement"] = 1] = "Statement";
+  DetailType2[DetailType2["Branch"] = 2] = "Branch";
+})(DetailType || (DetailType = {}));
+var CoverageDetails;
+(function(CoverageDetails2) {
+  CoverageDetails2.serialize = (original) => original.type === 0 ? IDeclarationCoverage.serialize(original) : IStatementCoverage.serialize(original);
+  CoverageDetails2.deserialize = (serialized) => serialized.type === 0 ? IDeclarationCoverage.deserialize(serialized) : IStatementCoverage.deserialize(serialized);
+})(CoverageDetails || (CoverageDetails = {}));
+var IBranchCoverage;
+(function(IBranchCoverage2) {
+  IBranchCoverage2.serialize = serializeThingWithLocation;
+  IBranchCoverage2.deserialize = deserializeThingWithLocation;
+})(IBranchCoverage || (IBranchCoverage = {}));
+var IDeclarationCoverage;
+(function(IDeclarationCoverage2) {
+  IDeclarationCoverage2.serialize = serializeThingWithLocation;
+  IDeclarationCoverage2.deserialize = deserializeThingWithLocation;
+})(IDeclarationCoverage || (IDeclarationCoverage = {}));
+var IStatementCoverage;
+(function(IStatementCoverage2) {
+  IStatementCoverage2.serialize = (original) => ({
+    ...serializeThingWithLocation(original),
+    branches: original.branches?.map(IBranchCoverage.serialize)
+  });
+  IStatementCoverage2.deserialize = (serialized) => ({
+    ...deserializeThingWithLocation(serialized),
+    branches: serialized.branches?.map(IBranchCoverage.deserialize)
+  });
+})(IStatementCoverage || (IStatementCoverage = {}));
+var TestDiffOpType;
+(function(TestDiffOpType2) {
+  TestDiffOpType2[TestDiffOpType2["Add"] = 0] = "Add";
+  TestDiffOpType2[TestDiffOpType2["Update"] = 1] = "Update";
+  TestDiffOpType2[TestDiffOpType2["DocumentSynced"] = 2] = "DocumentSynced";
+  TestDiffOpType2[TestDiffOpType2["Remove"] = 3] = "Remove";
+  TestDiffOpType2[TestDiffOpType2["IncrementPendingExtHosts"] = 4] = "IncrementPendingExtHosts";
+  TestDiffOpType2[TestDiffOpType2["Retire"] = 5] = "Retire";
+  TestDiffOpType2[TestDiffOpType2["AddTag"] = 6] = "AddTag";
+  TestDiffOpType2[TestDiffOpType2["RemoveTag"] = 7] = "RemoveTag";
+})(TestDiffOpType || (TestDiffOpType = {}));
+var TestsDiffOp;
+(function(TestsDiffOp2) {
+  TestsDiffOp2.deserialize = (uriIdentity, u) => {
+    if (u.op === 0) {
+      return { op: u.op, item: InternalTestItem.deserialize(uriIdentity, u.item) };
+    } else if (u.op === 1) {
+      return { op: u.op, item: ITestItemUpdate.deserialize(u.item) };
+    } else if (u.op === 2) {
+      return { op: u.op, uri: uriIdentity.asCanonicalUri(URI.revive(u.uri)), docv: u.docv };
+    } else {
+      return u;
+    }
+  };
+  TestsDiffOp2.serialize = (u) => {
+    if (u.op === 0) {
+      return { op: u.op, item: InternalTestItem.serialize(u.item) };
+    } else if (u.op === 1) {
+      return { op: u.op, item: ITestItemUpdate.serialize(u.item) };
+    } else {
+      return u;
+    }
+  };
+})(TestsDiffOp || (TestsDiffOp = {}));
+class AbstractIncrementalTestCollection {
+  static {
+    __name(this, "AbstractIncrementalTestCollection");
+  }
+  constructor(uriIdentity) {
+    this.uriIdentity = uriIdentity;
+    this._tags = /* @__PURE__ */ new Map();
+    this.items = /* @__PURE__ */ new Map();
+    this.roots = /* @__PURE__ */ new Set();
+    this.busyControllerCount = 0;
+    this.pendingRootCount = 0;
+    this.tags = this._tags;
+  }
+  /**
+   * Applies the diff to the collection.
+   */
+  apply(diff) {
+    const changes = this.createChangeCollector();
+    for (const op of diff) {
+      switch (op.op) {
+        case 0:
+          this.add(InternalTestItem.deserialize(this.uriIdentity, op.item), changes);
+          break;
+        case 1:
+          this.update(ITestItemUpdate.deserialize(op.item), changes);
+          break;
+        case 3:
+          this.remove(op.itemId, changes);
+          break;
+        case 5:
+          this.retireTest(op.itemId);
+          break;
+        case 4:
+          this.updatePendingRoots(op.amount);
+          break;
+        case 6:
+          this._tags.set(op.tag.id, op.tag);
+          break;
+        case 7:
+          this._tags.delete(op.id);
+          break;
+      }
+    }
+    changes.complete?.();
+  }
+  add(item, changes) {
+    const parentId = TestId.parentId(item.item.extId)?.toString();
+    let created;
+    if (!parentId) {
+      created = this.createItem(item);
+      this.roots.add(created);
+      this.items.set(item.item.extId, created);
+    } else if (this.items.has(parentId)) {
+      const parent = this.items.get(parentId);
+      parent.children.add(item.item.extId);
+      created = this.createItem(item, parent);
+      this.items.set(item.item.extId, created);
+    } else {
+      console.error(`Test with unknown parent ID: ${JSON.stringify(item)}`);
+      return;
+    }
+    changes.add?.(created);
+    if (item.expand === 2) {
+      this.busyControllerCount++;
+    }
+    return created;
+  }
+  update(patch, changes) {
+    const existing = this.items.get(patch.extId);
+    if (!existing) {
+      return;
+    }
+    if (patch.expand !== void 0) {
+      if (existing.expand === 2) {
+        this.busyControllerCount--;
+      }
+      if (patch.expand === 2) {
+        this.busyControllerCount++;
+      }
+    }
+    applyTestItemUpdate(existing, patch);
+    changes.update?.(existing);
+    return existing;
+  }
+  remove(itemId, changes) {
+    const toRemove = this.items.get(itemId);
+    if (!toRemove) {
+      return;
+    }
+    const parentId = TestId.parentId(toRemove.item.extId)?.toString();
+    if (parentId) {
+      const parent = this.items.get(parentId);
+      parent.children.delete(toRemove.item.extId);
+    } else {
+      this.roots.delete(toRemove);
+    }
+    const queue = [[itemId]];
+    while (queue.length) {
+      for (const itemId2 of queue.pop()) {
+        const existing = this.items.get(itemId2);
+        if (existing) {
+          queue.push(existing.children);
+          this.items.delete(itemId2);
+          changes.remove?.(existing, existing !== toRemove);
+          if (existing.expand === 2) {
+            this.busyControllerCount--;
+          }
+        }
+      }
+    }
+  }
+  /**
+   * Called when the extension signals a test result should be retired.
+   */
+  retireTest(testId) {
+  }
+  /**
+   * Updates the number of test root sources who are yet to report. When
+   * the total pending test roots reaches 0, the roots for all controllers
+   * will exist in the collection.
+   */
+  updatePendingRoots(delta) {
+    this.pendingRootCount += delta;
+  }
+  /**
+   * Called before a diff is applied to create a new change collector.
+   */
+  createChangeCollector() {
+    return {};
+  }
+}
+export {
+  AbstractIncrementalTestCollection,
+  CoverageDetails,
+  DetailType,
+  ExtTestRunProfileKind,
+  IBranchCoverage,
+  ICoverageCount,
+  IDeclarationCoverage,
+  IFileCoverage,
+  IRichLocation,
+  IStatementCoverage,
+  ITestErrorMessage,
+  ITestItem,
+  ITestItemUpdate,
+  ITestMessage,
+  ITestMessageStackFrame,
+  ITestOutputMessage,
+  ITestTaskState,
+  InternalTestItem,
+  KEEP_N_LAST_COVERAGE_REPORTS,
+  TestControllerCapability,
+  TestDiffOpType,
+  TestItemExpandState,
+  TestMessageType,
+  TestResultItem,
+  TestResultState,
+  TestRunProfileBitset,
+  TestsDiffOp,
+  applyTestItemUpdate,
+  denamespaceTestTag,
+  getMarkId,
+  isStartControllerTests,
+  namespaceTestTag,
+  testProfileBitset,
+  testResultStateToContextValues,
+  testRunProfileBitsetList
+};
+//# sourceMappingURL=testTypes.js.map

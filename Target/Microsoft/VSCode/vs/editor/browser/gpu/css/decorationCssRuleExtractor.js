@@ -1,1 +1,91 @@
-import{$ as n,$k8 as c,$l8 as f}from"../../../../base/browser/dom.js";import{$Ed as u,$Cd as p}from"../../../../base/common/lifecycle.js";import"./media/decorationCssRuleExtractor.css";class S extends u{constructor(){super(),this.f=new Map,this.g=new Map,this.a=n("div.monaco-decoration-css-rule-extractor"),this.b=n("span"),this.a.appendChild(this.b),this.D(p(()=>this.a.remove()))}getStyleRules(i,e){const s=this.f.get(e);if(s)return s;this.b.className=e,i.appendChild(this.a);const t=this.h(e);return this.f.set(e,t),i.removeChild(this.a),t}h(i){const e=[],t=[...c().styleSheets],r=i.split(" ").filter(h=>h.length>0);for(let h=0;h<t.length;h++){const l=t[h];this.j(l.cssRules,r,e)}return e}j(i,e,s){for(const t of i)if(t instanceof CSSImportRule)t.styleSheet&&this.j(t.styleSheet.cssRules,e,s);else if(t instanceof CSSStyleRule){for(const r of e){const h=`.${r}`,l=t.selectorText.indexOf(h);if(l!==-1){const o=l+h.length;if(t.selectorText.length===o||t.selectorText.substring(o,o+1).match(/[ :.]/)){s.push(t);break}}}t.cssRules?.length&&this.j(t.cssRules,e,s)}}resolveCssVariable(i,e){let s=this.g.get(e);return s===void 0&&(i.appendChild(this.a),s=f().getComputedStyle(this.a).getPropertyValue(e).trim(),i.removeChild(this.a),this.g.set(e,s)),s}clear(){this.f.clear(),this.g.clear()}}export{S as $$eb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $, getActiveDocument, getActiveWindow } from "../../../../base/browser/dom.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import "./media/decorationCssRuleExtractor.css";
+class DecorationCssRuleExtractor extends Disposable {
+  static {
+    __name(this, "DecorationCssRuleExtractor");
+  }
+  constructor() {
+    super();
+    this._ruleCache = /* @__PURE__ */ new Map();
+    this._cssVariableCache = /* @__PURE__ */ new Map();
+    this._container = $("div.monaco-decoration-css-rule-extractor");
+    this._dummyElement = $("span");
+    this._container.appendChild(this._dummyElement);
+    this._register(toDisposable(() => this._container.remove()));
+  }
+  getStyleRules(canvas, decorationClassName) {
+    const existing = this._ruleCache.get(decorationClassName);
+    if (existing) {
+      return existing;
+    }
+    this._dummyElement.className = decorationClassName;
+    canvas.appendChild(this._container);
+    const rules = this._getStyleRules(decorationClassName);
+    this._ruleCache.set(decorationClassName, rules);
+    canvas.removeChild(this._container);
+    return rules;
+  }
+  _getStyleRules(className) {
+    const rules = [];
+    const doc = getActiveDocument();
+    const stylesheets = [...doc.styleSheets];
+    const classNames = className.split(" ").filter((c) => c.length > 0);
+    for (let i = 0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      this._collectMatchingRules(stylesheet.cssRules, classNames, rules);
+    }
+    return rules;
+  }
+  _collectMatchingRules(cssRules, classNames, result) {
+    for (const rule of cssRules) {
+      if (rule instanceof CSSImportRule) {
+        if (rule.styleSheet) {
+          this._collectMatchingRules(rule.styleSheet.cssRules, classNames, result);
+        }
+      } else if (rule instanceof CSSStyleRule) {
+        for (const className of classNames) {
+          const searchTerm = `.${className}`;
+          const index = rule.selectorText.indexOf(searchTerm);
+          if (index !== -1) {
+            const endOfResult = index + searchTerm.length;
+            if (rule.selectorText.length === endOfResult || rule.selectorText.substring(endOfResult, endOfResult + 1).match(/[ :.]/)) {
+              result.push(rule);
+              break;
+            }
+          }
+        }
+        if (rule.cssRules?.length) {
+          this._collectMatchingRules(rule.cssRules, classNames, result);
+        }
+      }
+    }
+  }
+  /**
+   * Resolves a CSS variable to its computed value using the container element.
+   */
+  resolveCssVariable(canvas, variableName) {
+    let result = this._cssVariableCache.get(variableName);
+    if (result === void 0) {
+      canvas.appendChild(this._container);
+      result = getActiveWindow().getComputedStyle(this._container).getPropertyValue(variableName).trim();
+      canvas.removeChild(this._container);
+      this._cssVariableCache.set(variableName, result);
+    }
+    return result;
+  }
+  /**
+   * Clears all cached CSS rules and CSS variable values. This should be called when the theme
+   * changes to ensure fresh values are computed.
+   */
+  clear() {
+    this._ruleCache.clear();
+    this._cssVariableCache.clear();
+  }
+}
+export {
+  DecorationCssRuleExtractor
+};
+//# sourceMappingURL=decorationCssRuleExtractor.js.map

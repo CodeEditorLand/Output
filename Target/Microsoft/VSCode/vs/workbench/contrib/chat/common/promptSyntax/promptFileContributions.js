@@ -1,1 +1,52 @@
-import{$0kc as n}from"./languageProviders/promptLinkProvider.js";import{$$kc as $}from"./languageProviders/promptBodyAutocompletion.js";import{$glc as d}from"./languageProviders/promptHeaderAutocompletion.js";import{$hlc as D}from"./languageProviders/promptHovers.js";import{$ilc as I}from"./languageProviders/PromptHeaderDefinitionProvider.js";import{$flc as P}from"./languageProviders/promptValidator.js";import{$jlc as _}from"./languageProviders/promptDocumentSemanticTokensProvider.js";import{$klc as u}from"./languageProviders/promptCodeActions.js";import{$NV as j}from"../../../../../editor/common/services/languageFeatures.js";import{$Ed as R}from"../../../../../base/common/lifecycle.js";import{$vR as e}from"./promptTypes.js";import{$Lj as a}from"../../../../../platform/instantiation/common/instantiation.js";var l=function(c,r,t,m){var f=arguments.length,o=f<3?r:m===null?m=Object.getOwnPropertyDescriptor(r,t):m,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,r,t,m);else for(var p=c.length-1;p>=0;p--)(s=c[p])&&(o=(f<3?s(o):f>3?s(r,t,o):s(r,t))||o);return f>3&&o&&Object.defineProperty(r,t,o),o},i=function(c,r){return function(t,m){r(t,m,c)}};let h=class extends R{static{this.ID="chat.promptLanguageFeatures"}constructor(r,t){super(),this.D(r.linkProvider.register(e,t.createInstance(n))),this.D(r.completionProvider.register(e,t.createInstance($))),this.D(r.completionProvider.register(e,t.createInstance(d))),this.D(r.hoverProvider.register(e,t.createInstance(D))),this.D(r.definitionProvider.register(e,t.createInstance(I))),this.D(r.documentSemanticTokensProvider.register(e,t.createInstance(_))),this.D(r.codeActionProvider.register(e,t.createInstance(u))),this.D(t.createInstance(P))}};h=l([i(0,j),i(1,a)],h);export{h as $llc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { PromptLinkProvider } from "./languageProviders/promptLinkProvider.js";
+import { PromptBodyAutocompletion } from "./languageProviders/promptBodyAutocompletion.js";
+import { PromptHeaderAutocompletion } from "./languageProviders/promptHeaderAutocompletion.js";
+import { PromptHoverProvider } from "./languageProviders/promptHovers.js";
+import { PromptHeaderDefinitionProvider } from "./languageProviders/PromptHeaderDefinitionProvider.js";
+import { PromptValidatorContribution } from "./languageProviders/promptValidator.js";
+import { PromptDocumentSemanticTokensProvider } from "./languageProviders/promptDocumentSemanticTokensProvider.js";
+import { PromptCodeActionProvider } from "./languageProviders/promptCodeActions.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ALL_PROMPTS_LANGUAGE_SELECTOR } from "./promptTypes.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+let PromptLanguageFeaturesProvider = class PromptLanguageFeaturesProvider2 extends Disposable {
+  static {
+    __name(this, "PromptLanguageFeaturesProvider");
+  }
+  static {
+    this.ID = "chat.promptLanguageFeatures";
+  }
+  constructor(languageService, instantiationService) {
+    super();
+    this._register(languageService.linkProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptLinkProvider)));
+    this._register(languageService.completionProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptBodyAutocompletion)));
+    this._register(languageService.completionProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptHeaderAutocompletion)));
+    this._register(languageService.hoverProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptHoverProvider)));
+    this._register(languageService.definitionProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptHeaderDefinitionProvider)));
+    this._register(languageService.documentSemanticTokensProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptDocumentSemanticTokensProvider)));
+    this._register(languageService.codeActionProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, instantiationService.createInstance(PromptCodeActionProvider)));
+    this._register(instantiationService.createInstance(PromptValidatorContribution));
+  }
+};
+PromptLanguageFeaturesProvider = __decorate([
+  __param(0, ILanguageFeaturesService),
+  __param(1, IInstantiationService)
+], PromptLanguageFeaturesProvider);
+export {
+  PromptLanguageFeaturesProvider
+};
+//# sourceMappingURL=promptFileContributions.js.map

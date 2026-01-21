@@ -1,1 +1,456 @@
-import{$wf as $}from"../../../../base/common/event.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";import{$Un as P}from"../../../../platform/product/common/productService.js";import{$xP as _,$vP as N}from"../../authentication/common/authentication.js";import{$3o as d,$Uo as C}from"../../../../platform/request/common/request.js";import{CancellationToken as p}from"../../../../base/common/cancellation.js";import{$4R as U}from"../../extensions/common/extensions.js";import{$xo as D}from"../../../../platform/log/common/log.js";import{$qo as E,$po as k}from"../../../../platform/contextkey/common/contextkey.js";import{$sL as x,$tL as T}from"../../../../platform/actions/common/actions.js";import{localize as z}from"../../../../nls.js";import{$XN as F}from"../../../common/contributions.js";import{$7h as R,$9h as I}from"../../../../base/common/async.js";import{$9l as O}from"../../../../platform/configuration/common/configuration.js";import{$yb as u}from"../../../../base/common/errors.js";import{$6c as L}from"../../../../base/common/types.js";import{$BP as S}from"../../environment/common/environmentService.js";import{$s as j}from"../../../../base/common/platform.js";import{$oob as w}from"../../../../platform/defaultAccount/common/defaultAccount.js";import{$op as M}from"../../../../platform/telemetry/common/telemetry.js";import{$dc as q}from"../../../../base/common/arrays.js";import{$Lj as G}from"../../../../platform/instantiation/common/instantiation.js";var v=function(c,t,e,r){var i=arguments.length,n=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(c,t,e,r);else for(var a=c.length-1;a>=0;a--)(s=c[a])&&(n=(i<3?s(n):i>3?s(t,e,n):s(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},o=function(c,t){return function(e,r){t(e,r,c)}};const B="workbench.actions.accounts.signIn";var A;(function(c){c.Uninitialized="uninitialized",c.Unavailable="unavailable",c.Available="available"})(A||(A={}));const J=new k("defaultAccountStatus","uninitialized");class pt extends b{constructor(){super(...arguments),this.a=void 0,this.b=new R,this.c=this.D(new $),this.onDidChangeDefaultAccount=this.c.event}get defaultAccount(){return this.a??null}async getDefaultAccount(){return await this.b.wait(),this.defaultAccount}setDefaultAccount(t){const e=this.a;this.a=t,e!==this.a&&this.c.fire(this.a),this.b.open()}}let m=class extends b{constructor(t,e,r,i,n,s,a,l,h,f,y){super(),this.c=t,this.f=e,this.g=r,this.h=i,this.j=n,this.m=s,this.n=a,this.q=l,this.r=h,this.s=f,this.a=null,this.b=J.bindTo(y)}async setup(){this.r.debug("[DefaultAccount] Starting initialization");let t=null;try{t=await this.t()}catch(e){this.r.error("[DefaultAccount] Error during initialization",u(e))}this.u(t),this.r.debug("[DefaultAccount] Initialization complete"),this.m.publicLog2("defaultaccount:status",{status:this.a?"available":"unavailable",initial:!0}),this.D(this.f.onDidChangeDefaultAccount(e=>{this.m.publicLog2("defaultaccount:status",{status:e?"available":"unavailable",initial:!1})})),this.D(this.h.onDidChangeSessions(async e=>{e.providerId===this.N()&&(this.a&&e.event.removed?.some(r=>r.id===this.a?.sessionId)?this.u(null):this.u(await this.y(e.providerId,this.c.authenticationProvider.scopes)))})),this.D(this.j.onDidChangeAccountPreference(async e=>{e.providerId===this.N()&&this.u(await this.y(e.providerId,this.c.authenticationProvider.scopes))}))}async t(){if(j&&!this.s.remoteAuthority)return this.r.debug("[DefaultAccount] Running in web without remote, skipping initialization"),null;const t=this.N();return this.r.debug("[DefaultAccount] Default account provider ID:",t),t?(await this.n.whenInstalledExtensionsRegistered(),this.r.debug("[DefaultAccount] Installed extensions registered."),this.h.declaredProviders.find(r=>r.id===t)?(this.Q(this.c.authenticationProvider.scopes[0]),await this.y(t,this.c.authenticationProvider.scopes)):(this.r.info("[DefaultAccount] Authentication provider is not declared.",t),null)):null}u(t){this.a=t,this.f.setDefaultAccount(this.a),this.a?(this.b.set("available"),this.r.debug("[DefaultAccount] Account status set to Available")):(this.b.set("unavailable"),this.r.debug("[DefaultAccount] Account status set to Unavailable"))}w(t){const e=new Map,i=t?.split(":")[0]?.split(";");for(const n of i){const[s,a]=n.split("=");e.set(s,a)}return this.r.debug(`[DefaultAccount] extractFromToken: ${JSON.stringify(Object.fromEntries(e))}`),e}async y(t,e){try{this.r.debug("[DefaultAccount] Getting Default Account from authenticated sessions for provider:",t);const r=await this.z(t,e);if(!r)return this.r.debug("[DefaultAccount] No matching session found for provider:",t),null;const[i,n]=await Promise.all([this.H(r.accessToken),this.G(r.accessToken)]),s=n.mcp?await this.I(r.accessToken):void 0,a={sessionId:r.id,enterprise:this.O(t)||r.account.label.includes("_"),...i,...n,mcpRegistryUrl:s?.url,mcpAccess:s?.registry_access};return this.r.debug("[DefaultAccount] Successfully created default account for provider:",t),a}catch(r){return this.r.error("[DefaultAccount] Failed to create default account for provider:",t,u(r)),null}}async z(t,e){const r=await this.C(t);for(const i of r){this.r.debug("[DefaultAccount] Checking session with scopes",i.scopes);for(const n of e)if(this.F(i.scopes,n))return i}}async C(t){for(let e=1;e<=3;e++)try{let r,i;for(const n of this.c.preferredExtensions)if(i=this.j.getAccountPreference(n,t),i)break;for(const n of await this.h.getAccounts(t))if(n.label===i){r=n;break}return await this.h.getSessions(t,void 0,{account:r},!0)}catch(r){if(this.r.warn(`[DefaultAccount] Attempt ${e} to get sessions failed:`,u(r)),e===3)throw r;await I(500)}throw new Error("Unable to get sessions after multiple attempts")}F(t,e){return e.every(r=>t.includes(r))}async G(t){const e=this.L();if(!e)return this.r.debug("[DefaultAccount] No token entitlements URL found"),{};this.r.debug("[DefaultAccount] Fetching token entitlements from:",e);try{const r=await this.q.request({type:"GET",url:e,disableCache:!0,headers:{Authorization:`Bearer ${t}`}},p.None),i=await d(r);if(i){const n=this.w(i.token);return{chat_preview_features_enabled:n.get("editor_preview_features")!=="0",chat_agent_enabled:n.get("agent_mode")!=="0",mcp:n.get("mcp")!=="0"}}this.r.error("Failed to fetch token entitlements","No data returned")}catch(r){this.r.error("Failed to fetch token entitlements",u(r))}return{}}async H(t){const e=this.J();if(!e)return this.r.debug("[DefaultAccount] No chat entitlements URL found"),{};this.r.debug("[DefaultAccount] Fetching chat entitlements from:",e);try{const r=await this.q.request({type:"GET",url:e,disableCache:!0,headers:{Authorization:`Bearer ${t}`}},p.None),i=await d(r);if(i)return i;this.r.error("Failed to fetch entitlements","No data returned")}catch(r){this.r.error("Failed to fetch entitlements",u(r))}return{}}async I(t){const e=this.M();if(!e){this.r.debug("[DefaultAccount] No MCP registry data URL found");return}try{const r=await this.q.request({type:"GET",url:e,disableCache:!0,headers:{Authorization:`Bearer ${t}`}},p.None),i=await d(r);if(i)return this.r.debug("Fetched MCP registry providers",i.mcp_registries),i.mcp_registries[0];this.r.debug("Failed to fetch MCP registry providers","No data returned")}catch(r){this.r.error("Failed to fetch MCP registry providers",u(r))}}J(){if(this.O(this.N()))try{const t=this.P();return t?`${t.protocol}//api.${t.hostname}${t.port?":"+t.port:""}/copilot_internal/user`:void 0}catch(t){this.r.error(t)}return this.c.chatEntitlementUrl}L(){if(this.O(this.N()))try{const t=this.P();return t?`${t.protocol}//api.${t.hostname}${t.port?":"+t.port:""}/copilot_internal/v2/token`:void 0}catch(t){this.r.error(t)}return this.c.tokenEntitlementUrl}M(){if(this.O(this.N()))try{const t=this.P();return t?`${t.protocol}//api.${t.hostname}${t.port?":"+t.port:""}/copilot/mcp_registry`:void 0}catch(t){this.r.error(t)}return this.c.mcpRegistryDataUrl}N(){return this.g.getValue(this.c.authenticationProvider.enterpriseProviderConfig)===this.c?.authenticationProvider.enterpriseProviderId?this.c.authenticationProvider.enterpriseProviderId:this.c.authenticationProvider.id}O(t){return t===this.c.authenticationProvider.enterpriseProviderId}P(){const t=this.g.getValue(this.c.authenticationProvider.enterpriseProviderUriSetting);if(L(t))return new URL(t)}Q(t){const e=this;this.D(T(class extends x{constructor(){super({id:B,title:z(15237,null)})}async run(r,i){const n=e.N();if(!n)throw new Error("No default account provider configured");const{additionalScopes:s,...a}=i??{},l=s?q([...t,...s]):t,h=await e.h.createSession(n,l,a);for(const f of e.c.preferredExtensions)e.j.updateAccountPreference(f,n,h.account)}}))}};m=v([o(1,w),o(2,O),o(3,N),o(4,_),o(5,M),o(6,U),o(7,C),o(8,D),o(9,S),o(10,E)],m);let g=class extends b{static{this.ID="workbench.contributions.defaultAccountSetup"}constructor(t,e,r,i){super(),t.defaultAccount?this.D(e.createInstance(m,t.defaultAccount)).setup():(r.setDefaultAccount(null),i.debug("[DefaultAccount] No default account configuration in product service, skipping initialization"))}};g=v([o(0,P),o(1,G),o(2,w),o(3,D)],g);F("workbench.contributions.defaultAccountManagement",g,3);export{B as $Bbc,pt as $Cbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IAuthenticationExtensionsService, IAuthenticationService } from "../../authentication/common/authentication.js";
+import { asJson, IRequestService } from "../../../../platform/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { localize } from "../../../../nls.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { Barrier, timeout } from "../../../../base/common/async.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { getErrorMessage } from "../../../../base/common/errors.js";
+import { isString } from "../../../../base/common/types.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { distinct } from "../../../../base/common/arrays.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+const DEFAULT_ACCOUNT_SIGN_IN_COMMAND = "workbench.actions.accounts.signIn";
+var DefaultAccountStatus;
+(function(DefaultAccountStatus2) {
+  DefaultAccountStatus2["Uninitialized"] = "uninitialized";
+  DefaultAccountStatus2["Unavailable"] = "unavailable";
+  DefaultAccountStatus2["Available"] = "available";
+})(DefaultAccountStatus || (DefaultAccountStatus = {}));
+const CONTEXT_DEFAULT_ACCOUNT_STATE = new RawContextKey(
+  "defaultAccountStatus",
+  "uninitialized"
+  /* DefaultAccountStatus.Uninitialized */
+);
+class DefaultAccountService extends Disposable {
+  static {
+    __name(this, "DefaultAccountService");
+  }
+  constructor() {
+    super(...arguments);
+    this._defaultAccount = void 0;
+    this.initBarrier = new Barrier();
+    this._onDidChangeDefaultAccount = this._register(new Emitter());
+    this.onDidChangeDefaultAccount = this._onDidChangeDefaultAccount.event;
+  }
+  get defaultAccount() {
+    return this._defaultAccount ?? null;
+  }
+  async getDefaultAccount() {
+    await this.initBarrier.wait();
+    return this.defaultAccount;
+  }
+  setDefaultAccount(account) {
+    const oldAccount = this._defaultAccount;
+    this._defaultAccount = account;
+    if (oldAccount !== this._defaultAccount) {
+      this._onDidChangeDefaultAccount.fire(this._defaultAccount);
+    }
+    this.initBarrier.open();
+  }
+}
+let DefaultAccountSetup = class DefaultAccountSetup2 extends Disposable {
+  static {
+    __name(this, "DefaultAccountSetup");
+  }
+  constructor(defaultAccountConfig, defaultAccountService, configurationService, authenticationService, authenticationExtensionsService, telemetryService, extensionService, requestService, logService, environmentService, contextKeyService) {
+    super();
+    this.defaultAccountConfig = defaultAccountConfig;
+    this.defaultAccountService = defaultAccountService;
+    this.configurationService = configurationService;
+    this.authenticationService = authenticationService;
+    this.authenticationExtensionsService = authenticationExtensionsService;
+    this.telemetryService = telemetryService;
+    this.extensionService = extensionService;
+    this.requestService = requestService;
+    this.logService = logService;
+    this.environmentService = environmentService;
+    this.defaultAccount = null;
+    this.accountStatusContext = CONTEXT_DEFAULT_ACCOUNT_STATE.bindTo(contextKeyService);
+  }
+  async setup() {
+    this.logService.debug("[DefaultAccount] Starting initialization");
+    let defaultAccount = null;
+    try {
+      defaultAccount = await this.fetchDefaultAccount();
+    } catch (error) {
+      this.logService.error("[DefaultAccount] Error during initialization", getErrorMessage(error));
+    }
+    this.setDefaultAccount(defaultAccount);
+    this.logService.debug("[DefaultAccount] Initialization complete");
+    this.telemetryService.publicLog2("defaultaccount:status", { status: this.defaultAccount ? "available" : "unavailable", initial: true });
+    this._register(this.defaultAccountService.onDidChangeDefaultAccount((account) => {
+      this.telemetryService.publicLog2("defaultaccount:status", { status: account ? "available" : "unavailable", initial: false });
+    }));
+    this._register(this.authenticationService.onDidChangeSessions(async (e) => {
+      if (e.providerId !== this.getDefaultAccountProviderId()) {
+        return;
+      }
+      if (this.defaultAccount && e.event.removed?.some((session) => session.id === this.defaultAccount?.sessionId)) {
+        this.setDefaultAccount(null);
+      } else {
+        this.setDefaultAccount(await this.getDefaultAccountFromAuthenticatedSessions(e.providerId, this.defaultAccountConfig.authenticationProvider.scopes));
+      }
+    }));
+    this._register(this.authenticationExtensionsService.onDidChangeAccountPreference(async (e) => {
+      if (e.providerId !== this.getDefaultAccountProviderId()) {
+        return;
+      }
+      this.setDefaultAccount(await this.getDefaultAccountFromAuthenticatedSessions(e.providerId, this.defaultAccountConfig.authenticationProvider.scopes));
+    }));
+  }
+  async fetchDefaultAccount() {
+    if (isWeb && !this.environmentService.remoteAuthority) {
+      this.logService.debug("[DefaultAccount] Running in web without remote, skipping initialization");
+      return null;
+    }
+    const defaultAccountProviderId = this.getDefaultAccountProviderId();
+    this.logService.debug("[DefaultAccount] Default account provider ID:", defaultAccountProviderId);
+    if (!defaultAccountProviderId) {
+      return null;
+    }
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    this.logService.debug("[DefaultAccount] Installed extensions registered.");
+    const declaredProvider = this.authenticationService.declaredProviders.find((provider) => provider.id === defaultAccountProviderId);
+    if (!declaredProvider) {
+      this.logService.info(`[DefaultAccount] Authentication provider is not declared.`, defaultAccountProviderId);
+      return null;
+    }
+    this.registerSignInAction(this.defaultAccountConfig.authenticationProvider.scopes[0]);
+    return await this.getDefaultAccountFromAuthenticatedSessions(defaultAccountProviderId, this.defaultAccountConfig.authenticationProvider.scopes);
+  }
+  setDefaultAccount(account) {
+    this.defaultAccount = account;
+    this.defaultAccountService.setDefaultAccount(this.defaultAccount);
+    if (this.defaultAccount) {
+      this.accountStatusContext.set(
+        "available"
+        /* DefaultAccountStatus.Available */
+      );
+      this.logService.debug("[DefaultAccount] Account status set to Available");
+    } else {
+      this.accountStatusContext.set(
+        "unavailable"
+        /* DefaultAccountStatus.Unavailable */
+      );
+      this.logService.debug("[DefaultAccount] Account status set to Unavailable");
+    }
+  }
+  extractFromToken(token) {
+    const result = /* @__PURE__ */ new Map();
+    const firstPart = token?.split(":")[0];
+    const fields = firstPart?.split(";");
+    for (const field of fields) {
+      const [key, value] = field.split("=");
+      result.set(key, value);
+    }
+    this.logService.debug(`[DefaultAccount] extractFromToken: ${JSON.stringify(Object.fromEntries(result))}`);
+    return result;
+  }
+  async getDefaultAccountFromAuthenticatedSessions(authProviderId, scopes) {
+    try {
+      this.logService.debug("[DefaultAccount] Getting Default Account from authenticated sessions for provider:", authProviderId);
+      const session = await this.findMatchingProviderSession(authProviderId, scopes);
+      if (!session) {
+        this.logService.debug("[DefaultAccount] No matching session found for provider:", authProviderId);
+        return null;
+      }
+      const [chatEntitlements, tokenEntitlements] = await Promise.all([
+        this.getChatEntitlements(session.accessToken),
+        this.getTokenEntitlements(session.accessToken)
+      ]);
+      const mcpRegistryProvider = tokenEntitlements.mcp ? await this.getMcpRegistryProvider(session.accessToken) : void 0;
+      const account = {
+        sessionId: session.id,
+        enterprise: this.isEnterpriseAuthenticationProvider(authProviderId) || session.account.label.includes("_"),
+        ...chatEntitlements,
+        ...tokenEntitlements,
+        mcpRegistryUrl: mcpRegistryProvider?.url,
+        mcpAccess: mcpRegistryProvider?.registry_access
+      };
+      this.logService.debug("[DefaultAccount] Successfully created default account for provider:", authProviderId);
+      return account;
+    } catch (error) {
+      this.logService.error("[DefaultAccount] Failed to create default account for provider:", authProviderId, getErrorMessage(error));
+      return null;
+    }
+  }
+  async findMatchingProviderSession(authProviderId, allScopes) {
+    const sessions = await this.getSessions(authProviderId);
+    for (const session of sessions) {
+      this.logService.debug("[DefaultAccount] Checking session with scopes", session.scopes);
+      for (const scopes of allScopes) {
+        if (this.scopesMatch(session.scopes, scopes)) {
+          return session;
+        }
+      }
+    }
+    return void 0;
+  }
+  async getSessions(authProviderId) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        let preferredAccount;
+        let preferredAccountName;
+        for (const preferredExtension of this.defaultAccountConfig.preferredExtensions) {
+          preferredAccountName = this.authenticationExtensionsService.getAccountPreference(preferredExtension, authProviderId);
+          if (preferredAccountName) {
+            break;
+          }
+        }
+        for (const account of await this.authenticationService.getAccounts(authProviderId)) {
+          if (account.label === preferredAccountName) {
+            preferredAccount = account;
+            break;
+          }
+        }
+        return await this.authenticationService.getSessions(authProviderId, void 0, { account: preferredAccount }, true);
+      } catch (error) {
+        this.logService.warn(`[DefaultAccount] Attempt ${attempt} to get sessions failed:`, getErrorMessage(error));
+        if (attempt === 3) {
+          throw error;
+        }
+        await timeout(500);
+      }
+    }
+    throw new Error("Unable to get sessions after multiple attempts");
+  }
+  scopesMatch(scopes, expectedScopes) {
+    return expectedScopes.every((scope) => scopes.includes(scope));
+  }
+  async getTokenEntitlements(accessToken) {
+    const tokenEntitlementsUrl = this.getTokenEntitlementUrl();
+    if (!tokenEntitlementsUrl) {
+      this.logService.debug("[DefaultAccount] No token entitlements URL found");
+      return {};
+    }
+    this.logService.debug("[DefaultAccount] Fetching token entitlements from:", tokenEntitlementsUrl);
+    try {
+      const chatContext = await this.requestService.request({
+        type: "GET",
+        url: tokenEntitlementsUrl,
+        disableCache: true,
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      }, CancellationToken.None);
+      const chatData = await asJson(chatContext);
+      if (chatData) {
+        const tokenMap = this.extractFromToken(chatData.token);
+        return {
+          // Editor preview features are disabled if the flag is present and set to 0
+          chat_preview_features_enabled: tokenMap.get("editor_preview_features") !== "0",
+          chat_agent_enabled: tokenMap.get("agent_mode") !== "0",
+          // MCP is disabled if the flag is present and set to 0
+          mcp: tokenMap.get("mcp") !== "0"
+        };
+      }
+      this.logService.error("Failed to fetch token entitlements", "No data returned");
+    } catch (error) {
+      this.logService.error("Failed to fetch token entitlements", getErrorMessage(error));
+    }
+    return {};
+  }
+  async getChatEntitlements(accessToken) {
+    const chatEntitlementsUrl = this.getChatEntitlementUrl();
+    if (!chatEntitlementsUrl) {
+      this.logService.debug("[DefaultAccount] No chat entitlements URL found");
+      return {};
+    }
+    this.logService.debug("[DefaultAccount] Fetching chat entitlements from:", chatEntitlementsUrl);
+    try {
+      const context = await this.requestService.request({
+        type: "GET",
+        url: chatEntitlementsUrl,
+        disableCache: true,
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      }, CancellationToken.None);
+      const data = await asJson(context);
+      if (data) {
+        return data;
+      }
+      this.logService.error("Failed to fetch entitlements", "No data returned");
+    } catch (error) {
+      this.logService.error("Failed to fetch entitlements", getErrorMessage(error));
+    }
+    return {};
+  }
+  async getMcpRegistryProvider(accessToken) {
+    const mcpRegistryDataUrl = this.getMcpRegistryDataUrl();
+    if (!mcpRegistryDataUrl) {
+      this.logService.debug("[DefaultAccount] No MCP registry data URL found");
+      return void 0;
+    }
+    try {
+      const context = await this.requestService.request({
+        type: "GET",
+        url: mcpRegistryDataUrl,
+        disableCache: true,
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      }, CancellationToken.None);
+      const data = await asJson(context);
+      if (data) {
+        this.logService.debug("Fetched MCP registry providers", data.mcp_registries);
+        return data.mcp_registries[0];
+      }
+      this.logService.debug("Failed to fetch MCP registry providers", "No data returned");
+    } catch (error) {
+      this.logService.error("Failed to fetch MCP registry providers", getErrorMessage(error));
+    }
+    return void 0;
+  }
+  getChatEntitlementUrl() {
+    if (this.isEnterpriseAuthenticationProvider(this.getDefaultAccountProviderId())) {
+      try {
+        const enterpriseUrl = this.getEnterpriseUrl();
+        if (!enterpriseUrl) {
+          return void 0;
+        }
+        return `${enterpriseUrl.protocol}//api.${enterpriseUrl.hostname}${enterpriseUrl.port ? ":" + enterpriseUrl.port : ""}/copilot_internal/user`;
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    return this.defaultAccountConfig.chatEntitlementUrl;
+  }
+  getTokenEntitlementUrl() {
+    if (this.isEnterpriseAuthenticationProvider(this.getDefaultAccountProviderId())) {
+      try {
+        const enterpriseUrl = this.getEnterpriseUrl();
+        if (!enterpriseUrl) {
+          return void 0;
+        }
+        return `${enterpriseUrl.protocol}//api.${enterpriseUrl.hostname}${enterpriseUrl.port ? ":" + enterpriseUrl.port : ""}/copilot_internal/v2/token`;
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    return this.defaultAccountConfig.tokenEntitlementUrl;
+  }
+  getMcpRegistryDataUrl() {
+    if (this.isEnterpriseAuthenticationProvider(this.getDefaultAccountProviderId())) {
+      try {
+        const enterpriseUrl = this.getEnterpriseUrl();
+        if (!enterpriseUrl) {
+          return void 0;
+        }
+        return `${enterpriseUrl.protocol}//api.${enterpriseUrl.hostname}${enterpriseUrl.port ? ":" + enterpriseUrl.port : ""}/copilot/mcp_registry`;
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    return this.defaultAccountConfig.mcpRegistryDataUrl;
+  }
+  getDefaultAccountProviderId() {
+    if (this.configurationService.getValue(this.defaultAccountConfig.authenticationProvider.enterpriseProviderConfig) === this.defaultAccountConfig?.authenticationProvider.enterpriseProviderId) {
+      return this.defaultAccountConfig.authenticationProvider.enterpriseProviderId;
+    }
+    return this.defaultAccountConfig.authenticationProvider.id;
+  }
+  isEnterpriseAuthenticationProvider(providerId) {
+    return providerId === this.defaultAccountConfig.authenticationProvider.enterpriseProviderId;
+  }
+  getEnterpriseUrl() {
+    const value = this.configurationService.getValue(this.defaultAccountConfig.authenticationProvider.enterpriseProviderUriSetting);
+    if (!isString(value)) {
+      return void 0;
+    }
+    return new URL(value);
+  }
+  registerSignInAction(defaultAccountScopes) {
+    const that = this;
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: DEFAULT_ACCOUNT_SIGN_IN_COMMAND,
+          title: localize("sign in", "Sign in")
+        });
+      }
+      async run(accessor, options) {
+        const authProviderId = that.getDefaultAccountProviderId();
+        if (!authProviderId) {
+          throw new Error("No default account provider configured");
+        }
+        const { additionalScopes, ...sessionOptions } = options ?? {};
+        const scopes = additionalScopes ? distinct([...defaultAccountScopes, ...additionalScopes]) : defaultAccountScopes;
+        const session = await that.authenticationService.createSession(authProviderId, scopes, sessionOptions);
+        for (const preferredExtension of that.defaultAccountConfig.preferredExtensions) {
+          that.authenticationExtensionsService.updateAccountPreference(preferredExtension, authProviderId, session.account);
+        }
+      }
+    }));
+  }
+};
+DefaultAccountSetup = __decorate([
+  __param(1, IDefaultAccountService),
+  __param(2, IConfigurationService),
+  __param(3, IAuthenticationService),
+  __param(4, IAuthenticationExtensionsService),
+  __param(5, ITelemetryService),
+  __param(6, IExtensionService),
+  __param(7, IRequestService),
+  __param(8, ILogService),
+  __param(9, IWorkbenchEnvironmentService),
+  __param(10, IContextKeyService)
+], DefaultAccountSetup);
+let DefaultAccountSetupContribution = class DefaultAccountSetupContribution2 extends Disposable {
+  static {
+    __name(this, "DefaultAccountSetupContribution");
+  }
+  static {
+    this.ID = "workbench.contributions.defaultAccountSetup";
+  }
+  constructor(productService, instantiationService, defaultAccountService, logService) {
+    super();
+    if (productService.defaultAccount) {
+      this._register(instantiationService.createInstance(DefaultAccountSetup, productService.defaultAccount)).setup();
+    } else {
+      defaultAccountService.setDefaultAccount(null);
+      logService.debug("[DefaultAccount] No default account configuration in product service, skipping initialization");
+    }
+  }
+};
+DefaultAccountSetupContribution = __decorate([
+  __param(0, IProductService),
+  __param(1, IInstantiationService),
+  __param(2, IDefaultAccountService),
+  __param(3, ILogService)
+], DefaultAccountSetupContribution);
+registerWorkbenchContribution2(
+  "workbench.contributions.defaultAccountManagement",
+  DefaultAccountSetupContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+export {
+  DEFAULT_ACCOUNT_SIGN_IN_COMMAND,
+  DefaultAccountService
+};
+//# sourceMappingURL=defaultAccount.js.map

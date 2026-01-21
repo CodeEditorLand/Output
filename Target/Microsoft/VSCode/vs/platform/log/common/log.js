@@ -1,1 +1,635 @@
-import*as g from"../../../nls.js";import{$Km as d}from"../../../base/common/errorMessage.js";import{$wf as f}from"../../../base/common/event.js";import{$Fn as $}from"../../../base/common/hash.js";import{$Ed as b}from"../../../base/common/lifecycle.js";import{$Oc as v}from"../../../base/common/map.js";import{$m as L}from"../../../base/common/platform.js";import{$Hh as D}from"../../../base/common/resources.js";import{$$c as E,$6c as c}from"../../../base/common/types.js";import{URI as p}from"../../../base/common/uri.js";import{$po as I}from"../../contextkey/common/contextkey.js";import{$Mj as x}from"../../instantiation/common/instantiation.js";const U=x("logService"),V=x("loggerService");function G(o){return E(o)}var s;(function(o){o[o.Off=0]="Off",o[o.Trace=1]="Trace",o[o.Debug=2]="Debug",o[o.Info=3]="Info",o[o.Warning=4]="Warning",o[o.Error=5]="Error"})(s||(s={}));const l=s.Info;function T(o,e){return o!==s.Off&&o<=e}function H(o,e,r){switch(e){case s.Trace:o.trace(r);break;case s.Debug:o.debug(r);break;case s.Info:o.info(r);break;case s.Warning:o.warn(r);break;case s.Error:o.error(r);break;case s.Off:break;default:throw new Error(`Invalid log level ${e}`)}}function a(o,e=!1){let r="";for(let t=0;t<o.length;t++){let i=o[t];if(i instanceof Error&&(i=d(i,e)),typeof i=="object")try{i=JSON.stringify(i)}catch{}r+=(t>0?" ":"")+i}return r}class h extends b{constructor(){super(...arguments),this.b=l,this.c=this.D(new f)}get onDidChangeLogLevel(){return this.c.event}setLevel(e){this.b!==e&&(this.b=e,this.c.fire(this.b))}getLevel(){return this.b}f(e){return T(this.b,e)}g(e){return this.B.isDisposed?!1:this.f(e)}}class J extends h{constructor(e){super(),this.h=e}f(e){return this.h||super.f(e)}trace(e,...r){this.g(s.Trace)&&this.m(s.Trace,a([e,...r],!0))}debug(e,...r){this.g(s.Debug)&&this.m(s.Debug,a([e,...r]))}info(e,...r){this.g(s.Info)&&this.m(s.Info,a([e,...r]))}warn(e,...r){this.g(s.Warning)&&this.m(s.Warning,a([e,...r]))}error(e,...r){if(this.g(s.Error))if(e instanceof Error){const t=Array.prototype.slice.call(arguments);t[0]=e.stack,this.m(s.Error,a(t))}else this.m(s.Error,a([e,...r]))}flush(){}}class K extends h{constructor(e=l){super(),this.setLevel(e),this.h=!L}trace(e,...r){this.g(s.Trace)&&this.h}debug(e,...r){this.g(s.Debug)&&this.h}info(e,...r){this.g(s.Info)&&this.h}warn(e,...r){this.g(s.Warning)&&this.h}error(e,...r){this.g(s.Error)&&this.h}flush(){}}class M extends h{constructor(e=l,r=!0){super(),this.h=r,this.setLevel(e)}trace(e,...r){this.g(s.Trace)&&this.h}debug(e,...r){this.g(s.Debug)&&this.h}info(e,...r){this.g(s.Info)&&this.h}warn(e,...r){this.g(s.Warning)&&this.h}error(e,...r){this.g(s.Error)&&this.h}flush(){}}class P extends h{constructor(e,r=l){super(),this.h=e,this.setLevel(r)}trace(e,...r){this.g(s.Trace)&&this.h.log(s.Trace,[this.j(e),...r])}debug(e,...r){this.g(s.Debug)&&this.h.log(s.Debug,[this.j(e),...r])}info(e,...r){this.g(s.Info)&&this.h.log(s.Info,[this.j(e),...r])}warn(e,...r){this.g(s.Warning)&&this.h.log(s.Warning,[this.j(e),...r])}error(e,...r){this.g(s.Error)&&this.h.log(s.Error,[this.j(e),...r])}j(e){return typeof e=="string"?e:d(e,this.g(s.Trace))}flush(){}}class Q extends h{constructor(e){super(),this.h=e,e.length&&this.setLevel(e[0].getLevel())}setLevel(e){for(const r of this.h)r.setLevel(e);super.setLevel(e)}trace(e,...r){for(const t of this.h)t.trace(e,...r)}debug(e,...r){for(const t of this.h)t.debug(e,...r)}info(e,...r){for(const t of this.h)t.info(e,...r)}warn(e,...r){for(const t of this.h)t.warn(e,...r)}error(e,...r){for(const t of this.h)t.error(e,...r)}flush(){for(const e of this.h)e.flush()}dispose(){for(const e of this.h)e.dispose();super.dispose()}}class j extends b{constructor(e,r,t){if(super(),this.j=e,this.m=r,this.b=new v,this.f=this.D(new f),this.onDidChangeLoggers=this.f.event,this.g=this.D(new f),this.onDidChangeLogLevel=this.g.event,this.h=this.D(new f),this.onDidChangeVisibility=this.h.event,t)for(const i of t)this.b.set(i.resource,{logger:void 0,info:i})}n(e){return c(e)?[...this.b.values()].find(r=>r.info.id===e):this.b.get(e)}getLogger(e){return this.n(e)?.logger}createLogger(e,r){const t=this.q(e),i=c(e)?e:r?.id??$(t.toString()).toString(16);let n=this.b.get(t)?.logger;const u=r?.logLevel==="always"?s.Trace:r?.logLevel;n||(n=this.s(t,u??this.getLogLevel(t)??this.j,{...r,id:i}));const m={logger:n,info:{resource:t,id:i,logLevel:u,name:r?.name,hidden:r?.hidden,group:r?.group,extensionId:r?.extensionId,when:r?.when}};return this.registerLogger(m.info),this.b.set(t,m),n}q(e){return c(e)?D(this.m,`${e.replace(/[\\/:\*\?"<>\|]/g,"")}.log`):e}setLogLevel(e,r){if(p.isUri(e)){const t=e,i=r,n=this.b.get(t);n&&i!==n.info.logLevel&&(n.info.logLevel=i===this.j?void 0:i,n.logger?.setLevel(i),this.b.set(n.info.resource,n),this.g.fire([t,i]))}else{this.j=e;for(const[t,i]of this.b.entries())this.b.get(t)?.info.logLevel===void 0&&i.logger?.setLevel(this.j);this.g.fire(this.j)}}setVisibility(e,r){const t=this.n(e);t&&r!==!t.info.hidden&&(t.info.hidden=!r,this.b.set(t.info.resource,t),this.h.fire([t.info.resource,r]))}getLogLevel(e){let r;return e&&(r=this.b.get(e)?.info.logLevel),r??this.j}registerLogger(e){const r=this.b.get(e.resource);r?r.info.hidden!==e.hidden&&this.setVisibility(e.resource,!e.hidden):(this.b.set(e.resource,{info:e,logger:void 0}),this.f.fire({added:[e],removed:[]}))}deregisterLogger(e){const r=this.q(e),t=this.b.get(r);t&&(t.logger&&t.logger.dispose(),this.b.delete(r),this.f.fire({added:[],removed:[t.info]}))}*getRegisteredLoggers(){for(const e of this.b.values())yield e.info}getRegisteredLogger(e){return this.b.get(e)?.info}dispose(){this.b.forEach(e=>e.logger?.dispose()),this.b.clear(),super.dispose()}}class w{constructor(){this.onDidChangeLogLevel=new f().event}setLevel(e){}getLevel(){return s.Info}trace(e,...r){}debug(e,...r){}info(e,...r){}warn(e,...r){}error(e,...r){}critical(e,...r){}dispose(){}flush(){}}class X extends w{}class Y extends j{constructor(){super(s.Off,p.parse("log:///log"))}s(e,r,t){return new w}}function Z(o){if(o.verbose)return s.Trace;if(typeof o.logLevel=="string"){const e=W(o.logLevel.toLowerCase());if(e!==void 0)return e}return l}function y(o){switch(o){case s.Trace:return"trace";case s.Debug:return"debug";case s.Info:return"info";case s.Warning:return"warn";case s.Error:return"error";case s.Off:return"off"}}function _(o){switch(o){case s.Trace:return{original:"Trace",value:g.localize(2172,null)};case s.Debug:return{original:"Debug",value:g.localize(2173,null)};case s.Info:return{original:"Info",value:g.localize(2174,null)};case s.Warning:return{original:"Warning",value:g.localize(2175,null)};case s.Error:return{original:"Error",value:g.localize(2176,null)};case s.Off:return{original:"Off",value:g.localize(2177,null)}}}function W(o){switch(o){case"trace":return s.Trace;case"debug":return s.Debug;case"info":return s.Info;case"warn":return s.Warning;case"error":return s.Error;case"critical":return s.Error;case"off":return s.Off}}const ee=new I("logLevel",y(s.Info));export{l as $Ao,T as $Bo,h as $Do,J as $Eo,K as $Fo,M as $Go,P as $Ho,Q as $Io,j as $Jo,w as $Ko,X as $Lo,Y as $Mo,Z as $No,y as $Oo,_ as $Po,W as $Qo,ee as $Ro,U as $xo,V as $yo,G as $zo,s as LogLevel,H as log};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../nls.js";
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+import { Emitter } from "../../../base/common/event.js";
+import { hash } from "../../../base/common/hash.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { isWindows } from "../../../base/common/platform.js";
+import { joinPath } from "../../../base/common/resources.js";
+import { isNumber, isString } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { RawContextKey } from "../../contextkey/common/contextkey.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const ILogService = createDecorator("logService");
+const ILoggerService = createDecorator("loggerService");
+function now() {
+  return (/* @__PURE__ */ new Date()).toISOString();
+}
+__name(now, "now");
+function isLogLevel(thing) {
+  return isNumber(thing);
+}
+__name(isLogLevel, "isLogLevel");
+var LogLevel;
+(function(LogLevel2) {
+  LogLevel2[LogLevel2["Off"] = 0] = "Off";
+  LogLevel2[LogLevel2["Trace"] = 1] = "Trace";
+  LogLevel2[LogLevel2["Debug"] = 2] = "Debug";
+  LogLevel2[LogLevel2["Info"] = 3] = "Info";
+  LogLevel2[LogLevel2["Warning"] = 4] = "Warning";
+  LogLevel2[LogLevel2["Error"] = 5] = "Error";
+})(LogLevel || (LogLevel = {}));
+const DEFAULT_LOG_LEVEL = LogLevel.Info;
+function canLog(loggerLevel, messageLevel) {
+  return loggerLevel !== LogLevel.Off && loggerLevel <= messageLevel;
+}
+__name(canLog, "canLog");
+function log(logger, level, message) {
+  switch (level) {
+    case LogLevel.Trace:
+      logger.trace(message);
+      break;
+    case LogLevel.Debug:
+      logger.debug(message);
+      break;
+    case LogLevel.Info:
+      logger.info(message);
+      break;
+    case LogLevel.Warning:
+      logger.warn(message);
+      break;
+    case LogLevel.Error:
+      logger.error(message);
+      break;
+    case LogLevel.Off:
+      break;
+    default:
+      throw new Error(`Invalid log level ${level}`);
+  }
+}
+__name(log, "log");
+function format(args, verbose = false) {
+  let result = "";
+  for (let i = 0; i < args.length; i++) {
+    let a = args[i];
+    if (a instanceof Error) {
+      a = toErrorMessage(a, verbose);
+    }
+    if (typeof a === "object") {
+      try {
+        a = JSON.stringify(a);
+      } catch (e) {
+      }
+    }
+    result += (i > 0 ? " " : "") + a;
+  }
+  return result;
+}
+__name(format, "format");
+class AbstractLogger extends Disposable {
+  static {
+    __name(this, "AbstractLogger");
+  }
+  constructor() {
+    super(...arguments);
+    this.level = DEFAULT_LOG_LEVEL;
+    this._onDidChangeLogLevel = this._register(new Emitter());
+  }
+  get onDidChangeLogLevel() {
+    return this._onDidChangeLogLevel.event;
+  }
+  setLevel(level) {
+    if (this.level !== level) {
+      this.level = level;
+      this._onDidChangeLogLevel.fire(this.level);
+    }
+  }
+  getLevel() {
+    return this.level;
+  }
+  checkLogLevel(level) {
+    return canLog(this.level, level);
+  }
+  canLog(level) {
+    if (this._store.isDisposed) {
+      return false;
+    }
+    return this.checkLogLevel(level);
+  }
+}
+class AbstractMessageLogger extends AbstractLogger {
+  static {
+    __name(this, "AbstractMessageLogger");
+  }
+  constructor(logAlways) {
+    super();
+    this.logAlways = logAlways;
+  }
+  checkLogLevel(level) {
+    return this.logAlways || super.checkLogLevel(level);
+  }
+  trace(message, ...args) {
+    if (this.canLog(LogLevel.Trace)) {
+      this.log(LogLevel.Trace, format([message, ...args], true));
+    }
+  }
+  debug(message, ...args) {
+    if (this.canLog(LogLevel.Debug)) {
+      this.log(LogLevel.Debug, format([message, ...args]));
+    }
+  }
+  info(message, ...args) {
+    if (this.canLog(LogLevel.Info)) {
+      this.log(LogLevel.Info, format([message, ...args]));
+    }
+  }
+  warn(message, ...args) {
+    if (this.canLog(LogLevel.Warning)) {
+      this.log(LogLevel.Warning, format([message, ...args]));
+    }
+  }
+  error(message, ...args) {
+    if (this.canLog(LogLevel.Error)) {
+      if (message instanceof Error) {
+        const array = Array.prototype.slice.call(arguments);
+        array[0] = message.stack;
+        this.log(LogLevel.Error, format(array));
+      } else {
+        this.log(LogLevel.Error, format([message, ...args]));
+      }
+    }
+  }
+  flush() {
+  }
+}
+class ConsoleMainLogger extends AbstractLogger {
+  static {
+    __name(this, "ConsoleMainLogger");
+  }
+  constructor(logLevel = DEFAULT_LOG_LEVEL) {
+    super();
+    this.setLevel(logLevel);
+    this.useColors = !isWindows;
+  }
+  trace(message, ...args) {
+    if (this.canLog(LogLevel.Trace)) {
+      if (this.useColors) {
+        console.log(`\x1B[90m[main ${now()}]\x1B[0m`, message, ...args);
+      } else {
+        console.log(`[main ${now()}]`, message, ...args);
+      }
+    }
+  }
+  debug(message, ...args) {
+    if (this.canLog(LogLevel.Debug)) {
+      if (this.useColors) {
+        console.log(`\x1B[90m[main ${now()}]\x1B[0m`, message, ...args);
+      } else {
+        console.log(`[main ${now()}]`, message, ...args);
+      }
+    }
+  }
+  info(message, ...args) {
+    if (this.canLog(LogLevel.Info)) {
+      if (this.useColors) {
+        console.log(`\x1B[90m[main ${now()}]\x1B[0m`, message, ...args);
+      } else {
+        console.log(`[main ${now()}]`, message, ...args);
+      }
+    }
+  }
+  warn(message, ...args) {
+    if (this.canLog(LogLevel.Warning)) {
+      if (this.useColors) {
+        console.warn(`\x1B[93m[main ${now()}]\x1B[0m`, message, ...args);
+      } else {
+        console.warn(`[main ${now()}]`, message, ...args);
+      }
+    }
+  }
+  error(message, ...args) {
+    if (this.canLog(LogLevel.Error)) {
+      if (this.useColors) {
+        console.error(`\x1B[91m[main ${now()}]\x1B[0m`, message, ...args);
+      } else {
+        console.error(`[main ${now()}]`, message, ...args);
+      }
+    }
+  }
+  flush() {
+  }
+}
+class ConsoleLogger extends AbstractLogger {
+  static {
+    __name(this, "ConsoleLogger");
+  }
+  constructor(logLevel = DEFAULT_LOG_LEVEL, useColors = true) {
+    super();
+    this.useColors = useColors;
+    this.setLevel(logLevel);
+  }
+  trace(message, ...args) {
+    if (this.canLog(LogLevel.Trace)) {
+      if (this.useColors) {
+        console.log("%cTRACE", "color: #888", message, ...args);
+      } else {
+        console.log(message, ...args);
+      }
+    }
+  }
+  debug(message, ...args) {
+    if (this.canLog(LogLevel.Debug)) {
+      if (this.useColors) {
+        console.log("%cDEBUG", "background: #eee; color: #888", message, ...args);
+      } else {
+        console.log(message, ...args);
+      }
+    }
+  }
+  info(message, ...args) {
+    if (this.canLog(LogLevel.Info)) {
+      if (this.useColors) {
+        console.log("%c INFO", "color: #33f", message, ...args);
+      } else {
+        console.log(message, ...args);
+      }
+    }
+  }
+  warn(message, ...args) {
+    if (this.canLog(LogLevel.Warning)) {
+      if (this.useColors) {
+        console.warn("%c WARN", "color: #993", message, ...args);
+      } else {
+        console.log(message, ...args);
+      }
+    }
+  }
+  error(message, ...args) {
+    if (this.canLog(LogLevel.Error)) {
+      if (this.useColors) {
+        console.error("%c  ERR", "color: #f33", message, ...args);
+      } else {
+        console.error(message, ...args);
+      }
+    }
+  }
+  flush() {
+  }
+}
+class AdapterLogger extends AbstractLogger {
+  static {
+    __name(this, "AdapterLogger");
+  }
+  constructor(adapter, logLevel = DEFAULT_LOG_LEVEL) {
+    super();
+    this.adapter = adapter;
+    this.setLevel(logLevel);
+  }
+  trace(message, ...args) {
+    if (this.canLog(LogLevel.Trace)) {
+      this.adapter.log(LogLevel.Trace, [this.extractMessage(message), ...args]);
+    }
+  }
+  debug(message, ...args) {
+    if (this.canLog(LogLevel.Debug)) {
+      this.adapter.log(LogLevel.Debug, [this.extractMessage(message), ...args]);
+    }
+  }
+  info(message, ...args) {
+    if (this.canLog(LogLevel.Info)) {
+      this.adapter.log(LogLevel.Info, [this.extractMessage(message), ...args]);
+    }
+  }
+  warn(message, ...args) {
+    if (this.canLog(LogLevel.Warning)) {
+      this.adapter.log(LogLevel.Warning, [this.extractMessage(message), ...args]);
+    }
+  }
+  error(message, ...args) {
+    if (this.canLog(LogLevel.Error)) {
+      this.adapter.log(LogLevel.Error, [this.extractMessage(message), ...args]);
+    }
+  }
+  extractMessage(msg) {
+    if (typeof msg === "string") {
+      return msg;
+    }
+    return toErrorMessage(msg, this.canLog(LogLevel.Trace));
+  }
+  flush() {
+  }
+}
+class MultiplexLogger extends AbstractLogger {
+  static {
+    __name(this, "MultiplexLogger");
+  }
+  constructor(loggers) {
+    super();
+    this.loggers = loggers;
+    if (loggers.length) {
+      this.setLevel(loggers[0].getLevel());
+    }
+  }
+  setLevel(level) {
+    for (const logger of this.loggers) {
+      logger.setLevel(level);
+    }
+    super.setLevel(level);
+  }
+  trace(message, ...args) {
+    for (const logger of this.loggers) {
+      logger.trace(message, ...args);
+    }
+  }
+  debug(message, ...args) {
+    for (const logger of this.loggers) {
+      logger.debug(message, ...args);
+    }
+  }
+  info(message, ...args) {
+    for (const logger of this.loggers) {
+      logger.info(message, ...args);
+    }
+  }
+  warn(message, ...args) {
+    for (const logger of this.loggers) {
+      logger.warn(message, ...args);
+    }
+  }
+  error(message, ...args) {
+    for (const logger of this.loggers) {
+      logger.error(message, ...args);
+    }
+  }
+  flush() {
+    for (const logger of this.loggers) {
+      logger.flush();
+    }
+  }
+  dispose() {
+    for (const logger of this.loggers) {
+      logger.dispose();
+    }
+    super.dispose();
+  }
+}
+class AbstractLoggerService extends Disposable {
+  static {
+    __name(this, "AbstractLoggerService");
+  }
+  constructor(logLevel, logsHome, loggerResources) {
+    super();
+    this.logLevel = logLevel;
+    this.logsHome = logsHome;
+    this._loggers = new ResourceMap();
+    this._onDidChangeLoggers = this._register(new Emitter());
+    this.onDidChangeLoggers = this._onDidChangeLoggers.event;
+    this._onDidChangeLogLevel = this._register(new Emitter());
+    this.onDidChangeLogLevel = this._onDidChangeLogLevel.event;
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this.onDidChangeVisibility = this._onDidChangeVisibility.event;
+    if (loggerResources) {
+      for (const loggerResource of loggerResources) {
+        this._loggers.set(loggerResource.resource, { logger: void 0, info: loggerResource });
+      }
+    }
+  }
+  getLoggerEntry(resourceOrId) {
+    if (isString(resourceOrId)) {
+      return [...this._loggers.values()].find((logger) => logger.info.id === resourceOrId);
+    }
+    return this._loggers.get(resourceOrId);
+  }
+  getLogger(resourceOrId) {
+    return this.getLoggerEntry(resourceOrId)?.logger;
+  }
+  createLogger(idOrResource, options) {
+    const resource = this.toResource(idOrResource);
+    const id = isString(idOrResource) ? idOrResource : options?.id ?? hash(resource.toString()).toString(16);
+    let logger = this._loggers.get(resource)?.logger;
+    const logLevel = options?.logLevel === "always" ? LogLevel.Trace : options?.logLevel;
+    if (!logger) {
+      logger = this.doCreateLogger(resource, logLevel ?? this.getLogLevel(resource) ?? this.logLevel, { ...options, id });
+    }
+    const loggerEntry = {
+      logger,
+      info: {
+        resource,
+        id,
+        logLevel,
+        name: options?.name,
+        hidden: options?.hidden,
+        group: options?.group,
+        extensionId: options?.extensionId,
+        when: options?.when
+      }
+    };
+    this.registerLogger(loggerEntry.info);
+    this._loggers.set(resource, loggerEntry);
+    return logger;
+  }
+  toResource(idOrResource) {
+    return isString(idOrResource) ? joinPath(this.logsHome, `${idOrResource.replace(/[\\/:\*\?"<>\|]/g, "")}.log`) : idOrResource;
+  }
+  setLogLevel(arg1, arg2) {
+    if (URI.isUri(arg1)) {
+      const resource = arg1;
+      const logLevel = arg2;
+      const logger = this._loggers.get(resource);
+      if (logger && logLevel !== logger.info.logLevel) {
+        logger.info.logLevel = logLevel === this.logLevel ? void 0 : logLevel;
+        logger.logger?.setLevel(logLevel);
+        this._loggers.set(logger.info.resource, logger);
+        this._onDidChangeLogLevel.fire([resource, logLevel]);
+      }
+    } else {
+      this.logLevel = arg1;
+      for (const [resource, logger] of this._loggers.entries()) {
+        if (this._loggers.get(resource)?.info.logLevel === void 0) {
+          logger.logger?.setLevel(this.logLevel);
+        }
+      }
+      this._onDidChangeLogLevel.fire(this.logLevel);
+    }
+  }
+  setVisibility(resourceOrId, visibility) {
+    const logger = this.getLoggerEntry(resourceOrId);
+    if (logger && visibility !== !logger.info.hidden) {
+      logger.info.hidden = !visibility;
+      this._loggers.set(logger.info.resource, logger);
+      this._onDidChangeVisibility.fire([logger.info.resource, visibility]);
+    }
+  }
+  getLogLevel(resource) {
+    let logLevel;
+    if (resource) {
+      logLevel = this._loggers.get(resource)?.info.logLevel;
+    }
+    return logLevel ?? this.logLevel;
+  }
+  registerLogger(resource) {
+    const existing = this._loggers.get(resource.resource);
+    if (existing) {
+      if (existing.info.hidden !== resource.hidden) {
+        this.setVisibility(resource.resource, !resource.hidden);
+      }
+    } else {
+      this._loggers.set(resource.resource, { info: resource, logger: void 0 });
+      this._onDidChangeLoggers.fire({ added: [resource], removed: [] });
+    }
+  }
+  deregisterLogger(idOrResource) {
+    const resource = this.toResource(idOrResource);
+    const existing = this._loggers.get(resource);
+    if (existing) {
+      if (existing.logger) {
+        existing.logger.dispose();
+      }
+      this._loggers.delete(resource);
+      this._onDidChangeLoggers.fire({ added: [], removed: [existing.info] });
+    }
+  }
+  *getRegisteredLoggers() {
+    for (const entry of this._loggers.values()) {
+      yield entry.info;
+    }
+  }
+  getRegisteredLogger(resource) {
+    return this._loggers.get(resource)?.info;
+  }
+  dispose() {
+    this._loggers.forEach((logger) => logger.logger?.dispose());
+    this._loggers.clear();
+    super.dispose();
+  }
+}
+class NullLogger {
+  static {
+    __name(this, "NullLogger");
+  }
+  constructor() {
+    this.onDidChangeLogLevel = new Emitter().event;
+  }
+  setLevel(level) {
+  }
+  getLevel() {
+    return LogLevel.Info;
+  }
+  trace(message, ...args) {
+  }
+  debug(message, ...args) {
+  }
+  info(message, ...args) {
+  }
+  warn(message, ...args) {
+  }
+  error(message, ...args) {
+  }
+  critical(message, ...args) {
+  }
+  dispose() {
+  }
+  flush() {
+  }
+}
+class NullLogService extends NullLogger {
+  static {
+    __name(this, "NullLogService");
+  }
+}
+class NullLoggerService extends AbstractLoggerService {
+  static {
+    __name(this, "NullLoggerService");
+  }
+  constructor() {
+    super(LogLevel.Off, URI.parse("log:///log"));
+  }
+  doCreateLogger(resource, logLevel, options) {
+    return new NullLogger();
+  }
+}
+function getLogLevel(environmentService) {
+  if (environmentService.verbose) {
+    return LogLevel.Trace;
+  }
+  if (typeof environmentService.logLevel === "string") {
+    const logLevel = parseLogLevel(environmentService.logLevel.toLowerCase());
+    if (logLevel !== void 0) {
+      return logLevel;
+    }
+  }
+  return DEFAULT_LOG_LEVEL;
+}
+__name(getLogLevel, "getLogLevel");
+function LogLevelToString(logLevel) {
+  switch (logLevel) {
+    case LogLevel.Trace:
+      return "trace";
+    case LogLevel.Debug:
+      return "debug";
+    case LogLevel.Info:
+      return "info";
+    case LogLevel.Warning:
+      return "warn";
+    case LogLevel.Error:
+      return "error";
+    case LogLevel.Off:
+      return "off";
+  }
+}
+__name(LogLevelToString, "LogLevelToString");
+function LogLevelToLocalizedString(logLevel) {
+  switch (logLevel) {
+    case LogLevel.Trace:
+      return { original: "Trace", value: nls.localize("trace", "Trace") };
+    case LogLevel.Debug:
+      return { original: "Debug", value: nls.localize("debug", "Debug") };
+    case LogLevel.Info:
+      return { original: "Info", value: nls.localize("info", "Info") };
+    case LogLevel.Warning:
+      return { original: "Warning", value: nls.localize("warn", "Warning") };
+    case LogLevel.Error:
+      return { original: "Error", value: nls.localize("error", "Error") };
+    case LogLevel.Off:
+      return { original: "Off", value: nls.localize("off", "Off") };
+  }
+}
+__name(LogLevelToLocalizedString, "LogLevelToLocalizedString");
+function parseLogLevel(logLevel) {
+  switch (logLevel) {
+    case "trace":
+      return LogLevel.Trace;
+    case "debug":
+      return LogLevel.Debug;
+    case "info":
+      return LogLevel.Info;
+    case "warn":
+      return LogLevel.Warning;
+    case "error":
+      return LogLevel.Error;
+    case "critical":
+      return LogLevel.Error;
+    case "off":
+      return LogLevel.Off;
+  }
+  return void 0;
+}
+__name(parseLogLevel, "parseLogLevel");
+const CONTEXT_LOG_LEVEL = new RawContextKey("logLevel", LogLevelToString(LogLevel.Info));
+export {
+  AbstractLogger,
+  AbstractLoggerService,
+  AbstractMessageLogger,
+  AdapterLogger,
+  CONTEXT_LOG_LEVEL,
+  ConsoleLogger,
+  ConsoleMainLogger,
+  DEFAULT_LOG_LEVEL,
+  ILogService,
+  ILoggerService,
+  LogLevel,
+  LogLevelToLocalizedString,
+  LogLevelToString,
+  MultiplexLogger,
+  NullLogService,
+  NullLogger,
+  NullLoggerService,
+  canLog,
+  getLogLevel,
+  isLogLevel,
+  log,
+  parseLogLevel
+};
+//# sourceMappingURL=log.js.map

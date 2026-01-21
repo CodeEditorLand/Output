@@ -1,1 +1,298 @@
-import"./media/notificationsCenter.css";import"./media/notificationsActions.css";import{$0zb as k,$$zb as G,$5zb as M}from"../../../common/theme.js";import{$ou as j,$wu as E}from"../../../../platform/theme/common/themeService.js";import{$Dxb as H}from"../../../services/layout/browser/layoutService.js";import{$wf as N}from"../../../../base/common/event.js";import{$qo as A}from"../../../../platform/contextkey/common/contextkey.js";import{$JJc as P}from"./notificationsCommands.js";import{$XJc as V}from"./notificationsList.js";import{$Lj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$ as m,$X7 as y,$i8 as D}from"../../../../base/browser/dom.js";import{$Qr as S}from"../../../../platform/theme/common/colorRegistry.js";import{$uL as B}from"../../../services/editor/common/editorGroupsService.js";import{localize as f}from"../../../../nls.js";import{$G9 as z}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$LJc as g,$OJc as b,$NJc as C,$PJc as L,$MJc as F}from"./notificationsActions.js";import{$Gm as R,$Jm as I}from"../../../../base/common/actions.js";import{$cy as W}from"../../../../platform/keybinding/common/keybinding.js";import{$id as w,$gd as x}from"../../../../base/common/types.js";import{$cP as Q}from"../../../common/contextkeys.js";import{$mH as T,NotificationsFilter as c}from"../../../../platform/notification/common/notification.js";import{$96 as v}from"../../../../base/browser/window.js";import{$6hb as U}from"../../../../platform/contextview/browser/contextView.js";import{$M$ as Z}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{$ohb as K,$jhb as X}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";var O=function(d,t,s,i){var o=arguments.length,e=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,s):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(d,t,s,i);else for(var l=d.length-1;l>=0;l--)(h=d[l])&&(e=(o<3?h(e):o>3?h(t,s,e):h(t,s))||e);return o>3&&e&&Object.defineProperty(t,s,e),e},a=function(d,t){return function(s,i){t(s,i,d)}},u;let J=class extends E{static{u=this}static{this.c=new y(450,400)}static{this.f=10}constructor(t,s,i,o,e,h,l,n,p,r,$){super(i),this.F=t,this.G=s,this.H=o,this.I=e,this.J=l,this.L=n,this.M=p,this.N=r,this.O=$,this.g=this.D(new N),this.onDidChangeVisibility=this.g.event,this.u=Q.bindTo(h),this.P()}P(){this.D(this.G.onDidChangeNotification(t=>this.W(t))),this.D(this.I.onDidLayoutMainContainer(t=>this.layout(y.lift(t)))),this.D(this.M.onDidChangeFilter(()=>this.Q()))}Q(){this.M.getFilter()===c.ERROR&&this.hide()}get isVisible(){return!!this.s}show(){if(this.s){const i=x(this.r);i.show(),i.focusFirst();return}this.h||this.S(),this.R();const[t,s]=w(this.r,this.h);this.s=!0,s.classList.add("visible"),t.show(),this.layout(this.t),t.updateNotificationsList(0,0,this.G.notifications),t.focusFirst(),this.updateStyles(),this.G.notifications.forEach(i=>i.updateVisibility(!0)),this.u.set(!0),this.g.fire()}R(){const[t,s]=w(this.m,this.w);this.G.notifications.length===0?(t.textContent=f(3970,null),s.enabled=!1):(t.textContent=f(3971,null),s.enabled=this.G.notifications.some(i=>!i.hasProgress))}S(){this.h=m(".notifications-center"),this.j=m(".notifications-center-header"),this.h.appendChild(this.j),this.m=m("span.notifications-center-header-title"),this.j.appendChild(this.m);const t=m(".notifications-center-header-toolbar");this.j.appendChild(t);const s=this.D(this.H.createInstance(P)),i=this,o=this.D(new z(t,{ariaLabel:f(3972,null),actionRunner:s,actionViewItemProvider:(h,l)=>{if(h.id===b.ID)return this.D(this.H.createInstance(Z,h,{getActions(){const n=[I({id:F.ID,label:i.M.getFilter()===c.OFF?f(3973,null):f(3974,null),run:()=>i.M.setFilter(i.M.getFilter()===c.OFF?c.ERROR:c.OFF)})],p=i.M.getFilters().sort((r,$)=>r.label.localeCompare($.label));for(const r of p.slice(0,u.f))n.length===1&&n.push(new R),n.push(I({id:`${F.ID}.${r.id}`,label:r.label,checked:r.filter!==c.ERROR,run:()=>i.M.setFilter({...r,filter:r.filter===c.ERROR?c.OFF:c.ERROR})}));return p.length>u.f&&(n.push(new R),n.push(i.D(i.H.createInstance(C,C.ID,f(3975,null))))),n}},this.O,{...l,actionRunner:s,classNames:h.class,keybindingProvider:n=>this.L.lookupKeybinding(n.id)}))}}));this.w=this.D(this.H.createInstance(g,g.ID,g.LABEL)),o.push(this.w,{icon:!0,label:!1,keybinding:this.U(this.w)}),this.y=this.D(this.H.createInstance(b,b.ID,b.LABEL)),o.push(this.y,{icon:!0,label:!1});const e=this.D(this.H.createInstance(L,L.ID,L.LABEL));o.push(e,{icon:!0,label:!1,keybinding:this.U(e)}),this.r=this.H.createInstance(V,this.h,{widgetAriaLabel:f(3976,null)}),this.F.appendChild(this.h)}U(t){const s=this.L.lookupKeybinding(t.id);return s?s.getLabel():null}W(t){if(!this.s)return;let s=!1;const[i,o]=w(this.r,this.h);switch(t.kind){case 0:i.updateNotificationsList(t.index,0,[t.item]),t.item.updateVisibility(!0);break;case 1:switch(t.detail){case 2:i.updateNotificationsList(t.index,1,[t.item]);break;case 1:t.item.expanded&&i.updateNotificationHeight(t.item);break}break;case 2:i.updateNotificationsList(t.index,1,[t.item]);break;case 3:s=D(o),i.updateNotificationsList(t.index,1),t.item.updateVisibility(!1);break}this.R(),this.G.notifications.length===0&&(this.hide(),s&&this.J.activeGroup.focus())}hide(){if(!this.s||!this.h||!this.r)return;const t=D(this.h);this.s=!1,this.h.classList.remove("visible"),this.r.hide(),this.G.notifications.forEach(s=>s.updateVisibility(!1)),this.u.set(!1),this.g.fire(),t&&this.J.activeGroup.focus()}updateStyles(){if(this.h&&this.j){const t=this.C(S);this.h.style.boxShadow=t?`0 0 8px 2px ${t}`:"";const s=this.C(M);this.h.style.border=s?`1px solid ${s}`:"";const i=this.C(k);this.j.style.color=i??"";const o=this.C(G);this.j.style.background=o??""}}layout(t){if(this.t=t,this.s&&this.h){const s=u.c.width,i=u.c.height;let o=s,e=i;this.t&&(o=this.t.width,o-=16,e=this.t.height-35,this.I.isVisible("workbench.parts.statusbar",v)&&(e-=22),this.I.isVisible("workbench.parts.titlebar",v)&&(e-=22),e-=24),x(this.r).layout(Math.min(s,o),Math.min(i,e))}}clearAll(){this.hide();for(const t of[...this.G.notifications])t.hasProgress||t.close(),this.N.playSignal(K.clear)}};J=u=O([a(2,j),a(3,_),a(4,H),a(5,A),a(6,B),a(7,W),a(8,T),a(9,X),a(10,U)],J);export{J as $ZJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotificationsCenter_1;
+import "./media/notificationsCenter.css";
+import "./media/notificationsActions.css";
+import { NOTIFICATIONS_CENTER_HEADER_FOREGROUND, NOTIFICATIONS_CENTER_HEADER_BACKGROUND, NOTIFICATIONS_CENTER_BORDER } from "../../../common/theme.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { NotificationActionRunner } from "./notificationsCommands.js";
+import { NotificationsList } from "./notificationsList.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { $, Dimension, isAncestorOfActiveElement } from "../../../../base/browser/dom.js";
+import { widgetShadow } from "../../../../platform/theme/common/colorRegistry.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { localize } from "../../../../nls.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ClearAllNotificationsAction, ConfigureDoNotDisturbAction, ToggleDoNotDisturbBySourceAction, HideNotificationsCenterAction, ToggleDoNotDisturbAction } from "./notificationsActions.js";
+import { Separator, toAction } from "../../../../base/common/actions.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { assertReturnsAllDefined, assertReturnsDefined } from "../../../../base/common/types.js";
+import { NotificationsCenterVisibleContext } from "../../../common/contextkeys.js";
+import { INotificationService, NotificationsFilter } from "../../../../platform/notification/common/notification.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+let NotificationsCenter = class NotificationsCenter2 extends Themable {
+  static {
+    __name(this, "NotificationsCenter");
+  }
+  static {
+    NotificationsCenter_1 = this;
+  }
+  static {
+    this.MAX_DIMENSIONS = new Dimension(450, 400);
+  }
+  static {
+    this.MAX_NOTIFICATION_SOURCES = 10;
+  }
+  // maximum number of notification sources to show in configure dropdown
+  constructor(container, model, themeService, instantiationService, layoutService, contextKeyService, editorGroupService, keybindingService, notificationService, accessibilitySignalService, contextMenuService) {
+    super(themeService);
+    this.container = container;
+    this.model = model;
+    this.instantiationService = instantiationService;
+    this.layoutService = layoutService;
+    this.editorGroupService = editorGroupService;
+    this.keybindingService = keybindingService;
+    this.notificationService = notificationService;
+    this.accessibilitySignalService = accessibilitySignalService;
+    this.contextMenuService = contextMenuService;
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this.onDidChangeVisibility = this._onDidChangeVisibility.event;
+    this.notificationsCenterVisibleContextKey = NotificationsCenterVisibleContext.bindTo(contextKeyService);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.model.onDidChangeNotification((e) => this.onDidChangeNotification(e)));
+    this._register(this.layoutService.onDidLayoutMainContainer((dimension) => this.layout(Dimension.lift(dimension))));
+    this._register(this.notificationService.onDidChangeFilter(() => this.onDidChangeFilter()));
+  }
+  onDidChangeFilter() {
+    if (this.notificationService.getFilter() === NotificationsFilter.ERROR) {
+      this.hide();
+    }
+  }
+  get isVisible() {
+    return !!this._isVisible;
+  }
+  show() {
+    if (this._isVisible) {
+      const notificationsList2 = assertReturnsDefined(this.notificationsList);
+      notificationsList2.show();
+      notificationsList2.focusFirst();
+      return;
+    }
+    if (!this.notificationsCenterContainer) {
+      this.create();
+    }
+    this.updateTitle();
+    const [notificationsList, notificationsCenterContainer] = assertReturnsAllDefined(this.notificationsList, this.notificationsCenterContainer);
+    this._isVisible = true;
+    notificationsCenterContainer.classList.add("visible");
+    notificationsList.show();
+    this.layout(this.workbenchDimensions);
+    notificationsList.updateNotificationsList(0, 0, this.model.notifications);
+    notificationsList.focusFirst();
+    this.updateStyles();
+    this.model.notifications.forEach((notification) => notification.updateVisibility(true));
+    this.notificationsCenterVisibleContextKey.set(true);
+    this._onDidChangeVisibility.fire();
+  }
+  updateTitle() {
+    const [notificationsCenterTitle, clearAllAction] = assertReturnsAllDefined(this.notificationsCenterTitle, this.clearAllAction);
+    if (this.model.notifications.length === 0) {
+      notificationsCenterTitle.textContent = localize("notificationsEmpty", "No new notifications");
+      clearAllAction.enabled = false;
+    } else {
+      notificationsCenterTitle.textContent = localize("notifications", "Notifications");
+      clearAllAction.enabled = this.model.notifications.some((notification) => !notification.hasProgress);
+    }
+  }
+  create() {
+    this.notificationsCenterContainer = $(".notifications-center");
+    this.notificationsCenterHeader = $(".notifications-center-header");
+    this.notificationsCenterContainer.appendChild(this.notificationsCenterHeader);
+    this.notificationsCenterTitle = $("span.notifications-center-header-title");
+    this.notificationsCenterHeader.appendChild(this.notificationsCenterTitle);
+    const toolbarContainer = $(".notifications-center-header-toolbar");
+    this.notificationsCenterHeader.appendChild(toolbarContainer);
+    const actionRunner = this._register(this.instantiationService.createInstance(NotificationActionRunner));
+    const that = this;
+    const notificationsToolBar = this._register(new ActionBar(toolbarContainer, {
+      ariaLabel: localize("notificationsToolbar", "Notification Center Actions"),
+      actionRunner,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === ConfigureDoNotDisturbAction.ID) {
+          return this._register(this.instantiationService.createInstance(DropdownMenuActionViewItem, action, {
+            getActions() {
+              const actions = [toAction({
+                id: ToggleDoNotDisturbAction.ID,
+                label: that.notificationService.getFilter() === NotificationsFilter.OFF ? localize("turnOnNotifications", "Enable Do Not Disturb Mode") : localize("turnOffNotifications", "Disable Do Not Disturb Mode"),
+                run: /* @__PURE__ */ __name(() => that.notificationService.setFilter(that.notificationService.getFilter() === NotificationsFilter.OFF ? NotificationsFilter.ERROR : NotificationsFilter.OFF), "run")
+              })];
+              const sortedFilters = that.notificationService.getFilters().sort((a, b) => a.label.localeCompare(b.label));
+              for (const source of sortedFilters.slice(0, NotificationsCenter_1.MAX_NOTIFICATION_SOURCES)) {
+                if (actions.length === 1) {
+                  actions.push(new Separator());
+                }
+                actions.push(toAction({
+                  id: `${ToggleDoNotDisturbAction.ID}.${source.id}`,
+                  label: source.label,
+                  checked: source.filter !== NotificationsFilter.ERROR,
+                  run: /* @__PURE__ */ __name(() => that.notificationService.setFilter({
+                    ...source,
+                    filter: source.filter === NotificationsFilter.ERROR ? NotificationsFilter.OFF : NotificationsFilter.ERROR
+                  }), "run")
+                }));
+              }
+              if (sortedFilters.length > NotificationsCenter_1.MAX_NOTIFICATION_SOURCES) {
+                actions.push(new Separator());
+                actions.push(that._register(that.instantiationService.createInstance(ToggleDoNotDisturbBySourceAction, ToggleDoNotDisturbBySourceAction.ID, localize("moreSources", "More\u2026"))));
+              }
+              return actions;
+            }
+          }, this.contextMenuService, {
+            ...options,
+            actionRunner,
+            classNames: action.class,
+            keybindingProvider: /* @__PURE__ */ __name((action2) => this.keybindingService.lookupKeybinding(action2.id), "keybindingProvider")
+          }));
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }));
+    this.clearAllAction = this._register(this.instantiationService.createInstance(ClearAllNotificationsAction, ClearAllNotificationsAction.ID, ClearAllNotificationsAction.LABEL));
+    notificationsToolBar.push(this.clearAllAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.clearAllAction) });
+    this.configureDoNotDisturbAction = this._register(this.instantiationService.createInstance(ConfigureDoNotDisturbAction, ConfigureDoNotDisturbAction.ID, ConfigureDoNotDisturbAction.LABEL));
+    notificationsToolBar.push(this.configureDoNotDisturbAction, { icon: true, label: false });
+    const hideAllAction = this._register(this.instantiationService.createInstance(HideNotificationsCenterAction, HideNotificationsCenterAction.ID, HideNotificationsCenterAction.LABEL));
+    notificationsToolBar.push(hideAllAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(hideAllAction) });
+    this.notificationsList = this.instantiationService.createInstance(NotificationsList, this.notificationsCenterContainer, {
+      widgetAriaLabel: localize("notificationsCenterWidgetAriaLabel", "Notifications Center")
+    });
+    this.container.appendChild(this.notificationsCenterContainer);
+  }
+  getKeybindingLabel(action) {
+    const keybinding = this.keybindingService.lookupKeybinding(action.id);
+    return keybinding ? keybinding.getLabel() : null;
+  }
+  onDidChangeNotification(e) {
+    if (!this._isVisible) {
+      return;
+    }
+    let focusEditor = false;
+    const [notificationsList, notificationsCenterContainer] = assertReturnsAllDefined(this.notificationsList, this.notificationsCenterContainer);
+    switch (e.kind) {
+      case 0:
+        notificationsList.updateNotificationsList(e.index, 0, [e.item]);
+        e.item.updateVisibility(true);
+        break;
+      case 1:
+        switch (e.detail) {
+          case 2:
+            notificationsList.updateNotificationsList(e.index, 1, [e.item]);
+            break;
+          case 1:
+            if (e.item.expanded) {
+              notificationsList.updateNotificationHeight(e.item);
+            }
+            break;
+        }
+        break;
+      case 2:
+        notificationsList.updateNotificationsList(e.index, 1, [e.item]);
+        break;
+      case 3:
+        focusEditor = isAncestorOfActiveElement(notificationsCenterContainer);
+        notificationsList.updateNotificationsList(e.index, 1);
+        e.item.updateVisibility(false);
+        break;
+    }
+    this.updateTitle();
+    if (this.model.notifications.length === 0) {
+      this.hide();
+      if (focusEditor) {
+        this.editorGroupService.activeGroup.focus();
+      }
+    }
+  }
+  hide() {
+    if (!this._isVisible || !this.notificationsCenterContainer || !this.notificationsList) {
+      return;
+    }
+    const focusEditor = isAncestorOfActiveElement(this.notificationsCenterContainer);
+    this._isVisible = false;
+    this.notificationsCenterContainer.classList.remove("visible");
+    this.notificationsList.hide();
+    this.model.notifications.forEach((notification) => notification.updateVisibility(false));
+    this.notificationsCenterVisibleContextKey.set(false);
+    this._onDidChangeVisibility.fire();
+    if (focusEditor) {
+      this.editorGroupService.activeGroup.focus();
+    }
+  }
+  updateStyles() {
+    if (this.notificationsCenterContainer && this.notificationsCenterHeader) {
+      const widgetShadowColor = this.getColor(widgetShadow);
+      this.notificationsCenterContainer.style.boxShadow = widgetShadowColor ? `0 0 8px 2px ${widgetShadowColor}` : "";
+      const borderColor = this.getColor(NOTIFICATIONS_CENTER_BORDER);
+      this.notificationsCenterContainer.style.border = borderColor ? `1px solid ${borderColor}` : "";
+      const headerForeground = this.getColor(NOTIFICATIONS_CENTER_HEADER_FOREGROUND);
+      this.notificationsCenterHeader.style.color = headerForeground ?? "";
+      const headerBackground = this.getColor(NOTIFICATIONS_CENTER_HEADER_BACKGROUND);
+      this.notificationsCenterHeader.style.background = headerBackground ?? "";
+    }
+  }
+  layout(dimension) {
+    this.workbenchDimensions = dimension;
+    if (this._isVisible && this.notificationsCenterContainer) {
+      const maxWidth = NotificationsCenter_1.MAX_DIMENSIONS.width;
+      const maxHeight = NotificationsCenter_1.MAX_DIMENSIONS.height;
+      let availableWidth = maxWidth;
+      let availableHeight = maxHeight;
+      if (this.workbenchDimensions) {
+        availableWidth = this.workbenchDimensions.width;
+        availableWidth -= 2 * 8;
+        availableHeight = this.workbenchDimensions.height - 35;
+        if (this.layoutService.isVisible("workbench.parts.statusbar", mainWindow)) {
+          availableHeight -= 22;
+        }
+        if (this.layoutService.isVisible("workbench.parts.titlebar", mainWindow)) {
+          availableHeight -= 22;
+        }
+        availableHeight -= 2 * 12;
+      }
+      const notificationsList = assertReturnsDefined(this.notificationsList);
+      notificationsList.layout(Math.min(maxWidth, availableWidth), Math.min(maxHeight, availableHeight));
+    }
+  }
+  clearAll() {
+    this.hide();
+    for (const notification of [...this.model.notifications]) {
+      if (!notification.hasProgress) {
+        notification.close();
+      }
+      this.accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+    }
+  }
+};
+NotificationsCenter = NotificationsCenter_1 = __decorate([
+  __param(2, IThemeService),
+  __param(3, IInstantiationService),
+  __param(4, IWorkbenchLayoutService),
+  __param(5, IContextKeyService),
+  __param(6, IEditorGroupsService),
+  __param(7, IKeybindingService),
+  __param(8, INotificationService),
+  __param(9, IAccessibilitySignalService),
+  __param(10, IContextMenuService)
+], NotificationsCenter);
+export {
+  NotificationsCenter
+};
+//# sourceMappingURL=notificationsCenter.js.map

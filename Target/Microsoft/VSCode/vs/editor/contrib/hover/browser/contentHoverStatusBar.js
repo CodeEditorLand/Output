@@ -1,1 +1,60 @@
-import*as h from"../../../../base/browser/dom.js";import{$x9 as u}from"../../../../base/browser/ui/hover/hoverWidget.js";import{$Ed as d}from"../../../../base/common/lifecycle.js";import{$cy as p}from"../../../../platform/keybinding/common/keybinding.js";import{$7ib as b}from"../../../../platform/hover/browser/hover.js";import{$E9 as v}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";var m=function(i,t,e,o){var n=arguments.length,r=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,e,o);else for(var a=i.length-1;a>=0;a--)(s=i[a])&&(r=(n<3?s(r):n>3?s(t,e,r):s(t,e))||r);return n>3&&r&&Object.defineProperty(t,e,r),r},c=function(i,t){return function(e,o){t(e,o,i)}};const f=h.$;let l=class extends d{get hasContent(){return this.b}constructor(t,e){super(),this.c=t,this.f=e,this.actions=[],this.b=!1,this.hoverElement=f("div.hover-row.status-bar"),this.hoverElement.tabIndex=0,this.a=h.$I8(this.hoverElement,f("div.actions"))}addAction(t){const e=this.c.lookupKeybinding(t.commandId),o=e?e.getLabel():null;this.b=!0;const n=this.D(u.render(this.a,t,o));return this.D(this.f.setupManagedHover(v("element"),n.actionContainer,n.actionRenderedLabel)),this.actions.push(n),n}append(t){const e=h.$I8(this.a,t);return this.b=!0,e}};l=m([c(0,p),c(1,b)],l);export{l as $zob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { HoverAction } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+const $ = dom.$;
+let EditorHoverStatusBar = class EditorHoverStatusBar2 extends Disposable {
+  static {
+    __name(this, "EditorHoverStatusBar");
+  }
+  get hasContent() {
+    return this._hasContent;
+  }
+  constructor(_keybindingService, _hoverService) {
+    super();
+    this._keybindingService = _keybindingService;
+    this._hoverService = _hoverService;
+    this.actions = [];
+    this._hasContent = false;
+    this.hoverElement = $("div.hover-row.status-bar");
+    this.hoverElement.tabIndex = 0;
+    this.actionsElement = dom.append(this.hoverElement, $("div.actions"));
+  }
+  addAction(actionOptions) {
+    const keybinding = this._keybindingService.lookupKeybinding(actionOptions.commandId);
+    const keybindingLabel = keybinding ? keybinding.getLabel() : null;
+    this._hasContent = true;
+    const action = this._register(HoverAction.render(this.actionsElement, actionOptions, keybindingLabel));
+    this._register(this._hoverService.setupManagedHover(getDefaultHoverDelegate("element"), action.actionContainer, action.actionRenderedLabel));
+    this.actions.push(action);
+    return action;
+  }
+  append(element) {
+    const result = dom.append(this.actionsElement, element);
+    this._hasContent = true;
+    return result;
+  }
+};
+EditorHoverStatusBar = __decorate([
+  __param(0, IKeybindingService),
+  __param(1, IHoverService)
+], EditorHoverStatusBar);
+export {
+  EditorHoverStatusBar
+};
+//# sourceMappingURL=contentHoverStatusBar.js.map

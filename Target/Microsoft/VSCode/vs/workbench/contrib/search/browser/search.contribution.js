@@ -1,1 +1,444 @@
-import*as z from"../../../../base/common/platform.js";import{$nwc as y}from"../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";import*as e from"../../../../nls.js";import{$km as g}from"../../../../platform/configuration/common/configurationRegistry.js";import{$9n as b}from"../../../../platform/contextkey/common/contextkey.js";import{$Jj as u}from"../../../../platform/instantiation/common/descriptors.js";import{$TC as p}from"../../../../platform/instantiation/common/extensions.js";import{$xH as w}from"../../../../platform/quickinput/common/quickAccess.js";import{$im as l}from"../../../../platform/registry/common/platform.js";import{$5Ab as k}from"../../../browser/parts/views/viewPaneContainer.js";import{$nWb as $}from"../../../browser/quickaccess.js";import{Extensions as d}from"../../../common/views.js";import{$Smc as D}from"../../codeEditor/browser/quickaccess/gotoSymbolQuickAccess.js";import{$Vmc as t}from"./anythingQuickAccess.js";import{$qwc as C}from"./replaceContributions.js";import{$swc as E}from"./notebookSearch/notebookSearchContributions.js";import{$xic as m}from"./searchIcons.js";import{$Gjc as x}from"./searchView.js";import{$Jic as v}from"./searchWidget.js";import{$Jjc as a}from"./symbolsQuickAccess.js";import{$ujc as I,$vjc as O}from"../common/searchHistoryService.js";import{$8ic as S}from"./searchTreeModel/searchModel.js";import{$6ic as R}from"./searchTreeModel/searchViewModelWorkbenchService.js";import{$lT as T,$hT as c,$jT as P,$mT as A}from"../../../services/search/common/search.js";import{$uo as F}from"../../../../platform/commands/common/commands.js";import{$fd as V}from"../../../../base/common/types.js";import{$NT as q}from"../common/search.js";import{$Kjc as s}from"./searchChatContext.js";import"./searchActionsCopy.js";import"./searchActionsFind.js";import"./searchActionsNav.js";import"./searchActionsRemoveReplace.js";import"./searchActionsSymbol.js";import"./searchActionsTopBar.js";import"./searchActionsTextQuickAccess.js";import{$uwc as N,$vwc as M}from"./quickTextSearch/textSearchQuickAccess.js";import{$7N as j}from"../../../common/configuration.js";import{$XN as W}from"../../../common/contributions.js";p(R,S,1);p(I,O,1);C();E();v();W(s.ID,s,3);const _="search.mode",f=l.as(d.ViewContainersRegistry).registerViewContainer({id:c,title:e.localize2(12036,"Search"),ctorDescriptor:new u(k,[c,{mergeViewWithContainerWhenSingleView:!0}]),hideIfEmpty:!0,icon:m,order:1},0,{doNotRegisterOpenCommand:!0}),L={id:P,containerIcon:m,name:e.localize2(12037,"Search"),ctorDescriptor:new u(x),canToggleVisibility:!1,canMoveView:!0,openCommandActionDescriptor:{id:f.id,mnemonicTitle:e.localize(11960,null),keybindings:{primary:3108,when:b.regex("neverMatch",/doesNotMatch/)},order:1}};l.as(d.ViewsRegistry).registerViews([L],f);const o=l.as(w.Quickaccess);o.registerQuickAccessProvider({ctor:t,prefix:t.PREFIX,placeholder:e.localize(11961,null,y.GO_TO_LINE_PREFIX,D.PREFIX),contextKey:$,helpEntries:[{description:e.localize(11962,null),commandId:"workbench.action.quickOpen",commandCenterOrder:10}]});o.registerQuickAccessProvider({ctor:a,prefix:a.PREFIX,placeholder:e.localize(11963,null),contextKey:"inWorkspaceSymbolsPicker",helpEntries:[{description:e.localize(11964,null),commandId:"workbench.action.showAllSymbols"}]});o.registerQuickAccessProvider({ctor:M,prefix:N,contextKey:"inTextSearchPicker",placeholder:e.localize(11965,null),helpEntries:[{description:e.localize(11966,null),commandId:"workbench.action.quickTextSearch",commandCenterOrder:25}]});const Q=l.as(g.Configuration);Q.registerConfiguration({id:"search",order:13,title:e.localize(11967,null),type:"object",properties:{[T]:{type:"object",markdownDescription:e.localize(11968,null),default:{"**/node_modules":!0,"**/bower_components":!0,"**/*.code-search":!0},additionalProperties:{anyOf:[{type:"boolean",description:e.localize(11969,null)},{type:"object",properties:{when:{type:"string",pattern:"\\w*\\$\\(basename\\)\\w*",default:"$(basename).ext",markdownDescription:e.localize(11970,null)}}}]},scope:5},[_]:{type:"string",enum:["view","reuseEditor","newEditor"],default:"view",markdownDescription:e.localize(11971,null),enumDescriptions:[e.localize(11972,null),e.localize(11973,null),e.localize(11974,null)]},"search.useRipgrep":{type:"boolean",description:e.localize(11975,null),deprecationMessage:e.localize(11976,null),default:!0},"search.maintainFileSearchCache":{type:"boolean",deprecationMessage:e.localize(11977,null),description:e.localize(11978,null),default:!1},"search.useIgnoreFiles":{type:"boolean",markdownDescription:e.localize(11979,null),default:!0,scope:5},"search.useGlobalIgnoreFiles":{type:"boolean",markdownDescription:e.localize(11980,null,"`#search.useIgnoreFiles#`"),default:!1,scope:5},"search.useParentIgnoreFiles":{type:"boolean",markdownDescription:e.localize(11981,null,"`#search.useIgnoreFiles#`"),default:!1,scope:5},"search.quickOpen.includeSymbols":{type:"boolean",description:e.localize(11982,null),default:!1},"search.ripgrep.maxThreads":{type:"number",description:e.localize(11983,null),default:0},"search.quickOpen.includeHistory":{type:"boolean",description:e.localize(11984,null),default:!0},"search.quickOpen.history.filterSortOrder":{type:"string",enum:["default","recency"],default:"default",enumDescriptions:[e.localize(11985,null),e.localize(11986,null)],description:e.localize(11987,null)},"search.followSymlinks":{type:"boolean",description:e.localize(11988,null),default:!0},"search.smartCase":{type:"boolean",description:e.localize(11989,null),default:!1},"search.globalFindClipboard":{type:"boolean",default:!1,description:e.localize(11990,null),included:z.$n},"search.location":{type:"string",enum:["sidebar","panel"],default:"sidebar",description:e.localize(11991,null),deprecationMessage:e.localize(11992,null)},"search.maxResults":{type:["number","null"],default:A,markdownDescription:e.localize(11993,null)},"search.collapseResults":{type:"string",enum:["auto","alwaysCollapse","alwaysExpand"],enumDescriptions:[e.localize(11994,null),"",""],default:"alwaysExpand",description:e.localize(11995,null)},"search.useReplacePreview":{type:"boolean",default:!0,description:e.localize(11996,null)},"search.showLineNumbers":{type:"boolean",default:!1,description:e.localize(11997,null)},"search.usePCRE2":{type:"boolean",default:!1,description:e.localize(11998,null),deprecationMessage:e.localize(11999,null)},"search.actionsPosition":{type:"string",enum:["auto","right"],enumDescriptions:[e.localize(12e3,null),e.localize(12001,null)],default:"right",description:e.localize(12002,null)},"search.searchOnType":{type:"boolean",default:!0,description:e.localize(12003,null)},"search.seedWithNearestWord":{type:"boolean",default:!1,description:e.localize(12004,null)},"search.seedOnFocus":{type:"boolean",default:!1,markdownDescription:e.localize(12005,null)},"search.searchOnTypeDebouncePeriod":{type:"number",default:300,markdownDescription:e.localize(12006,null,"`#search.searchOnType#`")},"search.searchEditor.doubleClickBehaviour":{type:"string",enum:["selectWord","goToLocation","openLocationToSide"],default:"goToLocation",enumDescriptions:[e.localize(12007,null),e.localize(12008,null),e.localize(12009,null)],markdownDescription:e.localize(12010,null)},"search.searchEditor.singleClickBehaviour":{type:"string",enum:["default","peekDefinition"],default:"default",enumDescriptions:[e.localize(12011,null),e.localize(12012,null)],markdownDescription:e.localize(12013,null)},"search.searchEditor.reusePriorSearchConfiguration":{type:"boolean",default:!1,markdownDescription:e.localize(12014,null)},"search.searchEditor.defaultNumberOfContextLines":{type:["number","null"],default:1,markdownDescription:e.localize(12015,null)},"search.searchEditor.focusResultsOnSearch":{type:"boolean",default:!1,markdownDescription:e.localize(12016,null)},"search.sortOrder":{type:"string",enum:["default","fileNames","type","modified","countDescending","countAscending"],default:"default",enumDescriptions:[e.localize(12017,null),e.localize(12018,null),e.localize(12019,null),e.localize(12020,null),e.localize(12021,null),e.localize(12022,null)],description:e.localize(12023,null)},"search.decorations.colors":{type:"boolean",description:e.localize(12024,null),default:!0},"search.decorations.badges":{type:"boolean",description:e.localize(12025,null),default:!0},"search.defaultViewMode":{type:"string",enum:["tree","list"],default:"list",enumDescriptions:[e.localize(12026,null),e.localize(12027,null)],description:e.localize(12028,null)},"search.quickAccess.preserveInput":{type:"boolean",description:e.localize(12029,null),default:!1},"search.experimental.closedNotebookRichContentResults":{type:"boolean",description:e.localize(12030,null),default:!1},"search.searchView.semanticSearchBehavior":{type:"string",description:e.localize(12031,null),enum:["manual","runOnEmpty","auto"],default:"manual",enumDescriptions:[e.localize(12032,null),e.localize(12033,null),e.localize(12034,null)],tags:["preview"]},"search.searchView.keywordSuggestions":{type:"boolean",description:e.localize(12035,null),default:!1,tags:["preview"]}}});F.registerCommand("_executeWorkspaceSymbolProvider",async function(i,...r){const[n]=r;return V(typeof n=="string"),(await q(n)).map(h=>h.symbol)});l.as(j.ConfigurationMigration).registerConfigurationMigrations([{key:"search.experimental.quickAccess.preserveInput",migrateFn:(i,r)=>[["search.quickAccess.preserveInput",{value:i}],["search.experimental.quickAccess.preserveInput",{value:void 0}]]}]);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as platform from "../../../../base/common/platform.js";
+import { AbstractGotoLineQuickAccessProvider } from "../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";
+import * as nls from "../../../../nls.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { defaultQuickAccessContextKeyValue } from "../../../browser/quickaccess.js";
+import { Extensions as ViewExtensions } from "../../../common/views.js";
+import { GotoSymbolQuickAccessProvider } from "../../codeEditor/browser/quickaccess/gotoSymbolQuickAccess.js";
+import { AnythingQuickAccessProvider } from "./anythingQuickAccess.js";
+import { registerContributions as replaceContributions } from "./replaceContributions.js";
+import { registerContributions as notebookSearchContributions } from "./notebookSearch/notebookSearchContributions.js";
+import { searchViewIcon } from "./searchIcons.js";
+import { SearchView } from "./searchView.js";
+import { registerContributions as searchWidgetContributions } from "./searchWidget.js";
+import { SymbolsQuickAccessProvider } from "./symbolsQuickAccess.js";
+import { ISearchHistoryService, SearchHistoryService } from "../common/searchHistoryService.js";
+import { SearchViewModelWorkbenchService } from "./searchTreeModel/searchModel.js";
+import { ISearchViewModelWorkbenchService } from "./searchTreeModel/searchViewModelWorkbenchService.js";
+import { SEARCH_EXCLUDE_CONFIG, VIEWLET_ID, VIEW_ID, DEFAULT_MAX_SEARCH_RESULTS } from "../../../services/search/common/search.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { assertType } from "../../../../base/common/types.js";
+import { getWorkspaceSymbols } from "../common/search.js";
+import { SearchChatContextContribution } from "./searchChatContext.js";
+import "./searchActionsCopy.js";
+import "./searchActionsFind.js";
+import "./searchActionsNav.js";
+import "./searchActionsRemoveReplace.js";
+import "./searchActionsSymbol.js";
+import "./searchActionsTopBar.js";
+import "./searchActionsTextQuickAccess.js";
+import { TEXT_SEARCH_QUICK_ACCESS_PREFIX, TextSearchQuickAccess } from "./quickTextSearch/textSearchQuickAccess.js";
+import { Extensions } from "../../../common/configuration.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+registerSingleton(
+  ISearchViewModelWorkbenchService,
+  SearchViewModelWorkbenchService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ISearchHistoryService,
+  SearchHistoryService,
+  1
+  /* InstantiationType.Delayed */
+);
+replaceContributions();
+notebookSearchContributions();
+searchWidgetContributions();
+registerWorkbenchContribution2(
+  SearchChatContextContribution.ID,
+  SearchChatContextContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+const SEARCH_MODE_CONFIG = "search.mode";
+const viewContainer = Registry.as(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+  id: VIEWLET_ID,
+  title: nls.localize2("search", "Search"),
+  ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }]),
+  hideIfEmpty: true,
+  icon: searchViewIcon,
+  order: 1
+}, 0, { doNotRegisterOpenCommand: true });
+const viewDescriptor = {
+  id: VIEW_ID,
+  containerIcon: searchViewIcon,
+  name: nls.localize2("search", "Search"),
+  ctorDescriptor: new SyncDescriptor(SearchView),
+  canToggleVisibility: false,
+  canMoveView: true,
+  openCommandActionDescriptor: {
+    id: viewContainer.id,
+    mnemonicTitle: nls.localize({ key: "miViewSearch", comment: ["&& denotes a mnemonic"] }, "&&Search"),
+    keybindings: {
+      primary: 2048 | 1024 | 36,
+      // Yes, this is weird. See #116188, #115556, #115511, and now #124146, for examples of what can go wrong here.
+      when: ContextKeyExpr.regex("neverMatch", /doesNotMatch/)
+    },
+    order: 1
+  }
+};
+Registry.as(ViewExtensions.ViewsRegistry).registerViews([viewDescriptor], viewContainer);
+const quickAccessRegistry = Registry.as(QuickAccessExtensions.Quickaccess);
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: AnythingQuickAccessProvider,
+  prefix: AnythingQuickAccessProvider.PREFIX,
+  placeholder: nls.localize("anythingQuickAccessPlaceholder", "Search files by name (append {0} to go to line or {1} to go to symbol)", AbstractGotoLineQuickAccessProvider.GO_TO_LINE_PREFIX, GotoSymbolQuickAccessProvider.PREFIX),
+  contextKey: defaultQuickAccessContextKeyValue,
+  helpEntries: [{
+    description: nls.localize("anythingQuickAccess", "Go to File"),
+    commandId: "workbench.action.quickOpen",
+    commandCenterOrder: 10
+  }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: SymbolsQuickAccessProvider,
+  prefix: SymbolsQuickAccessProvider.PREFIX,
+  placeholder: nls.localize("symbolsQuickAccessPlaceholder", "Type the name of a symbol to open."),
+  contextKey: "inWorkspaceSymbolsPicker",
+  helpEntries: [{
+    description: nls.localize("symbolsQuickAccess", "Go to Symbol in Workspace"),
+    commandId: "workbench.action.showAllSymbols"
+    /* Constants.SearchCommandIds.ShowAllSymbolsActionId */
+  }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: TextSearchQuickAccess,
+  prefix: TEXT_SEARCH_QUICK_ACCESS_PREFIX,
+  contextKey: "inTextSearchPicker",
+  placeholder: nls.localize("textSearchPickerPlaceholder", "Search for text in your workspace files."),
+  helpEntries: [
+    {
+      description: nls.localize("textSearchPickerHelp", "Search for Text"),
+      commandId: "workbench.action.quickTextSearch",
+      commandCenterOrder: 25
+    }
+  ]
+});
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "search",
+  order: 13,
+  title: nls.localize("searchConfigurationTitle", "Search"),
+  type: "object",
+  properties: {
+    [SEARCH_EXCLUDE_CONFIG]: {
+      type: "object",
+      markdownDescription: nls.localize("exclude", "Configure [glob patterns](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options) for excluding files and folders in fulltext searches and file search in quick open. To exclude files from the recently opened list in quick open, patterns must be absolute (for example `**/node_modules/**`). Inherits all glob patterns from the `#files.exclude#` setting."),
+      default: { "**/node_modules": true, "**/bower_components": true, "**/*.code-search": true },
+      additionalProperties: {
+        anyOf: [
+          {
+            type: "boolean",
+            description: nls.localize("exclude.boolean", "The glob pattern to match file paths against. Set to true or false to enable or disable the pattern.")
+          },
+          {
+            type: "object",
+            properties: {
+              when: {
+                type: "string",
+                // expression ({ "**/*.js": { "when": "$(basename).js" } })
+                pattern: "\\w*\\$\\(basename\\)\\w*",
+                default: "$(basename).ext",
+                markdownDescription: nls.localize({ key: "exclude.when", comment: ["\\$(basename) should not be translated"] }, "Additional check on the siblings of a matching file. Use \\$(basename) as variable for the matching file name.")
+              }
+            }
+          }
+        ]
+      },
+      scope: 5
+      /* ConfigurationScope.RESOURCE */
+    },
+    [SEARCH_MODE_CONFIG]: {
+      type: "string",
+      enum: ["view", "reuseEditor", "newEditor"],
+      default: "view",
+      markdownDescription: nls.localize("search.mode", "Controls where new `Search: Find in Files` and `Find in Folder` operations occur: either in the Search view, or in a search editor."),
+      enumDescriptions: [
+        nls.localize("search.mode.view", "Search in the Search view, either in the panel or side bars."),
+        nls.localize("search.mode.reuseEditor", "Search in an existing search editor if present, otherwise in a new search editor."),
+        nls.localize("search.mode.newEditor", "Search in a new search editor.")
+      ]
+    },
+    "search.useRipgrep": {
+      type: "boolean",
+      description: nls.localize("useRipgrep", 'This setting is deprecated and now falls back on "search.usePCRE2".'),
+      deprecationMessage: nls.localize("useRipgrepDeprecated", 'Deprecated. Consider "search.usePCRE2" for advanced regex feature support.'),
+      default: true
+    },
+    "search.maintainFileSearchCache": {
+      type: "boolean",
+      deprecationMessage: nls.localize("maintainFileSearchCacheDeprecated", "The search cache is kept in the extension host which never shuts down, so this setting is no longer needed."),
+      description: nls.localize("search.maintainFileSearchCache", "When enabled, the searchService process will be kept alive instead of being shut down after an hour of inactivity. This will keep the file search cache in memory."),
+      default: false
+    },
+    "search.useIgnoreFiles": {
+      type: "boolean",
+      markdownDescription: nls.localize("useIgnoreFiles", "Controls whether to use `.gitignore` and `.ignore` files when searching for files."),
+      default: true,
+      scope: 5
+      /* ConfigurationScope.RESOURCE */
+    },
+    "search.useGlobalIgnoreFiles": {
+      type: "boolean",
+      markdownDescription: nls.localize("useGlobalIgnoreFiles", "Controls whether to use your global gitignore file (for example, from `$HOME/.config/git/ignore`) when searching for files. Requires {0} to be enabled.", "`#search.useIgnoreFiles#`"),
+      default: false,
+      scope: 5
+      /* ConfigurationScope.RESOURCE */
+    },
+    "search.useParentIgnoreFiles": {
+      type: "boolean",
+      markdownDescription: nls.localize("useParentIgnoreFiles", "Controls whether to use `.gitignore` and `.ignore` files in parent directories when searching for files. Requires {0} to be enabled.", "`#search.useIgnoreFiles#`"),
+      default: false,
+      scope: 5
+      /* ConfigurationScope.RESOURCE */
+    },
+    "search.quickOpen.includeSymbols": {
+      type: "boolean",
+      description: nls.localize("search.quickOpen.includeSymbols", "Whether to include results from a global symbol search in the file results for Quick Open."),
+      default: false
+    },
+    "search.ripgrep.maxThreads": {
+      type: "number",
+      description: nls.localize("search.ripgrep.maxThreads", "Number of threads to use for searching. When set to 0, the engine automatically determines this value."),
+      default: 0
+    },
+    "search.quickOpen.includeHistory": {
+      type: "boolean",
+      description: nls.localize("search.quickOpen.includeHistory", "Whether to include results from recently opened files in the file results for Quick Open."),
+      default: true
+    },
+    "search.quickOpen.history.filterSortOrder": {
+      type: "string",
+      enum: ["default", "recency"],
+      default: "default",
+      enumDescriptions: [
+        nls.localize("filterSortOrder.default", "History entries are sorted by relevance based on the filter value used. More relevant entries appear first."),
+        nls.localize("filterSortOrder.recency", "History entries are sorted by recency. More recently opened entries appear first.")
+      ],
+      description: nls.localize("filterSortOrder", "Controls sorting order of editor history in quick open when filtering.")
+    },
+    "search.followSymlinks": {
+      type: "boolean",
+      description: nls.localize("search.followSymlinks", "Controls whether to follow symlinks while searching."),
+      default: true
+    },
+    "search.smartCase": {
+      type: "boolean",
+      description: nls.localize("search.smartCase", "Search case-insensitively if the pattern is all lowercase, otherwise, search case-sensitively."),
+      default: false
+    },
+    "search.globalFindClipboard": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("search.globalFindClipboard", "Controls whether the Search view should read or modify the shared find clipboard on macOS."),
+      included: platform.isMacintosh
+    },
+    "search.location": {
+      type: "string",
+      enum: ["sidebar", "panel"],
+      default: "sidebar",
+      description: nls.localize("search.location", "Controls whether the search will be shown as a view in the sidebar or as a panel in the panel area for more horizontal space."),
+      deprecationMessage: nls.localize("search.location.deprecationMessage", "This setting is deprecated. You can drag the search icon to a new location instead.")
+    },
+    "search.maxResults": {
+      type: ["number", "null"],
+      default: DEFAULT_MAX_SEARCH_RESULTS,
+      markdownDescription: nls.localize("search.maxResults", "Controls the maximum number of search results, this can be set to `null` (empty) to return unlimited results.")
+    },
+    "search.collapseResults": {
+      type: "string",
+      enum: ["auto", "alwaysCollapse", "alwaysExpand"],
+      enumDescriptions: [
+        nls.localize("search.collapseResults.auto", "Files with less than 10 results are expanded. Others are collapsed."),
+        "",
+        ""
+      ],
+      default: "alwaysExpand",
+      description: nls.localize("search.collapseAllResults", "Controls whether the search results will be collapsed or expanded.")
+    },
+    "search.useReplacePreview": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("search.useReplacePreview", "Controls whether to open Replace Preview when selecting or replacing a match.")
+    },
+    "search.showLineNumbers": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("search.showLineNumbers", "Controls whether to show line numbers for search results.")
+    },
+    "search.usePCRE2": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("search.usePCRE2", "Whether to use the PCRE2 regex engine in text search. This enables using some advanced regex features like lookahead and backreferences. However, not all PCRE2 features are supported - only features that are also supported by JavaScript."),
+      deprecationMessage: nls.localize("usePCRE2Deprecated", "Deprecated. PCRE2 will be used automatically when using regex features that are only supported by PCRE2.")
+    },
+    "search.actionsPosition": {
+      type: "string",
+      enum: ["auto", "right"],
+      enumDescriptions: [
+        nls.localize("search.actionsPositionAuto", "Position the actionbar to the right when the Search view is narrow, and immediately after the content when the Search view is wide."),
+        nls.localize("search.actionsPositionRight", "Always position the actionbar to the right.")
+      ],
+      default: "right",
+      description: nls.localize("search.actionsPosition", "Controls the positioning of the actionbar on rows in the Search view.")
+    },
+    "search.searchOnType": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("search.searchOnType", "Search all files as you type.")
+    },
+    "search.seedWithNearestWord": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("search.seedWithNearestWord", "Enable seeding search from the word nearest the cursor when the active editor has no selection.")
+    },
+    "search.seedOnFocus": {
+      type: "boolean",
+      default: false,
+      markdownDescription: nls.localize("search.seedOnFocus", "Update the search query to the editor's selected text when focusing the Search view. This happens either on click or when triggering the `workbench.views.search.focus` command.")
+    },
+    "search.searchOnTypeDebouncePeriod": {
+      type: "number",
+      default: 300,
+      markdownDescription: nls.localize("search.searchOnTypeDebouncePeriod", "When {0} is enabled, controls the timeout in milliseconds between a character being typed and the search starting. Has no effect when {0} is disabled.", "`#search.searchOnType#`")
+    },
+    "search.searchEditor.doubleClickBehaviour": {
+      type: "string",
+      enum: ["selectWord", "goToLocation", "openLocationToSide"],
+      default: "goToLocation",
+      enumDescriptions: [
+        nls.localize("search.searchEditor.doubleClickBehaviour.selectWord", "Double-clicking selects the word under the cursor."),
+        nls.localize("search.searchEditor.doubleClickBehaviour.goToLocation", "Double-clicking opens the result in the active editor group."),
+        nls.localize("search.searchEditor.doubleClickBehaviour.openLocationToSide", "Double-clicking opens the result in the editor group to the side, creating one if it does not yet exist.")
+      ],
+      markdownDescription: nls.localize("search.searchEditor.doubleClickBehaviour", "Configure effect of double-clicking a result in a search editor.")
+    },
+    "search.searchEditor.singleClickBehaviour": {
+      type: "string",
+      enum: ["default", "peekDefinition"],
+      default: "default",
+      enumDescriptions: [
+        nls.localize("search.searchEditor.singleClickBehaviour.default", "Single-clicking does nothing."),
+        nls.localize("search.searchEditor.singleClickBehaviour.peekDefinition", "Single-clicking opens a Peek Definition window.")
+      ],
+      markdownDescription: nls.localize("search.searchEditor.singleClickBehaviour", "Configure effect of single-clicking a result in a search editor.")
+    },
+    "search.searchEditor.reusePriorSearchConfiguration": {
+      type: "boolean",
+      default: false,
+      markdownDescription: nls.localize({ key: "search.searchEditor.reusePriorSearchConfiguration", comment: ['"Search Editor" is a type of editor that can display search results. "includes, excludes, and flags" refers to the "files to include" and "files to exclude" input boxes, and the flags that control whether a query is case-sensitive or a regex.'] }, "When enabled, new Search Editors will reuse the includes, excludes, and flags of the previously opened Search Editor.")
+    },
+    "search.searchEditor.defaultNumberOfContextLines": {
+      type: ["number", "null"],
+      default: 1,
+      markdownDescription: nls.localize("search.searchEditor.defaultNumberOfContextLines", "The default number of surrounding context lines to use when creating new Search Editors. If using `#search.searchEditor.reusePriorSearchConfiguration#`, this can be set to `null` (empty) to use the prior Search Editor's configuration.")
+    },
+    "search.searchEditor.focusResultsOnSearch": {
+      type: "boolean",
+      default: false,
+      markdownDescription: nls.localize("search.searchEditor.focusResultsOnSearch", "When a search is triggered, focus the Search Editor results instead of the Search Editor input.")
+    },
+    "search.sortOrder": {
+      type: "string",
+      enum: [
+        "default",
+        "fileNames",
+        "type",
+        "modified",
+        "countDescending",
+        "countAscending"
+        /* SearchSortOrder.CountAscending */
+      ],
+      default: "default",
+      enumDescriptions: [
+        nls.localize("searchSortOrder.default", "Results are sorted by folder and file names, in alphabetical order."),
+        nls.localize("searchSortOrder.filesOnly", "Results are sorted by file names ignoring folder order, in alphabetical order."),
+        nls.localize("searchSortOrder.type", "Results are sorted by file extensions, in alphabetical order."),
+        nls.localize("searchSortOrder.modified", "Results are sorted by file last modified date, in descending order."),
+        nls.localize("searchSortOrder.countDescending", "Results are sorted by count per file, in descending order."),
+        nls.localize("searchSortOrder.countAscending", "Results are sorted by count per file, in ascending order.")
+      ],
+      description: nls.localize("search.sortOrder", "Controls sorting order of search results.")
+    },
+    "search.decorations.colors": {
+      type: "boolean",
+      description: nls.localize("search.decorations.colors", "Controls whether search file decorations should use colors."),
+      default: true
+    },
+    "search.decorations.badges": {
+      type: "boolean",
+      description: nls.localize("search.decorations.badges", "Controls whether search file decorations should use badges."),
+      default: true
+    },
+    "search.defaultViewMode": {
+      type: "string",
+      enum: [
+        "tree",
+        "list"
+        /* ViewMode.List */
+      ],
+      default: "list",
+      enumDescriptions: [
+        nls.localize("scm.defaultViewMode.tree", "Shows search results as a tree."),
+        nls.localize("scm.defaultViewMode.list", "Shows search results as a list.")
+      ],
+      description: nls.localize("search.defaultViewMode", "Controls the default search result view mode.")
+    },
+    "search.quickAccess.preserveInput": {
+      type: "boolean",
+      description: nls.localize("search.quickAccess.preserveInput", "Controls whether the last typed input to Quick Search should be restored when opening it the next time."),
+      default: false
+    },
+    "search.experimental.closedNotebookRichContentResults": {
+      type: "boolean",
+      description: nls.localize("search.experimental.closedNotebookResults", "Show notebook editor rich content results for closed notebooks. Please refresh your search results after changing this setting."),
+      default: false
+    },
+    "search.searchView.semanticSearchBehavior": {
+      type: "string",
+      description: nls.localize("search.searchView.semanticSearchBehavior", "Controls the behavior of the semantic search results displayed in the Search view."),
+      enum: [
+        "manual",
+        "runOnEmpty",
+        "auto"
+        /* SemanticSearchBehavior.Auto */
+      ],
+      default: "manual",
+      enumDescriptions: [
+        nls.localize("search.searchView.semanticSearchBehavior.manual", "Only request semantic search results manually."),
+        nls.localize("search.searchView.semanticSearchBehavior.runOnEmpty", "Request semantic results automatically only when text search results are empty."),
+        nls.localize("search.searchView.semanticSearchBehavior.auto", "Request semantic results automatically with every search.")
+      ],
+      tags: ["preview"]
+    },
+    "search.searchView.keywordSuggestions": {
+      type: "boolean",
+      description: nls.localize("search.searchView.keywordSuggestions", "Enable keyword suggestions in the Search view."),
+      default: false,
+      tags: ["preview"]
+    }
+  }
+});
+CommandsRegistry.registerCommand("_executeWorkspaceSymbolProvider", async function(accessor, ...args) {
+  const [query] = args;
+  assertType(typeof query === "string");
+  const result = await getWorkspaceSymbols(query);
+  return result.map((item) => item.symbol);
+});
+Registry.as(Extensions.ConfigurationMigration).registerConfigurationMigrations([{
+  key: "search.experimental.quickAccess.preserveInput",
+  migrateFn: /* @__PURE__ */ __name((value, _accessor) => [
+    ["search.quickAccess.preserveInput", { value }],
+    ["search.experimental.quickAccess.preserveInput", { value: void 0 }]
+  ], "migrateFn")
+}]);
+//# sourceMappingURL=search.contribution.js.map

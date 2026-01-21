@@ -1,1 +1,48 @@
-var h;(function(e){e[e.Unknown=0]="Unknown",e[e.Invalid=3]="Invalid",e[e.LF=1]="LF",e[e.CRLF=2]="CRLF"})(h||(h={}));function c(e){let n=0,o=0,i=0,f=0;for(let l=0,t=e.length;l<t;l++){const a=e.charCodeAt(l);a===13?(n===0&&(o=l),n++,l+1<t&&e.charCodeAt(l+1)===10?(f|=2,l++):f|=3,i=l+1):a===10&&(f|=1,n===0&&(o=l),n++,i=l+1)}return n===0&&(o=e.length),[n,o,e.length-i,f]}export{c as $8E,h as StringEOL};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var StringEOL;
+(function(StringEOL2) {
+  StringEOL2[StringEOL2["Unknown"] = 0] = "Unknown";
+  StringEOL2[StringEOL2["Invalid"] = 3] = "Invalid";
+  StringEOL2[StringEOL2["LF"] = 1] = "LF";
+  StringEOL2[StringEOL2["CRLF"] = 2] = "CRLF";
+})(StringEOL || (StringEOL = {}));
+function countEOL(text) {
+  let eolCount = 0;
+  let firstLineLength = 0;
+  let lastLineStart = 0;
+  let eol = 0;
+  for (let i = 0, len = text.length; i < len; i++) {
+    const chr = text.charCodeAt(i);
+    if (chr === 13) {
+      if (eolCount === 0) {
+        firstLineLength = i;
+      }
+      eolCount++;
+      if (i + 1 < len && text.charCodeAt(i + 1) === 10) {
+        eol |= 2;
+        i++;
+      } else {
+        eol |= 3;
+      }
+      lastLineStart = i + 1;
+    } else if (chr === 10) {
+      eol |= 1;
+      if (eolCount === 0) {
+        firstLineLength = i;
+      }
+      eolCount++;
+      lastLineStart = i + 1;
+    }
+  }
+  if (eolCount === 0) {
+    firstLineLength = text.length;
+  }
+  return [eolCount, firstLineLength, text.length - lastLineStart, eol];
+}
+__name(countEOL, "countEOL");
+export {
+  StringEOL,
+  countEOL
+};
+//# sourceMappingURL=eolCounter.js.map

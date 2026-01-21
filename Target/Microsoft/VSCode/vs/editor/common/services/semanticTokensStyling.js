@@ -1,1 +1,6 @@
-import{$Mj as e}from"../../../platform/instantiation/common/instantiation.js";const t=e("semanticTokensStylingService");export{t as $$vb};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const ISemanticTokensStylingService = createDecorator("semanticTokensStylingService");
+export {
+  ISemanticTokensStylingService
+};
+//# sourceMappingURL=semanticTokensStyling.js.map

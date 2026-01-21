@@ -1,1 +1,265 @@
-import{$Fd as A}from"../../../../../base/common/lifecycle.js";import{Schemas as f}from"../../../../../base/common/network.js";import{autorun as F,transaction as x}from"../../../../../base/common/observable.js";import{$fd as C}from"../../../../../base/common/types.js";import{$scb as q}from"../../../../../editor/browser/editorBrowser.js";import{$CE as V}from"../../../../../editor/common/core/edits/textEdit.js";import{$pE as k}from"../../../../../editor/common/core/text/abstractText.js";import{$WF as L}from"../../../../../editor/common/languages/language.js";import{$vJ as O}from"../../../../../editor/common/model/editStack.js";import{$2K as P}from"../../../../../editor/common/model/textModel.js";import{$9db as _}from"../../../../../editor/common/services/editorWorker.js";import{$6H as H}from"../../../../../editor/common/services/model.js";import{$2H as T}from"../../../../../editor/common/services/resolverService.js";import{localize as u}from"../../../../../nls.js";import{$9l as G}from"../../../../../platform/configuration/common/configuration.js";import{$uk as N}from"../../../../../platform/files/common/files.js";import{$Lj as W}from"../../../../../platform/instantiation/common/instantiation.js";import{$fF as J}from"../../../../../platform/markers/common/markers.js";import{$8G as Y}from"../../../../../platform/undoRedo/common/undoRedo.js";import{$5L as B}from"../../../../services/filesConfiguration/common/filesConfigurationService.js";import{$dM as K,$fM as g,$hM as z}from"../../../../services/textfile/common/textfiles.js";import{$DZb as Q}from"../../../editTelemetry/browser/telemetry/aiEditTelemetry/aiEditTelemetryService.js";import{$hU as X}from"../../common/chatService/chatService.js";import{$Unc as tt}from"./chatEditingCodeEditorIntegration.js";import{$Gnc as et}from"./chatEditingModifiedFileEntry.js";import{$Vnc as it}from"./chatEditingTextModelChangeService.js";import{$Knc as st,$Jnc as rt}from"./chatEditingTextModelContentProviders.js";var j=function(h,t,e,i){var a=arguments.length,s=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,e,i);else for(var d=h.length-1;d>=0;d--)(o=h[d])&&(s=(a<3?o(s):a>3?o(t,e,s):o(t,e))||s);return a>3&&s&&Object.defineProperty(t,e,s),s},n=function(h,t){return function(e,i){t(e,i,h)}};let p=class extends et{get changesCount(){return this.ab.diffInfo.map(t=>t.changes.length)}get diffInfo(){return this.ab.diffInfo}get linesAdded(){return this.ab.diffInfo.map(t=>{let e=0;for(const i of t.changes)e+=Math.max(0,i.modified.endLineNumberExclusive-i.modified.startLineNumber);return e})}get linesRemoved(){return this.ab.diffInfo.map(t=>{let e=0;for(const i of t.changes)e+=Math.max(0,i.original.endLineNumberExclusive-i.original.startLineNumber);return e})}constructor(t,e,i,a,s,o,d,b,I,$,R,D,v,U,Z,m,E,w){super(t.object.textEditorModel.uri,i,a,$,R,D,U,Z,m,E),this.bb=e,this.cb=v,this.db=w,this.$=this.D(t).object,this.Z=t.object.textEditorModel,this.originalURI=rt.getFileURI(i.sessionResource,this.entryId,this.modifiedURI.path),this.initialContent=s??this.Z.getValue();const S=this.s=this.D(d.createModel(P(s!==void 0?z(s):this.Z.createSnapshot()),I.createById(this.Z.getLanguageId()),this.originalURI,!1));this.ab=this.D(m.createInstance(it,this.s,this.Z,this.h,()=>this.n)),this.D(this.ab.onDidAcceptOrRejectAllHunks(r=>{this.h.set(r,void 0),this.Q(r===1?"accepted":"rejected")})),this.D(this.ab.onDidAcceptOrRejectLines(r=>{this.R({kind:"chatEditingHunkAction",uri:this.modifiedURI,outcome:r.state,languageId:this.Z.getLanguageId(),...r})})),(async()=>{const r=await b.createModelReference(S.uri);if(this.B.isDisposed){r.dispose();return}this.D(r)})(),this.D(this.ab.onDidUserEditModel(()=>{this.F.schedule();const r=this.Z.getValue()===this.initialContent;this.h.get()===0&&r&&this.h.set(2,void 0)}));const l=this.D(new A);this.D(F(r=>{if(this.j.read(r)){const c=this.q.read(r),y=c&&c.session.getRequests().find(M=>M.id===c.requestId);l.value=o.installResourceFilter(this.modifiedURI,y?.message.text||u(5747,null))}else l.clear()}))}getDiffInfo(){return this.ab.getDiffInfo()}equalsSnapshot(t){return!!t&&this.modifiedURI.toString()===t.resource.toString()&&this.Z.getLanguageId()===t.languageId&&this.s.getValue()===t.original&&this.Z.getValue()===t.current&&this.state.get()===t.state}createSnapshot(t,e,i){return{resource:this.modifiedURI,languageId:this.Z.getLanguageId(),snapshotUri:st.getSnapshotFileURI(t,e,i,this.modifiedURI.path),original:this.s.getValue(),current:this.Z.getValue(),state:this.state.get(),telemetryInfo:this.G}}getCurrentContents(){return this.Z.getValue()}hasModificationAt(t){return t.uri.toString()===this.Z.uri.toString()&&this.ab.hasHunkAt(t.range)}async restoreFromSnapshot(t,e=!0){this.h.set(t.state,void 0),await this.ab.resetDocumentValues(t.original,e?t.current:void 0)}async resetToInitialContent(){await this.ab.resetDocumentValues(void 0,this.initialContent)}async X(){return this.ab.areOriginalAndModifiedIdentical()}Y(t){super.Y(t),this.ab.clearCurrentEditLineDecoration()}W(t){const e=t.session.getRequests().find(a=>a.id===t.requestId),i=e?.message.text?u(5748,null,e.message.text):u(5749,null);return new O(i,"chat.edit",this.Z,null)}async acceptAgentEdits(t,e,i,a){const s=await this.ab.acceptAgentEdits(t,e,i,a);x(o=>{this.j.set(!i,o),this.h.set(0,o),i?(this.Y(o),this.u.set(1,o)):this.u.set(s.rewriteRatio,o)}),i&&this.kb()&&await this.cb.save(this.Z.uri,{reason:2,skipSaveParticipants:!0})}async O(){if(this.ab.keep(),this.bb.collapse(void 0),!this.H.getAutoSaveConfiguration(this.modifiedURI).autoSave||!this.cb.isDirty(this.modifiedURI))try{await this.cb.save(this.modifiedURI,{reason:1,force:!0,ignoreErrorHandler:!0})}catch{}}async P(){this.createdInRequestId===this.G.requestId?(g(this.$)&&(await this.$.revert({soft:!0}),await this.J.del(this.modifiedURI).catch(t=>{})),this.g.fire()):(this.ab.undo(),this.ab.allEditsAreFromUs&&g(this.$)&&this.kb()&&await this.$.save({reason:1,skipSaveParticipants:!0}),this.bb.collapse(void 0))}U(t){const e=q(t.getControl());C(e);const i=this.ab.diffInfo;return this.M.createInstance(tt,this,e,i,!1)}kb(){return this.modifiedURI.scheme!==f.untitled}async computeEditsFromSnapshots(t,e){const i=await this.db.computeStringEditFromDiff(t,e,{maxComputationTimeMs:5e3},"advanced");return V.fromStringEdit(i,new k(t)).replacements.slice()}async save(){this.Z.uri.scheme!==f.untitled&&this.cb.isDirty(this.Z.uri)&&await this.cb.save(this.Z.uri,{reason:1,skipSaveParticipants:!0})}async revertToDisk(){if(this.Z.uri.scheme===f.untitled)return;const t=this.cb.files.get(this.Z.uri);t&&!t.isDisposed()&&await t.revert({soft:!1})}};p=j([n(5,J),n(6,H),n(7,T),n(8,L),n(9,G),n(10,B),n(11,X),n(12,K),n(13,N),n(14,Y),n(15,W),n(16,Q),n(17,_)],p);export{p as $Wnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { autorun, transaction } from "../../../../../base/common/observable.js";
+import { assertType } from "../../../../../base/common/types.js";
+import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { TextEdit as EditorTextEdit } from "../../../../../editor/common/core/edits/textEdit.js";
+import { StringText } from "../../../../../editor/common/core/text/abstractText.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { SingleModelEditStackElement } from "../../../../../editor/common/model/editStack.js";
+import { createTextBufferFactoryFromSnapshot } from "../../../../../editor/common/model/textModel.js";
+import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IMarkerService } from "../../../../../platform/markers/common/markers.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { ITextFileService, isTextFileEditorModel, stringToSnapshot } from "../../../../services/textfile/common/textfiles.js";
+import { IAiEditTelemetryService } from "../../../editTelemetry/browser/telemetry/aiEditTelemetry/aiEditTelemetryService.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatEditingCodeEditorIntegration } from "./chatEditingCodeEditorIntegration.js";
+import { AbstractChatEditingModifiedFileEntry } from "./chatEditingModifiedFileEntry.js";
+import { ChatEditingTextModelChangeService } from "./chatEditingTextModelChangeService.js";
+import { ChatEditingSnapshotTextModelContentProvider, ChatEditingTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
+let ChatEditingModifiedDocumentEntry = class ChatEditingModifiedDocumentEntry2 extends AbstractChatEditingModifiedFileEntry {
+  static {
+    __name(this, "ChatEditingModifiedDocumentEntry");
+  }
+  get changesCount() {
+    return this._textModelChangeService.diffInfo.map((diff) => diff.changes.length);
+  }
+  get diffInfo() {
+    return this._textModelChangeService.diffInfo;
+  }
+  get linesAdded() {
+    return this._textModelChangeService.diffInfo.map((diff) => {
+      let added = 0;
+      for (const c of diff.changes) {
+        added += Math.max(0, c.modified.endLineNumberExclusive - c.modified.startLineNumber);
+      }
+      return added;
+    });
+  }
+  get linesRemoved() {
+    return this._textModelChangeService.diffInfo.map((diff) => {
+      let removed = 0;
+      for (const c of diff.changes) {
+        removed += Math.max(0, c.original.endLineNumberExclusive - c.original.startLineNumber);
+      }
+      return removed;
+    });
+  }
+  constructor(resourceRef, _multiDiffEntryDelegate, telemetryInfo, kind, initialContent, markerService, modelService, textModelService, languageService, configService, fileConfigService, chatService, _textFileService, fileService, undoRedoService, instantiationService, aiEditTelemetryService, _editorWorkerService) {
+    super(resourceRef.object.textEditorModel.uri, telemetryInfo, kind, configService, fileConfigService, chatService, fileService, undoRedoService, instantiationService, aiEditTelemetryService);
+    this._multiDiffEntryDelegate = _multiDiffEntryDelegate;
+    this._textFileService = _textFileService;
+    this._editorWorkerService = _editorWorkerService;
+    this._docFileEditorModel = this._register(resourceRef).object;
+    this.modifiedModel = resourceRef.object.textEditorModel;
+    this.originalURI = ChatEditingTextModelContentProvider.getFileURI(telemetryInfo.sessionResource, this.entryId, this.modifiedURI.path);
+    this.initialContent = initialContent ?? this.modifiedModel.getValue();
+    const docSnapshot = this.originalModel = this._register(modelService.createModel(createTextBufferFactoryFromSnapshot(initialContent !== void 0 ? stringToSnapshot(initialContent) : this.modifiedModel.createSnapshot()), languageService.createById(this.modifiedModel.getLanguageId()), this.originalURI, false));
+    this._textModelChangeService = this._register(instantiationService.createInstance(ChatEditingTextModelChangeService, this.originalModel, this.modifiedModel, this._stateObs, () => this._isExternalEditInProgress));
+    this._register(this._textModelChangeService.onDidAcceptOrRejectAllHunks((action) => {
+      this._stateObs.set(action, void 0);
+      this._notifySessionAction(action === 1 ? "accepted" : "rejected");
+    }));
+    this._register(this._textModelChangeService.onDidAcceptOrRejectLines((action) => {
+      this._notifyAction({
+        kind: "chatEditingHunkAction",
+        uri: this.modifiedURI,
+        outcome: action.state,
+        languageId: this.modifiedModel.getLanguageId(),
+        ...action
+      });
+    }));
+    (async () => {
+      const reference = await textModelService.createModelReference(docSnapshot.uri);
+      if (this._store.isDisposed) {
+        reference.dispose();
+        return;
+      }
+      this._register(reference);
+    })();
+    this._register(this._textModelChangeService.onDidUserEditModel(() => {
+      this._userEditScheduler.schedule();
+      const didResetToOriginalContent = this.modifiedModel.getValue() === this.initialContent;
+      if (this._stateObs.get() === 0 && didResetToOriginalContent) {
+        this._stateObs.set(2, void 0);
+      }
+    }));
+    const resourceFilter = this._register(new MutableDisposable());
+    this._register(autorun((r) => {
+      const inProgress = this._waitsForLastEdits.read(r);
+      if (inProgress) {
+        const res = this._lastModifyingResponseObs.read(r);
+        const req = res && res.session.getRequests().find((value) => value.id === res.requestId);
+        resourceFilter.value = markerService.installResourceFilter(this.modifiedURI, req?.message.text || localize("default", "Chat Edits"));
+      } else {
+        resourceFilter.clear();
+      }
+    }));
+  }
+  getDiffInfo() {
+    return this._textModelChangeService.getDiffInfo();
+  }
+  equalsSnapshot(snapshot) {
+    return !!snapshot && this.modifiedURI.toString() === snapshot.resource.toString() && this.modifiedModel.getLanguageId() === snapshot.languageId && this.originalModel.getValue() === snapshot.original && this.modifiedModel.getValue() === snapshot.current && this.state.get() === snapshot.state;
+  }
+  createSnapshot(chatSessionResource, requestId, undoStop) {
+    return {
+      resource: this.modifiedURI,
+      languageId: this.modifiedModel.getLanguageId(),
+      snapshotUri: ChatEditingSnapshotTextModelContentProvider.getSnapshotFileURI(chatSessionResource, requestId, undoStop, this.modifiedURI.path),
+      original: this.originalModel.getValue(),
+      current: this.modifiedModel.getValue(),
+      state: this.state.get(),
+      telemetryInfo: this._telemetryInfo
+    };
+  }
+  getCurrentContents() {
+    return this.modifiedModel.getValue();
+  }
+  hasModificationAt(location) {
+    return location.uri.toString() === this.modifiedModel.uri.toString() && this._textModelChangeService.hasHunkAt(location.range);
+  }
+  async restoreFromSnapshot(snapshot, restoreToDisk = true) {
+    this._stateObs.set(snapshot.state, void 0);
+    await this._textModelChangeService.resetDocumentValues(snapshot.original, restoreToDisk ? snapshot.current : void 0);
+  }
+  async resetToInitialContent() {
+    await this._textModelChangeService.resetDocumentValues(void 0, this.initialContent);
+  }
+  async _areOriginalAndModifiedIdentical() {
+    return this._textModelChangeService.areOriginalAndModifiedIdentical();
+  }
+  _resetEditsState(tx) {
+    super._resetEditsState(tx);
+    this._textModelChangeService.clearCurrentEditLineDecoration();
+  }
+  _createUndoRedoElement(response) {
+    const request = response.session.getRequests().find((req) => req.id === response.requestId);
+    const label = request?.message.text ? localize("chatEditing1", "Chat Edit: '{0}'", request.message.text) : localize("chatEditing2", "Chat Edit");
+    return new SingleModelEditStackElement(label, "chat.edit", this.modifiedModel, null);
+  }
+  async acceptAgentEdits(resource, textEdits, isLastEdits, responseModel) {
+    const result = await this._textModelChangeService.acceptAgentEdits(resource, textEdits, isLastEdits, responseModel);
+    transaction((tx) => {
+      this._waitsForLastEdits.set(!isLastEdits, tx);
+      this._stateObs.set(0, tx);
+      if (!isLastEdits) {
+        this._rewriteRatioObs.set(result.rewriteRatio, tx);
+      } else {
+        this._resetEditsState(tx);
+        this._rewriteRatioObs.set(1, tx);
+      }
+    });
+    if (isLastEdits && this._shouldAutoSave()) {
+      await this._textFileService.save(this.modifiedModel.uri, {
+        reason: 2,
+        skipSaveParticipants: true
+      });
+    }
+  }
+  async _doAccept() {
+    this._textModelChangeService.keep();
+    this._multiDiffEntryDelegate.collapse(void 0);
+    const config = this._fileConfigService.getAutoSaveConfiguration(this.modifiedURI);
+    if (!config.autoSave || !this._textFileService.isDirty(this.modifiedURI)) {
+      try {
+        await this._textFileService.save(this.modifiedURI, {
+          reason: 1,
+          force: true,
+          ignoreErrorHandler: true
+        });
+      } catch {
+      }
+    }
+  }
+  async _doReject() {
+    if (this.createdInRequestId === this._telemetryInfo.requestId) {
+      if (isTextFileEditorModel(this._docFileEditorModel)) {
+        await this._docFileEditorModel.revert({ soft: true });
+        await this._fileService.del(this.modifiedURI).catch((err) => {
+        });
+      }
+      this._onDidDelete.fire();
+    } else {
+      this._textModelChangeService.undo();
+      if (this._textModelChangeService.allEditsAreFromUs && isTextFileEditorModel(this._docFileEditorModel) && this._shouldAutoSave()) {
+        await this._docFileEditorModel.save({ reason: 1, skipSaveParticipants: true });
+      }
+      this._multiDiffEntryDelegate.collapse(void 0);
+    }
+  }
+  _createEditorIntegration(editor) {
+    const codeEditor = getCodeEditor(editor.getControl());
+    assertType(codeEditor);
+    const diffInfo = this._textModelChangeService.diffInfo;
+    return this._instantiationService.createInstance(ChatEditingCodeEditorIntegration, this, codeEditor, diffInfo, false);
+  }
+  _shouldAutoSave() {
+    return this.modifiedURI.scheme !== Schemas.untitled;
+  }
+  async computeEditsFromSnapshots(beforeSnapshot, afterSnapshot) {
+    const stringEdit = await this._editorWorkerService.computeStringEditFromDiff(beforeSnapshot, afterSnapshot, { maxComputationTimeMs: 5e3 }, "advanced");
+    const editorTextEdit = EditorTextEdit.fromStringEdit(stringEdit, new StringText(beforeSnapshot));
+    return editorTextEdit.replacements.slice();
+  }
+  async save() {
+    if (this.modifiedModel.uri.scheme === Schemas.untitled) {
+      return;
+    }
+    if (this._textFileService.isDirty(this.modifiedModel.uri)) {
+      await this._textFileService.save(this.modifiedModel.uri, {
+        reason: 1,
+        skipSaveParticipants: true
+      });
+    }
+  }
+  async revertToDisk() {
+    if (this.modifiedModel.uri.scheme === Schemas.untitled) {
+      return;
+    }
+    const fileModel = this._textFileService.files.get(this.modifiedModel.uri);
+    if (fileModel && !fileModel.isDisposed()) {
+      await fileModel.revert({ soft: false });
+    }
+  }
+};
+ChatEditingModifiedDocumentEntry = __decorate([
+  __param(5, IMarkerService),
+  __param(6, IModelService),
+  __param(7, ITextModelService),
+  __param(8, ILanguageService),
+  __param(9, IConfigurationService),
+  __param(10, IFilesConfigurationService),
+  __param(11, IChatService),
+  __param(12, ITextFileService),
+  __param(13, IFileService),
+  __param(14, IUndoRedoService),
+  __param(15, IInstantiationService),
+  __param(16, IAiEditTelemetryService),
+  __param(17, IEditorWorkerService)
+], ChatEditingModifiedDocumentEntry);
+export {
+  ChatEditingModifiedDocumentEntry
+};
+//# sourceMappingURL=chatEditingModifiedDocumentEntry.js.map

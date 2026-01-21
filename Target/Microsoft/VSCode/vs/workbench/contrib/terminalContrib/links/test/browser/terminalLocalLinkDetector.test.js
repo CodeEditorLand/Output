@@ -1,1 +1,397 @@
-import{$m as P}from"../../../../../../base/common/platform.js";import{$Uf as g}from"../../../../../../base/common/strings.js";import{$9l as S}from"../../../../../../platform/configuration/common/configuration.js";import{$7Qc as z}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$_Qc as x}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$LCc as L}from"../../browser/terminalLocalLinkDetector.js";import{$IXb as h}from"../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{$92c as I}from"./linkTestUtils.js";import{$9h as W}from"../../../../../../base/common/async.js";import{strictEqual as T}from"assert";import{$ZCc as v}from"../../browser/terminalLinkResolver.js";import{$uk as D}from"../../../../../../platform/files/common/files.js";import{$lZc as H}from"../../../../../test/common/workbenchTestServices.js";import{URI as e}from"../../../../../../base/common/uri.js";import{$Lo as $}from"../../../../../../platform/log/common/log.js";import{$vx as U}from"../../../../../../platform/terminal/common/terminal.js";import{$EL as A}from"../../../../../../amdX.js";import{$Rab as q}from"../../../../../../base/test/common/utils.js";import{$Ll as R}from"../../../../../../platform/workspace/common/workspace.js";import{$0o as G}from"../../../../../../platform/uriIdentity/common/uriIdentity.js";import{$VC as M}from"../../../../../../platform/uriIdentity/common/uriIdentityService.js";import{$7B as N}from"../../../../../../platform/files/common/fileService.js";import{$6c as d}from"../../../../../../base/common/types.js";import{$1Sc as Q}from"../../../../../../platform/terminal/test/common/terminalTestHelpers.js";const Z=["/foo","/foo/bar","/foo/[bar]","/foo/[bar].baz","/foo/[bar]/baz","/foo/bar+more",{link:"file:///foo",resource:e.file("/foo")},{link:"file:///foo/bar",resource:e.file("/foo/bar")},{link:"file:///foo/bar%20baz",resource:e.file("/foo/bar baz")},{link:"~/foo",resource:e.file("/home/foo")},{link:"./foo",resource:e.file("/parent/cwd/foo")},{link:"./$foo",resource:e.file("/parent/cwd/$foo")},{link:"../foo",resource:e.file("/parent/foo")},{link:"foo/bar",resource:e.file("/parent/cwd/foo/bar")},{link:"foo/bar+more",resource:e.file("/parent/cwd/foo/bar+more")}],j=[{link:"./test-2025-04-28T11:03:09+02:00.log",resource:e.file("/parent/cwd/test-2025-04-28T11:03:09+02:00.log")}],B=["c:\\foo",{link:"\\\\?\\C:\\foo",resource:e.file("C:\\foo")},"c:/foo","c:/foo/bar","c:\\foo\\bar","c:\\foo\\bar+more","c:\\foo/bar\\baz",{link:"file:///c:/foo",resource:e.file("c:\\foo")},{link:"file:///c:/foo/bar",resource:e.file("c:\\foo\\bar")},{link:"file:///c:/foo/bar%20baz",resource:e.file("c:\\foo\\bar baz")},{link:"~\\foo",resource:e.file("C:\\Home\\foo")},{link:"~/foo",resource:e.file("C:\\Home\\foo")},{link:".\\foo",resource:e.file("C:\\Parent\\Cwd\\foo")},{link:"./foo",resource:e.file("C:\\Parent\\Cwd\\foo")},{link:"./$foo",resource:e.file("C:\\Parent\\Cwd\\$foo")},{link:"..\\foo",resource:e.file("C:\\Parent\\foo")},{link:"foo/bar",resource:e.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo/bar",resource:e.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo/[bar]",resource:e.file("C:\\Parent\\Cwd\\foo\\[bar]")},{link:"foo/[bar].baz",resource:e.file("C:\\Parent\\Cwd\\foo\\[bar].baz")},{link:"foo/[bar]/baz",resource:e.file("C:\\Parent\\Cwd\\foo\\[bar]/baz")},{link:"foo\\bar",resource:e.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo\\[bar].baz",resource:e.file("C:\\Parent\\Cwd\\foo\\[bar].baz")},{link:"foo\\[bar]\\baz",resource:e.file("C:\\Parent\\Cwd\\foo\\[bar]\\baz")},{link:"foo\\bar+more",resource:e.file("C:\\Parent\\Cwd\\foo\\bar+more")}],V=[{link:".\\test-2025-04-28T11:03:09+02:00.log",resource:e.file("C:\\Parent\\Cwd\\test-2025-04-28T11:03:09+02:00.log")}],C=[{urlFormat:"{0}"},{urlFormat:'{0}" on line {1}',line:"5"},{urlFormat:'{0}" on line {1}, column {2}',line:"5",column:"3"},{urlFormat:'{0}":line {1}',line:"5"},{urlFormat:'{0}":line {1}, column {2}',line:"5",column:"3"},{urlFormat:'{0}": line {1}',line:"5"},{urlFormat:'{0}": line {1}, col {2}',line:"5",column:"3"},{urlFormat:"{0}({1})",line:"5"},{urlFormat:"{0} ({1})",line:"5"},{urlFormat:"{0}, {1}",line:"5"},{urlFormat:"{0}({1},{2})",line:"5",column:"3"},{urlFormat:"{0} ({1},{2})",line:"5",column:"3"},{urlFormat:"{0}: ({1},{2})",line:"5",column:"3"},{urlFormat:"{0}({1}, {2})",line:"5",column:"3"},{urlFormat:"{0} ({1}, {2})",line:"5",column:"3"},{urlFormat:"{0}: ({1}, {2})",line:"5",column:"3"},{urlFormat:"{0}({1}:{2})",line:"5",column:"3"},{urlFormat:"{0} ({1}:{2})",line:"5",column:"3"},{urlFormat:"{0}:{1}",line:"5"},{urlFormat:"{0}:{1}:{2}",line:"5",column:"3"},{urlFormat:"{0} {1}:{2}",line:"5",column:"3"},{urlFormat:"{0}[{1}]",line:"5"},{urlFormat:"{0} [{1}]",line:"5"},{urlFormat:"{0}[{1},{2}]",line:"5",column:"3"},{urlFormat:"{0} [{1},{2}]",line:"5",column:"3"},{urlFormat:"{0}: [{1},{2}]",line:"5",column:"3"},{urlFormat:"{0}[{1}, {2}]",line:"5",column:"3"},{urlFormat:"{0} [{1}, {2}]",line:"5",column:"3"},{urlFormat:"{0}: [{1}, {2}]",line:"5",column:"3"},{urlFormat:"{0}[{1}:{2}]",line:"5",column:"3"},{urlFormat:"{0} [{1}:{2}]",line:"5",column:"3"},{urlFormat:'{0}",{1}',line:"5"},{urlFormat:"{0}',{1}",line:"5"},{urlFormat:"{0}#{1}",line:"5"},{urlFormat:"{0}#{1}:{2}",line:"5",column:"5"}],X=["C:\\foo bar","C:\\foo bar\\baz","C:\\foo\\bar baz","C:\\foo/bar baz"],y=[{urlFormat:'File "{0}"',linkCellStartOffset:5},{urlFormat:'File "{0}", line {1}',line:"5",linkCellStartOffset:5},{urlFormat:" FILE  {0}",linkCellStartOffset:7},{urlFormat:" FILE  {0}:{1}",line:"5",linkCellStartOffset:7},{urlFormat:" FILE  {0}:{1}:{2}",line:"5",column:"3",linkCellStartOffset:7},{urlFormat:"{0}({1}) :",line:"5",linkCellEndOffset:-2},{urlFormat:"{0}({1},{2}) :",line:"5",column:"3",linkCellEndOffset:-2},{urlFormat:"{0}({1}, {2}) :",line:"5",column:"3",linkCellEndOffset:-2},{urlFormat:"{0}({1}):",line:"5",linkCellEndOffset:-1},{urlFormat:"{0}({1},{2}):",line:"5",column:"3",linkCellEndOffset:-1},{urlFormat:"{0}({1}, {2}):",line:"5",column:"3",linkCellEndOffset:-1},{urlFormat:"{0}:{1} :",line:"5",linkCellEndOffset:-2},{urlFormat:"{0}:{1}:{2} :",line:"5",column:"3",linkCellEndOffset:-2},{urlFormat:"{0}:{1}:",line:"5",linkCellEndOffset:-1},{urlFormat:"{0}:{1}:{2}:",line:"5",column:"3",linkCellEndOffset:-1},{urlFormat:"PS {0}>",linkCellStartOffset:3,linkCellEndOffset:-1},{urlFormat:"{0}>",linkCellEndOffset:-1},{urlFormat:"{0}"}];class _ extends N{constructor(){super(...arguments),this.y="*"}async stat(s){if(this.y==="*"||this.y.some(F=>F.toString()===s.toString()))return{isFile:!0,isDirectory:!1,isSymbolicLink:!1};throw new Error("ENOENT")}setFiles(s){this.y=s}}suite("Workbench - TerminalLocalLinkDetector",()=>{const u=q();let s,F,n,w,k,p,r;async function i(l,o,t){let a;const f=await Promise.race([I(o,t,w,l).then(()=>"success"),(a=W(2)).then(()=>"timeout")]);T(f,"success",`Awaiting link assertion for "${o}" timed out`),a.cancel()}async function b(l,o){const t=o??e.file(l);await i("LocalFile",l,[{uri:t,range:[[1,1],[l.length,1]]}]),await i("LocalFile",` ${l} `,[{uri:t,range:[[2,1],[l.length+1,1]]}]),await i("LocalFile",`(${l})`,[{uri:t,range:[[2,1],[l.length+1,1]]}]),await i("LocalFile",`[${l}]`,[{uri:t,range:[[2,1],[l.length+1,1]]}])}setup(async()=>{s=u.add(new x),F=new z,n=u.add(new _(new $)),s.stub(S,F),n.setFiles(r),s.set(D,n),s.set(R,new H),s.set(G,u.add(new M(n))),s.stub(U,new $),k=s.createInstance(v),r=[];const l=(await A("@xterm/xterm","lib/xterm.js")).Terminal;p=new l({allowProposedApi:!0,cols:80,rows:30,logger:Q})}),suite("platform independent",()=>{setup(()=>{w=s.createInstance(L,p,u.add(new h),{initialCwd:"/parent/cwd",os:3,remoteAuthority:void 0,userHome:"/home",backend:void 0},k)}),test("should support multiple link results",async()=>{r=[e.file("/parent/cwd/foo"),e.file("/parent/cwd/bar")],n.setFiles(r),await i("LocalFile","./foo ./bar",[{range:[[1,1],[5,1]],uri:e.file("/parent/cwd/foo")},{range:[[7,1],[11,1]],uri:e.file("/parent/cwd/bar")}])}),test("should support trimming extra quotes",async()=>{r=[e.file("/parent/cwd/foo")],n.setFiles(r),await i("LocalFile",'"foo"" on line 5',[{range:[[1,1],[16,1]],uri:e.file("/parent/cwd/foo")}])}),test("should support trimming extra square brackets",async()=>{r=[e.file("/parent/cwd/foo")],n.setFiles(r),await i("LocalFile",'"foo]" on line 5',[{range:[[1,1],[16,1]],uri:e.file("/parent/cwd/foo")}])}),test("should support finding links after brackets",async()=>{r=[e.file("/parent/cwd/foo")],n.setFiles(r),await i("LocalFile","bar[foo:5",[{range:[[5,1],[9,1]],uri:e.file("/parent/cwd/foo")}])})}),suite("macOS/Linux",()=>{setup(()=>{w=s.createInstance(L,p,u.add(new h),{initialCwd:"/parent/cwd",os:3,remoteAuthority:void 0,userHome:"/home",backend:void 0},k)});for(const l of Z){const o=d(l)?l:l.link,t=d(l)?e.file(l):l.resource;suite(`Link: ${o}`,()=>{for(let a=0;a<C.length;a++){const f=C[a],c=g(f.urlFormat,o,f.line,f.column);test(`should detect in "${c}"`,async()=>{r=[t],n.setFiles(r),await b(c,t)})}})}test("Git diff links",async()=>{r=[e.file("/parent/cwd/foo/bar")],n.setFiles(r),await i("LocalFile","diff --git a/foo/bar b/foo/bar",[{uri:r[0],range:[[14,1],[20,1]]},{uri:r[0],range:[[24,1],[30,1]]}]),await i("LocalFile","--- a/foo/bar",[{uri:r[0],range:[[7,1],[13,1]]}]),await i("LocalFile","+++ b/foo/bar",[{uri:r[0],range:[[7,1],[13,1]]}])});for(const l of j){const o=typeof l=="string"?l:l.link,t=typeof l=="string"?e.file(l):l.resource;test(`should detect ISO 8601 link: ${o}`,async()=>{r=[t],n.setFiles(r),await i("LocalFile",o,[{uri:t,range:[[1,1],[o.length,1]]}])})}}),P&&suite("Windows",()=>{const l=new Map;setup(()=>{w=s.createInstance(L,p,u.add(new h),{initialCwd:"C:\\Parent\\Cwd",os:1,remoteAuthority:void 0,userHome:"C:\\Home",backend:{async getWslPath(o,t){return t==="unix-to-win"?l.get(o)??o:o}}},k),l.clear()});for(const o of B){const t=d(o)?o:o.link,a=d(o)?e.file(o):o.resource;suite(`Link "${t}"`,()=>{for(let f=0;f<C.length;f++){const c=C[f],m=g(c.urlFormat,t,c.line,c.column);test(`should detect in "${m}"`,async()=>{r=[a],n.setFiles(r),await b(m,a)})}})}for(const o of X){const t=d(o)?o:o.link,a=d(o)?e.file(o):o.resource;suite(`Fallback link "${t}"`,()=>{for(let f=0;f<y.length;f++){const c=y[f],m=g(c.urlFormat,t,c.line,c.column),O=c.linkCellStartOffset??0,E=c.linkCellEndOffset??0;test(`should detect in "${m}"`,async()=>{r=[a],n.setFiles(r),await i("LocalFile",m,[{uri:a,range:[[1+O,1],[m.length+E,1]]}])})}})}test("Git diff links",async()=>{const o=e.file("C:\\Parent\\Cwd\\foo\\bar");r=[o],n.setFiles(r),await i("LocalFile","diff --git a/foo/bar b/foo/bar",[{uri:o,range:[[14,1],[20,1]]},{uri:o,range:[[24,1],[30,1]]}]),await i("LocalFile","--- a/foo/bar",[{uri:o,range:[[7,1],[13,1]]}]),await i("LocalFile","+++ b/foo/bar",[{uri:o,range:[[7,1],[13,1]]}])});for(const o of V){const t=typeof o=="string"?o:o.link,a=typeof o=="string"?e.file(o):o.resource;test(`should detect ISO 8601 link: ${t}`,async()=>{r=[a],n.setFiles(r),await i("LocalFile",t,[{uri:a,range:[[1,1],[t.length,1]]}])})}suite("WSL",()=>{test("Unix -> Windows /mnt/ style links",async()=>{l.set("/mnt/c/foo/bar","C:\\foo\\bar"),r=[e.file("C:\\foo\\bar")],n.setFiles(r),await b("/mnt/c/foo/bar",r[0])}),test("Windows -> Unix \\\\wsl$\\ style links",async()=>{r=[e.file("\\\\wsl$\\Debian\\home\\foo\\bar")],n.setFiles(r),await b("\\\\wsl$\\Debian\\home\\foo\\bar")}),test("Windows -> Unix \\\\wsl.localhost\\ style links",async()=>{r=[e.file("\\\\wsl.localhost\\Debian\\home\\foo\\bar")],n.setFiles(r),await b("\\\\wsl.localhost\\Debian\\home\\foo\\bar")})})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { format } from "../../../../../../base/common/strings.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { TerminalLocalLinkDetector } from "../../browser/terminalLocalLinkDetector.js";
+import { TerminalCapabilityStore } from "../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { assertLinkHelper } from "./linkTestUtils.js";
+import { timeout } from "../../../../../../base/common/async.js";
+import { strictEqual } from "assert";
+import { TerminalLinkResolver } from "../../browser/terminalLinkResolver.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { TestContextService } from "../../../../../test/common/workbenchTestServices.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { NullLogService } from "../../../../../../platform/log/common/log.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { importAMDNodeModule } from "../../../../../../amdX.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IUriIdentityService } from "../../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { UriIdentityService } from "../../../../../../platform/uriIdentity/common/uriIdentityService.js";
+import { FileService } from "../../../../../../platform/files/common/fileService.js";
+import { isString } from "../../../../../../base/common/types.js";
+import { TestXtermLogger } from "../../../../../../platform/terminal/test/common/terminalTestHelpers.js";
+const unixLinks = [
+  // Absolute
+  "/foo",
+  "/foo/bar",
+  "/foo/[bar]",
+  "/foo/[bar].baz",
+  "/foo/[bar]/baz",
+  "/foo/bar+more",
+  // URI file://
+  { link: "file:///foo", resource: URI.file("/foo") },
+  { link: "file:///foo/bar", resource: URI.file("/foo/bar") },
+  { link: "file:///foo/bar%20baz", resource: URI.file("/foo/bar baz") },
+  // User home
+  { link: "~/foo", resource: URI.file("/home/foo") },
+  // Relative
+  { link: "./foo", resource: URI.file("/parent/cwd/foo") },
+  { link: "./$foo", resource: URI.file("/parent/cwd/$foo") },
+  { link: "../foo", resource: URI.file("/parent/foo") },
+  { link: "foo/bar", resource: URI.file("/parent/cwd/foo/bar") },
+  { link: "foo/bar+more", resource: URI.file("/parent/cwd/foo/bar+more") }
+];
+const unixLinksWithIso = [
+  // ISO 8601 timestamps - tested separately to avoid line/column suffix conflicts
+  { link: "./test-2025-04-28T11:03:09+02:00.log", resource: URI.file("/parent/cwd/test-2025-04-28T11:03:09+02:00.log") }
+];
+const windowsLinks = [
+  // Absolute
+  "c:\\foo",
+  { link: "\\\\?\\C:\\foo", resource: URI.file("C:\\foo") },
+  "c:/foo",
+  "c:/foo/bar",
+  "c:\\foo\\bar",
+  "c:\\foo\\bar+more",
+  "c:\\foo/bar\\baz",
+  // URI file://
+  { link: "file:///c:/foo", resource: URI.file("c:\\foo") },
+  { link: "file:///c:/foo/bar", resource: URI.file("c:\\foo\\bar") },
+  { link: "file:///c:/foo/bar%20baz", resource: URI.file("c:\\foo\\bar baz") },
+  // User home
+  { link: "~\\foo", resource: URI.file("C:\\Home\\foo") },
+  { link: "~/foo", resource: URI.file("C:\\Home\\foo") },
+  // Relative
+  { link: ".\\foo", resource: URI.file("C:\\Parent\\Cwd\\foo") },
+  { link: "./foo", resource: URI.file("C:\\Parent\\Cwd\\foo") },
+  { link: "./$foo", resource: URI.file("C:\\Parent\\Cwd\\$foo") },
+  { link: "..\\foo", resource: URI.file("C:\\Parent\\foo") },
+  { link: "foo/bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo/bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo/[bar]", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]") },
+  { link: "foo/[bar].baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar].baz") },
+  { link: "foo/[bar]/baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]/baz") },
+  { link: "foo\\bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo\\[bar].baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar].baz") },
+  { link: "foo\\[bar]\\baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]\\baz") },
+  { link: "foo\\bar+more", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar+more") }
+];
+const windowsLinksWithIso = [
+  // ISO 8601 timestamps - tested separately to avoid line/column suffix conflicts
+  { link: ".\\test-2025-04-28T11:03:09+02:00.log", resource: URI.file("C:\\Parent\\Cwd\\test-2025-04-28T11:03:09+02:00.log") }
+];
+const supportedLinkFormats = [
+  { urlFormat: "{0}" },
+  { urlFormat: '{0}" on line {1}', line: "5" },
+  { urlFormat: '{0}" on line {1}, column {2}', line: "5", column: "3" },
+  { urlFormat: '{0}":line {1}', line: "5" },
+  { urlFormat: '{0}":line {1}, column {2}', line: "5", column: "3" },
+  { urlFormat: '{0}": line {1}', line: "5" },
+  { urlFormat: '{0}": line {1}, col {2}', line: "5", column: "3" },
+  { urlFormat: "{0}({1})", line: "5" },
+  { urlFormat: "{0} ({1})", line: "5" },
+  { urlFormat: "{0}, {1}", line: "5" },
+  { urlFormat: "{0}({1},{2})", line: "5", column: "3" },
+  { urlFormat: "{0} ({1},{2})", line: "5", column: "3" },
+  { urlFormat: "{0}: ({1},{2})", line: "5", column: "3" },
+  { urlFormat: "{0}({1}, {2})", line: "5", column: "3" },
+  { urlFormat: "{0} ({1}, {2})", line: "5", column: "3" },
+  { urlFormat: "{0}: ({1}, {2})", line: "5", column: "3" },
+  { urlFormat: "{0}({1}:{2})", line: "5", column: "3" },
+  { urlFormat: "{0} ({1}:{2})", line: "5", column: "3" },
+  { urlFormat: "{0}:{1}", line: "5" },
+  { urlFormat: "{0}:{1}:{2}", line: "5", column: "3" },
+  { urlFormat: "{0} {1}:{2}", line: "5", column: "3" },
+  { urlFormat: "{0}[{1}]", line: "5" },
+  { urlFormat: "{0} [{1}]", line: "5" },
+  { urlFormat: "{0}[{1},{2}]", line: "5", column: "3" },
+  { urlFormat: "{0} [{1},{2}]", line: "5", column: "3" },
+  { urlFormat: "{0}: [{1},{2}]", line: "5", column: "3" },
+  { urlFormat: "{0}[{1}, {2}]", line: "5", column: "3" },
+  { urlFormat: "{0} [{1}, {2}]", line: "5", column: "3" },
+  { urlFormat: "{0}: [{1}, {2}]", line: "5", column: "3" },
+  { urlFormat: "{0}[{1}:{2}]", line: "5", column: "3" },
+  { urlFormat: "{0} [{1}:{2}]", line: "5", column: "3" },
+  { urlFormat: '{0}",{1}', line: "5" },
+  { urlFormat: "{0}',{1}", line: "5" },
+  { urlFormat: "{0}#{1}", line: "5" },
+  { urlFormat: "{0}#{1}:{2}", line: "5", column: "5" }
+];
+const windowsFallbackLinks = [
+  "C:\\foo bar",
+  "C:\\foo bar\\baz",
+  "C:\\foo\\bar baz",
+  "C:\\foo/bar baz"
+];
+const supportedFallbackLinkFormats = [
+  // Python style error: File "<path>", line <line>
+  { urlFormat: 'File "{0}"', linkCellStartOffset: 5 },
+  { urlFormat: 'File "{0}", line {1}', line: "5", linkCellStartOffset: 5 },
+  // Unknown tool #200166: FILE  <path>:<line>:<col>
+  { urlFormat: " FILE  {0}", linkCellStartOffset: 7 },
+  { urlFormat: " FILE  {0}:{1}", line: "5", linkCellStartOffset: 7 },
+  { urlFormat: " FILE  {0}:{1}:{2}", line: "5", column: "3", linkCellStartOffset: 7 },
+  // Some C++ compile error formats
+  { urlFormat: "{0}({1}) :", line: "5", linkCellEndOffset: -2 },
+  { urlFormat: "{0}({1},{2}) :", line: "5", column: "3", linkCellEndOffset: -2 },
+  { urlFormat: "{0}({1}, {2}) :", line: "5", column: "3", linkCellEndOffset: -2 },
+  { urlFormat: "{0}({1}):", line: "5", linkCellEndOffset: -1 },
+  { urlFormat: "{0}({1},{2}):", line: "5", column: "3", linkCellEndOffset: -1 },
+  { urlFormat: "{0}({1}, {2}):", line: "5", column: "3", linkCellEndOffset: -1 },
+  { urlFormat: "{0}:{1} :", line: "5", linkCellEndOffset: -2 },
+  { urlFormat: "{0}:{1}:{2} :", line: "5", column: "3", linkCellEndOffset: -2 },
+  { urlFormat: "{0}:{1}:", line: "5", linkCellEndOffset: -1 },
+  { urlFormat: "{0}:{1}:{2}:", line: "5", column: "3", linkCellEndOffset: -1 },
+  // PowerShell prompt
+  { urlFormat: "PS {0}>", linkCellStartOffset: 3, linkCellEndOffset: -1 },
+  // Cmd prompt
+  { urlFormat: "{0}>", linkCellEndOffset: -1 },
+  // The whole line is the path
+  { urlFormat: "{0}" }
+];
+class TestFileService extends FileService {
+  static {
+    __name(this, "TestFileService");
+  }
+  constructor() {
+    super(...arguments);
+    this._files = "*";
+  }
+  async stat(resource) {
+    if (this._files === "*" || this._files.some((e) => e.toString() === resource.toString())) {
+      return { isFile: true, isDirectory: false, isSymbolicLink: false };
+    }
+    throw new Error("ENOENT");
+  }
+  setFiles(files) {
+    this._files = files;
+  }
+}
+suite("Workbench - TerminalLocalLinkDetector", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let configurationService;
+  let fileService;
+  let detector;
+  let resolver;
+  let xterm;
+  let validResources;
+  async function assertLinks(type, text, expected) {
+    let to;
+    const race = await Promise.race([
+      assertLinkHelper(text, expected, detector, type).then(() => "success"),
+      (to = timeout(2)).then(() => "timeout")
+    ]);
+    strictEqual(race, "success", `Awaiting link assertion for "${text}" timed out`);
+    to.cancel();
+  }
+  __name(assertLinks, "assertLinks");
+  async function assertLinksWithWrapped(link, resource) {
+    const uri = resource ?? URI.file(link);
+    await assertLinks("LocalFile", link, [{ uri, range: [[1, 1], [link.length, 1]] }]);
+    await assertLinks("LocalFile", ` ${link} `, [{ uri, range: [[2, 1], [link.length + 1, 1]] }]);
+    await assertLinks("LocalFile", `(${link})`, [{ uri, range: [[2, 1], [link.length + 1, 1]] }]);
+    await assertLinks("LocalFile", `[${link}]`, [{ uri, range: [[2, 1], [link.length + 1, 1]] }]);
+  }
+  __name(assertLinksWithWrapped, "assertLinksWithWrapped");
+  setup(async () => {
+    instantiationService = store.add(new TestInstantiationService());
+    configurationService = new TestConfigurationService();
+    fileService = store.add(new TestFileService(new NullLogService()));
+    instantiationService.stub(IConfigurationService, configurationService);
+    fileService.setFiles(validResources);
+    instantiationService.set(IFileService, fileService);
+    instantiationService.set(IWorkspaceContextService, new TestContextService());
+    instantiationService.set(IUriIdentityService, store.add(new UriIdentityService(fileService)));
+    instantiationService.stub(ITerminalLogService, new NullLogService());
+    resolver = instantiationService.createInstance(TerminalLinkResolver);
+    validResources = [];
+    const TerminalCtor = (await importAMDNodeModule("@xterm/xterm", "lib/xterm.js")).Terminal;
+    xterm = new TerminalCtor({ allowProposedApi: true, cols: 80, rows: 30, logger: TestXtermLogger });
+  });
+  suite("platform independent", () => {
+    setup(() => {
+      detector = instantiationService.createInstance(TerminalLocalLinkDetector, xterm, store.add(new TerminalCapabilityStore()), {
+        initialCwd: "/parent/cwd",
+        os: 3,
+        remoteAuthority: void 0,
+        userHome: "/home",
+        backend: void 0
+      }, resolver);
+    });
+    test("should support multiple link results", async () => {
+      validResources = [
+        URI.file("/parent/cwd/foo"),
+        URI.file("/parent/cwd/bar")
+      ];
+      fileService.setFiles(validResources);
+      await assertLinks("LocalFile", "./foo ./bar", [
+        { range: [[1, 1], [5, 1]], uri: URI.file("/parent/cwd/foo") },
+        { range: [[7, 1], [11, 1]], uri: URI.file("/parent/cwd/bar") }
+      ]);
+    });
+    test("should support trimming extra quotes", async () => {
+      validResources = [URI.file("/parent/cwd/foo")];
+      fileService.setFiles(validResources);
+      await assertLinks("LocalFile", '"foo"" on line 5', [
+        { range: [[1, 1], [16, 1]], uri: URI.file("/parent/cwd/foo") }
+      ]);
+    });
+    test("should support trimming extra square brackets", async () => {
+      validResources = [URI.file("/parent/cwd/foo")];
+      fileService.setFiles(validResources);
+      await assertLinks("LocalFile", '"foo]" on line 5', [
+        { range: [[1, 1], [16, 1]], uri: URI.file("/parent/cwd/foo") }
+      ]);
+    });
+    test("should support finding links after brackets", async () => {
+      validResources = [URI.file("/parent/cwd/foo")];
+      fileService.setFiles(validResources);
+      await assertLinks("LocalFile", "bar[foo:5", [
+        { range: [[5, 1], [9, 1]], uri: URI.file("/parent/cwd/foo") }
+      ]);
+    });
+  });
+  suite("macOS/Linux", () => {
+    setup(() => {
+      detector = instantiationService.createInstance(TerminalLocalLinkDetector, xterm, store.add(new TerminalCapabilityStore()), {
+        initialCwd: "/parent/cwd",
+        os: 3,
+        remoteAuthority: void 0,
+        userHome: "/home",
+        backend: void 0
+      }, resolver);
+    });
+    for (const l of unixLinks) {
+      const baseLink = isString(l) ? l : l.link;
+      const resource = isString(l) ? URI.file(l) : l.resource;
+      suite(`Link: ${baseLink}`, () => {
+        for (let i = 0; i < supportedLinkFormats.length; i++) {
+          const linkFormat = supportedLinkFormats[i];
+          const formattedLink = format(linkFormat.urlFormat, baseLink, linkFormat.line, linkFormat.column);
+          test(`should detect in "${formattedLink}"`, async () => {
+            validResources = [resource];
+            fileService.setFiles(validResources);
+            await assertLinksWithWrapped(formattedLink, resource);
+          });
+        }
+      });
+    }
+    test("Git diff links", async () => {
+      validResources = [URI.file("/parent/cwd/foo/bar")];
+      fileService.setFiles(validResources);
+      await assertLinks("LocalFile", `diff --git a/foo/bar b/foo/bar`, [
+        { uri: validResources[0], range: [[14, 1], [20, 1]] },
+        { uri: validResources[0], range: [[24, 1], [30, 1]] }
+      ]);
+      await assertLinks("LocalFile", `--- a/foo/bar`, [{ uri: validResources[0], range: [[7, 1], [13, 1]] }]);
+      await assertLinks("LocalFile", `+++ b/foo/bar`, [{ uri: validResources[0], range: [[7, 1], [13, 1]] }]);
+    });
+    for (const l of unixLinksWithIso) {
+      const baseLink = typeof l === "string" ? l : l.link;
+      const resource = typeof l === "string" ? URI.file(l) : l.resource;
+      test(`should detect ISO 8601 link: ${baseLink}`, async () => {
+        validResources = [resource];
+        fileService.setFiles(validResources);
+        await assertLinks("LocalFile", baseLink, [{ uri: resource, range: [[1, 1], [baseLink.length, 1]] }]);
+      });
+    }
+  });
+  if (isWindows) {
+    suite("Windows", () => {
+      const wslUnixToWindowsPathMap = /* @__PURE__ */ new Map();
+      setup(() => {
+        detector = instantiationService.createInstance(TerminalLocalLinkDetector, xterm, store.add(new TerminalCapabilityStore()), {
+          initialCwd: "C:\\Parent\\Cwd",
+          os: 1,
+          remoteAuthority: void 0,
+          userHome: "C:\\Home",
+          backend: {
+            async getWslPath(original, direction) {
+              if (direction === "unix-to-win") {
+                return wslUnixToWindowsPathMap.get(original) ?? original;
+              }
+              return original;
+            }
+          }
+        }, resolver);
+        wslUnixToWindowsPathMap.clear();
+      });
+      for (const l of windowsLinks) {
+        const baseLink = isString(l) ? l : l.link;
+        const resource = isString(l) ? URI.file(l) : l.resource;
+        suite(`Link "${baseLink}"`, () => {
+          for (let i = 0; i < supportedLinkFormats.length; i++) {
+            const linkFormat = supportedLinkFormats[i];
+            const formattedLink = format(linkFormat.urlFormat, baseLink, linkFormat.line, linkFormat.column);
+            test(`should detect in "${formattedLink}"`, async () => {
+              validResources = [resource];
+              fileService.setFiles(validResources);
+              await assertLinksWithWrapped(formattedLink, resource);
+            });
+          }
+        });
+      }
+      for (const l of windowsFallbackLinks) {
+        const baseLink = isString(l) ? l : l.link;
+        const resource = isString(l) ? URI.file(l) : l.resource;
+        suite(`Fallback link "${baseLink}"`, () => {
+          for (let i = 0; i < supportedFallbackLinkFormats.length; i++) {
+            const linkFormat = supportedFallbackLinkFormats[i];
+            const formattedLink = format(linkFormat.urlFormat, baseLink, linkFormat.line, linkFormat.column);
+            const linkCellStartOffset = linkFormat.linkCellStartOffset ?? 0;
+            const linkCellEndOffset = linkFormat.linkCellEndOffset ?? 0;
+            test(`should detect in "${formattedLink}"`, async () => {
+              validResources = [resource];
+              fileService.setFiles(validResources);
+              await assertLinks("LocalFile", formattedLink, [{ uri: resource, range: [[1 + linkCellStartOffset, 1], [formattedLink.length + linkCellEndOffset, 1]] }]);
+            });
+          }
+        });
+      }
+      test("Git diff links", async () => {
+        const resource = URI.file("C:\\Parent\\Cwd\\foo\\bar");
+        validResources = [resource];
+        fileService.setFiles(validResources);
+        await assertLinks("LocalFile", `diff --git a/foo/bar b/foo/bar`, [
+          { uri: resource, range: [[14, 1], [20, 1]] },
+          { uri: resource, range: [[24, 1], [30, 1]] }
+        ]);
+        await assertLinks("LocalFile", `--- a/foo/bar`, [{ uri: resource, range: [[7, 1], [13, 1]] }]);
+        await assertLinks("LocalFile", `+++ b/foo/bar`, [{ uri: resource, range: [[7, 1], [13, 1]] }]);
+      });
+      for (const l of windowsLinksWithIso) {
+        const baseLink = typeof l === "string" ? l : l.link;
+        const resource = typeof l === "string" ? URI.file(l) : l.resource;
+        test(`should detect ISO 8601 link: ${baseLink}`, async () => {
+          validResources = [resource];
+          fileService.setFiles(validResources);
+          await assertLinks("LocalFile", baseLink, [{ uri: resource, range: [[1, 1], [baseLink.length, 1]] }]);
+        });
+      }
+      suite("WSL", () => {
+        test("Unix -> Windows /mnt/ style links", async () => {
+          wslUnixToWindowsPathMap.set("/mnt/c/foo/bar", "C:\\foo\\bar");
+          validResources = [URI.file("C:\\foo\\bar")];
+          fileService.setFiles(validResources);
+          await assertLinksWithWrapped("/mnt/c/foo/bar", validResources[0]);
+        });
+        test("Windows -> Unix \\\\wsl$\\ style links", async () => {
+          validResources = [URI.file("\\\\wsl$\\Debian\\home\\foo\\bar")];
+          fileService.setFiles(validResources);
+          await assertLinksWithWrapped("\\\\wsl$\\Debian\\home\\foo\\bar");
+        });
+        test("Windows -> Unix \\\\wsl.localhost\\ style links", async () => {
+          validResources = [URI.file("\\\\wsl.localhost\\Debian\\home\\foo\\bar")];
+          fileService.setFiles(validResources);
+          await assertLinksWithWrapped("\\\\wsl.localhost\\Debian\\home\\foo\\bar");
+        });
+      });
+    });
+  }
+});
+//# sourceMappingURL=terminalLocalLinkDetector.test.js.map

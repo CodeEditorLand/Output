@@ -1,1 +1,289 @@
-import"./editorDictation.css";import{localize as $,localize2 as m}from"../../../../../nls.js";import{$If as x}from"../../../../../base/common/cancellation.js";import{$Ed as w,$Dd as T,$Fd as E,$Cd as h}from"../../../../../base/common/lifecycle.js";import{$9n as R,$qo as _,$po as O}from"../../../../../platform/contextkey/common/contextkey.js";import{$JY as k,$IY as N,$KY as G,SpeechToTextStatus as p}from"../../../speech/common/speechService.js";import{$ak as L}from"../../../../../base/common/codicons.js";import{$Ccb as y,$Icb as K}from"../../../../../editor/browser/editorExtensions.js";import{EditorContextKeys as z}from"../../../../../editor/common/editorContextKeys.js";import{$cy as C}from"../../../../../platform/keybinding/common/keybinding.js";import{$0D as M}from"../../../../../editor/common/core/editOperation.js";import{$$D as W}from"../../../../../editor/common/core/selection.js";import{$8D as Y}from"../../../../../editor/common/core/position.js";import{$9D as D}from"../../../../../editor/common/core/range.js";import{$tL as I}from"../../../../../platform/actions/common/actions.js";import{$gd as j}from"../../../../../base/common/types.js";import{$G9 as q}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{$Jm as A}from"../../../../../base/common/actions.js";import{ThemeIcon as F}from"../../../../../base/common/themables.js";import{$m as H}from"../../../../../base/common/platform.js";var S=function(a,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,i,e);else for(var d=a.length-1;d>=0;d--)(n=a[d])&&(s=(o<3?n(s):o>3?n(t,i,s):n(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},f=function(a,t){return function(i,e){t(i,e,a)}},u;const v=new O("editorDictation.inProgress",!1),P=m(6929,"Voice");class V extends y{constructor(){super({id:"workbench.action.editorDictation.start",title:m(6930,"Start Dictation in Editor"),category:P,precondition:R.and(k,G.toNegated(),z.readOnly.toNegated()),f1:!0,keybinding:{primary:2612,weight:200,secondary:H?[603]:void 0}})}runEditorCommand(t,i){const o=t.get(C).enableKeybindingHoldMode(this.desc.id);if(o){let s=!1;const n=setTimeout(()=>{s=!0},500);o.finally(()=>{clearTimeout(n),s&&c.get(i)?.stop()})}c.get(i)?.start()}}class l extends y{static{this.ID="workbench.action.editorDictation.stop"}constructor(){super({id:l.ID,title:m(6931,"Stop Dictation in Editor"),category:P,precondition:v,f1:!0,keybinding:{primary:9,weight:300}})}runEditorCommand(t,i){c.get(i)?.stop()}}class J extends w{constructor(t,i){super(),this.b=t,this.suppressMouseDown=!0,this.allowEditorOverflow=!0,this.a=document.createElement("div");const e=this.D(new q(this.a)),o=i.lookupKeybinding(l.ID)?.getLabel();e.push(A({id:l.ID,label:o?$(6927,null,o):$(6928,null),class:F.asClassName(L.micFilled),run:()=>c.get(t)?.stop()}),{icon:!0,label:!1,keybinding:o}),this.a.classList.add("editor-dictation-widget"),this.a.appendChild(e.domNode)}getId(){return"editorDictation"}getDomNode(){return this.a}getPosition(){if(!this.b.hasModel())return null;const t=this.b.getSelection();return{position:t.getPosition(),preference:[t.getPosition().equals(t.getStartPosition())?1:2,0]}}beforeRender(){const t=this.b.getPosition(),i=t?this.b.getLineHeightForPosition(t):this.b.getOption(75),e=this.b.getLayoutInfo().contentWidth*.7;return this.a.style.setProperty("--vscode-editor-dictation-widget-height",`${i}px`),this.a.style.setProperty("--vscode-editor-dictation-widget-width",`${e}px`),null}show(){this.b.addContentWidget(this)}layout(){this.b.layoutContentWidget(this)}active(){this.a.classList.add("recording")}hide(){this.a.classList.remove("recording"),this.b.removeContentWidget(this)}}let c=class extends w{static{u=this}static{this.ID="editorDictation"}static get(t){return t.getContribution(u.ID)}constructor(t,i,e,o){super(),this.f=t,this.g=i,this.c=this.D(new E),this.a=this.D(new J(this.f,o)),this.b=v.bindTo(e)}async start(){const t=new T;this.c.value=t,this.a.show(),t.add(h(()=>this.a.hide())),this.b.set(!0),t.add(h(()=>this.b.reset()));const i=this.f.createDecorationsCollection();t.add(h(()=>i.clear())),t.add(this.f.onDidChangeCursorPosition(()=>this.a.layout()));let e,o=0;const s=(r,g)=>{e||(e=j(this.f.getPosition()));const b=new Y(e.lineNumber,e.column+r.length);this.f.executeEdits(u.ID,[M.replace(D.fromPositions(e,e.with(void 0,e.column+o)),r)],[W.fromPositions(b)]),g?i.set([{range:D.fromPositions(e,e.with(void 0,e.column+r.length)),options:{description:"editor-dictation-preview",inlineClassName:"ghost-text-decoration-preview"}}]):i.clear(),o=r.length,g||(e=void 0,o=0),this.f.revealPositionInCenterIfOutsideViewport(b)},n=new x;t.add(h(()=>n.dispose(!0)));const d=await this.g.createSpeechToTextSession(n.token,"editor");t.add(d.onDidChange(r=>{if(!n.token.isCancellationRequested)switch(r.status){case p.Started:this.a.active();break;case p.Stopped:t.dispose();break;case p.Recognizing:{if(!r.text)return;s(r.text,!0);break}case p.Recognized:{if(!r.text)return;s(`${r.text} `,!1);break}}}))}stop(){this.c.clear()}};c=u=S([f(1,N),f(2,_),f(3,C)],c);K(c.ID,c,4);I(V);I(l);export{V as $PGb,l as $QGb,J as $RGb,c as $SGb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EditorDictation_1;
+import "./editorDictation.css";
+import { localize, localize2 } from "../../../../../nls.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
+import { HasSpeechProvider, ISpeechService, SpeechToTextInProgress, SpeechToTextStatus } from "../../../speech/common/speechService.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { EditorAction2, registerEditorContribution } from "../../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { EditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { Selection } from "../../../../../editor/common/core/selection.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { assertReturnsDefined } from "../../../../../base/common/types.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { toAction } from "../../../../../base/common/actions.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { isWindows } from "../../../../../base/common/platform.js";
+const EDITOR_DICTATION_IN_PROGRESS = new RawContextKey("editorDictation.inProgress", false);
+const VOICE_CATEGORY = localize2("voiceCategory", "Voice");
+class EditorDictationStartAction extends EditorAction2 {
+  static {
+    __name(this, "EditorDictationStartAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.editorDictation.start",
+      title: localize2("startDictation", "Start Dictation in Editor"),
+      category: VOICE_CATEGORY,
+      precondition: ContextKeyExpr.and(
+        HasSpeechProvider,
+        SpeechToTextInProgress.toNegated(),
+        // disable when any speech-to-text is in progress
+        EditorContextKeys.readOnly.toNegated()
+        // disable in read-only editors
+      ),
+      f1: true,
+      keybinding: {
+        primary: 2048 | 512 | 52,
+        weight: 200,
+        secondary: isWindows ? [
+          512 | 91
+          /* KeyCode.Backquote */
+        ] : void 0
+      }
+    });
+  }
+  runEditorCommand(accessor, editor) {
+    const keybindingService = accessor.get(IKeybindingService);
+    const holdMode = keybindingService.enableKeybindingHoldMode(this.desc.id);
+    if (holdMode) {
+      let shouldCallStop = false;
+      const handle = setTimeout(() => {
+        shouldCallStop = true;
+      }, 500);
+      holdMode.finally(() => {
+        clearTimeout(handle);
+        if (shouldCallStop) {
+          EditorDictation.get(editor)?.stop();
+        }
+      });
+    }
+    EditorDictation.get(editor)?.start();
+  }
+}
+class EditorDictationStopAction extends EditorAction2 {
+  static {
+    __name(this, "EditorDictationStopAction");
+  }
+  static {
+    this.ID = "workbench.action.editorDictation.stop";
+  }
+  constructor() {
+    super({
+      id: EditorDictationStopAction.ID,
+      title: localize2("stopDictation", "Stop Dictation in Editor"),
+      category: VOICE_CATEGORY,
+      precondition: EDITOR_DICTATION_IN_PROGRESS,
+      f1: true,
+      keybinding: {
+        primary: 9,
+        weight: 200 + 100
+      }
+    });
+  }
+  runEditorCommand(_accessor, editor) {
+    EditorDictation.get(editor)?.stop();
+  }
+}
+class DictationWidget extends Disposable {
+  static {
+    __name(this, "DictationWidget");
+  }
+  constructor(editor, keybindingService) {
+    super();
+    this.editor = editor;
+    this.suppressMouseDown = true;
+    this.allowEditorOverflow = true;
+    this.domNode = document.createElement("div");
+    const actionBar = this._register(new ActionBar(this.domNode));
+    const stopActionKeybinding = keybindingService.lookupKeybinding(EditorDictationStopAction.ID)?.getLabel();
+    actionBar.push(toAction({
+      id: EditorDictationStopAction.ID,
+      label: stopActionKeybinding ? localize("stopDictationShort1", "Stop Dictation ({0})", stopActionKeybinding) : localize("stopDictationShort2", "Stop Dictation"),
+      class: ThemeIcon.asClassName(Codicon.micFilled),
+      run: /* @__PURE__ */ __name(() => EditorDictation.get(editor)?.stop(), "run")
+    }), { icon: true, label: false, keybinding: stopActionKeybinding });
+    this.domNode.classList.add("editor-dictation-widget");
+    this.domNode.appendChild(actionBar.domNode);
+  }
+  getId() {
+    return "editorDictation";
+  }
+  getDomNode() {
+    return this.domNode;
+  }
+  getPosition() {
+    if (!this.editor.hasModel()) {
+      return null;
+    }
+    const selection = this.editor.getSelection();
+    return {
+      position: selection.getPosition(),
+      preference: [
+        selection.getPosition().equals(selection.getStartPosition()) ? 1 : 2,
+        0
+        /* ContentWidgetPositionPreference.EXACT */
+      ]
+    };
+  }
+  beforeRender() {
+    const position = this.editor.getPosition();
+    const lineHeight = position ? this.editor.getLineHeightForPosition(position) : this.editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const width = this.editor.getLayoutInfo().contentWidth * 0.7;
+    this.domNode.style.setProperty("--vscode-editor-dictation-widget-height", `${lineHeight}px`);
+    this.domNode.style.setProperty("--vscode-editor-dictation-widget-width", `${width}px`);
+    return null;
+  }
+  show() {
+    this.editor.addContentWidget(this);
+  }
+  layout() {
+    this.editor.layoutContentWidget(this);
+  }
+  active() {
+    this.domNode.classList.add("recording");
+  }
+  hide() {
+    this.domNode.classList.remove("recording");
+    this.editor.removeContentWidget(this);
+  }
+}
+let EditorDictation = class EditorDictation2 extends Disposable {
+  static {
+    __name(this, "EditorDictation");
+  }
+  static {
+    EditorDictation_1 = this;
+  }
+  static {
+    this.ID = "editorDictation";
+  }
+  static get(editor) {
+    return editor.getContribution(EditorDictation_1.ID);
+  }
+  constructor(editor, speechService, contextKeyService, keybindingService) {
+    super();
+    this.editor = editor;
+    this.speechService = speechService;
+    this.sessionDisposables = this._register(new MutableDisposable());
+    this.widget = this._register(new DictationWidget(this.editor, keybindingService));
+    this.editorDictationInProgress = EDITOR_DICTATION_IN_PROGRESS.bindTo(contextKeyService);
+  }
+  async start() {
+    const disposables = new DisposableStore();
+    this.sessionDisposables.value = disposables;
+    this.widget.show();
+    disposables.add(toDisposable(() => this.widget.hide()));
+    this.editorDictationInProgress.set(true);
+    disposables.add(toDisposable(() => this.editorDictationInProgress.reset()));
+    const collection = this.editor.createDecorationsCollection();
+    disposables.add(toDisposable(() => collection.clear()));
+    disposables.add(this.editor.onDidChangeCursorPosition(() => this.widget.layout()));
+    let previewStart = void 0;
+    let lastReplaceTextLength = 0;
+    const replaceText = /* @__PURE__ */ __name((text, isPreview) => {
+      if (!previewStart) {
+        previewStart = assertReturnsDefined(this.editor.getPosition());
+      }
+      const endPosition = new Position(previewStart.lineNumber, previewStart.column + text.length);
+      this.editor.executeEdits(EditorDictation_1.ID, [
+        EditOperation.replace(Range.fromPositions(previewStart, previewStart.with(void 0, previewStart.column + lastReplaceTextLength)), text)
+      ], [
+        Selection.fromPositions(endPosition)
+      ]);
+      if (isPreview) {
+        collection.set([
+          {
+            range: Range.fromPositions(previewStart, previewStart.with(void 0, previewStart.column + text.length)),
+            options: {
+              description: "editor-dictation-preview",
+              inlineClassName: "ghost-text-decoration-preview"
+            }
+          }
+        ]);
+      } else {
+        collection.clear();
+      }
+      lastReplaceTextLength = text.length;
+      if (!isPreview) {
+        previewStart = void 0;
+        lastReplaceTextLength = 0;
+      }
+      this.editor.revealPositionInCenterIfOutsideViewport(endPosition);
+    }, "replaceText");
+    const cts = new CancellationTokenSource();
+    disposables.add(toDisposable(() => cts.dispose(true)));
+    const session = await this.speechService.createSpeechToTextSession(cts.token, "editor");
+    disposables.add(session.onDidChange((e) => {
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      switch (e.status) {
+        case SpeechToTextStatus.Started:
+          this.widget.active();
+          break;
+        case SpeechToTextStatus.Stopped:
+          disposables.dispose();
+          break;
+        case SpeechToTextStatus.Recognizing: {
+          if (!e.text) {
+            return;
+          }
+          replaceText(e.text, true);
+          break;
+        }
+        case SpeechToTextStatus.Recognized: {
+          if (!e.text) {
+            return;
+          }
+          replaceText(`${e.text} `, false);
+          break;
+        }
+      }
+    }));
+  }
+  stop() {
+    this.sessionDisposables.clear();
+  }
+};
+EditorDictation = EditorDictation_1 = __decorate([
+  __param(1, ISpeechService),
+  __param(2, IContextKeyService),
+  __param(3, IKeybindingService)
+], EditorDictation);
+registerEditorContribution(
+  EditorDictation.ID,
+  EditorDictation,
+  4
+  /* EditorContributionInstantiation.Lazy */
+);
+registerAction2(EditorDictationStartAction);
+registerAction2(EditorDictationStopAction);
+export {
+  DictationWidget,
+  EditorDictation,
+  EditorDictationStartAction,
+  EditorDictationStopAction
+};
+//# sourceMappingURL=editorDictation.js.map

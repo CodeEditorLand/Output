@@ -1,1 +1,327 @@
-import{$$6 as D}from"../../../../base/browser/broadcast.js";import{$l7 as y}from"../../../../base/browser/browser.js";import{$l8 as $}from"../../../../base/browser/dom.js";import{$70 as P}from"../../../../base/browser/indexedDB.js";import{$ti as S,Promises as f}from"../../../../base/common/async.js";import{$Km as b}from"../../../../base/common/errorMessage.js";import{$wf as I}from"../../../../base/common/event.js";import{$Ed as x,$Dd as v}from"../../../../base/common/lifecycle.js";import{$gd as u}from"../../../../base/common/types.js";import{$9o as U,$7o as C,$8o as c}from"../../../../base/parts/storage/common/storage.js";import{$xo as j}from"../../../../platform/log/common/log.js";import{$ip as B,$jp as X,$ep as d}from"../../../../platform/storage/common/storage.js";import{$$o as W}from"../../../../platform/userDataProfile/common/userDataProfile.js";var p=function(n,t,e,i){var h=arguments.length,a=h<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(n,t,e,i);else for(var o=n.length-1;o>=0;o--)(r=n[o])&&(a=(h<3?r(a):h>3?r(t,e,a):r(t,e))||a);return h>3&&a&&Object.defineProperty(t,e,a),a},w=function(n,t){return function(e,i){t(e,i,n)}},l;let m=class extends B{static{l=this}static{this.c=5*1e3}get hasPendingUpdate(){return!!(this.U?.hasPendingUpdate||this.Y?.hasPendingUpdate||this.bb?.hasPendingUpdate)}constructor(t,e,i){super({flushInterval:l.c}),this.cb=t,this.eb=e,this.fb=i,this.W=new S,this.$=this.D(new v),this.Z=this.eb.currentProfile,this.gb()}gb(){this.D(this.eb.onDidChangeCurrentProfile(t=>t.join(this.R(t.profile))))}async O(){await f.settled([this.ib(),this.jb(this.Z),this.kb()])}async ib(){const t=await s.createApplicationStorage(this.fb);this.U=this.D(t),this.s=this.D(new c(this.U)),this.D(this.s.onDidChangeStorage(e=>this.t(-1,e))),await this.s.init(),this.lb(this.s),this.W.complete({indexedDb:t,storage:this.s})}async jb(t){if(this.$.clear(),this.Z=t,X(this.Z)){const{indexedDb:e,storage:i}=await this.W.p;this.Y=e,this.X=i,this.$.add(this.X.onDidChangeStorage(h=>this.t(0,h)))}else{const e=await s.createProfileStorage(this.Z,this.fb);this.Y=this.$.add(e),this.X=this.$.add(new c(this.Y)),this.$.add(this.X.onDidChangeStorage(i=>this.t(0,i))),await this.X.init(),this.lb(this.X)}}async kb(){const t=await s.createWorkspaceStorage(this.cb.id,this.fb);this.bb=this.D(t),this.ab=this.D(new c(this.bb)),this.D(this.ab.onDidChangeStorage(e=>this.t(1,e))),await this.ab.init(),this.lb(this.ab)}lb(t){const e=t.getBoolean(d);e===void 0?t.set(d,!0):e&&t.set(d,!1)}P(t){switch(t){case-1:return this.s;case 0:return this.X;default:return this.ab}}Q(t){switch(t){case-1:return this.U?.name;case 0:return this.Y?.name;default:return this.bb?.name}}async R(t){if(!this.M(this.Z,t))return;const e=u(this.X),i=e.items;e!==this.s&&await e.close(),await this.jb(t),this.N(i,u(this.X),0)}async S(t,e){throw new Error("Migrating storage is currently unsupported in Web")}q(){return $().document.hasFocus()&&!this.hasPendingUpdate}close(){y&&(this.s?.close(),this.Y?.close(),this.bb?.close()),this.dispose()}async clear(){for(const t of[-1,0,1]){for(const e of[0,1])for(const i of this.keys(t,e))this.remove(i,t);await this.P(t)?.whenFlushed()}await f.settled([this.U?.clear()??Promise.resolve(),this.Y?.clear()??Promise.resolve(),this.bb?.clear()??Promise.resolve()])}hasScope(t){return W(t)?this.Z.id===t.id:this.cb.id===t.id}};m=l=p([w(2,j)],m);class Y extends U{constructor(){super(...arguments),this.hasPendingUpdate=!1,this.name="in-memory-indexedb-storage"}async clear(){(await this.getItems()).clear()}dispose(){}}class s extends x{static async createApplicationStorage(t){return s.create({id:"global",broadcastChanges:!0},t)}static async createProfileStorage(t,e){return s.create({id:`global-${t.id}`,broadcastChanges:!0},e)}static async createWorkspaceStorage(t,e){return s.create({id:t},e)}static async create(t,e){try{const i=new s(t,e);return await i.h,i}catch(i){return e.error(`[IndexedDB Storage ${t.id}] create(): ${b(i,!0)}`),new Y}}static{this.a="vscode-web-state-db-"}static{this.b="ItemTable"}get hasPendingUpdate(){return!!this.g}constructor(t,e){super(),this.j=e,this.c=this.D(new I),this.onDidChangeItemsExternal=this.c.event,this.g=void 0,this.name=`${s.a}${t.id}`,this.f=t.broadcastChanges?this.D(new D(this.name)):void 0,this.h=this.n(),this.m()}m(){this.f&&this.D(this.f.onDidReceiveData(t=>{C(t)&&this.c.fire(t)}))}async n(){try{return await P.create(this.name,void 0,[s.b])}catch(t){throw this.j.error(`[IndexedDB Storage ${this.name}] connect() error: ${b(t)}`),t}}async getItems(){const t=await this.h;function e(i){return typeof i=="string"}return t.getKeyValues(s.b,e)}async updateItems(t){let e=!1;this.g=this.q(t);try{e=await this.g}finally{this.g=void 0}if(this.f&&e){const i={changed:t.insert,deleted:t.delete};this.f.postData(i)}}async q(t){const e=t.insert,i=t.delete;return!e&&!i||e?.size===0&&i?.size===0?!1:(await(await this.h).runInTransaction(s.b,"readwrite",a=>{const r=[];if(e)for(const[o,g]of e)r.push(a.put(g,o));if(i)for(const o of i)r.push(a.delete(o));return r}),!0)}async optimize(){}async close(){const t=await this.h;return await this.g,t.close()}async clear(){await(await this.h).runInTransaction(s.b,"readwrite",e=>e.clear())}}export{m as $oKc,s as $pKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var BrowserStorageService_1;
+import { BroadcastDataChannel } from "../../../../base/browser/broadcast.js";
+import { isSafari } from "../../../../base/browser/browser.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { IndexedDB } from "../../../../base/browser/indexedDB.js";
+import { DeferredPromise, Promises } from "../../../../base/common/async.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { InMemoryStorageDatabase, isStorageItemsChangeEvent, Storage } from "../../../../base/parts/storage/common/storage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { AbstractStorageService, isProfileUsingDefaultStorage, IS_NEW_KEY } from "../../../../platform/storage/common/storage.js";
+import { isUserDataProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+let BrowserStorageService = class BrowserStorageService2 extends AbstractStorageService {
+  static {
+    __name(this, "BrowserStorageService");
+  }
+  static {
+    BrowserStorageService_1 = this;
+  }
+  static {
+    this.BROWSER_DEFAULT_FLUSH_INTERVAL = 5 * 1e3;
+  }
+  // every 5s because async operations are not permitted on shutdown
+  get hasPendingUpdate() {
+    return Boolean(this.applicationStorageDatabase?.hasPendingUpdate || this.profileStorageDatabase?.hasPendingUpdate || this.workspaceStorageDatabase?.hasPendingUpdate);
+  }
+  constructor(workspace, userDataProfileService, logService) {
+    super({ flushInterval: BrowserStorageService_1.BROWSER_DEFAULT_FLUSH_INTERVAL });
+    this.workspace = workspace;
+    this.userDataProfileService = userDataProfileService;
+    this.logService = logService;
+    this.applicationStoragePromise = new DeferredPromise();
+    this.profileStorageDisposables = this._register(new DisposableStore());
+    this.profileStorageProfile = this.userDataProfileService.currentProfile;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.userDataProfileService.onDidChangeCurrentProfile((e) => e.join(this.switchToProfile(e.profile))));
+  }
+  async doInitialize() {
+    await Promises.settled([
+      this.createApplicationStorage(),
+      this.createProfileStorage(this.profileStorageProfile),
+      this.createWorkspaceStorage()
+    ]);
+  }
+  async createApplicationStorage() {
+    const applicationStorageIndexedDB = await IndexedDBStorageDatabase.createApplicationStorage(this.logService);
+    this.applicationStorageDatabase = this._register(applicationStorageIndexedDB);
+    this.applicationStorage = this._register(new Storage(this.applicationStorageDatabase));
+    this._register(this.applicationStorage.onDidChangeStorage((e) => this.emitDidChangeValue(-1, e)));
+    await this.applicationStorage.init();
+    this.updateIsNew(this.applicationStorage);
+    this.applicationStoragePromise.complete({ indexedDb: applicationStorageIndexedDB, storage: this.applicationStorage });
+  }
+  async createProfileStorage(profile) {
+    this.profileStorageDisposables.clear();
+    this.profileStorageProfile = profile;
+    if (isProfileUsingDefaultStorage(this.profileStorageProfile)) {
+      const { indexedDb: applicationStorageIndexedDB, storage: applicationStorage } = await this.applicationStoragePromise.p;
+      this.profileStorageDatabase = applicationStorageIndexedDB;
+      this.profileStorage = applicationStorage;
+      this.profileStorageDisposables.add(this.profileStorage.onDidChangeStorage((e) => this.emitDidChangeValue(0, e)));
+    } else {
+      const profileStorageIndexedDB = await IndexedDBStorageDatabase.createProfileStorage(this.profileStorageProfile, this.logService);
+      this.profileStorageDatabase = this.profileStorageDisposables.add(profileStorageIndexedDB);
+      this.profileStorage = this.profileStorageDisposables.add(new Storage(this.profileStorageDatabase));
+      this.profileStorageDisposables.add(this.profileStorage.onDidChangeStorage((e) => this.emitDidChangeValue(0, e)));
+      await this.profileStorage.init();
+      this.updateIsNew(this.profileStorage);
+    }
+  }
+  async createWorkspaceStorage() {
+    const workspaceStorageIndexedDB = await IndexedDBStorageDatabase.createWorkspaceStorage(this.workspace.id, this.logService);
+    this.workspaceStorageDatabase = this._register(workspaceStorageIndexedDB);
+    this.workspaceStorage = this._register(new Storage(this.workspaceStorageDatabase));
+    this._register(this.workspaceStorage.onDidChangeStorage((e) => this.emitDidChangeValue(1, e)));
+    await this.workspaceStorage.init();
+    this.updateIsNew(this.workspaceStorage);
+  }
+  updateIsNew(storage) {
+    const firstOpen = storage.getBoolean(IS_NEW_KEY);
+    if (firstOpen === void 0) {
+      storage.set(IS_NEW_KEY, true);
+    } else if (firstOpen) {
+      storage.set(IS_NEW_KEY, false);
+    }
+  }
+  getStorage(scope) {
+    switch (scope) {
+      case -1:
+        return this.applicationStorage;
+      case 0:
+        return this.profileStorage;
+      default:
+        return this.workspaceStorage;
+    }
+  }
+  getLogDetails(scope) {
+    switch (scope) {
+      case -1:
+        return this.applicationStorageDatabase?.name;
+      case 0:
+        return this.profileStorageDatabase?.name;
+      default:
+        return this.workspaceStorageDatabase?.name;
+    }
+  }
+  async switchToProfile(toProfile) {
+    if (!this.canSwitchProfile(this.profileStorageProfile, toProfile)) {
+      return;
+    }
+    const oldProfileStorage = assertReturnsDefined(this.profileStorage);
+    const oldItems = oldProfileStorage.items;
+    if (oldProfileStorage !== this.applicationStorage) {
+      await oldProfileStorage.close();
+    }
+    await this.createProfileStorage(toProfile);
+    this.switchData(
+      oldItems,
+      assertReturnsDefined(this.profileStorage),
+      0
+      /* StorageScope.PROFILE */
+    );
+  }
+  async switchToWorkspace(toWorkspace, preserveData) {
+    throw new Error("Migrating storage is currently unsupported in Web");
+  }
+  shouldFlushWhenIdle() {
+    return getActiveWindow().document.hasFocus() && !this.hasPendingUpdate;
+  }
+  close() {
+    if (isSafari) {
+      this.applicationStorage?.close();
+      this.profileStorageDatabase?.close();
+      this.workspaceStorageDatabase?.close();
+    }
+    this.dispose();
+  }
+  async clear() {
+    for (const scope of [
+      -1,
+      0,
+      1
+      /* StorageScope.WORKSPACE */
+    ]) {
+      for (const target of [
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      ]) {
+        for (const key of this.keys(scope, target)) {
+          this.remove(key, scope);
+        }
+      }
+      await this.getStorage(scope)?.whenFlushed();
+    }
+    await Promises.settled([
+      this.applicationStorageDatabase?.clear() ?? Promise.resolve(),
+      this.profileStorageDatabase?.clear() ?? Promise.resolve(),
+      this.workspaceStorageDatabase?.clear() ?? Promise.resolve()
+    ]);
+  }
+  hasScope(scope) {
+    if (isUserDataProfile(scope)) {
+      return this.profileStorageProfile.id === scope.id;
+    }
+    return this.workspace.id === scope.id;
+  }
+};
+BrowserStorageService = BrowserStorageService_1 = __decorate([
+  __param(2, ILogService)
+], BrowserStorageService);
+class InMemoryIndexedDBStorageDatabase extends InMemoryStorageDatabase {
+  static {
+    __name(this, "InMemoryIndexedDBStorageDatabase");
+  }
+  constructor() {
+    super(...arguments);
+    this.hasPendingUpdate = false;
+    this.name = "in-memory-indexedb-storage";
+  }
+  async clear() {
+    (await this.getItems()).clear();
+  }
+  dispose() {
+  }
+}
+class IndexedDBStorageDatabase extends Disposable {
+  static {
+    __name(this, "IndexedDBStorageDatabase");
+  }
+  static async createApplicationStorage(logService) {
+    return IndexedDBStorageDatabase.create({ id: "global", broadcastChanges: true }, logService);
+  }
+  static async createProfileStorage(profile, logService) {
+    return IndexedDBStorageDatabase.create({ id: `global-${profile.id}`, broadcastChanges: true }, logService);
+  }
+  static async createWorkspaceStorage(workspaceId, logService) {
+    return IndexedDBStorageDatabase.create({ id: workspaceId }, logService);
+  }
+  static async create(options, logService) {
+    try {
+      const database = new IndexedDBStorageDatabase(options, logService);
+      await database.whenConnected;
+      return database;
+    } catch (error) {
+      logService.error(`[IndexedDB Storage ${options.id}] create(): ${toErrorMessage(error, true)}`);
+      return new InMemoryIndexedDBStorageDatabase();
+    }
+  }
+  static {
+    this.STORAGE_DATABASE_PREFIX = "vscode-web-state-db-";
+  }
+  static {
+    this.STORAGE_OBJECT_STORE = "ItemTable";
+  }
+  get hasPendingUpdate() {
+    return !!this.pendingUpdate;
+  }
+  constructor(options, logService) {
+    super();
+    this.logService = logService;
+    this._onDidChangeItemsExternal = this._register(new Emitter());
+    this.onDidChangeItemsExternal = this._onDidChangeItemsExternal.event;
+    this.pendingUpdate = void 0;
+    this.name = `${IndexedDBStorageDatabase.STORAGE_DATABASE_PREFIX}${options.id}`;
+    this.broadcastChannel = options.broadcastChanges ? this._register(new BroadcastDataChannel(this.name)) : void 0;
+    this.whenConnected = this.connect();
+    this.registerListeners();
+  }
+  registerListeners() {
+    if (this.broadcastChannel) {
+      this._register(this.broadcastChannel.onDidReceiveData((data) => {
+        if (isStorageItemsChangeEvent(data)) {
+          this._onDidChangeItemsExternal.fire(data);
+        }
+      }));
+    }
+  }
+  async connect() {
+    try {
+      return await IndexedDB.create(this.name, void 0, [IndexedDBStorageDatabase.STORAGE_OBJECT_STORE]);
+    } catch (error) {
+      this.logService.error(`[IndexedDB Storage ${this.name}] connect() error: ${toErrorMessage(error)}`);
+      throw error;
+    }
+  }
+  async getItems() {
+    const db = await this.whenConnected;
+    function isValid(value) {
+      return typeof value === "string";
+    }
+    __name(isValid, "isValid");
+    return db.getKeyValues(IndexedDBStorageDatabase.STORAGE_OBJECT_STORE, isValid);
+  }
+  async updateItems(request) {
+    let didUpdate = false;
+    this.pendingUpdate = this.doUpdateItems(request);
+    try {
+      didUpdate = await this.pendingUpdate;
+    } finally {
+      this.pendingUpdate = void 0;
+    }
+    if (this.broadcastChannel && didUpdate) {
+      const event = {
+        changed: request.insert,
+        deleted: request.delete
+      };
+      this.broadcastChannel.postData(event);
+    }
+  }
+  async doUpdateItems(request) {
+    const toInsert = request.insert;
+    const toDelete = request.delete;
+    if (!toInsert && !toDelete || toInsert?.size === 0 && toDelete?.size === 0) {
+      return false;
+    }
+    const db = await this.whenConnected;
+    await db.runInTransaction(IndexedDBStorageDatabase.STORAGE_OBJECT_STORE, "readwrite", (objectStore) => {
+      const requests = [];
+      if (toInsert) {
+        for (const [key, value] of toInsert) {
+          requests.push(objectStore.put(value, key));
+        }
+      }
+      if (toDelete) {
+        for (const key of toDelete) {
+          requests.push(objectStore.delete(key));
+        }
+      }
+      return requests;
+    });
+    return true;
+  }
+  async optimize() {
+  }
+  async close() {
+    const db = await this.whenConnected;
+    await this.pendingUpdate;
+    return db.close();
+  }
+  async clear() {
+    const db = await this.whenConnected;
+    await db.runInTransaction(IndexedDBStorageDatabase.STORAGE_OBJECT_STORE, "readwrite", (objectStore) => objectStore.clear());
+  }
+}
+export {
+  BrowserStorageService,
+  IndexedDBStorageDatabase
+};
+//# sourceMappingURL=storageService.js.map

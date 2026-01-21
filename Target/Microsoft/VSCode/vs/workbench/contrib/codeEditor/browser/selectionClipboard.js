@@ -1,1 +1,5 @@
-const o="editor.contrib.selectionClipboard";export{o as $aHb};
+const SelectionClipboardContributionID = "editor.contrib.selectionClipboard";
+export {
+  SelectionClipboardContributionID
+};
+//# sourceMappingURL=selectionClipboard.js.map

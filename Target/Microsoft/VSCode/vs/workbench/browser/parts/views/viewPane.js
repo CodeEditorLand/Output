@@ -1,7 +1,704 @@
-import"./media/paneviewlet.css";import*as v from"../../../../nls.js";import{Event as p,$wf as $}from"../../../../base/common/event.js";import{$Vp as Z,$aq as Q}from"../../../../platform/theme/common/colorRegistry.js";import{$H8 as G,$I8 as l,$ as f,$G8 as J,$B8 as tt,$F7 as it,$X7 as et,$K8 as st,$i8 as nt,$h8 as ot}from"../../../../base/browser/dom.js";import{$19 as rt}from"../../../../base/browser/domStylesheets.js";import{$49 as ht,$99 as E}from"../../../../base/browser/cssValue.js";import{$Md as at,$Dd as A,$Cd as lt}from"../../../../base/common/lifecycle.js";import{$Em as ct}from"../../../../base/common/actions.js";import{$H9 as F}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$im as dt}from"../../../../platform/registry/common/platform.js";import{$cy as j}from"../../../../platform/keybinding/common/keybinding.js";import{$6hb as _}from"../../../../platform/contextview/browser/contextView.js";import{$ou as O}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as C}from"../../../../base/common/themables.js";import{$b_ as bt}from"../../../../base/browser/ui/splitview/paneview.js";import{$9l as P}from"../../../../platform/configuration/common/configuration.js";import{Extensions as ut,$BN as q,$yN as ft,$AN as z}from"../../../common/views.js";import{$fAb as mt}from"../../../services/views/common/viewsService.js";import{$qo as D}from"../../../../platform/contextkey/common/contextkey.js";import{$gd as pt}from"../../../../base/common/types.js";import{$Lj as B}from"../../../../platform/instantiation/common/instantiation.js";import{$nL as T,$sL as wt,$qL as gt}from"../../../../platform/actions/common/actions.js";import{$Zib as $t}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$X_ as Ct}from"../../../../base/common/linkedText.js";import{$yP as W}from"../../../../platform/opener/common/opener.js";import{$k$ as yt}from"../../../../base/browser/ui/button/button.js";import{Link as Dt}from"../../../../platform/opener/browser/link.js";import{$$$ as vt}from"../../../../base/browser/ui/progressbar/progressbar.js";import{$QAb as xt,$PAb as At}from"../../../services/progress/browser/progressIndicator.js";import{$v9 as It}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{URI as H}from"../../../../base/common/uri.js";import{$eu as K}from"../../../../platform/theme/common/iconRegistry.js";import{$ak as U}from"../../../../base/common/codicons.js";import{$5ib as Vt}from"../../../../platform/actions/browser/toolbar.js";import{$SAb as St}from"./viewFilter.js";import{$U0 as kt}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Kj as Y}from"../../../../platform/instantiation/common/serviceCollection.js";import{$tib as Lt,$vib as Bt}from"../../../../platform/theme/browser/defaultStyles.js";import{$E9 as I}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$SN as Wt}from"../../../services/lifecycle/common/lifecycle.js";import{$7ib as X}from"../../../../platform/hover/browser/hover.js";import{$9yb as Et,$gzb as Ft,$lzb as zt,$mzb as Tt,$nzb as Ht,$Azb as Mt,$Gzb as Nt,$Lzb as Rt,$Mzb as jt,$Nzb as _t}from"../../../common/theme.js";import{$Q9 as Ot}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$VAb as Pt}from"./viewMenuActions.js";var L=function(h,t,i,e){var s=arguments.length,n=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,i,e);else for(var a=h.length-1;a>=0;a--)(r=h[a])&&(n=(s<3?r(n):s>3?r(t,i,n):r(t,i))||n);return s>3&&n&&Object.defineProperty(t,i,n),n},o=function(h,t){return function(i,e){t(i,e,h)}},V,y;(function(h){h[h.Default=0]="Default",h[h.WhenExpanded=1]="WhenExpanded",h[h.Always=2]="Always"})(y||(y={}));const M=new ct("viewpane.action.filter"),qt=K("view-pane-container-expanded",U.chevronDown,v.localize(4131,null)),Kt=K("view-pane-container-collapsed",U.chevronRight,v.localize(4132,null)),N=dt.as(ut.ViewsRegistry);let S=class{get enabled(){return this.c}constructor(t,i,e,s,n,r){this.j=t,this.k=i,this.l=e,this.m=s,this.n=n,this.b=[],this.c=!1,this.g=new A,this.h=this.g.add(new A),this.i=this.g.add(new A),this.g.add(p.runAndSubscribe(this.k.onDidChangeViewWelcomeState,()=>this.o())),this.g.add(r.onWillShutdown(()=>this.dispose()))}layout(t,i){this.c&&(this.d.style.height=`${t}px`,this.d.style.width=`${i}px`,this.d.classList.toggle("wide",i>640),this.f.scanDomNode())}focus(){this.c&&this.d.focus()}o(){const t=this.k.shouldShowWelcome();if(this.c===t)return;if(this.c=t,!t){this.h.clear();return}this.j.classList.add("welcome");const i=l(this.j,f(".welcome-view"));this.d=f(".welcome-view-content",{tabIndex:0}),this.f=new It(this.d,{alwaysConsumeMouseWheel:!0,horizontal:2,vertical:3}),l(i,this.f.getDomNode()),this.h.add(lt(()=>{this.j.classList.remove("welcome"),this.f.dispose(),i.remove(),this.f=void 0,this.d=void 0})),this.n.onDidChangeContext(this.r,this,this.h),p.chain(N.onDidChangeViewWelcomeContent,e=>e.filter(s=>s===this.k.id))(this.q,this,this.h),this.q()}q(){const t=N.getViewWelcomeContent(this.k.id);this.b=[];for(const i of t)if(i.when==="default")this.a={descriptor:i,visible:!0};else{const e=i.when?this.n.contextMatchesRules(i.when):!0;this.b.push({descriptor:i,visible:e})}this.s()}r(){let t=!1;for(const i of this.b){if(!i.descriptor.when||i.descriptor.when==="default")continue;const e=this.n.contextMatchesRules(i.descriptor.when);i.visible!==e&&(i.visible=e,t=!0)}t&&this.s()}s(){this.i.clear(),this.d.textContent="";const t=this.t();if(t.length===0){this.j.classList.remove("welcome"),this.f.scanDomNode();return}let i=0;for(const{content:e,precondition:s,renderSecondaryButtons:n}of t){const r=e.split(`
-`);for(let a of r){if(a=a.trim(),!a)continue;const m=Ct(a);if(m.nodes.length===1&&typeof m.nodes[0]!="string"){const c=m.nodes[0],d=l(this.d,f(".button-container")),b=new yt(d,{title:c.title,supportIcons:!0,secondary:!!(n&&i>0),...Lt});if(b.label=c.label,b.onDidClick(u=>{this.m.open(c.href,{allowCommands:!0})},null,this.i),this.i.add(b),i++,s){const u=()=>b.enabled=this.n.contextMatchesRules(s);u();const w=new Set(s.keys());p.filter(this.n.onDidChangeContext,g=>g.affectsSome(w))(u,null,this.i)}}else{const c=l(this.d,f("p"));for(const d of m.nodes)if(typeof d=="string")l(c,...Ot(d));else{const b=this.i.add(this.l.createInstance(Dt,c,d,{}));if(s&&d.href.startsWith("command:")){const u=()=>b.enabled=this.n.contextMatchesRules(s);u();const w=new Set(s.keys());p.filter(this.n.onDidChangeContext,g=>g.affectsSome(w))(u,null,this.i)}}}}}this.j.classList.add("welcome"),this.f.scanDomNode()}t(){const t=this.b.filter(i=>i.visible);return t.length===0&&this.a?[this.a.descriptor]:t.map(i=>i.descriptor)}dispose(){this.g.dispose()}};S=L([o(2,B),o(3,W),o(4,D),o(5,Wt)],S);let k=class extends bt{static{V=this}static{this.Z="workbench.view.alwaysShowHeaderActions"}get title(){return this.hb}get titleDescription(){return this.ib}get singleViewPaneContainerTitle(){return this.jb}constructor(t,i,e,s,n,r,a,m,c,d,b){super({...t,orientation:r.getViewLocationById(t.id)===1?1:0}),this.Ab=i,this.Bb=e,this.Cb=s,this.Db=n,this.Eb=r,this.Fb=a,this.Gb=m,this.Hb=c,this.Ib=d,this.Jb=b,this.bb=this.D(new $),this.onDidFocus=this.bb.event,this.cb=this.D(new $),this.onDidBlur=this.cb.event,this.db=this.D(new $),this.onDidChangeBodyVisibility=this.db.event,this.eb=this.D(new $),this.onDidChangeTitleArea=this.eb.event,this.fb=this.D(new $),this.onDidChangeViewWelcomeState=this.fb.event,this.gb=!1,this.yb=this.D(new at),this.id=t.id,this.hb=t.title,this.ib=t.titleDescription,this.jb=t.singleViewPaneContainerTitle,this.nb=t.showActions??y.Default,this.zb=this.D(n.createScoped(this.element)),this.zb.createKey("view",this.id);const u=this.zb.createKey("viewLocation",z(r.getViewLocationById(this.id)));this.D(p.filter(r.onDidChangeLocation,x=>x.views.some(g=>g.id===this.id))(()=>u.set(z(r.getViewLocationById(this.id)))));const w=this.D(this.Fb.createChild(new Y([D,this.zb])));this.menuActions=this.D(w.createInstance(Pt,t.titleMenuId??T.ViewTitle,T.ViewTitleContext,{shouldForwardArgs:!t.donotForwardArgs,renderShortTitle:!0})),this.D(this.menuActions.onDidChange(()=>this.bc()))}get headerVisible(){return super.headerVisible}set headerVisible(t){super.headerVisible=t,this.element.classList.toggle("merged-header",!t)}setVisible(t){this.gb!==t&&(this.gb=t,this.isExpanded()&&this.db.fire(t))}isVisible(){return this.gb}isBodyVisible(){return this.gb&&this.isExpanded()}setExpanded(t){const i=super.setExpanded(t);return i&&this.db.fire(t),this.Mb(),i}render(){super.render();const t=J(this.element);this.D(t),this.D(t.onDidFocus(()=>this.bb.fire())),this.D(t.onDidBlur(()=>this.cb.fire()))}W(t){this.ob=t,this.wb=l(t,f(`.twisty-container${C.asCSSSelector(this.Nb(this.isExpanded()))}`)),this.Pb(t,this.title);const i=l(t,f(".actions"));i.classList.toggle("show-always",this.nb===y.Always),i.classList.toggle("show-expanded",this.nb===y.WhenExpanded),this.mb=this.Fb.createInstance(Vt,i,{orientation:0,actionViewItemProvider:(n,r)=>{const a=this.createActionViewItem(n,r);return a&&this.yb.set(a.action.id,a),a},ariaLabel:v.localize(4133,null,this.title),getKeyBinding:n=>this.Ab.lookupKeybinding(n.id),renderDropdownAsChildElement:!0,actionRunner:this.getActionRunner(),resetMenu:this.menuActions.menuId}),this.D(this.mb),this.$b(),this.D(it(i,tt.CLICK,n=>n.preventDefault()));const e=this.Eb.getViewContainerByViewId(this.id);e&&this.D(this.Eb.getViewContainerModel(e).onDidChangeContainerInfo(({title:n})=>this.Rb(this.title)));const s=p.filter(this.Cb.onDidChangeConfiguration,n=>n.affectsConfiguration(V.Z));this.D(s(this.ac,this)),this.ac()}U(){super.U(),this.Mb()}Mb(){this.wb&&(this.wb.classList.remove(...C.asClassNameArray(this.Nb(!this.y))),this.wb.classList.add(...C.asClassNameArray(this.Nb(this.y))))}Nb(t){return t?qt:Kt}style(t){super.style(t);const i=this.Ob();if(this.ub){const e=ht(t.headerForeground,Z(Q));H.isUri(i)?(this.ub.style.backgroundColor=e,this.ub.style.color=""):(this.ub.style.color=e,this.ub.style.backgroundColor="")}}Ob(){return this.Eb.getViewDescriptorById(this.id)?.containerIcon||ft}Pb(t,i){this.ub=l(t,f(".icon",void 0));const e=this.Ob();let s;if(H.isUri(e)){s=`view-${this.id.replace(/[\.\:]/g,"-")}`;const r=`.pane-header .icon.${s}`;rt(r,`
-				mask: ${E(e)} no-repeat 50% 50%;
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ViewPane_1;
+import "./media/paneviewlet.css";
+import * as nls from "../../../../nls.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { asCssVariable, foreground } from "../../../../platform/theme/common/colorRegistry.js";
+import { after, append, $, trackFocus, EventType, addDisposableListener, Dimension, reset, isAncestorOfActiveElement, isActiveElement } from "../../../../base/browser/dom.js";
+import { createCSSRule } from "../../../../base/browser/domStylesheets.js";
+import { asCssValueWithDefault, asCSSUrl } from "../../../../base/browser/cssValue.js";
+import { DisposableMap, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Action } from "../../../../base/common/actions.js";
+import { prepareActions } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Pane } from "../../../../base/browser/ui/splitview/paneview.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions as ViewContainerExtensions, IViewDescriptorService, defaultViewIcon, ViewContainerLocationToString } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { MenuId, Action2, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { parseLinkedText } from "../../../../base/common/linkedText.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { AbstractProgressScope, ScopedProgressIndicator } from "../../../services/progress/browser/progressIndicator.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { FilterWidget } from "./viewFilter.js";
+import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { defaultButtonStyles, defaultProgressBarStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { PANEL_BACKGROUND, PANEL_SECTION_DRAG_AND_DROP_BACKGROUND, PANEL_STICKY_SCROLL_BACKGROUND, PANEL_STICKY_SCROLL_BORDER, PANEL_STICKY_SCROLL_SHADOW, SIDE_BAR_BACKGROUND, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, SIDE_BAR_STICKY_SCROLL_BACKGROUND, SIDE_BAR_STICKY_SCROLL_BORDER, SIDE_BAR_STICKY_SCROLL_SHADOW } from "../../../common/theme.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { ViewMenuActions } from "./viewMenuActions.js";
+var ViewPaneShowActions;
+(function(ViewPaneShowActions2) {
+  ViewPaneShowActions2[ViewPaneShowActions2["Default"] = 0] = "Default";
+  ViewPaneShowActions2[ViewPaneShowActions2["WhenExpanded"] = 1] = "WhenExpanded";
+  ViewPaneShowActions2[ViewPaneShowActions2["Always"] = 2] = "Always";
+})(ViewPaneShowActions || (ViewPaneShowActions = {}));
+const VIEWPANE_FILTER_ACTION = new Action("viewpane.action.filter");
+const viewPaneContainerExpandedIcon = registerIcon("view-pane-container-expanded", Codicon.chevronDown, nls.localize("viewPaneContainerExpandedIcon", "Icon for an expanded view pane container."));
+const viewPaneContainerCollapsedIcon = registerIcon("view-pane-container-collapsed", Codicon.chevronRight, nls.localize("viewPaneContainerCollapsedIcon", "Icon for a collapsed view pane container."));
+const viewsRegistry = Registry.as(ViewContainerExtensions.ViewsRegistry);
+let ViewWelcomeController = class ViewWelcomeController2 {
+  static {
+    __name(this, "ViewWelcomeController");
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  constructor(container, delegate, instantiationService, openerService, contextKeyService, lifecycleService) {
+    this.container = container;
+    this.delegate = delegate;
+    this.instantiationService = instantiationService;
+    this.openerService = openerService;
+    this.contextKeyService = contextKeyService;
+    this.items = [];
+    this._enabled = false;
+    this.disposables = new DisposableStore();
+    this.enabledDisposables = this.disposables.add(new DisposableStore());
+    this.renderDisposables = this.disposables.add(new DisposableStore());
+    this.disposables.add(Event.runAndSubscribe(this.delegate.onDidChangeViewWelcomeState, () => this.onDidChangeViewWelcomeState()));
+    this.disposables.add(lifecycleService.onWillShutdown(() => this.dispose()));
+  }
+  layout(height, width) {
+    if (!this._enabled) {
+      return;
+    }
+    this.element.style.height = `${height}px`;
+    this.element.style.width = `${width}px`;
+    this.element.classList.toggle("wide", width > 640);
+    this.scrollableElement.scanDomNode();
+  }
+  focus() {
+    if (!this._enabled) {
+      return;
+    }
+    this.element.focus();
+  }
+  onDidChangeViewWelcomeState() {
+    const enabled = this.delegate.shouldShowWelcome();
+    if (this._enabled === enabled) {
+      return;
+    }
+    this._enabled = enabled;
+    if (!enabled) {
+      this.enabledDisposables.clear();
+      return;
+    }
+    this.container.classList.add("welcome");
+    const viewWelcomeContainer = append(this.container, $(".welcome-view"));
+    this.element = $(".welcome-view-content", { tabIndex: 0 });
+    this.scrollableElement = new DomScrollableElement(this.element, { alwaysConsumeMouseWheel: true, horizontal: 2, vertical: 3 });
+    append(viewWelcomeContainer, this.scrollableElement.getDomNode());
+    this.enabledDisposables.add(toDisposable(() => {
+      this.container.classList.remove("welcome");
+      this.scrollableElement.dispose();
+      viewWelcomeContainer.remove();
+      this.scrollableElement = void 0;
+      this.element = void 0;
+    }));
+    this.contextKeyService.onDidChangeContext(this.onDidChangeContext, this, this.enabledDisposables);
+    Event.chain(viewsRegistry.onDidChangeViewWelcomeContent, ($2) => $2.filter((id) => id === this.delegate.id))(this.onDidChangeViewWelcomeContent, this, this.enabledDisposables);
+    this.onDidChangeViewWelcomeContent();
+  }
+  onDidChangeViewWelcomeContent() {
+    const descriptors = viewsRegistry.getViewWelcomeContent(this.delegate.id);
+    this.items = [];
+    for (const descriptor of descriptors) {
+      if (descriptor.when === "default") {
+        this.defaultItem = { descriptor, visible: true };
+      } else {
+        const visible = descriptor.when ? this.contextKeyService.contextMatchesRules(descriptor.when) : true;
+        this.items.push({ descriptor, visible });
+      }
+    }
+    this.render();
+  }
+  onDidChangeContext() {
+    let didChange = false;
+    for (const item of this.items) {
+      if (!item.descriptor.when || item.descriptor.when === "default") {
+        continue;
+      }
+      const visible = this.contextKeyService.contextMatchesRules(item.descriptor.when);
+      if (item.visible === visible) {
+        continue;
+      }
+      item.visible = visible;
+      didChange = true;
+    }
+    if (didChange) {
+      this.render();
+    }
+  }
+  render() {
+    this.renderDisposables.clear();
+    this.element.textContent = "";
+    const contents = this.getContentDescriptors();
+    if (contents.length === 0) {
+      this.container.classList.remove("welcome");
+      this.scrollableElement.scanDomNode();
+      return;
+    }
+    let buttonsCount = 0;
+    for (const { content, precondition, renderSecondaryButtons } of contents) {
+      const lines = content.split("\n");
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) {
+          continue;
+        }
+        const linkedText = parseLinkedText(line);
+        if (linkedText.nodes.length === 1 && typeof linkedText.nodes[0] !== "string") {
+          const node = linkedText.nodes[0];
+          const buttonContainer = append(this.element, $(".button-container"));
+          const button = new Button(buttonContainer, { title: node.title, supportIcons: true, secondary: !!(renderSecondaryButtons && buttonsCount > 0), ...defaultButtonStyles });
+          button.label = node.label;
+          button.onDidClick((_) => {
+            this.openerService.open(node.href, { allowCommands: true });
+          }, null, this.renderDisposables);
+          this.renderDisposables.add(button);
+          buttonsCount++;
+          if (precondition) {
+            const updateEnablement = /* @__PURE__ */ __name(() => button.enabled = this.contextKeyService.contextMatchesRules(precondition), "updateEnablement");
+            updateEnablement();
+            const keys = new Set(precondition.keys());
+            const onDidChangeContext = Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(keys));
+            onDidChangeContext(updateEnablement, null, this.renderDisposables);
+          }
+        } else {
+          const p = append(this.element, $("p"));
+          for (const node of linkedText.nodes) {
+            if (typeof node === "string") {
+              append(p, ...renderLabelWithIcons(node));
+            } else {
+              const link = this.renderDisposables.add(this.instantiationService.createInstance(Link, p, node, {}));
+              if (precondition && node.href.startsWith("command:")) {
+                const updateEnablement = /* @__PURE__ */ __name(() => link.enabled = this.contextKeyService.contextMatchesRules(precondition), "updateEnablement");
+                updateEnablement();
+                const keys = new Set(precondition.keys());
+                const onDidChangeContext = Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(keys));
+                onDidChangeContext(updateEnablement, null, this.renderDisposables);
+              }
+            }
+          }
+        }
+      }
+    }
+    this.container.classList.add("welcome");
+    this.scrollableElement.scanDomNode();
+  }
+  getContentDescriptors() {
+    const visibleItems = this.items.filter((v) => v.visible);
+    if (visibleItems.length === 0 && this.defaultItem) {
+      return [this.defaultItem.descriptor];
+    }
+    return visibleItems.map((v) => v.descriptor);
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+ViewWelcomeController = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IOpenerService),
+  __param(4, IContextKeyService),
+  __param(5, ILifecycleService)
+], ViewWelcomeController);
+let ViewPane = class ViewPane2 extends Pane {
+  static {
+    __name(this, "ViewPane");
+  }
+  static {
+    ViewPane_1 = this;
+  }
+  static {
+    this.AlwaysShowActionsConfig = "workbench.view.alwaysShowHeaderActions";
+  }
+  get title() {
+    return this._title;
+  }
+  get titleDescription() {
+    return this._titleDescription;
+  }
+  get singleViewPaneContainerTitle() {
+    return this._singleViewPaneContainerTitle;
+  }
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, accessibleViewInformationService) {
+    super({ ...options, ...{
+      orientation: viewDescriptorService.getViewLocationById(options.id) === 1 ? 1 : 0
+      /* Orientation.VERTICAL */
+    } });
+    this.keybindingService = keybindingService;
+    this.contextMenuService = contextMenuService;
+    this.configurationService = configurationService;
+    this.contextKeyService = contextKeyService;
+    this.viewDescriptorService = viewDescriptorService;
+    this.instantiationService = instantiationService;
+    this.openerService = openerService;
+    this.themeService = themeService;
+    this.hoverService = hoverService;
+    this.accessibleViewInformationService = accessibleViewInformationService;
+    this._onDidFocus = this._register(new Emitter());
+    this.onDidFocus = this._onDidFocus.event;
+    this._onDidBlur = this._register(new Emitter());
+    this.onDidBlur = this._onDidBlur.event;
+    this._onDidChangeBodyVisibility = this._register(new Emitter());
+    this.onDidChangeBodyVisibility = this._onDidChangeBodyVisibility.event;
+    this._onDidChangeTitleArea = this._register(new Emitter());
+    this.onDidChangeTitleArea = this._onDidChangeTitleArea.event;
+    this._onDidChangeViewWelcomeState = this._register(new Emitter());
+    this.onDidChangeViewWelcomeState = this._onDidChangeViewWelcomeState.event;
+    this._isVisible = false;
+    this.headerActionViewItems = this._register(new DisposableMap());
+    this.id = options.id;
+    this._title = options.title;
+    this._titleDescription = options.titleDescription;
+    this._singleViewPaneContainerTitle = options.singleViewPaneContainerTitle;
+    this.showActions = options.showActions ?? ViewPaneShowActions.Default;
+    this.scopedContextKeyService = this._register(contextKeyService.createScoped(this.element));
+    this.scopedContextKeyService.createKey("view", this.id);
+    const viewLocationKey = this.scopedContextKeyService.createKey("viewLocation", ViewContainerLocationToString(viewDescriptorService.getViewLocationById(this.id)));
+    this._register(Event.filter(viewDescriptorService.onDidChangeLocation, (e) => e.views.some((view) => view.id === this.id))(() => viewLocationKey.set(ViewContainerLocationToString(viewDescriptorService.getViewLocationById(this.id)))));
+    const childInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    this.menuActions = this._register(childInstantiationService.createInstance(ViewMenuActions, options.titleMenuId ?? MenuId.ViewTitle, MenuId.ViewTitleContext, { shouldForwardArgs: !options.donotForwardArgs, renderShortTitle: true }));
+    this._register(this.menuActions.onDidChange(() => this.updateActions()));
+  }
+  get headerVisible() {
+    return super.headerVisible;
+  }
+  set headerVisible(visible) {
+    super.headerVisible = visible;
+    this.element.classList.toggle("merged-header", !visible);
+  }
+  setVisible(visible) {
+    if (this._isVisible !== visible) {
+      this._isVisible = visible;
+      if (this.isExpanded()) {
+        this._onDidChangeBodyVisibility.fire(visible);
+      }
+    }
+  }
+  isVisible() {
+    return this._isVisible;
+  }
+  isBodyVisible() {
+    return this._isVisible && this.isExpanded();
+  }
+  setExpanded(expanded) {
+    const changed = super.setExpanded(expanded);
+    if (changed) {
+      this._onDidChangeBodyVisibility.fire(expanded);
+    }
+    this.updateTwistyIcon();
+    return changed;
+  }
+  render() {
+    super.render();
+    const focusTracker = trackFocus(this.element);
+    this._register(focusTracker);
+    this._register(focusTracker.onDidFocus(() => this._onDidFocus.fire()));
+    this._register(focusTracker.onDidBlur(() => this._onDidBlur.fire()));
+  }
+  renderHeader(container) {
+    this.headerContainer = container;
+    this.twistiesContainer = append(container, $(`.twisty-container${ThemeIcon.asCSSSelector(this.getTwistyIcon(this.isExpanded()))}`));
+    this.renderHeaderTitle(container, this.title);
+    const actions = append(container, $(".actions"));
+    actions.classList.toggle("show-always", this.showActions === ViewPaneShowActions.Always);
+    actions.classList.toggle("show-expanded", this.showActions === ViewPaneShowActions.WhenExpanded);
+    this.toolbar = this.instantiationService.createInstance(WorkbenchToolBar, actions, {
+      orientation: 0,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        const item = this.createActionViewItem(action, options);
+        if (item) {
+          this.headerActionViewItems.set(item.action.id, item);
+        }
+        return item;
+      }, "actionViewItemProvider"),
+      ariaLabel: nls.localize("viewToolbarAriaLabel", "{0} actions", this.title),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      renderDropdownAsChildElement: true,
+      actionRunner: this.getActionRunner(),
+      resetMenu: this.menuActions.menuId
+    });
+    this._register(this.toolbar);
+    this.setActions();
+    this._register(addDisposableListener(actions, EventType.CLICK, (e) => e.preventDefault()));
+    const viewContainerModel = this.viewDescriptorService.getViewContainerByViewId(this.id);
+    if (viewContainerModel) {
+      this._register(this.viewDescriptorService.getViewContainerModel(viewContainerModel).onDidChangeContainerInfo(({ title }) => this.updateTitle(this.title)));
+    } else {
+      console.error(`View container model not found for view ${this.id}`);
+    }
+    const onDidRelevantConfigurationChange = Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ViewPane_1.AlwaysShowActionsConfig));
+    this._register(onDidRelevantConfigurationChange(this.updateActionsVisibility, this));
+    this.updateActionsVisibility();
+  }
+  updateHeader() {
+    super.updateHeader();
+    this.updateTwistyIcon();
+  }
+  updateTwistyIcon() {
+    if (this.twistiesContainer) {
+      this.twistiesContainer.classList.remove(...ThemeIcon.asClassNameArray(this.getTwistyIcon(!this._expanded)));
+      this.twistiesContainer.classList.add(...ThemeIcon.asClassNameArray(this.getTwistyIcon(this._expanded)));
+    }
+  }
+  getTwistyIcon(expanded) {
+    return expanded ? viewPaneContainerExpandedIcon : viewPaneContainerCollapsedIcon;
+  }
+  style(styles) {
+    super.style(styles);
+    const icon = this.getIcon();
+    if (this.iconContainer) {
+      const fgColor = asCssValueWithDefault(styles.headerForeground, asCssVariable(foreground));
+      if (URI.isUri(icon)) {
+        this.iconContainer.style.backgroundColor = fgColor;
+        this.iconContainer.style.color = "";
+      } else {
+        this.iconContainer.style.color = fgColor;
+        this.iconContainer.style.backgroundColor = "";
+      }
+    }
+  }
+  getIcon() {
+    return this.viewDescriptorService.getViewDescriptorById(this.id)?.containerIcon || defaultViewIcon;
+  }
+  renderHeaderTitle(container, title) {
+    this.iconContainer = append(container, $(".icon", void 0));
+    const icon = this.getIcon();
+    let cssClass = void 0;
+    if (URI.isUri(icon)) {
+      cssClass = `view-${this.id.replace(/[\.\:]/g, "-")}`;
+      const iconClass = `.pane-header .icon.${cssClass}`;
+      createCSSRule(iconClass, `
+				mask: ${asCSSUrl(icon)} no-repeat 50% 50%;
 				mask-size: 24px;
-				-webkit-mask: ${E(e)} no-repeat 50% 50%;
+				-webkit-mask: ${asCSSUrl(icon)} no-repeat 50% 50%;
 				-webkit-mask-size: 16px;
-			`)}else C.isThemeIcon(e)&&(s=C.asClassName(e));s&&this.ub.classList.add(...s.split(" "));const n=this.Vb(i);this.pb=l(t,f("h3.title",{},n)),this.qb=this.D(this.Ib.setupManagedHover(I("mouse"),this.pb,n)),this.ib&&this.Tb(this.ib),this.vb=this.D(this.Ib.setupManagedHover(I("mouse"),this.ub,n)),this.ub.setAttribute("aria-label",this.Qb(n,this.ib))}Qb(t,i){const e=this.Eb.getViewDescriptorById(this.id)?.accessibilityHelpContent,s=this.Jb?.hasShownAccessibleView(this.id);return!e||s?i?`${t} - ${i}`:t:v.localize(4134,null,t)}Rb(t){const i=this.Vb(t);this.pb&&(this.pb.textContent=i,this.qb?.update(i)),this.Sb(i,this.ib),this.hb=t,this.eb.fire()}Sb(t,i){const e=this.Qb(t,i);this.ub&&(this.vb?.update(t),this.ub.setAttribute("aria-label",e)),this.ariaHeaderLabel=this.S(e)}Tb(t){this.rb?(this.rb.textContent=t??"",this.tb?.update(t??"")):t&&this.pb&&(this.rb=G(this.pb,f("span.description",{},t)),this.tb=this.D(this.Ib.setupManagedHover(I("mouse"),this.rb,t)))}Ub(t){this.Tb(t),this.Sb(this.hb,t),this.ib=t,this.eb.fire()}Vb(t){const i=this.Eb.getViewContainerByViewId(this.id),e=this.Eb.getViewContainerModel(i),s=this.Eb.getViewDescriptorById(this.id);return!(this.Eb.getDefaultContainerById(this.id)===i)&&s?.containerTitle&&e.title!==s.containerTitle&&t!==s.containerTitle?`${s.containerTitle}: ${t}`:t}X(t){this.xb=this.D(this.Fb.createInstance(S,t,this))}Y(t,i){this.xb?.layout(t,i)}onDidScrollRoot(){}getProgressIndicator(){if(this.kb===void 0&&(this.kb=this.D(new vt(this.element,Bt)),this.kb.hide()),this.lb===void 0){const t=this;this.lb=this.D(new At(pt(this.kb),this.D(new class extends xt{constructor(){super(t.id,t.isBodyVisible()),this.D(t.onDidChangeBodyVisibility(i=>i?this.f(t.id):this.g(t.id)))}})))}return this.lb}Yb(){return this.Eb.getViewContainerByViewId(this.id).id}Zb(){return Ut(this.Eb.getViewLocationById(this.id))}focus(){this.xb?.enabled?this.xb.focus():this.element&&this.element.focus(),(ot(this.element)||nt(this.element))&&this.bb.fire()}$b(){if(this.mb){const t=[...this.menuActions.getPrimaryActions()];this.shouldShowFilterInHeader()&&t.unshift(M),this.mb.setActions(F(t),F(this.menuActions.getSecondaryActions())),this.mb.context=this.getActionsContext()}}ac(){if(!this.ob)return;const t=this.Cb.getValue("workbench.view.alwaysShowHeaderActions");this.ob.classList.toggle("actions-always-visible",t)}bc(){this.$b(),this.eb.fire()}createActionViewItem(t,i){if(t.id===M.id){const e=this;return new class extends kt{constructor(){super(null,t)}setFocusable(){}get trapsArrowNavigation(){return!0}render(s){s.classList.add("viewpane-filter-container");const n=e.getFilterWidget();l(s,n.element),n.relayout()}}}return $t(this.Fb,t,{...i,menuAsChild:t instanceof gt})}getActionsContext(){}getActionRunner(){}getOptimalWidth(){return 0}saveState(){}shouldShowWelcome(){return!1}getFilterWidget(){}shouldShowFilterInHeader(){return!1}};k=V=L([o(1,j),o(2,_),o(3,P),o(4,D),o(5,q),o(6,B),o(7,W),o(8,O),o(9,X)],k);let R=class extends k{constructor(t,i,e,s,n,r,a,m,c,d,b){super(t,i,e,s,n,r,a,m,c,d,b);const u=this.D(a.createChild(new Y([D,this.zb])));this.filterWidget=this.D(u.createInstance(St,t.filterOptions)),this.D(this.filterWidget.onDidAcceptFilterText(()=>this.ab()))}getFilterWidget(){return this.filterWidget}X(t){super.X(t),this.j=l(t,f(".viewpane-filter-container"))}Y(t,i){super.Y(t,i),this.g=new et(i,t);const e=!this.j?.hasChildNodes(),s=this.shouldShowFilterInHeader();e!==s&&(s&&st(this.j),this.bc(),s||l(this.j,this.filterWidget.element)),s||(t=t-44),this.filterWidget.layout(i),this.L(t,i)}shouldShowFilterInHeader(){return!(this.g&&this.g.width<600&&this.g.height>100)}ab(){this.focus()}};R=L([o(1,j),o(2,_),o(3,P),o(4,D),o(5,q),o(6,B),o(7,W),o(8,O),o(9,X)],R);function Ut(h){let t,i,e,s,n;return h===1?(t=Et,i=Ft,e=zt,s=Tt,n=Ht):(t=Mt,i=Nt,e=Rt,s=jt,n=_t),{background:t,overlayBackground:i,listOverrideStyles:{listBackground:t,treeStickyScrollBackground:e,treeStickyScrollBorder:s,treeStickyScrollShadow:n}}}class ji extends wt{constructor(t){super(t),this.desc=t}run(t,...i){const e=t.get(mt).getActiveViewWithId(this.desc.viewId);if(e)return this.runInView(t,e,...i)}}export{Ut as $1Ab,ji as $2Ab,M as $XAb,k as $YAb,R as $ZAb,y as ViewPaneShowActions};
+			`);
+    } else if (ThemeIcon.isThemeIcon(icon)) {
+      cssClass = ThemeIcon.asClassName(icon);
+    }
+    if (cssClass) {
+      this.iconContainer.classList.add(...cssClass.split(" "));
+    }
+    const calculatedTitle = this.calculateTitle(title);
+    this.titleContainer = append(container, $("h3.title", {}, calculatedTitle));
+    this.titleContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.titleContainer, calculatedTitle));
+    if (this._titleDescription) {
+      this.setTitleDescription(this._titleDescription);
+    }
+    this.iconContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.iconContainer, calculatedTitle));
+    this.iconContainer.setAttribute("aria-label", this._getAriaLabel(calculatedTitle, this._titleDescription));
+  }
+  _getAriaLabel(title, description) {
+    const viewHasAccessibilityHelpContent = this.viewDescriptorService.getViewDescriptorById(this.id)?.accessibilityHelpContent;
+    const accessibleViewHasShownForView = this.accessibleViewInformationService?.hasShownAccessibleView(this.id);
+    if (!viewHasAccessibilityHelpContent || accessibleViewHasShownForView) {
+      if (description) {
+        return `${title} - ${description}`;
+      } else {
+        return title;
+      }
+    }
+    return nls.localize("viewAccessibilityHelp", "Use Alt+F1 for accessibility help {0}", title);
+  }
+  updateTitle(title) {
+    const calculatedTitle = this.calculateTitle(title);
+    if (this.titleContainer) {
+      this.titleContainer.textContent = calculatedTitle;
+      this.titleContainerHover?.update(calculatedTitle);
+    }
+    this.updateAriaHeaderLabel(calculatedTitle, this._titleDescription);
+    this._title = title;
+    this._onDidChangeTitleArea.fire();
+  }
+  updateAriaHeaderLabel(title, description) {
+    const ariaLabel = this._getAriaLabel(title, description);
+    if (this.iconContainer) {
+      this.iconContainerHover?.update(title);
+      this.iconContainer.setAttribute("aria-label", ariaLabel);
+    }
+    this.ariaHeaderLabel = this.getAriaHeaderLabel(ariaLabel);
+  }
+  setTitleDescription(description) {
+    if (this.titleDescriptionContainer) {
+      this.titleDescriptionContainer.textContent = description ?? "";
+      this.titleDescriptionContainerHover?.update(description ?? "");
+    } else if (description && this.titleContainer) {
+      this.titleDescriptionContainer = after(this.titleContainer, $("span.description", {}, description));
+      this.titleDescriptionContainerHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.titleDescriptionContainer, description));
+    }
+  }
+  updateTitleDescription(description) {
+    this.setTitleDescription(description);
+    this.updateAriaHeaderLabel(this._title, description);
+    this._titleDescription = description;
+    this._onDidChangeTitleArea.fire();
+  }
+  calculateTitle(title) {
+    const viewContainer = this.viewDescriptorService.getViewContainerByViewId(this.id);
+    const model = this.viewDescriptorService.getViewContainerModel(viewContainer);
+    const viewDescriptor = this.viewDescriptorService.getViewDescriptorById(this.id);
+    const isDefault = this.viewDescriptorService.getDefaultContainerById(this.id) === viewContainer;
+    if (!isDefault && viewDescriptor?.containerTitle && model.title !== viewDescriptor.containerTitle && title !== viewDescriptor.containerTitle) {
+      return `${viewDescriptor.containerTitle}: ${title}`;
+    }
+    return title;
+  }
+  renderBody(container) {
+    this.viewWelcomeController = this._register(this.instantiationService.createInstance(ViewWelcomeController, container, this));
+  }
+  layoutBody(height, width) {
+    this.viewWelcomeController?.layout(height, width);
+  }
+  onDidScrollRoot() {
+  }
+  getProgressIndicator() {
+    if (this.progressBar === void 0) {
+      this.progressBar = this._register(new ProgressBar(this.element, defaultProgressBarStyles));
+      this.progressBar.hide();
+    }
+    if (this.progressIndicator === void 0) {
+      const that = this;
+      this.progressIndicator = this._register(new ScopedProgressIndicator(assertReturnsDefined(this.progressBar), this._register(new class extends AbstractProgressScope {
+        constructor() {
+          super(that.id, that.isBodyVisible());
+          this._register(that.onDidChangeBodyVisibility((isVisible) => isVisible ? this.onScopeOpened(that.id) : this.onScopeClosed(that.id)));
+        }
+      }())));
+    }
+    return this.progressIndicator;
+  }
+  getProgressLocation() {
+    return this.viewDescriptorService.getViewContainerByViewId(this.id).id;
+  }
+  getLocationBasedColors() {
+    return getLocationBasedViewColors(this.viewDescriptorService.getViewLocationById(this.id));
+  }
+  focus() {
+    if (this.viewWelcomeController?.enabled) {
+      this.viewWelcomeController.focus();
+    } else if (this.element) {
+      this.element.focus();
+    }
+    if (isActiveElement(this.element) || isAncestorOfActiveElement(this.element)) {
+      this._onDidFocus.fire();
+    }
+  }
+  setActions() {
+    if (this.toolbar) {
+      const primaryActions = [...this.menuActions.getPrimaryActions()];
+      if (this.shouldShowFilterInHeader()) {
+        primaryActions.unshift(VIEWPANE_FILTER_ACTION);
+      }
+      this.toolbar.setActions(prepareActions(primaryActions), prepareActions(this.menuActions.getSecondaryActions()));
+      this.toolbar.context = this.getActionsContext();
+    }
+  }
+  updateActionsVisibility() {
+    if (!this.headerContainer) {
+      return;
+    }
+    const shouldAlwaysShowActions = this.configurationService.getValue("workbench.view.alwaysShowHeaderActions");
+    this.headerContainer.classList.toggle("actions-always-visible", shouldAlwaysShowActions);
+  }
+  updateActions() {
+    this.setActions();
+    this._onDidChangeTitleArea.fire();
+  }
+  createActionViewItem(action, options) {
+    if (action.id === VIEWPANE_FILTER_ACTION.id) {
+      const that = this;
+      return new class extends BaseActionViewItem {
+        constructor() {
+          super(null, action);
+        }
+        setFocusable() {
+        }
+        get trapsArrowNavigation() {
+          return true;
+        }
+        render(container) {
+          container.classList.add("viewpane-filter-container");
+          const filter = that.getFilterWidget();
+          append(container, filter.element);
+          filter.relayout();
+        }
+      }();
+    }
+    return createActionViewItem(this.instantiationService, action, { ...options, ...{ menuAsChild: action instanceof SubmenuItemAction } });
+  }
+  getActionsContext() {
+    return void 0;
+  }
+  getActionRunner() {
+    return void 0;
+  }
+  getOptimalWidth() {
+    return 0;
+  }
+  saveState() {
+  }
+  shouldShowWelcome() {
+    return false;
+  }
+  getFilterWidget() {
+    return void 0;
+  }
+  shouldShowFilterInHeader() {
+    return false;
+  }
+};
+ViewPane = ViewPane_1 = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IContextMenuService),
+  __param(3, IConfigurationService),
+  __param(4, IContextKeyService),
+  __param(5, IViewDescriptorService),
+  __param(6, IInstantiationService),
+  __param(7, IOpenerService),
+  __param(8, IThemeService),
+  __param(9, IHoverService)
+], ViewPane);
+let FilterViewPane = class FilterViewPane2 extends ViewPane {
+  static {
+    __name(this, "FilterViewPane");
+  }
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, accessibleViewService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, accessibleViewService);
+    const childInstantiationService = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    this.filterWidget = this._register(childInstantiationService.createInstance(FilterWidget, options.filterOptions));
+    this._register(this.filterWidget.onDidAcceptFilterText(() => this.focusBodyContent()));
+  }
+  getFilterWidget() {
+    return this.filterWidget;
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.filterContainer = append(container, $(".viewpane-filter-container"));
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.dimension = new Dimension(width, height);
+    const wasFilterShownInHeader = !this.filterContainer?.hasChildNodes();
+    const shouldShowFilterInHeader = this.shouldShowFilterInHeader();
+    if (wasFilterShownInHeader !== shouldShowFilterInHeader) {
+      if (shouldShowFilterInHeader) {
+        reset(this.filterContainer);
+      }
+      this.updateActions();
+      if (!shouldShowFilterInHeader) {
+        append(this.filterContainer, this.filterWidget.element);
+      }
+    }
+    if (!shouldShowFilterInHeader) {
+      height = height - 44;
+    }
+    this.filterWidget.layout(width);
+    this.layoutBodyContent(height, width);
+  }
+  shouldShowFilterInHeader() {
+    return !(this.dimension && this.dimension.width < 600 && this.dimension.height > 100);
+  }
+  focusBodyContent() {
+    this.focus();
+  }
+};
+FilterViewPane = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IContextMenuService),
+  __param(3, IConfigurationService),
+  __param(4, IContextKeyService),
+  __param(5, IViewDescriptorService),
+  __param(6, IInstantiationService),
+  __param(7, IOpenerService),
+  __param(8, IThemeService),
+  __param(9, IHoverService)
+], FilterViewPane);
+function getLocationBasedViewColors(location) {
+  let background, overlayBackground, stickyScrollBackground, stickyScrollBorder, stickyScrollShadow;
+  switch (location) {
+    case 1:
+      background = PANEL_BACKGROUND;
+      overlayBackground = PANEL_SECTION_DRAG_AND_DROP_BACKGROUND;
+      stickyScrollBackground = PANEL_STICKY_SCROLL_BACKGROUND;
+      stickyScrollBorder = PANEL_STICKY_SCROLL_BORDER;
+      stickyScrollShadow = PANEL_STICKY_SCROLL_SHADOW;
+      break;
+    case 0:
+    case 2:
+    default:
+      background = SIDE_BAR_BACKGROUND;
+      overlayBackground = SIDE_BAR_DRAG_AND_DROP_BACKGROUND;
+      stickyScrollBackground = SIDE_BAR_STICKY_SCROLL_BACKGROUND;
+      stickyScrollBorder = SIDE_BAR_STICKY_SCROLL_BORDER;
+      stickyScrollShadow = SIDE_BAR_STICKY_SCROLL_SHADOW;
+  }
+  return {
+    background,
+    overlayBackground,
+    listOverrideStyles: {
+      listBackground: background,
+      treeStickyScrollBackground: stickyScrollBackground,
+      treeStickyScrollBorder: stickyScrollBorder,
+      treeStickyScrollShadow: stickyScrollShadow
+    }
+  };
+}
+__name(getLocationBasedViewColors, "getLocationBasedViewColors");
+class ViewAction extends Action2 {
+  static {
+    __name(this, "ViewAction");
+  }
+  constructor(desc) {
+    super(desc);
+    this.desc = desc;
+  }
+  run(accessor, ...args) {
+    const view = accessor.get(IViewsService).getActiveViewWithId(this.desc.viewId);
+    if (view) {
+      return this.runInView(accessor, view, ...args);
+    }
+    return void 0;
+  }
+}
+export {
+  FilterViewPane,
+  VIEWPANE_FILTER_ACTION,
+  ViewAction,
+  ViewPane,
+  ViewPaneShowActions,
+  getLocationBasedViewColors
+};
+//# sourceMappingURL=viewPane.js.map

@@ -1,1 +1,106 @@
-import{$ as i}from"../../dom.js";class c{constructor(e){this.d=e,this.a=new Map,this.b=new Set,this.c=!1}alloc(e){let t=this.g(e).pop(),s=!1;if(t)s=this.b.delete(t.domNode);else{const r=i(".monaco-list-row"),o=this.h(e).renderTemplate(r);t={domNode:r,templateId:e,templateData:o}}return{row:t,isReusingConnectedDomNode:s}}release(e){e&&this.e(e)}transact(e){if(this.c)throw new Error("Already in transaction");this.c=!0;try{e()}finally{for(const t of this.b)this.f(t);this.b.clear(),this.c=!1}}e(e){const{domNode:t,templateId:s}=e;t&&(this.c?this.b.add(t):this.f(t)),this.g(s).push(e)}f(e){e.classList.remove("scrolling"),e.remove()}g(e){let t=this.a.get(e);return t||(t=[],this.a.set(e,t)),t}dispose(){this.a.forEach((e,t)=>{for(const s of e)this.h(t).disposeTemplate(s.templateData),s.templateData=null}),this.a.clear(),this.b.clear()}h(e){const t=this.d.get(e);if(!t)throw new Error(`No renderer found for ${e}`);return t}}export{c as $j0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $ } from "../../dom.js";
+class RowCache {
+  static {
+    __name(this, "RowCache");
+  }
+  constructor(renderers) {
+    this.renderers = renderers;
+    this.cache = /* @__PURE__ */ new Map();
+    this.transactionNodesPendingRemoval = /* @__PURE__ */ new Set();
+    this.inTransaction = false;
+  }
+  /**
+   * Returns a row either by creating a new one or reusing
+   * a previously released row which shares the same templateId.
+   *
+   * @returns A row and `isReusingConnectedDomNode` if the row's node is already in the dom in a stale position.
+   */
+  alloc(templateId) {
+    let result = this.getTemplateCache(templateId).pop();
+    let isStale = false;
+    if (result) {
+      isStale = this.transactionNodesPendingRemoval.delete(result.domNode);
+    } else {
+      const domNode = $(".monaco-list-row");
+      const renderer = this.getRenderer(templateId);
+      const templateData = renderer.renderTemplate(domNode);
+      result = { domNode, templateId, templateData };
+    }
+    return { row: result, isReusingConnectedDomNode: isStale };
+  }
+  /**
+   * Releases the row for eventual reuse.
+   */
+  release(row) {
+    if (!row) {
+      return;
+    }
+    this.releaseRow(row);
+  }
+  /**
+   * Begin a set of changes that use the cache. This lets us skip work when a row is removed and then inserted again.
+   */
+  transact(makeChanges) {
+    if (this.inTransaction) {
+      throw new Error("Already in transaction");
+    }
+    this.inTransaction = true;
+    try {
+      makeChanges();
+    } finally {
+      for (const domNode of this.transactionNodesPendingRemoval) {
+        this.doRemoveNode(domNode);
+      }
+      this.transactionNodesPendingRemoval.clear();
+      this.inTransaction = false;
+    }
+  }
+  releaseRow(row) {
+    const { domNode, templateId } = row;
+    if (domNode) {
+      if (this.inTransaction) {
+        this.transactionNodesPendingRemoval.add(domNode);
+      } else {
+        this.doRemoveNode(domNode);
+      }
+    }
+    const cache = this.getTemplateCache(templateId);
+    cache.push(row);
+  }
+  doRemoveNode(domNode) {
+    domNode.classList.remove("scrolling");
+    domNode.remove();
+  }
+  getTemplateCache(templateId) {
+    let result = this.cache.get(templateId);
+    if (!result) {
+      result = [];
+      this.cache.set(templateId, result);
+    }
+    return result;
+  }
+  dispose() {
+    this.cache.forEach((cachedRows, templateId) => {
+      for (const cachedRow of cachedRows) {
+        const renderer = this.getRenderer(templateId);
+        renderer.disposeTemplate(cachedRow.templateData);
+        cachedRow.templateData = null;
+      }
+    });
+    this.cache.clear();
+    this.transactionNodesPendingRemoval.clear();
+  }
+  getRenderer(templateId) {
+    const renderer = this.renderers.get(templateId);
+    if (!renderer) {
+      throw new Error(`No renderer found for ${templateId}`);
+    }
+    return renderer;
+  }
+}
+export {
+  RowCache
+};
+//# sourceMappingURL=rowCache.js.map

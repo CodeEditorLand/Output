@@ -1,1 +1,121 @@
-import{$ii as b}from"../../../../base/common/async.js";import{$6H as l}from"../../../../editor/common/services/model.js";import{$Ll as m}from"../../../../platform/workspace/common/workspace.js";import{$iZ as g,$kZ as k}from"../../../services/output/common/output.js";import{$zd as v,$Ed as d}from"../../../../base/common/lifecycle.js";import{$NV as L}from"../../../../editor/common/services/languageFeatures.js";import{$0db as w}from"../../../../platform/webWorker/browser/webWorkerDescriptor.js";import{$$db as $}from"../../../../platform/webWorker/browser/webWorkerService.js";import{$3db as _}from"../../../../editor/common/services/textModelSync/textModelSync.impl.js";import{$sh as W}from"../../../../base/common/network.js";var u=function(r,t,i,s){var n=arguments.length,e=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(r,t,i,s);else for(var c=r.length-1;c>=0;c--)(h=r[c])&&(e=(n<3?h(e):n>3?h(t,i,e):h(t,i))||e);return n>3&&e&&Object.defineProperty(t,i,e),e},o=function(r,t){return function(i,s){t(i,s,r)}},a;let p=class extends d{static{a=this}static{this.a=180*1e3}constructor(t,i,s,n){super(),this.g=t,this.h=i,this.j=s,this.m=n,this.c=new b(()=>this.t(),a.a),this.n(),this.q()}n(){this.D(this.g.onDidChangeWorkspaceFolders(()=>this.q()))}q(){this.g.getWorkspace().folders.length>0?this.f||(this.f=this.j.linkProvider.register([{language:g,scheme:"*"},{language:k,scheme:"*"}],{provideLinks:async i=>{const s=await this.s(i.uri);return s&&{links:s}}})):(v(this.f),this.f=void 0),this.t(),this.c.cancel()}r(){return this.c.schedule(),this.b||(this.b=new f(this.g,this.h,this.m)),this.b}async s(t){return this.r().provideLinks(t)}t(){this.b&&(this.b.dispose(),this.b=void 0)}};p=a=u([o(0,m),o(1,l),o(2,L),o(3,$)],p);let f=class extends d{constructor(t,i,s){super(),this.f=t,this.a=this.D(s.createWorkerClient(new w({esmModuleLocation:W.asBrowserUri("vs/workbench/contrib/output/common/outputLinkComputerMain.js"),label:"OutputLinkDetectionWorker"}))),this.b=this.D(_.create(this.a,i)),this.c=this.g()}async g(){await this.a.proxy.$setWorkspaceFolders(this.f.getWorkspace().folders.map(t=>t.uri.toString()))}async provideLinks(t){return await this.c,this.b.ensureSyncedResources([t]),this.a.proxy.$computeLinks(t.toString())}};f=u([o(0,m),o(1,l),o(2,$)],f);export{p as $qzc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var OutputLinkProvider_1;
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { OUTPUT_MODE_ID, LOG_MODE_ID } from "../../../services/output/common/output.js";
+import { dispose, Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { WebWorkerDescriptor } from "../../../../platform/webWorker/browser/webWorkerDescriptor.js";
+import { IWebWorkerService } from "../../../../platform/webWorker/browser/webWorkerService.js";
+import { WorkerTextModelSyncClient } from "../../../../editor/common/services/textModelSync/textModelSync.impl.js";
+import { FileAccess } from "../../../../base/common/network.js";
+let OutputLinkProvider = class OutputLinkProvider2 extends Disposable {
+  static {
+    __name(this, "OutputLinkProvider");
+  }
+  static {
+    OutputLinkProvider_1 = this;
+  }
+  static {
+    this.DISPOSE_WORKER_TIME = 3 * 60 * 1e3;
+  }
+  // dispose worker after 3 minutes of inactivity
+  constructor(contextService, modelService, languageFeaturesService, webWorkerService) {
+    super();
+    this.contextService = contextService;
+    this.modelService = modelService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.webWorkerService = webWorkerService;
+    this.disposeWorkerScheduler = new RunOnceScheduler(() => this.disposeWorker(), OutputLinkProvider_1.DISPOSE_WORKER_TIME);
+    this.registerListeners();
+    this.updateLinkProviderWorker();
+  }
+  registerListeners() {
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.updateLinkProviderWorker()));
+  }
+  updateLinkProviderWorker() {
+    const folders = this.contextService.getWorkspace().folders;
+    if (folders.length > 0) {
+      if (!this.linkProviderRegistration) {
+        this.linkProviderRegistration = this.languageFeaturesService.linkProvider.register([{ language: OUTPUT_MODE_ID, scheme: "*" }, { language: LOG_MODE_ID, scheme: "*" }], {
+          provideLinks: /* @__PURE__ */ __name(async (model) => {
+            const links = await this.provideLinks(model.uri);
+            return links && { links };
+          }, "provideLinks")
+        });
+      }
+    } else {
+      dispose(this.linkProviderRegistration);
+      this.linkProviderRegistration = void 0;
+    }
+    this.disposeWorker();
+    this.disposeWorkerScheduler.cancel();
+  }
+  getOrCreateWorker() {
+    this.disposeWorkerScheduler.schedule();
+    if (!this.worker) {
+      this.worker = new OutputLinkWorkerClient(this.contextService, this.modelService, this.webWorkerService);
+    }
+    return this.worker;
+  }
+  async provideLinks(modelUri) {
+    return this.getOrCreateWorker().provideLinks(modelUri);
+  }
+  disposeWorker() {
+    if (this.worker) {
+      this.worker.dispose();
+      this.worker = void 0;
+    }
+  }
+};
+OutputLinkProvider = OutputLinkProvider_1 = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IModelService),
+  __param(2, ILanguageFeaturesService),
+  __param(3, IWebWorkerService)
+], OutputLinkProvider);
+let OutputLinkWorkerClient = class OutputLinkWorkerClient2 extends Disposable {
+  static {
+    __name(this, "OutputLinkWorkerClient");
+  }
+  constructor(contextService, modelService, webWorkerService) {
+    super();
+    this.contextService = contextService;
+    this._workerClient = this._register(webWorkerService.createWorkerClient(new WebWorkerDescriptor({
+      esmModuleLocation: FileAccess.asBrowserUri("vs/workbench/contrib/output/common/outputLinkComputerMain.js"),
+      label: "OutputLinkDetectionWorker"
+    })));
+    this._workerTextModelSyncClient = this._register(WorkerTextModelSyncClient.create(this._workerClient, modelService));
+    this._initializeBarrier = this._ensureWorkspaceFolders();
+  }
+  async _ensureWorkspaceFolders() {
+    await this._workerClient.proxy.$setWorkspaceFolders(this.contextService.getWorkspace().folders.map((folder) => folder.uri.toString()));
+  }
+  async provideLinks(modelUri) {
+    await this._initializeBarrier;
+    this._workerTextModelSyncClient.ensureSyncedResources([modelUri]);
+    return this._workerClient.proxy.$computeLinks(modelUri.toString());
+  }
+};
+OutputLinkWorkerClient = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IModelService),
+  __param(2, IWebWorkerService)
+], OutputLinkWorkerClient);
+export {
+  OutputLinkProvider
+};
+//# sourceMappingURL=outputLinkProvider.js.map

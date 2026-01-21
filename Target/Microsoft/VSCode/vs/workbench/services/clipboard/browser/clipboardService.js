@@ -1,1 +1,93 @@
-import{localize as l}from"../../../../nls.js";import{$TC as m}from"../../../../platform/instantiation/common/extensions.js";import{$4hb as h}from"../../../../platform/clipboard/common/clipboardService.js";import{$$Lc as d}from"../../../../platform/clipboard/browser/clipboardService.js";import{$mH as u,Severity as w}from"../../../../platform/notification/common/notification.js";import{$yP as b}from"../../../../platform/opener/common/opener.js";import{Event as x}from"../../../../base/common/event.js";import{$Dd as T}from"../../../../base/common/lifecycle.js";import{$BP as v}from"../../environment/common/environmentService.js";import{$xo as $}from"../../../../platform/log/common/log.js";import{$ikb as _}from"../../../../platform/layout/browser/layoutService.js";import{$l8 as B}from"../../../../base/browser/dom.js";var f=function(s,r,e,i){var o=arguments.length,t=o<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,r,e,i);else for(var c=s.length-1;c>=0;c--)(a=s[c])&&(t=(o<3?a(t):o>3?a(r,e,t):a(r,e))||t);return o>3&&t&&Object.defineProperty(r,e,t),t},n=function(s,r){return function(e,i){r(e,i,s)}};let p=class extends d{constructor(r,e,i,o,t){super(t,o),this.t=r,this.u=e,this.w=i}async writeText(r,e){return this.b.trace("BrowserClipboardService#writeText called with type:",e," with text.length:",r.length),this.w.extensionTestsLocationURI&&typeof e!="string"&&(e="vscode-tests"),this.b.trace("BrowserClipboardService#super.writeText"),super.writeText(r,e)}async readText(r){if(this.b.trace("BrowserClipboardService#readText called with type:",r),this.w.extensionTestsLocationURI&&typeof r!="string"&&(r="vscode-tests"),r)return this.b.trace("BrowserClipboardService#super.readText"),super.readText(r);try{const e=await B().navigator.clipboard.readText();return this.b.trace("BrowserClipboardService#readText with readText.length:",e.length),e}catch{return new Promise(i=>{const o=new T,t=this.t.prompt(w.Error,l(15427,null),[{label:l(15428,null),run:async()=>{o.dispose(),i(await this.readText(r))}},{label:l(15429,null),run:()=>this.u.open("https://go.microsoft.com/fwlink/?linkid=2151362")}],{sticky:!0});o.add(x.once(t.onDidClose)(()=>i("")))})}}};p=f([n(0,u),n(1,b),n(2,v),n(3,$),n(4,_)],p);m(h,p,1);export{p as $_Lc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { BrowserClipboardService as BaseBrowserClipboardService } from "../../../../platform/clipboard/browser/clipboardService.js";
+import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+let BrowserClipboardService = class BrowserClipboardService2 extends BaseBrowserClipboardService {
+  static {
+    __name(this, "BrowserClipboardService");
+  }
+  constructor(notificationService, openerService, environmentService, logService, layoutService) {
+    super(layoutService, logService);
+    this.notificationService = notificationService;
+    this.openerService = openerService;
+    this.environmentService = environmentService;
+  }
+  async writeText(text, type) {
+    this.logService.trace("BrowserClipboardService#writeText called with type:", type, " with text.length:", text.length);
+    if (!!this.environmentService.extensionTestsLocationURI && typeof type !== "string") {
+      type = "vscode-tests";
+    }
+    this.logService.trace("BrowserClipboardService#super.writeText");
+    return super.writeText(text, type);
+  }
+  async readText(type) {
+    this.logService.trace("BrowserClipboardService#readText called with type:", type);
+    if (!!this.environmentService.extensionTestsLocationURI && typeof type !== "string") {
+      type = "vscode-tests";
+    }
+    if (type) {
+      this.logService.trace("BrowserClipboardService#super.readText");
+      return super.readText(type);
+    }
+    try {
+      const readText = await getActiveWindow().navigator.clipboard.readText();
+      this.logService.trace("BrowserClipboardService#readText with readText.length:", readText.length);
+      return readText;
+    } catch (error) {
+      return new Promise((resolve) => {
+        const listener = new DisposableStore();
+        const handle = this.notificationService.prompt(Severity.Error, localize("clipboardError", "Unable to read from the browser's clipboard. Please make sure you have granted access for this website to read from the clipboard."), [{
+          label: localize("retry", "Retry"),
+          run: /* @__PURE__ */ __name(async () => {
+            listener.dispose();
+            resolve(await this.readText(type));
+          }, "run")
+        }, {
+          label: localize("learnMore", "Learn More"),
+          run: /* @__PURE__ */ __name(() => this.openerService.open("https://go.microsoft.com/fwlink/?linkid=2151362"), "run")
+        }], {
+          sticky: true
+        });
+        listener.add(Event.once(handle.onDidClose)(() => resolve("")));
+      });
+    }
+  }
+};
+BrowserClipboardService = __decorate([
+  __param(0, INotificationService),
+  __param(1, IOpenerService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, ILogService),
+  __param(4, ILayoutService)
+], BrowserClipboardService);
+registerSingleton(
+  IClipboardService,
+  BrowserClipboardService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserClipboardService
+};
+//# sourceMappingURL=clipboardService.js.map

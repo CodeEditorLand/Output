@@ -1,1 +1,65 @@
-import{localize as b}from"../../../../nls.js";import{$6hb as y}from"../../../../platform/contextview/browser/contextView.js";import{$Np as w}from"../../../../platform/dialogs/common/dialogs.js";import{$uk as _}from"../../../../platform/files/common/files.js";import{$yP as g}from"../../../../platform/opener/common/opener.js";import{$ou as E}from"../../../../platform/theme/common/themeService.js";import{$vP as I}from"../../../services/authentication/common/authentication.js";import{$YKb as N}from"../common/issue.js";import{$hNc as R}from"./baseIssueReporterService.js";var $=function(i,e,t,r){var n=arguments.length,o=n<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,e,t,r);else for(var c=i.length-1;c>=0;c--)(p=i[c])&&(o=(n<3?p(o):n>3?p(e,t,o):p(e,t))||o);return n>3&&o&&Object.defineProperty(e,t,o),o},s=function(i,e){return function(t,r){e(t,r,i)}};let f=class extends R{constructor(e,t,r,n,o,p,c,l,a,m,d,h){super(e,t,r,n,o,!0,p,c,l,a,m,d,h);const v=this.window.document.querySelector(".block-system .block-info"),u=this.window.navigator.userAgent;u&&(v?.appendChild(this.window.document.createTextNode(u)),this.receivedSystemInfo=!0,this.issueReporterModel.update({systemInfoWeb:u})),this.setEventHandlers()}setEventHandlers(){super.setEventHandlers(),this.addEventListener("issue-type","change",e=>{const t=parseInt(e.target.value);this.issueReporterModel.update({issueType:t});const r=this.getElementById("issue-title");r&&(r.placeholder=b(9499,null)),this.updateButtonStates(),this.setSourceOptions(),this.render()})}};f=$([s(5,N),s(6,E),s(7,_),s(8,w),s(9,y),s(10,I),s(11,g)],f);export{f as $kNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IIssueFormService } from "../common/issue.js";
+import { BaseIssueReporterService } from "./baseIssueReporterService.js";
+let IssueWebReporter = class IssueWebReporter2 extends BaseIssueReporterService {
+  static {
+    __name(this, "IssueWebReporter");
+  }
+  constructor(disableExtensions, data, os, product, window, issueFormService, themeService, fileService, fileDialogService, contextMenuService, authenticationService, openerService) {
+    super(disableExtensions, data, os, product, window, true, issueFormService, themeService, fileService, fileDialogService, contextMenuService, authenticationService, openerService);
+    const target = this.window.document.querySelector(".block-system .block-info");
+    const webInfo = this.window.navigator.userAgent;
+    if (webInfo) {
+      target?.appendChild(this.window.document.createTextNode(webInfo));
+      this.receivedSystemInfo = true;
+      this.issueReporterModel.update({ systemInfoWeb: webInfo });
+    }
+    this.setEventHandlers();
+  }
+  setEventHandlers() {
+    super.setEventHandlers();
+    this.addEventListener("issue-type", "change", (event) => {
+      const issueType = parseInt(event.target.value);
+      this.issueReporterModel.update({ issueType });
+      const descriptionTextArea = this.getElementById("issue-title");
+      if (descriptionTextArea) {
+        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
+      }
+      this.updateButtonStates();
+      this.setSourceOptions();
+      this.render();
+    });
+  }
+};
+IssueWebReporter = __decorate([
+  __param(5, IIssueFormService),
+  __param(6, IThemeService),
+  __param(7, IFileService),
+  __param(8, IFileDialogService),
+  __param(9, IContextMenuService),
+  __param(10, IAuthenticationService),
+  __param(11, IOpenerService)
+], IssueWebReporter);
+export {
+  IssueWebReporter
+};
+//# sourceMappingURL=issueReporterService.js.map

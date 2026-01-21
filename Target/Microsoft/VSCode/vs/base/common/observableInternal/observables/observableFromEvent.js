@@ -1,1 +1,123 @@
-import{$We as $}from"../transaction.js";import{strictEquals as b}from"../commonFacade/deps.js";import{$5d as g}from"../debugName.js";import{$Qe as f}from"../logging/logging.js";import{$Me as w}from"./baseObservable.js";import{DebugLocation as m}from"../debugLocation.js";function c(...t){let e,n,i,s;return t.length===2?[n,i]=t:[e,n,i,s]=t,new a(new g(e,void 0,i),n,i,()=>a.globalTransaction,b,s??m.ofCaller())}function F(t,e,n,i=m.ofCaller()){return new a(new g(t.owner,t.debugName,t.debugReferenceFn??n),e,n,()=>t.getTransaction?.()??a.globalTransaction,t.equalsFn??b,i)}class a extends w{constructor(e,n,i,s,v,p){super(p),this.e=e,this.i=n,this._getValue=i,this.j=s,this.k=v,this.c=!1,this.n=V=>{const l=this._getValue(V),h=this.a,d=!this.c||!this.k(h,l);let u=!1;d&&(this.a=l,this.c&&(u=!0,$(this.j(),r=>{f()?.handleObservableUpdated(this,{oldValue:h,newValue:l,change:void 0,didChange:d,hadValue:this.c});for(const o of this.f)r.updateObserver(o,this),o.handleChange(this,void 0)},()=>{const r=this.l();return"Event fired"+(r?`: ${r}`:"")})),this.c=!0),u||f()?.handleObservableUpdated(this,{oldValue:h,newValue:l,change:void 0,didChange:d,hadValue:this.c})}}l(){return this.e.getDebugName(this)}get debugName(){const e=this.l();return"From Event"+(e?`: ${e}`:"")}g(){this.d=this.i(this.n)}h(){this.d.dispose(),this.d=void 0,this.c=!1,this.a=void 0}get(){return this.d?(this.c||this.n(void 0),this.a):this._getValue(void 0)}debugSetValue(e){this.a=e}debugGetState(){return{value:this.a,hasValue:this.c}}}(function(t){t.Observer=a;function e(n,i){let s=!1;a.globalTransaction===void 0&&(a.globalTransaction=n,s=!0);try{i()}finally{s&&(a.globalTransaction=void 0)}}t.batchEventsGlobally=e})(c||(c={}));export{c as $_d,F as $ae,a as $be};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { subtransaction } from "../transaction.js";
+import { strictEquals } from "../commonFacade/deps.js";
+import { DebugNameData } from "../debugName.js";
+import { getLogger } from "../logging/logging.js";
+import { BaseObservable } from "./baseObservable.js";
+import { DebugLocation } from "../debugLocation.js";
+function observableFromEvent(...args) {
+  let owner;
+  let event;
+  let getValue;
+  let debugLocation;
+  if (args.length === 2) {
+    [event, getValue] = args;
+  } else {
+    [owner, event, getValue, debugLocation] = args;
+  }
+  return new FromEventObservable(new DebugNameData(owner, void 0, getValue), event, getValue, () => FromEventObservable.globalTransaction, strictEquals, debugLocation ?? DebugLocation.ofCaller());
+}
+__name(observableFromEvent, "observableFromEvent");
+function observableFromEventOpts(options, event, getValue, debugLocation = DebugLocation.ofCaller()) {
+  return new FromEventObservable(new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? getValue), event, getValue, () => options.getTransaction?.() ?? FromEventObservable.globalTransaction, options.equalsFn ?? strictEquals, debugLocation);
+}
+__name(observableFromEventOpts, "observableFromEventOpts");
+class FromEventObservable extends BaseObservable {
+  static {
+    __name(this, "FromEventObservable");
+  }
+  constructor(_debugNameData, event, _getValue, _getTransaction, _equalityComparator, debugLocation) {
+    super(debugLocation);
+    this._debugNameData = _debugNameData;
+    this.event = event;
+    this._getValue = _getValue;
+    this._getTransaction = _getTransaction;
+    this._equalityComparator = _equalityComparator;
+    this._hasValue = false;
+    this.handleEvent = (args) => {
+      const newValue = this._getValue(args);
+      const oldValue = this._value;
+      const didChange = !this._hasValue || !this._equalityComparator(oldValue, newValue);
+      let didRunTransaction = false;
+      if (didChange) {
+        this._value = newValue;
+        if (this._hasValue) {
+          didRunTransaction = true;
+          subtransaction(this._getTransaction(), (tx) => {
+            getLogger()?.handleObservableUpdated(this, { oldValue, newValue, change: void 0, didChange, hadValue: this._hasValue });
+            for (const o of this._observers) {
+              tx.updateObserver(o, this);
+              o.handleChange(this, void 0);
+            }
+          }, () => {
+            const name = this.getDebugName();
+            return "Event fired" + (name ? `: ${name}` : "");
+          });
+        }
+        this._hasValue = true;
+      }
+      if (!didRunTransaction) {
+        getLogger()?.handleObservableUpdated(this, { oldValue, newValue, change: void 0, didChange, hadValue: this._hasValue });
+      }
+    };
+  }
+  getDebugName() {
+    return this._debugNameData.getDebugName(this);
+  }
+  get debugName() {
+    const name = this.getDebugName();
+    return "From Event" + (name ? `: ${name}` : "");
+  }
+  onFirstObserverAdded() {
+    this._subscription = this.event(this.handleEvent);
+  }
+  onLastObserverRemoved() {
+    this._subscription.dispose();
+    this._subscription = void 0;
+    this._hasValue = false;
+    this._value = void 0;
+  }
+  get() {
+    if (this._subscription) {
+      if (!this._hasValue) {
+        this.handleEvent(void 0);
+      }
+      return this._value;
+    } else {
+      const value = this._getValue(void 0);
+      return value;
+    }
+  }
+  debugSetValue(value) {
+    this._value = value;
+  }
+  debugGetState() {
+    return { value: this._value, hasValue: this._hasValue };
+  }
+}
+(function(observableFromEvent2) {
+  observableFromEvent2.Observer = FromEventObservable;
+  function batchEventsGlobally(tx, fn) {
+    let didSet = false;
+    if (FromEventObservable.globalTransaction === void 0) {
+      FromEventObservable.globalTransaction = tx;
+      didSet = true;
+    }
+    try {
+      fn();
+    } finally {
+      if (didSet) {
+        FromEventObservable.globalTransaction = void 0;
+      }
+    }
+  }
+  __name(batchEventsGlobally, "batchEventsGlobally");
+  observableFromEvent2.batchEventsGlobally = batchEventsGlobally;
+})(observableFromEvent || (observableFromEvent = {}));
+export {
+  FromEventObservable,
+  observableFromEvent,
+  observableFromEventOpts
+};
+//# sourceMappingURL=observableFromEvent.js.map

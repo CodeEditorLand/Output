@@ -1,1 +1,455 @@
-import{$zH as j}from"../../../../base/common/comparers.js";import{$mb as T}from"../../../../base/common/errors.js";import{$wf as V}from"../../../../base/common/event.js";import{$2j as R}from"../../../../base/common/filters.js";import*as P from"../../../../base/common/glob.js";import{$Dd as D,$Fd as _,$Ed as H}from"../../../../base/common/lifecycle.js";import{$6 as N,$$ as B}from"../../../../base/common/path.js";import{$Eh as A,$Gh as W,$Ah as S}from"../../../../base/common/resources.js";import{URI as y}from"../../../../base/common/uri.js";import"./media/breadcrumbscontrol.css";import{$9l as m}from"../../../../platform/configuration/common/configuration.js";import{FileKind as p,$uk as I}from"../../../../platform/files/common/files.js";import{$Lj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$gqb as q,$hqb as z}from"../../../../platform/list/browser/listService.js";import{$Zr as k,$Rr as U,$Qr as M}from"../../../../platform/theme/common/colorRegistry.js";import{$Tl as w,$Ul as c,$Ll as E}from"../../../../platform/workspace/common/workspace.js";import{$rQb as K,$qQb as Q}from"../../labels.js";import{$VVb as Z}from"./breadcrumbs.js";import{$ou as L}from"../../../../platform/theme/common/themeService.js";import{localize as G}from"../../../../nls.js";import{$yL as J,$AL as X}from"../../../services/editor/common/editorService.js";import{$aI as Y}from"../../../../editor/common/services/textResourceConfiguration.js";var u=function(a,e,t,i){var s=arguments.length,r=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,t,i);else for(var o=a.length-1;o>=0;o--)(n=a[o])&&(r=(s<3?n(r):s>3?n(e,t,r):n(e,t))||r);return s>3&&r&&Object.defineProperty(e,t,r),r},h=function(a,e){return function(t,i){e(t,i,a)}};let f=class{constructor(e,t,i,s,r){this.m=t,this.n=i,this.o=s,this.p=r,this.c=new D,this.i=new UIEvent("fakeEvent"),this.k=new V,this.onWillPickElement=this.k.event,this.l=new _,this.d=document.createElement("div"),this.d.className="monaco-breadcrumbs-picker show-file-icons",e.appendChild(this.d)}dispose(){this.c.dispose(),this.l.dispose(),this.k.dispose(),this.d.remove(),setTimeout(()=>this.h.dispose(),0)}async show(e,t,i,s,r){const o=this.o.getColorTheme().getColor(k);this.f=document.createElement("div"),this.f.className="arrow",this.f.style.borderColor=`transparent transparent ${o?o.toString():""}`,this.d.appendChild(this.f),this.g=document.createElement("div"),this.g.style.background=o?o.toString():"",this.g.style.paddingTop="2px",this.g.style.borderRadius="3px",this.g.style.boxShadow=`0 0 8px 2px ${this.o.getColorTheme().getColor(M)}`,this.g.style.border=`1px solid ${this.o.getColorTheme().getColor(U)}`,this.d.appendChild(this.g),this.j={maxHeight:t,width:i,arrowSize:s,arrowOffset:r,inputHeight:0},this.h=this.s(this.g,e),this.c.add(this.h.onDidOpen(async l=>{const{element:g,editorOptions:d,sideBySide:$}=l;await this.u(g,{...d,preserveFocus:!1},$)})),this.c.add(this.h.onDidChangeFocus(l=>{this.l.value=this.t(l.elements[0])})),this.c.add(this.h.onDidChangeContentHeight(()=>{this.q()})),this.d.focus();try{await this.r(e),this.q()}catch(l){T(l)}}q(){const e=2*this.j.arrowSize,t=Math.min(this.j.maxHeight-e,this.h.contentHeight),i=t+e;this.d.style.height=`${i}px`,this.d.style.width=`${this.j.width}px`,this.f.style.top=`-${2*this.j.arrowSize}px`,this.f.style.borderWidth=`${this.j.arrowSize}px`,this.f.style.marginLeft=`${this.j.arrowOffset}px`,this.g.style.height=`${t}px`,this.g.style.width=`${this.j.width}px`,this.h.layout(t,this.j.width)}restoreViewState(){}};f=u([h(2,O),h(3,L),h(4,m)],f);class ee{getHeight(e){return 22}getTemplateId(e){return"FileStat"}}class te{getId(e){return y.isUri(e)?e.toString():w(e)?e.id:c(e)?e.uri.toString():e.resource.toString()}}let b=class{constructor(e){this.c=e}hasChildren(e){return y.isUri(e)||w(e)||c(e)||e.isDirectory}async getChildren(e){if(w(e))return e.folders;let t;return c(e)?t=e.uri:y.isUri(e)?t=e:t=e.resource,(await this.c.resolve(t)).children??[]}};b=u([h(0,I)],b);let F=class{constructor(e,t){this.c=e,this.d=t,this.templateId="FileStat"}renderTemplate(e){return this.c.create(e,{supportHighlights:!0})}renderElement(e,t,i){const s=this.d.getValue("explorer.decorations"),{element:r}=e;let n,o;c(r)?(n=r.uri,o=p.ROOT_FOLDER):(n=r.resource,o=r.isDirectory?p.FOLDER:p.FILE),i.setFile(n,{fileKind:o,hidePath:!0,fileDecorations:s,matches:R(e.filterData),extraClasses:["picker-item"]})}disposeTemplate(e){e.dispose()}};F=u([h(1,m)],F);class ie{getKeyboardNavigationLabel(e){return e.name}}class re{getWidgetAriaLabel(){return G(3479,null)}getAriaLabel(e){return e.name}}let v=class{constructor(e,t,i){this.f=e,this.c=new Map,this.d=new D;const s=Z.FileExcludes.bindTo(t),r=()=>{e.getWorkspace().folders.forEach(n=>{const o=s.getValue({resource:n.uri});if(!o)return;const l={};for(const d in o){if(typeof o[d]!="boolean")continue;const $=d.indexOf("**/")!==0?N.join(n.uri.path,d):d;l[$]=o[d]}const g=!i.hasCapability(n.uri,1024);this.c.set(n.uri.toString(),P.$zj(l,{ignoreCase:g}))})};r(),this.d.add(s),this.d.add(s.onDidChange(r)),this.d.add(e.onDidChangeWorkspaceFolders(r))}dispose(){this.d.dispose()}filter(e,t){if(c(e))return!0;const i=this.f.getWorkspaceFolder(e.resource);return!i||!this.c.has(i.uri.toString())?!0:!this.c.get(i.uri.toString())(B(i.uri.path,e.resource.path),A(e.resource))}};v=u([h(0,E),h(1,m),h(2,I)],v);class se{compare(e,t){return c(e)&&c(t)?e.index-t.index:e.isDirectory===t.isDirectory?j(e.name,t.name):e.isDirectory?-1:1}}let C=class extends f{constructor(e,t,i,s,r,n,o){super(e,t,i,s,r),this.v=n,this.w=o}s(e){this.g.classList.add("file-icon-themable-tree"),this.g.classList.add("show-file-icons");const t=s=>{this.g.classList.toggle("align-icons-and-twisties",s.hasFileIcons&&!s.hasFolderIcons),this.g.classList.toggle("hide-arrows",s.hidesExplorerArrows===!0)};this.c.add(this.o.onDidFileIconThemeChange(t)),t(this.o.getFileIconTheme());const i=this.n.createInstance(K,Q);return this.c.add(i),this.n.createInstance(z,"BreadcrumbsFilePicker",e,new ee,[this.n.createInstance(F,i)],this.n.createInstance(b),{multipleSelectionSupport:!1,sorter:new se,filter:this.n.createInstance(v),identityProvider:new te,keyboardNavigationLabelProvider:new ie,accessibilityProvider:this.n.createInstance(re),showNotFoundMessage:!1,overrideStyles:{listBackground:k}})}async r(e){const{uri:t,kind:i}=e;let s;i===p.ROOT_FOLDER?s=this.v.getWorkspace():s=W(t);const r=this.h;await r.setInput(s);let n;for(const{element:o}of r.getNode().children)if(c(o)&&S(o.uri,t)){n=o;break}else if(S(o.resource,t)){n=o;break}n&&(r.reveal(n,.5),r.setFocus([n],this.i)),r.domFocus()}t(e){return H.None}async u(e,t,i){return!c(e)&&e.isFile?(this.k.fire(),await this.w.openEditor({resource:e.resource,options:t},i?X:void 0),!0):!1}};C=u([h(2,O),h(3,L),h(4,m),h(5,E),h(6,J)],C);let x=class{constructor(e,t,i){this.d=e,this.c=i.getValue(t,"breadcrumbs.symbolSortOrder")}compare(e,t){return this.c==="name"?this.d.compareByName(e,t):this.c==="type"?this.d.compareByType(e,t):this.d.compareByPosition(e,t)}};x=u([h(2,Y)],x);class Te extends f{s(e,t){const{config:i}=t.outline;return this.n.createInstance(q,"BreadcrumbsOutlinePicker",e,i.delegate,i.renderers,i.treeDataSource,{...i.options,sorter:this.n.createInstance(x,i.comparator,void 0),collapseByDefault:!0,expandOnlyOnTwistieClick:!0,multipleSelectionSupport:!1,showNotFoundMessage:!1})}r(e){const t=e.outline.captureViewState();this.restoreViewState=()=>{t.dispose()};const i=this.h;return i.setInput(e.outline),e.element!==e.outline&&(i.reveal(e.element,.5),i.setFocus([e.element],this.i)),i.domFocus(),Promise.resolve()}t(e){return this.h.getInput().preview(e)}async u(e,t,i){return this.k.fire(),await this.h.getInput().reveal(e,t,i,!1),!0}}export{se as $1Vb,C as $2Vb,Te as $3Vb,f as $ZVb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { compareFileNames } from "../../../../base/common/comparers.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { createMatches } from "../../../../base/common/filters.js";
+import * as glob from "../../../../base/common/glob.js";
+import { DisposableStore, MutableDisposable, Disposable } from "../../../../base/common/lifecycle.js";
+import { posix, relative } from "../../../../base/common/path.js";
+import { basename, dirname, isEqual } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import "./media/breadcrumbscontrol.css";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { FileKind, IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchDataTree, WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { breadcrumbsPickerBackground, widgetBorder, widgetShadow } from "../../../../platform/theme/common/colorRegistry.js";
+import { isWorkspace, isWorkspaceFolder, IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ResourceLabels, DEFAULT_LABELS_CONTAINER } from "../../labels.js";
+import { BreadcrumbsConfig } from "./breadcrumbs.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { localize } from "../../../../nls.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+let BreadcrumbsPicker = class BreadcrumbsPicker2 {
+  static {
+    __name(this, "BreadcrumbsPicker");
+  }
+  constructor(parent, resource, _instantiationService, _themeService, _configurationService) {
+    this.resource = resource;
+    this._instantiationService = _instantiationService;
+    this._themeService = _themeService;
+    this._configurationService = _configurationService;
+    this._disposables = new DisposableStore();
+    this._fakeEvent = new UIEvent("fakeEvent");
+    this._onWillPickElement = new Emitter();
+    this.onWillPickElement = this._onWillPickElement.event;
+    this._previewDispoables = new MutableDisposable();
+    this._domNode = document.createElement("div");
+    this._domNode.className = "monaco-breadcrumbs-picker show-file-icons";
+    parent.appendChild(this._domNode);
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._previewDispoables.dispose();
+    this._onWillPickElement.dispose();
+    this._domNode.remove();
+    setTimeout(() => this._tree.dispose(), 0);
+  }
+  async show(input, maxHeight, width, arrowSize, arrowOffset) {
+    const theme = this._themeService.getColorTheme();
+    const color = theme.getColor(breadcrumbsPickerBackground);
+    this._arrow = document.createElement("div");
+    this._arrow.className = "arrow";
+    this._arrow.style.borderColor = `transparent transparent ${color ? color.toString() : ""}`;
+    this._domNode.appendChild(this._arrow);
+    this._treeContainer = document.createElement("div");
+    this._treeContainer.style.background = color ? color.toString() : "";
+    this._treeContainer.style.paddingTop = "2px";
+    this._treeContainer.style.borderRadius = "3px";
+    this._treeContainer.style.boxShadow = `0 0 8px 2px ${this._themeService.getColorTheme().getColor(widgetShadow)}`;
+    this._treeContainer.style.border = `1px solid ${this._themeService.getColorTheme().getColor(widgetBorder)}`;
+    this._domNode.appendChild(this._treeContainer);
+    this._layoutInfo = { maxHeight, width, arrowSize, arrowOffset, inputHeight: 0 };
+    this._tree = this._createTree(this._treeContainer, input);
+    this._disposables.add(this._tree.onDidOpen(async (e) => {
+      const { element, editorOptions, sideBySide } = e;
+      const didReveal = await this._revealElement(element, { ...editorOptions, preserveFocus: false }, sideBySide);
+      if (!didReveal) {
+        return;
+      }
+    }));
+    this._disposables.add(this._tree.onDidChangeFocus((e) => {
+      this._previewDispoables.value = this._previewElement(e.elements[0]);
+    }));
+    this._disposables.add(this._tree.onDidChangeContentHeight(() => {
+      this._layout();
+    }));
+    this._domNode.focus();
+    try {
+      await this._setInput(input);
+      this._layout();
+    } catch (err) {
+      onUnexpectedError(err);
+    }
+  }
+  _layout() {
+    const headerHeight = 2 * this._layoutInfo.arrowSize;
+    const treeHeight = Math.min(this._layoutInfo.maxHeight - headerHeight, this._tree.contentHeight);
+    const totalHeight = treeHeight + headerHeight;
+    this._domNode.style.height = `${totalHeight}px`;
+    this._domNode.style.width = `${this._layoutInfo.width}px`;
+    this._arrow.style.top = `-${2 * this._layoutInfo.arrowSize}px`;
+    this._arrow.style.borderWidth = `${this._layoutInfo.arrowSize}px`;
+    this._arrow.style.marginLeft = `${this._layoutInfo.arrowOffset}px`;
+    this._treeContainer.style.height = `${treeHeight}px`;
+    this._treeContainer.style.width = `${this._layoutInfo.width}px`;
+    this._tree.layout(treeHeight, this._layoutInfo.width);
+  }
+  restoreViewState() {
+  }
+};
+BreadcrumbsPicker = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IThemeService),
+  __param(4, IConfigurationService)
+], BreadcrumbsPicker);
+class FileVirtualDelegate {
+  static {
+    __name(this, "FileVirtualDelegate");
+  }
+  getHeight(_element) {
+    return 22;
+  }
+  getTemplateId(_element) {
+    return "FileStat";
+  }
+}
+class FileIdentityProvider {
+  static {
+    __name(this, "FileIdentityProvider");
+  }
+  getId(element) {
+    if (URI.isUri(element)) {
+      return element.toString();
+    } else if (isWorkspace(element)) {
+      return element.id;
+    } else if (isWorkspaceFolder(element)) {
+      return element.uri.toString();
+    } else {
+      return element.resource.toString();
+    }
+  }
+}
+let FileDataSource = class FileDataSource2 {
+  static {
+    __name(this, "FileDataSource");
+  }
+  constructor(_fileService) {
+    this._fileService = _fileService;
+  }
+  hasChildren(element) {
+    return URI.isUri(element) || isWorkspace(element) || isWorkspaceFolder(element) || element.isDirectory;
+  }
+  async getChildren(element) {
+    if (isWorkspace(element)) {
+      return element.folders;
+    }
+    let uri;
+    if (isWorkspaceFolder(element)) {
+      uri = element.uri;
+    } else if (URI.isUri(element)) {
+      uri = element;
+    } else {
+      uri = element.resource;
+    }
+    const stat = await this._fileService.resolve(uri);
+    return stat.children ?? [];
+  }
+};
+FileDataSource = __decorate([
+  __param(0, IFileService)
+], FileDataSource);
+let FileRenderer = class FileRenderer2 {
+  static {
+    __name(this, "FileRenderer");
+  }
+  constructor(_labels, _configService) {
+    this._labels = _labels;
+    this._configService = _configService;
+    this.templateId = "FileStat";
+  }
+  renderTemplate(container) {
+    return this._labels.create(container, { supportHighlights: true });
+  }
+  renderElement(node, index, templateData) {
+    const fileDecorations = this._configService.getValue("explorer.decorations");
+    const { element } = node;
+    let resource;
+    let fileKind;
+    if (isWorkspaceFolder(element)) {
+      resource = element.uri;
+      fileKind = FileKind.ROOT_FOLDER;
+    } else {
+      resource = element.resource;
+      fileKind = element.isDirectory ? FileKind.FOLDER : FileKind.FILE;
+    }
+    templateData.setFile(resource, {
+      fileKind,
+      hidePath: true,
+      fileDecorations,
+      matches: createMatches(node.filterData),
+      extraClasses: ["picker-item"]
+    });
+  }
+  disposeTemplate(templateData) {
+    templateData.dispose();
+  }
+};
+FileRenderer = __decorate([
+  __param(1, IConfigurationService)
+], FileRenderer);
+class FileNavigationLabelProvider {
+  static {
+    __name(this, "FileNavigationLabelProvider");
+  }
+  getKeyboardNavigationLabel(element) {
+    return element.name;
+  }
+}
+class FileAccessibilityProvider {
+  static {
+    __name(this, "FileAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("breadcrumbs", "Breadcrumbs");
+  }
+  getAriaLabel(element) {
+    return element.name;
+  }
+}
+let FileFilter = class FileFilter2 {
+  static {
+    __name(this, "FileFilter");
+  }
+  constructor(_workspaceService, configService, fileService) {
+    this._workspaceService = _workspaceService;
+    this._cachedExpressions = /* @__PURE__ */ new Map();
+    this._disposables = new DisposableStore();
+    const config = BreadcrumbsConfig.FileExcludes.bindTo(configService);
+    const update = /* @__PURE__ */ __name(() => {
+      _workspaceService.getWorkspace().folders.forEach((folder) => {
+        const excludesConfig = config.getValue({ resource: folder.uri });
+        if (!excludesConfig) {
+          return;
+        }
+        const adjustedConfig = {};
+        for (const pattern in excludesConfig) {
+          if (typeof excludesConfig[pattern] !== "boolean") {
+            continue;
+          }
+          const patternAbs = pattern.indexOf("**/") !== 0 ? posix.join(folder.uri.path, pattern) : pattern;
+          adjustedConfig[patternAbs] = excludesConfig[pattern];
+        }
+        const ignoreCase = !fileService.hasCapability(
+          folder.uri,
+          1024
+          /* FileSystemProviderCapabilities.PathCaseSensitive */
+        );
+        this._cachedExpressions.set(folder.uri.toString(), glob.parse(adjustedConfig, { ignoreCase }));
+      });
+    }, "update");
+    update();
+    this._disposables.add(config);
+    this._disposables.add(config.onDidChange(update));
+    this._disposables.add(_workspaceService.onDidChangeWorkspaceFolders(update));
+  }
+  dispose() {
+    this._disposables.dispose();
+  }
+  filter(element, _parentVisibility) {
+    if (isWorkspaceFolder(element)) {
+      return true;
+    }
+    const folder = this._workspaceService.getWorkspaceFolder(element.resource);
+    if (!folder || !this._cachedExpressions.has(folder.uri.toString())) {
+      return true;
+    }
+    const expression = this._cachedExpressions.get(folder.uri.toString());
+    return !expression(relative(folder.uri.path, element.resource.path), basename(element.resource));
+  }
+};
+FileFilter = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IConfigurationService),
+  __param(2, IFileService)
+], FileFilter);
+class FileSorter {
+  static {
+    __name(this, "FileSorter");
+  }
+  compare(a, b) {
+    if (isWorkspaceFolder(a) && isWorkspaceFolder(b)) {
+      return a.index - b.index;
+    }
+    if (a.isDirectory === b.isDirectory) {
+      return compareFileNames(a.name, b.name);
+    } else if (a.isDirectory) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+}
+let BreadcrumbsFilePicker = class BreadcrumbsFilePicker2 extends BreadcrumbsPicker {
+  static {
+    __name(this, "BreadcrumbsFilePicker");
+  }
+  constructor(parent, resource, instantiationService, themeService, configService, _workspaceService, _editorService) {
+    super(parent, resource, instantiationService, themeService, configService);
+    this._workspaceService = _workspaceService;
+    this._editorService = _editorService;
+  }
+  _createTree(container) {
+    this._treeContainer.classList.add("file-icon-themable-tree");
+    this._treeContainer.classList.add("show-file-icons");
+    const onFileIconThemeChange = /* @__PURE__ */ __name((fileIconTheme) => {
+      this._treeContainer.classList.toggle("align-icons-and-twisties", fileIconTheme.hasFileIcons && !fileIconTheme.hasFolderIcons);
+      this._treeContainer.classList.toggle("hide-arrows", fileIconTheme.hidesExplorerArrows === true);
+    }, "onFileIconThemeChange");
+    this._disposables.add(this._themeService.onDidFileIconThemeChange(onFileIconThemeChange));
+    onFileIconThemeChange(this._themeService.getFileIconTheme());
+    const labels = this._instantiationService.createInstance(
+      ResourceLabels,
+      DEFAULT_LABELS_CONTAINER
+      /* TODO@Jo visibility propagation */
+    );
+    this._disposables.add(labels);
+    return this._instantiationService.createInstance(WorkbenchAsyncDataTree, "BreadcrumbsFilePicker", container, new FileVirtualDelegate(), [this._instantiationService.createInstance(FileRenderer, labels)], this._instantiationService.createInstance(FileDataSource), {
+      multipleSelectionSupport: false,
+      sorter: new FileSorter(),
+      filter: this._instantiationService.createInstance(FileFilter),
+      identityProvider: new FileIdentityProvider(),
+      keyboardNavigationLabelProvider: new FileNavigationLabelProvider(),
+      accessibilityProvider: this._instantiationService.createInstance(FileAccessibilityProvider),
+      showNotFoundMessage: false,
+      overrideStyles: {
+        listBackground: breadcrumbsPickerBackground
+      }
+    });
+  }
+  async _setInput(element) {
+    const { uri, kind } = element;
+    let input;
+    if (kind === FileKind.ROOT_FOLDER) {
+      input = this._workspaceService.getWorkspace();
+    } else {
+      input = dirname(uri);
+    }
+    const tree = this._tree;
+    await tree.setInput(input);
+    let focusElement;
+    for (const { element: element2 } of tree.getNode().children) {
+      if (isWorkspaceFolder(element2) && isEqual(element2.uri, uri)) {
+        focusElement = element2;
+        break;
+      } else if (isEqual(element2.resource, uri)) {
+        focusElement = element2;
+        break;
+      }
+    }
+    if (focusElement) {
+      tree.reveal(focusElement, 0.5);
+      tree.setFocus([focusElement], this._fakeEvent);
+    }
+    tree.domFocus();
+  }
+  _previewElement(_element) {
+    return Disposable.None;
+  }
+  async _revealElement(element, options, sideBySide) {
+    if (!isWorkspaceFolder(element) && element.isFile) {
+      this._onWillPickElement.fire();
+      await this._editorService.openEditor({ resource: element.resource, options }, sideBySide ? SIDE_GROUP : void 0);
+      return true;
+    }
+    return false;
+  }
+};
+BreadcrumbsFilePicker = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IThemeService),
+  __param(4, IConfigurationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IEditorService)
+], BreadcrumbsFilePicker);
+let OutlineTreeSorter = class OutlineTreeSorter2 {
+  static {
+    __name(this, "OutlineTreeSorter");
+  }
+  constructor(comparator, uri, configService) {
+    this.comparator = comparator;
+    this._order = configService.getValue(uri, "breadcrumbs.symbolSortOrder");
+  }
+  compare(a, b) {
+    if (this._order === "name") {
+      return this.comparator.compareByName(a, b);
+    } else if (this._order === "type") {
+      return this.comparator.compareByType(a, b);
+    } else {
+      return this.comparator.compareByPosition(a, b);
+    }
+  }
+};
+OutlineTreeSorter = __decorate([
+  __param(2, ITextResourceConfigurationService)
+], OutlineTreeSorter);
+class BreadcrumbsOutlinePicker extends BreadcrumbsPicker {
+  static {
+    __name(this, "BreadcrumbsOutlinePicker");
+  }
+  _createTree(container, input) {
+    const { config } = input.outline;
+    return this._instantiationService.createInstance(WorkbenchDataTree, "BreadcrumbsOutlinePicker", container, config.delegate, config.renderers, config.treeDataSource, {
+      ...config.options,
+      sorter: this._instantiationService.createInstance(OutlineTreeSorter, config.comparator, void 0),
+      collapseByDefault: true,
+      expandOnlyOnTwistieClick: true,
+      multipleSelectionSupport: false,
+      showNotFoundMessage: false
+    });
+  }
+  _setInput(input) {
+    const viewState = input.outline.captureViewState();
+    this.restoreViewState = () => {
+      viewState.dispose();
+    };
+    const tree = this._tree;
+    tree.setInput(input.outline);
+    if (input.element !== input.outline) {
+      tree.reveal(input.element, 0.5);
+      tree.setFocus([input.element], this._fakeEvent);
+    }
+    tree.domFocus();
+    return Promise.resolve();
+  }
+  _previewElement(element) {
+    const outline = this._tree.getInput();
+    return outline.preview(element);
+  }
+  async _revealElement(element, options, sideBySide) {
+    this._onWillPickElement.fire();
+    const outline = this._tree.getInput();
+    await outline.reveal(element, options, sideBySide, false);
+    return true;
+  }
+}
+export {
+  BreadcrumbsFilePicker,
+  BreadcrumbsOutlinePicker,
+  BreadcrumbsPicker,
+  FileSorter
+};
+//# sourceMappingURL=breadcrumbsPicker.js.map

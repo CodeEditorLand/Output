@@ -1,1 +1,840 @@
-import"./media/openeditors.css";import*as f from"../../../../../nls.js";import{$ii as Q}from"../../../../../base/common/async.js";import{$Fm as X}from"../../../../../base/common/actions.js";import*as u from"../../../../../base/browser/dom.js";import{$6hb as Z}from"../../../../../platform/contextview/browser/contextView.js";import{$Lj as R}from"../../../../../platform/instantiation/common/instantiation.js";import{$uL as N}from"../../../../services/editor/common/editorGroupsService.js";import{$9l as J}from"../../../../../platform/configuration/common/configuration.js";import{$cy as tt}from"../../../../../platform/keybinding/common/keybinding.js";import{$rN as q,SideBySideEditor as et,$qN as it,EditorCloseMethod as st}from"../../../../common/editor.js";import{$iTb as S,$jTb as O}from"../fileActions.js";import{$OQb as ot,$PQb as rt,$3Qb as c}from"../../common/files.js";import{$nUb as F,$iUb as A,$jUb as C}from"../../../../browser/parts/editor/editorActions.js";import{$qo as nt,$9n as $}from"../../../../../platform/contextkey/common/contextkey.js";import{$ou as ct}from"../../../../../platform/theme/common/themeService.js";import{$Vp as T,$tq as at,$uq as dt,$gq as ht}from"../../../../../platform/theme/common/colorRegistry.js";import{$aqb as lt}from"../../../../../platform/list/browser/listService.js";import{$rQb as ut}from"../../../../browser/labels.js";import{$G9 as P}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{$op as ft}from"../../../../../platform/telemetry/common/telemetry.js";import{$Md as pt,$zd as mt}from"../../../../../base/common/lifecycle.js";import{$nL as m,$sL as v,$tL as D,$pL as bt}from"../../../../../platform/actions/common/actions.js";import{$mRb as gt,$lRb as yt,$nRb as $t,$iRb as It,$hRb as vt,$wRb as Dt,$oRb as xt}from"../fileConstants.js";import{$qP as wt,$RO as Et}from"../../../../common/contextkeys.js";import{$yjb as Lt,$Djb as St}from"../../../../../platform/dnd/browser/dnd.js";import{$nAb as Ot,$oAb as At}from"../../../../browser/dnd.js";import{$YAb as Ct}from"../../../../browser/parts/views/viewPane.js";import{$e9 as Tt}from"../../../../../base/browser/dnd.js";import{$Ym as Ft}from"../../../../../base/common/decorators.js";import{$l0 as B,$n0 as Bt}from"../../../../../base/browser/ui/list/listView.js";import{$$K as Gt}from"../../../../services/workingCopy/common/workingCopyService.js";import{$5L as kt}from"../../../../services/filesConfiguration/common/filesConfigurationService.js";import{$BN as Vt}from"../../../../common/views.js";import{$yP as Mt}from"../../../../../platform/opener/common/opener.js";import{$AH as G}from"../../../../../base/common/comparers.js";import{$ak as x}from"../../../../../base/common/codicons.js";import{$to as _}from"../../../../../platform/commands/common/commands.js";import{Schemas as b}from"../../../../../base/common/network.js";import{$zh as k}from"../../../../../base/common/resources.js";import{$96 as Rt}from"../../../../../base/browser/window.js";import{$cWb as V}from"../../../../browser/parts/editor/editorGroupView.js";import{$7ib as Nt}from"../../../../../platform/hover/browser/hover.js";import{$uk as qt}from"../../../../../platform/files/common/files.js";var M=function(a,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,e,i);else for(var n=a.length-1;n>=0;n--)(r=a[n])&&(s=(o<3?r(s):o>3?r(t,e,s):r(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},h=function(a,t){return function(e,i){t(e,i,a)}},g;const I=u.$;let p=class extends Ct{static{g=this}static{this.a=9}static{this.b=0}static{this.ID="workbench.explorer.openEditorsView"}static{this.NAME=f.localize2(9261,"Open Editors")}constructor(t,e,i,o,s,r,n,d,l,H,z,U,K,W,Y){super(t,n,o,r,d,i,e,W,l,z),this.ab=s,this.sb=H,this.cc=U,this.dc=K,this.ec=Y,this.r=!1,this.s=[],this.L=!1,this.h=0,this.t=r.getValue("explorer.openEditors.sortOrder"),this.fc(),this.D(this.Cb.onDidChangeConfiguration(L=>this.rc(L))),this.D(this.cc.onDidChangeDirty(L=>this.tc(L)))}fc(){const t=()=>{if(!this.isBodyVisible()||!this.m){this.r=!0;return}this.f?.schedule(this.h)},e=this.D(new pt),i=o=>{const s=o.onDidModelChange(r=>{if(this.f?.isScheduled())return;if(!this.isBodyVisible()||!this.m){this.r=!0;return}const n=this.mc(o,r.editor);switch(r.kind){case 8:this.qc();break;case 1:case 2:n>=0&&this.m.splice(n,1,[o]);break;case 14:case 13:case 10:case 11:case 9:this.m.splice(n,1,[new c(r.editor,o)]),this.qc();break;case 5:case 7:case 6:t();break}});e.set(o.id,s)};this.ab.groups.forEach(o=>i(o)),this.D(this.ab.onDidAddGroup(o=>{i(o),t()})),this.D(this.ab.onDidMoveGroup(()=>t())),this.D(this.ab.onDidChangeActiveGroup(()=>this.qc())),this.D(this.ab.onDidRemoveGroup(o=>{e.deleteAndDispose(o.id),t()}))}Pb(t){super.Pb(t,this.title);const e=u.$I8(t,I(".open-editors-dirty-count-container"));this.c=u.$I8(e,I(".dirty-count.monaco-count-badge.long")),this.c.style.backgroundColor=T(at),this.c.style.color=T(dt),this.c.style.border=`1px solid ${T(ht)}`,this.tc()}X(t){super.X(t),t.classList.add("open-editors"),t.classList.add("show-file-icons");const e=new y;this.m&&this.m.dispose(),this.n&&this.n.clear(),this.j=new j(this.t,this.Fb,this.ab),this.n=this.Fb.createInstance(ut,{onDidChangeVisibility:this.onDidChangeBodyVisibility}),this.m=this.Fb.createInstance(lt,"OpenEditors",t,e,[new w(this.Ab,this.Fb),new E(this.n,this.Fb,this.Ab,this.Cb)],{identityProvider:{getId:s=>s instanceof c?s.getId():s.id.toString()},dnd:this.j,overrideStyles:this.Zb().listOverrideStyles,accessibilityProvider:new _t}),this.D(this.m),this.D(this.n);let i=[];this.f=this.D(new Q(()=>{if(!this.m)return;i=mt(i);const s=this.m.length,r=this.lc();this.m.splice(0,this.m.length,r),this.qc(),s!==this.m.length&&this.sc(),this.r=!1,(this.t==="alphabetical"||this.t==="fullPath")&&r.forEach(n=>{n instanceof c&&i.push(n.editor.onDidChangeLabel(()=>this.f?.schedule()))})},this.h)),this.sc(),this.ic(),this.D(this.m.onContextMenu(s=>this.oc(s))),this.D(this.m.onMouseMiddleClick(s=>{if(s&&s.element instanceof c){if(it(s.element.group,s.element.editor,st.MOUSE,this.ab.partOptions))return;s.element.group.closeEditor(s.element.editor,{preserveFocus:!0})}})),this.D(this.m.onDidOpen(s=>{const r=s.element;if(r)if(r instanceof c){if(u.$x8(s.browserEvent)&&s.browserEvent.button===1)return;this.pc(()=>{this.nc(r,{preserveFocus:s.editorOptions.preserveFocus,pinned:s.editorOptions.pinned,sideBySide:s.sideBySide})})}else this.pc(()=>{this.ab.activateGroup(r),s.editorOptions.preserveFocus||r.focus()});else return})),this.f.schedule(0),this.D(this.onDidChangeBodyVisibility(s=>{s&&this.r&&this.f?.schedule(0)}));const o=this.Eb.getViewContainerModel(this.Eb.getViewContainerByViewId(this.id));this.D(o.onDidChangeAllViewDescriptors(()=>{this.sc()}))}ic(){if(!this.m)return;ot.bindTo(this.m.contextKeyService),rt.bindTo(this.m.contextKeyService);const t=yt.bindTo(this.Db),e=gt.bindTo(this.Db),i=$t.bindTo(this.Db),o=xt.bindTo(this.Db),s=this.Fb.createInstance(wt);this.D(s),this.D(this.m.onDidChangeFocus(r=>{s.reset(),t.reset(),e.reset(),i.reset();const n=r.elements.length?r.elements[0]:void 0;if(n instanceof c){const d=n.getResource();e.set(n.editor.isDirty()&&!n.editor.isSaving()),i.set(!!n.editor.isReadonly()),s.set(d??null)}else n&&t.set(!0)})),this.D(this.m.onDidChangeSelection(r=>{const n=r.elements.every(d=>{if(d instanceof c){const l=d.getResource();return l&&(l.scheme===b.untitled||this.ec.hasProvider(l))}return!1});o.set(n)}))}focus(){super.focus(),this.m?.domFocus()}Y(t,e){super.Y(t,e),this.m?.layout(t,e)}get kc(){return this.ab.groups.length>1}lc(){return this.s=[],this.ab.getGroups(2).forEach(t=>{this.kc&&this.s.push(t);let e=t.editors.map(i=>new c(i,t));this.t==="alphabetical"?e=e.sort((i,o)=>G(i.editor.getName(),o.editor.getName())):this.t==="fullPath"&&(e=e.sort((i,o)=>{const s=i.editor.resource,r=o.editor.resource;if(s===void 0&&r===void 0)return G(i.editor.getName(),o.editor.getName());if(s===void 0)return-1;if(r===void 0)return 1;{const n=s.scheme,d=r.scheme;return n!==b.file&&d!==b.file?k.compare(s,r):n!==b.file?-1:d!==b.file?1:k.compare(s,r)}})),this.s.push(...e)}),this.s}mc(t,e){return e?this.s.findIndex(i=>i instanceof c&&i.editor===e&&i.group.id===t.id):this.s.findIndex(i=>!(i instanceof c)&&i.id===t.id)}nc(t,e){t&&(this.sb.publicLog2("workbenchActionExecuted",{id:"workbench.files.openFile",from:"openEditors"}),e.sideBySide&&e.preserveFocus||this.ab.activateGroup(t.group),(e.sideBySide?this.ab.sideGroup:t.group).openEditor(t.editor,e))}oc(t){if(!t.element)return;const e=t.element;this.Bb.showContextMenu({menuId:m.OpenEditorsContext,menuActionOptions:{shouldForwardArgs:!0,arg:e instanceof c?q.getOriginalUri(e.editor):{}},contextKeyService:this.m?.contextKeyService,getAnchor:()=>t.anchor,getActionsContext:()=>e instanceof c?{groupId:e.groupId,editorIndex:e.group.getIndexOfEditor(e.editor)}:{groupId:e.id}})}pc(t){this.L=!0;try{t()}finally{this.L=!1}}qc(){if(!(!this.m||this.L)){if(this.m.length&&this.ab.activeGroup){const t=this.mc(this.ab.activeGroup,this.ab.activeGroup.activeEditor);if(t>=0){try{this.m.setFocus([t]),this.m.setSelection([t]),this.m.reveal(t)}catch{}return}}this.m.setFocus([]),this.m.setSelection([])}}rc(t){t.affectsConfiguration("explorer.openEditors")&&this.sc(),(t.affectsConfiguration("explorer.decorations")||t.affectsConfiguration("explorer.openEditors.sortOrder"))&&(this.t=this.Cb.getValue("explorer.openEditors.sortOrder"),this.j&&(this.j.sortOrder=this.t),this.f?.schedule())}sc(){this.minimumBodySize=this.orientation===0?this.wc():170,this.maximumBodySize=this.orientation===0?this.vc():Number.POSITIVE_INFINITY}tc(t){if(t&&t.isDirty()&&!(t.capabilities&2)&&this.dc.hasShortAutoSaveDelay(t.resource))return;const e=this.cc.dirtyCount;e===0?this.c.classList.add("hidden"):(this.c.textContent=f.localize(9258,null,e),this.c.classList.remove("hidden"))}get uc(){return this.ab.groups.map(t=>t.count).reduce((t,e)=>t+e,this.kc?this.ab.groups.length:0)}vc(){let t=this.Cb.getValue("explorer.openEditors.minVisible");return typeof t!="number"&&(t=g.b),this.Eb.getViewContainerModel(this.Eb.getViewContainerByViewId(this.id)).visibleViewDescriptors.length<=1?Number.POSITIVE_INFINITY:Math.max(this.uc,t)*y.ITEM_HEIGHT}wc(){let t=this.Cb.getValue("explorer.openEditors.visible");return typeof t!="number"&&(t=g.a),this.xc(t)}xc(t=g.a){return Math.min(Math.max(t,1),this.uc)*y.ITEM_HEIGHT}setStructuralRefreshDelay(t){this.h=t}getOptimalWidth(){if(!this.m)return super.getOptimalWidth();const t=this.m.getHTMLElement(),e=[].slice.call(t.querySelectorAll(".open-editor > a"));return u.$07(t,e)}};p=g=M([h(1,R),h(2,Vt),h(3,Z),h(4,N),h(5,J),h(6,tt),h(7,nt),h(8,ct),h(9,ft),h(10,Nt),h(11,Gt),h(12,kt),h(13,Mt),h(14,qt)],p);class Pt extends X{async run(t){if(this.editor)return super.run(t,{groupId:this.editor.groupId,editorIndex:this.editor.group.getIndexOfEditor(this.editor.editor)})}}class y{static{this.ITEM_HEIGHT=22}getHeight(t){return y.ITEM_HEIGHT}getTemplateId(t){return t instanceof c?E.ID:w.ID}}class w{static{this.ID="editorgroup"}constructor(t,e){this.a=t,this.b=e}get templateId(){return w.ID}renderTemplate(t){const e=Object.create(null);e.root=u.$I8(t,I(".editor-group")),e.name=u.$I8(e.root,I("span.name")),e.actionBar=new P(t);const i=this.b.createInstance(S,S.ID,S.LABEL),o=this.a.lookupKeybinding(i.id);e.actionBar.push(i,{icon:!0,label:!1,keybinding:o?o.getLabel():void 0});const s=this.b.createInstance(O,O.ID,O.LABEL),r=this.a.lookupKeybinding(s.id);return e.actionBar.push(s,{icon:!0,label:!1,keybinding:r?r.getLabel():void 0}),e}renderElement(t,e,i){i.editorGroup=t,i.name.textContent=t.label,i.actionBar.context={groupId:t.id}}disposeTemplate(t){t.actionBar.dispose()}}class E{static{this.ID="openeditor"}constructor(t,e,i,o){this.c=t,this.d=e,this.f=i,this.h=o,this.a=this.d.createInstance(A,A.ID,A.LABEL),this.b=this.d.createInstance(C,C.ID,C.LABEL)}get templateId(){return E.ID}renderTemplate(t){const e=Object.create(null);return e.container=t,e.actionRunner=new Pt,e.actionBar=new P(t,{actionRunner:e.actionRunner}),e.root=this.c.create(t),e}renderElement(t,e,i){const o=t.editor;i.actionRunner.editor=t,i.container.classList.toggle("dirty",o.isDirty()&&!o.isSaving()),i.container.classList.toggle("sticky",t.isSticky()),i.root.setResource({resource:q.getOriginalUri(o,{supportSideBySide:et.BOTH}),name:o.getName(),description:o.getDescription(1)},{italic:t.isPreview(),extraClasses:["open-editor"].concat(t.editor.getLabelExtraClasses()),fileDecorations:this.h.getValue().explorer.decorations,title:o.getTitle(2),icon:o.getIcon()});const s=t.isSticky()?this.b:this.a;i.actionBar.hasAction(s)||(i.actionBar.isEmpty()||i.actionBar.clear(),i.actionBar.push(s,{icon:!0,label:!1,keybinding:this.f.lookupKeybinding(s.id)?.getLabel()}))}disposeTemplate(t){t.actionBar.dispose(),t.root.dispose(),t.actionRunner.dispose()}}class j{set sortOrder(t){this.a=t}constructor(t,e,i){this.b=e,this.c=i,this.a=t}get d(){return this.b.createInstance(Ot,{allowWorkspaceOpen:!1})}getDragURI(t){if(t instanceof c){const e=t.getResource();if(e)return e.toString()}return null}getDragLabel(t){if(t.length>1)return String(t.length);const e=t[0];return e instanceof c?e.editor.getName():e.label}onDragStart(t,e){const i=t.elements,o=[];if(i)for(const s of i)s instanceof c&&o.push(s);o.length&&this.b.invokeFunction(At,o,e)}onDragOver(t,e,i,o,s){if(t instanceof Bt&&!St(s,Tt.FILES,Lt.FILES))return!1;if(this.a!=="editorOrder")return t instanceof B?!1:{accept:!0,effect:{type:1},feedback:[-1]};let r;switch(o){case 0:case 1:r=i===0&&e instanceof V?"drop-target-after":"drop-target-before";break;case 2:case 3:r="drop-target-after";break}return{accept:!0,effect:{type:1,position:r},feedback:[i]}}drop(t,e,i,o,s){let r=e instanceof c?e.group:e||this.c.groups[this.c.count-1],n=e instanceof c?e.group.getIndexOfEditor(e.editor):0;switch(o){case 0:case 1:e instanceof V&&r.index!==0&&(r=this.c.groups[r.index-1],n=r.count);break;case 3:case 2:e instanceof c&&n++;break}if(t instanceof B){for(const d of t.elements){const l=d.group.getIndexOfEditor(d.editor);d.group===r&&l<n&&n--,d.group.moveEditor(d.editor,r,{index:n,preserveFocus:!0}),n++}this.c.activateGroup(r)}else this.d.handleDrop(s,Rt,()=>r,()=>r.focus(),{index:n})}dispose(){}}M([Ft],j.prototype,"d",null);class _t{getWidgetAriaLabel(){return f.localize(9259,null)}getAriaLabel(t){return t instanceof c?`${t.editor.getName()}, ${t.editor.getDescription()}`:t.ariaLabel}}const jt="workbench.action.toggleEditorGroupLayout";D(class extends v{constructor(){super({id:"workbench.action.toggleEditorGroupLayout",title:f.localize2(9262,"Toggle Vertical/Horizontal Editor Layout"),f1:!0,keybinding:{primary:1557,mac:{primary:2581},weight:200},icon:x.editorLayout,menu:{id:m.ViewTitle,group:"navigation",when:$.and($.equals("view",p.ID),Et),order:10}})}async run(a){const t=a.get(N),e=t.orientation===1?0:1;t.setGroupOrientation(e),t.activeGroup.focus()}});bt.appendMenuItem(m.MenubarLayoutMenu,{group:"5_flip",command:{id:jt,title:{...f.localize2(9263,"Flip Layout"),mnemonicTitle:f.localize(9260,null)}},order:1});D(class extends v{constructor(){super({id:"workbench.action.files.saveAll",title:It,f1:!0,icon:x.saveAll,menu:{id:m.ViewTitle,group:"navigation",when:$.equals("view",p.ID),order:20}})}async run(a){await a.get(_).executeCommand(vt)}});D(class extends v{constructor(){super({id:"openEditors.closeAll",title:F.LABEL,f1:!1,icon:x.closeAll,menu:{id:m.ViewTitle,group:"navigation",when:$.equals("view",p.ID),order:30}})}async run(a){const t=a.get(R),e=new F;await t.invokeFunction(i=>e.run(i))}});D(class extends v{constructor(){super({id:"openEditors.newUntitledFile",title:f.localize2(9264,"New Untitled Text File"),f1:!1,icon:x.newFile,menu:{id:m.ViewTitle,group:"navigation",when:$.equals("view",p.ID),order:5}})}async run(a){await a.get(_).executeCommand(Dt)}});export{p as $dWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var OpenEditorsView_1;
+import "./media/openeditors.css";
+import * as nls from "../../../../../nls.js";
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { ActionRunner } from "../../../../../base/common/actions.js";
+import * as dom from "../../../../../base/browser/dom.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { EditorResourceAccessor, SideBySideEditor, preventEditorClose, EditorCloseMethod } from "../../../../common/editor.js";
+import { SaveAllInGroupAction, CloseGroupAction } from "../fileActions.js";
+import { OpenEditorsFocusedContext, ExplorerFocusedContext, OpenEditor } from "../../common/files.js";
+import { CloseAllEditorsAction, CloseEditorAction, UnpinEditorAction } from "../../../../browser/parts/editor/editorActions.js";
+import { IContextKeyService, ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { asCssVariable, badgeBackground, badgeForeground, contrastBorder } from "../../../../../platform/theme/common/colorRegistry.js";
+import { WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { DisposableMap, dispose } from "../../../../../base/common/lifecycle.js";
+import { MenuId, Action2, registerAction2, MenuRegistry } from "../../../../../platform/actions/common/actions.js";
+import { OpenEditorsDirtyEditorContext, OpenEditorsGroupContext, OpenEditorsReadonlyEditorContext, SAVE_ALL_LABEL, SAVE_ALL_COMMAND_ID, NEW_UNTITLED_FILE_COMMAND_ID, OpenEditorsSelectedFileOrUntitledContext } from "../fileConstants.js";
+import { ResourceContextKey, MultipleEditorGroupsContext } from "../../../../common/contextkeys.js";
+import { CodeDataTransfers, containsDragType } from "../../../../../platform/dnd/browser/dnd.js";
+import { ResourcesDropHandler, fillEditorsDragData } from "../../../../browser/dnd.js";
+import { ViewPane } from "../../../../browser/parts/views/viewPane.js";
+import { DataTransfers } from "../../../../../base/browser/dnd.js";
+import { memoize } from "../../../../../base/common/decorators.js";
+import { ElementsDragAndDropData, NativeDragAndDropData } from "../../../../../base/browser/ui/list/listView.js";
+import { IWorkingCopyService } from "../../../../services/workingCopy/common/workingCopyService.js";
+import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { IViewDescriptorService } from "../../../../common/views.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { compareFileNamesDefault } from "../../../../../base/common/comparers.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { extUriIgnorePathCase } from "../../../../../base/common/resources.js";
+import { mainWindow } from "../../../../../base/browser/window.js";
+import { EditorGroupView } from "../../../../browser/parts/editor/editorGroupView.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+const $ = dom.$;
+let OpenEditorsView = class OpenEditorsView2 extends ViewPane {
+  static {
+    __name(this, "OpenEditorsView");
+  }
+  static {
+    OpenEditorsView_1 = this;
+  }
+  static {
+    this.DEFAULT_VISIBLE_OPEN_EDITORS = 9;
+  }
+  static {
+    this.DEFAULT_MIN_VISIBLE_OPEN_EDITORS = 0;
+  }
+  static {
+    this.ID = "workbench.explorer.openEditorsView";
+  }
+  static {
+    this.NAME = nls.localize2({ key: "openEditors", comment: ["Open is an adjective"] }, "Open Editors");
+  }
+  constructor(options, instantiationService, viewDescriptorService, contextMenuService, editorGroupService, configurationService, keybindingService, contextKeyService, themeService, telemetryService, hoverService, workingCopyService, filesConfigurationService, openerService, fileService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.editorGroupService = editorGroupService;
+    this.telemetryService = telemetryService;
+    this.workingCopyService = workingCopyService;
+    this.filesConfigurationService = filesConfigurationService;
+    this.fileService = fileService;
+    this.needsRefresh = false;
+    this.elements = [];
+    this.blockFocusActiveEditorTracking = false;
+    this.structuralRefreshDelay = 0;
+    this.sortOrder = configurationService.getValue("explorer.openEditors.sortOrder");
+    this.registerUpdateEvents();
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e)));
+    this._register(this.workingCopyService.onDidChangeDirty((workingCopy) => this.updateDirtyIndicator(workingCopy)));
+  }
+  registerUpdateEvents() {
+    const updateWholeList = /* @__PURE__ */ __name(() => {
+      if (!this.isBodyVisible() || !this.list) {
+        this.needsRefresh = true;
+        return;
+      }
+      this.listRefreshScheduler?.schedule(this.structuralRefreshDelay);
+    }, "updateWholeList");
+    const groupDisposables = this._register(new DisposableMap());
+    const addGroupListener = /* @__PURE__ */ __name((group) => {
+      const groupModelChangeListener = group.onDidModelChange((e) => {
+        if (this.listRefreshScheduler?.isScheduled()) {
+          return;
+        }
+        if (!this.isBodyVisible() || !this.list) {
+          this.needsRefresh = true;
+          return;
+        }
+        const index = this.getIndex(group, e.editor);
+        switch (e.kind) {
+          case 8:
+            this.focusActiveEditor();
+            break;
+          case 1:
+          case 2:
+            if (index >= 0) {
+              this.list.splice(index, 1, [group]);
+            }
+            break;
+          case 14:
+          case 13:
+          case 10:
+          case 11:
+          case 9:
+            this.list.splice(index, 1, [new OpenEditor(e.editor, group)]);
+            this.focusActiveEditor();
+            break;
+          case 5:
+          case 7:
+          case 6:
+            updateWholeList();
+            break;
+        }
+      });
+      groupDisposables.set(group.id, groupModelChangeListener);
+    }, "addGroupListener");
+    this.editorGroupService.groups.forEach((g) => addGroupListener(g));
+    this._register(this.editorGroupService.onDidAddGroup((group) => {
+      addGroupListener(group);
+      updateWholeList();
+    }));
+    this._register(this.editorGroupService.onDidMoveGroup(() => updateWholeList()));
+    this._register(this.editorGroupService.onDidChangeActiveGroup(() => this.focusActiveEditor()));
+    this._register(this.editorGroupService.onDidRemoveGroup((group) => {
+      groupDisposables.deleteAndDispose(group.id);
+      updateWholeList();
+    }));
+  }
+  renderHeaderTitle(container) {
+    super.renderHeaderTitle(container, this.title);
+    const count = dom.append(container, $(".open-editors-dirty-count-container"));
+    this.dirtyCountElement = dom.append(count, $(".dirty-count.monaco-count-badge.long"));
+    this.dirtyCountElement.style.backgroundColor = asCssVariable(badgeBackground);
+    this.dirtyCountElement.style.color = asCssVariable(badgeForeground);
+    this.dirtyCountElement.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
+    this.updateDirtyIndicator();
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    container.classList.add("open-editors");
+    container.classList.add("show-file-icons");
+    const delegate = new OpenEditorsDelegate();
+    if (this.list) {
+      this.list.dispose();
+    }
+    if (this.listLabels) {
+      this.listLabels.clear();
+    }
+    this.dnd = new OpenEditorsDragAndDrop(this.sortOrder, this.instantiationService, this.editorGroupService);
+    this.listLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+    this.list = this.instantiationService.createInstance(WorkbenchList, "OpenEditors", container, delegate, [
+      new EditorGroupRenderer(this.keybindingService, this.instantiationService),
+      new OpenEditorRenderer(this.listLabels, this.instantiationService, this.keybindingService, this.configurationService)
+    ], {
+      identityProvider: { getId: /* @__PURE__ */ __name((element) => element instanceof OpenEditor ? element.getId() : element.id.toString(), "getId") },
+      dnd: this.dnd,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      accessibilityProvider: new OpenEditorsAccessibilityProvider()
+    });
+    this._register(this.list);
+    this._register(this.listLabels);
+    let labelChangeListeners = [];
+    this.listRefreshScheduler = this._register(new RunOnceScheduler(() => {
+      if (!this.list) {
+        return;
+      }
+      labelChangeListeners = dispose(labelChangeListeners);
+      const previousLength = this.list.length;
+      const elements = this.getElements();
+      this.list.splice(0, this.list.length, elements);
+      this.focusActiveEditor();
+      if (previousLength !== this.list.length) {
+        this.updateSize();
+      }
+      this.needsRefresh = false;
+      if (this.sortOrder === "alphabetical" || this.sortOrder === "fullPath") {
+        elements.forEach((e) => {
+          if (e instanceof OpenEditor) {
+            labelChangeListeners.push(e.editor.onDidChangeLabel(() => this.listRefreshScheduler?.schedule()));
+          }
+        });
+      }
+    }, this.structuralRefreshDelay));
+    this.updateSize();
+    this.handleContextKeys();
+    this._register(this.list.onContextMenu((e) => this.onListContextMenu(e)));
+    this._register(this.list.onMouseMiddleClick((e) => {
+      if (e && e.element instanceof OpenEditor) {
+        if (preventEditorClose(e.element.group, e.element.editor, EditorCloseMethod.MOUSE, this.editorGroupService.partOptions)) {
+          return;
+        }
+        e.element.group.closeEditor(e.element.editor, { preserveFocus: true });
+      }
+    }));
+    this._register(this.list.onDidOpen((e) => {
+      const element = e.element;
+      if (!element) {
+        return;
+      } else if (element instanceof OpenEditor) {
+        if (dom.isMouseEvent(e.browserEvent) && e.browserEvent.button === 1) {
+          return;
+        }
+        this.withActiveEditorFocusTrackingDisabled(() => {
+          this.openEditor(element, { preserveFocus: e.editorOptions.preserveFocus, pinned: e.editorOptions.pinned, sideBySide: e.sideBySide });
+        });
+      } else {
+        this.withActiveEditorFocusTrackingDisabled(() => {
+          this.editorGroupService.activateGroup(element);
+          if (!e.editorOptions.preserveFocus) {
+            element.focus();
+          }
+        });
+      }
+    }));
+    this.listRefreshScheduler.schedule(0);
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible && this.needsRefresh) {
+        this.listRefreshScheduler?.schedule(0);
+      }
+    }));
+    const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id));
+    this._register(containerModel.onDidChangeAllViewDescriptors(() => {
+      this.updateSize();
+    }));
+  }
+  handleContextKeys() {
+    if (!this.list) {
+      return;
+    }
+    OpenEditorsFocusedContext.bindTo(this.list.contextKeyService);
+    ExplorerFocusedContext.bindTo(this.list.contextKeyService);
+    const groupFocusedContext = OpenEditorsGroupContext.bindTo(this.contextKeyService);
+    const dirtyEditorFocusedContext = OpenEditorsDirtyEditorContext.bindTo(this.contextKeyService);
+    const readonlyEditorFocusedContext = OpenEditorsReadonlyEditorContext.bindTo(this.contextKeyService);
+    const openEditorsSelectedFileOrUntitledContext = OpenEditorsSelectedFileOrUntitledContext.bindTo(this.contextKeyService);
+    const resourceContext = this.instantiationService.createInstance(ResourceContextKey);
+    this._register(resourceContext);
+    this._register(this.list.onDidChangeFocus((e) => {
+      resourceContext.reset();
+      groupFocusedContext.reset();
+      dirtyEditorFocusedContext.reset();
+      readonlyEditorFocusedContext.reset();
+      const element = e.elements.length ? e.elements[0] : void 0;
+      if (element instanceof OpenEditor) {
+        const resource = element.getResource();
+        dirtyEditorFocusedContext.set(element.editor.isDirty() && !element.editor.isSaving());
+        readonlyEditorFocusedContext.set(!!element.editor.isReadonly());
+        resourceContext.set(resource ?? null);
+      } else if (element) {
+        groupFocusedContext.set(true);
+      }
+    }));
+    this._register(this.list.onDidChangeSelection((e) => {
+      const selectedAreFileOrUntitled = e.elements.every((e2) => {
+        if (e2 instanceof OpenEditor) {
+          const resource = e2.getResource();
+          return resource && (resource.scheme === Schemas.untitled || this.fileService.hasProvider(resource));
+        }
+        return false;
+      });
+      openEditorsSelectedFileOrUntitledContext.set(selectedAreFileOrUntitled);
+    }));
+  }
+  focus() {
+    super.focus();
+    this.list?.domFocus();
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.list?.layout(height, width);
+  }
+  get showGroups() {
+    return this.editorGroupService.groups.length > 1;
+  }
+  getElements() {
+    this.elements = [];
+    this.editorGroupService.getGroups(
+      2
+      /* GroupsOrder.GRID_APPEARANCE */
+    ).forEach((g) => {
+      if (this.showGroups) {
+        this.elements.push(g);
+      }
+      let editors = g.editors.map((ei) => new OpenEditor(ei, g));
+      if (this.sortOrder === "alphabetical") {
+        editors = editors.sort((first, second) => compareFileNamesDefault(first.editor.getName(), second.editor.getName()));
+      } else if (this.sortOrder === "fullPath") {
+        editors = editors.sort((first, second) => {
+          const firstResource = first.editor.resource;
+          const secondResource = second.editor.resource;
+          if (firstResource === void 0 && secondResource === void 0) {
+            return compareFileNamesDefault(first.editor.getName(), second.editor.getName());
+          } else if (firstResource === void 0) {
+            return -1;
+          } else if (secondResource === void 0) {
+            return 1;
+          } else {
+            const firstScheme = firstResource.scheme;
+            const secondScheme = secondResource.scheme;
+            if (firstScheme !== Schemas.file && secondScheme !== Schemas.file) {
+              return extUriIgnorePathCase.compare(firstResource, secondResource);
+            } else if (firstScheme !== Schemas.file) {
+              return -1;
+            } else if (secondScheme !== Schemas.file) {
+              return 1;
+            } else {
+              return extUriIgnorePathCase.compare(firstResource, secondResource);
+            }
+          }
+        });
+      }
+      this.elements.push(...editors);
+    });
+    return this.elements;
+  }
+  getIndex(group, editor) {
+    if (!editor) {
+      return this.elements.findIndex((e) => !(e instanceof OpenEditor) && e.id === group.id);
+    }
+    return this.elements.findIndex((e) => e instanceof OpenEditor && e.editor === editor && e.group.id === group.id);
+  }
+  openEditor(element, options) {
+    if (element) {
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id: "workbench.files.openFile", from: "openEditors" });
+      const preserveActivateGroup = options.sideBySide && options.preserveFocus;
+      if (!preserveActivateGroup) {
+        this.editorGroupService.activateGroup(element.group);
+      }
+      const targetGroup = options.sideBySide ? this.editorGroupService.sideGroup : element.group;
+      targetGroup.openEditor(element.editor, options);
+    }
+  }
+  onListContextMenu(e) {
+    if (!e.element) {
+      return;
+    }
+    const element = e.element;
+    this.contextMenuService.showContextMenu({
+      menuId: MenuId.OpenEditorsContext,
+      menuActionOptions: { shouldForwardArgs: true, arg: element instanceof OpenEditor ? EditorResourceAccessor.getOriginalUri(element.editor) : {} },
+      contextKeyService: this.list?.contextKeyService,
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActionsContext: /* @__PURE__ */ __name(() => element instanceof OpenEditor ? { groupId: element.groupId, editorIndex: element.group.getIndexOfEditor(element.editor) } : { groupId: element.id }, "getActionsContext")
+    });
+  }
+  withActiveEditorFocusTrackingDisabled(fn) {
+    this.blockFocusActiveEditorTracking = true;
+    try {
+      fn();
+    } finally {
+      this.blockFocusActiveEditorTracking = false;
+    }
+  }
+  focusActiveEditor() {
+    if (!this.list || this.blockFocusActiveEditorTracking) {
+      return;
+    }
+    if (this.list.length && this.editorGroupService.activeGroup) {
+      const index = this.getIndex(this.editorGroupService.activeGroup, this.editorGroupService.activeGroup.activeEditor);
+      if (index >= 0) {
+        try {
+          this.list.setFocus([index]);
+          this.list.setSelection([index]);
+          this.list.reveal(index);
+        } catch (e) {
+        }
+        return;
+      }
+    }
+    this.list.setFocus([]);
+    this.list.setSelection([]);
+  }
+  onConfigurationChange(event) {
+    if (event.affectsConfiguration("explorer.openEditors")) {
+      this.updateSize();
+    }
+    if (event.affectsConfiguration("explorer.decorations") || event.affectsConfiguration("explorer.openEditors.sortOrder")) {
+      this.sortOrder = this.configurationService.getValue("explorer.openEditors.sortOrder");
+      if (this.dnd) {
+        this.dnd.sortOrder = this.sortOrder;
+      }
+      this.listRefreshScheduler?.schedule();
+    }
+  }
+  updateSize() {
+    this.minimumBodySize = this.orientation === 0 ? this.getMinExpandedBodySize() : 170;
+    this.maximumBodySize = this.orientation === 0 ? this.getMaxExpandedBodySize() : Number.POSITIVE_INFINITY;
+  }
+  updateDirtyIndicator(workingCopy) {
+    if (workingCopy) {
+      const gotDirty = workingCopy.isDirty();
+      if (gotDirty && !(workingCopy.capabilities & 2) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
+        return;
+      }
+    }
+    const dirty = this.workingCopyService.dirtyCount;
+    if (dirty === 0) {
+      this.dirtyCountElement.classList.add("hidden");
+    } else {
+      this.dirtyCountElement.textContent = nls.localize("dirtyCounter", "{0} unsaved", dirty);
+      this.dirtyCountElement.classList.remove("hidden");
+    }
+  }
+  get elementCount() {
+    return this.editorGroupService.groups.map((g) => g.count).reduce((first, second) => first + second, this.showGroups ? this.editorGroupService.groups.length : 0);
+  }
+  getMaxExpandedBodySize() {
+    let minVisibleOpenEditors = this.configurationService.getValue("explorer.openEditors.minVisible");
+    if (typeof minVisibleOpenEditors !== "number") {
+      minVisibleOpenEditors = OpenEditorsView_1.DEFAULT_MIN_VISIBLE_OPEN_EDITORS;
+    }
+    const containerModel = this.viewDescriptorService.getViewContainerModel(this.viewDescriptorService.getViewContainerByViewId(this.id));
+    if (containerModel.visibleViewDescriptors.length <= 1) {
+      return Number.POSITIVE_INFINITY;
+    }
+    return Math.max(this.elementCount, minVisibleOpenEditors) * OpenEditorsDelegate.ITEM_HEIGHT;
+  }
+  getMinExpandedBodySize() {
+    let visibleOpenEditors = this.configurationService.getValue("explorer.openEditors.visible");
+    if (typeof visibleOpenEditors !== "number") {
+      visibleOpenEditors = OpenEditorsView_1.DEFAULT_VISIBLE_OPEN_EDITORS;
+    }
+    return this.computeMinExpandedBodySize(visibleOpenEditors);
+  }
+  computeMinExpandedBodySize(visibleOpenEditors = OpenEditorsView_1.DEFAULT_VISIBLE_OPEN_EDITORS) {
+    const itemsToShow = Math.min(Math.max(visibleOpenEditors, 1), this.elementCount);
+    return itemsToShow * OpenEditorsDelegate.ITEM_HEIGHT;
+  }
+  setStructuralRefreshDelay(delay) {
+    this.structuralRefreshDelay = delay;
+  }
+  getOptimalWidth() {
+    if (!this.list) {
+      return super.getOptimalWidth();
+    }
+    const parentNode = this.list.getHTMLElement();
+    const childNodes = [].slice.call(parentNode.querySelectorAll(".open-editor > a"));
+    return dom.getLargestChildWidth(parentNode, childNodes);
+  }
+};
+OpenEditorsView = OpenEditorsView_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IViewDescriptorService),
+  __param(3, IContextMenuService),
+  __param(4, IEditorGroupsService),
+  __param(5, IConfigurationService),
+  __param(6, IKeybindingService),
+  __param(7, IContextKeyService),
+  __param(8, IThemeService),
+  __param(9, ITelemetryService),
+  __param(10, IHoverService),
+  __param(11, IWorkingCopyService),
+  __param(12, IFilesConfigurationService),
+  __param(13, IOpenerService),
+  __param(14, IFileService)
+], OpenEditorsView);
+class OpenEditorActionRunner extends ActionRunner {
+  static {
+    __name(this, "OpenEditorActionRunner");
+  }
+  async run(action) {
+    if (!this.editor) {
+      return;
+    }
+    return super.run(action, { groupId: this.editor.groupId, editorIndex: this.editor.group.getIndexOfEditor(this.editor.editor) });
+  }
+}
+class OpenEditorsDelegate {
+  static {
+    __name(this, "OpenEditorsDelegate");
+  }
+  static {
+    this.ITEM_HEIGHT = 22;
+  }
+  getHeight(_element) {
+    return OpenEditorsDelegate.ITEM_HEIGHT;
+  }
+  getTemplateId(element) {
+    if (element instanceof OpenEditor) {
+      return OpenEditorRenderer.ID;
+    }
+    return EditorGroupRenderer.ID;
+  }
+}
+class EditorGroupRenderer {
+  static {
+    __name(this, "EditorGroupRenderer");
+  }
+  static {
+    this.ID = "editorgroup";
+  }
+  constructor(keybindingService, instantiationService) {
+    this.keybindingService = keybindingService;
+    this.instantiationService = instantiationService;
+  }
+  get templateId() {
+    return EditorGroupRenderer.ID;
+  }
+  renderTemplate(container) {
+    const editorGroupTemplate = /* @__PURE__ */ Object.create(null);
+    editorGroupTemplate.root = dom.append(container, $(".editor-group"));
+    editorGroupTemplate.name = dom.append(editorGroupTemplate.root, $("span.name"));
+    editorGroupTemplate.actionBar = new ActionBar(container);
+    const saveAllInGroupAction = this.instantiationService.createInstance(SaveAllInGroupAction, SaveAllInGroupAction.ID, SaveAllInGroupAction.LABEL);
+    const saveAllInGroupKey = this.keybindingService.lookupKeybinding(saveAllInGroupAction.id);
+    editorGroupTemplate.actionBar.push(saveAllInGroupAction, { icon: true, label: false, keybinding: saveAllInGroupKey ? saveAllInGroupKey.getLabel() : void 0 });
+    const closeGroupAction = this.instantiationService.createInstance(CloseGroupAction, CloseGroupAction.ID, CloseGroupAction.LABEL);
+    const closeGroupActionKey = this.keybindingService.lookupKeybinding(closeGroupAction.id);
+    editorGroupTemplate.actionBar.push(closeGroupAction, { icon: true, label: false, keybinding: closeGroupActionKey ? closeGroupActionKey.getLabel() : void 0 });
+    return editorGroupTemplate;
+  }
+  renderElement(editorGroup, _index, templateData) {
+    templateData.editorGroup = editorGroup;
+    templateData.name.textContent = editorGroup.label;
+    templateData.actionBar.context = { groupId: editorGroup.id };
+  }
+  disposeTemplate(templateData) {
+    templateData.actionBar.dispose();
+  }
+}
+class OpenEditorRenderer {
+  static {
+    __name(this, "OpenEditorRenderer");
+  }
+  static {
+    this.ID = "openeditor";
+  }
+  constructor(labels, instantiationService, keybindingService, configurationService) {
+    this.labels = labels;
+    this.instantiationService = instantiationService;
+    this.keybindingService = keybindingService;
+    this.configurationService = configurationService;
+    this.closeEditorAction = this.instantiationService.createInstance(CloseEditorAction, CloseEditorAction.ID, CloseEditorAction.LABEL);
+    this.unpinEditorAction = this.instantiationService.createInstance(UnpinEditorAction, UnpinEditorAction.ID, UnpinEditorAction.LABEL);
+  }
+  get templateId() {
+    return OpenEditorRenderer.ID;
+  }
+  renderTemplate(container) {
+    const editorTemplate = /* @__PURE__ */ Object.create(null);
+    editorTemplate.container = container;
+    editorTemplate.actionRunner = new OpenEditorActionRunner();
+    editorTemplate.actionBar = new ActionBar(container, { actionRunner: editorTemplate.actionRunner });
+    editorTemplate.root = this.labels.create(container);
+    return editorTemplate;
+  }
+  renderElement(openedEditor, _index, templateData) {
+    const editor = openedEditor.editor;
+    templateData.actionRunner.editor = openedEditor;
+    templateData.container.classList.toggle("dirty", editor.isDirty() && !editor.isSaving());
+    templateData.container.classList.toggle("sticky", openedEditor.isSticky());
+    templateData.root.setResource({
+      resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
+      name: editor.getName(),
+      description: editor.getDescription(
+        1
+        /* Verbosity.MEDIUM */
+      )
+    }, {
+      italic: openedEditor.isPreview(),
+      extraClasses: ["open-editor"].concat(openedEditor.editor.getLabelExtraClasses()),
+      fileDecorations: this.configurationService.getValue().explorer.decorations,
+      title: editor.getTitle(
+        2
+        /* Verbosity.LONG */
+      ),
+      icon: editor.getIcon()
+    });
+    const editorAction = openedEditor.isSticky() ? this.unpinEditorAction : this.closeEditorAction;
+    if (!templateData.actionBar.hasAction(editorAction)) {
+      if (!templateData.actionBar.isEmpty()) {
+        templateData.actionBar.clear();
+      }
+      templateData.actionBar.push(editorAction, { icon: true, label: false, keybinding: this.keybindingService.lookupKeybinding(editorAction.id)?.getLabel() });
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.actionBar.dispose();
+    templateData.root.dispose();
+    templateData.actionRunner.dispose();
+  }
+}
+class OpenEditorsDragAndDrop {
+  static {
+    __name(this, "OpenEditorsDragAndDrop");
+  }
+  set sortOrder(value) {
+    this._sortOrder = value;
+  }
+  constructor(sortOrder, instantiationService, editorGroupService) {
+    this.instantiationService = instantiationService;
+    this.editorGroupService = editorGroupService;
+    this._sortOrder = sortOrder;
+  }
+  get dropHandler() {
+    return this.instantiationService.createInstance(ResourcesDropHandler, { allowWorkspaceOpen: false });
+  }
+  getDragURI(element) {
+    if (element instanceof OpenEditor) {
+      const resource = element.getResource();
+      if (resource) {
+        return resource.toString();
+      }
+    }
+    return null;
+  }
+  getDragLabel(elements) {
+    if (elements.length > 1) {
+      return String(elements.length);
+    }
+    const element = elements[0];
+    return element instanceof OpenEditor ? element.editor.getName() : element.label;
+  }
+  onDragStart(data, originalEvent) {
+    const items = data.elements;
+    const editors = [];
+    if (items) {
+      for (const item of items) {
+        if (item instanceof OpenEditor) {
+          editors.push(item);
+        }
+      }
+    }
+    if (editors.length) {
+      this.instantiationService.invokeFunction(fillEditorsDragData, editors, originalEvent);
+    }
+  }
+  onDragOver(data, _targetElement, _targetIndex, targetSector, originalEvent) {
+    if (data instanceof NativeDragAndDropData) {
+      if (!containsDragType(originalEvent, DataTransfers.FILES, CodeDataTransfers.FILES)) {
+        return false;
+      }
+    }
+    if (this._sortOrder !== "editorOrder") {
+      if (data instanceof ElementsDragAndDropData) {
+        return false;
+      } else {
+        return { accept: true, effect: {
+          type: 1
+          /* ListDragOverEffectType.Move */
+        }, feedback: [-1] };
+      }
+    }
+    let dropEffectPosition = void 0;
+    switch (targetSector) {
+      case 0:
+      case 1:
+        dropEffectPosition = _targetIndex === 0 && _targetElement instanceof EditorGroupView ? "drop-target-after" : "drop-target-before";
+        break;
+      case 2:
+      case 3:
+        dropEffectPosition = "drop-target-after";
+        break;
+    }
+    return { accept: true, effect: { type: 1, position: dropEffectPosition }, feedback: [_targetIndex] };
+  }
+  drop(data, targetElement, _targetIndex, targetSector, originalEvent) {
+    let group = targetElement instanceof OpenEditor ? targetElement.group : targetElement || this.editorGroupService.groups[this.editorGroupService.count - 1];
+    let targetEditorIndex = targetElement instanceof OpenEditor ? targetElement.group.getIndexOfEditor(targetElement.editor) : 0;
+    switch (targetSector) {
+      case 0:
+      case 1:
+        if (targetElement instanceof EditorGroupView && group.index !== 0) {
+          group = this.editorGroupService.groups[group.index - 1];
+          targetEditorIndex = group.count;
+        }
+        break;
+      case 3:
+      case 2:
+        if (targetElement instanceof OpenEditor) {
+          targetEditorIndex++;
+        }
+        break;
+    }
+    if (data instanceof ElementsDragAndDropData) {
+      for (const oe of data.elements) {
+        const sourceEditorIndex = oe.group.getIndexOfEditor(oe.editor);
+        if (oe.group === group && sourceEditorIndex < targetEditorIndex) {
+          targetEditorIndex--;
+        }
+        oe.group.moveEditor(oe.editor, group, { index: targetEditorIndex, preserveFocus: true });
+        targetEditorIndex++;
+      }
+      this.editorGroupService.activateGroup(group);
+    } else {
+      this.dropHandler.handleDrop(originalEvent, mainWindow, () => group, () => group.focus(), { index: targetEditorIndex });
+    }
+  }
+  dispose() {
+  }
+}
+__decorate([
+  memoize
+], OpenEditorsDragAndDrop.prototype, "dropHandler", null);
+class OpenEditorsAccessibilityProvider {
+  static {
+    __name(this, "OpenEditorsAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return nls.localize("openEditors", "Open Editors");
+  }
+  getAriaLabel(element) {
+    if (element instanceof OpenEditor) {
+      return `${element.editor.getName()}, ${element.editor.getDescription()}`;
+    }
+    return element.ariaLabel;
+  }
+}
+const toggleEditorGroupLayoutId = "workbench.action.toggleEditorGroupLayout";
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.toggleEditorGroupLayout",
+      title: nls.localize2("flipLayout", "Toggle Vertical/Horizontal Editor Layout"),
+      f1: true,
+      keybinding: {
+        primary: 1024 | 512 | 21,
+        mac: {
+          primary: 2048 | 512 | 21
+          /* KeyCode.Digit0 */
+        },
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      icon: Codicon.editorLayout,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("view", OpenEditorsView.ID), MultipleEditorGroupsContext),
+        order: 10
+      }
+    });
+  }
+  async run(accessor) {
+    const editorGroupService = accessor.get(IEditorGroupsService);
+    const newOrientation = editorGroupService.orientation === 1 ? 0 : 1;
+    editorGroupService.setGroupOrientation(newOrientation);
+    editorGroupService.activeGroup.focus();
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarLayoutMenu, {
+  group: "5_flip",
+  command: {
+    id: toggleEditorGroupLayoutId,
+    title: {
+      ...nls.localize2("miToggleEditorLayoutWithoutMnemonic", "Flip Layout"),
+      mnemonicTitle: nls.localize({ key: "miToggleEditorLayout", comment: ["&& denotes a mnemonic"] }, "Flip &&Layout")
+    }
+  },
+  order: 1
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.files.saveAll",
+      title: SAVE_ALL_LABEL,
+      f1: true,
+      icon: Codicon.saveAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", OpenEditorsView.ID),
+        order: 20
+      }
+    });
+  }
+  async run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    await commandService.executeCommand(SAVE_ALL_COMMAND_ID);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "openEditors.closeAll",
+      title: CloseAllEditorsAction.LABEL,
+      f1: false,
+      icon: Codicon.closeAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", OpenEditorsView.ID),
+        order: 30
+      }
+    });
+  }
+  async run(accessor) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const closeAll = new CloseAllEditorsAction();
+    await instantiationService.invokeFunction((accessor2) => closeAll.run(accessor2));
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "openEditors.newUntitledFile",
+      title: nls.localize2("newUntitledFile", "New Untitled Text File"),
+      f1: false,
+      icon: Codicon.newFile,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", OpenEditorsView.ID),
+        order: 5
+      }
+    });
+  }
+  async run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    await commandService.executeCommand(NEW_UNTITLED_FILE_COMMAND_ID);
+  }
+});
+export {
+  OpenEditorsView
+};
+//# sourceMappingURL=openEditorsView.js.map

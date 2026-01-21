@@ -1,1 +1,50 @@
-import*as e from"../../../nls.js";import{OS as t}from"../../../base/common/platform.js";import{$km as a}from"../../configuration/common/configurationRegistry.js";import{$im as d}from"../../registry/common/platform.js";var n;(function(o){o[o.Code=0]="Code",o[o.KeyCode=1]="KeyCode"})(n||(n={}));function y(o){const r=o.getValue("keyboard"),i=r?.dispatch==="keyCode"?1:0,l=!!r?.mapAltGrToCtrlAlt;return{dispatch:i,mapAltGrToCtrlAlt:l}}const c=d.as(a.Configuration),s={id:"keyboard",order:15,type:"object",title:e.localize(2138,null),properties:{"keyboard.dispatch":{scope:1,type:"string",enum:["code","keyCode"],default:"code",markdownDescription:e.localize(2139,null),included:t===2||t===3},"keyboard.mapAltGrToCtrlAlt":{scope:1,type:"boolean",default:!1,markdownDescription:e.localize(2140,null),included:t===1}}};c.registerConfiguration(s);export{y as $bLc,n as DispatchConfig};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../nls.js";
+import { OS } from "../../../base/common/platform.js";
+import { Extensions as ConfigExtensions } from "../../configuration/common/configurationRegistry.js";
+import { Registry } from "../../registry/common/platform.js";
+var DispatchConfig;
+(function(DispatchConfig2) {
+  DispatchConfig2[DispatchConfig2["Code"] = 0] = "Code";
+  DispatchConfig2[DispatchConfig2["KeyCode"] = 1] = "KeyCode";
+})(DispatchConfig || (DispatchConfig = {}));
+function readKeyboardConfig(configurationService) {
+  const keyboard = configurationService.getValue("keyboard");
+  const dispatch = keyboard?.dispatch === "keyCode" ? 1 : 0;
+  const mapAltGrToCtrlAlt = Boolean(keyboard?.mapAltGrToCtrlAlt);
+  return { dispatch, mapAltGrToCtrlAlt };
+}
+__name(readKeyboardConfig, "readKeyboardConfig");
+const configurationRegistry = Registry.as(ConfigExtensions.Configuration);
+const keyboardConfiguration = {
+  "id": "keyboard",
+  "order": 15,
+  "type": "object",
+  "title": nls.localize("keyboardConfigurationTitle", "Keyboard"),
+  "properties": {
+    "keyboard.dispatch": {
+      scope: 1,
+      type: "string",
+      enum: ["code", "keyCode"],
+      default: "code",
+      markdownDescription: nls.localize("dispatch", "Controls the dispatching logic for key presses to use either `code` (recommended) or `keyCode`."),
+      included: OS === 2 || OS === 3
+      /* OperatingSystem.Linux */
+    },
+    "keyboard.mapAltGrToCtrlAlt": {
+      scope: 1,
+      type: "boolean",
+      default: false,
+      markdownDescription: nls.localize("mapAltGrToCtrlAlt", "Controls if the AltGraph+ modifier should be treated as Ctrl+Alt+."),
+      included: OS === 1
+      /* OperatingSystem.Windows */
+    }
+  }
+};
+configurationRegistry.registerConfiguration(keyboardConfiguration);
+export {
+  DispatchConfig,
+  readKeyboardConfig
+};
+//# sourceMappingURL=keyboardConfig.js.map

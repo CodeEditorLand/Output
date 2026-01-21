@@ -1,1 +1,150 @@
-import{localize2 as l}from"../../../../nls.js";import{$tL as a,$sL as f}from"../../../../platform/actions/common/actions.js";import{$Lj as E}from"../../../../platform/instantiation/common/instantiation.js";import{$im as v}from"../../../../platform/registry/common/platform.js";import{$so as m}from"../../../../platform/action/common/actionCommonCategories.js";import{Extensions as S,$XN as b}from"../../../common/contributions.js";import{$5M as P}from"../../../common/editor.js";import{$eec as u,$fec as d}from"./perfviewEditor.js";import{$yL as _}from"../../../services/editor/common/editorService.js";import{$0B as C,$$B as g}from"../../../../platform/instantiation/common/instantiationService.js";import{$sf as $}from"../../../../base/common/event.js";import{$gec as T}from"./inputLatencyContrib.js";import{$Jl as z}from"../../../../platform/environment/common/environment.js";import{$sd as D,$ud as w}from"../../../../base/common/lifecycle.js";var y=function(r,e,t,o){var n=arguments.length,i=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,t,o);else for(var p=r.length-1;p>=0;p--)(s=r[p])&&(i=(n<3?s(i):n>3?s(e,t,i):s(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},h=function(r,e){return function(t,o){e(t,o,r)}};b(u.ID,u,{lazy:!0});v.as(P.EditorFactory).registerEditorSerializer(d.Id,class{canSerialize(){return!0}serialize(){return""}deserialize(r){return r.createInstance(d)}});a(class extends f{constructor(){super({id:"perfview.show",title:l(10987,"Startup Performance"),category:m.Developer,f1:!0})}run(r){const e=r.get(_),t=u.get();return e.openEditor(t.getEditorInput(),{pinned:!0})}});a(class extends f{constructor(){super({id:"perf.insta.printAsyncCycles",title:l(10988,"Print Service Cycles"),category:m.Developer,f1:!0})}run(e){const t=e.get(E);if(t instanceof C){const o=t._globalGraph?.findCycleSlow()}}});a(class extends f{constructor(){super({id:"perf.insta.printTraces",title:l(10989,"Print Service Traces"),category:m.Developer,f1:!0})}run(){if(g.all.size!==0)for(const e of g.all);}});a(class extends f{constructor(){super({id:"perf.event.profiling",title:l(10990,"Print Emitter Profiles"),category:m.Developer,f1:!0})}run(){if($.all.size!==0)for(const e of $.all);}});v.as(S.Workbench).registerWorkbenchContribution(T,4);let c=class{static{this.Id="perf.disposableTracking"}constructor(e){!e.isBuilt&&!e.extensionTestsLocationURI&&w(new D)}};c=y([h(0,z)],c);b(c.Id,c,4);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize2 } from "../../../../nls.js";
+import { registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Extensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { PerfviewContrib, PerfviewInput } from "./perfviewEditor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { InstantiationService, Trace } from "../../../../platform/instantiation/common/instantiationService.js";
+import { EventProfiling } from "../../../../base/common/event.js";
+import { InputLatencyContrib } from "./inputLatencyContrib.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { GCBasedDisposableTracker, setDisposableTracker } from "../../../../base/common/lifecycle.js";
+registerWorkbenchContribution2(PerfviewContrib.ID, PerfviewContrib, { lazy: true });
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(PerfviewInput.Id, class {
+  canSerialize() {
+    return true;
+  }
+  serialize() {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(PerfviewInput);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "perfview.show",
+      title: localize2("show.label", "Startup Performance"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const contrib = PerfviewContrib.get();
+    return editorService.openEditor(contrib.getEditorInput(), { pinned: true });
+  }
+});
+registerAction2(class PrintServiceCycles extends Action2 {
+  static {
+    __name(this, "PrintServiceCycles");
+  }
+  constructor() {
+    super({
+      id: "perf.insta.printAsyncCycles",
+      title: localize2("cycles", "Print Service Cycles"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(accessor) {
+    const instaService = accessor.get(IInstantiationService);
+    if (instaService instanceof InstantiationService) {
+      const cycle = instaService._globalGraph?.findCycleSlow();
+      if (cycle) {
+        console.warn(`CYCLE`, cycle);
+      } else {
+        console.warn(`YEAH, no more cycles`);
+      }
+    }
+  }
+});
+registerAction2(class PrintServiceTraces extends Action2 {
+  static {
+    __name(this, "PrintServiceTraces");
+  }
+  constructor() {
+    super({
+      id: "perf.insta.printTraces",
+      title: localize2("insta.trace", "Print Service Traces"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run() {
+    if (Trace.all.size === 0) {
+      console.log("Enable via `instantiationService.ts#_enableAllTracing`");
+      return;
+    }
+    for (const item of Trace.all) {
+      console.log(item);
+    }
+  }
+});
+registerAction2(class PrintEventProfiling extends Action2 {
+  static {
+    __name(this, "PrintEventProfiling");
+  }
+  constructor() {
+    super({
+      id: "perf.event.profiling",
+      title: localize2("emitter", "Print Emitter Profiles"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run() {
+    if (EventProfiling.all.size === 0) {
+      console.log("USE `EmitterOptions._profName` to enable profiling");
+      return;
+    }
+    for (const item of EventProfiling.all) {
+      console.log(`${item.name}: ${item.invocationCount} invocations COST ${item.elapsedOverall}ms, ${item.listenerCount} listeners, avg cost is ${item.durations.reduce((a, b) => a + b, 0) / item.durations.length}ms`);
+    }
+  }
+});
+Registry.as(Extensions.Workbench).registerWorkbenchContribution(
+  InputLatencyContrib,
+  4
+  /* LifecyclePhase.Eventually */
+);
+let DisposableTracking = class DisposableTracking2 {
+  static {
+    __name(this, "DisposableTracking");
+  }
+  static {
+    this.Id = "perf.disposableTracking";
+  }
+  constructor(envService) {
+    if (!envService.isBuilt && !envService.extensionTestsLocationURI) {
+      setDisposableTracker(new GCBasedDisposableTracker());
+    }
+  }
+};
+DisposableTracking = __decorate([
+  __param(0, IEnvironmentService)
+], DisposableTracking);
+registerWorkbenchContribution2(
+  DisposableTracking.Id,
+  DisposableTracking,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+//# sourceMappingURL=performance.contribution.js.map

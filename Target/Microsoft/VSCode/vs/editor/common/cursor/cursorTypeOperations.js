@@ -1,1 +1,177 @@
-import{$_cb as E}from"../commands/shiftCommand.js";import{$bdb as x}from"../commands/surroundSelectionCommand.js";import{$Hbb as I,$Ibb as p}from"../cursorCommon.js";import{$fdb as $,$ddb as m,$edb as z,$cdb as y,$mdb as C,$gdb as c,$kdb as P,$idb as w,$ldb as O,$qdb as k,$sdb as v,$jdb as W,$hdb as A,$odb as U,$ndb as j,$rdb as q}from"./cursorTypeEditOperations.js";class _{static indent(t,d,e){if(d===null||e===null)return[];const n=[];for(let r=0,u=e.length;r<u;r++)n[r]=new E(e[r],{isUnshift:!1,tabSize:t.tabSize,indentSize:t.indentSize,insertSpaces:t.insertSpaces,useTabStops:t.useTabStops,autoIndent:t.autoIndent},t.languageConfigurationService);return n}static outdent(t,d,e){const n=[];for(let r=0,u=e.length;r<u;r++)n[r]=new E(e[r],{isUnshift:!0,tabSize:t.tabSize,indentSize:t.indentSize,insertSpaces:t.insertSpaces,useTabStops:t.useTabStops,autoIndent:t.autoIndent},t.languageConfigurationService);return n}static shiftIndent(t,d,e){return k(t,d,e)}static unshiftIndent(t,d,e){return q(t,d,e)}static paste(t,d,e,n,r,u){return O.getEdits(t,d,e,n,r,u)}static tab(t,d,e){return U.getCommands(t,d,e)}static compositionType(t,d,e,n,r,u,s,a){return C.getEdits(t,d,e,n,r,u,s,a)}static compositionEndWithInterceptors(t,d,e,n,r,u){if(!n)return null;let s=null;for(const l of n)if(s===null)s=l.insertedText;else if(s!==l.insertedText)return null;if(!s||s.length!==1)return c.getEdits(d,n);const a=s;let b=!1;for(const l of n)if(l.deletedText.length!==0){b=!0;break}if(b){if(!v(d,a)||!d.surroundingPairs.hasOwnProperty(a))return null;const l=p(a);for(const i of n)if(i.deletedSelectionStart!==0||i.deletedSelectionEnd!==i.deletedText.length||/^[ \t]+$/.test(i.deletedText)||l&&p(i.deletedText))return null;const f=[];for(const i of r){if(!i.isEmpty())return null;f.push(i.getPosition())}if(f.length!==n.length)return null;const S=[];for(let i=0,g=f.length;i<g;i++)S.push(new x(f[i],n[i].deletedText,d.surroundingPairs[a]));return new I(4,S,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1})}const o=z.getEdits(d,e,r,u,a);if(o!==void 0)return o;const h=$.getEdits(d,e,r,a,!0,!1);return h!==void 0?h:c.getEdits(d,n)}static typeWithInterceptors(t,d,e,n,r,u,s){const a=P.getEdits(e,n,r,s,t);if(a!==void 0)return a;const b=y.getEdits(e,n,r,s,t);if(b!==void 0)return b;const o=m.getEdits(d,e,n,r,u,s);if(o!==void 0)return o;const h=$.getEdits(e,n,r,s,!1,t);if(h!==void 0)return h;const l=A.getEdits(e,n,r,s,t);if(l!==void 0)return l;const f=w.getEdits(d,e,n,r,s,t);return f!==void 0?f:W.getEdits(e,d,r,s,t)}static typeWithoutInterceptors(t,d,e,n,r){return j.getEdits(t,n,r)}}class F{constructor(t,d,e,n,r,u,s){this.deletedText=t,this.deletedSelectionStart=d,this.deletedSelectionEnd=e,this.insertedText=n,this.insertedSelectionStart=r,this.insertedSelectionEnd=u,this.insertedTextRange=s}}export{_ as $tdb,F as $udb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ShiftCommand } from "../commands/shiftCommand.js";
+import { CompositionSurroundSelectionCommand } from "../commands/surroundSelectionCommand.js";
+import { EditOperationResult, isQuote } from "../cursorCommon.js";
+import { AutoClosingOpenCharTypeOperation, AutoClosingOvertypeOperation, AutoClosingOvertypeWithInterceptorsOperation, AutoIndentOperation, CompositionOperation, CompositionEndOvertypeOperation, EnterOperation, InterceptorElectricCharOperation, PasteOperation, shiftIndent, shouldSurroundChar, SimpleCharacterTypeOperation, SurroundSelectionOperation, TabOperation, TypeWithoutInterceptorsOperation, unshiftIndent } from "./cursorTypeEditOperations.js";
+class TypeOperations {
+  static {
+    __name(this, "TypeOperations");
+  }
+  static indent(config, model, selections) {
+    if (model === null || selections === null) {
+      return [];
+    }
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      commands[i] = new ShiftCommand(selections[i], {
+        isUnshift: false,
+        tabSize: config.tabSize,
+        indentSize: config.indentSize,
+        insertSpaces: config.insertSpaces,
+        useTabStops: config.useTabStops,
+        autoIndent: config.autoIndent
+      }, config.languageConfigurationService);
+    }
+    return commands;
+  }
+  static outdent(config, model, selections) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      commands[i] = new ShiftCommand(selections[i], {
+        isUnshift: true,
+        tabSize: config.tabSize,
+        indentSize: config.indentSize,
+        insertSpaces: config.insertSpaces,
+        useTabStops: config.useTabStops,
+        autoIndent: config.autoIndent
+      }, config.languageConfigurationService);
+    }
+    return commands;
+  }
+  static shiftIndent(config, indentation, count) {
+    return shiftIndent(config, indentation, count);
+  }
+  static unshiftIndent(config, indentation, count) {
+    return unshiftIndent(config, indentation, count);
+  }
+  static paste(config, model, selections, text, pasteOnNewLine, multicursorText) {
+    return PasteOperation.getEdits(config, model, selections, text, pasteOnNewLine, multicursorText);
+  }
+  static tab(config, model, selections) {
+    return TabOperation.getCommands(config, model, selections);
+  }
+  static compositionType(prevEditOperationType, config, model, selections, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta) {
+    return CompositionOperation.getEdits(prevEditOperationType, config, model, selections, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta);
+  }
+  /**
+   * This is very similar with typing, but the character is already in the text buffer!
+   */
+  static compositionEndWithInterceptors(prevEditOperationType, config, model, compositions, selections, autoClosedCharacters) {
+    if (!compositions) {
+      return null;
+    }
+    let insertedText = null;
+    for (const composition of compositions) {
+      if (insertedText === null) {
+        insertedText = composition.insertedText;
+      } else if (insertedText !== composition.insertedText) {
+        return null;
+      }
+    }
+    if (!insertedText || insertedText.length !== 1) {
+      return CompositionEndOvertypeOperation.getEdits(config, compositions);
+    }
+    const ch = insertedText;
+    let hasDeletion = false;
+    for (const composition of compositions) {
+      if (composition.deletedText.length !== 0) {
+        hasDeletion = true;
+        break;
+      }
+    }
+    if (hasDeletion) {
+      if (!shouldSurroundChar(config, ch) || !config.surroundingPairs.hasOwnProperty(ch)) {
+        return null;
+      }
+      const isTypingAQuoteCharacter = isQuote(ch);
+      for (const composition of compositions) {
+        if (composition.deletedSelectionStart !== 0 || composition.deletedSelectionEnd !== composition.deletedText.length) {
+          return null;
+        }
+        if (/^[ \t]+$/.test(composition.deletedText)) {
+          return null;
+        }
+        if (isTypingAQuoteCharacter && isQuote(composition.deletedText)) {
+          return null;
+        }
+      }
+      const positions = [];
+      for (const selection of selections) {
+        if (!selection.isEmpty()) {
+          return null;
+        }
+        positions.push(selection.getPosition());
+      }
+      if (positions.length !== compositions.length) {
+        return null;
+      }
+      const commands = [];
+      for (let i = 0, len = positions.length; i < len; i++) {
+        commands.push(new CompositionSurroundSelectionCommand(positions[i], compositions[i].deletedText, config.surroundingPairs[ch]));
+      }
+      return new EditOperationResult(4, commands, {
+        shouldPushStackElementBefore: true,
+        shouldPushStackElementAfter: false
+      });
+    }
+    const autoClosingOvertypeEdits = AutoClosingOvertypeWithInterceptorsOperation.getEdits(config, model, selections, autoClosedCharacters, ch);
+    if (autoClosingOvertypeEdits !== void 0) {
+      return autoClosingOvertypeEdits;
+    }
+    const autoClosingOpenCharEdits = AutoClosingOpenCharTypeOperation.getEdits(config, model, selections, ch, true, false);
+    if (autoClosingOpenCharEdits !== void 0) {
+      return autoClosingOpenCharEdits;
+    }
+    return CompositionEndOvertypeOperation.getEdits(config, compositions);
+  }
+  static typeWithInterceptors(isDoingComposition, prevEditOperationType, config, model, selections, autoClosedCharacters, ch) {
+    const enterEdits = EnterOperation.getEdits(config, model, selections, ch, isDoingComposition);
+    if (enterEdits !== void 0) {
+      return enterEdits;
+    }
+    const autoIndentEdits = AutoIndentOperation.getEdits(config, model, selections, ch, isDoingComposition);
+    if (autoIndentEdits !== void 0) {
+      return autoIndentEdits;
+    }
+    const autoClosingOverTypeEdits = AutoClosingOvertypeOperation.getEdits(prevEditOperationType, config, model, selections, autoClosedCharacters, ch);
+    if (autoClosingOverTypeEdits !== void 0) {
+      return autoClosingOverTypeEdits;
+    }
+    const autoClosingOpenCharEdits = AutoClosingOpenCharTypeOperation.getEdits(config, model, selections, ch, false, isDoingComposition);
+    if (autoClosingOpenCharEdits !== void 0) {
+      return autoClosingOpenCharEdits;
+    }
+    const surroundSelectionEdits = SurroundSelectionOperation.getEdits(config, model, selections, ch, isDoingComposition);
+    if (surroundSelectionEdits !== void 0) {
+      return surroundSelectionEdits;
+    }
+    const interceptorElectricCharOperation = InterceptorElectricCharOperation.getEdits(prevEditOperationType, config, model, selections, ch, isDoingComposition);
+    if (interceptorElectricCharOperation !== void 0) {
+      return interceptorElectricCharOperation;
+    }
+    return SimpleCharacterTypeOperation.getEdits(config, prevEditOperationType, selections, ch, isDoingComposition);
+  }
+  static typeWithoutInterceptors(prevEditOperationType, config, model, selections, str) {
+    return TypeWithoutInterceptorsOperation.getEdits(prevEditOperationType, selections, str);
+  }
+}
+class CompositionOutcome {
+  static {
+    __name(this, "CompositionOutcome");
+  }
+  constructor(deletedText, deletedSelectionStart, deletedSelectionEnd, insertedText, insertedSelectionStart, insertedSelectionEnd, insertedTextRange) {
+    this.deletedText = deletedText;
+    this.deletedSelectionStart = deletedSelectionStart;
+    this.deletedSelectionEnd = deletedSelectionEnd;
+    this.insertedText = insertedText;
+    this.insertedSelectionStart = insertedSelectionStart;
+    this.insertedSelectionEnd = insertedSelectionEnd;
+    this.insertedTextRange = insertedTextRange;
+  }
+}
+export {
+  CompositionOutcome,
+  TypeOperations
+};
+//# sourceMappingURL=cursorTypeOperations.js.map

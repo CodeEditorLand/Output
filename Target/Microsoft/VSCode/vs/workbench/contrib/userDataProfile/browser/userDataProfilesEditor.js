@@ -1,1 +1,2090 @@
-import"./media/userDataProfilesEditor.css";import{$ as l,$F7 as A,$I8 as a,$E7 as Ae,$X7 as Le,$D8 as X,$B8 as L,$G8 as Ge}from"../../../../base/browser/dom.js";import{$Em as Ke,$Gm as De,$Hm as ke,$Jm as H}from"../../../../base/common/actions.js";import{$wf as B,Event as re}from"../../../../base/common/event.js";import{ThemeIcon as T}from"../../../../base/common/themables.js";import{localize as r}from"../../../../nls.js";import{$6hb as we,$5hb as Fe}from"../../../../platform/contextview/browser/contextView.js";import{$Lj as k}from"../../../../platform/instantiation/common/instantiation.js";import{$gp as Ye}from"../../../../platform/storage/common/storage.js";import{$op as Je}from"../../../../platform/telemetry/common/telemetry.js";import{$ou as Xe}from"../../../../platform/theme/common/themeService.js";import{$_o as v}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$tJb as Ze}from"../../../browser/parts/editor/editorPane.js";import{$1H as et}from"../../../common/editor/editorInput.js";import{$UQ as tt,$NQ as st,$MQ as it,$YQ as ot}from"../../../services/userDataProfile/common/userDataProfile.js";import{Sizing as nt,$s$ as rt}from"../../../../base/browser/ui/splitview/splitview.js";import{$k$ as xe,$n$ as lt,$l$ as at}from"../../../../base/browser/ui/button/button.js";import{$tib as j,$Aib as Ce,$Dib as ct,$Mib as dt,$Eib as ht,$Lib as ut}from"../../../../platform/theme/browser/defaultStyles.js";import{$Iq as x,$aq as S,$1p as ft}from"../../../../platform/theme/common/colorRegistry.js";import{$0yb as pt}from"../../../common/theme.js";import{$hqb as Re,$aqb as mt,$cqb as gt}from"../../../../platform/list/browser/listService.js";import{$r0 as bt}from"../../../../base/browser/ui/list/list.js";import{$Ed as Ne,$Dd as w,$Fd as wt,$Cd as We}from"../../../../base/common/lifecycle.js";import{$J$ as Ct}from"../../../../base/browser/ui/inputbox/inputBox.js";import{$Q0 as ye}from"../../../../base/browser/ui/toggle/toggle.js";import{$W9b as le,$X9b as yt}from"../../../services/userDataProfile/common/userDataProfileIcons.js";import{$mAc as It}from"../../../services/userDataProfile/browser/iconSelectBox.js";import{$C7 as $e}from"../../../../base/browser/keyboardEvent.js";import{$7ib as He,$8ib as Tt}from"../../../../platform/hover/browser/hover.js";import{$M0 as Pt,$K0 as Ee}from"../../../../base/browser/ui/selectBox/selectBox.js";import{URI as F}from"../../../../base/common/uri.js";import{$wH as Me}from"../../../../platform/progress/common/progress.js";import{$6c as Ie,$cd as M}from"../../../../base/common/types.js";import{$Eh as _e}from"../../../../base/common/resources.js";import{RenderIndentGuides as Be}from"../../../../base/browser/ui/tree/abstractTree.js";import{$qQb as Dt,$rQb as kt}from"../../../browser/labels.js";import{$Np as je}from"../../../../platform/dialogs/common/dialogs.js";import{$VH as xt}from"../../../../platform/quickinput/common/quickInput.js";import{$kHc as E,$jHc as $t,$iHc as Oe,$mHc as D,$lHc as y,$nHc as Et}from"./userDataProfilesEditorModel.js";import{$5ib as Y}from"../../../../platform/actions/browser/toolbar.js";import{$F9 as N,$E9 as qe}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$ak as R}from"../../../../base/common/codicons.js";import{$_$ as Ue}from"../../../../base/browser/ui/radio/radio.js";import{$ik as vt}from"../../../../base/common/htmlContent.js";import{$idc as St}from"../../preferences/common/settingsEditorColorRegistry.js";import{$S9 as At}from"../../../../base/browser/markdownRenderer.js";import{$0o as W}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$lH as ze}from"../../../../platform/label/common/label.js";import{Schemas as Lt}from"../../../../base/common/network.js";import{$6 as Ft,$5 as Rt}from"../../../../base/common/path.js";import{$ch as Nt}from"../../../../base/common/extpath.js";import{$Om as ve}from"../../../../base/common/labels.js";import{$G9 as Wt}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$eu as Ve}from"../../../../platform/theme/common/iconRegistry.js";import{$M$ as Ht}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";var I=function(g,e,t,s){var i=arguments.length,o=i<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(g,e,t,s);else for(var d=g.length-1;d>=0;d--)(n=g[d])&&(o=(i<3?n(o):i>3?n(e,t,o):n(e,t))||o);return i>3&&o&&Object.defineProperty(e,t,o),o},m=function(g,e){return function(t,s){e(t,s,g)}},Z,ee,te,se,ie,oe,ne,_;const Mt=Ve("profiles-editor-edit-folder",R.edit,r(14358,null)),_t=Ve("profiles-editor-remove-folder",R.close,r(14359,null)),Bt=ft("profiles.sashBorder",pt,r(14360,null)),Te=ut({listActiveSelectionBackground:x,listActiveSelectionForeground:S,listFocusAndSelectionBackground:x,listFocusAndSelectionForeground:S,listFocusBackground:x,listFocusForeground:S,listHoverForeground:S,listHoverBackground:x,listHoverOutline:x,listFocusOutline:x,listInactiveSelectionBackground:x,listInactiveSelectionForeground:S,listInactiveFocusBackground:x,listInactiveFocusOutline:x,treeIndentGuidesStroke:void 0,treeInactiveIndentGuidesStroke:void 0,tableOddRowsBackgroundColor:x});let Se=class extends Ze{static{Z=this}static{this.ID="workbench.editor.userDataProfiles"}constructor(e,t,s,i,o,n,d,p){super(Z.ID,e,t,s,i),this.r=o,this.s=n,this.u=d,this.w=p,this.m=[]}layout(e,t){if(this.c&&this.f){const s=e.height-20;this.f.layout(this.c?.clientWidth,s),this.f.el.style.height=`${s}px`}}bb(e){this.c=a(e,l(".profiles-editor"));const t=a(this.c,l(".sidebar-view")),s=a(t,l(".sidebar-container")),i=a(this.c,l(".contents-view")),o=a(i,l(".contents-container"));this.h=this.D(this.w.createInstance(ce,o)),this.f=new rt(this.c,{orientation:1,proportionalLayout:!0}),this.fb(s),this.f.addView({onDidChange:re.None,element:t,minimumSize:200,maximumSize:350,layout:(n,d,p)=>{if(t.style.width=`${n}px`,p&&this.g){const c=p-40-15;this.g.getHTMLElement().style.height=`${c}px`,this.g.layout(c,n)}}},300,void 0,!0),this.f.addView({onDidChange:re.None,element:i,minimumSize:550,maximumSize:Number.POSITIVE_INFINITY,layout:(n,d,p)=>{i.style.width=`${n}px`,p&&this.h?.layout(new Le(n,p))}},nt.Distribute,void 0,!0),this.ib(),this.updateStyles()}updateStyles(){const e=this.n.getColor(Bt);this.f?.style({separatorBorder:e})}fb(e){this.gb(a(e,l(".new-profile-button")));const t=this.w.createInstance(ae),s=new jt;this.g=this.D(this.w.createInstance(mt,"ProfilesList",a(e,l(".profiles-list")),s,[t],{multipleSelectionSupport:!1,setRowLineHeight:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(i){return i?.name??""},getWidgetAriaLabel(){return r(14361,null)}},openOnSingleClick:!0,identityProvider:{getId(i){return i instanceof y?i.profile.id:i.name}},alwaysConsumeMouseWheel:!1}))}gb(e){const t=this.D(new at(e,{actions:{getActions:()=>{const s=[];return this.m.length&&(s.push(new ke("from.template",r(14362,null),this.hb())),s.push(new De)),s.push(H({id:"importProfile",label:r(14363,null),run:()=>this.kb()})),s}},addPrimaryActionToDropdown:!1,contextMenuProvider:this.u,supportIcons:!0,...j}));t.label=r(14364,null),this.D(t.onDidClick(s=>this.createNewProfile()))}hb(){return this.m.map(e=>H({id:`template:${e.url}`,label:e.name,run:()=>this.createNewProfile(F.parse(e.url))}))}ib(){this.g&&(this.D(this.g.onDidChangeSelection(e=>{const[t]=e.elements;t instanceof E&&this.h?.render(t)})),this.D(this.g.onContextMenu(e=>{const t=[];e.element||t.push(...this.jb()),e.element instanceof E&&t.push(...e.element.actions[1]),t.length&&this.u.showContextMenu({getAnchor:()=>e.anchor,getActions:()=>t,getActionsContext:()=>e.element})})),this.D(this.g.onMouseDblClick(e=>{e.element||this.createNewProfile()})))}jb(){const e=[];e.push(H({id:"newProfile",label:r(14365,null),run:()=>this.createNewProfile()}));const t=this.hb();return t.length&&e.push(new ke("from.template",r(14366,null),t)),e.push(new De),e.push(H({id:"importProfile",label:r(14367,null),run:()=>this.kb()})),e}async kb(){const e=new w,t=e.add(this.r.createQuickPick()),s=i=>{const o=[];i&&o.push({label:t.value,description:r(14368,null)}),o.push({label:r(14369,null)}),t.items=o};t.title=r(14370,null),t.placeholder=r(14371,null),t.ignoreFocusOut=!0,e.add(t.onDidChangeValue(s)),s(),t.matchOnLabel=!1,t.matchOnDescription=!1,e.add(t.onDidAccept(async()=>{t.hide();const i=t.selectedItems[0];if(!i)return;const o=i.label===t.value?F.parse(t.value):await this.lb();o&&this.createNewProfile(o)})),e.add(t.onDidHide(()=>e.dispose())),t.show()}async createNewProfile(e){await this.j?.createNewProfile(e)}selectProfile(e){const t=this.j?.profiles.findIndex(s=>s instanceof y&&s.profile.id===e.id);t!==void 0&&t>=0&&this.g?.setSelection([t])}async lb(){const e=await this.s.showOpenDialog({canSelectFolders:!1,canSelectFiles:!0,canSelectMany:!1,filters:ot,title:r(14372,null)});return e?e[0]:null}async setInput(e,t,s,i){await super.setInput(e,t,s,i),this.j=await e.resolve(),this.j.getTemplates().then(o=>{this.m=o,this.h&&(this.h.templates=o)}),this.mb(),this.D(this.j.onDidChange(o=>this.mb(o)))}focus(){super.focus(),this.g?.domFocus()}mb(e){if(!this.j)return;const t=this.g?.getSelection()?.[0],s=t!==void 0?this.g?.element(t):void 0;if(this.g?.splice(0,this.g.length,this.j.profiles),e)this.g?.setSelection([this.j.profiles.indexOf(e)]);else if(s){if(!this.j.profiles.includes(s)){const i=this.j.profiles.find(o=>o.name===s.name)??this.j.profiles[0];i&&this.g?.setSelection([this.j.profiles.indexOf(i)])}}else{const i=this.j.profiles.find(o=>o.active)??this.j.profiles[0];i&&this.g?.setSelection([this.j.profiles.indexOf(i)])}}};Se=Z=I([m(1,Je),m(2,Xe),m(3,Ye),m(4,xt),m(5,je),m(6,we),m(7,k)],Se);class jt{getHeight(e){return 22}getTemplateId(){return"profileListElement"}}let ae=class{constructor(e){this.c=e,this.templateId="profileListElement"}renderTemplate(e){const t=new w,s=new w;e.classList.add("profile-list-item");const i=a(e,l(".profile-list-item-icon")),o=a(e,l(".profile-list-item-label")),n=a(e,l(`span${T.asCSSSelector(R.circleFilled)}`)),d=a(e,l(".profile-list-item-description"));a(d,l(`span${T.asCSSSelector(R.check)}`),l("span",void 0,r(14373,null)));const p=a(e,l(".profile-tree-item-actions-container")),c=t.add(this.c.createInstance(Y,p,{hoverDelegate:t.add(N()),highlightToggledItems:!0}));return{label:o,icon:i,dirty:n,description:d,actionBar:c,disposables:t,elementDisposables:s}}renderElement(e,t,s){s.elementDisposables.clear(),s.label.textContent=e.name,s.label.classList.toggle("new-profile",e instanceof D),s.icon.className=T.asClassName(e.icon?T.fromId(e.icon):le),s.dirty.classList.toggle("hide",!(e instanceof D)),s.description.classList.toggle("hide",!e.active),s.elementDisposables.add(e.onDidChange(n=>{n.name&&(s.label.textContent=e.name),n.icon&&(e.icon?s.icon.className=T.asClassName(T.fromId(e.icon)):s.icon.className="hide"),n.active&&s.description.classList.toggle("hide",!e.active)}));const i=()=>s.actionBar.setActions(e.actions[0].filter(n=>n.enabled),e.actions[1].filter(n=>n.enabled));i();const o=[];for(const n of e.actions.flat())n instanceof Ke&&o.push(n.onDidChange);s.elementDisposables.add(re.any(...o)(n=>{n.enabled!==void 0&&i()}))}disposeElement(e,t,s){s.elementDisposables.clear()}disposeTemplate(e){e.disposables.dispose(),e.elementDisposables.dispose()}};ae=I([m(0,k)],ae);let ce=class extends Ne{set templates(e){this.j.setTemplates(e),this.h.rerender()}constructor(e,t,s){super(),this.q=t,this.r=s,this.m=this.D(new wt),this.n=[];const i=a(e,l(".profile-header")),o=a(i,l(".profile-title-container"));this.c=a(o,l(""));const n=a(e,l(".profile-body")),d=new Ot,p=this.D(this.r.createInstance(me)),c=this.D(this.r.createInstance(ge));this.n.push(c),this.j=this.D(this.r.createInstance(pe)),this.f=a(n,l(".profile-tree")),this.h=this.D(this.r.createInstance(Re,"ProfileEditor-Tree",this.f,d,[this.D(this.r.createInstance(he)),this.D(this.r.createInstance(ue)),this.D(this.r.createInstance(fe)),this.D(this.r.createInstance(zt)),this.j,p,c],this.r.createInstance(qt),{multipleSelectionSupport:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(u){return u?.element??""},getWidgetAriaLabel(){return""}},identityProvider:{getId(u){return u.element}},expandOnlyOnTwistieClick:!0,renderIndentGuides:Be.None,enableStickyScroll:!1,openOnSingleClick:!1,setRowLineHeight:!1,supportDynamicHeights:!0,alwaysConsumeMouseWheel:!1})),this.h.style(Te),this.D(p.onDidChangeContentHeight(u=>this.h.updateElementHeight(u,void 0))),this.D(c.onDidChangeContentHeight(u=>this.h.updateElementHeight(u,void 0))),this.D(p.onDidChangeSelection(u=>{u.selected&&(this.h.setFocus([]),this.h.setSelection([]))})),this.D(this.h.onDidChangeContentHeight(u=>{this.s&&this.layout(this.s)})),this.D(this.h.onDidChangeSelection(u=>{u.elements.length&&p.clearSelection()})),this.g=a(n,l(".profile-row-container.profile-button-container"))}layout(e){this.s=e;const t=this.h.contentHeight,s=Math.min(t,e.height-(this.m.value?.element instanceof D?116:54));this.f.style.height=`${s}px`,this.h.layout(s,e.width);for(const i of this.n)i.layout()}render(e){if(this.m.value?.element===e)return;this.m.value?.element instanceof y&&this.m.value.element.reset(),this.h.setInput(e);const t=new w;this.m.value={element:e,dispose:()=>t.dispose()},this.c.textContent=e.name,t.add(e.onDidChange(o=>{o.name&&(this.c.textContent=e.name)}));const[s,i]=e.titleButtons;if(s?.length||i?.length){if(this.g.classList.remove("hide"),i?.length)for(const o of i){const n=t.add(new xe(this.g,{...j,secondary:!0}));n.label=o.label,n.enabled=o.enabled,t.add(n.onDidClick(()=>this.q.showWhile(o.run()))),t.add(o.onDidChange(d=>{M(d.enabled)||(n.enabled=o.enabled),M(d.label)||(n.label=o.label)}))}if(s?.length)for(const o of s){const n=t.add(new xe(this.g,{...j}));n.label=o.label,n.enabled=o.enabled,t.add(n.onDidClick(()=>this.q.showWhile(o.run()))),t.add(o.onDidChange(d=>{M(d.enabled)||(n.enabled=o.enabled),M(d.label)||(n.label=o.label)})),t.add(e.onDidChange(d=>{d.message&&(n.setTitle(e.message??o.label),n.element.classList.toggle("error",!!e.message))}))}}else this.g.classList.add("hide");e instanceof D&&this.h.focusFirst(),this.s&&this.layout(this.s)}};ce=I([m(1,Me),m(2,k)],ce);class Ot extends bt{getTemplateId({element:e}){return e}hasDynamicHeight({element:e}){return e==="contents"||e==="workspaces"}d({element:e,root:t}){switch(e){case"name":return 72;case"icon":return 68;case"copyFrom":return 90;case"useForCurrent":case"useAsDefault":return 68;case"contents":return 258;case"workspaces":return(t.workspaces?t.workspaces.length*24+30:0)+112}}}class qt{hasChildren(e){return e instanceof E}async getChildren(e){if(e instanceof E){const t=[];return e instanceof D?(t.push({element:"name",root:e}),t.push({element:"icon",root:e}),t.push({element:"copyFrom",root:e}),t.push({element:"contents",root:e})):e instanceof y&&(e.profile.isDefault||(t.push({element:"name",root:e}),t.push({element:"icon",root:e})),t.push({element:"useAsDefault",root:e}),t.push({element:"contents",root:e}),t.push({element:"workspaces",root:e})),t}return[]}}class Ut{getTemplateId(e){return e.element.resourceType?e.root instanceof D?q.TEMPLATE_ID:O.TEMPLATE_ID:U.TEMPLATE_ID}getHeight(e){return 24}}let de=class{constructor(e){this.c=e}hasChildren(e){if(e instanceof E)return!0;if(e.element.resourceType){if(e.element.resourceType!=="extensions"&&e.element.resourceType!=="snippets")return!1;if(e.root instanceof D){const t=e.element.resourceType;if(e.root.getFlag(t))return!0;if(!e.root.hasResource(t)||e.root.copyFrom===void 0||!e.root.getCopyFlag(t))return!1}return!0}return!1}async getChildren(e){if(e instanceof E)return(await e.getChildren()).map(s=>({element:s,root:e}));if(e.element.resourceType){const t=this.c.show(!0,500);try{return(await e.root.getChildren(e.element.resourceType)).map(i=>({element:i,root:e.root}))}finally{t.done()}}return[]}};de=I([m(0,Me)],de);class J extends Ne{c(e){switch(e){case"settings":return r(14374,null);case"keybindings":return r(14375,null);case"snippets":return r(14376,null);case"tasks":return r(14377,null);case"mcp":return r(14378,null);case"extensions":return r(14379,null)}return""}disposeElement(e,t,s){s.elementDisposables.clear()}disposeTemplate(e){e.disposables.dispose()}}class $ extends J{renderElement({element:e},t,s){s.elementDisposables.clear(),s.element=e}}let he=class extends ${constructor(e,t){super(),this.f=e,this.g=t,this.templateId="name"}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14380,null)));const n=t.add(new Ct(o,this.g,{inputBoxStyles:ht({inputBorder:St}),ariaLabel:r(14381,null),placeholder:r(14382,null),validationOptions:{validation:c=>{if(!c)return{content:r(14383,null),type:2};if(i?.root.disabled||!i?.root.shouldValidateName())return null;const u=i?.root.getInitialName();return c=c.trim(),u!==c&&this.f.profiles.some(b=>!b.isTransient&&b.name===c)?{content:r(14384,null,c),type:2}:null}}}));t.add(n.onDidChange(c=>{i&&c&&(i.root.name=c)}));const d=t.add(Ge(n.inputElement));t.add(d.onDidBlur(()=>{i&&!n.value&&(n.value=i.root.name)}));const p=c=>{n.value=c.root.name,n.validate();const u=c.root instanceof y&&c.root.profile.isDefault;c.root.disabled||u?n.disable():n.enable(),u?n.setTooltip(r(14385,null)):n.setTooltip(r(14386,null))};return{set element(c){i=c,p(i),s.add(i.root.onDidChange(u=>{(u.name||u.disabled)&&p(c),u.profile&&n.validate()}))},disposables:t,elementDisposables:s}}};he=I([m(0,v),m(1,Fe)],he);let ue=class extends ${constructor(e,t){super(),this.g=e,this.h=t,this.templateId="icon",this.f=qe("element")}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14387,null)));const n=a(o,l(".profile-icon-container")),d=a(n,l(`${T.asCSSSelector(le)}`,{tabindex:"0",role:"button","aria-label":r(14388,null)})),p=t.add(this.h.setupManagedHover(this.f,d,"")),c=t.add(this.g.createInstance(It,{icons:yt,inputBoxStyles:ct}));let u;const b=()=>{i?.root instanceof y&&i.root.profile.isDefault||i?.root.disabled||i?.root instanceof y&&i.root.profile.isDefault||(c.clearInput(),u=this.h.showInstantHover({content:c.domNode,target:d,position:{hoverPosition:2},persistence:{sticky:!0},appearance:{showPointer:!0}},!0),u&&(c.layout(new Le(486,292)),c.focus()))};t.add(A(d,L.CLICK,h=>{X.stop(h,!0),b()})),t.add(A(d,L.KEY_DOWN,h=>{const f=new $e(h);(f.equals(3)||f.equals(10))&&(X.stop(f,!0),b())})),t.add(A(c.domNode,L.KEY_DOWN,h=>{const f=new $e(h);f.equals(9)&&(X.stop(f,!0),u?.dispose(),d.focus())})),t.add(c.onDidSelect(h=>{u?.dispose(),d.focus(),i&&(i.root.icon=h.id)})),a(n,l(".profile-description-element",void 0,r(14389,null)));const C=h=>{h?.root instanceof y&&h.root.profile.isDefault?(n.classList.add("disabled"),p.update(r(14390,null))):(p.update(r(14391,null)),n.classList.remove("disabled")),h.root.icon?d.className=T.asClassName(T.fromId(h.root.icon)):d.className=T.asClassName(T.fromId(le.id))};return{set element(h){i=h,C(i),s.add(i.root.onDidChange(f=>{f.icon&&C(h)}))},disposables:t,elementDisposables:s}}};ue=I([m(0,k),m(1,He)],ue);let fe=class extends ${constructor(e){super(),this.f=e,this.templateId="useForCurrent"}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14392,null)));const n=a(o,l(".profile-use-for-current-container")),d=r(14393,null),p=t.add(new ye(d,!1,Ce));a(n,p.domNode);const c=a(n,l(".profile-description-element",void 0,d));t.add(p.onChange(()=>{i?.root instanceof y&&i.root.toggleCurrentWindowProfile()})),t.add(A(c,L.CLICK,()=>{i?.root instanceof y&&i.root.toggleCurrentWindowProfile()}));const u=C=>{p.checked=C.root instanceof y&&this.f.currentProfile.id===C.root.profile.id,p.checked&&this.f.currentProfile.isDefault?p.disable():p.enable()},b=this;return{set element(C){i=C,u(i),s.add(b.f.onDidChangeCurrentProfile(h=>{u(C)}))},disposables:t,elementDisposables:s}}};fe=I([m(0,it)],fe);class zt extends ${constructor(){super(...arguments),this.templateId="useAsDefault"}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14394,null)));const n=a(o,l(".profile-use-as-default-container")),d=r(14395,null),p=t.add(new ye(d,!1,Ce));a(n,p.domNode);const c=a(n,l(".profile-description-element",void 0,d));t.add(p.onChange(()=>{i?.root instanceof y&&i.root.toggleNewWindowProfile()})),t.add(A(c,L.CLICK,()=>{i?.root instanceof y&&i.root.toggleNewWindowProfile()}));const u=b=>{p.checked=b.root instanceof y&&b.root.isNewWindowProfile};return{set element(b){i=b,u(i),s.add(i.root.onDidChange(C=>{C.newWindowProfile&&u(b)}))},disposables:t,elementDisposables:s}}}let pe=class extends ${constructor(e,t,s,i){super(),this.g=e,this.h=t,this.j=s,this.m=i,this.templateId="copyFrom",this.f=[]}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container.profile-copy-from-container"));a(o,l(".profile-label-element",void 0,r(14396,null))),a(o,l(".profile-description-element",void 0,r(14397,null)));const n=t.add(this.h.createInstance(Pt,[],0,this.m,dt,{useCustomDrawn:!0,ariaLabel:r(14398,null)}));n.render(a(o,l(".profile-select-container")));const d=(c,u)=>{n.setOptions(u);const b=c.copyFrom instanceof F?c.copyFrom.toString():c.copyFrom?.id,C=b?u.findIndex(h=>h.id===b):0;n.select(C)},p=this;return{set element(c){if(i=c,i.root instanceof D){const u=i.root;let b=p.n(u);d(u,b),n.setEnabled(!u.previewProfile&&!u.disabled),s.add(i.root.onDidChange(C=>{(C.copyFrom||C.copyFromInfo)&&(b=p.n(u),d(u,b)),(C.preview||C.disabled)&&n.setEnabled(!u.previewProfile&&!u.disabled)})),s.add(n.onDidSelect(C=>{u.copyFrom=b[C.index].source}))}},disposables:t,elementDisposables:s}}setTemplates(e){this.f=e}n(e){const t=[];t.push({text:r(14399,null)});for(const[s,i]of e.copyFromTemplates)this.f.some(o=>this.j.extUri.isEqual(F.parse(o.url),s))||t.push({text:`${i} (${_e(s)})`,id:s.toString(),source:s});if(this.f.length){t.push({...Ee,decoratorRight:r(14400,null)});for(const s of this.f)t.push({text:s.name,id:s.url,source:F.parse(s.url)})}t.push({...Ee,decoratorRight:r(14401,null)});for(const s of this.g.profiles)s.isTransient||t.push({text:s.name,id:s.id,source:s});return t}};pe=I([m(0,v),m(1,k),m(2,W),m(3,Fe)],pe);let me=class extends ${constructor(e,t,s){super(),this.j=e,this.m=t,this.n=s,this.templateId="contents",this.f=this.D(new B),this.onDidChangeContentHeight=this.f.event,this.g=this.D(new B),this.onDidChangeSelection=this.g.event}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14402,null)));const n=a(o,l(".profile-description-element")),d=a(o,l(".profile-content-tree-header")),p=l(".options-header",void 0,l("span",void 0,r(14403,null)));a(d,l(""),l("",void 0,r(14404,null)),p,l(""));const c=new Ut,u=this.h=t.add(this.n.createInstance(Re,"ProfileEditor-ContentsTree",a(o,l(".profile-content-tree.file-icon-themable-tree.show-file-icons")),c,[this.n.createInstance(O),this.n.createInstance(q),this.n.createInstance(U)],this.n.createInstance(de),{multipleSelectionSupport:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(h){return(h?.element).resourceType?(h?.element).resourceType:(h?.element).label?(h?.element).label:""},getWidgetAriaLabel(){return""}},identityProvider:{getId(h){return h?.element.handle?h.element.handle:""}},expandOnlyOnTwistieClick:!0,renderIndentGuides:Be.None,enableStickyScroll:!1,openOnSingleClick:!1,alwaysConsumeMouseWheel:!1}));this.h.style(Te),t.add(We(()=>this.h=void 0)),t.add(this.h.onDidChangeContentHeight(h=>{this.h?.layout(h),i&&this.f.fire(i)})),t.add(this.h.onDidChangeSelection((h=>{i&&this.g.fire({element:i,selected:!!h.elements.length})}))),t.add(this.h.onDidOpen(async h=>{h.browserEvent&&h.element?.element.openAction&&await h.element.element.openAction.run()})),t.add(this.h.onContextMenu(async h=>{h.element?.element.actions?.contextMenu?.length&&this.m.showContextMenu({getAnchor:()=>h.anchor,getActions:()=>h.element?.element?.actions?.contextMenu??[],getActionsContext:()=>h.element})}));const b=h=>{Ae(n);const f=new vt;if(h.root instanceof y&&h.root.profile.isDefault)f.appendMarkdown(r(14405,null));else if(f.appendMarkdown(r(14406,null)),h.root instanceof D){const P=h.root.getCopyFromName(),Pe=P===this.j.defaultProfile.name?r(14407,null,P):P;Pe&&f.appendMarkdown(r(14408,null,Pe,P)),f.appendMarkdown(r(14409,null)).appendMarkdown(r(14410,null))}a(n,s.add(At(f)).element)},C=this;return{set element(h){i=h,b(h),h.root instanceof D?d.classList.remove("default-profile"):h.root instanceof y&&d.classList.toggle("default-profile",h.root.profile.isDefault),u.setInput(i.root),s.add(i.root.onDidChange(f=>{(f.copyFrom||f.copyFlags||f.flags||f.extensions||f.snippets||f.preview)&&u.updateChildren(h.root),f.copyFromInfo&&(b(h),C.f.fire(h))}))},disposables:t,elementDisposables:s}}clearSelection(){this.h&&(this.h.setSelection([]),this.h.setFocus([]))}};me=I([m(0,v),m(1,we),m(2,k)],me);let ge=class extends ${constructor(e,t,s,i){super(),this.j=e,this.m=t,this.n=s,this.q=i,this.templateId="workspaces",this.f=this.D(new B),this.onDidChangeContentHeight=this.f.event,this.g=this.D(new B),this.onDidChangeSelection=this.g.event}renderTemplate(e){const t=new w,s=t.add(new w);let i;const o=a(e,l(".profile-row-container"));a(o,l(".profile-label-element",void 0,r(14411,null)));const n=a(o,l(".profile-description-element")),d=a(o,l(".profile-associations-table")),p=this.h=t.add(this.q.createInstance(gt,"ProfileEditor-AssociationsTable",d,new class{constructor(){this.headerRowHeight=30}getHeight(){return 24}},[{label:"",tooltip:"",weight:1,minimumWidth:30,maximumWidth:30,templateId:z.TEMPLATE_ID,project(f){return f}},{label:r(14412,null),tooltip:"",weight:2,templateId:V.TEMPLATE_ID,project(f){return f}},{label:r(14413,null),tooltip:"",weight:7,templateId:Q.TEMPLATE_ID,project(f){return f}},{label:"",tooltip:"",weight:1,minimumWidth:84,maximumWidth:84,templateId:K.TEMPLATE_ID,project(f){return f}}],[new z,this.q.createInstance(V),this.q.createInstance(Q),this.q.createInstance(K)],{horizontalScrolling:!1,alwaysConsumeMouseWheel:!1,openOnSingleClick:!1,multipleSelectionSupport:!1,accessibilityProvider:{getAriaLabel:f=>{const P=Qe(this.j,f.workspace);return P===void 0||P.length===0?r(14414,null,this.j.getUriLabel(f.workspace)):r(14415,null,this.j.getUriLabel(f.workspace),P)},getWidgetAriaLabel:()=>r(14416,null)},identityProvider:{getId(f){return f.workspace.toString()}}}));this.h.style(Te),t.add(We(()=>this.h=void 0)),t.add(this.h.onDidChangeSelection((f=>{i&&this.g.fire({element:i,selected:!!f.elements.length})})));const c=a(o,l(".profile-workspaces-button-container")),u=t.add(new lt(c)),b=this.D(u.addButton({title:r(14417,null),...j}));b.label=r(14418,null),t.add(b.onDidClick(async()=>{const f=await this.n.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!0,openLabel:r(14419,null),title:r(14420,null)});f&&i?.root instanceof y&&i.root.updateWorkspaces(f,[])})),t.add(p.onDidOpen(f=>{f?.element&&f.element.profileElement.openWorkspace(f.element.workspace)}));const C=()=>{i?.root instanceof y&&i.root.workspaces?.length?(n.textContent=r(14421,null),d.classList.remove("hide"),p.splice(0,p.length,i.root.workspaces.map(f=>({workspace:f,profileElement:i.root})).sort((f,P)=>this.m.extUri.compare(f.workspace,P.workspace))),this.layout()):(n.textContent=r(14422,null),d.classList.add("hide"))},h=this;return{set element(f){i=f,f.root instanceof y&&C(),s.add(i.root.onDidChange(P=>{i&&P.workspaces&&(C(),h.f.fire(i))}))},disposables:t,elementDisposables:s}}layout(){this.h&&this.h.layout(this.h.length*24+30,void 0)}clearSelection(){this.h&&(this.h.setSelection([]),this.h.setFocus([]))}};ge=I([m(0,ze),m(1,W),m(2,je),m(3,k)],ge);let O=class extends J{static{ee=this}static{this.TEMPLATE_ID="ExistingProfileResourceTemplate"}constructor(e){super(),this.f=e,this.templateId=ee.TEMPLATE_ID}renderTemplate(e){const t=new w,s=a(e,l(".profile-tree-item-container.existing-profile-resource-type-container")),i=a(s,l(".profile-resource-type-label")),o=t.add(new Ue({items:[]}));a(a(s,l(".profile-resource-options-container")),o.domNode);const n=a(s,l(".profile-resource-actions-container")),d=t.add(this.f.createInstance(Y,n,{hoverDelegate:t.add(N()),highlightToggledItems:!0}));return{label:i,radio:o,actionBar:d,disposables:t,elementDisposables:t.add(new w)}}renderElement({element:e},t,s){s.elementDisposables.clear();const{element:i,root:o}=e;if(!(o instanceof y))throw new Error("ExistingProfileResourceTreeRenderer can only render existing profile element");if(Ie(i)||!Oe(i))throw new Error("Invalid profile resource element");const n=()=>{s.radio.setItems([{text:r(14423,null),tooltip:r(14424,null,d),isActive:o.getFlag(i.resourceType)},{text:o.name,tooltip:r(14425,null,d,o.name),isActive:!o.getFlag(i.resourceType)}])},d=this.c(i.resourceType);s.label.textContent=d,o instanceof y&&o.profile.isDefault?s.radio.domNode.classList.add("hide"):(s.radio.domNode.classList.remove("hide"),n(),s.elementDisposables.add(o.onDidChange(c=>{c.name&&n()})),s.elementDisposables.add(s.radio.onDidSelect(c=>o.setFlag(i.resourceType,c===0))));const p=[];i.openAction&&p.push(i.openAction),i.actions?.primary&&p.push(...i.actions.primary),s.actionBar.setActions(p)}};O=ee=I([m(0,k)],O);let q=class extends J{static{te=this}static{this.TEMPLATE_ID="NewProfileResourceTemplate"}constructor(e,t){super(),this.f=e,this.g=t,this.templateId=te.TEMPLATE_ID}renderTemplate(e){const t=new w,s=a(e,l(".profile-tree-item-container.new-profile-resource-type-container")),i=a(s,l(".profile-resource-type-label-container")),o=a(i,l("span.profile-resource-type-label")),n=t.add(new Ue({items:[]}));a(a(s,l(".profile-resource-options-container")),n.domNode);const d=a(s,l(".profile-resource-actions-container")),p=t.add(this.g.createInstance(Y,d,{hoverDelegate:t.add(N()),highlightToggledItems:!0}));return{label:o,radio:n,actionBar:p,disposables:t,elementDisposables:t.add(new w)}}renderElement({element:e},t,s){s.elementDisposables.clear();const{element:i,root:o}=e;if(!(o instanceof D))throw new Error("NewProfileResourceTreeRenderer can only render new profile element");if(Ie(i)||!Oe(i))throw new Error("Invalid profile resource element");const n=this.c(i.resourceType);s.label.textContent=n;const d=()=>{const c=[{text:r(14426,null),tooltip:r(14427,null,n)},{text:r(14428,null),tooltip:r(14429,null,n)}],u=o.getCopyFromName(),b=u===this.f.defaultProfile.name?r(14430,null,u):u;o.copyFrom&&b?(s.radio.setItems([{text:b,tooltip:b?r(14431,null,n,b):r(14432,null)},...c]),s.radio.setActiveItem(o.getCopyFlag(i.resourceType)?0:o.getFlag(i.resourceType)?1:2)):(s.radio.setItems(c),s.radio.setActiveItem(o.getFlag(i.resourceType)?0:1))};o.copyFrom?s.elementDisposables.add(s.radio.onDidSelect(c=>{o.setFlag(i.resourceType,c===1),o.setCopyFlag(i.resourceType,c===0)})):s.elementDisposables.add(s.radio.onDidSelect(c=>{o.setFlag(i.resourceType,c===0)})),d(),s.radio.setEnabled(!o.disabled&&!o.previewProfile),s.elementDisposables.add(o.onDidChange(c=>{(c.disabled||c.preview)&&s.radio.setEnabled(!o.disabled&&!o.previewProfile),(c.copyFrom||c.copyFromInfo)&&d()}));const p=[];i.openAction&&p.push(i.openAction),i.actions?.primary&&p.push(...i.actions.primary),s.actionBar.setActions(p)}};q=te=I([m(0,v),m(1,k)],q);let U=class extends J{static{se=this}static{this.TEMPLATE_ID="ProfileResourceChildTreeItemTemplate"}constructor(e){super(),this.h=e,this.templateId=se.TEMPLATE_ID,this.f=e.createInstance(kt,Dt),this.g=this.D(e.createInstance(Tt,"mouse",void 0,{}))}renderTemplate(e){const t=new w,s=a(e,l(".profile-tree-item-container.profile-resource-child-container")),i=t.add(new ye("",!1,Ce));a(s,i.domNode);const o=t.add(this.f.create(s,{hoverDelegate:this.g})),n=a(s,l(".profile-resource-actions-container")),d=t.add(this.h.createInstance(Y,n,{hoverDelegate:t.add(N()),highlightToggledItems:!0}));return{checkbox:i,resourceLabel:o,actionBar:d,disposables:t,elementDisposables:t.add(new w)}}renderElement({element:e},t,s){s.elementDisposables.clear();const{element:i}=e;if(Ie(i)||!$t(i))throw new Error("Invalid profile resource element");i.checkbox?(s.checkbox.domNode.setAttribute("tabindex","0"),s.checkbox.domNode.classList.remove("hide"),s.checkbox.checked=i.checkbox.isChecked,s.checkbox.domNode.ariaLabel=i.checkbox.accessibilityInformation?.label??"",i.checkbox.accessibilityInformation?.role&&(s.checkbox.domNode.role=i.checkbox.accessibilityInformation.role)):(s.checkbox.domNode.removeAttribute("tabindex"),s.checkbox.domNode.classList.add("hide")),s.resourceLabel.setResource({name:i.resource?_e(i.resource):i.label,description:i.description,resource:i.resource},{forceLabel:!0,icon:i.icon,hideIcon:!i.resource&&!i.icon});const o=[];i.openAction&&o.push(i.openAction),i.actions?.primary&&o.push(...i.actions.primary),s.actionBar.setActions(o)}};U=se=I([m(0,k)],U);class z{constructor(){this.templateId=z.TEMPLATE_ID}static{this.TEMPLATE_ID="empty"}renderTemplate(e){return{}}renderElement(e,t,s){}disposeTemplate(){}}let V=class{static{ie=this}static{this.TEMPLATE_ID="host"}constructor(e,t){this.c=e,this.d=t,this.templateId=ie.TEMPLATE_ID}renderTemplate(e){const t=new w,s=t.add(new w),i=e.appendChild(l(".host")),o=i.appendChild(l("div.host-label")),n=i.appendChild(l("div.button-bar"));return{element:i,hostContainer:o,buttonBarContainer:n,disposables:t,renderDisposables:s}}renderElement(e,t,s){s.renderDisposables.clear(),s.renderDisposables.add({dispose:()=>{Ae(s.buttonBarContainer)}}),s.hostContainer.innerText=Qe(this.d,e.workspace),s.element.classList.toggle("current-workspace",this.c.extUri.isEqual(e.workspace,e.profileElement.getCurrentWorkspace())),s.hostContainer.style.display="",s.buttonBarContainer.style.display="none"}disposeTemplate(e){e.disposables.dispose()}};V=ie=I([m(0,W),m(1,ze)],V);let Q=class{static{oe=this}static{this.TEMPLATE_ID="path"}constructor(e,t){this.d=e,this.f=t,this.templateId=oe.TEMPLATE_ID,this.c=qe("mouse")}renderTemplate(e){const t=new w,s=e.appendChild(l(".path")),i=s.appendChild(l("div.path-label")),o=t.add(this.f.setupManagedHover(this.c,i,"")),n=t.add(new w);return{element:s,pathLabel:i,pathHover:o,disposables:t,renderDisposables:n}}renderElement(e,t,s){s.renderDisposables.clear();const i=this.g(e.workspace);s.pathLabel.innerText=i,s.element.classList.toggle("current-workspace",this.d.extUri.isEqual(e.workspace,e.profileElement.getCurrentWorkspace())),s.pathHover.update(i)}disposeTemplate(e){e.disposables.dispose(),e.renderDisposables.dispose()}g(e){if(e.scheme===Lt.file)return ve(e.fsPath);if(e.path.startsWith(Ft.sep)){const t=e.path.substring(1);if(Nt(t,!0))return ve(Rt.normalize(t),!0)}return e.path}};Q=oe=I([m(0,W),m(1,He)],Q);let G=class{constructor(e,t){this.c=e,this.d=t,this.id="changeProfile",this.label="Change Profile",this.class=T.asClassName(Mt),this.enabled=!0,this.tooltip=r(14433,null),this.checked=!1}run(){}getSwitchProfileActions(){return this.d.profiles.filter(e=>!e.isTransient).sort((e,t)=>e.isDefault?-1:t.isDefault?1:e.name.localeCompare(t.name)).map(e=>({id:`switchProfileTo${e.id}`,label:e.name,class:void 0,enabled:!0,checked:e.id===this.c.profileElement.profile.id,tooltip:"",run:()=>{e.id!==this.c.profileElement.profile.id&&this.d.updateProfile(e,{workspaces:[...e.workspaces??[],this.c.workspace]})}}))}};G=I([m(1,v)],G);let K=class{static{ne=this}static{this.TEMPLATE_ID="actions"}constructor(e,t,s,i){this.c=e,this.d=t,this.f=s,this.g=i,this.templateId=ne.TEMPLATE_ID}renderTemplate(e){const t=new w,s=e.appendChild(l(".profile-workspaces-actions-container")),i=t.add(N());return{actionBar:t.add(new Wt(s,{hoverDelegate:i,actionViewItemProvider:n=>{if(n instanceof G)return new Ht(n,{getActions:()=>n.getSwitchProfileActions()},this.f,{classNames:n.class,hoverDelegate:i})}})),disposables:t}}renderElement(e,t,s){s.actionBar.clear();const i=[];i.push(this.h(e)),i.push(new G(e,this.c)),i.push(this.i(e)),s.actionBar.push(i,{icon:!0})}h(e){return{label:"",class:T.asClassName(R.window),enabled:!this.g.extUri.isEqual(e.workspace,e.profileElement.getCurrentWorkspace()),id:"openWorkspace",tooltip:r(14434,null),run:()=>e.profileElement.openWorkspace(e.workspace)}}i(e){return{label:"",class:T.asClassName(_t),enabled:this.d.getDefaultProfileToUse().id!==e.profileElement.profile.id,id:"deleteTrustedUri",tooltip:r(14435,null),run:()=>e.profileElement.updateWorkspaces([],[e.workspace])}}disposeTemplate(e){e.disposables.dispose()}};K=ne=I([m(0,v),m(1,st),m(2,we),m(3,W)],K);function Qe(g,e){return e.authority?g.getHostLabel(e.scheme,e.authority):r(14436,null)}let be=class extends et{static{_=this}static{this.ID="workbench.input.userDataProfiles"}get dirty(){return this.h}set dirty(e){this.h!==e&&(this.h=e,this.f.fire())}constructor(e){super(),this.m=e,this.resource=void 0,this.h=!1,this.c=Et.getInstance(this.m),this.D(this.c.onDidChange(t=>this.dirty=this.c.profiles.some(s=>s instanceof D)))}get typeId(){return _.ID}getName(){return r(14437,null)}getIcon(){return tt}async resolve(){return await this.c.resolve(),this.c}isDirty(){return this.dirty}async save(){return await this.c.saveNewProfile(),this}async revert(){this.c.revert()}matches(e){return e instanceof _}dispose(){for(const e of this.c.profiles)e instanceof y&&e.reset();super.dispose()}};be=_=I([m(0,k)],be);class hi{canSerialize(e){return!0}serialize(e){return""}deserialize(e){return e.createInstance(be)}}export{Bt as $oHc,Se as $pHc,be as $qHc,hi as $rHc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UserDataProfilesEditor_1, ExistingProfileResourceTreeRenderer_1, NewProfileResourceTreeRenderer_1, ProfileResourceChildTreeItemRenderer_1, WorkspaceUriHostColumnRenderer_1, WorkspaceUriPathColumnRenderer_1, WorkspaceUriActionsColumnRenderer_1, UserDataProfilesEditorInput_1;
+import "./media/userDataProfilesEditor.css";
+import { $, addDisposableListener, append, clearNode, Dimension, EventHelper, EventType, trackFocus } from "../../../../base/browser/dom.js";
+import { Action, Separator, SubmenuAction, toAction } from "../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { defaultUserDataProfileIcon, IUserDataProfileManagementService, IUserDataProfileService, PROFILE_FILTER } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { Sizing, SplitView } from "../../../../base/browser/ui/splitview/splitview.js";
+import { Button, ButtonBar, ButtonWithDropdown } from "../../../../base/browser/ui/button/button.js";
+import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles, defaultSelectBoxStyles, getInputBoxStyle, getListStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { editorBackground, foreground, registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { PANEL_BORDER } from "../../../common/theme.js";
+import { WorkbenchAsyncDataTree, WorkbenchList, WorkbenchTable } from "../../../../platform/list/browser/listService.js";
+import { CachedListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { InputBox } from "../../../../base/browser/ui/inputbox/inputBox.js";
+import { Checkbox } from "../../../../base/browser/ui/toggle/toggle.js";
+import { DEFAULT_ICON, ICONS } from "../../../services/userDataProfile/common/userDataProfileIcons.js";
+import { WorkbenchIconSelectBox } from "../../../services/userDataProfile/browser/iconSelectBox.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { IHoverService, WorkbenchHoverDelegate } from "../../../../platform/hover/browser/hover.js";
+import { SelectBox, SeparatorSelectOption } from "../../../../base/browser/ui/selectBox/selectBox.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { isString, isUndefined } from "../../../../base/common/types.js";
+import { basename } from "../../../../base/common/resources.js";
+import { RenderIndentGuides } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { DEFAULT_LABELS_CONTAINER, ResourceLabels } from "../../../browser/labels.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { AbstractUserDataProfileElement, isProfileResourceChildElement, isProfileResourceTypeElement, NewProfileElement, UserDataProfileElement, UserDataProfilesEditorModel } from "./userDataProfilesEditorModel.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { createInstantHoverDelegate, getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Radio } from "../../../../base/browser/ui/radio/radio.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { settingsTextInputBorder } from "../../preferences/common/settingsEditorColorRegistry.js";
+import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { posix, win32 } from "../../../../base/common/path.js";
+import { hasDriveLetter } from "../../../../base/common/extpath.js";
+import { normalizeDriveLetter } from "../../../../base/common/labels.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+const editIcon = registerIcon("profiles-editor-edit-folder", Codicon.edit, localize("editIcon", "Icon for the edit folder icon in the profiles editor."));
+const removeIcon = registerIcon("profiles-editor-remove-folder", Codicon.close, localize("removeIcon", "Icon for the remove folder icon in the profiles editor."));
+const profilesSashBorder = registerColor("profiles.sashBorder", PANEL_BORDER, localize("profilesSashBorder", "The color of the Profiles editor splitview sash border."));
+const listStyles = getListStyles({
+  listActiveSelectionBackground: editorBackground,
+  listActiveSelectionForeground: foreground,
+  listFocusAndSelectionBackground: editorBackground,
+  listFocusAndSelectionForeground: foreground,
+  listFocusBackground: editorBackground,
+  listFocusForeground: foreground,
+  listHoverForeground: foreground,
+  listHoverBackground: editorBackground,
+  listHoverOutline: editorBackground,
+  listFocusOutline: editorBackground,
+  listInactiveSelectionBackground: editorBackground,
+  listInactiveSelectionForeground: foreground,
+  listInactiveFocusBackground: editorBackground,
+  listInactiveFocusOutline: editorBackground,
+  treeIndentGuidesStroke: void 0,
+  treeInactiveIndentGuidesStroke: void 0,
+  tableOddRowsBackgroundColor: editorBackground
+});
+let UserDataProfilesEditor = class UserDataProfilesEditor2 extends EditorPane {
+  static {
+    __name(this, "UserDataProfilesEditor");
+  }
+  static {
+    UserDataProfilesEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.userDataProfiles";
+  }
+  constructor(group, telemetryService, themeService, storageService, quickInputService, fileDialogService, contextMenuService, instantiationService) {
+    super(UserDataProfilesEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.quickInputService = quickInputService;
+    this.fileDialogService = fileDialogService;
+    this.contextMenuService = contextMenuService;
+    this.instantiationService = instantiationService;
+    this.templates = [];
+  }
+  layout(dimension, position) {
+    if (this.container && this.splitView) {
+      const height = dimension.height - 20;
+      this.splitView.layout(this.container?.clientWidth, height);
+      this.splitView.el.style.height = `${height}px`;
+    }
+  }
+  createEditor(parent) {
+    this.container = append(parent, $(".profiles-editor"));
+    const sidebarView = append(this.container, $(".sidebar-view"));
+    const sidebarContainer = append(sidebarView, $(".sidebar-container"));
+    const contentsView = append(this.container, $(".contents-view"));
+    const contentsContainer = append(contentsView, $(".contents-container"));
+    this.profileWidget = this._register(this.instantiationService.createInstance(ProfileWidget, contentsContainer));
+    this.splitView = new SplitView(this.container, {
+      orientation: 1,
+      proportionalLayout: true
+    });
+    this.renderSidebar(sidebarContainer);
+    this.splitView.addView({
+      onDidChange: Event.None,
+      element: sidebarView,
+      minimumSize: 200,
+      maximumSize: 350,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        sidebarView.style.width = `${width}px`;
+        if (height && this.profilesList) {
+          const listHeight = height - 40 - 15;
+          this.profilesList.getHTMLElement().style.height = `${listHeight}px`;
+          this.profilesList.layout(listHeight, width);
+        }
+      }, "layout")
+    }, 300, void 0, true);
+    this.splitView.addView({
+      onDidChange: Event.None,
+      element: contentsView,
+      minimumSize: 550,
+      maximumSize: Number.POSITIVE_INFINITY,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        contentsView.style.width = `${width}px`;
+        if (height) {
+          this.profileWidget?.layout(new Dimension(width, height));
+        }
+      }, "layout")
+    }, Sizing.Distribute, void 0, true);
+    this.registerListeners();
+    this.updateStyles();
+  }
+  updateStyles() {
+    const borderColor = this.theme.getColor(profilesSashBorder);
+    this.splitView?.style({ separatorBorder: borderColor });
+  }
+  renderSidebar(parent) {
+    this.renderNewProfileButton(append(parent, $(".new-profile-button")));
+    const renderer = this.instantiationService.createInstance(ProfileElementRenderer);
+    const delegate = new ProfileElementDelegate();
+    this.profilesList = this._register(this.instantiationService.createInstance(WorkbenchList, "ProfilesList", append(parent, $(".profiles-list")), delegate, [renderer], {
+      multipleSelectionSupport: false,
+      setRowLineHeight: false,
+      horizontalScrolling: false,
+      accessibilityProvider: {
+        getAriaLabel(profileElement) {
+          return profileElement?.name ?? "";
+        },
+        getWidgetAriaLabel() {
+          return localize("profiles", "Profiles");
+        }
+      },
+      openOnSingleClick: true,
+      identityProvider: {
+        getId(e) {
+          if (e instanceof UserDataProfileElement) {
+            return e.profile.id;
+          }
+          return e.name;
+        }
+      },
+      alwaysConsumeMouseWheel: false
+    }));
+  }
+  renderNewProfileButton(parent) {
+    const button = this._register(new ButtonWithDropdown(parent, {
+      actions: {
+        getActions: /* @__PURE__ */ __name(() => {
+          const actions = [];
+          if (this.templates.length) {
+            actions.push(new SubmenuAction("from.template", localize("from template", "From Template"), this.getCreateFromTemplateActions()));
+            actions.push(new Separator());
+          }
+          actions.push(toAction({
+            id: "importProfile",
+            label: localize("importProfile", "Import Profile..."),
+            run: /* @__PURE__ */ __name(() => this.importProfile(), "run")
+          }));
+          return actions;
+        }, "getActions")
+      },
+      addPrimaryActionToDropdown: false,
+      contextMenuProvider: this.contextMenuService,
+      supportIcons: true,
+      ...defaultButtonStyles
+    }));
+    button.label = localize("newProfile", "New Profile");
+    this._register(button.onDidClick((e) => this.createNewProfile()));
+  }
+  getCreateFromTemplateActions() {
+    return this.templates.map((template) => toAction({
+      id: `template:${template.url}`,
+      label: template.name,
+      run: /* @__PURE__ */ __name(() => this.createNewProfile(URI.parse(template.url)), "run")
+    }));
+  }
+  registerListeners() {
+    if (this.profilesList) {
+      this._register(this.profilesList.onDidChangeSelection((e) => {
+        const [element] = e.elements;
+        if (element instanceof AbstractUserDataProfileElement) {
+          this.profileWidget?.render(element);
+        }
+      }));
+      this._register(this.profilesList.onContextMenu((e) => {
+        const actions = [];
+        if (!e.element) {
+          actions.push(...this.getTreeContextMenuActions());
+        }
+        if (e.element instanceof AbstractUserDataProfileElement) {
+          actions.push(...e.element.actions[1]);
+        }
+        if (actions.length) {
+          this.contextMenuService.showContextMenu({
+            getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+            getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+            getActionsContext: /* @__PURE__ */ __name(() => e.element, "getActionsContext")
+          });
+        }
+      }));
+      this._register(this.profilesList.onMouseDblClick((e) => {
+        if (!e.element) {
+          this.createNewProfile();
+        }
+      }));
+    }
+  }
+  getTreeContextMenuActions() {
+    const actions = [];
+    actions.push(toAction({
+      id: "newProfile",
+      label: localize("newProfile", "New Profile"),
+      run: /* @__PURE__ */ __name(() => this.createNewProfile(), "run")
+    }));
+    const templateActions = this.getCreateFromTemplateActions();
+    if (templateActions.length) {
+      actions.push(new SubmenuAction("from.template", localize("new from template", "New Profile From Template"), templateActions));
+    }
+    actions.push(new Separator());
+    actions.push(toAction({
+      id: "importProfile",
+      label: localize("importProfile", "Import Profile..."),
+      run: /* @__PURE__ */ __name(() => this.importProfile(), "run")
+    }));
+    return actions;
+  }
+  async importProfile() {
+    const disposables = new DisposableStore();
+    const quickPick = disposables.add(this.quickInputService.createQuickPick());
+    const updateQuickPickItems = /* @__PURE__ */ __name((value) => {
+      const quickPickItems = [];
+      if (value) {
+        quickPickItems.push({ label: quickPick.value, description: localize("import from url", "Import from URL") });
+      }
+      quickPickItems.push({ label: localize("import from file", "Select File...") });
+      quickPick.items = quickPickItems;
+    }, "updateQuickPickItems");
+    quickPick.title = localize("import profile quick pick title", "Import from Profile Template...");
+    quickPick.placeholder = localize("import profile placeholder", "Provide Profile Template URL");
+    quickPick.ignoreFocusOut = true;
+    disposables.add(quickPick.onDidChangeValue(updateQuickPickItems));
+    updateQuickPickItems();
+    quickPick.matchOnLabel = false;
+    quickPick.matchOnDescription = false;
+    disposables.add(quickPick.onDidAccept(async () => {
+      quickPick.hide();
+      const selectedItem = quickPick.selectedItems[0];
+      if (!selectedItem) {
+        return;
+      }
+      const url = selectedItem.label === quickPick.value ? URI.parse(quickPick.value) : await this.getProfileUriFromFileSystem();
+      if (url) {
+        this.createNewProfile(url);
+      }
+    }));
+    disposables.add(quickPick.onDidHide(() => disposables.dispose()));
+    quickPick.show();
+  }
+  async createNewProfile(copyFrom) {
+    await this.model?.createNewProfile(copyFrom);
+  }
+  selectProfile(profile) {
+    const index = this.model?.profiles.findIndex((p) => p instanceof UserDataProfileElement && p.profile.id === profile.id);
+    if (index !== void 0 && index >= 0) {
+      this.profilesList?.setSelection([index]);
+    }
+  }
+  async getProfileUriFromFileSystem() {
+    const profileLocation = await this.fileDialogService.showOpenDialog({
+      canSelectFolders: false,
+      canSelectFiles: true,
+      canSelectMany: false,
+      filters: PROFILE_FILTER,
+      title: localize("import profile dialog", "Select Profile Template File")
+    });
+    if (!profileLocation) {
+      return null;
+    }
+    return profileLocation[0];
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    this.model = await input.resolve();
+    this.model.getTemplates().then((templates) => {
+      this.templates = templates;
+      if (this.profileWidget) {
+        this.profileWidget.templates = templates;
+      }
+    });
+    this.updateProfilesList();
+    this._register(this.model.onDidChange((element) => this.updateProfilesList(element)));
+  }
+  focus() {
+    super.focus();
+    this.profilesList?.domFocus();
+  }
+  updateProfilesList(elementToSelect) {
+    if (!this.model) {
+      return;
+    }
+    const currentSelectionIndex = this.profilesList?.getSelection()?.[0];
+    const currentSelection = currentSelectionIndex !== void 0 ? this.profilesList?.element(currentSelectionIndex) : void 0;
+    this.profilesList?.splice(0, this.profilesList.length, this.model.profiles);
+    if (elementToSelect) {
+      this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect)]);
+    } else if (currentSelection) {
+      if (!this.model.profiles.includes(currentSelection)) {
+        const elementToSelect2 = this.model.profiles.find((profile) => profile.name === currentSelection.name) ?? this.model.profiles[0];
+        if (elementToSelect2) {
+          this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect2)]);
+        }
+      }
+    } else {
+      const elementToSelect2 = this.model.profiles.find((profile) => profile.active) ?? this.model.profiles[0];
+      if (elementToSelect2) {
+        this.profilesList?.setSelection([this.model.profiles.indexOf(elementToSelect2)]);
+      }
+    }
+  }
+};
+UserDataProfilesEditor = UserDataProfilesEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IQuickInputService),
+  __param(5, IFileDialogService),
+  __param(6, IContextMenuService),
+  __param(7, IInstantiationService)
+], UserDataProfilesEditor);
+class ProfileElementDelegate {
+  static {
+    __name(this, "ProfileElementDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId() {
+    return "profileListElement";
+  }
+}
+let ProfileElementRenderer = class ProfileElementRenderer2 {
+  static {
+    __name(this, "ProfileElementRenderer");
+  }
+  constructor(instantiationService) {
+    this.instantiationService = instantiationService;
+    this.templateId = "profileListElement";
+  }
+  renderTemplate(container) {
+    const disposables = new DisposableStore();
+    const elementDisposables = new DisposableStore();
+    container.classList.add("profile-list-item");
+    const icon = append(container, $(".profile-list-item-icon"));
+    const label = append(container, $(".profile-list-item-label"));
+    const dirty = append(container, $(`span${ThemeIcon.asCSSSelector(Codicon.circleFilled)}`));
+    const description = append(container, $(".profile-list-item-description"));
+    append(description, $(`span${ThemeIcon.asCSSSelector(Codicon.check)}`), $("span", void 0, localize("activeProfile", "Active")));
+    const actionsContainer = append(container, $(".profile-tree-item-actions-container"));
+    const actionBar = disposables.add(this.instantiationService.createInstance(WorkbenchToolBar, actionsContainer, {
+      hoverDelegate: disposables.add(createInstantHoverDelegate()),
+      highlightToggledItems: true
+    }));
+    return { label, icon, dirty, description, actionBar, disposables, elementDisposables };
+  }
+  renderElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+    templateData.label.textContent = element.name;
+    templateData.label.classList.toggle("new-profile", element instanceof NewProfileElement);
+    templateData.icon.className = ThemeIcon.asClassName(element.icon ? ThemeIcon.fromId(element.icon) : DEFAULT_ICON);
+    templateData.dirty.classList.toggle("hide", !(element instanceof NewProfileElement));
+    templateData.description.classList.toggle("hide", !element.active);
+    templateData.elementDisposables.add(element.onDidChange((e) => {
+      if (e.name) {
+        templateData.label.textContent = element.name;
+      }
+      if (e.icon) {
+        if (element.icon) {
+          templateData.icon.className = ThemeIcon.asClassName(ThemeIcon.fromId(element.icon));
+        } else {
+          templateData.icon.className = "hide";
+        }
+      }
+      if (e.active) {
+        templateData.description.classList.toggle("hide", !element.active);
+      }
+    }));
+    const setActions = /* @__PURE__ */ __name(() => templateData.actionBar.setActions(element.actions[0].filter((a) => a.enabled), element.actions[1].filter((a) => a.enabled)), "setActions");
+    setActions();
+    const events = [];
+    for (const action of element.actions.flat()) {
+      if (action instanceof Action) {
+        events.push(action.onDidChange);
+      }
+    }
+    templateData.elementDisposables.add(Event.any(...events)((e) => {
+      if (e.enabled !== void 0) {
+        setActions();
+      }
+    }));
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+    templateData.elementDisposables.dispose();
+  }
+};
+ProfileElementRenderer = __decorate([
+  __param(0, IInstantiationService)
+], ProfileElementRenderer);
+let ProfileWidget = class ProfileWidget2 extends Disposable {
+  static {
+    __name(this, "ProfileWidget");
+  }
+  set templates(templates) {
+    this.copyFromProfileRenderer.setTemplates(templates);
+    this.profileTree.rerender();
+  }
+  constructor(parent, editorProgressService, instantiationService) {
+    super();
+    this.editorProgressService = editorProgressService;
+    this.instantiationService = instantiationService;
+    this._profileElement = this._register(new MutableDisposable());
+    this.layoutParticipants = [];
+    const header = append(parent, $(".profile-header"));
+    const title = append(header, $(".profile-title-container"));
+    this.profileTitle = append(title, $(""));
+    const body = append(parent, $(".profile-body"));
+    const delegate = new ProfileTreeDelegate();
+    const contentsRenderer = this._register(this.instantiationService.createInstance(ContentsProfileRenderer));
+    const associationsRenderer = this._register(this.instantiationService.createInstance(ProfileWorkspacesRenderer));
+    this.layoutParticipants.push(associationsRenderer);
+    this.copyFromProfileRenderer = this._register(this.instantiationService.createInstance(CopyFromProfileRenderer));
+    this.profileTreeContainer = append(body, $(".profile-tree"));
+    this.profileTree = this._register(this.instantiationService.createInstance(WorkbenchAsyncDataTree, "ProfileEditor-Tree", this.profileTreeContainer, delegate, [
+      this._register(this.instantiationService.createInstance(ProfileNameRenderer)),
+      this._register(this.instantiationService.createInstance(ProfileIconRenderer)),
+      this._register(this.instantiationService.createInstance(UseForCurrentWindowPropertyRenderer)),
+      this._register(this.instantiationService.createInstance(UseAsDefaultProfileRenderer)),
+      this.copyFromProfileRenderer,
+      contentsRenderer,
+      associationsRenderer
+    ], this.instantiationService.createInstance(ProfileTreeDataSource), {
+      multipleSelectionSupport: false,
+      horizontalScrolling: false,
+      accessibilityProvider: {
+        getAriaLabel(element) {
+          return element?.element ?? "";
+        },
+        getWidgetAriaLabel() {
+          return "";
+        }
+      },
+      identityProvider: {
+        getId(element) {
+          return element.element;
+        }
+      },
+      expandOnlyOnTwistieClick: true,
+      renderIndentGuides: RenderIndentGuides.None,
+      enableStickyScroll: false,
+      openOnSingleClick: false,
+      setRowLineHeight: false,
+      supportDynamicHeights: true,
+      alwaysConsumeMouseWheel: false
+    }));
+    this.profileTree.style(listStyles);
+    this._register(contentsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, void 0)));
+    this._register(associationsRenderer.onDidChangeContentHeight((e) => this.profileTree.updateElementHeight(e, void 0)));
+    this._register(contentsRenderer.onDidChangeSelection((e) => {
+      if (e.selected) {
+        this.profileTree.setFocus([]);
+        this.profileTree.setSelection([]);
+      }
+    }));
+    this._register(this.profileTree.onDidChangeContentHeight((e) => {
+      if (this.dimension) {
+        this.layout(this.dimension);
+      }
+    }));
+    this._register(this.profileTree.onDidChangeSelection((e) => {
+      if (e.elements.length) {
+        contentsRenderer.clearSelection();
+      }
+    }));
+    this.buttonContainer = append(body, $(".profile-row-container.profile-button-container"));
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    const treeContentHeight = this.profileTree.contentHeight;
+    const height = Math.min(treeContentHeight, dimension.height - (this._profileElement.value?.element instanceof NewProfileElement ? 116 : 54));
+    this.profileTreeContainer.style.height = `${height}px`;
+    this.profileTree.layout(height, dimension.width);
+    for (const participant of this.layoutParticipants) {
+      participant.layout();
+    }
+  }
+  render(profileElement) {
+    if (this._profileElement.value?.element === profileElement) {
+      return;
+    }
+    if (this._profileElement.value?.element instanceof UserDataProfileElement) {
+      this._profileElement.value.element.reset();
+    }
+    this.profileTree.setInput(profileElement);
+    const disposables = new DisposableStore();
+    this._profileElement.value = { element: profileElement, dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose") };
+    this.profileTitle.textContent = profileElement.name;
+    disposables.add(profileElement.onDidChange((e) => {
+      if (e.name) {
+        this.profileTitle.textContent = profileElement.name;
+      }
+    }));
+    const [primaryTitleButtons, secondatyTitleButtons] = profileElement.titleButtons;
+    if (primaryTitleButtons?.length || secondatyTitleButtons?.length) {
+      this.buttonContainer.classList.remove("hide");
+      if (secondatyTitleButtons?.length) {
+        for (const action of secondatyTitleButtons) {
+          const button = disposables.add(new Button(this.buttonContainer, {
+            ...defaultButtonStyles,
+            secondary: true
+          }));
+          button.label = action.label;
+          button.enabled = action.enabled;
+          disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
+          disposables.add(action.onDidChange((e) => {
+            if (!isUndefined(e.enabled)) {
+              button.enabled = action.enabled;
+            }
+            if (!isUndefined(e.label)) {
+              button.label = action.label;
+            }
+          }));
+        }
+      }
+      if (primaryTitleButtons?.length) {
+        for (const action of primaryTitleButtons) {
+          const button = disposables.add(new Button(this.buttonContainer, {
+            ...defaultButtonStyles
+          }));
+          button.label = action.label;
+          button.enabled = action.enabled;
+          disposables.add(button.onDidClick(() => this.editorProgressService.showWhile(action.run())));
+          disposables.add(action.onDidChange((e) => {
+            if (!isUndefined(e.enabled)) {
+              button.enabled = action.enabled;
+            }
+            if (!isUndefined(e.label)) {
+              button.label = action.label;
+            }
+          }));
+          disposables.add(profileElement.onDidChange((e) => {
+            if (e.message) {
+              button.setTitle(profileElement.message ?? action.label);
+              button.element.classList.toggle("error", !!profileElement.message);
+            }
+          }));
+        }
+      }
+    } else {
+      this.buttonContainer.classList.add("hide");
+    }
+    if (profileElement instanceof NewProfileElement) {
+      this.profileTree.focusFirst();
+    }
+    if (this.dimension) {
+      this.layout(this.dimension);
+    }
+  }
+};
+ProfileWidget = __decorate([
+  __param(1, IEditorProgressService),
+  __param(2, IInstantiationService)
+], ProfileWidget);
+class ProfileTreeDelegate extends CachedListVirtualDelegate {
+  static {
+    __name(this, "ProfileTreeDelegate");
+  }
+  getTemplateId({ element }) {
+    return element;
+  }
+  hasDynamicHeight({ element }) {
+    return element === "contents" || element === "workspaces";
+  }
+  estimateHeight({ element, root }) {
+    switch (element) {
+      case "name":
+        return 72;
+      case "icon":
+        return 68;
+      case "copyFrom":
+        return 90;
+      case "useForCurrent":
+      case "useAsDefault":
+        return 68;
+      case "contents":
+        return 258;
+      case "workspaces":
+        return (root.workspaces ? root.workspaces.length * 24 + 30 : 0) + 112;
+    }
+  }
+}
+class ProfileTreeDataSource {
+  static {
+    __name(this, "ProfileTreeDataSource");
+  }
+  hasChildren(element) {
+    return element instanceof AbstractUserDataProfileElement;
+  }
+  async getChildren(element) {
+    if (element instanceof AbstractUserDataProfileElement) {
+      const children = [];
+      if (element instanceof NewProfileElement) {
+        children.push({ element: "name", root: element });
+        children.push({ element: "icon", root: element });
+        children.push({ element: "copyFrom", root: element });
+        children.push({ element: "contents", root: element });
+      } else if (element instanceof UserDataProfileElement) {
+        if (!element.profile.isDefault) {
+          children.push({ element: "name", root: element });
+          children.push({ element: "icon", root: element });
+        }
+        children.push({ element: "useAsDefault", root: element });
+        children.push({ element: "contents", root: element });
+        children.push({ element: "workspaces", root: element });
+      }
+      return children;
+    }
+    return [];
+  }
+}
+class ProfileContentTreeElementDelegate {
+  static {
+    __name(this, "ProfileContentTreeElementDelegate");
+  }
+  getTemplateId(element) {
+    if (!element.element.resourceType) {
+      return ProfileResourceChildTreeItemRenderer.TEMPLATE_ID;
+    }
+    if (element.root instanceof NewProfileElement) {
+      return NewProfileResourceTreeRenderer.TEMPLATE_ID;
+    }
+    return ExistingProfileResourceTreeRenderer.TEMPLATE_ID;
+  }
+  getHeight(element) {
+    return 24;
+  }
+}
+let ProfileResourceTreeDataSource = class ProfileResourceTreeDataSource2 {
+  static {
+    __name(this, "ProfileResourceTreeDataSource");
+  }
+  constructor(editorProgressService) {
+    this.editorProgressService = editorProgressService;
+  }
+  hasChildren(element) {
+    if (element instanceof AbstractUserDataProfileElement) {
+      return true;
+    }
+    if (element.element.resourceType) {
+      if (element.element.resourceType !== "extensions" && element.element.resourceType !== "snippets") {
+        return false;
+      }
+      if (element.root instanceof NewProfileElement) {
+        const resourceType = element.element.resourceType;
+        if (element.root.getFlag(resourceType)) {
+          return true;
+        }
+        if (!element.root.hasResource(resourceType)) {
+          return false;
+        }
+        if (element.root.copyFrom === void 0) {
+          return false;
+        }
+        if (!element.root.getCopyFlag(resourceType)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  async getChildren(element) {
+    if (element instanceof AbstractUserDataProfileElement) {
+      const children = await element.getChildren();
+      return children.map((e) => ({ element: e, root: element }));
+    }
+    if (element.element.resourceType) {
+      const progressRunner = this.editorProgressService.show(true, 500);
+      try {
+        const extensions = await element.root.getChildren(element.element.resourceType);
+        return extensions.map((e) => ({ element: e, root: element.root }));
+      } finally {
+        progressRunner.done();
+      }
+    }
+    return [];
+  }
+};
+ProfileResourceTreeDataSource = __decorate([
+  __param(0, IEditorProgressService)
+], ProfileResourceTreeDataSource);
+class AbstractProfileResourceTreeRenderer extends Disposable {
+  static {
+    __name(this, "AbstractProfileResourceTreeRenderer");
+  }
+  getResourceTypeTitle(resourceType) {
+    switch (resourceType) {
+      case "settings":
+        return localize("settings", "Settings");
+      case "keybindings":
+        return localize("keybindings", "Keyboard Shortcuts");
+      case "snippets":
+        return localize("snippets", "Snippets");
+      case "tasks":
+        return localize("tasks", "Tasks");
+      case "mcp":
+        return localize("mcp", "MCP Servers");
+      case "extensions":
+        return localize("extensions", "Extensions");
+    }
+    return "";
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+}
+class ProfilePropertyRenderer extends AbstractProfileResourceTreeRenderer {
+  static {
+    __name(this, "ProfilePropertyRenderer");
+  }
+  renderElement({ element }, index, templateData) {
+    templateData.elementDisposables.clear();
+    templateData.element = element;
+  }
+}
+let ProfileNameRenderer = class ProfileNameRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "ProfileNameRenderer");
+  }
+  constructor(userDataProfilesService, contextViewService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.contextViewService = contextViewService;
+    this.templateId = "name";
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const nameContainer = append(parent, $(".profile-row-container"));
+    append(nameContainer, $(".profile-label-element", void 0, localize("name", "Name")));
+    const nameInput = disposables.add(new InputBox(nameContainer, this.contextViewService, {
+      inputBoxStyles: getInputBoxStyle({
+        inputBorder: settingsTextInputBorder
+      }),
+      ariaLabel: localize("profileName", "Profile Name"),
+      placeholder: localize("profileName", "Profile Name"),
+      validationOptions: {
+        validation: /* @__PURE__ */ __name((value) => {
+          if (!value) {
+            return {
+              content: localize("name required", "Profile name is required and must be a non-empty value."),
+              type: 2
+              /* MessageType.WARNING */
+            };
+          }
+          if (profileElement?.root.disabled) {
+            return null;
+          }
+          if (!profileElement?.root.shouldValidateName()) {
+            return null;
+          }
+          const initialName = profileElement?.root.getInitialName();
+          value = value.trim();
+          if (initialName !== value && this.userDataProfilesService.profiles.some((p) => !p.isTransient && p.name === value)) {
+            return {
+              content: localize("profileExists", "Profile with name {0} already exists.", value),
+              type: 2
+              /* MessageType.WARNING */
+            };
+          }
+          return null;
+        }, "validation")
+      }
+    }));
+    disposables.add(nameInput.onDidChange((value) => {
+      if (profileElement && value) {
+        profileElement.root.name = value;
+      }
+    }));
+    const focusTracker = disposables.add(trackFocus(nameInput.inputElement));
+    disposables.add(focusTracker.onDidBlur(() => {
+      if (profileElement && !nameInput.value) {
+        nameInput.value = profileElement.root.name;
+      }
+    }));
+    const renderName = /* @__PURE__ */ __name((profileElement2) => {
+      nameInput.value = profileElement2.root.name;
+      nameInput.validate();
+      const isDefaultProfile = profileElement2.root instanceof UserDataProfileElement && profileElement2.root.profile.isDefault;
+      if (profileElement2.root.disabled || isDefaultProfile) {
+        nameInput.disable();
+      } else {
+        nameInput.enable();
+      }
+      if (isDefaultProfile) {
+        nameInput.setTooltip(localize("defaultProfileName", "Name cannot be changed for the default profile"));
+      } else {
+        nameInput.setTooltip(localize("profileName", "Profile Name"));
+      }
+    }, "renderName");
+    return {
+      set element(element) {
+        profileElement = element;
+        renderName(profileElement);
+        elementDisposables.add(profileElement.root.onDidChange((e) => {
+          if (e.name || e.disabled) {
+            renderName(element);
+          }
+          if (e.profile) {
+            nameInput.validate();
+          }
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+};
+ProfileNameRenderer = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IContextViewService)
+], ProfileNameRenderer);
+let ProfileIconRenderer = class ProfileIconRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "ProfileIconRenderer");
+  }
+  constructor(instantiationService, hoverService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.hoverService = hoverService;
+    this.templateId = "icon";
+    this.hoverDelegate = getDefaultHoverDelegate("element");
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const iconContainer = append(parent, $(".profile-row-container"));
+    append(iconContainer, $(".profile-label-element", void 0, localize("icon-label", "Icon")));
+    const iconValueContainer = append(iconContainer, $(".profile-icon-container"));
+    const iconElement = append(iconValueContainer, $(`${ThemeIcon.asCSSSelector(DEFAULT_ICON)}`, { "tabindex": "0", "role": "button", "aria-label": localize("icon", "Profile Icon") }));
+    const iconHover = disposables.add(this.hoverService.setupManagedHover(this.hoverDelegate, iconElement, ""));
+    const iconSelectBox = disposables.add(this.instantiationService.createInstance(WorkbenchIconSelectBox, { icons: ICONS, inputBoxStyles: defaultInputBoxStyles }));
+    let hoverWidget;
+    const showIconSelectBox = /* @__PURE__ */ __name(() => {
+      if (profileElement?.root instanceof UserDataProfileElement && profileElement.root.profile.isDefault) {
+        return;
+      }
+      if (profileElement?.root.disabled) {
+        return;
+      }
+      if (profileElement?.root instanceof UserDataProfileElement && profileElement.root.profile.isDefault) {
+        return;
+      }
+      iconSelectBox.clearInput();
+      hoverWidget = this.hoverService.showInstantHover({
+        content: iconSelectBox.domNode,
+        target: iconElement,
+        position: {
+          hoverPosition: 2
+        },
+        persistence: {
+          sticky: true
+        },
+        appearance: {
+          showPointer: true
+        }
+      }, true);
+      if (hoverWidget) {
+        iconSelectBox.layout(new Dimension(486, 292));
+        iconSelectBox.focus();
+      }
+    }, "showIconSelectBox");
+    disposables.add(addDisposableListener(iconElement, EventType.CLICK, (e) => {
+      EventHelper.stop(e, true);
+      showIconSelectBox();
+    }));
+    disposables.add(addDisposableListener(iconElement, EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        3
+        /* KeyCode.Enter */
+      ) || event.equals(
+        10
+        /* KeyCode.Space */
+      )) {
+        EventHelper.stop(event, true);
+        showIconSelectBox();
+      }
+    }));
+    disposables.add(addDisposableListener(iconSelectBox.domNode, EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        9
+        /* KeyCode.Escape */
+      )) {
+        EventHelper.stop(event, true);
+        hoverWidget?.dispose();
+        iconElement.focus();
+      }
+    }));
+    disposables.add(iconSelectBox.onDidSelect((selectedIcon) => {
+      hoverWidget?.dispose();
+      iconElement.focus();
+      if (profileElement) {
+        profileElement.root.icon = selectedIcon.id;
+      }
+    }));
+    append(iconValueContainer, $(".profile-description-element", void 0, localize("icon-description", "Profile icon to be shown in the activity bar")));
+    const renderIcon = /* @__PURE__ */ __name((profileElement2) => {
+      if (profileElement2?.root instanceof UserDataProfileElement && profileElement2.root.profile.isDefault) {
+        iconValueContainer.classList.add("disabled");
+        iconHover.update(localize("defaultProfileIcon", "Icon cannot be changed for the default profile"));
+      } else {
+        iconHover.update(localize("changeIcon", "Click to change icon"));
+        iconValueContainer.classList.remove("disabled");
+      }
+      if (profileElement2.root.icon) {
+        iconElement.className = ThemeIcon.asClassName(ThemeIcon.fromId(profileElement2.root.icon));
+      } else {
+        iconElement.className = ThemeIcon.asClassName(ThemeIcon.fromId(DEFAULT_ICON.id));
+      }
+    }, "renderIcon");
+    return {
+      set element(element) {
+        profileElement = element;
+        renderIcon(profileElement);
+        elementDisposables.add(profileElement.root.onDidChange((e) => {
+          if (e.icon) {
+            renderIcon(element);
+          }
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+};
+ProfileIconRenderer = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IHoverService)
+], ProfileIconRenderer);
+let UseForCurrentWindowPropertyRenderer = class UseForCurrentWindowPropertyRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "UseForCurrentWindowPropertyRenderer");
+  }
+  constructor(userDataProfileService) {
+    super();
+    this.userDataProfileService = userDataProfileService;
+    this.templateId = "useForCurrent";
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const useForCurrentWindowContainer = append(parent, $(".profile-row-container"));
+    append(useForCurrentWindowContainer, $(".profile-label-element", void 0, localize("use for curren window", "Use for Current Window")));
+    const useForCurrentWindowValueContainer = append(useForCurrentWindowContainer, $(".profile-use-for-current-container"));
+    const useForCurrentWindowTitle = localize("enable for current window", "Use this profile for the current window");
+    const useForCurrentWindowCheckbox = disposables.add(new Checkbox(useForCurrentWindowTitle, false, defaultCheckboxStyles));
+    append(useForCurrentWindowValueContainer, useForCurrentWindowCheckbox.domNode);
+    const useForCurrentWindowLabel = append(useForCurrentWindowValueContainer, $(".profile-description-element", void 0, useForCurrentWindowTitle));
+    disposables.add(useForCurrentWindowCheckbox.onChange(() => {
+      if (profileElement?.root instanceof UserDataProfileElement) {
+        profileElement.root.toggleCurrentWindowProfile();
+      }
+    }));
+    disposables.add(addDisposableListener(useForCurrentWindowLabel, EventType.CLICK, () => {
+      if (profileElement?.root instanceof UserDataProfileElement) {
+        profileElement.root.toggleCurrentWindowProfile();
+      }
+    }));
+    const renderUseCurrentProfile = /* @__PURE__ */ __name((profileElement2) => {
+      useForCurrentWindowCheckbox.checked = profileElement2.root instanceof UserDataProfileElement && this.userDataProfileService.currentProfile.id === profileElement2.root.profile.id;
+      if (useForCurrentWindowCheckbox.checked && this.userDataProfileService.currentProfile.isDefault) {
+        useForCurrentWindowCheckbox.disable();
+      } else {
+        useForCurrentWindowCheckbox.enable();
+      }
+    }, "renderUseCurrentProfile");
+    const that = this;
+    return {
+      set element(element) {
+        profileElement = element;
+        renderUseCurrentProfile(profileElement);
+        elementDisposables.add(that.userDataProfileService.onDidChangeCurrentProfile((e) => {
+          renderUseCurrentProfile(element);
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+};
+UseForCurrentWindowPropertyRenderer = __decorate([
+  __param(0, IUserDataProfileService)
+], UseForCurrentWindowPropertyRenderer);
+class UseAsDefaultProfileRenderer extends ProfilePropertyRenderer {
+  static {
+    __name(this, "UseAsDefaultProfileRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.templateId = "useAsDefault";
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const useAsDefaultProfileContainer = append(parent, $(".profile-row-container"));
+    append(useAsDefaultProfileContainer, $(".profile-label-element", void 0, localize("use for new windows", "Use for New Windows")));
+    const useAsDefaultProfileValueContainer = append(useAsDefaultProfileContainer, $(".profile-use-as-default-container"));
+    const useAsDefaultProfileTitle = localize("enable for new windows", "Use this profile as the default for new windows");
+    const useAsDefaultProfileCheckbox = disposables.add(new Checkbox(useAsDefaultProfileTitle, false, defaultCheckboxStyles));
+    append(useAsDefaultProfileValueContainer, useAsDefaultProfileCheckbox.domNode);
+    const useAsDefaultProfileLabel = append(useAsDefaultProfileValueContainer, $(".profile-description-element", void 0, useAsDefaultProfileTitle));
+    disposables.add(useAsDefaultProfileCheckbox.onChange(() => {
+      if (profileElement?.root instanceof UserDataProfileElement) {
+        profileElement.root.toggleNewWindowProfile();
+      }
+    }));
+    disposables.add(addDisposableListener(useAsDefaultProfileLabel, EventType.CLICK, () => {
+      if (profileElement?.root instanceof UserDataProfileElement) {
+        profileElement.root.toggleNewWindowProfile();
+      }
+    }));
+    const renderUseAsDefault = /* @__PURE__ */ __name((profileElement2) => {
+      useAsDefaultProfileCheckbox.checked = profileElement2.root instanceof UserDataProfileElement && profileElement2.root.isNewWindowProfile;
+    }, "renderUseAsDefault");
+    return {
+      set element(element) {
+        profileElement = element;
+        renderUseAsDefault(profileElement);
+        elementDisposables.add(profileElement.root.onDidChange((e) => {
+          if (e.newWindowProfile) {
+            renderUseAsDefault(element);
+          }
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+}
+let CopyFromProfileRenderer = class CopyFromProfileRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "CopyFromProfileRenderer");
+  }
+  constructor(userDataProfilesService, instantiationService, uriIdentityService, contextViewService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.instantiationService = instantiationService;
+    this.uriIdentityService = uriIdentityService;
+    this.contextViewService = contextViewService;
+    this.templateId = "copyFrom";
+    this.templates = [];
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const copyFromContainer = append(parent, $(".profile-row-container.profile-copy-from-container"));
+    append(copyFromContainer, $(".profile-label-element", void 0, localize("create from", "Copy from")));
+    append(copyFromContainer, $(".profile-description-element", void 0, localize("copy from description", "Select the profile source from which you want to copy contents")));
+    const copyFromSelectBox = disposables.add(this.instantiationService.createInstance(SelectBox, [], 0, this.contextViewService, defaultSelectBoxStyles, {
+      useCustomDrawn: true,
+      ariaLabel: localize("copy profile from", "Copy profile from")
+    }));
+    copyFromSelectBox.render(append(copyFromContainer, $(".profile-select-container")));
+    const render = /* @__PURE__ */ __name((profileElement2, copyFromOptions) => {
+      copyFromSelectBox.setOptions(copyFromOptions);
+      const id = profileElement2.copyFrom instanceof URI ? profileElement2.copyFrom.toString() : profileElement2.copyFrom?.id;
+      const index = id ? copyFromOptions.findIndex((option) => option.id === id) : 0;
+      copyFromSelectBox.select(index);
+    }, "render");
+    const that = this;
+    return {
+      set element(element) {
+        profileElement = element;
+        if (profileElement.root instanceof NewProfileElement) {
+          const newProfileElement = profileElement.root;
+          let copyFromOptions = that.getCopyFromOptions(newProfileElement);
+          render(newProfileElement, copyFromOptions);
+          copyFromSelectBox.setEnabled(!newProfileElement.previewProfile && !newProfileElement.disabled);
+          elementDisposables.add(profileElement.root.onDidChange((e) => {
+            if (e.copyFrom || e.copyFromInfo) {
+              copyFromOptions = that.getCopyFromOptions(newProfileElement);
+              render(newProfileElement, copyFromOptions);
+            }
+            if (e.preview || e.disabled) {
+              copyFromSelectBox.setEnabled(!newProfileElement.previewProfile && !newProfileElement.disabled);
+            }
+          }));
+          elementDisposables.add(copyFromSelectBox.onDidSelect((option) => {
+            newProfileElement.copyFrom = copyFromOptions[option.index].source;
+          }));
+        }
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+  setTemplates(templates) {
+    this.templates = templates;
+  }
+  getCopyFromOptions(profileElement) {
+    const copyFromOptions = [];
+    copyFromOptions.push({ text: localize("empty profile", "None") });
+    for (const [copyFromTemplate, name] of profileElement.copyFromTemplates) {
+      if (!this.templates.some((template) => this.uriIdentityService.extUri.isEqual(URI.parse(template.url), copyFromTemplate))) {
+        copyFromOptions.push({ text: `${name} (${basename(copyFromTemplate)})`, id: copyFromTemplate.toString(), source: copyFromTemplate });
+      }
+    }
+    if (this.templates.length) {
+      copyFromOptions.push({ ...SeparatorSelectOption, decoratorRight: localize("from templates", "Profile Templates") });
+      for (const template of this.templates) {
+        copyFromOptions.push({ text: template.name, id: template.url, source: URI.parse(template.url) });
+      }
+    }
+    copyFromOptions.push({ ...SeparatorSelectOption, decoratorRight: localize("from existing profiles", "Existing Profiles") });
+    for (const profile of this.userDataProfilesService.profiles) {
+      if (!profile.isTransient) {
+        copyFromOptions.push({ text: profile.name, id: profile.id, source: profile });
+      }
+    }
+    return copyFromOptions;
+  }
+};
+CopyFromProfileRenderer = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IInstantiationService),
+  __param(2, IUriIdentityService),
+  __param(3, IContextViewService)
+], CopyFromProfileRenderer);
+let ContentsProfileRenderer = class ContentsProfileRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "ContentsProfileRenderer");
+  }
+  constructor(userDataProfilesService, contextMenuService, instantiationService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.contextMenuService = contextMenuService;
+    this.instantiationService = instantiationService;
+    this.templateId = "contents";
+    this._onDidChangeContentHeight = this._register(new Emitter());
+    this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
+    this._onDidChangeSelection = this._register(new Emitter());
+    this.onDidChangeSelection = this._onDidChangeSelection.event;
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const configureRowContainer = append(parent, $(".profile-row-container"));
+    append(configureRowContainer, $(".profile-label-element", void 0, localize("contents", "Contents")));
+    const contentsDescriptionElement = append(configureRowContainer, $(".profile-description-element"));
+    const contentsTreeHeader = append(configureRowContainer, $(".profile-content-tree-header"));
+    const optionsLabel = $(".options-header", void 0, $("span", void 0, localize("options", "Source")));
+    append(contentsTreeHeader, $(""), $("", void 0, localize("contents", "Contents")), optionsLabel, $(""));
+    const delegate = new ProfileContentTreeElementDelegate();
+    const profilesContentTree = this.profilesContentTree = disposables.add(this.instantiationService.createInstance(WorkbenchAsyncDataTree, "ProfileEditor-ContentsTree", append(configureRowContainer, $(".profile-content-tree.file-icon-themable-tree.show-file-icons")), delegate, [
+      this.instantiationService.createInstance(ExistingProfileResourceTreeRenderer),
+      this.instantiationService.createInstance(NewProfileResourceTreeRenderer),
+      this.instantiationService.createInstance(ProfileResourceChildTreeItemRenderer)
+    ], this.instantiationService.createInstance(ProfileResourceTreeDataSource), {
+      multipleSelectionSupport: false,
+      horizontalScrolling: false,
+      accessibilityProvider: {
+        getAriaLabel(element) {
+          if ((element?.element).resourceType) {
+            return (element?.element).resourceType;
+          }
+          if ((element?.element).label) {
+            return (element?.element).label;
+          }
+          return "";
+        },
+        getWidgetAriaLabel() {
+          return "";
+        }
+      },
+      identityProvider: {
+        getId(element) {
+          if (element?.element.handle) {
+            return element.element.handle;
+          }
+          return "";
+        }
+      },
+      expandOnlyOnTwistieClick: true,
+      renderIndentGuides: RenderIndentGuides.None,
+      enableStickyScroll: false,
+      openOnSingleClick: false,
+      alwaysConsumeMouseWheel: false
+    }));
+    this.profilesContentTree.style(listStyles);
+    disposables.add(toDisposable(() => this.profilesContentTree = void 0));
+    disposables.add(this.profilesContentTree.onDidChangeContentHeight((height) => {
+      this.profilesContentTree?.layout(height);
+      if (profileElement) {
+        this._onDidChangeContentHeight.fire(profileElement);
+      }
+    }));
+    disposables.add(this.profilesContentTree.onDidChangeSelection(((e) => {
+      if (profileElement) {
+        this._onDidChangeSelection.fire({ element: profileElement, selected: !!e.elements.length });
+      }
+    })));
+    disposables.add(this.profilesContentTree.onDidOpen(async (e) => {
+      if (!e.browserEvent) {
+        return;
+      }
+      if (e.element?.element.openAction) {
+        await e.element.element.openAction.run();
+      }
+    }));
+    disposables.add(this.profilesContentTree.onContextMenu(async (e) => {
+      if (!e.element?.element.actions?.contextMenu?.length) {
+        return;
+      }
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => e.element?.element?.actions?.contextMenu ?? [], "getActions"),
+        getActionsContext: /* @__PURE__ */ __name(() => e.element, "getActionsContext")
+      });
+    }));
+    const updateDescription = /* @__PURE__ */ __name((element) => {
+      clearNode(contentsDescriptionElement);
+      const markdown = new MarkdownString();
+      if (element.root instanceof UserDataProfileElement && element.root.profile.isDefault) {
+        markdown.appendMarkdown(localize("default profile contents description", "Browse contents of this profile\n"));
+      } else {
+        markdown.appendMarkdown(localize("contents source description", "Configure source of contents for this profile\n"));
+        if (element.root instanceof NewProfileElement) {
+          const copyFromName = element.root.getCopyFromName();
+          const optionName = copyFromName === this.userDataProfilesService.defaultProfile.name ? localize("copy from default", "{0} (Copy)", copyFromName) : copyFromName;
+          if (optionName) {
+            markdown.appendMarkdown(localize("copy info", "- *{0}:* Copy contents from the {1} profile\n", optionName, copyFromName));
+          }
+          markdown.appendMarkdown(localize("default info", "- *Default:* Use contents from the Default profile\n")).appendMarkdown(localize("none info", "- *None:* Create empty contents\n"));
+        }
+      }
+      append(contentsDescriptionElement, elementDisposables.add(renderMarkdown(markdown)).element);
+    }, "updateDescription");
+    const that = this;
+    return {
+      set element(element) {
+        profileElement = element;
+        updateDescription(element);
+        if (element.root instanceof NewProfileElement) {
+          contentsTreeHeader.classList.remove("default-profile");
+        } else if (element.root instanceof UserDataProfileElement) {
+          contentsTreeHeader.classList.toggle("default-profile", element.root.profile.isDefault);
+        }
+        profilesContentTree.setInput(profileElement.root);
+        elementDisposables.add(profileElement.root.onDidChange((e) => {
+          if (e.copyFrom || e.copyFlags || e.flags || e.extensions || e.snippets || e.preview) {
+            profilesContentTree.updateChildren(element.root);
+          }
+          if (e.copyFromInfo) {
+            updateDescription(element);
+            that._onDidChangeContentHeight.fire(element);
+          }
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+  clearSelection() {
+    if (this.profilesContentTree) {
+      this.profilesContentTree.setSelection([]);
+      this.profilesContentTree.setFocus([]);
+    }
+  }
+};
+ContentsProfileRenderer = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IContextMenuService),
+  __param(2, IInstantiationService)
+], ContentsProfileRenderer);
+let ProfileWorkspacesRenderer = class ProfileWorkspacesRenderer2 extends ProfilePropertyRenderer {
+  static {
+    __name(this, "ProfileWorkspacesRenderer");
+  }
+  constructor(labelService, uriIdentityService, fileDialogService, instantiationService) {
+    super();
+    this.labelService = labelService;
+    this.uriIdentityService = uriIdentityService;
+    this.fileDialogService = fileDialogService;
+    this.instantiationService = instantiationService;
+    this.templateId = "workspaces";
+    this._onDidChangeContentHeight = this._register(new Emitter());
+    this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
+    this._onDidChangeSelection = this._register(new Emitter());
+    this.onDidChangeSelection = this._onDidChangeSelection.event;
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const elementDisposables = disposables.add(new DisposableStore());
+    let profileElement;
+    const profileWorkspacesRowContainer = append(parent, $(".profile-row-container"));
+    append(profileWorkspacesRowContainer, $(".profile-label-element", void 0, localize("folders_workspaces", "Folders & Workspaces")));
+    const profileWorkspacesDescriptionElement = append(profileWorkspacesRowContainer, $(".profile-description-element"));
+    const workspacesTableContainer = append(profileWorkspacesRowContainer, $(".profile-associations-table"));
+    const table = this.workspacesTable = disposables.add(this.instantiationService.createInstance(WorkbenchTable, "ProfileEditor-AssociationsTable", workspacesTableContainer, new class {
+      constructor() {
+        this.headerRowHeight = 30;
+      }
+      getHeight() {
+        return 24;
+      }
+    }(), [
+      {
+        label: "",
+        tooltip: "",
+        weight: 1,
+        minimumWidth: 30,
+        maximumWidth: 30,
+        templateId: WorkspaceUriEmptyColumnRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      },
+      {
+        label: localize("hostColumnLabel", "Host"),
+        tooltip: "",
+        weight: 2,
+        templateId: WorkspaceUriHostColumnRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      },
+      {
+        label: localize("pathColumnLabel", "Path"),
+        tooltip: "",
+        weight: 7,
+        templateId: WorkspaceUriPathColumnRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      },
+      {
+        label: "",
+        tooltip: "",
+        weight: 1,
+        minimumWidth: 84,
+        maximumWidth: 84,
+        templateId: WorkspaceUriActionsColumnRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      }
+    ], [
+      new WorkspaceUriEmptyColumnRenderer(),
+      this.instantiationService.createInstance(WorkspaceUriHostColumnRenderer),
+      this.instantiationService.createInstance(WorkspaceUriPathColumnRenderer),
+      this.instantiationService.createInstance(WorkspaceUriActionsColumnRenderer)
+    ], {
+      horizontalScrolling: false,
+      alwaysConsumeMouseWheel: false,
+      openOnSingleClick: false,
+      multipleSelectionSupport: false,
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((item) => {
+          const hostLabel = getHostLabel(this.labelService, item.workspace);
+          if (hostLabel === void 0 || hostLabel.length === 0) {
+            return localize("trustedFolderAriaLabel", "{0}, trusted", this.labelService.getUriLabel(item.workspace));
+          }
+          return localize("trustedFolderWithHostAriaLabel", "{0} on {1}, trusted", this.labelService.getUriLabel(item.workspace), hostLabel);
+        }, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("trustedFoldersAndWorkspaces", "Trusted Folders & Workspaces"), "getWidgetAriaLabel")
+      },
+      identityProvider: {
+        getId(element) {
+          return element.workspace.toString();
+        }
+      }
+    }));
+    this.workspacesTable.style(listStyles);
+    disposables.add(toDisposable(() => this.workspacesTable = void 0));
+    disposables.add(this.workspacesTable.onDidChangeSelection(((e) => {
+      if (profileElement) {
+        this._onDidChangeSelection.fire({ element: profileElement, selected: !!e.elements.length });
+      }
+    })));
+    const addButtonBarElement = append(profileWorkspacesRowContainer, $(".profile-workspaces-button-container"));
+    const buttonBar = disposables.add(new ButtonBar(addButtonBarElement));
+    const addButton = this._register(buttonBar.addButton({ title: localize("addButton", "Add Folder"), ...defaultButtonStyles }));
+    addButton.label = localize("addButton", "Add Folder");
+    disposables.add(addButton.onDidClick(async () => {
+      const uris = await this.fileDialogService.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: true,
+        openLabel: localize("addFolder", "Add Folder"),
+        title: localize("addFolderTitle", "Select Folders To Add")
+      });
+      if (uris) {
+        if (profileElement?.root instanceof UserDataProfileElement) {
+          profileElement.root.updateWorkspaces(uris, []);
+        }
+      }
+    }));
+    disposables.add(table.onDidOpen((item) => {
+      if (item?.element) {
+        item.element.profileElement.openWorkspace(item.element.workspace);
+      }
+    }));
+    const updateTable = /* @__PURE__ */ __name(() => {
+      if (profileElement?.root instanceof UserDataProfileElement && profileElement.root.workspaces?.length) {
+        profileWorkspacesDescriptionElement.textContent = localize("folders_workspaces_description", "Following folders and workspaces are using this profile");
+        workspacesTableContainer.classList.remove("hide");
+        table.splice(0, table.length, profileElement.root.workspaces.map((workspace) => ({ workspace, profileElement: profileElement.root })).sort((a, b) => this.uriIdentityService.extUri.compare(a.workspace, b.workspace)));
+        this.layout();
+      } else {
+        profileWorkspacesDescriptionElement.textContent = localize("no_folder_description", "No folders or workspaces are using this profile");
+        workspacesTableContainer.classList.add("hide");
+      }
+    }, "updateTable");
+    const that = this;
+    return {
+      set element(element) {
+        profileElement = element;
+        if (element.root instanceof UserDataProfileElement) {
+          updateTable();
+        }
+        elementDisposables.add(profileElement.root.onDidChange((e) => {
+          if (profileElement && e.workspaces) {
+            updateTable();
+            that._onDidChangeContentHeight.fire(profileElement);
+          }
+        }));
+      },
+      disposables,
+      elementDisposables
+    };
+  }
+  layout() {
+    if (this.workspacesTable) {
+      this.workspacesTable.layout(this.workspacesTable.length * 24 + 30, void 0);
+    }
+  }
+  clearSelection() {
+    if (this.workspacesTable) {
+      this.workspacesTable.setSelection([]);
+      this.workspacesTable.setFocus([]);
+    }
+  }
+};
+ProfileWorkspacesRenderer = __decorate([
+  __param(0, ILabelService),
+  __param(1, IUriIdentityService),
+  __param(2, IFileDialogService),
+  __param(3, IInstantiationService)
+], ProfileWorkspacesRenderer);
+let ExistingProfileResourceTreeRenderer = class ExistingProfileResourceTreeRenderer2 extends AbstractProfileResourceTreeRenderer {
+  static {
+    __name(this, "ExistingProfileResourceTreeRenderer");
+  }
+  static {
+    ExistingProfileResourceTreeRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "ExistingProfileResourceTemplate";
+  }
+  constructor(instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.templateId = ExistingProfileResourceTreeRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const container = append(parent, $(".profile-tree-item-container.existing-profile-resource-type-container"));
+    const label = append(container, $(".profile-resource-type-label"));
+    const radio = disposables.add(new Radio({ items: [] }));
+    append(append(container, $(".profile-resource-options-container")), radio.domNode);
+    const actionsContainer = append(container, $(".profile-resource-actions-container"));
+    const actionBar = disposables.add(this.instantiationService.createInstance(WorkbenchToolBar, actionsContainer, {
+      hoverDelegate: disposables.add(createInstantHoverDelegate()),
+      highlightToggledItems: true
+    }));
+    return { label, radio, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
+  }
+  renderElement({ element: profileResourceTreeElement }, index, templateData) {
+    templateData.elementDisposables.clear();
+    const { element, root } = profileResourceTreeElement;
+    if (!(root instanceof UserDataProfileElement)) {
+      throw new Error("ExistingProfileResourceTreeRenderer can only render existing profile element");
+    }
+    if (isString(element) || !isProfileResourceTypeElement(element)) {
+      throw new Error("Invalid profile resource element");
+    }
+    const updateRadioItems = /* @__PURE__ */ __name(() => {
+      templateData.radio.setItems([
+        {
+          text: localize("default", "Default"),
+          tooltip: localize("default description", "Use {0} from the Default profile", resourceTypeTitle),
+          isActive: root.getFlag(element.resourceType)
+        },
+        {
+          text: root.name,
+          tooltip: localize("current description", "Use {0} from the {1} profile", resourceTypeTitle, root.name),
+          isActive: !root.getFlag(element.resourceType)
+        }
+      ]);
+    }, "updateRadioItems");
+    const resourceTypeTitle = this.getResourceTypeTitle(element.resourceType);
+    templateData.label.textContent = resourceTypeTitle;
+    if (root instanceof UserDataProfileElement && root.profile.isDefault) {
+      templateData.radio.domNode.classList.add("hide");
+    } else {
+      templateData.radio.domNode.classList.remove("hide");
+      updateRadioItems();
+      templateData.elementDisposables.add(root.onDidChange((e) => {
+        if (e.name) {
+          updateRadioItems();
+        }
+      }));
+      templateData.elementDisposables.add(templateData.radio.onDidSelect((index2) => root.setFlag(element.resourceType, index2 === 0)));
+    }
+    const actions = [];
+    if (element.openAction) {
+      actions.push(element.openAction);
+    }
+    if (element.actions?.primary) {
+      actions.push(...element.actions.primary);
+    }
+    templateData.actionBar.setActions(actions);
+  }
+};
+ExistingProfileResourceTreeRenderer = ExistingProfileResourceTreeRenderer_1 = __decorate([
+  __param(0, IInstantiationService)
+], ExistingProfileResourceTreeRenderer);
+let NewProfileResourceTreeRenderer = class NewProfileResourceTreeRenderer2 extends AbstractProfileResourceTreeRenderer {
+  static {
+    __name(this, "NewProfileResourceTreeRenderer");
+  }
+  static {
+    NewProfileResourceTreeRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "NewProfileResourceTemplate";
+  }
+  constructor(userDataProfilesService, instantiationService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.instantiationService = instantiationService;
+    this.templateId = NewProfileResourceTreeRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const container = append(parent, $(".profile-tree-item-container.new-profile-resource-type-container"));
+    const labelContainer = append(container, $(".profile-resource-type-label-container"));
+    const label = append(labelContainer, $("span.profile-resource-type-label"));
+    const radio = disposables.add(new Radio({ items: [] }));
+    append(append(container, $(".profile-resource-options-container")), radio.domNode);
+    const actionsContainer = append(container, $(".profile-resource-actions-container"));
+    const actionBar = disposables.add(this.instantiationService.createInstance(WorkbenchToolBar, actionsContainer, {
+      hoverDelegate: disposables.add(createInstantHoverDelegate()),
+      highlightToggledItems: true
+    }));
+    return { label, radio, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
+  }
+  renderElement({ element: profileResourceTreeElement }, index, templateData) {
+    templateData.elementDisposables.clear();
+    const { element, root } = profileResourceTreeElement;
+    if (!(root instanceof NewProfileElement)) {
+      throw new Error("NewProfileResourceTreeRenderer can only render new profile element");
+    }
+    if (isString(element) || !isProfileResourceTypeElement(element)) {
+      throw new Error("Invalid profile resource element");
+    }
+    const resourceTypeTitle = this.getResourceTypeTitle(element.resourceType);
+    templateData.label.textContent = resourceTypeTitle;
+    const renderRadioItems = /* @__PURE__ */ __name(() => {
+      const options = [
+        {
+          text: localize("default", "Default"),
+          tooltip: localize("default description", "Use {0} from the Default profile", resourceTypeTitle)
+        },
+        {
+          text: localize("none", "None"),
+          tooltip: localize("none description", "Create empty {0}", resourceTypeTitle)
+        }
+      ];
+      const copyFromName = root.getCopyFromName();
+      const name = copyFromName === this.userDataProfilesService.defaultProfile.name ? localize("copy from default", "{0} (Copy)", copyFromName) : copyFromName;
+      if (root.copyFrom && name) {
+        templateData.radio.setItems([
+          {
+            text: name,
+            tooltip: name ? localize("copy from profile description", "Copy {0} from the {1} profile", resourceTypeTitle, name) : localize("copy description", "Copy")
+          },
+          ...options
+        ]);
+        templateData.radio.setActiveItem(root.getCopyFlag(element.resourceType) ? 0 : root.getFlag(element.resourceType) ? 1 : 2);
+      } else {
+        templateData.radio.setItems(options);
+        templateData.radio.setActiveItem(root.getFlag(element.resourceType) ? 0 : 1);
+      }
+    }, "renderRadioItems");
+    if (root.copyFrom) {
+      templateData.elementDisposables.add(templateData.radio.onDidSelect((index2) => {
+        root.setFlag(element.resourceType, index2 === 1);
+        root.setCopyFlag(element.resourceType, index2 === 0);
+      }));
+    } else {
+      templateData.elementDisposables.add(templateData.radio.onDidSelect((index2) => {
+        root.setFlag(element.resourceType, index2 === 0);
+      }));
+    }
+    renderRadioItems();
+    templateData.radio.setEnabled(!root.disabled && !root.previewProfile);
+    templateData.elementDisposables.add(root.onDidChange((e) => {
+      if (e.disabled || e.preview) {
+        templateData.radio.setEnabled(!root.disabled && !root.previewProfile);
+      }
+      if (e.copyFrom || e.copyFromInfo) {
+        renderRadioItems();
+      }
+    }));
+    const actions = [];
+    if (element.openAction) {
+      actions.push(element.openAction);
+    }
+    if (element.actions?.primary) {
+      actions.push(...element.actions.primary);
+    }
+    templateData.actionBar.setActions(actions);
+  }
+};
+NewProfileResourceTreeRenderer = NewProfileResourceTreeRenderer_1 = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IInstantiationService)
+], NewProfileResourceTreeRenderer);
+let ProfileResourceChildTreeItemRenderer = class ProfileResourceChildTreeItemRenderer2 extends AbstractProfileResourceTreeRenderer {
+  static {
+    __name(this, "ProfileResourceChildTreeItemRenderer");
+  }
+  static {
+    ProfileResourceChildTreeItemRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "ProfileResourceChildTreeItemTemplate";
+  }
+  constructor(instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.templateId = ProfileResourceChildTreeItemRenderer_1.TEMPLATE_ID;
+    this.labels = instantiationService.createInstance(ResourceLabels, DEFAULT_LABELS_CONTAINER);
+    this.hoverDelegate = this._register(instantiationService.createInstance(WorkbenchHoverDelegate, "mouse", void 0, {}));
+  }
+  renderTemplate(parent) {
+    const disposables = new DisposableStore();
+    const container = append(parent, $(".profile-tree-item-container.profile-resource-child-container"));
+    const checkbox = disposables.add(new Checkbox("", false, defaultCheckboxStyles));
+    append(container, checkbox.domNode);
+    const resourceLabel = disposables.add(this.labels.create(container, { hoverDelegate: this.hoverDelegate }));
+    const actionsContainer = append(container, $(".profile-resource-actions-container"));
+    const actionBar = disposables.add(this.instantiationService.createInstance(WorkbenchToolBar, actionsContainer, {
+      hoverDelegate: disposables.add(createInstantHoverDelegate()),
+      highlightToggledItems: true
+    }));
+    return { checkbox, resourceLabel, actionBar, disposables, elementDisposables: disposables.add(new DisposableStore()) };
+  }
+  renderElement({ element: profileResourceTreeElement }, index, templateData) {
+    templateData.elementDisposables.clear();
+    const { element } = profileResourceTreeElement;
+    if (isString(element) || !isProfileResourceChildElement(element)) {
+      throw new Error("Invalid profile resource element");
+    }
+    if (element.checkbox) {
+      templateData.checkbox.domNode.setAttribute("tabindex", "0");
+      templateData.checkbox.domNode.classList.remove("hide");
+      templateData.checkbox.checked = element.checkbox.isChecked;
+      templateData.checkbox.domNode.ariaLabel = element.checkbox.accessibilityInformation?.label ?? "";
+      if (element.checkbox.accessibilityInformation?.role) {
+        templateData.checkbox.domNode.role = element.checkbox.accessibilityInformation.role;
+      }
+    } else {
+      templateData.checkbox.domNode.removeAttribute("tabindex");
+      templateData.checkbox.domNode.classList.add("hide");
+    }
+    templateData.resourceLabel.setResource({
+      name: element.resource ? basename(element.resource) : element.label,
+      description: element.description,
+      resource: element.resource
+    }, {
+      forceLabel: true,
+      icon: element.icon,
+      hideIcon: !element.resource && !element.icon
+    });
+    const actions = [];
+    if (element.openAction) {
+      actions.push(element.openAction);
+    }
+    if (element.actions?.primary) {
+      actions.push(...element.actions.primary);
+    }
+    templateData.actionBar.setActions(actions);
+  }
+};
+ProfileResourceChildTreeItemRenderer = ProfileResourceChildTreeItemRenderer_1 = __decorate([
+  __param(0, IInstantiationService)
+], ProfileResourceChildTreeItemRenderer);
+class WorkspaceUriEmptyColumnRenderer {
+  static {
+    __name(this, "WorkspaceUriEmptyColumnRenderer");
+  }
+  constructor() {
+    this.templateId = WorkspaceUriEmptyColumnRenderer.TEMPLATE_ID;
+  }
+  static {
+    this.TEMPLATE_ID = "empty";
+  }
+  renderTemplate(container) {
+    return {};
+  }
+  renderElement(item, index, templateData) {
+  }
+  disposeTemplate() {
+  }
+}
+let WorkspaceUriHostColumnRenderer = class WorkspaceUriHostColumnRenderer2 {
+  static {
+    __name(this, "WorkspaceUriHostColumnRenderer");
+  }
+  static {
+    WorkspaceUriHostColumnRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "host";
+  }
+  constructor(uriIdentityService, labelService) {
+    this.uriIdentityService = uriIdentityService;
+    this.labelService = labelService;
+    this.templateId = WorkspaceUriHostColumnRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const disposables = new DisposableStore();
+    const renderDisposables = disposables.add(new DisposableStore());
+    const element = container.appendChild($(".host"));
+    const hostContainer = element.appendChild($("div.host-label"));
+    const buttonBarContainer = element.appendChild($("div.button-bar"));
+    return {
+      element,
+      hostContainer,
+      buttonBarContainer,
+      disposables,
+      renderDisposables
+    };
+  }
+  renderElement(item, index, templateData) {
+    templateData.renderDisposables.clear();
+    templateData.renderDisposables.add({ dispose: /* @__PURE__ */ __name(() => {
+      clearNode(templateData.buttonBarContainer);
+    }, "dispose") });
+    templateData.hostContainer.innerText = getHostLabel(this.labelService, item.workspace);
+    templateData.element.classList.toggle("current-workspace", this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
+    templateData.hostContainer.style.display = "";
+    templateData.buttonBarContainer.style.display = "none";
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+};
+WorkspaceUriHostColumnRenderer = WorkspaceUriHostColumnRenderer_1 = __decorate([
+  __param(0, IUriIdentityService),
+  __param(1, ILabelService)
+], WorkspaceUriHostColumnRenderer);
+let WorkspaceUriPathColumnRenderer = class WorkspaceUriPathColumnRenderer2 {
+  static {
+    __name(this, "WorkspaceUriPathColumnRenderer");
+  }
+  static {
+    WorkspaceUriPathColumnRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "path";
+  }
+  constructor(uriIdentityService, hoverService) {
+    this.uriIdentityService = uriIdentityService;
+    this.hoverService = hoverService;
+    this.templateId = WorkspaceUriPathColumnRenderer_1.TEMPLATE_ID;
+    this.hoverDelegate = getDefaultHoverDelegate("mouse");
+  }
+  renderTemplate(container) {
+    const disposables = new DisposableStore();
+    const element = container.appendChild($(".path"));
+    const pathLabel = element.appendChild($("div.path-label"));
+    const pathHover = disposables.add(this.hoverService.setupManagedHover(this.hoverDelegate, pathLabel, ""));
+    const renderDisposables = disposables.add(new DisposableStore());
+    return {
+      element,
+      pathLabel,
+      pathHover,
+      disposables,
+      renderDisposables
+    };
+  }
+  renderElement(item, index, templateData) {
+    templateData.renderDisposables.clear();
+    const stringValue = this.formatPath(item.workspace);
+    templateData.pathLabel.innerText = stringValue;
+    templateData.element.classList.toggle("current-workspace", this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()));
+    templateData.pathHover.update(stringValue);
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+    templateData.renderDisposables.dispose();
+  }
+  formatPath(uri) {
+    if (uri.scheme === Schemas.file) {
+      return normalizeDriveLetter(uri.fsPath);
+    }
+    if (uri.path.startsWith(posix.sep)) {
+      const pathWithoutLeadingSeparator = uri.path.substring(1);
+      const isWindowsPath = hasDriveLetter(pathWithoutLeadingSeparator, true);
+      if (isWindowsPath) {
+        return normalizeDriveLetter(win32.normalize(pathWithoutLeadingSeparator), true);
+      }
+    }
+    return uri.path;
+  }
+};
+WorkspaceUriPathColumnRenderer = WorkspaceUriPathColumnRenderer_1 = __decorate([
+  __param(0, IUriIdentityService),
+  __param(1, IHoverService)
+], WorkspaceUriPathColumnRenderer);
+let ChangeProfileAction = class ChangeProfileAction2 {
+  static {
+    __name(this, "ChangeProfileAction");
+  }
+  constructor(item, userDataProfilesService) {
+    this.item = item;
+    this.userDataProfilesService = userDataProfilesService;
+    this.id = "changeProfile";
+    this.label = "Change Profile";
+    this.class = ThemeIcon.asClassName(editIcon);
+    this.enabled = true;
+    this.tooltip = localize("change profile", "Change Profile");
+    this.checked = false;
+  }
+  run() {
+  }
+  getSwitchProfileActions() {
+    return this.userDataProfilesService.profiles.filter((profile) => !profile.isTransient).sort((a, b) => a.isDefault ? -1 : b.isDefault ? 1 : a.name.localeCompare(b.name)).map((profile) => ({
+      id: `switchProfileTo${profile.id}`,
+      label: profile.name,
+      class: void 0,
+      enabled: true,
+      checked: profile.id === this.item.profileElement.profile.id,
+      tooltip: "",
+      run: /* @__PURE__ */ __name(() => {
+        if (profile.id === this.item.profileElement.profile.id) {
+          return;
+        }
+        this.userDataProfilesService.updateProfile(profile, { workspaces: [...profile.workspaces ?? [], this.item.workspace] });
+      }, "run")
+    }));
+  }
+};
+ChangeProfileAction = __decorate([
+  __param(1, IUserDataProfilesService)
+], ChangeProfileAction);
+let WorkspaceUriActionsColumnRenderer = class WorkspaceUriActionsColumnRenderer2 {
+  static {
+    __name(this, "WorkspaceUriActionsColumnRenderer");
+  }
+  static {
+    WorkspaceUriActionsColumnRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "actions";
+  }
+  constructor(userDataProfilesService, userDataProfileManagementService, contextMenuService, uriIdentityService) {
+    this.userDataProfilesService = userDataProfilesService;
+    this.userDataProfileManagementService = userDataProfileManagementService;
+    this.contextMenuService = contextMenuService;
+    this.uriIdentityService = uriIdentityService;
+    this.templateId = WorkspaceUriActionsColumnRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const disposables = new DisposableStore();
+    const element = container.appendChild($(".profile-workspaces-actions-container"));
+    const hoverDelegate = disposables.add(createInstantHoverDelegate());
+    const actionBar = disposables.add(new ActionBar(element, {
+      hoverDelegate,
+      actionViewItemProvider: /* @__PURE__ */ __name((action) => {
+        if (action instanceof ChangeProfileAction) {
+          return new DropdownMenuActionViewItem(action, { getActions: /* @__PURE__ */ __name(() => action.getSwitchProfileActions(), "getActions") }, this.contextMenuService, {
+            classNames: action.class,
+            hoverDelegate
+          });
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }));
+    return { actionBar, disposables };
+  }
+  renderElement(item, index, templateData) {
+    templateData.actionBar.clear();
+    const actions = [];
+    actions.push(this.createOpenAction(item));
+    actions.push(new ChangeProfileAction(item, this.userDataProfilesService));
+    actions.push(this.createDeleteAction(item));
+    templateData.actionBar.push(actions, { icon: true });
+  }
+  createOpenAction(item) {
+    return {
+      label: "",
+      class: ThemeIcon.asClassName(Codicon.window),
+      enabled: !this.uriIdentityService.extUri.isEqual(item.workspace, item.profileElement.getCurrentWorkspace()),
+      id: "openWorkspace",
+      tooltip: localize("open", "Open in New Window"),
+      run: /* @__PURE__ */ __name(() => item.profileElement.openWorkspace(item.workspace), "run")
+    };
+  }
+  createDeleteAction(item) {
+    return {
+      label: "",
+      class: ThemeIcon.asClassName(removeIcon),
+      enabled: this.userDataProfileManagementService.getDefaultProfileToUse().id !== item.profileElement.profile.id,
+      id: "deleteTrustedUri",
+      tooltip: localize("deleteTrustedUri", "Delete Path"),
+      run: /* @__PURE__ */ __name(() => item.profileElement.updateWorkspaces([], [item.workspace]), "run")
+    };
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+};
+WorkspaceUriActionsColumnRenderer = WorkspaceUriActionsColumnRenderer_1 = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IUserDataProfileManagementService),
+  __param(2, IContextMenuService),
+  __param(3, IUriIdentityService)
+], WorkspaceUriActionsColumnRenderer);
+function getHostLabel(labelService, workspaceUri) {
+  return workspaceUri.authority ? labelService.getHostLabel(workspaceUri.scheme, workspaceUri.authority) : localize("localAuthority", "Local");
+}
+__name(getHostLabel, "getHostLabel");
+let UserDataProfilesEditorInput = class UserDataProfilesEditorInput2 extends EditorInput {
+  static {
+    __name(this, "UserDataProfilesEditorInput");
+  }
+  static {
+    UserDataProfilesEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.input.userDataProfiles";
+  }
+  get dirty() {
+    return this._dirty;
+  }
+  set dirty(dirty) {
+    if (this._dirty !== dirty) {
+      this._dirty = dirty;
+      this._onDidChangeDirty.fire();
+    }
+  }
+  constructor(instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.resource = void 0;
+    this._dirty = false;
+    this.model = UserDataProfilesEditorModel.getInstance(this.instantiationService);
+    this._register(this.model.onDidChange((e) => this.dirty = this.model.profiles.some((profile) => profile instanceof NewProfileElement)));
+  }
+  get typeId() {
+    return UserDataProfilesEditorInput_1.ID;
+  }
+  getName() {
+    return localize("userDataProfiles", "Profiles");
+  }
+  getIcon() {
+    return defaultUserDataProfileIcon;
+  }
+  async resolve() {
+    await this.model.resolve();
+    return this.model;
+  }
+  isDirty() {
+    return this.dirty;
+  }
+  async save() {
+    await this.model.saveNewProfile();
+    return this;
+  }
+  async revert() {
+    this.model.revert();
+  }
+  matches(otherInput) {
+    return otherInput instanceof UserDataProfilesEditorInput_1;
+  }
+  dispose() {
+    for (const profile of this.model.profiles) {
+      if (profile instanceof UserDataProfileElement) {
+        profile.reset();
+      }
+    }
+    super.dispose();
+  }
+};
+UserDataProfilesEditorInput = UserDataProfilesEditorInput_1 = __decorate([
+  __param(0, IInstantiationService)
+], UserDataProfilesEditorInput);
+class UserDataProfilesEditorInputSerializer {
+  static {
+    __name(this, "UserDataProfilesEditorInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(UserDataProfilesEditorInput);
+  }
+}
+export {
+  UserDataProfilesEditor,
+  UserDataProfilesEditorInput,
+  UserDataProfilesEditorInputSerializer,
+  profilesSashBorder
+};
+//# sourceMappingURL=userDataProfilesEditor.js.map

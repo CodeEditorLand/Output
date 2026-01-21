@@ -1,1 +1,361 @@
-import*as k from"../../../base/browser/dom.js";import{$4$ as $}from"../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{$F0 as C}from"../../../base/browser/ui/list/listWidget.js";import{$If as I}from"../../../base/common/cancellation.js";import{$ak as D}from"../../../base/common/codicons.js";import{$Ed as _}from"../../../base/common/lifecycle.js";import{OS as L}from"../../../base/common/platform.js";import{ThemeIcon as b}from"../../../base/common/themables.js";import"./actionWidget.css";import{localize as u}from"../../../nls.js";import{$5hb as H}from"../../contextview/browser/contextView.js";import{$cy as N}from"../../keybinding/common/keybinding.js";import{$Kib as P}from"../../theme/browser/defaultStyles.js";import{$Vp as j}from"../../theme/common/colorRegistry.js";import{$ikb as R}from"../../layout/browser/layoutService.js";var w=function(n,e,i,t){var r=arguments.length,o=r<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,i,t);else for(var c=n.length-1;c>=0;c--)(a=n[c])&&(o=(r<3?a(o):r>3?a(e,i,o):a(e,i))||o);return r>3&&o&&Object.defineProperty(e,i,o),o},p=function(n,e){return function(i,t){e(i,t,n)}};const T="acceptSelectedCodeAction",A="previewSelectedCodeAction";var x;(function(n){n.Action="action",n.Header="header",n.Separator="separator"})(x||(x={}));class F{get templateId(){return"header"}renderTemplate(e){e.classList.add("group-header");const i=document.createElement("span");return e.append(i),{container:e,text:i}}renderElement(e,i,t){t.text.textContent=e.group?.title??e.label??""}disposeTemplate(e){}}class W{get templateId(){return"separator"}renderTemplate(e){e.classList.add("separator");const i=document.createElement("span");return e.append(i),{container:e,text:i}}renderElement(e,i,t){t.text.textContent=e.label??""}disposeTemplate(e){}}let f=class{get templateId(){return"action"}constructor(e,i){this.a=e,this.b=i}renderTemplate(e){e.classList.add(this.templateId);const i=document.createElement("div");i.className="icon",e.append(i);const t=document.createElement("span");t.className="title",e.append(t);const r=document.createElement("span");r.className="description",e.append(r);const o=new $(e,L);return{container:e,icon:i,text:t,description:r,keybinding:o}}renderElement(e,i,t){if(e.group?.icon?(t.icon.className=b.asClassName(e.group.icon),e.group.icon.color&&(t.icon.style.color=j(e.group.icon.color.id))):(t.icon.className=b.asClassName(D.lightBulb),t.icon.style.color="var(--vscode-editorLightBulb-foreground)"),!e.item||!e.label)return;k.$N8(!e.hideIcon,t.icon),t.text.textContent=m(e.label),e.keybinding?(t.description.textContent=e.keybinding.getLabel(),t.description.style.display="inline",t.description.style.letterSpacing="0.5px"):e.description?(t.description.textContent=m(e.description),t.description.style.display="inline"):(t.description.textContent="",t.description.style.display="none");const r=this.b.lookupKeybinding(T)?.getLabel(),o=this.b.lookupKeybinding(A)?.getLabel();t.container.classList.toggle("option-disabled",e.disabled),e.tooltip?t.container.title=e.tooltip:e.disabled?t.container.title=e.label:r&&o?this.a&&e.canPreview?t.container.title=u(1829,null,r,o):t.container.title=u(1830,null,r):t.container.title=""}disposeTemplate(e){e.keybinding.dispose()}};f=w([p(1,N)],f);class O extends UIEvent{constructor(){super("acceptSelectedAction")}}class v extends UIEvent{constructor(){super("previewSelectedAction")}}function B(n){if(n.kind==="action")return n.label}let y=class extends _{constructor(e,i,t,r,o,a,c,g){super(),this.j=r,this.m=a,this.n=c,this.q=g,this.b=28,this.c=28,this.f=8,this.h=this.D(new I),this.domNode=document.createElement("div"),this.domNode.classList.add("actionList");const d={getHeight:s=>{switch(s.kind){case"header":return this.c;case"separator":return this.f;default:return this.b}},getTemplateId:s=>s.kind};this.a=this.D(new C(e,this.domNode,d,[new f(i,this.n),new F,new W],{keyboardSupport:!1,typeNavigationEnabled:!0,keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:B},accessibilityProvider:{getAriaLabel:s=>{if(s.kind==="action"){let l=s.label?m(s?.label):"";return s.description&&(l=l+", "+m(s.description)),s.disabled&&(l=u(1831,null,l,s.disabled)),l}return null},getWidgetAriaLabel:()=>u(1832,null),getRole:s=>{switch(s.kind){case"action":return"option";case"separator":return"separator";default:return"separator"}},getWidgetRole:()=>"listbox",...o}})),this.a.style(P),this.D(this.a.onMouseClick(s=>this.w(s))),this.D(this.a.onMouseOver(s=>this.u(s))),this.D(this.a.onDidChangeFocus(()=>this.t())),this.D(this.a.onDidChangeSelection(s=>this.s(s))),this.g=t,this.a.splice(0,this.a.length,this.g),this.a.length&&this.focusNext()}r(e){return!e.disabled&&e.kind==="action"}hide(e){this.j.onHide(e),this.h.cancel(),this.m.hideContextView()}layout(e){const i=this.g.filter(s=>s.kind==="header").length,t=this.g.filter(s=>s.kind==="separator").length,a=this.g.length*this.b+i*this.c-i*this.b+t*this.f-t*this.b;this.a.layout(a);let c=e;if(this.g.length>=50)c=380;else{const s=this.g.map((l,E)=>{const h=this.domNode.ownerDocument.getElementById(this.a.getElementID(E));if(h){h.style.width="auto";const S=h.getBoundingClientRect().width;return h.style.width="",S}return 0});c=Math.max(...s,e)}const d=Math.min(a,this.q.getContainer(k.getWindow(this.domNode)).clientHeight*.7);return this.a.layout(d,c),this.domNode.style.height=`${d}px`,this.a.domFocus(),c}focusPrevious(){this.a.focusPrevious(1,!0,void 0,this.r)}focusNext(){this.a.focusNext(1,!0,void 0,this.r)}acceptSelected(e){const i=this.a.getFocus();if(i.length===0)return;const t=i[0],r=this.a.element(t);if(!this.r(r))return;const o=e?new v:new O;this.a.setSelection([t],o)}s(e){if(!e.elements.length)return;const i=e.elements[0];i.item&&this.r(i)?this.j.onSelect(i.item,e.browserEvent instanceof v):this.a.setSelection([])}t(){const e=this.a.getFocus();if(e.length===0)return;const i=e[0],t=this.a.element(i);this.j.onFocus?.(t.item)}async u(e){const i=e.element;if(i&&i.item&&this.r(i)){if(this.j.onHover&&!i.disabled&&i.kind==="action"){const t=await this.j.onHover(i.item,this.h.token);i.canPreview=t?t.canPreview:void 0}e.index&&this.a.splice(e.index,1,[i])}this.a.setFocus(typeof e.index=="number"?[e.index]:[])}w(e){e.element&&this.r(e.element)&&this.a.setFocus([])}};y=w([p(5,H),p(6,N),p(7,R)],y);function m(n){return n.replace(/\r\n|\r|\n/g," ")}export{T as $jkb,A as $kkb,y as $lkb,x as ActionListItemKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../base/browser/dom.js";
+import { KeybindingLabel } from "../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { List } from "../../../base/browser/ui/list/listWidget.js";
+import { CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { Codicon } from "../../../base/common/codicons.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { OS } from "../../../base/common/platform.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import "./actionWidget.css";
+import { localize } from "../../../nls.js";
+import { IContextViewService } from "../../contextview/browser/contextView.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { defaultListStyles } from "../../theme/browser/defaultStyles.js";
+import { asCssVariable } from "../../theme/common/colorRegistry.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+const acceptSelectedActionCommand = "acceptSelectedCodeAction";
+const previewSelectedActionCommand = "previewSelectedCodeAction";
+var ActionListItemKind;
+(function(ActionListItemKind2) {
+  ActionListItemKind2["Action"] = "action";
+  ActionListItemKind2["Header"] = "header";
+  ActionListItemKind2["Separator"] = "separator";
+})(ActionListItemKind || (ActionListItemKind = {}));
+class HeaderRenderer {
+  static {
+    __name(this, "HeaderRenderer");
+  }
+  get templateId() {
+    return "header";
+  }
+  renderTemplate(container) {
+    container.classList.add("group-header");
+    const text = document.createElement("span");
+    container.append(text);
+    return { container, text };
+  }
+  renderElement(element, _index, templateData) {
+    templateData.text.textContent = element.group?.title ?? element.label ?? "";
+  }
+  disposeTemplate(_templateData) {
+  }
+}
+class SeparatorRenderer {
+  static {
+    __name(this, "SeparatorRenderer");
+  }
+  get templateId() {
+    return "separator";
+  }
+  renderTemplate(container) {
+    container.classList.add("separator");
+    const text = document.createElement("span");
+    container.append(text);
+    return { container, text };
+  }
+  renderElement(element, _index, templateData) {
+    templateData.text.textContent = element.label ?? "";
+  }
+  disposeTemplate(_templateData) {
+  }
+}
+let ActionItemRenderer = class ActionItemRenderer2 {
+  static {
+    __name(this, "ActionItemRenderer");
+  }
+  get templateId() {
+    return "action";
+  }
+  constructor(_supportsPreview, _keybindingService) {
+    this._supportsPreview = _supportsPreview;
+    this._keybindingService = _keybindingService;
+  }
+  renderTemplate(container) {
+    container.classList.add(this.templateId);
+    const icon = document.createElement("div");
+    icon.className = "icon";
+    container.append(icon);
+    const text = document.createElement("span");
+    text.className = "title";
+    container.append(text);
+    const description = document.createElement("span");
+    description.className = "description";
+    container.append(description);
+    const keybinding = new KeybindingLabel(container, OS);
+    return { container, icon, text, description, keybinding };
+  }
+  renderElement(element, _index, data) {
+    if (element.group?.icon) {
+      data.icon.className = ThemeIcon.asClassName(element.group.icon);
+      if (element.group.icon.color) {
+        data.icon.style.color = asCssVariable(element.group.icon.color.id);
+      }
+    } else {
+      data.icon.className = ThemeIcon.asClassName(Codicon.lightBulb);
+      data.icon.style.color = "var(--vscode-editorLightBulb-foreground)";
+    }
+    if (!element.item || !element.label) {
+      return;
+    }
+    dom.setVisibility(!element.hideIcon, data.icon);
+    data.text.textContent = stripNewlines(element.label);
+    if (element.keybinding) {
+      data.description.textContent = element.keybinding.getLabel();
+      data.description.style.display = "inline";
+      data.description.style.letterSpacing = "0.5px";
+    } else if (element.description) {
+      data.description.textContent = stripNewlines(element.description);
+      data.description.style.display = "inline";
+    } else {
+      data.description.textContent = "";
+      data.description.style.display = "none";
+    }
+    const actionTitle = this._keybindingService.lookupKeybinding(acceptSelectedActionCommand)?.getLabel();
+    const previewTitle = this._keybindingService.lookupKeybinding(previewSelectedActionCommand)?.getLabel();
+    data.container.classList.toggle("option-disabled", element.disabled);
+    if (element.tooltip) {
+      data.container.title = element.tooltip;
+    } else if (element.disabled) {
+      data.container.title = element.label;
+    } else if (actionTitle && previewTitle) {
+      if (this._supportsPreview && element.canPreview) {
+        data.container.title = localize({ key: "label-preview", comment: ['placeholders are keybindings, e.g "F2 to Apply, Shift+F2 to Preview"'] }, "{0} to Apply, {1} to Preview", actionTitle, previewTitle);
+      } else {
+        data.container.title = localize({ key: "label", comment: ['placeholder is a keybinding, e.g "F2 to Apply"'] }, "{0} to Apply", actionTitle);
+      }
+    } else {
+      data.container.title = "";
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.keybinding.dispose();
+  }
+};
+ActionItemRenderer = __decorate([
+  __param(1, IKeybindingService)
+], ActionItemRenderer);
+class AcceptSelectedEvent extends UIEvent {
+  static {
+    __name(this, "AcceptSelectedEvent");
+  }
+  constructor() {
+    super("acceptSelectedAction");
+  }
+}
+class PreviewSelectedEvent extends UIEvent {
+  static {
+    __name(this, "PreviewSelectedEvent");
+  }
+  constructor() {
+    super("previewSelectedAction");
+  }
+}
+function getKeyboardNavigationLabel(item) {
+  if (item.kind === "action") {
+    return item.label;
+  }
+  return void 0;
+}
+__name(getKeyboardNavigationLabel, "getKeyboardNavigationLabel");
+let ActionList = class ActionList2 extends Disposable {
+  static {
+    __name(this, "ActionList");
+  }
+  constructor(user, preview, items, _delegate, accessibilityProvider, _contextViewService, _keybindingService, _layoutService) {
+    super();
+    this._delegate = _delegate;
+    this._contextViewService = _contextViewService;
+    this._keybindingService = _keybindingService;
+    this._layoutService = _layoutService;
+    this._actionLineHeight = 28;
+    this._headerLineHeight = 28;
+    this._separatorLineHeight = 8;
+    this.cts = this._register(new CancellationTokenSource());
+    this.domNode = document.createElement("div");
+    this.domNode.classList.add("actionList");
+    const virtualDelegate = {
+      getHeight: /* @__PURE__ */ __name((element) => {
+        switch (element.kind) {
+          case "header":
+            return this._headerLineHeight;
+          case "separator":
+            return this._separatorLineHeight;
+          default:
+            return this._actionLineHeight;
+        }
+      }, "getHeight"),
+      getTemplateId: /* @__PURE__ */ __name((element) => element.kind, "getTemplateId")
+    };
+    this._list = this._register(new List(user, this.domNode, virtualDelegate, [
+      new ActionItemRenderer(preview, this._keybindingService),
+      new HeaderRenderer(),
+      new SeparatorRenderer()
+    ], {
+      keyboardSupport: false,
+      typeNavigationEnabled: true,
+      keyboardNavigationLabelProvider: { getKeyboardNavigationLabel },
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => {
+          if (element.kind === "action") {
+            let label = element.label ? stripNewlines(element?.label) : "";
+            if (element.description) {
+              label = label + ", " + stripNewlines(element.description);
+            }
+            if (element.disabled) {
+              label = localize({ key: "customQuickFixWidget.labels", comment: [`Action widget labels for accessibility.`] }, "{0}, Disabled Reason: {1}", label, element.disabled);
+            }
+            return label;
+          }
+          return null;
+        }, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize({ key: "customQuickFixWidget", comment: [`An action widget option`] }, "Action Widget"), "getWidgetAriaLabel"),
+        getRole: /* @__PURE__ */ __name((e) => {
+          switch (e.kind) {
+            case "action":
+              return "option";
+            case "separator":
+              return "separator";
+            default:
+              return "separator";
+          }
+        }, "getRole"),
+        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
+        ...accessibilityProvider
+      }
+    }));
+    this._list.style(defaultListStyles);
+    this._register(this._list.onMouseClick((e) => this.onListClick(e)));
+    this._register(this._list.onMouseOver((e) => this.onListHover(e)));
+    this._register(this._list.onDidChangeFocus(() => this.onFocus()));
+    this._register(this._list.onDidChangeSelection((e) => this.onListSelection(e)));
+    this._allMenuItems = items;
+    this._list.splice(0, this._list.length, this._allMenuItems);
+    if (this._list.length) {
+      this.focusNext();
+    }
+  }
+  focusCondition(element) {
+    return !element.disabled && element.kind === "action";
+  }
+  hide(didCancel) {
+    this._delegate.onHide(didCancel);
+    this.cts.cancel();
+    this._contextViewService.hideContextView();
+  }
+  layout(minWidth) {
+    const numHeaders = this._allMenuItems.filter((item) => item.kind === "header").length;
+    const numSeparators = this._allMenuItems.filter((item) => item.kind === "separator").length;
+    const itemsHeight = this._allMenuItems.length * this._actionLineHeight;
+    const heightWithHeaders = itemsHeight + numHeaders * this._headerLineHeight - numHeaders * this._actionLineHeight;
+    const heightWithSeparators = heightWithHeaders + numSeparators * this._separatorLineHeight - numSeparators * this._actionLineHeight;
+    this._list.layout(heightWithSeparators);
+    let maxWidth = minWidth;
+    if (this._allMenuItems.length >= 50) {
+      maxWidth = 380;
+    } else {
+      const itemWidths = this._allMenuItems.map((_, index) => {
+        const element = this.domNode.ownerDocument.getElementById(this._list.getElementID(index));
+        if (element) {
+          element.style.width = "auto";
+          const width = element.getBoundingClientRect().width;
+          element.style.width = "";
+          return width;
+        }
+        return 0;
+      });
+      maxWidth = Math.max(...itemWidths, minWidth);
+    }
+    const maxVhPrecentage = 0.7;
+    const height = Math.min(heightWithSeparators, this._layoutService.getContainer(dom.getWindow(this.domNode)).clientHeight * maxVhPrecentage);
+    this._list.layout(height, maxWidth);
+    this.domNode.style.height = `${height}px`;
+    this._list.domFocus();
+    return maxWidth;
+  }
+  focusPrevious() {
+    this._list.focusPrevious(1, true, void 0, this.focusCondition);
+  }
+  focusNext() {
+    this._list.focusNext(1, true, void 0, this.focusCondition);
+  }
+  acceptSelected(preview) {
+    const focused = this._list.getFocus();
+    if (focused.length === 0) {
+      return;
+    }
+    const focusIndex = focused[0];
+    const element = this._list.element(focusIndex);
+    if (!this.focusCondition(element)) {
+      return;
+    }
+    const event = preview ? new PreviewSelectedEvent() : new AcceptSelectedEvent();
+    this._list.setSelection([focusIndex], event);
+  }
+  onListSelection(e) {
+    if (!e.elements.length) {
+      return;
+    }
+    const element = e.elements[0];
+    if (element.item && this.focusCondition(element)) {
+      this._delegate.onSelect(element.item, e.browserEvent instanceof PreviewSelectedEvent);
+    } else {
+      this._list.setSelection([]);
+    }
+  }
+  onFocus() {
+    const focused = this._list.getFocus();
+    if (focused.length === 0) {
+      return;
+    }
+    const focusIndex = focused[0];
+    const element = this._list.element(focusIndex);
+    this._delegate.onFocus?.(element.item);
+  }
+  async onListHover(e) {
+    const element = e.element;
+    if (element && element.item && this.focusCondition(element)) {
+      if (this._delegate.onHover && !element.disabled && element.kind === "action") {
+        const result = await this._delegate.onHover(element.item, this.cts.token);
+        element.canPreview = result ? result.canPreview : void 0;
+      }
+      if (e.index) {
+        this._list.splice(e.index, 1, [element]);
+      }
+    }
+    this._list.setFocus(typeof e.index === "number" ? [e.index] : []);
+  }
+  onListClick(e) {
+    if (e.element && this.focusCondition(e.element)) {
+      this._list.setFocus([]);
+    }
+  }
+};
+ActionList = __decorate([
+  __param(5, IContextViewService),
+  __param(6, IKeybindingService),
+  __param(7, ILayoutService)
+], ActionList);
+function stripNewlines(str) {
+  return str.replace(/\r\n|\r|\n/g, " ");
+}
+__name(stripNewlines, "stripNewlines");
+export {
+  ActionList,
+  ActionListItemKind,
+  acceptSelectedActionCommand,
+  previewSelectedActionCommand
+};
+//# sourceMappingURL=actionList.js.map

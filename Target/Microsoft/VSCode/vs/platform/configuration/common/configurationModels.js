@@ -1,2 +1,1093 @@
-import*as g from"../../../base/common/arrays.js";import{$wf as I,Event as k}from"../../../base/common/event.js";import*as V from"../../../base/common/json.js";import{$Ed as x}from"../../../base/common/lifecycle.js";import{$Lc as U,$Oc as w}from"../../../base/common/map.js";import*as c from"../../../base/common/objects.js";import*as O from"../../../base/common/types.js";import{URI as K}from"../../../base/common/uri.js";import{$dm as R,$fm as v,$em as M,$cm as E}from"./configuration.js";import{$km as q,$wm as C,$vm as m}from"./configurationRegistry.js";import{$im as D}from"../../registry/common/platform.js";function y(u){return Object.isFrozen(u)?u:c.$Cp(u)}class f{static createEmptyModel(e){return new f({},[],[],void 0,e)}constructor(e,t,i,s,r){this.b=e,this.c=t,this.d=i,this.f=s,this.g=r,this.a=new Map}get rawConfiguration(){if(!this.h)if(this.f){const e=(Array.isArray(this.f)?this.f:[this.f]).map(t=>{if(t instanceof f)return t;const i=new b("",this.g);return i.parseRaw(t),i.configurationModel});this.h=e.reduce((t,i)=>i===t?i:t.merge(i),e[0])}else this.h=this;return this.h}get contents(){return this.b}get overrides(){return this.d}get keys(){return this.c}get raw(){if(this.f&&!(Array.isArray(this.f)&&this.f.every(e=>e instanceof f)))return this.f}isEmpty(){return this.c.length===0&&Object.keys(this.b).length===0&&this.d.length===0}getValue(e){return e?v(this.contents,e):this.contents}inspect(e,t){const i=this;return{get value(){return y(i.rawConfiguration.getValue(e))},get override(){return t?y(i.rawConfiguration.getOverrideValue(e,t)):void 0},get merged(){return y(t?i.rawConfiguration.override(t).getValue(e):i.rawConfiguration.getValue(e))},get overrides(){const s=[];for(const{contents:r,identifiers:n,keys:h}of i.rawConfiguration.overrides){const d=new f(r,h,[],void 0,i.g).getValue(e);d!==void 0&&s.push({identifiers:n,value:d})}return s.length?y(s):void 0}}}getOverrideValue(e,t){const i=this.k(t);return i?e?v(i,e):i:void 0}getKeysForOverrideIdentifier(e){const t=[];for(const i of this.overrides)i.identifiers.includes(e)&&t.push(...i.keys);return g.$dc(t)}getAllOverrideIdentifiers(){const e=[];for(const t of this.overrides)e.push(...t.identifiers);return g.$dc(e)}override(e){let t=this.a.get(e);return t||(t=this.i(e),this.a.set(e,t)),t}merge(...e){const t=c.$Bp(this.contents),i=c.$Bp(this.overrides),s=[...this.keys],r=this.f?Array.isArray(this.f)?[...this.f]:[this.f]:[this];for(const n of e)if(r.push(...n.f?Array.isArray(n.f)?n.f:[n.f]:[n]),!n.isEmpty()){this.j(t,n.contents);for(const h of n.overrides){const[d]=i.filter(o=>g.$Wb(o.identifiers,h.identifiers));d?(this.j(d.contents,h.contents),d.keys.push(...h.keys),d.keys=g.$dc(d.keys)):i.push(c.$Bp(h))}for(const h of n.keys)s.indexOf(h)===-1&&s.push(h)}return new f(t,s,i,!r.length||r.every(n=>n instanceof f)?void 0:r,this.g)}i(e){const t=this.k(e);if(!t||typeof t!="object"||!Object.keys(t).length)return this;const i={};for(const s of g.$dc([...Object.keys(this.contents),...Object.keys(t)])){let r=this.contents[s];const n=t[s];n&&(typeof r=="object"&&typeof n=="object"?(r=c.$Bp(r),this.j(r,n)):r=n),i[s]=r}return new f(i,this.keys,this.overrides,void 0,this.g)}j(e,t){for(const i of Object.keys(t)){if(i in e&&O.$9c(e[i])&&O.$9c(t[i])){this.j(e[i],t[i]);continue}e[i]=c.$Bp(t[i])}}k(e){let t=null,i=null;const s=r=>{r&&(i?this.j(i,r):i=c.$Bp(r))};for(const r of this.overrides)r.identifiers.length===1&&r.identifiers[0]===e?t=r.contents:r.identifiers.includes(e)&&s(r.contents);return s(t),i}toJSON(){return{contents:this.contents,overrides:this.overrides,keys:this.keys}}addValue(e,t){this.l(e,t,!0)}setValue(e,t){this.l(e,t,!1)}removeValue(e){const t=this.keys.indexOf(e);t!==-1&&(this.keys.splice(t,1),M(this.contents,e),m.test(e)&&this.overrides.splice(this.overrides.findIndex(i=>g.$Wb(i.identifiers,C(e))),1))}l(e,t,i){if(R(this.contents,e,t,s=>this.g.error(s)),i=i||this.keys.indexOf(e)===-1,i&&this.keys.push(e),m.test(e)){const s=this.contents[e],r=C(e),n={identifiers:r,keys:Object.keys(s),contents:E(s,d=>this.g.error(d))},h=this.overrides.findIndex(d=>g.$Wb(d.identifiers,r));h!==-1?this.overrides[h]=n:this.overrides.push(n)}}}class b{constructor(e,t){this.f=e,this.g=t,this.a=null,this.b=null,this.c=[],this.d=[]}get configurationModel(){return this.b||f.createEmptyModel(this.g)}get restrictedConfigurations(){return this.c}get errors(){return this.d}parse(e,t){if(!O.$ed(e)){const i=this.h(e);this.parseRaw(i,t)}}reparse(e){this.a&&this.parseRaw(this.a,e)}parseRaw(e,t){this.a=e;const{contents:i,keys:s,overrides:r,restricted:n,hasExcludedProperties:h}=this.i(e,t);this.b=new f(i,s,r,h?[e]:void 0,this.g),this.c=n||[]}h(e){let t={},i=null,s=[];const r=[],n=[];function h(o){Array.isArray(s)?s.push(o):i!==null&&(s[i]=o)}const d={onObjectBegin:()=>{const o={};h(o),r.push(s),s=o,i=null},onObjectProperty:o=>{i=o},onObjectEnd:()=>{s=r.pop()},onArrayBegin:()=>{const o=[];h(o),r.push(s),s=o,i=null},onArrayEnd:()=>{s=r.pop()},onLiteralValue:h,onError:(o,a,p)=>{n.push({error:o,offset:a,length:p})}};if(e)try{V.$Gv(e,d),t=s[0]||{}}catch(o){this.g.error(`Error while parsing settings file ${this.f}: ${o}`),this.d=[o]}return t}i(e,t){const i=D.as(q.Configuration),s=i.getConfigurationProperties(),r=i.getExcludedConfigurationProperties(),n=this.j(e,s,r,!0,t);e=n.raw;const h=E(e,a=>this.g.error(`Conflict in settings file ${this.f}: ${a}`)),d=Object.keys(e),o=this.m(e,a=>this.g.error(`Conflict in settings file ${this.f}: ${a}`));return{contents:h,keys:d,overrides:o,restricted:n.restricted,hasExcludedProperties:n.hasExcludedProperties}}j(e,t,i,s,r){let n=!1;if(!r?.scopes&&!r?.skipRestricted&&!r?.skipUnregistered&&!r?.exclude?.length)return{raw:e,restricted:[],hasExcludedProperties:n};const h={},d=[];for(const o in e)if(m.test(o)&&s){const a=this.j(e[o],t,i,!1,r);h[o]=a.raw,n=n||a.hasExcludedProperties,d.push(...a.restricted)}else{const a=t[o];a?.restricted&&d.push(o),this.l(o,a,i,r)?h[o]=e[o]:n=!0}return{raw:h,restricted:d,hasExcludedProperties:n}}l(e,t,i,s){if(s.exclude?.includes(e))return!1;if(s.include?.includes(e))return!0;if(s.skipRestricted&&t?.restricted||s.skipUnregistered&&!t)return!1;const r=t??i[e],n=r?typeof r.scope<"u"?r.scope:4:void 0;return n===void 0||s.scopes===void 0?!0:s.scopes.includes(n)}m(e,t){const i=[];for(const s of Object.keys(e))if(m.test(s)){const r={},n=e[s];for(const h in n)r[h]=n[h];i.push({identifiers:C(s),keys:Object.keys(r),contents:E(r,t)})}return i}}class N extends x{constructor(e,t,i,s,r){super(),this.c=e,this.f=t,this.g=s,this.h=r,this.b=this.D(new I),this.onDidChange=this.b.event,this.a=new b(this.c.toString(),r),this.D(this.g.watch(i.dirname(this.c))),this.D(this.g.watch(this.c)),this.D(k.any(k.filter(this.g.onDidFilesChange,n=>n.contains(this.c)),k.filter(this.g.onDidRunOperation,n=>(n.isOperation(0)||n.isOperation(3)||n.isOperation(1)||n.isOperation(4))&&i.isEqual(n.resource,e)))(()=>this.b.fire()))}async loadConfiguration(){try{const e=await this.g.readFile(this.c);return this.a.parse(e.value.toString()||"{}",this.f),this.a.configurationModel}catch{return f.createEmptyModel(this.h)}}reparse(e){return e&&(this.f=e),this.a.reparse(this.f),this.a.configurationModel}getRestrictedSettings(){return this.a.restrictedConfigurations}}class P{constructor(e,t,i,s,r,n,h,d,o,a,p,$,F){this.a=e,this.b=t,this.c=i,this.overrideIdentifiers=s,this.d=r,this.f=n,this.g=h,this.h=d,this.i=o,this.j=a,this.k=p,this.l=$,this.m=F}get value(){return y(this.c)}n(e){return e?.value!==void 0||e?.override!==void 0||e?.overrides!==void 0?e:void 0}get q(){return this.p||(this.p=this.d.inspect(this.a,this.b.overrideIdentifier)),this.p}get defaultValue(){return this.q.merged}get default(){return this.n(this.q)}get s(){return this.r===void 0&&(this.r=this.f?this.f.inspect(this.a):null),this.r}get policyValue(){return this.s?.merged}get policy(){return this.s?.value!==void 0?{value:this.s.value}:void 0}get u(){return this.t===void 0&&(this.t=this.g?this.g.inspect(this.a):null),this.t}get applicationValue(){return this.u?.merged}get application(){return this.n(this.u)}get w(){return this.v||(this.v=this.h.inspect(this.a,this.b.overrideIdentifier)),this.v}get userValue(){return this.w.merged}get user(){return this.n(this.w)}get y(){return this.x||(this.x=this.i.inspect(this.a,this.b.overrideIdentifier)),this.x}get userLocalValue(){return this.y.merged}get userLocal(){return this.n(this.y)}get A(){return this.z||(this.z=this.j.inspect(this.a,this.b.overrideIdentifier)),this.z}get userRemoteValue(){return this.A.merged}get userRemote(){return this.n(this.A)}get D(){return this.B===void 0&&(this.B=this.k?this.k.inspect(this.a,this.b.overrideIdentifier):null),this.B}get workspaceValue(){return this.D?.merged}get workspace(){return this.n(this.D)}get F(){return this.E===void 0&&(this.E=this.l?this.l.inspect(this.a,this.b.overrideIdentifier):null),this.E}get workspaceFolderValue(){return this.F?.merged}get workspaceFolder(){return this.n(this.F)}get H(){return this.G===void 0&&(this.G=this.m.inspect(this.a,this.b.overrideIdentifier)),this.G}get memoryValue(){return this.H.merged}get memory(){return this.n(this.H)}}class j{constructor(e,t,i,s,r,n,h,d,o,a){this.j=e,this.l=t,this.m=i,this.n=s,this.p=r,this.q=n,this.r=h,this.s=d,this.t=o,this.u=a,this.h=null,this.i=new w,this.v=null}getValue(e,t,i){return this.w(e,t,i).getValue(e)}updateValue(e,t,i={}){let s;i.resource?(s=this.t.get(i.resource),s||(s=f.createEmptyModel(this.u),this.t.set(i.resource,s))):s=this.s,t===void 0?s.removeValue(e):s.setValue(e,t),i.resource||(this.h=null)}inspect(e,t,i){const s=this.w(e,t,i),r=this.A(t.resource,i),n=t.resource?this.t.get(t.resource)||this.s:this.s,h=new Set;for(const d of s.overrides)for(const o of d.identifiers)s.getOverrideValue(e,o)!==void 0&&h.add(o);return new P(e,t,s.getValue(e),h.size?[...h]:void 0,this.j,this.l.isEmpty()?void 0:this.l,this.applicationConfiguration.isEmpty()?void 0:this.applicationConfiguration,this.userConfiguration,this.localUserConfiguration,this.remoteUserConfiguration,i?this.q:void 0,r||void 0,n)}keys(e){const t=this.A(void 0,e);return{default:this.j.keys.slice(0),policy:this.l.keys.slice(0),user:this.userConfiguration.keys.slice(0),workspace:this.q.keys.slice(0),workspaceFolder:t?t.keys.slice(0):[]}}updateDefaultConfiguration(e){this.j=e,this.h=null,this.i.clear()}updatePolicyConfiguration(e){this.l=e}updateApplicationConfiguration(e){this.m=e,this.h=null,this.i.clear()}updateLocalUserConfiguration(e){this.n=e,this.v=null,this.h=null,this.i.clear()}updateRemoteUserConfiguration(e){this.p=e,this.v=null,this.h=null,this.i.clear()}updateWorkspaceConfiguration(e){this.q=e,this.h=null,this.i.clear()}updateFolderConfiguration(e,t){this.r.set(e,t),this.i.delete(e)}deleteFolderConfiguration(e){this.folderConfigurations.delete(e),this.i.delete(e)}compareAndUpdateDefaultConfiguration(e,t){const i=[];if(!t){const{added:s,updated:r,removed:n}=l(this.j,e);t=[...s,...r,...n]}for(const s of t)for(const r of C(s)){const n=this.j.getKeysForOverrideIdentifier(r),h=e.getKeysForOverrideIdentifier(r),d=[...h.filter(o=>n.indexOf(o)===-1),...n.filter(o=>h.indexOf(o)===-1),...n.filter(o=>!c.$Fp(this.j.override(r).getValue(o),e.override(r).getValue(o)))];i.push([r,d])}return this.updateDefaultConfiguration(e),{keys:t,overrides:i}}compareAndUpdatePolicyConfiguration(e){const{added:t,updated:i,removed:s}=l(this.l,e),r=[...t,...i,...s];return r.length&&this.updatePolicyConfiguration(e),{keys:r,overrides:[]}}compareAndUpdateApplicationConfiguration(e){const{added:t,updated:i,removed:s,overrides:r}=l(this.applicationConfiguration,e),n=[...t,...i,...s];return n.length&&this.updateApplicationConfiguration(e),{keys:n,overrides:r}}compareAndUpdateLocalUserConfiguration(e){const{added:t,updated:i,removed:s,overrides:r}=l(this.localUserConfiguration,e),n=[...t,...i,...s];return n.length&&this.updateLocalUserConfiguration(e),{keys:n,overrides:r}}compareAndUpdateRemoteUserConfiguration(e){const{added:t,updated:i,removed:s,overrides:r}=l(this.remoteUserConfiguration,e),n=[...t,...i,...s];return n.length&&this.updateRemoteUserConfiguration(e),{keys:n,overrides:r}}compareAndUpdateWorkspaceConfiguration(e){const{added:t,updated:i,removed:s,overrides:r}=l(this.workspaceConfiguration,e),n=[...t,...i,...s];return n.length&&this.updateWorkspaceConfiguration(e),{keys:n,overrides:r}}compareAndUpdateFolderConfiguration(e,t){const i=this.folderConfigurations.get(e),{added:s,updated:r,removed:n,overrides:h}=l(i,t),d=[...s,...r,...n];return(d.length||!i)&&this.updateFolderConfiguration(e,t),{keys:d,overrides:h}}compareAndDeleteFolderConfiguration(e){const t=this.folderConfigurations.get(e);if(!t)throw new Error("Unknown folder");this.deleteFolderConfiguration(e);const{added:i,updated:s,removed:r,overrides:n}=l(t,void 0);return{keys:[...i,...s,...r],overrides:n}}get defaults(){return this.j}get applicationConfiguration(){return this.m}get userConfiguration(){if(!this.v)if(this.p.isEmpty())this.v=this.n;else{const e=this.n.merge(this.p);this.v=new f(e.contents,e.keys,e.overrides,void 0,this.u)}return this.v}get localUserConfiguration(){return this.n}get remoteUserConfiguration(){return this.p}get workspaceConfiguration(){return this.q}get folderConfigurations(){return this.r}w(e,t,i){let s=this.x(t,i);if(t.overrideIdentifier&&(s=s.override(t.overrideIdentifier)),!this.l.isEmpty()&&this.l.getValue(e)!==void 0){s=s.merge();for(const r of this.l.keys)s.setValue(r,this.l.getValue(r))}return s}x({resource:e},t){let i=this.y();if(t&&e){const s=t.getFolder(e);s&&(i=this.z(s.uri)||i);const r=this.t.get(e);r&&(i=i.merge(r))}return i}y(){return this.h||(this.h=this.j.merge(this.applicationConfiguration,this.userConfiguration,this.q,this.s)),this.h}z(e){let t=this.i.get(e);if(!t){const i=this.y(),s=this.r.get(e);s?(t=i.merge(s),this.i.set(e,t)):t=i}return t}A(e,t){if(t&&e){const i=t.getFolder(e);if(i)return this.r.get(i.uri)}}toData(){return{defaults:{contents:this.j.contents,overrides:this.j.overrides,keys:this.j.keys},policy:{contents:this.l.contents,overrides:this.l.overrides,keys:this.l.keys},application:{contents:this.applicationConfiguration.contents,overrides:this.applicationConfiguration.overrides,keys:this.applicationConfiguration.keys,raw:Array.isArray(this.applicationConfiguration.raw)?void 0:this.applicationConfiguration.raw},userLocal:{contents:this.localUserConfiguration.contents,overrides:this.localUserConfiguration.overrides,keys:this.localUserConfiguration.keys,raw:Array.isArray(this.localUserConfiguration.raw)?void 0:this.localUserConfiguration.raw},userRemote:{contents:this.remoteUserConfiguration.contents,overrides:this.remoteUserConfiguration.overrides,keys:this.remoteUserConfiguration.keys,raw:Array.isArray(this.remoteUserConfiguration.raw)?void 0:this.remoteUserConfiguration.raw},workspace:{contents:this.q.contents,overrides:this.q.overrides,keys:this.q.keys},folders:[...this.r.keys()].reduce((e,t)=>{const{contents:i,overrides:s,keys:r}=this.r.get(t);return e.push([t,{contents:i,overrides:s,keys:r}]),e},[])}}allKeys(){const e=new Set;return this.j.keys.forEach(t=>e.add(t)),this.userConfiguration.keys.forEach(t=>e.add(t)),this.q.keys.forEach(t=>e.add(t)),this.r.forEach(t=>t.keys.forEach(i=>e.add(i))),[...e.values()]}B(){const e=new Set;return this.j.getAllOverrideIdentifiers().forEach(t=>e.add(t)),this.userConfiguration.getAllOverrideIdentifiers().forEach(t=>e.add(t)),this.q.getAllOverrideIdentifiers().forEach(t=>e.add(t)),this.r.forEach(t=>t.getAllOverrideIdentifiers().forEach(i=>e.add(i))),[...e.values()]}D(e){const t=new Set;return this.j.getKeysForOverrideIdentifier(e).forEach(i=>t.add(i)),this.userConfiguration.getKeysForOverrideIdentifier(e).forEach(i=>t.add(i)),this.q.getKeysForOverrideIdentifier(e).forEach(i=>t.add(i)),this.r.forEach(i=>i.getKeysForOverrideIdentifier(e).forEach(s=>t.add(s))),[...t.values()]}static parse(e,t){const i=this.E(e.defaults,t),s=this.E(e.policy,t),r=this.E(e.application,t),n=this.E(e.userLocal,t),h=this.E(e.userRemote,t),d=this.E(e.workspace,t),o=e.folders.reduce((a,p)=>(a.set(K.revive(p[0]),this.E(p[1],t)),a),new w);return new j(i,s,r,n,h,d,o,f.createEmptyModel(t),new w,t)}static E(e,t){return new f(e.contents,e.keys,e.overrides,e.raw,t)}}function X(...u){if(u.length===0)return{keys:[],overrides:[]};if(u.length===1)return u[0];const e=new Set,t=new Map;for(const s of u)s.keys.forEach(r=>e.add(r)),s.overrides.forEach(([r,n])=>{const h=U(t,r,new Set);n.forEach(d=>h.add(d))});const i=[];return t.forEach((s,r)=>i.push([r,[...s.values()]])),{keys:[...e.values()],overrides:i}}class Q{constructor(e,t,i,s,r){this.change=e,this.f=t,this.g=i,this.h=s,this.i=r,this.a=`
-`,this.b=this.a.charCodeAt(0),this.c=46,this.affectedKeys=new Set,this.j=void 0;for(const n of e.keys)this.affectedKeys.add(n);for(const[,n]of e.overrides)for(const h of n)this.affectedKeys.add(h);this.d=this.a;for(const n of this.affectedKeys)this.d+=n+this.a}get previousConfiguration(){return!this.j&&this.f&&(this.j=j.parse(this.f.data,this.i)),this.j}affectsConfiguration(e,t){const i=this.a+e,s=this.d.indexOf(i);if(s<0)return!1;const r=s+i.length;if(r>=this.d.length)return!1;const n=this.d.charCodeAt(r);if(n!==this.b&&n!==this.c)return!1;if(t){const h=this.previousConfiguration?this.previousConfiguration.getValue(e,t,this.f?.workspace):void 0,d=this.g.getValue(e,t,this.h);return!c.$Fp(h,d)}return!0}}function l(u,e){const{added:t,removed:i,updated:s}=A(e?.rawConfiguration,u?.rawConfiguration),r=[],n=u?.getAllOverrideIdentifiers()||[],h=e?.getAllOverrideIdentifiers()||[];if(e){const d=h.filter(o=>!n.includes(o));for(const o of d)r.push([o,e.getKeysForOverrideIdentifier(o)])}if(u){const d=n.filter(o=>!h.includes(o));for(const o of d)r.push([o,u.getKeysForOverrideIdentifier(o)])}if(e&&u){for(const d of n)if(h.includes(d)){const o=A({contents:u.getOverrideValue(void 0,d)||{},keys:u.getKeysForOverrideIdentifier(d)},{contents:e.getOverrideValue(void 0,d)||{},keys:e.getKeysForOverrideIdentifier(d)});r.push([d,[...o.added,...o.removed,...o.updated]])}}return{added:t,removed:i,updated:s,overrides:r}}function A(u,e){const t=u?e?u.keys.filter(r=>e.keys.indexOf(r)===-1):[...u.keys]:[],i=e?u?e.keys.filter(r=>u.keys.indexOf(r)===-1):[...e.keys]:[],s=[];if(u&&e){for(const r of e.keys)if(u.keys.indexOf(r)!==-1){const n=v(e.contents,r),h=v(u.contents,r);c.$Fp(n,h)||s.push(r)}}return{added:t,removed:i,updated:s}}export{f as $SB,b as $TB,N as $UB,j as $VB,X as $WB,Q as $XB};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "../../../base/common/arrays.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import * as json from "../../../base/common/json.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { getOrSet, ResourceMap } from "../../../base/common/map.js";
+import * as objects from "../../../base/common/objects.js";
+import * as types from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { addToValueTree, getConfigurationValue, removeFromValueTree, toValuesTree } from "./configuration.js";
+import { Extensions, overrideIdentifiersFromKey, OVERRIDE_PROPERTY_REGEX } from "./configurationRegistry.js";
+import { Registry } from "../../registry/common/platform.js";
+function freeze(data) {
+  return Object.isFrozen(data) ? data : objects.deepFreeze(data);
+}
+__name(freeze, "freeze");
+class ConfigurationModel {
+  static {
+    __name(this, "ConfigurationModel");
+  }
+  static createEmptyModel(logService) {
+    return new ConfigurationModel({}, [], [], void 0, logService);
+  }
+  constructor(_contents, _keys, _overrides, _raw, logService) {
+    this._contents = _contents;
+    this._keys = _keys;
+    this._overrides = _overrides;
+    this._raw = _raw;
+    this.logService = logService;
+    this.overrideConfigurations = /* @__PURE__ */ new Map();
+  }
+  get rawConfiguration() {
+    if (!this._rawConfiguration) {
+      if (this._raw) {
+        const rawConfigurationModels = (Array.isArray(this._raw) ? this._raw : [this._raw]).map((raw) => {
+          if (raw instanceof ConfigurationModel) {
+            return raw;
+          }
+          const parser = new ConfigurationModelParser("", this.logService);
+          parser.parseRaw(raw);
+          return parser.configurationModel;
+        });
+        this._rawConfiguration = rawConfigurationModels.reduce((previous, current) => current === previous ? current : previous.merge(current), rawConfigurationModels[0]);
+      } else {
+        this._rawConfiguration = this;
+      }
+    }
+    return this._rawConfiguration;
+  }
+  get contents() {
+    return this._contents;
+  }
+  get overrides() {
+    return this._overrides;
+  }
+  get keys() {
+    return this._keys;
+  }
+  get raw() {
+    if (!this._raw) {
+      return void 0;
+    }
+    if (Array.isArray(this._raw) && this._raw.every((raw) => raw instanceof ConfigurationModel)) {
+      return void 0;
+    }
+    return this._raw;
+  }
+  isEmpty() {
+    return this._keys.length === 0 && Object.keys(this._contents).length === 0 && this._overrides.length === 0;
+  }
+  getValue(section) {
+    return section ? getConfigurationValue(this.contents, section) : this.contents;
+  }
+  inspect(section, overrideIdentifier) {
+    const that = this;
+    return {
+      get value() {
+        return freeze(that.rawConfiguration.getValue(section));
+      },
+      get override() {
+        return overrideIdentifier ? freeze(that.rawConfiguration.getOverrideValue(section, overrideIdentifier)) : void 0;
+      },
+      get merged() {
+        return freeze(overrideIdentifier ? that.rawConfiguration.override(overrideIdentifier).getValue(section) : that.rawConfiguration.getValue(section));
+      },
+      get overrides() {
+        const overrides = [];
+        for (const { contents, identifiers, keys } of that.rawConfiguration.overrides) {
+          const value = new ConfigurationModel(contents, keys, [], void 0, that.logService).getValue(section);
+          if (value !== void 0) {
+            overrides.push({ identifiers, value });
+          }
+        }
+        return overrides.length ? freeze(overrides) : void 0;
+      }
+    };
+  }
+  getOverrideValue(section, overrideIdentifier) {
+    const overrideContents = this.getContentsForOverrideIdentifer(overrideIdentifier);
+    return overrideContents ? section ? getConfigurationValue(overrideContents, section) : overrideContents : void 0;
+  }
+  getKeysForOverrideIdentifier(identifier) {
+    const keys = [];
+    for (const override of this.overrides) {
+      if (override.identifiers.includes(identifier)) {
+        keys.push(...override.keys);
+      }
+    }
+    return arrays.distinct(keys);
+  }
+  getAllOverrideIdentifiers() {
+    const result = [];
+    for (const override of this.overrides) {
+      result.push(...override.identifiers);
+    }
+    return arrays.distinct(result);
+  }
+  override(identifier) {
+    let overrideConfigurationModel = this.overrideConfigurations.get(identifier);
+    if (!overrideConfigurationModel) {
+      overrideConfigurationModel = this.createOverrideConfigurationModel(identifier);
+      this.overrideConfigurations.set(identifier, overrideConfigurationModel);
+    }
+    return overrideConfigurationModel;
+  }
+  merge(...others) {
+    const contents = objects.deepClone(this.contents);
+    const overrides = objects.deepClone(this.overrides);
+    const keys = [...this.keys];
+    const raws = this._raw ? Array.isArray(this._raw) ? [...this._raw] : [this._raw] : [this];
+    for (const other of others) {
+      raws.push(...other._raw ? Array.isArray(other._raw) ? other._raw : [other._raw] : [other]);
+      if (other.isEmpty()) {
+        continue;
+      }
+      this.mergeContents(contents, other.contents);
+      for (const otherOverride of other.overrides) {
+        const [override] = overrides.filter((o) => arrays.equals(o.identifiers, otherOverride.identifiers));
+        if (override) {
+          this.mergeContents(override.contents, otherOverride.contents);
+          override.keys.push(...otherOverride.keys);
+          override.keys = arrays.distinct(override.keys);
+        } else {
+          overrides.push(objects.deepClone(otherOverride));
+        }
+      }
+      for (const key of other.keys) {
+        if (keys.indexOf(key) === -1) {
+          keys.push(key);
+        }
+      }
+    }
+    return new ConfigurationModel(contents, keys, overrides, !raws.length || raws.every((raw) => raw instanceof ConfigurationModel) ? void 0 : raws, this.logService);
+  }
+  createOverrideConfigurationModel(identifier) {
+    const overrideContents = this.getContentsForOverrideIdentifer(identifier);
+    if (!overrideContents || typeof overrideContents !== "object" || !Object.keys(overrideContents).length) {
+      return this;
+    }
+    const contents = {};
+    for (const key of arrays.distinct([...Object.keys(this.contents), ...Object.keys(overrideContents)])) {
+      let contentsForKey = this.contents[key];
+      const overrideContentsForKey = overrideContents[key];
+      if (overrideContentsForKey) {
+        if (typeof contentsForKey === "object" && typeof overrideContentsForKey === "object") {
+          contentsForKey = objects.deepClone(contentsForKey);
+          this.mergeContents(contentsForKey, overrideContentsForKey);
+        } else {
+          contentsForKey = overrideContentsForKey;
+        }
+      }
+      contents[key] = contentsForKey;
+    }
+    return new ConfigurationModel(contents, this.keys, this.overrides, void 0, this.logService);
+  }
+  mergeContents(source, target) {
+    for (const key of Object.keys(target)) {
+      if (key in source) {
+        if (types.isObject(source[key]) && types.isObject(target[key])) {
+          this.mergeContents(source[key], target[key]);
+          continue;
+        }
+      }
+      source[key] = objects.deepClone(target[key]);
+    }
+  }
+  getContentsForOverrideIdentifer(identifier) {
+    let contentsForIdentifierOnly = null;
+    let contents = null;
+    const mergeContents = /* @__PURE__ */ __name((contentsToMerge) => {
+      if (contentsToMerge) {
+        if (contents) {
+          this.mergeContents(contents, contentsToMerge);
+        } else {
+          contents = objects.deepClone(contentsToMerge);
+        }
+      }
+    }, "mergeContents");
+    for (const override of this.overrides) {
+      if (override.identifiers.length === 1 && override.identifiers[0] === identifier) {
+        contentsForIdentifierOnly = override.contents;
+      } else if (override.identifiers.includes(identifier)) {
+        mergeContents(override.contents);
+      }
+    }
+    mergeContents(contentsForIdentifierOnly);
+    return contents;
+  }
+  toJSON() {
+    return {
+      contents: this.contents,
+      overrides: this.overrides,
+      keys: this.keys
+    };
+  }
+  // Update methods
+  addValue(key, value) {
+    this.updateValue(key, value, true);
+  }
+  setValue(key, value) {
+    this.updateValue(key, value, false);
+  }
+  removeValue(key) {
+    const index = this.keys.indexOf(key);
+    if (index === -1) {
+      return;
+    }
+    this.keys.splice(index, 1);
+    removeFromValueTree(this.contents, key);
+    if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+      this.overrides.splice(this.overrides.findIndex((o) => arrays.equals(o.identifiers, overrideIdentifiersFromKey(key))), 1);
+    }
+  }
+  updateValue(key, value, add) {
+    addToValueTree(this.contents, key, value, (e) => this.logService.error(e));
+    add = add || this.keys.indexOf(key) === -1;
+    if (add) {
+      this.keys.push(key);
+    }
+    if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+      const overrideContents = this.contents[key];
+      const identifiers = overrideIdentifiersFromKey(key);
+      const override = {
+        identifiers,
+        keys: Object.keys(overrideContents),
+        contents: toValuesTree(overrideContents, (message) => this.logService.error(message))
+      };
+      const index = this.overrides.findIndex((o) => arrays.equals(o.identifiers, identifiers));
+      if (index !== -1) {
+        this.overrides[index] = override;
+      } else {
+        this.overrides.push(override);
+      }
+    }
+  }
+}
+class ConfigurationModelParser {
+  static {
+    __name(this, "ConfigurationModelParser");
+  }
+  constructor(_name, logService) {
+    this._name = _name;
+    this.logService = logService;
+    this._raw = null;
+    this._configurationModel = null;
+    this._restrictedConfigurations = [];
+    this._parseErrors = [];
+  }
+  get configurationModel() {
+    return this._configurationModel || ConfigurationModel.createEmptyModel(this.logService);
+  }
+  get restrictedConfigurations() {
+    return this._restrictedConfigurations;
+  }
+  get errors() {
+    return this._parseErrors;
+  }
+  parse(content, options) {
+    if (!types.isUndefinedOrNull(content)) {
+      const raw = this.doParseContent(content);
+      this.parseRaw(raw, options);
+    }
+  }
+  reparse(options) {
+    if (this._raw) {
+      this.parseRaw(this._raw, options);
+    }
+  }
+  parseRaw(raw, options) {
+    this._raw = raw;
+    const { contents, keys, overrides, restricted, hasExcludedProperties } = this.doParseRaw(raw, options);
+    this._configurationModel = new ConfigurationModel(contents, keys, overrides, hasExcludedProperties ? [raw] : void 0, this.logService);
+    this._restrictedConfigurations = restricted || [];
+  }
+  doParseContent(content) {
+    let raw = {};
+    let currentProperty = null;
+    let currentParent = [];
+    const previousParents = [];
+    const parseErrors = [];
+    function onValue(value) {
+      if (Array.isArray(currentParent)) {
+        currentParent.push(value);
+      } else if (currentProperty !== null) {
+        currentParent[currentProperty] = value;
+      }
+    }
+    __name(onValue, "onValue");
+    const visitor = {
+      onObjectBegin: /* @__PURE__ */ __name(() => {
+        const object = {};
+        onValue(object);
+        previousParents.push(currentParent);
+        currentParent = object;
+        currentProperty = null;
+      }, "onObjectBegin"),
+      onObjectProperty: /* @__PURE__ */ __name((name) => {
+        currentProperty = name;
+      }, "onObjectProperty"),
+      onObjectEnd: /* @__PURE__ */ __name(() => {
+        currentParent = previousParents.pop();
+      }, "onObjectEnd"),
+      onArrayBegin: /* @__PURE__ */ __name(() => {
+        const array = [];
+        onValue(array);
+        previousParents.push(currentParent);
+        currentParent = array;
+        currentProperty = null;
+      }, "onArrayBegin"),
+      onArrayEnd: /* @__PURE__ */ __name(() => {
+        currentParent = previousParents.pop();
+      }, "onArrayEnd"),
+      onLiteralValue: onValue,
+      onError: /* @__PURE__ */ __name((error, offset, length) => {
+        parseErrors.push({ error, offset, length });
+      }, "onError")
+    };
+    if (content) {
+      try {
+        json.visit(content, visitor);
+        raw = currentParent[0] || {};
+      } catch (e) {
+        this.logService.error(`Error while parsing settings file ${this._name}: ${e}`);
+        this._parseErrors = [e];
+      }
+    }
+    return raw;
+  }
+  doParseRaw(raw, options) {
+    const registry = Registry.as(Extensions.Configuration);
+    const configurationProperties = registry.getConfigurationProperties();
+    const excludedConfigurationProperties = registry.getExcludedConfigurationProperties();
+    const filtered = this.filter(raw, configurationProperties, excludedConfigurationProperties, true, options);
+    raw = filtered.raw;
+    const contents = toValuesTree(raw, (message) => this.logService.error(`Conflict in settings file ${this._name}: ${message}`));
+    const keys = Object.keys(raw);
+    const overrides = this.toOverrides(raw, (message) => this.logService.error(`Conflict in settings file ${this._name}: ${message}`));
+    return { contents, keys, overrides, restricted: filtered.restricted, hasExcludedProperties: filtered.hasExcludedProperties };
+  }
+  filter(properties, configurationProperties, excludedConfigurationProperties, filterOverriddenProperties, options) {
+    let hasExcludedProperties = false;
+    if (!options?.scopes && !options?.skipRestricted && !options?.skipUnregistered && !options?.exclude?.length) {
+      return { raw: properties, restricted: [], hasExcludedProperties };
+    }
+    const raw = {};
+    const restricted = [];
+    for (const key in properties) {
+      if (OVERRIDE_PROPERTY_REGEX.test(key) && filterOverriddenProperties) {
+        const result = this.filter(properties[key], configurationProperties, excludedConfigurationProperties, false, options);
+        raw[key] = result.raw;
+        hasExcludedProperties = hasExcludedProperties || result.hasExcludedProperties;
+        restricted.push(...result.restricted);
+      } else {
+        const propertySchema = configurationProperties[key];
+        if (propertySchema?.restricted) {
+          restricted.push(key);
+        }
+        if (this.shouldInclude(key, propertySchema, excludedConfigurationProperties, options)) {
+          raw[key] = properties[key];
+        } else {
+          hasExcludedProperties = true;
+        }
+      }
+    }
+    return { raw, restricted, hasExcludedProperties };
+  }
+  shouldInclude(key, propertySchema, excludedConfigurationProperties, options) {
+    if (options.exclude?.includes(key)) {
+      return false;
+    }
+    if (options.include?.includes(key)) {
+      return true;
+    }
+    if (options.skipRestricted && propertySchema?.restricted) {
+      return false;
+    }
+    if (options.skipUnregistered && !propertySchema) {
+      return false;
+    }
+    const schema = propertySchema ?? excludedConfigurationProperties[key];
+    const scope = schema ? typeof schema.scope !== "undefined" ? schema.scope : 4 : void 0;
+    if (scope === void 0 || options.scopes === void 0) {
+      return true;
+    }
+    return options.scopes.includes(scope);
+  }
+  toOverrides(raw, conflictReporter) {
+    const overrides = [];
+    for (const key of Object.keys(raw)) {
+      if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+        const overrideRaw = {};
+        const rawKey = raw[key];
+        for (const keyInOverrideRaw in rawKey) {
+          overrideRaw[keyInOverrideRaw] = rawKey[keyInOverrideRaw];
+        }
+        overrides.push({
+          identifiers: overrideIdentifiersFromKey(key),
+          keys: Object.keys(overrideRaw),
+          contents: toValuesTree(overrideRaw, conflictReporter)
+        });
+      }
+    }
+    return overrides;
+  }
+}
+class UserSettings extends Disposable {
+  static {
+    __name(this, "UserSettings");
+  }
+  constructor(userSettingsResource, parseOptions, extUri, fileService, logService) {
+    super();
+    this.userSettingsResource = userSettingsResource;
+    this.parseOptions = parseOptions;
+    this.fileService = fileService;
+    this.logService = logService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this.parser = new ConfigurationModelParser(this.userSettingsResource.toString(), logService);
+    this._register(this.fileService.watch(extUri.dirname(this.userSettingsResource)));
+    this._register(this.fileService.watch(this.userSettingsResource));
+    this._register(Event.any(Event.filter(this.fileService.onDidFilesChange, (e) => e.contains(this.userSettingsResource)), Event.filter(this.fileService.onDidRunOperation, (e) => (e.isOperation(
+      0
+      /* FileOperation.CREATE */
+    ) || e.isOperation(
+      3
+      /* FileOperation.COPY */
+    ) || e.isOperation(
+      1
+      /* FileOperation.DELETE */
+    ) || e.isOperation(
+      4
+      /* FileOperation.WRITE */
+    )) && extUri.isEqual(e.resource, userSettingsResource)))(() => this._onDidChange.fire()));
+  }
+  async loadConfiguration() {
+    try {
+      const content = await this.fileService.readFile(this.userSettingsResource);
+      this.parser.parse(content.value.toString() || "{}", this.parseOptions);
+      return this.parser.configurationModel;
+    } catch (e) {
+      return ConfigurationModel.createEmptyModel(this.logService);
+    }
+  }
+  reparse(parseOptions) {
+    if (parseOptions) {
+      this.parseOptions = parseOptions;
+    }
+    this.parser.reparse(this.parseOptions);
+    return this.parser.configurationModel;
+  }
+  getRestrictedSettings() {
+    return this.parser.restrictedConfigurations;
+  }
+}
+class ConfigurationInspectValue {
+  static {
+    __name(this, "ConfigurationInspectValue");
+  }
+  constructor(key, overrides, _value, overrideIdentifiers, defaultConfiguration, policyConfiguration, applicationConfiguration, userConfiguration, localUserConfiguration, remoteUserConfiguration, workspaceConfiguration, folderConfigurationModel, memoryConfigurationModel) {
+    this.key = key;
+    this.overrides = overrides;
+    this._value = _value;
+    this.overrideIdentifiers = overrideIdentifiers;
+    this.defaultConfiguration = defaultConfiguration;
+    this.policyConfiguration = policyConfiguration;
+    this.applicationConfiguration = applicationConfiguration;
+    this.userConfiguration = userConfiguration;
+    this.localUserConfiguration = localUserConfiguration;
+    this.remoteUserConfiguration = remoteUserConfiguration;
+    this.workspaceConfiguration = workspaceConfiguration;
+    this.folderConfigurationModel = folderConfigurationModel;
+    this.memoryConfigurationModel = memoryConfigurationModel;
+  }
+  get value() {
+    return freeze(this._value);
+  }
+  toInspectValue(inspectValue) {
+    return inspectValue?.value !== void 0 || inspectValue?.override !== void 0 || inspectValue?.overrides !== void 0 ? inspectValue : void 0;
+  }
+  get defaultInspectValue() {
+    if (!this._defaultInspectValue) {
+      this._defaultInspectValue = this.defaultConfiguration.inspect(this.key, this.overrides.overrideIdentifier);
+    }
+    return this._defaultInspectValue;
+  }
+  get defaultValue() {
+    return this.defaultInspectValue.merged;
+  }
+  get default() {
+    return this.toInspectValue(this.defaultInspectValue);
+  }
+  get policyInspectValue() {
+    if (this._policyInspectValue === void 0) {
+      this._policyInspectValue = this.policyConfiguration ? this.policyConfiguration.inspect(this.key) : null;
+    }
+    return this._policyInspectValue;
+  }
+  get policyValue() {
+    return this.policyInspectValue?.merged;
+  }
+  get policy() {
+    return this.policyInspectValue?.value !== void 0 ? { value: this.policyInspectValue.value } : void 0;
+  }
+  get applicationInspectValue() {
+    if (this._applicationInspectValue === void 0) {
+      this._applicationInspectValue = this.applicationConfiguration ? this.applicationConfiguration.inspect(this.key) : null;
+    }
+    return this._applicationInspectValue;
+  }
+  get applicationValue() {
+    return this.applicationInspectValue?.merged;
+  }
+  get application() {
+    return this.toInspectValue(this.applicationInspectValue);
+  }
+  get userInspectValue() {
+    if (!this._userInspectValue) {
+      this._userInspectValue = this.userConfiguration.inspect(this.key, this.overrides.overrideIdentifier);
+    }
+    return this._userInspectValue;
+  }
+  get userValue() {
+    return this.userInspectValue.merged;
+  }
+  get user() {
+    return this.toInspectValue(this.userInspectValue);
+  }
+  get userLocalInspectValue() {
+    if (!this._userLocalInspectValue) {
+      this._userLocalInspectValue = this.localUserConfiguration.inspect(this.key, this.overrides.overrideIdentifier);
+    }
+    return this._userLocalInspectValue;
+  }
+  get userLocalValue() {
+    return this.userLocalInspectValue.merged;
+  }
+  get userLocal() {
+    return this.toInspectValue(this.userLocalInspectValue);
+  }
+  get userRemoteInspectValue() {
+    if (!this._userRemoteInspectValue) {
+      this._userRemoteInspectValue = this.remoteUserConfiguration.inspect(this.key, this.overrides.overrideIdentifier);
+    }
+    return this._userRemoteInspectValue;
+  }
+  get userRemoteValue() {
+    return this.userRemoteInspectValue.merged;
+  }
+  get userRemote() {
+    return this.toInspectValue(this.userRemoteInspectValue);
+  }
+  get workspaceInspectValue() {
+    if (this._workspaceInspectValue === void 0) {
+      this._workspaceInspectValue = this.workspaceConfiguration ? this.workspaceConfiguration.inspect(this.key, this.overrides.overrideIdentifier) : null;
+    }
+    return this._workspaceInspectValue;
+  }
+  get workspaceValue() {
+    return this.workspaceInspectValue?.merged;
+  }
+  get workspace() {
+    return this.toInspectValue(this.workspaceInspectValue);
+  }
+  get workspaceFolderInspectValue() {
+    if (this._workspaceFolderInspectValue === void 0) {
+      this._workspaceFolderInspectValue = this.folderConfigurationModel ? this.folderConfigurationModel.inspect(this.key, this.overrides.overrideIdentifier) : null;
+    }
+    return this._workspaceFolderInspectValue;
+  }
+  get workspaceFolderValue() {
+    return this.workspaceFolderInspectValue?.merged;
+  }
+  get workspaceFolder() {
+    return this.toInspectValue(this.workspaceFolderInspectValue);
+  }
+  get memoryInspectValue() {
+    if (this._memoryInspectValue === void 0) {
+      this._memoryInspectValue = this.memoryConfigurationModel.inspect(this.key, this.overrides.overrideIdentifier);
+    }
+    return this._memoryInspectValue;
+  }
+  get memoryValue() {
+    return this.memoryInspectValue.merged;
+  }
+  get memory() {
+    return this.toInspectValue(this.memoryInspectValue);
+  }
+}
+class Configuration {
+  static {
+    __name(this, "Configuration");
+  }
+  constructor(_defaultConfiguration, _policyConfiguration, _applicationConfiguration, _localUserConfiguration, _remoteUserConfiguration, _workspaceConfiguration, _folderConfigurations, _memoryConfiguration, _memoryConfigurationByResource, logService) {
+    this._defaultConfiguration = _defaultConfiguration;
+    this._policyConfiguration = _policyConfiguration;
+    this._applicationConfiguration = _applicationConfiguration;
+    this._localUserConfiguration = _localUserConfiguration;
+    this._remoteUserConfiguration = _remoteUserConfiguration;
+    this._workspaceConfiguration = _workspaceConfiguration;
+    this._folderConfigurations = _folderConfigurations;
+    this._memoryConfiguration = _memoryConfiguration;
+    this._memoryConfigurationByResource = _memoryConfigurationByResource;
+    this.logService = logService;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations = new ResourceMap();
+    this._userConfiguration = null;
+  }
+  getValue(section, overrides, workspace) {
+    const consolidateConfigurationModel = this.getConsolidatedConfigurationModel(section, overrides, workspace);
+    return consolidateConfigurationModel.getValue(section);
+  }
+  updateValue(key, value, overrides = {}) {
+    let memoryConfiguration;
+    if (overrides.resource) {
+      memoryConfiguration = this._memoryConfigurationByResource.get(overrides.resource);
+      if (!memoryConfiguration) {
+        memoryConfiguration = ConfigurationModel.createEmptyModel(this.logService);
+        this._memoryConfigurationByResource.set(overrides.resource, memoryConfiguration);
+      }
+    } else {
+      memoryConfiguration = this._memoryConfiguration;
+    }
+    if (value === void 0) {
+      memoryConfiguration.removeValue(key);
+    } else {
+      memoryConfiguration.setValue(key, value);
+    }
+    if (!overrides.resource) {
+      this._workspaceConsolidatedConfiguration = null;
+    }
+  }
+  inspect(key, overrides, workspace) {
+    const consolidateConfigurationModel = this.getConsolidatedConfigurationModel(key, overrides, workspace);
+    const folderConfigurationModel = this.getFolderConfigurationModelForResource(overrides.resource, workspace);
+    const memoryConfigurationModel = overrides.resource ? this._memoryConfigurationByResource.get(overrides.resource) || this._memoryConfiguration : this._memoryConfiguration;
+    const overrideIdentifiers = /* @__PURE__ */ new Set();
+    for (const override of consolidateConfigurationModel.overrides) {
+      for (const overrideIdentifier of override.identifiers) {
+        if (consolidateConfigurationModel.getOverrideValue(key, overrideIdentifier) !== void 0) {
+          overrideIdentifiers.add(overrideIdentifier);
+        }
+      }
+    }
+    return new ConfigurationInspectValue(key, overrides, consolidateConfigurationModel.getValue(key), overrideIdentifiers.size ? [...overrideIdentifiers] : void 0, this._defaultConfiguration, this._policyConfiguration.isEmpty() ? void 0 : this._policyConfiguration, this.applicationConfiguration.isEmpty() ? void 0 : this.applicationConfiguration, this.userConfiguration, this.localUserConfiguration, this.remoteUserConfiguration, workspace ? this._workspaceConfiguration : void 0, folderConfigurationModel ? folderConfigurationModel : void 0, memoryConfigurationModel);
+  }
+  keys(workspace) {
+    const folderConfigurationModel = this.getFolderConfigurationModelForResource(void 0, workspace);
+    return {
+      default: this._defaultConfiguration.keys.slice(0),
+      policy: this._policyConfiguration.keys.slice(0),
+      user: this.userConfiguration.keys.slice(0),
+      workspace: this._workspaceConfiguration.keys.slice(0),
+      workspaceFolder: folderConfigurationModel ? folderConfigurationModel.keys.slice(0) : []
+    };
+  }
+  updateDefaultConfiguration(defaultConfiguration) {
+    this._defaultConfiguration = defaultConfiguration;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations.clear();
+  }
+  updatePolicyConfiguration(policyConfiguration) {
+    this._policyConfiguration = policyConfiguration;
+  }
+  updateApplicationConfiguration(applicationConfiguration) {
+    this._applicationConfiguration = applicationConfiguration;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations.clear();
+  }
+  updateLocalUserConfiguration(localUserConfiguration) {
+    this._localUserConfiguration = localUserConfiguration;
+    this._userConfiguration = null;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations.clear();
+  }
+  updateRemoteUserConfiguration(remoteUserConfiguration) {
+    this._remoteUserConfiguration = remoteUserConfiguration;
+    this._userConfiguration = null;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations.clear();
+  }
+  updateWorkspaceConfiguration(workspaceConfiguration) {
+    this._workspaceConfiguration = workspaceConfiguration;
+    this._workspaceConsolidatedConfiguration = null;
+    this._foldersConsolidatedConfigurations.clear();
+  }
+  updateFolderConfiguration(resource, configuration) {
+    this._folderConfigurations.set(resource, configuration);
+    this._foldersConsolidatedConfigurations.delete(resource);
+  }
+  deleteFolderConfiguration(resource) {
+    this.folderConfigurations.delete(resource);
+    this._foldersConsolidatedConfigurations.delete(resource);
+  }
+  compareAndUpdateDefaultConfiguration(defaults, keys) {
+    const overrides = [];
+    if (!keys) {
+      const { added, updated, removed } = compare(this._defaultConfiguration, defaults);
+      keys = [...added, ...updated, ...removed];
+    }
+    for (const key of keys) {
+      for (const overrideIdentifier of overrideIdentifiersFromKey(key)) {
+        const fromKeys = this._defaultConfiguration.getKeysForOverrideIdentifier(overrideIdentifier);
+        const toKeys = defaults.getKeysForOverrideIdentifier(overrideIdentifier);
+        const keys2 = [
+          ...toKeys.filter((key2) => fromKeys.indexOf(key2) === -1),
+          ...fromKeys.filter((key2) => toKeys.indexOf(key2) === -1),
+          ...fromKeys.filter((key2) => !objects.equals(this._defaultConfiguration.override(overrideIdentifier).getValue(key2), defaults.override(overrideIdentifier).getValue(key2)))
+        ];
+        overrides.push([overrideIdentifier, keys2]);
+      }
+    }
+    this.updateDefaultConfiguration(defaults);
+    return { keys, overrides };
+  }
+  compareAndUpdatePolicyConfiguration(policyConfiguration) {
+    const { added, updated, removed } = compare(this._policyConfiguration, policyConfiguration);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length) {
+      this.updatePolicyConfiguration(policyConfiguration);
+    }
+    return { keys, overrides: [] };
+  }
+  compareAndUpdateApplicationConfiguration(application) {
+    const { added, updated, removed, overrides } = compare(this.applicationConfiguration, application);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length) {
+      this.updateApplicationConfiguration(application);
+    }
+    return { keys, overrides };
+  }
+  compareAndUpdateLocalUserConfiguration(user) {
+    const { added, updated, removed, overrides } = compare(this.localUserConfiguration, user);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length) {
+      this.updateLocalUserConfiguration(user);
+    }
+    return { keys, overrides };
+  }
+  compareAndUpdateRemoteUserConfiguration(user) {
+    const { added, updated, removed, overrides } = compare(this.remoteUserConfiguration, user);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length) {
+      this.updateRemoteUserConfiguration(user);
+    }
+    return { keys, overrides };
+  }
+  compareAndUpdateWorkspaceConfiguration(workspaceConfiguration) {
+    const { added, updated, removed, overrides } = compare(this.workspaceConfiguration, workspaceConfiguration);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length) {
+      this.updateWorkspaceConfiguration(workspaceConfiguration);
+    }
+    return { keys, overrides };
+  }
+  compareAndUpdateFolderConfiguration(resource, folderConfiguration) {
+    const currentFolderConfiguration = this.folderConfigurations.get(resource);
+    const { added, updated, removed, overrides } = compare(currentFolderConfiguration, folderConfiguration);
+    const keys = [...added, ...updated, ...removed];
+    if (keys.length || !currentFolderConfiguration) {
+      this.updateFolderConfiguration(resource, folderConfiguration);
+    }
+    return { keys, overrides };
+  }
+  compareAndDeleteFolderConfiguration(folder) {
+    const folderConfig = this.folderConfigurations.get(folder);
+    if (!folderConfig) {
+      throw new Error("Unknown folder");
+    }
+    this.deleteFolderConfiguration(folder);
+    const { added, updated, removed, overrides } = compare(folderConfig, void 0);
+    return { keys: [...added, ...updated, ...removed], overrides };
+  }
+  get defaults() {
+    return this._defaultConfiguration;
+  }
+  get applicationConfiguration() {
+    return this._applicationConfiguration;
+  }
+  get userConfiguration() {
+    if (!this._userConfiguration) {
+      if (this._remoteUserConfiguration.isEmpty()) {
+        this._userConfiguration = this._localUserConfiguration;
+      } else {
+        const merged = this._localUserConfiguration.merge(this._remoteUserConfiguration);
+        this._userConfiguration = new ConfigurationModel(merged.contents, merged.keys, merged.overrides, void 0, this.logService);
+      }
+    }
+    return this._userConfiguration;
+  }
+  get localUserConfiguration() {
+    return this._localUserConfiguration;
+  }
+  get remoteUserConfiguration() {
+    return this._remoteUserConfiguration;
+  }
+  get workspaceConfiguration() {
+    return this._workspaceConfiguration;
+  }
+  get folderConfigurations() {
+    return this._folderConfigurations;
+  }
+  getConsolidatedConfigurationModel(section, overrides, workspace) {
+    let configurationModel = this.getConsolidatedConfigurationModelForResource(overrides, workspace);
+    if (overrides.overrideIdentifier) {
+      configurationModel = configurationModel.override(overrides.overrideIdentifier);
+    }
+    if (!this._policyConfiguration.isEmpty() && this._policyConfiguration.getValue(section) !== void 0) {
+      configurationModel = configurationModel.merge();
+      for (const key of this._policyConfiguration.keys) {
+        configurationModel.setValue(key, this._policyConfiguration.getValue(key));
+      }
+    }
+    return configurationModel;
+  }
+  getConsolidatedConfigurationModelForResource({ resource }, workspace) {
+    let consolidateConfiguration = this.getWorkspaceConsolidatedConfiguration();
+    if (workspace && resource) {
+      const root = workspace.getFolder(resource);
+      if (root) {
+        consolidateConfiguration = this.getFolderConsolidatedConfiguration(root.uri) || consolidateConfiguration;
+      }
+      const memoryConfigurationForResource = this._memoryConfigurationByResource.get(resource);
+      if (memoryConfigurationForResource) {
+        consolidateConfiguration = consolidateConfiguration.merge(memoryConfigurationForResource);
+      }
+    }
+    return consolidateConfiguration;
+  }
+  getWorkspaceConsolidatedConfiguration() {
+    if (!this._workspaceConsolidatedConfiguration) {
+      this._workspaceConsolidatedConfiguration = this._defaultConfiguration.merge(this.applicationConfiguration, this.userConfiguration, this._workspaceConfiguration, this._memoryConfiguration);
+    }
+    return this._workspaceConsolidatedConfiguration;
+  }
+  getFolderConsolidatedConfiguration(folder) {
+    let folderConsolidatedConfiguration = this._foldersConsolidatedConfigurations.get(folder);
+    if (!folderConsolidatedConfiguration) {
+      const workspaceConsolidateConfiguration = this.getWorkspaceConsolidatedConfiguration();
+      const folderConfiguration = this._folderConfigurations.get(folder);
+      if (folderConfiguration) {
+        folderConsolidatedConfiguration = workspaceConsolidateConfiguration.merge(folderConfiguration);
+        this._foldersConsolidatedConfigurations.set(folder, folderConsolidatedConfiguration);
+      } else {
+        folderConsolidatedConfiguration = workspaceConsolidateConfiguration;
+      }
+    }
+    return folderConsolidatedConfiguration;
+  }
+  getFolderConfigurationModelForResource(resource, workspace) {
+    if (workspace && resource) {
+      const root = workspace.getFolder(resource);
+      if (root) {
+        return this._folderConfigurations.get(root.uri);
+      }
+    }
+    return void 0;
+  }
+  toData() {
+    return {
+      defaults: {
+        contents: this._defaultConfiguration.contents,
+        overrides: this._defaultConfiguration.overrides,
+        keys: this._defaultConfiguration.keys
+      },
+      policy: {
+        contents: this._policyConfiguration.contents,
+        overrides: this._policyConfiguration.overrides,
+        keys: this._policyConfiguration.keys
+      },
+      application: {
+        contents: this.applicationConfiguration.contents,
+        overrides: this.applicationConfiguration.overrides,
+        keys: this.applicationConfiguration.keys,
+        raw: Array.isArray(this.applicationConfiguration.raw) ? void 0 : this.applicationConfiguration.raw
+      },
+      userLocal: {
+        contents: this.localUserConfiguration.contents,
+        overrides: this.localUserConfiguration.overrides,
+        keys: this.localUserConfiguration.keys,
+        raw: Array.isArray(this.localUserConfiguration.raw) ? void 0 : this.localUserConfiguration.raw
+      },
+      userRemote: {
+        contents: this.remoteUserConfiguration.contents,
+        overrides: this.remoteUserConfiguration.overrides,
+        keys: this.remoteUserConfiguration.keys,
+        raw: Array.isArray(this.remoteUserConfiguration.raw) ? void 0 : this.remoteUserConfiguration.raw
+      },
+      workspace: {
+        contents: this._workspaceConfiguration.contents,
+        overrides: this._workspaceConfiguration.overrides,
+        keys: this._workspaceConfiguration.keys
+      },
+      folders: [...this._folderConfigurations.keys()].reduce((result, folder) => {
+        const { contents, overrides, keys } = this._folderConfigurations.get(folder);
+        result.push([folder, { contents, overrides, keys }]);
+        return result;
+      }, [])
+    };
+  }
+  allKeys() {
+    const keys = /* @__PURE__ */ new Set();
+    this._defaultConfiguration.keys.forEach((key) => keys.add(key));
+    this.userConfiguration.keys.forEach((key) => keys.add(key));
+    this._workspaceConfiguration.keys.forEach((key) => keys.add(key));
+    this._folderConfigurations.forEach((folderConfiguration) => folderConfiguration.keys.forEach((key) => keys.add(key)));
+    return [...keys.values()];
+  }
+  allOverrideIdentifiers() {
+    const keys = /* @__PURE__ */ new Set();
+    this._defaultConfiguration.getAllOverrideIdentifiers().forEach((key) => keys.add(key));
+    this.userConfiguration.getAllOverrideIdentifiers().forEach((key) => keys.add(key));
+    this._workspaceConfiguration.getAllOverrideIdentifiers().forEach((key) => keys.add(key));
+    this._folderConfigurations.forEach((folderConfiguration) => folderConfiguration.getAllOverrideIdentifiers().forEach((key) => keys.add(key)));
+    return [...keys.values()];
+  }
+  getAllKeysForOverrideIdentifier(overrideIdentifier) {
+    const keys = /* @__PURE__ */ new Set();
+    this._defaultConfiguration.getKeysForOverrideIdentifier(overrideIdentifier).forEach((key) => keys.add(key));
+    this.userConfiguration.getKeysForOverrideIdentifier(overrideIdentifier).forEach((key) => keys.add(key));
+    this._workspaceConfiguration.getKeysForOverrideIdentifier(overrideIdentifier).forEach((key) => keys.add(key));
+    this._folderConfigurations.forEach((folderConfiguration) => folderConfiguration.getKeysForOverrideIdentifier(overrideIdentifier).forEach((key) => keys.add(key)));
+    return [...keys.values()];
+  }
+  static parse(data, logService) {
+    const defaultConfiguration = this.parseConfigurationModel(data.defaults, logService);
+    const policyConfiguration = this.parseConfigurationModel(data.policy, logService);
+    const applicationConfiguration = this.parseConfigurationModel(data.application, logService);
+    const userLocalConfiguration = this.parseConfigurationModel(data.userLocal, logService);
+    const userRemoteConfiguration = this.parseConfigurationModel(data.userRemote, logService);
+    const workspaceConfiguration = this.parseConfigurationModel(data.workspace, logService);
+    const folders = data.folders.reduce((result, value) => {
+      result.set(URI.revive(value[0]), this.parseConfigurationModel(value[1], logService));
+      return result;
+    }, new ResourceMap());
+    return new Configuration(defaultConfiguration, policyConfiguration, applicationConfiguration, userLocalConfiguration, userRemoteConfiguration, workspaceConfiguration, folders, ConfigurationModel.createEmptyModel(logService), new ResourceMap(), logService);
+  }
+  static parseConfigurationModel(model, logService) {
+    return new ConfigurationModel(model.contents, model.keys, model.overrides, model.raw, logService);
+  }
+}
+function mergeChanges(...changes) {
+  if (changes.length === 0) {
+    return { keys: [], overrides: [] };
+  }
+  if (changes.length === 1) {
+    return changes[0];
+  }
+  const keysSet = /* @__PURE__ */ new Set();
+  const overridesMap = /* @__PURE__ */ new Map();
+  for (const change of changes) {
+    change.keys.forEach((key) => keysSet.add(key));
+    change.overrides.forEach(([identifier, keys]) => {
+      const result = getOrSet(overridesMap, identifier, /* @__PURE__ */ new Set());
+      keys.forEach((key) => result.add(key));
+    });
+  }
+  const overrides = [];
+  overridesMap.forEach((keys, identifier) => overrides.push([identifier, [...keys.values()]]));
+  return { keys: [...keysSet.values()], overrides };
+}
+__name(mergeChanges, "mergeChanges");
+class ConfigurationChangeEvent {
+  static {
+    __name(this, "ConfigurationChangeEvent");
+  }
+  constructor(change, previous, currentConfiguraiton, currentWorkspace, logService) {
+    this.change = change;
+    this.previous = previous;
+    this.currentConfiguraiton = currentConfiguraiton;
+    this.currentWorkspace = currentWorkspace;
+    this.logService = logService;
+    this._marker = "\n";
+    this._markerCode1 = this._marker.charCodeAt(0);
+    this._markerCode2 = ".".charCodeAt(0);
+    this.affectedKeys = /* @__PURE__ */ new Set();
+    this._previousConfiguration = void 0;
+    for (const key of change.keys) {
+      this.affectedKeys.add(key);
+    }
+    for (const [, keys] of change.overrides) {
+      for (const key of keys) {
+        this.affectedKeys.add(key);
+      }
+    }
+    this._affectsConfigStr = this._marker;
+    for (const key of this.affectedKeys) {
+      this._affectsConfigStr += key + this._marker;
+    }
+  }
+  get previousConfiguration() {
+    if (!this._previousConfiguration && this.previous) {
+      this._previousConfiguration = Configuration.parse(this.previous.data, this.logService);
+    }
+    return this._previousConfiguration;
+  }
+  affectsConfiguration(section, overrides) {
+    const needle = this._marker + section;
+    const idx = this._affectsConfigStr.indexOf(needle);
+    if (idx < 0) {
+      return false;
+    }
+    const pos = idx + needle.length;
+    if (pos >= this._affectsConfigStr.length) {
+      return false;
+    }
+    const code = this._affectsConfigStr.charCodeAt(pos);
+    if (code !== this._markerCode1 && code !== this._markerCode2) {
+      return false;
+    }
+    if (overrides) {
+      const value1 = this.previousConfiguration ? this.previousConfiguration.getValue(section, overrides, this.previous?.workspace) : void 0;
+      const value2 = this.currentConfiguraiton.getValue(section, overrides, this.currentWorkspace);
+      return !objects.equals(value1, value2);
+    }
+    return true;
+  }
+}
+function compare(from, to) {
+  const { added, removed, updated } = compareConfigurationContents(to?.rawConfiguration, from?.rawConfiguration);
+  const overrides = [];
+  const fromOverrideIdentifiers = from?.getAllOverrideIdentifiers() || [];
+  const toOverrideIdentifiers = to?.getAllOverrideIdentifiers() || [];
+  if (to) {
+    const addedOverrideIdentifiers = toOverrideIdentifiers.filter((key) => !fromOverrideIdentifiers.includes(key));
+    for (const identifier of addedOverrideIdentifiers) {
+      overrides.push([identifier, to.getKeysForOverrideIdentifier(identifier)]);
+    }
+  }
+  if (from) {
+    const removedOverrideIdentifiers = fromOverrideIdentifiers.filter((key) => !toOverrideIdentifiers.includes(key));
+    for (const identifier of removedOverrideIdentifiers) {
+      overrides.push([identifier, from.getKeysForOverrideIdentifier(identifier)]);
+    }
+  }
+  if (to && from) {
+    for (const identifier of fromOverrideIdentifiers) {
+      if (toOverrideIdentifiers.includes(identifier)) {
+        const result = compareConfigurationContents({ contents: from.getOverrideValue(void 0, identifier) || {}, keys: from.getKeysForOverrideIdentifier(identifier) }, { contents: to.getOverrideValue(void 0, identifier) || {}, keys: to.getKeysForOverrideIdentifier(identifier) });
+        overrides.push([identifier, [...result.added, ...result.removed, ...result.updated]]);
+      }
+    }
+  }
+  return { added, removed, updated, overrides };
+}
+__name(compare, "compare");
+function compareConfigurationContents(to, from) {
+  const added = to ? from ? to.keys.filter((key) => from.keys.indexOf(key) === -1) : [...to.keys] : [];
+  const removed = from ? to ? from.keys.filter((key) => to.keys.indexOf(key) === -1) : [...from.keys] : [];
+  const updated = [];
+  if (to && from) {
+    for (const key of from.keys) {
+      if (to.keys.indexOf(key) !== -1) {
+        const value1 = getConfigurationValue(from.contents, key);
+        const value2 = getConfigurationValue(to.contents, key);
+        if (!objects.equals(value1, value2)) {
+          updated.push(key);
+        }
+      }
+    }
+  }
+  return { added, removed, updated };
+}
+__name(compareConfigurationContents, "compareConfigurationContents");
+export {
+  Configuration,
+  ConfigurationChangeEvent,
+  ConfigurationModel,
+  ConfigurationModelParser,
+  UserSettings,
+  mergeChanges
+};
+//# sourceMappingURL=configurationModels.js.map

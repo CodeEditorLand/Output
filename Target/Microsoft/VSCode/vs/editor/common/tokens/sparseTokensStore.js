@@ -1,1 +1,178 @@
-import*as M from"../../../base/common/arrays.js";import{$9E as x}from"./lineTokens.js";class E{constructor(a){this.c=[],this.d=!1,this.e=a}flush(){this.c=[],this.d=!1}isEmpty(){return this.c.length===0}set(a,t,i=void 0){if(this.c=a||[],this.d=t,i)for(const r of this.c)r.reportIfInvalid(i)}setPartial(a,t){let i=a;if(t.length>0){const e=t[0].getRange(),s=t[t.length-1].getRange();if(!e||!s)return a;i=a.plusRange(e).plusRange(s)}let r=null;for(let e=0,s=this.c.length;e<s;e++){const c=this.c[e];if(c.endLineNumber<i.startLineNumber)continue;if(c.startLineNumber>i.endLineNumber){r=r||{index:e};break}if(c.removeTokens(i),c.isEmpty()){this.c.splice(e,1),e--,s--;continue}if(c.endLineNumber<i.startLineNumber)continue;if(c.startLineNumber>i.endLineNumber){r=r||{index:e};continue}const[n,l]=c.split(i);if(n.isEmpty()){r=r||{index:e};continue}l.isEmpty()||(this.c.splice(e,1,n,l),e++,s++,r=r||{index:e})}return r=r||{index:this.c.length},t.length>0&&(this.c=M.$kc(this.c,r.index,t)),i}isComplete(){return this.d}addSparseTokens(a,t){if(t.getTextLength()===0)return t;const i=this.c;if(i.length===0)return t;const r=E.f(i,a),e=i[r].getLineTokens(a);if(!e)return t;const s=t.getCount(),c=e.getCount();let n=0;const l=[];let L=0,b=0;const g=(h,d)=>{h!==b&&(b=h,l[L++]=h,l[L++]=d)};for(let h=0;h<c;h++){const d=Math.min(e.getStartCharacter(h),t.getTextLength()),u=Math.min(e.getEndCharacter(h),t.getTextLength()),f=e.getMetadata(h),o=((f&1?2048:0)|(f&2?4096:0)|(f&4?8192:0)|(f&8?16384:0)|(f&16?16744448:0)|(f&32?4278190080:0))>>>0,m=~o>>>0;for(;n<s&&t.getEndOffset(n)<=d;)g(t.getEndOffset(n),t.getMetadata(n)),n++;for(n<s&&t.getStartOffset(n)<d&&g(d,t.getMetadata(n));n<s&&t.getEndOffset(n)<u;)g(t.getEndOffset(n),t.getMetadata(n)&m|f&o),n++;if(n<s)g(u,t.getMetadata(n)&m|f&o),t.getEndOffset(n)===u&&n++;else{const p=Math.min(Math.max(0,n-1),s-1);g(u,t.getMetadata(p)&m|f&o)}}for(;n<s;)g(t.getEndOffset(n),t.getMetadata(n)),n++;return new x(new Uint32Array(l),t.getLineContent(),this.e)}static f(a,t){let i=0,r=a.length-1;for(;i<r;){let e=i+Math.floor((r-i)/2);if(a[e].endLineNumber<t)i=e+1;else if(a[e].startLineNumber>t)r=e-1;else{for(;e>i&&a[e-1].startLineNumber<=t&&t<=a[e-1].endLineNumber;)e--;return e}}return i}acceptEdit(a,t,i,r,e){for(let s=0;s<this.c.length;s++){const c=this.c[s];c.acceptEdit(a,t,i,r,e),c.isEmpty()&&(this.c.splice(s,1),s--)}}}export{E as $CK};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "../../../base/common/arrays.js";
+import { LineTokens } from "./lineTokens.js";
+class SparseTokensStore {
+  static {
+    __name(this, "SparseTokensStore");
+  }
+  constructor(languageIdCodec) {
+    this._pieces = [];
+    this._isComplete = false;
+    this._languageIdCodec = languageIdCodec;
+  }
+  flush() {
+    this._pieces = [];
+    this._isComplete = false;
+  }
+  isEmpty() {
+    return this._pieces.length === 0;
+  }
+  set(pieces, isComplete, textModel = void 0) {
+    this._pieces = pieces || [];
+    this._isComplete = isComplete;
+    if (textModel) {
+      for (const p of this._pieces) {
+        p.reportIfInvalid(textModel);
+      }
+    }
+  }
+  setPartial(_range, pieces) {
+    let range = _range;
+    if (pieces.length > 0) {
+      const _firstRange = pieces[0].getRange();
+      const _lastRange = pieces[pieces.length - 1].getRange();
+      if (!_firstRange || !_lastRange) {
+        return _range;
+      }
+      range = _range.plusRange(_firstRange).plusRange(_lastRange);
+    }
+    let insertPosition = null;
+    for (let i = 0, len = this._pieces.length; i < len; i++) {
+      const piece = this._pieces[i];
+      if (piece.endLineNumber < range.startLineNumber) {
+        continue;
+      }
+      if (piece.startLineNumber > range.endLineNumber) {
+        insertPosition = insertPosition || { index: i };
+        break;
+      }
+      piece.removeTokens(range);
+      if (piece.isEmpty()) {
+        this._pieces.splice(i, 1);
+        i--;
+        len--;
+        continue;
+      }
+      if (piece.endLineNumber < range.startLineNumber) {
+        continue;
+      }
+      if (piece.startLineNumber > range.endLineNumber) {
+        insertPosition = insertPosition || { index: i };
+        continue;
+      }
+      const [a, b] = piece.split(range);
+      if (a.isEmpty()) {
+        insertPosition = insertPosition || { index: i };
+        continue;
+      }
+      if (b.isEmpty()) {
+        continue;
+      }
+      this._pieces.splice(i, 1, a, b);
+      i++;
+      len++;
+      insertPosition = insertPosition || { index: i };
+    }
+    insertPosition = insertPosition || { index: this._pieces.length };
+    if (pieces.length > 0) {
+      this._pieces = arrays.arrayInsert(this._pieces, insertPosition.index, pieces);
+    }
+    return range;
+  }
+  isComplete() {
+    return this._isComplete;
+  }
+  addSparseTokens(lineNumber, aTokens) {
+    if (aTokens.getTextLength() === 0) {
+      return aTokens;
+    }
+    const pieces = this._pieces;
+    if (pieces.length === 0) {
+      return aTokens;
+    }
+    const pieceIndex = SparseTokensStore._findFirstPieceWithLine(pieces, lineNumber);
+    const bTokens = pieces[pieceIndex].getLineTokens(lineNumber);
+    if (!bTokens) {
+      return aTokens;
+    }
+    const aLen = aTokens.getCount();
+    const bLen = bTokens.getCount();
+    let aIndex = 0;
+    const result = [];
+    let resultLen = 0;
+    let lastEndOffset = 0;
+    const emitToken = /* @__PURE__ */ __name((endOffset, metadata) => {
+      if (endOffset === lastEndOffset) {
+        return;
+      }
+      lastEndOffset = endOffset;
+      result[resultLen++] = endOffset;
+      result[resultLen++] = metadata;
+    }, "emitToken");
+    for (let bIndex = 0; bIndex < bLen; bIndex++) {
+      const bStartCharacter = Math.min(bTokens.getStartCharacter(bIndex), aTokens.getTextLength());
+      const bEndCharacter = Math.min(bTokens.getEndCharacter(bIndex), aTokens.getTextLength());
+      const bMetadata = bTokens.getMetadata(bIndex);
+      const bMask = ((bMetadata & 1 ? 2048 : 0) | (bMetadata & 2 ? 4096 : 0) | (bMetadata & 4 ? 8192 : 0) | (bMetadata & 8 ? 16384 : 0) | (bMetadata & 16 ? 16744448 : 0) | (bMetadata & 32 ? 4278190080 : 0)) >>> 0;
+      const aMask = ~bMask >>> 0;
+      while (aIndex < aLen && aTokens.getEndOffset(aIndex) <= bStartCharacter) {
+        emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex));
+        aIndex++;
+      }
+      if (aIndex < aLen && aTokens.getStartOffset(aIndex) < bStartCharacter) {
+        emitToken(bStartCharacter, aTokens.getMetadata(aIndex));
+      }
+      while (aIndex < aLen && aTokens.getEndOffset(aIndex) < bEndCharacter) {
+        emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask);
+        aIndex++;
+      }
+      if (aIndex < aLen) {
+        emitToken(bEndCharacter, aTokens.getMetadata(aIndex) & aMask | bMetadata & bMask);
+        if (aTokens.getEndOffset(aIndex) === bEndCharacter) {
+          aIndex++;
+        }
+      } else {
+        const aMergeIndex = Math.min(Math.max(0, aIndex - 1), aLen - 1);
+        emitToken(bEndCharacter, aTokens.getMetadata(aMergeIndex) & aMask | bMetadata & bMask);
+      }
+    }
+    while (aIndex < aLen) {
+      emitToken(aTokens.getEndOffset(aIndex), aTokens.getMetadata(aIndex));
+      aIndex++;
+    }
+    return new LineTokens(new Uint32Array(result), aTokens.getLineContent(), this._languageIdCodec);
+  }
+  static _findFirstPieceWithLine(pieces, lineNumber) {
+    let low = 0;
+    let high = pieces.length - 1;
+    while (low < high) {
+      let mid = low + Math.floor((high - low) / 2);
+      if (pieces[mid].endLineNumber < lineNumber) {
+        low = mid + 1;
+      } else if (pieces[mid].startLineNumber > lineNumber) {
+        high = mid - 1;
+      } else {
+        while (mid > low && pieces[mid - 1].startLineNumber <= lineNumber && lineNumber <= pieces[mid - 1].endLineNumber) {
+          mid--;
+        }
+        return mid;
+      }
+    }
+    return low;
+  }
+  acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode) {
+    for (let i = 0; i < this._pieces.length; i++) {
+      const piece = this._pieces[i];
+      piece.acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode);
+      if (piece.isEmpty()) {
+        this._pieces.splice(i, 1);
+        i--;
+      }
+    }
+  }
+}
+export {
+  SparseTokensStore
+};
+//# sourceMappingURL=sparseTokensStore.js.map

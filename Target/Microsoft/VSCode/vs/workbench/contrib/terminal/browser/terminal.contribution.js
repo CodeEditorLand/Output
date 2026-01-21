@@ -1,1 +1,169 @@
-import{$30 as z}from"../../../../base/browser/fonts.js";import{Schemas as u}from"../../../../base/common/network.js";import{URI as D}from"../../../../base/common/uri.js";import*as a from"../../../../nls.js";import{$Ejb as E}from"../../../../platform/dnd/browser/dnd.js";import{$Jj as p}from"../../../../platform/instantiation/common/descriptors.js";import{$TC as r}from"../../../../platform/instantiation/common/extensions.js";import{$im as t}from"../../../../platform/registry/common/platform.js";import{$vx as A}from"../../../../platform/terminal/common/terminal.js";import{$Azc as w}from"../../../../platform/terminal/common/terminalLogService.js";import{$jB as T}from"../../../../platform/terminal/common/terminalPlatformConfiguration.js";import{$DRb as y}from"../../../browser/editor.js";import{$5Ab as I}from"../../../browser/parts/views/viewPaneContainer.js";import{$XN as s}from"../../../common/contributions.js";import{$5M as l}from"../../../common/editor.js";import{Extensions as d}from"../../../common/views.js";import{$c6 as V,$25 as e}from"../common/terminal.js";import{$1zc as h}from"./terminalEditingService.js";import{$EXb as C}from"../common/terminalColorRegistry.js";import{$3zc as R}from"../common/terminalConfiguration.js";import{$Bzc as Y}from"../common/terminalStrings.js";import"./media/terminal.css";import"./media/terminalVoice.css";import"./media/widgets.css";import"./media/xterm.css";import{$7zc as c}from"./remoteTerminalBackend.js";import{$SYb as S,$UYb as N,$TYb as x,$VYb as W,$WYb as O,$RYb as X,$1Yb as j}from"./terminal.js";import{$Rzc as v}from"./terminalActions.js";import{$8zc as J}from"./terminalCommands.js";import{$9zc as k}from"./terminalConfigurationService.js";import{$$zc as B}from"./terminalEditor.js";import{$QYb as g}from"./terminalEditorInput.js";import{$_zc as F}from"./terminalEditorSerializer.js";import{$aAc as M}from"./terminalEditorService.js";import{$cAc as P}from"./terminalGroupService.js";import{$WXb as b}from"./terminalIcons.js";import{$tAc as U}from"./terminalInstanceService.js";import{$uAc as f}from"./terminalMainContribution.js";import{$Xzc as _}from"./terminalMenus.js";import{$xAc as K}from"./terminalProfileService.js";import{$zAc as Q}from"./terminalService.js";import{$AAc as $}from"./terminalTelemetry.js";import{$Zzc as Z}from"./terminalView.js";r(A,w,1);r(S,k,1);r(X,Q,1);r(x,M,1);r(N,h,1);r(W,P,1);r(O,U,1);r(V,K,1);s(f.ID,f,1);s(c.ID,c,3);s($.ID,$,3);T();R(z);t.as(l.EditorFactory).registerEditorSerializer(g.ID,F);t.as(l.EditorPane).registerEditorPane(y.create(B,j,Y.terminal),[new p(g)]);t.as(E.DragAndDropContribution).register({dataFormatKey:"Terminals",getEditorInputs(n){const m=[];try{const o=JSON.parse(n);for(const i of o)m.push({resource:D.parse(i)})}catch{}return m},setData(n,m){const o=n.filter(({resource:i})=>i.scheme===u.vscodeTerminal);o.length&&m.dataTransfer?.setData("Terminals",JSON.stringify(o.map(({resource:i})=>i.toString())))}});const q=t.as(d.ViewContainersRegistry).registerViewContainer({id:e,title:a.localize2(12824,"Terminal"),icon:b,ctorDescriptor:new p(I,[e,{mergeViewWithContainerWhenSingleView:!0}]),storageId:e,hideIfEmpty:!0,order:3},1,{doNotRegisterOpenCommand:!0,isDefault:!0});t.as(d.ViewsRegistry).registerViews([{id:e,name:a.localize2(12825,"Terminal"),containerIcon:b,canToggleVisibility:!0,canMoveView:!0,ctorDescriptor:new p(Z),openCommandActionDescriptor:{id:"workbench.action.terminal.toggleTerminal",mnemonicTitle:a.localize(12823,null),keybindings:{primary:2139,mac:{primary:347}},order:3}}],q);v();J();_();C();
+import { getFontSnippets } from "../../../../base/browser/fonts.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { Extensions as DragAndDropExtensions } from "../../../../platform/dnd/browser/dnd.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ITerminalLogService } from "../../../../platform/terminal/common/terminal.js";
+import { TerminalLogService } from "../../../../platform/terminal/common/terminalLogService.js";
+import { registerTerminalPlatformConfiguration } from "../../../../platform/terminal/common/terminalPlatformConfiguration.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { Extensions as ViewContainerExtensions } from "../../../common/views.js";
+import { ITerminalProfileService, TERMINAL_VIEW_ID } from "../common/terminal.js";
+import { TerminalEditingService } from "./terminalEditingService.js";
+import { registerColors } from "../common/terminalColorRegistry.js";
+import { registerTerminalConfiguration } from "../common/terminalConfiguration.js";
+import { terminalStrings } from "../common/terminalStrings.js";
+import "./media/terminal.css";
+import "./media/terminalVoice.css";
+import "./media/widgets.css";
+import "./media/xterm.css";
+import { RemoteTerminalBackendContribution } from "./remoteTerminalBackend.js";
+import { ITerminalConfigurationService, ITerminalEditingService, ITerminalEditorService, ITerminalGroupService, ITerminalInstanceService, ITerminalService, terminalEditorId } from "./terminal.js";
+import { registerTerminalActions } from "./terminalActions.js";
+import { setupTerminalCommands } from "./terminalCommands.js";
+import { TerminalConfigurationService } from "./terminalConfigurationService.js";
+import { TerminalEditor } from "./terminalEditor.js";
+import { TerminalEditorInput } from "./terminalEditorInput.js";
+import { TerminalInputSerializer } from "./terminalEditorSerializer.js";
+import { TerminalEditorService } from "./terminalEditorService.js";
+import { TerminalGroupService } from "./terminalGroupService.js";
+import { terminalViewIcon } from "./terminalIcons.js";
+import { TerminalInstanceService } from "./terminalInstanceService.js";
+import { TerminalMainContribution } from "./terminalMainContribution.js";
+import { setupTerminalMenus } from "./terminalMenus.js";
+import { TerminalProfileService } from "./terminalProfileService.js";
+import { TerminalService } from "./terminalService.js";
+import { TerminalTelemetryContribution } from "./terminalTelemetry.js";
+import { TerminalViewPane } from "./terminalView.js";
+registerSingleton(
+  ITerminalLogService,
+  TerminalLogService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalConfigurationService,
+  TerminalConfigurationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalService,
+  TerminalService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalEditorService,
+  TerminalEditorService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalEditingService,
+  TerminalEditingService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalGroupService,
+  TerminalGroupService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalInstanceService,
+  TerminalInstanceService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ITerminalProfileService,
+  TerminalProfileService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  TerminalMainContribution.ID,
+  TerminalMainContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  RemoteTerminalBackendContribution.ID,
+  RemoteTerminalBackendContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  TerminalTelemetryContribution.ID,
+  TerminalTelemetryContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerTerminalPlatformConfiguration();
+registerTerminalConfiguration(getFontSnippets);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(TerminalEditorInput.ID, TerminalInputSerializer);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(TerminalEditor, terminalEditorId, terminalStrings.terminal), [
+  new SyncDescriptor(TerminalEditorInput)
+]);
+Registry.as(DragAndDropExtensions.DragAndDropContribution).register({
+  dataFormatKey: "Terminals",
+  getEditorInputs(data) {
+    const editors = [];
+    try {
+      const terminalEditors = JSON.parse(data);
+      for (const terminalEditor of terminalEditors) {
+        editors.push({ resource: URI.parse(terminalEditor) });
+      }
+    } catch (error) {
+    }
+    return editors;
+  },
+  setData(resources, event) {
+    const terminalResources = resources.filter(({ resource }) => resource.scheme === Schemas.vscodeTerminal);
+    if (terminalResources.length) {
+      event.dataTransfer?.setData("Terminals", JSON.stringify(terminalResources.map(({ resource }) => resource.toString())));
+    }
+  }
+});
+const VIEW_CONTAINER = Registry.as(ViewContainerExtensions.ViewContainersRegistry).registerViewContainer({
+  id: TERMINAL_VIEW_ID,
+  title: nls.localize2("terminal", "Terminal"),
+  icon: terminalViewIcon,
+  ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [TERMINAL_VIEW_ID, { mergeViewWithContainerWhenSingleView: true }]),
+  storageId: TERMINAL_VIEW_ID,
+  hideIfEmpty: true,
+  order: 3
+}, 1, { doNotRegisterOpenCommand: true, isDefault: true });
+Registry.as(ViewContainerExtensions.ViewsRegistry).registerViews([{
+  id: TERMINAL_VIEW_ID,
+  name: nls.localize2("terminal", "Terminal"),
+  containerIcon: terminalViewIcon,
+  canToggleVisibility: true,
+  canMoveView: true,
+  ctorDescriptor: new SyncDescriptor(TerminalViewPane),
+  openCommandActionDescriptor: {
+    id: "workbench.action.terminal.toggleTerminal",
+    mnemonicTitle: nls.localize({ key: "miToggleIntegratedTerminal", comment: ["&& denotes a mnemonic"] }, "&&Terminal"),
+    keybindings: {
+      primary: 2048 | 91,
+      mac: {
+        primary: 256 | 91
+        /* KeyCode.Backquote */
+      }
+    },
+    order: 3
+  }
+}], VIEW_CONTAINER);
+registerTerminalActions();
+setupTerminalCommands();
+setupTerminalMenus();
+registerColors();
+//# sourceMappingURL=terminal.contribution.js.map

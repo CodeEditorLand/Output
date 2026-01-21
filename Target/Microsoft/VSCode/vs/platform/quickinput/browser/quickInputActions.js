@@ -1,1 +1,220 @@
-import{$n as k}from"../../../base/common/platform.js";import{localize as p}from"../../../nls.js";import{$9n as a}from"../../contextkey/common/contextkey.js";import{$RN as q}from"../../contextkey/common/contextkeys.js";import{$jL as s}from"../../keybinding/common/keybindingsRegistry.js";import{$LBb as M,$EBb as l,$HBb as c}from"./quickInput.js";import{$VH as d,QuickPickFocus as e}from"../common/quickInput.js";function I(t,r={}){s.registerCommandAndKeybindingRule({weight:200,when:l,metadata:{description:p(2268,null)},...t,secondary:m(t.primary,t.secondary??[],r)})}function i(t,r={}){s.registerCommandAndKeybindingRule({weight:200,when:a.and(a.or(a.equals(c,"quickPick"),a.equals(c,"quickTree")),l),metadata:{description:p(2269,null)},...t,secondary:m(t.primary,t.secondary??[],r)})}const o=k?256:2048;function m(t,r,n={}){return n.withAltMod&&r.push(512+t),n.withCtrlMod&&(r.push(o+t),n.withAltMod&&r.push(512+o+t)),n.withCmdMod&&k&&(r.push(2048+t),n.withCtrlMod&&r.push(2304+t),n.withAltMod&&(r.push(2560+t),n.withCtrlMod&&r.push(2816+t))),r}function u(t,r){return n=>{const h=n.get(d).currentQuickInput;if(h)return r&&h.quickNavigate?h.focus(r):h.focus(t)}}i({id:"quickInput.pageNext",primary:12,handler:u(e.NextPage)},{withAltMod:!0,withCtrlMod:!0,withCmdMod:!0});i({id:"quickInput.pagePrevious",primary:11,handler:u(e.PreviousPage)},{withAltMod:!0,withCtrlMod:!0,withCmdMod:!0});i({id:"quickInput.first",primary:o+14,handler:u(e.First)},{withAltMod:!0,withCmdMod:!0});i({id:"quickInput.last",primary:o+13,handler:u(e.Last)},{withAltMod:!0,withCmdMod:!0});i({id:"quickInput.next",primary:18,handler:u(e.Next)},{withCtrlMod:!0});i({id:"quickInput.previous",primary:16,handler:u(e.Previous)},{withCtrlMod:!0});const w=p(2270,null),g=p(2271,null);k?(i({id:"quickInput.nextSeparatorWithQuickAccessFallback",primary:2066,handler:u(e.NextSeparator,e.Next),metadata:{description:w}}),i({id:"quickInput.nextSeparator",primary:2578,secondary:[2322],handler:u(e.NextSeparator)},{withCtrlMod:!0}),i({id:"quickInput.previousSeparatorWithQuickAccessFallback",primary:2064,handler:u(e.PreviousSeparator,e.Previous),metadata:{description:g}}),i({id:"quickInput.previousSeparator",primary:2576,secondary:[2320],handler:u(e.PreviousSeparator)},{withCtrlMod:!0})):(i({id:"quickInput.nextSeparatorWithQuickAccessFallback",primary:530,handler:u(e.NextSeparator,e.Next),metadata:{description:w}}),i({id:"quickInput.nextSeparator",primary:2578,handler:u(e.NextSeparator)}),i({id:"quickInput.previousSeparatorWithQuickAccessFallback",primary:528,handler:u(e.PreviousSeparator,e.Previous),metadata:{description:g}}),i({id:"quickInput.previousSeparator",primary:2576,handler:u(e.PreviousSeparator)}));s.registerCommandAndKeybindingRule({id:"quickInput.accept",primary:3,weight:200,when:a.and(a.notEquals(c,"quickWidget"),l,a.not("isComposing")),metadata:{description:p(2272,null)},handler:t=>{t.get(d).currentQuickInput?.accept()},secondary:m(3,[],{withAltMod:!0,withCtrlMod:!0,withCmdMod:!0})});i({id:"quickInput.acceptInBackground",when:a.and(l,a.equals(c,"quickPick"),a.or(q.negate(),M)),primary:17,weight:250,handler:t=>{t.get(d).currentQuickInput?.accept(!0)}},{withAltMod:!0,withCtrlMod:!0,withCmdMod:!0});I({id:"quickInput.hide",primary:9,handler:t=>{t.get(d).currentQuickInput?.hide()}},{withAltMod:!0,withCtrlMod:!0,withCmdMod:!0});i({id:"quickInput.toggleCheckbox",when:a.and(l,a.or(a.equals(c,"quickPick"),a.equals(c,"quickTree")),q.negate()),primary:10,handler:t=>{t.get(d).toggle()}});i({id:"quickInput.toggleHover",primary:o|10,handler:t=>{t.get(d).toggleHover()}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isMacintosh } from "../../../base/common/platform.js";
+import { localize } from "../../../nls.js";
+import { ContextKeyExpr } from "../../contextkey/common/contextkey.js";
+import { InputFocusedContext } from "../../contextkey/common/contextkeys.js";
+import { KeybindingsRegistry } from "../../keybinding/common/keybindingsRegistry.js";
+import { endOfQuickInputBoxContext, inQuickInputContext, quickInputTypeContextKeyValue } from "./quickInput.js";
+import { IQuickInputService, QuickPickFocus } from "../common/quickInput.js";
+function registerQuickInputCommandAndKeybindingRule(rule, options = {}) {
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    weight: 200,
+    when: inQuickInputContext,
+    metadata: { description: localize("quickInput", "Used while in the context of any kind of quick input. If you change one keybinding for this command, you should change all of the other keybindings (modifier variants) of this command as well.") },
+    ...rule,
+    secondary: getSecondary(rule.primary, rule.secondary ?? [], options)
+  });
+}
+__name(registerQuickInputCommandAndKeybindingRule, "registerQuickInputCommandAndKeybindingRule");
+function registerQuickPickCommandAndKeybindingRule(rule, options = {}) {
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    weight: 200,
+    when: ContextKeyExpr.and(ContextKeyExpr.or(
+      // Only things that use Tree widgets
+      ContextKeyExpr.equals(
+        quickInputTypeContextKeyValue,
+        "quickPick"
+        /* QuickInputType.QuickPick */
+      ),
+      ContextKeyExpr.equals(
+        quickInputTypeContextKeyValue,
+        "quickTree"
+        /* QuickInputType.QuickTree */
+      )
+    ), inQuickInputContext),
+    metadata: { description: localize("quickPick", "Used while in the context of the quick pick. If you change one keybinding for this command, you should change all of the other keybindings (modifier variants) of this command as well.") },
+    ...rule,
+    secondary: getSecondary(rule.primary, rule.secondary ?? [], options)
+  });
+}
+__name(registerQuickPickCommandAndKeybindingRule, "registerQuickPickCommandAndKeybindingRule");
+const ctrlKeyMod = isMacintosh ? 256 : 2048;
+function getSecondary(primary, secondary, options = {}) {
+  if (options.withAltMod) {
+    secondary.push(512 + primary);
+  }
+  if (options.withCtrlMod) {
+    secondary.push(ctrlKeyMod + primary);
+    if (options.withAltMod) {
+      secondary.push(512 + ctrlKeyMod + primary);
+    }
+  }
+  if (options.withCmdMod && isMacintosh) {
+    secondary.push(2048 + primary);
+    if (options.withCtrlMod) {
+      secondary.push(2048 + 256 + primary);
+    }
+    if (options.withAltMod) {
+      secondary.push(2048 + 512 + primary);
+      if (options.withCtrlMod) {
+        secondary.push(2048 + 512 + 256 + primary);
+      }
+    }
+  }
+  return secondary;
+}
+__name(getSecondary, "getSecondary");
+function focusHandler(focus, focusOnQuickNatigate) {
+  return (accessor) => {
+    const currentQuickPick = accessor.get(IQuickInputService).currentQuickInput;
+    if (!currentQuickPick) {
+      return;
+    }
+    if (focusOnQuickNatigate && currentQuickPick.quickNavigate) {
+      return currentQuickPick.focus(focusOnQuickNatigate);
+    }
+    return currentQuickPick.focus(focus);
+  };
+}
+__name(focusHandler, "focusHandler");
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.pageNext", primary: 12, handler: focusHandler(QuickPickFocus.NextPage) }, { withAltMod: true, withCtrlMod: true, withCmdMod: true });
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.pagePrevious", primary: 11, handler: focusHandler(QuickPickFocus.PreviousPage) }, { withAltMod: true, withCtrlMod: true, withCmdMod: true });
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.first", primary: ctrlKeyMod + 14, handler: focusHandler(QuickPickFocus.First) }, { withAltMod: true, withCmdMod: true });
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.last", primary: ctrlKeyMod + 13, handler: focusHandler(QuickPickFocus.Last) }, { withAltMod: true, withCmdMod: true });
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.next", primary: 18, handler: focusHandler(QuickPickFocus.Next) }, { withCtrlMod: true });
+registerQuickPickCommandAndKeybindingRule({ id: "quickInput.previous", primary: 16, handler: focusHandler(QuickPickFocus.Previous) }, { withCtrlMod: true });
+const nextSeparatorFallbackDesc = localize("quickInput.nextSeparatorWithQuickAccessFallback", "If we're in quick access mode, this will navigate to the next item. If we are not in quick access mode, this will navigate to the next separator.");
+const prevSeparatorFallbackDesc = localize("quickInput.previousSeparatorWithQuickAccessFallback", "If we're in quick access mode, this will navigate to the previous item. If we are not in quick access mode, this will navigate to the previous separator.");
+if (isMacintosh) {
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.nextSeparatorWithQuickAccessFallback",
+    primary: 2048 + 18,
+    handler: focusHandler(QuickPickFocus.NextSeparator, QuickPickFocus.Next),
+    metadata: { description: nextSeparatorFallbackDesc }
+  });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.nextSeparator",
+    primary: 2048 + 512 + 18,
+    // Since macOS has the cmd key as the primary modifier, we need to add this additional
+    // keybinding to capture cmd+ctrl+upArrow
+    secondary: [
+      2048 + 256 + 18
+      /* KeyCode.DownArrow */
+    ],
+    handler: focusHandler(QuickPickFocus.NextSeparator)
+  }, { withCtrlMod: true });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.previousSeparatorWithQuickAccessFallback",
+    primary: 2048 + 16,
+    handler: focusHandler(QuickPickFocus.PreviousSeparator, QuickPickFocus.Previous),
+    metadata: { description: prevSeparatorFallbackDesc }
+  });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.previousSeparator",
+    primary: 2048 + 512 + 16,
+    // Since macOS has the cmd key as the primary modifier, we need to add this additional
+    // keybinding to capture cmd+ctrl+upArrow
+    secondary: [
+      2048 + 256 + 16
+      /* KeyCode.UpArrow */
+    ],
+    handler: focusHandler(QuickPickFocus.PreviousSeparator)
+  }, { withCtrlMod: true });
+} else {
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.nextSeparatorWithQuickAccessFallback",
+    primary: 512 + 18,
+    handler: focusHandler(QuickPickFocus.NextSeparator, QuickPickFocus.Next),
+    metadata: { description: nextSeparatorFallbackDesc }
+  });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.nextSeparator",
+    primary: 2048 + 512 + 18,
+    handler: focusHandler(QuickPickFocus.NextSeparator)
+  });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.previousSeparatorWithQuickAccessFallback",
+    primary: 512 + 16,
+    handler: focusHandler(QuickPickFocus.PreviousSeparator, QuickPickFocus.Previous),
+    metadata: { description: prevSeparatorFallbackDesc }
+  });
+  registerQuickPickCommandAndKeybindingRule({
+    id: "quickInput.previousSeparator",
+    primary: 2048 + 512 + 16,
+    handler: focusHandler(QuickPickFocus.PreviousSeparator)
+  });
+}
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "quickInput.accept",
+  primary: 3,
+  weight: 200,
+  when: ContextKeyExpr.and(
+    // All other kinds of Quick things handle Accept, except Widget. In other words, Accepting is a detail on the things
+    // that extend IQuickInput
+    ContextKeyExpr.notEquals(
+      quickInputTypeContextKeyValue,
+      "quickWidget"
+      /* QuickInputType.QuickWidget */
+    ),
+    inQuickInputContext,
+    ContextKeyExpr.not("isComposing")
+  ),
+  metadata: { description: localize("nonQuickWidget", "Used while in the context of some quick input. If you change one keybinding for this command, you should change all of the other keybindings (modifier variants) of this command as well.") },
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const currentQuickPick = accessor.get(IQuickInputService).currentQuickInput;
+    currentQuickPick?.accept();
+  }, "handler"),
+  secondary: getSecondary(3, [], { withAltMod: true, withCtrlMod: true, withCmdMod: true })
+});
+registerQuickPickCommandAndKeybindingRule({
+  id: "quickInput.acceptInBackground",
+  // If we are in the quick pick but the input box is not focused or our cursor is at the end of the input box
+  when: ContextKeyExpr.and(inQuickInputContext, ContextKeyExpr.equals(
+    quickInputTypeContextKeyValue,
+    "quickPick"
+    /* QuickInputType.QuickPick */
+  ), ContextKeyExpr.or(InputFocusedContext.negate(), endOfQuickInputBoxContext)),
+  primary: 17,
+  // Need a little extra weight to ensure this keybinding is preferred over the default cmd+alt+right arrow keybinding
+  // https://github.com/microsoft/vscode/blob/1451e4fbbbf074a4355cc537c35b547b80ce1c52/src/vs/workbench/browser/parts/editor/editorActions.ts#L1178-L1195
+  weight: 200 + 50,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const currentQuickPick = accessor.get(IQuickInputService).currentQuickInput;
+    currentQuickPick?.accept(true);
+  }, "handler")
+}, { withAltMod: true, withCtrlMod: true, withCmdMod: true });
+registerQuickInputCommandAndKeybindingRule({
+  id: "quickInput.hide",
+  primary: 9,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const currentQuickPick = accessor.get(IQuickInputService).currentQuickInput;
+    currentQuickPick?.hide();
+  }, "handler")
+}, { withAltMod: true, withCtrlMod: true, withCmdMod: true });
+registerQuickPickCommandAndKeybindingRule({
+  id: "quickInput.toggleCheckbox",
+  when: ContextKeyExpr.and(inQuickInputContext, ContextKeyExpr.or(ContextKeyExpr.equals(
+    quickInputTypeContextKeyValue,
+    "quickPick"
+    /* QuickInputType.QuickPick */
+  ), ContextKeyExpr.equals(
+    quickInputTypeContextKeyValue,
+    "quickTree"
+    /* QuickInputType.QuickTree */
+  )), InputFocusedContext.negate()),
+  primary: 10,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const quickInputService = accessor.get(IQuickInputService);
+    quickInputService.toggle();
+  }, "handler")
+});
+registerQuickPickCommandAndKeybindingRule({
+  id: "quickInput.toggleHover",
+  primary: ctrlKeyMod | 10,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const quickInputService = accessor.get(IQuickInputService);
+    quickInputService.toggleHover();
+  }, "handler")
+});
+//# sourceMappingURL=quickInputActions.js.map

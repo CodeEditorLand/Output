@@ -1,1 +1,408 @@
-import{$ak as o}from"../../../common/codicons.js";import{$wf as a}from"../../../common/event.js";import{$kk as l}from"../../../common/htmlContent.js";import{$fk as k,$ek as f}from"../../../common/iconLabels.js";import{ThemeIcon as d}from"../../../common/themables.js";import{$ as N,$F7 as y,$B8 as C,$h8 as x,$p8 as v}from"../../dom.js";import{$U0 as u}from"../actionbar/actionViewItems.js";import{$H0 as A}from"../hover/hoverDelegate2.js";import{$j9 as m}from"../widget.js";import"./toggle.css";const b={inputActiveOptionBorder:"#007ACC00",inputActiveOptionForeground:"#FFFFFF",inputActiveOptionBackground:"#0E639C50"};class $ extends u{constructor(t,s,e){super(t,s,e);const i=this.u.keybinding?`${this._action.label} (${this.u.keybinding})`:this._action.label;this.a=this.D(new r({actionClassName:this._action.class,isChecked:!!this._action.checked,title:i,notFocusable:!0,inputActiveOptionBackground:e.toggleStyles?.inputActiveOptionBackground,inputActiveOptionBorder:e.toggleStyles?.inputActiveOptionBorder,inputActiveOptionForeground:e.toggleStyles?.inputActiveOptionForeground})),this.D(this.a.onChange(()=>{this._action.checked=!!this.a&&this.a.checked}))}render(t){this.element=t,this.element.appendChild(this.a.domNode),this.N(),this.C()}C(){this.a&&(this.isEnabled()?(this.a.enable(),this.element?.classList.remove("disabled")):(this.a.disable(),this.element?.classList.add("disabled")))}N(){this.a.checked=!!this._action.checked}F(){const t=this.u.keybinding?`${this._action.label} (${this.u.keybinding})`:this._action.label;this.a.setTitle(t)}focus(){this.a.domNode.tabIndex=0,this.a.focus()}blur(){this.a.domNode.tabIndex=-1,this.a.domNode.blur()}setFocusable(t){this.a.domNode.tabIndex=t?0:-1}}class r extends m{get onChange(){return this.a.event}get onKeyDown(){return this.c.event}constructor(t){super(),this.a=this.D(new a),this.c=this.D(new a),this.g=t,this.t=this.g.title,this.y=this.g.isChecked;const s=["monaco-custom-toggle"];this.g.icon&&(this.w=this.g.icon,s.push(...d.asClassNameArray(this.w))),this.g.actionClassName&&s.push(...this.g.actionClassName.split(" ")),this.y&&s.push("checked"),this.domNode=document.createElement("div"),this.D(A().setupDelayedHover(this.domNode,()=>({content:!l(this.t)&&!v(this.t)?f(this.t):this.t,style:1}),this.g.hoverLifecycleOptions)),this.domNode.classList.add(...s),this.g.notFocusable||(this.domNode.tabIndex=0),this.domNode.setAttribute("role","checkbox"),this.domNode.setAttribute("aria-checked",String(this.y)),this.setTitle(this.g.title),this.H(),this.b(this.domNode,e=>{this.enabled&&(this.checked=!this.y,this.a.fire(!1),e.preventDefault())}),this.D(this.G(this.domNode)),this.q(this.domNode,e=>{if(this.enabled){if(e.keyCode===10||e.keyCode===3){this.checked=!this.y,this.a.fire(!0),e.preventDefault(),e.stopPropagation();return}this.c.fire(e)}})}get enabled(){return this.domNode.getAttribute("aria-disabled")!=="true"}focus(){this.domNode.focus()}get checked(){return this.y}set checked(t){this.y=t,this.domNode.setAttribute("aria-checked",String(this.y)),this.domNode.classList.toggle("checked",this.y),this.H()}setIcon(t){this.w&&this.domNode.classList.remove(...d.asClassNameArray(this.w)),this.w=t,this.w&&this.domNode.classList.add(...d.asClassNameArray(this.w))}width(){return 22}H(){this.domNode&&(this.domNode.style.borderColor=this.y&&this.g.inputActiveOptionBorder||"",this.domNode.style.color=this.y&&this.g.inputActiveOptionForeground||"inherit",this.domNode.style.backgroundColor=this.y&&this.g.inputActiveOptionBackground||"")}enable(){this.domNode.setAttribute("aria-disabled",String(!1)),this.domNode.classList.remove("disabled")}disable(){this.domNode.setAttribute("aria-disabled",String(!0)),this.domNode.classList.add("disabled")}setTitle(t){this.t=t;const s=typeof t=="string"?t:l(t)?t.value:t.textContent;this.domNode.setAttribute("aria-label",k(s))}set visible(t){this.domNode.style.display=t?"":"none"}get visible(){return this.domNode.style.display!=="none"}}class n extends m{static{this.CLASS_NAME="monaco-checkbox"}constructor(t,s,e){super(),this.c=t,this.domNode=s,this.g=e,this.a=this.D(new a),this.onChange=this.a.event,this.h()}get enabled(){return this.c.enabled}focus(){this.domNode.focus()}hasFocus(){return x(this.domNode)}enable(){this.c.enable(),this.h(!0)}disable(){this.c.disable(),this.h(!1)}setTitle(t){this.c.setTitle(t)}h(t=this.enabled){this.domNode.style.color=(t?this.g.checkboxForeground:this.g.checkboxDisabledForeground)||"",this.domNode.style.backgroundColor=(t?this.g.checkboxBackground:this.g.checkboxDisabledBackground)||"",this.domNode.style.borderColor=(t?this.g.checkboxBorder:this.g.checkboxDisabledBackground)||"";const s=this.g.size||18;this.domNode.style.width=this.domNode.style.height=this.domNode.style.fontSize=`${s}px`,this.domNode.style.fontSize=`${s-2}px`}}class p extends n{constructor(t,s,e){const i=new r({title:t,isChecked:s,icon:o.check,actionClassName:n.CLASS_NAME,hoverLifecycleOptions:e.hoverLifecycleOptions,...b});super(i,i.domNode,e),this.D(i),this.D(this.c.onChange(c=>{this.h(),this.a.fire(c)}))}get checked(){return this.c.checked}set checked(t){this.c.checked=t,this.h()}h(t){this.c.checked?this.c.setIcon(o.check):this.c.setIcon(void 0),super.h(t)}}class M extends n{constructor(t,s,e){let i;switch(s){case!0:i=o.check;break;case"mixed":i=o.dash;break;case!1:i=void 0;break}const c=new r({title:t,isChecked:s===!0,icon:i,actionClassName:p.CLASS_NAME,hoverLifecycleOptions:e.hoverLifecycleOptions,...b});super(c,c.domNode,e),this.n=s,this.D(c),this.D(this.c.onChange(g=>{this.n=this.c.checked,this.h(),this.a.fire(g)}))}get checked(){return this.n}set checked(t){this.n!==t&&(this.n=t,this.c.checked=t===!0,this.h())}h(t){switch(this.n){case!0:this.c.setIcon(o.check);break;case"mixed":this.c.setIcon(o.dash);break;case!1:this.c.setIcon(void 0);break}super.h(t)}}class z extends u{constructor(t,s,e){super(t,s,e),this.a=this.D(new p(this._action.label,!!this._action.checked,e.checkboxStyles)),this.D(this.a.onChange(()=>this.c()))}render(t){if(this.element=t,this.element.classList.add("checkbox-action-item"),this.element.appendChild(this.a.domNode),this.u.label&&this._action.label){const s=this.element.appendChild(N("span.checkbox-label",void 0,this._action.label));this.D(y(s,C.CLICK,e=>{this.a.checked=!this.a.checked,e.stopPropagation(),e.preventDefault(),this.c()}))}this.C(),this.M(),this.N()}c(){this._action.checked=!!this.a&&this.a.checked,this.actionRunner.run(this._action,this._context)}C(){this.isEnabled()?this.a.enable():this.a.disable(),this.action.enabled?this.element?.classList.remove("disabled"):this.element?.classList.add("disabled")}N(){this.a.checked=!!this._action.checked}M(){this.b&&this.a.domNode.classList.remove(...this.b.split(" ")),this.b=this.G(),this.b&&this.a.domNode.classList.add(...this.b.split(" "))}focus(){this.a.domNode.tabIndex=0,this.a.focus()}blur(){this.a.domNode.tabIndex=-1,this.a.domNode.blur()}setFocusable(t){this.a.domNode.tabIndex=t?0:-1}}function E(h){return(t,s)=>{if(t.checked!==void 0)return new $(null,t,{...s,toggleStyles:h})}}export{b as $N0,$ as $O0,r as $P0,p as $Q0,M as $R0,z as $S0,E as $T0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../common/codicons.js";
+import { Emitter } from "../../../common/event.js";
+import { isMarkdownString } from "../../../common/htmlContent.js";
+import { getCodiconAriaLabel, stripIcons } from "../../../common/iconLabels.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { $, addDisposableListener, EventType, isActiveElement, isHTMLElement } from "../../dom.js";
+import { BaseActionViewItem } from "../actionbar/actionViewItems.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+import { Widget } from "../widget.js";
+import "./toggle.css";
+const unthemedToggleStyles = {
+  inputActiveOptionBorder: "#007ACC00",
+  inputActiveOptionForeground: "#FFFFFF",
+  inputActiveOptionBackground: "#0E639C50"
+};
+class ToggleActionViewItem extends BaseActionViewItem {
+  static {
+    __name(this, "ToggleActionViewItem");
+  }
+  constructor(context, action, options) {
+    super(context, action, options);
+    const title = this.options.keybinding ? `${this._action.label} (${this.options.keybinding})` : this._action.label;
+    this.toggle = this._register(new Toggle({
+      actionClassName: this._action.class,
+      isChecked: !!this._action.checked,
+      title,
+      notFocusable: true,
+      inputActiveOptionBackground: options.toggleStyles?.inputActiveOptionBackground,
+      inputActiveOptionBorder: options.toggleStyles?.inputActiveOptionBorder,
+      inputActiveOptionForeground: options.toggleStyles?.inputActiveOptionForeground
+    }));
+    this._register(this.toggle.onChange(() => {
+      this._action.checked = !!this.toggle && this.toggle.checked;
+    }));
+  }
+  render(container) {
+    this.element = container;
+    this.element.appendChild(this.toggle.domNode);
+    this.updateChecked();
+    this.updateEnabled();
+  }
+  updateEnabled() {
+    if (this.toggle) {
+      if (this.isEnabled()) {
+        this.toggle.enable();
+        this.element?.classList.remove("disabled");
+      } else {
+        this.toggle.disable();
+        this.element?.classList.add("disabled");
+      }
+    }
+  }
+  updateChecked() {
+    this.toggle.checked = !!this._action.checked;
+  }
+  updateLabel() {
+    const title = this.options.keybinding ? `${this._action.label} (${this.options.keybinding})` : this._action.label;
+    this.toggle.setTitle(title);
+  }
+  focus() {
+    this.toggle.domNode.tabIndex = 0;
+    this.toggle.focus();
+  }
+  blur() {
+    this.toggle.domNode.tabIndex = -1;
+    this.toggle.domNode.blur();
+  }
+  setFocusable(focusable) {
+    this.toggle.domNode.tabIndex = focusable ? 0 : -1;
+  }
+}
+class Toggle extends Widget {
+  static {
+    __name(this, "Toggle");
+  }
+  get onChange() {
+    return this._onChange.event;
+  }
+  get onKeyDown() {
+    return this._onKeyDown.event;
+  }
+  constructor(opts) {
+    super();
+    this._onChange = this._register(new Emitter());
+    this._onKeyDown = this._register(new Emitter());
+    this._opts = opts;
+    this._title = this._opts.title;
+    this._checked = this._opts.isChecked;
+    const classes = ["monaco-custom-toggle"];
+    if (this._opts.icon) {
+      this._icon = this._opts.icon;
+      classes.push(...ThemeIcon.asClassNameArray(this._icon));
+    }
+    if (this._opts.actionClassName) {
+      classes.push(...this._opts.actionClassName.split(" "));
+    }
+    if (this._checked) {
+      classes.push("checked");
+    }
+    this.domNode = document.createElement("div");
+    this._register(getBaseLayerHoverDelegate().setupDelayedHover(this.domNode, () => ({
+      content: !isMarkdownString(this._title) && !isHTMLElement(this._title) ? stripIcons(this._title) : this._title,
+      style: 1
+    }), this._opts.hoverLifecycleOptions));
+    this.domNode.classList.add(...classes);
+    if (!this._opts.notFocusable) {
+      this.domNode.tabIndex = 0;
+    }
+    this.domNode.setAttribute("role", "checkbox");
+    this.domNode.setAttribute("aria-checked", String(this._checked));
+    this.setTitle(this._opts.title);
+    this.applyStyles();
+    this.onclick(this.domNode, (ev) => {
+      if (this.enabled) {
+        this.checked = !this._checked;
+        this._onChange.fire(false);
+        ev.preventDefault();
+      }
+    });
+    this._register(this.ignoreGesture(this.domNode));
+    this.onkeydown(this.domNode, (keyboardEvent) => {
+      if (!this.enabled) {
+        return;
+      }
+      if (keyboardEvent.keyCode === 10 || keyboardEvent.keyCode === 3) {
+        this.checked = !this._checked;
+        this._onChange.fire(true);
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
+        return;
+      }
+      this._onKeyDown.fire(keyboardEvent);
+    });
+  }
+  get enabled() {
+    return this.domNode.getAttribute("aria-disabled") !== "true";
+  }
+  focus() {
+    this.domNode.focus();
+  }
+  get checked() {
+    return this._checked;
+  }
+  set checked(newIsChecked) {
+    this._checked = newIsChecked;
+    this.domNode.setAttribute("aria-checked", String(this._checked));
+    this.domNode.classList.toggle("checked", this._checked);
+    this.applyStyles();
+  }
+  setIcon(icon) {
+    if (this._icon) {
+      this.domNode.classList.remove(...ThemeIcon.asClassNameArray(this._icon));
+    }
+    this._icon = icon;
+    if (this._icon) {
+      this.domNode.classList.add(...ThemeIcon.asClassNameArray(this._icon));
+    }
+  }
+  width() {
+    return 2 + 2 + 2 + 16;
+  }
+  applyStyles() {
+    if (this.domNode) {
+      this.domNode.style.borderColor = this._checked && this._opts.inputActiveOptionBorder || "";
+      this.domNode.style.color = this._checked && this._opts.inputActiveOptionForeground || "inherit";
+      this.domNode.style.backgroundColor = this._checked && this._opts.inputActiveOptionBackground || "";
+    }
+  }
+  enable() {
+    this.domNode.setAttribute("aria-disabled", String(false));
+    this.domNode.classList.remove("disabled");
+  }
+  disable() {
+    this.domNode.setAttribute("aria-disabled", String(true));
+    this.domNode.classList.add("disabled");
+  }
+  setTitle(newTitle) {
+    this._title = newTitle;
+    const ariaLabel = typeof newTitle === "string" ? newTitle : isMarkdownString(newTitle) ? newTitle.value : newTitle.textContent;
+    this.domNode.setAttribute("aria-label", getCodiconAriaLabel(ariaLabel));
+  }
+  set visible(visible) {
+    this.domNode.style.display = visible ? "" : "none";
+  }
+  get visible() {
+    return this.domNode.style.display !== "none";
+  }
+}
+class BaseCheckbox extends Widget {
+  static {
+    __name(this, "BaseCheckbox");
+  }
+  static {
+    this.CLASS_NAME = "monaco-checkbox";
+  }
+  constructor(checkbox, domNode, styles) {
+    super();
+    this.checkbox = checkbox;
+    this.domNode = domNode;
+    this.styles = styles;
+    this._onChange = this._register(new Emitter());
+    this.onChange = this._onChange.event;
+    this.applyStyles();
+  }
+  get enabled() {
+    return this.checkbox.enabled;
+  }
+  focus() {
+    this.domNode.focus();
+  }
+  hasFocus() {
+    return isActiveElement(this.domNode);
+  }
+  enable() {
+    this.checkbox.enable();
+    this.applyStyles(true);
+  }
+  disable() {
+    this.checkbox.disable();
+    this.applyStyles(false);
+  }
+  setTitle(newTitle) {
+    this.checkbox.setTitle(newTitle);
+  }
+  applyStyles(enabled = this.enabled) {
+    this.domNode.style.color = (enabled ? this.styles.checkboxForeground : this.styles.checkboxDisabledForeground) || "";
+    this.domNode.style.backgroundColor = (enabled ? this.styles.checkboxBackground : this.styles.checkboxDisabledBackground) || "";
+    this.domNode.style.borderColor = (enabled ? this.styles.checkboxBorder : this.styles.checkboxDisabledBackground) || "";
+    const size = this.styles.size || 18;
+    this.domNode.style.width = this.domNode.style.height = this.domNode.style.fontSize = `${size}px`;
+    this.domNode.style.fontSize = `${size - 2}px`;
+  }
+}
+class Checkbox extends BaseCheckbox {
+  static {
+    __name(this, "Checkbox");
+  }
+  constructor(title, isChecked, styles) {
+    const toggle = new Toggle({ title, isChecked, icon: Codicon.check, actionClassName: BaseCheckbox.CLASS_NAME, hoverLifecycleOptions: styles.hoverLifecycleOptions, ...unthemedToggleStyles });
+    super(toggle, toggle.domNode, styles);
+    this._register(toggle);
+    this._register(this.checkbox.onChange((keyboard) => {
+      this.applyStyles();
+      this._onChange.fire(keyboard);
+    }));
+  }
+  get checked() {
+    return this.checkbox.checked;
+  }
+  set checked(newIsChecked) {
+    this.checkbox.checked = newIsChecked;
+    this.applyStyles();
+  }
+  applyStyles(enabled) {
+    if (this.checkbox.checked) {
+      this.checkbox.setIcon(Codicon.check);
+    } else {
+      this.checkbox.setIcon(void 0);
+    }
+    super.applyStyles(enabled);
+  }
+}
+class TriStateCheckbox extends BaseCheckbox {
+  static {
+    __name(this, "TriStateCheckbox");
+  }
+  constructor(title, _state, styles) {
+    let icon;
+    switch (_state) {
+      case true:
+        icon = Codicon.check;
+        break;
+      case "mixed":
+        icon = Codicon.dash;
+        break;
+      case false:
+        icon = void 0;
+        break;
+    }
+    const checkbox = new Toggle({
+      title,
+      isChecked: _state === true,
+      icon,
+      actionClassName: Checkbox.CLASS_NAME,
+      hoverLifecycleOptions: styles.hoverLifecycleOptions,
+      ...unthemedToggleStyles
+    });
+    super(checkbox, checkbox.domNode, styles);
+    this._state = _state;
+    this._register(checkbox);
+    this._register(this.checkbox.onChange((keyboard) => {
+      this._state = this.checkbox.checked;
+      this.applyStyles();
+      this._onChange.fire(keyboard);
+    }));
+  }
+  get checked() {
+    return this._state;
+  }
+  set checked(newState) {
+    if (this._state !== newState) {
+      this._state = newState;
+      this.checkbox.checked = newState === true;
+      this.applyStyles();
+    }
+  }
+  applyStyles(enabled) {
+    switch (this._state) {
+      case true:
+        this.checkbox.setIcon(Codicon.check);
+        break;
+      case "mixed":
+        this.checkbox.setIcon(Codicon.dash);
+        break;
+      case false:
+        this.checkbox.setIcon(void 0);
+        break;
+    }
+    super.applyStyles(enabled);
+  }
+}
+class CheckboxActionViewItem extends BaseActionViewItem {
+  static {
+    __name(this, "CheckboxActionViewItem");
+  }
+  constructor(context, action, options) {
+    super(context, action, options);
+    this.toggle = this._register(new Checkbox(this._action.label, !!this._action.checked, options.checkboxStyles));
+    this._register(this.toggle.onChange(() => this.onChange()));
+  }
+  render(container) {
+    this.element = container;
+    this.element.classList.add("checkbox-action-item");
+    this.element.appendChild(this.toggle.domNode);
+    if (this.options.label && this._action.label) {
+      const label = this.element.appendChild($("span.checkbox-label", void 0, this._action.label));
+      this._register(addDisposableListener(label, EventType.CLICK, (e) => {
+        this.toggle.checked = !this.toggle.checked;
+        e.stopPropagation();
+        e.preventDefault();
+        this.onChange();
+      }));
+    }
+    this.updateEnabled();
+    this.updateClass();
+    this.updateChecked();
+  }
+  onChange() {
+    this._action.checked = !!this.toggle && this.toggle.checked;
+    this.actionRunner.run(this._action, this._context);
+  }
+  updateEnabled() {
+    if (this.isEnabled()) {
+      this.toggle.enable();
+    } else {
+      this.toggle.disable();
+    }
+    if (this.action.enabled) {
+      this.element?.classList.remove("disabled");
+    } else {
+      this.element?.classList.add("disabled");
+    }
+  }
+  updateChecked() {
+    this.toggle.checked = !!this._action.checked;
+  }
+  updateClass() {
+    if (this.cssClass) {
+      this.toggle.domNode.classList.remove(...this.cssClass.split(" "));
+    }
+    this.cssClass = this.getClass();
+    if (this.cssClass) {
+      this.toggle.domNode.classList.add(...this.cssClass.split(" "));
+    }
+  }
+  focus() {
+    this.toggle.domNode.tabIndex = 0;
+    this.toggle.focus();
+  }
+  blur() {
+    this.toggle.domNode.tabIndex = -1;
+    this.toggle.domNode.blur();
+  }
+  setFocusable(focusable) {
+    this.toggle.domNode.tabIndex = focusable ? 0 : -1;
+  }
+}
+function createToggleActionViewItemProvider(toggleStyles) {
+  return (action, options) => {
+    if (action.checked !== void 0) {
+      return new ToggleActionViewItem(null, action, { ...options, toggleStyles });
+    }
+    return void 0;
+  };
+}
+__name(createToggleActionViewItemProvider, "createToggleActionViewItemProvider");
+export {
+  Checkbox,
+  CheckboxActionViewItem,
+  Toggle,
+  ToggleActionViewItem,
+  TriStateCheckbox,
+  createToggleActionViewItemProvider,
+  unthemedToggleStyles
+};
+//# sourceMappingURL=toggle.js.map

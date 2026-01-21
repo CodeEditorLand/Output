@@ -1,1 +1,692 @@
-import{$ak as v}from"../../../../../base/common/codicons.js";import{$Eh as G}from"../../../../../base/common/resources.js";import{ThemeIcon as ie}from"../../../../../base/common/themables.js";import{$fd as se}from"../../../../../base/common/types.js";import{EditorContextKeys as N}from"../../../../../editor/common/editorContextKeys.js";import{localize as f,localize2 as d}from"../../../../../nls.js";import{$sL as h,$nL as w,$tL as u}from"../../../../../platform/actions/common/actions.js";import{$to as ce}from"../../../../../platform/commands/common/commands.js";import{$9l as Y}from"../../../../../platform/configuration/common/configuration.js";import{$9n as o}from"../../../../../platform/contextkey/common/contextkey.js";import{$Lp as Z}from"../../../../../platform/dialogs/common/dialogs.js";import{$Lj as re}from"../../../../../platform/instantiation/common/instantiation.js";import{$op as _}from"../../../../../platform/telemetry/common/telemetry.js";import{ChatContextKeys as e}from"../../common/actions/chatContextKeys.js";import{$ER as ae}from"../../common/chatModes.js";import{$XT as de}from"../../common/requestParser/chatParserTypes.js";import{$hU as W}from"../../common/chatService/chatService.js";import{ChatAgentLocation as b,ChatConfiguration as ee,ChatModeKind as P}from"../../common/constants.js";import{$oS as ue}from"../../common/tools/languageModelToolsService.js";import{$O3b as p}from"../chat.js";import{$zPb as le}from"../chatEditing/chatEditingActions.js";import{$HPb as ge}from"../chatEditing/chatEditingEditorContextKeys.js";import{$4Ob as he,$3Ob as m,$dPb as pe,$ePb as me}from"./chatActions.js";import{$RPb as fe}from"./chatContinueInAction.js";class te extends h{async run(t,...s){const i=s[0],n=t.get(_),r=t.get(p),a=i?.widget??r.lastFocusedWidget;if(a?.viewModel?.editing){const c=t.get(Y),y=t.get(Z),g=t.get(W).getSession(a.viewModel.sessionResource);if(!g)return;const E=g.editingSession;if(!E)return;const x=a.viewModel?.editing.id;if(x){const l=g.getRequests(),k=l.findIndex(q=>q.id===x),I=l.length-k,D=l.slice(k),R=new Set(D.map(q=>q.id)),S=E.entries.get().filter(q=>R.has(q.lastModifyingRequestId))??[],$=S.length>0&&c.getValue("chat.editing.confirmEditRequestRemoval")===!0;let T;I===1?S.length===1?T=f(5235,null,G(S[0].modifiedURI)):T=f(5236,null,S.length):S.length===1?T=f(5237,null,G(S[0].modifiedURI)):T=f(5238,null,S.length);const X=$?await y.confirm({title:I===1?f(5239,null):f(5240,null,I),message:T,primaryButton:f(5241,null),checkbox:{label:f(5242,null),checked:!1},type:"info"}):{confirmed:!0};if(X.confirmed)I>0&&n.publicLog2("chat.undoEditsConfirmation",{editRequestType:c.getValue("chat.editRequests"),outcome:"applied",editsUndoCount:I});else{n.publicLog2("chat.undoEditsConfirmation",{editRequestType:c.getValue("chat.editRequests"),outcome:"cancelled",editsUndoCount:I});return}X.checkboxChecked&&await c.updateValue("chat.editing.confirmEditRequestRemoval",!1);const oe=l[k].id;await E.restoreSnapshot(oe,void 0)}}else a?.viewModel?.model.checkpoint&&a.viewModel.model.setCheckpoint(void 0);a?.acceptInput(i?.inputValue)}}const M=e.requestInProgress.negate();class A extends te{static{this.ID="workbench.action.chat.submit"}constructor(){const t=e.chatModeKind.isEqualTo(P.Ask),s=o.and(e.inputHasText,M,e.chatSessionOptionsValid);super({id:A.ID,title:d(5246,"Send"),f1:!1,category:m,icon:v.send,precondition:s,toggled:{condition:e.lockedToCodingAgent,icon:v.send,tooltip:f(5243,null)},keybinding:{when:o.and(e.inChatInput,e.withinEditSessionDiff.negate()),primary:3,weight:100},menu:[{id:w.ChatExecute,order:4,when:o.and(M,t,e.withinEditSessionDiff.negate()),group:"navigation",alt:{id:"workbench.action.chat.sendToNewChat",title:d(5247,"Send to New Chat"),icon:v.plus}},{id:w.ChatEditorInlineExecute,group:"navigation",order:4,when:o.and(o.or(ge.negate(),e.inputHasText),M,e.requestInProgress.negate(),t)}]})}}const we="workbench.action.chat.toggleAgentMode";class F extends h{static{this.ID=we}constructor(){super({id:F.ID,title:d(5248,"Switch to Next Agent"),f1:!0,category:m,precondition:o.and(e.enabled,e.requestInProgress.negate())})}async run(t,...s){const i=t.get(ce),n=t.get(Y),r=t.get(re),a=t.get(ae),c=t.get(_),y=t.get(p),C=s.at(0);let g;if(C?.sessionResource?g=y.getWidgetBySessionResource(C.sessionResource):g=le(t,s)?.chatWidget,!g)return;const x=g.viewModel?.model?.getRequests().length??0,l=(C&&a.findModeById(C.modeId))??this.a(g,x,n,a),k=g.input.currentModeObs.get();if(l.id===k.id)return;const I=await r.invokeFunction(me,g.input.currentModeKind,l.kind,x,g.viewModel?.model);if(!I)return;const D=l.source?.storage??"builtin",R=l.source?.storage==="extension"?l.source.extensionId.value:void 0,S=l.customTools?.get()?.length??0,$=l.handOffs?.get()?.length??0;c.publicLog2("chat.modeChange",{fromMode:k.name.get(),mode:l.name.get(),requestCount:x,storage:D,extensionId:R,toolsCount:S,handoffsCount:$}),g.input.setChatMode(l.id),I.needToClearSession&&await i.executeCommand(he)}a(t,s,i,n){const r=n.getModes(),a=[...r.builtin.filter(C=>C.kind!==P.Edit||i.getValue(ee.Edits2Enabled)||s===0),...r.custom??[]],c=a.findIndex(C=>C.id===t.input.currentModeObs.get().id);return a[(c+1)%a.length]}}class O extends h{static{this.ID="workbench.action.chat.switchToNextModel"}constructor(){super({id:O.ID,title:d(5249,"Switch to Next Model"),category:m,f1:!0,precondition:e.enabled})}run(t,...s){t.get(p).lastFocusedWidget?.input.switchToNextModel()}}class V extends h{static{this.ID="workbench.action.chat.openModelPicker"}constructor(){super({id:V.ID,title:d(5250,"Open Model Picker"),category:m,f1:!1,keybinding:{primary:2649,weight:200,when:e.inChatInput},precondition:e.enabled,menu:{id:w.ChatInput,order:3,group:"navigation",when:o.and(e.lockedToCodingAgent.negate(),o.or(o.equals(e.location.key,b.Chat),o.equals(e.location.key,b.EditorInline),o.equals(e.location.key,b.Notebook),o.equals(e.location.key,b.Terminal)))}})}async run(t,...s){const i=t.get(p),n=i.lastFocusedWidget;n&&(await i.reveal(n),n.input.openModelPicker())}}class H extends h{static{this.ID="workbench.action.chat.openModePicker"}constructor(){super({id:H.ID,title:d(5251,"Open Agent Picker"),tooltip:f(5244,null),category:m,f1:!1,precondition:e.enabled,keybinding:{when:o.and(e.inChatInput,e.location.isEqualTo(b.Chat)),primary:2137,weight:100},menu:[{id:w.ChatInput,order:1,when:o.and(e.enabled,e.location.isEqualTo(b.Chat),e.inQuickChat.negate(),e.lockedToCodingAgent.negate()),group:"navigation"}]})}async run(t,...s){const n=t.get(p).lastFocusedWidget;n&&n.input.openModePicker()}}class L extends h{static{this.ID="workbench.action.chat.openSessionTargetPicker"}constructor(){super({id:L.ID,title:d(5252,"Open Session Target Picker"),tooltip:f(5245,null),category:m,f1:!1,precondition:o.and(e.enabled,e.hasCanDelegateProviders,o.or(e.chatSessionIsEmpty,e.inAgentSessionsWelcome)),menu:[{id:w.ChatInput,order:0,when:o.and(e.enabled,e.location.isEqualTo(b.Chat),e.inQuickChat.negate(),e.hasCanDelegateProviders),group:"navigation"}]})}async run(t,...s){const n=t.get(p).lastFocusedWidget;n&&n.input.openSessionTargetPicker()}}class K extends h{static{this.ID="workbench.action.chat.chatSessionPrimaryPicker"}constructor(){super({id:K.ID,title:d(5253,"Open Picker"),category:m,f1:!1,precondition:e.enabled,menu:{id:w.ChatInput,order:4,group:"navigation",when:o.and(e.chatSessionHasModels,o.or(e.lockedToCodingAgent,o.and(e.inAgentSessionsWelcome,e.chatSessionType.notEqualsTo("local"))))}})}async run(t,...s){const n=t.get(p).lastFocusedWidget;n&&n.input.openChatSessionPicker()}}const Ce="workbench.action.chat.changeModel";class U extends h{static{this.ID=Ce}constructor(){super({id:U.ID,title:d(5254,"Change Model"),category:m,f1:!1,precondition:e.enabled})}run(t,...s){const i=s[0];se(typeof i.vendor=="string"&&typeof i.id=="string"&&typeof i.family=="string");const r=t.get(p).getAllWidgets();for(const a of r)a.input.switchModel(i)}}class B extends te{static{this.ID="workbench.action.edits.submit"}constructor(){const t=e.chatModeKind.notEqualsTo(P.Ask),s=o.and(e.inputHasText,M,e.chatSessionOptionsValid);super({id:B.ID,title:d(5255,"Send"),f1:!1,category:m,icon:v.send,precondition:s,menu:[{id:w.ChatExecute,order:4,when:o.and(e.requestInProgress.negate(),t),group:"navigation",alt:{id:"workbench.action.chat.sendToNewChat",title:d(5256,"Send to New Chat"),icon:v.plus}}]})}}class z extends h{static{this.ID="workbench.action.chat.submitWithoutDispatching"}constructor(){const t=o.and(e.inputHasText,M,e.chatModeKind.isEqualTo(P.Ask));super({id:z.ID,title:d(5257,"Send"),f1:!1,category:m,precondition:t,keybinding:{when:e.inChatInput,primary:1539,weight:100}})}run(t,...s){const i=s[0],n=t.get(p);(i?.widget??n.lastFocusedWidget)?.acceptInput(i?.inputValue,{noCommandDetection:!0})}}class J extends h{static{this.ID="workbench.action.chat.submitWithCodebase"}constructor(){const t=o.and(e.inputHasText,M);super({id:J.ID,title:d(5258,"Send with {0}",`${de}codebase`),precondition:t,keybinding:{when:e.inChatInput,primary:2051,weight:100}})}run(t,...s){const i=s[0],n=t.get(p),r=i?.widget??n.lastFocusedWidget;if(!r)return;const c=t.get(ue).getToolByName("codebase");c&&(r.input.attachmentModel.addContext({id:c.id,name:c.displayName??"",fullName:c.displayName??"",value:void 0,icon:ie.isThemeIcon(c.icon)?c.icon:void 0,kind:"tool"}),r.acceptInput())}}class Ie extends h{constructor(){const t=e.inputHasText;super({id:"workbench.action.chat.sendToNewChat",title:d(5259,"Send to New Chat"),precondition:t,category:m,f1:!1,keybinding:{weight:200,primary:3075,when:e.inChatInput}})}async run(t,...s){const i=s[0],n=t.get(p),r=t.get(Z),a=t.get(W),c=i?.widget??n.lastFocusedWidget;if(!c)return;const y=c.getInput();c.viewModel&&a.cancelCurrentRequestForSession(c.viewModel.sessionResource),!(c.viewModel?.model&&!await pe(c.viewModel.model,void 0,r))&&(await c.clear(),c.acceptInput(y,{storeToHistory:!0}))}}const Se="workbench.action.chat.cancel";class Q extends h{static{this.ID=Se}constructor(){super({id:Q.ID,title:d(5260,"Cancel"),f1:!1,category:m,icon:v.stopCircle,menu:[{id:w.ChatExecute,when:o.and(e.requestInProgress,e.remoteJobCreating.negate()),order:4,group:"navigation"},{id:w.ChatEditorInlineExecute,when:o.and(e.requestInProgress,e.remoteJobCreating.negate()),order:4,group:"navigation"}],keybinding:{weight:200,primary:2057,win:{primary:513}}})}run(t,...s){const i=s[0],n=t.get(p),r=i?.widget??n.lastFocusedWidget;if(!r)return;const a=t.get(W);r.viewModel&&a.cancelCurrentRequestForSession(r.viewModel.sessionResource)}}const be="workbench.edit.chat.cancel";class j extends h{static{this.ID=be}constructor(){super({id:j.ID,title:d(5261,"Cancel Edit"),f1:!1,category:m,icon:v.x,menu:[{id:w.ChatMessageTitle,group:"navigation",order:1,when:o.and(e.isRequest,e.currentlyEditing,o.equals(`config.${ee.EditRequests}`,"input"))}],keybinding:{primary:9,when:o.and(e.inChatInput,N.hoverVisible.toNegated(),N.hasNonEmptySelection.toNegated(),N.hasMultipleSelections.toNegated(),o.or(e.currentlyEditing,e.currentlyEditingInput)),weight:95}})}run(t,...s){const i=s[0],n=t.get(p),r=i?.widget??n.lastFocusedWidget;r&&r.finishedEditing()}}function Je(){u(A),u(B),u(z),u(Q),u(Ie),u(J),u(fe),u(F),u(O),u(V),u(H),u(L),u(K),u(U),u(j)}export{Ce as $1Pb,B as $2Pb,J as $3Pb,Se as $4Pb,Q as $5Pb,be as $6Pb,j as $7Pb,Je as $8Pb,A as $UPb,we as $VPb,V as $WPb,H as $XPb,L as $YPb,K as $ZPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { assertType } from "../../../../../base/common/types.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IChatModeService } from "../../common/chatModes.js";
+import { chatVariableLeader } from "../../common/requestParser/chatParserTypes.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
+import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
+import { IChatWidgetService } from "../chat.js";
+import { getEditingSessionContext } from "../chatEditing/chatEditingActions.js";
+import { ctxHasEditorModification } from "../chatEditing/chatEditingEditorContextKeys.js";
+import { ACTION_ID_NEW_CHAT, CHAT_CATEGORY, handleCurrentEditingSession, handleModeSwitch } from "./chatActions.js";
+import { ContinueChatInSessionAction } from "./chatContinueInAction.js";
+class SubmitAction extends Action2 {
+  static {
+    __name(this, "SubmitAction");
+  }
+  async run(accessor, ...args) {
+    const context = args[0];
+    const telemetryService = accessor.get(ITelemetryService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (widget?.viewModel?.editing) {
+      const configurationService = accessor.get(IConfigurationService);
+      const dialogService = accessor.get(IDialogService);
+      const chatService = accessor.get(IChatService);
+      const chatModel = chatService.getSession(widget.viewModel.sessionResource);
+      if (!chatModel) {
+        return;
+      }
+      const session = chatModel.editingSession;
+      if (!session) {
+        return;
+      }
+      const requestId = widget.viewModel?.editing.id;
+      if (requestId) {
+        const chatRequests = chatModel.getRequests();
+        const itemIndex = chatRequests.findIndex((request) => request.id === requestId);
+        const editsToUndo = chatRequests.length - itemIndex;
+        const requestsToRemove = chatRequests.slice(itemIndex);
+        const requestIdsToRemove = new Set(requestsToRemove.map((request) => request.id));
+        const entriesModifiedInRequestsToRemove = session.entries.get().filter((entry) => requestIdsToRemove.has(entry.lastModifyingRequestId)) ?? [];
+        const shouldPrompt = entriesModifiedInRequestsToRemove.length > 0 && configurationService.getValue("chat.editing.confirmEditRequestRemoval") === true;
+        let message;
+        if (editsToUndo === 1) {
+          if (entriesModifiedInRequestsToRemove.length === 1) {
+            message = localize("chat.removeLast.confirmation.message2", "This will remove your last request and undo the edits made to {0}. Do you want to proceed?", basename(entriesModifiedInRequestsToRemove[0].modifiedURI));
+          } else {
+            message = localize("chat.removeLast.confirmation.multipleEdits.message", "This will remove your last request and undo edits made to {0} files in your working set. Do you want to proceed?", entriesModifiedInRequestsToRemove.length);
+          }
+        } else {
+          if (entriesModifiedInRequestsToRemove.length === 1) {
+            message = localize("chat.remove.confirmation.message2", "This will remove all subsequent requests and undo edits made to {0}. Do you want to proceed?", basename(entriesModifiedInRequestsToRemove[0].modifiedURI));
+          } else {
+            message = localize("chat.remove.confirmation.multipleEdits.message", "This will remove all subsequent requests and undo edits made to {0} files in your working set. Do you want to proceed?", entriesModifiedInRequestsToRemove.length);
+          }
+        }
+        const confirmation = shouldPrompt ? await dialogService.confirm({
+          title: editsToUndo === 1 ? localize("chat.removeLast.confirmation.title", "Do you want to undo your last edit?") : localize("chat.remove.confirmation.title", "Do you want to undo {0} edits?", editsToUndo),
+          message,
+          primaryButton: localize("chat.remove.confirmation.primaryButton", "Yes"),
+          checkbox: { label: localize("chat.remove.confirmation.checkbox", "Don't ask again"), checked: false },
+          type: "info"
+        }) : { confirmed: true };
+        if (!confirmation.confirmed) {
+          telemetryService.publicLog2("chat.undoEditsConfirmation", {
+            editRequestType: configurationService.getValue("chat.editRequests"),
+            outcome: "cancelled",
+            editsUndoCount: editsToUndo
+          });
+          return;
+        } else if (editsToUndo > 0) {
+          telemetryService.publicLog2("chat.undoEditsConfirmation", {
+            editRequestType: configurationService.getValue("chat.editRequests"),
+            outcome: "applied",
+            editsUndoCount: editsToUndo
+          });
+        }
+        if (confirmation.checkboxChecked) {
+          await configurationService.updateValue("chat.editing.confirmEditRequestRemoval", false);
+        }
+        const snapshotRequestId = chatRequests[itemIndex].id;
+        await session.restoreSnapshot(snapshotRequestId, void 0);
+      }
+    } else if (widget?.viewModel?.model.checkpoint) {
+      widget.viewModel.model.setCheckpoint(void 0);
+    }
+    widget?.acceptInput(context?.inputValue);
+  }
+}
+const whenNotInProgress = ChatContextKeys.requestInProgress.negate();
+class ChatSubmitAction extends SubmitAction {
+  static {
+    __name(this, "ChatSubmitAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.submit";
+  }
+  constructor() {
+    const menuCondition = ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Ask);
+    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, whenNotInProgress, ChatContextKeys.chatSessionOptionsValid);
+    super({
+      id: ChatSubmitAction.ID,
+      title: localize2("interactive.submit.label", "Send"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.send,
+      precondition,
+      toggled: {
+        condition: ChatContextKeys.lockedToCodingAgent,
+        icon: Codicon.send,
+        tooltip: localize("sendToAgent", "Send to Agent")
+      },
+      keybinding: {
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.withinEditSessionDiff.negate()),
+        primary: 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: [
+        {
+          id: MenuId.ChatExecute,
+          order: 4,
+          when: ContextKeyExpr.and(whenNotInProgress, menuCondition, ChatContextKeys.withinEditSessionDiff.negate()),
+          group: "navigation",
+          alt: {
+            id: "workbench.action.chat.sendToNewChat",
+            title: localize2("chat.newChat.label", "Send to New Chat"),
+            icon: Codicon.plus
+          }
+        },
+        {
+          id: MenuId.ChatEditorInlineExecute,
+          group: "navigation",
+          order: 4,
+          when: ContextKeyExpr.and(ContextKeyExpr.or(ctxHasEditorModification.negate(), ChatContextKeys.inputHasText), whenNotInProgress, ChatContextKeys.requestInProgress.negate(), menuCondition)
+        }
+      ]
+    });
+  }
+}
+const ToggleAgentModeActionId = "workbench.action.chat.toggleAgentMode";
+class ToggleChatModeAction extends Action2 {
+  static {
+    __name(this, "ToggleChatModeAction");
+  }
+  static {
+    this.ID = ToggleAgentModeActionId;
+  }
+  constructor() {
+    super({
+      id: ToggleChatModeAction.ID,
+      title: localize2("interactive.toggleAgent.label", "Switch to Next Agent"),
+      f1: true,
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.requestInProgress.negate())
+    });
+  }
+  async run(accessor, ...args) {
+    const commandService = accessor.get(ICommandService);
+    const configurationService = accessor.get(IConfigurationService);
+    const instaService = accessor.get(IInstantiationService);
+    const modeService = accessor.get(IChatModeService);
+    const telemetryService = accessor.get(ITelemetryService);
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const arg = args.at(0);
+    let widget;
+    if (arg?.sessionResource) {
+      widget = chatWidgetService.getWidgetBySessionResource(arg.sessionResource);
+    } else {
+      widget = getEditingSessionContext(accessor, args)?.chatWidget;
+    }
+    if (!widget) {
+      return;
+    }
+    const chatSession = widget.viewModel?.model;
+    const requestCount = chatSession?.getRequests().length ?? 0;
+    const switchToMode = (arg && modeService.findModeById(arg.modeId)) ?? this.getNextMode(widget, requestCount, configurationService, modeService);
+    const currentMode = widget.input.currentModeObs.get();
+    if (switchToMode.id === currentMode.id) {
+      return;
+    }
+    const chatModeCheck = await instaService.invokeFunction(handleModeSwitch, widget.input.currentModeKind, switchToMode.kind, requestCount, widget.viewModel?.model);
+    if (!chatModeCheck) {
+      return;
+    }
+    const storage = switchToMode.source?.storage ?? "builtin";
+    const extensionId = switchToMode.source?.storage === "extension" ? switchToMode.source.extensionId.value : void 0;
+    const toolsCount = switchToMode.customTools?.get()?.length ?? 0;
+    const handoffsCount = switchToMode.handOffs?.get()?.length ?? 0;
+    telemetryService.publicLog2("chat.modeChange", {
+      fromMode: currentMode.name.get(),
+      mode: switchToMode.name.get(),
+      requestCount,
+      storage,
+      extensionId,
+      toolsCount,
+      handoffsCount
+    });
+    widget.input.setChatMode(switchToMode.id);
+    if (chatModeCheck.needToClearSession) {
+      await commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }
+  }
+  getNextMode(chatWidget, requestCount, configurationService, modeService) {
+    const modes = modeService.getModes();
+    const flat = [
+      ...modes.builtin.filter((mode) => {
+        return mode.kind !== ChatModeKind.Edit || configurationService.getValue(ChatConfiguration.Edits2Enabled) || requestCount === 0;
+      }),
+      ...modes.custom ?? []
+    ];
+    const curModeIndex = flat.findIndex((mode) => mode.id === chatWidget.input.currentModeObs.get().id);
+    const newMode = flat[(curModeIndex + 1) % flat.length];
+    return newMode;
+  }
+}
+class SwitchToNextModelAction extends Action2 {
+  static {
+    __name(this, "SwitchToNextModelAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.switchToNextModel";
+  }
+  constructor() {
+    super({
+      id: SwitchToNextModelAction.ID,
+      title: localize2("interactive.switchToNextModel.label", "Switch to Next Model"),
+      category: CHAT_CATEGORY,
+      f1: true,
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    widget?.input.switchToNextModel();
+  }
+}
+class OpenModelPickerAction extends Action2 {
+  static {
+    __name(this, "OpenModelPickerAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.openModelPicker";
+  }
+  constructor() {
+    super({
+      id: OpenModelPickerAction.ID,
+      title: localize2("interactive.openModelPicker.label", "Open Model Picker"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      keybinding: {
+        primary: 2048 | 512 | 89,
+        weight: 200,
+        when: ChatContextKeys.inChatInput
+      },
+      precondition: ChatContextKeys.enabled,
+      menu: {
+        id: MenuId.ChatInput,
+        order: 3,
+        group: "navigation",
+        when: ContextKeyExpr.and(ChatContextKeys.lockedToCodingAgent.negate(), ContextKeyExpr.or(ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Chat), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.EditorInline), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Notebook), ContextKeyExpr.equals(ChatContextKeys.location.key, ChatAgentLocation.Terminal)))
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (widget) {
+      await widgetService.reveal(widget);
+      widget.input.openModelPicker();
+    }
+  }
+}
+class OpenModePickerAction extends Action2 {
+  static {
+    __name(this, "OpenModePickerAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.openModePicker";
+  }
+  constructor() {
+    super({
+      id: OpenModePickerAction.ID,
+      title: localize2("interactive.openModePicker.label", "Open Agent Picker"),
+      tooltip: localize("setChatMode", "Set Agent"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      keybinding: {
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.location.isEqualTo(ChatAgentLocation.Chat)),
+        primary: 2048 | 89,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menu: [
+        {
+          id: MenuId.ChatInput,
+          order: 1,
+          when: ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.location.isEqualTo(ChatAgentLocation.Chat), ChatContextKeys.inQuickChat.negate(), ChatContextKeys.lockedToCodingAgent.negate()),
+          group: "navigation"
+        }
+      ]
+    });
+  }
+  async run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (widget) {
+      widget.input.openModePicker();
+    }
+  }
+}
+class OpenSessionTargetPickerAction extends Action2 {
+  static {
+    __name(this, "OpenSessionTargetPickerAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.openSessionTargetPicker";
+  }
+  constructor() {
+    super({
+      id: OpenSessionTargetPickerAction.ID,
+      title: localize2("interactive.openSessionTargetPicker.label", "Open Session Target Picker"),
+      tooltip: localize("setSessionTarget", "Set Session Target"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.hasCanDelegateProviders, ContextKeyExpr.or(ChatContextKeys.chatSessionIsEmpty, ChatContextKeys.inAgentSessionsWelcome)),
+      menu: [
+        {
+          id: MenuId.ChatInput,
+          order: 0,
+          when: ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.location.isEqualTo(ChatAgentLocation.Chat), ChatContextKeys.inQuickChat.negate(), ChatContextKeys.hasCanDelegateProviders),
+          group: "navigation"
+        }
+      ]
+    });
+  }
+  async run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (widget) {
+      widget.input.openSessionTargetPicker();
+    }
+  }
+}
+class ChatSessionPrimaryPickerAction extends Action2 {
+  static {
+    __name(this, "ChatSessionPrimaryPickerAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.chatSessionPrimaryPicker";
+  }
+  constructor() {
+    super({
+      id: ChatSessionPrimaryPickerAction.ID,
+      title: localize2("interactive.openChatSessionPrimaryPicker.label", "Open Picker"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      menu: {
+        id: MenuId.ChatInput,
+        order: 4,
+        group: "navigation",
+        when: ContextKeyExpr.and(ChatContextKeys.chatSessionHasModels, ContextKeyExpr.or(ChatContextKeys.lockedToCodingAgent, ContextKeyExpr.and(ChatContextKeys.inAgentSessionsWelcome, ChatContextKeys.chatSessionType.notEqualsTo("local"))))
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (widget) {
+      widget.input.openChatSessionPicker();
+    }
+  }
+}
+const ChangeChatModelActionId = "workbench.action.chat.changeModel";
+class ChangeChatModelAction extends Action2 {
+  static {
+    __name(this, "ChangeChatModelAction");
+  }
+  static {
+    this.ID = ChangeChatModelActionId;
+  }
+  constructor() {
+    super({
+      id: ChangeChatModelAction.ID,
+      title: localize2("interactive.changeModel.label", "Change Model"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  run(accessor, ...args) {
+    const modelInfo = args[0];
+    assertType(typeof modelInfo.vendor === "string" && typeof modelInfo.id === "string" && typeof modelInfo.family === "string");
+    const widgetService = accessor.get(IChatWidgetService);
+    const widgets = widgetService.getAllWidgets();
+    for (const widget of widgets) {
+      widget.input.switchModel(modelInfo);
+    }
+  }
+}
+class ChatEditingSessionSubmitAction extends SubmitAction {
+  static {
+    __name(this, "ChatEditingSessionSubmitAction");
+  }
+  static {
+    this.ID = "workbench.action.edits.submit";
+  }
+  constructor() {
+    const menuCondition = ChatContextKeys.chatModeKind.notEqualsTo(ChatModeKind.Ask);
+    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, whenNotInProgress, ChatContextKeys.chatSessionOptionsValid);
+    super({
+      id: ChatEditingSessionSubmitAction.ID,
+      title: localize2("edits.submit.label", "Send"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.send,
+      precondition,
+      menu: [
+        {
+          id: MenuId.ChatExecute,
+          order: 4,
+          when: ContextKeyExpr.and(ChatContextKeys.requestInProgress.negate(), menuCondition),
+          group: "navigation",
+          alt: {
+            id: "workbench.action.chat.sendToNewChat",
+            title: localize2("chat.newChat.label", "Send to New Chat"),
+            icon: Codicon.plus
+          }
+        }
+      ]
+    });
+  }
+}
+class SubmitWithoutDispatchingAction extends Action2 {
+  static {
+    __name(this, "SubmitWithoutDispatchingAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.submitWithoutDispatching";
+  }
+  constructor() {
+    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, whenNotInProgress, ChatContextKeys.chatModeKind.isEqualTo(ChatModeKind.Ask));
+    super({
+      id: SubmitWithoutDispatchingAction.ID,
+      title: localize2("interactive.submitWithoutDispatch.label", "Send"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      precondition,
+      keybinding: {
+        when: ChatContextKeys.inChatInput,
+        primary: 512 | 1024 | 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    widget?.acceptInput(context?.inputValue, { noCommandDetection: true });
+  }
+}
+class ChatSubmitWithCodebaseAction extends Action2 {
+  static {
+    __name(this, "ChatSubmitWithCodebaseAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.submitWithCodebase";
+  }
+  constructor() {
+    const precondition = ContextKeyExpr.and(ChatContextKeys.inputHasText, whenNotInProgress);
+    super({
+      id: ChatSubmitWithCodebaseAction.ID,
+      title: localize2("actions.chat.submitWithCodebase", "Send with {0}", `${chatVariableLeader}codebase`),
+      precondition,
+      keybinding: {
+        when: ChatContextKeys.inChatInput,
+        primary: 2048 | 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const languageModelToolsService = accessor.get(ILanguageModelToolsService);
+    const codebaseTool = languageModelToolsService.getToolByName("codebase");
+    if (!codebaseTool) {
+      return;
+    }
+    widget.input.attachmentModel.addContext({
+      id: codebaseTool.id,
+      name: codebaseTool.displayName ?? "",
+      fullName: codebaseTool.displayName ?? "",
+      value: void 0,
+      icon: ThemeIcon.isThemeIcon(codebaseTool.icon) ? codebaseTool.icon : void 0,
+      kind: "tool"
+    });
+    widget.acceptInput();
+  }
+}
+class SendToNewChatAction extends Action2 {
+  static {
+    __name(this, "SendToNewChatAction");
+  }
+  constructor() {
+    const precondition = ChatContextKeys.inputHasText;
+    super({
+      id: "workbench.action.chat.sendToNewChat",
+      title: localize2("chat.newChat.label", "Send to New Chat"),
+      precondition,
+      category: CHAT_CATEGORY,
+      f1: false,
+      keybinding: {
+        weight: 200,
+        primary: 2048 | 1024 | 3,
+        when: ChatContextKeys.inChatInput
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const dialogService = accessor.get(IDialogService);
+    const chatService = accessor.get(IChatService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const inputBeforeClear = widget.getInput();
+    if (widget.viewModel) {
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource);
+    }
+    if (widget.viewModel?.model) {
+      if (!await handleCurrentEditingSession(widget.viewModel.model, void 0, dialogService)) {
+        return;
+      }
+    }
+    await widget.clear();
+    widget.acceptInput(inputBeforeClear, { storeToHistory: true });
+  }
+}
+const CancelChatActionId = "workbench.action.chat.cancel";
+class CancelAction extends Action2 {
+  static {
+    __name(this, "CancelAction");
+  }
+  static {
+    this.ID = CancelChatActionId;
+  }
+  constructor() {
+    super({
+      id: CancelAction.ID,
+      title: localize2("interactive.cancel.label", "Cancel"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.stopCircle,
+      menu: [
+        {
+          id: MenuId.ChatExecute,
+          when: ContextKeyExpr.and(ChatContextKeys.requestInProgress, ChatContextKeys.remoteJobCreating.negate()),
+          order: 4,
+          group: "navigation"
+        },
+        {
+          id: MenuId.ChatEditorInlineExecute,
+          when: ContextKeyExpr.and(ChatContextKeys.requestInProgress, ChatContextKeys.remoteJobCreating.negate()),
+          order: 4,
+          group: "navigation"
+        }
+      ],
+      keybinding: {
+        weight: 200,
+        primary: 2048 | 9,
+        win: {
+          primary: 512 | 1
+          /* KeyCode.Backspace */
+        }
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const chatService = accessor.get(IChatService);
+    if (widget.viewModel) {
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionResource);
+    }
+  }
+}
+const CancelChatEditId = "workbench.edit.chat.cancel";
+class CancelEdit extends Action2 {
+  static {
+    __name(this, "CancelEdit");
+  }
+  static {
+    this.ID = CancelChatEditId;
+  }
+  constructor() {
+    super({
+      id: CancelEdit.ID,
+      title: localize2("interactive.cancelEdit.label", "Cancel Edit"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.x,
+      menu: [
+        {
+          id: MenuId.ChatMessageTitle,
+          group: "navigation",
+          order: 1,
+          when: ContextKeyExpr.and(ChatContextKeys.isRequest, ChatContextKeys.currentlyEditing, ContextKeyExpr.equals(`config.${ChatConfiguration.EditRequests}`, "input"))
+        }
+      ],
+      keybinding: {
+        primary: 9,
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, EditorContextKeys.hoverVisible.toNegated(), EditorContextKeys.hasNonEmptySelection.toNegated(), EditorContextKeys.hasMultipleSelections.toNegated(), ContextKeyExpr.or(ChatContextKeys.currentlyEditing, ChatContextKeys.currentlyEditingInput)),
+        weight: 100 - 5
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    widget.finishedEditing();
+  }
+}
+function registerChatExecuteActions() {
+  registerAction2(ChatSubmitAction);
+  registerAction2(ChatEditingSessionSubmitAction);
+  registerAction2(SubmitWithoutDispatchingAction);
+  registerAction2(CancelAction);
+  registerAction2(SendToNewChatAction);
+  registerAction2(ChatSubmitWithCodebaseAction);
+  registerAction2(ContinueChatInSessionAction);
+  registerAction2(ToggleChatModeAction);
+  registerAction2(SwitchToNextModelAction);
+  registerAction2(OpenModelPickerAction);
+  registerAction2(OpenModePickerAction);
+  registerAction2(OpenSessionTargetPickerAction);
+  registerAction2(ChatSessionPrimaryPickerAction);
+  registerAction2(ChangeChatModelAction);
+  registerAction2(CancelEdit);
+}
+__name(registerChatExecuteActions, "registerChatExecuteActions");
+export {
+  CancelAction,
+  CancelChatActionId,
+  CancelChatEditId,
+  CancelEdit,
+  ChangeChatModelActionId,
+  ChatEditingSessionSubmitAction,
+  ChatSessionPrimaryPickerAction,
+  ChatSubmitAction,
+  ChatSubmitWithCodebaseAction,
+  OpenModePickerAction,
+  OpenModelPickerAction,
+  OpenSessionTargetPickerAction,
+  ToggleAgentModeActionId,
+  registerChatExecuteActions
+};
+//# sourceMappingURL=chatExecuteActions.js.map

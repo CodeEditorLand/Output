@@ -1,1 +1,343 @@
-import{$Fz as f,$Hz as l,$Gz as D}from"../../../../platform/extensions/common/extensions.js";import{$wf as E}from"../../../../base/common/event.js";import*as p from"../../../../base/common/path.js";import{$Ed as m,$Cd as v}from"../../../../base/common/lifecycle.js";import{$1h as w}from"../../../../base/common/async.js";class A{constructor(t,e){this.versionId=t,this.removedDueToLooping=e}}class u extends m{static isHostExtension(t,e,i){if(e.getExtensionDescription(t))return!1;const o=i.getExtensionDescription(t);return o?!!((o.main||o.browser)&&o.api==="none"):!1}constructor(t,e){super(),this.n=t,this.c=this.D(new E),this.onDidChange=this.c.event,this.f=0,this.g=e,this.q()}q(){this.g.sort(I),this.h=new l,this.j=[],this.m=new Map;for(const t of this.g){if(this.h.has(t.identifier))continue;this.h.set(t.identifier,t),this.j.push(t);const e=this.n.readActivationEvents(t);for(const i of e)this.m.has(i)||this.m.set(i,[]),this.m.get(i).push(t)}}set(t){return this.g=t,this.q(),this.f++,this.c.fire(void 0),{versionId:this.f}}deltaExtensions(t,e){this.g=x(this.g,e),this.g=this.g.concat(t);const i=u.r(this.g);return this.g=x(this.g,i.map(o=>o.identifier)),this.q(),this.f++,this.c.fire(void 0),new A(this.f,i)}static r(t){const e=new class{constructor(){this.c=new Map,this.d=new Set,this.e=[]}addNode(s){this.d.has(s)||(this.d.add(s),this.e.push(s))}addArc(s,r){this.addNode(s),this.addNode(r),this.c.has(s)?this.c.get(s).push(r):this.c.set(s,[r])}getArcs(s){return this.c.has(s)?this.c.get(s):[]}hasOnlyGoodArcs(s,r){const d=e.getArcs(s);for(let a=0;a<d.length;a++)if(!r.has(d[a]))return!1;return!0}getNodes(){return this.e}},i=new l;for(const s of t)if(i.set(s.identifier,s),s.extensionDependencies)for(const r of s.extensionDependencies)e.addArc(f.toKey(s.identifier),f.toKey(r));const o=new Set;e.getNodes().filter(s=>e.getArcs(s).length===0).forEach(s=>o.add(s));const c=e.getNodes().filter(s=>!o.has(s));let h;do{h=!1;for(let s=0;s<c.length;s++){const r=c[s];e.hasOnlyGoodArcs(r,o)&&(c.splice(s,1),s--,o.add(r),h=!0)}}while(h);return c.map(s=>i.get(s))}containsActivationEvent(t){return this.m.has(t)}containsExtension(t){return this.h.has(t)}getExtensionDescriptionsForActivationEvent(t){const e=this.m.get(t);return e?e.slice(0):[]}getAllExtensionDescriptions(){return this.j.slice(0)}getSnapshot(){return new U(this.f,this.getAllExtensionDescriptions())}getExtensionDescription(t){const e=this.h.get(t);return e||void 0}getExtensionDescriptionByUUID(t){for(const e of this.j)if(e.uuid===t)return e}getExtensionDescriptionByIdOrUUID(t,e){return this.getExtensionDescription(t)??(e?this.getExtensionDescriptionByUUID(e):void 0)}}class U{constructor(t,e){this.versionId=t,this.extensions=e}}class F{constructor(t){this.d=new $,this.c=new u(t,[])}async acquireLock(t){const e=await this.d.acquire(t);return new L(this,e)}deltaExtensions(t,e,i){if(!t.isAcquiredFor(this))throw new Error("Lock is not held");return this.c.deltaExtensions(e,i)}containsActivationEvent(t){return this.c.containsActivationEvent(t)}containsExtension(t){return this.c.containsExtension(t)}getExtensionDescriptionsForActivationEvent(t){return this.c.getExtensionDescriptionsForActivationEvent(t)}getAllExtensionDescriptions(){return this.c.getAllExtensionDescriptions()}getSnapshot(){return this.c.getSnapshot()}getExtensionDescription(t){return this.c.getExtensionDescription(t)}getExtensionDescriptionByUUID(t){return this.c.getExtensionDescriptionByUUID(t)}getExtensionDescriptionByIdOrUUID(t,e){return this.c.getExtensionDescriptionByIdOrUUID(t,e)}}class L extends m{constructor(t,e){super(),this.f=t,this.c=!1,this.D(e)}isAcquiredFor(t){return!this.c&&this.f===t}}class y{constructor(t){this.name=t;const e=w();this.promise=e.promise,this.c=e.resolve}resolve(t){this.c(t)}}class ${constructor(){this.c=[],this.d=!1}async acquire(t){const e=new y(t);return this.c.push(e),this.e(),e.promise}e(){if(this.d||this.c.length===0)return;const t=this.c.shift();this.d=!0;let e=!0;const i=setTimeout(()=>{},30*1e3),o=()=>{e&&(clearTimeout(i),e=!1,this.d=!1,this.e())};t.resolve(v(o))}}var g;(function(n){n[n.Builtin=0]="Builtin",n[n.User=1]="User",n[n.Dev=2]="Dev"})(g||(g={}));function I(n,t){const e=n.isBuiltin?0:n.isUnderDevelopment?2:1,i=t.isBuiltin?0:t.isUnderDevelopment?2:1;if(e!==i)return e-i;const o=p.$6.basename(n.extensionLocation.path),c=p.$6.basename(t.extensionLocation.path);return o<c?-1:o>c?1:0}function x(n,t){const e=new D(t);return n.filter(i=>!e.has(i.identifier))}export{A as $mLc,u as $nLc,U as $oLc,F as $pLc,L as $qLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ExtensionIdentifier, ExtensionIdentifierMap, ExtensionIdentifierSet } from "../../../../platform/extensions/common/extensions.js";
+import { Emitter } from "../../../../base/common/event.js";
+import * as path from "../../../../base/common/path.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { promiseWithResolvers } from "../../../../base/common/async.js";
+class DeltaExtensionsResult {
+  static {
+    __name(this, "DeltaExtensionsResult");
+  }
+  constructor(versionId, removedDueToLooping) {
+    this.versionId = versionId;
+    this.removedDueToLooping = removedDueToLooping;
+  }
+}
+class ExtensionDescriptionRegistry extends Disposable {
+  static {
+    __name(this, "ExtensionDescriptionRegistry");
+  }
+  static isHostExtension(extensionId, myRegistry, globalRegistry) {
+    if (myRegistry.getExtensionDescription(extensionId)) {
+      return false;
+    }
+    const extensionDescription = globalRegistry.getExtensionDescription(extensionId);
+    if (!extensionDescription) {
+      return false;
+    }
+    if ((extensionDescription.main || extensionDescription.browser) && extensionDescription.api === "none") {
+      return true;
+    }
+    return false;
+  }
+  constructor(_activationEventsReader, extensionDescriptions) {
+    super();
+    this._activationEventsReader = _activationEventsReader;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._versionId = 0;
+    this._extensionDescriptions = extensionDescriptions;
+    this._initialize();
+  }
+  _initialize() {
+    this._extensionDescriptions.sort(extensionCmp);
+    this._extensionsMap = new ExtensionIdentifierMap();
+    this._extensionsArr = [];
+    this._activationMap = /* @__PURE__ */ new Map();
+    for (const extensionDescription of this._extensionDescriptions) {
+      if (this._extensionsMap.has(extensionDescription.identifier)) {
+        console.error("Extension `" + extensionDescription.identifier.value + "` is already registered");
+        continue;
+      }
+      this._extensionsMap.set(extensionDescription.identifier, extensionDescription);
+      this._extensionsArr.push(extensionDescription);
+      const activationEvents = this._activationEventsReader.readActivationEvents(extensionDescription);
+      for (const activationEvent of activationEvents) {
+        if (!this._activationMap.has(activationEvent)) {
+          this._activationMap.set(activationEvent, []);
+        }
+        this._activationMap.get(activationEvent).push(extensionDescription);
+      }
+    }
+  }
+  set(extensionDescriptions) {
+    this._extensionDescriptions = extensionDescriptions;
+    this._initialize();
+    this._versionId++;
+    this._onDidChange.fire(void 0);
+    return {
+      versionId: this._versionId
+    };
+  }
+  deltaExtensions(toAdd, toRemove) {
+    this._extensionDescriptions = removeExtensions(this._extensionDescriptions, toRemove);
+    this._extensionDescriptions = this._extensionDescriptions.concat(toAdd);
+    const looping = ExtensionDescriptionRegistry._findLoopingExtensions(this._extensionDescriptions);
+    this._extensionDescriptions = removeExtensions(this._extensionDescriptions, looping.map((ext) => ext.identifier));
+    this._initialize();
+    this._versionId++;
+    this._onDidChange.fire(void 0);
+    return new DeltaExtensionsResult(this._versionId, looping);
+  }
+  static _findLoopingExtensions(extensionDescriptions) {
+    const G = new class {
+      constructor() {
+        this._arcs = /* @__PURE__ */ new Map();
+        this._nodesSet = /* @__PURE__ */ new Set();
+        this._nodesArr = [];
+      }
+      addNode(id) {
+        if (!this._nodesSet.has(id)) {
+          this._nodesSet.add(id);
+          this._nodesArr.push(id);
+        }
+      }
+      addArc(from, to) {
+        this.addNode(from);
+        this.addNode(to);
+        if (this._arcs.has(from)) {
+          this._arcs.get(from).push(to);
+        } else {
+          this._arcs.set(from, [to]);
+        }
+      }
+      getArcs(id) {
+        if (this._arcs.has(id)) {
+          return this._arcs.get(id);
+        }
+        return [];
+      }
+      hasOnlyGoodArcs(id, good2) {
+        const dependencies = G.getArcs(id);
+        for (let i = 0; i < dependencies.length; i++) {
+          if (!good2.has(dependencies[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
+      getNodes() {
+        return this._nodesArr;
+      }
+    }();
+    const descs = new ExtensionIdentifierMap();
+    for (const extensionDescription of extensionDescriptions) {
+      descs.set(extensionDescription.identifier, extensionDescription);
+      if (extensionDescription.extensionDependencies) {
+        for (const depId of extensionDescription.extensionDependencies) {
+          G.addArc(ExtensionIdentifier.toKey(extensionDescription.identifier), ExtensionIdentifier.toKey(depId));
+        }
+      }
+    }
+    const good = /* @__PURE__ */ new Set();
+    G.getNodes().filter((id) => G.getArcs(id).length === 0).forEach((id) => good.add(id));
+    const nodes = G.getNodes().filter((id) => !good.has(id));
+    let madeProgress;
+    do {
+      madeProgress = false;
+      for (let i = 0; i < nodes.length; i++) {
+        const id = nodes[i];
+        if (G.hasOnlyGoodArcs(id, good)) {
+          nodes.splice(i, 1);
+          i--;
+          good.add(id);
+          madeProgress = true;
+        }
+      }
+    } while (madeProgress);
+    return nodes.map((id) => descs.get(id));
+  }
+  containsActivationEvent(activationEvent) {
+    return this._activationMap.has(activationEvent);
+  }
+  containsExtension(extensionId) {
+    return this._extensionsMap.has(extensionId);
+  }
+  getExtensionDescriptionsForActivationEvent(activationEvent) {
+    const extensions = this._activationMap.get(activationEvent);
+    return extensions ? extensions.slice(0) : [];
+  }
+  getAllExtensionDescriptions() {
+    return this._extensionsArr.slice(0);
+  }
+  getSnapshot() {
+    return new ExtensionDescriptionRegistrySnapshot(this._versionId, this.getAllExtensionDescriptions());
+  }
+  getExtensionDescription(extensionId) {
+    const extension = this._extensionsMap.get(extensionId);
+    return extension ? extension : void 0;
+  }
+  getExtensionDescriptionByUUID(uuid) {
+    for (const extensionDescription of this._extensionsArr) {
+      if (extensionDescription.uuid === uuid) {
+        return extensionDescription;
+      }
+    }
+    return void 0;
+  }
+  getExtensionDescriptionByIdOrUUID(extensionId, uuid) {
+    return this.getExtensionDescription(extensionId) ?? (uuid ? this.getExtensionDescriptionByUUID(uuid) : void 0);
+  }
+}
+class ExtensionDescriptionRegistrySnapshot {
+  static {
+    __name(this, "ExtensionDescriptionRegistrySnapshot");
+  }
+  constructor(versionId, extensions) {
+    this.versionId = versionId;
+    this.extensions = extensions;
+  }
+}
+class LockableExtensionDescriptionRegistry {
+  static {
+    __name(this, "LockableExtensionDescriptionRegistry");
+  }
+  constructor(activationEventsReader) {
+    this._lock = new Lock();
+    this._actual = new ExtensionDescriptionRegistry(activationEventsReader, []);
+  }
+  async acquireLock(customerName) {
+    const lock = await this._lock.acquire(customerName);
+    return new ExtensionDescriptionRegistryLock(this, lock);
+  }
+  deltaExtensions(acquiredLock, toAdd, toRemove) {
+    if (!acquiredLock.isAcquiredFor(this)) {
+      throw new Error("Lock is not held");
+    }
+    return this._actual.deltaExtensions(toAdd, toRemove);
+  }
+  containsActivationEvent(activationEvent) {
+    return this._actual.containsActivationEvent(activationEvent);
+  }
+  containsExtension(extensionId) {
+    return this._actual.containsExtension(extensionId);
+  }
+  getExtensionDescriptionsForActivationEvent(activationEvent) {
+    return this._actual.getExtensionDescriptionsForActivationEvent(activationEvent);
+  }
+  getAllExtensionDescriptions() {
+    return this._actual.getAllExtensionDescriptions();
+  }
+  getSnapshot() {
+    return this._actual.getSnapshot();
+  }
+  getExtensionDescription(extensionId) {
+    return this._actual.getExtensionDescription(extensionId);
+  }
+  getExtensionDescriptionByUUID(uuid) {
+    return this._actual.getExtensionDescriptionByUUID(uuid);
+  }
+  getExtensionDescriptionByIdOrUUID(extensionId, uuid) {
+    return this._actual.getExtensionDescriptionByIdOrUUID(extensionId, uuid);
+  }
+}
+class ExtensionDescriptionRegistryLock extends Disposable {
+  static {
+    __name(this, "ExtensionDescriptionRegistryLock");
+  }
+  constructor(_registry, lock) {
+    super();
+    this._registry = _registry;
+    this._isDisposed = false;
+    this._register(lock);
+  }
+  isAcquiredFor(registry) {
+    return !this._isDisposed && this._registry === registry;
+  }
+}
+class LockCustomer {
+  static {
+    __name(this, "LockCustomer");
+  }
+  constructor(name) {
+    this.name = name;
+    const withResolvers = promiseWithResolvers();
+    this.promise = withResolvers.promise;
+    this._resolve = withResolvers.resolve;
+  }
+  resolve(value) {
+    this._resolve(value);
+  }
+}
+class Lock {
+  static {
+    __name(this, "Lock");
+  }
+  constructor() {
+    this._pendingCustomers = [];
+    this._isLocked = false;
+  }
+  async acquire(customerName) {
+    const customer = new LockCustomer(customerName);
+    this._pendingCustomers.push(customer);
+    this._advance();
+    return customer.promise;
+  }
+  _advance() {
+    if (this._isLocked) {
+      return;
+    }
+    if (this._pendingCustomers.length === 0) {
+      return;
+    }
+    const customer = this._pendingCustomers.shift();
+    this._isLocked = true;
+    let customerHoldsLock = true;
+    const logLongRunningCustomerTimeout = setTimeout(
+      () => {
+        if (customerHoldsLock) {
+          console.warn(`The customer named ${customer.name} has been holding on to the lock for 30s. This might be a problem.`);
+        }
+      },
+      30 * 1e3
+      /* 30 seconds */
+    );
+    const releaseLock = /* @__PURE__ */ __name(() => {
+      if (!customerHoldsLock) {
+        return;
+      }
+      clearTimeout(logLongRunningCustomerTimeout);
+      customerHoldsLock = false;
+      this._isLocked = false;
+      this._advance();
+    }, "releaseLock");
+    customer.resolve(toDisposable(releaseLock));
+  }
+}
+var SortBucket;
+(function(SortBucket2) {
+  SortBucket2[SortBucket2["Builtin"] = 0] = "Builtin";
+  SortBucket2[SortBucket2["User"] = 1] = "User";
+  SortBucket2[SortBucket2["Dev"] = 2] = "Dev";
+})(SortBucket || (SortBucket = {}));
+function extensionCmp(a, b) {
+  const aSortBucket = a.isBuiltin ? 0 : a.isUnderDevelopment ? 2 : 1;
+  const bSortBucket = b.isBuiltin ? 0 : b.isUnderDevelopment ? 2 : 1;
+  if (aSortBucket !== bSortBucket) {
+    return aSortBucket - bSortBucket;
+  }
+  const aLastSegment = path.posix.basename(a.extensionLocation.path);
+  const bLastSegment = path.posix.basename(b.extensionLocation.path);
+  if (aLastSegment < bLastSegment) {
+    return -1;
+  }
+  if (aLastSegment > bLastSegment) {
+    return 1;
+  }
+  return 0;
+}
+__name(extensionCmp, "extensionCmp");
+function removeExtensions(arr, toRemove) {
+  const toRemoveSet = new ExtensionIdentifierSet(toRemove);
+  return arr.filter((extension) => !toRemoveSet.has(extension.identifier));
+}
+__name(removeExtensions, "removeExtensions");
+export {
+  DeltaExtensionsResult,
+  ExtensionDescriptionRegistry,
+  ExtensionDescriptionRegistryLock,
+  ExtensionDescriptionRegistrySnapshot,
+  LockableExtensionDescriptionRegistry
+};
+//# sourceMappingURL=extensionDescriptionRegistry.js.map

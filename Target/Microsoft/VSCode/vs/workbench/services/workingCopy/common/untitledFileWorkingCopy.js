@@ -1,1 +1,168 @@
-import{$wf as a}from"../../../../base/common/event.js";import{$Ed as v}from"../../../../base/common/lifecycle.js";import{$$K as D}from"./workingCopyService.js";import{CancellationToken as w}from"../../../../base/common/cancellation.js";import{$Uh as C}from"../../../../base/common/async.js";import{$xo as y}from"../../../../platform/log/common/log.js";import{$_H as b}from"./workingCopyBackup.js";import{$4i as g}from"../../../../base/common/stream.js";var p=function(h,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var n=h.length-1;n>=0;n--)(o=h[n])&&(s=(r<3?o(s):r>3?o(t,i,s):o(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},l=function(h,t){return function(i,e){t(i,e,h)}};let f=class extends v{get model(){return this.a}constructor(t,i,e,r,s,o,n,c,u,d,m){super(),this.typeId=t,this.resource=i,this.name=e,this.hasAssociatedFilePath=r,this.j=s,this.m=o,this.n=n,this.q=c,this.r=d,this.s=m,this.a=void 0,this.b=this.D(new a),this.onDidChangeContent=this.b.event,this.c=this.D(new a),this.onDidChangeDirty=this.c.event,this.f=this.D(new a),this.onDidSave=this.f.event,this.g=this.D(new a),this.onDidRevert=this.g.event,this.h=this.D(new a),this.onWillDispose=this.h.event,this.capabilities=this.j?6:2,this.t=this.hasAssociatedFilePath||!!(this.m&&this.m.markModified!==!1),this.D(u.registerWorkingCopy(this))}isDirty(){return this.t&&!this.j}isModified(){return this.t}u(t){this.t!==t&&(this.t=t,this.j||this.c.fire())}async resolve(){if(this.C("resolve()"),this.isResolved()){this.C("resolve() - exit (already resolved)");return}let t;const i=await this.r.resolve(this);i?(this.C("resolve() - with backup"),t=i.value):this.m?.value?(this.C("resolve() - with initial contents"),t=this.m.value):(this.C("resolve() - empty"),t=g()),await this.w(t),this.u(this.hasAssociatedFilePath||!!i||!!(this.m&&this.m.markModified!==!1)),(i||this.m)&&this.b.fire()}async w(t){this.C("doCreateModel()"),this.a=this.D(await this.n.createModel(this.resource,t,w.None)),this.y(this.a)}y(t){this.D(t.onDidChangeContent(i=>this.z(i))),this.D(t.onWillDispose(()=>this.dispose()))}z(t){!this.hasAssociatedFilePath&&t.isInitial?this.u(!1):this.u(!0),this.b.fire()}isResolved(){return!!this.model}get backupDelay(){return this.model?.configuration?.backupDelay}async backup(t){let i;return this.isResolved()?i=await C(this.model.snapshot(2,t),t):this.m&&(i=this.m.value),{content:i}}async save(t){this.C("save()");const i=await this.q(this,t);return i&&this.f.fire({reason:t?.reason,source:t?.source}),i}async revert(){this.C("revert()"),this.u(!1),this.g.fire(),this.dispose()}dispose(){this.C("dispose()"),this.h.fire(),super.dispose()}C(t){this.s.trace(`[untitled file working copy] ${t}`,this.resource.toString(),this.typeId)}};f=p([l(8,D),l(9,b),l(10,y)],f);export{f as $w8b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { raceCancellation } from "../../../../base/common/async.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
+import { emptyStream } from "../../../../base/common/stream.js";
+let UntitledFileWorkingCopy = class UntitledFileWorkingCopy2 extends Disposable {
+  static {
+    __name(this, "UntitledFileWorkingCopy");
+  }
+  get model() {
+    return this._model;
+  }
+  //#endregion
+  constructor(typeId, resource, name, hasAssociatedFilePath, isScratchpad, initialContents, modelFactory, saveDelegate, workingCopyService, workingCopyBackupService, logService) {
+    super();
+    this.typeId = typeId;
+    this.resource = resource;
+    this.name = name;
+    this.hasAssociatedFilePath = hasAssociatedFilePath;
+    this.isScratchpad = isScratchpad;
+    this.initialContents = initialContents;
+    this.modelFactory = modelFactory;
+    this.saveDelegate = saveDelegate;
+    this.workingCopyBackupService = workingCopyBackupService;
+    this.logService = logService;
+    this._model = void 0;
+    this._onDidChangeContent = this._register(new Emitter());
+    this.onDidChangeContent = this._onDidChangeContent.event;
+    this._onDidChangeDirty = this._register(new Emitter());
+    this.onDidChangeDirty = this._onDidChangeDirty.event;
+    this._onDidSave = this._register(new Emitter());
+    this.onDidSave = this._onDidSave.event;
+    this._onDidRevert = this._register(new Emitter());
+    this.onDidRevert = this._onDidRevert.event;
+    this._onWillDispose = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+    this.capabilities = this.isScratchpad ? 2 | 4 : 2;
+    this.modified = this.hasAssociatedFilePath || Boolean(this.initialContents && this.initialContents.markModified !== false);
+    this._register(workingCopyService.registerWorkingCopy(this));
+  }
+  isDirty() {
+    return this.modified && !this.isScratchpad;
+  }
+  isModified() {
+    return this.modified;
+  }
+  setModified(modified) {
+    if (this.modified === modified) {
+      return;
+    }
+    this.modified = modified;
+    if (!this.isScratchpad) {
+      this._onDidChangeDirty.fire();
+    }
+  }
+  //#endregion
+  //#region Resolve
+  async resolve() {
+    this.trace("resolve()");
+    if (this.isResolved()) {
+      this.trace("resolve() - exit (already resolved)");
+      return;
+    }
+    let untitledContents;
+    const backup = await this.workingCopyBackupService.resolve(this);
+    if (backup) {
+      this.trace("resolve() - with backup");
+      untitledContents = backup.value;
+    } else if (this.initialContents?.value) {
+      this.trace("resolve() - with initial contents");
+      untitledContents = this.initialContents.value;
+    } else {
+      this.trace("resolve() - empty");
+      untitledContents = emptyStream();
+    }
+    await this.doCreateModel(untitledContents);
+    this.setModified(this.hasAssociatedFilePath || !!backup || Boolean(this.initialContents && this.initialContents.markModified !== false));
+    if (!!backup || this.initialContents) {
+      this._onDidChangeContent.fire();
+    }
+  }
+  async doCreateModel(contents) {
+    this.trace("doCreateModel()");
+    this._model = this._register(await this.modelFactory.createModel(this.resource, contents, CancellationToken.None));
+    this.installModelListeners(this._model);
+  }
+  installModelListeners(model) {
+    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(e)));
+    this._register(model.onWillDispose(() => this.dispose()));
+  }
+  onModelContentChanged(e) {
+    if (!this.hasAssociatedFilePath && e.isInitial) {
+      this.setModified(false);
+    } else {
+      this.setModified(true);
+    }
+    this._onDidChangeContent.fire();
+  }
+  isResolved() {
+    return !!this.model;
+  }
+  //#endregion
+  //#region Backup
+  get backupDelay() {
+    return this.model?.configuration?.backupDelay;
+  }
+  async backup(token) {
+    let content = void 0;
+    if (this.isResolved()) {
+      content = await raceCancellation(this.model.snapshot(2, token), token);
+    } else if (this.initialContents) {
+      content = this.initialContents.value;
+    }
+    return { content };
+  }
+  //#endregion
+  //#region Save
+  async save(options) {
+    this.trace("save()");
+    const result = await this.saveDelegate(this, options);
+    if (result) {
+      this._onDidSave.fire({ reason: options?.reason, source: options?.source });
+    }
+    return result;
+  }
+  //#endregion
+  //#region Revert
+  async revert() {
+    this.trace("revert()");
+    this.setModified(false);
+    this._onDidRevert.fire();
+    this.dispose();
+  }
+  //#endregion
+  dispose() {
+    this.trace("dispose()");
+    this._onWillDispose.fire();
+    super.dispose();
+  }
+  trace(msg) {
+    this.logService.trace(`[untitled file working copy] ${msg}`, this.resource.toString(), this.typeId);
+  }
+};
+UntitledFileWorkingCopy = __decorate([
+  __param(8, IWorkingCopyService),
+  __param(9, IWorkingCopyBackupService),
+  __param(10, ILogService)
+], UntitledFileWorkingCopy);
+export {
+  UntitledFileWorkingCopy
+};
+//# sourceMappingURL=untitledFileWorkingCopy.js.map

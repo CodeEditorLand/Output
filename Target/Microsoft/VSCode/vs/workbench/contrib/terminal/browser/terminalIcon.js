@@ -1,1 +1,118 @@
-import{$Fn as p}from"../../../../base/common/hash.js";import{URI as l}from"../../../../base/common/uri.js";import{$fu as m}from"../../../../platform/theme/common/iconRegistry.js";import{$nu as $}from"../../../../platform/theme/common/theme.js";import{ThemeIcon as d}from"../../../../base/common/themables.js";import{$a6 as h}from"../common/terminal.js";import{$DXb as b}from"../common/terminalColorRegistry.js";import{$Y9 as g}from"../../../../base/browser/domStylesheets.js";import{$Dd as I}from"../../../../base/common/lifecycle.js";import{$6c as s}from"../../../../base/common/types.js";function u(n){let o;if(s(n)?o=n:n.color?o=n.color.replace(/\./g,"_"):d.isThemeIcon(n.icon)&&n.icon.color&&(o=n.icon.color.id.replace(/\./g,"_")),o)return`terminal-icon-${o.replace(/\./g,"_")}`}function a(n){const o=[];for(const r in b)n.getColor(r)&&!r.toLowerCase().includes("bright")&&o.push(r);return o}function T(n){const o=new I,r=a(n),i=g(void 0,void 0,o);let t="";for(const c of r){const e=u(c),f=n.getColor(c);f&&(t+=`.monaco-workbench .${e} .codicon:first-child:not(.codicon-split-horizontal):not(.codicon-trashcan):not(.file-icon){ color: ${f} !important; }`)}return i.textContent=t,o}function U(n,o){const r=a(n);let i="";for(const t of r){const c=u(t),e=n.getColor(t);e&&(o?i+=`.monaco-workbench .show-file-icons .predefined-file-icon.terminal-tab.${c}::before,.monaco-workbench .show-file-icons .file-icon.terminal-tab.${c}::before{ color: ${e} !important; }`:i+=`.monaco-workbench .${c} .codicon:first-child:not(.codicon-split-horizontal):not(.codicon-trashcan):not(.file-icon){ color: ${e} !important; }`)}return i}function E(n,o,r){const i=n.icon;if(!i)return;const t=[];let c;if(r){if(s(i)&&(i.startsWith("$(")||m().getIcon(i)))return t;s(i)&&(c=l.parse(i))}if(l.isUri(i)?c=i:!d.isThemeIcon(i)&&!s(i)&&(c=$(o)?i.dark:i.light),c instanceof l){const f=`terminal-uri-icon-${p(c.path).toString(36)}`;t.push(f),t.push("terminal-uri-icon")}return t}function F(n,o){return s(o.icon)?o.icon:d.isThemeIcon(o.icon)?o.icon.id:n.get(h).getDefaultIcon().id}export{u as $KYb,a as $LYb,T as $MYb,U as $NYb,E as $OYb,F as $PYb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { hash } from "../../../../base/common/hash.js";
+import { URI } from "../../../../base/common/uri.js";
+import { getIconRegistry } from "../../../../platform/theme/common/iconRegistry.js";
+import { isDark } from "../../../../platform/theme/common/theme.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ITerminalProfileResolverService } from "../common/terminal.js";
+import { ansiColorMap } from "../common/terminalColorRegistry.js";
+import { createStyleSheet } from "../../../../base/browser/domStylesheets.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isString } from "../../../../base/common/types.js";
+function getColorClass(terminalOrColorKey) {
+  let color = void 0;
+  if (isString(terminalOrColorKey)) {
+    color = terminalOrColorKey;
+  } else if (terminalOrColorKey.color) {
+    color = terminalOrColorKey.color.replace(/\./g, "_");
+  } else if (ThemeIcon.isThemeIcon(terminalOrColorKey.icon) && terminalOrColorKey.icon.color) {
+    color = terminalOrColorKey.icon.color.id.replace(/\./g, "_");
+  }
+  if (color) {
+    return `terminal-icon-${color.replace(/\./g, "_")}`;
+  }
+  return void 0;
+}
+__name(getColorClass, "getColorClass");
+function getStandardColors(colorTheme) {
+  const standardColors = [];
+  for (const colorKey in ansiColorMap) {
+    const color = colorTheme.getColor(colorKey);
+    if (color && !colorKey.toLowerCase().includes("bright")) {
+      standardColors.push(colorKey);
+    }
+  }
+  return standardColors;
+}
+__name(getStandardColors, "getStandardColors");
+function createColorStyleElement(colorTheme) {
+  const disposable = new DisposableStore();
+  const standardColors = getStandardColors(colorTheme);
+  const styleElement = createStyleSheet(void 0, void 0, disposable);
+  let css = "";
+  for (const colorKey of standardColors) {
+    const colorClass = getColorClass(colorKey);
+    const color = colorTheme.getColor(colorKey);
+    if (color) {
+      css += `.monaco-workbench .${colorClass} .codicon:first-child:not(.codicon-split-horizontal):not(.codicon-trashcan):not(.file-icon){ color: ${color} !important; }`;
+    }
+  }
+  styleElement.textContent = css;
+  return disposable;
+}
+__name(createColorStyleElement, "createColorStyleElement");
+function getColorStyleContent(colorTheme, editor) {
+  const standardColors = getStandardColors(colorTheme);
+  let css = "";
+  for (const colorKey of standardColors) {
+    const colorClass = getColorClass(colorKey);
+    const color = colorTheme.getColor(colorKey);
+    if (color) {
+      if (editor) {
+        css += `.monaco-workbench .show-file-icons .predefined-file-icon.terminal-tab.${colorClass}::before,.monaco-workbench .show-file-icons .file-icon.terminal-tab.${colorClass}::before{ color: ${color} !important; }`;
+      } else {
+        css += `.monaco-workbench .${colorClass} .codicon:first-child:not(.codicon-split-horizontal):not(.codicon-trashcan):not(.file-icon){ color: ${color} !important; }`;
+      }
+    }
+  }
+  return css;
+}
+__name(getColorStyleContent, "getColorStyleContent");
+function getUriClasses(terminal, colorScheme, extensionContributed) {
+  const icon = terminal.icon;
+  if (!icon) {
+    return void 0;
+  }
+  const iconClasses = [];
+  let uri = void 0;
+  if (extensionContributed) {
+    if (isString(icon) && (icon.startsWith("$(") || getIconRegistry().getIcon(icon))) {
+      return iconClasses;
+    } else if (isString(icon)) {
+      uri = URI.parse(icon);
+    }
+  }
+  if (URI.isUri(icon)) {
+    uri = icon;
+  } else if (!ThemeIcon.isThemeIcon(icon) && !isString(icon)) {
+    uri = isDark(colorScheme) ? icon.dark : icon.light;
+  }
+  if (uri instanceof URI) {
+    const uriIconKey = hash(uri.path).toString(36);
+    const className = `terminal-uri-icon-${uriIconKey}`;
+    iconClasses.push(className);
+    iconClasses.push(`terminal-uri-icon`);
+  }
+  return iconClasses;
+}
+__name(getUriClasses, "getUriClasses");
+function getIconId(accessor, terminal) {
+  if (isString(terminal.icon)) {
+    return terminal.icon;
+  }
+  if (ThemeIcon.isThemeIcon(terminal.icon)) {
+    return terminal.icon.id;
+  }
+  return accessor.get(ITerminalProfileResolverService).getDefaultIcon().id;
+}
+__name(getIconId, "getIconId");
+export {
+  createColorStyleElement,
+  getColorClass,
+  getColorStyleContent,
+  getIconId,
+  getStandardColors,
+  getUriClasses
+};
+//# sourceMappingURL=terminalIcon.js.map

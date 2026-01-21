@@ -1,1 +1,124 @@
-import{$wc as S}from"../../../../../base/common/arrays.js";import{$4c as E,$5c as b}from"../../../../../base/common/assert.js";import{$dd as f}from"../../../../../base/common/types.js";import{$8D as q}from"../../../../../editor/common/core/position.js";import{$9D as m}from"../../../../../editor/common/core/range.js";import{$iE as M}from"../../../../../editor/common/core/text/textLength.js";import{$$4b as N}from"../model/mapping.js";import{$54b as h,$44b as v,$34b as c}from"../model/rangeUtils.js";function G(o){const r=$(o.input1Diffs.flatMap(t=>t.rangeMappings),o.baseRange.toExclusiveRange(),o.input1Range.toExclusiveRange()),p=$(o.input2Diffs.flatMap(t=>t.rangeMappings),o.baseRange.toExclusiveRange(),o.input2Range.toExclusiveRange()),s=y(r,p);let n=[];n.push([o.input1Range.startLineNumber-1,o.baseRange.startLineNumber-1,o.input2Range.startLineNumber-1]);function u(t){return t.every(e=>e!==void 0)}for(const t of s){const e=[t.output1Pos?.lineNumber,t.inputPos.lineNumber,t.output2Pos?.lineNumber],P=u(e);let R=!0;if(P){const d=!n.some(g=>u(g)&&g.some((a,l)=>a!==void 0&&a===e[l]));d&&(n=n.filter(g=>!g.some((a,l)=>a!==void 0&&a===e[l]))),R=d}else R=!n.some(g=>g.some((a,l)=>a!==void 0&&a===e[l]));R?n.push(e):t.length.isGreaterThan(new M(1,0))&&n.push([t.output1Pos?t.output1Pos.lineNumber+1:void 0,t.inputPos.lineNumber+1,t.output2Pos?t.output2Pos.lineNumber+1:void 0])}const i=[o.input1Range.endLineNumberExclusive,o.baseRange.endLineNumberExclusive,o.input2Range.endLineNumberExclusive];return n=n.filter(t=>t.every((e,P)=>e!==i[P])),n.push(i),E(()=>b(n.map(t=>t[0]).filter(f),(t,e)=>t<e)&&b(n.map(t=>t[1]).filter(f),(t,e)=>t<=e)&&b(n.map(t=>t[2]).filter(f),(t,e)=>t<e)&&n.every(t=>t.filter(f).length>=2)),n}function $(o,r,p){const s=[];let n=r.getStartPosition(),u=p.getStartPosition();for(const t of o){const e=new N(m.fromPositions(n,t.inputRange.getStartPosition()),m.fromPositions(u,t.outputRange.getStartPosition()));E(()=>c(e.inputRange).equals(c(e.outputRange))),e.inputRange.isEmpty()||s.push(e),n=t.inputRange.getEndPosition(),u=t.outputRange.getEndPosition()}const i=new N(m.fromPositions(n,r.getEndPosition()),m.fromPositions(u,p.getEndPosition()));return E(()=>c(i.inputRange).equals(c(i.outputRange))),i.inputRange.isEmpty()||s.push(i),s}function y(o,r){const p=[],s=[];for(const[i,t]of[[0,o],[1,r]])for(const e of t)s.push({input:i,start:!0,inputPos:e.inputRange.getStartPosition(),outputPos:e.outputRange.getStartPosition()}),s.push({input:i,start:!1,inputPos:e.inputRange.getEndPosition(),outputPos:e.outputRange.getEndPosition()});s.sort(S(i=>i.inputPos,q.compare));const n=[void 0,void 0];let u;for(const i of s){if(u&&n.some(t=>!!t)){const t=v(u,i.inputPos);t.isZero()||(p.push({inputPos:u,length:t,output1Pos:n[0],output2Pos:n[1]}),n[0]&&(n[0]=h(n[0],t)),n[1]&&(n[1]=h(n[1],t)))}n[i.input]=i.start?i.outputPos:void 0,u=i.inputPos}return p}export{G as $uyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { compareBy } from "../../../../../base/common/arrays.js";
+import { assertFn, checkAdjacentItems } from "../../../../../base/common/assert.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { TextLength } from "../../../../../editor/common/core/text/textLength.js";
+import { RangeMapping } from "../model/mapping.js";
+import { addLength, lengthBetweenPositions, lengthOfRange } from "../model/rangeUtils.js";
+function getAlignments(m) {
+  const equalRanges1 = toEqualRangeMappings(m.input1Diffs.flatMap((d) => d.rangeMappings), m.baseRange.toExclusiveRange(), m.input1Range.toExclusiveRange());
+  const equalRanges2 = toEqualRangeMappings(m.input2Diffs.flatMap((d) => d.rangeMappings), m.baseRange.toExclusiveRange(), m.input2Range.toExclusiveRange());
+  const commonRanges = splitUpCommonEqualRangeMappings(equalRanges1, equalRanges2);
+  let result = [];
+  result.push([m.input1Range.startLineNumber - 1, m.baseRange.startLineNumber - 1, m.input2Range.startLineNumber - 1]);
+  function isFullSync(lineAlignment) {
+    return lineAlignment.every((i) => i !== void 0);
+  }
+  __name(isFullSync, "isFullSync");
+  for (const m2 of commonRanges) {
+    const lineAlignment = [m2.output1Pos?.lineNumber, m2.inputPos.lineNumber, m2.output2Pos?.lineNumber];
+    const alignmentIsFullSync = isFullSync(lineAlignment);
+    let shouldAdd = true;
+    if (alignmentIsFullSync) {
+      const isNewFullSyncAlignment = !result.some((r) => isFullSync(r) && r.some((v, idx) => v !== void 0 && v === lineAlignment[idx]));
+      if (isNewFullSyncAlignment) {
+        result = result.filter((r) => !r.some((v, idx) => v !== void 0 && v === lineAlignment[idx]));
+      }
+      shouldAdd = isNewFullSyncAlignment;
+    } else {
+      const isNew = !result.some((r) => r.some((v, idx) => v !== void 0 && v === lineAlignment[idx]));
+      shouldAdd = isNew;
+    }
+    if (shouldAdd) {
+      result.push(lineAlignment);
+    } else {
+      if (m2.length.isGreaterThan(new TextLength(1, 0))) {
+        result.push([
+          m2.output1Pos ? m2.output1Pos.lineNumber + 1 : void 0,
+          m2.inputPos.lineNumber + 1,
+          m2.output2Pos ? m2.output2Pos.lineNumber + 1 : void 0
+        ]);
+      }
+    }
+  }
+  const finalLineAlignment = [m.input1Range.endLineNumberExclusive, m.baseRange.endLineNumberExclusive, m.input2Range.endLineNumberExclusive];
+  result = result.filter((r) => r.every((v, idx) => v !== finalLineAlignment[idx]));
+  result.push(finalLineAlignment);
+  assertFn(() => checkAdjacentItems(result.map((r) => r[0]).filter(isDefined), (a, b) => a < b) && checkAdjacentItems(result.map((r) => r[1]).filter(isDefined), (a, b) => a <= b) && checkAdjacentItems(result.map((r) => r[2]).filter(isDefined), (a, b) => a < b) && result.every((alignment) => alignment.filter(isDefined).length >= 2));
+  return result;
+}
+__name(getAlignments, "getAlignments");
+function toEqualRangeMappings(diffs, inputRange, outputRange) {
+  const result = [];
+  let equalRangeInputStart = inputRange.getStartPosition();
+  let equalRangeOutputStart = outputRange.getStartPosition();
+  for (const d of diffs) {
+    const equalRangeMapping2 = new RangeMapping(Range.fromPositions(equalRangeInputStart, d.inputRange.getStartPosition()), Range.fromPositions(equalRangeOutputStart, d.outputRange.getStartPosition()));
+    assertFn(() => lengthOfRange(equalRangeMapping2.inputRange).equals(lengthOfRange(equalRangeMapping2.outputRange)));
+    if (!equalRangeMapping2.inputRange.isEmpty()) {
+      result.push(equalRangeMapping2);
+    }
+    equalRangeInputStart = d.inputRange.getEndPosition();
+    equalRangeOutputStart = d.outputRange.getEndPosition();
+  }
+  const equalRangeMapping = new RangeMapping(Range.fromPositions(equalRangeInputStart, inputRange.getEndPosition()), Range.fromPositions(equalRangeOutputStart, outputRange.getEndPosition()));
+  assertFn(() => lengthOfRange(equalRangeMapping.inputRange).equals(lengthOfRange(equalRangeMapping.outputRange)));
+  if (!equalRangeMapping.inputRange.isEmpty()) {
+    result.push(equalRangeMapping);
+  }
+  return result;
+}
+__name(toEqualRangeMappings, "toEqualRangeMappings");
+function splitUpCommonEqualRangeMappings(equalRangeMappings1, equalRangeMappings2) {
+  const result = [];
+  const events = [];
+  for (const [input, rangeMappings] of [[0, equalRangeMappings1], [1, equalRangeMappings2]]) {
+    for (const rangeMapping of rangeMappings) {
+      events.push({
+        input,
+        start: true,
+        inputPos: rangeMapping.inputRange.getStartPosition(),
+        outputPos: rangeMapping.outputRange.getStartPosition()
+      });
+      events.push({
+        input,
+        start: false,
+        inputPos: rangeMapping.inputRange.getEndPosition(),
+        outputPos: rangeMapping.outputRange.getEndPosition()
+      });
+    }
+  }
+  events.sort(compareBy((m) => m.inputPos, Position.compare));
+  const starts = [void 0, void 0];
+  let lastInputPos;
+  for (const event of events) {
+    if (lastInputPos && starts.some((s) => !!s)) {
+      const length = lengthBetweenPositions(lastInputPos, event.inputPos);
+      if (!length.isZero()) {
+        result.push({
+          inputPos: lastInputPos,
+          length,
+          output1Pos: starts[0],
+          output2Pos: starts[1]
+        });
+        if (starts[0]) {
+          starts[0] = addLength(starts[0], length);
+        }
+        if (starts[1]) {
+          starts[1] = addLength(starts[1], length);
+        }
+      }
+    }
+    starts[event.input] = event.start ? event.outputPos : void 0;
+    lastInputPos = event.inputPos;
+  }
+  return result;
+}
+__name(splitUpCommonEqualRangeMappings, "splitUpCommonEqualRangeMappings");
+export {
+  getAlignments
+};
+//# sourceMappingURL=lineAlignment.js.map

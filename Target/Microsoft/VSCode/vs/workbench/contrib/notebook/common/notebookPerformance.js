@@ -1,1 +1,24 @@
-class t{constructor(){this.a={}}get value(){return{...this.a}}mark(r){this.a[r]||(this.a[r]=Date.now())}}export{t as $ICb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class NotebookPerfMarks {
+  static {
+    __name(this, "NotebookPerfMarks");
+  }
+  constructor() {
+    this._marks = {};
+  }
+  get value() {
+    return { ...this._marks };
+  }
+  mark(name) {
+    if (this._marks[name]) {
+      console.error(`Skipping overwrite of notebook perf value: ${name}`);
+      return;
+    }
+    this._marks[name] = Date.now();
+  }
+}
+export {
+  NotebookPerfMarks
+};
+//# sourceMappingURL=notebookPerformance.js.map

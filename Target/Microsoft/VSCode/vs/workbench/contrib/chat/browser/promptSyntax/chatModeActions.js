@@ -1,1 +1,111 @@
-import{$3Ob as f,$0Ob as M}from"../actions/chatActions.js";import{$ak as s}from"../../../../../base/common/codicons.js";import{ChatContextKeys as o}from"../../common/actions/chatContextKeys.js";import{localize as r,localize2 as u}from"../../../../../nls.js";import{$xYb as P}from"./pickers/promptFilePickers.js";import{$sL as k,$nL as b,$tL as i}from"../../../../../platform/actions/common/actions.js";import{$Lj as $}from"../../../../../platform/instantiation/common/instantiation.js";import{PromptsType as h}from"../../common/promptSyntax/promptTypes.js";import{$V3b as D}from"../chat.js";import{$9n as n}from"../../../../../platform/contextkey/common/contextkey.js";import{$yP as I}from"../../../../../platform/opener/common/opener.js";class c extends k{async run(t){const d=t.get($),y=t.get(I),A=d.createInstance(P),C=r(6089,null),a=await A.selectPromptFile({placeholder:C,type:h.agent,optionEdit:!1,optionVisibility:!0});a!==void 0&&await y.open(a.promptFile)}}const l="workbench.action.chat.picker.customagents";function p(e){return{id:e?l+".disabled":l,title:u(6093,"Configure Custom Agents..."),tooltip:e?r(6090,null):void 0,icon:e?s.lock:void 0,category:f,f1:!1,precondition:e?n.false():o.Modes.agentModeDisabledByPolicy.negate(),menu:{id:b.ChatModePicker,when:e?o.Modes.agentModeDisabledByPolicy:o.Modes.agentModeDisabledByPolicy.negate()}}}class x extends c{constructor(){super(p(!1))}}class _ extends c{constructor(){super(p(!0))}}const g="workbench.action.chat.configure.customagents";function m(e){const t={id:e?g+".disabled":g,title:u(6094,"Configure Custom Agents..."),shortTitle:r(6091,null),icon:e?s.lock:s.bookmark,f1:!e,precondition:e?n.false():n.and(o.enabled,o.Modes.agentModeDisabledByPolicy.negate()),category:f,menu:[{id:M,when:n.and(o.enabled,n.equals("view",D),e?o.Modes.agentModeDisabledByPolicy:o.Modes.agentModeDisabledByPolicy.negate()),order:10,group:"0_level"}]};return e?{...t,tooltip:r(6092,null)}:t}class w extends c{constructor(){super(m(!1))}}class B extends c{constructor(){super(m(!0))}}function K(){i(w),i(B),i(x),i(_)}export{K as $Wmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CHAT_CATEGORY, CHAT_CONFIG_MENU_ID } from "../actions/chatActions.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { PromptFilePickers } from "./pickers/promptFilePickers.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { ChatViewId } from "../chat.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+class ConfigAgentActionImpl extends Action2 {
+  static {
+    __name(this, "ConfigAgentActionImpl");
+  }
+  async run(accessor) {
+    const instaService = accessor.get(IInstantiationService);
+    const openerService = accessor.get(IOpenerService);
+    const pickers = instaService.createInstance(PromptFilePickers);
+    const placeholder = localize("configure.agent.prompts.placeholder", "Select the custom agents to open and configure visibility in the agent picker");
+    const result = await pickers.selectPromptFile({ placeholder, type: PromptsType.agent, optionEdit: false, optionVisibility: true });
+    if (result !== void 0) {
+      await openerService.open(result.promptFile);
+    }
+  }
+}
+const PICKER_CONFIGURE_AGENTS_ACTION_ID = "workbench.action.chat.picker.customagents";
+function createPickerConfigureAgentsActionConfig(disabled) {
+  const config = {
+    id: disabled ? PICKER_CONFIGURE_AGENTS_ACTION_ID + ".disabled" : PICKER_CONFIGURE_AGENTS_ACTION_ID,
+    title: localize2("select-agent", "Configure Custom Agents..."),
+    tooltip: disabled ? localize("managedByOrganization", "Managed by your organization") : void 0,
+    icon: disabled ? Codicon.lock : void 0,
+    category: CHAT_CATEGORY,
+    f1: false,
+    precondition: disabled ? ContextKeyExpr.false() : ChatContextKeys.Modes.agentModeDisabledByPolicy.negate(),
+    menu: {
+      id: MenuId.ChatModePicker,
+      when: disabled ? ChatContextKeys.Modes.agentModeDisabledByPolicy : ChatContextKeys.Modes.agentModeDisabledByPolicy.negate()
+    }
+  };
+  return config;
+}
+__name(createPickerConfigureAgentsActionConfig, "createPickerConfigureAgentsActionConfig");
+class PickerConfigAgentAction extends ConfigAgentActionImpl {
+  static {
+    __name(this, "PickerConfigAgentAction");
+  }
+  constructor() {
+    super(createPickerConfigureAgentsActionConfig(false));
+  }
+}
+class PickerConfigAgentActionDisabled extends ConfigAgentActionImpl {
+  static {
+    __name(this, "PickerConfigAgentActionDisabled");
+  }
+  constructor() {
+    super(createPickerConfigureAgentsActionConfig(true));
+  }
+}
+const CONFIGURE_AGENTS_ACTION_ID = "workbench.action.chat.configure.customagents";
+function createManageAgentsActionConfig(disabled) {
+  const base = {
+    id: disabled ? CONFIGURE_AGENTS_ACTION_ID + ".disabled" : CONFIGURE_AGENTS_ACTION_ID,
+    title: localize2("configure-agents", "Configure Custom Agents..."),
+    shortTitle: localize("configure-agents.short", "Custom Agents"),
+    icon: disabled ? Codicon.lock : Codicon.bookmark,
+    f1: !disabled,
+    precondition: disabled ? ContextKeyExpr.false() : ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.Modes.agentModeDisabledByPolicy.negate()),
+    category: CHAT_CATEGORY,
+    menu: [
+      {
+        id: CHAT_CONFIG_MENU_ID,
+        when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.equals("view", ChatViewId), disabled ? ChatContextKeys.Modes.agentModeDisabledByPolicy : ChatContextKeys.Modes.agentModeDisabledByPolicy.negate()),
+        order: 10,
+        group: "0_level"
+      }
+    ]
+  };
+  return disabled ? { ...base, tooltip: localize("managedByOrganization", "Managed by your organization") } : base;
+}
+__name(createManageAgentsActionConfig, "createManageAgentsActionConfig");
+class ManageAgentsAction extends ConfigAgentActionImpl {
+  static {
+    __name(this, "ManageAgentsAction");
+  }
+  constructor() {
+    super(createManageAgentsActionConfig(false));
+  }
+}
+class ManageAgentsActionDisabled extends ConfigAgentActionImpl {
+  static {
+    __name(this, "ManageAgentsActionDisabled");
+  }
+  constructor() {
+    super(createManageAgentsActionConfig(true));
+  }
+}
+function registerAgentActions() {
+  registerAction2(ManageAgentsAction);
+  registerAction2(ManageAgentsActionDisabled);
+  registerAction2(PickerConfigAgentAction);
+  registerAction2(PickerConfigAgentActionDisabled);
+}
+__name(registerAgentActions, "registerAgentActions");
+export {
+  registerAgentActions
+};
+//# sourceMappingURL=chatModeActions.js.map

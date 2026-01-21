@@ -1,1 +1,72 @@
-import{$Yb as N,$bc as h}from"../../../../base/common/arrays.js";import{$9D as l}from"../../../common/core/range.js";import{$Amb as x}from"../../smartSelect/browser/bracketSelections.js";class n{static{this.None=new class extends n{distance(){return 0}}}static async create(g,e){if(!e.getOption(134).localityBonus||!e.hasModel())return n.None;const t=e.getModel(),a=e.getPosition();if(!g.canComputeWordRanges(t.uri))return n.None;const[o]=await new x().provideSelectionRanges(t,[a]);if(o.length===0)return n.None;const i=await g.computeWordRanges(t.uri,o[0].range);if(!i)return n.None;const d=t.getWordUntilPosition(a);return delete i[d.word],new class extends n{distance(f,r){if(!a.equals(e.getPosition()))return 0;if(r.kind===17)return 2<<20;const p=typeof r.label=="string"?r.label:r.label.label,s=i[p];if(h(s))return 2<<20;const c=N(s,l.fromPositions(f),l.compareRangesUsingStarts),w=c>=0?s[c]:s[Math.max(0,~c-1)];let u=o.length;for(const R of o){if(!l.containsRange(R.range,w))break;u-=1}return u}}}}export{n as $Bmb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { binarySearch, isFalsyOrEmpty } from "../../../../base/common/arrays.js";
+import { Range } from "../../../common/core/range.js";
+import { BracketSelectionRangeProvider } from "../../smartSelect/browser/bracketSelections.js";
+class WordDistance {
+  static {
+    __name(this, "WordDistance");
+  }
+  static {
+    this.None = new class extends WordDistance {
+      distance() {
+        return 0;
+      }
+    }();
+  }
+  static async create(service, editor) {
+    if (!editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).localityBonus) {
+      return WordDistance.None;
+    }
+    if (!editor.hasModel()) {
+      return WordDistance.None;
+    }
+    const model = editor.getModel();
+    const position = editor.getPosition();
+    if (!service.canComputeWordRanges(model.uri)) {
+      return WordDistance.None;
+    }
+    const [ranges] = await new BracketSelectionRangeProvider().provideSelectionRanges(model, [position]);
+    if (ranges.length === 0) {
+      return WordDistance.None;
+    }
+    const wordRanges = await service.computeWordRanges(model.uri, ranges[0].range);
+    if (!wordRanges) {
+      return WordDistance.None;
+    }
+    const wordUntilPos = model.getWordUntilPosition(position);
+    delete wordRanges[wordUntilPos.word];
+    return new class extends WordDistance {
+      distance(anchor, item) {
+        if (!position.equals(editor.getPosition())) {
+          return 0;
+        }
+        if (item.kind === 17) {
+          return 2 << 20;
+        }
+        const word = typeof item.label === "string" ? item.label : item.label.label;
+        const wordLines = wordRanges[word];
+        if (isFalsyOrEmpty(wordLines)) {
+          return 2 << 20;
+        }
+        const idx = binarySearch(wordLines, Range.fromPositions(anchor), Range.compareRangesUsingStarts);
+        const bestWordRange = idx >= 0 ? wordLines[idx] : wordLines[Math.max(0, ~idx - 1)];
+        let blockDistance = ranges.length;
+        for (const range of ranges) {
+          if (!Range.containsRange(range.range, bestWordRange)) {
+            break;
+          }
+          blockDistance -= 1;
+        }
+        return blockDistance;
+      }
+    }();
+  }
+}
+export {
+  WordDistance
+};
+//# sourceMappingURL=wordDistance.js.map

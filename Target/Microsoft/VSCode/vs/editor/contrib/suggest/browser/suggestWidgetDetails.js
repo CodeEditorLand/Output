@@ -1,7 +1,427 @@
-import*as h from"../../../../base/browser/dom.js";import{$a_ as L}from"../../../../base/browser/ui/resizable/resizable.js";import{$v9 as W}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$ak as I}from"../../../../base/common/codicons.js";import{$wf as P}from"../../../../base/common/event.js";import{$ik as _}from"../../../../base/common/htmlContent.js";import{$Dd as S}from"../../../../base/common/lifecycle.js";import{ThemeIcon as O}from"../../../../base/common/themables.js";import*as x from"../../../../nls.js";import{$mu as X}from"../../../../platform/theme/common/theme.js";import{$ou as M}from"../../../../platform/theme/common/themeService.js";import{$Xjb as R}from"../../../../platform/markdown/browser/markdownRenderer.js";var k=function(r,t,e,s){var o=arguments.length,i=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,s);else for(var l=r.length-1;l>=0;l--)(d=r[l])&&(i=(o<3?d(i):o>3?d(t,e,i):d(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},C=function(r,t){return function(e,s){t(e,s,r)}};function F(r){return!!r&&!!(r.completion.documentation||r.completion.detail&&r.completion.detail!==r.completion.label)}let T=class{constructor(t,e,s){this.o=t,this.q=e,this.r=s,this.c=new P,this.onDidClose=this.c.event,this.d=new P,this.onDidChangeContents=this.d.event,this.l=new S,this.m=new S,this.n=new h.$X7(330,0),this.domNode=h.$(".suggest-details"),this.domNode.classList.add("no-docs"),this.h=h.$(".body"),this.g=new W(this.h,{alwaysConsumeMouseWheel:!0}),h.$I8(this.domNode,this.g.getDomNode()),this.l.add(this.g),this.i=h.$I8(this.h,h.$(".header")),this.f=h.$I8(this.i,h.$("span"+O.asCSSSelector(I.close))),this.f.title=x.localize(1663,null),this.f.role="button",this.f.tabIndex=-1,this.j=h.$I8(this.i,h.$("p.type")),this.k=h.$I8(this.h,h.$("p.docs")),this.s(),this.l.add(this.o.onDidChangeConfiguration(o=>{o.hasChanged(59)&&this.s()}))}dispose(){this.l.dispose(),this.m.dispose()}s(){const t=this.o.getOptions(),e=t.get(59),s=e.getMassagedFontFamily(),o=t.get(135)||e.fontSize,i=t.get(136)||e.lineHeight,d=e.fontWeight,l=`${o}px`,m=`${i}px`;this.domNode.style.fontSize=l,this.domNode.style.lineHeight=`${i/o}`,this.domNode.style.fontWeight=d,this.domNode.style.fontFeatureSettings=e.fontFeatureSettings,this.j.style.fontFamily=s,this.f.style.height=m,this.f.style.width=m}getLayoutInfo(){const t=this.o.getOption(136)||this.o.getOption(59).lineHeight,e=X(this.q.getColorTheme().type)?2:1,s=e*2;return{lineHeight:t,borderWidth:e,borderHeight:s,verticalPadding:22,horizontalPadding:14}}renderLoading(){this.j.textContent=x.localize(1664,null),this.k.textContent="",this.domNode.classList.remove("no-docs","no-type"),this.layout(this.size.width,this.getLayoutInfo().lineHeight*2),this.d.fire(this)}renderItem(t,e){this.m.clear();let{detail:s,documentation:o}=t.completion;if(e){let i="";i+=`score: ${t.score[0]}
-`,i+=`prefix: ${t.word??"(no prefix)"}
-`,i+=`word: ${t.completion.filterText?t.completion.filterText+" (filterText)":t.textLabel}
-`,i+=`distance: ${t.distance} (localityBonus-setting)
-`,i+=`index: ${t.idx}, based on ${t.completion.sortText&&`sortText: "${t.completion.sortText}"`||"label"}
-`,i+=`commit_chars: ${t.completion.commitCharacters?.join("")}
-`,o=new _().appendCodeblock("empty",i),s=`Provider: ${t.provider._debugDisplayName}`}if(!e&&!F(t)){this.clearContents();return}if(this.domNode.classList.remove("no-docs","no-type"),s){const i=s.length>1e5?`${s.substr(0,1e5)}\u2026`:s;this.j.textContent=i,this.j.title=i,h.$O8(this.j),this.j.classList.toggle("auto-wrap",!/\r?\n^\s+/gmi.test(i))}else h.$E7(this.j),this.j.title="",h.$P8(this.j),this.domNode.classList.add("no-type");if(h.$E7(this.k),typeof o=="string")this.k.classList.remove("markdown-docs"),this.k.textContent=o;else if(o){this.k.classList.add("markdown-docs"),h.$E7(this.k);const i=this.r.render(o,{context:this.o,asyncRenderCallback:()=>{this.layout(this.n.width,this.j.clientHeight+this.k.clientHeight),this.d.fire(this)}});this.k.appendChild(i.element),this.m.add(i)}this.domNode.classList.toggle("detail-and-doc",!!s&&!!o),this.domNode.style.userSelect="text",this.domNode.tabIndex=-1,this.f.onmousedown=i=>{i.preventDefault(),i.stopPropagation()},this.f.onclick=i=>{i.preventDefault(),i.stopPropagation(),this.c.fire()},this.h.scrollTop=0,this.layout(this.n.width,this.j.clientHeight+this.k.clientHeight),this.d.fire(this)}clearContents(){this.domNode.classList.add("no-docs"),this.j.textContent="",this.k.textContent=""}get isEmpty(){return this.domNode.classList.contains("no-docs")}get size(){return this.n}layout(t,e){const s=new h.$X7(t,e);h.$X7.equals(s,this.n)||(this.n=s,h.$Z7(this.domNode,t,e)),this.g.scanDomNode()}scrollDown(t=8){this.h.scrollTop+=t}scrollUp(t=8){this.h.scrollTop-=t}scrollTop(){this.h.scrollTop=0}scrollBottom(){this.h.scrollTop=this.h.scrollHeight}pageDown(){this.scrollDown(80)}pageUp(){this.scrollUp(80)}focus(){this.domNode.focus()}};T=k([C(1,M),C(2,R)],T);class tt{constructor(t,e){this.widget=t,this.k=e,this.allowEditorOverflow=!0,this.c=new S,this.f=!1,this.h=!0,this.d=new L,this.d.domNode.classList.add("suggest-details-container"),this.d.domNode.appendChild(t.domNode),this.d.enableSashes(!1,!0,!0,!1);let s,o,i=0,d=0;this.c.add(this.d.onDidWillResize(()=>{s=this.j,o=this.d.size})),this.c.add(this.d.onDidResize(l=>{if(s&&o){this.widget.layout(l.dimension.width,l.dimension.height);let m=!1;l.west&&(d=o.width-l.dimension.width,m=!0),l.north&&(i=o.height-l.dimension.height,m=!0),m&&this.l({top:s.top+i,left:s.left+d})}l.done&&(s=void 0,o=void 0,i=0,d=0,this.i=l.dimension)})),this.c.add(this.widget.onDidChangeContents(()=>{this.g&&this._placeAtAnchor(this.g,this.i??this.widget.size,this.h)}))}dispose(){this.d.dispose(),this.c.dispose(),this.hide()}getId(){return"suggest.details"}getDomNode(){return this.d.domNode}getPosition(){return this.j?{preference:this.j}:null}show(){this.f||(this.k.addOverlayWidget(this),this.f=!0)}hide(t=!1){this.d.clearSashHoverState(),this.f&&(this.k.removeOverlayWidget(this),this.f=!1,this.g=void 0,this.j=void 0),t&&(this.i=void 0,this.widget.clearContents())}placeAtAnchor(t,e){const s=t.getBoundingClientRect();this.g=s,this.h=e,this._placeAtAnchor(this.g,this.i??this.widget.size,e)}_placeAtAnchor(t,e,s){const o=h.$W7(this.getDomNode().ownerDocument.body),i=this.widget.getLayoutInfo(),d=new h.$X7(220,2*i.lineHeight),l=t.top,m=(function(){const n=o.width-(t.left+t.width+i.borderWidth+i.horizontalPadding),c=-i.borderWidth+t.left+t.width,f=new h.$X7(n,o.height-t.top-i.borderHeight-i.verticalPadding),b=f.with(void 0,t.top+t.height-i.borderHeight-i.verticalPadding);return{top:l,left:c,fit:n-e.width,maxSizeTop:f,maxSizeBottom:b,minSize:d.with(Math.min(n,d.width))}})(),j=(function(){const n=t.left-i.borderWidth-i.horizontalPadding,c=Math.max(i.horizontalPadding,t.left-e.width-i.borderWidth),f=new h.$X7(n,o.height-t.top-i.borderHeight-i.verticalPadding),b=f.with(void 0,t.top+t.height-i.borderHeight-i.verticalPadding);return{top:l,left:c,fit:n-e.width,maxSizeTop:f,maxSizeBottom:b,minSize:d.with(Math.min(n,d.width))}})(),H=(function(){const n=t.left,c=-i.borderWidth+t.top+t.height,f=new h.$X7(t.width-i.borderHeight,o.height-t.top-t.height-i.verticalPadding);return{top:c,left:n,fit:f.height-e.height,maxSizeBottom:f,maxSizeTop:f,minSize:d.with(f.width)}})(),$=(function(){const n=t.left,c=new h.$X7(t.width-i.borderHeight,t.top-i.verticalPadding);return{top:Math.max(i.verticalPadding,t.top-e.height),left:n,fit:c.height-e.height,maxSizeTop:c,maxSizeBottom:c,minSize:d.with(c.width)}})(),y=[m,j,s?H:$],a=y.find(n=>n.fit>=0)??y.sort((n,c)=>c.fit-n.fit)[0],D=t.top+t.height-i.borderHeight;let p,g=e.height;const z=Math.max(a.maxSizeTop.height,a.maxSizeBottom.height);g>z&&(g=z);let u;s?g<=a.maxSizeTop.height?(p=!0,u=a.maxSizeTop):(p=!1,u=a.maxSizeBottom):g<=a.maxSizeBottom.height?(p=!1,u=a.maxSizeBottom):(p=!0,u=a.maxSizeTop);let{top:w,left:v}=a;a===$?w=t.top-g+i.borderWidth:!p&&g>t.height&&(w=D-g);const N=this.k.getDomNode();if(N){const n=N.getBoundingClientRect();w-=n.top,v-=n.left}this.l({left:v,top:w}),a===$?this.d.enableSashes(!0,!1,!1,!0):this.d.enableSashes(!p,a===m,p,a!==m),this.d.minSize=a.minSize,this.d.maxSize=u,this.d.layout(g,Math.min(u.width,e.width)),this.widget.layout(this.d.size.width,this.d.size.height)}l(t){this.j=t,this.k.layoutOverlayWidget(this)}}export{F as $4nb,T as $5nb,tt as $6nb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import * as nls from "../../../../nls.js";
+import { isHighContrast } from "../../../../platform/theme/common/theme.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+function canExpandCompletionItem(item) {
+  return !!item && Boolean(item.completion.documentation || item.completion.detail && item.completion.detail !== item.completion.label);
+}
+__name(canExpandCompletionItem, "canExpandCompletionItem");
+let SuggestDetailsWidget = class SuggestDetailsWidget2 {
+  static {
+    __name(this, "SuggestDetailsWidget");
+  }
+  constructor(_editor, _themeService, _markdownRendererService) {
+    this._editor = _editor;
+    this._themeService = _themeService;
+    this._markdownRendererService = _markdownRendererService;
+    this._onDidClose = new Emitter();
+    this.onDidClose = this._onDidClose.event;
+    this._onDidChangeContents = new Emitter();
+    this.onDidChangeContents = this._onDidChangeContents.event;
+    this._disposables = new DisposableStore();
+    this._renderDisposeable = new DisposableStore();
+    this._size = new dom.Dimension(330, 0);
+    this.domNode = dom.$(".suggest-details");
+    this.domNode.classList.add("no-docs");
+    this._body = dom.$(".body");
+    this._scrollbar = new DomScrollableElement(this._body, {
+      alwaysConsumeMouseWheel: true
+    });
+    dom.append(this.domNode, this._scrollbar.getDomNode());
+    this._disposables.add(this._scrollbar);
+    this._header = dom.append(this._body, dom.$(".header"));
+    this._close = dom.append(this._header, dom.$("span" + ThemeIcon.asCSSSelector(Codicon.close)));
+    this._close.title = nls.localize("details.close", "Close");
+    this._close.role = "button";
+    this._close.tabIndex = -1;
+    this._type = dom.append(this._header, dom.$("p.type"));
+    this._docs = dom.append(this._body, dom.$("p.docs"));
+    this._configureFont();
+    this._disposables.add(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        59
+        /* EditorOption.fontInfo */
+      )) {
+        this._configureFont();
+      }
+    }));
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._renderDisposeable.dispose();
+  }
+  _configureFont() {
+    const options = this._editor.getOptions();
+    const fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const fontFamily = fontInfo.getMassagedFontFamily();
+    const fontSize = options.get(
+      135
+      /* EditorOption.suggestFontSize */
+    ) || fontInfo.fontSize;
+    const lineHeight = options.get(
+      136
+      /* EditorOption.suggestLineHeight */
+    ) || fontInfo.lineHeight;
+    const fontWeight = fontInfo.fontWeight;
+    const fontSizePx = `${fontSize}px`;
+    const lineHeightPx = `${lineHeight}px`;
+    this.domNode.style.fontSize = fontSizePx;
+    this.domNode.style.lineHeight = `${lineHeight / fontSize}`;
+    this.domNode.style.fontWeight = fontWeight;
+    this.domNode.style.fontFeatureSettings = fontInfo.fontFeatureSettings;
+    this._type.style.fontFamily = fontFamily;
+    this._close.style.height = lineHeightPx;
+    this._close.style.width = lineHeightPx;
+  }
+  getLayoutInfo() {
+    const lineHeight = this._editor.getOption(
+      136
+      /* EditorOption.suggestLineHeight */
+    ) || this._editor.getOption(
+      59
+      /* EditorOption.fontInfo */
+    ).lineHeight;
+    const borderWidth = isHighContrast(this._themeService.getColorTheme().type) ? 2 : 1;
+    const borderHeight = borderWidth * 2;
+    return {
+      lineHeight,
+      borderWidth,
+      borderHeight,
+      verticalPadding: 22,
+      horizontalPadding: 14
+    };
+  }
+  renderLoading() {
+    this._type.textContent = nls.localize("loading", "Loading...");
+    this._docs.textContent = "";
+    this.domNode.classList.remove("no-docs", "no-type");
+    this.layout(this.size.width, this.getLayoutInfo().lineHeight * 2);
+    this._onDidChangeContents.fire(this);
+  }
+  renderItem(item, explainMode) {
+    this._renderDisposeable.clear();
+    let { detail, documentation } = item.completion;
+    if (explainMode) {
+      let md = "";
+      md += `score: ${item.score[0]}
+`;
+      md += `prefix: ${item.word ?? "(no prefix)"}
+`;
+      md += `word: ${item.completion.filterText ? item.completion.filterText + " (filterText)" : item.textLabel}
+`;
+      md += `distance: ${item.distance} (localityBonus-setting)
+`;
+      md += `index: ${item.idx}, based on ${item.completion.sortText && `sortText: "${item.completion.sortText}"` || "label"}
+`;
+      md += `commit_chars: ${item.completion.commitCharacters?.join("")}
+`;
+      documentation = new MarkdownString().appendCodeblock("empty", md);
+      detail = `Provider: ${item.provider._debugDisplayName}`;
+    }
+    if (!explainMode && !canExpandCompletionItem(item)) {
+      this.clearContents();
+      return;
+    }
+    this.domNode.classList.remove("no-docs", "no-type");
+    if (detail) {
+      const cappedDetail = detail.length > 1e5 ? `${detail.substr(0, 1e5)}\u2026` : detail;
+      this._type.textContent = cappedDetail;
+      this._type.title = cappedDetail;
+      dom.show(this._type);
+      this._type.classList.toggle("auto-wrap", !/\r?\n^\s+/gmi.test(cappedDetail));
+    } else {
+      dom.clearNode(this._type);
+      this._type.title = "";
+      dom.hide(this._type);
+      this.domNode.classList.add("no-type");
+    }
+    dom.clearNode(this._docs);
+    if (typeof documentation === "string") {
+      this._docs.classList.remove("markdown-docs");
+      this._docs.textContent = documentation;
+    } else if (documentation) {
+      this._docs.classList.add("markdown-docs");
+      dom.clearNode(this._docs);
+      const renderedContents = this._markdownRendererService.render(documentation, {
+        context: this._editor,
+        asyncRenderCallback: /* @__PURE__ */ __name(() => {
+          this.layout(this._size.width, this._type.clientHeight + this._docs.clientHeight);
+          this._onDidChangeContents.fire(this);
+        }, "asyncRenderCallback")
+      });
+      this._docs.appendChild(renderedContents.element);
+      this._renderDisposeable.add(renderedContents);
+    }
+    this.domNode.classList.toggle("detail-and-doc", !!detail && !!documentation);
+    this.domNode.style.userSelect = "text";
+    this.domNode.tabIndex = -1;
+    this._close.onmousedown = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    this._close.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this._onDidClose.fire();
+    };
+    this._body.scrollTop = 0;
+    this.layout(this._size.width, this._type.clientHeight + this._docs.clientHeight);
+    this._onDidChangeContents.fire(this);
+  }
+  clearContents() {
+    this.domNode.classList.add("no-docs");
+    this._type.textContent = "";
+    this._docs.textContent = "";
+  }
+  get isEmpty() {
+    return this.domNode.classList.contains("no-docs");
+  }
+  get size() {
+    return this._size;
+  }
+  layout(width, height) {
+    const newSize = new dom.Dimension(width, height);
+    if (!dom.Dimension.equals(newSize, this._size)) {
+      this._size = newSize;
+      dom.size(this.domNode, width, height);
+    }
+    this._scrollbar.scanDomNode();
+  }
+  scrollDown(much = 8) {
+    this._body.scrollTop += much;
+  }
+  scrollUp(much = 8) {
+    this._body.scrollTop -= much;
+  }
+  scrollTop() {
+    this._body.scrollTop = 0;
+  }
+  scrollBottom() {
+    this._body.scrollTop = this._body.scrollHeight;
+  }
+  pageDown() {
+    this.scrollDown(80);
+  }
+  pageUp() {
+    this.scrollUp(80);
+  }
+  focus() {
+    this.domNode.focus();
+  }
+};
+SuggestDetailsWidget = __decorate([
+  __param(1, IThemeService),
+  __param(2, IMarkdownRendererService)
+], SuggestDetailsWidget);
+class SuggestDetailsOverlay {
+  static {
+    __name(this, "SuggestDetailsOverlay");
+  }
+  constructor(widget, _editor) {
+    this.widget = widget;
+    this._editor = _editor;
+    this.allowEditorOverflow = true;
+    this._disposables = new DisposableStore();
+    this._added = false;
+    this._preferAlignAtTop = true;
+    this._resizable = new ResizableHTMLElement();
+    this._resizable.domNode.classList.add("suggest-details-container");
+    this._resizable.domNode.appendChild(widget.domNode);
+    this._resizable.enableSashes(false, true, true, false);
+    let topLeftNow;
+    let sizeNow;
+    let deltaTop = 0;
+    let deltaLeft = 0;
+    this._disposables.add(this._resizable.onDidWillResize(() => {
+      topLeftNow = this._topLeft;
+      sizeNow = this._resizable.size;
+    }));
+    this._disposables.add(this._resizable.onDidResize((e) => {
+      if (topLeftNow && sizeNow) {
+        this.widget.layout(e.dimension.width, e.dimension.height);
+        let updateTopLeft = false;
+        if (e.west) {
+          deltaLeft = sizeNow.width - e.dimension.width;
+          updateTopLeft = true;
+        }
+        if (e.north) {
+          deltaTop = sizeNow.height - e.dimension.height;
+          updateTopLeft = true;
+        }
+        if (updateTopLeft) {
+          this._applyTopLeft({
+            top: topLeftNow.top + deltaTop,
+            left: topLeftNow.left + deltaLeft
+          });
+        }
+      }
+      if (e.done) {
+        topLeftNow = void 0;
+        sizeNow = void 0;
+        deltaTop = 0;
+        deltaLeft = 0;
+        this._userSize = e.dimension;
+      }
+    }));
+    this._disposables.add(this.widget.onDidChangeContents(() => {
+      if (this._anchorBox) {
+        this._placeAtAnchor(this._anchorBox, this._userSize ?? this.widget.size, this._preferAlignAtTop);
+      }
+    }));
+  }
+  dispose() {
+    this._resizable.dispose();
+    this._disposables.dispose();
+    this.hide();
+  }
+  getId() {
+    return "suggest.details";
+  }
+  getDomNode() {
+    return this._resizable.domNode;
+  }
+  getPosition() {
+    return this._topLeft ? { preference: this._topLeft } : null;
+  }
+  show() {
+    if (!this._added) {
+      this._editor.addOverlayWidget(this);
+      this._added = true;
+    }
+  }
+  hide(sessionEnded = false) {
+    this._resizable.clearSashHoverState();
+    if (this._added) {
+      this._editor.removeOverlayWidget(this);
+      this._added = false;
+      this._anchorBox = void 0;
+      this._topLeft = void 0;
+    }
+    if (sessionEnded) {
+      this._userSize = void 0;
+      this.widget.clearContents();
+    }
+  }
+  placeAtAnchor(anchor, preferAlignAtTop) {
+    const anchorBox = anchor.getBoundingClientRect();
+    this._anchorBox = anchorBox;
+    this._preferAlignAtTop = preferAlignAtTop;
+    this._placeAtAnchor(this._anchorBox, this._userSize ?? this.widget.size, preferAlignAtTop);
+  }
+  _placeAtAnchor(anchorBox, size, preferAlignAtTop) {
+    const bodyBox = dom.getClientArea(this.getDomNode().ownerDocument.body);
+    const info = this.widget.getLayoutInfo();
+    const defaultMinSize = new dom.Dimension(220, 2 * info.lineHeight);
+    const defaultTop = anchorBox.top;
+    const eastPlacement = (function() {
+      const width = bodyBox.width - (anchorBox.left + anchorBox.width + info.borderWidth + info.horizontalPadding);
+      const left2 = -info.borderWidth + anchorBox.left + anchorBox.width;
+      const maxSizeTop = new dom.Dimension(width, bodyBox.height - anchorBox.top - info.borderHeight - info.verticalPadding);
+      const maxSizeBottom = maxSizeTop.with(void 0, anchorBox.top + anchorBox.height - info.borderHeight - info.verticalPadding);
+      return { top: defaultTop, left: left2, fit: width - size.width, maxSizeTop, maxSizeBottom, minSize: defaultMinSize.with(Math.min(width, defaultMinSize.width)) };
+    })();
+    const westPlacement = (function() {
+      const width = anchorBox.left - info.borderWidth - info.horizontalPadding;
+      const left2 = Math.max(info.horizontalPadding, anchorBox.left - size.width - info.borderWidth);
+      const maxSizeTop = new dom.Dimension(width, bodyBox.height - anchorBox.top - info.borderHeight - info.verticalPadding);
+      const maxSizeBottom = maxSizeTop.with(void 0, anchorBox.top + anchorBox.height - info.borderHeight - info.verticalPadding);
+      return { top: defaultTop, left: left2, fit: width - size.width, maxSizeTop, maxSizeBottom, minSize: defaultMinSize.with(Math.min(width, defaultMinSize.width)) };
+    })();
+    const southPlacement = (function() {
+      const left2 = anchorBox.left;
+      const top2 = -info.borderWidth + anchorBox.top + anchorBox.height;
+      const maxSizeBottom = new dom.Dimension(anchorBox.width - info.borderHeight, bodyBox.height - anchorBox.top - anchorBox.height - info.verticalPadding);
+      return { top: top2, left: left2, fit: maxSizeBottom.height - size.height, maxSizeBottom, maxSizeTop: maxSizeBottom, minSize: defaultMinSize.with(maxSizeBottom.width) };
+    })();
+    const northPlacement = (function() {
+      const left2 = anchorBox.left;
+      const maxSizeTop = new dom.Dimension(anchorBox.width - info.borderHeight, anchorBox.top - info.verticalPadding);
+      const top2 = Math.max(info.verticalPadding, anchorBox.top - size.height);
+      return { top: top2, left: left2, fit: maxSizeTop.height - size.height, maxSizeTop, maxSizeBottom: maxSizeTop, minSize: defaultMinSize.with(maxSizeTop.width) };
+    })();
+    const verticalPlacement = preferAlignAtTop ? southPlacement : northPlacement;
+    const placements = [eastPlacement, westPlacement, verticalPlacement];
+    const placement = placements.find((p) => p.fit >= 0) ?? placements.sort((a, b) => b.fit - a.fit)[0];
+    const bottom = anchorBox.top + anchorBox.height - info.borderHeight;
+    let alignAtTop;
+    let height = size.height;
+    const maxHeight = Math.max(placement.maxSizeTop.height, placement.maxSizeBottom.height);
+    if (height > maxHeight) {
+      height = maxHeight;
+    }
+    let maxSize;
+    if (preferAlignAtTop) {
+      if (height <= placement.maxSizeTop.height) {
+        alignAtTop = true;
+        maxSize = placement.maxSizeTop;
+      } else {
+        alignAtTop = false;
+        maxSize = placement.maxSizeBottom;
+      }
+    } else {
+      if (height <= placement.maxSizeBottom.height) {
+        alignAtTop = false;
+        maxSize = placement.maxSizeBottom;
+      } else {
+        alignAtTop = true;
+        maxSize = placement.maxSizeTop;
+      }
+    }
+    let { top, left } = placement;
+    if (placement === northPlacement) {
+      top = anchorBox.top - height + info.borderWidth;
+    } else if (!alignAtTop && height > anchorBox.height) {
+      top = bottom - height;
+    }
+    const editorDomNode = this._editor.getDomNode();
+    if (editorDomNode) {
+      const editorBoundingBox = editorDomNode.getBoundingClientRect();
+      top -= editorBoundingBox.top;
+      left -= editorBoundingBox.left;
+    }
+    this._applyTopLeft({ left, top });
+    if (placement === northPlacement) {
+      this._resizable.enableSashes(true, false, false, true);
+    } else {
+      this._resizable.enableSashes(!alignAtTop, placement === eastPlacement, alignAtTop, placement !== eastPlacement);
+    }
+    this._resizable.minSize = placement.minSize;
+    this._resizable.maxSize = maxSize;
+    this._resizable.layout(height, Math.min(maxSize.width, size.width));
+    this.widget.layout(this._resizable.size.width, this._resizable.size.height);
+  }
+  _applyTopLeft(topLeft) {
+    this._topLeft = topLeft;
+    this._editor.layoutOverlayWidget(this);
+  }
+}
+export {
+  SuggestDetailsOverlay,
+  SuggestDetailsWidget,
+  canExpandCompletionItem
+};
+//# sourceMappingURL=suggestWidgetDetails.js.map

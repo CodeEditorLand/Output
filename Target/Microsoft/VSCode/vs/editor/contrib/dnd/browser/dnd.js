@@ -1,1 +1,221 @@
-import{$Ed as p}from"../../../../base/common/lifecycle.js";import{$n as l}from"../../../../base/common/platform.js";import"./dnd.css";import{$Icb as f}from"../../../browser/editorExtensions.js";import{$8D as c}from"../../../common/core/position.js";import{$9D as m}from"../../../common/core/range.js";import{$$D as a}from"../../../common/core/selection.js";import{$0K as g}from"../../../common/model/textModel.js";import{$grb as d}from"./dragAndDropCommand.js";function o(r){return l?r.altKey:r.ctrlKey}class e extends p{static{this.ID="editor.contrib.dragAndDrop"}static{this.TRIGGER_KEY_VALUE=l?6:5}static get(t){return t.getContribution(e.ID)}constructor(t){super(),this.a=t,this.c=this.a.createDecorationsCollection(),this.D(this.a.onMouseDown(i=>this.n(i))),this.D(this.a.onMouseUp(i=>this.q(i))),this.D(this.a.onMouseDrag(i=>this.r(i))),this.D(this.a.onMouseDrop(i=>this.t(i))),this.D(this.a.onMouseDropCanceled(()=>this.s())),this.D(this.a.onKeyDown(i=>this.j(i))),this.D(this.a.onKeyUp(i=>this.m(i))),this.D(this.a.onDidBlurEditorWidget(()=>this.h())),this.D(this.a.onDidBlurEditorText(()=>this.h())),this.f=!1,this.g=!1,this.b=null}h(){this.w(),this.b=null,this.f=!1,this.g=!1}j(t){!this.a.getOption(42)||this.a.getOption(28)||(o(t)&&(this.g=!0),this.f&&o(t)&&this.a.updateOptions({mouseStyle:"copy"}))}m(t){!this.a.getOption(42)||this.a.getOption(28)||(o(t)&&(this.g=!1),this.f&&t.keyCode===e.TRIGGER_KEY_VALUE&&this.a.updateOptions({mouseStyle:"default"}))}n(t){this.f=!0}q(t){this.f=!1,this.a.updateOptions({mouseStyle:"text"})}r(t){const i=t.target;if(this.b===null){const s=(this.a.getSelections()||[]).filter(h=>i.position&&h.containsPosition(i.position));if(s.length===1)this.b=s[0];else return}o(t.event)?this.a.updateOptions({mouseStyle:"copy"}):this.a.updateOptions({mouseStyle:"default"}),i.position&&(this.b.containsPosition(i.position)?this.w():this.showAt(i.position))}s(){this.a.updateOptions({mouseStyle:"text"}),this.w(),this.b=null,this.f=!1}t(t){if(t.target&&(this.y(t.target)||this.z(t.target))&&t.target.position){const i=new c(t.target.position.lineNumber,t.target.position.column);if(this.b===null){let n=null;if(t.event.shiftKey){const s=this.a.getSelection();if(s){const{selectionStartLineNumber:h,selectionStartColumn:u}=s;n=[new a(h,u,i.lineNumber,i.column)]}}else n=(this.a.getSelections()||[]).map(s=>s.containsPosition(i)?new a(i.lineNumber,i.column,i.lineNumber,i.column):s);this.a.setSelections(n||[],"mouse",3)}else(!this.b.containsPosition(i)||(o(t.event)||this.g)&&(this.b.getEndPosition().equals(i)||this.b.getStartPosition().equals(i)))&&(this.a.pushUndoStop(),this.a.executeCommand(e.ID,new d(this.b,i,o(t.event)||this.g)),this.a.pushUndoStop())}this.a.updateOptions({mouseStyle:"text"}),this.w(),this.b=null,this.f=!1}static{this.u=g.register({description:"dnd-target",className:"dnd-target"})}showAt(t){this.c.set([{range:new m(t.lineNumber,t.column,t.lineNumber,t.column),options:e.u}]),this.a.revealPosition(t,1)}w(){this.c.clear()}y(t){return t.type===6||t.type===7}z(t){return t.type===2||t.type===3||t.type===4}dispose(){this.w(),this.b=null,this.f=!1,this.g=!1,super.dispose()}}f(e.ID,e,2);export{e as $hrb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import "./dnd.css";
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { DragAndDropCommand } from "./dragAndDropCommand.js";
+function hasTriggerModifier(e) {
+  if (isMacintosh) {
+    return e.altKey;
+  } else {
+    return e.ctrlKey;
+  }
+}
+__name(hasTriggerModifier, "hasTriggerModifier");
+class DragAndDropController extends Disposable {
+  static {
+    __name(this, "DragAndDropController");
+  }
+  static {
+    this.ID = "editor.contrib.dragAndDrop";
+  }
+  static {
+    this.TRIGGER_KEY_VALUE = isMacintosh ? 6 : 5;
+  }
+  static get(editor) {
+    return editor.getContribution(DragAndDropController.ID);
+  }
+  constructor(editor) {
+    super();
+    this._editor = editor;
+    this._dndDecorationIds = this._editor.createDecorationsCollection();
+    this._register(this._editor.onMouseDown((e) => this._onEditorMouseDown(e)));
+    this._register(this._editor.onMouseUp((e) => this._onEditorMouseUp(e)));
+    this._register(this._editor.onMouseDrag((e) => this._onEditorMouseDrag(e)));
+    this._register(this._editor.onMouseDrop((e) => this._onEditorMouseDrop(e)));
+    this._register(this._editor.onMouseDropCanceled(() => this._onEditorMouseDropCanceled()));
+    this._register(this._editor.onKeyDown((e) => this.onEditorKeyDown(e)));
+    this._register(this._editor.onKeyUp((e) => this.onEditorKeyUp(e)));
+    this._register(this._editor.onDidBlurEditorWidget(() => this.onEditorBlur()));
+    this._register(this._editor.onDidBlurEditorText(() => this.onEditorBlur()));
+    this._mouseDown = false;
+    this._modifierPressed = false;
+    this._dragSelection = null;
+  }
+  onEditorBlur() {
+    this._removeDecoration();
+    this._dragSelection = null;
+    this._mouseDown = false;
+    this._modifierPressed = false;
+  }
+  onEditorKeyDown(e) {
+    if (!this._editor.getOption(
+      42
+      /* EditorOption.dragAndDrop */
+    ) || this._editor.getOption(
+      28
+      /* EditorOption.columnSelection */
+    )) {
+      return;
+    }
+    if (hasTriggerModifier(e)) {
+      this._modifierPressed = true;
+    }
+    if (this._mouseDown && hasTriggerModifier(e)) {
+      this._editor.updateOptions({
+        mouseStyle: "copy"
+      });
+    }
+  }
+  onEditorKeyUp(e) {
+    if (!this._editor.getOption(
+      42
+      /* EditorOption.dragAndDrop */
+    ) || this._editor.getOption(
+      28
+      /* EditorOption.columnSelection */
+    )) {
+      return;
+    }
+    if (hasTriggerModifier(e)) {
+      this._modifierPressed = false;
+    }
+    if (this._mouseDown && e.keyCode === DragAndDropController.TRIGGER_KEY_VALUE) {
+      this._editor.updateOptions({
+        mouseStyle: "default"
+      });
+    }
+  }
+  _onEditorMouseDown(mouseEvent) {
+    this._mouseDown = true;
+  }
+  _onEditorMouseUp(mouseEvent) {
+    this._mouseDown = false;
+    this._editor.updateOptions({
+      mouseStyle: "text"
+    });
+  }
+  _onEditorMouseDrag(mouseEvent) {
+    const target = mouseEvent.target;
+    if (this._dragSelection === null) {
+      const selections = this._editor.getSelections() || [];
+      const possibleSelections = selections.filter((selection) => target.position && selection.containsPosition(target.position));
+      if (possibleSelections.length === 1) {
+        this._dragSelection = possibleSelections[0];
+      } else {
+        return;
+      }
+    }
+    if (hasTriggerModifier(mouseEvent.event)) {
+      this._editor.updateOptions({
+        mouseStyle: "copy"
+      });
+    } else {
+      this._editor.updateOptions({
+        mouseStyle: "default"
+      });
+    }
+    if (target.position) {
+      if (this._dragSelection.containsPosition(target.position)) {
+        this._removeDecoration();
+      } else {
+        this.showAt(target.position);
+      }
+    }
+  }
+  _onEditorMouseDropCanceled() {
+    this._editor.updateOptions({
+      mouseStyle: "text"
+    });
+    this._removeDecoration();
+    this._dragSelection = null;
+    this._mouseDown = false;
+  }
+  _onEditorMouseDrop(mouseEvent) {
+    if (mouseEvent.target && (this._hitContent(mouseEvent.target) || this._hitMargin(mouseEvent.target)) && mouseEvent.target.position) {
+      const newCursorPosition = new Position(mouseEvent.target.position.lineNumber, mouseEvent.target.position.column);
+      if (this._dragSelection === null) {
+        let newSelections = null;
+        if (mouseEvent.event.shiftKey) {
+          const primarySelection = this._editor.getSelection();
+          if (primarySelection) {
+            const { selectionStartLineNumber, selectionStartColumn } = primarySelection;
+            newSelections = [new Selection(selectionStartLineNumber, selectionStartColumn, newCursorPosition.lineNumber, newCursorPosition.column)];
+          }
+        } else {
+          newSelections = (this._editor.getSelections() || []).map((selection) => {
+            if (selection.containsPosition(newCursorPosition)) {
+              return new Selection(newCursorPosition.lineNumber, newCursorPosition.column, newCursorPosition.lineNumber, newCursorPosition.column);
+            } else {
+              return selection;
+            }
+          });
+        }
+        this._editor.setSelections(
+          newSelections || [],
+          "mouse",
+          3
+          /* CursorChangeReason.Explicit */
+        );
+      } else if (!this._dragSelection.containsPosition(newCursorPosition) || (hasTriggerModifier(mouseEvent.event) || this._modifierPressed) && (this._dragSelection.getEndPosition().equals(newCursorPosition) || this._dragSelection.getStartPosition().equals(newCursorPosition))) {
+        this._editor.pushUndoStop();
+        this._editor.executeCommand(DragAndDropController.ID, new DragAndDropCommand(this._dragSelection, newCursorPosition, hasTriggerModifier(mouseEvent.event) || this._modifierPressed));
+        this._editor.pushUndoStop();
+      }
+    }
+    this._editor.updateOptions({
+      mouseStyle: "text"
+    });
+    this._removeDecoration();
+    this._dragSelection = null;
+    this._mouseDown = false;
+  }
+  static {
+    this._DECORATION_OPTIONS = ModelDecorationOptions.register({
+      description: "dnd-target",
+      className: "dnd-target"
+    });
+  }
+  showAt(position) {
+    this._dndDecorationIds.set([{
+      range: new Range(position.lineNumber, position.column, position.lineNumber, position.column),
+      options: DragAndDropController._DECORATION_OPTIONS
+    }]);
+    this._editor.revealPosition(
+      position,
+      1
+      /* ScrollType.Immediate */
+    );
+  }
+  _removeDecoration() {
+    this._dndDecorationIds.clear();
+  }
+  _hitContent(target) {
+    return target.type === 6 || target.type === 7;
+  }
+  _hitMargin(target) {
+    return target.type === 2 || target.type === 3 || target.type === 4;
+  }
+  dispose() {
+    this._removeDecoration();
+    this._dragSelection = null;
+    this._mouseDown = false;
+    this._modifierPressed = false;
+    super.dispose();
+  }
+}
+registerEditorContribution(
+  DragAndDropController.ID,
+  DragAndDropController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+export {
+  DragAndDropController
+};
+//# sourceMappingURL=dnd.js.map

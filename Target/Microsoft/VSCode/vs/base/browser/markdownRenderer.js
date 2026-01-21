@@ -1,20 +1,835 @@
-import{$mb as U}from"../common/errors.js";import{$ok as x,$qk as O,$pk as R}from"../common/htmlContent.js";import{$dk as _}from"../common/iconLabels.js";import{$e4 as E}from"../common/idGenerator.js";import{$Dd as F}from"../common/lifecycle.js";import*as y from"../common/marked/marked.js";import{$3m as W}from"../common/marshalling.js";import{$sh as j,Schemas as c}from"../common/network.js";import{$Dp as H}from"../common/objects.js";import{$ab as D}from"../common/path.js";import{$Eh as K,$Gh as V,$Kh as N}from"../common/resources.js";import{$Xf as w}from"../common/strings.js";import{URI as b}from"../common/uri.js";import*as $ from"./dom.js";import*as S from"./domSanitize.js";import{$O9 as Z}from"./domSanitize.js";import{$C7 as G}from"./keyboardEvent.js";import{$w7 as J}from"./mouseEvent.js";import{$R9 as Q,$Q9 as X}from"./ui/iconLabel/iconLabels.js";const L=Object.freeze({image:({href:e,title:t,text:s})=>{let r=[],n=[];return e&&({href:e,dimensions:r}=O(e),n.push(`src="${x(e)}"`)),s&&n.push(`alt="${x(s)}"`),t&&n.push(`title="${x(t)}"`),r.length&&(n=n.concat(r)),"<img "+n.join(" ")+">"},paragraph({tokens:e}){return`<p>${this.parser.parseInline(e)}</p>`},link({href:e,title:t,tokens:s}){let r=this.parser.parseInline(s);return typeof e!="string"?"":(e===r&&(r=R(r)),t=typeof t=="string"?x(R(t)):"",e=R(e),e=e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"),`<a href="${e}" title="${t||e}" draggable="false">${r}</a>`)}});function Y(e){return function(t){const{tokens:s}=t,r=s[0];if(r?.type!=="paragraph")return e.call(this,t);const n=r.tokens;if(!n||n.length===0)return e.call(this,t);const i=n[0];if(i?.type!=="text")return e.call(this,t);const o=/^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*?\n*/i,u=i.raw.match(o);if(!u)return e.call(this,t);i.raw=i.raw.replace(o,""),i.text=i.text.replace(o,"");const m={note:"info",tip:"light-bulb",important:"comment",warning:"alert",caution:"stop"},f=u[1],h=f.charAt(0).toUpperCase()+f.slice(1).toLowerCase(),g=f.toLowerCase(),I=Q({id:m[g]}).outerHTML,p=this.parser.parse(s);return`<blockquote data-severity="${g}"><p><span>${I}${h}</span>${p.substring(3)}</blockquote>
-`}}function je(e,t={},s){const r=new F;let n=!1;const i=new y.Marked(...t.markedExtensions??[]),{renderer:o,codeBlocks:u,syncCodeBlocks:m}=te(i,t,e),f=re(e);let h;if(t.fillInIncompleteTokens){const a={...i.defaults,...t.markedOptions,renderer:o},l=i.lexer(f,a),d=ge(l);h=i.parser(d,a)}else h=i.parse(f,{...t?.markedOptions,renderer:o,async:!1});e.supportThemeIcons&&(h=X(h).map(l=>typeof l=="string"?l:l.outerHTML).join(""));const g=document.createElement("div"),I=q(e,t.sanitizerConfig??{});S.$P9(g,h,I),ee(e,t,g);let p;if(s?(p=s,$.$K8(s,...g.childNodes)):p=g,u.length>0)Promise.all(u).then(a=>{if(n)return;const l=new Map(a),d=p.querySelectorAll("div[data-code]");for(const k of d){const C=l.get(k.dataset.code??"");C&&$.$K8(k,C)}t.asyncRenderCallback?.()});else if(m.length>0){const a=new Map(m),l=p.querySelectorAll("div[data-code]");for(const d of l){const k=a.get(d.dataset.code??"");k&&$.$K8(d,k)}}if(t.asyncRenderCallback)for(const a of p.getElementsByTagName("img")){const l=r.add($.$F7(a,"load",()=>{l.dispose(),t.asyncRenderCallback()}))}if(t.actionHandler){const a=l=>{const d=new J($.getWindow(p),l);!d.leftButton&&!d.middleButton||B(e,t,d)};r.add($.$F7(p,"click",a)),r.add($.$F7(p,"auxclick",a)),r.add($.$F7(p,"keydown",l=>{const d=new G(l);!d.equals(10)&&!d.equals(3)||B(e,t,d)}))}for(const a of[...p.getElementsByTagName("input")])if(a.attributes.getNamedItem("type")?.value==="checkbox")a.setAttribute("disabled","");else if(t.sanitizerConfig?.replaceWithPlaintext){const l=Z(a);l?a.parentElement?.replaceChild(l,a):a.remove()}else a.remove();return{element:p,dispose:()=>{n=!0,r.dispose()}}}function ee(e,t,s){for(const r of s.querySelectorAll("img, audio, video, source")){const n=r.getAttribute("src");if(n){let i=n;try{e.baseUri&&(i=A(b.from(e.baseUri),i))}catch{}if(r.setAttribute("src",P(e,i,!0)),t.sanitizerConfig?.remoteImageIsAllowed){const o=b.parse(i);o.scheme!==c.file&&o.scheme!==c.data&&!t.sanitizerConfig.remoteImageIsAllowed(o)&&r.replaceWith($.$("",void 0,r.outerHTML))}}}for(const r of s.querySelectorAll("a")){const n=r.getAttribute("href");if(r.setAttribute("href",""),!n||/^data:|javascript:/i.test(n)||/^command:/i.test(n)&&!e.isTrusted||/^command:(\/\/\/)?_workbench\.downloadResource/i.test(n))r.replaceWith(...r.childNodes);else{let i=P(e,n,!1);e.baseUri&&(i=A(b.from(e.baseUri),n)),r.dataset.href=i}}}function te(e,t,s){const r=new e.Renderer(t.markedOptions);r.image=L.image,r.link=L.link,r.paragraph=L.paragraph,s.supportAlertSyntax&&(r.blockquote=Y(r.blockquote));const n=[],i=[];return t.codeBlockRendererSync?r.code=({text:o,lang:u,raw:m})=>{const f=E.nextId(),h=t.codeBlockRendererSync(z(u),o,m);return i.push([f,h]),`<div class="code" data-code="${f}">${w(o)}</div>`}:t.codeBlockRenderer&&(r.code=({text:o,lang:u})=>{const m=E.nextId(),f=t.codeBlockRenderer(z(u),o);return n.push(f.then(h=>[m,h])),`<div class="code" data-code="${m}">${w(o)}</div>`}),s.supportHtml||(r.html=({text:o})=>t.sanitizerConfig?.replaceWithPlaintext?w(o):(s.isTrusted?o.match(/^(<span[^>]+>)|(<\/\s*span>)$/):void 0)?o:""),{renderer:r,codeBlocks:n,syncCodeBlocks:i}}function re(e){let t=e.value;return t.length>1e5&&(t=`${t.substr(0,1e5)}\u2026`),e.supportThemeIcons&&(t=_(t)),t}function B(e,t,s){const r=s.target.closest("a[data-href]");if($.$p8(r))try{let n=r.dataset.href;n&&(e.baseUri&&(n=A(b.from(e.baseUri),n)),t.actionHandler?.(n,e))}catch(n){U(n)}finally{s.preventDefault(),s.stopPropagation()}}function ne(e,t){let s;try{s=W(decodeURIComponent(t))}catch{}return s?(s=H(s,r=>{if(e.uris&&e.uris[r])return b.revive(e.uris[r])}),encodeURIComponent(JSON.stringify(s))):t}function P(e,t,s){const r=e.uris&&e.uris[t];let n=b.revive(r);return s?t.startsWith(c.data+":")?t:(n||(n=b.parse(t)),j.uriToBrowserUri(n).toString(!0)):!n||b.parse(t).toString()===n.toString()?t:(n.query&&(n=n.with({query:ne(e,n.query)})),n.toString())}function z(e){if(!e)return"";const t=e.split(/[\s+|:|,|\{|\?]/,1);return t.length?t[0]:e}function A(e,t){return/^\w[\w\d+.-]*:/.test(t)?t:e.path.endsWith("/")?N(e,t).toString():N(V(e),t).toString()}function se(e,t,s={}){const r=q(t,s);return S.$N9(e,r)}const ie=Object.freeze([...S.$L9,"input"]),oe=Object.freeze(["align","autoplay","alt","colspan","controls","draggable","height","href","loop","muted","playsinline","poster","rowspan","src","target","title","type","width","start","checked","disabled","value","data-code","data-href","data-severity",{attributeName:"style",shouldKeep:(e,t)=>e.tagName==="SPAN"&&t.attrName==="style"?/^(color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(background-color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(border-radius:[0-9]+px;)?$/.test(t.attrValue):!1},{attributeName:"class",shouldKeep:(e,t)=>e.tagName==="SPAN"&&t.attrName==="class"?/^codicon codicon-[a-z\-]+( codicon-modifier-[a-z\-]+)?$/.test(t.attrValue):!1}]);function q(e,t){const s=e.isTrusted??!1,r=[c.http,c.https,c.mailto,c.file,c.vscodeFileResource,c.vscodeRemote,c.vscodeRemoteResource,c.vscodeNotebookCell,c.internal];return s&&r.push(c.command),t.allowedLinkSchemes?.augment&&r.push(...t.allowedLinkSchemes.augment),{allowedTags:{override:t.allowedTags?.override??ie},allowedAttributes:{override:t.allowedAttributes?.override??oe},allowedLinkProtocols:{override:r},allowRelativeLinkPaths:!!e.baseUri,allowedMediaProtocols:{override:[c.http,c.https,c.data,c.file,c.vscodeFileResource,c.vscodeRemote,c.vscodeRemoteResource]},allowRelativeMediaPaths:!!e.baseUri,replaceWithPlaintext:t.replaceWithPlaintext}}function He(e,t){if(typeof e=="string")return e;let s=e.value??"";s.length>1e5&&(s=`${s.substr(0,1e5)}\u2026`);const r=ce();t?.includeCodeBlocksFences&&(r.code=le),t?.useLinkFormatter&&(r.link=ue);const n=y.parse(s,{async:!1,renderer:r});return se(n,{isTrusted:!1},{}).toString().replace(/&(#\d+|[a-zA-Z]+);/g,i=>ae.get(i)??i).trim()}const ae=new Map([["&quot;",'"'],["&nbsp;"," "],["&amp;","&"],["&#39;","'"],["&lt;","<"],["&gt;",">"]]);function ce(){const e=new y.Renderer;return e.code=({text:t})=>w(t),e.blockquote=({text:t})=>t+`
-`,e.html=t=>"",e.heading=function({tokens:t}){return this.parser.parseInline(t)+`
-`},e.hr=()=>"",e.list=function({items:t}){return t.map(s=>this.listitem(s)).join(`
-`)+`
-`},e.listitem=({text:t})=>t+`
-`,e.paragraph=function({tokens:t}){return this.parser.parseInline(t)+`
-`},e.table=function({header:t,rows:s}){return t.map(r=>this.tablecell(r)).join(" ")+`
-`+s.map(r=>r.map(n=>this.tablecell(n)).join(" ")).join(`
-`)+`
-`},e.tablerow=({text:t})=>t,e.tablecell=function({tokens:t}){return this.parser.parseInline(t)},e.strong=({text:t})=>t,e.em=({text:t})=>t,e.codespan=({text:t})=>w(t),e.br=t=>`
-`,e.del=({text:t})=>t,e.image=t=>"",e.text=({text:t})=>t,e.link=({text:t})=>t,e}const le=({text:e})=>`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { onUnexpectedError } from "../common/errors.js";
+import { escapeDoubleQuotes, parseHrefAndDimensions, removeMarkdownEscapes } from "../common/htmlContent.js";
+import { markdownEscapeEscapedIcons } from "../common/iconLabels.js";
+import { defaultGenerator } from "../common/idGenerator.js";
+import { DisposableStore } from "../common/lifecycle.js";
+import * as marked from "../common/marked/marked.js";
+import { parse } from "../common/marshalling.js";
+import { FileAccess, Schemas } from "../common/network.js";
+import { cloneAndChange } from "../common/objects.js";
+import { basename as pathBasename } from "../common/path.js";
+import { basename, dirname, resolvePath } from "../common/resources.js";
+import { escape } from "../common/strings.js";
+import { URI } from "../common/uri.js";
+import * as DOM from "./dom.js";
+import * as domSanitize from "./domSanitize.js";
+import { convertTagToPlaintext } from "./domSanitize.js";
+import { StandardKeyboardEvent } from "./keyboardEvent.js";
+import { StandardMouseEvent } from "./mouseEvent.js";
+import { renderIcon, renderLabelWithIcons } from "./ui/iconLabel/iconLabels.js";
+const defaultMarkedRenderers = Object.freeze({
+  image: /* @__PURE__ */ __name(({ href, title, text }) => {
+    let dimensions = [];
+    let attributes = [];
+    if (href) {
+      ({ href, dimensions } = parseHrefAndDimensions(href));
+      attributes.push(`src="${escapeDoubleQuotes(href)}"`);
+    }
+    if (text) {
+      attributes.push(`alt="${escapeDoubleQuotes(text)}"`);
+    }
+    if (title) {
+      attributes.push(`title="${escapeDoubleQuotes(title)}"`);
+    }
+    if (dimensions.length) {
+      attributes = attributes.concat(dimensions);
+    }
+    return "<img " + attributes.join(" ") + ">";
+  }, "image"),
+  paragraph({ tokens }) {
+    return `<p>${this.parser.parseInline(tokens)}</p>`;
+  },
+  link({ href, title, tokens }) {
+    let text = this.parser.parseInline(tokens);
+    if (typeof href !== "string") {
+      return "";
+    }
+    if (href === text) {
+      text = removeMarkdownEscapes(text);
+    }
+    title = typeof title === "string" ? escapeDoubleQuotes(removeMarkdownEscapes(title)) : "";
+    href = removeMarkdownEscapes(href);
+    href = href.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    return `<a href="${href}" title="${title || href}" draggable="false">${text}</a>`;
+  }
+});
+function createAlertBlockquoteRenderer(fallbackRenderer) {
+  return function(token) {
+    const { tokens } = token;
+    const firstToken = tokens[0];
+    if (firstToken?.type !== "paragraph") {
+      return fallbackRenderer.call(this, token);
+    }
+    const paragraphTokens = firstToken.tokens;
+    if (!paragraphTokens || paragraphTokens.length === 0) {
+      return fallbackRenderer.call(this, token);
+    }
+    const firstTextToken = paragraphTokens[0];
+    if (firstTextToken?.type !== "text") {
+      return fallbackRenderer.call(this, token);
+    }
+    const pattern = /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*?\n*/i;
+    const match = firstTextToken.raw.match(pattern);
+    if (!match) {
+      return fallbackRenderer.call(this, token);
+    }
+    firstTextToken.raw = firstTextToken.raw.replace(pattern, "");
+    firstTextToken.text = firstTextToken.text.replace(pattern, "");
+    const alertIcons = {
+      "note": "info",
+      "tip": "light-bulb",
+      "important": "comment",
+      "warning": "alert",
+      "caution": "stop"
+    };
+    const type = match[1];
+    const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+    const severity = type.toLowerCase();
+    const iconHtml = renderIcon({ id: alertIcons[severity] }).outerHTML;
+    const content = this.parser.parse(tokens);
+    return `<blockquote data-severity="${severity}"><p><span>${iconHtml}${typeCapitalized}</span>${content.substring(3)}</blockquote>
+`;
+  };
+}
+__name(createAlertBlockquoteRenderer, "createAlertBlockquoteRenderer");
+function renderMarkdown(markdown, options = {}, target) {
+  const disposables = new DisposableStore();
+  let isDisposed = false;
+  const markedInstance = new marked.Marked(...options.markedExtensions ?? []);
+  const { renderer, codeBlocks, syncCodeBlocks } = createMarkdownRenderer(markedInstance, options, markdown);
+  const value = preprocessMarkdownString(markdown);
+  let renderedMarkdown;
+  if (options.fillInIncompleteTokens) {
+    const opts = {
+      ...markedInstance.defaults,
+      ...options.markedOptions,
+      renderer
+    };
+    const tokens = markedInstance.lexer(value, opts);
+    const newTokens = fillInIncompleteTokens(tokens);
+    renderedMarkdown = markedInstance.parser(newTokens, opts);
+  } else {
+    renderedMarkdown = markedInstance.parse(value, { ...options?.markedOptions, renderer, async: false });
+  }
+  if (markdown.supportThemeIcons) {
+    const elements = renderLabelWithIcons(renderedMarkdown);
+    renderedMarkdown = elements.map((e) => typeof e === "string" ? e : e.outerHTML).join("");
+  }
+  const renderedContent = document.createElement("div");
+  const sanitizerConfig = getDomSanitizerConfig(markdown, options.sanitizerConfig ?? {});
+  domSanitize.safeSetInnerHtml(renderedContent, renderedMarkdown, sanitizerConfig);
+  rewriteRenderedLinks(markdown, options, renderedContent);
+  let outElement;
+  if (target) {
+    outElement = target;
+    DOM.reset(target, ...renderedContent.childNodes);
+  } else {
+    outElement = renderedContent;
+  }
+  if (codeBlocks.length > 0) {
+    Promise.all(codeBlocks).then((tuples) => {
+      if (isDisposed) {
+        return;
+      }
+      const renderedElements = new Map(tuples);
+      const placeholderElements = outElement.querySelectorAll(`div[data-code]`);
+      for (const placeholderElement of placeholderElements) {
+        const renderedElement = renderedElements.get(placeholderElement.dataset["code"] ?? "");
+        if (renderedElement) {
+          DOM.reset(placeholderElement, renderedElement);
+        }
+      }
+      options.asyncRenderCallback?.();
+    });
+  } else if (syncCodeBlocks.length > 0) {
+    const renderedElements = new Map(syncCodeBlocks);
+    const placeholderElements = outElement.querySelectorAll(`div[data-code]`);
+    for (const placeholderElement of placeholderElements) {
+      const renderedElement = renderedElements.get(placeholderElement.dataset["code"] ?? "");
+      if (renderedElement) {
+        DOM.reset(placeholderElement, renderedElement);
+      }
+    }
+  }
+  if (options.asyncRenderCallback) {
+    for (const img of outElement.getElementsByTagName("img")) {
+      const listener = disposables.add(DOM.addDisposableListener(img, "load", () => {
+        listener.dispose();
+        options.asyncRenderCallback();
+      }));
+    }
+  }
+  if (options.actionHandler) {
+    const clickCb = /* @__PURE__ */ __name((e) => {
+      const mouseEvent = new StandardMouseEvent(DOM.getWindow(outElement), e);
+      if (!mouseEvent.leftButton && !mouseEvent.middleButton) {
+        return;
+      }
+      activateLink(markdown, options, mouseEvent);
+    }, "clickCb");
+    disposables.add(DOM.addDisposableListener(outElement, "click", clickCb));
+    disposables.add(DOM.addDisposableListener(outElement, "auxclick", clickCb));
+    disposables.add(DOM.addDisposableListener(outElement, "keydown", (e) => {
+      const keyboardEvent = new StandardKeyboardEvent(e);
+      if (!keyboardEvent.equals(
+        10
+        /* KeyCode.Space */
+      ) && !keyboardEvent.equals(
+        3
+        /* KeyCode.Enter */
+      )) {
+        return;
+      }
+      activateLink(markdown, options, keyboardEvent);
+    }));
+  }
+  for (const input of [...outElement.getElementsByTagName("input")]) {
+    if (input.attributes.getNamedItem("type")?.value === "checkbox") {
+      input.setAttribute("disabled", "");
+    } else {
+      if (options.sanitizerConfig?.replaceWithPlaintext) {
+        const replacement = convertTagToPlaintext(input);
+        if (replacement) {
+          input.parentElement?.replaceChild(replacement, input);
+        } else {
+          input.remove();
+        }
+      } else {
+        input.remove();
+      }
+    }
+  }
+  return {
+    element: outElement,
+    dispose: /* @__PURE__ */ __name(() => {
+      isDisposed = true;
+      disposables.dispose();
+    }, "dispose")
+  };
+}
+__name(renderMarkdown, "renderMarkdown");
+function rewriteRenderedLinks(markdown, options, root) {
+  for (const el of root.querySelectorAll("img, audio, video, source")) {
+    const src = el.getAttribute("src");
+    if (src) {
+      let href = src;
+      try {
+        if (markdown.baseUri) {
+          href = resolveWithBaseUri(URI.from(markdown.baseUri), href);
+        }
+      } catch (err) {
+      }
+      el.setAttribute("src", massageHref(markdown, href, true));
+      if (options.sanitizerConfig?.remoteImageIsAllowed) {
+        const uri = URI.parse(href);
+        if (uri.scheme !== Schemas.file && uri.scheme !== Schemas.data && !options.sanitizerConfig.remoteImageIsAllowed(uri)) {
+          el.replaceWith(DOM.$("", void 0, el.outerHTML));
+        }
+      }
+    }
+  }
+  for (const el of root.querySelectorAll("a")) {
+    const href = el.getAttribute("href");
+    el.setAttribute("href", "");
+    if (!href || /^data:|javascript:/i.test(href) || /^command:/i.test(href) && !markdown.isTrusted || /^command:(\/\/\/)?_workbench\.downloadResource/i.test(href)) {
+      el.replaceWith(...el.childNodes);
+    } else {
+      let resolvedHref = massageHref(markdown, href, false);
+      if (markdown.baseUri) {
+        resolvedHref = resolveWithBaseUri(URI.from(markdown.baseUri), href);
+      }
+      el.dataset.href = resolvedHref;
+    }
+  }
+}
+__name(rewriteRenderedLinks, "rewriteRenderedLinks");
+function createMarkdownRenderer(marked2, options, markdown) {
+  const renderer = new marked2.Renderer(options.markedOptions);
+  renderer.image = defaultMarkedRenderers.image;
+  renderer.link = defaultMarkedRenderers.link;
+  renderer.paragraph = defaultMarkedRenderers.paragraph;
+  if (markdown.supportAlertSyntax) {
+    renderer.blockquote = createAlertBlockquoteRenderer(renderer.blockquote);
+  }
+  const codeBlocks = [];
+  const syncCodeBlocks = [];
+  if (options.codeBlockRendererSync) {
+    renderer.code = ({ text, lang, raw }) => {
+      const id = defaultGenerator.nextId();
+      const value = options.codeBlockRendererSync(postProcessCodeBlockLanguageId(lang), text, raw);
+      syncCodeBlocks.push([id, value]);
+      return `<div class="code" data-code="${id}">${escape(text)}</div>`;
+    };
+  } else if (options.codeBlockRenderer) {
+    renderer.code = ({ text, lang }) => {
+      const id = defaultGenerator.nextId();
+      const value = options.codeBlockRenderer(postProcessCodeBlockLanguageId(lang), text);
+      codeBlocks.push(value.then((element) => [id, element]));
+      return `<div class="code" data-code="${id}">${escape(text)}</div>`;
+    };
+  }
+  if (!markdown.supportHtml) {
+    renderer.html = ({ text }) => {
+      if (options.sanitizerConfig?.replaceWithPlaintext) {
+        return escape(text);
+      }
+      const match = markdown.isTrusted ? text.match(/^(<span[^>]+>)|(<\/\s*span>)$/) : void 0;
+      return match ? text : "";
+    };
+  }
+  return { renderer, codeBlocks, syncCodeBlocks };
+}
+__name(createMarkdownRenderer, "createMarkdownRenderer");
+function preprocessMarkdownString(markdown) {
+  let value = markdown.value;
+  if (value.length > 1e5) {
+    value = `${value.substr(0, 1e5)}\u2026`;
+  }
+  if (markdown.supportThemeIcons) {
+    value = markdownEscapeEscapedIcons(value);
+  }
+  return value;
+}
+__name(preprocessMarkdownString, "preprocessMarkdownString");
+function activateLink(mdStr, options, event) {
+  const target = event.target.closest("a[data-href]");
+  if (!DOM.isHTMLElement(target)) {
+    return;
+  }
+  try {
+    let href = target.dataset["href"];
+    if (href) {
+      if (mdStr.baseUri) {
+        href = resolveWithBaseUri(URI.from(mdStr.baseUri), href);
+      }
+      options.actionHandler?.(href, mdStr);
+    }
+  } catch (err) {
+    onUnexpectedError(err);
+  } finally {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+__name(activateLink, "activateLink");
+function uriMassage(markdown, part) {
+  let data;
+  try {
+    data = parse(decodeURIComponent(part));
+  } catch (e) {
+  }
+  if (!data) {
+    return part;
+  }
+  data = cloneAndChange(data, (value) => {
+    if (markdown.uris && markdown.uris[value]) {
+      return URI.revive(markdown.uris[value]);
+    } else {
+      return void 0;
+    }
+  });
+  return encodeURIComponent(JSON.stringify(data));
+}
+__name(uriMassage, "uriMassage");
+function massageHref(markdown, href, isDomUri) {
+  const data = markdown.uris && markdown.uris[href];
+  let uri = URI.revive(data);
+  if (isDomUri) {
+    if (href.startsWith(Schemas.data + ":")) {
+      return href;
+    }
+    if (!uri) {
+      uri = URI.parse(href);
+    }
+    return FileAccess.uriToBrowserUri(uri).toString(true);
+  }
+  if (!uri) {
+    return href;
+  }
+  if (URI.parse(href).toString() === uri.toString()) {
+    return href;
+  }
+  if (uri.query) {
+    uri = uri.with({ query: uriMassage(markdown, uri.query) });
+  }
+  return uri.toString();
+}
+__name(massageHref, "massageHref");
+function postProcessCodeBlockLanguageId(lang) {
+  if (!lang) {
+    return "";
+  }
+  const parts = lang.split(/[\s+|:|,|\{|\?]/, 1);
+  if (parts.length) {
+    return parts[0];
+  }
+  return lang;
+}
+__name(postProcessCodeBlockLanguageId, "postProcessCodeBlockLanguageId");
+function resolveWithBaseUri(baseUri, href) {
+  const hasScheme = /^\w[\w\d+.-]*:/.test(href);
+  if (hasScheme) {
+    return href;
+  }
+  if (baseUri.path.endsWith("/")) {
+    return resolvePath(baseUri, href).toString();
+  } else {
+    return resolvePath(dirname(baseUri), href).toString();
+  }
+}
+__name(resolveWithBaseUri, "resolveWithBaseUri");
+function sanitizeRenderedMarkdown(renderedMarkdown, originalMdStrConfig, options = {}) {
+  const sanitizerConfig = getDomSanitizerConfig(originalMdStrConfig, options);
+  return domSanitize.sanitizeHtml(renderedMarkdown, sanitizerConfig);
+}
+__name(sanitizeRenderedMarkdown, "sanitizeRenderedMarkdown");
+const allowedMarkdownHtmlTags = Object.freeze([
+  ...domSanitize.basicMarkupHtmlTags,
+  "input"
+  // Allow inputs for rendering checkboxes. Other types of inputs are removed and the inputs are always disabled
+]);
+const allowedMarkdownHtmlAttributes = Object.freeze([
+  "align",
+  "autoplay",
+  "alt",
+  "colspan",
+  "controls",
+  "draggable",
+  "height",
+  "href",
+  "loop",
+  "muted",
+  "playsinline",
+  "poster",
+  "rowspan",
+  "src",
+  "target",
+  "title",
+  "type",
+  "width",
+  "start",
+  // Input (For disabled inputs)
+  "checked",
+  "disabled",
+  "value",
+  // Custom markdown attributes
+  "data-code",
+  "data-href",
+  "data-severity",
+  // Only allow very specific styles
+  {
+    attributeName: "style",
+    shouldKeep: /* @__PURE__ */ __name((element, data) => {
+      if (element.tagName === "SPAN") {
+        if (data.attrName === "style") {
+          return /^(color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(background-color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(border-radius:[0-9]+px;)?$/.test(data.attrValue);
+        }
+      }
+      return false;
+    }, "shouldKeep")
+  },
+  // Only allow codicons for classes
+  {
+    attributeName: "class",
+    shouldKeep: /* @__PURE__ */ __name((element, data) => {
+      if (element.tagName === "SPAN") {
+        if (data.attrName === "class") {
+          return /^codicon codicon-[a-z\-]+( codicon-modifier-[a-z\-]+)?$/.test(data.attrValue);
+        }
+      }
+      return false;
+    }, "shouldKeep")
+  }
+]);
+function getDomSanitizerConfig(mdStrConfig, options) {
+  const isTrusted = mdStrConfig.isTrusted ?? false;
+  const allowedLinkSchemes = [
+    Schemas.http,
+    Schemas.https,
+    Schemas.mailto,
+    Schemas.file,
+    Schemas.vscodeFileResource,
+    Schemas.vscodeRemote,
+    Schemas.vscodeRemoteResource,
+    Schemas.vscodeNotebookCell,
+    // For links that are handled entirely by the action handler
+    Schemas.internal
+  ];
+  if (isTrusted) {
+    allowedLinkSchemes.push(Schemas.command);
+  }
+  if (options.allowedLinkSchemes?.augment) {
+    allowedLinkSchemes.push(...options.allowedLinkSchemes.augment);
+  }
+  return {
+    // allowedTags should included everything that markdown renders to.
+    // Since we have our own sanitize function for marked, it's possible we missed some tag so let dompurify make sure.
+    // HTML tags that can result from markdown are from reading https://spec.commonmark.org/0.29/
+    // HTML table tags that can result from markdown are from https://github.github.com/gfm/#tables-extension-
+    allowedTags: {
+      override: options.allowedTags?.override ?? allowedMarkdownHtmlTags
+    },
+    allowedAttributes: {
+      override: options.allowedAttributes?.override ?? allowedMarkdownHtmlAttributes
+    },
+    allowedLinkProtocols: {
+      override: allowedLinkSchemes
+    },
+    allowRelativeLinkPaths: !!mdStrConfig.baseUri,
+    allowedMediaProtocols: {
+      override: [
+        Schemas.http,
+        Schemas.https,
+        Schemas.data,
+        Schemas.file,
+        Schemas.vscodeFileResource,
+        Schemas.vscodeRemote,
+        Schemas.vscodeRemoteResource
+      ]
+    },
+    allowRelativeMediaPaths: !!mdStrConfig.baseUri,
+    replaceWithPlaintext: options.replaceWithPlaintext
+  };
+}
+__name(getDomSanitizerConfig, "getDomSanitizerConfig");
+function renderAsPlaintext(str, options) {
+  if (typeof str === "string") {
+    return str;
+  }
+  let value = str.value ?? "";
+  if (value.length > 1e5) {
+    value = `${value.substr(0, 1e5)}\u2026`;
+  }
+  const renderer = createPlainTextRenderer();
+  if (options?.includeCodeBlocksFences) {
+    renderer.code = codeBlockFences;
+  }
+  if (options?.useLinkFormatter) {
+    renderer.link = linkFormatter;
+  }
+  const html = marked.parse(value, { async: false, renderer });
+  return sanitizeRenderedMarkdown(html, { isTrusted: false }, {}).toString().replace(/&(#\d+|[a-zA-Z]+);/g, (m) => unescapeInfo.get(m) ?? m).trim();
+}
+__name(renderAsPlaintext, "renderAsPlaintext");
+const unescapeInfo = /* @__PURE__ */ new Map([
+  ["&quot;", '"'],
+  ["&nbsp;", " "],
+  ["&amp;", "&"],
+  ["&#39;", "'"],
+  ["&lt;", "<"],
+  ["&gt;", ">"]
+]);
+function createPlainTextRenderer() {
+  const renderer = new marked.Renderer();
+  renderer.code = ({ text }) => {
+    return escape(text);
+  };
+  renderer.blockquote = ({ text }) => {
+    return text + "\n";
+  };
+  renderer.html = (_) => {
+    return "";
+  };
+  renderer.heading = function({ tokens }) {
+    return this.parser.parseInline(tokens) + "\n";
+  };
+  renderer.hr = () => {
+    return "";
+  };
+  renderer.list = function({ items }) {
+    return items.map((x) => this.listitem(x)).join("\n") + "\n";
+  };
+  renderer.listitem = ({ text }) => {
+    return text + "\n";
+  };
+  renderer.paragraph = function({ tokens }) {
+    return this.parser.parseInline(tokens) + "\n";
+  };
+  renderer.table = function({ header, rows }) {
+    return header.map((cell) => this.tablecell(cell)).join(" ") + "\n" + rows.map((cells) => cells.map((cell) => this.tablecell(cell)).join(" ")).join("\n") + "\n";
+  };
+  renderer.tablerow = ({ text }) => {
+    return text;
+  };
+  renderer.tablecell = function({ tokens }) {
+    return this.parser.parseInline(tokens);
+  };
+  renderer.strong = ({ text }) => {
+    return text;
+  };
+  renderer.em = ({ text }) => {
+    return text;
+  };
+  renderer.codespan = ({ text }) => {
+    return escape(text);
+  };
+  renderer.br = (_) => {
+    return "\n";
+  };
+  renderer.del = ({ text }) => {
+    return text;
+  };
+  renderer.image = (_) => {
+    return "";
+  };
+  renderer.text = ({ text }) => {
+    return text;
+  };
+  renderer.link = ({ text }) => {
+    return text;
+  };
+  return renderer;
+}
+__name(createPlainTextRenderer, "createPlainTextRenderer");
+const codeBlockFences = /* @__PURE__ */ __name(({ text }) => {
+  return `
 \`\`\`
-${w(e)}
+${escape(text)}
 \`\`\`
-`,ue=({text:e,href:t})=>{try{if(t){const s=b.parse(t);return e.trim()||K(s)}}catch{return e.trim()||D(t)}return e};function v(e){let t="";return e.forEach(s=>{t+=s.raw}),t}function M(e){if(e.tokens)for(let t=e.tokens.length-1;t>=0;t--){const s=e.tokens[t];if(s.type==="text"){const r=s.raw.split(`
-`),n=r[r.length-1];if(n.includes("`"))return be(e);if(n.includes("**"))return xe(e);if(n.match(/\*\w/))return ye(e);if(n.match(/(^|\s)__\w/))return Ie(e);if(n.match(/(^|\s)_\w/))return Te(e);if(fe(n)||de(n)&&e.tokens.slice(0,t).some(i=>i.type==="text"&&i.raw.match(/\[[^\]]*$/))){const i=e.tokens.slice(t+1);return i[0]?.type==="link"&&i[1]?.type==="text"&&i[1].raw.match(/^ *"[^"]*$/)||n.match(/^[^"]* +"[^"]*$/)?ke(e):we(e)}else if(n.match(/(^|\s)\[\w*[^\]]*$/))return ve(e)}}}function fe(e){return!!e.match(/(^|\s)\[.*\]\(\w*/)}function de(e){return!!e.match(/^[^\[]*\]\([^\)]*$/)}function pe(e){const t=e.items[e.items.length-1],s=t.tokens?t.tokens[t.tokens.length-1]:void 0,r=f=>{const g=f.items.at(-1)?.tokens.at(-1);return g?.type==="heading"||g?.type==="list"&&r(g)};let n;if(s?.type==="text"&&!("inRawBlock"in t))n=M(s);else if(r(e)){const f=y.lexer(e.raw.trim()+" &nbsp;")[0];return f.type!=="list"?void 0:f}if(!n||n.type!=="paragraph")return;const i=v(e.items.slice(0,-1)),o=t.raw.match(/^(\s*(-|\d+\.|\*) +)/)?.[0];if(!o)return;const u=o+v(t.tokens.slice(0,-1))+n.raw,m=y.lexer(i+u)[0];if(m.type==="list")return m}function me(e,t){if(e.raw.match(/-\s*$/))return y.lexer(t+" &nbsp;")}const he=3;function ge(e){for(let t=0;t<he;t++){const s=$e(e);if(s)e=s;else break}return e}function $e(e){let t,s;for(t=0;t<e.length;t++){const n=e[t];if(n.type==="paragraph"&&n.raw.match(/(\n|^)\|/)){s=Re(e.slice(t));break}}const r=e.at(-1);if(!s&&r?.type==="list"){const n=pe(r);n&&(s=[n],t=e.length-1)}if(!s&&r?.type==="paragraph"){const n=M(r);n&&(s=[n],t=e.length-1)}if(s){const n=[...e.slice(0,t),...s];return n.links=e.links,n}if(r?.type==="heading"){const n=me(r,v(e));if(n)return n}return null}function be(e){return T(e,"`")}function ye(e){return T(e,"*")}function Te(e){return T(e,"_")}function we(e){return T(e,")",!1)}function ke(e){return T(e,'")',!1)}function ve(e){return T(e,"](https://microsoft.com)",!1)}function xe(e){return T(e,"**")}function Ie(e){return T(e,"__")}function T(e,t,s=!0){const r=v(Array.isArray(e)?e:[e]),n=s?r.trimEnd():r;return y.lexer(n+t)[0]}function Re(e){const t=v(e),s=t.split(`
-`);let r,n=!1;for(let i=0;i<s.length;i++){const o=s[i].trim();if(typeof r>"u"&&o.match(/^\s*\|/)){const u=o.match(/(\|[^\|]+)(?=\||$)/g);u&&(r=u.length)}else if(typeof r=="number")if(o.match(/^\s*\|/)){if(i!==s.length-1)return;n=!0}else return}if(typeof r=="number"&&r>0){const i=n?s.slice(0,-1).join(`
-`):t,o=!!i.match(/\|\s*$/),u=i+(o?"":"|")+`
-|${" --- |".repeat(r)}`;return y.lexer(u)}}export{je as $S9,ie as $T9,oe as $U9,He as $V9,ge as $W9};
+`;
+}, "codeBlockFences");
+const linkFormatter = /* @__PURE__ */ __name(({ text, href }) => {
+  try {
+    if (href) {
+      const uri = URI.parse(href);
+      return text.trim() || basename(uri);
+    }
+  } catch (e) {
+    return text.trim() || pathBasename(href);
+  }
+  return text;
+}, "linkFormatter");
+function mergeRawTokenText(tokens) {
+  let mergedTokenText = "";
+  tokens.forEach((token) => {
+    mergedTokenText += token.raw;
+  });
+  return mergedTokenText;
+}
+__name(mergeRawTokenText, "mergeRawTokenText");
+function completeSingleLinePattern(token) {
+  if (!token.tokens) {
+    return void 0;
+  }
+  for (let i = token.tokens.length - 1; i >= 0; i--) {
+    const subtoken = token.tokens[i];
+    if (subtoken.type === "text") {
+      const lines = subtoken.raw.split("\n");
+      const lastLine = lines[lines.length - 1];
+      if (lastLine.includes("`")) {
+        return completeCodespan(token);
+      } else if (lastLine.includes("**")) {
+        return completeDoublestar(token);
+      } else if (lastLine.match(/\*\w/)) {
+        return completeStar(token);
+      } else if (lastLine.match(/(^|\s)__\w/)) {
+        return completeDoubleUnderscore(token);
+      } else if (lastLine.match(/(^|\s)_\w/)) {
+        return completeUnderscore(token);
+      } else if (
+        // Text with start of link target
+        hasLinkTextAndStartOfLinkTarget(lastLine) || // This token doesn't have the link text, eg if it contains other markdown constructs that are in other subtokens.
+        // But some preceding token does have an unbalanced [ at least
+        hasStartOfLinkTargetAndNoLinkText(lastLine) && token.tokens.slice(0, i).some((t) => t.type === "text" && t.raw.match(/\[[^\]]*$/))
+      ) {
+        const nextTwoSubTokens = token.tokens.slice(i + 1);
+        if (
+          // If the link was parsed as a link, then look for a link token and a text token with a quote
+          nextTwoSubTokens[0]?.type === "link" && nextTwoSubTokens[1]?.type === "text" && nextTwoSubTokens[1].raw.match(/^ *"[^"]*$/) || // And if the link was not parsed as a link (eg command link), just look for a single quote in this token
+          lastLine.match(/^[^"]* +"[^"]*$/)
+        ) {
+          return completeLinkTargetArg(token);
+        }
+        return completeLinkTarget(token);
+      } else if (lastLine.match(/(^|\s)\[\w*[^\]]*$/)) {
+        return completeLinkText(token);
+      }
+    }
+  }
+  return void 0;
+}
+__name(completeSingleLinePattern, "completeSingleLinePattern");
+function hasLinkTextAndStartOfLinkTarget(str) {
+  return !!str.match(/(^|\s)\[.*\]\(\w*/);
+}
+__name(hasLinkTextAndStartOfLinkTarget, "hasLinkTextAndStartOfLinkTarget");
+function hasStartOfLinkTargetAndNoLinkText(str) {
+  return !!str.match(/^[^\[]*\]\([^\)]*$/);
+}
+__name(hasStartOfLinkTargetAndNoLinkText, "hasStartOfLinkTargetAndNoLinkText");
+function completeListItemPattern(list) {
+  const lastListItem = list.items[list.items.length - 1];
+  const lastListSubToken = lastListItem.tokens ? lastListItem.tokens[lastListItem.tokens.length - 1] : void 0;
+  const listEndsInHeading = /* @__PURE__ */ __name((list2) => {
+    const lastItem = list2.items.at(-1);
+    const lastToken = lastItem?.tokens.at(-1);
+    return lastToken?.type === "heading" || lastToken?.type === "list" && listEndsInHeading(lastToken);
+  }, "listEndsInHeading");
+  let newToken;
+  if (lastListSubToken?.type === "text" && !("inRawBlock" in lastListItem)) {
+    newToken = completeSingleLinePattern(lastListSubToken);
+  } else if (listEndsInHeading(list)) {
+    const newList2 = marked.lexer(list.raw.trim() + " &nbsp;")[0];
+    if (newList2.type !== "list") {
+      return;
+    }
+    return newList2;
+  }
+  if (!newToken || newToken.type !== "paragraph") {
+    return;
+  }
+  const previousListItemsText = mergeRawTokenText(list.items.slice(0, -1));
+  const lastListItemLead = lastListItem.raw.match(/^(\s*(-|\d+\.|\*) +)/)?.[0];
+  if (!lastListItemLead) {
+    return;
+  }
+  const newListItemText = lastListItemLead + mergeRawTokenText(lastListItem.tokens.slice(0, -1)) + newToken.raw;
+  const newList = marked.lexer(previousListItemsText + newListItemText)[0];
+  if (newList.type !== "list") {
+    return;
+  }
+  return newList;
+}
+__name(completeListItemPattern, "completeListItemPattern");
+function completeHeading(token, fullRawText) {
+  if (token.raw.match(/-\s*$/)) {
+    return marked.lexer(fullRawText + " &nbsp;");
+  }
+}
+__name(completeHeading, "completeHeading");
+const maxIncompleteTokensFixRounds = 3;
+function fillInIncompleteTokens(tokens) {
+  for (let i = 0; i < maxIncompleteTokensFixRounds; i++) {
+    const newTokens = fillInIncompleteTokensOnce(tokens);
+    if (newTokens) {
+      tokens = newTokens;
+    } else {
+      break;
+    }
+  }
+  return tokens;
+}
+__name(fillInIncompleteTokens, "fillInIncompleteTokens");
+function fillInIncompleteTokensOnce(tokens) {
+  let i;
+  let newTokens;
+  for (i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (token.type === "paragraph" && token.raw.match(/(\n|^)\|/)) {
+      newTokens = completeTable(tokens.slice(i));
+      break;
+    }
+  }
+  const lastToken = tokens.at(-1);
+  if (!newTokens && lastToken?.type === "list") {
+    const newListToken = completeListItemPattern(lastToken);
+    if (newListToken) {
+      newTokens = [newListToken];
+      i = tokens.length - 1;
+    }
+  }
+  if (!newTokens && lastToken?.type === "paragraph") {
+    const newToken = completeSingleLinePattern(lastToken);
+    if (newToken) {
+      newTokens = [newToken];
+      i = tokens.length - 1;
+    }
+  }
+  if (newTokens) {
+    const newTokensList = [
+      ...tokens.slice(0, i),
+      ...newTokens
+    ];
+    newTokensList.links = tokens.links;
+    return newTokensList;
+  }
+  if (lastToken?.type === "heading") {
+    const completeTokens = completeHeading(lastToken, mergeRawTokenText(tokens));
+    if (completeTokens) {
+      return completeTokens;
+    }
+  }
+  return null;
+}
+__name(fillInIncompleteTokensOnce, "fillInIncompleteTokensOnce");
+function completeCodespan(token) {
+  return completeWithString(token, "`");
+}
+__name(completeCodespan, "completeCodespan");
+function completeStar(tokens) {
+  return completeWithString(tokens, "*");
+}
+__name(completeStar, "completeStar");
+function completeUnderscore(tokens) {
+  return completeWithString(tokens, "_");
+}
+__name(completeUnderscore, "completeUnderscore");
+function completeLinkTarget(tokens) {
+  return completeWithString(tokens, ")", false);
+}
+__name(completeLinkTarget, "completeLinkTarget");
+function completeLinkTargetArg(tokens) {
+  return completeWithString(tokens, '")', false);
+}
+__name(completeLinkTargetArg, "completeLinkTargetArg");
+function completeLinkText(tokens) {
+  return completeWithString(tokens, "](https://microsoft.com)", false);
+}
+__name(completeLinkText, "completeLinkText");
+function completeDoublestar(tokens) {
+  return completeWithString(tokens, "**");
+}
+__name(completeDoublestar, "completeDoublestar");
+function completeDoubleUnderscore(tokens) {
+  return completeWithString(tokens, "__");
+}
+__name(completeDoubleUnderscore, "completeDoubleUnderscore");
+function completeWithString(tokens, closingString, shouldTrim = true) {
+  const mergedRawText = mergeRawTokenText(Array.isArray(tokens) ? tokens : [tokens]);
+  const trimmedRawText = shouldTrim ? mergedRawText.trimEnd() : mergedRawText;
+  return marked.lexer(trimmedRawText + closingString)[0];
+}
+__name(completeWithString, "completeWithString");
+function completeTable(tokens) {
+  const mergedRawText = mergeRawTokenText(tokens);
+  const lines = mergedRawText.split("\n");
+  let numCols;
+  let hasSeparatorRow = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (typeof numCols === "undefined" && line.match(/^\s*\|/)) {
+      const line1Matches = line.match(/(\|[^\|]+)(?=\||$)/g);
+      if (line1Matches) {
+        numCols = line1Matches.length;
+      }
+    } else if (typeof numCols === "number") {
+      if (line.match(/^\s*\|/)) {
+        if (i !== lines.length - 1) {
+          return void 0;
+        }
+        hasSeparatorRow = true;
+      } else {
+        return void 0;
+      }
+    }
+  }
+  if (typeof numCols === "number" && numCols > 0) {
+    const prefixText = hasSeparatorRow ? lines.slice(0, -1).join("\n") : mergedRawText;
+    const line1EndsInPipe = !!prefixText.match(/\|\s*$/);
+    const newRawText = prefixText + (line1EndsInPipe ? "" : "|") + `
+|${" --- |".repeat(numCols)}`;
+    return marked.lexer(newRawText);
+  }
+  return void 0;
+}
+__name(completeTable, "completeTable");
+export {
+  allowedMarkdownHtmlAttributes,
+  allowedMarkdownHtmlTags,
+  fillInIncompleteTokens,
+  renderAsPlaintext,
+  renderMarkdown
+};
+//# sourceMappingURL=markdownRenderer.js.map

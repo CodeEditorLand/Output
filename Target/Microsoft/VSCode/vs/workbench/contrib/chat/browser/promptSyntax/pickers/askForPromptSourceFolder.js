@@ -1,1 +1,162 @@
-import{$xh as y,$Ah as L}from"../../../../../../base/common/resources.js";import{URI as U}from"../../../../../../base/common/uri.js";import{localize as t}from"../../../../../../nls.js";import{$lH as P}from"../../../../../../platform/label/common/label.js";import{$yP as $}from"../../../../../../platform/opener/common/opener.js";import{$nR as m,PromptsType as r}from"../../../common/promptSyntax/promptTypes.js";import{$VH as h}from"../../../../../../platform/quickinput/common/quickInput.js";import{$Ll as E}from"../../../../../../platform/workspace/common/workspace.js";import{$DR as M,PromptsStorage as H}from"../../../common/promptSyntax/service/promptsService.js";async function j(e,n,i,c=!1){const s=e.get(h),u=e.get(M),a=e.get(P),d=e.get(E),f=await u.getSourceFolders(n);if(f.length===0){await I(e,n);return}const b={placeHolder:i?D(n,c):q(n),canPickMany:!1,matchOnDescription:!0},S=f.map(o=>{const l=o.uri,p=i&&L(l,i)?t(6119,null):void 0;if(o.storage!==H.local)return{type:"item",label:u.getPromptLocationLabel(o),detail:p,tooltip:a.getUriLabel(l),folder:o};const{folders:w}=d.getWorkspace(),v=w.length>1,k=w[0];return v||!k||!y.isEqual(k.uri,l)?{type:"item",label:a.getUriLabel(l,{relative:!0}),detail:p,tooltip:a.getUriLabel(l),folder:o}:{type:"item",label:t(6120,null),detail:p,tooltip:a.getUriLabel(l),folder:o}}),g=await s.pick(S,b);if(g)return g.folder}function q(e){switch(e){case r.instructions:return t(6121,null);case r.prompt:return t(6122,null);case r.agent:return t(6123,null);case r.skill:return t(6124,null);default:throw new Error("Unknown prompt type")}}function D(e,n){if(n)switch(e){case r.instructions:return t(6125,null);case r.prompt:return t(6126,null);case r.agent:return t(6127,null);case r.skill:return t(6128,null);default:throw new Error("Unknown prompt type")}switch(e){case r.instructions:return t(6129,null);case r.prompt:return t(6130,null);case r.agent:return t(6131,null);case r.skill:return t(6132,null);default:throw new Error("Unknown prompt type")}}async function I(e,n){const i=e.get(h),c=e.get($),s={type:"item",label:R(n),description:m,tooltip:m,value:U.parse(m)},u=await i.pick([s],{placeHolder:F(n),canPickMany:!1});u&&await c.open(u.value)}function R(e){switch(e){case r.prompt:return t(6133,null);case r.instructions:return t(6134,null);case r.agent:return t(6135,null);case r.skill:return t(6136,null);default:throw new Error("Unknown prompt type")}}function F(e){switch(e){case r.instructions:return t(6137,null);case r.prompt:return t(6138,null);case r.agent:return t(6139,null);case r.skill:return t(6140,null);default:throw new Error("Unknown prompt type")}}export{j as $rYb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { extUri, isEqual } from "../../../../../../base/common/resources.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../nls.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { PROMPT_DOCUMENTATION_URL, PromptsType } from "../../../common/promptSyntax/promptTypes.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IPromptsService, PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
+async function askForPromptSourceFolder(accessor, type, existingFolder, isMove = false) {
+  const quickInputService = accessor.get(IQuickInputService);
+  const promptsService = accessor.get(IPromptsService);
+  const labelService = accessor.get(ILabelService);
+  const workspaceService = accessor.get(IWorkspaceContextService);
+  const folders = await promptsService.getSourceFolders(type);
+  if (folders.length === 0) {
+    await showNoFoldersDialog(accessor, type);
+    return;
+  }
+  const pickOptions = {
+    placeHolder: existingFolder ? getPlaceholderStringforMove(type, isMove) : getPlaceholderStringforNew(type),
+    canPickMany: false,
+    matchOnDescription: true
+  };
+  const foldersList = folders.map((folder) => {
+    const uri = folder.uri;
+    const detail = existingFolder && isEqual(uri, existingFolder) ? localize("current.folder", "Current Location") : void 0;
+    if (folder.storage !== PromptsStorage.local) {
+      return {
+        type: "item",
+        label: promptsService.getPromptLocationLabel(folder),
+        detail,
+        tooltip: labelService.getUriLabel(uri),
+        folder
+      };
+    }
+    const { folders: folders2 } = workspaceService.getWorkspace();
+    const isMultirootWorkspace = folders2.length > 1;
+    const firstFolder = folders2[0];
+    if (isMultirootWorkspace || !firstFolder || !extUri.isEqual(firstFolder.uri, uri)) {
+      return {
+        type: "item",
+        label: labelService.getUriLabel(uri, { relative: true }),
+        detail,
+        tooltip: labelService.getUriLabel(uri),
+        folder
+      };
+    }
+    return {
+      type: "item",
+      label: localize("commands.prompts.create.source-folder.current-workspace", "Current Workspace"),
+      detail,
+      tooltip: labelService.getUriLabel(uri),
+      folder
+    };
+  });
+  const answer = await quickInputService.pick(foldersList, pickOptions);
+  if (!answer) {
+    return;
+  }
+  return answer.folder;
+}
+__name(askForPromptSourceFolder, "askForPromptSourceFolder");
+function getPlaceholderStringforNew(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return localize("workbench.command.instructions.create.location.placeholder", "Select a location to create the instructions file");
+    case PromptsType.prompt:
+      return localize("workbench.command.prompt.create.location.placeholder", "Select a location to create the prompt file");
+    case PromptsType.agent:
+      return localize("workbench.command.agent.create.location.placeholder", "Select a location to create the agent file");
+    case PromptsType.skill:
+      return localize("workbench.command.skill.create.location.placeholder", "Select a location to create the skill");
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getPlaceholderStringforNew, "getPlaceholderStringforNew");
+function getPlaceholderStringforMove(type, isMove) {
+  if (isMove) {
+    switch (type) {
+      case PromptsType.instructions:
+        return localize("instructions.move.location.placeholder", "Select a location to move the instructions file to");
+      case PromptsType.prompt:
+        return localize("prompt.move.location.placeholder", "Select a location to move the prompt file to");
+      case PromptsType.agent:
+        return localize("agent.move.location.placeholder", "Select a location to move the agent file to");
+      case PromptsType.skill:
+        return localize("skill.move.location.placeholder", "Select a location to move the skill to");
+      default:
+        throw new Error("Unknown prompt type");
+    }
+  }
+  switch (type) {
+    case PromptsType.instructions:
+      return localize("instructions.copy.location.placeholder", "Select a location to copy the instructions file to");
+    case PromptsType.prompt:
+      return localize("prompt.copy.location.placeholder", "Select a location to copy the prompt file to");
+    case PromptsType.agent:
+      return localize("agent.copy.location.placeholder", "Select a location to copy the agent file to");
+    case PromptsType.skill:
+      return localize("skill.copy.location.placeholder", "Select a location to copy the skill to");
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getPlaceholderStringforMove, "getPlaceholderStringforMove");
+async function showNoFoldersDialog(accessor, type) {
+  const quickInputService = accessor.get(IQuickInputService);
+  const openerService = accessor.get(IOpenerService);
+  const docsQuickPick = {
+    type: "item",
+    label: getLearnLabel(type),
+    description: PROMPT_DOCUMENTATION_URL,
+    tooltip: PROMPT_DOCUMENTATION_URL,
+    value: URI.parse(PROMPT_DOCUMENTATION_URL)
+  };
+  const result = await quickInputService.pick([docsQuickPick], {
+    placeHolder: getMissingSourceFolderString(type),
+    canPickMany: false
+  });
+  if (result) {
+    await openerService.open(result.value);
+  }
+}
+__name(showNoFoldersDialog, "showNoFoldersDialog");
+function getLearnLabel(type) {
+  switch (type) {
+    case PromptsType.prompt:
+      return localize("commands.prompts.create.ask-folder.empty.docs-label", "Learn how to configure reusable prompts");
+    case PromptsType.instructions:
+      return localize("commands.instructions.create.ask-folder.empty.docs-label", "Learn how to configure reusable instructions");
+    case PromptsType.agent:
+      return localize("commands.agent.create.ask-folder.empty.docs-label", "Learn how to configure custom agents");
+    case PromptsType.skill:
+      return localize("commands.skill.create.ask-folder.empty.docs-label", "Learn how to configure skills");
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getLearnLabel, "getLearnLabel");
+function getMissingSourceFolderString(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return localize("commands.instructions.create.ask-folder.empty.placeholder", "No instruction source folders found.");
+    case PromptsType.prompt:
+      return localize("commands.prompts.create.ask-folder.empty.placeholder", "No prompt source folders found.");
+    case PromptsType.agent:
+      return localize("commands.agent.create.ask-folder.empty.placeholder", "No agent source folders found.");
+    case PromptsType.skill:
+      return localize("commands.skill.create.ask-folder.empty.placeholder", "No skill source folders found.");
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getMissingSourceFolderString, "getMissingSourceFolderString");
+export {
+  askForPromptSourceFolder
+};
+//# sourceMappingURL=askForPromptSourceFolder.js.map

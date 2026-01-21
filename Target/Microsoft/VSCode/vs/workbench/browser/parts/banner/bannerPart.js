@@ -1,1 +1,271 @@
-import"./media/bannerpart.css";import{localize as v,localize2 as C}from"../../../../nls.js";import{$ as h,$F7 as S,$I8 as b,$E7 as g,$B8 as I,$p8 as L}from"../../../../base/browser/dom.js";import{$99 as A}from"../../../../base/browser/cssValue.js";import{$G9 as x}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$TC as j}from"../../../../platform/instantiation/common/extensions.js";import{$Lj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$gp as P}from"../../../../platform/storage/common/storage.js";import{$ou as N}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as u}from"../../../../base/common/themables.js";import{Part as k}from"../../part.js";import{$Dxb as $}from"../../../services/layout/browser/layoutService.js";import{$Em as R}from"../../../../base/common/actions.js";import{Link as T}from"../../../../platform/opener/browser/link.js";import{$wf as _}from"../../../../base/common/event.js";import{$k$b as m}from"../../../services/banner/browser/bannerService.js";import{$Xjb as B}from"../../../../platform/markdown/browser/markdownRenderer.js";import{$sL as O,$tL as E}from"../../../../platform/actions/common/actions.js";import{$so as F}from"../../../../platform/action/common/actionCommonCategories.js";import{$jL as p}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$qo as K}from"../../../../platform/contextkey/common/contextkey.js";import{URI as H}from"../../../../base/common/uri.js";import{$hu as U}from"../../../../platform/theme/common/iconRegistry.js";import{$aP as l}from"../../../common/contextkeys.js";var y=function(n,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,i);else for(var c=n.length-1;c>=0;c--)(o=n[c])&&(r=(s<3?o(r):s>3?o(t,e,r):o(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},a=function(n,t){return function(e,i){t(e,i,n)}};let d=class extends k{get minimumHeight(){return this.c?this.height:0}get maximumHeight(){return this.c?this.height:0}get onDidChange(){return this.a.event}constructor(t,e,i,s,r,o){super("workbench.parts.banner",{hasTitle:!1},t,i,e),this.bb=s,this.cb=r,this.db=o,this.height=26,this.minimumWidth=0,this.maximumWidth=Number.POSITIVE_INFINITY,this.a=this.D(new _),this.c=!1,this.ab=-1}Q(t){this.element=t,this.element.tabIndex=0,this.D(S(this.element,I.FOCUS,()=>{this.ab!==-1&&this.gb()}));const e=this.D(this.bb.createScoped(this.element));return l.bindTo(e).set(!0),this.element}fb(t){this.jb(!1),g(this.element),typeof t.onClose=="function"&&t.onClose(),this.b=void 0}gb(){const t=this.b?.actions?.length??0;if(this.ab<t){const e=this.y?.children[this.ab];L(e)&&(this.r?.setFocusable(!1),e.focus())}else this.r?.focus(0)}hb(t){if(t.ariaLabel)return t.ariaLabel;if(typeof t.message=="string")return t.message}ib(t){if(typeof t=="string"){const e=h("span");return e.textContent=t,e}return this.db.render(t).element}jb(t){t!==this.c&&(this.c=t,this.ab=-1,this.N.setPartHidden(!t,"workbench.parts.banner"),this.a.fire(void 0))}focus(){this.ab=-1,this.element.focus()}focusNextAction(){const t=this.b?.actions?.length??0;this.ab=this.ab<t?this.ab+1:0,this.gb()}focusPreviousAction(){const t=this.b?.actions?.length??0;this.ab=this.ab>0?this.ab-1:t,this.gb()}hide(t){this.b?.id===t&&this.jb(!1)}show(t){if(t.id===this.b?.id){this.jb(!0);return}g(this.element);const e=this.hb(t);e&&this.element.setAttribute("aria-label",e);const i=b(this.element,h("div.icon-container"));i.setAttribute("aria-hidden","true"),u.isThemeIcon(t.icon)?i.appendChild(h(`div${u.asCSSSelector(t.icon)}`)):(i.classList.add("custom-icon"),H.isUri(t.icon)&&(i.style.backgroundImage=A(t.icon)));const s=b(this.element,h("div.message-container"));if(s.setAttribute("aria-hidden","true"),s.appendChild(this.ib(t.message)),this.y=b(this.element,h("div.message-actions-container")),t.actions)for(const w of t.actions)this.D(this.cb.createInstance(T,this.y,{...w,tabIndex:-1},{}));const r=b(this.element,h("div.action-container"));this.r=this.D(new x(r));const o=t.closeLabel??v(3401,null),c=this.D(new R("banner.close",o,u.asClassName(U),!0,()=>this.fb(t)));this.r.push(c,{icon:!0,label:!1}),this.r.setFocusable(!1),this.jb(!0),this.b=t}toJSON(){return{type:"workbench.parts.banner"}}};d=y([a(0,N),a(1,$),a(2,P),a(3,K),a(4,D),a(5,B)],d);j(m,d,0);p.registerCommandAndKeybindingRule({id:"workbench.banner.focusBanner",weight:200,primary:9,when:l,handler:n=>{n.get(m).focus()}});p.registerCommandAndKeybindingRule({id:"workbench.banner.focusNextAction",weight:200,primary:17,secondary:[18],when:l,handler:n=>{n.get(m).focusNextAction()}});p.registerCommandAndKeybindingRule({id:"workbench.banner.focusPreviousAction",weight:200,primary:15,secondary:[16],when:l,handler:n=>{n.get(m).focusPreviousAction()}});class f extends O{static{this.ID="workbench.action.focusBanner"}static{this.LABEL=C(3402,"Focus Banner")}constructor(){super({id:f.ID,title:f.LABEL,category:F.View,f1:!0})}async run(t){t.get($).focusPart("workbench.parts.banner")}}E(f);export{d as $l$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/bannerpart.css";
+import { localize, localize2 } from "../../../../nls.js";
+import { $, addDisposableListener, append, clearNode, EventType, isHTMLElement } from "../../../../base/browser/dom.js";
+import { asCSSUrl } from "../../../../base/browser/cssValue.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Part } from "../../part.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { Action } from "../../../../base/common/actions.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { URI } from "../../../../base/common/uri.js";
+import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+import { BannerFocused } from "../../../common/contextkeys.js";
+let BannerPart = class BannerPart2 extends Part {
+  static {
+    __name(this, "BannerPart");
+  }
+  get minimumHeight() {
+    return this.visible ? this.height : 0;
+  }
+  get maximumHeight() {
+    return this.visible ? this.height : 0;
+  }
+  get onDidChange() {
+    return this._onDidChangeSize.event;
+  }
+  constructor(themeService, layoutService, storageService, contextKeyService, instantiationService, markdownRendererService) {
+    super("workbench.parts.banner", { hasTitle: false }, themeService, storageService, layoutService);
+    this.contextKeyService = contextKeyService;
+    this.instantiationService = instantiationService;
+    this.markdownRendererService = markdownRendererService;
+    this.height = 26;
+    this.minimumWidth = 0;
+    this.maximumWidth = Number.POSITIVE_INFINITY;
+    this._onDidChangeSize = this._register(new Emitter());
+    this.visible = false;
+    this.focusedActionIndex = -1;
+  }
+  createContentArea(parent) {
+    this.element = parent;
+    this.element.tabIndex = 0;
+    this._register(addDisposableListener(this.element, EventType.FOCUS, () => {
+      if (this.focusedActionIndex !== -1) {
+        this.focusActionLink();
+      }
+    }));
+    const scopedContextKeyService = this._register(this.contextKeyService.createScoped(this.element));
+    BannerFocused.bindTo(scopedContextKeyService).set(true);
+    return this.element;
+  }
+  close(item) {
+    this.setVisibility(false);
+    clearNode(this.element);
+    if (typeof item.onClose === "function") {
+      item.onClose();
+    }
+    this.item = void 0;
+  }
+  focusActionLink() {
+    const length = this.item?.actions?.length ?? 0;
+    if (this.focusedActionIndex < length) {
+      const actionLink = this.messageActionsContainer?.children[this.focusedActionIndex];
+      if (isHTMLElement(actionLink)) {
+        this.actionBar?.setFocusable(false);
+        actionLink.focus();
+      }
+    } else {
+      this.actionBar?.focus(0);
+    }
+  }
+  getAriaLabel(item) {
+    if (item.ariaLabel) {
+      return item.ariaLabel;
+    }
+    if (typeof item.message === "string") {
+      return item.message;
+    }
+    return void 0;
+  }
+  getBannerMessage(message) {
+    if (typeof message === "string") {
+      const element = $("span");
+      element.textContent = message;
+      return element;
+    }
+    return this.markdownRendererService.render(message).element;
+  }
+  setVisibility(visible) {
+    if (visible !== this.visible) {
+      this.visible = visible;
+      this.focusedActionIndex = -1;
+      this.layoutService.setPartHidden(
+        !visible,
+        "workbench.parts.banner"
+        /* Parts.BANNER_PART */
+      );
+      this._onDidChangeSize.fire(void 0);
+    }
+  }
+  focus() {
+    this.focusedActionIndex = -1;
+    this.element.focus();
+  }
+  focusNextAction() {
+    const length = this.item?.actions?.length ?? 0;
+    this.focusedActionIndex = this.focusedActionIndex < length ? this.focusedActionIndex + 1 : 0;
+    this.focusActionLink();
+  }
+  focusPreviousAction() {
+    const length = this.item?.actions?.length ?? 0;
+    this.focusedActionIndex = this.focusedActionIndex > 0 ? this.focusedActionIndex - 1 : length;
+    this.focusActionLink();
+  }
+  hide(id) {
+    if (this.item?.id !== id) {
+      return;
+    }
+    this.setVisibility(false);
+  }
+  show(item) {
+    if (item.id === this.item?.id) {
+      this.setVisibility(true);
+      return;
+    }
+    clearNode(this.element);
+    const ariaLabel = this.getAriaLabel(item);
+    if (ariaLabel) {
+      this.element.setAttribute("aria-label", ariaLabel);
+    }
+    const iconContainer = append(this.element, $("div.icon-container"));
+    iconContainer.setAttribute("aria-hidden", "true");
+    if (ThemeIcon.isThemeIcon(item.icon)) {
+      iconContainer.appendChild($(`div${ThemeIcon.asCSSSelector(item.icon)}`));
+    } else {
+      iconContainer.classList.add("custom-icon");
+      if (URI.isUri(item.icon)) {
+        iconContainer.style.backgroundImage = asCSSUrl(item.icon);
+      }
+    }
+    const messageContainer = append(this.element, $("div.message-container"));
+    messageContainer.setAttribute("aria-hidden", "true");
+    messageContainer.appendChild(this.getBannerMessage(item.message));
+    this.messageActionsContainer = append(this.element, $("div.message-actions-container"));
+    if (item.actions) {
+      for (const action of item.actions) {
+        this._register(this.instantiationService.createInstance(Link, this.messageActionsContainer, { ...action, tabIndex: -1 }, {}));
+      }
+    }
+    const actionBarContainer = append(this.element, $("div.action-container"));
+    this.actionBar = this._register(new ActionBar(actionBarContainer));
+    const label = item.closeLabel ?? localize("closeBanner", "Close Banner");
+    const closeAction = this._register(new Action("banner.close", label, ThemeIcon.asClassName(widgetClose), true, () => this.close(item)));
+    this.actionBar.push(closeAction, { icon: true, label: false });
+    this.actionBar.setFocusable(false);
+    this.setVisibility(true);
+    this.item = item;
+  }
+  toJSON() {
+    return {
+      type: "workbench.parts.banner"
+      /* Parts.BANNER_PART */
+    };
+  }
+};
+BannerPart = __decorate([
+  __param(0, IThemeService),
+  __param(1, IWorkbenchLayoutService),
+  __param(2, IStorageService),
+  __param(3, IContextKeyService),
+  __param(4, IInstantiationService),
+  __param(5, IMarkdownRendererService)
+], BannerPart);
+registerSingleton(
+  IBannerService,
+  BannerPart,
+  0
+  /* InstantiationType.Eager */
+);
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.banner.focusBanner",
+  weight: 200,
+  primary: 9,
+  when: BannerFocused,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const bannerService = accessor.get(IBannerService);
+    bannerService.focus();
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.banner.focusNextAction",
+  weight: 200,
+  primary: 17,
+  secondary: [
+    18
+    /* KeyCode.DownArrow */
+  ],
+  when: BannerFocused,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const bannerService = accessor.get(IBannerService);
+    bannerService.focusNextAction();
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.banner.focusPreviousAction",
+  weight: 200,
+  primary: 15,
+  secondary: [
+    16
+    /* KeyCode.UpArrow */
+  ],
+  when: BannerFocused,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const bannerService = accessor.get(IBannerService);
+    bannerService.focusPreviousAction();
+  }, "handler")
+});
+class FocusBannerAction extends Action2 {
+  static {
+    __name(this, "FocusBannerAction");
+  }
+  static {
+    this.ID = "workbench.action.focusBanner";
+  }
+  static {
+    this.LABEL = localize2("focusBanner", "Focus Banner");
+  }
+  constructor() {
+    super({
+      id: FocusBannerAction.ID,
+      title: FocusBannerAction.LABEL,
+      category: Categories.View,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    layoutService.focusPart(
+      "workbench.parts.banner"
+      /* Parts.BANNER_PART */
+    );
+  }
+}
+registerAction2(FocusBannerAction);
+export {
+  BannerPart
+};
+//# sourceMappingURL=bannerPart.js.map

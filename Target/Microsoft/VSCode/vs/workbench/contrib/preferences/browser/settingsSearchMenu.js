@@ -1,1 +1,137 @@
-import{$M$ as m}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{$Gm as h}from"../../../../base/common/actions.js";import{$eob as S}from"../../../../editor/contrib/suggest/browser/suggestController.js";import{localize as e}from"../../../../nls.js";import{$6hb as f}from"../../../../platform/contextview/browser/contextView.js";import{$pcc as p,$hcc as $,$icc as b,$lcc as v,$jcc as V,$kcc as w,$gcc as _,$mcc as j}from"../common/preferences.js";var o=function(a,t,i,r){var n=arguments.length,l=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(a,t,i,r);else for(var s=a.length-1;s>=0;s--)(u=a[s])&&(l=(n<3?u(l):n>3?u(t,i,l):u(t,i))||l);return n>3&&l&&Object.defineProperty(t,i,l),l},d=function(a,t){return function(i,r){t(i,r,a)}};let g=class extends m{constructor(t,i,r,n,l){super(t,{getActions:()=>this.getActions()},l,{...i,actionRunner:r,classNames:t.class,anchorAlignmentProvider:()=>1,menuAsChild:!0}),this.g=n,this.a=S.get(this.g.inputWidget)}render(t){super.render(t)}q(t,i){this.g.setValue(this.g.getValue().trimEnd()+" "+t),this.g.focus(),i&&this.a&&this.a.triggerSuggest()}r(t,i,r,n,l){return{id:t,label:i,tooltip:r,class:void 0,enabled:!0,run:()=>{this.q(n,l)}}}S(t,i,r,n){const u=this.g.getValue().split(" ").includes(n);return{id:t,label:i,tooltip:r,class:void 0,enabled:!0,checked:u,run:()=>{if(u){const s=this.g.getValue().split(" ").filter(c=>c!==n).join(" ");this.g.setValue(s)}else{const s=this.g.getValue().trimEnd(),c=s?s+" "+n:n;this.g.setValue(c)}this.g.focus()}}}U(t,i,r,n,l){const u=this.g.getValue().split(" ").includes(n);return{id:t,label:i,tooltip:r,class:void 0,enabled:!0,checked:u,run:()=>{if(u){const s=this.g.getValue().split(" ").filter(c=>c!==n).join(" ");this.g.setValue(s)}else{let s=this.g.getValue().split(" ").filter(c=>!l.includes(c)&&c!==n).join(" ").trimEnd();s=s?s+" "+n:n,this.g.setValue(s)}this.g.focus()}}}getActions(){return[this.S("modifiedSettingsSearch",e(11263,null),e(11264,null),`@${_}`),new h,this.r("extSettingsSearch",e(11265,null),e(11266,null),`@${$}`,!0),this.r("featuresSettingsSearch",e(11267,null),e(11268,null),`@${b}`,!0),this.r("tagSettingsSearch",e(11269,null),e(11270,null),`@${v}`,!0),this.r("langSettingsSearch",e(11271,null),e(11272,null),`@${w}`,!0),this.r("idSettingsSearch",e(11273,null),e(11274,null),`@${V}`,!1),new h,this.S("onlineSettingsSearch",e(11275,null),e(11276,null),"@tag:usesOnlineServices"),this.S("policySettingsSearch",e(11277,null),e(11278,null),`@${j}`),new h,this.U("stableSettingsSearch",e(11279,null),e(11280,null),"@stable",["@tag:preview","@tag:experimental"]),this.U("previewSettingsSearch",e(11281,null),e(11282,null),"@tag:preview",["@stable","@tag:experimental"]),this.U("experimentalSettingsSearch",e(11283,null),e(11284,null),"@tag:experimental",["@stable","@tag:preview"]),new h,this.S("advancedSettingsSearch",e(11285,null),e(11286,null),`@tag:${p}`)]}};g=o([d(4,f)],g);export{g as $Jdc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { Separator } from "../../../../base/common/actions.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import { localize } from "../../../../nls.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ADVANCED_SETTING_TAG, EXTENSION_SETTING_TAG, FEATURE_SETTING_TAG, GENERAL_TAG_SETTING_TAG, ID_SETTING_TAG, LANGUAGE_SETTING_TAG, MODIFIED_SETTING_TAG, POLICY_SETTING_TAG } from "../common/preferences.js";
+let SettingsSearchFilterDropdownMenuActionViewItem = class SettingsSearchFilterDropdownMenuActionViewItem2 extends DropdownMenuActionViewItem {
+  static {
+    __name(this, "SettingsSearchFilterDropdownMenuActionViewItem");
+  }
+  constructor(action, options, actionRunner, searchWidget, contextMenuService) {
+    super(action, { getActions: /* @__PURE__ */ __name(() => this.getActions(), "getActions") }, contextMenuService, {
+      ...options,
+      actionRunner,
+      classNames: action.class,
+      anchorAlignmentProvider: /* @__PURE__ */ __name(() => 1, "anchorAlignmentProvider"),
+      menuAsChild: true
+    });
+    this.searchWidget = searchWidget;
+    this.suggestController = SuggestController.get(this.searchWidget.inputWidget);
+  }
+  render(container) {
+    super.render(container);
+  }
+  doSearchWidgetAction(queryToAppend, triggerSuggest) {
+    this.searchWidget.setValue(this.searchWidget.getValue().trimEnd() + " " + queryToAppend);
+    this.searchWidget.focus();
+    if (triggerSuggest && this.suggestController) {
+      this.suggestController.triggerSuggest();
+    }
+  }
+  /**
+   * The created action appends a query to the search widget search string. It optionally triggers suggestions.
+   */
+  createAction(id, label, tooltip, queryToAppend, triggerSuggest) {
+    return {
+      id,
+      label,
+      tooltip,
+      class: void 0,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => {
+        this.doSearchWidgetAction(queryToAppend, triggerSuggest);
+      }, "run")
+    };
+  }
+  /**
+   * The created action appends a query to the search widget search string, if the query does not exist.
+   * Otherwise, it removes the query from the search widget search string.
+   * The action does not trigger suggestions after adding or removing the query.
+   */
+  createToggleAction(id, label, tooltip, queryToAppend) {
+    const splitCurrentQuery = this.searchWidget.getValue().split(" ");
+    const queryContainsQueryToAppend = splitCurrentQuery.includes(queryToAppend);
+    return {
+      id,
+      label,
+      tooltip,
+      class: void 0,
+      enabled: true,
+      checked: queryContainsQueryToAppend,
+      run: /* @__PURE__ */ __name(() => {
+        if (!queryContainsQueryToAppend) {
+          const trimmedCurrentQuery = this.searchWidget.getValue().trimEnd();
+          const newQuery = trimmedCurrentQuery ? trimmedCurrentQuery + " " + queryToAppend : queryToAppend;
+          this.searchWidget.setValue(newQuery);
+        } else {
+          const queryWithRemovedTags = this.searchWidget.getValue().split(" ").filter((word) => word !== queryToAppend).join(" ");
+          this.searchWidget.setValue(queryWithRemovedTags);
+        }
+        this.searchWidget.focus();
+      }, "run")
+    };
+  }
+  createMutuallyExclusiveToggleAction(id, label, tooltip, filter, excludeFilters) {
+    const isFilterEnabled = this.searchWidget.getValue().split(" ").includes(filter);
+    return {
+      id,
+      label,
+      tooltip,
+      class: void 0,
+      enabled: true,
+      checked: isFilterEnabled,
+      run: /* @__PURE__ */ __name(() => {
+        if (isFilterEnabled) {
+          const queryWithRemovedTags = this.searchWidget.getValue().split(" ").filter((word) => word !== filter).join(" ");
+          this.searchWidget.setValue(queryWithRemovedTags);
+        } else {
+          let newQuery = this.searchWidget.getValue().split(" ").filter((word) => !excludeFilters.includes(word) && word !== filter).join(" ").trimEnd();
+          newQuery = newQuery ? newQuery + " " + filter : filter;
+          this.searchWidget.setValue(newQuery);
+        }
+        this.searchWidget.focus();
+      }, "run")
+    };
+  }
+  getActions() {
+    return [
+      this.createToggleAction("modifiedSettingsSearch", localize("modifiedSettingsSearch", "Modified"), localize("modifiedSettingsSearchTooltip", "Add or remove modified settings filter"), `@${MODIFIED_SETTING_TAG}`),
+      new Separator(),
+      this.createAction("extSettingsSearch", localize("extSettingsSearch", "Extension ID..."), localize("extSettingsSearchTooltip", "Add extension ID filter"), `@${EXTENSION_SETTING_TAG}`, true),
+      this.createAction("featuresSettingsSearch", localize("featureSettingsSearch", "Feature..."), localize("featureSettingsSearchTooltip", "Add feature filter"), `@${FEATURE_SETTING_TAG}`, true),
+      this.createAction("tagSettingsSearch", localize("tagSettingsSearch", "Tag..."), localize("tagSettingsSearchTooltip", "Add tag filter"), `@${GENERAL_TAG_SETTING_TAG}`, true),
+      this.createAction("langSettingsSearch", localize("langSettingsSearch", "Language..."), localize("langSettingsSearchTooltip", "Add language ID filter"), `@${LANGUAGE_SETTING_TAG}`, true),
+      this.createAction("idSettingsSearch", localize("idSettingsSearch", "Setting ID..."), localize("idSettingsSearchTooltip", "Add Setting ID filter"), `@${ID_SETTING_TAG}`, false),
+      new Separator(),
+      this.createToggleAction("onlineSettingsSearch", localize("onlineSettingsSearch", "Online services"), localize("onlineSettingsSearchTooltip", "Show settings for online services"), "@tag:usesOnlineServices"),
+      this.createToggleAction("policySettingsSearch", localize("policySettingsSearch", "Organization policies"), localize("policySettingsSearchTooltip", "Show organization policy settings"), `@${POLICY_SETTING_TAG}`),
+      new Separator(),
+      this.createMutuallyExclusiveToggleAction("stableSettingsSearch", localize("stableSettings", "Stable"), localize("stableSettingsSearchTooltip", "Show stable settings"), `@stable`, ["@tag:preview", "@tag:experimental"]),
+      this.createMutuallyExclusiveToggleAction("previewSettingsSearch", localize("previewSettings", "Preview"), localize("previewSettingsSearchTooltip", "Show preview settings"), `@tag:preview`, ["@stable", "@tag:experimental"]),
+      this.createMutuallyExclusiveToggleAction("experimentalSettingsSearch", localize("experimental", "Experimental"), localize("experimentalSettingsSearchTooltip", "Show experimental settings"), `@tag:experimental`, ["@stable", "@tag:preview"]),
+      new Separator(),
+      this.createToggleAction("advancedSettingsSearch", localize("advancedSettingsSearch", "Advanced"), localize("advancedSettingsSearchTooltip", "Show advanced settings"), `@tag:${ADVANCED_SETTING_TAG}`)
+    ];
+  }
+};
+SettingsSearchFilterDropdownMenuActionViewItem = __decorate([
+  __param(4, IContextMenuService)
+], SettingsSearchFilterDropdownMenuActionViewItem);
+export {
+  SettingsSearchFilterDropdownMenuActionViewItem
+};
+//# sourceMappingURL=settingsSearchMenu.js.map

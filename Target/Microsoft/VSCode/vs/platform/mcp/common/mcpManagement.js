@@ -1,1 +1,57 @@
-import{$Mj as t}from"../../instantiation/common/instantiation.js";var c;(function(e){e.NODE="npm",e.PYTHON="pypi",e.DOCKER="oci",e.NUGET="nuget",e.MCPB="mcpb",e.REMOTE="remote"})(c||(c={}));var o;(function(e){e.STDIO="stdio",e.STREAMABLE_HTTP="streamable-http",e.SSE="sse"})(o||(o={}));var r;(function(e){e.Active="active",e.Deprecated="deprecated"})(r||(r={}));const l=t("IMcpGalleryService"),v=t("IMcpManagementService"),d=t("IAllowedMcpServersService"),i="chat.mcp.access",s="chat.mcp.gallery.serviceUrl",x="chat.mcp.gallery.enabled",m="chat.mcp.autostart",E="chat.mcp.apps.enabled";var n;(function(e){e.Never="never",e.OnlyNew="onlyNew",e.NewAndOutdated="newAndOutdated"})(n||(n={}));var a;(function(e){e.None="none",e.Registry="registry",e.All="all"})(a||(a={}));export{l as $EQ,v as $FQ,d as $GQ,i as $HQ,s as $IQ,x as $JQ,m as $KQ,E as $LQ,r as GalleryMcpServerStatus,a as McpAccessValue,n as McpAutoStartValue,c as RegistryType,o as TransportType};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+var RegistryType;
+(function(RegistryType2) {
+  RegistryType2["NODE"] = "npm";
+  RegistryType2["PYTHON"] = "pypi";
+  RegistryType2["DOCKER"] = "oci";
+  RegistryType2["NUGET"] = "nuget";
+  RegistryType2["MCPB"] = "mcpb";
+  RegistryType2["REMOTE"] = "remote";
+})(RegistryType || (RegistryType = {}));
+var TransportType;
+(function(TransportType2) {
+  TransportType2["STDIO"] = "stdio";
+  TransportType2["STREAMABLE_HTTP"] = "streamable-http";
+  TransportType2["SSE"] = "sse";
+})(TransportType || (TransportType = {}));
+var GalleryMcpServerStatus;
+(function(GalleryMcpServerStatus2) {
+  GalleryMcpServerStatus2["Active"] = "active";
+  GalleryMcpServerStatus2["Deprecated"] = "deprecated";
+})(GalleryMcpServerStatus || (GalleryMcpServerStatus = {}));
+const IMcpGalleryService = createDecorator("IMcpGalleryService");
+const IMcpManagementService = createDecorator("IMcpManagementService");
+const IAllowedMcpServersService = createDecorator("IAllowedMcpServersService");
+const mcpAccessConfig = "chat.mcp.access";
+const mcpGalleryServiceUrlConfig = "chat.mcp.gallery.serviceUrl";
+const mcpGalleryServiceEnablementConfig = "chat.mcp.gallery.enabled";
+const mcpAutoStartConfig = "chat.mcp.autostart";
+const mcpAppsEnabledConfig = "chat.mcp.apps.enabled";
+var McpAutoStartValue;
+(function(McpAutoStartValue2) {
+  McpAutoStartValue2["Never"] = "never";
+  McpAutoStartValue2["OnlyNew"] = "onlyNew";
+  McpAutoStartValue2["NewAndOutdated"] = "newAndOutdated";
+})(McpAutoStartValue || (McpAutoStartValue = {}));
+var McpAccessValue;
+(function(McpAccessValue2) {
+  McpAccessValue2["None"] = "none";
+  McpAccessValue2["Registry"] = "registry";
+  McpAccessValue2["All"] = "all";
+})(McpAccessValue || (McpAccessValue = {}));
+export {
+  GalleryMcpServerStatus,
+  IAllowedMcpServersService,
+  IMcpGalleryService,
+  IMcpManagementService,
+  McpAccessValue,
+  McpAutoStartValue,
+  RegistryType,
+  TransportType,
+  mcpAccessConfig,
+  mcpAppsEnabledConfig,
+  mcpAutoStartConfig,
+  mcpGalleryServiceEnablementConfig,
+  mcpGalleryServiceUrlConfig
+};
+//# sourceMappingURL=mcpManagement.js.map

@@ -1,8 +1,1577 @@
-import{$9h as _e}from"../../../../base/common/async.js";import{Event as V}from"../../../../base/common/event.js";import{$ik as y,$kk as F}from"../../../../base/common/htmlContent.js";import{$Ed as C,$Md as ze}from"../../../../base/common/lifecycle.js";import{Schemas as U}from"../../../../base/common/network.js";import{$n as Ne}from"../../../../base/common/platform.js";import{PolicyCategory as g}from"../../../../base/common/policy.js";import{$2jb as N}from"../../../../editor/common/editorFeatures.js";import*as e from"../../../../nls.js";import{$wsb as b}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$tL as De}from"../../../../platform/actions/common/actions.js";import{$to as Me}from"../../../../platform/commands/common/commands.js";import{$km as Le}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Jj as Ve}from"../../../../platform/instantiation/common/descriptors.js";import{$TC as n}from"../../../../platform/instantiation/common/extensions.js";import{$Lj as Ce}from"../../../../platform/instantiation/common/instantiation.js";import{$HQ as Fe,$KQ as Ue,$JQ as Ke,$IQ as qe,$LQ as Qe}from"../../../../platform/mcp/common/mcpManagement.js";import Be from"../../../../platform/product/common/product.js";import{$im as E}from"../../../../platform/registry/common/platform.js";import{$DRb as Ge}from"../../../browser/editor.js";import{$7N as Ye}from"../../../common/configuration.js";import{$XN as i}from"../../../common/contributions.js";import{$5M as we}from"../../../common/editor.js";import{$9Y as We}from"../../../services/assignment/common/assignmentService.js";import{ChatEntitlement as K,$CP as Ze}from"../../../services/chat/common/chatEntitlementService.js";import{$_N as He,RegisteredEditorPriority as Je}from"../../../services/editor/common/editorResolverService.js";import{$Vkc as Xe}from"../../mcp/browser/mcpCommandsAddConfiguration.js";import{$uS as R,$wS as et,$yS as ke,$zS as tt}from"../../mcp/common/mcpConfiguration.js";import{$HV as ot,$EV as it,$GV as lt,$DV as xe}from"../common/participants/chatAgents.js";import{$LV as nt,$KV as rt}from"../common/editing/chatCodeMapperService.js";import"../common/widget/chatColors.js";import{$$U as at}from"../common/editing/chatEditingService.js";import{$eOb as st}from"../common/widget/chatLayoutService.js";import{$FR as ct,$ER as Se}from"../common/chatModes.js";import{$Xkc as q}from"../common/widget/chatResponseResourceFileSystemProvider.js";import{$hU as pt}from"../common/chatService/chatService.js";import{$8kc as mt}from"../common/chatService/chatServiceImpl.js";import{$tV as ut}from"../common/chatSessionsService.js";import{$ST as dt,$RT as ve}from"../common/participants/chatSlashCommands.js";import{$hOb as ft,$fOb as ht}from"../common/tools/chatTodoListService.js";import{$7kc as bt,$6kc as gt}from"../common/model/chatTransferService.js";import{$UT as $t}from"../common/attachments/chatVariables.js";import{$NOb as yt,$LOb as zt}from"../common/widget/chatWidgetHistoryService.js";import{ChatAgentLocation as w,ChatConfiguration as r,ChatModeKind as Dt}from"../common/constants.js";import{$RDb as Ct,$SDb as wt}from"../common/ignoredFiles.js";import{$dS as kt,$fS as xt}from"../common/languageModels.js";import{$POb as St,$QOb as vt}from"../common/languageModelStats.js";import{$SOb as It}from"../common/tools/languageModelToolsConfirmationService.js";import{$oS as Ie}from"../common/tools/languageModelToolsService.js";import{$9kc as Q}from"../common/promptSyntax/chatPromptFilesContribution.js";import{$Y3b as Et,$X3b as Tt}from"../common/promptSyntax/chatPromptContentStore.js";import{PromptsConfig as h}from"../common/promptSyntax/config/config.js";import{$pOb as T,$jOb as At,$qOb as A,$kOb as Pt,$oOb as P,$iOb as Ot,$sOb as O}from"../common/promptSyntax/config/promptFileLocations.js";import{$llc as B}from"../common/promptSyntax/promptFileContributions.js";import{$pR as Rt,$oR as jt,$nR as _t}from"../common/promptSyntax/promptTypes.js";import{$DR as Nt}from"../common/promptSyntax/service/promptsService.js";import{$tlc as Mt}from"../common/promptSyntax/service/promptsServiceImpl.js";import{$bQb as G}from"../common/tools/languageModelToolsContribution.js";import{$Blc as Y}from"../common/tools/builtinTools/tools.js";import{$Dlc as Lt,$Flc as Vt}from"../common/voiceChatService.js";import{$Jlc as Ft}from"./actions/chatAccessibilityActions.js";import{$Emc as Ut,$Dmc as Kt,$Bmc as qt,$Cmc as Qt}from"./actions/chatAccessibilityHelp.js";import{$4Ob as Bt,$cPb as W,$_Ob as Gt,$aPb as Yt}from"./actions/chatActions.js";import{$Mmc as Z,$Nmc as Wt,$Omc as Zt}from"./actions/chatCodeblockActions.js";import{$AYb as H}from"./actions/chatContext.js";import{$7mc as Ht}from"./actions/chatContextActions.js";import{$TPb as J}from"./actions/chatContinueInAction.js";import{$0mc as Jt}from"./actions/chatCopyActions.js";import{$$mc as Xt}from"./actions/chatDeveloperActions.js";import{$UPb as eo,$8Pb as to}from"./actions/chatExecuteActions.js";import{$_mc as oo}from"./actions/chatFileTreeActions.js";import{$anc as X}from"./actions/chatGettingStarted.js";import{$bnc as io}from"./actions/chatImportExport.js";import{$cnc as lo}from"./actions/chatLanguageModelActions.js";import{$dnc as no}from"./actions/chatMoveActions.js";import{$enc as ro}from"./actions/chatNewActions.js";import{$fnc as ao}from"./actions/chatPromptNavigationActions.js";import{$Umc as so}from"./actions/chatQuickInputActions.js";import{$gnc as ee}from"./actions/chatAgentRecommendationActions.js";import{$hZb as co}from"./actions/chatTitleActions.js";import{$21b as po}from"./actions/chatElicitationActions.js";import{$jQb as mo}from"./actions/chatToolActions.js";import{$hnc as te}from"./actions/chatTransfer.js";import"./agentSessions/agentSessions.contribution.js";import{$R3b as uo,$U3b as fo,$O3b as Ee,$Q3b as ho}from"./chat.js";import{$rnc as bo}from"./accessibility/chatAccessibilityService.js";import"./attachments/chatAttachmentModel.js";import"./widget/input/chatStatusWidget.js";import{$M3b as go,$L3b as $o}from"./attachments/chatAttachmentResolveService.js";import{$AZb as yo,$zZb as zo}from"./widget/chatContentParts/chatMarkdownAnchorService.js";import{$VNb as Do,$UNb as Co}from"./attachments/chatContextPickService.js";import{$tnc as wo}from"./widget/input/editor/chatEditorInputContentProvider.js";import{$unc as ko}from"./promptSyntax/chatPromptContentProvider.js";import{$vnc as oe}from"./chatEditing/chatEditingEditorAccessibility.js";import{$Cnc as xo}from"./chatEditing/chatEditingEditorActions.js";import{$NPb as ie}from"./chatEditing/chatEditingEditorContextKeys.js";import{$Enc as le}from"./chatEditing/chatEditingEditorOverlay.js";import{$hoc as So}from"./chatEditing/chatEditingServiceImpl.js";import{$6nc as ne}from"./chatEditing/notebook/chatEditingNotebookFileSystemProvider.js";import{$koc as re}from"./attachments/simpleBrowserEditorOverlay.js";import{$ZOb as vo}from"./widgetHosts/editor/chatEditor.js";import{$TOb as z,$VOb as Io}from"./widgetHosts/editor/chatEditorInput.js";import{$loc as Eo}from"./widget/chatLayoutService.js";import{$ooc as ae,$moc as To}from"./languageModelsConfigurationService.js";import"./chatManagement/chatManagement.contribution.js";import{$m1b as Ao,$l1b as Po}from"./widget/chatContentParts/chatMarkdownDecorationsRenderer.js";import{$22b as Oo,$12b as Ro}from"./chatOutputItemRenderer.js";import{$Ioc as se,$Hoc as ce}from"./chatParticipant.contribution.js";import{$K3b as jo}from"./widget/input/editor/chatPasteProviders.js";import{$Joc as _o}from"./widgetHosts/chatQuick.js";import{$Koc as No}from"./accessibility/chatResponseAccessibleView.js";import{$Ooc as Mo}from"./accessibility/chatTerminalOutputAccessibleView.js";import{$Glc as Lo}from"./accessibility/chatThinkingAccessibleView.js";import{$Yoc as pe,$Zoc as me}from"./chatSetup/chatSetupContributions.js";import{$6oc as ue}from"./chatStatus/chatStatusEntry.js";import{$7oc as Vo}from"./attachments/chatVariables.js";import{$B3b as Fo}from"./widget/chatWidget.js";import{$8oc as Uo}from"./codeBlockContextProviderService.js";import{$D3b as Ko}from"./attachments/chatDynamicVariables.js";import{$m3b as de}from"./attachments/chatImplicitContext.js";import"./widget/input/editor/chatInputCompletions.js";import"./widget/input/editor/chatInputEditorContrib.js";import"./widget/input/editor/chatInputEditorHover.js";import{$o3b as fe}from"./attachments/chatInputRelatedFilesContrib.js";import{$_oc as qo}from"./tools/languageModelToolsConfirmationService.js";import{$cpc as Qo,$bpc as Bo}from"./tools/languageModelToolsService.js";import"./promptSyntax/promptCodingAgentActionContribution.js";import"./promptSyntax/promptToolsCodeLensProvider.js";import{$hpc as he}from"./promptSyntax/promptUrlHandler.js";import{$dQb as Go,$cQb as be}from"./tools/toolSetsContribution.js";import{$ipc as ge}from"./viewsWelcome/chatViewsWelcomeHandler.js";import{$jpc as Yo}from"./widget/chatWidgetService.js";import{$bS as Wo}from"../common/languageModelsConfiguration.js";import{$kpc as $e}from"./chatWindowNotifier.js";import{$mpc as ye}from"./chatRepoInfo.js";import{$olc as Zo}from"../common/promptSyntax/utils/promptFilesLocator.js";var D=function(o,t,l,a){var p=arguments.length,s=p<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,l):a,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,l,a);else for(var m=o.length-1;m>=0;m--)(c=o[m])&&(s=(p<3?c(s):p>3?c(t,l,s):c(t,l))||s);return p>3&&s&&Object.defineProperty(t,l,s),s},u=function(o,t){return function(l,a){t(l,a,o)}};const j=[],_=[],M=E.as(Le.Configuration);M.registerConfiguration({id:"chatSidebar",title:e.localize(5555,null),type:"object",properties:{"chat.fontSize":{type:"number",description:e.localize(5556,null),default:13,minimum:6,maximum:100},"chat.fontFamily":{type:"string",description:e.localize(5557,null),default:"default"},"chat.editor.fontSize":{type:"number",description:e.localize(5558,null),default:Ne?12:14},"chat.editor.fontFamily":{type:"string",description:e.localize(5559,null),default:"default"},"chat.editor.fontWeight":{type:"string",description:e.localize(5560,null),default:"default"},"chat.editor.wordWrap":{type:"string",description:e.localize(5561,null),default:"off",enum:["on","off"]},"chat.editor.lineHeight":{type:"number",description:e.localize(5562,null),default:0},"chat.commandCenter.enabled":{type:"boolean",markdownDescription:e.localize(5563,null,"`#window.commandCenter#`"),default:!0},[r.AgentStatusEnabled]:{type:"boolean",markdownDescription:e.localize(5564,null,"`#window.commandCenter#`"),default:!1,tags:["experimental"]},[r.AgentSessionProjectionEnabled]:{type:"boolean",markdownDescription:e.localize(5565,null),default:!1,tags:["experimental"]},"chat.implicitContext.enabled":{type:"object",description:e.localize(5566,null),additionalProperties:{type:"string",enum:["never","first","always"],description:e.localize(5567,null),enumDescriptions:[e.localize(5568,null),e.localize(5569,null),e.localize(5570,null)]},default:{panel:"always"}},"chat.implicitContext.suggestedContext":{type:"boolean",markdownDescription:e.localize(5571,null),default:!0},"chat.editing.autoAcceptDelay":{type:"number",markdownDescription:e.localize(5572,null),default:0,minimum:0,maximum:100},"chat.editing.confirmEditRequestRemoval":{type:"boolean",scope:1,markdownDescription:e.localize(5573,null),default:!0},"chat.editing.confirmEditRequestRetry":{type:"boolean",scope:1,markdownDescription:e.localize(5574,null),default:!0},"chat.experimental.detectParticipant.enabled":{type:"boolean",deprecationMessage:e.localize(5575,null),description:e.localize(5576,null),default:null},"chat.detectParticipant.enabled":{type:"boolean",description:e.localize(5577,null),default:!0},"chat.renderRelatedFiles":{type:"boolean",description:e.localize(5578,null),default:!1},[r.InlineReferencesStyle]:{type:"string",enum:["box","link"],enumDescriptions:[e.localize(5579,null),e.localize(5580,null)],description:e.localize(5581,null),default:"box"},"chat.notifyWindowOnConfirmation":{type:"boolean",description:e.localize(5582,null),default:!0},[r.GlobalAutoApprove]:{default:!1,markdownDescription:Bo.value,type:"boolean",scope:3,tags:["experimental"],policy:{name:"ChatToolsAutoApprove",category:g.InteractiveSession,minimumVersion:"1.99",value:o=>o.chat_preview_features_enabled===!1?!1:void 0,localization:{description:{key:"autoApprove2.description",value:e.localize(5583,null)}}}},[r.AutoApproveEdits]:{default:{"**/*":!0,"**/.vscode/*.json":!1,"**/.git/**":!1,"**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}":!1,"**/*.{code-workspace,csproj,fsproj,vbproj,vcxproj,proj,targets,props}":!1},markdownDescription:e.localize(5584,null),type:"object",additionalProperties:{type:"boolean"}},[r.AutoApprovedUrls]:{default:{},markdownDescription:e.localize(5585,null),type:"object",additionalProperties:{oneOf:[{type:"boolean"},{type:"object",properties:{approveRequest:{type:"boolean"},approveResponse:{type:"boolean"}}}]}},[r.EligibleForAutoApproval]:{default:{},markdownDescription:e.localize(5586,null),type:"object",propertyNames:{enum:j,enumDescriptions:_},additionalProperties:{type:"boolean"},tags:["experimental"],examples:[{fetch:!1,runTask:!1}],policy:{name:"ChatToolsEligibleForAutoApproval",category:g.InteractiveSession,minimumVersion:"1.107",localization:{description:{key:"chat.tools.eligibleForAutoApproval",value:e.localize(5587,null)}}}},"chat.sendElementsToChat.enabled":{default:!0,description:e.localize(5588,null),type:"boolean",tags:["preview"]},"chat.sendElementsToChat.attachCSS":{default:!0,markdownDescription:e.localize(5589,null,"`#chat.sendElementsToChat.enabled#`"),type:"boolean",tags:["preview"]},"chat.sendElementsToChat.attachImages":{default:!0,markdownDescription:e.localize(5590,null,"`#chat.sendElementsToChat.enabled#`"),type:"boolean",tags:["experimental"]},"chat.undoRequests.restoreInput":{default:!0,markdownDescription:e.localize(5591,null),type:"boolean"},"chat.editRequests":{markdownDescription:e.localize(5592,null),type:"string",enum:["inline","hover","input","none"],default:"inline"},[r.ChatViewSessionsEnabled]:{type:"boolean",default:!0,description:e.localize(5593,null)},[r.ChatViewSessionsShowRecentOnly]:{type:"boolean",default:!1,description:e.localize(5594,null)},[r.ChatViewSessionsOrientation]:{type:"string",enum:["stacked","sideBySide"],enumDescriptions:[e.localize(5595,null),e.localize(5596,null)],default:"sideBySide",description:e.localize(5597,null)},[r.ChatViewTitleEnabled]:{type:"boolean",default:!0,description:e.localize(5598,null)},[r.NotifyWindowOnResponseReceived]:{type:"boolean",default:!0,description:e.localize(5599,null)},"chat.checkpoints.enabled":{type:"boolean",default:!0,description:e.localize(5600,null)},"chat.checkpoints.showFileChanges":{type:"boolean",description:e.localize(5601,null),default:!1},[Fe]:{type:"string",description:e.localize(5602,null),enum:["none","registry","all"],enumDescriptions:[e.localize(5603,null),e.localize(5604,null),e.localize(5605,null)],default:"all",policy:{name:"ChatMCP",category:g.InteractiveSession,minimumVersion:"1.99",value:o=>{if(o.mcp===!1)return"none";if(o.mcpAccess==="registry_only")return"registry"},localization:{description:{key:"chat.mcp.access",value:e.localize(5606,null)},enumDescriptions:[{key:"chat.mcp.access.none",value:e.localize(5607,null)},{key:"chat.mcp.access.registry",value:e.localize(5608,null)},{key:"chat.mcp.access.any",value:e.localize(5609,null)}]}}},[Ue]:{type:"string",description:e.localize(5610,null),default:"newAndOutdated",enum:["never","onlyNew","newAndOutdated"],enumDescriptions:[e.localize(5611,null),e.localize(5612,null),e.localize(5613,null)],tags:["experimental"]},[Qe]:{type:"boolean",description:e.localize(5614,null),default:!1,tags:["experimental"]},[tt]:{type:"object",description:e.localize(5615,null,"MCP: "+e.localize(5616,null)),scope:5,additionalProperties:{type:"object",properties:{allowedDuringChat:{type:"boolean",description:e.localize(5617,null),default:!0},allowedOutsideChat:{type:"boolean",description:e.localize(5618,null),default:!1},allowedModels:{type:"array",items:{type:"string",description:e.localize(5619,null)}}}}},[Xe[4].enabledConfigKey]:{type:"boolean",description:e.localize(5620,null),default:!1,tags:["experimental"],experiment:{mode:"startup"}},[r.Edits2Enabled]:{type:"boolean",description:e.localize(5621,null),default:!1},[r.ExtensionToolsEnabled]:{type:"boolean",description:e.localize(5622,null),default:!0,policy:{name:"ChatAgentExtensionTools",category:g.InteractiveSession,minimumVersion:"1.99",localization:{description:{key:"chat.extensionToolsEnabled",value:e.localize(5623,null)}}}},[r.AgentEnabled]:{type:"boolean",description:e.localize(5624,null),default:!0,policy:{name:"ChatAgentMode",category:g.InteractiveSession,minimumVersion:"1.99",value:o=>o.chat_agent_enabled===!1?!1:void 0,localization:{description:{key:"chat.agent.enabled.description",value:e.localize(5625,null)}}}},[r.EnableMath]:{type:"boolean",description:e.localize(5626,null),default:!0,tags:["preview"]},[r.ShowCodeBlockProgressAnimation]:{type:"boolean",description:e.localize(5627,null),default:!0,tags:["experimental"]},"chat.statusWidget.sku":{type:"string",enum:["free","anonymous"],enumDescriptions:[e.localize(5628,null),e.localize(5629,null)],description:e.localize(5630,null),default:void 0,tags:["experimental","advanced"],experiment:{mode:"auto"}},[ke]:{type:"object",properties:Object.fromEntries(R.map(o=>[o,{type:"boolean",description:et[o]}])),additionalProperties:!1,default:Object.fromEntries(R.map(o=>[o,!1])),markdownDescription:e.localize(5631,null)},[Ke]:{type:"boolean",default:!1,tags:["preview"],description:e.localize(5632,null),included:Be.quality==="stable"},[qe]:{type:"string",description:e.localize(5633,null),default:"",scope:1,tags:["usesOnlineServices","advanced"],included:!1,policy:{name:"McpGalleryServiceUrl",category:g.InteractiveSession,minimumVersion:"1.101",value:o=>o.mcpRegistryUrl,localization:{description:{key:"mcp.gallery.serviceUrl",value:e.localize(5634,null)}}}},[h.INSTRUCTIONS_LOCATION_KEY]:{type:"object",title:e.localize(5635,null),markdownDescription:e.localize(5636,null,At,jt),default:{[T]:!0},additionalProperties:{type:"boolean"},restricted:!0,tags:["prompts","reusable prompts","prompt snippets","instructions"],examples:[{[T]:!0},{[T]:!0,"/Users/vscode/repos/instructions":!0}]},[h.PROMPT_LOCATIONS_KEY]:{type:"object",title:e.localize(5637,null),markdownDescription:e.localize(5638,null,Ot,_t),default:{[P]:!0},additionalProperties:{type:"boolean"},unevaluatedProperties:{type:"boolean"},restricted:!0,tags:["prompts","reusable prompts","prompt snippets","instructions"],examples:[{[P]:!0},{[P]:!0,"/Users/vscode/repos/prompts":!0}]},[h.MODE_LOCATION_KEY]:{type:"object",title:e.localize(5639,null),markdownDescription:e.localize(5640,null,Pt,Rt),default:{[A]:!0},deprecationMessage:e.localize(5641,null),additionalProperties:{type:"boolean"},unevaluatedProperties:{type:"boolean"},restricted:!0,tags:["experimental","prompts","reusable prompts","prompt snippets","instructions"],examples:[{[A]:!0},{[A]:!0,"/Users/vscode/repos/chatmodes":!0}]},[h.USE_AGENT_MD]:{type:"boolean",title:e.localize(5642,null),markdownDescription:e.localize(5643,null),default:!0,restricted:!0,disallowConfigurationDefault:!0,tags:["prompts","reusable prompts","prompt snippets","instructions"]},[h.USE_NESTED_AGENT_MD]:{type:"boolean",title:e.localize(5644,null),markdownDescription:e.localize(5645,null),default:!1,restricted:!0,disallowConfigurationDefault:!0,tags:["experimental","prompts","reusable prompts","prompt snippets","instructions"]},[h.USE_AGENT_SKILLS]:{type:"boolean",title:e.localize(5646,null),markdownDescription:e.localize(5647,null),default:!0,restricted:!0,disallowConfigurationDefault:!0,tags:["prompts","reusable prompts","prompt snippets","instructions"]},[h.SKILLS_LOCATION_KEY]:{type:"object",title:e.localize(5648,null),markdownDescription:e.localize(5649,null),default:{...O.map(o=>({[o.path]:!0})).reduce((o,t)=>({...o,...t}),{})},additionalProperties:{type:"boolean"},propertyNames:{pattern:Zo,patternErrorMessage:e.localize(5650,null)},restricted:!0,tags:["prompts","reusable prompts","prompt snippets","instructions"],examples:[{[O[0].path]:!0},{[O[0].path]:!0,"my-skills":!0,"../shared-skills":!0,"~/.custom/skills":!0}]},[h.PROMPT_FILES_SUGGEST_KEY]:{type:"object",scope:5,title:e.localize(5651,null),markdownDescription:e.localize(5652,null),default:{},additionalProperties:{oneOf:[{type:"boolean"},{type:"string"}]},tags:["prompts","reusable prompts","prompt snippets","instructions"],examples:[{plan:!0,"a11y-audit":"resourceExtname == .html",document:"resourceLangId == markdown"}]},[r.TodosShowWidget]:{type:"boolean",default:!0,description:e.localize(5653,null),tags:["experimental"],experiment:{mode:"auto"}},"chat.todoListTool.writeOnly":{type:"boolean",default:!1,description:e.localize(5654,null),tags:["experimental"],experiment:{mode:"auto"}},"chat.todoListTool.descriptionField":{type:"boolean",default:!0,description:e.localize(5655,null),tags:["experimental"],experiment:{mode:"auto"}},[r.ThinkingStyle]:{type:"string",default:"collapsedPreview",enum:["collapsed","collapsedPreview","fixedScrolling"],enumDescriptions:[e.localize(5656,null),e.localize(5657,null),e.localize(5658,null)],description:e.localize(5659,null),tags:["experimental"]},[r.ThinkingGenerateTitles]:{type:"boolean",default:!0,description:e.localize(5660,null),tags:["experimental"]},"chat.agent.thinking.collapsedTools":{type:"string",default:"always",enum:["off","withThinking","always"],enumDescriptions:[e.localize(5661,null),e.localize(5662,null),e.localize(5663,null)],markdownDescription:e.localize(5664,null),tags:["experimental"]},[r.TerminalToolsInThinking]:{type:"boolean",default:!0,markdownDescription:e.localize(5665,null),tags:["experimental"]},"chat.disableAIFeatures":{type:"boolean",description:e.localize(5666,null),default:!1,scope:4},"chat.allowAnonymousAccess":{type:"boolean",description:e.localize(5667,null),default:!1,tags:["experimental"],experiment:{mode:"auto"}},[r.RestoreLastPanelSession]:{type:"boolean",description:e.localize(5668,null),default:!1},[r.ExitAfterDelegation]:{type:"boolean",description:e.localize(5669,null),default:!0,tags:["preview"]},"chat.extensionUnification.enabled":{type:"boolean",description:e.localize(5670,null),default:!0,tags:["experimental"],experiment:{mode:"auto"}},[r.SubagentToolCustomAgents]:{type:"boolean",description:e.localize(5671,null),default:!1,tags:["experimental"]}}});E.as(we.EditorPane).registerEditorPane(Ge.create(vo,z.EditorID,e.localize(5672,null)),[new Ve(z)]);E.as(Ye.ConfigurationMigration).registerConfigurationMigrations([{key:"chat.experimental.detectParticipant.enabled",migrateFn:(o,t)=>[["chat.experimental.detectParticipant.enabled",{value:void 0}],["chat.detectParticipant.enabled",{value:o!==!1}]]},{key:"chat.useClaudeSkills",migrateFn:(o,t)=>[["chat.useClaudeSkills",{value:void 0}],["chat.useAgentSkills",{value:o}]]},{key:ke,migrateFn:o=>typeof o=="boolean"?{value:Object.fromEntries(R.map(t=>[t,o]))}:{value:o}}]);let k=class extends C{static{this.ID="workbench.contrib.chatResolver"}constructor(t,l,a){super(),this.g=l,this.h=a,this.f=this.D(new ze),this.j(U.vscodeChatEditor),this.j(U.vscodeLocalChatSession),this.D(t.onDidChangeContentProviderSchemes(p=>{for(const s of p.added)this.j(s);for(const s of p.removed)this.f.deleteAndDispose(s)}));for(const p of t.getContentProviderSchemes())this.j(p)}j(t){this.f.set(t,this.g.registerEditor(`${t}:**/**`,{id:z.EditorID,label:e.localize(5673,null),priority:Je.builtin},{singlePerResource:!0,canSupportResource:l=>l.scheme===t},{createEditorInput:({resource:l,options:a})=>({editor:this.h.createInstance(z,l,a),options:a})}))}};k=D([u(0,ut),u(1,He),u(2,Ce)],k);let x=class extends C{static{this.ID="workbench.contrib.chatAgentSetting"}constructor(t,l){super(),this.f=t,this.g=l,this.h()}h(){let t;const l=()=>{const a=this.g.entitlement===K.Free?"chatAgentMaxRequestsFree":"chatAgentMaxRequestsPro";this.f.getTreatment(a).then(p=>{const s=p??(this.g.entitlement===K.Free,25),c={id:"chatSidebar",title:e.localize(5674,null),type:"object",properties:{"chat.agent.maxRequests":{type:"number",markdownDescription:e.localize(5675,null),default:s}}};M.updateConfigurations({remove:t?[t]:[],add:[c]}),t=c})};this.D(V.runAndSubscribe(V.debounce(this.g.onDidChangeEntitlement,()=>{},1e3),()=>l()))}};x=D([u(0,We),u(1,Ze)],x);let S=class extends C{static{this.ID="workbench.contrib.chatAgentActions"}constructor(t){super(),this.g=t,this.f=new ze,this.B.add(this.f);const{custom:l}=this.g.getModes();for(const a of l)this.h(a);this.D(this.g.onDidChangeChatModes(()=>{const{custom:a}=this.g.getModes(),p=new Set,s=new Map;for(const c of a){const m=c.name.get();s.has(m)&&p.delete(s.get(m)),s.set(m,c.id),p.add(c.id)}for(const c of this.f.keys())p.has(c)||this.f.deleteAndDispose(c);for(const c of a)p.has(c.id)&&!this.f.has(c.id)&&this.h(c)}))}h(t){const l=class extends Gt{constructor(){super(t)}};this.f.set(t.id,De(l))}};S=D([u(0,Se)],S);let v=class extends C{static{this.ID="workbench.contrib.toolReferenceNames"}constructor(t){super(),this.f=t,this.g(),this.D(this.f.onDidChangeTools(()=>this.g()))}g(){const t=Array.from(this.f.getTools()).filter(l=>typeof l.toolReferenceName=="string").sort((l,a)=>l.toolReferenceName.localeCompare(a.toolReferenceName));j.length=0,_.length=0;for(const l of t)j.push(l.toolReferenceName),_.push(e.localize(5676,null,l.toolReferenceName,l.userDescription||l.displayName));M.notifyConfigurationSchemaUpdated({id:"chatSidebar",properties:{[r.EligibleForAutoApproval]:{}}})}};v=D([u(0,Ie)],v);b.register(new Mo);b.register(new Lo);b.register(new No);b.register(new qt);b.register(new Qt);b.register(new Kt);b.register(new Ut);N(wo);N(ko);let I=class extends C{static{this.ID="workbench.contrib.chatSlashStaticSlashCommands"}constructor(t,l,a,p,s){super(),this.B.add(t.registerSlashCommand({command:"clear",detail:e.localize(5677,null),sortText:"z2_clear",executeImmediately:!0,locations:[w.Chat]},async()=>{l.executeCommand(Bt)})),this.B.add(t.registerSlashCommand({command:"help",detail:"",sortText:"z1_help",executeImmediately:!0,locations:[w.Chat],modes:[Dt.Ask]},async(c,m,Ho,Jo,L)=>{const f=a.getDefaultAgent(w.Chat),Te=a.getAgents();f?.metadata.helpTextPrefix&&(F(f.metadata.helpTextPrefix)?m.report({content:f.metadata.helpTextPrefix,kind:"markdownContent"}):m.report({content:new y(f.metadata.helpTextPrefix),kind:"markdownContent"}),m.report({content:new y(`
-
-`),kind:"markdownContent"}));const Ae=(await Promise.all(Te.filter(d=>!d.isDefault&&!d.isCore).filter(d=>d.locations.includes(w.Chat)).map(async d=>{const Pe=d.description?`- ${d.description}`:"",Oe=`- ${s.invokeFunction($=>Po(d,L,!0,$))} ${Pe}`,Re=d.slashCommands.map($=>{const je=$.description?`- ${$.description}`:"";return`	* ${Ao(d,$,L)} ${je}`}).join(`
-`);return(Oe+`
-`+Re).trim()}))).join(`
-`);m.report({content:new y(Ae,{isTrusted:{enabledCommands:[eo.ID]}}),kind:"markdownContent"}),f?.metadata.helpTextPostfix&&(m.report({content:new y(`
-
-`),kind:"markdownContent"}),F(f.metadata.helpTextPostfix)?m.report({content:f.metadata.helpTextPostfix,kind:"markdownContent"}):m.report({content:new y(f.metadata.helpTextPostfix),kind:"markdownContent"})),await _e(200)}))}};I=D([u(0,ve),u(1,Me),u(2,xe),u(3,Ee),u(4,Ce)],I);E.as(we.EditorFactory).registerEditorSerializer(z.TypeID,Io);i(k.ID,k,1);i(ae.ID,ae,2);i(I.ID,I,4);i(ce.ID,ce,1);i(G.ID,G,2);i(Q.ID,Q,2);i(se.ID,se,4);i(W.ID,W,2);i(Z.ID,Z,2);i(J.ID,J,2);i(de.ID,de,4);i(fe.ID,fe,4);i(ge.ID,ge,1);i(X.ID,X,4);i(pe.ID,pe,2);i(me.ID,me,3);i(ue.ID,ue,2);i(Y.ID,Y,4);i(x.ID,x,3);i(S.ID,S,4);i(v.ID,v,3);i(ee.ID,ee,4);i(oe.ID,oe,3);i(le.ID,le,3);i(re.ID,re,3);i(ie.ID,ie,3);i(te.ID,te,2);i(H.ID,H,3);i(q.ID,q,3);i(he.ID,he,2);i(ne.ID,ne,1);i(be.ID,be,4);i(B.ID,B,4);i($e.ID,$e,3);i(ye.ID,ye,4);Yt();Ft();Jt();Wt();Zt();oo();ao();co();to();so();io();no();ro();Ht();Xt();xo();po();mo();lo();De(Go);N(jo);n(gt,bt,1);n(pt,mt,1);n(Ee,Yo,1);n(ho,_o,1);n(uo,bo,1);n(zt,yt,1);n(Wo,To,1);n(kt,xt,1);n(St,vt,1);n(ve,dt,1);n(xe,it,1);n(lt,ot,1);n($t,Vo,1);n(Ie,Qo,1);n(It,qo,1);n(Lt,Vt,1);n(fo,Uo,1);n(rt,nt,1);n(at,So,1);n(zo,yo,1);n(Ct,wt,1);n(Nt,Mt,1);n(Tt,Et,1);n(Co,Do,1);n(Se,ct,1);n($o,go,1);n(ht,ft,1);n(Ro,Oo,1);n(st,Eo,1);Fo.CONTRIBS.push(Ko);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { Event } from "../../../../base/common/event.js";
+import { MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, DisposableMap } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { PolicyCategory } from "../../../../base/common/policy.js";
+import { registerEditorFeature } from "../../../../editor/common/editorFeatures.js";
+import * as nls from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { mcpAccessConfig, mcpAutoStartConfig, mcpGalleryServiceEnablementConfig, mcpGalleryServiceUrlConfig, mcpAppsEnabledConfig } from "../../../../platform/mcp/common/mcpManagement.js";
+import product from "../../../../platform/product/common/product.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { Extensions } from "../../../common/configuration.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
+import { ChatEntitlement, IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { AssistedTypes } from "../../mcp/browser/mcpCommandsAddConfiguration.js";
+import { allDiscoverySources, discoverySourceSettingsLabel, mcpDiscoverySection, mcpServerSamplingSection } from "../../mcp/common/mcpConfiguration.js";
+import { ChatAgentNameService, ChatAgentService, IChatAgentNameService, IChatAgentService } from "../common/participants/chatAgents.js";
+import { CodeMapperService, ICodeMapperService } from "../common/editing/chatCodeMapperService.js";
+import "../common/widget/chatColors.js";
+import { IChatEditingService } from "../common/editing/chatEditingService.js";
+import { IChatLayoutService } from "../common/widget/chatLayoutService.js";
+import { ChatModeService, IChatModeService } from "../common/chatModes.js";
+import { ChatResponseResourceFileSystemProvider } from "../common/widget/chatResponseResourceFileSystemProvider.js";
+import { IChatService } from "../common/chatService/chatService.js";
+import { ChatService } from "../common/chatService/chatServiceImpl.js";
+import { IChatSessionsService } from "../common/chatSessionsService.js";
+import { ChatSlashCommandService, IChatSlashCommandService } from "../common/participants/chatSlashCommands.js";
+import { ChatTodoListService, IChatTodoListService } from "../common/tools/chatTodoListService.js";
+import { ChatTransferService, IChatTransferService } from "../common/model/chatTransferService.js";
+import { IChatVariablesService } from "../common/attachments/chatVariables.js";
+import { ChatWidgetHistoryService, IChatWidgetHistoryService } from "../common/widget/chatWidgetHistoryService.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../common/constants.js";
+import { ILanguageModelIgnoredFilesService, LanguageModelIgnoredFilesService } from "../common/ignoredFiles.js";
+import { ILanguageModelsService, LanguageModelsService } from "../common/languageModels.js";
+import { ILanguageModelStatsService, LanguageModelStatsService } from "../common/languageModelStats.js";
+import { ILanguageModelToolsConfirmationService } from "../common/tools/languageModelToolsConfirmationService.js";
+import { ILanguageModelToolsService } from "../common/tools/languageModelToolsService.js";
+import { ChatPromptFilesExtensionPointHandler } from "../common/promptSyntax/chatPromptFilesContribution.js";
+import { ChatPromptContentStore, IChatPromptContentStore } from "../common/promptSyntax/chatPromptContentStore.js";
+import { PromptsConfig } from "../common/promptSyntax/config/config.js";
+import { INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, INSTRUCTION_FILE_EXTENSION, LEGACY_MODE_DEFAULT_SOURCE_FOLDER, LEGACY_MODE_FILE_EXTENSION, PROMPT_DEFAULT_SOURCE_FOLDER, PROMPT_FILE_EXTENSION, DEFAULT_SKILL_SOURCE_FOLDERS } from "../common/promptSyntax/config/promptFileLocations.js";
+import { PromptLanguageFeaturesProvider } from "../common/promptSyntax/promptFileContributions.js";
+import { AGENT_DOCUMENTATION_URL, INSTRUCTIONS_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL } from "../common/promptSyntax/promptTypes.js";
+import { IPromptsService } from "../common/promptSyntax/service/promptsService.js";
+import { PromptsService } from "../common/promptSyntax/service/promptsServiceImpl.js";
+import { LanguageModelToolsExtensionPointHandler } from "../common/tools/languageModelToolsContribution.js";
+import { BuiltinToolsContribution } from "../common/tools/builtinTools/tools.js";
+import { IVoiceChatService, VoiceChatService } from "../common/voiceChatService.js";
+import { registerChatAccessibilityActions } from "./actions/chatAccessibilityActions.js";
+import { AgentChatAccessibilityHelp, EditsChatAccessibilityHelp, PanelChatAccessibilityHelp, QuickChatAccessibilityHelp } from "./actions/chatAccessibilityHelp.js";
+import { ACTION_ID_NEW_CHAT, CopilotTitleBarMenuRendering, ModeOpenChatGlobalAction, registerChatActions } from "./actions/chatActions.js";
+import { CodeBlockActionRendering, registerChatCodeBlockActions, registerChatCodeCompareBlockActions } from "./actions/chatCodeblockActions.js";
+import { ChatContextContributions } from "./actions/chatContext.js";
+import { registerChatContextActions } from "./actions/chatContextActions.js";
+import { ContinueChatInSessionActionRendering } from "./actions/chatContinueInAction.js";
+import { registerChatCopyActions } from "./actions/chatCopyActions.js";
+import { registerChatDeveloperActions } from "./actions/chatDeveloperActions.js";
+import { ChatSubmitAction, registerChatExecuteActions } from "./actions/chatExecuteActions.js";
+import { registerChatFileTreeActions } from "./actions/chatFileTreeActions.js";
+import { ChatGettingStartedContribution } from "./actions/chatGettingStarted.js";
+import { registerChatExportActions } from "./actions/chatImportExport.js";
+import { registerLanguageModelActions } from "./actions/chatLanguageModelActions.js";
+import { registerMoveActions } from "./actions/chatMoveActions.js";
+import { registerNewChatActions } from "./actions/chatNewActions.js";
+import { registerChatPromptNavigationActions } from "./actions/chatPromptNavigationActions.js";
+import { registerQuickChatActions } from "./actions/chatQuickInputActions.js";
+import { ChatAgentRecommendation } from "./actions/chatAgentRecommendationActions.js";
+import { registerChatTitleActions } from "./actions/chatTitleActions.js";
+import { registerChatElicitationActions } from "./actions/chatElicitationActions.js";
+import { registerChatToolActions } from "./actions/chatToolActions.js";
+import { ChatTransferContribution } from "./actions/chatTransfer.js";
+import "./agentSessions/agentSessions.contribution.js";
+import { IChatAccessibilityService, IChatCodeBlockContextProviderService, IChatWidgetService, IQuickChatService } from "./chat.js";
+import { ChatAccessibilityService } from "./accessibility/chatAccessibilityService.js";
+import "./attachments/chatAttachmentModel.js";
+import "./widget/input/chatStatusWidget.js";
+import { ChatAttachmentResolveService, IChatAttachmentResolveService } from "./attachments/chatAttachmentResolveService.js";
+import { ChatMarkdownAnchorService, IChatMarkdownAnchorService } from "./widget/chatContentParts/chatMarkdownAnchorService.js";
+import { ChatContextPickService, IChatContextPickService } from "./attachments/chatContextPickService.js";
+import { ChatInputBoxContentProvider } from "./widget/input/editor/chatEditorInputContentProvider.js";
+import { ChatPromptContentProvider } from "./promptSyntax/chatPromptContentProvider.js";
+import { ChatEditingEditorAccessibility } from "./chatEditing/chatEditingEditorAccessibility.js";
+import { registerChatEditorActions } from "./chatEditing/chatEditingEditorActions.js";
+import { ChatEditingEditorContextKeys } from "./chatEditing/chatEditingEditorContextKeys.js";
+import { ChatEditingEditorOverlay } from "./chatEditing/chatEditingEditorOverlay.js";
+import { ChatEditingService } from "./chatEditing/chatEditingServiceImpl.js";
+import { ChatEditingNotebookFileSystemProviderContrib } from "./chatEditing/notebook/chatEditingNotebookFileSystemProvider.js";
+import { SimpleBrowserOverlay } from "./attachments/simpleBrowserEditorOverlay.js";
+import { ChatEditor } from "./widgetHosts/editor/chatEditor.js";
+import { ChatEditorInput, ChatEditorInputSerializer } from "./widgetHosts/editor/chatEditorInput.js";
+import { ChatLayoutService } from "./widget/chatLayoutService.js";
+import { ChatLanguageModelsDataContribution, LanguageModelsConfigurationService } from "./languageModelsConfigurationService.js";
+import "./chatManagement/chatManagement.contribution.js";
+import { agentSlashCommandToMarkdown, agentToMarkdown } from "./widget/chatContentParts/chatMarkdownDecorationsRenderer.js";
+import { ChatOutputRendererService, IChatOutputRendererService } from "./chatOutputItemRenderer.js";
+import { ChatCompatibilityNotifier, ChatExtensionPointHandler } from "./chatParticipant.contribution.js";
+import { ChatPasteProvidersFeature } from "./widget/input/editor/chatPasteProviders.js";
+import { QuickChatService } from "./widgetHosts/chatQuick.js";
+import { ChatResponseAccessibleView } from "./accessibility/chatResponseAccessibleView.js";
+import { ChatTerminalOutputAccessibleView } from "./accessibility/chatTerminalOutputAccessibleView.js";
+import { ChatThinkingAccessibleView } from "./accessibility/chatThinkingAccessibleView.js";
+import { ChatSetupContribution, ChatTeardownContribution } from "./chatSetup/chatSetupContributions.js";
+import { ChatStatusBarEntry } from "./chatStatus/chatStatusEntry.js";
+import { ChatVariablesService } from "./attachments/chatVariables.js";
+import { ChatWidget } from "./widget/chatWidget.js";
+import { ChatCodeBlockContextProviderService } from "./codeBlockContextProviderService.js";
+import { ChatDynamicVariableModel } from "./attachments/chatDynamicVariables.js";
+import { ChatImplicitContextContribution } from "./attachments/chatImplicitContext.js";
+import "./widget/input/editor/chatInputCompletions.js";
+import "./widget/input/editor/chatInputEditorContrib.js";
+import "./widget/input/editor/chatInputEditorHover.js";
+import { ChatRelatedFilesContribution } from "./attachments/chatInputRelatedFilesContrib.js";
+import { LanguageModelToolsConfirmationService } from "./tools/languageModelToolsConfirmationService.js";
+import { LanguageModelToolsService, globalAutoApproveDescription } from "./tools/languageModelToolsService.js";
+import "./promptSyntax/promptCodingAgentActionContribution.js";
+import "./promptSyntax/promptToolsCodeLensProvider.js";
+import { PromptUrlHandler } from "./promptSyntax/promptUrlHandler.js";
+import { ConfigureToolSets, UserToolSetsContributions } from "./tools/toolSetsContribution.js";
+import { ChatViewsWelcomeHandler } from "./viewsWelcome/chatViewsWelcomeHandler.js";
+import { ChatWidgetService } from "./widget/chatWidgetService.js";
+import { ILanguageModelsConfigurationService } from "../common/languageModelsConfiguration.js";
+import { ChatWindowNotifier } from "./chatWindowNotifier.js";
+import { ChatRepoInfoContribution } from "./chatRepoInfo.js";
+import { VALID_SKILL_PATH_PATTERN } from "../common/promptSyntax/utils/promptFilesLocator.js";
+const toolReferenceNameEnumValues = [];
+const toolReferenceNameEnumDescriptions = [];
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "chatSidebar",
+  title: nls.localize("interactiveSessionConfigurationTitle", "Chat"),
+  type: "object",
+  properties: {
+    "chat.fontSize": {
+      type: "number",
+      description: nls.localize("chat.fontSize", "Controls the font size in pixels in chat messages."),
+      default: 13,
+      minimum: 6,
+      maximum: 100
+    },
+    "chat.fontFamily": {
+      type: "string",
+      description: nls.localize("chat.fontFamily", "Controls the font family in chat messages."),
+      default: "default"
+    },
+    "chat.editor.fontSize": {
+      type: "number",
+      description: nls.localize("interactiveSession.editor.fontSize", "Controls the font size in pixels in chat codeblocks."),
+      default: isMacintosh ? 12 : 14
+    },
+    "chat.editor.fontFamily": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.fontFamily", "Controls the font family in chat codeblocks."),
+      default: "default"
+    },
+    "chat.editor.fontWeight": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.fontWeight", "Controls the font weight in chat codeblocks."),
+      default: "default"
+    },
+    "chat.editor.wordWrap": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.wordWrap", "Controls whether lines should wrap in chat codeblocks."),
+      default: "off",
+      enum: ["on", "off"]
+    },
+    "chat.editor.lineHeight": {
+      type: "number",
+      description: nls.localize("interactiveSession.editor.lineHeight", "Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),
+      default: 0
+    },
+    "chat.commandCenter.enabled": {
+      type: "boolean",
+      markdownDescription: nls.localize("chat.commandCenter.enabled", "Controls whether the command center shows a menu for actions to control chat (requires {0}).", "`#window.commandCenter#`"),
+      default: true
+    },
+    [ChatConfiguration.AgentStatusEnabled]: {
+      type: "boolean",
+      markdownDescription: nls.localize("chat.agentsControl.enabled", "Controls whether the Agent Status is shown in the title bar command center, replacing the search box with quick access to chat sessions. Enabling this setting will automatically enable {0}.", "`#window.commandCenter#`"),
+      default: false,
+      tags: ["experimental"]
+    },
+    [ChatConfiguration.AgentSessionProjectionEnabled]: {
+      type: "boolean",
+      markdownDescription: nls.localize("chat.agentSessionProjection.enabled", "Controls whether Agent Session Projection mode is enabled for reviewing agent sessions in a focused workspace."),
+      default: false,
+      tags: ["experimental"]
+    },
+    "chat.implicitContext.enabled": {
+      type: "object",
+      description: nls.localize("chat.implicitContext.enabled.1", "Enables automatically using the active editor as chat context for specified chat locations."),
+      additionalProperties: {
+        type: "string",
+        enum: ["never", "first", "always"],
+        description: nls.localize("chat.implicitContext.value", "The value for the implicit context."),
+        enumDescriptions: [
+          nls.localize("chat.implicitContext.value.never", "Implicit context is never enabled."),
+          nls.localize("chat.implicitContext.value.first", "Implicit context is enabled for the first interaction."),
+          nls.localize("chat.implicitContext.value.always", "Implicit context is always enabled.")
+        ]
+      },
+      default: {
+        "panel": "always"
+      }
+    },
+    "chat.implicitContext.suggestedContext": {
+      type: "boolean",
+      markdownDescription: nls.localize("chat.implicitContext.suggestedContext", "Controls whether the new implicit context flow is shown. In Ask and Edit modes, the context will automatically be included. When using an agent, context will be suggested as an attachment. Selections are always included as context."),
+      default: true
+    },
+    "chat.editing.autoAcceptDelay": {
+      type: "number",
+      markdownDescription: nls.localize("chat.editing.autoAcceptDelay", "Delay after which changes made by chat are automatically accepted. Values are in seconds, `0` means disabled and `100` seconds is the maximum."),
+      default: 0,
+      minimum: 0,
+      maximum: 100
+    },
+    "chat.editing.confirmEditRequestRemoval": {
+      type: "boolean",
+      scope: 1,
+      markdownDescription: nls.localize("chat.editing.confirmEditRequestRemoval", "Whether to show a confirmation before removing a request and its associated edits."),
+      default: true
+    },
+    "chat.editing.confirmEditRequestRetry": {
+      type: "boolean",
+      scope: 1,
+      markdownDescription: nls.localize("chat.editing.confirmEditRequestRetry", "Whether to show a confirmation before retrying a request and its associated edits."),
+      default: true
+    },
+    "chat.experimental.detectParticipant.enabled": {
+      type: "boolean",
+      deprecationMessage: nls.localize("chat.experimental.detectParticipant.enabled.deprecated", "This setting is deprecated. Please use `chat.detectParticipant.enabled` instead."),
+      description: nls.localize("chat.experimental.detectParticipant.enabled", "Enables chat participant autodetection for panel chat."),
+      default: null
+    },
+    "chat.detectParticipant.enabled": {
+      type: "boolean",
+      description: nls.localize("chat.detectParticipant.enabled", "Enables chat participant autodetection for panel chat."),
+      default: true
+    },
+    "chat.renderRelatedFiles": {
+      type: "boolean",
+      description: nls.localize("chat.renderRelatedFiles", "Controls whether related files should be rendered in the chat input."),
+      default: false
+    },
+    [ChatConfiguration.InlineReferencesStyle]: {
+      type: "string",
+      enum: ["box", "link"],
+      enumDescriptions: [
+        nls.localize("chat.inlineReferences.style.box", "Display file and symbol references as boxed widgets with icons."),
+        nls.localize("chat.inlineReferences.style.link", "Display file and symbol references as simple blue links without icons.")
+      ],
+      description: nls.localize("chat.inlineReferences.style", "Controls how file and symbol references are displayed in chat messages."),
+      default: "box"
+    },
+    "chat.notifyWindowOnConfirmation": {
+      type: "boolean",
+      description: nls.localize("chat.notifyWindowOnConfirmation", "Controls whether a chat session should present the user with an OS notification when a confirmation is needed while the window is not in focus. This includes a window badge as well as notification toast."),
+      default: true
+    },
+    [ChatConfiguration.GlobalAutoApprove]: {
+      default: false,
+      markdownDescription: globalAutoApproveDescription.value,
+      type: "boolean",
+      scope: 3,
+      tags: ["experimental"],
+      policy: {
+        name: "ChatToolsAutoApprove",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.99",
+        value: /* @__PURE__ */ __name((account) => account.chat_preview_features_enabled === false ? false : void 0, "value"),
+        localization: {
+          description: {
+            key: "autoApprove2.description",
+            value: nls.localize("autoApprove2.description", 'Global auto approve also known as "YOLO mode" disables manual approval completely for all tools in all workspaces, allowing the agent to act fully autonomously. This is extremely dangerous and is *never* recommended, even containerized environments like Codespaces and Dev Containers have user keys forwarded into the container that could be compromised.\n\nThis feature disables critical security protections and makes it much easier for an attacker to compromise the machine.')
+          }
+        }
+      }
+    },
+    [ChatConfiguration.AutoApproveEdits]: {
+      default: {
+        "**/*": true,
+        "**/.vscode/*.json": false,
+        "**/.git/**": false,
+        "**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}": false,
+        "**/*.{code-workspace,csproj,fsproj,vbproj,vcxproj,proj,targets,props}": false
+      },
+      markdownDescription: nls.localize("chat.tools.autoApprove.edits", "Controls whether edits made by chat are automatically approved. The default is to approve all edits except those made to certain files which have the potential to cause immediate unintended side-effects, such as `**/.vscode/*.json`.\n\nSet to `true` to automatically approve edits to matching files, `false` to always require explicit approval. The last pattern matching a given file will determine whether the edit is automatically approved."),
+      type: "object",
+      additionalProperties: {
+        type: "boolean"
+      }
+    },
+    [ChatConfiguration.AutoApprovedUrls]: {
+      default: {},
+      markdownDescription: nls.localize("chat.tools.fetchPage.approvedUrls", 'Controls which URLs are automatically approved when requested by chat tools. Keys are URL patterns and values can be `true` to approve both requests and responses, `false` to deny, or an object with `approveRequest` and `approveResponse` properties for granular control.\n\nExamples:\n- `"https://example.com": true` - Approve all requests to example.com\n- `"https://*.example.com": true` - Approve all requests to any subdomain of example.com\n- `"https://example.com/api/*": { "approveRequest": true, "approveResponse": false }` - Approve requests but not responses for example.com/api paths'),
+      type: "object",
+      additionalProperties: {
+        oneOf: [
+          { type: "boolean" },
+          {
+            type: "object",
+            properties: {
+              approveRequest: { type: "boolean" },
+              approveResponse: { type: "boolean" }
+            }
+          }
+        ]
+      }
+    },
+    [ChatConfiguration.EligibleForAutoApproval]: {
+      default: {},
+      markdownDescription: nls.localize("chat.tools.eligibleForAutoApproval", "Controls which tools are eligible for automatic approval. Tools set to 'false' will always present a confirmation and will never offer the option to auto-approve. The default behavior (or setting a tool to 'true') may result in the tool offering auto-approval options."),
+      type: "object",
+      propertyNames: {
+        enum: toolReferenceNameEnumValues,
+        enumDescriptions: toolReferenceNameEnumDescriptions
+      },
+      additionalProperties: {
+        type: "boolean"
+      },
+      tags: ["experimental"],
+      examples: [
+        {
+          "fetch": false,
+          "runTask": false
+        }
+      ],
+      policy: {
+        name: "ChatToolsEligibleForAutoApproval",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.107",
+        localization: {
+          description: {
+            key: "chat.tools.eligibleForAutoApproval",
+            value: nls.localize("chat.tools.eligibleForAutoApproval", "Controls which tools are eligible for automatic approval. Tools set to 'false' will always present a confirmation and will never offer the option to auto-approve. The default behavior (or setting a tool to 'true') may result in the tool offering auto-approval options.")
+          }
+        }
+      }
+    },
+    "chat.sendElementsToChat.enabled": {
+      default: true,
+      description: nls.localize("chat.sendElementsToChat.enabled", "Controls whether elements can be sent to chat from the Simple Browser."),
+      type: "boolean",
+      tags: ["preview"]
+    },
+    "chat.sendElementsToChat.attachCSS": {
+      default: true,
+      markdownDescription: nls.localize("chat.sendElementsToChat.attachCSS", "Controls whether CSS of the selected element will be added to the chat. {0} must be enabled.", "`#chat.sendElementsToChat.enabled#`"),
+      type: "boolean",
+      tags: ["preview"]
+    },
+    "chat.sendElementsToChat.attachImages": {
+      default: true,
+      markdownDescription: nls.localize("chat.sendElementsToChat.attachImages", "Controls whether a screenshot of the selected element will be added to the chat. {0} must be enabled.", "`#chat.sendElementsToChat.enabled#`"),
+      type: "boolean",
+      tags: ["experimental"]
+    },
+    "chat.undoRequests.restoreInput": {
+      default: true,
+      markdownDescription: nls.localize("chat.undoRequests.restoreInput", "Controls whether the input of the chat should be restored when an undo request is made. The input will be filled with the text of the request that was restored."),
+      type: "boolean"
+    },
+    "chat.editRequests": {
+      markdownDescription: nls.localize("chat.editRequests", "Enables editing of requests in the chat. This allows you to change the request content and resubmit it to the model."),
+      type: "string",
+      enum: ["inline", "hover", "input", "none"],
+      default: "inline"
+    },
+    [ChatConfiguration.ChatViewSessionsEnabled]: {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.viewSessions.enabled", "Show chat agent sessions when chat is empty or to the side when chat view is wide enough.")
+    },
+    [ChatConfiguration.ChatViewSessionsShowRecentOnly]: {
+      type: "boolean",
+      default: false,
+      description: nls.localize("chat.viewSessions.showRecentOnly", "When enabled, only show recent sessions in the stacked sessions view. When disabled, show all sessions.")
+    },
+    [ChatConfiguration.ChatViewSessionsOrientation]: {
+      type: "string",
+      enum: ["stacked", "sideBySide"],
+      enumDescriptions: [
+        nls.localize("chat.viewSessions.orientation.stacked", "Display chat sessions vertically stacked above the chat input unless a chat session is visible."),
+        nls.localize("chat.viewSessions.orientation.sideBySide", "Display chat sessions side by side if space is sufficient, otherwise fallback to stacked above the chat input unless a chat session is visible.")
+      ],
+      default: "sideBySide",
+      description: nls.localize("chat.viewSessions.orientation", "Controls the orientation of the chat agent sessions view when it is shown alongside the chat.")
+    },
+    [ChatConfiguration.ChatViewTitleEnabled]: {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.viewTitle.enabled", "Show the title of the chat above the chat in the chat view.")
+    },
+    [ChatConfiguration.NotifyWindowOnResponseReceived]: {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.notifyWindowOnResponseReceived", "Controls whether a chat session should present the user with an OS notification when a response is received while the window is not in focus. This includes a window badge as well as notification toast.")
+    },
+    "chat.checkpoints.enabled": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.checkpoints.enabled", "Enables checkpoints in chat. Checkpoints allow you to restore the chat to a previous state.")
+    },
+    "chat.checkpoints.showFileChanges": {
+      type: "boolean",
+      description: nls.localize("chat.checkpoints.showFileChanges", "Controls whether to show chat checkpoint file changes."),
+      default: false
+    },
+    [mcpAccessConfig]: {
+      type: "string",
+      description: nls.localize("chat.mcp.access", "Controls access to installed Model Context Protocol servers."),
+      enum: [
+        "none",
+        "registry",
+        "all"
+        /* McpAccessValue.All */
+      ],
+      enumDescriptions: [
+        nls.localize("chat.mcp.access.none", "No access to MCP servers."),
+        nls.localize("chat.mcp.access.registry", "Allows access to MCP servers installed from the registry that VS Code is connected to."),
+        nls.localize("chat.mcp.access.any", "Allow access to any installed MCP server.")
+      ],
+      default: "all",
+      policy: {
+        name: "ChatMCP",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.99",
+        value: /* @__PURE__ */ __name((account) => {
+          if (account.mcp === false) {
+            return "none";
+          }
+          if (account.mcpAccess === "registry_only") {
+            return "registry";
+          }
+          return void 0;
+        }, "value"),
+        localization: {
+          description: {
+            key: "chat.mcp.access",
+            value: nls.localize("chat.mcp.access", "Controls access to installed Model Context Protocol servers.")
+          },
+          enumDescriptions: [
+            {
+              key: "chat.mcp.access.none",
+              value: nls.localize("chat.mcp.access.none", "No access to MCP servers.")
+            },
+            {
+              key: "chat.mcp.access.registry",
+              value: nls.localize("chat.mcp.access.registry", "Allows access to MCP servers installed from the registry that VS Code is connected to.")
+            },
+            {
+              key: "chat.mcp.access.any",
+              value: nls.localize("chat.mcp.access.any", "Allow access to any installed MCP server.")
+            }
+          ]
+        }
+      }
+    },
+    [mcpAutoStartConfig]: {
+      type: "string",
+      description: nls.localize("chat.mcp.autostart", "Controls whether MCP servers should be automatically started when the chat messages are submitted."),
+      default: "newAndOutdated",
+      enum: [
+        "never",
+        "onlyNew",
+        "newAndOutdated"
+        /* McpAutoStartValue.NewAndOutdated */
+      ],
+      enumDescriptions: [
+        nls.localize("chat.mcp.autostart.never", "Never automatically start MCP servers."),
+        nls.localize("chat.mcp.autostart.onlyNew", "Only automatically start new MCP servers that have never been run."),
+        nls.localize("chat.mcp.autostart.newAndOutdated", "Automatically start new and outdated MCP servers that are not yet running.")
+      ],
+      tags: ["experimental"]
+    },
+    [mcpAppsEnabledConfig]: {
+      type: "boolean",
+      description: nls.localize("chat.mcp.ui.enabled", "Controls whether MCP servers can provide custom UI for tool invocations."),
+      default: false,
+      tags: ["experimental"]
+    },
+    [mcpServerSamplingSection]: {
+      type: "object",
+      description: nls.localize("chat.mcp.serverSampling", "Configures which models are exposed to MCP servers for sampling (making model requests in the background). This setting can be edited in a graphical way under the `{0}` command.", "MCP: " + nls.localize("mcp.list", "List Servers")),
+      scope: 5,
+      additionalProperties: {
+        type: "object",
+        properties: {
+          allowedDuringChat: {
+            type: "boolean",
+            description: nls.localize("chat.mcp.serverSampling.allowedDuringChat", "Whether this server is make sampling requests during its tool calls in a chat session."),
+            default: true
+          },
+          allowedOutsideChat: {
+            type: "boolean",
+            description: nls.localize("chat.mcp.serverSampling.allowedOutsideChat", "Whether this server is allowed to make sampling requests outside of a chat session."),
+            default: false
+          },
+          allowedModels: {
+            type: "array",
+            items: {
+              type: "string",
+              description: nls.localize("chat.mcp.serverSampling.model", "A model the MCP server has access to.")
+            }
+          }
+        }
+      }
+    },
+    [AssistedTypes[
+      4
+      /* AddConfigurationType.NuGetPackage */
+    ].enabledConfigKey]: {
+      type: "boolean",
+      description: nls.localize("chat.mcp.assisted.nuget.enabled.description", "Enables NuGet packages for AI-assisted MCP server installation. Used to install MCP servers by name from the central registry for .NET packages (NuGet.org)."),
+      default: false,
+      tags: ["experimental"],
+      experiment: {
+        mode: "startup"
+      }
+    },
+    [ChatConfiguration.Edits2Enabled]: {
+      type: "boolean",
+      description: nls.localize("chat.edits2Enabled", "Enable the new Edits mode that is based on tool-calling. When this is enabled, models that don't support tool-calling are unavailable for Edits mode."),
+      default: false
+    },
+    [ChatConfiguration.ExtensionToolsEnabled]: {
+      type: "boolean",
+      description: nls.localize("chat.extensionToolsEnabled", "Enable using tools contributed by third-party extensions."),
+      default: true,
+      policy: {
+        name: "ChatAgentExtensionTools",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.99",
+        localization: {
+          description: {
+            key: "chat.extensionToolsEnabled",
+            value: nls.localize("chat.extensionToolsEnabled", "Enable using tools contributed by third-party extensions.")
+          }
+        }
+      }
+    },
+    [ChatConfiguration.AgentEnabled]: {
+      type: "boolean",
+      description: nls.localize("chat.agent.enabled.description", "When enabled, agent mode can be activated from chat and tools in agentic contexts with side effects can be used."),
+      default: true,
+      policy: {
+        name: "ChatAgentMode",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.99",
+        value: /* @__PURE__ */ __name((account) => account.chat_agent_enabled === false ? false : void 0, "value"),
+        localization: {
+          description: {
+            key: "chat.agent.enabled.description",
+            value: nls.localize("chat.agent.enabled.description", "When enabled, agent mode can be activated from chat and tools in agentic contexts with side effects can be used.")
+          }
+        }
+      }
+    },
+    [ChatConfiguration.EnableMath]: {
+      type: "boolean",
+      description: nls.localize("chat.mathEnabled.description", "Enable math rendering in chat responses using KaTeX."),
+      default: true,
+      tags: ["preview"]
+    },
+    [ChatConfiguration.ShowCodeBlockProgressAnimation]: {
+      type: "boolean",
+      description: nls.localize("chat.codeBlock.showProgressAnimation.description", "When applying edits, show a progress animation in the code block pill. If disabled, shows the progress percentage instead."),
+      default: true,
+      tags: ["experimental"]
+    },
+    ["chat.statusWidget.sku"]: {
+      type: "string",
+      enum: ["free", "anonymous"],
+      enumDescriptions: [
+        nls.localize("chat.statusWidget.sku.free", "Show status widget for free tier users."),
+        nls.localize("chat.statusWidget.sku.anonymous", "Show status widget for anonymous users.")
+      ],
+      description: nls.localize("chat.statusWidget.enabled.description", "Controls which user type should see the status widget in new chat sessions when quota is exceeded."),
+      default: void 0,
+      tags: ["experimental", "advanced"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [mcpDiscoverySection]: {
+      type: "object",
+      properties: Object.fromEntries(allDiscoverySources.map((k) => [k, { type: "boolean", description: discoverySourceSettingsLabel[k] }])),
+      additionalProperties: false,
+      default: Object.fromEntries(allDiscoverySources.map((k) => [k, false])),
+      markdownDescription: nls.localize("mcp.discovery.enabled", "Configures discovery of Model Context Protocol servers from configuration from various other applications.")
+    },
+    [mcpGalleryServiceEnablementConfig]: {
+      type: "boolean",
+      default: false,
+      tags: ["preview"],
+      description: nls.localize("chat.mcp.gallery.enabled", "Enables the default Marketplace for Model Context Protocol (MCP) servers."),
+      included: product.quality === "stable"
+    },
+    [mcpGalleryServiceUrlConfig]: {
+      type: "string",
+      description: nls.localize("mcp.gallery.serviceUrl", "Configure the MCP Gallery service URL to connect to"),
+      default: "",
+      scope: 1,
+      tags: ["usesOnlineServices", "advanced"],
+      included: false,
+      policy: {
+        name: "McpGalleryServiceUrl",
+        category: PolicyCategory.InteractiveSession,
+        minimumVersion: "1.101",
+        value: /* @__PURE__ */ __name((account) => account.mcpRegistryUrl, "value"),
+        localization: {
+          description: {
+            key: "mcp.gallery.serviceUrl",
+            value: nls.localize("mcp.gallery.serviceUrl", "Configure the MCP Gallery service URL to connect to")
+          }
+        }
+      }
+    },
+    [PromptsConfig.INSTRUCTIONS_LOCATION_KEY]: {
+      type: "object",
+      title: nls.localize("chat.instructions.config.locations.title", "Instructions File Locations"),
+      markdownDescription: nls.localize("chat.instructions.config.locations.description", "Specify location(s) of instructions files (`*{0}`) that can be attached in Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.", INSTRUCTION_FILE_EXTENSION, INSTRUCTIONS_DOCUMENTATION_URL),
+      default: {
+        [INSTRUCTIONS_DEFAULT_SOURCE_FOLDER]: true
+      },
+      additionalProperties: { type: "boolean" },
+      restricted: true,
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"],
+      examples: [
+        {
+          [INSTRUCTIONS_DEFAULT_SOURCE_FOLDER]: true
+        },
+        {
+          [INSTRUCTIONS_DEFAULT_SOURCE_FOLDER]: true,
+          "/Users/vscode/repos/instructions": true
+        }
+      ]
+    },
+    [PromptsConfig.PROMPT_LOCATIONS_KEY]: {
+      type: "object",
+      title: nls.localize("chat.reusablePrompts.config.locations.title", "Prompt File Locations"),
+      markdownDescription: nls.localize("chat.reusablePrompts.config.locations.description", "Specify location(s) of reusable prompt files (`*{0}`) that can be run in Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.", PROMPT_FILE_EXTENSION, PROMPT_DOCUMENTATION_URL),
+      default: {
+        [PROMPT_DEFAULT_SOURCE_FOLDER]: true
+      },
+      additionalProperties: { type: "boolean" },
+      unevaluatedProperties: { type: "boolean" },
+      restricted: true,
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"],
+      examples: [
+        {
+          [PROMPT_DEFAULT_SOURCE_FOLDER]: true
+        },
+        {
+          [PROMPT_DEFAULT_SOURCE_FOLDER]: true,
+          "/Users/vscode/repos/prompts": true
+        }
+      ]
+    },
+    [PromptsConfig.MODE_LOCATION_KEY]: {
+      type: "object",
+      title: nls.localize("chat.mode.config.locations.title", "Mode File Locations"),
+      markdownDescription: nls.localize("chat.mode.config.locations.description", "Specify location(s) of custom chat mode files (`*{0}`). [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.", LEGACY_MODE_FILE_EXTENSION, AGENT_DOCUMENTATION_URL),
+      default: {
+        [LEGACY_MODE_DEFAULT_SOURCE_FOLDER]: true
+      },
+      deprecationMessage: nls.localize("chat.mode.config.locations.deprecated", "This setting is deprecated and will be removed in future releases. Chat modes are now called custom agents and are located in `.github/agents`"),
+      additionalProperties: { type: "boolean" },
+      unevaluatedProperties: { type: "boolean" },
+      restricted: true,
+      tags: ["experimental", "prompts", "reusable prompts", "prompt snippets", "instructions"],
+      examples: [
+        {
+          [LEGACY_MODE_DEFAULT_SOURCE_FOLDER]: true
+        },
+        {
+          [LEGACY_MODE_DEFAULT_SOURCE_FOLDER]: true,
+          "/Users/vscode/repos/chatmodes": true
+        }
+      ]
+    },
+    [PromptsConfig.USE_AGENT_MD]: {
+      type: "boolean",
+      title: nls.localize("chat.useAgentMd.title", "Use AGENTS.md file"),
+      markdownDescription: nls.localize("chat.useAgentMd.description", "Controls whether instructions from `AGENTS.md` file found in a workspace roots are attached to all chat requests."),
+      default: true,
+      restricted: true,
+      disallowConfigurationDefault: true,
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"]
+    },
+    [PromptsConfig.USE_NESTED_AGENT_MD]: {
+      type: "boolean",
+      title: nls.localize("chat.useNestedAgentMd.title", "Use nested AGENTS.md files"),
+      markdownDescription: nls.localize("chat.useNestedAgentMd.description", "Controls whether instructions from nested `AGENTS.md` files found in the workspace are listed in all chat requests. The language model can load these skills on-demand if the `read` tool is available."),
+      default: false,
+      restricted: true,
+      disallowConfigurationDefault: true,
+      tags: ["experimental", "prompts", "reusable prompts", "prompt snippets", "instructions"]
+    },
+    [PromptsConfig.USE_AGENT_SKILLS]: {
+      type: "boolean",
+      title: nls.localize("chat.useAgentSkills.title", "Use Agent skills"),
+      markdownDescription: nls.localize("chat.useAgentSkills.description", "Controls whether skills are provided as specialized capabilities to the chat requests. Skills are loaded from the folders configured in `#chat.agentSkillsLocations#`. The language model can load these skills on-demand if the `read` tool is available. Learn more about [Agent Skills](https://aka.ms/vscode-agent-skills)."),
+      default: true,
+      restricted: true,
+      disallowConfigurationDefault: true,
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"]
+    },
+    [PromptsConfig.SKILLS_LOCATION_KEY]: {
+      type: "object",
+      title: nls.localize("chat.agentSkillsLocations.title", "Agent Skills Locations"),
+      markdownDescription: nls.localize("chat.agentSkillsLocations.description", "Specify where agent skills are located. Each path should contain skill subfolders with SKILL.md files (e.g., my-skills/skillA/SKILL.md \u2192 add my-skills).\n\n**Supported path types:**\n- Workspace paths: `my-skills`, `./my-skills`, `../shared-skills`\n- User home paths: `~/.copilot/skills`, `~/.claude/skills`"),
+      default: {
+        ...DEFAULT_SKILL_SOURCE_FOLDERS.map((folder) => ({ [folder.path]: true })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+      },
+      additionalProperties: { type: "boolean" },
+      propertyNames: {
+        pattern: VALID_SKILL_PATH_PATTERN,
+        patternErrorMessage: nls.localize("chat.agentSkillsLocations.invalidPath", "Skill location paths must either be relative paths or start with '~' for user home directory.")
+      },
+      restricted: true,
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"],
+      examples: [
+        {
+          [DEFAULT_SKILL_SOURCE_FOLDERS[0].path]: true
+        },
+        {
+          [DEFAULT_SKILL_SOURCE_FOLDERS[0].path]: true,
+          "my-skills": true,
+          "../shared-skills": true,
+          "~/.custom/skills": true
+        }
+      ]
+    },
+    [PromptsConfig.PROMPT_FILES_SUGGEST_KEY]: {
+      type: "object",
+      scope: 5,
+      title: nls.localize("chat.promptFilesRecommendations.title", "Prompt File Recommendations"),
+      markdownDescription: nls.localize("chat.promptFilesRecommendations.description", "Configure which prompt files to recommend in the chat welcome view. Each key is a prompt file name, and the value can be `true` to always recommend, `false` to never recommend, or a [when clause](https://aka.ms/vscode-when-clause) expression like `resourceExtname == .js` or `resourceLangId == markdown`."),
+      default: {},
+      additionalProperties: {
+        oneOf: [
+          { type: "boolean" },
+          { type: "string" }
+        ]
+      },
+      tags: ["prompts", "reusable prompts", "prompt snippets", "instructions"],
+      examples: [
+        {
+          "plan": true,
+          "a11y-audit": "resourceExtname == .html",
+          "document": "resourceLangId == markdown"
+        }
+      ]
+    },
+    [ChatConfiguration.TodosShowWidget]: {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.tools.todos.showWidget", "Controls whether to show the todo list widget above the chat input. When enabled, the widget displays todo items created by the agent and updates as progress is made."),
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    "chat.todoListTool.writeOnly": {
+      type: "boolean",
+      default: false,
+      description: nls.localize("chat.todoListTool.writeOnly", "When enabled, the todo tool operates in write-only mode, requiring the agent to remember todos in context."),
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    "chat.todoListTool.descriptionField": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.todoListTool.descriptionField", "When enabled, todo items include detailed descriptions for implementation context. This provides more information but uses additional tokens and may slow down responses."),
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [ChatConfiguration.ThinkingStyle]: {
+      type: "string",
+      default: "collapsedPreview",
+      enum: ["collapsed", "collapsedPreview", "fixedScrolling"],
+      enumDescriptions: [
+        nls.localize("chat.agent.thinkingMode.collapsed", "Thinking parts will be collapsed by default."),
+        nls.localize("chat.agent.thinkingMode.collapsedPreview", "Thinking parts will be expanded first, then collapse once we reach a part that is not thinking."),
+        nls.localize("chat.agent.thinkingMode.fixedScrolling", "Show thinking in a fixed-height streaming panel that auto-scrolls; click header to expand to full height.")
+      ],
+      description: nls.localize("chat.agent.thinkingStyle", "Controls how thinking is rendered."),
+      tags: ["experimental"]
+    },
+    [ChatConfiguration.ThinkingGenerateTitles]: {
+      type: "boolean",
+      default: true,
+      description: nls.localize("chat.agent.thinking.generateTitles", "Controls whether to use an LLM to generate summary titles for thinking sections."),
+      tags: ["experimental"]
+    },
+    "chat.agent.thinking.collapsedTools": {
+      type: "string",
+      default: "always",
+      enum: ["off", "withThinking", "always"],
+      enumDescriptions: [
+        nls.localize("chat.agent.thinking.collapsedTools.off", "Tool calls are shown separately, not collapsed into thinking."),
+        nls.localize("chat.agent.thinking.collapsedTools.withThinking", "Tool calls are collapsed into thinking sections when thinking is present."),
+        nls.localize("chat.agent.thinking.collapsedTools.always", "Tool calls are always collapsed, even without thinking.")
+      ],
+      markdownDescription: nls.localize("chat.agent.thinking.collapsedTools", "Controls how tool calls are displayed in relation to thinking sections."),
+      tags: ["experimental"]
+    },
+    [ChatConfiguration.TerminalToolsInThinking]: {
+      type: "boolean",
+      default: true,
+      markdownDescription: nls.localize("chat.agent.thinking.terminalTools", "When enabled, terminal tool calls are displayed inside the thinking dropdown with a simplified view."),
+      tags: ["experimental"]
+    },
+    "chat.disableAIFeatures": {
+      type: "boolean",
+      description: nls.localize("chat.disableAIFeatures", "Disable and hide built-in AI features provided by GitHub Copilot, including chat and inline suggestions."),
+      default: false,
+      scope: 4
+      /* ConfigurationScope.WINDOW */
+    },
+    "chat.allowAnonymousAccess": {
+      type: "boolean",
+      description: nls.localize("chat.allowAnonymousAccess", "Controls whether anonymous access is allowed in chat."),
+      default: false,
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [ChatConfiguration.RestoreLastPanelSession]: {
+      type: "boolean",
+      description: nls.localize("chat.restoreLastPanelSession", "Controls whether the last session is restored in panel after restart."),
+      default: false
+    },
+    [ChatConfiguration.ExitAfterDelegation]: {
+      type: "boolean",
+      description: nls.localize("chat.exitAfterDelegation", "Controls whether the chat panel automatically exits after delegating a request to another session."),
+      default: true,
+      tags: ["preview"]
+    },
+    "chat.extensionUnification.enabled": {
+      type: "boolean",
+      description: nls.localize("chat.extensionUnification.enabled", "Enables the unification of GitHub Copilot extensions. When enabled, all GitHub Copilot functionality is served from the GitHub Copilot Chat extension. When disabled, the GitHub Copilot and GitHub Copilot Chat extensions operate independently."),
+      default: true,
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [ChatConfiguration.SubagentToolCustomAgents]: {
+      type: "boolean",
+      description: nls.localize("chat.subagentTool.customAgents", "Whether the runSubagent tool is able to use custom agents. When enabled, the tool can take the name of a custom agent, but it must be given the exact name of the agent."),
+      default: false,
+      tags: ["experimental"]
+    }
+  }
+});
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(ChatEditor, ChatEditorInput.EditorID, nls.localize("chat", "Chat")), [
+  new SyncDescriptor(ChatEditorInput)
+]);
+Registry.as(Extensions.ConfigurationMigration).registerConfigurationMigrations([
+  {
+    key: "chat.experimental.detectParticipant.enabled",
+    migrateFn: /* @__PURE__ */ __name((value, _accessor) => [
+      ["chat.experimental.detectParticipant.enabled", { value: void 0 }],
+      ["chat.detectParticipant.enabled", { value: value !== false }]
+    ], "migrateFn")
+  },
+  {
+    key: "chat.useClaudeSkills",
+    migrateFn: /* @__PURE__ */ __name((value, _accessor) => [
+      ["chat.useClaudeSkills", { value: void 0 }],
+      ["chat.useAgentSkills", { value }]
+    ], "migrateFn")
+  },
+  {
+    key: mcpDiscoverySection,
+    migrateFn: /* @__PURE__ */ __name((value) => {
+      if (typeof value === "boolean") {
+        return { value: Object.fromEntries(allDiscoverySources.map((k) => [k, value])) };
+      }
+      return { value };
+    }, "migrateFn")
+  }
+]);
+let ChatResolverContribution = class ChatResolverContribution2 extends Disposable {
+  static {
+    __name(this, "ChatResolverContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatResolver";
+  }
+  constructor(chatSessionsService, editorResolverService, instantiationService) {
+    super();
+    this.editorResolverService = editorResolverService;
+    this.instantiationService = instantiationService;
+    this._editorRegistrations = this._register(new DisposableMap());
+    this._registerEditor(Schemas.vscodeChatEditor);
+    this._registerEditor(Schemas.vscodeLocalChatSession);
+    this._register(chatSessionsService.onDidChangeContentProviderSchemes((e) => {
+      for (const scheme of e.added) {
+        this._registerEditor(scheme);
+      }
+      for (const scheme of e.removed) {
+        this._editorRegistrations.deleteAndDispose(scheme);
+      }
+    }));
+    for (const scheme of chatSessionsService.getContentProviderSchemes()) {
+      this._registerEditor(scheme);
+    }
+  }
+  _registerEditor(scheme) {
+    this._editorRegistrations.set(scheme, this.editorResolverService.registerEditor(`${scheme}:**/**`, {
+      id: ChatEditorInput.EditorID,
+      label: nls.localize("chat", "Chat"),
+      priority: RegisteredEditorPriority.builtin
+    }, {
+      singlePerResource: true,
+      canSupportResource: /* @__PURE__ */ __name((resource) => resource.scheme === scheme, "canSupportResource")
+    }, {
+      createEditorInput: /* @__PURE__ */ __name(({ resource, options }) => {
+        return {
+          editor: this.instantiationService.createInstance(ChatEditorInput, resource, options),
+          options
+        };
+      }, "createEditorInput")
+    }));
+  }
+};
+ChatResolverContribution = __decorate([
+  __param(0, IChatSessionsService),
+  __param(1, IEditorResolverService),
+  __param(2, IInstantiationService)
+], ChatResolverContribution);
+let ChatAgentSettingContribution = class ChatAgentSettingContribution2 extends Disposable {
+  static {
+    __name(this, "ChatAgentSettingContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatAgentSetting";
+  }
+  constructor(experimentService, entitlementService) {
+    super();
+    this.experimentService = experimentService;
+    this.entitlementService = entitlementService;
+    this.registerMaxRequestsSetting();
+  }
+  registerMaxRequestsSetting() {
+    let lastNode;
+    const registerMaxRequestsSetting = /* @__PURE__ */ __name(() => {
+      const treatmentId = this.entitlementService.entitlement === ChatEntitlement.Free ? "chatAgentMaxRequestsFree" : "chatAgentMaxRequestsPro";
+      this.experimentService.getTreatment(treatmentId).then((value) => {
+        const defaultValue = value ?? (this.entitlementService.entitlement === ChatEntitlement.Free ? 25 : 25);
+        const node = {
+          id: "chatSidebar",
+          title: nls.localize("interactiveSessionConfigurationTitle", "Chat"),
+          type: "object",
+          properties: {
+            "chat.agent.maxRequests": {
+              type: "number",
+              markdownDescription: nls.localize("chat.agent.maxRequests", "The maximum number of requests to allow per-turn when using an agent. When the limit is reached, will ask to confirm to continue."),
+              default: defaultValue
+            }
+          }
+        };
+        configurationRegistry.updateConfigurations({ remove: lastNode ? [lastNode] : [], add: [node] });
+        lastNode = node;
+      });
+    }, "registerMaxRequestsSetting");
+    this._register(Event.runAndSubscribe(Event.debounce(this.entitlementService.onDidChangeEntitlement, () => {
+    }, 1e3), () => registerMaxRequestsSetting()));
+  }
+};
+ChatAgentSettingContribution = __decorate([
+  __param(0, IWorkbenchAssignmentService),
+  __param(1, IChatEntitlementService)
+], ChatAgentSettingContribution);
+let ChatAgentActionsContribution = class ChatAgentActionsContribution2 extends Disposable {
+  static {
+    __name(this, "ChatAgentActionsContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatAgentActions";
+  }
+  constructor(chatModeService) {
+    super();
+    this.chatModeService = chatModeService;
+    this._modeActionDisposables = new DisposableMap();
+    this._store.add(this._modeActionDisposables);
+    const { custom } = this.chatModeService.getModes();
+    for (const mode of custom) {
+      this._registerModeAction(mode);
+    }
+    this._register(this.chatModeService.onDidChangeChatModes(() => {
+      const { custom: custom2 } = this.chatModeService.getModes();
+      const currentModeIds = /* @__PURE__ */ new Set();
+      const currentModeNames = /* @__PURE__ */ new Map();
+      for (const mode of custom2) {
+        const modeName = mode.name.get();
+        if (currentModeNames.has(modeName)) {
+          currentModeIds.delete(currentModeNames.get(modeName));
+        }
+        currentModeNames.set(modeName, mode.id);
+        currentModeIds.add(mode.id);
+      }
+      for (const modeId of this._modeActionDisposables.keys()) {
+        if (!currentModeIds.has(modeId)) {
+          this._modeActionDisposables.deleteAndDispose(modeId);
+        }
+      }
+      for (const mode of custom2) {
+        if (currentModeIds.has(mode.id) && !this._modeActionDisposables.has(mode.id)) {
+          this._registerModeAction(mode);
+        }
+      }
+    }));
+  }
+  _registerModeAction(mode) {
+    const actionClass = class extends ModeOpenChatGlobalAction {
+      static {
+        __name(this, "actionClass");
+      }
+      constructor() {
+        super(mode);
+      }
+    };
+    this._modeActionDisposables.set(mode.id, registerAction2(actionClass));
+  }
+};
+ChatAgentActionsContribution = __decorate([
+  __param(0, IChatModeService)
+], ChatAgentActionsContribution);
+let ToolReferenceNamesContribution = class ToolReferenceNamesContribution2 extends Disposable {
+  static {
+    __name(this, "ToolReferenceNamesContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.toolReferenceNames";
+  }
+  constructor(_languageModelToolsService) {
+    super();
+    this._languageModelToolsService = _languageModelToolsService;
+    this._updateToolReferenceNames();
+    this._register(this._languageModelToolsService.onDidChangeTools(() => this._updateToolReferenceNames()));
+  }
+  _updateToolReferenceNames() {
+    const tools = Array.from(this._languageModelToolsService.getTools()).filter((tool) => typeof tool.toolReferenceName === "string").sort((a, b) => a.toolReferenceName.localeCompare(b.toolReferenceName));
+    toolReferenceNameEnumValues.length = 0;
+    toolReferenceNameEnumDescriptions.length = 0;
+    for (const tool of tools) {
+      toolReferenceNameEnumValues.push(tool.toolReferenceName);
+      toolReferenceNameEnumDescriptions.push(nls.localize("chat.toolReferenceName.description", "{0} - {1}", tool.toolReferenceName, tool.userDescription || tool.displayName));
+    }
+    configurationRegistry.notifyConfigurationSchemaUpdated({
+      id: "chatSidebar",
+      properties: {
+        [ChatConfiguration.EligibleForAutoApproval]: {}
+      }
+    });
+  }
+};
+ToolReferenceNamesContribution = __decorate([
+  __param(0, ILanguageModelToolsService)
+], ToolReferenceNamesContribution);
+AccessibleViewRegistry.register(new ChatTerminalOutputAccessibleView());
+AccessibleViewRegistry.register(new ChatThinkingAccessibleView());
+AccessibleViewRegistry.register(new ChatResponseAccessibleView());
+AccessibleViewRegistry.register(new PanelChatAccessibilityHelp());
+AccessibleViewRegistry.register(new QuickChatAccessibilityHelp());
+AccessibleViewRegistry.register(new EditsChatAccessibilityHelp());
+AccessibleViewRegistry.register(new AgentChatAccessibilityHelp());
+registerEditorFeature(ChatInputBoxContentProvider);
+registerEditorFeature(ChatPromptContentProvider);
+let ChatSlashStaticSlashCommandsContribution = class ChatSlashStaticSlashCommandsContribution2 extends Disposable {
+  static {
+    __name(this, "ChatSlashStaticSlashCommandsContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatSlashStaticSlashCommands";
+  }
+  constructor(slashCommandService, commandService, chatAgentService, chatWidgetService, instantiationService) {
+    super();
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "clear",
+      detail: nls.localize("clear", "Start a new chat"),
+      sortText: "z2_clear",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Chat]
+    }, async () => {
+      commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "help",
+      detail: "",
+      sortText: "z1_help",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Chat],
+      modes: [ChatModeKind.Ask]
+    }, async (prompt, progress, _history, _location, sessionResource) => {
+      const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat);
+      const agents = chatAgentService.getAgents();
+      if (defaultAgent?.metadata.helpTextPrefix) {
+        if (isMarkdownString(defaultAgent.metadata.helpTextPrefix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPrefix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPrefix), kind: "markdownContent" });
+        }
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+      }
+      const agentText = (await Promise.all(agents.filter((a) => !a.isDefault && !a.isCore).filter((a) => a.locations.includes(ChatAgentLocation.Chat)).map(async (a) => {
+        const description = a.description ? `- ${a.description}` : "";
+        const agentMarkdown = instantiationService.invokeFunction((accessor) => agentToMarkdown(a, sessionResource, true, accessor));
+        const agentLine = `- ${agentMarkdown} ${description}`;
+        const commandText = a.slashCommands.map((c) => {
+          const description2 = c.description ? `- ${c.description}` : "";
+          return `	* ${agentSlashCommandToMarkdown(a, c, sessionResource)} ${description2}`;
+        }).join("\n");
+        return (agentLine + "\n" + commandText).trim();
+      }))).join("\n");
+      progress.report({ content: new MarkdownString(agentText, { isTrusted: { enabledCommands: [ChatSubmitAction.ID] } }), kind: "markdownContent" });
+      if (defaultAgent?.metadata.helpTextPostfix) {
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+        if (isMarkdownString(defaultAgent.metadata.helpTextPostfix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPostfix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPostfix), kind: "markdownContent" });
+        }
+      }
+      await timeout(200);
+    }));
+  }
+};
+ChatSlashStaticSlashCommandsContribution = __decorate([
+  __param(0, IChatSlashCommandService),
+  __param(1, ICommandService),
+  __param(2, IChatAgentService),
+  __param(3, IChatWidgetService),
+  __param(4, IInstantiationService)
+], ChatSlashStaticSlashCommandsContribution);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(ChatEditorInput.TypeID, ChatEditorInputSerializer);
+registerWorkbenchContribution2(
+  ChatResolverContribution.ID,
+  ChatResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  ChatLanguageModelsDataContribution.ID,
+  ChatLanguageModelsDataContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatSlashStaticSlashCommandsContribution.ID,
+  ChatSlashStaticSlashCommandsContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatExtensionPointHandler.ID,
+  ChatExtensionPointHandler,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  LanguageModelToolsExtensionPointHandler.ID,
+  LanguageModelToolsExtensionPointHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatPromptFilesExtensionPointHandler.ID,
+  ChatPromptFilesExtensionPointHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatCompatibilityNotifier.ID,
+  ChatCompatibilityNotifier,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  CopilotTitleBarMenuRendering.ID,
+  CopilotTitleBarMenuRendering,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  CodeBlockActionRendering.ID,
+  CodeBlockActionRendering,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ContinueChatInSessionActionRendering.ID,
+  ContinueChatInSessionActionRendering,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatImplicitContextContribution.ID,
+  ChatImplicitContextContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatRelatedFilesContribution.ID,
+  ChatRelatedFilesContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatViewsWelcomeHandler.ID,
+  ChatViewsWelcomeHandler,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  ChatGettingStartedContribution.ID,
+  ChatGettingStartedContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatSetupContribution.ID,
+  ChatSetupContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatTeardownContribution.ID,
+  ChatTeardownContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatStatusBarEntry.ID,
+  ChatStatusBarEntry,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  BuiltinToolsContribution.ID,
+  BuiltinToolsContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatAgentSettingContribution.ID,
+  ChatAgentSettingContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatAgentActionsContribution.ID,
+  ChatAgentActionsContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ToolReferenceNamesContribution.ID,
+  ToolReferenceNamesContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatAgentRecommendation.ID,
+  ChatAgentRecommendation,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatEditingEditorAccessibility.ID,
+  ChatEditingEditorAccessibility,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatEditingEditorOverlay.ID,
+  ChatEditingEditorOverlay,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  SimpleBrowserOverlay.ID,
+  SimpleBrowserOverlay,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatEditingEditorContextKeys.ID,
+  ChatEditingEditorContextKeys,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatTransferContribution.ID,
+  ChatTransferContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatContextContributions.ID,
+  ChatContextContributions,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatResponseResourceFileSystemProvider.ID,
+  ChatResponseResourceFileSystemProvider,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  PromptUrlHandler.ID,
+  PromptUrlHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ChatEditingNotebookFileSystemProviderContrib.ID,
+  ChatEditingNotebookFileSystemProviderContrib,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  UserToolSetsContributions.ID,
+  UserToolSetsContributions,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  PromptLanguageFeaturesProvider.ID,
+  PromptLanguageFeaturesProvider,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerWorkbenchContribution2(
+  ChatWindowNotifier.ID,
+  ChatWindowNotifier,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  ChatRepoInfoContribution.ID,
+  ChatRepoInfoContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+registerChatActions();
+registerChatAccessibilityActions();
+registerChatCopyActions();
+registerChatCodeBlockActions();
+registerChatCodeCompareBlockActions();
+registerChatFileTreeActions();
+registerChatPromptNavigationActions();
+registerChatTitleActions();
+registerChatExecuteActions();
+registerQuickChatActions();
+registerChatExportActions();
+registerMoveActions();
+registerNewChatActions();
+registerChatContextActions();
+registerChatDeveloperActions();
+registerChatEditorActions();
+registerChatElicitationActions();
+registerChatToolActions();
+registerLanguageModelActions();
+registerAction2(ConfigureToolSets);
+registerEditorFeature(ChatPasteProvidersFeature);
+registerSingleton(
+  IChatTransferService,
+  ChatTransferService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatService,
+  ChatService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatWidgetService,
+  ChatWidgetService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IQuickChatService,
+  QuickChatService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatAccessibilityService,
+  ChatAccessibilityService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatWidgetHistoryService,
+  ChatWidgetHistoryService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelsConfigurationService,
+  LanguageModelsConfigurationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelsService,
+  LanguageModelsService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelStatsService,
+  LanguageModelStatsService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatSlashCommandService,
+  ChatSlashCommandService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatAgentService,
+  ChatAgentService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatAgentNameService,
+  ChatAgentNameService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatVariablesService,
+  ChatVariablesService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelToolsService,
+  LanguageModelToolsService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelToolsConfirmationService,
+  LanguageModelToolsConfirmationService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IVoiceChatService,
+  VoiceChatService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatCodeBlockContextProviderService,
+  ChatCodeBlockContextProviderService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ICodeMapperService,
+  CodeMapperService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatEditingService,
+  ChatEditingService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatMarkdownAnchorService,
+  ChatMarkdownAnchorService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ILanguageModelIgnoredFilesService,
+  LanguageModelIgnoredFilesService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IPromptsService,
+  PromptsService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatPromptContentStore,
+  ChatPromptContentStore,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatContextPickService,
+  ChatContextPickService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatModeService,
+  ChatModeService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatAttachmentResolveService,
+  ChatAttachmentResolveService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatTodoListService,
+  ChatTodoListService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatOutputRendererService,
+  ChatOutputRendererService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IChatLayoutService,
+  ChatLayoutService,
+  1
+  /* InstantiationType.Delayed */
+);
+ChatWidget.CONTRIBS.push(ChatDynamicVariableModel);
+//# sourceMappingURL=chat.contribution.js.map

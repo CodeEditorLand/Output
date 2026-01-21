@@ -1,1 +1,374 @@
-import{$i7 as f}from"../../browser.js";import{$e9 as b}from"../../dnd.js";import{$F7 as n,$D8 as a,$B8 as h}from"../../dom.js";import{EventType as m,$f9 as p}from"../../touch.js";import{$E9 as q}from"../hover/hoverDelegateFactory.js";import{$M0 as L}from"../selectBox/selectBox.js";import{$Em as g,$Fm as x,$Gm as D}from"../../../common/actions.js";import{$Ed as k}from"../../../common/lifecycle.js";import*as C from"../../../common/platform.js";import*as o from"../../../common/types.js";import"./actionbar.css";import*as $ from"../../../../nls.js";import{$H0 as _}from"../hover/hoverDelegate2.js";class c extends k{get action(){return this._action}constructor(t,e,i={}){super(),this.u=i,this._context=t||this,this._action=e,e instanceof g&&this.D(e.onDidChange(s=>{this.element&&this.z(s)}))}z(t){t.enabled!==void 0&&this.C(),t.checked!==void 0&&this.N(),t.class!==void 0&&this.M(),t.label!==void 0&&(this.F(),this.J()),t.tooltip!==void 0&&this.J()}get actionRunner(){return this.j||(this.j=this.D(new x)),this.j}set actionRunner(t){this.j=t}isEnabled(){return this._action.enabled}setActionContext(t){this._context=t}render(t){const e=this.element=t;this.D(p.addTarget(t));const i=this.u&&this.u.draggable;i&&(t.draggable=!0,f&&this.D(n(t,h.DRAG_START,s=>s.dataTransfer?.setData(b.TEXT,this._action.label)))),this.D(n(e,m.Tap,s=>this.onClick(s,!0))),this.D(n(e,h.MOUSE_DOWN,s=>{i||a.stop(s,!0),this._action.enabled&&s.button===0&&e.classList.add("active")})),C.$n&&this.D(n(e,h.CONTEXT_MENU,s=>{s.button===0&&s.ctrlKey===!0&&this.onClick(s)})),this.D(n(e,h.CLICK,s=>{a.stop(s,!0),this.u&&this.u.isMenu||this.onClick(s)})),this.D(n(e,h.DBLCLICK,s=>{a.stop(s,!0)})),[h.MOUSE_UP,h.MOUSE_OUT].forEach(s=>{this.D(n(e,s,l=>{a.stop(l),e.classList.remove("active")}))})}onClick(t,e=!1){a.stop(t,!0);const i=o.$ed(this._context)?this.u?.useEventAsContext?t:{preserveFocus:e}:this._context;this.actionRunner.run(this._action,i)}focus(){this.element&&(this.element.tabIndex=0,this.element.focus(),this.element.classList.add("focused"))}isFocused(){return!!this.element?.classList.contains("focused")}blur(){this.element&&(this.element.blur(),this.element.tabIndex=-1,this.element.classList.remove("focused"))}setFocusable(t){this.element&&(this.element.tabIndex=t?0:-1)}get trapsArrowNavigation(){return!1}C(){}F(){}G(){return this.action.class}H(){return this.action.tooltip}I(){return this.H()}J(){if(!this.element)return;const t=this.I()??"";if(this.L(),!this.f&&t!==""){const e=this.u.hoverDelegate??q("element");this.f=this.B.add(_().setupManagedHover(e,this.element,t))}else this.f&&this.f.update(t)}L(){if(this.element){const t=this.H()??"";this.element.setAttribute("aria-label",t)}}M(){}N(){}dispose(){this.element&&(this.element.remove(),this.element=void 0),this._context=void 0,super.dispose()}}class H extends c{constructor(t,e,i){i={...i,icon:i.icon!==void 0?i.icon:!1,label:i.label!==void 0?i.label:!0},super(t,e,i),this.u=i,this.P=""}render(t){super.render(t),o.$fd(this.element);const e=document.createElement("a");if(e.classList.add("action-label"),e.setAttribute("role",this.Q()),this.q=e,this.element.appendChild(e),this.u.label&&this.u.keybinding&&!this.u.keybindingNotRenderedWithLabel){const i=document.createElement("span");i.classList.add("keybinding"),i.textContent=this.u.keybinding,this.element.appendChild(i)}this.M(),this.F(),this.J(),this.C(),this.N()}Q(){return this._action.id===D.ID?"presentation":this.u.isMenu?"menuitem":this.u.isTabList?"tab":"button"}focus(){this.q&&(this.q.tabIndex=0,this.q.focus())}isFocused(){return!!this.q&&this.q?.tabIndex===0}blur(){this.q&&(this.q.tabIndex=-1)}setFocusable(t){this.q&&(this.q.tabIndex=t?0:-1)}F(){this.u.label&&this.q&&(this.q.textContent=this.action.label)}H(){let t=null;return this.action.tooltip?t=this.action.tooltip:this.action.label&&(t=this.action.label,this.u.keybinding&&(t=$.localize(0,null,t,this.u.keybinding))),t??void 0}M(){this.P&&this.q&&this.q.classList.remove(...this.P.split(" ")),this.u.icon?(this.P=this.G(),this.q&&(this.q.classList.add("codicon"),this.P&&this.q.classList.add(...this.P.split(" "))),this.C()):this.q?.classList.remove("codicon")}C(){this.action.enabled?(this.q&&(this.q.removeAttribute("aria-disabled"),this.q.classList.remove("disabled")),this.element?.classList.remove("disabled")):(this.q&&(this.q.setAttribute("aria-disabled","true"),this.q.classList.add("disabled")),this.element?.classList.add("disabled"))}L(){if(this.q){const t=this.H()??"";this.q.setAttribute("aria-label",t)}}N(){this.q&&(this.action.checked!==void 0?(this.q.classList.toggle("checked",this.action.checked),this.u.isTabList?this.q.setAttribute("aria-selected",this.action.checked?"true":"false"):(this.q.setAttribute("aria-checked",this.action.checked?"true":"false"),this.q.setAttribute("role","checkbox"))):(this.q.classList.remove("checked"),this.q.removeAttribute(this.u.isTabList?"aria-selected":"aria-checked"),this.q.setAttribute("role",this.Q())))}}class P extends c{constructor(t,e,i,s,l,d,u){super(t,e),this.b=new L(i,s,l,d,u),this.b.setFocusable(!1),this.D(this.b),this.g()}setOptions(t,e){this.b.setOptions(t,e)}select(t){this.b.select(t)}g(){this.D(this.b.onDidSelect(t=>this.m(t.selected,t.index)))}m(t,e){this.actionRunner.run(this._action,this.n(t,e))}n(t,e){return t}setFocusable(t){this.b.setFocusable(t)}focus(){this.b?.focus()}blur(){this.b?.blur()}render(t){this.b.render(t)}}export{c as $U0,H as $V0,P as $W0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isFirefox } from "../../browser.js";
+import { DataTransfers } from "../../dnd.js";
+import { addDisposableListener, EventHelper, EventType } from "../../dom.js";
+import { EventType as TouchEventType, Gesture } from "../../touch.js";
+import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { SelectBox } from "../selectBox/selectBox.js";
+import { Action, ActionRunner, Separator } from "../../../common/actions.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import * as platform from "../../../common/platform.js";
+import * as types from "../../../common/types.js";
+import "./actionbar.css";
+import * as nls from "../../../../nls.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+class BaseActionViewItem extends Disposable {
+  static {
+    __name(this, "BaseActionViewItem");
+  }
+  get action() {
+    return this._action;
+  }
+  constructor(context, action, options = {}) {
+    super();
+    this.options = options;
+    this._context = context || this;
+    this._action = action;
+    if (action instanceof Action) {
+      this._register(action.onDidChange((event) => {
+        if (!this.element) {
+          return;
+        }
+        this.handleActionChangeEvent(event);
+      }));
+    }
+  }
+  handleActionChangeEvent(event) {
+    if (event.enabled !== void 0) {
+      this.updateEnabled();
+    }
+    if (event.checked !== void 0) {
+      this.updateChecked();
+    }
+    if (event.class !== void 0) {
+      this.updateClass();
+    }
+    if (event.label !== void 0) {
+      this.updateLabel();
+      this.updateTooltip();
+    }
+    if (event.tooltip !== void 0) {
+      this.updateTooltip();
+    }
+  }
+  get actionRunner() {
+    if (!this._actionRunner) {
+      this._actionRunner = this._register(new ActionRunner());
+    }
+    return this._actionRunner;
+  }
+  set actionRunner(actionRunner) {
+    this._actionRunner = actionRunner;
+  }
+  isEnabled() {
+    return this._action.enabled;
+  }
+  setActionContext(newContext) {
+    this._context = newContext;
+  }
+  render(container) {
+    const element = this.element = container;
+    this._register(Gesture.addTarget(container));
+    const enableDragging = this.options && this.options.draggable;
+    if (enableDragging) {
+      container.draggable = true;
+      if (isFirefox) {
+        this._register(addDisposableListener(container, EventType.DRAG_START, (e) => e.dataTransfer?.setData(DataTransfers.TEXT, this._action.label)));
+      }
+    }
+    this._register(addDisposableListener(element, TouchEventType.Tap, (e) => this.onClick(e, true)));
+    this._register(addDisposableListener(element, EventType.MOUSE_DOWN, (e) => {
+      if (!enableDragging) {
+        EventHelper.stop(e, true);
+      }
+      if (this._action.enabled && e.button === 0) {
+        element.classList.add("active");
+      }
+    }));
+    if (platform.isMacintosh) {
+      this._register(addDisposableListener(element, EventType.CONTEXT_MENU, (e) => {
+        if (e.button === 0 && e.ctrlKey === true) {
+          this.onClick(e);
+        }
+      }));
+    }
+    this._register(addDisposableListener(element, EventType.CLICK, (e) => {
+      EventHelper.stop(e, true);
+      if (!(this.options && this.options.isMenu)) {
+        this.onClick(e);
+      }
+    }));
+    this._register(addDisposableListener(element, EventType.DBLCLICK, (e) => {
+      EventHelper.stop(e, true);
+    }));
+    [EventType.MOUSE_UP, EventType.MOUSE_OUT].forEach((event) => {
+      this._register(addDisposableListener(element, event, (e) => {
+        EventHelper.stop(e);
+        element.classList.remove("active");
+      }));
+    });
+  }
+  onClick(event, preserveFocus = false) {
+    EventHelper.stop(event, true);
+    const context = types.isUndefinedOrNull(this._context) ? this.options?.useEventAsContext ? event : { preserveFocus } : this._context;
+    this.actionRunner.run(this._action, context);
+  }
+  // Only set the tabIndex on the element once it is about to get focused
+  // That way this element wont be a tab stop when it is not needed #106441
+  focus() {
+    if (this.element) {
+      this.element.tabIndex = 0;
+      this.element.focus();
+      this.element.classList.add("focused");
+    }
+  }
+  isFocused() {
+    return !!this.element?.classList.contains("focused");
+  }
+  blur() {
+    if (this.element) {
+      this.element.blur();
+      this.element.tabIndex = -1;
+      this.element.classList.remove("focused");
+    }
+  }
+  setFocusable(focusable) {
+    if (this.element) {
+      this.element.tabIndex = focusable ? 0 : -1;
+    }
+  }
+  get trapsArrowNavigation() {
+    return false;
+  }
+  updateEnabled() {
+  }
+  updateLabel() {
+  }
+  getClass() {
+    return this.action.class;
+  }
+  getTooltip() {
+    return this.action.tooltip;
+  }
+  getHoverContents() {
+    return this.getTooltip();
+  }
+  updateTooltip() {
+    if (!this.element) {
+      return;
+    }
+    const title = this.getHoverContents() ?? "";
+    this.updateAriaLabel();
+    if (!this.customHover && title !== "") {
+      const hoverDelegate = this.options.hoverDelegate ?? getDefaultHoverDelegate("element");
+      this.customHover = this._store.add(getBaseLayerHoverDelegate().setupManagedHover(hoverDelegate, this.element, title));
+    } else if (this.customHover) {
+      this.customHover.update(title);
+    }
+  }
+  updateAriaLabel() {
+    if (this.element) {
+      const title = this.getTooltip() ?? "";
+      this.element.setAttribute("aria-label", title);
+    }
+  }
+  updateClass() {
+  }
+  updateChecked() {
+  }
+  dispose() {
+    if (this.element) {
+      this.element.remove();
+      this.element = void 0;
+    }
+    this._context = void 0;
+    super.dispose();
+  }
+}
+class ActionViewItem extends BaseActionViewItem {
+  static {
+    __name(this, "ActionViewItem");
+  }
+  constructor(context, action, options) {
+    options = {
+      ...options,
+      icon: options.icon !== void 0 ? options.icon : false,
+      label: options.label !== void 0 ? options.label : true
+    };
+    super(context, action, options);
+    this.options = options;
+    this.cssClass = "";
+  }
+  render(container) {
+    super.render(container);
+    types.assertType(this.element);
+    const label = document.createElement("a");
+    label.classList.add("action-label");
+    label.setAttribute("role", this.getDefaultAriaRole());
+    this.label = label;
+    this.element.appendChild(label);
+    if (this.options.label && this.options.keybinding && !this.options.keybindingNotRenderedWithLabel) {
+      const kbLabel = document.createElement("span");
+      kbLabel.classList.add("keybinding");
+      kbLabel.textContent = this.options.keybinding;
+      this.element.appendChild(kbLabel);
+    }
+    this.updateClass();
+    this.updateLabel();
+    this.updateTooltip();
+    this.updateEnabled();
+    this.updateChecked();
+  }
+  getDefaultAriaRole() {
+    if (this._action.id === Separator.ID) {
+      return "presentation";
+    } else {
+      if (this.options.isMenu) {
+        return "menuitem";
+      } else if (this.options.isTabList) {
+        return "tab";
+      } else {
+        return "button";
+      }
+    }
+  }
+  // Only set the tabIndex on the element once it is about to get focused
+  // That way this element wont be a tab stop when it is not needed #106441
+  focus() {
+    if (this.label) {
+      this.label.tabIndex = 0;
+      this.label.focus();
+    }
+  }
+  isFocused() {
+    return !!this.label && this.label?.tabIndex === 0;
+  }
+  blur() {
+    if (this.label) {
+      this.label.tabIndex = -1;
+    }
+  }
+  setFocusable(focusable) {
+    if (this.label) {
+      this.label.tabIndex = focusable ? 0 : -1;
+    }
+  }
+  updateLabel() {
+    if (this.options.label && this.label) {
+      this.label.textContent = this.action.label;
+    }
+  }
+  getTooltip() {
+    let title = null;
+    if (this.action.tooltip) {
+      title = this.action.tooltip;
+    } else if (this.action.label) {
+      title = this.action.label;
+      if (this.options.keybinding) {
+        title = nls.localize({ key: "titleLabel", comment: ["action title", "action keybinding"] }, "{0} ({1})", title, this.options.keybinding);
+      }
+    }
+    return title ?? void 0;
+  }
+  updateClass() {
+    if (this.cssClass && this.label) {
+      this.label.classList.remove(...this.cssClass.split(" "));
+    }
+    if (this.options.icon) {
+      this.cssClass = this.getClass();
+      if (this.label) {
+        this.label.classList.add("codicon");
+        if (this.cssClass) {
+          this.label.classList.add(...this.cssClass.split(" "));
+        }
+      }
+      this.updateEnabled();
+    } else {
+      this.label?.classList.remove("codicon");
+    }
+  }
+  updateEnabled() {
+    if (this.action.enabled) {
+      if (this.label) {
+        this.label.removeAttribute("aria-disabled");
+        this.label.classList.remove("disabled");
+      }
+      this.element?.classList.remove("disabled");
+    } else {
+      if (this.label) {
+        this.label.setAttribute("aria-disabled", "true");
+        this.label.classList.add("disabled");
+      }
+      this.element?.classList.add("disabled");
+    }
+  }
+  updateAriaLabel() {
+    if (this.label) {
+      const title = this.getTooltip() ?? "";
+      this.label.setAttribute("aria-label", title);
+    }
+  }
+  updateChecked() {
+    if (this.label) {
+      if (this.action.checked !== void 0) {
+        this.label.classList.toggle("checked", this.action.checked);
+        if (this.options.isTabList) {
+          this.label.setAttribute("aria-selected", this.action.checked ? "true" : "false");
+        } else {
+          this.label.setAttribute("aria-checked", this.action.checked ? "true" : "false");
+          this.label.setAttribute("role", "checkbox");
+        }
+      } else {
+        this.label.classList.remove("checked");
+        this.label.removeAttribute(this.options.isTabList ? "aria-selected" : "aria-checked");
+        this.label.setAttribute("role", this.getDefaultAriaRole());
+      }
+    }
+  }
+}
+class SelectActionViewItem extends BaseActionViewItem {
+  static {
+    __name(this, "SelectActionViewItem");
+  }
+  constructor(ctx, action, options, selected, contextViewProvider, styles, selectBoxOptions) {
+    super(ctx, action);
+    this.selectBox = new SelectBox(options, selected, contextViewProvider, styles, selectBoxOptions);
+    this.selectBox.setFocusable(false);
+    this._register(this.selectBox);
+    this.registerListeners();
+  }
+  setOptions(options, selected) {
+    this.selectBox.setOptions(options, selected);
+  }
+  select(index) {
+    this.selectBox.select(index);
+  }
+  registerListeners() {
+    this._register(this.selectBox.onDidSelect((e) => this.runAction(e.selected, e.index)));
+  }
+  runAction(option, index) {
+    this.actionRunner.run(this._action, this.getActionContext(option, index));
+  }
+  getActionContext(option, index) {
+    return option;
+  }
+  setFocusable(focusable) {
+    this.selectBox.setFocusable(focusable);
+  }
+  focus() {
+    this.selectBox?.focus();
+  }
+  blur() {
+    this.selectBox?.blur();
+  }
+  render(container) {
+    this.selectBox.render(container);
+  }
+}
+export {
+  ActionViewItem,
+  BaseActionViewItem,
+  SelectActionViewItem
+};
+//# sourceMappingURL=actionViewItems.js.map

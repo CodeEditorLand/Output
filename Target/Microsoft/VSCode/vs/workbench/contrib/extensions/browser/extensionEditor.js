@@ -1,10 +1,645 @@
-import{$ as o,$I8 as r,$P8 as At,$_7 as Nt,$O8 as Mt}from"../../../../base/browser/dom.js";import{$G9 as pt}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$E9 as M}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$v9 as F}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$S0 as Zt}from"../../../../base/browser/ui/toggle/toggle.js";import{$Em as Wt}from"../../../../base/common/actions.js";import*as D from"../../../../base/common/arrays.js";import{$Lf as q}from"../../../../base/common/cache.js";import{CancellationToken as zt,$If as lt}from"../../../../base/common/cancellation.js";import{$rb as Gt}from"../../../../base/common/errors.js";import{$wf as jt,Event as A}from"../../../../base/common/event.js";import{$Ed as yt,$Dd as O,$Fd as Ft,$zd as qt,$Cd as C}from"../../../../base/common/lifecycle.js";import{Schemas as y,$hh as N}from"../../../../base/common/network.js";import{$q as K}from"../../../../base/common/platform.js";import{$cd as ct}from"../../../../base/common/types.js";import{URI as R}from"../../../../base/common/uri.js";import{$kn as dt}from"../../../../base/common/uuid.js";import"./media/extensionEditor.css";import{EditorContextKeys as Kt}from"../../../../editor/common/editorContextKeys.js";import{$VF as Vt}from"../../../../editor/common/languages.js";import{$WF as Ut}from"../../../../editor/common/languages/language.js";import{$PK as Ot}from"../../../../editor/common/languages/supports/tokenization.js";import{localize as l}from"../../../../nls.js";import{$sL as T,$tL as Y}from"../../../../platform/actions/common/actions.js";import{$9n as Z,$qo as Bt,$po as Tt}from"../../../../platform/contextkey/common/contextkey.js";import{$6hb as Yt}from"../../../../platform/contextview/browser/contextView.js";import{$eA as Jt,$8z as Qt}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$lA as wt}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{$Lj as _t}from"../../../../platform/instantiation/common/instantiation.js";import{$mH as Xt}from"../../../../platform/notification/common/notification.js";import{$yP as vt}from"../../../../platform/opener/common/opener.js";import{$gp as te}from"../../../../platform/storage/common/storage.js";import{$op as ee}from"../../../../platform/telemetry/common/telemetry.js";import{$Aib as ie}from"../../../../platform/theme/browser/defaultStyles.js";import{$Rs as ne,$Us as se,$Iq as oe,$kq as re,$jq as ae}from"../../../../platform/theme/common/colorRegistry.js";import{$ou as le,$vu as ce}from"../../../../platform/theme/common/themeService.js";import{$tJb as de}from"../../../browser/parts/editor/editorPane.js";import{$aqc as ue}from"./extensionFeaturesTab.js";import{$3Kb as ut,$xLb as he,$rLb as be,$qLb as fe,$4Kb as me,$eLb as ge,$iLb as pe,$HLb as ye,$FLb as we,$lLb as ve,$6Kb as Ie,$7Kb as $e,$0Kb as Ce,$dLb as xe,$sLb as De,$9Kb as Ee,$tLb as Le,$uLb as Pe,$wLb as ke,$vLb as Re,$bLb as ht,$_Kb as bt,$aLb as He,$$Kb as Se,$kLb as Ae}from"./extensionsActions.js";import{$K1b as Ne}from"./extensionsList.js";import{$P1b as Me,$N1b as Ze,$O1b as We,$Q1b as ze}from"./extensionsViewer.js";import{$F1b as Ge,$E1b as je,$o1b as It,$r1b as Fe,$s1b as qe,$x1b as Ke,$u1b as Ve,$t1b as Ue,$p1b as P,$A1b as Oe,$q1b as Be}from"./extensionsWidgets.js";import{$AIb as Te,$uIb as $t}from"../common/extensions.js";import{$cqc as Ye,$dqc as Je}from"../../markdown/browser/markdownDocumentRenderer.js";import{$SCb as Qe,$QCb as Ct}from"../../webview/browser/webview.js";import{$yL as _e}from"../../../services/editor/common/editorService.js";import{$yJb as Xe}from"../../../services/extensionRecommendations/common/extensionRecommendations.js";import{$4R as ti}from"../../../services/extensions/common/extensions.js";import{$0o as ei}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$7ib as xt}from"../../../../platform/hover/browser/hover.js";import{$5k as ft,$uk as ii}from"../../../../platform/files/common/files.js";import{$_o as ni}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$ZN as si}from"../../../services/remote/common/remoteAgentService.js";import{$Qz as oi}from"../../../../platform/extensionManagement/common/extensionGalleryManifest.js";import{$eqc as ri}from"../../update/common/update.js";import{ThemeIcon as L}from"../../../../base/common/themables.js";import{$ak as k}from"../../../../base/common/codicons.js";import{$Pn as V}from"../../../../base/common/date.js";var gt=function(h,e,t,i){var n=arguments.length,s=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,e,t,i);else for(var c=h.length-1;c>=0;c--)(a=h[c])&&(s=(n<3?a(s):n>3?a(e,t,s):a(e,t))||s);return n>3&&s&&Object.defineProperty(e,t,s),s},b=function(h,e){return function(t,i){e(t,i,h)}},U;class ai extends yt{get onChange(){return this.b.event}get currentId(){return this.c}constructor(e){super(),this.b=this.D(new jt),this.c=null;const t=r(e,o(".navbar"));this.f=[],this.g=this.D(new pt(t))}push(e,t,i){const n=new Wt(e,t,void 0,!0,()=>this.h(e,!0));n.tooltip=i,this.f.push(n),this.g.push(n),this.f.length===1&&this.h(e)}clear(){this.f=qt(this.f),this.g.clear()}switch(e){const t=this.f.find(i=>i.id===e);return t?(t.run(),!0):!1}h(e,t){this.c=e,this.b.fire({id:e,focus:!!t}),this.f.forEach(i=>i.checked=i.id===e)}}var mt;(function(h){h[h.Readme=0]="Readme",h[h.Changelog=1]="Changelog"})(mt||(mt={}));const li=new Tt("showPreReleaseVersion",!1);class ci extends It{constructor(){super(...arguments),this.c=null}get gallery(){return this.c}set gallery(e){this.extension&&e&&!wt(this.extension.identifier,e.identifier)||(this.c=e,this.update())}}class di extends ci{constructor(e,t){super(),this.f=r(e,o("code.version",void 0,"pre-release")),this.D(t.setupManagedHover(M("mouse"),this.f,l(8181,null))),this.render()}render(){this.extension?.preRelease?Mt(this.f):At(this.f)}}let W=class extends de{static{U=this}static{this.ID="workbench.editor.extension"}constructor(e,t,i,n,s,a,c,u,d,w,g,m,I,v,x,$){super(U.ID,e,t,a,w),this.gb=i,this.hb=n,this.ib=s,this.jb=c,this.kb=u,this.lb=d,this.mb=g,this.nb=m,this.ob=I,this.pb=v,this.qb=x,this.rb=$,this.b=this.D(new Ft),this.j=new Map,this.m="",this.r=[],this.s=this.D(new O),this.u=this.D(new O),this.w=null,this.f=null,this.g=null,this.h=null}get scopedContextKeyService(){return this.b.value}bb(e){const t=r(e,o(".extension-editor"));this.b.value=this.qb.createScoped(t),this.b.value.createKey("inExtensionEditor",!0),this.fb=li.bindTo(this.b.value),t.tabIndex=0,t.style.outline="none",t.setAttribute("role","document");const i=r(t,o(".header")),n=r(i,o(".icon-container")),s=this.gb.createInstance(Be,n),a=this.gb.createInstance(Ke,n,!0),c=r(i,o(".details")),u=r(c,o(".title")),d=r(u,o("span.name.clickable",{role:"heading",tabIndex:0}));this.D(this.rb.setupManagedHover(M("mouse"),d,l(8182,null)));const w=new di(u,this.rb),g=r(u,o("span.preview"));this.D(this.rb.setupManagedHover(M("mouse"),g,l(8183,null))),g.textContent=l(8184,null);const m=r(u,o("span.builtin"));m.textContent=l(8185,null);const I=r(c,o(".subtitle")),v=[],x=r(I,o(".subtitle-entry"));v.push(x);const $=this.gb.createInstance(Ue,x,!1),_=r(I,o(".subtitle-entry"));v.push(_);const Dt=this.gb.createInstance(Oe,_,!1),X=r(I,o(".subtitle-entry"));v.push(X);const Et=this.gb.createInstance(Fe,X,!1),tt=r(I,o(".subtitle-entry"));v.push(tt);const Lt=this.gb.createInstance(qe,tt,!1),et=r(I,o(".subtitle-entry"));v.push(et);const Pt=this.gb.createInstance(Ve,et),z=[s,a,w,$,Dt,Et,Lt,Pt],kt=r(c,o(".description")),it=this.gb.createInstance(Ie),H=[this.gb.createInstance(De),this.gb.createInstance(we),this.gb.createInstance(He,!0),this.gb.createInstance(Le),this.gb.createInstance(Pe),this.gb.createInstance(Re),this.gb.createInstance(ke),this.gb.createInstance(he),this.gb.createInstance(fe),this.gb.createInstance(be),this.gb.createInstance(Ee,!1),this.gb.createInstance(Ce),this.gb.createInstance(Se),it,this.gb.createInstance($e),this.gb.createInstance(ut,"extensions.uninstall",bt.UninstallClass,[[this.gb.createInstance(xe,!1),this.gb.createInstance(bt),this.gb.createInstance(ve,null,!0)]]),this.gb.createInstance(Ae),this.gb.createInstance(ht),new pe(this.scopedContextKeyService||this.qb,this.gb)],S=r(c,o(".actions-status-container")),E=this.D(new pt(S,{actionViewItemProvider:(f,p)=>{if(f instanceof ge)return f.createActionViewItem(p);if(f instanceof ut)return new me(f,{...p,icon:!0,label:!0,menuActionsOrProvider:{getActions:()=>f.menuActions},menuActionClassNames:f.menuActionClassNames},this.pb);if(f instanceof ht)return new Zt(void 0,f,{...p,icon:!0,label:!0,checkboxStyles:ie})},focusOnlyEnabledItems:!0}));E.push(H,{icon:!0,label:!0}),E.setFocusable(!0),this.D(A.any(...H.map(f=>A.filter(f.onDidChange,p=>p.enabled!==void 0)))(()=>{E.setFocusable(!1),E.setFocusable(!0)}));const G=[],nt=this.gb.createInstance(ye),Rt=this.D(this.gb.createInstance(je,r(S,o(".status")),nt));G.push(nt,new class extends It{render(){S.classList.toggle("list-layout",this.extension?.state===1)}});const st=this.gb.createInstance(Ge,r(c,o(".recommendation")));z.push(st),this.D(A.any(Rt.onDidRender,st.onDidRender)(()=>{this.y&&this.layout(this.y)}));const ot=this.gb.createInstance(Te,[...H,...z,...G]);for(const f of[...H,...z,...G,ot])this.D(f);const Ht=A.chain(E.onDidRun,f=>f.map(({error:p})=>p).filter(p=>!!p));this.D(Ht(this.Mb,this));const rt=r(t,o(".body")),St=new ai(rt),at=r(rt,o(".content"));at.id=dt(),this.c={builtin:m,content:at,description:kt,header:i,name:d,navbar:St,preview:g,actionsAndStatusContainer:S,extensionActionBar:E,set extension(f){ot.extension=f;let p;for(const j of v)j.classList.remove("last-non-empty"),j.children.length>0&&(p=j);p&&p.classList.add("last-non-empty")},set gallery(f){w.gallery=f},set manifest(f){it.manifest=f}}}async setInput(e,t,i,n){await super.setInput(e,t,i,n),this.tb(),this.c&&await this.vb(e.extension,this.c,!!t?.preserveFocus)}setOptions(e){const t=this.options;if(super.setOptions(e),this.tb(),this.input&&this.c&&t?.showPreReleaseVersion!==e?.showPreReleaseVersion){this.vb(this.input.extension,this.c,!!e?.preserveFocus);return}e?.tab&&this.c?.navbar.switch(e.tab)}tb(){let e=this.options?.showPreReleaseVersion;ct(e)&&(e=!!this.input.extension.gallery?.properties.isPreReleaseVersion),this.fb?.set(e)}async openTab(e){!this.input||!this.c||this.c.navbar.switch(e)||e==="extensionPack"&&this.c.navbar.switch("readme")}async ub(e,t){return e.resourceExtension||e.local?.source==="resource"||ct(t)||t===e.gallery?.properties.isPreReleaseVersion||t&&!e.hasPreReleaseVersion||!t&&!e.hasReleaseVersion?null:(await this.ib.getExtensions([{...e.identifier,preRelease:t,hasPreRelease:e.hasPreReleaseVersion}],zt.None))[0]||null}async vb(e,t,i){this.w=null,this.u.clear();const n=this.u.add(new lt).token,s=await this.ub(e,this.options?.showPreReleaseVersion);if(n.isCancellationRequested)return;this.f=new q(()=>s?this.ib.getReadme(s,n):e.getReadme(n)),this.g=new q(()=>s?this.ib.getChangelog(s,n):e.getChangelog(n)),this.h=new q(()=>s?this.ib.getManifest(s,n):e.getManifest(n)),t.extension=e,t.gallery=s,t.manifest=null,t.name.textContent=e.displayName,t.name.classList.toggle("clickable",!!e.url),t.name.classList.toggle("deprecated",!!e.deprecationInfo),t.preview.style.display=e.preview?"inherit":"none",t.builtin.style.display=e.isBuiltin?"inherit":"none",t.description.textContent=e.description,e.url&&this.u.add(P(t.name,()=>this.kb.open(R.parse(e.url))));const a=await this.h.get().promise;if(n.isCancellationRequested)return;a&&(t.manifest=a),this.wb(e,a,t,i);const c=this.lb.getAllRecommendationsWithReason();let u={};c[e.identifier.id.toLowerCase()]&&(u={recommendationReason:c[e.identifier.id.toLowerCase()].reasonId}),this.U.publicLog("extensionGallery:openExtension",{...e.telemetryData,...u})}wb(e,t,i,n){i.content.innerText="",i.navbar.clear(),this.m!==e.identifier.id&&(this.j.clear(),this.m=e.identifier.id),i.navbar.push("readme",l(8186,null),l(8187,null)),t&&i.navbar.push("features",l(8188,null),l(8189,null)),e.hasChangelog()&&i.navbar.push("changelog",l(8190,null),l(8191,null)),e.dependencies.length&&i.navbar.push("dependencies",l(8192,null),l(8193,null)),t&&t.extensionPack?.length&&!this.Db(t)&&i.navbar.push("extensionPack",l(8194,null),l(8195,null)),this.options?.tab&&i.navbar.switch(this.options.tab),i.navbar.currentId&&this.xb(e,{id:i.navbar.currentId,focus:!n},i),i.navbar.onChange(s=>this.xb(e,s,i),this,this.u)}clearInput(){this.s.clear(),this.u.clear(),super.clearInput()}focus(){super.focus(),this.w?.focus()}showFind(){this.activeWebview?.showFind()}runFindAction(e){this.activeWebview?.runFindAction(e)}get activeWebview(){if(!(!this.w||!this.w.runFindAction))return this.w}xb(e,{id:t,focus:i},n){if(this.s.clear(),n.content.innerText="",this.w=null,t){const s=new lt;this.s.add(C(()=>s.dispose(!0))),this.yb(t,e,n,s.token).then(a=>{s.token.isCancellationRequested||(this.w=a,i&&this.focus())})}}yb(e,t,i,n){const s=r(i.content,o(".details")),a=r(s,o(".content-container")),c=r(s,o(".additional-details-container")),u=()=>s.classList.toggle("narrow",this.y&&this.y.width<500);switch(u(),this.s.add(C(D.$ic(this.r,{layout:u}))),this.Fb(c,t),e){case"readme":return this.Cb(t,a,n);case"features":return this.Hb(t,a,n);case"changelog":return this.Gb(t,a,n);case"dependencies":return this.Ib(t,a,n);case"extensionPack":return this.Jb(t,a,n)}return Promise.resolve(null)}async zb(e,t,i,n,s,a,c){try{const u=await this.Ab(e,t,n,c);if(c.isCancellationRequested)return Promise.resolve(null);const d=this.s.add(this.nb.createWebviewOverlay({title:a,options:{enableFindWidget:!0,tryRestoreScrollPosition:!0,disableServiceWorker:!0},contentOptions:{},extension:void 0}));d.initialScrollProgress=this.j.get(s)||0,d.claim(this,this.window,this.scopedContextKeyService),Nt(d.container,n),d.layoutWebviewOverElement(n),d.setHtml(u),d.claim(this,this.window,void 0),this.s.add(d.onDidFocus(()=>this.M?.fire())),this.s.add(d.onDidScroll(()=>this.j.set(s,d.initialScrollProgress)));const w=D.$ic(this.r,{layout:()=>{d.layoutWebviewOverElement(n)}});this.s.add(C(w));let g=!1;return this.s.add(C(()=>{g=!0})),this.s.add(this.q.onDidColorThemeChange(async()=>{const m=await this.Ab(e,t,n);g||d.setHtml(m)})),this.s.add(d.onDidClickLink(m=>{m&&(N(m,y.http)||N(m,y.https)||N(m,y.mailto)?this.kb.open(m):N(m,y.command)&&e.type===0&&this.kb.open(m,{allowCommands:[ri]}))})),d}catch{const d=r(n,o("p.nocontent"));return d.textContent=i,d}}async Ab(e,t,i,n){const s=await this.Lb(()=>t,i);if(n?.isCancellationRequested)return"";const a=[y.http,y.https,y.mailto],c=await Je(s,this.mb,this.ob,{sanitizerConfig:{allowedLinkProtocols:{override:e.type===0?[...a,y.command]:a}}},n);return n?.isCancellationRequested?"":this.Bb(c)}Bb(e){const t=dt(),i=Vt.getColorMap(),n=i?Ot(i):"";return`<!DOCTYPE html>
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ExtensionEditor_1;
+import { $, append, hide, setParentFlowTo, show } from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { CheckboxActionViewItem } from "../../../../base/browser/ui/toggle/toggle.js";
+import { Action } from "../../../../base/common/actions.js";
+import * as arrays from "../../../../base/common/arrays.js";
+import { Cache } from "../../../../base/common/cache.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { isNative } from "../../../../base/common/platform.js";
+import { isUndefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import "./media/extensionEditor.css";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { localize } from "../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { computeSize, IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { defaultCheckboxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { buttonForeground, buttonHoverBackground, editorBackground, textLinkActiveForeground, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService, registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { ExtensionFeaturesTab } from "./extensionFeaturesTab.js";
+import { ButtonWithDropDownExtensionAction, ClearLanguageAction, DisableDropDownAction, EnableDropDownAction, ButtonWithDropdownExtensionActionViewItem, DropDownExtensionAction, ExtensionEditorManageExtensionAction, ExtensionStatusAction, ExtensionStatusLabelAction, InstallAnotherVersionAction, InstallDropdownAction, InstallingLabelAction, LocalInstallAction, MigrateDeprecatedExtensionAction, ExtensionRuntimeStateAction, RemoteInstallAction, SetColorThemeAction, SetFileIconThemeAction, SetLanguageAction, SetProductIconThemeAction, ToggleAutoUpdateForExtensionAction, UninstallAction, UpdateAction, WebInstallAction, TogglePreReleaseExtensionAction } from "./extensionsActions.js";
+import { Delegate } from "./extensionsList.js";
+import { ExtensionData, ExtensionsGridView, ExtensionsTree, getExtensions } from "./extensionsViewer.js";
+import { ExtensionRecommendationWidget, ExtensionStatusWidget, ExtensionWidget, InstallCountWidget, RatingsWidget, RemoteBadgeWidget, SponsorWidget, PublisherWidget, onClick, ExtensionKindIndicatorWidget, ExtensionIconWidget } from "./extensionsWidgets.js";
+import { ExtensionContainers, IExtensionsWorkbenchService } from "../common/extensions.js";
+import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
+import { IWebviewService, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED } from "../../webview/browser/webview.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { ByteSize, IFileService } from "../../../../platform/files/common/files.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import { ShowCurrentReleaseNotesActionId } from "../../update/common/update.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { fromNow } from "../../../../base/common/date.js";
+class NavBar extends Disposable {
+  static {
+    __name(this, "NavBar");
+  }
+  get onChange() {
+    return this._onChange.event;
+  }
+  get currentId() {
+    return this._currentId;
+  }
+  constructor(container) {
+    super();
+    this._onChange = this._register(new Emitter());
+    this._currentId = null;
+    const element = append(container, $(".navbar"));
+    this.actions = [];
+    this.actionbar = this._register(new ActionBar(element));
+  }
+  push(id, label, tooltip) {
+    const action = new Action(id, label, void 0, true, () => this.update(id, true));
+    action.tooltip = tooltip;
+    this.actions.push(action);
+    this.actionbar.push(action);
+    if (this.actions.length === 1) {
+      this.update(id);
+    }
+  }
+  clear() {
+    this.actions = dispose(this.actions);
+    this.actionbar.clear();
+  }
+  switch(id) {
+    const action = this.actions.find((action2) => action2.id === id);
+    if (action) {
+      action.run();
+      return true;
+    }
+    return false;
+  }
+  update(id, focus) {
+    this._currentId = id;
+    this._onChange.fire({ id, focus: !!focus });
+    this.actions.forEach((a) => a.checked = a.id === id);
+  }
+}
+var WebviewIndex;
+(function(WebviewIndex2) {
+  WebviewIndex2[WebviewIndex2["Readme"] = 0] = "Readme";
+  WebviewIndex2[WebviewIndex2["Changelog"] = 1] = "Changelog";
+})(WebviewIndex || (WebviewIndex = {}));
+const CONTEXT_SHOW_PRE_RELEASE_VERSION = new RawContextKey("showPreReleaseVersion", false);
+class ExtensionWithDifferentGalleryVersionWidget extends ExtensionWidget {
+  static {
+    __name(this, "ExtensionWithDifferentGalleryVersionWidget");
+  }
+  constructor() {
+    super(...arguments);
+    this._gallery = null;
+  }
+  get gallery() {
+    return this._gallery;
+  }
+  set gallery(gallery) {
+    if (this.extension && gallery && !areSameExtensions(this.extension.identifier, gallery.identifier)) {
+      return;
+    }
+    this._gallery = gallery;
+    this.update();
+  }
+}
+class VersionWidget extends ExtensionWithDifferentGalleryVersionWidget {
+  static {
+    __name(this, "VersionWidget");
+  }
+  constructor(container, hoverService) {
+    super();
+    this.element = append(container, $("code.version", void 0, "pre-release"));
+    this._register(hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.element, localize("extension version", "Extension Version")));
+    this.render();
+  }
+  render() {
+    if (this.extension?.preRelease) {
+      show(this.element);
+    } else {
+      hide(this.element);
+    }
+  }
+}
+let ExtensionEditor = class ExtensionEditor2 extends EditorPane {
+  static {
+    __name(this, "ExtensionEditor");
+  }
+  static {
+    ExtensionEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.extension";
+  }
+  constructor(group, telemetryService, instantiationService, extensionsWorkbenchService, extensionGalleryService, themeService, notificationService, openerService, extensionRecommendationsService, storageService, extensionService, webviewService, languageService, contextMenuService, contextKeyService, hoverService) {
+    super(ExtensionEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.extensionGalleryService = extensionGalleryService;
+    this.notificationService = notificationService;
+    this.openerService = openerService;
+    this.extensionRecommendationsService = extensionRecommendationsService;
+    this.extensionService = extensionService;
+    this.webviewService = webviewService;
+    this.languageService = languageService;
+    this.contextMenuService = contextMenuService;
+    this.contextKeyService = contextKeyService;
+    this.hoverService = hoverService;
+    this._scopedContextKeyService = this._register(new MutableDisposable());
+    this.initialScrollProgress = /* @__PURE__ */ new Map();
+    this.currentIdentifier = "";
+    this.layoutParticipants = [];
+    this.contentDisposables = this._register(new DisposableStore());
+    this.transientDisposables = this._register(new DisposableStore());
+    this.activeElement = null;
+    this.extensionReadme = null;
+    this.extensionChangelog = null;
+    this.extensionManifest = null;
+  }
+  get scopedContextKeyService() {
+    return this._scopedContextKeyService.value;
+  }
+  createEditor(parent) {
+    const root = append(parent, $(".extension-editor"));
+    this._scopedContextKeyService.value = this.contextKeyService.createScoped(root);
+    this._scopedContextKeyService.value.createKey("inExtensionEditor", true);
+    this.showPreReleaseVersionContextKey = CONTEXT_SHOW_PRE_RELEASE_VERSION.bindTo(this._scopedContextKeyService.value);
+    root.tabIndex = 0;
+    root.style.outline = "none";
+    root.setAttribute("role", "document");
+    const header = append(root, $(".header"));
+    const iconContainer = append(header, $(".icon-container"));
+    const iconWidget = this.instantiationService.createInstance(ExtensionIconWidget, iconContainer);
+    const remoteBadge = this.instantiationService.createInstance(RemoteBadgeWidget, iconContainer, true);
+    const details = append(header, $(".details"));
+    const title = append(details, $(".title"));
+    const name = append(title, $("span.name.clickable", { role: "heading", tabIndex: 0 }));
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), name, localize("name", "Extension name")));
+    const versionWidget = new VersionWidget(title, this.hoverService);
+    const preview = append(title, $("span.preview"));
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), preview, localize("preview", "Preview")));
+    preview.textContent = localize("preview", "Preview");
+    const builtin = append(title, $("span.builtin"));
+    builtin.textContent = localize("builtin", "Built-in");
+    const subtitle = append(details, $(".subtitle"));
+    const subTitleEntryContainers = [];
+    const publisherContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(publisherContainer);
+    const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
+    const extensionKindContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(extensionKindContainer);
+    const extensionKindWidget = this.instantiationService.createInstance(ExtensionKindIndicatorWidget, extensionKindContainer, false);
+    const installCountContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(installCountContainer);
+    const installCountWidget = this.instantiationService.createInstance(InstallCountWidget, installCountContainer, false);
+    const ratingsContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(ratingsContainer);
+    const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratingsContainer, false);
+    const sponsorContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(sponsorContainer);
+    const sponsorWidget = this.instantiationService.createInstance(SponsorWidget, sponsorContainer);
+    const widgets = [
+      iconWidget,
+      remoteBadge,
+      versionWidget,
+      publisherWidget,
+      extensionKindWidget,
+      installCountWidget,
+      ratingsWidget,
+      sponsorWidget
+    ];
+    const description = append(details, $(".description"));
+    const installAction = this.instantiationService.createInstance(InstallDropdownAction);
+    const actions = [
+      this.instantiationService.createInstance(ExtensionRuntimeStateAction),
+      this.instantiationService.createInstance(ExtensionStatusLabelAction),
+      this.instantiationService.createInstance(UpdateAction, true),
+      this.instantiationService.createInstance(SetColorThemeAction),
+      this.instantiationService.createInstance(SetFileIconThemeAction),
+      this.instantiationService.createInstance(SetProductIconThemeAction),
+      this.instantiationService.createInstance(SetLanguageAction),
+      this.instantiationService.createInstance(ClearLanguageAction),
+      this.instantiationService.createInstance(EnableDropDownAction),
+      this.instantiationService.createInstance(DisableDropDownAction),
+      this.instantiationService.createInstance(RemoteInstallAction, false),
+      this.instantiationService.createInstance(LocalInstallAction),
+      this.instantiationService.createInstance(WebInstallAction),
+      installAction,
+      this.instantiationService.createInstance(InstallingLabelAction),
+      this.instantiationService.createInstance(ButtonWithDropDownExtensionAction, "extensions.uninstall", UninstallAction.UninstallClass, [
+        [
+          this.instantiationService.createInstance(MigrateDeprecatedExtensionAction, false),
+          this.instantiationService.createInstance(UninstallAction),
+          this.instantiationService.createInstance(InstallAnotherVersionAction, null, true)
+        ]
+      ]),
+      this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
+      this.instantiationService.createInstance(ToggleAutoUpdateForExtensionAction),
+      new ExtensionEditorManageExtensionAction(this.scopedContextKeyService || this.contextKeyService, this.instantiationService)
+    ];
+    const actionsAndStatusContainer = append(details, $(".actions-status-container"));
+    const extensionActionBar = this._register(new ActionBar(actionsAndStatusContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof DropDownExtensionAction) {
+          return action.createActionViewItem(options);
+        }
+        if (action instanceof ButtonWithDropDownExtensionAction) {
+          return new ButtonWithDropdownExtensionActionViewItem(action, {
+            ...options,
+            icon: true,
+            label: true,
+            menuActionsOrProvider: { getActions: /* @__PURE__ */ __name(() => action.menuActions, "getActions") },
+            menuActionClassNames: action.menuActionClassNames
+          }, this.contextMenuService);
+        }
+        if (action instanceof ToggleAutoUpdateForExtensionAction) {
+          return new CheckboxActionViewItem(void 0, action, { ...options, icon: true, label: true, checkboxStyles: defaultCheckboxStyles });
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      focusOnlyEnabledItems: true
+    }));
+    extensionActionBar.push(actions, { icon: true, label: true });
+    extensionActionBar.setFocusable(true);
+    this._register(Event.any(...actions.map((a) => Event.filter(a.onDidChange, (e) => e.enabled !== void 0)))(() => {
+      extensionActionBar.setFocusable(false);
+      extensionActionBar.setFocusable(true);
+    }));
+    const otherExtensionContainers = [];
+    const extensionStatusAction = this.instantiationService.createInstance(ExtensionStatusAction);
+    const extensionStatusWidget = this._register(this.instantiationService.createInstance(ExtensionStatusWidget, append(actionsAndStatusContainer, $(".status")), extensionStatusAction));
+    otherExtensionContainers.push(extensionStatusAction, new class extends ExtensionWidget {
+      render() {
+        actionsAndStatusContainer.classList.toggle(
+          "list-layout",
+          this.extension?.state === 1
+          /* ExtensionState.Installed */
+        );
+      }
+    }());
+    const recommendationWidget = this.instantiationService.createInstance(ExtensionRecommendationWidget, append(details, $(".recommendation")));
+    widgets.push(recommendationWidget);
+    this._register(Event.any(extensionStatusWidget.onDidRender, recommendationWidget.onDidRender)(() => {
+      if (this.dimension) {
+        this.layout(this.dimension);
+      }
+    }));
+    const extensionContainers = this.instantiationService.createInstance(ExtensionContainers, [...actions, ...widgets, ...otherExtensionContainers]);
+    for (const disposable of [...actions, ...widgets, ...otherExtensionContainers, extensionContainers]) {
+      this._register(disposable);
+    }
+    const onError = Event.chain(extensionActionBar.onDidRun, ($2) => $2.map(({ error }) => error).filter((error) => !!error));
+    this._register(onError(this.onError, this));
+    const body = append(root, $(".body"));
+    const navbar = new NavBar(body);
+    const content = append(body, $(".content"));
+    content.id = generateUuid();
+    this.template = {
+      builtin,
+      content,
+      description,
+      header,
+      name,
+      navbar,
+      preview,
+      actionsAndStatusContainer,
+      extensionActionBar,
+      set extension(extension) {
+        extensionContainers.extension = extension;
+        let lastNonEmptySubtitleEntryContainer;
+        for (const subTitleEntryElement of subTitleEntryContainers) {
+          subTitleEntryElement.classList.remove("last-non-empty");
+          if (subTitleEntryElement.children.length > 0) {
+            lastNonEmptySubtitleEntryContainer = subTitleEntryElement;
+          }
+        }
+        if (lastNonEmptySubtitleEntryContainer) {
+          lastNonEmptySubtitleEntryContainer.classList.add("last-non-empty");
+        }
+      },
+      set gallery(gallery) {
+        versionWidget.gallery = gallery;
+      },
+      set manifest(manifest) {
+        installAction.manifest = manifest;
+      }
+    };
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    this.updatePreReleaseVersionContext();
+    if (this.template) {
+      await this.render(input.extension, this.template, !!options?.preserveFocus);
+    }
+  }
+  setOptions(options) {
+    const currentOptions = this.options;
+    super.setOptions(options);
+    this.updatePreReleaseVersionContext();
+    if (this.input && this.template && currentOptions?.showPreReleaseVersion !== options?.showPreReleaseVersion) {
+      this.render(this.input.extension, this.template, !!options?.preserveFocus);
+      return;
+    }
+    if (options?.tab) {
+      this.template?.navbar.switch(options.tab);
+    }
+  }
+  updatePreReleaseVersionContext() {
+    let showPreReleaseVersion = this.options?.showPreReleaseVersion;
+    if (isUndefined(showPreReleaseVersion)) {
+      showPreReleaseVersion = !!this.input.extension.gallery?.properties.isPreReleaseVersion;
+    }
+    this.showPreReleaseVersionContextKey?.set(showPreReleaseVersion);
+  }
+  async openTab(tab) {
+    if (!this.input || !this.template) {
+      return;
+    }
+    if (this.template.navbar.switch(tab)) {
+      return;
+    }
+    if (tab === "extensionPack") {
+      this.template.navbar.switch(
+        "readme"
+        /* ExtensionEditorTab.Readme */
+      );
+    }
+  }
+  async getGalleryVersionToShow(extension, preRelease) {
+    if (extension.resourceExtension) {
+      return null;
+    }
+    if (extension.local?.source === "resource") {
+      return null;
+    }
+    if (isUndefined(preRelease)) {
+      return null;
+    }
+    if (preRelease === extension.gallery?.properties.isPreReleaseVersion) {
+      return null;
+    }
+    if (preRelease && !extension.hasPreReleaseVersion) {
+      return null;
+    }
+    if (!preRelease && !extension.hasReleaseVersion) {
+      return null;
+    }
+    return (await this.extensionGalleryService.getExtensions([{ ...extension.identifier, preRelease, hasPreRelease: extension.hasPreReleaseVersion }], CancellationToken.None))[0] || null;
+  }
+  async render(extension, template, preserveFocus) {
+    this.activeElement = null;
+    this.transientDisposables.clear();
+    const token = this.transientDisposables.add(new CancellationTokenSource()).token;
+    const gallery = await this.getGalleryVersionToShow(extension, this.options?.showPreReleaseVersion);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    this.extensionReadme = new Cache(() => gallery ? this.extensionGalleryService.getReadme(gallery, token) : extension.getReadme(token));
+    this.extensionChangelog = new Cache(() => gallery ? this.extensionGalleryService.getChangelog(gallery, token) : extension.getChangelog(token));
+    this.extensionManifest = new Cache(() => gallery ? this.extensionGalleryService.getManifest(gallery, token) : extension.getManifest(token));
+    template.extension = extension;
+    template.gallery = gallery;
+    template.manifest = null;
+    template.name.textContent = extension.displayName;
+    template.name.classList.toggle("clickable", !!extension.url);
+    template.name.classList.toggle("deprecated", !!extension.deprecationInfo);
+    template.preview.style.display = extension.preview ? "inherit" : "none";
+    template.builtin.style.display = extension.isBuiltin ? "inherit" : "none";
+    template.description.textContent = extension.description;
+    if (extension.url) {
+      this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(extension.url))));
+    }
+    const manifest = await this.extensionManifest.get().promise;
+    if (token.isCancellationRequested) {
+      return;
+    }
+    if (manifest) {
+      template.manifest = manifest;
+    }
+    this.renderNavbar(extension, manifest, template, preserveFocus);
+    const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
+    let recommendationsData = {};
+    if (extRecommendations[extension.identifier.id.toLowerCase()]) {
+      recommendationsData = { recommendationReason: extRecommendations[extension.identifier.id.toLowerCase()].reasonId };
+    }
+    this.telemetryService.publicLog("extensionGallery:openExtension", { ...extension.telemetryData, ...recommendationsData });
+  }
+  renderNavbar(extension, manifest, template, preserveFocus) {
+    template.content.innerText = "";
+    template.navbar.clear();
+    if (this.currentIdentifier !== extension.identifier.id) {
+      this.initialScrollProgress.clear();
+      this.currentIdentifier = extension.identifier.id;
+    }
+    template.navbar.push("readme", localize("details", "Details"), localize("detailstooltip", "Extension details, rendered from the extension's 'README.md' file"));
+    if (manifest) {
+      template.navbar.push("features", localize("features", "Features"), localize("featurestooltip", "Lists features contributed by this extension"));
+    }
+    if (extension.hasChangelog()) {
+      template.navbar.push("changelog", localize("changelog", "Changelog"), localize("changelogtooltip", "Extension update history, rendered from the extension's 'CHANGELOG.md' file"));
+    }
+    if (extension.dependencies.length) {
+      template.navbar.push("dependencies", localize("dependencies", "Dependencies"), localize("dependenciestooltip", "Lists extensions this extension depends on"));
+    }
+    if (manifest && manifest.extensionPack?.length && !this.shallRenderAsExtensionPack(manifest)) {
+      template.navbar.push("extensionPack", localize("extensionpack", "Extension Pack"), localize("extensionpacktooltip", "Lists extensions those will be installed together with this extension"));
+    }
+    if (this.options?.tab) {
+      template.navbar.switch(this.options.tab);
+    }
+    if (template.navbar.currentId) {
+      this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
+    }
+    template.navbar.onChange((e) => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
+  }
+  clearInput() {
+    this.contentDisposables.clear();
+    this.transientDisposables.clear();
+    super.clearInput();
+  }
+  focus() {
+    super.focus();
+    this.activeElement?.focus();
+  }
+  showFind() {
+    this.activeWebview?.showFind();
+  }
+  runFindAction(previous) {
+    this.activeWebview?.runFindAction(previous);
+  }
+  get activeWebview() {
+    if (!this.activeElement || !this.activeElement.runFindAction) {
+      return void 0;
+    }
+    return this.activeElement;
+  }
+  onNavbarChange(extension, { id, focus }, template) {
+    this.contentDisposables.clear();
+    template.content.innerText = "";
+    this.activeElement = null;
+    if (id) {
+      const cts = new CancellationTokenSource();
+      this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
+      this.open(id, extension, template, cts.token).then((activeElement) => {
+        if (cts.token.isCancellationRequested) {
+          return;
+        }
+        this.activeElement = activeElement;
+        if (focus) {
+          this.focus();
+        }
+      });
+    }
+  }
+  open(id, extension, template, token) {
+    const details = append(template.content, $(".details"));
+    const contentContainer = append(details, $(".content-container"));
+    const additionalDetailsContainer = append(details, $(".additional-details-container"));
+    const layout = /* @__PURE__ */ __name(() => details.classList.toggle("narrow", this.dimension && this.dimension.width < 500), "layout");
+    layout();
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    this.renderAdditionalDetails(additionalDetailsContainer, extension);
+    switch (id) {
+      case "readme":
+        return this.openDetails(extension, contentContainer, token);
+      case "features":
+        return this.openFeatures(extension, contentContainer, token);
+      case "changelog":
+        return this.openChangelog(extension, contentContainer, token);
+      case "dependencies":
+        return this.openExtensionDependencies(extension, contentContainer, token);
+      case "extensionPack":
+        return this.openExtensionPack(extension, contentContainer, token);
+    }
+    return Promise.resolve(null);
+  }
+  async openMarkdown(extension, cacheResult, noContentCopy, container, webviewIndex, title, token) {
+    try {
+      const body = await this.renderMarkdown(extension, cacheResult, container, token);
+      if (token.isCancellationRequested) {
+        return Promise.resolve(null);
+      }
+      const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
+        title,
+        options: {
+          enableFindWidget: true,
+          tryRestoreScrollPosition: true,
+          disableServiceWorker: true
+        },
+        contentOptions: {},
+        extension: void 0
+      }));
+      webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
+      webview.claim(this, this.window, this.scopedContextKeyService);
+      setParentFlowTo(webview.container, container);
+      webview.layoutWebviewOverElement(container);
+      webview.setHtml(body);
+      webview.claim(this, this.window, void 0);
+      this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
+      this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
+      const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+        layout: /* @__PURE__ */ __name(() => {
+          webview.layoutWebviewOverElement(container);
+        }, "layout")
+      });
+      this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+      let isDisposed = false;
+      this.contentDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+        const body2 = await this.renderMarkdown(extension, cacheResult, container);
+        if (!isDisposed) {
+          webview.setHtml(body2);
+        }
+      }));
+      this.contentDisposables.add(webview.onDidClickLink((link) => {
+        if (!link) {
+          return;
+        }
+        if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
+          this.openerService.open(link);
+        } else if (matchesScheme(link, Schemas.command) && extension.type === 0) {
+          this.openerService.open(link, {
+            allowCommands: [
+              ShowCurrentReleaseNotesActionId
+            ]
+          });
+        }
+      }));
+      return webview;
+    } catch (e) {
+      const p = append(container, $("p.nocontent"));
+      p.textContent = noContentCopy;
+      return p;
+    }
+  }
+  async renderMarkdown(extension, cacheResult, container, token) {
+    const contents = await this.loadContents(() => cacheResult, container);
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    const allowedLinkProtocols = [Schemas.http, Schemas.https, Schemas.mailto];
+    const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, {
+      sanitizerConfig: {
+        allowedLinkProtocols: {
+          override: extension.type === 0 ? [...allowedLinkProtocols, Schemas.command] : allowedLinkProtocols
+        }
+      }
+    }, token);
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    return this.renderBody(content);
+  }
+  renderBody(body) {
+    const nonce = generateUuid();
+    const colorMap = TokenizationRegistry.getColorMap();
+    const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
+    return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${t}';">
-				<style nonce="${t}">
-					${Ye}
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${nonce}';">
+				<style nonce="${nonce}">
+					${DEFAULT_MARKDOWN_STYLES}
 
 					/* prevent scroll-to-top button from blocking the body text */
 					body {
@@ -49,13 +684,473 @@ import{$ as o,$I8 as r,$P8 as At,$_7 as Nt,$O8 as Mt}from"../../../../base/brows
 						width: 16px;
 						height: 16px;
 					}
-					${n}
+					${css}
 				</style>
 			</head>
 			<body>
 				<a id="scroll-to-top" role="button" aria-label="scroll to top" href="#"><span class="icon"></span></a>
-				${e}
+				${body}
 			</body>
-		</html>`}async Cb(e,t,i){let n=null;const s=await this.h.get().promise;return s&&s.extensionPack?.length&&this.Db(s)?n=await this.Eb(e,s,t,i):n=await this.zb(e,this.f.get(),l(8196,null),t,0,l(8197,null),i),n}Db(e){return!!e.categories?.some(t=>t.toLowerCase()==="extension packs")}async Eb(e,t,i,n){if(n.isCancellationRequested)return Promise.resolve(null);const s=r(i,o("div",{class:"extension-pack-readme"}));s.style.margin="0 auto",s.style.maxWidth="882px";const a=r(s,o("div",{class:"extension-pack"})),c=t.extensionPack.length,u=37,d=200,w=()=>{s.classList.remove("one-row","two-rows","three-rows","more-rows");const v=i.clientHeight,x=Math.max(v-u-d,0);let $="one-row";x>=302&&c>6?$="more-rows":x>=282&&c>4?$="three-rows":x>=200&&c>2?$="two-rows":$="one-row",s.classList.add($)};w(),this.s.add(C(D.$ic(this.r,{layout:w})));const g=r(a,o("div.header"));g.textContent=l(8198,null,t.extensionPack.length);const m=r(a,o("div",{class:"extension-pack-content"}));m.setAttribute("tabindex","0");const I=r(s,o("div.readme-content"));return await Promise.all([this.Kb(t,m,n),this.zb(e,this.f.get(),l(8199,null),I,0,l(8200,null),n)]),{focus:()=>m.focus()}}Fb(e,t){const i=o("div",{class:"additional-details-content",tabindex:"0"}),n=new F(i,{}),s=()=>n.scanDomNode(),a=D.$ic(this.r,{layout:s});this.s.add(C(a)),this.s.add(n),this.s.add(this.gb.createInstance(B,i,t)),r(e,n.getDomNode()),n.scanDomNode()}async Gb(e,t,i){return await this.zb(e,this.g.get(),l(8201,null),t,1,l(8202,null),i)}async Hb(e,t,i){const n=await this.Lb(()=>this.h.get(),t);if(i.isCancellationRequested||!n)return null;const s=this.s.add(this.gb.createInstance(ue,n,this.options?.feature)),a=()=>s.layout(t.clientHeight,t.clientWidth),c=D.$ic(this.r,{layout:a});return this.s.add(C(c)),r(t,s.domNode),a(),s.domNode}Ib(e,t,i){if(i.isCancellationRequested)return Promise.resolve(null);if(D.$bc(e.dependencies))return r(t,o("p.nocontent")).textContent=l(8203,null),Promise.resolve(t);const n=o("div",{class:"subcontent"}),s=new F(n,{});r(t,s.getDomNode()),this.s.add(s);const a=this.gb.createInstance(We,new Me(e,null,d=>d.dependencies||[],this.hb),n,{listBackground:oe}),c=()=>{s.scanDomNode();const d=s.getScrollDimensions();a.layout(d.height)},u=D.$ic(this.r,{layout:c});return this.s.add(C(u)),this.s.add(a),s.scanDomNode(),Promise.resolve({focus(){a.domFocus()}})}async Jb(e,t,i){if(i.isCancellationRequested)return Promise.resolve(null);const n=await this.Lb(()=>this.h.get(),t);return i.isCancellationRequested||!n?null:this.Kb(n,t,i)}async Kb(e,t,i){if(i.isCancellationRequested)return null;const n=o("div",{class:"subcontent"}),s=new F(n,{useShadows:!1});r(t,s.getDomNode());const a=this.gb.createInstance(Ze,n,new Ne),c=await ze(e.extensionPack,this.hb);return a.setExtensions(c),s.scanDomNode(),this.s.add(s),this.s.add(a),this.s.add(C(D.$ic(this.r,{layout:()=>s.scanDomNode()}))),n}Lb(e,t){t.classList.add("loading");const i=this.s.add(e()),n=()=>t.classList.remove("loading");return i.promise.then(n,n),i.promise}layout(e){this.y=e,this.r.forEach(t=>t.layout())}Mb(e){Gt(e)||this.jb.error(e)}};W=U=gt([b(1,ee),b(2,_t),b(3,$t),b(4,Qt),b(5,le),b(6,Xt),b(7,vt),b(8,Xe),b(9,te),b(10,ti),b(11,Qe),b(12,Ut),b(13,Yt),b(14,Bt),b(15,xt)],W);let B=class extends yt{constructor(e,t,i,n,s,a,c,u,d,w){super(),this.c=e,this.f=i,this.g=n,this.h=s,this.j=a,this.m=c,this.n=u,this.q=d,this.r=w,this.b=this.D(new O),this.s(t),this.D(this.q.onChange(g=>{g&&wt(g.identifier,t.identifier)&&g.server===t.server&&this.s(g)}))}s(e){this.c.innerText="",this.b.clear(),e.local&&this.w(this.c,e.local),e.gallery&&this.z(this.c,e),this.t(this.c,e),this.u(this.c,e)}t(e,t){if(t.categories.length){const i=r(e,o(".categories-container.additional-details-element"));r(i,o(".additional-details-title",void 0,l(8204,null)));const n=r(i,o(".categories"));this.r.getExtensionGalleryManifest().then(s=>{const a=s?.capabilities.extensionQuery.filtering?.some(({name:c})=>c==="Category");for(const c of t.categories){const u=r(n,o("span.category",{tabindex:"0"},c));a&&(u.classList.add("clickable"),this.b.add(P(u,()=>this.q.openSearch(`@category:"${c}"`))))}})}}u(e,t){const i=[];if(t.repository)try{i.push([l(8205,null),L.fromId(k.repo.id),R.parse(t.repository)])}catch{}if(t.supportUrl)try{i.push([l(8206,null),L.fromId(k.issues.id),R.parse(t.supportUrl)])}catch{}if(t.licenseUrl)try{i.push([l(8207,null),L.fromId(k.linkExternal.id),R.parse(t.licenseUrl)])}catch{}if(t.publisherUrl&&i.push([t.publisherDisplayName,L.fromId(k.linkExternal.id),t.publisherUrl]),t.url&&i.push([l(8208,null),L.fromId(k.linkExternal.id),R.parse(t.url)]),i.length||t.publisherSponsorLink){const n=r(e,o(".resources-container.additional-details-element"));r(n,o(".additional-details-title",void 0,l(8209,null)));const s=r(n,o(".resources"));for(const[a,c,u]of i){const d=r(s,o(".resource"));r(d,o(L.asCSSSelector(c))),r(d,o("a",{tabindex:"0"},a)),this.b.add(P(d,()=>this.g.open(u))),this.b.add(this.f.setupManagedHover(M("mouse"),d,u.toString()))}}}w(e,t){const i=r(e,o(".more-info-container.additional-details-element"));r(i,o(".additional-details-title",void 0,l(8210,null)));const n=r(i,o(".more-info"));if(r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8211,null)),o("code",void 0,t.identifier.id))),t.type!==0&&r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8212,null)),o("code",void 0,t.manifest.version))),t.installedTimestamp&&r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8213,null)),o("div",{title:new Date(t.installedTimestamp).toString()},V(t.installedTimestamp,!0,!0,!0)))),!t.isBuiltin&&t.source!=="gallery"){const s=o("div",void 0,t.source==="vsix"?l(8214,null):l(8215,null));r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8216,null)),s)),K&&t.source==="resource"&&t.location.scheme===y.file&&(s.classList.add("link"),s.tabIndex=0,s.setAttribute("role","link"),s.title=t.location.fsPath,this.b.add(P(s,()=>this.g.open(t.location,{openExternal:!0}))))}if(t.size){const s=o("div",void 0,ft.formatSize(t.size));r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",{title:l(8217,null)},l(8218,null)),s)),K&&t.location.scheme===y.file&&(s.classList.add("link"),s.tabIndex=0,s.setAttribute("role","link"),s.title=t.location.fsPath,this.b.add(P(s,()=>this.g.open(t.location,{openExternal:!0}))))}this.y(t).then(s=>{s&&Jt(s,this.m).then(a=>{if(!a)return;const c=o("div",void 0,ft.formatSize(a));r(n,o(".more-info-entry",void 0,o("div.more-info-entry-name",{title:l(8219,null)},l(8220,null)),c)),K&&t.location.scheme===y.file&&(c.classList.add("link"),c.tabIndex=0,c.setAttribute("role","link"),c.title=s.fsPath,this.b.add(P(c,()=>this.g.open(s.with({scheme:y.file}),{openExternal:!0}))))})})}async y(e){let t=this.n.extUri.joinPath(this.h.defaultProfile.globalStorageHome,e.identifier.id.toLowerCase());if(e.location.scheme===y.vscodeRemote){const i=await this.j.getEnvironment();if(!i)return;t=this.n.extUri.joinPath(i.globalStorageHome,e.identifier.id.toLowerCase())}return t}z(e,t){const i=t.gallery,n=r(e,o(".more-info-container.additional-details-element"));r(n,o(".additional-details-title",void 0,l(8221,null)));const s=r(n,o(".more-info"));i&&(t.local||(r(s,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8222,null)),o("code",void 0,t.identifier.id))),r(s,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8223,null)),o("code",void 0,i.version)))),r(s,o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8224,null)),o("div",{title:new Date(i.releaseDate).toString()},V(i.releaseDate,!0,!0,!0))),o(".more-info-entry",void 0,o("div.more-info-entry-name",void 0,l(8225,null)),o("div",{title:new Date(i.lastUpdated).toString()},V(i.lastUpdated,!0,!0,!0)))))}};B=gt([b(2,xt),b(3,vt),b(4,ni),b(5,si),b(6,ii),b(7,ei),b(8,$t),b(9,oi)],B);const J=Z.and(Z.equals("activeEditor",W.ID),Kt.focus.toNegated());Y(class extends T{constructor(){super({id:"editor.action.extensioneditor.showfind",title:l(8226,null),keybinding:{when:J,weight:100,primary:2084}})}run(e){Q(e)?.showFind()}});Y(class extends T{constructor(){super({id:"editor.action.extensioneditor.findNext",title:l(8227,null),keybinding:{when:Z.and(J,Ct),primary:3,weight:100}})}run(e){Q(e)?.runFindAction(!1)}});Y(class extends T{constructor(){super({id:"editor.action.extensioneditor.findPrevious",title:l(8228,null),keybinding:{when:Z.and(J,Ct),primary:1027,weight:100}})}run(e){Q(e)?.runFindAction(!0)}});ce((h,e)=>{const t=h.getColor(ae);t&&(e.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource { color: ${t}; }`),e.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a { color: ${t}; }`));const i=h.getColor(re);i&&(e.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:hover,
-			.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:active { color: ${i}; }`),e.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a:hover,
-			.monaco-workbench .extension-editor .content .feature-contributions a:active { color: ${i}; }`));const n=h.getColor(se);n&&e.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { background-color: ${n}; border-color: ${n}; }`);const s=h.getColor(ne);s&&e.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { color: ${s}; }`)});function Q(h){const e=h.get(_e).activeEditorPane;return e instanceof W?e:null}export{W as $gqc};
+		</html>`;
+  }
+  async openDetails(extension, contentContainer, token) {
+    let activeElement = null;
+    const manifest = await this.extensionManifest.get().promise;
+    if (manifest && manifest.extensionPack?.length && this.shallRenderAsExtensionPack(manifest)) {
+      activeElement = await this.openExtensionPackReadme(extension, manifest, contentContainer, token);
+    } else {
+      activeElement = await this.openMarkdown(extension, this.extensionReadme.get(), localize("noReadme", "No README available."), contentContainer, 0, localize("Readme title", "Readme"), token);
+    }
+    return activeElement;
+  }
+  shallRenderAsExtensionPack(manifest) {
+    return !!manifest.categories?.some((category) => category.toLowerCase() === "extension packs");
+  }
+  async openExtensionPackReadme(extension, manifest, container, token) {
+    if (token.isCancellationRequested) {
+      return Promise.resolve(null);
+    }
+    const extensionPackReadme = append(container, $("div", { class: "extension-pack-readme" }));
+    extensionPackReadme.style.margin = "0 auto";
+    extensionPackReadme.style.maxWidth = "882px";
+    const extensionPack = append(extensionPackReadme, $("div", { class: "extension-pack" }));
+    const packCount = manifest.extensionPack.length;
+    const headerHeight = 37;
+    const contentMinHeight = 200;
+    const layout = /* @__PURE__ */ __name(() => {
+      extensionPackReadme.classList.remove("one-row", "two-rows", "three-rows", "more-rows");
+      const availableHeight = container.clientHeight;
+      const availableForPack = Math.max(availableHeight - headerHeight - contentMinHeight, 0);
+      let rowClass = "one-row";
+      if (availableForPack >= 302 && packCount > 6) {
+        rowClass = "more-rows";
+      } else if (availableForPack >= 282 && packCount > 4) {
+        rowClass = "three-rows";
+      } else if (availableForPack >= 200 && packCount > 2) {
+        rowClass = "two-rows";
+      } else {
+        rowClass = "one-row";
+      }
+      extensionPackReadme.classList.add(rowClass);
+    }, "layout");
+    layout();
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    const extensionPackHeader = append(extensionPack, $("div.header"));
+    extensionPackHeader.textContent = localize("extension pack", "Extension Pack ({0})", manifest.extensionPack.length);
+    const extensionPackContent = append(extensionPack, $("div", { class: "extension-pack-content" }));
+    extensionPackContent.setAttribute("tabindex", "0");
+    const readmeContent = append(extensionPackReadme, $("div.readme-content"));
+    await Promise.all([
+      this.renderExtensionPack(manifest, extensionPackContent, token),
+      this.openMarkdown(extension, this.extensionReadme.get(), localize("noReadme", "No README available."), readmeContent, 0, localize("Readme title", "Readme"), token)
+    ]);
+    return { focus: /* @__PURE__ */ __name(() => extensionPackContent.focus(), "focus") };
+  }
+  renderAdditionalDetails(container, extension) {
+    const content = $("div", { class: "additional-details-content", tabindex: "0" });
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+    this.contentDisposables.add(scrollableContent);
+    this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
+    append(container, scrollableContent.getDomNode());
+    scrollableContent.scanDomNode();
+  }
+  async openChangelog(extension, contentContainer, token) {
+    const activeElement = await this.openMarkdown(extension, this.extensionChangelog.get(), localize("noChangelog", "No Changelog available."), contentContainer, 1, localize("Changelog title", "Changelog"), token);
+    return activeElement;
+  }
+  async openFeatures(extension, contentContainer, token) {
+    const manifest = await this.loadContents(() => this.extensionManifest.get(), contentContainer);
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    if (!manifest) {
+      return null;
+    }
+    const extensionFeaturesTab = this.contentDisposables.add(this.instantiationService.createInstance(ExtensionFeaturesTab, manifest, this.options?.feature));
+    const featureLayout = /* @__PURE__ */ __name(() => extensionFeaturesTab.layout(contentContainer.clientHeight, contentContainer.clientWidth), "featureLayout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout: featureLayout });
+    this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+    append(contentContainer, extensionFeaturesTab.domNode);
+    featureLayout();
+    return extensionFeaturesTab.domNode;
+  }
+  openExtensionDependencies(extension, contentContainer, token) {
+    if (token.isCancellationRequested) {
+      return Promise.resolve(null);
+    }
+    if (arrays.isFalsyOrEmpty(extension.dependencies)) {
+      append(contentContainer, $("p.nocontent")).textContent = localize("noDependencies", "No Dependencies");
+      return Promise.resolve(contentContainer);
+    }
+    const content = $("div", { class: "subcontent" });
+    const scrollableContent = new DomScrollableElement(content, {});
+    append(contentContainer, scrollableContent.getDomNode());
+    this.contentDisposables.add(scrollableContent);
+    const dependenciesTree = this.instantiationService.createInstance(ExtensionsTree, new ExtensionData(extension, null, (extension2) => extension2.dependencies || [], this.extensionsWorkbenchService), content, {
+      listBackground: editorBackground
+    });
+    const depLayout = /* @__PURE__ */ __name(() => {
+      scrollableContent.scanDomNode();
+      const scrollDimensions = scrollableContent.getScrollDimensions();
+      dependenciesTree.layout(scrollDimensions.height);
+    }, "depLayout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout: depLayout });
+    this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+    this.contentDisposables.add(dependenciesTree);
+    scrollableContent.scanDomNode();
+    return Promise.resolve({ focus() {
+      dependenciesTree.domFocus();
+    } });
+  }
+  async openExtensionPack(extension, contentContainer, token) {
+    if (token.isCancellationRequested) {
+      return Promise.resolve(null);
+    }
+    const manifest = await this.loadContents(() => this.extensionManifest.get(), contentContainer);
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    if (!manifest) {
+      return null;
+    }
+    return this.renderExtensionPack(manifest, contentContainer, token);
+  }
+  async renderExtensionPack(manifest, parent, token) {
+    if (token.isCancellationRequested) {
+      return null;
+    }
+    const content = $("div", { class: "subcontent" });
+    const scrollableContent = new DomScrollableElement(content, { useShadows: false });
+    append(parent, scrollableContent.getDomNode());
+    const extensionsGridView = this.instantiationService.createInstance(ExtensionsGridView, content, new Delegate());
+    const extensions = await getExtensions(manifest.extensionPack, this.extensionsWorkbenchService);
+    extensionsGridView.setExtensions(extensions);
+    scrollableContent.scanDomNode();
+    this.contentDisposables.add(scrollableContent);
+    this.contentDisposables.add(extensionsGridView);
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout: /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout") })));
+    return content;
+  }
+  loadContents(loadingTask, container) {
+    container.classList.add("loading");
+    const result = this.contentDisposables.add(loadingTask());
+    const onDone = /* @__PURE__ */ __name(() => container.classList.remove("loading"), "onDone");
+    result.promise.then(onDone, onDone);
+    return result.promise;
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    this.layoutParticipants.forEach((p) => p.layout());
+  }
+  onError(err) {
+    if (isCancellationError(err)) {
+      return;
+    }
+    this.notificationService.error(err);
+  }
+};
+ExtensionEditor = ExtensionEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IInstantiationService),
+  __param(3, IExtensionsWorkbenchService),
+  __param(4, IExtensionGalleryService),
+  __param(5, IThemeService),
+  __param(6, INotificationService),
+  __param(7, IOpenerService),
+  __param(8, IExtensionRecommendationsService),
+  __param(9, IStorageService),
+  __param(10, IExtensionService),
+  __param(11, IWebviewService),
+  __param(12, ILanguageService),
+  __param(13, IContextMenuService),
+  __param(14, IContextKeyService),
+  __param(15, IHoverService)
+], ExtensionEditor);
+let AdditionalDetailsWidget = class AdditionalDetailsWidget2 extends Disposable {
+  static {
+    __name(this, "AdditionalDetailsWidget");
+  }
+  constructor(container, extension, hoverService, openerService, userDataProfilesService, remoteAgentService, fileService, uriIdentityService, extensionsWorkbenchService, extensionGalleryManifestService) {
+    super();
+    this.container = container;
+    this.hoverService = hoverService;
+    this.openerService = openerService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.remoteAgentService = remoteAgentService;
+    this.fileService = fileService;
+    this.uriIdentityService = uriIdentityService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.extensionGalleryManifestService = extensionGalleryManifestService;
+    this.disposables = this._register(new DisposableStore());
+    this.render(extension);
+    this._register(this.extensionsWorkbenchService.onChange((e) => {
+      if (e && areSameExtensions(e.identifier, extension.identifier) && e.server === extension.server) {
+        this.render(e);
+      }
+    }));
+  }
+  render(extension) {
+    this.container.innerText = "";
+    this.disposables.clear();
+    if (extension.local) {
+      this.renderInstallInfo(this.container, extension.local);
+    }
+    if (extension.gallery) {
+      this.renderMarketplaceInfo(this.container, extension);
+    }
+    this.renderCategories(this.container, extension);
+    this.renderExtensionResources(this.container, extension);
+  }
+  renderCategories(container, extension) {
+    if (extension.categories.length) {
+      const categoriesContainer = append(container, $(".categories-container.additional-details-element"));
+      append(categoriesContainer, $(".additional-details-title", void 0, localize("categories", "Categories")));
+      const categoriesElement = append(categoriesContainer, $(".categories"));
+      this.extensionGalleryManifestService.getExtensionGalleryManifest().then((manifest) => {
+        const hasCategoryFilter = manifest?.capabilities.extensionQuery.filtering?.some(
+          ({ name }) => name === "Category"
+          /* FilterType.Category */
+        );
+        for (const category of extension.categories) {
+          const categoryElement = append(categoriesElement, $("span.category", { tabindex: "0" }, category));
+          if (hasCategoryFilter) {
+            categoryElement.classList.add("clickable");
+            this.disposables.add(onClick(categoryElement, () => this.extensionsWorkbenchService.openSearch(`@category:"${category}"`)));
+          }
+        }
+      });
+    }
+  }
+  renderExtensionResources(container, extension) {
+    const resources = [];
+    if (extension.repository) {
+      try {
+        resources.push([localize("repository", "Repository"), ThemeIcon.fromId(Codicon.repo.id), URI.parse(extension.repository)]);
+      } catch (error) {
+      }
+    }
+    if (extension.supportUrl) {
+      try {
+        resources.push([localize("issues", "Issues"), ThemeIcon.fromId(Codicon.issues.id), URI.parse(extension.supportUrl)]);
+      } catch (error) {
+      }
+    }
+    if (extension.licenseUrl) {
+      try {
+        resources.push([localize("license", "License"), ThemeIcon.fromId(Codicon.linkExternal.id), URI.parse(extension.licenseUrl)]);
+      } catch (error) {
+      }
+    }
+    if (extension.publisherUrl) {
+      resources.push([extension.publisherDisplayName, ThemeIcon.fromId(Codicon.linkExternal.id), extension.publisherUrl]);
+    }
+    if (extension.url) {
+      resources.push([localize("Marketplace", "Marketplace"), ThemeIcon.fromId(Codicon.linkExternal.id), URI.parse(extension.url)]);
+    }
+    if (resources.length || extension.publisherSponsorLink) {
+      const extensionResourcesContainer = append(container, $(".resources-container.additional-details-element"));
+      append(extensionResourcesContainer, $(".additional-details-title", void 0, localize("resources", "Resources")));
+      const resourcesElement = append(extensionResourcesContainer, $(".resources"));
+      for (const [label, icon, uri] of resources) {
+        const resourceElement = append(resourcesElement, $(".resource"));
+        append(resourceElement, $(ThemeIcon.asCSSSelector(icon)));
+        append(resourceElement, $("a", { tabindex: "0" }, label));
+        this.disposables.add(onClick(resourceElement, () => this.openerService.open(uri)));
+        this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), resourceElement, uri.toString()));
+      }
+    }
+  }
+  renderInstallInfo(container, extension) {
+    const installInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(installInfoContainer, $(".additional-details-title", void 0, localize("Install Info", "Installation")));
+    const installInfo = append(installInfoContainer, $(".more-info"));
+    append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.identifier.id)));
+    if (extension.type !== 0) {
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, extension.manifest.version)));
+    }
+    if (extension.installedTimestamp) {
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("last updated", "Last Updated")), $("div", {
+        "title": new Date(extension.installedTimestamp).toString()
+      }, fromNow(extension.installedTimestamp, true, true, true))));
+    }
+    if (!extension.isBuiltin && extension.source !== "gallery") {
+      const element = $("div", void 0, extension.source === "vsix" ? localize("vsix", "VSIX") : localize("other", "Local"));
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("source", "Source")), element));
+      if (isNative && extension.source === "resource" && extension.location.scheme === Schemas.file) {
+        element.classList.add("link");
+        element.tabIndex = 0;
+        element.setAttribute("role", "link");
+        element.title = extension.location.fsPath;
+        this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+      }
+    }
+    if (extension.size) {
+      const element = $("div", void 0, ByteSize.formatSize(extension.size));
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", { title: localize("size when installed", "Size when installed") }, localize("size", "Size")), element));
+      if (isNative && extension.location.scheme === Schemas.file) {
+        element.classList.add("link");
+        element.tabIndex = 0;
+        element.setAttribute("role", "link");
+        element.title = extension.location.fsPath;
+        this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+      }
+    }
+    this.getCacheLocation(extension).then((cacheLocation) => {
+      if (!cacheLocation) {
+        return;
+      }
+      computeSize(cacheLocation, this.fileService).then((cacheSize) => {
+        if (!cacheSize) {
+          return;
+        }
+        const element = $("div", void 0, ByteSize.formatSize(cacheSize));
+        append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", { title: localize("disk space used", "Cache size") }, localize("cache size", "Cache")), element));
+        if (isNative && extension.location.scheme === Schemas.file) {
+          element.classList.add("link");
+          element.tabIndex = 0;
+          element.setAttribute("role", "link");
+          element.title = cacheLocation.fsPath;
+          this.disposables.add(onClick(element, () => this.openerService.open(cacheLocation.with({ scheme: Schemas.file }), { openExternal: true })));
+        }
+      });
+    });
+  }
+  async getCacheLocation(extension) {
+    let extensionCacheLocation = this.uriIdentityService.extUri.joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, extension.identifier.id.toLowerCase());
+    if (extension.location.scheme === Schemas.vscodeRemote) {
+      const environment = await this.remoteAgentService.getEnvironment();
+      if (!environment) {
+        return void 0;
+      }
+      extensionCacheLocation = this.uriIdentityService.extUri.joinPath(environment.globalStorageHome, extension.identifier.id.toLowerCase());
+    }
+    return extensionCacheLocation;
+  }
+  renderMarketplaceInfo(container, extension) {
+    const gallery = extension.gallery;
+    const moreInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(moreInfoContainer, $(".additional-details-title", void 0, localize("Marketplace Info", "Marketplace")));
+    const moreInfo = append(moreInfoContainer, $(".more-info"));
+    if (gallery) {
+      if (!extension.local) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.identifier.id)));
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, gallery.version)));
+      }
+      append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("published", "Published")), $("div", {
+        "title": new Date(gallery.releaseDate).toString()
+      }, fromNow(gallery.releaseDate, true, true, true))), $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("last released", "Last Released")), $("div", {
+        "title": new Date(gallery.lastUpdated).toString()
+      }, fromNow(gallery.lastUpdated, true, true, true))));
+    }
+  }
+};
+AdditionalDetailsWidget = __decorate([
+  __param(2, IHoverService),
+  __param(3, IOpenerService),
+  __param(4, IUserDataProfilesService),
+  __param(5, IRemoteAgentService),
+  __param(6, IFileService),
+  __param(7, IUriIdentityService),
+  __param(8, IExtensionsWorkbenchService),
+  __param(9, IExtensionGalleryManifestService)
+], AdditionalDetailsWidget);
+const contextKeyExpr = ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", ExtensionEditor.ID), EditorContextKeys.focus.toNegated());
+registerAction2(class ShowExtensionEditorFindAction extends Action2 {
+  static {
+    __name(this, "ShowExtensionEditorFindAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.extensioneditor.showfind",
+      title: localize("find", "Find"),
+      keybinding: {
+        when: contextKeyExpr,
+        weight: 100,
+        primary: 2048 | 36
+      }
+    });
+  }
+  run(accessor) {
+    const extensionEditor = getExtensionEditor(accessor);
+    extensionEditor?.showFind();
+  }
+});
+registerAction2(class StartExtensionEditorFindNextAction extends Action2 {
+  static {
+    __name(this, "StartExtensionEditorFindNextAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.extensioneditor.findNext",
+      title: localize("find next", "Find Next"),
+      keybinding: {
+        when: ContextKeyExpr.and(contextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED),
+        primary: 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    const extensionEditor = getExtensionEditor(accessor);
+    extensionEditor?.runFindAction(false);
+  }
+});
+registerAction2(class StartExtensionEditorFindPreviousAction extends Action2 {
+  static {
+    __name(this, "StartExtensionEditorFindPreviousAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.extensioneditor.findPrevious",
+      title: localize("find previous", "Find Previous"),
+      keybinding: {
+        when: ContextKeyExpr.and(contextKeyExpr, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED),
+        primary: 1024 | 3,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor) {
+    const extensionEditor = getExtensionEditor(accessor);
+    extensionEditor?.runFindAction(true);
+  }
+});
+registerThemingParticipant((theme, collector) => {
+  const link = theme.getColor(textLinkForeground);
+  if (link) {
+    collector.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource { color: ${link}; }`);
+    collector.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a { color: ${link}; }`);
+  }
+  const activeLink = theme.getColor(textLinkActiveForeground);
+  if (activeLink) {
+    collector.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:hover,
+			.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:active { color: ${activeLink}; }`);
+    collector.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a:hover,
+			.monaco-workbench .extension-editor .content .feature-contributions a:active { color: ${activeLink}; }`);
+  }
+  const buttonHoverBackgroundColor = theme.getColor(buttonHoverBackground);
+  if (buttonHoverBackgroundColor) {
+    collector.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { background-color: ${buttonHoverBackgroundColor}; border-color: ${buttonHoverBackgroundColor}; }`);
+  }
+  const buttonForegroundColor = theme.getColor(buttonForeground);
+  if (buttonForegroundColor) {
+    collector.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { color: ${buttonForegroundColor}; }`);
+  }
+});
+function getExtensionEditor(accessor) {
+  const activeEditorPane = accessor.get(IEditorService).activeEditorPane;
+  if (activeEditorPane instanceof ExtensionEditor) {
+    return activeEditorPane;
+  }
+  return null;
+}
+__name(getExtensionEditor, "getExtensionEditor");
+export {
+  ExtensionEditor
+};
+//# sourceMappingURL=extensionEditor.js.map

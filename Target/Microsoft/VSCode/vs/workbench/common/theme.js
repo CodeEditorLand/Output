@@ -1,1 +1,711 @@
-import{localize as t}from"../../nls.js";import{$1p as r,$Iq as D,$gq as n,$6p as l,$Pq as M,$jq as Y,$5p as Z,$4p as h,$fq as H,$hq as s,$Qq as O,$Uq as tt,$Xq as f,$1q as U,$Ht as w,$cq as C,$jt as k,$kt as rt,$Jq as i,$Sr as I,$ys as F,$Rr as $,$zq as N}from"../../platform/theme/common/colorRegistry.js";import{$Tp as o}from"../../base/common/color.js";import{ColorScheme as y}from"../../platform/theme/common/theme.js";function pt(J){switch(J.type){case y.LIGHT:return o.fromHex("#F3F3F3");case y.HIGH_CONTRAST_LIGHT:return o.fromHex("#FFFFFF");case y.HIGH_CONTRAST_DARK:return o.fromHex("#000000");default:return o.fromHex("#252526")}}const V=r("tab.activeBackground",D,t(4492,null)),bt=r("tab.unfocusedActiveBackground",V,t(4493,null)),ot=r("tab.inactiveBackground",{dark:"#2D2D2D",light:"#ECECEC",hcDark:null,hcLight:null},t(4494,null)),kt=r("tab.unfocusedInactiveBackground",ot,t(4495,null)),u=r("tab.activeForeground",{dark:o.white,light:"#333333",hcDark:o.white,hcLight:"#292929"},t(4496,null)),T=r("tab.inactiveForeground",{dark:l(u,.5),light:l(u,.7),hcDark:o.white,hcLight:"#292929"},t(4497,null)),xt=r("tab.unfocusedActiveForeground",{dark:l(u,.5),light:l(u,.7),hcDark:o.white,hcLight:"#292929"},t(4498,null)),$t=r("tab.unfocusedInactiveForeground",{dark:l(T,.5),light:l(T,.5),hcDark:o.white,hcLight:"#292929"},t(4499,null)),S=r("tab.hoverBackground",null,t(4500,null)),Bt=r("tab.unfocusedHoverBackground",{dark:l(S,.5),light:l(S,.7),hcDark:null,hcLight:null},t(4501,null)),A=r("tab.hoverForeground",null,t(4502,null)),Dt=r("tab.unfocusedHoverForeground",{dark:l(A,.5),light:l(A,.5),hcDark:null,hcLight:null},t(4503,null)),Ft=r("tab.border",{dark:"#252526",light:"#F3F3F3",hcDark:n,hcLight:n},t(4504,null)),yt=r("tab.lastPinnedBorder",{dark:w,light:w,hcDark:n,hcLight:n},t(4505,null)),E=r("tab.activeBorder",null,t(4506,null)),ft=r("tab.unfocusedActiveBorder",{dark:l(E,.5),light:l(E,.7),hcDark:null,hcLight:null},t(4507,null)),m=r("tab.activeBorderTop",{dark:null,light:null,hcDark:null,hcLight:"#B5200D"},t(4508,null)),mt=r("tab.unfocusedActiveBorderTop",{dark:l(m,.5),light:l(m,.7),hcDark:null,hcLight:"#B5200D"},t(4509,null)),Lt=r("tab.selectedBorderTop",m,t(4510,null)),vt=r("tab.selectedBackground",V,t(4511,null)),zt=r("tab.selectedForeground",u,t(4512,null)),G=r("tab.hoverBorder",null,t(4513,null)),Ht=r("tab.unfocusedHoverBorder",{dark:l(G,.5),light:l(G,.7),hcDark:null,hcLight:n},t(4514,null)),wt=r("tab.dragAndDropBorder",{dark:u,light:u,hcDark:s,hcLight:s},t(4515,null)),B=r("tab.activeModifiedBorder",{dark:"#3399CC",light:"#33AAEE",hcDark:null,hcLight:n},t(4516,null)),q=r("tab.inactiveModifiedBorder",{dark:l(B,.5),light:l(B,.5),hcDark:o.white,hcLight:n},t(4517,null)),Ct=r("tab.unfocusedActiveModifiedBorder",{dark:l(B,.5),light:l(B,.7),hcDark:o.white,hcLight:n},t(4518,null)),It=r("tab.unfocusedInactiveModifiedBorder",{dark:l(q,.5),light:l(q,.5),hcDark:o.white,hcLight:n},t(4519,null)),Tt=r("editorPane.background",D,t(4520,null)),St=r("editorGroup.emptyBackground",null,t(4521,null)),At=r("editorGroup.focusedEmptyBorder",{dark:null,light:null,hcDark:H,hcLight:H},t(4522,null)),Et=r("editorGroupHeader.tabsBackground",{dark:"#252526",light:"#F3F3F3",hcDark:null,hcLight:null},t(4523,null)),Gt=r("editorGroupHeader.tabsBorder",null,t(4524,null)),qt=r("editorGroupHeader.noTabsBackground",D,t(4525,null)),Pt=r("editorGroupHeader.border",{dark:null,light:null,hcDark:n,hcLight:n},t(4526,null)),W=r("editorGroup.border",{dark:"#444444",light:"#E7E7E7",hcDark:n,hcLight:n},t(4527,null)),j=r("editorGroup.dropBackground",{dark:o.fromHex("#53595D").transparent(.5),light:o.fromHex("#2677CB").transparent(.18),hcDark:null,hcLight:o.fromHex("#0F4A85").transparent(.5)},t(4528,null)),_t=r("editorGroup.dropIntoPromptForeground",O,t(4529,null)),Rt=r("editorGroup.dropIntoPromptBackground",M,t(4530,null)),Mt=r("editorGroup.dropIntoPromptBorder",{dark:null,light:null,hcDark:n,hcLight:n},t(4531,null)),Ot=r("sideBySideEditor.horizontalBorder",W,t(4532,null)),Ut=r("sideBySideEditor.verticalBorder",W,t(4533,null)),nt=r("outputView.background",null,t(4534,null));r("outputViewStickyScroll.background",nt,t(4535,null));const Nt=r("banner.background",{dark:k,light:h(k,.3),hcDark:k,hcLight:k},t(4536,null)),Vt=r("banner.foreground",rt,t(4537,null)),Wt=r("banner.iconForeground",U,t(4538,null)),c=r("statusBar.foreground",{dark:"#FFFFFF",light:"#FFFFFF",hcDark:"#FFFFFF",hcLight:i},t(4539,null)),jt=r("statusBar.noFolderForeground",c,t(4540,null)),Kt=r("statusBar.background",{dark:"#007ACC",light:"#007ACC",hcDark:null,hcLight:null},t(4541,null)),Qt=r("statusBar.noFolderBackground",{dark:"#68217A",light:"#68217A",hcDark:null,hcLight:null},t(4542,null)),lt=r("statusBar.border",{dark:null,light:null,hcDark:n,hcLight:n},t(4543,null)),Xt=r("statusBar.focusBorder",{dark:c,light:c,hcDark:null,hcLight:c},t(4544,null)),Jt=r("statusBar.noFolderBorder",lt,t(4545,null)),Yt=r("statusBarItem.activeBackground",{dark:o.white.transparent(.18),light:o.white.transparent(.18),hcDark:o.white.transparent(.18),hcLight:o.black.transparent(.18)},t(4546,null)),Zt=r("statusBarItem.focusBorder",{dark:c,light:c,hcDark:null,hcLight:s},t(4547,null)),a=r("statusBarItem.hoverBackground",{dark:o.white.transparent(.12),light:o.black.transparent(.12),hcDark:o.black,hcLight:o.white},t(4548,null)),b=r("statusBarItem.hoverForeground",c,t(4549,null)),tr=r("statusBarItem.compactHoverBackground",{dark:o.white.transparent(.12),light:o.black.transparent(.12),hcDark:o.black,hcLight:o.white},t(4550,null)),rr=r("statusBarItem.prominentForeground",c,t(4551,null)),or=r("statusBarItem.prominentBackground",o.black.transparent(.5),t(4552,null)),nr=r("statusBarItem.prominentHoverForeground",b,t(4553,null)),lr=r("statusBarItem.prominentHoverBackground",a,t(4554,null)),er=r("statusBarItem.errorBackground",{dark:h(C,.4),light:h(C,.4),hcDark:null,hcLight:"#B5200D"},t(4555,null)),ar=r("statusBarItem.errorForeground",o.white,t(4556,null)),cr=r("statusBarItem.errorHoverForeground",b,t(4557,null)),ur=r("statusBarItem.errorHoverBackground",a,t(4558,null)),ir=r("statusBarItem.warningBackground",{dark:h(f,.4),light:h(f,.4),hcDark:null,hcLight:"#895503"},t(4559,null)),hr=r("statusBarItem.warningForeground",o.white,t(4560,null)),dr=r("statusBarItem.warningHoverForeground",b,t(4561,null)),sr=r("statusBarItem.warningHoverBackground",a,t(4562,null)),gr=r("activityBar.background",{dark:"#333333",light:"#2C2C2C",hcDark:"#000000",hcLight:"#FFFFFF"},t(4563,null)),d=r("activityBar.foreground",{dark:o.white,light:o.white,hcDark:o.white,hcLight:i},t(4564,null)),pr=r("activityBar.inactiveForeground",{dark:l(d,.4),light:l(d,.4),hcDark:o.white,hcLight:i},t(4565,null)),br=r("activityBar.border",{dark:null,light:null,hcDark:n,hcLight:n},t(4566,null)),kr=r("activityBar.activeBorder",{dark:d,light:d,hcDark:n,hcLight:n},t(4567,null)),xr=r("activityBar.activeFocusBorder",{dark:null,light:null,hcDark:null,hcLight:"#B5200D"},t(4568,null)),$r=r("activityBar.activeBackground",null,t(4569,null)),Br=r("activityBar.dropBorder",{dark:d,light:d,hcDark:null,hcLight:null},t(4570,null)),v=r("activityBarBadge.background",{dark:"#007ACC",light:"#007ACC",hcDark:"#000000",hcLight:"#0F4A85"},t(4571,null)),z=r("activityBarBadge.foreground",o.white,t(4572,null)),g=r("activityBarTop.foreground",{dark:"#E7E7E7",light:"#424242",hcDark:o.white,hcLight:i},t(4573,null)),Dr=r("activityBarTop.activeBorder",{dark:g,light:g,hcDark:n,hcLight:"#B5200D"},t(4574,null)),Fr=r("activityBarTop.activeBackground",null,t(4575,null)),yr=r("activityBarTop.inactiveForeground",{dark:l(g,.6),light:l(g,.75),hcDark:o.white,hcLight:i},t(4576,null)),fr=r("activityBarTop.dropBorder",g,t(4577,null)),mr=r("activityBarTop.background",null,t(4578,null)),et=r("panel.background",D,t(4579,null)),L=r("panel.border",{dark:o.fromHex("#808080").transparent(.35),light:o.fromHex("#808080").transparent(.35),hcDark:n,hcLight:n},t(4580,null)),Lr=r("panelTitle.border",{dark:null,light:null,hcDark:L,hcLight:L},t(4581,null)),p=r("panelTitle.activeForeground",{dark:"#E7E7E7",light:"#424242",hcDark:o.white,hcLight:i},t(4582,null)),vr=r("panelTitle.inactiveForeground",{dark:l(p,.6),light:l(p,.75),hcDark:o.white,hcLight:i},t(4583,null)),zr=r("panelTitle.activeBorder",{dark:p,light:p,hcDark:n,hcLight:"#B5200D"},t(4584,null)),Hr=r("panelTitleBadge.background",v,t(4585,null)),wr=r("panelTitleBadge.foreground",z,t(4586,null)),Cr=r("panelInput.border",{dark:F,light:o.fromHex("#ddd"),hcDark:F,hcLight:F},t(4587,null)),Ir=r("panel.dropBorder",p,t(4588,null)),Tr=r("panelSection.dropBackground",j,t(4589,null)),Sr=r("panelSectionHeader.background",{dark:o.fromHex("#808080").transparent(.2),light:o.fromHex("#808080").transparent(.2),hcDark:null,hcLight:null},t(4590,null)),Ar=r("panelSectionHeader.foreground",null,t(4591,null)),Er=r("panelSectionHeader.border",n,t(4592,null)),Gr=r("panelSection.border",L,t(4593,null)),qr=r("panelStickyScroll.background",et,t(4594,null)),Pr=r("panelStickyScroll.border",null,t(4595,null)),_r=r("panelStickyScroll.shadow",N,t(4596,null)),Rr=r("profileBadge.background",{dark:"#4D4D4D",light:"#C4C4C4",hcDark:o.white,hcLight:o.black},t(4597,null)),Mr=r("profileBadge.foreground",{dark:o.white,light:"#333333",hcDark:o.black,hcLight:o.white},t(4598,null)),Or=r("statusBarItem.remoteBackground",v,t(4599,null)),at=r("statusBarItem.remoteForeground",z,t(4600,null)),Ur=r("statusBarItem.remoteHoverForeground",b,t(4601,null)),Nr=r("statusBarItem.remoteHoverBackground",{dark:a,light:a,hcDark:a,hcLight:null},t(4602,null)),Vr=r("statusBarItem.offlineBackground","#6c1717",t(4603,null)),Wr=r("statusBarItem.offlineForeground",at,t(4604,null)),jr=r("statusBarItem.offlineHoverForeground",b,t(4605,null)),Kr=r("statusBarItem.offlineHoverBackground",{dark:a,light:a,hcDark:a,hcLight:null},t(4606,null)),Qr=r("extensionBadge.remoteBackground",v,t(4607,null)),Xr=r("extensionBadge.remoteForeground",z,t(4608,null)),K=r("sideBar.background",{dark:"#252526",light:"#F3F3F3",hcDark:"#000000",hcLight:"#FFFFFF"},t(4609,null)),Q=r("sideBar.foreground",null,t(4610,null)),P=r("sideBar.border",{dark:null,light:null,hcDark:n,hcLight:n},t(4611,null)),Jr=r("sideBarTitle.background",K,t(4612,null)),Yr=r("sideBarTitle.foreground",Q,t(4613,null)),Zr=r("sideBarTitle.border",{dark:null,light:null,hcDark:P,hcLight:P},t(4614,null)),to=r("sideBar.dropBackground",j,t(4615,null)),ro=r("sideBarSectionHeader.background",{dark:o.fromHex("#808080").transparent(.2),light:o.fromHex("#808080").transparent(.2),hcDark:null,hcLight:null},t(4616,null)),oo=r("sideBarSectionHeader.foreground",Q,t(4617,null)),ct=r("sideBarSectionHeader.border",n,t(4618,null)),no=r("sideBarActivityBarTop.border",ct,t(4619,null)),lo=r("sideBarStickyScroll.background",K,t(4620,null)),eo=r("sideBarStickyScroll.border",null,t(4621,null)),ao=r("sideBarStickyScroll.shadow",N,t(4622,null)),e=r("titleBar.activeForeground",{dark:"#CCCCCC",light:"#333333",hcDark:"#FFFFFF",hcLight:"#292929"},t(4623,null)),X=r("titleBar.inactiveForeground",{dark:l(e,.6),light:l(e,.6),hcDark:null,hcLight:"#292929"},t(4624,null)),_=r("titleBar.activeBackground",{dark:"#3C3C3C",light:"#DDDDDD",hcDark:"#000000",hcLight:"#FFFFFF"},t(4625,null)),co=r("titleBar.inactiveBackground",{dark:l(_,.6),light:l(_,.6),hcDark:null,hcLight:null},t(4626,null)),uo=r("titleBar.border",{dark:null,light:null,hcDark:n,hcLight:n},t(4627,null)),ut=r("menubar.selectionForeground",e,t(4628,null)),R=r("menubar.selectionBackground",{dark:I,light:I,hcDark:null,hcLight:null},t(4629,null)),io=r("menubar.selectionBorder",{dark:null,light:null,hcDark:s,hcLight:s},t(4630,null)),ho=r("commandCenter.foreground",e,t(4631,null),!1),so=r("commandCenter.activeForeground",ut,t(4632,null),!1),go=r("commandCenter.inactiveForeground",X,t(4633,null),!1),po=r("commandCenter.background",{dark:o.white.transparent(.05),hcDark:null,light:o.black.transparent(.05),hcLight:null},t(4634,null),!1),bo=r("commandCenter.activeBackground",{dark:o.white.transparent(.08),hcDark:R,light:o.black.transparent(.08),hcLight:R},t(4635,null),!1),ko=r("commandCenter.border",{dark:l(e,.2),hcDark:n,light:l(e,.2),hcLight:n},t(4636,null),!1),xo=r("commandCenter.activeBorder",{dark:l(e,.3),hcDark:e,light:l(e,.3),hcLight:e},t(4637,null),!1),$o=r("commandCenter.inactiveBorder",l(X,.25),t(4638,null),!1),Bo=r("notificationCenter.border",{dark:$,light:$,hcDark:n,hcLight:n},t(4639,null)),Do=r("notificationToast.border",{dark:$,light:$,hcDark:n,hcLight:n},t(4640,null)),Fo=r("notifications.foreground",O,t(4641,null)),x=r("notifications.background",M,t(4642,null)),yo=r("notificationLink.foreground",Y,t(4643,null)),fo=r("notificationCenterHeader.foreground",null,t(4644,null)),it=r("notificationCenterHeader.background",{dark:Z(x,.3),light:h(x,.05),hcDark:x,hcLight:x},t(4645,null)),mo=r("notifications.border",it,t(4646,null)),Lo=r("notificationsErrorIcon.foreground",tt,t(4647,null)),vo=r("notificationsWarningIcon.foreground",f,t(4648,null)),zo=r("notificationsInfoIcon.foreground",U,t(4649,null)),Ho=r("window.activeBorder",{dark:null,light:null,hcDark:n,hcLight:n},t(4650,null)),wo=r("window.inactiveBorder",{dark:null,light:null,hcDark:n,hcLight:n},t(4651,null));export{wt as $$xb,Lr as $$yb,it as $$zb,Ht as $0xb,L as $0yb,fo as $0zb,yt as $1xb,v as $1yb,bo as $1zb,E as $2xb,z as $2yb,ko as $2zb,ft as $3xb,g as $3yb,xo as $3zb,m as $4xb,Dr as $4yb,$o as $4zb,mt as $5xb,Fr as $5yb,Bo as $5zb,Lt as $6xb,yr as $6yb,Do as $6zb,vt as $7xb,fr as $7yb,Fo as $7zb,zt as $8xb,mr as $8yb,x as $8zb,G as $9xb,et as $9yb,yo as $9zb,Jt as $Ayb,K as $Azb,Yt as $Byb,Q as $Bzb,Zt as $Cyb,P as $Czb,a as $Dyb,Jr as $Dzb,b as $Eyb,Yr as $Ezb,tr as $Fyb,Zr as $Fzb,rr as $Gyb,to as $Gzb,or as $Hyb,ro as $Hzb,nr as $Iyb,oo as $Izb,lr as $Jyb,ct as $Jzb,er as $Kyb,no as $Kzb,ar as $Lyb,lo as $Lzb,pt as $Mxb,cr as $Myb,eo as $Mzb,V as $Nxb,ur as $Nyb,ao as $Nzb,bt as $Oxb,ir as $Oyb,e as $Ozb,ot as $Pxb,hr as $Pyb,X as $Pzb,kt as $Qxb,dr as $Qyb,_ as $Qzb,u as $Rxb,sr as $Ryb,co as $Rzb,T as $Sxb,gr as $Syb,uo as $Szb,xt as $Txb,d as $Tyb,ut as $Tzb,$t as $Uxb,pr as $Uyb,R as $Uzb,S as $Vxb,br as $Vyb,io as $Vzb,Bt as $Wxb,kr as $Wyb,ho as $Wzb,A as $Xxb,xr as $Xyb,so as $Xzb,Dt as $Yxb,$r as $Yyb,go as $Yzb,Ft as $Zxb,Br as $Zyb,po as $Zzb,B as $_xb,p as $_yb,mo as $_zb,Lo as $aAb,q as $ayb,vr as $azb,vo as $bAb,Ct as $byb,zr as $bzb,zo as $cAb,It as $cyb,Hr as $czb,Ho as $dAb,Tt as $dyb,wr as $dzb,wo as $eAb,St as $eyb,Cr as $ezb,At as $fyb,Ir as $fzb,Et as $gyb,Tr as $gzb,Gt as $hyb,Sr as $hzb,qt as $iyb,Ar as $izb,Pt as $jyb,Er as $jzb,W as $kyb,Gr as $kzb,j as $lyb,qr as $lzb,_t as $myb,Pr as $mzb,Rt as $nyb,_r as $nzb,Mt as $oyb,Rr as $ozb,Ot as $pyb,Mr as $pzb,Ut as $qyb,Or as $qzb,Nt as $ryb,at as $rzb,Vt as $syb,Ur as $szb,Wt as $tyb,Nr as $tzb,c as $uyb,Vr as $uzb,jt as $vyb,Wr as $vzb,Kt as $wyb,jr as $wzb,Qt as $xyb,Kr as $xzb,lt as $yyb,Qr as $yzb,Xt as $zyb,Xr as $zzb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../nls.js";
+import { registerColor, editorBackground, contrastBorder, transparent, editorWidgetBackground, textLinkForeground, lighten, darken, focusBorder, activeContrastBorder, editorWidgetForeground, editorErrorForeground, editorWarningForeground, editorInfoForeground, treeIndentGuidesStroke, errorForeground, listActiveSelectionBackground, listActiveSelectionForeground, editorForeground, toolbarHoverBackground, inputBorder, widgetBorder, scrollbarShadow } from "../../platform/theme/common/colorRegistry.js";
+import { Color } from "../../base/common/color.js";
+import { ColorScheme } from "../../platform/theme/common/theme.js";
+function WORKBENCH_BACKGROUND(theme) {
+  switch (theme.type) {
+    case ColorScheme.LIGHT:
+      return Color.fromHex("#F3F3F3");
+    case ColorScheme.HIGH_CONTRAST_LIGHT:
+      return Color.fromHex("#FFFFFF");
+    case ColorScheme.HIGH_CONTRAST_DARK:
+      return Color.fromHex("#000000");
+    default:
+      return Color.fromHex("#252526");
+  }
+}
+__name(WORKBENCH_BACKGROUND, "WORKBENCH_BACKGROUND");
+const TAB_ACTIVE_BACKGROUND = registerColor("tab.activeBackground", editorBackground, localize("tabActiveBackground", "Active tab background color in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_ACTIVE_BACKGROUND = registerColor("tab.unfocusedActiveBackground", TAB_ACTIVE_BACKGROUND, localize("tabUnfocusedActiveBackground", "Active tab background color in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_INACTIVE_BACKGROUND = registerColor("tab.inactiveBackground", {
+  dark: "#2D2D2D",
+  light: "#ECECEC",
+  hcDark: null,
+  hcLight: null
+}, localize("tabInactiveBackground", "Inactive tab background color in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_INACTIVE_BACKGROUND = registerColor("tab.unfocusedInactiveBackground", TAB_INACTIVE_BACKGROUND, localize("tabUnfocusedInactiveBackground", "Inactive tab background color in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_ACTIVE_FOREGROUND = registerColor("tab.activeForeground", {
+  dark: Color.white,
+  light: "#333333",
+  hcDark: Color.white,
+  hcLight: "#292929"
+}, localize("tabActiveForeground", "Active tab foreground color in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_INACTIVE_FOREGROUND = registerColor("tab.inactiveForeground", {
+  dark: transparent(TAB_ACTIVE_FOREGROUND, 0.5),
+  light: transparent(TAB_ACTIVE_FOREGROUND, 0.7),
+  hcDark: Color.white,
+  hcLight: "#292929"
+}, localize("tabInactiveForeground", "Inactive tab foreground color in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_ACTIVE_FOREGROUND = registerColor("tab.unfocusedActiveForeground", {
+  dark: transparent(TAB_ACTIVE_FOREGROUND, 0.5),
+  light: transparent(TAB_ACTIVE_FOREGROUND, 0.7),
+  hcDark: Color.white,
+  hcLight: "#292929"
+}, localize("tabUnfocusedActiveForeground", "Active tab foreground color in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_INACTIVE_FOREGROUND = registerColor("tab.unfocusedInactiveForeground", {
+  dark: transparent(TAB_INACTIVE_FOREGROUND, 0.5),
+  light: transparent(TAB_INACTIVE_FOREGROUND, 0.5),
+  hcDark: Color.white,
+  hcLight: "#292929"
+}, localize("tabUnfocusedInactiveForeground", "Inactive tab foreground color in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_HOVER_BACKGROUND = registerColor("tab.hoverBackground", null, localize("tabHoverBackground", "Tab background color when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_HOVER_BACKGROUND = registerColor("tab.unfocusedHoverBackground", {
+  dark: transparent(TAB_HOVER_BACKGROUND, 0.5),
+  light: transparent(TAB_HOVER_BACKGROUND, 0.7),
+  hcDark: null,
+  hcLight: null
+}, localize("tabUnfocusedHoverBackground", "Tab background color in an unfocused group when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_HOVER_FOREGROUND = registerColor("tab.hoverForeground", null, localize("tabHoverForeground", "Tab foreground color when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_HOVER_FOREGROUND = registerColor("tab.unfocusedHoverForeground", {
+  dark: transparent(TAB_HOVER_FOREGROUND, 0.5),
+  light: transparent(TAB_HOVER_FOREGROUND, 0.5),
+  hcDark: null,
+  hcLight: null
+}, localize("tabUnfocusedHoverForeground", "Tab foreground color in an unfocused group when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_BORDER = registerColor("tab.border", {
+  dark: "#252526",
+  light: "#F3F3F3",
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("tabBorder", "Border to separate tabs from each other. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_LAST_PINNED_BORDER = registerColor("tab.lastPinnedBorder", {
+  dark: treeIndentGuidesStroke,
+  light: treeIndentGuidesStroke,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("lastPinnedTabBorder", "Border to separate pinned tabs from other tabs. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_ACTIVE_BORDER = registerColor("tab.activeBorder", null, localize("tabActiveBorder", "Border on the bottom of an active tab. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_ACTIVE_BORDER = registerColor("tab.unfocusedActiveBorder", {
+  dark: transparent(TAB_ACTIVE_BORDER, 0.5),
+  light: transparent(TAB_ACTIVE_BORDER, 0.7),
+  hcDark: null,
+  hcLight: null
+}, localize("tabActiveUnfocusedBorder", "Border on the bottom of an active tab in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_ACTIVE_BORDER_TOP = registerColor("tab.activeBorderTop", {
+  dark: null,
+  light: null,
+  hcDark: null,
+  hcLight: "#B5200D"
+}, localize("tabActiveBorderTop", "Border to the top of an active tab. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_ACTIVE_BORDER_TOP = registerColor("tab.unfocusedActiveBorderTop", {
+  dark: transparent(TAB_ACTIVE_BORDER_TOP, 0.5),
+  light: transparent(TAB_ACTIVE_BORDER_TOP, 0.7),
+  hcDark: null,
+  hcLight: "#B5200D"
+}, localize("tabActiveUnfocusedBorderTop", "Border to the top of an active tab in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_SELECTED_BORDER_TOP = registerColor("tab.selectedBorderTop", TAB_ACTIVE_BORDER_TOP, localize("tabSelectedBorderTop", "Border to the top of a selected tab. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_SELECTED_BACKGROUND = registerColor("tab.selectedBackground", TAB_ACTIVE_BACKGROUND, localize("tabSelectedBackground", "Background of a selected tab. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_SELECTED_FOREGROUND = registerColor("tab.selectedForeground", TAB_ACTIVE_FOREGROUND, localize("tabSelectedForeground", "Foreground of a selected tab. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_HOVER_BORDER = registerColor("tab.hoverBorder", null, localize("tabHoverBorder", "Border to highlight tabs when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_HOVER_BORDER = registerColor("tab.unfocusedHoverBorder", {
+  dark: transparent(TAB_HOVER_BORDER, 0.5),
+  light: transparent(TAB_HOVER_BORDER, 0.7),
+  hcDark: null,
+  hcLight: contrastBorder
+}, localize("tabUnfocusedHoverBorder", "Border to highlight tabs in an unfocused group when hovering. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_DRAG_AND_DROP_BORDER = registerColor("tab.dragAndDropBorder", {
+  dark: TAB_ACTIVE_FOREGROUND,
+  light: TAB_ACTIVE_FOREGROUND,
+  hcDark: activeContrastBorder,
+  hcLight: activeContrastBorder
+}, localize("tabDragAndDropBorder", "Border between tabs to indicate that a tab can be inserted between two tabs. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_ACTIVE_MODIFIED_BORDER = registerColor("tab.activeModifiedBorder", {
+  dark: "#3399CC",
+  light: "#33AAEE",
+  hcDark: null,
+  hcLight: contrastBorder
+}, localize("tabActiveModifiedBorder", "Border on the top of modified active tabs in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_INACTIVE_MODIFIED_BORDER = registerColor("tab.inactiveModifiedBorder", {
+  dark: transparent(TAB_ACTIVE_MODIFIED_BORDER, 0.5),
+  light: transparent(TAB_ACTIVE_MODIFIED_BORDER, 0.5),
+  hcDark: Color.white,
+  hcLight: contrastBorder
+}, localize("tabInactiveModifiedBorder", "Border on the top of modified inactive tabs in an active group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_ACTIVE_MODIFIED_BORDER = registerColor("tab.unfocusedActiveModifiedBorder", {
+  dark: transparent(TAB_ACTIVE_MODIFIED_BORDER, 0.5),
+  light: transparent(TAB_ACTIVE_MODIFIED_BORDER, 0.7),
+  hcDark: Color.white,
+  hcLight: contrastBorder
+}, localize("unfocusedActiveModifiedBorder", "Border on the top of modified active tabs in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const TAB_UNFOCUSED_INACTIVE_MODIFIED_BORDER = registerColor("tab.unfocusedInactiveModifiedBorder", {
+  dark: transparent(TAB_INACTIVE_MODIFIED_BORDER, 0.5),
+  light: transparent(TAB_INACTIVE_MODIFIED_BORDER, 0.5),
+  hcDark: Color.white,
+  hcLight: contrastBorder
+}, localize("unfocusedINactiveModifiedBorder", "Border on the top of modified inactive tabs in an unfocused group. Tabs are the containers for editors in the editor area. Multiple tabs can be opened in one editor group. There can be multiple editor groups."));
+const EDITOR_PANE_BACKGROUND = registerColor("editorPane.background", editorBackground, localize("editorPaneBackground", "Background color of the editor pane visible on the left and right side of the centered editor layout."));
+const EDITOR_GROUP_EMPTY_BACKGROUND = registerColor("editorGroup.emptyBackground", null, localize("editorGroupEmptyBackground", "Background color of an empty editor group. Editor groups are the containers of editors."));
+const EDITOR_GROUP_FOCUSED_EMPTY_BORDER = registerColor("editorGroup.focusedEmptyBorder", {
+  dark: null,
+  light: null,
+  hcDark: focusBorder,
+  hcLight: focusBorder
+}, localize("editorGroupFocusedEmptyBorder", "Border color of an empty editor group that is focused. Editor groups are the containers of editors."));
+const EDITOR_GROUP_HEADER_TABS_BACKGROUND = registerColor("editorGroupHeader.tabsBackground", {
+  dark: "#252526",
+  light: "#F3F3F3",
+  hcDark: null,
+  hcLight: null
+}, localize("tabsContainerBackground", "Background color of the editor group title header when tabs are enabled. Editor groups are the containers of editors."));
+const EDITOR_GROUP_HEADER_TABS_BORDER = registerColor("editorGroupHeader.tabsBorder", null, localize("tabsContainerBorder", "Border color of the editor group title header when tabs are enabled. Editor groups are the containers of editors."));
+const EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND = registerColor("editorGroupHeader.noTabsBackground", editorBackground, localize("editorGroupHeaderBackground", 'Background color of the editor group title header when (`"workbench.editor.showTabs": "single"`). Editor groups are the containers of editors.'));
+const EDITOR_GROUP_HEADER_BORDER = registerColor("editorGroupHeader.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("editorTitleContainerBorder", "Border color of the editor group title header. Editor groups are the containers of editors."));
+const EDITOR_GROUP_BORDER = registerColor("editorGroup.border", {
+  dark: "#444444",
+  light: "#E7E7E7",
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("editorGroupBorder", "Color to separate multiple editor groups from each other. Editor groups are the containers of editors."));
+const EDITOR_DRAG_AND_DROP_BACKGROUND = registerColor("editorGroup.dropBackground", {
+  dark: Color.fromHex("#53595D").transparent(0.5),
+  light: Color.fromHex("#2677CB").transparent(0.18),
+  hcDark: null,
+  hcLight: Color.fromHex("#0F4A85").transparent(0.5)
+}, localize("editorDragAndDropBackground", "Background color when dragging editors around. The color should have transparency so that the editor contents can still shine through."));
+const EDITOR_DROP_INTO_PROMPT_FOREGROUND = registerColor("editorGroup.dropIntoPromptForeground", editorWidgetForeground, localize("editorDropIntoPromptForeground", "Foreground color of text shown over editors when dragging files. This text informs the user that they can hold shift to drop into the editor."));
+const EDITOR_DROP_INTO_PROMPT_BACKGROUND = registerColor("editorGroup.dropIntoPromptBackground", editorWidgetBackground, localize("editorDropIntoPromptBackground", "Background color of text shown over editors when dragging files. This text informs the user that they can hold shift to drop into the editor."));
+const EDITOR_DROP_INTO_PROMPT_BORDER = registerColor("editorGroup.dropIntoPromptBorder", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("editorDropIntoPromptBorder", "Border color of text shown over editors when dragging files. This text informs the user that they can hold shift to drop into the editor."));
+const SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER = registerColor("sideBySideEditor.horizontalBorder", EDITOR_GROUP_BORDER, localize("sideBySideEditor.horizontalBorder", "Color to separate two editors from each other when shown side by side in an editor group from top to bottom."));
+const SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER = registerColor("sideBySideEditor.verticalBorder", EDITOR_GROUP_BORDER, localize("sideBySideEditor.verticalBorder", "Color to separate two editors from each other when shown side by side in an editor group from left to right."));
+const OUTPUT_VIEW_BACKGROUND = registerColor("outputView.background", null, localize("outputViewBackground", "Output view background color."));
+registerColor("outputViewStickyScroll.background", OUTPUT_VIEW_BACKGROUND, localize("outputViewStickyScrollBackground", "Output view sticky scroll background color."));
+const BANNER_BACKGROUND = registerColor("banner.background", {
+  dark: listActiveSelectionBackground,
+  light: darken(listActiveSelectionBackground, 0.3),
+  hcDark: listActiveSelectionBackground,
+  hcLight: listActiveSelectionBackground
+}, localize("banner.background", "Banner background color. The banner is shown under the title bar of the window."));
+const BANNER_FOREGROUND = registerColor("banner.foreground", listActiveSelectionForeground, localize("banner.foreground", "Banner foreground color. The banner is shown under the title bar of the window."));
+const BANNER_ICON_FOREGROUND = registerColor("banner.iconForeground", editorInfoForeground, localize("banner.iconForeground", "Banner icon color. The banner is shown under the title bar of the window."));
+const STATUS_BAR_FOREGROUND = registerColor("statusBar.foreground", {
+  dark: "#FFFFFF",
+  light: "#FFFFFF",
+  hcDark: "#FFFFFF",
+  hcLight: editorForeground
+}, localize("statusBarForeground", "Status bar foreground color when a workspace or folder is opened. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_NO_FOLDER_FOREGROUND = registerColor("statusBar.noFolderForeground", STATUS_BAR_FOREGROUND, localize("statusBarNoFolderForeground", "Status bar foreground color when no folder is opened. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_BACKGROUND = registerColor("statusBar.background", {
+  dark: "#007ACC",
+  light: "#007ACC",
+  hcDark: null,
+  hcLight: null
+}, localize("statusBarBackground", "Status bar background color when a workspace or folder is opened. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_NO_FOLDER_BACKGROUND = registerColor("statusBar.noFolderBackground", {
+  dark: "#68217A",
+  light: "#68217A",
+  hcDark: null,
+  hcLight: null
+}, localize("statusBarNoFolderBackground", "Status bar background color when no folder is opened. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_BORDER = registerColor("statusBar.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("statusBarBorder", "Status bar border color separating to the sidebar and editor. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_FOCUS_BORDER = registerColor("statusBar.focusBorder", {
+  dark: STATUS_BAR_FOREGROUND,
+  light: STATUS_BAR_FOREGROUND,
+  hcDark: null,
+  hcLight: STATUS_BAR_FOREGROUND
+}, localize("statusBarFocusBorder", "Status bar border color when focused on keyboard navigation. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_NO_FOLDER_BORDER = registerColor("statusBar.noFolderBorder", STATUS_BAR_BORDER, localize("statusBarNoFolderBorder", "Status bar border color separating to the sidebar and editor when no folder is opened. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ITEM_ACTIVE_BACKGROUND = registerColor("statusBarItem.activeBackground", {
+  dark: Color.white.transparent(0.18),
+  light: Color.white.transparent(0.18),
+  hcDark: Color.white.transparent(0.18),
+  hcLight: Color.black.transparent(0.18)
+}, localize("statusBarItemActiveBackground", "Status bar item background color when clicking. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ITEM_FOCUS_BORDER = registerColor("statusBarItem.focusBorder", {
+  dark: STATUS_BAR_FOREGROUND,
+  light: STATUS_BAR_FOREGROUND,
+  hcDark: null,
+  hcLight: activeContrastBorder
+}, localize("statusBarItemFocusBorder", "Status bar item border color when focused on keyboard navigation. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.hoverBackground", {
+  dark: Color.white.transparent(0.12),
+  light: Color.black.transparent(0.12),
+  hcDark: Color.black,
+  hcLight: Color.white
+}, localize("statusBarItemHoverBackground", "Status bar item background color when hovering. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.hoverForeground", STATUS_BAR_FOREGROUND, localize("statusBarItemHoverForeground", "Status bar item foreground color when hovering. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ITEM_COMPACT_HOVER_BACKGROUND = registerColor("statusBarItem.compactHoverBackground", {
+  dark: Color.white.transparent(0.12),
+  light: Color.black.transparent(0.12),
+  hcDark: Color.black,
+  hcLight: Color.white
+}, localize("statusBarItemCompactHoverBackground", "Status bar item background color when hovering an item that contains two hovers. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_PROMINENT_ITEM_FOREGROUND = registerColor("statusBarItem.prominentForeground", STATUS_BAR_FOREGROUND, localize("statusBarProminentItemForeground", "Status bar prominent items foreground color. Prominent items stand out from other status bar entries to indicate importance. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_PROMINENT_ITEM_BACKGROUND = registerColor("statusBarItem.prominentBackground", Color.black.transparent(0.5), localize("statusBarProminentItemBackground", "Status bar prominent items background color. Prominent items stand out from other status bar entries to indicate importance. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_PROMINENT_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.prominentHoverForeground", STATUS_BAR_ITEM_HOVER_FOREGROUND, localize("statusBarProminentItemHoverForeground", "Status bar prominent items foreground color when hovering. Prominent items stand out from other status bar entries to indicate importance. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_PROMINENT_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.prominentHoverBackground", STATUS_BAR_ITEM_HOVER_BACKGROUND, localize("statusBarProminentItemHoverBackground", "Status bar prominent items background color when hovering. Prominent items stand out from other status bar entries to indicate importance. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ERROR_ITEM_BACKGROUND = registerColor("statusBarItem.errorBackground", {
+  dark: darken(errorForeground, 0.4),
+  light: darken(errorForeground, 0.4),
+  hcDark: null,
+  hcLight: "#B5200D"
+}, localize("statusBarErrorItemBackground", "Status bar error items background color. Error items stand out from other status bar entries to indicate error conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ERROR_ITEM_FOREGROUND = registerColor("statusBarItem.errorForeground", Color.white, localize("statusBarErrorItemForeground", "Status bar error items foreground color. Error items stand out from other status bar entries to indicate error conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ERROR_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.errorHoverForeground", STATUS_BAR_ITEM_HOVER_FOREGROUND, localize("statusBarErrorItemHoverForeground", "Status bar error items foreground color when hovering. Error items stand out from other status bar entries to indicate error conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_ERROR_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.errorHoverBackground", STATUS_BAR_ITEM_HOVER_BACKGROUND, localize("statusBarErrorItemHoverBackground", "Status bar error items background color when hovering. Error items stand out from other status bar entries to indicate error conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_WARNING_ITEM_BACKGROUND = registerColor("statusBarItem.warningBackground", {
+  dark: darken(editorWarningForeground, 0.4),
+  light: darken(editorWarningForeground, 0.4),
+  hcDark: null,
+  hcLight: "#895503"
+}, localize("statusBarWarningItemBackground", "Status bar warning items background color. Warning items stand out from other status bar entries to indicate warning conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_WARNING_ITEM_FOREGROUND = registerColor("statusBarItem.warningForeground", Color.white, localize("statusBarWarningItemForeground", "Status bar warning items foreground color. Warning items stand out from other status bar entries to indicate warning conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_WARNING_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.warningHoverForeground", STATUS_BAR_ITEM_HOVER_FOREGROUND, localize("statusBarWarningItemHoverForeground", "Status bar warning items foreground color when hovering. Warning items stand out from other status bar entries to indicate warning conditions. The status bar is shown in the bottom of the window."));
+const STATUS_BAR_WARNING_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.warningHoverBackground", STATUS_BAR_ITEM_HOVER_BACKGROUND, localize("statusBarWarningItemHoverBackground", "Status bar warning items background color when hovering. Warning items stand out from other status bar entries to indicate warning conditions. The status bar is shown in the bottom of the window."));
+const ACTIVITY_BAR_BACKGROUND = registerColor("activityBar.background", {
+  dark: "#333333",
+  light: "#2C2C2C",
+  hcDark: "#000000",
+  hcLight: "#FFFFFF"
+}, localize("activityBarBackground", "Activity bar background color. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_FOREGROUND = registerColor("activityBar.foreground", {
+  dark: Color.white,
+  light: Color.white,
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("activityBarForeground", "Activity bar item foreground color when it is active. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_INACTIVE_FOREGROUND = registerColor("activityBar.inactiveForeground", {
+  dark: transparent(ACTIVITY_BAR_FOREGROUND, 0.4),
+  light: transparent(ACTIVITY_BAR_FOREGROUND, 0.4),
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("activityBarInActiveForeground", "Activity bar item foreground color when it is inactive. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_BORDER = registerColor("activityBar.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("activityBarBorder", "Activity bar border color separating to the side bar. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_ACTIVE_BORDER = registerColor("activityBar.activeBorder", {
+  dark: ACTIVITY_BAR_FOREGROUND,
+  light: ACTIVITY_BAR_FOREGROUND,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("activityBarActiveBorder", "Activity bar border color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_ACTIVE_FOCUS_BORDER = registerColor("activityBar.activeFocusBorder", {
+  dark: null,
+  light: null,
+  hcDark: null,
+  hcLight: "#B5200D"
+}, localize("activityBarActiveFocusBorder", "Activity bar focus border color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_ACTIVE_BACKGROUND = registerColor("activityBar.activeBackground", null, localize("activityBarActiveBackground", "Activity bar background color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_DRAG_AND_DROP_BORDER = registerColor("activityBar.dropBorder", {
+  dark: ACTIVITY_BAR_FOREGROUND,
+  light: ACTIVITY_BAR_FOREGROUND,
+  hcDark: null,
+  hcLight: null
+}, localize("activityBarDragAndDropBorder", "Drag and drop feedback color for the activity bar items. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_BADGE_BACKGROUND = registerColor("activityBarBadge.background", {
+  dark: "#007ACC",
+  light: "#007ACC",
+  hcDark: "#000000",
+  hcLight: "#0F4A85"
+}, localize("activityBarBadgeBackground", "Activity notification badge background color. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_BADGE_FOREGROUND = registerColor("activityBarBadge.foreground", Color.white, localize("activityBarBadgeForeground", "Activity notification badge foreground color. The activity bar is showing on the far left or right and allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_FOREGROUND = registerColor("activityBarTop.foreground", {
+  dark: "#E7E7E7",
+  light: "#424242",
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("activityBarTop", "Active foreground color of the item in the Activity bar when it is on top / bottom. The activity allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_ACTIVE_BORDER = registerColor("activityBarTop.activeBorder", {
+  dark: ACTIVITY_BAR_TOP_FOREGROUND,
+  light: ACTIVITY_BAR_TOP_FOREGROUND,
+  hcDark: contrastBorder,
+  hcLight: "#B5200D"
+}, localize("activityBarTopActiveFocusBorder", "Focus border color for the active item in the Activity bar when it is on top / bottom. The activity allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_ACTIVE_BACKGROUND = registerColor("activityBarTop.activeBackground", null, localize("activityBarTopActiveBackground", "Background color for the active item in the Activity bar when it is on top / bottom. The activity allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND = registerColor("activityBarTop.inactiveForeground", {
+  dark: transparent(ACTIVITY_BAR_TOP_FOREGROUND, 0.6),
+  light: transparent(ACTIVITY_BAR_TOP_FOREGROUND, 0.75),
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("activityBarTopInActiveForeground", "Inactive foreground color of the item in the Activity bar when it is on top / bottom. The activity allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER = registerColor("activityBarTop.dropBorder", ACTIVITY_BAR_TOP_FOREGROUND, localize("activityBarTopDragAndDropBorder", "Drag and drop feedback color for the items in the Activity bar when it is on top / bottom. The activity allows to switch between views of the side bar."));
+const ACTIVITY_BAR_TOP_BACKGROUND = registerColor("activityBarTop.background", null, localize("activityBarTopBackground", "Background color of the activity bar when set to top / bottom."));
+const PANEL_BACKGROUND = registerColor("panel.background", editorBackground, localize("panelBackground", "Panel background color. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_BORDER = registerColor("panel.border", {
+  dark: Color.fromHex("#808080").transparent(0.35),
+  light: Color.fromHex("#808080").transparent(0.35),
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("panelBorder", "Panel border color to separate the panel from the editor. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_TITLE_BORDER = registerColor("panelTitle.border", {
+  dark: null,
+  light: null,
+  hcDark: PANEL_BORDER,
+  hcLight: PANEL_BORDER
+}, localize("panelTitleBorder", "Panel title border color on the bottom, separating the title from the views. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_ACTIVE_TITLE_FOREGROUND = registerColor("panelTitle.activeForeground", {
+  dark: "#E7E7E7",
+  light: "#424242",
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("panelActiveTitleForeground", "Title color for the active panel. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_INACTIVE_TITLE_FOREGROUND = registerColor("panelTitle.inactiveForeground", {
+  dark: transparent(PANEL_ACTIVE_TITLE_FOREGROUND, 0.6),
+  light: transparent(PANEL_ACTIVE_TITLE_FOREGROUND, 0.75),
+  hcDark: Color.white,
+  hcLight: editorForeground
+}, localize("panelInactiveTitleForeground", "Title color for the inactive panel. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_ACTIVE_TITLE_BORDER = registerColor("panelTitle.activeBorder", {
+  dark: PANEL_ACTIVE_TITLE_FOREGROUND,
+  light: PANEL_ACTIVE_TITLE_FOREGROUND,
+  hcDark: contrastBorder,
+  hcLight: "#B5200D"
+}, localize("panelActiveTitleBorder", "Border color for the active panel title. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_TITLE_BADGE_BACKGROUND = registerColor("panelTitleBadge.background", ACTIVITY_BAR_BADGE_BACKGROUND, localize("panelTitleBadgeBackground", "Panel title badge background color. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_TITLE_BADGE_FOREGROUND = registerColor("panelTitleBadge.foreground", ACTIVITY_BAR_BADGE_FOREGROUND, localize("panelTitleBadgeForeground", "Panel title badge foreground color. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_INPUT_BORDER = registerColor("panelInput.border", {
+  dark: inputBorder,
+  light: Color.fromHex("#ddd"),
+  hcDark: inputBorder,
+  hcLight: inputBorder
+}, localize("panelInputBorder", "Input box border for inputs in the panel."));
+const PANEL_DRAG_AND_DROP_BORDER = registerColor("panel.dropBorder", PANEL_ACTIVE_TITLE_FOREGROUND, localize("panelDragAndDropBorder", "Drag and drop feedback color for the panel titles. Panels are shown below the editor area and contain views like output and integrated terminal."));
+const PANEL_SECTION_DRAG_AND_DROP_BACKGROUND = registerColor("panelSection.dropBackground", EDITOR_DRAG_AND_DROP_BACKGROUND, localize("panelSectionDragAndDropBackground", "Drag and drop feedback color for the panel sections. The color should have transparency so that the panel sections can still shine through. Panels are shown below the editor area and contain views like output and integrated terminal. Panel sections are views nested within the panels."));
+const PANEL_SECTION_HEADER_BACKGROUND = registerColor("panelSectionHeader.background", {
+  dark: Color.fromHex("#808080").transparent(0.2),
+  light: Color.fromHex("#808080").transparent(0.2),
+  hcDark: null,
+  hcLight: null
+}, localize("panelSectionHeaderBackground", "Panel section header background color. Panels are shown below the editor area and contain views like output and integrated terminal. Panel sections are views nested within the panels."));
+const PANEL_SECTION_HEADER_FOREGROUND = registerColor("panelSectionHeader.foreground", null, localize("panelSectionHeaderForeground", "Panel section header foreground color. Panels are shown below the editor area and contain views like output and integrated terminal. Panel sections are views nested within the panels."));
+const PANEL_SECTION_HEADER_BORDER = registerColor("panelSectionHeader.border", contrastBorder, localize("panelSectionHeaderBorder", "Panel section header border color used when multiple views are stacked vertically in the panel. Panels are shown below the editor area and contain views like output and integrated terminal. Panel sections are views nested within the panels."));
+const PANEL_SECTION_BORDER = registerColor("panelSection.border", PANEL_BORDER, localize("panelSectionBorder", "Panel section border color used when multiple views are stacked horizontally in the panel. Panels are shown below the editor area and contain views like output and integrated terminal. Panel sections are views nested within the panels."));
+const PANEL_STICKY_SCROLL_BACKGROUND = registerColor("panelStickyScroll.background", PANEL_BACKGROUND, localize("panelStickyScrollBackground", "Background color of sticky scroll in the panel."));
+const PANEL_STICKY_SCROLL_BORDER = registerColor("panelStickyScroll.border", null, localize("panelStickyScrollBorder", "Border color of sticky scroll in the panel."));
+const PANEL_STICKY_SCROLL_SHADOW = registerColor("panelStickyScroll.shadow", scrollbarShadow, localize("panelStickyScrollShadow", "Shadow color of sticky scroll in the panel."));
+const PROFILE_BADGE_BACKGROUND = registerColor("profileBadge.background", {
+  dark: "#4D4D4D",
+  light: "#C4C4C4",
+  hcDark: Color.white,
+  hcLight: Color.black
+}, localize("profileBadgeBackground", "Profile badge background color. The profile badge shows on top of the settings gear icon in the activity bar."));
+const PROFILE_BADGE_FOREGROUND = registerColor("profileBadge.foreground", {
+  dark: Color.white,
+  light: "#333333",
+  hcDark: Color.black,
+  hcLight: Color.white
+}, localize("profileBadgeForeground", "Profile badge foreground color. The profile badge shows on top of the settings gear icon in the activity bar."));
+const STATUS_BAR_REMOTE_ITEM_BACKGROUND = registerColor("statusBarItem.remoteBackground", ACTIVITY_BAR_BADGE_BACKGROUND, localize("statusBarItemRemoteBackground", "Background color for the remote indicator on the status bar."));
+const STATUS_BAR_REMOTE_ITEM_FOREGROUND = registerColor("statusBarItem.remoteForeground", ACTIVITY_BAR_BADGE_FOREGROUND, localize("statusBarItemRemoteForeground", "Foreground color for the remote indicator on the status bar."));
+const STATUS_BAR_REMOTE_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.remoteHoverForeground", STATUS_BAR_ITEM_HOVER_FOREGROUND, localize("statusBarRemoteItemHoverForeground", "Foreground color for the remote indicator on the status bar when hovering."));
+const STATUS_BAR_REMOTE_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.remoteHoverBackground", {
+  dark: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  light: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  hcDark: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  hcLight: null
+}, localize("statusBarRemoteItemHoverBackground", "Background color for the remote indicator on the status bar when hovering."));
+const STATUS_BAR_OFFLINE_ITEM_BACKGROUND = registerColor("statusBarItem.offlineBackground", "#6c1717", localize("statusBarItemOfflineBackground", "Status bar item background color when the workbench is offline."));
+const STATUS_BAR_OFFLINE_ITEM_FOREGROUND = registerColor("statusBarItem.offlineForeground", STATUS_BAR_REMOTE_ITEM_FOREGROUND, localize("statusBarItemOfflineForeground", "Status bar item foreground color when the workbench is offline."));
+const STATUS_BAR_OFFLINE_ITEM_HOVER_FOREGROUND = registerColor("statusBarItem.offlineHoverForeground", STATUS_BAR_ITEM_HOVER_FOREGROUND, localize("statusBarOfflineItemHoverForeground", "Status bar item foreground hover color when the workbench is offline."));
+const STATUS_BAR_OFFLINE_ITEM_HOVER_BACKGROUND = registerColor("statusBarItem.offlineHoverBackground", {
+  dark: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  light: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  hcDark: STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  hcLight: null
+}, localize("statusBarOfflineItemHoverBackground", "Status bar item background hover color when the workbench is offline."));
+const EXTENSION_BADGE_BACKGROUND = registerColor("extensionBadge.remoteBackground", ACTIVITY_BAR_BADGE_BACKGROUND, localize("extensionBadge.remoteBackground", "Background color for the remote badge in the extensions view."));
+const EXTENSION_BADGE_FOREGROUND = registerColor("extensionBadge.remoteForeground", ACTIVITY_BAR_BADGE_FOREGROUND, localize("extensionBadge.remoteForeground", "Foreground color for the remote badge in the extensions view."));
+const SIDE_BAR_BACKGROUND = registerColor("sideBar.background", {
+  dark: "#252526",
+  light: "#F3F3F3",
+  hcDark: "#000000",
+  hcLight: "#FFFFFF"
+}, localize("sideBarBackground", "Side bar background color. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_FOREGROUND = registerColor("sideBar.foreground", null, localize("sideBarForeground", "Side bar foreground color. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_BORDER = registerColor("sideBar.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("sideBarBorder", "Side bar border color on the side separating to the editor. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_TITLE_BACKGROUND = registerColor("sideBarTitle.background", SIDE_BAR_BACKGROUND, localize("sideBarTitleBackground", "Side bar title background color. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_TITLE_FOREGROUND = registerColor("sideBarTitle.foreground", SIDE_BAR_FOREGROUND, localize("sideBarTitleForeground", "Side bar title foreground color. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_TITLE_BORDER = registerColor("sideBarTitle.border", {
+  dark: null,
+  light: null,
+  hcDark: SIDE_BAR_BORDER,
+  hcLight: SIDE_BAR_BORDER
+}, localize("sideBarTitleBorder", "Side bar title border color on the bottom, separating the title from the views. The side bar is the container for views like explorer and search."));
+const SIDE_BAR_DRAG_AND_DROP_BACKGROUND = registerColor("sideBar.dropBackground", EDITOR_DRAG_AND_DROP_BACKGROUND, localize("sideBarDragAndDropBackground", "Drag and drop feedback color for the side bar sections. The color should have transparency so that the side bar sections can still shine through. The side bar is the container for views like explorer and search. Side bar sections are views nested within the side bar."));
+const SIDE_BAR_SECTION_HEADER_BACKGROUND = registerColor("sideBarSectionHeader.background", {
+  dark: Color.fromHex("#808080").transparent(0.2),
+  light: Color.fromHex("#808080").transparent(0.2),
+  hcDark: null,
+  hcLight: null
+}, localize("sideBarSectionHeaderBackground", "Side bar section header background color. The side bar is the container for views like explorer and search. Side bar sections are views nested within the side bar."));
+const SIDE_BAR_SECTION_HEADER_FOREGROUND = registerColor("sideBarSectionHeader.foreground", SIDE_BAR_FOREGROUND, localize("sideBarSectionHeaderForeground", "Side bar section header foreground color. The side bar is the container for views like explorer and search. Side bar sections are views nested within the side bar."));
+const SIDE_BAR_SECTION_HEADER_BORDER = registerColor("sideBarSectionHeader.border", contrastBorder, localize("sideBarSectionHeaderBorder", "Side bar section header border color. The side bar is the container for views like explorer and search. Side bar sections are views nested within the side bar."));
+const ACTIVITY_BAR_TOP_BORDER = registerColor("sideBarActivityBarTop.border", SIDE_BAR_SECTION_HEADER_BORDER, localize("sideBarActivityBarTopBorder", "Border color between the activity bar at the top/bottom and the views."));
+const SIDE_BAR_STICKY_SCROLL_BACKGROUND = registerColor("sideBarStickyScroll.background", SIDE_BAR_BACKGROUND, localize("sideBarStickyScrollBackground", "Background color of sticky scroll in the side bar."));
+const SIDE_BAR_STICKY_SCROLL_BORDER = registerColor("sideBarStickyScroll.border", null, localize("sideBarStickyScrollBorder", "Border color of sticky scroll in the side bar."));
+const SIDE_BAR_STICKY_SCROLL_SHADOW = registerColor("sideBarStickyScroll.shadow", scrollbarShadow, localize("sideBarStickyScrollShadow", "Shadow color of sticky scroll in the side bar."));
+const TITLE_BAR_ACTIVE_FOREGROUND = registerColor("titleBar.activeForeground", {
+  dark: "#CCCCCC",
+  light: "#333333",
+  hcDark: "#FFFFFF",
+  hcLight: "#292929"
+}, localize("titleBarActiveForeground", "Title bar foreground when the window is active."));
+const TITLE_BAR_INACTIVE_FOREGROUND = registerColor("titleBar.inactiveForeground", {
+  dark: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.6),
+  light: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.6),
+  hcDark: null,
+  hcLight: "#292929"
+}, localize("titleBarInactiveForeground", "Title bar foreground when the window is inactive."));
+const TITLE_BAR_ACTIVE_BACKGROUND = registerColor("titleBar.activeBackground", {
+  dark: "#3C3C3C",
+  light: "#DDDDDD",
+  hcDark: "#000000",
+  hcLight: "#FFFFFF"
+}, localize("titleBarActiveBackground", "Title bar background when the window is active."));
+const TITLE_BAR_INACTIVE_BACKGROUND = registerColor("titleBar.inactiveBackground", {
+  dark: transparent(TITLE_BAR_ACTIVE_BACKGROUND, 0.6),
+  light: transparent(TITLE_BAR_ACTIVE_BACKGROUND, 0.6),
+  hcDark: null,
+  hcLight: null
+}, localize("titleBarInactiveBackground", "Title bar background when the window is inactive."));
+const TITLE_BAR_BORDER = registerColor("titleBar.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("titleBarBorder", "Title bar border color."));
+const MENUBAR_SELECTION_FOREGROUND = registerColor("menubar.selectionForeground", TITLE_BAR_ACTIVE_FOREGROUND, localize("menubarSelectionForeground", "Foreground color of the selected menu item in the menubar."));
+const MENUBAR_SELECTION_BACKGROUND = registerColor("menubar.selectionBackground", {
+  dark: toolbarHoverBackground,
+  light: toolbarHoverBackground,
+  hcDark: null,
+  hcLight: null
+}, localize("menubarSelectionBackground", "Background color of the selected menu item in the menubar."));
+const MENUBAR_SELECTION_BORDER = registerColor("menubar.selectionBorder", {
+  dark: null,
+  light: null,
+  hcDark: activeContrastBorder,
+  hcLight: activeContrastBorder
+}, localize("menubarSelectionBorder", "Border color of the selected menu item in the menubar."));
+const COMMAND_CENTER_FOREGROUND = registerColor("commandCenter.foreground", TITLE_BAR_ACTIVE_FOREGROUND, localize("commandCenter-foreground", "Foreground color of the command center"), false);
+const COMMAND_CENTER_ACTIVEFOREGROUND = registerColor("commandCenter.activeForeground", MENUBAR_SELECTION_FOREGROUND, localize("commandCenter-activeForeground", "Active foreground color of the command center"), false);
+const COMMAND_CENTER_INACTIVEFOREGROUND = registerColor("commandCenter.inactiveForeground", TITLE_BAR_INACTIVE_FOREGROUND, localize("commandCenter-inactiveForeground", "Foreground color of the command center when the window is inactive"), false);
+const COMMAND_CENTER_BACKGROUND = registerColor("commandCenter.background", { dark: Color.white.transparent(0.05), hcDark: null, light: Color.black.transparent(0.05), hcLight: null }, localize("commandCenter-background", "Background color of the command center"), false);
+const COMMAND_CENTER_ACTIVEBACKGROUND = registerColor("commandCenter.activeBackground", { dark: Color.white.transparent(0.08), hcDark: MENUBAR_SELECTION_BACKGROUND, light: Color.black.transparent(0.08), hcLight: MENUBAR_SELECTION_BACKGROUND }, localize("commandCenter-activeBackground", "Active background color of the command center"), false);
+const COMMAND_CENTER_BORDER = registerColor("commandCenter.border", { dark: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.2), hcDark: contrastBorder, light: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.2), hcLight: contrastBorder }, localize("commandCenter-border", "Border color of the command center"), false);
+const COMMAND_CENTER_ACTIVEBORDER = registerColor("commandCenter.activeBorder", { dark: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.3), hcDark: TITLE_BAR_ACTIVE_FOREGROUND, light: transparent(TITLE_BAR_ACTIVE_FOREGROUND, 0.3), hcLight: TITLE_BAR_ACTIVE_FOREGROUND }, localize("commandCenter-activeBorder", "Active border color of the command center"), false);
+const COMMAND_CENTER_INACTIVEBORDER = registerColor("commandCenter.inactiveBorder", transparent(TITLE_BAR_INACTIVE_FOREGROUND, 0.25), localize("commandCenter-inactiveBorder", "Border color of the command center when the window is inactive"), false);
+const NOTIFICATIONS_CENTER_BORDER = registerColor("notificationCenter.border", {
+  dark: widgetBorder,
+  light: widgetBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("notificationCenterBorder", "Notifications center border color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_TOAST_BORDER = registerColor("notificationToast.border", {
+  dark: widgetBorder,
+  light: widgetBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("notificationToastBorder", "Notification toast border color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_FOREGROUND = registerColor("notifications.foreground", editorWidgetForeground, localize("notificationsForeground", "Notifications foreground color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_BACKGROUND = registerColor("notifications.background", editorWidgetBackground, localize("notificationsBackground", "Notifications background color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_LINKS = registerColor("notificationLink.foreground", textLinkForeground, localize("notificationsLink", "Notification links foreground color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_CENTER_HEADER_FOREGROUND = registerColor("notificationCenterHeader.foreground", null, localize("notificationCenterHeaderForeground", "Notifications center header foreground color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_CENTER_HEADER_BACKGROUND = registerColor("notificationCenterHeader.background", {
+  dark: lighten(NOTIFICATIONS_BACKGROUND, 0.3),
+  light: darken(NOTIFICATIONS_BACKGROUND, 0.05),
+  hcDark: NOTIFICATIONS_BACKGROUND,
+  hcLight: NOTIFICATIONS_BACKGROUND
+}, localize("notificationCenterHeaderBackground", "Notifications center header background color. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_BORDER = registerColor("notifications.border", NOTIFICATIONS_CENTER_HEADER_BACKGROUND, localize("notificationsBorder", "Notifications border color separating from other notifications in the notifications center. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_ERROR_ICON_FOREGROUND = registerColor("notificationsErrorIcon.foreground", editorErrorForeground, localize("notificationsErrorIconForeground", "The color used for the icon of error notifications. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_WARNING_ICON_FOREGROUND = registerColor("notificationsWarningIcon.foreground", editorWarningForeground, localize("notificationsWarningIconForeground", "The color used for the icon of warning notifications. Notifications slide in from the bottom right of the window."));
+const NOTIFICATIONS_INFO_ICON_FOREGROUND = registerColor("notificationsInfoIcon.foreground", editorInfoForeground, localize("notificationsInfoIconForeground", "The color used for the icon of info notifications. Notifications slide in from the bottom right of the window."));
+const WINDOW_ACTIVE_BORDER = registerColor("window.activeBorder", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("windowActiveBorder", "The color used for the border of the window when it is active on macOS or Linux. Requires custom title bar style and custom or hidden window controls on Linux."));
+const WINDOW_INACTIVE_BORDER = registerColor("window.inactiveBorder", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("windowInactiveBorder", "The color used for the border of the window when it is inactive on macOS or Linux. Requires custom title bar style and custom or hidden window controls on Linux."));
+export {
+  ACTIVITY_BAR_ACTIVE_BACKGROUND,
+  ACTIVITY_BAR_ACTIVE_BORDER,
+  ACTIVITY_BAR_ACTIVE_FOCUS_BORDER,
+  ACTIVITY_BAR_BACKGROUND,
+  ACTIVITY_BAR_BADGE_BACKGROUND,
+  ACTIVITY_BAR_BADGE_FOREGROUND,
+  ACTIVITY_BAR_BORDER,
+  ACTIVITY_BAR_DRAG_AND_DROP_BORDER,
+  ACTIVITY_BAR_FOREGROUND,
+  ACTIVITY_BAR_INACTIVE_FOREGROUND,
+  ACTIVITY_BAR_TOP_ACTIVE_BACKGROUND,
+  ACTIVITY_BAR_TOP_ACTIVE_BORDER,
+  ACTIVITY_BAR_TOP_BACKGROUND,
+  ACTIVITY_BAR_TOP_BORDER,
+  ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER,
+  ACTIVITY_BAR_TOP_FOREGROUND,
+  ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND,
+  BANNER_BACKGROUND,
+  BANNER_FOREGROUND,
+  BANNER_ICON_FOREGROUND,
+  COMMAND_CENTER_ACTIVEBACKGROUND,
+  COMMAND_CENTER_ACTIVEBORDER,
+  COMMAND_CENTER_ACTIVEFOREGROUND,
+  COMMAND_CENTER_BACKGROUND,
+  COMMAND_CENTER_BORDER,
+  COMMAND_CENTER_FOREGROUND,
+  COMMAND_CENTER_INACTIVEBORDER,
+  COMMAND_CENTER_INACTIVEFOREGROUND,
+  EDITOR_DRAG_AND_DROP_BACKGROUND,
+  EDITOR_DROP_INTO_PROMPT_BACKGROUND,
+  EDITOR_DROP_INTO_PROMPT_BORDER,
+  EDITOR_DROP_INTO_PROMPT_FOREGROUND,
+  EDITOR_GROUP_BORDER,
+  EDITOR_GROUP_EMPTY_BACKGROUND,
+  EDITOR_GROUP_FOCUSED_EMPTY_BORDER,
+  EDITOR_GROUP_HEADER_BORDER,
+  EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND,
+  EDITOR_GROUP_HEADER_TABS_BACKGROUND,
+  EDITOR_GROUP_HEADER_TABS_BORDER,
+  EDITOR_PANE_BACKGROUND,
+  EXTENSION_BADGE_BACKGROUND,
+  EXTENSION_BADGE_FOREGROUND,
+  MENUBAR_SELECTION_BACKGROUND,
+  MENUBAR_SELECTION_BORDER,
+  MENUBAR_SELECTION_FOREGROUND,
+  NOTIFICATIONS_BACKGROUND,
+  NOTIFICATIONS_BORDER,
+  NOTIFICATIONS_CENTER_BORDER,
+  NOTIFICATIONS_CENTER_HEADER_BACKGROUND,
+  NOTIFICATIONS_CENTER_HEADER_FOREGROUND,
+  NOTIFICATIONS_ERROR_ICON_FOREGROUND,
+  NOTIFICATIONS_FOREGROUND,
+  NOTIFICATIONS_INFO_ICON_FOREGROUND,
+  NOTIFICATIONS_LINKS,
+  NOTIFICATIONS_TOAST_BORDER,
+  NOTIFICATIONS_WARNING_ICON_FOREGROUND,
+  PANEL_ACTIVE_TITLE_BORDER,
+  PANEL_ACTIVE_TITLE_FOREGROUND,
+  PANEL_BACKGROUND,
+  PANEL_BORDER,
+  PANEL_DRAG_AND_DROP_BORDER,
+  PANEL_INACTIVE_TITLE_FOREGROUND,
+  PANEL_INPUT_BORDER,
+  PANEL_SECTION_BORDER,
+  PANEL_SECTION_DRAG_AND_DROP_BACKGROUND,
+  PANEL_SECTION_HEADER_BACKGROUND,
+  PANEL_SECTION_HEADER_BORDER,
+  PANEL_SECTION_HEADER_FOREGROUND,
+  PANEL_STICKY_SCROLL_BACKGROUND,
+  PANEL_STICKY_SCROLL_BORDER,
+  PANEL_STICKY_SCROLL_SHADOW,
+  PANEL_TITLE_BADGE_BACKGROUND,
+  PANEL_TITLE_BADGE_FOREGROUND,
+  PANEL_TITLE_BORDER,
+  PROFILE_BADGE_BACKGROUND,
+  PROFILE_BADGE_FOREGROUND,
+  SIDE_BAR_BACKGROUND,
+  SIDE_BAR_BORDER,
+  SIDE_BAR_DRAG_AND_DROP_BACKGROUND,
+  SIDE_BAR_FOREGROUND,
+  SIDE_BAR_SECTION_HEADER_BACKGROUND,
+  SIDE_BAR_SECTION_HEADER_BORDER,
+  SIDE_BAR_SECTION_HEADER_FOREGROUND,
+  SIDE_BAR_STICKY_SCROLL_BACKGROUND,
+  SIDE_BAR_STICKY_SCROLL_BORDER,
+  SIDE_BAR_STICKY_SCROLL_SHADOW,
+  SIDE_BAR_TITLE_BACKGROUND,
+  SIDE_BAR_TITLE_BORDER,
+  SIDE_BAR_TITLE_FOREGROUND,
+  SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER,
+  SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER,
+  STATUS_BAR_BACKGROUND,
+  STATUS_BAR_BORDER,
+  STATUS_BAR_ERROR_ITEM_BACKGROUND,
+  STATUS_BAR_ERROR_ITEM_FOREGROUND,
+  STATUS_BAR_ERROR_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_ERROR_ITEM_HOVER_FOREGROUND,
+  STATUS_BAR_FOCUS_BORDER,
+  STATUS_BAR_FOREGROUND,
+  STATUS_BAR_ITEM_ACTIVE_BACKGROUND,
+  STATUS_BAR_ITEM_COMPACT_HOVER_BACKGROUND,
+  STATUS_BAR_ITEM_FOCUS_BORDER,
+  STATUS_BAR_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_ITEM_HOVER_FOREGROUND,
+  STATUS_BAR_NO_FOLDER_BACKGROUND,
+  STATUS_BAR_NO_FOLDER_BORDER,
+  STATUS_BAR_NO_FOLDER_FOREGROUND,
+  STATUS_BAR_OFFLINE_ITEM_BACKGROUND,
+  STATUS_BAR_OFFLINE_ITEM_FOREGROUND,
+  STATUS_BAR_OFFLINE_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_OFFLINE_ITEM_HOVER_FOREGROUND,
+  STATUS_BAR_PROMINENT_ITEM_BACKGROUND,
+  STATUS_BAR_PROMINENT_ITEM_FOREGROUND,
+  STATUS_BAR_PROMINENT_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_PROMINENT_ITEM_HOVER_FOREGROUND,
+  STATUS_BAR_REMOTE_ITEM_BACKGROUND,
+  STATUS_BAR_REMOTE_ITEM_FOREGROUND,
+  STATUS_BAR_REMOTE_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_REMOTE_ITEM_HOVER_FOREGROUND,
+  STATUS_BAR_WARNING_ITEM_BACKGROUND,
+  STATUS_BAR_WARNING_ITEM_FOREGROUND,
+  STATUS_BAR_WARNING_ITEM_HOVER_BACKGROUND,
+  STATUS_BAR_WARNING_ITEM_HOVER_FOREGROUND,
+  TAB_ACTIVE_BACKGROUND,
+  TAB_ACTIVE_BORDER,
+  TAB_ACTIVE_BORDER_TOP,
+  TAB_ACTIVE_FOREGROUND,
+  TAB_ACTIVE_MODIFIED_BORDER,
+  TAB_BORDER,
+  TAB_DRAG_AND_DROP_BORDER,
+  TAB_HOVER_BACKGROUND,
+  TAB_HOVER_BORDER,
+  TAB_HOVER_FOREGROUND,
+  TAB_INACTIVE_BACKGROUND,
+  TAB_INACTIVE_FOREGROUND,
+  TAB_INACTIVE_MODIFIED_BORDER,
+  TAB_LAST_PINNED_BORDER,
+  TAB_SELECTED_BACKGROUND,
+  TAB_SELECTED_BORDER_TOP,
+  TAB_SELECTED_FOREGROUND,
+  TAB_UNFOCUSED_ACTIVE_BACKGROUND,
+  TAB_UNFOCUSED_ACTIVE_BORDER,
+  TAB_UNFOCUSED_ACTIVE_BORDER_TOP,
+  TAB_UNFOCUSED_ACTIVE_FOREGROUND,
+  TAB_UNFOCUSED_ACTIVE_MODIFIED_BORDER,
+  TAB_UNFOCUSED_HOVER_BACKGROUND,
+  TAB_UNFOCUSED_HOVER_BORDER,
+  TAB_UNFOCUSED_HOVER_FOREGROUND,
+  TAB_UNFOCUSED_INACTIVE_BACKGROUND,
+  TAB_UNFOCUSED_INACTIVE_FOREGROUND,
+  TAB_UNFOCUSED_INACTIVE_MODIFIED_BORDER,
+  TITLE_BAR_ACTIVE_BACKGROUND,
+  TITLE_BAR_ACTIVE_FOREGROUND,
+  TITLE_BAR_BORDER,
+  TITLE_BAR_INACTIVE_BACKGROUND,
+  TITLE_BAR_INACTIVE_FOREGROUND,
+  WINDOW_ACTIVE_BORDER,
+  WINDOW_INACTIVE_BORDER,
+  WORKBENCH_BACKGROUND
+};
+//# sourceMappingURL=theme.js.map

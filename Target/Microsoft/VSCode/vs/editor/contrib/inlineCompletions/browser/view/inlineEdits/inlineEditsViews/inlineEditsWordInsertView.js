@@ -1,1 +1,130 @@
-import{n as o}from"../../../../../../../base/browser/dom.js";import{Event as v}from"../../../../../../../base/common/event.js";import{$Ed as x}from"../../../../../../../base/common/lifecycle.js";import{constObservable as n,derived as s}from"../../../../../../../base/common/observable.js";import{$Vp as w}from"../../../../../../../platform/theme/common/colorUtils.js";import{$Hhb as k}from"../../../../../../common/core/2d/point.js";import{Rect as h}from"../../../../../../common/core/2d/rect.js";import{$eE as $}from"../../../../../../common/core/ranges/offsetRange.js";import{$Jtb as y,$Otb as c}from"../theme.js";import{$3tb as C,$5tb as f}from"../utils/utils.js";class A extends x{constructor(m,u,b){super(),this.f=m,this.g=u,this.h=b,this.onDidClick=v.None,this.a=this.f.observePosition(n(this.g.range.getStartPosition()),this.B),this.b=s(this,e=>{const i=this.a.read(e);if(!i)return;const d=this.f.layoutInfoContentLeft.read(e),t=this.f.observeLineHeightForPosition(this.g.range.getStartPosition()).read(e),l=this.f.getOption(59).read(e).typicalHalfwidthCharacterWidth,g=this.g.text.length*l+5,r=new k(d+i.x+l/2-this.f.scrollLeft.read(e),i.y),a=h.fromLeftTopWidthHeight(r.x-g/2,r.y+t+5,g,t),p=h.hull([h.fromPoint(r),a]).withMargin(4);return{modified:a,center:r,background:p,lowerBackground:p.intersectVertical(new $(a.top-2,Number.MAX_SAFE_INTEGER))}}),this.c=o.div({class:"word-insert"},[s(this,e=>{const i=C(this.b).read(e);if(!i)return[];const d=w(y(this.h).read(e));return[o.div({style:{position:"absolute",...f(t=>i.read(t).lowerBackground),borderRadius:`${c}px`,background:"var(--vscode-editor-background)"}},[]),o.div({style:{position:"absolute",...f(t=>i.read(t).modified),borderRadius:`${c}px`,padding:"0px",textAlign:"center",background:"var(--vscode-inlineEdit-modifiedChangedTextBackground)",fontFamily:this.f.getOption(58),fontSize:this.f.getOption(61),fontWeight:this.f.getOption(62)}},[this.g.text]),o.div({style:{position:"absolute",...f(t=>i.read(t).background),borderRadius:`${c}px`,border:`1px solid ${d}`,background:"var(--vscode-inlineEdit-wordReplacementView-background)"}},[]),o.svg({viewBox:"0 0 12 18",width:12,height:18,fill:"none",style:{position:"absolute",left:s(this,t=>i.read(t).center.x-9),top:s(this,t=>i.read(t).center.y+4),transform:"scale(1.4, 1.4)"}},[o.svgElem("path",{d:"M5.06445 0H7.35759C7.35759 0 7.35759 8.47059 7.35759 11.1176C7.35759 13.7647 9.4552 18 13.4674 18C17.4795 18 -2.58445 18 0.281373 18C3.14719 18 5.06477 14.2941 5.06477 11.1176C5.06477 7.94118 5.06445 0 5.06445 0Z",fill:"var(--vscode-inlineEdit-modifiedChangedTextBackground)"})])]})]).keepUpdated(this.B),this.isHovered=n(!1),this.D(this.f.createOverlayWidget({domNode:this.c.element,minContentWidthInPx:n(0),position:n({preference:{top:0,left:0}}),allowEditorOverflow:!1}))}}export{A as $WRc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { n } from "../../../../../../../base/browser/dom.js";
+import { Event } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { constObservable, derived } from "../../../../../../../base/common/observable.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { Point } from "../../../../../../common/core/2d/point.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { OffsetRange } from "../../../../../../common/core/ranges/offsetRange.js";
+import { getModifiedBorderColor, INLINE_EDITS_BORDER_RADIUS } from "../theme.js";
+import { mapOutFalsy, rectToProps } from "../utils/utils.js";
+class InlineEditsWordInsertView extends Disposable {
+  static {
+    __name(this, "InlineEditsWordInsertView");
+  }
+  constructor(_editor, _edit, _tabAction) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._tabAction = _tabAction;
+    this.onDidClick = Event.None;
+    this._start = this._editor.observePosition(constObservable(this._edit.range.getStartPosition()), this._store);
+    this._layout = derived(this, (reader) => {
+      const start = this._start.read(reader);
+      if (!start) {
+        return void 0;
+      }
+      const contentLeft = this._editor.layoutInfoContentLeft.read(reader);
+      const lineHeight = this._editor.observeLineHeightForPosition(this._edit.range.getStartPosition()).read(reader);
+      const w = this._editor.getOption(
+        59
+        /* EditorOption.fontInfo */
+      ).read(reader).typicalHalfwidthCharacterWidth;
+      const width = this._edit.text.length * w + 5;
+      const center = new Point(contentLeft + start.x + w / 2 - this._editor.scrollLeft.read(reader), start.y);
+      const modified = Rect.fromLeftTopWidthHeight(center.x - width / 2, center.y + lineHeight + 5, width, lineHeight);
+      const background = Rect.hull([Rect.fromPoint(center), modified]).withMargin(4);
+      return {
+        modified,
+        center,
+        background,
+        lowerBackground: background.intersectVertical(new OffsetRange(modified.top - 2, Number.MAX_SAFE_INTEGER))
+      };
+    });
+    this._div = n.div({
+      class: "word-insert"
+    }, [
+      derived(this, (reader) => {
+        const layout = mapOutFalsy(this._layout).read(reader);
+        if (!layout) {
+          return [];
+        }
+        const modifiedBorderColor = asCssVariable(getModifiedBorderColor(this._tabAction).read(reader));
+        return [
+          n.div({
+            style: {
+              position: "absolute",
+              ...rectToProps((reader2) => layout.read(reader2).lowerBackground),
+              borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+              background: "var(--vscode-editor-background)"
+            }
+          }, []),
+          n.div({
+            style: {
+              position: "absolute",
+              ...rectToProps((reader2) => layout.read(reader2).modified),
+              borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+              padding: "0px",
+              textAlign: "center",
+              background: "var(--vscode-inlineEdit-modifiedChangedTextBackground)",
+              fontFamily: this._editor.getOption(
+                58
+                /* EditorOption.fontFamily */
+              ),
+              fontSize: this._editor.getOption(
+                61
+                /* EditorOption.fontSize */
+              ),
+              fontWeight: this._editor.getOption(
+                62
+                /* EditorOption.fontWeight */
+              )
+            }
+          }, [
+            this._edit.text
+          ]),
+          n.div({
+            style: {
+              position: "absolute",
+              ...rectToProps((reader2) => layout.read(reader2).background),
+              borderRadius: `${INLINE_EDITS_BORDER_RADIUS}px`,
+              border: `1px solid ${modifiedBorderColor}`,
+              //background: 'rgba(122, 122, 122, 0.12)', looks better
+              background: "var(--vscode-inlineEdit-wordReplacementView-background)"
+            }
+          }, []),
+          n.svg({
+            viewBox: "0 0 12 18",
+            width: 12,
+            height: 18,
+            fill: "none",
+            style: {
+              position: "absolute",
+              left: derived(this, (reader2) => layout.read(reader2).center.x - 9),
+              top: derived(this, (reader2) => layout.read(reader2).center.y + 4),
+              transform: "scale(1.4, 1.4)"
+            }
+          }, [
+            n.svgElem("path", {
+              d: "M5.06445 0H7.35759C7.35759 0 7.35759 8.47059 7.35759 11.1176C7.35759 13.7647 9.4552 18 13.4674 18C17.4795 18 -2.58445 18 0.281373 18C3.14719 18 5.06477 14.2941 5.06477 11.1176C5.06477 7.94118 5.06445 0 5.06445 0Z",
+              fill: "var(--vscode-inlineEdit-modifiedChangedTextBackground)"
+            })
+          ])
+        ];
+      })
+    ]).keepUpdated(this._store);
+    this.isHovered = constObservable(false);
+    this._register(this._editor.createOverlayWidget({
+      domNode: this._div.element,
+      minContentWidthInPx: constObservable(0),
+      position: constObservable({ preference: { top: 0, left: 0 } }),
+      allowEditorOverflow: false
+    }));
+  }
+}
+export {
+  InlineEditsWordInsertView
+};
+//# sourceMappingURL=inlineEditsWordInsertView.js.map

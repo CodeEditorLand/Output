@@ -1,1 +1,110 @@
-import{$Pz as b}from"../../../../platform/extensions/common/extensions.js";import{$s as P,Language as d}from"../../../../base/common/platform.js";import{$BP as x}from"../../environment/common/environmentService.js";import{$0o as $}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$TC as U}from"../../../../platform/instantiation/common/extensions.js";import{$qA as _}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{$nh as j,$sh as E}from"../../../../base/common/network.js";import{URI as f}from"../../../../base/common/uri.js";import{$yxb as O}from"../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";import{$Un as B}from"../../../../platform/product/common/productService.js";import{$MA as p}from"../../../../platform/extensionManagement/common/extensionNls.js";import{$xo as N}from"../../../../platform/log/common/log.js";import{$96 as w}from"../../../../base/browser/window.js";var g=function(m,r,t,n){var o=arguments.length,e=o<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,t):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(m,r,t,n);else for(var s=m.length-1;s>=0;s--)(a=m[s])&&(e=(o<3?a(e):o>3?a(r,t,e):a(r,t))||e);return o>3&&e&&Object.defineProperty(r,t,e),e},l=function(m,r){return function(t,n){r(t,n,m)}};let u=class{constructor(r,t,n,o,e){if(this.c=n,this.d=e,this.a=[],P){const a=o.extensionsGallery?.nlsBaseUrl;a&&o.commit&&!d.isDefaultVariant()&&(this.b=f.joinPath(f.parse(a),o.commit,o.version,d.value()));const s=E.asBrowserUri(j);if(s){let h=[];if(r.isBuilt)h=[];else{const i=w.document.getElementById("vscode-workbench-builtin-extensions"),c=i?i.getAttribute("data-settings"):void 0;if(c)try{h=JSON.parse(c)}catch{}}this.a=h.map(async i=>{const c=_(i.packageJSON.publisher,i.packageJSON.name);return{identifier:{id:c},location:t.extUri.joinPath(s,i.extensionPath),type:0,isBuiltin:!0,manifest:i.packageNLS?await this.f(c,i.packageJSON,i.packageNLS):i.packageJSON,readmeUrl:i.readmePath?t.extUri.joinPath(s,i.readmePath):void 0,changelogUrl:i.changelogPath?t.extUri.joinPath(s,i.changelogPath):void 0,targetPlatform:"web",validations:[],isValid:!0,preRelease:!1}})}}}async scanBuiltinExtensions(){return[...await Promise.all(this.a)]}async f(r,t,n){if(!this.b)return p(this.d,t,n);const o=f.joinPath(this.b,r,"package");try{const e=await this.c.readExtensionResource(o),a=JSON.parse(e.toString());return p(this.d,t,a,n)}catch(e){return this.d.error(e),p(this.d,t,n)}}};u=g([l(0,x),l(1,$),l(2,O),l(3,B),l(4,N)],u);U(b,u,1);export{u as $M_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IBuiltinExtensionsScannerService } from "../../../../platform/extensions/common/extensions.js";
+import { isWeb, Language } from "../../../../base/common/platform.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { getGalleryExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { builtinExtensionsPath, FileAccess } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { localizeManifest } from "../../../../platform/extensionManagement/common/extensionNls.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+let BuiltinExtensionsScannerService = class BuiltinExtensionsScannerService2 {
+  static {
+    __name(this, "BuiltinExtensionsScannerService");
+  }
+  constructor(environmentService, uriIdentityService, extensionResourceLoaderService, productService, logService) {
+    this.extensionResourceLoaderService = extensionResourceLoaderService;
+    this.logService = logService;
+    this.builtinExtensionsPromises = [];
+    if (isWeb) {
+      const nlsBaseUrl = productService.extensionsGallery?.nlsBaseUrl;
+      if (nlsBaseUrl && productService.commit && !Language.isDefaultVariant()) {
+        this.nlsUrl = URI.joinPath(URI.parse(nlsBaseUrl), productService.commit, productService.version, Language.value());
+      }
+      const builtinExtensionsServiceUrl = FileAccess.asBrowserUri(builtinExtensionsPath);
+      if (builtinExtensionsServiceUrl) {
+        let bundledExtensions = [];
+        if (environmentService.isBuilt) {
+          bundledExtensions = [
+            /*BUILD->INSERT_BUILTIN_EXTENSIONS*/
+          ];
+        } else {
+          const builtinExtensionsElement = mainWindow.document.getElementById("vscode-workbench-builtin-extensions");
+          const builtinExtensionsElementAttribute = builtinExtensionsElement ? builtinExtensionsElement.getAttribute("data-settings") : void 0;
+          if (builtinExtensionsElementAttribute) {
+            try {
+              bundledExtensions = JSON.parse(builtinExtensionsElementAttribute);
+            } catch (error) {
+            }
+          }
+        }
+        this.builtinExtensionsPromises = bundledExtensions.map(async (e) => {
+          const id = getGalleryExtensionId(e.packageJSON.publisher, e.packageJSON.name);
+          return {
+            identifier: { id },
+            location: uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.extensionPath),
+            type: 0,
+            isBuiltin: true,
+            manifest: e.packageNLS ? await this.localizeManifest(id, e.packageJSON, e.packageNLS) : e.packageJSON,
+            readmeUrl: e.readmePath ? uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.readmePath) : void 0,
+            changelogUrl: e.changelogPath ? uriIdentityService.extUri.joinPath(builtinExtensionsServiceUrl, e.changelogPath) : void 0,
+            targetPlatform: "web",
+            validations: [],
+            isValid: true,
+            preRelease: false
+          };
+        });
+      }
+    }
+  }
+  async scanBuiltinExtensions() {
+    return [...await Promise.all(this.builtinExtensionsPromises)];
+  }
+  async localizeManifest(extensionId, manifest, fallbackTranslations) {
+    if (!this.nlsUrl) {
+      return localizeManifest(this.logService, manifest, fallbackTranslations);
+    }
+    const uri = URI.joinPath(this.nlsUrl, extensionId, "package");
+    try {
+      const res = await this.extensionResourceLoaderService.readExtensionResource(uri);
+      const json = JSON.parse(res.toString());
+      return localizeManifest(this.logService, manifest, json, fallbackTranslations);
+    } catch (e) {
+      this.logService.error(e);
+      return localizeManifest(this.logService, manifest, fallbackTranslations);
+    }
+  }
+};
+BuiltinExtensionsScannerService = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, IUriIdentityService),
+  __param(2, IExtensionResourceLoaderService),
+  __param(3, IProductService),
+  __param(4, ILogService)
+], BuiltinExtensionsScannerService);
+registerSingleton(
+  IBuiltinExtensionsScannerService,
+  BuiltinExtensionsScannerService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BuiltinExtensionsScannerService
+};
+//# sourceMappingURL=builtinExtensionsScannerService.js.map

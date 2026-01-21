@@ -1,1 +1,927 @@
-import{$D8 as F,$27 as U}from"../../../../base/browser/dom.js";import{$Hm as V}from"../../../../base/common/actions.js";import{$5h as p}from"../../../../base/common/async.js";import{$wf as W,Event as _}from"../../../../base/common/event.js";import{$Ed as g}from"../../../../base/common/lifecycle.js";import{$Oc as L}from"../../../../base/common/map.js";import{$Ah as z}from"../../../../base/common/resources.js";import{ThemeIcon as q}from"../../../../base/common/themables.js";import{$8D as Q}from"../../../../editor/common/core/position.js";import{$9D as S}from"../../../../editor/common/core/range.js";import{$0K as B}from"../../../../editor/common/model/textModel.js";import{$NV as x}from"../../../../editor/common/services/languageFeatures.js";import{$zkb as A}from"../../../../editor/contrib/codeAction/common/types.js";import*as c from"../../../../nls.js";import{$9l as M}from"../../../../platform/configuration/common/configuration.js";import{$km as N,$vm as K,$wm as E}from"../../../../platform/configuration/common/configurationRegistry.js";import{$6hb as X}from"../../../../platform/contextview/browser/contextView.js";import{$Lj as m}from"../../../../platform/instantiation/common/instantiation.js";import{$fF as P,MarkerSeverity as a}from"../../../../platform/markers/common/markers.js";import{$im as j}from"../../../../platform/registry/common/platform.js";import{$0o as G}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$_o as Y}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ll as Z}from"../../../../platform/workspace/common/workspace.js";import{$YH as ee}from"../../../../platform/workspace/common/workspaceTrust.js";import{$lJb as H}from"../../../browser/codeeditor.js";import{$Pcc as te}from"./preferencesIcons.js";import{$Zcc as O}from"./preferencesWidgets.js";import{$vM as y,$JM as ie,$HM as se}from"../../../services/configuration/common/configuration.js";import{$BP as re}from"../../../services/environment/common/environmentService.js";import{$XM as J}from"../../../services/preferences/common/preferences.js";import{$RM as ne,$PM as oe}from"../../../services/preferences/common/preferencesModels.js";import{$MQ as he}from"../../../services/userDataProfile/common/userDataProfile.js";import{$Ccc as ce,$Bcc as ae}from"../common/preferences.js";import{$xS as le}from"../../mcp/common/mcpConfiguration.js";var f=function(l,e,t,i){var s=arguments.length,r=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,e,t,i);else for(var o=l.length-1;o>=0;o--)(n=l[o])&&(r=(s<3?n(r):s>3?n(e,t,r):n(e,t))||r);return s>3&&r&&Object.defineProperty(e,t,r),r},h=function(l,e){return function(t,i){e(t,i,l)}},d;let R=class extends g{constructor(e,t,i,s,r){super(),this.j=e,this.preferencesModel=t,this.m=i,this.n=s,this.q=r,this.c=new p(200),this.a=this.D(r.createInstance(v,e)),this.b=this.D(this.q.createInstance(k,this.j,this.preferencesModel,this.a)),this.D(this.b.onUpdateSetting(({key:n,value:o,source:u})=>this.updatePreference(n,o,u))),this.D(this.j.getModel().onDidChangeContent(()=>this.c.trigger(()=>this.r()))),this.g=this.D(r.createInstance(C,e,t)),this.h=this.D(r.createInstance($,e,t))}render(){this.b.render(this.preferencesModel.settingsGroups,this.f),this.g.render(),this.h.render()}updatePreference(e,t,i){const s=i.overrideOf?E(i.overrideOf.key):null,r=this.preferencesModel.uri;this.n.updateValue(e,t,{overrideIdentifiers:s,resource:r},this.preferencesModel.configurationTarget).then(()=>this.t(i))}r(){this.j.hasModel()&&this.render()}t(e){this.j.focus(),e=this.u(e),e&&(this.j.setSelection(e.valueRange),this.a.highlight(e,!0))}u(e){const{key:t,overrideOf:i}=e;if(i){const s=this.u(i);for(const r of s.overrides)if(r.key===t)return r;return}return this.preferencesModel.getPreference(t)}focusPreference(e){const t=this.u(e);t?(this.a.highlight(t,!0),this.j.setPosition({lineNumber:t.keyRange.startLineNumber,column:t.keyRange.startColumn})):this.a.clear(!0)}clearFocus(e){this.a.clear(!0)}editPreference(e){const t=this.u(e);return!!(t&&this.b.activateOnSetting(t))}};R=f([h(2,J),h(3,M),h(4,m)],R);let I=class extends R{constructor(e,t,i,s,r){super(e,t,i,s,r),this.w=this.D(r.createInstance(D,e,t))}render(){super.render(),this.w.render()}};I=f([h(2,J),h(3,M),h(4,m)],I);let k=class extends g{constructor(e,t,i,s,r,n){super(),this.h=e,this.j=t,this.m=i,this.n=s,this.q=r,this.r=n,this.c=[],this.g=this.D(new W),this.onUpdateSetting=this.g.event,this.a=this.D(this.q.createInstance(O,e)),this.b=this.D(this.q.createInstance(O,e)),this.f=new p(75),this.D(this.a.onClick(o=>this.M(this.a,o))),this.D(this.b.onClick(o=>this.M(this.b,o))),this.D(this.h.onDidChangeCursorPosition(o=>this.w(o))),this.D(this.h.onMouseMove(o=>this.z(o))),this.D(this.h.onDidChangeConfiguration(()=>this.u()))}render(e,t){this.a.hide(),this.b.hide(),this.c=e,this.associatedPreferencesModel=t;const i=this.I(this.h.getPosition().lineNumber);i.length&&this.G(this.a,i)}t(){return this.j instanceof ne}u(){this.h.getOption(66)||(this.a.hide(),this.b.hide())}w(e){this.b.hide();const t=this.I(e.position.lineNumber);t.length?this.G(this.a,t):this.a.hide()}z(e){const t=this.C(e);if(t){this.L(t);return}this.m.clear(),this.f.trigger(()=>this.F(e))}C(e){if(e.target.type===2){const t=e.target.position.lineNumber;if(this.b.getLine()===t&&this.b.isVisible())return this.b;if(this.a.getLine()===t&&this.a.isVisible())return this.a}}F(e){const t=e.target.position?this.I(e.target.position.lineNumber):null;t&&t.length?this.G(this.b,t):this.b.hide()}G(e,t){const i=t[0].valueRange.startLineNumber;this.h.getOption(66)&&this.H(i)&&(e.show(i,c.localize(11117,null),t),(e===this.a?this.b:this.a).hide())}H(e){const t=this.h.getLineDecorations(e);if(t){for(const{options:i}of t)if(i.glyphMarginClassName&&i.glyphMarginClassName.indexOf(q.asClassName(te))===-1)return!1}return!0}I(e){const t=this.O();return this.J(e).filter(i=>{const s=t[i.key];if(s){if(s.policy&&this.n.inspect(i.key).policyValue!==void 0)return!1;if(this.t())return i.key!=="launch";if((s.type==="boolean"||s.enum)&&(this.j.configurationTarget!==6||s.scope===5||s.scope===6))return!0}return!1})}J(e){let t=0;const i=[];for(const s of this.c){if(s.range.startLineNumber>e)break;if(e>=s.range.startLineNumber&&e<=s.range.endLineNumber)for(const r of s.sections)for(const n of r.settings){if(n.range.startLineNumber>e)break;if(e>=n.range.startLineNumber&&e<=n.range.endLineNumber)if(!this.t()&&n.overrides.length)for(const o of n.overrides)e>=o.range.startLineNumber&&e<=o.range.endLineNumber&&i.push({...o,index:t,groupId:s.id});else i.push({...n,index:t,groupId:s.id});t++}}return i}L(e){this.m.highlight(e.preferences[0])}M(e,t){F.stop(t.event,!0);const i=this.I(e.getLine()).length===1?this.P(e.preferences[0],this.O()[e.preferences[0].key]):e.preferences.map(s=>new V(`preferences.submenu.${s.key}`,s.key,this.P(s,this.O()[s.key])));this.r.showContextMenu({getAnchor:()=>t.event,getActions:()=>i})}activateOnSetting(e){const t=e.keyRange.startLineNumber,i=this.I(t);if(!i.length)return!1;this.b.show(t,"",i);const s=this.P(this.b.preferences[0],this.O()[this.b.preferences[0].key]);return this.r.showContextMenu({getAnchor:()=>this.N(new Q(t,1)),getActions:()=>s}),!0}N(e){const t=this.h.getScrolledVisiblePosition(e),i=U(this.h.getDomNode()),s=i.left+t.left,r=i.top+t.top+t.height;return{x:s,y:r+10}}O(){return j.as(N.Configuration).getConfigurationProperties()}P(e,t){return t.type==="boolean"?[{id:"truthyValue",label:"true",tooltip:"true",enabled:!0,run:()=>this.R(e.key,!0,e),class:void 0},{id:"falsyValue",label:"false",tooltip:"false",enabled:!0,run:()=>this.R(e.key,!1,e),class:void 0}]:t.enum?t.enum.map(i=>({id:i,label:JSON.stringify(i),tooltip:JSON.stringify(i),enabled:!0,run:()=>this.R(e.key,i,e),class:void 0})):this.Q(e)}Q(e){if(this.t()){const t=this.associatedPreferencesModel.getPreference(e.key);return[{id:"setDefaultValue",label:t?c.localize(11118,null):c.localize(11119,null),tooltip:t?c.localize(11120,null):c.localize(11121,null),enabled:!0,run:()=>this.R(e.key,e.value,e),class:void 0}]}return[]}R(e,t,i){this.g.fire({key:e,value:t,source:i})}};k=f([h(3,M),h(4,m),h(5,X)],k);let v=class extends g{constructor(e,t){super(),this.c=e,this.a=this.D(t.createInstance(H)),this.b=this.D(t.createInstance(H))}highlight(e,t=!1){this.b.removeHighlightRange(),this.a.removeHighlightRange(),(t?this.a:this.b).highlightRange({range:e.valueRange,resource:this.c.getModel().uri},this.c),this.c.revealLineInCenterIfOutsideViewport(e.valueRange.startLineNumber,0)}clear(e=!1){this.b.removeHighlightRange(),e&&this.a.removeHighlightRange()}};v=f([h(1,m)],v);let C=class extends g{constructor(e,t,i,s,r,n,o,u,w,T){super(),this.c=e,this.f=t,this.g=i,this.h=s,this.j=r,this.m=n,this.n=o,this.q=w,this.r=T,this.a=new p(200),this.b=new L(b=>this.n.extUri.getComparisonKey(b)),this.D(this.c.getModel().onDidChangeContent(()=>this.t())),this.D(_.filter(this.j.onDidChangeConfiguration,b=>b.source===7)(()=>this.t())),this.D(u.codeActionProvider.register({pattern:t.uri.path},this)),this.D(w.onDidChangeCurrentProfile(()=>this.t()))}t(){this.a.trigger(()=>this.render())}render(){this.b.clear();const e=this.u();e.length?this.g.changeOne("UnsupportedSettingsRenderer",this.f.uri,e):this.g.remove("UnsupportedSettingsRenderer",[this.f.uri])}async provideCodeActions(e,t,i,s){const r=[],n=this.b.get(e.uri);if(n)for(const[o,u]of n)o.containsRange(t)&&r.push(...u);return{actions:r,dispose:()=>{}}}u(){const e=[],t=j.as(N.Configuration).getConfigurationProperties();for(const i of this.f.settingsGroups)for(const s of i.sections)for(const r of s.settings){if(K.test(r.key)){r.overrides&&this.z(r.overrides,t,e);continue}const n=t[r.key];if(n){if(this.I(r,n,e),this.w(r,n,e))continue;switch(this.f.configurationTarget){case 3:this.C(r,n,e);break;case 4:this.F(r,n,e);break;case 5:this.G(r,n,e);break;case 6:this.H(r,n,e);break}}else e.push(this.N(r))}return e}w(e,t,i){return!t.policy||this.j.inspect(e.key).policyValue===void 0||this.f.configurationTarget===7?!1:(i.push({severity:a.Hint,tags:[1],...e.range,message:c.localize(11122,null)}),!0)}z(e,t,i){for(const s of e||[]){const r=t[s.key];r?r.scope!==6&&i.push({severity:a.Hint,tags:[1],...s.range,message:c.localize(11123,null)}):i.push(this.N(s))}}C(e,t,i){!this.q.currentProfile.isDefault&&!this.q.currentProfile.useDefaultFlags?.settings&&(z(this.r.defaultProfile.settingsResource,this.f.uri)&&!this.j.isSettingAppliedForAllProfiles(e.key)?i.push({severity:a.Hint,tags:[1],...e.range,message:c.localize(11124,null)}):z(this.q.currentProfile.settingsResource,this.f.uri)&&(t.scope&&y.includes(t.scope)?i.push(this.J(e)):this.j.isSettingAppliedForAllProfiles(e.key)&&i.push({severity:a.Hint,tags:[1],...e.range,message:c.localize(11125,null,ie)}))),this.h.remoteAuthority&&(t.scope===2||t.scope===3||t.scope===7)&&i.push({severity:a.Hint,tags:[1],...e.range,message:c.localize(11126,null)})}F(e,t,i){t.scope===1&&i.push(this.J(e))}G(e,t,i){if(t.scope&&y.includes(t.scope)&&i.push(this.J(e)),t.scope===2&&i.push(this.L(e)),!this.m.isWorkspaceTrusted()&&t.restricted){const s=this.M(e);i.push(s);const r=this.O([s]);this.R(s,r)}}H(e,t,i){if(t.scope&&y.includes(t.scope)&&i.push(this.J(e)),t.scope===2&&i.push(this.L(e)),t.scope===4&&i.push({severity:a.Hint,tags:[1],...e.range,message:c.localize(11127,null)}),!this.m.isWorkspaceTrusted()&&t.restricted){const s=this.M(e);i.push(s);const r=this.O([s]);this.R(s,r)}}I(e,t,i){t.tags?.includes("preview")?i.push(this.P(e)):t.tags?.includes("experimental")&&i.push(this.Q(e))}J(e){return{severity:a.Hint,tags:[1],...e.range,message:c.localize(11128,null)}}L(e){return{severity:a.Hint,tags:[1],...e.range,message:c.localize(11129,null)}}M(e){return{severity:a.Warning,...e.range,message:c.localize(11130,null)}}N(e){return{severity:a.Hint,tags:[1],...e.range,message:c.localize(11131,null)}}O(e){return[{title:c.localize(11132,null),command:{id:"workbench.trust.manage",title:c.localize(11133,null)},diagnostics:e,kind:A.QuickFix.value}]}P(e){return{severity:a.Hint,...e.range,message:ae}}Q(e){return{severity:a.Hint,...e.range,message:ce}}R(e,t){let i=this.b.get(this.f.uri);i||(i=[],this.b.set(this.f.uri,i)),i.push([S.lift(e),t])}dispose(){this.g.remove("UnsupportedSettingsRenderer",[this.f.uri]),this.b.clear(),super.dispose()}};C=f([h(2,P),h(3,re),h(4,se),h(5,ee),h(6,G),h(7,x),h(8,he),h(9,Y)],C);let $=class extends g{constructor(e,t,i,s,r){super(),this.c=e,this.f=t,this.g=i,this.h=s,this.a=new p(200),this.b=new L(n=>this.h.extUri.getComparisonKey(n)),this.D(this.c.getModel().onDidChangeContent(()=>this.j())),this.D(r.codeActionProvider.register({pattern:t.uri.path},this))}j(){this.a.trigger(()=>this.render())}render(){this.b.clear();const e=this.m();e.length?this.g.changeOne("McpSettingsRenderer",this.f.uri,e):this.g.remove("McpSettingsRenderer",[this.f.uri])}async provideCodeActions(e,t,i,s){const r=[],n=this.b.get(e.uri);if(n)for(const[o,u]of n)o.containsRange(t)&&r.push(...u);return{actions:r,dispose:()=>{}}}m(){const e=[];if(this.f.configurationTarget!==3&&this.f.configurationTarget!==4)return e;for(const t of this.f.settingsGroups)for(const i of t.sections)for(const s of i.settings)if(s.key===le){const r=this.n(s);e.push(r);const n=this.q([r]);this.r(s.range,n)}return e}n(e){const i=this.f.configurationTarget===4?c.localize(11134,null):c.localize(11135,null);return{severity:a.Warning,...e.range,message:i}}q(e){const t=this.f.configurationTarget===4,i=t?c.localize(11136,null):c.localize(11137,null);return[{title:i,command:{id:t?"workbench.mcp.openRemoteUserMcpJson":"workbench.mcp.openUserMcpJson",title:i},diagnostics:e,kind:A.QuickFix.value}]}r(e,t){let i=this.b.get(this.f.uri);i||(i=[],this.b.set(this.f.uri,i)),i.push([S.lift(e),t])}dispose(){this.g.remove("McpSettingsRenderer",[this.f.uri]),this.b.clear(),super.dispose()}};$=f([h(2,P),h(3,G),h(4,x)],$);let D=class extends g{static{d=this}static{this.a=["folders","tasks","launch","extensions","settings","remoteAuthority","transient"]}constructor(e,t,i,s){super(),this.f=e,this.g=t,this.h=i,this.j=s,this.c=new p(200),this.b=this.f.createDecorationsCollection(),this.D(this.f.getModel().onDidChangeContent(()=>this.c.trigger(()=>this.render())))}render(){const e=[];if(this.h.getWorkbenchState()===3&&this.g instanceof oe){const t=[];for(const i of this.g.configurationGroups)for(const s of i.sections)for(const r of s.settings)d.a.includes(r.key)||e.push({severity:a.Hint,tags:[1],...r.range,message:c.localize(11138,null)});this.b.set(t.map(i=>this.n(i)))}e.length?this.j.changeOne("WorkspaceConfigurationRenderer",this.g.uri,e):this.j.remove("WorkspaceConfigurationRenderer",[this.g.uri])}static{this.m=B.register({description:"dim-configuration",stickiness:1,inlineClassName:"dim-configuration"})}n(e){return{range:e,options:d.m}}dispose(){this.j.remove("WorkspaceConfigurationRenderer",[this.g.uri]),this.b.clear(),super.dispose()}};D=d=f([h(2,Z),h(3,P)],D);export{R as $sdc,I as $tdc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WorkspaceConfigurationRenderer_1;
+import { EventHelper, getDomNodePagePosition } from "../../../../base/browser/dom.js";
+import { SubmenuAction } from "../../../../base/common/actions.js";
+import { Delayer } from "../../../../base/common/async.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { CodeActionKind } from "../../../../editor/contrib/codeAction/common/types.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions as ConfigurationExtensions, OVERRIDE_PROPERTY_REGEX, overrideIdentifiersFromKey } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { RangeHighlightDecorations } from "../../../browser/codeeditor.js";
+import { settingsEditIcon } from "./preferencesIcons.js";
+import { EditPreferenceWidget } from "./preferencesWidgets.js";
+import { APPLICATION_SCOPES, APPLY_ALL_PROFILES_SETTING, IWorkbenchConfigurationService } from "../../../services/configuration/common/configuration.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { DefaultSettingsEditorModel, WorkspaceConfigurationEditorModel } from "../../../services/preferences/common/preferencesModels.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { EXPERIMENTAL_INDICATOR_DESCRIPTION, PREVIEW_INDICATOR_DESCRIPTION } from "../common/preferences.js";
+import { mcpConfigurationSection } from "../../mcp/common/mcpConfiguration.js";
+let UserSettingsRenderer = class UserSettingsRenderer2 extends Disposable {
+  static {
+    __name(this, "UserSettingsRenderer");
+  }
+  constructor(editor, preferencesModel, preferencesService, configurationService, instantiationService) {
+    super();
+    this.editor = editor;
+    this.preferencesModel = preferencesModel;
+    this.preferencesService = preferencesService;
+    this.configurationService = configurationService;
+    this.instantiationService = instantiationService;
+    this.modelChangeDelayer = new Delayer(200);
+    this.settingHighlighter = this._register(instantiationService.createInstance(SettingHighlighter, editor));
+    this.editSettingActionRenderer = this._register(this.instantiationService.createInstance(EditSettingRenderer, this.editor, this.preferencesModel, this.settingHighlighter));
+    this._register(this.editSettingActionRenderer.onUpdateSetting(({ key, value, source }) => this.updatePreference(key, value, source)));
+    this._register(this.editor.getModel().onDidChangeContent(() => this.modelChangeDelayer.trigger(() => this.onModelChanged())));
+    this.unsupportedSettingsRenderer = this._register(instantiationService.createInstance(UnsupportedSettingsRenderer, editor, preferencesModel));
+    this.mcpSettingsRenderer = this._register(instantiationService.createInstance(McpSettingsRenderer, editor, preferencesModel));
+  }
+  render() {
+    this.editSettingActionRenderer.render(this.preferencesModel.settingsGroups, this.associatedPreferencesModel);
+    this.unsupportedSettingsRenderer.render();
+    this.mcpSettingsRenderer.render();
+  }
+  updatePreference(key, value, source) {
+    const overrideIdentifiers = source.overrideOf ? overrideIdentifiersFromKey(source.overrideOf.key) : null;
+    const resource = this.preferencesModel.uri;
+    this.configurationService.updateValue(key, value, { overrideIdentifiers, resource }, this.preferencesModel.configurationTarget).then(() => this.onSettingUpdated(source));
+  }
+  onModelChanged() {
+    if (!this.editor.hasModel()) {
+      return;
+    }
+    this.render();
+  }
+  onSettingUpdated(setting) {
+    this.editor.focus();
+    setting = this.getSetting(setting);
+    if (setting) {
+      this.editor.setSelection(setting.valueRange);
+      this.settingHighlighter.highlight(setting, true);
+    }
+  }
+  getSetting(setting) {
+    const { key, overrideOf } = setting;
+    if (overrideOf) {
+      const setting2 = this.getSetting(overrideOf);
+      for (const override of setting2.overrides) {
+        if (override.key === key) {
+          return override;
+        }
+      }
+      return void 0;
+    }
+    return this.preferencesModel.getPreference(key);
+  }
+  focusPreference(setting) {
+    const s = this.getSetting(setting);
+    if (s) {
+      this.settingHighlighter.highlight(s, true);
+      this.editor.setPosition({ lineNumber: s.keyRange.startLineNumber, column: s.keyRange.startColumn });
+    } else {
+      this.settingHighlighter.clear(true);
+    }
+  }
+  clearFocus(setting) {
+    this.settingHighlighter.clear(true);
+  }
+  editPreference(setting) {
+    const editableSetting = this.getSetting(setting);
+    return !!(editableSetting && this.editSettingActionRenderer.activateOnSetting(editableSetting));
+  }
+};
+UserSettingsRenderer = __decorate([
+  __param(2, IPreferencesService),
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService)
+], UserSettingsRenderer);
+let WorkspaceSettingsRenderer = class WorkspaceSettingsRenderer2 extends UserSettingsRenderer {
+  static {
+    __name(this, "WorkspaceSettingsRenderer");
+  }
+  constructor(editor, preferencesModel, preferencesService, configurationService, instantiationService) {
+    super(editor, preferencesModel, preferencesService, configurationService, instantiationService);
+    this.workspaceConfigurationRenderer = this._register(instantiationService.createInstance(WorkspaceConfigurationRenderer, editor, preferencesModel));
+  }
+  render() {
+    super.render();
+    this.workspaceConfigurationRenderer.render();
+  }
+};
+WorkspaceSettingsRenderer = __decorate([
+  __param(2, IPreferencesService),
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService)
+], WorkspaceSettingsRenderer);
+let EditSettingRenderer = class EditSettingRenderer2 extends Disposable {
+  static {
+    __name(this, "EditSettingRenderer");
+  }
+  constructor(editor, primarySettingsModel, settingHighlighter, configurationService, instantiationService, contextMenuService) {
+    super();
+    this.editor = editor;
+    this.primarySettingsModel = primarySettingsModel;
+    this.settingHighlighter = settingHighlighter;
+    this.configurationService = configurationService;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+    this.settingsGroups = [];
+    this._onUpdateSetting = this._register(new Emitter());
+    this.onUpdateSetting = this._onUpdateSetting.event;
+    this.editPreferenceWidgetForCursorPosition = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
+    this.editPreferenceWidgetForMouseMove = this._register(this.instantiationService.createInstance(EditPreferenceWidget, editor));
+    this.toggleEditPreferencesForMouseMoveDelayer = new Delayer(75);
+    this._register(this.editPreferenceWidgetForCursorPosition.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForCursorPosition, e)));
+    this._register(this.editPreferenceWidgetForMouseMove.onClick((e) => this.onEditSettingClicked(this.editPreferenceWidgetForMouseMove, e)));
+    this._register(this.editor.onDidChangeCursorPosition((positionChangeEvent) => this.onPositionChanged(positionChangeEvent)));
+    this._register(this.editor.onMouseMove((mouseMoveEvent) => this.onMouseMoved(mouseMoveEvent)));
+    this._register(this.editor.onDidChangeConfiguration(() => this.onConfigurationChanged()));
+  }
+  render(settingsGroups, associatedPreferencesModel) {
+    this.editPreferenceWidgetForCursorPosition.hide();
+    this.editPreferenceWidgetForMouseMove.hide();
+    this.settingsGroups = settingsGroups;
+    this.associatedPreferencesModel = associatedPreferencesModel;
+    const settings = this.getSettings(this.editor.getPosition().lineNumber);
+    if (settings.length) {
+      this.showEditPreferencesWidget(this.editPreferenceWidgetForCursorPosition, settings);
+    }
+  }
+  isDefaultSettings() {
+    return this.primarySettingsModel instanceof DefaultSettingsEditorModel;
+  }
+  onConfigurationChanged() {
+    if (!this.editor.getOption(
+      66
+      /* EditorOption.glyphMargin */
+    )) {
+      this.editPreferenceWidgetForCursorPosition.hide();
+      this.editPreferenceWidgetForMouseMove.hide();
+    }
+  }
+  onPositionChanged(positionChangeEvent) {
+    this.editPreferenceWidgetForMouseMove.hide();
+    const settings = this.getSettings(positionChangeEvent.position.lineNumber);
+    if (settings.length) {
+      this.showEditPreferencesWidget(this.editPreferenceWidgetForCursorPosition, settings);
+    } else {
+      this.editPreferenceWidgetForCursorPosition.hide();
+    }
+  }
+  onMouseMoved(mouseMoveEvent) {
+    const editPreferenceWidget = this.getEditPreferenceWidgetUnderMouse(mouseMoveEvent);
+    if (editPreferenceWidget) {
+      this.onMouseOver(editPreferenceWidget);
+      return;
+    }
+    this.settingHighlighter.clear();
+    this.toggleEditPreferencesForMouseMoveDelayer.trigger(() => this.toggleEditPreferenceWidgetForMouseMove(mouseMoveEvent));
+  }
+  getEditPreferenceWidgetUnderMouse(mouseMoveEvent) {
+    if (mouseMoveEvent.target.type === 2) {
+      const line = mouseMoveEvent.target.position.lineNumber;
+      if (this.editPreferenceWidgetForMouseMove.getLine() === line && this.editPreferenceWidgetForMouseMove.isVisible()) {
+        return this.editPreferenceWidgetForMouseMove;
+      }
+      if (this.editPreferenceWidgetForCursorPosition.getLine() === line && this.editPreferenceWidgetForCursorPosition.isVisible()) {
+        return this.editPreferenceWidgetForCursorPosition;
+      }
+    }
+    return void 0;
+  }
+  toggleEditPreferenceWidgetForMouseMove(mouseMoveEvent) {
+    const settings = mouseMoveEvent.target.position ? this.getSettings(mouseMoveEvent.target.position.lineNumber) : null;
+    if (settings && settings.length) {
+      this.showEditPreferencesWidget(this.editPreferenceWidgetForMouseMove, settings);
+    } else {
+      this.editPreferenceWidgetForMouseMove.hide();
+    }
+  }
+  showEditPreferencesWidget(editPreferencesWidget, settings) {
+    const line = settings[0].valueRange.startLineNumber;
+    if (this.editor.getOption(
+      66
+      /* EditorOption.glyphMargin */
+    ) && this.marginFreeFromOtherDecorations(line)) {
+      editPreferencesWidget.show(line, nls.localize("editTtile", "Edit"), settings);
+      const editPreferenceWidgetToHide = editPreferencesWidget === this.editPreferenceWidgetForCursorPosition ? this.editPreferenceWidgetForMouseMove : this.editPreferenceWidgetForCursorPosition;
+      editPreferenceWidgetToHide.hide();
+    }
+  }
+  marginFreeFromOtherDecorations(line) {
+    const decorations = this.editor.getLineDecorations(line);
+    if (decorations) {
+      for (const { options } of decorations) {
+        if (options.glyphMarginClassName && options.glyphMarginClassName.indexOf(ThemeIcon.asClassName(settingsEditIcon)) === -1) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  getSettings(lineNumber) {
+    const configurationMap = this.getConfigurationsMap();
+    return this.getSettingsAtLineNumber(lineNumber).filter((setting) => {
+      const configurationNode = configurationMap[setting.key];
+      if (configurationNode) {
+        if (configurationNode.policy && this.configurationService.inspect(setting.key).policyValue !== void 0) {
+          return false;
+        }
+        if (this.isDefaultSettings()) {
+          if (setting.key === "launch") {
+            return false;
+          }
+          return true;
+        }
+        if (configurationNode.type === "boolean" || configurationNode.enum) {
+          if (this.primarySettingsModel.configurationTarget !== 6) {
+            return true;
+          }
+          if (configurationNode.scope === 5 || configurationNode.scope === 6) {
+            return true;
+          }
+        }
+      }
+      return false;
+    });
+  }
+  getSettingsAtLineNumber(lineNumber) {
+    let index = 0;
+    const settings = [];
+    for (const group of this.settingsGroups) {
+      if (group.range.startLineNumber > lineNumber) {
+        break;
+      }
+      if (lineNumber >= group.range.startLineNumber && lineNumber <= group.range.endLineNumber) {
+        for (const section of group.sections) {
+          for (const setting of section.settings) {
+            if (setting.range.startLineNumber > lineNumber) {
+              break;
+            }
+            if (lineNumber >= setting.range.startLineNumber && lineNumber <= setting.range.endLineNumber) {
+              if (!this.isDefaultSettings() && setting.overrides.length) {
+                for (const overrideSetting of setting.overrides) {
+                  if (lineNumber >= overrideSetting.range.startLineNumber && lineNumber <= overrideSetting.range.endLineNumber) {
+                    settings.push({ ...overrideSetting, index, groupId: group.id });
+                  }
+                }
+              } else {
+                settings.push({ ...setting, index, groupId: group.id });
+              }
+            }
+            index++;
+          }
+        }
+      }
+    }
+    return settings;
+  }
+  onMouseOver(editPreferenceWidget) {
+    this.settingHighlighter.highlight(editPreferenceWidget.preferences[0]);
+  }
+  onEditSettingClicked(editPreferenceWidget, e) {
+    EventHelper.stop(e.event, true);
+    const actions = this.getSettings(editPreferenceWidget.getLine()).length === 1 ? this.getActions(editPreferenceWidget.preferences[0], this.getConfigurationsMap()[editPreferenceWidget.preferences[0].key]) : editPreferenceWidget.preferences.map((setting) => new SubmenuAction(`preferences.submenu.${setting.key}`, setting.key, this.getActions(setting, this.getConfigurationsMap()[setting.key])));
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => e.event, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions")
+    });
+  }
+  activateOnSetting(setting) {
+    const startLine = setting.keyRange.startLineNumber;
+    const settings = this.getSettings(startLine);
+    if (!settings.length) {
+      return false;
+    }
+    this.editPreferenceWidgetForMouseMove.show(startLine, "", settings);
+    const actions = this.getActions(this.editPreferenceWidgetForMouseMove.preferences[0], this.getConfigurationsMap()[this.editPreferenceWidgetForMouseMove.preferences[0].key]);
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => this.toAbsoluteCoords(new Position(startLine, 1)), "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions")
+    });
+    return true;
+  }
+  toAbsoluteCoords(position) {
+    const positionCoords = this.editor.getScrolledVisiblePosition(position);
+    const editorCoords = getDomNodePagePosition(this.editor.getDomNode());
+    const x = editorCoords.left + positionCoords.left;
+    const y = editorCoords.top + positionCoords.top + positionCoords.height;
+    return { x, y: y + 10 };
+  }
+  getConfigurationsMap() {
+    return Registry.as(ConfigurationExtensions.Configuration).getConfigurationProperties();
+  }
+  getActions(setting, jsonSchema) {
+    if (jsonSchema.type === "boolean") {
+      return [{
+        id: "truthyValue",
+        label: "true",
+        tooltip: "true",
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => this.updateSetting(setting.key, true, setting), "run"),
+        class: void 0
+      }, {
+        id: "falsyValue",
+        label: "false",
+        tooltip: "false",
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => this.updateSetting(setting.key, false, setting), "run"),
+        class: void 0
+      }];
+    }
+    if (jsonSchema.enum) {
+      return jsonSchema.enum.map((value) => {
+        return {
+          id: value,
+          label: JSON.stringify(value),
+          tooltip: JSON.stringify(value),
+          enabled: true,
+          run: /* @__PURE__ */ __name(() => this.updateSetting(setting.key, value, setting), "run"),
+          class: void 0
+        };
+      });
+    }
+    return this.getDefaultActions(setting);
+  }
+  getDefaultActions(setting) {
+    if (this.isDefaultSettings()) {
+      const settingInOtherModel = this.associatedPreferencesModel.getPreference(setting.key);
+      return [{
+        id: "setDefaultValue",
+        label: settingInOtherModel ? nls.localize("replaceDefaultValue", "Replace in Settings") : nls.localize("copyDefaultValue", "Copy to Settings"),
+        tooltip: settingInOtherModel ? nls.localize("replaceDefaultValue", "Replace in Settings") : nls.localize("copyDefaultValue", "Copy to Settings"),
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => this.updateSetting(setting.key, setting.value, setting), "run"),
+        class: void 0
+      }];
+    }
+    return [];
+  }
+  updateSetting(key, value, source) {
+    this._onUpdateSetting.fire({ key, value, source });
+  }
+};
+EditSettingRenderer = __decorate([
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IContextMenuService)
+], EditSettingRenderer);
+let SettingHighlighter = class SettingHighlighter2 extends Disposable {
+  static {
+    __name(this, "SettingHighlighter");
+  }
+  constructor(editor, instantiationService) {
+    super();
+    this.editor = editor;
+    this.fixedHighlighter = this._register(instantiationService.createInstance(RangeHighlightDecorations));
+    this.volatileHighlighter = this._register(instantiationService.createInstance(RangeHighlightDecorations));
+  }
+  highlight(setting, fix = false) {
+    this.volatileHighlighter.removeHighlightRange();
+    this.fixedHighlighter.removeHighlightRange();
+    const highlighter = fix ? this.fixedHighlighter : this.volatileHighlighter;
+    highlighter.highlightRange({
+      range: setting.valueRange,
+      resource: this.editor.getModel().uri
+    }, this.editor);
+    this.editor.revealLineInCenterIfOutsideViewport(
+      setting.valueRange.startLineNumber,
+      0
+      /* editorCommon.ScrollType.Smooth */
+    );
+  }
+  clear(fix = false) {
+    this.volatileHighlighter.removeHighlightRange();
+    if (fix) {
+      this.fixedHighlighter.removeHighlightRange();
+    }
+  }
+};
+SettingHighlighter = __decorate([
+  __param(1, IInstantiationService)
+], SettingHighlighter);
+let UnsupportedSettingsRenderer = class UnsupportedSettingsRenderer2 extends Disposable {
+  static {
+    __name(this, "UnsupportedSettingsRenderer");
+  }
+  constructor(editor, settingsEditorModel, markerService, environmentService, configurationService, workspaceTrustManagementService, uriIdentityService, languageFeaturesService, userDataProfileService, userDataProfilesService) {
+    super();
+    this.editor = editor;
+    this.settingsEditorModel = settingsEditorModel;
+    this.markerService = markerService;
+    this.environmentService = environmentService;
+    this.configurationService = configurationService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.uriIdentityService = uriIdentityService;
+    this.userDataProfileService = userDataProfileService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.renderingDelayer = new Delayer(200);
+    this.codeActions = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
+    this._register(this.editor.getModel().onDidChangeContent(() => this.delayedRender()));
+    this._register(Event.filter(
+      this.configurationService.onDidChangeConfiguration,
+      (e) => e.source === 7
+      /* ConfigurationTarget.DEFAULT */
+    )(() => this.delayedRender()));
+    this._register(languageFeaturesService.codeActionProvider.register({ pattern: settingsEditorModel.uri.path }, this));
+    this._register(userDataProfileService.onDidChangeCurrentProfile(() => this.delayedRender()));
+  }
+  delayedRender() {
+    this.renderingDelayer.trigger(() => this.render());
+  }
+  render() {
+    this.codeActions.clear();
+    const markerData = this.generateMarkerData();
+    if (markerData.length) {
+      this.markerService.changeOne("UnsupportedSettingsRenderer", this.settingsEditorModel.uri, markerData);
+    } else {
+      this.markerService.remove("UnsupportedSettingsRenderer", [this.settingsEditorModel.uri]);
+    }
+  }
+  async provideCodeActions(model, range, context, token) {
+    const actions = [];
+    const codeActionsByRange = this.codeActions.get(model.uri);
+    if (codeActionsByRange) {
+      for (const [codeActionsRange, codeActions] of codeActionsByRange) {
+        if (codeActionsRange.containsRange(range)) {
+          actions.push(...codeActions);
+        }
+      }
+    }
+    return {
+      actions,
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+  generateMarkerData() {
+    const markerData = [];
+    const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration).getConfigurationProperties();
+    for (const settingsGroup of this.settingsEditorModel.settingsGroups) {
+      for (const section of settingsGroup.sections) {
+        for (const setting of section.settings) {
+          if (OVERRIDE_PROPERTY_REGEX.test(setting.key)) {
+            if (setting.overrides) {
+              this.handleOverrides(setting.overrides, configurationRegistry, markerData);
+            }
+            continue;
+          }
+          const configuration = configurationRegistry[setting.key];
+          if (configuration) {
+            this.handleUnstableSettingConfiguration(setting, configuration, markerData);
+            if (this.handlePolicyConfiguration(setting, configuration, markerData)) {
+              continue;
+            }
+            switch (this.settingsEditorModel.configurationTarget) {
+              case 3:
+                this.handleLocalUserConfiguration(setting, configuration, markerData);
+                break;
+              case 4:
+                this.handleRemoteUserConfiguration(setting, configuration, markerData);
+                break;
+              case 5:
+                this.handleWorkspaceConfiguration(setting, configuration, markerData);
+                break;
+              case 6:
+                this.handleWorkspaceFolderConfiguration(setting, configuration, markerData);
+                break;
+            }
+          } else {
+            markerData.push(this.generateUnknownConfigurationMarker(setting));
+          }
+        }
+      }
+    }
+    return markerData;
+  }
+  handlePolicyConfiguration(setting, configuration, markerData) {
+    if (!configuration.policy) {
+      return false;
+    }
+    if (this.configurationService.inspect(setting.key).policyValue === void 0) {
+      return false;
+    }
+    if (this.settingsEditorModel.configurationTarget === 7) {
+      return false;
+    }
+    markerData.push({
+      severity: MarkerSeverity.Hint,
+      tags: [
+        1
+        /* MarkerTag.Unnecessary */
+      ],
+      ...setting.range,
+      message: nls.localize("unsupportedPolicySetting", "This setting cannot be applied because it is configured in the system policy.")
+    });
+    return true;
+  }
+  handleOverrides(overrides, configurationRegistry, markerData) {
+    for (const setting of overrides || []) {
+      const configuration = configurationRegistry[setting.key];
+      if (configuration) {
+        if (configuration.scope !== 6) {
+          markerData.push({
+            severity: MarkerSeverity.Hint,
+            tags: [
+              1
+              /* MarkerTag.Unnecessary */
+            ],
+            ...setting.range,
+            message: nls.localize("unsupportLanguageOverrideSetting", "This setting cannot be applied because it is not registered as language override setting.")
+          });
+        }
+      } else {
+        markerData.push(this.generateUnknownConfigurationMarker(setting));
+      }
+    }
+  }
+  handleLocalUserConfiguration(setting, configuration, markerData) {
+    if (!this.userDataProfileService.currentProfile.isDefault && !this.userDataProfileService.currentProfile.useDefaultFlags?.settings) {
+      if (isEqual(this.userDataProfilesService.defaultProfile.settingsResource, this.settingsEditorModel.uri) && !this.configurationService.isSettingAppliedForAllProfiles(setting.key)) {
+        markerData.push({
+          severity: MarkerSeverity.Hint,
+          tags: [
+            1
+            /* MarkerTag.Unnecessary */
+          ],
+          ...setting.range,
+          message: nls.localize("defaultProfileSettingWhileNonDefaultActive", "This setting cannot be applied while a non-default profile is active. It will be applied when the default profile is active.")
+        });
+      } else if (isEqual(this.userDataProfileService.currentProfile.settingsResource, this.settingsEditorModel.uri)) {
+        if (configuration.scope && APPLICATION_SCOPES.includes(configuration.scope)) {
+          markerData.push(this.generateUnsupportedApplicationSettingMarker(setting));
+        } else if (this.configurationService.isSettingAppliedForAllProfiles(setting.key)) {
+          markerData.push({
+            severity: MarkerSeverity.Hint,
+            tags: [
+              1
+              /* MarkerTag.Unnecessary */
+            ],
+            ...setting.range,
+            message: nls.localize("allProfileSettingWhileInNonDefaultProfileSetting", "This setting cannot be applied because it is configured to be applied in all profiles using setting {0}. Value from the default profile will be used instead.", APPLY_ALL_PROFILES_SETTING)
+          });
+        }
+      }
+    }
+    if (this.environmentService.remoteAuthority && (configuration.scope === 2 || configuration.scope === 3 || configuration.scope === 7)) {
+      markerData.push({
+        severity: MarkerSeverity.Hint,
+        tags: [
+          1
+          /* MarkerTag.Unnecessary */
+        ],
+        ...setting.range,
+        message: nls.localize("unsupportedRemoteMachineSetting", "This setting cannot be applied in this window. It will be applied when you open a local window.")
+      });
+    }
+  }
+  handleRemoteUserConfiguration(setting, configuration, markerData) {
+    if (configuration.scope === 1) {
+      markerData.push(this.generateUnsupportedApplicationSettingMarker(setting));
+    }
+  }
+  handleWorkspaceConfiguration(setting, configuration, markerData) {
+    if (configuration.scope && APPLICATION_SCOPES.includes(configuration.scope)) {
+      markerData.push(this.generateUnsupportedApplicationSettingMarker(setting));
+    }
+    if (configuration.scope === 2) {
+      markerData.push(this.generateUnsupportedMachineSettingMarker(setting));
+    }
+    if (!this.workspaceTrustManagementService.isWorkspaceTrusted() && configuration.restricted) {
+      const marker = this.generateUntrustedSettingMarker(setting);
+      markerData.push(marker);
+      const codeActions = this.generateUntrustedSettingCodeActions([marker]);
+      this.addCodeActions(marker, codeActions);
+    }
+  }
+  handleWorkspaceFolderConfiguration(setting, configuration, markerData) {
+    if (configuration.scope && APPLICATION_SCOPES.includes(configuration.scope)) {
+      markerData.push(this.generateUnsupportedApplicationSettingMarker(setting));
+    }
+    if (configuration.scope === 2) {
+      markerData.push(this.generateUnsupportedMachineSettingMarker(setting));
+    }
+    if (configuration.scope === 4) {
+      markerData.push({
+        severity: MarkerSeverity.Hint,
+        tags: [
+          1
+          /* MarkerTag.Unnecessary */
+        ],
+        ...setting.range,
+        message: nls.localize("unsupportedWindowSetting", "This setting cannot be applied in this workspace. It will be applied when you open the containing workspace folder directly.")
+      });
+    }
+    if (!this.workspaceTrustManagementService.isWorkspaceTrusted() && configuration.restricted) {
+      const marker = this.generateUntrustedSettingMarker(setting);
+      markerData.push(marker);
+      const codeActions = this.generateUntrustedSettingCodeActions([marker]);
+      this.addCodeActions(marker, codeActions);
+    }
+  }
+  handleUnstableSettingConfiguration(setting, configuration, markerData) {
+    if (configuration.tags?.includes("preview")) {
+      markerData.push(this.generatePreviewSettingMarker(setting));
+    } else if (configuration.tags?.includes("experimental")) {
+      markerData.push(this.generateExperimentalSettingMarker(setting));
+    }
+  }
+  generateUnsupportedApplicationSettingMarker(setting) {
+    return {
+      severity: MarkerSeverity.Hint,
+      tags: [
+        1
+        /* MarkerTag.Unnecessary */
+      ],
+      ...setting.range,
+      message: nls.localize("unsupportedApplicationSetting", "This setting has an application scope and can only be set in the settings file from the Default profile.")
+    };
+  }
+  generateUnsupportedMachineSettingMarker(setting) {
+    return {
+      severity: MarkerSeverity.Hint,
+      tags: [
+        1
+        /* MarkerTag.Unnecessary */
+      ],
+      ...setting.range,
+      message: nls.localize("unsupportedMachineSetting", "This setting can only be applied in user settings in local window or in remote settings in remote window.")
+    };
+  }
+  generateUntrustedSettingMarker(setting) {
+    return {
+      severity: MarkerSeverity.Warning,
+      ...setting.range,
+      message: nls.localize("untrustedSetting", "This setting can only be applied in a trusted workspace.")
+    };
+  }
+  generateUnknownConfigurationMarker(setting) {
+    return {
+      severity: MarkerSeverity.Hint,
+      tags: [
+        1
+        /* MarkerTag.Unnecessary */
+      ],
+      ...setting.range,
+      message: nls.localize("unknown configuration setting", "Unknown Configuration Setting")
+    };
+  }
+  generateUntrustedSettingCodeActions(diagnostics) {
+    return [{
+      title: nls.localize("manage workspace trust", "Manage Workspace Trust"),
+      command: {
+        id: "workbench.trust.manage",
+        title: nls.localize("manage workspace trust", "Manage Workspace Trust")
+      },
+      diagnostics,
+      kind: CodeActionKind.QuickFix.value
+    }];
+  }
+  generatePreviewSettingMarker(setting) {
+    return {
+      severity: MarkerSeverity.Hint,
+      ...setting.range,
+      message: PREVIEW_INDICATOR_DESCRIPTION
+    };
+  }
+  generateExperimentalSettingMarker(setting) {
+    return {
+      severity: MarkerSeverity.Hint,
+      ...setting.range,
+      message: EXPERIMENTAL_INDICATOR_DESCRIPTION
+    };
+  }
+  addCodeActions(range, codeActions) {
+    let actions = this.codeActions.get(this.settingsEditorModel.uri);
+    if (!actions) {
+      actions = [];
+      this.codeActions.set(this.settingsEditorModel.uri, actions);
+    }
+    actions.push([Range.lift(range), codeActions]);
+  }
+  dispose() {
+    this.markerService.remove("UnsupportedSettingsRenderer", [this.settingsEditorModel.uri]);
+    this.codeActions.clear();
+    super.dispose();
+  }
+};
+UnsupportedSettingsRenderer = __decorate([
+  __param(2, IMarkerService),
+  __param(3, IWorkbenchEnvironmentService),
+  __param(4, IWorkbenchConfigurationService),
+  __param(5, IWorkspaceTrustManagementService),
+  __param(6, IUriIdentityService),
+  __param(7, ILanguageFeaturesService),
+  __param(8, IUserDataProfileService),
+  __param(9, IUserDataProfilesService)
+], UnsupportedSettingsRenderer);
+let McpSettingsRenderer = class McpSettingsRenderer2 extends Disposable {
+  static {
+    __name(this, "McpSettingsRenderer");
+  }
+  constructor(editor, settingsEditorModel, markerService, uriIdentityService, languageFeaturesService) {
+    super();
+    this.editor = editor;
+    this.settingsEditorModel = settingsEditorModel;
+    this.markerService = markerService;
+    this.uriIdentityService = uriIdentityService;
+    this.renderingDelayer = new Delayer(200);
+    this.codeActions = new ResourceMap((uri) => this.uriIdentityService.extUri.getComparisonKey(uri));
+    this._register(this.editor.getModel().onDidChangeContent(() => this.delayedRender()));
+    this._register(languageFeaturesService.codeActionProvider.register({ pattern: settingsEditorModel.uri.path }, this));
+  }
+  delayedRender() {
+    this.renderingDelayer.trigger(() => this.render());
+  }
+  render() {
+    this.codeActions.clear();
+    const markerData = this.generateMarkerData();
+    if (markerData.length) {
+      this.markerService.changeOne("McpSettingsRenderer", this.settingsEditorModel.uri, markerData);
+    } else {
+      this.markerService.remove("McpSettingsRenderer", [this.settingsEditorModel.uri]);
+    }
+  }
+  async provideCodeActions(model, range, context, token) {
+    const actions = [];
+    const codeActionsByRange = this.codeActions.get(model.uri);
+    if (codeActionsByRange) {
+      for (const [codeActionsRange, codeActions] of codeActionsByRange) {
+        if (codeActionsRange.containsRange(range)) {
+          actions.push(...codeActions);
+        }
+      }
+    }
+    return {
+      actions,
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+  generateMarkerData() {
+    const markerData = [];
+    if (this.settingsEditorModel.configurationTarget !== 3 && this.settingsEditorModel.configurationTarget !== 4) {
+      return markerData;
+    }
+    for (const settingsGroup of this.settingsEditorModel.settingsGroups) {
+      for (const section of settingsGroup.sections) {
+        for (const setting of section.settings) {
+          if (setting.key === mcpConfigurationSection) {
+            const marker = this.generateMcpConfigurationMarker(setting);
+            markerData.push(marker);
+            const codeActions = this.generateMcpConfigurationCodeActions([marker]);
+            this.addCodeActions(setting.range, codeActions);
+          }
+        }
+      }
+    }
+    return markerData;
+  }
+  generateMcpConfigurationMarker(setting) {
+    const isRemote = this.settingsEditorModel.configurationTarget === 4;
+    const message = isRemote ? nls.localize("mcp.renderer.remoteConfigFound", "MCP servers should not be configured in remote user settings. Use the dedicated MCP configuration instead.") : nls.localize("mcp.renderer.userConfigFound", "MCP servers should not be configured in user settings. Use the dedicated MCP configuration instead.");
+    return {
+      severity: MarkerSeverity.Warning,
+      ...setting.range,
+      message
+    };
+  }
+  generateMcpConfigurationCodeActions(diagnostics) {
+    const isRemote = this.settingsEditorModel.configurationTarget === 4;
+    const openConfigLabel = isRemote ? nls.localize("mcp.renderer.openRemoteConfig", "Open Remote User MCP Configuration") : nls.localize("mcp.renderer.openUserConfig", "Open User MCP Configuration");
+    const commandId = isRemote ? "workbench.mcp.openRemoteUserMcpJson" : "workbench.mcp.openUserMcpJson";
+    return [{
+      title: openConfigLabel,
+      command: {
+        id: commandId,
+        title: openConfigLabel
+      },
+      diagnostics,
+      kind: CodeActionKind.QuickFix.value
+    }];
+  }
+  addCodeActions(range, codeActions) {
+    let actions = this.codeActions.get(this.settingsEditorModel.uri);
+    if (!actions) {
+      actions = [];
+      this.codeActions.set(this.settingsEditorModel.uri, actions);
+    }
+    actions.push([Range.lift(range), codeActions]);
+  }
+  dispose() {
+    this.markerService.remove("McpSettingsRenderer", [this.settingsEditorModel.uri]);
+    this.codeActions.clear();
+    super.dispose();
+  }
+};
+McpSettingsRenderer = __decorate([
+  __param(2, IMarkerService),
+  __param(3, IUriIdentityService),
+  __param(4, ILanguageFeaturesService)
+], McpSettingsRenderer);
+let WorkspaceConfigurationRenderer = class WorkspaceConfigurationRenderer2 extends Disposable {
+  static {
+    __name(this, "WorkspaceConfigurationRenderer");
+  }
+  static {
+    WorkspaceConfigurationRenderer_1 = this;
+  }
+  static {
+    this.supportedKeys = ["folders", "tasks", "launch", "extensions", "settings", "remoteAuthority", "transient"];
+  }
+  constructor(editor, workspaceSettingsEditorModel, workspaceContextService, markerService) {
+    super();
+    this.editor = editor;
+    this.workspaceSettingsEditorModel = workspaceSettingsEditorModel;
+    this.workspaceContextService = workspaceContextService;
+    this.markerService = markerService;
+    this.renderingDelayer = new Delayer(200);
+    this.decorations = this.editor.createDecorationsCollection();
+    this._register(this.editor.getModel().onDidChangeContent(() => this.renderingDelayer.trigger(() => this.render())));
+  }
+  render() {
+    const markerData = [];
+    if (this.workspaceContextService.getWorkbenchState() === 3 && this.workspaceSettingsEditorModel instanceof WorkspaceConfigurationEditorModel) {
+      const ranges = [];
+      for (const settingsGroup of this.workspaceSettingsEditorModel.configurationGroups) {
+        for (const section of settingsGroup.sections) {
+          for (const setting of section.settings) {
+            if (!WorkspaceConfigurationRenderer_1.supportedKeys.includes(setting.key)) {
+              markerData.push({
+                severity: MarkerSeverity.Hint,
+                tags: [
+                  1
+                  /* MarkerTag.Unnecessary */
+                ],
+                ...setting.range,
+                message: nls.localize("unsupportedProperty", "Unsupported Property")
+              });
+            }
+          }
+        }
+      }
+      this.decorations.set(ranges.map((range) => this.createDecoration(range)));
+    }
+    if (markerData.length) {
+      this.markerService.changeOne("WorkspaceConfigurationRenderer", this.workspaceSettingsEditorModel.uri, markerData);
+    } else {
+      this.markerService.remove("WorkspaceConfigurationRenderer", [this.workspaceSettingsEditorModel.uri]);
+    }
+  }
+  static {
+    this._DIM_CONFIGURATION_ = ModelDecorationOptions.register({
+      description: "dim-configuration",
+      stickiness: 1,
+      inlineClassName: "dim-configuration"
+    });
+  }
+  createDecoration(range) {
+    return {
+      range,
+      options: WorkspaceConfigurationRenderer_1._DIM_CONFIGURATION_
+    };
+  }
+  dispose() {
+    this.markerService.remove("WorkspaceConfigurationRenderer", [this.workspaceSettingsEditorModel.uri]);
+    this.decorations.clear();
+    super.dispose();
+  }
+};
+WorkspaceConfigurationRenderer = WorkspaceConfigurationRenderer_1 = __decorate([
+  __param(2, IWorkspaceContextService),
+  __param(3, IMarkerService)
+], WorkspaceConfigurationRenderer);
+export {
+  UserSettingsRenderer,
+  WorkspaceSettingsRenderer
+};
+//# sourceMappingURL=preferencesRenderers.js.map

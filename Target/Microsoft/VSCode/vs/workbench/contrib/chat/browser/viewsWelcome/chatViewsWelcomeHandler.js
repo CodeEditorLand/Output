@@ -1,1 +1,93 @@
-import{$ik as f}from"../../../../../base/common/htmlContent.js";import{ThemeIcon as h}from"../../../../../base/common/themables.js";import{localize as l}from"../../../../../nls.js";import{$9n as u}from"../../../../../platform/contextkey/common/contextkey.js";import{$xo as d}from"../../../../../platform/log/common/log.js";import{$im as w}from"../../../../../platform/registry/common/platform.js";import{$8R as y}from"../../../../services/extensions/common/extensions.js";import*as $ from"../../../../services/extensions/common/extensionsRegistry.js";var p=function(c,t,o,i){var n=arguments.length,e=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,t,o,i);else for(var s=c.length-1;s>=0;s--)(r=c[s])&&(e=(n<3?r(e):n>3?r(t,o,e):r(t,o))||e);return n>3&&e&&Object.defineProperty(t,o,e),e},m=function(c,t){return function(o,i){t(o,i,c)}};const b={type:"object",additionalProperties:!1,required:["icon","title","contents","when"],properties:{icon:{type:"string",description:l(6248,null)},title:{type:"string",description:l(6249,null)},content:{type:"string",description:l(6250,null)},when:{type:"string",description:l(6251,null)}}},g=$.$1R.registerExtensionPoint({extensionPoint:"chatViewsWelcome",jsonSchema:{description:l(6252,null),type:"array",items:b}});let a=class{static{this.ID="workbench.contrib.chatViewsWelcomeHandler"}constructor(t){this.a=t,g.setHandler((o,i)=>{for(const n of i.added)for(const e of n.value){y(n.description,"chatParticipantPrivate");const r=u.deserialize(e.when);if(!r){this.a.error(`Could not deserialize 'when' clause for chatViewsWelcome contribution: ${e.when}`);continue}const s={...e,when:r,icon:h.fromString(e.icon),content:new f(e.content,{isTrusted:!0})};w.as("workbench.registry.chat.viewsWelcome").register(s)}})}};a=p([m(0,d)],a);export{a as $ipc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { checkProposedApiEnabled } from "../../../../services/extensions/common/extensions.js";
+import * as extensionsRegistry from "../../../../services/extensions/common/extensionsRegistry.js";
+const chatViewsWelcomeJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["icon", "title", "contents", "when"],
+  properties: {
+    icon: {
+      type: "string",
+      description: localize("chatViewsWelcome.icon", "The icon for the welcome message.")
+    },
+    title: {
+      type: "string",
+      description: localize("chatViewsWelcome.title", "The title of the welcome message.")
+    },
+    content: {
+      type: "string",
+      description: localize("chatViewsWelcome.content", "The content of the welcome message. The first command link will be rendered as a button.")
+    },
+    when: {
+      type: "string",
+      description: localize("chatViewsWelcome.when", "Condition when the welcome message is shown.")
+    }
+  }
+};
+const chatViewsWelcomeExtensionPoint = extensionsRegistry.ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "chatViewsWelcome",
+  jsonSchema: {
+    description: localize("vscode.extension.contributes.chatViewsWelcome", "Contributes a welcome message to a chat view"),
+    type: "array",
+    items: chatViewsWelcomeJsonSchema
+  }
+});
+let ChatViewsWelcomeHandler = class ChatViewsWelcomeHandler2 {
+  static {
+    __name(this, "ChatViewsWelcomeHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.chatViewsWelcomeHandler";
+  }
+  constructor(logService) {
+    this.logService = logService;
+    chatViewsWelcomeExtensionPoint.setHandler((extensions, delta) => {
+      for (const extension of delta.added) {
+        for (const providerDescriptor of extension.value) {
+          checkProposedApiEnabled(extension.description, "chatParticipantPrivate");
+          const when = ContextKeyExpr.deserialize(providerDescriptor.when);
+          if (!when) {
+            this.logService.error(`Could not deserialize 'when' clause for chatViewsWelcome contribution: ${providerDescriptor.when}`);
+            continue;
+          }
+          const descriptor = {
+            ...providerDescriptor,
+            when,
+            icon: ThemeIcon.fromString(providerDescriptor.icon),
+            content: new MarkdownString(providerDescriptor.content, { isTrusted: true })
+            // private API with command links
+          };
+          Registry.as(
+            "workbench.registry.chat.viewsWelcome"
+            /* ChatViewsWelcomeExtensions.ChatViewsWelcomeRegistry */
+          ).register(descriptor);
+        }
+      }
+    });
+  }
+};
+ChatViewsWelcomeHandler = __decorate([
+  __param(0, ILogService)
+], ChatViewsWelcomeHandler);
+export {
+  ChatViewsWelcomeHandler
+};
+//# sourceMappingURL=chatViewsWelcomeHandler.js.map

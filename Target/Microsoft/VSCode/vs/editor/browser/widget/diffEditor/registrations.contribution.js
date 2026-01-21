@@ -1,1 +1,83 @@
-import{$ak as i}from"../../../../base/common/codicons.js";import{ThemeIcon as s}from"../../../../base/common/themables.js";import{$0K as e}from"../../../common/model/textModel.js";import{localize as r}from"../../../../nls.js";import{$1p as t}from"../../../../platform/theme/common/colorRegistry.js";import{$eu as n}from"../../../../platform/theme/common/iconRegistry.js";const g=t("diffEditor.move.border","#8b8b8b9c",r(252,null)),f=t("diffEditor.moveActive.border","#FFA500",r(253,null)),u=t("diffEditor.unchangedRegionShadow",{dark:"#000000",light:"#737373BF",hcDark:"#000000",hcLight:"#737373BF"},r(254,null)),o=n("diff-insert",i.add,r(255,null)),a=n("diff-remove",i.remove,r(256,null)),b=e.register({className:"line-insert",description:"line-insert",isWholeLine:!0,linesDecorationsClassName:"insert-sign "+s.asClassName(o),marginClassName:"gutter-insert"}),$=e.register({className:"line-delete",description:"line-delete",isWholeLine:!0,linesDecorationsClassName:"delete-sign "+s.asClassName(a),marginClassName:"gutter-delete"}),N=e.register({className:"line-insert",description:"line-insert",isWholeLine:!0,marginClassName:"gutter-insert"}),x=e.register({className:"line-delete",description:"line-delete",isWholeLine:!0,marginClassName:"gutter-delete"}),L=e.register({className:"char-insert",description:"char-insert",shouldFillLineOnLineBreak:!0}),C=e.register({className:"char-insert",description:"char-insert",isWholeLine:!0}),W=e.register({className:"char-insert diff-range-empty",description:"char-insert diff-range-empty"}),F=e.register({className:"char-delete",description:"char-delete",shouldFillLineOnLineBreak:!0}),k=e.register({className:"char-delete",description:"char-delete",isWholeLine:!0}),v=e.register({className:"char-delete diff-range-empty",description:"char-delete diff-range-empty"});export{F as $1hb,k as $2hb,v as $3hb,g as $Ohb,f as $Phb,u as $Qhb,o as $Rhb,a as $Shb,b as $Thb,$ as $Uhb,N as $Vhb,x as $Whb,L as $Xhb,C as $Yhb,W as $Zhb};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { localize } from "../../../../nls.js";
+import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const diffMoveBorder = registerColor("diffEditor.move.border", "#8b8b8b9c", localize("diffEditor.move.border", "The border color for text that got moved in the diff editor."));
+const diffMoveBorderActive = registerColor("diffEditor.moveActive.border", "#FFA500", localize("diffEditor.moveActive.border", "The active border color for text that got moved in the diff editor."));
+const diffEditorUnchangedRegionShadow = registerColor("diffEditor.unchangedRegionShadow", { dark: "#000000", light: "#737373BF", hcDark: "#000000", hcLight: "#737373BF" }, localize("diffEditor.unchangedRegionShadow", "The color of the shadow around unchanged region widgets."));
+const diffInsertIcon = registerIcon("diff-insert", Codicon.add, localize("diffInsertIcon", "Line decoration for inserts in the diff editor."));
+const diffRemoveIcon = registerIcon("diff-remove", Codicon.remove, localize("diffRemoveIcon", "Line decoration for removals in the diff editor."));
+const diffLineAddDecorationBackgroundWithIndicator = ModelDecorationOptions.register({
+  className: "line-insert",
+  description: "line-insert",
+  isWholeLine: true,
+  linesDecorationsClassName: "insert-sign " + ThemeIcon.asClassName(diffInsertIcon),
+  marginClassName: "gutter-insert"
+});
+const diffLineDeleteDecorationBackgroundWithIndicator = ModelDecorationOptions.register({
+  className: "line-delete",
+  description: "line-delete",
+  isWholeLine: true,
+  linesDecorationsClassName: "delete-sign " + ThemeIcon.asClassName(diffRemoveIcon),
+  marginClassName: "gutter-delete"
+});
+const diffLineAddDecorationBackground = ModelDecorationOptions.register({
+  className: "line-insert",
+  description: "line-insert",
+  isWholeLine: true,
+  marginClassName: "gutter-insert"
+});
+const diffLineDeleteDecorationBackground = ModelDecorationOptions.register({
+  className: "line-delete",
+  description: "line-delete",
+  isWholeLine: true,
+  marginClassName: "gutter-delete"
+});
+const diffAddDecoration = ModelDecorationOptions.register({
+  className: "char-insert",
+  description: "char-insert",
+  shouldFillLineOnLineBreak: true
+});
+const diffWholeLineAddDecoration = ModelDecorationOptions.register({
+  className: "char-insert",
+  description: "char-insert",
+  isWholeLine: true
+});
+const diffAddDecorationEmpty = ModelDecorationOptions.register({
+  className: "char-insert diff-range-empty",
+  description: "char-insert diff-range-empty"
+});
+const diffDeleteDecoration = ModelDecorationOptions.register({
+  className: "char-delete",
+  description: "char-delete",
+  shouldFillLineOnLineBreak: true
+});
+const diffWholeLineDeleteDecoration = ModelDecorationOptions.register({
+  className: "char-delete",
+  description: "char-delete",
+  isWholeLine: true
+});
+const diffDeleteDecorationEmpty = ModelDecorationOptions.register({
+  className: "char-delete diff-range-empty",
+  description: "char-delete diff-range-empty"
+});
+export {
+  diffAddDecoration,
+  diffAddDecorationEmpty,
+  diffDeleteDecoration,
+  diffDeleteDecorationEmpty,
+  diffEditorUnchangedRegionShadow,
+  diffInsertIcon,
+  diffLineAddDecorationBackground,
+  diffLineAddDecorationBackgroundWithIndicator,
+  diffLineDeleteDecorationBackground,
+  diffLineDeleteDecorationBackgroundWithIndicator,
+  diffMoveBorder,
+  diffMoveBorderActive,
+  diffRemoveIcon,
+  diffWholeLineAddDecoration,
+  diffWholeLineDeleteDecoration
+};
+//# sourceMappingURL=registrations.contribution.js.map

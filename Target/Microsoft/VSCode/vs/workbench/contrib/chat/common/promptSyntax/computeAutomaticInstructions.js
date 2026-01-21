@@ -1,2 +1,374 @@
-import{$yj as U,$wj as O}from"../../../../../base/common/glob.js";import{$Oc as R,$Pc as y}from"../../../../../base/common/map.js";import{Schemas as T}from"../../../../../base/common/network.js";import{$Eh as k,$Gh as P}from"../../../../../base/common/resources.js";import{localize as g}from"../../../../../nls.js";import{$9l as E}from"../../../../../platform/configuration/common/configuration.js";import{$uk as M}from"../../../../../platform/files/common/files.js";import{$lH as j}from"../../../../../platform/label/common/label.js";import{$xo as D}from"../../../../../platform/log/common/log.js";import{$op as L}from"../../../../../platform/telemetry/common/telemetry.js";import{$Ll as V}from"../../../../../platform/workspace/common/workspace.js";import{$GU as H,IChatRequestVariableEntry as q,$uU as A,$BU as I,$CU as G,PromptFileVariableKind as b,$EU as W}from"../attachments/chatVariableEntries.js";import{$oS as B,VSCodeToolReference as z}from"../tools/languageModelToolsService.js";import{PromptsConfig as C}from"./config/config.js";import{$xOb as x}from"./config/promptFileLocations.js";import{PromptsType as K}from"./promptTypes.js";import{$DR as J}from"./service/promptsService.js";import{$eE as Q}from"../../../../../editor/common/core/ranges/offsetRange.js";import{ChatConfiguration as X}from"../constants.js";var N=function(p,e,i,n){var o=arguments.length,s=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(p,e,i,n);else for(var r=p.length-1;r>=0;r--)(t=p[r])&&(s=(o<3?t(s):o>3?t(e,i,s):t(e,i))||s);return o>3&&s&&Object.defineProperty(e,i,s),s},d=function(p,e){return function(i,n){e(i,n,p)}};function Y(){return{applyingInstructionsCount:0,referencedInstructionsCount:0,agentInstructionsCount:0,listedInstructionsCount:0,totalInstructionsCount:0}}let F=class{constructor(e,i,n,o,s,t,r,c,u){this.b=e,this.c=i,this._logService=n,this.d=o,this.e=s,this.f=t,this.g=r,this.h=c,this.j=u,this.a=new R}async k(e,i){if(this.a.has(e))return this.a.get(e);try{const n=await this.c.parseNew(e,i);return this.a.set(e,n),n}catch(n){this._logService.error(`[InstructionsContextComputer] Failed to parse instruction file: ${e}`,n);return}}async collect(e,i){const n=await this.c.listPromptFiles(K.instructions,i);this._logService.trace(`[InstructionsContextComputer] ${n.length} instruction files available.`);const o=Y(),s=this.m(e);await this.addApplyingInstructions(n,s,e,o,i),await this.r(e,o,i),await this.n(e,o,i);const t=await this.q(n,e,i);t&&(e.add(t),o.listedInstructionsCount++),this.l(o)}l(e){e.totalInstructionsCount=e.agentInstructionsCount+e.referencedInstructionsCount+e.applyingInstructionsCount+e.listedInstructionsCount,this.h.publicLog2("instructionsCollected",e)}async addApplyingInstructions(e,i,n,o,s){for(const{uri:t}of e){const r=await this.k(t,s);if(!r){this._logService.trace(`[InstructionsContextComputer] Unable to read: ${t}`);continue}const c=r.header?.applyTo;if(!c){this._logService.trace(`[InstructionsContextComputer] No 'applyTo' found: ${t}`);continue}if(i.instructions.has(t)){this._logService.trace(`[InstructionsContextComputer] Skipping already processed instruction file: ${t}`);continue}const u=this.o(i.files,c);if(u){this._logService.trace(`[InstructionsContextComputer] Match for ${t} with ${u.pattern}${u.file?` for file ${u.file}`:""}`);const a=u.file?g(6678,null,c,this.d.getUriLabel(u.file,{relative:!0})):g(6677,null);n.add(I(t,b.Instruction,a,!0)),o.applyingInstructionsCount++}else this._logService.trace(`[InstructionsContextComputer] No match for ${t} with ${c}`)}}m(e){const i=new y,n=new y;for(const o of e.asArray())if(A(o))n.add(o.value);else{const s=q.toUri(o);s&&i.add(s)}return{files:i,instructions:n}}async n(e,i,n){const o=this.e.getValue(C.USE_COPILOT_INSTRUCTION_FILES),s=this.e.getValue(C.USE_AGENT_MD);if(!o&&!s){this._logService.trace("[InstructionsContextComputer] No agent instructions files added (settings disabled).");return}const t=new H;if(o){const r=await this.c.listCopilotInstructionsMDs(n);for(const c of r)t.add(I(c,b.Instruction,g(6679,null,C.USE_COPILOT_INSTRUCTION_FILES),!0)),i.agentInstructionsCount++,this._logService.trace(`[InstructionsContextComputer] copilot-instruction.md files added: ${c.toString()}`);await this.r(t,i,n)}if(s){const r=await this.c.listAgentMDs(n,!1);for(const c of r)t.add(I(c,b.Instruction,g(6680,null,C.USE_AGENT_MD),!0)),i.agentInstructionsCount++,this._logService.trace(`[InstructionsContextComputer] AGENTS.md files added: ${c.toString()}`)}for(const r of t.asArray())e.add(r)}o(e,i){const n=O(i,","),o=s=>{if(s=s.trim(),s.length!==0){if(s==="**"||s==="**/*"||s==="*")return{pattern:s};!s.startsWith("/")&&!s.startsWith("**/")&&(s="**/"+s);for(const t of e)if(U(s,t.path,{ignoreCase:!0}))return{pattern:s,file:t}}};for(const s of n){const t=o(s);if(t)return t}}p(e){if(!this.b)return;const i=this.j.getToolByName(e);if(i&&this.b.get(i))return{tool:i,variable:`#tool:${this.j.getFullReferenceName(i)}`}}async q(e,i,n){const o=this.p("readFile"),s=this.p(z.runSubagent),t=[];if(o){const f=this.e.getValue(C.USE_NESTED_AGENT_MD)?this.c.findAgentMDsInWorkspace(n):Promise.resolve([]);t.push("<instructions>"),t.push("Here is a list of instruction files that contain rules for working with this codebase."),t.push("These files are important for understanding the codebase structure, conventions, and best practices."),t.push("Please make sure to follow the rules specified in these files when working with the codebase."),t.push(`If the file is not already available as attachment, use the ${o.variable} tool to acquire it.`),t.push("Make sure to acquire the instructions before working with the codebase.");let l=!1;for(const{uri:h}of e){const m=await this.k(h,n);if(m){if(t.push("<instruction>"),m.header){const{description:$,applyTo:v}=m.header;$&&t.push(`<description>${$}</description>`),t.push(`<file>${w(h)}</file>`),v&&t.push(`<applyTo>${v}</applyTo>`)}else t.push(`<file>${w(h)}</file>`);t.push("</instruction>"),l=!0}}const S=await f;for(const h of S)if(h){const m=this.d.getUriLabel(P(h),{relative:!0}),$=m.trim().length===0?g(6681,null):g(6682,null,m);t.push("<instruction>"),t.push(`<description>${$}</description>`),t.push(`<file>${w(h)}</file>`),t.push("</instruction>"),l=!0}l?t.push("</instructions>","",""):t.length=0;const _=await this.c.findAgentSkills(n);if(_&&_.length>0){t.push("<skills>"),t.push("Here is a list of skills that contain domain specific knowledge on a variety of topics."),t.push("Each skill comes with a description of the topic and a file path that contains the detailed instructions."),t.push(`When a user asks you to perform a task that falls within the domain of a skill, use the ${o.variable} tool to acquire the full instructions from the file URI.`);for(const h of _)t.push("<skill>"),t.push(`<name>${h.name}</name>`),h.description&&t.push(`<description>${h.description}</description>`),t.push(`<file>${w(h.uri)}</file>`),t.push("</skill>");t.push("</skills>","","")}}if(s&&this.e.getValue(X.SubagentToolCustomAgents)){const f=await this.c.getCustomAgents(n);if(f.length>0){t.push("<agents>"),t.push("Here is a list of agents that can be used when running a subagent."),t.push("Each agent has optionally a description with the agent's purpose and expertise. When asked to run a subagent, choose the most appropriate agent from this list."),t.push(`Use the ${s.variable} tool with the agent name to run the subagent.`);for(const l of f)l.infer!==!1&&(t.push("<agent>"),t.push(`<name>${l.name}</name>`),l.description&&t.push(`<description>${l.description}</description>`),l.argumentHint&&t.push(`<argumentHint>${l.argumentHint}</argumentHint>`),t.push("</agent>"));t.push("</agents>","","")}}if(t.length===0)return;const r=t.join(`
-`),c=[],u=a=>{if(a){let f=r.indexOf(a.variable);for(;f>=0;)c.push(W(a.tool,new Q(f,f+a.variable.length))),f=r.indexOf(a.variable,f+1)}};return u(o),u(s),G(r,!0,c)}async r(e,i,n){const o=new y,s=[];for(const r of e.asArray())A(r)&&(o.has(r.value)||(s.push(r.value),o.add(r.value)));let t=s.pop();for(;t;){const r=await this.k(t,n);if(r&&r.body){const c=[];for(const u of r.body.fileReferences){const a=r.body.resolveFilePath(u.content);a&&!o.has(a)&&(x(a)||this.f.getWorkspaceFolder(a)!==void 0)&&(c.push({resource:a}),o.add(a))}if(c.length>0){const u=await this.g.resolveAll(c);for(let a=0;a<u.length;a++){const f=u[a],l=c[a].resource;if(f.success&&f.stat?.isFile){x(l)&&s.push(l);const S=g(6683,null,k(t));e.add(I(l,b.InstructionReference,S,!0)),i.referencedInstructionsCount++,this._logService.trace(`[InstructionsContextComputer] ${l.toString()} added, referenced by ${t.toString()}`)}}}}t=s.pop()}}};F=N([d(1,J),d(2,D),d(3,j),d(4,E),d(5,V),d(6,M),d(7,L),d(8,B)],F);function w(p){return p.scheme===T.file||p.scheme===T.vscodeRemote?p.fsPath:p.toString()}export{Y as $EOb,F as $FOb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { match, splitGlobAware } from "../../../../../base/common/glob.js";
+import { ResourceMap, ResourceSet } from "../../../../../base/common/map.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { basename, dirname } from "../../../../../base/common/resources.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { ChatRequestVariableSet, IChatRequestVariableEntry, isPromptFileVariableEntry, toPromptFileVariableEntry, toPromptTextVariableEntry, PromptFileVariableKind, toToolVariableEntry } from "../attachments/chatVariableEntries.js";
+import { ILanguageModelToolsService, VSCodeToolReference } from "../tools/languageModelToolsService.js";
+import { PromptsConfig } from "./config/config.js";
+import { isPromptOrInstructionsFile } from "./config/promptFileLocations.js";
+import { PromptsType } from "./promptTypes.js";
+import { IPromptsService } from "./service/promptsService.js";
+import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
+import { ChatConfiguration } from "../constants.js";
+function newInstructionsCollectionEvent() {
+  return { applyingInstructionsCount: 0, referencedInstructionsCount: 0, agentInstructionsCount: 0, listedInstructionsCount: 0, totalInstructionsCount: 0 };
+}
+__name(newInstructionsCollectionEvent, "newInstructionsCollectionEvent");
+let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
+  static {
+    __name(this, "ComputeAutomaticInstructions");
+  }
+  constructor(_enabledTools, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _telemetryService, _languageModelToolsService) {
+    this._enabledTools = _enabledTools;
+    this._promptsService = _promptsService;
+    this._logService = _logService;
+    this._labelService = _labelService;
+    this._configurationService = _configurationService;
+    this._workspaceService = _workspaceService;
+    this._fileService = _fileService;
+    this._telemetryService = _telemetryService;
+    this._languageModelToolsService = _languageModelToolsService;
+    this._parseResults = new ResourceMap();
+  }
+  async _parseInstructionsFile(uri, token) {
+    if (this._parseResults.has(uri)) {
+      return this._parseResults.get(uri);
+    }
+    try {
+      const result = await this._promptsService.parseNew(uri, token);
+      this._parseResults.set(uri, result);
+      return result;
+    } catch (error) {
+      this._logService.error(`[InstructionsContextComputer] Failed to parse instruction file: ${uri}`, error);
+      return void 0;
+    }
+  }
+  async collect(variables, token) {
+    const instructionFiles = await this._promptsService.listPromptFiles(PromptsType.instructions, token);
+    this._logService.trace(`[InstructionsContextComputer] ${instructionFiles.length} instruction files available.`);
+    const telemetryEvent = newInstructionsCollectionEvent();
+    const context = this._getContext(variables);
+    await this.addApplyingInstructions(instructionFiles, context, variables, telemetryEvent, token);
+    await this._addReferencedInstructions(variables, telemetryEvent, token);
+    await this._addAgentInstructions(variables, telemetryEvent, token);
+    const instructionsListVariable = await this._getInstructionsWithPatternsList(instructionFiles, variables, token);
+    if (instructionsListVariable) {
+      variables.add(instructionsListVariable);
+      telemetryEvent.listedInstructionsCount++;
+    }
+    this.sendTelemetry(telemetryEvent);
+  }
+  sendTelemetry(telemetryEvent) {
+    telemetryEvent.totalInstructionsCount = telemetryEvent.agentInstructionsCount + telemetryEvent.referencedInstructionsCount + telemetryEvent.applyingInstructionsCount + telemetryEvent.listedInstructionsCount;
+    this._telemetryService.publicLog2("instructionsCollected", telemetryEvent);
+  }
+  /** public for testing */
+  async addApplyingInstructions(instructionFiles, context, variables, telemetryEvent, token) {
+    for (const { uri } of instructionFiles) {
+      const parsedFile = await this._parseInstructionsFile(uri, token);
+      if (!parsedFile) {
+        this._logService.trace(`[InstructionsContextComputer] Unable to read: ${uri}`);
+        continue;
+      }
+      const applyTo = parsedFile.header?.applyTo;
+      if (!applyTo) {
+        this._logService.trace(`[InstructionsContextComputer] No 'applyTo' found: ${uri}`);
+        continue;
+      }
+      if (context.instructions.has(uri)) {
+        this._logService.trace(`[InstructionsContextComputer] Skipping already processed instruction file: ${uri}`);
+        continue;
+      }
+      const match2 = this._matches(context.files, applyTo);
+      if (match2) {
+        this._logService.trace(`[InstructionsContextComputer] Match for ${uri} with ${match2.pattern}${match2.file ? ` for file ${match2.file}` : ""}`);
+        const reason = !match2.file ? localize("instruction.file.reason.allFiles", "Automatically attached as pattern is **") : localize("instruction.file.reason.specificFile", "Automatically attached as pattern {0} matches {1}", applyTo, this._labelService.getUriLabel(match2.file, { relative: true }));
+        variables.add(toPromptFileVariableEntry(uri, PromptFileVariableKind.Instruction, reason, true));
+        telemetryEvent.applyingInstructionsCount++;
+      } else {
+        this._logService.trace(`[InstructionsContextComputer] No match for ${uri} with ${applyTo}`);
+      }
+    }
+  }
+  _getContext(attachedContext) {
+    const files = new ResourceSet();
+    const instructions = new ResourceSet();
+    for (const variable of attachedContext.asArray()) {
+      if (isPromptFileVariableEntry(variable)) {
+        instructions.add(variable.value);
+      } else {
+        const uri = IChatRequestVariableEntry.toUri(variable);
+        if (uri) {
+          files.add(uri);
+        }
+      }
+    }
+    return { files, instructions };
+  }
+  async _addAgentInstructions(variables, telemetryEvent, token) {
+    const useCopilotInstructionsFiles = this._configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES);
+    const useAgentMd = this._configurationService.getValue(PromptsConfig.USE_AGENT_MD);
+    if (!useCopilotInstructionsFiles && !useAgentMd) {
+      this._logService.trace(`[InstructionsContextComputer] No agent instructions files added (settings disabled).`);
+      return;
+    }
+    const entries = new ChatRequestVariableSet();
+    if (useCopilotInstructionsFiles) {
+      const files = await this._promptsService.listCopilotInstructionsMDs(token);
+      for (const file of files) {
+        entries.add(toPromptFileVariableEntry(file, PromptFileVariableKind.Instruction, localize("instruction.file.reason.copilot", "Automatically attached as setting {0} is enabled", PromptsConfig.USE_COPILOT_INSTRUCTION_FILES), true));
+        telemetryEvent.agentInstructionsCount++;
+        this._logService.trace(`[InstructionsContextComputer] copilot-instruction.md files added: ${file.toString()}`);
+      }
+      await this._addReferencedInstructions(entries, telemetryEvent, token);
+    }
+    if (useAgentMd) {
+      const files = await this._promptsService.listAgentMDs(token, false);
+      for (const file of files) {
+        entries.add(toPromptFileVariableEntry(file, PromptFileVariableKind.Instruction, localize("instruction.file.reason.agentsmd", "Automatically attached as setting {0} is enabled", PromptsConfig.USE_AGENT_MD), true));
+        telemetryEvent.agentInstructionsCount++;
+        this._logService.trace(`[InstructionsContextComputer] AGENTS.md files added: ${file.toString()}`);
+      }
+    }
+    for (const entry of entries.asArray()) {
+      variables.add(entry);
+    }
+  }
+  _matches(files, applyToPattern) {
+    const patterns = splitGlobAware(applyToPattern, ",");
+    const patterMatches = /* @__PURE__ */ __name((pattern) => {
+      pattern = pattern.trim();
+      if (pattern.length === 0) {
+        return void 0;
+      }
+      if (pattern === "**" || pattern === "**/*" || pattern === "*") {
+        return { pattern };
+      }
+      if (!pattern.startsWith("/") && !pattern.startsWith("**/")) {
+        pattern = "**/" + pattern;
+      }
+      for (const file of files) {
+        if (match(pattern, file.path, { ignoreCase: true })) {
+          return { pattern, file };
+        }
+      }
+      return void 0;
+    }, "patterMatches");
+    for (const pattern of patterns) {
+      const matchResult = patterMatches(pattern);
+      if (matchResult) {
+        return matchResult;
+      }
+    }
+    return void 0;
+  }
+  _getTool(referenceName) {
+    if (!this._enabledTools) {
+      return void 0;
+    }
+    const tool = this._languageModelToolsService.getToolByName(referenceName);
+    if (tool && this._enabledTools.get(tool)) {
+      return { tool, variable: `#tool:${this._languageModelToolsService.getFullReferenceName(tool)}` };
+    }
+    return void 0;
+  }
+  async _getInstructionsWithPatternsList(instructionFiles, _existingVariables, token) {
+    const readTool = this._getTool("readFile");
+    const runSubagentTool = this._getTool(VSCodeToolReference.runSubagent);
+    const entries = [];
+    if (readTool) {
+      const searchNestedAgentMd = this._configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
+      const agentsMdPromise = searchNestedAgentMd ? this._promptsService.findAgentMDsInWorkspace(token) : Promise.resolve([]);
+      entries.push("<instructions>");
+      entries.push("Here is a list of instruction files that contain rules for working with this codebase.");
+      entries.push("These files are important for understanding the codebase structure, conventions, and best practices.");
+      entries.push("Please make sure to follow the rules specified in these files when working with the codebase.");
+      entries.push(`If the file is not already available as attachment, use the ${readTool.variable} tool to acquire it.`);
+      entries.push("Make sure to acquire the instructions before working with the codebase.");
+      let hasContent = false;
+      for (const { uri } of instructionFiles) {
+        const parsedFile = await this._parseInstructionsFile(uri, token);
+        if (parsedFile) {
+          entries.push("<instruction>");
+          if (parsedFile.header) {
+            const { description, applyTo } = parsedFile.header;
+            if (description) {
+              entries.push(`<description>${description}</description>`);
+            }
+            entries.push(`<file>${getFilePath(uri)}</file>`);
+            if (applyTo) {
+              entries.push(`<applyTo>${applyTo}</applyTo>`);
+            }
+          } else {
+            entries.push(`<file>${getFilePath(uri)}</file>`);
+          }
+          entries.push("</instruction>");
+          hasContent = true;
+        }
+      }
+      const agentsMdFiles = await agentsMdPromise;
+      for (const uri of agentsMdFiles) {
+        if (uri) {
+          const folderName = this._labelService.getUriLabel(dirname(uri), { relative: true });
+          const description = folderName.trim().length === 0 ? localize("instruction.file.description.agentsmd.root", "Instructions for the workspace") : localize("instruction.file.description.agentsmd.folder", "Instructions for folder '{0}'", folderName);
+          entries.push("<instruction>");
+          entries.push(`<description>${description}</description>`);
+          entries.push(`<file>${getFilePath(uri)}</file>`);
+          entries.push("</instruction>");
+          hasContent = true;
+        }
+      }
+      if (!hasContent) {
+        entries.length = 0;
+      } else {
+        entries.push("</instructions>", "", "");
+      }
+      const agentSkills = await this._promptsService.findAgentSkills(token);
+      if (agentSkills && agentSkills.length > 0) {
+        entries.push("<skills>");
+        entries.push("Here is a list of skills that contain domain specific knowledge on a variety of topics.");
+        entries.push("Each skill comes with a description of the topic and a file path that contains the detailed instructions.");
+        entries.push(`When a user asks you to perform a task that falls within the domain of a skill, use the ${readTool.variable} tool to acquire the full instructions from the file URI.`);
+        for (const skill of agentSkills) {
+          entries.push("<skill>");
+          entries.push(`<name>${skill.name}</name>`);
+          if (skill.description) {
+            entries.push(`<description>${skill.description}</description>`);
+          }
+          entries.push(`<file>${getFilePath(skill.uri)}</file>`);
+          entries.push("</skill>");
+        }
+        entries.push("</skills>", "", "");
+      }
+    }
+    if (runSubagentTool) {
+      const subagentToolCustomAgents = this._configurationService.getValue(ChatConfiguration.SubagentToolCustomAgents);
+      if (subagentToolCustomAgents) {
+        const agents = await this._promptsService.getCustomAgents(token);
+        if (agents.length > 0) {
+          entries.push("<agents>");
+          entries.push("Here is a list of agents that can be used when running a subagent.");
+          entries.push("Each agent has optionally a description with the agent's purpose and expertise. When asked to run a subagent, choose the most appropriate agent from this list.");
+          entries.push(`Use the ${runSubagentTool.variable} tool with the agent name to run the subagent.`);
+          for (const agent of agents) {
+            if (agent.infer === false) {
+              continue;
+            }
+            entries.push("<agent>");
+            entries.push(`<name>${agent.name}</name>`);
+            if (agent.description) {
+              entries.push(`<description>${agent.description}</description>`);
+            }
+            if (agent.argumentHint) {
+              entries.push(`<argumentHint>${agent.argumentHint}</argumentHint>`);
+            }
+            entries.push("</agent>");
+          }
+          entries.push("</agents>", "", "");
+        }
+      }
+    }
+    if (entries.length === 0) {
+      return void 0;
+    }
+    const content = entries.join("\n");
+    const toolReferences = [];
+    const collectToolReference = /* @__PURE__ */ __name((tool) => {
+      if (tool) {
+        let offset = content.indexOf(tool.variable);
+        while (offset >= 0) {
+          toolReferences.push(toToolVariableEntry(tool.tool, new OffsetRange(offset, offset + tool.variable.length)));
+          offset = content.indexOf(tool.variable, offset + 1);
+        }
+      }
+    }, "collectToolReference");
+    collectToolReference(readTool);
+    collectToolReference(runSubagentTool);
+    return toPromptTextVariableEntry(content, true, toolReferences);
+  }
+  async _addReferencedInstructions(attachedContext, telemetryEvent, token) {
+    const seen = new ResourceSet();
+    const todo = [];
+    for (const variable of attachedContext.asArray()) {
+      if (isPromptFileVariableEntry(variable)) {
+        if (!seen.has(variable.value)) {
+          todo.push(variable.value);
+          seen.add(variable.value);
+        }
+      }
+    }
+    let next = todo.pop();
+    while (next) {
+      const result = await this._parseInstructionsFile(next, token);
+      if (result && result.body) {
+        const refsToCheck = [];
+        for (const ref of result.body.fileReferences) {
+          const url = result.body.resolveFilePath(ref.content);
+          if (url && !seen.has(url) && (isPromptOrInstructionsFile(url) || this._workspaceService.getWorkspaceFolder(url) !== void 0)) {
+            refsToCheck.push({ resource: url });
+            seen.add(url);
+          }
+        }
+        if (refsToCheck.length > 0) {
+          const stats = await this._fileService.resolveAll(refsToCheck);
+          for (let i = 0; i < stats.length; i++) {
+            const stat = stats[i];
+            const uri = refsToCheck[i].resource;
+            if (stat.success && stat.stat?.isFile) {
+              if (isPromptOrInstructionsFile(uri)) {
+                todo.push(uri);
+              }
+              const reason = localize("instruction.file.reason.referenced", "Referenced by {0}", basename(next));
+              attachedContext.add(toPromptFileVariableEntry(uri, PromptFileVariableKind.InstructionReference, reason, true));
+              telemetryEvent.referencedInstructionsCount++;
+              this._logService.trace(`[InstructionsContextComputer] ${uri.toString()} added, referenced by ${next.toString()}`);
+            }
+          }
+        }
+      }
+      next = todo.pop();
+    }
+  }
+};
+ComputeAutomaticInstructions = __decorate([
+  __param(1, IPromptsService),
+  __param(2, ILogService),
+  __param(3, ILabelService),
+  __param(4, IConfigurationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IFileService),
+  __param(7, ITelemetryService),
+  __param(8, ILanguageModelToolsService)
+], ComputeAutomaticInstructions);
+function getFilePath(uri) {
+  if (uri.scheme === Schemas.file || uri.scheme === Schemas.vscodeRemote) {
+    return uri.fsPath;
+  }
+  return uri.toString();
+}
+__name(getFilePath, "getFilePath");
+export {
+  ComputeAutomaticInstructions,
+  newInstructionsCollectionEvent
+};
+//# sourceMappingURL=computeAutomaticInstructions.js.map

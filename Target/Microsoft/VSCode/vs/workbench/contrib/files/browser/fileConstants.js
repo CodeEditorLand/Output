@@ -1,1 +1,73 @@
-import*as e from"../../../../nls.js";import{$po as o}from"../../../../platform/contextkey/common/contextkey.js";const r="revealInExplorer",n="workbench.action.files.revert",s="explorer.openToSide",c="explorer.openWith",l="selectForCompare",p="compareSelected",i="compareFiles",a="workbench.files.action.compareWithSaved",b="copyFilePath",x="copyRelativeFilePath",$="workbench.action.files.saveAs",d=e.localize2(9078,"Save As..."),R="workbench.action.files.save",F=e.localize2(9079,"Save"),w="workbench.action.files.saveWithoutFormatting",f=e.localize2(9080,"Save without Formatting"),m="saveAll",v=e.localize2(9081,"Save All"),h="workbench.files.action.saveAllInGroup",u="workbench.action.files.saveFiles",k=new o("groupFocusedInOpenEditors",!1),Q=new o("dirtyEditorFocusedInOpenEditors",!1),S=new o("readonlyEditorFocusedInOpenEditors",!1),E=new o("openEditorsSelectedFileOrUntitled",!0),z=new o("resourceSelectedForCompare",!1),C="removeRootFolder",y=e.localize(9077,null),A="previousCompressedFolder",I="nextCompressedFolder",g="firstCompressedFolder",O="lastCompressedFolder",U="workbench.action.files.newUntitledFile",W=e.localize2(9082,"New Untitled Text File"),P="workbench.action.files.newFile";export{a as $$Qb,i as $0Qb,r as $4Qb,n as $5Qb,s as $6Qb,c as $7Qb,l as $8Qb,p as $9Qb,b as $_Qb,x as $aRb,$ as $bRb,d as $cRb,R as $dRb,F as $eRb,w as $fRb,f as $gRb,m as $hRb,v as $iRb,h as $jRb,u as $kRb,k as $lRb,Q as $mRb,S as $nRb,E as $oRb,z as $pRb,C as $qRb,y as $rRb,A as $sRb,I as $tRb,g as $uRb,O as $vRb,U as $wRb,W as $xRb,P as $yRb};
+import * as nls from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+const REVEAL_IN_EXPLORER_COMMAND_ID = "revealInExplorer";
+const REVERT_FILE_COMMAND_ID = "workbench.action.files.revert";
+const OPEN_TO_SIDE_COMMAND_ID = "explorer.openToSide";
+const OPEN_WITH_EXPLORER_COMMAND_ID = "explorer.openWith";
+const SELECT_FOR_COMPARE_COMMAND_ID = "selectForCompare";
+const COMPARE_SELECTED_COMMAND_ID = "compareSelected";
+const COMPARE_RESOURCE_COMMAND_ID = "compareFiles";
+const COMPARE_WITH_SAVED_COMMAND_ID = "workbench.files.action.compareWithSaved";
+const COPY_PATH_COMMAND_ID = "copyFilePath";
+const COPY_RELATIVE_PATH_COMMAND_ID = "copyRelativeFilePath";
+const SAVE_FILE_AS_COMMAND_ID = "workbench.action.files.saveAs";
+const SAVE_FILE_AS_LABEL = nls.localize2("saveAs", "Save As...");
+const SAVE_FILE_COMMAND_ID = "workbench.action.files.save";
+const SAVE_FILE_LABEL = nls.localize2("save", "Save");
+const SAVE_FILE_WITHOUT_FORMATTING_COMMAND_ID = "workbench.action.files.saveWithoutFormatting";
+const SAVE_FILE_WITHOUT_FORMATTING_LABEL = nls.localize2("saveWithoutFormatting", "Save without Formatting");
+const SAVE_ALL_COMMAND_ID = "saveAll";
+const SAVE_ALL_LABEL = nls.localize2("saveAll", "Save All");
+const SAVE_ALL_IN_GROUP_COMMAND_ID = "workbench.files.action.saveAllInGroup";
+const SAVE_FILES_COMMAND_ID = "workbench.action.files.saveFiles";
+const OpenEditorsGroupContext = new RawContextKey("groupFocusedInOpenEditors", false);
+const OpenEditorsDirtyEditorContext = new RawContextKey("dirtyEditorFocusedInOpenEditors", false);
+const OpenEditorsReadonlyEditorContext = new RawContextKey("readonlyEditorFocusedInOpenEditors", false);
+const OpenEditorsSelectedFileOrUntitledContext = new RawContextKey("openEditorsSelectedFileOrUntitled", true);
+const ResourceSelectedForCompareContext = new RawContextKey("resourceSelectedForCompare", false);
+const REMOVE_ROOT_FOLDER_COMMAND_ID = "removeRootFolder";
+const REMOVE_ROOT_FOLDER_LABEL = nls.localize("removeFolderFromWorkspace", "Remove Folder from Workspace");
+const PREVIOUS_COMPRESSED_FOLDER = "previousCompressedFolder";
+const NEXT_COMPRESSED_FOLDER = "nextCompressedFolder";
+const FIRST_COMPRESSED_FOLDER = "firstCompressedFolder";
+const LAST_COMPRESSED_FOLDER = "lastCompressedFolder";
+const NEW_UNTITLED_FILE_COMMAND_ID = "workbench.action.files.newUntitledFile";
+const NEW_UNTITLED_FILE_LABEL = nls.localize2("newUntitledFile", "New Untitled Text File");
+const NEW_FILE_COMMAND_ID = "workbench.action.files.newFile";
+export {
+  COMPARE_RESOURCE_COMMAND_ID,
+  COMPARE_SELECTED_COMMAND_ID,
+  COMPARE_WITH_SAVED_COMMAND_ID,
+  COPY_PATH_COMMAND_ID,
+  COPY_RELATIVE_PATH_COMMAND_ID,
+  FIRST_COMPRESSED_FOLDER,
+  LAST_COMPRESSED_FOLDER,
+  NEW_FILE_COMMAND_ID,
+  NEW_UNTITLED_FILE_COMMAND_ID,
+  NEW_UNTITLED_FILE_LABEL,
+  NEXT_COMPRESSED_FOLDER,
+  OPEN_TO_SIDE_COMMAND_ID,
+  OPEN_WITH_EXPLORER_COMMAND_ID,
+  OpenEditorsDirtyEditorContext,
+  OpenEditorsGroupContext,
+  OpenEditorsReadonlyEditorContext,
+  OpenEditorsSelectedFileOrUntitledContext,
+  PREVIOUS_COMPRESSED_FOLDER,
+  REMOVE_ROOT_FOLDER_COMMAND_ID,
+  REMOVE_ROOT_FOLDER_LABEL,
+  REVEAL_IN_EXPLORER_COMMAND_ID,
+  REVERT_FILE_COMMAND_ID,
+  ResourceSelectedForCompareContext,
+  SAVE_ALL_COMMAND_ID,
+  SAVE_ALL_IN_GROUP_COMMAND_ID,
+  SAVE_ALL_LABEL,
+  SAVE_FILES_COMMAND_ID,
+  SAVE_FILE_AS_COMMAND_ID,
+  SAVE_FILE_AS_LABEL,
+  SAVE_FILE_COMMAND_ID,
+  SAVE_FILE_LABEL,
+  SAVE_FILE_WITHOUT_FORMATTING_COMMAND_ID,
+  SAVE_FILE_WITHOUT_FORMATTING_LABEL,
+  SELECT_FOR_COMPARE_COMMAND_ID
+};
+//# sourceMappingURL=fileConstants.js.map

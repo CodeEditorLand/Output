@@ -1,1 +1,62 @@
-import{$9l as h}from"../../configuration/common/configuration.js";import{$Jl as _}from"../../environment/common/environment.js";import{$uk as J}from"../../files/common/files.js";import{$gp as O}from"../../storage/common/storage.js";import{$op as R}from"../../telemetry/common/telemetry.js";import{$0o as d}from"../../uriIdentity/common/uriIdentity.js";import{$QKc as j}from"./abstractJsonSynchronizer.js";import{$1Jb as v,$cKb as x,$0Jb as M,$ZJb as y}from"./userDataSync.js";var b=function(c,r,t,n){var p=arguments.length,o=p<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,t):n,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,r,t,n);else for(var f=c.length-1;f>=0;f--)(m=c[f])&&(o=(p<3?m(o):p>3?m(r,t,o):m(r,t))||o);return p>3&&o&&Object.defineProperty(r,t,o),o},e=function(c,r){return function(t,n){r(t,n,c)}};function K(c,r){try{return JSON.parse(c).mcp??null}catch(t){return r.error(t),null}}let u=class extends j{constructor(r,t,n,p,o,m,f,i,s,l,$,a){super(r.mcpResource,{syncResource:"mcp",profile:r},t,"mcp.json",i,s,l,n,p,f,$,o,m,a)}Eb(r){return K(r,this.O)}Fb(r){return r?{mcp:r}:{}}};u=b([e(2,y),e(3,v),e(4,x),e(5,h),e(6,M),e(7,J),e(8,_),e(9,O),e(10,R),e(11,d)],u);export{K as $IMc,u as $JMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { AbstractJsonSynchronizer } from "./abstractJsonSynchronizer.js";
+import { IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService } from "./userDataSync.js";
+function getMcpContentFromSyncContent(syncContent, logService) {
+  try {
+    const parsed = JSON.parse(syncContent);
+    return parsed.mcp ?? null;
+  } catch (e) {
+    logService.error(e);
+    return null;
+  }
+}
+__name(getMcpContentFromSyncContent, "getMcpContentFromSyncContent");
+let McpSynchroniser = class McpSynchroniser2 extends AbstractJsonSynchronizer {
+  static {
+    __name(this, "McpSynchroniser");
+  }
+  constructor(profile, collection, userDataSyncStoreService, userDataSyncLocalStoreService, logService, configurationService, userDataSyncEnablementService, fileService, environmentService, storageService, telemetryService, uriIdentityService) {
+    super(profile.mcpResource, { syncResource: "mcp", profile }, collection, "mcp.json", fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
+  }
+  getContentFromSyncContent(syncContent) {
+    return getMcpContentFromSyncContent(syncContent, this.logService);
+  }
+  toSyncContent(mcp) {
+    return mcp ? { mcp } : {};
+  }
+};
+McpSynchroniser = __decorate([
+  __param(2, IUserDataSyncStoreService),
+  __param(3, IUserDataSyncLocalStoreService),
+  __param(4, IUserDataSyncLogService),
+  __param(5, IConfigurationService),
+  __param(6, IUserDataSyncEnablementService),
+  __param(7, IFileService),
+  __param(8, IEnvironmentService),
+  __param(9, IStorageService),
+  __param(10, ITelemetryService),
+  __param(11, IUriIdentityService)
+], McpSynchroniser);
+export {
+  McpSynchroniser,
+  getMcpContentFromSyncContent
+};
+//# sourceMappingURL=mcpSync.js.map

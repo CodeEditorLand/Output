@@ -1,1 +1,135 @@
-import{Schemas as a}from"../../../../base/common/network.js";import{ThemeIcon as f}from"../../../../base/common/themables.js";import{URI as d}from"../../../../base/common/uri.js";import{$kn as b}from"../../../../base/common/uuid.js";import{$nu as l}from"../../../../platform/theme/common/theme.js";import{$ou as w}from"../../../../platform/theme/common/themeService.js";import{$1H as g}from"../../../common/editor/editorInput.js";var u=function(s,e,t,i){var h=arguments.length,r=h<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,e,t,i);else for(var o=s.length-1;o>=0;o--)(n=s[o])&&(r=(h<3?n(r):h>3?n(e,t,r):n(e,t))||r);return h>3&&r&&Object.defineProperty(e,t,r),r},m=function(s,e){return function(t,i){e(t,i,s)}},c;let p=class extends g{static{c=this}static{this.typeId="workbench.editors.webviewInput"}get typeId(){return c.typeId}get editorId(){return this.viewType}get capabilities(){return 138}get resource(){return d.from({scheme:a.webviewPanel,path:`webview-panel/webview-${this.providerId}-${this.a}`})}constructor(e,t,i){super(),this.r=i,this.a=b(),this.q=!1,this.viewType=e.viewType,this.providerId=e.providedId,this.b=e.name,this.c=e.iconPath,this.m=t,this.D(i.onDidColorThemeChange(()=>{this.g.fire()}))}dispose(){this.isDisposed()||this.q||this.m?.dispose(),super.dispose()}getName(){return this.b}getTitle(e){return this.getName()}getDescription(){}setWebviewTitle(e){this.b=e,this.webview.setTitle(e),this.g.fire()}getWebviewTitle(){return this.b}get webview(){return this.m}get extension(){return this.webview.extension}getIcon(){if(this.c)return f.isThemeIcon(this.c)?this.c:l(this.r.getColorTheme().type)?this.c.dark:this.c.light??this.c.dark}get iconPath(){return this.c}set iconPath(e){this.c=e,this.g.fire()}matches(e){return super.matches(e)||e===this}get group(){return this.h}updateGroup(e){this.h=e}s(e){if(!this.q)return this.q=!0,e.m=this.m,e}claim(e,t,i){return this.m.claim(e,t,i)}};p=c=u([m(2,w)],p);export{p as $5Mb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WebviewInput_1;
+import { Schemas } from "../../../../base/common/network.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { isDark } from "../../../../platform/theme/common/theme.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+let WebviewInput = class WebviewInput2 extends EditorInput {
+  static {
+    __name(this, "WebviewInput");
+  }
+  static {
+    WebviewInput_1 = this;
+  }
+  static {
+    this.typeId = "workbench.editors.webviewInput";
+  }
+  get typeId() {
+    return WebviewInput_1.typeId;
+  }
+  get editorId() {
+    return this.viewType;
+  }
+  get capabilities() {
+    return 2 | 8 | 128;
+  }
+  get resource() {
+    return URI.from({
+      scheme: Schemas.webviewPanel,
+      path: `webview-panel/webview-${this.providerId}-${this._resourceId}`
+    });
+  }
+  constructor(init, webview, _themeService) {
+    super();
+    this._themeService = _themeService;
+    this._resourceId = generateUuid();
+    this._hasTransfered = false;
+    this.viewType = init.viewType;
+    this.providerId = init.providedId;
+    this._webviewTitle = init.name;
+    this._iconPath = init.iconPath;
+    this._webview = webview;
+    this._register(_themeService.onDidColorThemeChange(() => {
+      this._onDidChangeLabel.fire();
+    }));
+  }
+  dispose() {
+    if (!this.isDisposed()) {
+      if (!this._hasTransfered) {
+        this._webview?.dispose();
+      }
+    }
+    super.dispose();
+  }
+  getName() {
+    return this._webviewTitle;
+  }
+  getTitle(_verbosity) {
+    return this.getName();
+  }
+  getDescription() {
+    return void 0;
+  }
+  setWebviewTitle(value) {
+    this._webviewTitle = value;
+    this.webview.setTitle(value);
+    this._onDidChangeLabel.fire();
+  }
+  getWebviewTitle() {
+    return this._webviewTitle;
+  }
+  get webview() {
+    return this._webview;
+  }
+  get extension() {
+    return this.webview.extension;
+  }
+  getIcon() {
+    if (!this._iconPath) {
+      return;
+    }
+    if (ThemeIcon.isThemeIcon(this._iconPath)) {
+      return this._iconPath;
+    }
+    return isDark(this._themeService.getColorTheme().type) ? this._iconPath.dark : this._iconPath.light ?? this._iconPath.dark;
+  }
+  get iconPath() {
+    return this._iconPath;
+  }
+  set iconPath(value) {
+    this._iconPath = value;
+    this._onDidChangeLabel.fire();
+  }
+  matches(other) {
+    return super.matches(other) || other === this;
+  }
+  get group() {
+    return this._group;
+  }
+  updateGroup(group) {
+    this._group = group;
+  }
+  transfer(other) {
+    if (this._hasTransfered) {
+      return void 0;
+    }
+    this._hasTransfered = true;
+    other._webview = this._webview;
+    return other;
+  }
+  claim(claimant, targetWindow, scopedContextKeyService) {
+    return this._webview.claim(claimant, targetWindow, scopedContextKeyService);
+  }
+};
+WebviewInput = WebviewInput_1 = __decorate([
+  __param(2, IThemeService)
+], WebviewInput);
+export {
+  WebviewInput
+};
+//# sourceMappingURL=webviewEditorInput.js.map

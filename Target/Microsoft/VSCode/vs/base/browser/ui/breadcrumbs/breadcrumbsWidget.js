@@ -1,5 +1,304 @@
-import*as o from"../../dom.js";import*as f from"../../domStylesheets.js";import{$v9 as m}from"../scrollbar/scrollableElement.js";import{$fc as b}from"../../../common/arrays.js";import{ThemeIcon as p}from"../../../common/themables.js";import{$wf as n}from"../../../common/event.js";import{$Dd as c,$zd as l}from"../../../common/lifecycle.js";import"./breadcrumbsWidget.css";class S{}class F{constructor(t,s,e=1,i,h){this.c=new c,this.g=new n,this.h=new n,this.j=new n,this.onDidSelectItem=this.g.event,this.onDidFocusItem=this.h.event,this.onDidChangeFocus=this.j.event,this.k=new Array,this.l=new Array,this.m=new Array,this.o=!0,this.p=-1,this.q=-1,this.d=document.createElement("div"),this.d.className="monaco-breadcrumbs",this.d.tabIndex=0,this.d.setAttribute("role","list"),this.f=new m(this.d,{vertical:2,horizontal:e,horizontalScrollbarSize:s,useShadows:!1,scrollYToX:!0}),this.n=i,this.c.add(this.f),this.c.add(o.$G7(this.d,"click",d=>this.C(d))),t.appendChild(this.f.getDomNode());const u=f.$Y9(this.d);this.w(u,h);const r=o.$G8(this.d);this.c.add(r),this.c.add(r.onDidBlur(d=>this.j.fire(!1))),this.c.add(r.onDidFocus(d=>this.j.fire(!0)))}setHorizontalScrollbarSize(t){this.f.updateOptions({horizontalScrollbarSize:t})}setHorizontalScrollbarVisibility(t){this.f.updateOptions({horizontal:t})}dispose(){this.c.dispose(),this.s?.dispose(),this.r?.dispose(),this.g.dispose(),this.h.dispose(),this.j.dispose(),this.d.remove(),this.l.length=0,this.m.length=0}layout(t){t&&o.$X7.equals(t,this.t)||(t?(this.r?.dispose(),this.r=this.u(t)):(this.s?.dispose(),this.s=this.v()))}u(t){const s=new c;return s.add(o.$T7(o.getWindow(this.d),()=>{this.t=t,this.d.style.width=`${t.width}px`,this.d.style.height=`${t.height}px`,s.add(this.v())})),s}v(){return o.$S7(o.getWindow(this.d),()=>{o.$S7(o.getWindow(this.d),()=>{this.f.setRevealOnScroll(!1),this.f.scanDomNode(),this.f.setRevealOnScroll(!0)})})}w(t,s){let e="";s.breadcrumbsBackground&&(e+=`.monaco-breadcrumbs { background-color: ${s.breadcrumbsBackground}}`),s.breadcrumbsForeground&&(e+=`.monaco-breadcrumbs .monaco-breadcrumb-item { color: ${s.breadcrumbsForeground}}
-`),s.breadcrumbsFocusForeground&&(e+=`.monaco-breadcrumbs .monaco-breadcrumb-item.focused { color: ${s.breadcrumbsFocusForeground}}
-`),s.breadcrumbsFocusAndSelectionForeground&&(e+=`.monaco-breadcrumbs .monaco-breadcrumb-item.focused.selected { color: ${s.breadcrumbsFocusAndSelectionForeground}}
-`),s.breadcrumbsHoverForeground&&(e+=`.monaco-breadcrumbs:not(.disabled	) .monaco-breadcrumb-item:hover:not(.focused):not(.selected) { color: ${s.breadcrumbsHoverForeground}}
-`),t.textContent=e}setEnabled(t){this.o=t,this.d.classList.toggle("disabled",!this.o)}domFocus(){const t=this.p>=0?this.p:this.k.length-1;t>=0&&t<this.k.length?this.x(t,void 0):this.d.focus()}isDOMFocused(){return o.$i8(this.d)}getFocused(){return this.k[this.p]}setFocused(t,s){this.x(this.k.indexOf(t),s)}focusPrev(t){this.p>0&&this.x(this.p-1,t)}focusNext(t){this.p+1<this.l.length&&this.x(this.p+1,t)}x(t,s){this.p=-1;for(let e=0;e<this.l.length;e++){const i=this.l[e];e!==t?i.classList.remove("focused"):(this.p=e,i.classList.add("focused"),i.focus())}this.y(this.p,!0),this.h.fire({type:"focus",item:this.k[this.p],node:this.l[this.p],payload:s})}reveal(t){const s=this.k.indexOf(t);s>=0&&this.y(s,!1)}revealLast(){this.y(this.k.length-1,!1)}y(t,s){if(t<0||t>=this.l.length)return;const e=this.l[t];if(!e)return;const{width:i}=this.f.getScrollDimensions(),{scrollLeft:h}=this.f.getScrollPosition();(!s||e.offsetLeft>h+i||e.offsetLeft<h)&&(this.f.setRevealOnScroll(!1),this.f.setScrollPosition({scrollLeft:e.offsetLeft}),this.f.setRevealOnScroll(!0))}getSelection(){return this.k[this.q]}setSelection(t,s){this.z(this.k.indexOf(t),s)}z(t,s){this.q=-1;for(let e=0;e<this.l.length;e++){const i=this.l[e];e!==t?i.classList.remove("selected"):(this.q=e,i.classList.add("selected"))}this.g.fire({type:"select",item:this.k[this.q],node:this.l[this.q],payload:s})}getItems(){return this.k}setItems(t){let s,e=[];try{s=b(this.k,t,(i,h)=>i.equals(h)),e=this.k.splice(s,this.k.length-s,...t.slice(s)),this.A(s),l(e),l(t.slice(0,s)),this.x(-1,void 0)}catch(i){const h=new Error(`BreadcrumbsItem#setItems: newItems: ${t.length}, prefix: ${s}, removed: ${e.length}`);throw h.name=i.name,h.stack=i.stack,h}}A(t){let s=!1;for(;t<this.k.length&&t<this.l.length;t++){const e=this.k[t],i=this.l[t];this.B(e,i),s=!0}for(;t<this.l.length;){const e=this.l.pop();e&&(this.m.push(e),e.remove(),s=!0)}for(;t<this.k.length;t++){const e=this.k[t],i=this.m.length>0?this.m.pop():document.createElement("div");i&&(this.B(e,i),this.d.appendChild(i),this.l.push(i),s=!0)}s&&this.layout(void 0)}B(t,s){o.$E7(s),s.className="";try{t.render(s)}catch{s.textContent="<<RENDER ERROR>>"}s.tabIndex=-1,s.setAttribute("role","listitem"),s.classList.add("monaco-breadcrumb-item");const e=o.$(p.asCSSSelector(this.n));s.appendChild(e)}C(t){if(this.o)for(let s=t.target;s;s=s.parentElement){const e=this.l.indexOf(s);if(e>=0){this.x(e,t),this.z(e,t);break}}}}export{F as $$0,S as $00};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../dom.js";
+import * as domStylesheetsJs from "../../domStylesheets.js";
+import { DomScrollableElement } from "../scrollbar/scrollableElement.js";
+import { commonPrefixLength } from "../../../common/arrays.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { Emitter } from "../../../common/event.js";
+import { DisposableStore, dispose } from "../../../common/lifecycle.js";
+import "./breadcrumbsWidget.css";
+class BreadcrumbsItem {
+  static {
+    __name(this, "BreadcrumbsItem");
+  }
+}
+class BreadcrumbsWidget {
+  static {
+    __name(this, "BreadcrumbsWidget");
+  }
+  constructor(container, horizontalScrollbarSize, horizontalScrollbarVisibility = 1, separatorIcon, styles) {
+    this._disposables = new DisposableStore();
+    this._onDidSelectItem = new Emitter();
+    this._onDidFocusItem = new Emitter();
+    this._onDidChangeFocus = new Emitter();
+    this.onDidSelectItem = this._onDidSelectItem.event;
+    this.onDidFocusItem = this._onDidFocusItem.event;
+    this.onDidChangeFocus = this._onDidChangeFocus.event;
+    this._items = new Array();
+    this._nodes = new Array();
+    this._freeNodes = new Array();
+    this._enabled = true;
+    this._focusedItemIdx = -1;
+    this._selectedItemIdx = -1;
+    this._domNode = document.createElement("div");
+    this._domNode.className = "monaco-breadcrumbs";
+    this._domNode.tabIndex = 0;
+    this._domNode.setAttribute("role", "list");
+    this._scrollable = new DomScrollableElement(this._domNode, {
+      vertical: 2,
+      horizontal: horizontalScrollbarVisibility,
+      horizontalScrollbarSize,
+      useShadows: false,
+      scrollYToX: true
+    });
+    this._separatorIcon = separatorIcon;
+    this._disposables.add(this._scrollable);
+    this._disposables.add(dom.addStandardDisposableListener(this._domNode, "click", (e) => this._onClick(e)));
+    container.appendChild(this._scrollable.getDomNode());
+    const styleElement = domStylesheetsJs.createStyleSheet(this._domNode);
+    this._style(styleElement, styles);
+    const focusTracker = dom.trackFocus(this._domNode);
+    this._disposables.add(focusTracker);
+    this._disposables.add(focusTracker.onDidBlur((_) => this._onDidChangeFocus.fire(false)));
+    this._disposables.add(focusTracker.onDidFocus((_) => this._onDidChangeFocus.fire(true)));
+  }
+  setHorizontalScrollbarSize(size) {
+    this._scrollable.updateOptions({
+      horizontalScrollbarSize: size
+    });
+  }
+  setHorizontalScrollbarVisibility(visibility) {
+    this._scrollable.updateOptions({
+      horizontal: visibility
+    });
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._pendingLayout?.dispose();
+    this._pendingDimLayout?.dispose();
+    this._onDidSelectItem.dispose();
+    this._onDidFocusItem.dispose();
+    this._onDidChangeFocus.dispose();
+    this._domNode.remove();
+    this._nodes.length = 0;
+    this._freeNodes.length = 0;
+  }
+  layout(dim) {
+    if (dim && dom.Dimension.equals(dim, this._dimension)) {
+      return;
+    }
+    if (dim) {
+      this._pendingDimLayout?.dispose();
+      this._pendingDimLayout = this._updateDimensions(dim);
+    } else {
+      this._pendingLayout?.dispose();
+      this._pendingLayout = this._updateScrollbar();
+    }
+  }
+  _updateDimensions(dim) {
+    const disposables = new DisposableStore();
+    disposables.add(dom.modify(dom.getWindow(this._domNode), () => {
+      this._dimension = dim;
+      this._domNode.style.width = `${dim.width}px`;
+      this._domNode.style.height = `${dim.height}px`;
+      disposables.add(this._updateScrollbar());
+    }));
+    return disposables;
+  }
+  _updateScrollbar() {
+    return dom.measure(dom.getWindow(this._domNode), () => {
+      dom.measure(dom.getWindow(this._domNode), () => {
+        this._scrollable.setRevealOnScroll(false);
+        this._scrollable.scanDomNode();
+        this._scrollable.setRevealOnScroll(true);
+      });
+    });
+  }
+  _style(styleElement, style) {
+    let content = "";
+    if (style.breadcrumbsBackground) {
+      content += `.monaco-breadcrumbs { background-color: ${style.breadcrumbsBackground}}`;
+    }
+    if (style.breadcrumbsForeground) {
+      content += `.monaco-breadcrumbs .monaco-breadcrumb-item { color: ${style.breadcrumbsForeground}}
+`;
+    }
+    if (style.breadcrumbsFocusForeground) {
+      content += `.monaco-breadcrumbs .monaco-breadcrumb-item.focused { color: ${style.breadcrumbsFocusForeground}}
+`;
+    }
+    if (style.breadcrumbsFocusAndSelectionForeground) {
+      content += `.monaco-breadcrumbs .monaco-breadcrumb-item.focused.selected { color: ${style.breadcrumbsFocusAndSelectionForeground}}
+`;
+    }
+    if (style.breadcrumbsHoverForeground) {
+      content += `.monaco-breadcrumbs:not(.disabled	) .monaco-breadcrumb-item:hover:not(.focused):not(.selected) { color: ${style.breadcrumbsHoverForeground}}
+`;
+    }
+    styleElement.textContent = content;
+  }
+  setEnabled(value) {
+    this._enabled = value;
+    this._domNode.classList.toggle("disabled", !this._enabled);
+  }
+  domFocus() {
+    const idx = this._focusedItemIdx >= 0 ? this._focusedItemIdx : this._items.length - 1;
+    if (idx >= 0 && idx < this._items.length) {
+      this._focus(idx, void 0);
+    } else {
+      this._domNode.focus();
+    }
+  }
+  isDOMFocused() {
+    return dom.isAncestorOfActiveElement(this._domNode);
+  }
+  getFocused() {
+    return this._items[this._focusedItemIdx];
+  }
+  setFocused(item, payload) {
+    this._focus(this._items.indexOf(item), payload);
+  }
+  focusPrev(payload) {
+    if (this._focusedItemIdx > 0) {
+      this._focus(this._focusedItemIdx - 1, payload);
+    }
+  }
+  focusNext(payload) {
+    if (this._focusedItemIdx + 1 < this._nodes.length) {
+      this._focus(this._focusedItemIdx + 1, payload);
+    }
+  }
+  _focus(nth, payload) {
+    this._focusedItemIdx = -1;
+    for (let i = 0; i < this._nodes.length; i++) {
+      const node = this._nodes[i];
+      if (i !== nth) {
+        node.classList.remove("focused");
+      } else {
+        this._focusedItemIdx = i;
+        node.classList.add("focused");
+        node.focus();
+      }
+    }
+    this._reveal(this._focusedItemIdx, true);
+    this._onDidFocusItem.fire({ type: "focus", item: this._items[this._focusedItemIdx], node: this._nodes[this._focusedItemIdx], payload });
+  }
+  reveal(item) {
+    const idx = this._items.indexOf(item);
+    if (idx >= 0) {
+      this._reveal(idx, false);
+    }
+  }
+  revealLast() {
+    this._reveal(this._items.length - 1, false);
+  }
+  _reveal(nth, minimal) {
+    if (nth < 0 || nth >= this._nodes.length) {
+      return;
+    }
+    const node = this._nodes[nth];
+    if (!node) {
+      return;
+    }
+    const { width } = this._scrollable.getScrollDimensions();
+    const { scrollLeft } = this._scrollable.getScrollPosition();
+    if (!minimal || node.offsetLeft > scrollLeft + width || node.offsetLeft < scrollLeft) {
+      this._scrollable.setRevealOnScroll(false);
+      this._scrollable.setScrollPosition({ scrollLeft: node.offsetLeft });
+      this._scrollable.setRevealOnScroll(true);
+    }
+  }
+  getSelection() {
+    return this._items[this._selectedItemIdx];
+  }
+  setSelection(item, payload) {
+    this._select(this._items.indexOf(item), payload);
+  }
+  _select(nth, payload) {
+    this._selectedItemIdx = -1;
+    for (let i = 0; i < this._nodes.length; i++) {
+      const node = this._nodes[i];
+      if (i !== nth) {
+        node.classList.remove("selected");
+      } else {
+        this._selectedItemIdx = i;
+        node.classList.add("selected");
+      }
+    }
+    this._onDidSelectItem.fire({ type: "select", item: this._items[this._selectedItemIdx], node: this._nodes[this._selectedItemIdx], payload });
+  }
+  getItems() {
+    return this._items;
+  }
+  setItems(items) {
+    let prefix;
+    let removed = [];
+    try {
+      prefix = commonPrefixLength(this._items, items, (a, b) => a.equals(b));
+      removed = this._items.splice(prefix, this._items.length - prefix, ...items.slice(prefix));
+      this._render(prefix);
+      dispose(removed);
+      dispose(items.slice(0, prefix));
+      this._focus(-1, void 0);
+    } catch (e) {
+      const newError = new Error(`BreadcrumbsItem#setItems: newItems: ${items.length}, prefix: ${prefix}, removed: ${removed.length}`);
+      newError.name = e.name;
+      newError.stack = e.stack;
+      throw newError;
+    }
+  }
+  _render(start) {
+    let didChange = false;
+    for (; start < this._items.length && start < this._nodes.length; start++) {
+      const item = this._items[start];
+      const node = this._nodes[start];
+      this._renderItem(item, node);
+      didChange = true;
+    }
+    while (start < this._nodes.length) {
+      const free = this._nodes.pop();
+      if (free) {
+        this._freeNodes.push(free);
+        free.remove();
+        didChange = true;
+      }
+    }
+    for (; start < this._items.length; start++) {
+      const item = this._items[start];
+      const node = this._freeNodes.length > 0 ? this._freeNodes.pop() : document.createElement("div");
+      if (node) {
+        this._renderItem(item, node);
+        this._domNode.appendChild(node);
+        this._nodes.push(node);
+        didChange = true;
+      }
+    }
+    if (didChange) {
+      this.layout(void 0);
+    }
+  }
+  _renderItem(item, container) {
+    dom.clearNode(container);
+    container.className = "";
+    try {
+      item.render(container);
+    } catch (err) {
+      container.textContent = "<<RENDER ERROR>>";
+      console.error(err);
+    }
+    container.tabIndex = -1;
+    container.setAttribute("role", "listitem");
+    container.classList.add("monaco-breadcrumb-item");
+    const iconContainer = dom.$(ThemeIcon.asCSSSelector(this._separatorIcon));
+    container.appendChild(iconContainer);
+  }
+  _onClick(event) {
+    if (!this._enabled) {
+      return;
+    }
+    for (let el = event.target; el; el = el.parentElement) {
+      const idx = this._nodes.indexOf(el);
+      if (idx >= 0) {
+        this._focus(idx, event);
+        this._select(idx, event);
+        break;
+      }
+    }
+  }
+}
+export {
+  BreadcrumbsItem,
+  BreadcrumbsWidget
+};
+//# sourceMappingURL=breadcrumbsWidget.js.map

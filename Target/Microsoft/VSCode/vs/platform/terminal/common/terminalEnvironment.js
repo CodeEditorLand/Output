@@ -1,1 +1,92 @@
-import{OS as o}from"../../../base/common/platform.js";function a(t,s){let n=t;n.includes("\\")&&(n=n.replace(/\\/g,"\\\\"));let r;switch(s){case"bash":case"sh":case"zsh":case"gitbash":r={bothQuotes:e=>`$'${e.replace(/'/g,"\\'")}'`,singleQuotes:e=>`'${e.replace(/'/g,"\\'")}'`,noSingleQuotes:e=>`'${e}'`};break;case"fish":r={bothQuotes:e=>`"${e.replace(/"/g,'\\"')}"`,singleQuotes:e=>`'${e.replace(/'/g,"\\'")}'`,noSingleQuotes:e=>`'${e}'`};break;case"pwsh":r={bothQuotes:e=>`"${e.replace(/"/g,'`"')}"`,singleQuotes:e=>`'${e.replace(/'/g,"''")}'`,noSingleQuotes:e=>`'${e}'`};break;default:r={bothQuotes:e=>`$'${e.replace(/'/g,"\\'")}'`,singleQuotes:e=>`'${e.replace(/'/g,"\\'")}'`,noSingleQuotes:e=>`'${e}'`};break}const i=/[\`\$\|\&\>\~\#\!\^\*\;\<]/g;return n=n.replace(i,""),n.includes("'")&&n.includes('"')?r.bothQuotes(n):n.includes("'")?r.singleQuotes(n):r.noSingleQuotes(n)}function u(t,s,n){if(!t)return"";if(!s)return t;s.match(/[\/\\]$/)&&(s=s.slice(0,s.length-1));const r=t.replace(/\\/g,"/").toLowerCase(),i=s.replace(/\\/g,"/").toLowerCase();return r.includes(i)?`~${n}${t.slice(s.length+1)}`:t}function c(t){return t.match(/^['"].*['"]$/)&&(t=t.substring(1,t.length-1)),o===1&&t&&t[1]===":"?t[0].toUpperCase()+t.substring(1):t}function g(t){return!t.strictEnv}export{a as $i6,u as $j6,c as $k6,g as $l6};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { OS } from "../../../base/common/platform.js";
+function escapeNonWindowsPath(path, shellType) {
+  let newPath = path;
+  if (newPath.includes("\\")) {
+    newPath = newPath.replace(/\\/g, "\\\\");
+  }
+  let escapeConfig;
+  switch (shellType) {
+    case "bash":
+    case "sh":
+    case "zsh":
+    case "gitbash":
+      escapeConfig = {
+        bothQuotes: /* @__PURE__ */ __name((path2) => `$'${path2.replace(/'/g, "\\'")}'`, "bothQuotes"),
+        singleQuotes: /* @__PURE__ */ __name((path2) => `'${path2.replace(/'/g, "\\'")}'`, "singleQuotes"),
+        noSingleQuotes: /* @__PURE__ */ __name((path2) => `'${path2}'`, "noSingleQuotes")
+      };
+      break;
+    case "fish":
+      escapeConfig = {
+        bothQuotes: /* @__PURE__ */ __name((path2) => `"${path2.replace(/"/g, '\\"')}"`, "bothQuotes"),
+        singleQuotes: /* @__PURE__ */ __name((path2) => `'${path2.replace(/'/g, "\\'")}'`, "singleQuotes"),
+        noSingleQuotes: /* @__PURE__ */ __name((path2) => `'${path2}'`, "noSingleQuotes")
+      };
+      break;
+    case "pwsh":
+      escapeConfig = {
+        bothQuotes: /* @__PURE__ */ __name((path2) => `"${path2.replace(/"/g, '`"')}"`, "bothQuotes"),
+        singleQuotes: /* @__PURE__ */ __name((path2) => `'${path2.replace(/'/g, "''")}'`, "singleQuotes"),
+        noSingleQuotes: /* @__PURE__ */ __name((path2) => `'${path2}'`, "noSingleQuotes")
+      };
+      break;
+    default:
+      escapeConfig = {
+        bothQuotes: /* @__PURE__ */ __name((path2) => `$'${path2.replace(/'/g, "\\'")}'`, "bothQuotes"),
+        singleQuotes: /* @__PURE__ */ __name((path2) => `'${path2.replace(/'/g, "\\'")}'`, "singleQuotes"),
+        noSingleQuotes: /* @__PURE__ */ __name((path2) => `'${path2}'`, "noSingleQuotes")
+      };
+      break;
+  }
+  const bannedChars = /[\`\$\|\&\>\~\#\!\^\*\;\<]/g;
+  newPath = newPath.replace(bannedChars, "");
+  if (newPath.includes("'") && newPath.includes('"')) {
+    return escapeConfig.bothQuotes(newPath);
+  } else if (newPath.includes("'")) {
+    return escapeConfig.singleQuotes(newPath);
+  } else {
+    return escapeConfig.noSingleQuotes(newPath);
+  }
+}
+__name(escapeNonWindowsPath, "escapeNonWindowsPath");
+function collapseTildePath(path, userHome, separator) {
+  if (!path) {
+    return "";
+  }
+  if (!userHome) {
+    return path;
+  }
+  if (userHome.match(/[\/\\]$/)) {
+    userHome = userHome.slice(0, userHome.length - 1);
+  }
+  const normalizedPath = path.replace(/\\/g, "/").toLowerCase();
+  const normalizedUserHome = userHome.replace(/\\/g, "/").toLowerCase();
+  if (!normalizedPath.includes(normalizedUserHome)) {
+    return path;
+  }
+  return `~${separator}${path.slice(userHome.length + 1)}`;
+}
+__name(collapseTildePath, "collapseTildePath");
+function sanitizeCwd(cwd) {
+  if (cwd.match(/^['"].*['"]$/)) {
+    cwd = cwd.substring(1, cwd.length - 1);
+  }
+  if (OS === 1 && cwd && cwd[1] === ":") {
+    return cwd[0].toUpperCase() + cwd.substring(1);
+  }
+  return cwd;
+}
+__name(sanitizeCwd, "sanitizeCwd");
+function shouldUseEnvironmentVariableCollection(slc) {
+  return !slc.strictEnv;
+}
+__name(shouldUseEnvironmentVariableCollection, "shouldUseEnvironmentVariableCollection");
+export {
+  collapseTildePath,
+  escapeNonWindowsPath,
+  sanitizeCwd,
+  shouldUseEnvironmentVariableCollection
+};
+//# sourceMappingURL=terminalEnvironment.js.map

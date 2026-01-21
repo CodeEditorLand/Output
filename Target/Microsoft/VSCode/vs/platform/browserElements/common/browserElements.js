@@ -1,1 +1,22 @@
-import{$Mj as a}from"../../instantiation/common/instantiation.js";const m=a("nativeBrowserElementsService");function $(c){const t=c.match(/^<([^ >]+)([^>]*?)>/);if(!t)throw new Error("No outer element found");const o=t[1],s=t[2].match(/\s+id\s*=\s*["']([^"']+)["']/i),n=s?`#${s[1]}`:"",e=t[2].match(/\s+class\s*=\s*["']([^"']+)["']/i),r=e?`.${e[1].replace(/\s+/g,".")}`:"";return`${o}${n}${r}`}export{m as $Rw,$ as $Sw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const INativeBrowserElementsService = createDecorator("nativeBrowserElementsService");
+function getDisplayNameFromOuterHTML(outerHTML) {
+  const firstElementMatch = outerHTML.match(/^<([^ >]+)([^>]*?)>/);
+  if (!firstElementMatch) {
+    throw new Error("No outer element found");
+  }
+  const tagName = firstElementMatch[1];
+  const idMatch = firstElementMatch[2].match(/\s+id\s*=\s*["']([^"']+)["']/i);
+  const id = idMatch ? `#${idMatch[1]}` : "";
+  const classMatch = firstElementMatch[2].match(/\s+class\s*=\s*["']([^"']+)["']/i);
+  const className = classMatch ? `.${classMatch[1].replace(/\s+/g, ".")}` : "";
+  return `${tagName}${id}${className}`;
+}
+__name(getDisplayNameFromOuterHTML, "getDisplayNameFromOuterHTML");
+export {
+  INativeBrowserElementsService,
+  getDisplayNameFromOuterHTML
+};
+//# sourceMappingURL=browserElements.js.map

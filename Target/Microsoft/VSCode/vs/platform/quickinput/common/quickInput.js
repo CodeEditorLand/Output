@@ -1,1 +1,83 @@
-import{$Mj as S}from"../../instantiation/common/instantiation.js";import{Schemas as p}from"../../../base/common/network.js";const g={ctrlCmd:!1,alt:!1};var t;(function(e){e[e.Blur=1]="Blur",e[e.Gesture=2]="Gesture",e[e.Other=3]="Other"})(t||(t={}));var a;(function(e){e.QuickPick="quickPick",e.InputBox="inputBox",e.QuickWidget="quickWidget",e.QuickTree="quickTree"})(a||(a={}));var x;(function(e){e[e.NONE=0]="NONE",e[e.FIRST=1]="FIRST",e[e.SECOND=2]="SECOND",e[e.LAST=3]="LAST"})(x||(x={}));var f;(function(e){e[e.First=1]="First",e[e.Second=2]="Second",e[e.Last=3]="Last",e[e.Next=4]="Next",e[e.Previous=5]="Previous",e[e.NextPage=6]="NextPage",e[e.PreviousPage=7]="PreviousPage",e[e.NextSeparator=8]="NextSeparator",e[e.PreviousSeparator=9]="PreviousSeparator"})(f||(f={}));var l;(function(e){e[e.Title=1]="Title",e[e.Inline=2]="Inline",e[e.Input=3]="Input"})(l||(l={}));class s{constructor(r){this.a=r}getItemLabel(r){return r.label}getItemDescription(r){if(!this.a?.skipDescription)return r.description}getItemPath(r){if(!this.a?.skipPath)return r.resource?.scheme===p.file?r.resource.fsPath:r.resource?.path}}const n=new s,T=S("quickInputService");export{g as $SH,s as $TH,n as $UH,T as $VH,x as ItemActivation,l as QuickInputButtonLocation,t as QuickInputHideReason,a as QuickInputType,f as QuickPickFocus};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { Schemas } from "../../../base/common/network.js";
+const NO_KEY_MODS = { ctrlCmd: false, alt: false };
+var QuickInputHideReason;
+(function(QuickInputHideReason2) {
+  QuickInputHideReason2[QuickInputHideReason2["Blur"] = 1] = "Blur";
+  QuickInputHideReason2[QuickInputHideReason2["Gesture"] = 2] = "Gesture";
+  QuickInputHideReason2[QuickInputHideReason2["Other"] = 3] = "Other";
+})(QuickInputHideReason || (QuickInputHideReason = {}));
+var QuickInputType;
+(function(QuickInputType2) {
+  QuickInputType2["QuickPick"] = "quickPick";
+  QuickInputType2["InputBox"] = "inputBox";
+  QuickInputType2["QuickWidget"] = "quickWidget";
+  QuickInputType2["QuickTree"] = "quickTree";
+})(QuickInputType || (QuickInputType = {}));
+var ItemActivation;
+(function(ItemActivation2) {
+  ItemActivation2[ItemActivation2["NONE"] = 0] = "NONE";
+  ItemActivation2[ItemActivation2["FIRST"] = 1] = "FIRST";
+  ItemActivation2[ItemActivation2["SECOND"] = 2] = "SECOND";
+  ItemActivation2[ItemActivation2["LAST"] = 3] = "LAST";
+})(ItemActivation || (ItemActivation = {}));
+var QuickPickFocus;
+(function(QuickPickFocus2) {
+  QuickPickFocus2[QuickPickFocus2["First"] = 1] = "First";
+  QuickPickFocus2[QuickPickFocus2["Second"] = 2] = "Second";
+  QuickPickFocus2[QuickPickFocus2["Last"] = 3] = "Last";
+  QuickPickFocus2[QuickPickFocus2["Next"] = 4] = "Next";
+  QuickPickFocus2[QuickPickFocus2["Previous"] = 5] = "Previous";
+  QuickPickFocus2[QuickPickFocus2["NextPage"] = 6] = "NextPage";
+  QuickPickFocus2[QuickPickFocus2["PreviousPage"] = 7] = "PreviousPage";
+  QuickPickFocus2[QuickPickFocus2["NextSeparator"] = 8] = "NextSeparator";
+  QuickPickFocus2[QuickPickFocus2["PreviousSeparator"] = 9] = "PreviousSeparator";
+})(QuickPickFocus || (QuickPickFocus = {}));
+var QuickInputButtonLocation;
+(function(QuickInputButtonLocation2) {
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Input"] = 3] = "Input";
+})(QuickInputButtonLocation || (QuickInputButtonLocation = {}));
+class QuickPickItemScorerAccessor {
+  static {
+    __name(this, "QuickPickItemScorerAccessor");
+  }
+  constructor(options) {
+    this.options = options;
+  }
+  getItemLabel(entry) {
+    return entry.label;
+  }
+  getItemDescription(entry) {
+    if (this.options?.skipDescription) {
+      return void 0;
+    }
+    return entry.description;
+  }
+  getItemPath(entry) {
+    if (this.options?.skipPath) {
+      return void 0;
+    }
+    if (entry.resource?.scheme === Schemas.file) {
+      return entry.resource.fsPath;
+    }
+    return entry.resource?.path;
+  }
+}
+const quickPickItemScorerAccessor = new QuickPickItemScorerAccessor();
+const IQuickInputService = createDecorator("quickInputService");
+export {
+  IQuickInputService,
+  ItemActivation,
+  NO_KEY_MODS,
+  QuickInputButtonLocation,
+  QuickInputHideReason,
+  QuickInputType,
+  QuickPickFocus,
+  QuickPickItemScorerAccessor,
+  quickPickItemScorerAccessor
+};
+//# sourceMappingURL=quickInput.js.map

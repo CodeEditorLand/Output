@@ -1,1 +1,85 @@
-import{$qo as l}from"../../../../platform/contextkey/common/contextkey.js";import{$5hb as p}from"../../../../platform/contextview/browser/contextView.js";import{$7ib as m}from"../../../../platform/hover/browser/hover.js";import{$cy as u}from"../../../../platform/keybinding/common/keybinding.js";import{$9Bc as d}from"../../codeEditor/browser/find/simpleFindWidget.js";import{$QCb as b}from"./webview.js";var a=function(o,t,e,s){var n=arguments.length,i=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,s);else for(var h=o.length-1;h>=0;h--)(r=o[h])&&(i=(n<3?r(i):n>3?r(t,e,i):r(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},f=function(o,t){return function(e,s){t(e,s,o)}};let c=class extends d{async S(t){}constructor(t,e,s,n,i){super({showCommonFindToggles:!1,checkImeCompletionState:t.checkImeCompletionState,enableSash:!0},e,s,n,i),this.gb=t,this.fb=b.bindTo(s),this.D(t.hasFindResult(r=>{this.bb(r),this.cb()})),this.D(t.onDidStopFind(()=>{this.bb(!1)}))}find(t){const e=this.U;e&&this.gb.find(e,t)}hide(t=!0){super.hide(t),this.gb.stopFind(!0),this.gb.focus()}N(){const t=this.U;return t?this.gb.updateFind(t):this.gb.stopFind(!1),!1}O(){this.fb.set(!0)}P(){this.fb.reset()}Q(){}R(){}findFirst(){}};c=a([f(1,p),f(2,l),f(3,m),f(4,u)],c);export{c as $8Mc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { SimpleFindWidget } from "../../codeEditor/browser/find/simpleFindWidget.js";
+import { KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED } from "./webview.js";
+let WebviewFindWidget = class WebviewFindWidget2 extends SimpleFindWidget {
+  static {
+    __name(this, "WebviewFindWidget");
+  }
+  async _getResultCount(dataChanged) {
+    return void 0;
+  }
+  constructor(_delegate, contextViewService, contextKeyService, hoverService, keybindingService) {
+    super({
+      showCommonFindToggles: false,
+      checkImeCompletionState: _delegate.checkImeCompletionState,
+      enableSash: true
+    }, contextViewService, contextKeyService, hoverService, keybindingService);
+    this._delegate = _delegate;
+    this._findWidgetFocused = KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED.bindTo(contextKeyService);
+    this._register(_delegate.hasFindResult((hasResult) => {
+      this.updateButtons(hasResult);
+      this.focusFindBox();
+    }));
+    this._register(_delegate.onDidStopFind(() => {
+      this.updateButtons(false);
+    }));
+  }
+  find(previous) {
+    const val = this.inputValue;
+    if (val) {
+      this._delegate.find(val, previous);
+    }
+  }
+  hide(animated = true) {
+    super.hide(animated);
+    this._delegate.stopFind(true);
+    this._delegate.focus();
+  }
+  _onInputChanged() {
+    const val = this.inputValue;
+    if (val) {
+      this._delegate.updateFind(val);
+    } else {
+      this._delegate.stopFind(false);
+    }
+    return false;
+  }
+  _onFocusTrackerFocus() {
+    this._findWidgetFocused.set(true);
+  }
+  _onFocusTrackerBlur() {
+    this._findWidgetFocused.reset();
+  }
+  _onFindInputFocusTrackerFocus() {
+  }
+  _onFindInputFocusTrackerBlur() {
+  }
+  findFirst() {
+  }
+};
+WebviewFindWidget = __decorate([
+  __param(1, IContextViewService),
+  __param(2, IContextKeyService),
+  __param(3, IHoverService),
+  __param(4, IKeybindingService)
+], WebviewFindWidget);
+export {
+  WebviewFindWidget
+};
+//# sourceMappingURL=webviewFindWidget.js.map

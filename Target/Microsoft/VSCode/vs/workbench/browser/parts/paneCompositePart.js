@@ -1,1 +1,511 @@
-import"./media/paneCompositePart.css";import{Event as R}from"../../../base/common/event.js";import{$Lj as X}from"../../../platform/instantiation/common/instantiation.js";import{$9Ab as C}from"../panecomposite.js";import{$BN as j}from"../../common/views.js";import{$Dd as I,$Fd as Z}from"../../../base/common/lifecycle.js";import{$Dxb as G}from"../../services/layout/browser/layoutService.js";import{$$0b as U}from"./compositePart.js";import{$b$b as Y}from"./paneCompositeBar.js";import{$X7 as q,$D8 as d,$G8 as z,$ as p,$F7 as u,$B8 as P,$J8 as J,getWindow as b}from"../../../base/browser/dom.js";import{$im as Q}from"../../../platform/registry/common/platform.js";import{$mH as tt}from"../../../platform/notification/common/notification.js";import{$gp as et}from"../../../platform/storage/common/storage.js";import{$6hb as it}from"../../../platform/contextview/browser/contextView.js";import{$cy as st}from"../../../platform/keybinding/common/keybinding.js";import{$ou as nt}from"../../../platform/theme/common/themeService.js";import{$qo as ot}from"../../../platform/contextkey/common/contextkey.js";import{$4R as rt}from"../../services/extensions/common/extensions.js";import{localize as D}from"../../../nls.js";import{$sAb as y,$tAb as at}from"../dnd.js";import{$lyb as ht}from"../../common/theme.js";import{$oL as ct,$nL as $}from"../../../platform/actions/common/actions.js";import{$f9 as A,EventType as V}from"../../../base/browser/touch.js";import{$w7 as m}from"../../../base/browser/mouseEvent.js";import{$Hm as dt}from"../../../base/common/actions.js";import{$4Ab as lt}from"./views/viewPaneContainer.js";import{$Sib as pt}from"../../../platform/actions/browser/menuEntryActionViewItem.js";import{$7ib as ut}from"../../../platform/hover/browser/hover.js";import{$6ib as bt}from"../../../platform/actions/browser/toolbar.js";import{$ti as mt}from"../../../base/common/async.js";var K=function(r,t,e,s){var i=arguments.length,n=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,s);else for(var c=r.length-1;c>=0;c--)(o=r[c])&&(n=(i<3?o(n):i>3?o(t,e,n):o(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},h=function(r,t){return function(e,s){t(e,s,r)}},w,a;(function(r){r[r.TOP=0]="TOP",r[r.TITLE=1]="TITLE",r[r.BOTTOM=2]="BOTTOM"})(a||(a={}));let E=class extends U{static{w=this}static{this.Ub=50}get snap(){return this.N.isVisible(this.partId)||!!this.$b.value?.getVisiblePaneCompositeIds().length}get onDidPaneCompositeOpen(){return R.map(this.b.event,t=>t.composite)}constructor(t,e,s,i,n,o,c,f,O,x,B,L,M,N,k,W,H,T,S,_,F){let l=0,g=C.Viewlets,v=$.SidebarTitle;t==="workbench.parts.panel"?(l=1,g=C.Panels,v=$.PanelTitle):t==="workbench.parts.auxiliarybar"&&(l=2,g=C.Auxiliary,v=$.AuxiliaryBarTitle),super(x,B,L,M,N,k,W,H,Q.as(g),s,T.getDefaultViewContainer(l)?.id||"",o,c,f,O,t,e),this.partId=t,this.gc=i,this.hc=n,this.ic=T,this.jc=S,this.kc=_,this.lc=F,this.onDidPaneCompositeClose=this.r.event,this.Yb=this.D(new I),this.$b=this.D(new Z),this.ac=void 0,this.ec=void 0,this.Vb=l,this.cc=v,this.mc()}mc(){this.D(this.onDidPaneCompositeOpen(t=>this.nc(t))),this.D(this.onDidPaneCompositeClose(this.oc,this)),this.D(this.ub.onDidDeregister(t=>{const e=this.ic.getViewContainersByLocation(this.Vb).filter(s=>this.ic.getViewContainerModel(s).activeViewDescriptors.length>0);if(e.length){if(this.Ib()?.getId()===t.id){const s=this.ic.getDefaultViewContainer(this.Vb)?.id,i=e.filter(n=>n.id===s)[0]||e[0];this.Bc(i.id)}}else this.N.setPartHidden(!0,this.partId);this.Tb(t.id)})),this.D(this.kc.onDidRegisterExtensions(()=>{this.Dc()}))}nc(t){this.gc.set(t.getId())}oc(t){const e=t.getId();this.gc.get()===e&&this.gc.reset()}Eb(t){super.Eb(t),this.Dc(),this.Ec()}Kb(){const t=super.Kb();return this.Dc(),this.Ec(),t}create(t){this.element=t,this.element.classList.add("pane-composite-part"),super.create(t),this.t&&this.rc(this.t),this.uc();const e=this.D(z(t));this.D(e.onDidFocus(()=>this.hc.set(!0))),this.D(e.onDidBlur(()=>this.hc.set(!1)))}rc(t){this.bc=p(".empty-pane-message-area");const e=p(".empty-pane-message");e.textContent=D(4019,null),this.bc.appendChild(e),t.appendChild(this.bc);const s=i=>{const n=!this.Ib()||!i,o=i&&this.n.getColor(ht)?.toString()||"";this.Wb&&n&&(this.Wb.style.backgroundColor=o),this.Xb&&n&&(this.Xb.style.backgroundColor=o),this.bc.style.backgroundColor=o};this.D(y.INSTANCE.registerTarget(this.element,{onDragOver:i=>{if(d.stop(i.eventData,!0),this.$b.value){const n=this.$b.value.dndHandler.onDragEnter(i.dragAndDropData,void 0,i.eventData);at(i.eventData.dataTransfer,"move",n)}},onDragEnter:i=>{if(d.stop(i.eventData,!0),this.$b.value){const n=this.$b.value.dndHandler.onDragEnter(i.dragAndDropData,void 0,i.eventData);s(n)}},onDragLeave:i=>{d.stop(i.eventData,!0),s(!1)},onDragEnd:i=>{d.stop(i.eventData,!0),s(!1)},onDrop:i=>{if(d.stop(i.eventData,!0),s(!1),this.$b.value)this.$b.value.dndHandler.drop(i.dragAndDropData,void 0,i.eventData);else{const n=i.dragAndDropData.getData();if(n.type==="composite"){const o=this.ic.getViewContainerById(n.id);this.ic.moveViewContainerToLocation(o,this.Vb,void 0,"dnd"),this.openPaneComposite(o.id,!0)}else if(n.type==="view"){const o=this.ic.getViewDescriptorById(n.id);if(o.canMoveView){this.ic.moveViewToLocation(o,this.Vb,"dnd");const c=this.ic.getViewContainerByViewId(o.id);this.openPaneComposite(c.id,!0).then(f=>{f?.openView(o.id,!0)})}}}}}))}P(t){const e=super.P(t);this.D(u(e,P.CONTEXT_MENU,i=>{this.Gc(new m(b(e),i))})),this.D(A.addTarget(e)),this.D(u(e,V.Contextmenu,i=>{this.Gc(new m(b(e),i))}));const s=e.appendChild(p(".global-actions"));return this.dc=this.D(this.tb.createInstance(bt,s,this.cc,{actionViewItemProvider:(i,n)=>this.Pb(i,n),orientation:0,getKeyBinding:i=>this.rb.lookupKeybinding(i.id),anchorAlignmentProvider:()=>this.Sb(),toggleMenuTitle:D(4020,null),hoverDelegate:this.bb,hiddenItemStrategy:-1,highlightToggledItems:!0,telemetrySource:this.xb})),e}Mb(t){this.Wb=t;const e=super.Mb(t);this.ab.draggable=!0;const s=()=>({type:"composite",id:this.getActivePaneComposite().getId()});return this.D(y.INSTANCE.registerDraggable(this.ab,s,{})),e}uc(t=!1){const e=this.ac!==void 0,s=this.Kc(),i=this.ac,n=s?this.Mc():void 0;if(!t&&i===n)return;if(e){const c=i===a.TITLE?this.Wb:this.Xb;if(!this.Zb||!this.$b.value||!c)throw new Error("Composite bar containers should exist when removing the previous composite bar");this.Zb.remove(),this.Zb=void 0,this.$b.value=void 0,c.classList.remove("has-composite-bar"),i===a.TOP?this.yc(!0):i===a.BOTTOM&&this.yc(!1)}let o;switch(n){case a.TOP:o=this.Nb();break;case a.TITLE:o=this.Wb;break;case a.BOTTOM:o=this.Ob();break}if(s){if(this.Zb||this.$b.value||!o)throw new Error("Invalid composite bar state when creating the new composite bar");o.classList.add("has-composite-bar"),this.Zb=J(o,p(".composite-bar-container")),this.$b.value=this.zc(),this.$b.value.create(this.Zb),n===a.TOP?this.R(o):n===a.BOTTOM&&this.S(o)}this.ac=n,t&&this.Dc()}Nb(){const t=super.Nb();return this.xc(t)}Ob(){const t=super.Ob();return this.xc(t)}xc(t){if(this.Xb)throw new Error("Header or Footer composite bar already exists");return this.Xb=t,this.Yb.add(u(t,P.CONTEXT_MENU,e=>{this.Hc(new m(b(t),e))})),this.Yb.add(A.addTarget(t)),this.Yb.add(u(t,V.Contextmenu,e=>{this.Hc(new m(b(t),e))})),t}yc(t){this.Xb=void 0,this.Yb.clear(),t?this.U():this.W()}zc(){return this.tb.createInstance(Y,this.Lc(),this.partId,this)}Fb(t){super.Fb(t),this.Dc()}async openPaneComposite(t,e){if(typeof t=="string"&&this.getPaneComposite(t))return this.Bc(t,e);if(await this.kc.whenInstalledExtensionsRegistered(),typeof t=="string"&&this.getPaneComposite(t))return this.Bc(t,e)}async Bc(t,e){if(this.ec)return this.ec.p;let s;if(!this.N.isVisible(this.partId))try{s=this.ec=new mt,this.N.setPartHidden(!1,this.partId)}finally{this.ec=void 0}try{const i=this.Bb(t,e);return s?.complete(i),i}catch(i){throw s?.error(i),i}}getPaneComposite(t){return this.ub.getPaneComposite(t)}getPaneComposites(){return this.ub.getPaneComposites().sort((t,e)=>typeof t.order!="number"?1:typeof e.order!="number"?-1:t.order-e.order)}getPinnedPaneCompositeIds(){return this.$b.value?.getPinnedPaneCompositeIds()??[]}getVisiblePaneCompositeIds(){return this.$b.value?.getVisiblePaneCompositeIds()??[]}getPaneCompositeIds(){return this.$b.value?.getPaneCompositeIds()??[]}getActivePaneComposite(){return this.Ib()}getLastActivePaneCompositeId(){return this.Jb()}hideActivePaneComposite(){this.N.isVisible(this.partId)&&this.N.setPartHidden(!0,this.partId),this.Kb()}Cc(){this.$b.value?.focus()}layout(t,e,s,i){this.N.isVisible(this.partId)&&(this.fc=new q(t,e),super.layout(this.fc.width,this.fc.height,s,i),this.Dc(),this.Ec())}Dc(){if(this.fc&&this.dimension&&this.$b.value){const t=this.ac===a.TITLE?16:8,e=this.partId==="workbench.parts.panel"?0:1;let s=this.fc.width-t-e;s=Math.max(w.Ub,s-this.Fc()),this.$b.value.layout(s,this.dimension.height)}}Ec(){const t=!this.Ib();this.element.classList.toggle("empty",t),t&&this.hb?.updateTitle("","")}Fc(){if(!this.y||this.ac!==a.TITLE||!this.getActivePaneComposite())return 0;const e=this.y.getItemsWidth()+this.y.getItemsLength()*4,s=this.dc?this.dc.getItemsWidth()+this.dc.getItemsLength()*4:0;return e+s+8}Gc(t){if(this.Kc()&&this.Mc()===a.TITLE)return this.Ic(t);{const e=this.getActivePaneComposite(),s=e?e.getContextMenuActions():[];s.length&&this.qb.showContextMenu({getAnchor:()=>t,getActions:()=>s,getActionViewItem:(i,n)=>this.Pb(i,n),actionRunner:e.getActionRunner(),skipTelemetry:!0})}}Hc(t){return this.Ic(t)}Ic(t){if(this.$b.value){const e=[...this.$b.value.getContextMenuActions()];e.length&&this.qb.showContextMenu({getAnchor:()=>t,getActions:()=>e,skipTelemetry:!0})}}Jc(){const t=this.getActivePaneComposite()?.getViewPaneContainer();if(t){const e=new I,s=e.add(this.jc.createScoped(this.element));s.createKey("viewContainer",t.viewContainer.id);const i=this.lc.getMenuActions(lt,s,{shouldForwardArgs:!0,renderShortTitle:!0}),n=pt(i,()=>!0).primary;return e.dispose(),n.length>1&&n.some(o=>o.enabled)?new dt("views",D(4021,null),n):void 0}}};E=w=K([h(9,tt),h(10,et),h(11,it),h(12,G),h(13,st),h(14,ut),h(15,X),h(16,nt),h(17,j),h(18,ot),h(19,rt),h(20,ct)],E);export{E as $c$b,a as CompositeBarPosition};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var AbstractPaneCompositePart_1;
+import "./media/paneCompositePart.css";
+import { Event } from "../../../base/common/event.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { Extensions } from "../panecomposite.js";
+import { IViewDescriptorService } from "../../common/views.js";
+import { DisposableStore, MutableDisposable } from "../../../base/common/lifecycle.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
+import { CompositePart } from "./compositePart.js";
+import { PaneCompositeBar } from "./paneCompositeBar.js";
+import { Dimension, EventHelper, trackFocus, $, addDisposableListener, EventType, prepend, getWindow } from "../../../base/browser/dom.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../platform/storage/common/storage.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { IContextKeyService } from "../../../platform/contextkey/common/contextkey.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { localize } from "../../../nls.js";
+import { CompositeDragAndDropObserver, toggleDropEffect } from "../dnd.js";
+import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../common/theme.js";
+import { IMenuService, MenuId } from "../../../platform/actions/common/actions.js";
+import { Gesture, EventType as GestureEventType } from "../../../base/browser/touch.js";
+import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { SubmenuAction } from "../../../base/common/actions.js";
+import { ViewsSubMenu } from "./views/viewPaneContainer.js";
+import { getActionBarActions } from "../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IHoverService } from "../../../platform/hover/browser/hover.js";
+import { MenuWorkbenchToolBar } from "../../../platform/actions/browser/toolbar.js";
+import { DeferredPromise } from "../../../base/common/async.js";
+var CompositeBarPosition;
+(function(CompositeBarPosition2) {
+  CompositeBarPosition2[CompositeBarPosition2["TOP"] = 0] = "TOP";
+  CompositeBarPosition2[CompositeBarPosition2["TITLE"] = 1] = "TITLE";
+  CompositeBarPosition2[CompositeBarPosition2["BOTTOM"] = 2] = "BOTTOM";
+})(CompositeBarPosition || (CompositeBarPosition = {}));
+let AbstractPaneCompositePart = class AbstractPaneCompositePart2 extends CompositePart {
+  static {
+    __name(this, "AbstractPaneCompositePart");
+  }
+  static {
+    AbstractPaneCompositePart_1 = this;
+  }
+  static {
+    this.MIN_COMPOSITE_BAR_WIDTH = 50;
+  }
+  get snap() {
+    return this.layoutService.isVisible(this.partId) || !!this.paneCompositeBar.value?.getVisiblePaneCompositeIds().length;
+  }
+  get onDidPaneCompositeOpen() {
+    return Event.map(this.onDidCompositeOpen.event, (compositeEvent) => compositeEvent.composite);
+  }
+  constructor(partId, partOptions, activePaneCompositeSettingsKey, activePaneContextKey, paneFocusContextKey, nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, menuService) {
+    let location = 0;
+    let registryId = Extensions.Viewlets;
+    let globalActionsMenuId = MenuId.SidebarTitle;
+    if (partId === "workbench.parts.panel") {
+      location = 1;
+      registryId = Extensions.Panels;
+      globalActionsMenuId = MenuId.PanelTitle;
+    } else if (partId === "workbench.parts.auxiliarybar") {
+      location = 2;
+      registryId = Extensions.Auxiliary;
+      globalActionsMenuId = MenuId.AuxiliaryBarTitle;
+    }
+    super(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, Registry.as(registryId), activePaneCompositeSettingsKey, viewDescriptorService.getDefaultViewContainer(location)?.id || "", nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, partId, partOptions);
+    this.partId = partId;
+    this.activePaneContextKey = activePaneContextKey;
+    this.paneFocusContextKey = paneFocusContextKey;
+    this.viewDescriptorService = viewDescriptorService;
+    this.contextKeyService = contextKeyService;
+    this.extensionService = extensionService;
+    this.menuService = menuService;
+    this.onDidPaneCompositeClose = this.onDidCompositeClose.event;
+    this.headerFooterCompositeBarDispoables = this._register(new DisposableStore());
+    this.paneCompositeBar = this._register(new MutableDisposable());
+    this.compositeBarPosition = void 0;
+    this.blockOpening = void 0;
+    this.location = location;
+    this.globalActionsMenuId = globalActionsMenuId;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.onDidPaneCompositeOpen((composite) => this.onDidOpen(composite)));
+    this._register(this.onDidPaneCompositeClose(this.onDidClose, this));
+    this._register(this.registry.onDidDeregister((viewletDescriptor) => {
+      const activeContainers = this.viewDescriptorService.getViewContainersByLocation(this.location).filter((container) => this.viewDescriptorService.getViewContainerModel(container).activeViewDescriptors.length > 0);
+      if (activeContainers.length) {
+        if (this.getActiveComposite()?.getId() === viewletDescriptor.id) {
+          const defaultViewletId = this.viewDescriptorService.getDefaultViewContainer(this.location)?.id;
+          const containerToOpen = activeContainers.filter((c) => c.id === defaultViewletId)[0] || activeContainers[0];
+          this.doOpenPaneComposite(containerToOpen.id);
+        }
+      } else {
+        this.layoutService.setPartHidden(true, this.partId);
+      }
+      this.removeComposite(viewletDescriptor.id);
+    }));
+    this._register(this.extensionService.onDidRegisterExtensions(() => {
+      this.layoutCompositeBar();
+    }));
+  }
+  onDidOpen(composite) {
+    this.activePaneContextKey.set(composite.getId());
+  }
+  onDidClose(composite) {
+    const id = composite.getId();
+    if (this.activePaneContextKey.get() === id) {
+      this.activePaneContextKey.reset();
+    }
+  }
+  showComposite(composite) {
+    super.showComposite(composite);
+    this.layoutCompositeBar();
+    this.layoutEmptyMessage();
+  }
+  hideActiveComposite() {
+    const composite = super.hideActiveComposite();
+    this.layoutCompositeBar();
+    this.layoutEmptyMessage();
+    return composite;
+  }
+  create(parent) {
+    this.element = parent;
+    this.element.classList.add("pane-composite-part");
+    super.create(parent);
+    if (this.contentArea) {
+      this.createEmptyPaneMessage(this.contentArea);
+    }
+    this.updateCompositeBar();
+    const focusTracker = this._register(trackFocus(parent));
+    this._register(focusTracker.onDidFocus(() => this.paneFocusContextKey.set(true)));
+    this._register(focusTracker.onDidBlur(() => this.paneFocusContextKey.set(false)));
+  }
+  createEmptyPaneMessage(parent) {
+    this.emptyPaneMessageElement = $(".empty-pane-message-area");
+    const messageElement = $(".empty-pane-message");
+    messageElement.textContent = localize("pane.emptyMessage", "Drag a view here to display.");
+    this.emptyPaneMessageElement.appendChild(messageElement);
+    parent.appendChild(this.emptyPaneMessageElement);
+    const setDropBackgroundFeedback = /* @__PURE__ */ __name((visible) => {
+      const updateActivityBarBackground = !this.getActiveComposite() || !visible;
+      const backgroundColor = visible ? this.theme.getColor(EDITOR_DRAG_AND_DROP_BACKGROUND)?.toString() || "" : "";
+      if (this.titleContainer && updateActivityBarBackground) {
+        this.titleContainer.style.backgroundColor = backgroundColor;
+      }
+      if (this.headerFooterCompositeBarContainer && updateActivityBarBackground) {
+        this.headerFooterCompositeBarContainer.style.backgroundColor = backgroundColor;
+      }
+      this.emptyPaneMessageElement.style.backgroundColor = backgroundColor;
+    }, "setDropBackgroundFeedback");
+    this._register(CompositeDragAndDropObserver.INSTANCE.registerTarget(this.element, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        if (this.paneCompositeBar.value) {
+          const validDropTarget = this.paneCompositeBar.value.dndHandler.onDragEnter(e.dragAndDropData, void 0, e.eventData);
+          toggleDropEffect(e.eventData.dataTransfer, "move", validDropTarget);
+        }
+      }, "onDragOver"),
+      onDragEnter: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        if (this.paneCompositeBar.value) {
+          const validDropTarget = this.paneCompositeBar.value.dndHandler.onDragEnter(e.dragAndDropData, void 0, e.eventData);
+          setDropBackgroundFeedback(validDropTarget);
+        }
+      }, "onDragEnter"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        setDropBackgroundFeedback(false);
+      }, "onDragLeave"),
+      onDragEnd: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        setDropBackgroundFeedback(false);
+      }, "onDragEnd"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        EventHelper.stop(e.eventData, true);
+        setDropBackgroundFeedback(false);
+        if (this.paneCompositeBar.value) {
+          this.paneCompositeBar.value.dndHandler.drop(e.dragAndDropData, void 0, e.eventData);
+        } else {
+          const dragData = e.dragAndDropData.getData();
+          if (dragData.type === "composite") {
+            const currentContainer = this.viewDescriptorService.getViewContainerById(dragData.id);
+            this.viewDescriptorService.moveViewContainerToLocation(currentContainer, this.location, void 0, "dnd");
+            this.openPaneComposite(currentContainer.id, true);
+          } else if (dragData.type === "view") {
+            const viewToMove = this.viewDescriptorService.getViewDescriptorById(dragData.id);
+            if (viewToMove.canMoveView) {
+              this.viewDescriptorService.moveViewToLocation(viewToMove, this.location, "dnd");
+              const newContainer = this.viewDescriptorService.getViewContainerByViewId(viewToMove.id);
+              this.openPaneComposite(newContainer.id, true).then((composite) => {
+                composite?.openView(viewToMove.id, true);
+              });
+            }
+          }
+        }
+      }, "onDrop")
+    }));
+  }
+  createTitleArea(parent) {
+    const titleArea = super.createTitleArea(parent);
+    this._register(addDisposableListener(titleArea, EventType.CONTEXT_MENU, (e) => {
+      this.onTitleAreaContextMenu(new StandardMouseEvent(getWindow(titleArea), e));
+    }));
+    this._register(Gesture.addTarget(titleArea));
+    this._register(addDisposableListener(titleArea, GestureEventType.Contextmenu, (e) => {
+      this.onTitleAreaContextMenu(new StandardMouseEvent(getWindow(titleArea), e));
+    }));
+    const globalTitleActionsContainer = titleArea.appendChild($(".global-actions"));
+    this.globalToolBar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, globalTitleActionsContainer, this.globalActionsMenuId, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
+      orientation: 0,
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      anchorAlignmentProvider: /* @__PURE__ */ __name(() => this.getTitleAreaDropDownAnchorAlignment(), "anchorAlignmentProvider"),
+      toggleMenuTitle: localize("moreActions", "More Actions..."),
+      hoverDelegate: this.toolbarHoverDelegate,
+      hiddenItemStrategy: -1,
+      highlightToggledItems: true,
+      telemetrySource: this.nameForTelemetry
+    }));
+    return titleArea;
+  }
+  createTitleLabel(parent) {
+    this.titleContainer = parent;
+    const titleLabel = super.createTitleLabel(parent);
+    this.titleLabelElement.draggable = true;
+    const draggedItemProvider = /* @__PURE__ */ __name(() => {
+      const activeViewlet = this.getActivePaneComposite();
+      return { type: "composite", id: activeViewlet.getId() };
+    }, "draggedItemProvider");
+    this._register(CompositeDragAndDropObserver.INSTANCE.registerDraggable(this.titleLabelElement, draggedItemProvider, {}));
+    return titleLabel;
+  }
+  updateCompositeBar(updateCompositeBarOption = false) {
+    const wasCompositeBarVisible = this.compositeBarPosition !== void 0;
+    const isCompositeBarVisible = this.shouldShowCompositeBar();
+    const previousPosition = this.compositeBarPosition;
+    const newPosition = isCompositeBarVisible ? this.getCompositeBarPosition() : void 0;
+    if (!updateCompositeBarOption && previousPosition === newPosition) {
+      return;
+    }
+    if (wasCompositeBarVisible) {
+      const previousCompositeBarContainer = previousPosition === CompositeBarPosition.TITLE ? this.titleContainer : this.headerFooterCompositeBarContainer;
+      if (!this.paneCompositeBarContainer || !this.paneCompositeBar.value || !previousCompositeBarContainer) {
+        throw new Error("Composite bar containers should exist when removing the previous composite bar");
+      }
+      this.paneCompositeBarContainer.remove();
+      this.paneCompositeBarContainer = void 0;
+      this.paneCompositeBar.value = void 0;
+      previousCompositeBarContainer.classList.remove("has-composite-bar");
+      if (previousPosition === CompositeBarPosition.TOP) {
+        this.removeFooterHeaderArea(true);
+      } else if (previousPosition === CompositeBarPosition.BOTTOM) {
+        this.removeFooterHeaderArea(false);
+      }
+    }
+    let newCompositeBarContainer;
+    switch (newPosition) {
+      case CompositeBarPosition.TOP:
+        newCompositeBarContainer = this.createHeaderArea();
+        break;
+      case CompositeBarPosition.TITLE:
+        newCompositeBarContainer = this.titleContainer;
+        break;
+      case CompositeBarPosition.BOTTOM:
+        newCompositeBarContainer = this.createFooterArea();
+        break;
+    }
+    if (isCompositeBarVisible) {
+      if (this.paneCompositeBarContainer || this.paneCompositeBar.value || !newCompositeBarContainer) {
+        throw new Error("Invalid composite bar state when creating the new composite bar");
+      }
+      newCompositeBarContainer.classList.add("has-composite-bar");
+      this.paneCompositeBarContainer = prepend(newCompositeBarContainer, $(".composite-bar-container"));
+      this.paneCompositeBar.value = this.createCompositeBar();
+      this.paneCompositeBar.value.create(this.paneCompositeBarContainer);
+      if (newPosition === CompositeBarPosition.TOP) {
+        this.setHeaderArea(newCompositeBarContainer);
+      } else if (newPosition === CompositeBarPosition.BOTTOM) {
+        this.setFooterArea(newCompositeBarContainer);
+      }
+    }
+    this.compositeBarPosition = newPosition;
+    if (updateCompositeBarOption) {
+      this.layoutCompositeBar();
+    }
+  }
+  createHeaderArea() {
+    const headerArea = super.createHeaderArea();
+    return this.createHeaderFooterCompositeBarArea(headerArea);
+  }
+  createFooterArea() {
+    const footerArea = super.createFooterArea();
+    return this.createHeaderFooterCompositeBarArea(footerArea);
+  }
+  createHeaderFooterCompositeBarArea(area) {
+    if (this.headerFooterCompositeBarContainer) {
+      throw new Error("Header or Footer composite bar already exists");
+    }
+    this.headerFooterCompositeBarContainer = area;
+    this.headerFooterCompositeBarDispoables.add(addDisposableListener(area, EventType.CONTEXT_MENU, (e) => {
+      this.onCompositeBarAreaContextMenu(new StandardMouseEvent(getWindow(area), e));
+    }));
+    this.headerFooterCompositeBarDispoables.add(Gesture.addTarget(area));
+    this.headerFooterCompositeBarDispoables.add(addDisposableListener(area, GestureEventType.Contextmenu, (e) => {
+      this.onCompositeBarAreaContextMenu(new StandardMouseEvent(getWindow(area), e));
+    }));
+    return area;
+  }
+  removeFooterHeaderArea(header) {
+    this.headerFooterCompositeBarContainer = void 0;
+    this.headerFooterCompositeBarDispoables.clear();
+    if (header) {
+      this.removeHeaderArea();
+    } else {
+      this.removeFooterArea();
+    }
+  }
+  createCompositeBar() {
+    return this.instantiationService.createInstance(PaneCompositeBar, this.getCompositeBarOptions(), this.partId, this);
+  }
+  onTitleAreaUpdate(compositeId) {
+    super.onTitleAreaUpdate(compositeId);
+    this.layoutCompositeBar();
+  }
+  async openPaneComposite(id, focus) {
+    if (typeof id === "string" && this.getPaneComposite(id)) {
+      return this.doOpenPaneComposite(id, focus);
+    }
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    if (typeof id === "string" && this.getPaneComposite(id)) {
+      return this.doOpenPaneComposite(id, focus);
+    }
+    return void 0;
+  }
+  async doOpenPaneComposite(id, focus) {
+    if (this.blockOpening) {
+      return this.blockOpening.p;
+    }
+    let blockOpening;
+    if (!this.layoutService.isVisible(this.partId)) {
+      try {
+        blockOpening = this.blockOpening = new DeferredPromise();
+        this.layoutService.setPartHidden(false, this.partId);
+      } finally {
+        this.blockOpening = void 0;
+      }
+    }
+    try {
+      const result = this.openComposite(id, focus);
+      blockOpening?.complete(result);
+      return result;
+    } catch (error) {
+      blockOpening?.error(error);
+      throw error;
+    }
+  }
+  getPaneComposite(id) {
+    return this.registry.getPaneComposite(id);
+  }
+  getPaneComposites() {
+    return this.registry.getPaneComposites().sort((v1, v2) => {
+      if (typeof v1.order !== "number") {
+        return 1;
+      }
+      if (typeof v2.order !== "number") {
+        return -1;
+      }
+      return v1.order - v2.order;
+    });
+  }
+  getPinnedPaneCompositeIds() {
+    return this.paneCompositeBar.value?.getPinnedPaneCompositeIds() ?? [];
+  }
+  getVisiblePaneCompositeIds() {
+    return this.paneCompositeBar.value?.getVisiblePaneCompositeIds() ?? [];
+  }
+  getPaneCompositeIds() {
+    return this.paneCompositeBar.value?.getPaneCompositeIds() ?? [];
+  }
+  getActivePaneComposite() {
+    return this.getActiveComposite();
+  }
+  getLastActivePaneCompositeId() {
+    return this.getLastActiveCompositeId();
+  }
+  hideActivePaneComposite() {
+    if (this.layoutService.isVisible(this.partId)) {
+      this.layoutService.setPartHidden(true, this.partId);
+    }
+    this.hideActiveComposite();
+  }
+  focusCompositeBar() {
+    this.paneCompositeBar.value?.focus();
+  }
+  layout(width, height, top, left) {
+    if (!this.layoutService.isVisible(this.partId)) {
+      return;
+    }
+    this.contentDimension = new Dimension(width, height);
+    super.layout(this.contentDimension.width, this.contentDimension.height, top, left);
+    this.layoutCompositeBar();
+    this.layoutEmptyMessage();
+  }
+  layoutCompositeBar() {
+    if (this.contentDimension && this.dimension && this.paneCompositeBar.value) {
+      const padding = this.compositeBarPosition === CompositeBarPosition.TITLE ? 16 : 8;
+      const borderWidth = this.partId === "workbench.parts.panel" ? 0 : 1;
+      let availableWidth = this.contentDimension.width - padding - borderWidth;
+      availableWidth = Math.max(AbstractPaneCompositePart_1.MIN_COMPOSITE_BAR_WIDTH, availableWidth - this.getToolbarWidth());
+      this.paneCompositeBar.value.layout(availableWidth, this.dimension.height);
+    }
+  }
+  layoutEmptyMessage() {
+    const visible = !this.getActiveComposite();
+    this.element.classList.toggle("empty", visible);
+    if (visible) {
+      this.titleLabel?.updateTitle("", "");
+    }
+  }
+  getToolbarWidth() {
+    if (!this.toolBar || this.compositeBarPosition !== CompositeBarPosition.TITLE) {
+      return 0;
+    }
+    const activePane = this.getActivePaneComposite();
+    if (!activePane) {
+      return 0;
+    }
+    const toolBarWidth = this.toolBar.getItemsWidth() + this.toolBar.getItemsLength() * 4;
+    const globalToolBarWidth = this.globalToolBar ? this.globalToolBar.getItemsWidth() + this.globalToolBar.getItemsLength() * 4 : 0;
+    return toolBarWidth + globalToolBarWidth + 8;
+  }
+  onTitleAreaContextMenu(event) {
+    if (this.shouldShowCompositeBar() && this.getCompositeBarPosition() === CompositeBarPosition.TITLE) {
+      return this.onCompositeBarContextMenu(event);
+    } else {
+      const activePaneComposite = this.getActivePaneComposite();
+      const activePaneCompositeActions = activePaneComposite ? activePaneComposite.getContextMenuActions() : [];
+      if (activePaneCompositeActions.length) {
+        this.contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => activePaneCompositeActions, "getActions"),
+          getActionViewItem: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "getActionViewItem"),
+          actionRunner: activePaneComposite.getActionRunner(),
+          skipTelemetry: true
+        });
+      }
+    }
+  }
+  onCompositeBarAreaContextMenu(event) {
+    return this.onCompositeBarContextMenu(event);
+  }
+  onCompositeBarContextMenu(event) {
+    if (this.paneCompositeBar.value) {
+      const actions = [...this.paneCompositeBar.value.getContextMenuActions()];
+      if (actions.length) {
+        this.contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+          skipTelemetry: true
+        });
+      }
+    }
+  }
+  getViewsSubmenuAction() {
+    const viewPaneContainer = this.getActivePaneComposite()?.getViewPaneContainer();
+    if (viewPaneContainer) {
+      const disposables = new DisposableStore();
+      const scopedContextKeyService = disposables.add(this.contextKeyService.createScoped(this.element));
+      scopedContextKeyService.createKey("viewContainer", viewPaneContainer.viewContainer.id);
+      const menu = this.menuService.getMenuActions(ViewsSubMenu, scopedContextKeyService, { shouldForwardArgs: true, renderShortTitle: true });
+      const viewsActions = getActionBarActions(menu, () => true).primary;
+      disposables.dispose();
+      return viewsActions.length > 1 && viewsActions.some((a) => a.enabled) ? new SubmenuAction("views", localize("views", "Views"), viewsActions) : void 0;
+    }
+    return void 0;
+  }
+};
+AbstractPaneCompositePart = AbstractPaneCompositePart_1 = __decorate([
+  __param(9, INotificationService),
+  __param(10, IStorageService),
+  __param(11, IContextMenuService),
+  __param(12, IWorkbenchLayoutService),
+  __param(13, IKeybindingService),
+  __param(14, IHoverService),
+  __param(15, IInstantiationService),
+  __param(16, IThemeService),
+  __param(17, IViewDescriptorService),
+  __param(18, IContextKeyService),
+  __param(19, IExtensionService),
+  __param(20, IMenuService)
+], AbstractPaneCompositePart);
+export {
+  AbstractPaneCompositePart,
+  CompositeBarPosition
+};
+//# sourceMappingURL=paneCompositePart.js.map

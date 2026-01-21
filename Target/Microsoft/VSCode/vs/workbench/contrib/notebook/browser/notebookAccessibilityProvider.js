@@ -1,1 +1,125 @@
-import{Event as p,$wf as v}from"../../../../base/common/event.js";import{$Ed as x}from"../../../../base/common/lifecycle.js";import{observableFromEvent as y}from"../../../../base/common/observable.js";import*as f from"../../../../nls.js";import{$9l as $}from"../../../../platform/configuration/common/configuration.js";import{$cy as E}from"../../../../platform/keybinding/common/keybinding.js";import{CellKind as H,NotebookCellExecutionState as b}from"../common/notebookCommon.js";import{$PP as w,NotebookExecutionType as M}from"../common/notebookExecutionStateService.js";import{$yGb as _}from"./viewModel/cellOutputTextHelper.js";import{$JD as C}from"../../../../platform/accessibility/common/accessibility.js";import{$c0 as j}from"../../../../base/browser/ui/aria/aria.js";var g=function(s,t,e,i){var o=arguments.length,n=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(s,t,e,i);else for(var l=s.length-1;l>=0;l--)(r=s[l])&&(n=(o<3?r(n):o>3?r(t,e,n):r(t,e))||n);return o>3&&n&&Object.defineProperty(t,e,n),n},u=function(s,t){return function(e,i){t(e,i,s)}};let m=class extends x{constructor(t,e,i,o,n,r){super(),this.c=t,this.f=e,this.g=i,this.h=o,this.j=n,this.m=r,this.a=new v,this.b=this.a.event,this.D(p.debounce(this.g.onDidChangeExecution,(l,c)=>this.t(l,c),100)(l=>{if(!l.length)return;const c=this.c();if(c){for(const a of l){const h=c.getCellByHandle(a.cellHandle);h&&this.a.fire(h)}const d=l[l.length-1];if(this.n(d.state)){const a=c.getCellByHandle(d.cellHandle);if(a&&a.outputsViewModels.length){const h=_(c.notebookDocument,a,!0);j(h)}}}},this))}n(t){return t===void 0&&this.f&&this.m.isScreenReaderOptimized()&&this.j.getValue("accessibility.replEditor.readLastExecutionOutput")}get verbositySettingId(){return this.f?"accessibility.verbosity.replEditor":"accessibility.verbosity.notebook"}getAriaLabel(t){const e=p.filter(this.b,i=>i===t);return y(this,e,()=>{const i=this.c();return i&&i.getCellIndex(t)>=0?this.r(t):""})}q(t,e){return this.f?`cell${t}`:`${e===H.Markup?"markdown":"code"} cell${t}`}r(t){const e=this.g.getCellExecution(t.uri)?.state,i=e===b.Executing?", executing":e===b.Pending?", pending":"";return this.q(i,t.cellKind)}get s(){return this.f?f.localize(10729,null):f.localize(10730,null)}getWidgetAriaLabel(){const t=this.h.lookupKeybinding("editor.action.accessibilityHelp")?.getLabel();return this.j.getValue(this.verbositySettingId)?t?f.localize(10731,null,this.s,t):f.localize(10732,null,this.s):this.s}t(t,e){const i=this.c(),o=t||[];if(i&&e.type===M.cell&&e.affectsNotebook(i.uri)){const n=o.findIndex(r=>r.cellHandle===e.cellHandle);n>=0&&o.splice(n,1),o.push({cellHandle:e.cellHandle,state:e.changed?.state})}return o}};m=g([u(2,w),u(3,E),u(4,$),u(5,C)],m);export{m as $7Mb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { observableFromEvent } from "../../../../base/common/observable.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { CellKind, NotebookCellExecutionState } from "../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../common/notebookExecutionStateService.js";
+import { getAllOutputsText } from "./viewModel/cellOutputTextHelper.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+let NotebookAccessibilityProvider = class NotebookAccessibilityProvider2 extends Disposable {
+  static {
+    __name(this, "NotebookAccessibilityProvider");
+  }
+  constructor(viewModel, isReplHistory, notebookExecutionStateService, keybindingService, configurationService, accessibilityService) {
+    super();
+    this.viewModel = viewModel;
+    this.isReplHistory = isReplHistory;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this.keybindingService = keybindingService;
+    this.configurationService = configurationService;
+    this.accessibilityService = accessibilityService;
+    this._onDidAriaLabelChange = new Emitter();
+    this.onDidAriaLabelChange = this._onDidAriaLabelChange.event;
+    this._register(Event.debounce(this.notebookExecutionStateService.onDidChangeExecution, (last, e) => this.mergeEvents(last, e), 100)((updates) => {
+      if (!updates.length) {
+        return;
+      }
+      const viewModel2 = this.viewModel();
+      if (viewModel2) {
+        for (const update of updates) {
+          const cellModel = viewModel2.getCellByHandle(update.cellHandle);
+          if (cellModel) {
+            this._onDidAriaLabelChange.fire(cellModel);
+          }
+        }
+        const lastUpdate = updates[updates.length - 1];
+        if (this.shouldReadCellOutputs(lastUpdate.state)) {
+          const cell = viewModel2.getCellByHandle(lastUpdate.cellHandle);
+          if (cell && cell.outputsViewModels.length) {
+            const text = getAllOutputsText(viewModel2.notebookDocument, cell, true);
+            alert(text);
+          }
+        }
+      }
+    }, this));
+  }
+  shouldReadCellOutputs(state) {
+    return state === void 0 && this.isReplHistory && this.accessibilityService.isScreenReaderOptimized() && this.configurationService.getValue("accessibility.replEditor.readLastExecutionOutput");
+  }
+  get verbositySettingId() {
+    return this.isReplHistory ? "accessibility.verbosity.replEditor" : "accessibility.verbosity.notebook";
+  }
+  getAriaLabel(element) {
+    const event = Event.filter(this.onDidAriaLabelChange, (e) => e === element);
+    return observableFromEvent(this, event, () => {
+      const viewModel = this.viewModel();
+      if (!viewModel) {
+        return "";
+      }
+      const index = viewModel.getCellIndex(element);
+      if (index >= 0) {
+        return this.getLabel(element);
+      }
+      return "";
+    });
+  }
+  createItemLabel(executionLabel, cellKind) {
+    return this.isReplHistory ? `cell${executionLabel}` : `${cellKind === CellKind.Markup ? "markdown" : "code"} cell${executionLabel}`;
+  }
+  getLabel(element) {
+    const executionState = this.notebookExecutionStateService.getCellExecution(element.uri)?.state;
+    const executionLabel = executionState === NotebookCellExecutionState.Executing ? ", executing" : executionState === NotebookCellExecutionState.Pending ? ", pending" : "";
+    return this.createItemLabel(executionLabel, element.cellKind);
+  }
+  get widgetAriaLabelName() {
+    return this.isReplHistory ? nls.localize("replHistoryTreeAriaLabel", "REPL Editor History") : nls.localize("notebookTreeAriaLabel", "Notebook");
+  }
+  getWidgetAriaLabel() {
+    const keybinding = this.keybindingService.lookupKeybinding(
+      "editor.action.accessibilityHelp"
+      /* AccessibilityCommandId.OpenAccessibilityHelp */
+    )?.getLabel();
+    if (this.configurationService.getValue(this.verbositySettingId)) {
+      return keybinding ? nls.localize("notebookTreeAriaLabelHelp", "{0}\nUse {1} for accessibility help", this.widgetAriaLabelName, keybinding) : nls.localize("notebookTreeAriaLabelHelpNoKb", "{0}\nRun the Open Accessibility Help command for more information", this.widgetAriaLabelName);
+    }
+    return this.widgetAriaLabelName;
+  }
+  mergeEvents(last, e) {
+    const viewModel = this.viewModel();
+    const result = last || [];
+    if (viewModel && e.type === NotebookExecutionType.cell && e.affectsNotebook(viewModel.uri)) {
+      const index = result.findIndex((update) => update.cellHandle === e.cellHandle);
+      if (index >= 0) {
+        result.splice(index, 1);
+      }
+      result.push({ cellHandle: e.cellHandle, state: e.changed?.state });
+    }
+    return result;
+  }
+};
+NotebookAccessibilityProvider = __decorate([
+  __param(2, INotebookExecutionStateService),
+  __param(3, IKeybindingService),
+  __param(4, IConfigurationService),
+  __param(5, IAccessibilityService)
+], NotebookAccessibilityProvider);
+export {
+  NotebookAccessibilityProvider
+};
+//# sourceMappingURL=notebookAccessibilityProvider.js.map

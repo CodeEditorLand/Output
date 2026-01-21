@@ -1,1 +1,99 @@
-import{$9n as o,$po as e}from"../../../../platform/contextkey/common/contextkey.js";import{$bQ as t,$$P as n,$cQ as s}from"./notebookCommon.js";const a=new e("userHasOpenedNotebook",!1),E=new e("notebookFindWidgetFocused",!1),i=new e("interactiveWindowOpen",!1),u=new e("mostRecentReplEditor",void 0),l=o.equals("activeEditor",n),b=o.equals("activeEditor",t),r=o.equals("activeEditor",s),$=o.or(l,b,r),x=new e("isCompositeNotebook",!1),w=new e("notebookEditorFocused",!1),d=new e("notebookCellListFocused",!1),k=new e("notebookOutputFocused",!1),f=new e("notebookOutputInputFocused",!1),C=new e("notebookEditable",!0),O=new e("notebookHasRunningCell",!1),F=new e("notebookHasSomethingRunning",!1),m=new e("notebookUseConsolidatedOutputButton",!1),g=new e("notebookBreakpointMargin",!1),H=new e("notebookCellToolbarLocation","left"),M=new e("notebookCursorNavigationMode",!1),v=new e("notebookLastCellFailed",!1),I=new e("notebookType",void 0),K=new e("notebookCellType",void 0),L=new e("notebookCellEditable",!1),R=new e("notebookCellFocused",!1),T=new e("notebookCellEditorFocused",!1),h=new e("notebookCellMarkdownEditMode",!1),y=new e("notebookCellLineNumbers","inherit"),N=new e("notebookCellExecutionState",void 0),S=new e("notebookCellExecuting",!1),q=new e("notebookCellHasOutputs",!1),B=new e("notebookCellIsFirstOutput",!1),P=new e("hasHiddenOutputs",!1),Q=new e("notebookCellOutputMimeType",void 0),W=new e("notebookCellInputIsCollapsed",!1),D=new e("notebookCellOutputIsCollapsed",!1),U=new e("notebookCellResource",""),V=new e("notebookCellHasErrorDiagnostics",!1),j=new e("notebookCellOutputMimeTypeListForChat",[]),z=new e("notebookKernel",void 0),A=new e("notebookKernelCount",0),G=new e("notebookKernelSourceCount",0),J=new e("notebookKernelSelected",!1),X=new e("notebookInterruptibleKernel",!1),Y=new e("notebookMissingKernelExtension",!1),Z=new e("notebookHasOutputs",!1),_=new e("kernelHasVariableProvider",!1);export{Z as $1Eb,_ as $2Eb,M as $AEb,v as $BEb,I as $CEb,K as $DEb,L as $EEb,R as $FEb,T as $GEb,h as $HEb,y as $IEb,N as $JEb,S as $KEb,q as $LEb,B as $MEb,P as $NEb,Q as $OEb,W as $PEb,D as $QEb,U as $REb,V as $SEb,j as $TEb,z as $UEb,A as $VEb,G as $WEb,J as $XEb,X as $YEb,Y as $ZEb,a as $hEb,E as $iEb,i as $jEb,u as $kEb,l as $lEb,b as $mEb,r as $nEb,$ as $oEb,x as $pEb,w as $qEb,d as $rEb,k as $sEb,f as $tEb,C as $uEb,O as $vEb,F as $wEb,m as $xEb,g as $yEb,H as $zEb};
+import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { INTERACTIVE_WINDOW_EDITOR_ID, NOTEBOOK_EDITOR_ID, REPL_EDITOR_ID } from "./notebookCommon.js";
+const HAS_OPENED_NOTEBOOK = new RawContextKey("userHasOpenedNotebook", false);
+const KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED = new RawContextKey("notebookFindWidgetFocused", false);
+const InteractiveWindowOpen = new RawContextKey("interactiveWindowOpen", false);
+const MOST_RECENT_REPL_EDITOR = new RawContextKey("mostRecentReplEditor", void 0);
+const NOTEBOOK_IS_ACTIVE_EDITOR = ContextKeyExpr.equals("activeEditor", NOTEBOOK_EDITOR_ID);
+const INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR = ContextKeyExpr.equals("activeEditor", INTERACTIVE_WINDOW_EDITOR_ID);
+const REPL_NOTEBOOK_IS_ACTIVE_EDITOR = ContextKeyExpr.equals("activeEditor", REPL_EDITOR_ID);
+const NOTEBOOK_OR_COMPOSITE_IS_ACTIVE_EDITOR = ContextKeyExpr.or(NOTEBOOK_IS_ACTIVE_EDITOR, INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR, REPL_NOTEBOOK_IS_ACTIVE_EDITOR);
+const IS_COMPOSITE_NOTEBOOK = new RawContextKey("isCompositeNotebook", false);
+const NOTEBOOK_EDITOR_FOCUSED = new RawContextKey("notebookEditorFocused", false);
+const NOTEBOOK_CELL_LIST_FOCUSED = new RawContextKey("notebookCellListFocused", false);
+const NOTEBOOK_OUTPUT_FOCUSED = new RawContextKey("notebookOutputFocused", false);
+const NOTEBOOK_OUTPUT_INPUT_FOCUSED = new RawContextKey("notebookOutputInputFocused", false);
+const NOTEBOOK_EDITOR_EDITABLE = new RawContextKey("notebookEditable", true);
+const NOTEBOOK_HAS_RUNNING_CELL = new RawContextKey("notebookHasRunningCell", false);
+const NOTEBOOK_HAS_SOMETHING_RUNNING = new RawContextKey("notebookHasSomethingRunning", false);
+const NOTEBOOK_USE_CONSOLIDATED_OUTPUT_BUTTON = new RawContextKey("notebookUseConsolidatedOutputButton", false);
+const NOTEBOOK_BREAKPOINT_MARGIN_ACTIVE = new RawContextKey("notebookBreakpointMargin", false);
+const NOTEBOOK_CELL_TOOLBAR_LOCATION = new RawContextKey("notebookCellToolbarLocation", "left");
+const NOTEBOOK_CURSOR_NAVIGATION_MODE = new RawContextKey("notebookCursorNavigationMode", false);
+const NOTEBOOK_LAST_CELL_FAILED = new RawContextKey("notebookLastCellFailed", false);
+const NOTEBOOK_VIEW_TYPE = new RawContextKey("notebookType", void 0);
+const NOTEBOOK_CELL_TYPE = new RawContextKey("notebookCellType", void 0);
+const NOTEBOOK_CELL_EDITABLE = new RawContextKey("notebookCellEditable", false);
+const NOTEBOOK_CELL_FOCUSED = new RawContextKey("notebookCellFocused", false);
+const NOTEBOOK_CELL_EDITOR_FOCUSED = new RawContextKey("notebookCellEditorFocused", false);
+const NOTEBOOK_CELL_MARKDOWN_EDIT_MODE = new RawContextKey("notebookCellMarkdownEditMode", false);
+const NOTEBOOK_CELL_LINE_NUMBERS = new RawContextKey("notebookCellLineNumbers", "inherit");
+const NOTEBOOK_CELL_EXECUTION_STATE = new RawContextKey("notebookCellExecutionState", void 0);
+const NOTEBOOK_CELL_EXECUTING = new RawContextKey("notebookCellExecuting", false);
+const NOTEBOOK_CELL_HAS_OUTPUTS = new RawContextKey("notebookCellHasOutputs", false);
+const NOTEBOOK_CELL_IS_FIRST_OUTPUT = new RawContextKey("notebookCellIsFirstOutput", false);
+const NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS = new RawContextKey("hasHiddenOutputs", false);
+const NOTEBOOK_CELL_OUTPUT_MIMETYPE = new RawContextKey("notebookCellOutputMimeType", void 0);
+const NOTEBOOK_CELL_INPUT_COLLAPSED = new RawContextKey("notebookCellInputIsCollapsed", false);
+const NOTEBOOK_CELL_OUTPUT_COLLAPSED = new RawContextKey("notebookCellOutputIsCollapsed", false);
+const NOTEBOOK_CELL_RESOURCE = new RawContextKey("notebookCellResource", "");
+const NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS = new RawContextKey("notebookCellHasErrorDiagnostics", false);
+const NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT = new RawContextKey("notebookCellOutputMimeTypeListForChat", []);
+const NOTEBOOK_KERNEL = new RawContextKey("notebookKernel", void 0);
+const NOTEBOOK_KERNEL_COUNT = new RawContextKey("notebookKernelCount", 0);
+const NOTEBOOK_KERNEL_SOURCE_COUNT = new RawContextKey("notebookKernelSourceCount", 0);
+const NOTEBOOK_KERNEL_SELECTED = new RawContextKey("notebookKernelSelected", false);
+const NOTEBOOK_INTERRUPTIBLE_KERNEL = new RawContextKey("notebookInterruptibleKernel", false);
+const NOTEBOOK_MISSING_KERNEL_EXTENSION = new RawContextKey("notebookMissingKernelExtension", false);
+const NOTEBOOK_HAS_OUTPUTS = new RawContextKey("notebookHasOutputs", false);
+const KERNEL_HAS_VARIABLE_PROVIDER = new RawContextKey("kernelHasVariableProvider", false);
+export {
+  HAS_OPENED_NOTEBOOK,
+  INTERACTIVE_WINDOW_IS_ACTIVE_EDITOR,
+  IS_COMPOSITE_NOTEBOOK,
+  InteractiveWindowOpen,
+  KERNEL_HAS_VARIABLE_PROVIDER,
+  KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED,
+  MOST_RECENT_REPL_EDITOR,
+  NOTEBOOK_BREAKPOINT_MARGIN_ACTIVE,
+  NOTEBOOK_CELL_EDITABLE,
+  NOTEBOOK_CELL_EDITOR_FOCUSED,
+  NOTEBOOK_CELL_EXECUTING,
+  NOTEBOOK_CELL_EXECUTION_STATE,
+  NOTEBOOK_CELL_FOCUSED,
+  NOTEBOOK_CELL_HAS_ERROR_DIAGNOSTICS,
+  NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS,
+  NOTEBOOK_CELL_HAS_OUTPUTS,
+  NOTEBOOK_CELL_INPUT_COLLAPSED,
+  NOTEBOOK_CELL_IS_FIRST_OUTPUT,
+  NOTEBOOK_CELL_LINE_NUMBERS,
+  NOTEBOOK_CELL_LIST_FOCUSED,
+  NOTEBOOK_CELL_MARKDOWN_EDIT_MODE,
+  NOTEBOOK_CELL_OUTPUT_COLLAPSED,
+  NOTEBOOK_CELL_OUTPUT_MIMETYPE,
+  NOTEBOOK_CELL_OUTPUT_MIME_TYPE_LIST_FOR_CHAT,
+  NOTEBOOK_CELL_RESOURCE,
+  NOTEBOOK_CELL_TOOLBAR_LOCATION,
+  NOTEBOOK_CELL_TYPE,
+  NOTEBOOK_CURSOR_NAVIGATION_MODE,
+  NOTEBOOK_EDITOR_EDITABLE,
+  NOTEBOOK_EDITOR_FOCUSED,
+  NOTEBOOK_HAS_OUTPUTS,
+  NOTEBOOK_HAS_RUNNING_CELL,
+  NOTEBOOK_HAS_SOMETHING_RUNNING,
+  NOTEBOOK_INTERRUPTIBLE_KERNEL,
+  NOTEBOOK_IS_ACTIVE_EDITOR,
+  NOTEBOOK_KERNEL,
+  NOTEBOOK_KERNEL_COUNT,
+  NOTEBOOK_KERNEL_SELECTED,
+  NOTEBOOK_KERNEL_SOURCE_COUNT,
+  NOTEBOOK_LAST_CELL_FAILED,
+  NOTEBOOK_MISSING_KERNEL_EXTENSION,
+  NOTEBOOK_OR_COMPOSITE_IS_ACTIVE_EDITOR,
+  NOTEBOOK_OUTPUT_FOCUSED,
+  NOTEBOOK_OUTPUT_INPUT_FOCUSED,
+  NOTEBOOK_USE_CONSOLIDATED_OUTPUT_BUTTON,
+  NOTEBOOK_VIEW_TYPE,
+  REPL_NOTEBOOK_IS_ACTIVE_EDITOR
+};
+//# sourceMappingURL=notebookContextKeys.js.map

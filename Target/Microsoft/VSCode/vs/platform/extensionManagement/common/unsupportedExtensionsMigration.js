@@ -1,1 +1,84 @@
-import{CancellationToken as h}from"../../../base/common/cancellation.js";import{$Xz as b}from"./extensionManagement.js";import{$lA as l,$oA as g}from"./extensionManagementUtil.js";import*as E from"../../../base/common/semver/semver.js";async function A(o,x,w,m,t){try{const s=await o.getExtensionsControlManifest();if(!s.deprecated)return;const u=await o.getInstalled(1);for(const[d,f]of Object.entries(s.deprecated)){if(!f?.extension)continue;const{id:e,autoMigrate:a,preRelease:p}=f.extension;if(!a)continue;const i=u.find(r=>l(r.identifier,{id:d}));if(!i)continue;const $=(await x.getExtensions([{id:e,preRelease:p}],{targetPlatform:await o.getTargetPlatform(),compatible:!0},h.None))[0];if(!$){t.info(`Skipping migrating '${i.identifier.id}' extension because, the comaptible target '${e}' extension is not found`);continue}try{t.info(`Migrating '${i.identifier.id}' extension to '${e}' extension...`);const r=!m.getDisabledExtensions().some(c=>l(c,i.identifier));await o.uninstall(i),t.info(`Uninstalled the unsupported extension '${i.identifier.id}'`);let n=u.find(c=>l(c.identifier,{id:e}));(!n||!n.isPreReleaseVersion&&r)&&(n=await o.installFromGallery($,{installPreReleaseVersion:!0,isMachineScoped:i.isMachineScoped,operation:4,context:{[b]:!0}}),t.info(`Installed the pre-release extension '${n.identifier.id}'`),r||(await m.disableExtension(n.identifier),t.info(`Disabled the pre-release extension '${n.identifier.id}' because the unsupported extension '${i.identifier.id}' is disabled`)),a.storage&&(w.addToMigrationList(g(i.manifest.publisher,i.manifest.name),g(n.manifest.publisher,n.manifest.name)),t.info("Added pre-release extension to the storage migration list"))),t.info(`Migrated '${i.identifier.id}' extension to '${e}' extension.`)}catch(r){t.error(r)}}if(s.autoUpdate)for(const[d,f]of Object.entries(s.autoUpdate))try{const e=u.find(p=>l(p.identifier,{id:d})&&E.lte(p.manifest.version,f));if(!e)continue;const a=(await x.getExtensions([{id:d,preRelease:e.preRelease}],{targetPlatform:await o.getTargetPlatform(),compatible:!0},h.None))[0];if(!a){t.info(`Skipping updating '${e.identifier.id}' extension because, the compatible target '${d}' extension is not found`);continue}await o.installFromGallery(a,{installPreReleaseVersion:e.preRelease,isMachineScoped:e.isMachineScoped,operation:3,context:{[b]:!0}}),t.info(`Autoupdated '${e.identifier.id}' extension to '${a.version}' extension.`)}catch(e){t.error(e)}}catch(s){t.error(s)}}export{A as $6qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT } from "./extensionManagement.js";
+import { areSameExtensions, getExtensionId } from "./extensionManagementUtil.js";
+import * as semver from "../../../base/common/semver/semver.js";
+async function migrateUnsupportedExtensions(extensionManagementService, galleryService, extensionStorageService, extensionEnablementService, logService) {
+  try {
+    const extensionsControlManifest = await extensionManagementService.getExtensionsControlManifest();
+    if (!extensionsControlManifest.deprecated) {
+      return;
+    }
+    const installed = await extensionManagementService.getInstalled(
+      1
+      /* ExtensionType.User */
+    );
+    for (const [unsupportedExtensionId, deprecated] of Object.entries(extensionsControlManifest.deprecated)) {
+      if (!deprecated?.extension) {
+        continue;
+      }
+      const { id: preReleaseExtensionId, autoMigrate, preRelease } = deprecated.extension;
+      if (!autoMigrate) {
+        continue;
+      }
+      const unsupportedExtension = installed.find((i) => areSameExtensions(i.identifier, { id: unsupportedExtensionId }));
+      if (!unsupportedExtension) {
+        continue;
+      }
+      const gallery = (await galleryService.getExtensions([{ id: preReleaseExtensionId, preRelease }], { targetPlatform: await extensionManagementService.getTargetPlatform(), compatible: true }, CancellationToken.None))[0];
+      if (!gallery) {
+        logService.info(`Skipping migrating '${unsupportedExtension.identifier.id}' extension because, the comaptible target '${preReleaseExtensionId}' extension is not found`);
+        continue;
+      }
+      try {
+        logService.info(`Migrating '${unsupportedExtension.identifier.id}' extension to '${preReleaseExtensionId}' extension...`);
+        const isUnsupportedExtensionEnabled = !extensionEnablementService.getDisabledExtensions().some((e) => areSameExtensions(e, unsupportedExtension.identifier));
+        await extensionManagementService.uninstall(unsupportedExtension);
+        logService.info(`Uninstalled the unsupported extension '${unsupportedExtension.identifier.id}'`);
+        let preReleaseExtension = installed.find((i) => areSameExtensions(i.identifier, { id: preReleaseExtensionId }));
+        if (!preReleaseExtension || !preReleaseExtension.isPreReleaseVersion && isUnsupportedExtensionEnabled) {
+          preReleaseExtension = await extensionManagementService.installFromGallery(gallery, { installPreReleaseVersion: true, isMachineScoped: unsupportedExtension.isMachineScoped, operation: 4, context: { [EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT]: true } });
+          logService.info(`Installed the pre-release extension '${preReleaseExtension.identifier.id}'`);
+          if (!isUnsupportedExtensionEnabled) {
+            await extensionEnablementService.disableExtension(preReleaseExtension.identifier);
+            logService.info(`Disabled the pre-release extension '${preReleaseExtension.identifier.id}' because the unsupported extension '${unsupportedExtension.identifier.id}' is disabled`);
+          }
+          if (autoMigrate.storage) {
+            extensionStorageService.addToMigrationList(getExtensionId(unsupportedExtension.manifest.publisher, unsupportedExtension.manifest.name), getExtensionId(preReleaseExtension.manifest.publisher, preReleaseExtension.manifest.name));
+            logService.info(`Added pre-release extension to the storage migration list`);
+          }
+        }
+        logService.info(`Migrated '${unsupportedExtension.identifier.id}' extension to '${preReleaseExtensionId}' extension.`);
+      } catch (error) {
+        logService.error(error);
+      }
+    }
+    if (extensionsControlManifest.autoUpdate) {
+      for (const [extensionId, version] of Object.entries(extensionsControlManifest.autoUpdate)) {
+        try {
+          const extensionToAutoUpdate = installed.find((i) => areSameExtensions(i.identifier, { id: extensionId }) && semver.lte(i.manifest.version, version));
+          if (!extensionToAutoUpdate) {
+            continue;
+          }
+          const gallery = (await galleryService.getExtensions([{ id: extensionId, preRelease: extensionToAutoUpdate.preRelease }], { targetPlatform: await extensionManagementService.getTargetPlatform(), compatible: true }, CancellationToken.None))[0];
+          if (!gallery) {
+            logService.info(`Skipping updating '${extensionToAutoUpdate.identifier.id}' extension because, the compatible target '${extensionId}' extension is not found`);
+            continue;
+          }
+          await extensionManagementService.installFromGallery(gallery, { installPreReleaseVersion: extensionToAutoUpdate.preRelease, isMachineScoped: extensionToAutoUpdate.isMachineScoped, operation: 3, context: { [EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT]: true } });
+          logService.info(`Autoupdated '${extensionToAutoUpdate.identifier.id}' extension to '${gallery.version}' extension.`);
+        } catch (error) {
+          logService.error(error);
+        }
+      }
+    }
+  } catch (error) {
+    logService.error(error);
+  }
+}
+__name(migrateUnsupportedExtensions, "migrateUnsupportedExtensions");
+export {
+  migrateUnsupportedExtensions
+};
+//# sourceMappingURL=unsupportedExtensionsMigration.js.map

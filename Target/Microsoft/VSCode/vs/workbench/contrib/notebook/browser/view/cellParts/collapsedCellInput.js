@@ -1,1 +1,36 @@
-import*as s from"../../../../../../base/browser/dom.js";import{$SFb as l}from"../cellPart.js";class h extends l{constructor(a,i){super(),this.a=a,this.D(s.$F7(i,s.$B8.DBLCLICK,e=>{!this.c||!this.a.hasModel()||(this.c.isInputCollapsed?this.c.isInputCollapsed=!1:this.c.isOutputCollapsed=!1)})),this.D(s.$F7(i,s.$B8.CLICK,e=>{if(!this.c||!this.a.hasModel())return;const t=e.target;t&&t.classList&&t.classList.contains("expandInputIcon")&&(this.c.isInputCollapsed=!1)}))}}export{h as $ZIb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { CellContentPart } from "../cellPart.js";
+class CollapsedCellInput extends CellContentPart {
+  static {
+    __name(this, "CollapsedCellInput");
+  }
+  constructor(notebookEditor, cellInputCollapsedContainer) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this._register(DOM.addDisposableListener(cellInputCollapsedContainer, DOM.EventType.DBLCLICK, (e) => {
+      if (!this.currentCell || !this.notebookEditor.hasModel()) {
+        return;
+      }
+      if (this.currentCell.isInputCollapsed) {
+        this.currentCell.isInputCollapsed = false;
+      } else {
+        this.currentCell.isOutputCollapsed = false;
+      }
+    }));
+    this._register(DOM.addDisposableListener(cellInputCollapsedContainer, DOM.EventType.CLICK, (e) => {
+      if (!this.currentCell || !this.notebookEditor.hasModel()) {
+        return;
+      }
+      const element = e.target;
+      if (element && element.classList && element.classList.contains("expandInputIcon")) {
+        this.currentCell.isInputCollapsed = false;
+      }
+    }));
+  }
+}
+export {
+  CollapsedCellInput
+};
+//# sourceMappingURL=collapsedCellInput.js.map

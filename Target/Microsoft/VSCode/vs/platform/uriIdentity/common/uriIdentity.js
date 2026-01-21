@@ -1,1 +1,6 @@
-import{$Mj as o}from"../../instantiation/common/instantiation.js";const t=o("IUriIdentityService");export{t as $0o};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IUriIdentityService = createDecorator("IUriIdentityService");
+export {
+  IUriIdentityService
+};
+//# sourceMappingURL=uriIdentity.js.map

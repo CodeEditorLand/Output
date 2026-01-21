@@ -1,1 +1,439 @@
-import{$DL as O,$EL as L,$FL as F}from"../../../../amdX.js";import*as q from"../../../../base/browser/domStylesheets.js";import{$Wb as z}from"../../../../base/common/arrays.js";import{$Tp as D}from"../../../../base/common/color.js";import{$mb as R}from"../../../../base/common/errors.js";import{$Ed as I,$Dd as k}from"../../../../base/common/lifecycle.js";import{$sh as y,$qh as P,$oh as B}from"../../../../base/common/network.js";import{observableFromEvent as H}from"../../../../base/common/observable.js";import{$s as M}from"../../../../base/common/platform.js";import*as $ from"../../../../base/common/resources.js";import*as w from"../../../../base/common/types.js";import{$UF as N,$VF as b}from"../../../../editor/common/languages.js";import{$WF as E}from"../../../../editor/common/languages/language.js";import{$PK as _,$QK as A}from"../../../../editor/common/languages/supports/tokenization.js";import*as l from"../../../../nls.js";import{$9l as G}from"../../../../platform/configuration/common/configuration.js";import{$yxb as U}from"../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";import{$Lj as J}from"../../../../platform/instantiation/common/instantiation.js";import{$xo as V}from"../../../../platform/log/common/log.js";import{$mH as Y}from"../../../../platform/notification/common/notification.js";import{$rH as W}from"../../../../platform/progress/common/progress.js";import{$op as X}from"../../../../platform/telemetry/common/telemetry.js";import{$BP as Z}from"../../environment/common/environmentService.js";import{$5ac as Q}from"./tokenizationSupport/textMateTokenizationSupport.js";import{$6ac as K}from"./tokenizationSupport/tokenizationSupportWithLineLimit.js";import{$ebc as x}from"./backgroundTokenization/threadedBackgroundTokenizerFactory.js";import{$9ac as ee,$8ac as te}from"../common/TMGrammarFactory.js";import{$fbc as m}from"../common/TMGrammars.js";import{$nCb as ie}from"../../themes/common/workbenchThemeService.js";var j=function(o,e,t,n){var s=arguments.length,i=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,e,t,n);else for(var c=o.length-1;c>=0;c--)(r=o[c])&&(i=(s<3?r(i):s>3?r(e,t,i):r(e,t))||i);return s>3&&i&&Object.defineProperty(e,t,i),i},h=function(o,e){return function(t,n){e(t,n,o)}},d;let C=class extends I{static{d=this}static{this.c={sync:0,async:0}}constructor(e,t,n,s,i,r,c,u,a,f){super(),this.z=e,this.C=t,this.F=n,this.G=s,this.H=i,this.I=r,this.J=c,this.L=u,this.M=a,this.N=f,this.g=[],this.h=[],this.j=!1,this.m=()=>{},this.n=null,this.q=null,this.s=this.D(new k),this.t=null,this.u=null,this.w=null,this.y=this.M.createInstance(x,(g,p,T,S,v)=>this.ab(g,p,T,S,!0,v),()=>this.O()),this.Y=null,this.f=q.$Y9(),this.f.className="vscode-tokens-styles",m.setHandler(g=>this.Q(g)),this.X(this.C.getColorTheme(),!0),this.D(this.C.onDidColorThemeChange(()=>{this.X(this.C.getColorTheme(),!1)})),this.D(this.z.onDidRequestRichLanguageFeatures(g=>{this.g.push(g)}))}O(){return!!this.I.getValue("editor.experimental.asyncTokenization")}P(){return!!this.I.getValue("editor.experimental.asyncTokenizationVerification")}Q(e){this.n=null,this.q&&(this.q.dispose(),this.q=null),this.s.clear(),this.n=[];for(const t of e){const n=t.value;for(const s of n){const i=this.R(t,s);if(i&&(this.n.push(i),i.language)){const r=new N(()=>this.W(i.language));this.s.add(r),this.s.add(b.registerFactory(i.language,r))}}}this.y.setGrammarDefinitions(this.n);for(const t of this.g)b.getOrCreate(t)}R(e,t){if(!re(e.description.extensionLocation,t,e.collector,this.z))return null;const n=$.$Hh(e.description.extensionLocation,t.path),s=Object.create(null);if(t.embeddedLanguages){const u=Object.keys(t.embeddedLanguages);for(let a=0,f=u.length;a<f;a++){const g=u[a],p=t.embeddedLanguages[g];typeof p=="string"&&this.z.isRegisteredLanguageId(p)&&(s[g]=this.z.languageIdCodec.encodeLanguageId(p))}}const i=Object.create(null);if(t.tokenTypes){const u=Object.keys(t.tokenTypes);for(const a of u)switch(t.tokenTypes[a]){case"string":i[a]=2;break;case"other":i[a]=0;break;case"comment":i[a]=1;break}}const r=t.language&&this.z.isRegisteredLanguageId(t.language)?t.language:void 0;function c(u,a){return!Array.isArray(u)||!u.every(f=>typeof f=="string")?a:u}return{location:n,language:r,scopeName:t.scopeName,embeddedLanguages:s,tokenTypes:i,injectTo:t.injectTo,balancedBracketSelectors:c(t.balancedBracketScopes,["*"]),unbalancedBracketSelectors:c(t.unbalancedBracketScopes,[]),sourceExtensionId:e.description.id}}startDebugMode(e,t){if(this.j){this.G.error(l.localize(16056,null));return}this.m=e,this.j=!0,this.j&&this.J.withProgress({location:15,buttons:[l.localize(16057,null)]},n=>(n.report({message:l.localize(16058,null)}),this.Z().then(s=>(s.setDefaultDebugCall(!0),n.report({message:l.localize(16059,null)}),new Promise((i,r)=>{})))),n=>{this.Z().then(s=>{this.m=()=>{},this.j=!1,s.setDefaultDebugCall(!1),t()})})}S(){return!!this.n}async U(){if(this.q)return this.q;const[e,t]=await Promise.all([L("vscode-textmate","release/main.js"),this.Z()]),n=Promise.resolve({createOnigScanner:s=>t.createOnigScanner(s),createOnigString:s=>t.createOnigString(s)});return this.q?this.q:(this.q=new ee({logTrace:s=>this.H.trace(s),logError:(s,i)=>this.H.error(s,i),readFile:s=>this.F.readExtensionResource(s)},this.n||[],e,n),this.X(this.C.getColorTheme(),!0),this.q)}async W(e){if(!this.z.isRegisteredLanguageId(e)||!this.S())return null;try{const t=await this.U();if(!t.has(e))return null;const n=this.z.languageIdCodec.encodeLanguageId(e),s=await t.createGrammar(e,n);if(!s.grammar)return null;const i=oe("editor.maxTokenizationLineLength",e,-1,this.I),r=new k,c=r.add(new Q(s.grammar,s.initialState,s.containsEmbeddedLanguages,(u,a)=>this.y.createBackgroundTokenizer(u,a,i),()=>this.P(),(u,a,f)=>{this.ab(u,e,s.sourceExtensionId,a,!1,f)},!0));return r.add(c.onDidEncounterLanguage(u=>{if(!this.h[u]){const a=this.z.languageIdCodec.decodeLanguageId(u);this.h[u]=!0,this.z.requestBasicLanguageFeatures(a)}})),new K(n,c,r,i)}catch(t){return t.message&&t.message===te||R(t),null}}X(e,t){if(!t&&this.t&&this.u&&ne(this.t.settings,e.tokenColors)&&z(this.u,e.tokenColorMap)&&this.w&&z(this.w,e.tokenFontMap))return;this.t={name:e.label,settings:e.tokenColors},this.u=e.tokenColorMap,this.w=e.tokenFontMap,this.q?.setTheme(this.t,this.u);const n=se(this.u),s=_(n),i=A(this.w);this.f.textContent=s+i,b.setColorMap(n),this.t&&this.u&&this.y.acceptTheme(this.t,this.u)}async createTokenizer(e){if(!this.z.isRegisteredLanguageId(e))return null;const t=await this.U();if(!t.has(e))return null;const n=this.z.languageIdCodec.encodeLanguageId(e),{grammar:s}=await t.createGrammar(e,n);return s}Z(){return this.Y||(this.Y=(async()=>{const[e,t]=await Promise.all([L("vscode-oniguruma","release/main.js"),this.$()]);return await e.loadWASM({data:t,print:n=>{this.m(n)}}),e})()),this.Y}async $(){return M?await(await fetch(F("vscode-oniguruma","release/onig.wasm"))).arrayBuffer():await fetch(O&&this.L.isBuilt?y.asBrowserUri(`${P}/vscode-oniguruma/release/onig.wasm`).toString(!0):y.asBrowserUri(`${B}/vscode-oniguruma/release/onig.wasm`).toString(!0))}ab(e,t,n,s,i,r){const c=i?"async":"sync";d.c[c]>50||(d.c[c]===0&&setTimeout(()=>{d.c[c]=0},1e3*60*60),d.c[c]++,this.N.publicLog2("editor.tokenizedLine",{timeMs:e,languageId:t,lineLength:s,fromWorker:i,sourceExtensionId:n,isRandomSample:r,tokenizationSetting:this.O()?this.P()?2:1:0}))}};C=d=j([h(0,E),h(1,ie),h(2,U),h(3,Y),h(4,V),h(5,G),h(6,W),h(7,Z),h(8,J),h(9,X)],C);function se(o){const e=[null];for(let t=1,n=o.length;t<n;t++)e[t]=D.fromHex(o[t]);return e}function ne(o,e){if(!e||!o||e.length!==o.length)return!1;for(let t=e.length-1;t>=0;t--){const n=e[t],s=o[t];if(n.scope!==s.scope)return!1;const i=n.settings,r=s.settings;if(i&&r){if(i.fontStyle!==r.fontStyle||i.foreground!==r.foreground||i.background!==r.background||i.lineHeight!==r.lineHeight||i.fontSize!==r.fontSize||i.fontFamily!==r.fontFamily)return!1}else if(!i||!r)return!1}return!0}function re(o,e,t,n){if(e.language&&(typeof e.language!="string"||!n.isRegisteredLanguageId(e.language)))return t.error(l.localize(16060,null,m.name,String(e.language))),!1;if(!e.scopeName||typeof e.scopeName!="string")return t.error(l.localize(16061,null,m.name,String(e.scopeName))),!1;if(!e.path||typeof e.path!="string")return t.error(l.localize(16062,null,m.name,String(e.path))),!1;if(e.injectTo&&(!Array.isArray(e.injectTo)||e.injectTo.some(i=>typeof i!="string")))return t.error(l.localize(16063,null,m.name,JSON.stringify(e.injectTo))),!1;if(e.embeddedLanguages&&!w.$9c(e.embeddedLanguages))return t.error(l.localize(16064,null,m.name,JSON.stringify(e.embeddedLanguages))),!1;if(e.tokenTypes&&!w.$9c(e.tokenTypes))return t.error(l.localize(16065,null,m.name,JSON.stringify(e.tokenTypes))),!1;const s=$.$Hh(o,e.path);return $.$Bh(s,o)||t.warn(l.localize(16066,null,m.name,s.path,o.path)),!0}function oe(o,e,t,n){return H(s=>n.onDidChangeConfiguration(i=>{i.affectsConfiguration(o,{overrideIdentifier:e})&&s(i)}),()=>n.getValue(o,{overrideIdentifier:e})??t)}export{C as $gbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TextMateTokenizationFeature_1;
+import { canASAR, importAMDNodeModule, resolveAmdNodeModulePath } from "../../../../amdX.js";
+import * as domStylesheets from "../../../../base/browser/domStylesheets.js";
+import { equals as equalArray } from "../../../../base/common/arrays.js";
+import { Color } from "../../../../base/common/color.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { FileAccess, nodeModulesAsarUnpackedPath, nodeModulesPath } from "../../../../base/common/network.js";
+import { observableFromEvent } from "../../../../base/common/observable.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import * as resources from "../../../../base/common/resources.js";
+import * as types from "../../../../base/common/types.js";
+import { LazyTokenizationSupport, TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { generateTokensCSSForColorMap, generateTokensCSSForFontMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IExtensionResourceLoaderService } from "../../../../platform/extensionResourceLoader/common/extensionResourceLoader.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { TextMateTokenizationSupport } from "./tokenizationSupport/textMateTokenizationSupport.js";
+import { TokenizationSupportWithLineLimit } from "./tokenizationSupport/tokenizationSupportWithLineLimit.js";
+import { ThreadedBackgroundTokenizerFactory } from "./backgroundTokenization/threadedBackgroundTokenizerFactory.js";
+import { TMGrammarFactory, missingTMGrammarErrorMessage } from "../common/TMGrammarFactory.js";
+import { grammarsExtPoint } from "../common/TMGrammars.js";
+import { IWorkbenchThemeService } from "../../themes/common/workbenchThemeService.js";
+let TextMateTokenizationFeature = class TextMateTokenizationFeature2 extends Disposable {
+  static {
+    __name(this, "TextMateTokenizationFeature");
+  }
+  static {
+    TextMateTokenizationFeature_1 = this;
+  }
+  static {
+    this.reportTokenizationTimeCounter = { sync: 0, async: 0 };
+  }
+  constructor(_languageService, _themeService, _extensionResourceLoaderService, _notificationService, _logService, _configurationService, _progressService, _environmentService, _instantiationService, _telemetryService) {
+    super();
+    this._languageService = _languageService;
+    this._themeService = _themeService;
+    this._extensionResourceLoaderService = _extensionResourceLoaderService;
+    this._notificationService = _notificationService;
+    this._logService = _logService;
+    this._configurationService = _configurationService;
+    this._progressService = _progressService;
+    this._environmentService = _environmentService;
+    this._instantiationService = _instantiationService;
+    this._telemetryService = _telemetryService;
+    this._createdModes = [];
+    this._encounteredLanguages = [];
+    this._debugMode = false;
+    this._debugModePrintFunc = () => {
+    };
+    this._grammarDefinitions = null;
+    this._grammarFactory = null;
+    this._tokenizersRegistrations = this._register(new DisposableStore());
+    this._currentTheme = null;
+    this._currentTokenColorMap = null;
+    this._currentTokenFontMap = null;
+    this._threadedBackgroundTokenizerFactory = this._instantiationService.createInstance(ThreadedBackgroundTokenizerFactory, (timeMs, languageId, sourceExtensionId, lineLength, isRandomSample) => this._reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, true, isRandomSample), () => this.getAsyncTokenizationEnabled());
+    this._vscodeOniguruma = null;
+    this._styleElement = domStylesheets.createStyleSheet();
+    this._styleElement.className = "vscode-tokens-styles";
+    grammarsExtPoint.setHandler((extensions) => this._handleGrammarsExtPoint(extensions));
+    this._updateTheme(this._themeService.getColorTheme(), true);
+    this._register(this._themeService.onDidColorThemeChange(() => {
+      this._updateTheme(this._themeService.getColorTheme(), false);
+    }));
+    this._register(this._languageService.onDidRequestRichLanguageFeatures((languageId) => {
+      this._createdModes.push(languageId);
+    }));
+  }
+  getAsyncTokenizationEnabled() {
+    return !!this._configurationService.getValue("editor.experimental.asyncTokenization");
+  }
+  getAsyncTokenizationVerification() {
+    return !!this._configurationService.getValue("editor.experimental.asyncTokenizationVerification");
+  }
+  _handleGrammarsExtPoint(extensions) {
+    this._grammarDefinitions = null;
+    if (this._grammarFactory) {
+      this._grammarFactory.dispose();
+      this._grammarFactory = null;
+    }
+    this._tokenizersRegistrations.clear();
+    this._grammarDefinitions = [];
+    for (const extension of extensions) {
+      const grammars = extension.value;
+      for (const grammar of grammars) {
+        const validatedGrammar = this._validateGrammarDefinition(extension, grammar);
+        if (validatedGrammar) {
+          this._grammarDefinitions.push(validatedGrammar);
+          if (validatedGrammar.language) {
+            const lazyTokenizationSupport = new LazyTokenizationSupport(() => this._createTokenizationSupport(validatedGrammar.language));
+            this._tokenizersRegistrations.add(lazyTokenizationSupport);
+            this._tokenizersRegistrations.add(TokenizationRegistry.registerFactory(validatedGrammar.language, lazyTokenizationSupport));
+          }
+        }
+      }
+    }
+    this._threadedBackgroundTokenizerFactory.setGrammarDefinitions(this._grammarDefinitions);
+    for (const createdMode of this._createdModes) {
+      TokenizationRegistry.getOrCreate(createdMode);
+    }
+  }
+  _validateGrammarDefinition(extension, grammar) {
+    if (!validateGrammarExtensionPoint(extension.description.extensionLocation, grammar, extension.collector, this._languageService)) {
+      return null;
+    }
+    const grammarLocation = resources.joinPath(extension.description.extensionLocation, grammar.path);
+    const embeddedLanguages = /* @__PURE__ */ Object.create(null);
+    if (grammar.embeddedLanguages) {
+      const scopes = Object.keys(grammar.embeddedLanguages);
+      for (let i = 0, len = scopes.length; i < len; i++) {
+        const scope = scopes[i];
+        const language = grammar.embeddedLanguages[scope];
+        if (typeof language !== "string") {
+          continue;
+        }
+        if (this._languageService.isRegisteredLanguageId(language)) {
+          embeddedLanguages[scope] = this._languageService.languageIdCodec.encodeLanguageId(language);
+        }
+      }
+    }
+    const tokenTypes = /* @__PURE__ */ Object.create(null);
+    if (grammar.tokenTypes) {
+      const scopes = Object.keys(grammar.tokenTypes);
+      for (const scope of scopes) {
+        const tokenType = grammar.tokenTypes[scope];
+        switch (tokenType) {
+          case "string":
+            tokenTypes[scope] = 2;
+            break;
+          case "other":
+            tokenTypes[scope] = 0;
+            break;
+          case "comment":
+            tokenTypes[scope] = 1;
+            break;
+        }
+      }
+    }
+    const validLanguageId = grammar.language && this._languageService.isRegisteredLanguageId(grammar.language) ? grammar.language : void 0;
+    function asStringArray(array, defaultValue) {
+      if (!Array.isArray(array)) {
+        return defaultValue;
+      }
+      if (!array.every((e) => typeof e === "string")) {
+        return defaultValue;
+      }
+      return array;
+    }
+    __name(asStringArray, "asStringArray");
+    return {
+      location: grammarLocation,
+      language: validLanguageId,
+      scopeName: grammar.scopeName,
+      embeddedLanguages,
+      tokenTypes,
+      injectTo: grammar.injectTo,
+      balancedBracketSelectors: asStringArray(grammar.balancedBracketScopes, ["*"]),
+      unbalancedBracketSelectors: asStringArray(grammar.unbalancedBracketScopes, []),
+      sourceExtensionId: extension.description.id
+    };
+  }
+  startDebugMode(printFn, onStop) {
+    if (this._debugMode) {
+      this._notificationService.error(nls.localize("alreadyDebugging", "Already Logging."));
+      return;
+    }
+    this._debugModePrintFunc = printFn;
+    this._debugMode = true;
+    if (this._debugMode) {
+      this._progressService.withProgress({
+        location: 15,
+        buttons: [nls.localize("stop", "Stop")]
+      }, (progress) => {
+        progress.report({
+          message: nls.localize("progress1", "Preparing to log TM Grammar parsing. Press Stop when finished.")
+        });
+        return this._getVSCodeOniguruma().then((vscodeOniguruma) => {
+          vscodeOniguruma.setDefaultDebugCall(true);
+          progress.report({
+            message: nls.localize("progress2", "Now logging TM Grammar parsing. Press Stop when finished.")
+          });
+          return new Promise((resolve, reject) => {
+          });
+        });
+      }, (choice) => {
+        this._getVSCodeOniguruma().then((vscodeOniguruma) => {
+          this._debugModePrintFunc = () => {
+          };
+          this._debugMode = false;
+          vscodeOniguruma.setDefaultDebugCall(false);
+          onStop();
+        });
+      });
+    }
+  }
+  _canCreateGrammarFactory() {
+    return !!this._grammarDefinitions;
+  }
+  async _getOrCreateGrammarFactory() {
+    if (this._grammarFactory) {
+      return this._grammarFactory;
+    }
+    const [vscodeTextmate, vscodeOniguruma] = await Promise.all([importAMDNodeModule("vscode-textmate", "release/main.js"), this._getVSCodeOniguruma()]);
+    const onigLib = Promise.resolve({
+      createOnigScanner: /* @__PURE__ */ __name((sources) => vscodeOniguruma.createOnigScanner(sources), "createOnigScanner"),
+      createOnigString: /* @__PURE__ */ __name((str) => vscodeOniguruma.createOnigString(str), "createOnigString")
+    });
+    if (this._grammarFactory) {
+      return this._grammarFactory;
+    }
+    this._grammarFactory = new TMGrammarFactory({
+      logTrace: /* @__PURE__ */ __name((msg) => this._logService.trace(msg), "logTrace"),
+      logError: /* @__PURE__ */ __name((msg, err) => this._logService.error(msg, err), "logError"),
+      readFile: /* @__PURE__ */ __name((resource) => this._extensionResourceLoaderService.readExtensionResource(resource), "readFile")
+    }, this._grammarDefinitions || [], vscodeTextmate, onigLib);
+    this._updateTheme(this._themeService.getColorTheme(), true);
+    return this._grammarFactory;
+  }
+  async _createTokenizationSupport(languageId) {
+    if (!this._languageService.isRegisteredLanguageId(languageId)) {
+      return null;
+    }
+    if (!this._canCreateGrammarFactory()) {
+      return null;
+    }
+    try {
+      const grammarFactory = await this._getOrCreateGrammarFactory();
+      if (!grammarFactory.has(languageId)) {
+        return null;
+      }
+      const encodedLanguageId = this._languageService.languageIdCodec.encodeLanguageId(languageId);
+      const r = await grammarFactory.createGrammar(languageId, encodedLanguageId);
+      if (!r.grammar) {
+        return null;
+      }
+      const maxTokenizationLineLength = observableConfigValue("editor.maxTokenizationLineLength", languageId, -1, this._configurationService);
+      const store = new DisposableStore();
+      const tokenization = store.add(new TextMateTokenizationSupport(r.grammar, r.initialState, r.containsEmbeddedLanguages, (textModel, tokenStore) => this._threadedBackgroundTokenizerFactory.createBackgroundTokenizer(textModel, tokenStore, maxTokenizationLineLength), () => this.getAsyncTokenizationVerification(), (timeMs, lineLength, isRandomSample) => {
+        this._reportTokenizationTime(timeMs, languageId, r.sourceExtensionId, lineLength, false, isRandomSample);
+      }, true));
+      store.add(tokenization.onDidEncounterLanguage((encodedLanguageId2) => {
+        if (!this._encounteredLanguages[encodedLanguageId2]) {
+          const languageId2 = this._languageService.languageIdCodec.decodeLanguageId(encodedLanguageId2);
+          this._encounteredLanguages[encodedLanguageId2] = true;
+          this._languageService.requestBasicLanguageFeatures(languageId2);
+        }
+      }));
+      return new TokenizationSupportWithLineLimit(encodedLanguageId, tokenization, store, maxTokenizationLineLength);
+    } catch (err) {
+      if (err.message && err.message === missingTMGrammarErrorMessage) {
+        return null;
+      }
+      onUnexpectedError(err);
+      return null;
+    }
+  }
+  _updateTheme(colorTheme, forceUpdate) {
+    if (!forceUpdate && this._currentTheme && this._currentTokenColorMap && equalsTokenRules(this._currentTheme.settings, colorTheme.tokenColors) && equalArray(this._currentTokenColorMap, colorTheme.tokenColorMap) && this._currentTokenFontMap && equalArray(this._currentTokenFontMap, colorTheme.tokenFontMap)) {
+      return;
+    }
+    this._currentTheme = { name: colorTheme.label, settings: colorTheme.tokenColors };
+    this._currentTokenColorMap = colorTheme.tokenColorMap;
+    this._currentTokenFontMap = colorTheme.tokenFontMap;
+    this._grammarFactory?.setTheme(this._currentTheme, this._currentTokenColorMap);
+    const colorMap = toColorMap(this._currentTokenColorMap);
+    const colorCssRules = generateTokensCSSForColorMap(colorMap);
+    const fontCssRules = generateTokensCSSForFontMap(this._currentTokenFontMap);
+    this._styleElement.textContent = colorCssRules + fontCssRules;
+    TokenizationRegistry.setColorMap(colorMap);
+    if (this._currentTheme && this._currentTokenColorMap) {
+      this._threadedBackgroundTokenizerFactory.acceptTheme(this._currentTheme, this._currentTokenColorMap);
+    }
+  }
+  async createTokenizer(languageId) {
+    if (!this._languageService.isRegisteredLanguageId(languageId)) {
+      return null;
+    }
+    const grammarFactory = await this._getOrCreateGrammarFactory();
+    if (!grammarFactory.has(languageId)) {
+      return null;
+    }
+    const encodedLanguageId = this._languageService.languageIdCodec.encodeLanguageId(languageId);
+    const { grammar } = await grammarFactory.createGrammar(languageId, encodedLanguageId);
+    return grammar;
+  }
+  _getVSCodeOniguruma() {
+    if (!this._vscodeOniguruma) {
+      this._vscodeOniguruma = (async () => {
+        const [vscodeOniguruma, wasm] = await Promise.all([importAMDNodeModule("vscode-oniguruma", "release/main.js"), this._loadVSCodeOnigurumaWASM()]);
+        await vscodeOniguruma.loadWASM({
+          data: wasm,
+          print: /* @__PURE__ */ __name((str) => {
+            this._debugModePrintFunc(str);
+          }, "print")
+        });
+        return vscodeOniguruma;
+      })();
+    }
+    return this._vscodeOniguruma;
+  }
+  async _loadVSCodeOnigurumaWASM() {
+    if (isWeb) {
+      const response = await fetch(resolveAmdNodeModulePath("vscode-oniguruma", "release/onig.wasm"));
+      return await response.arrayBuffer();
+    } else {
+      const response = await fetch(canASAR && this._environmentService.isBuilt ? FileAccess.asBrowserUri(`${nodeModulesAsarUnpackedPath}/vscode-oniguruma/release/onig.wasm`).toString(true) : FileAccess.asBrowserUri(`${nodeModulesPath}/vscode-oniguruma/release/onig.wasm`).toString(true));
+      return response;
+    }
+  }
+  _reportTokenizationTime(timeMs, languageId, sourceExtensionId, lineLength, fromWorker, isRandomSample) {
+    const key = fromWorker ? "async" : "sync";
+    if (TextMateTokenizationFeature_1.reportTokenizationTimeCounter[key] > 50) {
+      return;
+    }
+    if (TextMateTokenizationFeature_1.reportTokenizationTimeCounter[key] === 0) {
+      setTimeout(() => {
+        TextMateTokenizationFeature_1.reportTokenizationTimeCounter[key] = 0;
+      }, 1e3 * 60 * 60);
+    }
+    TextMateTokenizationFeature_1.reportTokenizationTimeCounter[key]++;
+    this._telemetryService.publicLog2("editor.tokenizedLine", {
+      timeMs,
+      languageId,
+      lineLength,
+      fromWorker,
+      sourceExtensionId,
+      isRandomSample,
+      tokenizationSetting: this.getAsyncTokenizationEnabled() ? this.getAsyncTokenizationVerification() ? 2 : 1 : 0
+    });
+  }
+};
+TextMateTokenizationFeature = TextMateTokenizationFeature_1 = __decorate([
+  __param(0, ILanguageService),
+  __param(1, IWorkbenchThemeService),
+  __param(2, IExtensionResourceLoaderService),
+  __param(3, INotificationService),
+  __param(4, ILogService),
+  __param(5, IConfigurationService),
+  __param(6, IProgressService),
+  __param(7, IWorkbenchEnvironmentService),
+  __param(8, IInstantiationService),
+  __param(9, ITelemetryService)
+], TextMateTokenizationFeature);
+function toColorMap(colorMap) {
+  const result = [null];
+  for (let i = 1, len = colorMap.length; i < len; i++) {
+    result[i] = Color.fromHex(colorMap[i]);
+  }
+  return result;
+}
+__name(toColorMap, "toColorMap");
+function equalsTokenRules(a, b) {
+  if (!b || !a || b.length !== a.length) {
+    return false;
+  }
+  for (let i = b.length - 1; i >= 0; i--) {
+    const r1 = b[i];
+    const r2 = a[i];
+    if (r1.scope !== r2.scope) {
+      return false;
+    }
+    const s1 = r1.settings;
+    const s2 = r2.settings;
+    if (s1 && s2) {
+      if (s1.fontStyle !== s2.fontStyle || s1.foreground !== s2.foreground || s1.background !== s2.background || s1.lineHeight !== s2.lineHeight || s1.fontSize !== s2.fontSize || s1.fontFamily !== s2.fontFamily) {
+        return false;
+      }
+    } else if (!s1 || !s2) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(equalsTokenRules, "equalsTokenRules");
+function validateGrammarExtensionPoint(extensionLocation, syntax, collector, _languageService) {
+  if (syntax.language && (typeof syntax.language !== "string" || !_languageService.isRegisteredLanguageId(syntax.language))) {
+    collector.error(nls.localize("invalid.language", "Unknown language in `contributes.{0}.language`. Provided value: {1}", grammarsExtPoint.name, String(syntax.language)));
+    return false;
+  }
+  if (!syntax.scopeName || typeof syntax.scopeName !== "string") {
+    collector.error(nls.localize("invalid.scopeName", "Expected string in `contributes.{0}.scopeName`. Provided value: {1}", grammarsExtPoint.name, String(syntax.scopeName)));
+    return false;
+  }
+  if (!syntax.path || typeof syntax.path !== "string") {
+    collector.error(nls.localize("invalid.path.0", "Expected string in `contributes.{0}.path`. Provided value: {1}", grammarsExtPoint.name, String(syntax.path)));
+    return false;
+  }
+  if (syntax.injectTo && (!Array.isArray(syntax.injectTo) || syntax.injectTo.some((scope) => typeof scope !== "string"))) {
+    collector.error(nls.localize("invalid.injectTo", "Invalid value in `contributes.{0}.injectTo`. Must be an array of language scope names. Provided value: {1}", grammarsExtPoint.name, JSON.stringify(syntax.injectTo)));
+    return false;
+  }
+  if (syntax.embeddedLanguages && !types.isObject(syntax.embeddedLanguages)) {
+    collector.error(nls.localize("invalid.embeddedLanguages", "Invalid value in `contributes.{0}.embeddedLanguages`. Must be an object map from scope name to language. Provided value: {1}", grammarsExtPoint.name, JSON.stringify(syntax.embeddedLanguages)));
+    return false;
+  }
+  if (syntax.tokenTypes && !types.isObject(syntax.tokenTypes)) {
+    collector.error(nls.localize("invalid.tokenTypes", "Invalid value in `contributes.{0}.tokenTypes`. Must be an object map from scope name to token type. Provided value: {1}", grammarsExtPoint.name, JSON.stringify(syntax.tokenTypes)));
+    return false;
+  }
+  const grammarLocation = resources.joinPath(extensionLocation, syntax.path);
+  if (!resources.isEqualOrParent(grammarLocation, extensionLocation)) {
+    collector.warn(nls.localize("invalid.path.1", "Expected `contributes.{0}.path` ({1}) to be included inside extension's folder ({2}). This might make the extension non-portable.", grammarsExtPoint.name, grammarLocation.path, extensionLocation.path));
+  }
+  return true;
+}
+__name(validateGrammarExtensionPoint, "validateGrammarExtensionPoint");
+function observableConfigValue(key, languageId, defaultValue, configurationService) {
+  return observableFromEvent((handleChange) => configurationService.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration(key, { overrideIdentifier: languageId })) {
+      handleChange(e);
+    }
+  }), () => configurationService.getValue(key, { overrideIdentifier: languageId }) ?? defaultValue);
+}
+__name(observableConfigValue, "observableConfigValue");
+export {
+  TextMateTokenizationFeature
+};
+//# sourceMappingURL=textMateTokenizationFeatureImpl.js.map

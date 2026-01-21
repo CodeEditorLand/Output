@@ -1,1 +1,331 @@
-import{$vb as u}from"../../../base/common/errors.js";import{$zd as $,$Dd as y}from"../../../base/common/lifecycle.js";import{$Fp as T}from"../../../base/common/objects.js";import{URI as C}from"../../../base/common/uri.js";import{$ucb as I}from"../../../editor/browser/services/codeEditorService.js";import{$uo as O}from"../../../platform/commands/common/commands.js";import{EditorActivation as x,EditorResolution as M,$yu as R}from"../../../platform/editor/common/editor.js";import{$c1 as w}from"../common/extHost.protocol.js";import{$XY as S,$WY as v}from"../../services/editor/common/editorGroupColumn.js";import{$yL as k}from"../../services/editor/common/editorService.js";import{$uL as _}from"../../services/editor/common/editorGroupsService.js";import{$Jl as F}from"../../../platform/environment/common/environment.js";import{$$K as L}from"../../services/workingCopy/common/workingCopyService.js";import{$scb as q}from"../../../editor/browser/editorBrowser.js";import{$9l as N}from"../../../platform/configuration/common/configuration.js";import{$E4b as A}from"../../contrib/scm/browser/quickDiffModel.js";import{autorun as H,constObservable as p,derived as Q,derivedOpts as V,observableFromEvent as g}from"../../../base/common/observable.js";import{$0o as U}from"../../../platform/uriIdentity/common/uriIdentity.js";import{$cH as b}from"../../../editor/common/model.js";import{$Wb as W}from"../../../base/common/arrays.js";var j=function(h,t,e,i){var r=arguments.length,o=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,t,e,i);else for(var s=h.length-1;s>=0;s--)(n=h[s])&&(o=(r<3?n(o):r>3?n(t,e,o):n(t,e))||o);return r>3&&o&&Object.defineProperty(t,e,o),o},m=function(h,t){return function(e,i){t(e,i,h)}},E;let D=class{static{E=this}static{this.c=0}constructor(t,e,i,r,o,n,s,d){this.k=t,this.l=i,this.m=r,this.n=o,this.o=n,this.p=s,this.q=d,this.g=new y,this.e=String(++E.c),this.f=e.getProxy(w.ExtHostEditors),this.h=Object.create(null),this.i=null,this.g.add(this.m.onDidVisibleEditorsChange(()=>this.r())),this.g.add(this.n.onDidRemoveGroup(()=>this.r())),this.g.add(this.n.onDidMoveGroup(()=>this.r())),this.j=Object.create(null)}dispose(){Object.keys(this.h).forEach(t=>{$(this.h[t])}),this.h=Object.create(null),this.g.dispose();for(const t in this.j)this.l.removeDecorationType(t);this.j=Object.create(null)}handleTextEditorAdded(t){const e=t.getId(),i=[];i.push(t.onPropertiesChanged(o=>{this.f.$acceptEditorPropertiesChanged(e,o)}));const r=this.t(t,i);i.push(H(o=>{const n=r.read(o);this.f.$acceptEditorDiffInformation(e,n)})),this.h[e]=i}handleTextEditorRemoved(t){$(this.h[t]),delete this.h[t]}r(){const t=this.s();T(this.i,t)||(this.i=t,this.f.$acceptEditorPositionData(this.i))}s(){const t=Object.create(null);for(const e of this.m.visibleEditorPanes){const i=this.k.findTextEditorIdFor(e);i&&(t[i]=S(this.n,e.group))}return t}t(t,e){const i=t.getCodeEditor();if(!i)return p(void 0);const[r]=this.l.listDiffEditors().filter(s=>s.getOriginalEditor().getId()===i.getId()||s.getModifiedEditor().getId()===i.getId()),o=r?g(this,r.onDidChangeModel,()=>r.getModel()):g(this,i.onDidChangeModel,()=>i.getModel()),n=Q(s=>{const d=o.read(s),f=i.getModel()?.uri;if(!d||!f)return p(void 0);let c;if(b(d))c=this.p.createQuickDiffModelReference(f);else{const a=this.o.getValue("diffEditor.diffAlgorithm");c=this.p.createQuickDiffModelReference(f,{algorithm:a})}return c?(e.push(c),g(this,c.object.onDidChange,()=>c.object.getQuickDiffResults().map(a=>({original:a.original,modified:a.modified,changes:a.changes2})))):p(void 0)});return V({owner:this,equalsFn:(s,d)=>W(s,d,(f,c)=>R(this.q,f,c))},s=>{const d=o.read(s),f=n.read(s).read(s);if(!d||!f)return;const c=b(d)?d.getVersionId():d.modified.getVersionId();return f.map(a=>{const P=a.changes.map(l=>[l.original.startLineNumber,l.original.endLineNumberExclusive,l.modified.startLineNumber,l.modified.endLineNumberExclusive]);return{documentVersion:c,original:a.original,modified:a.modified,changes:P}})})}async $tryShowTextDocument(t,e){const i=C.revive(t),r={preserveFocus:e.preserveFocus,pinned:e.pinned,selection:e.selection,activation:e.preserveFocus?x.RESTORE:void 0,override:M.EXCLUSIVE_ONLY},o={resource:i,options:r},n=await this.m.openEditor(o,v(this.n,this.o,e.position));if(!n)return;const s=n.getControl(),d=q(s);return d?this.k.getIdOfCodeEditor(d):void 0}async $tryShowEditor(t,e){const i=this.k.getEditor(t);if(i){const r=i.getModel();await this.m.openEditor({resource:r.uri,options:{preserveFocus:!1}},v(this.n,this.o,e));return}}async $tryHideEditor(t){const e=this.k.getEditor(t);if(e){const i=this.m.visibleEditorPanes;for(const r of i)if(e.matches(r)){await r.group.closeEditor(r.input);return}}}$trySetSelections(t,e){const i=this.k.getEditor(t);return i?(i.setSelections(e),Promise.resolve(void 0)):Promise.reject(u(`TextEditor(${t})`))}$trySetDecorations(t,e,i){e=`${this.e}-${e}`;const r=this.k.getEditor(t);return r?(r.setDecorations(e,i),Promise.resolve(void 0)):Promise.reject(u(`TextEditor(${t})`))}$trySetDecorationsFast(t,e,i){e=`${this.e}-${e}`;const r=this.k.getEditor(t);return r?(r.setDecorationsFast(e,i),Promise.resolve(void 0)):Promise.reject(u(`TextEditor(${t})`))}$tryRevealRange(t,e,i){const r=this.k.getEditor(t);return r?(r.revealRange(e,i),Promise.resolve()):Promise.reject(u(`TextEditor(${t})`))}$trySetOptions(t,e){const i=this.k.getEditor(t);return i?(i.setConfiguration(e),Promise.resolve(void 0)):Promise.reject(u(`TextEditor(${t})`))}$tryApplyEdits(t,e,i,r){const o=this.k.getEditor(t);return o?Promise.resolve(o.applyEdits(e,i,r)):Promise.reject(u(`TextEditor(${t})`))}$tryInsertSnippet(t,e,i,r,o){const n=this.k.getEditor(t);return n?Promise.resolve(n.insertSnippet(e,i,r,o)):Promise.reject(u(`TextEditor(${t})`))}$registerTextEditorDecorationType(t,e,i){e=`${this.e}-${e}`,this.j[e]=!0,this.l.registerDecorationType(`exthost-api-${t}`,e,i)}$removeTextEditorDecorationType(t){t=`${this.e}-${t}`,delete this.j[t],this.l.removeDecorationType(t)}$getDiffInformation(t){const e=this.k.getEditor(t);if(!e)return Promise.reject(new Error("No such TextEditor"));const i=e.getCodeEditor();if(!i)return Promise.reject(new Error("No such CodeEditor"));const r=i.getId(),o=this.l.listDiffEditors(),[n]=o.filter(d=>d.getOriginalEditor().getId()===r||d.getModifiedEditor().getId()===r);if(n)return Promise.resolve(n.getLineChanges()||[]);if(!i.hasModel())return Promise.resolve([]);const s=this.p.createQuickDiffModelReference(i.getModel().uri);if(!s)return Promise.resolve([]);try{const d=s.object.quickDiffs.find(c=>c.kind==="primary"),f=s.object.changes.filter(c=>c.providerId===d?.id);return Promise.resolve(f.map(c=>c.change)??[])}finally{s.dispose()}}};D=E=j([m(2,I),m(3,k),m(4,_),m(5,N),m(6,A),m(7,U)],D);O.registerCommand("_workbench.revertAllDirty",async function(h){if(!h.get(F).extensionTestsLocationURI)throw new Error("Command is only available when running extension tests.");const e=h.get(L);for(const i of e.dirtyWorkingCopies)await i.revert({soft:!0})});export{D as $H4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadTextEditors_1;
+import { illegalArgument } from "../../../base/common/errors.js";
+import { dispose, DisposableStore } from "../../../base/common/lifecycle.js";
+import { equals as objectEquals } from "../../../base/common/objects.js";
+import { URI } from "../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
+import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
+import { EditorActivation, EditorResolution, isTextEditorDiffInformationEqual } from "../../../platform/editor/common/editor.js";
+import { ExtHostContext } from "../common/extHost.protocol.js";
+import { editorGroupToColumn, columnToEditorGroup } from "../../services/editor/common/editorGroupColumn.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { IWorkingCopyService } from "../../services/workingCopy/common/workingCopyService.js";
+import { getCodeEditor } from "../../../editor/browser/editorBrowser.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IQuickDiffModelService } from "../../contrib/scm/browser/quickDiffModel.js";
+import { autorun, constObservable, derived, derivedOpts, observableFromEvent } from "../../../base/common/observable.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { isITextModel } from "../../../editor/common/model.js";
+import { equals } from "../../../base/common/arrays.js";
+let MainThreadTextEditors = class MainThreadTextEditors2 {
+  static {
+    __name(this, "MainThreadTextEditors");
+  }
+  static {
+    MainThreadTextEditors_1 = this;
+  }
+  static {
+    this.INSTANCE_COUNT = 0;
+  }
+  constructor(_editorLocator, extHostContext, _codeEditorService, _editorService, _editorGroupService, _configurationService, _quickDiffModelService, _uriIdentityService) {
+    this._editorLocator = _editorLocator;
+    this._codeEditorService = _codeEditorService;
+    this._editorService = _editorService;
+    this._editorGroupService = _editorGroupService;
+    this._configurationService = _configurationService;
+    this._quickDiffModelService = _quickDiffModelService;
+    this._uriIdentityService = _uriIdentityService;
+    this._toDispose = new DisposableStore();
+    this._instanceId = String(++MainThreadTextEditors_1.INSTANCE_COUNT);
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostEditors);
+    this._textEditorsListenersMap = /* @__PURE__ */ Object.create(null);
+    this._editorPositionData = null;
+    this._toDispose.add(this._editorService.onDidVisibleEditorsChange(() => this._updateActiveAndVisibleTextEditors()));
+    this._toDispose.add(this._editorGroupService.onDidRemoveGroup(() => this._updateActiveAndVisibleTextEditors()));
+    this._toDispose.add(this._editorGroupService.onDidMoveGroup(() => this._updateActiveAndVisibleTextEditors()));
+    this._registeredDecorationTypes = /* @__PURE__ */ Object.create(null);
+  }
+  dispose() {
+    Object.keys(this._textEditorsListenersMap).forEach((editorId) => {
+      dispose(this._textEditorsListenersMap[editorId]);
+    });
+    this._textEditorsListenersMap = /* @__PURE__ */ Object.create(null);
+    this._toDispose.dispose();
+    for (const decorationType in this._registeredDecorationTypes) {
+      this._codeEditorService.removeDecorationType(decorationType);
+    }
+    this._registeredDecorationTypes = /* @__PURE__ */ Object.create(null);
+  }
+  handleTextEditorAdded(textEditor) {
+    const id = textEditor.getId();
+    const toDispose = [];
+    toDispose.push(textEditor.onPropertiesChanged((data) => {
+      this._proxy.$acceptEditorPropertiesChanged(id, data);
+    }));
+    const diffInformationObs = this._getTextEditorDiffInformation(textEditor, toDispose);
+    toDispose.push(autorun((reader) => {
+      const diffInformation = diffInformationObs.read(reader);
+      this._proxy.$acceptEditorDiffInformation(id, diffInformation);
+    }));
+    this._textEditorsListenersMap[id] = toDispose;
+  }
+  handleTextEditorRemoved(id) {
+    dispose(this._textEditorsListenersMap[id]);
+    delete this._textEditorsListenersMap[id];
+  }
+  _updateActiveAndVisibleTextEditors() {
+    const editorPositionData = this._getTextEditorPositionData();
+    if (!objectEquals(this._editorPositionData, editorPositionData)) {
+      this._editorPositionData = editorPositionData;
+      this._proxy.$acceptEditorPositionData(this._editorPositionData);
+    }
+  }
+  _getTextEditorPositionData() {
+    const result = /* @__PURE__ */ Object.create(null);
+    for (const editorPane of this._editorService.visibleEditorPanes) {
+      const id = this._editorLocator.findTextEditorIdFor(editorPane);
+      if (id) {
+        result[id] = editorGroupToColumn(this._editorGroupService, editorPane.group);
+      }
+    }
+    return result;
+  }
+  _getTextEditorDiffInformation(textEditor, toDispose) {
+    const codeEditor = textEditor.getCodeEditor();
+    if (!codeEditor) {
+      return constObservable(void 0);
+    }
+    const [diffEditor] = this._codeEditorService.listDiffEditors().filter((d) => d.getOriginalEditor().getId() === codeEditor.getId() || d.getModifiedEditor().getId() === codeEditor.getId());
+    const editorModelObs = diffEditor ? observableFromEvent(this, diffEditor.onDidChangeModel, () => diffEditor.getModel()) : observableFromEvent(this, codeEditor.onDidChangeModel, () => codeEditor.getModel());
+    const editorChangesObs = derived((reader) => {
+      const editorModel = editorModelObs.read(reader);
+      const editorModelUri = codeEditor.getModel()?.uri;
+      if (!editorModel || !editorModelUri) {
+        return constObservable(void 0);
+      }
+      let quickDiffModelRef;
+      if (isITextModel(editorModel)) {
+        quickDiffModelRef = this._quickDiffModelService.createQuickDiffModelReference(editorModelUri);
+      } else {
+        const diffAlgorithm = this._configurationService.getValue("diffEditor.diffAlgorithm");
+        quickDiffModelRef = this._quickDiffModelService.createQuickDiffModelReference(editorModelUri, { algorithm: diffAlgorithm });
+      }
+      if (!quickDiffModelRef) {
+        return constObservable(void 0);
+      }
+      toDispose.push(quickDiffModelRef);
+      return observableFromEvent(this, quickDiffModelRef.object.onDidChange, () => {
+        return quickDiffModelRef.object.getQuickDiffResults().map((result) => ({
+          original: result.original,
+          modified: result.modified,
+          changes: result.changes2
+        }));
+      });
+    });
+    return derivedOpts({
+      owner: this,
+      equalsFn: /* @__PURE__ */ __name((diff1, diff2) => equals(diff1, diff2, (a, b) => isTextEditorDiffInformationEqual(this._uriIdentityService, a, b)), "equalsFn")
+    }, (reader) => {
+      const editorModel = editorModelObs.read(reader);
+      const editorChanges = editorChangesObs.read(reader).read(reader);
+      if (!editorModel || !editorChanges) {
+        return void 0;
+      }
+      const documentVersion = isITextModel(editorModel) ? editorModel.getVersionId() : editorModel.modified.getVersionId();
+      return editorChanges.map((change) => {
+        const changes = change.changes.map((change2) => [
+          change2.original.startLineNumber,
+          change2.original.endLineNumberExclusive,
+          change2.modified.startLineNumber,
+          change2.modified.endLineNumberExclusive
+        ]);
+        return {
+          documentVersion,
+          original: change.original,
+          modified: change.modified,
+          changes
+        };
+      });
+    });
+  }
+  // --- from extension host process
+  async $tryShowTextDocument(resource, options) {
+    const uri = URI.revive(resource);
+    const editorOptions = {
+      preserveFocus: options.preserveFocus,
+      pinned: options.pinned,
+      selection: options.selection,
+      // preserve pre 1.38 behaviour to not make group active when preserveFocus: true
+      // but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
+      activation: options.preserveFocus ? EditorActivation.RESTORE : void 0,
+      override: EditorResolution.EXCLUSIVE_ONLY
+    };
+    const input = {
+      resource: uri,
+      options: editorOptions
+    };
+    const editor = await this._editorService.openEditor(input, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
+    if (!editor) {
+      return void 0;
+    }
+    const editorControl = editor.getControl();
+    const codeEditor = getCodeEditor(editorControl);
+    return codeEditor ? this._editorLocator.getIdOfCodeEditor(codeEditor) : void 0;
+  }
+  async $tryShowEditor(id, position) {
+    const mainThreadEditor = this._editorLocator.getEditor(id);
+    if (mainThreadEditor) {
+      const model = mainThreadEditor.getModel();
+      await this._editorService.openEditor({
+        resource: model.uri,
+        options: { preserveFocus: false }
+      }, columnToEditorGroup(this._editorGroupService, this._configurationService, position));
+      return;
+    }
+  }
+  async $tryHideEditor(id) {
+    const mainThreadEditor = this._editorLocator.getEditor(id);
+    if (mainThreadEditor) {
+      const editorPanes = this._editorService.visibleEditorPanes;
+      for (const editorPane of editorPanes) {
+        if (mainThreadEditor.matches(editorPane)) {
+          await editorPane.group.closeEditor(editorPane.input);
+          return;
+        }
+      }
+    }
+  }
+  $trySetSelections(id, selections) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    editor.setSelections(selections);
+    return Promise.resolve(void 0);
+  }
+  $trySetDecorations(id, key, ranges) {
+    key = `${this._instanceId}-${key}`;
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    editor.setDecorations(key, ranges);
+    return Promise.resolve(void 0);
+  }
+  $trySetDecorationsFast(id, key, ranges) {
+    key = `${this._instanceId}-${key}`;
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    editor.setDecorationsFast(key, ranges);
+    return Promise.resolve(void 0);
+  }
+  $tryRevealRange(id, range, revealType) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    editor.revealRange(range, revealType);
+    return Promise.resolve();
+  }
+  $trySetOptions(id, options) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    editor.setConfiguration(options);
+    return Promise.resolve(void 0);
+  }
+  $tryApplyEdits(id, modelVersionId, edits, opts) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    return Promise.resolve(editor.applyEdits(modelVersionId, edits, opts));
+  }
+  $tryInsertSnippet(id, modelVersionId, template, ranges, opts) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    }
+    return Promise.resolve(editor.insertSnippet(modelVersionId, template, ranges, opts));
+  }
+  $registerTextEditorDecorationType(extensionId, key, options) {
+    key = `${this._instanceId}-${key}`;
+    this._registeredDecorationTypes[key] = true;
+    this._codeEditorService.registerDecorationType(`exthost-api-${extensionId}`, key, options);
+  }
+  $removeTextEditorDecorationType(key) {
+    key = `${this._instanceId}-${key}`;
+    delete this._registeredDecorationTypes[key];
+    this._codeEditorService.removeDecorationType(key);
+  }
+  $getDiffInformation(id) {
+    const editor = this._editorLocator.getEditor(id);
+    if (!editor) {
+      return Promise.reject(new Error("No such TextEditor"));
+    }
+    const codeEditor = editor.getCodeEditor();
+    if (!codeEditor) {
+      return Promise.reject(new Error("No such CodeEditor"));
+    }
+    const codeEditorId = codeEditor.getId();
+    const diffEditors = this._codeEditorService.listDiffEditors();
+    const [diffEditor] = diffEditors.filter((d) => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId);
+    if (diffEditor) {
+      return Promise.resolve(diffEditor.getLineChanges() || []);
+    }
+    if (!codeEditor.hasModel()) {
+      return Promise.resolve([]);
+    }
+    const quickDiffModelRef = this._quickDiffModelService.createQuickDiffModelReference(codeEditor.getModel().uri);
+    if (!quickDiffModelRef) {
+      return Promise.resolve([]);
+    }
+    try {
+      const primaryQuickDiff = quickDiffModelRef.object.quickDiffs.find((quickDiff) => quickDiff.kind === "primary");
+      const primaryQuickDiffChanges = quickDiffModelRef.object.changes.filter((change) => change.providerId === primaryQuickDiff?.id);
+      return Promise.resolve(primaryQuickDiffChanges.map((change) => change.change) ?? []);
+    } finally {
+      quickDiffModelRef.dispose();
+    }
+  }
+};
+MainThreadTextEditors = MainThreadTextEditors_1 = __decorate([
+  __param(2, ICodeEditorService),
+  __param(3, IEditorService),
+  __param(4, IEditorGroupsService),
+  __param(5, IConfigurationService),
+  __param(6, IQuickDiffModelService),
+  __param(7, IUriIdentityService)
+], MainThreadTextEditors);
+CommandsRegistry.registerCommand("_workbench.revertAllDirty", async function(accessor) {
+  const environmentService = accessor.get(IEnvironmentService);
+  if (!environmentService.extensionTestsLocationURI) {
+    throw new Error("Command is only available when running extension tests.");
+  }
+  const workingCopyService = accessor.get(IWorkingCopyService);
+  for (const workingCopy of workingCopyService.dirtyWorkingCopies) {
+    await workingCopy.revert({ soft: true });
+  }
+});
+export {
+  MainThreadTextEditors
+};
+//# sourceMappingURL=mainThreadEditors.js.map

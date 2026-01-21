@@ -1,1 +1,44 @@
-import{$Ed as n}from"../../../../base/common/lifecycle.js";import{$wf as t}from"../../../../base/common/event.js";import{$im as o}from"../../../../platform/registry/common/platform.js";var r;(function(i){i.PreferencesEditorPane="workbench.registry.preferences.editorPanes"})(r||(r={}));class f extends n{constructor(){super(),this.c=new Map,this.f=this.D(new t),this.onDidRegisterPreferencesEditorPanes=this.f.event,this.g=this.D(new t),this.onDidDeregisterPreferencesEditorPanes=this.g.event}registerPreferencesEditorPane(e){if(this.c.has(e.id))throw new Error(`PreferencesEditorPane with id ${e.id} already registered`);return this.c.set(e.id,e),this.f.fire([e]),{dispose:()=>{this.c.delete(e.id)&&this.g.fire([e])}}}getPreferencesEditorPanes(){return[...this.c.values()].sort((e,s)=>e.order-s.order)}}o.add(r.PreferencesEditorPane,new f);export{r as Extensions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+var Extensions;
+(function(Extensions2) {
+  Extensions2.PreferencesEditorPane = "workbench.registry.preferences.editorPanes";
+})(Extensions || (Extensions = {}));
+class PreferencesEditorPaneRegistryImpl extends Disposable {
+  static {
+    __name(this, "PreferencesEditorPaneRegistryImpl");
+  }
+  constructor() {
+    super();
+    this.descriptors = /* @__PURE__ */ new Map();
+    this._onDidRegisterPreferencesEditorPanes = this._register(new Emitter());
+    this.onDidRegisterPreferencesEditorPanes = this._onDidRegisterPreferencesEditorPanes.event;
+    this._onDidDeregisterPreferencesEditorPanes = this._register(new Emitter());
+    this.onDidDeregisterPreferencesEditorPanes = this._onDidDeregisterPreferencesEditorPanes.event;
+  }
+  registerPreferencesEditorPane(descriptor) {
+    if (this.descriptors.has(descriptor.id)) {
+      throw new Error(`PreferencesEditorPane with id ${descriptor.id} already registered`);
+    }
+    this.descriptors.set(descriptor.id, descriptor);
+    this._onDidRegisterPreferencesEditorPanes.fire([descriptor]);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        if (this.descriptors.delete(descriptor.id)) {
+          this._onDidDeregisterPreferencesEditorPanes.fire([descriptor]);
+        }
+      }, "dispose")
+    };
+  }
+  getPreferencesEditorPanes() {
+    return [...this.descriptors.values()].sort((a, b) => a.order - b.order);
+  }
+}
+Registry.add(Extensions.PreferencesEditorPane, new PreferencesEditorPaneRegistryImpl());
+export {
+  Extensions
+};
+//# sourceMappingURL=preferencesEditorRegistry.js.map

@@ -1,1 +1,145 @@
-import*as l from"../../../base/browser/dom.js";import*as h from"../../../base/browser/domStylesheets.js";import*as m from"../../../base/browser/cssValue.js";import{$a0 as d}from"../../../base/browser/event.js";import{Event as $}from"../../../base/common/event.js";import{$C7 as v}from"../../../base/browser/keyboardEvent.js";import{$f9 as w,EventType as x}from"../../../base/browser/touch.js";import{$Q9 as T}from"../../../base/browser/ui/iconLabel/iconLabels.js";import{$d4 as E}from"../../../base/common/idGenerator.js";import{$X_ as I}from"../../../base/common/linkedText.js";import"./media/quickInput.css";import{localize as K}from"../../../nls.js";const p={},q=new E("quick-input-button-icon-");function B(e){if(!e)return;let s;const o=e.dark.toString();return p[o]?s=p[o]:(s=q.nextId(),h.$19(`.${s}, .hc-light .${s}`,`background-image: ${m.$99(e.light||e.dark)}`),h.$19(`.vs-dark .${s}, .hc-black .${s}`,`background-image: ${m.$99(e.dark)}`),p[o]=s),s}class D{constructor(s,o,r,a,t,n,i){this.id=s,this.label=o,this.tooltip=r,this.enabled=t,this.a=n,this.b=i,this.class=a}get checked(){return this.a}set checked(s){this.a=s,this.b()}run(){return this.a=!this.a,this.b()}}function O(e,s,o){let r=e.iconClass||B(e.iconPath);e.alwaysVisible&&(r=r?`${r} always-visible`:"always-visible");const a=()=>(e.toggle&&(e.toggle.checked=!e.toggle.checked),o());return e.toggle?new D(s,e.tooltip||"","",r,!0,e.toggle.checked,a):{id:s,label:"",tooltip:e.tooltip||"",class:r,enabled:!0,run:a}}function N(e,s,o){const r=[],a=[];return e.forEach((t,n)=>{const i=O(t,`${s}-${n}`,async()=>o(t));t.label&&(i.label=t.label),t.secondary?a.push(i):r.push(i)}),{primary:r,secondary:a}}function V(e,s,o){l.$K8(s);const r=I(e);let a=0;for(const t of r.nodes)if(typeof t=="string")s.append(...T(t));else{let n=t.title;!n&&t.href.startsWith("command:")?n=K(2281,null,t.href.substring(8)):n||(n=t.href);const i=l.$("a",{href:t.href,title:n,tabIndex:a++},t.label);i.style.textDecoration="underline";const g=c=>{l.$C8(c)&&l.$D8.stop(c,!0),o.callback(t.href)},u=o.disposables.add(new d(i,l.$B8.CLICK)).event,b=o.disposables.add(new d(i,l.$B8.KEY_DOWN)).event,k=$.chain(b,c=>c.filter(C=>{const f=new v(C);return f.equals(10)||f.equals(3)}));o.disposables.add(w.addTarget(i));const y=o.disposables.add(new d(i,x.Tap)).event;$.any(u,y,k)(g,null,o.disposables),s.appendChild(i)}}export{O as $6ab,N as $7ab,V as $8ab};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../base/browser/dom.js";
+import * as domStylesheetsJs from "../../../base/browser/domStylesheets.js";
+import * as cssJs from "../../../base/browser/cssValue.js";
+import { DomEmitter } from "../../../base/browser/event.js";
+import { Event } from "../../../base/common/event.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { Gesture, EventType as GestureEventType } from "../../../base/browser/touch.js";
+import { renderLabelWithIcons } from "../../../base/browser/ui/iconLabel/iconLabels.js";
+import { IdGenerator } from "../../../base/common/idGenerator.js";
+import { parseLinkedText } from "../../../base/common/linkedText.js";
+import "./media/quickInput.css";
+import { localize } from "../../../nls.js";
+const iconPathToClass = {};
+const iconClassGenerator = new IdGenerator("quick-input-button-icon-");
+function getIconClass(iconPath) {
+  if (!iconPath) {
+    return void 0;
+  }
+  let iconClass;
+  const key = iconPath.dark.toString();
+  if (iconPathToClass[key]) {
+    iconClass = iconPathToClass[key];
+  } else {
+    iconClass = iconClassGenerator.nextId();
+    domStylesheetsJs.createCSSRule(`.${iconClass}, .hc-light .${iconClass}`, `background-image: ${cssJs.asCSSUrl(iconPath.light || iconPath.dark)}`);
+    domStylesheetsJs.createCSSRule(`.vs-dark .${iconClass}, .hc-black .${iconClass}`, `background-image: ${cssJs.asCSSUrl(iconPath.dark)}`);
+    iconPathToClass[key] = iconClass;
+  }
+  return iconClass;
+}
+__name(getIconClass, "getIconClass");
+class QuickInputToggleButtonAction {
+  static {
+    __name(this, "QuickInputToggleButtonAction");
+  }
+  constructor(id, label, tooltip, className, enabled, _checked, _run) {
+    this.id = id;
+    this.label = label;
+    this.tooltip = tooltip;
+    this.enabled = enabled;
+    this._checked = _checked;
+    this._run = _run;
+    this.class = className;
+  }
+  get checked() {
+    return this._checked;
+  }
+  set checked(value) {
+    this._checked = value;
+    this._run();
+  }
+  run() {
+    this._checked = !this._checked;
+    return this._run();
+  }
+}
+function quickInputButtonToAction(button, id, run) {
+  let cssClasses = button.iconClass || getIconClass(button.iconPath);
+  if (button.alwaysVisible) {
+    cssClasses = cssClasses ? `${cssClasses} always-visible` : "always-visible";
+  }
+  const handler = /* @__PURE__ */ __name(() => {
+    if (button.toggle) {
+      button.toggle.checked = !button.toggle.checked;
+    }
+    return run();
+  }, "handler");
+  const action = button.toggle ? new QuickInputToggleButtonAction(id, button.tooltip || "", "", cssClasses, true, button.toggle.checked, handler) : {
+    id,
+    label: "",
+    tooltip: button.tooltip || "",
+    class: cssClasses,
+    enabled: true,
+    run: handler
+  };
+  return action;
+}
+__name(quickInputButtonToAction, "quickInputButtonToAction");
+function quickInputButtonsToActionArrays(buttons, idPrefix, onTrigger) {
+  const primary = [];
+  const secondary = [];
+  buttons.forEach((button, index) => {
+    const action = quickInputButtonToAction(button, `${idPrefix}-${index}`, async () => onTrigger(button));
+    if (button.label) {
+      action.label = button.label;
+    }
+    if (button.secondary) {
+      secondary.push(action);
+    } else {
+      primary.push(action);
+    }
+  });
+  return { primary, secondary };
+}
+__name(quickInputButtonsToActionArrays, "quickInputButtonsToActionArrays");
+function renderQuickInputDescription(description, container, actionHandler) {
+  dom.reset(container);
+  const parsed = parseLinkedText(description);
+  let tabIndex = 0;
+  for (const node of parsed.nodes) {
+    if (typeof node === "string") {
+      container.append(...renderLabelWithIcons(node));
+    } else {
+      let title = node.title;
+      if (!title && node.href.startsWith("command:")) {
+        title = localize("executeCommand", "Click to execute command '{0}'", node.href.substring("command:".length));
+      } else if (!title) {
+        title = node.href;
+      }
+      const anchor = dom.$("a", { href: node.href, title, tabIndex: tabIndex++ }, node.label);
+      anchor.style.textDecoration = "underline";
+      const handleOpen = /* @__PURE__ */ __name((e) => {
+        if (dom.isEventLike(e)) {
+          dom.EventHelper.stop(e, true);
+        }
+        actionHandler.callback(node.href);
+      }, "handleOpen");
+      const onClick = actionHandler.disposables.add(new DomEmitter(anchor, dom.EventType.CLICK)).event;
+      const onKeydown = actionHandler.disposables.add(new DomEmitter(anchor, dom.EventType.KEY_DOWN)).event;
+      const onSpaceOrEnter = Event.chain(onKeydown, ($) => $.filter((e) => {
+        const event = new StandardKeyboardEvent(e);
+        return event.equals(
+          10
+          /* KeyCode.Space */
+        ) || event.equals(
+          3
+          /* KeyCode.Enter */
+        );
+      }));
+      actionHandler.disposables.add(Gesture.addTarget(anchor));
+      const onTap = actionHandler.disposables.add(new DomEmitter(anchor, GestureEventType.Tap)).event;
+      Event.any(onClick, onTap, onSpaceOrEnter)(handleOpen, null, actionHandler.disposables);
+      container.appendChild(anchor);
+    }
+  }
+}
+__name(renderQuickInputDescription, "renderQuickInputDescription");
+export {
+  quickInputButtonToAction,
+  quickInputButtonsToActionArrays,
+  renderQuickInputDescription
+};
+//# sourceMappingURL=quickInputUtils.js.map

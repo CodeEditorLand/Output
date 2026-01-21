@@ -1,1 +1,169 @@
-import"./media/editortitlecontrol.css";import{$ as p,$X7 as d,$E7 as f}from"../../../../base/browser/dom.js";import{$Lj as m}from"../../../../platform/instantiation/common/instantiation.js";import{$ou as E,$wu as g}from"../../../../platform/theme/common/themeService.js";import{$4Vb as c,$5Vb as w}from"./breadcrumbsControl.js";import{$0Vb as $}from"./multiEditorTabsControl.js";import{$$Vb as C}from"./singleEditorTabsControl.js";import{$Dd as l}from"../../../../base/common/lifecycle.js";import{$_Vb as y}from"./multiRowEditorTabsControl.js";import{$aWb as D}from"./noEditorTabsControl.js";var b=function(o,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,i,e);else for(var h=o.length-1;h>=0;h--)(a=o[h])&&(s=(r<3?a(s):r>3?a(t,i,s):a(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},n=function(o,t){return function(i,e){t(i,e,o)}};let u=class extends g{get g(){return this.c?.control}constructor(t,i,e,r,s,a,h){super(h),this.h=t,this.j=i,this.m=e,this.r=r,this.s=s,this.t=a,this.b=this.D(new l),this.f=this.D(new l),this.a=this.u(),this.c=this.w()}u(){let t;switch(this.m.partOptions.showTabs){case"none":t=D;break;case"single":t=C;break;default:t=this.m.partOptions.pinnedTabsOnSeparateRow?y:$;break}const i=this.t.createInstance(t,this.h,this.j,this.m,this.r,this.s);return this.b.add(i)}w(){if(this.m.partOptions.showTabs==="single")return;const t=p(".breadcrumbs-below-tabs");this.h.appendChild(t);const i=this.f.add(this.t.createInstance(w,t,this.r,{showFileIcons:!0,showSymbolIcons:!0,showDecorationColors:!1,showPlaceholder:!0,dragEditor:!1}));return this.f.add(i.onDidEnablementChange(()=>this.r.relayout())),this.f.add(i.onDidVisibilityChange(()=>this.r.relayout())),i}openEditor(t,i){const e=this.a.openEditor(t,i);this.y(e)}openEditors(t){const i=this.a.openEditors(t);this.y(i)}y(t){t?this.g?.update():this.g?.revealLast()}beforeCloseEditor(t){return this.a.beforeCloseEditor(t)}closeEditor(t){this.a.closeEditor(t),this.F()}closeEditors(t){this.a.closeEditors(t),this.F()}F(){this.r.activeEditor||this.g?.update()}moveEditor(t,i,e,r){return this.a.moveEditor(t,i,e,r)}pinEditor(t){return this.a.pinEditor(t)}stickEditor(t){return this.a.stickEditor(t)}unstickEditor(t){return this.a.unstickEditor(t)}setActive(t){return this.a.setActive(t)}updateEditorSelections(){this.a.updateEditorSelections()}updateEditorLabel(t){return this.a.updateEditorLabel(t)}updateEditorDirty(t){return this.a.updateEditorDirty(t)}updateOptions(t,i){t.showTabs!==i.showTabs||i.showTabs!=="single"&&t.pinnedTabsOnSeparateRow!==i.pinnedTabsOnSeparateRow?(this.b.clear(),this.f.clear(),f(this.h),this.a=this.u(),this.c=this.w()):this.a.updateOptions(t,i)}layout(t){const i=this.a.layout(t);let e;return this.g?.isHidden()===!1&&(e=new d(t.container.width,c.HEIGHT),this.g.layout(e)),new d(t.container.width,i.height+(e?e.height:0))}getHeight(){const t=this.a.getHeight(),i=this.g?.isHidden()===!1?c.HEIGHT:0;return{total:t+i,offset:t}}};u=b([n(5,m),n(6,E)],u);export{u as $bWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/editortitlecontrol.css";
+import { $, Dimension, clearNode } from "../../../../base/browser/dom.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { BreadcrumbsControl, BreadcrumbsControlFactory } from "./breadcrumbsControl.js";
+import { MultiEditorTabsControl } from "./multiEditorTabsControl.js";
+import { SingleEditorTabsControl } from "./singleEditorTabsControl.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MultiRowEditorControl } from "./multiRowEditorTabsControl.js";
+import { NoEditorTabsControl } from "./noEditorTabsControl.js";
+let EditorTitleControl = class EditorTitleControl2 extends Themable {
+  static {
+    __name(this, "EditorTitleControl");
+  }
+  get breadcrumbsControl() {
+    return this.breadcrumbsControlFactory?.control;
+  }
+  constructor(parent, editorPartsView, groupsView, groupView, model, instantiationService, themeService) {
+    super(themeService);
+    this.parent = parent;
+    this.editorPartsView = editorPartsView;
+    this.groupsView = groupsView;
+    this.groupView = groupView;
+    this.model = model;
+    this.instantiationService = instantiationService;
+    this.editorTabsControlDisposable = this._register(new DisposableStore());
+    this.breadcrumbsControlDisposables = this._register(new DisposableStore());
+    this.editorTabsControl = this.createEditorTabsControl();
+    this.breadcrumbsControlFactory = this.createBreadcrumbsControl();
+  }
+  createEditorTabsControl() {
+    let tabsControlType;
+    switch (this.groupsView.partOptions.showTabs) {
+      case "none":
+        tabsControlType = NoEditorTabsControl;
+        break;
+      case "single":
+        tabsControlType = SingleEditorTabsControl;
+        break;
+      case "multiple":
+      default:
+        tabsControlType = this.groupsView.partOptions.pinnedTabsOnSeparateRow ? MultiRowEditorControl : MultiEditorTabsControl;
+        break;
+    }
+    const control = this.instantiationService.createInstance(tabsControlType, this.parent, this.editorPartsView, this.groupsView, this.groupView, this.model);
+    return this.editorTabsControlDisposable.add(control);
+  }
+  createBreadcrumbsControl() {
+    if (this.groupsView.partOptions.showTabs === "single") {
+      return void 0;
+    }
+    const breadcrumbsContainer = $(".breadcrumbs-below-tabs");
+    this.parent.appendChild(breadcrumbsContainer);
+    const breadcrumbsControlFactory = this.breadcrumbsControlDisposables.add(this.instantiationService.createInstance(BreadcrumbsControlFactory, breadcrumbsContainer, this.groupView, {
+      showFileIcons: true,
+      showSymbolIcons: true,
+      showDecorationColors: false,
+      showPlaceholder: true,
+      dragEditor: false
+    }));
+    this.breadcrumbsControlDisposables.add(breadcrumbsControlFactory.onDidEnablementChange(() => this.groupView.relayout()));
+    this.breadcrumbsControlDisposables.add(breadcrumbsControlFactory.onDidVisibilityChange(() => this.groupView.relayout()));
+    return breadcrumbsControlFactory;
+  }
+  openEditor(editor, options) {
+    const didChange = this.editorTabsControl.openEditor(editor, options);
+    this.handleOpenedEditors(didChange);
+  }
+  openEditors(editors) {
+    const didChange = this.editorTabsControl.openEditors(editors);
+    this.handleOpenedEditors(didChange);
+  }
+  handleOpenedEditors(didChange) {
+    if (didChange) {
+      this.breadcrumbsControl?.update();
+    } else {
+      this.breadcrumbsControl?.revealLast();
+    }
+  }
+  beforeCloseEditor(editor) {
+    return this.editorTabsControl.beforeCloseEditor(editor);
+  }
+  closeEditor(editor) {
+    this.editorTabsControl.closeEditor(editor);
+    this.handleClosedEditors();
+  }
+  closeEditors(editors) {
+    this.editorTabsControl.closeEditors(editors);
+    this.handleClosedEditors();
+  }
+  handleClosedEditors() {
+    if (!this.groupView.activeEditor) {
+      this.breadcrumbsControl?.update();
+    }
+  }
+  moveEditor(editor, fromIndex, targetIndex, stickyStateChange) {
+    return this.editorTabsControl.moveEditor(editor, fromIndex, targetIndex, stickyStateChange);
+  }
+  pinEditor(editor) {
+    return this.editorTabsControl.pinEditor(editor);
+  }
+  stickEditor(editor) {
+    return this.editorTabsControl.stickEditor(editor);
+  }
+  unstickEditor(editor) {
+    return this.editorTabsControl.unstickEditor(editor);
+  }
+  setActive(isActive) {
+    return this.editorTabsControl.setActive(isActive);
+  }
+  updateEditorSelections() {
+    this.editorTabsControl.updateEditorSelections();
+  }
+  updateEditorLabel(editor) {
+    return this.editorTabsControl.updateEditorLabel(editor);
+  }
+  updateEditorDirty(editor) {
+    return this.editorTabsControl.updateEditorDirty(editor);
+  }
+  updateOptions(oldOptions, newOptions) {
+    if (oldOptions.showTabs !== newOptions.showTabs || newOptions.showTabs !== "single" && oldOptions.pinnedTabsOnSeparateRow !== newOptions.pinnedTabsOnSeparateRow) {
+      this.editorTabsControlDisposable.clear();
+      this.breadcrumbsControlDisposables.clear();
+      clearNode(this.parent);
+      this.editorTabsControl = this.createEditorTabsControl();
+      this.breadcrumbsControlFactory = this.createBreadcrumbsControl();
+    } else {
+      this.editorTabsControl.updateOptions(oldOptions, newOptions);
+    }
+  }
+  layout(dimensions) {
+    const tabsControlDimension = this.editorTabsControl.layout(dimensions);
+    let breadcrumbsControlDimension = void 0;
+    if (this.breadcrumbsControl?.isHidden() === false) {
+      breadcrumbsControlDimension = new Dimension(dimensions.container.width, BreadcrumbsControl.HEIGHT);
+      this.breadcrumbsControl.layout(breadcrumbsControlDimension);
+    }
+    return new Dimension(dimensions.container.width, tabsControlDimension.height + (breadcrumbsControlDimension ? breadcrumbsControlDimension.height : 0));
+  }
+  getHeight() {
+    const tabsControlHeight = this.editorTabsControl.getHeight();
+    const breadcrumbsControlHeight = this.breadcrumbsControl?.isHidden() === false ? BreadcrumbsControl.HEIGHT : 0;
+    return {
+      total: tabsControlHeight + breadcrumbsControlHeight,
+      offset: tabsControlHeight
+    };
+  }
+};
+EditorTitleControl = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IThemeService)
+], EditorTitleControl);
+export {
+  EditorTitleControl
+};
+//# sourceMappingURL=editorTitleControl.js.map

@@ -1,1 +1,264 @@
-import{$2w as M}from"../../../../base/common/keyCodes.js";import{$Ah as D}from"../../../../base/common/resources.js";import{URI as A}from"../../../../base/common/uri.js";import{$aI as w}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as E,localize2 as p}from"../../../../nls.js";import{$nL as u,$pL as l}from"../../../../platform/actions/common/actions.js";import{$9n as k}from"../../../../platform/contextkey/common/contextkey.js";import{$jL as f}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$MRb as K}from"./textDiffEditor.js";import{$DO as P,$KO as b,$JO as v}from"../../../common/contextkeys.js";import{$fO as s}from"../../../common/editor/diffEditorInput.js";import{$yL as h}from"../../../services/editor/common/editorService.js";import{EditorContextKeys as V}from"../../../../editor/common/editorContextKeys.js";import{$uL as L}from"../../../services/editor/common/editorGroupsService.js";import{$qcb as G}from"../../../../editor/browser/editorBrowser.js";const C="toggle.diff.renderSideBySide",$="workbench.action.compareEditor.nextChange",R="workbench.action.compareEditor.previousChange",W="workbench.action.compareEditor.focusPrimarySide",B="workbench.action.compareEditor.focusSecondarySide",U="workbench.action.compareEditor.focusOtherSide",S="workbench.action.compareEditor.openSide",z="toggle.diff.ignoreTrimWhitespace",x="workbench.action.compareEditor.swapSides";function oe(){f.registerCommandAndKeybindingRule({id:S,weight:200,when:V.inDiffEditor,primary:M(2089,1069),handler:async e=>{const i=e.get(h),o=e.get(L),t=i.activeEditor,n=i.activeTextEditorControl;if(!G(n)||!(t instanceof s))return;let r;return n.getOriginalEditor().hasTextFocus()?r=t.original:r=t.modified,o.activeGroup.openEditor(r)}}),l.appendMenuItem(u.CommandPalette,{command:{id:S,title:p(3482,"Open Active Diff Side")}}),f.registerCommandAndKeybindingRule({id:$,weight:200,when:v,primary:575,handler:(e,...i)=>y(e,i,!0)}),l.appendMenuItem(u.CommandPalette,{command:{id:$,title:p(3483,"Go to Next Change")}}),f.registerCommandAndKeybindingRule({id:R,weight:200,when:v,primary:1599,handler:(e,...i)=>y(e,i,!1)}),l.appendMenuItem(u.CommandPalette,{command:{id:R,title:p(3484,"Go to Previous Change")}});function c(e,i){const o=e.get(h),t=i.length>0&&i[0]instanceof A?i[0]:void 0;for(const n of[o.activeEditorPane,...o.visibleEditorPanes])if(n instanceof K&&(!t||n.input instanceof s&&D(n.input.primary.resource,t)))return n}function y(e,i,o){const t=c(e,i);t&&t.getControl()?.goToDiff(o?"next":"previous")}let a;(function(e){e[e.Original=0]="Original",e[e.Modified=1]="Modified",e[e.Toggle=2]="Toggle"})(a||(a={}));function m(e,i,o){const t=c(e,i);if(t)switch(o){case a.Original:t.getControl()?.getOriginalEditor().focus();break;case a.Modified:t.getControl()?.getModifiedEditor().focus();break;case a.Toggle:return t.getControl()?.getModifiedEditor().hasWidgetFocus()?m(e,i,a.Original):m(e,i,a.Modified)}}function I(e,i){const o=e.get(w),n=c(e,i)?.getControl()?.getModifiedEditor()?.getModel();if(!n)return;const r="diffEditor.renderSideBySide",d=o.getValue(n.uri,r);o.updateValue(n.uri,r,!d)}function T(e,i){const o=e.get(w),n=c(e,i)?.getControl()?.getModifiedEditor()?.getModel();if(!n)return;const r="diffEditor.ignoreTrimWhitespace",d=o.getValue(n.uri,r);o.updateValue(n.uri,r,!d)}async function O(e,i){const o=e.get(h),t=c(e,i),n=t?.group,r=t?.input;if(!t||typeof n>"u"||!(r instanceof s)||!r.modified.resource)return;const d=r.toUntyped({preserveViewState:n.id,preserveResource:!0});if(d){if(r.modified.isModified()&&o.findEditors({resource:r.modified.resource,typeId:r.modified.typeId,editorId:r.modified.editorId}).length===0){const g={...d.modified};g.options||(g.options={}),g.options.pinned=!0,g.options.inactive=!0,await o.openEditor(g,n)}await o.replaceEditors([{editor:r,replacement:{...d,original:d.modified,modified:d.original,options:{...d.options,pinned:!0}}}],n)}}f.registerCommandAndKeybindingRule({id:C,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>I(e,i)}),f.registerCommandAndKeybindingRule({id:W,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>m(e,i,a.Modified)}),f.registerCommandAndKeybindingRule({id:B,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>m(e,i,a.Original)}),f.registerCommandAndKeybindingRule({id:U,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>m(e,i,a.Toggle)}),f.registerCommandAndKeybindingRule({id:z,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>T(e,i)}),f.registerCommandAndKeybindingRule({id:x,weight:200,when:void 0,primary:void 0,handler:(e,...i)=>O(e,i)}),l.appendMenuItem(u.CommandPalette,{command:{id:C,title:p(3485,"Toggle Inline View"),category:E(3480,null)},when:b}),l.appendMenuItem(u.CommandPalette,{command:{id:x,title:p(3486,"Swap Left and Right Editor Side"),category:E(3481,null)},when:k.and(b,P)})}export{C as $NRb,$ as $ORb,R as $PRb,W as $QRb,B as $RRb,U as $SRb,S as $TRb,z as $URb,x as $VRb,oe as $WRb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { TextDiffEditor } from "./textDiffEditor.js";
+import { ActiveCompareEditorCanSwapContext, TextCompareEditorActiveContext, TextCompareEditorVisibleContext } from "../../../common/contextkeys.js";
+import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+const TOGGLE_DIFF_SIDE_BY_SIDE = "toggle.diff.renderSideBySide";
+const GOTO_NEXT_CHANGE = "workbench.action.compareEditor.nextChange";
+const GOTO_PREVIOUS_CHANGE = "workbench.action.compareEditor.previousChange";
+const DIFF_FOCUS_PRIMARY_SIDE = "workbench.action.compareEditor.focusPrimarySide";
+const DIFF_FOCUS_SECONDARY_SIDE = "workbench.action.compareEditor.focusSecondarySide";
+const DIFF_FOCUS_OTHER_SIDE = "workbench.action.compareEditor.focusOtherSide";
+const DIFF_OPEN_SIDE = "workbench.action.compareEditor.openSide";
+const TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE = "toggle.diff.ignoreTrimWhitespace";
+const DIFF_SWAP_SIDES = "workbench.action.compareEditor.swapSides";
+function registerDiffEditorCommands() {
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: DIFF_OPEN_SIDE,
+    weight: 200,
+    when: EditorContextKeys.inDiffEditor,
+    primary: KeyChord(
+      2048 | 41,
+      1024 | 45
+      /* KeyCode.KeyO */
+    ),
+    handler: /* @__PURE__ */ __name(async (accessor) => {
+      const editorService = accessor.get(IEditorService);
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const activeEditor = editorService.activeEditor;
+      const activeTextEditorControl = editorService.activeTextEditorControl;
+      if (!isDiffEditor(activeTextEditorControl) || !(activeEditor instanceof DiffEditorInput)) {
+        return;
+      }
+      let editor;
+      const originalEditor = activeTextEditorControl.getOriginalEditor();
+      if (originalEditor.hasTextFocus()) {
+        editor = activeEditor.original;
+      } else {
+        editor = activeEditor.modified;
+      }
+      return editorGroupsService.activeGroup.openEditor(editor);
+    }, "handler")
+  });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    command: {
+      id: DIFF_OPEN_SIDE,
+      title: localize2("compare.openSide", "Open Active Diff Side")
+    }
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: GOTO_NEXT_CHANGE,
+    weight: 200,
+    when: TextCompareEditorVisibleContext,
+    primary: 512 | 63,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => navigateInDiffEditor(accessor, args, true), "handler")
+  });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    command: {
+      id: GOTO_NEXT_CHANGE,
+      title: localize2("compare.nextChange", "Go to Next Change")
+    }
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: GOTO_PREVIOUS_CHANGE,
+    weight: 200,
+    when: TextCompareEditorVisibleContext,
+    primary: 512 | 1024 | 63,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => navigateInDiffEditor(accessor, args, false), "handler")
+  });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    command: {
+      id: GOTO_PREVIOUS_CHANGE,
+      title: localize2("compare.previousChange", "Go to Previous Change")
+    }
+  });
+  function getActiveTextDiffEditor(accessor, args) {
+    const editorService = accessor.get(IEditorService);
+    const resource = args.length > 0 && args[0] instanceof URI ? args[0] : void 0;
+    for (const editor of [editorService.activeEditorPane, ...editorService.visibleEditorPanes]) {
+      if (editor instanceof TextDiffEditor && (!resource || editor.input instanceof DiffEditorInput && isEqual(editor.input.primary.resource, resource))) {
+        return editor;
+      }
+    }
+    return void 0;
+  }
+  __name(getActiveTextDiffEditor, "getActiveTextDiffEditor");
+  function navigateInDiffEditor(accessor, args, next) {
+    const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
+    if (activeTextDiffEditor) {
+      activeTextDiffEditor.getControl()?.goToDiff(next ? "next" : "previous");
+    }
+  }
+  __name(navigateInDiffEditor, "navigateInDiffEditor");
+  let FocusTextDiffEditorMode;
+  (function(FocusTextDiffEditorMode2) {
+    FocusTextDiffEditorMode2[FocusTextDiffEditorMode2["Original"] = 0] = "Original";
+    FocusTextDiffEditorMode2[FocusTextDiffEditorMode2["Modified"] = 1] = "Modified";
+    FocusTextDiffEditorMode2[FocusTextDiffEditorMode2["Toggle"] = 2] = "Toggle";
+  })(FocusTextDiffEditorMode || (FocusTextDiffEditorMode = {}));
+  function focusInDiffEditor(accessor, args, mode) {
+    const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
+    if (activeTextDiffEditor) {
+      switch (mode) {
+        case FocusTextDiffEditorMode.Original:
+          activeTextDiffEditor.getControl()?.getOriginalEditor().focus();
+          break;
+        case FocusTextDiffEditorMode.Modified:
+          activeTextDiffEditor.getControl()?.getModifiedEditor().focus();
+          break;
+        case FocusTextDiffEditorMode.Toggle:
+          if (activeTextDiffEditor.getControl()?.getModifiedEditor().hasWidgetFocus()) {
+            return focusInDiffEditor(accessor, args, FocusTextDiffEditorMode.Original);
+          } else {
+            return focusInDiffEditor(accessor, args, FocusTextDiffEditorMode.Modified);
+          }
+      }
+    }
+  }
+  __name(focusInDiffEditor, "focusInDiffEditor");
+  function toggleDiffSideBySide(accessor, args) {
+    const configService = accessor.get(ITextResourceConfigurationService);
+    const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
+    const m = activeTextDiffEditor?.getControl()?.getModifiedEditor()?.getModel();
+    if (!m) {
+      return;
+    }
+    const key = "diffEditor.renderSideBySide";
+    const val = configService.getValue(m.uri, key);
+    configService.updateValue(m.uri, key, !val);
+  }
+  __name(toggleDiffSideBySide, "toggleDiffSideBySide");
+  function toggleDiffIgnoreTrimWhitespace(accessor, args) {
+    const configService = accessor.get(ITextResourceConfigurationService);
+    const activeTextDiffEditor = getActiveTextDiffEditor(accessor, args);
+    const m = activeTextDiffEditor?.getControl()?.getModifiedEditor()?.getModel();
+    if (!m) {
+      return;
+    }
+    const key = "diffEditor.ignoreTrimWhitespace";
+    const val = configService.getValue(m.uri, key);
+    configService.updateValue(m.uri, key, !val);
+  }
+  __name(toggleDiffIgnoreTrimWhitespace, "toggleDiffIgnoreTrimWhitespace");
+  async function swapDiffSides(accessor, args) {
+    const editorService = accessor.get(IEditorService);
+    const diffEditor = getActiveTextDiffEditor(accessor, args);
+    const activeGroup = diffEditor?.group;
+    const diffInput = diffEditor?.input;
+    if (!diffEditor || typeof activeGroup === "undefined" || !(diffInput instanceof DiffEditorInput) || !diffInput.modified.resource) {
+      return;
+    }
+    const untypedDiffInput = diffInput.toUntyped({ preserveViewState: activeGroup.id, preserveResource: true });
+    if (!untypedDiffInput) {
+      return;
+    }
+    if (diffInput.modified.isModified() && editorService.findEditors({ resource: diffInput.modified.resource, typeId: diffInput.modified.typeId, editorId: diffInput.modified.editorId }).length === 0) {
+      const editorToOpen = { ...untypedDiffInput.modified };
+      if (!editorToOpen.options) {
+        editorToOpen.options = {};
+      }
+      editorToOpen.options.pinned = true;
+      editorToOpen.options.inactive = true;
+      await editorService.openEditor(editorToOpen, activeGroup);
+    }
+    await editorService.replaceEditors([
+      {
+        editor: diffInput,
+        replacement: {
+          ...untypedDiffInput,
+          original: untypedDiffInput.modified,
+          modified: untypedDiffInput.original,
+          options: {
+            ...untypedDiffInput.options,
+            pinned: true
+          }
+        }
+      }
+    ], activeGroup);
+  }
+  __name(swapDiffSides, "swapDiffSides");
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: TOGGLE_DIFF_SIDE_BY_SIDE,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => toggleDiffSideBySide(accessor, args), "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: DIFF_FOCUS_PRIMARY_SIDE,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => focusInDiffEditor(accessor, args, FocusTextDiffEditorMode.Modified), "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: DIFF_FOCUS_SECONDARY_SIDE,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => focusInDiffEditor(accessor, args, FocusTextDiffEditorMode.Original), "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: DIFF_FOCUS_OTHER_SIDE,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => focusInDiffEditor(accessor, args, FocusTextDiffEditorMode.Toggle), "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => toggleDiffIgnoreTrimWhitespace(accessor, args), "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: DIFF_SWAP_SIDES,
+    weight: 200,
+    when: void 0,
+    primary: void 0,
+    handler: /* @__PURE__ */ __name((accessor, ...args) => swapDiffSides(accessor, args), "handler")
+  });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    command: {
+      id: TOGGLE_DIFF_SIDE_BY_SIDE,
+      title: localize2("toggleInlineView", "Toggle Inline View"),
+      category: localize("compare", "Compare")
+    },
+    when: TextCompareEditorActiveContext
+  });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    command: {
+      id: DIFF_SWAP_SIDES,
+      title: localize2("swapDiffSides", "Swap Left and Right Editor Side"),
+      category: localize("compare", "Compare")
+    },
+    when: ContextKeyExpr.and(TextCompareEditorActiveContext, ActiveCompareEditorCanSwapContext)
+  });
+}
+__name(registerDiffEditorCommands, "registerDiffEditorCommands");
+export {
+  DIFF_FOCUS_OTHER_SIDE,
+  DIFF_FOCUS_PRIMARY_SIDE,
+  DIFF_FOCUS_SECONDARY_SIDE,
+  DIFF_OPEN_SIDE,
+  DIFF_SWAP_SIDES,
+  GOTO_NEXT_CHANGE,
+  GOTO_PREVIOUS_CHANGE,
+  TOGGLE_DIFF_IGNORE_TRIM_WHITESPACE,
+  TOGGLE_DIFF_SIDE_BY_SIDE,
+  registerDiffEditorCommands
+};
+//# sourceMappingURL=diffEditorCommands.js.map

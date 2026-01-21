@@ -1,1 +1,70 @@
-import{$n as i}from"../../../common/platform.js";import{$E0 as u}from"../list/listWidget.js";import{$j9 as a}from"../widget.js";import"./selectBox.css";import{$I0 as n}from"./selectBoxCustom.js";import{$J0 as d}from"./selectBoxNative.js";const $=Object.freeze({text:"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",isDisabled:!0}),C={...u,selectBackground:"#3C3C3C",selectForeground:"#F0F0F0",selectBorder:"#3C3C3C",decoratorRightForeground:void 0,selectListBackground:void 0,selectListBorder:void 0,focusBorder:void 0};class F extends a{constructor(e,t,o,s,r){super(),i&&!r?.useCustomDrawn?this.a=new d(e,t,s,r):this.a=new n(e,t,o,s,r),this.D(this.a)}get onDidSelect(){return this.a.onDidSelect}setOptions(e,t){this.a.setOptions(e,t)}select(e){this.a.select(e)}setAriaLabel(e){this.a.setAriaLabel(e)}focus(){this.a.focus()}blur(){this.a.blur()}setFocusable(e){this.a.setFocusable(e)}setEnabled(e){this.a.setEnabled(e)}render(e){this.a.render(e)}}export{$ as $K0,C as $L0,F as $M0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isMacintosh } from "../../../common/platform.js";
+import { unthemedListStyles } from "../list/listWidget.js";
+import { Widget } from "../widget.js";
+import "./selectBox.css";
+import { SelectBoxList } from "./selectBoxCustom.js";
+import { SelectBoxNative } from "./selectBoxNative.js";
+const SeparatorSelectOption = Object.freeze({
+  text: "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+  isDisabled: true
+});
+const unthemedSelectBoxStyles = {
+  ...unthemedListStyles,
+  selectBackground: "#3C3C3C",
+  selectForeground: "#F0F0F0",
+  selectBorder: "#3C3C3C",
+  decoratorRightForeground: void 0,
+  selectListBackground: void 0,
+  selectListBorder: void 0,
+  focusBorder: void 0
+};
+class SelectBox extends Widget {
+  static {
+    __name(this, "SelectBox");
+  }
+  constructor(options, selected, contextViewProvider, styles, selectBoxOptions) {
+    super();
+    if (isMacintosh && !selectBoxOptions?.useCustomDrawn) {
+      this.selectBoxDelegate = new SelectBoxNative(options, selected, styles, selectBoxOptions);
+    } else {
+      this.selectBoxDelegate = new SelectBoxList(options, selected, contextViewProvider, styles, selectBoxOptions);
+    }
+    this._register(this.selectBoxDelegate);
+  }
+  // Public SelectBox Methods - routed through delegate interface
+  get onDidSelect() {
+    return this.selectBoxDelegate.onDidSelect;
+  }
+  setOptions(options, selected) {
+    this.selectBoxDelegate.setOptions(options, selected);
+  }
+  select(index) {
+    this.selectBoxDelegate.select(index);
+  }
+  setAriaLabel(label) {
+    this.selectBoxDelegate.setAriaLabel(label);
+  }
+  focus() {
+    this.selectBoxDelegate.focus();
+  }
+  blur() {
+    this.selectBoxDelegate.blur();
+  }
+  setFocusable(focusable) {
+    this.selectBoxDelegate.setFocusable(focusable);
+  }
+  setEnabled(enabled) {
+    this.selectBoxDelegate.setEnabled(enabled);
+  }
+  render(container) {
+    this.selectBoxDelegate.render(container);
+  }
+}
+export {
+  SelectBox,
+  SeparatorSelectOption,
+  unthemedSelectBoxStyles
+};
+//# sourceMappingURL=selectBox.js.map

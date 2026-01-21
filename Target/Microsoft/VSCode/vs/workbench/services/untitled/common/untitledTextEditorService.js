@@ -1,1 +1,164 @@
-import{URI as f}from"../../../../base/common/uri.js";import{$Mj as m,$Lj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$YL as p}from"./untitledTextEditorModel.js";import{$9l as v}from"../../../../platform/configuration/common/configuration.js";import{Event as g,$wf as a}from"../../../../base/common/event.js";import{Schemas as u}from"../../../../base/common/network.js";import{$Ed as w,$Pd as $,$Dd as y}from"../../../../base/common/lifecycle.js";import{$TC as L}from"../../../../platform/instantiation/common/extensions.js";var D=function(n,e,t,i){var r=arguments.length,s=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,e,t,i);else for(var c=n.length-1;c>=0;c--)(h=n[c])&&(s=(r<3?h(s):r>3?h(e,t,s):h(e,t))||s);return r>3&&s&&Object.defineProperty(e,t,s),s},l=function(n,e){return function(t,i){e(t,i,n)}},o;const j=m("untitledTextEditorService");let d=class extends w{static{o=this}static{this.a=/Untitled-\d+/}constructor(e,t){super(),this.n=e,this.q=t,this.b=this.D(new a),this.onDidSave=this.b.event,this.c=this.D(new a),this.onDidChangeDirty=this.c.event,this.f=this.D(new a),this.onDidChangeEncoding=this.f.event,this.g=this.D(new a),this.onDidCreate=this.g.event,this.h=this.D(new a),this.onWillDispose=this.h.event,this.j=this.D(new a),this.onDidChangeLabel=this.j.event,this.m=this.D(new $)}get(e){return this.m.get(e)}getValue(e){return this.get(e)?.textEditorModel?.getValue()}async resolve(e){const t=this.r(e);return await t.resolve(),t}create(e){return this.r(e)}r(e=Object.create(null)){const t=this.s(e);return t.untitledResource&&this.m.has(t.untitledResource)?this.m.get(t.untitledResource):this.t(t)}s(e){const t=Object.create(null);if(e.associatedResource?(t.untitledResource=f.from({scheme:u.untitled,authority:e.associatedResource.authority,fragment:e.associatedResource.fragment,path:e.associatedResource.path,query:e.associatedResource.query}),t.associatedResource=e.associatedResource):e.untitledResource?.scheme===u.untitled&&(t.untitledResource=e.untitledResource),e.languageId)t.languageId=e.languageId;else if(!t.associatedResource){const i=this.q.getValue();i.files?.defaultLanguage&&(t.languageId=i.files.defaultLanguage)}return t.encoding=e.encoding,t.initialValue=e.initialValue,t}t(e){let t=e.untitledResource;if(!t){let r=1;do t=f.from({scheme:u.untitled,path:`Untitled-${r}`}),r++;while(this.m.has(t))}const i=this.n.createInstance(p,t,!!e.associatedResource,e.initialValue,e.languageId,e.encoding);return this.u(i),i}u(e){const t=new y;t.add(e.onDidChangeDirty(()=>this.c.fire(e))),t.add(e.onDidChangeName(()=>this.j.fire(e))),t.add(e.onDidChangeEncoding(()=>this.f.fire(e))),t.add(e.onWillDispose(()=>this.h.fire(e))),g.once(e.onWillDispose)(()=>{this.m.deleteAndLeak(e.resource),t.dispose()}),this.m.set(e.resource,e),this.g.fire(e),e.isDirty()&&this.c.fire(e)}isUntitledWithAssociatedResource(e){return e.scheme===u.untitled&&e.path.length>1&&!o.a.test(e.path)}canDispose(e){return e.isDisposed()?!0:this.w(e)}async w(e){return e.isDirty()?(await g.toPromise(e.onDidChangeDirty),this.canDispose(e)):!0}notifyDidSave(e,t){this.b.fire({source:e,target:t})}};d=o=D([l(0,R),l(1,v)],d);L(j,d,1);export{d as $1L,j as $ZL};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UntitledTextEditorService_1;
+import { URI } from "../../../../base/common/uri.js";
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { UntitledTextEditorModel } from "./untitledTextEditorModel.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Event, Emitter } from "../../../../base/common/event.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { Disposable, DisposableResourceMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+const IUntitledTextEditorService = createDecorator("untitledTextEditorService");
+let UntitledTextEditorService = class UntitledTextEditorService2 extends Disposable {
+  static {
+    __name(this, "UntitledTextEditorService");
+  }
+  static {
+    UntitledTextEditorService_1 = this;
+  }
+  static {
+    this.UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX = /Untitled-\d+/;
+  }
+  constructor(instantiationService, configurationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.configurationService = configurationService;
+    this._onDidSave = this._register(new Emitter());
+    this.onDidSave = this._onDidSave.event;
+    this._onDidChangeDirty = this._register(new Emitter());
+    this.onDidChangeDirty = this._onDidChangeDirty.event;
+    this._onDidChangeEncoding = this._register(new Emitter());
+    this.onDidChangeEncoding = this._onDidChangeEncoding.event;
+    this._onDidCreate = this._register(new Emitter());
+    this.onDidCreate = this._onDidCreate.event;
+    this._onWillDispose = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+    this._onDidChangeLabel = this._register(new Emitter());
+    this.onDidChangeLabel = this._onDidChangeLabel.event;
+    this.mapResourceToModel = this._register(new DisposableResourceMap());
+  }
+  get(resource) {
+    return this.mapResourceToModel.get(resource);
+  }
+  getValue(resource) {
+    return this.get(resource)?.textEditorModel?.getValue();
+  }
+  async resolve(options) {
+    const model = this.doCreateOrGet(options);
+    await model.resolve();
+    return model;
+  }
+  create(options) {
+    return this.doCreateOrGet(options);
+  }
+  doCreateOrGet(options = /* @__PURE__ */ Object.create(null)) {
+    const massagedOptions = this.massageOptions(options);
+    if (massagedOptions.untitledResource && this.mapResourceToModel.has(massagedOptions.untitledResource)) {
+      return this.mapResourceToModel.get(massagedOptions.untitledResource);
+    }
+    return this.doCreate(massagedOptions);
+  }
+  massageOptions(options) {
+    const massagedOptions = /* @__PURE__ */ Object.create(null);
+    if (options.associatedResource) {
+      massagedOptions.untitledResource = URI.from({
+        scheme: Schemas.untitled,
+        authority: options.associatedResource.authority,
+        fragment: options.associatedResource.fragment,
+        path: options.associatedResource.path,
+        query: options.associatedResource.query
+      });
+      massagedOptions.associatedResource = options.associatedResource;
+    } else {
+      if (options.untitledResource?.scheme === Schemas.untitled) {
+        massagedOptions.untitledResource = options.untitledResource;
+      }
+    }
+    if (options.languageId) {
+      massagedOptions.languageId = options.languageId;
+    } else if (!massagedOptions.associatedResource) {
+      const configuration = this.configurationService.getValue();
+      if (configuration.files?.defaultLanguage) {
+        massagedOptions.languageId = configuration.files.defaultLanguage;
+      }
+    }
+    massagedOptions.encoding = options.encoding;
+    massagedOptions.initialValue = options.initialValue;
+    return massagedOptions;
+  }
+  doCreate(options) {
+    let untitledResource = options.untitledResource;
+    if (!untitledResource) {
+      let counter = 1;
+      do {
+        untitledResource = URI.from({ scheme: Schemas.untitled, path: `Untitled-${counter}` });
+        counter++;
+      } while (this.mapResourceToModel.has(untitledResource));
+    }
+    const model = this.instantiationService.createInstance(UntitledTextEditorModel, untitledResource, !!options.associatedResource, options.initialValue, options.languageId, options.encoding);
+    this.registerModel(model);
+    return model;
+  }
+  registerModel(model) {
+    const modelListeners = new DisposableStore();
+    modelListeners.add(model.onDidChangeDirty(() => this._onDidChangeDirty.fire(model)));
+    modelListeners.add(model.onDidChangeName(() => this._onDidChangeLabel.fire(model)));
+    modelListeners.add(model.onDidChangeEncoding(() => this._onDidChangeEncoding.fire(model)));
+    modelListeners.add(model.onWillDispose(() => this._onWillDispose.fire(model)));
+    Event.once(model.onWillDispose)(() => {
+      this.mapResourceToModel.deleteAndLeak(model.resource);
+      modelListeners.dispose();
+    });
+    this.mapResourceToModel.set(model.resource, model);
+    this._onDidCreate.fire(model);
+    if (model.isDirty()) {
+      this._onDidChangeDirty.fire(model);
+    }
+  }
+  isUntitledWithAssociatedResource(resource) {
+    return resource.scheme === Schemas.untitled && resource.path.length > 1 && !UntitledTextEditorService_1.UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX.test(resource.path);
+  }
+  canDispose(model) {
+    if (model.isDisposed()) {
+      return true;
+    }
+    return this.doCanDispose(model);
+  }
+  async doCanDispose(model) {
+    if (model.isDirty()) {
+      await Event.toPromise(model.onDidChangeDirty);
+      return this.canDispose(model);
+    }
+    return true;
+  }
+  notifyDidSave(source, target) {
+    this._onDidSave.fire({ source, target });
+  }
+};
+UntitledTextEditorService = UntitledTextEditorService_1 = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IConfigurationService)
+], UntitledTextEditorService);
+registerSingleton(
+  IUntitledTextEditorService,
+  UntitledTextEditorService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IUntitledTextEditorService,
+  UntitledTextEditorService
+};
+//# sourceMappingURL=untitledTextEditorService.js.map

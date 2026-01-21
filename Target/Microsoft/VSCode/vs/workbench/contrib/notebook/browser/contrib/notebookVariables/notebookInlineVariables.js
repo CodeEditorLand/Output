@@ -1,5 +1,526 @@
-import{$If as _}from"../../../../../../base/common/cancellation.js";import{$nb as W}from"../../../../../../base/common/errors.js";import{Event as z}from"../../../../../../base/common/event.js";import{$Ed as F}from"../../../../../../base/common/lifecycle.js";import{$Oc as T}from"../../../../../../base/common/map.js";import{$Ah as H}from"../../../../../../base/common/resources.js";import{$Uf as A}from"../../../../../../base/common/strings.js";import{$8D as q}from"../../../../../../editor/common/core/position.js";import{$9D as w}from"../../../../../../editor/common/core/range.js";import{$NV as G}from"../../../../../../editor/common/services/languageFeatures.js";import{localize as B}from"../../../../../../nls.js";import{$tL as J}from"../../../../../../platform/actions/common/actions.js";import{$9l as K}from"../../../../../../platform/configuration/common/configuration.js";import{$mhc as $}from"../../../../debug/browser/debugEditorContribution.js";import{$EY as Q}from"../../../../debug/common/debug.js";import{$pQ as N}from"../../../common/notebookCommon.js";import{$PP as U,NotebookExecutionType as Y}from"../../../common/notebookExecutionStateService.js";import{$VP as X}from"../../../common/notebookKernelService.js";import{$GNb as Z}from"../../controller/coreActions.js";import{$QFb as tt}from"../../notebookEditorExtensions.js";var O=function(C,t,e,o){var i=arguments.length,n=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(C,t,e,o);else for(var r=C.length-1;r>=0;r--)(s=C[r])&&(n=(i<3?s(n):i>3?s(t,e,n):s(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},y=function(C,t){return function(e,o){t(e,o,C)}},S;class E{constructor(t,e){this.column=t,this.text=e}}let L=class extends F{static{S=this}static{this.id="notebook.inlineVariablesController"}static{this.h=5e3}constructor(t,e,o,i,n,s){super(),this.j=t,this.m=e,this.n=o,this.q=i,this.r=n,this.t=s,this.c=new Map,this.f=new T,this.g=new T,this.D(this.n.onDidChangeExecution(async r=>{this.r.getValue(N.notebookInlineValues)!=="off"&&r.type===Y.cell&&await this.u(r)})),this.D(z.runAndSubscribe(this.r.onDidChangeConfiguration,r=>{(!r||r.affectsConfiguration(N.notebookInlineValues))&&this.r.getValue(N.notebookInlineValues)==="off"&&this.clearNotebookInlineDecorations()}))}async u(t){if(t.changed)return;const e=this.j.getCellByHandle(t.cellHandle);if(!e)return;const o=this.g.get(e.uri);o&&o.cancel(),this.g.set(e.uri,new _);const i=this.g.get(e.uri).token;if(this.t.state!==0){this.N();return}if(!this.j.textModel?.uri||!H(this.j.textModel.uri,t.notebook))return;const n=await e.resolveTextModel();if(!n)return;const s=this.r.getValue(N.notebookInlineValues),r=this.q.inlineValuesProvider.has(n);if(s==="off"||s==="auto"&&!r)return;this.M(e);const l=[];if(r){const h=n.getLineCount(),c=n.getLineMaxColumn(h),m={frameId:0,stoppedLocation:new w(h,c,h,c)},V=this.q.inlineValuesProvider.ordered(n).reverse(),u=new Map,D=new w(1,1,h,c),j=V.flatMap(v=>Promise.resolve(v.provideInlineValues(n,D,m,i)).then(async x=>{if(!x)return;const I=this.j.textModel;if(!I)return;const d=this.m.getMatchingKernel(I),k=[];if(x.some(a=>a.type==="variable")){if(!this.j.hasModel())return;const a=d.selected?.provideVariables(t.notebook,void 0,"named",0,i);if(a)for await(const g of a)k.push(g)}for(const a of x){let g;switch(a.type){case"text":g=a.text;break;case"variable":{const b=a.variableName;if(!b)continue;const f=k.find(p=>p.name===b)?.value;if(!f)continue;g=A("{0} = {1}",b,f);break}case"expression":continue}if(g){const b=a.range.startLineNumber;let f=u.get(b);f||(f=[],u.set(b,f)),f.some(p=>p.text===g)||f.push(new E(a.range.startColumn,g))}}},x=>{W(x)}));await Promise.all(j),u.forEach((v,x)=>{if(v.length>0){v.sort((a,g)=>a.column-g.column);const I=v.map(a=>a.text).join(", "),d=e.layoutInfo.editorWidth,k=e.layoutInfo.fontInfo;if(k&&e.textModel){const a=Math.floor((d-50)/k.typicalHalfwidthCharacterWidth),g=e.textModel.getLineLength(x),b=Math.max(0,a-g);l.push(...$(x,I,"nb",void 0,b))}else l.push(...$(x,I,"nb"))}})}else if(s==="on"){if(!this.j.hasModel())return;const c=this.m.getMatchingKernel(this.j.textModel)?.selected?.provideVariables(t.notebook,void 0,"named",0,i);if(!c)return;const m=[];for await(const d of c)m.push(d);const V=m.map(d=>d.name),u=e.textModel;if(!u||u.getLineCount()>S.h)return;const D=new Set,j=this.w(u),v=this.C(u),x=[...j,...v],I=new Map;for(const d of V){if(D.has(d))continue;const k=new RegExp(`\\b${d}\\b(?!\\w)`,"g");let a=null,g=!1;const b=u.getValue().split(`
-`);for(let f=b.length-1;f>=0;f--){const p=b[f];let M;for(;(M=k.exec(p))!==null;){const R=M.index,P=new q(f+1,R+1);if(!this.I(P,x)){a={line:f+1,column:R+1},g=!0;break}}if(g)break}if(a){const f=d+" = "+m.find(M=>M.name===d)?.value;let p=I.get(a.line);p||(p=[],I.set(a.line,p)),p.some(M=>M.text===f)||p.push(new E(a.column,f))}D.add(d)}I.forEach((d,k)=>{if(d.length>0){d.sort((f,p)=>f.column-p.column);const a=d.map(f=>f.text).join(", "),g=e.layoutInfo.editorWidth,b=e.layoutInfo.fontInfo;if(b&&e.textModel){const f=Math.floor((g-50)/b.typicalHalfwidthCharacterWidth),p=e.textModel.getLineLength(k),M=Math.max(0,f-p);l.push(...$(k,a,"nb",void 0,M))}else l.push(...$(k,a,"nb"))}})}l.length>0&&(this.J(e,l),this.L(e))}w(t){return t.getLanguageId()==="python"?this.y(t.getValue()):this.z(t.getValue())}y(t){const e=[],o=t.split(`
-`);let i=-1,n=!1,s=-1;const r=/^(\s*)(async\s+)?(?:def\s+\w+|class\s+\w+)\s*\([^)]*\)\s*:/;for(let l=0;l<o.length;l++){const h=o[l],c=h.match(r);if(c){n&&c[1].length<=s&&(e.push(new w(i+1,1,l,h.length+1)),n=!1),n||(n=!0,i=l,s=c[1].length);continue}if(n){if(h.trim()==="")continue;(h.match(/^\s*/)?.[0].length??0)<=s&&(e.push(new w(i+1,1,l,h.length+1)),n=!1,s=-1)}}return n&&e.push(new w(i+1,1,o.length,o[o.length-1].length+1)),e}z(t){const e=[],o=t.split(`
-`);let i=0,n=-1,s=!1;const r=/\b(?:function\s+\w+|(?:async\s+)?(?:\w+\s*=\s*)?\([^)]*\)\s*=>|class\s+\w+|(?:public|private|protected|static)?\s*\w+\s*\([^)]*\)\s*{)/;for(let l=0;l<o.length;l++){const h=o[l];for(const c of h)c==="{"?(!s&&r.test(h)&&(s=!0,n=l),i++):c==="}"&&(i--,i===0&&s&&(e.push(new w(n+1,1,l+1,h.length+1)),s=!1))}return e}C(t){return this.F(t)}F(t){try{return this.G(t)}catch{return this.H(t)}}G(t){const e=[],o=t.getLineCount();if(o>S.h)return e;for(let i=1;i<=o;i++){t.tokenization.hasAccurateTokensForLine(i)||t.tokenization.forceTokenization(i);const n=t.tokenization.getLineTokens(i);if(n.getCount()===0)continue;let s;for(let r=0;r<n.getCount();r++){const l=n.getStandardTokenType(r);if(l===1||l===2||l===3){s===void 0&&(s=n.getStartOffset(r));const h=n.getEndOffset(r),c=r===n.getCount()-1,m=!c&&n.getStandardTokenType(r+1)!==l;(c||m)&&(e.push(new w(i,s+1,i,h+1)),s=void 0)}else s=void 0}}return e}H(t){const e=[],o=t.getValue().split(`
-`),i=t.getLanguageId(),n=i==="python"?"#":i==="javascript"||i==="typescript"?"//":null,s=i==="javascript"||i==="typescript"?{start:"/*",end:"*/"}:null;let r=!1,l=-1,h=-1;for(let c=0;c<o.length;c++){const m=o[c];if(m.trim().length!==0){if(s){if(!r){const u=m.indexOf(s.start);u!==-1&&(r=!0,l=c,h=u)}if(r){const u=m.indexOf(s.end);u!==-1&&(e.push(new w(l+1,h+1,c+1,u+s.end.length+1)),r=!1);continue}}if(!r&&n&&m.trimLeft().startsWith(n)){const u=m.indexOf(n);e.push(new w(c+1,u+1,c+1,m.length+1))}}}return r&&e.push(new w(l+1,h+1,o.length,o[o.length-1].length+1)),e}I(t,e){return e.some(o=>o.containsPosition(t))}J(t,e){const o=this.c.get(t)??[];this.c.set(t,t.deltaModelDecorations(o,e))}L(t){const e=t.textModel;e&&this.f.set(t.uri,e.onDidChangeContent(()=>{this.M(t)}))}M(t){const e=this.c.get(t)??[];e&&(t.deltaModelDecorations(e,[]),this.c.delete(t));const o=this.f.get(t.uri);o&&(o.dispose(),this.f.delete(t.uri))}N(){this.c.forEach((t,e)=>{this.M(e)})}clearNotebookInlineDecorations(){this.N()}dispose(){super.dispose(),this.N(),this.g.forEach(t=>t.cancel()),this.g.clear(),this.f.forEach(t=>t.dispose()),this.f.clear()}};L=S=O([y(1,X),y(2,U),y(3,G),y(4,K),y(5,Q)],L);tt(L.id,L);J(class extends Z{constructor(){super({id:"notebook.clearAllInlineValues",title:B(10432,null)})}runWithContext(t,e){return e.notebookEditor.getContribution(L.id).clearNotebookInlineDecorations(),Promise.resolve()}});export{L as $ohc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotebookInlineVariablesController_1;
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../../../base/common/errors.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../../base/common/map.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import { format } from "../../../../../../base/common/strings.js";
+import { Position } from "../../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
+import { localize } from "../../../../../../nls.js";
+import { registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { createInlineValueDecoration } from "../../../../debug/browser/debugEditorContribution.js";
+import { IDebugService } from "../../../../debug/common/debug.js";
+import { NotebookSetting } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { NotebookAction } from "../../controller/coreActions.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+class InlineSegment {
+  static {
+    __name(this, "InlineSegment");
+  }
+  constructor(column, text) {
+    this.column = column;
+    this.text = text;
+  }
+}
+let NotebookInlineVariablesController = class NotebookInlineVariablesController2 extends Disposable {
+  static {
+    __name(this, "NotebookInlineVariablesController");
+  }
+  static {
+    NotebookInlineVariablesController_1 = this;
+  }
+  static {
+    this.id = "notebook.inlineVariablesController";
+  }
+  static {
+    this.MAX_CELL_LINES = 5e3;
+  }
+  // Skip extremely large cells
+  constructor(notebookEditor, notebookKernelService, notebookExecutionStateService, languageFeaturesService, configurationService, debugService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.notebookKernelService = notebookKernelService;
+    this.notebookExecutionStateService = notebookExecutionStateService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.configurationService = configurationService;
+    this.debugService = debugService;
+    this.cellDecorationIds = /* @__PURE__ */ new Map();
+    this.cellContentListeners = new ResourceMap();
+    this.currentCancellationTokenSources = new ResourceMap();
+    this._register(this.notebookExecutionStateService.onDidChangeExecution(async (e) => {
+      const inlineValuesSetting = this.configurationService.getValue(NotebookSetting.notebookInlineValues);
+      if (inlineValuesSetting === "off") {
+        return;
+      }
+      if (e.type === NotebookExecutionType.cell) {
+        await this.updateInlineVariables(e);
+      }
+    }));
+    this._register(Event.runAndSubscribe(this.configurationService.onDidChangeConfiguration, (e) => {
+      if (!e || e.affectsConfiguration(NotebookSetting.notebookInlineValues)) {
+        if (this.configurationService.getValue(NotebookSetting.notebookInlineValues) === "off") {
+          this.clearNotebookInlineDecorations();
+        }
+      }
+    }));
+  }
+  async updateInlineVariables(event) {
+    if (event.changed) {
+      return;
+    }
+    const cell = this.notebookEditor.getCellByHandle(event.cellHandle);
+    if (!cell) {
+      return;
+    }
+    const existingSource = this.currentCancellationTokenSources.get(cell.uri);
+    if (existingSource) {
+      existingSource.cancel();
+    }
+    this.currentCancellationTokenSources.set(cell.uri, new CancellationTokenSource());
+    const token = this.currentCancellationTokenSources.get(cell.uri).token;
+    if (this.debugService.state !== 0) {
+      this._clearNotebookInlineDecorations();
+      return;
+    }
+    if (!this.notebookEditor.textModel?.uri || !isEqual(this.notebookEditor.textModel.uri, event.notebook)) {
+      return;
+    }
+    const model = await cell.resolveTextModel();
+    if (!model) {
+      return;
+    }
+    const inlineValuesSetting = this.configurationService.getValue(NotebookSetting.notebookInlineValues);
+    const hasInlineValueProvider = this.languageFeaturesService.inlineValuesProvider.has(model);
+    if (inlineValuesSetting === "off" || inlineValuesSetting === "auto" && !hasInlineValueProvider) {
+      return;
+    }
+    this.clearCellInlineDecorations(cell);
+    const inlineDecorations = [];
+    if (hasInlineValueProvider) {
+      const lastLine = model.getLineCount();
+      const lastColumn = model.getLineMaxColumn(lastLine);
+      const ctx = {
+        frameId: 0,
+        // ignored, we won't have a stack from since not in a debug session
+        stoppedLocation: new Range(lastLine, lastColumn, lastLine, lastColumn)
+        // executing cell by cell, so "stopped" location would just be the end of document
+      };
+      const providers = this.languageFeaturesService.inlineValuesProvider.ordered(model).reverse();
+      const lineDecorations = /* @__PURE__ */ new Map();
+      const fullCellRange = new Range(1, 1, lastLine, lastColumn);
+      const promises = providers.flatMap((provider) => Promise.resolve(provider.provideInlineValues(model, fullCellRange, ctx, token)).then(async (result) => {
+        if (!result) {
+          return;
+        }
+        const notebook = this.notebookEditor.textModel;
+        if (!notebook) {
+          return;
+        }
+        const kernel = this.notebookKernelService.getMatchingKernel(notebook);
+        const kernelVars = [];
+        if (result.some((iv) => iv.type === "variable")) {
+          if (!this.notebookEditor.hasModel()) {
+            return;
+          }
+          const variables = kernel.selected?.provideVariables(event.notebook, void 0, "named", 0, token);
+          if (variables) {
+            for await (const v of variables) {
+              kernelVars.push(v);
+            }
+          }
+        }
+        for (const iv of result) {
+          let text = void 0;
+          switch (iv.type) {
+            case "text":
+              text = iv.text;
+              break;
+            case "variable": {
+              const name = iv.variableName;
+              if (!name) {
+                continue;
+              }
+              const value = kernelVars.find((v) => v.name === name)?.value;
+              if (!value) {
+                continue;
+              }
+              text = format("{0} = {1}", name, value);
+              break;
+            }
+            case "expression": {
+              continue;
+            }
+          }
+          if (text) {
+            const line = iv.range.startLineNumber;
+            let lineSegments = lineDecorations.get(line);
+            if (!lineSegments) {
+              lineSegments = [];
+              lineDecorations.set(line, lineSegments);
+            }
+            if (!lineSegments.some((iv2) => iv2.text === text)) {
+              lineSegments.push(new InlineSegment(iv.range.startColumn, text));
+            }
+          }
+        }
+      }, (err) => {
+        onUnexpectedExternalError(err);
+      }));
+      await Promise.all(promises);
+      lineDecorations.forEach((segments, line) => {
+        if (segments.length > 0) {
+          segments.sort((a, b) => a.column - b.column);
+          const text = segments.map((s) => s.text).join(", ");
+          const editorWidth = cell.layoutInfo.editorWidth;
+          const fontInfo = cell.layoutInfo.fontInfo;
+          if (fontInfo && cell.textModel) {
+            const base = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+            const lineLength = cell.textModel.getLineLength(line);
+            const available = Math.max(0, base - lineLength);
+            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb", void 0, available));
+          } else {
+            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb"));
+          }
+        }
+      });
+    } else if (inlineValuesSetting === "on") {
+      if (!this.notebookEditor.hasModel()) {
+        return;
+      }
+      const kernel = this.notebookKernelService.getMatchingKernel(this.notebookEditor.textModel);
+      const variables = kernel?.selected?.provideVariables(event.notebook, void 0, "named", 0, token);
+      if (!variables) {
+        return;
+      }
+      const vars = [];
+      for await (const v of variables) {
+        vars.push(v);
+      }
+      const varNames = vars.map((v) => v.name);
+      const document = cell.textModel;
+      if (!document) {
+        return;
+      }
+      if (document.getLineCount() > NotebookInlineVariablesController_1.MAX_CELL_LINES) {
+        return;
+      }
+      const processedVars = /* @__PURE__ */ new Set();
+      const functionRanges = this.getFunctionRanges(document);
+      const commentedRanges = this.getCommentedRanges(document);
+      const ignoredRanges = [...functionRanges, ...commentedRanges];
+      const lineDecorations = /* @__PURE__ */ new Map();
+      for (const varName of varNames) {
+        if (processedVars.has(varName)) {
+          continue;
+        }
+        const regex = new RegExp(`\\b${varName}\\b(?!\\w)`, "g");
+        let lastMatchOutsideIgnored = null;
+        let foundMatch = false;
+        const lines = document.getValue().split("\n");
+        for (let lineNumber = lines.length - 1; lineNumber >= 0; lineNumber--) {
+          const line = lines[lineNumber];
+          let match;
+          while ((match = regex.exec(line)) !== null) {
+            const startIndex = match.index;
+            const pos = new Position(lineNumber + 1, startIndex + 1);
+            if (!this.isPositionInRanges(pos, ignoredRanges)) {
+              lastMatchOutsideIgnored = {
+                line: lineNumber + 1,
+                column: startIndex + 1
+              };
+              foundMatch = true;
+              break;
+            }
+          }
+          if (foundMatch) {
+            break;
+          }
+        }
+        if (lastMatchOutsideIgnored) {
+          const inlineVal = varName + " = " + vars.find((v) => v.name === varName)?.value;
+          let lineSegments = lineDecorations.get(lastMatchOutsideIgnored.line);
+          if (!lineSegments) {
+            lineSegments = [];
+            lineDecorations.set(lastMatchOutsideIgnored.line, lineSegments);
+          }
+          if (!lineSegments.some((iv) => iv.text === inlineVal)) {
+            lineSegments.push(new InlineSegment(lastMatchOutsideIgnored.column, inlineVal));
+          }
+        }
+        processedVars.add(varName);
+      }
+      lineDecorations.forEach((segments, line) => {
+        if (segments.length > 0) {
+          segments.sort((a, b) => a.column - b.column);
+          const text = segments.map((s) => s.text).join(", ");
+          const editorWidth = cell.layoutInfo.editorWidth;
+          const fontInfo = cell.layoutInfo.fontInfo;
+          if (fontInfo && cell.textModel) {
+            const base = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+            const lineLength = cell.textModel.getLineLength(line);
+            const available = Math.max(0, base - lineLength);
+            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb", void 0, available));
+          } else {
+            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb"));
+          }
+        }
+      });
+    }
+    if (inlineDecorations.length > 0) {
+      this.updateCellInlineDecorations(cell, inlineDecorations);
+      this.initCellContentListener(cell);
+    }
+  }
+  getFunctionRanges(document) {
+    return document.getLanguageId() === "python" ? this.getPythonFunctionRanges(document.getValue()) : this.getBracedFunctionRanges(document.getValue());
+  }
+  getPythonFunctionRanges(code) {
+    const functionRanges = [];
+    const lines = code.split("\n");
+    let functionStartLine = -1;
+    let inFunction = false;
+    let pythonIndentLevel = -1;
+    const pythonFunctionDeclRegex = /^(\s*)(async\s+)?(?:def\s+\w+|class\s+\w+)\s*\([^)]*\)\s*:/;
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+      const line = lines[lineNumber];
+      const pythonMatch = line.match(pythonFunctionDeclRegex);
+      if (pythonMatch) {
+        if (inFunction) {
+          const currentIndent = pythonMatch[1].length;
+          if (currentIndent <= pythonIndentLevel) {
+            functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber, line.length + 1));
+            inFunction = false;
+          }
+        }
+        if (!inFunction) {
+          inFunction = true;
+          functionStartLine = lineNumber;
+          pythonIndentLevel = pythonMatch[1].length;
+        }
+        continue;
+      }
+      if (inFunction) {
+        if (line.trim() === "") {
+          continue;
+        }
+        const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
+        if (currentIndent <= pythonIndentLevel) {
+          functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber, line.length + 1));
+          inFunction = false;
+          pythonIndentLevel = -1;
+        }
+      }
+    }
+    if (inFunction) {
+      functionRanges.push(new Range(functionStartLine + 1, 1, lines.length, lines[lines.length - 1].length + 1));
+    }
+    return functionRanges;
+  }
+  getBracedFunctionRanges(code) {
+    const functionRanges = [];
+    const lines = code.split("\n");
+    let braceDepth = 0;
+    let functionStartLine = -1;
+    let inFunction = false;
+    const functionDeclRegex = /\b(?:function\s+\w+|(?:async\s+)?(?:\w+\s*=\s*)?\([^)]*\)\s*=>|class\s+\w+|(?:public|private|protected|static)?\s*\w+\s*\([^)]*\)\s*{)/;
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+      const line = lines[lineNumber];
+      for (const char of line) {
+        if (char === "{") {
+          if (!inFunction && functionDeclRegex.test(line)) {
+            inFunction = true;
+            functionStartLine = lineNumber;
+          }
+          braceDepth++;
+        } else if (char === "}") {
+          braceDepth--;
+          if (braceDepth === 0 && inFunction) {
+            functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber + 1, line.length + 1));
+            inFunction = false;
+          }
+        }
+      }
+    }
+    return functionRanges;
+  }
+  getCommentedRanges(document) {
+    return this._getCommentedRanges(document);
+  }
+  _getCommentedRanges(document) {
+    try {
+      return this.getCommentedRangesByAccurateTokenization(document);
+    } catch (e) {
+      return this.getCommentedRangesByManualParsing(document);
+    }
+  }
+  getCommentedRangesByAccurateTokenization(document) {
+    const commentRanges = [];
+    const lineCount = document.getLineCount();
+    if (lineCount > NotebookInlineVariablesController_1.MAX_CELL_LINES) {
+      return commentRanges;
+    }
+    for (let lineNumber = 1; lineNumber <= lineCount; lineNumber++) {
+      if (!document.tokenization.hasAccurateTokensForLine(lineNumber)) {
+        document.tokenization.forceTokenization(lineNumber);
+      }
+      const lineTokens = document.tokenization.getLineTokens(lineNumber);
+      if (lineTokens.getCount() === 0) {
+        continue;
+      }
+      let startCharacter;
+      for (let tokenIndex = 0; tokenIndex < lineTokens.getCount(); tokenIndex++) {
+        const tokenType = lineTokens.getStandardTokenType(tokenIndex);
+        if (tokenType === 1 || tokenType === 2 || tokenType === 3) {
+          if (startCharacter === void 0) {
+            startCharacter = lineTokens.getStartOffset(tokenIndex);
+          }
+          const endCharacter = lineTokens.getEndOffset(tokenIndex);
+          const isLastToken = tokenIndex === lineTokens.getCount() - 1;
+          const nextTokenDifferent = !isLastToken && lineTokens.getStandardTokenType(tokenIndex + 1) !== tokenType;
+          if (isLastToken || nextTokenDifferent) {
+            commentRanges.push(new Range(lineNumber, startCharacter + 1, lineNumber, endCharacter + 1));
+            startCharacter = void 0;
+          }
+        } else {
+          startCharacter = void 0;
+        }
+      }
+    }
+    return commentRanges;
+  }
+  getCommentedRangesByManualParsing(document) {
+    const commentRanges = [];
+    const lines = document.getValue().split("\n");
+    const languageId = document.getLanguageId();
+    const lineCommentToken = languageId === "python" ? "#" : languageId === "javascript" || languageId === "typescript" ? "//" : null;
+    const blockComments = languageId === "javascript" || languageId === "typescript" ? { start: "/*", end: "*/" } : null;
+    let inBlockComment = false;
+    let blockCommentStartLine = -1;
+    let blockCommentStartCol = -1;
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+      const line = lines[lineNumber];
+      const trimmedLine = line.trim();
+      if (trimmedLine.length === 0) {
+        continue;
+      }
+      if (blockComments) {
+        if (!inBlockComment) {
+          const startIndex = line.indexOf(blockComments.start);
+          if (startIndex !== -1) {
+            inBlockComment = true;
+            blockCommentStartLine = lineNumber;
+            blockCommentStartCol = startIndex;
+          }
+        }
+        if (inBlockComment) {
+          const endIndex = line.indexOf(blockComments.end);
+          if (endIndex !== -1) {
+            commentRanges.push(new Range(blockCommentStartLine + 1, blockCommentStartCol + 1, lineNumber + 1, endIndex + blockComments.end.length + 1));
+            inBlockComment = false;
+          }
+          continue;
+        }
+      }
+      if (!inBlockComment && lineCommentToken && line.trimLeft().startsWith(lineCommentToken)) {
+        const startCol = line.indexOf(lineCommentToken);
+        commentRanges.push(new Range(lineNumber + 1, startCol + 1, lineNumber + 1, line.length + 1));
+      }
+    }
+    if (inBlockComment) {
+      commentRanges.push(new Range(blockCommentStartLine + 1, blockCommentStartCol + 1, lines.length, lines[lines.length - 1].length + 1));
+    }
+    return commentRanges;
+  }
+  isPositionInRanges(position, ranges) {
+    return ranges.some((range) => range.containsPosition(position));
+  }
+  updateCellInlineDecorations(cell, decorations) {
+    const oldDecorations = this.cellDecorationIds.get(cell) ?? [];
+    this.cellDecorationIds.set(cell, cell.deltaModelDecorations(oldDecorations, decorations));
+  }
+  initCellContentListener(cell) {
+    const cellModel = cell.textModel;
+    if (!cellModel) {
+      return;
+    }
+    this.cellContentListeners.set(cell.uri, cellModel.onDidChangeContent(() => {
+      this.clearCellInlineDecorations(cell);
+    }));
+  }
+  clearCellInlineDecorations(cell) {
+    const cellDecorations = this.cellDecorationIds.get(cell) ?? [];
+    if (cellDecorations) {
+      cell.deltaModelDecorations(cellDecorations, []);
+      this.cellDecorationIds.delete(cell);
+    }
+    const listener = this.cellContentListeners.get(cell.uri);
+    if (listener) {
+      listener.dispose();
+      this.cellContentListeners.delete(cell.uri);
+    }
+  }
+  _clearNotebookInlineDecorations() {
+    this.cellDecorationIds.forEach((_, cell) => {
+      this.clearCellInlineDecorations(cell);
+    });
+  }
+  clearNotebookInlineDecorations() {
+    this._clearNotebookInlineDecorations();
+  }
+  dispose() {
+    super.dispose();
+    this._clearNotebookInlineDecorations();
+    this.currentCancellationTokenSources.forEach((source) => source.cancel());
+    this.currentCancellationTokenSources.clear();
+    this.cellContentListeners.forEach((listener) => listener.dispose());
+    this.cellContentListeners.clear();
+  }
+};
+NotebookInlineVariablesController = NotebookInlineVariablesController_1 = __decorate([
+  __param(1, INotebookKernelService),
+  __param(2, INotebookExecutionStateService),
+  __param(3, ILanguageFeaturesService),
+  __param(4, IConfigurationService),
+  __param(5, IDebugService)
+], NotebookInlineVariablesController);
+registerNotebookContribution(NotebookInlineVariablesController.id, NotebookInlineVariablesController);
+registerAction2(class ClearNotebookInlineValues extends NotebookAction {
+  static {
+    __name(this, "ClearNotebookInlineValues");
+  }
+  constructor() {
+    super({
+      id: "notebook.clearAllInlineValues",
+      title: localize("clearAllInlineValues", "Clear All Inline Values")
+    });
+  }
+  runWithContext(accessor, context) {
+    const editor = context.notebookEditor;
+    const controller = editor.getContribution(NotebookInlineVariablesController.id);
+    controller.clearNotebookInlineDecorations();
+    return Promise.resolve();
+  }
+});
+export {
+  NotebookInlineVariablesController
+};
+//# sourceMappingURL=notebookInlineVariables.js.map

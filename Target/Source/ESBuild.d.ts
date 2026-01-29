@@ -1,7 +1,7 @@
 import type { BuildOptions } from "esbuild";
 export declare const Browser: boolean;
 export declare const Clean: boolean;
-export declare const Dependency: string;
+export declare const Dependency: any;
 export declare const On: boolean;
 /**
  * @module ESBuild
@@ -9,5 +9,5 @@ export declare const On: boolean;
  */
 declare const _default: BuildOptions;
 export default _default;
-export declare const sep: "\\" | "/", posix: typeof import("node:path");
+export declare const sep: any, posix: any;
 //# sourceMappingURL=ESBuild.d.ts.map

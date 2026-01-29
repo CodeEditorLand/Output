@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const Prefix = "Source/vs";
-var Editor_default = /* @__PURE__ */ __name((async (Current) => (await import("deepmerge-ts")).deepmerge(
+var Editor_default = /* @__PURE__ */ __name(async (Current) => (await import("deepmerge-ts")).deepmerge(
   (await import("../../ESBuild.js")).default,
   {
     entryPoints: (await import("@playform/build/Target/Function/Entry.js")).default(
@@ -158,7 +158,7 @@ var Editor_default = /* @__PURE__ */ __name((async (Current) => (await import("d
       ]
     )
   }
-)), "default");
+), "default");
 export {
   Editor_default as default
 };

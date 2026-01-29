@@ -8,4 +8,4 @@ export declare const Bundle: boolean;
  */
 declare const _default: BuildOptions;
 export default _default;
-export declare const sep: "\\" | "/", posix: typeof import("node:path");
+export declare const sep: any, posix: any;

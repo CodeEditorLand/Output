@@ -1,7 +1,7 @@
 import type { BuildOptions } from "esbuild";
 export declare const On: boolean;
 export declare const Prefix: string;
-export declare const Dependency: string;
+export declare const Dependency: any;
 /**
  * @module ESBuild
  *

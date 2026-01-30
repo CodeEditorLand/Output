@@ -1,0 +1,26 @@
+export function areFunctions(...objects: any[]): boolean;
+export function assertDefined(value: any, error: any): void;
+export function assertReturnsAllDefined(...args: any[]): any[];
+export function assertReturnsDefined(arg: any): any;
+export function assertType(condition: any, type: any): void;
+export function hasKey(x: any, key: any): boolean;
+export function isArrayOf(value: any, check: any): value is any[];
+export function isAsyncIterable(obj: any): boolean;
+export function isBoolean(obj: any): boolean;
+export function isDefined(arg: any): boolean;
+export function isEmptyObject(obj: any): boolean;
+export function isFunction(obj: any): boolean;
+export function isIterable(obj: any): boolean;
+export function isNumber(obj: any): boolean;
+export function isObject(obj: any): boolean;
+export const isOneOf: any;
+export function isString(str: any): str is string;
+export function isStringArray(value: any): value is any[];
+export function isTypedArray(obj: any): boolean;
+export function isUndefined(obj: any): obj is undefined;
+export function isUndefinedOrNull(obj: any): boolean;
+export function typeCheck(_thing: any): void;
+export function upcast(x: any): any;
+export function validateConstraint(arg: any, constraint: any): void;
+export function validateConstraints(args: any, constraints: any): void;
+//# sourceMappingURL=types.d.ts.map

@@ -1,0 +1,1 @@
+import{$Ccb as s}from"../../../../../editor/browser/editorExtensions.js";import{localize2 as c}from"../../../../../nls.js";import{$sL as e}from"../../../../../platform/actions/common/actions.js";const t={category:c(12252,"Snippets")};class m extends e{constructor(o){super({...t,...o})}}class a extends s{constructor(o){super({...t,...o})}}export{m as $vFc,a as $wFc};

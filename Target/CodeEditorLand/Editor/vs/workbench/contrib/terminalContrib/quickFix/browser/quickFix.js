@@ -1,0 +1,1 @@
+import{$Mj as m}from"../../../../../platform/instantiation/common/instantiation.js";const d=m("terminalQuickFixService");var t;(function(o){o[o.TerminalCommand=0]="TerminalCommand",o[o.Opener=1]="Opener",o[o.Port=2]="Port",o[o.VscodeCommand=3]="VscodeCommand"})(t||(t={}));export{d as $T6b,t as TerminalQuickFixType};

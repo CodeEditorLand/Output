@@ -1,0 +1,1 @@
+import{$im as o}from"../../../../platform/registry/common/platform.js";import{Extensions as r}from"../../../common/contributions.js";import{$sNc as i}from"./remoteStartEntry.js";o.as(r.Workbench).registerWorkbenchContribution(i,3);

@@ -1,0 +1,1 @@
+import{$po as t}from"../../../../platform/contextkey/common/contextkey.js";const n=new t("interactiveInputCursorAtBoundary","none"),i={interactiveWindowAlwaysScrollOnNewCell:"interactiveWindow.alwaysScrollOnNewCell",executeWithShiftEnter:"interactiveWindow.executeWithShiftEnter",showExecutionHint:"interactiveWindow.showExecutionHint"};export{n as $lsc,i as $msc};

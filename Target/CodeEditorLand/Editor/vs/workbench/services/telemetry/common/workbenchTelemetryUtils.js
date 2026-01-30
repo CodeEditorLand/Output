@@ -1,0 +1,1 @@
+import{$lv as o}from"../../../../platform/telemetry/common/telemetryUtils.js";function l(t,s,e){return o(t)===3&&!!s.tasConfig&&!e.disableExperiments&&!e.extensionTestsLocationURI&&!e.enableSmokeTestDriver&&t.getValue("workbench.enableExperiments")===!0}export{l as $8Y};

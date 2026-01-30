@@ -5,5 +5,5 @@ import type { BuildOptions } from "esbuild";
  */
 declare const _default: BuildOptions;
 export default _default;
-export declare const sep: any, posix: any;
+export declare const sep: "\\" | "/", posix: typeof import("node:path");
 //# sourceMappingURL=Bundle.d.ts.map

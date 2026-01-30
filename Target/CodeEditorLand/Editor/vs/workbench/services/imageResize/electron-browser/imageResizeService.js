@@ -1,0 +1,1 @@
+import{$Opc as m}from"../../../../platform/imageResize/common/imageResizeService.js";import{$dMc as o}from"../../../../platform/imageResize/browser/imageResizeService.js";import{$TC as r}from"../../../../platform/instantiation/common/extensions.js";r(m,o,1);

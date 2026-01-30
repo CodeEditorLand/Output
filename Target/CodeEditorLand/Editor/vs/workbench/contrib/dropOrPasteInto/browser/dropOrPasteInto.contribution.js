@@ -1,0 +1,1 @@
+import{$km as i}from"../../../../platform/configuration/common/configurationRegistry.js";import{$im as t}from"../../../../platform/registry/common/platform.js";import{$XN as m}from"../../../common/contributions.js";import{$MIc as o}from"./commands.js";import{$OIc as r,$NIc as f}from"./configurationSchema.js";m(o.ID,o,4);m(r.ID,r,4);t.as(i.Configuration).registerConfiguration(f);

@@ -1,0 +1,1 @@
+import{$TC as r}from"../../../platform/instantiation/common/extensions.js";import{$Mj as o}from"../../../platform/instantiation/common/instantiation.js";import{$irb as e}from"./treeViewsDnd.js";const i=o("treeViewsDndService");r(i,e,1);export{i as $krb};

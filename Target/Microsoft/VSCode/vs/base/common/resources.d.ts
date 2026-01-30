@@ -1,0 +1,46 @@
+export var DataUri: any;
+export class ExtUri {
+    constructor(_ignorePathCasing: any);
+    _ignorePathCasing: any;
+    compare(uri1: any, uri2: any, ignoreFragment?: boolean): 0 | 1 | -1;
+    isEqual(uri1: any, uri2: any, ignoreFragment?: boolean): boolean;
+    getComparisonKey(uri: any, ignoreFragment?: boolean): any;
+    ignorePathCasing(uri: any): any;
+    isEqualOrParent(base: any, parentCandidate: any, ignoreFragment?: boolean): boolean;
+    joinPath(resource: any, ...pathFragment: any[]): any;
+    basenameOrAuthority(resource: any): any;
+    basename(resource: any): any;
+    extname(resource: any): any;
+    dirname(resource: any): any;
+    normalizePath(resource: any): any;
+    relativePath(from: any, to: any): any;
+    resolvePath(base: any, path: any): any;
+    isAbsolutePath(resource: any): boolean;
+    isEqualAuthority(a1: any, a2: any): boolean;
+    hasTrailingPathSeparator(resource: any, sep?: string): boolean;
+    removeTrailingPathSeparator(resource: any, sep?: string): any;
+    addTrailingPathSeparator(resource: any, sep?: string): any;
+}
+export function addTrailingPathSeparator(resource: any, sep?: string): any;
+export function basename(resource: any): any;
+export function basenameOrAuthority(resource: any): any;
+export function dirname(resource: any): any;
+export function distinctParents(items: any, resourceAccessor: any): any[];
+export const extUri: ExtUri;
+export const extUriBiasedIgnorePathCase: ExtUri;
+export const extUriIgnorePathCase: ExtUri;
+export function extname(resource: any): any;
+export function getComparisonKey(uri: any, ignoreFragment?: boolean): any;
+export function hasTrailingPathSeparator(resource: any, sep?: string): boolean;
+export function isAbsolutePath(resource: any): boolean;
+export function isEqual(uri1: any, uri2: any, ignoreFragment?: boolean): boolean;
+export function isEqualAuthority(a1: any, a2: any): boolean;
+export function isEqualOrParent(base: any, parentCandidate: any, ignoreFragment?: boolean): boolean;
+export function joinPath(resource: any, ...pathFragment: any[]): any;
+export function normalizePath(resource: any): any;
+export function originalFSPath(uri: any): any;
+export function relativePath(from: any, to: any): any;
+export function removeTrailingPathSeparator(resource: any, sep?: string): any;
+export function resolvePath(base: any, path: any): any;
+export function toLocalResource(resource: any, authority: any, localScheme: any): any;
+//# sourceMappingURL=resources.d.ts.map

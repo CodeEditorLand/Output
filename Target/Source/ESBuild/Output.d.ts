@@ -8,5 +8,5 @@ export declare const Bundle: boolean;
  */
 declare const _default: BuildOptions;
 export default _default;
-export declare const sep: any, posix: any;
+export declare const sep: "\\" | "/", posix: typeof import("node:path");
 //# sourceMappingURL=Output.d.ts.map

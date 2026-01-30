@@ -1,0 +1,1 @@
+import{$uab as i}from"./webWorker.js";let a=!1;function s(o){if(a)throw new Error("WebWorker already initialized!");a=!0;const r=new i(e=>globalThis.postMessage(e),e=>o(e));return globalThis.onmessage=e=>{r.onmessage(e.data)},r}function n(o){globalThis.onmessage=r=>{a||s(o)}}export{s as $vab,n as $wab};

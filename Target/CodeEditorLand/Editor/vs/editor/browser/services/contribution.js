@@ -1,0 +1,1 @@
+import{$TC as o}from"../../../platform/instantiation/common/extensions.js";import{$9db as r}from"../../common/services/editorWorker.js";import{$Icb as f}from"../editorExtensions.js";import{$aeb as i}from"./editorWorkerService.js";import{$deb as m}from"./markerDecorations.js";o(r,i,0);f(m.ID,m,0);

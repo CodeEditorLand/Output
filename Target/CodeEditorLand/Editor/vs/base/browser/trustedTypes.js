@@ -1,0 +1,1 @@
+import{$mb as c}from"../common/errors.js";import{$s7 as o}from"./browser.js";function s(e,t){const n=o();if(n?.createTrustedTypesPolicy)try{return n.createTrustedTypesPolicy(e,t)}catch(r){c(r);return}try{return globalThis.trustedTypes?.createPolicy(e,t)}catch(r){c(r);return}}export{s as $90};

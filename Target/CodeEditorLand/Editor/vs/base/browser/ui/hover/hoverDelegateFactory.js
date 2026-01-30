@@ -1,0 +1,1 @@
+import{$Qf as n}from"../../../common/lazy.js";const r=()=>({get delay(){return-1},dispose:()=>{},showHover:()=>{}});let e=r;const o=new n(()=>e("mouse",!1)),l=new n(()=>e("element",!1));function a(t){e=t}function f(t){return t==="element"?l.value:o.value}function s(){return e("element",!0)}export{a as $D9,f as $E9,s as $F9};

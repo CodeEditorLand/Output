@@ -1,0 +1,1 @@
+function n(r){return r.submenu!==void 0}function e(r){return r.id==="vscode.menubar.separator"}function t(r){return r.uri!==void 0}function u(r){return!n(r)&&!e(r)&&!t(r)}export{n as $qy,e as $ry,t as $sy,u as $ty};

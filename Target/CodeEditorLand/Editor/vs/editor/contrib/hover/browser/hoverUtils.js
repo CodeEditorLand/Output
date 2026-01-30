@@ -1,0 +1,1 @@
+import*as n from"../../../../base/browser/dom.js";function u(e,t,f){const r=n.$27(e);return!(t<r.left||t>r.left+r.width||f<r.top||f>r.top+r.height)}function i(e,t,f){return e==="on"?!0:e==="off"?!1:o(t,f.event)}function o(e,t){return e==="altKey"?t.ctrlKey||t.metaKey:t.altKey}export{u as $vob,i as $wob,o as $xob};

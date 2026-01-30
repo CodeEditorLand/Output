@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Source/ESBuild/Exclude/Potential.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\r\n\t`${Prefix}/platform/profiling/*`,\r\n\r\n\t`${Prefix}/platform/cssDev/*`,\r\n\r\n\t// If no core markdown rendering needed\r\n\t// `${Prefix}/base/common/marked`,\r\n\r\n\t// `${Prefix}/base/browser/dompurify`,\r\n];\r\n"],
+  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/platform/profiling/*`,\n\n\t`${Prefix}/platform/cssDev/*`,\n\n\t// If no core markdown rendering needed\n\t// `${Prefix}/base/common/marked`,\n\n\t// `${Prefix}/base/browser/dompurify`,\n];\n"],
   "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA;AAAA;AAAA;AAMV,GATe;",
   "names": []
 }

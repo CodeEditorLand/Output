@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Source/ESBuild/Exclude/Types.ts"],
-  "sourcesContent": ["export default () => [\r\n\t\"tsconfig.base.json\",\r\n\r\n\t\"tsconfig.exemptions.json\",\r\n\r\n\t\"tsconfig.json\",\r\n\r\n\t\"tsconfig.monaco.json\",\r\n\r\n\t\"tsconfig.tsec.json\",\r\n\r\n\t\"tsconfig.vscode-dts.json\",\r\n\r\n\t\"tsconfig.vscode-proposed-dts.json\",\r\n\r\n\t\".d.ts\",\r\n\r\n\t\"vscode-dts/README.md\",\r\n];\r\n"],
+  "sourcesContent": ["export default () => [\n\t\"tsconfig.base.json\",\n\n\t\"tsconfig.exemptions.json\",\n\n\t\"tsconfig.json\",\n\n\t\"tsconfig.monaco.json\",\n\n\t\"tsconfig.tsec.json\",\n\n\t\"tsconfig.vscode-dts.json\",\n\n\t\"tsconfig.vscode-proposed-dts.json\",\n\n\t\".d.ts\",\n\n\t\"vscode-dts/README.md\",\n];\n"],
   "mappings": ";;AAAA,IAAO,gBAAQ,6BAAM;AAAA,EACpB;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AAAA,EAEA;AACD,GAlBe;",
   "names": []
 }

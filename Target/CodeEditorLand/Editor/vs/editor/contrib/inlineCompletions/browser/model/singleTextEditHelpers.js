@@ -1,3 +1,0 @@
-import{$qg as m}from"../../../../../base/common/strings.js";import{$9D as u}from"../../../../common/core/range.js";import{$iE as f}from"../../../../common/core/text/textLength.js";import{$DE as P}from"../../../../common/core/edits/textEdit.js";function b(t,n,o){const r=o?t.range.intersectRanges(o):t.range;if(!r)return t;const e=t.text.replaceAll(`\r
-`,`
-`),s=n.getValueInRange(r,1),i=m(s,e),a=f.ofText(s.substring(0,i)).addToPosition(t.range.getStartPosition()),g=e.substring(i),c=u.fromPositions(a,t.range.getEndPosition());return new P(c,g)}function q(t,n){return t.text.startsWith(n.text)&&l(t.range,n.range)}function l(t,n){return n.getStartPosition().equals(t.getStartPosition())&&n.getEndPosition().isBeforeOrEqual(t.getEndPosition())}export{b as $gnb,q as $hnb};

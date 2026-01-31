@@ -1,1 +1,0 @@
-class r{constructor(){this.c=[]}register(s){return this.c.push(s),this.c.sort((t,i)=>i.priority-t.priority),{dispose:()=>{const t=this.c.indexOf(s);t>=0&&this.c.splice(t,1)}}}getRegistrations(){return this.c}}const c=new r;export{c as $V9b};

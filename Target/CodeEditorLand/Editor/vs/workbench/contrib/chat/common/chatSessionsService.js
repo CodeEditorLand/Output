@@ -1,1 +1,0 @@
-import{$Mj as o}from"../../../../platform/instantiation/common/instantiation.js";var e;(function(r){r[r.Failed=0]="Failed",r[r.Completed=1]="Completed",r[r.InProgress=2]="InProgress",r[r.NeedsInput=3]="NeedsInput"})(e||(e={}));const c="local";function d(r){return r===2||r===3}const l=o("chatSessionsService");export{c as $rV,d as $sV,l as $tV,e as ChatSessionStatus};

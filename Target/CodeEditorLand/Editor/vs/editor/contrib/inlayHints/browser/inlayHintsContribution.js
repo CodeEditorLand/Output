@@ -1,1 +1,0 @@
-import{$Icb as m}from"../../../browser/editorExtensions.js";import{$Llb as o}from"../../hover/browser/hoverTypes.js";import{$Lqb as r}from"./inlayHintsController.js";import{$Mqb as i}from"./inlayHintsHover.js";m(r.ID,r,1);o.register(i);

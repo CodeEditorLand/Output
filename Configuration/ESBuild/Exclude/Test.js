@@ -1,1 +1,29 @@
-var s=t=>[`${t}/base/parts/ipc/test/*`,`${t}/base/parts/request/test/*`,`${t}/base/parts/sandbox/test/*`,`${t}/base/parts/storage/test/*`,`${t}/base/test/*`,`${t}/editor/contrib/**/test/*`,`${t}/editor/standalone/test/*`,`${t}/editor/test/*`,`${t}/platform/test/*`,`${t}/platform/**/test/*`,`${t}/server/test/*`,`${t}/workbench/api/test/*`,`${t}/workbench/contrib/**/test/*`,`${t}/workbench/services/**/test/*`,`${t}/workbench/test/*`];export{s as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var Test_default = /* @__PURE__ */ __name((Prefix) => [
+  `${Prefix}/base/parts/ipc/test/*`,
+  `${Prefix}/base/parts/request/test/*`,
+  `${Prefix}/base/parts/sandbox/test/*`,
+  `${Prefix}/base/parts/storage/test/*`,
+  `${Prefix}/base/test/*`,
+  `${Prefix}/editor/contrib/**/test/*`,
+  `${Prefix}/editor/standalone/test/*`,
+  `${Prefix}/editor/test/*`,
+  `${Prefix}/platform/test/*`,
+  `${Prefix}/platform/**/test/*`,
+  `${Prefix}/server/test/*`,
+  `${Prefix}/workbench/api/test/*`,
+  `${Prefix}/workbench/contrib/**/test/*`,
+  `${Prefix}/workbench/services/**/test/*`,
+  `${Prefix}/workbench/test/*`
+  // --- 1. Test Files (High Confidence Exclude) ---
+  // (Your existing list covers this well)
+  //
+  // All tests under workbench services
+  // `${Prefix}/workbench/services/**/test/*`,
+  // `${Prefix}/workbench/test/*`,
+], "default");
+export {
+  Test_default as default
+};
+//# sourceMappingURL=Test.js.map

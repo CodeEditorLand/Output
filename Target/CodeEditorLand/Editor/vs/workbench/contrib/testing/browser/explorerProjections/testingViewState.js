@@ -1,1 +1,0 @@
-import{$SW as e}from"../../common/testId.js";function c(o,r){r instanceof e||(r=e.fromString(r));let n=o;for(const t of r.path){if(!n.children?.hasOwnProperty(t))return;n=n.children[t]}return n.collapsed}export{c as $8tc};

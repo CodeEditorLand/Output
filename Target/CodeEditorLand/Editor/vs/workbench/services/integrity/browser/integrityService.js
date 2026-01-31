@@ -1,1 +1,0 @@
-import{$2Kc as r}from"../common/integrity.js";import{$TC as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $3Kc};

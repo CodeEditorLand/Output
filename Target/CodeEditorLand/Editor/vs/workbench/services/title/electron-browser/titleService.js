@@ -1,1 +1,0 @@
-import{$TC as m}from"../../../../platform/instantiation/common/extensions.js";import{$ETc as o}from"../../../electron-browser/parts/titlebar/titlebarPart.js";import{$R9b as r}from"../browser/titleService.js";m(r,o,0);

@@ -1,1 +1,0 @@
-import{$Mj as e}from"../../instantiation/common/instantiation.js";const c=e("IWebContentExtractorService"),a=e("ISharedWebContentExtractorService");class i{extract(t){throw new Error("Not implemented")}}class m{readImage(t,o){throw new Error("Not implemented")}}export{c as $DB,a as $EB,i as $FB,m as $GB};

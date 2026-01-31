@@ -1,1 +1,0 @@
-import{$Cd as t}from"../../../../base/common/lifecycle.js";class a{constructor(){this.a=new Map}get providers(){return[...this.a.values()]}registerProvider(e,r){return this.a.set(r,e),t(()=>this.a.delete(r))}}export{a as $8oc};

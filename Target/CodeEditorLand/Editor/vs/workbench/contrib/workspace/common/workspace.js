@@ -1,1 +1,0 @@
-import{localize as e}from"../../../../nls.js";import{$po as s}from"../../../../platform/contextkey/common/contextkey.js";const t={IsEnabled:new s("isWorkspaceTrustEnabled",!1,e(15067,null)),IsTrusted:new s("isWorkspaceTrusted",!1,e(15068,null))},l="workbench.trust.manage";export{t as $Vwc,l as $Wwc};

@@ -1,1 +1,0 @@
-import{$Fz as r}from"../../../../platform/extensions/common/extensions.js";import{$Mj as $}from"../../../../platform/instantiation/common/instantiation.js";function p(t,o){return`${typeof t=="string"?t:r.toKey(t)}|${o}`}const n="timeline",e="timeline",c=$(e);export{p as $PY,n as $QY,c as $RY};

@@ -1,1 +1,0 @@
-import{$$Mc as r}from"../browser/webviewService.js";import{$6Uc as c}from"./webviewElement.js";class o extends r{createWebviewElement(t){const e=this.b.createInstance(c,t,this.a);return this.j(e),e}}export{o as $7Uc};

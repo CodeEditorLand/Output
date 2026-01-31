@@ -1,1 +1,0 @@
-import{$Jy as o}from"../../../../platform/update/common/update.js";import{$HNc as r}from"../../../../platform/ipc/electron-browser/services.js";import{$5y as m}from"../../../../platform/update/common/updateIpc.js";r(o,"update",{channelClientCtor:m});

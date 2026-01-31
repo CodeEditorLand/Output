@@ -1,1 +1,0 @@
-import{$VN as n}from"../common/editorPaneService.js";import{$DRb as t}from"../../../browser/editor.js";import{$TC as o}from"../../../../platform/instantiation/common/extensions.js";class r{constructor(){this.onWillInstantiateEditorPane=t.onWillInstantiateEditorPane}didInstantiateEditorPane(i){return t.didInstantiateEditorPane(i)}}o(n,r,1);export{r as $qbc};

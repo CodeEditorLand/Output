@@ -1,1 +1,0 @@
-import{$Mj as r}from"../../../../platform/instantiation/common/instantiation.js";import{$Dab as e}from"../../../../base/parts/sandbox/electron-browser/globals.js";import{$TC as o}from"../../../../platform/instantiation/common/extensions.js";const t=r("shellEnvironmentService");class l{getShellEnv(){return e.shellEnv()}}o(t,l,1);export{t as $JTc,l as $KTc};

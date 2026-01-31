@@ -1,1 +1,0 @@
-import{$Ah as r}from"../../../../../base/common/resources.js";import{$sjb as n}from"../../../../../editor/browser/widget/diffEditor/commands.js";function m(t,o,d){const i=n(t,d);if(!i)return!1;const e=i.getOriginalEditor().getModel(),f=i.getModifiedEditor().getModel();return r(e?.uri,o.originalURI)&&r(f?.uri,o.modifiedURI)}export{m as $Tnc};

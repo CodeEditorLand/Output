@@ -1,1 +1,0 @@
-import{$Mj as e}from"../../../platform/instantiation/common/instantiation.js";const d=e("IExtHostRpcService");class n{constructor(s){this.getProxy=s.getProxy.bind(s),this.set=s.set.bind(s),this.dispose=s.dispose.bind(s),this.assertRegistered=s.assertRegistered.bind(s),this.drain=s.drain.bind(s)}}export{d as $b4,n as $c4};

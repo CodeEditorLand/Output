@@ -1,1 +1,0 @@
-import{$TC as r}from"../../../../platform/instantiation/common/extensions.js";import{$Lic as m}from"./replace.js";import{$pwc as i,$owc as o}from"./replaceService.js";import{$XN as p}from"../../../common/contributions.js";function w(){r(m,i,1),p(o.ID,o,1)}export{w as $qwc};

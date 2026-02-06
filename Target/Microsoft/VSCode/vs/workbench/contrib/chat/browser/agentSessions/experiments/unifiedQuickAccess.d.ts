@@ -50,6 +50,7 @@ export declare class UnifiedQuickAccess extends Disposable {
     private _tabBarContainer;
     private _isInternalValueChange;
     private _isUpdatingSendToAgent;
+    private _arrivedViaShortcut;
     private _sendToAgentTimeout;
     private _sendButton;
     private _sendButtonLabel;
@@ -92,7 +93,7 @@ export declare class UnifiedQuickAccess extends Disposable {
      */
     private _sendMessageRaw;
     /**
-     * Send the current message to a new agent session (strips prefix).
+     * Send the current message to a new agent session (strips prefix or shortcut character).
      */
     private _sendMessage;
     /**
@@ -107,6 +108,7 @@ export declare class UnifiedQuickAccess extends Disposable {
     /**
      * Detect which tab matches the current value based on prefix.
      * Only switches away from current tab if user explicitly typed a different prefix.
+     * Supports shortcut keys: ">" for Commands, "<" for Sessions.
      */
     private _detectTabFromValue;
     /**

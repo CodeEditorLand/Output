@@ -48,6 +48,11 @@ export declare class PromptFilesLocator {
     };
     getAgentSourceFolders(): Promise<readonly URI[]>;
     /**
+     * Gets the hook source folders for creating new hooks.
+     * Returns only the Copilot hooks folder (.github/hooks) since Claude paths are read-only.
+     */
+    getHookSourceFolders(): Promise<readonly URI[]>;
+    /**
      * Get all possible unambiguous prompt file source folders based on
      * the current workspace folder structure.
      *

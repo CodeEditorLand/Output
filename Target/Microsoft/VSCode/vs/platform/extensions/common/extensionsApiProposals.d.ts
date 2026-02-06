@@ -36,11 +36,16 @@ declare const _allApiProposals: {
     chatContextProvider: {
         proposal: string;
     };
+    chatHooks: {
+        proposal: string;
+        version: number;
+    };
     chatOutputRenderer: {
         proposal: string;
     };
     chatParticipantAdditions: {
         proposal: string;
+        version: number;
     };
     chatParticipantPrivate: {
         proposal: string;

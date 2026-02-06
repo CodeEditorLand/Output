@@ -889,7 +889,7 @@ ${outputText}`;
       if (result2.lineCount && result2.lineCount > 0) {
         this._hideEmptyMessage();
       }
-      this._layoutOutput(result2.lineCount, result2.maxColumnWidth);
+      this._layoutOutput(result2.lineCount);
       if (this._isAtBottom) {
         this._scrollOutputToBottom();
       }
@@ -925,12 +925,12 @@ ${outputText}`;
     } else {
       this._hideEmptyMessage();
     }
-    this._layoutOutput(result?.lineCount ?? 0, result?.maxColumnWidth);
+    this._layoutOutput(result?.lineCount ?? 0);
     return true;
   }
   async _renderSnapshotOutput(snapshot) {
     if (this._snapshotMirror) {
-      this._layoutOutput(snapshot.lineCount ?? 0, this._lastRenderedMaxColumnWidth);
+      this._layoutOutput(snapshot.lineCount ?? 0);
       return;
     }
     if (this._store.isDisposed) {
@@ -948,7 +948,7 @@ ${outputText}`;
       this._showEmptyMessage(localize("chat.terminalOutputEmpty", "No output was produced by the command."));
     }
     const lineCount = result?.lineCount ?? snapshot.lineCount ?? 0;
-    this._layoutOutput(lineCount, result?.maxColumnWidth);
+    this._layoutOutput(lineCount);
   }
   _renderUnavailableMessage(liveTerminalInstance) {
     dom.clearNode(this._terminalContainer);
@@ -996,7 +996,7 @@ ${outputText}`;
       this._scrollableContainer.scanDomNode();
     }
   }
-  _layoutOutput(lineCount, maxColumnWidth) {
+  _layoutOutput(lineCount) {
     if (!this._scrollableContainer) {
       return;
     }
@@ -1005,17 +1005,11 @@ ${outputText}`;
     } else {
       lineCount = this._lastRenderedLineCount;
     }
-    if (maxColumnWidth !== void 0) {
-      this._lastRenderedMaxColumnWidth = maxColumnWidth;
-    } else {
-      maxColumnWidth = this._lastRenderedMaxColumnWidth;
-    }
     this._scrollableContainer.scanDomNode();
     if (!this.isExpanded || lineCount === void 0) {
       return;
     }
     const scrollableDomNode = this._scrollableContainer.getDomNode();
-    this._applyContentWidth(maxColumnWidth);
     const rowHeight = this._computeRowHeightPx();
     const padding = this._getOutputPadding();
     const minHeight = rowHeight * MIN_OUTPUT_ROWS + padding;
@@ -1055,34 +1049,6 @@ ${outputText}`;
     const paddingTop = Number.parseFloat(style.paddingTop || "0");
     const paddingBottom = Number.parseFloat(style.paddingBottom || "0");
     return paddingTop + paddingBottom;
-  }
-  _applyContentWidth(maxColumnWidth) {
-    if (!this._scrollableContainer) {
-      return;
-    }
-    const window = dom.getActiveWindow();
-    const font = this._terminalConfigurationService.getFont(window);
-    const charWidth = font.charWidth;
-    if (!charWidth || !maxColumnWidth || maxColumnWidth <= 0) {
-      return;
-    }
-    const horizontalPadding = 24;
-    const cursorWidth = charWidth;
-    const contentWidth = Math.ceil(maxColumnWidth * charWidth) + horizontalPadding + cursorWidth;
-    const parentWidth = this.domNode.parentElement?.clientWidth ?? 0;
-    const scrollableDomNode = this._scrollableContainer.getDomNode();
-    if (parentWidth > 0 && contentWidth < parentWidth) {
-      scrollableDomNode.style.width = `${contentWidth}px`;
-      this._outputBody.style.width = `${contentWidth}px`;
-      this._terminalContainer.style.width = `${contentWidth}px`;
-      this._terminalContainer.classList.add("chat-terminal-output-terminal-clipped");
-    } else {
-      scrollableDomNode.style.width = "";
-      this._outputBody.style.width = "";
-      this._terminalContainer.style.width = "";
-      this._terminalContainer.classList.remove("chat-terminal-output-terminal-clipped");
-    }
-    this._scrollableContainer.scanDomNode();
   }
   _computeRowHeightPx() {
     const window = dom.getActiveWindow();

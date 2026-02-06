@@ -49,10 +49,11 @@ export interface IChatRequestToolSetEntry extends IBaseChatRequestVariableEntry 
 export type ChatRequestToolReferenceEntry = IChatRequestToolEntry | IChatRequestToolSetEntry;
 export interface StringChatContextValue {
     value?: string;
-    name: string;
+    name?: string;
     modelDescription?: string;
-    icon: ThemeIcon;
+    icon?: ThemeIcon;
     uri: URI;
+    resourceUri?: URI;
     tooltip?: IMarkdownString;
     /**
      * Command ID to execute when this context item is clicked.
@@ -72,8 +73,9 @@ export interface IChatRequestStringVariableEntry extends IBaseChatRequestVariabl
     readonly kind: 'string';
     readonly value: string | undefined;
     readonly modelDescription?: string;
-    readonly icon: ThemeIcon;
+    readonly icon?: ThemeIcon;
     readonly uri: URI;
+    readonly resourceUri?: URI;
     readonly tooltip?: IMarkdownString;
     /**
      * Command ID to execute when this context item is clicked.

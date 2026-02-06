@@ -24,6 +24,7 @@ import { isLocalAgentSessionItem } from "./agentSessionsModel.js";
 import { IAgentSessionsService } from "./agentSessionsService.js";
 import { AgentSessionsSorter, groupAgentSessionsByDate, sessionDateFromNow } from "./agentSessionsViewer.js";
 import { AGENT_SESSION_DELETE_ACTION_ID, AGENT_SESSION_RENAME_ACTION_ID, getAgentSessionTime } from "./agentSessions.js";
+import { AgentSessionsFilter } from "./agentSessionsFilter.js";
 const archiveButton = {
   iconClass: ThemeIcon.asClassName(Codicon.archive),
   tooltip: localize("archiveSession", "Archive")
@@ -71,7 +72,8 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
   async pickAgentSession() {
     const disposables = new DisposableStore();
     const picker = disposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
-    picker.items = this.createPickerItems();
+    const filter = disposables.add(this.instantiationService.createInstance(AgentSessionsFilter, {}));
+    picker.items = this.createPickerItems(filter);
     picker.canAcceptInBackground = true;
     picker.placeholder = localize("chatAgentPickerPlaceholder", "Search agent sessions by name");
     disposables.add(picker.onDidAccept((e) => {
@@ -106,14 +108,14 @@ let AgentSessionsPicker = class AgentSessionsPicker2 {
         await this.agentSessionsService.model.resolve(session.providerType);
         this.pickAgentSession();
       } else {
-        picker.items = this.createPickerItems();
+        picker.items = this.createPickerItems(filter);
       }
     }));
     disposables.add(picker.onDidHide(() => disposables.dispose()));
     picker.show();
   }
-  createPickerItems() {
-    const sessions = this.agentSessionsService.model.sessions.sort(this.sorter.compare.bind(this.sorter));
+  createPickerItems(filter) {
+    const sessions = this.agentSessionsService.model.sessions.filter((session) => !filter.exclude(session)).sort(this.sorter.compare.bind(this.sorter));
     const items = [];
     const groupedSessions = groupAgentSessionsByDate(sessions);
     for (const group of groupedSessions.values()) {

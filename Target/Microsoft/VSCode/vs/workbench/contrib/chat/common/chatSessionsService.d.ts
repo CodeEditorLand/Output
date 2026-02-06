@@ -177,13 +177,17 @@ export interface IChatSessionOptionsWillNotifyExtensionEvent extends IWaitUntil 
 }
 export interface IChatSessionsService {
     readonly _serviceBrand: undefined;
-    readonly onDidChangeItemsProviders: Event<IChatSessionItemProvider>;
-    readonly onDidChangeSessionItems: Event<string>;
+    readonly onDidChangeItemsProviders: Event<{
+        readonly chatSessionType: string;
+    }>;
+    readonly onDidChangeSessionItems: Event<{
+        readonly chatSessionType: string;
+    }>;
     readonly onDidChangeAvailability: Event<void>;
     readonly onDidChangeInProgress: Event<void>;
     getChatSessionContribution(chatSessionType: string): IChatSessionsExtensionPoint | undefined;
     registerChatSessionItemProvider(provider: IChatSessionItemProvider): IDisposable;
-    activateChatSessionItemProvider(chatSessionType: string): Promise<IChatSessionItemProvider | undefined>;
+    activateChatSessionItemProvider(chatSessionType: string): Promise<void>;
     getAllChatSessionContributions(): IChatSessionsExtensionPoint[];
     getIconForSessionType(chatSessionType: string): ThemeIcon | URI | undefined;
     getWelcomeTitleForSessionType(chatSessionType: string): string | undefined;
@@ -195,14 +199,13 @@ export interface IChatSessionsService {
      */
     getChatSessionItems(providerTypeFilter: readonly string[] | undefined, token: CancellationToken): Promise<Array<{
         readonly chatSessionType: string;
-        readonly items: IChatSessionItem[];
+        readonly items: readonly IChatSessionItem[];
     }>>;
     reportInProgress(chatSessionType: string, count: number): void;
     getInProgress(): {
         displayName: string;
         count: number;
     }[];
-    notifySessionItemsChanged(chatSessionType: string): void;
     readonly onDidChangeContentProviderSchemes: Event<{
         readonly added: string[];
         readonly removed: string[];

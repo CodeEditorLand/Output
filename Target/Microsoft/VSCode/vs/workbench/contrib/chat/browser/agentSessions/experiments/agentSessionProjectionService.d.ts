@@ -67,6 +67,8 @@ export declare class AgentSessionProjectionService extends Disposable implements
     get isActive(): boolean;
     /** Prevents re-entrant exits and enter-on-exit races */
     private _isExiting;
+    /** Prevents checkForEmptyEditors from exiting during session swaps */
+    private _isSwappingSessions;
     private _activeSession;
     get activeSession(): IAgentSession | undefined;
     private readonly _onDidChangeProjectionMode;

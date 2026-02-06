@@ -592,6 +592,9 @@ class MenuId {
     this.ChatExecute = new MenuId("ChatExecute");
   }
   static {
+    this.ChatExecuteQueue = new MenuId("ChatExecuteQueue");
+  }
+  static {
     this.ChatInput = new MenuId("ChatInput");
   }
   static {
@@ -906,7 +909,9 @@ let MenuItemAction = MenuItemAction_1 = class MenuItemAction2 {
   }
   run(...args) {
     let runArgs = [];
-    if (this._options?.arg) {
+    if (this._options?.args) {
+      runArgs = [...runArgs, ...this._options.args];
+    } else if (this._options?.arg) {
       runArgs = [...runArgs, this._options.arg];
     }
     if (this._options?.shouldForwardArgs) {

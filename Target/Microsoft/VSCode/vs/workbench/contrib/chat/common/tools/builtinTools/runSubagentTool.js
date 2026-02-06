@@ -12,6 +12,7 @@ var __param = function(paramIndex, decorator) {
   };
 };
 var RunSubagentTool_1;
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import { Event } from "../../../../../../base/common/event.js";
 import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
@@ -23,7 +24,6 @@ import { IConfigurationService } from "../../../../../../platform/configuration/
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { IChatAgentService } from "../../participants/chatAgents.js";
-import { ChatMode, IChatModeService } from "../../chatModes.js";
 import { IChatService } from "../../chatService/chatService.js";
 import { ChatRequestVariableSet } from "../../attachments/chatVariableEntries.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../constants.js";
@@ -32,6 +32,7 @@ import { ILanguageModelToolsService, isToolSet, ToolDataSource, VSCodeToolRefere
 import { ComputeAutomaticInstructions } from "../../promptSyntax/computeAutomaticInstructions.js";
 import { ManageTodoListToolToolId } from "./manageTodoListTool.js";
 import { createToolSimpleTextResult } from "./toolHelpers.js";
+import { IPromptsService } from "../../promptSyntax/service/promptsService.js";
 const BaseModelDescription = `Launch a new agent to handle complex, multi-step tasks autonomously. This tool is good at researching complex questions, searching for code, and executing multi-step tasks. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries, use this agent to perform the search for you.
 
 - Agents do not run async or in the background, you will wait for the agent's result.
@@ -49,16 +50,16 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
   static {
     this.Id = "runSubagent";
   }
-  constructor(chatAgentService, chatService, chatModeService, languageModelToolsService, languageModelsService, logService, toolsService, configurationService, instantiationService) {
+  constructor(chatAgentService, chatService, languageModelToolsService, languageModelsService, logService, toolsService, configurationService, promptsService, instantiationService) {
     super();
     this.chatAgentService = chatAgentService;
     this.chatService = chatService;
-    this.chatModeService = chatModeService;
     this.languageModelToolsService = languageModelToolsService;
     this.languageModelsService = languageModelsService;
     this.logService = logService;
     this.toolsService = toolsService;
     this.configurationService = configurationService;
+    this.promptsService = promptsService;
     this.instantiationService = instantiationService;
     this.onDidUpdateToolData = Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.SubagentToolCustomAgents));
   }
@@ -118,26 +119,24 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
       let modeModelId = invocation.modelId;
       let modeTools = invocation.userSelectedTools;
       let modeInstructions;
-      let mode;
-      if (args.agentName) {
-        mode = this.chatModeService.findModeByName(args.agentName);
-        if (mode) {
-          const modeModelQualifiedNames = mode.model?.get();
+      let subagent;
+      const subAgentName = args.agentName;
+      if (subAgentName) {
+        subagent = await this.getSubAgentByName(subAgentName);
+        if (subagent) {
+          const modeModelQualifiedNames = subagent.model;
           if (modeModelQualifiedNames) {
-            for (const qualifiedName of modeModelQualifiedNames) {
+            outer: for (const qualifiedName of modeModelQualifiedNames) {
               const lmByQualifiedName = this.languageModelsService.lookupLanguageModelByQualifiedName(qualifiedName);
-              for (const fullId of this.languageModelsService.getLanguageModelIds()) {
-                const lmById = this.languageModelsService.lookupLanguageModel(fullId);
-                if (lmById && lmById?.id === lmByQualifiedName?.id) {
-                  modeModelId = fullId;
-                  break;
-                }
+              if (lmByQualifiedName?.identifier) {
+                modeModelId = lmByQualifiedName.identifier;
+                break outer;
               }
             }
           }
-          const modeCustomTools = mode.customTools?.get();
+          const modeCustomTools = subagent.tools;
           if (modeCustomTools) {
-            const enablementMap = this.languageModelToolsService.toToolAndToolSetEnablementMap(modeCustomTools, mode.target?.get(), void 0);
+            const enablementMap = this.languageModelToolsService.toToolAndToolSetEnablementMap(modeCustomTools, subagent.target, void 0);
             modeTools = {};
             for (const [tool, enabled] of enablementMap) {
               if (!isToolSet(tool)) {
@@ -145,15 +144,15 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
               }
             }
           }
-          const instructions = mode.modeInstructions?.get();
+          const instructions = subagent.agentInstructions;
           modeInstructions = instructions && {
-            name: mode.name.get(),
+            name: subAgentName,
             content: instructions.content,
             toolReferences: this.toolsService.toToolReferences(instructions.toolReferences),
             metadata: instructions.metadata
           };
         } else {
-          this.logService.warn(`RunSubagentTool: Agent '${args.agentName}' not found, using current configuration`);
+          throw new Error(`Requested agent '${subAgentName}' not found. Try again with the correct agent name, or omit the agentName to use the current agent.`);
         }
       }
       const markdownParts = [];
@@ -186,7 +185,7 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         modeTools["copilot_askQuestions"] = false;
       }
       const variableSet = new ChatRequestVariableSet();
-      const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, mode ?? ChatMode.Agent, modeTools, void 0);
+      const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, ChatModeKind.Agent, modeTools, void 0);
       await computer.collect(variableSet, token);
       const agentRequest = {
         sessionResource: invocation.context.sessionResource,
@@ -196,10 +195,11 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
         variables: { variables: variableSet.asArray() },
         location: ChatAgentLocation.Chat,
         subAgentInvocationId: invocation.callId,
-        subAgentName: args.agentName ?? "subagent",
+        subAgentName,
         userSelectedModelId: modeModelId,
         userSelectedTools: modeTools,
-        modeInstructions
+        modeInstructions,
+        parentRequestId: invocation.chatRequestId
       };
       store.add(this.languageModelToolsService.onDidInvokeTool((e) => {
         if (e.subagentInvocationId === subAgentInvocationId) {
@@ -233,14 +233,19 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
       store.dispose();
     }
   }
+  async getSubAgentByName(name) {
+    const agents = await this.promptsService.getCustomAgents(CancellationToken.None);
+    return agents.find((agent) => agent.name === name);
+  }
   async prepareToolInvocation(context, _token) {
     const args = context.parameters;
+    const subagent = args.agentName ? await this.getSubAgentByName(args.agentName) : void 0;
     return {
       invocationMessage: args.description,
       toolSpecificData: {
         kind: "subagent",
         description: args.description,
-        agentName: args.agentName,
+        agentName: subagent?.name,
         prompt: args.prompt
       }
     };
@@ -249,12 +254,12 @@ let RunSubagentTool = class RunSubagentTool2 extends Disposable {
 RunSubagentTool = RunSubagentTool_1 = __decorate([
   __param(0, IChatAgentService),
   __param(1, IChatService),
-  __param(2, IChatModeService),
-  __param(3, ILanguageModelToolsService),
-  __param(4, ILanguageModelsService),
-  __param(5, ILogService),
-  __param(6, ILanguageModelToolsService),
-  __param(7, IConfigurationService),
+  __param(2, ILanguageModelToolsService),
+  __param(3, ILanguageModelsService),
+  __param(4, ILogService),
+  __param(5, ILanguageModelToolsService),
+  __param(6, IConfigurationService),
+  __param(7, IPromptsService),
   __param(8, IInstantiationService)
 ], RunSubagentTool);
 export {

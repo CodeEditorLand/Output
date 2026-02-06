@@ -57,7 +57,7 @@ import { chatSubcommandLeader } from "../../common/requestParser/chatParserTypes
 import { ChatAgentVoteDirection, ChatAgentVoteDownReason, ChatErrorLevel, IChatService, IChatToolInvocation, isChatFollowup } from "../../common/chatService/chatService.js";
 import { localChatSessionType } from "../../common/chatSessionsService.js";
 import { getChatSessionType } from "../../common/model/chatUri.js";
-import { isRequestVM, isResponseVM } from "../../common/model/chatViewModel.js";
+import { isRequestVM, isResponseVM, isPendingDividerVM } from "../../common/model/chatViewModel.js";
 import { getNWords } from "../../common/model/chatWordCounter.js";
 import { CodeBlockModelCollection } from "../../common/widget/codeBlockModelCollection.js";
 import { ChatAgentLocation, ChatConfiguration, CollapsedToolsDisplayMode, ThinkingDisplayMode } from "../../common/constants.js";
@@ -196,7 +196,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   getProgressiveRenderRate(element) {
     let Rate;
     (function(Rate2) {
-      Rate2[Rate2["Min"] = 5] = "Min";
+      Rate2[Rate2["Min"] = 40] = "Min";
       Rate2[Rate2["Max"] = 2e3] = "Max";
     })(Rate || (Rate = {}));
     const minAfterComplete = 80;
@@ -216,7 +216,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     if (typeof rate === "number") {
       return clamp(
         rate,
-        5,
+        40,
         2e3
         /* Rate.Max */
       );
@@ -502,11 +502,16 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
     templateData.currentElement = element;
     this.templateDataByRequestId.set(element.id, templateData);
-    const kind = isRequestVM(element) ? "request" : isResponseVM(element) ? "response" : "welcome";
+    if (isPendingDividerVM(element)) {
+      this.renderPendingDivider(element, templateData);
+      return;
+    }
+    const kind = isRequestVM(element) ? "request" : isResponseVM(element) ? "response" : isPendingDividerVM(element) ? "pendingDivider" : "welcome";
     this.traceLayout("renderElement", `${kind}, index=${index}`);
     ChatContextKeys.isResponse.bindTo(templateData.contextKeyService).set(isResponseVM(element));
     ChatContextKeys.itemId.bindTo(templateData.contextKeyService).set(element.id);
     ChatContextKeys.isRequest.bindTo(templateData.contextKeyService).set(isRequestVM(element));
+    ChatContextKeys.isPendingRequest.bindTo(templateData.contextKeyService).set(isRequestVM(element) && !!element.pendingKind);
     ChatContextKeys.responseDetectedAgentCommand.bindTo(templateData.contextKeyService).set(isResponseVM(element) && element.agentOrSlashCommandDetected);
     if (isResponseVM(element)) {
       ChatContextKeys.responseSupportsIssueReporting.bindTo(templateData.contextKeyService).set(!!element.agent?.metadata.supportIssueReporting);
@@ -531,6 +536,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     templateData.rowContainer.classList.toggle("editing-session", location === ChatAgentLocation.Chat);
     templateData.rowContainer.classList.toggle("interactive-request", isRequestVM(element));
     templateData.rowContainer.classList.toggle("interactive-response", isResponseVM(element));
+    templateData.rowContainer.classList.remove("pending-item", "pending-divider", "pending-request");
     const progressMessageAtBottomOfResponse = checkModeOption(this.delegate.currentChatMode(), this.rendererOptions.progressMessageAtBottomOfResponse);
     templateData.rowContainer.classList.toggle("show-detail-progress", isResponseVM(element) && !element.isComplete && !element.progressMessages.length && !progressMessageAtBottomOfResponse);
     if (!this.rendererOptions.noHeader) {
@@ -546,8 +552,9 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
     templateData.checkpointToolbar.context = element;
     const checkpointEnabled = this.configService.getValue(ChatConfiguration.CheckpointsEnabled) && (this.rendererOptions.restorable ?? true);
-    templateData.checkpointContainer.classList.toggle("hidden", isResponseVM(element) || !checkpointEnabled);
-    const shouldShowRestore = this.viewModel?.model.checkpoint && !this.viewModel?.editing && index === this.delegate.getListLength() - 1;
+    const isPendingRequest = isRequestVM(element) && !!element.pendingKind;
+    templateData.checkpointContainer.classList.toggle("hidden", isResponseVM(element) || isPendingRequest || !checkpointEnabled);
+    const shouldShowRestore = this.viewModel?.model.checkpoint && !this.viewModel?.editing && index === this.delegate.getListLength() - 1 && !isPendingRequest;
     templateData.checkpointRestoreContainer.classList.toggle("hidden", !(shouldShowRestore && checkpointEnabled));
     const editing = element.id === this.viewModel?.editing?.id;
     const isInput = this.configService.getValue("chat.editRequests") === "input";
@@ -601,6 +608,32 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
     templateData.renderedPartsMounted = true;
   }
+  renderPendingDivider(element, templateData) {
+    templateData.rowContainer.classList.add("pending-item");
+    templateData.rowContainer.classList.add("pending-divider");
+    templateData.rowContainer.classList.remove("interactive-request", "interactive-response", "pending-request");
+    templateData.avatarContainer.classList.add("hidden");
+    templateData.username.classList.add("hidden");
+    templateData.requestHover.classList.add("hidden");
+    templateData.checkpointContainer.classList.add("hidden");
+    templateData.checkpointRestoreContainer.classList.add("hidden");
+    templateData.footerToolbar.getElement().classList.add("hidden");
+    if (templateData.titleToolbar) {
+      templateData.titleToolbar.getElement().classList.add("hidden");
+    }
+    dom.clearNode(templateData.value);
+    dom.clearNode(templateData.detail);
+    const dividerContent = dom.$(".pending-divider-content");
+    const label = dom.append(dividerContent, dom.$("span.pending-divider-label"));
+    if (element.dividerKind === "steering") {
+      label.textContent = localize("steeringDivider", "Steering");
+      label.title = localize("steeringDividerTooltip", "Steering message will be sent after the next tool call happens");
+    } else {
+      label.textContent = localize("queuedDivider", "Queued");
+      label.title = localize("queuedDividerTooltip", "Queued messages will be sent after the current request completes");
+    }
+    templateData.value.appendChild(dividerContent);
+  }
   renderDetail(element, templateData) {
     dom.clearNode(templateData.detail);
     if (element.agentOrSlashCommandDetected) {
@@ -627,7 +660,17 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
     }
   }
   renderAvatar(element, templateData) {
-    const icon = isResponseVM(element) ? this.getAgentIcon(element.agent?.metadata) : element.avatarIcon ?? Codicon.account;
+    if (isPendingDividerVM(element)) {
+      return;
+    }
+    let icon;
+    if (isResponseVM(element)) {
+      icon = this.getAgentIcon(element.agent?.metadata);
+    } else if (isRequestVM(element)) {
+      icon = element.avatarIcon ?? Codicon.account;
+    } else {
+      icon = Codicon.account;
+    }
     if (icon instanceof URI) {
       const avatarIcon = dom.$("img.icon");
       avatarIcon.src = FileAccess.uriToBrowserUri(icon).toString(true);
@@ -715,6 +758,7 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   }
   renderChatRequest(element, index, templateData) {
     templateData.rowContainer.classList.toggle("chat-response-loading", false);
+    templateData.rowContainer.classList.toggle("pending-request", !!element.pendingKind);
     if (element.id === this.viewModel?.editing?.id) {
       this._onDidRerender.fire(templateData);
     }
@@ -1465,7 +1509,10 @@ let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
   }
   renderQuestionCarousel(context, carousel, templateData) {
     this.finalizeCurrentThinkingPart(context, templateData);
+    const widget = isResponseVM(context.element) ? this.chatWidgetService.getWidgetBySessionResource(context.element.sessionResource) : void 0;
+    const shouldAutoFocus = widget ? widget.getInput() === "" : true;
     const part = this.instantiationService.createInstance(ChatQuestionCarouselPart, carousel, context, {
+      shouldAutoFocus,
       onSubmit: /* @__PURE__ */ __name(async (answers) => {
         const answersRecord = answers ? Object.fromEntries(answers) : void 0;
         if (answersRecord) {

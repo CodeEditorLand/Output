@@ -10,6 +10,7 @@ import { IChatWidgetService } from '../../contrib/chat/browser/chat.js';
 import { IChatContentInlineReference, IChatProgress, IChatService } from '../../contrib/chat/common/chatService/chatService.js';
 import { IChatSession, IChatSessionHistoryItem, IChatSessionProviderOptionItem, IChatSessionsService } from '../../contrib/chat/common/chatSessionsService.js';
 import { IChatAgentRequest } from '../../contrib/chat/common/participants/chatAgents.js';
+import { IChatTodoListService } from '../../contrib/chat/common/tools/chatTodoListService.js';
 import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
 import { IEditorService } from '../../services/editor/common/editorService.js';
 import { IExtHostContext } from '../../services/extensions/common/extHostCustomers.js';
@@ -60,6 +61,7 @@ export declare class MainThreadChatSessions extends Disposable implements MainTh
     private readonly _chatSessionsService;
     private readonly _chatService;
     private readonly _chatWidgetService;
+    private readonly _chatTodoListService;
     private readonly _dialogService;
     private readonly _editorService;
     private readonly editorGroupService;
@@ -70,7 +72,7 @@ export declare class MainThreadChatSessions extends Disposable implements MainTh
     private readonly _activeSessions;
     private readonly _sessionDisposables;
     private readonly _proxy;
-    constructor(_extHostContext: IExtHostContext, _agentSessionsService: IAgentSessionsService, _chatSessionsService: IChatSessionsService, _chatService: IChatService, _chatWidgetService: IChatWidgetService, _dialogService: IDialogService, _editorService: IEditorService, editorGroupService: IEditorGroupsService, _logService: ILogService);
+    constructor(_extHostContext: IExtHostContext, _agentSessionsService: IAgentSessionsService, _chatSessionsService: IChatSessionsService, _chatService: IChatService, _chatWidgetService: IChatWidgetService, _chatTodoListService: IChatTodoListService, _dialogService: IDialogService, _editorService: IEditorService, editorGroupService: IEditorGroupsService, _logService: ILogService);
     private _getHandleForSessionType;
     $registerChatSessionItemProvider(handle: number, chatSessionType: string): void;
     $onDidChangeChatSessionItems(handle: number): void;

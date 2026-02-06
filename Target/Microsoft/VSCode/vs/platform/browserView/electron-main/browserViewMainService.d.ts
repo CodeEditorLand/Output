@@ -24,6 +24,10 @@ export declare class BrowserViewMainService extends Disposable implements IBrows
      */
     private getSession;
     private configureSession;
+    /**
+     * Create a child browser view (used by window.open handler)
+     */
+    private createBrowserView;
     getOrCreateBrowserView(id: string, scope: BrowserViewStorageScope, workspaceId?: string): Promise<IBrowserViewState>;
     tryGetBrowserView(id: string): BrowserView | undefined;
     /**
@@ -58,6 +62,7 @@ export declare class BrowserViewMainService extends Disposable implements IBrows
     focus(id: string): Promise<void>;
     findInPage(id: string, text: string, options?: IBrowserViewFindInPageOptions): Promise<void>;
     stopFindInPage(id: string, keepSelection?: boolean): Promise<void>;
+    getSelectedText(id: string): Promise<string>;
     clearStorage(id: string): Promise<void>;
     clearGlobalStorage(): Promise<void>;
     clearWorkspaceStorage(workspaceId: string): Promise<void>;

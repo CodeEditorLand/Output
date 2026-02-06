@@ -63,15 +63,16 @@ export declare class AgentSessionsWelcomePage extends EditorPane {
     private walkthroughs;
     private _selectedSessionProvider;
     private _selectedWorkspace;
-    private _recentWorkspaces;
+    private _recentTrustedWorkspaces;
     private _isEmptyWorkspace;
     private _workspaceKind;
     private _openedAt;
-    private _closedBy;
+    private _closedBy?;
     private _storedInput;
     constructor(group: IEditorGroup, telemetryService: ITelemetryService, themeService: IThemeService, storageService: IStorageService, instantiationService: IInstantiationService, contextKeyService: IContextKeyService, layoutService: IWorkbenchLayoutService, commandService: ICommandService, editorService: IEditorService, agentSessionsService: IAgentSessionsService, configurationService: IConfigurationService, productService: IProductService, walkthroughsService: IWalkthroughsService, chatService: IChatService, chatEntitlementService: IChatEntitlementService, markdownRendererService: IMarkdownRendererService, workspaceContextService: IWorkspaceContextService, workspacesService: IWorkspacesService, hostService: IHostService, workspaceTrustManagementService: IWorkspaceTrustManagementService, viewDescriptorService: IViewDescriptorService, chatWidgetService: IChatWidgetService, logService: ILogService);
     protected createEditor(parent: HTMLElement): void;
     setInput(input: AgentSessionsWelcomeInput, options: AgentSessionsWelcomeEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void>;
+    clearInput(): void;
     private buildContent;
     private buildStartEntries;
     private buildChatWidget;
@@ -99,7 +100,7 @@ export declare class AgentSessionsWelcomePage extends EditorPane {
     private revealMaximizedChat;
     private openSessionInChat;
     private closeEditorAndMaximizeAuxiliaryBar;
-    dispose(): void;
+    private getRecentlyOpenedWorkspaces;
 }
 export declare class AgentSessionsWelcomeInputSerializer implements IEditorSerializer {
     canSerialize(editorInput: AgentSessionsWelcomeInput): boolean;

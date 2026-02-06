@@ -39,7 +39,7 @@ let ChatSessionPickerActionItem = class ChatSessionPickerActionItem2 extends Act
         getActions: /* @__PURE__ */ __name(() => this.getDropdownActions(), "getActions")
       },
       actionBarActionProvider: void 0,
-      reporter: { name: `ChatSession:${group.name}`, includeOptions: false }
+      reporter: { id: group.id, name: `ChatSession:${group.name}`, includeOptions: false }
     };
     super(actionWithLabel, sessionPickerActionWidgetOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
     this.delegate = delegate;

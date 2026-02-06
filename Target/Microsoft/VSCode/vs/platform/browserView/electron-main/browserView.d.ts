@@ -10,6 +10,7 @@ import { IAuxiliaryWindowsMainService } from '../../auxiliaryWindow/electron-mai
  * This class encapsulates all operations and events for a single browser view.
  */
 export declare class BrowserView extends Disposable {
+    readonly id: string;
     private readonly viewSession;
     private readonly storageScope;
     private readonly windowsMainService;
@@ -19,6 +20,7 @@ export declare class BrowserView extends Disposable {
     private _lastScreenshot;
     private _lastFavicon;
     private _lastError;
+    private _lastUserGestureTimestamp;
     private _window;
     private _isSendingKeyEvent;
     private readonly _onDidNavigate;
@@ -43,8 +45,9 @@ export declare class BrowserView extends Disposable {
     readonly onDidFindInPage: Event<IBrowserViewFindInPageResult>;
     private readonly _onDidClose;
     readonly onDidClose: Event<void>;
-    constructor(viewSession: Electron.Session, storageScope: BrowserViewStorageScope, windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService);
+    constructor(id: string, viewSession: Electron.Session, storageScope: BrowserViewStorageScope, createChildView: (options?: Electron.WebContentsViewConstructorOptions) => BrowserView, options: Electron.WebContentsViewConstructorOptions | undefined, windowsMainService: IWindowsMainService, auxiliaryWindowsMainService: IAuxiliaryWindowsMainService);
     private setupEventListeners;
+    private consumePopupPermission;
     get webContents(): Electron.WebContents;
     /**
      * Get the current state of this browser view
@@ -114,6 +117,11 @@ export declare class BrowserView extends Disposable {
      * Stop finding in page
      */
     stopFindInPage(keepSelection?: boolean): Promise<void>;
+    /**
+     * Get the currently selected text in the browser view.
+     * Returns immediately with empty string if the page is still loading.
+     */
+    getSelectedText(): Promise<string>;
     /**
      * Clear all storage data for this browser view's session
      */

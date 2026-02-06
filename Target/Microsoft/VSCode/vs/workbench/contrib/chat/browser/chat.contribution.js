@@ -60,11 +60,14 @@ import { ILanguageModelsService, LanguageModelsService } from "../common/languag
 import { ILanguageModelStatsService, LanguageModelStatsService } from "../common/languageModelStats.js";
 import { ILanguageModelToolsConfirmationService } from "../common/tools/languageModelToolsConfirmationService.js";
 import { ILanguageModelToolsService } from "../common/tools/languageModelToolsService.js";
+import { HooksExecutionService, IHooksExecutionService } from "../common/hooksExecutionService.js";
 import { ChatPromptFilesExtensionPointHandler } from "../common/promptSyntax/chatPromptFilesContribution.js";
 import { PromptsConfig } from "../common/promptSyntax/config/config.js";
-import { INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, INSTRUCTION_FILE_EXTENSION, LEGACY_MODE_DEFAULT_SOURCE_FOLDER, LEGACY_MODE_FILE_EXTENSION, PROMPT_DEFAULT_SOURCE_FOLDER, PROMPT_FILE_EXTENSION, DEFAULT_SKILL_SOURCE_FOLDERS, AGENTS_SOURCE_FOLDER, AGENT_FILE_EXTENSION, SKILL_FILENAME } from "../common/promptSyntax/config/promptFileLocations.js";
+import { INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, INSTRUCTION_FILE_EXTENSION, LEGACY_MODE_DEFAULT_SOURCE_FOLDER, LEGACY_MODE_FILE_EXTENSION, PROMPT_DEFAULT_SOURCE_FOLDER, PROMPT_FILE_EXTENSION, DEFAULT_SKILL_SOURCE_FOLDERS, AGENTS_SOURCE_FOLDER, AGENT_FILE_EXTENSION, SKILL_FILENAME, DEFAULT_HOOK_FILE_PATHS } from "../common/promptSyntax/config/promptFileLocations.js";
 import { PromptLanguageFeaturesProvider } from "../common/promptSyntax/promptFileContributions.js";
-import { AGENT_DOCUMENTATION_URL, INSTRUCTIONS_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL, SKILL_DOCUMENTATION_URL } from "../common/promptSyntax/promptTypes.js";
+import { AGENT_DOCUMENTATION_URL, INSTRUCTIONS_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL, SKILL_DOCUMENTATION_URL, HOOK_DOCUMENTATION_URL } from "../common/promptSyntax/promptTypes.js";
+import { hookFileSchema, HOOK_SCHEMA_URI, HOOK_FILE_GLOB } from "../common/promptSyntax/hookSchema.js";
+import { Extensions as JSONExtensions } from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import { IPromptsService } from "../common/promptSyntax/service/promptsService.js";
 import { PromptsService } from "../common/promptSyntax/service/promptsServiceImpl.js";
 import { LanguageModelToolsExtensionPointHandler } from "../common/tools/languageModelToolsContribution.js";
@@ -86,6 +89,7 @@ import { registerLanguageModelActions } from "./actions/chatLanguageModelActions
 import { registerMoveActions } from "./actions/chatMoveActions.js";
 import { registerNewChatActions } from "./actions/chatNewActions.js";
 import { registerChatPromptNavigationActions } from "./actions/chatPromptNavigationActions.js";
+import { registerChatQueueActions } from "./actions/chatQueueActions.js";
 import { registerQuickChatActions } from "./actions/chatQuickInputActions.js";
 import { ChatAgentRecommendation } from "./actions/chatAgentRecommendationActions.js";
 import { registerChatTitleActions } from "./actions/chatTitleActions.js";
@@ -147,6 +151,9 @@ import { VALID_PROMPT_FOLDER_PATTERN } from "../common/promptSyntax/utils/prompt
 import { ChatTipService, IChatTipService } from "./chatTipService.js";
 const toolReferenceNameEnumValues = [];
 const toolReferenceNameEnumDescriptions = [];
+const jsonContributionRegistry = Registry.as(JSONExtensions.JSONContribution);
+jsonContributionRegistry.registerSchema(HOOK_SCHEMA_URI, hookFileSchema);
+jsonContributionRegistry.registerSchemaAssociation(HOOK_SCHEMA_URI, HOOK_FILE_GLOB);
 const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
 configurationRegistry.registerConfiguration({
   id: "chatSidebar",
@@ -611,6 +618,12 @@ configurationRegistry.registerConfiguration({
         }
       }
     },
+    [ChatConfiguration.RequestQueueingEnabled]: {
+      type: "boolean",
+      description: nls.localize("chat.requestQueuing.enabled.description", "When enabled, allows queuing additional messages while a request is in progress and steering the current request with a new message."),
+      default: false,
+      tags: ["experimental"]
+    },
     [ChatConfiguration.EditModeHidden]: {
       type: "boolean",
       description: nls.localize("chat.editMode.hidden", "When enabled, hides the Edit mode from the chat mode picker."),
@@ -867,6 +880,39 @@ configurationRegistry.registerConfiguration({
           "~/.custom/skills": true
         }
       ]
+    },
+    [PromptsConfig.HOOKS_LOCATION_KEY]: {
+      type: "object",
+      title: nls.localize("chat.hookFilesLocations.title", "Hook File Locations"),
+      markdownDescription: nls.localize("chat.hookFilesLocations.description", "Specify paths to hook configuration files that define custom shell commands to execute at strategic points in an agent's workflow. [Learn More]({0}).\n\nRelative paths are resolved from the root folder(s) of your workspace. Supports Copilot hooks (`hooks.json`) and Claude Code hooks (`settings.json`, `settings.local.json`).", HOOK_DOCUMENTATION_URL),
+      default: {
+        ...DEFAULT_HOOK_FILE_PATHS.map((f) => ({ [f.path]: true })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+      },
+      additionalProperties: { type: "boolean" },
+      propertyNames: {
+        pattern: VALID_PROMPT_FOLDER_PATTERN,
+        patternErrorMessage: nls.localize("chat.hookFilesLocations.invalidPath", "Paths must be relative or start with '~/'. Absolute paths and '\\' separators are not supported.")
+      },
+      restricted: true,
+      tags: ["prompts", "hooks", "agent"],
+      examples: [
+        {
+          [DEFAULT_HOOK_FILE_PATHS[0].path]: true
+        },
+        {
+          [DEFAULT_HOOK_FILE_PATHS[0].path]: true,
+          "custom-hooks/hooks.json": true
+        }
+      ]
+    },
+    [PromptsConfig.USE_CHAT_HOOKS]: {
+      type: "boolean",
+      title: nls.localize("chat.useChatHooks.title", "Use Chat Hooks"),
+      markdownDescription: nls.localize("chat.useChatHooks.description", "Controls whether chat hooks are executed at strategic points during an agent's workflow. Hooks are loaded from the files configured in `#chat.hookFilesLocations#`."),
+      default: true,
+      restricted: true,
+      disallowConfigurationDefault: true,
+      tags: ["prompts", "hooks", "agent"]
     },
     [PromptsConfig.PROMPT_FILES_SUGGEST_KEY]: {
       type: "object",
@@ -1480,6 +1526,7 @@ registerChatFileTreeActions();
 registerChatPromptNavigationActions();
 registerChatTitleActions();
 registerChatExecuteActions();
+registerChatQueueActions();
 registerQuickChatActions();
 registerChatExportActions();
 registerMoveActions();
@@ -1615,6 +1662,12 @@ registerSingleton(
 registerSingleton(
   ILanguageModelIgnoredFilesService,
   LanguageModelIgnoredFilesService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IHooksExecutionService,
+  HooksExecutionService,
   1
   /* InstantiationType.Delayed */
 );

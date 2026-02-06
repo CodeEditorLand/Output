@@ -25,6 +25,7 @@ import { ICommandService } from "../../../../../platform/commands/common/command
 import { ACTION_ID_NEW_CHAT } from "../actions/chatActions.js";
 import { Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Throttler } from "../../../../../base/common/async.js";
 import { Separator } from "../../../../../base/common/actions.js";
 import { RenderIndentGuides, TreeFindMode } from "../../../../../base/browser/ui/tree/abstractTree.js";
 import { IAgentSessionsService } from "./agentSessionsService.js";
@@ -53,6 +54,7 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     this.telemetryService = telemetryService;
     this.editorService = editorService;
     this.sessionsListFindIsOpen = false;
+    this.updateSessionsListThrottler = this._register(new Throttler());
     this.visible = true;
     this.focusedAgentSessionArchivedContextKey = ChatContextKeys.isArchivedAgentSession.bindTo(this.contextKeyService);
     this.focusedAgentSessionReadContextKey = ChatContextKeys.isReadAgentSession.bindTo(this.contextKeyService);
@@ -118,12 +120,12 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     this._register(this.options.filter.onDidChange(async () => {
       if (this.visible) {
         this.updateSectionCollapseStates();
-        list.updateChildren();
+        this.update();
       }
     }));
     this._register(model.onDidChangeSessions(() => {
       if (this.visible) {
-        list.updateChildren();
+        this.update();
       }
     }));
     list.setInput(model);
@@ -235,16 +237,8 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
           break;
         }
         case "more": {
-          if (child.collapsed) {
-            let autoExpandMore = false;
-            if (this.sessionsListFindIsOpen) {
-              autoExpandMore = true;
-            } else if (this.options.filter.getExcludes().read && child.element.sessions.some((session) => !session.isRead())) {
-              autoExpandMore = true;
-            }
-            if (autoExpandMore) {
-              this.sessionsList.expand(child.element);
-            }
+          if (child.collapsed && this.sessionsListFindIsOpen) {
+            this.sessionsList.expand(child.element);
           }
           break;
         }
@@ -255,7 +249,7 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     return this.agentSessionsService.model.resolve(void 0);
   }
   async update() {
-    await this.sessionsList?.updateChildren();
+    return this.updateSessionsListThrottler.queue(async () => this.sessionsList?.updateChildren());
   }
   setVisible(visible) {
     if (this.visible === visible) {
@@ -263,7 +257,7 @@ let AgentSessionsControl = class AgentSessionsControl2 extends Disposable {
     }
     this.visible = visible;
     if (this.visible) {
-      this.sessionsList?.updateChildren();
+      this.update();
     }
   }
   layout(height, width) {

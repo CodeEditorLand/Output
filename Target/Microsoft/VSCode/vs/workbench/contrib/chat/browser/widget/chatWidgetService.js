@@ -90,7 +90,7 @@ let ChatWidgetService = class ChatWidgetService2 extends Disposable {
     } else {
       await this.prepareSessionForMove(sessionResource, target);
     }
-    if (target === ChatViewPaneTarget) {
+    if (target === ChatViewPaneTarget || typeof target === "undefined") {
       const chatView = await this.viewsService.openView(ChatViewId, !options?.preserveFocus);
       if (chatView) {
         await chatView.loadSession(sessionResource);

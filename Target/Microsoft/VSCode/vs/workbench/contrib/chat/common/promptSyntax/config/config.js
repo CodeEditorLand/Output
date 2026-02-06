@@ -10,11 +10,13 @@ var PromptsConfig;
   PromptsConfig2.MODE_LOCATION_KEY = "chat.modeFilesLocations";
   PromptsConfig2.AGENTS_LOCATION_KEY = "chat.agentFilesLocations";
   PromptsConfig2.SKILLS_LOCATION_KEY = "chat.agentSkillsLocations";
+  PromptsConfig2.HOOKS_LOCATION_KEY = "chat.hookFilesLocations";
   PromptsConfig2.PROMPT_FILES_SUGGEST_KEY = "chat.promptFilesRecommendations";
   PromptsConfig2.USE_COPILOT_INSTRUCTION_FILES = "github.copilot.chat.codeGeneration.useInstructionFiles";
   PromptsConfig2.USE_AGENT_MD = "chat.useAgentsMdFile";
   PromptsConfig2.USE_NESTED_AGENT_MD = "chat.useNestedAgentsMdFiles";
   PromptsConfig2.USE_AGENT_SKILLS = "chat.useAgentSkills";
+  PromptsConfig2.USE_CHAT_HOOKS = "chat.useChatHooks";
   PromptsConfig2.USE_SKILL_ADHERENCE_PROMPT = "chat.experimental.useSkillAdherencePrompt";
   PromptsConfig2.INCLUDE_APPLYING_INSTRUCTIONS = "chat.includeApplyingInstructions";
   PromptsConfig2.INCLUDE_REFERENCED_INSTRUCTIONS = "chat.includeReferencedInstructions";
@@ -105,6 +107,8 @@ function getPromptFileLocationsConfigKey(type) {
       return PromptsConfig.AGENTS_LOCATION_KEY;
     case PromptsType.skill:
       return PromptsConfig.SKILLS_LOCATION_KEY;
+    case PromptsType.hook:
+      return PromptsConfig.HOOKS_LOCATION_KEY;
     default:
       throw new Error("Unknown prompt type");
   }

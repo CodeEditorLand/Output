@@ -2,6 +2,8 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as dom from "../../../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
+import { getBaseLayerHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegate2.js";
+import { getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { Emitter } from "../../../../../../base/common/event.js";
 import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
 import { hasKey } from "../../../../../../base/common/types.js";
@@ -10,13 +12,14 @@ import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles } fro
 import { Button } from "../../../../../../base/browser/ui/button/button.js";
 import { InputBox } from "../../../../../../base/browser/ui/inputbox/inputBox.js";
 import { Checkbox } from "../../../../../../base/browser/ui/toggle/toggle.js";
+import { isResponseVM } from "../../../common/model/chatViewModel.js";
 import { Codicon } from "../../../../../../base/common/codicons.js";
 import "./media/chatQuestionCarousel.css";
 class ChatQuestionCarouselPart extends Disposable {
   static {
     __name(this, "ChatQuestionCarouselPart");
   }
-  constructor(carousel, _context, _options) {
+  constructor(carousel, context, _options) {
     super();
     this.carousel = carousel;
     this._options = _options;
@@ -37,7 +40,8 @@ class ChatQuestionCarouselPart extends Disposable {
         this._answers.set(key, value);
       }
     }
-    if (carousel.isUsed) {
+    const responseIsComplete = isResponseVM(context.element) && context.element.isComplete;
+    if (carousel.isUsed || responseIsComplete) {
       this._isSkipped = true;
       this.domNode.classList.add("chat-question-carousel-used");
       this.renderSummary();
@@ -84,14 +88,21 @@ class ChatQuestionCarouselPart extends Disposable {
     }
     interactiveStore.add(dom.addDisposableListener(this.domNode, dom.EventType.KEY_DOWN, (e) => {
       const event = new StandardKeyboardEvent(e);
-      if (event.keyCode === 3 && !event.shiftKey) {
+      if (event.keyCode === 9 && this.carousel.allowSkip) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.ignore();
+      } else if (event.keyCode === 3 && !event.shiftKey) {
         const target = e.target;
         const isTextInput = target.tagName === "INPUT" && target.type === "text";
-        if (isTextInput) {
+        const isFreeformTextarea = target.tagName === "TEXTAREA" && target.classList.contains("chat-question-freeform-textarea");
+        if (isTextInput || isFreeformTextarea) {
           e.preventDefault();
           e.stopPropagation();
           this.handleNext();
         }
+      } else if ((event.ctrlKey || event.metaKey) && (event.keyCode === 1 || event.keyCode === 20)) {
+        e.stopPropagation();
       }
     }));
     this.renderCurrentQuestion();
@@ -251,6 +262,7 @@ class ChatQuestionCarouselPart extends Disposable {
     if (questionText) {
       const title = dom.$(".chat-question-title");
       const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+      title.setAttribute("aria-label", messageContent);
       const parenMatch = messageContent.match(/^(.+?)\s*(\([^)]+\))\s*$/);
       if (parenMatch) {
         const mainTitle = dom.$("span.chat-question-title-main");
@@ -268,18 +280,21 @@ class ChatQuestionCarouselPart extends Disposable {
       headerRow.appendChild(this._closeButtonContainer);
     }
     this._questionContainer.appendChild(headerRow);
+    const isSingleQuestion = this.carousel.questions.length === 1;
     if (this._stepIndicator) {
       this._stepIndicator.textContent = `${this._currentIndex + 1}/${this.carousel.questions.length}`;
+      this._stepIndicator.style.display = isSingleQuestion ? "none" : "";
     }
     const inputContainer = dom.$(".chat-question-input-container");
     this.renderInput(inputContainer, question);
     this._questionContainer.appendChild(inputContainer);
     this._prevButton.enabled = this._currentIndex > 0;
+    this._prevButton.element.style.display = isSingleQuestion ? "none" : "";
     const isLastQuestion = this._currentIndex === this.carousel.questions.length - 1;
     const submitLabel = localize("submit", "Submit");
     const nextLabel = localize("next", "Next");
     if (isLastQuestion) {
-      this._nextButton.label = `$(${Codicon.check.id})`;
+      this._nextButton.label = submitLabel;
       this._nextButton.element.title = submitLabel;
       this._nextButton.element.setAttribute("aria-label", submitLabel);
       this._nextButton.element.classList.add("chat-question-nav-submit");
@@ -329,7 +344,9 @@ class ChatQuestionCarouselPart extends Disposable {
       inputBox.value = String(question.defaultValue);
     }
     this._textInputBoxes.set(question.id, inputBox);
-    this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(inputBox.element), () => inputBox.focus()));
+    if (this._options.shouldAutoFocus !== false) {
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(inputBox.element), () => inputBox.focus()));
+    }
   }
   renderSingleSelect(container, question) {
     const options = question.options || [];
@@ -374,13 +391,16 @@ class ChatQuestionCarouselPart extends Disposable {
       const listItem = dom.$(".chat-question-list-item");
       listItem.setAttribute("role", "option");
       listItem.setAttribute("aria-selected", String(isSelected));
+      listItem.setAttribute("aria-label", localize("chat.questionCarousel.optionLabel", "Option {0}: {1}", index + 1, option.label));
       listItem.id = `option-${question.id}-${index}`;
       listItem.tabIndex = -1;
+      const number = dom.$(".chat-question-list-number");
+      number.textContent = `${index + 1}`;
+      listItem.appendChild(number);
       const indicator = dom.$(".chat-question-list-indicator");
       if (isSelected) {
         indicator.classList.add("codicon", "codicon-check");
       }
-      listItem.appendChild(indicator);
       indicators.push(indicator);
       const label = dom.$(".chat-question-list-label");
       const separatorIndex = option.label.indexOf(" - ");
@@ -395,9 +415,11 @@ class ChatQuestionCarouselPart extends Disposable {
         label.textContent = option.label;
       }
       listItem.appendChild(label);
+      listItem.appendChild(indicator);
       if (isSelected) {
         listItem.classList.add("selected");
       }
+      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
       this._inputBoxes.add(dom.addDisposableListener(listItem, dom.EventType.CLICK, (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -410,6 +432,25 @@ class ChatQuestionCarouselPart extends Disposable {
     if (selectedIndex >= 0 && selectedIndex < listItems.length) {
       selectContainer.setAttribute("aria-activedescendant", listItems[selectedIndex].id);
     }
+    const freeformContainer = dom.$(".chat-question-freeform");
+    const freeformNumber = dom.$(".chat-question-freeform-number");
+    freeformNumber.textContent = `${options.length + 1}`;
+    freeformContainer.appendChild(freeformNumber);
+    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
+    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
+    freeformTextarea.rows = 1;
+    if (previousFreeform !== void 0) {
+      freeformTextarea.value = previousFreeform;
+    }
+    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
+    this._inputBoxes.add(dom.addDisposableListener(freeformTextarea, dom.EventType.INPUT, () => {
+      if (freeformTextarea.value.length > 0) {
+        updateSelection(-1);
+      }
+    }));
+    freeformContainer.appendChild(freeformTextarea);
+    container.appendChild(freeformContainer);
+    this._freeformTextareas.set(question.id, freeformTextarea);
     this._inputBoxes.add(dom.addDisposableListener(selectContainer, dom.EventType.KEY_DOWN, (e) => {
       const event = new StandardKeyboardEvent(e);
       const data = this._singleSelectItems.get(question.id);
@@ -423,27 +464,38 @@ class ChatQuestionCarouselPart extends Disposable {
       } else if (event.keyCode === 16) {
         e.preventDefault();
         newIndex = Math.max(data.selectedIndex - 1, 0);
-      } else if (event.keyCode === 10 || event.keyCode === 3) {
+      } else if (event.keyCode === 3 || event.keyCode === 10) {
         e.preventDefault();
+        e.stopPropagation();
+        this.handleNext();
+        return;
+      } else if (event.keyCode >= 22 && event.keyCode <= 30) {
+        const numberIndex = event.keyCode - 22;
+        if (numberIndex < listItems.length) {
+          e.preventDefault();
+          updateSelection(numberIndex);
+        } else if (numberIndex === listItems.length) {
+          e.preventDefault();
+          updateSelection(-1);
+          freeformTextarea.focus();
+        }
         return;
       }
       if (newIndex !== data.selectedIndex && newIndex >= 0) {
         updateSelection(newIndex);
       }
     }));
-    const freeformContainer = dom.$(".chat-question-freeform");
-    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
-    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
-    freeformTextarea.rows = 1;
-    if (previousFreeform !== void 0) {
-      freeformTextarea.value = previousFreeform;
-    }
-    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
-    freeformContainer.appendChild(freeformTextarea);
-    container.appendChild(freeformContainer);
-    this._freeformTextareas.set(question.id, freeformTextarea);
     if (previousFreeform !== void 0) {
       this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
+    }
+    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
+      const focusIndex = selectedIndex >= 0 ? selectedIndex : 0;
+      if (selectedIndex < 0) {
+        updateSelection(0);
+      }
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+        listItems[focusIndex]?.focus();
+      }));
     }
   }
   renderMultiSelect(container, question) {
@@ -461,6 +513,7 @@ class ChatQuestionCarouselPart extends Disposable {
     const checkboxes = [];
     const listItems = [];
     let focusedIndex = 0;
+    let firstCheckedIndex = -1;
     options.forEach((option, index) => {
       let isChecked = false;
       if (previousSelectedValues && previousSelectedValues.length > 0) {
@@ -471,8 +524,12 @@ class ChatQuestionCarouselPart extends Disposable {
       const listItem = dom.$(".chat-question-list-item.multi-select");
       listItem.setAttribute("role", "option");
       listItem.setAttribute("aria-selected", String(isChecked));
+      listItem.setAttribute("aria-label", localize("chat.questionCarousel.optionLabel", "Option {0}: {1}", index + 1, option.label));
       listItem.id = `option-${question.id}-${index}`;
       listItem.tabIndex = -1;
+      const number = dom.$(".chat-question-list-number");
+      number.textContent = `${index + 1}`;
+      listItem.appendChild(number);
       const checkbox = this._inputBoxes.add(new Checkbox(option.label, isChecked, defaultCheckboxStyles));
       checkbox.domNode.classList.add("chat-question-list-checkbox");
       checkbox.domNode.tabIndex = -1;
@@ -492,6 +549,9 @@ class ChatQuestionCarouselPart extends Disposable {
       listItem.appendChild(label);
       if (isChecked) {
         listItem.classList.add("checked");
+        if (firstCheckedIndex === -1) {
+          firstCheckedIndex = index;
+        }
       }
       this._inputBoxes.add(checkbox.onChange(() => {
         listItem.classList.toggle("checked", checkbox.checked);
@@ -503,11 +563,26 @@ class ChatQuestionCarouselPart extends Disposable {
           checkbox.domNode.click();
         }
       }));
+      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
       selectContainer.appendChild(listItem);
       checkboxes.push(checkbox);
       listItems.push(listItem);
     });
     this._multiSelectCheckboxes.set(question.id, checkboxes);
+    const freeformContainer = dom.$(".chat-question-freeform");
+    const freeformNumber = dom.$(".chat-question-freeform-number");
+    freeformNumber.textContent = `${options.length + 1}`;
+    freeformContainer.appendChild(freeformNumber);
+    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
+    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
+    freeformTextarea.rows = 1;
+    if (previousFreeform !== void 0) {
+      freeformTextarea.value = previousFreeform;
+    }
+    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
+    freeformContainer.appendChild(freeformTextarea);
+    container.appendChild(freeformContainer);
+    this._freeformTextareas.set(question.id, freeformTextarea);
     this._inputBoxes.add(dom.addDisposableListener(selectContainer, dom.EventType.KEY_DOWN, (e) => {
       const event = new StandardKeyboardEvent(e);
       if (!listItems.length) {
@@ -521,26 +596,35 @@ class ChatQuestionCarouselPart extends Disposable {
         e.preventDefault();
         focusedIndex = Math.max(focusedIndex - 1, 0);
         listItems[focusedIndex].focus();
+      } else if (event.keyCode === 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleNext();
       } else if (event.keyCode === 10) {
         e.preventDefault();
         if (focusedIndex >= 0 && focusedIndex < checkboxes.length) {
           checkboxes[focusedIndex].domNode.click();
         }
+      } else if (event.keyCode >= 22 && event.keyCode <= 30) {
+        const numberIndex = event.keyCode - 22;
+        if (numberIndex < checkboxes.length) {
+          e.preventDefault();
+          checkboxes[numberIndex].domNode.click();
+        } else if (numberIndex === checkboxes.length) {
+          e.preventDefault();
+          freeformTextarea.focus();
+        }
       }
     }));
-    const freeformContainer = dom.$(".chat-question-freeform");
-    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
-    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
-    freeformTextarea.rows = 1;
-    if (previousFreeform !== void 0) {
-      freeformTextarea.value = previousFreeform;
-    }
-    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
-    freeformContainer.appendChild(freeformTextarea);
-    container.appendChild(freeformContainer);
-    this._freeformTextareas.set(question.id, freeformTextarea);
     if (previousFreeform !== void 0) {
       this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
+    }
+    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
+      const initialFocusIndex = firstCheckedIndex >= 0 ? firstCheckedIndex : 0;
+      focusedIndex = initialFocusIndex;
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+        listItems[initialFocusIndex]?.focus();
+      }));
     }
   }
   getCurrentAnswer() {
@@ -586,14 +670,14 @@ class ChatQuestionCarouselPart extends Disposable {
             }
           });
         }
+        const freeformTextarea = this._freeformTextareas.get(question.id);
+        const freeformValue = freeformTextarea?.value !== "" ? freeformTextarea?.value : void 0;
         let finalSelectedValues = selectedValues;
-        if (selectedValues.length === 0 && question.defaultValue !== void 0) {
+        if (selectedValues.length === 0 && !freeformValue && question.defaultValue !== void 0) {
           const defaultIds = Array.isArray(question.defaultValue) ? question.defaultValue : [question.defaultValue];
           const defaultValues = question.options?.filter((opt) => defaultIds.includes(opt.id)).map((opt) => opt.value);
           finalSelectedValues = defaultValues?.filter((v) => v !== void 0) || [];
         }
-        const freeformTextarea = this._freeformTextareas.get(question.id);
-        const freeformValue = freeformTextarea?.value !== "" ? freeformTextarea?.value : void 0;
         if (freeformValue || finalSelectedValues.length > 0) {
           return { selectedValues: finalSelectedValues, freeformValue };
         }
@@ -689,7 +773,10 @@ class ChatQuestionCarouselPart extends Disposable {
         return String(answer);
     }
   }
-  hasSameContent(other, _followingContent, _element) {
+  hasSameContent(other, _followingContent, element) {
+    if (!this._isSkipped && !this.carousel.isUsed && isResponseVM(element) && element.isComplete) {
+      return false;
+    }
     return other.kind === "questionCarousel" && other === this.carousel;
   }
   addDisposable(disposable) {

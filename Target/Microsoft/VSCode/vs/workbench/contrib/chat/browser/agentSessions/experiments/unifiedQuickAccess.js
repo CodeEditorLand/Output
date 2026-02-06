@@ -104,6 +104,17 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
       if (this._isInternalValueChange) {
         return;
       }
+      if (this._arrivedViaShortcut) {
+        const shortcut = this._arrivedViaShortcut;
+        if (!value.startsWith(shortcut)) {
+          const filesTab = this._tabs.find((t) => t.id === "files");
+          if (filesTab && filesTab !== this._currentTab) {
+            this._arrivedViaShortcut = void 0;
+            this._switchTab(filesTab, picker, false);
+            return;
+          }
+        }
+      }
       const matchingTab = this._detectTabFromValue(value);
       if (matchingTab && matchingTab !== this._currentTab) {
         this._switchTab(matchingTab, picker, true);
@@ -119,7 +130,14 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
       const activeItems = picker.activeItems;
       const sendToAgentSelected = selectedItems.length > 0 && selectedItems[0].id === SEND_TO_AGENT_ID;
       const hasRealActiveItem = activeItems.some((item) => item.id !== SEND_TO_AGENT_ID);
-      const filterText = this._currentTab ? picker.value.substring(this._currentTab.prefix.length).trim() : picker.value.trim();
+      let filterText;
+      if (this._arrivedViaShortcut && picker.value.startsWith(this._arrivedViaShortcut)) {
+        filterText = picker.value.substring(1).trim();
+      } else if (this._currentTab) {
+        filterText = picker.value.substring(this._currentTab.prefix.length).trim();
+      } else {
+        filterText = picker.value.trim();
+      }
       if (sendToAgentSelected || !hasRealActiveItem && filterText) {
         this._sendMessage(picker.value);
       }
@@ -130,6 +148,7 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
       this._providerCts = void 0;
       this._currentPicker = void 0;
       this._currentTab = void 0;
+      this._arrivedViaShortcut = void 0;
       if (this._sendToAgentTimeout) {
         clearTimeout(this._sendToAgentTimeout);
         this._sendToAgentTimeout = void 0;
@@ -271,11 +290,13 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
     this.commandService.executeCommand(CHAT_OPEN_ACTION_ID, options);
   }
   /**
-   * Send the current message to a new agent session (strips prefix).
+   * Send the current message to a new agent session (strips prefix or shortcut character).
    */
   async _sendMessage(value) {
     let message = value;
-    if (this._currentTab) {
+    if (this._arrivedViaShortcut && message.startsWith(this._arrivedViaShortcut)) {
+      message = message.substring(1).trim();
+    } else if (this._currentTab) {
       if (value.startsWith(this._currentTab.prefix)) {
         message = value.substring(this._currentTab.prefix.length).trim();
       }
@@ -299,7 +320,14 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
     if (this._isUpdatingSendToAgent) {
       return;
     }
-    const filterText = this._currentTab ? picker.value.substring(this._currentTab.prefix.length).trim() : picker.value.trim();
+    let filterText;
+    if (this._arrivedViaShortcut && picker.value.startsWith(this._arrivedViaShortcut)) {
+      filterText = picker.value.substring(1).trim();
+    } else if (this._currentTab) {
+      filterText = picker.value.substring(this._currentTab.prefix.length).trim();
+    } else {
+      filterText = picker.value.trim();
+    }
     const fullInput = picker.value.trim();
     const messageToSend = filterText || fullInput;
     if (!messageToSend) {
@@ -352,13 +380,29 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
     }
     this._isInternalValueChange = true;
     if (preserveFilterText && previousTab) {
-      const filterText = picker.value.substring(previousTab.prefix.length);
-      picker.value = tab.prefix + filterText;
+      const currentValue = picker.value;
+      let filterText = currentValue;
+      if (currentValue.startsWith(previousTab.prefix)) {
+        filterText = currentValue.substring(previousTab.prefix.length);
+      }
+      if (this._arrivedViaShortcut === "<" && tab.id === "agentSessions") {
+        filterText = filterText.replace(/^<+/, "");
+        picker.value = "<" + filterText;
+      } else if (this._arrivedViaShortcut === ">" && tab.id === "commands") {
+        filterText = filterText.replace(/^>+/, "");
+        picker.value = ">" + filterText;
+      } else {
+        picker.value = tab.prefix + filterText;
+      }
     } else if (previousTab) {
       const currentValue = picker.value;
       if (currentValue.startsWith(previousTab.prefix)) {
         picker.value = currentValue.substring(previousTab.prefix.length);
       }
+      if (picker.value.startsWith("<") || picker.value.startsWith(">")) {
+        picker.value = picker.value.substring(1);
+      }
+      this._arrivedViaShortcut = void 0;
     }
     this._isInternalValueChange = false;
     picker.placeholder = tab.placeholder;
@@ -367,8 +411,23 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
   /**
    * Detect which tab matches the current value based on prefix.
    * Only switches away from current tab if user explicitly typed a different prefix.
+   * Supports shortcut keys: ">" for Commands, "<" for Sessions.
    */
   _detectTabFromValue(value) {
+    if (value === "<" || value.startsWith("<")) {
+      const sessionsTab = this._tabs.find((t) => t.id === "agentSessions");
+      if (sessionsTab && this._currentTab?.id !== "agentSessions") {
+        this._arrivedViaShortcut = "<";
+        return sessionsTab;
+      }
+    }
+    if (value === ">" || value.startsWith(">")) {
+      const commandsTab = this._tabs.find((t) => t.id === "commands");
+      if (commandsTab && this._currentTab?.id !== "commands") {
+        this._arrivedViaShortcut = ">";
+        return commandsTab;
+      }
+    }
     if (this._currentTab && value.startsWith(this._currentTab.prefix)) {
       return this._currentTab;
     }
@@ -396,7 +455,11 @@ let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
     const [provider] = this._getOrInstantiateProvider(tab.prefix);
     if (provider) {
       const tabPrefix = tab.prefix;
+      const arrivedViaShortcut = this._arrivedViaShortcut;
       picker.filterValue = (value) => {
+        if (arrivedViaShortcut && value.startsWith(arrivedViaShortcut)) {
+          return value.substring(1);
+        }
         if (value.startsWith(tabPrefix)) {
           return value.substring(tabPrefix.length);
         }

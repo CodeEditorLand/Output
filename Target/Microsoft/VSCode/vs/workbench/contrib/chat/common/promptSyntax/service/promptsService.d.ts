@@ -8,6 +8,7 @@ import { IChatModeInstructions, IVariableReference } from '../../chatModes.js';
 import { PromptsType } from '../promptTypes.js';
 import { IHandOff, ParsedPromptFile } from '../promptFileParser.js';
 import { ResourceSet } from '../../../../../../base/common/map.js';
+import { IChatRequestHooks } from '../hookSchema.js';
 import { IResolvedPromptSourceFolder } from '../config/promptFileLocations.js';
 /**
  * Activation events for prompt file providers.
@@ -317,4 +318,9 @@ export interface IPromptsService extends IDisposable {
      * Used for diagnostics and config-info displays.
      */
     getPromptDiscoveryInfo(type: PromptsType, token: CancellationToken): Promise<IPromptDiscoveryInfo>;
+    /**
+     * Gets all hooks collected from hooks.json files.
+     * The result is cached and invalidated when hook files change.
+     */
+    getHooks(token: CancellationToken): Promise<IChatRequestHooks | undefined>;
 }

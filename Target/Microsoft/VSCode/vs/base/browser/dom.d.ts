@@ -433,13 +433,6 @@ export declare function windowOpenWithSuccess(url: string, noOpener?: boolean): 
 export declare function animate(targetWindow: Window, fn: () => void): IDisposable;
 export declare function triggerDownload(dataOrUri: Uint8Array | URI, name: string): void;
 export declare function triggerUpload(): Promise<FileList | undefined>;
-export interface INotification extends IDisposable {
-    readonly onClick: event.Event<void>;
-}
-export declare function triggerNotification(message: string, options?: {
-    detail?: string;
-    sticky?: boolean;
-}): Promise<INotification | undefined>;
 export declare enum DetectedFullscreenMode {
     /**
      * The document is fullscreen, e.g. because an element

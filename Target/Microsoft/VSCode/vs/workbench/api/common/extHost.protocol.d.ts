@@ -94,6 +94,8 @@ import { IExtHostDocumentSaveDelegate } from './extHostDocumentData.js';
 import { TerminalShellExecutionCommandLineConfidence } from './extHostTypes.js';
 import * as tasks from './shared/tasks.js';
 import { PromptsType } from '../../contrib/chat/common/promptSyntax/promptTypes.js';
+import { IHookResult } from '../../contrib/chat/common/hooksExecutionService.js';
+import { IHookCommand } from '../../contrib/chat/common/promptSyntax/hookSchema.js';
 export type IconPathDto = UriComponents | {
     light: UriComponents;
     dark: UriComponents;
@@ -352,7 +354,7 @@ export interface MainThreadTreeViewsShape extends IDisposable {
     $setBadge(treeViewId: string, badge: IViewBadge | undefined): void;
     $resolveDropFileData(destinationViewId: string, requestId: number, dataItemId: string): Promise<VSBuffer>;
     $disposeTree(treeViewId: string): Promise<void>;
-    $logResolveTreeNodeRetry(extensionId: string, retryCount: number, exhausted: boolean): void;
+    $logResolveTreeNodeFailure(extensionId: string): void;
 }
 export interface MainThreadDownloadServiceShape extends IDisposable {
     $download(uri: UriComponents, to: UriComponents): Promise<void>;
@@ -1180,6 +1182,7 @@ export interface ExtHostLanguageModelsShape {
     $provideTokenLength(modelId: string, value: string | IChatMessage, token: CancellationToken): Promise<number>;
     $isFileIgnored(handle: number, uri: UriComponents, token: CancellationToken): Promise<boolean>;
 }
+export type IChatContextItemDto = Dto<IChatContextItem>;
 export interface ExtHostChatContextShape {
     $provideWorkspaceChatContext(handle: number, token: CancellationToken): Promise<IChatContextItem[]>;
     $provideExplicitChatContext(handle: number, token: CancellationToken): Promise<IChatContextItem[]>;
@@ -1196,7 +1199,7 @@ export interface MainThreadChatContextShape extends IDisposable {
     $registerChatExplicitContextProvider(handle: number, id: string): void;
     $registerChatResourceContextProvider(handle: number, id: string, selector: IDocumentFilterDto[]): void;
     $unregisterChatContextProvider(handle: number): void;
-    $updateWorkspaceContextItems(handle: number, items: IChatContextItem[]): void;
+    $updateWorkspaceContextItems(handle: number, items: IChatContextItemDto[]): void;
     $executeChatContextItemCommand(itemHandle: number): Promise<void>;
 }
 export interface MainThreadEmbeddingsShape extends IDisposable {
@@ -2895,6 +2898,10 @@ export interface IStartMcpOptions {
     defaultCwd?: UriComponents;
     errorOnUserInteraction?: boolean;
 }
+export type IHookCommandDto = Dto<IHookCommand>;
+export interface ExtHostHooksShape {
+    $runHookCommand(hookCommand: IHookCommandDto, input: unknown, token: CancellationToken): Promise<IHookResult>;
+}
 export interface ExtHostMcpShape {
     $substituteVariables(workspaceFolder: UriComponents | undefined, value: McpServerLaunch.Serialized): Promise<McpServerLaunch.Serialized>;
     $resolveMcpLaunch(collectionId: string, label: string): Promise<McpServerLaunch.Serialized | undefined>;
@@ -2939,6 +2946,9 @@ export interface MainThreadMcpShape {
     $logMcpAuthSetup(data: IAuthMetadataSource): void;
 }
 export interface MainThreadDataChannelsShape extends IDisposable {
+}
+export interface MainThreadHooksShape extends IDisposable {
+    $executeHook(hookType: string, sessionResource: UriComponents, input: unknown, token: CancellationToken): Promise<IHookResult[]>;
 }
 export interface ExtHostDataChannelsShape {
     $onDidReceiveData(channelId: string, data: unknown): void;
@@ -3151,6 +3161,7 @@ export declare const MainContext: {
     MainThreadChatStatus: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadChatStatusShape>;
     MainThreadAiSettingsSearch: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadAiSettingsSearchShape>;
     MainThreadDataChannels: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadDataChannelsShape>;
+    MainThreadHooks: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadHooksShape>;
     MainThreadChatSessions: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadChatSessionsShape>;
     MainThreadChatOutputRenderer: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadChatOutputRendererShape>;
     MainThreadChatContext: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<MainThreadChatContextShape>;
@@ -3227,6 +3238,7 @@ export declare const ExtHostContext: {
     ExtHostTelemetry: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostTelemetryShape>;
     ExtHostLocalization: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostLocalizationShape>;
     ExtHostMcp: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostMcpShape>;
+    ExtHostHooks: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostHooksShape>;
     ExtHostDataChannels: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostDataChannelsShape>;
     ExtHostChatSessions: import("../../services/extensions/common/proxyIdentifier.js").ProxyIdentifier<ExtHostChatSessionsShape>;
 };

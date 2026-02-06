@@ -23,7 +23,7 @@ import { IEditorGroupsService } from "../../../../../services/editor/common/edit
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
 import { isSessionInProgressStatus } from "../agentSessionsModel.js";
-import { ChatViewPaneTarget, IChatWidgetService } from "../../chat.js";
+import { IChatWidgetService } from "../../chat.js";
 import { AgentSessionProviders } from "../agentSessions.js";
 import { IChatSessionsService } from "../../../common/chatSessionsService.js";
 import { IWorkbenchLayoutService } from "../../../../../services/layout/browser/layoutService.js";
@@ -60,6 +60,7 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
     this.agentSessionsService = agentSessionsService;
     this._isActive = false;
     this._isExiting = false;
+    this._isSwappingSessions = false;
     this._onDidChangeProjectionMode = this._register(new Emitter());
     this.onDidChangeProjectionMode = this._onDidChangeProjectionMode.event;
     this._onDidChangeActiveSession = this._register(new Emitter());
@@ -74,7 +75,7 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
     return this.configurationService.getValue(ChatConfiguration.AgentSessionProjectionEnabled) === true;
   }
   _checkForEmptyEditors() {
-    if (!this._isActive || this._isExiting) {
+    if (!this._isActive || this._isExiting || this._isSwappingSessions) {
       return;
     }
     const hasVisibleEditors = this.editorService.visibleEditors.length > 0;
@@ -102,7 +103,7 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
   async _openSessionInChatPanel(session) {
     session.setRead(true);
     await this.chatSessionsService.activateChatSessionItemProvider(session.providerType);
-    await this.chatWidgetService.openSession(session.resource, ChatViewPaneTarget, {
+    await this.chatWidgetService.openSession(session.resource, void 0, {
       title: { preferred: session.label },
       revealIfOpened: true
     });
@@ -159,19 +160,40 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
     });
     if (isSessionInProgressStatus(session.status)) {
       this.logService.trace("[AgentSessionProjection] Session is in progress, opening chat without projection mode");
+      if (this._isActive) {
+        await this.exitProjection({ startNewChat: false });
+      }
       await this._openSessionInChatPanel(session);
       return;
     }
     let hasUndecidedChanges = true;
+    let editingSessionExists = true;
     if (session.providerType === AgentSessionProviders.Local) {
       const editingSession = this.chatEditingService.getEditingSession(session.resource);
-      hasUndecidedChanges = editingSession?.entries.get().some(
-        (e) => e.state.get() === 0
-        /* ModifiedFileEntryState.Modified */
-      ) ?? false;
-      if (!hasUndecidedChanges) {
-        this.logService.trace("[AgentSessionProjection] Local session has no undecided changes, opening chat without projection mode");
+      editingSessionExists = !!editingSession;
+      if (editingSession) {
+        hasUndecidedChanges = editingSession.entries.get().some(
+          (e) => e.state.get() === 0
+          /* ModifiedFileEntryState.Modified */
+        );
+        if (!hasUndecidedChanges) {
+          this.logService.trace("[AgentSessionProjection] Local session has no undecided changes, opening chat without projection mode");
+        }
+      } else {
+        hasUndecidedChanges = false;
+        this.logService.trace("[AgentSessionProjection] Local session has no editing session yet");
       }
+    }
+    if (!hasUndecidedChanges && this._isActive && editingSessionExists) {
+      this.logService.trace("[AgentSessionProjection] Switching to session without changes while in projection mode, exiting projection");
+      await this.exitProjection({ startNewChat: false });
+      await this._openSessionInChatPanel(session);
+      return;
+    }
+    if (!hasUndecidedChanges && this._isActive && !editingSessionExists) {
+      this.logService.trace("[AgentSessionProjection] Switching to session without editing session while in projection mode, staying in projection");
+      await this._openSessionInChatPanel(session);
+      return;
     }
     if (hasUndecidedChanges) {
       if (!this._isActive && !this._preProjectionWorkingSet) {
@@ -182,42 +204,48 @@ let AgentSessionProjectionService = class AgentSessionProjectionService2 extends
           visibleEditorsBefore
         });
       }
-      if (this._isActive && this._activeSession) {
+      const isSwapping = this._isActive && this._activeSession;
+      if (isSwapping) {
+        this._isSwappingSessions = true;
         const previousSessionKey = this._activeSession.resource.toString();
         const previousWorkingSet = this.editorGroupsService.saveWorkingSet(`agent-session-projection-${previousSessionKey}`);
         this._sessionWorkingSets.set(previousSessionKey, previousWorkingSet);
       }
-      let filesOpened = false;
-      if (session.providerType === AgentSessionProviders.Local) {
-        await this.editorGroupsService.applyWorkingSet("empty", { preserveFocus: true });
-        filesOpened = true;
-      } else {
-        filesOpened = await this._openSessionFiles(session);
-      }
-      if (!filesOpened) {
-        this.logService.trace("[AgentSessionProjection] No files to display, opening chat without projection mode");
-        if (!this._isActive && this._preProjectionWorkingSet) {
-          await this.editorGroupsService.applyWorkingSet(this._preProjectionWorkingSet);
-          this.editorGroupsService.deleteWorkingSet(this._preProjectionWorkingSet);
-          this._preProjectionWorkingSet = void 0;
+      try {
+        let filesOpened = false;
+        if (session.providerType === AgentSessionProviders.Local) {
+          await this.editorGroupsService.applyWorkingSet("empty", { preserveFocus: true });
+          filesOpened = true;
+        } else {
+          filesOpened = await this._openSessionFiles(session);
         }
-      } else {
-        const wasActive = this._isActive;
-        this._isActive = true;
-        this._activeSession = session;
-        this._inProjectionModeContextKey.set(true);
-        this.layoutService.mainContainer.classList.add("agent-session-projection-active");
-        if (!wasActive) {
-          this._wasAuxiliaryBarMaximized = isAuxBarMaximized;
-          this.logService.trace("[AgentSessionProjection] captured auxiliary bar maximized state", {
-            wasAuxiliaryBarMaximized: this._wasAuxiliaryBarMaximized
-          });
+        if (!filesOpened) {
+          this.logService.trace("[AgentSessionProjection] No files to display, opening chat without projection mode");
+          if (!this._isActive && this._preProjectionWorkingSet) {
+            await this.editorGroupsService.applyWorkingSet(this._preProjectionWorkingSet);
+            this.editorGroupsService.deleteWorkingSet(this._preProjectionWorkingSet);
+            this._preProjectionWorkingSet = void 0;
+          }
+        } else {
+          const wasActive = this._isActive;
+          this._isActive = true;
+          this._activeSession = session;
+          this._inProjectionModeContextKey.set(true);
+          this.layoutService.mainContainer.classList.add("agent-session-projection-active");
+          if (!wasActive) {
+            this._wasAuxiliaryBarMaximized = isAuxBarMaximized;
+            this.logService.trace("[AgentSessionProjection] captured auxiliary bar maximized state", {
+              wasAuxiliaryBarMaximized: this._wasAuxiliaryBarMaximized
+            });
+          }
+          this.agentTitleBarStatusService.enterSessionMode(session.resource, session.label);
+          if (!wasActive) {
+            this._onDidChangeProjectionMode.fire(true);
+          }
+          this._onDidChangeActiveSession.fire(session);
         }
-        this.agentTitleBarStatusService.enterSessionMode(session.resource, session.label);
-        if (!wasActive) {
-          this._onDidChangeProjectionMode.fire(true);
-        }
-        this._onDidChangeActiveSession.fire(session);
+      } finally {
+        this._isSwappingSessions = false;
       }
     }
     await this._openSessionInChatPanel(session);

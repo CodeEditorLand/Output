@@ -6,7 +6,7 @@ import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { URI } from '../../../../../base/common/uri.js';
 import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
 import { IChatRequestVariableEntry } from '../attachments/chatVariableEntries.js';
-import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatCodeCitation, IChatContentReference, IChatFollowup, IChatMcpServersStarting, IChatProgressMessage, IChatQuestionCarousel, IChatResponseErrorDetails, IChatTask, IChatUsedContext } from '../chatService/chatService.js';
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, ChatRequestQueueKind, IChatCodeCitation, IChatContentReference, IChatFollowup, IChatMcpServersStarting, IChatProgressMessage, IChatQuestionCarousel, IChatResponseErrorDetails, IChatTask, IChatUsedContext } from '../chatService/chatService.js';
 import { IChatAgentCommand, IChatAgentData, IChatAgentNameService, IChatAgentResult } from '../participants/chatAgents.js';
 import { IParsedChatRequest } from '../requestParser/chatParserTypes.js';
 import { CodeBlockModelCollection } from '../widget/codeBlockModelCollection.js';
@@ -14,6 +14,7 @@ import { IChatModel, IChatProgressRenderableResponseContent, IChatRequestDisable
 import { IChatStreamStats } from './chatStreamStats.js';
 export declare function isRequestVM(item: unknown): item is IChatRequestViewModel;
 export declare function isResponseVM(item: unknown): item is IChatResponseViewModel;
+export declare function isPendingDividerVM(item: unknown): item is IChatPendingDividerViewModel;
 export declare function isChatTreeItem(item: unknown): item is IChatRequestViewModel | IChatResponseViewModel;
 export declare function assertIsResponseVM(item: unknown): asserts item is IChatResponseViewModel;
 export type IChatViewModelChangeEvent = IChatAddRequestEvent | IChangePlaceholderEvent | IChatSessionInitEvent | IChatSetHiddenEvent | null;
@@ -35,7 +36,7 @@ export interface IChatViewModel {
     readonly onDidDisposeModel: Event<void>;
     readonly onDidChange: Event<IChatViewModelChangeEvent>;
     readonly inputPlaceholder?: string;
-    getItems(): (IChatRequestViewModel | IChatResponseViewModel)[];
+    getItems(): (IChatRequestViewModel | IChatResponseViewModel | IChatPendingDividerViewModel)[];
     setInputPlaceholder(text: string): void;
     resetInputPlaceholder(): void;
     editing?: IChatRequestViewModel;
@@ -63,6 +64,8 @@ export interface IChatRequestViewModel {
     readonly shouldBeBlocked: IObservable<boolean>;
     readonly modelId?: string;
     readonly timestamp: number;
+    /** The kind of pending request, or undefined if not pending */
+    readonly pendingKind?: ChatRequestQueueKind;
 }
 export interface IChatResponseMarkdownRenderData {
     renderedWordCount: number;
@@ -172,6 +175,14 @@ export interface IChatResponseViewModel {
     setEditApplied(edit: IChatTextEditGroup, editCount: number): void;
     readonly shouldBeBlocked: IObservable<boolean>;
 }
+export interface IChatPendingDividerViewModel {
+    readonly kind: 'pendingDivider';
+    readonly id: string;
+    readonly sessionResource: URI;
+    readonly isComplete: true;
+    readonly dividerKind: ChatRequestQueueKind;
+    currentRenderedHeight: number | undefined;
+}
 export interface IChatViewModelOptions {
     /**
      * Maximum number of items to return from getItems().
@@ -197,7 +208,7 @@ export declare class ChatViewModel extends Disposable implements IChatViewModel 
     get sessionResource(): URI;
     constructor(_model: IChatModel, codeBlockModelCollection: CodeBlockModelCollection, _options: IChatViewModelOptions | undefined, instantiationService: IInstantiationService);
     private onAddResponse;
-    getItems(): (IChatRequestViewModel | IChatResponseViewModel)[];
+    getItems(): (IChatRequestViewModel | IChatResponseViewModel | IChatPendingDividerViewModel)[];
     private _editing;
     get editing(): IChatRequestViewModel | undefined;
     setEditing(editing: IChatRequestViewModel | undefined): void;
@@ -205,6 +216,7 @@ export declare class ChatViewModel extends Disposable implements IChatViewModel 
 }
 export declare class ChatRequestViewModel implements IChatRequestViewModel {
     private readonly _model;
+    private readonly _pendingKind?;
     get id(): string;
     /**
      * An ID that changes when the request should be re-rendered.
@@ -228,7 +240,8 @@ export declare class ChatRequestViewModel implements IChatRequestViewModel {
     currentRenderedHeight: number | undefined;
     get modelId(): string | undefined;
     get timestamp(): number;
-    constructor(_model: IChatRequestModel);
+    get pendingKind(): ChatRequestQueueKind | undefined;
+    constructor(_model: IChatRequestModel, _pendingKind?: ChatRequestQueueKind | undefined);
 }
 export declare class ChatResponseViewModel extends Disposable implements IChatResponseViewModel {
     private readonly _model;

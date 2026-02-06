@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { findLastIdx } from "../../../../../base/common/arraysFind.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { basename } from "../../../../../base/common/resources.js";
 import { URI } from "../../../../../base/common/uri.js";
@@ -11,7 +10,7 @@ function annotateSpecialMarkdownContent(response) {
   let refIdPool = 0;
   const result = [];
   for (const item of response) {
-    const previousItemIndex = findLastIdx(result, (p) => p.kind !== "textEditGroup" && p.kind !== "undoStop");
+    const previousItemIndex = result.findLastIndex((p) => p.kind !== "textEditGroup" && p.kind !== "undoStop");
     const previousItem = result[previousItemIndex];
     if (item.kind === "inlineReference") {
       let label = item.name;

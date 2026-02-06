@@ -13,6 +13,7 @@ import { IChatAgentImplementation, IChatAgentRequest, IChatAgentResult } from '.
 import { ChatEntitlementContext, IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 import { IChatProgress } from '../../common/chatService/chatService.js';
 import { ChatAgentLocation, ChatModeKind } from '../../common/constants.js';
+import { IViewsService } from '../../../../services/views/common/viewsService.js';
 import { CodeActionList, Command, NewSymbolName, NewSymbolNameTriggerKind } from '../../../../../editor/common/languages.js';
 import { ITextModel } from '../../../../../editor/common/model.js';
 import { IRange, Range } from '../../../../../editor/common/core/range.js';
@@ -29,6 +30,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private readonly environmentService;
     private readonly workspaceTrustManagementService;
     private readonly chatEntitlementService;
+    private readonly viewsService;
     static registerDefaultAgents(instantiationService: IInstantiationService, location: ChatAgentLocation, mode: ChatModeKind, context: ChatEntitlementContext, controller: Lazy<ChatSetupController>): {
         agent: SetupAgent;
         disposable: IDisposable;
@@ -41,7 +43,7 @@ export declare class SetupAgent extends Disposable implements IChatAgentImplemen
     private readonly _onUnresolvableError;
     readonly onUnresolvableError: Event<void>;
     private readonly pendingForwardedRequests;
-    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService);
+    constructor(context: ChatEntitlementContext, controller: Lazy<ChatSetupController>, location: ChatAgentLocation, instantiationService: IInstantiationService, logService: ILogService, telemetryService: ITelemetryService, environmentService: IWorkbenchEnvironmentService, workspaceTrustManagementService: IWorkspaceTrustManagementService, chatEntitlementService: IChatEntitlementService, viewsService: IViewsService);
     private registerCommands;
     invoke(request: IChatAgentRequest, progress: (parts: IChatProgress[]) => void): Promise<IChatAgentResult>;
     private doInvoke;

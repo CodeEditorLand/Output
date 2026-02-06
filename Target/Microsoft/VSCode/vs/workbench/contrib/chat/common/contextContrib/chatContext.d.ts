@@ -3,8 +3,9 @@ import { ThemeIcon } from '../../../../../base/common/themables.js';
 import { URI } from '../../../../../base/common/uri.js';
 import { IMarkdownString } from '../../../../../base/common/htmlContent.js';
 export interface IChatContextItem {
-    icon: ThemeIcon;
-    label: string;
+    icon?: ThemeIcon;
+    label?: string;
+    resourceUri?: URI;
     modelDescription?: string;
     tooltip?: IMarkdownString;
     handle: number;

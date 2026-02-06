@@ -138,6 +138,7 @@ export declare class InlineEditItem extends InlineSuggestionItemBase {
     private readonly _edits;
     private readonly _lastChangePartOfInlineEdit;
     private readonly _inlineEditModelVersion;
+    static createForTest(textModel: TextModelValueReference, range: Range, newText: string): InlineEditItem;
     static create(data: InlineSuggestData, textModel: TextModelValueReference, shouldDiffEdit?: boolean): InlineEditItem;
     readonly snippetInfo: SnippetInfo | undefined;
     readonly additionalTextEdits: readonly ISingleEditOperation[];

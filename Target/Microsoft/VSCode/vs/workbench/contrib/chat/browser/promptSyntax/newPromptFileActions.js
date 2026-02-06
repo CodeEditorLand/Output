@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isEqual } from "../../../../../base/common/resources.js";
 import { URI } from "../../../../../base/common/uri.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
 import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
 import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
 import { localize, localize2 } from "../../../../../nls.js";
@@ -21,7 +22,11 @@ import { CHAT_CATEGORY } from "../actions/chatActions.js";
 import { askForPromptFileName } from "./pickers/askForPromptName.js";
 import { askForPromptSourceFolder } from "./pickers/askForPromptSourceFolder.js";
 import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
-import { getCleanPromptName, SKILL_FILENAME } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { getCleanPromptName, SKILL_FILENAME, HOOKS_FILENAME } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { HOOK_TYPES } from "../../common/promptSyntax/hookSchema.js";
+import { findHookCommandSelection } from "./hookUtils.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
 class AbstractNewPromptFileAction extends Action2 {
   static {
     __name(this, "AbstractNewPromptFileAction");
@@ -143,6 +148,11 @@ function getDefaultContentSnippet(promptType, name) {
         `---`,
         `\${3:Define the functionality provided by this skill, including detailed instructions and examples}`
       ].join("\n");
+    case PromptsType.hook:
+      return JSON.stringify({
+        version: 1,
+        hooks: {}
+      }, null, 4);
     default:
       throw new Error(`Unsupported prompt type: ${promptType}`);
   }
@@ -152,6 +162,7 @@ const NEW_PROMPT_COMMAND_ID = "workbench.command.new.prompt";
 const NEW_INSTRUCTIONS_COMMAND_ID = "workbench.command.new.instructions";
 const NEW_AGENT_COMMAND_ID = "workbench.command.new.agent";
 const NEW_SKILL_COMMAND_ID = "workbench.command.new.skill";
+const NEW_HOOK_COMMAND_ID = "workbench.command.new.hook";
 class NewPromptFileAction extends AbstractNewPromptFileAction {
   static {
     __name(this, "NewPromptFileAction");
@@ -248,6 +259,132 @@ class NewSkillFileAction extends Action2 {
     }
   }
 }
+class NewHookFileAction extends Action2 {
+  static {
+    __name(this, "NewHookFileAction");
+  }
+  constructor() {
+    super({
+      id: NEW_HOOK_COMMAND_ID,
+      title: localize("commands.new.hook.local.title", "New Hook..."),
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.CommandPalette,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const fileService = accessor.get(IFileService);
+    const instaService = accessor.get(IInstantiationService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const bulkEditService = accessor.get(IBulkEditService);
+    const selectedFolder = await instaService.invokeFunction(askForPromptSourceFolder, PromptsType.hook);
+    if (!selectedFolder) {
+      return;
+    }
+    const hookTypeItems = HOOK_TYPES.map((hookType) => ({
+      id: hookType.id,
+      label: hookType.label,
+      description: hookType.description
+    }));
+    const selectedHookType = await quickInputService.pick(hookTypeItems, {
+      placeHolder: localize("commands.new.hook.type.placeholder", "Select a hook type to add"),
+      title: localize("commands.new.hook.type.title", "Add Hook")
+    });
+    if (!selectedHookType) {
+      return;
+    }
+    await fileService.createFolder(selectedFolder.uri);
+    const hookFileUri = URI.joinPath(selectedFolder.uri, HOOKS_FILENAME);
+    let hooksContent;
+    const fileExists = await fileService.exists(hookFileUri);
+    if (fileExists) {
+      const existingContent = await fileService.readFile(hookFileUri);
+      try {
+        hooksContent = JSON.parse(existingContent.value.toString());
+        if (!hooksContent.hooks) {
+          hooksContent.hooks = {};
+        }
+      } catch {
+        const notificationService = accessor.get(INotificationService);
+        notificationService.error(localize("commands.new.hook.parseError", "Failed to parse existing hooks.json. Please fix the JSON syntax errors and try again."));
+        await editorService.openEditor({ resource: hookFileUri });
+        return;
+      }
+    } else {
+      hooksContent = { version: 1, hooks: {} };
+    }
+    const hookTypeId = selectedHookType.id;
+    const newHookEntry = {
+      type: "command",
+      command: ""
+    };
+    let newHookIndex;
+    if (!hooksContent.hooks[hookTypeId]) {
+      hooksContent.hooks[hookTypeId] = [newHookEntry];
+      newHookIndex = 0;
+    } else {
+      hooksContent.hooks[hookTypeId].push(newHookEntry);
+      newHookIndex = hooksContent.hooks[hookTypeId].length - 1;
+    }
+    const jsonContent = JSON.stringify(hooksContent, null, "	");
+    const existingEditor = editorService.editors.find((e) => isEqual(e.resource, hookFileUri));
+    if (existingEditor) {
+      await editorService.openEditor({
+        resource: hookFileUri,
+        options: {
+          pinned: false
+        }
+      });
+      const editor = getCodeEditor(editorService.activeTextEditorControl);
+      if (editor && editor.hasModel() && isEqual(editor.getModel().uri, hookFileUri)) {
+        const model = editor.getModel();
+        model.pushEditOperations([], [{
+          range: model.getFullModelRange(),
+          text: jsonContent
+        }], () => null);
+        const selection = findHookCommandSelection(jsonContent, hookTypeId, newHookIndex, "command");
+        if (selection && selection.endLineNumber !== void 0 && selection.endColumn !== void 0) {
+          editor.setSelection({
+            startLineNumber: selection.startLineNumber,
+            startColumn: selection.startColumn,
+            endLineNumber: selection.endLineNumber,
+            endColumn: selection.endColumn
+          });
+          editor.revealLineInCenter(selection.startLineNumber);
+        }
+      }
+    } else {
+      if (!fileExists) {
+        await fileService.writeFile(hookFileUri, VSBuffer.fromString(jsonContent));
+      } else {
+        await editorService.openEditor({
+          resource: hookFileUri,
+          options: { pinned: false }
+        });
+        await bulkEditService.apply([
+          new ResourceTextEdit(hookFileUri, { range: new Range(1, 1, Number.MAX_SAFE_INTEGER, 1), text: jsonContent })
+        ], { label: localize("addHook", "Add Hook") });
+      }
+      const selection = findHookCommandSelection(jsonContent, hookTypeId, newHookIndex, "command");
+      await editorService.openEditor({
+        resource: hookFileUri,
+        options: {
+          selection,
+          pinned: false
+        }
+      });
+    }
+  }
+}
 class NewUntitledPromptFileAction extends Action2 {
   static {
     __name(this, "NewUntitledPromptFileAction");
@@ -291,11 +428,13 @@ function registerNewPromptFileActions() {
   registerAction2(NewInstructionsFileAction);
   registerAction2(NewAgentFileAction);
   registerAction2(NewSkillFileAction);
+  registerAction2(NewHookFileAction);
   registerAction2(NewUntitledPromptFileAction);
 }
 __name(registerNewPromptFileActions, "registerNewPromptFileActions");
 export {
   NEW_AGENT_COMMAND_ID,
+  NEW_HOOK_COMMAND_ID,
   NEW_INSTRUCTIONS_COMMAND_ID,
   NEW_PROMPT_COMMAND_ID,
   NEW_SKILL_COMMAND_ID,

@@ -14,7 +14,7 @@ var __param = function(paramIndex, decorator) {
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../../nls.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IChatService } from "../../../common/chatService/chatService.js";
+import { ChatSendResult, IChatService } from "../../../common/chatService/chatService.js";
 import { isResponseVM } from "../../../common/model/chatViewModel.js";
 import { IChatWidgetService } from "../../chat.js";
 import { SimpleChatConfirmationWidget } from "./chatConfirmationWidget.js";
@@ -49,7 +49,8 @@ let ChatConfirmationContentPart = class ChatConfirmationContentPart2 extends Dis
         options.modeInfo = widget?.input.currentModeInfo;
         options.location = widget?.location;
         Object.assign(options, widget?.getModeRequestOptions());
-        if (await this.chatService.sendRequest(element.sessionResource, prompt, options)) {
+        const result = await this.chatService.sendRequest(element.sessionResource, prompt, options);
+        if (ChatSendResult.isSent(result)) {
           confirmation.isUsed = true;
           confirmationWidget.setShowButtons(false);
         }

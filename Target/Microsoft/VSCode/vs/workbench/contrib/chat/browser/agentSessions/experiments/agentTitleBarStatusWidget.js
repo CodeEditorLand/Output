@@ -514,7 +514,7 @@ let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseAct
     }, void 0, void 0, void 0, void 0);
     const dropdownAction = toAction({
       id: "agentStatus.sparkle.dropdown",
-      label: "",
+      label: localize("agentStatus.sparkle.dropdown", "More Actions"),
       run() {
       }
     });

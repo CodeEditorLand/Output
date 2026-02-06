@@ -17,6 +17,7 @@ import { Disposable, DisposableStore } from "../../../../../../../base/common/li
 import { autorun, derived } from "../../../../../../../base/common/observable.js";
 import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
 import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { IChatTodoListService } from "../../../../common/tools/chatTodoListService.js";
 import { isToolResultInputOutputDetails, isToolResultOutputDetails, ToolInvocationPresentation } from "../../../../common/tools/languageModelToolsService.js";
 import { ExtensionsInstallConfirmationWidgetSubPart } from "./chatExtensionsInstallToolSubPart.js";
 import { ChatInputOutputMarkdownProgressPart } from "./chatInputOutputMarkdownProgressPart.js";
@@ -43,7 +44,7 @@ let ChatToolInvocationPart = class ChatToolInvocationPart2 extends Disposable {
   get codeblocksPartId() {
     return this.subPart?.codeblocksPartId;
   }
-  constructor(toolInvocation, context, renderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, codeBlockStartIndex, instantiationService) {
+  constructor(toolInvocation, context, renderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, codeBlockStartIndex, instantiationService, chatTodoListService) {
     super();
     this.toolInvocation = toolInvocation;
     this.context = context;
@@ -55,10 +56,24 @@ let ChatToolInvocationPart = class ChatToolInvocationPart2 extends Disposable {
     this.announcedToolProgressKeys = announcedToolProgressKeys;
     this.codeBlockStartIndex = codeBlockStartIndex;
     this.instantiationService = instantiationService;
+    this.chatTodoListService = chatTodoListService;
     this._onDidRemount = this._register(new Emitter());
     this.domNode = dom.$(".chat-tool-invocation-part");
     if (toolInvocation.presentation === "hidden") {
       return;
+    }
+    if (toolInvocation.toolSpecificData?.kind === "todoList") {
+      const sessionResource = context.element.sessionResource;
+      const todos = toolInvocation.toolSpecificData.todoList.map((todo, index) => {
+        const parsedId = parseInt(todo.id, 10);
+        const id = Number.isNaN(parsedId) ? index + 1 : parsedId;
+        return {
+          id,
+          title: todo.title,
+          status: todo.status
+        };
+      });
+      this.chatTodoListService.setTodos(sessionResource, todos);
     }
     if (toolInvocation.kind === "toolInvocation") {
       const initialState = toolInvocation.state.get().type;
@@ -173,7 +188,8 @@ let ChatToolInvocationPart = class ChatToolInvocationPart2 extends Disposable {
   }
 };
 ChatToolInvocationPart = __decorate([
-  __param(9, IInstantiationService)
+  __param(9, IInstantiationService),
+  __param(10, IChatTodoListService)
 ], ChatToolInvocationPart);
 export {
   ChatToolInvocationPart

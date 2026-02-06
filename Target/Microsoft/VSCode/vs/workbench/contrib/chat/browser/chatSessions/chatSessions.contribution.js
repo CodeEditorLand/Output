@@ -323,7 +323,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
         }
       }
     }));
-    this._register(this.onDidChangeSessionItems((chatSessionType) => {
+    this._register(this.onDidChangeSessionItems(({ chatSessionType }) => {
       this.updateInProgressStatus(chatSessionType).catch((error) => {
         this._logService.warn(`Failed to update progress status for '${chatSessionType}':`, error);
       });
@@ -582,7 +582,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
         this._onDidChangeItemsProviders.fire(provider);
       }
       for (const { contribution } of this._contributions.values()) {
-        this._onDidChangeSessionItems.fire(contribution.type);
+        this._onDidChangeSessionItems.fire({ chatSessionType: contribution.type });
       }
     }
     this._updateHasCanDelegateProvidersContextKey();
@@ -658,6 +658,9 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     return this._isContributionAvailable(contribution) ? contribution : void 0;
   }
   async activateChatSessionItemProvider(chatViewType) {
+    await this.doActivateChatSessionItemProvider(chatViewType);
+  }
+  async doActivateChatSessionItemProvider(chatViewType) {
     await this._extensionService.whenInstalledExtensionsRegistered();
     const resolvedType = this._resolveToPrimaryType(chatViewType);
     if (resolvedType) {
@@ -693,7 +696,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
       if (providersToResolve && !providersToResolve.includes(contrib.type)) {
         continue;
       }
-      const provider = await this.activateChatSessionItemProvider(contrib.type);
+      const provider = await this.doActivateChatSessionItemProvider(contrib.type);
       if (!provider) {
         if (providersToResolve?.includes(contrib.type)) {
           this._logService.trace(`[ChatSessionsService] No enabled provider found for chat session type ${contrib.type}`);
@@ -734,7 +737,7 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
     this._onDidChangeItemsProviders.fire(provider);
     const disposables = new DisposableStore();
     disposables.add(provider.onDidChangeChatSessionItems(() => {
-      this._onDidChangeSessionItems.fire(chatSessionType);
+      this._onDidChangeSessionItems.fire({ chatSessionType });
     }));
     this.updateInProgressStatus(chatSessionType).catch((error) => {
       this._logService.warn(`Failed to update initial progress status for '${chatSessionType}':`, error);
@@ -873,9 +876,6 @@ let ChatSessionsService = class ChatSessionsService2 extends Disposable {
   setSessionOption(sessionResource, optionId, value) {
     const session = this._sessions.get(sessionResource);
     return !!session?.setOption(optionId, value);
-  }
-  notifySessionItemsChanged(chatSessionType) {
-    this._onDidChangeSessionItems.fire(chatSessionType);
   }
   /**
    * Store option groups for a session type

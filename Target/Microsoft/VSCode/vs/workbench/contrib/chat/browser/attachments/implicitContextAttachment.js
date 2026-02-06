@@ -16,11 +16,13 @@ import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent
 import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { basename, dirname } from "../../../../../base/common/resources.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { isLocation } from "../../../../../editor/common/languages.js";
+import { getIconClasses } from "../../../../../editor/common/services/getIconClasses.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
 import { localize } from "../../../../../nls.js";
@@ -146,7 +148,7 @@ let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 ext
     let markdownTooltip;
     if (isStringImplicitContextValue(context.value)) {
       markdownTooltip = context.value.tooltip;
-      title = this.renderString(label, context.name, context.icon, markdownTooltip, localize("openFile", "Current file context"));
+      title = this.renderString(label, context.name, context.icon, context.value.resourceUri, markdownTooltip, localize("openFile", "Current file context"));
     } else {
       title = this.renderResource(context.value, context.isSelection, context.enabled, label);
     }
@@ -172,9 +174,15 @@ let ImplicitContextAttachmentWidget = class ImplicitContextAttachmentWidget2 ext
       });
     }));
   }
-  renderString(resourceLabel, name, icon, markdownTooltip, defaultTitle) {
+  renderString(resourceLabel, name, icon, resourceUri, markdownTooltip, defaultTitle) {
     const title = markdownTooltip ? void 0 : defaultTitle;
-    resourceLabel.setLabel(name, void 0, { iconPath: icon, title });
+    if (icon && (ThemeIcon.isFile(icon) || ThemeIcon.isFolder(icon)) && resourceUri) {
+      const fileKind = ThemeIcon.isFolder(icon) ? FileKind.FOLDER : FileKind.FILE;
+      const iconClasses = getIconClasses(this.modelService, this.languageService, resourceUri, fileKind);
+      resourceLabel.setLabel(name, void 0, { extraClasses: iconClasses, title });
+    } else {
+      resourceLabel.setLabel(name, void 0, { iconPath: icon, title });
+    }
     return title;
   }
   renderResource(attachmentValue, isSelection, enabled, label) {
@@ -217,6 +225,7 @@ ${uriLabel}`;
         icon: attachment.value.icon,
         modelDescription: attachment.modelDescription,
         uri: attachment.value.uri,
+        resourceUri: attachment.value.resourceUri,
         tooltip: attachment.value.tooltip,
         commandId: attachment.value.commandId,
         handle: attachment.value.handle

@@ -73,8 +73,12 @@ export type AvailableForDownload = {
 };
 export type Downloading = {
     type: StateType.Downloading;
+    update?: IUpdate;
     explicit: boolean;
     overwrite: boolean;
+    downloadedBytes?: number;
+    totalBytes?: number;
+    startTime?: number;
 };
 export type Downloaded = {
     type: StateType.Downloaded;
@@ -94,6 +98,7 @@ export type Ready = {
 };
 export type Overwriting = {
     type: StateType.Overwriting;
+    update: IUpdate;
     explicit: boolean;
 };
 export type State = Uninitialized | Disabled | Idle | CheckingForUpdates | AvailableForDownload | Downloading | Downloaded | Updating | Ready | Overwriting;
@@ -103,11 +108,11 @@ export declare const State: {
     Idle: (updateType: UpdateType, error?: string) => Idle;
     CheckingForUpdates: (explicit: boolean) => CheckingForUpdates;
     AvailableForDownload: (update: IUpdate) => AvailableForDownload;
-    Downloading: (explicit: boolean, overwrite: boolean) => Downloading;
+    Downloading: (update: IUpdate | undefined, explicit: boolean, overwrite: boolean, downloadedBytes?: number, totalBytes?: number, startTime?: number) => Downloading;
     Downloaded: (update: IUpdate, explicit: boolean, overwrite: boolean) => Downloaded;
     Updating: (update: IUpdate) => Updating;
     Ready: (update: IUpdate, explicit: boolean, overwrite: boolean) => Ready;
-    Overwriting: (explicit: boolean) => Overwriting;
+    Overwriting: (update: IUpdate, explicit: boolean) => Overwriting;
 };
 export interface IAutoUpdater extends Event.NodeEventEmitter {
     setFeedURL(url: string): void;

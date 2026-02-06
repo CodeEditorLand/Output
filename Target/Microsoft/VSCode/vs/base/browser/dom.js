@@ -1255,30 +1255,6 @@ function triggerUpload() {
   });
 }
 __name(triggerUpload, "triggerUpload");
-function sanitizeNotificationText(text) {
-  return text.replace(/`/g, "'");
-}
-__name(sanitizeNotificationText, "sanitizeNotificationText");
-async function triggerNotification(message, options) {
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") {
-    return;
-  }
-  const disposables = new DisposableStore();
-  const notification = new Notification(sanitizeNotificationText(message), {
-    body: options?.detail ? sanitizeNotificationText(options.detail) : void 0,
-    requireInteraction: options?.sticky
-  });
-  const onClick = new event.Emitter();
-  disposables.add(addDisposableListener(notification, "click", () => onClick.fire()));
-  disposables.add(addDisposableListener(notification, "close", () => disposables.dispose()));
-  disposables.add(toDisposable(() => notification.close()));
-  return {
-    onClick: onClick.event,
-    dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
-  };
-}
-__name(triggerNotification, "triggerNotification");
 var DetectedFullscreenMode;
 (function(DetectedFullscreenMode2) {
   DetectedFullscreenMode2[DetectedFullscreenMode2["DOCUMENT"] = 1] = "DOCUMENT";
@@ -2113,7 +2089,6 @@ export {
   trackAttributes,
   trackFocus,
   triggerDownload,
-  triggerNotification,
   triggerUpload,
   windowOpenNoOpener,
   windowOpenPopup,

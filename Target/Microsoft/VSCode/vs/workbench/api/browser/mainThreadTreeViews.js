@@ -121,11 +121,9 @@ let MainThreadTreeViews = class MainThreadTreeViews2 extends Disposable {
     }
     this._dataProviders.deleteAndDispose(treeViewId);
   }
-  $logResolveTreeNodeRetry(extensionId, retryCount, exhausted) {
-    this.telemetryService.publicLog2("treeView.resolveRetry", {
-      extensionId,
-      retryCount,
-      exhausted
+  $logResolveTreeNodeFailure(extensionId) {
+    this.telemetryService.publicLog2("treeView.resolveFailure", {
+      extensionId
     });
   }
   async reveal(treeView, dataProvider, itemIn, parentChain, options) {

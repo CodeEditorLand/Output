@@ -37,7 +37,7 @@ import { IChatAgentService } from "../../common/participants/chatAgents.js";
 import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
 import { chatEditingWidgetFileStateContextKey } from "../../common/editing/chatEditingService.js";
 import { ChatRequestParser } from "../../common/requestParser/chatRequestParser.js";
-import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatSendResult, IChatService } from "../../common/chatService/chatService.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { ChatAgentLocation } from "../../common/constants.js";
 import { PROMPT_LANGUAGE_ID } from "../../common/promptSyntax/promptTypes.js";
@@ -94,7 +94,7 @@ let ChatContinueInSessionActionItem = ChatContinueInSessionActionItem_1 = class 
     super(action, {
       actionProvider: ChatContinueInSessionActionItem_1.actionProvider(chatSessionsService, instantiationService, location),
       actionBarActions: ChatContinueInSessionActionItem_1.getActionBarActions(openerService),
-      reporter: { name: "ChatContinueInSession", includeOptions: true }
+      reporter: { id: "ChatContinueInSession", name: "ChatContinueInSession", includeOptions: true }
     }, actionWidgetService, keybindingService, contextKeyService, telemetryService);
     this.location = location;
     this.contextKeyService = contextKeyService;
@@ -118,11 +118,11 @@ let ChatContinueInSessionActionItem = ChatContinueInSessionActionItem_1 = class 
         const actions = [];
         const contributions = chatSessionsService.getAllChatSessionContributions();
         const backgroundContrib = contributions.find((contrib) => contrib.type === AgentSessionProviders.Background);
-        if (backgroundContrib && backgroundContrib.canDelegate !== false) {
+        if (backgroundContrib && backgroundContrib.canDelegate) {
           actions.push(this.toAction(AgentSessionProviders.Background, backgroundContrib, instantiationService, location));
         }
         const cloudContrib = contributions.find((contrib) => contrib.type === AgentSessionProviders.Cloud);
-        if (cloudContrib && cloudContrib.canDelegate !== false) {
+        if (cloudContrib && cloudContrib.canDelegate) {
           actions.push(this.toAction(AgentSessionProviders.Cloud, cloudContrib, instantiationService, location));
         }
         if (actions.length === 0) {
@@ -258,14 +258,14 @@ class CreateRemoteAgentJobAction {
       const parsedRequest = requestParser.parseChatRequest(sessionResource, userPrompt, ChatAgentLocation.Chat);
       const addedRequest = chatModel.addRequest(parsedRequest, { variables: attachedContext.asArray() }, 0, void 0, defaultAgent);
       await chatService.removeRequest(sessionResource, addedRequest.id);
-      const requestData = await chatService.sendRequest(sessionResource, userPrompt, {
+      const sendResult = await chatService.sendRequest(sessionResource, userPrompt, {
         agentIdSilent: continuationTargetType,
         attachedContext: attachedContext.asArray(),
         userSelectedModelId: widget.input.currentLanguageModel,
         ...widget.getModeRequestOptions()
       });
-      if (requestData) {
-        await widget.handleDelegationExitIfNeeded(defaultAgent, requestData.agent);
+      if (ChatSendResult.isSent(sendResult)) {
+        await widget.handleDelegationExitIfNeeded(defaultAgent, sendResult.data.agent);
       }
     } catch (e) {
       console.error("Error creating remote coding agent job", e);

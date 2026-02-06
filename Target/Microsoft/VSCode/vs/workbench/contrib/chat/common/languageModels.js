@@ -371,9 +371,9 @@ let LanguageModelsService = class LanguageModelsService2 {
     return model;
   }
   lookupLanguageModelByQualifiedName(referenceName) {
-    for (const model of this._modelCache.values()) {
+    for (const [identifier, model] of this._modelCache.entries()) {
       if (ILanguageModelChatMetadata.matchesQualifiedName(referenceName, model)) {
-        return model;
+        return { metadata: model, identifier };
       }
     }
     return void 0;

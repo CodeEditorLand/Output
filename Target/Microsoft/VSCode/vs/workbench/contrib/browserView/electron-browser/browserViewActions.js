@@ -51,14 +51,14 @@ class NewTabAction extends Action2 {
       title: localize2("browser.newTabAction", "New Tab"),
       category: BrowserCategory,
       f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: ActionGroupTabs,
         order: 1
       },
+      // When already in a browser, Ctrl/Cmd + T opens a new tab
       keybinding: {
-        // When already in a browser, Ctrl/Cmd + T opens a new tab
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200 + 50,
         // Priority over search actions
         primary: 2048 | 50
@@ -86,15 +86,14 @@ class GoBackAction extends Action2 {
       title: localize2("browser.goBackAction", "Go Back"),
       category: BrowserCategory,
       icon: Codicon.arrowLeft,
-      f1: false,
+      f1: true,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_CAN_GO_BACK),
       menu: {
         id: MenuId.BrowserNavigationToolbar,
         group: "navigation",
         order: 1
       },
-      precondition: CONTEXT_BROWSER_CAN_GO_BACK,
       keybinding: {
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200 + 50,
         // Priority over editor navigation
         primary: 512 | 15,
@@ -129,16 +128,15 @@ class GoForwardAction extends Action2 {
       title: localize2("browser.goForwardAction", "Go Forward"),
       category: BrowserCategory,
       icon: Codicon.arrowRight,
-      f1: false,
+      f1: true,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_CAN_GO_FORWARD),
       menu: {
         id: MenuId.BrowserNavigationToolbar,
         group: "navigation",
         order: 2,
         when: CONTEXT_BROWSER_CAN_GO_FORWARD
       },
-      precondition: CONTEXT_BROWSER_CAN_GO_FORWARD,
       keybinding: {
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200 + 50,
         // Priority over editor navigation
         primary: 512 | 17,
@@ -173,7 +171,8 @@ class ReloadAction extends Action2 {
       title: localize2("browser.reloadAction", "Reload"),
       category: BrowserCategory,
       icon: Codicon.refresh,
-      f1: false,
+      f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       menu: {
         id: MenuId.BrowserNavigationToolbar,
         group: "navigation",
@@ -210,9 +209,9 @@ class FocusUrlInputAction extends Action2 {
       id: FocusUrlInputAction.ID,
       title: localize2("browser.focusUrlInputAction", "Focus URL Input"),
       category: BrowserCategory,
-      f1: false,
+      f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       keybinding: {
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200,
         primary: 2048 | 42
       }
@@ -236,9 +235,10 @@ class AddElementToChatAction extends Action2 {
     super({
       id: AddElementToChatAction.ID,
       title: localize2("browser.addElementToChatAction", "Add Element to Chat"),
+      category: BrowserCategory,
       icon: Codicon.inspect,
-      f1: false,
-      precondition: enabled,
+      f1: true,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, enabled),
       toggled: CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE,
       menu: {
         id: MenuId.BrowserActionsToolbar,
@@ -247,12 +247,11 @@ class AddElementToChatAction extends Action2 {
         when: enabled
       },
       keybinding: [{
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200 + 50,
         // Priority over terminal
         primary: 2048 | 1024 | 33
       }, {
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE),
+        when: CONTEXT_BROWSER_ELEMENT_SELECTION_ACTIVE,
         weight: 200,
         primary: 9
         /* KeyCode.Escape */
@@ -278,7 +277,8 @@ class ToggleDevToolsAction extends Action2 {
       title: localize2("browser.toggleDevToolsAction", "Toggle Developer Tools"),
       category: BrowserCategory,
       icon: Codicon.console,
-      f1: false,
+      f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       toggled: ContextKeyExpr.equals(CONTEXT_BROWSER_DEVTOOLS_OPEN.key, true),
       menu: {
         id: MenuId.BrowserActionsToolbar,
@@ -286,7 +286,6 @@ class ToggleDevToolsAction extends Action2 {
         order: 5
       },
       keybinding: {
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 200,
         primary: 70
         /* KeyCode.F12 */
@@ -312,7 +311,8 @@ class OpenInExternalBrowserAction extends Action2 {
       title: localize2("browser.openExternalAction", "Open in External Browser"),
       category: BrowserCategory,
       icon: Codicon.linkExternal,
-      f1: false,
+      f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: ActionGroupPage,
@@ -398,7 +398,7 @@ class ClearEphemeralBrowserStorageAction extends Action2 {
       category: BrowserCategory,
       icon: Codicon.clearAll,
       f1: true,
-      precondition: BROWSER_EDITOR_ACTIVE,
+      precondition: ContextKeyExpr.equals(CONTEXT_BROWSER_STORAGE_SCOPE.key, BrowserViewStorageScope.Ephemeral),
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: "3_settings",
@@ -451,14 +451,14 @@ class ShowBrowserFindAction extends Action2 {
       id: ShowBrowserFindAction.ID,
       title: localize2("browser.showFindAction", "Find in Page"),
       category: BrowserCategory,
-      f1: false,
+      f1: true,
+      precondition: BROWSER_EDITOR_ACTIVE,
       menu: {
         id: MenuId.BrowserActionsToolbar,
         group: ActionGroupPage,
         order: 1
       },
       keybinding: {
-        when: BROWSER_EDITOR_ACTIVE,
         weight: 100,
         primary: 2048 | 36
         /* KeyCode.KeyF */
@@ -484,8 +484,8 @@ class HideBrowserFindAction extends Action2 {
       title: localize2("browser.hideFindAction", "Close Find Widget"),
       category: BrowserCategory,
       f1: false,
+      precondition: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE),
       keybinding: {
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE),
         weight: 100 + 5,
         primary: 9
         /* KeyCode.Escape */
@@ -512,13 +512,14 @@ class BrowserFindNextAction extends Action2 {
       title: localize2("browser.findNextAction", "Find Next"),
       category: BrowserCategory,
       f1: false,
+      precondition: BROWSER_EDITOR_ACTIVE,
       keybinding: [{
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED),
+        when: CONTEXT_BROWSER_FIND_WIDGET_FOCUSED,
         weight: 100,
         primary: 3
         /* KeyCode.Enter */
       }, {
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE),
+        when: CONTEXT_BROWSER_FIND_WIDGET_VISIBLE,
         weight: 100,
         primary: 61,
         mac: {
@@ -548,13 +549,14 @@ class BrowserFindPreviousAction extends Action2 {
       title: localize2("browser.findPreviousAction", "Find Previous"),
       category: BrowserCategory,
       f1: false,
+      precondition: BROWSER_EDITOR_ACTIVE,
       keybinding: [{
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_FOCUSED),
+        when: CONTEXT_BROWSER_FIND_WIDGET_FOCUSED,
         weight: 100,
         primary: 1024 | 3
         /* KeyCode.Enter */
       }, {
-        when: ContextKeyExpr.and(BROWSER_EDITOR_ACTIVE, CONTEXT_BROWSER_FIND_WIDGET_VISIBLE),
+        when: CONTEXT_BROWSER_FIND_WIDGET_VISIBLE,
         weight: 100,
         primary: 1024 | 61,
         mac: {

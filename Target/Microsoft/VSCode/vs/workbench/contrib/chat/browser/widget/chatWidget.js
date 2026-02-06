@@ -38,6 +38,7 @@ import { localize } from "../../../../../nls.js";
 import { MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
@@ -58,7 +59,7 @@ import { IChatLayoutService } from "../../common/widget/chatLayoutService.js";
 import { ChatMode, IChatModeService } from "../../common/chatModes.js";
 import { chatAgentLeader, ChatRequestAgentPart, ChatRequestDynamicVariablePart, ChatRequestSlashPromptPart, ChatRequestToolPart, ChatRequestToolSetPart, chatSubcommandLeader, formatChatQuestion, IParsedChatRequest } from "../../common/requestParser/chatParserTypes.js";
 import { ChatRequestParser } from "../../common/requestParser/chatRequestParser.js";
-import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatSendResult, IChatService } from "../../common/chatService/chatService.js";
 import { IChatSessionsService } from "../../common/chatSessionsService.js";
 import { IChatSlashCommandService } from "../../common/participants/chatSlashCommands.js";
 import { IChatTodoListService } from "../../common/tools/chatTodoListService.js";
@@ -133,7 +134,6 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     } else {
       this.logService.debug("ChatWidget#setViewModel: no viewModel");
     }
-    this.currentRequest = void 0;
     this._onDidChangeViewModel.fire({ previousSessionResource, currentSessionResource: this._viewModel?.sessionResource });
   }
   get viewModel() {
@@ -165,13 +165,14 @@ let ChatWidget = class ChatWidget2 extends Disposable {
   get locationData() {
     return this._location.resolveData?.();
   }
-  constructor(location, viewContext, viewOptions, styles, codeEditorService, editorService, configurationService, contextKeyService, instantiationService, chatService, chatAgentService, chatWidgetService, chatAccessibilityService, logService, themeService, chatSlashCommandService, chatEditingService, telemetryService, promptsService, toolsService, chatModeService, chatLayoutService, chatEntitlementService, chatSessionsService, agentSessionsService, chatTodoListService, contextService, lifecycleService) {
+  constructor(location, viewContext, viewOptions, styles, codeEditorService, editorService, configurationService, dialogService, contextKeyService, instantiationService, chatService, chatAgentService, chatWidgetService, chatAccessibilityService, logService, themeService, chatSlashCommandService, chatEditingService, telemetryService, promptsService, toolsService, chatModeService, chatLayoutService, chatEntitlementService, chatSessionsService, agentSessionsService, chatTodoListService, contextService, lifecycleService) {
     super();
     this.viewOptions = viewOptions;
     this.styles = styles;
     this.codeEditorService = codeEditorService;
     this.editorService = editorService;
     this.configurationService = configurationService;
+    this.dialogService = dialogService;
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
     this.chatService = chatService;
@@ -237,6 +238,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     this._lockedToCodingAgentContextKey = ChatContextKeys.lockedToCodingAgent.bindTo(this.contextKeyService);
     this._agentSupportsAttachmentsContextKey = ChatContextKeys.agentSupportsAttachments.bindTo(this.contextKeyService);
     this._sessionIsEmptyContextKey = ChatContextKeys.chatSessionIsEmpty.bindTo(this.contextKeyService);
+    this._hasPendingRequestsContextKey = ChatContextKeys.hasPendingRequests.bindTo(this.contextKeyService);
     this.viewContext = viewContext ?? {};
     const viewModelObs = observableFromEvent(this, this.onDidChangeViewModel, () => this.viewModel);
     if (typeof location === "object") {
@@ -901,32 +903,40 @@ let ChatWidget = class ChatWidget2 extends Disposable {
     if (!this._shouldExitAfterDelegation(sourceAgent, targetAgent)) {
       return;
     }
+    this.logService.debug(`[Delegation] Will exit after delegation: sourceAgent=${sourceAgent?.id}, targetAgent=${targetAgent?.id}`);
     try {
       await this._handleDelegationExit();
     } catch (e) {
-      this.logService.error("Failed to handle delegation exit", e);
+      this.logService.error("[Delegation] Failed to handle delegation exit", e);
     }
   }
   _shouldExitAfterDelegation(sourceAgent, targetAgent) {
     if (!targetAgent) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (no targetAgent)");
       return false;
     }
     if (!this.configurationService.getValue(ChatConfiguration.ExitAfterDelegation)) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (ExitAfterDelegation config disabled)");
       return false;
     }
     if (sourceAgent && sourceAgent.id === targetAgent.id) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (source and target agents are the same)");
       return false;
     }
     if (!isIChatViewViewContext(this.viewContext)) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (not in chat view context)");
       return false;
     }
     const contribution = this.chatSessionsService.getChatSessionContribution(targetAgent.id);
     if (!contribution) {
+      this.logService.debug(`[Delegation] _shouldExitAfterDelegation: false (no contribution found for targetAgent.id=${targetAgent.id})`);
       return false;
     }
     if (contribution.canDelegate !== true) {
+      this.logService.debug(`[Delegation] _shouldExitAfterDelegation: false (contribution.canDelegate=${contribution.canDelegate}, expected true)`);
       return false;
     }
+    this.logService.debug("[Delegation] _shouldExitAfterDelegation: true");
     return true;
   }
   /**
@@ -937,9 +947,11 @@ let ChatWidget = class ChatWidget2 extends Disposable {
   async _handleDelegationExit() {
     const viewModel = this.viewModel;
     if (!viewModel) {
+      this.logService.debug("[Delegation] _handleDelegationExit: no viewModel, returning");
       return;
     }
     const parentSessionResource = viewModel.sessionResource;
+    this.logService.debug(`[Delegation] _handleDelegationExit: parentSessionResource=${parentSessionResource.toString()}`);
     const checkIfShouldClear = /* @__PURE__ */ __name(() => {
       const items = viewModel.getItems();
       const lastItem = items[items.length - 1];
@@ -950,10 +962,12 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       return false;
     }, "checkIfShouldClear");
     if (checkIfShouldClear()) {
+      this.logService.debug("[Delegation] Response complete, archiving session before clearing");
+      await this.archiveLocalParentSession(parentSessionResource);
       await this.clear();
-      this.archiveLocalParentSession(parentSessionResource);
       return;
     }
+    this.logService.debug("[Delegation] Waiting for response to complete...");
     const shouldClear = await new Promise((resolve) => {
       const disposable = viewModel.onDidChange(() => {
         const result = checkIfShouldClear();
@@ -963,6 +977,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
         }
       });
       const timeout2 = setTimeout(() => {
+        this.logService.debug("[Delegation] Timeout waiting for response to complete");
         cleanup();
         resolve(false);
       }, 3e4);
@@ -972,17 +987,27 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       }, "cleanup");
     });
     if (shouldClear) {
+      this.logService.debug("[Delegation] Response completed, archiving session before clearing");
+      await this.archiveLocalParentSession(parentSessionResource);
       await this.clear();
-      this.archiveLocalParentSession(parentSessionResource);
+    } else {
+      this.logService.debug("[Delegation] Not clearing (timeout or error)");
     }
   }
   async archiveLocalParentSession(sessionResource) {
     if (sessionResource.scheme !== Schemas.vscodeLocalChatSession) {
+      this.logService.debug(`[Delegation] archiveLocalParentSession: skipping, scheme=${sessionResource.scheme} is not vscodeLocalChatSession`);
       return;
     }
+    this.logService.debug(`[Delegation] archiveLocalParentSession: archiving session ${sessionResource.toString()}`);
     await this.chatService.getSession(sessionResource)?.editingSession?.accept();
     const session = this.agentSessionsService.getSession(sessionResource);
-    session?.setArchived(true);
+    if (session) {
+      session.setArchived(true);
+      this.logService.debug("[Delegation] archiveLocalParentSession: session archived successfully");
+    } else {
+      this.logService.warn(`[Delegation] archiveLocalParentSession: session not found in agentSessionsService for ${sessionResource.toString()}`);
+    }
   }
   setVisible(visible) {
     const wasVisible = this._visible;
@@ -1315,6 +1340,7 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       }
       this.viewModel = void 0;
       this.onDidChangeItems();
+      this._hasPendingRequestsContextKey.set(false);
       return;
     }
     if (isEqual(model.sessionResource, this.viewModel?.sessionResource)) {
@@ -1363,6 +1389,12 @@ let ChatWidget = class ChatWidget2 extends Disposable {
       this.onDidChangeItems();
     }));
     this._sessionIsEmptyContextKey.set(model.getRequests().length === 0);
+    const updatePendingRequestKeys = /* @__PURE__ */ __name(() => {
+      const pendingCount = model.getPendingRequests().length;
+      this._hasPendingRequestsContextKey.set(pendingCount > 0);
+    }, "updatePendingRequestKeys");
+    updatePendingRequestKeys();
+    this.viewModelDisposables.add(model.onDidChangePendingRequests(() => updatePendingRequestKeys()));
     this.refreshParsedInput();
     this.viewModelDisposables.add(model.onDidChange((e) => {
       if (e.kind === "setAgent") {
@@ -1508,10 +1540,7 @@ ${input}`;
       await this._applyPromptMetadata(parseResult.header, requestInput);
     }
   }
-  async _acceptInput(query, options) {
-    if (this.viewModel?.model.requestInProgress.get()) {
-      return;
-    }
+  async _acceptInput(query, options = {}) {
     if (!query && this.input.generating) {
       const generatingAutoSubmitWindow = 500;
       const start = Date.now();
@@ -1542,8 +1571,22 @@ ${input}`;
     };
     const isUserQuery = !query;
     if (this.viewModel?.editing) {
+      const editingPendingRequest = this.viewModel.editing.pendingKind;
+      if (editingPendingRequest !== void 0) {
+        const editingRequestId = this.viewModel.editing.id;
+        this.chatService.removePendingRequest(this.viewModel.sessionResource, editingRequestId);
+        options.queue ??= editingPendingRequest;
+      }
       this.finishedEditing(true);
       this.viewModel.model?.setCheckpoint(void 0);
+    }
+    const model = this.viewModel.model;
+    const requestInProgress = model.requestInProgress.get();
+    if (requestInProgress) {
+      options.queue ??= "queued";
+    }
+    if (!requestInProgress && !await this.confirmPendingRequestsBeforeSend(model, options)) {
+      return;
     }
     await this._applyPromptFileIfSet(requestInputs);
     await this._autoAttachInstructions(requestInputs);
@@ -1565,10 +1608,6 @@ ${input}`;
       requestInputs.attachedContext = editingSessionAttachedContext;
       this.telemetryService.publicLog2("chatEditing/workingSetSize", { originalSize: uniqueWorkingSetEntries.size, actualSize: uniqueWorkingSetEntries.size });
     }
-    this.chatService.cancelCurrentRequestForSession(this.viewModel.sessionResource);
-    if (this.currentRequest) {
-      await Promise.race([this.currentRequest, timeout(1e3)]);
-    }
     this.input.validateAgentMode();
     if (this.viewModel.model.checkpoint) {
       const requests = this.viewModel.model.getRequests();
@@ -1579,7 +1618,7 @@ ${input}`;
         }
       }
     }
-    if (this.viewModel.sessionResource) {
+    if (this.viewModel.sessionResource && !options.queue) {
       this.chatAccessibilityService.acceptRequest(this._viewModel.sessionResource);
     }
     const result = await this.chatService.sendRequest(this.viewModel.sessionResource, requestInputs.input, {
@@ -1591,17 +1630,24 @@ ${input}`;
       noCommandDetection: options?.noCommandDetection,
       ...this.getModeRequestOptions(),
       modeInfo: this.input.currentModeInfo,
-      agentIdSilent: this._lockedAgent?.id
+      agentIdSilent: this._lockedAgent?.id,
+      queue: options?.queue
     });
-    if (!result) {
+    if (this.viewModel.sessionResource && !options.queue) {
       this.chatAccessibilityService.disposeRequest(this.viewModel.sessionResource);
+    }
+    if (ChatSendResult.isRejected(result)) {
       return;
     }
     this.updateChatViewVisibility();
     this.input.acceptInput(options?.storeToHistory ?? isUserQuery);
-    this._onDidSubmitAgent.fire({ agent: result.agent, slashCommand: result.slashCommand });
-    this.handleDelegationExitIfNeeded(this._lockedAgent, result.agent);
-    this.currentRequest = result.responseCompletePromise.then(() => {
+    const sent = ChatSendResult.isQueued(result) ? await result.deferred : result;
+    if (!ChatSendResult.isSent(sent)) {
+      return;
+    }
+    this._onDidSubmitAgent.fire({ agent: sent.data.agent, slashCommand: sent.data.slashCommand });
+    this.handleDelegationExitIfNeeded(this._lockedAgent, sent.data.agent);
+    sent.data.responseCompletePromise.then(() => {
       const responses = this.viewModel?.getItems().filter(isResponseVM);
       const lastResponse = responses?.[responses.length - 1];
       this.chatAccessibilityService.acceptResponse(this, this.container, lastResponse, this.viewModel?.sessionResource, options?.isVoiceInput);
@@ -1612,9 +1658,42 @@ ${input}`;
           this.input.setValue(question, false);
         }
       }
-      this.currentRequest = void 0;
     });
-    return result.responseCreatedPromise;
+    return sent.data.responseCreatedPromise;
+  }
+  async confirmPendingRequestsBeforeSend(model, options) {
+    if (options.queue) {
+      return true;
+    }
+    const hasPendingRequests = model.getPendingRequests().length > 0;
+    if (!hasPendingRequests) {
+      return true;
+    }
+    const promptResult = await this.dialogService.prompt({
+      type: "question",
+      message: localize("chat.pendingRequests.prompt.message", "You already have pending requests."),
+      detail: localize("chat.pendingRequests.prompt.detail", "Do you want to keep them in the queue or remove them before sending this message?"),
+      buttons: [
+        {
+          label: localize("chat.pendingRequests.prompt.keep", "Keep Pending Requests"),
+          run: /* @__PURE__ */ __name(() => "keep", "run")
+        },
+        {
+          label: localize("chat.pendingRequests.prompt.remove", "Remove Pending Requests"),
+          run: /* @__PURE__ */ __name(() => "remove", "run")
+        }
+      ],
+      cancelButton: true
+    });
+    if (!promptResult.result) {
+      return false;
+    }
+    if (promptResult.result === "remove") {
+      for (const pendingRequest of [...model.getPendingRequests()]) {
+        this.chatService.removePendingRequest(model.sessionResource, pendingRequest.request.id);
+      }
+    }
+    return true;
   }
   getModeRequestOptions() {
     return {
@@ -1789,7 +1868,7 @@ ${input}`;
     this.logService.debug(`ChatWidget#_autoAttachInstructions: prompt files are always enabled`);
     const enabledTools = this.input.currentModeKind === ChatModeKind.Agent ? this.input.selectedToolsModel.userSelectedTools.get() : void 0;
     const enabledSubAgents = this.input.currentModeKind === ChatModeKind.Agent ? this.input.currentModeObs.get().agents?.get() : void 0;
-    const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, this.input.currentModeObs.get(), enabledTools, enabledSubAgents);
+    const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, this.input.currentModeKind, enabledTools, enabledSubAgents);
     await computer.collect(attachedContext, CancellationToken.None);
   }
   delegateScrollFromMouseWheelEvent(browserEvent) {
@@ -1800,27 +1879,28 @@ ChatWidget = ChatWidget_1 = __decorate([
   __param(4, ICodeEditorService),
   __param(5, IEditorService),
   __param(6, IConfigurationService),
-  __param(7, IContextKeyService),
-  __param(8, IInstantiationService),
-  __param(9, IChatService),
-  __param(10, IChatAgentService),
-  __param(11, IChatWidgetService),
-  __param(12, IChatAccessibilityService),
-  __param(13, ILogService),
-  __param(14, IThemeService),
-  __param(15, IChatSlashCommandService),
-  __param(16, IChatEditingService),
-  __param(17, ITelemetryService),
-  __param(18, IPromptsService),
-  __param(19, ILanguageModelToolsService),
-  __param(20, IChatModeService),
-  __param(21, IChatLayoutService),
-  __param(22, IChatEntitlementService),
-  __param(23, IChatSessionsService),
-  __param(24, IAgentSessionsService),
-  __param(25, IChatTodoListService),
-  __param(26, IWorkspaceContextService),
-  __param(27, ILifecycleService)
+  __param(7, IDialogService),
+  __param(8, IContextKeyService),
+  __param(9, IInstantiationService),
+  __param(10, IChatService),
+  __param(11, IChatAgentService),
+  __param(12, IChatWidgetService),
+  __param(13, IChatAccessibilityService),
+  __param(14, ILogService),
+  __param(15, IThemeService),
+  __param(16, IChatSlashCommandService),
+  __param(17, IChatEditingService),
+  __param(18, ITelemetryService),
+  __param(19, IPromptsService),
+  __param(20, ILanguageModelToolsService),
+  __param(21, IChatModeService),
+  __param(22, IChatLayoutService),
+  __param(23, IChatEntitlementService),
+  __param(24, IChatSessionsService),
+  __param(25, IAgentSessionsService),
+  __param(26, IChatTodoListService),
+  __param(27, IWorkspaceContextService),
+  __param(28, ILifecycleService)
 ], ChatWidget);
 export {
   ChatWidget,

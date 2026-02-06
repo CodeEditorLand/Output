@@ -3041,10 +3041,45 @@ var ChatToolInvocationPart;
         } : void 0
       };
       return result;
+    } else if ("todoList" in data && Array.isArray(data.todoList)) {
+      return {
+        kind: "todoList",
+        todoList: data.todoList.map((todo) => ({
+          id: String(todo.id),
+          title: todo.title,
+          status: todoStatusEnumToString(todo.status)
+        }))
+      };
     }
     return data;
   }
   __name(convertToolSpecificData, "convertToolSpecificData");
+  function todoStatusEnumToString(status) {
+    switch (status) {
+      case types.ChatTodoStatus.NotStarted:
+        return "not-started";
+      case types.ChatTodoStatus.InProgress:
+        return "in-progress";
+      case types.ChatTodoStatus.Completed:
+        return "completed";
+      default:
+        return "not-started";
+    }
+  }
+  __name(todoStatusEnumToString, "todoStatusEnumToString");
+  function todoStatusStringToEnum(status) {
+    switch (status) {
+      case "not-started":
+        return types.ChatTodoStatus.NotStarted;
+      case "in-progress":
+        return types.ChatTodoStatus.InProgress;
+      case "completed":
+        return types.ChatTodoStatus.Completed;
+      default:
+        return types.ChatTodoStatus.NotStarted;
+    }
+  }
+  __name(todoStatusStringToEnum, "todoStatusStringToEnum");
   function to(part) {
     const toolInvocation = new types.ChatToolInvocationPart(part.toolId || part.toolName, part.toolCallId, part.isError);
     if (part.invocationMessage) {
@@ -3102,6 +3137,18 @@ var ChatToolInvocationPart;
       return {
         commandLine: data.commandLine,
         language: data.language
+      };
+    } else if (data.kind === "todoList") {
+      return {
+        todoList: data.todoList.map((todo, index) => {
+          const parsed = Number(todo.id);
+          const id = Number.isFinite(parsed) ? parsed : index;
+          return {
+            id,
+            title: todo.title,
+            status: todoStatusStringToEnum(todo.status)
+          };
+        })
       };
     }
     return data;
@@ -3391,7 +3438,8 @@ var ChatAgentRequest;
       modeInstructions: request.modeInstructions?.content,
       modeInstructions2: ChatRequestModeInstructions.to(request.modeInstructions),
       subAgentInvocationId: request.subAgentInvocationId,
-      subAgentName: request.subAgentName
+      subAgentName: request.subAgentName,
+      parentRequestId: request.parentRequestId
     };
     if (!isProposedApiEnabled(extension, "chatParticipantPrivate")) {
       delete requestWithAllProps.id;
@@ -3404,6 +3452,7 @@ var ChatAgentRequest;
       delete requestWithAllProps.sessionId;
       delete requestWithAllProps.subAgentInvocationId;
       delete requestWithAllProps.subAgentName;
+      delete requestWithAllProps.parentRequestId;
     }
     if (!isProposedApiEnabled(extension, "chatParticipantAdditions")) {
       delete requestWithAllProps.acceptedConfirmationData;
@@ -4032,6 +4081,17 @@ var SourceControlInputBoxValidationType;
   __name(from, "from");
   SourceControlInputBoxValidationType2.from = from;
 })(SourceControlInputBoxValidationType || (SourceControlInputBoxValidationType = {}));
+var ChatHookResult;
+(function(ChatHookResult2) {
+  function to(result) {
+    return {
+      kind: result.kind === 1 ? types.ChatHookResultKind.Success : types.ChatHookResultKind.Error,
+      result: result.result
+    };
+  }
+  __name(to, "to");
+  ChatHookResult2.to = to;
+})(ChatHookResult || (ChatHookResult = {}));
 export {
   AiSettingsSearch,
   CallHierarchyIncomingCall,
@@ -4042,6 +4102,7 @@ export {
   ChatAgentResult,
   ChatAgentUserActionEvent,
   ChatFollowup,
+  ChatHookResult,
   ChatLanguageModelToolReference,
   ChatLocation,
   ChatPromptReference,

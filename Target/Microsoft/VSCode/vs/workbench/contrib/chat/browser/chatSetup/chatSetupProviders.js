@@ -37,7 +37,8 @@ import { IChatService } from "../../common/chatService/chatService.js";
 import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../common/constants.js";
 import { ILanguageModelsService } from "../../common/languageModels.js";
 import { CHAT_OPEN_ACTION_ID, CHAT_SETUP_ACTION_ID } from "../actions/chatActions.js";
-import { IChatWidgetService } from "../chat.js";
+import { ChatViewId, IChatWidgetService } from "../chat.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
 import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
 import { Selection } from "../../../../../editor/common/core/selection.js";
 import { ResourceMap } from "../../../../../base/common/map.js";
@@ -161,7 +162,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
   static {
     this.CHAT_RETRY_COMMAND_ID = "workbench.action.chat.retrySetup";
   }
-  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService) {
+  constructor(context, controller, location, instantiationService, logService, telemetryService, environmentService, workspaceTrustManagementService, chatEntitlementService, viewsService) {
     super();
     this.context = context;
     this.controller = controller;
@@ -172,6 +173,7 @@ let SetupAgent = class SetupAgent2 extends Disposable {
     this.environmentService = environmentService;
     this.workspaceTrustManagementService = workspaceTrustManagementService;
     this.chatEntitlementService = chatEntitlementService;
+    this.viewsService = viewsService;
     this._onUnresolvableError = this._register(new Emitter());
     this.onUnresolvableError = this._onUnresolvableError.event;
     this.pendingForwardedRequests = new ResourceMap();
@@ -294,13 +296,16 @@ let SetupAgent = class SetupAgent2 extends Disposable {
             languageModelReady,
             toolsModelReady
           });
+          const chatViewPane = this.viewsService.getActiveViewWithId(ChatViewId);
+          const matchingWelcomeView = chatViewPane?.getMatchingWelcomeView();
           this.telemetryService.publicLog2("chatSetup.timeout", {
             agentActivated,
             agentReady,
             languageModelReady,
             toolsModelReady,
             isRemote: !!this.environmentService.remoteAuthority,
-            isAnonymous: this.chatEntitlementService.anonymous
+            isAnonymous: this.chatEntitlementService.anonymous,
+            matchingWelcomeViewWhen: matchingWelcomeView?.when.serialize() ?? (chatViewPane ? "noWelcomeView" : "noChatViewPane")
           });
           progress({
             kind: "warning",
@@ -514,7 +519,8 @@ SetupAgent = SetupAgent_1 = __decorate([
   __param(5, ITelemetryService),
   __param(6, IWorkbenchEnvironmentService),
   __param(7, IWorkspaceTrustManagementService),
-  __param(8, IChatEntitlementService)
+  __param(8, IChatEntitlementService),
+  __param(9, IViewsService)
 ], SetupAgent);
 class SetupTool {
   static {

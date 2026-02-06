@@ -9,7 +9,7 @@ export declare enum AgentSessionsGrouping {
     Date = "date"
 }
 export interface IAgentSessionsFilterOptions extends Partial<IAgentSessionsFilter> {
-    readonly filterMenuId: MenuId;
+    readonly filterMenuId?: MenuId;
     readonly limitResults?: () => number | undefined;
     notifyResults?(count: number): void;
     readonly groupResults?: () => AgentSessionsGrouping | undefined;

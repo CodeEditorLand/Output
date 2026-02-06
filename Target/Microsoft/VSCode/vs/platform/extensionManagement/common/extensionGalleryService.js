@@ -809,8 +809,21 @@ let AbstractExtensionGalleryService = class AbstractExtensionGalleryService2 {
     }
     const runQuery = /* @__PURE__ */ __name(async (query2, token2) => {
       const { extensions: extensions2, total: total2 } = await this.queryGalleryExtensions(query2, { targetPlatform: CURRENT_TARGET_PLATFORM, compatible: false, includePreRelease: !!options.includePreRelease, productVersion: options.productVersion ?? { version: this.productService.version, date: this.productService.date } }, extensionGalleryManifest, token2);
-      extensions2.forEach((e, index) => setTelemetry(e, (query2.pageNumber - 1) * query2.pageSize + index, options.source));
-      return { extensions: extensions2, total: total2 };
+      const result = [];
+      let defaultChatAgentExtension;
+      for (let index = 0; index < extensions2.length; index++) {
+        const extension = extensions2[index];
+        setTelemetry(extension, (query2.pageNumber - 1) * query2.pageSize + index, options.source);
+        if (areSameExtensions(extension.identifier, { id: this.productService.defaultChatAgent.extensionId })) {
+          defaultChatAgentExtension = extension;
+        } else {
+          result.push(extension);
+        }
+      }
+      if (defaultChatAgentExtension) {
+        result.push(defaultChatAgentExtension);
+      }
+      return { extensions: result, total: total2 };
     }, "runQuery");
     const { extensions, total } = await runQuery(query, token);
     const getPage = /* @__PURE__ */ __name(async (pageIndex, ct) => {
@@ -1482,6 +1495,15 @@ ${message}`);
         }
       }
     }
+    deprecated[this.productService.defaultChatAgent.extensionId.toLowerCase()] = {
+      disallowInstall: true,
+      extension: {
+        id: this.productService.defaultChatAgent.chatExtensionId,
+        displayName: "GitHub Copilot Chat",
+        autoMigrate: { storage: false, donotDisable: true },
+        preRelease: this.productService.quality !== "stable"
+      }
+    };
     return { malicious, deprecated, search, autoUpdate };
   }
   getRequestTimeout() {

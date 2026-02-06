@@ -29,9 +29,13 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     private readonly _alternativeIdMap;
     private readonly _contextKeys;
     private readonly _onDidChangeItemsProviders;
-    readonly onDidChangeItemsProviders: Event<IChatSessionItemProvider>;
+    readonly onDidChangeItemsProviders: Event<{
+        readonly chatSessionType: string;
+    }>;
     private readonly _onDidChangeSessionItems;
-    readonly onDidChangeSessionItems: Event<string>;
+    readonly onDidChangeSessionItems: Event<{
+        readonly chatSessionType: string;
+    }>;
     private readonly _onDidChangeAvailability;
     readonly onDidChangeAvailability: Event<void>;
     private readonly _onDidChangeInProgress;
@@ -80,7 +84,8 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     getAllChatSessionContributions(): IChatSessionsExtensionPoint[];
     private _updateHasCanDelegateProvidersContextKey;
     getChatSessionContribution(chatSessionType: string): IChatSessionsExtensionPoint | undefined;
-    activateChatSessionItemProvider(chatViewType: string): Promise<IChatSessionItemProvider | undefined>;
+    activateChatSessionItemProvider(chatViewType: string): Promise<void>;
+    private doActivateChatSessionItemProvider;
     canResolveChatSession(chatSessionResource: URI): Promise<boolean>;
     getChatSessionItems(providersToResolve: readonly string[] | undefined, token: CancellationToken): Promise<Array<{
         readonly chatSessionType: string;
@@ -94,7 +99,6 @@ export declare class ChatSessionsService extends Disposable implements IChatSess
     hasAnySessionOptions(sessionResource: URI): boolean;
     getSessionOption(sessionResource: URI, optionId: string): string | IChatSessionProviderOptionItem | undefined;
     setSessionOption(sessionResource: URI, optionId: string, value: string | IChatSessionProviderOptionItem): boolean;
-    notifySessionItemsChanged(chatSessionType: string): void;
     /**
      * Store option groups for a session type
      */

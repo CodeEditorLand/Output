@@ -1276,7 +1276,7 @@ let SettingsEditor2 = class SettingsEditor22 extends EditorPane {
       }
     }
     resolvedSettingsRoot.children.push(await createTocTreeForExtensionSettings(this.extensionService, extensionSettingsGroups, filter));
-    resolvedSettingsRoot.children.unshift(getCommonlyUsedData(groups, toggleData?.commonlyUsed));
+    resolvedSettingsRoot.children.unshift(getCommonlyUsedData(groups));
     if (toggleData && setAdditionalGroups) {
       this.defaultSettingsEditorModel.setAdditionalGroups(additionalGroups);
     }

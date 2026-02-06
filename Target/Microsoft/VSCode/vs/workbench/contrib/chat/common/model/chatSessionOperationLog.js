@@ -6,6 +6,7 @@ import { equals as objectsEqual } from "../../../../../base/common/objects.js";
 import { isEqual as _urisEqual } from "../../../../../base/common/resources.js";
 import { hasKey } from "../../../../../base/common/types.js";
 import { URI } from "../../../../../base/common/uri.js";
+import { serializeSendOptions } from "./chatModel.js";
 import * as Adapt from "./objectMutationLog.js";
 const toJson = /* @__PURE__ */ __name((obj) => {
   const cast = obj;
@@ -111,6 +112,12 @@ const inputStateSchema = Adapt.object({
   selections: Adapt.v((i) => i.selections, objectsEqual),
   contrib: Adapt.v((i) => i.contrib, objectsEqual)
 });
+const pendingRequestSchema = Adapt.object({
+  id: Adapt.t((p) => p.request.id, Adapt.key()),
+  request: Adapt.t((p) => p.request, requestSchema),
+  kind: Adapt.v((p) => p.kind),
+  sendOptions: Adapt.v((p) => serializeSendOptions(p.sendOptions), objectsEqual)
+});
 const storageSchema = Adapt.object({
   version: Adapt.v(() => 3),
   creationDate: Adapt.v((m) => m.timestamp),
@@ -124,7 +131,8 @@ const storageSchema = Adapt.object({
     (e) => e.state.get() === 0
     /* ModifiedFileEntryState.Modified */
   )),
-  repoData: Adapt.v((m) => m.repoData, objectsEqual)
+  repoData: Adapt.v((m) => m.repoData, objectsEqual),
+  pendingRequests: Adapt.t((m) => m.getPendingRequests(), Adapt.array(pendingRequestSchema))
 });
 class ChatSessionOperationLog extends Adapt.ObjectMutationLog {
   static {

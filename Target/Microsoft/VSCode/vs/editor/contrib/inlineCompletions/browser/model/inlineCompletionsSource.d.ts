@@ -49,7 +49,7 @@ export declare class InlineCompletionsSource extends Disposable {
      * Used when transplanting a completion from one model to another (cross-file edits).
      */
     seedWithCompletion(item: InlineSuggestionItem, tx: ITransaction): void;
-    private sendInlineCompletionsRequestTelemetry;
+    private _sendInlineCompletionsRequestTelemetry;
     clearSuggestWidgetInlineCompletions(tx: ITransaction): void;
     cancelUpdate(): void;
 }
@@ -62,7 +62,7 @@ declare class UpdateRequest {
     satisfies(other: UpdateRequest): boolean;
     get isExplicitRequest(): boolean;
 }
-declare class InlineCompletionsState extends Disposable {
+export declare class InlineCompletionsState extends Disposable {
     readonly inlineCompletions: readonly InlineSuggestionItem[];
     readonly request: UpdateRequest | undefined;
     static createEmpty(): InlineCompletionsState;

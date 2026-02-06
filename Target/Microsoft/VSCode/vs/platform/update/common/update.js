@@ -39,11 +39,11 @@ const State = {
   Idle: /* @__PURE__ */ __name((updateType, error) => ({ type: "idle", updateType, error }), "Idle"),
   CheckingForUpdates: /* @__PURE__ */ __name((explicit) => ({ type: "checking for updates", explicit }), "CheckingForUpdates"),
   AvailableForDownload: /* @__PURE__ */ __name((update) => ({ type: "available for download", update }), "AvailableForDownload"),
-  Downloading: /* @__PURE__ */ __name((explicit, overwrite) => ({ type: "downloading", explicit, overwrite }), "Downloading"),
+  Downloading: /* @__PURE__ */ __name((update, explicit, overwrite, downloadedBytes, totalBytes, startTime) => ({ type: "downloading", update, explicit, overwrite, downloadedBytes, totalBytes, startTime }), "Downloading"),
   Downloaded: /* @__PURE__ */ __name((update, explicit, overwrite) => ({ type: "downloaded", update, explicit, overwrite }), "Downloaded"),
   Updating: /* @__PURE__ */ __name((update) => ({ type: "updating", update }), "Updating"),
   Ready: /* @__PURE__ */ __name((update, explicit, overwrite) => ({ type: "ready", update, explicit, overwrite }), "Ready"),
-  Overwriting: /* @__PURE__ */ __name((explicit) => ({ type: "overwriting", explicit }), "Overwriting")
+  Overwriting: /* @__PURE__ */ __name((update, explicit) => ({ type: "overwriting", update, explicit }), "Overwriting")
 };
 const IUpdateService = createDecorator("updateService");
 export {

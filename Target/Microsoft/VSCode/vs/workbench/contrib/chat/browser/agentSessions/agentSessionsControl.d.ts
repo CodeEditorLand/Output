@@ -43,6 +43,7 @@ export declare class AgentSessionsControl extends Disposable implements IAgentSe
     get element(): HTMLElement | undefined;
     private sessionsList;
     private sessionsListFindIsOpen;
+    private readonly updateSessionsListThrottler;
     private visible;
     private focusedAgentSessionArchivedContextKey;
     private focusedAgentSessionReadContextKey;

@@ -1649,6 +1649,11 @@ export interface ChatTerminalToolInvocationData2 {
     };
     language: string;
 }
+export declare enum ChatTodoStatus {
+    NotStarted = 1,
+    InProgress = 2,
+    Completed = 3
+}
 export declare class ChatToolInvocationPart {
     toolName: string;
     toolCallId: string;
@@ -1931,6 +1936,10 @@ export declare enum SettingsSearchResultKind {
     EMBEDDED = 1,
     LLM_RANKED = 2,
     CANCELED = 3
+}
+export declare enum ChatHookResultKind {
+    Success = 1,
+    Error = 2
 }
 export declare enum SpeechToTextStatus {
     Started = 1,

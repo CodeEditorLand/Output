@@ -15,6 +15,7 @@ import { InlineCompletionTriggerKind } from "../../../../common/languages.js";
 import { TextModelText } from "../../../../common/model/textModelText.js";
 import { computeEditKind } from "./editKind.js";
 import { inlineCompletionIsVisible } from "./inlineCompletionIsVisible.js";
+import { InlineSuggestData } from "./provideInlineCompletions.js";
 import { InlineSuggestAlternativeAction } from "./InlineSuggestAlternativeAction.js";
 var InlineSuggestionItem;
 (function(InlineSuggestionItem2) {
@@ -293,6 +294,17 @@ class InlineCompletionItem extends InlineSuggestionItemBase {
 class InlineEditItem extends InlineSuggestionItemBase {
   static {
     __name(this, "InlineEditItem");
+  }
+  static createForTest(textModel, range, newText) {
+    const action = {
+      kind: "edit",
+      snippetInfo: void 0,
+      insertText: newText,
+      range,
+      uri: textModel.uri,
+      alternativeAction: void 0
+    };
+    return InlineEditItem.create(InlineSuggestData.createForTest(action, textModel.uri), textModel);
   }
   static create(data, textModel, shouldDiffEdit = true) {
     let action;

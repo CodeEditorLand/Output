@@ -22,6 +22,7 @@ import { IChatService } from '../../../common/chatService/chatService.js';
 import { IChatSessionsService } from '../../../common/chatSessionsService.js';
 import { ChatWidget } from '../../widget/chatWidget.js';
 import { IViewWelcomeDelegate } from '../../viewsWelcome/chatViewWelcomeController.js';
+import { IChatViewsWelcomeDescriptor } from '../../viewsWelcome/chatViewsWelcome.js';
 import { IWorkbenchLayoutService } from '../../../../../services/layout/browser/layoutService.js';
 import { AgentSessionsViewerOrientation } from '../../agentSessions/agentSessions.js';
 import { IProgressService } from '../../../../../../platform/progress/common/progress.js';
@@ -118,5 +119,6 @@ export declare class ChatViewPane extends ViewPane implements IViewWelcomeDelega
     saveState(): void;
     private updateViewState;
     shouldShowWelcome(): boolean;
+    getMatchingWelcomeView(): IChatViewsWelcomeDescriptor | undefined;
     getActionsContext(): IChatViewTitleActionContext | undefined;
 }

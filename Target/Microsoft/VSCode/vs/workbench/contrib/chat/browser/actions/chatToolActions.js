@@ -24,9 +24,9 @@ class ToolConfirmationAction extends Action2 {
   static {
     __name(this, "ToolConfirmationAction");
   }
-  run(accessor, ...args) {
+  run(accessor, context) {
     const chatWidgetService = accessor.get(IChatWidgetService);
-    const widget = chatWidgetService.lastFocusedWidget;
+    const widget = context?.sessionResource ? chatWidgetService.getWidgetBySessionResource(context.sessionResource) : chatWidgetService.lastFocusedWidget;
     const lastItem = widget?.viewModel?.getItems().at(-1);
     if (!isResponseVM(lastItem)) {
       return;

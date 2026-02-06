@@ -596,25 +596,31 @@ Respond with only the option string.`;
         acceptLabel,
         rejectLabel,
         async (value) => {
-          thePart.hide();
-          this._promptPart = void 0;
           try {
             const r = await (onAccept ? onAccept(value) : void 0);
             resolve(r);
+            if (typeof r === "symbol") {
+              return "pending";
+            }
           } catch {
             resolve(void 0);
           }
+          thePart.hide();
+          this._promptPart = void 0;
           return "accepted";
         },
         async () => {
-          thePart.hide();
-          this._promptPart = void 0;
           try {
             const r = await (onReject ? onReject() : void 0);
             resolve(r);
+            if (typeof r === "symbol") {
+              return "pending";
+            }
           } catch {
             resolve(void 0);
           }
+          thePart.hide();
+          this._promptPart = void 0;
           return "rejected";
         },
         void 0,

@@ -136,6 +136,13 @@ class ChatSessionItemImpl {
     return this.#metadata;
   }
   set metadata(value) {
+    if (value !== void 0) {
+      try {
+        JSON.stringify(value);
+      } catch {
+        throw new Error("metadata must be JSON-serializable");
+      }
+    }
     if (!objects.equals(this.#metadata, value)) {
       this.#metadata = value;
       this.#onChanged();
@@ -529,7 +536,7 @@ let ExtHostChatSessions = class ExtHostChatSessions2 extends Disposable {
     }
     const chatRequest = typeConvert.ChatAgentRequest.to(request, void 0, await this.getModelForRequest(request, entry.sessionObj.extension), [], /* @__PURE__ */ new Map(), entry.sessionObj.extension, this._logService);
     const stream = entry.sessionObj.getActiveRequestStream(request);
-    await entry.sessionObj.session.requestHandler(chatRequest, { history }, stream.apiObject, token);
+    await entry.sessionObj.session.requestHandler(chatRequest, { history, yieldRequested: false }, stream.apiObject, token);
     return {};
   }
   async getModelForRequest(request, extension) {

@@ -177,7 +177,7 @@ let ModePickerActionItem = class ModePickerActionItem2 extends ChatInputPickerAc
         getActions: /* @__PURE__ */ __name(() => this.getModePickerActionBarActions(), "getActions")
       },
       showItemKeybindings: true,
-      reporter: { name: "ChatModePicker", includeOptions: true }
+      reporter: { id: "ChatModePicker", name: "ChatModePicker", includeOptions: true }
     };
     super(action, modePickerActionWidgetOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
     this.delegate = delegate;

@@ -12,8 +12,8 @@ import { IChatAgentAttachmentCapabilities, IChatAgentCommand, IChatAgentData } f
 import { IChatResponseModel, IChatModelInputState } from '../common/model/chatModel.js';
 import { IChatMode } from '../common/chatModes.js';
 import { IParsedChatRequest } from '../common/requestParser/chatParserTypes.js';
-import { IChatElicitationRequest, IChatLocationData, IChatSendRequestOptions } from '../common/chatService/chatService.js';
-import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel } from '../common/model/chatViewModel.js';
+import { ChatRequestQueueKind, IChatElicitationRequest, IChatLocationData, IChatSendRequestOptions } from '../common/chatService/chatService.js';
+import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel, IChatPendingDividerViewModel } from '../common/model/chatViewModel.js';
 import { ChatAgentLocation, ChatModeKind } from '../common/constants.js';
 import { ChatAttachmentModel } from './attachments/chatAttachmentModel.js';
 import { IChatEditorOptions } from './widgetHosts/editor/chatEditor.js';
@@ -178,7 +178,7 @@ export interface IChatFileTreeInfo {
     treeIndex: number;
     focus(): void;
 }
-export type ChatTreeItem = IChatRequestViewModel | IChatResponseViewModel;
+export type ChatTreeItem = IChatRequestViewModel | IChatResponseViewModel | IChatPendingDividerViewModel;
 export interface IChatListItemRendererOptions {
     readonly renderStyle?: 'compact' | 'minimal';
     readonly noHeader?: boolean;
@@ -260,6 +260,11 @@ export interface IChatAcceptInputOptions {
     isVoiceInput?: boolean;
     enableImplicitContext?: boolean;
     storeToHistory?: boolean;
+    /**
+     * When set, queues this message to be sent after the current request completes.
+     * If Steering, also sets yieldRequested on any active request to signal it should wrap up.
+     */
+    queue?: ChatRequestQueueKind;
 }
 export interface IChatWidgetViewModelChangeEvent {
     readonly previousSessionResource: URI | undefined;

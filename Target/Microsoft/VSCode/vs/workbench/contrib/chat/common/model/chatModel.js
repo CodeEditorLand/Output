@@ -23,7 +23,7 @@ import { ResourceMap } from "../../../../../base/common/map.js";
 import { revive } from "../../../../../base/common/marshalling.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { equals } from "../../../../../base/common/objects.js";
-import { autorun, autorunSelfDisposable, derived, observableFromEvent, observableSignalFromEvent, observableValue, observableValueOpts } from "../../../../../base/common/observable.js";
+import { autorun, autorunSelfDisposable, constObservable, derived, observableFromEvent, observableSignalFromEvent, observableValue, observableValueOpts } from "../../../../../base/common/observable.js";
 import { basename, isEqual } from "../../../../../base/common/resources.js";
 import { hasKey } from "../../../../../base/common/types.js";
 import { URI } from "../../../../../base/common/uri.js";
@@ -892,6 +892,77 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
   setRepoData(data) {
     this._repoData = data;
   }
+  getPendingRequests() {
+    return this._pendingRequests;
+  }
+  setPendingRequests(requests) {
+    const existingMap = new Map(this._pendingRequests.map((p) => [p.request.id, p]));
+    const newPending = [];
+    for (const { requestId, kind } of requests) {
+      const existing = existingMap.get(requestId);
+      if (existing) {
+        newPending.push(existing.kind === kind ? existing : { request: existing.request, kind, sendOptions: existing.sendOptions });
+      }
+    }
+    this._pendingRequests.length = 0;
+    this._pendingRequests.push(...newPending);
+    this._onDidChangePendingRequests.fire();
+  }
+  /**
+   * @internal Used by ChatService to add a request to the queue.
+   * Steering messages are placed before queued messages.
+   */
+  addPendingRequest(request, kind, sendOptions) {
+    const pendingRequest = {
+      request,
+      kind,
+      sendOptions
+    };
+    if (kind === "steering") {
+      let insertIndex = 0;
+      for (let i = 0; i < this._pendingRequests.length; i++) {
+        if (this._pendingRequests[i].kind === "steering") {
+          insertIndex = i + 1;
+        } else {
+          break;
+        }
+      }
+      this._pendingRequests.splice(insertIndex, 0, pendingRequest);
+    } else {
+      this._pendingRequests.push(pendingRequest);
+    }
+    this._onDidChangePendingRequests.fire();
+    return pendingRequest;
+  }
+  /**
+   * @internal Used by ChatService to remove a pending request
+   */
+  removePendingRequest(id) {
+    const index = this._pendingRequests.findIndex((r) => r.request.id === id);
+    if (index !== -1) {
+      this._pendingRequests.splice(index, 1);
+      this._onDidChangePendingRequests.fire();
+    }
+  }
+  /**
+   * @internal Used by ChatService to dequeue the next pending request
+   */
+  dequeuePendingRequest() {
+    const request = this._pendingRequests.shift();
+    if (request) {
+      this._onDidChangePendingRequests.fire();
+    }
+    return request;
+  }
+  /**
+   * @internal Used by ChatService to clear all pending requests
+   */
+  clearPendingRequests() {
+    if (this._pendingRequests.length > 0) {
+      this._pendingRequests.length = 0;
+      this._onDidChangePendingRequests.fire();
+    }
+  }
   /** @deprecated Use {@link sessionResource} instead */
   get sessionId() {
     return this._sessionId;
@@ -962,6 +1033,9 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
     this.onDidDispose = this._onDidDispose.event;
     this._onDidChange = this._register(new Emitter());
     this.onDidChange = this._onDidChange.event;
+    this._pendingRequests = [];
+    this._onDidChangePendingRequests = this._register(new Emitter());
+    this.onDidChangePendingRequests = this._onDidChangePendingRequests.event;
     this._isImported = false;
     this._canUseTools = true;
     this.currentEditedFileEvents = new ResourceMap();
@@ -994,6 +1068,9 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
     this.dataSerializer = dataRef?.serializer;
     this._initialResponderUsername = initialData?.responderUsername;
     this._repoData = isValidFullData && initialData.repoData ? initialData.repoData : void 0;
+    if (isValidFullData && initialData.pendingRequests) {
+      this._pendingRequests = this._deserializePendingRequests(initialData.pendingRequests);
+    }
     this._initialLocation = initialData?.initialLocation ?? initialModelProps.initialLocation;
     this._canUseTools = initialModelProps.canUseTools;
     this.lastRequestObs = observableFromEvent(this, this.onDidChange, () => this._requests.at(-1));
@@ -1072,63 +1149,64 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       return [];
     }
     try {
-      return requests.map((raw) => {
-        const parsedRequest = typeof raw.message === "string" ? this.getParsedRequestFromString(raw.message) : reviveParsedChatRequest(raw.message);
-        const variableData = this.reviveVariableData(raw.variableData);
-        const request = new ChatRequestModel({
-          session: this,
-          message: parsedRequest,
-          variableData,
-          timestamp: raw.timestamp ?? -1,
-          restoredId: raw.requestId,
-          confirmation: raw.confirmation,
-          editedFileEvents: raw.editedFileEvents,
-          modelId: raw.modelId
-        });
-        request.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
-        if (raw.response || raw.result || raw.responseErrorDetails) {
-          const agent = raw.agent && "metadata" in raw.agent ? (
-            // Check for the new format, ignore entries in the old format
-            reviveSerializedAgent(raw.agent)
-          ) : void 0;
-          const result = "responseErrorDetails" in raw ? (
-            // eslint-disable-next-line local/code-no-dangerous-type-assertions
-            { errorDetails: raw.responseErrorDetails }
-          ) : raw.result;
-          let modelState = raw.modelState || { value: raw.isCanceled ? 2 : 1, completedAt: Date.now() };
-          if (modelState.value === 0 || modelState.value === 4) {
-            modelState = { value: 2, completedAt: Date.now() };
-          }
-          request.response = new ChatResponseModel({
-            responseContent: raw.response ?? [new MarkdownString(raw.response)],
-            session: this,
-            agent,
-            slashCommand: raw.slashCommand,
-            requestId: request.id,
-            modelState,
-            vote: raw.vote,
-            timestamp: raw.timestamp,
-            voteDownReason: raw.voteDownReason,
-            result,
-            followups: raw.followups,
-            restoredId: raw.responseId,
-            timeSpentWaiting: raw.timeSpentWaiting,
-            shouldBeBlocked: request.shouldBeBlocked.get(),
-            codeBlockInfos: raw.responseMarkdownInfo?.map((info) => ({ suggestionId: info.suggestionId }))
-          });
-          request.response.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
-          if (raw.usedContext) {
-            request.response.applyReference(revive(raw.usedContext));
-          }
-          raw.contentReferences?.forEach((r) => request.response.applyReference(revive(r)));
-          raw.codeCitations?.forEach((c) => request.response.applyCodeCitation(revive(c)));
-        }
-        return request;
-      });
+      return requests.map((r) => this._deserializeRequest(r));
     } catch (error) {
       this.logService.error("Failed to parse chat data", error);
       return [];
     }
+  }
+  _deserializeRequest(raw) {
+    const parsedRequest = typeof raw.message === "string" ? this.getParsedRequestFromString(raw.message) : reviveParsedChatRequest(raw.message);
+    const variableData = this.reviveVariableData(raw.variableData);
+    const request = new ChatRequestModel({
+      session: this,
+      message: parsedRequest,
+      variableData,
+      timestamp: raw.timestamp ?? -1,
+      restoredId: raw.requestId,
+      confirmation: raw.confirmation,
+      editedFileEvents: raw.editedFileEvents,
+      modelId: raw.modelId
+    });
+    request.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
+    if (raw.response || raw.result || raw.responseErrorDetails) {
+      const agent = raw.agent && "metadata" in raw.agent ? (
+        // Check for the new format, ignore entries in the old format
+        reviveSerializedAgent(raw.agent)
+      ) : void 0;
+      const result = "responseErrorDetails" in raw ? (
+        // eslint-disable-next-line local/code-no-dangerous-type-assertions
+        { errorDetails: raw.responseErrorDetails }
+      ) : raw.result;
+      let modelState = raw.modelState || { value: raw.isCanceled ? 2 : 1, completedAt: Date.now() };
+      if (modelState.value === 0 || modelState.value === 4) {
+        modelState = { value: 2, completedAt: Date.now() };
+      }
+      request.response = new ChatResponseModel({
+        responseContent: raw.response ?? [new MarkdownString(raw.response)],
+        session: this,
+        agent,
+        slashCommand: raw.slashCommand,
+        requestId: request.id,
+        modelState,
+        vote: raw.vote,
+        timestamp: raw.timestamp,
+        voteDownReason: raw.voteDownReason,
+        result,
+        followups: raw.followups,
+        restoredId: raw.responseId,
+        timeSpentWaiting: raw.timeSpentWaiting,
+        shouldBeBlocked: request.shouldBeBlocked.get(),
+        codeBlockInfos: raw.responseMarkdownInfo?.map((info) => ({ suggestionId: info.suggestionId }))
+      });
+      request.response.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
+      if (raw.usedContext) {
+        request.response.applyReference(revive(raw.usedContext));
+      }
+      raw.contentReferences?.forEach((r) => request.response.applyReference(revive(r)));
+      raw.codeCitations?.forEach((c) => request.response.applyCodeCitation(revive(c)));
+    }
+    return request;
   }
   reviveVariableData(raw) {
     const variableData = raw && Array.isArray(raw.variables) ? raw : { variables: [] };
@@ -1141,6 +1219,26 @@ let ChatModel = ChatModel_1 = class ChatModel2 extends Disposable {
       text: message,
       parts
     };
+  }
+  /**
+   * Hydrates pending requests from serialized data.
+   * For each serialized pending request, finds the matching request model and adds it to the pending queue.
+   */
+  _deserializePendingRequests(pendingRequests) {
+    try {
+      return pendingRequests.map((pending) => ({
+        id: pending.id,
+        request: this._deserializeRequest(pending.request),
+        kind: pending.kind,
+        sendOptions: {
+          ...pending.sendOptions,
+          userSelectedTools: pending.sendOptions.userSelectedTools ? constObservable(pending.sendOptions.userSelectedTools) : void 0
+        }
+      }));
+    } catch (e) {
+      this.logService.error("Failed to parse pending chat requests", e);
+      return [];
+    }
   }
   getRequests() {
     return this._requests;
@@ -1417,6 +1515,22 @@ function getCodeCitationsMessage(citations) {
   return label;
 }
 __name(getCodeCitationsMessage, "getCodeCitationsMessage");
+function serializeSendOptions(options) {
+  return {
+    modeInfo: options.modeInfo,
+    userSelectedModelId: options.userSelectedModelId,
+    userSelectedTools: options.userSelectedTools?.get(),
+    location: options.location,
+    locationData: options.locationData,
+    attempt: options.attempt,
+    noCommandDetection: options.noCommandDetection,
+    agentId: options.agentId,
+    agentIdSilent: options.agentIdSilent,
+    slashCommand: options.slashCommand,
+    confirmation: options.confirmation
+  };
+}
+__name(serializeSendOptions, "serializeSendOptions");
 var ChatRequestEditedFileEventKind;
 (function(ChatRequestEditedFileEventKind2) {
   ChatRequestEditedFileEventKind2[ChatRequestEditedFileEventKind2["Keep"] = 1] = "Keep";
@@ -1486,6 +1600,7 @@ export {
   isExportableSessionData,
   isSerializableSessionData,
   normalizeSerializableChatData,
+  serializeSendOptions,
   toChatHistoryContent,
   updateRanges
 };

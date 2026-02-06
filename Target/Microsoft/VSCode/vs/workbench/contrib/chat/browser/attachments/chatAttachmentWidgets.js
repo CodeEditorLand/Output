@@ -29,6 +29,7 @@ import { URI } from "../../../../../base/common/uri.js";
 import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
 import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { getIconClasses } from "../../../../../editor/common/services/getIconClasses.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../../nls.js";
@@ -494,15 +495,23 @@ let DefaultChatAttachmentWidget = class DefaultChatAttachmentWidget2 extends Abs
   static {
     __name(this, "DefaultChatAttachmentWidget");
   }
-  constructor(resource, range, attachment, correspondingContentReference, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, contextKeyService, instantiationService, hoverService) {
+  constructor(resource, range, attachment, correspondingContentReference, currentLanguageModel, options, container, contextResourceLabels, commandService, openerService, configurationService, contextKeyService, instantiationService, hoverService, modelService, languageService) {
     super(attachment, options, container, contextResourceLabels, currentLanguageModel, commandService, openerService, configurationService);
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
     this.hoverService = hoverService;
+    this.modelService = modelService;
+    this.languageService = languageService;
     this._tooltipHover = this._register(new MutableDisposable());
     const attachmentLabel = attachment.fullName ?? attachment.name;
-    const withIcon = attachment.icon?.id ? `$(${attachment.icon.id})\xA0${attachmentLabel}` : attachmentLabel;
-    this.label.setLabel(withIcon, correspondingContentReference?.options?.status?.description);
+    if (isStringVariableEntry(attachment) && attachment.icon && (ThemeIcon.isFile(attachment.icon) || ThemeIcon.isFolder(attachment.icon)) && attachment.resourceUri) {
+      const fileKind = ThemeIcon.isFolder(attachment.icon) ? FileKind.FOLDER : FileKind.FILE;
+      const iconClasses = getIconClasses(this.modelService, this.languageService, attachment.resourceUri, fileKind);
+      this.label.setLabel(attachmentLabel, correspondingContentReference?.options?.status?.description, { extraClasses: iconClasses });
+    } else {
+      const withIcon = attachment.icon?.id ? `$(${attachment.icon.id})\xA0${attachmentLabel}` : attachmentLabel;
+      this.label.setLabel(withIcon, correspondingContentReference?.options?.status?.description);
+    }
     this.element.ariaLabel = localize("chat.attachment", "Attached context, {0}", attachment.name);
     if (attachment.kind === "diagnostic") {
       if (attachment.filterUri) {
@@ -547,7 +556,9 @@ DefaultChatAttachmentWidget = __decorate([
   __param(10, IConfigurationService),
   __param(11, IContextKeyService),
   __param(12, IInstantiationService),
-  __param(13, IHoverService)
+  __param(13, IHoverService),
+  __param(14, IModelService),
+  __param(15, ILanguageService)
 ], DefaultChatAttachmentWidget);
 let PromptFileAttachmentWidget = class PromptFileAttachmentWidget2 extends AbstractChatAttachmentWidget {
   static {

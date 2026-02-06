@@ -60,6 +60,10 @@ export declare namespace PromptsConfig {
      */
     const SKILLS_LOCATION_KEY = "chat.agentSkillsLocations";
     /**
+     * Configuration key for the locations of hook files.
+     */
+    const HOOKS_LOCATION_KEY = "chat.hookFilesLocations";
+    /**
      * Configuration key for prompt file suggestions.
      */
     const PROMPT_FILES_SUGGEST_KEY = "chat.promptFilesRecommendations";
@@ -79,6 +83,10 @@ export declare namespace PromptsConfig {
      * Configuration key for agent skills usage.
      */
     const USE_AGENT_SKILLS = "chat.useAgentSkills";
+    /**
+     * Configuration key for chat hooks usage.
+     */
+    const USE_CHAT_HOOKS = "chat.useChatHooks";
     /**
      * Configuration key for enabling stronger skill adherence prompt (experimental).
      */

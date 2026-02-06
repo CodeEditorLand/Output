@@ -222,7 +222,7 @@ export interface ILanguageModelsService {
     /**
      * Find a model by its qualified name. The qualified name is what is used in prompt and agent files and is in the format "Model Name (Vendor)".
      */
-    lookupLanguageModelByQualifiedName(qualifiedName: string): ILanguageModelChatMetadata | undefined;
+    lookupLanguageModelByQualifiedName(qualifiedName: string): ILanguageModelChatMetadataAndIdentifier | undefined;
     getLanguageModelGroups(vendor: string): ILanguageModelsGroup[];
     /**
      * Given a selector, returns a list of model identifiers
@@ -346,7 +346,7 @@ export declare class LanguageModelsService implements ILanguageModelsService {
     getVendors(): ILanguageModelProviderDescriptor[];
     getLanguageModelIds(): string[];
     lookupLanguageModel(modelIdentifier: string): ILanguageModelChatMetadata | undefined;
-    lookupLanguageModelByQualifiedName(referenceName: string): ILanguageModelChatMetadata | undefined;
+    lookupLanguageModelByQualifiedName(referenceName: string): ILanguageModelChatMetadataAndIdentifier | undefined;
     private _resolveAllLanguageModels;
     getLanguageModelGroups(vendor: string): ILanguageModelsGroup[];
     selectLanguageModels(selector: ILanguageModelChatSelector): Promise<string[]>;

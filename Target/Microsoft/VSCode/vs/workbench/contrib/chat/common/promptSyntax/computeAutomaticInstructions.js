@@ -38,8 +38,8 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   static {
     __name(this, "ComputeAutomaticInstructions");
   }
-  constructor(_agent, _enabledTools, _enabledSubagents, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _telemetryService, _languageModelToolsService) {
-    this._agent = _agent;
+  constructor(_modeKind, _enabledTools, _enabledSubagents, _promptsService, _logService, _labelService, _configurationService, _workspaceService, _fileService, _telemetryService, _languageModelToolsService) {
+    this._modeKind = _modeKind;
     this._enabledTools = _enabledTools;
     this._enabledSubagents = _enabledSubagents;
     this._promptsService = _promptsService;
@@ -87,7 +87,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   /** public for testing */
   async addApplyingInstructions(instructionFiles, context, variables, telemetryEvent, token) {
     const includeApplyingInstructions = this._configurationService.getValue(PromptsConfig.INCLUDE_APPLYING_INSTRUCTIONS);
-    if (!includeApplyingInstructions && this._agent.kind !== ChatModeKind.Edit) {
+    if (!includeApplyingInstructions && this._modeKind !== ChatModeKind.Edit) {
       this._logService.trace(`[InstructionsContextComputer] includeApplyingInstructions is disabled and agent kind is not Edit. No applying instructions will be added.`);
       return;
     }
@@ -333,7 +333,7 @@ let ComputeAutomaticInstructions = class ComputeAutomaticInstructions2 {
   }
   async _addReferencedInstructions(attachedContext, telemetryEvent, token) {
     const includeReferencedInstructions = this._configurationService.getValue(PromptsConfig.INCLUDE_REFERENCED_INSTRUCTIONS);
-    if (!includeReferencedInstructions && this._agent.kind !== ChatModeKind.Edit) {
+    if (!includeReferencedInstructions && this._modeKind !== ChatModeKind.Edit) {
       this._logService.trace(`[InstructionsContextComputer] includeReferencedInstructions is disabled and agent kind is not Edit. No referenced instructions will be added.`);
       return;
     }

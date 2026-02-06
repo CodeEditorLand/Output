@@ -496,7 +496,7 @@ class ExtHostChatAgents2 extends Disposable {
     const model = await this.getModelForRequest(request, detector.extension);
     const tools = await this.getToolsForRequest(detector.extension, request.userSelectedTools, model.id, token);
     const extRequest = typeConvert.ChatAgentRequest.to(request, location, model, this.getDiagnosticsWhenEnabled(detector.extension), tools, detector.extension, this._logService);
-    return detector.provider.provideParticipantDetection(extRequest, { history }, { participants: options.participants, location: typeConvert.ChatLocation.to(options.location) }, token);
+    return detector.provider.provideParticipantDetection(extRequest, { history, yieldRequested: false }, { participants: options.participants, location: typeConvert.ChatLocation.to(options.location) }, token);
   }
   async _createRequest(requestDto, context, extension) {
     const request = revive(requestDto);
@@ -556,7 +556,7 @@ class ExtHostChatAgents2 extends Disposable {
       const model = await this.getModelForRequest(request, agent.extension);
       const tools = await this.getToolsForRequest(agent.extension, request.userSelectedTools, model.id, token);
       const extRequest = typeConvert.ChatAgentRequest.to(request, location, model, this.getDiagnosticsWhenEnabled(agent.extension), tools, agent.extension, this._logService);
-      inFlightRequest = { requestId: requestDto.requestId, extRequest, extension: agent.extension };
+      inFlightRequest = { requestId: requestDto.requestId, extRequest, extension: agent.extension, hooks: request.hooks };
       this._inFlightRequests.add(inFlightRequest);
       let chatSessionContext;
       if (context.chatSessionContext) {
@@ -568,7 +568,7 @@ class ExtHostChatAgents2 extends Disposable {
           isUntitled: context.chatSessionContext.isUntitled
         };
       }
-      const chatContext = { history, chatSessionContext };
+      const chatContext = { history, chatSessionContext, yieldRequested: request.yieldRequested ?? false };
       const task = agent.invoke(extRequest, chatContext, stream.apiObject, token);
       return await raceCancellationWithTimeout(1e3, Promise.resolve(task).then((result) => {
         if (result?.metadata) {
@@ -675,7 +675,7 @@ class ExtHostChatAgents2 extends Disposable {
     const request = revive(requestDto);
     const convertedHistory = await this.prepareHistoryTurns(agent.extension, agent.id, context);
     const ehResult = typeConvert.ChatAgentResult.to(result);
-    return (await agent.provideFollowups(ehResult, { history: convertedHistory }, token)).filter((f) => {
+    return (await agent.provideFollowups(ehResult, { history: convertedHistory, yieldRequested: false }, token)).filter((f) => {
       const isValid = !f.participant || Iterable.some(this._agents.values(), (a) => a.id === f.participant && ExtensionIdentifier.equals(a.extension.identifier, agent.extension.identifier));
       if (!isValid) {
         this._logService.warn(`[@${agent.id}] ChatFollowup refers to an unknown participant: ${f.participant}`);
@@ -753,7 +753,7 @@ class ExtHostChatAgents2 extends Disposable {
       return;
     }
     const history = await this.prepareHistoryTurns(agent.extension, agent.id, { history: context });
-    return await agent.provideTitle({ history }, token);
+    return await agent.provideTitle({ history, yieldRequested: false }, token);
   }
   async $provideChatSummary(handle, context, token) {
     const agent = this._agents.get(handle);
@@ -761,7 +761,7 @@ class ExtHostChatAgents2 extends Disposable {
       return;
     }
     const history = await this.prepareHistoryTurns(agent.extension, agent.id, { history: context });
-    return await agent.provideSummary({ history }, token);
+    return await agent.provideSummary({ history, yieldRequested: false }, token);
   }
 }
 class ExtHostParticipantDetector {

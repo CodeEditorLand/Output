@@ -33,11 +33,13 @@ export interface IActionWidgetDropdownOptions extends IBaseDropdownOptions {
     readonly showItemKeybindings?: boolean;
     getAnchor?: () => HTMLElement;
     /**
-     * Name used for telemetry tracking when the dropdown closes.
-     * If not provided, no telemetry will be sent.
+     * Telemetry reporter configuration used when the dropdown closes. The `id` field is required
+     * and is used as the telemetry identifier; `name` is optional additional context. If not
+     * provided, no telemetry will be sent.
      */
     readonly reporter?: {
-        name: string;
+        id: string;
+        name?: string;
         includeOptions?: boolean;
     };
 }

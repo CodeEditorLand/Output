@@ -246,7 +246,8 @@ let AgentSessionRenderer = class AgentSessionRenderer2 extends Disposable {
       }
       return timeLabel;
     }, "getTimeLabel");
-    template.statusProviderIcon.className = `agent-session-status-provider-icon ${ThemeIcon.asClassName(session.element.icon)}`;
+    const isLocal = session.element.providerType === AgentSessionProviders.Local;
+    template.statusProviderIcon.className = isLocal ? "" : `agent-session-status-provider-icon ${ThemeIcon.asClassName(session.element.icon)}`;
     template.statusTime.textContent = getTimeLabel(session.element);
     const timer = template.elementDisposable.add(new IntervalTimer());
     timer.cancelAndSet(
@@ -452,6 +453,9 @@ class AgentSessionsDataSource {
   groupSessionsIntoSections(sessions) {
     const sortedSessions = sessions.sort(this.sorter.compare.bind(this.sorter));
     if (this.filter?.groupResults?.() === AgentSessionsGrouping.Capped) {
+      if (this.filter?.getExcludes().read) {
+        return sortedSessions;
+      }
       return this.groupSessionsCapped(sortedSessions);
     } else {
       return this.groupSessionsByDate(sortedSessions);

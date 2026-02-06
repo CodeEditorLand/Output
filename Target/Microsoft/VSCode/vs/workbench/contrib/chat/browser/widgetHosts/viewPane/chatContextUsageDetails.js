@@ -30,7 +30,6 @@ let ChatContextUsageDetails = class ChatContextUsageDetails2 extends Disposable 
     this.menuService = menuService;
     this.contextKeyService = contextKeyService;
     this.domNode = $(".chat-context-usage-details");
-    this.domNode.setAttribute("tabindex", "0");
     this.quotaItem = this.domNode.appendChild($(".quota-item"));
     const quotaItemHeader = this.quotaItem.appendChild($(".quota-item-header"));
     const quotaItemLabel = quotaItemHeader.appendChild($(".quota-item-label"));

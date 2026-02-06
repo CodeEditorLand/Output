@@ -1674,6 +1674,14 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       this.height.set(newHeight, void 0);
     }));
     this._register(inputResizeObserver.observe(this.container));
+    if (this.options.renderStyle === "compact") {
+      const toolbarsResizeObserver = this._register(new dom.DisposableResizeObserver(() => {
+        if (this.cachedWidth) {
+          this.layout(this.cachedWidth);
+        }
+      }));
+      this._register(toolbarsResizeObserver.observe(toolbarsContainer));
+    }
   }
   toggleChatInputOverlay(editing) {
     this.chatInputOverlay.classList.toggle("disabled", editing);
@@ -2006,12 +2014,14 @@ let ChatInputPart = class ChatInputPart2 extends Disposable {
       reader.store.add(scopedInstantiationService.createInstance(MenuWorkbenchButtonBar, actionsContainer, isSessionMenu ? MenuId.ChatEditingSessionChangesToolbar : MenuId.ChatEditingWidgetToolbar, {
         telemetrySource: this.options.menus.telemetrySource,
         small: true,
-        menuOptions: {
-          arg: sessionResource && (isSessionMenu ? sessionResource : {
+        menuOptions: sessionResource ? isSessionMenu ? {
+          args: [sessionResource, this.agentSessionsService.getSession(sessionResource)?.metadata]
+        } : {
+          arg: {
             $mid: 19,
             sessionResource
-          })
-        },
+          }
+        } : void 0,
         disableWhileRunning: isSessionMenu,
         buttonConfigProvider: /* @__PURE__ */ __name((action) => {
           if (action.id === ChatEditingShowChangesAction.ID || action.id === ViewPreviousEditsAction.Id || action.id === ViewAllSessionChangesAction.ID) {

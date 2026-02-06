@@ -3,6 +3,8 @@ import { Disposable, IDisposable } from '../../../../../base/common/lifecycle.js
 import { URI } from '../../../../../base/common/uri.js';
 import { IRange } from '../../../../../editor/common/core/range.js';
 import { Location, SymbolKind } from '../../../../../editor/common/languages.js';
+import { ILanguageService } from '../../../../../editor/common/languages/language.js';
+import { IModelService } from '../../../../../editor/common/services/model.js';
 import { MenuId } from '../../../../../platform/actions/common/actions.js';
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
@@ -87,11 +89,13 @@ export declare class DefaultChatAttachmentWidget extends AbstractChatAttachmentW
     private readonly contextKeyService;
     private readonly instantiationService;
     private readonly hoverService;
+    private readonly modelService;
+    private readonly languageService;
     private readonly _tooltipHover;
     constructor(resource: URI | undefined, range: IRange | undefined, attachment: IChatRequestVariableEntry, correspondingContentReference: IChatContentReference | undefined, currentLanguageModel: ILanguageModelChatMetadataAndIdentifier | undefined, options: {
         shouldFocusClearButton: boolean;
         supportsDeletion: boolean;
-    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, hoverService: IHoverService);
+    }, container: HTMLElement, contextResourceLabels: ResourceLabels, commandService: ICommandService, openerService: IOpenerService, configurationService: IConfigurationService, contextKeyService: IContextKeyService, instantiationService: IInstantiationService, hoverService: IHoverService, modelService: IModelService, languageService: ILanguageService);
     private _setupTooltipHover;
 }
 export declare class PromptFileAttachmentWidget extends AbstractChatAttachmentWidget {

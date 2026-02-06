@@ -79,6 +79,10 @@ function pointToType(contributionPoint) {
       return PromptsType.agent;
     case ChatContributionPoint.chatSkills:
       return PromptsType.skill;
+    default: {
+      const exhaustiveCheck = contributionPoint;
+      throw new Error(`Unknown contribution point: ${exhaustiveCheck}`);
+    }
   }
 }
 __name(pointToType, "pointToType");
@@ -138,14 +142,15 @@ ChatPromptFilesExtensionPointHandler = __decorate([
 ], ChatPromptFilesExtensionPointHandler);
 CommandsRegistry.registerCommand("_listExtensionPromptFiles", async (accessor) => {
   const promptsService = accessor.get(IPromptsService);
-  const [agents, instructions, prompts, skills] = await Promise.all([
+  const [agents, instructions, prompts, skills, hooks] = await Promise.all([
     promptsService.listPromptFiles(PromptsType.agent, CancellationToken.None),
     promptsService.listPromptFiles(PromptsType.instructions, CancellationToken.None),
     promptsService.listPromptFiles(PromptsType.prompt, CancellationToken.None),
-    promptsService.listPromptFiles(PromptsType.skill, CancellationToken.None)
+    promptsService.listPromptFiles(PromptsType.skill, CancellationToken.None),
+    promptsService.listPromptFiles(PromptsType.hook, CancellationToken.None)
   ]);
   const result = [];
-  for (const file of [...agents, ...instructions, ...prompts, ...skills]) {
+  for (const file of [...agents, ...instructions, ...prompts, ...skills, ...hooks]) {
     if (file.storage === PromptsStorage.extension) {
       result.push({ uri: file.uri.toJSON(), type: file.type });
     }

@@ -140,6 +140,7 @@ let ActionWidgetDropdown = class ActionWidgetDropdown2 extends BaseDropdown {
     const optionAfter = selectedOption;
     if (this._options.reporter) {
       this.telemetryService.publicLog2("actionWidgetDropdownClosed", {
+        id: this._options.reporter.id,
         name: this._options.reporter.name,
         selectionChanged: optionBefore?.id !== optionAfter?.id,
         optionIdBefore: this._options.reporter.includeOptions ? optionBefore?.id : void 0,

@@ -80,9 +80,9 @@ export declare class BrowserEditor extends EditorPane {
     toggleDevTools(): Promise<void>;
     clearStorage(): Promise<void>;
     /**
-     * Show the find widget
+     * Show the find widget, optionally pre-populated with selected text from the browser view
      */
-    showFind(): void;
+    showFind(): Promise<void>;
     /**
      * Hide the find widget
      */

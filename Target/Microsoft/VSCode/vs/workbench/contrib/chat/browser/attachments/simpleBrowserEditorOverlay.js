@@ -41,6 +41,8 @@ import { IContextMenuService } from "../../../../../platform/contextview/browser
 import { toAction } from "../../../../../base/common/actions.js";
 import { getDisplayNameFromOuterHTML } from "../../../../../platform/browserElements/common/browserElements.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { observableConfigValue, observableContextKey } from "../../../../../platform/observable/common/platformObservableUtils.js";
 let SimpleBrowserOverlayWidget = class SimpleBrowserOverlayWidget2 {
   static {
     __name(this, "SimpleBrowserOverlayWidget");
@@ -289,14 +291,12 @@ let SimpleBrowserOverlayController = class SimpleBrowserOverlayController2 {
   static {
     __name(this, "SimpleBrowserOverlayController");
   }
-  constructor(container, group, instaService, configurationService, _browserElementsService) {
+  constructor(container, group, instaService, configurationService, _browserElementsService, contextKeyService) {
     this.configurationService = configurationService;
     this._browserElementsService = _browserElementsService;
+    this.contextKeyService = contextKeyService;
     this._store = new DisposableStore();
     this._domNode = document.createElement("div");
-    if (!this.configurationService.getValue("chat.sendElementsToChat.enabled")) {
-      return;
-    }
     this._domNode.classList.add("chat-simple-browser-overlay");
     this._domNode.style.position = "absolute";
     this._domNode.style.bottom = `5px`;
@@ -352,9 +352,13 @@ let SimpleBrowserOverlayController = class SimpleBrowserOverlayController2 {
       }
       return void 0;
     });
+    const chatEnabledObs = observableContextKey(ChatContextKeys.enabled.key, this.contextKeyService);
+    const sendElementsEnabledObs = observableConfigValue("chat.sendElementsToChat.enabled", true, this.configurationService);
     this._store.add(autorun((r) => {
       const activeEditor = activeIdObs.read(r);
-      if (!activeEditor) {
+      const isChatEnabled = chatEnabledObs.read(r);
+      const isSendElementsEnabled = sendElementsEnabledObs.read(r);
+      if (!isChatEnabled || !isSendElementsEnabled || !activeEditor) {
         hide();
         return;
       }
@@ -368,7 +372,8 @@ let SimpleBrowserOverlayController = class SimpleBrowserOverlayController2 {
 SimpleBrowserOverlayController = __decorate([
   __param(2, IInstantiationService),
   __param(3, IConfigurationService),
-  __param(4, IBrowserElementsService)
+  __param(4, IBrowserElementsService),
+  __param(5, IContextKeyService)
 ], SimpleBrowserOverlayController);
 let SimpleBrowserOverlay = class SimpleBrowserOverlay2 {
   static {

@@ -58,6 +58,7 @@ import { IExtHostConsumerFileSystem } from "./extHostFileSystemConsumer.js";
 import { ExtHostFileSystemEventService } from "./extHostFileSystemEventService.js";
 import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostHooks } from "./extHostHooks.js";
 import { ExtHostInteractive } from "./extHostInteractive.js";
 import { ExtHostLabelService } from "./extHostLabelService.js";
 import { ExtHostLanguageFeatures } from "./extHostLanguageFeatures.js";
@@ -208,6 +209,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostSpeech = rpcProtocol.set(ExtHostContext.ExtHostSpeech, new ExtHostSpeech(rpcProtocol));
   const extHostEmbeddings = rpcProtocol.set(ExtHostContext.ExtHostEmbeddings, new ExtHostEmbeddings(rpcProtocol));
   rpcProtocol.set(ExtHostContext.ExtHostMcp, accessor.get(IExtHostMpcService));
+  rpcProtocol.set(ExtHostContext.ExtHostHooks, accessor.get(IExtHostHooks));
   const expected = Object.values(ExtHostContext);
   rpcProtocol.assertRegistered(expected);
   const extHostBulkEdits = new ExtHostBulkEdits(rpcProtocol, extHostDocumentsAndEditors);
@@ -215,6 +217,7 @@ function createApiFactoryAndRegisterActors(accessor) {
   const extHostMessageService = new ExtHostMessageService(rpcProtocol, extHostLogService);
   const extHostDialogs = new ExtHostDialogs(rpcProtocol);
   const extHostChatStatus = new ExtHostChatStatus(rpcProtocol);
+  const extHostHooks = accessor.get(IExtHostHooks);
   ExtHostApiCommands.register(extHostCommands);
   return function(extension, extensionInfo, configProvider) {
     function _asExtensionEvent(actual) {
@@ -1481,6 +1484,10 @@ function createApiFactoryAndRegisterActors(accessor) {
       registerSkillProvider(provider) {
         checkProposedApiEnabled(extension, "chatPromptFiles");
         return extHostChatAgents2.registerPromptFileProvider(extension, PromptsType.skill, provider);
+      },
+      async executeHook(hookType, options, token) {
+        checkProposedApiEnabled(extension, "chatHooks");
+        return extHostHooks.executeHook(hookType, options, token);
       }
     };
     const lm = {
@@ -1898,7 +1905,9 @@ function createApiFactoryAndRegisterActors(accessor) {
       McpStdioServerDefinition2: extHostTypes.McpStdioServerDefinition,
       McpToolAvailability: extHostTypes.McpToolAvailability,
       McpToolInvocationContentData: extHostTypes.McpToolInvocationContentData,
-      SettingsSearchResultKind: extHostTypes.SettingsSearchResultKind
+      SettingsSearchResultKind: extHostTypes.SettingsSearchResultKind,
+      ChatHookResultKind: extHostTypes.ChatHookResultKind,
+      ChatTodoStatus: extHostTypes.ChatTodoStatus
     };
   };
 }

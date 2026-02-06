@@ -67,7 +67,7 @@ let SessionTypePickerActionItem = class SessionTypePickerActionItem2 extends Cha
       actionProvider,
       actionBarActionProvider,
       showItemKeybindings: true,
-      reporter: { name: `ChatSessionTypePicker`, includeOptions: true }
+      reporter: { id: "ChatSessionTypePicker", name: `ChatSessionTypePicker`, includeOptions: true }
     };
     super(action, sessionTargetPickerOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
     this.chatSessionPosition = chatSessionPosition;

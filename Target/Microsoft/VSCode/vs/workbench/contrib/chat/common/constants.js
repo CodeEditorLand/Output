@@ -7,6 +7,7 @@ var ChatConfiguration;
 (function(ChatConfiguration2) {
   ChatConfiguration2["AIDisabled"] = "chat.disableAIFeatures";
   ChatConfiguration2["AgentEnabled"] = "chat.agent.enabled";
+  ChatConfiguration2["RequestQueueingEnabled"] = "chat.requestQueuing.enabled";
   ChatConfiguration2["AgentStatusEnabled"] = "chat.agentsControl.enabled";
   ChatConfiguration2["EditorAssociations"] = "chat.editorAssociations";
   ChatConfiguration2["UnifiedAgentsBar"] = "chat.unifiedAgentsBar.enabled";

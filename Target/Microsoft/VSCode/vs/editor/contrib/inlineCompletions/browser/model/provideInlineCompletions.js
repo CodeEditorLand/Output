@@ -11,7 +11,7 @@ import { OffsetRange } from "../../../../common/core/ranges/offsetRange.js";
 import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
 import { TextReplacement } from "../../../../common/core/edits/textEdit.js";
-import { InlineCompletionEndOfLifeReasonKind } from "../../../../common/languages.js";
+import { InlineCompletionEndOfLifeReasonKind, InlineCompletionTriggerKind } from "../../../../common/languages.js";
 import { fixBracketsInLine } from "../../../../common/model/bracketPairsTextModelPart/fixBrackets.js";
 import { SnippetParser, Text } from "../../../snippet/browser/snippetParser.js";
 import { ErrorResult, getReadonlyEmptyArray } from "../utils.js";
@@ -191,6 +191,43 @@ __name(toInlineSuggestData, "toInlineSuggestData");
 class InlineSuggestData {
   static {
     __name(this, "InlineSuggestData");
+  }
+  static createForTest(action, targetUri) {
+    const mockInlineCompletion = {
+      insertText: action?.kind === "edit" ? action.insertText : "",
+      range: action?.kind === "edit" ? action.range : void 0,
+      isInlineEdit: true
+    };
+    const mockProvider = {
+      provideInlineCompletions: /* @__PURE__ */ __name(() => ({ items: [] }), "provideInlineCompletions"),
+      disposeInlineCompletions: /* @__PURE__ */ __name(() => {
+      }, "disposeInlineCompletions")
+    };
+    const mockSource = new InlineSuggestionList({ items: [mockInlineCompletion] }, [], mockProvider);
+    const mockContext = {
+      triggerKind: InlineCompletionTriggerKind.Explicit,
+      selectedSuggestionInfo: void 0,
+      requestUuid: "test-" + Date.now(),
+      earliestShownDateTime: 0,
+      includeInlineCompletions: true,
+      includeInlineEdits: false,
+      requestIssuedDateTime: Date.now()
+    };
+    const mockRequestInfo = {
+      startTime: Date.now(),
+      sku: void 0,
+      editorType: InlineCompletionEditorType.TextEditor,
+      languageId: "plaintext",
+      availableProviders: [],
+      reason: "",
+      typingInterval: 0,
+      typingIntervalCharacterCount: 0
+    };
+    const mockProviderRequestInfo = {
+      startTime: Date.now(),
+      endTime: Date.now()
+    };
+    return new InlineSuggestData(action, void 0, [], mockInlineCompletion, mockSource, mockContext, true, false, mockRequestInfo, mockProviderRequestInfo, void 0);
   }
   get action() {
     return this._action;

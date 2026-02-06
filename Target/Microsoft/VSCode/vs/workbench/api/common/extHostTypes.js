@@ -3008,6 +3008,12 @@ class ChatResponseWorkspaceEditPart {
     this.edits = edits;
   }
 }
+var ChatTodoStatus;
+(function(ChatTodoStatus2) {
+  ChatTodoStatus2[ChatTodoStatus2["NotStarted"] = 1] = "NotStarted";
+  ChatTodoStatus2[ChatTodoStatus2["InProgress"] = 2] = "InProgress";
+  ChatTodoStatus2[ChatTodoStatus2["Completed"] = 3] = "Completed";
+})(ChatTodoStatus || (ChatTodoStatus = {}));
 class ChatToolInvocationPart {
   static {
     __name(this, "ChatToolInvocationPart");
@@ -3456,6 +3462,11 @@ var SettingsSearchResultKind;
   SettingsSearchResultKind2[SettingsSearchResultKind2["LLM_RANKED"] = 2] = "LLM_RANKED";
   SettingsSearchResultKind2[SettingsSearchResultKind2["CANCELED"] = 3] = "CANCELED";
 })(SettingsSearchResultKind || (SettingsSearchResultKind = {}));
+var ChatHookResultKind;
+(function(ChatHookResultKind2) {
+  ChatHookResultKind2[ChatHookResultKind2["Success"] = 1] = "Success";
+  ChatHookResultKind2[ChatHookResultKind2["Error"] = 2] = "Error";
+})(ChatHookResultKind || (ChatHookResultKind = {}));
 var SpeechToTextStatus;
 (function(SpeechToTextStatus2) {
   SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
@@ -3518,6 +3529,7 @@ export {
   ChatEditingSessionActionOutcome,
   ChatEditorTabInput,
   ChatErrorLevel,
+  ChatHookResultKind,
   ChatImageMimeType,
   ChatLocation,
   ChatQuestion,
@@ -3558,6 +3570,7 @@ export {
   ChatSessionChangedFile,
   ChatSessionChangedFile2,
   ChatSessionStatus,
+  ChatTodoStatus,
   ChatToolInvocationPart,
   ChatVariableLevel,
   CodeAction,

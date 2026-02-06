@@ -40,6 +40,7 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
     this.options = options;
     this.chatSessionsService = chatSessionsService;
     this.storageService = storageService;
+    this.STORAGE_KEY = `agentSessions.filterExcludes.agentsessionsviewerfiltersubmenu`;
     this._onDidChange = this._register(new Emitter());
     this.onDidChange = this._onDidChange.event;
     this.limitResults = () => this.options.limitResults?.();
@@ -47,7 +48,6 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
     this.excludes = DEFAULT_EXCLUDES;
     this.isStoringExcludes = false;
     this.actionDisposables = this._register(new DisposableStore());
-    this.STORAGE_KEY = `agentSessions.filterExcludes.${this.options.filterMenuId.id.toLowerCase()}`;
     this.updateExcludes(false);
     this.registerListeners();
   }
@@ -103,13 +103,17 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
   }
   updateFilterActions() {
     this.actionDisposables.clear();
-    this.registerProviderActions(this.actionDisposables);
-    this.registerStateActions(this.actionDisposables);
-    this.registerArchivedActions(this.actionDisposables);
-    this.registerReadActions(this.actionDisposables);
-    this.registerResetAction(this.actionDisposables);
+    const menuId = this.options.filterMenuId;
+    if (!menuId) {
+      return;
+    }
+    this.registerProviderActions(this.actionDisposables, menuId);
+    this.registerStateActions(this.actionDisposables, menuId);
+    this.registerArchivedActions(this.actionDisposables, menuId);
+    this.registerReadActions(this.actionDisposables, menuId);
+    this.registerResetAction(this.actionDisposables, menuId);
   }
-  registerProviderActions(disposables) {
+  registerProviderActions(disposables, menuId) {
     const providers = Object.values(AgentSessionProviders).map((provider) => ({
       id: provider,
       label: getAgentSessionProviderName(provider)
@@ -126,10 +130,10 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       disposables.add(registerAction2(class extends Action2 {
         constructor() {
           super({
-            id: `agentSessions.filter.toggleExclude:${provider.id}.${that.options.filterMenuId.id.toLowerCase()}`,
+            id: `agentSessions.filter.toggleExclude:${provider.id}.${menuId.id.toLowerCase()}`,
             title: provider.label,
             menu: {
-              id: that.options.filterMenuId,
+              id: menuId,
               group: "1_providers",
               order: counter++
             },
@@ -146,7 +150,7 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       }));
     }
   }
-  registerStateActions(disposables) {
+  registerStateActions(disposables, menuId) {
     const states = [
       { id: 1, label: localize("agentSessionStatus.completed", "Completed") },
       { id: 2, label: localize("agentSessionStatus.inProgress", "In Progress") },
@@ -159,10 +163,10 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       disposables.add(registerAction2(class extends Action2 {
         constructor() {
           super({
-            id: `agentSessions.filter.toggleExcludeState:${state.id}.${that.options.filterMenuId.id.toLowerCase()}`,
+            id: `agentSessions.filter.toggleExcludeState:${state.id}.${menuId.id.toLowerCase()}`,
             title: state.label,
             menu: {
-              id: that.options.filterMenuId,
+              id: menuId,
               group: "2_states",
               order: counter++
             },
@@ -179,15 +183,15 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       }));
     }
   }
-  registerArchivedActions(disposables) {
+  registerArchivedActions(disposables, menuId) {
     const that = this;
     disposables.add(registerAction2(class extends Action2 {
       constructor() {
         super({
-          id: `agentSessions.filter.toggleExcludeArchived.${that.options.filterMenuId.id.toLowerCase()}`,
+          id: `agentSessions.filter.toggleExcludeArchived.${menuId.id.toLowerCase()}`,
           title: localize("agentSessions.filter.archived", "Archived"),
           menu: {
-            id: that.options.filterMenuId,
+            id: menuId,
             group: "3_props",
             order: 1e3
           },
@@ -199,15 +203,15 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       }
     }));
   }
-  registerReadActions(disposables) {
+  registerReadActions(disposables, menuId) {
     const that = this;
     disposables.add(registerAction2(class extends Action2 {
       constructor() {
         super({
-          id: `agentSessions.filter.toggleExcludeRead.${that.options.filterMenuId.id.toLowerCase()}`,
+          id: `agentSessions.filter.toggleExcludeRead.${menuId.id.toLowerCase()}`,
           title: localize("agentSessions.filter.read", "Read"),
           menu: {
-            id: that.options.filterMenuId,
+            id: menuId,
             group: "3_props",
             order: 0
           },
@@ -219,15 +223,15 @@ let AgentSessionsFilter = class AgentSessionsFilter2 extends Disposable {
       }
     }));
   }
-  registerResetAction(disposables) {
+  registerResetAction(disposables, menuId) {
     const that = this;
     disposables.add(registerAction2(class extends Action2 {
       constructor() {
         super({
-          id: `agentSessions.filter.resetExcludes.${that.options.filterMenuId.id.toLowerCase()}`,
+          id: `agentSessions.filter.resetExcludes.${menuId.id.toLowerCase()}`,
           title: localize("agentSessions.filter.reset", "Reset"),
           menu: {
-            id: that.options.filterMenuId,
+            id: menuId,
             group: "4_reset",
             order: 0
           }

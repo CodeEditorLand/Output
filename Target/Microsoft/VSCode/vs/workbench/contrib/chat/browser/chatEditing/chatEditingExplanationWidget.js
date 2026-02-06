@@ -11,7 +11,7 @@ import { Range } from "../../../../../editor/common/core/range.js";
 import { overviewRulerRangeHighlight } from "../../../../../editor/common/core/editorColorRegistry.js";
 import { OverviewRulerLane } from "../../../../../editor/common/model.js";
 import { themeColorFromId } from "../../../../../platform/theme/common/themeService.js";
-import { ChatViewId, ChatViewPaneTarget } from "../chat.js";
+import { ChatViewId } from "../chat.js";
 import * as nls from "../../../../../nls.js";
 import { autorun } from "../../../../../base/common/observable.js";
 function getChangeTexts(change, diffInfo) {
@@ -234,7 +234,7 @@ class ChatEditingExplanationWidget extends Disposable {
         const range = new Range(exp.startLineNumber, 1, exp.endLineNumber, 1);
         let chatWidget;
         if (this._chatSessionResource) {
-          chatWidget = await this._chatWidgetService.openSession(this._chatSessionResource, ChatViewPaneTarget);
+          chatWidget = await this._chatWidgetService.openSession(this._chatSessionResource);
         } else {
           await this._viewsService.openView(ChatViewId, true);
           chatWidget = this._chatWidgetService.lastFocusedWidget;

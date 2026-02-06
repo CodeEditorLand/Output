@@ -39,6 +39,10 @@ import { PromptFileParser, PromptHeaderAttributes } from "../promptFileParser.js
 import { PromptsStorage, ExtensionAgentSourceType, CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT, INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT, PROMPT_FILE_PROVIDER_ACTIVATION_EVENT, SKILL_PROVIDER_ACTIVATION_EVENT } from "./promptsService.js";
 import { Delayer } from "../../../../../../base/common/async.js";
 import { Schemas } from "../../../../../../base/common/network.js";
+import { HookType } from "../hookSchema.js";
+import { parseHooksFromFile } from "../hookCompatibility.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IPathService } from "../../../../../services/path/common/pathService.js";
 class SkillMissingNameError extends Error {
   static {
     __name(this, "SkillMissingNameError");
@@ -72,7 +76,7 @@ let PromptsService = class PromptsService2 extends Disposable {
   static {
     __name(this, "PromptsService");
   }
-  constructor(logger, labelService, modelService, instantiationService, userDataService, configurationService, fileService, filesConfigService, storageService, extensionService, telemetryService) {
+  constructor(logger, labelService, modelService, instantiationService, userDataService, configurationService, fileService, filesConfigService, storageService, extensionService, telemetryService, workspaceService, pathService) {
     super();
     this.logger = logger;
     this.labelService = labelService;
@@ -85,6 +89,8 @@ let PromptsService = class PromptsService2 extends Disposable {
     this.storageService = storageService;
     this.extensionService = extensionService;
     this.telemetryService = telemetryService;
+    this.workspaceService = workspaceService;
+    this.pathService = pathService;
     this.cachedParsedPromptFromModels = new ResourceMap();
     this.cachedFileLocations = {};
     this.fileLocatorEvents = {};
@@ -92,7 +98,8 @@ let PromptsService = class PromptsService2 extends Disposable {
       [PromptsType.prompt]: new ResourceMap(),
       [PromptsType.instructions]: new ResourceMap(),
       [PromptsType.agent]: new ResourceMap(),
-      [PromptsType.skill]: new ResourceMap()
+      [PromptsType.skill]: new ResourceMap(),
+      [PromptsType.hook]: new ResourceMap()
     };
     this.promptFileProviders = [];
     this.disabledPromptsStorageKeyPrefix = "chat.disabledPromptFiles.";
@@ -103,6 +110,9 @@ let PromptsService = class PromptsService2 extends Disposable {
     const modelChangeEvent = this._register(new ModelChangeTracker(this.modelService)).onDidPromptChange;
     this.cachedCustomAgents = this._register(new CachedPromise((token) => this.computeCustomAgents(token), () => Event.any(this.getFileLocatorEvent(PromptsType.agent), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.agent))));
     this.cachedSlashCommands = this._register(new CachedPromise((token) => this.computePromptSlashCommands(token), () => Event.any(this.getFileLocatorEvent(PromptsType.prompt), Event.filter(modelChangeEvent, (e) => e.promptType === PromptsType.prompt))));
+    this.cachedHooks = this._register(new CachedPromise((token) => this.computeHooks(token), () => this.getFileLocatorEvent(PromptsType.hook)));
+    this._register(this.cachedHooks.onDidChange(() => {
+    }));
   }
   getFileLocatorEvent(type) {
     let event = this.fileLocatorEvents[type];
@@ -256,6 +266,9 @@ let PromptsService = class PromptsService2 extends Disposable {
     const settledResults = await Promise.allSettled(this.contributedFiles[type].values());
     const contributedFiles = settledResults.filter((result) => result.status === "fulfilled").map((result) => result.value);
     const activationEvent = this.getProviderActivationEvent(type);
+    if (!activationEvent) {
+      return contributedFiles;
+    }
     const providerFiles = await this.listFromProviders(type, activationEvent, token);
     return [...contributedFiles, ...providerFiles];
   }
@@ -269,6 +282,8 @@ let PromptsService = class PromptsService2 extends Disposable {
         return PROMPT_FILE_PROVIDER_ACTIVATION_EVENT;
       case PromptsType.skill:
         return SKILL_PROVIDER_ACTIVATION_EVENT;
+      case PromptsType.hook:
+        return void 0;
     }
   }
   async getSourceFolders(type) {
@@ -276,6 +291,11 @@ let PromptsService = class PromptsService2 extends Disposable {
     if (type === PromptsType.agent) {
       const folders = await this.fileLocator.getAgentSourceFolders();
       for (const uri of folders) {
+        result.push({ uri, storage: PromptsStorage.local, type });
+      }
+    } else if (type === PromptsType.hook) {
+      const hooksFolders = await this.fileLocator.getHookSourceFolders();
+      for (const uri of hooksFolders) {
         result.push({ uri, storage: PromptsStorage.local, type });
       }
     } else {
@@ -654,6 +674,8 @@ let PromptsService = class PromptsService2 extends Disposable {
       claudeWorkspace: skillsBySource.get(PromptFileSource.ClaudeWorkspace) ?? 0,
       copilotPersonal: skillsBySource.get(PromptFileSource.CopilotPersonal) ?? 0,
       githubWorkspace: skillsBySource.get(PromptFileSource.GitHubWorkspace) ?? 0,
+      agentsPersonal: skillsBySource.get(PromptFileSource.AgentsPersonal) ?? 0,
+      agentsWorkspace: skillsBySource.get(PromptFileSource.AgentsWorkspace) ?? 0,
       configWorkspace: skillsBySource.get(PromptFileSource.ConfigWorkspace) ?? 0,
       configPersonal: skillsBySource.get(PromptFileSource.ConfigPersonal) ?? 0,
       extensionContribution: skillsBySource.get(PromptFileSource.ExtensionContribution) ?? 0,
@@ -664,6 +686,63 @@ let PromptsService = class PromptsService2 extends Disposable {
       skippedNameMismatch,
       skippedParseFailed
     });
+    return result;
+  }
+  getHooks(token) {
+    return this.cachedHooks.get(token);
+  }
+  async computeHooks(token) {
+    const hookFiles = await this.listPromptFiles(PromptsType.hook, token);
+    if (hookFiles.length === 0) {
+      this.logger.trace("[PromptsService] No hook files found.");
+      return void 0;
+    }
+    this.logger.trace(`[PromptsService] Found ${hookFiles.length} hook file(s).`);
+    const userHomeUri = await this.pathService.userHome();
+    const userHome = userHomeUri.scheme === Schemas.file ? userHomeUri.fsPath : userHomeUri.path;
+    const workspaceFolder = this.workspaceService.getWorkspace().folders[0];
+    const workspaceRootUri = workspaceFolder?.uri;
+    const collectedHooks = {
+      [HookType.SessionStart]: [],
+      [HookType.UserPromptSubmitted]: [],
+      [HookType.PreToolUse]: [],
+      [HookType.PostToolUse]: [],
+      [HookType.PostToolUseFailure]: [],
+      [HookType.SubagentStart]: [],
+      [HookType.SubagentStop]: [],
+      [HookType.Stop]: []
+    };
+    for (const hookFile of hookFiles) {
+      try {
+        const content = await this.fileService.readFile(hookFile.uri);
+        const json = JSON.parse(content.value.toString());
+        const { format, hooks } = parseHooksFromFile(hookFile.uri, json, workspaceRootUri, userHome);
+        for (const [hookType, { hooks: commands }] of hooks) {
+          for (const command of commands) {
+            collectedHooks[hookType].push(command);
+            this.logger.trace(`[PromptsService] Collected ${hookType} hook from ${hookFile.uri} (format: ${format})`);
+          }
+        }
+      } catch (error) {
+        this.logger.warn(`[PromptsService] Failed to parse hook file: ${hookFile.uri}`, error);
+      }
+    }
+    const hasHooks = Object.values(collectedHooks).some((arr) => arr.length > 0);
+    if (!hasHooks) {
+      this.logger.trace("[PromptsService] No valid hooks collected.");
+      return void 0;
+    }
+    const result = {
+      ...collectedHooks[HookType.SessionStart].length > 0 && { sessionStart: collectedHooks[HookType.SessionStart] },
+      ...collectedHooks[HookType.UserPromptSubmitted].length > 0 && { userPromptSubmitted: collectedHooks[HookType.UserPromptSubmitted] },
+      ...collectedHooks[HookType.PreToolUse].length > 0 && { preToolUse: collectedHooks[HookType.PreToolUse] },
+      ...collectedHooks[HookType.PostToolUse].length > 0 && { postToolUse: collectedHooks[HookType.PostToolUse] },
+      ...collectedHooks[HookType.PostToolUseFailure].length > 0 && { postToolUseFailure: collectedHooks[HookType.PostToolUseFailure] },
+      ...collectedHooks[HookType.SubagentStart].length > 0 && { subagentStart: collectedHooks[HookType.SubagentStart] },
+      ...collectedHooks[HookType.SubagentStop].length > 0 && { subagentStop: collectedHooks[HookType.SubagentStop] },
+      ...collectedHooks[HookType.Stop].length > 0 && { stop: collectedHooks[HookType.Stop] }
+    };
+    this.logger.trace(`[PromptsService] Collected hooks: ${JSON.stringify(Object.keys(result))}`);
     return result;
   }
   async getPromptDiscoveryInfo(type, token) {
@@ -873,7 +952,9 @@ PromptsService = __decorate([
   __param(7, IFilesConfigurationService),
   __param(8, IStorageService),
   __param(9, IExtensionService),
-  __param(10, ITelemetryService)
+  __param(10, ITelemetryService),
+  __param(11, IWorkspaceContextService),
+  __param(12, IPathService)
 ], PromptsService);
 class CachedPromise extends Disposable {
   static {

@@ -465,18 +465,18 @@ let PreferencesService = class PreferencesService2 extends Disposable {
   }
   getMostCommonlyUsedSettings() {
     return [
-      "files.autoSave",
       "editor.fontSize",
+      "editor.formatOnSave",
+      "files.autoSave",
+      "editor.defaultFormatter",
       "editor.fontFamily",
-      "editor.tabSize",
-      "editor.renderWhitespace",
-      "editor.cursorStyle",
-      "editor.multiCursorModifier",
-      "editor.insertSpaces",
       "editor.wordWrap",
+      "chat.agent.maxRequests",
       "files.exclude",
-      "files.associations",
-      "workbench.editor.enablePreview"
+      "workbench.colorTheme",
+      "editor.tabSize",
+      "editor.mouseWheelZoom",
+      "editor.formatOnPaste"
     ];
   }
   async revealSetting(settingKey, edit, editor, settingsResource) {

@@ -12,6 +12,7 @@ export declare namespace ChatContextKeys {
     const currentlyEditingInput: RawContextKey<boolean>;
     const isResponse: RawContextKey<boolean>;
     const isRequest: RawContextKey<boolean>;
+    const isPendingRequest: RawContextKey<boolean>;
     const itemId: RawContextKey<string>;
     const lastItemId: RawContextKey<string[]>;
     const editApplied: RawContextKey<boolean>;
@@ -53,6 +54,7 @@ export declare namespace ChatContextKeys {
     const chatSessionType: RawContextKey<string>;
     const hasFileAttachments: RawContextKey<boolean>;
     const chatSessionIsEmpty: RawContextKey<boolean>;
+    const hasPendingRequests: RawContextKey<boolean>;
     const remoteJobCreating: RawContextKey<boolean>;
     const hasRemoteCodingAgent: RawContextKey<boolean>;
     const hasCanDelegateProviders: RawContextKey<boolean>;

@@ -66,7 +66,7 @@ let WorkspacePickerActionItem = class WorkspacePickerActionItem2 extends ChatInp
       actionProvider,
       actionBarActionProvider,
       showItemKeybindings: false,
-      reporter: { name: "ChatWorkspacePicker", includeOptions: false }
+      reporter: { id: "ChatWorkspacePicker", name: "ChatWorkspacePicker", includeOptions: false }
     };
     super(action, workspacePickerOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
     this.delegate = delegate;

@@ -784,6 +784,9 @@ let ChatViewPane = class ChatViewPane2 extends ViewPane {
     this.logService.trace(`ChatViewPane#shouldShowWelcome() = ${shouldShow}: hasCoreAgent=${hasCoreAgent} hasDefaultAgent=${hasDefaultAgent} || noViewModel=${!this._widget?.viewModel} && noPersistedSessions=${noPersistedSessions}`);
     return !!shouldShow;
   }
+  getMatchingWelcomeView() {
+    return this.welcomeController?.getMatchingWelcomeView();
+  }
   getActionsContext() {
     return this._widget?.viewModel ? {
       sessionResource: this._widget.viewModel.sessionResource,

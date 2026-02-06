@@ -10,6 +10,7 @@ export interface IChatTodo {
 export interface IChatTodoListStorage {
     getTodoList(sessionResource: URI): IChatTodo[];
     setTodoList(sessionResource: URI, todoList: IChatTodo[]): void;
+    migrateTodoList(oldSessionResource: URI, newSessionResource: URI): void;
 }
 export declare const IChatTodoListService: import("../../../../../platform/instantiation/common/instantiation.js").ServiceIdentifier<IChatTodoListService>;
 export interface IChatTodoListService {
@@ -17,6 +18,7 @@ export interface IChatTodoListService {
     readonly onDidUpdateTodos: Event<URI>;
     getTodos(sessionResource: URI): IChatTodo[];
     setTodos(sessionResource: URI, todos: IChatTodo[]): void;
+    migrateTodos(oldSessionResource: URI, newSessionResource: URI): void;
 }
 export declare class ChatTodoListStorage implements IChatTodoListStorage {
     private memento;
@@ -25,6 +27,7 @@ export declare class ChatTodoListStorage implements IChatTodoListStorage {
     private setSessionData;
     getTodoList(sessionResource: URI): IChatTodo[];
     setTodoList(sessionResource: URI, todoList: IChatTodo[]): void;
+    migrateTodoList(oldSessionResource: URI, newSessionResource: URI): void;
     private toKey;
 }
 export declare class ChatTodoListService extends Disposable implements IChatTodoListService {
@@ -35,4 +38,5 @@ export declare class ChatTodoListService extends Disposable implements IChatTodo
     constructor(storageService: IStorageService);
     getTodos(sessionResource: URI): IChatTodo[];
     setTodos(sessionResource: URI, todos: IChatTodo[]): void;
+    migrateTodos(oldSessionResource: URI, newSessionResource: URI): void;
 }

@@ -212,6 +212,9 @@ let BrowserViewModel = class BrowserViewModel2 extends Disposable {
   async stopFindInPage(keepSelection) {
     return this.browserViewService.stopFindInPage(this.id, keepSelection);
   }
+  async getSelectedText() {
+    return this.browserViewService.getSelectedText(this.id);
+  }
   async clearStorage() {
     return this.browserViewService.clearStorage(this.id);
   }

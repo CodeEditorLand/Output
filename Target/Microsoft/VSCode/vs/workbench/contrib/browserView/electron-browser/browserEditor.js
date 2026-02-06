@@ -21,12 +21,13 @@ import { RawContextKey, IContextKeyService } from "../../../../platform/contextk
 import { MenuId } from "../../../../platform/actions/common/actions.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
 import { BrowserViewUri } from "../../../../platform/browserView/common/browserViewUri.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { BrowserNewPageLocation } from "../../../../platform/browserView/common/browserView.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { BrowserOverlayManager, BrowserOverlayType } from "./overlayManager.js";
@@ -46,6 +47,7 @@ import { Codicon } from "../../../../base/common/codicons.js";
 import { encodeBase64 } from "../../../../base/common/buffer.js";
 import { getDisplayNameFromOuterHTML } from "../../../../platform/browserElements/common/browserElements.js";
 import { logBrowserOpen } from "./browserViewTelemetry.js";
+import { URI } from "../../../../base/common/uri.js";
 const CONTEXT_BROWSER_CAN_GO_BACK = new RawContextKey("browserCanGoBack", false, localize("browser.canGoBack", "Whether the browser can go back"));
 const CONTEXT_BROWSER_CAN_GO_FORWARD = new RawContextKey("browserCanGoForward", false, localize("browser.canGoForward", "Whether the browser can go forward"));
 const CONTEXT_BROWSER_FOCUSED = new RawContextKey("browserFocused", true, localize("browser.editorFocused", "Whether the browser editor is focused"));
@@ -218,7 +220,11 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     });
     this.setBackgroundImage(this._model.screenshot);
     if (context.newInGroup) {
-      this.focusUrlInput();
+      if (this._model.url) {
+        this._browserContainer.focus();
+      } else {
+        this.focusUrlInput();
+      }
     }
     this._inputDisposables.add(this._model.onDidChangeVisibility(() => this.doScreenshot()));
     this._inputDisposables.add(this._model.onDidKeyCommand((keyEvent) => {
@@ -240,16 +246,29 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     this._inputDisposables.add(this._model.onDidChangeDevToolsState((e) => {
       this._devToolsOpenContext.set(e.isDevToolsOpen);
     }));
-    this._inputDisposables.add(this._model.onDidRequestNewPage(({ url, name, background }) => {
-      logBrowserOpen(this.telemetryService, background ? "browserLinkBackground" : "browserLinkForeground");
-      const browserUri = BrowserViewUri.forUrl(url, name ? `${input.id}-${name}` : void 0);
+    this._inputDisposables.add(this._model.onDidRequestNewPage(({ resource, location, position }) => {
+      logBrowserOpen(this.telemetryService, (() => {
+        switch (location) {
+          case BrowserNewPageLocation.Background:
+            return "browserLinkBackground";
+          case BrowserNewPageLocation.Foreground:
+            return "browserLinkForeground";
+          case BrowserNewPageLocation.NewWindow:
+            return "browserLinkNewWindow";
+        }
+      })());
+      const targetGroup = location === BrowserNewPageLocation.NewWindow ? AUX_WINDOW_GROUP : this.group;
       this.editorService.openEditor({
-        resource: browserUri,
+        resource: URI.from(resource),
         options: {
           pinned: true,
-          inactive: background
+          inactive: location === BrowserNewPageLocation.Background,
+          auxiliary: {
+            bounds: position,
+            compact: true
+          }
         }
-      }, this.group);
+      }, targetGroup);
     }));
     this._inputDisposables.add(this.overlayManager.onDidChangeOverlayState(() => {
       this.checkOverlays();
@@ -393,10 +412,12 @@ let BrowserEditor = class BrowserEditor2 extends EditorPane {
     return this._model?.clearStorage();
   }
   /**
-   * Show the find widget
+   * Show the find widget, optionally pre-populated with selected text from the browser view
    */
-  showFind() {
-    this._findWidget.value.reveal();
+  async showFind() {
+    const selectedText = await this._model?.getSelectedText();
+    const textToReveal = selectedText && !/[\r\n]/.test(selectedText) ? selectedText : void 0;
+    this._findWidget.value.reveal(textToReveal);
     this._findWidget.value.layout(this._findWidgetContainer.clientWidth);
   }
   /**

@@ -233,6 +233,7 @@ export declare class MenuId {
     static readonly ChatWelcomeContext: MenuId;
     static readonly ChatMessageFooter: MenuId;
     static readonly ChatExecute: MenuId;
+    static readonly ChatExecuteQueue: MenuId;
     static readonly ChatInput: MenuId;
     static readonly ChatInputSide: MenuId;
     static readonly ChatModePicker: MenuId;
@@ -294,6 +295,7 @@ export declare class MenuId {
 }
 export interface IMenuActionOptions {
     arg?: unknown;
+    args?: unknown[];
     shouldForwardArgs?: boolean;
     renderShortTitle?: boolean;
 }

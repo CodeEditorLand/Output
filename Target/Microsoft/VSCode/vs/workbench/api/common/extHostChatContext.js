@@ -77,11 +77,15 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
     if (!result) {
       return void 0;
     }
+    if (result.label === void 0 && result.resourceUri === void 0) {
+      throw new Error("ChatContextItem must have either a label or a resourceUri");
+    }
     const itemHandle = this._addTrackedItem(handle, result);
     const item = {
       handle: itemHandle,
       icon: result.icon,
       label: result.label,
+      resourceUri: result.resourceUri,
       modelDescription: result.modelDescription,
       tooltip: result.tooltip ? MarkdownString.from(result.tooltip) : void 0,
       value: options.withValue ? result.value : void 0,
@@ -221,11 +225,15 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
   _convertItems(handle, items) {
     const result = [];
     for (const item of items) {
+      if (item.label === void 0 && item.resourceUri === void 0) {
+        throw new Error("ChatContextItem must have either a label or a resourceUri");
+      }
       const itemHandle = this._addTrackedItem(handle, item);
       result.push({
         handle: itemHandle,
         icon: item.icon,
         label: item.label,
+        resourceUri: item.resourceUri,
         modelDescription: item.modelDescription,
         tooltip: item.tooltip ? MarkdownString.from(item.tooltip) : void 0,
         value: item.value,
@@ -241,6 +249,7 @@ let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
         handle: context.handle,
         icon: extResult.icon,
         label: extResult.label,
+        resourceUri: extResult.resourceUri,
         modelDescription: extResult.modelDescription,
         tooltip: extResult.tooltip ? MarkdownString.from(extResult.tooltip) : void 0,
         value: extResult.value,

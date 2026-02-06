@@ -7,6 +7,7 @@ import { ChatTreeItem } from '../../chat.js';
 import './media/chatQuestionCarousel.css';
 export interface IChatQuestionCarouselOptions {
     onSubmit: (answers: Map<string, unknown> | undefined) => void;
+    shouldAutoFocus?: boolean;
 }
 export declare class ChatQuestionCarouselPart extends Disposable implements IChatContentPart {
     private readonly carousel;
@@ -35,7 +36,7 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * that should be disposed when transitioning to summary view.
      */
     private readonly _interactiveUIStore;
-    constructor(carousel: IChatQuestionCarousel, _context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions);
+    constructor(carousel: IChatQuestionCarousel, context: IChatContentPartRenderContext, _options: IChatQuestionCarouselOptions);
     /**
      * Saves the current question's answer to the answers map.
      */
@@ -100,7 +101,7 @@ export declare class ChatQuestionCarouselPart extends Disposable implements ICha
      * Formats an answer for display in the summary.
      */
     private formatAnswerForSummary;
-    hasSameContent(other: IChatRendererContent, _followingContent: IChatRendererContent[], _element: ChatTreeItem): boolean;
+    hasSameContent(other: IChatRendererContent, _followingContent: IChatRendererContent[], element: ChatTreeItem): boolean;
     addDisposable(disposable: {
         dispose(): void;
     }): void;

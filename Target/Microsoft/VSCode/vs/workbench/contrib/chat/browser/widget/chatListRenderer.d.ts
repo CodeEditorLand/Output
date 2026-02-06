@@ -158,6 +158,7 @@ export declare class ChatListItemRenderer extends Disposable implements ITreeRen
      */
     private clearRenderedParts;
     private renderChatTreeItem;
+    private renderPendingDivider;
     private renderDetail;
     private renderConfirmationAction;
     private renderAvatar;

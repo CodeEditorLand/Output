@@ -337,7 +337,7 @@ let InlineCompletionsSource = class InlineCompletionsSource2 extends Disposable 
       } finally {
         store.dispose();
         decreaseLoadingCount();
-        this.sendInlineCompletionsRequestTelemetry(requestResponseInfo);
+        this._sendInlineCompletionsRequestTelemetry(requestResponseInfo);
       }
       return true;
     })();
@@ -391,7 +391,7 @@ let InlineCompletionsSource = class InlineCompletionsSource2 extends Disposable 
     s.inlineCompletions.dispose();
     s.suggestWidgetInlineCompletions.dispose();
   }
-  sendInlineCompletionsRequestTelemetry(requestResponseInfo) {
+  _sendInlineCompletionsRequestTelemetry(requestResponseInfo) {
     if (!this._sendRequestData.get() && !this._contextKeyService.getContextKeyValue("isRunningUnificationExperiment")) {
       return;
     }
@@ -623,6 +623,7 @@ function moveToFront(item, items) {
 }
 __name(moveToFront, "moveToFront");
 export {
-  InlineCompletionsSource
+  InlineCompletionsSource,
+  InlineCompletionsState
 };
 //# sourceMappingURL=inlineCompletionsSource.js.map

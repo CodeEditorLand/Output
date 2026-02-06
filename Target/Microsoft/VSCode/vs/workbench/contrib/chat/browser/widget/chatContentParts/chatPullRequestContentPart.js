@@ -38,7 +38,7 @@ let ChatPullRequestContentPart = class ChatPullRequestContentPart2 extends Dispo
     this._register(addDisposableListener(titleLink, "click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.openerService.open(this.pullRequestContent.uri);
+      this.openerService.open(this.pullRequestContent.uri, { allowCommands: true });
     }));
   }
   hasSameContent(other, followingContent, element) {

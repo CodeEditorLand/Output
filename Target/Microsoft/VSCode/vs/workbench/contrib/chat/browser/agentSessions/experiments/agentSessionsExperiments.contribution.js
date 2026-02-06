@@ -74,6 +74,12 @@ let AgentSessionReadyContribution = class AgentSessionReadyContribution2 extends
         this._checkSession(currentWidget.viewModel?.sessionResource);
       }
     }));
+    this._register(this.agentSessionsService.model.onDidChangeSessions(() => {
+      const currentWidget = this.chatWidgetService.getAllWidgets().find((w) => w.location === ChatAgentLocation.Chat);
+      if (currentWidget) {
+        this._checkSession(currentWidget.viewModel?.sessionResource);
+      }
+    }));
   }
   _watchWidget(widget) {
     this._widgetDisposables.clear();
@@ -85,6 +91,16 @@ let AgentSessionReadyContribution = class AgentSessionReadyContribution2 extends
   _checkSession(sessionResource) {
     if (sessionResource?.toString() !== this._watchedSessionResource?.toString()) {
       this._suppressSessionReady = false;
+    }
+    if (this.agentSessionProjectionService.isActive) {
+      const activeSession = this.agentSessionProjectionService.activeSession;
+      if (sessionResource && activeSession && sessionResource.toString() !== activeSession.resource.toString()) {
+        const newSession = this.agentSessionsService.getSession(sessionResource);
+        if (newSession) {
+          this.agentSessionProjectionService.enterProjection(newSession);
+        }
+      }
+      return;
     }
     this._updateSessionReadyState(sessionResource);
   }
@@ -102,7 +118,6 @@ let AgentSessionReadyContribution = class AgentSessionReadyContribution2 extends
     }
     if (this.agentSessionProjectionService.isActive) {
       this._clearEntriesWatcher();
-      this.agentTitleBarStatusService.exitSessionReadyMode();
       return;
     }
     if (!sessionResource) {

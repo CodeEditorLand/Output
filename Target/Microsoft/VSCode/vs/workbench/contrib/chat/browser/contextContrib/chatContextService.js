@@ -19,6 +19,7 @@ import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
 import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
 import { Disposable, DisposableMap } from "../../../../../base/common/lifecycle.js";
+import { basename } from "../../../../../base/common/resources.js";
 const IChatContextService = createDecorator("chatContextService");
 let ChatContextService = class ChatContextService2 extends Disposable {
   static {
@@ -86,11 +87,12 @@ let ChatContextService = class ChatContextService2 extends Disposable {
         if (!item.value) {
           continue;
         }
+        const derivedLabel = item.label ?? (item.resourceUri ? basename(item.resourceUri) : "Unknown");
         items.push({
           value: item.value,
-          name: item.label,
+          name: derivedLabel,
           modelDescription: item.modelDescription,
-          id: item.label,
+          id: derivedLabel,
           kind: "workspace"
         });
       }
@@ -118,11 +120,14 @@ let ChatContextService = class ChatContextService2 extends Disposable {
     if (!context) {
       return;
     }
+    const effectiveResourceUri = context.resourceUri ?? uri;
+    const derivedLabel = context.label ?? basename(effectiveResourceUri);
     const contextValue = {
       value: void 0,
-      name: context.label,
+      name: derivedLabel,
       icon: context.icon,
       uri,
+      resourceUri: context.resourceUri,
       modelDescription: context.modelDescription,
       tooltip: context.tooltip,
       commandId: context.command?.id,
@@ -173,23 +178,27 @@ let ChatContextService = class ChatContextService2 extends Disposable {
       }, "picks");
       return {
         picks: picks().then((items) => {
-          return items.map((item) => ({
-            label: item.label,
-            iconClass: ThemeIcon.asClassName(item.icon),
-            asAttachment: /* @__PURE__ */ __name(async () => {
-              let contextValue = item;
-              if (contextValue.value === void 0 && providerEntry?.explicitProvider) {
-                contextValue = await providerEntry.explicitProvider.resolveChatContext(item, CancellationToken.None);
-              }
-              return {
-                kind: "generic",
-                id: contextValue.label,
-                name: contextValue.label,
-                icon: contextValue.icon,
-                value: contextValue.value
-              };
-            }, "asAttachment")
-          }));
+          return items.map((item) => {
+            const derivedLabel = item.label ?? (item.resourceUri ? basename(item.resourceUri) : "Unknown");
+            return {
+              label: derivedLabel,
+              iconClass: item.icon ? ThemeIcon.asClassName(item.icon) : void 0,
+              asAttachment: /* @__PURE__ */ __name(async () => {
+                let contextValue = item;
+                if (contextValue.value === void 0 && providerEntry?.explicitProvider) {
+                  contextValue = await providerEntry.explicitProvider.resolveChatContext(item, CancellationToken.None);
+                }
+                const resolvedLabel = contextValue.label ?? (contextValue.resourceUri ? basename(contextValue.resourceUri) : "Unknown");
+                return {
+                  kind: "generic",
+                  id: resolvedLabel,
+                  name: resolvedLabel,
+                  icon: contextValue.icon,
+                  value: contextValue.value
+                };
+              }, "asAttachment")
+            };
+          });
         }),
         placeholder: title
       };

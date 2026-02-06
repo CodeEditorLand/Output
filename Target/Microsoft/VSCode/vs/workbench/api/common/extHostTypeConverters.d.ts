@@ -25,6 +25,7 @@ import { IChatRequestModeInstructions } from '../../contrib/chat/common/model/ch
 import { IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatExtensionsContent, IChatFollowup, IChatMarkdownContent, IChatMoveMessage, IChatMultiDiffDataSerialized, IChatProgressMessage, IChatPullRequestContent, IChatQuestionCarousel, IChatResponseCodeblockUriPart, IChatTaskDto, IChatTaskResult, IChatTextEdit, IChatThinkingPart, IChatToolInvocationSerialized, IChatTreeData, IChatUserActionEvent, IChatWarningMessage, IChatWorkspaceEdit } from '../../contrib/chat/common/chatService/chatService.js';
 import { IChatRequestVariableEntry } from '../../contrib/chat/common/attachments/chatVariableEntries.js';
 import { ChatAgentLocation } from '../../contrib/chat/common/constants.js';
+import { IHookResult } from '../../contrib/chat/common/hooksExecutionService.js';
 import { IToolResult, ToolDataSource } from '../../contrib/chat/common/tools/languageModelToolsService.js';
 import * as chatProvider from '../../contrib/chat/common/languageModels.js';
 import { IDebugVisualizationTreeItem } from '../../contrib/debug/common/debug.js';
@@ -625,4 +626,7 @@ export declare namespace McpServerDefinition {
 }
 export declare namespace SourceControlInputBoxValidationType {
     function from(type: number): InputValidationType;
+}
+export declare namespace ChatHookResult {
+    function to(result: IHookResult): vscode.ChatHookResult;
 }

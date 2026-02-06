@@ -18,6 +18,7 @@ import { Codicon } from "../../../../../base/common/codicons.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../base/common/map.js";
+import { safeStringify } from "../../../../../base/common/objects.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
@@ -286,9 +287,9 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
     this.registerListeners();
   }
   registerListeners() {
-    this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType: provider }) => this.resolve(provider)));
+    this._register(this.chatSessionsService.onDidChangeItemsProviders(({ chatSessionType }) => this.resolve(chatSessionType)));
     this._register(this.chatSessionsService.onDidChangeAvailability(() => this.resolve(void 0)));
-    this._register(this.chatSessionsService.onDidChangeSessionItems((provider) => this.resolve(provider)));
+    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => this.resolve(chatSessionType)));
     this._register(this.storageService.onWillSaveState(() => {
       this.cache.saveCachedSessions(Array.from(this._sessions.values()));
       this.cache.saveSessionStates(this.sessionStates);
@@ -359,7 +360,8 @@ let AgentSessionsModel = class AgentSessionsModel2 extends Disposable {
           status: session.status ?? 1,
           archived: session.archived,
           timing: session.timing,
-          changes: normalizedChanges
+          changes: normalizedChanges,
+          metadata: session.metadata
         }));
       }
     }
@@ -500,11 +502,12 @@ let AgentSessionsCache = class AgentSessionsCache2 {
       status: session.status,
       archived: session.archived,
       timing: session.timing,
-      changes: session.changes
+      changes: session.changes,
+      metadata: session.metadata
     }));
     this.storageService.store(
       AgentSessionsCache_1.SESSIONS_STORAGE_KEY,
-      JSON.stringify(serialized),
+      safeStringify(serialized),
       1,
       1
       /* StorageTarget.MACHINE */
@@ -543,7 +546,8 @@ let AgentSessionsCache = class AgentSessionsCache2 {
           originalUri: change.originalUri ? URI.revive(change.originalUri) : void 0,
           insertions: change.insertions,
           deletions: change.deletions
-        })) : session.changes
+        })) : session.changes,
+        metadata: session.metadata
       }));
     } catch {
       return [];

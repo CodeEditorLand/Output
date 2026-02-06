@@ -26,6 +26,10 @@ function isResponseVM(item) {
   return !!item && typeof item.setVote !== "undefined";
 }
 __name(isResponseVM, "isResponseVM");
+function isPendingDividerVM(item) {
+  return !!item && typeof item === "object" && item.kind === "pendingDivider";
+}
+__name(isPendingDividerVM, "isPendingDividerVM");
 function isChatTreeItem(item) {
   return isRequestVM(item) || isResponseVM(item);
 }
@@ -78,6 +82,7 @@ let ChatViewModel = class ChatViewModel2 extends Disposable {
       }
     });
     this._register(_model.onDidDispose(() => this._onDidDisposeModel.fire()));
+    this._register(_model.onDidChangePendingRequests(() => this._onDidChange.fire(null)));
     this._register(_model.onDidChange((e) => {
       if (e.kind === "addRequest") {
         const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, e.request);
@@ -113,9 +118,34 @@ let ChatViewModel = class ChatViewModel2 extends Disposable {
     this._items.push(response);
   }
   getItems() {
-    const items = this._items.filter((item) => !item.shouldBeRemovedOnSend || item.shouldBeRemovedOnSend.afterUndoStop);
+    let items = this._items.filter((item) => !item.shouldBeRemovedOnSend || item.shouldBeRemovedOnSend.afterUndoStop);
     if (this._options?.maxVisibleItems !== void 0 && items.length > this._options.maxVisibleItems) {
-      return items.slice(-this._options.maxVisibleItems);
+      items = items.slice(-this._options.maxVisibleItems);
+    }
+    const pendingRequests = this._model.getPendingRequests();
+    if (pendingRequests.length > 0) {
+      const steeringRequests = pendingRequests.filter(
+        (p) => p.kind === "steering"
+        /* ChatRequestQueueKind.Steering */
+      );
+      const queuedRequests = pendingRequests.filter(
+        (p) => p.kind === "queued"
+        /* ChatRequestQueueKind.Queued */
+      );
+      if (steeringRequests.length > 0) {
+        items.push({ kind: "pendingDivider", id: "pending-divider-steering", sessionResource: this._model.sessionResource, isComplete: true, dividerKind: "steering", currentRenderedHeight: void 0 });
+        for (const pending of steeringRequests) {
+          const requestVM = this.instantiationService.createInstance(ChatRequestViewModel, pending.request, pending.kind);
+          items.push(requestVM);
+        }
+      }
+      if (queuedRequests.length > 0) {
+        items.push({ kind: "pendingDivider", id: "pending-divider-queued", sessionResource: this._model.sessionResource, isComplete: true, dividerKind: "queued", currentRenderedHeight: void 0 });
+        for (const pending of queuedRequests) {
+          const requestVM = this.instantiationService.createInstance(ChatRequestViewModel, pending.request, pending.kind);
+          items.push(requestVM);
+        }
+      }
     }
     return items;
   }
@@ -200,8 +230,12 @@ class ChatRequestViewModel {
   get timestamp() {
     return this._model.timestamp;
   }
-  constructor(_model) {
+  get pendingKind() {
+    return this._pendingKind;
+  }
+  constructor(_model, _pendingKind) {
     this._model = _model;
+    this._pendingKind = _pendingKind;
   }
 }
 let ChatResponseViewModel = class ChatResponseViewModel2 extends Disposable {
@@ -358,6 +392,7 @@ export {
   ChatViewModel,
   assertIsResponseVM,
   isChatTreeItem,
+  isPendingDividerVM,
   isRequestVM,
   isResponseVM
 };

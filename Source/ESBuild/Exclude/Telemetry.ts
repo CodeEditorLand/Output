@@ -17,7 +17,7 @@ export default (Prefix: string) => [
 
 	`${Prefix}/platform/telemetry/common/telemetry.js`,
 
-	`${Prefix}/platform/telemetry/common/telemetryIpc.js`,
+	`${Prefix}/platform/telemetry/common/telemetryIPC.js`,
 
 	`${Prefix}/platform/telemetry/common/telemetryLogAppender.js`,
 

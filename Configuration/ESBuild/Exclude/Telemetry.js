@@ -10,7 +10,7 @@ var Telemetry_default = /* @__PURE__ */ __name((Prefix) => [
   `${Prefix}/platform/telemetry/common/remoteTelemetryChannel.js`,
   `${Prefix}/platform/telemetry/common/serverTelemetryService.js`,
   `${Prefix}/platform/telemetry/common/telemetry.js`,
-  `${Prefix}/platform/telemetry/common/telemetryIpc.js`,
+  `${Prefix}/platform/telemetry/common/telemetryIPC.js`,
   `${Prefix}/platform/telemetry/common/telemetryLogAppender.js`,
   `${Prefix}/platform/telemetry/common/telemetryService.js`,
   `${Prefix}/platform/telemetry/common/telemetryUtils.js`,

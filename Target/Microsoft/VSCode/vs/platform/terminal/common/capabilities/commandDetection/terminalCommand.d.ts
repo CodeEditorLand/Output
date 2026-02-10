@@ -29,11 +29,11 @@ export declare class TerminalCommand implements ITerminalCommand {
     get isTrusted(): boolean;
     get timestamp(): number;
     get duration(): number;
-    get promptStartMarker(): IMarker | undefined;
-    get marker(): IMarker | undefined;
+    get promptStartMarker(): any;
+    get marker(): any;
     get endMarker(): IMarker | undefined;
     set endMarker(value: IMarker | undefined);
-    get executedMarker(): IMarker | undefined;
+    get executedMarker(): any;
     get aliases(): string[][] | undefined;
     get wasReplayed(): boolean | undefined;
     get cwd(): string | undefined;

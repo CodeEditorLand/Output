@@ -3,7 +3,7 @@ import * as glob from '../../../../base/common/glob.js';
 import { IFileQuery, IFolderQuery } from '../common/search.js';
 export declare function spawnRipgrepCmd(config: IFileQuery, folderQuery: IFolderQuery, includePattern?: glob.IExpression, excludePattern?: glob.IExpression, numThreads?: number): {
     cmd: cp.ChildProcessWithoutNullStreams;
-    rgDiskPath: string;
+    rgDiskPath: any;
     siblingClauses: glob.IExpression;
     rgArgs: {
         args: string[];

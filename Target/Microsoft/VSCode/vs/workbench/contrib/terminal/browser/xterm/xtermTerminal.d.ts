@@ -65,8 +65,8 @@ export declare class XtermTerminal extends Disposable implements IXtermTerminal,
     get lastInputEvent(): string | undefined;
     private _progressState;
     get progressState(): IProgressState;
-    get buffer(): import("@xterm/xterm").IBufferNamespace;
-    get cols(): number;
+    get buffer(): any;
+    get cols(): any;
     private _markNavigationAddon;
     private _shellIntegrationAddon;
     private _decorationAddon;

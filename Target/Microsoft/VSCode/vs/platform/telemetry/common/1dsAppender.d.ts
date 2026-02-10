@@ -18,7 +18,7 @@ export declare abstract class AbstractOneDataSystemAppender implements ITelemetr
     constructor(_isInternalTelemetry: boolean, _eventPrefix: string, _defaultData: {
         [key: string]: unknown;
     } | null, iKeyOrClientFactory: string | (() => IAppInsightsCore), // allow factory function for testing
-    _xhrOverride?: IXHROverride | undefined);
+    _xhrOverride?: IXHROverride);
     private _withAIClient;
     log(eventName: string, data?: unknown): void;
     flush(): Promise<void>;

@@ -1,7 +1,7 @@
 import type { BuildOptions } from "esbuild";
-export declare const On: boolean;
 export declare const Clean: boolean;
-export declare const Bundle: boolean;
+export declare const Meta: boolean;
+export declare const On: boolean;
 /**
  * @module ESBuild
  *

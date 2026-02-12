@@ -1,6 +1,4 @@
 import type { BuildOptions } from "esbuild";
-export declare const On: boolean;
-export declare const Bundle: boolean;
 export declare const Dependency: string;
 export declare const Merge: <Ts extends readonly unknown[]>(...objects: Ts) => import("deepmerge-ts").DeepMergeHKT<Ts, Readonly<{
     DeepMergeRecordsURI: "DeepMergeRecordsDefaultURI";

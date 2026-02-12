@@ -1,7 +1,9 @@
-import type { BuildOptions } from "esbuild";
+import type { BuildOptions, LogLevel } from "esbuild";
 export declare const Browser: boolean;
 export declare const Clean: boolean;
 export declare const Dependency: string;
+export declare const Level: LogLevel;
+export declare const Meta: boolean;
 export declare const On: boolean;
 /**
  * @module ESBuild

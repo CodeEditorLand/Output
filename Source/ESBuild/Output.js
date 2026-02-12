@@ -1,7 +1,7 @@
+export const Clean = process.env["Clean"] === "true";
+export const Meta = process.env["Meta"] === "true";
 export const On = process.env["NODE_ENV"] === "development" ||
     process.env["TAURI_ENV_DEBUG"] === "true";
-export const Clean = process.env["Clean"] === "true";
-export const Bundle = process.env["Bundle"] === "true";
 /**
  * @module ESBuild
  *
@@ -9,8 +9,8 @@ export const Bundle = process.env["Bundle"] === "true";
 export default {
     color: true,
     format: "esm",
-    logLevel: "debug",
-    metafile: true,
+    logLevel: On ? "debug" : "silent",
+    metafile: Meta,
     minify: !On,
     outdir: "Configuration",
     platform: "node",

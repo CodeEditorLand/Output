@@ -1,10 +1,14 @@
-import type { BuildOptions } from "esbuild";
+import type { BuildOptions, LogLevel } from "esbuild";
 
 export const Browser = process.env["Browser"] === "true";
 
 export const Clean = process.env["Clean"] === "true";
 
 export const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";
+
+export const Level = (process.env["Level"] as LogLevel) ?? "debug";
+
+export const Meta = process.env["Meta"] === "true";
 
 export const On =
 	process.env["NODE_ENV"] === "development" ||
@@ -19,9 +23,9 @@ export default {
 
 	format: "esm",
 
-	logLevel: "debug",
+	logLevel: Level,
 
-	metafile: true,
+	metafile: Meta,
 
 	minify: !On,
 

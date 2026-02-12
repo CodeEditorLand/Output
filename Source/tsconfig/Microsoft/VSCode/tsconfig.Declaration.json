@@ -34,6 +34,8 @@
 
 		"noImplicitReturns": true,
 
+		"noImplicitAny": true,
+
 		"noUncheckedSideEffectImports": true,
 
 		"noUnusedLocals": true,

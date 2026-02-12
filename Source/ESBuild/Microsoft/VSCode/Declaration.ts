@@ -1,9 +1,5 @@
 import type { BuildOptions } from "esbuild";
 
-export const On = (await import("../../Output.js")).On;
-
-export const Bundle = (await import("../../Output.js")).Bundle;
-
 export const Dependency = (await import("../../../ESBuild.js")).Dependency;
 
 export const Merge = (await import("deepmerge-ts")).deepmergeCustom({
@@ -23,7 +19,7 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 
 			outbase: "../../Dependency/Microsoft/Dependency/Editor/src",
 
-			tsconfig: `Configuration/tsconfig/${Dependency}/Declaration.json`,
+			tsconfig: `Configuration/tsconfig/${Dependency}/tsconfig.Declaration.json`,
 
 			plugins: [],
 

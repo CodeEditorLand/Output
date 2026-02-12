@@ -145,21 +145,11 @@ export default async (Current: BuildOptions): Promise<BuildOptions> =>
 							case On === true:
 								onEnd(async () => {
 									await (
-										await import(
-											"@playform/build/Target/Function/Exec.js"
-										)
+										await import("@playform/build/Target/Function/Exec.js")
 									).default(
 										`Build '../../Dependency/Microsoft/Dependency/Editor/src/**/*.d.ts' \
 											--ESBuild Configuration/ESBuild/${Dependency}/Declaration.js \
-											--TypeScript Configuration/tsconfig/${Dependency}/Declaration.json`,
-									);
-
-									await (
-										await import(
-											"@playform/build/Target/Function/Exec.js"
-										)
-									).default(
-										`tsc -p Configuration/tsconfig/${Dependency}/Declaration.json`,
+											--TypeScript Configuration/tsconfig/${Dependency}/tsconfig.Declaration.json`,
 									);
 								});
 
